@@ -1,0 +1,23 @@
+Package: DPmixGPD
+Type: Package
+Title: Dirichlet Process Mixtures with Optional GPD Tail
+Version: 0.0.1
+Authors@R: person("Arnab", "Aich", role = c("aut", "cre"), email = "arnab@example.com")
+Description: Experimental framework for Dirichlet process mixture regression and unconditional models
+    with flexible kernels (gamma, lognormal, normal, Laplace, inverse Gaussian, Amoroso)
+    and optional generalized Pareto (GPD) tail extension.
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Depends: R (>= 4.0.0)
+Imports:
+    stats,
+    coda,
+    parallel,
+    nimble
+Suggests:
+    knitr,
+    rmarkdown,
+    ggplot2
+RoxygenNote: 7.3.3
+VignetteBuilder: knitr

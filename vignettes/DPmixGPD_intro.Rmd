@@ -1,0 +1,66 @@
+---
+title: "Getting started with DPmixGPD"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with DPmixGPD}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+```r
+library(DPmixGPD)
+set.seed(1)
+
+dat <- data.frame(
+  y = rgamma(200, shape = 2, scale = 1),
+  x = rnorm(200)
+)
+
+fit <- fit_mixgpd(
+  y ~ x,
+  data   = dat,
+  kernel = "gamma",
+  dp_rep = "stick_breaking",
+  dp_ctrl = list(K = 5),
+  mcmc   = list(n_iter = 2000, burn_in = 1000, chains = 2),
+  alpha  = 0.05
+)
+
+print(fit)
+summary(fit)
+
+# Access MCMC draws
+draws <- as_mcmc(fit)
+plot(draws)
+
+# Change significance level for intervals
+fit2 <- fit_mixgpd(
+  y ~ x,
+  data   = dat,
+  kernel = "gamma",
+  dp_rep = "stick_breaking",
+  dp_ctrl = list(K = 5),
+  mcmc   = list(n_iter = 2000, burn_in = 1000, chains = 2),
+  alpha  = 0.1
+)
+
+summary(fit2)
+```
+
+```r
+# Pareto kernel example (response-only)
+y <- 1 / runif(300)
+
+fit_p <- fit_mixgpd_xy(
+  Y      = y,
+  X      = NULL,
+  kernel = "pareto",
+  dp_rep = "stick_breaking",
+  dp_ctrl = list(K = 5),
+  mcmc   = list(n_iter = 1500, burn_in = 500, chains = 1),
+  alpha  = 0.05
+)
+
+print(fit_p)
+summary(fit_p)
+```
