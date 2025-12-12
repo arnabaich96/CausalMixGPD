@@ -7,14 +7,15 @@
 fit_mixgpd(
   formula,
   data,
-  kernel = c("gamma", "lognormal", "normal", "laplace", "invgauss", "amoroso"),
-  tail = c("none", "gpd"),
+  kernel = c("gamma", "lognormal", "normal", "laplace", "inverse_gaussian", "amoroso",
+    "pareto"),
   dp_rep = c("stick_breaking", "crp"),
   dp_ctrl = list(),
   priors = list(),
   trans = list(),
   mcmc = list(),
-  alpha = 0.05
+  alpha = 0.05,
+  seed = NULL
 )
 }
 \description{

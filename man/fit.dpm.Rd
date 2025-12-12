@@ -2,7 +2,7 @@
 % Please edit documentation in R/fit_dpm_wrappers.R
 \name{fit.dpm}
 \alias{fit.dpm}
-\title{Fit a Dirichlet process mixture model (no tail)}
+\title{Fit a Dirichlet process mixture model without a GPD tail}
 \usage{
 fit.dpm(
   formula,
@@ -15,9 +15,94 @@ fit.dpm(
   mcmc = list(),
   alpha = 0.05,
   trans = list(),
-  intercept = FALSE
+  intercept = TRUE
 )
 }
+\arguments{
+\item{formula}{A formula specifying the model, e.g. `y ~ x1 + x2`
+for regression or `y ~ 0` for an unconditional model with no covariates.}
+
+\item{data}{A `data.frame` containing the variables referenced
+in `formula`.}
+
+\item{kernel}{Character string selecting the bulk kernel for the
+mixture components. One of
+`"gamma"`, `"lognormal"`, `"normal"`, `"laplace"`,
+`"inverse_gaussian"`, `"amoroso"`, or `"pareto"`.}
+
+\item{dp_rep}{Character string selecting the Dirichlet process
+representation, either `"stick_breaking"` (truncated stick-breaking)
+or `"crp"` (Chinese restaurant process–style allocation).}
+
+\item{dp_ctrl}{List of control arguments for the DP representation,
+such as `K` (truncation level) when `dp_rep = "stick_breaking"`.}
+
+\item{priors}{Optional list of prior hyperparameters. The list
+structure depends on the chosen kernel and DP representation.}
+
+\item{mcmc}{List of MCMC control settings, typically including
+elements such as `n_iter`, `burn_in`, `thin`, and `chains`.}
+
+\item{alpha}{Nominal level used for summarizing posterior quantities
+(e.g., `alpha = 0.05` for 95% credible intervals).}
+
+\item{trans}{Optional list describing transformations to apply
+to covariates (e.g., centering/scaling). The exact structure is
+resolved internally.}
+
+\item{intercept}{Logical; if `TRUE` (default) an intercept column
+is included when there is at least one covariate. When there is
+only a single covariate, setting `intercept = TRUE` causes a
+column of ones to be prepended so that the design matrix has
+`(1, x)` rather than just `x`.}
+}
+\value{
+An object of class `"mixgpd_fit"` containing:
+  \itemize{
+    \item `call` – the matched call.
+    \item `formula`, `kernel`, `tail`, `dp_rep`, `priors`, `dp_ctrl`,
+          `trans`, `alpha` – model specification.
+    \item `spec` – internal model specification list passed to the
+          MCMC engine.
+    \item `N` – sample size.
+    \item `x_range` – covariate ranges used for extrapolation checks.
+    \item `mcmc` – MCMC configuration and diagnostics.
+    \item `mcmc_draws` – posterior draws as a matrix
+          (iterations × parameters).
+  }
+}
 \description{
-Fit a Dirichlet process mixture model (no tail)
+Fit a truncated Dirichlet process mixture model for a univariate
+response using a positive-support kernel (Gamma, lognormal, etc.)
+with optional covariates on the right-hand side of a formula.
+The model can be used for unconditional density estimation
+(`y ~ 0`) or for covariate-dependent density regression (`y ~ x1 + x2`).
+}
+\examples{
+\dontrun{
+set.seed(1)
+dat <- data.frame(
+  y  = rgamma(200, shape = 2, scale = 1),
+  x1 = rnorm(200),
+  x2 = rnorm(200)
+)
+
+# Unconditional density estimation
+fit0 <- fit.dpm(y ~ 0, data = dat,
+                kernel = "gamma",
+                dp_rep = "stick_breaking",
+                dp_ctrl = list(K = 5),
+                mcmc = list(n_iter = 1000, burn_in = 500))
+
+# Density regression with covariates
+fit1 <- fit.dpm(y ~ x1 + x2, data = dat,
+                kernel = "gamma",
+                dp_rep = "stick_breaking",
+                dp_ctrl = list(K = 5),
+                mcmc = list(n_iter = 1000, burn_in = 500))
+
+print(fit1)
+summary(fit1)
+}
+
 }

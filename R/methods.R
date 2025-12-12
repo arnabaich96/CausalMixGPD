@@ -1,81 +1,98 @@
-# S3 methods and helpers -------------------------------------------------------
+# small helper: null-coalescing
+`%||%` <- function(a, b) if (!is.null(a)) a else b
 
 #' @export
 print.mixgpd_fit <- function(x, ...) {
-  cat("Dirichlet process mixture model\n")
-  cat("Kernel:", x$spec$kernel, "\n")
-  cat("Tail:  ", x$spec$tail, "\n")
-  cat("Mode:  ", x$spec$mode, "\n")
-  cat("Alpha: ", ifelse(is.null(x$alpha), 0.05, x$alpha), "\n\n")
+  # Try to pull key bits from top level, then from spec
+  kernel <- x$kernel %||% (x$spec$kernel %||% NA_character_)
+  tail   <- x$tail   %||% (x$spec$tail   %||% NA_character_)
+  mode   <- x$mode   %||% (x$spec$mode   %||% NA_character_)
+  alpha  <- x$alpha  %||% NA_real_
 
-  if (!is.null(x$param_summary)) {
-    print(x$param_summary)
+  # sample size if we stored it
+  N <- x$N %||% x$spec$N %||% NA_integer_
+
+  # truncation K if present
+  K <- tryCatch(x$spec$dp_ctrl$K, error = function(e) NA_integer_)
+
+  cat("Dirichlet process mixture model\n")
+  if (!is.na(N)) cat("N:      ", N, "\n", sep = "")
+  if (!is.na(kernel)) cat("Kernel: ", kernel, "\n", sep = "")
+  if (!is.na(tail) && tail != "none") {
+    cat("Tail:   ", tail, " (GPD)\n", sep = "")
+  } else if (!is.na(tail)) {
+    cat("Tail:   none\n")
   }
+  if (!is.na(mode)) cat("Mode:   ", mode, "\n", sep = "")
+  if (!is.na(K))    cat("DP K:   ", K, "\n", sep = "")
+  if (!is.na(alpha)) cat("Alpha:  ", alpha, "\n", sep = "")
+
   invisible(x)
 }
 
+
+
 # internal helper: summarize MCMC draws into param table
-.summarize_mcmc <- function(mcmc_draws, alpha) {
-  # Normalize mcmc_draws into a list of matrices
+.summarize_mcmc <- function(mcmc_draws, alpha = 0.05) {
+  # Accept a variety of formats:
+  #  - coda::mcmc.list
+  #  - single coda::mcmc
+  #  - plain list of matrices
+  #  - single matrix
+
   if (inherits(mcmc_draws, "mcmc.list")) {
-    mats <- lapply(mcmc_draws, as.matrix)
+    chain_list <- mcmc_draws
   } else if (inherits(mcmc_draws, "mcmc")) {
-    mats <- list(as.matrix(mcmc_draws))
+    chain_list <- list(mcmc_draws)
+  } else if (is.list(mcmc_draws)) {
+    # assume each element is an iterations x parameters matrix
+    chain_list <- lapply(mcmc_draws, coda::as.mcmc)
   } else if (is.matrix(mcmc_draws)) {
-    mats <- list(mcmc_draws)
+    chain_list <- list(coda::as.mcmc(mcmc_draws))
   } else {
-    stop("mcmc_draws must be an 'mcmc.list', 'mcmc', or matrix.")
+    stop(
+      "'object$mcmc_draws' must be a matrix, mcmc, mcmc.list, or list of matrices.",
+      call. = FALSE
+    )
   }
 
-  # Drop any empty matrices (just in case)
-  mats <- mats[vapply(mats, nrow, integer(1)) > 0L]
-
-  if (!length(mats)) {
-    stop("No MCMC samples to summarize.")
+  # stack all chains
+  combined <- do.call(rbind, chain_list)
+  if (!is.matrix(combined)) {
+    combined <- as.matrix(combined)
   }
 
-  m <- do.call(rbind, mats)
-
-  # Ensure we have column names
-  if (is.null(colnames(m))) {
-    colnames(m) <- paste0("param", seq_len(ncol(m)))
+  pnames <- colnames(combined)
+  if (is.null(pnames)) {
+    pnames <- paste0("param_", seq_len(ncol(combined)))
+    colnames(combined) <- pnames
   }
 
-  lower_p <- alpha / 2
-  upper_p <- 1 - alpha / 2
+  lower <- alpha / 2
+  upper <- 1 - alpha / 2
 
-  data.frame(
-    param  = colnames(m),
-    mean   = apply(m, 2L, mean),
-    sd     = apply(m, 2L, stats::sd),
-    lower  = apply(m, 2L, stats::quantile, probs = lower_p),
-    median = apply(m, 2L, stats::quantile, probs = 0.5),
-    upper  = apply(m, 2L, stats::quantile, probs = upper_p),
+  means <- colMeans(combined)
+  sds   <- apply(combined, 2L, stats::sd)
+  q_lo  <- apply(combined, 2L, stats::quantile, probs = lower, names = FALSE)
+  q_hi  <- apply(combined, 2L, stats::quantile, probs = upper, names = FALSE)
+
+  out <- data.frame(
+    parameter = pnames,
+    mean      = as.numeric(means),
+    sd        = as.numeric(sds),
+    q_lo      = as.numeric(q_lo),
+    q_hi      = as.numeric(q_hi),
     row.names = NULL
   )
+
+  out
 }
 
 
-#' @export
 summary.mixgpd_fit <- function(object, ...) {
-  alpha <- object$alpha
-  if (is.null(alpha)) alpha <- 0.05
-
-  # if param_summary not present (backward compat), compute on the fly
-  if (is.null(object$param_summary)) {
-    param_summary <- .summarize_mcmc(object$mcmc_draws, alpha)
-  } else {
-    param_summary <- object$param_summary
-  }
-
-  out <- list(
-    call          = object$call,
-    spec          = object$spec,
-    alpha         = alpha,
-    param_summary = param_summary
-  )
-  class(out) <- "summary.mixgpd_fit"
-  out
+  # use stored alpha if available, else default to 0.05
+  alpha <- object$alpha %||% 0.05
+  .summarize_mcmc(object$mcmc_draws, alpha = alpha)
 }
 
 #' @export

@@ -144,31 +144,44 @@ build_model_spec <- function(Y,
                              trans   = list(),
                              alpha   = 0.05) {
 
-  # sample size
+  ## ---- 1) Basic dimensions ----
   N <- length(Y)
 
-  # mode: response-only vs regression
+  ## ---- 2) Mode: response-only vs regression ----
   mode <- if (is.null(X)) "response_only" else "regression"
 
-  # make sure dp_ctrl exists and has K
+  ## ---- 3) Ensure dp_ctrl and K exist ----
   if (is.null(dp_ctrl)) dp_ctrl <- list()
   if (is.null(dp_ctrl$K)) {
-    dp_ctrl$K <- 5L  # default truncation; change if you like
+    dp_ctrl$K <- 5L  # default truncation
   }
 
-  # return a structured spec list
+  ## ---- 4) Keep raw X, then apply transforms ----
+  X_raw <- X
+
+  tr_out <- .transform_resolve(
+    X      = X_raw,
+    trans  = trans,
+    caller = "build_model_spec"
+  )
+
+  X_tr <- tr_out$X
+
+  ## ---- 5) Return structured spec ----
   list(
-    Y       = Y,
-    X       = X,
-    N       = N,
-    mode    = mode,
-    kernel  = kernel,
-    tail    = tail,
-    dp_rep  = dp_rep,
-    priors  = priors,
-    dp_ctrl = dp_ctrl,
-    trans   = trans,
-    alpha   = alpha
+    Y          = Y,
+    X          = X_tr,       # transformed X used by engines
+    X_raw      = X_raw,      # original X for predict/diagnostics
+    N          = N,
+    mode       = mode,
+    kernel     = kernel,
+    tail       = tail,
+    dp_rep     = dp_rep,
+    priors     = priors,
+    dp_ctrl    = dp_ctrl,
+    trans      = trans,
+    trans_meta = tr_out$meta,
+    alpha      = alpha
   )
 }
 

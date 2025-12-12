@@ -215,62 +215,51 @@ fit_mixgpd_gpd <- function(
     seed   = seed
   )
 }
-fit_mixgpd <- function(formula,
-                       data,
-                       kernel = c("gamma","lognormal","normal","laplace","invgauss","amoroso"),
-                       tail   = c("none", "gpd"),
-                       dp_rep = c("stick_breaking","crp"),
-                       dp_ctrl = list(),
-                       priors  = list(),
-                       trans   = list(),
-                       mcmc    = list(),
-                       alpha   = 0.05) {
+#' @export
+summary.mixgpd_fit <- function(object,
+                               probs = c(0.025, 0.5, 0.975),
+                               ...) {
+  draws <- object$mcmc_draws
 
-  kernel <- match.arg(kernel)
-  tail   <- match.arg(tail)
-  dp_rep <- match.arg(dp_rep)
-
-  mf <- stats::model.frame(formula, data = data)
-  y  <- stats::model.response(mf)
-  X  <- model.matrix(stats::terms(mf), mf)
-
-  # if you want y ~ 0 to mean "no covariates":
-  tt        <- stats::terms(formula)
-  rhs_terms <- attr(tt, "term.labels")
-  intercept <- attr(tt, "intercept")
-  if (length(rhs_terms) == 0L && intercept == 0L) {
-    X_use <- NULL              # response-only
-  } else {
-    X_use <- X
+  if (is.null(draws)) {
+    stop("No MCMC draws stored in 'object$mcmc_draws'.", call. = FALSE)
+  }
+  if (!is.matrix(draws)) {
+    stop("'object$mcmc_draws' must be a matrix (iterations x parameters).", call. = FALSE)
   }
 
-  spec <- build_model_spec(
-    Y       = y,
-    X       = X_use,
-    kernel  = kernel,
-    tail    = tail,
-    dp_rep  = dp_rep,
-    priors  = priors,
-    dp_ctrl = dp_ctrl,
-    trans   = trans,
-    alpha   = alpha
+  means <- colMeans(draws)
+  sds   <- apply(draws, 2L, stats::sd)
+  qs    <- t(apply(draws, 2L, stats::quantile, probs = probs))
+
+  out <- cbind(
+    mean = means,
+    sd   = sds,
+    qs
   )
 
-  res <- run_mcmc_engine(spec, mcmc)
-
-  alpha_use <- alpha
-  if (is.null(alpha_use)) alpha_use <- 0.05
-  param_summary <- .summarize_mcmc(res$mcmc_draws, alpha_use)
-
-  structure(
-    list(
-      call          = match.call(),
-      spec          = spec,
-      mcmc_draws    = res$mcmc_draws,
-      mcmc_info     = res$mcmc_info,
-      alpha         = alpha,
-      param_summary = param_summary
-    ),
-    class = "mixgpd_fit"
+  res <- list(
+    call      = object$call,
+    kernel    = object$kernel %||% object$spec$kernel,
+    tail      = object$tail   %||% object$spec$tail,
+    mode      = object$mode   %||% object$spec$mode,
+    alpha     = object$alpha  %||% object$spec$alpha,
+    summary   = out,
+    probs     = probs
   )
+
+  class(res) <- "summary.mixgpd_fit"
+  res
+}
+
+#' @export
+print.summary.mixgpd_fit <- function(x, digits = 3, ...) {
+  cat("Summary of DP mixture fit\n")
+  cat("  Kernel:", x$kernel, "\n")
+  cat("  Tail:  ", x$tail,   "\n")
+  cat("  Mode:  ", x$mode,   "\n")
+  cat("  Alpha: ", x$alpha,  "\n\n")
+
+  print(round(x$summary, digits = digits))
+  invisible(x)
 }

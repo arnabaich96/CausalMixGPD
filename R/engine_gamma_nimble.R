@@ -256,10 +256,6 @@ build_nimble_model_gamma_reg <- function(spec) {
   )
 }
 
-
-
-
-
 #' Internal: run Nimble MCMC for Gamma kernel (uncond or regression)
 #' @keywords internal
 run_mcmc_nimble_gamma <- function(spec, mcmc) {
@@ -344,3 +340,46 @@ run_mcmc_nimble_gamma <- function(spec, mcmc) {
   )
 }
 
+# Internal: extract Gamma DP component parameters from an MCMC draw matrix
+#' @keywords internal
+.extract_gamma_params <- function(draws) {
+  if (is.null(colnames(draws))) {
+    stop("MCMC draws must have column names.", call. = FALSE)
+  }
+
+  # weights
+  w_idx <- grep("^w\\[", colnames(draws))
+  if (!length(w_idx)) {
+    stop("Cannot find mixture weights 'w[j]' in MCMC draws.", call. = FALSE)
+  }
+
+  # shapes
+  sh_idx <- grep("^shape\\[", colnames(draws))
+  if (!length(sh_idx)) {
+    stop("Cannot find 'shape[j]' in MCMC draws.", call. = FALSE)
+  }
+
+  # scales: unconditional model uses scale[j]
+  sc_idx <- grep("^scale\\[", colnames(draws))
+
+  # regression model might only have beta_scale[1,j] as intercept terms
+  if (!length(sc_idx)) {
+    sc_idx <- grep("^beta_scale\\[1,\\s*", colnames(draws))
+  }
+
+  if (!length(sc_idx)) {
+    stop(
+      "Cannot find Gamma scale parameters in MCMC draws.\n",
+      "Expected either:\n",
+      "  - 'scale[j]' (unconditional Gamma DP), or\n",
+      "  - 'beta_scale[1, j]' (regression intercept-only scale terms).",
+      call. = FALSE
+    )
+  }
+
+  list(
+    w     = draws[, w_idx,  drop = FALSE],
+    shape = draws[, sh_idx, drop = FALSE],
+    scale = draws[, sc_idx, drop = FALSE]
+  )
+}
