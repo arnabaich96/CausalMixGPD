@@ -7,18 +7,39 @@
 register_kernel(name, params, support, default_trans)
 }
 \arguments{
-\item{name}{Character name of the kernel.}
+\item{name}{Character string giving the unique name of the kernel.}
 
-\item{params}{Character vector of parameter names.}
+\item{params}{Character vector defining the names of the kernel's parameters.}
 
-\item{support}{Numeric vector of length 2: lower and upper support.}
+\item{support}{Numeric vector of length 2 defining the \code{lower} and
+\code{upper} bounds of the distribution's support. Use \code{-Inf} or \code{Inf}
+for unbounded supports.}
 
-\item{default_trans}{Named list or character vector of default transformations
-mapping linear predictor 'xb' to each parameter. Each element should be
-either NULL (no covariate link), a single character label such as
-"identity", "exp", "log", "inv", "sq", or "sqrt", or a function that
-takes xb and returns the parameter value.}
+\item{default_trans}{A named list or named character vector specifying the
+default link function (transformation) for each parameter when regressed on covariates.
+\itemize{
+  \item Keys must match elements in \code{params}.
+  \item Values can be \code{"identity"}, \code{"exp"}, \code{"log"}, \code{"inv"},
+        \code{"sq"}, \code{"sqrt"}, or \code{NULL} (no regression).
+  \item You may also provide a function that takes the linear predictor and returns the parameter.
+}}
+}
+\value{
+Invisible; returns the \code{name} of the registered kernel.
 }
 \description{
-Register a custom kernel
+Add a new kernel distribution to the internal registry. This allows the
+fitting functions to recognize custom distributions, their parameters,
+and default covariate transformations.
+}
+\examples{
+\dontrun{
+register_kernel(
+  name = "my_dist",
+  params = c("mu", "sigma"),
+  support = c(-Inf, Inf),
+  default_trans = list(mu = "identity", sigma = "exp")
+)
+}
+
 }

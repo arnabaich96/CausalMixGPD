@@ -2,16 +2,29 @@
 % Please edit documentation in R/kernel_registry.R
 \name{get_kernel}
 \alias{get_kernel}
-\title{Get a registered kernel}
+\title{Get a registered kernel configuration}
 \usage{
 get_kernel(kernel)
 }
 \arguments{
-\item{kernel}{Character name of the kernel.}
+\item{kernel}{Character string matching the name of a registered kernel
+(e.g., \code{"gamma"}, \code{"lognormal"}).}
 }
 \value{
-A list describing the kernel.
+A list containing:
+  \itemize{
+    \item \code{name}: The kernel name.
+    \item \code{params}: A character vector of parameter names.
+    \item \code{support}: A named vector with \code{lower} and \code{upper} bounds.
+    \item \code{default_trans}: A list of default transformations for each parameter.
+  }
 }
 \description{
-Get a registered kernel
+Retrieve the definition and properties of a specific kernel distribution
+registered in the package. This includes its parameter names, support
+boundaries, and default link functions for regression.
+}
+\examples{
+get_kernel("gamma")
+
 }

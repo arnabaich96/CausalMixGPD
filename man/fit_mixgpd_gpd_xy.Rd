@@ -18,6 +18,32 @@ fit_mixgpd_gpd_xy(
   seed = NULL
 )
 }
+\arguments{
+\item{Y}{Numeric vector of response observations.}
+
+\item{X}{Numeric matrix or data.frame of covariates, or \code{NULL} for an unconditional model.}
+
+\item{kernel}{Character string selecting the bulk kernel.}
+
+\item{dp_rep}{Character string selecting the DP representation.}
+
+\item{dp_ctrl}{List of control arguments for the DP.}
+
+\item{priors}{Optional list of prior hyperparameters for the bulk and tail parameters.}
+
+\item{trans}{Optional list of covariate transformations.}
+
+\item{mcmc}{List of MCMC control settings.}
+
+\item{alpha}{Nominal level for credible intervals.}
+
+\item{seed}{Optional integer for reproducibility.}
+}
+\value{
+An object of class \code{"mixgpd_fit"} with \code{tail = "gpd"}.
+}
 \description{
-Fit DP mixture model with GPD tail (Y/X interface)
+A matrix-interface alternative to \code{\link{fit_mixgpd_gpd}}. Fits a
+semiparametric model combining a Dirichlet process mixture for the bulk
+distribution and a Generalized Pareto Distribution (GPD) for the tail.
 }

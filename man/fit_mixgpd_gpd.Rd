@@ -18,6 +18,32 @@ fit_mixgpd_gpd(
   seed = NULL
 )
 }
+\arguments{
+\item{formula}{A formula specifying the model (e.g. \code{y ~ x} or \code{y ~ 0}).}
+
+\item{data}{A \code{data.frame} containing variables in the formula.}
+
+\item{kernel}{Character string selecting the bulk kernel.}
+
+\item{dp_rep}{Character string selecting the DP representation.}
+
+\item{dp_ctrl}{List of control arguments for the DP.}
+
+\item{priors}{Optional list of prior hyperparameters.}
+
+\item{trans}{Optional list of covariate transformations.}
+
+\item{mcmc}{List of MCMC control settings.}
+
+\item{alpha}{Nominal level for credible intervals.}
+
+\item{seed}{Optional integer for reproducibility.}
+}
+\value{
+An object of class \code{"mixgpd_fit"} with \code{tail = "gpd"}.
+}
 \description{
-Fit DP mixture model with GPD tail (formula interface)
+A unified formula interface for fitting bulk-tail models. This combines
+a Dirichlet process mixture for the bulk with a Generalized Pareto tail
+for extreme values.
 }

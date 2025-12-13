@@ -18,6 +18,49 @@ fit_mixgpd_xy(
   seed = NULL
 )
 }
+\arguments{
+\item{Y}{Numeric vector of response observations. Must be compatible with
+the support of the chosen \code{kernel} (e.g., positive for \code{"gamma"}).}
+
+\item{X}{Numeric matrix or data.frame of covariates. If \code{NULL}, an
+unconditional mixture model is fit. Rows must match \code{Y}.}
+
+\item{kernel}{Character string selecting the bulk kernel for the mixture components.
+One of \code{"gamma"}, \code{"lognormal"}, \code{"normal"}, \code{"laplace"},
+\code{"inverse_gaussian"}, \code{"amoroso"}, or \code{"pareto"}.}
+
+\item{dp_rep}{Character string selecting the Dirichlet process representation,
+either \code{"stick_breaking"} (truncated) or \code{"crp"} (Chinese Restaurant Process).}
+
+\item{dp_ctrl}{List of control arguments for the DP representation,
+such as \code{K} (truncation level) when \code{dp_rep = "stick_breaking"}.}
+
+\item{priors}{Optional list of prior hyperparameters.}
+
+\item{trans}{Optional list of transformations to apply to covariates.}
+
+\item{mcmc}{List of MCMC control settings (\code{n_iter}, \code{burn_in}, etc.).}
+
+\item{alpha}{Nominal level used for summarizing posterior quantities (e.g., 0.05).}
+
+\item{seed}{Optional integer to set the random seed.}
+}
+\value{
+An object of class \code{"mixgpd_fit"} containing the model specification,
+  MCMC draws, and summary information.
+}
 \description{
-Fit DP mixture model without GPD tail (Y/X interface)
+A matrix-interface alternative to \code{\link{fit_mixgpd}}. Fits a truncated
+Dirichlet process mixture model for a univariate response \code{Y} using
+a positive-support kernel (Gamma, lognormal, etc.) or real-valued kernel (Normal, Laplace),
+optionally regressing kernel parameters on covariates \code{X}.
+}
+\examples{
+\dontrun{
+y <- rgamma(100, 2, 1)
+# Unconditional model
+fit <- fit_mixgpd_xy(y, kernel = "gamma", dp_ctrl = list(K = 5))
+summary(fit)
+}
+
 }

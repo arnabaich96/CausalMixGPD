@@ -117,12 +117,12 @@ run_mcmc_nimble_gamma_uncond <- function(spec, mcmc) {
   conf <- nimble::configureMCMC(cmodel, monitors = monitors)
 
   mcmc_obj <- nimble::buildMCMC(conf)
-  cmcmc    <- nimble::compileNimble(mcmc_obj, project = cmodel)
+  cmcmc <- nimble::compileNimble(mcmc_obj, project = cmodel)
 
-  n_iter  <- if (!is.null(mcmc$n_iter))  mcmc$n_iter  else 2000L
+  n_iter <- if (!is.null(mcmc$n_iter)) mcmc$n_iter else 2000L
   burn_in <- if (!is.null(mcmc$burn_in)) mcmc$burn_in else 1000L
-  thin    <- if (!is.null(mcmc$thin))    mcmc$thin    else 1L
-  chains  <- if (!is.null(mcmc$chains))  mcmc$chains  else 1L
+  thin <- if (!is.null(mcmc$thin)) mcmc$thin else 1L
+  chains <- if (!is.null(mcmc$chains)) mcmc$chains else 1L
 
   samples <- nimble::runMCMC(
     cmcmc,
@@ -135,7 +135,7 @@ run_mcmc_nimble_gamma_uncond <- function(spec, mcmc) {
 
   list(
     mcmc_draws = samples,
-    mcmc_info  = list(
+    mcmc_info = list(
       n_iter  = n_iter,
       burn_in = burn_in,
       thin    = thin,
@@ -172,7 +172,7 @@ build_nimble_model_gamma_reg <- function(spec) {
   b_shape <- priors$b_shape %||% 1
 
   # regression coefficients for scale: beta_scale[j,1:p] ~ N(0, tau_beta)
-  tau_beta <- priors$tau_beta %||% 0.01  # precision = 1 / variance
+  tau_beta <- priors$tau_beta %||% 0.01 # precision = 1 / variance
 
   # DP concentration alpha > 0 ~ Gamma(a_alpha, b_alpha)
   a_alpha <- priors$a_alpha %||% 1
@@ -264,10 +264,10 @@ run_mcmc_nimble_gamma <- function(spec, mcmc) {
   }
 
   # ---- MCMC controls ----
-  n_iter  <- mcmc$n_iter  %||% 2000L
+  n_iter <- mcmc$n_iter %||% 2000L
   burn_in <- mcmc$burn_in %||% 1000L
-  thin    <- mcmc$thin    %||% 1L
-  chains  <- mcmc$chains  %||% 1L
+  thin <- mcmc$thin %||% 1L
+  chains <- mcmc$chains %||% 1L
 
   if (n_iter <= burn_in) {
     stop("mcmc$n_iter must be greater than mcmc$burn_in.")
@@ -278,11 +278,8 @@ run_mcmc_nimble_gamma <- function(spec, mcmc) {
 
   # ---- Choose model builder based on spec$mode ----
   if (identical(spec$mode, "response_only")) {
-
     mm <- build_nimble_model_gamma_uncond(spec)
-
   } else if (identical(spec$mode, "regression")) {
-
     # Transforms for the scale are now handled inside build_nimble_model_gamma_reg().
     # We only forbid shape regression for now.
     if (!is.null(spec$trans$shape)) {
@@ -290,9 +287,7 @@ run_mcmc_nimble_gamma <- function(spec, mcmc) {
     }
 
     mm <- build_nimble_model_gamma_reg(spec)
-
   } else {
-
     stop("Unknown spec$mode: ", spec$mode)
   }
 
@@ -314,9 +309,9 @@ run_mcmc_nimble_gamma <- function(spec, mcmc) {
     monitors <- c("alpha", "v", "w", "shape", "beta_scale")
   }
 
-  conf   <- nimble::configureMCMC(cmodel, monitors = monitors)
+  conf <- nimble::configureMCMC(cmodel, monitors = monitors)
   mcmc_o <- nimble::buildMCMC(conf)
-  cmcmc  <- nimble::compileNimble(mcmc_o, project = cmodel)
+  cmcmc <- nimble::compileNimble(mcmc_o, project = cmodel)
 
   # ---- Run MCMC ----
   samples <- nimble::runMCMC(
@@ -331,7 +326,7 @@ run_mcmc_nimble_gamma <- function(spec, mcmc) {
   # ---- Return in your standard structure ----
   list(
     mcmc_draws = samples,
-    mcmc_info  = list(
+    mcmc_info = list(
       n_iter  = n_iter,
       burn_in = burn_in,
       thin    = thin,
@@ -342,44 +337,186 @@ run_mcmc_nimble_gamma <- function(spec, mcmc) {
 
 # Internal: extract Gamma DP component parameters from an MCMC draw matrix
 #' @keywords internal
-.extract_gamma_params <- function(draws) {
-  if (is.null(colnames(draws))) {
-    stop("MCMC draws must have column names.", call. = FALSE)
+.extract_gamma_dp_params_uncond <- function(object) {
+  draws <- .as_mcmc_matrix(object)
+  cn <- colnames(draws)
+
+  # ---- component counts ----
+  shape_cols <- grep("^shape\\[", cn, value = TRUE)
+  if (length(shape_cols) == 0L) {
+    stop("No 'shape[j]' columns found in MCMC draws for Gamma DP.", call. = FALSE)
   }
+  K <- length(shape_cols)
 
-  # weights
-  w_idx <- grep("^w\\[", colnames(draws))
-  if (!length(w_idx)) {
-    stop("Cannot find mixture weights 'w[j]' in MCMC draws.", call. = FALSE)
-  }
+  # Re-order shape columns by component index
+  shape_j <- as.integer(sub("^shape\\[([0-9]+)\\]$", "\\1", shape_cols))
+  shape_cols <- shape_cols[order(shape_j)]
+  shape_j <- sort(shape_j)
 
-  # shapes
-  sh_idx <- grep("^shape\\[", colnames(draws))
-  if (!length(sh_idx)) {
-    stop("Cannot find 'shape[j]' in MCMC draws.", call. = FALSE)
-  }
+  # Scale/mean terms:
+  #  - unconditional Gamma DP uses scale[j]
+  #  - (older/alternate) intercept-only regression uses beta_scale[1,j] (log-mean)
+  scale_cols <- grep("^scale\\[", cn, value = TRUE)
+  beta_cols <- grep("^beta_scale\\[", cn, value = TRUE)
+  beta_int_cols <- grep("^beta_scale\\[1,", beta_cols, value = TRUE)
 
-  # scales: unconditional model uses scale[j]
-  sc_idx <- grep("^scale\\[", colnames(draws))
+  has_scale <- length(scale_cols) > 0L
+  has_beta0 <- length(beta_int_cols) > 0L
 
-  # regression model might only have beta_scale[1,j] as intercept terms
-  if (!length(sc_idx)) {
-    sc_idx <- grep("^beta_scale\\[1,\\s*", colnames(draws))
-  }
-
-  if (!length(sc_idx)) {
+  if (!has_scale && !has_beta0) {
     stop(
       "Cannot find Gamma scale parameters in MCMC draws.\n",
       "Expected either:\n",
       "  - 'scale[j]' (unconditional Gamma DP), or\n",
-      "  - 'beta_scale[1, j]' (regression intercept-only scale terms).",
+      "  - 'beta_scale[1, j]' (intercept-only scale/mean terms).",
       call. = FALSE
     )
   }
 
+  if (has_scale) {
+    # Order scale[j]
+    scale_j <- as.integer(sub("^scale\\[([0-9]+)\\]$", "\\1", scale_cols))
+    scale_cols <- scale_cols[order(scale_j)]
+    scale_j <- sort(scale_j)
+    if (!identical(shape_j, scale_j)) {
+      stop("Mismatch between 'shape[j]' and 'scale[j]' component indices.",
+        call. = FALSE
+      )
+    }
+  } else {
+    # Order beta_scale[1,j]
+    beta_j <- as.integer(sub("^beta_scale\\[1,([0-9]+)\\]$", "\\1", beta_int_cols))
+    beta_int_cols <- beta_int_cols[order(beta_j)]
+    beta_j <- sort(beta_j)
+    if (!identical(shape_j, beta_j)) {
+      stop("Mismatch between 'shape[j]' and 'beta_scale[1,j]' component indices.",
+        call. = FALSE
+      )
+    }
+  }
+
+  # Weights: prefer direct 'w[j]' if available, otherwise stick-breaking from v[j]
+  w_cols <- grep("^w\\[", cn, value = TRUE)
+  if (length(w_cols) > 0L) {
+    w_j <- as.integer(sub("^w\\[([0-9]+)\\]$", "\\1", w_cols))
+    w_cols <- w_cols[order(w_j)]
+    w_j <- sort(w_j)
+    if (!identical(w_j, shape_j)) {
+      stop("Mismatch between 'w[j]' and 'shape[j]' indices.", call. = FALSE)
+    }
+
+    W <- draws[, w_cols, drop = FALSE]
+
+    # ---- IMPORTANT: normalize mixture weights per iteration ----
+    # NIMBLE sometimes yields w[j] that don't sum exactly to 1, which breaks
+    # mixture CDF/quantiles because F(x) plateaus at sum(w) < 1.
+    W <- pmax(W, 0)
+    rs <- rowSums(W)
+    bad <- !is.finite(rs) | rs <= 0
+    if (any(bad)) {
+      stop("Invalid mixture weights in some MCMC iterations (sum <= 0 or non-finite).",
+        call. = FALSE
+      )
+    }
+    W <- W / rs
+  } else {
+    # stick-breaking from v[1:(K-1)]
+    v_cols <- grep("^v\\[", cn, value = TRUE)
+    if (length(v_cols) == 0L) {
+      stop("No 'w[j]' or 'v[j]' columns found in MCMC draws.", call. = FALSE)
+    }
+    v_j <- as.integer(sub("^v\\[([0-9]+)\\]$", "\\1", v_cols))
+    v_cols <- v_cols[order(v_j)]
+    v_j <- sort(v_j)
+
+    if (length(v_cols) != K - 1L) {
+      stop("For K components, expected K-1 'v[j]' stick-breaking terms.",
+        call. = FALSE
+      )
+    }
+
+    V <- draws[, v_cols, drop = FALSE] # M x (K-1)
+    M <- nrow(V)
+    W <- matrix(NA_real_, nrow = M, ncol = K)
+    colnames(W) <- paste0("w[", 1:K, "]")
+
+    # stick-breaking weights per iteration
+    for (m in seq_len(M)) {
+      v_m <- V[m, ]
+      w_m <- numeric(K)
+      prod_term <- 1
+      for (j in seq_len(K - 1L)) {
+        w_m[j] <- v_m[j] * prod_term
+        prod_term <- prod_term * (1 - v_m[j])
+      }
+      w_m[K] <- prod_term
+
+      # numerical cleanup + renormalize
+      w_m <- pmax(w_m, 0)
+      s <- sum(w_m)
+      if (!is.finite(s) || s <= 0) {
+        stop("Invalid stick-breaking weights in some MCMC iterations.", call. = FALSE)
+      }
+      w_m <- w_m / s
+
+      W[m, ] <- w_m
+    }
+  }
+
+  Shape <- draws[, shape_cols, drop = FALSE]
+
+  if (has_scale) {
+    Scale <- draws[, scale_cols, drop = FALSE]
+    Mu <- Shape * Scale # mean = shape * scale
+  } else {
+    Beta0 <- draws[, beta_int_cols, drop = FALSE]
+    Mu <- exp(Beta0) # your convention in the earlier predictive code
+    Scale <- Mu / Shape # implied scale
+  }
+
   list(
-    w     = draws[, w_idx,  drop = FALSE],
-    shape = draws[, sh_idx, drop = FALSE],
-    scale = draws[, sc_idx, drop = FALSE]
+    W      = W, # M x K
+    Shape  = Shape, # M x K
+    Mu     = Mu, # M x K
+    Scale  = Scale, # M x K (always returned, for convenience)
+    n_iter = nrow(draws),
+    K      = K
+  )
+}
+
+# internal: posterior predictive CDF for Gamma DP mixture at scalar x
+.pp_cdf_gamma_uncond <- function(params, x) {
+  # params from .extract_gamma_dp_params_uncond(object)
+  W <- params$W
+  Shape <- params$Shape
+  Mu <- params$Mu
+  Rate <- Shape / Mu
+
+  # F_m(x) = sum_j w_mj * pgamma(x; shape, rate)
+  Fm <- rowSums(W * pgamma(x, shape = Shape, rate = Rate))
+  mean(Fm)
+}
+
+# internal: quantile for Gamma DP mixture via uniroot
+.q_gamma_uncond <- function(object, tau) {
+  params <- .extract_gamma_dp_params_uncond(object)
+
+  # choose a smart initial upper based on posterior means:
+  # upper ~ big mean + many SDs; then bracketer will expand if needed.
+  mu_bar <- mean(params$Mu)
+  sh_bar <- mean(params$Shape)
+  # Gamma approx sd ~ mean/sqrt(shape)
+  sd_bar <- mu_bar / sqrt(max(sh_bar, 1e-6))
+  upper0 <- max(1, mu_bar + 12 * sd_bar)
+
+  cdf_fun <- function(x) .pp_cdf_gamma_uncond(params, x)
+
+  .invert_cdf_uniroot(
+    cdf_fun = cdf_fun,
+    tau = tau,
+    lower = 0,
+    upper = upper0,
+    max_expand = 80L, # be generous
+    expand_factor = 2
   )
 }

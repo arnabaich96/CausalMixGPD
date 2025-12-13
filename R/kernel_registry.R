@@ -84,9 +84,27 @@ init_kernel_registry <- function() {
   )
 }
 
-#' Get a registered kernel
-#' @param kernel Character name of the kernel.
-#' @return A list describing the kernel.
+#' Get a registered kernel configuration
+#'
+#' @description
+#' Retrieve the definition and properties of a specific kernel distribution
+#' registered in the package. This includes its parameter names, support
+#' boundaries, and default link functions for regression.
+#'
+#' @param kernel Character string matching the name of a registered kernel
+#'   (e.g., \code{"gamma"}, \code{"lognormal"}).
+#'
+#' @return A list containing:
+#'   \itemize{
+#'     \item \code{name}: The kernel name.
+#'     \item \code{params}: A character vector of parameter names.
+#'     \item \code{support}: A named vector with \code{lower} and \code{upper} bounds.
+#'     \item \code{default_trans}: A list of default transformations for each parameter.
+#'   }
+#'
+#' @examples
+#' get_kernel("gamma")
+#'
 #' @export
 get_kernel <- function(kernel) {
   if (!is.character(kernel) || length(kernel) != 1L) {
@@ -102,14 +120,37 @@ get_kernel <- function(kernel) {
 
 #' Register a custom kernel
 #'
-#' @param name Character name of the kernel.
-#' @param params Character vector of parameter names.
-#' @param support Numeric vector of length 2: lower and upper support.
-#' @param default_trans Named list or character vector of default transformations
-#'   mapping linear predictor 'xb' to each parameter. Each element should be
-#'   either NULL (no covariate link), a single character label such as
-#'   "identity", "exp", "log", "inv", "sq", or "sqrt", or a function that
-#'   takes xb and returns the parameter value.
+#' @description
+#' Add a new kernel distribution to the internal registry. This allows the
+#' fitting functions to recognize custom distributions, their parameters,
+#' and default covariate transformations.
+#'
+#' @param name Character string giving the unique name of the kernel.
+#' @param params Character vector defining the names of the kernel's parameters.
+#' @param support Numeric vector of length 2 defining the \code{lower} and
+#'   \code{upper} bounds of the distribution's support. Use \code{-Inf} or \code{Inf}
+#'   for unbounded supports.
+#' @param default_trans A named list or named character vector specifying the
+#'   default link function (transformation) for each parameter when regressed on covariates.
+#'   \itemize{
+#'     \item Keys must match elements in \code{params}.
+#'     \item Values can be \code{"identity"}, \code{"exp"}, \code{"log"}, \code{"inv"},
+#'           \code{"sq"}, \code{"sqrt"}, or \code{NULL} (no regression).
+#'     \item You may also provide a function that takes the linear predictor and returns the parameter.
+#'   }
+#'
+#' @return Invisible; returns the \code{name} of the registered kernel.
+#'
+#' @examples
+#' \dontrun{
+#' register_kernel(
+#'   name = "my_dist",
+#'   params = c("mu", "sigma"),
+#'   support = c(-Inf, Inf),
+#'   default_trans = list(mu = "identity", sigma = "exp")
+#' )
+#' }
+#'
 #' @export
 register_kernel <- function(name, params, support, default_trans) {
   stopifnot(is.character(name), length(name) == 1L)

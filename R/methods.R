@@ -129,43 +129,6 @@ fitted.mixgpd_fit <- function(object, ...) {
   preds$mean
 }
 
-#' @export
-predict.mixgpd_fit <- function(object, newdata = NULL, ...) {
-  alpha <- object$alpha
-  if (is.null(alpha)) alpha <- 0.05
-
-  mcmc_obj <- object$mcmc_draws
-  m <- do.call(rbind, lapply(mcmc_obj, as.matrix))
-
-  if (!"mu" %in% colnames(m)) {
-    stop("No 'mu' parameter found in MCMC object; cannot form predictions in this skeleton.")
-  }
-
-  mu_draws <- m[, "mu"]
-
-  mean_hat <- mean(mu_draws)
-  sd_hat   <- stats::sd(mu_draws)
-  lower    <- stats::quantile(mu_draws, probs = alpha / 2)
-  upper    <- stats::quantile(mu_draws, probs = 1 - alpha / 2)
-
-  # Determine number of prediction points
-  n_pred <- if (is.null(newdata)) {
-    object$spec$N
-  } else {
-    if (is.data.frame(newdata) || is.matrix(newdata)) {
-      nrow(newdata)
-    } else {
-      stop("`newdata` must be a data.frame or matrix (or NULL).")
-    }
-  }
-
-  data.frame(
-    mean  = rep(mean_hat, n_pred),
-    sd    = rep(sd_hat, n_pred),
-    lower = rep(lower, n_pred),
-    upper = rep(upper, n_pred)
-  )
-}
 
 #' Extract MCMC draws from a mixgpd_fit object
 #' @export

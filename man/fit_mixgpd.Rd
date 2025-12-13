@@ -18,6 +18,42 @@ fit_mixgpd(
   seed = NULL
 )
 }
+\arguments{
+\item{formula}{A formula specifying the model. Use \code{y ~ 0} for unconditional
+density estimation, or \code{y ~ x} for density regression.}
+
+\item{data}{A \code{data.frame} containing the variables in \code{formula}.}
+
+\item{kernel}{Character string selecting the bulk kernel (e.g., \code{"gamma"}, \code{"normal"}).}
+
+\item{dp_rep}{Character string selecting the DP representation (\code{"stick_breaking"} or \code{"crp"}).}
+
+\item{dp_ctrl}{List of control arguments for the DP (e.g., truncation \code{K}).}
+
+\item{priors}{Optional list of prior hyperparameters.}
+
+\item{trans}{Optional list of covariate transformations.}
+
+\item{mcmc}{List of MCMC settings (\code{n_iter}, \code{burn_in}, \code{chains}, etc.).}
+
+\item{alpha}{Nominal level for credible intervals (default 0.05).}
+
+\item{seed}{Optional integer for reproducibility.}
+}
+\value{
+An object of class \code{"mixgpd_fit"}.
+}
 \description{
-Fit DP mixture model without GPD tail (formula interface)
+A unified formula interface for fitting Dirichlet process mixture models
+with various kernels, but without a Generalized Pareto tail. This function
+parses the formula to create the response vector and design matrix, then
+delegates to the engine.
+}
+\examples{
+\dontrun{
+dat <- data.frame(y = rgamma(100, 2, 1), x = rnorm(100))
+fit <- fit_mixgpd(y ~ x, data = dat, kernel = "gamma")
+print(fit)
+}
+
 }
