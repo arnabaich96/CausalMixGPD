@@ -1,4 +1,3 @@
-
 # Build model specification ----------------------------------------------------
 
 # Helper: validate transformation specification
@@ -89,15 +88,15 @@
 #'
 #' @keywords internal
 build_model_spec_xy <- function(
-    Y,
-    X        = NULL,
-    mode     = c("response_only", "regression"),
-    kernel   = c("gamma", "lognormal", "normal", "laplace", "inverse_gaussian", "amoroso", "pareto"),
-    dp_rep   = c("stick_breaking", "crp"),
-    dp_ctrl  = list(),
-    priors   = list(),
-    trans    = NULL,
-    tail     = c("none", "gpd")
+  Y,
+  X        = NULL,
+  mode     = c("response_only", "regression"),
+  kernel   = c("gamma", "lognormal", "normal", "laplace", "inverse_gaussian", "amoroso", "pareto"),
+  dp_rep   = c("stick_breaking", "crp"),
+  dp_ctrl  = list(),
+  priors   = list(),
+  trans    = list(),
+  tail     = c("none", "gpd")
 ) {
   mode   <- match.arg(mode)
   kernel <- match.arg(kernel)
@@ -189,16 +188,6 @@ build_model_spec <- function(Y,
                              dp_ctrl = list(),
                              trans   = list(),
                              alpha   = 0.05) {
-  # Normalize/validate `trans` so downstream code can safely access spec$trans$shape.
-  # Accepts: NULL, logical (TRUE/FALSE), or a list.
-  if (is.logical(trans) && length(trans) == 1L) {
-    trans <- if (isTRUE(trans)) list() else NULL
-  }
-  if (is.null(trans)) trans <- list()
-  if (!is.list(trans)) {
-    stop("build_model_spec: 'trans' must be a list, logical, or NULL.", call. = FALSE)
-  }
-
 
   ## ---- 1) Basic dimensions ----
   N <- length(Y)

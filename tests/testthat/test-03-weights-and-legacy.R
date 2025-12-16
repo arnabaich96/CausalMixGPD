@@ -30,9 +30,10 @@ testthat::test_that("old tail_priors argument is not silently accepted (or is ha
   msg <- NULL
 
   res <- tryCatch({
-    DPmixGPD::fit.dpm(y ~ 0, data = dat, kernel="gamma",
+    DPmixGPD::fit.dpm(y ~ 0, data = dat, kernel="gamma", tail="none",
                       dp_ctrl=list(K=3),
-                      mcmc=list(n_iter=200, burn_in=100, chains=1))
+                      mcmc=list(n_iter=200, burn_in=100, chains=1),
+                      tail_priors=list())
   }, error = function(e) { msg <<- conditionMessage(e); NULL })
 
   if (!is.null(res)) ok <- TRUE

@@ -53,8 +53,3 @@ testthat::local_edition(3)
   class(out) <- "mixgpd_te_fit"
   out
 }
-
-
-# Backward-compatible aliases
-has_dimnames <- .has_dimnames
-make_fake_te_fit <- .make_fake_te_fit

@@ -454,11 +454,6 @@ getNimbleOption <- function(name) {
 #'
 #' @keywords internal
 .transform_resolve <- function(X, trans, caller = "fit.dpm") {
-  # allow logical shorthand for `trans`
-  if (is.logical(trans) && length(trans) == 1L) {
-    trans <- if (isTRUE(trans)) list() else NULL
-  }
-
   # no covariates or no transforms requested
   if (is.null(X) || is.null(trans) || length(trans) == 0L) {
     return(list(X = X,

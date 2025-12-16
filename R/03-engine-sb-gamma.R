@@ -266,7 +266,7 @@ run_mcmc_nimble_gamma <- function(spec, mcmc) {
   } else if (identical(spec$mode, "regression")) {
     # Transforms for the scale are now handled inside build_nimble_model_gamma_reg().
     # We only forbid shape regression for now.
-    if (is.list(spec$trans) && !is.null(spec$trans$shape)) {
+    if (!is.null(spec$trans$shape)) {
       stop("Shape regression is not yet implemented in the Nimble gamma engine.")
     }
 
@@ -275,7 +275,10 @@ run_mcmc_nimble_gamma <- function(spec, mcmc) {
     stop("Unknown spec$mode: ", spec$mode)
   }
 
-  # ---- Build and compile Nimble model ----
+  # ---- Monitors (NIMBLE parameters to save) ----
+  # Default to the unconditional SB-Gamma monitors used throughout the package/tests.
+  monitors <- c("alpha", "shape", "scale", "v", "w")
+# ---- Build and (optionally) compile Nimble model ----
   .ensure_nimble_compat()
 
   model <- nimble::nimbleModel(
@@ -285,38 +288,34 @@ run_mcmc_nimble_gamma <- function(spec, mcmc) {
     inits     = mm$inits
   )
 
-  cmodel <- tryCatch(nimble::compileNimble(model), error = function(e) e)
-  compiled_model <- !inherits(cmodel, "error")
-  if (!compiled_model) {
-    warning("nimble model compilation failed; running uncompiled MCMC for portability: ", conditionMessage(cmodel), call. = FALSE)
-    cmodel <- NULL
-  }
+  compiled_ok <- TRUE
+  cmodel <- tryCatch(
+    nimble::compileNimble(model),
+    error = function(e) {
+      compiled_ok <<- FALSE
+      warning(
+        sprintf(
+          "nimble model compilation failed; running uncompiled MCMC for portability: %s",
+          conditionMessage(e)
+        ),
+        call. = FALSE
+      )
+      model
+    }
+  )
 
-  # ---- Monitors: what to save from the chain ----
-  if (identical(spec$mode, "response_only")) {
-    monitors <- c("alpha", "v", "w", "shape", "scale")
-  } else {
-    # regression mode: save regression coefficients instead of per-i scale
-    monitors <- c("alpha", "v", "w", "shape", "beta_scale")
-  }
-
+  # configure/build MCMC on the model object we have (compiled or not)
   conf <- nimble::configureMCMC(cmodel, monitors = monitors)
   mcmc_o <- nimble::buildMCMC(conf)
-  cmcmc <- if (compiled_model) {
-    tryCatch(nimble::compileNimble(mcmc_o, project = cmodel), error = function(e) e)
-  } else {
-    NULL
-  }
-  compiled_mcmc <- compiled_model && !is.null(cmcmc) && !inherits(cmcmc, "error")
-  if (compiled_model && !compiled_mcmc) {
-    warning("nimble MCMC compilation failed; running uncompiled MCMC for portability: ", conditionMessage(cmcmc), call. = FALSE)
-    cmcmc <- NULL
-  }
 
+  cmcmc <- if (compiled_ok) {
+    nimble::compileNimble(mcmc_o, project = cmodel)
+  } else {
+    mcmc_o
+  }
   # ---- Run MCMC ----
-  mcmc_runner <- if (compiled_mcmc) cmcmc else mcmc_o
   samples <- nimble::runMCMC(
-    mcmc_runner,
+    cmcmc,
     niter             = n_iter,
     nburnin           = burn_in,
     thin              = thin,
@@ -590,6 +589,13 @@ run_mcmc_engine <- function(spec, mcmc) {
     return(run_mcmc_nimble_gamma(spec, mcmc))
   }
 
+
+  # Special case: Gamma kernel, no tail, CRP DP mixture (Neal's Algorithm 8)
+  if (identical(spec$kernel, "gamma") &&
+      (is.null(spec$tail) || spec$tail == "none") &&
+      identical(spec$dp_rep, "crp")) {
+    return(run_mcmc_crp_gamma(spec, mcmc))
+  }
   # Fallback: simple generic engine (no regression yet)
 
 

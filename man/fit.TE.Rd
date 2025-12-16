@@ -13,10 +13,10 @@ fit.TE(
   dp_ctrl = list(K = 10),
   mcmc = list(n_iter = 2000, burn_in = 1000, chains = 1),
   alpha = 0.05,
-  priors = NULL,
-  trans = TRUE,
+  priors = list(),
+  trans = list(),
   intercept = FALSE,
-  tail = c(FALSE, FALSE),
+  tail = FALSE,
   tail_ctrl = list(),
   ...
 )

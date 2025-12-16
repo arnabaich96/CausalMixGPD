@@ -1,8 +1,6 @@
 # Snapshot tests for plots via vdiffr
 # These are optional: they will be skipped unless {vdiffr} (and {svglite}) are installed.
 
-testthat::skip_if_not_installed("vdiffr")
-testthat::skip_on_ci()
 testthat::test_that("plot.mixgpd_te_fit: default ATE plot is stable", {
   testthat::skip_if_not_installed("vdiffr")
   testthat::skip_if_not_installed("svglite")

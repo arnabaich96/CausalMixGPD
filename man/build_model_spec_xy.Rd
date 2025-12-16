@@ -13,7 +13,7 @@ build_model_spec_xy(
   dp_rep = c("stick_breaking", "crp"),
   dp_ctrl = list(),
   priors = list(),
-  trans = NULL,
+  trans = list(),
   tail = c("none", "gpd")
 )
 }

@@ -1,7 +1,7 @@
 Package: DPmixGPD
 Type: Package
 Title: Dirichlet Process Mixtures with Optional GPD Tail
-Version: 0.0.2
+Version: 0.0.3
 Authors@R: person("Arnab", "Aich", role = c("aut", "cre"), email = "arnab@example.com")
 Description: Experimental framework for Dirichlet process mixture regression and unconditional models
     with flexible kernels (gamma, lognormal, normal, Laplace, inverse Gaussian, Amoroso)
@@ -19,6 +19,7 @@ Imports:
     methods
 Suggests:
     testthat (>= 3.0.0),
-    vdiffr
+    vdiffr,
+    svglite
 RoxygenNote: 7.3.3
 Config/testthat/edition: 3

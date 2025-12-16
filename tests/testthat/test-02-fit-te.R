@@ -51,6 +51,39 @@ testthat::test_that("fit.TE unconditional gamma works and ate/qte/plot work", {
   testthat::expect_true(inherits(p2, "ggplot"))
 })
 
+testthat::test_that("fit.TE regression: ate/qte/plot fail cleanly if not implemented", {
+  set.seed(1)
+  dat <- data.frame(
+    y  = stats::rgamma(200, shape = 2, rate = 1),
+    A  = stats::rbinom(200, 1, 0.5),
+    x1 = stats::rnorm(200),
+    x2 = stats::rnorm(200)
+  )
+
+  fit_te1 <- DPmixGPD::fit.TE(
+    y ~ x1 + x2,
+    data   = dat,
+    A      = "A",
+    kernel = "gamma",
+    tail   = FALSE,
+    dp_rep = "stick_breaking",
+    dp_ctrl = list(K = 5),
+    mcmc   = list(n_iter = 600, burn_in = 300, chains = 1),
+    alpha  = 0.05
+  )
+
+  testthat::expect_true(inherits(fit_te1, "mixgpd_te_fit"))
+
+  testthat::expect_error(DPmixGPD::ate(fit_te1),
+                         regexp = "unconditional|not implemented|Gamma",
+                         ignore.case = TRUE)
+  testthat::expect_error(DPmixGPD::qte(fit_te1, probs = c(0.25,0.5,0.75)),
+                         regexp = "unconditional|not implemented|Gamma",
+                         ignore.case = TRUE)
+  testthat::expect_error(graphics::plot(fit_te1),
+                         regexp = "unconditional|not implemented|Gamma",
+                         ignore.case = TRUE)
+})
 
 testthat::test_that("fit.TE kernel length 1 vs 2 is respected", {
   set.seed(1)
@@ -128,8 +161,6 @@ testthat::test_that("fit.TE validates A (missing, non-binary)", {
   testthat::expect_true(inherits(fit3, "mixgpd_te_fit"))
 })
 
-# FAILED TEST
-
 testthat::test_that("fit.TE drops rows with missing model vars consistently", {
   set.seed(1)
   dat <- data.frame(
@@ -153,38 +184,4 @@ testthat::test_that("fit.TE drops rows with missing model vars consistently", {
 
   n_cc <- sum(stats::complete.cases(dat_na[, c("y","A","x1","x2")]))
   testthat::expect_equal(fit_na$spec_trt$N + fit_na$spec_con$N, n_cc)
-})
-
-testthat::test_that("fit.TE regression: ate/qte/plot fail cleanly if not implemented", {
-  set.seed(1)
-  dat <- data.frame(
-    y  = stats::rgamma(200, shape = 2, rate = 1),
-    A  = stats::rbinom(200, 1, 0.5),
-    x1 = stats::rnorm(200),
-    x2 = stats::rnorm(200)
-  )
-
-  fit_te1 <- DPmixGPD::fit.TE(
-    y ~ x1 + x2,
-    data   = dat,
-    A      = "A",
-    kernel = "gamma",
-    tail   = FALSE,
-    dp_rep = "stick_breaking",
-    dp_ctrl = list(K = 5),
-    mcmc   = list(n_iter = 600, burn_in = 300, chains = 1),
-    alpha  = 0.05
-  )
-
-  testthat::expect_true(inherits(fit_te1, "mixgpd_te_fit"))
-
-  testthat::expect_error(DPmixGPD::ate(fit_te1),
-                         regexp = "unconditional|not implemented|Gamma",
-                         ignore.case = TRUE)
-  testthat::expect_error(DPmixGPD::qte(fit_te1, probs = c(0.25,0.5,0.75)),
-                         regexp = "unconditional|not implemented|Gamma",
-                         ignore.case = TRUE)
-  testthat::expect_error(graphics::plot(fit_te1),
-                         regexp = "unconditional|not implemented|Gamma",
-                         ignore.case = TRUE)
 })

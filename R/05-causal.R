@@ -137,10 +137,10 @@ fit.TE <- function(formula,
                    dp_ctrl = list(K = 10),
                    mcmc = list(n_iter = 2000, burn_in = 1000, chains = 1),
                    alpha = 0.05,
-                   priors = NULL,
-                   trans = TRUE,
+                   priors = list(),
+                   trans = list(),
                    intercept = FALSE,
-                   tail = c(FALSE, FALSE), # NULL/FALSE/TRUE or c(FALSE,TRUE) etc; or "none"/"gpd"
+                   tail = FALSE,          # NULL/FALSE/TRUE or c(FALSE,TRUE) etc; or "none"/"gpd"
                    tail_ctrl = list(),     # optional; length 1 or 2; only used where tail==TRUE
                    ...) {
 
@@ -560,7 +560,7 @@ plot.mixgpd_te_fit <- function(x,
   if (!identical(x$spec_trt$mode, "response_only") ||
       !identical(x$spec_con$mode, "response_only")) {
     stop(
-      "plot.mixgpd_te_fit currently supports unconditional response-only fits (y ~ 0) only; conditional TE plotting is not implemented.\n",
+      "plot.mixgpd_te_fit is currently implemented only for response-only fits (y ~ 0).\n",
       "You fitted covariates; for now use ate(x) / qte(x) only after adding conditional support.",
       call. = FALSE
     )
@@ -905,11 +905,4 @@ plot_te_curve <- function(df) {
       ggplot2::labs(x = "Propensity score", y = "ATE", title = "CATE vs propensity score") +
       ggplot2::theme_minimal()
   }
-}
-
-
-#' @export
-print.mixgpd_te_fit <- function(x, ...) {
-  if (exists("print.mixgpd_te")) return(print.mixgpd_te(x, ...))
-  print(x)
 }
