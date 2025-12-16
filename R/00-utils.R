@@ -454,6 +454,11 @@ getNimbleOption <- function(name) {
 #'
 #' @keywords internal
 .transform_resolve <- function(X, trans, caller = "fit.dpm") {
+  # allow logical shorthand for `trans`
+  if (is.logical(trans) && length(trans) == 1L) {
+    trans <- if (isTRUE(trans)) list() else NULL
+  }
+
   # no covariates or no transforms requested
   if (is.null(X) || is.null(trans) || length(trans) == 0L) {
     return(list(X = X,
@@ -553,12 +558,15 @@ getNimbleOption <- function(name) {
 #'
 #' @return See details.
 #'
-#' @examples
-#' f <- getFromNamespace(".prepare_design_matrix", "DPmixGPD")
-#' f
-#'
 #' @keywords internal
 .prepare_design_matrix <- function(X, intercept = TRUE) {
+
+  # ---- Defensive: intercept must be a single TRUE/FALSE ----
+  if (is.null(intercept)) intercept <- TRUE
+  if (!is.logical(intercept) || length(intercept) != 1L || is.na(intercept)) {
+    stop("'intercept' must be a single TRUE/FALSE.", call. = FALSE)
+  }
+
   # No covariates case
   if (is.null(X)) return(NULL)
 
@@ -596,6 +604,7 @@ getNimbleOption <- function(name) {
 
   X_new
 }
+
 
 # ---- misc helpers ----
 #' @noRd

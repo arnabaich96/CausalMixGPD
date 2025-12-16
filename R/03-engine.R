@@ -266,7 +266,7 @@ run_mcmc_nimble_gamma <- function(spec, mcmc) {
   } else if (identical(spec$mode, "regression")) {
     # Transforms for the scale are now handled inside build_nimble_model_gamma_reg().
     # We only forbid shape regression for now.
-    if (!is.null(spec$trans$shape)) {
+    if (is.list(spec$trans) && !is.null(spec$trans$shape)) {
       stop("Shape regression is not yet implemented in the Nimble gamma engine.")
     }
 
@@ -285,7 +285,12 @@ run_mcmc_nimble_gamma <- function(spec, mcmc) {
     inits     = mm$inits
   )
 
-  cmodel <- nimble::compileNimble(model)
+  cmodel <- tryCatch(nimble::compileNimble(model), error = function(e) e)
+  compiled_model <- !inherits(cmodel, "error")
+  if (!compiled_model) {
+    warning("nimble model compilation failed; running uncompiled MCMC for portability: ", conditionMessage(cmodel), call. = FALSE)
+    cmodel <- NULL
+  }
 
   # ---- Monitors: what to save from the chain ----
   if (identical(spec$mode, "response_only")) {
@@ -297,11 +302,21 @@ run_mcmc_nimble_gamma <- function(spec, mcmc) {
 
   conf <- nimble::configureMCMC(cmodel, monitors = monitors)
   mcmc_o <- nimble::buildMCMC(conf)
-  cmcmc <- nimble::compileNimble(mcmc_o, project = cmodel)
+  cmcmc <- if (compiled_model) {
+    tryCatch(nimble::compileNimble(mcmc_o, project = cmodel), error = function(e) e)
+  } else {
+    NULL
+  }
+  compiled_mcmc <- compiled_model && !is.null(cmcmc) && !inherits(cmcmc, "error")
+  if (compiled_model && !compiled_mcmc) {
+    warning("nimble MCMC compilation failed; running uncompiled MCMC for portability: ", conditionMessage(cmcmc), call. = FALSE)
+    cmcmc <- NULL
+  }
 
   # ---- Run MCMC ----
+  mcmc_runner <- if (compiled_mcmc) cmcmc else mcmc_o
   samples <- nimble::runMCMC(
-    cmcmc,
+    mcmc_runner,
     niter             = n_iter,
     nburnin           = burn_in,
     thin              = thin,

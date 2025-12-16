@@ -2,7 +2,8 @@
 % Please edit documentation in R/06-zzz.R
 \name{.onLoad}
 \alias{.onLoad}
-\title{OnLoad}
+\title{Initializes internal registries and declares variables used by generated code
+to satisfy `R CMD check`.}
 \usage{
 .onLoad(libname, pkgname)
 }
@@ -12,35 +13,14 @@
 \item{pkgname}{Character; package name.}
 }
 \value{
-See details.
-
 Invisibly returns `NULL`.
 }
 \description{
-OnLoad.
+Initializes internal registries and declares variables used by generated code
+to satisfy `R CMD check`.
 }
 \examples{
-f <- getFromNamespace(".onLoad", "DPmixGPD")
-f
-
 getFromNamespace(".onLoad", "DPmixGPD")
 
 }
-\keyword{CMD}
-\keyword{Initializes}
-\keyword{On}
-\keyword{`R}
-\keyword{and}
-\keyword{by}
-\keyword{check`.}
-\keyword{code}
-\keyword{declares}
-\keyword{generated}
-\keyword{hook}
 \keyword{internal}
-\keyword{load}
-\keyword{registries}
-\keyword{satisfy}
-\keyword{to}
-\keyword{used}
-\keyword{variables}

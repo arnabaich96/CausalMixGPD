@@ -59,6 +59,8 @@ fit.dpm <- function(formula,
     stop("Could not build model matrix from formula. Check that RHS variables are in 'data'.",
          call. = FALSE)
   }
+  if (is.null(priors) || (is.list(priors) && length(priors) == 0L)) priors <- list()
+  if (is.null(trans)  || (is.list(trans)  && length(trans)  == 0L)) trans  <- list()
 
   # Drop the intercept column if present; we handle intercept explicitly via `intercept` arg
   if ("(Intercept)" %in% colnames(mm)) {
@@ -190,6 +192,8 @@ fit.dpmgpd <- function(formula,
     stop("Could not build model matrix from formula. Check that RHS variables are in 'data'.",
          call. = FALSE)
   }
+  if (is.null(priors) || (is.list(priors) && length(priors) == 0L)) priors <- list()
+  if (is.null(trans)  || (is.list(trans)  && length(trans)  == 0L)) trans  <- list()
 
   if ("(Intercept)" %in% colnames(mm)) {
     mm_noint <- mm[, setdiff(colnames(mm), "(Intercept)"), drop = FALSE]
@@ -1021,49 +1025,70 @@ mcmc_ggdiag <- function(object, what = c("trace", "density"), ...) {
 .gamma_mix_cdf_1draw <- function(x, w, shape, scale) {
   sum(w * stats::pgamma(x, shape = shape, scale = scale))
 }
-
+#' @noRd
 .gamma_mix_quantile_1draw <- function(p, w, shape, scale,
-                                      tol = 1e-8, max_expand = 60L) {
-  if (!is.finite(p) || p <= 0) return(0)
-  if (p >= 1) return(Inf)
+                                      tol = 1e-10,
+                                      max_expand = 60L,
+                                      expand_factor = 2) {
+  p <- as.numeric(p)[1L]
+  if (!is.finite(p) || p <= 0 || p >= 1) return(NA_real_)
 
-  # sanitize inputs
   w <- as.numeric(w); shape <- as.numeric(shape); scale <- as.numeric(scale)
-  ok <- is.finite(w) & is.finite(shape) & is.finite(scale) & w >= 0 & shape > 0 & scale > 0
-  w[!ok] <- 0
-  s <- sum(w)
-  if (!is.finite(s) || s <= 0) return(NA_real_)
-  w <- w / s
+  if (length(w) == 0L || length(shape) != length(w) || length(scale) != length(w)) return(NA_real_)
+  if (any(!is.finite(shape)) || any(shape <= 0)) return(NA_real_)
+  if (any(!is.finite(scale)) || any(scale <= 0)) return(NA_real_)
 
-  mix_cdf <- function(x) sum(w * stats::pgamma(x, shape = shape, scale = scale))
+  w[!is.finite(w) | w < 0] <- 0
+  sw <- sum(w)
+  if (!is.finite(sw) || sw <= 0) return(NA_real_)
+  w <- w / sw
 
+  mix_cdf <- function(x) {
+    if (!is.finite(x) || x < 0) return(0)
+    sum(w * stats::pgamma(x, shape = shape, scale = scale))
+  }
   f <- function(x) mix_cdf(x) - p
 
   lo <- 0
   flo <- f(lo)
-  if (!is.finite(flo)) return(NA_real_)
+  if (!is.finite(flo)) flo <- -p
 
-  # Good upper hint: max component quantile, fallback to 1 if NA
-  y_max_hint <- suppressWarnings(max(stats::qgamma(p, shape = shape, scale = scale), na.rm = TRUE))
-  if (!is.finite(y_max_hint) || y_max_hint <= 0) y_max_hint <- 1
-  hi <- max(10 * y_max_hint, 1)
+  # NA-safe upper hint from component quantiles
+  q_hint <- suppressWarnings(stats::qgamma(p, shape = shape, scale = scale))
+  q_hint <- q_hint[is.finite(q_hint) & q_hint >= 0]
+  y_max_hint <- if (length(q_hint)) max(q_hint) else NA_real_
+
+  ok_hint <- is.numeric(y_max_hint) &&
+    length(y_max_hint) == 1L &&
+    !is.na(y_max_hint) &&
+    is.finite(y_max_hint) &&
+    y_max_hint > 0
+
+  hi <- if (ok_hint) max(10 * y_max_hint, 1) else 1
 
   fhi <- f(hi)
   k <- 0L
-  while (is.finite(fhi) && fhi < 0 && k < max_expand) {
-    hi <- hi * 2
+  while ((is.na(fhi) || !is.finite(fhi) || fhi < 0) && k < max_expand) {
+    hi <- hi * expand_factor
     fhi <- f(hi)
     k <- k + 1L
   }
-  if (!is.finite(fhi) || fhi < 0) return(NA_real_)
 
-  stats::uniroot(f, lower = lo, upper = hi, tol = tol)$root
+  if (is.na(fhi) || !is.finite(fhi) || fhi < 0) return(NA_real_)
+
+  out <- tryCatch(
+    stats::uniroot(f, lower = lo, upper = hi, tol = tol)$root,
+    error = function(e) NA_real_
+  )
+  out
 }
+
 
 #' @noRd
 .gamma_mix_mean_1draw <- function(w, shape, scale) {
   sum(w * (shape * scale))
 }
+#' @noRd
 .extract_gamma_draws <- function(draws) {
   draws <- as.matrix(draws)
   cn <- colnames(draws)
@@ -1118,47 +1143,9 @@ mcmc_ggdiag <- function(object, what = c("trace", "density"), ...) {
   list(W = W, Shape = Shape, Scale = Scale)
 }
 #' @noRd
-.gamma_mix_quantile_1draw <- function(p, w, shape, scale,
-                                      lower = 0, upper = NULL,
-                                      y_max_hint = NULL,
-                                      maxiter = 1000L) {
-  p <- as.numeric(p)[1]
-  if (!is.finite(p) || p <= 0 || p >= 1) {
-    stop("'p' must be in (0, 1).", call. = FALSE)
-  }
-
-  # Initial upper bound: use data hint if available, else a conservative large value
-  if (is.null(upper)) {
-    upper <- if (is.finite(y_max_hint) && y_max_hint > 0) {
-      max(10 * y_max_hint, 1)
-    } else {
-      1
-    }
-  }
-
-  F <- function(x) .gamma_mix_cdf_1(x, w=w, shape=shape, scale=scale)
-
-  # Expand upper until F(upper) >= p (or until it stops changing)
-  fU <- F(upper)
-  tries <- 0L
-  while (is.finite(fU) && fU < p && tries < 60L) {
-    upper <- upper * 2
-    fU_new <- F(upper)
-    # if numeric saturation / no change, break
-    if (!is.finite(fU_new) || fU_new <= fU) break
-    fU <- fU_new
-    tries <- tries + 1L
-  }
-
-  if (!is.finite(fU) || fU < p) {
-    stop("Failed to bracket quantile (upper bound too small even after expansion).",
-         call. = FALSE)
-  }
-
-  stats::uniroot(function(x) F(x) - p,
-                 lower = lower, upper = upper,
-                 tol = 1e-10, maxiter = maxiter)$root
-}
+#'
+#'
+#'
 
 #' @noRd
 .extract_gamma_dp_params <- function(draws, renormalize_weights = TRUE) {
@@ -1367,8 +1354,12 @@ predict.mixgpd_fit <- function(object,
   for (i in seq_along(probs)) {
     p <- probs[i]
     qdraws[i, ] <- vapply(seq_len(M), function(m) {
-      .gamma_mix_quantile_1draw(p, W[m, ], Shape[m, ], Scale[m, ])
+      tryCatch(
+        .gamma_mix_quantile_1draw(p, W[m, ], Shape[m, ], Scale[m, ]),
+        error = function(e) NA_real_
+      )
     }, numeric(1))
+
   }
 
   # drop NA draws per prob before summaries
@@ -1457,3 +1448,84 @@ predict.mixgpd_fit <- function(object,
   stats::uniroot(f_root, lower = lower, upper = upper, tol = tol)$root
 }
 
+
+
+
+#' Plot method for mixgpd_fit objects
+#'
+#' Internal plot method used by tests. Returns a ggplot object.
+#'
+#' @param x A `mixgpd_fit` object.
+#' @param type Character. One of "density" or "cdf".
+#' @param grid Optional numeric vector of y-values to evaluate on.
+#' @param n_grid Integer. Length of the automatically generated grid (if grid is NULL).
+#' @param ... Unused (accepted for compatibility).
+#'
+#' @return A ggplot object.
+#' @export
+plot.mixgpd_fit <- function(x,
+                            type = c("density", "cdf"),
+                            grid = NULL,
+                            n_grid = 200L,
+                            ...) {
+  type <- match.arg(type)
+
+  # ---- build evaluation grid ----
+  if (is.null(grid)) {
+    xr <- NULL
+
+    # 1) preferred: stored range
+    if (!is.null(x$x_range) && is.numeric(x$x_range) && length(x$x_range) == 2L &&
+        all(is.finite(x$x_range))) {
+      xr <- as.numeric(x$x_range)
+    }
+
+    # 2) fallback: infer from observed Y stored in spec
+    if (is.null(xr) && !is.null(x$spec)) {
+      yobs <- NULL
+      if (!is.null(x$spec$Y)) yobs <- x$spec$Y
+      if (is.null(yobs) && !is.null(x$spec$data$Y)) yobs <- x$spec$data$Y
+      if (is.null(yobs) && !is.null(x$spec$data$y)) yobs <- x$spec$data$y
+
+      if (!is.null(yobs)) {
+        yobs <- as.numeric(yobs)
+        yobs <- yobs[is.finite(yobs)]
+        if (length(yobs) > 0L) {
+          xr <- range(yobs)
+        }
+      }
+    }
+
+    if (is.null(xr) || length(xr) != 2L || any(!is.finite(xr))) {
+      stop("Cannot build plotting grid: object$x_range is missing or invalid.", call. = FALSE)
+    }
+
+    # small padding so we don't plot on the boundary
+    pad <- 0.05 * diff(xr)
+    if (!is.finite(pad) || pad <= 0) pad <- 0
+    lo <- xr[1] - pad
+    hi <- xr[2] + pad
+
+    # keep support nonnegative for positive kernels (gamma/lognormal/etc.)
+    if (!is.null(x$kernel) && x$kernel %in% c("gamma", "lognormal", "inverse_gaussian", "amoroso", "pareto")) {
+      lo <- max(0, lo)
+    }
+
+    grid <- seq(from = lo, to = hi, length.out = as.integer(n_grid))
+  } else {
+    grid <- as.numeric(grid)
+  }
+
+  # ---- predictions ----
+  y <- predict(x, newdata = grid, type = type)
+
+  if (!is.numeric(y) || length(y) != length(grid)) {
+    stop("Internal error: predict() did not return a numeric vector of the same length as grid.", call. = FALSE)
+  }
+
+  df <- data.frame(y = grid, value = y)
+
+  ggplot2::ggplot(df, ggplot2::aes(x = y, y = value)) +
+    ggplot2::geom_line() +
+    ggplot2::labs(x = "y", y = type)
+}

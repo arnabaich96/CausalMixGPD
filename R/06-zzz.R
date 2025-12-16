@@ -1,18 +1,11 @@
-#' OnLoad
-#'
-#' OnLoad.
-#'
-#' @param libname libname.
-#' @param pkgname pkgname.
-#'
-#' @return See details.
-#'
-#' @examples
-#' f <- getFromNamespace(".onLoad", "DPmixGPD")
-#' f
-#'
+
+
+#' Package Load Hook
+#' @import nimble
 #' @keywords internal
-#' On load hook
+#' @noRd
+character(0)
+
 #'
 #' Initializes internal registries and declares variables used by generated code
 #' to satisfy `R CMD check`.

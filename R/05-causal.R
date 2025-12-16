@@ -40,7 +40,7 @@
 
 # =========================================================
 # fit.TE: Two-arm wrapper with per-arm tail dispatch
-#   tail = NULL/FALSE => bulk-only (fit.dpm)
+#   tail = FALSE => bulk-only (fit.dpm)
 #   tail = TRUE       => both arms bulk+GPD (fit.dpmgpd)
 #   tail = c(TRUE,FALSE) => trt uses fit.dpmgpd, con uses fit.dpm
 #   tail = c(FALSE,TRUE) => trt uses fit.dpm,    con uses fit.dpmgpd
@@ -52,14 +52,18 @@
 # ---- internal: split length-1 or length-2 into (trt, con)
 #' @keywords internal
 .split_arm_arg <- function(x, name) {
-  if (is.null(x)) return(list(trt = NULL, con = NULL))
-
+  if (is.null(x)) {
+    stop(sprintf("'%s' cannot be NULL; use length-1 or length-2 values.", name),
+         call. = FALSE)
+  }
   # list-like args (priors/trans/tail_ctrl often are lists)
   if (is.list(x) && !is.data.frame(x)) {
+    if (length(x) == 0L) return(list(trt = list(), con = list()))
     if (length(x) == 1L) return(list(trt = x[[1]], con = x[[1]]))
     if (length(x) == 2L) return(list(trt = x[[1]], con = x[[2]]))
-    stop(sprintf("'%s' must be length 1 or 2 (list).", name), call. = FALSE)
+    stop(sprintf("'%s' must be length 0, 1 or 2 (list).", name), call. = FALSE)
   }
+
 
   # atomic vectors / character / logical
   if (length(x) == 1L) return(list(trt = x[[1]], con = x[[1]]))
@@ -71,27 +75,18 @@
 # ---- internal: parse tail flags into per-arm TRUE/FALSE
 #' @keywords internal
 .parse_tail_flags <- function(tail) {
-  if (is.null(tail)) return(list(trt = FALSE, con = FALSE))
+  if (is.null(tail)) {
+    stop("'tail' cannot be NULL; use TRUE/FALSE or c(TRUE,FALSE).",
+         call. = FALSE)
+  }
 
   if (is.logical(tail)) {
     if (length(tail) == 1L) return(list(trt = tail, con = tail))
     if (length(tail) == 2L) return(list(trt = tail[1L], con = tail[2L]))
-    stop("'tail' must be NULL, length-1 logical, or length-2 logical.", call. = FALSE)
+    stop("'tail' must be length-1 logical, or length-2 logical.", call. = FALSE)
   }
 
-  # convenience: character
-  if (is.character(tail)) {
-    conv <- function(x) {
-      if (identical(x, "none")) return(FALSE)
-      if (identical(x, "gpd"))  return(TRUE)
-      stop("If 'tail' is character, use 'none' or 'gpd'.", call. = FALSE)
-    }
-    if (length(tail) == 1L) return(list(trt = conv(tail), con = conv(tail)))
-    if (length(tail) == 2L) return(list(trt = conv(tail[1L]), con = conv(tail[2L])))
-    stop("'tail' must be length 1 or 2.", call. = FALSE)
-  }
-
-  stop("'tail' must be NULL, logical, or character ('none'/'gpd').", call. = FALSE)
+  stop("'tail' must be logical", call. = FALSE)
 }
 
 # ---- internal: only pass args that the target function accepts (unless it has "...")
@@ -123,7 +118,7 @@
 #' @param trans Transform specification(s). Length 1 applies to both arms; length 2 arm-specific.
 #' @param intercept Logical. Whether to include an intercept in the design matrix construction.
 #'   Length 1 applies to both arms; length 2 arm-specific.
-#' @param tail Tail indicator(s). \code{NULL} or \code{FALSE} uses bulk-only DPM.
+#' @param tail Tail indicator(s). \code{TRUE} or \code{FALSE} uses bulk-only DPM.
 #'   \code{TRUE} uses DPM+GPD. Length 1 applies to both arms; length 2 uses
 #'   \code{tail[1]} for treated and \code{tail[2]} for control.
 #' @param tail_ctrl Optional tail control list(s) used only for arms with \code{tail=TRUE}.
@@ -143,15 +138,20 @@ fit.TE <- function(formula,
                    mcmc = list(n_iter = 2000, burn_in = 1000, chains = 1),
                    alpha = 0.05,
                    priors = NULL,
-                   trans = NULL,
-                   intercept = NULL,
-                   tail = NULL,          # NULL/FALSE/TRUE or c(FALSE,TRUE) etc; or "none"/"gpd"
-                   tail_ctrl = NULL,     # optional; length 1 or 2; only used where tail==TRUE
+                   trans = TRUE,
+                   intercept = FALSE,
+                   tail = c(FALSE, FALSE), # NULL/FALSE/TRUE or c(FALSE,TRUE) etc; or "none"/"gpd"
+                   tail_ctrl = list(),     # optional; length 1 or 2; only used where tail==TRUE
                    ...) {
 
   # ---- basic checks
   if (missing(data) || is.null(data)) stop("'data' must be provided.", call. = FALSE)
   if (missing(A)) stop("A is missing: provide A as a column name or 0/1 vector.", call. = FALSE)
+  if (is.null(priors)) priors <- list()
+  if (is.null(trans))  trans  <- list()
+  if (is.null(tail_ctrl)) tail_ctrl <- list()
+  if (is.null(intercept)) intercept <- TRUE
+  if (is.null(tail)) tail <- FALSE
 
   # ---- build model frame for y + X (keep NAs; we handle complete cases explicitly)
   mf <- stats::model.frame(formula, data = data, na.action = stats::na.pass)
@@ -213,7 +213,8 @@ fit.TE <- function(formula,
     intercept = icpt$trt,
     ...
   )
-  if (isTRUE(tf$trt) && !is.null(tc$trt)) args_trt$tail_ctrl <- tc$trt
+  if (isTRUE(tf$trt) && !identical(tc$trt, list())) args_trt$tail_ctrl <- tc$trt
+
 
   args_con <- list(
     formula   = formula,
@@ -228,7 +229,7 @@ fit.TE <- function(formula,
     intercept = icpt$con,
     ...
   )
-  if (isTRUE(tf$con) && !is.null(tc$con)) args_con$tail_ctrl <- tc$con
+  if (isTRUE(tf$con) && !identical(tf$con, list())) args_con$tail_ctrl <- tc$con
 
   # ---- fit arms
   fit_trt <- .call_with_formals(backend_trt, args_trt)
@@ -413,7 +414,11 @@ ate.mixgpd_te_fit <- function(object, level = 0.95, renormalize_weights = TRUE, 
 
   if (length(te) == 0L) {
     warning("ATE: all posterior draws were invalid after filtering; returning NA.", call. = FALSE)
-    return(matrix(NA_real_, nrow = 1, dimnames = list("ATE", c("mean", "sd", "lower", "upper"))))
+    return(matrix(
+      NA_real_, nrow = 1, ncol = 4,
+      dimnames = list("ATE", c("mean","sd","lower","upper"))
+    ))
+
   }
 
   alpha <- (1 - level) / 2
@@ -470,9 +475,7 @@ qte.mixgpd_te_fit <- function(object,
   p0 <- .extract_gamma_dp_params(d0, renormalize_weights = renormalize_weights)
 
   M <- min(p1$M, p0$M)
-
-  y1_max <- if (!is.null(object$spec_trt$Y)) max(object$spec_trt$Y, na.rm = TRUE) else NA_real_
-  y0_max <- if (!is.null(object$spec_con$Y)) max(object$spec_con$Y, na.rm = TRUE) else NA_real_
+  if (M <= 0L) stop("No posterior draws available for QTE.", call. = FALSE)
 
   alpha <- (1 - level) / 2
 
@@ -480,24 +483,57 @@ qte.mixgpd_te_fit <- function(object,
   rownames(out) <- paste0("q", probs)
   colnames(out) <- c("mean", "sd", "lower", "upper")
 
+  # helper: summarize with filtering + warning
+  .summ_te <- function(z, tau) {
+    z <- as.numeric(z)
+    ok <- is.finite(z)
+    if (!all(ok)) {
+      warning(
+        "QTE(tau=", tau, "): dropping non-finite posterior draws (NA/Inf) before summarizing.",
+        call. = FALSE
+      )
+    }
+    z <- z[ok]
+
+    if (!length(z)) {
+      warning(
+        "QTE(tau=", tau, "): all posterior draws invalid after filtering; returning NA for this tau.",
+        call. = FALSE
+      )
+      return(c(mean = NA_real_, sd = NA_real_, lower = NA_real_, upper = NA_real_))
+    }
+
+    c(
+      mean  = mean(z),
+      sd    = stats::sd(z),
+      lower = as.numeric(stats::quantile(z, probs = alpha,     names = FALSE)),
+      upper = as.numeric(stats::quantile(z, probs = 1 - alpha, names = FALSE))
+    )
+  }
+
   for (ii in seq_along(probs)) {
     tau <- probs[ii]
     te_draw <- numeric(M)
 
     for (m in seq_len(M)) {
-      q1 <- .gamma_mix_quantile_1draw(tau, p1$W[m, ], p1$Shape[m, ], p1$Scale[m, ], y_max_hint = y1_max)
-      q0 <- .gamma_mix_quantile_1draw(tau, p0$W[m, ], p0$Shape[m, ], p0$Scale[m, ], y_max_hint = y0_max)
+      q1 <- tryCatch(
+        .gamma_mix_quantile_1draw(tau, p1$W[m, ], p1$Shape[m, ], p1$Scale[m, ]),
+        error = function(e) NA_real_
+      )
+      q0 <- tryCatch(
+        .gamma_mix_quantile_1draw(tau, p0$W[m, ], p0$Shape[m, ], p0$Scale[m, ]),
+        error = function(e) NA_real_
+      )
+
       te_draw[m] <- q1 - q0
     }
 
-    out[ii, "mean"]  <- mean(te_draw)
-    out[ii, "sd"]    <- stats::sd(te_draw)
-    out[ii, "lower"] <- stats::quantile(te_draw, probs = alpha,     names = FALSE)
-    out[ii, "upper"] <- stats::quantile(te_draw, probs = 1 - alpha, names = FALSE)
+    out[ii, ] <- .summ_te(te_draw, tau = tau)
   }
 
   out
 }
+
 
 #' Plot treatment effects
 #'
@@ -524,7 +560,7 @@ plot.mixgpd_te_fit <- function(x,
   if (!identical(x$spec_trt$mode, "response_only") ||
       !identical(x$spec_con$mode, "response_only")) {
     stop(
-      "plot.mixgpd_te_fit is currently implemented only for response-only fits (y ~ 0).\n",
+      "plot.mixgpd_te_fit currently supports unconditional response-only fits (y ~ 0) only; conditional TE plotting is not implemented.\n",
       "You fitted covariates; for now use ate(x) / qte(x) only after adding conditional support.",
       call. = FALSE
     )
@@ -869,4 +905,11 @@ plot_te_curve <- function(df) {
       ggplot2::labs(x = "Propensity score", y = "ATE", title = "CATE vs propensity score") +
       ggplot2::theme_minimal()
   }
+}
+
+
+#' @export
+print.mixgpd_te_fit <- function(x, ...) {
+  if (exists("print.mixgpd_te")) return(print.mixgpd_te(x, ...))
+  print(x)
 }

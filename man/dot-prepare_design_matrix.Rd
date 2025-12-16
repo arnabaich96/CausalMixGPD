@@ -17,9 +17,4 @@ See details.
 \description{
 Prepare design matrix.
 }
-\examples{
-f <- getFromNamespace(".prepare_design_matrix", "DPmixGPD")
-f
-
-}
 \keyword{internal}

@@ -14,10 +14,10 @@ fit.TE(
   mcmc = list(n_iter = 2000, burn_in = 1000, chains = 1),
   alpha = 0.05,
   priors = NULL,
-  trans = NULL,
-  intercept = NULL,
-  tail = NULL,
-  tail_ctrl = NULL,
+  trans = TRUE,
+  intercept = FALSE,
+  tail = c(FALSE, FALSE),
+  tail_ctrl = list(),
   ...
 )
 }
@@ -47,7 +47,7 @@ uses arm-specific priors.}
 \item{intercept}{Logical. Whether to include an intercept in the design matrix construction.
 Length 1 applies to both arms; length 2 arm-specific.}
 
-\item{tail}{Tail indicator(s). \code{NULL} or \code{FALSE} uses bulk-only DPM.
+\item{tail}{Tail indicator(s). \code{TRUE} or \code{FALSE} uses bulk-only DPM.
 \code{TRUE} uses DPM+GPD. Length 1 applies to both arms; length 2 uses
 \code{tail[1]} for treated and \code{tail[2]} for control.}
 
