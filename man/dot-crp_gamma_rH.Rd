@@ -2,11 +2,11 @@
 % Please edit documentation in R/03-engine-crp-gamma.R
 \name{.crp_gamma_rH}
 \alias{.crp_gamma_rH}
-\title{Draw m auxiliary parameters from base prior H on (log_shape, log_scale).}
+\title{Draw m auxiliary parameters from base prior H on (shape, scale).}
 \usage{
 .crp_gamma_rH(m, pri)
 }
 \description{
-Draw m auxiliary parameters from base prior H on (log_shape, log_scale).
+Draw m auxiliary parameters from base prior H on (shape, scale).
 }
 \keyword{internal}

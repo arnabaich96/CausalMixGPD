@@ -238,11 +238,11 @@ build_nimble_model_gamma_reg <- function(spec) {
 #' @return See details.
 #'
 #' @examples
-#' f <- getFromNamespace("run_mcmc_nimble_gamma", "DPmixGPD")
+#' f <- getFromNamespace("run_mcmc_sb_gamma", "DPmixGPD")
 #' f
 #'
 #' @keywords internal
-run_mcmc_nimble_gamma <- function(spec, mcmc) {
+run_mcmc_sb_gamma <- function(spec, mcmc) {
   if (!requireNamespace("nimble", quietly = TRUE)) {
     stop("Package 'nimble' is required for the DP mixture engine.", call. = FALSE)
   }
@@ -586,7 +586,7 @@ run_mcmc_engine <- function(spec, mcmc) {
       (is.null(spec$tail) || spec$tail == "none") &&
       identical(spec$dp_rep, "stick_breaking")) {
 
-    return(run_mcmc_nimble_gamma(spec, mcmc))
+    return(run_mcmc_sb_gamma(spec, mcmc))
   }
 
 

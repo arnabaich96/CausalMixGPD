@@ -195,10 +195,15 @@ build_model_spec <- function(Y,
   ## ---- 2) Mode: response-only vs regression ----
   mode <- if (is.null(X) || (is.matrix(X) && ncol(X) == 0L)) "response_only" else "regression"
 
-  ## ---- 3) Ensure dp_ctrl and K exist ----
+  ## ---- 3) Ensure dp_ctrl exists ----
   if (is.null(dp_ctrl)) dp_ctrl <- list()
-  if (is.null(dp_ctrl$K)) {
-    dp_ctrl$K <- 5L  # default truncation
+
+  # Stick-breaking uses a fixed truncation K; CRP does not.
+  if (identical(dp_rep, "stick_breaking")) {
+    if (is.null(dp_ctrl$K)) dp_ctrl$K <- 5L  # default truncation
+  } else {
+    # For CRP, ignore any user-provided K to avoid confusion.
+    dp_ctrl$K <- NULL
   }
 
   ## ---- 4) Keep raw X, then apply transforms ----

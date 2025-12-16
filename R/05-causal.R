@@ -314,6 +314,18 @@ ate <- function(object, level = 0.95, renormalize_weights = TRUE, ...) {
 ate.mixgpd_te_fit <- function(object, level = 0.95, renormalize_weights = TRUE, ...) {
   stopifnot(inherits(object, "mixgpd_te_fit"))
 
+  # Regression/conditional TE support is not implemented yet.
+  # Fail early with a clear message rather than touching DP draw internals.
+  if (!identical(object$spec_trt$mode %||% NA_character_, "response_only") ||
+      !identical(object$spec_con$mode %||% NA_character_, "response_only")) {
+    stop(
+      "Unconditional ATE/QTE are not implemented for regression fits (y ~ x). ",
+      "Fit y ~ 0 or use ate(x)/qte(x) once conditional support is added.",
+      call. = FALSE
+    )
+  }
+
+
   d1 <- .as_mcmc_matrix(object$fit_trt)
   d0 <- .as_mcmc_matrix(object$fit_con)
 
@@ -459,6 +471,18 @@ qte.mixgpd_te_fit <- function(object,
                               renormalize_weights = TRUE,
                               ...) {
   stopifnot(inherits(object, "mixgpd_te_fit"))
+
+  # Regression/conditional TE support is not implemented yet.
+  # Fail early with a clear message rather than touching DP draw internals.
+  if (!identical(object$spec_trt$mode %||% NA_character_, "response_only") ||
+      !identical(object$spec_con$mode %||% NA_character_, "response_only")) {
+    stop(
+      "Unconditional ATE/QTE are not implemented for regression fits (y ~ x). ",
+      "Fit y ~ 0 or use ate(x)/qte(x) once conditional support is added.",
+      call. = FALSE
+    )
+  }
+
 
   probs <- sort(unique(as.numeric(probs)))
   if (any(!is.finite(probs)) || any(probs <= 0 | probs >= 1)) {

@@ -586,7 +586,7 @@ print.mixgpd_fit <- function(x, ...) {
   N <- x$N %||% x$spec$N %||% NA_integer_
 
   # truncation K if present
-  K <- tryCatch(x$spec$dp_ctrl$K, error = function(e) NA_integer_)
+  K <- x$spec$dp_ctrl$K %||% NA_integer_
 
   cat("Dirichlet process mixture model\n")
   if (!is.na(N)) cat("N:      ", N, "\n", sep = "")
@@ -1447,4 +1447,3 @@ predict.mixgpd_fit <- function(object,
   # uniroot in bracket
   stats::uniroot(f_root, lower = lower, upper = upper, tol = tol)$root
 }
-

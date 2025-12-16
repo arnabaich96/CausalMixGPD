@@ -3,9 +3,13 @@
 #' Runs an exact Chinese Restaurant Process (CRP) Dirichlet process mixture sampler
 #' for the unconditional Gamma kernel using Neal's Algorithm 8 (nonconjugate).
 #'
-#' This engine targets the correct posterior for a Dirichlet process mixture with
-#' base prior \eqn{H} on \eqn{\theta = (\log(\mathrm{shape}), \log(\mathrm{scale}))}
-#' and concentration parameter \eqn{\alpha}. No truncation \eqn{K} is used.
+#' This engine targets the posterior of a Dirichlet process mixture with base prior
+#' H on (shape, scale) and concentration parameter alpha. No truncation K is used.
+#'
+#' Important implementation note: the engine stores and updates parameters on their
+#' natural positive scale. Any covariate-dependent transforms (e.g., exp links) belong
+#' in the transformation layer used by regression models, not inside these likelihood
+#' helpers.
 #'
 #' @param spec Model specification list produced by `build_model_spec()`.
 #'   Must include `spec$kernel == "gamma"` and `spec$Y` (numeric vector).
@@ -13,10 +17,14 @@
 #'
 #' @return A list with elements:
 #' \describe{
-#'   \item{crp_draws}{A list of posterior draws (after burn-in and thinning). Each
-#'   draw is a list containing `log_shape`, `log_scale`, `counts` and `alpha`.}
+#'   \item{mcmc_draws}{A `coda::mcmc.list` of posterior draws with columns
+#'   `alpha`, `shape[1:Kmax]`, `scale[1:Kmax]`, `v[1:Kmax]`, `w[1:Kmax]` where
+#'   `Kmax` is the maximum number of occupied clusters across saved iterations.
+#'   Components are ordered by decreasing weight within each draw; unused slots have
+#'   `w=0` and placeholder `shape=1`, `scale=1`.}
 #'   \item{mcmc_info}{Basic MCMC settings.}
 #' }
+#'
 #' @keywords internal
 run_mcmc_crp_gamma <- function(spec, mcmc) {
   if (!identical(spec$kernel, "gamma")) {
@@ -25,24 +33,28 @@ run_mcmc_crp_gamma <- function(spec, mcmc) {
   if (is.null(spec$Y)) {
     stop("run_mcmc_crp_gamma: spec$Y is required.", call. = FALSE)
   }
-
   y <- as.numeric(spec$Y)
-  y <- y[is.finite(y)]
+  if (any(!is.finite(y))) y <- y[is.finite(y)]
   if (length(y) < 2L) stop("run_mcmc_crp_gamma: need at least 2 observations.", call. = FALSE)
   if (any(y < 0)) stop("run_mcmc_crp_gamma: Gamma kernel requires y >= 0.", call. = FALSE)
 
   n_iter  <- if (is.null(mcmc$n_iter)) 2000L else as.integer(mcmc$n_iter)
   burn_in <- if (is.null(mcmc$burn_in)) 1000L else as.integer(mcmc$burn_in)
   thin    <- if (is.null(mcmc$thin)) 1L else as.integer(mcmc$thin)
+  chains  <- if (is.null(mcmc$chains)) 1L else as.integer(mcmc$chains)
+  if (chains != 1L) stop("CRP engine currently supports chains = 1.", call. = FALSE)
   if (n_iter <= burn_in) stop("mcmc$n_iter must be > mcmc$burn_in.", call. = FALSE)
   if (thin < 1L) stop("mcmc$thin must be >= 1.", call. = FALSE)
 
   dp_ctrl <- if (is.null(spec$dp_ctrl)) list() else spec$dp_ctrl
-  m_aux   <- if (is.null(dp_ctrl$m_aux)) 5L else as.integer(dp_ctrl$m_aux)
+  if (!is.null(dp_ctrl$K)) {
+    warning("dp_ctrl$K is ignored for dp_rep = 'crp' (CRP does not use a fixed truncation).", call. = FALSE)
+  }
+  m_aux <- if (is.null(dp_ctrl$m_aux)) 5L else as.integer(dp_ctrl$m_aux)
   if (m_aux < 1L) stop("dp_ctrl$m_aux must be >= 1.", call. = FALSE)
 
   mh_sd <- dp_ctrl$mh_sd
-  if (is.null(mh_sd)) mh_sd <- c(0.20, 0.20)
+  if (is.null(mh_sd)) mh_sd <- c(0.25, 0.25)
   mh_sd <- as.numeric(mh_sd)
   if (length(mh_sd) == 1L) mh_sd <- rep(mh_sd, 2L)
   if (length(mh_sd) != 2L || any(!is.finite(mh_sd)) || any(mh_sd <= 0)) {
@@ -54,48 +66,42 @@ run_mcmc_crp_gamma <- function(spec, mcmc) {
   alpha <- if (!is.null(spec$alpha)) as.numeric(spec$alpha) else 1
   if (!is.finite(alpha) || alpha <= 0) stop("alpha must be > 0.", call. = FALSE)
 
-  # Initialize: random 2 clusters
   N <- length(y)
+
+  # ---- state ----
   z <- sample.int(2L, N, replace = TRUE)
 
   clusters <- new.env(parent = emptyenv())
   next_id <- 1L
-  # map internal cluster labels to env keys
-  cl_of_z <- integer(2L)
   for (k in 1:2) {
     key <- as.character(next_id); next_id <- next_id + 1L
     th <- .crp_gamma_rH(1L, pri)
-    clusters[[key]] <- list(log_shape = th$log_shape, log_scale = th$log_scale, members = integer(0))
-    cl_of_z[k] <- as.integer(key)
+    clusters[[key]] <- list(shape = th$shape, scale = th$scale, members = integer(0))
   }
-
-  # assign members
+  keys <- ls(envir = clusters)
   for (i in seq_len(N)) {
-    key <- as.character(cl_of_z[z[i]])
+    key <- keys[z[i]]
     clusters[[key]]$members <- c(clusters[[key]]$members, i)
   }
 
-  # helper to drop empty cluster
   drop_if_empty <- function(key) {
     if (length(clusters[[key]]$members) == 0L) rm(list = key, envir = clusters)
   }
 
-  # storage
   keep_idx <- seq.int(from = burn_in + 1L, to = n_iter, by = thin)
-  draws <- vector("list", length(keep_idx))
+
+  # First pass: run and keep raw cluster draws, also record Kmax
+  raw_draws <- vector("list", length(keep_idx))
   keep_pos <- 0L
+  Kmax <- 0L
 
   for (iter in seq_len(n_iter)) {
 
-    # --- Allocation updates (Neal 8) ---
-    keys_exist <- ls(envir = clusters)
+    # --- allocation updates (Neal 8) ---
     for (i in seq_len(N)) {
-      # current cluster key
+      # find current cluster key
       cur_key <- NULL
-      # find cluster containing i
-      # (we keep members vectors; remove by search)
-      keys_exist <- ls(envir = clusters)
-      for (k in keys_exist) {
+      for (k in ls(envir = clusters)) {
         mem <- clusters[[k]]$members
         if (length(mem) && any(mem == i)) { cur_key <- k; break }
       }
@@ -106,160 +112,182 @@ run_mcmc_crp_gamma <- function(spec, mcmc) {
       clusters[[cur_key]]$members <- mem[mem != i]
       drop_if_empty(cur_key)
 
-      # existing cluster probabilities
       keys_exist <- ls(envir = clusters)
       n_k <- vapply(keys_exist, function(k) length(clusters[[k]]$members), integer(1))
+
       logp_exist <- numeric(length(keys_exist))
       for (kk in seq_along(keys_exist)) {
         k <- keys_exist[kk]
         th <- clusters[[k]]
-        logp_exist[kk] <- log(n_k[kk]) + .crp_gamma_loglik1(y[i], th$log_shape, th$log_scale)
+        logp_exist[kk] <- log(n_k[kk]) + .gamma_loglik1(y[i], th$shape, th$scale)
       }
 
-      # auxiliary new clusters
-      aux <- .crp_gamma_rH(m_aux, pri) # vectors log_shape/log_scale
+      aux <- .crp_gamma_rH(m_aux, pri)
       logp_new <- numeric(m_aux)
       for (j in seq_len(m_aux)) {
-        logp_new[j] <- log(alpha / m_aux) + .crp_gamma_loglik1(y[i], aux$log_shape[j], aux$log_scale[j])
+        logp_new[j] <- log(alpha / m_aux) + .gamma_loglik1(y[i], aux$shape[j], aux$scale[j])
       }
 
-      # sample destination
       logp <- c(logp_exist, logp_new)
       p <- exp(logp - max(logp))
       p <- p / sum(p)
 
       draw <- sample.int(length(p), 1L, prob = p)
-
       if (draw <= length(keys_exist)) {
         k <- keys_exist[draw]
         clusters[[k]]$members <- c(clusters[[k]]$members, i)
       } else {
         j <- draw - length(keys_exist)
         key <- as.character(next_id); next_id <- next_id + 1L
-        clusters[[key]] <- list(
-          log_shape = aux$log_shape[j],
-          log_scale = aux$log_scale[j],
-          members = i
-        )
+        clusters[[key]] <- list(shape = aux$shape[j], scale = aux$scale[j], members = i)
       }
     }
 
-    # --- Parameter updates per cluster (RW-MH on log-shape/log-scale) ---
-    keys_exist <- ls(envir = clusters)
-    for (k in keys_exist) {
+    # --- parameter updates per cluster (RW-MH, lognormal proposals) ---
+    for (k in ls(envir = clusters)) {
       mem <- clusters[[k]]$members
       yy <- y[mem]
 
-      cur_ls <- clusters[[k]]$log_shape
-      cur_lc <- clusters[[k]]$log_scale
+      cur_s <- clusters[[k]]$shape
+      cur_c <- clusters[[k]]$scale
 
-      prop_ls <- cur_ls + stats::rnorm(1L, 0, mh_sd[1])
-      prop_lc <- cur_lc + stats::rnorm(1L, 0, mh_sd[2])
+      # lognormal random-walk proposals (no explicit exp in code)
+      prop_s <- stats::rlnorm(1L, meanlog = log(cur_s), sdlog = mh_sd[1])
+      prop_c <- stats::rlnorm(1L, meanlog = log(cur_c), sdlog = mh_sd[2])
 
-      cur_lp <- .crp_gamma_logprior(cur_ls, cur_lc, pri) + .crp_gamma_loglik(yy, cur_ls, cur_lc)
-      prp_lp <- .crp_gamma_logprior(prop_ls, prop_lc, pri) + .crp_gamma_loglik(yy, prop_ls, prop_lc)
+      cur_lp <- .crp_gamma_logprior(cur_s, cur_c, pri) + .gamma_loglik(yy, cur_s, cur_c)
+      prp_lp <- .crp_gamma_logprior(prop_s, prop_c, pri) + .gamma_loglik(yy, prop_s, prop_c)
 
-      if (log(stats::runif(1L)) < (prp_lp - cur_lp)) {
-        clusters[[k]]$log_shape <- prop_ls
-        clusters[[k]]$log_scale <- prop_lc
+      # symmetric in log-space? not exactly; include proposal ratio for lognormal RW
+      # q(prop|cur)/q(cur|prop) cancels because both are lognormal centered at log(current):
+      # include explicitly for correctness
+      log_q_cur_given_prp <- stats::dlnorm(cur_s, meanlog = log(prop_s), sdlog = mh_sd[1], log = TRUE) +
+        stats::dlnorm(cur_c, meanlog = log(prop_c), sdlog = mh_sd[2], log = TRUE)
+      log_q_prp_given_cur <- stats::dlnorm(prop_s, meanlog = log(cur_s), sdlog = mh_sd[1], log = TRUE) +
+        stats::dlnorm(prop_c, meanlog = log(cur_c), sdlog = mh_sd[2], log = TRUE)
+
+      log_acc <- (prp_lp - cur_lp) + (log_q_cur_given_prp - log_q_prp_given_cur)
+
+      if (log(stats::runif(1L)) < log_acc) {
+        clusters[[k]]$shape <- prop_s
+        clusters[[k]]$scale <- prop_c
       }
     }
 
-    # --- Optional alpha update (Escobar-West) ---
+    # --- optional alpha update (Escobar-West) ---
     if (isTRUE(dp_ctrl$update_alpha)) {
       alpha <- .crp_update_alpha(alpha, length(ls(envir = clusters)), N, pri$alpha_a, pri$alpha_b)
     }
 
-    # --- store draw ---
     if (iter %in% keep_idx) {
       keep_pos <- keep_pos + 1L
       keys_exist <- ls(envir = clusters)
       counts <- vapply(keys_exist, function(k) length(clusters[[k]]$members), integer(1))
-      log_shape <- vapply(keys_exist, function(k) clusters[[k]]$log_shape, numeric(1))
-      log_scale <- vapply(keys_exist, function(k) clusters[[k]]$log_scale, numeric(1))
-
-      draws[[keep_pos]] <- list(
-        alpha = alpha,
-        log_shape = log_shape,
-        log_scale = log_scale,
-        counts = counts
-      )
+      shape <- vapply(keys_exist, function(k) clusters[[k]]$shape, numeric(1))
+      scale <- vapply(keys_exist, function(k) clusters[[k]]$scale, numeric(1))
+      raw_draws[[keep_pos]] <- list(alpha = alpha, shape = shape, scale = scale, counts = counts)
+      Kmax <- max(Kmax, length(counts))
     }
   }
 
+  # ---- convert raw draws to SB-compatible fixed-column matrices ----
+  draw_mat <- matrix(NA_real_, nrow = length(raw_draws),
+                     ncol = 1 + 4 * Kmax)
+  colnames(draw_mat) <- c(
+    "alpha",
+    sprintf("shape[%d]", seq_len(Kmax)),
+    sprintf("scale[%d]", seq_len(Kmax)),
+    sprintf("v[%d]", seq_len(Kmax)),
+    sprintf("w[%d]", seq_len(Kmax))
+  )
+
+  for (t in seq_along(raw_draws)) {
+    dr <- raw_draws[[t]]
+    w <- dr$counts / sum(dr$counts)
+    ord <- order(w, decreasing = TRUE)
+    w <- w[ord]; sh <- dr$shape[ord]; sc <- dr$scale[ord]
+
+    if (length(w) < Kmax) {
+      pad <- Kmax - length(w)
+      w <- c(w, rep(0, pad))
+      sh <- c(sh, rep(1, pad))
+      sc <- c(sc, rep(1, pad))
+    }
+    v <- rep(NA_real_, Kmax) # CRP has no stick-breaking latent v
+
+    draw_mat[t, ] <- c(dr$alpha, sh, sc, v, w)
+  }
+
+  # wrap as coda::mcmc.list (one chain)
+  samples <- coda::mcmc(draw_mat)
   list(
-    crp_draws = draws,
-    mcmc_info = list(n_iter = n_iter, burn_in = burn_in, thin = thin, chains = 1L, parallel = FALSE)
+    mcmc_draws = coda::mcmc.list(samples),
+    mcmc_info = list(n_iter = n_iter, burn_in = burn_in, thin = thin, chains = 1L)
   )
 }
 
-# ---- Helpers (Gamma kernel) -------------------------------------------------
+# ---- Likelihood helpers on natural scale (no transforms) ---------------------
 
 #' @keywords internal
-.crp_gamma_loglik1 <- function(y, log_shape, log_scale) {
-  shape <- exp(log_shape)
-  scale <- exp(log_scale)
+.gamma_loglik1 <- function(y, shape, scale) {
   stats::dgamma(y, shape = shape, scale = scale, log = TRUE)
 }
 
 #' @keywords internal
-.crp_gamma_loglik <- function(y, log_shape, log_scale) {
-  shape <- exp(log_shape)
-  scale <- exp(log_scale)
+.gamma_loglik <- function(y, shape, scale) {
   sum(stats::dgamma(y, shape = shape, scale = scale, log = TRUE))
 }
 
-#' @keywords internal
-.crp_gamma_logprior <- function(log_shape, log_scale, pri) {
-  stats::dnorm(log_shape, mean = pri$ls_mu, sd = pri$ls_sd, log = TRUE) +
-    stats::dnorm(log_scale, mean = pri$lc_mu, sd = pri$lc_sd, log = TRUE)
-}
+# ---- Base prior H and related helpers ---------------------------------------
 
-#' Draw m auxiliary parameters from base prior H on (log_shape, log_scale).
-#' @keywords internal
-.crp_gamma_rH <- function(m, pri) {
-  list(
-    log_shape = stats::rnorm(m, mean = pri$ls_mu, sd = pri$ls_sd),
-    log_scale = stats::rnorm(m, mean = pri$lc_mu, sd = pri$lc_sd)
-  )
-}
-
-#' Extract/default priors for CRP Gamma engine (Option B: log-params normal).
+#' Extract/default priors for CRP Gamma engine.
+#'
+#' Base prior H is lognormal for shape and scale, and Gamma(a0,b0) for alpha if updated.
+#'
 #' @keywords internal
 .crp_gamma_priors <- function(spec) {
-  # defaults
   out <- list(
-    ls_mu = 0, ls_sd = 1.5,
-    lc_mu = 0, lc_sd = 1.5,
+    shape_meanlog = 0, shape_sdlog = 1.5,
+    scale_meanlog = 0, scale_sdlog = 1.5,
     alpha_a = 1, alpha_b = 1
   )
 
   pri <- spec$priors
   if (is.list(pri)) {
-    # accept a few plausible paths without guessing too hard
     if (is.list(pri$gamma)) pri <- pri$gamma
-    if (!is.null(pri$log_shape) && is.list(pri$log_shape)) {
-      if (!is.null(pri$log_shape$mean)) out$ls_mu <- as.numeric(pri$log_shape$mean)
-      if (!is.null(pri$log_shape$sd))   out$ls_sd <- as.numeric(pri$log_shape$sd)
-    }
-    if (!is.null(pri$log_scale) && is.list(pri$log_scale)) {
-      if (!is.null(pri$log_scale$mean)) out$lc_mu <- as.numeric(pri$log_scale$mean)
-      if (!is.null(pri$log_scale$sd))   out$lc_sd <- as.numeric(pri$log_scale$sd)
-    }
-    if (!is.null(pri$alpha) && is.list(pri$alpha)) {
+    if (is.list(pri$shape) && !is.null(pri$shape$meanlog)) out$shape_meanlog <- as.numeric(pri$shape$meanlog)
+    if (is.list(pri$shape) && !is.null(pri$shape$sdlog))   out$shape_sdlog   <- as.numeric(pri$shape$sdlog)
+    if (is.list(pri$scale) && !is.null(pri$scale$meanlog)) out$scale_meanlog <- as.numeric(pri$scale$meanlog)
+    if (is.list(pri$scale) && !is.null(pri$scale$sdlog))   out$scale_sdlog   <- as.numeric(pri$scale$sdlog)
+    if (is.list(pri$alpha)) {
       if (!is.null(pri$alpha$a)) out$alpha_a <- as.numeric(pri$alpha$a)
       if (!is.null(pri$alpha$b)) out$alpha_b <- as.numeric(pri$alpha$b)
     }
   }
 
-  # validate
-  if (!is.finite(out$ls_mu) || !is.finite(out$lc_mu)) stop("CRP priors: means must be finite.", call. = FALSE)
-  if (!is.finite(out$ls_sd) || out$ls_sd <= 0) stop("CRP priors: log_shape sd must be > 0.", call. = FALSE)
-  if (!is.finite(out$lc_sd) || out$lc_sd <= 0) stop("CRP priors: log_scale sd must be > 0.", call. = FALSE)
+  if (!is.finite(out$shape_meanlog) || !is.finite(out$scale_meanlog)) stop("CRP priors: meanlog must be finite.", call. = FALSE)
+  if (!is.finite(out$shape_sdlog) || out$shape_sdlog <= 0) stop("CRP priors: shape sdlog must be > 0.", call. = FALSE)
+  if (!is.finite(out$scale_sdlog) || out$scale_sdlog <= 0) stop("CRP priors: scale sdlog must be > 0.", call. = FALSE)
   if (!is.finite(out$alpha_a) || out$alpha_a <= 0) stop("CRP priors: alpha_a must be > 0.", call. = FALSE)
   if (!is.finite(out$alpha_b) || out$alpha_b <= 0) stop("CRP priors: alpha_b must be > 0.", call. = FALSE)
 
   out
+}
+
+#' Draw m auxiliary parameters from base prior H on (shape, scale).
+#' @keywords internal
+.crp_gamma_rH <- function(m, pri) {
+  list(
+    shape = stats::rlnorm(m, meanlog = pri$shape_meanlog, sdlog = pri$shape_sdlog),
+    scale = stats::rlnorm(m, meanlog = pri$scale_meanlog, sdlog = pri$scale_sdlog)
+  )
+}
+
+#' Log prior density for (shape, scale) under H (lognormal).
+#' @keywords internal
+.crp_gamma_logprior <- function(shape, scale, pri) {
+  stats::dlnorm(shape, meanlog = pri$shape_meanlog, sdlog = pri$shape_sdlog, log = TRUE) +
+    stats::dlnorm(scale, meanlog = pri$scale_meanlog, sdlog = pri$scale_sdlog, log = TRUE)
 }
 
 #' Escobar-West update for alpha
