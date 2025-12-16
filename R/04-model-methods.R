@@ -87,7 +87,7 @@ fit.dpm <- function(formula,
   ## ---- 3) Data-level checks ----
   .check_missing(Y, X_use)
   .check_kernel_support(Y, kernel)
-  .check_dp_ctrl(dp_ctrl, N)
+  .check_dp_ctrl(dp_ctrl, N, dp_rep = dp_rep)
   .check_mcmc(mcmc)
 
   ## optional: store ranges of covariates for stats::predict() extrapolation warnings
@@ -214,7 +214,7 @@ fit.dpmgpd <- function(formula,
   ## ---- 3) Data-level checks ----
   .check_missing(Y, X_use)
   .check_kernel_support(Y, kernel)
-  .check_dp_ctrl(dp_ctrl, N)
+  .check_dp_ctrl(dp_ctrl, N, dp_rep = dp_rep)
   .check_mcmc(mcmc)
 
   ## optional: ranges for extrapolation warnings later
@@ -658,10 +658,10 @@ print.mixgpd_fit <- function(x, ...) {
   lower <- alpha / 2
   upper <- 1 - alpha / 2
 
-  means <- colMeans(combined)
-  sds   <- apply(combined, 2L, stats::sd)
-  q_lo  <- apply(combined, 2L, stats::quantile, probs = lower, names = FALSE)
-  q_hi  <- apply(combined, 2L, stats::quantile, probs = upper, names = FALSE)
+  means <- colMeans(combined, na.rm = TRUE)
+  sds   <- apply(combined, 2L, stats::sd, na.rm = TRUE)
+  q_lo  <- apply(combined, 2L, stats::quantile, probs = lower, names = FALSE, na.rm = TRUE)
+  q_hi  <- apply(combined, 2L, stats::quantile, probs = upper, names = FALSE, na.rm = TRUE)
 
   out <- data.frame(
     parameter = pnames,
@@ -1148,7 +1148,7 @@ mcmc_ggdiag <- function(object, what = c("trace", "density"), ...) {
 #'
 
 #' @noRd
-.extract_gamma_dp_params <- function(draws, renormalize_weights = TRUE) {
+.extract_gamma_dp_params <- function(draws, K = NULL, renormalize_weights = TRUE) {
   if (!is.matrix(draws)) draws <- as.matrix(draws)
   cn <- colnames(draws)
 
@@ -1174,6 +1174,17 @@ mcmc_ggdiag <- function(object, what = c("trace", "density"), ...) {
 
   if (!identical(wj, shj) || !identical(wj, scj)) {
     stop("Mismatch between component indices across w/shape/scale columns.", call. = FALSE)
+  }
+
+  # Optional user-specified truncation. This is mainly used by
+  # conditional effect helpers where K is already known.
+  if (!is.null(K)) {
+    K <- as.integer(K)
+    if (!is.finite(K) || K < 1L) stop("K must be a positive integer.")
+    if (K > length(w_cols)) stop("K exceeds available mixture components in draws.")
+    w_cols  <- w_cols[seq_len(K)]
+    sh_cols <- sh_cols[seq_len(K)]
+    sc_cols <- sc_cols[seq_len(K)]
   }
 
   W  <- draws[, w_cols,  drop = FALSE]
@@ -1226,6 +1237,12 @@ predict.mixgpd_fit <- function(object,
   type <- match.arg(type)
   draws <- object$mcmc_draws
   if (is.null(draws)) stop("No MCMC draws stored in object$mcmc_draws.", call. = FALSE)
+
+  # DPMGPD objects share the same class but predictive quantities for the
+  # bulk+tail model are not wired into predict() yet.
+  if (!is.null(object$tail) && !identical(object$tail, "none")) {
+    stop("predict() is currently implemented for DPM (tail='none') only.", call. = FALSE)
+  }
 
   # current implementation is unconditional gamma-only
   if (!identical(object$spec$kernel, "gamma")) {
@@ -1299,9 +1316,23 @@ predict.mixgpd_fit <- function(object,
   alpha <- object$alpha %||% 0.05
   if (!is.null(level)) alpha <- 1 - level
 
+  # ------------------------------------------------------------------
+  # density / cdf: require y grid in newdata
+  # ------------------------------------------------------------------
   if (type %in% c("density", "cdf")) {
-    if (is.null(newdata)) stop("newdata must be supplied for type='density'/'cdf'.", call. = FALSE)
-    x <- as.numeric(newdata)
+    if (is.null(newdata)) {
+      stop("newdata must include y values for type='density'/'cdf'.", call. = FALSE)
+    }
+
+    if (is.data.frame(newdata)) {
+      x <- if ("y" %in% names(newdata)) newdata[["y"]] else newdata[[1L]]
+    } else if (is.matrix(newdata)) {
+      x <- newdata[, 1L]
+    } else {
+      x <- newdata
+    }
+
+    x <- as.numeric(x)
 
     out <- numeric(length(x))
     for (i in seq_along(x)) {
@@ -1325,14 +1356,18 @@ predict.mixgpd_fit <- function(object,
       out[i] <- if (length(vals)) mean(vals) else if (type == "density") 0 else NA_real_
     }
 
-    # guarantee finite density output for tests
     if (type == "density") out[!is.finite(out)] <- 0
     return(out)
   }
 
+  # ------------------------------------------------------------------
+  # sample: does NOT require newdata
+  # ------------------------------------------------------------------
   if (type == "sample") {
     n_samples <- as.integer(n_samples)
-    if (length(n_samples) != 1L || n_samples <= 0L) stop("n_samples must be a positive integer.", call. = FALSE)
+    if (length(n_samples) != 1L || n_samples <= 0L) {
+      stop("n_samples must be a positive integer.", call. = FALSE)
+    }
 
     ys <- numeric(n_samples)
     m_idx <- sample.int(M, size = n_samples, replace = TRUE)
@@ -1344,9 +1379,13 @@ predict.mixgpd_fit <- function(object,
     return(ys)
   }
 
-  # quantile
+  # ------------------------------------------------------------------
+  # quantile: does NOT require newdata
+  # ------------------------------------------------------------------
   probs <- as.numeric(probs)
-  if (any(!is.finite(probs)) || any(probs <= 0 | probs >= 1)) stop("probs must be in (0,1).", call. = FALSE)
+  if (any(!is.finite(probs)) || any(probs <= 0 | probs >= 1)) {
+    stop("probs must be in (0,1).", call. = FALSE)
+  }
 
   qdraws <- matrix(NA_real_, nrow = length(probs), ncol = M)
   rownames(qdraws) <- paste0("q", probs)
@@ -1359,20 +1398,23 @@ predict.mixgpd_fit <- function(object,
         error = function(e) NA_real_
       )
     }, numeric(1))
-
   }
 
-  # drop NA draws per prob before summaries
   summ <- cbind(
     mean  = apply(qdraws, 1, function(z) mean(z[is.finite(z)], na.rm = TRUE)),
     sd    = apply(qdraws, 1, function(z) stats::sd(z[is.finite(z)], na.rm = TRUE)),
-    lower = apply(qdraws, 1, function(z) stats::quantile(z[is.finite(z)], probs = alpha/2, na.rm = TRUE, names = FALSE)),
-    upper = apply(qdraws, 1, function(z) stats::quantile(z[is.finite(z)], probs = 1 - alpha/2, na.rm = TRUE, names = FALSE))
+    lower = apply(qdraws, 1, function(z) stats::quantile(z[is.finite(z)],
+                                                         probs = alpha/2,
+                                                         na.rm = TRUE,
+                                                         names = FALSE)),
+    upper = apply(qdraws, 1, function(z) stats::quantile(z[is.finite(z)],
+                                                         probs = 1 - alpha/2,
+                                                         na.rm = TRUE,
+                                                         names = FALSE))
   )
 
   summ
 }
-
 
 
 

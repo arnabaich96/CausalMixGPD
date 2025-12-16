@@ -301,3 +301,118 @@ run_mcmc_crp_gamma <- function(spec, mcmc) {
     stats::rgamma(1L, shape = a0 + K - 1, rate = b0 - log(eta))
   }
 }
+
+
+# ---- internal: extract CRP gamma regression parameters from draws
+#' @keywords internal
+.extract_crp_gamma_reg_params <- function(draws, p, N = NULL, renormalize_weights = TRUE) {
+  draws <- as.matrix(draws)
+  cn <- colnames(draws)
+
+  if (is.null(N)) {
+    z_cols0 <- grep("^z\\[", cn, value = TRUE)
+    if (!length(z_cols0)) stop("CRP regression requires draws for z[i].", call. = FALSE)
+    N <- length(z_cols0)
+  }
+
+  z_cols <- paste0("z[", seq_len(N), "]")
+  if (!all(z_cols %in% cn)) stop("CRP regression requires draws for z[i] for i=1..N.", call. = FALSE)
+
+  shape_cols_all <- grep("^shape\\[", cn, value = TRUE)
+  if (!length(shape_cols_all)) stop("CRP regression requires draws for shape[j].", call. = FALSE)
+
+  beta_cols_all <- grep("^beta_scale\\[", cn, value = TRUE)
+  if (!length(beta_cols_all)) stop("CRP regression requires draws for beta_scale[*,*].", call. = FALSE)
+
+  # --- helpers
+  .idx1 <- function(x) as.integer(sub(".*\\[([0-9]+).*", "\\1", x))
+  .parse_jq <- function(nm) {
+    m <- regexec("^beta_scale\\[([0-9]+),([0-9]+)\\]$", nm)
+    r <- regmatches(nm, m)[[1L]]
+    if (length(r) != 3L) return(c(j = NA_integer_, q = NA_integer_))
+    c(j = as.integer(r[2L]), q = as.integer(r[3L]))
+  }
+
+  # determine max component index present in parameter columns
+  J_shape <- max(.idx1(shape_cols_all), na.rm = TRUE)
+
+  # full regression beta_scale[j,q]?
+  beta_jq <- do.call(rbind, lapply(beta_cols_all, .parse_jq))
+  has_full <- any(is.finite(beta_jq[, "j"]) & is.finite(beta_jq[, "q"]))
+
+  # intercept-only fallback beta_scale[1,j]
+  beta_int_cols_all <- grep("^beta_scale\\[1,[0-9]+\\]$", beta_cols_all, value = TRUE)
+  has_int_only <- length(beta_int_cols_all) > 0L
+
+  if (!has_full && !has_int_only) {
+    stop("CRP regression requires beta_scale[j,q] (or intercept-only beta_scale[1,j]).", call. = FALSE)
+  }
+
+  M <- nrow(draws)
+  Z <- draws[, z_cols, drop = FALSE]
+  Shape <- matrix(NA_real_, nrow = M, ncol = J_shape)
+
+  # order and fill shapes
+  shape_cols_all <- shape_cols_all[order(.idx1(shape_cols_all))]
+  j_sh <- .idx1(shape_cols_all)
+  for (k in seq_along(shape_cols_all)) {
+    j <- j_sh[k]
+    if (is.finite(j) && j >= 1L && j <= J_shape) {
+      Shape[, j] <- draws[, shape_cols_all[k]]
+    }
+  }
+
+  # Beta array [M, J, p]
+  Beta <- array(0, dim = c(M, J_shape, p))
+
+  if (has_full) {
+    ok <- is.finite(beta_jq[, "j"]) & is.finite(beta_jq[, "q"])
+    beta_cols <- beta_cols_all[ok]
+    beta_jq <- beta_jq[ok, , drop = FALSE]
+    ord <- order(beta_jq[, "j"], beta_jq[, "q"])
+    beta_cols <- beta_cols[ord]
+    beta_jq <- beta_jq[ord, , drop = FALSE]
+
+    for (k in seq_along(beta_cols)) {
+      j <- beta_jq[k, "j"]
+      q <- beta_jq[k, "q"]
+      if (j >= 1L && j <= J_shape && q >= 1L && q <= p) {
+        Beta[, j, q] <- draws[, beta_cols[k]]
+      }
+    }
+  } else {
+    # intercept-only: beta_scale[1,j] maps to q=1
+    beta_int_cols_all <- beta_int_cols_all[order(.idx1(beta_int_cols_all))]
+    j_b <- as.integer(sub("^beta_scale\\[1,([0-9]+)\\]$", "\\1", beta_int_cols_all))
+    for (k in seq_along(beta_int_cols_all)) {
+      j <- j_b[k]
+      if (is.finite(j) && j >= 1L && j <= J_shape && p >= 1L) {
+        Beta[, j, 1L] <- draws[, beta_int_cols_all[k]]
+      }
+    }
+  }
+
+  # weights per draw derived from z-counts (CRP empirical weights)
+  W <- matrix(0, nrow = M, ncol = J_shape)
+  for (m in seq_len(M)) {
+    zz <- as.integer(Z[m, ])
+    zz <- zz[is.finite(zz) & zz >= 1L]
+    if (!length(zz)) next
+    tab <- table(zz)
+    jj <- as.integer(names(tab))
+    jj <- jj[jj >= 1L & jj <= J_shape]
+    if (length(jj)) {
+      w <- as.numeric(tab[as.character(jj)]) / length(zz)
+      W[m, jj] <- w
+    }
+  }
+
+  if (isTRUE(renormalize_weights)) {
+    rs <- rowSums(W)
+    rs[rs <= 0] <- NA_real_
+    W <- W / rs
+    W[is.na(W)] <- 0
+  }
+
+  list(W = W, Shape = Shape, Beta = Beta, M = M, J = J_shape, p = p, N = N)
+}

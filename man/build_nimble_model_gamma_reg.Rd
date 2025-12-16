@@ -2,7 +2,7 @@
 % Please edit documentation in R/03-engine-sb-gamma.R
 \name{build_nimble_model_gamma_reg}
 \alias{build_nimble_model_gamma_reg}
-\title{Internal: run Nimble MCMC for unconditional Gamma SB mixture}
+\title{Build nimble model gamma reg}
 \usage{
 build_nimble_model_gamma_reg(spec)
 }
@@ -13,17 +13,11 @@ build_nimble_model_gamma_reg(spec)
 See details.
 }
 \description{
-Internal: run Nimble MCMC for unconditional Gamma SB mixture
+Build nimble model gamma reg.
 }
 \examples{
 f <- getFromNamespace("build_nimble_model_gamma_reg", "DPmixGPD")
 f
 
 }
-\keyword{Build}
-\keyword{gamma}
 \keyword{internal}
-\keyword{model}
-\keyword{nimble}
-\keyword{reg}
-\keyword{reg.}

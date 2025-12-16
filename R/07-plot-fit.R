@@ -6,7 +6,7 @@
 #' @param type Plot type. Currently supports `"density"`.
 #' @param grid_n Number of grid points for density evaluation.
 #' @param ... Unused.
-#'
+#' @importFrom stats density
 #' @return A `ggplot` object.
 #' @export
 plot.mixgpd_fit <- function(x, type = c("density"), grid_n = 200, ...) {
@@ -44,8 +44,9 @@ plot.mixgpd_fit <- function(x, type = c("density"), grid_n = 200, ...) {
   dens <- numeric(length(xgrid))
   for (m in seq_len(M)) {
     w <- p$w[m, ]
-    shape <- p$shape[m, ]
-    scale <- p$scale[m, ]
+	  # .extract_gamma_dp_params returns Shape/Scale (capitalized)
+	  shape <- p$Shape[m, ]
+	  scale <- p$Scale[m, ]
     # mixture density at grid
     dens <- dens + vapply(xgrid, function(xx) .gamma_mix_pdf_1(xx, w, shape, scale), numeric(1))
   }
