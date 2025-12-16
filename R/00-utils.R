@@ -15,26 +15,26 @@
 .as_mcmc_matrix <- function(object) {
   draws <- object$mcmc_draws
 
-  if (is.matrix(draws)) return(draws)
-
-  if (inherits(draws, "mcmc")) return(as.matrix(draws))
-
-  if (inherits(draws, "mcmc.list")) {
-    return(do.call(rbind, lapply(draws, as.matrix)))
+  to_mat <- function(x) {
+    if (inherits(x, "mcmc")) x <- as.matrix(x)
+    if (is.data.frame(x)) {
+      keep <- vapply(x, is.numeric, logical(1))
+      x <- as.matrix(x[, keep, drop = FALSE])
+    }
+    if (is.matrix(x)) {
+      suppressWarnings(storage.mode(x) <- "double")
+      return(x)
+    }
+    stop("Cannot coerce to numeric matrix.", call. = FALSE)
   }
 
-  if (is.list(draws)) {
-    mats <- lapply(draws, function(x) {
-      if (inherits(x, "mcmc")) return(as.matrix(x))
-      if (is.matrix(x)) return(x)
-      stop("Cannot coerce element of 'mcmc_draws' to matrix.", call. = FALSE)
-    })
-    return(do.call(rbind, mats))
-  }
-
-  stop("'object$mcmc_draws' must be a matrix (iterations x parameters) or a coda object.",
-       call. = FALSE)
+  if (inherits(draws, "mcmc")) return(to_mat(draws))
+  if (inherits(draws, "mcmc.list")) return(do.call(rbind, lapply(draws, to_mat)))
+  if (is.list(draws) && !is.data.frame(draws)) return(do.call(rbind, lapply(draws, to_mat)))
+  to_mat(draws)
 }
+
+
 
 #' @noRd
 .is_uncond_gamma_draws <- function(draws) {
@@ -210,6 +210,7 @@ getNimbleOption <- function(name) {
 #' Check dp ctrl.
 #'
 #' @param dp_ctrl dp_ctrl.
+#' @param dp_rep DP representaion
 #' @param N N.
 #'
 #' @return See details.
@@ -218,47 +219,25 @@ getNimbleOption <- function(name) {
 #' f <- getFromNamespace(".check_dp_ctrl", "DPmixGPD")
 #' f
 #'
-.check_dp_ctrl <- function(dp_ctrl, N, dp_rep = c("stick_breaking", "crp")) {
+.check_dp_ctrl <- function(dp_ctrl, N, dp_rep = c("stick_breaking","crp")) {
   dp_rep <- match.arg(dp_rep)
 
-  if (is.null(dp_ctrl) || (is.list(dp_ctrl) && length(dp_ctrl) == 0L)) {
-    dp_ctrl <- list()
-  }
-  if (!is.list(dp_ctrl)) {
-    stop("dp_ctrl must be a list.", call. = FALSE)
+  if (is.null(dp_ctrl)) dp_ctrl <- list()
+
+  if (dp_rep == "stick_breaking") {
+    if (is.null(dp_ctrl$K) || !is.numeric(dp_ctrl$K) || dp_ctrl$K < 2)
+      stop("dp_ctrl$K (number of mixture components) must be specified.", call. = FALSE)
+    dp_ctrl$K <- as.integer(dp_ctrl$K)
+    return(dp_ctrl)
   }
 
-  if (identical(dp_rep, "crp")) {
-    # CRP does not use a fixed truncation level K.
-    if (!is.null(dp_ctrl$K)) {
-      warning("dp_ctrl$K is ignored for dp_rep = 'crp' (CRP does not use truncation).", call. = FALSE)
-    }
-    if (!is.null(dp_ctrl$m_aux)) {
-      m_aux <- as.integer(dp_ctrl$m_aux)
-      if (!is.finite(m_aux) || m_aux < 1L) {
-        stop("dp_ctrl$m_aux must be an integer >= 1 for dp_rep = 'crp'.", call. = FALSE)
-      }
-    }
-    return(invisible(TRUE))
-  }
-
-  # stick-breaking / truncated representation requires K
-  if (is.null(dp_ctrl$K)) {
-    stop("dp_ctrl$K (number of mixture components) must be specified.", call. = FALSE)
-  }
-  K <- as.integer(dp_ctrl$K)
-  if (!is.finite(K) || K < 2L) {
-    stop("dp_ctrl$K (number of mixture components) must be an integer >= 2.", call. = FALSE)
-  }
-  if (K > N) {
-    warning(
-      "dp_ctrl$K = ", K, " is larger than sample size N = ", N, ". ",
-      "Many components may remain essentially empty.",
-      call. = FALSE
-    )
-  }
-  invisible(TRUE)
+  # CRP: K should NOT be required
+  if (is.null(dp_ctrl$m_aux)) dp_ctrl$m_aux <- 5L
+  dp_ctrl$m_aux <- as.integer(dp_ctrl$m_aux)
+  return(dp_ctrl)
 }
+
+
 #' Check mcmc
 #'
 #' Check mcmc.

@@ -314,18 +314,115 @@ ate <- function(object, level = 0.95, renormalize_weights = TRUE, ...) {
 ate.mixgpd_te_fit <- function(object, level = 0.95, renormalize_weights = TRUE, ...) {
   stopifnot(inherits(object, "mixgpd_te_fit"))
 
-  # Regression/conditional TE support is not implemented yet.
-  # Fail early with a clear message rather than touching DP draw internals.
-  if (!identical(object$spec_trt$mode %||% NA_character_, "response_only") ||
-      !identical(object$spec_con$mode %||% NA_character_, "response_only")) {
-    stop(
-      "Unconditional ATE/QTE are not implemented for regression fits (y ~ x). ",
-      "Fit y ~ 0 or use ate(x)/qte(x) once conditional support is added.",
-      call. = FALSE
+  mode_trt <- object$spec_trt$mode %||% "response_only"
+  mode_con <- object$spec_con$mode %||% "response_only"
+
+  # ---- regression: average CATE over training X (SB or CRP)
+  if (!identical(mode_trt, "response_only") || !identical(mode_con, "response_only")) {
+    fit1 <- object$fit_trt
+    fit0 <- object$fit_con
+
+    if (!identical(fit1$spec$kernel %||% NA_character_, "gamma") ||
+        !identical(fit0$spec$kernel %||% NA_character_, "gamma")) {
+      stop("ATE for regression TE currently supports kernel='gamma' only.", call. = FALSE)
+    }
+
+    dp1 <- fit1$spec$dp_rep %||% NA_character_
+    dp0 <- fit0$spec$dp_rep %||% NA_character_
+    if (!identical(dp1, dp0)) stop("ATE for regression TE requires same dp_rep in both arms.", call. = FALSE)
+
+    X1 <- fit1$spec$X
+    X0 <- fit0$spec$X
+    if (is.null(X1) || is.null(X0)) stop("Regression TE requires stored design matrices in spec$X.", call. = FALSE)
+    if (ncol(X1) != ncol(X0)) stop("Regression TE requires both arms to have same design matrix columns.", call. = FALSE)
+
+    X <- X1
+    p <- ncol(X)
+
+    d1 <- .as_mcmc_matrix(fit1)
+    d0 <- .as_mcmc_matrix(fit0)
+
+    if (identical(dp1, "stick_breaking")) {
+      K <- as.integer(fit1$spec$dp_ctrl$K %||% NA_integer_)
+      if (!is.finite(K) || K < 1L) stop("dp_ctrl$K must be a positive integer for stick-breaking.", call. = FALSE)
+
+      pars1 <- .extract_sb_gamma_reg_params(d1, K = K, p = p, renormalize_weights = renormalize_weights)
+      pars0 <- .extract_sb_gamma_reg_params(d0, K = K, p = p, renormalize_weights = renormalize_weights)
+
+      M <- min(pars1$M, pars0$M)
+      if (M <= 0L) stop("No posterior draws available for ATE.", call. = FALSE)
+
+      te <- numeric(M)
+      for (m in seq_len(M)) {
+        w1 <- pars1$W[m, ]; sh1 <- pars1$Shape[m, ]
+        w0 <- pars0$W[m, ]; sh0 <- pars0$Shape[m, ]
+
+        B1 <- pars1$Beta[m, , , drop = FALSE][1, , ]
+        B0 <- pars0$Beta[m, , , drop = FALSE][1, , ]
+
+        eta1 <- X %*% t(B1)
+        eta0 <- X %*% t(B0)
+        sc1 <- exp(eta1)
+        sc0 <- exp(eta0)
+
+        mu1 <- as.numeric(sc1 %*% (w1 * sh1))
+        mu0 <- as.numeric(sc0 %*% (w0 * sh0))
+
+        te[m] <- mean(mu1 - mu0)
+      }
+
+    } else if (identical(dp1, "crp")) {
+
+      pars1 <- .extract_crp_gamma_reg_params(d1, p = p, N = nrow(X), renormalize_weights = renormalize_weights)
+      pars0 <- .extract_crp_gamma_reg_params(d0, p = p, N = nrow(X), renormalize_weights = renormalize_weights)
+
+      M <- min(pars1$M, pars0$M)
+      if (M <= 0L) stop("No posterior draws available for ATE.", call. = FALSE)
+
+      J <- min(pars1$J, pars0$J)
+
+      te <- numeric(M)
+      for (m in seq_len(M)) {
+        w1 <- pars1$W[m, seq_len(J)]; sh1 <- pars1$Shape[m, seq_len(J)]
+        w0 <- pars0$W[m, seq_len(J)]; sh0 <- pars0$Shape[m, seq_len(J)]
+
+        B1 <- pars1$Beta[m, seq_len(J), , drop = FALSE][1, , ]
+        B0 <- pars0$Beta[m, seq_len(J), , drop = FALSE][1, , ]
+
+        eta1 <- X %*% t(B1)
+        eta0 <- X %*% t(B0)
+        sc1 <- exp(eta1)
+        sc0 <- exp(eta0)
+
+        mu1 <- as.numeric(sc1 %*% (w1 * sh1))
+        mu0 <- as.numeric(sc0 %*% (w0 * sh0))
+
+        te[m] <- mean(mu1 - mu0)
+      }
+
+    } else {
+      stop("ATE for regression TE currently supports dp_rep in {stick_breaking, crp} only.", call. = FALSE)
+    }
+
+    alpha <- (1 - level) / 2
+    ok <- is.finite(te)
+    if (!all(ok)) warning("ATE: dropping non-finite posterior draws (NA/Inf) before summarizing.", call. = FALSE)
+    te <- te[ok]
+
+    out <- matrix(NA_real_, nrow = 1, ncol = 4)
+    colnames(out) <- c("mean", "sd", "lower", "upper")
+    if (!length(te)) return(out)
+
+    out[1, ] <- c(
+      mean  = mean(te),
+      sd    = stats::sd(te),
+      lower = as.numeric(stats::quantile(te, probs = alpha,     names = FALSE)),
+      upper = as.numeric(stats::quantile(te, probs = 1 - alpha, names = FALSE))
     )
+    return(out)
   }
 
-
+  # ---- original response-only path (unchanged) ----
   d1 <- .as_mcmc_matrix(object$fit_trt)
   d0 <- .as_mcmc_matrix(object$fit_con)
 
@@ -335,10 +432,8 @@ ate.mixgpd_te_fit <- function(object, level = 0.95, renormalize_weights = TRUE, 
   p1 <- .extract_gamma_dp_params(d1, renormalize_weights = renormalize_weights)
   p0 <- .extract_gamma_dp_params(d0, renormalize_weights = renormalize_weights)
 
-  # ---- helper: pull a single (non-indexed) parameter from draws
   .pull_scalar_draw <- function(draws, base) {
     cn <- colnames(draws)
-    # allow "u" or "u[1]" etc
     id <- which(cn == base)
     if (length(id) == 0L) {
       id <- grep(paste0("^", base, "\\[[0-9]+\\]$"), cn)
@@ -347,102 +442,87 @@ ate.mixgpd_te_fit <- function(object, level = 0.95, renormalize_weights = TRUE, 
       stop("ATE with GPD requires posterior draws for '", base, "'.", call. = FALSE)
     }
     if (length(id) > 1L) {
-      # if multiple (e.g., u[1],u[2]) but user didn't specify; choose first deterministically
       id <- id[1L]
     }
     as.numeric(draws[, id])
   }
 
-  # ---- tail flags: default FALSE if not present
   tail_flags <- object$tail
   if (is.null(tail_flags)) tail_flags <- c(trt = FALSE, con = FALSE)
   tail_trt <- isTRUE(unname(tail_flags[["trt"]]))
   tail_con <- isTRUE(unname(tail_flags[["con"]]))
 
-  # ---- bulk-only mean for a single draw
   .bulk_mean_1draw <- function(w, shape, scale) .gamma_mix_mean_1draw(w, shape, scale)
 
-  # ---- bulk+gpd mean for a single draw (Gamma mixture bulk)
-  # Ey = E[Y I(Y<=u)] + P(Y>u) * (u + sigma/(1-xi))   (valid only if xi<1)
   .bulk_gpd_mean_1draw <- function(u, sigma, xi, w, shape, scale) {
-    # sanitize
     if (!is.finite(u) || !is.finite(sigma) || !is.finite(xi)) return(NA_real_)
     if (sigma <= 0) return(NA_real_)
-    if (xi >= 1) return(Inf)  # will be filtered upstream
-    if (u < 0) u <- 0         # gamma support
+    if (xi >= 1) return(Inf)
+    if (u < 0) u <- 0
 
-    # P(Y <= u) under Gamma mixture
     p_u <- sum(w * stats::pgamma(u, shape = shape, scale = scale))
     p_u <- min(max(p_u, 0), 1)
 
-    # E[Y * I(Y <= u)] for Gamma(k, scale=theta):
-    # integral_0^u y f(y) dy = theta*k*Pgammacdf(u; shape=k+1, scale=theta)
-    EY_le_u <- sum(w * (scale * shape) * stats::pgamma(u, shape = shape + 1, scale = scale))
+    ey_trunc <- sum(w * (scale * shape) * stats::pgamma(u, shape = shape + 1, scale = scale))
 
-    # Tail mean contribution (conditional on exceedance):
-    # E[Y|Y>u] = u + sigma/(1-xi)
-    EY_gt_u <- u + sigma / (1 - xi)
+    p_exc <- 1 - p_u
+    ey_exc <- if (p_exc <= 0) 0 else p_exc * (u + sigma / (1 - xi))
 
-    EY_le_u + (1 - p_u) * EY_gt_u
+    ey_trunc + ey_exc
   }
 
-  # ---- compute E[Y] draw-by-draw for each arm, choosing bulk vs bulk+tail
-  if (!tail_trt) {
-    Ey1 <- vapply(seq_len(p1$M), function(m) .bulk_mean_1draw(p1$W[m, ], p1$Shape[m, ], p1$Scale[m, ]), numeric(1))
+  M <- min(p1$M, p0$M)
+  if (M <= 0L) stop("No posterior draws available for ATE.", call. = FALSE)
+
+  ate_draws <- numeric(M)
+  if (!tail_trt && !tail_con) {
+    for (m in seq_len(M)) {
+      mu1 <- .bulk_mean_1draw(p1$W[m, ], p1$Shape[m, ], p1$Scale[m, ])
+      mu0 <- .bulk_mean_1draw(p0$W[m, ], p0$Shape[m, ], p0$Scale[m, ])
+      ate_draws[m] <- mu1 - mu0
+    }
   } else {
-    u1     <- .pull_scalar_draw(d1, "u")
-    sigma1 <- .pull_scalar_draw(d1, "sigma")
-    xi1    <- .pull_scalar_draw(d1, "xi")
+    u1 <- if (tail_trt) .pull_scalar_draw(d1, "u") else rep(NA_real_, M)
+    s1 <- if (tail_trt) .pull_scalar_draw(d1, "sigma") else rep(NA_real_, M)
+    x1 <- if (tail_trt) .pull_scalar_draw(d1, "xi") else rep(NA_real_, M)
 
-    Ey1 <- vapply(seq_len(p1$M), function(m) {
-      .bulk_gpd_mean_1draw(u1[m], sigma1[m], xi1[m], p1$W[m, ], p1$Shape[m, ], p1$Scale[m, ])
-    }, numeric(1))
-  }
+    u0 <- if (tail_con) .pull_scalar_draw(d0, "u") else rep(NA_real_, M)
+    s0 <- if (tail_con) .pull_scalar_draw(d0, "sigma") else rep(NA_real_, M)
+    x0 <- if (tail_con) .pull_scalar_draw(d0, "xi") else rep(NA_real_, M)
 
-  if (!tail_con) {
-    Ey0 <- vapply(seq_len(p0$M), function(m) .bulk_mean_1draw(p0$W[m, ], p0$Shape[m, ], p0$Scale[m, ]), numeric(1))
-  } else {
-    u0     <- .pull_scalar_draw(d0, "u")
-    sigma0 <- .pull_scalar_draw(d0, "sigma")
-    xi0    <- .pull_scalar_draw(d0, "xi")
+    for (m in seq_len(M)) {
+      mu1 <- if (tail_trt) .bulk_gpd_mean_1draw(u1[m], s1[m], x1[m], p1$W[m, ], p1$Shape[m, ], p1$Scale[m, ]) else
+        .bulk_mean_1draw(p1$W[m, ], p1$Shape[m, ], p1$Scale[m, ])
+      mu0 <- if (tail_con) .bulk_gpd_mean_1draw(u0[m], s0[m], x0[m], p0$W[m, ], p0$Shape[m, ], p0$Scale[m, ]) else
+        .bulk_mean_1draw(p0$W[m, ], p0$Shape[m, ], p0$Scale[m, ])
 
-    Ey0 <- vapply(seq_len(p0$M), function(m) {
-      .bulk_gpd_mean_1draw(u0[m], sigma0[m], xi0[m], p0$W[m, ], p0$Shape[m, ], p0$Scale[m, ])
-    }, numeric(1))
-  }
-
-  te <- Ey1 - Ey0
-
-  # ---- handle infinite means from xi>=1: warn + drop invalid draws
-  bad <- !is.finite(te)
-  if (any(bad)) {
-    warning(
-      "ATE: some posterior draws imply infinite/undefined mean (e.g., GPD xi >= 1 or invalid tail params). ",
-      "Dropping those draws from ATE summaries.",
-      call. = FALSE
-    )
-    te <- te[!bad]
-  }
-
-  if (length(te) == 0L) {
-    warning("ATE: all posterior draws were invalid after filtering; returning NA.", call. = FALSE)
-    return(matrix(
-      NA_real_, nrow = 1, ncol = 4,
-      dimnames = list("ATE", c("mean","sd","lower","upper"))
-    ))
-
+      ate_draws[m] <- mu1 - mu0
+    }
   }
 
   alpha <- (1 - level) / 2
-  matrix(
-    c(mean(te),
-      stats::sd(te),
-      stats::quantile(te, probs = alpha,     names = FALSE),
-      stats::quantile(te, probs = 1 - alpha, names = FALSE)),
-    nrow = 1,
-    dimnames = list("ATE", c("mean", "sd", "lower", "upper"))
+  ok <- is.finite(ate_draws)
+  if (!all(ok)) warning("ATE: dropping non-finite posterior draws (NA/Inf) before summarizing.", call. = FALSE)
+  ate_draws <- ate_draws[ok]
+  if (!length(ate_draws)) {
+    warning("ATE: all posterior draws invalid after filtering; returning NA.", call. = FALSE)
+    out <- matrix(NA_real_, nrow = 1, ncol = 4)
+    colnames(out) <- c("mean", "sd", "lower", "upper")
+    return(out)
+  }
+
+  out <- matrix(NA_real_, nrow = 1, ncol = 4)
+  colnames(out) <- c("mean", "sd", "lower", "upper")
+  out[1, ] <- c(
+    mean  = mean(ate_draws),
+    sd    = stats::sd(ate_draws),
+    lower = as.numeric(stats::quantile(ate_draws, probs = alpha,     names = FALSE)),
+    upper = as.numeric(stats::quantile(ate_draws, probs = 1 - alpha, names = FALSE))
   )
+  out
 }
+
+
 
 
 #' Quantile Treatment Effect (QTE)
@@ -472,23 +552,122 @@ qte.mixgpd_te_fit <- function(object,
                               ...) {
   stopifnot(inherits(object, "mixgpd_te_fit"))
 
-  # Regression/conditional TE support is not implemented yet.
-  # Fail early with a clear message rather than touching DP draw internals.
-  if (!identical(object$spec_trt$mode %||% NA_character_, "response_only") ||
-      !identical(object$spec_con$mode %||% NA_character_, "response_only")) {
-    stop(
-      "Unconditional ATE/QTE are not implemented for regression fits (y ~ x). ",
-      "Fit y ~ 0 or use ate(x)/qte(x) once conditional support is added.",
-      call. = FALSE
-    )
-  }
-
-
   probs <- sort(unique(as.numeric(probs)))
   if (any(!is.finite(probs)) || any(probs <= 0 | probs >= 1)) {
     stop("'probs' must be in (0, 1).", call. = FALSE)
   }
 
+  mode_trt <- object$spec_trt$mode %||% "response_only"
+  mode_con <- object$spec_con$mode %||% "response_only"
+
+  # ---- regression: average CQTE over training X (SB or CRP)
+  if (!identical(mode_trt, "response_only") || !identical(mode_con, "response_only")) {
+    fit1 <- object$fit_trt
+    fit0 <- object$fit_con
+
+    if (!identical(fit1$spec$kernel %||% NA_character_, "gamma") ||
+        !identical(fit0$spec$kernel %||% NA_character_, "gamma")) {
+      stop("QTE for regression TE currently supports kernel='gamma' only.", call. = FALSE)
+    }
+
+    dp1 <- fit1$spec$dp_rep %||% NA_character_
+    dp0 <- fit0$spec$dp_rep %||% NA_character_
+    if (!identical(dp1, dp0)) stop("QTE for regression TE requires same dp_rep in both arms.", call. = FALSE)
+
+    X1 <- fit1$spec$X
+    X0 <- fit0$spec$X
+    if (is.null(X1) || is.null(X0)) stop("Regression TE requires stored design matrices in spec$X.", call. = FALSE)
+    if (ncol(X1) != ncol(X0)) stop("Regression TE requires both arms to have same design matrix columns.", call. = FALSE)
+
+    X <- X1
+    p <- ncol(X)
+
+    d1 <- .as_mcmc_matrix(fit1)
+    d0 <- .as_mcmc_matrix(fit0)
+
+    if (identical(dp1, "stick_breaking")) {
+      K <- as.integer(fit1$spec$dp_ctrl$K %||% NA_integer_)
+      if (!is.finite(K) || K < 1L) stop("dp_ctrl$K must be a positive integer for stick-breaking.", call. = FALSE)
+      pars1 <- .extract_sb_gamma_reg_params(d1, K = K, p = p, renormalize_weights = renormalize_weights)
+      pars0 <- .extract_sb_gamma_reg_params(d0, K = K, p = p, renormalize_weights = renormalize_weights)
+      J <- K
+    } else if (identical(dp1, "crp")) {
+      pars1 <- .extract_crp_gamma_reg_params(d1, p = p, N = nrow(X), renormalize_weights = renormalize_weights)
+      pars0 <- .extract_crp_gamma_reg_params(d0, p = p, N = nrow(X), renormalize_weights = renormalize_weights)
+      J <- min(pars1$J, pars0$J)
+    } else {
+      stop("QTE for regression TE currently supports dp_rep in {stick_breaking, crp} only.", call. = FALSE)
+    }
+
+    M <- min(pars1$M, pars0$M)
+    if (M <= 0L) stop("No posterior draws available for QTE.", call. = FALSE)
+
+    alpha <- (1 - level) / 2
+
+    out <- matrix(NA_real_, nrow = length(probs), ncol = 4)
+    rownames(out) <- paste0("q", probs)
+    colnames(out) <- c("mean", "sd", "lower", "upper")
+
+    for (ii in seq_along(probs)) {
+      tau <- probs[ii]
+      te_tau <- numeric(M)
+
+      for (m in seq_len(M)) {
+        w1 <- pars1$W[m, seq_len(J)]; sh1 <- pars1$Shape[m, seq_len(J)]
+        w0 <- pars0$W[m, seq_len(J)]; sh0 <- pars0$Shape[m, seq_len(J)]
+
+        B1 <- pars1$Beta[m, seq_len(J), , drop = FALSE][1, , ]
+        B0 <- pars0$Beta[m, seq_len(J), , drop = FALSE][1, , ]
+
+        eta1 <- X %*% t(B1)
+        eta0 <- X %*% t(B0)
+        sc1 <- exp(eta1)
+        sc0 <- exp(eta0)
+
+        qdiff <- numeric(nrow(X))
+        for (i in seq_len(nrow(X))) {
+          cdf1 <- function(q) .gamma_mix_cdf_1(q, w = w1, shape = sh1, scale = sc1[i, ])
+          cdf0 <- function(q) .gamma_mix_cdf_1(q, w = w0, shape = sh0, scale = sc0[i, ])
+
+          upper1 <- stats::qgamma(tau,
+                                  shape = max(sh1, na.rm = TRUE),
+                                  scale = max(sc1[i, ], na.rm = TRUE))
+          upper0 <- stats::qgamma(tau,
+                                  shape = max(sh0, na.rm = TRUE),
+                                  scale = max(sc0[i, ], na.rm = TRUE))
+
+          if (!is.finite(upper1) || upper1 <= 0) upper1 <- max(sc1[i, ] * sh1, na.rm = TRUE) * 10
+          if (!is.finite(upper0) || upper0 <= 0) upper0 <- max(sc0[i, ] * sh0, na.rm = TRUE) * 10
+
+          q1 <- .invert_cdf_uniroot(cdf1, tau = tau, lower = 0, upper = upper1)
+          q0 <- .invert_cdf_uniroot(cdf0, tau = tau, lower = 0, upper = upper0)
+
+          qdiff[i] <- q1 - q0
+        }
+
+        te_tau[m] <- mean(qdiff)
+      }
+
+      ok <- is.finite(te_tau)
+      if (!all(ok)) warning("QTE(tau=", tau, "): dropping non-finite posterior draws.", call. = FALSE)
+      te_tau <- te_tau[ok]
+
+      if (!length(te_tau)) {
+        out[ii, ] <- c(mean = NA_real_, sd = NA_real_, lower = NA_real_, upper = NA_real_)
+      } else {
+        out[ii, ] <- c(
+          mean  = mean(te_tau),
+          sd    = stats::sd(te_tau),
+          lower = as.numeric(stats::quantile(te_tau, probs = alpha,     names = FALSE)),
+          upper = as.numeric(stats::quantile(te_tau, probs = 1 - alpha, names = FALSE))
+        )
+      }
+    }
+
+    return(out)
+  }
+
+  # ---- original response-only path (unchanged) ----
   d1 <- .as_mcmc_matrix(object$fit_trt)
   d0 <- .as_mcmc_matrix(object$fit_con)
 
@@ -507,7 +686,6 @@ qte.mixgpd_te_fit <- function(object,
   rownames(out) <- paste0("q", probs)
   colnames(out) <- c("mean", "sd", "lower", "upper")
 
-  # helper: summarize with filtering + warning
   .summ_te <- function(z, tau) {
     z <- as.numeric(z)
     ok <- is.finite(z)
@@ -537,26 +715,15 @@ qte.mixgpd_te_fit <- function(object,
 
   for (ii in seq_along(probs)) {
     tau <- probs[ii]
-    te_draw <- numeric(M)
-
-    for (m in seq_len(M)) {
-      q1 <- tryCatch(
-        .gamma_mix_quantile_1draw(tau, p1$W[m, ], p1$Shape[m, ], p1$Scale[m, ]),
-        error = function(e) NA_real_
-      )
-      q0 <- tryCatch(
-        .gamma_mix_quantile_1draw(tau, p0$W[m, ], p0$Shape[m, ], p0$Scale[m, ]),
-        error = function(e) NA_real_
-      )
-
-      te_draw[m] <- q1 - q0
-    }
-
-    out[ii, ] <- .summ_te(te_draw, tau = tau)
+    q1 <- vapply(seq_len(M), function(m) .gamma_mix_quantile_1draw(tau, p1$W[m, ], p1$Shape[m, ], p1$Scale[m, ]), numeric(1))
+    q0 <- vapply(seq_len(M), function(m) .gamma_mix_quantile_1draw(tau, p0$W[m, ], p0$Shape[m, ], p0$Scale[m, ]), numeric(1))
+    out[ii, ] <- .summ_te(q1 - q0, tau)
   }
 
   out
 }
+
+
 
 
 #' Plot treatment effects

@@ -10,6 +10,8 @@
 \item{dp_ctrl}{dp_ctrl.}
 
 \item{N}{N.}
+
+\item{dp_rep}{DP representaion}
 }
 \value{
 See details.

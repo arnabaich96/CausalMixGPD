@@ -103,8 +103,7 @@ build_nimble_model_gamma_uncond <- function(spec) {
 
 # small helper if you don't already have it
 
-#' Internal: run Nimble MCMC for unconditional Gamma SB mixture
-#' @keywords internal
+
 #' Build nimble model gamma reg
 #'
 #' Build nimble model gamma reg.
@@ -278,6 +277,11 @@ run_mcmc_sb_gamma <- function(spec, mcmc) {
   # ---- Monitors (NIMBLE parameters to save) ----
   # Default to the unconditional SB-Gamma monitors used throughout the package/tests.
   monitors <- c("alpha", "shape", "scale", "v", "w")
+
+  if (identical(spec$mode, "regression")) {
+    monitors <- unique(c(monitors, "beta_scale"))
+  }
+
 # ---- Build and (optionally) compile Nimble model ----
   .ensure_nimble_compat()
 
@@ -589,26 +593,21 @@ run_mcmc_engine <- function(spec, mcmc) {
     return(run_mcmc_sb_gamma(spec, mcmc))
   }
 
-
   # Special case: Gamma kernel, no tail, CRP DP mixture (Neal's Algorithm 8)
   if (identical(spec$kernel, "gamma") &&
       (is.null(spec$tail) || spec$tail == "none") &&
       identical(spec$dp_rep, "crp")) {
     return(run_mcmc_crp_gamma(spec, mcmc))
   }
-  # Fallback: simple generic engine (no regression yet)
 
-
-  # Generic engine logic (unchanged for now)
+  # Fallback: simple generic engine
   n_iter   <- if (is.null(mcmc$n_iter)) 2000L else as.integer(mcmc$n_iter)
   burn_in  <- if (is.null(mcmc$burn_in)) 1000L else as.integer(mcmc$burn_in)
   thin     <- if (is.null(mcmc$thin)) 1L else as.integer(mcmc$thin)
   chains   <- if (is.null(mcmc$chains)) 1L else as.integer(mcmc$chains)
   parallel <- isTRUE(mcmc$parallel)
 
-  if (n_iter <= burn_in) {
-    stop("mcmc$n_iter must be greater than mcmc$burn_in.")
-  }
+  if (n_iter <= burn_in) stop("mcmc$n_iter must be greater than mcmc$burn_in.")
   if (chains < 1L) stop("mcmc$chains must be >= 1.")
 
   if (chains == 1L || !parallel) {
@@ -625,10 +624,6 @@ run_mcmc_engine <- function(spec, mcmc) {
       varlist = c("spec", "n_iter", "burn_in", "simulate_chain"),
       envir   = environment()
     )
-    parallel::clusterEvalQ(cl, {
-      library(coda)
-      NULL
-    })
 
     chain_list <- parallel::parLapply(
       cl,
@@ -637,9 +632,12 @@ run_mcmc_engine <- function(spec, mcmc) {
     )
   }
 
-  if (thin > 1L) {
-    chain_list <- lapply(chain_list, function(m) m[seq(1, nrow(m), by = thin), ])
-  }
+  # Ensure matrices + thinning + convert to coda::mcmc objects
+  chain_list <- lapply(chain_list, function(m) {
+    m <- as.matrix(m)
+    if (thin > 1L) m <- m[seq.int(1L, nrow(m), by = thin), , drop = FALSE]
+    coda::mcmc(m)
+  })
 
   mcmc_obj <- coda::mcmc.list(chain_list)
 
@@ -653,4 +651,88 @@ run_mcmc_engine <- function(spec, mcmc) {
       parallel = parallel
     )
   )
+}
+
+# Internal: extract SB-Gamma regression parameters from MCMC draws
+#' Extract sb gamma reg params
+#' @keywords internal
+.extract_sb_gamma_reg_params <- function(draws, K, p, renormalize_weights = TRUE) {
+  draws <- as.matrix(draws)
+  cn <- colnames(draws)
+  if (is.null(cn)) stop("Draws must have column names.", call. = FALSE)
+
+  # ---- required SB pieces ----
+  w_cols <- grep("^w\\[", cn, value = TRUE)
+  shape_cols <- grep("^shape\\[", cn, value = TRUE)
+
+  if (length(w_cols) < K) stop("Regression prediction requires draws for w[j] (K columns).", call. = FALSE)
+  if (length(shape_cols) < K) stop("Regression prediction requires draws for shape[j] (K columns).", call. = FALSE)
+
+  comp_index <- function(x) as.integer(sub(".*\\[([0-9]+).*", "\\1", x))
+  w_cols <- w_cols[order(comp_index(w_cols))]
+  shape_cols <- shape_cols[order(comp_index(shape_cols))]
+
+  W <- draws[, w_cols[seq_len(K)], drop = FALSE]
+  if (isTRUE(renormalize_weights)) {
+    rs <- rowSums(W)
+    rs[!is.finite(rs) | rs <= 0] <- NA_real_
+    W <- W / rs
+    W[!is.finite(W)] <- 0
+  }
+  Shape <- draws[, shape_cols[seq_len(K)], drop = FALSE]
+
+  # ---- beta_scale: accept either beta_scale[j,q] (preferred) or beta_scale[1,j] (fallback) ----
+  beta_cols <- grep("^beta_scale\\[", cn, value = TRUE)
+  if (!length(beta_cols)) {
+    stop("Regression prediction requires draws for beta_scale[j,q] (K*p columns).", call. = FALSE)
+  }
+
+  Beta <- array(0, dim = c(nrow(draws), K, p))
+
+  # Preferred form: beta_scale[j,q]
+  parse_jq <- function(nm) {
+    m <- regexec("^beta_scale\\[([0-9]+),([0-9]+)\\]$", nm)
+    r <- regmatches(nm, m)[[1L]]
+    if (length(r) != 3L) return(c(j = NA_integer_, q = NA_integer_))
+    c(j = as.integer(r[2L]), q = as.integer(r[3L]))
+  }
+
+  jq <- do.call(rbind, lapply(beta_cols, parse_jq))
+  ok <- is.finite(jq[, "j"]) & is.finite(jq[, "q"])
+  if (any(ok)) {
+    beta_cols2 <- beta_cols[ok]
+    jq <- jq[ok, , drop = FALSE]
+    ord <- order(jq[, "j"], jq[, "q"])
+    beta_cols2 <- beta_cols2[ord]
+    jq <- jq[ord, , drop = FALSE]
+
+    for (k in seq_along(beta_cols2)) {
+      j <- jq[k, "j"]; q <- jq[k, "q"]
+      if (j >= 1L && j <= K && q >= 1L && q <= p) {
+        Beta[, j, q] <- draws[, beta_cols2[k]]
+      }
+    }
+
+    return(list(W = W, Shape = Shape, Beta = Beta, M = nrow(draws), K = K, p = p))
+  }
+
+  # Fallback: intercept-only beta_scale[1,j]
+  beta_int_cols <- grep("^beta_scale\\[1,[0-9]+\\]$", beta_cols, value = TRUE)
+  if (length(beta_int_cols) >= K && p >= 1L) {
+    beta_j <- as.integer(sub("^beta_scale\\[1,([0-9]+)\\]$", "\\1", beta_int_cols))
+    ord <- order(beta_j)
+    beta_int_cols <- beta_int_cols[ord]
+    beta_j <- beta_j[ord]
+
+    for (pos in seq_len(min(K, length(beta_int_cols)))) {
+      j <- beta_j[pos]
+      if (is.finite(j) && j >= 1L && j <= K) {
+        Beta[, j, 1L] <- draws[, beta_int_cols[pos]]
+      }
+    }
+
+    return(list(W = W, Shape = Shape, Beta = Beta, M = nrow(draws), K = K, p = p))
+  }
+
+  stop("Regression prediction requires draws for beta_scale[j,q] (K*p columns).", call. = FALSE)
 }

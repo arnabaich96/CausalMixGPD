@@ -4,3 +4,6 @@
 ^\.Rproj\.user$
 ^.*\examples
 ^.csv
+^.github$
+^.git$
+^.*\zip
