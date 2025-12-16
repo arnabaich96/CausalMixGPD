@@ -218,8 +218,31 @@ getNimbleOption <- function(name) {
 #' f <- getFromNamespace(".check_dp_ctrl", "DPmixGPD")
 #' f
 #'
-#' @keywords internal
-.check_dp_ctrl <- function(dp_ctrl, N) {
+.check_dp_ctrl <- function(dp_ctrl, N, dp_rep = c("stick_breaking", "crp")) {
+  dp_rep <- match.arg(dp_rep)
+
+  if (is.null(dp_ctrl) || (is.list(dp_ctrl) && length(dp_ctrl) == 0L)) {
+    dp_ctrl <- list()
+  }
+  if (!is.list(dp_ctrl)) {
+    stop("dp_ctrl must be a list.", call. = FALSE)
+  }
+
+  if (identical(dp_rep, "crp")) {
+    # CRP does not use a fixed truncation level K.
+    if (!is.null(dp_ctrl$K)) {
+      warning("dp_ctrl$K is ignored for dp_rep = 'crp' (CRP does not use truncation).", call. = FALSE)
+    }
+    if (!is.null(dp_ctrl$m_aux)) {
+      m_aux <- as.integer(dp_ctrl$m_aux)
+      if (!is.finite(m_aux) || m_aux < 1L) {
+        stop("dp_ctrl$m_aux must be an integer >= 1 for dp_rep = 'crp'.", call. = FALSE)
+      }
+    }
+    return(invisible(TRUE))
+  }
+
+  # stick-breaking / truncated representation requires K
   if (is.null(dp_ctrl$K)) {
     stop("dp_ctrl$K (number of mixture components) must be specified.", call. = FALSE)
   }

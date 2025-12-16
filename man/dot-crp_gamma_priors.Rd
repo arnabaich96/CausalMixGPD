@@ -2,11 +2,11 @@
 % Please edit documentation in R/03-engine-crp-gamma.R
 \name{.crp_gamma_priors}
 \alias{.crp_gamma_priors}
-\title{Extract/default priors for CRP Gamma engine (Option B: log-params normal).}
+\title{Extract/default priors for CRP Gamma engine.}
 \usage{
 .crp_gamma_priors(spec)
 }
 \description{
-Extract/default priors for CRP Gamma engine (Option B: log-params normal).
+Base prior H is lognormal for shape and scale, and Gamma(a0,b0) for alpha if updated.
 }
 \keyword{internal}

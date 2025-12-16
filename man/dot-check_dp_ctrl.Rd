@@ -4,7 +4,7 @@
 \alias{.check_dp_ctrl}
 \title{Check dp ctrl}
 \usage{
-.check_dp_ctrl(dp_ctrl, N)
+.check_dp_ctrl(dp_ctrl, N, dp_rep = c("stick_breaking", "crp"))
 }
 \arguments{
 \item{dp_ctrl}{dp_ctrl.}
@@ -22,4 +22,3 @@ f <- getFromNamespace(".check_dp_ctrl", "DPmixGPD")
 f
 
 }
-\keyword{internal}

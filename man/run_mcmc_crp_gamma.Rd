@@ -15,8 +15,11 @@ Must include `spec$kernel == "gamma"` and `spec$Y` (numeric vector).}
 \value{
 A list with elements:
 \describe{
-  \item{crp_draws}{A list of posterior draws (after burn-in and thinning). Each
-  draw is a list containing `log_shape`, `log_scale`, `counts` and `alpha`.}
+  \item{mcmc_draws}{A `coda::mcmc.list` of posterior draws with columns
+  `alpha`, `shape[1:Kmax]`, `scale[1:Kmax]`, `v[1:Kmax]`, `w[1:Kmax]` where
+  `Kmax` is the maximum number of occupied clusters across saved iterations.
+  Components are ordered by decreasing weight within each draw; unused slots have
+  `w=0` and placeholder `shape=1`, `scale=1`.}
   \item{mcmc_info}{Basic MCMC settings.}
 }
 }
@@ -25,8 +28,12 @@ Runs an exact Chinese Restaurant Process (CRP) Dirichlet process mixture sampler
 for the unconditional Gamma kernel using Neal's Algorithm 8 (nonconjugate).
 }
 \details{
-This engine targets the correct posterior for a Dirichlet process mixture with
-base prior \eqn{H} on \eqn{\theta = (\log(\mathrm{shape}), \log(\mathrm{scale}))}
-and concentration parameter \eqn{\alpha}. No truncation \eqn{K} is used.
+This engine targets the posterior of a Dirichlet process mixture with base prior
+H on (shape, scale) and concentration parameter alpha. No truncation K is used.
+
+Important implementation note: the engine stores and updates parameters on their
+natural positive scale. Any covariate-dependent transforms (e.g., exp links) belong
+in the transformation layer used by regression models, not inside these likelihood
+helpers.
 }
 \keyword{internal}
