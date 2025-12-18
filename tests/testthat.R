@@ -1,9 +1,4 @@
-
 library(testthat)
-library(DPmixGPD)
 library(nimble)
-library(svglite)
-library(vdiffr)
-test_check("DPmixGPD")
-testthat::set_max_fails(Inf)
-testthat::set_reporter("summary")
+# When run inside the package, functions are already on the search path.
+# If you're running this file standalone, source the R files first.
