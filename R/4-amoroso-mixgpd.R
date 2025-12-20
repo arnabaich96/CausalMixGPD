@@ -30,83 +30,20 @@
 #'   vector with the same length as \code{p}.
 #'
 #' @examples
-#' \dontrun{
-#' w <- c(0.7, 0.3)
-#' loc <- c(0, 1)
-#' scale <- c(1, 1.5)
-#' shape1 <- c(2, 5)
-#' shape2 <- c(1, 2)
+#' w <- c(0.60, 0.25, 0.15)
+#' loc <- c(0, 1, 2)
+#' scale <- c(1.0, 1.2, 1.6)
+#' shape1 <- c(2, 4, 6)
+#' shape2 <- c(1.0, 1.2, 1.5)
 #'
-#' dAmorosoMix(0.5, w = w, loc = loc, scale = scale, shape1 = shape1, shape2 = shape2)
-#' pAmorosoMix(0.5, w = w, loc = loc, scale = scale, shape1 = shape1, shape2 = shape2)
-#' rAmorosoMix(1, w = w, loc = loc, scale = scale, shape1 = shape1, shape2 = shape2)
-#'
-#' qAmorosoMix(0.9, w = w, loc = loc, scale = scale, shape1 = shape1, shape2 = shape2)
-#' }
-#'
+#' dAmorosoMix(2.0, w, loc, scale, shape1, shape2, log = 0)
+#' pAmorosoMix(2.0, w, loc, scale, shape1, shape2, lower.tail = 1, log.p = 0)
+#' qAmorosoMix(0.50, w, loc, scale, shape1, shape2)
+#' qAmorosoMix(0.95, w, loc, scale, shape1, shape2)
+#' replicate(10, rAmorosoMix(1, w, loc, scale, shape1, shape2))
 #' @rdname amoroso_mix
 #' @name amoroso_mix
 #' @aliases dAmorosoMix pAmorosoMix rAmorosoMix qAmorosoMix
-NULL
-
-
-#' Amoroso mixture with a GPD tail
-#'
-#' This family splices a generalized Pareto distribution (GPD) above a threshold \code{threshold} onto an
-#' Amoroso mixture bulk. Let \eqn{F_{mix}} denote the Amoroso mixture CDF. The spliced CDF is
-#' \eqn{F(x)=F_{mix}(x)} for \eqn{x<threshold} and
-#' \eqn{F(x)=F_{mix}(threshold) + \left\{1-F_{mix}(threshold)\right\}G(x)} for \eqn{x\ge threshold}, where \eqn{G}
-#' is the GPD CDF for exceedances above \code{threshold}.
-#'
-#' The density, CDF, and RNG are implemented as \code{nimbleFunction}s for use in NIMBLE models.
-#' The quantile function is an R function that uses numerical inversion in the bulk region and
-#' the closed-form GPD quantile in the tail region.
-#'
-#' @param x Numeric scalar giving the point at which the density is evaluated.
-#' @param q Numeric scalar giving the point at which the distribution function is evaluated.
-#' @param p Numeric scalar probability in \eqn{(0,1)} for the quantile function.
-#' @param n Integer giving the number of draws. For portability inside NIMBLE,
-#'   the RNG implementation supports \code{n = 1}.
-#' @param w Numeric vector of mixture weights of length \eqn{K}. The functions treat the weights
-#'   as non-negative and normalize them internally when needed.
-#' @param loc Numeric vector of length \eqn{K} giving component locations.
-#' @param scale Numeric vector of length \eqn{K} giving component scales.
-#' @param shape1 Numeric vector of length \eqn{K} giving the first Amoroso shape parameter for each component.
-#' @param shape2 Numeric vector of length \eqn{K} giving the second Amoroso shape parameter for each component.
-#' @param threshold Numeric scalar threshold at which the GPD tail is attached.
-#' @param tail_scale Numeric scalar GPD scale parameter; must be positive.
-#' @param tail_shape Numeric scalar GPD shape parameter.
-#' @param log Logical; if \code{TRUE}, return the log-density (integer flag \code{0/1} in NIMBLE).
-#' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le q)}.
-#' @param log.p Logical; if \code{TRUE}, probabilities are returned on the log scale.
-#' @param tol Numeric scalar tolerance passed to \code{stats::uniroot} in quantile inversion.
-#' @param maxiter Integer maximum number of iterations for \code{stats::uniroot}.
-#'
-#' @return Spliced density/CDF/RNG functions return numeric scalars. \code{qAmorosoMixGpd} returns a numeric
-#'   vector with the same length as \code{p}.
-#'
-#' @examples
-#' \dontrun{
-#' w <- c(0.7, 0.3)
-#' loc <- c(0, 1)
-#' scale <- c(1, 1.5)
-#' shape1 <- c(2, 5)
-#' shape2 <- c(1, 2)
-#' threshold <- 2
-#'
-#' dAmorosoMixGpd(3.0, w = w, loc = loc, scale = scale, shape1 = shape1, shape2 = shape2,
-#'                threshold = threshold, tail_scale = 1, tail_shape = 0.2)
-#' pAmorosoMixGpd(3.0, w = w, loc = loc, scale = scale, shape1 = shape1, shape2 = shape2,
-#'               threshold = threshold, tail_scale = 1, tail_shape = 0.2)
-#' rAmorosoMixGpd(1, w = w, loc = loc, scale = scale, shape1 = shape1, shape2 = shape2,
-#'               threshold = threshold, tail_scale = 1, tail_shape = 0.2)
-#' qAmorosoMixGpd(0.99, w = w, loc = loc, scale = scale, shape1 = shape1, shape2 = shape2,
-#'                threshold = threshold, tail_scale = 1, tail_shape = 0.2)
-#' }
-#'
-#' @rdname amoroso_mixgpd
-#' @name amoroso_mixgpd
-#' @aliases dAmorosoMixGpd pAmorosoMixGpd rAmorosoMixGpd qAmorosoMixGpd
 NULL
 
 
@@ -234,6 +171,69 @@ qAmorosoMix <- function(p, w, loc, scale, shape1, shape2,
   }
   out
 }
+
+
+#' Amoroso mixture with a GPD tail
+#'
+#' This family splices a generalized Pareto distribution (GPD) above a threshold \code{threshold} onto an
+#' Amoroso mixture bulk. Let \eqn{F_{mix}} denote the Amoroso mixture CDF. The spliced CDF is
+#' \eqn{F(x)=F_{mix}(x)} for \eqn{x<threshold} and
+#' \eqn{F(x)=F_{mix}(threshold) + \left\{1-F_{mix}(threshold)\right\}G(x)} for \eqn{x\ge threshold}, where \eqn{G}
+#' is the GPD CDF for exceedances above \code{threshold}.
+#'
+#' The density, CDF, and RNG are implemented as \code{nimbleFunction}s for use in NIMBLE models.
+#' The quantile function is an R function that uses numerical inversion in the bulk region and
+#' the closed-form GPD quantile in the tail region.
+#'
+#' @param x Numeric scalar giving the point at which the density is evaluated.
+#' @param q Numeric scalar giving the point at which the distribution function is evaluated.
+#' @param p Numeric scalar probability in \eqn{(0,1)} for the quantile function.
+#' @param n Integer giving the number of draws. For portability inside NIMBLE,
+#'   the RNG implementation supports \code{n = 1}.
+#' @param w Numeric vector of mixture weights of length \eqn{K}. The functions treat the weights
+#'   as non-negative and normalize them internally when needed.
+#' @param loc Numeric vector of length \eqn{K} giving component locations.
+#' @param scale Numeric vector of length \eqn{K} giving component scales.
+#' @param shape1 Numeric vector of length \eqn{K} giving the first Amoroso shape parameter for each component.
+#' @param shape2 Numeric vector of length \eqn{K} giving the second Amoroso shape parameter for each component.
+#' @param threshold Numeric scalar threshold at which the GPD tail is attached.
+#' @param tail_scale Numeric scalar GPD scale parameter; must be positive.
+#' @param tail_shape Numeric scalar GPD shape parameter.
+#' @param log Logical; if \code{TRUE}, return the log-density (integer flag \code{0/1} in NIMBLE).
+#' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le q)}.
+#' @param log.p Logical; if \code{TRUE}, probabilities are returned on the log scale.
+#' @param tol Numeric scalar tolerance passed to \code{stats::uniroot} in quantile inversion.
+#' @param maxiter Integer maximum number of iterations for \code{stats::uniroot}.
+#'
+#' @return Spliced density/CDF/RNG functions return numeric scalars. \code{qAmorosoMixGpd} returns a numeric
+#'   vector with the same length as \code{p}.
+#'
+#' @examples
+#' w <- c(0.60, 0.25, 0.15)
+#' loc <- c(0, 1, 2)
+#' scale <- c(1.0, 1.2, 1.6)
+#' shape1 <- c(2, 4, 6)
+#' shape2 <- c(1.0, 1.2, 1.5)
+#' threshold <- 3
+#' tail_scale <- 1.0
+#' tail_shape <- 0.2
+#'
+#' dAmorosoMixGpd(4.0, w, loc, scale, shape1, shape2,
+#'               threshold, tail_scale, tail_shape, log = 0)
+#' pAmorosoMixGpd(4.0, w, loc, scale, shape1, shape2,
+#'               threshold, tail_scale, tail_shape, lower.tail = 1, log.p = 0)
+#' qAmorosoMixGpd(0.50, w, loc, scale, shape1, shape2,
+#'               threshold, tail_scale, tail_shape)
+#' qAmorosoMixGpd(0.95, w, loc, scale, shape1, shape2,
+#'               threshold, tail_scale, tail_shape)
+#' replicate(10, rAmorosoMixGpd(1, w, loc, scale, shape1, shape2,
+#'                             threshold, tail_scale, tail_shape))
+#' @rdname amoroso_mixgpd
+#' @name amoroso_mixgpd
+#' @aliases dAmorosoMixGpd pAmorosoMixGpd rAmorosoMixGpd qAmorosoMixGpd
+NULL
+
+
 
 #' @describeIn amoroso_mixgpd Density Function of Amoroso Mixture Distribution with GPD Tail
 #' @export
@@ -379,21 +379,24 @@ qAmorosoMixGpd <- function(p, w, loc, scale, shape1, shape2,
 #'   with the same length as \code{p}.
 #'
 #' @examples
-#' \dontrun{
 #' loc <- 0
-#' scale <- 1
+#' scale <- 1.5
 #' shape1 <- 2
-#' shape2 <- 1.5
-#' threshold <- 2
-#' tail_scale <- 1
+#' shape2 <- 1.2
+#' threshold <- 3
+#' tail_scale <- 1.0
 #' tail_shape <- 0.2
 #'
-#' dAmorosoGpd(3.0, loc, scale, shape1, shape2, threshold, tail_scale, tail_shape)
-#' pAmorosoGpd(3.0, loc, scale, shape1, shape2, threshold, tail_scale, tail_shape)
-#' rAmorosoGpd(1,   loc, scale, shape1, shape2, threshold, tail_scale, tail_shape)
-#' qAmorosoGpd(0.99, loc, scale, shape1, shape2, threshold, tail_scale, tail_shape)
-#' }
-#'
+#' dAmorosoGpd(4.0, loc, scale, shape1, shape2,
+#'            threshold, tail_scale, tail_shape, log = 0)
+#' pAmorosoGpd(4.0, loc, scale, shape1, shape2,
+#'            threshold, tail_scale, tail_shape, lower.tail = 1, log.p = 0)
+#' qAmorosoGpd(0.50, loc, scale, shape1, shape2,
+#'            threshold, tail_scale, tail_shape)
+#' qAmorosoGpd(0.95, loc, scale, shape1, shape2,
+#'            threshold, tail_scale, tail_shape)
+#' replicate(10, rAmorosoGpd(1, loc, scale, shape1, shape2,
+#'                          threshold, tail_scale, tail_shape))
 #' @rdname amoroso_gpd
 #' @name amoroso_gpd
 #' @aliases dAmorosoGpd pAmorosoGpd rAmorosoGpd qAmorosoGpd

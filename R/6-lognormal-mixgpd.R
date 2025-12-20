@@ -22,14 +22,16 @@
 #'   with the same length as \code{p}.
 #'
 #' @examples
-#' w <- c(0.6, 0.4)
-#' meanlog <- c(0, 1)
-#' sdlog <- c(0.5, 0.25)
-#' dLognormalMix(2.0, w = w, meanlog = meanlog, sdlog = sdlog, log = 0)
-#' pLognormalMix(2.0, w = w, meanlog = meanlog, sdlog = sdlog, lower.tail = 1, log.p = 0)
-#' qLognormalMix(0.9, w = w, meanlog = meanlog, sdlog = sdlog)
-#' rLognormalMix(1, w = w, meanlog = meanlog, sdlog = sdlog)
+#' w <- c(0.60, 0.25, 0.15)
+#' meanlog <- c(-0.2, 0.6, 1.2)
+#' sdlog <- c(0.4, 0.3, 0.5)
 #'
+#' dLognormalMix(2.0, w = w, meanlog = meanlog, sdlog = sdlog, log = FALSE)
+#' pLognormalMix(2.0, w = w, meanlog = meanlog, sdlog = sdlog,
+#'              lower.tail = TRUE, log.p = FALSE)
+#' qLognormalMix(0.50, w = w, meanlog = meanlog, sdlog = sdlog)
+#' qLognormalMix(0.95, w = w, meanlog = meanlog, sdlog = sdlog)
+#' replicate(10, rLognormalMix(1, w = w, meanlog = meanlog, sdlog = sdlog))
 #' @rdname lognormal_mix
 #' @name lognormal_mix
 #' @aliases dLognormalMix pLognormalMix rLognormalMix qLognormalMix
@@ -146,134 +148,6 @@ qLognormalMix <- function(p, w, meanlog, sdlog,
   out
 }
 
-#' Lognormal with a Gpd tail
-#'
-#' Splices a generalized Pareto distribution (Gpd) above \code{threshold} onto a single Lognormal bulk with
-#' parameters \code{meanlog} and \code{sdlog}. Base Lognormal functions are taken from \pkg{stats}.
-#'
-#' @param x Numeric scalar giving the point at which the density is evaluated.
-#' @param q Numeric scalar giving the point at which the distribution function is evaluated.
-#' @param p Numeric scalar probability in \eqn{(0,1)} for the quantile function.
-#' @param n Integer giving the number of draws. The RNG implementation supports \code{n = 1}.
-#' @param meanlog Numeric scalar log-mean parameter for the Lognormal bulk.
-#' @param sdlog Numeric scalar log-standard deviation for the Lognormal bulk.
-#' @param threshold Numeric scalar threshold at which the Gpd tail is attached.
-#' @param tail_scale Numeric scalar Gpd scale parameter; must be positive.
-#' @param tail_shape Numeric scalar Gpd shape parameter.
-#' @param log Integer flag \code{0/1}; if \code{1}, return the log-density.
-#' @param lower.tail Integer flag \code{0/1}; if \code{1} (default), probabilities are \eqn{P(X \le q)}.
-#' @param log.p Integer flag \code{0/1}; if \code{1}, probabilities are returned on the log scale.
-#'
-#' @return Spliced density/CDF/RNG functions return numeric scalars. \code{qLognormalGpd} returns a numeric vector
-#'   with the same length as \code{p}.
-#'
-#' @rdname lognormal_gpd
-#' @name lognormal_gpd
-#' @aliases dLognormalGpd pLognormalGpd rLognormalGpd qLognormalGpd
-NULL
-
-#' @describeIn lognormal_gpd Lognormal + Gpd tail density
-#' @export
-dLognormalGpd <- nimble::nimbleFunction(
-  run = function(x = double(0),
-                 meanlog = double(0),
-                 sdlog = double(0),
-                 threshold = double(0),
-                 tail_scale = double(0),
-                 tail_shape = double(0),
-                 log = integer(0, default = 0)) {
-    returnType(double(0))
-    eps <- 1e-300
-
-    if (x < threshold) {
-      if (log == 1) return(dlnorm(x, meanlog, sdlog, 1)) else return(dlnorm(x, meanlog, sdlog, 0))
-    }
-
-    Fu <- plnorm(threshold, meanlog, sdlog, 1, 0)
-    Fu <- max(min(Fu, 1.0), 0.0)
-
-    val <- (1.0 - Fu) * dGpd(x, threshold, tail_scale, tail_shape, 0)
-    if (val < eps) val <- eps
-    if (log == 1) return(log(val)) else return(val)
-  }
-)
-
-#' @describeIn lognormal_gpd Lognormal + Gpd tail distribution function
-#' @export
-pLognormalGpd <- nimble::nimbleFunction(
-  run = function(q = double(0),
-                 meanlog = double(0),
-                 sdlog = double(0),
-                 threshold = double(0),
-                 tail_scale = double(0),
-                 tail_shape = double(0),
-                 lower.tail = integer(0, default = 1),
-                 log.p = integer(0, default = 0)) {
-    returnType(double(0))
-    eps <- 1e-300
-
-    if (q < threshold) return(plnorm(q, meanlog, sdlog, lower.tail, log.p))
-
-    Fu <- plnorm(threshold, meanlog, sdlog, 1, 0)
-    Fu <- max(min(Fu, 1.0), 0.0)
-
-    G <- pGpd(q, threshold, tail_scale, tail_shape, 1, 0)
-    cdf <- Fu + (1.0 - Fu) * G
-    cdf <- max(min(cdf, 1.0), 0.0)
-
-    if (lower.tail == 0) cdf <- 1.0 - cdf
-    if (log.p == 1) cdf <- log(max(cdf, eps))
-    return(cdf)
-  }
-)
-
-#' @describeIn lognormal_gpd Lognormal + Gpd tail random generation
-#' @export
-rLognormalGpd <- nimble::nimbleFunction(
-  run = function(n = integer(0),
-                 meanlog = double(0),
-                 sdlog = double(0),
-                 threshold = double(0),
-                 tail_scale = double(0),
-                 tail_shape = double(0)) {
-    returnType(double(0))
-
-    if (n != 1) return(0.0)
-
-    Fu <- plnorm(threshold, meanlog, sdlog, 1, 0)
-    Fu <- max(min(Fu, 1.0), 0.0)
-
-    uu <- runif(1, 0.0, 1.0)
-    if (uu < Fu) return(rlnorm(1, meanlog, sdlog))
-    return(rGpd(1, threshold, tail_scale, tail_shape))
-  }
-)
-
-#' @describeIn lognormal_gpd Lognormal + Gpd tail quantile function
-#' @export
-qLognormalGpd <- function(p, meanlog, sdlog, threshold, tail_scale, tail_shape,
-                          lower.tail = TRUE, log.p = FALSE) {
-  if (log.p) p <- exp(p)
-  if (!lower.tail) p <- 1 - p
-  p <- pmax(pmin(p, 1), 0)
-
-  Fu <- stats::plnorm(threshold, meanlog = meanlog, sdlog = sdlog, lower.tail = TRUE, log.p = FALSE)
-  Fu <- max(min(Fu, 1.0), 0.0)
-
-  out <- numeric(length(p))
-  for (i in seq_along(p)) {
-    pi <- p[i]
-    if (pi <= Fu) {
-      out[i] <- stats::qlnorm(pi, meanlog = meanlog, sdlog = sdlog, lower.tail = TRUE, log.p = FALSE)
-    } else {
-      g <- if (Fu >= 1) 0 else (pi - Fu) / (1 - Fu)
-      out[i] <- qGpd(g, threshold = threshold, scale = tail_scale, shape = tail_shape)
-    }
-  }
-  out
-}
-
-
 #' Lognormal mixture with a Gpd tail
 #'
 #' Splices a generalized Pareto distribution (Gpd) above \code{threshold} onto a Lognormal mixture bulk.
@@ -304,22 +178,29 @@ qLognormalGpd <- function(p, meanlog, sdlog, threshold, tail_scale, tail_shape,
 #'   \code{qLognormalMixGpd} returns a numeric vector with the same length as \code{p}.
 #'
 #' @examples
-#' w <- c(0.6, 0.4)
-#' meanlog <- c(0, 1)
-#' sdlog <- c(0.5, 0.25)
-#' threshold <- 2
-#' tail_scale <- 1.0
+#' w <- c(0.60, 0.25, 0.15)
+#' meanlog <- c(-0.2, 0.6, 1.2)
+#' sdlog <- c(0.4, 0.3, 0.5)
+#' threshold <- 3
+#' tail_scale <- 0.9
 #' tail_shape <- 0.2
-#' dLognormalMixGpd(3.0, w = w, meanlog = meanlog, sdlog = sdlog,
-#'                  threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape, log = 0)
-#' pLognormalMixGpd(3.0, w = w, meanlog = meanlog, sdlog = sdlog,
-#'                  threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape,
-#'                  lower.tail = 1, log.p = 0)
-#' rLognormalMixGpd(1, w = w, meanlog = meanlog, sdlog = sdlog,
-#'                  threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape)
-#' qLognormalMixGpd(0.9, w = w, meanlog = meanlog, sdlog = sdlog,
-#'                  threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape)
 #'
+#' dLognormalMixGpd(4.0, w = w, meanlog = meanlog, sdlog = sdlog,
+#'                 threshold = threshold, tail_scale = tail_scale,
+#'                 tail_shape = tail_shape, log = FALSE)
+#' pLognormalMixGpd(4.0, w = w, meanlog = meanlog, sdlog = sdlog,
+#'                 threshold = threshold, tail_scale = tail_scale,
+#'                 tail_shape = tail_shape, lower.tail = TRUE, log.p = FALSE)
+#' qLognormalMixGpd(0.50, w = w, meanlog = meanlog, sdlog = sdlog,
+#'                 threshold = threshold, tail_scale = tail_scale,
+#'                 tail_shape = tail_shape)
+#' qLognormalMixGpd(0.95, w = w, meanlog = meanlog, sdlog = sdlog,
+#'                 threshold = threshold, tail_scale = tail_scale,
+#'                 tail_shape = tail_shape)
+#' replicate(10, rLognormalMixGpd(1, w = w, meanlog = meanlog, sdlog = sdlog,
+#'                               threshold = threshold,
+#'                               tail_scale = tail_scale,
+#'                               tail_shape = tail_shape))
 #' @rdname lognormal_mixgpd
 #' @name lognormal_mixgpd
 #' @aliases dLognormalMixGpd pLognormalMixGpd rLognormalMixGpd qLognormalMixGpd
@@ -429,3 +310,148 @@ qLognormalMixGpd <- function(p, w, meanlog, sdlog, threshold, tail_scale, tail_s
   }
   out
 }
+
+
+
+
+#' Lognormal with a Gpd tail
+#'
+#' Splices a generalized Pareto distribution (Gpd) above \code{threshold} onto a single Lognormal bulk with
+#' parameters \code{meanlog} and \code{sdlog}. Base Lognormal functions are taken from \pkg{stats}.
+#'
+#' @param x Numeric scalar giving the point at which the density is evaluated.
+#' @param q Numeric scalar giving the point at which the distribution function is evaluated.
+#' @param p Numeric scalar probability in \eqn{(0,1)} for the quantile function.
+#' @param n Integer giving the number of draws. The RNG implementation supports \code{n = 1}.
+#' @param meanlog Numeric scalar log-mean parameter for the Lognormal bulk.
+#' @param sdlog Numeric scalar log-standard deviation for the Lognormal bulk.
+#' @param threshold Numeric scalar threshold at which the Gpd tail is attached.
+#' @param tail_scale Numeric scalar Gpd scale parameter; must be positive.
+#' @param tail_shape Numeric scalar Gpd shape parameter.
+#' @param log Integer flag \code{0/1}; if \code{1}, return the log-density.
+#' @param lower.tail Integer flag \code{0/1}; if \code{1} (default), probabilities are \eqn{P(X \le q)}.
+#' @param log.p Integer flag \code{0/1}; if \code{1}, probabilities are returned on the log scale.
+#'
+#' @return Spliced density/CDF/RNG functions return numeric scalars. \code{qLognormalGpd} returns a numeric vector
+#'   with the same length as \code{p}.
+#'
+#' @examples
+#' meanlog <- 0.4
+#' sdlog <- 0.35
+#' threshold <- 3
+#' tail_scale <- 0.9
+#' tail_shape <- 0.2
+#'
+#' dLognormalGpd(4.0, meanlog, sdlog, threshold, tail_scale, tail_shape, log = FALSE)
+#' pLognormalGpd(4.0, meanlog, sdlog, threshold, tail_scale, tail_shape,
+#'              lower.tail = TRUE, log.p = FALSE)
+#' qLognormalGpd(0.50, meanlog, sdlog, threshold, tail_scale, tail_shape)
+#' qLognormalGpd(0.95, meanlog, sdlog, threshold, tail_scale, tail_shape)
+#' replicate(10, rLognormalGpd(1, meanlog, sdlog, threshold, tail_scale, tail_shape))
+#' @rdname lognormal_gpd
+#' @name lognormal_gpd
+#' @aliases dLognormalGpd pLognormalGpd rLognormalGpd qLognormalGpd
+NULL
+
+#' @describeIn lognormal_gpd Lognormal + Gpd tail density
+#' @export
+dLognormalGpd <- nimble::nimbleFunction(
+  run = function(x = double(0),
+                 meanlog = double(0),
+                 sdlog = double(0),
+                 threshold = double(0),
+                 tail_scale = double(0),
+                 tail_shape = double(0),
+                 log = integer(0, default = 0)) {
+    returnType(double(0))
+    eps <- 1e-300
+
+    if (x < threshold) {
+      if (log == 1) return(dlnorm(x, meanlog, sdlog, 1)) else return(dlnorm(x, meanlog, sdlog, 0))
+    }
+
+    Fu <- plnorm(threshold, meanlog, sdlog, 1, 0)
+    Fu <- max(min(Fu, 1.0), 0.0)
+
+    val <- (1.0 - Fu) * dGpd(x, threshold, tail_scale, tail_shape, 0)
+    if (val < eps) val <- eps
+    if (log == 1) return(log(val)) else return(val)
+  }
+)
+
+#' @describeIn lognormal_gpd Lognormal + Gpd tail distribution function
+#' @export
+pLognormalGpd <- nimble::nimbleFunction(
+  run = function(q = double(0),
+                 meanlog = double(0),
+                 sdlog = double(0),
+                 threshold = double(0),
+                 tail_scale = double(0),
+                 tail_shape = double(0),
+                 lower.tail = integer(0, default = 1),
+                 log.p = integer(0, default = 0)) {
+    returnType(double(0))
+    eps <- 1e-300
+
+    if (q < threshold) return(plnorm(q, meanlog, sdlog, lower.tail, log.p))
+
+    Fu <- plnorm(threshold, meanlog, sdlog, 1, 0)
+    Fu <- max(min(Fu, 1.0), 0.0)
+
+    G <- pGpd(q, threshold, tail_scale, tail_shape, 1, 0)
+    cdf <- Fu + (1.0 - Fu) * G
+    cdf <- max(min(cdf, 1.0), 0.0)
+
+    if (lower.tail == 0) cdf <- 1.0 - cdf
+    if (log.p == 1) cdf <- log(max(cdf, eps))
+    return(cdf)
+  }
+)
+
+#' @describeIn lognormal_gpd Lognormal + Gpd tail random generation
+#' @export
+rLognormalGpd <- nimble::nimbleFunction(
+  run = function(n = integer(0),
+                 meanlog = double(0),
+                 sdlog = double(0),
+                 threshold = double(0),
+                 tail_scale = double(0),
+                 tail_shape = double(0)) {
+    returnType(double(0))
+
+    if (n != 1) return(0.0)
+
+    Fu <- plnorm(threshold, meanlog, sdlog, 1, 0)
+    Fu <- max(min(Fu, 1.0), 0.0)
+
+    uu <- runif(1, 0.0, 1.0)
+    if (uu < Fu) return(rlnorm(1, meanlog, sdlog))
+    return(rGpd(1, threshold, tail_scale, tail_shape))
+  }
+)
+
+#' @describeIn lognormal_gpd Lognormal + Gpd tail quantile function
+#' @export
+qLognormalGpd <- function(p, meanlog, sdlog, threshold, tail_scale, tail_shape,
+                          lower.tail = TRUE, log.p = FALSE) {
+  if (log.p) p <- exp(p)
+  if (!lower.tail) p <- 1 - p
+  p <- pmax(pmin(p, 1), 0)
+
+  Fu <- stats::plnorm(threshold, meanlog = meanlog, sdlog = sdlog, lower.tail = TRUE, log.p = FALSE)
+  Fu <- max(min(Fu, 1.0), 0.0)
+
+  out <- numeric(length(p))
+  for (i in seq_along(p)) {
+    pi <- p[i]
+    if (pi <= Fu) {
+      out[i] <- stats::qlnorm(pi, meanlog = meanlog, sdlog = sdlog, lower.tail = TRUE, log.p = FALSE)
+    } else {
+      g <- if (Fu >= 1) 0 else (pi - Fu) / (1 - Fu)
+      out[i] <- qGpd(g, threshold = threshold, scale = tail_scale, shape = tail_shape)
+    }
+  }
+  out
+}
+
+

@@ -22,18 +22,20 @@
 #'   with the same length as \code{p}.
 #'
 #' @examples
-#' w <- c(0.6, 0.4)
-#' mean <- c(0, 2)
-#' sd <- c(1, 0.5)
-#' dNormMix(1.0, w = w, mean = mean, sd = sd, log = 0)
-#' pNormMix(1.0, w = w, mean = mean, sd = sd, lower.tail = 1, log.p = 0)
-#' qNormMix(0.9, w = w, mean = mean, sd = sd)
-#' rNormMix(1, w = w, mean = mean, sd = sd)
+#' w <- c(0.60, 0.25, 0.15)
+#' mean <- c(-1, 0.5, 2.0)
+#' sd <- c(1.0, 0.7, 1.3)
 #'
+#' dNormMix(0.5, w = w, mean = mean, sd = sd, log = FALSE)
+#' pNormMix(0.5, w = w, mean = mean, sd = sd,
+#'         lower.tail = TRUE, log.p = FALSE)
+#' qNormMix(0.50, w = w, mean = mean, sd = sd)
+#' qNormMix(0.95, w = w, mean = mean, sd = sd)
+#' replicate(10, rNormMix(1, w = w, mean = mean, sd = sd))
 #' @rdname normal_mix
 #' @name normal_mix
 #' @aliases dNormMix pNormMix rNormMix qNormMix
-#' @importFrom stats uniroot
+#' @importFrom stats uniroot pnorm dnorm runif qnorm rnorm
 NULL
 
 #' @describeIn normal_mix Normal mixture density
@@ -182,10 +184,24 @@ qNormMix <- function(p, w, mean, sd,
 #'
 #' @return Spliced density/CDF/RNG functions return numeric scalars. \code{qNormMixGpd} returns a numeric vector
 #'   with the same length as \code{p}.
+#' @examples
+#' w <- c(0.60, 0.25, 0.15)
+#' mean <- c(-1, 0.5, 2.0)
+#' sd <- c(1.0, 0.7, 1.3)
+#' threshold <- 2
+#' tail_scale <- 1.0
+#' tail_shape <- 0.2
 #'
+#' dNormMixGpd(3.0, w, mean, sd, threshold, tail_scale, tail_shape, log = FALSE)
+#' pNormMixGpd(3.0, w, mean, sd, threshold, tail_scale, tail_shape,
+#'            lower.tail = TRUE, log.p = FALSE)
+#' qNormMixGpd(0.50, w, mean, sd, threshold, tail_scale, tail_shape)
+#' qNormMixGpd(0.95, w, mean, sd, threshold, tail_scale, tail_shape)
+#' replicate(10, rNormMixGpd(1, w, mean, sd, threshold, tail_scale, tail_shape))
 #' @rdname normal_mixgpd
 #' @name normal_mixgpd
 #' @aliases dNormMixGpd pNormMixGpd rNormMixGpd qNormMixGpd
+#' @importFrom stats uniroot pnorm dnorm runif qnorm rnorm
 NULL
 
 #' @describeIn normal_mixgpd Normal mixture + Gpd tail density
@@ -316,10 +332,23 @@ qNormMixGpd <- function(p, w, mean, sd, threshold, tail_scale, tail_shape,
 #'
 #' @return Spliced density/CDF/RNG functions return numeric scalars. \code{qNormGpd} returns a numeric vector
 #'   with the same length as \code{p}.
+#' @examples
+#' mean <- 0.5
+#' sd <- 1.0
+#' threshold <- 2
+#' tail_scale <- 1.0
+#' tail_shape <- 0.2
 #'
+#' dNormGpd(3.0, mean, sd, threshold, tail_scale, tail_shape, log = FALSE)
+#' pNormGpd(3.0, mean, sd, threshold, tail_scale, tail_shape,
+#'         lower.tail = TRUE, log.p = FALSE)
+#' qNormGpd(0.50, mean, sd, threshold, tail_scale, tail_shape)
+#' qNormGpd(0.95, mean, sd, threshold, tail_scale, tail_shape)
+#' replicate(10, rNormGpd(1, mean, sd, threshold, tail_scale, tail_shape))
 #' @rdname normal_gpd
 #' @name normal_gpd
 #' @aliases dNormGpd pNormGpd rNormGpd qNormGpd
+#' #' @importFrom stats uniroot pnorm dnorm runif qnorm rnorm
 NULL
 
 #' @describeIn normal_gpd Normal + Gpd tail density
