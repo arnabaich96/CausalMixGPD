@@ -71,12 +71,14 @@ by numerical inversion of the mixture CDF.
 
 }}
 \examples{
-w <- c(0.6, 0.4)
-meanlog <- c(0, 1)
-sdlog <- c(0.5, 0.25)
-dLognormalMix(2.0, w = w, meanlog = meanlog, sdlog = sdlog, log = 0)
-pLognormalMix(2.0, w = w, meanlog = meanlog, sdlog = sdlog, lower.tail = 1, log.p = 0)
-qLognormalMix(0.9, w = w, meanlog = meanlog, sdlog = sdlog)
-rLognormalMix(1, w = w, meanlog = meanlog, sdlog = sdlog)
+w <- c(0.60, 0.25, 0.15)
+meanlog <- c(-0.2, 0.6, 1.2)
+sdlog <- c(0.4, 0.3, 0.5)
 
+dLognormalMix(2.0, w = w, meanlog = meanlog, sdlog = sdlog, log = FALSE)
+pLognormalMix(2.0, w = w, meanlog = meanlog, sdlog = sdlog,
+             lower.tail = TRUE, log.p = FALSE)
+qLognormalMix(0.50, w = w, meanlog = meanlog, sdlog = sdlog)
+qLognormalMix(0.95, w = w, meanlog = meanlog, sdlog = sdlog)
+replicate(10, rLognormalMix(1, w = w, meanlog = meanlog, sdlog = sdlog))
 }

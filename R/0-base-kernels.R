@@ -23,10 +23,16 @@
 #'   \code{rGpd} returns one random draw; \code{qGpd} returns a numeric quantile.
 #'
 #' @examples
-#' dGpd(3.0, threshold = 2.0, scale = 1.0, shape = 0.2, log = 0)
-#' pGpd(3.0, threshold = 2.0, scale = 1.0, shape = 0.2, lower.tail = 1, log.p = 0)
-#' rGpd(1, threshold = 2.0, scale = 1.0, shape = 0.2)
-#' qGpd(0.9, threshold = 2.0, scale = 1.0, shape = 0.2)
+#' threshold <- 1
+#' tail_scale <- 0.8
+#' tail_shape <- 0.2
+#'
+#' dGpd(1.5, threshold, tail_scale, tail_shape, log = 0)
+#' pGpd(1.5, threshold, tail_scale, tail_shape, lower.tail = 1, log.p = 0)
+#' qGpd(0.50, threshold, tail_scale, tail_shape)
+#' qGpd(0.95, threshold, tail_scale, tail_shape)
+#' replicate(10, rGpd(1, threshold, tail_scale, tail_shape))
+
 #'
 #' @rdname gpd
 #' @name gpd
@@ -182,22 +188,27 @@ qGpd <- function(p, threshold, scale, shape,
 #' @param tol Numeric scalar tolerance passed to \code{stats::uniroot}.
 #' @param maxiter Integer maximum number of iterations for \code{stats::uniroot}.
 #'
-#' @return \code{dinvgauss} returns a numeric scalar density; \code{pinvgauss} returns a numeric scalar CDF;
-#'   \code{rinvgauss} returns one random draw; \code{qinvGauss} returns a numeric quantile.
+#' @return \code{dInvGauss} returns a numeric scalar density; \code{pInvGauss} returns a numeric scalar CDF;
+#'   \code{rInvGauss} returns one random draw; \code{qinvGauss} returns a numeric quantile.
 #'
 #' @examples
-#' dinvgauss(2.0, mean = 3.0, shape = 5.0, log = 0)
-#' pinvgauss(2.0, mean = 3.0, shape = 5.0, lower.tail = 1, log.p = 0)
-#' rinvgauss(1, mean = 3.0, shape = 5.0)
-#' qinvGauss(0.9, mean = 3.0, shape = 5.0)
+#' mean <- 2
+#' shape <- 5
 #'
-#' @rdname invgauss
-#' @name invgauss
-#' @aliases dinvgauss pinvgauss rinvgauss qinvGauss
+#' dInvGauss(2.0, mean, shape, log = 0)
+#' pInvGauss(2.0, mean, shape, lower.tail = 1, log.p = 0)
+#' qInvGauss(0.50, mean, shape)
+#' qInvGauss(0.95, mean, shape)
+#' replicate(10, rInvGauss(1, mean, shape))
+
+#'
+#' @rdname InvGauss
+#' @name InvGauss
+#' @aliases dInvGauss pInvGauss rInvGauss qinvGauss
 #' @importFrom stats pnorm rnorm runif uniroot
 NULL
 
-#' @describeIn invgauss Inverse Gaussian density function
+#' @describeIn InvGauss Inverse Gaussian density function
 #' @export
 dInvGauss <- nimble::nimbleFunction(
   run = function(x = double(0),
@@ -216,7 +227,7 @@ dInvGauss <- nimble::nimbleFunction(
   }
 )
 
-#' @describeIn invgauss Inverse Gaussian distribution function
+#' @describeIn InvGauss Inverse Gaussian distribution function
 #' @export
 pInvGauss <- nimble::nimbleFunction(
   run = function(q = double(0),
@@ -241,7 +252,7 @@ pInvGauss <- nimble::nimbleFunction(
   }
 )
 
-#' @describeIn invgauss Inverse Gaussian random generation
+#' @describeIn InvGauss Inverse Gaussian random generation
 #' @export
 rInvGauss <- nimble::nimbleFunction(
   run = function(n = integer(0),
@@ -261,9 +272,9 @@ rInvGauss <- nimble::nimbleFunction(
   }
 )
 
-#' @describeIn invgauss Inverse Gaussian quantile function
+#' @describeIn InvGauss Inverse Gaussian quantile function
 #' @export
-qinvGauss <- function(p, mean, shape,
+qInvGauss <- function(p, mean, shape,
                       lower.tail = TRUE, log.p = FALSE,
                       tol = 1e-10, maxiter = 200) {
   if (log.p) p <- exp(p)
@@ -275,7 +286,7 @@ qinvGauss <- function(p, mean, shape,
     pi <- p[i]
     if (pi <= 0) { out[i] <- 0; next }
     if (pi >= 1) { out[i] <- Inf; next }
-    out[i] <- stats::uniroot(function(q) pinvgauss(q, mean, shape) - pi,
+    out[i] <- stats::uniroot(function(q) pInvGauss(q, mean, shape) - pi,
                              interval = c(0, 1e20),
                              tol = tol, maxiter = maxiter)$root
   }
@@ -306,10 +317,17 @@ qinvGauss <- function(p, mean, shape,
 #' @return Density/CDF/RNG functions return numeric scalars. The quantile function returns a numeric scalar.
 #'
 #' @examples
-#' dAmoroso(2.0, loc = 0.0, scale = 1.0, shape1 = 2.0, shape2 = 3.0, log = 0)
-#' pAmoroso(2.0, loc = 0.0, scale = 1.0, shape1 = 2.0, shape2 = 3.0, lower.tail = 1, log.p = 0)
-#' rAmoroso(1, loc = 0.0, scale = 1.0, shape1 = 2.0, shape2 = 3.0)
-#' qAmoroso(0.9, loc = 0.0, scale = 1.0, shape1 = 2.0, shape2 = 3.0)
+#' loc <- 0
+#' scale <- 1.5
+#' shape1 <- 2
+#' shape2 <- 1.2
+#'
+#' dAmoroso(1.0, loc, scale, shape1, shape2, log = 0)
+#' pAmoroso(1.0, loc, scale, shape1, shape2, lower.tail = 1, log.p = 0)
+#' qAmoroso(0.50, loc, scale, shape1, shape2)
+#' qAmoroso(0.95, loc, scale, shape1, shape2)
+#' replicate(10, rAmoroso(1, loc, scale, shape1, shape2))
+
 #' @rdname amoroso
 #' @name amoroso
 #' @aliases dAmoroso pAmoroso rAmoroso qAmoroso

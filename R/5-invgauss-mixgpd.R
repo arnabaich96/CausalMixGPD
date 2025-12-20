@@ -25,14 +25,16 @@
 #'   with the same length as \code{p}.
 #'
 #' @examples
-#' w <- c(0.6, 0.4)
-#' mean <- c(1, 3)
-#' shape <- c(2, 5)
-#' dInvGaussMix(2.0, w = w, mean = mean, shape = shape, log = 0)
-#' pInvGaussMix(2.0, w = w, mean = mean, shape = shape, lower.tail = 1, log.p = 0)
-#' qInvGaussMix(0.9, w = w, mean = mean, shape = shape)
-#' rInvGaussMix(1, w = w, mean = mean, shape = shape)
+#' w <- c(0.55, 0.30, 0.15)
+#' mean <- c(1.0, 2.5, 5.0)
+#' shape <- c(2, 4, 8)
 #'
+#' dInvGaussMix(2.0, w = w, mean = mean, shape = shape, log = 0)
+#' pInvGaussMix(2.0, w = w, mean = mean, shape = shape,
+#'             lower.tail = 1, log.p = 0)
+#' qInvGaussMix(0.50, w = w, mean = mean, shape = shape)
+#' qInvGaussMix(0.95, w = w, mean = mean, shape = shape)
+#' replicate(10, rInvGaussMix(1, w = w, mean = mean, shape = shape))
 #' @rdname InvGauss_mix
 #' @name InvGauss_mix
 #' @aliases dInvGaussMix pInvGaussMix rInvGaussMix qInvGaussMix
@@ -209,22 +211,29 @@ qInvGaussMix <- function(p, w, mean, shape,
 #'   \code{qInvGaussMixGpd} returns a numeric vector with the same length as \code{p}.
 #'
 #' @examples
-#' w <- c(0.6, 0.4)
-#' mean <- c(1, 3)
-#' shape <- c(2, 5)
-#' threshold <- 2
-#' tail_scale <- 1.0
+#' w <- c(0.55, 0.30, 0.15)
+#' mean <- c(1.0, 2.5, 5.0)
+#' shape <- c(2, 4, 8)
+#' threshold <- 3
+#' tail_scale <- 0.9
 #' tail_shape <- 0.2
-#' dInvGaussMixGpd(3.0, w = w, mean = mean, shape = shape,
-#'                 threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape, log = 0)
-#' pInvGaussMixGpd(3.0, w = w, mean = mean, shape = shape,
-#'                 threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape,
-#'                 lower.tail = 1, log.p = 0)
-#' rInvGaussMixGpd(1, w = w, mean = mean, shape = shape,
-#'                 threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape)
-#' qInvGaussMixGpd(0.9, w = w, mean = mean, shape = shape,
-#'                 threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape)
 #'
+#' dInvGaussMixGpd(4.0, w = w, mean = mean, shape = shape,
+#'                threshold = threshold, tail_scale = tail_scale,
+#'                tail_shape = tail_shape, log = 0)
+#' pInvGaussMixGpd(4.0, w = w, mean = mean, shape = shape,
+#'                threshold = threshold, tail_scale = tail_scale,
+#'                tail_shape = tail_shape, lower.tail = 1, log.p = 0)
+#' qInvGaussMixGpd(0.50, w = w, mean = mean, shape = shape,
+#'                threshold = threshold, tail_scale = tail_scale,
+#'                tail_shape = tail_shape)
+#' qInvGaussMixGpd(0.95, w = w, mean = mean, shape = shape,
+#'                threshold = threshold, tail_scale = tail_scale,
+#'                tail_shape = tail_shape)
+#' replicate(10, rInvGaussMixGpd(1, w = w, mean = mean, shape = shape,
+#'                              threshold = threshold,
+#'                              tail_scale = tail_scale,
+#'                              tail_shape = tail_shape))
 #' @rdname InvGauss_mixgpd
 #' @name InvGauss_mixgpd
 #' @aliases dInvGaussMixGpd pInvGaussMixGpd rInvGaussMixGpd qInvGaussMixGpd
@@ -365,21 +374,28 @@ qInvGaussMixGpd <- function(p, w, mean, shape, threshold, tail_scale, tail_shape
 #'   \code{qInvGaussGpd} returns a numeric vector with the same length as \code{p}.
 #'
 #' @examples
-#' mean <- 3
-#' shape <- 5
-#' threshold <- 2
-#' tail_scale <- 1.0
+#' mean <- 2.5
+#' shape <- 6
+#' threshold <- 3
+#' tail_scale <- 0.9
 #' tail_shape <- 0.2
-#' dInvGaussGpd(3.0, mean = mean, shape = shape,
-#'              threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape, log = 0)
-#' pInvGaussGpd(3.0, mean = mean, shape = shape,
-#'              threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape,
-#'              lower.tail = 1, log.p = 0)
-#' rInvGaussGpd(1, mean = mean, shape = shape,
-#'              threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape)
-#' qInvGaussGpd(0.9, mean = mean, shape = shape,
-#'              threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape)
 #'
+#' dInvGaussGpd(4.0, mean = mean, shape = shape,
+#'             threshold = threshold, tail_scale = tail_scale,
+#'             tail_shape = tail_shape, log = 0)
+#' pInvGaussGpd(4.0, mean = mean, shape = shape,
+#'             threshold = threshold, tail_scale = tail_scale,
+#'             tail_shape = tail_shape, lower.tail = 1, log.p = 0)
+#' qInvGaussGpd(0.50, mean = mean, shape = shape,
+#'             threshold = threshold, tail_scale = tail_scale,
+#'             tail_shape = tail_shape)
+#' qInvGaussGpd(0.95, mean = mean, shape = shape,
+#'             threshold = threshold, tail_scale = tail_scale,
+#'             tail_shape = tail_shape)
+#' replicate(10, rInvGaussGpd(1, mean = mean, shape = shape,
+#'                           threshold = threshold,
+#'                           tail_scale = tail_scale,
+#'                           tail_shape = tail_shape))
 #' @rdname InvGauss_gpd
 #' @name InvGauss_gpd
 #' @aliases dInvGaussGpd pInvGaussGpd rInvGaussGpd qInvGaussGpd
@@ -480,7 +496,7 @@ qInvGaussGpd <- function(p, mean, shape, threshold, tail_scale, tail_shape,
   for (i in seq_along(p)) {
     pi <- p[i]
     if (pi <= Fu) {
-      out[i] <- qinvGauss(pi, mean = mean, shape = shape,
+      out[i] <- qInvGauss(pi, mean = mean, shape = shape,
                           lower.tail = TRUE, log.p = FALSE,
                           tol = tol, maxiter = maxiter)
     } else {

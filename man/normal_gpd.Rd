@@ -6,6 +6,15 @@
 \alias{pNormGpd}
 \alias{rNormGpd}
 \alias{qNormGpd}
+\alias{#'}
+\alias{@importFrom}
+\alias{stats}
+\alias{uniroot}
+\alias{pnorm}
+\alias{dnorm}
+\alias{runif}
+\alias{qnorm}
+\alias{rnorm}
 \title{Normal with a Gpd tail}
 \usage{
 dNormGpd(x, mean, sd, threshold, tail_scale, tail_shape, log = 0)
@@ -77,3 +86,17 @@ Splices a generalized Pareto distribution (Gpd) above \code{threshold} onto a si
 \item \code{qNormGpd()}: Normal + Gpd tail quantile function
 
 }}
+\examples{
+mean <- 0.5
+sd <- 1.0
+threshold <- 2
+tail_scale <- 1.0
+tail_shape <- 0.2
+
+dNormGpd(3.0, mean, sd, threshold, tail_scale, tail_shape, log = FALSE)
+pNormGpd(3.0, mean, sd, threshold, tail_scale, tail_shape,
+        lower.tail = TRUE, log.p = FALSE)
+qNormGpd(0.50, mean, sd, threshold, tail_scale, tail_shape)
+qNormGpd(0.95, mean, sd, threshold, tail_scale, tail_shape)
+replicate(10, rNormGpd(1, mean, sd, threshold, tail_scale, tail_shape))
+}

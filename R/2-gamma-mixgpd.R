@@ -11,7 +11,7 @@
 #' @param n Integer giving the number of draws. The RNG implementation supports \code{n = 1}.
 #' @param w Numeric vector of mixture weights of length \eqn{K}. The functions normalize \code{w}
 #'   internally when needed.
-#' @param shape,rate Numeric vectors of length \eqn{K} giving Gamma shapes and rates.
+#' @param shape,scale Numeric vectors of length \eqn{K} giving Gamma shapes and rates.
 #' @param log Logical; if \code{TRUE}, return the log-density.
 #' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Logical; if \code{TRUE}, probabilities are returned on the log scale.
@@ -22,14 +22,15 @@
 #'   with the same length as \code{p}.
 #'
 #' @examples
-#' w <- c(0.6, 0.4)
-#' shape <- c(2, 5)
-#' rate <- c(1, 2)
-#' dGammaMix(2.0, w = w, shape = shape, rate = rate, log = 0)
-#' pGammaMix(2.0, w = w, shape = shape, rate = rate, lower.tail = 1, log.p = 0)
-#' qGammaMix(0.9, w = w, shape = shape, rate = rate)
-#' rGammaMix(1, w = w, shape = shape, rate = rate)
+#' w <- c(0.55, 0.30, 0.15)
+#' scale <- c(1.0, 2.5, 5.0)
+#' shape <- c(2, 4, 6)
 #'
+#' dGammaMix(2.0, w = w, scale = scale, shape = shape, log = 0)
+#' pGammaMix(2.0, w = w, scale = scale, shape = shape, lower.tail = 1, log.p = 0)
+#' qGammaMix(0.50, w = w, scale = scale, shape = shape)
+#' qGammaMix(0.95, w = w, scale = scale, shape = shape)
+#' replicate(10, rGammaMix(1, w = w, scale = scale, shape = shape))
 #' @rdname gamma_mix
 #' @name gamma_mix
 #' @aliases dGammaMix pGammaMix rGammaMix qGammaMix
@@ -42,7 +43,7 @@ dGammaMix <- nimble::nimbleFunction(
   run = function(x = double(0),
                  w = double(1),
                  shape = double(1),
-                 rate = double(1),
+                 scale = double(1),
                  log = integer(0, default = 0)) {
     returnType(double(0))
 
@@ -57,7 +58,7 @@ dGammaMix <- nimble::nimbleFunction(
 
     s0 <- 0.0
     for (j in 1:K) {
-      s0 <- s0 + ww[j] * dgamma(x, shape = shape[j], rate = rate[j], log = 0)
+      s0 <- s0 + ww[j] * dgamma(x, shape = shape[j], scale = scale[j], log = 0)
     }
 
     if (log == 1) return(log(s0))
@@ -71,7 +72,7 @@ pGammaMix <- nimble::nimbleFunction(
   run = function(q = double(0),
                  w = double(1),
                  shape = double(1),
-                 rate = double(1),
+                 scale = double(1),
                  lower.tail = integer(0, default = 1),
                  log.p = integer(0, default = 0)) {
     returnType(double(0))
@@ -87,7 +88,7 @@ pGammaMix <- nimble::nimbleFunction(
 
     cdf <- 0.0
     for (j in 1:K) {
-      cdf <- cdf + ww[j] * pgamma(q, shape = shape[j], rate = rate[j],
+      cdf <- cdf + ww[j] * pgamma(q, shape = shape[j], scale = scale[j],
                                   lower.tail = 1, log.p = 0)
     }
 
@@ -106,7 +107,7 @@ rGammaMix <- nimble::nimbleFunction(
   run = function(n = integer(0),
                  w = double(1),
                  shape = double(1),
-                 rate = double(1)) {
+                 scale = double(1)) {
     returnType(double(0))
 
     if (n != 1) return(0.0)
@@ -130,13 +131,13 @@ rGammaMix <- nimble::nimbleFunction(
       }
     }
 
-    return(rgamma(1, shape = shape[idx], rate = rate[idx]))
+    return(rgamma(1, shape = shape[idx], scale = scale[idx]))
   }
 )
 
 #' @describeIn gamma_mix Gamma mixture quantile function
 #' @export
-qGammaMix <- function(p, w, shape, rate,
+qGammaMix <- function(p, w, shape, scale,
                       lower.tail = TRUE, log.p = FALSE,
                       tol = 1e-10, maxiter = 200) {
   if (log.p) p <- exp(p)
@@ -150,7 +151,7 @@ qGammaMix <- function(p, w, shape, rate,
     if (pi >= 1) { out[i] <- Inf; next }
 
     out[i] <- stats::uniroot(
-      function(z) pGammaMix(z, w = w, shape = shape, rate = rate,
+      function(z) pGammaMix(z, w = w, shape = shape, scale = scale,
                             lower.tail = 1, log.p = 0) - pi,
       interval = c(0, 1e20),
       tol = tol, maxiter = maxiter
@@ -169,7 +170,7 @@ qGammaMix <- function(p, w, shape, rate,
 #' @param p Numeric scalar probability in \eqn{(0,1)} for the quantile function.
 #' @param n Integer giving the number of draws. The RNG implementation supports \code{n = 1}.
 #' @param w Numeric vector of mixture weights of length \eqn{K}.
-#' @param shape,rate Numeric vectors of length \eqn{K} giving Gamma shapes and rates.
+#' @param shape,scale Numeric vectors of length \eqn{K} giving Gamma shapes and rates.
 #' @param threshold Numeric scalar threshold at which the GPD tail is attached.
 #' @param tail_scale Numeric scalar GPD scale parameter; must be positive.
 #' @param tail_shape Numeric scalar GPD shape parameter.
@@ -181,7 +182,30 @@ qGammaMix <- function(p, w, shape, rate,
 #'
 #' @return Spliced density/CDF/RNG functions return numeric scalars. \code{qGammaMixGpd} returns a numeric vector
 #'   with the same length as \code{p}.
+#' @examples
+#' w <- c(0.55, 0.30, 0.15)
+#' scale <- c(1.0, 2.5, 5.0)
+#' shape <- c(2, 4, 6)
+#' threshold <- 3
+#' tail_scale <- 0.9
+#' tail_shape <- 0.2
 #'
+#' dGammaMixGpd(4.0, w = w, scale = scale, shape = shape,
+#'             threshold = threshold, tail_scale = tail_scale,
+#'             tail_shape = tail_shape, log = 0)
+#' pGammaMixGpd(4.0, w = w, scale = scale, shape = shape,
+#'             threshold = threshold, tail_scale = tail_scale,
+#'             tail_shape = tail_shape, lower.tail = 1, log.p = 0)
+#' qGammaMixGpd(0.50, w = w, scale = scale, shape = shape,
+#'             threshold = threshold, tail_scale = tail_scale,
+#'             tail_shape = tail_shape)
+#' qGammaMixGpd(0.95, w = w, scale = scale, shape = shape,
+#'             threshold = threshold, tail_scale = tail_scale,
+#'             tail_shape = tail_shape)
+#' replicate(10, rGammaMixGpd(1, w = w, scale = scale, shape = shape,
+#'                           threshold = threshold,
+#'                           tail_scale = tail_scale,
+#'                           tail_shape = tail_shape))
 #' @rdname gamma_mixgpd
 #' @name gamma_mixgpd
 #' @aliases dGammaMixGpd pGammaMixGpd rGammaMixGpd qGammaMixGpd
@@ -194,16 +218,16 @@ dGammaMixGpd <- nimble::nimbleFunction(
   run = function(x = double(0),
                  w = double(1),
                  shape = double(1),
-                 rate = double(1),
+                 scale = double(1),
                  threshold = double(0),
                  tail_scale = double(0),
                  tail_shape = double(0),
                  log = integer(0, default = 0)) {
     returnType(double(0))
 
-    if (x < threshold) return(dGammaMix(x, w, shape, rate, log))
+    if (x < threshold) return(dGammaMix(x, w, shape, scale, log))
 
-    Fu <- pGammaMix(threshold, w, shape, rate, 1, 0)
+    Fu <- pGammaMix(threshold, w, shape, scale, 1, 0)
     val <- (1.0 - Fu) * dGpd(x, threshold, tail_scale, tail_shape, 0)
 
     if (log == 1) return(log(val))
@@ -217,7 +241,7 @@ pGammaMixGpd <- nimble::nimbleFunction(
   run = function(q = double(0),
                  w = double(1),
                  shape = double(1),
-                 rate = double(1),
+                 scale = double(1),
                  threshold = double(0),
                  tail_scale = double(0),
                  tail_shape = double(0),
@@ -225,9 +249,9 @@ pGammaMixGpd <- nimble::nimbleFunction(
                  log.p = integer(0, default = 0)) {
     returnType(double(0))
 
-    if (q < threshold) return(pGammaMix(q, w, shape, rate, lower.tail, log.p))
+    if (q < threshold) return(pGammaMix(q, w, shape, scale, lower.tail, log.p))
 
-    Fu <- pGammaMix(threshold, w, shape, rate, 1, 0)
+    Fu <- pGammaMix(threshold, w, shape, scale, 1, 0)
     G  <- pGpd(q, threshold, tail_scale, tail_shape, 1, 0)
 
     cdf <- Fu + (1.0 - Fu) * G
@@ -247,7 +271,7 @@ rGammaMixGpd <- nimble::nimbleFunction(
   run = function(n = integer(0),
                  w = double(1),
                  shape = double(1),
-                 rate = double(1),
+                 scale = double(1),
                  threshold = double(0),
                  tail_scale = double(0),
                  tail_shape = double(0)) {
@@ -255,30 +279,30 @@ rGammaMixGpd <- nimble::nimbleFunction(
 
     if (n != 1) return(0.0)
 
-    Fu <- pGammaMix(threshold, w, shape, rate, 1, 0)
+    Fu <- pGammaMix(threshold, w, shape, scale, 1, 0)
     u  <- runif(1, 0.0, 1.0)
 
-    if (u < Fu) return(rGammaMix(1, w, shape, rate))
+    if (u < Fu) return(rGammaMix(1, w, shape, scale))
     return(rGpd(1, threshold, tail_scale, tail_shape))
   }
 )
 
 #' @describeIn gamma_mixgpd Gamma mixture + GPD tail quantile function
 #' @export
-qGammaMixGpd <- function(p, w, shape, rate, threshold, tail_scale, tail_shape,
+qGammaMixGpd <- function(p, w, shape, scale, threshold, tail_scale, tail_shape,
                          lower.tail = TRUE, log.p = FALSE,
                          tol = 1e-10, maxiter = 200) {
   if (log.p) p <- exp(p)
   if (!lower.tail) p <- 1 - p
   p <- pmax(pmin(p, 1), 0)
 
-  Fu <- pGammaMix(threshold, w, shape, rate, 1, 0)
+  Fu <- pGammaMix(threshold, w, shape, scale, 1, 0)
   out <- numeric(length(p))
 
   for (i in seq_along(p)) {
     pi <- p[i]
     if (pi <= Fu) {
-      out[i] <- qGammaMix(pi, w, shape, rate, lower.tail = TRUE, log.p = FALSE, tol = tol, maxiter = maxiter)
+      out[i] <- qGammaMix(pi, w, shape, scale, lower.tail = TRUE, log.p = FALSE, tol = tol, maxiter = maxiter)
     } else {
       g <- if (Fu >= 1) 0 else (pi - Fu) / (1 - Fu)
       out[i] <- qGpd(g, threshold = threshold, scale = tail_scale, shape = tail_shape)
@@ -289,29 +313,73 @@ qGammaMixGpd <- function(p, w, shape, rate, threshold, tail_scale, tail_shape,
 
 #' Gamma with a GPD tail
 #'
-#' Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a single Gamma bulk.
+#' Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a single
+#' Gamma bulk distribution parameterized by scale \code{scale} and shape \code{shape}.
+#' The bulk probability at the threshold, \eqn{F_{bulk}(threshold)}, scales the tail mass
+#' so the overall CDF is proper.
+#'
+#' @param x Numeric scalar giving the point at which the density is evaluated.
+#' @param q Numeric scalar giving the point at which the distribution function is evaluated.
+#' @param p Numeric scalar probability in \eqn{(0,1)} for the quantile function.
+#' @param n Integer giving the number of draws. The RNG implementation supports \code{n = 1}.
+#' @param scale Numeric scalar scale parameter for the Gamma bulk.
+#' @param shape Numeric scalar Gamma shape parameter.
+#' @param threshold Numeric scalar threshold at which the GPD tail is attached.
+#' @param tail_scale Numeric scalar GPD scale parameter; must be positive.
+#' @param tail_shape Numeric scalar GPD shape parameter.
+#' @param log Integer flag \code{0/1}; if \code{1}, return the log-density.
+#' @param lower.tail Integer flag \code{0/1}; if \code{1} (default), probabilities are
+#'   \eqn{P(X \le q)}.
+#' @param log.p Integer flag \code{0/1}; if \code{1}, probabilities are returned on the log scale.
+#'
+#' @return Spliced density/CDF/RNG functions return numeric scalars.
+#'   \code{qGammaGpd} returns a numeric vector with the same length as \code{p}.
+#'
+#' @examples
+#' scale <- 2.5
+#' shape <- 4
+#' threshold <- 3
+#' tail_scale <- 0.9
+#' tail_shape <- 0.2
+#'
+#' dGammaGpd(4.0, scale = scale, shape = shape,
+#'          threshold = threshold, tail_scale = tail_scale,
+#'          tail_shape = tail_shape, log = 0)
+#' pGammaGpd(4.0, scale = scale, shape = shape,
+#'          threshold = threshold, tail_scale = tail_scale,
+#'          tail_shape = tail_shape, lower.tail = 1, log.p = 0)
+#' qGammaGpd(0.50, scale = scale, shape = shape,
+#'          threshold = threshold, tail_scale = tail_scale,
+#'          tail_shape = tail_shape)
+#' qGammaGpd(0.95, scale = scale, shape = shape,
+#'          threshold = threshold, tail_scale = tail_scale,
+#'          tail_shape = tail_shape)
+#' replicate(10, rGammaGpd(1, scale = scale, shape = shape,
+#'                        threshold = threshold,
+#'                        tail_scale = tail_scale,
+#'                        tail_shape = tail_shape))
 #'
 #' @rdname gamma_gpd
 #' @name gamma_gpd
 #' @aliases dGammaGpd pGammaGpd rGammaGpd qGammaGpd
-#' @importFrom stats dgamma pgamma rgamma qgamma runif uniroot
 NULL
+
 
 #' @describeIn gamma_gpd Gamma + GPD tail density
 #' @export
 dGammaGpd <- nimble::nimbleFunction(
   run = function(x = double(0),
                  shape = double(0),
-                 rate = double(0),
+                 scale = double(0),
                  threshold = double(0),
                  tail_scale = double(0),
                  tail_shape = double(0),
                  log = integer(0, default = 0)) {
     returnType(double(0))
 
-    if (x < threshold) return(dgamma(x, shape = shape, rate = rate, log = log))
+    if (x < threshold) return(dgamma(x, shape = shape, scale = scale, log = log))
 
-    Fu <- pgamma(threshold, shape = shape, rate = rate, lower.tail = 1, log.p = 0)
+    Fu <- pgamma(threshold, shape = shape, scale = scale, lower.tail = 1, log.p = 0)
     val <- (1.0 - Fu) * dGpd(x, threshold, tail_scale, tail_shape, 0)
 
     if (log == 1) return(log(val))
@@ -324,7 +392,7 @@ dGammaGpd <- nimble::nimbleFunction(
 pGammaGpd <- nimble::nimbleFunction(
   run = function(q = double(0),
                  shape = double(0),
-                 rate = double(0),
+                 scale = double(0),
                  threshold = double(0),
                  tail_scale = double(0),
                  tail_shape = double(0),
@@ -332,9 +400,9 @@ pGammaGpd <- nimble::nimbleFunction(
                  log.p = integer(0, default = 0)) {
     returnType(double(0))
 
-    if (q < threshold) return(pgamma(q, shape = shape, rate = rate, lower.tail = lower.tail, log.p = log.p))
+    if (q < threshold) return(pgamma(q, shape = shape, scale = scale, lower.tail = lower.tail, log.p = log.p))
 
-    Fu <- pgamma(threshold, shape = shape, rate = rate, lower.tail = 1, log.p = 0)
+    Fu <- pgamma(threshold, shape = shape, scale = scale, lower.tail = 1, log.p = 0)
     G  <- pGpd(q, threshold, tail_scale, tail_shape, 1, 0)
 
     cdf <- Fu + (1.0 - Fu) * G
@@ -353,7 +421,7 @@ pGammaGpd <- nimble::nimbleFunction(
 rGammaGpd <- nimble::nimbleFunction(
   run = function(n = integer(0),
                  shape = double(0),
-                 rate = double(0),
+                 scale = double(0),
                  threshold = double(0),
                  tail_scale = double(0),
                  tail_shape = double(0)) {
@@ -361,30 +429,30 @@ rGammaGpd <- nimble::nimbleFunction(
 
     if (n != 1) return(0.0)
 
-    Fu <- pgamma(threshold, shape = shape, rate = rate, lower.tail = 1, log.p = 0)
+    Fu <- pgamma(threshold, shape = shape, scale = scale, lower.tail = 1, log.p = 0)
     u  <- runif(1, 0.0, 1.0)
 
-    if (u < Fu) return(rgamma(1, shape = shape, rate = rate))
+    if (u < Fu) return(rgamma(1, shape = shape, scale = scale))
     return(rGpd(1, threshold, tail_scale, tail_shape))
   }
 )
 
 #' @describeIn gamma_gpd Gamma + GPD tail quantile function
 #' @export
-qGammaGpd <- function(p, shape, rate, threshold, tail_scale, tail_shape,
+qGammaGpd <- function(p, shape, scale, threshold, tail_scale, tail_shape,
                       lower.tail = TRUE, log.p = FALSE,
                       tol = 1e-10, maxiter = 200) {
   if (log.p) p <- exp(p)
   if (!lower.tail) p <- 1 - p
   p <- pmax(pmin(p, 1), 0)
 
-  Fu <- stats::pgamma(threshold, shape = shape, rate = rate, lower.tail = TRUE, log.p = FALSE)
+  Fu <- stats::pgamma(threshold, shape = shape, scale = scale, lower.tail = TRUE, log.p = FALSE)
 
   out <- numeric(length(p))
   for (i in seq_along(p)) {
     pi <- p[i]
     if (pi <= Fu) {
-      out[i] <- stats::qgamma(pi, shape = shape, rate = rate, lower.tail = TRUE, log.p = FALSE)
+      out[i] <- stats::qgamma(pi, shape = shape, scale = scale, lower.tail = TRUE, log.p = FALSE)
     } else {
       g <- if (Fu >= 1) 0 else (pi - Fu) / (1 - Fu)
       out[i] <- qGpd(g, threshold = threshold, scale = tail_scale, shape = tail_shape)

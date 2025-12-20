@@ -8,17 +8,17 @@
 \alias{qGammaMix}
 \title{Gamma mixture distribution}
 \usage{
-dGammaMix(x, w, shape, rate, log = 0)
+dGammaMix(x, w, shape, scale, log = 0)
 
-pGammaMix(q, w, shape, rate, lower.tail = 1, log.p = 0)
+pGammaMix(q, w, shape, scale, lower.tail = 1, log.p = 0)
 
-rGammaMix(n, w, shape, rate)
+rGammaMix(n, w, shape, scale)
 
 qGammaMix(
   p,
   w,
   shape,
-  rate,
+  scale,
   lower.tail = TRUE,
   log.p = FALSE,
   tol = 1e-10,
@@ -31,7 +31,7 @@ qGammaMix(
 \item{w}{Numeric vector of mixture weights of length \eqn{K}. The functions normalize \code{w}
 internally when needed.}
 
-\item{shape, rate}{Numeric vectors of length \eqn{K} giving Gamma shapes and rates.}
+\item{shape, scale}{Numeric vectors of length \eqn{K} giving Gamma shapes and rates.}
 
 \item{log}{Logical; if \code{TRUE}, return the log-density.}
 
@@ -71,12 +71,13 @@ numerical inversion of the mixture CDF.
 
 }}
 \examples{
-w <- c(0.6, 0.4)
-shape <- c(2, 5)
-rate <- c(1, 2)
-dGammaMix(2.0, w = w, shape = shape, rate = rate, log = 0)
-pGammaMix(2.0, w = w, shape = shape, rate = rate, lower.tail = 1, log.p = 0)
-qGammaMix(0.9, w = w, shape = shape, rate = rate)
-rGammaMix(1, w = w, shape = shape, rate = rate)
+w <- c(0.55, 0.30, 0.15)
+scale <- c(1.0, 2.5, 5.0)
+shape <- c(2, 4, 6)
 
+dGammaMix(2.0, w = w, scale = scale, shape = shape, log = 0)
+pGammaMix(2.0, w = w, scale = scale, shape = shape, lower.tail = 1, log.p = 0)
+qGammaMix(0.50, w = w, scale = scale, shape = shape)
+qGammaMix(0.95, w = w, scale = scale, shape = shape)
+replicate(10, rGammaMix(1, w = w, scale = scale, shape = shape))
 }

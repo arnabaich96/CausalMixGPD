@@ -8,13 +8,13 @@
 \alias{qGammaMixGpd}
 \title{Gamma mixture with a GPD tail}
 \usage{
-dGammaMixGpd(x, w, shape, rate, threshold, tail_scale, tail_shape, log = 0)
+dGammaMixGpd(x, w, shape, scale, threshold, tail_scale, tail_shape, log = 0)
 
 pGammaMixGpd(
   q,
   w,
   shape,
-  rate,
+  scale,
   threshold,
   tail_scale,
   tail_shape,
@@ -22,13 +22,13 @@ pGammaMixGpd(
   log.p = 0
 )
 
-rGammaMixGpd(n, w, shape, rate, threshold, tail_scale, tail_shape)
+rGammaMixGpd(n, w, shape, scale, threshold, tail_scale, tail_shape)
 
 qGammaMixGpd(
   p,
   w,
   shape,
-  rate,
+  scale,
   threshold,
   tail_scale,
   tail_shape,
@@ -43,7 +43,7 @@ qGammaMixGpd(
 
 \item{w}{Numeric vector of mixture weights of length \eqn{K}.}
 
-\item{shape, rate}{Numeric vectors of length \eqn{K} giving Gamma shapes and rates.}
+\item{shape, scale}{Numeric vectors of length \eqn{K} giving Gamma shapes and rates.}
 
 \item{threshold}{Numeric scalar threshold at which the GPD tail is attached.}
 
@@ -86,3 +86,28 @@ The bulk probability at the threshold is used to scale the tail so that the over
 \item \code{qGammaMixGpd()}: Gamma mixture + GPD tail quantile function
 
 }}
+\examples{
+w <- c(0.55, 0.30, 0.15)
+scale <- c(1.0, 2.5, 5.0)
+shape <- c(2, 4, 6)
+threshold <- 3
+tail_scale <- 0.9
+tail_shape <- 0.2
+
+dGammaMixGpd(4.0, w = w, scale = scale, shape = shape,
+            threshold = threshold, tail_scale = tail_scale,
+            tail_shape = tail_shape, log = 0)
+pGammaMixGpd(4.0, w = w, scale = scale, shape = shape,
+            threshold = threshold, tail_scale = tail_scale,
+            tail_shape = tail_shape, lower.tail = 1, log.p = 0)
+qGammaMixGpd(0.50, w = w, scale = scale, shape = shape,
+            threshold = threshold, tail_scale = tail_scale,
+            tail_shape = tail_shape)
+qGammaMixGpd(0.95, w = w, scale = scale, shape = shape,
+            threshold = threshold, tail_scale = tail_scale,
+            tail_shape = tail_shape)
+replicate(10, rGammaMixGpd(1, w = w, scale = scale, shape = shape,
+                          threshold = threshold,
+                          tail_scale = tail_scale,
+                          tail_shape = tail_shape))
+}
