@@ -128,22 +128,23 @@ the closed-form GPD quantile in the tail region.
 
 }}
 \examples{
-\dontrun{
-w <- c(0.7, 0.3)
-loc <- c(0, 1)
-scale <- c(1, 1.5)
-shape1 <- c(2, 5)
-shape2 <- c(1, 2)
-threshold <- 2
+w <- c(0.60, 0.25, 0.15)
+loc <- c(0, 1, 2)
+scale <- c(1.0, 1.2, 1.6)
+shape1 <- c(2, 4, 6)
+shape2 <- c(1.0, 1.2, 1.5)
+threshold <- 3
+tail_scale <- 1.0
+tail_shape <- 0.2
 
-dAmorosoMixGpd(3.0, w = w, loc = loc, scale = scale, shape1 = shape1, shape2 = shape2,
-               threshold = threshold, tail_scale = 1, tail_shape = 0.2)
-pAmorosoMixGpd(3.0, w = w, loc = loc, scale = scale, shape1 = shape1, shape2 = shape2,
-              threshold = threshold, tail_scale = 1, tail_shape = 0.2)
-rAmorosoMixGpd(1, w = w, loc = loc, scale = scale, shape1 = shape1, shape2 = shape2,
-              threshold = threshold, tail_scale = 1, tail_shape = 0.2)
-qAmorosoMixGpd(0.99, w = w, loc = loc, scale = scale, shape1 = shape1, shape2 = shape2,
-               threshold = threshold, tail_scale = 1, tail_shape = 0.2)
-}
-
+dAmorosoMixGpd(4.0, w, loc, scale, shape1, shape2,
+              threshold, tail_scale, tail_shape, log = 0)
+pAmorosoMixGpd(4.0, w, loc, scale, shape1, shape2,
+              threshold, tail_scale, tail_shape, lower.tail = 1, log.p = 0)
+qAmorosoMixGpd(0.50, w, loc, scale, shape1, shape2,
+              threshold, tail_scale, tail_shape)
+qAmorosoMixGpd(0.95, w, loc, scale, shape1, shape2,
+              threshold, tail_scale, tail_shape)
+replicate(10, rAmorosoMixGpd(1, w, loc, scale, shape1, shape2,
+                            threshold, tail_scale, tail_shape))
 }

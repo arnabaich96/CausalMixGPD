@@ -25,14 +25,16 @@
 #'   with the same length as \code{p}.
 #'
 #' @examples
-#' w <- c(0.6, 0.4)
-#' location <- c(0, 2)
-#' scale <- c(1, 0.5)
-#' dLaplaceMix(1.0, w = w,  location, scale, log = FALSE)
-#' pLaplaceMix(1.0, w = w,  location, scale, lower.tail = TRUE, log.p = FALSE)
-#' qLaplaceMix(0.9, w = w,  location, scale)
-#' rLaplaceMix(1, w = w,  location, scale)
+#' w <- c(0.50, 0.30, 0.20)
+#' location <- c(-1, 0.5, 2.0)
+#' scale <- c(1.0, 0.7, 1.4)
 #'
+#' dLaplaceMix(0.8, w = w, location = location, scale = scale, log = FALSE)
+#' pLaplaceMix(0.8, w = w, location = location, scale = scale,
+#'            lower.tail = TRUE, log.p = FALSE)
+#' qLaplaceMix(0.50, w = w, location = location, scale = scale)
+#' qLaplaceMix(0.95, w = w, location = location, scale = scale)
+#' replicate(10, rLaplaceMix(1, w = w, location = location, scale = scale))
 #' @rdname laplace_mix
 #' @name laplace_mix
 #' @aliases dLaplaceMix pLaplaceMix rLaplaceMix qLaplaceMix
@@ -183,18 +185,29 @@ qLaplaceMix <- function(p, w, location, scale,
 #'   with the same length as \code{p}.
 #'
 #' @examples
-#' w <- c(0.6, 0.4)
-#' location <- c(0, 2)
-#' scale <- c(1, 0.5)
+#' w <- c(0.50, 0.30, 0.20)
+#' location <- c(-1, 0.5, 2.0)
+#' scale <- c(1.0, 0.7, 1.4)
 #' threshold <- 1
 #' tail_scale <- 1.0
 #' tail_shape <- 0.2
-#' dLaplaceMixGpd(2.0, w = w,  location, scale,  threshold, tail_scale,tail_shape, log = FALSE)
-#' pLaplaceMixGpd(2.0, w = w,  location, scale,  threshold, tail_scale,tail_shape,
-#'                lower.tail = TRUE, log.p = FALSE)
-#' rLaplaceMixGpd(1, w = w,  location, scale,  threshold, tail_scale,tail_shape)
-#' qLaplaceMixGpd(0.9, w = w,  location, scale,  threshold, tail_scale,tail_shape)
 #'
+#' dLaplaceMixGpd(2.0, w = w, location = location, scale = scale,
+#'               threshold = threshold, tail_scale = tail_scale,
+#'               tail_shape = tail_shape, log = FALSE)
+#' pLaplaceMixGpd(2.0, w = w, location = location, scale = scale,
+#'               threshold = threshold, tail_scale = tail_scale,
+#'               tail_shape = tail_shape, lower.tail = TRUE, log.p = FALSE)
+#' qLaplaceMixGpd(0.50, w = w, location = location, scale = scale,
+#'               threshold = threshold, tail_scale = tail_scale,
+#'               tail_shape = tail_shape)
+#' qLaplaceMixGpd(0.95, w = w, location = location, scale = scale,
+#'               threshold = threshold, tail_scale = tail_scale,
+#'               tail_shape = tail_shape)
+#' replicate(10, rLaplaceMixGpd(1, w = w, location = location, scale = scale,
+#'                             threshold = threshold,
+#'                             tail_scale = tail_scale,
+#'                             tail_shape = tail_shape))
 #' @rdname laplace_MixGpd
 #' @name laplace_MixGpd
 #' @aliases dLaplaceMixGpd pLaplaceMixGpd rLaplaceMixGpd qLaplaceMixGpd
@@ -324,16 +337,18 @@ qLaplaceMixGpd <- function(p, w, location, scale, threshold, tail_scale, tail_sh
 #'   with the same length as \code{p}.
 #'
 #' @examples
-#' location <- 0
-#' scale <- 1
+#' location <- 0.5
+#' scale <- 1.0
 #' threshold <- 1
 #' tail_scale <- 1.0
 #' tail_shape <- 0.2
-#' dLaplaceGpd(2.0,  location, scale,  threshold, tail_scale, tail_shape, log = FALSE)
-#' pLaplaceGpd(2.0,  location, scale,  threshold, tail_scale, tail_shape, lower.tail = TRUE, log.p = FALSE)
-#' rLaplaceGpd(1,  location, scale,  threshold, tail_scale, tail_shape)
-#' qLaplaceGpd(0.9,  location, scale,  threshold, tail_scale,tail_shape)
 #'
+#' dLaplaceGpd(2.0, location, scale, threshold, tail_scale, tail_shape, log = FALSE)
+#' pLaplaceGpd(2.0, location, scale, threshold, tail_scale, tail_shape,
+#'            lower.tail = TRUE, log.p = FALSE)
+#' qLaplaceGpd(0.50, location, scale, threshold, tail_scale, tail_shape)
+#' qLaplaceGpd(0.95, location, scale, threshold, tail_scale, tail_shape)
+#' replicate(10, rLaplaceGpd(1, location, scale, threshold, tail_scale, tail_shape))
 #' @rdname laplace_gpd
 #' @name laplace_gpd
 #' @aliases dLaplaceGpd pLaplaceGpd rLaplaceGpd qLaplaceGpd

@@ -71,12 +71,15 @@ Quantiles are computed by numerical inversion of the mixture CDF.
 
 }}
 \examples{
-w <- c(0.6, 0.4)
-loc <- c(0, 2)
-sc <- c(1, 0.5)
-dCauchyMix(1.0, w = w, location = loc, scale = sc, log = FALSE)
-pCauchyMix(1.0, w = w, location = loc, scale = sc, lower.tail = TRUE, log.p = FALSE)
-qCauchyMix(0.9, w = w, location = loc, scale = sc)
-rCauchyMix(1, w = w, location = loc, scale = sc)
+w <- c(0.50, 0.30, 0.20)
+location <- c(-2, 0, 3)
+scale <- c(1.0, 0.7, 1.5)
+
+dCauchyMix(0.5, w = w, location = location, scale = scale, log = FALSE)
+pCauchyMix(0.5, w = w, location = location, scale = scale,
+           lower.tail = TRUE, log.p = FALSE)
+qCauchyMix(0.50, w = w, location = location, scale = scale)
+qCauchyMix(0.95, w = w, location = location, scale = scale)
+replicate(10, rCauchyMix(1, w = w, location = location, scale = scale))
 
 }

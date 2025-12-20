@@ -66,12 +66,14 @@ by numerical inversion of the mixture CDF.
 
 }}
 \examples{
-w <- c(0.6, 0.4)
-location <- c(0, 2)
-scale <- c(1, 0.5)
-dLaplaceMix(1.0, w = w,  location, scale, log = FALSE)
-pLaplaceMix(1.0, w = w,  location, scale, lower.tail = TRUE, log.p = FALSE)
-qLaplaceMix(0.9, w = w,  location, scale)
-rLaplaceMix(1, w = w,  location, scale)
+w <- c(0.50, 0.30, 0.20)
+location <- c(-1, 0.5, 2.0)
+scale <- c(1.0, 0.7, 1.4)
 
+dLaplaceMix(0.8, w = w, location = location, scale = scale, log = FALSE)
+pLaplaceMix(0.8, w = w, location = location, scale = scale,
+           lower.tail = TRUE, log.p = FALSE)
+qLaplaceMix(0.50, w = w, location = location, scale = scale)
+qLaplaceMix(0.95, w = w, location = location, scale = scale)
+replicate(10, rLaplaceMix(1, w = w, location = location, scale = scale))
 }
