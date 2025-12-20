@@ -71,12 +71,14 @@ by numerical inversion of the mixture CDF.
 
 }}
 \examples{
-w <- c(0.6, 0.4)
-mean <- c(0, 2)
-sd <- c(1, 0.5)
-dNormMix(1.0, w = w, mean = mean, sd = sd, log = 0)
-pNormMix(1.0, w = w, mean = mean, sd = sd, lower.tail = 1, log.p = 0)
-qNormMix(0.9, w = w, mean = mean, sd = sd)
-rNormMix(1, w = w, mean = mean, sd = sd)
+w <- c(0.60, 0.25, 0.15)
+mean <- c(-1, 0.5, 2.0)
+sd <- c(1.0, 0.7, 1.3)
 
+dNormMix(0.5, w = w, mean = mean, sd = sd, log = FALSE)
+pNormMix(0.5, w = w, mean = mean, sd = sd,
+        lower.tail = TRUE, log.p = FALSE)
+qNormMix(0.50, w = w, mean = mean, sd = sd)
+qNormMix(0.95, w = w, mean = mean, sd = sd)
+replicate(10, rNormMix(1, w = w, mean = mean, sd = sd))
 }

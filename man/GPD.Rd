@@ -58,9 +58,14 @@ Parameterization uses threshold \code{threshold}, scale \code{scale > 0}, and sh
 
 }}
 \examples{
-dGpd(3.0, threshold = 2.0, scale = 1.0, shape = 0.2, log = 0)
-pGpd(3.0, threshold = 2.0, scale = 1.0, shape = 0.2, lower.tail = 1, log.p = 0)
-rGpd(1, threshold = 2.0, scale = 1.0, shape = 0.2)
-qGpd(0.9, threshold = 2.0, scale = 1.0, shape = 0.2)
+threshold <- 1
+tail_scale <- 0.8
+tail_shape <- 0.2
+
+dGpd(1.5, threshold, tail_scale, tail_shape, log = 0)
+pGpd(1.5, threshold, tail_scale, tail_shape, lower.tail = 1, log.p = 0)
+qGpd(0.50, threshold, tail_scale, tail_shape)
+qGpd(0.95, threshold, tail_scale, tail_shape)
+replicate(10, rGpd(1, threshold, tail_scale, tail_shape))
 
 }

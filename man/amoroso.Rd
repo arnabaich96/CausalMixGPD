@@ -51,8 +51,14 @@ Function names and parameterization follow your existing Amoroso implementation.
 
 }}
 \examples{
-dAmoroso(2.0, loc = 0.0, scale = 1.0, shape1 = 2.0, shape2 = 3.0, log = 0)
-pAmoroso(2.0, loc = 0.0, scale = 1.0, shape1 = 2.0, shape2 = 3.0, lower.tail = 1, log.p = 0)
-rAmoroso(1, loc = 0.0, scale = 1.0, shape1 = 2.0, shape2 = 3.0)
-qAmoroso(0.9, loc = 0.0, scale = 1.0, shape1 = 2.0, shape2 = 3.0)
+loc <- 0
+scale <- 1.5
+shape1 <- 2
+shape2 <- 1.2
+
+dAmoroso(1.0, loc, scale, shape1, shape2, log = 0)
+pAmoroso(1.0, loc, scale, shape1, shape2, lower.tail = 1, log.p = 0)
+qAmoroso(0.50, loc, scale, shape1, shape2)
+qAmoroso(0.95, loc, scale, shape1, shape2)
+replicate(10, rAmoroso(1, loc, scale, shape1, shape2))
 }
