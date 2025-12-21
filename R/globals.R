@@ -6,6 +6,7 @@
 #' @name globals
 #' @keywords internal
 #' @importFrom  stats uniroot pgamma predict rgamma
+#' @import nimble
 NULL
 
 utils::globalVariables(c(
@@ -25,3 +26,12 @@ utils::globalVariables(c(
   "pdexp",
   "rdexp"
 ))
+#' Package hooks
+#'
+#' Internal package initialization.
+#'
+#' @keywords internal
+.onLoad <- function(libname, pkgname) {
+  init_kernel_registry()
+  invisible()
+}
