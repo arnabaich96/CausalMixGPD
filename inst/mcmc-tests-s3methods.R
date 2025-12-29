@@ -5,7 +5,7 @@ y <- abs(rnorm(80)) + 0.2
 
 bundle_sb_amoroso <- build_nimble_bundle(
   y = y,
-  backend = "crp",
+  backend = "sb",
   kernel = "lognormal",
   GPD = FALSE,
   Kmax = 6,

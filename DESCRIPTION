@@ -1,6 +1,6 @@
 Package: DPmixGPD
 Type: Package
-Title: Dirichlet Process Mixtures with Optional GPD Tail
+Title: Dirichlet Process Mixtures with Generalized Pareto Tail.
 Version: 0.0.6
 Authors@R: person("Arnab", "Aich", role = c("aut", "cre"), email = "arnab.aich99@gmail.com")
 Description: Experimental framework for Dirichlet process mixture regression and unconditional models
@@ -23,6 +23,7 @@ Imports:
 Suggests:
     testthat (>= 3.0.0),
     vdiffr,
-    svglite
+    svglite,
+    crayon
 RoxygenNote: 7.3.3
 Config/testthat/edition: 3
