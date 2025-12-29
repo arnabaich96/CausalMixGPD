@@ -572,7 +572,7 @@ build_code_crp_from_spec <- function(spec) {
       }
     }
     if (!length(exprs)) return(NULL)
-    bquote(for (k in 1:.(Kmax)) { .(as.call(c(quote(`{`), exprs))) })
+    bquote(for (k in 1:Kmax) { .(as.call(c(quote(`{`), exprs))) })
   }
 
   # ---- tail / threshold blocks ----
@@ -588,7 +588,7 @@ build_code_crp_from_spec <- function(spec) {
       bt_sd   <- pri$beta_threshold_sd   %||% 10
       threshold_block <- bquote({
         for (k in 1:.(p)) beta_threshold[k] ~ dnorm(.(bt_mean), sd = .(bt_sd))
-        for (i in 1:.(N)) threshold[i] <- exp(inprod(beta_threshold[1:.(p)], X[i, 1:.(p)]))
+        for (i in 1:N) threshold[i] <- exp(inprod(beta_threshold[1:.(p)], X[i, 1:.(p)]))
       })
       threshold_expr <- quote(threshold[i])
     } else {
@@ -628,7 +628,7 @@ build_code_crp_from_spec <- function(spec) {
 
   code_exprs <- list(
     bquote(alpha ~ dgamma(.(alpha_shape), .(alpha_rate))),
-    bquote(for (i in 1:.(N)) z[i] ~ dCRP(alpha, size = .(Kmax)))
+    bquote(for (i in 1:N) z[i] ~ dCRP(alpha, size = Kmax))
   )
 
   bb <- bulk_prior_block()
@@ -636,9 +636,9 @@ build_code_crp_from_spec <- function(spec) {
   if (!is.null(threshold_block)) code_exprs <- c(code_exprs, list(threshold_block))
   if (!is.null(tail_block)) code_exprs <- c(code_exprs, list(tail_block))
 
-  code_exprs <- c(code_exprs, list(bquote(for (i in 1:.(N)) y[i] ~ .(like_call))))
+  code_exprs <- c(code_exprs, list(bquote(for (i in 1:N) y[i] ~ .(like_call))))
 
-  nimble::nimbleCode(as.call(c(quote(`{`), code_exprs)))
+  do.call(nimble::nimbleCode, list(as.call(c(quote(`{`), code_exprs))))
 }
 
 
