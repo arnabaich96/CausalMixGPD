@@ -22,7 +22,15 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, compile = TRUE)
   code <- bundle$code
   constants <- bundle$constants %||% list()
   data <- bundle$data %||% list()
-  inits_fun <- bundle$inits %||% function() list()
+  inits_obj <- bundle$inits_fun %||% bundle$inits %||% function() list()
+  if (is.function(inits_obj)) {
+    inits_fun <- inits_obj
+  } else if (is.list(inits_obj)) {
+    inits_fun <- function() inits_obj
+  } else {
+    inits_fun <- function() list()
+  }
+
   dims <- bundle$dimensions %||% list()
   monitors <- bundle$monitors %||% character(0)
 

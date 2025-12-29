@@ -16,8 +16,10 @@ init_kernel_registry <- function() {
       bulk_params = c("mean", "sd"),
       bulk_support = c(mean = "real", sd = "positive_sd"),
       allow_gpd = TRUE,
-      sb = list(d = "dNormMix", d_gpd = "dNormMixGpd"),
-      crp = list(d_base = "dnorm", d_gpd = "dNormGpd")
+      # SB always uses MIX densities
+      sb  = list(d = "dNormMix",      d_gpd = "dNormMixGpd"),
+      # CRP always uses non-mix densities
+      crp = list(d_base = "dnorm",    d_gpd = "dNormGpd")
     ),
 
     gamma = list(
@@ -25,8 +27,8 @@ init_kernel_registry <- function() {
       bulk_params = c("shape", "scale"),
       bulk_support = c(shape = "positive_shape", scale = "positive_scale"),
       allow_gpd = TRUE,
-      sb = list(d = "dGammaMix", d_gpd = "dGammaMixGpd"),
-      crp = list(d_base = "dgamma", d_gpd = "dGammaGpd")
+      sb  = list(d = "dGammaMix",     d_gpd = "dGammaMixGpd"),
+      crp = list(d_base = "dgamma",   d_gpd = "dGammaGpd")
     ),
 
     lognormal = list(
@@ -34,8 +36,8 @@ init_kernel_registry <- function() {
       bulk_params = c("meanlog", "sdlog"),
       bulk_support = c(meanlog = "real", sdlog = "positive_sd"),
       allow_gpd = TRUE,
-      sb = list(d = "dLognormalMix", d_gpd = "dLognormalMixGpd"),
-      crp = list(d_base = "dlnorm", d_gpd = "dLognormalGpd")
+      sb  = list(d = "dLognormalMix", d_gpd = "dLognormalMixGpd"),
+      crp = list(d_base = "dlnorm",   d_gpd = "dLognormalGpd")
     ),
 
     laplace = list(
@@ -43,8 +45,8 @@ init_kernel_registry <- function() {
       bulk_params = c("location", "scale"),
       bulk_support = c(location = "real", scale = "positive_scale"),
       allow_gpd = TRUE,
-      sb = list(d = "dLaplaceMix", d_gpd = "dLaplaceMixGpd"),
-      crp = list(d_base = "ddexp", d_gpd = "dLaplaceGpd")
+      sb  = list(d = "dLaplaceMix",   d_gpd = "dLaplaceMixGpd"),
+      crp = list(d_base = "ddexp",    d_gpd = "dLaplaceGpd")
     ),
 
     invgauss = list(
@@ -52,7 +54,7 @@ init_kernel_registry <- function() {
       bulk_params = c("mean", "shape"),
       bulk_support = c(mean = "positive_mean", shape = "positive_shape"),
       allow_gpd = TRUE,
-      sb = list(d = "dInvGaussMix", d_gpd = "dInvGaussMixGpd"),
+      sb  = list(d = "dInvGaussMix",  d_gpd = "dInvGaussMixGpd"),
       crp = list(d_base = "dInvGauss", d_gpd = "dInvGaussGpd")
     ),
 
@@ -60,9 +62,10 @@ init_kernel_registry <- function() {
       key = "amoroso",
       bulk_params = c("loc", "scale", "shape1", "shape2"),
       # scale is REAL in your implementation (can be negative)
-      bulk_support = c(loc = "real", scale = "real", shape1 = "positive_shape", shape2 = "positive_shape"),
+      bulk_support = c(loc = "real", scale = "real",
+                       shape1 = "positive_shape", shape2 = "positive_shape"),
       allow_gpd = TRUE,
-      sb = list(d = "dAmorosoMix", d_gpd = "dAmorosoMixGpd"),
+      sb  = list(d = "dAmorosoMix",   d_gpd = "dAmorosoMixGpd"),
       crp = list(d_base = "dAmoroso", d_gpd = "dAmorosoGpd")
     ),
 
@@ -71,8 +74,9 @@ init_kernel_registry <- function() {
       bulk_params = c("location", "scale"),
       bulk_support = c(location = "real", scale = "positive_scale"),
       allow_gpd = FALSE,
-      sb = list(d = "dCauchyMix", d_gpd = NA_character_),
-      crp = list(d_base = "dcauchy", d_gpd = NA_character_)
+      # SB uses MIX density even when no GPD is allowed
+      sb  = list(d = "dCauchyMix",    d_gpd = NA_character_),
+      crp = list(d_base = "dcauchy",  d_gpd = NA_character_)
     )
   )
 
@@ -87,6 +91,7 @@ init_kernel_registry <- function() {
 
   invisible(TRUE)
 }
+
 
 #' Get kernel registry
 #'
