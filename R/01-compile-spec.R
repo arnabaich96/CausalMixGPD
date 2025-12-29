@@ -8,7 +8,7 @@
 #' @param backend Either \code{"sb"} or \code{"crp"}.
 #' @param kernel Kernel key in the internal registry.
 #' @param GPD Logical; whether to use GPD augmentation.
-#' @param X Optional design matrix (N x p). Not used unless regression \code{type="link"} is requested.
+#' @param X Optional design matrix (N x P). Not used unless regression \code{type="link"} is requested.
 #' @param components Alias for \code{J} when backend="sb".
 #' @param J For SB backend only, number of mixture components (>= 2).
 #' @param Kmax For CRP backend only, truncation level for cluster parameters. Default is N.
@@ -19,20 +19,28 @@
 #' @return A \code{dpmixgpd_spec} list.
 #' @keywords internal
 #' @noRd
-compile_model_spec <- function(y,
-                               X = NULL,
-                               backend = c("sb","crp"),
-                               kernel,
-                               GPD = FALSE,
-                               Kmax = 10L,
-                               mcmc = list(),
-                               # optional inputs used by build_nimble_bundle()
-                               param_specs = NULL,
-                               alpha_random = TRUE,
-                               priors = list()) {
+compile_model_spec <- function(
+    y,
+    X = NULL,
+    backend = c("sb", "crp"),
+    kernel,
+    GPD = FALSE,
+    Kmax = NULL,
+    J = NULL,
+    components = NULL,
+    mcmc = list(),
+    param_specs = NULL,
+    alpha_random = TRUE,
+    priors = list()
+) {
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+  .stopf <- function(fmt, ...) stop(sprintf(fmt, ...), call. = FALSE)
 
   backend <- match.arg(backend)
 
+  # -----------------------------
+  # Inputs
+  # -----------------------------
   if (is.null(y) || length(y) < 2) .stopf("`y` must be a numeric vector of length >= 2.")
   y <- as.numeric(y)
   N <- length(y)
@@ -41,77 +49,161 @@ compile_model_spec <- function(y,
   if (has_X) {
     X <- as.matrix(X)
     if (nrow(X) != N) .stopf("`X` must have nrow(X) == length(y). Got %d vs %d.", nrow(X), N)
-    p <- ncol(X)
-    if (p < 1) .stopf("`X` must have at least one column.")
+    P <- as.integer(ncol(X))
+    if (P < 1L) .stopf("`X` must have at least one column.")
   } else {
-    p <- 0L
+    P <- 0L
   }
 
-  Kmax <- as.integer(Kmax)
-  if (Kmax < 2L) .stopf("`Kmax` must be >= 2.")
-
+  # -----------------------------
+  # Registry + kernel definition
+  # -----------------------------
   kreg <- get_kernel_registry()
   if (!kernel %in% names(kreg)) .stopf("Unknown kernel='%s'.", kernel)
   kdef <- kreg[[kernel]]
 
-  # sanity checks for dispatch entries
-  if (isTRUE(GPD) && is.null(kdef$crp$d_gpd) && backend == "crp") {
-    .stopf("Kernel '%s' does not define a CRP+GPD density dispatcher.", kernel)
-  }
-  if (isFALSE(GPD) && is.null(kdef$crp$d_base) && backend == "crp") {
-    .stopf("Kernel '%s' does not define a CRP bulk density dispatcher.", kernel)
-  }
-  if (isTRUE(GPD) && is.null(kdef$sb$d_gpd) && backend == "sb") {
-    .stopf("Kernel '%s' does not define an SB+GPD density dispatcher.", kernel)
-  }
-  if (isFALSE(GPD) && is.null(kdef$sb$d) && backend == "sb") {
-    .stopf("Kernel '%s' does not define an SB bulk density dispatcher.", kernel)
+  # -----------------------------
+  # Backend sizes
+  # -----------------------------
+  if (identical(backend, "crp")) {
+    if (is.null(Kmax)) Kmax <- N
+    Kmax <- as.integer(Kmax)
+    if (Kmax < 2L) .stopf("`Kmax` must be >= 2.")
+    J_use <- NULL
+  } else {
+    # backend == "sb"
+    if (!is.null(components) && is.null(J)) J <- components
+    if (is.null(J)) J <- min(max(10L, 2L), N)
+    J_use <- as.integer(J)
+    if (J_use < 2L) .stopf("`J` must be >= 2 for backend='sb'.")
+    # Keep Kmax defined for compatibility, even if unused by SB
+    if (is.null(Kmax)) Kmax <- N
+    Kmax <- as.integer(Kmax)
   }
 
-  # ---- dispatch: what distribution call to use for y[i] ~ d...( ... ) ----
+  # -----------------------------
+  # Priors (defaults + override)
+  # -----------------------------
+  pri_default <- list(
+    # DP concentration:
+    alpha_shape = 1,
+    alpha_rate  = 1,
+
+    # generic bulk priors:
+    normal_mean = 0,
+    normal_sd   = 10,
+    gamma_shape = 2,
+    gamma_rate  = 1,
+
+    # threshold prior (scalar)
+    threshold_meanlog = 0,
+    threshold_sdlog   = 1,
+
+    # threshold regression (if X)
+    beta_threshold_mean = 0,
+    beta_threshold_sd   = 10,
+
+    # tail priors
+    tail_scale_sdlog = 1,
+    tail_shape_sd    = 1,
+
+    # optional nested bulk priors (CRP builder supports this pattern)
+    bulk = list()
+  )
+  pri <- modifyList(pri_default, priors)
+
+  # -----------------------------
+  # Bulk/tail node plan (lightweight)
+  # -----------------------------
+  bulk_params <- kdef$bulk_params %||% character(0)
+
+  bulk_support <- kdef$bulk_support %||% list()
+  bulk_plan <- list()
+  for (pn in bulk_params) {
+    sup <- bulk_support[[pn]] %||% "real"
+    fam0 <- if (grepl("^positive", sup)) "gamma" else "normal"
+    bulk_plan[[pn]] <- list(type = "stochastic", support = sup, prior_family = fam0)
+  }
+
+  # Apply optional param_specs overrides
+  if (!is.null(param_specs) && is.list(param_specs) && !is.null(param_specs$bulk)) {
+    for (nm in intersect(names(param_specs$bulk), names(bulk_plan))) {
+      bulk_plan[[nm]] <- modifyList(bulk_plan[[nm]], param_specs$bulk[[nm]])
+    }
+  }
+
+  tail_plan <- NULL
+  if (isTRUE(GPD)) {
+    tail_plan <- list(
+      threshold  = list(type = if (has_X) "link" else "stochastic", support = "real",
+                        prior_family = if (has_X) "normal" else "lognormal"),
+      tail_scale = list(type = "stochastic", support = "positive_scale", prior_family = "lognormal"),
+      tail_shape = list(type = "stochastic", support = "real", prior_family = "normal")
+    )
+    if (!is.null(param_specs) && is.list(param_specs) && !is.null(param_specs$tail)) {
+      for (nm in intersect(names(param_specs$tail), names(tail_plan))) {
+        tail_plan[[nm]] <- modifyList(tail_plan[[nm]], param_specs$tail[[nm]])
+      }
+    }
+  }
+
+  node_plan <- list(
+    dp = list(nodes = list(
+      stochastic    = if (identical(backend, "sb")) c("alpha", "v") else c("alpha", "z"),
+      deterministic = if (identical(backend, "sb")) c("weights") else character(0)
+    )),
+    bulk = bulk_plan,
+    tail = tail_plan
+  )
+
+  # -----------------------------
+  # Likelihood dispatch (YOUR RULE)
+  #   CRP: always non-mix (base or *Gpd)
+  #   SB : always mix (mix or mix*gpd)
+  # -----------------------------
+  if (identical(backend, "sb")) {
+    dens_name <- if (isTRUE(GPD)) kdef$sb$d_gpd else kdef$sb$d
+  } else {
+    dens_name <- if (isTRUE(GPD)) kdef$crp$d_gpd else kdef$crp$d_base
+  }
+
   dispatch <- list(
     backend = backend,
     kernel  = kernel,
     GPD     = isTRUE(GPD),
-    bulk_params = kdef$bulk_params %||% character(0),
-    density = switch(
-      backend,
-      crp = if (isTRUE(GPD)) kdef$crp$d_gpd else kdef$crp$d_base,
-      sb  = if (isTRUE(GPD)) kdef$sb$d_gpd  else kdef$sb$d
-    )
+    density = dens_name
   )
 
-  # parameters that appear in y[i] ~ d...( ... )
-  # NOTE: `z[i]` is NEVER a parameter of the distribution; it is the mixture index.
-  dispatch$params <- c(dispatch$bulk_params, if (isTRUE(GPD)) c("threshold","tail_scale","tail_shape") else character(0))
-
+  # -----------------------------
+  # Assemble spec
+  # -----------------------------
   spec <- list(
+    N = as.integer(N),
+    P = as.integer(P),
+    p = as.integer(P),          # legacy alias
+    Kmax = as.integer(Kmax),
     meta = list(
       backend = backend,
       kernel  = kernel,
       GPD     = isTRUE(GPD),
       has_X   = has_X,
-      N       = N,
-      p       = as.integer(p),
-      Kmax    = Kmax
+      N       = as.integer(N),
+      P       = as.integer(P),
+      p       = as.integer(P),  # legacy alias
+      Kmax    = as.integer(Kmax),
+      J       = if (identical(backend, "sb")) as.integer(J_use) else NULL,
+      alpha_random = isTRUE(alpha_random)
     ),
     data = list(y = y, X = X),
     kernel = kdef,
     dispatch = dispatch,
-    priors = list(
-      alpha_shape = 1,
-      alpha_rate  = 1,
-      # generic weakly-informative defaults used by builders
-      loc_sd      = 10,
-      scale_rate  = 1,
-      shape_rate  = 1,
-      positive_meanlog = 0,
-      positive_sdlog   = 1,
-      beta_sd     = 10
-    ),
+    priors = pri,
+    node_plan = node_plan,
     mcmc = mcmc
   )
 
+  class(spec) <- "dpmixgpd_spec"
   spec
 }
+
 
