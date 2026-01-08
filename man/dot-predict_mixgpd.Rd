@@ -2,50 +2,27 @@
 % Please edit documentation in R/02-utilities-internal.R
 \name{.predict_mixgpd}
 \alias{.predict_mixgpd}
-\title{Predict helper for MixGPD objects}
+\title{Internal prediction engine: evaluate per posterior draw, then summarize.}
 \usage{
-.predict_mixgpd(object, newdata, type, p, y, interval, probs)
-
-.predict_mixgpd(object, newdata, type, p, y, interval, probs)
-}
-\arguments{
-\item{object}{mixgpd_fit.}
-
-\item{newdata}{Optional newdata.}
-
-\item{type}{quantile/cdf/survival.}
-
-\item{p}{probabilities.}
-
-\item{y}{evaluation grid.}
-
-\item{interval}{none/credible.}
-
-\item{probs}{credible band quantiles (must include median if you want it).}
-}
-\value{
-list with fit/lower/upper/type/grid.
-
-list with fit/lower/upper/type/grid.
+.predict_mixgpd(
+  object,
+  x = NULL,
+  y = NULL,
+  type = c("density", "probs", "surv", "quantile", "sample", "mean", "cdf", "survival"),
+  p = NULL,
+  nsim = NULL,
+  interval = c("none", "credible"),
+  probs = c(0.025, 0.5, 0.975),
+  store_draws = TRUE,
+  nsim_mean = 200L,
+  ncores = 1L
+)
 }
 \description{
-This implementation is deliberately conservative:
-- If the object contains a callable prediction function at object$engine$predict,
-  it will be used (recommended).
-- Otherwise, it falls back to an empirical predictive distribution using draws of
-  sampled quantiles/CDF values if the samples contain recognizable variables.
-
-This implementation is deliberately conservative:
-- If the object contains a callable prediction function at object$engine$predict,
-  it will be used (recommended).
-- Otherwise, it falls back to an empirical predictive distribution using draws of
-  sampled quantiles/CDF values if the samples contain recognizable variables.
-}
-\details{
-The fallback is meant to be safe, not magical. For serious use, provide
-object$engine$predict from your engine layer.
-
-The fallback is meant to be safe, not magical. For serious use, provide
-object$engine$predict from your engine layer.
+Project rules:
+- density/probs/surv: either provide both (x,y) or neither (defaults to training X and training y).
+- quantile/sample/mean: y must be NULL; x may be provided (new X) or NULL (defaults to training X).
+- CRP predictions use posterior weights derived from z for each draw.
+- Stores per-draw results in object$cache$predict (environment) for reuse in treatment effects.
 }
 \keyword{internal}

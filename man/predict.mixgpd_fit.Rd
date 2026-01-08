@@ -6,17 +6,24 @@
 \usage{
 \method{predict}{mixgpd_fit}(
   object,
-  newdata = NULL,
-  type = c("quantile", "cdf", "survival"),
-  p = NULL,
+  x = NULL,
   y = NULL,
+  newdata = NULL,
+  type = c("density", "probs", "surv", "quantile", "sample", "mean", "cdf", "survival"),
+  p = NULL,
+  nsim = NULL,
   interval = c("none", "credible"),
   probs = c(0.025, 0.5, 0.975),
+  store_draws = TRUE,
+  nsim_mean = 200L,
+  ncores = 1L,
   ...
 )
 }
 \arguments{
 \item{object}{A fitted object of class \code{"mixgpd_fit"}.}
+
+\item{y}{Numeric vector of evaluation points (required for \code{type="cdf"} or \code{"survival"}).}
 
 \item{newdata}{Optional new data. If \code{NULL}, uses training design (if stored).}
 
@@ -24,11 +31,19 @@
 
 \item{p}{Numeric vector of probabilities for quantiles (required for \code{type="quantile"}).}
 
-\item{y}{Numeric vector of evaluation points (required for \code{type="cdf"} or \code{"survival"}).}
+\item{nsim}{Number of posterior predictive samples (for \code{type="sample"}).}
 
 \item{interval}{\code{"none"} or \code{"credible"} for posterior credible bands.}
 
 \item{probs}{Quantiles for credible interval bands.}
+
+\item{store_draws}{Logical; whether to store all posterior draws (for \code
+{type="sample"}).}
+
+\item{nsim_mean}{Number of posterior predictive samples to use for posterior mean estimation
+(for \code{type="mean"}).}
+
+\item{ncores}{Number of CPU cores to use for parallel prediction (if supported).}
 
 \item{...}{Unused.}
 }

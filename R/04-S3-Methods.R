@@ -348,6 +348,12 @@ plot.mixgpd_fit <- function(x,
 #' @param y Numeric vector of evaluation points (required for \code{type="cdf"} or \code{"survival"}).
 #' @param interval \code{"none"} or \code{"credible"} for posterior credible bands.
 #' @param probs Quantiles for credible interval bands.
+#' @param nsim Number of posterior predictive samples (for \code{type="sample"}).
+#' @param store_draws Logical; whether to store all posterior draws (for \code
+#' {type="sample"}).
+#' @param nsim_mean Number of posterior predictive samples to use for posterior mean estimation
+#'  (for \code{type="mean"}).
+#' @param ncores Number of CPU cores to use for parallel prediction (if supported).
 #' @param ... Unused.
 #' @return A list with elements:
 #'   \itemize{
@@ -357,27 +363,51 @@ plot.mixgpd_fit <- function(x,
 #'   }
 #' @export
 predict.mixgpd_fit <- function(object,
-                               newdata = NULL,
-                               type = c("quantile", "cdf", "survival"),
-                               p = NULL,
+                               x = NULL,
                                y = NULL,
+                               newdata = NULL,
+                               type = c("density", "probs", "surv",
+                                        "quantile", "sample", "mean",
+                                        "cdf", "survival"),
+                               p = NULL,
+                               nsim = NULL,
                                interval = c("none", "credible"),
                                probs = c(0.025, 0.5, 0.975),
+                               store_draws = TRUE,
+                               nsim_mean = 200L,
+                               ncores = 1L,
                                ...) {
   .validate_fit(object)
+
   type <- match.arg(type)
+  if (type == "cdf") type <- "probs"
+  if (type == "survival") type <- "surv"
+
   interval <- match.arg(interval)
 
-  if (type == "quantile" && (is.null(p) || length(p) == 0)) {
-    stop("For type='quantile', provide non-empty 'p'.", call. = FALSE)
+  # Backwards-compat: allow newdata alias for x
+  if (!is.null(newdata) && !is.null(x)) {
+    stop("Provide only one of 'x' or 'newdata' (they are aliases).", call. = FALSE)
   }
-  if (type %in% c("cdf", "survival") && (is.null(y) || length(y) == 0)) {
-    stop("For type='cdf' or 'survival', provide non-empty 'y'.", call. = FALSE)
-  }
+  if (!is.null(newdata) && is.null(x)) x <- newdata
 
-  .predict_mixgpd(object, newdata = newdata, type = type, p = p, y = y,
-                  interval = interval, probs = probs)
+  ncores <- as.integer(ncores)
+  if (is.na(ncores) || ncores < 1L) stop("'ncores' must be an integer >= 1.", call. = FALSE)
+
+  .predict_mixgpd(object,
+                  x = x,
+                  y = y,
+                  type = type,
+                  p = p,
+                  nsim = nsim,
+                  interval = interval,
+                  probs = probs,
+                  store_draws = store_draws,
+                  nsim_mean = nsim_mean,
+                  ncores = ncores)
 }
+
+
 
 #' Extract coefficients from a MixGPD fit
 #'
