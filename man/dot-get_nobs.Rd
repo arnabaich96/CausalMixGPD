@@ -5,20 +5,14 @@
 \title{Get number of observations used in fitting}
 \usage{
 .get_nobs(object)
-
-.get_nobs(object)
 }
 \arguments{
 \item{object}{A mixgpd_fit.}
 }
 \value{
 Integer n.
-
-Integer n.
 }
 \description{
-Get number of observations used in fitting
-
 Get number of observations used in fitting
 }
 \keyword{internal}

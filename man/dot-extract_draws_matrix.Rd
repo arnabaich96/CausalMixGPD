@@ -4,7 +4,7 @@
 \alias{.extract_draws_matrix}
 \title{Extract posterior draws as a numeric matrix (iter x parameters)}
 \usage{
-.extract_draws_matrix(object, drop_v = TRUE)
+.extract_draws_matrix(object, drop_v = TRUE, epsilon = NULL)
 }
 \arguments{
 \item{object}{A mixgpd_fit.}

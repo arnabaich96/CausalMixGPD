@@ -6,15 +6,6 @@
 \alias{pNormGpd}
 \alias{rNormGpd}
 \alias{qNormGpd}
-\alias{#'}
-\alias{@importFrom}
-\alias{stats}
-\alias{uniroot}
-\alias{pnorm}
-\alias{dnorm}
-\alias{runif}
-\alias{qnorm}
-\alias{rnorm}
 \title{Normal with a Gpd tail}
 \usage{
 dNormGpd(x, mean, sd, threshold, tail_scale, tail_shape, log = 0)

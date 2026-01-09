@@ -1,22 +1,41 @@
-#' Compile a DPmixGPD model specification (internal)
+#' Compile model specification (pre-NIMBLE)
 #'
-#' Creates an explicit, validated "spec" object describing nodes, dimensions,
-#' priors, links (if any), monitor names, and init shapes. This function does
-#' not generate nimbleCode or run MCMC.
+#' Build a fully normalized model specification for later bundle construction.
+#' This function is structural: it decides node types, dimensions, defaults, and
+#' how parameters are represented (fixed / dist / link) but does not run NIMBLE.
 #'
-#' @param y Numeric outcome vector of length N.
+#' The model size is controlled by a single user-facing parameter:
+#' \code{components}. For the stick-breaking (SB) backend it is the truncation
+#' level of the finite mixture. For the CRP backend it is the maximum number of
+#' represented clusters in the finite NIMBLE model.
+#'
+#' @param y Numeric outcome vector.
+#' @param X Optional design matrix (N x P). Can be matrix or data.frame.
 #' @param backend Either \code{"sb"} or \code{"crp"}.
-#' @param kernel Kernel key in the internal registry.
-#' @param GPD Logical; whether to use GPD augmentation.
-#' @param X Optional design matrix (N x P). Not used unless regression \code{type="link"} is requested.
-#' @param components Alias for \code{J} when backend="sb".
-#' @param J For SB backend only, number of mixture components (>= 2).
-#' @param Kmax For CRP backend only, truncation level for cluster parameters. Default is N.
-#' @param param_specs Optional list with entries \code{bulk} and \code{tail}.
-#' @param mcmc Optional MCMC settings (accepted for internal API compatibility; not used here).
-#' @param alpha_random Logical; whether concentration \code{alpha} is stochastic.
+#' @param kernel Kernel name; must exist in \code{get_kernel_registry()}.
+#' @param GPD Logical; include GPD tail if TRUE.
+#' @param components Integer >= 2; single truncation parameter used for both backends.
+#' @param param_specs Optional list to override defaults. Expected structure:
+#' \preformatted{
+#' list(
+#'   bulk = list(
+#'     <param> = list(mode="fixed"/"dist"/"link", ...),
+#'     ...
+#'   ),
+#'   gpd = list(
+#'     threshold = list(...),
+#'     tail_scale = list(...),
+#'     tail_shape = list(...),
+#'     ...
+#'   ),
+#'   concentration = list( ... ) # optional alpha override
+#' )
+#' }
+#' @param alpha_random Logical; if TRUE, alpha is stochastic with default Gamma(1,1) prior.
+#' @param ... Unused; accepted for forward compatibility.
 #'
-#' @return A \code{dpmixgpd_spec} list.
+#' @return A named list \code{spec} containing \code{meta}, \code{kernel_info},
+#' \code{signatures}, and a canonical \code{plan}.
 #' @keywords internal
 #' @noRd
 compile_model_spec <- function(
@@ -25,185 +44,480 @@ compile_model_spec <- function(
     backend = c("sb", "crp"),
     kernel,
     GPD = FALSE,
-    Kmax = NULL,
-    J = NULL,
-    components = NULL,
-    mcmc = list(),
+    components,
     param_specs = NULL,
     alpha_random = TRUE,
-    priors = list()
+    ...
 ) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
-  .stopf <- function(fmt, ...) stop(sprintf(fmt, ...), call. = FALSE)
 
-  backend <- match.arg(backend)
+  backend <- match.arg(backend, choices = c("sb", "crp"))
 
-  # -----------------------------
-  # Inputs
-  # -----------------------------
-  if (is.null(y) || length(y) < 2) .stopf("`y` must be a numeric vector of length >= 2.")
   y <- as.numeric(y)
+  if (!length(y)) stop("y must be a non-empty numeric vector.", call. = FALSE)
   N <- length(y)
 
   has_X <- !is.null(X)
   if (has_X) {
-    X <- as.matrix(X)
-    if (nrow(X) != N) .stopf("`X` must have nrow(X) == length(y). Got %d vs %d.", nrow(X), N)
-    P <- as.integer(ncol(X))
-    if (P < 1L) .stopf("`X` must have at least one column.")
+    if (!is.matrix(X)) X <- as.matrix(X)
+    if (nrow(X) != N) stop("X must have the same number of rows as length(y).", call. = FALSE)
+    P <- ncol(X)
+    if (P < 1) stop("X must have at least one column.", call. = FALSE)
   } else {
     P <- 0L
   }
 
-  # -----------------------------
-  # Registry + kernel definition
-  # -----------------------------
-  kreg <- get_kernel_registry()
-  if (!kernel %in% names(kreg)) .stopf("Unknown kernel='%s'.", kernel)
-  kdef <- kreg[[kernel]]
+  if (missing(components) || is.null(components)) {
+    stop("components is required (single truncation parameter for both backends).", call. = FALSE)
+  }
+  components <- as.integer(components)
+  if (!is.finite(components) || components < 2L) {
+    stop("components must be an integer >= 2.", call. = FALSE)
+  }
 
-  # -----------------------------
-  # Backend sizes
-  # -----------------------------
-  if (identical(backend, "crp")) {
-    if (is.null(Kmax)) Kmax <- N
-    Kmax <- as.integer(Kmax)
-    if (Kmax < 2L) .stopf("`Kmax` must be >= 2.")
-    J_use <- NULL
+  # Kernel registry lookup + validation
+  krn <- get_kernel_registry()
+  kernel <- match.arg(kernel, choices = names(krn))
+  kinfo <- krn[[kernel]]
+
+  if (is.null(kinfo$bulk_params) || !length(kinfo$bulk_params)) {
+    stop("Kernel registry entry is missing bulk_params.", call. = FALSE)
+  }
+  if (is.null(kinfo$param_types) || !length(kinfo$param_types)) {
+    stop("Kernel registry entry is missing param_types.", call. = FALSE)
+  }
+
+  # signatures are required for likelihood emission
+  if (is.null(kinfo$signatures) || is.null(kinfo$signatures[[backend]])) {
+    stop("Kernel registry entry is missing signatures for this backend.", call. = FALSE)
+  }
+  if (GPD) {
+    if (is.null(kinfo$signatures[[backend]]$gpd)) {
+      stop("Requested GPD=TRUE but kernel registry has no GPD signature for this backend.", call. = FALSE)
+    }
   } else {
-    # backend == "sb"
-    if (!is.null(components) && is.null(J)) J <- components
-    if (is.null(J)) J <- min(max(10L, 2L), N)
-    J_use <- as.integer(J)
-    if (J_use < 2L) .stopf("`J` must be >= 2 for backend='sb'.")
-    # Keep Kmax defined for compatibility, even if unused by SB
-    if (is.null(Kmax)) Kmax <- N
-    Kmax <- as.integer(Kmax)
-  }
-
-  # -----------------------------
-  # Priors (defaults + override)
-  # -----------------------------
-  pri_default <- list(
-    # DP concentration:
-    alpha_shape = 1,
-    alpha_rate  = 1,
-
-    # generic bulk priors:
-    normal_mean = 0,
-    normal_sd   = 10,
-    gamma_shape = 2,
-    gamma_rate  = 1,
-
-    # threshold prior (scalar)
-    threshold_meanlog = 0,
-    threshold_sdlog   = 1,
-
-    # threshold regression (if X)
-    beta_threshold_mean = 0,
-    beta_threshold_sd   = 10,
-
-    # tail priors
-    tail_scale_sdlog = 1,
-    tail_shape_sd    = 1,
-
-    # optional nested bulk priors (CRP builder supports this pattern)
-    bulk = list()
-  )
-  pri <- modifyList(pri_default, priors)
-
-  # -----------------------------
-  # Bulk/tail node plan (lightweight)
-  # -----------------------------
-  bulk_params <- kdef$bulk_params %||% character(0)
-
-  bulk_support <- kdef$bulk_support %||% list()
-  bulk_plan <- list()
-  for (pn in bulk_params) {
-    sup <- bulk_support[[pn]] %||% "real"
-    fam0 <- if (grepl("^positive", sup)) "gamma" else "normal"
-    bulk_plan[[pn]] <- list(type = "stochastic", support = sup, prior_family = fam0)
-  }
-
-  # Apply optional param_specs overrides
-  if (!is.null(param_specs) && is.list(param_specs) && !is.null(param_specs$bulk)) {
-    for (nm in intersect(names(param_specs$bulk), names(bulk_plan))) {
-      bulk_plan[[nm]] <- modifyList(bulk_plan[[nm]], param_specs$bulk[[nm]])
+    if (is.null(kinfo$signatures[[backend]]$bulk)) {
+      stop("Requested GPD=FALSE but kernel registry has no bulk signature for this backend.", call. = FALSE)
     }
   }
 
-  tail_plan <- NULL
-  if (isTRUE(GPD)) {
-    tail_plan <- list(
-      threshold  = list(type = if (has_X) "link" else "stochastic", support = "real",
-                        prior_family = if (has_X) "normal" else "lognormal"),
-      tail_scale = list(type = "stochastic", support = "positive_scale", prior_family = "lognormal"),
-      tail_shape = list(type = "stochastic", support = "real", prior_family = "normal")
-    )
-    if (!is.null(param_specs) && is.list(param_specs) && !is.null(param_specs$tail)) {
-      for (nm in intersect(names(param_specs$tail), names(tail_plan))) {
-        tail_plan[[nm]] <- modifyList(tail_plan[[nm]], param_specs$tail[[nm]])
+  # ---- helpers for default priors by parameter type ----
+  default_prior_by_type <- function(type, support = NULL) {
+    type <- as.character(type)
+    support <- as.character(support %||% "")
+    if (support %in% c("positive_location", "positive_scale", "positive_shape", "positive_sd")) {
+      return(list(dist = "gamma", args = list(shape = 2, rate = 1)))
+    }
+    if (type %in% c("location")) {
+      list(dist = "normal", args = list(mean = 0, sd = 5))
+    } else if (type %in% c("scale")) {
+      list(dist = "gamma", args = list(shape = 2, rate = 1))
+    } else if (type %in% c("shape", "sd")) {
+      list(dist = "invgamma", args = list(shape = 2, scale = 1))
+    } else {
+      # fallback: weak normal
+      list(dist = "normal", args = list(mean = 0, sd = 5))
+    }
+  }
+
+  default_beta_prior <- function(kind = c("bulk", "threshold", "tail_scale")) {
+    kind <- match.arg(kind)
+    if (kind == "threshold") {
+      list(dist = "normal", args = list(mean = 0, sd = 0.2))
+    } else if (kind == "tail_scale") {
+      list(dist = "normal", args = list(mean = 0, sd = 0.5))
+    } else {
+      list(dist = "normal", args = list(mean = 0, sd = 2))
+    }
+  }
+
+  # ---- normalize/merge user param specs ----
+  param_specs <- param_specs %||% list()
+  user_bulk <- param_specs$bulk %||% list()
+  user_gpd  <- param_specs$gpd  %||% list()
+  user_conc <- param_specs$concentration %||% list()
+
+  # ---- concentration (alpha) plan ----
+  conc_plan <- NULL
+  if (length(user_conc)) {
+    # user override must supply mode
+    mode <- user_conc$mode %||% NA_character_
+    if (!is.character(mode) || length(mode) != 1L) stop("concentration$mode must be a single character.", call. = FALSE)
+    if (!mode %in% c("fixed", "dist")) stop("concentration$mode must be 'fixed' or 'dist'.", call. = FALSE)
+
+    if (mode == "fixed") {
+      if (is.null(user_conc$value) || !is.numeric(user_conc$value) || length(user_conc$value) != 1L) {
+        stop("concentration fixed mode requires concentration$value (single numeric).", call. = FALSE)
+      }
+      conc_plan <- list(mode = "fixed", value = as.numeric(user_conc$value))
+    } else {
+      # dist
+      dist <- user_conc$dist %||% "gamma"
+      args <- user_conc$args %||% list(shape = 1, rate = 1)
+      conc_plan <- list(mode = "dist", dist = dist, args = args)
+    }
+  } else {
+    # default behavior
+    if (isTRUE(alpha_random)) {
+      conc_plan <- list(mode = "dist", dist = "gamma", args = list(shape = 1, rate = 1))
+    } else {
+      # fixed alpha default (can be overridden later by user_conc)
+      conc_plan <- list(mode = "fixed", value = 1)
+    }
+  }
+
+  # ---- bulk parameter plans ----
+  bulk_params <- kinfo$bulk_params
+  fixed_defaults <- kinfo$fixed_defaults %||% list()
+  defaults_X <- kinfo$defaults_X %||% list()
+
+  bulk_plan <- vector("list", length(bulk_params))
+  names(bulk_plan) <- bulk_params
+
+  for (nm in bulk_params) {
+    # fixed-by-default (e.g. amoroso shape1=1)
+    if (!is.null(fixed_defaults[[nm]])) {
+      bulk_plan[[nm]] <- list(mode = "fixed", value = fixed_defaults[[nm]])
+      next
+    }
+
+    # user override?
+    u <- user_bulk[[nm]]
+    if (!is.null(u)) {
+      mode <- u$mode %||% NA_character_
+      if (!is.character(mode) || length(mode) != 1L) stop(sprintf("bulk[%s] mode must be a single character.", nm), call. = FALSE)
+      if (!mode %in% c("fixed", "dist", "link")) stop(sprintf("bulk[%s] mode must be fixed/dist/link.", nm), call. = FALSE)
+
+      if (mode == "fixed") {
+        if (is.null(u$value)) stop(sprintf("bulk[%s] fixed mode requires value.", nm), call. = FALSE)
+        bulk_plan[[nm]] <- list(mode = "fixed", value = u$value)
+      } else if (mode == "dist") {
+        dist <- u$dist %||% default_prior_by_type(kinfo$param_types[[nm]], kinfo$bulk_support[[nm]])$dist
+        args <- u$args %||% default_prior_by_type(kinfo$param_types[[nm]], kinfo$bulk_support[[nm]])$args
+        bulk_plan[[nm]] <- list(mode = "dist", dist = dist, args = args)
+      } else {
+        # link
+        if (!has_X) stop(sprintf("bulk[%s] requested link mode but X is NULL.", nm), call. = FALSE)
+        link <- u$link %||% "identity"
+        link_power <- u$link_power %||% NULL
+        beta_prior <- u$beta_prior %||% default_beta_prior("bulk")
+        bulk_plan[[nm]] <- list(mode = "link", link = link, link_power = link_power, beta_prior = beta_prior)
+      }
+      next
+    }
+
+    # defaults
+    if (has_X) {
+      # if defaults_X provides link behavior for this param, use it; otherwise fall back to dist
+      dx <- defaults_X[[nm]]
+      if (!is.null(dx) && is.list(dx) && identical(dx$mode, "link")) {
+        bulk_plan[[nm]] <- list(
+          mode = "link",
+          link = dx$link %||% "identity",
+          link_power = dx$link_power %||% NULL,
+          beta_prior = dx$beta_prior %||% default_beta_prior("bulk")
+        )
+      } else {
+        pr <- default_prior_by_type(kinfo$param_types[[nm]], kinfo$bulk_support[[nm]])
+        bulk_plan[[nm]] <- list(mode = "dist", dist = pr$dist, args = pr$args)
+      }
+    } else {
+      pr <- default_prior_by_type(kinfo$param_types[[nm]], kinfo$bulk_support[[nm]])
+      bulk_plan[[nm]] <- list(mode = "dist", dist = pr$dist, args = pr$args)
+    }
+  }
+
+  # CRP + X: default link-mode bulk parameters create deterministic nodes indexed by z,
+  # which breaks NIMBLE's CRP sampler. Downgrade default link modes to dist unless user overrides.
+  if (identical(backend, "crp") && has_X) {
+    for (nm in bulk_params) {
+      if (is.null(user_bulk[[nm]]) && identical(bulk_plan[[nm]]$mode, "link")) {
+        pr <- default_prior_by_type(kinfo$param_types[[nm]], kinfo$bulk_support[[nm]])
+        bulk_plan[[nm]] <- list(mode = "dist", dist = pr$dist, args = pr$args)
       }
     }
   }
 
-  node_plan <- list(
-    dp = list(nodes = list(
-      stochastic    = if (identical(backend, "sb")) c("alpha", "v") else c("alpha", "z"),
-      deterministic = if (identical(backend, "sb")) c("weights") else character(0)
-    )),
-    bulk = bulk_plan,
-    tail = tail_plan
-  )
+  # ---- GPD plan ----
+  gpd_plan <- list()
+  if (isTRUE(GPD)) {
+    # threshold
+    thr_u <- user_gpd$threshold
+    if (!is.null(thr_u)) {
+      # allow fixed/dist/link; link may optionally include link_dist
+      mode <- thr_u$mode %||% NA_character_
+      if (!mode %in% c("fixed", "dist", "link")) stop("gpd$threshold mode must be fixed/dist/link.", call. = FALSE)
 
-  # -----------------------------
-  # Likelihood dispatch (YOUR RULE)
-  #   CRP: always non-mix (base or *Gpd)
-  #   SB : always mix (mix or mix*gpd)
-  # -----------------------------
-  if (identical(backend, "sb")) {
-    dens_name <- if (isTRUE(GPD)) kdef$sb$d_gpd else kdef$sb$d
-  } else {
-    dens_name <- if (isTRUE(GPD)) kdef$crp$d_gpd else kdef$crp$d_base
+      if (mode == "fixed") {
+        gpd_plan$threshold <- list(mode = "fixed", value = thr_u$value)
+      } else if (mode == "dist") {
+        gpd_plan$threshold <- list(mode = "dist", dist = thr_u$dist, args = thr_u$args)
+      } else {
+        if (!has_X) stop("gpd$threshold link mode requires X.", call. = FALSE)
+        # if user supplies link_dist, keep it; otherwise allow default below
+        gpd_plan$threshold <- list(
+          mode = "link",
+          link = thr_u$link %||% "identity",
+          link_power = thr_u$link_power %||% NULL,
+          beta_prior = thr_u$beta_prior %||% default_beta_prior("threshold"),
+          link_dist = thr_u$link_dist %||% NULL
+        )
+      }
+    } else {
+      # default: threshold[i] ~ Lognormal(meanlog=Xβ, sdlog_u) when X present; else dist
+      if (has_X) {
+        gpd_plan$threshold <- list(
+          mode = "link",
+          link = "identity",
+          beta_prior = default_beta_prior("threshold"),
+          link_dist = list(
+            dist = "lognormal",
+            mean_arg = "meanlog",
+            sd_name = "sdlog_u"
+          )
+        )
+        gpd_plan$sdlog_u <- list(mode = "dist", dist = "invgamma", args = list(shape = 2, scale = 1))
+      } else {
+        gpd_plan$threshold <- list(mode = "dist", dist = "gamma", args = list(shape = 2, rate = 1))
+      }
+    }
+
+    # tail_scale
+    ts_u <- user_gpd$tail_scale
+    if (!is.null(ts_u)) {
+      mode <- ts_u$mode %||% NA_character_
+      if (!mode %in% c("fixed", "dist", "link")) stop("gpd$tail_scale mode must be fixed/dist/link.", call. = FALSE)
+      if (mode == "link" && !has_X) stop("gpd$tail_scale link mode requires X.", call. = FALSE)
+      if (mode == "link") {
+        gpd_plan$tail_scale <- list(
+          mode = "link",
+          link = ts_u$link %||% "exp",
+          link_power = ts_u$link_power %||% NULL,
+          beta_prior = ts_u$beta_prior %||% default_beta_prior("tail_scale")
+        )
+      } else if (mode == "dist") {
+        gpd_plan$tail_scale <- list(mode = "dist", dist = ts_u$dist, args = ts_u$args)
+      } else {
+        gpd_plan$tail_scale <- list(mode = "fixed", value = ts_u$value)
+      }
+    } else {
+      if (has_X) {
+        gpd_plan$tail_scale <- list(mode = "link", link = "exp", beta_prior = default_beta_prior("tail_scale"))
+      } else {
+        gpd_plan$tail_scale <- list(mode = "dist", dist = "gamma", args = list(shape = 2, rate = 1))
+      }
+    }
+
+    # tail_shape
+    tsh_u <- user_gpd$tail_shape
+    if (!is.null(tsh_u)) {
+      mode <- tsh_u$mode %||% NA_character_
+      if (!mode %in% c("fixed", "dist")) stop("gpd$tail_shape mode must be fixed/dist.", call. = FALSE)
+      if (mode == "fixed") {
+        gpd_plan$tail_shape <- list(mode = "fixed", value = tsh_u$value)
+      } else {
+        gpd_plan$tail_shape <- list(mode = "dist", dist = tsh_u$dist, args = tsh_u$args)
+      }
+    } else {
+      gpd_plan$tail_shape <- list(mode = "dist", dist = "normal", args = list(mean = 0, sd = 0.2))
+    }
   }
 
-  dispatch <- list(
+  # ---- finalize plan ----
+  plan <- list(
     backend = backend,
-    kernel  = kernel,
-    GPD     = isTRUE(GPD),
-    density = dens_name
+    kernel = kernel,
+    GPD = isTRUE(GPD),
+    has_X = has_X,
+    N = N,
+    P = as.integer(P),
+    components = components,
+    concentration = conc_plan,
+    bulk = bulk_plan,
+    gpd = gpd_plan
   )
 
-  # -----------------------------
-  # Assemble spec
-  # -----------------------------
   spec <- list(
-    N = as.integer(N),
-    P = as.integer(P),
-    p = as.integer(P),          # legacy alias
-    Kmax = as.integer(Kmax),
     meta = list(
       backend = backend,
-      kernel  = kernel,
-      GPD     = isTRUE(GPD),
-      has_X   = has_X,
-      N       = as.integer(N),
-      P       = as.integer(P),
-      p       = as.integer(P),  # legacy alias
-      Kmax    = as.integer(Kmax),
-      J       = if (identical(backend, "sb")) as.integer(J_use) else NULL,
-      alpha_random = isTRUE(alpha_random)
+      kernel = kernel,
+      GPD = isTRUE(GPD),
+      has_X = has_X,
+      N = N,
+      P = as.integer(P),
+      components = components
     ),
-    data = list(y = y, X = X),
-    kernel = kdef,
-    dispatch = dispatch,
-    priors = pri,
-    node_plan = node_plan,
-    mcmc = mcmc
+    kernel_info = kinfo,
+    signatures = kinfo$signatures[[backend]],
+    plan = plan
   )
 
-  class(spec) <- "dpmixgpd_spec"
+  class(spec) <- c("dpmixgpd_spec", "list")
   spec
 }
 
+#' Normalize parameter plan (internal)
+#'
+#' Produces a canonical plan consumed by code generation and bundle builders.
+#'
+#' @param backend "sb" or "crp".
+#' @param kernel_def Kernel definition entry from \code{get_kernel_registry()}.
+#' @param has_X Logical; whether X is present.
+#' @param N Number of observations.
+#' @param P Number of covariates (0 if no X).
+#' @param J Number of SB components (NULL for CRP).
+#' @param Kmax CRP truncation level (NULL for SB).
+#' @param GPD Logical; whether GPD augmentation is enabled.
+#' @param param_specs Optional user specifications (see \code{compile_model_spec}).
+#' @param alpha_random Logical; if FALSE, alpha is fixed at 1.
+#' @return A list.
+#' @keywords internal
+#' @noRd
+normalize_param_plan <- function(backend,
+                                 kernel_def,
+                                 has_X,
+                                 N, P,
+                                 J = NULL,
+                                 Kmax = NULL,
+                                 GPD = TRUE,
+                                 param_specs = NULL,
+                                 alpha_random = TRUE) {
 
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+
+  # ---- helpers ----
+  .default_beta_prior <- function(kind) {
+    if (identical(kind, "threshold")) {
+      list(dist = "dnorm", args = list(mean = 0, sd = 0.2))
+    } else if (identical(kind, "tail_scale")) {
+      list(dist = "dnorm", args = list(mean = 0, sd = 0.5))
+    } else {
+      list(dist = "dnorm", args = list(mean = 0, sd = 2))
+    }
+  }
+
+  .default_dist_prior <- function(ptype) {
+    if (ptype %in% c("location", "real")) {
+      list(dist = "dnorm", args = list(mean = 0, sd = 5))
+    } else if (ptype %in% c("scale", "sd")) {
+      list(dist = "dinvgamma", args = list(shape = 2, scale = 1))
+    } else if (ptype %in% c("shape")) {
+      list(dist = "dinvgamma", args = list(shape = 2, scale = 1))
+    } else {
+      list(dist = "dnorm", args = list(mean = 0, sd = 5))
+    }
+  }
+
+  .coerce_param_spec <- function(x) {
+    if (is.null(x)) return(NULL)
+    if (!is.list(x)) stop("param_specs entries must be lists", call. = FALSE)
+    if (is.null(x$mode)) stop("param spec must include 'mode'", call. = FALSE)
+    x$mode <- match.arg(x$mode, c("fixed", "dist", "link", "link_dist"))
+    x
+  }
+
+  # ---- alpha ----
+  alpha <- if (isTRUE(alpha_random)) {
+    list(mode = "dist", dist = "dgamma", args = list(shape = 1, rate = 1))
+  } else {
+    list(mode = "fixed", value = 1)
+  }
+
+  # ---- bulk parameters ----
+  bulk <- list()
+  bulk_user <- (param_specs %||% list())$bulk %||% list()
+  for (pname in kernel_def$bulk_params) {
+
+    # kernel fixed defaults (e.g. Amoroso shape1=1)
+    fixed_default <- NULL
+    if (!is.null(kernel_def$defaults_X[[pname]]$mode) &&
+        identical(kernel_def$defaults_X[[pname]]$mode, "fixed")) {
+      fixed_default <- kernel_def$defaults_X[[pname]]$value
+    }
+
+    if (!is.null(bulk_user[[pname]])) {
+      ps <- .coerce_param_spec(bulk_user[[pname]])
+    } else if (!is.null(fixed_default)) {
+      ps <- list(mode = "fixed", value = fixed_default)
+    } else if (isTRUE(has_X)) {
+      dx <- kernel_def$defaults_X[[pname]] %||% list(mode = "dist")
+      if (identical(dx$mode, "link")) {
+        ps <- list(mode = "link", link = dx$link %||% "identity", prior = .default_beta_prior("bulk"))
+      } else {
+        ps <- list(mode = "dist", dist = .default_dist_prior(kernel_def$param_types[[pname]])$dist,
+                   args = .default_dist_prior(kernel_def$param_types[[pname]])$args)
+      }
+    } else {
+      dp <- .default_dist_prior(kernel_def$param_types[[pname]])
+      ps <- list(mode = "dist", dist = dp$dist, args = dp$args)
+    }
+
+    # validation
+    if (identical(ps$mode, "link") && !isTRUE(has_X)) {
+      stop("Parameter '", pname, "' specified with mode='link' but X is NULL.", call. = FALSE)
+    }
+    if (identical(ps$mode, "link") && is.null(ps$link)) ps$link <- "identity"
+    if (identical(ps$mode, "link") && identical(ps$link, "power") && is.null(ps$power)) {
+      stop("link='power' requires 'power' numeric value for parameter '", pname, "'.", call. = FALSE)
+    }
+    if (identical(ps$mode, "link") && is.null(ps$prior)) {
+      ps$prior <- .default_beta_prior("bulk")
+    }
+    bulk[[pname]] <- ps
+  }
+
+  # ---- GPD parameters ----
+  gpd <- NULL
+  if (isTRUE(GPD)) {
+    tail_user <- (param_specs %||% list())$tail %||% list()
+
+    # threshold
+    thr <- tail_user$threshold %||% NULL
+    thr <- .coerce_param_spec(thr)
+    if (is.null(thr)) {
+      if (isTRUE(has_X)) {
+        thr <- list(mode = "link_dist", dist = "lognormal", link = "identity",
+                    prior = .default_beta_prior("threshold"),
+                    sdlog_prior = list(dist = "dinvgamma", args = list(shape = 2, scale = 1)))
+      } else {
+        thr <- list(mode = "dist", dist = "dlnorm", args = list(meanlog = 0, sdlog = 1))
+      }
+    }
+    if (identical(thr$mode, "link_dist") && !isTRUE(has_X)) {
+      stop("threshold specified with mode='link_dist' but X is NULL.", call. = FALSE)
+    }
+
+    # tail_scale
+    ts <- tail_user$tail_scale %||% NULL
+    ts <- .coerce_param_spec(ts)
+    if (is.null(ts)) {
+      if (isTRUE(has_X)) {
+        ts <- list(mode = "link", link = "exp", prior = .default_beta_prior("tail_scale"))
+      } else {
+        ts <- list(mode = "dist", dist = "dgamma", args = list(shape = 2, rate = 1))
+      }
+    }
+
+    # tail_shape
+    tsh <- tail_user$tail_shape %||% NULL
+    tsh <- .coerce_param_spec(tsh)
+    if (is.null(tsh)) {
+      tsh <- list(mode = "dist", dist = "dnorm", args = list(mean = 0, sd = 0.2))
+    }
+
+    gpd <- list(threshold = thr, tail_scale = ts, tail_shape = tsh)
+  }
+
+  list(
+    backend = backend,
+    kernel = kernel_def$key,
+    has_X = has_X,
+    N = as.integer(N),
+    P = as.integer(P),
+    J = J,
+    Kmax = Kmax,
+    alpha = alpha,
+    bulk = bulk,
+    gpd = gpd
+  )
+}

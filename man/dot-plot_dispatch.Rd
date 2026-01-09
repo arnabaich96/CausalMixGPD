@@ -5,8 +5,6 @@
 \title{Dispatch plotting for common MCMC diagnostics}
 \usage{
 .plot_dispatch(mat, family, params, ...)
-
-.plot_dispatch(mat, family, params, ...)
 }
 \arguments{
 \item{mat}{Draw matrix.}
@@ -16,8 +14,6 @@
 \item{params}{Parameters to plot.}
 }
 \description{
-Dispatch plotting for common MCMC diagnostics
-
 Dispatch plotting for common MCMC diagnostics
 }
 \keyword{internal}

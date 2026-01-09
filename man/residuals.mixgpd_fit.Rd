@@ -18,5 +18,15 @@ Numeric vector of residuals (length nobs).
 }
 \description{
 Currently supports PIT (probability integral transform) residuals only when
-a working \code{predict(type="cdf")} is available for the training data.
+a working \code{predict(type="survival")} is available for the training data.
+}
+\examples{
+\dontrun{
+y <- abs(stats::rnorm(50)) + 0.1
+bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
+                             GPD = TRUE, components = 6,
+                             mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+fit <- run_mcmc_bundle_manual(bundle)
+pit <- residuals(fit, type = "pit")
+}
 }

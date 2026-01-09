@@ -5,26 +5,14 @@
 \title{Format a short header for printing}
 \usage{
 .format_fit_header(x)
-
-.format_fit_header(x)
-
-.format_fit_header(x)
 }
 \arguments{
 \item{x}{A mixgpd_fit.}
 }
 \value{
 Character vector lines.
-
-Character vector lines.
-
-Character vector lines.
 }
 \description{
-Format a short header for printing
-
-Format a short header for printing
-
 Format a short header for printing
 }
 \keyword{internal}

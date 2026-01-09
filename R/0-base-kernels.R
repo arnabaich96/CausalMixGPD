@@ -344,13 +344,22 @@ dAmoroso <- nimble::nimbleFunction(
                  log = integer(0, default = 0)) {
     returnType(double(0))
     eps <- 1e-300
+    if (scale == 0.0) {
+      if (log == 1) return(log(eps)) else return(eps)
+    }
+    if (scale > 0.0) {
+      if (x < loc) {
+        if (log == 1) return(log(eps)) else return(eps)
+      }
+    }
+    if (scale < 0.0) {
+      if (x > loc) {
+        if (log == 1) return(log(eps)) else return(eps)
+      }
+    }
+
     z <- (x - loc) / scale
     lik <- abs(shape2/scale) * (z^(shape1*shape2 - 1.0)) * exp(-z^shape2) / gamma(shape1)
-    if (scale < 0) {
-      if (x > loc) lik <- 0.0
-    } else {
-      if (x < loc) lik <- 0.0
-    }
     if (lik < eps) lik <- eps
     if (log == 1) return(log(lik)) else return(lik)
   }
@@ -368,13 +377,28 @@ pAmoroso <- nimble::nimbleFunction(
                  log.p = integer(0, default = 0)) {
     returnType(double(0))
     eps <- 1e-300
+    if (scale == 0.0) {
+      if (log.p != 0) return(log(eps)) else return(eps)
+    }
+    if (scale > 0.0) {
+      if (q <= loc) {
+        cdf <- 0.0
+        if (lower.tail == 0) cdf <- 1.0 - cdf
+        if (log.p != 0) return(log(max(cdf, eps)))
+        return(cdf)
+      }
+    }
+    if (scale < 0.0) {
+      if (q >= loc) {
+        cdf <- 1.0
+        if (lower.tail == 0) cdf <- 1.0 - cdf
+        if (log.p != 0) return(log(max(cdf, eps)))
+        return(cdf)
+      }
+    }
+
     z <- ((q - loc) / scale)^shape2
     cdf <- pgamma(z, shape = shape1, scale = 1.0)
-    if (scale < 0) {
-      if (q > loc) cdf <- 0.0
-    } else {
-      if (q < loc) cdf <- 0.0
-    }
     if (shape2 < 0) cdf <- 1.0 - cdf
     cdf <- max(min(cdf, 1.0), 0.0)
     if (lower.tail == 0) cdf <- 1.0 - cdf
@@ -413,4 +437,113 @@ rAmoroso <- nimble::nimbleFunction(
     return(loc + scale * (z)^(1.0/shape2))
   }
 )
+
+
+# ==========================================================
+# 4) Cauchy base kernels
+# ==========================================================
+
+#' Cauchy distribution
+#'
+#' Base Cauchy distribution functions implemented as nimbleFunctions so they can be used
+#' in NIMBLE models. Parameterization uses location and scale (scale > 0).
+#'
+#' @param x Numeric scalar giving the point at which the density is evaluated.
+#' @param q Numeric scalar giving the point at which the distribution function is evaluated.
+#' @param p Numeric scalar probability in \eqn{(0,1)} for the quantile function.
+#' @param n Integer giving the number of draws. For portability inside NIMBLE,
+#'   the RNG implementation supports \code{n = 1}.
+#' @param location Numeric scalar location parameter.
+#' @param scale Numeric scalar scale parameter; must be positive.
+#' @param log Logical; if \code{TRUE}, return the log-density (integer flag \code{0/1} in NIMBLE).
+#' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le q)}.
+#' @param log.p Logical; if \code{TRUE}, probabilities are returned on the log scale.
+#'
+#' @return \code{dCauchy} returns a numeric scalar density; \code{pCauchy} returns a numeric scalar CDF;
+#'   \code{rCauchy} returns one random draw; \code{qCauchy} returns a numeric quantile.
+#'
+#' @examples
+#' location <- 0
+#' scale <- 1.5
+#'
+#' dCauchy(0.5, location, scale, log = 0)
+#' pCauchy(0.5, location, scale, lower.tail = 1, log.p = 0)
+#' qCauchy(0.50, location, scale)
+#' qCauchy(0.95, location, scale)
+#' replicate(10, rCauchy(1, location, scale))
+#'
+#' @rdname cauchy
+#' @name cauchy
+#' @aliases dCauchy pCauchy rCauchy qCauchy
+#' @importFrom stats runif
+NULL
+
+#' @describeIn cauchy Cauchy density function
+#' @export
+dCauchy <- nimble::nimbleFunction(
+  run = function(x = double(0),
+                 location = double(0),
+                 scale = double(0),
+                 log = integer(0, default = 0)) {
+    returnType(double(0))
+    eps <- 1e-300
+    if (scale <= 0.0) {
+      if (log == 1) return(log(eps)) else return(eps)
+    }
+    z <- (x - location) / scale
+    val <- 1.0 / (pi * scale * (1.0 + z * z))
+    if (val < eps) val <- eps
+    if (log == 1) return(log(val))
+    return(val)
+  }
+)
+
+#' @describeIn cauchy Cauchy distribution function
+#' @export
+pCauchy <- nimble::nimbleFunction(
+  run = function(q = double(0),
+                 location = double(0),
+                 scale = double(0),
+                 lower.tail = integer(0, default = 1),
+                 log.p = integer(0, default = 0)) {
+    returnType(double(0))
+    eps <- 1e-300
+    if (scale <= 0.0) {
+      if (log.p != 0) return(log(eps)) else return(eps)
+    }
+    z <- (q - location) / scale
+    cdf <- 0.5 + atan(z) / pi
+    if (cdf < 0.0) cdf <- 0.0
+    if (cdf > 1.0) cdf <- 1.0
+    if (lower.tail == 0) cdf <- 1.0 - cdf
+    if (log.p != 0) return(log(max(cdf, eps)))
+    return(cdf)
+  }
+)
+
+#' @describeIn cauchy Cauchy random generation
+#' @export
+rCauchy <- nimble::nimbleFunction(
+  run = function(n = integer(0),
+                 location = double(0),
+                 scale = double(0)) {
+    returnType(double(0))
+    if (n != 1) return(location)
+    if (scale <= 0.0) return(location)
+    u <- runif(1, 0.0, 1.0)
+    return(location + scale * tan(pi * (u - 0.5)))
+  }
+)
+
+#' @describeIn cauchy Cauchy quantile function
+#' @export
+qCauchy <- function(p, location, scale,
+                    lower.tail = TRUE, log.p = FALSE) {
+  if (log.p) p <- exp(p)
+  if (!lower.tail) p <- 1 - p
+  p <- pmax(pmin(p, 1), 0)
+  if (p <= 0) return(-Inf)
+  if (p >= 1) return(Inf)
+  location + scale * tan(pi * (p - 0.5))
+}
 

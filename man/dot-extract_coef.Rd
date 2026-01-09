@@ -10,13 +10,6 @@
   format = c("vector", "list", "tidy"),
   probs = c(0.025, 0.5, 0.975)
 )
-
-.extract_coef(
-  object,
-  component = c("bulk", "tail", "both"),
-  format = c("vector", "list", "tidy"),
-  probs = c(0.025, 0.5, 0.975)
-)
 }
 \arguments{
 \item{object}{mixgpd_fit.}
@@ -29,21 +22,13 @@
 }
 \value{
 coefficients.
-
-coefficients.
 }
 \description{
 This is pattern-based and works immediately with common naming conventions:
 - bulk: beta_mu, beta, mu regression blocks, etc.
 - tail: beta_u, beta_sigma, beta_xi, threshold regression blocks, etc.
-
-This is pattern-based and works immediately with common naming conventions:
-- bulk: beta_mu, beta, mu regression blocks, etc.
-- tail: beta_u, beta_sigma, beta_xi, threshold regression blocks, etc.
 }
 \details{
-For a perfect experience, keep your engine naming consistent; this will then be stable.
-
 For a perfect experience, keep your engine naming consistent; this will then be stable.
 }
 \keyword{internal}
