@@ -1,5 +1,10 @@
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 
+if (!exists(".cache_enabled")) {
+  helper_path <- file.path("tests", "testthat", "helper-cache.R")
+  if (file.exists(helper_path)) source(helper_path)
+}
+
 .supports_gpd <- function(kernel, backend) {
   kinfo <- get_kernel_registry()[[kernel]]
   sig <- kinfo$signatures[[backend]]$gpd %||% NULL
@@ -36,19 +41,35 @@
       }, error = function(e) e)
       if (is.null(err)) stop("Expected error for unsupported GPD backend.")
       msg <- paste0(msg, " | expected error for unsupported GPD backend")
-      return(invisible(NULL))
+      return(list(ok = TRUE, msg = msg))
     }
 
-    bundle <- build_nimble_bundle(
-      y = y,
-      X = X,
-      backend = backend,
-      kernel = kernel,
-      GPD = gpd,
-      components = 6,
-      mcmc = list(niter = 30, nburnin = 10, thin = 1, nchains = 1, seed = 1)
-    )
-    fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+    mcmc_cfg <- list(niter = 30, nburnin = 10, thin = 1, nchains = 1, seed = 1)
+    cache_key <- NULL
+    if (exists(".cache_enabled") && isTRUE(.cache_enabled())) {
+      key_str <- paste(
+        "predict", kernel, backend, gpd, has_X, N,
+        mcmc_cfg$niter, mcmc_cfg$nburnin, mcmc_cfg$thin, mcmc_cfg$nchains, mcmc_cfg$seed,
+        sep = "|"
+      )
+      cache_key <- .cache_hash(key_str)
+    }
+    cached <- if (!is.null(cache_key)) .cache_get(cache_key) else NULL
+    if (!is.null(cached) && inherits(cached$fit, "mixgpd_fit")) {
+      fit <- cached$fit
+    } else {
+      bundle <- build_nimble_bundle(
+        y = y,
+        X = X,
+        backend = backend,
+        kernel = kernel,
+        GPD = gpd,
+        components = 6,
+        mcmc = mcmc_cfg
+      )
+      fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+      if (!is.null(cache_key)) .cache_set(cache_key, list(fit = fit))
+    }
 
     if (!inherits(fit, "mixgpd_fit")) stop("fit is not a mixgpd_fit.")
     print(fit)

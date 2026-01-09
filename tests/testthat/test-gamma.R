@@ -1,55 +1,62 @@
-testthat::test_that("SB gamma: no GPD, no X", {
-  testthat::skip_if_not_installed("nimble")
-  testthat::skip_on_cran()
+if (!exists(".run_predict_case")) {
+  ofile <- sys.frame(1)$ofile
+  if (is.null(ofile)) ofile <- file.path('tests', 'testthat', 'dummy')
+  helper_path <- file.path(dirname(ofile), 'helper-predict-distribution.R')
+  if (file.exists(helper_path)) source(helper_path)
+}
+test_that("SB gamma: no GPD, no X", {
+  skip_if_not_installed("nimble")
+  skip_on_cran()
   res <- .run_predict_case("SB gamma: no GPD, no X", "gamma", "sb", FALSE, FALSE)
-  testthat::expect_true(res$ok, info = res$msg)
+  expect_true(res$ok, info = res$msg)
 })
 
-testthat::test_that("SB gamma: GPD, no X", {
-  testthat::skip_if_not_installed("nimble")
-  testthat::skip_on_cran()
+test_that("SB gamma: GPD, no X", {
+  skip_if_not_installed("nimble")
+  skip_on_cran()
   res <- .run_predict_case("SB gamma: GPD, no X", "gamma", "sb", TRUE, FALSE)
-  testthat::expect_true(res$ok, info = res$msg)
+  expect_true(res$ok, info = res$msg)
 })
 
-testthat::test_that("SB gamma: no GPD, with X", {
-  testthat::skip_if_not_installed("nimble")
-  testthat::skip_on_cran()
+test_that("SB gamma: no GPD, with X", {
+  skip_if_not_installed("nimble")
+  skip_on_cran()
   res <- .run_predict_case("SB gamma: no GPD, with X", "gamma", "sb", FALSE, TRUE)
-  testthat::expect_true(res$ok, info = res$msg)
+  expect_true(res$ok, info = res$msg)
 })
 
-testthat::test_that("SB gamma: GPD, with X", {
-  testthat::skip_if_not_installed("nimble")
-  testthat::skip_on_cran()
+test_that("SB gamma: GPD, with X", {
+  skip_if_not_installed("nimble")
+  skip_on_cran()
   res <- .run_predict_case("SB gamma: GPD, with X", "gamma", "sb", TRUE, TRUE)
-  testthat::expect_true(res$ok, info = res$msg)
+  expect_true(res$ok, info = res$msg)
 })
 
-testthat::test_that("CRP gamma: no GPD, no X", {
-  testthat::skip_if_not_installed("nimble")
-  testthat::skip_on_cran()
+test_that("CRP gamma: no GPD, no X", {
+  skip_if_not_installed("nimble")
+  skip_on_cran()
   res <- .run_predict_case("CRP gamma: no GPD, no X", "gamma", "crp", FALSE, FALSE)
-  testthat::expect_true(res$ok, info = res$msg)
+  expect_true(res$ok, info = res$msg)
 })
 
-testthat::test_that("CRP gamma: GPD, no X", {
-  testthat::skip_if_not_installed("nimble")
-  testthat::skip_on_cran()
+test_that("CRP gamma: GPD, no X", {
+  skip_if_not_installed("nimble")
+  skip_on_cran()
   res <- .run_predict_case("CRP gamma: GPD, no X", "gamma", "crp", TRUE, FALSE)
-  testthat::expect_true(res$ok, info = res$msg)
+  expect_true(res$ok, info = res$msg)
 })
 
-testthat::test_that("CRP gamma: no GPD, with X", {
-  testthat::skip_if_not_installed("nimble")
-  testthat::skip_on_cran()
+test_that("CRP gamma: no GPD, with X", {
+  skip_if_not_installed("nimble")
+  skip_on_cran()
   res <- .run_predict_case("CRP gamma: no GPD, with X", "gamma", "crp", FALSE, TRUE)
-  testthat::expect_true(res$ok, info = res$msg)
+  expect_true(res$ok, info = res$msg)
 })
 
-testthat::test_that("CRP gamma: GPD, with X", {
-  testthat::skip_if_not_installed("nimble")
-  testthat::skip_on_cran()
+test_that("CRP gamma: GPD, with X", {
+  skip_if_not_installed("nimble")
+  skip_on_cran()
   res <- .run_predict_case("CRP gamma: GPD, with X", "gamma", "crp", TRUE, TRUE)
-  testthat::expect_true(res$ok, info = res$msg)
+  expect_true(res$ok, info = res$msg)
 })
+

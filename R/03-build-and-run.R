@@ -1081,13 +1081,9 @@ build_code_sb_from_spec <- function(spec) {
     }
   }
   beta_block <- if (has_X && length(beta_lines)) {
-    paste0("if (TRUE) {\n",
-           "      for (j in 1:components) {\n",
-           "        ", paste(beta_lines, collapse = "\n        "), "\n",
-           "      }\n",
+    paste0("for (j in 1:components) {\n",
+           "      ", paste(beta_lines, collapse = "\n      "), "\n",
            "    }\n")
-  } else if (has_X) {
-    "if (TRUE) {\n      # no link-mode bulk betas\n    }\n"
   } else {
     ""
   }
@@ -1110,15 +1106,11 @@ build_code_sb_from_spec <- function(spec) {
     }
   }
   det_block <- if (has_X && length(det_lines)) {
-    paste0("if (TRUE) {\n",
-           "      for (i in 1:N) {\n",
-           "        for (j in 1:components) {\n",
-           "          ", paste(det_lines, collapse = "\n          "), "\n",
-           "        }\n",
+    paste0("for (i in 1:N) {\n",
+           "      for (j in 1:components) {\n",
+           "        ", paste(det_lines, collapse = "\n        "), "\n",
            "      }\n",
            "    }\n")
-  } else if (has_X) {
-    "if (TRUE) {\n      # no link-mode bulk deterministic nodes\n    }\n"
   } else {
     ""
   }
