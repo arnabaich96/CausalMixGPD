@@ -5,12 +5,8 @@
 \title{Null-coalescing operator}
 \usage{
 a \%||\% b
-
-a \%||\% b
 }
 \description{
-Null-coalescing operator
-
 Null-coalescing operator
 }
 \keyword{internal}

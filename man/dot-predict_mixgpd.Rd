@@ -8,7 +8,7 @@
   object,
   x = NULL,
   y = NULL,
-  type = c("density", "probs", "surv", "quantile", "sample", "mean", "cdf", "survival"),
+  type = c("density", "survival", "quantile", "sample", "mean"),
   p = NULL,
   nsim = NULL,
   interval = c("none", "credible"),
@@ -20,7 +20,7 @@
 }
 \description{
 Project rules:
-- density/probs/surv: either provide both (x,y) or neither (defaults to training X and training y).
+- density/survival: either provide both (x,y) or neither (defaults to training X and training y).
 - quantile/sample/mean: y must be NULL; x may be provided (new X) or NULL (defaults to training X).
 - CRP predictions use posterior weights derived from z for each draw.
 - Stores per-draw results in object$cache$predict (environment) for reuse in treatment effects.

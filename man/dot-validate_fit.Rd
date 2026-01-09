@@ -5,20 +5,14 @@
 \title{Validate a fitted object}
 \usage{
 .validate_fit(object)
-
-.validate_fit(object)
 }
 \arguments{
 \item{object}{A fitted object.}
 }
 \value{
 Invisibly TRUE, otherwise errors.
-
-Invisibly TRUE, otherwise errors.
 }
 \description{
-Validate a fitted object
-
 Validate a fitted object
 }
 \keyword{internal}

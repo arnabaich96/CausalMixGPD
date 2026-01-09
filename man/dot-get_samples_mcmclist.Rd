@@ -5,20 +5,14 @@
 \title{Safely coerce MCMC samples to coda::mcmc.list}
 \usage{
 .get_samples_mcmclist(object)
-
-.get_samples_mcmclist(object)
 }
 \arguments{
 \item{object}{A mixgpd_fit.}
 }
 \value{
 A coda::mcmc.list object.
-
-A coda::mcmc.list object.
 }
 \description{
-Safely coerce MCMC samples to coda::mcmc.list
-
 Safely coerce MCMC samples to coda::mcmc.list
 }
 \keyword{internal}

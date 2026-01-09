@@ -9,32 +9,30 @@
 #'   \item compiled model \code{spec}
 #'   \item \code{nimbleCode} model code
 #'   \item \code{constants}, \code{data}, explicit \code{dimensions}
-#'   \item initialization function \code{inits_fun}
+#'   \item initialization function \code{inits} (stored as a function)
 #'   \item monitor specification
+#'   \item MCMC settings list (stored but not used for code generation)
 #' }
 #'
-#' The bundle is consumed by \code{run_mcmc_bundle_manual()} / internal runners.
-#'
-#' Notes:
-#' \itemize{
-#'   \item We do NOT touch kernel files (single-number scripts).
-#'   \item Conditional codegen is enabled when \code{X != NULL} AND at least one
-#'         node in \code{spec$node_plan} has \code{type == "link"}.
-#'   \item If \code{X != NULL} but no \code{"link"} nodes exist, we allow build and
-#'         simply ignore \code{X} in the model code (but keep it in \code{data}).
-#' }
+#' This function intentionally stops at the "pre-run" stage (spec/code/constants/data/dimensions/inits/monitors).
 #'
 #' @param y Numeric outcome vector.
-#' @param X Optional design matrix (N x p) for conditional variants.
-#' @param backend Character; \code{"sb"} or \code{"crp"}.
-#' @param kernel Character kernel name.
-#' @param GPD Logical; whether a tail model is requested. (Tail wiring is handled
-#'        in other files; this builder focuses on bulk dispatch + core scaffolding.)
-#' @param components Number of mixture components \code{J} when backend="sb".
-#' @param Kmax Maximum clusters when backend="crp".
-#' @param mcmc Named list of MCMC settings (niter, nburnin, thin, nchains, seed).
-#'
-#' @return A named list (bundle) used by MCMC runner.
+#' @param X Optional design matrix/data.frame (N x p) for conditional variants.
+#' @param backend Character; \code{"sb"} (stick-breaking) or \code{"crp"} (Chinese Restaurant Process).
+#' @param kernel Character kernel name (must exist in \code{get_kernel_registry()}).
+#' @param GPD Logical; whether a GPD tail is requested.
+#' @param components Integer >= 2. Single user-facing truncation parameter:
+#'   \itemize{
+#'     \item SB: number of mixture components used in stick-breaking truncation
+#'     \item CRP: maximum number of clusters represented in the finite NIMBLE model
+#'   }
+#' @param param_specs Optional list with entries \code{bulk} and \code{tail} to override defaults.
+#' @param mcmc Named list of MCMC settings (niter, nburnin, thin, nchains, seed). Stored in bundle.
+#' @param epsilon Numeric in [0,1). For downstream summaries/plots/prediction we keep the
+#'   smaller k defined by either (i) cumulative mass >= 1 - epsilon or (ii) per-component
+#'   weights >= epsilon, then renormalize.
+#' @param alpha_random Logical; whether concentration \code{alpha} is stochastic.
+#' @return A named list (bundle) of class \code{"dpmixgpd_bundle"}.
 #' @keywords internal
 #' @noRd
 build_nimble_bundle <- function(
@@ -43,31 +41,42 @@ build_nimble_bundle <- function(
     backend = c("sb", "crp"),
     kernel,
     GPD = FALSE,
-    Kmax = NULL,
     components = NULL,
     param_specs = NULL,
     mcmc = list(niter = 2000, nburnin = 500, thin = 1, nchains = 1, seed = 1),
+    epsilon = 0.025,
     alpha_random = TRUE
 ) {
-  backend <- match.arg(backend)
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+
+  backend <- match.arg(backend, choices = c("sb", "crp"))
+
+  y <- as.numeric(y)
+  if (!length(y)) stop("y must be a non-empty numeric vector.", call. = FALSE)
 
   if (!is.null(X) && !is.matrix(X)) X <- as.matrix(X)
 
-  if (is.null(Kmax)) Kmax <- length(y)
-  Kmax <- as.integer(Kmax)
-  if (Kmax < 2) stop("Kmax must be >= 2.", call. = FALSE)
+  # Single truncation parameter for both backends
+  if (is.null(components)) components <- length(y)
+  components <- as.integer(components)
+  if (!is.finite(components) || components < 2L) {
+    stop("components must be an integer >= 2.", call. = FALSE)
+  }
 
+  # Basic epsilon validation (stored; used later by fit-level methods)
+  if (!is.numeric(epsilon) || length(epsilon) != 1L || is.na(epsilon) || epsilon < 0 || epsilon >= 1) {
+    stop("epsilon must be a single numeric value in [0, 1).", call. = FALSE)
+  }
+
+  # Compile spec (DO NOT pass mcmc here; spec/codegen is structural)
   spec <- compile_model_spec(
     y = y,
     X = X,
     backend = backend,
     kernel = kernel,
     GPD = GPD,
-    Kmax = Kmax,
-    J = if (identical(backend, "sb")) components else NULL,
-    components = if (identical(backend, "sb")) components else NULL,
+    components = components,
     param_specs = param_specs,
-    mcmc = mcmc,
     alpha_random = alpha_random
   )
 
@@ -79,81 +88,141 @@ build_nimble_bundle <- function(
     constants  = build_constants_from_spec(spec),
     dimensions = build_dimensions_from_spec(spec),
     data       = build_data_from_inputs(y = y, X = X),
-
-    # IMPORTANT: pass seed, not y
-    inits      = build_inits_from_spec(spec, seed = mcmc$seed %||% NULL),
-
+    inits      = build_inits_from_spec(spec),
     monitors   = build_monitors_from_spec(spec),
-    mcmc       = mcmc
+    mcmc       = mcmc,
+    epsilon    = epsilon
   )
   class(bundle) <- "dpmixgpd_bundle"
   bundle
 }
 
 
-
-
-#' Detect whether conditional code generation is required (X + at least one link node)
+#' Determine whether a compiled spec is conditional on covariates
 #'
-#' @param spec A compiled \code{dpmixgpd_spec}.
-#' @return Logical.
+#' A spec is "conditional" if it uses covariates \code{X} (i.e., \code{has_X=TRUE})
+#' and at least one parameter is specified in \code{link} mode.
+#'
+#' This helper is used in bundle validation and in deciding which builders to invoke.
+#'
+#' @param spec A compiled model specification produced by \code{compile_model_spec()}.
+#' @return Logical; TRUE if the model uses covariate links, otherwise FALSE.
 #' @keywords internal
 #' @noRd
 spec_requires_conditional <- function(spec) {
-  meta <- spec$meta
-  if (!isTRUE(meta$has_X)) return(FALSE)
+  stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
 
-  # bulk nodes
-  if (!is.null(spec$node_plan$bulk) && length(spec$node_plan$bulk)) {
-    for (nm in names(spec$node_plan$bulk)) {
-      if (identical(spec$node_plan$bulk[[nm]]$type, "link")) return(TRUE)
+  has_X <- isTRUE(spec$meta$has_X)
+  plan <- spec$plan
+
+  # No X means no conditional model (and link mode would be invalid).
+  if (!has_X) {
+    # defensive: ensure no link-mode sneaked in
+    bulk <- plan$bulk %||% list()
+    if (any(vapply(bulk, function(ent) identical(ent$mode, "link"), logical(1)))) {
+      stop("Spec has link-mode bulk parameters but X is NULL.", call. = FALSE)
     }
+    gpd <- plan$gpd %||% list()
+    if (!is.null(gpd$threshold) && identical(gpd$threshold$mode, "link")) {
+      stop("Spec has link-mode threshold but X is NULL.", call. = FALSE)
+    }
+    if (!is.null(gpd$tail_scale) && identical(gpd$tail_scale$mode, "link")) {
+      stop("Spec has link-mode tail_scale but X is NULL.", call. = FALSE)
+    }
+    return(FALSE)
   }
 
-  # tail nodes (if present)
-  if (isTRUE(meta$GPD) && !is.null(spec$node_plan$tail) && length(spec$node_plan$tail)) {
-    for (nm in names(spec$node_plan$tail)) {
-      if (identical(spec$node_plan$tail[[nm]]$type, "link")) return(TRUE)
-    }
-  }
+  # With X present, conditional is TRUE iff any parameter uses link-mode.
+  bulk <- plan$bulk %||% list()
+  bulk_link <- any(vapply(bulk, function(ent) identical(ent$mode, "link"), logical(1)))
 
-  FALSE
+  gpd <- plan$gpd %||% list()
+  thr_link <- !is.null(gpd$threshold) && identical(gpd$threshold$mode, "link")
+  ts_link  <- !is.null(gpd$tail_scale) && identical(gpd$tail_scale$mode, "link")
+
+  isTRUE(bulk_link || thr_link || ts_link)
 }
 
-#' Assert code generation is supported for the given spec (internal)
+
+#' Validate that code generation is supported for a compiled spec
 #'
-#' This is the replacement for the old hard-stop \code{X != NULL} check.
+#' Checks that the kernel registry contains the required likelihood signatures
+#' for the chosen backend and whether GPD is requested, and validates that any
+#' link functions requested in \code{spec$plan} are supported by the code generator.
 #'
-#' Rules:
-#' \itemize{
-#'   \item If \code{X == NULL}: always allowed.
-#'   \item If \code{X != NULL} but no \code{"link"} nodes: allowed (unconditional model; X ignored).
-#'   \item If conditional is required: allowed IF the required dispatch hooks exist.
-#' }
-#'
-#' @param spec A compiled \code{dpmixgpd_spec}.
+#' @param spec A compiled model specification produced by \code{compile_model_spec()}.
+#' @return Invisibly TRUE if all checks pass; otherwise errors.
 #' @keywords internal
 #' @noRd
 assert_codegen_supported <- function(spec) {
-  meta <- spec$meta
+  stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
 
-  if (!isTRUE(meta$has_X)) return(invisible(TRUE))
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
-  needs_cond <- spec_requires_conditional(spec)
-  if (!needs_cond) return(invisible(TRUE))
+  backend <- spec$meta$backend %||% NA_character_
+  kernel  <- spec$meta$kernel  %||% NA_character_
+  GPD     <- isTRUE(spec$meta$GPD)
+  has_X   <- isTRUE(spec$meta$has_X)
 
-  # Conditional: require appropriate dispatch hooks so failures are crisp.
-  if (identical(meta$backend, "sb")) {
-    if (is.null(spec$dispatch$density_x) || length(spec$dispatch$density_x) != 1) {
-      stop("Conditional SB codegen requested but spec$dispatch$density_x is missing/invalid.", call. = FALSE)
+  if (!backend %in% c("sb", "crp")) {
+    stop(sprintf("Unsupported backend '%s'.", as.character(backend)), call. = FALSE)
+  }
+
+  krn <- get_kernel_registry()
+  if (!kernel %in% names(krn)) {
+    stop(sprintf("Unknown kernel '%s'.", as.character(kernel)), call. = FALSE)
+  }
+
+  kinfo <- krn[[kernel]]
+  sigs <- kinfo$signatures %||% NULL
+  if (is.null(sigs) || is.null(sigs[[backend]])) {
+    stop(sprintf("Kernel '%s' does not provide signatures for backend '%s'.", kernel, backend), call. = FALSE)
+  }
+
+  if (GPD) {
+    if (is.null(sigs[[backend]]$gpd) ||
+        is.null(sigs[[backend]]$gpd$dist_name) ||
+        is.null(sigs[[backend]]$gpd$args)) {
+      stop(sprintf("Kernel '%s' is missing GPD signature for backend '%s'.", kernel, backend), call. = FALSE)
     }
-  } else if (identical(meta$backend, "crp")) {
-    # CRP conditional uses the scalar kernel density (same as CRP unconditional),
-    # but will additionally require X to exist in data/constants.
-    if (is.null(spec$dispatch$density) || length(spec$dispatch$density) != 1) {
-      stop("Conditional CRP codegen requested but spec$dispatch$density is missing/invalid.", call. = FALSE)
+  } else {
+    if (is.null(sigs[[backend]]$bulk) ||
+        is.null(sigs[[backend]]$bulk$dist_name) ||
+        is.null(sigs[[backend]]$bulk$args)) {
+      stop(sprintf("Kernel '%s' is missing bulk signature for backend '%s'.", kernel, backend), call. = FALSE)
     }
   }
+
+  supported_links <- c("identity", "exp", "log", "softplus", "power")
+
+  check_link <- function(where, ent) {
+    if (!identical(ent$mode, "link")) return(invisible(TRUE))
+
+    if (!has_X) stop(sprintf("%s uses link-mode but X is NULL.", where), call. = FALSE)
+
+    lk <- ent$link %||% "identity"
+    if (!lk %in% supported_links) {
+      stop(sprintf("Unsupported link '%s' in %s. Supported: %s",
+                   lk, where, paste(supported_links, collapse = ", ")),
+           call. = FALSE)
+    }
+    if (lk == "power") {
+      pw <- ent$link_power %||% NULL
+      if (is.null(pw) || length(pw) != 1L || !is.finite(as.numeric(pw))) {
+        stop(sprintf("power link in %s requires numeric link_power.", where), call. = FALSE)
+      }
+    }
+    invisible(TRUE)
+  }
+
+  # bulk links
+  bulk <- spec$plan$bulk %||% list()
+  for (nm in names(bulk)) check_link(sprintf("bulk[%s]", nm), bulk[[nm]])
+
+  # gpd links
+  gpd <- spec$plan$gpd %||% list()
+  if (!is.null(gpd$threshold))  check_link("gpd$threshold", gpd$threshold)
+  if (!is.null(gpd$tail_scale)) check_link("gpd$tail_scale", gpd$tail_scale)
 
   invisible(TRUE)
 }
@@ -174,770 +243,1651 @@ default_hypers <- function() {
   )
 }
 
-#' Build NIMBLE data list from user inputs (internal)
+#' Build NIMBLE data list from user inputs
 #'
-#' @param y outcome vector
-#' @param X optional design matrix
-#' @return Named list suitable for \code{nimbleModel(data=...)}.
+#' Converts user-provided outcome vector \code{y} and optional covariates \code{X}
+#' into a NIMBLE-ready data list.
+#'
+#' Rules:
+#' \itemize{
+#'   \item \code{y} is always returned as a numeric vector.
+#'   \item \code{X} is returned only if provided; it is coerced to a numeric matrix.
+#'   \item No constants (N/P/components) are included here; those belong in \code{constants}.
+#' }
+#'
+#' @param y Numeric outcome vector (length N).
+#' @param X Optional covariate matrix/data.frame (N x P).
+#' @return Named list suitable to pass as \code{data} into \code{nimbleModel()}.
 #' @keywords internal
 #' @noRd
 build_data_from_inputs <- function(y, X = NULL) {
-  data <- list(y = as.numeric(y))
+  y <- as.numeric(y)
+  if (!length(y)) stop("y must be a non-empty numeric vector.", call. = FALSE)
+
+  out <- list(y = y)
+
   if (!is.null(X)) {
-    data$X <- as.matrix(X)
-  }
-  data
-}
-
-#' Build monitors requested from spec (internal)
-#'
-#' @param spec A compiled \code{dpmixgpd_spec}.
-#' @return Character vector.
-#' @keywords internal
-#' @noRd
-build_monitors_from_spec <- function(spec) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
-
-  # If spec already has monitors, keep them
-  if (!is.null(spec$monitors) && length(spec$monitors)) {
-    return(unique(spec$monitors))
+    if (!is.matrix(X)) X <- as.matrix(X)
+    # Coerce to numeric matrix (nimble expects numeric)
+    storage.mode(X) <- "double"
+    if (nrow(X) != length(y)) stop("X must have nrow(X) == length(y).", call. = FALSE)
+    if (ncol(X) < 1L) stop("X must have at least one column.", call. = FALSE)
+    out$X <- X
   }
 
-  # Otherwise build a sensible default from node_plan
-  np <- spec$node_plan %||% NULL
-  if (is.null(np)) return(character(0))
-
-  out <- character(0)
-
-  # DP nodes
-  if (!is.null(np$dp$nodes$stochastic)) out <- c(out, np$dp$nodes$stochastic)
-  if (!is.null(np$dp$nodes$deterministic)) out <- c(out, np$dp$nodes$deterministic)
-
-  # Bulk params
-  if (!is.null(np$bulk)) {
-    for (pname in names(np$bulk)) {
-      d <- np$bulk[[pname]]
-      if (is.null(d) || identical(d$type, "fixed")) next
-
-      if (identical(d$type, "link")) {
-        out <- c(out, paste0("beta_", pname))
-      } else {
-        # monitor the parameter name (even if invgamma uses inv_ internally)
-        out <- c(out, pname)
-      }
-    }
-  }
-
-  # Tail params (if any)
-  if (!is.null(np$tail)) {
-    for (pname in names(np$tail)) {
-      d <- np$tail[[pname]]
-      if (is.null(d) || identical(d$type, "fixed")) next
-
-      if (identical(d$type, "link")) {
-        out <- c(out, paste0("beta_", pname))
-      } else {
-        out <- c(out, pname)
-      }
-    }
-  }
-
-  unique(out)
-}
-
-
-#' Build an initialization function (internal)
-#'
-#' @param spec A compiled \code{dpmixgpd_spec}.
-#' @param y Outcome vector (may be used for sensible inits).
-#' @return A function() that returns a list of initial values.
-#' @keywords internal
-#' @noRd
-build_inits_from_spec <- function(spec, seed = NULL) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
-
-  meta <- spec$meta %||% list()
-  kdef <- spec$kernel %||% get_kernel_registry()[[meta$kernel]]
-
-  backend <- meta$backend
-  GPD     <- isTRUE(meta$GPD)
-  has_X   <- isTRUE(meta$has_X)
-
-  N <- as.integer(meta$N %||% spec$N %||% length(spec$data$y))
-  Kmax <- as.integer(meta$Kmax %||% spec$Kmax %||% N)
-  J <- meta$J %||% spec$J
-  if (!is.null(J)) J <- as.integer(J)
-
-  X <- spec$data$X
-  P <- meta$P %||% spec$P %||% meta$p %||% spec$p
-  if (has_X) {
-    if (is.null(P)) P <- ncol(as.matrix(X))
-    P <- as.integer(P)
-  } else {
-    P <- 0L
-  }
-
-  bulk_plan   <- spec$node_plan$bulk %||% list()
-  bulk_params <- kdef$bulk_params %||% names(bulk_plan) %||% character(0)
-
-  y <- spec$data$y
-  y_med <- stats::median(y)
-  y_sd  <- stats::sd(y)
-
-  function() {
-    if (!is.null(seed)) set.seed(as.integer(seed)[1])
-
-    inits <- list()
-
-    # -----------------------------
-    # DP prior blocks
-    # -----------------------------
-    inits$alpha <- 1.0
-
-    if (identical(backend, "crp")) {
-      # z[1:N] is stochastic
-      K <- as.integer(Kmax)
-      if (!is.finite(K) || K < 2L) K <- max(2L, min(N, 10L))
-      inits$z <- sample.int(K, N, replace = TRUE)
-
-    } else if (identical(backend, "sb")) {
-      # v[1:(J-1)] is stochastic; weights is deterministic
-      JJ <- as.integer(J %||% max(2L, min(N, 10L)))
-      inits$v <- stats::rbeta(JJ - 1L, 1, 1)  # in (0,1)
-    }
-
-    # -----------------------------
-    # Bulk component parameters
-    # Initialize only those that exist in the model (per node_plan)
-    # -----------------------------
-    if (identical(backend, "crp")) {
-      K <- as.integer(Kmax)
-      for (pname in bulk_params) {
-        d <- bulk_plan[[pname]]
-        if (is.null(d) || identical(d$type, "fixed")) next
-
-        sup <- d$support %||% "real"
-
-        if (sup %in% c("positive_sd", "positive_scale", "positive_shape", "positive_mean")) {
-          # positive inits
-          inits[[pname]] <- rep(1.0, K)
-        } else {
-          # real inits
-          inits[[pname]] <- rnorm(K, mean = 0, sd = 0.5)
-        }
-
-        # If you ever turn on covariate-linked bulk params later (type="link"),
-        # initialize beta_<param> ONLY when X exists
-        if (identical(d$type, "link") && has_X) {
-          inits[[paste0("beta_", pname)]] <- matrix(0, nrow = P, ncol = K)
-        }
-      }
-    } else {
-      JJ <- as.integer(J %||% max(2L, min(N, 10L)))
-      for (pname in bulk_params) {
-        d <- bulk_plan[[pname]]
-        if (is.null(d) || identical(d$type, "fixed")) next
-
-        sup <- d$support %||% "real"
-
-        if (sup %in% c("positive_sd", "positive_scale", "positive_shape", "positive_mean")) {
-          inits[[pname]] <- rep(1.0, JJ)
-        } else {
-          inits[[pname]] <- rnorm(JJ, mean = 0, sd = 0.5)
-        }
-
-        if (identical(d$type, "link") && has_X) {
-          inits[[paste0("beta_", pname)]] <- matrix(0, nrow = P, ncol = JJ)
-        }
-      }
-    }
-
-    # -----------------------------
-    # Tail / threshold (only when GPD=TRUE)
-    # Initialize only stochastic nodes that appear in code
-    # -----------------------------
-    if (GPD) {
-      if (has_X) {
-        # threshold[i] is deterministic in your codegen; only beta_threshold is stochastic
-        inits$beta_threshold <- rep(0, P)
-      } else {
-        # threshold is scalar stochastic
-        inits$threshold <- if (is.finite(y_med)) y_med else 1.0
-      }
-
-      # tail_scale, tail_shape are scalar stochastic
-      inits$tail_scale <- 1.0
-      inits$tail_shape <- 0.1
-    }
-
-    # -----------------------------
-    # Tiny safety: avoid NA
-    # -----------------------------
-    inits <- inits[!vapply(inits, function(x) any(is.na(x)), logical(1))]
-
-    inits
-  }
-}
-
-
-
-#' Build constants from spec (internal)
-#'
-#' @param spec A compiled \code{dpmixgpd_spec}.
-#' @return Named list.
-#' @keywords internal
-#' @noRd
-build_constants_from_spec <- function(spec) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
-
-  meta <- spec$meta %||% list()
-  pri  <- spec$priors %||% list()
-  bulk_plan <- spec$node_plan$bulk %||% list()
-
-  backend <- meta$backend
-  GPD     <- isTRUE(meta$GPD)
-  has_X   <- isTRUE(meta$has_X)
-
-  N <- as.integer(meta$N %||% spec$N %||% length(spec$data$y))
-  P <- as.integer(meta$P %||% spec$P %||% if (has_X) ncol(as.matrix(spec$data$X)) else 0L)
-  Kmax <- as.integer(meta$Kmax %||% spec$Kmax %||% N)
-  J <- meta$J %||% spec$J
-  if (!is.null(J)) J <- as.integer(J)
-
-  # ------------------------------------------------------------------
-  # Base structural constants (only those actually referenced in code)
-  # ------------------------------------------------------------------
-  constants <- list(N = N)
-
-  if (has_X) constants$P <- P
-
-  if (identical(backend, "crp")) {
-    constants$Kmax <- Kmax
-  } else {
-    # SB
-    constants$J <- as.integer(J %||% max(2L, min(N, 10L)))
-  }
-
-  # ------------------------------------------------------------------
-  # Decide which prior hyperparameters are needed
-  # based on node_plan prior families + tail usage
-  # ------------------------------------------------------------------
-
-  # alpha prior always exists in both backends
-  # (only include if your code uses alpha_shape/alpha_rate; if code uses dgamma(1,1),
-  # keep these out to avoid "ignored".)
-  uses_alpha_hypers <- TRUE
-  if (uses_alpha_hypers) {
-    constants$alpha_shape <- pri$alpha_shape %||% 1
-    constants$alpha_rate  <- pri$alpha_rate  %||% 1
-  }
-
-  # Bulk priors: include normal_* and/or gamma_* only if at least one bulk param uses them
-  bulk_prior_families <- vapply(
-    names(bulk_plan),
-    function(pn) {
-      d <- bulk_plan[[pn]]
-      if (is.null(d) || identical(d$type, "fixed")) return(NA_character_)
-      tolower(d$prior_family %||% "normal")
-    },
-    character(1)
-  )
-  bulk_prior_families <- bulk_prior_families[!is.na(bulk_prior_families)]
-
-  if (any(bulk_prior_families %in% c("normal"))) {
-    constants$normal_mean <- pri$normal_mean %||% 0
-    constants$normal_sd   <- pri$normal_sd   %||% 10
-  }
-  if (any(bulk_prior_families %in% c("gamma"))) {
-    constants$gamma_shape <- pri$gamma_shape %||% 2
-    constants$gamma_rate  <- pri$gamma_rate  %||% 1
-  }
-
-  # ------------------------------------------------------------------
-  # Tail / threshold priors (only if GPD)
-  # ------------------------------------------------------------------
-  if (GPD) {
-    # Threshold: if no X, threshold is stochastic and uses threshold_meanlog/sdlog
-    if (!has_X) {
-      constants$threshold_meanlog <- pri$threshold_meanlog %||% 0
-      constants$threshold_sdlog   <- pri$threshold_sdlog   %||% 1
-    } else {
-      # Regression: beta_threshold exists only if X exists
-      constants$beta_threshold_mean <- pri$beta_threshold_mean %||% 0
-      constants$beta_threshold_sd   <- pri$beta_threshold_sd   %||% 10
-    }
-
-    # Tail scalars always present when GPD=TRUE
-    constants$tail_scale_sdlog <- pri$tail_scale_sdlog %||% 1
-    constants$tail_shape_sd    <- pri$tail_shape_sd    %||% 1
-  }
-
-  constants
-}
-
-
-#' Build explicit dimensions to avoid NIMBLE size inference issues (internal)
-#'
-#' @param spec A compiled \code{dpmixgpd_spec}.
-#' @return Named list of dimensions.
-#' @keywords internal
-#' @noRd
-build_dimensions_from_spec <- function(spec) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
-
-  meta <- spec$meta
-  dims <- list()
-
-  if (identical(meta$backend, "sb")) {
-    J <- as.integer(meta$J)
-
-    dims$v       <- as.integer(J - 1L)
-    dims$weights <- as.integer(J)
-
-    # component-level bulk params
-    for (pname in names(spec$node_plan$bulk %||% list())) {
-      d <- spec$node_plan$bulk[[pname]]
-      if (is.null(d) || identical(d$type, "fixed")) next
-      dims[[pname]] <- as.integer(J)
-    }
-
-    if (isTRUE(meta$GPD)) {
-      # Only include dimensions for genuinely vector-valued nodes.
-      # Scalars (threshold, tail_scale, tail_shape) MUST be omitted to avoid
-      # scalar-vs-length1-vector conflicts in NIMBLE.
-      if (isTRUE(meta$has_X)) {
-        # If your conditional build actually creates threshold[i] (i=1..N),
-        # then it is a vector and we must declare it.
-        dims$beta_threshold <- as.integer(meta$P)
-        dims$threshold      <- as.integer(meta$N)
-      }
-      # else: threshold is scalar -> omit
-      # tail_scale, tail_shape are scalar -> omit
-    }
-
-    return(dims)
-  }
-
-  # ---- CRP branch ----
-  dims$z <- as.integer(meta$N)
-  Kmax <- as.integer(meta$Kmax)
-
-  for (pname in names(spec$node_plan$bulk %||% list())) {
-    d <- spec$node_plan$bulk[[pname]]
-    if (is.null(d) || identical(d$type, "fixed")) next
-    dims[[pname]] <- as.integer(Kmax)
-  }
-
-  if (isTRUE(meta$GPD)) {
-    if (isTRUE(meta$has_X)) {
-      dims$beta_threshold <- as.integer(meta$P)
-      dims$threshold      <- as.integer(meta$N)
-    }
-    # else: threshold is scalar -> omit
-    # tail_scale, tail_shape are scalar -> omit
-  }
-
-  dims
-}
-
-
-#' Build nimbleCode from a compiled spec (dispatcher)
-#'
-#' This is a thin dispatcher around backend-specific code builders:
-#' \code{build_code_sb_from_spec()} and \code{build_code_crp_from_spec()}.
-#'
-#' @param spec A compiled \code{dpmixgpd_spec}.
-#' @return nimbleCode object.
-#' @keywords internal
-#' @noRd
-build_code_from_spec <- function(spec) {
-  backend <- spec$meta$backend
-  if (identical(backend, "sb")) {
-    build_code_sb_from_spec(spec)
-  } else if (identical(backend, "crp")) {
-    build_code_crp_from_spec(spec)
-  } else {
-    stop("Unknown backend in spec$meta$backend.", call. = FALSE)
-  }
-}
-
-#' SB backend: build nimbleCode from spec
-#'
-#' SB supports unconditional by default. If conditional is required, SB expects
-#' \code{spec$dispatch$density_x} to be present, and will build per-(i,j) parameter
-#' arrays for all bulk nodes with \code{type=="link"}.
-#'
-#' IMPORTANT: likelihood call uses NAMED vector arguments to avoid NIMBLE
-#' dimension confusion for \code{w}.
-#'
-#' @param spec A compiled \code{dpmixgpd_spec}.
-#' @return nimbleCode object.
-#' @keywords internal
-#' @noRd
-build_code_sb_from_spec <- function(spec) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
-
-  meta <- spec$meta
-  kdef <- get_kernel_registry()[[meta$kernel]]
-
-  dens_name <- spec$dispatch$density  # <- comes from compile_model_spec()
-
-  N_sym <- as.name("N")
-  J_sym <- as.name("J")
-  P_sym <- as.name("P")
-
-  bulk_params <- kdef$bulk_params %||% character(0)
-
-  # ---- priors for bulk component params ----
-  bulk_exprs <- list()
-  for (pname in bulk_params) {
-    d <- (spec$node_plan$bulk %||% list())[[pname]]
-    if (is.null(d) || identical(d$type, "fixed")) next
-
-    fam <- tolower(d$prior_family %||% "normal")
-    if (identical(fam, "gamma")) {
-      bulk_exprs[[length(bulk_exprs) + 1]] <-
-        substitute(PNAME[j] ~ dgamma(gamma_shape, gamma_rate),
-                   list(PNAME = as.name(pname)))
-    } else {
-      bulk_exprs[[length(bulk_exprs) + 1]] <-
-        substitute(PNAME[j] ~ dnorm(normal_mean, sd = normal_sd),
-                   list(PNAME = as.name(pname)))
-    }
-  }
-  bulk_block <- substitute(for (j in 1:J) BODY,
-                           list(J = J_sym, BODY = as.call(c(as.name("{"), bulk_exprs))))
-
-  # ---- optional tail blocks (SB + GPD) ----
-  threshold_block <- NULL
-  tail_block <- NULL
-  if (isTRUE(meta$GPD)) {
-    if (isTRUE(meta$has_X)) {
-      threshold_block <- substitute({
-        for (k in 1:P) beta_threshold[k] ~ dnorm(beta_threshold_mean, sd = beta_threshold_sd)
-        for (i in 1:N) threshold[i] <- exp(inprod(beta_threshold[1:P], X[i, 1:P]))
-      }, list(N = N_sym, P = P_sym))
-    } else {
-      threshold_block <- substitute(threshold ~ dlnorm(threshold_meanlog, threshold_sdlog))
-    }
-
-    tail_block <- substitute({
-      tail_scale ~ dlnorm(0, sdlog = tail_scale_sdlog)
-      tail_shape ~ dnorm(0, sd = tail_shape_sd)
-    })
-  }
-
-  # ---- model pieces ----
-  pieces <- list(
-    as.name("{"),
-    substitute(alpha ~ dgamma(alpha_shape, alpha_rate)),
-    substitute(for (j in 1:(J-1)) v[j] ~ dbeta(1, alpha), list(J = J_sym)),
-    substitute(weights[1:J] <- stick_breaking(v[1:(J-1)]), list(J = J_sym)),
-    bulk_block
-  )
-
-  if (!is.null(threshold_block)) pieces <- c(pieces, list(threshold_block))
-  if (!is.null(tail_block))      pieces <- c(pieces, list(tail_block))
-
-  # ---- likelihood: SB ALWAYS uses MIX density ----
-  # Mix densities in your package are defined like: dLognormalMix(x, w = w, meanlog = ..., sdlog = ..., log = 0)
-  like_args <- list()
-
-  # Named weights argument (this is the key fix)
-  like_args[["w"]] <- substitute(weights[1:J], list(J = J_sym))
-
-  # Bulk params passed by NAME
-  for (pname in bulk_params) {
-    like_args[[pname]] <- substitute(PNAME[1:J], list(PNAME = as.name(pname), J = J_sym))
-  }
-
-  # Tail params if GPD
-  if (isTRUE(meta$GPD)) {
-    like_args[["threshold"]]  <- if (isTRUE(meta$has_X)) substitute(threshold[i]) else as.name("threshold")
-    like_args[["tail_scale"]] <- as.name("tail_scale")
-    like_args[["tail_shape"]] <- as.name("tail_shape")
-  }
-
-  like_call <- as.call(c(as.name(dens_name), like_args))
-  pieces <- c(pieces, list(
-    substitute(for (i in 1:N) y[i] ~ DENS, list(N = N_sym, DENS = like_call))
-  ))
-
-  do.call(nimble::nimbleCode, list(as.call(pieces)))
-}
-
-
-
-
-#' CRP backend: build nimbleCode from spec
-#'
-#' CRP unconditional uses \code{z} cluster labels and scalar kernel density dispatch.
-#' If conditional is required, it builds per-(i,k) parameter arrays for all bulk nodes
-#' with \code{type=="link"}, and then indexes them by \code{z[i]} in the likelihood.
-#'
-#' @param spec A compiled \code{dpmixgpd_spec}.
-#' @return nimbleCode object.
-#' @keywords internal
-#' @noRd
-build_code_crp_from_spec <- function(spec) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
-  .stopf <- function(fmt, ...) stop(sprintf(fmt, ...), call. = FALSE)
-
-  meta <- spec$meta %||% list()
-  kdef <- get_kernel_registry()[[meta$kernel]]
-  if (is.null(kdef)) .stopf("Kernel '%s' not found in registry.", meta$kernel)
-
-  N_sym <- as.name("N")
-  K_sym <- as.name("Kmax")
-  P_sym <- as.name("P")
-
-  bulk_params <- kdef$bulk_params %||% character(0)
-
-  # CRP uses non-mix densities always (base or *Gpd)
-  dens_name <- if (isTRUE(meta$GPD)) kdef$crp$d_gpd else kdef$crp$d_base
-  if (is.null(dens_name) || length(dens_name) != 1L || !nzchar(dens_name)) {
-    .stopf("CRP density dispatch missing for kernel '%s'.", meta$kernel)
-  }
-
-  # ---- priors/constants ----
-  # (These are read from constants by NIMBLE; keep generic names consistent with your constants builder)
-  alpha_line <- substitute(alpha ~ dgamma(alpha_shape, alpha_rate))
-
-  # ✅ FIX: size MUST equal N (length of z[1:N])
-  z_line <- substitute(z[1:N] ~ dCRP(alpha, size = N), list(N = N_sym))
-
-  # ---- component parameter priors over k=1..Kmax ----
-  bulk_prior_exprs <- list()
-  for (pname in bulk_params) {
-    d <- (spec$node_plan$bulk %||% list())[[pname]]
-    if (is.null(d) || identical(d$type, "fixed")) next
-
-    fam <- tolower(d$prior_family %||% "normal")
-    if (identical(fam, "gamma")) {
-      bulk_prior_exprs[[length(bulk_prior_exprs) + 1]] <-
-        substitute(PNAME[k] ~ dgamma(gamma_shape, gamma_rate),
-                   list(PNAME = as.name(pname)))
-    } else {
-      bulk_prior_exprs[[length(bulk_prior_exprs) + 1]] <-
-        substitute(PNAME[k] ~ dnorm(normal_mean, sd = normal_sd),
-                   list(PNAME = as.name(pname)))
-    }
-  }
-  bulk_block <- substitute(for (k in 1:Kmax) BODY,
-                           list(Kmax = K_sym,
-                                BODY = as.call(c(as.name("{"), bulk_prior_exprs))))
-
-  # ---- threshold regression + tail priors (only if GPD) ----
-  threshold_block <- NULL
-  tail_block <- NULL
-
-  if (isTRUE(meta$GPD)) {
-    if (isTRUE(meta$has_X)) {
-      threshold_block <- substitute({
-        for (k in 1:P) beta_threshold[k] ~ dnorm(beta_threshold_mean, sd = beta_threshold_sd)
-        for (i in 1:N) threshold[i] <- exp(inprod(beta_threshold[1:P], X[i, 1:P]))
-      }, list(N = N_sym, P = P_sym))
-    } else {
-      threshold_block <- substitute(threshold ~ dlnorm(threshold_meanlog, threshold_sdlog))
-    }
-
-    tail_block <- substitute({
-      tail_scale ~ dlnorm(0, sdlog = tail_scale_sdlog)
-      tail_shape ~ dnorm(0, sd = tail_shape_sd)
-    })
-  }
-
-  # ---- likelihood: y[i] ~ d<Kernel>( param = param[z[i]] , ... ) ----
-  like_args <- list()
-  for (pname in bulk_params) {
-    like_args[[pname]] <- substitute(PNAME[z[i]], list(PNAME = as.name(pname)))
-  }
-  if (isTRUE(meta$GPD)) {
-    like_args[["threshold"]]  <- if (isTRUE(meta$has_X)) substitute(threshold[i]) else as.name("threshold")
-    like_args[["tail_scale"]] <- as.name("tail_scale")
-    like_args[["tail_shape"]] <- as.name("tail_shape")
-  }
-  like_call <- as.call(c(as.name(dens_name), like_args))
-
-  obs_line <- substitute(for (i in 1:N) y[i] ~ DENS,
-                         list(N = N_sym, DENS = like_call))
-
-  # ---- assemble nimbleCode ----
-  pieces <- list(as.name("{"), alpha_line, z_line, bulk_block)
-  if (!is.null(threshold_block)) pieces <- c(pieces, list(threshold_block))
-  if (!is.null(tail_block))      pieces <- c(pieces, list(tail_block))
-  pieces <- c(pieces, list(obs_line))
-
-  do.call(nimble::nimbleCode, list(as.call(pieces)))
-}
-
-
-
-
-#' Validate a dpmixgpd_bundle before running MCMC
-#'
-#' @param bundle A \code{dpmixgpd_bundle}.
-#' @param strict Logical; if TRUE, stop() on errors.
-#' @return A list with $ok, $errors, $warnings, and some key derived info.
-#' @keywords internal
-#' @export
-check_dpmixgpd_bundle <- function(bundle, strict = FALSE) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
-
-  errors <- character(0)
-  warns  <- character(0)
-
-  if (!inherits(bundle, "dpmixgpd_bundle")) {
-    errors <- c(errors, "Object is not a dpmixgpd_bundle.")
-    out <- list(ok = FALSE, errors = errors, warnings = warns)
-    if (isTRUE(strict)) stop(paste(errors, collapse = "\n"), call. = FALSE)
-    return(out)
-  }
-
-  spec <- bundle$spec %||% list()
-  meta <- spec$meta %||% list()
-
-  # ---- data checks ----
-  y <- bundle$data$y %||% spec$data$y %||% NULL
-  if (is.null(y)) errors <- c(errors, "Missing y in bundle$data$y (and spec$data$y).")
-  if (!is.null(y) && !is.numeric(y)) errors <- c(errors, "y must be numeric.")
-  if (!is.null(y) && any(!is.finite(y))) warns <- c(warns, "y contains non-finite values (NA/Inf).")
-
-  X <- bundle$data$X %||% spec$data$X %||% NULL
-  has_X <- !is.null(X)
-  if (has_X) {
-    Xm <- as.matrix(X)
-    if (nrow(Xm) != length(y)) errors <- c(errors, "X rows must equal length(y).")
-  }
-
-  # ---- meta checks ----
-  backend <- meta$backend %||% spec$dispatch$backend %||% NULL
-  kernel  <- meta$kernel  %||% spec$kernel$key %||% NULL
-  if (is.null(backend) || !backend %in% c("sb","crp")) errors <- c(errors, "meta$backend must be 'sb' or 'crp'.")
-  if (is.null(kernel) || !is.character(kernel) || length(kernel) != 1) errors <- c(errors, "meta$kernel must be a single string.")
-
-  # ---- dimensions / constants sanity ----
-  N <- meta$N %||% spec$N %||% if (!is.null(y)) length(y) else NA_integer_
-  if (!is.na(N) && !is.null(y) && N != length(y)) warns <- c(warns, sprintf("meta/spec N=%s but length(y)=%s; using length(y) at runtime.", N, length(y)))
-
-  # SB needs J, CRP needs Kmax
-  if (identical(backend, "sb")) {
-    J <- meta$J %||% spec$J %||% NA_integer_
-    if (is.na(J) || J < 2) errors <- c(errors, "SB backend requires J >= 2.")
-  }
-  if (identical(backend, "crp")) {
-    Kmax <- meta$Kmax %||% spec$Kmax %||% NA_integer_
-    if (is.na(Kmax) || Kmax < 2) errors <- c(errors, "CRP backend requires Kmax >= 2.")
-  }
-
-  # ---- monitors checks ----
-  mons <- bundle$monitors %||% character(0)
-  if (!length(mons)) warns <- c(warns, "No monitors specified; runMCMC will return empty samples.")
-
-  # common “I forgot tail nodes” check
-  GPD <- isTRUE(meta$GPD %||% FALSE)
-  if (GPD) {
-    need <- c("threshold","tail_scale","tail_shape")
-    missing_tail <- setdiff(need, mons)
-    if (length(missing_tail)) warns <- c(warns, paste0("GPD=TRUE but monitors missing tail nodes: ", paste(missing_tail, collapse=", ")))
-  }
-
-  # ---- inits check: function should run ----
-  inits_obj <- bundle$inits_fun %||% bundle$inits %||% NULL
-  if (is.null(inits_obj)) {
-    warns <- c(warns, "No inits_fun/inits provided; nimble will initialize where possible.")
-  } else {
-    inits_val <- tryCatch(if (is.function(inits_obj)) inits_obj() else inits_obj,
-                          error = function(e) e)
-    if (inherits(inits_val, "error")) {
-      errors <- c(errors, paste0("inits function failed: ", inits_val$message))
-    } else if (!is.list(inits_val)) {
-      errors <- c(errors, "inits must return a list.")
-    }
-  }
-
-  # ---- seed / chains check (runner can recycle length-1 seed, but warn) ----
-  mcmc <- bundle$mcmc %||% list()
-  nchains <- as.integer(mcmc$nchains %||% 1)
-  seed <- mcmc$seed %||% NULL
-  if (!is.null(seed) && length(seed) == 1L && nchains > 1L) {
-    warns <- c(warns, "mcmc$seed is length 1 but nchains > 1; runner will recycle seed across chains unless you provide length nchains.")
-  }
-  if (!is.null(seed) && length(seed) > 1L && length(seed) != nchains) {
-    errors <- c(errors, "mcmc$seed must be length 1 or length nchains.")
-  }
-
-  ok <- length(errors) == 0L
-  out <- list(
-    ok = ok,
-    errors = errors,
-    warnings = warns,
-    backend = backend,
-    kernel = kernel,
-    GPD = GPD,
-    N = if (!is.null(y)) length(y) else N,
-    P = if (has_X) ncol(as.matrix(X)) else 0L
-  )
-  if (isTRUE(strict) && !ok) stop(paste(errors, collapse = "\n"), call. = FALSE)
   out
 }
 
 
 
-
-
-#' Build a prior table from a spec (internal)
+#' Build default monitors from a compiled model spec
 #'
-#' @param spec A compiled spec.
-#' @return data.frame describing parameter support and prior.
+#' Returns the character vector of node names to monitor in MCMC.
+#' This is a pre-run builder used by \code{build_nimble_bundle()}.
+#'
+#' Monitoring follows these rules:
+#' \itemize{
+#'   \item Always monitor concentration \code{alpha} (whether fixed or stochastic).
+#'   \item SB: monitor \code{w[1:components]} and optionally \code{v[1:(components-1)]}.
+#'   \item CRP: monitor \code{z[1:N]}.
+#'   \item Bulk parameters:
+#'     \itemize{
+#'       \item dist/fixed: monitor \code{<param>[1:components]}
+#'       \item link: monitor \code{beta_<param>[1:components, 1:P]}
+#'     }
+#'   \item GPD (if enabled):
+#'     \itemize{
+#'       \item threshold: monitor \code{threshold[1:N]} (always represented per i)
+#'       \item if threshold is link-mode: monitor \code{beta_threshold[1:P]}
+#'       \item if threshold uses LN link-dist default: monitor \code{sdlog_u}
+#'       \item tail_scale: if link-mode, monitor \code{beta_tail_scale[1:P]}
+#'       \item tail_shape: monitor scalar \code{tail_shape} (fixed or dist)
+#'     }
+#' }
+#'
+#' @param spec A compiled model specification produced by \code{compile_model_spec()}.
+#' @param monitor_v Logical; for SB, whether to also monitor stick breaks \code{v}.
+#' @return Character vector of node names to monitor.
 #' @keywords internal
 #' @noRd
-#' @export
-build_prior_table_from_spec <- function(spec) {
+build_monitors_from_spec <- function(spec, monitor_v = FALSE) {
+  stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
+
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
-  kdef <- get_kernel_registry()[[spec$meta$kernel]]
-  bulk_params <- kdef$bulk_params
+  meta <- spec$meta
+  plan <- spec$plan
 
-  rows <- list()
+  backend <- meta$backend
+  N <- as.integer(meta$N)
+  P <- as.integer(meta$P %||% 0L)
+  K <- as.integer(meta$components)
 
-  # bulk
-  for (p in bulk_params) {
-    d <- spec$node_plan$bulk[[p]]
-    if (is.null(d)) next
-    if (identical(d$type, "fixed")) {
-      pr <- paste0("fixed = ", d$fixed_value %||% "<fixed>")
+  mons <- character()
+
+  # Always monitor alpha (fixed alpha is still useful to carry in samples/prints)
+  mons <- c(mons, "alpha")
+
+  # BNP backbone
+  if (identical(backend, "sb")) {
+    mons <- c(mons, sprintf("w[1:%d]", K))
+    mons <- c(mons, sprintf("z[1:%d]", N))
+    if (isTRUE(monitor_v)) {
+      mons <- c(mons, sprintf("v[1:%d]", K - 1L))
+    }
+  } else if (identical(backend, "crp")) {
+    mons <- c(mons, sprintf("z[1:%d]", N))
+  } else {
+    stop("Unknown backend in spec$meta$backend.", call. = FALSE)
+  }
+
+  # Bulk parameters
+  bulk <- plan$bulk %||% list()
+  for (nm in names(bulk)) {
+    ent <- bulk[[nm]]
+    mode <- ent$mode %||% NA_character_
+
+    if (mode %in% c("fixed", "dist")) {
+      mons <- c(mons, sprintf("%s[1:%d]", nm, K))
+    } else if (identical(mode, "link")) {
+      if (P < 1L) stop(sprintf("bulk[%s] is link-mode but P=0.", nm), call. = FALSE)
+      mons <- c(mons, sprintf("beta_%s[1:%d,1:%d]", nm, K, P))
     } else {
-      fam <- tolower(d$prior_family %||% "normal")
-      if (fam == "normal") pr <- sprintf("normal(mean=%s, sd=%s)", d$mean %||% "normal_mean", d$sd %||% "normal_sd")
-      if (fam == "gamma")  pr <- sprintf("gamma(shape=%s, rate=%s)", d$shape %||% "gamma_shape", d$rate %||% "gamma_rate")
-      if (fam == "invgamma") pr <- sprintf("invgamma(shape=%s, rate=%s)", d$shape %||% "gamma_shape", d$rate %||% "gamma_rate")
+      stop(sprintf("Invalid bulk plan mode for '%s'.", nm), call. = FALSE)
+    }
+  }
+
+  # GPD
+  if (isTRUE(meta$GPD)) {
+    gpd <- plan$gpd %||% list()
+
+    # threshold is always represented as threshold[i] in the model layer
+    if (!is.null(gpd$threshold)) {
+      mons <- c(mons, sprintf("threshold[1:%d]", N))
+
+      thr_mode <- gpd$threshold$mode %||% NA_character_
+      if (identical(thr_mode, "link")) {
+        if (P < 1L) stop("GPD threshold is link-mode but P=0.", call. = FALSE)
+        mons <- c(mons, sprintf("beta_threshold[1:%d]", P))
+
+        # LN around-link default: monitor sdlog_u if present in plan
+        if (!is.null(gpd$threshold$link_dist) &&
+            identical(gpd$threshold$link_dist$dist, "lognormal")) {
+          mons <- c(mons, "sdlog_u")
+        }
+      } else if (thr_mode %in% c("fixed", "dist")) {
+        # nothing extra
+      } else {
+        stop("Invalid gpd$threshold mode.", call. = FALSE)
+      }
     }
 
-    support <- d$support %||% if (p %in% c("sd","scale","shape1","shape2")) "positive" else "real"
-    rows[[length(rows) + 1]] <- data.frame(
-      parameter = p,
-      support = support,
-      prior = pr,
+    # tail_scale
+    if (!is.null(gpd$tail_scale)) {
+      ts_mode <- gpd$tail_scale$mode %||% NA_character_
+      if (identical(ts_mode, "link")) {
+        if (P < 1L) stop("GPD tail_scale is link-mode but P=0.", call. = FALSE)
+        mons <- c(mons, sprintf("beta_tail_scale[1:%d]", P))
+      } else if (ts_mode %in% c("fixed", "dist")) {
+        mons <- c(mons, "tail_scale")
+      } else {
+        stop("Invalid gpd$tail_scale mode.", call. = FALSE)
+      }
+    }
+
+    # tail_shape: scalar (fixed or dist). Monitor for inference.
+    if (!is.null(gpd$tail_shape)) {
+      mons <- c(mons, "tail_shape")
+    }
+  }
+
+  unique(mons)
+}
+
+#' Build initial values from a compiled model spec
+#'
+#' Produces a list of initial values suitable for passing to \code{nimbleModel}.
+#' The initial values are derived from \code{spec$plan} and are intended to be
+#' stable and support-respecting (e.g., positive parameters start positive).
+#'
+#' Notes:
+#' \itemize{
+#'   \item Uses only \code{components} as the model size parameter.
+#'   \item SB: initializes stick breaks \code{v}; weights \code{w} are deterministic.
+#'   \item CRP: initializes memberships \code{z} in \code{1:components}.
+#'   \item Link-mode parameters initialize regression coefficients \code{beta_<param>}
+#'         with shape \code{components x P}.
+#'   \item Default GPD threshold under X is stochastic lognormal:
+#'         initializes \code{threshold[1:N]} and scalar \code{sdlog_u}.
+#' }
+#'
+#' @param spec A compiled model specification produced by \code{compile_model_spec()}.
+#' @param seed Optional seed (single integer or vector). If provided, the first element is used.
+#' @return Named list of initial values.
+#' @keywords internal
+#' @noRd
+build_inits_from_spec <- function(spec, seed = NULL) {
+  stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
+
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+
+  if (!is.null(seed)) {
+    seed <- as.integer(seed)
+    if (length(seed) >= 1L && is.finite(seed[1L])) {
+      set.seed(seed[1L])
+    }
+  }
+
+  meta <- spec$meta
+  plan <- spec$plan
+
+  backend <- meta$backend
+  N <- as.integer(meta$N)
+  P <- as.integer(meta$P %||% 0L)
+  K <- as.integer(meta$components)
+
+  inits <- list()
+
+  # ---- concentration alpha ----
+  conc <- plan$concentration %||% list()
+  if (identical(conc$mode, "dist")) {
+    # alpha is stochastic -> needs init
+    inits$alpha <- 1
+  } else if (identical(conc$mode, "fixed")) {
+    # alpha deterministic in code: alpha <- value
+    # do not set inits$alpha to avoid conflicts
+  } else {
+    stop("Invalid plan$concentration$mode.", call. = FALSE)
+  }
+
+  # ---- BNP backbone ----
+  if (identical(backend, "sb")) {
+    # v[j] ~ dbeta(1, alpha); initialize in (0,1)
+    if (K <= 2L) {
+      inits$v <- runif(1L, 0.2, 0.8)
+    } else {
+      inits$v <- runif(K - 1L, 0.2, 0.8)
+    }
+    # w is deterministic from stick_breaking(v); do not init w
+    K_init <- max(2L, min(K, 5L))
+    inits$z <- sample.int(K_init, size = N, replace = TRUE)
+  } else if (identical(backend, "crp")) {
+    # z[1:N] ~ dCRP(...); init in 1:K, avoid all unique labels for stability
+    K_init <- max(2L, min(K, 5L))
+    inits$z <- sample.int(K_init, size = N, replace = TRUE)
+  } else {
+    stop("Unknown backend in spec$meta$backend.", call. = FALSE)
+  }
+
+  # ---- bulk parameters ----
+  bulk <- plan$bulk %||% list()
+  kinfo <- spec$kernel_info %||% list()
+  ptypes <- kinfo$param_types %||% list()
+  psupport <- kinfo$bulk_support %||% list()
+
+  init_by_type <- function(type, support = NULL) {
+    type <- as.character(type %||% "location")
+    support <- as.character(support %||% "")
+    if (support %in% c("positive_location", "positive_scale", "positive_shape", "positive_sd")) return(1)
+    if (type == "location") return(0)
+    if (type %in% c("scale", "shape", "sd")) return(1)
+    0
+  }
+
+  for (nm in names(bulk)) {
+    ent <- bulk[[nm]]
+    mode <- ent$mode %||% NA_character_
+
+    if (identical(mode, "fixed")) {
+      # deterministic; no init
+      next
+    }
+
+    if (identical(mode, "dist")) {
+      val <- init_by_type(ptypes[[nm]], psupport[[nm]])
+      inits[[nm]] <- rep(val, K)
+      next
+    }
+
+    if (identical(mode, "link")) {
+      if (P < 1L) stop(sprintf("bulk[%s] is link-mode but P=0.", nm), call. = FALSE)
+      # beta_<nm>[1:K,1:P]
+      inits[[paste0("beta_", nm)]] <- matrix(0, nrow = K, ncol = P)
+      next
+    }
+
+    stop(sprintf("Invalid bulk plan mode for '%s'.", nm), call. = FALSE)
+  }
+
+  # ---- GPD parameters ----
+  if (isTRUE(meta$GPD)) {
+    gpd <- plan$gpd %||% list()
+
+    # tail_shape (stochastic only)
+    if (!is.null(gpd$tail_shape) && identical(gpd$tail_shape$mode, "dist")) {
+      inits$tail_shape <- 0
+    }
+
+    # threshold
+    if (!is.null(gpd$threshold)) {
+      thr_mode <- gpd$threshold$mode %||% NA_character_
+
+      if (thr_mode %in% c("fixed", "dist")) {
+        # threshold[i] is still represented per-i in our plan/code; initialize positive
+        inits$threshold <- rep(1, N)
+      } else if (identical(thr_mode, "link")) {
+        if (P < 1L) stop("GPD threshold is link-mode but P=0.", call. = FALSE)
+        inits$beta_threshold <- rep(0, P)
+
+        # if LN around-link: threshold[i] is stochastic lognormal and sdlog_u exists
+        if (!is.null(gpd$threshold$link_dist) &&
+            identical(gpd$threshold$link_dist$dist, "lognormal")) {
+          # positive threshold init; 0.8-quantile is usually safe and data-informed
+          q <- suppressWarnings(stats::quantile(spec$data$y %||% numeric(), probs = 0.8, na.rm = TRUE, names = FALSE))
+          if (!is.finite(q) || length(q) != 1L) q <- 1
+          q <- max(as.numeric(q), .Machine$double.eps)
+          inits$threshold <- rep(q, N)
+          inits$sdlog_u <- 0.2
+        } else {
+          # link-mode without link_dist: treat threshold deterministic from link later;
+          # but our code currently represents threshold[i] as stochastic only in LN default.
+          # Still initialize threshold to be safe if node exists.
+          inits$threshold <- rep(1, N)
+        }
+      } else {
+        stop("Invalid gpd$threshold mode.", call. = FALSE)
+      }
+    }
+
+    # tail_scale
+    if (!is.null(gpd$tail_scale)) {
+      ts_mode <- gpd$tail_scale$mode %||% NA_character_
+      if (identical(ts_mode, "link")) {
+        if (P < 1L) stop("GPD tail_scale is link-mode but P=0.", call. = FALSE)
+        inits$beta_tail_scale <- rep(0, P)
+        # tail_scale[i] deterministic from beta_tail_scale; do not init tail_scale
+      } else if (identical(ts_mode, "dist")) {
+        # scalar stochastic tail_scale; init positive if node exists in code
+        inits$tail_scale <- 1
+      } else if (identical(ts_mode, "fixed")) {
+        # deterministic; no init
+      } else {
+        stop("Invalid gpd$tail_scale mode.", call. = FALSE)
+      }
+    }
+  }
+
+  inits
+}
+
+
+#' Build constants list from a compiled model spec
+#'
+#' Produces a named list of constants to pass into \code{nimbleModel}.
+#' Constants include core sizes (\code{N}, \code{P}, \code{components}) and
+#' hyperparameters for priors implied by \code{spec$plan}.
+#'
+#' This function is pre-run only; it does not compile or execute NIMBLE.
+#'
+#' @param spec A compiled model specification produced by \code{compile_model_spec()}.
+#' @return Named list of constants.
+#' @keywords internal
+#' @noRd
+build_constants_from_spec <- function(spec) {
+  stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
+
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+
+  meta <- spec$meta
+  plan <- spec$plan
+
+  N <- as.integer(meta$N)
+  P <- as.integer(meta$P %||% 0L)
+  K <- as.integer(meta$components)
+
+  const <- list(
+    N = N,
+    P = P,
+    components = K
+  )
+
+  # ---- helper: register prior hypers in a uniform way ----
+  # Supported priors here (as constants):
+  # normal: mean, sd
+  # gamma: shape, rate
+  # invgamma: shape, scale
+  # lognormal: meanlog, sdlog  (rare as prior, but allowed)
+  add_prior_constants <- function(prefix, dist, args) {
+    dist <- as.character(dist)
+    args <- args %||% list()
+
+    if (dist == "normal") {
+      const[[paste0(prefix, "_mean")]] <- as.numeric(args$mean %||% 0)
+      const[[paste0(prefix, "_sd")]]   <- as.numeric(args$sd %||% 1)
+    } else if (dist == "gamma") {
+      const[[paste0(prefix, "_shape")]] <- as.numeric(args$shape %||% 1)
+      const[[paste0(prefix, "_rate")]]  <- as.numeric(args$rate %||% 1)
+    } else if (dist == "invgamma") {
+      const[[paste0(prefix, "_shape")]] <- as.numeric(args$shape %||% 1)
+      const[[paste0(prefix, "_scale")]] <- as.numeric(args$scale %||% 1)
+    } else if (dist == "lognormal") {
+      const[[paste0(prefix, "_meanlog")]] <- as.numeric(args$meanlog %||% 0)
+      const[[paste0(prefix, "_sdlog")]]   <- as.numeric(args$sdlog %||% 1)
+    } else {
+      stop(sprintf("Unsupported prior distribution '%s' for constants.", dist), call. = FALSE)
+    }
+
+    invisible(NULL)
+  }
+
+  # ---- concentration alpha ----
+  conc <- plan$concentration %||% list()
+  if (identical(conc$mode, "dist")) {
+    add_prior_constants("alpha", conc$dist %||% "gamma", conc$args %||% list(shape = 1, rate = 1))
+  } else if (identical(conc$mode, "fixed")) {
+    # fixed alpha: no hypers; the code will set alpha <- value
+  } else {
+    stop("Invalid plan$concentration$mode.", call. = FALSE)
+  }
+
+  # ---- bulk priors ----
+  bulk <- plan$bulk %||% list()
+  for (nm in names(bulk)) {
+    ent <- bulk[[nm]]
+    mode <- ent$mode %||% NA_character_
+
+    if (identical(mode, "dist")) {
+      add_prior_constants(paste0("bulk_", nm), ent$dist, ent$args)
+    } else if (identical(mode, "link")) {
+      bp <- ent$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 2))
+      add_prior_constants(paste0("beta_", nm), bp$dist %||% "normal", bp$args %||% list(mean = 0, sd = 2))
+    } else if (identical(mode, "fixed")) {
+      # no hypers
+    } else {
+      stop(sprintf("Invalid bulk plan mode for '%s'.", nm), call. = FALSE)
+    }
+  }
+
+  # ---- GPD priors ----
+  if (isTRUE(meta$GPD)) {
+    gpd <- plan$gpd %||% list()
+
+    # threshold
+    thr <- gpd$threshold %||% NULL
+    if (!is.null(thr)) {
+      thr_mode <- thr$mode %||% NA_character_
+
+      if (identical(thr_mode, "dist")) {
+        add_prior_constants("gpd_threshold", thr$dist, thr$args)
+      } else if (identical(thr_mode, "link")) {
+        # beta_threshold prior
+        bp <- thr$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.2))
+        add_prior_constants("beta_threshold", bp$dist %||% "normal", bp$args %||% list(mean = 0, sd = 0.2))
+
+        # link_dist: if LN around-link default, sdlog_u prior exists in plan as gpd$sdlog_u
+        if (!is.null(thr$link_dist) && identical(thr$link_dist$dist, "lognormal")) {
+          sdlog_u <- gpd$sdlog_u %||% list(mode = "dist", dist = "invgamma", args = list(shape = 2, scale = 1))
+          if (!identical(sdlog_u$mode, "dist")) {
+            stop("sdlog_u must be dist-mode when using lognormal threshold link_dist.", call. = FALSE)
+          }
+          add_prior_constants("sdlog_u", sdlog_u$dist %||% "invgamma", sdlog_u$args %||% list(shape = 2, scale = 1))
+        }
+      } else if (identical(thr_mode, "fixed")) {
+        # no hypers
+      } else {
+        stop("Invalid gpd$threshold mode.", call. = FALSE)
+      }
+    }
+
+    # tail_scale
+    ts <- gpd$tail_scale %||% NULL
+    if (!is.null(ts)) {
+      ts_mode <- ts$mode %||% NA_character_
+      if (identical(ts_mode, "dist")) {
+        add_prior_constants("gpd_tail_scale", ts$dist, ts$args)
+      } else if (identical(ts_mode, "link")) {
+        bp <- ts$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.5))
+        add_prior_constants("beta_tail_scale", bp$dist %||% "normal", bp$args %||% list(mean = 0, sd = 0.5))
+      } else if (identical(ts_mode, "fixed")) {
+        # no hypers
+      } else {
+        stop("Invalid gpd$tail_scale mode.", call. = FALSE)
+      }
+    }
+
+    # tail_shape
+    tsh <- gpd$tail_shape %||% NULL
+    if (!is.null(tsh)) {
+      tsh_mode <- tsh$mode %||% NA_character_
+      if (identical(tsh_mode, "dist")) {
+        add_prior_constants("gpd_tail_shape", tsh$dist, tsh$args)
+      } else if (identical(tsh_mode, "fixed")) {
+        # no hypers
+      } else {
+        stop("Invalid gpd$tail_shape mode.", call. = FALSE)
+      }
+    }
+  }
+
+  const
+}
+
+#' Build dimension declarations from a compiled model spec
+#'
+#' Returns a named list of array dimensions used by downstream builders
+#' (inits/monitors/code generation). Dimensions are derived solely from
+#' \code{spec$meta} and \code{spec$plan}. This function does not inspect data.
+#'
+#' The model size is controlled by a single parameter: \code{components}.
+#' For SB this is the truncation level of the stick-breaking mixture.
+#' For CRP this is the maximum number of clusters represented in the finite model.
+#'
+#' @param spec A compiled model specification produced by \code{compile_model_spec()}.
+#' @return Named list of dimensions (integer vectors). Scalars are omitted.
+#' @keywords internal
+#' @noRd
+build_dimensions_from_spec <- function(spec) {
+  stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
+
+  meta <- spec$meta
+  plan <- spec$plan
+
+  backend <- meta$backend
+  N <- as.integer(meta$N)
+  P <- as.integer(meta$P %||% 0L)
+  K <- as.integer(meta$components)
+
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+
+  dims <- list()
+
+  # --- BNP backbone dims ---
+  if (identical(backend, "sb")) {
+    # SB breaks v[1:(K-1)] and weights w[1:K]
+    dims$v <- c(K - 1L)
+    dims$w <- c(K)
+    dims$z <- c(N)
+  } else if (identical(backend, "crp")) {
+    # CRP memberships z[1:N]
+    dims$z <- c(N)
+  } else {
+    stop("Unknown backend in spec$meta$backend.", call. = FALSE)
+  }
+
+  # --- Bulk parameter dims ---
+  bulk_plan <- plan$bulk %||% list()
+  bulk_names <- names(bulk_plan)
+
+  for (nm in bulk_names) {
+    entry <- bulk_plan[[nm]]
+    mode <- entry$mode %||% NA_character_
+
+    # Component-level parameter vectors exist for fixed/dist modes.
+    # For link mode, the component-level parameter is represented via beta_<nm>,
+    # and per-(i,component) derived arrays are deterministic and not dimension-declared here.
+    if (mode %in% c("fixed", "dist")) {
+      dims[[nm]] <- c(K)
+    }
+
+    if (identical(mode, "link")) {
+      # regression coefficients: beta_<param>[1:K, 1:P]
+      if (P < 1L) stop(sprintf("Parameter '%s' is link-mode but P=0.", nm), call. = FALSE)
+      dims[[paste0("beta_", nm)]] <- c(K, P)
+    }
+  }
+
+  # --- GPD dims (if enabled) ---
+  if (isTRUE(meta$GPD)) {
+    gpd_plan <- plan$gpd %||% list()
+
+    # threshold
+    thr <- gpd_plan$threshold %||% NULL
+    if (!is.null(thr)) {
+      thr_mode <- thr$mode %||% NA_character_
+
+      if (thr_mode %in% c("fixed", "dist")) {
+        # we always represent threshold as per-observation in the model layer
+        # when used in likelihood; fixed/dist are generated as threshold[i]
+        dims$threshold <- c(N)
+      } else if (identical(thr_mode, "link")) {
+        # default / typical: threshold[i] stochastic LN around X beta
+        dims$threshold <- c(N)
+        if (P < 1L) stop("GPD threshold is link-mode but P=0.", call. = FALSE)
+        if (P > 1L) dims$beta_threshold <- c(P)
+
+        # if link_dist exists and uses sdlog_u, include its scalar node (no dims entry)
+        # but if user chooses to model sdlog_u as a vector later, this would change.
+        # For now: sdlog_u is scalar -> omitted from dims.
+      } else {
+        stop("Invalid gpd$threshold mode in plan.", call. = FALSE)
+      }
+    }
+
+    # tail_scale
+    ts <- gpd_plan$tail_scale %||% NULL
+    if (!is.null(ts)) {
+      ts_mode <- ts$mode %||% NA_character_
+
+      if (ts_mode %in% c("fixed", "dist")) {
+        # scalar tail_scale when not linked (most common non-X default)
+        # (no dims entry for scalar)
+      } else if (identical(ts_mode, "link")) {
+        # tail_scale[i] is deterministic from X beta
+        if (P < 1L) stop("GPD tail_scale is link-mode but P=0.", call. = FALSE)
+        if (P > 1L) dims$beta_tail_scale <- c(P)
+        # tail_scale[i] deterministic -> not dimension-declared
+      } else {
+        stop("Invalid gpd$tail_scale mode in plan.", call. = FALSE)
+      }
+    }
+
+    # tail_shape
+    tsh <- gpd_plan$tail_shape %||% NULL
+    if (!is.null(tsh)) {
+      tsh_mode <- tsh$mode %||% NA_character_
+      if (!tsh_mode %in% c("fixed", "dist")) stop("Invalid gpd$tail_shape mode in plan.", call. = FALSE)
+      # tail_shape scalar -> no dims entry
+    }
+
+    # sdlog_u (scalar by design; omitted from dims)
+    # If you later allow sdlog_u[i], you'd add dims here.
+  }
+
+  dims
+}
+
+#' Build NIMBLE model code from a compiled model spec
+#'
+#' Dispatches to the backend-specific code generators:
+#' \itemize{
+#'   \item \code{build_code_sb_from_spec()} for stick-breaking (\code{"sb"})
+#'   \item \code{build_code_crp_from_spec()} for CRP (\code{"crp"})
+#' }
+#'
+#' The model size is controlled by \code{spec$meta$components} only.
+#'
+#' @param spec A compiled model specification produced by \code{compile_model_spec()}.
+#' @return A \code{nimbleCode} object.
+#' @keywords internal
+#' @noRd
+build_code_from_spec <- function(spec) {
+  stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$meta$backend))
+
+  backend <- spec$meta$backend
+  if (identical(backend, "sb")) {
+    return(build_code_sb_from_spec(spec))
+  }
+  if (identical(backend, "crp")) {
+    return(build_code_crp_from_spec(spec))
+  }
+
+  stop(sprintf("Unknown backend '%s' in spec$meta$backend.", as.character(backend)), call. = FALSE)
+}
+
+
+#' Build NIMBLE code for SB backend from a compiled spec
+#'
+#' Generates \code{nimbleCode} for the stick-breaking (SB) backend using native
+#' NIMBLE BNP utilities:
+#' \itemize{
+#'   \item stick breaks \code{v[j] ~ dbeta(1, alpha)}
+#'   \item weights \code{w[1:components] <- stick_breaking(v[1:(components-1)])}
+#' }
+#'
+#' Likelihood calls are emitted using positional arguments only (no names).
+#'
+#' @param spec A compiled model specification from \code{compile_model_spec()}.
+#' @return A \code{nimbleCode} object.
+#' @keywords internal
+#' @noRd
+build_code_sb_from_spec <- function(spec) {
+  stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
+
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+
+  meta <- spec$meta
+  plan <- spec$plan
+  kinfo <- spec$kernel_info %||% list()
+  sigs <- spec$signatures %||% list()
+
+  if (!identical(meta$backend, "sb")) stop("spec backend is not 'sb'.", call. = FALSE)
+
+  N <- as.integer(meta$N)
+  P <- as.integer(meta$P %||% 0L)
+  K <- as.integer(meta$components)
+  has_X <- isTRUE(meta$has_X)
+
+  # ---- helpers: prior emission ----
+  prior_call <- function(dist, args) {
+    dist <- as.character(dist)
+    args <- args %||% list()
+
+    if (dist == "normal") {
+      m <- args$mean %||% 0
+      s <- args$sd %||% 1
+      return(sprintf("dnorm(%s, sd = %s)", deparse1(m), deparse1(s)))
+    }
+    if (dist == "gamma") {
+      sh <- args$shape %||% 1
+      rt <- args$rate %||% 1
+      return(sprintf("dgamma(%s, %s)", deparse1(sh), deparse1(rt)))
+    }
+    if (dist == "invgamma") {
+      sh <- args$shape %||% 1
+      sc <- args$scale %||% 1
+      return(sprintf("dinvgamma(%s, %s)", deparse1(sh), deparse1(sc)))
+    }
+    if (dist == "lognormal") {
+      ml <- args$meanlog %||% 0
+      sl <- args$sdlog %||% 1
+      return(sprintf("dlnorm(meanlog = %s, sdlog = %s)", deparse1(ml), deparse1(sl)))
+    }
+
+    stop(sprintf("Unsupported prior dist '%s' in SB codegen.", dist), call. = FALSE)
+  }
+
+  # ---- helpers: link emission ----
+  link_expr <- function(eta, link, link_power = NULL) {
+    link <- as.character(link %||% "identity")
+    if (link == "identity") return(eta)
+    if (link == "exp") return(sprintf("exp(%s)", eta))
+    if (link == "log") return(sprintf("log(%s)", eta))
+    if (link == "softplus") return(sprintf("log(1 + exp(%s))", eta))
+    if (link == "power") {
+      if (is.null(link_power) || length(link_power) != 1L || !is.finite(as.numeric(link_power))) {
+        stop("power link requires numeric link_power.", call. = FALSE)
+      }
+      pw <- as.numeric(link_power)
+      return(sprintf("pow(%s, %s)", eta, deparse1(pw)))
+    }
+    stop(sprintf("Unsupported link '%s'.", link), call. = FALSE)
+  }
+
+  # ---- resolve single-component likelihood signature (uses latent z) ----
+  dist_name <- NULL
+  arg_order <- NULL
+  if (isTRUE(meta$GPD)) {
+    dist_name <- kinfo$crp$d_gpd %||% NULL
+    arg_order <- kinfo$crp$args_gpd %||% NULL
+    if (is.null(dist_name) || isTRUE(is.na(dist_name))) {
+      dist_name <- kinfo$sb$d_gpd %||% NULL
+      if (!is.null(dist_name)) dist_name <- sub("Mix", "", dist_name, fixed = TRUE)
+    }
+    if (is.null(arg_order) || anyNA(arg_order)) {
+      arg_order <- kinfo$sb$args_gpd %||% NULL
+    }
+  } else {
+    dist_name <- kinfo$crp$d_base %||% NULL
+    arg_order <- kinfo$bulk_params %||% NULL
+  }
+  if (is.null(dist_name) || isTRUE(is.na(dist_name))) {
+    stop("Missing SB single-component likelihood in kernel registry.", call. = FALSE)
+  }
+  if (is.null(arg_order) || !length(arg_order)) {
+    stop("Missing SB likelihood argument order.", call. = FALSE)
+  }
+  if (any(arg_order == "w")) arg_order <- setdiff(arg_order, "w")
+
+  bulk_plan <- plan$bulk %||% list()
+  bulk_params <- kinfo$bulk_params %||% names(bulk_plan)
+  bulk_link <- any(vapply(bulk_params, function(nm) {
+    ent <- bulk_plan[[nm]]
+    identical(ent$mode %||% NA_character_, "link")
+  }, logical(1)))
+
+  # ---- build nimbleCode ----
+  nimble::nimbleCode({
+
+    # --- concentration ---
+    CONC_PLACEHOLDER()
+
+    # --- stick-breaking ---
+    for (j in 1:(components - 1)) {
+      v[j] ~ dbeta(1, alpha)
+    }
+    w[1:components] <- stick_breaking(v[1:(components - 1)])
+
+    # --- bulk parameters (component-level + betas) ---
+    for (j in 1:components) {
+
+      # dist/fixed bulk params at component level
+      # link-mode params are handled via beta blocks below
+      # (we still loop j here to keep parameter declarations aligned)
+      BULK_DECL_PLACEHOLDER()
+    }
+
+    # --- beta blocks for link-mode bulk params ---
+    HASX_BETA_BLOCK()
+
+    # --- build per-(i,j) linked bulk params as deterministic arrays ---
+    HASX_DET_BLOCK()
+
+    # --- GPD tail nodes (if requested) ---
+    GPD_BLOCK()
+
+    # --- likelihood ---
+    LIKELIHOOD_BLOCK()
+  }) -> code
+
+  # ---- Now patch the code body programmatically (no placeholders left) ----
+  # Convert nimbleCode to text, inject lines, then re-parse into nimbleCode.
+  txt <- paste(deparse(code), collapse = "\n")
+
+  inject <- function(pattern, replacement) {
+    txt <<- sub(pattern, replacement, txt)
+  }
+
+  # (0) concentration
+  conc <- plan$concentration %||% list()
+  conc_line <- if (identical(conc$mode, "fixed")) {
+    sprintf("alpha <- %s", deparse1(conc$value))
+  } else if (identical(conc$mode, "dist")) {
+    sprintf("alpha ~ %s", prior_call(conc$dist, conc$args))
+  } else {
+    stop("Invalid plan$concentration$mode.", call. = FALSE)
+  }
+  inject("CONC_PLACEHOLDER\\(\\)", paste0(conc_line, "\n"))
+
+  # (1) Bulk param declarations inside for (j in 1:components)
+  bulk_decl_lines <- character()
+  for (nm in bulk_params) {
+    ent <- bulk_plan[[nm]]
+    mode <- ent$mode %||% NA_character_
+    if (mode == "fixed") {
+      bulk_decl_lines <- c(bulk_decl_lines, sprintf("%s[j] <- %s", nm, deparse1(ent$value)))
+    } else if (mode == "dist") {
+      bulk_decl_lines <- c(bulk_decl_lines, sprintf("%s[j] ~ %s", nm, prior_call(ent$dist, ent$args)))
+    } else if (mode == "link") {
+      bulk_decl_lines <- c(bulk_decl_lines, sprintf("# %s is link-mode (via beta_%s)", nm, nm))
+    } else {
+      stop(sprintf("Invalid bulk mode for '%s'.", nm), call. = FALSE)
+    }
+  }
+  inject("BULK_DECL_PLACEHOLDER\\(\\)",
+         paste0(paste(bulk_decl_lines, collapse = "\n      "), "\n"))
+
+  # (2) Beta priors for link-mode bulk params
+  beta_lines <- character()
+  if (has_X) {
+    for (nm in bulk_params) {
+      ent <- bulk_plan[[nm]]
+      if (identical(ent$mode, "link")) {
+        bp <- ent$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 2))
+        if (bp$dist != "normal") stop("Only normal beta priors are supported by default for link-mode betas.", call. = FALSE)
+        m <- bp$args$mean %||% 0
+        s <- bp$args$sd %||% 2
+        beta_lines <- c(beta_lines, sprintf("for (p in 1:P) beta_%s[j, p] ~ dnorm(%s, sd = %s)", nm, deparse1(m), deparse1(s)))
+      }
+    }
+  }
+  beta_block <- if (has_X && length(beta_lines)) {
+    paste0("if (TRUE) {\n",
+           "      for (j in 1:components) {\n",
+           "        ", paste(beta_lines, collapse = "\n        "), "\n",
+           "      }\n",
+           "    }\n")
+  } else if (has_X) {
+    "if (TRUE) {\n      # no link-mode bulk betas\n    }\n"
+  } else {
+    ""
+  }
+  inject("HASX_BETA_BLOCK\\(\\)", beta_block)
+
+  # (3) Deterministic linked bulk param_ij
+  det_lines <- character()
+  if (has_X) {
+    for (nm in bulk_params) {
+      ent <- bulk_plan[[nm]]
+      if (identical(ent$mode, "link")) {
+        eta <- if (P == 1L) {
+          sprintf("X[i, 1] * beta_%s[j, 1]", nm)
+        } else {
+          sprintf("inprod(X[i, 1:P], beta_%s[j, 1:P])", nm)
+        }
+        expr <- link_expr(eta, ent$link, ent$link_power)
+        det_lines <- c(det_lines, sprintf("%s_ij[i, j] <- %s", nm, expr))
+      }
+    }
+  }
+  det_block <- if (has_X && length(det_lines)) {
+    paste0("if (TRUE) {\n",
+           "      for (i in 1:N) {\n",
+           "        for (j in 1:components) {\n",
+           "          ", paste(det_lines, collapse = "\n          "), "\n",
+           "        }\n",
+           "      }\n",
+           "    }\n")
+  } else if (has_X) {
+    "if (TRUE) {\n      # no link-mode bulk deterministic nodes\n    }\n"
+  } else {
+    ""
+  }
+  inject("HASX_DET_BLOCK\\(\\)", det_block)
+
+  # (4) GPD blocks
+  gpd_lines <- character()
+  if (isTRUE(meta$GPD)) {
+    gpd <- plan$gpd %||% list()
+
+    # threshold
+    thr <- gpd$threshold %||% NULL
+    if (!is.null(thr)) {
+      if (thr$mode == "fixed") {
+        gpd_lines <- c(gpd_lines, sprintf("for (i in 1:N) threshold[i] <- %s", deparse1(thr$value)))
+      } else if (thr$mode == "dist") {
+        gpd_lines <- c(gpd_lines, sprintf("for (i in 1:N) threshold[i] ~ %s", prior_call(thr$dist, thr$args)))
+      } else if (thr$mode == "link") {
+        if (!has_X) stop("threshold link-mode requires X.", call. = FALSE)
+        bp <- thr$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.2))
+        m <- bp$args$mean %||% 0
+        s <- bp$args$sd %||% 0.2
+        gpd_lines <- c(gpd_lines, sprintf("for (p in 1:P) beta_threshold[p] ~ dnorm(%s, sd = %s)", deparse1(m), deparse1(s)))
+
+        if (!is.null(thr$link_dist) && identical(thr$link_dist$dist, "lognormal")) {
+          sdlog_u <- gpd$sdlog_u %||% list(mode = "dist", dist = "invgamma", args = list(shape = 2, scale = 1))
+          if (!identical(sdlog_u$mode, "dist")) stop("sdlog_u must be dist-mode under lognormal threshold.", call. = FALSE)
+          gpd_lines <- c(gpd_lines, sprintf("sdlog_u ~ %s", prior_call(sdlog_u$dist, sdlog_u$args)))
+          eta_u_line <- if (P == 1L) "  eta_u[i] <- X[i, 1] * beta_threshold[1]" else
+            "  eta_u[i] <- inprod(X[i, 1:P], beta_threshold[1:P])"
+          gpd_lines <- c(gpd_lines, "for (i in 1:N) {",
+                         eta_u_line,
+                         "  threshold[i] ~ dlnorm(meanlog = eta_u[i], sdlog = sdlog_u)",
+                         "}")
+        } else {
+          eta_u_line <- if (P == 1L) "  eta_u[i] <- X[i, 1] * beta_threshold[1]" else
+            "  eta_u[i] <- inprod(X[i, 1:P], beta_threshold[1:P])"
+          gpd_lines <- c(gpd_lines, "for (i in 1:N) {",
+                         eta_u_line,
+                         sprintf("  threshold[i] <- %s", link_expr("eta_u[i]", thr$link, thr$link_power)),
+                         "}")
+        }
+      } else {
+        stop("Invalid gpd threshold mode.", call. = FALSE)
+      }
+    }
+
+    # tail_scale
+    ts <- gpd$tail_scale %||% NULL
+    if (!is.null(ts)) {
+      if (ts$mode == "fixed") {
+        gpd_lines <- c(gpd_lines, sprintf("tail_scale <- %s", deparse1(ts$value)))
+      } else if (ts$mode == "dist") {
+        gpd_lines <- c(gpd_lines, sprintf("tail_scale ~ %s", prior_call(ts$dist, ts$args)))
+      } else if (ts$mode == "link") {
+        if (!has_X) stop("tail_scale link-mode requires X.", call. = FALSE)
+        bp <- ts$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.5))
+        m <- bp$args$mean %||% 0
+        s <- bp$args$sd %||% 0.5
+        gpd_lines <- c(gpd_lines, sprintf("for (p in 1:P) beta_tail_scale[p] ~ dnorm(%s, sd = %s)", deparse1(m), deparse1(s)))
+        eta_ts_line <- if (P == 1L) "  eta_ts[i] <- X[i, 1] * beta_tail_scale[1]" else
+          "  eta_ts[i] <- inprod(X[i, 1:P], beta_tail_scale[1:P])"
+        gpd_lines <- c(gpd_lines, "for (i in 1:N) {",
+                       eta_ts_line,
+                       "  tail_scale[i] <- exp(eta_ts[i])",
+                       "}")
+      } else {
+        stop("Invalid gpd tail_scale mode.", call. = FALSE)
+      }
+    }
+
+    # tail_shape
+    tsh <- gpd$tail_shape %||% NULL
+    if (!is.null(tsh)) {
+      if (tsh$mode == "fixed") {
+        gpd_lines <- c(gpd_lines, sprintf("tail_shape <- %s", deparse1(tsh$value)))
+      } else if (tsh$mode == "dist") {
+        gpd_lines <- c(gpd_lines, sprintf("tail_shape ~ %s", prior_call(tsh$dist, tsh$args)))
+      } else {
+        stop("Invalid gpd tail_shape mode.", call. = FALSE)
+      }
+    }
+  }
+
+  inject("GPD_BLOCK\\(\\)",
+         if (length(gpd_lines)) paste0(paste(gpd_lines, collapse = "\n    "), "\n") else "")
+
+  # (5) Likelihood call
+  like_lines <- character()
+  args_expr <- character()
+  for (a in arg_order) {
+    if (a %in% bulk_params) {
+      ent <- bulk_plan[[a]]
+      if (identical(ent$mode, "link")) {
+        args_expr <- c(args_expr, sprintf("%s_ij[i, z[i]]", a))
+      } else {
+        args_expr <- c(args_expr, sprintf("%s[z[i]]", a))
+      }
+    } else if (a == "threshold") {
+      args_expr <- c(args_expr, "threshold[i]")
+    } else if (a == "tail_scale") {
+      ts <- plan$gpd$tail_scale %||% NULL
+      if (!is.null(ts) && identical(ts$mode, "link")) args_expr <- c(args_expr, "tail_scale[i]") else args_expr <- c(args_expr, "tail_scale")
+    } else if (a == "tail_shape") {
+      args_expr <- c(args_expr, "tail_shape")
+    } else {
+      stop(sprintf("Unknown argument '%s' in SB signature for kernel '%s'.", a, meta$kernel), call. = FALSE)
+    }
+  }
+
+  like_lines <- c(
+    "z[i] ~ dcat(prob = w[1:components])",
+    sprintf("y[i] ~ %s(%s)", dist_name, paste(args_expr, collapse = ", "))
+  )
+  like_block <- paste0("for (i in 1:N) {\n",
+                       "      ", paste(like_lines, collapse = "\n      "), "\n",
+                       "    }\n")
+  inject("LIKELIHOOD_BLOCK\\(\\)", like_block)
+
+  # Rebuild nimbleCode from modified text without evaluating model symbols.
+  expr <- parse(text = txt)[[1]]
+
+  # IMPORTANT: nimbleCode uses NSE; use do.call to pass evaluated expression, not a captured call.
+  do.call(nimble::nimbleCode, list(expr))
+
+}
+
+
+#' Build NIMBLE code for CRP backend from a compiled spec
+#'
+#' Generates \code{nimbleCode} for the Chinese Restaurant Process (CRP) backend
+#' using native NIMBLE BNP distribution:
+#' \itemize{
+#'   \item memberships: \code{z[1:N] ~ dCRP(conc = alpha, size = N)}
+#' }
+#'
+#' The finite represented number of clusters is controlled by a single parameter
+#' \code{components}. Component-specific parameters are declared for
+#' \code{k = 1:components}.
+#'
+#' Bulk parameters follow the tri-mode plan:
+#' \itemize{
+#'   \item fixed: \code{param[k] <- value}
+#'   \item dist:  \code{param[k] ~ d<prior>(...)}
+#'   \item link:  \code{beta_param[k,p] ~ dnorm(...)} and
+#'         \code{param_ik[i,k] <- g(inprod(X[i,], beta_param[k,]))}
+#' }
+#'
+#' If \code{GPD=TRUE}, the default tail under \code{X} is:
+#' \itemize{
+#'   \item \code{threshold[i] ~ dlnorm(meanlog = inprod(X[i,], beta_threshold), sdlog = sdlog_u)}
+#'   \item \code{tail_scale[i] <- exp(inprod(X[i,], beta_tail_scale))}
+#'   \item \code{tail_shape ~ dnorm(0, sd = 0.2)} (unless fixed)
+#' }
+#'
+#' Likelihood calls are emitted using positional arguments only (no names).
+#'
+#' @param spec A compiled model specification from \code{compile_model_spec()}.
+#' @return A \code{nimbleCode} object.
+#' @keywords internal
+#' @noRd
+build_code_crp_from_spec <- function(spec) {
+  stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
+
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+
+  meta <- spec$meta
+  plan <- spec$plan
+  kinfo <- spec$kernel_info %||% list()
+  sigs <- spec$signatures %||% list()
+
+  if (!identical(meta$backend, "crp")) stop("spec backend is not 'crp'.", call. = FALSE)
+
+  N <- as.integer(meta$N)
+  P <- as.integer(meta$P %||% 0L)
+  K <- as.integer(meta$components)
+  has_X <- isTRUE(meta$has_X)
+
+  # ---- helpers: prior emission ----
+  prior_call <- function(dist, args) {
+    dist <- as.character(dist)
+    args <- args %||% list()
+
+    if (dist == "normal") {
+      m <- args$mean %||% 0
+      s <- args$sd %||% 1
+      return(sprintf("dnorm(%s, sd = %s)", deparse1(m), deparse1(s)))
+    }
+    if (dist == "gamma") {
+      sh <- args$shape %||% 1
+      rt <- args$rate %||% 1
+      return(sprintf("dgamma(%s, %s)", deparse1(sh), deparse1(rt)))
+    }
+    if (dist == "invgamma") {
+      sh <- args$shape %||% 1
+      sc <- args$scale %||% 1
+      return(sprintf("dinvgamma(%s, %s)", deparse1(sh), deparse1(sc)))
+    }
+    if (dist == "lognormal") {
+      ml <- args$meanlog %||% 0
+      sl <- args$sdlog %||% 1
+      return(sprintf("dlnorm(meanlog = %s, sdlog = %s)", deparse1(ml), deparse1(sl)))
+    }
+
+    stop(sprintf("Unsupported prior dist '%s' in CRP codegen.", dist), call. = FALSE)
+  }
+
+  # ---- helpers: link emission ----
+  link_expr <- function(eta, link, link_power = NULL) {
+    link <- as.character(link %||% "identity")
+    if (link == "identity") return(eta)
+    if (link == "exp") return(sprintf("exp(%s)", eta))
+    if (link == "log") return(sprintf("log(%s)", eta))
+    if (link == "softplus") return(sprintf("log(1 + exp(%s))", eta))
+    if (link == "power") {
+      if (is.null(link_power) || length(link_power) != 1L || !is.finite(as.numeric(link_power))) {
+        stop("power link requires numeric link_power.", call. = FALSE)
+      }
+      pw <- as.numeric(link_power)
+      return(sprintf("pow(%s, %s)", eta, deparse1(pw)))
+    }
+    stop(sprintf("Unsupported link '%s'.", link), call. = FALSE)
+  }
+
+  # ---- resolve likelihood signature ----
+  dist_name <- NULL
+  arg_order <- NULL
+  if (isTRUE(meta$GPD)) {
+    dist_name <- sigs$gpd$dist_name %||% NULL
+    arg_order <- sigs$gpd$args %||% NULL
+  } else {
+    dist_name <- sigs$bulk$dist_name %||% NULL
+    arg_order <- sigs$bulk$args %||% NULL
+  }
+  if (is.null(dist_name) || is.null(arg_order) || !length(arg_order)) {
+    stop("Missing CRP likelihood signature in spec$signatures.", call. = FALSE)
+  }
+
+  bulk_plan <- plan$bulk %||% list()
+  bulk_params <- kinfo$bulk_params %||% names(bulk_plan)
+  bulk_link <- any(vapply(bulk_params, function(nm) {
+    ent <- bulk_plan[[nm]]
+    identical(ent$mode %||% NA_character_, "link")
+  }, logical(1)))
+
+  # ---- assemble model code as text ----
+  lines <- character()
+  add <- function(...) lines <<- c(lines, ...)
+
+  # concentration
+  conc <- plan$concentration %||% list()
+  if (identical(conc$mode, "fixed")) {
+    add(sprintf("  alpha <- %s", deparse1(conc$value)))
+  } else if (identical(conc$mode, "dist")) {
+    add(sprintf("  alpha ~ %s", prior_call(conc$dist, conc$args)))
+  } else {
+    stop("Invalid plan$concentration$mode.", call. = FALSE)
+  }
+
+  # CRP memberships
+  add("  z[1:N] ~ dCRP(conc = alpha, size = N)")
+
+  # bulk component-level declarations
+  add("  for (k in 1:components) {")
+  for (nm in bulk_params) {
+    ent <- bulk_plan[[nm]]
+    mode <- ent$mode %||% NA_character_
+
+    if (mode == "fixed") {
+      add(sprintf("    %s[k] <- %s", nm, deparse1(ent$value)))
+    } else if (mode == "dist") {
+      add(sprintf("    %s[k] ~ %s", nm, prior_call(ent$dist, ent$args)))
+    } else if (mode == "link") {
+      add(sprintf("    # %s is link-mode (via beta_%s)", nm, nm))
+    } else {
+      stop(sprintf("Invalid bulk mode for '%s'.", nm), call. = FALSE)
+    }
+  }
+  add("  }")
+
+  # beta priors for link-mode bulk params
+  if (has_X) {
+    for (nm in bulk_params) {
+      ent <- bulk_plan[[nm]]
+      if (identical(ent$mode, "link")) {
+        bp <- ent$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 2))
+        if (!identical(bp$dist, "normal")) {
+          stop("Only normal beta priors are supported by default for link-mode betas.", call. = FALSE)
+        }
+        m <- bp$args$mean %||% 0
+        s <- bp$args$sd %||% 2
+        add("  for (k in 1:components) {")
+        add(sprintf("    for (p in 1:P) beta_%s[k, p] ~ dnorm(%s, sd = %s)", nm, deparse1(m), deparse1(s)))
+        add("  }")
+      }
+    }
+
+    # deterministic param_ik for link-mode bulk params
+    if (bulk_link) {
+      add("  for (i in 1:N) {")
+      add("    for (k in 1:components) {")
+      for (nm in bulk_params) {
+        ent <- bulk_plan[[nm]]
+        if (identical(ent$mode, "link")) {
+          eta <- if (P == 1L) {
+            sprintf("X[i, 1] * beta_%s[k, 1]", nm)
+          } else {
+            sprintf("inprod(X[i, 1:P], beta_%s[k, 1:P])", nm)
+          }
+          expr <- link_expr(eta, ent$link, ent$link_power)
+          add(sprintf("      %s_ik[i, k] <- %s", nm, expr))
+        }
+      }
+      add("    }")
+      add("  }")
+    }
+  }
+
+  # ---- GPD tail blocks ----
+  if (isTRUE(meta$GPD)) {
+    gpd <- plan$gpd %||% list()
+
+    # threshold
+    thr <- gpd$threshold %||% NULL
+    if (!is.null(thr)) {
+      if (thr$mode == "fixed") {
+        add(sprintf("  for (i in 1:N) threshold[i] <- %s", deparse1(thr$value)))
+      } else if (thr$mode == "dist") {
+        add(sprintf("  for (i in 1:N) threshold[i] ~ %s", prior_call(thr$dist, thr$args)))
+      } else if (thr$mode == "link") {
+        if (!has_X) stop("threshold link-mode requires X.", call. = FALSE)
+        bp <- thr$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.2))
+        if (!identical(bp$dist, "normal")) stop("beta_threshold prior must be normal.", call. = FALSE)
+        m <- bp$args$mean %||% 0
+        s <- bp$args$sd %||% 0.2
+        add(sprintf("  for (p in 1:P) beta_threshold[p] ~ dnorm(%s, sd = %s)", deparse1(m), deparse1(s)))
+
+        if (!is.null(thr$link_dist) && identical(thr$link_dist$dist, "lognormal")) {
+          sdlog_u <- gpd$sdlog_u %||% list(mode = "dist", dist = "invgamma", args = list(shape = 2, scale = 1))
+          if (!identical(sdlog_u$mode, "dist")) stop("sdlog_u must be dist-mode under lognormal threshold.", call. = FALSE)
+          add(sprintf("  sdlog_u ~ %s", prior_call(sdlog_u$dist, sdlog_u$args)))
+          add("  for (i in 1:N) {")
+          if (P == 1L) {
+            add("    eta_u[i] <- X[i, 1] * beta_threshold[1]")
+          } else {
+            add("    eta_u[i] <- inprod(X[i, 1:P], beta_threshold[1:P])")
+          }
+          add("    threshold[i] ~ dlnorm(meanlog = eta_u[i], sdlog = sdlog_u)")
+          add("  }")
+        } else {
+          add("  for (i in 1:N) {")
+          if (P == 1L) {
+            add("    eta_u[i] <- X[i, 1] * beta_threshold[1]")
+          } else {
+            add("    eta_u[i] <- inprod(X[i, 1:P], beta_threshold[1:P])")
+          }
+          add(sprintf("    threshold[i] <- %s", link_expr("eta_u[i]", thr$link, thr$link_power)))
+          add("  }")
+        }
+      } else {
+        stop("Invalid gpd threshold mode.", call. = FALSE)
+      }
+    }
+
+    # tail_scale
+    ts <- gpd$tail_scale %||% NULL
+    if (!is.null(ts)) {
+      if (ts$mode == "fixed") {
+        add(sprintf("  tail_scale <- %s", deparse1(ts$value)))
+      } else if (ts$mode == "dist") {
+        add(sprintf("  tail_scale ~ %s", prior_call(ts$dist, ts$args)))
+      } else if (ts$mode == "link") {
+        if (!has_X) stop("tail_scale link-mode requires X.", call. = FALSE)
+        bp <- ts$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.5))
+        if (!identical(bp$dist, "normal")) stop("beta_tail_scale prior must be normal.", call. = FALSE)
+        m <- bp$args$mean %||% 0
+        s <- bp$args$sd %||% 0.5
+        add(sprintf("  for (p in 1:P) beta_tail_scale[p] ~ dnorm(%s, sd = %s)", deparse1(m), deparse1(s)))
+        add("  for (i in 1:N) {")
+        if (P == 1L) {
+          add("    eta_ts[i] <- X[i, 1] * beta_tail_scale[1]")
+        } else {
+          add("    eta_ts[i] <- inprod(X[i, 1:P], beta_tail_scale[1:P])")
+        }
+        add("    tail_scale[i] <- exp(eta_ts[i])")
+        add("  }")
+      } else {
+        stop("Invalid gpd tail_scale mode.", call. = FALSE)
+      }
+    }
+
+    # tail_shape
+    tsh <- gpd$tail_shape %||% NULL
+    if (!is.null(tsh)) {
+      if (tsh$mode == "fixed") {
+        add(sprintf("  tail_shape <- %s", deparse1(tsh$value)))
+      } else if (tsh$mode == "dist") {
+        add(sprintf("  tail_shape ~ %s", prior_call(tsh$dist, tsh$args)))
+      } else {
+        stop("Invalid gpd tail_shape mode.", call. = FALSE)
+      }
+    }
+  }
+
+  # ---- likelihood ----
+  add("  for (i in 1:N) {")
+
+  # build arg expressions in signature order
+  args_expr <- character()
+  for (a in arg_order) {
+    if (a %in% bulk_params) {
+      ent <- bulk_plan[[a]]
+      if (identical(ent$mode, "link")) {
+        args_expr <- c(args_expr, sprintf("%s_ik[i, z[i]]", a))
+      } else {
+        args_expr <- c(args_expr, sprintf("%s[z[i]]", a))
+      }
+    } else if (a == "threshold") {
+      args_expr <- c(args_expr, "threshold[i]")
+    } else if (a == "tail_scale") {
+      ts <- plan$gpd$tail_scale %||% NULL
+      if (!is.null(ts) && identical(ts$mode, "link")) {
+        args_expr <- c(args_expr, "tail_scale[i]")
+      } else {
+        args_expr <- c(args_expr, "tail_scale")
+      }
+    } else if (a == "tail_shape") {
+      args_expr <- c(args_expr, "tail_shape")
+    } else {
+      stop(sprintf("Unknown argument '%s' in CRP signature for kernel '%s'.", a, meta$kernel), call. = FALSE)
+    }
+  }
+
+  add(sprintf("    y[i] ~ %s(%s)", dist_name, paste(args_expr, collapse = ", ")))
+  add("  }")
+
+  # parse into nimbleCode
+  code_str <- paste(lines, collapse = "\n")
+  expr <- parse(text = paste0("{\n", code_str, "\n}"))[[1]]
+  nimble::nimbleCode(expr)
+}
+
+#' Validate a dpmixgpd bundle
+#'
+#' Performs internal consistency checks on a bundle created by \code{build_nimble_bundle()}.
+#' This is a pre-run validation step (it does not compile or run NIMBLE).
+#'
+#' @param bundle A bundle object of class \code{"dpmixgpd_bundle"}.
+#' @return Invisibly TRUE if valid; otherwise errors.
+#' @keywords internal
+#' @noRd
+check_dpmixgpd_bundle <- function(bundle) {
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+
+  if (!is.list(bundle) || !inherits(bundle, "dpmixgpd_bundle")) {
+    stop("bundle must be an object of class 'dpmixgpd_bundle'.", call. = FALSE)
+  }
+
+  req <- c("spec", "code", "constants", "dimensions", "data", "inits", "monitors")
+  miss <- setdiff(req, names(bundle))
+  if (length(miss)) stop(sprintf("bundle is missing fields: %s", paste(miss, collapse = ", ")), call. = FALSE)
+
+  spec <- bundle$spec
+  if (is.null(spec$meta)) spec$meta <- list()
+  spec$meta$epsilon <- bundle$epsilon %||% spec$meta$epsilon
+  if (is.null(spec$meta) || is.null(spec$plan)) stop("bundle$spec is missing meta/plan.", call. = FALSE)
+
+  meta <- spec$meta
+  plan <- spec$plan
+
+  backend <- meta$backend %||% NA_character_
+  if (!backend %in% c("sb", "crp")) stop("spec$meta$backend must be 'sb' or 'crp'.", call. = FALSE)
+
+  N <- as.integer(meta$N %||% NA_integer_)
+  P <- as.integer(meta$P %||% 0L)
+  K <- as.integer(meta$components %||% NA_integer_)
+  if (!is.finite(N) || N < 1L) stop("spec$meta$N is invalid.", call. = FALSE)
+  if (!is.finite(K) || K < 2L) stop("spec$meta$components must be >= 2.", call. = FALSE)
+
+  # constants agreement
+  if (is.null(bundle$constants$components) || as.integer(bundle$constants$components) != K) {
+    stop("constants$components does not match spec$meta$components.", call. = FALSE)
+  }
+  if (is.null(bundle$constants$N) || as.integer(bundle$constants$N) != N) {
+    stop("constants$N does not match spec$meta$N.", call. = FALSE)
+  }
+  if (P > 0L) {
+    if (is.null(bundle$constants$P) || as.integer(bundle$constants$P) != P) {
+      stop("constants$P does not match spec$meta$P.", call. = FALSE)
+    }
+  }
+
+  dims <- bundle$dimensions %||% list()
+  mons <- bundle$monitors %||% character()
+
+  # block legacy weight name
+  if (any(grepl("^weights\\[", mons))) {
+    stop("Monitors still contain legacy 'weights[...]'. Use 'w[...]' for SB.", call. = FALSE)
+  }
+
+  # backend-specific dims
+  if (backend == "sb") {
+    if (is.null(dims$w) || !identical(as.integer(dims$w), c(K))) stop("SB requires dims$w = components.", call. = FALSE)
+    if (is.null(dims$v) || !identical(as.integer(dims$v), c(K - 1L))) stop("SB requires dims$v = components-1.", call. = FALSE)
+    if (is.null(dims$z) || !identical(as.integer(dims$z), c(N))) stop("SB requires dims$z = N.", call. = FALSE)
+    if (!any(grepl("^w\\[", mons))) stop("SB monitors should include w[...].", call. = FALSE)
+    if (!any(grepl("^z\\[", mons))) stop("SB monitors should include z[...].", call. = FALSE)
+  } else {
+    if (is.null(dims$z) || !identical(as.integer(dims$z), c(N))) stop("CRP requires dims$z = N.", call. = FALSE)
+    if (!any(grepl("^z\\[", mons))) stop("CRP monitors should include z[...].", call. = FALSE)
+  }
+
+  # X consistency
+  has_X <- isTRUE(meta$has_X)
+  if (has_X) {
+    if (is.null(bundle$data$X)) stop("spec indicates has_X=TRUE but bundle$data$X is NULL.", call. = FALSE)
+    X <- bundle$data$X
+    if (!is.matrix(X)) stop("bundle$data$X must be a matrix.", call. = FALSE)
+    if (nrow(X) != N) stop("bundle$data$X has wrong number of rows.", call. = FALSE)
+    if (ncol(X) != P) stop("bundle$data$X has wrong number of columns.", call. = FALSE)
+  } else {
+    if (!is.null(bundle$data$X)) stop("spec indicates has_X=FALSE but bundle$data$X is provided.", call. = FALSE)
+  }
+
+  # link-mode implies beta dims exist and match (K,P)
+  bulk <- plan$bulk %||% list()
+  for (nm in names(bulk)) {
+    ent <- bulk[[nm]]
+    if (identical(ent$mode, "link")) {
+      if (!has_X) stop(sprintf("bulk[%s] link-mode but has_X=FALSE.", nm), call. = FALSE)
+      bnm <- paste0("beta_", nm)
+      if (is.null(dims[[bnm]]) || !identical(as.integer(dims[[bnm]]), c(K, P))) {
+        stop(sprintf("dims$%s must be c(components, P).", bnm), call. = FALSE)
+      }
+    }
+  }
+
+  # GPD checks
+  if (isTRUE(meta$GPD)) {
+    gpd <- plan$gpd %||% list()
+
+    if (!is.null(gpd$threshold)) {
+      if (is.null(dims$threshold) || !identical(as.integer(dims$threshold), c(N))) {
+        stop("GPD threshold requires dims$threshold = N.", call. = FALSE)
+      }
+      if (!any(grepl("^threshold\\[", mons))) stop("Monitors should include threshold[1:N].", call. = FALSE)
+
+      if (identical(gpd$threshold$mode, "link")) {
+        if (!has_X) stop("threshold link-mode but has_X=FALSE.", call. = FALSE)
+        if (P > 1L) {
+          if (is.null(dims$beta_threshold) || !identical(as.integer(dims$beta_threshold), c(P))) {
+            stop("threshold link-mode requires dims$beta_threshold = P.", call. = FALSE)
+          }
+        }
+        if (!any(grepl("^beta_threshold\\[", mons))) stop("Monitors should include beta_threshold[1:P].", call. = FALSE)
+
+        if (!is.null(gpd$threshold$link_dist) && identical(gpd$threshold$link_dist$dist, "lognormal")) {
+          if (!any(mons == "sdlog_u")) stop("LN threshold requires monitoring sdlog_u.", call. = FALSE)
+        }
+      }
+    }
+
+    if (!is.null(gpd$tail_scale) && identical(gpd$tail_scale$mode, "link")) {
+      if (P > 1L) {
+        if (is.null(dims$beta_tail_scale) || !identical(as.integer(dims$beta_tail_scale), c(P))) {
+          stop("tail_scale link-mode requires dims$beta_tail_scale = P.", call. = FALSE)
+        }
+      }
+      if (!any(grepl("^beta_tail_scale\\[", mons))) stop("Monitors should include beta_tail_scale[1:P].", call. = FALSE)
+    }
+
+    if (!any(mons == "tail_shape")) stop("GPD should monitor tail_shape.", call. = FALSE)
+  }
+
+  # Ensure codegen is supported for the selected kernel/backend/GPD/signatures
+  assert_codegen_supported(spec)
+
+  invisible(TRUE)
+}
+
+
+#' Build a prior/parameter specification table from a compiled model spec
+#'
+#' Creates a human-readable table describing how each parameter is modeled:
+#' fixed value, prior distribution (no regression), or regression/link (with beta prior),
+#' including the special case where a linked parameter is stochastic around the link
+#' (e.g., threshold[i] ~ Lognormal(meanlog = X beta, sdlog = sdlog_u)).
+#'
+#' This is purely descriptive and is used by bundle-level summaries.
+#'
+#' @param spec A compiled model specification produced by \code{compile_model_spec()}.
+#' @return A data.frame with columns describing each parameter block.
+#' @keywords internal
+#' @noRd
+build_prior_table_from_spec <- function(spec) {
+  stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
+
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+
+  meta <- spec$meta
+  plan <- spec$plan
+
+  backend <- meta$backend
+  kernel  <- meta$kernel
+  GPD     <- isTRUE(meta$GPD)
+  has_X   <- isTRUE(meta$has_X)
+  N       <- as.integer(meta$N)
+  P       <- as.integer(meta$P %||% 0L)
+  K       <- as.integer(meta$components)
+
+  fmt_args <- function(args) {
+    if (is.null(args) || !length(args)) return("")
+    paste(sprintf("%s=%s", names(args), vapply(args, deparse1, character(1))), collapse = ", ")
+  }
+
+  add_row <- function(block, param, mode, level, prior, link, notes) {
+    data.frame(
+      block = block,
+      parameter = param,
+      mode = mode,
+      level = level,
+      prior = prior,
+      link = link,
+      notes = notes,
       stringsAsFactors = FALSE
     )
   }
 
-  do.call(rbind, rows)
+  rows <- list()
+
+  # --- meta header-ish rows (not priors, but useful) ---
+  rows[[length(rows) + 1L]] <- add_row("meta", "backend", "info", "model", backend, "", "")
+  rows[[length(rows) + 1L]] <- add_row("meta", "kernel", "info", "model", kernel, "", "")
+  rows[[length(rows) + 1L]] <- add_row("meta", "components", "info", "model", as.character(K), "", "")
+  rows[[length(rows) + 1L]] <- add_row("meta", "N", "info", "model", as.character(N), "", "")
+  rows[[length(rows) + 1L]] <- add_row("meta", "P", "info", "model", as.character(P), "", "")
+
+  # --- concentration ---
+  conc <- plan$concentration %||% list()
+  if (identical(conc$mode, "fixed")) {
+    rows[[length(rows) + 1L]] <- add_row("concentration", "alpha", "fixed", "scalar",
+                                         prior = deparse1(conc$value), link = "", notes = "fixed concentration")
+  } else if (identical(conc$mode, "dist")) {
+    rows[[length(rows) + 1L]] <- add_row("concentration", "alpha", "dist", "scalar",
+                                         prior = sprintf("%s(%s)", conc$dist, fmt_args(conc$args)),
+                                         link = "", notes = "stochastic concentration")
+  } else {
+    stop("Invalid plan$concentration$mode.", call. = FALSE)
+  }
+
+  # --- bulk ---
+  bulk <- plan$bulk %||% list()
+  for (nm in names(bulk)) {
+    ent <- bulk[[nm]]
+    mode <- ent$mode %||% NA_character_
+
+    if (mode == "fixed") {
+      rows[[length(rows) + 1L]] <- add_row("bulk", nm, "fixed", sprintf("component (1:%d)", K),
+                                           prior = deparse1(ent$value), link = "", notes = "")
+    } else if (mode == "dist") {
+      rows[[length(rows) + 1L]] <- add_row("bulk", nm, "dist", sprintf("component (1:%d)", K),
+                                           prior = sprintf("%s(%s)", ent$dist, fmt_args(ent$args)),
+                                           link = "", notes = "iid across components")
+    } else if (mode == "link") {
+      bp <- ent$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 2))
+      lk <- ent$link %||% "identity"
+      note <- sprintf("beta_%s is %d x %d (components x P)", nm, K, P)
+      if (lk == "power") note <- paste0(note, sprintf("; power=%s", deparse1(ent$link_power)))
+      rows[[length(rows) + 1L]] <- add_row("bulk", nm, "link", "regression",
+                                           prior = sprintf("beta_%s ~ %s(%s)", nm, bp$dist, fmt_args(bp$args)),
+                                           link = lk, notes = note)
+    } else {
+      stop(sprintf("Invalid bulk mode for '%s'.", nm), call. = FALSE)
+    }
+  }
+
+  # --- GPD ---
+  if (GPD) {
+    gpd <- plan$gpd %||% list()
+
+    # threshold
+    thr <- gpd$threshold %||% NULL
+    if (!is.null(thr)) {
+      if (thr$mode == "fixed") {
+        rows[[length(rows) + 1L]] <- add_row("gpd", "threshold", "fixed", "observation (1:N)",
+                                             prior = deparse1(thr$value),
+                                             link = "", notes = "represented as threshold[i]")
+      } else if (thr$mode == "dist") {
+        rows[[length(rows) + 1L]] <- add_row("gpd", "threshold", "dist", "observation (1:N)",
+                                             prior = sprintf("%s(%s)", thr$dist, fmt_args(thr$args)),
+                                             link = "", notes = "threshold[i] iid across i")
+      } else if (thr$mode == "link") {
+        bp <- thr$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.2))
+        lk <- thr$link %||% "identity"
+        note <- sprintf("beta_threshold is length P=%d", P)
+
+        # link_dist case (LN around link)
+        if (!is.null(thr$link_dist) && identical(thr$link_dist$dist, "lognormal")) {
+          sdlog_u <- gpd$sdlog_u %||% list(mode = "dist", dist = "invgamma", args = list(shape = 2, scale = 1))
+          note <- paste0(note, "; threshold[i] ~ Lognormal(meanlog = X beta, sdlog = sdlog_u)")
+          rows[[length(rows) + 1L]] <- add_row("gpd", "threshold", "link+dist", "observation (1:N)",
+                                               prior = sprintf("beta_threshold ~ %s(%s); sdlog_u ~ %s(%s)",
+                                                               bp$dist, fmt_args(bp$args),
+                                                               sdlog_u$dist, fmt_args(sdlog_u$args)),
+                                               link = lk, notes = note)
+        } else {
+          if (lk == "power") note <- paste0(note, sprintf("; power=%s", deparse1(thr$link_power)))
+          rows[[length(rows) + 1L]] <- add_row("gpd", "threshold", "link", "observation (1:N)",
+                                               prior = sprintf("beta_threshold ~ %s(%s)", bp$dist, fmt_args(bp$args)),
+                                               link = lk, notes = note)
+        }
+      } else {
+        stop("Invalid gpd$threshold mode.", call. = FALSE)
+      }
+    }
+
+    # tail_scale
+    ts <- gpd$tail_scale %||% NULL
+    if (!is.null(ts)) {
+      if (ts$mode == "fixed") {
+        rows[[length(rows) + 1L]] <- add_row("gpd", "tail_scale", "fixed", "scalar",
+                                             prior = deparse1(ts$value), link = "", notes = "")
+      } else if (ts$mode == "dist") {
+        rows[[length(rows) + 1L]] <- add_row("gpd", "tail_scale", "dist", "scalar",
+                                             prior = sprintf("%s(%s)", ts$dist, fmt_args(ts$args)),
+                                             link = "", notes = "")
+      } else if (ts$mode == "link") {
+        bp <- ts$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.5))
+        lk <- ts$link %||% "exp"
+        note <- sprintf("beta_tail_scale is length P=%d; tail_scale[i] deterministic", P)
+        if (lk == "power") note <- paste0(note, sprintf("; power=%s", deparse1(ts$link_power)))
+        rows[[length(rows) + 1L]] <- add_row("gpd", "tail_scale", "link", "observation (1:N)",
+                                             prior = sprintf("beta_tail_scale ~ %s(%s)", bp$dist, fmt_args(bp$args)),
+                                             link = lk, notes = note)
+      } else {
+        stop("Invalid gpd$tail_scale mode.", call. = FALSE)
+      }
+    }
+
+    # tail_shape
+    tsh <- gpd$tail_shape %||% NULL
+    if (!is.null(tsh)) {
+      if (tsh$mode == "fixed") {
+        rows[[length(rows) + 1L]] <- add_row("gpd", "tail_shape", "fixed", "scalar",
+                                             prior = deparse1(tsh$value), link = "", notes = "")
+      } else if (tsh$mode == "dist") {
+        rows[[length(rows) + 1L]] <- add_row("gpd", "tail_shape", "dist", "scalar",
+                                             prior = sprintf("%s(%s)", tsh$dist, fmt_args(tsh$args)),
+                                             link = "", notes = "")
+      } else {
+        stop("Invalid gpd$tail_shape mode.", call. = FALSE)
+      }
+    }
+  }
+
+  out <- do.call(rbind, rows)
+  rownames(out) <- NULL
+  out
 }
-
-
 
 
 #' Run MCMC for a prepared bundle (manual runner; internal)
 #'
 #' @param bundle A \code{dpmixgpd_bundle} from \code{build_nimble_bundle()}.
 #' @param show_progress Logical; passed to nimble.
-#' @param compile Logical; whether to compile model and MCMC.
 #' @return A fitted object of class \code{"mixgpd_fit"}.
 #' @keywords internal
 #' @noRd
-run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, compile = TRUE) {
+run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   stopifnot(inherits(bundle, "dpmixgpd_bundle"))
@@ -962,9 +1912,6 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, compile = TRUE)
   dims <- bundle$dimensions %||% list()
   monitors <- bundle$monitors %||% character(0)
 
-  # ---------------------------
-  # Build model
-  # ---------------------------
   Rmodel <- nimble::nimbleModel(
     code = code,
     data = data,
@@ -975,37 +1922,13 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, compile = TRUE)
     calculate = FALSE
   )
 
-  # ---------------------------
-  # Configure MCMC
-  # ---------------------------
   conf <- nimble::configureMCMC(
     Rmodel,
     monitors = monitors,
     enableWAIC = TRUE
   )
 
-  # ---------------------------
-  # CRP sampler: ensure checkConjugacy exists (NIMBLE expects it)
-  # ---------------------------
-  if (identical(meta$backend, "crp")) {
-    if ("z" %in% conf$getSamplers()) conf$removeSamplers("z")
-
-    stoch_nodes <- Rmodel$getNodeNames(stochOnly = TRUE, includeData = FALSE)
-    cluster_nodes <- setdiff(stoch_nodes, "z")
-
-    conf$addSampler(
-      target = "z",
-      type = "CRP",
-      control = list(
-        clusterNodes = cluster_nodes,
-        checkConjugacy = FALSE
-      )
-    )
-  }
-
-  # ---------------------------
-  # Bulletproof patch: if any samplerConf is missing checkConjugacy, set it
-  # ---------------------------
+  # If any samplerConf is missing checkConjugacy, set it to FALSE.
   if (!is.null(conf$samplerConfs) && length(conf$samplerConfs) > 0) {
     for (i in seq_along(conf$samplerConfs)) {
       ctl <- conf$samplerConfs[[i]]$control
@@ -1015,21 +1938,10 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, compile = TRUE)
     }
   }
 
-  # ---------------------------
-  # Build MCMC object
-  # ---------------------------
   Rmcmc <- nimble::buildMCMC(conf)
 
-  # ---------------------------
-  # Compile if requested
-  # ---------------------------
-  if (isTRUE(compile)) {
-    Cmodel <- nimble::compileNimble(Rmodel, showCompilerOutput = FALSE)
-    Cmcmc  <- nimble::compileNimble(Rmcmc, project = Rmodel, showCompilerOutput = FALSE)
-  } else {
-    Cmodel <- NULL
-    Cmcmc  <- NULL
-  }
+  Cmodel <- nimble::compileNimble(Rmodel, showCompilerOutput = FALSE)
+  Cmcmc  <- nimble::compileNimble(Rmcmc, project = Rmodel, showCompilerOutput = FALSE)
 
   niter   <- as.integer(m$niter   %||% 2000)
   nburnin <- as.integer(m$nburnin %||% 500)
@@ -1056,7 +1968,7 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, compile = TRUE)
     inits_list <- inits_fun()
   }
 
-  engine_mcmc <- if (isTRUE(compile)) Cmcmc else Rmcmc
+  engine_mcmc <- Cmcmc
 
   # Run MCMC (try WAIC; fall back if nimble version doesn’t support it)
   res <- tryCatch(
@@ -1102,10 +2014,10 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, compile = TRUE)
     call = match.call(),
     spec = spec,
     data = data,
-    model = if (isTRUE(compile)) Cmodel else Rmodel,
+    model = Cmodel,
     mcmc_conf = conf,
     mcmc = list(
-      engine = if (isTRUE(compile)) "compiled" else "interpreted",
+      engine = "compiled",
       niter = niter,
       nburnin = nburnin,
       thin = thin,
@@ -1118,7 +2030,8 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, compile = TRUE)
     constants = constants,
     dimensions = dims,
     monitors = monitors,
-    cache = list()
+    cache = list(),
+    epsilon = bundle$epsilon %||% NULL
   )
 
   fit$samples <- samples

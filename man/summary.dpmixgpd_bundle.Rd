@@ -2,18 +2,32 @@
 % Please edit documentation in R/04-S3-Methods.R
 \name{summary.dpmixgpd_bundle}
 \alias{summary.dpmixgpd_bundle}
-\title{Summarize a prepared DPMixGPD bundle}
+\title{Summarize a dpmixgpd bundle}
 \usage{
 \method{summary}{dpmixgpd_bundle}(object, ...)
 }
 \arguments{
-\item{object}{A \code{dpmixgpd_bundle}.}
+\item{object}{A \code{"dpmixgpd_bundle"} object.}
 
 \item{...}{Unused.}
 }
 \value{
-\code{object} invisibly.
+An invisible list with elements \code{meta}, \code{priors}, \code{monitors}.
 }
 \description{
-Shows a compact overview of the bundle, plus prior table.
+User-facing summary for pre-run bundles produced by \code{build_nimble_bundle()}.
+This prints:
+\itemize{
+  \item meta information (backend, kernel, components, N, covariates, GPD flag)
+  \item a readable prior/parameter table derived from \code{spec$plan}
+  \item monitor set overview
+}
+}
+\examples{
+\dontrun{
+y <- abs(stats::rnorm(50)) + 0.1
+bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
+                             GPD = FALSE, components = 6)
+summary(bundle)
+}
 }

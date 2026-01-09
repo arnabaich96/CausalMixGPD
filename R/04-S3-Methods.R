@@ -4,118 +4,159 @@
 
 
 
-#' Print a prepared DPMixGPD bundle
+#' Print a dpmixgpd bundle
 #'
-#' Shows a compact overview of the bundle plus realized initial values (not the inits function).
+#' User-facing print method for pre-run bundles produced by \code{build_nimble_bundle()}.
+#' This prints a compact description of the model structure (backend/kernel/components),
+#' whether covariates are used, and whether a GPD tail is enabled.
 #'
-#' @param x A \code{dpmixgpd_bundle}.
+#' @param x A \code{"dpmixgpd_bundle"} object.
+#' @param code Logical; if TRUE, print the generated NIMBLE model code.
+#' @param max_code_lines Integer; maximum number of code lines to print when \code{code=TRUE}.
 #' @param ... Unused.
-#' @return \code{x} invisibly.
+#' @return The object \code{x}, invisibly.
+#' @examples
+#' \dontrun{
+#' y <- abs(stats::rnorm(50)) + 0.1
+#' bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
+#'                              GPD = FALSE, components = 6)
+#' print(bundle)
+#' print(bundle, code = TRUE, max_code_lines = 30)
+#' }
 #' @export
-print.dpmixgpd_bundle <- function(x, code = FALSE, ...) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
+print.dpmixgpd_bundle <- function(x, code = FALSE, max_code_lines = 200L, ...) {
   stopifnot(inherits(x, "dpmixgpd_bundle"))
+  spec <- x$spec
+  meta <- spec$meta
 
-  spec <- x$spec %||% list()
-  meta <- spec$meta %||% list()
+  backend <- meta$backend
+  kernel  <- meta$kernel
+  K       <- meta$components
+  N       <- meta$N
+  P       <- meta$P %||% 0L
+  has_X   <- isTRUE(meta$has_X)
+  GPD     <- isTRUE(meta$GPD)
 
-  backend <- meta$backend %||% "<unknown>"
-  kernel  <- meta$kernel  %||% (spec$kernel$key %||% "<unknown>")
-  gpd_txt <- if (isTRUE(meta$GPD)) "TRUE" else if (identical(meta$GPD, FALSE)) "FALSE" else "<unknown>"
-
-  y <- x$data$y %||% NULL
-  n <- if (!is.null(y)) length(y) else (meta$N %||% spec$N %||% "<unknown>")
-  Kmax <- meta$Kmax %||% spec$Kmax %||% "<unknown>"
-  J <- meta$J %||% spec$J %||% "<unknown>"
-
-  cat("DPMixGPD bundle\n")
-  backend_raw <- x$spec$meta$backend
-  kernel_raw  <- x$spec$meta$kernel
-
-  cat(
-    "  backend:", .backend_label(backend_raw),
-    "| kernel:",  .kernel_label(kernel_raw),
-    "| GPD:",     x$spec$meta$GPD,
-    "\n"
+  cat("<DPmixGPD bundle>\n")
+  tbl <- data.frame(
+    Field = c("Backend", "Kernel", "Components", "N", "X", "GPD", "Epsilon"),
+    Value = c(.backend_label(backend),
+              .kernel_label(kernel),
+              as.character(K),
+              as.character(N),
+              if (has_X) sprintf("YES (P=%d)", P) else "NO",
+              if (GPD) "TRUE" else "FALSE",
+              as.character(x$epsilon %||% 0.025)),
+    stringsAsFactors = FALSE
   )
-
-  cat(sprintf("  n: %s | Kmax: %s | J: %s\n", n, Kmax, J))
-
-  m <- x$mcmc %||% list()
-  if (length(m)) {
-    cat(sprintf("  MCMC: niter=%s nburnin=%s thin=%s nchains=%s seed=%s\n",
-                m$niter %||% "?", m$nburnin %||% "?", m$thin %||% "?",
-                m$nchains %||% "?", ifelse(is.null(m$seed), "NULL", paste(m$seed, collapse=","))))
-  }
-
-  mons <- x$monitors %||% character(0)
-  if (length(mons)) cat("  monitors: ", paste(mons, collapse=", "), "\n", sep = "")
-
-  # quick preflight
-  chk <- check_dpmixgpd_bundle(x, strict = FALSE)
-  if (!chk$ok) {
-    cat("  status: NOT OK\n")
-    for (e in chk$errors) cat("    ERROR: ", e, "\n", sep="")
-  } else {
-    cat("  status: OK\n")
-  }
-  if (length(chk$warnings)) {
-    for (w in chk$warnings) cat("    WARN: ", w, "\n", sep="")
-  }
+  print(tbl, row.names = FALSE)
+  cat("\n  contains  : code, constants, data, dimensions, inits, monitors\n")
 
   if (isTRUE(code)) {
-    cat("\n--- Model code (nimbleCode) ---\n")
-    if (!is.null(x$code)) print(x$code) else cat("<no code stored>\n")
+    cat("\nModel code\n")
+    if (is.null(x$code)) {
+      cat("  <no code available>\n")
+    } else {
+      out <- paste(deparse(x$code), collapse = "\n")
+      out <- strsplit(out, "\n", fixed = TRUE)[[1]]
+      if (!is.finite(max_code_lines) || max_code_lines <= 0L) {
+        cat(paste(out, collapse = "\n"), "\n")
+      } else {
+        max_code_lines <- as.integer(max_code_lines)
+        show_n <- min(length(out), max_code_lines)
+        if (show_n > 0L) {
+          cat(paste(out[seq_len(show_n)], collapse = "\n"), "\n")
+        }
+        if (length(out) > show_n) {
+          cat(sprintf("... (%d more lines)\n", length(out) - show_n))
+        }
+      }
+    }
   }
 
   invisible(x)
 }
 
-#' Summarize a prepared DPMixGPD bundle
+# helper
+`%||%` <- function(a, b) if (!is.null(a)) a else b
+
+
+#' Summarize a dpmixgpd bundle
 #'
-#' Shows a compact overview of the bundle, plus prior table.
-#' @param object A \code{dpmixgpd_bundle}.
+#' User-facing summary for pre-run bundles produced by \code{build_nimble_bundle()}.
+#' This prints:
+#' \itemize{
+#'   \item meta information (backend, kernel, components, N, covariates, GPD flag)
+#'   \item a readable prior/parameter table derived from \code{spec$plan}
+#'   \item monitor set overview
+#' }
+#'
+#' @param object A \code{"dpmixgpd_bundle"} object.
 #' @param ... Unused.
-#' @return \code{object} invisibly.
+#' @return An invisible list with elements \code{meta}, \code{priors}, \code{monitors}.
+#' @examples
+#' \dontrun{
+#' y <- abs(stats::rnorm(50)) + 0.1
+#' bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
+#'                              GPD = FALSE, components = 6)
+#' summary(bundle)
+#' }
 #' @export
 summary.dpmixgpd_bundle <- function(object, ...) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
   stopifnot(inherits(object, "dpmixgpd_bundle"))
-
   spec <- object$spec
   meta <- spec$meta
 
-  chk <- check_dpmixgpd_bundle(object, strict = FALSE)
+  backend <- meta$backend
+  kernel  <- meta$kernel
+  K       <- meta$components
+  N       <- meta$N
+  P       <- meta$P %||% 0L
+  has_X   <- isTRUE(meta$has_X)
+  GPD     <- isTRUE(meta$GPD)
 
-  cat(
-    "Bundle summary | backend=",
-    .backend_label(meta$backend),
-    " | kernel=",
-    .kernel_label(meta$kernel),
-    " | GPD=",
-    meta$GPD,
-    "\n",
-    sep = ""
+  cat("<DPmixGPD bundle summary>\n")
+  meta_tbl <- data.frame(
+    Field = c("Backend", "Kernel", "Components", "N", "X", "GPD", "Epsilon"),
+    Value = c(.backend_label(backend),
+              .kernel_label(kernel),
+              as.character(K),
+              as.character(N),
+              if (has_X) sprintf("YES (P=%d)", P) else "NO",
+              if (GPD) "TRUE" else "FALSE",
+              as.character(object$epsilon %||% 0.025)),
+    stringsAsFactors = FALSE
   )
+  print(meta_tbl, row.names = FALSE)
+  cat("\n")
 
-  cat(sprintf("n=%s | P=%s\n", chk$N, chk$P))
+  # Prior/parameter table
+  pri <- build_prior_table_from_spec(spec)
+  cat("Parameter specification\n")
+  print(pri, row.names = FALSE)
+  cat("\n")
 
-  if (!chk$ok) {
-    cat("\nErrors:\n")
-    for (e in chk$errors) cat(" - ", e, "\n", sep="")
+  # Monitor overview (compact)
+  mons <- object$monitors %||% character()
+  cat("Monitors\n")
+  cat("  n =", length(mons), "\n")
+  if (length(mons)) {
+    # show first few, but don't spam
+    show_n <- min(12L, length(mons))
+    cat("  ", paste(mons[seq_len(show_n)], collapse = ", "), if (length(mons) > show_n) ", ..." else "", "\n", sep = "")
   }
-  if (length(chk$warnings)) {
-    cat("\nWarnings:\n")
-    for (w in chk$warnings) cat(" - ", w, "\n", sep="")
-  }
+  cat("\n")
 
-  # prior table (uses your internal builder)
-  cat("\nPrior table:\n")
-  pt <- build_prior_table_from_spec(spec)
-  print(pt, row.names = FALSE)
-
-  invisible(object)
+  invisible(list(
+    meta = meta,
+    priors = pri,
+    monitors = mons
+  ))
 }
+
+# helper
+`%||%` <- function(a, b) if (!is.null(a)) a else b
+
 
 
 # S3 methods for Fit objects ----------------------------------------------
@@ -129,9 +170,19 @@ summary.dpmixgpd_bundle <- function(object, ...) {
 #' @param x A fitted object of class \code{"mixgpd_fit"}.
 #' @param ... Unused.
 #' @return \code{x} invisibly.
+#' @examples
+#' \dontrun{
+#' y <- abs(stats::rnorm(50)) + 0.1
+#' bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
+#'                              GPD = TRUE, components = 6,
+#'                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+#' fit <- run_mcmc_bundle_manual(bundle)
+#' print(fit)
+#' }
 #' @export
 print.mixgpd_fit <- function(x, ...) {
   cat(paste(.format_fit_header(x), collapse = "\n"), "\n")
+  cat("Fit\n")
   cat("Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.\n")
   invisible(x)
 }
@@ -143,6 +194,15 @@ print.mixgpd_fit <- function(x, ...) {
 #' @param probs Numeric vector of quantiles to report.
 #' @param ... Unused.
 #' @return An object of class \code{"mixgpd_summary"}.
+#' @examples
+#' \dontrun{
+#' y <- abs(stats::rnorm(50)) + 0.1
+#' bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
+#'                              GPD = TRUE, components = 6,
+#'                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+#' fit <- run_mcmc_bundle_manual(bundle)
+#' summary(fit, pars = c("alpha", "threshold"))
+#' }
 #' @export
 summary.mixgpd_fit <- function(object, pars = NULL, probs = c(0.025, 0.5, 0.975), ...) {
   stopifnot(inherits(object, "mixgpd_fit"))
@@ -152,15 +212,24 @@ summary.mixgpd_fit <- function(object, pars = NULL, probs = c(0.025, 0.5, 0.975)
 
   spec <- object$spec %||% list()
   meta <- spec$meta %||% list()
+  eps <- .get_epsilon(object, epsilon = NULL)
+  trunc <- .truncation_info(object, epsilon = eps)
+  waic <- object$mcmc$waic %||% object$waic %||% NULL
+
+  model <- list(
+    backend = meta$backend %||% spec$dispatch$backend %||% "<unknown>",
+    kernel  = meta$kernel  %||% spec$kernel$key %||% "<unknown>",
+    gpd     = meta$GPD %||% spec$dispatch$GPD,
+    epsilon = eps,
+    truncation = trunc,
+    n = .get_nobs(object),
+    components = meta$components %||% spec$components %||% NA_integer_
+  )
 
   out <- list(
-    table = tab,
-    spec = list(
-      backend = meta$backend %||% spec$dispatch$backend %||% "<unknown>",
-      kernel  = meta$kernel  %||% spec$kernel$key %||% "<unknown>",
-      gpd     = meta$GPD %||% spec$dispatch$GPD
-    ),
-    waic = object$mcmc$waic %||% object$waic %||% NULL
+    model = model,
+    waic = waic,
+    table = tab
   )
   class(out) <- "mixgpd_summary"
   out
@@ -174,26 +243,59 @@ summary.mixgpd_fit <- function(object, pars = NULL, probs = c(0.025, 0.5, 0.975)
 #' @param max_rows Maximum rows to print.
 #' @param ... Unused.
 #' @return \code{x} invisibly.
+#' @examples
+#' \dontrun{
+#' y <- abs(stats::rnorm(50)) + 0.1
+#' bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
+#'                              GPD = TRUE, components = 6,
+#'                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+#' fit <- run_mcmc_bundle_manual(bundle)
+#' s <- summary(fit)
+#' print(s, digits = 2)
+#' }
 #' @export
 print.mixgpd_summary <- function(x, digits = 3, max_rows = 60, ...) {
   stopifnot(inherits(x, "mixgpd_summary"))
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
-  gpd_txt <- if (isTRUE(x$spec$gpd)) "TRUE" else if (identical(x$spec$gpd, FALSE)) "FALSE" else "<unknown>"
+  model <- x$model %||% list()
+  waic <- x$waic
+  trunc <- model$truncation %||% list()
 
-  cat(sprintf("MixGPD summary | backend: %s | kernel: %s | GPD tail: %s\n",
-              x$spec$backend %||% "<unknown>",
-              x$spec$kernel  %||% "<unknown>",
-              gpd_txt))
+  gpd_txt <- if (isTRUE(model$gpd)) "TRUE" else if (identical(model$gpd, FALSE)) "FALSE" else "<unknown>"
+  eps <- model$epsilon %||% NA_real_
 
-  if (!is.null(x$waic)) {
-    cat("\nWAIC (from nimble::runMCMC):\n")
-    print(x$waic)   # forward exactly; do not coerce
+  cat(sprintf("MixGPD summary | backend: %s | kernel: %s | GPD tail: %s | epsilon: %s\n",
+              .backend_label(model$backend %||% "<unknown>"),
+              .kernel_label(model$kernel  %||% "<unknown>"),
+              gpd_txt,
+              ifelse(is.na(eps), "<unknown>", eps)))
+  cat(sprintf("n = %s | components = %s\n",
+              ifelse(is.na(model$n), "<unknown>", model$n),
+              ifelse(is.na(model$components), "<unknown>", model$components)))
+  cat("Summary\n")
+
+  if (!is.na(eps) && eps > 0) {
+    cat(sprintf("Initial components: %s | Components after truncation: %s\n",
+                ifelse(is.na(model$components), "<unknown>", model$components),
+                trunc$Kt %||% "<unknown>"))
   }
-  cat("\n")
 
-  tab <- x$table
-  tab_print <- tab
+  if (!is.null(waic)) {
+    wa <- waic$WAIC %||% waic$waic %||% waic[["WAIC"]] %||% NA_real_
+    lp <- waic$lppd %||% waic[["lppd"]] %||% NA_real_
+    pw <- waic$pWAIC %||% waic[["pWAIC"]] %||% NA_real_
+    cat(sprintf("\nWAIC: %s\n",
+                ifelse(is.na(wa), "<unknown>", formatC(wa, format = "f", digits = digits))))
+    if (is.finite(lp) || is.finite(pw)) {
+      cat(sprintf("lppd: %s | pWAIC: %s\n",
+                  ifelse(is.finite(lp), formatC(lp, format = "f", digits = digits), "<unknown>"),
+                  ifelse(is.finite(pw), formatC(pw, format = "f", digits = digits), "<unknown>")))
+    }
+  }
+  cat("\nSummary table\n")
+
+  tab_print <- x$table
   num_cols <- vapply(tab_print, is.numeric, logical(1))
   tab_print[num_cols] <- lapply(tab_print[num_cols], function(v) round(v, digits))
 
@@ -224,6 +326,15 @@ print.mixgpd_summary <- function(x, digits = 3, max_rows = 60, ...) {
 #' @param nLags Number of lags for autocorrelation (ggmcmc).
 #' @param ... Passed through to the underlying ggmcmc plotting functions when applicable.
 #' @return Invisibly returns a named list of ggplot objects.
+#' @examples
+#' \dontrun{
+#' y <- abs(stats::rnorm(50)) + 0.1
+#' bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
+#'                              GPD = TRUE, components = 6,
+#'                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+#' fit <- run_mcmc_bundle_manual(bundle)
+#' plot(fit, family = c("traceplot", "density"))
+#' }
 #' @export
 plot.mixgpd_fit <- function(x,
                             family = c("traceplot", "density"),
@@ -335,17 +446,21 @@ plot.mixgpd_fit <- function(x,
 #'
 #' This provides a stable interface for distributional predictions.
 #' The default implementation supports:
+#' - \code{type="density"} using \code{y}
+#' - \code{type="survival"} using \code{y}
 #' - \code{type="quantile"} using \code{p}
-#' - \code{type="cdf"} / \code{"survival"} using \code{y}
+#' - \code{type="sample"} (posterior predictive draws)
+#' - \code{type="mean"} (posterior predictive mean)
 #'
 #' If your object stores dedicated predictive machinery, you can keep this signature
 #' and swap the internals without breaking user code.
 #'
 #' @param object A fitted object of class \code{"mixgpd_fit"}.
 #' @param newdata Optional new data. If \code{NULL}, uses training design (if stored).
-#' @param type Prediction type: \code{"quantile"}, \code{"cdf"}, \code{"survival"}.
+#' @param type Prediction type: \code{"density"}, \code{"survival"}, \code{"quantile"},
+#'   \code{"sample"}, \code{"mean"}.
 #' @param p Numeric vector of probabilities for quantiles (required for \code{type="quantile"}).
-#' @param y Numeric vector of evaluation points (required for \code{type="cdf"} or \code{"survival"}).
+#' @param y Numeric vector of evaluation points (required for \code{type="density"} or \code{"survival"}).
 #' @param interval \code{"none"} or \code{"credible"} for posterior credible bands.
 #' @param probs Quantiles for credible interval bands.
 #' @param nsim Number of posterior predictive samples (for \code{type="sample"}).
@@ -361,14 +476,24 @@ plot.mixgpd_fit <- function(x,
 #'     \item \code{lower}, \code{upper}: matrices for credible interval if requested (else \code{NULL}).
 #'     \item \code{type}, \code{grid}: metadata.
 #'   }
+#' @examples
+#' \dontrun{
+#' y <- abs(stats::rnorm(50)) + 0.1
+#' bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
+#'                              GPD = TRUE, components = 6,
+#'                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+#' fit <- run_mcmc_bundle_manual(bundle)
+#' pr <- predict(fit, type = "quantile", p = c(0.5, 0.9))
+#' pr_surv <- predict(fit, y = sort(y), type = "survival")
+#' pr_cdf <- list(fit = 1 - pr_surv$fit)
+#' }
 #' @export
 predict.mixgpd_fit <- function(object,
                                x = NULL,
                                y = NULL,
                                newdata = NULL,
-                               type = c("density", "probs", "surv",
-                                        "quantile", "sample", "mean",
-                                        "cdf", "survival"),
+                               type = c("density", "survival",
+                                        "quantile", "sample", "mean"),
                                p = NULL,
                                nsim = NULL,
                                interval = c("none", "credible"),
@@ -380,9 +505,6 @@ predict.mixgpd_fit <- function(object,
   .validate_fit(object)
 
   type <- match.arg(type)
-  if (type == "cdf") type <- "probs"
-  if (type == "survival") type <- "surv"
-
   interval <- match.arg(interval)
 
   # Backwards-compat: allow newdata alias for x
@@ -417,7 +539,8 @@ predict.mixgpd_fit <- function(object,
 #' @param probs Quantiles for intervals when \code{format="tidy"}.
 #' @param ... Unused.
 #' @return Coefficients in the requested format.
-#' @export
+#' @keywords internal
+#' @noRd
 coef.mixgpd_fit <- function(object,
                             component = c("bulk", "tail", "both"),
                             format = c("vector", "list", "tidy"),
@@ -484,7 +607,8 @@ coef.mixgpd_fit <- function(object,
 #' @param component Which coefficients: \code{"bulk"} or \code{"tail"}.
 #' @param ... Unused.
 #' @return Numeric covariance matrix.
-#' @export
+#' @keywords internal
+#' @noRd
 vcov.mixgpd_fit <- function(object, component = c("bulk", "tail"), ...) {
   .validate_fit(object)
   component <- match.arg(component)
@@ -502,28 +626,43 @@ vcov.mixgpd_fit <- function(object, component = c("bulk", "tail"), ...) {
 #' Residual-style diagnostics for a MixGPD fit
 #'
 #' Currently supports PIT (probability integral transform) residuals only when
-#' a working \code{predict(type="cdf")} is available for the training data.
+#' a working \code{predict(type="survival")} is available for the training data.
 #'
 #' @param object A fitted object of class \code{"mixgpd_fit"}.
 #' @param type Residual type. Only \code{"pit"} is implemented here.
 #' @param ... Unused.
 #' @return Numeric vector of residuals (length nobs).
+#' @examples
+#' \dontrun{
+#' y <- abs(stats::rnorm(50)) + 0.1
+#' bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
+#'                              GPD = TRUE, components = 6,
+#'                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+#' fit <- run_mcmc_bundle_manual(bundle)
+#' pit <- residuals(fit, type = "pit")
+#' }
 #' @export
 residuals.mixgpd_fit <- function(object, type = c("pit"), ...) {
   .validate_fit(object)
   type <- match.arg(type)
-
   y <- object$data$y %||% object$y
   if (is.null(y)) stop("Training outcomes not found in object$data$y or object$y.", call. = FALSE)
+  X <- object$data$X %||% object$X %||% NULL
 
   if (type == "pit") {
-    pr <- predict(object, type = "cdf", y = y, interval = "none")
+    if (!is.null(X)) {
+      pr <- predict(object, x = X, type = "survival", y = y, interval = "none")
+    } else {
+      pr <- predict(object, type = "survival", y = y, interval = "none")
+    }
     # pr$fit is n x length(ygrid) normally; here ygrid == y (vector)
     # We interpret diagonal if dimensions align; otherwise take row-wise matching.
-    Fhat <- pr$fit
+    Fhat <- 1 - pr$fit
     if (is.matrix(Fhat)) {
       if (nrow(Fhat) == length(y) && ncol(Fhat) == length(y)) {
         pit <- diag(Fhat)
+      } else if (nrow(Fhat) == 1 && ncol(Fhat) == length(y)) {
+        pit <- as.numeric(Fhat[1, ])
       } else if (nrow(Fhat) == length(y) && ncol(Fhat) == 1) {
         pit <- as.numeric(Fhat[, 1])
       } else {
@@ -554,7 +693,8 @@ residuals.mixgpd_fit <- function(object, type = c("pit"), ...) {
 #'   \code{"posterior_median"} or \code{"posterior_mean"}.
 #' @param ... Passed to the engine log-likelihood.
 #' @return An object of class \code{"logLik"} if available; otherwise errors.
-#' @export
+#' @keywords internal
+#' @noRd
 logLik.mixgpd_fit <- function(object, point = c("posterior_median", "posterior_mean"), ...) {
   .validate_fit(object)
   point <- match.arg(point)
@@ -590,6 +730,15 @@ logLik.mixgpd_fit <- function(object, point = c("posterior_median", "posterior_m
 #' @param object A fitted object of class \code{"mixgpd_fit"}.
 #' @param ... Unused.
 #' @return Numeric vector of length \code{nobs(object)}.
+#' @examples
+#' \dontrun{
+#' y <- abs(stats::rnorm(50)) + 0.1
+#' bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
+#'                              GPD = TRUE, components = 6,
+#'                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+#' fit <- run_mcmc_bundle_manual(bundle)
+#' fitted(fit)
+#' }
 #' @export
 fitted.mixgpd_fit <- function(object, ...) {
   .validate_fit(object)

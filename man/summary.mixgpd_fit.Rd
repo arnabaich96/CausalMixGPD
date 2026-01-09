@@ -21,3 +21,13 @@ An object of class \code{"mixgpd_summary"}.
 \description{
 Summarize a MixGPD fitted object
 }
+\examples{
+\dontrun{
+y <- abs(stats::rnorm(50)) + 0.1
+bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
+                             GPD = TRUE, components = 6,
+                             mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+fit <- run_mcmc_bundle_manual(bundle)
+summary(fit, pars = c("alpha", "threshold"))
+}
+}

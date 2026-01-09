@@ -4,9 +4,12 @@
 \alias{.extract_draws}
 \title{Safely coerce MCMC samples to a numeric matrix}
 \usage{
-.extract_draws(object, pars = NULL, chains = c("stack", "first"))
-
-.extract_draws(object, pars = NULL, chains = c("stack", "first"))
+.extract_draws(
+  object,
+  pars = NULL,
+  chains = c("stack", "first"),
+  epsilon = NULL
+)
 }
 \arguments{
 \item{object}{A mixgpd_fit.}
@@ -15,12 +18,8 @@
 }
 \value{
 Numeric matrix of draws (iter x parameters).
-
-Numeric matrix of draws (iter x parameters).
 }
 \description{
-Safely coerce MCMC samples to a numeric matrix
-
 Safely coerce MCMC samples to a numeric matrix
 }
 \keyword{internal}

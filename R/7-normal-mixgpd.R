@@ -348,7 +348,7 @@ qNormMixGpd <- function(p, w, mean, sd, threshold, tail_scale, tail_shape,
 #' @rdname normal_gpd
 #' @name normal_gpd
 #' @aliases dNormGpd pNormGpd rNormGpd qNormGpd
-#' #' @importFrom stats uniroot pnorm dnorm runif qnorm rnorm
+#' @importFrom stats uniroot pnorm dnorm runif qnorm rnorm
 NULL
 
 #' @describeIn normal_gpd Normal + Gpd tail density

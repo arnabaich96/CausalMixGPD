@@ -2,18 +2,33 @@
 % Please edit documentation in R/04-S3-Methods.R
 \name{print.dpmixgpd_bundle}
 \alias{print.dpmixgpd_bundle}
-\title{Print a prepared DPMixGPD bundle}
+\title{Print a dpmixgpd bundle}
 \usage{
-\method{print}{dpmixgpd_bundle}(x, code = FALSE, ...)
+\method{print}{dpmixgpd_bundle}(x, code = FALSE, max_code_lines = 200L, ...)
 }
 \arguments{
-\item{x}{A \code{dpmixgpd_bundle}.}
+\item{x}{A \code{"dpmixgpd_bundle"} object.}
+
+\item{code}{Logical; if TRUE, print the generated NIMBLE model code.}
+
+\item{max_code_lines}{Integer; maximum number of code lines to print when \code{code=TRUE}.}
 
 \item{...}{Unused.}
 }
 \value{
-\code{x} invisibly.
+The object \code{x}, invisibly.
 }
 \description{
-Shows a compact overview of the bundle plus realized initial values (not the inits function).
+User-facing print method for pre-run bundles produced by \code{build_nimble_bundle()}.
+This prints a compact description of the model structure (backend/kernel/components),
+whether covariates are used, and whether a GPD tail is enabled.
+}
+\examples{
+\dontrun{
+y <- abs(stats::rnorm(50)) + 0.1
+bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
+                             GPD = FALSE, components = 6)
+print(bundle)
+print(bundle, code = TRUE, max_code_lines = 30)
+}
 }
