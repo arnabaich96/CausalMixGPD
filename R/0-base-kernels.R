@@ -237,12 +237,26 @@ pInvGauss <- nimble::nimbleFunction(
                  log.p = integer(0, default = 0)) {
     returnType(double(0))
 
+    bad <- 0
+    if (q <= 0.0) bad <- 1
+    if (mean <= 0.0) bad <- 1
+    if (shape <= 0.0) bad <- 1
+    if (bad == 1) {
+      if (lower.tail == 0L) {
+        if (log.p == 1L) return(0.0)
+        return(1.0)
+      }
+      if (log.p == 1L) return(-Inf)
+      return(0.0)
+    }
+
     z1 <- sqrt(shape / q) * (q / mean - 1.0)
     z2 <- -sqrt(shape / q) * (q / mean + 1.0)
 
     cdf <- pnorm(z1, 0.0, 1.0, 1L, 0L) +
       exp(2.0 * shape / mean) * pnorm(z2, 0.0, 1.0, 1L, 0L)
 
+    if (is.nan(cdf)) cdf <- 0.0
     if (cdf < 0.0) cdf <- 0.0
     if (cdf > 1.0) cdf <- 1.0
 

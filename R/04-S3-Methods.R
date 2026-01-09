@@ -37,7 +37,7 @@ print.dpmixgpd_bundle <- function(x, code = FALSE, max_code_lines = 200L, ...) {
   has_X   <- isTRUE(meta$has_X)
   GPD     <- isTRUE(meta$GPD)
 
-  cat("<DPmixGPD bundle>\n")
+  cat("DPmixGPD bundle\n")
   tbl <- data.frame(
     Field = c("Backend", "Kernel", "Components", "N", "X", "GPD", "Epsilon"),
     Value = c(.backend_label(backend),
@@ -77,6 +77,217 @@ print.dpmixgpd_bundle <- function(x, code = FALSE, max_code_lines = 200L, ...) {
   invisible(x)
 }
 
+#' Print a causal bundle
+#'
+#' User-facing print method for causal bundles produced by \code{build_causal_bundle()}.
+#'
+#' @param x A \code{"dpmixgpd_causal_bundle"} object.
+#' @param code Logical; if TRUE, print generated NIMBLE code for each block.
+#' @param max_code_lines Integer; maximum number of code lines to print when \code{code=TRUE}.
+#' @param ... Unused.
+#' @return The input object (invisibly).
+#' @examples
+#' \dontrun{
+#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal")
+#' print(cb)
+#' }
+#' @export
+print.dpmixgpd_causal_bundle <- function(x, code = FALSE, max_code_lines = 200L, ...) {
+  stopifnot(inherits(x, "dpmixgpd_causal_bundle"))
+
+  meta <- x$meta %||% list()
+  cat("DPmixGPD causal bundle\n")
+  cat("PS model: Bayesian logit (T | X)\n")
+  backend <- meta$backend %||% list()
+  kernel <- meta$kernel %||% list()
+  gpd <- meta$GPD %||% list()
+  comps <- meta$components %||% list()
+  eps <- meta$epsilon %||% list()
+
+  cat("Outcome (treated): backend =", backend$trt %||% "?", "| kernel =", kernel$trt %||% "?", "\n")
+  cat("Outcome (control): backend =", backend$con %||% "?", "| kernel =", kernel$con %||% "?", "\n")
+  cat("GPD tail (treated/control):", ifelse(isTRUE(gpd$trt), "TRUE", "FALSE"),
+      "/", ifelse(isTRUE(gpd$con), "TRUE", "FALSE"), "\n")
+  cat("components (treated/control):", comps$trt %||% "?", "/", comps$con %||% "?", "\n")
+  cat("epsilon (treated/control):", eps$trt %||% "?", "/", eps$con %||% "?", "\n")
+  cat("n (control) =", length(x$index$con %||% integer(0)),
+      "| n (treated) =", length(x$index$trt %||% integer(0)), "\n")
+
+  if (isTRUE(code)) {
+    cat("\n-- PS code --\n")
+    print(x$design, code = TRUE, max_code_lines = max_code_lines)
+    cat("\n-- Outcome code (control) --\n")
+    print(x$outcome$con, code = TRUE, max_code_lines = max_code_lines)
+    cat("\n-- Outcome code (treated) --\n")
+    print(x$outcome$trt, code = TRUE, max_code_lines = max_code_lines)
+  }
+
+  invisible(x)
+}
+
+#' Summarize a causal bundle
+#'
+#' User-facing summary for causal bundles produced by \code{build_causal_bundle()}.
+#'
+#' @param object A \code{"dpmixgpd_causal_bundle"} object.
+#' @param code Logical; if TRUE, print generated NIMBLE code for each block.
+#' @param max_code_lines Integer; maximum number of code lines to print when \code{code=TRUE}.
+#' @param ... Unused.
+#' @return The input object (invisibly).
+#' @examples
+#' \dontrun{
+#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal")
+#' summary(cb)
+#' }
+#' @export
+summary.dpmixgpd_causal_bundle <- function(object, code = FALSE, max_code_lines = 200L, ...) {
+  stopifnot(inherits(object, "dpmixgpd_causal_bundle"))
+
+  cat("DPmixGPD causal bundle summary\n")
+  print.dpmixgpd_causal_bundle(object, code = FALSE, max_code_lines = max_code_lines)
+  if (isTRUE(code)) {
+    cat("\n-- PS code --\n")
+    print(object$design, code = TRUE, max_code_lines = max_code_lines)
+    cat("\n-- Outcome code (control) --\n")
+    print(object$outcome$con, code = TRUE, max_code_lines = max_code_lines)
+    cat("\n-- Outcome code (treated) --\n")
+    print(object$outcome$trt, code = TRUE, max_code_lines = max_code_lines)
+  }
+  invisible(object)
+}
+
+#' Print a propensity score bundle
+#'
+#' @param x A \code{"dpmixgpd_ps_bundle"} object.
+#' @param code Logical; if TRUE, print generated NIMBLE code for the PS model.
+#' @param max_code_lines Integer; maximum number of code lines to print when \code{code=TRUE}.
+#' @param ... Unused.
+#' @return The input object (invisibly).
+#' @keywords internal
+#' @noRd
+print.dpmixgpd_ps_bundle <- function(x, code = FALSE, max_code_lines = 200L, ...) {
+  stopifnot(inherits(x, "dpmixgpd_ps_bundle"))
+
+  meta <- x$spec$meta %||% list()
+  cat("PS bundle\n")
+  cat("model:", meta$type %||% "ps_logit", "\n")
+  cat("include_intercept:", isTRUE(meta$include_intercept), "\n")
+  if (isTRUE(code)) {
+    cat("code:\n")
+    txt <- paste(deparse(x$code), collapse = "\n")
+    lines <- strsplit(txt, "\n", fixed = TRUE)[[1]]
+    nshow <- min(length(lines), as.integer(max_code_lines))
+    if (nshow > 0) {
+      cat(paste(lines[seq_len(nshow)], collapse = "\n"), "\n")
+    }
+    if (length(lines) > nshow) {
+      cat("... (truncated)\n")
+    }
+  }
+  invisible(x)
+}
+
+#' @keywords internal
+#' @noRd
+summary.dpmixgpd_ps_bundle <- function(object, code = FALSE, max_code_lines = 200L, ...) {
+  print.dpmixgpd_ps_bundle(object, code = isTRUE(code), max_code_lines = max_code_lines)
+  invisible(object)
+}
+
+#' Print a causal fit
+#'
+#' @param x A \code{"dpmixgpd_causal_fit"} object.
+#' @param ... Unused.
+#' @return The input object (invisibly).
+#' @export
+print.dpmixgpd_causal_fit <- function(x, ...) {
+  stopifnot(inherits(x, "dpmixgpd_causal_fit"))
+
+  meta <- x$bundle$meta %||% list()
+  cat("DPmixGPD causal fit\n")
+  cat("PS model: Bayesian logit (T | X)\n")
+  cat("Outcome (treated): backend =", (meta$backend %||% list())$trt %||% "?", "| kernel =",
+      (meta$kernel %||% list())$trt %||% "?", "\n")
+  cat("Outcome (control): backend =", (meta$backend %||% list())$con %||% "?", "| kernel =",
+      (meta$kernel %||% list())$con %||% "?", "\n")
+  cat("GPD tail (treated/control):", ifelse(isTRUE((meta$GPD %||% list())$trt), "TRUE", "FALSE"),
+      "/", ifelse(isTRUE((meta$GPD %||% list())$con), "TRUE", "FALSE"), "\n")
+  invisible(x)
+}
+
+#' Summarize a causal fit
+#'
+#' @param object A \code{"dpmixgpd_causal_fit"} object.
+#' @param ... Unused.
+#' @return The input object (invisibly).
+#' @export
+summary.dpmixgpd_causal_fit <- function(object, ...) {
+  stopifnot(inherits(object, "dpmixgpd_causal_fit"))
+  cat("-- PS fit --\n")
+  print(object$ps_fit)
+  cat("\n-- Outcome fits --\n")
+  cat("[control]\n")
+  print(object$outcome_fit$con)
+  cat("\n[treated]\n")
+  print(object$outcome_fit$trt)
+  invisible(object)
+}
+
+#' Print a propensity score fit
+#'
+#' @param x A \code{"dpmixgpd_ps_fit"} object.
+#' @param ... Unused.
+#' @return The input object (invisibly).
+#' @keywords internal
+#' @noRd
+print.dpmixgpd_ps_fit <- function(x, ...) {
+  stopifnot(inherits(x, "dpmixgpd_ps_fit"))
+  cat("DPmixGPD PS fit\n")
+  cat("model: ps_logit\n")
+  invisible(x)
+}
+
+#' @keywords internal
+#' @noRd
+summary.dpmixgpd_ps_fit <- function(object, ...) {
+  print.dpmixgpd_ps_fit(object)
+  invisible(object)
+}
+
+#' Plot a causal fit
+#'
+#' @param x A \code{"dpmixgpd_causal_fit"} object.
+#' @param arm Integer or character; \code{1} or \code{"treated"} for treatment,
+#'   \code{0} or \code{"control"} for control.
+#' @param ... Additional arguments forwarded to the underlying outcome plot method.
+#' @return The result of the underlying plot call (invisibly).
+#' @export
+plot.dpmixgpd_causal_fit <- function(x, arm = 1, ...) {
+  stopifnot(inherits(x, "dpmixgpd_causal_fit"))
+  if (is.character(arm)) {
+    arm <- match.arg(tolower(arm), c("treated", "control"))
+  }
+  if (is.numeric(arm)) {
+    if (length(arm) != 1L || is.na(arm)) {
+      stop("arm must be a single numeric value (0 = control, 1 = treated).", call. = FALSE)
+    }
+    if (arm == 1) {
+      arm <- "treated"
+    } else if (arm == 0) {
+      arm <- "control"
+    } else {
+      stop("arm must be 0 (control) or 1 (treated).", call. = FALSE)
+    }
+  }
+  if (identical(arm, "treated")) {
+    out <- plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  } else if (identical(arm, "control")) {
+    out <- plot.mixgpd_fit(x$outcome_fit$con, ...)
+  } else {
+    stop("arm must be 0/1 or 'treated'/'control'.", call. = FALSE)
+  }
+  invisible(out)
+}
 # helper
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 
@@ -115,7 +326,7 @@ summary.dpmixgpd_bundle <- function(object, ...) {
   has_X   <- isTRUE(meta$has_X)
   GPD     <- isTRUE(meta$GPD)
 
-  cat("<DPmixGPD bundle summary>\n")
+  cat("DPmixGPD bundle summary\n")
   meta_tbl <- data.frame(
     Field = c("Backend", "Kernel", "Components", "N", "X", "GPD", "Epsilon"),
     Value = c(.backend_label(backend),

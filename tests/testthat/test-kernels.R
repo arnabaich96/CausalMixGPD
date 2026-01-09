@@ -1,7 +1,7 @@
-testthat::test_that(
+test_that(
   "Kernels: mixture families (mix / mix+GPD / scalar+GPD) semantic + roundtrip checks",
   {
-    testthat::skip_if_not_installed("nimble")
+    skip_if_not_installed("nimble")
 
     # ---------- helpers ----------
     .norm_w <- function(w) {
@@ -11,35 +11,35 @@ testthat::test_that(
     }
 
     .expect_density_ok <- function(dval, label = "") {
-      testthat::expect_true(is.numeric(dval), info = label)
-      testthat::expect_true(length(dval) >= 1, info = label)
-      testthat::expect_true(all(is.finite(dval)), info = label)
-      testthat::expect_true(all(dval >= 0), info = label)
+      expect_true(is.numeric(dval), info = label)
+      expect_true(length(dval) >= 1, info = label)
+      expect_true(all(is.finite(dval)), info = label)
+      expect_true(all(dval >= 0), info = label)
     }
 
     .expect_cdf_ok <- function(pval, label = "") {
-      testthat::expect_true(is.numeric(pval), info = label)
-      testthat::expect_true(length(pval) >= 1, info = label)
-      testthat::expect_true(all(is.finite(pval)), info = label)
-      testthat::expect_true(all(pval >= 0 & pval <= 1), info = label)
+      expect_true(is.numeric(pval), info = label)
+      expect_true(length(pval) >= 1, info = label)
+      expect_true(all(is.finite(pval)), info = label)
+      expect_true(all(pval >= 0 & pval <= 1), info = label)
     }
 
     .expect_rng_ok <- function(x, support = c(-Inf, Inf), label = "") {
-      testthat::expect_true(is.numeric(x), info = label)
-      testthat::expect_true(length(x) == 1, info = label)
-      testthat::expect_true(is.finite(x), info = label)
-      testthat::expect_true(x >= support[1] && x <= support[2], info = label)
+      expect_true(is.numeric(x), info = label)
+      expect_true(length(x) == 1, info = label)
+      expect_true(is.finite(x), info = label)
+      expect_true(x >= support[1] && x <= support[2], info = label)
     }
 
     # Roundtrip q(p) -> p(q) with diagnostics (realistic tolerances for numeric inversion).
     .roundtrip_qp <- function(qFun, pFun, probs, args, tol, label) {
       qv <- do.call(qFun, c(list(p = probs), args))
-      testthat::expect_true(is.numeric(qv), info = paste0(label, " : qFun returned non-numeric"))
-      testthat::expect_true(length(qv) == length(probs), info = paste0(label, " : qFun length mismatch"))
+      expect_true(is.numeric(qv), info = paste0(label, " : qFun returned non-numeric"))
+      expect_true(length(qv) == length(probs), info = paste0(label, " : qFun length mismatch"))
 
       okq <- is.finite(qv) & probs > 0 & probs < 1
       if (!any(okq)) {
-        testthat::succeed(paste0(label, " : roundtrip skipped (no finite q)"))
+        succeed(paste0(label, " : roundtrip skipped (no finite q)"))
         return(invisible(TRUE))
       }
 
@@ -56,13 +56,13 @@ testthat::test_that(
           label, " : pFun returned non-finite at index ", bad,
           " (p=", probs[okq][bad], ", q=", qv[okq][bad], ")."
         )
-        testthat::fail(msg)
+        fail(msg)
       }
 
       .expect_cdf_ok(pb, label = paste0(label, " : pFun range"))
 
       err <- max(abs(pb - probs[okq]))
-      testthat::expect_true(
+      expect_true(
         err < tol,
         info = paste0(label, " : max|p_back - p| = ", signif(err, 6), " (tol=", tol, ")")
       )
@@ -105,11 +105,11 @@ testthat::test_that(
       probs <- c(0.05, 0.2, 0.5, 0.8, 0.95)
       .roundtrip_qp(qMix, pMix, probs, args_mix, tol = tol_mix, label = paste0(name, " : mix roundtrip"))
 
-      testthat::succeed(paste0("mix checks ok: ", name))
+      succeed(paste0("mix checks ok: ", name))
 
       # --- MIX+GPD checks ---
       if (!is.null(dMixGpd) && !is.null(pMixGpd) && !is.null(rMixGpd) && !is.null(qMixGpd)) {
-        testthat::expect_true(!is.null(args_mixgpd), info = paste0(name, " : args_mixgpd missing"))
+        expect_true(!is.null(args_mixgpd), info = paste0(name, " : args_mixgpd missing"))
 
         u <- args_mixgpd$threshold
 
@@ -120,7 +120,7 @@ testthat::test_that(
         .expect_cdf_ok(Fu0, label = paste0(name, " : Fu0"))
         .expect_cdf_ok(Fu1, label = paste0(name, " : Fu1"))
 
-        testthat::expect_equal(
+        expect_equal(
           as.numeric(Fu1), as.numeric(Fu0),
           tolerance = 1e-6,
           info = paste0(name, " : continuity at threshold")
@@ -132,7 +132,7 @@ testthat::test_that(
 
         if (any(!is.finite(p2))) {
           bad <- which(!is.finite(p2))[1]
-          testthat::fail(paste0(
+          fail(paste0(
             name, " : pMixGpd produced non-finite at q=", grid2[bad],
             " (threshold=", u, ")."
           ))
@@ -147,12 +147,12 @@ testthat::test_that(
         probs2 <- c(0.05, 0.2, 0.5, 0.9, 0.98)
         .roundtrip_qp(qMixGpd, pMixGpd, probs2, args_mixgpd, tol = tol_splice, label = paste0(name, " : mixGpd roundtrip"))
 
-        testthat::succeed(paste0("mix+GPD checks ok: ", name))
+        succeed(paste0("mix+GPD checks ok: ", name))
       }
 
       # --- Scalar+GPD checks (if present) ---
       if (!is.null(dScalarGpd) && !is.null(pScalarGpd) && !is.null(rScalarGpd) && !is.null(qScalarGpd)) {
-        testthat::expect_true(!is.null(args_scalargpd), info = paste0(name, " : args_scalargpd missing"))
+        expect_true(!is.null(args_scalargpd), info = paste0(name, " : args_scalargpd missing"))
 
         u <- args_scalargpd$threshold
         grid3 <- sort(unique(c(u - 0.1, u, u + 0.1, u + 1)))
@@ -162,7 +162,7 @@ testthat::test_that(
 
         if (any(!is.finite(p3))) {
           bad <- which(!is.finite(p3))[1]
-          testthat::fail(paste0(
+          fail(paste0(
             name, " : pScalarGpd produced non-finite at q=", grid3[bad],
             " (threshold=", u, ")."
           ))
@@ -177,7 +177,7 @@ testthat::test_that(
         probs3 <- c(0.05, 0.2, 0.5, 0.9, 0.98)
         .roundtrip_qp(qScalarGpd, pScalarGpd, probs3, args_scalargpd, tol = tol_splice, label = paste0(name, " : scalarGpd roundtrip"))
 
-        testthat::succeed(paste0("scalar+GPD checks ok: ", name))
+        succeed(paste0("scalar+GPD checks ok: ", name))
       }
 
       invisible(TRUE)
@@ -300,14 +300,14 @@ testthat::test_that(
     )
   }
 )
-testthat::test_that("All nimble::nimbleFunction-defined objects in R/ compile", {
-  testthat::skip_if_not_installed("nimble")
+test_that("All nimble::nimbleFunction-defined objects in R/ compile", {
+  skip_if_not_installed("nimble")
 
-  r_dir <- testthat::test_path("..", "..", "R")
-  testthat::expect_true(dir.exists(r_dir), info = paste("Missing R dir:", r_dir))
+  r_dir <- test_path("..", "..", "R")
+  expect_true(dir.exists(r_dir), info = paste("Missing R dir:", r_dir))
 
   r_files <- list.files(r_dir, pattern = "\\.[Rr]$", full.names = TRUE)
-  testthat::expect_true(length(r_files) > 0, info = "No R files found under R/")
+  expect_true(length(r_files) > 0, info = "No R files found under R/")
 
   # Find:  NAME <- nimble::nimbleFunction(   OR   NAME <- nimbleFunction(
   find_defs <- function(files) {
@@ -334,12 +334,12 @@ testthat::test_that("All nimble::nimbleFunction-defined objects in R/ compile", 
   }
 
   defs <- find_defs(r_files)
-  testthat::expect_true(nrow(defs) > 0, info = "No nimbleFunction definitions found in R/")
+  expect_true(nrow(defs) > 0, info = "No nimbleFunction definitions found in R/")
 
   # Use the package namespace so dependencies among nimbleFunctions are resolved.
   ns <- tryCatch(asNamespace("DPmixGPD"), error = function(e) NULL)
   if (is.null(ns)) {
-    testthat::skip("DPmixGPD namespace not available for compile checks.")
+    skip("DPmixGPD namespace not available for compile checks.")
   }
 
   # Pretty status symbols (colored if crayon is available)
@@ -380,7 +380,7 @@ testthat::test_that("All nimble::nimbleFunction-defined objects in R/ compile", 
 
     if (is.null(err)) {
       # Per-object PASS entry in testthat output
-      testthat::expect_true(TRUE, info = paste0("compileNimble succeeded for ", nm, " @ ", where))
+      expect_true(TRUE, info = paste0("compileNimble succeeded for ", nm, " @ ", where))
 
       results <- rbind(results, data.frame(
         status = tick, name = nm, where = where, detail = "",
@@ -407,7 +407,7 @@ testthat::test_that("All nimble::nimbleFunction-defined objects in R/ compile", 
   if (length(failures) > 0) {
     cat("\nFailure details:\n")
     cat(paste0(failures, collapse = "\n"), "\n")
-    testthat::fail(paste(
+    fail(paste(
       "The following nimbleFunction-defined objects failed to compile:",
       paste(failures, collapse = "\n"),
       sep = "\n"
