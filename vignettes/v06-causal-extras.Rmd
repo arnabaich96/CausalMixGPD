@@ -1,0 +1,115 @@
+---
+title: "Causal Extras: ATE, CATE, and Comparators"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Causal Extras: ATE, CATE, and Comparators}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  cache = TRUE,
+  cache.path = "cache/06-causal-",
+  fig.width = 6,
+  warning = FALSE,
+  message = FALSE
+)
+library(DPmixGPD)
+library(nimble)
+use_cached_fit <- TRUE
+.fit_path <- function(name) {
+  path <- system.file("extdata", name, package = "DPmixGPD")
+  if (path == "") path <- file.path("inst", "extdata", name)
+  path
+}
+fit_causal_con <- readRDS(.fit_path("fit_causal_con.rds"))
+fit_causal_trt <- readRDS(.fit_path("fit_causal_trt.rds"))
+fit_causal_meta <- readRDS(.fit_path("fit_causal_meta.rds"))
+fit_causal_small <- list(
+  ps_fit = NULL,
+  outcome_fit = list(con = fit_causal_con, trt = fit_causal_trt),
+  bundle = fit_causal_meta,
+  call = NULL
+)
+class(fit_causal_small) <- "dpmixgpd_causal_fit"
+library(ggplot2)
+library(dplyr)
+```
+
+What you'll learn: how CQTE fits into the broader causal toolkit, how to compare it with ATE/CATE estimands, and how to add simple baselines such as IPW quantiles.
+
+## Estimand relationships
+
+- CQTE subtracts conditional quantiles at levels `tau` for treated (`trt`) vs control (`con`) arms at the same covariate point.
+- ATE averages the mean outcomes; CATE averages conditional means. CQTE instead tracks tail behavior that matter for extremes.
+- If CQTE is flat across `tau`, the treatment effect does not depend on extremeness; rising curves point to tail dominance.
+
+## Minimal causal-comparison example
+
+```{r causal-extras-example}
+set.seed(10)
+data <- sim_causal_cqte(n = 200)
+X <- data$X
+bundle <- build_causal_bundle(
+  y = data$y,
+  X = X,
+  T = data$t,
+  backend = "sb",
+  kernel = "normal",
+  GPD = FALSE,
+  J = 5,
+  mcmc_outcome = list(niter = 200, nburnin = 50, thin = 3, nchains = 2, seed = c(1, 2)),
+  mcmc_ps = list(niter = 200, nburnin = 50, thin = 3, nchains = 2, seed = c(3, 4))
+)
+if (use_cached_fit) {
+  fit <- fit_causal_small
+} else {
+  fit <- run_mcmc_causal(bundle)
+}
+cq <- cqte(fit, probs = c(0.5, 0.9, 0.99), newdata = head(X, 3))
+cq
+```
+
+The cached fit keeps `GPD = FALSE` for speed. Turn it on and adjust the kernel when you need tail-focused causal contrasts.
+
+## Diagnostic plot: treatment densities
+
+```{r causal-plot}
+df_plot <- data.frame(y = data$y, arm = ifelse(data$t == 1, "trt", "con"))
+ggplot(df_plot, aes(x = y, fill = arm)) +
+  geom_density(alpha = 0.4) +
+  labs(title = "Outcome densities by arm", x = "Outcome y", fill = "Arm")
+```
+
+## Comparison table and alternative baseline
+
+| Estimand | Description |
+| --- | --- |
+| CQTE | Difference between treatment and control quantiles (`trt` minus `con`) at tail probability `tau`. |
+| CATE | Mean difference conditional on covariates (special case of CQTE at `tau=0.5` when tails align). |
+| ATE | Average of CATE across the empirical covariate distribution.
+
+```{r ipw-baseline}
+arm_tbl <- data.frame(y = data$y, treatment = ifelse(data$t == 1, "trt", "con"))
+ipw_q <- arm_tbl |>
+  group_by(treatment) |>
+  summarize(median = quantile(y, 0.5), `90%` = quantile(y, 0.9))
+ipw_q
+```
+
+## Prediction handoff
+
+```{r causal-pred}
+pred_grid <- data.frame(x1 = seq(-1, 1, length.out = 5), x2 = rep(0, 5), x3 = 0)
+cq_pred <- cqte(fit, probs = c(0.9, 0.99), newdata = pred_grid)
+cq_pred
+```
+
+## Session info
+
+```{r session-info}
+sessionInfo()
+```

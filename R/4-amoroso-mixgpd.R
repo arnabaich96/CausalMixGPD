@@ -23,6 +23,8 @@
 #' @param log Logical; if \code{TRUE}, return the log-density (integer flag \code{0/1} in NIMBLE).
 #' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Logical; if \code{TRUE}, probabilities are returned on the log scale.
+#' @param tol Numeric tolerance for numerical inversion in \code{qAmorosoGpd}.
+#' @param maxiter Maximum iterations for numerical inversion in \code{qAmorosoGpd}.
 #' @param tol Numeric scalar tolerance passed to \code{stats::uniroot} in quantile inversion.
 #' @param maxiter Integer maximum number of iterations for \code{stats::uniroot}.
 #'
@@ -202,6 +204,8 @@ qAmorosoMix <- function(p, w, loc, scale, shape1, shape2,
 #' @param log Logical; if \code{TRUE}, return the log-density (integer flag \code{0/1} in NIMBLE).
 #' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Logical; if \code{TRUE}, probabilities are returned on the log scale.
+#' @param tol Numeric tolerance for numerical inversion in \code{qAmorosoGpd}.
+#' @param maxiter Maximum iterations for numerical inversion in \code{qAmorosoGpd}.
 #' @param tol Numeric scalar tolerance passed to \code{stats::uniroot} in quantile inversion.
 #' @param maxiter Integer maximum number of iterations for \code{stats::uniroot}.
 #'
@@ -491,6 +495,8 @@ rAmorosoGpd <- nimble::nimbleFunction(
 
 #' @describeIn amoroso_gpd Quantile Function of Amoroso Distribution with GPD Tail
 #' @export
+#' @param tol Numeric tolerance for numerical inversion in \code{qAmorosoGpd}.
+#' @param maxiter Maximum iterations for numerical inversion in \code{qAmorosoGpd}.
 qAmorosoGpd <- function(p, loc, scale, shape1, shape2,
                         threshold, tail_scale, tail_shape,
                         lower.tail = TRUE, log.p = FALSE,

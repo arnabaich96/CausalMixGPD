@@ -1,0 +1,130 @@
+---
+title: "Start Here: What DPmixGPD Does"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Start Here: What DPmixGPD Does}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  cache = TRUE,
+  cache.path = "cache/v00-start-here-",
+  fig.width = 6,
+  warning = FALSE,
+  message = FALSE
+)
+library(DPmixGPD)
+library(nimble)
+use_cached_fit <- TRUE
+.fit_path <- function(name) {
+  path <- system.file("extdata", name, package = "DPmixGPD")
+  if (path == "") path <- file.path("inst", "extdata", name)
+  path
+}
+fit_small <- readRDS(.fit_path("fit_small.rds"))
+library(ggplot2)
+```
+
+What you'll learn: how DPmixGPD splits bulk and tail modelling, what outputs you get, and where to go next.
+
+## What problem are we solving?
+
+Standard single-distribution fits throw up their hands when data are sparse in the tail: the bulk dominates, heavy excursions are ignored, and probabilistic forecasts understate rare events. DPmixGPD targets precisely that regime by pairing a flexible Dirichlet process mixture in the bulk with a dedicated generalized Pareto tail beyond a threshold so you can keep inference honest on extremes.
+
+## What DPmixGPD fits
+
+- **Bulk model:** DP mixture over kernels (`normal`, `gamma`, `lognormal`, `Laplace`, `inverse Gaussian`, `Amoroso`) delivers adaptively shaped density/conditional models.
+- **Tail model:** a Generalized Pareto Distribution is glued on at a learned threshold, with smooth transitions and optional covariate links.
+- **Prediction:** the same fitted object can forecast densities, survival curves, quantiles, and posterior predictive draws.
+
+## Two workflows
+
+### Density / regression
+
+You build a bundle, run MCMC once, and derive density or quantile estimates via `predict()` for new covariates.
+
+### Causal
+
+You fit the propensity score plus two outcome arms (treated `trt` and control `con`), then compare arm-specific predictions to produce CQTE curves.
+
+## What you get out
+
+- Posterior predictive distribution (density/survival).
+- Quantiles at arbitrary probabilities.
+- Tail index (shape/scale) and threshold diagnostics.
+- Standard trace/ESS summaries, block-specific plots, and credible bands on predictions.
+
+## What to read next
+
+- [v02-single-outcome-modeling.Rmd](v02-single-outcome-modeling.html) for a canonical density recipe.
+- [v05-causal-cqte.Rmd](v05-causal-cqte.html) for the CQTE workflow.
+- [v08-prediction-and-exports.Rmd](v08-prediction-and-exports.html) for exporting predictions.
+
+## Bulk + tail diagram
+
+```{r diagram, fig.cap="DPmixGPD concept: flexible bulk + GPD tail stitched at a threshold."}
+bulk <- data.frame(x = seq(0, 10, length.out = 200))
+bulk$y <- dlnorm(bulk$x, meanlog = 0.5, sdlog = 0.4) * 0.8
+tail <- data.frame(x = seq(8, 20, length.out = 3))
+tail$y <- vapply(
+  tail$x,
+  DPmixGPD::dGpd,
+  numeric(1),
+  threshold = 10,
+  scale = 2,
+  shape = 0.3
+)
+ggplot() +
+  geom_area(data = bulk, aes(x = x, y = y), fill = "#66c2a5", alpha = 0.7) +
+  geom_line(data = tail, aes(x = x, y = y), color = "#fc8d62", size = 1.2) +
+  geom_vline(xintercept = 10, linetype = "dashed") +
+  annotate("text", x = 12, y = 0.15, label = "GPD tail", color = "#fc8d62") +
+  annotate("text", x = 4, y = 0.25, label = "DP mixture bulk", color = "#66c2a5") +
+  labs(x = "Outcome", y = "Density")
+```
+
+## 10-line example
+
+```{r quick-demo}
+set.seed(7)
+y <- sim_bulk_tail(90, tail_prob = 0.2)
+J <- 6
+if (use_cached_fit) {
+  fit <- fit_small
+} else {
+  bundle <- build_nimble_bundle(
+    y = y,
+    backend = "sb",
+    kernel = "lognormal",
+    GPD = TRUE,
+    J = J,
+    mcmc = list(niter = 200, nburnin = 50, thin = 2, nchains = 2, seed = c(1, 2))
+  )
+  fit <- run_mcmc_bundle_manual(bundle)
+}
+print(fit)
+summary(fit, component = "tail")
+```
+
+## Prediction and diagnostics
+
+```{r predictions, fig.cap="Density prediction on held-out grid (posterior mean)."}
+pred <- predict(fit, type = "survival", y = seq(0, max(y) + 5, length.out = 100))
+surv_df <- data.frame(y = pred$grid, survival = as.numeric(pred$fit[1, ]))
+ggplot(surv_df, aes(x = y, y = survival)) +
+  geom_line(color = "#7b3294") +
+  labs(title = "Posterior survival curve", y = "Survival", x = "y")
+```
+```{r quantiles}
+predict(fit, type = "quantile", p = c(.5, .8, .95))
+```
+
+## Session info
+
+```{r session}
+sessionInfo()
+```

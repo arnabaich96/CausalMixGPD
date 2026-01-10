@@ -19,8 +19,10 @@
 #'   the first entry is used for treated (\code{T=1}) and the second for control (\code{T=0}).
 #' @param GPD Logical; include GPD tail for outcomes if TRUE. If length 2,
 #'   the first entry is used for treated (\code{T=1}) and the second for control (\code{T=0}).
-#' @param components Integer >= 2; truncation parameter for outcome mixtures. If length 2,
+#' @param J Integer >= 2; truncation parameter for outcome mixtures. If length 2,
 #'   the first entry is used for treated (\code{T=1}) and the second for control (\code{T=0}).
+#' @param components Deprecated alias for \code{J}. Only one of \code{J} or \code{components}
+#'   should be supplied.
 #' @param param_specs Outcome parameter overrides (same structure as \code{build_nimble_bundle()}).
 #'   You can pass a single list used for both arms or a list with \code{con} and \code{trt} entries.
 #' @param mcmc_outcome MCMC settings list for the outcome bundles.
@@ -48,7 +50,7 @@
 #'   backend = "sb",
 #'   kernel = "gamma",
 #'   GPD = TRUE,
-#'   components = 10
+#'   J = 10
 #' )
 #' }
 #' @export
@@ -60,6 +62,7 @@ build_causal_bundle <- function(
     kernel,
     GPD = FALSE,
     components = NULL,
+    J = NULL,
     param_specs = NULL,
     mcmc_outcome = list(niter = 2000, nburnin = 500, thin = 1, nchains = 1, seed = 1),
     mcmc_ps = list(niter = 2000, nburnin = 500, thin = 1, nchains = 1, seed = 1),
@@ -93,6 +96,10 @@ build_causal_bundle <- function(
   if (length(T) != length(y)) stop("T must have the same length as y.", call. = FALSE)
   if (anyNA(T) || !all(T %in% c(0L, 1L))) stop("T must be binary (0/1) with no NA.", call. = FALSE)
 
+  if (!is.null(J) && !is.null(components)) {
+    stop("Provide only one of 'J' or 'components'.", call. = FALSE)
+  }
+  if (!is.null(J)) components <- J
   if (is.null(components)) components <- length(y)
   components <- .arm_value(components, "components")
   components$trt <- as.integer(components$trt)
@@ -290,6 +297,46 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
     call = match.call()
   )
   class(out) <- "dpmixgpd_causal_fit"
+  out
+}
+
+#' Conditional quantile treatment effects (CQTE)
+#'
+#' Computes treated-minus-control quantiles from a causal fit.
+#'
+#' @param fit A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.
+#' @param probs Numeric vector of probabilities in (0, 1).
+#' @param newdata Optional data.frame or matrix of covariates for prediction.
+#' @param interval Credible interval type passed to \code{predict()}.
+#' @return A list with elements \code{fit} (CQTE), \code{grid} (probabilities),
+#'   and the treated/control prediction objects.
+#' @examples
+#' \dontrun{
+#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", J = 6)
+#' fit <- run_mcmc_causal(cb, show_progress = FALSE)
+#' cqte(fit, probs = c(0.5, 0.9), newdata = X[1:5, ])
+#' }
+#' @export
+cqte <- function(fit,
+                 probs = c(0.1, 0.5, 0.9),
+                 newdata = NULL,
+                 interval = c("none", "credible")) {
+  stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
+  interval <- match.arg(interval)
+  pr_trt <- predict(fit$outcome_fit$trt, newdata = newdata, type = "quantile", p = probs,
+                    interval = interval)
+  pr_con <- predict(fit$outcome_fit$con, newdata = newdata, type = "quantile", p = probs,
+                    interval = interval)
+  out <- list(
+    fit = pr_trt$fit - pr_con$fit,
+    lower = if (!is.null(pr_trt$lower) && !is.null(pr_con$lower)) pr_trt$lower - pr_con$upper else NULL,
+    upper = if (!is.null(pr_trt$upper) && !is.null(pr_con$upper)) pr_trt$upper - pr_con$lower else NULL,
+    grid = probs,
+    trt = pr_trt,
+    con = pr_con,
+    type = "cqte"
+  )
+  class(out) <- "dpmixgpd_cqte"
   out
 }
 

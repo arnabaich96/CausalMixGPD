@@ -61,6 +61,10 @@ qInvGaussGpd(
 the RNG implementation supports \code{n = 1}.}
 
 \item{p}{Numeric scalar probability in \eqn{(0,1)} for the quantile function.}
+
+\item{tol}{Numeric tolerance for numerical inversion in \code{qInvGaussGpd}.}
+
+\item{maxiter}{Maximum iterations for numerical inversion in \code{qInvGaussGpd}.}
 }
 \value{
 Spliced density/CDF/RNG functions return numeric scalars.

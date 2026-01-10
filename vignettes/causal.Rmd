@@ -1,0 +1,116 @@
+---
+title: "Causal Modeling"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Causal Modeling}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  cache = TRUE,
+  cache.path = "cache/causal-",
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+# Overview
+
+This vignette shows:
+
+- arm-specific outcome fits
+- how the propensity model enters
+- QTE/ATE-ready prediction interfaces
+- high-level assumptions
+
+# Build a causal bundle
+
+```{r}
+library(DPmixGPD)
+library(nimble)
+use_cached_fit <- TRUE
+.fit_path <- function(name) {
+  path <- system.file("extdata", name, package = "DPmixGPD")
+  if (path == "") path <- file.path("inst", "extdata", name)
+  path
+}
+fit_causal_con <- readRDS(.fit_path("fit_causal_con.rds"))
+fit_causal_trt <- readRDS(.fit_path("fit_causal_trt.rds"))
+fit_causal_meta <- readRDS(.fit_path("fit_causal_meta.rds"))
+fit_causal_small <- list(
+  ps_fit = NULL,
+  outcome_fit = list(con = fit_causal_con, trt = fit_causal_trt),
+  bundle = fit_causal_meta,
+  call = NULL
+)
+class(fit_causal_small) <- "dpmixgpd_causal_fit"
+set.seed(1)
+dat <- sim_causal_cqte(n = 120)
+X <- dat$X
+T <- dat$t
+y <- dat$y
+
+cb <- build_causal_bundle(
+  y = y,
+  X = X,
+  T = T,
+  backend = c("sb", "sb"),
+  kernel = c("normal", "normal"),
+  GPD = c(FALSE, FALSE),
+  J = c(8, 8),
+  mcmc_outcome = list(niter = 200, nburnin = 50, thin = 1, nchains = 1, seed = 1),
+  mcmc_ps = list(niter = 200, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+)
+```
+
+# Run MCMC
+
+```{r}
+if (use_cached_fit) {
+  cf <- fit_causal_small
+} else {
+  cf <- run_mcmc_causal(cb, show_progress = FALSE)
+}
+summary(cf$outcome_fit$trt)
+```
+
+# Arm-specific prediction
+
+```{r}
+pr_trt <- predict(cf$outcome_fit$trt, type = "quantile", p = c(0.5, 0.9), newdata = X)
+pr_con <- predict(cf$outcome_fit$con, type = "quantile", p = c(0.5, 0.9), newdata = X)
+
+pr_trt$fit
+pr_con$fit
+```
+
+# QTE scaffolding
+
+```{r}
+qt <- cqte(cf, probs = c(0.5, 0.9), newdata = X)
+
+qt$fit
+```
+
+Plot QTE across quantiles:
+
+```{r}
+qs <- c(0.1, 0.5, 0.9)
+qt2 <- cqte(cf, probs = qs, newdata = X)
+plot(qs, as.numeric(qt2$fit[1, ]), type = "b",
+     xlab = "quantile", ylab = "QTE",
+     main = "Quantile treatment effect")
+```
+
+# Assumptions (high level)
+
+- Ignorability: treatment is independent of potential outcomes given covariates.
+- Positivity: treatment assignment has support across covariate space.
+- Correct specification of the propensity model form.
+
+These assumptions are not verified automatically; the causal API provides
+scaffolding that can be extended with diagnostics and sensitivity analysis.

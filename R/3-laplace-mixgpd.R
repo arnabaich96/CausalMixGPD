@@ -14,12 +14,11 @@
 #' @param n Integer giving the number of draws. The RNG implementation supports \code{n = 1}.
 #' @param w Numeric vector of mixture weights of length \eqn{K}. The functions normalize \code{w}
 #'   internally when needed.
-#' @param location,scale Numeric vectors of length \eqn{K} giving component locations and scales.
+#' @param location Numeric vector of length \eqn{K} giving component locations.
+#' @param scale Numeric vector of length \eqn{K} giving component scales.
 #' @param log Logical; if \code{TRUE}, return the log-density.
 #' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Logical; if \code{TRUE}, probabilities are returned on the log scale.
-#' @param tol Numeric scalar tolerance passed to \code{stats::uniroot}.
-#' @param matail_shapeter Integer matail_shapelocationm number of iterations for \code{stats::uniroot}.
 #'
 #' @return Density/CDF/RNG functions return numeric scalars. \code{qLaplaceMix} returns a numeric vector
 #'   with the same length as \code{p}.
@@ -139,8 +138,11 @@ rLaplaceMix <- nimble::nimbleFunction(
 
 #' @describeIn laplace_mix Laplace mixture quantile function
 #' @export
+#' @param tol Numeric scalar tolerance passed to \code{stats::uniroot}.
+#' @param maxiter Integer maximum iterations for \code{stats::uniroot}.
 qLaplaceMix <- function(p, w, location, scale,
-                        lower.tail = TRUE, log.p = FALSE) {
+                        lower.tail = TRUE, log.p = FALSE,
+                        tol = 1e-10, maxiter = 200) {
   if (log.p) p <- exp(p)
   if (!lower.tail) p <- 1 - p
   p <- pmax(pmin(p, 1), 0)
@@ -171,15 +173,14 @@ qLaplaceMix <- function(p, w, location, scale,
 #' @param p Numeric scalar probability in \eqn{(0,1)} for the quantile function.
 #' @param n Integer giving the number of draws. The RNG implementation supports \code{n = 1}.
 #' @param w Numeric vector of mixture weights of length \eqn{K}.
-#' @param location,scale Numeric vectors of length \eqn{K} giving component locations and scales.
+#' @param location Numeric vector of length \eqn{K} giving component locations.
+#' @param scale Numeric vector of length \eqn{K} giving component scales.
 #' @param threshold Numeric scalar threshold at which the Gpd tail is attached.
-#' @param scale Numeric scalar Gpd scale parameter; locationst be positive.
+#' @param tail_scale Numeric scalar Gpd scale parameter; must be positive.
 #' @param tail_shape Numeric scalar Gpd shape parameter.
 #' @param log Logical; if \code{TRUE}, return the log-density.
 #' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Logical; if \code{TRUE}, probabilities are returned on the log scale.
-#' @param tol Numeric scalar tolerance passed to \code{stats::uniroot}.
-#' @param matail_shapeter Integer matail_shapelocationm number of iterations for \code{stats::uniroot}.
 #'
 #' @return Spliced density/CDF/RNG functions return numeric scalars. \code{qLaplaceMixGpd} returns a numeric vector
 #'   with the same length as \code{p}.
@@ -293,8 +294,11 @@ rLaplaceMixGpd <- nimble::nimbleFunction(
 
 #' @describeIn laplace_MixGpd Laplace mixture + Gpd tail quantile function
 #' @export
+#' @param tol Numeric scalar tolerance passed to \code{stats::uniroot}.
+#' @param maxiter Integer maximum iterations for \code{stats::uniroot}.
 qLaplaceMixGpd <- function(p, w, location, scale, threshold, tail_scale, tail_shape,
-                           lower.tail = TRUE, log.p = FALSE) {
+                           lower.tail = TRUE, log.p = FALSE,
+                           tol = 1e-10, maxiter = 200) {
   if (log.p) p <- exp(p)
   if (!lower.tail) p <- 1 - p
   p <- pmax(pmin(p, 1), 0)
@@ -305,7 +309,8 @@ qLaplaceMixGpd <- function(p, w, location, scale, threshold, tail_scale, tail_sh
   for (i in seq_along(p)) {
     pi <- p[i]
     if (pi <= Fu) {
-      out[i] <- qLaplaceMix(pi, w, location, scale, lower.tail = TRUE, log.p = FALSE)
+      out[i] <- qLaplaceMix(pi, w, location, scale, lower.tail = TRUE, log.p = FALSE,
+                            tol = tol, maxiter = maxiter)
     } else {
       g <- if (Fu >= 1) 0 else (pi - Fu) / (1 - Fu)
       out[i] <- qGpd(g,  threshold, scale = tail_scale, shape = tail_shape)
@@ -327,7 +332,7 @@ qLaplaceMixGpd <- function(p, w, location, scale, threshold, tail_scale, tail_sh
 #' @param location Numeric scalar location parameter for the Laplace bulk.
 #' @param scale Numeric scalar scale parameter for the Laplace bulk.
 #' @param threshold Numeric scalar threshold at which the Gpd tail is attached.
-#' @param scale Numeric scalar Gpd scale parameter; locationst be positive.
+#' @param tail_scale Numeric scalar Gpd scale parameter; must be positive.
 #' @param tail_shape Numeric scalar Gpd shape parameter.
 #' @param log Logical; if \code{TRUE}, return the log-density.
 #' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le q)}.

@@ -23,6 +23,8 @@
 \arguments{
 \item{object}{A fitted object of class \code{"mixgpd_fit"}.}
 
+\item{x}{Optional new data. Alias for \code{newdata}.}
+
 \item{y}{Numeric vector of evaluation points (required for \code{type="density"} or \code{"survival"}).}
 
 \item{newdata}{Optional new data. If \code{NULL}, uses training design (if stored).}
@@ -38,11 +40,9 @@
 
 \item{probs}{Quantiles for credible interval bands.}
 
-\item{store_draws}{Logical; whether to store all posterior draws (for \code
-{type="sample"}).}
+\item{store_draws}{Logical; whether to store all posterior draws (for \code{type="sample"}).}
 
-\item{nsim_mean}{Number of posterior predictive samples to use for posterior mean estimation
-(for \code{type="mean"}).}
+\item{nsim_mean}{Number of posterior predictive samples to use for posterior mean estimation (for \code{type="mean"}).}
 
 \item{ncores}{Number of CPU cores to use for parallel prediction (if supported).}
 

@@ -19,6 +19,14 @@ rAmoroso(n, loc, scale, shape1, shape2)
 \arguments{
 \item{x}{Numeric scalar giving the point at which the density is evaluated.}
 
+\item{loc}{Numeric scalar location parameter.}
+
+\item{scale}{Numeric scalar scale parameter.}
+
+\item{shape1}{Numeric scalar first shape parameter.}
+
+\item{shape2}{Numeric scalar second shape parameter.}
+
 \item{log}{Logical; if \code{TRUE}, return the log-density (integer flag \code{0/1} in NIMBLE).}
 
 \item{q}{Numeric scalar giving the point at which the distribution function is evaluated.}

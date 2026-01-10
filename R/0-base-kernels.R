@@ -324,6 +324,10 @@ qInvGauss <- function(p, mean, shape,
 #' @param p Numeric scalar probability in \eqn{(0,1)} for the quantile function.
 #' @param n Integer giving the number of draws. For portability inside NIMBLE,
 #'   the RNG implementation supports \code{n = 1}.
+#' @param loc Numeric scalar location parameter.
+#' @param scale Numeric scalar scale parameter.
+#' @param shape1 Numeric scalar first shape parameter.
+#' @param shape2 Numeric scalar second shape parameter.
 #' @param log Logical; if \code{TRUE}, return the log-density (integer flag \code{0/1} in NIMBLE).
 #' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Logical; if \code{TRUE}, probabilities are returned on the log scale.

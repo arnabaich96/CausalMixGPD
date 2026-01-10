@@ -15,6 +15,11 @@
 init_kernel_registry <- function() {
   ns <- asNamespace("DPmixGPD")
 
+  if (exists("kernel_registry", envir = ns, inherits = FALSE) &&
+      exists("tail_registry", envir = ns, inherits = FALSE)) {
+    return(invisible(TRUE))
+  }
+
   kernel_registry <- list(
 
     normal = list(
