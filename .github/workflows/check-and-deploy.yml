@@ -9,7 +9,7 @@ jobs:
   check:
     runs-on: ubuntu-latest
     env:
-      RSTUDIO_PANDOC: "${{ runner.workspace }}/pandoc-3.1.11/bin/pandoc"
+      RSTUDIO_PANDOC: "${{ github.workspace }}/pandoc-3.1.11/bin/pandoc"
     steps:
       - uses: actions/checkout@v4
       - name: Install R
@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: check
     env:
-      RSTUDIO_PANDOC: "${{ runner.workspace }}/pandoc-3.1.11/bin/pandoc"
+      RSTUDIO_PANDOC: "${{ github.workspace }}/pandoc-3.1.11/bin/pandoc"
     steps:
       - uses: actions/checkout@v4
       - name: Install R
