@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Causal Modeling</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Causal Modeling</h1>
+
+
+
+<div id="overview" class="section level1">
+<h1>Overview</h1>
+<p>This vignette shows:</p>
+<ul>
+<li>arm-specific outcome fits</li>
+<li>how the propensity model enters</li>
+<li>QTE/ATE-ready prediction interfaces</li>
+<li>high-level assumptions</li>
+</ul>
+</div>
+<div id="build-a-causal-bundle" class="section level1">
+<h1>Build a causal bundle</h1>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(DPmixGPD)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(nimble)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>use_cached_fit <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>.fit_path <span class="ot">&lt;-</span> <span class="cf">function</span>(name) {</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  path <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, name, <span class="at">package =</span> <span class="st">&quot;DPmixGPD&quot;</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  <span class="cf">if</span> (path <span class="sc">==</span> <span class="st">&quot;&quot;</span>) path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">&quot;inst&quot;</span>, <span class="st">&quot;extdata&quot;</span>, name)</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  path</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>}</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>fit_causal_con <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">.fit_path</span>(<span class="st">&quot;fit_causal_con.rds&quot;</span>))</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>fit_causal_trt <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">.fit_path</span>(<span class="st">&quot;fit_causal_trt.rds&quot;</span>))</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>fit_causal_meta <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">.fit_path</span>(<span class="st">&quot;fit_causal_meta.rds&quot;</span>))</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>fit_causal_small <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  <span class="at">ps_fit =</span> <span class="cn">NULL</span>,</span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>  <span class="at">outcome_fit =</span> <span class="fu">list</span>(<span class="at">con =</span> fit_causal_con, <span class="at">trt =</span> fit_causal_trt),</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>  <span class="at">bundle =</span> fit_causal_meta,</span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a>  <span class="at">call =</span> <span class="cn">NULL</span></span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a>)</span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a><span class="fu">class</span>(fit_causal_small) <span class="ot">&lt;-</span> <span class="st">&quot;dpmixgpd_causal_fit&quot;</span></span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">sim_causal_cqte</span>(<span class="at">n =</span> <span class="dv">120</span>)</span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a>X <span class="ot">&lt;-</span> dat<span class="sc">$</span>X</span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a>T <span class="ot">&lt;-</span> dat<span class="sc">$</span>t</span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a>y <span class="ot">&lt;-</span> dat<span class="sc">$</span>y</span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a>cb <span class="ot">&lt;-</span> <span class="fu">build_causal_bundle</span>(</span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a>  <span class="at">X =</span> X,</span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a>  <span class="at">T =</span> T,</span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a>  <span class="at">backend =</span> <span class="fu">c</span>(<span class="st">&quot;sb&quot;</span>, <span class="st">&quot;sb&quot;</span>),</span>
+<span id="cb1-30"><a href="#cb1-30" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="fu">c</span>(<span class="st">&quot;normal&quot;</span>, <span class="st">&quot;normal&quot;</span>),</span>
+<span id="cb1-31"><a href="#cb1-31" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="fu">c</span>(<span class="cn">FALSE</span>, <span class="cn">FALSE</span>),</span>
+<span id="cb1-32"><a href="#cb1-32" tabindex="-1"></a>  <span class="at">J =</span> <span class="fu">c</span>(<span class="dv">8</span>, <span class="dv">8</span>),</span>
+<span id="cb1-33"><a href="#cb1-33" tabindex="-1"></a>  <span class="at">mcmc_outcome =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">200</span>, <span class="at">nburnin =</span> <span class="dv">50</span>, <span class="at">thin =</span> <span class="dv">1</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">seed =</span> <span class="dv">1</span>),</span>
+<span id="cb1-34"><a href="#cb1-34" tabindex="-1"></a>  <span class="at">mcmc_ps =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">200</span>, <span class="at">nburnin =</span> <span class="dv">50</span>, <span class="at">thin =</span> <span class="dv">1</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">seed =</span> <span class="dv">1</span>)</span>
+<span id="cb1-35"><a href="#cb1-35" tabindex="-1"></a>)</span></code></pre></div>
+</div>
+<div id="run-mcmc" class="section level1">
+<h1>Run MCMC</h1>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="cf">if</span> (use_cached_fit) {</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  cf <span class="ot">&lt;-</span> fit_causal_small</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  cf <span class="ot">&lt;-</span> <span class="fu">run_mcmc_causal</span>(cb, <span class="at">show_progress =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>}</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="fu">summary</span>(cf<span class="sc">$</span>outcome_fit<span class="sc">$</span>trt)</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; MixGPD summary | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: FALSE | epsilon: 0.025</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; n = 64 | components = 4</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; Summary</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; Initial components: 4 | Components after truncation: 4</span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; Summary table</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt;        parameter   mean    sd q0.025 q0.500 q0.975    ess</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt;       weights[1]  0.908 0.156  0.504  0.984  1.000  2.877</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="co">#&gt;       weights[2]  0.158 0.158  0.031  0.062  0.425  1.488</span></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt;       weights[3]  0.044 0.012  0.031  0.047  0.062 10.000</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt;       weights[4]  0.038 0.009  0.031  0.031  0.047  5.000</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt;            alpha  0.825 0.711  0.196  0.490  2.698  7.769</span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt;  beta_mean[1, 1]  2.259 0.685  1.010  2.237  3.620 19.662</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt;  beta_mean[2, 1]  0.141 2.026 -2.592 -0.101  4.693  6.047</span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt;  beta_mean[3, 1] -0.537 1.546 -3.474 -0.353  2.075 12.519</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt;  beta_mean[4, 1]  0.426 2.224 -3.552  0.618  4.758  2.862</span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt;  beta_mean[1, 2]  1.516 0.849  0.061  1.462  3.589 14.244</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt;  beta_mean[2, 2] -0.192 1.535 -2.666 -0.188  3.065  8.873</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt;  beta_mean[3, 2] -0.194 2.500 -4.215 -0.040  4.058  3.244</span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt;  beta_mean[4, 2] -1.316 1.797 -3.658 -1.749  2.432  8.851</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt;  beta_mean[1, 3]  1.826 1.000 -0.333  1.777  3.633  9.688</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt;  beta_mean[2, 3] -0.953 1.234 -3.041 -0.904  1.439  7.933</span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt;  beta_mean[3, 3] -0.424 1.497 -2.574 -0.764  2.667  9.761</span></span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt;  beta_mean[4, 3] -1.307 1.520 -3.185 -1.678  1.943  6.690</span></span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="co">#&gt;            sd[1]  0.030 0.007  0.022  0.029  0.041 73.257</span></span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="co">#&gt;            sd[2]  0.832 1.005  0.033  0.425  3.162  5.904</span></span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt;            sd[3]  2.131 1.367  0.881  1.714  4.999 10.000</span></span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt;            sd[4]  1.714 2.131  0.418  0.668  5.052  5.000</span></span></code></pre></div>
+</div>
+<div id="arm-specific-prediction" class="section level1">
+<h1>Arm-specific prediction</h1>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>pr_trt <span class="ot">&lt;-</span> <span class="fu">predict</span>(cf<span class="sc">$</span>outcome_fit<span class="sc">$</span>trt, <span class="at">type =</span> <span class="st">&quot;quantile&quot;</span>, <span class="at">p =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.9</span>), <span class="at">newdata =</span> X)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>pr_con <span class="ot">&lt;-</span> <span class="fu">predict</span>(cf<span class="sc">$</span>outcome_fit<span class="sc">$</span>con, <span class="at">type =</span> <span class="st">&quot;quantile&quot;</span>, <span class="at">p =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.9</span>), <span class="at">newdata =</span> X)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>pr_trt<span class="sc">$</span>fit</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt;               [,1]        [,2]</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt;   [1,] -4.06599042 -2.27266437</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt;   [2,]  2.33003873  2.48576046</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt;   [3,] -0.23253541 -0.12480056</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="co">#&gt;   [4,] -0.15954266  0.30351460</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt;   [5,]  1.35872707  1.47467051</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt;   [6,] -2.92809850 -1.78339950</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="co">#&gt;   [7,]  3.36753819  3.59597778</span></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt;   [8,] -0.82786621 -0.32146222</span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt;   [9,]  0.39011722  0.45523085</span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="co">#&gt;  [10,] -0.96417390 -0.53726187</span></span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt;  [11,]  3.77159927  3.92211143</span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt;  [12,]  2.84437180  2.96441151</span></span>
+<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt;  [13,] -2.69923187 -1.53796884</span></span>
+<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt;  [14,] -3.07392120 -2.14742648</span></span>
+<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt;  [15,]  0.29204783  0.50326718</span></span>
+<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt;  [16,] -3.08148812 -1.67668034</span></span>
+<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt;  [17,]  1.71055708  1.86719414</span></span>
+<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co">#&gt;  [18,]  0.27278039  0.44791211</span></span>
+<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co">#&gt;  [19,]  2.11187249  2.25806251</span></span>
+<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="co">#&gt;  [20,]  1.94522782  2.00186006</span></span>
+<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a><span class="co">#&gt;  [21,]  2.77534651  2.93244545</span></span>
+<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a><span class="co">#&gt;  [22,]  4.05863010  4.33275007</span></span>
+<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a><span class="co">#&gt;  [23,]  2.24362019  2.42907306</span></span>
+<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a><span class="co">#&gt;  [24,] -4.02985569 -2.53094292</span></span>
+<span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a><span class="co">#&gt;  [25,] -2.00790289 -0.84528145</span></span>
+<span id="cb3-31"><a href="#cb3-31" tabindex="-1"></a><span class="co">#&gt;  [26,]  3.20168552  3.45528196</span></span>
+<span id="cb3-32"><a href="#cb3-32" tabindex="-1"></a><span class="co">#&gt;  [27,] -0.45317418 -0.27354897</span></span>
+<span id="cb3-33"><a href="#cb3-33" tabindex="-1"></a><span class="co">#&gt;  [28,] -1.49844297 -1.07841866</span></span>
+<span id="cb3-34"><a href="#cb3-34" tabindex="-1"></a><span class="co">#&gt;  [29,] -0.70242976 -0.43563943</span></span>
+<span id="cb3-35"><a href="#cb3-35" tabindex="-1"></a><span class="co">#&gt;  [30,]  0.81719169  0.91947339</span></span>
+<span id="cb3-36"><a href="#cb3-36" tabindex="-1"></a><span class="co">#&gt;  [31,]  1.37083704  1.50932429</span></span>
+<span id="cb3-37"><a href="#cb3-37" tabindex="-1"></a><span class="co">#&gt;  [32,] -0.64465092 -0.39361049</span></span>
+<span id="cb3-38"><a href="#cb3-38" tabindex="-1"></a><span class="co">#&gt;  [33,] -0.21028872 -0.01461448</span></span>
+<span id="cb3-39"><a href="#cb3-39" tabindex="-1"></a><span class="co">#&gt;  [34,] -3.47336049 -1.86395941</span></span>
+<span id="cb3-40"><a href="#cb3-40" tabindex="-1"></a><span class="co">#&gt;  [35,] -1.89979662 -1.34932546</span></span>
+<span id="cb3-41"><a href="#cb3-41" tabindex="-1"></a><span class="co">#&gt;  [36,]  0.82785155  0.94703870</span></span>
+<span id="cb3-42"><a href="#cb3-42" tabindex="-1"></a><span class="co">#&gt;  [37,] -2.12062738 -1.25688844</span></span>
+<span id="cb3-43"><a href="#cb3-43" tabindex="-1"></a><span class="co">#&gt;  [38,] -3.24806959 -1.75004192</span></span>
+<span id="cb3-44"><a href="#cb3-44" tabindex="-1"></a><span class="co">#&gt;  [39,]  3.42959957  3.62504302</span></span>
+<span id="cb3-45"><a href="#cb3-45" tabindex="-1"></a><span class="co">#&gt;  [40,]  2.39781733  2.49974382</span></span>
+<span id="cb3-46"><a href="#cb3-46" tabindex="-1"></a><span class="co">#&gt;  [41,] -4.76570114 -2.57099916</span></span>
+<span id="cb3-47"><a href="#cb3-47" tabindex="-1"></a><span class="co">#&gt;  [42,] -0.46601041 -0.27913287</span></span>
+<span id="cb3-48"><a href="#cb3-48" tabindex="-1"></a><span class="co">#&gt;  [43,]  1.57032496  1.61524121</span></span>
+<span id="cb3-49"><a href="#cb3-49" tabindex="-1"></a><span class="co">#&gt;  [44,]  0.24574201  0.32803136</span></span>
+<span id="cb3-50"><a href="#cb3-50" tabindex="-1"></a><span class="co">#&gt;  [45,] -4.85165292 -2.74836657</span></span>
+<span id="cb3-51"><a href="#cb3-51" tabindex="-1"></a><span class="co">#&gt;  [46,]  0.53090324  0.65688944</span></span>
+<span id="cb3-52"><a href="#cb3-52" tabindex="-1"></a><span class="co">#&gt;  [47,] -0.31773076 -0.10043711</span></span>
+<span id="cb3-53"><a href="#cb3-53" tabindex="-1"></a><span class="co">#&gt;  [48,] -2.13758911 -0.97182564</span></span>
+<span id="cb3-54"><a href="#cb3-54" tabindex="-1"></a><span class="co">#&gt;  [49,] -1.00332981 -0.60004695</span></span>
+<span id="cb3-55"><a href="#cb3-55" tabindex="-1"></a><span class="co">#&gt;  [50,]  1.53943053  1.66261800</span></span>
+<span id="cb3-56"><a href="#cb3-56" tabindex="-1"></a><span class="co">#&gt;  [51,] -1.65893154 -0.81818532</span></span>
+<span id="cb3-57"><a href="#cb3-57" tabindex="-1"></a><span class="co">#&gt;  [52,] -7.41765995 -3.98175849</span></span>
+<span id="cb3-58"><a href="#cb3-58" tabindex="-1"></a><span class="co">#&gt;  [53,]  1.05614383  1.10116863</span></span>
+<span id="cb3-59"><a href="#cb3-59" tabindex="-1"></a><span class="co">#&gt;  [54,] -1.99406801 -1.35886045</span></span>
+<span id="cb3-60"><a href="#cb3-60" tabindex="-1"></a><span class="co">#&gt;  [55,]  3.03395865  3.18514158</span></span>
+<span id="cb3-61"><a href="#cb3-61" tabindex="-1"></a><span class="co">#&gt;  [56,]  4.68448113  4.88045674</span></span>
+<span id="cb3-62"><a href="#cb3-62" tabindex="-1"></a><span class="co">#&gt;  [57,] -1.01547035 -0.65336723</span></span>
+<span id="cb3-63"><a href="#cb3-63" tabindex="-1"></a><span class="co">#&gt;  [58,] -5.46241500 -3.13501786</span></span>
+<span id="cb3-64"><a href="#cb3-64" tabindex="-1"></a><span class="co">#&gt;  [59,]  1.80704281  1.96352000</span></span>
+<span id="cb3-65"><a href="#cb3-65" tabindex="-1"></a><span class="co">#&gt;  [60,]  0.98152259  1.02643732</span></span>
+<span id="cb3-66"><a href="#cb3-66" tabindex="-1"></a><span class="co">#&gt;  [61,]  6.96553137  7.27948267</span></span>
+<span id="cb3-67"><a href="#cb3-67" tabindex="-1"></a><span class="co">#&gt;  [62,]  0.51896096  0.62111981</span></span>
+<span id="cb3-68"><a href="#cb3-68" tabindex="-1"></a><span class="co">#&gt;  [63,]  1.86205870  1.98001631</span></span>
+<span id="cb3-69"><a href="#cb3-69" tabindex="-1"></a><span class="co">#&gt;  [64,] -1.56910437 -0.79638044</span></span>
+<span id="cb3-70"><a href="#cb3-70" tabindex="-1"></a><span class="co">#&gt;  [65,]  0.03998807  0.12968973</span></span>
+<span id="cb3-71"><a href="#cb3-71" tabindex="-1"></a><span class="co">#&gt;  [66,] -1.60831260 -0.76658466</span></span>
+<span id="cb3-72"><a href="#cb3-72" tabindex="-1"></a><span class="co">#&gt;  [67,] -5.83910206 -3.51436200</span></span>
+<span id="cb3-73"><a href="#cb3-73" tabindex="-1"></a><span class="co">#&gt;  [68,]  3.69075098  3.83031333</span></span>
+<span id="cb3-74"><a href="#cb3-74" tabindex="-1"></a><span class="co">#&gt;  [69,] -1.25532881 -0.69167778</span></span>
+<span id="cb3-75"><a href="#cb3-75" tabindex="-1"></a><span class="co">#&gt;  [70,]  6.18317184  6.50535257</span></span>
+<span id="cb3-76"><a href="#cb3-76" tabindex="-1"></a><span class="co">#&gt;  [71,]  0.21802425  0.30971798</span></span>
+<span id="cb3-77"><a href="#cb3-77" tabindex="-1"></a><span class="co">#&gt;  [72,] -1.76671643 -1.14991335</span></span>
+<span id="cb3-78"><a href="#cb3-78" tabindex="-1"></a><span class="co">#&gt;  [73,]  2.23638201  2.32428518</span></span>
+<span id="cb3-79"><a href="#cb3-79" tabindex="-1"></a><span class="co">#&gt;  [74,] -1.79774291 -1.12338850</span></span>
+<span id="cb3-80"><a href="#cb3-80" tabindex="-1"></a><span class="co">#&gt;  [75,] -2.22925704 -1.51895932</span></span>
+<span id="cb3-81"><a href="#cb3-81" tabindex="-1"></a><span class="co">#&gt;  [76,]  2.59276363  2.77286756</span></span>
+<span id="cb3-82"><a href="#cb3-82" tabindex="-1"></a><span class="co">#&gt;  [77,] -6.35918692 -3.43139665</span></span>
+<span id="cb3-83"><a href="#cb3-83" tabindex="-1"></a><span class="co">#&gt;  [78,]  0.56240519  0.64292691</span></span>
+<span id="cb3-84"><a href="#cb3-84" tabindex="-1"></a><span class="co">#&gt;  [79,]  2.22149944  2.31253615</span></span>
+<span id="cb3-85"><a href="#cb3-85" tabindex="-1"></a><span class="co">#&gt;  [80,] -1.63868585 -0.95823757</span></span>
+<span id="cb3-86"><a href="#cb3-86" tabindex="-1"></a><span class="co">#&gt;  [81,]  0.90207020  0.98926712</span></span>
+<span id="cb3-87"><a href="#cb3-87" tabindex="-1"></a><span class="co">#&gt;  [82,] -1.52980609 -0.87886959</span></span>
+<span id="cb3-88"><a href="#cb3-88" tabindex="-1"></a><span class="co">#&gt;  [83,]  1.78755432  1.89250863</span></span>
+<span id="cb3-89"><a href="#cb3-89" tabindex="-1"></a><span class="co">#&gt;  [84,] -0.36623954 -0.22621229</span></span>
+<span id="cb3-90"><a href="#cb3-90" tabindex="-1"></a><span class="co">#&gt;  [85,]  5.32322026  5.59541570</span></span>
+<span id="cb3-91"><a href="#cb3-91" tabindex="-1"></a><span class="co">#&gt;  [86,]  2.55580362  2.65768235</span></span>
+<span id="cb3-92"><a href="#cb3-92" tabindex="-1"></a><span class="co">#&gt;  [87,]  2.52517094  2.61403091</span></span>
+<span id="cb3-93"><a href="#cb3-93" tabindex="-1"></a><span class="co">#&gt;  [88,] -1.87969707 -1.01077751</span></span>
+<span id="cb3-94"><a href="#cb3-94" tabindex="-1"></a><span class="co">#&gt;  [89,] -0.46675863 -0.19208886</span></span>
+<span id="cb3-95"><a href="#cb3-95" tabindex="-1"></a><span class="co">#&gt;  [90,] -0.28121882 -0.03866393</span></span>
+<span id="cb3-96"><a href="#cb3-96" tabindex="-1"></a><span class="co">#&gt;  [91,] -0.20426616 -0.08673605</span></span>
+<span id="cb3-97"><a href="#cb3-97" tabindex="-1"></a><span class="co">#&gt;  [92,]  2.68361811  2.85884624</span></span>
+<span id="cb3-98"><a href="#cb3-98" tabindex="-1"></a><span class="co">#&gt;  [93,]  0.75527048  0.85534130</span></span>
+<span id="cb3-99"><a href="#cb3-99" tabindex="-1"></a><span class="co">#&gt;  [94,]  7.02633442  7.40285227</span></span>
+<span id="cb3-100"><a href="#cb3-100" tabindex="-1"></a><span class="co">#&gt;  [95,]  2.45652165  2.62439284</span></span>
+<span id="cb3-101"><a href="#cb3-101" tabindex="-1"></a><span class="co">#&gt;  [96,]  2.75059986  2.94848742</span></span>
+<span id="cb3-102"><a href="#cb3-102" tabindex="-1"></a><span class="co">#&gt;  [97,] -6.89237135 -3.80740187</span></span>
+<span id="cb3-103"><a href="#cb3-103" tabindex="-1"></a><span class="co">#&gt;  [98,] -0.97821497 -0.65853319</span></span>
+<span id="cb3-104"><a href="#cb3-104" tabindex="-1"></a><span class="co">#&gt;  [99,] -4.68240789 -2.66500304</span></span>
+<span id="cb3-105"><a href="#cb3-105" tabindex="-1"></a><span class="co">#&gt; [100,]  1.97400340  2.07405549</span></span>
+<span id="cb3-106"><a href="#cb3-106" tabindex="-1"></a><span class="co">#&gt; [101,]  0.80508750  0.85019030</span></span>
+<span id="cb3-107"><a href="#cb3-107" tabindex="-1"></a><span class="co">#&gt; [102,] -1.58638105 -0.88841842</span></span>
+<span id="cb3-108"><a href="#cb3-108" tabindex="-1"></a><span class="co">#&gt; [103,]  0.44077338  0.54399729</span></span>
+<span id="cb3-109"><a href="#cb3-109" tabindex="-1"></a><span class="co">#&gt; [104,] -1.21427000 -0.61119221</span></span>
+<span id="cb3-110"><a href="#cb3-110" tabindex="-1"></a><span class="co">#&gt; [105,] -1.89553617 -1.10006981</span></span>
+<span id="cb3-111"><a href="#cb3-111" tabindex="-1"></a><span class="co">#&gt; [106,]  1.42509061  1.54761788</span></span>
+<span id="cb3-112"><a href="#cb3-112" tabindex="-1"></a><span class="co">#&gt; [107,]  0.30278522  0.41402995</span></span>
+<span id="cb3-113"><a href="#cb3-113" tabindex="-1"></a><span class="co">#&gt; [108,]  2.63124615  2.82294641</span></span>
+<span id="cb3-114"><a href="#cb3-114" tabindex="-1"></a><span class="co">#&gt; [109,]  1.19228050  1.29968140</span></span>
+<span id="cb3-115"><a href="#cb3-115" tabindex="-1"></a><span class="co">#&gt; [110,]  6.06903107  6.35522283</span></span>
+<span id="cb3-116"><a href="#cb3-116" tabindex="-1"></a><span class="co">#&gt; [111,] -2.09570076 -1.24001009</span></span>
+<span id="cb3-117"><a href="#cb3-117" tabindex="-1"></a><span class="co">#&gt; [112,] -1.67046455 -1.04799724</span></span>
+<span id="cb3-118"><a href="#cb3-118" tabindex="-1"></a><span class="co">#&gt; [113,]  4.39245240  4.58032277</span></span>
+<span id="cb3-119"><a href="#cb3-119" tabindex="-1"></a><span class="co">#&gt; [114,] -4.11738255 -2.26267515</span></span>
+<span id="cb3-120"><a href="#cb3-120" tabindex="-1"></a><span class="co">#&gt; [115,]  4.06168294  4.27519173</span></span>
+<span id="cb3-121"><a href="#cb3-121" tabindex="-1"></a><span class="co">#&gt; [116,] -1.27720847 -0.80473775</span></span>
+<span id="cb3-122"><a href="#cb3-122" tabindex="-1"></a><span class="co">#&gt; [117,]  1.67306614  1.76788412</span></span>
+<span id="cb3-123"><a href="#cb3-123" tabindex="-1"></a><span class="co">#&gt; [118,] -0.16721360 -0.04143732</span></span>
+<span id="cb3-124"><a href="#cb3-124" tabindex="-1"></a><span class="co">#&gt; [119,]  2.15202037  2.23298051</span></span>
+<span id="cb3-125"><a href="#cb3-125" tabindex="-1"></a><span class="co">#&gt; [120,] -0.99748125 -0.56499753</span></span>
+<span id="cb3-126"><a href="#cb3-126" tabindex="-1"></a>pr_con<span class="sc">$</span>fit</span>
+<span id="cb3-127"><a href="#cb3-127" tabindex="-1"></a><span class="co">#&gt;                [,1]         [,2]</span></span>
+<span id="cb3-128"><a href="#cb3-128" tabindex="-1"></a><span class="co">#&gt;   [1,] -2.300945810  1.800522788</span></span>
+<span id="cb3-129"><a href="#cb3-129" tabindex="-1"></a><span class="co">#&gt;   [2,]  1.245571631  1.524732257</span></span>
+<span id="cb3-130"><a href="#cb3-130" tabindex="-1"></a><span class="co">#&gt;   [3,]  3.113631301  3.406513813</span></span>
+<span id="cb3-131"><a href="#cb3-131" tabindex="-1"></a><span class="co">#&gt;   [4,] -3.503358266 -1.579785767</span></span>
+<span id="cb3-132"><a href="#cb3-132" tabindex="-1"></a><span class="co">#&gt;   [5,] -0.260627655  0.074493798</span></span>
+<span id="cb3-133"><a href="#cb3-133" tabindex="-1"></a><span class="co">#&gt;   [6,] -2.296182310  1.479079388</span></span>
+<span id="cb3-134"><a href="#cb3-134" tabindex="-1"></a><span class="co">#&gt;   [7,]  0.487292518  1.045186446</span></span>
+<span id="cb3-135"><a href="#cb3-135" tabindex="-1"></a><span class="co">#&gt;   [8,] -3.166806769 -0.694429460</span></span>
+<span id="cb3-136"><a href="#cb3-136" tabindex="-1"></a><span class="co">#&gt;   [9,] -0.544161642 -0.193669644</span></span>
+<span id="cb3-137"><a href="#cb3-137" tabindex="-1"></a><span class="co">#&gt;  [10,]  2.626932509  3.237368443</span></span>
+<span id="cb3-138"><a href="#cb3-138" tabindex="-1"></a><span class="co">#&gt;  [11,]  1.922742608  2.068196636</span></span>
+<span id="cb3-139"><a href="#cb3-139" tabindex="-1"></a><span class="co">#&gt;  [12,]  3.493213951  3.595163529</span></span>
+<span id="cb3-140"><a href="#cb3-140" tabindex="-1"></a><span class="co">#&gt;  [13,] -0.746018936  1.631489832</span></span>
+<span id="cb3-141"><a href="#cb3-141" tabindex="-1"></a><span class="co">#&gt;  [14,]  1.171329588  4.383016792</span></span>
+<span id="cb3-142"><a href="#cb3-142" tabindex="-1"></a><span class="co">#&gt;  [15,] -0.842953254 -0.346331102</span></span>
+<span id="cb3-143"><a href="#cb3-143" tabindex="-1"></a><span class="co">#&gt;  [16,] -3.594449988  0.547560539</span></span>
+<span id="cb3-144"><a href="#cb3-144" tabindex="-1"></a><span class="co">#&gt;  [17,] -0.897983904  0.491499170</span></span>
+<span id="cb3-145"><a href="#cb3-145" tabindex="-1"></a><span class="co">#&gt;  [18,] -0.627265688 -0.193784541</span></span>
+<span id="cb3-146"><a href="#cb3-146" tabindex="-1"></a><span class="co">#&gt;  [19,] -0.610747476 -0.313267804</span></span>
+<span id="cb3-147"><a href="#cb3-147" tabindex="-1"></a><span class="co">#&gt;  [20,]  2.992943503  3.139700186</span></span>
+<span id="cb3-148"><a href="#cb3-148" tabindex="-1"></a><span class="co">#&gt;  [21,]  0.511243066  0.662106926</span></span>
+<span id="cb3-149"><a href="#cb3-149" tabindex="-1"></a><span class="co">#&gt;  [22,] -0.164022626  0.581683606</span></span>
+<span id="cb3-150"><a href="#cb3-150" tabindex="-1"></a><span class="co">#&gt;  [23,] -0.572864447  0.530710032</span></span>
+<span id="cb3-151"><a href="#cb3-151" tabindex="-1"></a><span class="co">#&gt;  [24,]  1.766044638  4.545073749</span></span>
+<span id="cb3-152"><a href="#cb3-152" tabindex="-1"></a><span class="co">#&gt;  [25,]  0.009045539  1.438476562</span></span>
+<span id="cb3-153"><a href="#cb3-153" tabindex="-1"></a><span class="co">#&gt;  [26,] -0.804667868  1.009263940</span></span>
+<span id="cb3-154"><a href="#cb3-154" tabindex="-1"></a><span class="co">#&gt;  [27,] -2.776228792  0.490077643</span></span>
+<span id="cb3-155"><a href="#cb3-155" tabindex="-1"></a><span class="co">#&gt;  [28,]  2.144606630  3.252142453</span></span>
+<span id="cb3-156"><a href="#cb3-156" tabindex="-1"></a><span class="co">#&gt;  [29,]  0.848271731  1.278539136</span></span>
+<span id="cb3-157"><a href="#cb3-157" tabindex="-1"></a><span class="co">#&gt;  [30,] -2.065188700 -0.298503124</span></span>
+<span id="cb3-158"><a href="#cb3-158" tabindex="-1"></a><span class="co">#&gt;  [31,] -3.246667529 -1.594597398</span></span>
+<span id="cb3-159"><a href="#cb3-159" tabindex="-1"></a><span class="co">#&gt;  [32,] -2.606137692  0.373867970</span></span>
+<span id="cb3-160"><a href="#cb3-160" tabindex="-1"></a><span class="co">#&gt;  [33,] -1.105885170 -0.180618464</span></span>
+<span id="cb3-161"><a href="#cb3-161" tabindex="-1"></a><span class="co">#&gt;  [34,] -3.365490027  0.779971452</span></span>
+<span id="cb3-162"><a href="#cb3-162" tabindex="-1"></a><span class="co">#&gt;  [35,] -0.918728578  2.408211387</span></span>
+<span id="cb3-163"><a href="#cb3-163" tabindex="-1"></a><span class="co">#&gt;  [36,] -1.283268699  1.018610347</span></span>
+<span id="cb3-164"><a href="#cb3-164" tabindex="-1"></a><span class="co">#&gt;  [37,] -2.021535787  0.826364110</span></span>
+<span id="cb3-165"><a href="#cb3-165" tabindex="-1"></a><span class="co">#&gt;  [38,] -3.198336523  0.725864993</span></span>
+<span id="cb3-166"><a href="#cb3-166" tabindex="-1"></a><span class="co">#&gt;  [39,]  0.337434224  0.552978028</span></span>
+<span id="cb3-167"><a href="#cb3-167" tabindex="-1"></a><span class="co">#&gt;  [40,]  2.018111130  2.110701746</span></span>
+<span id="cb3-168"><a href="#cb3-168" tabindex="-1"></a><span class="co">#&gt;  [41,] -4.669035493  1.107250080</span></span>
+<span id="cb3-169"><a href="#cb3-169" tabindex="-1"></a><span class="co">#&gt;  [42,]  0.190680966  0.721270033</span></span>
+<span id="cb3-170"><a href="#cb3-170" tabindex="-1"></a><span class="co">#&gt;  [43,]  2.431571465  2.610078318</span></span>
+<span id="cb3-171"><a href="#cb3-171" tabindex="-1"></a><span class="co">#&gt;  [44,] -1.122991694 -0.401129199</span></span>
+<span id="cb3-172"><a href="#cb3-172" tabindex="-1"></a><span class="co">#&gt;  [45,] -4.170443466  1.691906936</span></span>
+<span id="cb3-173"><a href="#cb3-173" tabindex="-1"></a><span class="co">#&gt;  [46,] -1.511846111  1.499938921</span></span>
+<span id="cb3-174"><a href="#cb3-174" tabindex="-1"></a><span class="co">#&gt;  [47,] -1.504028303 -0.218668561</span></span>
+<span id="cb3-175"><a href="#cb3-175" tabindex="-1"></a><span class="co">#&gt;  [48,] -3.567467366 -0.384937559</span></span>
+<span id="cb3-176"><a href="#cb3-176" tabindex="-1"></a><span class="co">#&gt;  [49,] -2.584161238  0.363088544</span></span>
+<span id="cb3-177"><a href="#cb3-177" tabindex="-1"></a><span class="co">#&gt;  [50,] -1.819831911 -0.893852744</span></span>
+<span id="cb3-178"><a href="#cb3-178" tabindex="-1"></a><span class="co">#&gt;  [51,] -2.647132057 -0.097725377</span></span>
+<span id="cb3-179"><a href="#cb3-179" tabindex="-1"></a><span class="co">#&gt;  [52,] -4.719352447  2.800993073</span></span>
+<span id="cb3-180"><a href="#cb3-180" tabindex="-1"></a><span class="co">#&gt;  [53,]  3.147926026  3.378397694</span></span>
+<span id="cb3-181"><a href="#cb3-181" tabindex="-1"></a><span class="co">#&gt;  [54,] -0.969551310  1.946424599</span></span>
+<span id="cb3-182"><a href="#cb3-182" tabindex="-1"></a><span class="co">#&gt;  [55,]  0.105904785  0.305222301</span></span>
+<span id="cb3-183"><a href="#cb3-183" tabindex="-1"></a><span class="co">#&gt;  [56,]  1.415625255  1.598842379</span></span>
+<span id="cb3-184"><a href="#cb3-184" tabindex="-1"></a><span class="co">#&gt;  [57,] -2.605181970  0.745423244</span></span>
+<span id="cb3-185"><a href="#cb3-185" tabindex="-1"></a><span class="co">#&gt;  [58,] -3.693477609  2.409814061</span></span>
+<span id="cb3-186"><a href="#cb3-186" tabindex="-1"></a><span class="co">#&gt;  [59,] -2.541757068 -0.350309530</span></span>
+<span id="cb3-187"><a href="#cb3-187" tabindex="-1"></a><span class="co">#&gt;  [60,]  3.149744765  3.290978972</span></span>
+<span id="cb3-188"><a href="#cb3-188" tabindex="-1"></a><span class="co">#&gt;  [61,]  1.938510554  2.107572421</span></span>
+<span id="cb3-189"><a href="#cb3-189" tabindex="-1"></a><span class="co">#&gt;  [62,] -2.300512711  0.410528448</span></span>
+<span id="cb3-190"><a href="#cb3-190" tabindex="-1"></a><span class="co">#&gt;  [63,]  0.135993525  0.277664480</span></span>
+<span id="cb3-191"><a href="#cb3-191" tabindex="-1"></a><span class="co">#&gt;  [64,] -0.863346152  0.667215092</span></span>
+<span id="cb3-192"><a href="#cb3-192" tabindex="-1"></a><span class="co">#&gt;  [65,] -0.193379232  1.473121309</span></span>
+<span id="cb3-193"><a href="#cb3-193" tabindex="-1"></a><span class="co">#&gt;  [66,]  2.299791543  3.316509873</span></span>
+<span id="cb3-194"><a href="#cb3-194" tabindex="-1"></a><span class="co">#&gt;  [67,] -2.893157357  3.537838249</span></span>
+<span id="cb3-195"><a href="#cb3-195" tabindex="-1"></a><span class="co">#&gt;  [68,]  2.247392305  2.398440969</span></span>
+<span id="cb3-196"><a href="#cb3-196" tabindex="-1"></a><span class="co">#&gt;  [69,] -3.281651644  0.007988833</span></span>
+<span id="cb3-197"><a href="#cb3-197" tabindex="-1"></a><span class="co">#&gt;  [70,]  0.107709572  0.422723282</span></span>
+<span id="cb3-198"><a href="#cb3-198" tabindex="-1"></a><span class="co">#&gt;  [71,] -2.519567513 -0.430062811</span></span>
+<span id="cb3-199"><a href="#cb3-199" tabindex="-1"></a><span class="co">#&gt;  [72,] -2.035602791  1.219504623</span></span>
+<span id="cb3-200"><a href="#cb3-200" tabindex="-1"></a><span class="co">#&gt;  [73,]  2.512207342  2.613573705</span></span>
+<span id="cb3-201"><a href="#cb3-201" tabindex="-1"></a><span class="co">#&gt;  [74,]  1.396075220  2.428550731</span></span>
+<span id="cb3-202"><a href="#cb3-202" tabindex="-1"></a><span class="co">#&gt;  [75,] -1.338282716  2.139428195</span></span>
+<span id="cb3-203"><a href="#cb3-203" tabindex="-1"></a><span class="co">#&gt;  [76,]  0.747146784  1.143549871</span></span>
+<span id="cb3-204"><a href="#cb3-204" tabindex="-1"></a><span class="co">#&gt;  [77,] -4.735084654  2.097627709</span></span>
+<span id="cb3-205"><a href="#cb3-205" tabindex="-1"></a><span class="co">#&gt;  [78,] -0.694003030  0.255283327</span></span>
+<span id="cb3-206"><a href="#cb3-206" tabindex="-1"></a><span class="co">#&gt;  [79,]  3.719560171  3.825190004</span></span>
+<span id="cb3-207"><a href="#cb3-207" tabindex="-1"></a><span class="co">#&gt;  [80,]  0.599594051  1.681565595</span></span>
+<span id="cb3-208"><a href="#cb3-208" tabindex="-1"></a><span class="co">#&gt;  [81,]  1.804548026  2.150890020</span></span>
+<span id="cb3-209"><a href="#cb3-209" tabindex="-1"></a><span class="co">#&gt;  [82,] -1.646289755  0.479761617</span></span>
+<span id="cb3-210"><a href="#cb3-210" tabindex="-1"></a><span class="co">#&gt;  [83,] -0.810954205 -0.544519990</span></span>
+<span id="cb3-211"><a href="#cb3-211" tabindex="-1"></a><span class="co">#&gt;  [84,]  4.127432406  4.752389678</span></span>
+<span id="cb3-212"><a href="#cb3-212" tabindex="-1"></a><span class="co">#&gt;  [85,]  3.826057707  4.133542314</span></span>
+<span id="cb3-213"><a href="#cb3-213" tabindex="-1"></a><span class="co">#&gt;  [86,]  3.552445383  3.645327974</span></span>
+<span id="cb3-214"><a href="#cb3-214" tabindex="-1"></a><span class="co">#&gt;  [87,]  2.094225141  2.239040551</span></span>
+<span id="cb3-215"><a href="#cb3-215" tabindex="-1"></a><span class="co">#&gt;  [88,]  1.264847420  2.306837577</span></span>
+<span id="cb3-216"><a href="#cb3-216" tabindex="-1"></a><span class="co">#&gt;  [89,] -1.899558882 -0.249091251</span></span>
+<span id="cb3-217"><a href="#cb3-217" tabindex="-1"></a><span class="co">#&gt;  [90,]  1.323307029  1.682877544</span></span>
+<span id="cb3-218"><a href="#cb3-218" tabindex="-1"></a><span class="co">#&gt;  [91,]  3.375756257  3.738759457</span></span>
+<span id="cb3-219"><a href="#cb3-219" tabindex="-1"></a><span class="co">#&gt;  [92,] -1.180013042 -0.796691602</span></span>
+<span id="cb3-220"><a href="#cb3-220" tabindex="-1"></a><span class="co">#&gt;  [93,] -1.236378131 -0.748985786</span></span>
+<span id="cb3-221"><a href="#cb3-221" tabindex="-1"></a><span class="co">#&gt;  [94,]  4.145720534  4.756914185</span></span>
+<span id="cb3-222"><a href="#cb3-222" tabindex="-1"></a><span class="co">#&gt;  [95,] -2.906952956 -1.812406941</span></span>
+<span id="cb3-223"><a href="#cb3-223" tabindex="-1"></a><span class="co">#&gt;  [96,] -0.213678867  0.319785941</span></span>
+<span id="cb3-224"><a href="#cb3-224" tabindex="-1"></a><span class="co">#&gt;  [97,] -2.060358232  3.999529523</span></span>
+<span id="cb3-225"><a href="#cb3-225" tabindex="-1"></a><span class="co">#&gt;  [98,] -2.074616654  1.033848292</span></span>
+<span id="cb3-226"><a href="#cb3-226" tabindex="-1"></a><span class="co">#&gt;  [99,] -0.363487929  3.389258914</span></span>
+<span id="cb3-227"><a href="#cb3-227" tabindex="-1"></a><span class="co">#&gt; [100,]  4.053300337  4.267624234</span></span>
+<span id="cb3-228"><a href="#cb3-228" tabindex="-1"></a><span class="co">#&gt; [101,]  3.832330761  4.027161456</span></span>
+<span id="cb3-229"><a href="#cb3-229" tabindex="-1"></a><span class="co">#&gt; [102,] -2.652710404  0.197571476</span></span>
+<span id="cb3-230"><a href="#cb3-230" tabindex="-1"></a><span class="co">#&gt; [103,]  1.130143915  2.045129384</span></span>
+<span id="cb3-231"><a href="#cb3-231" tabindex="-1"></a><span class="co">#&gt; [104,] -1.304389828  0.257209635</span></span>
+<span id="cb3-232"><a href="#cb3-232" tabindex="-1"></a><span class="co">#&gt; [105,]  0.869454445  2.035921464</span></span>
+<span id="cb3-233"><a href="#cb3-233" tabindex="-1"></a><span class="co">#&gt; [106,] -2.255458159 -1.553768216</span></span>
+<span id="cb3-234"><a href="#cb3-234" tabindex="-1"></a><span class="co">#&gt; [107,] -0.625753247 -0.224576619</span></span>
+<span id="cb3-235"><a href="#cb3-235" tabindex="-1"></a><span class="co">#&gt; [108,] -1.726794532 -0.737106740</span></span>
+<span id="cb3-236"><a href="#cb3-236" tabindex="-1"></a><span class="co">#&gt; [109,] -0.651458511 -0.188833775</span></span>
+<span id="cb3-237"><a href="#cb3-237" tabindex="-1"></a><span class="co">#&gt; [110,]  2.467044769  2.635119190</span></span>
+<span id="cb3-238"><a href="#cb3-238" tabindex="-1"></a><span class="co">#&gt; [111,] -0.401470026  1.434542466</span></span>
+<span id="cb3-239"><a href="#cb3-239" tabindex="-1"></a><span class="co">#&gt; [112,] -2.997688124  0.886066883</span></span>
+<span id="cb3-240"><a href="#cb3-240" tabindex="-1"></a><span class="co">#&gt; [113,]  2.369518608  2.467496870</span></span>
+<span id="cb3-241"><a href="#cb3-241" tabindex="-1"></a><span class="co">#&gt; [114,] -1.606421292  2.136130211</span></span>
+<span id="cb3-242"><a href="#cb3-242" tabindex="-1"></a><span class="co">#&gt; [115,]  4.735284664  5.116781011</span></span>
+<span id="cb3-243"><a href="#cb3-243" tabindex="-1"></a><span class="co">#&gt; [116,] -1.531137382  0.735659922</span></span>
+<span id="cb3-244"><a href="#cb3-244" tabindex="-1"></a><span class="co">#&gt; [117,]  3.054328111  3.241571458</span></span>
+<span id="cb3-245"><a href="#cb3-245" tabindex="-1"></a><span class="co">#&gt; [118,] -2.463087212  0.698956311</span></span>
+<span id="cb3-246"><a href="#cb3-246" tabindex="-1"></a><span class="co">#&gt; [119,]  2.850069685  2.955214423</span></span>
+<span id="cb3-247"><a href="#cb3-247" tabindex="-1"></a><span class="co">#&gt; [120,] -0.415655186  0.626045877</span></span></code></pre></div>
+</div>
+<div id="qte-scaffolding" class="section level1">
+<h1>QTE scaffolding</h1>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>qt <span class="ot">&lt;-</span> <span class="fu">cqte</span>(cf, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.9</span>), <span class="at">newdata =</span> X)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>qt<span class="sc">$</span>fit</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt;               [,1]        [,2]</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt;   [1,] -1.76504461 -4.07318716</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt;   [2,]  1.08446710  0.96102821</span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt;   [3,] -3.34616671 -3.53131437</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt;   [4,]  3.34381561  1.88330037</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt;   [5,]  1.61935473  1.40017671</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt;   [6,] -0.63191619 -3.26247889</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt;   [7,]  2.88024568  2.55079133</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt;   [8,]  2.33894056  0.37296724</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt;   [9,]  0.93427886  0.64890049</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt;  [10,] -3.59110640 -3.77463031</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt;  [11,]  1.84885666  1.85391479</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt;  [12,] -0.64884215 -0.63075202</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt;  [13,] -1.95321294 -3.16945867</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co">#&gt;  [14,] -4.24525079 -6.53044327</span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="co">#&gt;  [15,]  1.13500109  0.84959828</span></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="co">#&gt;  [16,]  0.51296187 -2.22424088</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="co">#&gt;  [17,]  2.60854099  1.37569497</span></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a><span class="co">#&gt;  [18,]  0.90004607  0.64169665</span></span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a><span class="co">#&gt;  [19,]  2.72261997  2.57133032</span></span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a><span class="co">#&gt;  [20,] -1.04771568 -1.13784012</span></span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a><span class="co">#&gt;  [21,]  2.26410344  2.27033852</span></span>
+<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a><span class="co">#&gt;  [22,]  4.22265273  3.75106646</span></span>
+<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a><span class="co">#&gt;  [23,]  2.81648464  1.89836302</span></span>
+<span id="cb4-28"><a href="#cb4-28" tabindex="-1"></a><span class="co">#&gt;  [24,] -5.79590033 -7.07601667</span></span>
+<span id="cb4-29"><a href="#cb4-29" tabindex="-1"></a><span class="co">#&gt;  [25,] -2.01694843 -2.28375801</span></span>
+<span id="cb4-30"><a href="#cb4-30" tabindex="-1"></a><span class="co">#&gt;  [26,]  4.00635339  2.44601802</span></span>
+<span id="cb4-31"><a href="#cb4-31" tabindex="-1"></a><span class="co">#&gt;  [27,]  2.32305461 -0.76362661</span></span>
+<span id="cb4-32"><a href="#cb4-32" tabindex="-1"></a><span class="co">#&gt;  [28,] -3.64304960 -4.33056112</span></span>
+<span id="cb4-33"><a href="#cb4-33" tabindex="-1"></a><span class="co">#&gt;  [29,] -1.55070150 -1.71417857</span></span>
+<span id="cb4-34"><a href="#cb4-34" tabindex="-1"></a><span class="co">#&gt;  [30,]  2.88238039  1.21797652</span></span>
+<span id="cb4-35"><a href="#cb4-35" tabindex="-1"></a><span class="co">#&gt;  [31,]  4.61750457  3.10392168</span></span>
+<span id="cb4-36"><a href="#cb4-36" tabindex="-1"></a><span class="co">#&gt;  [32,]  1.96148677 -0.76747846</span></span>
+<span id="cb4-37"><a href="#cb4-37" tabindex="-1"></a><span class="co">#&gt;  [33,]  0.89559645  0.16600398</span></span>
+<span id="cb4-38"><a href="#cb4-38" tabindex="-1"></a><span class="co">#&gt;  [34,] -0.10787046 -2.64393086</span></span>
+<span id="cb4-39"><a href="#cb4-39" tabindex="-1"></a><span class="co">#&gt;  [35,] -0.98106804 -3.75753685</span></span>
+<span id="cb4-40"><a href="#cb4-40" tabindex="-1"></a><span class="co">#&gt;  [36,]  2.11112025 -0.07157164</span></span>
+<span id="cb4-41"><a href="#cb4-41" tabindex="-1"></a><span class="co">#&gt;  [37,] -0.09909159 -2.08325255</span></span>
+<span id="cb4-42"><a href="#cb4-42" tabindex="-1"></a><span class="co">#&gt;  [38,] -0.04973307 -2.47590691</span></span>
+<span id="cb4-43"><a href="#cb4-43" tabindex="-1"></a><span class="co">#&gt;  [39,]  3.09216534  3.07206499</span></span>
+<span id="cb4-44"><a href="#cb4-44" tabindex="-1"></a><span class="co">#&gt;  [40,]  0.37970620  0.38904207</span></span>
+<span id="cb4-45"><a href="#cb4-45" tabindex="-1"></a><span class="co">#&gt;  [41,] -0.09666565 -3.67824924</span></span>
+<span id="cb4-46"><a href="#cb4-46" tabindex="-1"></a><span class="co">#&gt;  [42,] -0.65669138 -1.00040290</span></span>
+<span id="cb4-47"><a href="#cb4-47" tabindex="-1"></a><span class="co">#&gt;  [43,] -0.86124651 -0.99483711</span></span>
+<span id="cb4-48"><a href="#cb4-48" tabindex="-1"></a><span class="co">#&gt;  [44,]  1.36873371  0.72916056</span></span>
+<span id="cb4-49"><a href="#cb4-49" tabindex="-1"></a><span class="co">#&gt;  [45,] -0.68120945 -4.44027350</span></span>
+<span id="cb4-50"><a href="#cb4-50" tabindex="-1"></a><span class="co">#&gt;  [46,]  2.04274935 -0.84304948</span></span>
+<span id="cb4-51"><a href="#cb4-51" tabindex="-1"></a><span class="co">#&gt;  [47,]  1.18629755  0.11823145</span></span>
+<span id="cb4-52"><a href="#cb4-52" tabindex="-1"></a><span class="co">#&gt;  [48,]  1.42987826 -0.58688808</span></span>
+<span id="cb4-53"><a href="#cb4-53" tabindex="-1"></a><span class="co">#&gt;  [49,]  1.58083143 -0.96313550</span></span>
+<span id="cb4-54"><a href="#cb4-54" tabindex="-1"></a><span class="co">#&gt;  [50,]  3.35926244  2.55647074</span></span>
+<span id="cb4-55"><a href="#cb4-55" tabindex="-1"></a><span class="co">#&gt;  [51,]  0.98820052 -0.72045995</span></span>
+<span id="cb4-56"><a href="#cb4-56" tabindex="-1"></a><span class="co">#&gt;  [52,] -2.69830751 -6.78275157</span></span>
+<span id="cb4-57"><a href="#cb4-57" tabindex="-1"></a><span class="co">#&gt;  [53,] -2.09178220 -2.27722906</span></span>
+<span id="cb4-58"><a href="#cb4-58" tabindex="-1"></a><span class="co">#&gt;  [54,] -1.02451670 -3.30528505</span></span>
+<span id="cb4-59"><a href="#cb4-59" tabindex="-1"></a><span class="co">#&gt;  [55,]  2.92805387  2.87991928</span></span>
+<span id="cb4-60"><a href="#cb4-60" tabindex="-1"></a><span class="co">#&gt;  [56,]  3.26885588  3.28161437</span></span>
+<span id="cb4-61"><a href="#cb4-61" tabindex="-1"></a><span class="co">#&gt;  [57,]  1.58971162 -1.39879047</span></span>
+<span id="cb4-62"><a href="#cb4-62" tabindex="-1"></a><span class="co">#&gt;  [58,] -1.76893739 -5.54483192</span></span>
+<span id="cb4-63"><a href="#cb4-63" tabindex="-1"></a><span class="co">#&gt;  [59,]  4.34879988  2.31382953</span></span>
+<span id="cb4-64"><a href="#cb4-64" tabindex="-1"></a><span class="co">#&gt;  [60,] -2.16822217 -2.26454165</span></span>
+<span id="cb4-65"><a href="#cb4-65" tabindex="-1"></a><span class="co">#&gt;  [61,]  5.02702081  5.17191025</span></span>
+<span id="cb4-66"><a href="#cb4-66" tabindex="-1"></a><span class="co">#&gt;  [62,]  2.81947367  0.21059137</span></span>
+<span id="cb4-67"><a href="#cb4-67" tabindex="-1"></a><span class="co">#&gt;  [63,]  1.72606518  1.70235183</span></span>
+<span id="cb4-68"><a href="#cb4-68" tabindex="-1"></a><span class="co">#&gt;  [64,] -0.70575822 -1.46359553</span></span>
+<span id="cb4-69"><a href="#cb4-69" tabindex="-1"></a><span class="co">#&gt;  [65,]  0.23336730 -1.34343158</span></span>
+<span id="cb4-70"><a href="#cb4-70" tabindex="-1"></a><span class="co">#&gt;  [66,] -3.90810414 -4.08309454</span></span>
+<span id="cb4-71"><a href="#cb4-71" tabindex="-1"></a><span class="co">#&gt;  [67,] -2.94594471 -7.05220025</span></span>
+<span id="cb4-72"><a href="#cb4-72" tabindex="-1"></a><span class="co">#&gt;  [68,]  1.44335867  1.43187236</span></span>
+<span id="cb4-73"><a href="#cb4-73" tabindex="-1"></a><span class="co">#&gt;  [69,]  2.02632283 -0.69966661</span></span>
+<span id="cb4-74"><a href="#cb4-74" tabindex="-1"></a><span class="co">#&gt;  [70,]  6.07546227  6.08262929</span></span>
+<span id="cb4-75"><a href="#cb4-75" tabindex="-1"></a><span class="co">#&gt;  [71,]  2.73759177  0.73978079</span></span>
+<span id="cb4-76"><a href="#cb4-76" tabindex="-1"></a><span class="co">#&gt;  [72,]  0.26888636 -2.36941798</span></span>
+<span id="cb4-77"><a href="#cb4-77" tabindex="-1"></a><span class="co">#&gt;  [73,] -0.27582533 -0.28928853</span></span>
+<span id="cb4-78"><a href="#cb4-78" tabindex="-1"></a><span class="co">#&gt;  [74,] -3.19381813 -3.55193923</span></span>
+<span id="cb4-79"><a href="#cb4-79" tabindex="-1"></a><span class="co">#&gt;  [75,] -0.89097433 -3.65838752</span></span>
+<span id="cb4-80"><a href="#cb4-80" tabindex="-1"></a><span class="co">#&gt;  [76,]  1.84561685  1.62931769</span></span>
+<span id="cb4-81"><a href="#cb4-81" tabindex="-1"></a><span class="co">#&gt;  [77,] -1.62410227 -5.52902436</span></span>
+<span id="cb4-82"><a href="#cb4-82" tabindex="-1"></a><span class="co">#&gt;  [78,]  1.25640822  0.38764358</span></span>
+<span id="cb4-83"><a href="#cb4-83" tabindex="-1"></a><span class="co">#&gt;  [79,] -1.49806073 -1.51265385</span></span>
+<span id="cb4-84"><a href="#cb4-84" tabindex="-1"></a><span class="co">#&gt;  [80,] -2.23827990 -2.63980317</span></span>
+<span id="cb4-85"><a href="#cb4-85" tabindex="-1"></a><span class="co">#&gt;  [81,] -0.90247783 -1.16162290</span></span>
+<span id="cb4-86"><a href="#cb4-86" tabindex="-1"></a><span class="co">#&gt;  [82,]  0.11648367 -1.35863121</span></span>
+<span id="cb4-87"><a href="#cb4-87" tabindex="-1"></a><span class="co">#&gt;  [83,]  2.59850853  2.43702862</span></span>
+<span id="cb4-88"><a href="#cb4-88" tabindex="-1"></a><span class="co">#&gt;  [84,] -4.49367195 -4.97860197</span></span>
+<span id="cb4-89"><a href="#cb4-89" tabindex="-1"></a><span class="co">#&gt;  [85,]  1.49716256  1.46187339</span></span>
+<span id="cb4-90"><a href="#cb4-90" tabindex="-1"></a><span class="co">#&gt;  [86,] -0.99664176 -0.98764562</span></span>
+<span id="cb4-91"><a href="#cb4-91" tabindex="-1"></a><span class="co">#&gt;  [87,]  0.43094580  0.37499036</span></span>
+<span id="cb4-92"><a href="#cb4-92" tabindex="-1"></a><span class="co">#&gt;  [88,] -3.14454449 -3.31761509</span></span>
+<span id="cb4-93"><a href="#cb4-93" tabindex="-1"></a><span class="co">#&gt;  [89,]  1.43280025  0.05700239</span></span>
+<span id="cb4-94"><a href="#cb4-94" tabindex="-1"></a><span class="co">#&gt;  [90,] -1.60452585 -1.72154147</span></span>
+<span id="cb4-95"><a href="#cb4-95" tabindex="-1"></a><span class="co">#&gt;  [91,] -3.58002242 -3.82549550</span></span>
+<span id="cb4-96"><a href="#cb4-96" tabindex="-1"></a><span class="co">#&gt;  [92,]  3.86363116  3.65553784</span></span>
+<span id="cb4-97"><a href="#cb4-97" tabindex="-1"></a><span class="co">#&gt;  [93,]  1.99164861  1.60432709</span></span>
+<span id="cb4-98"><a href="#cb4-98" tabindex="-1"></a><span class="co">#&gt;  [94,]  2.88061389  2.64593808</span></span>
+<span id="cb4-99"><a href="#cb4-99" tabindex="-1"></a><span class="co">#&gt;  [95,]  5.36347460  4.43679978</span></span>
+<span id="cb4-100"><a href="#cb4-100" tabindex="-1"></a><span class="co">#&gt;  [96,]  2.96427873  2.62870148</span></span>
+<span id="cb4-101"><a href="#cb4-101" tabindex="-1"></a><span class="co">#&gt;  [97,] -4.83201312 -7.80693139</span></span>
+<span id="cb4-102"><a href="#cb4-102" tabindex="-1"></a><span class="co">#&gt;  [98,]  1.09640168 -1.69238148</span></span>
+<span id="cb4-103"><a href="#cb4-103" tabindex="-1"></a><span class="co">#&gt;  [99,] -4.31891996 -6.05426196</span></span>
+<span id="cb4-104"><a href="#cb4-104" tabindex="-1"></a><span class="co">#&gt; [100,] -2.07929693 -2.19356875</span></span>
+<span id="cb4-105"><a href="#cb4-105" tabindex="-1"></a><span class="co">#&gt; [101,] -3.02724326 -3.17697116</span></span>
+<span id="cb4-106"><a href="#cb4-106" tabindex="-1"></a><span class="co">#&gt; [102,]  1.06632936 -1.08598990</span></span>
+<span id="cb4-107"><a href="#cb4-107" tabindex="-1"></a><span class="co">#&gt; [103,] -0.68937054 -1.50113210</span></span>
+<span id="cb4-108"><a href="#cb4-108" tabindex="-1"></a><span class="co">#&gt; [104,]  0.09011983 -0.86840184</span></span>
+<span id="cb4-109"><a href="#cb4-109" tabindex="-1"></a><span class="co">#&gt; [105,] -2.76499062 -3.13599127</span></span>
+<span id="cb4-110"><a href="#cb4-110" tabindex="-1"></a><span class="co">#&gt; [106,]  3.68054877  3.10138609</span></span>
+<span id="cb4-111"><a href="#cb4-111" tabindex="-1"></a><span class="co">#&gt; [107,]  0.92853847  0.63860657</span></span>
+<span id="cb4-112"><a href="#cb4-112" tabindex="-1"></a><span class="co">#&gt; [108,]  4.35804069  3.56005315</span></span>
+<span id="cb4-113"><a href="#cb4-113" tabindex="-1"></a><span class="co">#&gt; [109,]  1.84373901  1.48851517</span></span>
+<span id="cb4-114"><a href="#cb4-114" tabindex="-1"></a><span class="co">#&gt; [110,]  3.60198630  3.72010364</span></span>
+<span id="cb4-115"><a href="#cb4-115" tabindex="-1"></a><span class="co">#&gt; [111,] -1.69423073 -2.67455255</span></span>
+<span id="cb4-116"><a href="#cb4-116" tabindex="-1"></a><span class="co">#&gt; [112,]  1.32722357 -1.93406412</span></span>
+<span id="cb4-117"><a href="#cb4-117" tabindex="-1"></a><span class="co">#&gt; [113,]  2.02293379  2.11282590</span></span>
+<span id="cb4-118"><a href="#cb4-118" tabindex="-1"></a><span class="co">#&gt; [114,] -2.51096126 -4.39880536</span></span>
+<span id="cb4-119"><a href="#cb4-119" tabindex="-1"></a><span class="co">#&gt; [115,] -0.67360173 -0.84158929</span></span>
+<span id="cb4-120"><a href="#cb4-120" tabindex="-1"></a><span class="co">#&gt; [116,]  0.25392891 -1.54039767</span></span>
+<span id="cb4-121"><a href="#cb4-121" tabindex="-1"></a><span class="co">#&gt; [117,] -1.38126198 -1.47368734</span></span>
+<span id="cb4-122"><a href="#cb4-122" tabindex="-1"></a><span class="co">#&gt; [118,]  2.29587361 -0.74039363</span></span>
+<span id="cb4-123"><a href="#cb4-123" tabindex="-1"></a><span class="co">#&gt; [119,] -0.69804932 -0.72223391</span></span>
+<span id="cb4-124"><a href="#cb4-124" tabindex="-1"></a><span class="co">#&gt; [120,] -0.58182607 -1.19104340</span></span></code></pre></div>
+<p>Plot QTE across quantiles:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>qs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>qt2 <span class="ot">&lt;-</span> <span class="fu">cqte</span>(cf, <span class="at">probs =</span> qs, <span class="at">newdata =</span> X)</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">plot</span>(qs, <span class="fu">as.numeric</span>(qt2<span class="sc">$</span>fit[<span class="dv">1</span>, ]), <span class="at">type =</span> <span class="st">&quot;b&quot;</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>     <span class="at">xlab =</span> <span class="st">&quot;quantile&quot;</span>, <span class="at">ylab =</span> <span class="st">&quot;QTE&quot;</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>     <span class="at">main =</span> <span class="st">&quot;Quantile treatment effect&quot;</span>)</span></code></pre></div>
+<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
+</div>
+<div id="assumptions-high-level" class="section level1">
+<h1>Assumptions (high level)</h1>
+<ul>
+<li>Ignorability: treatment is independent of potential outcomes given
+covariates.</li>
+<li>Positivity: treatment assignment has support across covariate
+space.</li>
+<li>Correct specification of the propensity model form.</li>
+</ul>
+<p>These assumptions are not verified automatically; the causal API
+provides scaffolding that can be extended with diagnostics and
+sensitivity analysis.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

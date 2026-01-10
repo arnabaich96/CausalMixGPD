@@ -1,0 +1,51 @@
+## ----setup, include=FALSE-----------------------------------------------------
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  cache = TRUE,
+  cache.path = "cache/04-kernels-",
+  fig.width = 6,
+  warning = FALSE,
+  message = FALSE
+)
+library(DPmixGPD)
+library(nimble)
+use_cached_fit <- TRUE
+.fit_path <- function(name) {
+  path <- system.file("extdata", name, package = "DPmixGPD")
+  if (path == "") path <- file.path("inst", "extdata", name)
+  path
+}
+fit_small <- readRDS(.fit_path("fit_small.rds"))
+library(ggplot2)
+library(dplyr)
+
+## ----kernel-example-----------------------------------------------------------
+y <- sim_bulk_tail(n = 160, seed = 77)
+bundle <- build_nimble_bundle(
+  y = y,
+  backend = "sb",
+  kernel = "amoroso",
+  GPD = TRUE,
+  J = 6,
+  mcmc = list(niter = 200, nburnin = 50, thin = 2, nchains = 2, seed = c(1, 2))
+)
+if (use_cached_fit) {
+  fit <- fit_small
+} else {
+  fit <- run_mcmc_bundle_manual(bundle)
+}
+
+## ----kernel-plot--------------------------------------------------------------
+data.frame(y = y) |>
+  ggplot(aes(x = y)) +
+  geom_histogram(boundary = 0, bins = 30, fill = "coral", alpha = 0.6) +
+  labs(title = "Data histogram showing bulk + tail", x = "y", y = "Count")
+
+## ----kernel-pred--------------------------------------------------------------
+predicted <- predict(fit, type = "quantile", p = c(0.5, 0.9, 0.99))
+predicted
+
+## ----session-info-------------------------------------------------------------
+sessionInfo()
+

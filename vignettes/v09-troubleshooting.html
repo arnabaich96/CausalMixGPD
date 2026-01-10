@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Troubleshooting and Common Errors</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Troubleshooting and Common Errors</h1>
+
+
+
+<p>What you’ll learn: how to interpret common warnings/errors, when to
+check dimensions, and how to keep posterior tails stable.</p>
+<div id="not-fully-initialized" class="section level2">
+<h2>Not fully initialized</h2>
+<p>This note from NIMBLE is normal on complex models; it flags variables
+not touched yet. Always run <code>fit$model$initializeInfo()</code> to
+confirm there are no truly missing nodes. The short example below logs
+the message and shows how to inspect:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(<span class="at">y =</span> <span class="fu">abs</span>(<span class="fu">rnorm</span>(<span class="dv">40</span>)) <span class="sc">+</span> <span class="fl">0.1</span>, <span class="at">backend =</span> <span class="st">&quot;sb&quot;</span>, <span class="at">kernel =</span> <span class="st">&quot;normal&quot;</span>, <span class="at">J =</span> <span class="dv">5</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="cf">if</span> (use_cached_fit) {</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> fit_small</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle, <span class="at">show_progress =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>}</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>fit<span class="sc">$</span>bundle<span class="sc">$</span>code  <span class="co"># ensures model objects exist</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="co">#&gt; NULL</span></span></code></pre></div>
+<p>When the warning persists, check <code>bundle$dimensions</code> and
+explicit initial values in <code>bundle$inits</code> to ensure every
+latent vector has compatible length.</p>
+</div>
+<div id="dimension-mismatch" class="section level2">
+<h2>Dimension mismatch</h2>
+<p>Mixing data with different numbers of covariates quickly raises
+dimension errors. Always confirm
+<code>ncol(newdata) == ncol(bundle$design$data$X)</code> before calling
+<code>predict()</code>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>bad_X <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="dv">1</span>, <span class="at">nrow =</span> <span class="dv">5</span>, <span class="at">ncol =</span> <span class="dv">1</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">ncol</span>(bad_X) <span class="sc">==</span> <span class="fu">ncol</span>(bundle<span class="sc">$</span>dimensions<span class="sc">$</span>X <span class="sc">%||%</span> <span class="fu">matrix</span>()))</span></code></pre></div>
+</div>
+<div id="object-v-not-found-and-stick-variables" class="section level2">
+<h2><code>&#39;object &quot;v&quot; not found&#39;</code> and stick variables</h2>
+<p>This class of errors arises when the <code>components</code>
+truncation is too small or <code>epsilon</code> drives many weight draws
+to zero. Remedy: increase <code>components</code> (your <span class="math inline">\(J\)</span>) and raise <code>epsilon</code>
+slightly. The following histogram shows posterior weight spread:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>ws <span class="ot">&lt;-</span> draw_w <span class="ot">&lt;-</span> DPmixGPD<span class="sc">:::</span><span class="fu">.extract_draws_matrix</span>(fit, <span class="at">drop_v =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>weight_cols <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">&quot;^w</span><span class="sc">\\</span><span class="st">[[0-9]+</span><span class="sc">\\</span><span class="st">]$&quot;</span>, <span class="fu">colnames</span>(draw_w), <span class="at">value =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>weight_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">weight =</span> <span class="fu">c</span>(draw_w[, weight_cols]))</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="fu">ggplot</span>(weight_df, <span class="fu">aes</span>(<span class="at">x =</span> weight)) <span class="sc">+</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">25</span>, <span class="at">fill =</span> <span class="st">&quot;#1f77b4&quot;</span>, <span class="at">color =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Posterior weight distribution (some components may collapse)&quot;</span>)</span></code></pre></div>
+<div class="float">
+<img role="img" aria-label="Posterior weights that survived truncation." src="data:image/png;base64,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" alt="Posterior weights that survived truncation." />
+<div class="figcaption">Posterior weights that survived
+truncation.</div>
+</div>
+</div>
+<div id="slow-mixing" class="section level2">
+<h2>Slow mixing</h2>
+<p>If trace plots show drift, lengthen <code>nburnin</code>, increase
+<code>thin</code>, or reduce <code>niter</code> under raw CPU pressure.
+Try the <code>plot(fit)</code> diagnostics above for thresholds and tail
+shape, and use
+<code>plot(fit, family = &quot;traceplot&quot;, params = &quot;alpha&quot;)</code> to
+monitor concentration.</p>
+</div>
+<div id="tail-instability" class="section level2">
+<h2>Tail instability</h2>
+<p>When tail shape/scale oscillate, the usual remedies are:</p>
+<ul>
+<li><strong>Prior sensitivity:</strong> tighten <code>tail_shape</code>
+priors (e.g.,
+<code>param_specs = list(tail_shape = list(mode = &quot;fixed&quot;, value = 0.2))</code>).</li>
+<li><strong>More exceedances:</strong> raise <code>threshold</code> by
+setting a higher initial guess or increasing <code>J</code>.</li>
+<li><strong>GPD flag:</strong> temporarily set <code>GPD = FALSE</code>
+to ensure your bulk is stable before reintroducing the tail.</li>
+</ul>
+</div>
+<div id="decision-chart" class="section level2">
+<h2>Decision chart</h2>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>symptoms <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="at">symptom =</span> <span class="fu">c</span>(<span class="st">&quot;Dimension mismatch&quot;</span>, <span class="st">&quot;Not fully initialized&quot;</span>, <span class="st">&quot;Tail shape blows up&quot;</span>, <span class="st">&quot;Slow mixing&quot;</span>),</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">cause =</span> <span class="fu">c</span>(<span class="st">&quot;newdata matrix columns differ&quot;</span>, <span class="st">&quot;latent nodes not set before compile&quot;</span>, <span class="st">&quot;too few tail exceedances&quot;</span>, <span class="st">&quot;thin/nchains too small&quot;</span>),</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="at">fix =</span> <span class="fu">c</span>(<span class="st">&quot;match columns/newdata&quot;</span>, <span class="st">&quot;provide explicit inits&quot;</span>, <span class="st">&quot;increase components/J or seed&quot;</span>, <span class="st">&quot;increase nburnin/thin or reduce autocorr&quot;</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>)</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(symptoms)</span></code></pre></div>
+<table>
+<colgroup>
+<col width="22%" />
+<col width="36%" />
+<col width="41%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">symptom</th>
+<th align="left">cause</th>
+<th align="left">fix</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Dimension mismatch</td>
+<td align="left">newdata matrix columns differ</td>
+<td align="left">match columns/newdata</td>
+</tr>
+<tr class="even">
+<td align="left">Not fully initialized</td>
+<td align="left">latent nodes not set before compile</td>
+<td align="left">provide explicit inits</td>
+</tr>
+<tr class="odd">
+<td align="left">Tail shape blows up</td>
+<td align="left">too few tail exceedances</td>
+<td align="left">increase components/J or seed</td>
+</tr>
+<tr class="even">
+<td align="left">Slow mixing</td>
+<td align="left">thin/nchains too small</td>
+<td align="left">increase nburnin/thin or reduce autocorr</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="prediction-example" class="section level2">
+<h2>Prediction example</h2>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>quant <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">type =</span> <span class="st">&quot;quantile&quot;</span>, <span class="at">p =</span> <span class="fu">c</span>(.<span class="dv">5</span>, .<span class="dv">9</span>, .<span class="dv">99</span>))</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>quant</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; $fit</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt;          [,1]     [,2]    [,3]</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; [1,] 2.444721 9.102755 10.1547</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; $lower</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; NULL</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; $upper</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; NULL</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; $type</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt; [1] &quot;quantile&quot;</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt; $grid</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt; [1] 0.50 0.90 0.99</span></span></code></pre></div>
+</div>
+<div id="session-info" class="section level2">
+<h2>Session info</h2>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt; R version 4.5.2 (2025-10-31 ucrt)</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; Platform: x86_64-w64-mingw32/x64</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; Running under: Windows 11 x64 (build 26100)</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; Matrix products: default</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt;   LAPACK version 3.12.1</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; locale:</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; [1] LC_COLLATE=C                          </span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; [2] LC_CTYPE=English_United States.utf8   </span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; [3] LC_MONETARY=English_United States.utf8</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; [4] LC_NUMERIC=C                          </span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; [5] LC_TIME=English_United States.utf8    </span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; time zone: America/New_York</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt; tzcode source: internal</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt; attached base packages:</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; other attached packages:</span></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">#&gt; [1] dplyr_1.1.4    ggplot2_4.0.1  nimble_1.4.0   DPmixGPD_0.0.8</span></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="co">#&gt;  [1] gtable_0.3.6        xfun_0.55           bslib_0.9.0        </span></span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="co">#&gt;  [4] devtools_2.4.6      remotes_2.5.0       GGally_2.4.0       </span></span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="co">#&gt;  [7] lattice_0.22-7      numDeriv_2016.8-1.1 vctrs_0.6.5        </span></span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a><span class="co">#&gt; [10] tools_4.5.2         generics_0.1.4      parallel_4.5.2     </span></span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="co">#&gt; [13] tibble_3.3.0        pkgconfig_2.0.3     RColorBrewer_1.1-3 </span></span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="co">#&gt; [16] ggmcmc_1.5.1.2      S7_0.2.1            desc_1.4.3         </span></span>
+<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a><span class="co">#&gt; [19] lifecycle_1.0.4     compiler_4.5.2      farver_2.1.2       </span></span>
+<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a><span class="co">#&gt; [22] stringr_1.6.0       codetools_0.2-20    htmltools_0.5.9    </span></span>
+<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a><span class="co">#&gt; [25] usethis_3.2.1       sass_0.4.10         yaml_2.3.12        </span></span>
+<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a><span class="co">#&gt; [28] pracma_2.4.6        pillar_1.11.1       jquerylib_0.1.4    </span></span>
+<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a><span class="co">#&gt; [31] tidyr_1.3.2         MASS_7.3-65         ellipsis_0.3.2     </span></span>
+<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a><span class="co">#&gt; [34] cachem_1.1.0        sessioninfo_1.2.3   parallelly_1.46.0  </span></span>
+<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a><span class="co">#&gt; [37] ggstats_0.11.0      tidyselect_1.2.1    digest_0.6.39      </span></span>
+<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a><span class="co">#&gt; [40] stringi_1.8.7       future_1.68.0       purrr_1.2.0        </span></span>
+<span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a><span class="co">#&gt; [43] listenv_0.10.0      labeling_0.4.3      rprojroot_2.1.1    </span></span>
+<span id="cb6-41"><a href="#cb6-41" tabindex="-1"></a><span class="co">#&gt; [46] fastmap_1.2.0       grid_4.5.2          cli_3.6.5          </span></span>
+<span id="cb6-42"><a href="#cb6-42" tabindex="-1"></a><span class="co">#&gt; [49] magrittr_2.0.4      utf8_1.2.6          pkgbuild_1.4.8     </span></span>
+<span id="cb6-43"><a href="#cb6-43" tabindex="-1"></a><span class="co">#&gt; [52] future.apply_1.20.1 withr_3.0.2         scales_1.4.0       </span></span>
+<span id="cb6-44"><a href="#cb6-44" tabindex="-1"></a><span class="co">#&gt; [55] roxygen2_7.3.3      rmarkdown_2.30      globals_0.18.0     </span></span>
+<span id="cb6-45"><a href="#cb6-45" tabindex="-1"></a><span class="co">#&gt; [58] igraph_2.2.1        otel_0.2.0          coda_0.19-4.1      </span></span>
+<span id="cb6-46"><a href="#cb6-46" tabindex="-1"></a><span class="co">#&gt; [61] memoise_2.0.1       evaluate_1.0.5      knitr_1.51         </span></span>
+<span id="cb6-47"><a href="#cb6-47" tabindex="-1"></a><span class="co">#&gt; [64] viridisLite_0.4.2   rlang_1.1.6         glue_1.8.0         </span></span>
+<span id="cb6-48"><a href="#cb6-48" tabindex="-1"></a><span class="co">#&gt; [67] xml2_1.5.1          pkgload_1.4.1       jsonlite_2.0.0     </span></span>
+<span id="cb6-49"><a href="#cb6-49" tabindex="-1"></a><span class="co">#&gt; [70] rstudioapi_0.17.1   R6_2.6.1            fs_1.6.6</span></span></code></pre></div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
