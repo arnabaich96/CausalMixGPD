@@ -14,7 +14,16 @@ pLaplaceMix(q, w, location, scale, lower.tail = 1, log.p = 0)
 
 rLaplaceMix(n, w, location, scale)
 
-qLaplaceMix(p, w, location, scale, lower.tail = TRUE, log.p = FALSE)
+qLaplaceMix(
+  p,
+  w,
+  location,
+  scale,
+  lower.tail = TRUE,
+  log.p = FALSE,
+  tol = 1e-10,
+  maxiter = 200
+)
 }
 \arguments{
 \item{x}{Numeric scalar giving the point at which the density is evaluated.}
@@ -22,7 +31,9 @@ qLaplaceMix(p, w, location, scale, lower.tail = TRUE, log.p = FALSE)
 \item{w}{Numeric vector of mixture weights of length \eqn{K}. The functions normalize \code{w}
 internally when needed.}
 
-\item{location, scale}{Numeric vectors of length \eqn{K} giving component locations and scales.}
+\item{location}{Numeric vector of length \eqn{K} giving component locations.}
+
+\item{scale}{Numeric vector of length \eqn{K} giving component scales.}
 
 \item{log}{Logical; if \code{TRUE}, return the log-density.}
 
@@ -38,7 +49,7 @@ internally when needed.}
 
 \item{tol}{Numeric scalar tolerance passed to \code{stats::uniroot}.}
 
-\item{matail_shapeter}{Integer matail_shapelocationm number of iterations for \code{stats::uniroot}.}
+\item{maxiter}{Integer maximum iterations for \code{stats::uniroot}.}
 }
 \value{
 Density/CDF/RNG functions return numeric scalars. \code{qLaplaceMix} returns a numeric vector

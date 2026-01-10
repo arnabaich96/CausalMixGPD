@@ -1,0 +1,118 @@
+---
+title: "Installation, Reproducibility, and Package Structure"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Installation, Reproducibility, and Package Structure}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  cache = TRUE,
+  cache.path = "cache/01-installation-",
+  fig.width = 6,
+  warning = FALSE,
+  message = FALSE
+)
+library(DPmixGPD)
+library(nimble)
+use_cached_fit <- TRUE
+.fit_path <- function(name) {
+  path <- system.file("extdata", name, package = "DPmixGPD")
+  if (path == "") path <- file.path("inst", "extdata", name)
+  path
+}
+fit_small <- readRDS(.fit_path("fit_small.rds"))
+library(ggplot2)
+```
+
+What you'll learn: how to install DPmixGPD consistently, reproduce MCMC draws via seeds and thinning, and locate the bundle/prediction/engine pieces inside the package.
+
+## Installation options
+
+- **CRAN** (preferred for most users): run `install.packages("DPmixGPD")` after the package appears.
+- **GitHub** (latest features):
+
+```r
+if (!requireNamespace("remotes", quietly = TRUE)) remotes::install.packages("remotes")
+remotes::install_github("fsu-dpmixgpd/DPmixGPD")  # placeholder repo URL
+```
+
+- **Nimble note:** DPmixGPD relies on Nimble's code generation. `nimble::nimbleOptions` can control compilation flags, so set reproducible values before running `run_mcmc_bundle_manual()`.
+
+## Reproducibility checklist
+
+- Pass `seed` values for `build_nimble_bundle()` and `run_mcmc_bundle_manual()` chains (`mcmc$niter`, `nburnin`, `nchains`, `thin` as deterministic lists).
+- Fix `plan()` for futures if using `future::plan()` in parallel chains; the package uses `future.apply` under the hood.
+- Save the returned object (`mixgpd_fit`) and rerun summaries/predict using the same seed list to avoid jitter.
+
+## Package architecture map
+
+| Area | Key functions | Purpose |
+| --- | --- | --- |
+| Bundle builder | `build_nimble_bundle()`, `build_causal_bundle()` | Creates Nimble nodes and mixture layout (SB or CRP) with J components, a kernel, and optional GPD tail. |
+| Prediction + diagnostics | `predict.mixgpd_fit()`, `cqte()`, `summary.mixgpd_fit()` | Compute quantiles, plotting data, and tail comparisons using the same mixture weights as estimation. |
+| Kernel registry | `get_kernel_registry()`, `init_kernel_registry()` | Lists the supported kernels (e.g., `gamma`, `lognormal`, `normal`) and their parameter shapes. |
+| Backend engine | `run_mcmc_bundle_manual()`, `run_mcmc_causal()` | Executes Nimble MCMC with SB or CRP latent structures plus any causal stacking. |
+| Utilities | `sim_*()` helpers, `get_tail_registry()` | Simulated datasets for tutorials and tail-specific metadata. |
+
+## Common pitfalls
+
+| Symptom | Likely cause | Fix |
+| --- | --- | --- |
+| "Model not fully initialized" | Some latent nodes were left `NULL` | Supply explicit `components`/`J`, `GPD`, and kernel priors in the bundle call before running MCMC. |
+| Dimension mismatch in newdata | Covariate names differ or missing | Always pass a `data.frame` whose column names match the ones used in `build_nimble_bundle()` (case sensitive). |
+| Positivity warning in causal | Overlap poor for treated vs control | Check propensity scores and consider trimming rare regions before drawing CQTE curves. |
+
+## Quick reproducible example
+
+```{r reproducible-example}
+y <- sim_bulk_tail(n = 120, seed = 42)
+if (use_cached_fit) {
+  fit <- fit_small
+} else {
+  bundle <- build_nimble_bundle(
+    y = y,
+    backend = "sb",
+    kernel = "gamma",
+    GPD = TRUE,
+    J = 5,
+    mcmc = list(niter = 200, nburnin = 50, thin = 2, nchains = 2, seed = c(1, 2))
+  )
+  fit <- run_mcmc_bundle_manual(bundle)
+}
+print(fit)
+```
+
+The `print()` output reiterates the backend, kernel, J components, and the `GPD` flag (TRUE/FALSE). The bundle bundler never leaves the latent parameter initialization to chance.
+
+## Diagnostic plot
+
+```{r diag-density}
+data.frame(y = y) |>
+  ggplot(aes(x = y)) +
+  geom_density(fill = "steelblue", alpha = 0.4) +
+  labs(title = "Input data density", x = "y", y = "Density")
+```
+
+## Prediction snippet
+
+```{r prediction-example}
+preds <- predict(fit, type = "quantile", p = c(0.5, 0.9, 0.95))
+print(preds)
+```
+
+## Troubleshooting checklist
+
+1. Confirm the target data fit the kernel domain (e.g., positive for `gamma`, `lognormal`).
+2. Inspect `fit$threshold` and `fit$tail_shape` for GPD instabilities.
+3. Re-run with more burn-in and thinning when chains mix poorly.
+
+## Session info
+
+```{r session-info}
+sessionInfo()
+```

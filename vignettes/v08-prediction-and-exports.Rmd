@@ -1,0 +1,97 @@
+---
+title: "Prediction, Posterior Draws, and Exporting Results"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Prediction, Posterior Draws, and Exporting Results}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  cache = TRUE,
+  cache.path = "cache/08-prediction-",
+  warning = FALSE,
+  message = FALSE,
+  fig.width = 6
+)
+library(DPmixGPD)
+library(nimble)
+use_cached_fit <- TRUE
+.fit_path <- function(name) {
+  path <- system.file("extdata", name, package = "DPmixGPD")
+  if (path == "") path <- file.path("inst", "extdata", name)
+  path
+}
+fit_small <- readRDS(.fit_path("fit_small.rds"))
+library(ggplot2)
+```
+
+What you'll learn: how to extract posterior draws, render predictive samples, and export tables/plots for downstream reporting.
+
+## Extracting MCMC samples
+
+```{r prepare-draws}
+set.seed(3)
+n <- 90
+y <- sim_bulk_tail(n, tail_prob = 0.15)
+bundle <- build_nimble_bundle(
+  y = y,
+  backend = "sb",
+  kernel = "normal",
+  GPD = TRUE,
+  J = 6,
+  mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 2, seed = c(1, 2))
+)
+if (use_cached_fit) {
+  fit <- fit_small
+} else {
+  fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+}
+draws <- DPmixGPD:::.extract_draws_matrix(fit, drop_v = TRUE)
+keep <- intersect(c("alpha", "threshold[1]", "tail_shape"), colnames(draws))
+head(draws[, keep, drop = FALSE])
+```
+
+## Posterior predictive draws
+
+```{r predictive-draws, fig.cap="Posterior predictive draws overlayed on data histogram."}
+pp <- predict(fit, type = "sample", nsim = 200)
+draws_df <- data.frame(value = pp$fit[, 1])
+ggplot(draws_df, aes(x = value)) +
+  geom_histogram(bins = 30, fill = "#1f77b4", alpha = 0.6) +
+  geom_density(data = data.frame(y = y), aes(x = y, y = ..density..), color = "#d62728") +
+  labs(title = "Posterior predictive draws vs observed histogram", x = "y")
+```
+
+## Export helpers
+
+```{r export-table}
+dir.create("reports", showWarnings = FALSE, recursive = TRUE)
+quant_df <- predict(fit, type = "quantile", p = c(.5, .9, .99), y = NULL)
+export_table <- data.frame(
+  tau = c(.5, .9, .99),
+  quantile = c(quant_df$fit)
+)
+knitr::kable(export_table, caption = "Quantile export for reporting")
+write.csv(export_table, file = "reports/quantiles.csv", row.names = FALSE)
+```
+
+## Reproducible prediction recipe library
+
+```{r recipe}
+recipes <- list(
+  "Quantile curve" = function(newdata) predict(fit, newdata = newdata, type = "quantile", p = c(.5, .9, .99)),
+  "Tail index surface" = function(newdata) predict(fit, newdata = newdata, type = "quantile", p = .995),
+  "Tail exceedance rate" = function(newdata, ygrid) predict(fit, newdata = newdata, type = "survival", y = ygrid)
+)
+recipes
+```
+
+## Session info
+
+```{r session}
+sessionInfo()
+```

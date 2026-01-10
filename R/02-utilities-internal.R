@@ -8,7 +8,17 @@
 
 #' Null-coalescing operator
 #' @keywords internal
+#' @noRd
+#' @rdname null_coalescing
+#' @name null_coalescing
 `%||%` <- function(a, b) if (!is.null(a)) a else b
+
+#' Nimble helpers
+#'
+#' @keywords internal
+#' @noRd
+#' @importFrom nimble nimNumeric
+NULL
 
 #' Backend label formatter
 #' @param x Backend key.
@@ -23,6 +33,23 @@
     x
   )
 }
+
+# Deterministic stick-breaking map used by NIMBLE code generation.
+stick_breaking <- nimble::nimbleFunction(
+  run = function(v = double(1)) {
+    returnType(double(1))
+    K <- length(v) + 1L
+    w <- numeric(K)
+    remainder <- 1
+    for (j in 1:(K - 1L)) {
+      w[j] <- v[j] * remainder
+      remainder <- remainder * (1 - v[j])
+    }
+    w[K] <- remainder
+    return(w)
+  }
+)
+
 
 #' Kernel label formatter
 #' @param x Kernel key.
@@ -1127,6 +1154,9 @@
   # -----------------------------
   # Parallel helper
   # -----------------------------
+#' @keywords internal
+#' @importFrom future plan
+#' @importFrom future.apply future_lapply
   .lapply_draws <- function(FUN) {
     idx <- seq_len(S)
     if (ncores == 1L) return(lapply(idx, FUN))

@@ -12,6 +12,7 @@ build_causal_bundle(
   kernel,
   GPD = FALSE,
   components = NULL,
+  J = NULL,
   param_specs = NULL,
   mcmc_outcome = list(niter = 2000, nburnin = 500, thin = 1, nchains = 1, seed = 1),
   mcmc_ps = list(niter = 2000, nburnin = 500, thin = 1, nchains = 1, seed = 1),
@@ -38,7 +39,10 @@ the first entry is used for treated (\code{T=1}) and the second for control (\co
 \item{GPD}{Logical; include GPD tail for outcomes if TRUE. If length 2,
 the first entry is used for treated (\code{T=1}) and the second for control (\code{T=0}).}
 
-\item{components}{Integer >= 2; truncation parameter for outcome mixtures. If length 2,
+\item{components}{Deprecated alias for \code{J}. Only one of \code{J} or \code{components}
+should be supplied.}
+
+\item{J}{Integer >= 2; truncation parameter for outcome mixtures. If length 2,
 the first entry is used for treated (\code{T=1}) and the second for control (\code{T=0}).}
 
 \item{param_specs}{Outcome parameter overrides (same structure as \code{build_nimble_bundle()}).
@@ -90,7 +94,7 @@ cb <- build_causal_bundle(
   backend = "sb",
   kernel = "gamma",
   GPD = TRUE,
-  components = 10
+  J = 10
 )
 }
 }

@@ -204,6 +204,10 @@ qInvGaussMix <- function(p, w, mean, shape,
 #' @param log Integer flag \code{0/1}; if \code{1}, return the log-density.
 #' @param lower.tail Integer flag \code{0/1}; if \code{1} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Integer flag \code{0/1}; if \code{1}, probabilities are returned on the log scale.
+#' @param tol Numeric tolerance for numerical inversion in \code{qInvGaussGpd}.
+#' @param maxiter Maximum iterations for numerical inversion in \code{qInvGaussGpd}.
+#' @param tol Numeric tolerance for numerical inversion in \code{qInvGaussGpd}.
+#' @param maxiter Maximum iterations for numerical inversion in \code{qInvGaussGpd}.
 #' @param tol Numeric scalar tolerance passed to \code{stats::uniroot} in quantile inversion.
 #' @param maxiter Integer maximum number of iterations for \code{stats::uniroot}.
 #'
@@ -482,6 +486,8 @@ rInvGaussGpd <- nimble::nimbleFunction(
 
 #' @describeIn InvGauss_gpd Inverse Gaussian + Gpd tail quantile function
 #' @export
+#' @param tol Numeric tolerance for numerical inversion in \code{qInvGaussGpd}.
+#' @param maxiter Maximum iterations for numerical inversion in \code{qInvGaussGpd}.
 qInvGaussGpd <- function(p, mean, shape, threshold, tail_scale, tail_shape,
                          lower.tail = TRUE, log.p = FALSE,
                          tol = 1e-10, maxiter = 200) {

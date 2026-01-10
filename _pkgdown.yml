@@ -1,0 +1,53 @@
+url: https://example.com/DPmixGPD
+template:
+  bootstrap: 5
+build:
+  lazy: true
+navbar:
+  structure:
+    left: [home, reference, articles]
+  right:
+    - text: "GitHub"
+      href: https://github.com/fsu-dpmixgpd/DPmixGPD
+
+articles:
+  - title: "Start here"
+    contents:
+      - v00-start-here
+      - quickstart
+  - title: "Installation & reproducibility"
+    contents:
+      - v01-installation-reproducibility
+  - title: "Single-outcome modeling"
+    contents:
+      - v02-single-outcome-modeling
+  - title: "Causal modeling"
+    contents:
+      - v05-causal-cqte
+      - causal
+      - v06-causal-extras
+  - title: "Backends"
+    contents:
+      - v03-backends-crp-vs-sb
+      - backends
+  - title: "Kernel registry"
+    contents:
+      - v04-kernels-guide
+      - kernel-normal
+      - kernel-lognormal
+      - kernel-gamma
+      - kernel-invgauss
+      - kernel-laplace
+      - kernel-amoroso
+      - kernel-cauchy
+  - title: "Prediction & exports"
+    contents:
+      - v08-prediction-and-exports
+      - prediction
+  - title: "Troubleshooting & survival"
+    contents:
+      - v09-troubleshooting
+      - v07-survival
+  - title: "Developer resources"
+    contents:
+      - v10-developer-guide

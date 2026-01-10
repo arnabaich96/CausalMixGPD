@@ -42,7 +42,9 @@ qLaplaceMixGpd(
   tail_scale,
   tail_shape,
   lower.tail = TRUE,
-  log.p = FALSE
+  log.p = FALSE,
+  tol = 1e-10,
+  maxiter = 200
 )
 }
 \arguments{
@@ -50,11 +52,13 @@ qLaplaceMixGpd(
 
 \item{w}{Numeric vector of mixture weights of length \eqn{K}.}
 
-\item{location, scale}{Numeric vectors of length \eqn{K} giving component locations and scales.}
+\item{location}{Numeric vector of length \eqn{K} giving component locations.}
 
-\item{scale}{Numeric scalar Gpd scale parameter; locationst be positive.}
+\item{scale}{Numeric vector of length \eqn{K} giving component scales.}
 
 \item{threshold}{Numeric scalar threshold at which the Gpd tail is attached.}
+
+\item{tail_scale}{Numeric scalar Gpd scale parameter; must be positive.}
 
 \item{tail_shape}{Numeric scalar Gpd shape parameter.}
 
@@ -72,7 +76,7 @@ qLaplaceMixGpd(
 
 \item{tol}{Numeric scalar tolerance passed to \code{stats::uniroot}.}
 
-\item{matail_shapeter}{Integer matail_shapelocationm number of iterations for \code{stats::uniroot}.}
+\item{maxiter}{Integer maximum iterations for \code{stats::uniroot}.}
 }
 \value{
 Spliced density/CDF/RNG functions return numeric scalars. \code{qLaplaceMixGpd} returns a numeric vector

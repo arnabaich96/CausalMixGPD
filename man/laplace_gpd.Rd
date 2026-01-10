@@ -39,9 +39,11 @@ qLaplaceGpd(
 
 \item{location}{Numeric scalar location parameter for the Laplace bulk.}
 
-\item{scale}{Numeric scalar Gpd scale parameter; locationst be positive.}
+\item{scale}{Numeric scalar scale parameter for the Laplace bulk.}
 
 \item{threshold}{Numeric scalar threshold at which the Gpd tail is attached.}
+
+\item{tail_scale}{Numeric scalar Gpd scale parameter; must be positive.}
 
 \item{tail_shape}{Numeric scalar Gpd shape parameter.}
 

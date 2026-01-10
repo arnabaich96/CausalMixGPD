@@ -3,3 +3,15 @@
 .RData
 .Ruserdata
 *.zip
+.vscode/
+docs/
+coverage/
+DPmixGPD.Rcheck/
+DPmixGPD_*.tar.gz
+vignettes/cache/
+inst/doc/
+..Rcheck/
+tests/testthat/_cache/
+tests/testthat/tests/testthat/_cache/
+tools/pandoc-*/
+tools/pandoc-*.zip

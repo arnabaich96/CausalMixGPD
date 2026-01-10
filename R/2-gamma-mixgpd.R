@@ -331,6 +331,8 @@ qGammaMixGpd <- function(p, w, shape, scale, threshold, tail_scale, tail_shape,
 #' @param lower.tail Integer flag \code{0/1}; if \code{1} (default), probabilities are
 #'   \eqn{P(X \le q)}.
 #' @param log.p Integer flag \code{0/1}; if \code{1}, probabilities are returned on the log scale.
+#' @param tol Numeric tolerance for numerical inversion in \code{qGammaGpd}.
+#' @param maxiter Maximum iterations for numerical inversion in \code{qGammaGpd}.
 #'
 #' @return Spliced density/CDF/RNG functions return numeric scalars.
 #'   \code{qGammaGpd} returns a numeric vector with the same length as \code{p}.
@@ -439,6 +441,8 @@ rGammaGpd <- nimble::nimbleFunction(
 
 #' @describeIn gamma_gpd Gamma + GPD tail quantile function
 #' @export
+#' @param tol Numeric tolerance for numerical inversion in \code{qGammaGpd}.
+#' @param maxiter Maximum iterations for numerical inversion in \code{qGammaGpd}.
 qGammaGpd <- function(p, shape, scale, threshold, tail_scale, tail_shape,
                       lower.tail = TRUE, log.p = FALSE,
                       tol = 1e-10, maxiter = 200) {

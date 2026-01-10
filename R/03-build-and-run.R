@@ -2,7 +2,7 @@
 # 02-build-and-run.R
 # =========================
 
-#' Build a NIMBLE bundle (internal)
+#' Build a NIMBLE bundle
 #'
 #' Creates a runnable "bundle" containing:
 #' \itemize{
@@ -15,17 +15,20 @@
 #' }
 #'
 #' This function intentionally stops at the "pre-run" stage (spec/code/constants/data/dimensions/inits/monitors).
+#' Use \code{run_mcmc_bundle_manual()} to execute MCMC with the stored settings.
 #'
 #' @param y Numeric outcome vector.
 #' @param X Optional design matrix/data.frame (N x p) for conditional variants.
 #' @param backend Character; \code{"sb"} (stick-breaking) or \code{"crp"} (Chinese Restaurant Process).
 #' @param kernel Character kernel name (must exist in \code{get_kernel_registry()}).
 #' @param GPD Logical; whether a GPD tail is requested.
-#' @param components Integer >= 2. Single user-facing truncation parameter:
+#' @param J Integer >= 2. Single user-facing truncation parameter:
 #'   \itemize{
 #'     \item SB: number of mixture components used in stick-breaking truncation
 #'     \item CRP: maximum number of clusters represented in the finite NIMBLE model
 #'   }
+#' @param components Deprecated alias for \code{J}. Only one of \code{J} or \code{components}
+#'   should be supplied.
 #' @param param_specs Optional list with entries \code{bulk} and \code{tail} to override defaults.
 #' @param mcmc Named list of MCMC settings (niter, nburnin, thin, nchains, seed). Stored in bundle.
 #' @param epsilon Numeric in [0,1). For downstream summaries/plots/prediction we keep the
@@ -33,8 +36,18 @@
 #'   weights >= epsilon, then renormalize.
 #' @param alpha_random Logical; whether concentration \code{alpha} is stochastic.
 #' @return A named list (bundle) of class \code{"dpmixgpd_bundle"}.
-#' @keywords internal
-#' @noRd
+#' @examples
+#' y <- abs(rnorm(60)) + 0.1
+#' bundle <- build_nimble_bundle(
+#'   y = y,
+#'   backend = "sb",
+#'   kernel = "normal",
+#'   GPD = FALSE,
+#'   components = 4,
+#'   mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+#' )
+#' bundle
+#' @export
 build_nimble_bundle <- function(
     y,
     X = NULL,
@@ -42,6 +55,7 @@ build_nimble_bundle <- function(
     kernel,
     GPD = FALSE,
     components = NULL,
+    J = NULL,
     param_specs = NULL,
     mcmc = list(niter = 2000, nburnin = 500, thin = 1, nchains = 1, seed = 1),
     epsilon = 0.025,
@@ -57,6 +71,10 @@ build_nimble_bundle <- function(
   if (!is.null(X) && !is.matrix(X)) X <- as.matrix(X)
 
   # Single truncation parameter for both backends
+  if (!is.null(J) && !is.null(components)) {
+    stop("Provide only one of 'J' or 'components'.", call. = FALSE)
+  }
+  if (!is.null(J)) components <- J
   if (is.null(components)) components <- length(y)
   components <- as.integer(components)
   if (!is.finite(components) || components < 2L) {
@@ -1872,13 +1890,25 @@ build_prior_table_from_spec <- function(spec) {
 }
 
 
-#' Run MCMC for a prepared bundle (manual runner; internal)
+#' Run MCMC for a prepared bundle
 #'
 #' @param bundle A \code{dpmixgpd_bundle} from \code{build_nimble_bundle()}.
 #' @param show_progress Logical; passed to nimble.
 #' @return A fitted object of class \code{"mixgpd_fit"}.
-#' @keywords internal
-#' @noRd
+#' @examples
+#' library(nimble)
+#' y <- abs(rnorm(40)) + 0.1
+#' bundle <- build_nimble_bundle(
+#'   y = y,
+#'   backend = "sb",
+#'   kernel = "normal",
+#'   GPD = FALSE,
+#'   components = 3,
+#'   mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+#' )
+#' fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+#' fit
+#' @export
 run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 

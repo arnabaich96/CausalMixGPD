@@ -1,0 +1,102 @@
+---
+title: "Backends: SB vs CRP"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Backends: SB vs CRP}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  cache = TRUE,
+  cache.path = "cache/backends-",
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+# Summary
+
+DPmixGPD supports two Bayesian nonparametric backends:
+
+- SB (stick-breaking): explicit mixture weights
+- CRP (Chinese Restaurant Process): allocation-based representation
+
+Both share the same kernel registry and prediction interface.
+
+# Example data
+
+```{r}
+library(DPmixGPD)
+library(nimble)
+use_cached_fit <- TRUE
+.fit_path <- function(name) {
+  path <- system.file("extdata", name, package = "DPmixGPD")
+  if (path == "") path <- file.path("inst", "extdata", name)
+  path
+}
+fit_small <- readRDS(.fit_path("fit_small.rds"))
+fit_small_crp <- readRDS(.fit_path("fit_small_crp.rds"))
+set.seed(2)
+N <- 60
+y <- abs(rnorm(N)) + 0.1
+```
+
+# SB fit
+
+```{r}
+if (use_cached_fit) {
+  fit_sb <- fit_small
+} else {
+  fit_sb <- run_mcmc_bundle_manual(build_nimble_bundle(
+    y = y,
+    backend = "sb",
+    kernel = "normal",
+    J = 8,
+    mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+  ), show_progress = FALSE)
+}
+
+summary(fit_sb)
+```
+
+# CRP fit
+
+```{r}
+if (use_cached_fit) {
+  fit_crp <- fit_small_crp
+} else {
+  fit_crp <- run_mcmc_bundle_manual(build_nimble_bundle(
+    y = y,
+    backend = "crp",
+    kernel = "normal",
+    J = 8,
+    mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+  ), show_progress = FALSE)
+}
+
+summary(fit_crp)
+```
+
+# Prediction comparison
+
+```{r}
+q_sb <- predict(fit_sb, type = "quantile", p = c(0.5, 0.9))$fit
+q_crp <- predict(fit_crp, type = "quantile", p = c(0.5, 0.9))$fit
+
+rbind(sb = q_sb, crp = q_crp)
+```
+
+# When to use each
+
+- SB: you want explicit mixture weights and direct stick-breaking interpretation.
+- CRP: you want allocation-based modeling with implicit weights.
+
+# Computational tradeoffs
+
+- SB uses explicit weights; CRP reconstructs weights from allocations.
+- Both require a truncation level for NIMBLE code generation.
+- Mixing behavior can differ by kernel and data.

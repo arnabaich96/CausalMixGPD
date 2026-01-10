@@ -667,6 +667,7 @@ plot.mixgpd_fit <- function(x,
 #' and swap the internals without breaking user code.
 #'
 #' @param object A fitted object of class \code{"mixgpd_fit"}.
+#' @param x Optional new data. Alias for \code{newdata}.
 #' @param newdata Optional new data. If \code{NULL}, uses training design (if stored).
 #' @param type Prediction type: \code{"density"}, \code{"survival"}, \code{"quantile"},
 #'   \code{"sample"}, \code{"mean"}.
@@ -675,10 +676,8 @@ plot.mixgpd_fit <- function(x,
 #' @param interval \code{"none"} or \code{"credible"} for posterior credible bands.
 #' @param probs Quantiles for credible interval bands.
 #' @param nsim Number of posterior predictive samples (for \code{type="sample"}).
-#' @param store_draws Logical; whether to store all posterior draws (for \code
-#' {type="sample"}).
-#' @param nsim_mean Number of posterior predictive samples to use for posterior mean estimation
-#'  (for \code{type="mean"}).
+#' @param store_draws Logical; whether to store all posterior draws (for \code{type="sample"}).
+#' @param nsim_mean Number of posterior predictive samples to use for posterior mean estimation (for \code{type="mean"}).
 #' @param ncores Number of CPU cores to use for parallel prediction (if supported).
 #' @param ... Unused.
 #' @return A list with elements:

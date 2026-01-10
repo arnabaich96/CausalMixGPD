@@ -1,0 +1,101 @@
+---
+title: "Kernels: What They Mean and When to Use Which"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Kernels: What They Mean and When to Use Which}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  cache = TRUE,
+  cache.path = "cache/04-kernels-",
+  fig.width = 6,
+  warning = FALSE,
+  message = FALSE
+)
+library(DPmixGPD)
+library(nimble)
+use_cached_fit <- TRUE
+.fit_path <- function(name) {
+  path <- system.file("extdata", name, package = "DPmixGPD")
+  if (path == "") path <- file.path("inst", "extdata", name)
+  path
+}
+fit_small <- readRDS(.fit_path("fit_small.rds"))
+library(ggplot2)
+library(dplyr)
+```
+
+What you'll learn: how each kernel shapes the DP mixture (via the index `j`), what domains they cover, and how to pick the right kernel for a given dataset with a decision-style guide.
+
+## Kernel registry and naming
+
+DPmixGPD exposes a registry where each kernel family provides density, quantile, and RNG functions under consistent names (`dGammaMix`, `qGammaMix`, `rGammaMix`, etc.). The `j`-th component always shares the same parameter layout across kernels (location, scale, shape), and the components count is controlled by `J` only.
+
+| Kernel | Support | Shape hints | Recommended use |
+| --- | --- | --- | --- |
+| `normal` | `(-Inf, Inf)` | location & scale | Symmetric data with light tails; fast mixing. |
+| `lognormal` | `(0, Inf)` | log-scale mean & sd | Positive skew; natural for positive incomes or durations. |
+| `gamma` | `(0, Inf)` | shape & scale | Heavy-tailed positive data, interpretable tail shape. |
+| `Laplace` | `(-Inf, Inf)` | double exponential | Sharp center with heavier tails than normal. |
+| `inverse Gaussian` | `(0, Inf)` | mean & shape | Right-skewed durations when variance grows cubically. |
+| `Amoroso` | `(0, Inf)` | location, scale, shape | Flexible extreme skew with explicit tail shape control. |
+| `Cauchy` | `(-Inf, Inf)` | location & scale | Very heavy tails; anchors tail behavior when GPD is off.
+
+## Decision guide
+
+1. Are your data strictly positive? If yes, stay in `(0, Inf)` kernels (`lognormal`, `gamma`, `amoroso`, `inverse Gaussian`).
+2. Do you need a flexible tail shape within the kernel itself (before the GPD kick-in)? Choose `Amoroso` or `Cauchy` for wide tail control.
+3. Need interpretable mean/variance for a symmetric central mass? Use `normal` or `Laplace` and rely on GPD for extremes.
+4. When the dataset shows multiple modes, increase `J` and keep the kernel simple to avoid identifiability issues.
+
+## Minimal kernel example
+
+```{r kernel-example}
+y <- sim_bulk_tail(n = 160, seed = 77)
+bundle <- build_nimble_bundle(
+  y = y,
+  backend = "sb",
+  kernel = "amoroso",
+  GPD = TRUE,
+  J = 6,
+  mcmc = list(niter = 200, nburnin = 50, thin = 2, nchains = 2, seed = c(1, 2))
+)
+if (use_cached_fit) {
+  fit <- fit_small
+} else {
+  fit <- run_mcmc_bundle_manual(bundle)
+}
+```
+
+## Diagnostic plot
+
+```{r kernel-plot}
+data.frame(y = y) |>
+  ggplot(aes(x = y)) +
+  geom_histogram(boundary = 0, bins = 30, fill = "coral", alpha = 0.6) +
+  labs(title = "Data histogram showing bulk + tail", x = "y", y = "Count")
+```
+
+## Prediction example
+
+```{r kernel-pred}
+predicted <- predict(fit, type = "quantile", p = c(0.5, 0.9, 0.99))
+predicted
+```
+
+## Kernel recommendations summary
+
+- Use `lognormal`/`gamma` for positive, moderately heavy tails where standard priors suffice.
+- Use `normal`/`Laplace` when symmetry is expected and tails do not dominate.
+- Explore `Amoroso` when you want implicit tail shape control inside the bulk, remembering that a nontrivial threshold still keeps the GPD tail smooth.
+
+## Session info
+
+```{r session-info}
+sessionInfo()
+```

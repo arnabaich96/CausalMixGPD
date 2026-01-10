@@ -1,7 +1,9 @@
 Package: DPmixGPD
 Type: Package
-Title: Dirichlet Process Mixtures with Generalized Pareto Tail.
-Version: 0.0.7
+Title: Dirichlet Process Mixtures with Generalized Pareto Tail
+Version: 0.0.8
+Author: Arnab Aich [aut, cre]
+Maintainer: Arnab Aich <arnab.aich99@gmail.com>
 Authors@R: person("Arnab", "Aich", role = c("aut", "cre"), email = "arnab.aich99@gmail.com")
 Description: Experimental framework for Dirichlet process mixture regression and unconditional models
     with flexible kernels (gamma, lognormal, normal, Laplace, inverse Gaussian, Amoroso)
@@ -13,17 +15,24 @@ Depends: R (>= 4.5.0)
 Imports:
     stats,
     coda,
-    parallel,
     nimble,
-    ggplot2,
     ggmcmc,
-    methods,
-    fs,
-    xml2
+    future,
+    future.apply
 Suggests:
     testthat (>= 3.0.0),
     vdiffr,
     svglite,
-    crayon
+    crayon,
+    dplyr,
+    ggplot2,
+    knitr,
+    rmarkdown,
+    pkgdown,
+    covr,
+    jsonlite
 RoxygenNote: 7.3.3
 Config/testthat/edition: 3
+URL: https://example.com/DPmixGPD
+BugReports: https://github.com/fsu-dpmixgpd/DPmixGPD/issues
+VignetteBuilder: knitr

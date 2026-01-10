@@ -1,0 +1,84 @@
+---
+title: "Kernel: Normal"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Kernel: Normal}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  cache = TRUE,
+  cache.path = "cache/kernel-normal-",
+  warning = FALSE,
+  message = FALSE
+)
+```
+
+# Parameters
+
+| Parameter | Meaning | Support |
+|---|---|---|
+| `mean` | location | real |
+| `sd` | scale | positive |
+
+# Default priors (no covariates)
+
+- `mean` ~ Normal(0, 5)
+- `sd` ~ Gamma(2, 1)
+
+# Example: mixture functions
+
+```{r}
+library(DPmixGPD)
+library(nimble)
+use_cached_fit <- TRUE
+.fit_path <- function(name) {
+  path <- system.file("extdata", name, package = "DPmixGPD")
+  if (path == "") path <- file.path("inst", "extdata", name)
+  path
+}
+fit_small <- readRDS(.fit_path("fit_small.rds"))
+w <- c(0.4, 0.6)
+mean <- c(-1, 1)
+sd <- c(0.7, 1.2)
+
+x <- 0.5
+p <- 0.9
+
+dNormMix(x, w = w, mean = mean, sd = sd, log = FALSE)
+pNormMix(x, w = w, mean = mean, sd = sd, lower.tail = TRUE, log.p = FALSE)
+qNormMix(p, w = w, mean = mean, sd = sd)
+```
+
+# Example: with GPD tail
+
+```{r}
+threshold <- 0.2
+tail_scale <- 1.0
+tail_shape <- 0.2
+
+dNormMixGpd(x, w = w, mean = mean, sd = sd,
+            threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape)
+qNormMixGpd(0.99, w = w, mean = mean, sd = sd,
+            threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape)
+```
+
+# Example: model specification
+
+```{r}
+set.seed(1)
+y <- abs(rnorm(30)) + 0.1
+bundle <- build_nimble_bundle(
+  y = y,
+  backend = "sb",
+  kernel = "normal",
+  GPD = TRUE,
+  J = 6
+)
+
+bundle$spec$meta
+```
