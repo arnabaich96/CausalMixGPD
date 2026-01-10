@@ -4,7 +4,6 @@
 .Ruserdata
 *.zip
 .vscode/
-docs/
 coverage/
 DPmixGPD.Rcheck/
 DPmixGPD_*.tar.gz
