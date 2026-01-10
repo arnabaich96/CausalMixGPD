@@ -1,0 +1,45 @@
+## ----setup, include=FALSE-----------------------------------------------------
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  cache = TRUE,
+  cache.path = "cache/kernel-cauchy-",
+  warning = FALSE,
+  message = FALSE
+)
+
+## -----------------------------------------------------------------------------
+library(DPmixGPD)
+library(nimble)
+use_cached_fit <- TRUE
+.fit_path <- function(name) {
+  path <- system.file("extdata", name, package = "DPmixGPD")
+  if (path == "") path <- file.path("inst", "extdata", name)
+  path
+}
+fit_small <- readRDS(.fit_path("fit_small.rds"))
+w <- c(0.5, 0.5)
+location <- c(-0.5, 0.5)
+scale <- c(0.7, 1.0)
+
+x <- 0.2
+p <- 0.9
+
+dCauchyMix(x, w = w, location = location, scale = scale, log = FALSE)
+pCauchyMix(x, w = w, location = location, scale = scale, lower.tail = TRUE, log.p = FALSE)
+qCauchyMix(p, w = w, location = location, scale = scale)
+
+## -----------------------------------------------------------------------------
+set.seed(1)
+y <- abs(rcauchy(30)) + 0.1
+
+bundle <- build_nimble_bundle(
+  y = y,
+  backend = "sb",
+  kernel = "cauchy",
+  GPD = FALSE,
+  J = 6
+)
+
+bundle$spec$meta
+

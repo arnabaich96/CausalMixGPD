@@ -1,0 +1,124 @@
+## ----setup, include=FALSE-----------------------------------------------------
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  cache = TRUE,
+  cache.path = "cache/05-causal-cqte-",
+  warning = FALSE,
+  message = FALSE,
+  fig.width = 6
+)
+library(DPmixGPD)
+library(nimble)
+use_cached_fit <- TRUE
+.fit_path <- function(name) {
+  path <- system.file("extdata", name, package = "DPmixGPD")
+  if (path == "") path <- file.path("inst", "extdata", name)
+  path
+}
+fit_causal_con <- readRDS(.fit_path("fit_causal_con.rds"))
+fit_causal_trt <- readRDS(.fit_path("fit_causal_trt.rds"))
+fit_causal_meta <- readRDS(.fit_path("fit_causal_meta.rds"))
+fit_causal_small <- list(
+  ps_fit = NULL,
+  outcome_fit = list(con = fit_causal_con, trt = fit_causal_trt),
+  bundle = fit_causal_meta,
+  call = NULL
+)
+class(fit_causal_small) <- "dpmixgpd_causal_fit"
+library(ggplot2)
+
+## ----causal-example-----------------------------------------------------------
+set.seed(101)
+dat <- sim_causal_cqte(220)
+J <- 6
+bundle <- build_causal_bundle(
+  y = dat$y,
+  X = dat$X,
+  T = dat$t,
+  backend = c("sb", "sb"),
+  kernel = c("normal", "normal"),
+  GPD = c(FALSE, FALSE),
+  J = c(J, J),
+  mcmc_outcome = list(niter = 200, nburnin = 50, thin = 1, nchains = 2, seed = c(1, 2)),
+  mcmc_ps = list(niter = 200, nburnin = 50, thin = 1, nchains = 2, seed = c(3, 4))
+)
+if (use_cached_fit) {
+  cf <- fit_causal_small
+} else {
+  cf <- run_mcmc_causal(bundle, show_progress = FALSE)
+}
+print(cf)
+summary(cf$outcome_fit$trt)
+
+## ----overlap-plot, fig.cap="Propensity score distributions by arm (logistic GLM proxy)."----
+ps_df <- data.frame(dat$X, T = dat$t)
+ps_fit <- glm(T ~ x1 + x2 + x3, data = ps_df, family = binomial())
+ps_df$propensity <- predict(ps_fit, type = "response")
+ggplot(ps_df, aes(x = propensity, fill = factor(T, labels = c("con", "trt")))) +
+  geom_density(alpha = 0.4) +
+  labs(title = "Propensity score overlap", fill = "Arm")
+
+## ----tail-trace, fig.cap="Trace plots for tail_scale and tail_shape (treated arm)."----
+plot(cf$outcome_fit$trt, family = "traceplot", params = c("alpha", "w[1]"))
+
+## ----cqte-slices--------------------------------------------------------------
+grid <- expand.grid(
+  x1 = seq(-1.2, 1.2, length.out = 15),
+  x2 = seq(-0.8, 0.8, length.out = 5),
+  x3 = 0
+)
+taus <- c(.1, .5, .9, .95, .99)
+pr_trt <- predict(cf$outcome_fit$trt, newdata = grid, type = "quantile", p = taus)
+pr_con <- predict(cf$outcome_fit$con, newdata = grid, type = "quantile", p = taus)
+cqte_df <- data.frame(
+  x1 = rep(grid$x1, each = length(taus)),
+  tau = rep(taus, times = nrow(grid)),
+  cqte = c(pr_trt$fit - pr_con$fit)
+)
+slice_df <- cqte_df[cqte_df$tau %in% c(.5, .95, .99) & cqte_df$x1 %in% c(-1, 0, 1), ]
+ggplot(slice_df, aes(x = x1, y = cqte, color = factor(tau))) +
+  geom_line() +
+  labs(title = "CQTE slices (selected taus)", color = "tau")
+
+## ----cqte-surface, fig.cap="CQTE surface for tau=0.95 varying x1 / x2 at x3=0."----
+surf_grid <- expand.grid(x1 = seq(-1, 1, length.out = 25), x2 = seq(-1, 1, length.out = 25), x3 = 0)
+tau_surface <- 0.95
+surf_trt <- predict(cf$outcome_fit$trt, newdata = surf_grid, type = "quantile", p = tau_surface)
+surf_con <- predict(cf$outcome_fit$con, newdata = surf_grid, type = "quantile", p = tau_surface)
+surf_grid$cqte <- as.numeric(surf_trt$fit - surf_con$fit)
+ggplot(surf_grid, aes(x = x1, y = x2, fill = cqte)) +
+  geom_raster() +
+  scale_fill_viridis_c(option = "C") +
+  labs(title = "CQTE surface (tau = 0.95)", fill = "CQTE")
+
+## ----tail-focused-------------------------------------------------------------
+tail_cqte <- predict(cf$outcome_fit$trt, newdata = data.frame(x1 = 0, x2 = 0, x3 = 0), type = "quantile", p = c(.95, .99, .995))
+control_tail <- predict(cf$outcome_fit$con, newdata = data.frame(x1 = 0, x2 = 0, x3 = 0), type = "quantile", p = c(.95, .99, .995))
+data.frame(
+  tau = c(.95, .99, .995),
+  cqte = tail_cqte$fit - control_tail$fit
+)
+
+## ----cqte-table---------------------------------------------------------------
+summary_points <- data.frame(
+  x1 = c(-1, 0, 1),
+  x2 = c(0, 0, 0),
+  label = c("x1 = -1, x2 = 0", "x1 = 0, x2 = 0", "x1 = 1, x2 = 0"),
+  cqte_median = NA_real_,
+  cqte_tail = NA_real_
+)
+for (i in seq_len(nrow(summary_points))) {
+  newdata <- data.frame(x1 = summary_points$x1[i], x2 = summary_points$x2[i], x3 = 0)
+  med <- predict(cf$outcome_fit$trt, newdata = newdata, type = "quantile", p = 0.5)$fit
+  med_con <- predict(cf$outcome_fit$con, newdata = newdata, type = "quantile", p = 0.5)$fit
+  tail <- predict(cf$outcome_fit$trt, newdata = newdata, type = "quantile", p = 0.95)$fit
+  tail_con <- predict(cf$outcome_fit$con, newdata = newdata, type = "quantile", p = 0.95)$fit
+  summary_points$cqte_median[i] <- med - med_con
+  summary_points$cqte_tail[i] <- tail - tail_con
+}
+knitr::kable(summary_points[, c("label", "cqte_median", "cqte_tail")], digits = 3)
+
+## ----session------------------------------------------------------------------
+sessionInfo()
+
