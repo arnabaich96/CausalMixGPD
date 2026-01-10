@@ -46,3 +46,26 @@ predict(fit, type = "quantile", probs = c(0.5, 0.9, 0.99))
 
 - Each kernel's mixture index is denoted by `j`, and the components argument is `J`.
 - `GPD = TRUE/FALSE` controls whether the tail module is active; prediction reuses the sampling weights from the same run so diagnostics stay aligned.
+
+## Status & coverage
+
+| Metric | Value | How to refresh |
+| --- | --- | --- |
+| Test coverage (latest snapshot) | `0%` (tests) | `Rscript tools/update_coverage_status.R` |
+| Status reader | `coverage_status()` / `read_coverage_status()` | Call from any R script to capture or read the JSON file at `inst/extdata/coverage_status.json`. |
+
+The `tools/update_coverage_status.R` script runs `covr::package_coverage()` (via `coverage_status()` in `R/status.R`) and persists the JSON that feeds pkgdown/index summaries.
+
+## Kernel support matrix
+
+| Kernel | Has GPD tail | Accepts covariates (X) | SB backend | CRP backend |
+| --- | --- | --- | --- | --- |
+| normal | ✔ | ✔ | ✔ | ✔ |
+| lognormal | ✔ | ✔ | ✔ | ✔ |
+| invgauss | ✔ | ✔ | ✔ | ✔ |
+| gamma | ✔ | ✔ | ✔ | ✔ |
+| laplace | ✔ | ✔ | ✔ | ✔ |
+| amoroso | ✔ | ✔ | ✔ | ✔ |
+| cauchy | ❌ | ✔ | ✔ | ✔ |
+
+Run `Rscript tools/kernel_support_table.R` to regenerate the markdown snippet above whenever the kernel registry changes; it relies on `kernel_support_table()` to reflect the registry definitions tested in `tests/testthat/test-kernels.R`.
