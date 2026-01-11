@@ -8,6 +8,7 @@
   object,
   x = NULL,
   y = NULL,
+  ps = NULL,
   type = c("density", "survival", "quantile", "sample", "mean"),
   p = NULL,
   nsim = NULL,

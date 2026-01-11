@@ -20,13 +20,13 @@ sim_bulk_tail <- function(n = 200, tail_prob = 0.12, seed = NULL) {
   sort(c(bulk, tail))
 }
 
-#' Simulate causal CQTE data
+#' Simulate causal QTE data
 #'
 #' @param n Sample size.
 #' @param seed Optional RNG seed.
 #' @return A list with y, t, X.
 #' @export
-sim_causal_cqte <- function(n = 300, seed = NULL) {
+sim_causal_qte <- function(n = 300, seed = NULL) {
   if (!is.null(seed)) set.seed(seed)
   X <- data.frame(
     x1 = rnorm(n, 0, 1),

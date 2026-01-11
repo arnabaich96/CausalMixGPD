@@ -7,6 +7,7 @@
 build_nimble_bundle(
   y,
   X = NULL,
+  ps = NULL,
   backend = c("sb", "crp"),
   kernel,
   GPD = FALSE,
@@ -23,6 +24,11 @@ build_nimble_bundle(
 
 \item{X}{Optional design matrix/data.frame (N x p) for conditional variants.}
 
+\item{ps}{Optional numeric vector of estimated propensity scores (length N) used as an extra
+covariate when constructing link-mode predictors. If provided, a \code{beta_ps_<param>}
+coefficient vector is added for each link-mode bulk parameter; the prior for these
+coefficients can be customized via \code{param_specs$ps}.}
+
 \item{backend}{Character; \code{"sb"} (stick-breaking) or \code{"crp"} (Chinese Restaurant Process).}
 
 \item{kernel}{Character kernel name (must exist in \code{get_kernel_registry()}).}
@@ -38,7 +44,7 @@ should be supplied.}
   \item CRP: maximum number of clusters represented in the finite NIMBLE model
 }}
 
-\item{param_specs}{Optional list with entries \code{bulk} and \code{tail} to override defaults.}
+\item{param_specs}{Optional list with entries \code{bulk}, \code{tail}, and \code{ps} to override defaults.}
 
 \item{mcmc}{Named list of MCMC settings (niter, nburnin, thin, nchains, seed). Stored in bundle.}
 

@@ -18,21 +18,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Parameters
-
-| Parameter | Meaning | Support |
-|---|---|---|
-| `location` | location | real |
-| `scale` | scale | positive |
-
-# Default priors (no covariates)
-
-- `location` ~ Normal(0, 5)
-- `scale` ~ Gamma(2, 1)
-
-# Example: mixture functions
-
-```{r}
+```{r kernel-laplace}
 library(DPmixGPD)
 library(nimble)
 use_cached_fit <- TRUE
@@ -52,11 +38,7 @@ p <- 0.9
 dLaplaceMix(x, w = w, location = location, scale = scale, log = FALSE)
 pLaplaceMix(x, w = w, location = location, scale = scale, lower.tail = TRUE, log.p = FALSE)
 qLaplaceMix(p, w = w, location = location, scale = scale)
-```
 
-# Example: with GPD tail (SB only)
-
-```{r}
 threshold <- 0.3
 tail_scale <- 1.0
 tail_shape <- 0.2
@@ -65,11 +47,7 @@ dLaplaceMixGpd(x, w = w, location = location, scale = scale,
                threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape)
 qLaplaceMixGpd(0.99, w = w, location = location, scale = scale,
                threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape)
-```
 
-# Example: model specification
-
-```{r}
 set.seed(1)
 y <- rexp(30)
 
@@ -82,4 +60,8 @@ bundle <- build_nimble_bundle(
 )
 
 bundle$spec$meta
+```
+
+```{r session}
+sessionInfo()
 ```

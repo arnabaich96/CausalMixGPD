@@ -1,8 +1,8 @@
 ---
-title: "Backends: CRP vs Stick-Breaking"
+title: "Backends: CRP vs SB"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Backends: CRP vs Stick-Breaking}
+  %\VignetteIndexEntry{Backends: CRP vs SB}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,6 +17,9 @@ knitr::opts_chunk$set(
   warning = FALSE,
   message = FALSE
 )
+```
+
+```{r libraries}
 library(DPmixGPD)
 library(nimble)
 use_cached_fit <- TRUE
@@ -29,22 +32,6 @@ fit_small <- readRDS(.fit_path("fit_small.rds"))
 fit_small_crp <- readRDS(.fit_path("fit_small_crp.rds"))
 library(ggplot2)
 ```
-
-What you'll learn: what SB and CRP backends control, what stays common, and how to compare the two on the same data with a shared prediction interface.
-
-## What the backend controls
-
-- **SB** rewrites the mixture as stick-breaking variables `v_j` and clusters with deterministic weights.
-- **CRP** draws latent labels `z_i` and lets a Chinese Restaurant Process allocate points to `j` components.
-- Both use the same kernel, threshold, and tail flags (`GPD = TRUE/FALSE`), so the estimated mixture weights stay aligned with prediction.
-
-## What stays the same
-
-- Kernel families, tail configuration, and `predict.mixgpd_fit()` logic.
-- The output `mixgpd_fit` object contains the same fields even when one backend uses cluster labels and the other uses sticks.
-- Diagnostics (trace plots, tail index, q/j grid) can be computed identically from either backend.
-
-## Practical differences and example
 
 ```{r backend-example}
 y <- sim_bulk_tail(n = 150, tail_prob = 0.08, seed = 101)
@@ -79,10 +66,6 @@ system_time <- data.frame(
 system_time
 ```
 
-CRP draws latent labels directly and tends to show slightly higher variance in weights, while SB trades variance for deterministic mixture stick lengths. The prediction stage honors whichever weights estimation produced.
-
-## Diagnostic plot
-
 ```{r backend-plot}
 q_sb <- predict(fit_sb, type = "quantile", p = c(0.5, 0.9))
 q_crp <- predict(fit_crp, type = "quantile", p = c(0.5, 0.9))
@@ -98,21 +81,11 @@ data.frame(
   labs(title = "Quantiles by backend", y = "Quantile", x = "Probability")
 ```
 
-## Prediction example
-
 ```{r backend-pred}
 quantiles_sb <- predict(fit_sb, type = "quantile", p = c(.95, .99))
 quantiles_crp <- predict(fit_crp, type = "quantile", p = c(.95, .99))
 list(sb = quantiles_sb, crp = quantiles_crp)
 ```
-
-## Benchmark summary
-
-1. SB tends to be faster in larger datasets because stick lengths converge deterministically.
-2. CRP is easier to debug thanks to explicit `z` assignments when cluster rebalancing is needed.
-3. Use the same `J` and `kernel` choices to make runtime comparisons fair.
-
-## Session info
 
 ```{r session-info}
 sessionInfo()

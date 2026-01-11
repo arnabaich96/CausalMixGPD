@@ -1,11 +1,13 @@
 ---
-title: "Survival Outcomes: Censoring + Heavy Tails"
+title: "Survival modeling"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Survival Outcomes: Censoring + Heavy Tails}
+  %\VignetteIndexEntry{Survival modeling}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+
+This vignette sketches a minimal survival example with right-censoring using the DP mixture with GPD tail augmentation.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
@@ -17,6 +19,9 @@ knitr::opts_chunk$set(
   warning = FALSE,
   message = FALSE
 )
+```
+
+```{r libraries}
 library(DPmixGPD)
 library(nimble)
 use_cached_fit <- TRUE
@@ -29,13 +34,7 @@ fit_small <- readRDS(.fit_path("fit_small.rds"))
 library(ggplot2)
 ```
 
-What you'll learn: how to adapt DPmixGPD to survival-style data, what is currently available (bulk + GPD for tail times), and how to visualize survival curves even under right censoring.
-
-## Survival data format
-
-Use a data frame with columns `time`, `status` (1 for event, 0 for censor), and covariates. DPmixGPD currently treats all outcomes as positive durations and uses the conventional density + tail augmentation, so censoring is handled via manual likelihood reweighting outside the package (future work may integrate censored nodes inside Nimble).
-
-## Minimal survival example
+## Simulate survival data
 
 ```{r survival-example}
 data <- sim_survival_tail(n = 220, seed = 220)
@@ -55,16 +54,16 @@ if (use_cached_fit) {
 }
 ```
 
-## Diagnostic: survival density
+## Observed densities
 
-```{r survival-density}
+```{r survival-density, fig.cap="Observed survival times split by censoring indicator."}
 data.frame(time = y, status = factor(data$status, labels = c("censored", "event"))) |>
   ggplot(aes(x = time, fill = status)) +
   geom_density(alpha = 0.4) +
   labs(title = "Observed survival times (censored vs event)", x = "Time", fill = "Status")
 ```
 
-## Prediction: survival curves via tail extrapolation
+## Posterior survival curve
 
 ```{r survival-pred}
 tau <- seq(0.01, 0.99, length.out = 40)
@@ -72,13 +71,6 @@ quantiles <- predict(fit, type = "quantile", p = tau)
 surv_curve <- data.frame(time = as.numeric(quantiles$fit), survival = 1 - tau)
 surv_curve
 ```
-
-We treat the quantiles as inverse survival: the higher the quantile, the lower the survival probability, which mirrors how extreme durations dominate upper tails.
-## Roadmap and assumptions
-
-- **Overlap assumption:** the model must see enough events (status = 1) to learn tail parameters; too few will make the GPD estimate unstable.
-- **Censoring note:** handle censoring outside DPmixGPD by imputing truncated observations or reweighting the data before bundling.
-- **Diagnostic tip:** compare `predict(..., type = "quantile", p = c(.9, .99))` with Kaplan-Meier estimates to monitor tail stability.
 
 ## Session info
 

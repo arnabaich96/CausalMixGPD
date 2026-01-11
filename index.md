@@ -7,7 +7,7 @@ DPmixGPD delivers Dirichlet process mixtures with optional generalized Pareto ta
 - **Onboarding:** [Start here](articles/v00-start-here.html) explains what problems the package solves and presents the canonical simul + fit loop.
 - **Installation & reproducibility:** [01-installation](articles/v01-installation-reproducibility.html) shows how to install, seed Nimble, and debug initialization warnings.
 - **Single-outcome modeling:** [v02-single-outcome-modeling](articles/v02-single-outcome-modeling.html) tells the full story for bulk + tail fits.
-- **Causal CQTE:** [v05-causal-cqte](articles/v05-causal-cqte.html) plus [v06-causal-extras](articles/v06-causal-extras.html) cover treatment-specific fits, CQTE plotting, and comparisons with ATE/CATE.
+- **Causal QTE:** [v05-causal-qte](articles/v05-causal-qte.html) plus [v06-causal-extras](articles/v06-causal-extras.html) cover treatment-specific fits, QTE plotting, and comparisons with ATE/CATE.
 - **Backends:** [v03-backends-crp-vs-sb](articles/v03-backends-crp-vs-sb.html) contrasts the CRP and stick-breaking engines.
 - **Kernel guidance:** [v04-kernels-guide](articles/v04-kernels-guide.html) and the kernel-specific pages provide parameter meanings, priors, and domain guidance.
 - **Prediction & exports:** [v08-prediction-and-exports](articles/v08-prediction-and-exports.html) plus the legacy [Prediction](articles/prediction.html) vignette detail density, quantile, and survival forecasts.

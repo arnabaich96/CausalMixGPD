@@ -18,25 +18,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Parameters
-
-| Parameter | Meaning | Support |
-|---|---|---|
-| `loc` | location | real |
-| `scale` | scale | positive |
-| `shape1` | shape | positive |
-| `shape2` | shape | positive |
-
-# Default priors (no covariates)
-
-- `loc` ~ Normal(0, 5)
-- `scale` ~ Gamma(2, 1)
-- `shape1` fixed at 1 by default
-- `shape2` ~ Gamma(2, 1)
-
-# Example: mixture functions
-
-```{r}
+```{r kernel-amoroso}
 library(DPmixGPD)
 library(nimble)
 use_cached_fit <- TRUE
@@ -59,11 +41,7 @@ dAmorosoMix(x, w = w, loc = loc, scale = scale, shape1 = shape1, shape2 = shape2
 pAmorosoMix(x, w = w, loc = loc, scale = scale, shape1 = shape1, shape2 = shape2,
             lower.tail = TRUE, log.p = FALSE)
 qAmorosoMix(p, w = w, loc = loc, scale = scale, shape1 = shape1, shape2 = shape2)
-```
 
-# Example: with GPD tail
-
-```{r}
 threshold <- 1.2
 tail_scale <- 0.9
 tail_shape <- 0.2
@@ -72,11 +50,7 @@ dAmorosoMixGpd(x, w = w, loc = loc, scale = scale, shape1 = shape1, shape2 = sha
                threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape)
 qAmorosoMixGpd(0.99, w = w, loc = loc, scale = scale, shape1 = shape1, shape2 = shape2,
                threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape)
-```
 
-# Example: model specification
-
-```{r}
 set.seed(1)
 y <- rgamma(30, shape = 2, scale = 1)
 
@@ -89,4 +63,8 @@ bundle <- build_nimble_bundle(
 )
 
 bundle$spec$meta
+```
+
+```{r session}
+sessionInfo()
 ```

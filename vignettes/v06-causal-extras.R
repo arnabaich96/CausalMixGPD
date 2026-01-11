@@ -31,7 +31,7 @@ library(dplyr)
 
 ## ----causal-extras-example----------------------------------------------------
 set.seed(10)
-data <- sim_causal_cqte(n = 200)
+data <- sim_causal_qte(n = 200)
 X <- data$X
 bundle <- build_causal_bundle(
   y = data$y,
@@ -49,7 +49,7 @@ if (use_cached_fit) {
 } else {
   fit <- run_mcmc_causal(bundle)
 }
-cq <- cqte(fit, probs = c(0.5, 0.9, 0.99), newdata = head(X, 3))
+cq <- qte(fit, probs = c(0.5, 0.9, 0.99), newdata = head(X, 3))
 cq
 
 ## ----causal-plot--------------------------------------------------------------
@@ -67,7 +67,7 @@ ipw_q
 
 ## ----causal-pred--------------------------------------------------------------
 pred_grid <- data.frame(x1 = seq(-1, 1, length.out = 5), x2 = rep(0, 5), x3 = 0)
-cq_pred <- cqte(fit, probs = c(0.9, 0.99), newdata = pred_grid)
+cq_pred <- qte(fit, probs = c(0.9, 0.99), newdata = pred_grid)
 cq_pred
 
 ## ----session-info-------------------------------------------------------------
