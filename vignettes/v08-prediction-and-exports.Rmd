@@ -1,8 +1,8 @@
 ---
-title: "Prediction, Posterior Draws, and Exporting Results"
+title: "Prediction & exports"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Prediction, Posterior Draws, and Exporting Results}
+  %\VignetteIndexEntry{Prediction & exports}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,6 +17,9 @@ knitr::opts_chunk$set(
   message = FALSE,
   fig.width = 6
 )
+```
+
+```{r libraries}
 library(DPmixGPD)
 library(nimble)
 use_cached_fit <- TRUE
@@ -28,10 +31,6 @@ use_cached_fit <- TRUE
 fit_small <- readRDS(.fit_path("fit_small.rds"))
 library(ggplot2)
 ```
-
-What you'll learn: how to extract posterior draws, render predictive samples, and export tables/plots for downstream reporting.
-
-## Extracting MCMC samples
 
 ```{r prepare-draws}
 set.seed(3)
@@ -55,8 +54,6 @@ keep <- intersect(c("alpha", "threshold[1]", "tail_shape"), colnames(draws))
 head(draws[, keep, drop = FALSE])
 ```
 
-## Posterior predictive draws
-
 ```{r predictive-draws, fig.cap="Posterior predictive draws overlayed on data histogram."}
 pp <- predict(fit, type = "sample", nsim = 200)
 draws_df <- data.frame(value = pp$fit[, 1])
@@ -65,8 +62,6 @@ ggplot(draws_df, aes(x = value)) +
   geom_density(data = data.frame(y = y), aes(x = y, y = ..density..), color = "#d62728") +
   labs(title = "Posterior predictive draws vs observed histogram", x = "y")
 ```
-
-## Export helpers
 
 ```{r export-table}
 dir.create("reports", showWarnings = FALSE, recursive = TRUE)
@@ -79,8 +74,6 @@ knitr::kable(export_table, caption = "Quantile export for reporting")
 write.csv(export_table, file = "reports/quantiles.csv", row.names = FALSE)
 ```
 
-## Reproducible prediction recipe library
-
 ```{r recipe}
 recipes <- list(
   "Quantile curve" = function(newdata) predict(fit, newdata = newdata, type = "quantile", p = c(.5, .9, .99)),
@@ -89,8 +82,6 @@ recipes <- list(
 )
 recipes
 ```
-
-## Session info
 
 ```{r session}
 sessionInfo()

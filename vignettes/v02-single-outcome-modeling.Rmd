@@ -1,8 +1,8 @@
 ---
-title: "Single-Outcome Modeling: Bulk + Tail in One Model"
+title: "Single-Outcome Modeling"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Single-Outcome Modeling: Bulk + Tail in One Model}
+  %\VignetteIndexEntry{Single-Outcome Modeling}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -29,21 +29,6 @@ fit_small <- readRDS(.fit_path("fit_small.rds"))
 library(ggplot2)
 ```
 
-What you'll learn: how to build a single-outcome DP mixture with an optional GPD tail, interpret the posterior table, diagnose mixing, and make predictions on new data grids.
-
-## 2.1 Data types supported
-
-DPmixGPD targets positive, right-skewed outcomes. The kernels above (lognormal, gamma, inverse Gaussian, Amoroso, Laplace) all assume support \(Y > 0\). If your data contain negatives, a monotonic transformation (e.g., shift + log) is the simplest path forward. Censoring is not (yet) unified, so treat survival-specific problems via the survival track.
-
-## 2.2 Model overview
-
-- **DP mixture bulk:** a Dirichlet process prior over kernel parameters; mixture index \(j\) controls components (equivalently the truncation parameter \(J\)).
-- **Threshold \(u(x)\):** constant or covariate-linked; \(u(x)\) is the pivot for chaining to the tail.
-- **GPD tail:** estimates scale/shape for exceedances \(Y > u(x)\) and coexists with the bulk so predictions are smooth.
-- **Posterior outputs:** weights \(w[j]\), component means, thresholds, tail shape/scale.
-
-## 2.3 Minimal example
-
 ```{r single-example}
 set.seed(42)
 n <- 120
@@ -67,19 +52,9 @@ if (use_cached_fit) {
 summary(fit)
 ```
 
-## 2.4 Interpretation
-
-- `print(fit)` details backend, kernel, \(J\), and the fact that GPD=TRUE.
-- `summary(fit)` returns a table with posterior means, SDs, quantiles; the recorded `threshold` and `tail_shape` rows are the focus when GPD is enabled.
-- The `table` slot can be filtered to extract the rows you need for reporting.
-
-## 2.5 Diagnostics
-
 ```{r traceplot, fig.cap="Trace plot for tail parameters and weights."}
 plot(fit, family = "traceplot", params = c("alpha", "mean[1]"))
 ```
-
-## 2.6 Prediction API
 
 ```{r prediction-api}
 quant <- predict(fit, type = "quantile", p = c(.5, .9, .99))
@@ -93,14 +68,6 @@ ggplot(quantile_df, aes(x = tau, y = value)) +
   labs(title = "Quantiles from the fitted model", x = "tau") +
   theme_minimal()
 ```
-
-## 2.7 Model selection & sensitivity
-
-| Choice | Guidance |
-| --- | --- |
-| \(J\) | Start near 6 or 8; the truncation automatically renormalizes unused weights. |
-| Kernel | Use lognormal/gamma for positive data, Amoroso for flexible skew, normal only when symmetry is plausible. |
-| GPD flag | Turn on when you see systematic excesses; set to FALSE for soft tails. |
 
 ```{r bulk-vs-tail, fig.cap="Bulk density (blue) versus tail contribution (orange)."}
 dense_grid <- seq(0, max(y) + 5, length.out = 120)
@@ -125,8 +92,6 @@ posterior_table <- rbind(posterior_table, data.frame(
 ))
 knitr::kable(posterior_table, digits = 3)
 ```
-
-## Session info
 
 ```{r session}
 sessionInfo()

@@ -631,175 +631,6 @@ stick_breaking <- nimble::nimbleFunction(
   )
 }
 
-#' Compute CRP weights from a vector of allocations z
-#'
-#' @param z Integer vector of length N with values in 1:Kmax.
-#' @param Kmax Integer.
-#' @return Numeric vector of length Kmax summing to 1.
-#' @keywords internal
-.crp_weights_from_z <- function(z, Kmax) {
-  Kmax <- as.integer(Kmax)
-  if (Kmax < 1L) stop("Kmax must be >= 1.", call. = FALSE)
-  if (!is.numeric(z)) stop("z must be numeric/integer.", call. = FALSE)
-
-  z <- as.integer(z)
-  if (any(is.na(z))) stop("z contains NA.", call. = FALSE)
-  if (any(z < 1L | z > Kmax)) stop("z must be in 1:Kmax.", call. = FALSE)
-
-  tab <- tabulate(z, nbins = Kmax)
-  w <- tab / sum(tab)
-  as.numeric(w)
-}
-
-
-
-# ============================================================
-# Internal: plotting dispatcher (no placeholders)
-# ============================================================
-
-#' Dispatch plotting for common MCMC diagnostics
-#' @param mat Draw matrix.
-#' @param family One of trace/density/acf/pairs.
-#' @param params Parameters to plot.
-#' @keywords internal
-.plot_dispatch <- function(mat, family, params, ...) {
-  sub <- mat[, params, drop = FALSE]
-
-  if (family == "trace") {
-    op <- graphics::par(no.readonly = TRUE)
-    on.exit(graphics::par(op), add = TRUE)
-    k <- ncol(sub)
-    graphics::par(mfrow = c(k, 1), mar = c(3, 3, 2, 1))
-    for (j in seq_len(k)) {
-      v <- sub[, j]
-      graphics::plot(v, type = "l", xlab = "Iteration", ylab = params[j], main = paste("Trace:", params[j]), ...)
-    }
-    return(invisible(NULL))
-  }
-
-  if (family == "density") {
-    op <- graphics::par(no.readonly = TRUE)
-    on.exit(graphics::par(op), add = TRUE)
-    k <- ncol(sub)
-    graphics::par(mfrow = c(k, 1), mar = c(3, 3, 2, 1))
-    for (j in seq_len(k)) {
-      v <- sub[, j]
-      d <- stats::density(v, na.rm = TRUE)
-      graphics::plot(d, xlab = params[j], main = paste("Density:", params[j]), ...)
-    }
-    return(invisible(NULL))
-  }
-
-  if (family == "acf") {
-    op <- graphics::par(no.readonly = TRUE)
-    on.exit(graphics::par(op), add = TRUE)
-    k <- ncol(sub)
-    graphics::par(mfrow = c(k, 1), mar = c(3, 3, 2, 1))
-    for (j in seq_len(k)) {
-      v <- sub[, j]
-      stats::acf(v, main = paste("ACF:", params[j]), ...)
-    }
-    return(invisible(NULL))
-  }
-
-  if (family == "pairs") {
-    if (ncol(sub) < 2) stop("pairs plot requires at least 2 parameters.", call. = FALSE)
-    graphics::pairs(sub, main = "Pairs plot of selected parameters", ...)
-    return(invisible(NULL))
-  }
-
-  stop("Unknown plot family.", call. = FALSE)
-}
-
-# ============================================================
-# Internal: coefficient extraction (implemented without placeholders)
-# ============================================================
-
-#' Extract coefficient-like parameters from posterior draws
-#'
-#' This is pattern-based and works immediately with common naming conventions:
-#' - bulk: beta_mu, beta, mu regression blocks, etc.
-#' - tail: beta_u, beta_sigma, beta_xi, threshold regression blocks, etc.
-#'
-#' For a perfect experience, keep your engine naming consistent; this will then be stable.
-#'
-#' @param object mixgpd_fit.
-#' @param component bulk/tail/both.
-#' @param format vector/list/tidy.
-#' @param probs intervals for tidy format.
-#' @return coefficients.
-#' @keywords internal
-.extract_coef <- function(object, component = c("bulk", "tail", "both"),
-                          format = c("vector", "list", "tidy"),
-                          probs = c(0.025, 0.5, 0.975)) {
-
-  component <- match.arg(component)
-  format <- match.arg(format)
-
-  draws <- .extract_draws(object)
-  nms <- colnames(draws)
-
-  # Heuristics for coefficient blocks
-  bulk_pat <- "(^beta(?!_u|_sigma|_xi))|beta_mu|beta_mean|beta_bulk|\\bbeta\\b"
-  tail_pat <- "beta_u|beta_sigma|beta_xi|beta_tail|threshold|u_coef|sigma_coef|xi_coef"
-
-  bulk_names <- nms[grepl(bulk_pat, nms, perl = TRUE)]
-  tail_names <- nms[grepl(tail_pat, nms, perl = TRUE)]
-
-  sel <- switch(component,
-                bulk = bulk_names,
-                tail = tail_names,
-                both = unique(c(bulk_names, tail_names))
-  )
-
-  if (length(sel) == 0) {
-    if (format == "list") {
-      return(list(bulk = numeric(0), tail = numeric(0)))
-    }
-    if (format == "tidy") {
-      return(data.frame(block = character(0), term = character(0),
-                        mean = numeric(0), sd = numeric(0),
-                        q025 = numeric(0), q500 = numeric(0), q975 = numeric(0),
-                        stringsAsFactors = FALSE))
-    }
-    return(setNames(numeric(0), character(0)))
-  }
-
-  sub <- draws[, sel, drop = FALSE]
-  meanv <- colMeans(sub, na.rm = TRUE)
-
-  if (format == "vector") {
-    return(meanv)
-  }
-
-  if (format == "list") {
-    out <- list(
-      bulk = meanv[intersect(names(meanv), bulk_names)],
-      tail = meanv[intersect(names(meanv), tail_names)]
-    )
-    return(out)
-  }
-
-  # tidy
-  qmat <- t(apply(sub, 2, stats::quantile, probs = probs, na.rm = TRUE, names = FALSE))
-  colnames(qmat) <- paste0("q", formatC(probs, format = "f", digits = 3))
-
-  df <- data.frame(
-    term = names(meanv),
-    mean = as.numeric(meanv),
-    sd = as.numeric(apply(sub, 2, stats::sd, na.rm = TRUE)),
-    qmat,
-    stringsAsFactors = FALSE
-  )
-
-  df$block <- ifelse(df$term %in% tail_names, "tail", "bulk")
-  # Put in nicer order
-  df <- df[, c("block", "term", setdiff(names(df), c("block", "term"))), drop = FALSE]
-  rownames(df) <- NULL
-  df
-}
-
-
 
 #' Internal prediction engine: evaluate per posterior draw, then summarize.
 #'
@@ -811,7 +642,7 @@ stick_breaking <- nimble::nimbleFunction(
 #'
 #' @keywords internal
 .predict_mixgpd <- function(object,
-                            x = NULL, y = NULL,
+                            x = NULL, y = NULL, ps = NULL,
                             type = c("density", "survival", "quantile", "sample", "mean"),
                             p = NULL, nsim = NULL,
                             interval = c("none", "credible"),
@@ -837,10 +668,12 @@ stick_breaking <- nimble::nimbleFunction(
   backend <- meta$backend %||% spec$dispatch$backend %||% "<unknown>"
   kernel  <- meta$kernel  %||% spec$kernel$key %||% "<unknown>"
   GPD     <- isTRUE(meta$GPD %||% spec$dispatch$GPD)
+  has_ps  <- isTRUE(meta$has_ps)
 
   # training data
   Xtrain <- object$data$X %||% object$X %||% NULL
   ytrain <- object$data$y %||% object$y %||% NULL
+  ps_train <- object$data$ps %||% NULL
 
   # whether model uses X
   # (if you already store meta$has_X, it will be used; otherwise infer from stored Xtrain)
@@ -1003,6 +836,22 @@ stick_breaking <- nimble::nimbleFunction(
   n_pred <- if (has_X) nrow(Xpred) else 1L
   if (is.na(n_pred) || n_pred < 1L) stop("Could not determine number of prediction rows.", call. = FALSE)
 
+  ps_pred <- NULL
+  if (has_ps) {
+    # Prefer explicit 'ps' if provided; otherwise fall back to stored training ps
+    # even when x is supplied (common for residuals/predict on training design).
+    ps_pred <- if (!is.null(ps)) as.numeric(ps) else ps_train
+    if (is.null(ps_pred)) {
+      stop("PS-augmented model: cannot resolve propensity scores for prediction.", call. = FALSE)
+    }
+    if (length(ps_pred) != n_pred) {
+      stop("Length of 'ps' must equal number of prediction rows (nrow(x)).", call. = FALSE)
+    }
+    if (anyNA(ps_pred) || !all(is.finite(ps_pred))) {
+      stop("'ps' must be numeric, finite, and contain no NA.", call. = FALSE)
+    }
+  }
+
   # -----------------------------
   # Extract posterior draws
   # -----------------------------
@@ -1094,6 +943,35 @@ stick_breaking <- nimble::nimbleFunction(
       ent <- bulk_plan[[nm]] %||% list()
       link_specs[[nm]] <- list(link = ent$link %||% "identity", link_power = ent$link_power %||% NULL)
     }
+  }
+ 
+  link_beta_ps <- list()
+  if (length(link_params) && has_ps) {
+    for (nm in link_params) {
+      link_beta_ps[[nm]] <- .indexed_block(draw_mat, paste0("beta_ps_", nm), K = K)
+    }
+  }
+
+  .compute_link_eta <- function(s) {
+    if (!length(link_params)) return(list())
+    if (is.null(Xpred)) stop("Link-mode prediction requires X.", call. = FALSE)
+    P <- ncol(Xpred)
+    link_eta <- list()
+    for (nm in link_params) {
+      beta_mat <- link_betas[[nm]][s, , , drop = FALSE]
+      dim(beta_mat) <- c(K, P)
+      eta <- beta_mat %*% t(Xpred)
+      if (has_ps) {
+        ps_mat <- link_beta_ps[[nm]]
+        if (is.null(ps_mat)) stop("PS coefficients missing for link-mode parameter.", call. = FALSE)
+        ps_vec <- as.numeric(ps_mat[s, ])
+        if (length(ps_vec) != K) stop("Unexpected dimension for beta_ps.", call. = FALSE)
+        eta <- eta + outer(ps_vec, ps_pred)
+      }
+      spec <- link_specs[[nm]] %||% list()
+      link_eta[[nm]] <- .apply_link(eta, spec$link %||% "identity", spec$link_power %||% NULL)
+    }
+    link_eta
   }
 
   # Tail / threshold draws
@@ -1198,16 +1076,7 @@ stick_breaking <- nimble::nimbleFunction(
       }
       if (GPD) { args0$tail_shape <- tail_shape[s] }
 
-      link_eta <- list()
-      if (length(link_params)) {
-        for (nm in link_params) {
-          beta_mat <- link_betas[[nm]][s, , , drop = FALSE]
-          dim(beta_mat) <- c(K, ncol(Xpred))
-          eta <- beta_mat %*% t(Xpred)
-          spec <- link_specs[[nm]] %||% list()
-          link_eta[[nm]] <- .apply_link(eta, spec$link %||% "identity", spec$link_power %||% NULL)
-        }
-      }
+      link_eta <- .compute_link_eta(s)
 
       out <- matrix(NA_real_, nrow = n_pred, ncol = G)
       for (i in 1:n_pred) {
@@ -1274,16 +1143,7 @@ stick_breaking <- nimble::nimbleFunction(
       }
       if (GPD) { args0$tail_shape <- tail_shape[s] }
 
-      link_eta <- list()
-      if (length(link_params)) {
-        for (nm in link_params) {
-          beta_mat <- link_betas[[nm]][s, , , drop = FALSE]
-          dim(beta_mat) <- c(K, ncol(Xpred))
-          eta <- beta_mat %*% t(Xpred)
-          spec <- link_specs[[nm]] %||% list()
-          link_eta[[nm]] <- .apply_link(eta, spec$link %||% "identity", spec$link_power %||% NULL)
-        }
-      }
+      link_eta <- .compute_link_eta(s)
 
       out <- matrix(NA_real_, nrow = n_pred, ncol = M)
       for (i in 1:n_pred) {
@@ -1341,16 +1201,7 @@ stick_breaking <- nimble::nimbleFunction(
       }
       if (GPD) { args0$tail_shape <- tail_shape[s] }
 
-      link_eta <- list()
-      if (length(link_params)) {
-        for (nm in link_params) {
-          beta_mat <- link_betas[[nm]][s, , , drop = FALSE]
-          dim(beta_mat) <- c(K, ncol(Xpred))
-          eta <- beta_mat %*% t(Xpred)
-          spec <- link_specs[[nm]] %||% list()
-          link_eta[[nm]] <- .apply_link(eta, spec$link %||% "identity", spec$link_power %||% NULL)
-        }
-      }
+      link_eta <- .compute_link_eta(s)
 
       for (i in 1:n_pred) {
         args <- args0
@@ -1393,16 +1244,7 @@ stick_breaking <- nimble::nimbleFunction(
       }
       if (GPD) { args0$tail_shape <- tail_shape[s] }
 
-      link_eta <- list()
-      if (length(link_params)) {
-        for (nm in link_params) {
-          beta_mat <- link_betas[[nm]][s, , , drop = FALSE]
-          dim(beta_mat) <- c(K, ncol(Xpred))
-          eta <- beta_mat %*% t(Xpred)
-          spec <- link_specs[[nm]] %||% list()
-          link_eta[[nm]] <- .apply_link(eta, spec$link %||% "identity", spec$link_power %||% NULL)
-        }
-      }
+      link_eta <- .compute_link_eta(s)
 
       for (i in 1:n_pred) {
         args <- args0

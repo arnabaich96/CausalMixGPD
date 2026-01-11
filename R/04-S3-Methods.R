@@ -109,6 +109,7 @@ print.dpmixgpd_causal_bundle <- function(x, code = FALSE, max_code_lines = 200L,
   cat("GPD tail (treated/control):", ifelse(isTRUE(gpd$trt), "TRUE", "FALSE"),
       "/", ifelse(isTRUE(gpd$con), "TRUE", "FALSE"), "\n")
   cat("components (treated/control):", comps$trt %||% "?", "/", comps$con %||% "?", "\n")
+  cat("Outcome PS included:", ifelse(isTRUE(meta$ps$enabled), "TRUE", "FALSE"), "\n")
   cat("epsilon (treated/control):", eps$trt %||% "?", "/", eps$con %||% "?", "\n")
   cat("n (control) =", length(x$index$con %||% integer(0)),
       "| n (treated) =", length(x$index$trt %||% integer(0)), "\n")
@@ -418,7 +419,6 @@ print.mixgpd_fit <- function(x, ...) {
 summary.mixgpd_fit <- function(object, pars = NULL, probs = c(0.025, 0.5, 0.975), ...) {
   stopifnot(inherits(object, "mixgpd_fit"))
   `%||%` <- function(a, b) if (!is.null(a)) a else b
-
   tab <- .summarize_posterior(object, pars = pars, probs = probs)
 
   spec <- object$spec %||% list()
@@ -468,7 +468,6 @@ summary.mixgpd_fit <- function(object, pars = NULL, probs = c(0.025, 0.5, 0.975)
 print.mixgpd_summary <- function(x, digits = 3, max_rows = 60, ...) {
   stopifnot(inherits(x, "mixgpd_summary"))
   `%||%` <- function(a, b) if (!is.null(a)) a else b
-
   model <- x$model %||% list()
   waic <- x$waic
   trunc <- model$truncation %||% list()
@@ -559,8 +558,6 @@ plot.mixgpd_fit <- function(x,
   if (!requireNamespace("coda", quietly = TRUE)) {
     stop("Package 'coda' is required (nimble samplesAsCodaMCMC=TRUE).", call. = FALSE)
   }
-
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   # ---- pull samples (prefer x$mcmc$samples, then x$samples) ----
   smp <- x$mcmc$samples %||% x$samples
@@ -669,6 +666,8 @@ plot.mixgpd_fit <- function(x,
 #' @param object A fitted object of class \code{"mixgpd_fit"}.
 #' @param x Optional new data. Alias for \code{newdata}.
 #' @param newdata Optional new data. If \code{NULL}, uses training design (if stored).
+#' @param ps Optional numeric vector of propensity scores aligned with \code{newdata}.
+#'   Required for PS-augmented fits when predicting on new \code{X}.
 #' @param type Prediction type: \code{"density"}, \code{"survival"}, \code{"quantile"},
 #'   \code{"sample"}, \code{"mean"}.
 #' @param p Numeric vector of probabilities for quantiles (required for \code{type="quantile"}).
@@ -701,6 +700,7 @@ plot.mixgpd_fit <- function(x,
 predict.mixgpd_fit <- function(object,
                                x = NULL,
                                y = NULL,
+                               ps = NULL,
                                newdata = NULL,
                                type = c("density", "survival",
                                         "quantile", "sample", "mean"),
@@ -729,6 +729,7 @@ predict.mixgpd_fit <- function(object,
   .predict_mixgpd(object,
                   x = x,
                   y = y,
+                  ps = ps,
                   type = type,
                   p = p,
                   nsim = nsim,
@@ -889,44 +890,6 @@ residuals.mixgpd_fit <- function(object, type = c("pit"), ...) {
 }
 
 
-#' Log-likelihood for a MixGPD fit
-#'
-#' This method returns an approximate log-likelihood using a point summary
-#' of parameters (posterior median by default) IF the object contains a
-#' callable log-likelihood function at \code{object$engine$loglik}.
-#'
-#' Why the indirection? Because marginal likelihood for mixtures can be subtle;
-#' the engine is the right place to define it. This S3 method is a clean wrapper.
-#'
-#' @param object A fitted object of class \code{"mixgpd_fit"}.
-#' @param point Point summary used when the engine needs parameter values:
-#'   \code{"posterior_median"} or \code{"posterior_mean"}.
-#' @param ... Passed to the engine log-likelihood.
-#' @return An object of class \code{"logLik"} if available; otherwise errors.
-#' @keywords internal
-#' @noRd
-logLik.mixgpd_fit <- function(object, point = c("posterior_median", "posterior_mean"), ...) {
-  .validate_fit(object)
-  point <- match.arg(point)
-
-  eng <- object$engine %||% list()
-  llfun <- eng$loglik
-  if (!is.function(llfun)) {
-    stop("No engine log-likelihood found at object$engine$loglik (must be a function).", call. = FALSE)
-  }
-
-  draws <- .extract_draws(object)
-  theta <- if (point == "posterior_median") {
-    apply(draws, 2, stats::median, na.rm = TRUE)
-  } else {
-    colMeans(draws, na.rm = TRUE)
-  }
-
-  val <- llfun(theta = theta, object = object, ...)
-  val <- as.numeric(val)[1]
-  out <- structure(val, df = length(theta), nobs = .get_nobs(object), class = "logLik")
-  out
-}
 # ============================================================
 # Optional: fitted values (implemented)
 # ============================================================

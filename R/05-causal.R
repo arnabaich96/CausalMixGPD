@@ -127,6 +127,7 @@ build_causal_bundle <- function(
   )
 
   ps_bundle <- .build_ps_bundle(T = T, X = X, spec = ps_spec, mcmc = mcmc_ps)
+  ps_placeholder <- rep(0, length(y))
 
   ps_con <- param_specs$con %||% param_specs
   ps_trt <- param_specs$trt %||% param_specs
@@ -153,6 +154,7 @@ build_causal_bundle <- function(
   bundle_con <- build_nimble_bundle(
     y = y[idx_con],
     X = X[idx_con, , drop = FALSE],
+    ps = ps_placeholder[idx_con],
     backend = backend$con,
     kernel = kernel$con,
     GPD = GPD$con,
@@ -166,6 +168,7 @@ build_causal_bundle <- function(
   bundle_trt <- build_nimble_bundle(
     y = y[idx_trt],
     X = X[idx_trt, , drop = FALSE],
+    ps = ps_placeholder[idx_trt],
     backend = backend$trt,
     kernel = kernel$trt,
     GPD = GPD$trt,
@@ -186,7 +189,8 @@ build_causal_bundle <- function(
       kernel = kernel,
       GPD = GPD,
       components = components,
-      epsilon = epsilon
+      epsilon = epsilon,
+      ps = list(enabled = TRUE)
     ),
     call = match.call()
   )
@@ -287,6 +291,18 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
   stopifnot(inherits(bundle, "dpmixgpd_causal_bundle"))
 
   ps_fit <- .run_ps_mcmc_bundle(bundle$design, show_progress = show_progress)
+  ps_training_X <- bundle$data$X
+  if (is.null(ps_training_X)) {
+    stop("Training design matrix 'X' is missing from causal bundle.", call. = FALSE)
+  }
+  ps_training_X <- if (is.matrix(ps_training_X)) ps_training_X else as.matrix(ps_training_X)
+  storage.mode(ps_training_X) <- "double"
+  ps_hat <- .compute_ps_from_fit(ps_fit = ps_fit, ps_bundle = bundle$design, X_new = ps_training_X)
+  idx_con <- bundle$index$con
+  idx_trt <- bundle$index$trt
+  bundle$outcome$con$data$ps <- ps_hat[idx_con]
+  bundle$outcome$trt$data$ps <- ps_hat[idx_trt]
+
   con_fit <- run_mcmc_bundle_manual(bundle$outcome$con, show_progress = show_progress)
   trt_fit <- run_mcmc_bundle_manual(bundle$outcome$trt, show_progress = show_progress)
 
@@ -294,13 +310,14 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
     ps_fit = ps_fit,
     outcome_fit = list(con = con_fit, trt = trt_fit),
     bundle = bundle,
+    ps_hat = ps_hat,
     call = match.call()
   )
   class(out) <- "dpmixgpd_causal_fit"
   out
 }
 
-#' Conditional quantile treatment effects (CQTE)
+#' Quantile treatment effects (QTE)
 #'
 #' Computes treated-minus-control quantiles from a causal fit.
 #'
@@ -308,24 +325,36 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
 #' @param probs Numeric vector of probabilities in (0, 1).
 #' @param newdata Optional data.frame or matrix of covariates for prediction.
 #' @param interval Credible interval type passed to \code{predict()}.
-#' @return A list with elements \code{fit} (CQTE), \code{grid} (probabilities),
+#' @return A list with elements \code{fit} (QTE), \code{grid} (probabilities),
 #'   and the treated/control prediction objects.
 #' @examples
 #' \dontrun{
 #' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", J = 6)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
-#' cqte(fit, probs = c(0.5, 0.9), newdata = X[1:5, ])
+#' qte(fit, probs = c(0.5, 0.9), newdata = X[1:5, ])
 #' }
 #' @export
-cqte <- function(fit,
-                 probs = c(0.1, 0.5, 0.9),
-                 newdata = NULL,
-                 interval = c("none", "credible")) {
+qte <- function(fit,
+                probs = c(0.1, 0.5, 0.9),
+                newdata = NULL,
+                interval = c("none", "credible")) {
   stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
   interval <- match.arg(interval)
-  pr_trt <- predict(fit$outcome_fit$trt, newdata = newdata, type = "quantile", p = probs,
+  x_pred <- newdata %||% (fit$bundle$data$X %||% NULL)
+
+  ps_new <- NULL
+  if (!is.null(x_pred)) {
+    if (is.null(fit$ps_fit)) {
+      stop("Causal fit missing PS model; cannot compute propensity scores for supplied covariates.", call. = FALSE)
+    }
+    ps_new <- .compute_ps_from_fit(ps_fit = fit$ps_fit, ps_bundle = fit$bundle$design, X_new = x_pred)
+  }
+
+  pr_trt <- predict(fit$outcome_fit$trt, x = x_pred, type = "quantile", p = probs,
+                    ps = ps_new,
                     interval = interval)
-  pr_con <- predict(fit$outcome_fit$con, newdata = newdata, type = "quantile", p = probs,
+  pr_con <- predict(fit$outcome_fit$con, x = x_pred, type = "quantile", p = probs,
+                    ps = ps_new,
                     interval = interval)
   out <- list(
     fit = pr_trt$fit - pr_con$fit,
@@ -334,9 +363,152 @@ cqte <- function(fit,
     grid = probs,
     trt = pr_trt,
     con = pr_con,
-    type = "cqte"
+    type = "qte"
   )
-  class(out) <- "dpmixgpd_cqte"
+  class(out) <- "dpmixgpd_qte"
+  out
+}
+
+
+#' Predict from a causal fit
+#'
+#' Provides a unified interface to the treated and control outcome models while
+#' guaranteeing that the same propensity scores are used for both arms. For new
+#' covariates, the PS model stored in \code{object$ps_fit} is used to estimate
+#' the required scores unless the user supplies their own via \code{ps}.
+#'
+#' @inheritParams predict.mixgpd_fit
+#' @param object A \code{"dpmixgpd_causal_fit"} object returned by
+#'   \code{run_mcmc_causal()}.
+#' @param ps Optional numeric vector of propensity scores aligned with \code{x}
+#'   / \code{newdata}. When provided, the supplied scores are used instead of
+#'   recomputing them from the stored PS model (needed only for custom inputs).
+#' @return A list with components \code{ps} (estimated propensity scores used for
+#'   prediction), \code{trt} (treated-arm prediction output), \code{con}
+#'   (control-arm prediction output), \code{type} (the requested prediction type),
+#'   and \code{grid} (matching grid from the outcome predictions, e.g., \code{p}
+#'   for quantiles or \code{y} for densities).
+#' @examples
+#' \dontrun{
+#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal")
+#' fit <- run_mcmc_causal(cb)
+#' predict(fit, x = X[1:10, ], type = "quantile", p = c(0.25, 0.5, 0.75))
+#' }
+#' @export
+#' @method predict dpmixgpd_causal_fit
+predict.dpmixgpd_causal_fit <- function(object,
+                                        x = NULL,
+                                        y = NULL,
+                                        ps = NULL,
+                                        newdata = NULL,
+                                        type = c("density", "survival", "quantile", "sample", "mean"),
+                                        p = NULL,
+                                        nsim = NULL,
+                                        interval = c("none", "credible"),
+                                        probs = c(0.025, 0.5, 0.975),
+                                        store_draws = TRUE,
+                                        nsim_mean = 200L,
+                                        ncores = 1L,
+                                        ...) {
+  stopifnot(inherits(object, "dpmixgpd_causal_fit"))
+
+  if (!is.null(newdata) && !is.null(x)) {
+    stop("Provide only one of 'x' or 'newdata' (they are aliases).", call. = FALSE)
+  }
+  if (!is.null(newdata)) x <- newdata
+
+  type <- match.arg(type)
+  interval <- match.arg(interval)
+
+  bundle <- object$bundle %||% list()
+  X_train <- bundle$data$X %||% NULL
+  has_X <- !is.null(X_train)
+  x_mat <- if (!is.null(x)) as.matrix(x) else NULL
+  n_pred_default <- if (has_X) nrow(X_train) else 1L
+  n_pred <- if (!is.null(x_mat)) nrow(x_mat) else n_pred_default
+
+  ps_full <- NULL
+  ps_trt <- NULL
+  ps_con <- NULL
+  if (!is.null(ps)) {
+    ps_full <- as.numeric(ps)
+  } else if (!is.null(x_mat)) {
+    if (is.null(object$ps_fit)) {
+      stop("Causal fit missing PS model; cannot compute propensity scores for newdata.", call. = FALSE)
+    }
+    ps_full <- .compute_ps_from_fit(
+      ps_fit = object$ps_fit,
+      ps_bundle = bundle$design,
+      X_new = x_mat
+    )
+  } else {
+    ps_full <- object$ps_hat %||% bundle$data$ps
+    ps_trt <- object$outcome_fit$trt$data$ps %||% NULL
+    ps_con <- object$outcome_fit$con$data$ps %||% NULL
+    if (is.null(ps_trt) || is.null(ps_con)) {
+      idx_trt <- bundle$index$trt %||% integer(0)
+      idx_con <- bundle$index$con %||% integer(0)
+      if (!is.null(ps_full) && length(idx_trt) && length(idx_con)) {
+        ps_trt <- ps_full[idx_trt]
+        ps_con <- ps_full[idx_con]
+      }
+    }
+  }
+
+  if (!is.null(ps_full) && !is.null(x_mat)) {
+    if (length(ps_full) != n_pred) {
+      stop("Length of 'ps' must equal the number of prediction rows (nrow(x)).", call. = FALSE)
+    }
+  } else if (!is.null(x_mat) && is.null(ps_full)) {
+    stop("PS-augmented causal fit requires propensity scores when predicting on new data.", call. = FALSE)
+  }
+
+  if (!is.null(x_mat)) {
+    ps_trt <- ps_full
+    ps_con <- ps_full
+  }
+
+  pr_trt <- predict(
+    object$outcome_fit$trt,
+    x = x,
+    y = y,
+    ps = ps_trt,
+    type = type,
+    p = p,
+    nsim = nsim,
+    interval = interval,
+    probs = probs,
+    store_draws = store_draws,
+    nsim_mean = nsim_mean,
+    ncores = ncores,
+    ...
+  )
+
+  pr_con <- predict(
+    object$outcome_fit$con,
+    x = x,
+    y = y,
+    ps = ps_con,
+    type = type,
+    p = p,
+    nsim = nsim,
+    interval = interval,
+    probs = probs,
+    store_draws = store_draws,
+    nsim_mean = nsim_mean,
+    ncores = ncores,
+    ...
+  )
+
+  out <- list(
+    ps = ps_full,
+    ps_trt = ps_trt,
+    ps_con = ps_con,
+    trt = pr_trt,
+    con = pr_con,
+    type = type,
+    grid = pr_trt$grid
+  )
   out
 }
 
@@ -395,4 +567,70 @@ cqte <- function(fit,
   )
   class(bundle) <- "dpmixgpd_ps_bundle"
   bundle
+}
+
+
+ .ps_beta_means <- function(ps_fit) {
+  stopifnot(inherits(ps_fit, "dpmixgpd_ps_fit"))
+  samples <- as.matrix(ps_fit$mcmc$samples)
+  beta_cols <- grep("^beta\\[[0-9]+\\]$", colnames(samples), value = TRUE)
+  if (!length(beta_cols)) stop("PS beta draws not found.", call. = FALSE)
+  beta_inds <- as.integer(sub("^beta\\[([0-9]+)\\]$", "\\1", beta_cols))
+  order_idx <- order(beta_inds, na.last = NA)
+  beta_means <- colMeans(samples[, beta_cols, drop = FALSE])
+  beta_means <- as.numeric(beta_means[order_idx])
+  beta_means
+}
+
+.ps_design_matrix <- function(ps_bundle, X_new) {
+  stopifnot(inherits(ps_bundle, "dpmixgpd_ps_bundle"))
+  X_train <- ps_bundle$data$X
+  if (is.null(X_train)) stop("PS bundle missing design matrix.", call. = FALSE)
+
+  include_intercept <- isTRUE(ps_bundle$spec$meta$include_intercept)
+  train_cols <- if (!is.null(colnames(X_train))) colnames(X_train) else character(ncol(X_train))
+  base_cols <- if (include_intercept) setdiff(train_cols, "(Intercept)") else train_cols
+  base_cols <- base_cols[!is.na(base_cols)]
+
+  X_new <- as.matrix(X_new)
+  storage.mode(X_new) <- "double"
+  if (is.null(nrow(X_new)) || nrow(X_new) < 1) {
+    stop("New data must have one or more rows.", call. = FALSE)
+  }
+
+  if (length(base_cols) > 0) {
+    if (!is.null(colnames(X_new))) {
+      if (!setequal(colnames(X_new), base_cols)) {
+        stop("Column names of newdata do not match PS design.", call. = FALSE)
+      }
+      X_new <- X_new[, base_cols, drop = FALSE]
+    } else {
+      if (ncol(X_new) != length(base_cols)) {
+        stop("Newdata must have the same number of columns as the original design.", call. = FALSE)
+      }
+    }
+  } else {
+    if (ncol(X_new) != 0L) {
+      stop("No covariates expected in newdata for PS-only intercept models.", call. = FALSE)
+    }
+  }
+
+  if (include_intercept) {
+    out <- cbind(`(Intercept)` = 1, X_new)
+    colnames(out) <- train_cols
+  } else {
+    out <- X_new
+  }
+  storage.mode(out) <- "double"
+  out
+}
+
+.compute_ps_from_fit <- function(ps_fit, ps_bundle, X_new) {
+  design <- .ps_design_matrix(ps_bundle, X_new)
+  beta_means <- .ps_beta_means(ps_fit)
+  if (ncol(design) != length(beta_means)) {
+    stop("Mismatch between PS design columns and beta coefficients.", call. = FALSE)
+  }
+  eta <- as.numeric(design %*% beta_means)
+  stats::plogis(eta)
 }

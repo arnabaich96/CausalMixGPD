@@ -13,41 +13,54 @@ navbar:
 articles:
   - title: "Start here"
     contents:
-      - v00-start-here
-      - quickstart
+      - "starts_with('v00-start-here')"
+      - "starts_with('quickstart')"
   - title: "Installation & reproducibility"
     contents:
-      - v01-installation-reproducibility
+      - "starts_with('v01-installation-reproducibility')"
   - title: "Single-outcome modeling"
     contents:
-      - v02-single-outcome-modeling
+      - "starts_with('v02-single-outcome-modeling')"
   - title: "Causal modeling"
     contents:
-      - v05-causal-cqte
-      - causal
-      - v06-causal-extras
+      - "starts_with('v05-causal-qte')"
+      - "starts_with('causal')"
+      - "starts_with('v06-causal-extras')"
   - title: "Backends"
     contents:
-      - v03-backends-crp-vs-sb
-      - backends
+      - "starts_with('v03-backends-crp-vs-sb')"
+      - "starts_with('backends')"
   - title: "Kernel registry"
     contents:
-      - v04-kernels-guide
-      - kernel-normal
-      - kernel-lognormal
-      - kernel-gamma
-      - kernel-invgauss
-      - kernel-laplace
-      - kernel-amoroso
-      - kernel-cauchy
+      - "starts_with('v04-kernels-guide')"
+      - "starts_with('kernel-normal')"
+      - "starts_with('kernel-lognormal')"
+      - "starts_with('kernel-gamma')"
+      - "starts_with('kernel-invgauss')"
+      - "starts_with('kernel-laplace')"
+      - "starts_with('kernel-amoroso')"
+      - "starts_with('kernel-cauchy')"
   - title: "Prediction & exports"
     contents:
-      - v08-prediction-and-exports
-      - prediction
+      - "starts_with('v08-prediction-and-exports')"
+      - "starts_with('prediction')"
+  - title: "Legacy articles"
+    contents:
+      - "starts_with('bundle-s3')"
+      - "starts_with('causal-cqte')"
+      - "starts_with('causal-kernel-compare')"
+      - "starts_with('causal-qte')"
+      - "starts_with('causal-quickstart')"
+      - "starts_with('causal-tail')"
+      - "starts_with('covariates')"
+      - "starts_with('coverage-index')"
+      - "starts_with('dqrp')"
+      - "starts_with('gpd-tail')"
+      - "starts_with('kernels')"
   - title: "Troubleshooting & survival"
     contents:
-      - v09-troubleshooting
-      - v07-survival
+      - "starts_with('v09-troubleshooting')"
+      - "starts_with('v07-survival')"
   - title: "Developer resources"
     contents:
-      - v10-developer-guide
+      - "starts_with('v10-developer-guide')"

@@ -18,21 +18,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Parameters
-
-| Parameter | Meaning | Support |
-|---|---|---|
-| `location` | location | real |
-| `scale` | scale | positive |
-
-# Default priors (no covariates)
-
-- `location` ~ Normal(0, 5)
-- `scale` ~ Gamma(2, 1)
-
-# Example: mixture functions
-
-```{r}
+```{r kernel-cauchy}
 library(DPmixGPD)
 library(nimble)
 use_cached_fit <- TRUE
@@ -52,15 +38,7 @@ p <- 0.9
 dCauchyMix(x, w = w, location = location, scale = scale, log = FALSE)
 pCauchyMix(x, w = w, location = location, scale = scale, lower.tail = TRUE, log.p = FALSE)
 qCauchyMix(p, w = w, location = location, scale = scale)
-```
 
-# GPD tail support
-
-Cauchy does not support `GPD = TRUE` in the current registry.
-
-# Example: model specification
-
-```{r}
 set.seed(1)
 y <- abs(rcauchy(30)) + 0.1
 
@@ -73,4 +51,8 @@ bundle <- build_nimble_bundle(
 )
 
 bundle$spec$meta
+```
+
+```{r session}
+sessionInfo()
 ```

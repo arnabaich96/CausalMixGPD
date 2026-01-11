@@ -1,0 +1,38 @@
+---
+title: "Causal QTE (Unconditional)"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Causal QTE (Unconditional)}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(DPmixGPD)
+library(nimble)
+source("_helpers.R")
+```
+
+```{r data}
+data("causal_pos500_p3_k2")
+print_dataset_header(causal_pos500_p3_k2, "causal_pos500_p3_k2")
+```
+
+```{r qte, eval=FALSE}
+mcmc <- default_mcmc()
+cb <- build_causal_bundle(
+  y = causal_pos500_p3_k2$y,
+  X = causal_pos500_p3_k2$X,
+  T = causal_pos500_p3_k2$T,
+  backend = c("sb", "sb"),
+  kernel = c("gamma", "gamma"),
+  GPD = c(FALSE, FALSE),
+  J = c(causal_pos500_p3_k2$meta$K0, causal_pos500_p3_k2$meta$K1),
+  mcmc_outcome = mcmc,
+  mcmc_ps = mcmc
+)
+cf <- run_mcmc_causal(cb, show_progress = FALSE)
+
+cqte(cf, probs = c(0.1, 0.25, 0.5, 0.9))
+```

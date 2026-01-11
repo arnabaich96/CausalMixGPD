@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Backends: SB vs CRP • DPmixGPD</title>
+<title>Backends: CRP vs SB • DPmixGPD</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Backends: SB vs CRP">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Backends: CRP vs SB">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -47,7 +47,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Backends: SB vs CRP</h1>
+      <h1>Backends: CRP vs SB</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/fsu-dpmixgpd/DPmixGPD/blob/HEAD/vignettes/backends.Rmd" class="external-link"><code>vignettes/backends.Rmd</code></a></small>
@@ -56,138 +56,54 @@
 
     
     
-<div class="section level2">
-<h2 id="summary">Summary<a class="anchor" aria-label="anchor" href="#summary"></a>
-</h2>
-<p>DPmixGPD supports two Bayesian nonparametric backends:</p>
-<ul>
-<li>SB (stick-breaking): explicit mixture weights</li>
-<li>CRP (Chinese Restaurant Process): allocation-based
-representation</li>
-</ul>
-<p>Both share the same kernel registry and prediction interface.</p>
-</div>
-<div class="section level2">
-<h2 id="example-data">Example data<a class="anchor" aria-label="anchor" href="#example-data"></a>
-</h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://example.com/DPmixGPD">DPmixGPD</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-nimble.org" class="external-link">nimble</a></span><span class="op">)</span></span>
-<span><span class="va">use_cached_fit</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
-<span><span class="va">.fit_path</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">name</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="va">name</span>, package <span class="op">=</span> <span class="st">"DPmixGPD"</span><span class="op">)</span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">path</span> <span class="op">==</span> <span class="st">""</span><span class="op">)</span> <span class="va">path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">"inst"</span>, <span class="st">"extdata"</span>, <span class="va">name</span><span class="op">)</span></span>
-<span>  <span class="va">path</span></span>
+<code class="sourceCode R"><span><span class="co"># Load into knit global; fall back to package data/ if needed</span></span>
+<span><span class="va">.kg</span> <span class="op">&lt;-</span> <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/knit_global.html" class="external-link">knit_global</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/exists.html" class="external-link">exists</a></span><span class="op">(</span><span class="st">"nc_real200_k2"</span>, envir <span class="op">=</span> <span class="va">.kg</span>, inherits <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span>list <span class="op">=</span> <span class="st">"nc_real200_k2"</span>, package <span class="op">=</span> <span class="st">"DPmixGPD"</span>, envir <span class="op">=</span> <span class="va">.kg</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
-<span><span class="va">fit_small</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu">.fit_path</span><span class="op">(</span><span class="st">"fit_small.rds"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">fit_small_crp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu">.fit_path</span><span class="op">(</span><span class="st">"fit_small_crp.rds"</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span>
-<span><span class="va">N</span> <span class="op">&lt;-</span> <span class="fl">60</span></span>
-<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="va">N</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.1</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="sb-fit">SB fit<a class="anchor" aria-label="anchor" href="#sb-fit"></a>
-</h2>
+<span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/exists.html" class="external-link">exists</a></span><span class="op">(</span><span class="st">"nc_real200_k2"</span>, envir <span class="op">=</span> <span class="va">.kg</span>, inherits <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/load.html" class="external-link">load</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">"data"</span>, <span class="st">"nc_real200_k2.rda"</span><span class="op">)</span>, envir <span class="op">=</span> <span class="va">.kg</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/stopifnot.html" class="external-link">stopifnot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/exists.html" class="external-link">exists</a></span><span class="op">(</span><span class="st">"nc_real200_k2"</span>, envir <span class="op">=</span> <span class="va">.kg</span>, inherits <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">nc_real200_k2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/get.html" class="external-link">get</a></span><span class="op">(</span><span class="st">"nc_real200_k2"</span>, envir <span class="op">=</span> <span class="va">.kg</span>, inherits <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="fu">print_dataset_header</span><span class="op">(</span><span class="va">nc_real200_k2</span>, <span class="st">"nc_real200_k2"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Dataset: nc_real200_k2 </span></span>
+<span><span class="co">#&gt; head(y):</span></span>
+<span><span class="co">#&gt; [1] -1.7079605 -0.5634694 -2.2334859  1.8734314  1.4309543 -0.3023361</span></span>
+<span><span class="co">#&gt; meta: n=200 | support=real | p=0 | K_true=2 | tail=FALSE</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="va">use_cached_fit</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">fit_sb</span> <span class="op">&lt;-</span> <span class="va">fit_small</span></span>
-<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>  <span class="va">fit_sb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mcmc_bundle_manual.html">run_mcmc_bundle_manual</a></span><span class="op">(</span><span class="fu"><a href="../reference/build_nimble_bundle.html">build_nimble_bundle</a></span><span class="op">(</span></span>
-<span>    y <span class="op">=</span> <span class="va">y</span>,</span>
-<span>    backend <span class="op">=</span> <span class="st">"sb"</span>,</span>
-<span>    kernel <span class="op">=</span> <span class="st">"normal"</span>,</span>
-<span>    J <span class="op">=</span> <span class="fl">8</span>,</span>
-<span>    mcmc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">200</span>, nburnin <span class="op">=</span> <span class="fl">50</span>, thin <span class="op">=</span> <span class="fl">1</span>, nchains <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>, show_progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
+<code class="sourceCode R"><span><span class="co"># Light MCMC settings to keep the vignette fast</span></span>
+<span><span class="va">mcmc</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">300</span>, nburnin <span class="op">=</span> <span class="fl">100</span>, thin <span class="op">=</span> <span class="fl">1</span>, nchains <span class="op">=</span> <span class="fl">2</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">bundle_sb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_nimble_bundle.html">build_nimble_bundle</a></span><span class="op">(</span></span>
+<span>  y <span class="op">=</span> <span class="va">nc_real200_k2</span><span class="op">$</span><span class="va">y</span>,</span>
+<span>  backend <span class="op">=</span> <span class="st">"sb"</span>,</span>
+<span>  kernel <span class="op">=</span> <span class="st">"normal"</span>,</span>
+<span>  GPD <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  components <span class="op">=</span> <span class="va">nc_real200_k2</span><span class="op">$</span><span class="va">meta</span><span class="op">$</span><span class="va">K_true</span>,</span>
+<span>  mcmc <span class="op">=</span> <span class="va">mcmc</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">bundle_crp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_nimble_bundle.html">build_nimble_bundle</a></span><span class="op">(</span></span>
+<span>  y <span class="op">=</span> <span class="va">nc_real200_k2</span><span class="op">$</span><span class="va">y</span>,</span>
+<span>  backend <span class="op">=</span> <span class="st">"crp"</span>,</span>
+<span>  kernel <span class="op">=</span> <span class="st">"normal"</span>,</span>
+<span>  GPD <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  components <span class="op">=</span> <span class="va">nc_real200_k2</span><span class="op">$</span><span class="va">meta</span><span class="op">$</span><span class="va">K_true</span>,</span>
+<span>  mcmc <span class="op">=</span> <span class="va">mcmc</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">bundle_sb</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">bundle_crp</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fit_sb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mcmc_bundle_manual.html">run_mcmc_bundle_manual</a></span><span class="op">(</span><span class="va">bundle_sb</span>, show_progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+<span><span class="va">fit_crp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mcmc_bundle_manual.html">run_mcmc_bundle_manual</a></span><span class="op">(</span><span class="va">bundle_crp</span>, show_progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_sb</span><span class="op">)</span></span>
-<span><span class="co">#&gt; MixGPD summary | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: FALSE | epsilon: 0.025</span></span>
-<span><span class="co">#&gt; n = 80 | components = 3</span></span>
-<span><span class="co">#&gt; Summary</span></span>
-<span><span class="co">#&gt; Initial components: 3 | Components after truncation: 3</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Summary table</span></span>
-<span><span class="co">#&gt;   parameter  mean    sd q0.025 q0.500 q0.975    ess</span></span>
-<span><span class="co">#&gt;  weights[1] 0.638 0.081  0.524  0.625  0.775  3.535</span></span>
-<span><span class="co">#&gt;  weights[2] 0.211 0.033  0.150  0.212  0.251  8.389</span></span>
-<span><span class="co">#&gt;  weights[3] 0.154 0.055  0.049  0.162  0.225  3.421</span></span>
-<span><span class="co">#&gt;       alpha 1.945 0.818  0.575  1.904  3.341 13.115</span></span>
-<span><span class="co">#&gt;     mean[1] 1.150 0.154  0.876  1.144  1.404  9.376</span></span>
-<span><span class="co">#&gt;     mean[2] 5.956 3.400  2.343  6.970 11.420 15.873</span></span>
-<span><span class="co">#&gt;     mean[3] 6.067 3.332  2.530  3.815 11.671 13.235</span></span>
-<span><span class="co">#&gt;       sd[1] 3.027 1.226  1.385  2.780  5.462  8.118</span></span>
-<span><span class="co">#&gt;       sd[2] 1.110 1.316  0.023  0.059  3.947  3.470</span></span>
-<span><span class="co">#&gt;       sd[3] 1.356 1.652  0.029  0.587  5.270 15.139</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="crp-fit">CRP fit<a class="anchor" aria-label="anchor" href="#crp-fit"></a>
-</h2>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="va">use_cached_fit</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">fit_crp</span> <span class="op">&lt;-</span> <span class="va">fit_small_crp</span></span>
-<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>  <span class="va">fit_crp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mcmc_bundle_manual.html">run_mcmc_bundle_manual</a></span><span class="op">(</span><span class="fu"><a href="../reference/build_nimble_bundle.html">build_nimble_bundle</a></span><span class="op">(</span></span>
-<span>    y <span class="op">=</span> <span class="va">y</span>,</span>
-<span>    backend <span class="op">=</span> <span class="st">"crp"</span>,</span>
-<span>    kernel <span class="op">=</span> <span class="st">"normal"</span>,</span>
-<span>    J <span class="op">=</span> <span class="fl">8</span>,</span>
-<span>    mcmc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">200</span>, nburnin <span class="op">=</span> <span class="fl">50</span>, thin <span class="op">=</span> <span class="fl">1</span>, nchains <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>, show_progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_crp</span><span class="op">)</span></span>
-<span><span class="co">#&gt; MixGPD summary | backend: Chinese Restaurant Process | kernel: Normal Distribution | GPD tail: FALSE | epsilon: 0.025</span></span>
-<span><span class="co">#&gt; n = 80 | components = 3</span></span>
-<span><span class="co">#&gt; Summary</span></span>
-<span><span class="co">#&gt; Initial components: 3 | Components after truncation: 3</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Summary table</span></span>
-<span><span class="co">#&gt;   parameter  mean    sd q0.025 q0.500 q0.975    ess</span></span>
-<span><span class="co">#&gt;  weights[1] 0.542 0.055  0.462  0.537  0.663  7.671</span></span>
-<span><span class="co">#&gt;  weights[2] 0.344 0.068  0.262  0.325  0.475  3.588</span></span>
-<span><span class="co">#&gt;  weights[3] 0.175 0.033  0.102  0.175  0.217 13.487</span></span>
-<span><span class="co">#&gt;       alpha 0.540 0.285  0.138  0.491  1.167 40.000</span></span>
-<span><span class="co">#&gt;     mean[1] 1.092 0.153  0.852  1.094  1.325  5.262</span></span>
-<span><span class="co">#&gt;     mean[2] 6.729 1.203  4.726  6.919  8.907 18.225</span></span>
-<span><span class="co">#&gt;     mean[3] 2.983 0.288  2.596  2.953  3.557 10.855</span></span>
-<span><span class="co">#&gt;       sd[1] 2.585 0.810  1.137  2.579  4.132 22.478</span></span>
-<span><span class="co">#&gt;       sd[2] 0.053 0.015  0.028  0.049  0.080 40.000</span></span>
-<span><span class="co">#&gt;       sd[3] 1.692 0.441  0.998  1.611  2.517 12.295</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="prediction-comparison">Prediction comparison<a class="anchor" aria-label="anchor" href="#prediction-comparison"></a>
-</h2>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">q_sb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_sb</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">fit</span></span>
-<span><span class="va">q_crp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_crp</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span><span class="op">)</span><span class="op">$</span><span class="va">fit</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>sb <span class="op">=</span> <span class="va">q_sb</span>, crp <span class="op">=</span> <span class="va">q_crp</span><span class="op">)</span></span>
-<span><span class="co">#&gt;          [,1]     [,2]</span></span>
-<span><span class="co">#&gt; [1,] 2.444721 9.102755</span></span>
-<span><span class="co">#&gt; [2,] 3.316207 6.765119</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="when-to-use-each">When to use each<a class="anchor" aria-label="anchor" href="#when-to-use-each"></a>
-</h2>
-<ul>
-<li>SB: you want explicit mixture weights and direct stick-breaking
-interpretation.</li>
-<li>CRP: you want allocation-based modeling with implicit weights.</li>
-</ul>
-</div>
-<div class="section level2">
-<h2 id="computational-tradeoffs">Computational tradeoffs<a class="anchor" aria-label="anchor" href="#computational-tradeoffs"></a>
-</h2>
-<ul>
-<li>SB uses explicit weights; CRP reconstructs weights from
-allocations.</li>
-<li>Both require a truncation level for NIMBLE code generation.</li>
-<li>Mixing behavior can differ by kernel and data.</li>
-</ul>
-</div>
-  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
-    </nav></aside>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_crp</span><span class="op">)</span></span></code></pre></div>
+  </main>
 </div>
 
 

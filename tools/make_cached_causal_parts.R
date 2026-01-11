@@ -1,7 +1,7 @@
 devtools::load_all(".")
 library(nimble)
 set.seed(123)
-dat <- sim_causal_cqte(n = 120, seed = 123)
+dat <- sim_causal_qte(n = 120, seed = 123)
 X <- dat$X
 bundle <- build_causal_bundle(
   y = dat$y,

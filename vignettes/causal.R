@@ -28,7 +28,7 @@ fit_causal_small <- list(
 )
 class(fit_causal_small) <- "dpmixgpd_causal_fit"
 set.seed(1)
-dat <- sim_causal_cqte(n = 120)
+dat <- sim_causal_qte(n = 120)
 X <- dat$X
 T <- dat$t
 y <- dat$y
@@ -61,13 +61,13 @@ pr_trt$fit
 pr_con$fit
 
 ## -----------------------------------------------------------------------------
-qt <- cqte(cf, probs = c(0.5, 0.9), newdata = X)
+qt <- qte(cf, probs = c(0.5, 0.9), newdata = X)
 
 qt$fit
 
 ## -----------------------------------------------------------------------------
 qs <- c(0.1, 0.5, 0.9)
-qt2 <- cqte(cf, probs = qs, newdata = X)
+qt2 <- qte(cf, probs = qs, newdata = X)
 plot(qs, as.numeric(qt2$fit[1, ]), type = "b",
      xlab = "quantile", ylab = "QTE",
      main = "Quantile treatment effect")

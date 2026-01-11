@@ -18,21 +18,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Parameters
-
-| Parameter | Meaning | Support |
-|---|---|---|
-| `mean` | location | real |
-| `sd` | scale | positive |
-
-# Default priors (no covariates)
-
-- `mean` ~ Normal(0, 5)
-- `sd` ~ Gamma(2, 1)
-
-# Example: mixture functions
-
-```{r}
+```{r kernel-normal}
 library(DPmixGPD)
 library(nimble)
 use_cached_fit <- TRUE
@@ -52,11 +38,7 @@ p <- 0.9
 dNormMix(x, w = w, mean = mean, sd = sd, log = FALSE)
 pNormMix(x, w = w, mean = mean, sd = sd, lower.tail = TRUE, log.p = FALSE)
 qNormMix(p, w = w, mean = mean, sd = sd)
-```
 
-# Example: with GPD tail
-
-```{r}
 threshold <- 0.2
 tail_scale <- 1.0
 tail_shape <- 0.2
@@ -65,11 +47,7 @@ dNormMixGpd(x, w = w, mean = mean, sd = sd,
             threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape)
 qNormMixGpd(0.99, w = w, mean = mean, sd = sd,
             threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape)
-```
 
-# Example: model specification
-
-```{r}
 set.seed(1)
 y <- abs(rnorm(30)) + 0.1
 bundle <- build_nimble_bundle(
@@ -81,4 +59,16 @@ bundle <- build_nimble_bundle(
 )
 
 bundle$spec$meta
+```
+
+```{r kernel-normal-hist}
+library(ggplot2)
+data.frame(y = y) |>
+  ggplot(aes(x = y)) +
+  geom_histogram(boundary = 0, bins = 30, fill = "steelblue", alpha = 0.6) +
+  labs(title = "Normal kernel example data", x = "y", y = "Count")
+```
+
+```{r session}
+sessionInfo()
 ```

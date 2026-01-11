@@ -1,0 +1,44 @@
+---
+title: "Prediction"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Prediction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(DPmixGPD)
+library(nimble)
+source("_helpers.R")
+```
+
+```{r data}
+data("nc_posX100_p3_k2")
+print_dataset_header(nc_posX100_p3_k2, "nc_posX100_p3_k2")
+```
+
+```{r prediction, eval=FALSE}
+X <- nc_posX100_p3_k2$X
+n_new <- ceiling(0.2 * nrow(X))
+newdata <- X[seq_len(n_new), , drop = FALSE]
+
+mcmc <- default_mcmc()
+bundle <- build_nimble_bundle(
+  y = nc_posX100_p3_k2$y,
+  X = X,
+  backend = "sb",
+  kernel = "gamma",
+  GPD = FALSE,
+  components = nc_posX100_p3_k2$meta$K_true,
+  mcmc = mcmc
+)
+fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+
+predict(fit, newdata = newdata, type = "density", y = sort(nc_posX100_p3_k2$y))
+predict(fit, newdata = newdata, type = "survival", y = sort(nc_posX100_p3_k2$y))
+predict(fit, newdata = newdata, type = "quantile", p = c(0.1, 0.25, 0.5, 0.9))
+predict(fit, newdata = newdata, type = "sample", nsim = 200)
+predict(fit, newdata = newdata, type = "mean")
+```
