@@ -19,6 +19,10 @@
 #'
 #' @param y Numeric outcome vector.
 #' @param X Optional design matrix/data.frame (N x p) for conditional variants.
+#' @param ps Optional numeric vector of estimated propensity scores (length N) used as an extra
+#'   covariate when constructing link-mode predictors. If provided, a \code{beta_ps_<param>}
+#'   coefficient vector is added for each link-mode bulk parameter; the prior for these
+#'   coefficients can be customized via \code{param_specs$ps}.
 #' @param backend Character; \code{"sb"} (stick-breaking) or \code{"crp"} (Chinese Restaurant Process).
 #' @param kernel Character kernel name (must exist in \code{get_kernel_registry()}).
 #' @param GPD Logical; whether a GPD tail is requested.
@@ -29,7 +33,7 @@
 #'   }
 #' @param components Deprecated alias for \code{J}. Only one of \code{J} or \code{components}
 #'   should be supplied.
-#' @param param_specs Optional list with entries \code{bulk} and \code{tail} to override defaults.
+#' @param param_specs Optional list with entries \code{bulk}, \code{tail}, and \code{ps} to override defaults.
 #' @param mcmc Named list of MCMC settings (niter, nburnin, thin, nchains, seed). Stored in bundle.
 #' @param epsilon Numeric in [0,1). For downstream summaries/plots/prediction we keep the
 #'   smaller k defined by either (i) cumulative mass >= 1 - epsilon or (ii) per-component
@@ -51,6 +55,7 @@
 build_nimble_bundle <- function(
     y,
     X = NULL,
+    ps = NULL,
     backend = c("sb", "crp"),
     kernel,
     GPD = FALSE,
@@ -69,6 +74,10 @@ build_nimble_bundle <- function(
   if (!length(y)) stop("y must be a non-empty numeric vector.", call. = FALSE)
 
   if (!is.null(X) && !is.matrix(X)) X <- as.matrix(X)
+  if (!is.null(ps)) {
+    ps <- as.numeric(ps)
+    if (length(ps) != length(y)) stop("ps must have the same length as y.", call. = FALSE)
+  }
 
   # Single truncation parameter for both backends
   if (!is.null(J) && !is.null(components)) {
@@ -90,6 +99,7 @@ build_nimble_bundle <- function(
   spec <- compile_model_spec(
     y = y,
     X = X,
+    ps = ps,
     backend = backend,
     kernel = kernel,
     GPD = GPD,
@@ -105,14 +115,61 @@ build_nimble_bundle <- function(
     code       = code,
     constants  = build_constants_from_spec(spec),
     dimensions = build_dimensions_from_spec(spec),
-    data       = build_data_from_inputs(y = y, X = X),
-    inits      = build_inits_from_spec(spec),
+    data       = build_data_from_inputs(y = y, X = X, ps = ps),
+    inits      = build_inits_from_spec(spec, y = y),
     monitors   = build_monitors_from_spec(spec),
     mcmc       = mcmc,
     epsilon    = epsilon
   )
   class(bundle) <- "dpmixgpd_bundle"
   bundle
+}
+
+
+# Internal helpers shared by SB and CRP code generators.
+.codegen_prior_call <- function(dist, args, backend = "<codegen>") {
+  dist <- as.character(dist)
+  args <- args %||% list()
+  backend <- as.character(backend %||% "<codegen>")
+
+  if (dist == "normal") {
+    m <- args$mean %||% 0
+    s <- args$sd %||% 1
+    return(sprintf("dnorm(%s, sd = %s)", deparse1(m), deparse1(s)))
+  }
+  if (dist == "gamma") {
+    sh <- args$shape %||% 1
+    rt <- args$rate %||% 1
+    return(sprintf("dgamma(%s, %s)", deparse1(sh), deparse1(rt)))
+  }
+  if (dist == "invgamma") {
+    sh <- args$shape %||% 1
+    sc <- args$scale %||% 1
+    return(sprintf("dinvgamma(%s, %s)", deparse1(sh), deparse1(sc)))
+  }
+  if (dist == "lognormal") {
+    ml <- args$meanlog %||% 0
+    sl <- args$sdlog %||% 1
+    return(sprintf("dlnorm(meanlog = %s, sdlog = %s)", deparse1(ml), deparse1(sl)))
+  }
+
+  stop(sprintf("Unsupported prior dist '%s' in %s codegen.", dist, backend), call. = FALSE)
+}
+
+.codegen_link_expr <- function(eta, link, link_power = NULL) {
+  link <- as.character(link %||% "identity")
+  if (link == "identity") return(eta)
+  if (link == "exp") return(sprintf("exp(%s)", eta))
+  if (link == "log") return(sprintf("log(%s)", eta))
+  if (link == "softplus") return(sprintf("log(1 + exp(%s))", eta))
+  if (link == "power") {
+    if (is.null(link_power) || length(link_power) != 1L || !is.finite(as.numeric(link_power))) {
+      stop("power link requires numeric link_power.", call. = FALSE)
+    }
+    pw <- as.numeric(link_power)
+    return(sprintf("pow(%s, %s)", eta, deparse1(pw)))
+  }
+  stop(sprintf("Unsupported link '%s'.", link), call. = FALSE)
 }
 
 
@@ -275,10 +332,11 @@ default_hypers <- function() {
 #'
 #' @param y Numeric outcome vector (length N).
 #' @param X Optional covariate matrix/data.frame (N x P).
+#' @param ps Optional numeric vector (length N) containing propensity scores.
 #' @return Named list suitable to pass as \code{data} into \code{nimbleModel()}.
 #' @keywords internal
 #' @noRd
-build_data_from_inputs <- function(y, X = NULL) {
+build_data_from_inputs <- function(y, X = NULL, ps = NULL) {
   y <- as.numeric(y)
   if (!length(y)) stop("y must be a non-empty numeric vector.", call. = FALSE)
 
@@ -291,6 +349,12 @@ build_data_from_inputs <- function(y, X = NULL) {
     if (nrow(X) != length(y)) stop("X must have nrow(X) == length(y).", call. = FALSE)
     if (ncol(X) < 1L) stop("X must have at least one column.", call. = FALSE)
     out$X <- X
+  }
+
+  if (!is.null(ps)) {
+    ps <- as.numeric(ps)
+    if (length(ps) != length(y)) stop("ps must have the same length as y.", call. = FALSE)
+    out$ps <- ps
   }
 
   out
@@ -339,6 +403,7 @@ build_monitors_from_spec <- function(spec, monitor_v = FALSE) {
   backend <- meta$backend
   N <- as.integer(meta$N)
   P <- as.integer(meta$P %||% 0L)
+  has_ps <- isTRUE(meta$has_ps)
   K <- as.integer(meta$components)
 
   mons <- character()
@@ -370,6 +435,9 @@ build_monitors_from_spec <- function(spec, monitor_v = FALSE) {
     } else if (identical(mode, "link")) {
       if (P < 1L) stop(sprintf("bulk[%s] is link-mode but P=0.", nm), call. = FALSE)
       mons <- c(mons, sprintf("beta_%s[1:%d,1:%d]", nm, K, P))
+      if (has_ps) {
+        mons <- c(mons, sprintf("beta_ps_%s[1:%d]", nm, K))
+      }
     } else {
       stop(sprintf("Invalid bulk plan mode for '%s'.", nm), call. = FALSE)
     }
@@ -441,10 +509,11 @@ build_monitors_from_spec <- function(spec, monitor_v = FALSE) {
 #'
 #' @param spec A compiled model specification produced by \code{compile_model_spec()}.
 #' @param seed Optional seed (single integer or vector). If provided, the first element is used.
+#' @param y Optional numeric vector of observed outcomes used for heuristic initializations.
 #' @return Named list of initial values.
 #' @keywords internal
 #' @noRd
-build_inits_from_spec <- function(spec, seed = NULL) {
+build_inits_from_spec <- function(spec, seed = NULL, y = NULL) {
   stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
 
   `%||%` <- function(a, b) if (!is.null(a)) a else b
@@ -462,7 +531,9 @@ build_inits_from_spec <- function(spec, seed = NULL) {
   backend <- meta$backend
   N <- as.integer(meta$N)
   P <- as.integer(meta$P %||% 0L)
+  has_ps <- isTRUE(meta$has_ps)
   K <- as.integer(meta$components)
+  y_obs <- if (!is.null(y)) as.numeric(y) else numeric()
 
   inits <- list()
 
@@ -531,6 +602,9 @@ build_inits_from_spec <- function(spec, seed = NULL) {
       if (P < 1L) stop(sprintf("bulk[%s] is link-mode but P=0.", nm), call. = FALSE)
       # beta_<nm>[1:K,1:P]
       inits[[paste0("beta_", nm)]] <- matrix(0, nrow = K, ncol = P)
+      if (has_ps) {
+        inits[[paste0("beta_ps_", nm)]] <- rep(0, K)
+      }
       next
     }
 
@@ -561,7 +635,11 @@ build_inits_from_spec <- function(spec, seed = NULL) {
         if (!is.null(gpd$threshold$link_dist) &&
             identical(gpd$threshold$link_dist$dist, "lognormal")) {
           # positive threshold init; 0.8-quantile is usually safe and data-informed
-          q <- suppressWarnings(stats::quantile(spec$data$y %||% numeric(), probs = 0.8, na.rm = TRUE, names = FALSE))
+          q <- if (length(y_obs)) {
+            suppressWarnings(stats::quantile(y_obs, probs = 0.8, na.rm = TRUE, names = FALSE))
+          } else {
+            NA_real_
+          }
           if (!is.finite(q) || length(q) != 1L) q <- 1
           q <- max(as.numeric(q), .Machine$double.eps)
           inits$threshold <- rep(q, N)
@@ -618,10 +696,13 @@ build_constants_from_spec <- function(spec) {
 
   meta <- spec$meta
   plan <- spec$plan
+  has_ps <- isTRUE(meta$has_ps)
 
   N <- as.integer(meta$N)
   P <- as.integer(meta$P %||% 0L)
   K <- as.integer(meta$components)
+  default_ps_prior <- list(dist = "normal", args = list(mean = 0, sd = 2))
+  ps_prior <- (plan$ps %||% list(prior = default_ps_prior))$prior
 
   const <- list(
     N = N,
@@ -679,6 +760,10 @@ build_constants_from_spec <- function(spec) {
     } else if (identical(mode, "link")) {
       bp <- ent$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 2))
       add_prior_constants(paste0("beta_", nm), bp$dist %||% "normal", bp$args %||% list(mean = 0, sd = 2))
+      if (has_ps) {
+        add_prior_constants(paste0("beta_ps_", nm), ps_prior$dist %||% "normal",
+                            ps_prior$args %||% list(mean = 0, sd = 2))
+      }
     } else if (identical(mode, "fixed")) {
       # no hypers
     } else {
@@ -773,6 +858,7 @@ build_dimensions_from_spec <- function(spec) {
   backend <- meta$backend
   N <- as.integer(meta$N)
   P <- as.integer(meta$P %||% 0L)
+  has_ps <- isTRUE(meta$has_ps)
   K <- as.integer(meta$components)
 
   `%||%` <- function(a, b) if (!is.null(a)) a else b
@@ -811,6 +897,9 @@ build_dimensions_from_spec <- function(spec) {
       # regression coefficients: beta_<param>[1:K, 1:P]
       if (P < 1L) stop(sprintf("Parameter '%s' is link-mode but P=0.", nm), call. = FALSE)
       dims[[paste0("beta_", nm)]] <- c(K, P)
+      if (has_ps) {
+        dims[[paste0("beta_ps_", nm)]] <- c(K)
+      }
     }
   }
 
@@ -909,7 +998,7 @@ build_code_from_spec <- function(spec) {
 #' NIMBLE BNP utilities:
 #' \itemize{
 #'   \item stick breaks \code{v[j] ~ dbeta(1, alpha)}
-#'   \item weights \code{w[1:components] <- stick_breaking(v[1:(components-1)])}
+#'   \item weights computed via \code{v} stick multiplications (no call to \code{stick_breaking})
 #' }
 #'
 #' Likelihood calls are emitted using positional arguments only (no names).
@@ -934,52 +1023,9 @@ build_code_sb_from_spec <- function(spec) {
   P <- as.integer(meta$P %||% 0L)
   K <- as.integer(meta$components)
   has_X <- isTRUE(meta$has_X)
-
-  # ---- helpers: prior emission ----
-  prior_call <- function(dist, args) {
-    dist <- as.character(dist)
-    args <- args %||% list()
-
-    if (dist == "normal") {
-      m <- args$mean %||% 0
-      s <- args$sd %||% 1
-      return(sprintf("dnorm(%s, sd = %s)", deparse1(m), deparse1(s)))
-    }
-    if (dist == "gamma") {
-      sh <- args$shape %||% 1
-      rt <- args$rate %||% 1
-      return(sprintf("dgamma(%s, %s)", deparse1(sh), deparse1(rt)))
-    }
-    if (dist == "invgamma") {
-      sh <- args$shape %||% 1
-      sc <- args$scale %||% 1
-      return(sprintf("dinvgamma(%s, %s)", deparse1(sh), deparse1(sc)))
-    }
-    if (dist == "lognormal") {
-      ml <- args$meanlog %||% 0
-      sl <- args$sdlog %||% 1
-      return(sprintf("dlnorm(meanlog = %s, sdlog = %s)", deparse1(ml), deparse1(sl)))
-    }
-
-    stop(sprintf("Unsupported prior dist '%s' in SB codegen.", dist), call. = FALSE)
-  }
-
-  # ---- helpers: link emission ----
-  link_expr <- function(eta, link, link_power = NULL) {
-    link <- as.character(link %||% "identity")
-    if (link == "identity") return(eta)
-    if (link == "exp") return(sprintf("exp(%s)", eta))
-    if (link == "log") return(sprintf("log(%s)", eta))
-    if (link == "softplus") return(sprintf("log(1 + exp(%s))", eta))
-    if (link == "power") {
-      if (is.null(link_power) || length(link_power) != 1L || !is.finite(as.numeric(link_power))) {
-        stop("power link requires numeric link_power.", call. = FALSE)
-      }
-      pw <- as.numeric(link_power)
-      return(sprintf("pow(%s, %s)", eta, deparse1(pw)))
-    }
-    stop(sprintf("Unsupported link '%s'.", link), call. = FALSE)
-  }
+  has_ps <- isTRUE(meta$has_ps)
+  default_ps_prior <- list(dist = "normal", args = list(mean = 0, sd = 2))
+  ps_prior <- (plan$ps %||% list(prior = default_ps_prior))$prior
 
   # ---- resolve single-component likelihood signature (uses latent z) ----
   dist_name <- NULL
@@ -1012,6 +1058,9 @@ build_code_sb_from_spec <- function(spec) {
     ent <- bulk_plan[[nm]]
     identical(ent$mode %||% NA_character_, "link")
   }, logical(1)))
+  has_ps <- isTRUE(meta$has_ps)
+  default_ps_prior <- list(dist = "normal", args = list(mean = 0, sd = 2))
+  ps_prior <- (plan$ps %||% list(prior = default_ps_prior))$prior
 
   # ---- build nimbleCode ----
   nimble::nimbleCode({
@@ -1023,7 +1072,14 @@ build_code_sb_from_spec <- function(spec) {
     for (j in 1:(components - 1)) {
       v[j] ~ dbeta(1, alpha)
     }
-    w[1:components] <- stick_breaking(v[1:(components - 1)])
+    stick_mass[1] <- 1
+    for (j in 2:components) {
+      stick_mass[j] <- stick_mass[j - 1] * (1 - v[j - 1])
+    }
+    for (j in 1:(components - 1)) {
+      w[j] <- v[j] * stick_mass[j]
+    }
+    w[components] <- stick_mass[components]
 
     # --- bulk parameters (component-level + betas) ---
     for (j in 1:components) {
@@ -1060,7 +1116,7 @@ build_code_sb_from_spec <- function(spec) {
   conc_line <- if (identical(conc$mode, "fixed")) {
     sprintf("alpha <- %s", deparse1(conc$value))
   } else if (identical(conc$mode, "dist")) {
-    sprintf("alpha ~ %s", prior_call(conc$dist, conc$args))
+    sprintf("alpha ~ %s", .codegen_prior_call(conc$dist, conc$args, backend = "SB"))
   } else {
     stop("Invalid plan$concentration$mode.", call. = FALSE)
   }
@@ -1074,7 +1130,8 @@ build_code_sb_from_spec <- function(spec) {
     if (mode == "fixed") {
       bulk_decl_lines <- c(bulk_decl_lines, sprintf("%s[j] <- %s", nm, deparse1(ent$value)))
     } else if (mode == "dist") {
-      bulk_decl_lines <- c(bulk_decl_lines, sprintf("%s[j] ~ %s", nm, prior_call(ent$dist, ent$args)))
+      bulk_decl_lines <- c(bulk_decl_lines, sprintf("%s[j] ~ %s", nm,
+                                                    .codegen_prior_call(ent$dist, ent$args, backend = "SB")))
     } else if (mode == "link") {
       bulk_decl_lines <- c(bulk_decl_lines, sprintf("# %s is link-mode (via beta_%s)", nm, nm))
     } else {
@@ -1095,6 +1152,14 @@ build_code_sb_from_spec <- function(spec) {
         m <- bp$args$mean %||% 0
         s <- bp$args$sd %||% 2
         beta_lines <- c(beta_lines, sprintf("for (p in 1:P) beta_%s[j, p] ~ dnorm(%s, sd = %s)", nm, deparse1(m), deparse1(s)))
+        if (has_ps) {
+          if (!identical(ps_prior$dist, "normal")) {
+            stop("beta_ps priors must be normal for SB codegen.", call. = FALSE)
+          }
+          m_ps <- ps_prior$args$mean %||% 0
+          s_ps <- ps_prior$args$sd %||% 2
+          beta_lines <- c(beta_lines, sprintf("beta_ps_%s[j] ~ dnorm(%s, sd = %s)", nm, deparse1(m_ps), deparse1(s_ps)))
+        }
       }
     }
   }
@@ -1113,12 +1178,18 @@ build_code_sb_from_spec <- function(spec) {
     for (nm in bulk_params) {
       ent <- bulk_plan[[nm]]
       if (identical(ent$mode, "link")) {
-        eta <- if (P == 1L) {
-          sprintf("X[i, 1] * beta_%s[j, 1]", nm)
+        eta_terms <- character()
+        if (P == 1L) {
+          eta_terms <- c(eta_terms, sprintf("X[i, 1] * beta_%s[j, 1]", nm))
         } else {
-          sprintf("inprod(X[i, 1:P], beta_%s[j, 1:P])", nm)
+          eta_terms <- c(eta_terms, sprintf("inprod(X[i, 1:P], beta_%s[j, 1:P])", nm))
         }
-        expr <- link_expr(eta, ent$link, ent$link_power)
+        if (has_ps) {
+          eta_terms <- c(eta_terms, sprintf("ps[i] * beta_ps_%s[j]", nm))
+        }
+        if (!length(eta_terms)) stop(sprintf("Unable to build eta for '%s'.", nm), call. = FALSE)
+        eta <- paste(eta_terms, collapse = " + ")
+        expr <- .codegen_link_expr(eta, ent$link, ent$link_power)
         det_lines <- c(det_lines, sprintf("%s_ij[i, j] <- %s", nm, expr))
       }
     }
@@ -1145,7 +1216,8 @@ build_code_sb_from_spec <- function(spec) {
       if (thr$mode == "fixed") {
         gpd_lines <- c(gpd_lines, sprintf("for (i in 1:N) threshold[i] <- %s", deparse1(thr$value)))
       } else if (thr$mode == "dist") {
-        gpd_lines <- c(gpd_lines, sprintf("for (i in 1:N) threshold[i] ~ %s", prior_call(thr$dist, thr$args)))
+        gpd_lines <- c(gpd_lines, sprintf("for (i in 1:N) threshold[i] ~ %s",
+                                          .codegen_prior_call(thr$dist, thr$args, backend = "SB")))
       } else if (thr$mode == "link") {
         if (!has_X) stop("threshold link-mode requires X.", call. = FALSE)
         bp <- thr$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.2))
@@ -1156,7 +1228,8 @@ build_code_sb_from_spec <- function(spec) {
         if (!is.null(thr$link_dist) && identical(thr$link_dist$dist, "lognormal")) {
           sdlog_u <- gpd$sdlog_u %||% list(mode = "dist", dist = "invgamma", args = list(shape = 2, scale = 1))
           if (!identical(sdlog_u$mode, "dist")) stop("sdlog_u must be dist-mode under lognormal threshold.", call. = FALSE)
-          gpd_lines <- c(gpd_lines, sprintf("sdlog_u ~ %s", prior_call(sdlog_u$dist, sdlog_u$args)))
+          gpd_lines <- c(gpd_lines, sprintf("sdlog_u ~ %s",
+                                            .codegen_prior_call(sdlog_u$dist, sdlog_u$args, backend = "SB")))
           eta_u_line <- if (P == 1L) "  eta_u[i] <- X[i, 1] * beta_threshold[1]" else
             "  eta_u[i] <- inprod(X[i, 1:P], beta_threshold[1:P])"
           gpd_lines <- c(gpd_lines, "for (i in 1:N) {",
@@ -1168,7 +1241,8 @@ build_code_sb_from_spec <- function(spec) {
             "  eta_u[i] <- inprod(X[i, 1:P], beta_threshold[1:P])"
           gpd_lines <- c(gpd_lines, "for (i in 1:N) {",
                          eta_u_line,
-                         sprintf("  threshold[i] <- %s", link_expr("eta_u[i]", thr$link, thr$link_power)),
+                         sprintf("  threshold[i] <- %s",
+                                 .codegen_link_expr("eta_u[i]", thr$link, thr$link_power)),
                          "}")
         }
       } else {
@@ -1182,7 +1256,8 @@ build_code_sb_from_spec <- function(spec) {
       if (ts$mode == "fixed") {
         gpd_lines <- c(gpd_lines, sprintf("tail_scale <- %s", deparse1(ts$value)))
       } else if (ts$mode == "dist") {
-        gpd_lines <- c(gpd_lines, sprintf("tail_scale ~ %s", prior_call(ts$dist, ts$args)))
+        gpd_lines <- c(gpd_lines, sprintf("tail_scale ~ %s",
+                                          .codegen_prior_call(ts$dist, ts$args, backend = "SB")))
       } else if (ts$mode == "link") {
         if (!has_X) stop("tail_scale link-mode requires X.", call. = FALSE)
         bp <- ts$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.5))
@@ -1206,7 +1281,8 @@ build_code_sb_from_spec <- function(spec) {
       if (tsh$mode == "fixed") {
         gpd_lines <- c(gpd_lines, sprintf("tail_shape <- %s", deparse1(tsh$value)))
       } else if (tsh$mode == "dist") {
-        gpd_lines <- c(gpd_lines, sprintf("tail_shape ~ %s", prior_call(tsh$dist, tsh$args)))
+        gpd_lines <- c(gpd_lines, sprintf("tail_shape ~ %s",
+                                          .codegen_prior_call(tsh$dist, tsh$args, backend = "SB")))
       } else {
         stop("Invalid gpd tail_shape mode.", call. = FALSE)
       }
@@ -1306,52 +1382,9 @@ build_code_crp_from_spec <- function(spec) {
   P <- as.integer(meta$P %||% 0L)
   K <- as.integer(meta$components)
   has_X <- isTRUE(meta$has_X)
-
-  # ---- helpers: prior emission ----
-  prior_call <- function(dist, args) {
-    dist <- as.character(dist)
-    args <- args %||% list()
-
-    if (dist == "normal") {
-      m <- args$mean %||% 0
-      s <- args$sd %||% 1
-      return(sprintf("dnorm(%s, sd = %s)", deparse1(m), deparse1(s)))
-    }
-    if (dist == "gamma") {
-      sh <- args$shape %||% 1
-      rt <- args$rate %||% 1
-      return(sprintf("dgamma(%s, %s)", deparse1(sh), deparse1(rt)))
-    }
-    if (dist == "invgamma") {
-      sh <- args$shape %||% 1
-      sc <- args$scale %||% 1
-      return(sprintf("dinvgamma(%s, %s)", deparse1(sh), deparse1(sc)))
-    }
-    if (dist == "lognormal") {
-      ml <- args$meanlog %||% 0
-      sl <- args$sdlog %||% 1
-      return(sprintf("dlnorm(meanlog = %s, sdlog = %s)", deparse1(ml), deparse1(sl)))
-    }
-
-    stop(sprintf("Unsupported prior dist '%s' in CRP codegen.", dist), call. = FALSE)
-  }
-
-  # ---- helpers: link emission ----
-  link_expr <- function(eta, link, link_power = NULL) {
-    link <- as.character(link %||% "identity")
-    if (link == "identity") return(eta)
-    if (link == "exp") return(sprintf("exp(%s)", eta))
-    if (link == "log") return(sprintf("log(%s)", eta))
-    if (link == "softplus") return(sprintf("log(1 + exp(%s))", eta))
-    if (link == "power") {
-      if (is.null(link_power) || length(link_power) != 1L || !is.finite(as.numeric(link_power))) {
-        stop("power link requires numeric link_power.", call. = FALSE)
-      }
-      pw <- as.numeric(link_power)
-      return(sprintf("pow(%s, %s)", eta, deparse1(pw)))
-    }
-    stop(sprintf("Unsupported link '%s'.", link), call. = FALSE)
-  }
+  has_ps <- isTRUE(meta$has_ps)
+  default_ps_prior <- list(dist = "normal", args = list(mean = 0, sd = 2))
+  ps_prior <- (plan$ps %||% list(prior = default_ps_prior))$prior
 
   # ---- resolve likelihood signature ----
   dist_name <- NULL
@@ -1383,7 +1416,7 @@ build_code_crp_from_spec <- function(spec) {
   if (identical(conc$mode, "fixed")) {
     add(sprintf("  alpha <- %s", deparse1(conc$value)))
   } else if (identical(conc$mode, "dist")) {
-    add(sprintf("  alpha ~ %s", prior_call(conc$dist, conc$args)))
+    add(sprintf("  alpha ~ %s", .codegen_prior_call(conc$dist, conc$args, backend = "CRP")))
   } else {
     stop("Invalid plan$concentration$mode.", call. = FALSE)
   }
@@ -1400,7 +1433,8 @@ build_code_crp_from_spec <- function(spec) {
     if (mode == "fixed") {
       add(sprintf("    %s[k] <- %s", nm, deparse1(ent$value)))
     } else if (mode == "dist") {
-      add(sprintf("    %s[k] ~ %s", nm, prior_call(ent$dist, ent$args)))
+      add(sprintf("    %s[k] ~ %s", nm,
+                  .codegen_prior_call(ent$dist, ent$args, backend = "CRP")))
     } else if (mode == "link") {
       add(sprintf("    # %s is link-mode (via beta_%s)", nm, nm))
     } else {
@@ -1422,6 +1456,14 @@ build_code_crp_from_spec <- function(spec) {
         s <- bp$args$sd %||% 2
         add("  for (k in 1:components) {")
         add(sprintf("    for (p in 1:P) beta_%s[k, p] ~ dnorm(%s, sd = %s)", nm, deparse1(m), deparse1(s)))
+        if (has_ps) {
+          if (!identical(ps_prior$dist, "normal")) {
+            stop("beta_ps priors must be normal for CRP codegen.", call. = FALSE)
+          }
+          m_ps <- ps_prior$args$mean %||% 0
+          s_ps <- ps_prior$args$sd %||% 2
+          add(sprintf("    beta_ps_%s[k] ~ dnorm(%s, sd = %s)", nm, deparse1(m_ps), deparse1(s_ps)))
+        }
         add("  }")
       }
     }
@@ -1433,12 +1475,20 @@ build_code_crp_from_spec <- function(spec) {
       for (nm in bulk_params) {
         ent <- bulk_plan[[nm]]
         if (identical(ent$mode, "link")) {
-          eta <- if (P == 1L) {
-            sprintf("X[i, 1] * beta_%s[k, 1]", nm)
+          eta_terms <- character()
+          if (P == 1L) {
+            eta_terms <- c(eta_terms, sprintf("X[i, 1] * beta_%s[k, 1]", nm))
           } else {
-            sprintf("inprod(X[i, 1:P], beta_%s[k, 1:P])", nm)
+            eta_terms <- c(eta_terms, sprintf("inprod(X[i, 1:P], beta_%s[k, 1:P])", nm))
           }
-          expr <- link_expr(eta, ent$link, ent$link_power)
+          if (has_ps) {
+            eta_terms <- c(eta_terms, sprintf("ps[i] * beta_ps_%s[k]", nm))
+          }
+          if (!length(eta_terms)) {
+            stop(sprintf("Unable to build eta for '%s'.", nm), call. = FALSE)
+          }
+          eta <- paste(eta_terms, collapse = " + ")
+          expr <- .codegen_link_expr(eta, ent$link, ent$link_power)
           add(sprintf("      %s_ik[i, k] <- %s", nm, expr))
         }
       }
@@ -1457,7 +1507,8 @@ build_code_crp_from_spec <- function(spec) {
       if (thr$mode == "fixed") {
         add(sprintf("  for (i in 1:N) threshold[i] <- %s", deparse1(thr$value)))
       } else if (thr$mode == "dist") {
-        add(sprintf("  for (i in 1:N) threshold[i] ~ %s", prior_call(thr$dist, thr$args)))
+        add(sprintf("  for (i in 1:N) threshold[i] ~ %s",
+                    .codegen_prior_call(thr$dist, thr$args, backend = "CRP")))
       } else if (thr$mode == "link") {
         if (!has_X) stop("threshold link-mode requires X.", call. = FALSE)
         bp <- thr$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.2))
@@ -1469,7 +1520,8 @@ build_code_crp_from_spec <- function(spec) {
         if (!is.null(thr$link_dist) && identical(thr$link_dist$dist, "lognormal")) {
           sdlog_u <- gpd$sdlog_u %||% list(mode = "dist", dist = "invgamma", args = list(shape = 2, scale = 1))
           if (!identical(sdlog_u$mode, "dist")) stop("sdlog_u must be dist-mode under lognormal threshold.", call. = FALSE)
-          add(sprintf("  sdlog_u ~ %s", prior_call(sdlog_u$dist, sdlog_u$args)))
+          add(sprintf("  sdlog_u ~ %s",
+                      .codegen_prior_call(sdlog_u$dist, sdlog_u$args, backend = "CRP")))
           add("  for (i in 1:N) {")
           if (P == 1L) {
             add("    eta_u[i] <- X[i, 1] * beta_threshold[1]")
@@ -1485,7 +1537,7 @@ build_code_crp_from_spec <- function(spec) {
           } else {
             add("    eta_u[i] <- inprod(X[i, 1:P], beta_threshold[1:P])")
           }
-          add(sprintf("    threshold[i] <- %s", link_expr("eta_u[i]", thr$link, thr$link_power)))
+          add(sprintf("    threshold[i] <- %s", .codegen_link_expr("eta_u[i]", thr$link, thr$link_power)))
           add("  }")
         }
       } else {
@@ -1499,7 +1551,8 @@ build_code_crp_from_spec <- function(spec) {
       if (ts$mode == "fixed") {
         add(sprintf("  tail_scale <- %s", deparse1(ts$value)))
       } else if (ts$mode == "dist") {
-        add(sprintf("  tail_scale ~ %s", prior_call(ts$dist, ts$args)))
+        add(sprintf("  tail_scale ~ %s",
+                    .codegen_prior_call(ts$dist, ts$args, backend = "CRP")))
       } else if (ts$mode == "link") {
         if (!has_X) stop("tail_scale link-mode requires X.", call. = FALSE)
         bp <- ts$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.5))
@@ -1526,7 +1579,8 @@ build_code_crp_from_spec <- function(spec) {
       if (tsh$mode == "fixed") {
         add(sprintf("  tail_shape <- %s", deparse1(tsh$value)))
       } else if (tsh$mode == "dist") {
-        add(sprintf("  tail_shape ~ %s", prior_call(tsh$dist, tsh$args)))
+        add(sprintf("  tail_shape ~ %s",
+                    .codegen_prior_call(tsh$dist, tsh$args, backend = "CRP")))
       } else {
         stop("Invalid gpd tail_shape mode.", call. = FALSE)
       }

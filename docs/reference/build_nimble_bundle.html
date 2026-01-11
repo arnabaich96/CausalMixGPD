@@ -61,6 +61,7 @@ MCMC settings list (stored but not used for code generation)
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">build_nimble_bundle</span><span class="op">(</span></span>
 <span>  <span class="va">y</span>,</span>
 <span>  X <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ps <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  backend <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"sb"</span>, <span class="st">"crp"</span><span class="op">)</span>,</span>
 <span>  <span class="va">kernel</span>,</span>
 <span>  GPD <span class="op">=</span> <span class="cn">FALSE</span>,</span>
@@ -83,6 +84,13 @@ MCMC settings list (stored but not used for code generation)
 
 <dt id="arg-x">X<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>Optional design matrix/data.frame (N x p) for conditional variants.</p></dd>
+
+
+<dt id="arg-ps">ps<a class="anchor" aria-label="anchor" href="#arg-ps"></a></dt>
+<dd><p>Optional numeric vector of estimated propensity scores (length N) used as an extra
+covariate when constructing link-mode predictors. If provided, a <code>beta_ps_&lt;param&gt;</code>
+coefficient vector is added for each link-mode bulk parameter; the prior for these
+coefficients can be customized via <code>param_specs$ps</code>.</p></dd>
 
 
 <dt id="arg-backend">backend<a class="anchor" aria-label="anchor" href="#arg-backend"></a></dt>
@@ -109,7 +117,7 @@ should be supplied.</p></dd>
 
 
 <dt id="arg-param-specs">param_specs<a class="anchor" aria-label="anchor" href="#arg-param-specs"></a></dt>
-<dd><p>Optional list with entries <code>bulk</code> and <code>tail</code> to override defaults.</p></dd>
+<dd><p>Optional list with entries <code>bulk</code>, <code>tail</code>, and <code>ps</code> to override defaults.</p></dd>
 
 
 <dt id="arg-mcmc">mcmc<a class="anchor" aria-label="anchor" href="#arg-mcmc"></a></dt>

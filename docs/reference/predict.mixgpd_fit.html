@@ -60,6 +60,7 @@ The default implementation supports:
 <span>  <span class="va">object</span>,</span>
 <span>  x <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  y <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  ps <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  newdata <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"density"</span>, <span class="st">"survival"</span>, <span class="st">"quantile"</span>, <span class="st">"sample"</span>, <span class="st">"mean"</span><span class="op">)</span>,</span>
 <span>  p <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -87,6 +88,11 @@ The default implementation supports:
 
 <dt id="arg-y">y<a class="anchor" aria-label="anchor" href="#arg-y"></a></dt>
 <dd><p>Numeric vector of evaluation points (required for <code>type="density"</code> or <code>"survival"</code>).</p></dd>
+
+
+<dt id="arg-ps">ps<a class="anchor" aria-label="anchor" href="#arg-ps"></a></dt>
+<dd><p>Optional numeric vector of propensity scores aligned with <code>newdata</code>.
+Required for PS-augmented fits when predicting on new <code>X</code>.</p></dd>
 
 
 <dt id="arg-newdata">newdata<a class="anchor" aria-label="anchor" href="#arg-newdata"></a></dt>

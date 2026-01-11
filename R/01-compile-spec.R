@@ -29,9 +29,14 @@
 #'     ...
 #'   ),
 #'   concentration = list( ... ) # optional alpha override
+#'   ps = list(
+#'     prior = list(dist = "normal", args = list(mean = 0, sd = 2))
+#'   )
 #' )
 #' }
 #' @param alpha_random Logical; if TRUE, alpha is stochastic with default Gamma(1,1) prior.
+#' @param ps Optional numeric vector of propensity scores (length N). When provided, the
+#'   compiled spec will include \code{beta_ps_<param>} coefficients for link-mode parameters.
 #' @param ... Unused; accepted for forward compatibility.
 #'
 #' @return A named list \code{spec} containing \code{meta}, \code{kernel_info},
@@ -47,11 +52,12 @@ compile_model_spec <- function(
     components,
     param_specs = NULL,
     alpha_random = TRUE,
+    ps = NULL,
     ...
 ) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
-  backend <- match.arg(backend, choices = c("sb", "crp"))
+  backend <- match.arg(backend, choices = allowed_backends)
 
   y <- as.numeric(y)
   if (!length(y)) stop("y must be a non-empty numeric vector.", call. = FALSE)
@@ -67,6 +73,12 @@ compile_model_spec <- function(
     P <- 0L
   }
 
+  has_ps <- !is.null(ps)
+  if (has_ps) {
+    ps <- as.numeric(ps)
+    if (length(ps) != N) stop("ps must have the same length as y.", call. = FALSE)
+  }
+
   if (missing(components) || is.null(components)) {
     stop("components is required (single truncation parameter for both backends).", call. = FALSE)
   }
@@ -80,6 +92,7 @@ compile_model_spec <- function(
   kernel <- match.arg(kernel, choices = names(krn))
   kinfo <- krn[[kernel]]
 
+  if (!is_allowed_kernel(kernel)) stop(sprintf("Kernel '%s' is not supported.", kernel), call. = FALSE)
   if (is.null(kinfo$bulk_params) || !length(kinfo$bulk_params)) {
     stop("Kernel registry entry is missing bulk_params.", call. = FALSE)
   }
@@ -88,6 +101,7 @@ compile_model_spec <- function(
   }
 
   # signatures are required for likelihood emission
+  check_gpd_contract(GPD, kernel)
   if (is.null(kinfo$signatures) || is.null(kinfo$signatures[[backend]])) {
     stop("Kernel registry entry is missing signatures for this backend.", call. = FALSE)
   }
@@ -136,6 +150,7 @@ compile_model_spec <- function(
   user_bulk <- param_specs$bulk %||% list()
   user_gpd  <- param_specs$gpd  %||% list()
   user_conc <- param_specs$concentration %||% list()
+  user_ps   <- param_specs$ps %||% list()
 
   # ---- concentration (alpha) plan ----
   conc_plan <- NULL
@@ -324,17 +339,24 @@ compile_model_spec <- function(
   }
 
   # ---- finalize plan ----
+  ps_plan <- NULL
+  if (has_ps) {
+    ps_plan <- list(prior = user_ps$prior %||% list(dist = "normal", args = list(mean = 0, sd = 2)))
+  }
+
   plan <- list(
     backend = backend,
     kernel = kernel,
     GPD = isTRUE(GPD),
     has_X = has_X,
+    has_ps = has_ps,
     N = N,
     P = as.integer(P),
     components = components,
     concentration = conc_plan,
     bulk = bulk_plan,
-    gpd = gpd_plan
+    gpd = gpd_plan,
+    ps = ps_plan
   )
 
   spec <- list(
@@ -343,9 +365,11 @@ compile_model_spec <- function(
       kernel = kernel,
       GPD = isTRUE(GPD),
       has_X = has_X,
+      has_ps = has_ps,
       N = N,
       P = as.integer(P),
-      components = components
+      components = components,
+      custom_build = !is.null(param_specs) && length(param_specs) > 0
     ),
     kernel_info = kinfo,
     signatures = kinfo$signatures[[backend]],

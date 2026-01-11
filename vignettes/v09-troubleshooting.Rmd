@@ -1,11 +1,13 @@
 ---
-title: "Troubleshooting and Common Errors"
+title: "Troubleshooting checklist"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Troubleshooting and Common Errors}
+  %\VignetteIndexEntry{Troubleshooting checklist}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+
+This note collects quick sanity checks to run when a bundle refuses to compile, posterior draws look odd, or predictions fail.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
@@ -17,6 +19,9 @@ knitr::opts_chunk$set(
   message = FALSE,
   fig.width = 6
 )
+```
+
+```{r libraries}
 library(DPmixGPD)
 library(nimble)
 use_cached_fit <- TRUE
@@ -29,11 +34,7 @@ fit_small <- readRDS(.fit_path("fit_small.rds"))
 library(ggplot2)
 ```
 
-What you'll learn: how to interpret common warnings/errors, when to check dimensions, and how to keep posterior tails stable.
-
-## Not fully initialized
-
-This note from NIMBLE is normal on complex models; it flags variables not touched yet. Always run `fit$model$initializeInfo()` to confirm there are no truly missing nodes. The short example below logs the message and shows how to inspect:
+## Verify bundle initialization
 
 ```{r init-note}
 bundle <- build_nimble_bundle(y = abs(rnorm(40)) + 0.1, backend = "sb", kernel = "normal", J = 5)
@@ -45,20 +46,14 @@ if (use_cached_fit) {
 fit$bundle$code  # ensures model objects exist
 ```
 
-When the warning persists, check `bundle$dimensions` and explicit initial values in `bundle$inits` to ensure every latent vector has compatible length.
-
-## Dimension mismatch
-
-Mixing data with different numbers of covariates quickly raises dimension errors. Always confirm `ncol(newdata) == ncol(bundle$design$data$X)` before calling `predict()`.
+## Check design matrix dimensions
 
 ```{r dimension-check}
 bad_X <- matrix(1, nrow = 5, ncol = 1)
 stopifnot(ncol(bad_X) == ncol(bundle$dimensions$X %||% matrix()))
 ```
 
-## `'object "v" not found'` and stick variables
-
-This class of errors arises when the `components` truncation is too small or `epsilon` drives many weight draws to zero. Remedy: increase `components` (your \(J\)) and raise `epsilon` slightly. The following histogram shows posterior weight spread:
+## Inspect posterior weights
 
 ```{r weight-hist, fig.cap="Posterior weights that survived truncation."}
 ws <- draw_w <- DPmixGPD:::.extract_draws_matrix(fit, drop_v = TRUE)
@@ -69,19 +64,7 @@ ggplot(weight_df, aes(x = weight)) +
   labs(title = "Posterior weight distribution (some components may collapse)")
 ```
 
-## Slow mixing
-
-If trace plots show drift, lengthen `nburnin`, increase `thin`, or reduce `niter` under raw CPU pressure. Try the `plot(fit)` diagnostics above for thresholds and tail shape, and use `plot(fit, family = "traceplot", params = "alpha")` to monitor concentration.
-
-## Tail instability
-
-When tail shape/scale oscillate, the usual remedies are:
-
-- **Prior sensitivity:** tighten `tail_shape` priors (e.g., `param_specs = list(tail_shape = list(mode = "fixed", value = 0.2))`).
-- **More exceedances:** raise `threshold` by setting a higher initial guess or increasing `J`.
-- **GPD flag:** temporarily set `GPD = FALSE` to ensure your bulk is stable before reintroducing the tail.
-
-## Decision chart
+## Quick symptom-to-fix table
 
 ```{r decision-chart}
 symptoms <- data.frame(
@@ -92,7 +75,7 @@ symptoms <- data.frame(
 knitr::kable(symptoms)
 ```
 
-## Prediction example
+## Predictive quantile snapshot
 
 ```{r predictive-snapshot}
 quant <- predict(fit, type = "quantile", p = c(.5, .9, .99))

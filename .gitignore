@@ -14,3 +14,16 @@ tests/testthat/_cache/
 tests/testthat/tests/testthat/_cache/
 tools/pandoc-*/
 tools/pandoc-*.zip
+/doc/
+/Meta/
+
+# Generated vignette artifacts (figures, cached draws)
+vignettes/*_files/
+vignettes/**/*.rds
+vignettes/**/*.Rds
+vignettes/**/*.RDS
+vignettes/**/*.png
+
+# pkgdown/site outputs
+docs/
+pkgdown/

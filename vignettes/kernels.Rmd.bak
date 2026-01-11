@@ -1,0 +1,73 @@
+---
+title: "Kernels"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Kernels}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(DPmixGPD)
+library(nimble)
+source("_helpers.R")
+```
+
+## Real-line kernels
+
+```{r data-real}
+data("nc_real200_k2")
+print_dataset_header(nc_real200_k2, "nc_real200_k2")
+```
+
+```{r kernels-real, eval=FALSE}
+real_kernels <- c("normal", "laplace", "cauchy")
+backends <- c("crp", "sb")
+mcmc <- default_mcmc()
+
+for (ker in real_kernels) {
+  for (backend in backends) {
+    bundle <- build_nimble_bundle(
+      y = nc_real200_k2$y,
+      backend = backend,
+      kernel = ker,
+      GPD = FALSE,
+      components = nc_real200_k2$meta$K_true,
+      mcmc = mcmc
+    )
+    summary(bundle)
+    fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+    summary(fit)
+  }
+}
+```
+
+## Positive-support kernels
+
+```{r data-pos}
+data("nc_pos200_k3")
+print_dataset_header(nc_pos200_k3, "nc_pos200_k3")
+```
+
+```{r kernels-pos, eval=FALSE}
+pos_kernels <- c("gamma", "lognormal", "invgauss", "amoroso")
+backends <- c("crp", "sb")
+mcmc <- default_mcmc()
+
+for (ker in pos_kernels) {
+  for (backend in backends) {
+    bundle <- build_nimble_bundle(
+      y = nc_pos200_k3$y,
+      backend = backend,
+      kernel = ker,
+      GPD = FALSE,
+      components = nc_pos200_k3$meta$K_true,
+      mcmc = mcmc
+    )
+    summary(bundle)
+    fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+    summary(fit)
+  }
+}
+```

@@ -1,11 +1,13 @@
 ---
-title: "Developer Guide: Adding a Kernel / Extending the Engine"
+title: "Developer guide"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Developer Guide: Adding a Kernel / Extending the Engine}
+  %\VignetteIndexEntry{Developer guide}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+
+Notes for extending the package: registering new kernels, testing predictive helpers, and inspecting example fits.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
@@ -17,6 +19,9 @@ knitr::opts_chunk$set(
   warning = FALSE,
   message = FALSE
 )
+```
+
+```{r libraries}
 library(DPmixGPD)
 library(nimble)
 use_cached_fit <- TRUE
@@ -29,44 +34,31 @@ fit_small <- readRDS(.fit_path("fit_small.rds"))
 library(ggplot2)
 ```
 
-What you'll learn: how to register a new kernel, the Nimble hooks needed, and the minimal regression suite for keeping the engine stable.
-
-## Kernel registry steps
-
-1. Call `init_kernel_registry()` to inspect current labels and slot names.
-2. Each entry needs `density`, `quantile`, `rng`, and `nimble` stubs following the naming pattern `d<Name>Mix`, `q<Name>Mix`, `r<Name>Mix`, `d<Name>`. The mixture index `j` is always the component number.
-3. Add the kernel to `get_kernel_registry()` in `R/00-kernel-registry.R`, providing:
-   - `support`: e.g., `(0, Inf)` or `(-Inf, Inf)`,
-   - `params`: names of location/scale/shape,
-   - `nimble`: the generated Nimble code snippet for the kernel density.
-
-## Nimble density/rng hooks
+## Kernel template (copy/paste)
 
 ```{r kernel-template, eval=FALSE}
-# Dummy skeleton (copy into R/0-base-kernels.R and register)
-nimbleFunction(
-  run = function(y = double(1), mu = double(0), sigma = double(0)) {
-    returnType(double(0))
-    dnorm(y, mu, sigma, log = 1)
-  }
-)
+# # Dummy skeleton (copy into R/0-base-kernels.R and register)
+# nimbleFunction(
+#   run = function(y = double(1), mu = double(0), sigma = double(0)) {
+#     returnType(double(0))
+#     dnorm(y, mu, sigma, log = 1)
+#   }
+# )
 ```
 
-Register the kernel using `init_kernel_registry()` for the lazy-loaded metadata; the backend generator picks up names automatically from `get_kernel_registry()`.
-
-## Adding a kernel entry
+## Registry entry template
 
 ```{r register-template, eval=FALSE}
-init_kernel_registry("custom", list(
-  density = "dCustomMix",
-  quantile = "qCustomMix",
-  rng = "rCustomMix",
-  support = "(0, Inf)",
-  params = c("mu", "sigma")
-))
+# init_kernel_registry("custom", list(
+#   density = "dCustomMix",
+#   quantile = "qCustomMix",
+#   rng = "rCustomMix",
+#   support = "(0, Inf)",
+#   params = c("mu", "sigma")
+# ))
 ```
 
-## Prediction sanity check (one snippet)
+## Predictive sanity check
 
 ```{r developer-pred}
 y <- sim_bulk_tail(n = 80, seed = 123)
@@ -86,7 +78,7 @@ if (use_cached_fit) {
 predict(fit, type = "quantile", p = c(0.5, 0.9))
 ```
 
-## Diagnostic plot
+## Quick visualization
 
 ```{r developer-plot}
 data.frame(y = y) |>
@@ -94,14 +86,6 @@ data.frame(y = y) |>
   geom_freqpoly(color = "steelblue") +
   labs(title = "Developer-mode data distribution", x = "y", y = "Count")
 ```
-
-## Diagnostics to keep in the test checklist
-
-1. `build_nimble_bundle()` with explicit `components`/`GPD` values for each kernel.
-2. `run_mcmc_bundle_manual()` for at least 500 iterations on `seed`-locked data.
-3. `predict(..., type = "quantile"/"density"/"draws")` to ensure a shared interface.
-4. `validate_fit()` (or any internal helper) to assert thresholds and tail shapes obey the `GPD` flag.
-5. Pre-run plotting scripts such as `plot(fit)` to verify mixture weights are accessible via `j` components.
 
 ## Session info
 

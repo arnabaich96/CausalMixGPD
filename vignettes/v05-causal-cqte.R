@@ -30,7 +30,7 @@ library(ggplot2)
 
 ## ----causal-example-----------------------------------------------------------
 set.seed(101)
-dat <- sim_causal_cqte(220)
+dat <- sim_causal_qte(220)
 J <- 6
 bundle <- build_causal_bundle(
   y = dat$y,

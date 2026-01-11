@@ -7,7 +7,7 @@
 #' @keywords internal
 #' @importFrom stats uniroot pgamma predict rgamma density quantile coef setNames
 #' @importFrom utils head
-#' @importFrom nimble getNimbleOption nimbleInternalFunctions nimSwitch messageIfVerbose
+#' @import nimble
 NULL
 
 utils::globalVariables(c(

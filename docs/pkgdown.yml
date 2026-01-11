@@ -3,7 +3,17 @@ pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   backends: backends.html
+  bundle-s3: bundle-s3.html
+  causal-cqte: causal-cqte.html
+  causal-kernel-compare: causal-kernel-compare.html
+  causal-qte: causal-qte.html
+  causal-quickstart: causal-quickstart.html
+  causal-tail: causal-tail.html
   causal: causal.html
+  covariates: covariates.html
+  coverage-index: coverage-index.html
+  dqrp: dqrp.html
+  gpd-tail: gpd-tail.html
   kernel-amoroso: kernel-amoroso.html
   kernel-cauchy: kernel-cauchy.html
   kernel-gamma: kernel-gamma.html
@@ -11,6 +21,7 @@ articles:
   kernel-laplace: kernel-laplace.html
   kernel-lognormal: kernel-lognormal.html
   kernel-normal: kernel-normal.html
+  kernels: kernels.html
   prediction: prediction.html
   quickstart: quickstart.html
   v00-start-here: v00-start-here.html
@@ -18,13 +29,13 @@ articles:
   v02-single-outcome-modeling: v02-single-outcome-modeling.html
   v03-backends-crp-vs-sb: v03-backends-crp-vs-sb.html
   v04-kernels-guide: v04-kernels-guide.html
-  v05-causal-cqte: v05-causal-cqte.html
+  v05-causal-qte: v05-causal-qte.html
   v06-causal-extras: v06-causal-extras.html
   v07-survival: v07-survival.html
   v08-prediction-and-exports: v08-prediction-and-exports.html
   v09-troubleshooting: v09-troubleshooting.html
   v10-developer-guide: v10-developer-guide.html
-last_built: 2026-01-10T06:16Z
+last_built: 2026-01-11T23:03Z
 urls:
   reference: https://example.com/DPmixGPD/reference
   article: https://example.com/DPmixGPD/articles

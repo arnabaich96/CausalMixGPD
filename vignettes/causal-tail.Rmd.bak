@@ -1,0 +1,39 @@
+---
+title: "Causal Tail Examples"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Causal Tail Examples}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(DPmixGPD)
+library(nimble)
+source("_helpers.R")
+```
+
+```{r data}
+data("causal_alt_pos500_p5_k4_tail")
+print_dataset_header(causal_alt_pos500_p5_k4_tail, "causal_alt_pos500_p5_k4_tail")
+```
+
+```{r causal-tail, eval=FALSE}
+mcmc <- default_mcmc()
+cb <- build_causal_bundle(
+  y = causal_alt_pos500_p5_k4_tail$y,
+  X = causal_alt_pos500_p5_k4_tail$X,
+  T = causal_alt_pos500_p5_k4_tail$T,
+  backend = c("sb", "sb"),
+  kernel = c("invgauss", "amoroso"),
+  GPD = c(TRUE, TRUE),
+  J = c(causal_alt_pos500_p5_k4_tail$meta$K0, causal_alt_pos500_p5_k4_tail$meta$K1),
+  mcmc_outcome = mcmc,
+  mcmc_ps = mcmc
+)
+cf <- run_mcmc_causal(cb, show_progress = FALSE)
+
+newdata <- causal_alt_pos500_p5_k4_tail$X[1:100, ]
+cqte(cf, probs = c(0.1, 0.25, 0.5, 0.9), newdata = newdata)
+```

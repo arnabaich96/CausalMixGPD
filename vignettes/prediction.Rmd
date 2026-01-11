@@ -8,106 +8,37 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  cache = TRUE,
-  cache.path = "cache/prediction-",
-  warning = FALSE,
-  message = FALSE
-)
-```
-
-# Overview
-
-This vignette covers:
-
-- density and survival prediction
-- quantiles
-- posterior predictive sampling
-- tail behavior with and without GPD
-
-# Fit a model
-
-```{r}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 library(DPmixGPD)
 library(nimble)
-use_cached_fit <- TRUE
-.fit_path <- function(name) {
-  path <- system.file("extdata", name, package = "DPmixGPD")
-  if (path == "") path <- file.path("inst", "extdata", name)
-  path
-}
-fit_small <- readRDS(.fit_path("fit_small.rds"))
-set.seed(1)
-N <- 50
-y <- abs(rnorm(N)) + 0.1
+source("_helpers.R")
+```
 
+```{r data}
+data("nc_posX100_p3_k2")
+print_dataset_header(nc_posX100_p3_k2, "nc_posX100_p3_k2")
+```
+
+```{r prediction, eval=TRUE}
+X <- nc_posX100_p3_k2$X
+n_new <- ceiling(0.2 * nrow(X))
+newdata <- X[seq_len(n_new), , drop = FALSE]
+
+mcmc <- default_mcmc()
 bundle <- build_nimble_bundle(
-  y = y,
+  y = nc_posX100_p3_k2$y,
+  X = X,
   backend = "sb",
-  kernel = "normal",
-  GPD = TRUE,
-  J = 8,
-  mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+  kernel = "gamma",
+  GPD = FALSE,
+  components = nc_posX100_p3_k2$meta$K_true,
+  mcmc = mcmc
 )
-if (use_cached_fit) {
-  fit <- fit_small
-} else {
-  fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
-}
+fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+
+predict(fit, newdata = newdata, type = "density", y = sort(nc_posX100_p3_k2$y))
+predict(fit, newdata = newdata, type = "survival", y = sort(nc_posX100_p3_k2$y))
+predict(fit, newdata = newdata, type = "quantile", p = c(0.1, 0.25, 0.5, 0.9))
+predict(fit, newdata = newdata, type = "sample", nsim = 200)
+predict(fit, newdata = newdata, type = "mean")
 ```
-
-# Density and survival
-
-```{r}
-y_grid <- seq(min(y), max(y), length.out = 60)
-
-pr_den <- predict(fit, type = "density", y = y_grid)
-pr_surv <- predict(fit, type = "survival", y = y_grid)
-
-plot(y_grid, pr_den$fit[1, ], type = "l", col = "steelblue",
-     xlab = "y", ylab = "density", main = "Predictive density")
-plot(y_grid, pr_surv$fit[1, ], type = "l", col = "firebrick",
-     xlab = "y", ylab = "survival", main = "Predictive survival")
-```
-
-# Quantiles
-
-```{r}
-pr_q <- predict(fit, type = "quantile", p = c(0.5, 0.9, 0.99))
-pr_q$fit
-```
-
-# Posterior predictive sampling
-
-```{r}
-pr_samp <- predict(fit, type = "sample", nsim = 200)
-
-hist(pr_samp$fit[1, ], breaks = 20, col = "gray",
-     main = "Posterior predictive sample", xlab = "y")
-```
-
-# Tail behavior (GPD on/off)
-
-```{r}
-if (use_cached_fit) {
-  fit_off <- fit_small
-} else {
-  fit_off <- run_mcmc_bundle_manual(build_nimble_bundle(
-    y = y,
-    backend = "sb",
-    kernel = "normal",
-    GPD = FALSE,
-    J = 8,
-    mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1, seed = 2)
-  ), show_progress = FALSE)
-}
-
-q_off <- predict(fit_off, type = "quantile", p = 0.99)$fit[1, 1]
-q_on  <- predict(fit, type = "quantile", p = 0.99)$fit[1, 1]
-
-data.frame(model = c("GPD=FALSE", "GPD=TRUE"), q99 = c(q_off, q_on))
-```
-
-If the tail is heavy, `GPD = TRUE` typically yields larger high quantiles.

@@ -8,6 +8,7 @@
   object,
   x = NULL,
   y = NULL,
+  ps = NULL,
   newdata = NULL,
   type = c("density", "survival", "quantile", "sample", "mean"),
   p = NULL,
@@ -26,6 +27,9 @@
 \item{x}{Optional new data. Alias for \code{newdata}.}
 
 \item{y}{Numeric vector of evaluation points (required for \code{type="density"} or \code{"survival"}).}
+
+\item{ps}{Optional numeric vector of propensity scores aligned with \code{newdata}.
+Required for PS-augmented fits when predicting on new \code{X}.}
 
 \item{newdata}{Optional new data. If \code{NULL}, uses training design (if stored).}
 

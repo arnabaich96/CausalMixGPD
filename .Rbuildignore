@@ -16,8 +16,10 @@
 ^DPmixGPD_.*\.tar\.gz$
 ^vignettes/cache$
 ^vignettes/cache/
+^vignettes/reports$
+^vignettes/reports/
 ^vignettes/.*\.html$
-^vignettes/.*\.R$
+^data-raw$
 ^tests/testthat/_cache$
 ^tests/testthat/tests/testthat/_cache$
 ^tools/pandoc-.*$
@@ -26,3 +28,5 @@
 ^Rplots\.pdf$
 ^_pkgdown\.yml$
 ^index\.md$
+^doc$
+^Meta$
