@@ -666,8 +666,10 @@ plot.mixgpd_fit <- function(x,
 #' @param object A fitted object of class \code{"mixgpd_fit"}.
 #' @param x Optional new data. Alias for \code{newdata}.
 #' @param newdata Optional new data. If \code{NULL}, uses training design (if stored).
-#' @param ps Optional numeric vector of propensity scores aligned with \code{newdata}.
-#'   Required for PS-augmented fits when predicting on new \code{X}.
+#' @param ps Ignored. Propensity scores are always computed internally from the fitted PS
+#'   model or stored training PS. For new covariates, PS are derived from the attached PS
+#'   posterior draws when available. For causal workflows, use \code{qte()} / \code{ate()} which
+#'   orchestrate PS estimation and outcome prediction jointly.
 #' @param type Prediction type: \code{"density"}, \code{"survival"}, \code{"quantile"},
 #'   \code{"sample"}, \code{"mean"}.
 #' @param p Numeric vector of probabilities for quantiles (required for \code{type="quantile"}).

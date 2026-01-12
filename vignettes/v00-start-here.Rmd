@@ -29,7 +29,7 @@ fit_small <- readRDS(.fit_path("fit_small.rds"))
 library(ggplot2)
 ```
 
-```{r diagram, fig.cap="DPmixGPD concept: flexible bulk + GPD tail stitched at a threshold."}
+```{r start-viz-concept, fig.cap="DPmixGPD concept: flexible bulk + GPD tail stitched at a threshold."}
 bulk <- data.frame(x = seq(0, 10, length.out = 200))
 bulk$y <- dlnorm(bulk$x, meanlog = 0.5, sdlog = 0.4) * 0.8
 tail <- data.frame(x = seq(8, 20, length.out = 3))
@@ -50,28 +50,34 @@ ggplot() +
   labs(x = "Outcome", y = "Density")
 ```
 
-```{r quick-demo}
+```{r start-data-gen}
 set.seed(7)
 y <- sim_bulk_tail(90, tail_prob = 0.2)
 J <- 6
+```
+
+```{r start-model-spec}
+bundle <- build_nimble_bundle(
+  y = y,
+  backend = "sb",
+  kernel = "lognormal",
+  GPD = TRUE,
+  J = J,
+  mcmc = list(niter = 200, nburnin = 50, thin = 2, nchains = 2, seed = c(1, 2))
+)
+```
+
+```{r start-fit-mcmc}
 if (use_cached_fit) {
   fit <- fit_small
 } else {
-  bundle <- build_nimble_bundle(
-    y = y,
-    backend = "sb",
-    kernel = "lognormal",
-    GPD = TRUE,
-    J = J,
-    mcmc = list(niter = 200, nburnin = 50, thin = 2, nchains = 2, seed = c(1, 2))
-  )
   fit <- run_mcmc_bundle_manual(bundle)
 }
 print(fit)
 summary(fit, component = "tail")
 ```
 
-```{r predictions, fig.cap="Density prediction on held-out grid (posterior mean)."}
+```{r start-s3-predict, fig.cap="Density prediction on held-out grid (posterior mean)."}
 pred <- predict(fit, type = "survival", y = seq(0, max(y) + 5, length.out = 100))
 surv_df <- data.frame(y = pred$grid, survival = as.numeric(pred$fit[1, ]))
 ggplot(surv_df, aes(x = y, y = survival)) +

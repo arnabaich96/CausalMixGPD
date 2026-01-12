@@ -36,9 +36,12 @@ library(ggplot2)
 
 ## Simulate survival data
 
-```{r survival-example}
+```{r surv-data-gen}
 data <- sim_survival_tail(n = 220, seed = 220)
 y <- data$time
+```
+
+```{r surv-model-spec}
 bundle <- build_nimble_bundle(
   y = y,
   backend = "sb",
@@ -47,6 +50,9 @@ bundle <- build_nimble_bundle(
   J = 5,
   mcmc = list(niter = 200, nburnin = 50, thin = 2, nchains = 2, seed = c(1, 2))
 )
+```
+
+```{r surv-fit-mcmc}
 if (use_cached_fit) {
   fit <- fit_small
 } else {
@@ -56,7 +62,7 @@ if (use_cached_fit) {
 
 ## Observed densities
 
-```{r survival-density, fig.cap="Observed survival times split by censoring indicator."}
+```{r surv-viz-densities, fig.cap="Observed survival times split by censoring indicator."}
 data.frame(time = y, status = factor(data$status, labels = c("censored", "event"))) |>
   ggplot(aes(x = time, fill = status)) +
   geom_density(alpha = 0.4) +
@@ -65,8 +71,11 @@ data.frame(time = y, status = factor(data$status, labels = c("censored", "event"
 
 ## Posterior survival curve
 
-```{r survival-pred}
+```{r surv-data-prep-tau}
 tau <- seq(0.01, 0.99, length.out = 40)
+```
+
+```{r surv-s3-predict}
 quantiles <- predict(fit, type = "quantile", p = tau)
 surv_curve <- data.frame(time = as.numeric(quantiles$fit), survival = 1 - tau)
 surv_curve

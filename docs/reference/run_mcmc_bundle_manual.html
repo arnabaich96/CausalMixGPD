@@ -80,41 +80,11 @@
 <span class="r-in"><span>  components <span class="op">=</span> <span class="fl">3</span>,</span></span>
 <span class="r-in"><span>  mcmc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">200</span>, nburnin <span class="op">=</span> <span class="fl">50</span>, thin <span class="op">=</span> <span class="fl">1</span>, nchains <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in build_nimble_bundle(y = y, backend = "sb", kernel = "normal",     GPD = FALSE, components = 3, mcmc = list(niter = 200, nburnin = 50,         thin = 1, nchains = 1, seed = 1)):</span> could not find function "build_nimble_bundle"</span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span><span class="op">(</span><span class="va">bundle</span>, show_progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Defining model</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] 'P' is provided in 'constants' but not used in the model code and is being ignored.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Building model</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Setting data and initial values</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Checking model sizes and dimensions</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This model is not fully initialized. This is not an error.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>          To see which variables are not initialized, use model$initializeInfo().</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>          For more information on model initialization, see help(modelInitialization).</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Checking model calculations</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ===== Monitors =====</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> thin = 1: alpha, mean, sd, w, z</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ===== Samplers =====</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> conjugate sampler (6)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - mean[]  (3 elements)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - sd[]  (3 elements)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> categorical sampler (40)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - z[]  (40 elements)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> RW sampler (3)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - alpha</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - v[]  (2 elements)</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This may take a minute.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This may take a minute.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> running chain 1...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [Warning] There are 4 individual pWAIC values that are greater than 0.4. This may indicate that the WAIC estimate is unstable (Vehtari et al., 2017), at least in cases without grouping of data nodes or multivariate data nodes.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in run_mcmc_bundle_manual(bundle, show_progress = FALSE):</span> could not find function "run_mcmc_bundle_manual"</span>
 <span class="r-in"><span><span class="va">fit</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> n = 40 | components = 3 | epsilon = 0.025</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> MCMC: niter=200, nburnin=50, thin=1, nchains=1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Fit</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'fit' not found</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

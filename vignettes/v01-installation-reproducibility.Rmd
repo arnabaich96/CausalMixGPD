@@ -29,32 +29,38 @@ fit_small <- readRDS(.fit_path("fit_small.rds"))
 library(ggplot2)
 ```
 
-```{r reproducible-example}
+```{r install-data-gen}
 y <- sim_bulk_tail(n = 120, seed = 42)
+```
+
+```{r install-model-spec}
+bundle <- build_nimble_bundle(
+  y = y,
+  backend = "sb",
+  kernel = "gamma",
+  GPD = TRUE,
+  J = 5,
+  mcmc = list(niter = 200, nburnin = 50, thin = 2, nchains = 2, seed = c(1, 2))
+)
+```
+
+```{r install-fit-mcmc}
 if (use_cached_fit) {
   fit <- fit_small
 } else {
-    bundle <- build_nimble_bundle(
-      y = y,
-      backend = "sb",
-      kernel = "gamma",
-      GPD = TRUE,
-      J = 5,
-      mcmc = list(niter = 200, nburnin = 50, thin = 2, nchains = 2, seed = c(1, 2))
-    )
-    fit <- run_mcmc_bundle_manual(bundle)
+  fit <- run_mcmc_bundle_manual(bundle)
 }
 print(fit)
 ```
 
-```{r diag-density}
+```{r install-viz-data}
 data.frame(y = y) |>
   ggplot(aes(x = y)) +
   geom_density(fill = "steelblue", alpha = 0.4) +
   labs(title = "Input data density", x = "y", y = "Density")
 ```
 
-```{r prediction-example}
+```{r install-s3-predict}
 preds <- predict(fit, type = "quantile", p = c(0.5, 0.9, 0.95))
 print(preds)
 ```

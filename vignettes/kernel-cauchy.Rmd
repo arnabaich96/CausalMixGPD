@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r kernel-cauchy}
+```{r cauchy-setup}
 library(DPmixGPD)
 library(nimble)
 use_cached_fit <- TRUE
@@ -28,20 +28,29 @@ use_cached_fit <- TRUE
   path
 }
 fit_small <- readRDS(.fit_path("fit_small.rds"))
+```
+
+```{r cauchy-params-define}
 w <- c(0.5, 0.5)
 location <- c(-0.5, 0.5)
 scale <- c(0.7, 1.0)
 
 x <- 0.2
 p <- 0.9
+```
 
+```{r cauchy-densities-mix}
 dCauchyMix(x, w = w, location = location, scale = scale, log = FALSE)
 pCauchyMix(x, w = w, location = location, scale = scale, lower.tail = TRUE, log.p = FALSE)
 qCauchyMix(p, w = w, location = location, scale = scale)
+```
 
+```{r cauchy-data-gen}
 set.seed(1)
 y <- abs(rcauchy(30)) + 0.1
+```
 
+```{r cauchy-model-spec}
 bundle <- build_nimble_bundle(
   y = y,
   backend = "sb",
@@ -49,10 +58,12 @@ bundle <- build_nimble_bundle(
   GPD = FALSE,
   J = 6
 )
+```
 
+```{r cauchy-spec-metadata}
 bundle$spec$meta
 ```
 
-```{r session}
+```{r session-info}
 sessionInfo()
 ```

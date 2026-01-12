@@ -36,7 +36,7 @@ library(ggplot2)
 
 ## Kernel template (copy/paste)
 
-```{r kernel-template, eval=FALSE}
+```{r dev-kernel-template, eval=FALSE}
 # # Dummy skeleton (copy into R/0-base-kernels.R and register)
 # nimbleFunction(
 #   run = function(y = double(1), mu = double(0), sigma = double(0)) {
@@ -48,7 +48,7 @@ library(ggplot2)
 
 ## Registry entry template
 
-```{r register-template, eval=FALSE}
+```{r dev-register-template, eval=FALSE}
 # init_kernel_registry("custom", list(
 #   density = "dCustomMix",
 #   quantile = "qCustomMix",
@@ -60,8 +60,11 @@ library(ggplot2)
 
 ## Predictive sanity check
 
-```{r developer-pred}
+```{r dev-data-gen}
 y <- sim_bulk_tail(n = 80, seed = 123)
+```
+
+```{r dev-model-spec}
 bundle <- build_nimble_bundle(
   y = y,
   backend = "sb",
@@ -70,17 +73,23 @@ bundle <- build_nimble_bundle(
   J = 4,
   mcmc = list(niter = 200, nburnin = 50, thin = 2, nchains = 2, seed = c(1, 2))
 )
+```
+
+```{r dev-fit-mcmc}
 if (use_cached_fit) {
   fit <- fit_small
 } else {
   fit <- run_mcmc_bundle_manual(bundle)
 }
+```
+
+```{r dev-s3-predict}
 predict(fit, type = "quantile", p = c(0.5, 0.9))
 ```
 
 ## Quick visualization
 
-```{r developer-plot}
+```{r dev-viz-data}
 data.frame(y = y) |>
   ggplot(aes(x = y)) +
   geom_freqpoly(color = "steelblue") +

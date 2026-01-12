@@ -33,8 +33,11 @@ fit_small_crp <- readRDS(.fit_path("fit_small_crp.rds"))
 library(ggplot2)
 ```
 
-```{r backend-example}
+```{r backend-data-gen}
 y <- sim_bulk_tail(n = 150, tail_prob = 0.08, seed = 101)
+```
+
+```{r backend-common-args}
 common_args <- list(
   y = y,
   kernel = "lognormal",
@@ -42,23 +45,33 @@ common_args <- list(
   J = 6,
   mcmc = list(niter = 200, nburnin = 50, thin = 2, nchains = 2, seed = c(1, 2))
 )
+```
 
+```{r backend-sb-model-spec}
 if (use_cached_fit) {
   fit_sb <- fit_small
-  fit_crp <- fit_small_crp
   sb_time <- c(elapsed = NA_real_)
-  crp_time <- c(elapsed = NA_real_)
 } else {
   sb_time <- system.time({
     bundle_sb <- do.call(build_nimble_bundle, c(list(backend = "sb"), common_args))
     fit_sb <- run_mcmc_bundle_manual(bundle_sb)
   })
+}
+```
+
+```{r backend-crp-model-spec}
+if (use_cached_fit) {
+  fit_crp <- fit_small_crp
+  crp_time <- c(elapsed = NA_real_)
+} else {
   crp_time <- system.time({
     bundle_crp <- do.call(build_nimble_bundle, c(list(backend = "crp"), common_args))
     fit_crp <- run_mcmc_bundle_manual(bundle_crp)
   })
 }
+```
 
+```{r backend-timing-compare}
 system_time <- data.frame(
   backend = c("SB", "CRP"),
   elapsed = c(sb_time[["elapsed"]], crp_time[["elapsed"]])
@@ -66,10 +79,12 @@ system_time <- data.frame(
 system_time
 ```
 
-```{r backend-plot}
+```{r backend-s3-predict}
 q_sb <- predict(fit_sb, type = "quantile", p = c(0.5, 0.9))
 q_crp <- predict(fit_crp, type = "quantile", p = c(0.5, 0.9))
+```
 
+```{r backend-viz-quantiles, fig.cap="Quantiles by backend."}
 data.frame(
   backend = rep(c("SB", "CRP"), each = 2),
   prob = rep(c(0.5, 0.9), 2),
@@ -81,7 +96,7 @@ data.frame(
   labs(title = "Quantiles by backend", y = "Quantile", x = "Probability")
 ```
 
-```{r backend-pred}
+```{r backend-s3-predict-tail}
 quantiles_sb <- predict(fit_sb, type = "quantile", p = c(.95, .99))
 quantiles_crp <- predict(fit_crp, type = "quantile", p = c(.95, .99))
 list(sb = quantiles_sb, crp = quantiles_crp)

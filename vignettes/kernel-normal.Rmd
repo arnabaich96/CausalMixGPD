@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r kernel-normal}
+```{r normal-setup}
 library(DPmixGPD)
 library(nimble)
 use_cached_fit <- TRUE
@@ -28,28 +28,42 @@ use_cached_fit <- TRUE
   path
 }
 fit_small <- readRDS(.fit_path("fit_small.rds"))
+```
+
+```{r normal-params-define}
 w <- c(0.4, 0.6)
 mean <- c(-1, 1)
 sd <- c(0.7, 1.2)
 
 x <- 0.5
 p <- 0.9
+```
 
+```{r normal-densities-mix}
 dNormMix(x, w = w, mean = mean, sd = sd, log = FALSE)
 pNormMix(x, w = w, mean = mean, sd = sd, lower.tail = TRUE, log.p = FALSE)
 qNormMix(p, w = w, mean = mean, sd = sd)
+```
 
+```{r normal-params-tail}
 threshold <- 0.2
 tail_scale <- 1.0
 tail_shape <- 0.2
+```
 
+```{r normal-densities-gpd}
 dNormMixGpd(x, w = w, mean = mean, sd = sd,
             threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape)
 qNormMixGpd(0.99, w = w, mean = mean, sd = sd,
             threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape)
+```
 
+```{r normal-data-gen}
 set.seed(1)
 y <- abs(rnorm(30)) + 0.1
+```
+
+```{r normal-model-spec}
 bundle <- build_nimble_bundle(
   y = y,
   backend = "sb",
@@ -57,11 +71,13 @@ bundle <- build_nimble_bundle(
   GPD = TRUE,
   J = 6
 )
+```
 
+```{r normal-spec-metadata}
 bundle$spec$meta
 ```
 
-```{r kernel-normal-hist}
+```{r normal-viz-histogram}
 library(ggplot2)
 data.frame(y = y) |>
   ggplot(aes(x = y)) +
@@ -69,6 +85,6 @@ data.frame(y = y) |>
   labs(title = "Normal kernel example data", x = "y", y = "Count")
 ```
 
-```{r session}
+```{r session-info}
 sessionInfo()
 ```

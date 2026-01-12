@@ -23,3 +23,18 @@ print_dataset_header <- function(obj, name = NULL) {
 default_mcmc <- function() {
   list(niter = 1000, nburnin = 250, thin = 1, nchains = 2, seed = 1)
 }
+
+# Resolve a data file path robustly when knitting via pkgdown/callr.
+# Tries: (vignette_dir/../data), (cwd/data), (vignette_dir/data)
+resolve_data_file <- function(filename) {
+  vdir <- tryCatch(dirname(knitr::current_input(dir = TRUE)), error = function(e) NULL)
+  candidates <- c(
+    if (!is.null(vdir)) file.path(vdir, "..", "data", filename) else NULL,
+    file.path(getwd(), "data", filename),
+    if (!is.null(vdir)) file.path(vdir, "data", filename) else NULL
+  )
+  for (p in candidates) {
+    if (!is.null(p) && file.exists(p)) return(p)
+  }
+  NULL
+}

@@ -19,10 +19,10 @@
 #'
 #' @param y Numeric outcome vector.
 #' @param X Optional design matrix/data.frame (N x p) for conditional variants.
-#' @param ps Optional numeric vector of estimated propensity scores (length N) used as an extra
-#'   covariate when constructing link-mode predictors. If provided, a \code{beta_ps_<param>}
-#'   coefficient vector is added for each link-mode bulk parameter; the prior for these
-#'   coefficients can be customized via \code{param_specs$ps}.
+#' @param ps Numeric vector of estimated propensity scores (length N) used as a covariate
+#'   when constructing link-mode predictors. Mandatory for causal inference models
+#'   (with two treatment arms). When provided, \code{beta_ps_<param>} coefficient vectors
+#'   are added for each link-mode bulk parameter; priors can be customized via \code{param_specs$ps}.
 #' @param backend Character; \code{"sb"} (stick-breaking) or \code{"crp"} (Chinese Restaurant Process).
 #' @param kernel Character kernel name (must exist in \code{get_kernel_registry()}).
 #' @param GPD Logical; whether a GPD tail is requested.
@@ -403,7 +403,8 @@ build_monitors_from_spec <- function(spec, monitor_v = FALSE) {
   backend <- meta$backend
   N <- as.integer(meta$N)
   P <- as.integer(meta$P %||% 0L)
-  has_ps <- isTRUE(meta$has_ps)
+  # PS is optional: check if it's in the plan
+  has_ps <- !is.null(plan$ps)
   K <- as.integer(meta$components)
 
   mons <- character()
@@ -531,7 +532,7 @@ build_inits_from_spec <- function(spec, seed = NULL, y = NULL) {
   backend <- meta$backend
   N <- as.integer(meta$N)
   P <- as.integer(meta$P %||% 0L)
-  has_ps <- isTRUE(meta$has_ps)
+  has_ps <- !is.null(plan$ps)
   K <- as.integer(meta$components)
   y_obs <- if (!is.null(y)) as.numeric(y) else numeric()
 
@@ -696,7 +697,7 @@ build_constants_from_spec <- function(spec) {
 
   meta <- spec$meta
   plan <- spec$plan
-  has_ps <- isTRUE(meta$has_ps)
+  has_ps <- !is.null(plan$ps)
 
   N <- as.integer(meta$N)
   P <- as.integer(meta$P %||% 0L)
@@ -858,7 +859,7 @@ build_dimensions_from_spec <- function(spec) {
   backend <- meta$backend
   N <- as.integer(meta$N)
   P <- as.integer(meta$P %||% 0L)
-  has_ps <- isTRUE(meta$has_ps)
+  has_ps <- !is.null(plan$ps)
   K <- as.integer(meta$components)
 
   `%||%` <- function(a, b) if (!is.null(a)) a else b
@@ -1023,7 +1024,7 @@ build_code_sb_from_spec <- function(spec) {
   P <- as.integer(meta$P %||% 0L)
   K <- as.integer(meta$components)
   has_X <- isTRUE(meta$has_X)
-  has_ps <- isTRUE(meta$has_ps)
+  has_ps <- !is.null(plan$ps)
   default_ps_prior <- list(dist = "normal", args = list(mean = 0, sd = 2))
   ps_prior <- (plan$ps %||% list(prior = default_ps_prior))$prior
 
@@ -1382,7 +1383,7 @@ build_code_crp_from_spec <- function(spec) {
   P <- as.integer(meta$P %||% 0L)
   K <- as.integer(meta$components)
   has_X <- isTRUE(meta$has_X)
-  has_ps <- isTRUE(meta$has_ps)
+  has_ps <- !is.null(plan$ps)
   default_ps_prior <- list(dist = "normal", args = list(mean = 0, sd = 2))
   ps_prior <- (plan$ps %||% list(prior = default_ps_prior))$prior
 
