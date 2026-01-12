@@ -91,8 +91,10 @@ The default implementation supports:
 
 
 <dt id="arg-ps">ps<a class="anchor" aria-label="anchor" href="#arg-ps"></a></dt>
-<dd><p>Optional numeric vector of propensity scores aligned with <code>newdata</code>.
-Required for PS-augmented fits when predicting on new <code>X</code>.</p></dd>
+<dd><p>Ignored. Propensity scores are always computed internally from the fitted PS
+model or stored training PS. For new covariates, PS are derived from the attached PS
+posterior draws when available. For causal workflows, use <code><a href="qte.html">qte()</a></code> / <code><a href="ate.html">ate()</a></code> which
+orchestrate PS estimation and outcome prediction jointly.</p></dd>
 
 
 <dt id="arg-newdata">newdata<a class="anchor" aria-label="anchor" href="#arg-newdata"></a></dt>

@@ -14,16 +14,18 @@ library(nimble)
 source("_helpers.R")
 ```
 
-```{r data}
+```{r pred-data-load}
 data("nc_posX100_p3_k2")
 print_dataset_header(nc_posX100_p3_k2, "nc_posX100_p3_k2")
 ```
 
-```{r prediction, eval=TRUE}
+```{r pred-data-setup}
 X <- nc_posX100_p3_k2$X
 n_new <- ceiling(0.2 * nrow(X))
 newdata <- X[seq_len(n_new), , drop = FALSE]
+```
 
+```{r pred-model-spec}
 mcmc <- default_mcmc()
 bundle <- build_nimble_bundle(
   y = nc_posX100_p3_k2$y,
@@ -34,11 +36,28 @@ bundle <- build_nimble_bundle(
   components = nc_posX100_p3_k2$meta$K_true,
   mcmc = mcmc
 )
-fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+```
 
+```{r pred-fit-mcmc, eval=TRUE}
+fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+```
+
+```{r pred-s3-density}
 predict(fit, newdata = newdata, type = "density", y = sort(nc_posX100_p3_k2$y))
+```
+
+```{r pred-s3-survival}
 predict(fit, newdata = newdata, type = "survival", y = sort(nc_posX100_p3_k2$y))
+```
+
+```{r pred-s3-quantile}
 predict(fit, newdata = newdata, type = "quantile", p = c(0.1, 0.25, 0.5, 0.9))
+```
+
+```{r pred-s3-sample}
 predict(fit, newdata = newdata, type = "sample", nsim = 200)
+```
+
+```{r pred-s3-mean}
 predict(fit, newdata = newdata, type = "mean")
 ```

@@ -29,12 +29,15 @@ fit_small <- readRDS(.fit_path("fit_small.rds"))
 library(ggplot2)
 ```
 
-```{r single-example}
+```{r example-data-gen}
 set.seed(42)
 n <- 120
 x <- rnorm(n)
 y <- sim_bulk_tail(n, tail_prob = 0.18)
 J <- 6
+```
+
+```{r example-model-spec}
 bundle <- build_nimble_bundle(
   y = y,
   X = data.frame(x = x),
@@ -44,24 +47,33 @@ bundle <- build_nimble_bundle(
   J = J,
   mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 2, seed = c(1, 2))
 )
+```
+
+```{r example-fit-mcmc}
 if (use_cached_fit) {
   fit <- fit_small
 } else {
   fit <- run_mcmc_bundle_manual(bundle)
 }
+```
+
+```{r example-s3-summary}
 summary(fit)
 ```
 
-```{r traceplot, fig.cap="Trace plot for tail parameters and weights."}
+```{r example-s3-plot-trace, fig.cap="Trace plot for tail parameters and weights."}
 plot(fit, family = "traceplot", params = c("alpha", "mean[1]"))
 ```
 
-```{r prediction-api}
+```{r example-s3-predict-quantile}
 quant <- predict(fit, type = "quantile", p = c(.5, .9, .99))
 quantile_df <- data.frame(
   tau = c(.5, .9, .99),
   value = as.numeric(quant$fit[1, ])
 )
+```
+
+```{r example-viz-quantiles, fig.cap="Quantiles from the fitted model."}
 ggplot(quantile_df, aes(x = tau, y = value)) +
   geom_line() +
   geom_point() +
@@ -69,18 +81,21 @@ ggplot(quantile_df, aes(x = tau, y = value)) +
   theme_minimal()
 ```
 
-```{r bulk-vs-tail, fig.cap="Bulk density (blue) versus tail contribution (orange)."}
+```{r example-s3-predict-density}
 dense_grid <- seq(0, max(y) + 5, length.out = 120)
 bulk_pred <- predict(fit, type = "density", y = dense_grid)
 bulk_df <- data.frame(y = dense_grid, density = bulk_pred$fit[1, ])
 tail_df <- data.frame(y = dense_grid, density = 1 - bulk_df$density / max(bulk_df$density))
+```
+
+```{r example-viz-bulktail, fig.cap="Bulk density (blue) versus tail contribution (orange)."}
 ggplot(bulk_df, aes(x = y, y = density)) +
   geom_line(color = "#1f77b4") +
   geom_line(data = tail_df, aes(y = density), color = "#ff7f0e", linetype = "dashed") +
   labs(title = "Bulk vs Tail (scaled)", y = "Density estimate")
 ```
 
-```{r posterior-summary-table}
+```{r example-s3-summary-table}
 tail_tab <- summary(fit)$table
 keep <- tail_tab$parameter %in% c("threshold[1]", "tail_shape")
 posterior_table <- tail_tab[keep, c("parameter", "mean", "sd", "q0.500")]
@@ -93,6 +108,6 @@ posterior_table <- rbind(posterior_table, data.frame(
 knitr::kable(posterior_table, digits = 3)
 ```
 
-```{r session}
+```{r session-info}
 sessionInfo()
 ```

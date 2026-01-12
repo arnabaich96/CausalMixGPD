@@ -42,10 +42,13 @@ library(ggplot2)
 library(dplyr)
 ```
 
-```{r causal-extras-example}
+```{r extras-data-gen}
 set.seed(10)
 data <- sim_causal_qte(n = 200)
 X <- data$X
+```
+
+```{r extras-model-spec}
 bundle <- build_causal_bundle(
   y = data$y,
   X = X,
@@ -57,23 +60,29 @@ bundle <- build_causal_bundle(
   mcmc_outcome = list(niter = 200, nburnin = 50, thin = 3, nchains = 2, seed = c(1, 2)),
   mcmc_ps = list(niter = 200, nburnin = 50, thin = 3, nchains = 2, seed = c(3, 4))
 )
+```
+
+```{r extras-fit-mcmc}
 if (use_cached_fit) {
   fit <- fit_causal_small
 } else {
   fit <- run_mcmc_causal(bundle)
 }
+```
+
+```{r extras-s3-qte-summary}
 cq <- qte(fit, probs = c(0.5, 0.9, 0.99), newdata = head(X, 3))
 cq
 ```
 
-```{r causal-plot}
+```{r extras-viz-densities}
 df_plot <- data.frame(y = data$y, arm = ifelse(data$t == 1, "trt", "con"))
 ggplot(df_plot, aes(x = y, fill = arm)) +
   geom_density(alpha = 0.4) +
   labs(title = "Outcome densities by arm", x = "Outcome y", fill = "Arm")
 ```
 
-```{r ipw-baseline}
+```{r extras-data-ipw-baseline}
 arm_tbl <- data.frame(y = data$y, treatment = ifelse(data$t == 1, "trt", "con"))
 ipw_q <- arm_tbl |>
   group_by(treatment) |>
@@ -81,10 +90,15 @@ ipw_q <- arm_tbl |>
 ipw_q
 ```
 
-```{r causal-pred}
+```{r extras-s3-methods-pred}
 pred_grid <- data.frame(x1 = seq(-1, 1, length.out = 5), x2 = rep(0, 5), x3 = 0)
 cq_pred <- qte(fit, probs = c(0.9, 0.99), newdata = pred_grid)
 cq_pred
+```
+
+```{r extras-s3-methods-ate}
+ate_pred <- ate(fit, newdata = pred_grid)
+head(ate_pred$fit)
 ```
 
 ```{r session-info}

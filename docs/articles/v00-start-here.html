@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Start Here: What DPmixGPD Does • DPmixGPD</title>
+<title>Start Here • DPmixGPD</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Start Here: What DPmixGPD Does">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Start Here">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -47,7 +47,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Start Here: What DPmixGPD Does</h1>
+      <h1>Start Here</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/fsu-dpmixgpd/DPmixGPD/blob/HEAD/vignettes/v00-start-here.Rmd" class="external-link"><code>vignettes/v00-start-here.Rmd</code></a></small>
@@ -56,84 +56,6 @@
 
     
     
-<p>What you’ll learn: how DPmixGPD splits bulk and tail modelling, what
-outputs you get, and where to go next.</p>
-<div class="section level2">
-<h2 id="what-problem-are-we-solving">What problem are we solving?<a class="anchor" aria-label="anchor" href="#what-problem-are-we-solving"></a>
-</h2>
-<p>Standard single-distribution fits throw up their hands when data are
-sparse in the tail: the bulk dominates, heavy excursions are ignored,
-and probabilistic forecasts understate rare events. DPmixGPD targets
-precisely that regime by pairing a flexible Dirichlet process mixture in
-the bulk with a dedicated generalized Pareto tail beyond a threshold so
-you can keep inference honest on extremes.</p>
-</div>
-<div class="section level2">
-<h2 id="what-dpmixgpd-fits">What DPmixGPD fits<a class="anchor" aria-label="anchor" href="#what-dpmixgpd-fits"></a>
-</h2>
-<ul>
-<li>
-<strong>Bulk model:</strong> DP mixture over kernels
-(<code>normal</code>, <code>gamma</code>, <code>lognormal</code>,
-<code>Laplace</code>, <code>inverse Gaussian</code>,
-<code>Amoroso</code>) delivers adaptively shaped density/conditional
-models.</li>
-<li>
-<strong>Tail model:</strong> a Generalized Pareto Distribution is
-glued on at a learned threshold, with smooth transitions and optional
-covariate links.</li>
-<li>
-<strong>Prediction:</strong> the same fitted object can forecast
-densities, survival curves, quantiles, and posterior predictive
-draws.</li>
-</ul>
-</div>
-<div class="section level2">
-<h2 id="two-workflows">Two workflows<a class="anchor" aria-label="anchor" href="#two-workflows"></a>
-</h2>
-<div class="section level3">
-<h3 id="density-regression">Density / regression<a class="anchor" aria-label="anchor" href="#density-regression"></a>
-</h3>
-<p>You build a bundle, run MCMC once, and derive density or quantile
-estimates via <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> for new covariates.</p>
-</div>
-<div class="section level3">
-<h3 id="causal">Causal<a class="anchor" aria-label="anchor" href="#causal"></a>
-</h3>
-<p>You fit the propensity score plus two outcome arms (treated
-<code>trt</code> and control <code>con</code>), then compare
-arm-specific predictions to produce CQTE curves.</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="what-you-get-out">What you get out<a class="anchor" aria-label="anchor" href="#what-you-get-out"></a>
-</h2>
-<ul>
-<li>Posterior predictive distribution (density/survival).</li>
-<li>Quantiles at arbitrary probabilities.</li>
-<li>Tail index (shape/scale) and threshold diagnostics.</li>
-<li>Standard trace/ESS summaries, block-specific plots, and credible
-bands on predictions.</li>
-</ul>
-</div>
-<div class="section level2">
-<h2 id="what-to-read-next">What to read next<a class="anchor" aria-label="anchor" href="#what-to-read-next"></a>
-</h2>
-<ul>
-<li>
-<a href="v02-single-outcome-modeling.html">v02-single-outcome-modeling.Rmd</a>
-for a canonical density recipe.</li>
-<li>
-<a href="v05-causal-cqte.html">v05-causal-cqte.Rmd</a> for the CQTE
-workflow.</li>
-<li>
-<a href="v08-prediction-and-exports.html">v08-prediction-and-exports.Rmd</a>
-for exporting predictions.</li>
-</ul>
-</div>
-<div class="section level2">
-<h2 id="bulk-tail-diagram">Bulk + tail diagram<a class="anchor" aria-label="anchor" href="#bulk-tail-diagram"></a>
-</h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bulk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10</span>, length.out <span class="op">=</span> <span class="fl">200</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">bulk</span><span class="op">$</span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/Lognormal.html" class="external-link">dlnorm</a></span><span class="op">(</span><span class="va">bulk</span><span class="op">$</span><span class="va">x</span>, meanlog <span class="op">=</span> <span class="fl">0.5</span>, sdlog <span class="op">=</span> <span class="fl">0.4</span><span class="op">)</span> <span class="op">*</span> <span class="fl">0.8</span></span>
@@ -158,10 +80,6 @@ for exporting predictions.</li>
 DPmixGPD concept: flexible bulk + GPD tail stitched at a threshold.
 </p>
 </div>
-</div>
-<div class="section level2">
-<h2 id="line-example">10-line example<a class="anchor" aria-label="anchor" href="#line-example"></a>
-</h2>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">7</span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_bulk_tail.html">sim_bulk_tail</a></span><span class="op">(</span><span class="fl">90</span>, tail_prob <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span>
@@ -203,10 +121,6 @@ DPmixGPD concept: flexible bulk + GPD tail stitched at a threshold.
 <span><span class="co">#&gt;       sd[1] 3.027 1.226  1.385  2.780  5.462  8.118</span></span>
 <span><span class="co">#&gt;       sd[2] 1.110 1.316  0.023  0.059  3.947  3.470</span></span>
 <span><span class="co">#&gt;       sd[3] 1.356 1.652  0.029  0.587  5.270 15.139</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="prediction-and-diagnostics">Prediction and diagnostics<a class="anchor" aria-label="anchor" href="#prediction-and-diagnostics"></a>
-</h2>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"survival"</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">+</span> <span class="fl">5</span>, length.out <span class="op">=</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">surv_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">pred</span><span class="op">$</span><span class="va">grid</span>, survival <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">pred</span><span class="op">$</span><span class="va">fit</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
@@ -234,11 +148,140 @@ Density prediction on held-out grid (posterior mean).
 <span><span class="co">#&gt; [1] "quantile"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $grid</span></span>
-<span><span class="co">#&gt; [1] 0.50 0.80 0.95</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="session-info">Session info<a class="anchor" aria-label="anchor" href="#session-info"></a>
-</h2>
+<span><span class="co">#&gt; [1] 0.50 0.80 0.95</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $draws</span></span>
+<span><span class="co">#&gt; , , 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;           [,1]</span></span>
+<span><span class="co">#&gt;  [1,] 2.084684</span></span>
+<span><span class="co">#&gt;  [2,] 1.761678</span></span>
+<span><span class="co">#&gt;  [3,] 1.711988</span></span>
+<span><span class="co">#&gt;  [4,] 2.488099</span></span>
+<span><span class="co">#&gt;  [5,] 2.076856</span></span>
+<span><span class="co">#&gt;  [6,] 1.980510</span></span>
+<span><span class="co">#&gt;  [7,] 1.814564</span></span>
+<span><span class="co">#&gt;  [8,] 2.015153</span></span>
+<span><span class="co">#&gt;  [9,] 2.182712</span></span>
+<span><span class="co">#&gt; [10,] 2.031181</span></span>
+<span><span class="co">#&gt; [11,] 2.258826</span></span>
+<span><span class="co">#&gt; [12,] 2.569372</span></span>
+<span><span class="co">#&gt; [13,] 2.218166</span></span>
+<span><span class="co">#&gt; [14,] 2.193250</span></span>
+<span><span class="co">#&gt; [15,] 2.682655</span></span>
+<span><span class="co">#&gt; [16,] 2.117570</span></span>
+<span><span class="co">#&gt; [17,] 2.296713</span></span>
+<span><span class="co">#&gt; [18,] 2.129176</span></span>
+<span><span class="co">#&gt; [19,] 2.790298</span></span>
+<span><span class="co">#&gt; [20,] 2.822541</span></span>
+<span><span class="co">#&gt; [21,] 3.457669</span></span>
+<span><span class="co">#&gt; [22,] 2.982656</span></span>
+<span><span class="co">#&gt; [23,] 2.594728</span></span>
+<span><span class="co">#&gt; [24,] 2.355118</span></span>
+<span><span class="co">#&gt; [25,] 2.245933</span></span>
+<span><span class="co">#&gt; [26,] 2.183629</span></span>
+<span><span class="co">#&gt; [27,] 1.964829</span></span>
+<span><span class="co">#&gt; [28,] 2.134337</span></span>
+<span><span class="co">#&gt; [29,] 2.835128</span></span>
+<span><span class="co">#&gt; [30,] 2.387545</span></span>
+<span><span class="co">#&gt; [31,] 2.352759</span></span>
+<span><span class="co">#&gt; [32,] 3.252944</span></span>
+<span><span class="co">#&gt; [33,] 3.306005</span></span>
+<span><span class="co">#&gt; [34,] 2.716700</span></span>
+<span><span class="co">#&gt; [35,] 2.742817</span></span>
+<span><span class="co">#&gt; [36,] 2.507197</span></span>
+<span><span class="co">#&gt; [37,] 2.553163</span></span>
+<span><span class="co">#&gt; [38,] 3.063924</span></span>
+<span><span class="co">#&gt; [39,] 3.017153</span></span>
+<span><span class="co">#&gt; [40,] 2.908632</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; , , 2</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;           [,1]</span></span>
+<span><span class="co">#&gt;  [1,] 5.434103</span></span>
+<span><span class="co">#&gt;  [2,] 9.856694</span></span>
+<span><span class="co">#&gt;  [3,] 7.732760</span></span>
+<span><span class="co">#&gt;  [4,] 7.231164</span></span>
+<span><span class="co">#&gt;  [5,] 8.626198</span></span>
+<span><span class="co">#&gt;  [6,] 5.481327</span></span>
+<span><span class="co">#&gt;  [7,] 8.434266</span></span>
+<span><span class="co">#&gt;  [8,] 4.275549</span></span>
+<span><span class="co">#&gt;  [9,] 7.318695</span></span>
+<span><span class="co">#&gt; [10,] 5.642000</span></span>
+<span><span class="co">#&gt; [11,] 6.912834</span></span>
+<span><span class="co">#&gt; [12,] 6.270920</span></span>
+<span><span class="co">#&gt; [13,] 5.346794</span></span>
+<span><span class="co">#&gt; [14,] 5.415640</span></span>
+<span><span class="co">#&gt; [15,] 8.022615</span></span>
+<span><span class="co">#&gt; [16,] 5.277803</span></span>
+<span><span class="co">#&gt; [17,] 6.506667</span></span>
+<span><span class="co">#&gt; [18,] 9.289373</span></span>
+<span><span class="co">#&gt; [19,] 7.052828</span></span>
+<span><span class="co">#&gt; [20,] 7.175828</span></span>
+<span><span class="co">#&gt; [21,] 7.620988</span></span>
+<span><span class="co">#&gt; [22,] 7.014287</span></span>
+<span><span class="co">#&gt; [23,] 8.075880</span></span>
+<span><span class="co">#&gt; [24,] 7.732905</span></span>
+<span><span class="co">#&gt; [25,] 7.006633</span></span>
+<span><span class="co">#&gt; [26,] 4.351492</span></span>
+<span><span class="co">#&gt; [27,] 4.285172</span></span>
+<span><span class="co">#&gt; [28,] 5.359027</span></span>
+<span><span class="co">#&gt; [29,] 7.743145</span></span>
+<span><span class="co">#&gt; [30,] 5.187532</span></span>
+<span><span class="co">#&gt; [31,] 6.846878</span></span>
+<span><span class="co">#&gt; [32,] 8.544946</span></span>
+<span><span class="co">#&gt; [33,] 8.320800</span></span>
+<span><span class="co">#&gt; [34,] 8.421502</span></span>
+<span><span class="co">#&gt; [35,] 9.363206</span></span>
+<span><span class="co">#&gt; [36,] 8.034985</span></span>
+<span><span class="co">#&gt; [37,] 6.841856</span></span>
+<span><span class="co">#&gt; [38,] 7.803652</span></span>
+<span><span class="co">#&gt; [39,] 6.801644</span></span>
+<span><span class="co">#&gt; [40,] 7.628509</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; , , 3</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;            [,1]</span></span>
+<span><span class="co">#&gt;  [1,]  6.929665</span></span>
+<span><span class="co">#&gt;  [2,]  9.958749</span></span>
+<span><span class="co">#&gt;  [3,]  7.866946</span></span>
+<span><span class="co">#&gt;  [4,]  7.291517</span></span>
+<span><span class="co">#&gt;  [5,]  8.695036</span></span>
+<span><span class="co">#&gt;  [6,]  7.824644</span></span>
+<span><span class="co">#&gt;  [7,]  8.576632</span></span>
+<span><span class="co">#&gt;  [8,] 10.926664</span></span>
+<span><span class="co">#&gt;  [9,] 11.449937</span></span>
+<span><span class="co">#&gt; [10,] 10.852902</span></span>
+<span><span class="co">#&gt; [11,]  9.323045</span></span>
+<span><span class="co">#&gt; [12,]  9.995353</span></span>
+<span><span class="co">#&gt; [13,] 11.011613</span></span>
+<span><span class="co">#&gt; [14,]  8.606066</span></span>
+<span><span class="co">#&gt; [15,] 10.157453</span></span>
+<span><span class="co">#&gt; [16,]  9.665001</span></span>
+<span><span class="co">#&gt; [17,] 10.551923</span></span>
+<span><span class="co">#&gt; [18,]  9.373644</span></span>
+<span><span class="co">#&gt; [19,]  7.118737</span></span>
+<span><span class="co">#&gt; [20,]  7.219051</span></span>
+<span><span class="co">#&gt; [21,]  8.991530</span></span>
+<span><span class="co">#&gt; [22,]  8.422021</span></span>
+<span><span class="co">#&gt; [23,]  8.245483</span></span>
+<span><span class="co">#&gt; [24,] 10.600519</span></span>
+<span><span class="co">#&gt; [25,]  9.030669</span></span>
+<span><span class="co">#&gt; [26,] 11.626650</span></span>
+<span><span class="co">#&gt; [27,] 12.137861</span></span>
+<span><span class="co">#&gt; [28,] 11.299427</span></span>
+<span><span class="co">#&gt; [29,] 10.045535</span></span>
+<span><span class="co">#&gt; [30,] 11.666167</span></span>
+<span><span class="co">#&gt; [31,] 10.016763</span></span>
+<span><span class="co">#&gt; [32,]  8.981712</span></span>
+<span><span class="co">#&gt; [33,] 10.616308</span></span>
+<span><span class="co">#&gt; [34,]  8.548509</span></span>
+<span><span class="co">#&gt; [35,]  9.463882</span></span>
+<span><span class="co">#&gt; [36,]  8.134691</span></span>
+<span><span class="co">#&gt; [37,]  6.925275</span></span>
+<span><span class="co">#&gt; [38,]  7.877141</span></span>
+<span><span class="co">#&gt; [39,]  7.447362</span></span>
+<span><span class="co">#&gt; [40,]  7.722888</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; R version 4.5.2 (2025-10-31 ucrt)</span></span>
@@ -278,16 +321,13 @@ Density prediction on held-out grid (posterior mean).
 <span><span class="co">#&gt; [31] dplyr_1.1.4         globals_0.18.0      vctrs_0.6.5        </span></span>
 <span><span class="co">#&gt; [34] R6_2.6.1            lifecycle_1.0.4     fs_1.6.6           </span></span>
 <span><span class="co">#&gt; [37] htmlwidgets_1.6.4   ragg_1.5.0          pkgconfig_2.0.3    </span></span>
-<span><span class="co">#&gt; [40] desc_1.4.3          pillar_1.11.1       pkgdown_2.2.0      </span></span>
-<span><span class="co">#&gt; [43] bslib_0.9.0         gtable_0.3.6        glue_1.8.0         </span></span>
+<span><span class="co">#&gt; [40] desc_1.4.3          pkgdown_2.2.0       bslib_0.9.0        </span></span>
+<span><span class="co">#&gt; [43] pillar_1.11.1       gtable_0.3.6        glue_1.8.0         </span></span>
 <span><span class="co">#&gt; [46] systemfonts_1.3.1   tidyselect_1.2.1    tibble_3.3.0       </span></span>
-<span><span class="co">#&gt; [49] xfun_0.55           rstudioapi_0.17.1   knitr_1.51         </span></span>
-<span><span class="co">#&gt; [52] farver_2.1.2        htmltools_0.5.9     igraph_2.2.1       </span></span>
-<span><span class="co">#&gt; [55] labeling_0.4.3      rmarkdown_2.30      compiler_4.5.2     </span></span>
-<span><span class="co">#&gt; [58] S7_0.2.1</span></span></code></pre></div>
-</div>
-  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
-    </nav></aside>
+<span><span class="co">#&gt; [49] xfun_0.55           knitr_1.51          farver_2.1.2       </span></span>
+<span><span class="co">#&gt; [52] htmltools_0.5.9     igraph_2.2.1        labeling_0.4.3     </span></span>
+<span><span class="co">#&gt; [55] rmarkdown_2.30      compiler_4.5.2      S7_0.2.1</span></span></code></pre></div>
+  </main>
 </div>
 
 

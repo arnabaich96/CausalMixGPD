@@ -24,10 +24,10 @@ build_nimble_bundle(
 
 \item{X}{Optional design matrix/data.frame (N x p) for conditional variants.}
 
-\item{ps}{Optional numeric vector of estimated propensity scores (length N) used as an extra
-covariate when constructing link-mode predictors. If provided, a \code{beta_ps_<param>}
-coefficient vector is added for each link-mode bulk parameter; the prior for these
-coefficients can be customized via \code{param_specs$ps}.}
+\item{ps}{Numeric vector of estimated propensity scores (length N) used as a covariate
+when constructing link-mode predictors. Mandatory for causal inference models
+(with two treatment arms). When provided, \code{beta_ps_<param>} coefficient vectors
+are added for each link-mode bulk parameter; priors can be customized via \code{param_specs$ps}.}
 
 \item{backend}{Character; \code{"sb"} (stick-breaking) or \code{"crp"} (Chinese Restaurant Process).}
 

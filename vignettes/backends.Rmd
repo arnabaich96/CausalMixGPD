@@ -21,7 +21,8 @@ if (!exists("nc_real200_k2", envir = .kg, inherits = FALSE)) {
   utils::data(list = "nc_real200_k2", package = "DPmixGPD", envir = .kg)
 }
 if (!exists("nc_real200_k2", envir = .kg, inherits = FALSE)) {
-  load(file.path("data", "nc_real200_k2.rda"), envir = .kg)
+  path <- resolve_data_file("nc_real200_k2.rda")
+  if (!is.null(path)) load(path, envir = .kg)
 }
 stopifnot(exists("nc_real200_k2", envir = .kg, inherits = FALSE))
 nc_real200_k2 <- get("nc_real200_k2", envir = .kg, inherits = FALSE)

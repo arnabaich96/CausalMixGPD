@@ -21,6 +21,10 @@ library(DPmixGPD)
 library(nimble)
 use_cached_fit <- TRUE
 .fit_path <- function(name) {
+  # During vignette rendering, system.file may not work; try relative path first
+  rel_path <- file.path("..", "inst", "extdata", name)
+  if (file.exists(rel_path)) return(rel_path)
+  # Fallback to system.file
   path <- system.file("extdata", name, package = "DPmixGPD")
   if (path == "") path <- file.path("inst", "extdata", name)
   path
@@ -38,10 +42,13 @@ class(fit_causal_small) <- "dpmixgpd_causal_fit"
 library(ggplot2)
 ```
 
-```{r causal-example}
+```{r causal-data-gen}
 set.seed(101)
 dat <- sim_causal_qte(220)
 J <- 6
+```
+
+```{r causal-model-spec}
 bundle <- build_causal_bundle(
   y = dat$y,
   X = dat$X,
@@ -53,35 +60,47 @@ bundle <- build_causal_bundle(
   mcmc_outcome = list(niter = 200, nburnin = 50, thin = 1, nchains = 2, seed = c(1, 2)),
   mcmc_ps = list(niter = 200, nburnin = 50, thin = 1, nchains = 2, seed = c(3, 4))
 )
+```
+
+```{r causal-fit-mcmc}
 if (use_cached_fit) {
   cf <- fit_causal_small
 } else {
   cf <- run_mcmc_causal(bundle, show_progress = FALSE)
 }
+```
+
+```{r causal-s3-summary}
 print(cf)
 summary(cf$outcome_fit$trt)
 ```
 
-```{r overlap-plot, fig.cap="Propensity score distributions by arm (logistic GLM proxy)."}
+```{r causal-data-prep-ps}
 ps_df <- data.frame(dat$X, T = dat$t)
 ps_fit <- glm(T ~ x1 + x2 + x3, data = ps_df, family = binomial())
 ps_df$propensity <- predict(ps_fit, type = "response")
+```
+
+```{r causal-viz-overlap, fig.cap="Propensity score distributions by arm (logistic GLM proxy)."}
 ggplot(ps_df, aes(x = propensity, fill = factor(T, labels = c("con", "trt")))) +
   geom_density(alpha = 0.4) +
   labs(title = "Propensity score overlap", fill = "Arm")
 ```
 
-```{r tail-trace, fig.cap="Trace plots for tail_scale and tail_shape (treated arm)."}
+```{r causal-s3-plot-tail, fig.cap="Trace plots for tail_scale and tail_shape (treated arm)."}
 plot(cf$outcome_fit$trt, family = "traceplot", params = c("alpha", "w[1]"))
 ```
 
-```{r qte-slices}
+```{r causal-data-prep-qte}
 grid <- expand.grid(
   x1 = seq(-1.2, 1.2, length.out = 15),
   x2 = seq(-0.8, 0.8, length.out = 5),
   x3 = 0
 )
 taus <- c(.1, .5, .9, .95, .99)
+```
+
+```{r causal-s3-predict-qte}
 pr_trt <- predict(cf$outcome_fit$trt, newdata = grid, type = "quantile", p = taus)
 pr_con <- predict(cf$outcome_fit$con, newdata = grid, type = "quantile", p = taus)
 qte_df <- data.frame(
@@ -89,25 +108,34 @@ qte_df <- data.frame(
   tau = rep(taus, times = nrow(grid)),
   qte = c(pr_trt$fit - pr_con$fit)
 )
+```
+
+```{r causal-viz-qte-slices, fig.cap="QTE slices (selected taus)."}
 slice_df <- qte_df[qte_df$tau %in% c(.5, .95, .99) & qte_df$x1 %in% c(-1, 0, 1), ]
 ggplot(slice_df, aes(x = x1, y = qte, color = factor(tau))) +
   geom_line() +
   labs(title = "QTE slices (selected taus)", color = "tau")
 ```
 
-```{r qte-surface, fig.cap="QTE surface for tau=0.95 varying x1 / x2 at x3=0."}
+```{r causal-data-prep-surface}
 surf_grid <- expand.grid(x1 = seq(-1, 1, length.out = 25), x2 = seq(-1, 1, length.out = 25), x3 = 0)
 tau_surface <- 0.95
+```
+
+```{r causal-s3-predict-surface}
 surf_trt <- predict(cf$outcome_fit$trt, newdata = surf_grid, type = "quantile", p = tau_surface)
 surf_con <- predict(cf$outcome_fit$con, newdata = surf_grid, type = "quantile", p = tau_surface)
 surf_grid$qte <- as.numeric(surf_trt$fit - surf_con$fit)
+```
+
+```{r causal-viz-qte-surface, fig.cap="QTE surface for tau=0.95 varying x1 / x2 at x3=0."}
 ggplot(surf_grid, aes(x = x1, y = x2, fill = qte)) +
   geom_raster() +
   scale_fill_viridis_c(option = "C") +
   labs(title = "QTE surface (tau = 0.95)", fill = "QTE")
 ```
 
-```{r tail-focused}
+```{r causal-s3-predict-tail-focus}
 tail_trt <- predict(cf$outcome_fit$trt, newdata = data.frame(x1 = 0, x2 = 0, x3 = 0), type = "quantile", p = c(.95, .99, .995))
 tail_con <- predict(cf$outcome_fit$con, newdata = data.frame(x1 = 0, x2 = 0, x3 = 0), type = "quantile", p = c(.95, .99, .995))
 data.frame(
@@ -116,7 +144,12 @@ data.frame(
 )
 ```
 
-```{r qte-table}
+```{r causal-s3-methods-ate}
+ate_head <- ate(cf, newdata = grid)
+head(ate_head$fit)
+```
+
+```{r causal-viz-qte-table}
 summary_points <- data.frame(
   x1 = c(-1, 0, 1),
   x2 = c(0, 0, 0),
@@ -136,6 +169,6 @@ for (i in seq_len(nrow(summary_points))) {
 knitr::kable(summary_points[, c("label", "qte_median", "qte_tail")], digits = 3)
 ```
 
-```{r session}
+```{r session-info}
 sessionInfo()
 ```

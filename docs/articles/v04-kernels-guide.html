@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Kernels: What They Mean and When to Use Which • DPmixGPD</title>
+<title>Kernels guide • DPmixGPD</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Kernels: What They Mean and When to Use Which">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Kernels guide">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -47,7 +47,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Kernels: What They Mean and When to Use Which</h1>
+      <h1>Kernels guide</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/fsu-dpmixgpd/DPmixGPD/blob/HEAD/vignettes/v04-kernels-guide.Rmd" class="external-link"><code>vignettes/v04-kernels-guide.Rmd</code></a></small>
@@ -56,99 +56,19 @@
 
     
     
-<p>What you’ll learn: how each kernel shapes the DP mixture (via the
-index <code>j</code>), what domains they cover, and how to pick the
-right kernel for a given dataset with a decision-style guide.</p>
-<div class="section level2">
-<h2 id="kernel-registry-and-naming">Kernel registry and naming<a class="anchor" aria-label="anchor" href="#kernel-registry-and-naming"></a>
-</h2>
-<p>DPmixGPD exposes a registry where each kernel family provides
-density, quantile, and RNG functions under consistent names
-(<code>dGammaMix</code>, <code>qGammaMix</code>, <code>rGammaMix</code>,
-etc.). The <code>j</code>-th component always shares the same parameter
-layout across kernels (location, scale, shape), and the components count
-is controlled by <code>J</code> only.</p>
-<table class="table">
-<colgroup>
-<col width="25%">
-<col width="25%">
-<col width="25%">
-<col width="25%">
-</colgroup>
-<thead><tr class="header">
-<th>Kernel</th>
-<th>Support</th>
-<th>Shape hints</th>
-<th>Recommended use</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td><code>normal</code></td>
-<td><code>(-Inf, Inf)</code></td>
-<td>location &amp; scale</td>
-<td>Symmetric data with light tails; fast mixing.</td>
-</tr>
-<tr class="even">
-<td><code>lognormal</code></td>
-<td><code>(0, Inf)</code></td>
-<td>log-scale mean &amp; sd</td>
-<td>Positive skew; natural for positive incomes or durations.</td>
-</tr>
-<tr class="odd">
-<td><code>gamma</code></td>
-<td><code>(0, Inf)</code></td>
-<td>shape &amp; scale</td>
-<td>Heavy-tailed positive data, interpretable tail shape.</td>
-</tr>
-<tr class="even">
-<td><code>Laplace</code></td>
-<td><code>(-Inf, Inf)</code></td>
-<td>double exponential</td>
-<td>Sharp center with heavier tails than normal.</td>
-</tr>
-<tr class="odd">
-<td><code>inverse Gaussian</code></td>
-<td><code>(0, Inf)</code></td>
-<td>mean &amp; shape</td>
-<td>Right-skewed durations when variance grows cubically.</td>
-</tr>
-<tr class="even">
-<td><code>Amoroso</code></td>
-<td><code>(0, Inf)</code></td>
-<td>location, scale, shape</td>
-<td>Flexible extreme skew with explicit tail shape control.</td>
-</tr>
-<tr class="odd">
-<td><code>Cauchy</code></td>
-<td><code>(-Inf, Inf)</code></td>
-<td>location &amp; scale</td>
-<td>Very heavy tails; anchors tail behavior when GPD is off.</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section level2">
-<h2 id="decision-guide">Decision guide<a class="anchor" aria-label="anchor" href="#decision-guide"></a>
-</h2>
-<ol style="list-style-type: decimal">
-<li>Are your data strictly positive? If yes, stay in
-<code>(0, Inf)</code> kernels (<code>lognormal</code>,
-<code>gamma</code>, <code>amoroso</code>,
-<code>inverse Gaussian</code>).</li>
-<li>Do you need a flexible tail shape within the kernel itself (before
-the GPD kick-in)? Choose <code>Amoroso</code> or <code>Cauchy</code> for
-wide tail control.</li>
-<li>Need interpretable mean/variance for a symmetric central mass? Use
-<code>normal</code> or <code>Laplace</code> and rely on GPD for
-extremes.</li>
-<li>When the dataset shows multiple modes, increase <code>J</code> and
-keep the kernel simple to avoid identifiability issues.</li>
-</ol>
-</div>
-<div class="section level2">
-<h2 id="minimal-kernel-example">Minimal kernel example<a class="anchor" aria-label="anchor" href="#minimal-kernel-example"></a>
-</h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://example.com/DPmixGPD">DPmixGPD</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://r-nimble.org" class="external-link">nimble</a></span><span class="op">)</span></span>
+<span><span class="va">use_cached_fit</span> <span class="op">&lt;-</span> <span class="cn">TRUE</span></span>
+<span><span class="va">.fit_path</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">name</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="va">name</span>, package <span class="op">=</span> <span class="st">"DPmixGPD"</span><span class="op">)</span></span>
+<span>  <span class="kw">if</span> <span class="op">(</span><span class="va">path</span> <span class="op">==</span> <span class="st">""</span><span class="op">)</span> <span class="va">path</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="st">"inst"</span>, <span class="st">"extdata"</span>, <span class="va">name</span><span class="op">)</span></span>
+<span>  <span class="va">path</span></span>
+<span><span class="op">}</span></span>
+<span><span class="va">fit_small</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">readRDS</a></span><span class="op">(</span><span class="fu">.fit_path</span><span class="op">(</span><span class="st">"fit_small.rds"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_bulk_tail.html">sim_bulk_tail</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">160</span>, seed <span class="op">=</span> <span class="fl">77</span><span class="op">)</span></span>
 <span><span class="va">bundle</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_nimble_bundle.html">build_nimble_bundle</a></span><span class="op">(</span></span>
 <span>  y <span class="op">=</span> <span class="va">y</span>,</span>
@@ -163,21 +83,13 @@ keep the kernel simple to avoid identifiability issues.</li>
 <span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
 <span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mcmc_bundle_manual.html">run_mcmc_bundle_manual</a></span><span class="op">(</span><span class="va">bundle</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="diagnostic-plot">Diagnostic plot<a class="anchor" aria-label="anchor" href="#diagnostic-plot"></a>
-</h2>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">ggplot</span><span class="op">(</span><span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">geom_histogram</span><span class="op">(</span>boundary <span class="op">=</span> <span class="fl">0</span>, bins <span class="op">=</span> <span class="fl">30</span>, fill <span class="op">=</span> <span class="st">"coral"</span>, alpha <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span> <span class="op">+</span></span>
-<span>  <span class="fu">labs</span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Data histogram showing bulk + tail"</span>, x <span class="op">=</span> <span class="st">"y"</span>, y <span class="op">=</span> <span class="st">"Count"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="v04-kernels-guide_files/figure-html/kernel-plot-1.png" class="r-plt" alt="" width="576"></p>
-</div>
-<div class="section level2">
-<h2 id="prediction-example">Prediction example<a class="anchor" aria-label="anchor" href="#prediction-example"></a>
-</h2>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">y</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_histogram.html" class="external-link">geom_histogram</a></span><span class="op">(</span>boundary <span class="op">=</span> <span class="fl">0</span>, bins <span class="op">=</span> <span class="fl">30</span>, fill <span class="op">=</span> <span class="st">"coral"</span>, alpha <span class="op">=</span> <span class="fl">0.6</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Data histogram showing bulk + tail"</span>, x <span class="op">=</span> <span class="st">"y"</span>, y <span class="op">=</span> <span class="st">"Count"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="v04-kernels-guide_files/figure-html/kernel-plot-1.png" class="r-plt" alt="" width="576"></p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">predicted</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.9</span>, <span class="fl">0.99</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">predicted</span></span>
 <span><span class="co">#&gt; $fit</span></span>
@@ -194,25 +106,141 @@ keep the kernel simple to avoid identifiability issues.</li>
 <span><span class="co">#&gt; [1] "quantile"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $grid</span></span>
-<span><span class="co">#&gt; [1] 0.50 0.90 0.99</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="kernel-recommendations-summary">Kernel recommendations summary<a class="anchor" aria-label="anchor" href="#kernel-recommendations-summary"></a>
-</h2>
-<ul>
-<li>Use <code>lognormal</code>/<code>gamma</code> for positive,
-moderately heavy tails where standard priors suffice.</li>
-<li>Use <code>normal</code>/<code>Laplace</code> when symmetry is
-expected and tails do not dominate.</li>
-<li>Explore <code>Amoroso</code> when you want implicit tail shape
-control inside the bulk, remembering that a nontrivial threshold still
-keeps the GPD tail smooth.</li>
-</ul>
-</div>
-<div class="section level2">
-<h2 id="session-info">Session info<a class="anchor" aria-label="anchor" href="#session-info"></a>
-</h2>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<span><span class="co">#&gt; [1] 0.50 0.90 0.99</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $draws</span></span>
+<span><span class="co">#&gt; , , 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;           [,1]</span></span>
+<span><span class="co">#&gt;  [1,] 2.084684</span></span>
+<span><span class="co">#&gt;  [2,] 1.761678</span></span>
+<span><span class="co">#&gt;  [3,] 1.711988</span></span>
+<span><span class="co">#&gt;  [4,] 2.488099</span></span>
+<span><span class="co">#&gt;  [5,] 2.076856</span></span>
+<span><span class="co">#&gt;  [6,] 1.980510</span></span>
+<span><span class="co">#&gt;  [7,] 1.814564</span></span>
+<span><span class="co">#&gt;  [8,] 2.015153</span></span>
+<span><span class="co">#&gt;  [9,] 2.182712</span></span>
+<span><span class="co">#&gt; [10,] 2.031181</span></span>
+<span><span class="co">#&gt; [11,] 2.258826</span></span>
+<span><span class="co">#&gt; [12,] 2.569372</span></span>
+<span><span class="co">#&gt; [13,] 2.218166</span></span>
+<span><span class="co">#&gt; [14,] 2.193250</span></span>
+<span><span class="co">#&gt; [15,] 2.682655</span></span>
+<span><span class="co">#&gt; [16,] 2.117570</span></span>
+<span><span class="co">#&gt; [17,] 2.296713</span></span>
+<span><span class="co">#&gt; [18,] 2.129176</span></span>
+<span><span class="co">#&gt; [19,] 2.790298</span></span>
+<span><span class="co">#&gt; [20,] 2.822541</span></span>
+<span><span class="co">#&gt; [21,] 3.457669</span></span>
+<span><span class="co">#&gt; [22,] 2.982656</span></span>
+<span><span class="co">#&gt; [23,] 2.594728</span></span>
+<span><span class="co">#&gt; [24,] 2.355118</span></span>
+<span><span class="co">#&gt; [25,] 2.245933</span></span>
+<span><span class="co">#&gt; [26,] 2.183629</span></span>
+<span><span class="co">#&gt; [27,] 1.964829</span></span>
+<span><span class="co">#&gt; [28,] 2.134337</span></span>
+<span><span class="co">#&gt; [29,] 2.835128</span></span>
+<span><span class="co">#&gt; [30,] 2.387545</span></span>
+<span><span class="co">#&gt; [31,] 2.352759</span></span>
+<span><span class="co">#&gt; [32,] 3.252944</span></span>
+<span><span class="co">#&gt; [33,] 3.306005</span></span>
+<span><span class="co">#&gt; [34,] 2.716700</span></span>
+<span><span class="co">#&gt; [35,] 2.742817</span></span>
+<span><span class="co">#&gt; [36,] 2.507197</span></span>
+<span><span class="co">#&gt; [37,] 2.553163</span></span>
+<span><span class="co">#&gt; [38,] 3.063924</span></span>
+<span><span class="co">#&gt; [39,] 3.017153</span></span>
+<span><span class="co">#&gt; [40,] 2.908632</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; , , 2</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;            [,1]</span></span>
+<span><span class="co">#&gt;  [1,]  6.922057</span></span>
+<span><span class="co">#&gt;  [2,]  9.929835</span></span>
+<span><span class="co">#&gt;  [3,]  7.849458</span></span>
+<span><span class="co">#&gt;  [4,]  7.269094</span></span>
+<span><span class="co">#&gt;  [5,]  8.674310</span></span>
+<span><span class="co">#&gt;  [6,]  7.781911</span></span>
+<span><span class="co">#&gt;  [7,]  8.536297</span></span>
+<span><span class="co">#&gt;  [8,] 10.888322</span></span>
+<span><span class="co">#&gt;  [9,] 11.407774</span></span>
+<span><span class="co">#&gt; [10,] 10.809059</span></span>
+<span><span class="co">#&gt; [11,]  9.291378</span></span>
+<span><span class="co">#&gt; [12,]  9.973406</span></span>
+<span><span class="co">#&gt; [13,] 10.977226</span></span>
+<span><span class="co">#&gt; [14,]  8.564296</span></span>
+<span><span class="co">#&gt; [15,] 10.137487</span></span>
+<span><span class="co">#&gt; [16,]  9.616081</span></span>
+<span><span class="co">#&gt; [17,] 10.518063</span></span>
+<span><span class="co">#&gt; [18,]  9.349740</span></span>
+<span><span class="co">#&gt; [19,]  7.093746</span></span>
+<span><span class="co">#&gt; [20,]  7.202073</span></span>
+<span><span class="co">#&gt; [21,]  7.656602</span></span>
+<span><span class="co">#&gt; [22,]  7.060898</span></span>
+<span><span class="co">#&gt; [23,]  8.188712</span></span>
+<span><span class="co">#&gt; [24,] 10.574160</span></span>
+<span><span class="co">#&gt; [25,]  9.003591</span></span>
+<span><span class="co">#&gt; [26,] 11.601075</span></span>
+<span><span class="co">#&gt; [27,] 12.098963</span></span>
+<span><span class="co">#&gt; [28,] 11.249864</span></span>
+<span><span class="co">#&gt; [29,]  9.996349</span></span>
+<span><span class="co">#&gt; [30,] 11.637079</span></span>
+<span><span class="co">#&gt; [31,]  9.994232</span></span>
+<span><span class="co">#&gt; [32,]  8.581701</span></span>
+<span><span class="co">#&gt; [33,]  8.387645</span></span>
+<span><span class="co">#&gt; [34,]  8.502619</span></span>
+<span><span class="co">#&gt; [35,]  9.427534</span></span>
+<span><span class="co">#&gt; [36,]  8.093170</span></span>
+<span><span class="co">#&gt; [37,]  6.892583</span></span>
+<span><span class="co">#&gt; [38,]  7.841883</span></span>
+<span><span class="co">#&gt; [39,]  6.846457</span></span>
+<span><span class="co">#&gt; [40,]  7.683458</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; , , 3</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;            [,1]</span></span>
+<span><span class="co">#&gt;  [1,]  6.940669</span></span>
+<span><span class="co">#&gt;  [2,] 10.001269</span></span>
+<span><span class="co">#&gt;  [3,]  7.892106</span></span>
+<span><span class="co">#&gt;  [4,]  8.047300</span></span>
+<span><span class="co">#&gt;  [5,]  8.730017</span></span>
+<span><span class="co">#&gt;  [6,]  7.898060</span></span>
+<span><span class="co">#&gt;  [7,]  8.635948</span></span>
+<span><span class="co">#&gt;  [8,] 10.974305</span></span>
+<span><span class="co">#&gt;  [9,] 11.514343</span></span>
+<span><span class="co">#&gt; [10,] 10.908402</span></span>
+<span><span class="co">#&gt; [11,]  9.368573</span></span>
+<span><span class="co">#&gt; [12,] 10.025695</span></span>
+<span><span class="co">#&gt; [13,] 11.052129</span></span>
+<span><span class="co">#&gt; [14,]  8.662864</span></span>
+<span><span class="co">#&gt; [15,] 10.187352</span></span>
+<span><span class="co">#&gt; [16,]  9.726254</span></span>
+<span><span class="co">#&gt; [17,] 10.599216</span></span>
+<span><span class="co">#&gt; [18,]  9.408858</span></span>
+<span><span class="co">#&gt; [19,]  7.959782</span></span>
+<span><span class="co">#&gt; [20,]  8.077162</span></span>
+<span><span class="co">#&gt; [21,] 12.771266</span></span>
+<span><span class="co">#&gt; [22,] 11.991325</span></span>
+<span><span class="co">#&gt; [23,]  9.614849</span></span>
+<span><span class="co">#&gt; [24,] 10.638202</span></span>
+<span><span class="co">#&gt; [25,]  9.075780</span></span>
+<span><span class="co">#&gt; [26,] 11.656349</span></span>
+<span><span class="co">#&gt; [27,] 12.186191</span></span>
+<span><span class="co">#&gt; [28,] 11.361047</span></span>
+<span><span class="co">#&gt; [29,] 10.126874</span></span>
+<span><span class="co">#&gt; [30,] 11.704180</span></span>
+<span><span class="co">#&gt; [31,] 10.048769</span></span>
+<span><span class="co">#&gt; [32,] 12.580507</span></span>
+<span><span class="co">#&gt; [33,] 15.995817</span></span>
+<span><span class="co">#&gt; [34,] 10.667164</span></span>
+<span><span class="co">#&gt; [35,] 10.028026</span></span>
+<span><span class="co">#&gt; [36,] 10.683938</span></span>
+<span><span class="co">#&gt; [37,]  8.178431</span></span>
+<span><span class="co">#&gt; [38,] 10.217301</span></span>
+<span><span class="co">#&gt; [39,] 10.502276</span></span>
+<span><span class="co">#&gt; [40,]  9.549562</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; R version 4.5.2 (2025-10-31 ucrt)</span></span>
 <span><span class="co">#&gt; Platform: x86_64-w64-mingw32/x64</span></span>
@@ -251,15 +279,13 @@ keeps the GPD tail smooth.</li>
 <span><span class="co">#&gt; [31] globals_0.18.0      vctrs_0.6.5         R6_2.6.1           </span></span>
 <span><span class="co">#&gt; [34] lifecycle_1.0.4     fs_1.6.6            htmlwidgets_1.6.4  </span></span>
 <span><span class="co">#&gt; [37] ragg_1.5.0          pkgconfig_2.0.3     desc_1.4.3         </span></span>
-<span><span class="co">#&gt; [40] pillar_1.11.1       pkgdown_2.2.0       bslib_0.9.0        </span></span>
+<span><span class="co">#&gt; [40] pkgdown_2.2.0       bslib_0.9.0         pillar_1.11.1      </span></span>
 <span><span class="co">#&gt; [43] gtable_0.3.6        glue_1.8.0          systemfonts_1.3.1  </span></span>
 <span><span class="co">#&gt; [46] tidyselect_1.2.1    tibble_3.3.0        xfun_0.55          </span></span>
-<span><span class="co">#&gt; [49] rstudioapi_0.17.1   knitr_1.51          farver_2.1.2       </span></span>
-<span><span class="co">#&gt; [52] htmltools_0.5.9     igraph_2.2.1        labeling_0.4.3     </span></span>
-<span><span class="co">#&gt; [55] rmarkdown_2.30      compiler_4.5.2      S7_0.2.1</span></span></code></pre></div>
-</div>
-  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
-    </nav></aside>
+<span><span class="co">#&gt; [49] knitr_1.51          farver_2.1.2        htmltools_0.5.9    </span></span>
+<span><span class="co">#&gt; [52] igraph_2.2.1        labeling_0.4.3      rmarkdown_2.30     </span></span>
+<span><span class="co">#&gt; [55] compiler_4.5.2      S7_0.2.1</span></span></code></pre></div>
+  </main>
 </div>
 
 

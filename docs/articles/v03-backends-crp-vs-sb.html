@@ -115,7 +115,7 @@
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Quantiles by backend"</span>, y <span class="op">=</span> <span class="st">"Quantile"</span>, x <span class="op">=</span> <span class="st">"Probability"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="v03-backends-crp-vs-sb_files/figure-html/backend-plot-1.png" width="576"></p>
+<p><img src="v03-backends-crp-vs-sb_files/figure-html/backend-plot-1.png" class="r-plt" alt="" width="576"></p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">quantiles_sb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_sb</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.95</span>, <span class="fl">.99</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">quantiles_crp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_crp</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.95</span>, <span class="fl">.99</span><span class="op">)</span><span class="op">)</span></span>
@@ -137,6 +137,96 @@
 <span><span class="co">#&gt; $sb$grid</span></span>
 <span><span class="co">#&gt; [1] 0.95 0.99</span></span>
 <span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $sb$draws</span></span>
+<span><span class="co">#&gt; , , 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;            [,1]</span></span>
+<span><span class="co">#&gt;  [1,]  6.929665</span></span>
+<span><span class="co">#&gt;  [2,]  9.958749</span></span>
+<span><span class="co">#&gt;  [3,]  7.866946</span></span>
+<span><span class="co">#&gt;  [4,]  7.291517</span></span>
+<span><span class="co">#&gt;  [5,]  8.695036</span></span>
+<span><span class="co">#&gt;  [6,]  7.824644</span></span>
+<span><span class="co">#&gt;  [7,]  8.576632</span></span>
+<span><span class="co">#&gt;  [8,] 10.926664</span></span>
+<span><span class="co">#&gt;  [9,] 11.449937</span></span>
+<span><span class="co">#&gt; [10,] 10.852902</span></span>
+<span><span class="co">#&gt; [11,]  9.323045</span></span>
+<span><span class="co">#&gt; [12,]  9.995353</span></span>
+<span><span class="co">#&gt; [13,] 11.011613</span></span>
+<span><span class="co">#&gt; [14,]  8.606066</span></span>
+<span><span class="co">#&gt; [15,] 10.157453</span></span>
+<span><span class="co">#&gt; [16,]  9.665001</span></span>
+<span><span class="co">#&gt; [17,] 10.551923</span></span>
+<span><span class="co">#&gt; [18,]  9.373644</span></span>
+<span><span class="co">#&gt; [19,]  7.118737</span></span>
+<span><span class="co">#&gt; [20,]  7.219051</span></span>
+<span><span class="co">#&gt; [21,]  8.991530</span></span>
+<span><span class="co">#&gt; [22,]  8.422021</span></span>
+<span><span class="co">#&gt; [23,]  8.245483</span></span>
+<span><span class="co">#&gt; [24,] 10.600519</span></span>
+<span><span class="co">#&gt; [25,]  9.030669</span></span>
+<span><span class="co">#&gt; [26,] 11.626650</span></span>
+<span><span class="co">#&gt; [27,] 12.137861</span></span>
+<span><span class="co">#&gt; [28,] 11.299427</span></span>
+<span><span class="co">#&gt; [29,] 10.045535</span></span>
+<span><span class="co">#&gt; [30,] 11.666167</span></span>
+<span><span class="co">#&gt; [31,] 10.016763</span></span>
+<span><span class="co">#&gt; [32,]  8.981712</span></span>
+<span><span class="co">#&gt; [33,] 10.616308</span></span>
+<span><span class="co">#&gt; [34,]  8.548509</span></span>
+<span><span class="co">#&gt; [35,]  9.463882</span></span>
+<span><span class="co">#&gt; [36,]  8.134691</span></span>
+<span><span class="co">#&gt; [37,]  6.925275</span></span>
+<span><span class="co">#&gt; [38,]  7.877141</span></span>
+<span><span class="co">#&gt; [39,]  7.447362</span></span>
+<span><span class="co">#&gt; [40,]  7.722888</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; , , 2</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;            [,1]</span></span>
+<span><span class="co">#&gt;  [1,]  6.940669</span></span>
+<span><span class="co">#&gt;  [2,] 10.001269</span></span>
+<span><span class="co">#&gt;  [3,]  7.892106</span></span>
+<span><span class="co">#&gt;  [4,]  8.047300</span></span>
+<span><span class="co">#&gt;  [5,]  8.730017</span></span>
+<span><span class="co">#&gt;  [6,]  7.898060</span></span>
+<span><span class="co">#&gt;  [7,]  8.635948</span></span>
+<span><span class="co">#&gt;  [8,] 10.974305</span></span>
+<span><span class="co">#&gt;  [9,] 11.514343</span></span>
+<span><span class="co">#&gt; [10,] 10.908402</span></span>
+<span><span class="co">#&gt; [11,]  9.368573</span></span>
+<span><span class="co">#&gt; [12,] 10.025695</span></span>
+<span><span class="co">#&gt; [13,] 11.052129</span></span>
+<span><span class="co">#&gt; [14,]  8.662864</span></span>
+<span><span class="co">#&gt; [15,] 10.187352</span></span>
+<span><span class="co">#&gt; [16,]  9.726254</span></span>
+<span><span class="co">#&gt; [17,] 10.599216</span></span>
+<span><span class="co">#&gt; [18,]  9.408858</span></span>
+<span><span class="co">#&gt; [19,]  7.959782</span></span>
+<span><span class="co">#&gt; [20,]  8.077162</span></span>
+<span><span class="co">#&gt; [21,] 12.771266</span></span>
+<span><span class="co">#&gt; [22,] 11.991325</span></span>
+<span><span class="co">#&gt; [23,]  9.614849</span></span>
+<span><span class="co">#&gt; [24,] 10.638202</span></span>
+<span><span class="co">#&gt; [25,]  9.075780</span></span>
+<span><span class="co">#&gt; [26,] 11.656349</span></span>
+<span><span class="co">#&gt; [27,] 12.186191</span></span>
+<span><span class="co">#&gt; [28,] 11.361047</span></span>
+<span><span class="co">#&gt; [29,] 10.126874</span></span>
+<span><span class="co">#&gt; [30,] 11.704180</span></span>
+<span><span class="co">#&gt; [31,] 10.048769</span></span>
+<span><span class="co">#&gt; [32,] 12.580507</span></span>
+<span><span class="co">#&gt; [33,] 15.995817</span></span>
+<span><span class="co">#&gt; [34,] 10.667164</span></span>
+<span><span class="co">#&gt; [35,] 10.028026</span></span>
+<span><span class="co">#&gt; [36,] 10.683938</span></span>
+<span><span class="co">#&gt; [37,]  8.178431</span></span>
+<span><span class="co">#&gt; [38,] 10.217301</span></span>
+<span><span class="co">#&gt; [39,] 10.502276</span></span>
+<span><span class="co">#&gt; [40,]  9.549562</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $crp</span></span>
 <span><span class="co">#&gt; $crp$fit</span></span>
@@ -153,10 +243,99 @@
 <span><span class="co">#&gt; [1] "quantile"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $crp$grid</span></span>
-<span><span class="co">#&gt; [1] 0.95 0.99</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.95 0.99</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $crp$draws</span></span>
+<span><span class="co">#&gt; , , 1</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;           [,1]</span></span>
+<span><span class="co">#&gt;  [1,] 5.973889</span></span>
+<span><span class="co">#&gt;  [2,] 4.143095</span></span>
+<span><span class="co">#&gt;  [3,] 6.303017</span></span>
+<span><span class="co">#&gt;  [4,] 5.393639</span></span>
+<span><span class="co">#&gt;  [5,] 5.665007</span></span>
+<span><span class="co">#&gt;  [6,] 5.704462</span></span>
+<span><span class="co">#&gt;  [7,] 5.575355</span></span>
+<span><span class="co">#&gt;  [8,] 4.981130</span></span>
+<span><span class="co">#&gt;  [9,] 6.817053</span></span>
+<span><span class="co">#&gt; [10,] 5.504416</span></span>
+<span><span class="co">#&gt; [11,] 7.880743</span></span>
+<span><span class="co">#&gt; [12,] 7.417320</span></span>
+<span><span class="co">#&gt; [13,] 7.168920</span></span>
+<span><span class="co">#&gt; [14,] 7.647529</span></span>
+<span><span class="co">#&gt; [15,] 7.189945</span></span>
+<span><span class="co">#&gt; [16,] 7.918183</span></span>
+<span><span class="co">#&gt; [17,] 7.533366</span></span>
+<span><span class="co">#&gt; [18,] 7.527035</span></span>
+<span><span class="co">#&gt; [19,] 6.358586</span></span>
+<span><span class="co">#&gt; [20,] 6.992188</span></span>
+<span><span class="co">#&gt; [21,] 6.194547</span></span>
+<span><span class="co">#&gt; [22,] 7.324317</span></span>
+<span><span class="co">#&gt; [23,] 9.923598</span></span>
+<span><span class="co">#&gt; [24,] 7.237262</span></span>
+<span><span class="co">#&gt; [25,] 5.121328</span></span>
+<span><span class="co">#&gt; [26,] 7.279319</span></span>
+<span><span class="co">#&gt; [27,] 5.884030</span></span>
+<span><span class="co">#&gt; [28,] 5.847272</span></span>
+<span><span class="co">#&gt; [29,] 7.850104</span></span>
+<span><span class="co">#&gt; [30,] 7.844092</span></span>
+<span><span class="co">#&gt; [31,] 8.429925</span></span>
+<span><span class="co">#&gt; [32,] 7.181795</span></span>
+<span><span class="co">#&gt; [33,] 7.530765</span></span>
+<span><span class="co">#&gt; [34,] 6.177192</span></span>
+<span><span class="co">#&gt; [35,] 5.588682</span></span>
+<span><span class="co">#&gt; [36,] 5.984462</span></span>
+<span><span class="co">#&gt; [37,] 6.832751</span></span>
+<span><span class="co">#&gt; [38,] 8.907594</span></span>
+<span><span class="co">#&gt; [39,] 7.827805</span></span>
+<span><span class="co">#&gt; [40,] 7.864514</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; , , 2</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt;            [,1]</span></span>
+<span><span class="co">#&gt;  [1,]  6.011731</span></span>
+<span><span class="co">#&gt;  [2,]  5.435727</span></span>
+<span><span class="co">#&gt;  [3,]  6.377426</span></span>
+<span><span class="co">#&gt;  [4,]  6.014438</span></span>
+<span><span class="co">#&gt;  [5,]  5.740942</span></span>
+<span><span class="co">#&gt;  [6,]  7.003482</span></span>
+<span><span class="co">#&gt;  [7,]  6.810887</span></span>
+<span><span class="co">#&gt;  [8,]  7.187809</span></span>
+<span><span class="co">#&gt;  [9,]  6.849723</span></span>
+<span><span class="co">#&gt; [10,]  5.575837</span></span>
+<span><span class="co">#&gt; [11,]  7.914270</span></span>
+<span><span class="co">#&gt; [12,]  7.469354</span></span>
+<span><span class="co">#&gt; [13,]  7.226623</span></span>
+<span><span class="co">#&gt; [14,]  7.700364</span></span>
+<span><span class="co">#&gt; [15,]  7.251031</span></span>
+<span><span class="co">#&gt; [16,]  7.953103</span></span>
+<span><span class="co">#&gt; [17,]  7.597097</span></span>
+<span><span class="co">#&gt; [18,]  7.660414</span></span>
+<span><span class="co">#&gt; [19,]  6.436706</span></span>
+<span><span class="co">#&gt; [20,]  7.133989</span></span>
+<span><span class="co">#&gt; [21,]  9.146687</span></span>
+<span><span class="co">#&gt; [22,]  7.368526</span></span>
+<span><span class="co">#&gt; [23,]  9.966790</span></span>
+<span><span class="co">#&gt; [24,] 10.909731</span></span>
+<span><span class="co">#&gt; [25,]  6.816527</span></span>
+<span><span class="co">#&gt; [26,]  7.689156</span></span>
+<span><span class="co">#&gt; [27,]  5.950959</span></span>
+<span><span class="co">#&gt; [28,]  7.934071</span></span>
+<span><span class="co">#&gt; [29,]  7.899707</span></span>
+<span><span class="co">#&gt; [30,]  7.878669</span></span>
+<span><span class="co">#&gt; [31,]  9.484708</span></span>
+<span><span class="co">#&gt; [32,]  7.262317</span></span>
+<span><span class="co">#&gt; [33,]  9.293618</span></span>
+<span><span class="co">#&gt; [34,]  7.151952</span></span>
+<span><span class="co">#&gt; [35,]  6.236860</span></span>
+<span><span class="co">#&gt; [36,]  6.943981</span></span>
+<span><span class="co">#&gt; [37,]  6.888865</span></span>
+<span><span class="co">#&gt; [38,]  8.933634</span></span>
+<span><span class="co">#&gt; [39,]  8.422049</span></span>
+<span><span class="co">#&gt; [40,]  7.944840</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; R version 4.5.1 (2025-06-13 ucrt)</span></span>
+<span><span class="co">#&gt; R version 4.5.2 (2025-10-31 ucrt)</span></span>
 <span><span class="co">#&gt; Platform: x86_64-w64-mingw32/x64</span></span>
 <span><span class="co">#&gt; Running under: Windows 11 x64 (build 26100)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -182,23 +361,23 @@
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
 <span><span class="co">#&gt;  [1] sass_0.4.10         future_1.68.0       generics_0.1.4     </span></span>
 <span><span class="co">#&gt;  [4] renv_1.1.5          lattice_0.22-7      listenv_0.10.0     </span></span>
-<span><span class="co">#&gt;  [7] pracma_2.4.6        digest_0.6.39       magrittr_2.0.3     </span></span>
-<span><span class="co">#&gt; [10] evaluate_1.0.5      grid_4.5.1          RColorBrewer_1.1-3 </span></span>
+<span><span class="co">#&gt;  [7] pracma_2.4.6        digest_0.6.39       magrittr_2.0.4     </span></span>
+<span><span class="co">#&gt; [10] evaluate_1.0.5      grid_4.5.2          RColorBrewer_1.1-3 </span></span>
 <span><span class="co">#&gt; [13] fastmap_1.2.0       jsonlite_2.0.0      scales_1.4.0       </span></span>
-<span><span class="co">#&gt; [16] codetools_0.2-20    numDeriv_2016.8-1.1 textshaping_1.0.1  </span></span>
+<span><span class="co">#&gt; [16] codetools_0.2-20    numDeriv_2016.8-1.1 textshaping_1.0.4  </span></span>
 <span><span class="co">#&gt; [19] jquerylib_0.1.4     cli_3.6.5           rlang_1.1.6        </span></span>
-<span><span class="co">#&gt; [22] parallelly_1.46.1   future.apply_1.20.1 withr_3.0.2        </span></span>
-<span><span class="co">#&gt; [25] cachem_1.1.0        yaml_2.3.10         tools_4.5.1        </span></span>
-<span><span class="co">#&gt; [28] parallel_4.5.1      coda_0.19-4.1       dplyr_1.1.4        </span></span>
-<span><span class="co">#&gt; [31] globals_0.18.0      vctrs_0.6.5         R6_2.6.1           </span></span>
-<span><span class="co">#&gt; [34] lifecycle_1.0.5     fs_1.6.6            htmlwidgets_1.6.4  </span></span>
-<span><span class="co">#&gt; [37] ragg_1.5.0          pkgconfig_2.0.3     desc_1.4.3         </span></span>
-<span><span class="co">#&gt; [40] pkgdown_2.1.3       bslib_0.9.0         pillar_1.11.1      </span></span>
-<span><span class="co">#&gt; [43] gtable_0.3.6        glue_1.8.0          systemfonts_1.2.3  </span></span>
-<span><span class="co">#&gt; [46] xfun_0.52           tibble_3.3.0        tidyselect_1.2.1   </span></span>
-<span><span class="co">#&gt; [49] knitr_1.50          farver_2.1.2        htmltools_0.5.8.1  </span></span>
-<span><span class="co">#&gt; [52] igraph_2.2.1        labeling_0.4.3      rmarkdown_2.30     </span></span>
-<span><span class="co">#&gt; [55] compiler_4.5.1      S7_0.2.1</span></span></code></pre></div>
+<span><span class="co">#&gt; [22] parallelly_1.46.0   future.apply_1.20.1 withr_3.0.2        </span></span>
+<span><span class="co">#&gt; [25] cachem_1.1.0        yaml_2.3.12         otel_0.2.0         </span></span>
+<span><span class="co">#&gt; [28] tools_4.5.2         parallel_4.5.2      coda_0.19-4.1      </span></span>
+<span><span class="co">#&gt; [31] dplyr_1.1.4         globals_0.18.0      vctrs_0.6.5        </span></span>
+<span><span class="co">#&gt; [34] R6_2.6.1            lifecycle_1.0.4     fs_1.6.6           </span></span>
+<span><span class="co">#&gt; [37] htmlwidgets_1.6.4   ragg_1.5.0          pkgconfig_2.0.3    </span></span>
+<span><span class="co">#&gt; [40] desc_1.4.3          pkgdown_2.2.0       bslib_0.9.0        </span></span>
+<span><span class="co">#&gt; [43] pillar_1.11.1       gtable_0.3.6        glue_1.8.0         </span></span>
+<span><span class="co">#&gt; [46] systemfonts_1.3.1   tidyselect_1.2.1    tibble_3.3.0       </span></span>
+<span><span class="co">#&gt; [49] xfun_0.55           knitr_1.51          farver_2.1.2       </span></span>
+<span><span class="co">#&gt; [52] htmltools_0.5.9     igraph_2.2.1        labeling_0.4.3     </span></span>
+<span><span class="co">#&gt; [55] rmarkdown_2.30      compiler_4.5.2      S7_0.2.1</span></span></code></pre></div>
   </main>
 </div>
 
@@ -209,7 +388,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

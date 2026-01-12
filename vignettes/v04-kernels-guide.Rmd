@@ -33,8 +33,11 @@ library(ggplot2)
 library(dplyr)
 ```
 
-```{r kernel-example}
+```{r kernel-data-gen}
 y <- sim_bulk_tail(n = 160, seed = 77)
+```
+
+```{r kernel-model-spec}
 bundle <- build_nimble_bundle(
   y = y,
   backend = "sb",
@@ -43,6 +46,9 @@ bundle <- build_nimble_bundle(
   J = 6,
   mcmc = list(niter = 200, nburnin = 50, thin = 2, nchains = 2, seed = c(1, 2))
 )
+```
+
+```{r kernel-fit-mcmc}
 if (use_cached_fit) {
   fit <- fit_small
 } else {
@@ -50,14 +56,14 @@ if (use_cached_fit) {
 }
 ```
 
-```{r kernel-plot}
+```{r kernel-viz-data}
 data.frame(y = y) |>
   ggplot(aes(x = y)) +
   geom_histogram(boundary = 0, bins = 30, fill = "coral", alpha = 0.6) +
   labs(title = "Data histogram showing bulk + tail", x = "y", y = "Count")
 ```
 
-```{r kernel-pred}
+```{r kernel-s3-predict}
 predicted <- predict(fit, type = "quantile", p = c(0.5, 0.9, 0.99))
 predicted
 ```
