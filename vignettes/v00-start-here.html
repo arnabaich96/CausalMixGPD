@@ -12,7 +12,7 @@
 
 
 
-<title>Start Here: What DPmixGPD Does</title>
+<title>Start Here</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -337,74 +337,10 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<h1 class="title toc-ignore">Start Here: What DPmixGPD Does</h1>
+<h1 class="title toc-ignore">Start Here</h1>
 
 
 
-<p>What you’ll learn: how DPmixGPD splits bulk and tail modelling, what
-outputs you get, and where to go next.</p>
-<div id="what-problem-are-we-solving" class="section level2">
-<h2>What problem are we solving?</h2>
-<p>Standard single-distribution fits throw up their hands when data are
-sparse in the tail: the bulk dominates, heavy excursions are ignored,
-and probabilistic forecasts understate rare events. DPmixGPD targets
-precisely that regime by pairing a flexible Dirichlet process mixture in
-the bulk with a dedicated generalized Pareto tail beyond a threshold so
-you can keep inference honest on extremes.</p>
-</div>
-<div id="what-dpmixgpd-fits" class="section level2">
-<h2>What DPmixGPD fits</h2>
-<ul>
-<li><strong>Bulk model:</strong> DP mixture over kernels
-(<code>normal</code>, <code>gamma</code>, <code>lognormal</code>,
-<code>Laplace</code>, <code>inverse Gaussian</code>,
-<code>Amoroso</code>) delivers adaptively shaped density/conditional
-models.</li>
-<li><strong>Tail model:</strong> a Generalized Pareto Distribution is
-glued on at a learned threshold, with smooth transitions and optional
-covariate links.</li>
-<li><strong>Prediction:</strong> the same fitted object can forecast
-densities, survival curves, quantiles, and posterior predictive
-draws.</li>
-</ul>
-</div>
-<div id="two-workflows" class="section level2">
-<h2>Two workflows</h2>
-<div id="density-regression" class="section level3">
-<h3>Density / regression</h3>
-<p>You build a bundle, run MCMC once, and derive density or quantile
-estimates via <code>predict()</code> for new covariates.</p>
-</div>
-<div id="causal" class="section level3">
-<h3>Causal</h3>
-<p>You fit the propensity score plus two outcome arms (treated
-<code>trt</code> and control <code>con</code>), then compare
-arm-specific predictions to produce CQTE curves.</p>
-</div>
-</div>
-<div id="what-you-get-out" class="section level2">
-<h2>What you get out</h2>
-<ul>
-<li>Posterior predictive distribution (density/survival).</li>
-<li>Quantiles at arbitrary probabilities.</li>
-<li>Tail index (shape/scale) and threshold diagnostics.</li>
-<li>Standard trace/ESS summaries, block-specific plots, and credible
-bands on predictions.</li>
-</ul>
-</div>
-<div id="what-to-read-next" class="section level2">
-<h2>What to read next</h2>
-<ul>
-<li><a href="v02-single-outcome-modeling.html">v02-single-outcome-modeling.Rmd</a>
-for a canonical density recipe.</li>
-<li><a href="v05-causal-cqte.html">v05-causal-cqte.Rmd</a> for the CQTE
-workflow.</li>
-<li><a href="v08-prediction-and-exports.html">v08-prediction-and-exports.Rmd</a>
-for exporting predictions.</li>
-</ul>
-</div>
-<div id="bulk-tail-diagram" class="section level2">
-<h2>Bulk + tail diagram</h2>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>bulk <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">10</span>, <span class="at">length.out =</span> <span class="dv">200</span>))</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>bulk<span class="sc">$</span>y <span class="ot">&lt;-</span> <span class="fu">dlnorm</span>(bulk<span class="sc">$</span>x, <span class="at">meanlog =</span> <span class="fl">0.5</span>, <span class="at">sdlog =</span> <span class="fl">0.4</span>) <span class="sc">*</span> <span class="fl">0.8</span></span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>tail <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x =</span> <span class="fu">seq</span>(<span class="dv">8</span>, <span class="dv">20</span>, <span class="at">length.out =</span> <span class="dv">3</span>))</span>
@@ -428,9 +364,6 @@ for exporting predictions.</li>
 <div class="figcaption">DPmixGPD concept: flexible bulk + GPD tail
 stitched at a threshold.</div>
 </div>
-</div>
-<div id="line-example" class="section level2">
-<h2>10-line example</h2>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">7</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">sim_bulk_tail</span>(<span class="dv">90</span>, <span class="at">tail_prob =</span> <span class="fl">0.2</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>J <span class="ot">&lt;-</span> <span class="dv">6</span></span>
@@ -471,9 +404,6 @@ stitched at a threshold.</div>
 <span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a><span class="co">#&gt;       sd[1] 3.027 1.226  1.385  2.780  5.462  8.118</span></span>
 <span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a><span class="co">#&gt;       sd[2] 1.110 1.316  0.023  0.059  3.947  3.470</span></span>
 <span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a><span class="co">#&gt;       sd[3] 1.356 1.652  0.029  0.587  5.270 15.139</span></span></code></pre></div>
-</div>
-<div id="prediction-and-diagnostics" class="section level2">
-<h2>Prediction and diagnostics</h2>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">type =</span> <span class="st">&quot;survival&quot;</span>, <span class="at">y =</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="fu">max</span>(y) <span class="sc">+</span> <span class="dv">5</span>, <span class="at">length.out =</span> <span class="dv">100</span>))</span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>surv_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">y =</span> pred<span class="sc">$</span>grid, <span class="at">survival =</span> <span class="fu">as.numeric</span>(pred<span class="sc">$</span>fit[<span class="dv">1</span>, ]))</span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="fu">ggplot</span>(surv_df, <span class="fu">aes</span>(<span class="at">x =</span> y, <span class="at">y =</span> survival)) <span class="sc">+</span></span>
@@ -499,10 +429,140 @@ mean).</div>
 <span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt; [1] &quot;quantile&quot;</span></span>
 <span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt; $grid</span></span>
-<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt; [1] 0.50 0.80 0.95</span></span></code></pre></div>
-</div>
-<div id="session-info" class="section level2">
-<h2>Session info</h2>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt; [1] 0.50 0.80 0.95</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co">#&gt; $draws</span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="co">#&gt; , , 1</span></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="co">#&gt;           [,1]</span></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a><span class="co">#&gt;  [1,] 2.084684</span></span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a><span class="co">#&gt;  [2,] 1.761678</span></span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a><span class="co">#&gt;  [3,] 1.711988</span></span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a><span class="co">#&gt;  [4,] 2.488099</span></span>
+<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a><span class="co">#&gt;  [5,] 2.076856</span></span>
+<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a><span class="co">#&gt;  [6,] 1.980510</span></span>
+<span id="cb4-28"><a href="#cb4-28" tabindex="-1"></a><span class="co">#&gt;  [7,] 1.814564</span></span>
+<span id="cb4-29"><a href="#cb4-29" tabindex="-1"></a><span class="co">#&gt;  [8,] 2.015153</span></span>
+<span id="cb4-30"><a href="#cb4-30" tabindex="-1"></a><span class="co">#&gt;  [9,] 2.182712</span></span>
+<span id="cb4-31"><a href="#cb4-31" tabindex="-1"></a><span class="co">#&gt; [10,] 2.031181</span></span>
+<span id="cb4-32"><a href="#cb4-32" tabindex="-1"></a><span class="co">#&gt; [11,] 2.258826</span></span>
+<span id="cb4-33"><a href="#cb4-33" tabindex="-1"></a><span class="co">#&gt; [12,] 2.569372</span></span>
+<span id="cb4-34"><a href="#cb4-34" tabindex="-1"></a><span class="co">#&gt; [13,] 2.218166</span></span>
+<span id="cb4-35"><a href="#cb4-35" tabindex="-1"></a><span class="co">#&gt; [14,] 2.193250</span></span>
+<span id="cb4-36"><a href="#cb4-36" tabindex="-1"></a><span class="co">#&gt; [15,] 2.682655</span></span>
+<span id="cb4-37"><a href="#cb4-37" tabindex="-1"></a><span class="co">#&gt; [16,] 2.117570</span></span>
+<span id="cb4-38"><a href="#cb4-38" tabindex="-1"></a><span class="co">#&gt; [17,] 2.296713</span></span>
+<span id="cb4-39"><a href="#cb4-39" tabindex="-1"></a><span class="co">#&gt; [18,] 2.129176</span></span>
+<span id="cb4-40"><a href="#cb4-40" tabindex="-1"></a><span class="co">#&gt; [19,] 2.790298</span></span>
+<span id="cb4-41"><a href="#cb4-41" tabindex="-1"></a><span class="co">#&gt; [20,] 2.822541</span></span>
+<span id="cb4-42"><a href="#cb4-42" tabindex="-1"></a><span class="co">#&gt; [21,] 3.457669</span></span>
+<span id="cb4-43"><a href="#cb4-43" tabindex="-1"></a><span class="co">#&gt; [22,] 2.982656</span></span>
+<span id="cb4-44"><a href="#cb4-44" tabindex="-1"></a><span class="co">#&gt; [23,] 2.594728</span></span>
+<span id="cb4-45"><a href="#cb4-45" tabindex="-1"></a><span class="co">#&gt; [24,] 2.355118</span></span>
+<span id="cb4-46"><a href="#cb4-46" tabindex="-1"></a><span class="co">#&gt; [25,] 2.245933</span></span>
+<span id="cb4-47"><a href="#cb4-47" tabindex="-1"></a><span class="co">#&gt; [26,] 2.183629</span></span>
+<span id="cb4-48"><a href="#cb4-48" tabindex="-1"></a><span class="co">#&gt; [27,] 1.964829</span></span>
+<span id="cb4-49"><a href="#cb4-49" tabindex="-1"></a><span class="co">#&gt; [28,] 2.134337</span></span>
+<span id="cb4-50"><a href="#cb4-50" tabindex="-1"></a><span class="co">#&gt; [29,] 2.835128</span></span>
+<span id="cb4-51"><a href="#cb4-51" tabindex="-1"></a><span class="co">#&gt; [30,] 2.387545</span></span>
+<span id="cb4-52"><a href="#cb4-52" tabindex="-1"></a><span class="co">#&gt; [31,] 2.352759</span></span>
+<span id="cb4-53"><a href="#cb4-53" tabindex="-1"></a><span class="co">#&gt; [32,] 3.252944</span></span>
+<span id="cb4-54"><a href="#cb4-54" tabindex="-1"></a><span class="co">#&gt; [33,] 3.306005</span></span>
+<span id="cb4-55"><a href="#cb4-55" tabindex="-1"></a><span class="co">#&gt; [34,] 2.716700</span></span>
+<span id="cb4-56"><a href="#cb4-56" tabindex="-1"></a><span class="co">#&gt; [35,] 2.742817</span></span>
+<span id="cb4-57"><a href="#cb4-57" tabindex="-1"></a><span class="co">#&gt; [36,] 2.507197</span></span>
+<span id="cb4-58"><a href="#cb4-58" tabindex="-1"></a><span class="co">#&gt; [37,] 2.553163</span></span>
+<span id="cb4-59"><a href="#cb4-59" tabindex="-1"></a><span class="co">#&gt; [38,] 3.063924</span></span>
+<span id="cb4-60"><a href="#cb4-60" tabindex="-1"></a><span class="co">#&gt; [39,] 3.017153</span></span>
+<span id="cb4-61"><a href="#cb4-61" tabindex="-1"></a><span class="co">#&gt; [40,] 2.908632</span></span>
+<span id="cb4-62"><a href="#cb4-62" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-63"><a href="#cb4-63" tabindex="-1"></a><span class="co">#&gt; , , 2</span></span>
+<span id="cb4-64"><a href="#cb4-64" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-65"><a href="#cb4-65" tabindex="-1"></a><span class="co">#&gt;           [,1]</span></span>
+<span id="cb4-66"><a href="#cb4-66" tabindex="-1"></a><span class="co">#&gt;  [1,] 5.434103</span></span>
+<span id="cb4-67"><a href="#cb4-67" tabindex="-1"></a><span class="co">#&gt;  [2,] 9.856694</span></span>
+<span id="cb4-68"><a href="#cb4-68" tabindex="-1"></a><span class="co">#&gt;  [3,] 7.732760</span></span>
+<span id="cb4-69"><a href="#cb4-69" tabindex="-1"></a><span class="co">#&gt;  [4,] 7.231164</span></span>
+<span id="cb4-70"><a href="#cb4-70" tabindex="-1"></a><span class="co">#&gt;  [5,] 8.626198</span></span>
+<span id="cb4-71"><a href="#cb4-71" tabindex="-1"></a><span class="co">#&gt;  [6,] 5.481327</span></span>
+<span id="cb4-72"><a href="#cb4-72" tabindex="-1"></a><span class="co">#&gt;  [7,] 8.434266</span></span>
+<span id="cb4-73"><a href="#cb4-73" tabindex="-1"></a><span class="co">#&gt;  [8,] 4.275549</span></span>
+<span id="cb4-74"><a href="#cb4-74" tabindex="-1"></a><span class="co">#&gt;  [9,] 7.318695</span></span>
+<span id="cb4-75"><a href="#cb4-75" tabindex="-1"></a><span class="co">#&gt; [10,] 5.642000</span></span>
+<span id="cb4-76"><a href="#cb4-76" tabindex="-1"></a><span class="co">#&gt; [11,] 6.912834</span></span>
+<span id="cb4-77"><a href="#cb4-77" tabindex="-1"></a><span class="co">#&gt; [12,] 6.270920</span></span>
+<span id="cb4-78"><a href="#cb4-78" tabindex="-1"></a><span class="co">#&gt; [13,] 5.346794</span></span>
+<span id="cb4-79"><a href="#cb4-79" tabindex="-1"></a><span class="co">#&gt; [14,] 5.415640</span></span>
+<span id="cb4-80"><a href="#cb4-80" tabindex="-1"></a><span class="co">#&gt; [15,] 8.022615</span></span>
+<span id="cb4-81"><a href="#cb4-81" tabindex="-1"></a><span class="co">#&gt; [16,] 5.277803</span></span>
+<span id="cb4-82"><a href="#cb4-82" tabindex="-1"></a><span class="co">#&gt; [17,] 6.506667</span></span>
+<span id="cb4-83"><a href="#cb4-83" tabindex="-1"></a><span class="co">#&gt; [18,] 9.289373</span></span>
+<span id="cb4-84"><a href="#cb4-84" tabindex="-1"></a><span class="co">#&gt; [19,] 7.052828</span></span>
+<span id="cb4-85"><a href="#cb4-85" tabindex="-1"></a><span class="co">#&gt; [20,] 7.175828</span></span>
+<span id="cb4-86"><a href="#cb4-86" tabindex="-1"></a><span class="co">#&gt; [21,] 7.620988</span></span>
+<span id="cb4-87"><a href="#cb4-87" tabindex="-1"></a><span class="co">#&gt; [22,] 7.014287</span></span>
+<span id="cb4-88"><a href="#cb4-88" tabindex="-1"></a><span class="co">#&gt; [23,] 8.075880</span></span>
+<span id="cb4-89"><a href="#cb4-89" tabindex="-1"></a><span class="co">#&gt; [24,] 7.732905</span></span>
+<span id="cb4-90"><a href="#cb4-90" tabindex="-1"></a><span class="co">#&gt; [25,] 7.006633</span></span>
+<span id="cb4-91"><a href="#cb4-91" tabindex="-1"></a><span class="co">#&gt; [26,] 4.351492</span></span>
+<span id="cb4-92"><a href="#cb4-92" tabindex="-1"></a><span class="co">#&gt; [27,] 4.285172</span></span>
+<span id="cb4-93"><a href="#cb4-93" tabindex="-1"></a><span class="co">#&gt; [28,] 5.359027</span></span>
+<span id="cb4-94"><a href="#cb4-94" tabindex="-1"></a><span class="co">#&gt; [29,] 7.743145</span></span>
+<span id="cb4-95"><a href="#cb4-95" tabindex="-1"></a><span class="co">#&gt; [30,] 5.187532</span></span>
+<span id="cb4-96"><a href="#cb4-96" tabindex="-1"></a><span class="co">#&gt; [31,] 6.846878</span></span>
+<span id="cb4-97"><a href="#cb4-97" tabindex="-1"></a><span class="co">#&gt; [32,] 8.544946</span></span>
+<span id="cb4-98"><a href="#cb4-98" tabindex="-1"></a><span class="co">#&gt; [33,] 8.320800</span></span>
+<span id="cb4-99"><a href="#cb4-99" tabindex="-1"></a><span class="co">#&gt; [34,] 8.421502</span></span>
+<span id="cb4-100"><a href="#cb4-100" tabindex="-1"></a><span class="co">#&gt; [35,] 9.363206</span></span>
+<span id="cb4-101"><a href="#cb4-101" tabindex="-1"></a><span class="co">#&gt; [36,] 8.034985</span></span>
+<span id="cb4-102"><a href="#cb4-102" tabindex="-1"></a><span class="co">#&gt; [37,] 6.841856</span></span>
+<span id="cb4-103"><a href="#cb4-103" tabindex="-1"></a><span class="co">#&gt; [38,] 7.803652</span></span>
+<span id="cb4-104"><a href="#cb4-104" tabindex="-1"></a><span class="co">#&gt; [39,] 6.801644</span></span>
+<span id="cb4-105"><a href="#cb4-105" tabindex="-1"></a><span class="co">#&gt; [40,] 7.628509</span></span>
+<span id="cb4-106"><a href="#cb4-106" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-107"><a href="#cb4-107" tabindex="-1"></a><span class="co">#&gt; , , 3</span></span>
+<span id="cb4-108"><a href="#cb4-108" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-109"><a href="#cb4-109" tabindex="-1"></a><span class="co">#&gt;            [,1]</span></span>
+<span id="cb4-110"><a href="#cb4-110" tabindex="-1"></a><span class="co">#&gt;  [1,]  6.929665</span></span>
+<span id="cb4-111"><a href="#cb4-111" tabindex="-1"></a><span class="co">#&gt;  [2,]  9.958749</span></span>
+<span id="cb4-112"><a href="#cb4-112" tabindex="-1"></a><span class="co">#&gt;  [3,]  7.866946</span></span>
+<span id="cb4-113"><a href="#cb4-113" tabindex="-1"></a><span class="co">#&gt;  [4,]  7.291517</span></span>
+<span id="cb4-114"><a href="#cb4-114" tabindex="-1"></a><span class="co">#&gt;  [5,]  8.695036</span></span>
+<span id="cb4-115"><a href="#cb4-115" tabindex="-1"></a><span class="co">#&gt;  [6,]  7.824644</span></span>
+<span id="cb4-116"><a href="#cb4-116" tabindex="-1"></a><span class="co">#&gt;  [7,]  8.576632</span></span>
+<span id="cb4-117"><a href="#cb4-117" tabindex="-1"></a><span class="co">#&gt;  [8,] 10.926664</span></span>
+<span id="cb4-118"><a href="#cb4-118" tabindex="-1"></a><span class="co">#&gt;  [9,] 11.449937</span></span>
+<span id="cb4-119"><a href="#cb4-119" tabindex="-1"></a><span class="co">#&gt; [10,] 10.852902</span></span>
+<span id="cb4-120"><a href="#cb4-120" tabindex="-1"></a><span class="co">#&gt; [11,]  9.323045</span></span>
+<span id="cb4-121"><a href="#cb4-121" tabindex="-1"></a><span class="co">#&gt; [12,]  9.995353</span></span>
+<span id="cb4-122"><a href="#cb4-122" tabindex="-1"></a><span class="co">#&gt; [13,] 11.011613</span></span>
+<span id="cb4-123"><a href="#cb4-123" tabindex="-1"></a><span class="co">#&gt; [14,]  8.606066</span></span>
+<span id="cb4-124"><a href="#cb4-124" tabindex="-1"></a><span class="co">#&gt; [15,] 10.157453</span></span>
+<span id="cb4-125"><a href="#cb4-125" tabindex="-1"></a><span class="co">#&gt; [16,]  9.665001</span></span>
+<span id="cb4-126"><a href="#cb4-126" tabindex="-1"></a><span class="co">#&gt; [17,] 10.551923</span></span>
+<span id="cb4-127"><a href="#cb4-127" tabindex="-1"></a><span class="co">#&gt; [18,]  9.373644</span></span>
+<span id="cb4-128"><a href="#cb4-128" tabindex="-1"></a><span class="co">#&gt; [19,]  7.118737</span></span>
+<span id="cb4-129"><a href="#cb4-129" tabindex="-1"></a><span class="co">#&gt; [20,]  7.219051</span></span>
+<span id="cb4-130"><a href="#cb4-130" tabindex="-1"></a><span class="co">#&gt; [21,]  8.991530</span></span>
+<span id="cb4-131"><a href="#cb4-131" tabindex="-1"></a><span class="co">#&gt; [22,]  8.422021</span></span>
+<span id="cb4-132"><a href="#cb4-132" tabindex="-1"></a><span class="co">#&gt; [23,]  8.245483</span></span>
+<span id="cb4-133"><a href="#cb4-133" tabindex="-1"></a><span class="co">#&gt; [24,] 10.600519</span></span>
+<span id="cb4-134"><a href="#cb4-134" tabindex="-1"></a><span class="co">#&gt; [25,]  9.030669</span></span>
+<span id="cb4-135"><a href="#cb4-135" tabindex="-1"></a><span class="co">#&gt; [26,] 11.626650</span></span>
+<span id="cb4-136"><a href="#cb4-136" tabindex="-1"></a><span class="co">#&gt; [27,] 12.137861</span></span>
+<span id="cb4-137"><a href="#cb4-137" tabindex="-1"></a><span class="co">#&gt; [28,] 11.299427</span></span>
+<span id="cb4-138"><a href="#cb4-138" tabindex="-1"></a><span class="co">#&gt; [29,] 10.045535</span></span>
+<span id="cb4-139"><a href="#cb4-139" tabindex="-1"></a><span class="co">#&gt; [30,] 11.666167</span></span>
+<span id="cb4-140"><a href="#cb4-140" tabindex="-1"></a><span class="co">#&gt; [31,] 10.016763</span></span>
+<span id="cb4-141"><a href="#cb4-141" tabindex="-1"></a><span class="co">#&gt; [32,]  8.981712</span></span>
+<span id="cb4-142"><a href="#cb4-142" tabindex="-1"></a><span class="co">#&gt; [33,] 10.616308</span></span>
+<span id="cb4-143"><a href="#cb4-143" tabindex="-1"></a><span class="co">#&gt; [34,]  8.548509</span></span>
+<span id="cb4-144"><a href="#cb4-144" tabindex="-1"></a><span class="co">#&gt; [35,]  9.463882</span></span>
+<span id="cb4-145"><a href="#cb4-145" tabindex="-1"></a><span class="co">#&gt; [36,]  8.134691</span></span>
+<span id="cb4-146"><a href="#cb4-146" tabindex="-1"></a><span class="co">#&gt; [37,]  6.925275</span></span>
+<span id="cb4-147"><a href="#cb4-147" tabindex="-1"></a><span class="co">#&gt; [38,]  7.877141</span></span>
+<span id="cb4-148"><a href="#cb4-148" tabindex="-1"></a><span class="co">#&gt; [39,]  7.447362</span></span>
+<span id="cb4-149"><a href="#cb4-149" tabindex="-1"></a><span class="co">#&gt; [40,]  7.722888</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; R version 4.5.2 (2025-10-31 ucrt)</span></span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; Platform: x86_64-w64-mingw32/x64</span></span>
@@ -512,7 +572,7 @@ mean).</div>
 <span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt;   LAPACK version 3.12.1</span></span>
 <span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; locale:</span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; [1] LC_COLLATE=C                          </span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; [1] LC_COLLATE=English_United States.utf8 </span></span>
 <span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; [2] LC_CTYPE=English_United States.utf8   </span></span>
 <span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; [3] LC_MONETARY=English_United States.utf8</span></span>
 <span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; [4] LC_NUMERIC=C                          </span></span>
@@ -522,10 +582,10 @@ mean).</div>
 <span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt; tzcode source: internal</span></span>
 <span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt; attached base packages:</span></span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt; [1] stats     graphics  grDevices datasets  utils     methods   base     </span></span>
 <span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt; other attached packages:</span></span>
-<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt; [1] ggplot2_4.0.1  nimble_1.4.0   DPmixGPD_0.0.8</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt; [1] ggplot2_4.0.1  nimble_1.4.0   DPmixGPD_0.0.8 testthat_3.3.1</span></span>
 <span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
 <span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">#&gt;  [1] gtable_0.3.6        xfun_0.55           bslib_0.9.0        </span></span>
@@ -535,24 +595,22 @@ mean).</div>
 <span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="co">#&gt; [13] tibble_3.3.0        pkgconfig_2.0.3     RColorBrewer_1.1-3 </span></span>
 <span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="co">#&gt; [16] ggmcmc_1.5.1.2      S7_0.2.1            desc_1.4.3         </span></span>
 <span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a><span class="co">#&gt; [19] lifecycle_1.0.4     compiler_4.5.2      farver_2.1.2       </span></span>
-<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a><span class="co">#&gt; [22] stringr_1.6.0       codetools_0.2-20    htmltools_0.5.9    </span></span>
+<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a><span class="co">#&gt; [22] brio_1.1.5          codetools_0.2-20    htmltools_0.5.9    </span></span>
 <span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a><span class="co">#&gt; [25] usethis_3.2.1       sass_0.4.10         yaml_2.3.12        </span></span>
-<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a><span class="co">#&gt; [28] pracma_2.4.6        pillar_1.11.1       jquerylib_0.1.4    </span></span>
+<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a><span class="co">#&gt; [28] pracma_2.4.6        jquerylib_0.1.4     pillar_1.11.1      </span></span>
 <span id="cb5-36"><a href="#cb5-36" tabindex="-1"></a><span class="co">#&gt; [31] tidyr_1.3.2         MASS_7.3-65         ellipsis_0.3.2     </span></span>
 <span id="cb5-37"><a href="#cb5-37" tabindex="-1"></a><span class="co">#&gt; [34] cachem_1.1.0        sessioninfo_1.2.3   parallelly_1.46.0  </span></span>
 <span id="cb5-38"><a href="#cb5-38" tabindex="-1"></a><span class="co">#&gt; [37] ggstats_0.11.0      tidyselect_1.2.1    digest_0.6.39      </span></span>
-<span id="cb5-39"><a href="#cb5-39" tabindex="-1"></a><span class="co">#&gt; [40] stringi_1.8.7       future_1.68.0       dplyr_1.1.4        </span></span>
-<span id="cb5-40"><a href="#cb5-40" tabindex="-1"></a><span class="co">#&gt; [43] purrr_1.2.0         listenv_0.10.0      labeling_0.4.3     </span></span>
-<span id="cb5-41"><a href="#cb5-41" tabindex="-1"></a><span class="co">#&gt; [46] rprojroot_2.1.1     fastmap_1.2.0       grid_4.5.2         </span></span>
-<span id="cb5-42"><a href="#cb5-42" tabindex="-1"></a><span class="co">#&gt; [49] cli_3.6.5           magrittr_2.0.4      pkgbuild_1.4.8     </span></span>
-<span id="cb5-43"><a href="#cb5-43" tabindex="-1"></a><span class="co">#&gt; [52] future.apply_1.20.1 withr_3.0.2         scales_1.4.0       </span></span>
-<span id="cb5-44"><a href="#cb5-44" tabindex="-1"></a><span class="co">#&gt; [55] roxygen2_7.3.3      rmarkdown_2.30      globals_0.18.0     </span></span>
-<span id="cb5-45"><a href="#cb5-45" tabindex="-1"></a><span class="co">#&gt; [58] igraph_2.2.1        otel_0.2.0          coda_0.19-4.1      </span></span>
-<span id="cb5-46"><a href="#cb5-46" tabindex="-1"></a><span class="co">#&gt; [61] memoise_2.0.1       evaluate_1.0.5      knitr_1.51         </span></span>
-<span id="cb5-47"><a href="#cb5-47" tabindex="-1"></a><span class="co">#&gt; [64] rlang_1.1.6         glue_1.8.0          xml2_1.5.1         </span></span>
-<span id="cb5-48"><a href="#cb5-48" tabindex="-1"></a><span class="co">#&gt; [67] pkgload_1.4.1       jsonlite_2.0.0      rstudioapi_0.17.1  </span></span>
-<span id="cb5-49"><a href="#cb5-49" tabindex="-1"></a><span class="co">#&gt; [70] R6_2.6.1            fs_1.6.6</span></span></code></pre></div>
-</div>
+<span id="cb5-39"><a href="#cb5-39" tabindex="-1"></a><span class="co">#&gt; [40] future_1.68.0       dplyr_1.1.4         purrr_1.2.0        </span></span>
+<span id="cb5-40"><a href="#cb5-40" tabindex="-1"></a><span class="co">#&gt; [43] listenv_0.10.0      labeling_0.4.3      rprojroot_2.1.1    </span></span>
+<span id="cb5-41"><a href="#cb5-41" tabindex="-1"></a><span class="co">#&gt; [46] fastmap_1.2.0       grid_4.5.2          cli_3.6.5          </span></span>
+<span id="cb5-42"><a href="#cb5-42" tabindex="-1"></a><span class="co">#&gt; [49] magrittr_2.0.4      pkgbuild_1.4.8      future.apply_1.20.1</span></span>
+<span id="cb5-43"><a href="#cb5-43" tabindex="-1"></a><span class="co">#&gt; [52] withr_3.0.2         scales_1.4.0        rmarkdown_2.30     </span></span>
+<span id="cb5-44"><a href="#cb5-44" tabindex="-1"></a><span class="co">#&gt; [55] globals_0.18.0      igraph_2.2.1        otel_0.2.0         </span></span>
+<span id="cb5-45"><a href="#cb5-45" tabindex="-1"></a><span class="co">#&gt; [58] coda_0.19-4.1       memoise_2.0.1       evaluate_1.0.5     </span></span>
+<span id="cb5-46"><a href="#cb5-46" tabindex="-1"></a><span class="co">#&gt; [61] knitr_1.51          rlang_1.1.6         glue_1.8.0         </span></span>
+<span id="cb5-47"><a href="#cb5-47" tabindex="-1"></a><span class="co">#&gt; [64] renv_1.1.5          pkgload_1.4.1       jsonlite_2.0.0     </span></span>
+<span id="cb5-48"><a href="#cb5-48" tabindex="-1"></a><span class="co">#&gt; [67] rstudioapi_0.17.1   R6_2.6.1            fs_1.6.6</span></span></code></pre></div>
 
 
 

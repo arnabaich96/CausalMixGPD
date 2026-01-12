@@ -16,16 +16,18 @@ source("_helpers.R")
 
 ## Real-line kernels
 
-```{r data-real}
+```{r realline-data-load}
 data("nc_real200_k2")
 print_dataset_header(nc_real200_k2, "nc_real200_k2")
 ```
 
-```{r kernels-real, eval=TRUE}
+```{r realline-model-spec}
 real_kernels <- c("normal", "laplace", "cauchy")
 backends <- c("crp", "sb")
 mcmc <- default_mcmc()
+```
 
+```{r realline-fit-mcmc, eval=TRUE}
 for (ker in real_kernels) {
   for (backend in backends) {
     bundle <- build_nimble_bundle(
@@ -45,16 +47,18 @@ for (ker in real_kernels) {
 
 ## Positive-support kernels
 
-```{r data-pos}
+```{r possupp-data-load}
 data("nc_pos200_k3")
 print_dataset_header(nc_pos200_k3, "nc_pos200_k3")
 ```
 
-```{r kernels-pos, eval=TRUE}
+```{r possupp-model-spec}
 pos_kernels <- c("gamma", "lognormal", "invgauss", "amoroso")
 backends <- c("crp", "sb")
 mcmc <- default_mcmc()
+```
 
+```{r possupp-fit-mcmc, eval=TRUE}
 for (ker in pos_kernels) {
   for (backend in backends) {
     bundle <- build_nimble_bundle(

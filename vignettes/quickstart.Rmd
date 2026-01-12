@@ -16,12 +16,12 @@ source("_helpers.R")
 
 ## Bulk-only fit
 
-```{r data-bulk}
+```{r bulk-data-load}
 data("nc_pos200_k3")
 print_dataset_header(nc_pos200_k3, "nc_pos200_k3")
 ```
 
-```{r bulk-fit, eval=TRUE}
+```{r bulk-model-spec}
 mcmc <- default_mcmc()
 bundle <- build_nimble_bundle(
   y = nc_pos200_k3$y,
@@ -32,18 +32,24 @@ bundle <- build_nimble_bundle(
   mcmc = mcmc
 )
 summary(bundle)
+```
+
+```{r bulk-fit-mcmc, eval=TRUE}
 fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+```
+
+```{r bulk-s3-summary}
 summary(fit)
 ```
 
 ## Tail-designed fit
 
-```{r data-tail}
+```{r tail-data-load}
 data("nc_pos_tail200_k4")
 print_dataset_header(nc_pos_tail200_k4, "nc_pos_tail200_k4")
 ```
 
-```{r tail-fit, eval=TRUE}
+```{r tail-model-spec}
 mcmc <- default_mcmc()
 bundle_tail <- build_nimble_bundle(
   y = nc_pos_tail200_k4$y,
@@ -54,22 +60,30 @@ bundle_tail <- build_nimble_bundle(
   mcmc = mcmc
 )
 summary(bundle_tail)
+```
+
+```{r tail-fit-mcmc, eval=TRUE}
 fit_tail <- run_mcmc_bundle_manual(bundle_tail, show_progress = FALSE)
+```
+
+```{r tail-s3-summary}
 summary(fit_tail)
 ```
 
 ## Prediction example (20% new data)
 
-```{r data-pred}
+```{r pred-data-load}
 data("nc_posX100_p3_k2")
 print_dataset_header(nc_posX100_p3_k2, "nc_posX100_p3_k2")
 ```
 
-```{r pred-example, eval=TRUE}
+```{r pred-data-setup}
 X <- nc_posX100_p3_k2$X
 n_new <- ceiling(0.2 * nrow(X))
 newdata <- X[seq_len(n_new), , drop = FALSE]
+```
 
+```{r pred-model-spec}
 mcmc <- default_mcmc()
 bundle_x <- build_nimble_bundle(
   y = nc_posX100_p3_k2$y,
@@ -80,7 +94,12 @@ bundle_x <- build_nimble_bundle(
   components = nc_posX100_p3_k2$meta$K_true,
   mcmc = mcmc
 )
-fit_x <- run_mcmc_bundle_manual(bundle_x, show_progress = FALSE)
+```
 
+```{r pred-fit-mcmc, eval=TRUE}
+fit_x <- run_mcmc_bundle_manual(bundle_x, show_progress = FALSE)
+```
+
+```{r pred-s3-methods}
 predict(fit_x, newdata = newdata, type = "quantile", p = c(0.1, 0.25, 0.5, 0.9))
 ```

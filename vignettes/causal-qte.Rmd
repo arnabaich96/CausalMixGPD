@@ -9,13 +9,22 @@ vignette: >
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
-library(DPmixGPD)
+if (requireNamespace('devtools', quietly = TRUE)) devtools::load_all(quiet = TRUE) else library(DPmixGPD)
 library(nimble)
 source("_helpers.R")
 ```
 
 ```{r data}
-data("causal_pos500_p3_k2")
+.kg <- knitr::knit_global()
+if (!exists("causal_pos500_p3_k2", envir = .kg, inherits = FALSE)) {
+  utils::data(list = "causal_pos500_p3_k2", package = "DPmixGPD", envir = .kg)
+}
+if (!exists("causal_pos500_p3_k2", envir = .kg, inherits = FALSE)) {
+  path <- resolve_data_file("causal_pos500_p3_k2.rda")
+  if (!is.null(path)) load(path, envir = .kg)
+}
+stopifnot(exists("causal_pos500_p3_k2", envir = .kg, inherits = FALSE))
+causal_pos500_p3_k2 <- get("causal_pos500_p3_k2", envir = .kg, inherits = FALSE)
 print_dataset_header(causal_pos500_p3_k2, "causal_pos500_p3_k2")
 ```
 
@@ -35,4 +44,7 @@ cb <- build_causal_bundle(
 cf <- run_mcmc_causal(cb, show_progress = FALSE)
 
 qte(cf, probs = c(0.1, 0.25, 0.5, 0.9))
+
+# Average treatment effect (posterior mean)
+ate(cf)
 ```

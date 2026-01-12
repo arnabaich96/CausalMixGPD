@@ -32,10 +32,13 @@ fit_small <- readRDS(.fit_path("fit_small.rds"))
 library(ggplot2)
 ```
 
-```{r prepare-draws}
+```{r pred-exp-data-gen}
 set.seed(3)
 n <- 90
 y <- sim_bulk_tail(n, tail_prob = 0.15)
+```
+
+```{r pred-exp-model-spec}
 bundle <- build_nimble_bundle(
   y = y,
   backend = "sb",
@@ -44,17 +47,23 @@ bundle <- build_nimble_bundle(
   J = 6,
   mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 2, seed = c(1, 2))
 )
+```
+
+```{r pred-exp-fit-mcmc}
 if (use_cached_fit) {
   fit <- fit_small
 } else {
   fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
 }
+```
+
+```{r pred-exp-extract-draws}
 draws <- DPmixGPD:::.extract_draws_matrix(fit, drop_v = TRUE)
 keep <- intersect(c("alpha", "threshold[1]", "tail_shape"), colnames(draws))
 head(draws[, keep, drop = FALSE])
 ```
 
-```{r predictive-draws, fig.cap="Posterior predictive draws overlayed on data histogram."}
+```{r pred-exp-s3-sample, fig.cap="Posterior predictive draws overlayed on data histogram."}
 pp <- predict(fit, type = "sample", nsim = 200)
 draws_df <- data.frame(value = pp$fit[, 1])
 ggplot(draws_df, aes(x = value)) +
@@ -63,18 +72,21 @@ ggplot(draws_df, aes(x = value)) +
   labs(title = "Posterior predictive draws vs observed histogram", x = "y")
 ```
 
-```{r export-table}
-dir.create("reports", showWarnings = FALSE, recursive = TRUE)
+```{r pred-exp-s3-quantile}
 quant_df <- predict(fit, type = "quantile", p = c(.5, .9, .99), y = NULL)
 export_table <- data.frame(
   tau = c(.5, .9, .99),
   quantile = c(quant_df$fit)
 )
 knitr::kable(export_table, caption = "Quantile export for reporting")
+```
+
+```{r pred-exp-export-files}
+dir.create("reports", showWarnings = FALSE, recursive = TRUE)
 write.csv(export_table, file = "reports/quantiles.csv", row.names = FALSE)
 ```
 
-```{r recipe}
+```{r pred-exp-recipe-list}
 recipes <- list(
   "Quantile curve" = function(newdata) predict(fit, newdata = newdata, type = "quantile", p = c(.5, .9, .99)),
   "Tail index surface" = function(newdata) predict(fit, newdata = newdata, type = "quantile", p = .995),
@@ -83,6 +95,6 @@ recipes <- list(
 recipes
 ```
 
-```{r session}
+```{r session-info}
 sessionInfo()
 ```

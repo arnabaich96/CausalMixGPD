@@ -19,24 +19,31 @@ knitr::opts_chunk$set(
 ```
 
 ```{r libraries}
-library(DPmixGPD)
+if (requireNamespace("devtools", quietly = TRUE)) {
+  devtools::load_all(quiet = TRUE)
+} else {
+  library(DPmixGPD)
+}
 library(nimble)
-use_cached_fit <- TRUE
+use_cached_fit <- FALSE
 .fit_path <- function(name) {
   path <- system.file("extdata", name, package = "DPmixGPD")
   if (path == "") path <- file.path("inst", "extdata", name)
   path
 }
-fit_causal_con <- readRDS(.fit_path("fit_causal_con.rds"))
-fit_causal_trt <- readRDS(.fit_path("fit_causal_trt.rds"))
-fit_causal_meta <- readRDS(.fit_path("fit_causal_meta.rds"))
-fit_causal_small <- list(
-  ps_fit = NULL,
-  outcome_fit = list(con = fit_causal_con, trt = fit_causal_trt),
-  bundle = fit_causal_meta,
-  call = NULL
-)
-class(fit_causal_small) <- "dpmixgpd_causal_fit"
+fit_causal_small <- NULL
+if (use_cached_fit) {
+  fit_causal_con <- readRDS(.fit_path("fit_causal_con.rds"))
+  fit_causal_trt <- readRDS(.fit_path("fit_causal_trt.rds"))
+  fit_causal_meta <- readRDS(.fit_path("fit_causal_meta.rds"))
+  fit_causal_small <- list(
+    ps_fit = NULL,
+    outcome_fit = list(con = fit_causal_con, trt = fit_causal_trt),
+    bundle = fit_causal_meta,
+    call = NULL
+  )
+  class(fit_causal_small) <- "dpmixgpd_causal_fit"
+}
 ```
 
 ```{r data}
@@ -66,15 +73,7 @@ if (use_cached_fit) {
   cf <- run_mcmc_causal(cb, show_progress = FALSE)
 }
 summary(cf$outcome_fit$trt)
-newdata <- if (use_cached_fit && !is.null(cf$bundle$X)) cf$bundle$X else X
-```
-
-```{r quantiles}
-pr_trt <- predict(cf$outcome_fit$trt, type = "quantile", p = c(0.5, 0.9), newdata = newdata)
-pr_con <- predict(cf$outcome_fit$con, type = "quantile", p = c(0.5, 0.9), newdata = newdata)
-
-pr_trt$fit
-pr_con$fit
+newdata <- X
 ```
 
 ```{r qte}
@@ -86,6 +85,10 @@ qt2 <- qte(cf, probs = qs, newdata = newdata)
 plot(qs, as.numeric(qt2$fit[1, ]), type = "b",
      xlab = "quantile", ylab = "QTE",
      main = "Quantile treatment effect")
+
+# Posterior mean (ATE)
+ate_res <- ate(cf, newdata = newdata)
+head(ate_res$fit)
 ```
 
 ```{r session}

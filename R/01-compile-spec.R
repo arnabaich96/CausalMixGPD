@@ -73,8 +73,8 @@ compile_model_spec <- function(
     P <- 0L
   }
 
-  has_ps <- !is.null(ps)
-  if (has_ps) {
+  # ps is optional; validate if provided
+  if (!is.null(ps)) {
     ps <- as.numeric(ps)
     if (length(ps) != N) stop("ps must have the same length as y.", call. = FALSE)
   }
@@ -340,7 +340,7 @@ compile_model_spec <- function(
 
   # ---- finalize plan ----
   ps_plan <- NULL
-  if (has_ps) {
+  if (!is.null(ps)) {
     ps_plan <- list(prior = user_ps$prior %||% list(dist = "normal", args = list(mean = 0, sd = 2)))
   }
 
@@ -349,7 +349,6 @@ compile_model_spec <- function(
     kernel = kernel,
     GPD = isTRUE(GPD),
     has_X = has_X,
-    has_ps = has_ps,
     N = N,
     P = as.integer(P),
     components = components,
@@ -365,7 +364,7 @@ compile_model_spec <- function(
       kernel = kernel,
       GPD = isTRUE(GPD),
       has_X = has_X,
-      has_ps = has_ps,
+      has_ps = !is.null(ps),
       N = N,
       P = as.integer(P),
       components = components,

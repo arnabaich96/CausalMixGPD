@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Causal: Same vs Different Kernels</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Causal: Same vs Different Kernels</h1>
+
+
+
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;causal_pos500_p3_k2&quot;</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;causal_alt_pos500_p3_k3&quot;</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;causal_alt_real500_p4_k2&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>mcmc <span class="ot">&lt;-</span> <span class="fu">default_mcmc</span>()</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co"># Same kernel by arm</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>cb_same <span class="ot">&lt;-</span> <span class="fu">build_causal_bundle</span>(</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="at">y =</span> causal_pos500_p3_k2<span class="sc">$</span>y,</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="at">X =</span> causal_pos500_p3_k2<span class="sc">$</span>X,</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  <span class="at">T =</span> causal_pos500_p3_k2<span class="sc">$</span>T,</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  <span class="at">backend =</span> <span class="fu">c</span>(<span class="st">&quot;sb&quot;</span>, <span class="st">&quot;sb&quot;</span>),</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="fu">c</span>(<span class="st">&quot;gamma&quot;</span>, <span class="st">&quot;gamma&quot;</span>),</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="fu">c</span>(<span class="cn">FALSE</span>, <span class="cn">FALSE</span>),</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  <span class="at">J =</span> <span class="fu">c</span>(causal_pos500_p3_k2<span class="sc">$</span>meta<span class="sc">$</span>K0, causal_pos500_p3_k2<span class="sc">$</span>meta<span class="sc">$</span>K1),</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>  <span class="at">mcmc_outcome =</span> mcmc,</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>  <span class="at">mcmc_ps =</span> mcmc</span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>)</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>cf_same <span class="ot">&lt;-</span> <span class="fu">run_mcmc_causal</span>(cb_same, <span class="at">show_progress =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt; Defining model</span></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt; Building model</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt; Setting data and initial values</span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt; Checking model sizes and dimensions</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt;   [Note] This model is not fully initialized. This is not an error.</span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt;          To see which variables are not initialized, use model$initializeInfo().</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt;          For more information on model initialization, see help(modelInitialization).</span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt; Checking model calculations</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; ===== Monitors =====</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt; thin = 1: beta</span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; ===== Samplers =====</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a><span class="co">#&gt; RW sampler (4)</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a><span class="co">#&gt;   - beta[]  (4 elements)</span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="co">#&gt; Compiling</span></span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a><span class="co">#&gt;   [Note] This may take a minute.</span></span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a><span class="co">#&gt;   [Note] Use &#39;showCompilerOutput = TRUE&#39; to see C++ compilation details.</span></span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a><span class="co">#&gt; Compiling</span></span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a><span class="co">#&gt;   [Note] This may take a minute.</span></span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a><span class="co">#&gt;   [Note] Use &#39;showCompilerOutput = TRUE&#39; to see C++ compilation details.</span></span>
+<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a><span class="co">#&gt; running chain 1...</span></span>
+<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a><span class="co">#&gt; running chain 2...</span></span>
+<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a><span class="co">#&gt; Defining model</span></span>
+<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a><span class="co">#&gt; Building model</span></span>
+<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a><span class="co">#&gt; Setting data and initial values</span></span>
+<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a><span class="co">#&gt;   [Warning] Incorrect size or dimension of initial value for &#39;v&#39;.</span></span>
+<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a><span class="co">#&gt;          Initial value will not be used in compiled model.</span></span>
+<span id="cb2-42"><a href="#cb2-42" tabindex="-1"></a><span class="co">#&gt; Checking model sizes and dimensions</span></span>
+<span id="cb2-43"><a href="#cb2-43" tabindex="-1"></a><span class="co">#&gt;   [Note] This model is not fully initialized. This is not an error.</span></span>
+<span id="cb2-44"><a href="#cb2-44" tabindex="-1"></a><span class="co">#&gt;          To see which variables are not initialized, use model$initializeInfo().</span></span>
+<span id="cb2-45"><a href="#cb2-45" tabindex="-1"></a><span class="co">#&gt;          For more information on model initialization, see help(modelInitialization).</span></span>
+<span id="cb2-46"><a href="#cb2-46" tabindex="-1"></a><span class="co">#&gt; Checking model calculations</span></span>
+<span id="cb2-47"><a href="#cb2-47" tabindex="-1"></a><span class="co">#&gt; ===== Monitors =====</span></span>
+<span id="cb2-48"><a href="#cb2-48" tabindex="-1"></a><span class="co">#&gt; thin = 1: alpha, beta_ps_scale, beta_scale, shape, w, z</span></span>
+<span id="cb2-49"><a href="#cb2-49" tabindex="-1"></a><span class="co">#&gt; ===== Samplers =====</span></span>
+<span id="cb2-50"><a href="#cb2-50" tabindex="-1"></a><span class="co">#&gt; RW sampler (12)</span></span>
+<span id="cb2-51"><a href="#cb2-51" tabindex="-1"></a><span class="co">#&gt;   - alpha</span></span>
+<span id="cb2-52"><a href="#cb2-52" tabindex="-1"></a><span class="co">#&gt;   - shape[]  (2 elements)</span></span>
+<span id="cb2-53"><a href="#cb2-53" tabindex="-1"></a><span class="co">#&gt;   - beta_scale[]  (6 elements)</span></span>
+<span id="cb2-54"><a href="#cb2-54" tabindex="-1"></a><span class="co">#&gt;   - beta_ps_scale[]  (2 elements)</span></span>
+<span id="cb2-55"><a href="#cb2-55" tabindex="-1"></a><span class="co">#&gt;   - v[]  (1 element)</span></span>
+<span id="cb2-56"><a href="#cb2-56" tabindex="-1"></a><span class="co">#&gt; categorical sampler (191)</span></span>
+<span id="cb2-57"><a href="#cb2-57" tabindex="-1"></a><span class="co">#&gt;   - z[]  (191 elements)</span></span>
+<span id="cb2-58"><a href="#cb2-58" tabindex="-1"></a><span class="co">#&gt; Compiling</span></span>
+<span id="cb2-59"><a href="#cb2-59" tabindex="-1"></a><span class="co">#&gt;   [Note] This may take a minute.</span></span>
+<span id="cb2-60"><a href="#cb2-60" tabindex="-1"></a><span class="co">#&gt;   [Note] Use &#39;showCompilerOutput = TRUE&#39; to see C++ compilation details.</span></span>
+<span id="cb2-61"><a href="#cb2-61" tabindex="-1"></a><span class="co">#&gt; Compiling</span></span>
+<span id="cb2-62"><a href="#cb2-62" tabindex="-1"></a><span class="co">#&gt;   [Note] This may take a minute.</span></span>
+<span id="cb2-63"><a href="#cb2-63" tabindex="-1"></a><span class="co">#&gt;   [Note] Use &#39;showCompilerOutput = TRUE&#39; to see C++ compilation details.</span></span>
+<span id="cb2-64"><a href="#cb2-64" tabindex="-1"></a><span class="co">#&gt; running chain 1...</span></span>
+<span id="cb2-65"><a href="#cb2-65" tabindex="-1"></a><span class="co">#&gt;   [Warning] Incorrect size or dimension of initial value for &#39;v&#39;.</span></span>
+<span id="cb2-66"><a href="#cb2-66" tabindex="-1"></a><span class="co">#&gt;          Initial value will not be used in compiled model.</span></span>
+<span id="cb2-67"><a href="#cb2-67" tabindex="-1"></a><span class="co">#&gt; running chain 2...</span></span>
+<span id="cb2-68"><a href="#cb2-68" tabindex="-1"></a><span class="co">#&gt;   [Warning] Incorrect size or dimension of initial value for &#39;v&#39;.</span></span>
+<span id="cb2-69"><a href="#cb2-69" tabindex="-1"></a><span class="co">#&gt;          Initial value will not be used in compiled model.</span></span>
+<span id="cb2-70"><a href="#cb2-70" tabindex="-1"></a><span class="co">#&gt;   [Warning] There are 3 individual pWAIC values that are greater than 0.4. This may indicate that the WAIC estimate is unstable (Vehtari et al., 2017), at least in cases without grouping of data nodes or multivariate data nodes.</span></span>
+<span id="cb2-71"><a href="#cb2-71" tabindex="-1"></a><span class="co">#&gt; Defining model</span></span>
+<span id="cb2-72"><a href="#cb2-72" tabindex="-1"></a><span class="co">#&gt; Building model</span></span>
+<span id="cb2-73"><a href="#cb2-73" tabindex="-1"></a><span class="co">#&gt; Setting data and initial values</span></span>
+<span id="cb2-74"><a href="#cb2-74" tabindex="-1"></a><span class="co">#&gt;   [Warning] Incorrect size or dimension of initial value for &#39;v&#39;.</span></span>
+<span id="cb2-75"><a href="#cb2-75" tabindex="-1"></a><span class="co">#&gt;          Initial value will not be used in compiled model.</span></span>
+<span id="cb2-76"><a href="#cb2-76" tabindex="-1"></a><span class="co">#&gt; Checking model sizes and dimensions</span></span>
+<span id="cb2-77"><a href="#cb2-77" tabindex="-1"></a><span class="co">#&gt;   [Note] This model is not fully initialized. This is not an error.</span></span>
+<span id="cb2-78"><a href="#cb2-78" tabindex="-1"></a><span class="co">#&gt;          To see which variables are not initialized, use model$initializeInfo().</span></span>
+<span id="cb2-79"><a href="#cb2-79" tabindex="-1"></a><span class="co">#&gt;          For more information on model initialization, see help(modelInitialization).</span></span>
+<span id="cb2-80"><a href="#cb2-80" tabindex="-1"></a><span class="co">#&gt; Checking model calculations</span></span>
+<span id="cb2-81"><a href="#cb2-81" tabindex="-1"></a><span class="co">#&gt; ===== Monitors =====</span></span>
+<span id="cb2-82"><a href="#cb2-82" tabindex="-1"></a><span class="co">#&gt; thin = 1: alpha, beta_ps_scale, beta_scale, shape, w, z</span></span>
+<span id="cb2-83"><a href="#cb2-83" tabindex="-1"></a><span class="co">#&gt; ===== Samplers =====</span></span>
+<span id="cb2-84"><a href="#cb2-84" tabindex="-1"></a><span class="co">#&gt; RW sampler (12)</span></span>
+<span id="cb2-85"><a href="#cb2-85" tabindex="-1"></a><span class="co">#&gt;   - alpha</span></span>
+<span id="cb2-86"><a href="#cb2-86" tabindex="-1"></a><span class="co">#&gt;   - shape[]  (2 elements)</span></span>
+<span id="cb2-87"><a href="#cb2-87" tabindex="-1"></a><span class="co">#&gt;   - beta_scale[]  (6 elements)</span></span>
+<span id="cb2-88"><a href="#cb2-88" tabindex="-1"></a><span class="co">#&gt;   - beta_ps_scale[]  (2 elements)</span></span>
+<span id="cb2-89"><a href="#cb2-89" tabindex="-1"></a><span class="co">#&gt;   - v[]  (1 element)</span></span>
+<span id="cb2-90"><a href="#cb2-90" tabindex="-1"></a><span class="co">#&gt; categorical sampler (309)</span></span>
+<span id="cb2-91"><a href="#cb2-91" tabindex="-1"></a><span class="co">#&gt;   - z[]  (309 elements)</span></span>
+<span id="cb2-92"><a href="#cb2-92" tabindex="-1"></a><span class="co">#&gt; Compiling</span></span>
+<span id="cb2-93"><a href="#cb2-93" tabindex="-1"></a><span class="co">#&gt;   [Note] This may take a minute.</span></span>
+<span id="cb2-94"><a href="#cb2-94" tabindex="-1"></a><span class="co">#&gt;   [Note] Use &#39;showCompilerOutput = TRUE&#39; to see C++ compilation details.</span></span>
+<span id="cb2-95"><a href="#cb2-95" tabindex="-1"></a><span class="co">#&gt; Compiling</span></span>
+<span id="cb2-96"><a href="#cb2-96" tabindex="-1"></a><span class="co">#&gt;   [Note] This may take a minute.</span></span>
+<span id="cb2-97"><a href="#cb2-97" tabindex="-1"></a><span class="co">#&gt;   [Note] Use &#39;showCompilerOutput = TRUE&#39; to see C++ compilation details.</span></span>
+<span id="cb2-98"><a href="#cb2-98" tabindex="-1"></a><span class="co">#&gt; running chain 1...</span></span>
+<span id="cb2-99"><a href="#cb2-99" tabindex="-1"></a><span class="co">#&gt;   [Warning] Incorrect size or dimension of initial value for &#39;v&#39;.</span></span>
+<span id="cb2-100"><a href="#cb2-100" tabindex="-1"></a><span class="co">#&gt;          Initial value will not be used in compiled model.</span></span>
+<span id="cb2-101"><a href="#cb2-101" tabindex="-1"></a><span class="co">#&gt; running chain 2...</span></span>
+<span id="cb2-102"><a href="#cb2-102" tabindex="-1"></a><span class="co">#&gt;   [Warning] Incorrect size or dimension of initial value for &#39;v&#39;.</span></span>
+<span id="cb2-103"><a href="#cb2-103" tabindex="-1"></a><span class="co">#&gt;          Initial value will not be used in compiled model.</span></span>
+<span id="cb2-104"><a href="#cb2-104" tabindex="-1"></a><span class="co">#&gt;   [Warning] There are 25 individual pWAIC values that are greater than 0.4. This may indicate that the WAIC estimate is unstable (Vehtari et al., 2017), at least in cases without grouping of data nodes or multivariate data nodes.</span></span>
+<span id="cb2-105"><a href="#cb2-105" tabindex="-1"></a></span>
+<span id="cb2-106"><a href="#cb2-106" tabindex="-1"></a><span class="co"># Different kernels by arm (positive)</span></span>
+<span id="cb2-107"><a href="#cb2-107" tabindex="-1"></a>cb_alt_pos <span class="ot">&lt;-</span> <span class="fu">build_causal_bundle</span>(</span>
+<span id="cb2-108"><a href="#cb2-108" tabindex="-1"></a>  <span class="at">y =</span> causal_alt_pos500_p3_k3<span class="sc">$</span>y,</span>
+<span id="cb2-109"><a href="#cb2-109" tabindex="-1"></a>  <span class="at">X =</span> causal_alt_pos500_p3_k3<span class="sc">$</span>X,</span>
+<span id="cb2-110"><a href="#cb2-110" tabindex="-1"></a>  <span class="at">T =</span> causal_alt_pos500_p3_k3<span class="sc">$</span>T,</span>
+<span id="cb2-111"><a href="#cb2-111" tabindex="-1"></a>  <span class="at">backend =</span> <span class="fu">c</span>(<span class="st">&quot;sb&quot;</span>, <span class="st">&quot;sb&quot;</span>),</span>
+<span id="cb2-112"><a href="#cb2-112" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="fu">c</span>(<span class="st">&quot;lognormal&quot;</span>, <span class="st">&quot;gamma&quot;</span>),</span>
+<span id="cb2-113"><a href="#cb2-113" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="fu">c</span>(<span class="cn">FALSE</span>, <span class="cn">FALSE</span>),</span>
+<span id="cb2-114"><a href="#cb2-114" tabindex="-1"></a>  <span class="at">J =</span> <span class="fu">c</span>(causal_alt_pos500_p3_k3<span class="sc">$</span>meta<span class="sc">$</span>K0, causal_alt_pos500_p3_k3<span class="sc">$</span>meta<span class="sc">$</span>K1),</span>
+<span id="cb2-115"><a href="#cb2-115" tabindex="-1"></a>  <span class="at">mcmc_outcome =</span> mcmc,</span>
+<span id="cb2-116"><a href="#cb2-116" tabindex="-1"></a>  <span class="at">mcmc_ps =</span> mcmc</span>
+<span id="cb2-117"><a href="#cb2-117" tabindex="-1"></a>)</span>
+<span id="cb2-118"><a href="#cb2-118" tabindex="-1"></a>cf_alt_pos <span class="ot">&lt;-</span> <span class="fu">run_mcmc_causal</span>(cb_alt_pos, <span class="at">show_progress =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-119"><a href="#cb2-119" tabindex="-1"></a><span class="co">#&gt; Defining model</span></span>
+<span id="cb2-120"><a href="#cb2-120" tabindex="-1"></a><span class="co">#&gt; Building model</span></span>
+<span id="cb2-121"><a href="#cb2-121" tabindex="-1"></a><span class="co">#&gt; Setting data and initial values</span></span>
+<span id="cb2-122"><a href="#cb2-122" tabindex="-1"></a><span class="co">#&gt; Checking model sizes and dimensions</span></span>
+<span id="cb2-123"><a href="#cb2-123" tabindex="-1"></a><span class="co">#&gt;   [Note] This model is not fully initialized. This is not an error.</span></span>
+<span id="cb2-124"><a href="#cb2-124" tabindex="-1"></a><span class="co">#&gt;          To see which variables are not initialized, use model$initializeInfo().</span></span>
+<span id="cb2-125"><a href="#cb2-125" tabindex="-1"></a><span class="co">#&gt;          For more information on model initialization, see help(modelInitialization).</span></span>
+<span id="cb2-126"><a href="#cb2-126" tabindex="-1"></a><span class="co">#&gt; Checking model calculations</span></span>
+<span id="cb2-127"><a href="#cb2-127" tabindex="-1"></a><span class="co">#&gt; ===== Monitors =====</span></span>
+<span id="cb2-128"><a href="#cb2-128" tabindex="-1"></a><span class="co">#&gt; thin = 1: beta</span></span>
+<span id="cb2-129"><a href="#cb2-129" tabindex="-1"></a><span class="co">#&gt; ===== Samplers =====</span></span>
+<span id="cb2-130"><a href="#cb2-130" tabindex="-1"></a><span class="co">#&gt; RW sampler (4)</span></span>
+<span id="cb2-131"><a href="#cb2-131" tabindex="-1"></a><span class="co">#&gt;   - beta[]  (4 elements)</span></span>
+<span id="cb2-132"><a href="#cb2-132" tabindex="-1"></a><span class="co">#&gt; Compiling</span></span>
+<span id="cb2-133"><a href="#cb2-133" tabindex="-1"></a><span class="co">#&gt;   [Note] This may take a minute.</span></span>
+<span id="cb2-134"><a href="#cb2-134" tabindex="-1"></a><span class="co">#&gt;   [Note] Use &#39;showCompilerOutput = TRUE&#39; to see C++ compilation details.</span></span>
+<span id="cb2-135"><a href="#cb2-135" tabindex="-1"></a><span class="co">#&gt; Compiling</span></span>
+<span id="cb2-136"><a href="#cb2-136" tabindex="-1"></a><span class="co">#&gt;   [Note] This may take a minute.</span></span>
+<span id="cb2-137"><a href="#cb2-137" tabindex="-1"></a><span class="co">#&gt;   [Note] Use &#39;showCompilerOutput = TRUE&#39; to see C++ compilation details.</span></span>
+<span id="cb2-138"><a href="#cb2-138" tabindex="-1"></a><span class="co">#&gt; running chain 1...</span></span>
+<span id="cb2-139"><a href="#cb2-139" tabindex="-1"></a><span class="co">#&gt; running chain 2...</span></span>
+<span id="cb2-140"><a href="#cb2-140" tabindex="-1"></a><span class="co">#&gt; Defining model</span></span>
+<span id="cb2-141"><a href="#cb2-141" tabindex="-1"></a><span class="co">#&gt; Building model</span></span>
+<span id="cb2-142"><a href="#cb2-142" tabindex="-1"></a><span class="co">#&gt; Setting data and initial values</span></span>
+<span id="cb2-143"><a href="#cb2-143" tabindex="-1"></a><span class="co">#&gt; Checking model sizes and dimensions</span></span>
+<span id="cb2-144"><a href="#cb2-144" tabindex="-1"></a><span class="co">#&gt;   [Note] This model is not fully initialized. This is not an error.</span></span>
+<span id="cb2-145"><a href="#cb2-145" tabindex="-1"></a><span class="co">#&gt;          To see which variables are not initialized, use model$initializeInfo().</span></span>
+<span id="cb2-146"><a href="#cb2-146" tabindex="-1"></a><span class="co">#&gt;          For more information on model initialization, see help(modelInitialization).</span></span>
+<span id="cb2-147"><a href="#cb2-147" tabindex="-1"></a><span class="co">#&gt; Checking model calculations</span></span>
+<span id="cb2-148"><a href="#cb2-148" tabindex="-1"></a><span class="co">#&gt; ===== Monitors =====</span></span>
+<span id="cb2-149"><a href="#cb2-149" tabindex="-1"></a><span class="co">#&gt; thin = 1: alpha, beta_ps_scale, beta_scale, shape, w, z</span></span>
+<span id="cb2-150"><a href="#cb2-150" tabindex="-1"></a><span class="co">#&gt; ===== Samplers =====</span></span>
+<span id="cb2-151"><a href="#cb2-151" tabindex="-1"></a><span class="co">#&gt; RW sampler (18)</span></span>
+<span id="cb2-152"><a href="#cb2-152" tabindex="-1"></a><span class="co">#&gt;   - alpha</span></span>
+<span id="cb2-153"><a href="#cb2-153" tabindex="-1"></a><span class="co">#&gt;   - shape[]  (3 elements)</span></span>
+<span id="cb2-154"><a href="#cb2-154" tabindex="-1"></a><span class="co">#&gt;   - beta_scale[]  (9 elements)</span></span>
+<span id="cb2-155"><a href="#cb2-155" tabindex="-1"></a><span class="co">#&gt;   - beta_ps_scale[]  (3 elements)</span></span>
+<span id="cb2-156"><a href="#cb2-156" tabindex="-1"></a><span class="co">#&gt;   - v[]  (2 elements)</span></span>
+<span id="cb2-157"><a href="#cb2-157" tabindex="-1"></a><span class="co">#&gt; categorical sampler (225)</span></span>
+<span id="cb2-158"><a href="#cb2-158" tabindex="-1"></a><span class="co">#&gt;   - z[]  (225 elements)</span></span>
+<span id="cb2-159"><a href="#cb2-159" tabindex="-1"></a><span class="co">#&gt; Compiling</span></span>
+<span id="cb2-160"><a href="#cb2-160" tabindex="-1"></a><span class="co">#&gt;   [Note] This may take a minute.</span></span>
+<span id="cb2-161"><a href="#cb2-161" tabindex="-1"></a><span class="co">#&gt;   [Note] Use &#39;showCompilerOutput = TRUE&#39; to see C++ compilation details.</span></span>
+<span id="cb2-162"><a href="#cb2-162" tabindex="-1"></a><span class="co">#&gt; Compiling</span></span>
+<span id="cb2-163"><a href="#cb2-163" tabindex="-1"></a><span class="co">#&gt;   [Note] This may take a minute.</span></span>
+<span id="cb2-164"><a href="#cb2-164" tabindex="-1"></a><span class="co">#&gt;   [Note] Use &#39;showCompilerOutput = TRUE&#39; to see C++ compilation details.</span></span>
+<span id="cb2-165"><a href="#cb2-165" tabindex="-1"></a><span class="co">#&gt; running chain 1...</span></span>
+<span id="cb2-166"><a href="#cb2-166" tabindex="-1"></a><span class="co">#&gt; running chain 2...</span></span>
+<span id="cb2-167"><a href="#cb2-167" tabindex="-1"></a><span class="co">#&gt;   [Warning] There are 27 individual pWAIC values that are greater than 0.4. This may indicate that the WAIC estimate is unstable (Vehtari et al., 2017), at least in cases without grouping of data nodes or multivariate data nodes.</span></span>
+<span id="cb2-168"><a href="#cb2-168" tabindex="-1"></a><span class="co">#&gt; Defining model</span></span>
+<span id="cb2-169"><a href="#cb2-169" tabindex="-1"></a><span class="co">#&gt; Building model</span></span>
+<span id="cb2-170"><a href="#cb2-170" tabindex="-1"></a><span class="co">#&gt; Setting data and initial values</span></span>
+<span id="cb2-171"><a href="#cb2-171" tabindex="-1"></a><span class="co">#&gt; Checking model sizes and dimensions</span></span>
+<span id="cb2-172"><a href="#cb2-172" tabindex="-1"></a><span class="co">#&gt;   [Note] This model is not fully initialized. This is not an error.</span></span>
+<span id="cb2-173"><a href="#cb2-173" tabindex="-1"></a><span class="co">#&gt;          To see which variables are not initialized, use model$initializeInfo().</span></span>
+<span id="cb2-174"><a href="#cb2-174" tabindex="-1"></a><span class="co">#&gt;          For more information on model initialization, see help(modelInitialization).</span></span>
+<span id="cb2-175"><a href="#cb2-175" tabindex="-1"></a><span class="co">#&gt; Checking model calculations</span></span>
+<span id="cb2-176"><a href="#cb2-176" tabindex="-1"></a><span class="co">#&gt; ===== Monitors =====</span></span>
+<span id="cb2-177"><a href="#cb2-177" tabindex="-1"></a><span class="co">#&gt; thin = 1: alpha, beta_meanlog, beta_ps_meanlog, sdlog, w, z</span></span>
+<span id="cb2-178"><a href="#cb2-178" tabindex="-1"></a><span class="co">#&gt; ===== Samplers =====</span></span>
+<span id="cb2-179"><a href="#cb2-179" tabindex="-1"></a><span class="co">#&gt; RW sampler (15)</span></span>
+<span id="cb2-180"><a href="#cb2-180" tabindex="-1"></a><span class="co">#&gt;   - alpha</span></span>
+<span id="cb2-181"><a href="#cb2-181" tabindex="-1"></a><span class="co">#&gt;   - beta_meanlog[]  (9 elements)</span></span>
+<span id="cb2-182"><a href="#cb2-182" tabindex="-1"></a><span class="co">#&gt;   - beta_ps_meanlog[]  (3 elements)</span></span>
+<span id="cb2-183"><a href="#cb2-183" tabindex="-1"></a><span class="co">#&gt;   - v[]  (2 elements)</span></span>
+<span id="cb2-184"><a href="#cb2-184" tabindex="-1"></a><span class="co">#&gt; conjugate sampler (3)</span></span>
+<span id="cb2-185"><a href="#cb2-185" tabindex="-1"></a><span class="co">#&gt;   - sdlog[]  (3 elements)</span></span>
+<span id="cb2-186"><a href="#cb2-186" tabindex="-1"></a><span class="co">#&gt; categorical sampler (275)</span></span>
+<span id="cb2-187"><a href="#cb2-187" tabindex="-1"></a><span class="co">#&gt;   - z[]  (275 elements)</span></span>
+<span id="cb2-188"><a href="#cb2-188" tabindex="-1"></a><span class="co">#&gt; Compiling</span></span>
+<span id="cb2-189"><a href="#cb2-189" tabindex="-1"></a><span class="co">#&gt;   [Note] This may take a minute.</span></span>
+<span id="cb2-190"><a href="#cb2-190" tabindex="-1"></a><span class="co">#&gt;   [Note] Use &#39;showCompilerOutput = TRUE&#39; to see C++ compilation details.</span></span>
+<span id="cb2-191"><a href="#cb2-191" tabindex="-1"></a><span class="co">#&gt; Compiling</span></span>
+<span id="cb2-192"><a href="#cb2-192" tabindex="-1"></a><span class="co">#&gt;   [Note] This may take a minute.</span></span>
+<span id="cb2-193"><a href="#cb2-193" tabindex="-1"></a><span class="co">#&gt;   [Note] Use &#39;showCompilerOutput = TRUE&#39; to see C++ compilation details.</span></span>
+<span id="cb2-194"><a href="#cb2-194" tabindex="-1"></a><span class="co">#&gt; running chain 1...</span></span>
+<span id="cb2-195"><a href="#cb2-195" tabindex="-1"></a><span class="co">#&gt; running chain 2...</span></span>
+<span id="cb2-196"><a href="#cb2-196" tabindex="-1"></a><span class="co">#&gt;   [Warning] There are 45 individual pWAIC values that are greater than 0.4. This may indicate that the WAIC estimate is unstable (Vehtari et al., 2017), at least in cases without grouping of data nodes or multivariate data nodes.</span></span>
+<span id="cb2-197"><a href="#cb2-197" tabindex="-1"></a></span>
+<span id="cb2-198"><a href="#cb2-198" tabindex="-1"></a><span class="co"># Different kernels by arm (real)</span></span>
+<span id="cb2-199"><a href="#cb2-199" tabindex="-1"></a>cb_alt_real <span class="ot">&lt;-</span> <span class="fu">build_causal_bundle</span>(</span>
+<span id="cb2-200"><a href="#cb2-200" tabindex="-1"></a>  <span class="at">y =</span> causal_alt_real500_p4_k2<span class="sc">$</span>y,</span>
+<span id="cb2-201"><a href="#cb2-201" tabindex="-1"></a>  <span class="at">X =</span> causal_alt_real500_p4_k2<span class="sc">$</span>X,</span>
+<span id="cb2-202"><a href="#cb2-202" tabindex="-1"></a>  <span class="at">T =</span> causal_alt_real500_p4_k2<span class="sc">$</span>T,</span>
+<span id="cb2-203"><a href="#cb2-203" tabindex="-1"></a>  <span class="at">backend =</span> <span class="fu">c</span>(<span class="st">&quot;sb&quot;</span>, <span class="st">&quot;sb&quot;</span>),</span>
+<span id="cb2-204"><a href="#cb2-204" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="fu">c</span>(<span class="st">&quot;normal&quot;</span>, <span class="st">&quot;laplace&quot;</span>),</span>
+<span id="cb2-205"><a href="#cb2-205" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="fu">c</span>(<span class="cn">FALSE</span>, <span class="cn">FALSE</span>),</span>
+<span id="cb2-206"><a href="#cb2-206" tabindex="-1"></a>  <span class="at">J =</span> <span class="fu">c</span>(causal_alt_real500_p4_k2<span class="sc">$</span>meta<span class="sc">$</span>K0, causal_alt_real500_p4_k2<span class="sc">$</span>meta<span class="sc">$</span>K1),</span>
+<span id="cb2-207"><a href="#cb2-207" tabindex="-1"></a>  <span class="at">mcmc_outcome =</span> mcmc,</span>
+<span id="cb2-208"><a href="#cb2-208" tabindex="-1"></a>  <span class="at">mcmc_ps =</span> mcmc</span>
+<span id="cb2-209"><a href="#cb2-209" tabindex="-1"></a>)</span>
+<span id="cb2-210"><a href="#cb2-210" tabindex="-1"></a>cf_alt_real <span class="ot">&lt;-</span> <span class="fu">run_mcmc_causal</span>(cb_alt_real, <span class="at">show_progress =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-211"><a href="#cb2-211" tabindex="-1"></a><span class="co">#&gt; Defining model</span></span>
+<span id="cb2-212"><a href="#cb2-212" tabindex="-1"></a><span class="co">#&gt; Building model</span></span>
+<span id="cb2-213"><a href="#cb2-213" tabindex="-1"></a><span class="co">#&gt; Setting data and initial values</span></span>
+<span id="cb2-214"><a href="#cb2-214" tabindex="-1"></a><span class="co">#&gt; Checking model sizes and dimensions</span></span>
+<span id="cb2-215"><a href="#cb2-215" tabindex="-1"></a><span class="co">#&gt;   [Note] This model is not fully initialized. This is not an error.</span></span>
+<span id="cb2-216"><a href="#cb2-216" tabindex="-1"></a><span class="co">#&gt;          To see which variables are not initialized, use model$initializeInfo().</span></span>
+<span id="cb2-217"><a href="#cb2-217" tabindex="-1"></a><span class="co">#&gt;          For more information on model initialization, see help(modelInitialization).</span></span>
+<span id="cb2-218"><a href="#cb2-218" tabindex="-1"></a><span class="co">#&gt; Checking model calculations</span></span>
+<span id="cb2-219"><a href="#cb2-219" tabindex="-1"></a><span class="co">#&gt; ===== Monitors =====</span></span>
+<span id="cb2-220"><a href="#cb2-220" tabindex="-1"></a><span class="co">#&gt; thin = 1: beta</span></span>
+<span id="cb2-221"><a href="#cb2-221" tabindex="-1"></a><span class="co">#&gt; ===== Samplers =====</span></span>
+<span id="cb2-222"><a href="#cb2-222" tabindex="-1"></a><span class="co">#&gt; RW sampler (5)</span></span>
+<span id="cb2-223"><a href="#cb2-223" tabindex="-1"></a><span class="co">#&gt;   - beta[]  (5 elements)</span></span>
+<span id="cb2-224"><a href="#cb2-224" tabindex="-1"></a><span class="co">#&gt; Compiling</span></span>
+<span id="cb2-225"><a href="#cb2-225" tabindex="-1"></a><span class="co">#&gt;   [Note] This may take a minute.</span></span>
+<span id="cb2-226"><a href="#cb2-226" tabindex="-1"></a><span class="co">#&gt;   [Note] Use &#39;showCompilerOutput = TRUE&#39; to see C++ compilation details.</span></span>
+<span id="cb2-227"><a href="#cb2-227" tabindex="-1"></a><span class="co">#&gt; Compiling</span></span>
+<span id="cb2-228"><a href="#cb2-228" tabindex="-1"></a><span class="co">#&gt;   [Note] This may take a minute.</span></span>
+<span id="cb2-229"><a href="#cb2-229" tabindex="-1"></a><span class="co">#&gt;   [Note] Use &#39;showCompilerOutput = TRUE&#39; to see C++ compilation details.</span></span>
+<span id="cb2-230"><a href="#cb2-230" tabindex="-1"></a><span class="co">#&gt; running chain 1...</span></span>
+<span id="cb2-231"><a href="#cb2-231" tabindex="-1"></a><span class="co">#&gt; running chain 2...</span></span>
+<span id="cb2-232"><a href="#cb2-232" tabindex="-1"></a><span class="co">#&gt; Defining model</span></span>
+<span id="cb2-233"><a href="#cb2-233" tabindex="-1"></a><span class="co">#&gt; Building model</span></span>
+<span id="cb2-234"><a href="#cb2-234" tabindex="-1"></a><span class="co">#&gt; Setting data and initial values</span></span>
+<span id="cb2-235"><a href="#cb2-235" tabindex="-1"></a><span class="co">#&gt;   [Warning] Incorrect size or dimension of initial value for &#39;v&#39;.</span></span>
+<span id="cb2-236"><a href="#cb2-236" tabindex="-1"></a><span class="co">#&gt;          Initial value will not be used in compiled model.</span></span>
+<span id="cb2-237"><a href="#cb2-237" tabindex="-1"></a><span class="co">#&gt; Checking model sizes and dimensions</span></span>
+<span id="cb2-238"><a href="#cb2-238" tabindex="-1"></a><span class="co">#&gt;   [Note] This model is not fully initialized. This is not an error.</span></span>
+<span id="cb2-239"><a href="#cb2-239" tabindex="-1"></a><span class="co">#&gt;          To see which variables are not initialized, use model$initializeInfo().</span></span>
+<span id="cb2-240"><a href="#cb2-240" tabindex="-1"></a><span class="co">#&gt;          For more information on model initialization, see help(modelInitialization).</span></span>
+<span id="cb2-241"><a href="#cb2-241" tabindex="-1"></a><span class="co">#&gt; Checking model calculations</span></span>
+<span id="cb2-242"><a href="#cb2-242" tabindex="-1"></a><span class="co">#&gt; ===== Monitors =====</span></span>
+<span id="cb2-243"><a href="#cb2-243" tabindex="-1"></a><span class="co">#&gt; thin = 1: alpha, beta_location, beta_ps_location, scale, w, z</span></span>
+<span id="cb2-244"><a href="#cb2-244" tabindex="-1"></a><span class="co">#&gt; ===== Samplers =====</span></span>
+<span id="cb2-245"><a href="#cb2-245" tabindex="-1"></a><span class="co">#&gt; RW sampler (12)</span></span>
+<span id="cb2-246"><a href="#cb2-246" tabindex="-1"></a><span class="co">#&gt;   - alpha</span></span>
+<span id="cb2-247"><a href="#cb2-247" tabindex="-1"></a><span class="co">#&gt;   - beta_location[]  (8 elements)</span></span>
+<span id="cb2-248"><a href="#cb2-248" tabindex="-1"></a><span class="co">#&gt;   - beta_ps_location[]  (2 elements)</span></span>
+<span id="cb2-249"><a href="#cb2-249" tabindex="-1"></a><span class="co">#&gt;   - v[]  (1 element)</span></span>
+<span id="cb2-250"><a href="#cb2-250" tabindex="-1"></a><span class="co">#&gt; conjugate sampler (2)</span></span>
+<span id="cb2-251"><a href="#cb2-251" tabindex="-1"></a><span class="co">#&gt;   - scale[]  (2 elements)</span></span>
+<span id="cb2-252"><a href="#cb2-252" tabindex="-1"></a><span class="co">#&gt; categorical sampler (232)</span></span>
+<span id="cb2-253"><a href="#cb2-253" tabindex="-1"></a><span class="co">#&gt;   - z[]  (232 elements)</span></span>
+<span id="cb2-254"><a href="#cb2-254" tabindex="-1"></a><span class="co">#&gt; Compiling</span></span>
+<span id="cb2-255"><a href="#cb2-255" tabindex="-1"></a><span class="co">#&gt;   [Note] This may take a minute.</span></span>
+<span id="cb2-256"><a href="#cb2-256" tabindex="-1"></a><span class="co">#&gt;   [Note] Use &#39;showCompilerOutput = TRUE&#39; to see C++ compilation details.</span></span>
+<span id="cb2-257"><a href="#cb2-257" tabindex="-1"></a><span class="co">#&gt; Compiling</span></span>
+<span id="cb2-258"><a href="#cb2-258" tabindex="-1"></a><span class="co">#&gt;   [Note] This may take a minute.</span></span>
+<span id="cb2-259"><a href="#cb2-259" tabindex="-1"></a><span class="co">#&gt;   [Note] Use &#39;showCompilerOutput = TRUE&#39; to see C++ compilation details.</span></span>
+<span id="cb2-260"><a href="#cb2-260" tabindex="-1"></a><span class="co">#&gt; running chain 1...</span></span>
+<span id="cb2-261"><a href="#cb2-261" tabindex="-1"></a><span class="co">#&gt;   [Warning] Incorrect size or dimension of initial value for &#39;v&#39;.</span></span>
+<span id="cb2-262"><a href="#cb2-262" tabindex="-1"></a><span class="co">#&gt;          Initial value will not be used in compiled model.</span></span>
+<span id="cb2-263"><a href="#cb2-263" tabindex="-1"></a><span class="co">#&gt; running chain 2...</span></span>
+<span id="cb2-264"><a href="#cb2-264" tabindex="-1"></a><span class="co">#&gt;   [Warning] Incorrect size or dimension of initial value for &#39;v&#39;.</span></span>
+<span id="cb2-265"><a href="#cb2-265" tabindex="-1"></a><span class="co">#&gt;          Initial value will not be used in compiled model.</span></span>
+<span id="cb2-266"><a href="#cb2-266" tabindex="-1"></a><span class="co">#&gt;   [Warning] There are 104 individual pWAIC values that are greater than 0.4. This may indicate that the WAIC estimate is unstable (Vehtari et al., 2017), at least in cases without grouping of data nodes or multivariate data nodes.</span></span>
+<span id="cb2-267"><a href="#cb2-267" tabindex="-1"></a><span class="co">#&gt; Defining model</span></span>
+<span id="cb2-268"><a href="#cb2-268" tabindex="-1"></a><span class="co">#&gt; Building model</span></span>
+<span id="cb2-269"><a href="#cb2-269" tabindex="-1"></a><span class="co">#&gt; Setting data and initial values</span></span>
+<span id="cb2-270"><a href="#cb2-270" tabindex="-1"></a><span class="co">#&gt;   [Warning] Incorrect size or dimension of initial value for &#39;v&#39;.</span></span>
+<span id="cb2-271"><a href="#cb2-271" tabindex="-1"></a><span class="co">#&gt;          Initial value will not be used in compiled model.</span></span>
+<span id="cb2-272"><a href="#cb2-272" tabindex="-1"></a><span class="co">#&gt; Checking model sizes and dimensions</span></span>
+<span id="cb2-273"><a href="#cb2-273" tabindex="-1"></a><span class="co">#&gt;   [Note] This model is not fully initialized. This is not an error.</span></span>
+<span id="cb2-274"><a href="#cb2-274" tabindex="-1"></a><span class="co">#&gt;          To see which variables are not initialized, use model$initializeInfo().</span></span>
+<span id="cb2-275"><a href="#cb2-275" tabindex="-1"></a><span class="co">#&gt;          For more information on model initialization, see help(modelInitialization).</span></span>
+<span id="cb2-276"><a href="#cb2-276" tabindex="-1"></a><span class="co">#&gt; Checking model calculations</span></span>
+<span id="cb2-277"><a href="#cb2-277" tabindex="-1"></a><span class="co">#&gt; ===== Monitors =====</span></span>
+<span id="cb2-278"><a href="#cb2-278" tabindex="-1"></a><span class="co">#&gt; thin = 1: alpha, beta_mean, beta_ps_mean, sd, w, z</span></span>
+<span id="cb2-279"><a href="#cb2-279" tabindex="-1"></a><span class="co">#&gt; ===== Samplers =====</span></span>
+<span id="cb2-280"><a href="#cb2-280" tabindex="-1"></a><span class="co">#&gt; RW sampler (12)</span></span>
+<span id="cb2-281"><a href="#cb2-281" tabindex="-1"></a><span class="co">#&gt;   - alpha</span></span>
+<span id="cb2-282"><a href="#cb2-282" tabindex="-1"></a><span class="co">#&gt;   - beta_mean[]  (8 elements)</span></span>
+<span id="cb2-283"><a href="#cb2-283" tabindex="-1"></a><span class="co">#&gt;   - beta_ps_mean[]  (2 elements)</span></span>
+<span id="cb2-284"><a href="#cb2-284" tabindex="-1"></a><span class="co">#&gt;   - v[]  (1 element)</span></span>
+<span id="cb2-285"><a href="#cb2-285" tabindex="-1"></a><span class="co">#&gt; conjugate sampler (2)</span></span>
+<span id="cb2-286"><a href="#cb2-286" tabindex="-1"></a><span class="co">#&gt;   - sd[]  (2 elements)</span></span>
+<span id="cb2-287"><a href="#cb2-287" tabindex="-1"></a><span class="co">#&gt; categorical sampler (268)</span></span>
+<span id="cb2-288"><a href="#cb2-288" tabindex="-1"></a><span class="co">#&gt;   - z[]  (268 elements)</span></span>
+<span id="cb2-289"><a href="#cb2-289" tabindex="-1"></a><span class="co">#&gt; Compiling</span></span>
+<span id="cb2-290"><a href="#cb2-290" tabindex="-1"></a><span class="co">#&gt;   [Note] This may take a minute.</span></span>
+<span id="cb2-291"><a href="#cb2-291" tabindex="-1"></a><span class="co">#&gt;   [Note] Use &#39;showCompilerOutput = TRUE&#39; to see C++ compilation details.</span></span>
+<span id="cb2-292"><a href="#cb2-292" tabindex="-1"></a><span class="co">#&gt; Compiling</span></span>
+<span id="cb2-293"><a href="#cb2-293" tabindex="-1"></a><span class="co">#&gt;   [Note] This may take a minute.</span></span>
+<span id="cb2-294"><a href="#cb2-294" tabindex="-1"></a><span class="co">#&gt;   [Note] Use &#39;showCompilerOutput = TRUE&#39; to see C++ compilation details.</span></span>
+<span id="cb2-295"><a href="#cb2-295" tabindex="-1"></a><span class="co">#&gt; running chain 1...</span></span>
+<span id="cb2-296"><a href="#cb2-296" tabindex="-1"></a><span class="co">#&gt;   [Warning] Incorrect size or dimension of initial value for &#39;v&#39;.</span></span>
+<span id="cb2-297"><a href="#cb2-297" tabindex="-1"></a><span class="co">#&gt;          Initial value will not be used in compiled model.</span></span>
+<span id="cb2-298"><a href="#cb2-298" tabindex="-1"></a><span class="co">#&gt; running chain 2...</span></span>
+<span id="cb2-299"><a href="#cb2-299" tabindex="-1"></a><span class="co">#&gt;   [Warning] Incorrect size or dimension of initial value for &#39;v&#39;.</span></span>
+<span id="cb2-300"><a href="#cb2-300" tabindex="-1"></a><span class="co">#&gt;          Initial value will not be used in compiled model.</span></span>
+<span id="cb2-301"><a href="#cb2-301" tabindex="-1"></a><span class="co">#&gt;   [Warning] There are 20 individual pWAIC values that are greater than 0.4. This may indicate that the WAIC estimate is unstable (Vehtari et al., 2017), at least in cases without grouping of data nodes or multivariate data nodes.</span></span></code></pre></div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

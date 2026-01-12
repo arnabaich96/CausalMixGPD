@@ -668,7 +668,6 @@ stick_breaking <- nimble::nimbleFunction(
   backend <- meta$backend %||% spec$dispatch$backend %||% "<unknown>"
   kernel  <- meta$kernel  %||% spec$kernel$key %||% "<unknown>"
   GPD     <- isTRUE(meta$GPD %||% spec$dispatch$GPD)
-  has_ps  <- isTRUE(meta$has_ps)
 
   # training data
   Xtrain <- object$data$X %||% object$X %||% NULL
@@ -836,19 +835,18 @@ stick_breaking <- nimble::nimbleFunction(
   n_pred <- if (has_X) nrow(Xpred) else 1L
   if (is.na(n_pred) || n_pred < 1L) stop("Could not determine number of prediction rows.", call. = FALSE)
 
+  # PS handling: always compute fresh PS from the attached PS model when available
   ps_pred <- NULL
-  if (has_ps) {
-    # Prefer explicit 'ps' if provided; otherwise fall back to stored training ps
-    # even when x is supplied (common for residuals/predict on training design).
-    ps_pred <- if (!is.null(ps)) as.numeric(ps) else ps_train
-    if (is.null(ps_pred)) {
-      stop("PS-augmented model: cannot resolve propensity scores for prediction.", call. = FALSE)
-    }
-    if (length(ps_pred) != n_pred) {
-      stop("Length of 'ps' must equal number of prediction rows (nrow(x)).", call. = FALSE)
-    }
-    if (anyNA(ps_pred) || !all(is.finite(ps_pred))) {
-      stop("'ps' must be numeric, finite, and contain no NA.", call. = FALSE)
+  if (has_X) {
+    ps_model <- object$ps_model %||% NULL
+    if (!is.null(ps_model)) {
+      pm_fit <- ps_model$fit %||% ps_model
+      pm_bundle <- ps_model$bundle %||% ps_model$design %||% NULL
+      if (inherits(pm_fit, "dpmixgpd_ps_fit") && inherits(pm_bundle, "dpmixgpd_ps_bundle")) {
+        ps_pred <- .compute_ps_from_fit(ps_fit = pm_fit, ps_bundle = pm_bundle, X_new = Xpred)
+      } else {
+        stop("Attached PS model is incomplete; cannot compute propensity scores for new data.", call. = FALSE)
+      }
     }
   }
 
@@ -946,9 +944,13 @@ stick_breaking <- nimble::nimbleFunction(
   }
  
   link_beta_ps <- list()
-  if (length(link_params) && has_ps) {
-    for (nm in link_params) {
-      link_beta_ps[[nm]] <- .indexed_block(draw_mat, paste0("beta_ps_", nm), K = K)
+  # Extract link-mode PS coefficients (mandatory if PS was used in fitting)
+  link_beta_ps <- list()
+  for (nm in link_params) {
+    ps_col <- paste0("beta_ps_", nm)
+    # Check if PS coefficients exist in posterior draws
+    if (any(grepl(paste0("^", ps_col, "\\["), colnames(draw_mat)))) {
+      link_beta_ps[[nm]] <- .indexed_block(draw_mat, ps_col, K = K)
     }
   }
 
@@ -961,12 +963,14 @@ stick_breaking <- nimble::nimbleFunction(
       beta_mat <- link_betas[[nm]][s, , , drop = FALSE]
       dim(beta_mat) <- c(K, P)
       eta <- beta_mat %*% t(Xpred)
-      if (has_ps) {
+      # Add PS contribution if ps_pred is available and ps coefficients exist
+      if (!is.null(ps_pred)) {
         ps_mat <- link_beta_ps[[nm]]
-        if (is.null(ps_mat)) stop("PS coefficients missing for link-mode parameter.", call. = FALSE)
-        ps_vec <- as.numeric(ps_mat[s, ])
-        if (length(ps_vec) != K) stop("Unexpected dimension for beta_ps.", call. = FALSE)
-        eta <- eta + outer(ps_vec, ps_pred)
+        if (!is.null(ps_mat)) {
+          ps_vec <- as.numeric(ps_mat[s, ])
+          if (length(ps_vec) != K) stop("Unexpected dimension for beta_ps.", call. = FALSE)
+          eta <- eta + outer(ps_vec, ps_pred)
+        }
       }
       spec <- link_specs[[nm]] %||% list()
       link_eta[[nm]] <- .apply_link(eta, spec$link %||% "identity", spec$link_power %||% NULL)
@@ -1174,6 +1178,8 @@ stick_breaking <- nimble::nimbleFunction(
       upper <- qarr[length(probs), , , drop = TRUE]
     }
 
+    draws_out <- if (isTRUE(store_draws)) draws_arr else NULL
+
     if (isTRUE(store_draws) && is.environment(object$cache)) {
       if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
       key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
@@ -1182,7 +1188,7 @@ stick_breaking <- nimble::nimbleFunction(
                                           backend = backend, kernel = kernel, GPD = GPD)
     }
 
-    return(list(fit = fit, lower = lower, upper = upper, type = type, grid = pgrid))
+    return(list(fit = fit, lower = lower, upper = upper, type = type, grid = pgrid, draws = draws_out))
   }
 
   # -----------------------------
@@ -1270,6 +1276,8 @@ stick_breaking <- nimble::nimbleFunction(
       upper <- qmat[, length(probs)]
     }
 
+    draws_out <- if (isTRUE(store_draws)) mean_draws else NULL
+
     if (isTRUE(store_draws) && is.environment(object$cache)) {
       if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
       key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
@@ -1278,7 +1286,7 @@ stick_breaking <- nimble::nimbleFunction(
                                           backend = backend, kernel = kernel, GPD = GPD)
     }
 
-    return(list(fit = fit, lower = lower, upper = upper, type = type, grid = NULL))
+    return(list(fit = fit, lower = lower, upper = upper, type = type, grid = NULL, draws = draws_out))
   }
 
   stop("Unsupported prediction type.", call. = FALSE)

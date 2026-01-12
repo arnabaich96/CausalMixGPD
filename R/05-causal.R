@@ -303,8 +303,22 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
   bundle$outcome$con$data$ps <- ps_hat[idx_con]
   bundle$outcome$trt$data$ps <- ps_hat[idx_trt]
 
+  # Regenerate code/constants/monitors now that PS data is attached
+  for (arm in c("con", "trt")) {
+    b <- bundle$outcome[[arm]]
+    b$code <- build_code_from_spec(b$spec)
+    b$constants <- build_constants_from_spec(b$spec)
+    b$monitors <- build_monitors_from_spec(b$spec)
+    bundle$outcome[[arm]] <- b
+  }
+
   con_fit <- run_mcmc_bundle_manual(bundle$outcome$con, show_progress = show_progress)
   trt_fit <- run_mcmc_bundle_manual(bundle$outcome$trt, show_progress = show_progress)
+
+  # Attach PS model for downstream prediction on new covariates
+  ps_model <- list(fit = ps_fit, bundle = bundle$design)
+  con_fit$ps_model <- ps_model
+  trt_fit$ps_model <- ps_model
 
   out <- list(
     ps_fit = ps_fit,
@@ -333,7 +347,6 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' qte(fit, probs = c(0.5, 0.9), newdata = X[1:5, ])
 #' }
-#' @export
 qte <- function(fit,
                 probs = c(0.1, 0.5, 0.9),
                 newdata = NULL,
@@ -344,28 +357,149 @@ qte <- function(fit,
 
   ps_new <- NULL
   if (!is.null(x_pred)) {
-    if (is.null(fit$ps_fit)) {
-      stop("Causal fit missing PS model; cannot compute propensity scores for supplied covariates.", call. = FALSE)
+    ps_fit_use <- fit$ps_fit
+    ps_bundle_use <- fit$bundle$design
+    
+    # Fallback: try to retrieve PS model from outcome fits if causal fit missing it
+    if (is.null(ps_fit_use)) {
+      ps_model_try <- (fit$outcome_fit$trt$ps_model %||% fit$outcome_fit$con$ps_model %||% NULL)
+      if (!is.null(ps_model_try)) {
+        ps_fit_use <- ps_model_try$fit
+        ps_bundle_use <- ps_model_try$bundle
+      }
     }
-    ps_new <- .compute_ps_from_fit(ps_fit = fit$ps_fit, ps_bundle = fit$bundle$design, X_new = x_pred)
+    
+    # If PS model is still unavailable, warn and proceed without PS
+    if (is.null(ps_fit_use) || is.null(ps_bundle_use)) {
+      warning("Causal fit missing PS model; proceeding without PS adjustment.", call. = FALSE)
+      ps_new <- NULL
+    } else {
+      ps_new <- .compute_ps_from_fit(ps_fit = ps_fit_use, ps_bundle = ps_bundle_use, X_new = x_pred)
+    }
   }
 
   pr_trt <- predict(fit$outcome_fit$trt, x = x_pred, type = "quantile", p = probs,
                     ps = ps_new,
-                    interval = interval)
+                    interval = interval,
+                    store_draws = TRUE)
   pr_con <- predict(fit$outcome_fit$con, x = x_pred, type = "quantile", p = probs,
                     ps = ps_new,
-                    interval = interval)
+                    interval = interval,
+                    store_draws = TRUE)
+
+  if (is.null(pr_trt$draws) || is.null(pr_con$draws)) {
+    stop("QTE requires stored posterior quantile draws; set store_draws=TRUE in predict().", call. = FALSE)
+  }
+  if (!identical(dim(pr_trt$draws), dim(pr_con$draws))) {
+    stop("Treated and control posterior draws must have matching dimensions for QTE.", call. = FALSE)
+  }
+
+  diff_draws <- pr_trt$draws - pr_con$draws  # dims: S x n_pred x length(probs)
+  fit_mat <- apply(diff_draws, c(2, 3), mean, na.rm = TRUE)
+  lower <- upper <- NULL
+  if (interval == "credible") {
+    qarr <- apply(diff_draws, c(2, 3), stats::quantile, probs = c(0.025, 0.975), na.rm = TRUE)
+    lower <- qarr[1, , , drop = TRUE]
+    upper <- qarr[2, , , drop = TRUE]
+  }
+
   out <- list(
-    fit = pr_trt$fit - pr_con$fit,
-    lower = if (!is.null(pr_trt$lower) && !is.null(pr_con$lower)) pr_trt$lower - pr_con$upper else NULL,
-    upper = if (!is.null(pr_trt$upper) && !is.null(pr_con$upper)) pr_trt$upper - pr_con$lower else NULL,
+    fit = fit_mat,
+    lower = lower,
+    upper = upper,
     grid = probs,
     trt = pr_trt,
     con = pr_con,
     type = "qte"
   )
   class(out) <- "dpmixgpd_qte"
+  out
+}
+
+
+#' Average treatment effects (ATE)
+#'
+#' Computes treated-minus-control posterior means from a causal fit.
+#'
+#' @param fit A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.
+#' @param newdata Optional data.frame or matrix of covariates for prediction.
+#' @param interval Credible interval type passed to \code{predict()}.
+#' @param nsim_mean Number of posterior predictive draws to approximate the mean.
+#' @param probs Quantiles for credible intervals when \code{interval="credible"}.
+#' @return A list with elements \code{fit} (ATE), optional \code{lower}/\code{upper},
+#'   and the treated/control prediction objects.
+#' @examples
+#' \dontrun{
+#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", J = 6)
+#' fit <- run_mcmc_causal(cb, show_progress = FALSE)
+#' ate(fit, newdata = X[1:5, ])
+#' }
+#' @export
+ate <- function(fit,
+                newdata = NULL,
+                interval = c("none", "credible"),
+                nsim_mean = 200L,
+                probs = c(0.025, 0.5, 0.975)) {
+  stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
+  interval <- match.arg(interval)
+  x_pred <- newdata %||% (fit$bundle$data$X %||% NULL)
+
+  ps_new <- NULL
+  if (!is.null(x_pred)) {
+    ps_fit_use <- fit$ps_fit
+    ps_bundle_use <- fit$bundle$design
+    
+    # Fallback: try to retrieve PS model from outcome fits if causal fit missing it
+    if (is.null(ps_fit_use)) {
+      ps_model_try <- (fit$outcome_fit$trt$ps_model %||% fit$outcome_fit$con$ps_model %||% NULL)
+      if (!is.null(ps_model_try)) {
+        ps_fit_use <- ps_model_try$fit
+        ps_bundle_use <- ps_model_try$bundle
+      }
+    }
+    
+    # If PS model is still unavailable, warn and proceed without PS
+    if (is.null(ps_fit_use) || is.null(ps_bundle_use)) {
+      warning("Causal fit missing PS model; proceeding without PS adjustment.", call. = FALSE)
+      ps_new <- NULL
+    } else {
+      ps_new <- .compute_ps_from_fit(ps_fit = ps_fit_use, ps_bundle = ps_bundle_use, X_new = x_pred)
+    }
+  }
+
+  pr_trt <- predict(fit$outcome_fit$trt, x = x_pred, type = "mean",
+                    ps = ps_new, interval = interval, probs = probs,
+                    nsim_mean = nsim_mean, store_draws = TRUE)
+  pr_con <- predict(fit$outcome_fit$con, x = x_pred, type = "mean",
+                    ps = ps_new, interval = interval, probs = probs,
+                    nsim_mean = nsim_mean, store_draws = TRUE)
+
+  if (is.null(pr_trt$draws) || is.null(pr_con$draws)) {
+    stop("ATE requires stored posterior mean draws; set store_draws=TRUE in predict().", call. = FALSE)
+  }
+  if (!identical(dim(pr_trt$draws), dim(pr_con$draws))) {
+    stop("Treated and control posterior draws must have matching dimensions for ATE.", call. = FALSE)
+  }
+
+  diff_draws <- pr_trt$draws - pr_con$draws  # dims: S x n_pred
+  fit_vec <- colMeans(diff_draws, na.rm = TRUE)
+  lower <- upper <- NULL
+  if (interval == "credible") {
+    qmat <- t(apply(diff_draws, 2, stats::quantile, probs = probs, na.rm = TRUE))
+    lower <- qmat[, 1]
+    upper <- qmat[, length(probs)]
+  }
+
+  out <- list(
+    fit = fit_vec,
+    lower = lower,
+    upper = upper,
+    grid = NULL,
+    trt = pr_trt,
+    con = pr_con,
+    type = "ate"
+  )
+  class(out) <- "dpmixgpd_ate"
   out
 }
 
@@ -627,10 +761,21 @@ predict.dpmixgpd_causal_fit <- function(object,
 
 .compute_ps_from_fit <- function(ps_fit, ps_bundle, X_new) {
   design <- .ps_design_matrix(ps_bundle, X_new)
-  beta_means <- .ps_beta_means(ps_fit)
-  if (ncol(design) != length(beta_means)) {
+  samples <- as.matrix(ps_fit$mcmc$samples)
+  beta_cols <- grep("^beta\\[[0-9]+\\]$", colnames(samples), value = TRUE)
+  if (!length(beta_cols)) stop("PS beta draws not found.", call. = FALSE)
+
+  beta_inds <- as.integer(sub("^beta\\[([0-9]+)\\]$", "\\1", beta_cols))
+  order_idx <- order(beta_inds, na.last = NA)
+  beta_mat <- samples[, beta_cols, drop = FALSE]
+  beta_mat <- beta_mat[, order_idx, drop = FALSE]  # S x P
+
+  if (ncol(design) != ncol(beta_mat)) {
     stop("Mismatch between PS design columns and beta coefficients.", call. = FALSE)
   }
-  eta <- as.numeric(design %*% beta_means)
-  stats::plogis(eta)
+
+  # Posterior predictive PS: average plogis over beta draws
+  eta <- beta_mat %*% t(design)  # S x n_pred
+  ps_draws <- plogis(eta)
+  colMeans(ps_draws)
 }

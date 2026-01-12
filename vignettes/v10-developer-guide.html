@@ -12,7 +12,7 @@
 
 
 
-<title>Developer Guide: Adding a Kernel / Extending the Engine</title>
+<title>Developer guide</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -337,165 +337,223 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 
 
-<h1 class="title toc-ignore">Developer Guide: Adding a Kernel /
-Extending the Engine</h1>
+<h1 class="title toc-ignore">Developer guide</h1>
 
 
 
-<p>What you’ll learn: how to register a new kernel, the Nimble hooks
-needed, and the minimal regression suite for keeping the engine
-stable.</p>
-<div id="kernel-registry-steps" class="section level2">
-<h2>Kernel registry steps</h2>
-<ol style="list-style-type: decimal">
-<li>Call <code>init_kernel_registry()</code> to inspect current labels
-and slot names.</li>
-<li>Each entry needs <code>density</code>, <code>quantile</code>,
-<code>rng</code>, and <code>nimble</code> stubs following the naming
-pattern <code>d&lt;Name&gt;Mix</code>, <code>q&lt;Name&gt;Mix</code>,
-<code>r&lt;Name&gt;Mix</code>, <code>d&lt;Name&gt;</code>. The mixture
-index <code>j</code> is always the component number.</li>
-<li>Add the kernel to <code>get_kernel_registry()</code> in
-<code>R/00-kernel-registry.R</code>, providing:
-<ul>
-<li><code>support</code>: e.g., <code>(0, Inf)</code> or
-<code>(-Inf, Inf)</code>,</li>
-<li><code>params</code>: names of location/scale/shape,</li>
-<li><code>nimble</code>: the generated Nimble code snippet for the
-kernel density.</li>
-</ul></li>
-</ol>
+<p>Notes for extending the package: registering new kernels, testing
+predictive helpers, and inspecting example fits.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(DPmixGPD)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(nimble)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>use_cached_fit <span class="ot">&lt;-</span> <span class="cn">TRUE</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>.fit_path <span class="ot">&lt;-</span> <span class="cf">function</span>(name) {</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  path <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, name, <span class="at">package =</span> <span class="st">&quot;DPmixGPD&quot;</span>)</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  <span class="cf">if</span> (path <span class="sc">==</span> <span class="st">&quot;&quot;</span>) path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">&quot;inst&quot;</span>, <span class="st">&quot;extdata&quot;</span>, name)</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  path</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>}</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>fit_small <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="fu">.fit_path</span>(<span class="st">&quot;fit_small.rds&quot;</span>))</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code></pre></div>
+<div id="kernel-template-copypaste" class="section level2">
+<h2>Kernel template (copy/paste)</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># # Dummy skeleton (copy into R/0-base-kernels.R and register)</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co"># nimbleFunction(</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#   run = function(y = double(1), mu = double(0), sigma = double(0)) {</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#     returnType(double(0))</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#     dnorm(y, mu, sigma, log = 1)</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#   }</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co"># )</span></span></code></pre></div>
 </div>
-<div id="nimble-densityrng-hooks" class="section level2">
-<h2>Nimble density/rng hooks</h2>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Dummy skeleton (copy into R/0-base-kernels.R and register)</span></span>
-<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">nimbleFunction</span>(</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>  <span class="at">run =</span> <span class="cf">function</span>(<span class="at">y =</span> <span class="fu">double</span>(<span class="dv">1</span>), <span class="at">mu =</span> <span class="fu">double</span>(<span class="dv">0</span>), <span class="at">sigma =</span> <span class="fu">double</span>(<span class="dv">0</span>)) {</span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>    <span class="fu">returnType</span>(<span class="fu">double</span>(<span class="dv">0</span>))</span>
-<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>    <span class="fu">dnorm</span>(y, mu, sigma, <span class="at">log =</span> <span class="dv">1</span>)</span>
-<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  }</span>
-<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>)</span></code></pre></div>
-<p>Register the kernel using <code>init_kernel_registry()</code> for the
-lazy-loaded metadata; the backend generator picks up names automatically
-from <code>get_kernel_registry()</code>.</p>
+<div id="registry-entry-template" class="section level2">
+<h2>Registry entry template</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># init_kernel_registry(&quot;custom&quot;, list(</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#   density = &quot;dCustomMix&quot;,</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#   quantile = &quot;qCustomMix&quot;,</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#   rng = &quot;rCustomMix&quot;,</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#   support = &quot;(0, Inf)&quot;,</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#   params = c(&quot;mu&quot;, &quot;sigma&quot;)</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co"># ))</span></span></code></pre></div>
 </div>
-<div id="adding-a-kernel-entry" class="section level2">
-<h2>Adding a kernel entry</h2>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">init_kernel_registry</span>(<span class="st">&quot;custom&quot;</span>, <span class="fu">list</span>(</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="at">density =</span> <span class="st">&quot;dCustomMix&quot;</span>,</span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">quantile =</span> <span class="st">&quot;qCustomMix&quot;</span>,</span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="at">rng =</span> <span class="st">&quot;rCustomMix&quot;</span>,</span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="at">support =</span> <span class="st">&quot;(0, Inf)&quot;</span>,</span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="at">params =</span> <span class="fu">c</span>(<span class="st">&quot;mu&quot;</span>, <span class="st">&quot;sigma&quot;</span>)</span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>))</span></code></pre></div>
+<div id="predictive-sanity-check" class="section level2">
+<h2>Predictive sanity check</h2>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">sim_bulk_tail</span>(<span class="at">n =</span> <span class="dv">80</span>, <span class="at">seed =</span> <span class="dv">123</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">&quot;sb&quot;</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">&quot;lognormal&quot;</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="at">J =</span> <span class="dv">4</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  <span class="at">mcmc =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">200</span>, <span class="at">nburnin =</span> <span class="dv">50</span>, <span class="at">thin =</span> <span class="dv">2</span>, <span class="at">nchains =</span> <span class="dv">2</span>, <span class="at">seed =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>)</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="cf">if</span> (use_cached_fit) {</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> fit_small</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle)</span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>}</span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="fu">predict</span>(fit, <span class="at">type =</span> <span class="st">&quot;quantile&quot;</span>, <span class="at">p =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.9</span>))</span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt; $fit</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt;          [,1]     [,2]</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co">#&gt; [1,] 2.444721 9.102755</span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="co">#&gt; $lower</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="co">#&gt; NULL</span></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a><span class="co">#&gt; $upper</span></span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a><span class="co">#&gt; NULL</span></span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a><span class="co">#&gt; $type</span></span>
+<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a><span class="co">#&gt; [1] &quot;quantile&quot;</span></span>
+<span id="cb4-28"><a href="#cb4-28" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-29"><a href="#cb4-29" tabindex="-1"></a><span class="co">#&gt; $grid</span></span>
+<span id="cb4-30"><a href="#cb4-30" tabindex="-1"></a><span class="co">#&gt; [1] 0.5 0.9</span></span>
+<span id="cb4-31"><a href="#cb4-31" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-32"><a href="#cb4-32" tabindex="-1"></a><span class="co">#&gt; $draws</span></span>
+<span id="cb4-33"><a href="#cb4-33" tabindex="-1"></a><span class="co">#&gt; , , 1</span></span>
+<span id="cb4-34"><a href="#cb4-34" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-35"><a href="#cb4-35" tabindex="-1"></a><span class="co">#&gt;           [,1]</span></span>
+<span id="cb4-36"><a href="#cb4-36" tabindex="-1"></a><span class="co">#&gt;  [1,] 2.084684</span></span>
+<span id="cb4-37"><a href="#cb4-37" tabindex="-1"></a><span class="co">#&gt;  [2,] 1.761678</span></span>
+<span id="cb4-38"><a href="#cb4-38" tabindex="-1"></a><span class="co">#&gt;  [3,] 1.711988</span></span>
+<span id="cb4-39"><a href="#cb4-39" tabindex="-1"></a><span class="co">#&gt;  [4,] 2.488099</span></span>
+<span id="cb4-40"><a href="#cb4-40" tabindex="-1"></a><span class="co">#&gt;  [5,] 2.076856</span></span>
+<span id="cb4-41"><a href="#cb4-41" tabindex="-1"></a><span class="co">#&gt;  [6,] 1.980510</span></span>
+<span id="cb4-42"><a href="#cb4-42" tabindex="-1"></a><span class="co">#&gt;  [7,] 1.814564</span></span>
+<span id="cb4-43"><a href="#cb4-43" tabindex="-1"></a><span class="co">#&gt;  [8,] 2.015153</span></span>
+<span id="cb4-44"><a href="#cb4-44" tabindex="-1"></a><span class="co">#&gt;  [9,] 2.182712</span></span>
+<span id="cb4-45"><a href="#cb4-45" tabindex="-1"></a><span class="co">#&gt; [10,] 2.031181</span></span>
+<span id="cb4-46"><a href="#cb4-46" tabindex="-1"></a><span class="co">#&gt; [11,] 2.258826</span></span>
+<span id="cb4-47"><a href="#cb4-47" tabindex="-1"></a><span class="co">#&gt; [12,] 2.569372</span></span>
+<span id="cb4-48"><a href="#cb4-48" tabindex="-1"></a><span class="co">#&gt; [13,] 2.218166</span></span>
+<span id="cb4-49"><a href="#cb4-49" tabindex="-1"></a><span class="co">#&gt; [14,] 2.193250</span></span>
+<span id="cb4-50"><a href="#cb4-50" tabindex="-1"></a><span class="co">#&gt; [15,] 2.682655</span></span>
+<span id="cb4-51"><a href="#cb4-51" tabindex="-1"></a><span class="co">#&gt; [16,] 2.117570</span></span>
+<span id="cb4-52"><a href="#cb4-52" tabindex="-1"></a><span class="co">#&gt; [17,] 2.296713</span></span>
+<span id="cb4-53"><a href="#cb4-53" tabindex="-1"></a><span class="co">#&gt; [18,] 2.129176</span></span>
+<span id="cb4-54"><a href="#cb4-54" tabindex="-1"></a><span class="co">#&gt; [19,] 2.790298</span></span>
+<span id="cb4-55"><a href="#cb4-55" tabindex="-1"></a><span class="co">#&gt; [20,] 2.822541</span></span>
+<span id="cb4-56"><a href="#cb4-56" tabindex="-1"></a><span class="co">#&gt; [21,] 3.457669</span></span>
+<span id="cb4-57"><a href="#cb4-57" tabindex="-1"></a><span class="co">#&gt; [22,] 2.982656</span></span>
+<span id="cb4-58"><a href="#cb4-58" tabindex="-1"></a><span class="co">#&gt; [23,] 2.594728</span></span>
+<span id="cb4-59"><a href="#cb4-59" tabindex="-1"></a><span class="co">#&gt; [24,] 2.355118</span></span>
+<span id="cb4-60"><a href="#cb4-60" tabindex="-1"></a><span class="co">#&gt; [25,] 2.245933</span></span>
+<span id="cb4-61"><a href="#cb4-61" tabindex="-1"></a><span class="co">#&gt; [26,] 2.183629</span></span>
+<span id="cb4-62"><a href="#cb4-62" tabindex="-1"></a><span class="co">#&gt; [27,] 1.964829</span></span>
+<span id="cb4-63"><a href="#cb4-63" tabindex="-1"></a><span class="co">#&gt; [28,] 2.134337</span></span>
+<span id="cb4-64"><a href="#cb4-64" tabindex="-1"></a><span class="co">#&gt; [29,] 2.835128</span></span>
+<span id="cb4-65"><a href="#cb4-65" tabindex="-1"></a><span class="co">#&gt; [30,] 2.387545</span></span>
+<span id="cb4-66"><a href="#cb4-66" tabindex="-1"></a><span class="co">#&gt; [31,] 2.352759</span></span>
+<span id="cb4-67"><a href="#cb4-67" tabindex="-1"></a><span class="co">#&gt; [32,] 3.252944</span></span>
+<span id="cb4-68"><a href="#cb4-68" tabindex="-1"></a><span class="co">#&gt; [33,] 3.306005</span></span>
+<span id="cb4-69"><a href="#cb4-69" tabindex="-1"></a><span class="co">#&gt; [34,] 2.716700</span></span>
+<span id="cb4-70"><a href="#cb4-70" tabindex="-1"></a><span class="co">#&gt; [35,] 2.742817</span></span>
+<span id="cb4-71"><a href="#cb4-71" tabindex="-1"></a><span class="co">#&gt; [36,] 2.507197</span></span>
+<span id="cb4-72"><a href="#cb4-72" tabindex="-1"></a><span class="co">#&gt; [37,] 2.553163</span></span>
+<span id="cb4-73"><a href="#cb4-73" tabindex="-1"></a><span class="co">#&gt; [38,] 3.063924</span></span>
+<span id="cb4-74"><a href="#cb4-74" tabindex="-1"></a><span class="co">#&gt; [39,] 3.017153</span></span>
+<span id="cb4-75"><a href="#cb4-75" tabindex="-1"></a><span class="co">#&gt; [40,] 2.908632</span></span>
+<span id="cb4-76"><a href="#cb4-76" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-77"><a href="#cb4-77" tabindex="-1"></a><span class="co">#&gt; , , 2</span></span>
+<span id="cb4-78"><a href="#cb4-78" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-79"><a href="#cb4-79" tabindex="-1"></a><span class="co">#&gt;            [,1]</span></span>
+<span id="cb4-80"><a href="#cb4-80" tabindex="-1"></a><span class="co">#&gt;  [1,]  6.922057</span></span>
+<span id="cb4-81"><a href="#cb4-81" tabindex="-1"></a><span class="co">#&gt;  [2,]  9.929835</span></span>
+<span id="cb4-82"><a href="#cb4-82" tabindex="-1"></a><span class="co">#&gt;  [3,]  7.849458</span></span>
+<span id="cb4-83"><a href="#cb4-83" tabindex="-1"></a><span class="co">#&gt;  [4,]  7.269094</span></span>
+<span id="cb4-84"><a href="#cb4-84" tabindex="-1"></a><span class="co">#&gt;  [5,]  8.674310</span></span>
+<span id="cb4-85"><a href="#cb4-85" tabindex="-1"></a><span class="co">#&gt;  [6,]  7.781911</span></span>
+<span id="cb4-86"><a href="#cb4-86" tabindex="-1"></a><span class="co">#&gt;  [7,]  8.536297</span></span>
+<span id="cb4-87"><a href="#cb4-87" tabindex="-1"></a><span class="co">#&gt;  [8,] 10.888322</span></span>
+<span id="cb4-88"><a href="#cb4-88" tabindex="-1"></a><span class="co">#&gt;  [9,] 11.407774</span></span>
+<span id="cb4-89"><a href="#cb4-89" tabindex="-1"></a><span class="co">#&gt; [10,] 10.809059</span></span>
+<span id="cb4-90"><a href="#cb4-90" tabindex="-1"></a><span class="co">#&gt; [11,]  9.291378</span></span>
+<span id="cb4-91"><a href="#cb4-91" tabindex="-1"></a><span class="co">#&gt; [12,]  9.973406</span></span>
+<span id="cb4-92"><a href="#cb4-92" tabindex="-1"></a><span class="co">#&gt; [13,] 10.977226</span></span>
+<span id="cb4-93"><a href="#cb4-93" tabindex="-1"></a><span class="co">#&gt; [14,]  8.564296</span></span>
+<span id="cb4-94"><a href="#cb4-94" tabindex="-1"></a><span class="co">#&gt; [15,] 10.137487</span></span>
+<span id="cb4-95"><a href="#cb4-95" tabindex="-1"></a><span class="co">#&gt; [16,]  9.616081</span></span>
+<span id="cb4-96"><a href="#cb4-96" tabindex="-1"></a><span class="co">#&gt; [17,] 10.518063</span></span>
+<span id="cb4-97"><a href="#cb4-97" tabindex="-1"></a><span class="co">#&gt; [18,]  9.349740</span></span>
+<span id="cb4-98"><a href="#cb4-98" tabindex="-1"></a><span class="co">#&gt; [19,]  7.093746</span></span>
+<span id="cb4-99"><a href="#cb4-99" tabindex="-1"></a><span class="co">#&gt; [20,]  7.202073</span></span>
+<span id="cb4-100"><a href="#cb4-100" tabindex="-1"></a><span class="co">#&gt; [21,]  7.656602</span></span>
+<span id="cb4-101"><a href="#cb4-101" tabindex="-1"></a><span class="co">#&gt; [22,]  7.060898</span></span>
+<span id="cb4-102"><a href="#cb4-102" tabindex="-1"></a><span class="co">#&gt; [23,]  8.188712</span></span>
+<span id="cb4-103"><a href="#cb4-103" tabindex="-1"></a><span class="co">#&gt; [24,] 10.574160</span></span>
+<span id="cb4-104"><a href="#cb4-104" tabindex="-1"></a><span class="co">#&gt; [25,]  9.003591</span></span>
+<span id="cb4-105"><a href="#cb4-105" tabindex="-1"></a><span class="co">#&gt; [26,] 11.601075</span></span>
+<span id="cb4-106"><a href="#cb4-106" tabindex="-1"></a><span class="co">#&gt; [27,] 12.098963</span></span>
+<span id="cb4-107"><a href="#cb4-107" tabindex="-1"></a><span class="co">#&gt; [28,] 11.249864</span></span>
+<span id="cb4-108"><a href="#cb4-108" tabindex="-1"></a><span class="co">#&gt; [29,]  9.996349</span></span>
+<span id="cb4-109"><a href="#cb4-109" tabindex="-1"></a><span class="co">#&gt; [30,] 11.637079</span></span>
+<span id="cb4-110"><a href="#cb4-110" tabindex="-1"></a><span class="co">#&gt; [31,]  9.994232</span></span>
+<span id="cb4-111"><a href="#cb4-111" tabindex="-1"></a><span class="co">#&gt; [32,]  8.581701</span></span>
+<span id="cb4-112"><a href="#cb4-112" tabindex="-1"></a><span class="co">#&gt; [33,]  8.387645</span></span>
+<span id="cb4-113"><a href="#cb4-113" tabindex="-1"></a><span class="co">#&gt; [34,]  8.502619</span></span>
+<span id="cb4-114"><a href="#cb4-114" tabindex="-1"></a><span class="co">#&gt; [35,]  9.427534</span></span>
+<span id="cb4-115"><a href="#cb4-115" tabindex="-1"></a><span class="co">#&gt; [36,]  8.093170</span></span>
+<span id="cb4-116"><a href="#cb4-116" tabindex="-1"></a><span class="co">#&gt; [37,]  6.892583</span></span>
+<span id="cb4-117"><a href="#cb4-117" tabindex="-1"></a><span class="co">#&gt; [38,]  7.841883</span></span>
+<span id="cb4-118"><a href="#cb4-118" tabindex="-1"></a><span class="co">#&gt; [39,]  6.846457</span></span>
+<span id="cb4-119"><a href="#cb4-119" tabindex="-1"></a><span class="co">#&gt; [40,]  7.683458</span></span></code></pre></div>
 </div>
-<div id="prediction-sanity-check-one-snippet" class="section level2">
-<h2>Prediction sanity check (one snippet)</h2>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">sim_bulk_tail</span>(<span class="at">n =</span> <span class="dv">80</span>, <span class="at">seed =</span> <span class="dv">123</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">&quot;sb&quot;</span>,</span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">&quot;lognormal&quot;</span>,</span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>  <span class="at">J =</span> <span class="dv">4</span>,</span>
-<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  <span class="at">mcmc =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">200</span>, <span class="at">nburnin =</span> <span class="dv">50</span>, <span class="at">thin =</span> <span class="dv">2</span>, <span class="at">nchains =</span> <span class="dv">2</span>, <span class="at">seed =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
-<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>)</span>
-<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="cf">if</span> (use_cached_fit) {</span>
-<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> fit_small</span>
-<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle)</span>
-<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a>}</span>
-<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="fu">predict</span>(fit, <span class="at">type =</span> <span class="st">&quot;quantile&quot;</span>, <span class="at">p =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.9</span>))</span>
-<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt; $fit</span></span>
-<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt;          [,1]     [,2]</span></span>
-<span id="cb3-18"><a href="#cb3-18" tabindex="-1"></a><span class="co">#&gt; [1,] 2.444721 9.102755</span></span>
-<span id="cb3-19"><a href="#cb3-19" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-20"><a href="#cb3-20" tabindex="-1"></a><span class="co">#&gt; $lower</span></span>
-<span id="cb3-21"><a href="#cb3-21" tabindex="-1"></a><span class="co">#&gt; NULL</span></span>
-<span id="cb3-22"><a href="#cb3-22" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-23"><a href="#cb3-23" tabindex="-1"></a><span class="co">#&gt; $upper</span></span>
-<span id="cb3-24"><a href="#cb3-24" tabindex="-1"></a><span class="co">#&gt; NULL</span></span>
-<span id="cb3-25"><a href="#cb3-25" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-26"><a href="#cb3-26" tabindex="-1"></a><span class="co">#&gt; $type</span></span>
-<span id="cb3-27"><a href="#cb3-27" tabindex="-1"></a><span class="co">#&gt; [1] &quot;quantile&quot;</span></span>
-<span id="cb3-28"><a href="#cb3-28" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb3-29"><a href="#cb3-29" tabindex="-1"></a><span class="co">#&gt; $grid</span></span>
-<span id="cb3-30"><a href="#cb3-30" tabindex="-1"></a><span class="co">#&gt; [1] 0.5 0.9</span></span></code></pre></div>
-</div>
-<div id="diagnostic-plot" class="section level2">
-<h2>Diagnostic plot</h2>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">y =</span> y) <span class="sc">|&gt;</span></span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> y)) <span class="sc">+</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="fu">geom_freqpoly</span>(<span class="at">color =</span> <span class="st">&quot;steelblue&quot;</span>) <span class="sc">+</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Developer-mode data distribution&quot;</span>, <span class="at">x =</span> <span class="st">&quot;y&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Count&quot;</span>)</span></code></pre></div>
+<div id="quick-visualization" class="section level2">
+<h2>Quick visualization</h2>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">data.frame</span>(<span class="at">y =</span> y) <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> y)) <span class="sc">+</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="fu">geom_freqpoly</span>(<span class="at">color =</span> <span class="st">&quot;steelblue&quot;</span>) <span class="sc">+</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Developer-mode data distribution&quot;</span>, <span class="at">x =</span> <span class="st">&quot;y&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Count&quot;</span>)</span></code></pre></div>
 <p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
-</div>
-<div id="diagnostics-to-keep-in-the-test-checklist" class="section level2">
-<h2>Diagnostics to keep in the test checklist</h2>
-<ol style="list-style-type: decimal">
-<li><code>build_nimble_bundle()</code> with explicit
-<code>components</code>/<code>GPD</code> values for each kernel.</li>
-<li><code>run_mcmc_bundle_manual()</code> for at least 500 iterations on
-<code>seed</code>-locked data.</li>
-<li><code>predict(..., type = &quot;quantile&quot;/&quot;density&quot;/&quot;draws&quot;)</code> to
-ensure a shared interface.</li>
-<li><code>validate_fit()</code> (or any internal helper) to assert
-thresholds and tail shapes obey the <code>GPD</code> flag.</li>
-<li>Pre-run plotting scripts such as <code>plot(fit)</code> to verify
-mixture weights are accessible via <code>j</code> components.</li>
-</ol>
 </div>
 <div id="session-info" class="section level2">
 <h2>Session info</h2>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; R version 4.5.2 (2025-10-31 ucrt)</span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; Platform: x86_64-w64-mingw32/x64</span></span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; Running under: Windows 11 x64 (build 26100)</span></span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; Matrix products: default</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt;   LAPACK version 3.12.1</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; locale:</span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; [1] LC_COLLATE=C                          </span></span>
-<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; [2] LC_CTYPE=English_United States.utf8   </span></span>
-<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; [3] LC_MONETARY=English_United States.utf8</span></span>
-<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; [4] LC_NUMERIC=C                          </span></span>
-<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt; [5] LC_TIME=English_United States.utf8    </span></span>
-<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt; time zone: America/New_York</span></span>
-<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt; tzcode source: internal</span></span>
-<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt; attached base packages:</span></span>
-<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
-<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt; other attached packages:</span></span>
-<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt; [1] dplyr_1.1.4    ggplot2_4.0.1  nimble_1.4.0   DPmixGPD_0.0.8</span></span>
-<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
-<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">#&gt;  [1] gtable_0.3.6        xfun_0.55           bslib_0.9.0        </span></span>
-<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="co">#&gt;  [4] devtools_2.4.6      remotes_2.5.0       GGally_2.4.0       </span></span>
-<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="co">#&gt;  [7] lattice_0.22-7      numDeriv_2016.8-1.1 vctrs_0.6.5        </span></span>
-<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="co">#&gt; [10] tools_4.5.2         generics_0.1.4      parallel_4.5.2     </span></span>
-<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="co">#&gt; [13] tibble_3.3.0        pkgconfig_2.0.3     RColorBrewer_1.1-3 </span></span>
-<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="co">#&gt; [16] ggmcmc_1.5.1.2      S7_0.2.1            desc_1.4.3         </span></span>
-<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a><span class="co">#&gt; [19] lifecycle_1.0.4     compiler_4.5.2      farver_2.1.2       </span></span>
-<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a><span class="co">#&gt; [22] stringr_1.6.0       codetools_0.2-20    htmltools_0.5.9    </span></span>
-<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a><span class="co">#&gt; [25] usethis_3.2.1       sass_0.4.10         yaml_2.3.12        </span></span>
-<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a><span class="co">#&gt; [28] pracma_2.4.6        pillar_1.11.1       jquerylib_0.1.4    </span></span>
-<span id="cb5-36"><a href="#cb5-36" tabindex="-1"></a><span class="co">#&gt; [31] tidyr_1.3.2         MASS_7.3-65         ellipsis_0.3.2     </span></span>
-<span id="cb5-37"><a href="#cb5-37" tabindex="-1"></a><span class="co">#&gt; [34] cachem_1.1.0        sessioninfo_1.2.3   parallelly_1.46.0  </span></span>
-<span id="cb5-38"><a href="#cb5-38" tabindex="-1"></a><span class="co">#&gt; [37] ggstats_0.11.0      tidyselect_1.2.1    digest_0.6.39      </span></span>
-<span id="cb5-39"><a href="#cb5-39" tabindex="-1"></a><span class="co">#&gt; [40] stringi_1.8.7       future_1.68.0       purrr_1.2.0        </span></span>
-<span id="cb5-40"><a href="#cb5-40" tabindex="-1"></a><span class="co">#&gt; [43] listenv_0.10.0      labeling_0.4.3      rprojroot_2.1.1    </span></span>
-<span id="cb5-41"><a href="#cb5-41" tabindex="-1"></a><span class="co">#&gt; [46] fastmap_1.2.0       grid_4.5.2          cli_3.6.5          </span></span>
-<span id="cb5-42"><a href="#cb5-42" tabindex="-1"></a><span class="co">#&gt; [49] magrittr_2.0.4      utf8_1.2.6          pkgbuild_1.4.8     </span></span>
-<span id="cb5-43"><a href="#cb5-43" tabindex="-1"></a><span class="co">#&gt; [52] future.apply_1.20.1 withr_3.0.2         scales_1.4.0       </span></span>
-<span id="cb5-44"><a href="#cb5-44" tabindex="-1"></a><span class="co">#&gt; [55] roxygen2_7.3.3      rmarkdown_2.30      globals_0.18.0     </span></span>
-<span id="cb5-45"><a href="#cb5-45" tabindex="-1"></a><span class="co">#&gt; [58] igraph_2.2.1        otel_0.2.0          coda_0.19-4.1      </span></span>
-<span id="cb5-46"><a href="#cb5-46" tabindex="-1"></a><span class="co">#&gt; [61] memoise_2.0.1       evaluate_1.0.5      knitr_1.51         </span></span>
-<span id="cb5-47"><a href="#cb5-47" tabindex="-1"></a><span class="co">#&gt; [64] viridisLite_0.4.2   rlang_1.1.6         glue_1.8.0         </span></span>
-<span id="cb5-48"><a href="#cb5-48" tabindex="-1"></a><span class="co">#&gt; [67] xml2_1.5.1          pkgload_1.4.1       jsonlite_2.0.0     </span></span>
-<span id="cb5-49"><a href="#cb5-49" tabindex="-1"></a><span class="co">#&gt; [70] rstudioapi_0.17.1   R6_2.6.1            fs_1.6.6</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt; R version 4.5.2 (2025-10-31 ucrt)</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; Platform: x86_64-w64-mingw32/x64</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; Running under: Windows 11 x64 (build 26100)</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; Matrix products: default</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt;   LAPACK version 3.12.1</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; locale:</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; [1] LC_COLLATE=English_United States.utf8 </span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; [2] LC_CTYPE=English_United States.utf8   </span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; [3] LC_MONETARY=English_United States.utf8</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; [4] LC_NUMERIC=C                          </span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; [5] LC_TIME=English_United States.utf8    </span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; time zone: America/New_York</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt; tzcode source: internal</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt; attached base packages:</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; [1] stats     graphics  grDevices datasets  utils     methods   base     </span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; other attached packages:</span></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">#&gt; [1] devtools_2.4.6 usethis_3.2.1  dplyr_1.1.4    ggplot2_4.0.1  nimble_1.4.0  </span></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt; [6] DPmixGPD_0.0.8 testthat_3.3.1</span></span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="co">#&gt;  [1] gtable_0.3.6        xfun_0.55           bslib_0.9.0        </span></span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="co">#&gt;  [4] remotes_2.5.0       GGally_2.4.0        lattice_0.22-7     </span></span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a><span class="co">#&gt;  [7] numDeriv_2016.8-1.1 vctrs_0.6.5         tools_4.5.2        </span></span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="co">#&gt; [10] generics_0.1.4      parallel_4.5.2      tibble_3.3.0       </span></span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="co">#&gt; [13] pkgconfig_2.0.3     RColorBrewer_1.1-3  ggmcmc_1.5.1.2     </span></span>
+<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a><span class="co">#&gt; [16] S7_0.2.1            desc_1.4.3          lifecycle_1.0.4    </span></span>
+<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a><span class="co">#&gt; [19] compiler_4.5.2      farver_2.1.2        brio_1.1.5         </span></span>
+<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a><span class="co">#&gt; [22] codetools_0.2-20    htmltools_0.5.9     sass_0.4.10        </span></span>
+<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a><span class="co">#&gt; [25] yaml_2.3.12         pracma_2.4.6        jquerylib_0.1.4    </span></span>
+<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a><span class="co">#&gt; [28] pillar_1.11.1       tidyr_1.3.2         MASS_7.3-65        </span></span>
+<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a><span class="co">#&gt; [31] ellipsis_0.3.2      cachem_1.1.0        sessioninfo_1.2.3  </span></span>
+<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a><span class="co">#&gt; [34] parallelly_1.46.0   ggstats_0.11.0      tidyselect_1.2.1   </span></span>
+<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a><span class="co">#&gt; [37] digest_0.6.39       future_1.68.0       purrr_1.2.0        </span></span>
+<span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a><span class="co">#&gt; [40] listenv_0.10.0      labeling_0.4.3      rprojroot_2.1.1    </span></span>
+<span id="cb6-41"><a href="#cb6-41" tabindex="-1"></a><span class="co">#&gt; [43] fastmap_1.2.0       grid_4.5.2          cli_3.6.5          </span></span>
+<span id="cb6-42"><a href="#cb6-42" tabindex="-1"></a><span class="co">#&gt; [46] magrittr_2.0.4      pkgbuild_1.4.8      future.apply_1.20.1</span></span>
+<span id="cb6-43"><a href="#cb6-43" tabindex="-1"></a><span class="co">#&gt; [49] withr_3.0.2         scales_1.4.0        rmarkdown_2.30     </span></span>
+<span id="cb6-44"><a href="#cb6-44" tabindex="-1"></a><span class="co">#&gt; [52] globals_0.18.0      igraph_2.2.1        otel_0.2.0         </span></span>
+<span id="cb6-45"><a href="#cb6-45" tabindex="-1"></a><span class="co">#&gt; [55] coda_0.19-4.1       memoise_2.0.1       evaluate_1.0.5     </span></span>
+<span id="cb6-46"><a href="#cb6-46" tabindex="-1"></a><span class="co">#&gt; [58] knitr_1.51          viridisLite_0.4.2   rlang_1.1.6        </span></span>
+<span id="cb6-47"><a href="#cb6-47" tabindex="-1"></a><span class="co">#&gt; [61] glue_1.8.0          renv_1.1.5          pkgload_1.4.1      </span></span>
+<span id="cb6-48"><a href="#cb6-48" tabindex="-1"></a><span class="co">#&gt; [64] jsonlite_2.0.0      rstudioapi_0.17.1   R6_2.6.1           </span></span>
+<span id="cb6-49"><a href="#cb6-49" tabindex="-1"></a><span class="co">#&gt; [67] fs_1.6.6</span></span></code></pre></div>
 </div>
 
 

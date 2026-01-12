@@ -28,8 +28,10 @@
 
 \item{y}{Numeric vector of evaluation points (required for \code{type="density"} or \code{"survival"}).}
 
-\item{ps}{Optional numeric vector of propensity scores aligned with \code{newdata}.
-Required for PS-augmented fits when predicting on new \code{X}.}
+\item{ps}{Ignored. Propensity scores are always computed internally from the fitted PS
+model or stored training PS. For new covariates, PS are derived from the attached PS
+posterior draws when available. For causal workflows, use \code{qte()} / \code{ate()} which
+orchestrate PS estimation and outcome prediction jointly.}
 
 \item{newdata}{Optional new data. If \code{NULL}, uses training design (if stored).}
 

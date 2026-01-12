@@ -87,10 +87,10 @@ MCMC settings list (stored but not used for code generation)
 
 
 <dt id="arg-ps">ps<a class="anchor" aria-label="anchor" href="#arg-ps"></a></dt>
-<dd><p>Optional numeric vector of estimated propensity scores (length N) used as an extra
-covariate when constructing link-mode predictors. If provided, a <code>beta_ps_&lt;param&gt;</code>
-coefficient vector is added for each link-mode bulk parameter; the prior for these
-coefficients can be customized via <code>param_specs$ps</code>.</p></dd>
+<dd><p>Numeric vector of estimated propensity scores (length N) used as a covariate
+when constructing link-mode predictors. Mandatory for causal inference models
+(with two treatment arms). When provided, <code>beta_ps_&lt;param&gt;</code> coefficient vectors
+are added for each link-mode bulk parameter; priors can be customized via <code>param_specs$ps</code>.</p></dd>
 
 
 <dt id="arg-backend">backend<a class="anchor" aria-label="anchor" href="#arg-backend"></a></dt>
@@ -155,18 +155,9 @@ Use <code><a href="run_mcmc_bundle_manual.html">run_mcmc_bundle_manual()</a></co
 <span class="r-in"><span>  components <span class="op">=</span> <span class="fl">4</span>,</span></span>
 <span class="r-in"><span>  mcmc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">200</span>, nburnin <span class="op">=</span> <span class="fl">50</span>, thin <span class="op">=</span> <span class="fl">1</span>, nchains <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in build_nimble_bundle(y = y, backend = "sb", kernel = "normal",     GPD = FALSE, components = 4, mcmc = list(niter = 200, nburnin = 50,         thin = 1, nchains = 1, seed = 1)):</span> could not find function "build_nimble_bundle"</span>
 <span class="r-in"><span><span class="va">bundle</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> DPmixGPD bundle</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Field                  Value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Backend Stick-Breaking Process</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      Kernel    Normal Distribution</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Components                      4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           N                     60</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           X                     NO</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         GPD                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Epsilon                  0.025</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   contains  : code, constants, data, dimensions, inits, monitors</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> object 'bundle' not found</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
