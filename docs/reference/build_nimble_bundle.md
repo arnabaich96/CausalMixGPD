@@ -122,7 +122,16 @@ bundle <- build_nimble_bundle(
   components = 4,
   mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1, seed = 1)
 )
-#> Error in build_nimble_bundle(y = y, backend = "sb", kernel = "normal",     GPD = FALSE, components = 4, mcmc = list(niter = 200, nburnin = 50,         thin = 1, nchains = 1, seed = 1)): could not find function "build_nimble_bundle"
 bundle
-#> Error: object 'bundle' not found
+#> DPmixGPD bundle
+#>       Field                  Value
+#>     Backend Stick-Breaking Process
+#>      Kernel    Normal Distribution
+#>  Components                      4
+#>           N                     60
+#>           X                     NO
+#>         GPD                  FALSE
+#>     Epsilon                  0.025
+#> 
+#>   contains  : code, constants, data, dimensions, inits, monitors
 ```

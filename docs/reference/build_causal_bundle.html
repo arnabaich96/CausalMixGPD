@@ -27,7 +27,7 @@ an outcome bundle for the treated arm (T = 1)
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/index.html">Articles</a></li>
-      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/fsu-dpmixgpd/DPmixGPD">GitHub</a></li>
+      </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/arnabaich96/DPmixGPD">GitHub</a></li>
       </ul></div>
 
 
@@ -65,7 +65,8 @@ an outcome bundle for the treated arm (T = 1)
 <span>  alpha_random <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  ps_model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"logit"</span><span class="op">)</span>,</span>
 <span>  ps_prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>mean <span class="op">=</span> <span class="fl">0</span>, sd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span>
-<span>  include_intercept <span class="op">=</span> <span class="cn">TRUE</span></span>
+<span>  include_intercept <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  PS <span class="op">=</span> <span class="st">"logit"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -133,7 +134,8 @@ If length 2, the first entry is used for treated (<code>T=1</code>) and the seco
 
 
 <dt id="arg-ps-model">ps_model<a class="anchor" aria-label="anchor" href="#arg-ps-model"></a></dt>
-<dd><p>PS model family. Currently supports: <code>"logit"</code>.</p></dd>
+<dd><p>PS model specification for backward compatibility (deprecated).
+Recommend using <code>PS</code> parameter instead.</p></dd>
 
 
 <dt id="arg-ps-prior">ps_prior<a class="anchor" aria-label="anchor" href="#arg-ps-prior"></a></dt>
@@ -143,6 +145,14 @@ If length 2, the first entry is used for treated (<code>T=1</code>) and the seco
 <dt id="arg-include-intercept">include_intercept<a class="anchor" aria-label="anchor" href="#arg-include-intercept"></a></dt>
 <dd><p>Logical; if TRUE, an intercept column is prepended to <code>X</code>
 in the PS model.</p></dd>
+
+
+<dt id="arg-ps">PS<a class="anchor" aria-label="anchor" href="#arg-ps"></a></dt>
+<dd><p>Character or logical; controls propensity score estimation:</p><ul><li><p><code>"logit"</code> (default): Logistic regression PS model</p></li>
+<li><p><code>"probit"</code>: Probit regression PS model</p></li>
+<li><p><code>FALSE</code>: No PS estimation; outcome models use only <code>X</code></p></li>
+</ul><p>The PS model choice is stored in bundle metadata for downstream use in prediction
+and summaries, enabling seamless integration of future PS estimation methods.</p></dd>
 
 </dl></div>
     <div class="section level2">

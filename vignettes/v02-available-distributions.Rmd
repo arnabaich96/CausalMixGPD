@@ -1,0 +1,766 @@
+---
+title: "2. Available Distributions & dqrp Functions"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{2. Available Distributions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = NA,
+  fig.width = 8,
+  fig.height = 6,
+  message = FALSE,
+  warning = FALSE,
+  eval = TRUE,
+  tidy = FALSE,
+  width = 80
+)
+library(DPmixGPD)
+library(ggplot2)
+library(gridExtra)
+set.seed(42)
+```
+
+
+```{r helpers}
+# Helpers
+q_vec <- function(fn, probs, ...) vapply(probs, function(p) fn(p, ...), numeric(1))
+density_curve <- function(grid, fn, args) {
+  vapply(grid, function(x) do.call(fn, c(list(x = x), args)), numeric(1))
+}
+
+draw_many <- function(fn, args, n_draws = 5) {
+  if (!is.null(args$label)) args$label <- NULL
+  vapply(seq_len(n_draws), function(i) do.call(fn, c(list(n = 1), args)), numeric(1))
+
+}
+```
+
+
+## Introduction with GPD kernel
+
+We show the DPmixGPD kernels in pairs: bulk-only and GPD-augmented. A GPD tail above threshold $u$ uses
+
+$$f_{GPD}(x; u, \sigma, \xi) = \frac{1}{\sigma} \left(1 + \xi \frac{x-u}{\sigma}\right)^{-1/\xi - 1} \ \text{for } x \ge u.$$
+
+The standalone GPD tail distribution is available via `dGpd`, `pGpd`, `qGpd`, and `rGpd` functions.
+
+
+```{r gpd-density}
+dGpd(1.8, threshold = 1.5, scale = 0.5, shape = 0.2)
+dGpd(1.8, threshold = 1.5, scale = 0.5, shape = 0.2, log = TRUE)
+```
+
+```{r gpd-cdf}
+pGpd(1.8, threshold = 1.5, scale = 0.5, shape = 0.2)
+pGpd(1.8, threshold = 1.5, scale = 0.5, shape = 0.2, lower.tail = FALSE)
+pGpd(1.8, threshold = 1.5, scale = 0.5, shape = 0.2, log.p = TRUE)
+```
+
+```{r gpd-quantile}
+q_vec(qGpd, c(0.25, 0.5, 0.75), threshold = 1.5, scale = 0.5, shape = 0.2)
+q_vec(qGpd, c(0.25, 0.5, 0.75), threshold = 1.5, scale = 0.5, shape = 0.2,
+      lower.tail = FALSE)
+q_vec(qGpd, c(log(0.25), log(0.5), log(0.75)), threshold = 1.5, scale = 0.5,
+      shape = 0.2, log.p = TRUE)
+```
+
+```{r gpd-random}
+draw_many(rGpd, list(threshold = 1.5, scale = 0.5, shape = 0.2))
+```
+
+```{r gpd-plot}
+grid <- seq(-4, 15, length.out = 500)
+gpd_sets <- list(
+  list(label = "GPD A", threshold = 1.5, tail_scale = 0.5, tail_shape = 0.2),
+  list(label = "GPD B", threshold = 2.0, tail_scale = 0.6, tail_shape = 0.15),
+  list(label = "GPD C", threshold = 1.0, tail_scale = 0.4, tail_shape = 0.25)
+)
+
+df_gpd <- do.call(rbind, lapply(gpd_sets, function(ps) {
+  data.frame(x = grid, density = density_curve(grid, dGpd, list(threshold = ps$threshold, scale = ps$tail_scale, shape = ps$tail_shape)), label = ps$label)
+}))
+
+ggplot(df_gpd, aes(x = x, y = density, color = label)) +
+  geom_line(linewidth = 1) +
+  labs(title = "Standalone GPD tails", x = "x", y = "density") +
+  theme_minimal() + theme(legend.position = "top")
+```
+
+Each subsection below defines the available $d/p/q/r$ functions, prints example outputs for fixed parameters, and overlays density curves for **three parameter sets** with clear legends. The same parameter sets are reused within the bulk and GPD variants of a section.
+
+## Normal
+
+### Without GPD (mixture kernel)
+
+Mixture density $f(x)=\sum_j w_j\,\mathcal N(x\mid \mu_j, \sigma_j^2)$. CDF/quantile are the weighted sums/inverse CDF of the mixture; RNG samples a component by $w$ then draws a Normal.
+
+```{r normal-mix}
+grid <- seq(-4, 5, length.out = 400)
+normal_sets <- list(
+  list(label = "Mix A", w = c(0.6, 0.3, 0.1), mean = c(-1, 0.5, 2), sd = c(2, 0.6, 1.1)),
+  list(label = "Mix B", w = c(0.5, 0.3, 0.2), mean = c(-1.2, 0.3, 1.5), sd = c(0.9, 0.7, 1.0)),
+  list(label = "Mix C", w = c(0.4, 0.35, 0.25), mean = c(-0.5, 2, 2.5), sd = c(0.7, 0.6, 1.2))
+)
+
+example <- normal_sets[[1]]
+```
+
+```{r normal-mix-d}
+dNormMix(0, w = example$w, mean = example$mean, sd = example$sd)
+dNormMix(0, w = example$w, mean = example$mean, sd = example$sd, log = TRUE)
+```
+
+```{r normal-mix-p}
+pNormMix(0, w = example$w, mean = example$mean, sd = example$sd)
+pNormMix(0, w = example$w, mean = example$mean, sd = example$sd, lower.tail = FALSE)
+pNormMix(0, w = example$w, mean = example$mean, sd = example$sd, log.p = TRUE)
+```
+
+```{r normal-mix-q}
+q_vec(qNormMix, c(0.25, 0.5, 0.75), w = example$w, mean = example$mean,
+      sd = example$sd)
+q_vec(qNormMix, c(0.25, 0.5, 0.75), w = example$w, mean = example$mean,
+      sd = example$sd, lower.tail = FALSE)
+q_vec(qNormMix, c(log(0.25), log(0.5), log(0.75)), w = example$w,
+      mean = example$mean, sd = example$sd, log.p = TRUE)
+```
+
+```{r normal-mix-r}
+draw_many(rNormMix, list(w = example$w, mean = example$mean, sd = example$sd))
+```
+
+```{r normal-mix-plot}
+df_norm <- do.call(rbind, lapply(normal_sets, function(ps) {
+  data.frame(x = grid, density = density_curve(grid, dNormMix, list(w = ps$w, mean = ps$mean, sd = ps$sd)), label = ps$label)
+}))
+
+ggplot(df_norm, aes(x = x, y = density, color = label)) +
+  geom_line(linewidth = 1) +
+  labs(title = "Normal mixtures (bulk)", x = "x", y = "density") +
+  theme_minimal() + theme(legend.position = "top")
+```
+
+### With GPD tail
+
+Spliced density uses the same mixture for $x<u$ and attaches $f_{GPD}$ above $u$ with continuity. CDF combines mixture CDF up to $u$ and GPD exceedance beyond $u$; quantiles invert this spliced CDF; RNG draws bulk vs tail by the CDF mass at $u$.
+
+```{r normal-gpd}
+normal_gpd_sets <- list(
+  list(label = "Mix A", w = c(0.6, 0.4), mean = c(-1, 2), sd = c(0.5, 0.8), threshold = 1.8, tail_scale = 0.4, tail_shape = 0.25),
+  list(label = "Mix B", w = c(0.5, 0.5), mean = c(0, 1), sd = c(0.6, 0.6), threshold = 1.5, tail_scale = 0.3, tail_shape = 0.2),
+  list(label = "Mix C", w = c(0.7, 0.3), mean = c(0.5, 2.5), sd = c(0.4, 1.0), threshold = 2.0, tail_scale = 0.5, tail_shape = 0.15)
+)
+
+example <- normal_gpd_sets[[1]]
+```
+
+```{r normal-gpd-d}
+dNormMixGpd(2, w = example$w, mean = example$mean, sd = example$sd, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
+```
+
+```{r normal-gpd-p}
+pNormMixGpd(2, w = example$w, mean = example$mean, sd = example$sd, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
+```
+
+```{r normal-gpd-q}
+q_vec(qNormMixGpd, c(0.5, 0.9), w = example$w, mean = example$mean, sd = example$sd, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
+```
+
+```{r normal-gpd-r}
+draw_many(rNormMixGpd, example)
+```
+
+```{r normal-gpd-plot}
+df_norm_gpd <- do.call(rbind, lapply(normal_gpd_sets, function(ps) {
+  data.frame(x = grid, density = density_curve(grid, dNormMixGpd, list(w = ps$w, mean = ps$mean, sd = ps$sd, threshold = ps$threshold, tail_scale = ps$tail_scale, tail_shape = ps$tail_shape)), label = ps$label)
+}))
+
+ggplot(df_norm_gpd, aes(x = x, y = density, color = label)) +
+  geom_line(linewidth = 1) +
+  labs(title = "Normal mixtures with GPD tail (different thresholds)", x = "x", y = "density") +
+  theme_minimal() + theme(legend.position = "top")
+```
+
+## Lognormal
+
+### Without GPD (mixture kernel)
+
+Mixture density $f(x)=\sum_j w_j\,\text{Lognormal}(x\mid \mu_j, \sigma_j^2)$ on $x>0$.
+
+```{r lognormal-mix}
+grid <- seq(0, 8, length.out = 400)
+logn_sets <- list(
+  list(label = "Mix A", w = c(0.6, 0.3, 0.1), meanlog = c(0.0, 0.3, 0.6), sdlog = c(0.4, 0.5, 0.6)),
+  list(label = "Mix B", w = c(0.5, 0.3, 0.2), meanlog = c(0.1, 0.4, 0.7), sdlog = c(0.35, 0.45, 0.55)),
+  list(label = "Mix C", w = c(0.4, 0.35, 0.25), meanlog = c(0.2, 0.5, 2), sdlog = c(0.3, 0.4, 0.5))
+)
+
+example <- logn_sets[[1]]
+```
+
+```{r lognormal-mix-d}
+dLognormalMix(1, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog)
+dLognormalMix(1, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog, log = TRUE)
+```
+
+```{r lognormal-mix-p}
+pLognormalMix(1, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog)
+pLognormalMix(1, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog, lower.tail = FALSE)
+pLognormalMix(1, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog, log.p = TRUE)
+```
+
+```{r lognormal-mix-q}
+q_vec(qLognormalMix, c(0.25, 0.5, 0.75), w = example$w,
+      meanlog = example$meanlog, sdlog = example$sdlog)
+q_vec(qLognormalMix, c(0.25, 0.5, 0.75), w = example$w,
+      meanlog = example$meanlog, sdlog = example$sdlog, lower.tail = FALSE)
+q_vec(qLognormalMix, c(log(0.25), log(0.5), log(0.75)), w = example$w,
+      meanlog = example$meanlog, sdlog = example$sdlog, log.p = TRUE)
+```
+
+```{r lognormal-mix-r}
+draw_many(rLognormalMix, list(w = example$w, meanlog = example$meanlog, sdlog = example$sdlog))
+```
+
+```{r lognormal-mix-plot}
+df_logn <- do.call(rbind, lapply(logn_sets, function(ps) {
+  data.frame(x = grid, density = density_curve(grid, dLognormalMix, list(w = ps$w, meanlog = ps$meanlog, sdlog = ps$sdlog)), label = ps$label)
+}))
+
+ggplot(df_logn, aes(x = x, y = density, color = label)) +
+  geom_line(linewidth = 1) +
+  labs(title = "Lognormal mixtures (bulk)", x = "x", y = "density") +
+  theme_minimal() + theme(legend.position = "top")
+```
+
+### With GPD tail
+
+```{r lognormal-gpd}
+logn_gpd_sets <- list(
+  list(label = "Mix A", w = c(0.6, 0.4), meanlog = c(0, 1), sdlog = c(0.3, 0.5), threshold = 2.5, tail_scale = 0.5, tail_shape = 0.2),
+  list(label = "Mix B", w = c(0.5, 0.5), meanlog = c(0.5, 1.2), sdlog = c(0.4, 0.4), threshold = 2.0, tail_scale = 0.4, tail_shape = 0.15),
+  list(label = "Mix C", w = c(0.7, 0.3), meanlog = c(0.8, 1.5), sdlog = c(0.25, 0.6), threshold = 3.0, tail_scale = 0.6, tail_shape = 0.18)
+)
+
+example <- logn_gpd_sets[[1]]
+```
+
+```{r lognormal-gpd-d}
+dLognormalMixGpd(2.5, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
+```
+
+```{r lognormal-gpd-p}
+pLognormalMixGpd(2.5, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
+```
+
+```{r lognormal-gpd-q}
+q_vec(qLognormalMixGpd, c(0.5, 0.9), w = example$w, meanlog = example$meanlog, sdlog = example$sdlog, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
+```
+
+```{r lognormal-gpd-r}
+draw_many(rLognormalMixGpd, example)
+```
+
+```{r lognormal-gpd-plot}
+df_logn_gpd <- do.call(rbind, lapply(logn_gpd_sets, function(ps) {
+  data.frame(x = grid, density = density_curve(grid, dLognormalMixGpd, list(w = ps$w, meanlog = ps$meanlog, sdlog = ps$sdlog, threshold = ps$threshold, tail_scale = ps$tail_scale, tail_shape = ps$tail_shape)), label = ps$label)
+}))
+
+ggplot(df_logn_gpd, aes(x = x, y = density, color = label)) +
+  geom_line(linewidth = 1) +
+  labs(title = "Lognormal mixtures with GPD tail (different thresholds)", x = "x", y = "density") +
+  theme_minimal() + theme(legend.position = "top")
+```
+
+## Laplace
+
+### Without GPD (mixture kernel)
+
+Laplace mixture density $f(x)=\sum_j w_j\,\text{Laplace}(x\mid \ell_j, b_j)$.
+
+```{r laplace-mix}
+grid <- seq(-4, 4, length.out = 400)
+lap_sets <- list(
+  list(label = "Mix A", w = c(0.6, 0.3, 0.1), location = c(0.0, 1.0, -2), scale = c(1.0, 0.9, 1.1)),
+  list(label = "Mix B", w = c(0.5, 0.3, 0.2), location = c(0.2, 1.2, -0.5), scale = c(0.9, 2, 1.0)),
+  list(label = "Mix C", w = c(0.4, 0.35, 0.25), location = c(-0.2, 2, -1.0), scale = c(1.1, 0.95, 1.05))
+)
+
+example <- lap_sets[[1]]
+```
+
+```{r laplace-mix-d}
+dLaplaceMix(0, w = example$w, location = example$location, scale = example$scale)
+dLaplaceMix(0, w = example$w, location = example$location, scale = example$scale, log = TRUE)
+```
+
+```{r laplace-mix-p}
+pLaplaceMix(0, w = example$w, location = example$location, scale = example$scale)
+pLaplaceMix(0, w = example$w, location = example$location, scale = example$scale, lower.tail = FALSE)
+pLaplaceMix(0, w = example$w, location = example$location, scale = example$scale, log.p = TRUE)
+```
+
+```{r laplace-mix-q}
+q_vec(qLaplaceMix, c(0.25, 0.5, 0.75), w = example$w,
+      location = example$location, scale = example$scale)
+q_vec(qLaplaceMix, c(0.25, 0.5, 0.75), w = example$w,
+      location = example$location, scale = example$scale, lower.tail = FALSE)
+q_vec(qLaplaceMix, c(log(0.25), log(0.5), log(0.75)), w = example$w,
+      location = example$location, scale = example$scale, log.p = TRUE)
+```
+
+```{r laplace-mix-r}
+draw_many(rLaplaceMix, list(w = example$w, location = example$location, scale = example$scale))
+```
+
+```{r laplace-mix-plot}
+df_lap <- do.call(rbind, lapply(lap_sets, function(ps) {
+  data.frame(x = grid, density = density_curve(grid, dLaplaceMix, list(w = ps$w, location = ps$location, scale = ps$scale)), label = ps$label)
+}))
+
+ggplot(df_lap, aes(x = x, y = density, color = label)) +
+  geom_line(linewidth = 1) +
+  labs(title = "Laplace mixtures (bulk)", x = "x", y = "density") +
+  theme_minimal() + theme(legend.position = "top")
+```
+
+### With GPD tail
+
+```{r laplace-gpd}
+lap_gpd_sets <- list(
+  list(label = "Mix A", w = c(0.6, 0.4), location = c(-0.5, 1), scale = c(0.4, 0.6), threshold = 1.5, tail_scale = 0.35, tail_shape = 0.3),
+  list(label = "Mix B", w = c(0.5, 0.5), location = c(0, 0.8), scale = c(0.5, 0.5), threshold = 1.2, tail_scale = 0.3, tail_shape = 0.25),
+  list(label = "Mix C", w = c(0.7, 0.3), location = c(0.2, 1.5), scale = c(0.35, 0.7), threshold = 1.8, tail_scale = 0.4, tail_shape = 0.22)
+)
+
+example <- lap_gpd_sets[[1]]
+```
+
+```{r laplace-gpd-d}
+dLaplaceMixGpd(1, w = example$w, location = example$location, scale = example$scale, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
+```
+
+```{r laplace-gpd-p}
+pLaplaceMixGpd(1, w = example$w, location = example$location, scale = example$scale, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
+```
+
+```{r laplace-gpd-q}
+q_vec(qLaplaceMixGpd, c(0.5, 0.9), w = example$w, location = example$location, scale = example$scale, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
+```
+
+```{r laplace-gpd-r}
+draw_many(rLaplaceMixGpd, example)
+```
+
+```{r laplace-gpd-plot}
+df_lap_gpd <- do.call(rbind, lapply(lap_gpd_sets, function(ps) {
+  data.frame(x = grid, density = density_curve(grid, dLaplaceMixGpd, list(w = ps$w, location = ps$location, scale = ps$scale, threshold = ps$threshold, tail_scale = ps$tail_scale, tail_shape = ps$tail_shape)), label = ps$label)
+}))
+
+ggplot(df_lap_gpd, aes(x = x, y = density, color = label)) +
+  geom_line(linewidth = 1) +
+  labs(title = "Laplace mixtures with GPD tail (different thresholds)", x = "x", y = "density") +
+  theme_minimal() + theme(legend.position = "top")
+```
+
+## Inverse Gaussian (mixture kernel)
+
+### Without GPD
+
+Density $f(x)=\sum_j w_j\,\text{IG}(x\mid \mu_j, \lambda_j)$ on $x>0$.
+
+```{r invgauss-mix}
+grid <- seq(0.1, 6, length.out = 400)
+ig_sets <- list(
+  list(label = "Mix A", w = c(0.6, 0.3, 0.1), mean = c(1.0, 1.5, 2.0), shape = c(2.0, 3.0, 4.0)),
+  list(label = "Mix B", w = c(0.5, 0.3, 0.2), mean = c(1.1, 1.6, 2.2), shape = c(2.2, 3.2, 4.2)),
+  list(label = "Mix C", w = c(0.4, 0.35, 0.25), mean = c(0.9, 1.4, 2.1), shape = c(1.8, 2.8, 3.8))
+)
+
+example <- ig_sets[[1]]
+```
+
+```{r invgauss-mix-d}
+dInvGaussMix(1, w = example$w, mean = example$mean, shape = example$shape)
+dInvGaussMix(1.5, w = example$w, mean = example$mean, shape = example$shape, log = TRUE)
+```
+
+```{r invgauss-mix-p}
+pInvGaussMix(1.5, w = example$w, mean = example$mean, shape = example$shape)
+pInvGaussMix(1.5, w = example$w, mean = example$mean, shape = example$shape, lower.tail = FALSE)
+pInvGaussMix(1.5, w = example$w, mean = example$mean, shape = example$shape, log.p = TRUE)
+```
+
+```{r invgauss-mix-q}
+q_vec(qInvGaussMix, c(0.25, 0.5, 0.75), w = example$w, mean = example$mean,
+      shape = example$shape)
+q_vec(qInvGaussMix, c(0.25, 0.5, 0.75), w = example$w, mean = example$mean,
+      shape = example$shape, lower.tail = FALSE)
+q_vec(qInvGaussMix, c(log(0.25), log(0.5), log(0.75)), w = example$w,
+      mean = example$mean, shape = example$shape, log.p = TRUE)
+```
+
+```{r invgauss-mix-r}
+draw_many(rInvGaussMix, list(w = example$w, mean = example$mean, shape = example$shape))
+```
+
+```{r invgauss-mix-plot}
+df_ig <- do.call(rbind, lapply(ig_sets, function(ps) {
+  data.frame(x = grid, density = density_curve(grid, dInvGaussMix, list(w = ps$w, mean = ps$mean, shape = ps$shape)), label = ps$label)
+}))
+
+ggplot(df_ig, aes(x = x, y = density, color = label)) +
+  geom_line(linewidth = 1) +
+  labs(title = "Inverse Gaussian mixtures (bulk)", x = "x", y = "density") +
+  theme_minimal() + theme(legend.position = "top")
+```
+
+### With GPD tail
+
+```{r invgauss-gpd}
+ig_gpd_sets <- list(
+  list(label = "Mix A", w = c(0.6, 0.4), mean = c(1, 2.5), shape = c(2, 3), threshold = 2.5, tail_scale = 0.5, tail_shape = 0.25),
+  list(label = "Mix B", w = c(0.5, 0.5), mean = c(1.5, 2), shape = c(2.5, 2.5), threshold = 2.0, tail_scale = 0.4, tail_shape = 0.2),
+  list(label = "Mix C", w = c(0.7, 0.3), mean = c(1.2, 3), shape = c(3, 2), threshold = 3.0, tail_scale = 0.6, tail_shape = 0.18)
+)
+
+example <- ig_gpd_sets[[1]]
+```
+
+```{r invgauss-gpd-d}
+dInvGaussMixGpd(2.5, w = example$w, mean = example$mean, shape = example$shape, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
+```
+
+```{r invgauss-gpd-p}
+pInvGaussMixGpd(2.5, w = example$w, mean = example$mean, shape = example$shape, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
+```
+
+```{r invgauss-gpd-q}
+q_vec(qInvGaussMixGpd, c(0.5, 0.9), w = example$w, mean = example$mean, shape = example$shape, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
+```
+
+```{r invgauss-gpd-r}
+draw_many(rInvGaussMixGpd, example)
+```
+
+```{r invgauss-gpd-plot}
+df_ig_gpd <- do.call(rbind, lapply(ig_gpd_sets, function(ps) {
+  data.frame(x = grid, density = density_curve(grid, dInvGaussMixGpd, list(w = ps$w, mean = ps$mean, shape = ps$shape, threshold = ps$threshold, tail_scale = ps$tail_scale, tail_shape = ps$tail_shape)), label = ps$label)
+}))
+
+ggplot(df_ig_gpd, aes(x = x, y = density, color = label)) +
+  geom_line(linewidth = 1) +
+  labs(title = "Inverse Gaussian mixtures with GPD tail", x = "x", y = "density") +
+  theme_minimal() + theme(legend.position = "top")
+```
+
+## Amoroso (bulk kernel and mixture)
+
+### Without GPD
+
+Single Amoroso density $f(x)=\frac{|\text{scale}|}{\Gamma(shape1)}\left|\frac{x-loc}{scale}\right|^{shape1\,shape2-1}\exp\{-[(x-loc)/scale]^{shape2}\}$ with shape1, shape2 > 0 (sign depends on scale). Mixture is weighted sum.
+
+```{r amoroso-mix}
+grid <- seq(0.01, 6, length.out = 400)
+amor_sets <- list(
+  list(label = "Mix A", w = c(0.6, 0.3, 0.1), loc = c(0.5, 0.5, 0.5), scale = c(1.0, 1.3, 1.6), shape1 = c(2.5, 3.0, 4.0), shape2 = c(1.2, 1.2, 1.2)),
+  list(label = "Mix B", w = c(0.5, 0.3, 0.2), loc = c(0.4, 0.6, 0.6), scale = c(1.1, 1.2, 1.5), shape1 = c(2.2, 2.8, 3.8), shape2 = c(1.1, 1.2, 1.3)),
+  list(label = "Mix C", w = c(0.4, 0.35, 0.25), loc = c(0.6, 0.6, 0.6), scale = c(0.9, 1.1, 1.4), shape1 = c(2.0, 2.6, 3.5), shape2 = c(1.0, 1.1, 1.2))
+)
+
+example <- amor_sets[[1]]
+```
+
+```{r amoroso-mix-d}
+dAmorosoMix(2, w = example$w, loc = example$loc, scale = example$scale,
+            shape1 = example$shape1, shape2 = example$shape2)
+dAmorosoMix(2, w = example$w, loc = example$loc, scale = example$scale,
+            shape1 = example$shape1, shape2 = example$shape2, log = TRUE)
+```
+
+```{r amoroso-mix-p}
+pAmorosoMix(2, w = example$w, loc = example$loc, scale = example$scale,
+            shape1 = example$shape1, shape2 = example$shape2)
+pAmorosoMix(2, w = example$w, loc = example$loc, scale = example$scale,
+            shape1 = example$shape1, shape2 = example$shape2, lower.tail = FALSE)
+pAmorosoMix(2, w = example$w, loc = example$loc, scale = example$scale,
+            shape1 = example$shape1, shape2 = example$shape2, log.p = TRUE)
+```
+
+```{r amoroso-mix-q}
+q_vec(qAmorosoMix, c(0.25, 0.5, 0.75), w = example$w, loc = example$loc,
+      scale = example$scale, shape1 = example$shape1, shape2 = example$shape2)
+q_vec(qAmorosoMix, c(0.25, 0.5, 0.75), w = example$w, loc = example$loc,
+      scale = example$scale, shape1 = example$shape1, shape2 = example$shape2,
+      lower.tail = FALSE)
+q_vec(qAmorosoMix, c(log(0.25), log(0.5), log(0.75)), w = example$w,
+      loc = example$loc, scale = example$scale, shape1 = example$shape1,
+      shape2 = example$shape2, log.p = TRUE)
+```
+
+```{r amoroso-mix-r}
+draw_many(rAmorosoMix, list(w = example$w, loc = example$loc,
+                            scale = example$scale, shape1 = example$shape1,
+                            shape2 = example$shape2))
+```
+
+```{r amoroso-mix-plot}
+df_amor <- do.call(rbind, lapply(amor_sets, function(ps) {
+  data.frame(x = grid, density = density_curve(grid, dAmorosoMix, list(w = ps$w, loc = ps$loc, scale = ps$scale, shape1 = ps$shape1, shape2 = ps$shape2)), label = ps$label)
+}))
+
+ggplot(df_amor, aes(x = x, y = density, color = label)) +
+  geom_line(linewidth = 1) +
+  labs(title = "Amoroso mixtures (bulk)", x = "x", y = "density") +
+  theme_minimal() + theme(legend.position = "top")
+```
+
+### With GPD tail
+
+```{r amoroso-gpd}
+amor_gpd_sets <- list(
+  list(label = "Mix A", w = c(0.6, 0.3, 0.1), loc = c(0.5, 0.5, 0.5), scale = c(1.0, 1.3, 1.6), shape1 = c(2.5, 3.0, 4.0), shape2 = c(1.2, 1.2, 1.2), threshold = 2.8, tail_scale = 0.4, tail_shape = 0.2),
+  list(label = "Mix B", w = c(0.5, 0.3, 0.2), loc = c(0.4, 0.6, 0.6), scale = c(1.1, 1.2, 1.5), shape1 = c(2.2, 2.8, 3.8), shape2 = c(1.1, 1.2, 1.3), threshold = 3.0, tail_scale = 0.35, tail_shape = 0.18),
+  list(label = "Mix C", w = c(0.4, 0.35, 0.25), loc = c(0.6, 0.6, 0.6), scale = c(0.9, 1.1, 1.4), shape1 = c(2.0, 2.6, 3.5), shape2 = c(1.0, 1.1, 1.2), threshold = 2.5, tail_scale = 0.45, tail_shape = 0.22)
+)
+example <- amor_gpd_sets[[1]]
+```
+
+```{r amoroso-gpd-d}
+dAmorosoMixGpd(3, w = example$w, loc = example$loc, scale = example$scale,
+               shape1 = example$shape1, shape2 = example$shape2,
+               threshold = example$threshold, tail_scale = example$tail_scale,
+               tail_shape = example$tail_shape)
+dAmorosoMixGpd(3, w = example$w, loc = example$loc, scale = example$scale,
+               shape1 = example$shape1, shape2 = example$shape2,
+               threshold = example$threshold, tail_scale = example$tail_scale,
+               tail_shape = example$tail_shape, log = TRUE)
+```
+
+```{r amoroso-gpd-p}
+pAmorosoMixGpd(3, w = example$w, loc = example$loc, scale = example$scale,
+               shape1 = example$shape1, shape2 = example$shape2,
+               threshold = example$threshold, tail_scale = example$tail_scale,
+               tail_shape = example$tail_shape)
+pAmorosoMixGpd(3, w = example$w, loc = example$loc, scale = example$scale,
+               shape1 = example$shape1, shape2 = example$shape2,
+               threshold = example$threshold, tail_scale = example$tail_scale,
+               tail_shape = example$tail_shape, lower.tail = FALSE)
+pAmorosoMixGpd(3, w = example$w, loc = example$loc, scale = example$scale,
+               shape1 = example$shape1, shape2 = example$shape2,
+               threshold = example$threshold, tail_scale = example$tail_scale,
+               tail_shape = example$tail_shape, log.p = TRUE)
+```
+
+```{r amoroso-gpd-q}
+q_vec(qAmorosoMixGpd, c(0.25, 0.5, 0.75), w = example$w, loc = example$loc,
+      scale = example$scale, shape1 = example$shape1, shape2 = example$shape2,
+      threshold = example$threshold, tail_scale = example$tail_scale,
+      tail_shape = example$tail_shape)
+q_vec(qAmorosoMixGpd, c(0.25, 0.5, 0.75), w = example$w, loc = example$loc,
+      scale = example$scale, shape1 = example$shape1, shape2 = example$shape2,
+      threshold = example$threshold, tail_scale = example$tail_scale,
+      tail_shape = example$tail_shape, lower.tail = FALSE)
+q_vec(qAmorosoMixGpd, c(log(0.25), log(0.5), log(0.75)), w = example$w,
+      loc = example$loc, scale = example$scale, shape1 = example$shape1,
+      shape2 = example$shape2, threshold = example$threshold,
+      tail_scale = example$tail_scale, tail_shape = example$tail_shape,
+      log.p = TRUE)
+```
+
+```{r amoroso-gpd-r}
+draw_many(rAmorosoMixGpd, example)
+```
+
+```{r amoroso-gpd-plot}
+df_amor_gpd <- do.call(rbind, lapply(amor_gpd_sets, function(ps) {
+  data.frame(x = grid, density = density_curve(grid, dAmorosoMixGpd, list(w = ps$w, loc = ps$loc, scale = ps$scale, shape1 = ps$shape1, shape2 = ps$shape2, threshold = ps$threshold, tail_scale = ps$tail_scale, tail_shape = ps$tail_shape)), label = ps$label)
+}))
+
+ggplot(df_amor_gpd, aes(x = x, y = density, color = label)) +
+  geom_line(linewidth = 1) +
+  labs(title = "Amoroso mixtures with GPD tail", x = "x", y = "density") +
+  theme_minimal() + theme(legend.position = "top")
+```
+
+## Inverse Gaussian (base kernel)
+
+### Without GPD
+
+Base IG density $f(x)=\left(\frac{\lambda}{2\pi x^3}\right)^{1/2}\exp\{-\frac{\lambda(x-\mu)^2}{2\mu^2 x}\}$.
+
+```{r invgauss-base}
+grid <- seq(0.1, 6, length.out = 400)
+ig_base_sets <- list(
+  list(label = "Base A", mean = 1.2, shape = 3.0),
+  list(label = "Base B", mean = 1.5, shape = 4.0),
+  list(label = "Base C", mean = 1.0, shape = 2.5)
+)
+
+example <- ig_base_sets[[1]]
+```
+
+```{r invgauss-base-d}
+dInvGauss(1, mean = example$mean, shape = example$shape)
+dInvGauss(1, mean = example$mean, shape = example$shape, log = TRUE)
+```
+
+```{r invgauss-base-p}
+pInvGauss(1, mean = example$mean, shape = example$shape)
+pInvGauss(1, mean = example$mean, shape = example$shape, lower.tail = FALSE)
+pInvGauss(1, mean = example$mean, shape = example$shape, log.p = TRUE)
+```
+
+```{r invgauss-base-q}
+q_vec(qInvGauss, c(0.25, 0.5, 0.75), mean = example$mean,
+      shape = example$shape)
+q_vec(qInvGauss, c(0.25, 0.5, 0.75), mean = example$mean,
+      shape = example$shape, lower.tail = FALSE)
+q_vec(qInvGauss, c(log(0.25), log(0.5), log(0.75)), mean = example$mean,
+      shape = example$shape, log.p = TRUE)
+```
+
+```{r invgauss-base-r}
+draw_many(rInvGauss, list(mean = example$mean, shape = example$shape))
+```
+
+```{r invgauss-base-plot}
+df_ig_base <- do.call(rbind, lapply(ig_base_sets, function(ps) {
+  data.frame(x = grid, density = density_curve(grid, dInvGauss, list(mean = ps$mean, shape = ps$shape)), label = ps$label)
+}))
+
+ggplot(df_ig_base, aes(x = x, y = density, color = label)) +
+  geom_line(linewidth = 1) +
+  labs(title = "Inverse Gaussian base kernels", x = "x", y = "density") +
+  theme_minimal() + theme(legend.position = "top")
+```
+
+### With GPD tail
+
+```{r invgauss-base-gpd}
+ig_base_gpd_sets <- list(
+  list(label = "Base A", mean = 1.5, shape = 2, threshold = 2.0, tail_scale = 0.4, tail_shape = 0.2),
+  list(label = "Base B", mean = 1.2, shape = 2.5, threshold = 1.8, tail_scale = 0.35, tail_shape = 0.18),
+  list(label = "Base C", mean = 1.8, shape = 3, threshold = 2.5, tail_scale = 0.5, tail_shape = 0.22)
+)
+example <- ig_base_gpd_sets[[1]]
+```
+
+```{r invgauss-base-gpd-d}
+dInvGaussGpd(2, mean = example$mean, shape = example$shape,
+             threshold = example$threshold, tail_scale = example$tail_scale,
+             tail_shape = example$tail_shape)
+dInvGaussGpd(2, mean = example$mean, shape = example$shape,
+             threshold = example$threshold, tail_scale = example$tail_scale,
+             tail_shape = example$tail_shape, log = TRUE)
+```
+
+```{r invgauss-base-gpd-p}
+pInvGaussGpd(2, mean = example$mean, shape = example$shape,
+             threshold = example$threshold, tail_scale = example$tail_scale,
+             tail_shape = example$tail_shape)
+pInvGaussGpd(2, mean = example$mean, shape = example$shape,
+             threshold = example$threshold, tail_scale = example$tail_scale,
+             tail_shape = example$tail_shape, lower.tail = FALSE)
+pInvGaussGpd(2, mean = example$mean, shape = example$shape,
+             threshold = example$threshold, tail_scale = example$tail_scale,
+             tail_shape = example$tail_shape, log.p = TRUE)
+```
+
+```{r invgauss-base-gpd-q}
+q_vec(qInvGaussGpd, c(0.25, 0.5, 0.75), mean = example$mean,
+      shape = example$shape, threshold = example$threshold,
+      tail_scale = example$tail_scale, tail_shape = example$tail_shape)
+q_vec(qInvGaussGpd, c(0.25, 0.5, 0.75), mean = example$mean,
+      shape = example$shape, threshold = example$threshold,
+      tail_scale = example$tail_scale, tail_shape = example$tail_shape,
+      lower.tail = FALSE)
+q_vec(qInvGaussGpd, c(log(0.25), log(0.5), log(0.75)), mean = example$mean,
+      shape = example$shape, threshold = example$threshold,
+      tail_scale = example$tail_scale, tail_shape = example$tail_shape,
+      log.p = TRUE)
+```
+
+```{r invgauss-base-gpd-r}
+draw_many(rInvGaussGpd, example)
+```
+
+```{r invgauss-base-gpd-plot}
+df_ig_base_gpd <- do.call(rbind, lapply(ig_base_gpd_sets, function(ps) {
+  data.frame(x = grid, density = density_curve(grid, dInvGaussGpd, list(mean = ps$mean, shape = ps$shape, threshold = ps$threshold, tail_scale = ps$tail_scale, tail_shape = ps$tail_shape)), label = ps$label)
+}))
+
+ggplot(df_ig_base_gpd, aes(x = x, y = density, color = label)) +
+  geom_line(linewidth = 1) +
+  labs(title = "Inverse Gaussian base with GPD tail", x = "x", y = "density") +
+  theme_minimal() + theme(legend.position = "top")
+```
+
+## Cauchy
+
+### Without GPD (base and mixture)
+
+Cauchy density $f(x)=\frac{1}{\pi \gamma [1+((x-x_0)/\gamma)^2]}$. Mixture sums weighted Cauchy components.
+
+```{r cauchy-base}
+grid <- seq(-8, 8, length.out = 400)
+cauchy_sets <- list(
+  list(label = "Base", location = 0, scale = 1),
+  list(label = "Mix A", w = c(0.6, 0.3, 0.1), location = c(-1, 0, 1), scale = c(1.0, 1.2, 2)),
+  list(label = "Mix B", w = c(0.5, 0.3, 0.2), location = c(-1.5, 0.5, 1.5), scale = c(1.1, 1.0, 0.9))
+)
+
+base_par <- cauchy_sets[[1]]
+mix_par1 <- cauchy_sets[[2]]
+```
+
+```{r cauchy-d}
+dCauchy(0, location = base_par$location, scale = base_par$scale)
+dCauchy(0, location = base_par$location, scale = base_par$scale, log = TRUE)
+```
+
+```{r cauchy-p}
+pCauchy(0, location = base_par$location, scale = base_par$scale)
+pCauchy(0, location = base_par$location, scale = base_par$scale, lower.tail = FALSE)
+pCauchy(0, location = base_par$location, scale = base_par$scale, log.p = TRUE)
+```
+
+```{r cauchy-q}
+q_vec(qCauchy, c(0.25, 0.5, 0.75), location = base_par$location,
+      scale = base_par$scale)
+q_vec(qCauchy, c(0.25, 0.5, 0.75), location = base_par$location,
+      scale = base_par$scale, lower.tail = FALSE)
+q_vec(qCauchy, c(log(0.25), log(0.5), log(0.75)), location = base_par$location,
+      scale = base_par$scale, log.p = TRUE)
+```
+
+```{r cauchy-r}
+draw_many(rCauchy, list(location = base_par$location, scale = base_par$scale))
+```
+
+```{r cauchy-mix-d}
+dCauchyMix(0, w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale)
+dCauchyMix(0, w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale, log = TRUE)
+```
+
+```{r cauchy-mix-r}
+draw_many(rCauchyMix, list(w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale))
+```
+
+```{r cauchy-plot}
+df_cauchy <- rbind(
+  data.frame(x = grid, density = density_curve(grid, dCauchy, list(location = base_par$location, scale = base_par$scale)), label = "Base"),
+  data.frame(x = grid, density = density_curve(grid, dCauchyMix, list(w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale)), label = "Mix A"),
+  data.frame(x = grid, density = density_curve(grid, dCauchyMix, list(w = cauchy_sets[[3]]$w, location = cauchy_sets[[3]]$location, scale = cauchy_sets[[3]]$scale)), label = "Mix B")
+)
+
+ggplot(df_cauchy, aes(x = x, y = density, color = label)) +
+  geom_line(linewidth = 1) +
+  labs(title = "Cauchy base and mixtures", x = "x", y = "density") +
+  theme_minimal() + theme(legend.position = "top")
+```

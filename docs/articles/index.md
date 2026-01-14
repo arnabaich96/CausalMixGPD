@@ -1,86 +1,49 @@
 # Articles
 
-### Start here
+### Getting Started
 
-- [Start Here](https://example.com/DPmixGPD/articles/v00-start-here.md):
-- [Quickstart](https://example.com/DPmixGPD/articles/quickstart.md):
+- [1. Introduction to
+  DPmixGPD](https://example.com/DPmixGPD/articles/v01-introduction.md):
+- [2. Available Distributions & dqrp
+  Functions](https://example.com/DPmixGPD/articles/v02-available-distributions.md):
+- [3. Basic Workflow: Model Specification, Bundle, &
+  MCMC](https://example.com/DPmixGPD/articles/v03-basic-model-compile-run.md):
 
-### Installation & reproducibility
+### Unconditional Models
 
-- [Installation &
-  Reproducibility](https://example.com/DPmixGPD/articles/v01-installation-reproducibility.md):
+DPmix and DPmixGPD without covariates
 
-### Single-outcome modeling
+- [4. Unconditional DPmix with CRP
+  Backend](https://example.com/DPmixGPD/articles/v04-unconditional-DPmix-CRP.md):
+- [5. Unconditional DPmix with Stick-Breaking
+  Backend](https://example.com/DPmixGPD/articles/v05-unconditional-DPmix-SB.md):
+- [6. Unconditional DPmixGPD with CRP
+  Backend](https://example.com/DPmixGPD/articles/v06-unconditional-DPmixGPD-CRP.md):
+- [7. Unconditional DPmixGPD with Stick-Breaking
+  Backend](https://example.com/DPmixGPD/articles/v07-unconditional-DPmixGPD-SB.md):
 
-- [Single-Outcome
-  Modeling](https://example.com/DPmixGPD/articles/v02-single-outcome-modeling.md):
+### Conditional Models
 
-### Causal modeling
+DPmix and DPmixGPD with covariates
 
-- [Causal QTE
-  (Conditional)](https://example.com/DPmixGPD/articles/causal-cqte.md):
-- [Causal: Same vs Different
-  Kernels](https://example.com/DPmixGPD/articles/causal-kernel-compare.md):
-- [Causal QTE
-  (Unconditional)](https://example.com/DPmixGPD/articles/causal-qte.md):
-- [Causal
-  Quickstart](https://example.com/DPmixGPD/articles/causal-quickstart.md):
-- [Causal Tail
-  Examples](https://example.com/DPmixGPD/articles/causal-tail.md):
-- [Causal modeling
-  quickstart](https://example.com/DPmixGPD/articles/causal.md):
+- [8. Conditional DPmix with CRP
+  Backend](https://example.com/DPmixGPD/articles/v08-conditional-DPmix-CRP.md):
+- [9. Conditional DPmix with Stick-Breaking
+  Backend](https://example.com/DPmixGPD/articles/v09-conditional-DPmix-SB.md):
+- [10. Conditional DPmixGPD with CRP
+  Backend](https://example.com/DPmixGPD/articles/v10-conditional-DPmixGPD-CRP.md):
+- [11. Conditional DPmixGPD with Stick-Breaking
+  Backend](https://example.com/DPmixGPD/articles/v11-conditional-DPmixGPD-SB.md):
 
-### Backends
+### Causal Inference
 
-- [Backends: CRP vs
-  SB](https://example.com/DPmixGPD/articles/v03-backends-crp-vs-sb.md):
-- [Backends: CRP vs
-  SB](https://example.com/DPmixGPD/articles/backends.md):
+Treatment effects with propensity score modeling
 
-### Kernel registry
-
-- [Kernels
-  guide](https://example.com/DPmixGPD/articles/v04-kernels-guide.md):
-- [Kernel:
-  Normal](https://example.com/DPmixGPD/articles/kernel-normal.md):
-- [Kernel:
-  Lognormal](https://example.com/DPmixGPD/articles/kernel-lognormal.md):
-- [Kernel:
-  Gamma](https://example.com/DPmixGPD/articles/kernel-gamma.md):
-- [Kernel: Inverse
-  Gaussian](https://example.com/DPmixGPD/articles/kernel-invgauss.md):
-- [Kernel:
-  Laplace](https://example.com/DPmixGPD/articles/kernel-laplace.md):
-- [Kernel:
-  Amoroso](https://example.com/DPmixGPD/articles/kernel-amoroso.md):
-- [Kernel:
-  Cauchy](https://example.com/DPmixGPD/articles/kernel-cauchy.md):
-
-### Prediction & exports
-
-- [Prediction &
-  exports](https://example.com/DPmixGPD/articles/v08-prediction-and-exports.md):
-- [Prediction](https://example.com/DPmixGPD/articles/prediction.md):
-
-### Legacy articles
-
-- [Bundles and S3
-  Methods](https://example.com/DPmixGPD/articles/bundle-s3.md):
-- [Covariates](https://example.com/DPmixGPD/articles/covariates.md):
-- [Coverage
-  Index](https://example.com/DPmixGPD/articles/coverage-index.md):
-- [DQRP Reference](https://example.com/DPmixGPD/articles/dqrp.md):
-- [GPD Tail](https://example.com/DPmixGPD/articles/gpd-tail.md):
-- [Kernels](https://example.com/DPmixGPD/articles/kernels.md):
-
-### Troubleshooting & survival
-
-- [Troubleshooting
-  checklist](https://example.com/DPmixGPD/articles/v09-troubleshooting.md):
-- [Survival
-  modeling](https://example.com/DPmixGPD/articles/v07-survival.md):
-
-### Developer resources
-
-- [Developer
-  guide](https://example.com/DPmixGPD/articles/v10-developer-guide.md):
+- [12. Causal Inference: Same Backend (CRP) for PS &
+  Outcome](https://example.com/DPmixGPD/articles/v12-causal-same-backend-CRP.md):
+- [13. Causal Inference: Same Backend (SB) for PS &
+  Outcome](https://example.com/DPmixGPD/articles/v13-causal-same-backend-SB.md):
+- [14. Causal Inference: Different Backends (CRP for PS, Varied for
+  Outcome)](https://example.com/DPmixGPD/articles/v14-causal-different-backends-CRP.md):
+- [15. Causal Inference: Different Backends (SB for PS, Varied for
+  Outcome)](https://example.com/DPmixGPD/articles/v15-causal-different-backends-SB.md):
