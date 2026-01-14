@@ -2,13 +2,14 @@
 #'
 #' Creates a causal bundle with:
 #' \itemize{
-#'   \item a propensity score (PS) design model (logistic regression of \code{T} on \code{X})
+#'   \item a propensity score (PS) design model (logit/probit regression of \code{T} on \code{X} or a naive Bayes classifier)
 #'   \item an outcome bundle for the control arm (\code{T = 0})
 #'   \item an outcome bundle for the treated arm (\code{T = 1})
 #' }
 #'
 #' The outcome bundles reuse the existing DPM + optional GPD tail machinery. The PS model is a
-#' lightweight NIMBLE logistic regression with normal priors on coefficients.
+#' lightweight NIMBLE estimator supporting logit/probit regression or a naive Bayes classifier with
+#' simple priors.
 #'
 #' @param y Numeric outcome vector.
 #' @param X Design matrix or data.frame of covariates (N x P).
@@ -30,10 +31,20 @@
 #' @param epsilon Numeric in [0,1) used by outcome bundles for posterior truncation summaries.
 #'   If length 2, the first entry is used for treated (\code{T=1}) and the second for control (\code{T=0}).
 #' @param alpha_random Logical; whether outcome concentration \code{alpha} is stochastic.
-#' @param ps_model PS model family. Currently supports: \code{"logit"}.
+#' @param ps_model PS model specification for backward compatibility (deprecated).
+#'   Recommend using \code{PS} parameter instead.
 #' @param ps_prior Normal prior for PS coefficients. List with \code{mean} and \code{sd}.
 #' @param include_intercept Logical; if TRUE, an intercept column is prepended to \code{X}
 #'   in the PS model.
+#' @param PS Character or logical; controls propensity score estimation:
+#'   \itemize{
+#'     \item \code{"logit"} (default): Logistic regression PS model
+#'     \item \code{"probit"}: Probit regression PS model
+#'     \item \code{"naive"}: Gaussian naive Bayes PS model
+#'     \item \code{FALSE}: No PS estimation; outcome models use only \code{X}
+#'   }
+#'   The PS model choice is stored in bundle metadata for downstream use in prediction
+#'   and summaries, enabling seamless integration of future PS estimation methods.
 #' @return A list of class \code{"dpmixgpd_causal_bundle"}.
 #' @examples
 #' \dontrun{
@@ -50,7 +61,8 @@
 #'   backend = "sb",
 #'   kernel = "gamma",
 #'   GPD = TRUE,
-#'   J = 10
+#'   J = 10,
+#'   PS = "probit"
 #' )
 #' }
 #' @export
@@ -70,7 +82,8 @@ build_causal_bundle <- function(
     alpha_random = TRUE,
     ps_model = c("logit"),
     ps_prior = list(mean = 0, sd = 2),
-    include_intercept = TRUE
+    include_intercept = TRUE,
+    PS = "logit"
 ) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
@@ -111,23 +124,35 @@ build_causal_bundle <- function(
     stop("components (control) must be an integer >= 2.", call. = FALSE)
   }
 
+  # Validate and normalize PS parameter
+  ps_model_type <- FALSE
+  if (!isFALSE(PS)) {
+    ps_model_type <- as.character(PS)
+    ps_choices <- c("logit", "probit", "naive")
+    ps_model_type <- match.arg(ps_model_type, choices = ps_choices)
+  }
+
   idx_con <- which(T == 0L)
   idx_trt <- which(T == 1L)
   if (!length(idx_con) || !length(idx_trt)) {
     stop("Both treatment arms must have at least one observation.", call. = FALSE)
   }
 
-  ps_spec <- list(
-    model = ps_model,
-    prior = list(
-      mean = ps_prior$mean %||% 0,
-      sd = ps_prior$sd %||% 2
-    ),
-    include_intercept = isTRUE(include_intercept)
-  )
-
-  ps_bundle <- .build_ps_bundle(T = T, X = X, spec = ps_spec, mcmc = mcmc_ps)
-  ps_placeholder <- rep(0, length(y))
+  # Only build PS bundle if PS model is specified (not FALSE)
+  ps_bundle <- NULL
+  ps_placeholder <- NULL
+  if (!isFALSE(ps_model_type)) {
+    ps_spec <- list(
+      model = ps_model_type,
+      prior = list(
+        mean = ps_prior$mean %||% 0,
+        sd = ps_prior$sd %||% 2
+      ),
+      include_intercept = isTRUE(include_intercept)
+    )
+    ps_bundle <- .build_ps_bundle(T = T, X = X, spec = ps_spec, mcmc = mcmc_ps)
+    ps_placeholder <- rep(0, length(y))
+  }
 
   ps_con <- param_specs$con %||% param_specs
   ps_trt <- param_specs$trt %||% param_specs
@@ -154,7 +179,7 @@ build_causal_bundle <- function(
   bundle_con <- build_nimble_bundle(
     y = y[idx_con],
     X = X[idx_con, , drop = FALSE],
-    ps = ps_placeholder[idx_con],
+    ps = if (!is.null(ps_placeholder)) ps_placeholder[idx_con] else NULL,
     backend = backend$con,
     kernel = kernel$con,
     GPD = GPD$con,
@@ -168,7 +193,7 @@ build_causal_bundle <- function(
   bundle_trt <- build_nimble_bundle(
     y = y[idx_trt],
     X = X[idx_trt, , drop = FALSE],
-    ps = ps_placeholder[idx_trt],
+    ps = if (!is.null(ps_placeholder)) ps_placeholder[idx_trt] else NULL,
     backend = backend$trt,
     kernel = kernel$trt,
     GPD = GPD$trt,
@@ -190,7 +215,10 @@ build_causal_bundle <- function(
       GPD = GPD,
       components = components,
       epsilon = epsilon,
-      ps = list(enabled = TRUE)
+      ps = list(
+        enabled = !isFALSE(ps_model_type),
+        model_type = ps_model_type
+      )
     ),
     call = match.call()
   )
@@ -276,7 +304,8 @@ build_causal_bundle <- function(
 
 #' Run MCMC for a causal bundle
 #'
-#' Executes the PS model and both outcome arms, returning a single causal fit.
+#' Executes the outcome arms (and PS model if enabled), returning a single causal fit.
+#' When \code{PS=FALSE} in the bundle, the PS model is skipped entirely.
 #'
 #' @param bundle A \code{"dpmixgpd_causal_bundle"} from \code{build_causal_bundle()}.
 #' @param show_progress Logical; passed to nimble for each block.
@@ -290,20 +319,34 @@ build_causal_bundle <- function(
 run_mcmc_causal <- function(bundle, show_progress = TRUE) {
   stopifnot(inherits(bundle, "dpmixgpd_causal_bundle"))
 
-  ps_fit <- .run_ps_mcmc_bundle(bundle$design, show_progress = show_progress)
-  ps_training_X <- bundle$data$X
-  if (is.null(ps_training_X)) {
-    stop("Training design matrix 'X' is missing from causal bundle.", call. = FALSE)
+  # Check if propensity scores are enabled
+  ps_enabled <- isTRUE(bundle$meta$ps$enabled)
+  
+  ps_fit <- NULL
+  ps_hat <- NULL
+  ps_model <- NULL
+  
+  if (ps_enabled) {
+    ps_fit <- .run_ps_mcmc_bundle(bundle$design, show_progress = show_progress)
+    ps_training_X <- bundle$data$X
+    if (is.null(ps_training_X)) {
+      stop("Training design matrix 'X' is missing from causal bundle.", call. = FALSE)
+    }
+    ps_training_X <- if (is.matrix(ps_training_X)) ps_training_X else as.matrix(ps_training_X)
+    storage.mode(ps_training_X) <- "double"
+    
+    # Compute propensity scores and assign to outcome data
+    ps_hat <- .compute_ps_from_fit(ps_fit = ps_fit, ps_bundle = bundle$design, X_new = ps_training_X)
+    idx_con <- bundle$index$con
+    idx_trt <- bundle$index$trt
+    bundle$outcome$con$data$ps <- ps_hat[idx_con]
+    bundle$outcome$trt$data$ps <- ps_hat[idx_trt]
+    
+    # Prepare PS model for downstream prediction
+    ps_model <- list(fit = ps_fit, bundle = bundle$design)
   }
-  ps_training_X <- if (is.matrix(ps_training_X)) ps_training_X else as.matrix(ps_training_X)
-  storage.mode(ps_training_X) <- "double"
-  ps_hat <- .compute_ps_from_fit(ps_fit = ps_fit, ps_bundle = bundle$design, X_new = ps_training_X)
-  idx_con <- bundle$index$con
-  idx_trt <- bundle$index$trt
-  bundle$outcome$con$data$ps <- ps_hat[idx_con]
-  bundle$outcome$trt$data$ps <- ps_hat[idx_trt]
 
-  # Regenerate code/constants/monitors now that PS data is attached
+  # Regenerate code/constants/monitors (with or without PS)
   for (arm in c("con", "trt")) {
     b <- bundle$outcome[[arm]]
     b$code <- build_code_from_spec(b$spec)
@@ -315,10 +358,11 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
   con_fit <- run_mcmc_bundle_manual(bundle$outcome$con, show_progress = show_progress)
   trt_fit <- run_mcmc_bundle_manual(bundle$outcome$trt, show_progress = show_progress)
 
-  # Attach PS model for downstream prediction on new covariates
-  ps_model <- list(fit = ps_fit, bundle = bundle$design)
-  con_fit$ps_model <- ps_model
-  trt_fit$ps_model <- ps_model
+  # Attach PS model if available
+  if (!is.null(ps_model)) {
+    con_fit$ps_model <- ps_model
+    trt_fit$ps_model <- ps_model
+  }
 
   out <- list(
     ps_fit = ps_fit,
@@ -509,7 +553,9 @@ ate <- function(fit,
 #' Provides a unified interface to the treated and control outcome models while
 #' guaranteeing that the same propensity scores are used for both arms. For new
 #' covariates, the PS model stored in \code{object$ps_fit} is used to estimate
-#' the required scores unless the user supplies their own via \code{ps}.
+#' the required scores unless the user supplies their own via \code{ps}. If the
+#' bundle was built with \code{PS=FALSE}, the PS model does not exist and outcome
+#' predictions use only the original covariates \code{X}.
 #'
 #' @inheritParams predict.mixgpd_fit
 #' @param object A \code{"dpmixgpd_causal_fit"} object returned by
@@ -555,6 +601,11 @@ predict.dpmixgpd_causal_fit <- function(object,
   interval <- match.arg(interval)
 
   bundle <- object$bundle %||% list()
+  
+  # Check if propensity scores are enabled and get model type
+  ps_enabled <- isTRUE(bundle$meta$ps$enabled)
+  ps_model_type <- bundle$meta$ps$model_type %||% FALSE
+  
   X_train <- bundle$data$X %||% NULL
   has_X <- !is.null(X_train)
   x_mat <- if (!is.null(x)) as.matrix(x) else NULL
@@ -564,42 +615,53 @@ predict.dpmixgpd_causal_fit <- function(object,
   ps_full <- NULL
   ps_trt <- NULL
   ps_con <- NULL
-  if (!is.null(ps)) {
-    ps_full <- as.numeric(ps)
-  } else if (!is.null(x_mat)) {
-    if (is.null(object$ps_fit)) {
-      stop("Causal fit missing PS model; cannot compute propensity scores for newdata.", call. = FALSE)
-    }
-    ps_full <- .compute_ps_from_fit(
-      ps_fit = object$ps_fit,
-      ps_bundle = bundle$design,
-      X_new = x_mat
-    )
-  } else {
-    ps_full <- object$ps_hat %||% bundle$data$ps
-    ps_trt <- object$outcome_fit$trt$data$ps %||% NULL
-    ps_con <- object$outcome_fit$con$data$ps %||% NULL
-    if (is.null(ps_trt) || is.null(ps_con)) {
-      idx_trt <- bundle$index$trt %||% integer(0)
-      idx_con <- bundle$index$con %||% integer(0)
-      if (!is.null(ps_full) && length(idx_trt) && length(idx_con)) {
-        ps_trt <- ps_full[idx_trt]
-        ps_con <- ps_full[idx_con]
+  
+  # Only compute/use PS if enabled
+  if (ps_enabled) {
+    if (!is.null(ps)) {
+      ps_full <- as.numeric(ps)
+    } else if (!is.null(x_mat)) {
+      if (is.null(object$ps_fit)) {
+        stop(sprintf("Causal fit missing PS model (%s); cannot compute propensity scores for newdata.", ps_model_type), call. = FALSE)
+      }
+      ps_full <- .compute_ps_from_fit(
+        ps_fit = object$ps_fit,
+        ps_bundle = bundle$design,
+        X_new = x_mat
+      )
+    } else {
+      ps_full <- object$ps_hat %||% NULL
+      ps_trt <- object$outcome_fit$trt$data$ps %||% NULL
+      ps_con <- object$outcome_fit$con$data$ps %||% NULL
+      if (is.null(ps_trt) || is.null(ps_con)) {
+        idx_trt <- bundle$index$trt %||% integer(0)
+        idx_con <- bundle$index$con %||% integer(0)
+        if (!is.null(ps_full) && length(idx_trt) && length(idx_con)) {
+          ps_trt <- ps_full[idx_trt]
+          ps_con <- ps_full[idx_con]
+        }
       }
     }
-  }
 
-  if (!is.null(ps_full) && !is.null(x_mat)) {
-    if (length(ps_full) != n_pred) {
-      stop("Length of 'ps' must equal the number of prediction rows (nrow(x)).", call. = FALSE)
+    if (!is.null(ps_full) && !is.null(x_mat)) {
+      if (length(ps_full) != n_pred) {
+        stop("Length of 'ps' must equal the number of prediction rows (nrow(x)).", call. = FALSE)
+      }
     }
-  } else if (!is.null(x_mat) && is.null(ps_full)) {
-    stop("PS-augmented causal fit requires propensity scores when predicting on new data.", call. = FALSE)
+
+    if (!is.null(x_mat)) {
+      ps_trt <- ps_full
+      ps_con <- ps_full
+    }
   }
 
-  if (!is.null(x_mat)) {
+  if (!is.null(x_mat) && ps_include_in_outcome) {
     ps_trt <- ps_full
     ps_con <- ps_full
+  } else if (!ps_include_in_outcome) {
+    # PS not included in outcome models, so don't pass to predict
+    ps_trt <- NULL
+    ps_con <- NULL
   }
 
   pr_trt <- predict(
@@ -658,36 +720,92 @@ predict.dpmixgpd_causal_fit <- function(object,
   }
 
   model <- spec$model %||% "logit"
-  if (!model %in% c("logit")) {
-    stop("Unsupported PS model. Supported: logit.", call. = FALSE)
+  if (!model %in% c("logit", "probit", "naive")) {
+    stop("Unsupported PS model. Supported: logit, probit, naive.", call. = FALSE)
   }
 
-  code <- nimble::nimbleCode({
-    for (i in 1:N) {
-      T[i] ~ dbern(pi[i])
-      logit(pi[i]) <- inprod(X[i, 1:P], beta[1:P])
-    }
-    for (j in 1:P) {
-      beta[j] ~ dnorm(beta_mean, sd = beta_sd)
-    }
-  })
+  # Generate NIMBLE code based on model type
+  if (model == "logit") {
+    code <- nimble::nimbleCode({
+      for (i in 1:N) {
+        T[i] ~ dbern(pi[i])
+        logit(pi[i]) <- inprod(X[i, 1:P], beta[1:P])
+      }
+      for (j in 1:P) {
+        beta[j] ~ dnorm(beta_mean, sd = beta_sd)
+      }
+    })
+  } else if (model == "probit") {
+    code <- nimble::nimbleCode({
+      for (i in 1:N) {
+        T[i] ~ dbern(pi[i])
+        probit(pi[i]) <- inprod(X[i, 1:P], beta[1:P])
+      }
+      for (j in 1:P) {
+        beta[j] ~ dnorm(beta_mean, sd = beta_sd)
+      }
+    })
+  } else if (model == "naive") {
+    # Naive Bayes: model feature distributions given treatment status
+    code <- nimble::nimbleCode({
+      for (i in 1:N) {
+        T[i] ~ dbern(pi_prior)
+        for (j in 1:P) {
+          X[i, j] ~ dnorm(mu[T[i] + 1, j], sd = sigma[T[i] + 1, j])
+        }
+      }
+      pi_prior ~ dbeta(1, 1)
+      for (k in 1:2) {
+        for (j in 1:P) {
+          mu[k, j] ~ dnorm(mu_mean, sd = mu_sd)
+          sigma[k, j] ~ dunif(sigma_min, sigma_max)
+        }
+      }
+    })
+  }
 
-  constants <- list(
-    N = N,
-    P = P,
-    beta_mean = as.numeric(spec$prior$mean %||% 0),
-    beta_sd = as.numeric(spec$prior$sd %||% 2)
-  )
-  data <- list(
-    T = as.integer(T),
-    X = X
-  )
-  inits <- list(beta = rep(0, P))
-  monitors <- c("beta")
+  constants <- list(N = N, P = P)
+  
+  # Set model-specific constants, data, inits, and monitors
+  if (model %in% c("logit", "probit")) {
+    constants$beta_mean <- as.numeric(spec$prior$mean %||% 0)
+    constants$beta_sd <- as.numeric(spec$prior$sd %||% 2)
+    data <- list(T = as.integer(T), X = X)
+    inits <- list(beta = rep(0, P))
+    monitors <- c("beta")
+  } else if (model == "naive") {
+    # Naive Bayes constants
+    X_mean <- colMeans(X, na.rm = TRUE)
+    X_sd <- apply(X, 2, sd, na.rm = TRUE)
+    X_sd <- pmax(X_sd, 0.1)  # Prevent zero SD
+    constants$mu_mean <- mean(X_mean, na.rm = TRUE)
+    constants$mu_sd <- mean(X_sd, na.rm = TRUE)
+    constants$sigma_min <- 0.05
+    constants$sigma_max <- 5 * mean(X_sd, na.rm = TRUE)
+    data <- list(T = as.integer(T), X = X)
+    # Initialize with sample means/sds by treatment group
+    init_mu <- matrix(0, nrow = 2, ncol = P)
+    init_sigma <- matrix(1, nrow = 2, ncol = P)
+    for (k in 0:1) {
+      X_k <- X[T == k, , drop = FALSE]
+      if (nrow(X_k) > 0) {
+        init_mu[k + 1, ] <- colMeans(X_k, na.rm = TRUE)
+        init_sigma[k + 1, ] <- pmax(apply(X_k, 2, sd, na.rm = TRUE), 0.1)
+      }
+    }
+    inits <- list(pi_prior = 0.5, mu = init_mu, sigma = init_sigma)
+    monitors <- c("pi_prior", "mu", "sigma")
+  }
 
+  # Store model type for downstream PS computation
+  model_type_name <- if (model == "logit") "ps_logit" 
+                     else if (model == "probit") "ps_probit" 
+                     else if (model == "naive") "ps_naive"
+                     else "ps_unknown"
+  
   bundle <- list(
     spec = list(
-      meta = list(type = "ps_logit", include_intercept = isTRUE(spec$include_intercept)),
+      meta = list(type = model_type_name, include_intercept = isTRUE(spec$include_intercept)),
       model = model,
       prior = spec$prior
     ),
@@ -760,22 +878,90 @@ predict.dpmixgpd_causal_fit <- function(object,
 }
 
 .compute_ps_from_fit <- function(ps_fit, ps_bundle, X_new) {
-  design <- .ps_design_matrix(ps_bundle, X_new)
+  model_type <- ps_bundle$spec$model %||% "logit"
   samples <- as.matrix(ps_fit$mcmc$samples)
-  beta_cols <- grep("^beta\\[[0-9]+\\]$", colnames(samples), value = TRUE)
-  if (!length(beta_cols)) stop("PS beta draws not found.", call. = FALSE)
+  
+  if (model_type %in% c("logit", "probit")) {
+    # Linear model PS: logit or probit
+    design <- .ps_design_matrix(ps_bundle, X_new)
+    beta_cols <- grep("^beta\\[[0-9]+\\]$", colnames(samples), value = TRUE)
+    if (!length(beta_cols)) stop("PS beta draws not found.", call. = FALSE)
 
-  beta_inds <- as.integer(sub("^beta\\[([0-9]+)\\]$", "\\1", beta_cols))
-  order_idx <- order(beta_inds, na.last = NA)
-  beta_mat <- samples[, beta_cols, drop = FALSE]
-  beta_mat <- beta_mat[, order_idx, drop = FALSE]  # S x P
+    beta_inds <- as.integer(sub("^beta\\[([0-9]+)\\]$", "\\1", beta_cols))
+    order_idx <- order(beta_inds, na.last = NA)
+    beta_mat <- samples[, beta_cols, drop = FALSE]
+    beta_mat <- beta_mat[, order_idx, drop = FALSE]  # S x P
 
-  if (ncol(design) != ncol(beta_mat)) {
-    stop("Mismatch between PS design columns and beta coefficients.", call. = FALSE)
+    if (ncol(design) != ncol(beta_mat)) {
+      stop("Mismatch between PS design columns and beta coefficients.", call. = FALSE)
+    }
+
+    # Determine inverse link function
+    inv_link <- if (model_type == "logit") plogis else if (model_type == "probit") pnorm else plogis
+    
+    # Posterior predictive PS: average inverse link over beta draws
+    eta <- beta_mat %*% t(design)  # S x n_pred
+    ps_draws <- inv_link(eta)
+    colMeans(ps_draws)
+    
+  } else if (model_type == "naive") {
+    # Naive Bayes: use Bayes rule with learned feature distributions
+    X_new <- as.matrix(X_new)
+    storage.mode(X_new) <- "double"
+    n_pred <- nrow(X_new)
+    S <- nrow(samples)  # Number of MCMC iterations
+    
+    # Extract posterior samples
+    pi_cols <- grep("^pi_prior$", colnames(samples), value = TRUE)
+    mu_cols <- grep("^mu\\[", colnames(samples), value = TRUE)
+    sigma_cols <- grep("^sigma\\[", colnames(samples), value = TRUE)
+    
+    if (!length(pi_cols) || !length(mu_cols) || !length(sigma_cols)) {
+      stop("Naive Bayes PS samples missing (pi_prior, mu, or sigma).", call. = FALSE)
+    }
+    
+    # Extract samples as matrices
+    pi_samples <- samples[, pi_cols, drop = FALSE]
+    mu_samples <- samples[, mu_cols, drop = FALSE]
+    sigma_samples <- samples[, sigma_cols, drop = FALSE]
+    
+    # Initialize PS matrix
+    ps_draws <- matrix(0, nrow = S, ncol = n_pred)
+    
+    # For each posterior sample, compute P(T=1|X) using Bayes rule
+    for (s in 1:S) {
+      pi_prior <- pi_samples[s, 1]  # P(T=1)
+      
+      # Reshape mu and sigma from samples to (K=2, P) matrices
+      # mu and sigma are stored as mu[1,1], mu[1,2], ..., mu[2,1], mu[2,2], ...
+      P <- ncol(X_new)
+      mu_mat <- matrix(mu_samples[s, ], nrow = 2, ncol = P, byrow = FALSE)
+      sigma_mat <- matrix(sigma_samples[s, ], nrow = 2, ncol = P, byrow = FALSE)
+      
+      # Compute likelihood P(X|T=k) for each treatment group
+      # Using independence: P(X|T) = prod_j P(X_j|T)
+      log_lik_t0 <- matrix(0, nrow = n_pred, ncol = P)
+      log_lik_t1 <- matrix(0, nrow = n_pred, ncol = P)
+      
+      for (j in 1:P) {
+        log_lik_t0[, j] <- dnorm(X_new[, j], mean = mu_mat[1, j], sd = sigma_mat[1, j], log = TRUE)
+        log_lik_t1[, j] <- dnorm(X_new[, j], mean = mu_mat[2, j], sd = sigma_mat[2, j], log = TRUE)
+      }
+      
+      # Sum across features (log scale)
+      log_lik_t0_sum <- rowSums(log_lik_t0)
+      log_lik_t1_sum <- rowSums(log_lik_t1)
+      
+      # Apply Bayes rule: P(T=1|X) = P(X|T=1)P(T=1) / [P(X|T=1)P(T=1) + P(X|T=0)P(T=0)]
+      # Using log-sum-exp trick for numerical stability
+      log_post_t0 <- log(1 - pi_prior) + log_lik_t0_sum
+      log_post_t1 <- log(pi_prior) + log_lik_t1_sum
+      
+      # Convert back from log scale
+      max_log <- pmax(log_post_t0, log_post_t1)
+      ps_draws[s, ] <- exp(log_post_t1 - max_log) / (exp(log_post_t0 - max_log) + exp(log_post_t1 - max_log))
+    }
+    
+    colMeans(ps_draws)
   }
-
-  # Posterior predictive PS: average plogis over beta draws
-  eta <- beta_mat %*% t(design)  # S x n_pred
-  ps_draws <- plogis(eta)
-  colMeans(ps_draws)
 }

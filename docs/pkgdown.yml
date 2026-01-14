@@ -2,38 +2,22 @@ pandoc: 3.6.3
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
-  backends: backends.html
-  bundle-s3: bundle-s3.html
-  causal-cqte: causal-cqte.html
-  causal-kernel-compare: causal-kernel-compare.html
-  causal-qte: causal-qte.html
-  causal-quickstart: causal-quickstart.html
-  causal-tail: causal-tail.html
-  causal: causal.html
-  covariates: covariates.html
-  coverage-index: coverage-index.html
-  dqrp: dqrp.html
-  gpd-tail: gpd-tail.html
-  kernel-amoroso: kernel-amoroso.html
-  kernel-cauchy: kernel-cauchy.html
-  kernel-gamma: kernel-gamma.html
-  kernel-invgauss: kernel-invgauss.html
-  kernel-laplace: kernel-laplace.html
-  kernel-lognormal: kernel-lognormal.html
-  kernel-normal: kernel-normal.html
-  kernels: kernels.html
-  prediction: prediction.html
-  quickstart: quickstart.html
-  v00-start-here: v00-start-here.html
-  v01-installation-reproducibility: v01-installation-reproducibility.html
-  v02-single-outcome-modeling: v02-single-outcome-modeling.html
-  v03-backends-crp-vs-sb: v03-backends-crp-vs-sb.html
-  v04-kernels-guide: v04-kernels-guide.html
-  v07-survival: v07-survival.html
-  v08-prediction-and-exports: v08-prediction-and-exports.html
-  v09-troubleshooting: v09-troubleshooting.html
-  v10-developer-guide: v10-developer-guide.html
-last_built: 2026-01-13T05:03Z
+  v01-introduction: v01-introduction.html
+  v02-available-distributions: v02-available-distributions.html
+  v03-basic-model-compile-run: v03-basic-model-compile-run.html
+  v04-unconditional-DPmix-CRP: v04-unconditional-DPmix-CRP.html
+  v05-unconditional-DPmix-SB: v05-unconditional-DPmix-SB.html
+  v06-unconditional-DPmixGPD-CRP: v06-unconditional-DPmixGPD-CRP.html
+  v07-unconditional-DPmixGPD-SB: v07-unconditional-DPmixGPD-SB.html
+  v08-conditional-DPmix-CRP: v08-conditional-DPmix-CRP.html
+  v09-conditional-DPmix-SB: v09-conditional-DPmix-SB.html
+  v10-conditional-DPmixGPD-CRP: v10-conditional-DPmixGPD-CRP.html
+  v11-conditional-DPmixGPD-SB: v11-conditional-DPmixGPD-SB.html
+  v12-causal-same-backend-CRP: v12-causal-same-backend-CRP.html
+  v13-causal-same-backend-SB: v13-causal-same-backend-SB.html
+  v14-causal-different-backends-CRP: v14-causal-different-backends-CRP.html
+  v15-causal-different-backends-SB: v15-causal-different-backends-SB.html
+last_built: 2026-01-13T21:04Z
 urls:
   reference: https://example.com/DPmixGPD/reference
   article: https://example.com/DPmixGPD/articles
