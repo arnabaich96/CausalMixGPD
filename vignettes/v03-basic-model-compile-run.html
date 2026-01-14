@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>3. Basic Workflow: Model Specification, Bundle, &amp; MCMC</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">3. Basic Workflow: Model Specification,
+Bundle, &amp; MCMC</h1>
+
+
+
+<div id="the-three-phase-workflow" class="section level1">
+<h1>The Three-Phase Workflow</h1>
+<p>DPmixGPD uses a <strong>three-phase model-building paradigm</strong>
+designed for clarity and control:</p>
+<ol style="list-style-type: decimal">
+<li><strong>Specification</strong> (<code>compile_model_spec</code>):
+Validate inputs, NO NIMBLE code generation</li>
+<li><strong>Bundle</strong> (<code>build_nimble_bundle</code>): Generate
+NIMBLE code, compile sampler</li>
+<li><strong>MCMC</strong> (<code>run_mcmc_bundle_manual</code>): Execute
+posterior sampling</li>
+</ol>
+<hr />
+<div id="phase-1-specification-input-validation" class="section level2">
+<h2>Phase 1: Specification (Input Validation)</h2>
+<p><strong>Purpose</strong>: Validate data, kernels, backends, and
+parameters WITHOUT generating NIMBLE code.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Simulate data</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">rgamma</span>(<span class="dv">100</span>, <span class="at">shape =</span> <span class="dv">2</span>, <span class="at">rate =</span> <span class="dv">1</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co"># Create specification</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>spec <span class="ot">&lt;-</span> <span class="fu">compile_model_spec</span>(</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">&quot;gamma&quot;</span>,</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">&quot;crp&quot;</span>,</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>)</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="co"># Inspect specification</span></span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Specification object class:&quot;</span>, <span class="fu">class</span>(spec), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Kernel chosen:&quot;</span>, spec<span class="sc">$</span>kernel, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Backend chosen:&quot;</span>, spec<span class="sc">$</span>backend, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;GPD enabled:&quot;</span>, spec<span class="sc">$</span>GPD, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Sample size n:&quot;</span>, <span class="fu">length</span>(spec<span class="sc">$</span>y), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<div id="specification-for-different-model-variants" class="section level3">
+<h3>Specification for Different Model Variants</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># 1. Unconditional DPmix (bulk only, no tail)</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>spec_unconditional <span class="ot">&lt;-</span> <span class="fu">compile_model_spec</span>(y, <span class="at">kernel =</span> <span class="st">&quot;gamma&quot;</span>, <span class="at">backend =</span> <span class="st">&quot;crp&quot;</span>, <span class="at">GPD =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co"># 2. Unconditional DPmixGPD (bulk + tail)</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>spec_gpd <span class="ot">&lt;-</span> <span class="fu">compile_model_spec</span>(y, <span class="at">kernel =</span> <span class="st">&quot;gamma&quot;</span>, <span class="at">backend =</span> <span class="st">&quot;crp&quot;</span>, <span class="at">GPD =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co"># 3. Conditional (with covariates)</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">matrix</span>(<span class="fu">rnorm</span>(<span class="dv">100</span> <span class="sc">*</span> <span class="dv">2</span>), <span class="at">nrow =</span> <span class="dv">100</span>, <span class="at">ncol =</span> <span class="dv">2</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>spec_conditional <span class="ot">&lt;-</span> <span class="fu">compile_model_spec</span>(</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  <span class="at">X =</span> X,</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">&quot;lognormal&quot;</span>,</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">&quot;crp&quot;</span>,</span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>)</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co"># 4. With custom MCMC settings</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>spec_custom <span class="ot">&lt;-</span> <span class="fu">compile_model_spec</span>(</span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">&quot;gamma&quot;</span>,</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">&quot;crp&quot;</span>,</span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>  <span class="at">mcmc =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">2000</span>, <span class="at">nburnin =</span> <span class="dv">500</span>, <span class="at">nchains =</span> <span class="dv">2</span>, <span class="at">thin =</span> <span class="dv">2</span>)</span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>)</span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Created 4 specification objects successfully.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<hr />
+</div>
+</div>
+<div id="phase-2-bundle-nimble-code-generation-compilation" class="section level2">
+<h2>Phase 2: Bundle (NIMBLE Code Generation &amp; Compilation)</h2>
+<p><strong>Purpose</strong>: Generate NIMBLE model code, compile
+sampler, prepare for MCMC execution.</p>
+<div id="building-from-specification" class="section level3">
+<h3>Building from Specification</h3>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Method 1: From specification object</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(spec)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Bundle object class:&quot;</span>, <span class="fu">class</span>(bundle), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Bundle contains compiled sampler ready for MCMC.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+</div>
+<div id="building-directly-alternative" class="section level3">
+<h3>Building Directly (Alternative)</h3>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Method 2: Direct call (recommended for quick workflows)</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>bundle_direct <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">&quot;gamma&quot;</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">&quot;crp&quot;</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="at">mcmc =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">500</span>, <span class="at">nburnin =</span> <span class="dv">100</span>, <span class="at">nchains =</span> <span class="dv">1</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>)</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Direct bundle creation successful.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+</div>
+<div id="inspecting-bundle-contents" class="section level3">
+<h3>Inspecting Bundle Contents</h3>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Bundle is an S3 object with structure</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Bundle class:&quot;</span>, <span class="fu">class</span>(bundle_direct), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Bundle contains:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">names</span>(bundle_direct))</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co"># Access key components</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">MCMC settings:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="fu">print</span>(bundle_direct<span class="sc">$</span>mcmc_settings)</span></code></pre></div>
+<hr />
+</div>
+</div>
+<div id="phase-3-mcmc-execution" class="section level2">
+<h2>Phase 3: MCMC Execution</h2>
+<p><strong>Purpose</strong>: Run posterior sampling from the compiled
+bundle.</p>
+<div id="basic-mcmc-run" class="section level3">
+<h3>Basic MCMC Run</h3>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Run MCMC</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle_direct)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Fit object class:&quot;</span>, <span class="fu">class</span>(fit), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;MCMC execution complete. Posterior samples collected.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+</div>
+<div id="accessing-posterior-samples" class="section level3">
+<h3>Accessing Posterior Samples</h3>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Posterior summary</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">--- POSTERIOR SUMMARY ---</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code></pre></div>
+</div>
+<div id="diagnostic-plots" class="section level3">
+<h3>Diagnostic Plots</h3>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Trace plots</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">plot</span>(fit, <span class="at">params =</span> <span class="st">&quot;alpha|beta&quot;</span>)</span></code></pre></div>
+<hr />
+</div>
+</div>
+<div id="complete-workflow-end-to-end-example" class="section level2">
+<h2>Complete Workflow: End-to-End Example</h2>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Generate realistic data</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">789</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>y_data <span class="ot">&lt;-</span> <span class="fu">rgamma</span>(<span class="dv">150</span>, <span class="at">shape =</span> <span class="fl">1.8</span>, <span class="at">rate =</span> <span class="fl">0.9</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a></span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co"># PHASE 1: Specification</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>spec_final <span class="ot">&lt;-</span> <span class="fu">compile_model_spec</span>(</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>  <span class="at">y =</span> y_data,</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">&quot;gamma&quot;</span>,</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">&quot;crp&quot;</span>,</span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>  <span class="at">Kmax =</span> <span class="dv">15</span></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>)</span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co"># PHASE 2: Bundle</span></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>bundle_final <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a>  spec_final,</span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a>  <span class="at">mcmc =</span> <span class="fu">list</span>(</span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a>    <span class="at">niter =</span> <span class="dv">1000</span>,</span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a>    <span class="at">nburnin =</span> <span class="dv">200</span>,</span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a>    <span class="at">nchains =</span> <span class="dv">2</span>,</span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a>    <span class="at">thin =</span> <span class="dv">1</span></span>
+<span id="cb9-22"><a href="#cb9-22" tabindex="-1"></a>  )</span>
+<span id="cb9-23"><a href="#cb9-23" tabindex="-1"></a>)</span>
+<span id="cb9-24"><a href="#cb9-24" tabindex="-1"></a></span>
+<span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co"># PHASE 3: MCMC</span></span>
+<span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a>fit_final <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle_final)</span>
+<span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a></span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">=== THREE-PHASE WORKFLOW COMPLETE ===</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a><span class="fu">summary</span>(fit_final)</span></code></pre></div>
+<hr />
+</div>
+<div id="backend-comparison-crp-vs-stick-breaking" class="section level2">
+<h2>Backend Comparison: CRP vs Stick-Breaking</h2>
+<div id="crp-backend" class="section level3">
+<h3>CRP Backend</h3>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="co"># Chinese Restaurant Process</span></span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>bundle_crp <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  <span class="at">y =</span> y_data,</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">&quot;gamma&quot;</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">&quot;crp&quot;</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>  <span class="at">Kmax =</span> <span class="dv">10</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>  <span class="at">mcmc =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">500</span>, <span class="at">nburnin =</span> <span class="dv">100</span>, <span class="at">nchains =</span> <span class="dv">1</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>)</span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>fit_crp <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle_crp)</span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;CRP execution complete.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+</div>
+<div id="stick-breaking-backend" class="section level3">
+<h3>Stick-Breaking Backend</h3>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># Stick-Breaking Process</span></span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>bundle_sb <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  <span class="at">y =</span> y_data,</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">&quot;gamma&quot;</span>,</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">&quot;sb&quot;</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>  <span class="at">J =</span> <span class="dv">10</span>,</span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>  <span class="at">mcmc =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">500</span>, <span class="at">nburnin =</span> <span class="dv">100</span>, <span class="at">nchains =</span> <span class="dv">1</span>)</span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>)</span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a></span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>fit_sb <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle_sb)</span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;SB execution complete.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<hr />
+</div>
+</div>
+<div id="kernel-selection-guide" class="section level2">
+<h2>Kernel Selection Guide</h2>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>kernels_available <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;gamma&quot;</span>, <span class="st">&quot;lognormal&quot;</span>, <span class="st">&quot;normal&quot;</span>, <span class="st">&quot;laplace&quot;</span>, <span class="st">&quot;invgauss&quot;</span>, <span class="st">&quot;amoroso&quot;</span>, <span class="st">&quot;cauchy&quot;</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Available kernels:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="cf">for</span> (k <span class="cf">in</span> kernels_available) {</span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;  -&quot;</span>, k, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>}</span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a></span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">Choose kernel based on:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  gamma:     Right-skewed, positive support</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  lognormal: Log-transformed normality</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  normal:    Symmetric, unbounded</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  laplace:   Sharp peak, exponential tails</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  invgauss:  Positive, near-normal shape</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-14"><a href="#cb12-14" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  amoroso:   Generalized, maximum flexibility</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-15"><a href="#cb12-15" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  cauchy:    Heavy-tailed, rare cases</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<hr />
+</div>
+<div id="gpd-tail-augmentation" class="section level2">
+<h2>GPD Tail Augmentation</h2>
+<div id="unconditional-with-gpd" class="section level3">
+<h3>Unconditional with GPD</h3>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="co"># Data with tail behavior</span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>y_tail <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fu">rgamma</span>(<span class="dv">120</span>, <span class="at">shape =</span> <span class="dv">2</span>, <span class="at">rate =</span> <span class="dv">1</span>), <span class="fu">rgamma</span>(<span class="dv">30</span>, <span class="at">shape =</span> <span class="fl">0.8</span>, <span class="at">rate =</span> <span class="fl">0.1</span>))</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="co"># Build with GPD</span></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a>bundle_gpd <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a>  <span class="at">y =</span> y_tail,</span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">&quot;gamma&quot;</span>,</span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">&quot;crp&quot;</span>,</span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb13-10"><a href="#cb13-10" tabindex="-1"></a>  <span class="at">mcmc =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">500</span>, <span class="at">nburnin =</span> <span class="dv">100</span>, <span class="at">nchains =</span> <span class="dv">1</span>)</span>
+<span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a>)</span>
+<span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a></span>
+<span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a>fit_gpd <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle_gpd)</span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">GPD augmentation applied to tail region.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="fu">summary</span>(fit_gpd)</span></code></pre></div>
+<hr />
+</div>
+</div>
+<div id="summary-of-key-functions" class="section level2">
+<h2>Summary of Key Functions</h2>
+<table>
+<colgroup>
+<col width="21%" />
+<col width="31%" />
+<col width="21%" />
+<col width="25%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Phase</th>
+<th>Function</th>
+<th>Input</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>1. Spec</strong></td>
+<td><code>compile_model_spec()</code></td>
+<td>y, X (optional), kernel, backend, GPD</td>
+<td><code>dpmixgpd_spec</code></td>
+</tr>
+<tr class="even">
+<td><strong>2. Bundle</strong></td>
+<td><code>build_nimble_bundle()</code></td>
+<td>spec or y, kernel, backend, GPD</td>
+<td><code>dpmixgpd_bundle</code></td>
+</tr>
+<tr class="odd">
+<td><strong>3. MCMC</strong></td>
+<td><code>run_mcmc_bundle_manual()</code></td>
+<td>bundle</td>
+<td><code>mixgpd_fit</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+</div>
+<div id="common-parameter-settings" class="section level2">
+<h2>Common Parameter Settings</h2>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;=== Recommended MCMC Parameters ===</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Quick test:     niter=500,  nburnin=100, nchains=1</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Standard:       niter=2000, nburnin=500, nchains=2</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Production:     niter=5000, nburnin=1000, nchains=3</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">=== Backend Parameters ===</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;CRP: Kmax=10-30 (truncation for # components)</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;SB:  J=10-30    (fixed # components)</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">=== Kernel Selection ===</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Positive data:     gamma, lognormal, invgauss</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Any real data:     normal</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Symmetric tails:   laplace</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Extreme outliers:  cauchy</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<hr />
+</div>
+<div id="next-steps" class="section level2">
+<h2>Next Steps</h2>
+<ul>
+<li>Move to <strong>vignette 4-5</strong> for unconditional models (CRP
+vs SB backends)</li>
+<li>Move to <strong>vignette 6-7</strong> for tail modeling with
+GPD</li>
+<li>Move to <strong>vignette 8-11</strong> for conditional models with
+covariates</li>
+<li>Move to <strong>vignette 12-15</strong> for causal inference
+workflows</li>
+</ul>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

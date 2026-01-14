@@ -1,0 +1,128 @@
+---
+title: "13. Causal Inference: Same Backend (SB) for PS & Outcome"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{13. Causal Same Backend SB}
+  %\VignetteEngine{kmitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = NA,
+  fig.width = 8,
+  fig.height = 6,
+  message = FALSE,
+  warning = FALSE,
+  eval = FALSE
+)
+library(DPmixGPD)
+library(ggplot2)
+set.seed(123)
+```
+
+# Causal Inference: SB Backend for Both Propensity Score & Outcome
+
+**Goal**: Apply **Stick-Breaking backend** for both PS and outcome modeling in causal inference.
+
+---
+
+## Data Setup
+
+```{r data-setup}
+set.seed(42)
+n <- 200
+
+X <- cbind(
+  x1 = rnorm(n, mean = 0, sd = 1),
+  x2 = rnorm(n, mean = 0, sd = 1)
+)
+
+T <- rbinom(n, size = 1, prob = 0.5)
+
+y <- ifelse(
+  T == 1,
+  rnorm(n, mean = 3 + 0.5 * X[, 1], sd = 1.2),
+  rnorm(n, mean = 1 + 0.3 * X[, 1], sd = 1.0)
+)
+
+cat("Sample size:", n, "\n")
+```
+
+---
+
+## Causal Bundle with SB Backend
+
+```{r causal-sb}
+bundle_causal_sb <- build_causal_bundle(
+  y = y,
+  T = T,
+  X = X,
+  kernel = "normal",
+  backend = "sb",           # Stick-Breaking
+  PS = "logit",
+  GPD = FALSE,
+  J = 10,                   # Fixed components
+  mcmc = list(
+    niter = 2000,
+    nburnin = 500,
+    nchains = 2,
+    thin = 1
+  )
+)
+
+fit_causal_sb <- run_mcmc_bundle_manual(bundle_causal_sb)
+
+cat("\n=== CAUSAL SB MODEL ===\n")
+summary(fit_causal_sb)
+```
+
+---
+
+## Treatment Effect Comparison: CRP vs SB
+
+```{r comparison}
+# CRP (from vignette 12)
+bundle_crp_logit <- build_causal_bundle(
+  y = y, T = T, X = X,
+  kernel = "normal", backend = "crp",
+  PS = "logit", GPD = FALSE, Kmax = 10,
+  mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
+)
+fit_crp_logit <- run_mcmc_bundle_manual(bundle_crp_logit)
+
+ate_crp <- coef(fit_crp_logit)
+ate_sb <- coef(fit_causal_sb)
+
+cat("\n=== TREATMENT EFFECT COMPARISON ===\n")
+cat("CRP ATE:", ate_crp, "\n")
+cat("SB ATE: ", ate_sb, "\n")
+cat("Difference:", abs(ate_crp - ate_sb), "\n")
+
+```
+
+---
+
+## Propensity Score
+
+```{r ps}
+ps_fitted <- fitted(fit_causal_sb, type = "ps")
+
+df_ps <- data.frame(ps = ps_fitted, T = as.factor(T))
+
+ggplot(df_ps, aes(x = ps, fill = T)) +
+  geom_histogram(alpha = 0.6, bins = 30) +
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +
+  labs(title = "PS Distribution (SB Backend)", x = "PS", y = "Count") +
+  theme_minimal()
+```
+
+---
+
+## Key Takeaways
+
+- **SB Causal Models**: Fixed-component approach for faster inference
+- **Same PS Options**: logit, probit, naive available
+- **CRP vs SB Trade-off**: Applies to causal setting too
+- **Next**: Different backends for PS vs outcome in vignettes 14-15

@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>14. Causal Inference: Different Backends (CRP for PS, Varied for Outcome)</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">14. Causal Inference: Different Backends
+(CRP for PS, Varied for Outcome)</h1>
+
+
+
+<div id="causal-inference-different-backends-for-ps-crp-vs-outcome" class="section level1">
+<h1>Causal Inference: Different Backends for PS (CRP) vs Outcome</h1>
+<p><strong>Goal</strong>: Apply <strong>different backends</strong> for
+PS and outcome modeling. PS uses <strong>CRP</strong>, outcome uses
+<strong>varied backends</strong> (CRP, SB) for flexibility.</p>
+<p><strong>Use Case</strong>: When outcome and PS have different
+complexity requirements.</p>
+<hr />
+<div id="data-setup" class="section level2">
+<h2>Data Setup</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">200</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">cbind</span>(</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  <span class="at">x1 =</span> <span class="fu">rnorm</span>(n, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">1</span>),</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  <span class="at">x2 =</span> <span class="fu">rnorm</span>(n, <span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">1</span>)</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>)</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a>T <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(n, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> <span class="fl">0.5</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">ifelse</span>(</span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a>  T <span class="sc">==</span> <span class="dv">1</span>,</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a>  <span class="fu">rnorm</span>(n, <span class="at">mean =</span> <span class="dv">3</span> <span class="sc">+</span> <span class="fl">0.5</span> <span class="sc">*</span> X[, <span class="dv">1</span>], <span class="at">sd =</span> <span class="fl">1.2</span>),</span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a>  <span class="fu">rnorm</span>(n, <span class="at">mean =</span> <span class="dv">1</span> <span class="sc">+</span> <span class="fl">0.3</span> <span class="sc">*</span> X[, <span class="dv">1</span>], <span class="at">sd =</span> <span class="fl">1.0</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a>)</span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a></span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Sample size:&quot;</span>, n, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Treatment:&quot;</span>, <span class="fu">table</span>(T), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<hr />
+</div>
+<div id="causal-bundle-crp-for-ps-varied-outcome-backend" class="section level2">
+<h2>Causal Bundle: CRP for PS, Varied Outcome Backend</h2>
+<div id="crp-ps-crp-outcome" class="section level3">
+<h3>CRP PS + CRP Outcome</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>bundle_crp_crp <span class="ot">&lt;-</span> <span class="fu">build_causal_bundle</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">T =</span> T,</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="at">X =</span> X,</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">&quot;normal&quot;</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">&quot;crp&quot;</span>,           <span class="co"># Outcome: CRP</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  <span class="at">PS =</span> <span class="st">&quot;logit&quot;</span>,              <span class="co"># PS: logit (uses flexible modeling)</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  <span class="at">Kmax =</span> <span class="dv">10</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  <span class="at">mcmc =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">1000</span>, <span class="at">nburnin =</span> <span class="dv">200</span>, <span class="at">nchains =</span> <span class="dv">1</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>)</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>fit_crp_crp <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle_crp_crp)</span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>ate_crp_crp <span class="ot">&lt;-</span> <span class="fu">coef</span>(fit_crp_crp)</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;=== CRP PS + CRP Outcome ===</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;ATE:&quot;</span>, ate_crp_crp, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+</div>
+<div id="crp-ps-sb-outcome" class="section level3">
+<h3>CRP PS + SB Outcome</h3>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>bundle_crp_sb <span class="ot">&lt;-</span> <span class="fu">build_causal_bundle</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="at">T =</span> T,</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="at">X =</span> X,</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">&quot;normal&quot;</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">&quot;sb&quot;</span>,            <span class="co"># Outcome: SB</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>  <span class="at">PS =</span> <span class="st">&quot;logit&quot;</span>,              <span class="co"># PS: logit</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>  <span class="at">J =</span> <span class="dv">10</span>,</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>  <span class="at">mcmc =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">1000</span>, <span class="at">nburnin =</span> <span class="dv">200</span>, <span class="at">nchains =</span> <span class="dv">1</span>)</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>)</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a></span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a>fit_crp_sb <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle_crp_sb)</span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a>ate_crp_sb <span class="ot">&lt;-</span> <span class="fu">coef</span>(fit_crp_sb)</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">=== CRP PS + SB Outcome ===</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;ATE:&quot;</span>, ate_crp_sb, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<hr />
+</div>
+</div>
+<div id="backend-combination-comparison" class="section level2">
+<h2>Backend Combination Comparison</h2>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>df_backends <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="at">Model =</span> <span class="fu">c</span>(<span class="st">&quot;CRP PS + CRP Outcome&quot;</span>, <span class="st">&quot;CRP PS + SB Outcome&quot;</span>),</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">ATE =</span> <span class="fu">c</span>(ate_crp_crp, ate_crp_sb),</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="at">Comparison =</span> <span class="st">&quot;See summary()&quot;</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>)</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">=== BACKEND COMPARISON ===</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="fu">print</span>(df_backends)</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co"># Visualization</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>p_ate_comp <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_backends, <span class="fu">aes</span>(<span class="at">x =</span> Model, <span class="at">y =</span> ATE)) <span class="sc">+</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">4</span>, <span class="at">color =</span> <span class="st">&quot;steelblue&quot;</span>) <span class="sc">+</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>  <span class="fu">geom_errorbar</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> ATE <span class="sc">-</span> <span class="fl">0.2</span>, <span class="at">ymax =</span> ATE <span class="sc">+</span> <span class="fl">0.2</span>), <span class="at">width =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;ATE by Backend Combination&quot;</span>, <span class="at">x =</span> <span class="st">&quot;Model&quot;</span>, <span class="at">y =</span> <span class="st">&quot;ATE&quot;</span>) <span class="sc">+</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="fu">print</span>(p_ate_comp)</span></code></pre></div>
+<hr />
+</div>
+<div id="ps-distribution-overlap" class="section level2">
+<h2>PS Distribution &amp; Overlap</h2>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>ps_fitted_crp <span class="ot">&lt;-</span> <span class="fu">fitted</span>(fit_crp_crp, <span class="at">type =</span> <span class="st">&quot;ps&quot;</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>df_ps <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">ps =</span> ps_fitted_crp, <span class="at">T =</span> <span class="fu">as.factor</span>(T))</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>p_ps <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_ps, <span class="fu">aes</span>(<span class="at">x =</span> ps, <span class="at">fill =</span> T)) <span class="sc">+</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;0&quot;</span> <span class="ot">=</span> <span class="st">&quot;steelblue&quot;</span>, <span class="st">&quot;1&quot;</span> <span class="ot">=</span> <span class="st">&quot;red&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;PS Distribution: CRP Backend&quot;</span>, <span class="at">x =</span> <span class="st">&quot;PS&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Density&quot;</span>) <span class="sc">+</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="fu">print</span>(p_ps)</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">PS Summary:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(ps_fitted_crp))</span></code></pre></div>
+<hr />
+</div>
+<div id="treatment-effect-heterogeneity-hte" class="section level2">
+<h2>Treatment Effect Heterogeneity (HTE)</h2>
+<div id="conditional-ate-by-covariate" class="section level3">
+<h3>Conditional ATE by Covariate</h3>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># CATE across X1 range</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>X_hte <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="at">x1 =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">2</span>, <span class="at">by =</span> <span class="fl">0.5</span>), <span class="at">x2 =</span> <span class="dv">0</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>cate_crp_crp <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_crp_crp, <span class="at">newdata =</span> X_hte, <span class="at">type =</span> <span class="st">&quot;treatment.effect&quot;</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>cate_crp_sb <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_crp_sb, <span class="at">newdata =</span> X_hte, <span class="at">type =</span> <span class="st">&quot;treatment.effect&quot;</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>df_hte <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a>  <span class="at">x1 =</span> X_hte[, <span class="dv">1</span>],</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>  <span class="at">CRP_Outcome =</span> cate_crp_crp,</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>  <span class="at">SB_Outcome =</span> cate_crp_sb</span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>)</span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co"># Melt for ggplot</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="fu">library</span>(reshape2)</span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>df_hte_long <span class="ot">&lt;-</span> <span class="fu">melt</span>(df_hte, <span class="at">id.vars =</span> <span class="st">&quot;x1&quot;</span>, </span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>                     <span class="at">variable.name =</span> <span class="st">&quot;Backend&quot;</span>, <span class="at">value.name =</span> <span class="st">&quot;CATE&quot;</span>)</span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>p_hte <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_hte_long, <span class="fu">aes</span>(<span class="at">x =</span> x1, <span class="at">y =</span> CATE, <span class="at">color =</span> Backend)) <span class="sc">+</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;CRP_Outcome&quot;</span> <span class="ot">=</span> <span class="st">&quot;steelblue&quot;</span>, <span class="st">&quot;SB_Outcome&quot;</span> <span class="ot">=</span> <span class="st">&quot;coral&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Treatment Effect Heterogeneity (HTE)&quot;</span>, <span class="at">x =</span> <span class="st">&quot;X1&quot;</span>, <span class="at">y =</span> <span class="st">&quot;CATE&quot;</span>) <span class="sc">+</span></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a></span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="fu">print</span>(p_hte)</span></code></pre></div>
+<hr />
+</div>
+</div>
+<div id="when-to-use-different-backends" class="section level2">
+<h2>When to Use Different Backends</h2>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">=== WHEN TO USE DIFFERENT BACKENDS ===</span><span class="sc">\n\n</span><span class="st">&quot;</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Use CRP for PS if:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  ✓ Treatment assignment complex/nonlinear</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  ✓ Want flexible PS model</span><span class="sc">\n\n</span><span class="st">&quot;</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Use SB for Outcome if:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  ✓ Outcome model simpler than PS</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  ✓ Need faster inference</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  ✓ Large sample size</span><span class="sc">\n\n</span><span class="st">&quot;</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Use CRP for Outcome if:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  ✓ Outcome mixture complex</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  ✓ Treatment effect heterogeneous</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  ✓ Want adaptive # components</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<hr />
+</div>
+<div id="model-selection-via-loglik" class="section level2">
+<h2>Model Selection via LogLik</h2>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Model selection:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="cf">if</span> (loglik_crp_crp <span class="sc">&gt;</span> loglik_crp_sb) {</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;✓ CRP outcome preferred (better fit)</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;✓ SB outcome preferred (simpler, comparable fit)</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>}</span></code></pre></div>
+<hr />
+</div>
+<div id="key-takeaways" class="section level2">
+<h2>Key Takeaways</h2>
+<ul>
+<li><strong>Different Backends</strong>: Optimize PS and outcome models
+independently</li>
+<li><strong>Flexibility</strong>: Choose best backend for each
+component</li>
+<li><strong>HTE Analysis</strong>: Examine treatment effects across
+covariate space</li>
+<li><strong>Model Selection</strong>: Use LogLik to guide backend
+choice</li>
+<li><strong>Next</strong>: SB PS with varied outcome in vignette 15</li>
+</ul>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

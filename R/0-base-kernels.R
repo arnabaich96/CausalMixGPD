@@ -69,7 +69,7 @@ dGpd <- nimble::nimbleFunction(
       if (t <= 0.0) {
         if (log == 1) return(log(eps)) else return(eps)
       }
-      val <- (1.0 / scale) * (t ^ (-1.0 / shape) - 1.0)
+      val <- (1.0 / scale) * (t ^ (-1.0 / shape - 1.0))
     }
 
     if (val < eps) val <- eps
