@@ -28,7 +28,8 @@ build_causal_bundle(
   alpha_random = TRUE,
   ps_model = c("logit"),
   ps_prior = list(mean = 0, sd = 2),
-  include_intercept = TRUE
+  include_intercept = TRUE,
+  PS = "logit"
 )
 ```
 
@@ -100,7 +101,8 @@ build_causal_bundle(
 
 - ps_model:
 
-  PS model family. Currently supports: `"logit"`.
+  PS model specification for backward compatibility (deprecated).
+  Recommend using `PS` parameter instead.
 
 - ps_prior:
 
@@ -110,6 +112,20 @@ build_causal_bundle(
 
   Logical; if TRUE, an intercept column is prepended to `X` in the PS
   model.
+
+- PS:
+
+  Character or logical; controls propensity score estimation:
+
+  - `"logit"` (default): Logistic regression PS model
+
+  - `"probit"`: Probit regression PS model
+
+  - `FALSE`: No PS estimation; outcome models use only `X`
+
+  The PS model choice is stored in bundle metadata for downstream use in
+  prediction and summaries, enabling seamless integration of future PS
+  estimation methods.
 
 ## Value
 

@@ -20,7 +20,8 @@ build_causal_bundle(
   alpha_random = TRUE,
   ps_model = c("logit"),
   ps_prior = list(mean = 0, sd = 2),
-  include_intercept = TRUE
+  include_intercept = TRUE,
+  PS = "logit"
 )
 }
 \arguments{
@@ -57,12 +58,23 @@ If length 2, the first entry is used for treated (\code{T=1}) and the second for
 
 \item{alpha_random}{Logical; whether outcome concentration \code{alpha} is stochastic.}
 
-\item{ps_model}{PS model family. Currently supports: \code{"logit"}.}
+\item{ps_model}{PS model specification for backward compatibility (deprecated).
+Recommend using \code{PS} parameter instead.}
 
 \item{ps_prior}{Normal prior for PS coefficients. List with \code{mean} and \code{sd}.}
 
 \item{include_intercept}{Logical; if TRUE, an intercept column is prepended to \code{X}
 in the PS model.}
+
+\item{PS}{Character or logical; controls propensity score estimation:
+\itemize{
+  \item \code{"logit"} (default): Logistic regression PS model
+  \item \code{"probit"}: Probit regression PS model
+  \item \code{"naive"}: Gaussian naive Bayes PS model
+  \item \code{FALSE}: No PS estimation; outcome models use only \code{X}
+}
+The PS model choice is stored in bundle metadata for downstream use in prediction
+and summaries, enabling seamless integration of future PS estimation methods.}
 }
 \value{
 A list of class \code{"dpmixgpd_causal_bundle"}.
@@ -70,14 +82,15 @@ A list of class \code{"dpmixgpd_causal_bundle"}.
 \description{
 Creates a causal bundle with:
 \itemize{
-  \item a propensity score (PS) design model (logistic regression of \code{T} on \code{X})
+  \item a propensity score (PS) design model (logit/probit regression of \code{T} on \code{X} or a naive Bayes classifier)
   \item an outcome bundle for the control arm (\code{T = 0})
   \item an outcome bundle for the treated arm (\code{T = 1})
 }
 }
 \details{
 The outcome bundles reuse the existing DPM + optional GPD tail machinery. The PS model is a
-lightweight NIMBLE logistic regression with normal priors on coefficients.
+lightweight NIMBLE estimator supporting logit/probit regression or a naive Bayes classifier with
+simple priors.
 }
 \examples{
 \dontrun{
@@ -94,7 +107,8 @@ cb <- build_causal_bundle(
   backend = "sb",
   kernel = "gamma",
   GPD = TRUE,
-  J = 10
+  J = 10,
+  PS = "probit"
 )
 }
 }

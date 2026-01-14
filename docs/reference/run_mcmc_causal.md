@@ -1,7 +1,8 @@
 # Run MCMC for a causal bundle
 
-Executes the PS model and both outcome arms, returning a single causal
-fit.
+Executes the outcome arms (and PS model if enabled), returning a single
+causal fit. When `PS=FALSE` in the bundle, the PS model is skipped
+entirely.
 
 ## Usage
 

@@ -65,7 +65,9 @@ A list with components \code{ps} (estimated propensity scores used for
 Provides a unified interface to the treated and control outcome models while
 guaranteeing that the same propensity scores are used for both arms. For new
 covariates, the PS model stored in \code{object$ps_fit} is used to estimate
-the required scores unless the user supplies their own via \code{ps}.
+the required scores unless the user supplies their own via \code{ps}. If the
+bundle was built with \code{PS=FALSE}, the PS model does not exist and outcome
+predictions use only the original covariates \code{X}.
 }
 \examples{
 \dontrun{

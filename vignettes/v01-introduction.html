@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>1. Introduction to DPmixGPD</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">1. Introduction to DPmixGPD</h1>
+
+
+
+<div id="dpmixgpd-bayesian-nonparametric-mixture-models-with-gpd-tails" class="section level1">
+<h1>DPmixGPD: Bayesian Nonparametric Mixture Models with GPD Tails</h1>
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p><strong>DPmixGPD</strong> is an R package for Bayesian nonparametric
+Dirichlet Process mixture models with flexible kernels and optional
+Generalized Pareto Distribution (GPD) tail augmentation.</p>
+<div id="key-features" class="section level3">
+<h3>Key Features</h3>
+<ul>
+<li><strong>Flexible mixture kernels</strong>: normal, gamma, lognormal,
+laplace, invgauss, amoroso, cauchy</li>
+<li><strong>Two MCMC backends</strong>: Stick-Breaking (SB) and Chinese
+Restaurant Process (CRP)</li>
+<li><strong>Optional GPD tail</strong>: Enhance tail probability
+estimation</li>
+<li><strong>Conditional modeling</strong>: Add covariates via parameter
+linking</li>
+<li><strong>Causal workflows</strong>: Propensity score adjustment with
+multiple PS strategies</li>
+<li><strong>Comprehensive prediction</strong>: density, survival,
+quantile, sample, mean</li>
+</ul>
+<hr />
+</div>
+</div>
+<div id="model-structure" class="section level2">
+<h2>Model Structure</h2>
+<div id="single-outcome-model" class="section level3">
+<h3>Single-Outcome Model</h3>
+<p><strong>Bulk</strong>: Dirichlet Process mixture <span class="math display">\[Y_i \sim \sum_{k=1}^{\infty} w_k f_k(y_i;
+\theta_k)\]</span></p>
+<p><strong>Tail (optional)</strong>: GPD beyond threshold <span class="math display">\[P(Y &gt; u | Y &gt; u) \sim
+\text{GPD}(\text{scale}, \text{shape})\]</span></p>
+</div>
+<div id="causal-model" class="section level3">
+<h3>Causal Model</h3>
+<p>Two outcome arms with optional propensity score (PS) adjustment: -
+<strong>Control</strong> (<span class="math inline">\(T=0\)</span>):
+<span class="math inline">\(Y_i^{(0)} \sim \text{DPM}_{\text{con}}(X_i,
+PS_i)\)</span> - <strong>Treated</strong> (<span class="math inline">\(T=1\)</span>): <span class="math inline">\(Y_i^{(1)} \sim \text{DPM}_{\text{trt}}(X_i,
+PS_i)\)</span></p>
+<hr />
+</div>
+</div>
+<div id="mcmc-backends" class="section level2">
+<h2>MCMC Backends</h2>
+<div id="stick-breaking-sb" class="section level3">
+<h3>Stick-Breaking (SB)</h3>
+<ul>
+<li>Fixed number of mixture components <span class="math inline">\(J\)</span></li>
+<li>Exact truncation at <span class="math inline">\(J\)</span>
+components</li>
+<li>Faster per-iteration computation</li>
+<li>Use when computational cost is primary concern</li>
+</ul>
+</div>
+<div id="chinese-restaurant-process-crp" class="section level3">
+<h3>Chinese Restaurant Process (CRP)</h3>
+<ul>
+<li>Truncation at <span class="math inline">\(K_{\max}\)</span> for
+sampling</li>
+<li>Adaptively discovers number of clusters</li>
+<li>More flexible cluster allocation</li>
+<li>Default for exploratory analysis</li>
+</ul>
+<hr />
+</div>
+</div>
+<div id="propensity-score-ps-models" class="section level2">
+<h2>Propensity Score (PS) Models</h2>
+<p><strong>Three PS strategies</strong> (causal workflows only):</p>
+<ol style="list-style-type: decimal">
+<li><strong><code>PS=&quot;logit&quot;</code></strong> (default): Bayesian
+logistic regression</li>
+<li><strong><code>PS=&quot;probit&quot;</code></strong>: Bayesian probit
+regression</li>
+<li><strong><code>PS=&quot;naive&quot;</code></strong>: Gaussian naive Bayes
+classifier</li>
+<li><strong><code>PS=FALSE</code></strong>: No PS; outcomes depend on
+<span class="math inline">\(X\)</span> only</li>
+</ol>
+<p>When PS is estimated, scores are injected into outcome model
+covariates for confounding adjustment.</p>
+<hr />
+</div>
+<div id="workflow-overview" class="section level2">
+<h2>Workflow Overview</h2>
+<div id="three-phase-model-building" class="section level3">
+<h3>Three-Phase Model Building</h3>
+<p><strong>Phase 1: Specification</strong></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>spec <span class="ot">&lt;-</span> <span class="fu">compile_model_spec</span>(y, <span class="at">kernel=</span><span class="st">&quot;gamma&quot;</span>, <span class="at">backend=</span><span class="st">&quot;crp&quot;</span>, <span class="at">GPD=</span><span class="cn">TRUE</span>)</span></code></pre></div>
+<p><strong>Phase 2: Bundle</strong></p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(spec)</span></code></pre></div>
+<p><strong>Phase 3: MCMC</strong></p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle, <span class="at">niter=</span><span class="dv">1000</span>, <span class="at">nburnin=</span><span class="dv">100</span>)</span></code></pre></div>
+<hr />
+</div>
+</div>
+<div id="quick-start" class="section level2">
+<h2>Quick Start</h2>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Generate data</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">abs</span>(<span class="fu">rnorm</span>(<span class="dv">50</span>)) <span class="sc">+</span> <span class="fl">0.1</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co"># Build unconditional model: bulk-only, SB backend</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">&quot;sb&quot;</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">&quot;gamma&quot;</span>,</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">6</span>,</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>  <span class="at">mcmc =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">200</span>, <span class="at">nburnin =</span> <span class="dv">50</span>, <span class="at">nchains =</span> <span class="dv">1</span>)</span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>)</span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co"># Print bundle</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="fu">print</span>(bundle)</span></code></pre></div>
+<hr />
+</div>
+<div id="outline-of-this-vignette-series" class="section level2">
+<h2>Outline of This Vignette Series</h2>
+<ol style="list-style-type: decimal">
+<li><strong>Introduction</strong> (this vignette)</li>
+<li><strong>Available Distributions</strong>: dqrp functions, 10k
+samples, visualizations</li>
+<li><strong>Basic Model Workflow</strong>: compile → bundle → MCMC</li>
+<li><strong>Unconditional DPmix (CRP)</strong>: bulk-only, no
+covariates</li>
+<li><strong>Unconditional DPmix (SB)</strong>: bulk-only, no
+covariates</li>
+<li><strong>Unconditional DPmixGPD (CRP)</strong>: bulk+tail, no
+covariates</li>
+<li><strong>Unconditional DPmixGPD (SB)</strong>: bulk+tail, no
+covariates</li>
+<li><strong>Conditional DPmix (CRP)</strong>: bulk-only, with
+covariates</li>
+<li><strong>Conditional DPmix (SB)</strong>: bulk-only, with
+covariates</li>
+<li><strong>Conditional DPmixGPD (CRP)</strong>: bulk+tail, with
+covariates</li>
+<li><strong>Conditional DPmixGPD (SB)</strong>: bulk+tail, with
+covariates</li>
+<li><strong>Causal (Same Backend CRP)</strong>: PS + treatment effects,
+CRP</li>
+<li><strong>Causal (Same Backend SB)</strong>: PS + treatment effects,
+SB</li>
+<li><strong>Causal (Different Backends CRP)</strong>: Per-arm backends,
+CRP</li>
+<li><strong>Causal (Different Backends SB)</strong>: Per-arm backends,
+SB</li>
+</ol>
+<hr />
+</div>
+<div id="dependencies" class="section level2">
+<h2>Dependencies</h2>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">&quot;DPmixGPD&quot;</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">&quot;nimble&quot;</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">&quot;ggplot2&quot;</span>)</span></code></pre></div>
+<p>Each vignette demonstrates complete workflows with reproducible
+examples.</p>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

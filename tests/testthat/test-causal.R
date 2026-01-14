@@ -106,3 +106,82 @@ test_that("causal bundle and fit combos", {
     expect_true(is.numeric(rs_con) && is.numeric(rs_trt), info = info)
   }
 })
+
+test_that("PS parameter: logit, probit, naive, FALSE all work", {
+  skip_if_not(requireNamespace("nimble", quietly = TRUE))
+
+  set.seed(99)
+  n <- 40
+  X <- cbind(x1 = stats::rnorm(n), x2 = stats::runif(n, -1, 1))
+  T <- stats::rbinom(n, 1, stats::plogis(0.3 + 0.4 * X[, 1]))
+  y <- abs(stats::rnorm(n)) + 0.2
+
+  mcmc_out <- list(niter = 20, nburnin = 10, thin = 1, nchains = 1, seed = 1)
+  mcmc_ps <- list(niter = 20, nburnin = 10, thin = 1, nchains = 1, seed = 1)
+
+  # Test all four PS options
+  ps_options <- c("logit", "probit", "naive", FALSE)
+
+  for (ps_opt in ps_options) {
+    label <- if (isFALSE(ps_opt)) "FALSE" else ps_opt
+
+    # Build bundle
+    cb <- DPmixGPD::build_causal_bundle(
+      y = y,
+      X = X,
+      T = T,
+      backend = "crp",
+      kernel = "gamma",
+      GPD = FALSE,
+      components = 4,
+      mcmc_outcome = mcmc_out,
+      mcmc_ps = mcmc_ps,
+      PS = ps_opt
+    )
+
+    # Check metadata
+    expect_true(inherits(cb, "dpmixgpd_causal_bundle"), info = label)
+    expect_true(!is.null(cb$meta$ps), info = label)
+    if (isFALSE(ps_opt)) {
+      expect_false(cb$meta$ps$enabled, info = label)
+      expect_false(cb$meta$ps$model_type, info = label)
+      expect_true(is.null(cb$design), info = label)
+    } else {
+      expect_true(cb$meta$ps$enabled, info = label)
+      expect_equal(cb$meta$ps$model_type, ps_opt, info = label)
+      expect_true(!is.null(cb$design), info = label)
+    }
+
+    # Run MCMC
+    cf <- DPmixGPD::run_mcmc_causal(cb, show_progress = FALSE)
+    expect_true(inherits(cf, "dpmixgpd_causal_fit"), info = label)
+
+    if (isFALSE(ps_opt)) {
+      # No PS model
+      expect_true(is.null(cf$ps_fit), info = label)
+      expect_true(is.null(cf$ps_hat), info = label)
+      expect_false(!is.null(cf$outcome_fit$con$ps_model), info = label)
+    } else {
+      # PS model computed
+      expect_true(!is.null(cf$ps_fit), info = label)
+      expect_true(!is.null(cf$ps_hat), info = label)
+      expect_true(length(cf$ps_hat) == n, info = label)
+      expect_true(all(cf$ps_hat >= 0 & cf$ps_hat <= 1), info = label)
+      expect_true(!is.null(cf$outcome_fit$con$ps_model), info = label)
+    }
+
+    # Test prediction
+    X_new <- X[1:5, ]
+    pred <- predict(cf, x = X_new, type = "mean", store_draws = FALSE)
+    expect_true(is.list(pred), info = label)
+
+    if (isFALSE(ps_opt)) {
+      expect_true(is.null(pred$ps), info = label)
+      expect_true(is.null(pred$ps_trt), info = label)
+    } else {
+      expect_true(!is.null(pred$ps), info = label)
+      expect_true(length(pred$ps) == nrow(X_new), info = label)
+      expect_true(all(pred$ps >= 0 & pred$ps <= 1), info = label)
+    }
+  }
+})
