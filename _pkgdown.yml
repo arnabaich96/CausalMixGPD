@@ -8,54 +8,32 @@ navbar:
     left: [home, reference, articles]
   right:
     - text: "GitHub"
-      href: https://github.com/fsu-dpmixgpd/DPmixGPD
+      href: https://github.com/arnabaich96/DPmixGPD
 
 articles:
-  - title: "Start here"
+  - title: "Getting Started"
     contents:
-      - "starts_with('v00-start-here')"
-      - "starts_with('quickstart')"
-  - title: "Installation & reproducibility"
+      - v01-introduction
+      - v02-available-distributions
+      - v03-basic-model-compile-run
+  - title: "Unconditional Models"
+    desc: "DPmix and DPmixGPD without covariates"
     contents:
-      - "starts_with('v01-installation-reproducibility')"
-  - title: "Single-outcome modeling"
+      - v04-unconditional-DPmix-CRP
+      - v05-unconditional-DPmix-SB
+      - v06-unconditional-DPmixGPD-CRP
+      - v07-unconditional-DPmixGPD-SB
+  - title: "Conditional Models"
+    desc: "DPmix and DPmixGPD with covariates"
     contents:
-      - "starts_with('v02-single-outcome-modeling')"
-  - title: "Causal modeling"
+      - v08-conditional-DPmix-CRP
+      - v09-conditional-DPmix-SB
+      - v10-conditional-DPmixGPD-CRP
+      - v11-conditional-DPmixGPD-SB
+  - title: "Causal Inference"
+    desc: "Treatment effects with propensity score modeling"
     contents:
-      - "starts_with('v05-causal-qte')"
-      - "starts_with('causal')"
-      - "starts_with('v06-causal-extras')"
-  - title: "Backends"
-    contents:
-      - "starts_with('v03-backends-crp-vs-sb')"
-      - "starts_with('backends')"
-  - title: "Kernel registry"
-    contents:
-      - "starts_with('v04-kernels-guide')"
-      - "starts_with('kernel-normal')"
-      - "starts_with('kernel-lognormal')"
-      - "starts_with('kernel-gamma')"
-      - "starts_with('kernel-invgauss')"
-      - "starts_with('kernel-laplace')"
-      - "starts_with('kernel-amoroso')"
-      - "starts_with('kernel-cauchy')"
-  - title: "Prediction & exports"
-    contents:
-      - "starts_with('v08-prediction-and-exports')"
-      - "starts_with('prediction')"
-  - title: "Legacy articles"
-    contents:
-      - "starts_with('bundle-s3')"
-      - "starts_with('covariates')"
-      - "starts_with('coverage-index')"
-      - "starts_with('dqrp')"
-      - "starts_with('gpd-tail')"
-      - "starts_with('kernels')"
-  - title: "Troubleshooting & survival"
-    contents:
-      - "starts_with('v09-troubleshooting')"
-      - "starts_with('v07-survival')"
-  - title: "Developer resources"
-    contents:
-      - "starts_with('v10-developer-guide')"
+      - v12-causal-same-backend-CRP
+      - v13-causal-same-backend-SB
+      - v14-causal-different-backends-CRP
+      - v15-causal-different-backends-SB

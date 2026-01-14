@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>6. Unconditional DPmixGPD with CRP Backend</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">6. Unconditional DPmixGPD with CRP
+Backend</h1>
+
+
+
+<div id="unconditional-dpmixgpd-crp-backend-with-tail-augmentation" class="section level1">
+<h1>Unconditional DPmixGPD: CRP Backend with Tail Augmentation</h1>
+<p><strong>Goal</strong>: Estimate density of univariate outcome <span class="math inline">\(y\)</span> with <strong>extreme tail
+behavior</strong> using <strong>DPmix + GPD tail
+augmentation</strong>.</p>
+<p><strong>Model</strong>: - <strong>Bulk</strong> (<span class="math inline">\(y \leq u\)</span>): Nonparametric DP mixture -
+<strong>Tail</strong> (<span class="math inline">\(y &gt; u\)</span>):
+Generalized Pareto Distribution (GPD)</p>
+<p><strong>Backend</strong>: CRP for bulk + GPD for tail</p>
+<hr />
+<div id="data-with-tail-behavior" class="section level2">
+<h2>Data with Tail Behavior</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Generate bimodal bulk + heavy tail</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">42</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>bulk_comp1 <span class="ot">&lt;-</span> <span class="fu">rgamma</span>(<span class="dv">80</span>, <span class="at">shape =</span> <span class="dv">2</span>, <span class="at">rate =</span> <span class="fl">1.5</span>)</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>bulk_comp2 <span class="ot">&lt;-</span> <span class="fu">rgamma</span>(<span class="dv">60</span>, <span class="at">shape =</span> <span class="dv">1</span>, <span class="at">rate =</span> <span class="fl">0.8</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>bulk <span class="ot">&lt;-</span> <span class="fu">c</span>(bulk_comp1, bulk_comp2)</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co"># Add extreme tail (GPD)</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>tail_component <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">rGpd</span>(<span class="dv">30</span>, <span class="at">threshold =</span> <span class="dv">0</span>, <span class="at">scale =</span> <span class="fl">1.5</span>, <span class="at">shape =</span> <span class="fl">0.3</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a>y_tail <span class="ot">&lt;-</span> <span class="fu">c</span>(bulk, tail_component)</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Sample size:&quot;</span>, <span class="fu">length</span>(y_tail), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Bulk observations:&quot;</span>, <span class="fu">length</span>(bulk), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Tail observations:&quot;</span>, <span class="fu">length</span>(tail_component), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Min:&quot;</span>, <span class="fu">min</span>(y_tail), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Max:&quot;</span>, <span class="fu">max</span>(y_tail), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Mean:&quot;</span>, <span class="fu">mean</span>(y_tail), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a></span>
+<span id="cb1-19"><a href="#cb1-19" tabindex="-1"></a><span class="co"># Visualization</span></span>
+<span id="cb1-20"><a href="#cb1-20" tabindex="-1"></a>df_raw <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">y =</span> y_tail, <span class="at">region =</span> <span class="fu">ifelse</span>(y_tail <span class="sc">&gt;</span> <span class="fu">quantile</span>(y_tail, <span class="fl">0.8</span>), <span class="st">&quot;Tail&quot;</span>, <span class="st">&quot;Bulk&quot;</span>))</span>
+<span id="cb1-21"><a href="#cb1-21" tabindex="-1"></a></span>
+<span id="cb1-22"><a href="#cb1-22" tabindex="-1"></a>p_raw <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_raw, <span class="fu">aes</span>(<span class="at">x =</span> y, <span class="at">fill =</span> region)) <span class="sc">+</span></span>
+<span id="cb1-23"><a href="#cb1-23" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">after_stat</span>(density)), <span class="at">bins =</span> <span class="dv">40</span>, <span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb1-24"><a href="#cb1-24" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb1-25"><a href="#cb1-25" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;Bulk&quot;</span> <span class="ot">=</span> <span class="st">&quot;steelblue&quot;</span>, <span class="st">&quot;Tail&quot;</span> <span class="ot">=</span> <span class="st">&quot;red&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb1-26"><a href="#cb1-26" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Data with Bulk &amp; Tail Regions&quot;</span>, <span class="at">x =</span> <span class="st">&quot;y&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Density&quot;</span>) <span class="sc">+</span></span>
+<span id="cb1-27"><a href="#cb1-27" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb1-28"><a href="#cb1-28" tabindex="-1"></a></span>
+<span id="cb1-29"><a href="#cb1-29" tabindex="-1"></a><span class="fu">print</span>(p_raw)</span></code></pre></div>
+<hr />
+</div>
+<div id="threshold-selection" class="section level2">
+<h2>Threshold Selection</h2>
+<p><strong>Critical</strong>: Choose threshold <span class="math inline">\(u\)</span> to separate bulk from tail.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Options for threshold selection:</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>threshold_mean <span class="ot">&lt;-</span> <span class="fu">mean</span>(y_tail)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>threshold_quantile90 <span class="ot">&lt;-</span> <span class="fu">quantile</span>(y_tail, <span class="fl">0.9</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>threshold_quantile95 <span class="ot">&lt;-</span> <span class="fu">quantile</span>(y_tail, <span class="fl">0.95</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Threshold Options:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  Mean:           &quot;</span>, <span class="fu">round</span>(threshold_mean, <span class="dv">3</span>), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  90th percentile:&quot;</span>, <span class="fu">round</span>(threshold_quantile90, <span class="dv">3</span>), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  95th percentile:&quot;</span>, <span class="fu">round</span>(threshold_quantile95, <span class="dv">3</span>), <span class="st">&quot;</span><span class="sc">\n\n</span><span class="st">&quot;</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co"># Use 80th percentile as default (typically ~20% in tail)</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>u_threshold <span class="ot">&lt;-</span> <span class="fu">quantile</span>(y_tail, <span class="fl">0.8</span>)</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Selected threshold (80th percentile):&quot;</span>, <span class="fu">round</span>(u_threshold, <span class="dv">3</span>), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<hr />
+</div>
+<div id="model-specification-with-gpd" class="section level2">
+<h2>Model Specification (with GPD)</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>spec_gpd <span class="ot">&lt;-</span> <span class="fu">compile_model_spec</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="at">y =</span> y_tail,</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">&quot;gamma&quot;</span>,           <span class="co"># Bulk kernel</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">&quot;crp&quot;</span>,            <span class="co"># CRP for bulk</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">TRUE</span>,                 <span class="co"># ENABLE tail augmentation</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  <span class="at">threshold =</span> u_threshold,    <span class="co"># Tail threshold</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>  <span class="at">Kmax =</span> <span class="dv">15</span>,                  <span class="co"># Max bulk components</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  <span class="at">verbose =</span> <span class="cn">FALSE</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>)</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Specification with GPD:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  Kernel (bulk):&quot;</span>, spec_gpd<span class="sc">$</span>kernel, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  Backend (bulk):&quot;</span>, spec_gpd<span class="sc">$</span>backend, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  Threshold:&quot;</span>, u_threshold, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  GPD enabled:&quot;</span>, spec_gpd<span class="sc">$</span>GPD, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  Bulk observations:&quot;</span>, <span class="fu">sum</span>(y_tail <span class="sc">&lt;=</span> u_threshold), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  Tail observations:&quot;</span>, <span class="fu">sum</span>(y_tail <span class="sc">&gt;</span> u_threshold), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<hr />
+</div>
+<div id="bundle-mcmc" class="section level2">
+<h2>Bundle &amp; MCMC</h2>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>bundle_gpd <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  spec_gpd,</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">mcmc =</span> <span class="fu">list</span>(</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>    <span class="at">niter =</span> <span class="dv">2000</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>    <span class="at">nburnin =</span> <span class="dv">500</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>    <span class="at">nchains =</span> <span class="dv">2</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>    <span class="at">thin =</span> <span class="dv">1</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  )</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>)</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Bundle compiled with CRP (bulk) + GPD (tail).</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<hr />
+</div>
+<div id="mcmc-execution" class="section level2">
+<h2>MCMC Execution</h2>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>fit_gpd <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle_gpd)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">=== POSTERIOR SUMMARY (DPmixGPD, CRP Backend) ===</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="fu">summary</span>(fit_gpd)</span></code></pre></div>
+<hr />
+</div>
+<div id="gpd-parameter-estimation" class="section level2">
+<h2>GPD Parameter Estimation</h2>
+<div id="tail-parameters" class="section level3">
+<h3>Tail Parameters</h3>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Tail Parameters Estimated:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  scale (σ):   &gt; 0, controls tail spread</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  shape (ξ):   &gt; 0, controls tail heaviness</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;             ξ = 0 (exponential tail)</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;             ξ &gt; 0 (power-law tail)</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;             ξ &lt; 0 (finite tail)</span><span class="sc">\n\n</span><span class="st">&quot;</span>)</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Interpret from posterior summary above:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Look for &#39;scale&#39; and &#39;shape&#39; parameters in MCMC output.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<hr />
+</div>
+</div>
+<div id="posterior-predictions-bulk-vs-tail" class="section level2">
+<h2>Posterior Predictions: Bulk vs Tail</h2>
+<div id="predictive-density" class="section level3">
+<h3>Predictive Density</h3>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Full prediction grid including tail</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>y_grid <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="fu">max</span>(y_tail) <span class="sc">*</span> <span class="fl">1.3</span>, <span class="at">length.out =</span> <span class="dv">300</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a></span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>pred_densities <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_gpd, <span class="at">newdata =</span> y_grid)</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>df_pred <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  <span class="at">y =</span> y_grid,</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  <span class="at">density =</span> pred_densities,</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>  <span class="at">region =</span> <span class="fu">ifelse</span>(y_grid <span class="sc">&lt;=</span> u_threshold, <span class="st">&quot;Bulk&quot;</span>, <span class="st">&quot;Tail&quot;</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>)</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>p_pred <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_raw, <span class="fu">aes</span>(<span class="at">x =</span> y)) <span class="sc">+</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">after_stat</span>(density)), <span class="at">bins =</span> <span class="dv">40</span>, <span class="at">alpha =</span> <span class="fl">0.4</span>, <span class="at">fill =</span> <span class="st">&quot;steelblue&quot;</span>) <span class="sc">+</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> df_pred, <span class="fu">aes</span>(<span class="at">x =</span> y, <span class="at">y =</span> density, <span class="at">color =</span> region), <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> u_threshold, <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>, <span class="at">color =</span> <span class="st">&quot;gray&quot;</span>) <span class="sc">+</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">&quot;Bulk&quot;</span> <span class="ot">=</span> <span class="st">&quot;steelblue&quot;</span>, <span class="st">&quot;Tail&quot;</span> <span class="ot">=</span> <span class="st">&quot;red&quot;</span>)) <span class="sc">+</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Posterior Predictive with Bulk &amp; Tail&quot;</span>, <span class="at">x =</span> <span class="st">&quot;y&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Density&quot;</span>) <span class="sc">+</span></span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="fu">print</span>(p_pred)</span></code></pre></div>
+</div>
+<div id="zoomed-tail-region" class="section level3">
+<h3>Zoomed: Tail Region</h3>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co"># Zoom on tail</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>tail_idx <span class="ot">&lt;-</span> df_pred<span class="sc">$</span>y <span class="sc">&gt;</span> u_threshold</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>p_tail <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_pred[tail_idx, ], <span class="fu">aes</span>(<span class="at">x =</span> y, <span class="at">y =</span> density)) <span class="sc">+</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">&quot;red&quot;</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>  <span class="fu">geom_area</span>(<span class="at">alpha =</span> <span class="fl">0.3</span>, <span class="at">fill =</span> <span class="st">&quot;red&quot;</span>) <span class="sc">+</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;GPD Tail (Posterior Predictive)&quot;</span>, <span class="at">x =</span> <span class="st">&quot;y&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Density&quot;</span>) <span class="sc">+</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="fu">print</span>(p_tail)</span></code></pre></div>
+<hr />
+</div>
+</div>
+<div id="tail-exceedance-probability" class="section level2">
+<h2>Tail Exceedance Probability</h2>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># P(Y &gt; threshold) - probability in tail</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>tail_exceedance <span class="ot">&lt;-</span> <span class="fu">mean</span>(y_tail <span class="sc">&gt;</span> u_threshold)</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Empirical tail exceedance:&quot;</span>, tail_exceedance, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co"># Posterior predictive P(Y &gt; y) for high values</span></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>high_y_values <span class="ot">&lt;-</span> <span class="fu">seq</span>(u_threshold, <span class="fu">max</span>(y_tail) <span class="sc">*</span> <span class="fl">1.1</span>, <span class="at">length.out =</span> <span class="dv">20</span>)</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>exceedance_probs <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">-</span> <span class="fu">predict</span>(fit_gpd, <span class="at">newdata =</span> high_y_values, <span class="at">type =</span> <span class="st">&quot;cdf&quot;</span>)</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>df_exc <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>  <span class="at">y =</span> high_y_values,</span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>  <span class="at">prob_exceed =</span> exceedance_probs</span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a>)</span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a>p_exc <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_exc, <span class="fu">aes</span>(<span class="at">x =</span> y, <span class="at">y =</span> prob_exceed)) <span class="sc">+</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">&quot;darkred&quot;</span>, <span class="at">linewidth =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">&quot;darkred&quot;</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;P(Y &gt; y | Data): Tail Exceedance&quot;</span>, <span class="at">x =</span> <span class="st">&quot;y&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Probability&quot;</span>) <span class="sc">+</span></span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a></span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="fu">print</span>(p_exc)</span></code></pre></div>
+<hr />
+</div>
+<div id="bulk-vs-tail-model-comparison" class="section level2">
+<h2>Bulk vs Tail Model Comparison</h2>
+<div id="without-gpd-bulk-only" class="section level3">
+<h3>Without GPD (Bulk Only)</h3>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>bundle_bulk_only <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>  <span class="at">y =</span> y_tail,</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">&quot;gamma&quot;</span>,</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">&quot;crp&quot;</span>,</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>  <span class="at">Kmax =</span> <span class="dv">15</span>,</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>  <span class="at">mcmc =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">1000</span>, <span class="at">nburnin =</span> <span class="dv">200</span>, <span class="at">nchains =</span> <span class="dv">1</span>)</span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>)</span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>fit_bulk_only <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle_bulk_only)</span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co"># Model fit completed</span></span></code></pre></div>
+</div>
+<div id="with-gpd-bulk-tail" class="section level3">
+<h3>With GPD (Bulk + Tail)</h3>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="co"># Model fit completed</span></span></code></pre></div>
+</div>
+<div id="model-comparison" class="section level3">
+<h3>Model Comparison</h3>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">=== BULK ONLY vs BULK + GPD ===</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Interpretation:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="cf">if</span> (loglik_gpd <span class="sc">&gt;</span> loglik_bulk) {</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;✓ GPD significantly improves fit (tail is important)</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;✗ GPD doesn&#39;t help (no strong tail behavior)</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a>}</span></code></pre></div>
+<hr />
+</div>
+</div>
+<div id="extreme-value-analysis" class="section level2">
+<h2>Extreme Value Analysis</h2>
+<div id="return-levels" class="section level3">
+<h3>Return Levels</h3>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a><span class="co"># Estimate rare event probabilities</span></span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>probs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.99</span>, <span class="fl">0.95</span>, <span class="fl">0.90</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>return_levels <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_gpd, <span class="at">newdata =</span> <span class="fu">data.frame</span>(<span class="at">p =</span> probs), <span class="at">type =</span> <span class="st">&quot;quantile&quot;</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Return Levels (Posterior Mean):</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  99th percentile:&quot;</span>, return_levels[<span class="dv">1</span>], <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  95th percentile:&quot;</span>, return_levels[<span class="dv">2</span>], <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  90th percentile:&quot;</span>, return_levels[<span class="dv">3</span>], <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<hr />
+</div>
+</div>
+<div id="residual-analysis" class="section level2">
+<h2>Residual Analysis</h2>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>residuals_vals <span class="ot">&lt;-</span> <span class="fu">residuals</span>(fit_gpd)</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>df_resid <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">residuals =</span> residuals_vals)</span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a>p_resid <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_resid, <span class="fu">aes</span>(<span class="at">x =</span> residuals)) <span class="sc">+</span></span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">after_stat</span>(density)), <span class="at">bins =</span> <span class="dv">40</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>, <span class="at">fill =</span> <span class="st">&quot;mediumseagreen&quot;</span>) <span class="sc">+</span></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">color =</span> <span class="st">&quot;darkgreen&quot;</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">&quot;dashed&quot;</span>, <span class="at">color =</span> <span class="st">&quot;gray&quot;</span>) <span class="sc">+</span></span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Residuals: DPmixGPD (CRP)&quot;</span>, <span class="at">x =</span> <span class="st">&quot;Residuals&quot;</span>, <span class="at">y =</span> <span class="st">&quot;Density&quot;</span>) <span class="sc">+</span></span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a></span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a><span class="fu">print</span>(p_resid)</span>
+<span id="cb14-13"><a href="#cb14-13" tabindex="-1"></a></span>
+<span id="cb14-14"><a href="#cb14-14" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Residual Summary:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb14-15"><a href="#cb14-15" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">summary</span>(residuals_vals))</span></code></pre></div>
+<hr />
+</div>
+<div id="sensitivity-to-threshold-choice" class="section level2">
+<h2>Sensitivity to Threshold Choice</h2>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>thresholds <span class="ot">&lt;-</span> <span class="fu">quantile</span>(y_tail, <span class="fu">c</span>(<span class="fl">0.70</span>, <span class="fl">0.75</span>, <span class="fl">0.80</span>, <span class="fl">0.85</span>, <span class="fl">0.90</span>))</span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Testing threshold percentiles:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Values:&quot;</span>, <span class="fu">paste</span>(<span class="fu">names</span>(thresholds), <span class="at">collapse =</span> <span class="st">&quot;, &quot;</span>), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Recommendation: Use 0.80-0.90 for heavy tails.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Compare convergence diagnostics via summary().</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a></span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co"># Demonstrate with one threshold</span></span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a>bundle_thresh <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb15-10"><a href="#cb15-10" tabindex="-1"></a>  <span class="at">y =</span> y_tail,</span>
+<span id="cb15-11"><a href="#cb15-11" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">&quot;gamma&quot;</span>,</span>
+<span id="cb15-12"><a href="#cb15-12" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">&quot;crp&quot;</span>,</span>
+<span id="cb15-13"><a href="#cb15-13" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb15-14"><a href="#cb15-14" tabindex="-1"></a>  <span class="at">threshold =</span> <span class="fu">quantile</span>(y_tail, <span class="fl">0.85</span>),</span>
+<span id="cb15-15"><a href="#cb15-15" tabindex="-1"></a>  <span class="at">Kmax =</span> <span class="dv">15</span>,</span>
+<span id="cb15-16"><a href="#cb15-16" tabindex="-1"></a>  <span class="at">mcmc =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">500</span>, <span class="at">nburnin =</span> <span class="dv">100</span>, <span class="at">nchains =</span> <span class="dv">1</span>)</span>
+<span id="cb15-17"><a href="#cb15-17" tabindex="-1"></a>)</span>
+<span id="cb15-18"><a href="#cb15-18" tabindex="-1"></a>fit_thresh <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle_thresh)</span>
+<span id="cb15-19"><a href="#cb15-19" tabindex="-1"></a><span class="fu">summary</span>(fit_thresh)</span></code></pre></div>
+<hr />
+</div>
+<div id="key-takeaways" class="section level2">
+<h2>Key Takeaways</h2>
+<ul>
+<li><strong>GPD Tail</strong>: Captures extreme values better than
+parametric bulk alone</li>
+<li><strong>Threshold</strong>: Critical decision; use sensitivity
+analysis to choose</li>
+<li><strong>Parameter Interpretation</strong>: scale &amp; shape control
+tail behavior</li>
+<li><strong>Model Comparison</strong>: Use summary() and convergence
+diagnostics</li>
+<li><strong>Extreme Value Analysis</strong>: Quantiles, return levels,
+tail probabilities</li>
+<li><strong>Next</strong>: Stick-Breaking backend with GPD in vignette
+7</li>
+</ul>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

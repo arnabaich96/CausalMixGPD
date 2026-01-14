@@ -97,7 +97,18 @@ print.dpmixgpd_causal_bundle <- function(x, code = FALSE, max_code_lines = 200L,
 
   meta <- x$meta %||% list()
   cat("DPmixGPD causal bundle\n")
-  cat("PS model: Bayesian logit (T | X)\n")
+  ps_meta <- meta$ps %||% list()
+  ps_model <- ps_meta$model_type %||% FALSE
+  ps_label <- if (!isTRUE(ps_meta$enabled) || isFALSE(ps_model)) {
+    "PS model: disabled"
+  } else {
+    switch(ps_model,
+           logit = "PS model: Bayesian logit (T | X)",
+           probit = "PS model: Bayesian probit (T | X)",
+           naive = "PS model: Gaussian naive Bayes",
+           sprintf("PS model: %s", ps_model))
+  }
+  cat(ps_label, "\n")
   backend <- meta$backend %||% list()
   kernel <- meta$kernel %||% list()
   gpd <- meta$GPD %||% list()
@@ -171,7 +182,13 @@ print.dpmixgpd_ps_bundle <- function(x, code = FALSE, max_code_lines = 200L, ...
 
   meta <- x$spec$meta %||% list()
   cat("PS bundle\n")
-  cat("model:", meta$type %||% "ps_logit", "\n")
+  model_type <- meta$type %||% "ps_logit"
+  model_label <- switch(model_type,
+                        ps_logit = "logit",
+                        ps_probit = "probit",
+                        ps_naive = "naive",
+                        model_type)
+  cat("model:", model_label, "\n")
   cat("include_intercept:", isTRUE(meta$include_intercept), "\n")
   if (isTRUE(code)) {
     cat("code:\n")
@@ -206,7 +223,18 @@ print.dpmixgpd_causal_fit <- function(x, ...) {
 
   meta <- x$bundle$meta %||% list()
   cat("DPmixGPD causal fit\n")
-  cat("PS model: Bayesian logit (T | X)\n")
+  ps_meta <- meta$ps %||% list()
+  ps_model <- ps_meta$model_type %||% FALSE
+  ps_label <- if (!isTRUE(ps_meta$enabled) || isFALSE(ps_model)) {
+    "PS model: disabled"
+  } else {
+    switch(ps_model,
+           logit = "PS model: Bayesian logit (T | X)",
+           probit = "PS model: Bayesian probit (T | X)",
+           naive = "PS model: Gaussian naive Bayes",
+           sprintf("PS model: %s", ps_model))
+  }
+  cat(ps_label, "\n")
   cat("Outcome (treated): backend =", (meta$backend %||% list())$trt %||% "?", "| kernel =",
       (meta$kernel %||% list())$trt %||% "?", "\n")
   cat("Outcome (control): backend =", (meta$backend %||% list())$con %||% "?", "| kernel =",
@@ -244,7 +272,13 @@ summary.dpmixgpd_causal_fit <- function(object, ...) {
 print.dpmixgpd_ps_fit <- function(x, ...) {
   stopifnot(inherits(x, "dpmixgpd_ps_fit"))
   cat("DPmixGPD PS fit\n")
-  cat("model: ps_logit\n")
+  model_type <- x$bundle$spec$meta$type %||% "ps_logit"
+  model_label <- switch(model_type,
+                        ps_logit = "logit",
+                        ps_probit = "probit",
+                        ps_naive = "naive",
+                        model_type)
+  cat("model:", model_label, "\n")
   invisible(x)
 }
 

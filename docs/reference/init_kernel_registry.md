@@ -19,7 +19,6 @@ Invisibly returns TRUE.
 
 ``` r
 init_kernel_registry()
-#> Error in assign("kernel_registry", kernel_registry, envir = ns): cannot change value of locked binding for 'kernel_registry'
 reg <- get_kernel_registry()
 names(reg)
 #> [1] "normal"    "lognormal" "invgauss"  "gamma"     "laplace"   "amoroso"  

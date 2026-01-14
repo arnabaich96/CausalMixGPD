@@ -4,45 +4,83 @@ DPmixGPD delivers Dirichlet process mixtures with optional generalized
 Pareto tails so you can model the bulk and extremes with shared mixture
 weights and clean prediction APIs.
 
-## Vignette tour
+## Vignette Tour
 
-- **Onboarding:** [Start
-  here](https://example.com/DPmixGPD/articles/v00-start-here.md)
-  explains what problems the package solves and presents the canonical
-  simul + fit loop.
-- **Installation & reproducibility:**
-  [01-installation](https://example.com/DPmixGPD/articles/v01-installation-reproducibility.md)
-  shows how to install, seed Nimble, and debug initialization warnings.
-- **Single-outcome modeling:**
-  [v02-single-outcome-modeling](https://example.com/DPmixGPD/articles/v02-single-outcome-modeling.md)
-  tells the full story for bulk + tail fits.
-- **Causal QTE:**
-  [v05-causal-qte](https://example.com/DPmixGPD/articles/v05-causal-qte.md)
-  plus
-  [v06-causal-extras](https://example.com/DPmixGPD/articles/v06-causal-extras.md)
-  cover treatment-specific fits, QTE plotting, and comparisons with
-  ATE/CATE.
-- **Backends:**
-  [v03-backends-crp-vs-sb](https://example.com/DPmixGPD/articles/v03-backends-crp-vs-sb.md)
-  contrasts the CRP and stick-breaking engines.
-- **Kernel guidance:**
-  [v04-kernels-guide](https://example.com/DPmixGPD/articles/v04-kernels-guide.md)
-  and the kernel-specific pages provide parameter meanings, priors, and
-  domain guidance.
-- **Prediction & exports:**
-  [v08-prediction-and-exports](https://example.com/DPmixGPD/articles/v08-prediction-and-exports.md)
-  plus the legacy
-  [Prediction](https://example.com/DPmixGPD/articles/prediction.md)
-  vignette detail density, quantile, and survival forecasts.
-- **Troubleshooting & survival:**
-  [v09-troubleshooting](https://example.com/DPmixGPD/articles/v09-troubleshooting.md)
-  and
-  [v07-survival](https://example.com/DPmixGPD/articles/v07-survival.md)
-  cover warning fixes and survival-style tips.
-- **Developer resources:**
-  [v10-developer-guide](https://example.com/DPmixGPD/articles/v10-developer-guide.md)
-  walks through kernel registration, Nimble hooks, and the regression
-  checklist.
+### Getting Started
+
+- **[Introduction](https://example.com/DPmixGPD/articles/v01-introduction.md)**
+  — Overview, three-phase workflow, PS strategies, and quickstart
+- **[Available
+  Distributions](https://example.com/DPmixGPD/articles/v02-available-distributions.md)**
+  — Comprehensive guide to all 7 kernels plus GPD with dqrp functions
+- **[Basic Model
+  Workflow](https://example.com/DPmixGPD/articles/v03-basic-model-compile-run.md)**
+  — Detailed three-phase guide: specification → bundle → MCMC
+
+### Unconditional Models (y only)
+
+- **[DPmix with
+  CRP](https://example.com/DPmixGPD/articles/v04-unconditional-DPmix-CRP.md)**
+  — Chinese Restaurant Process backend for bulk-only mixture modeling
+- **[DPmix with
+  SB](https://example.com/DPmixGPD/articles/v05-unconditional-DPmix-SB.md)**
+  — Stick-Breaking backend comparison
+- **[DPmixGPD with
+  CRP](https://example.com/DPmixGPD/articles/v06-unconditional-DPmixGPD-CRP.md)**
+  — Adding GPD tail augmentation to CRP
+- **[DPmixGPD with
+  SB](https://example.com/DPmixGPD/articles/v07-unconditional-DPmixGPD-SB.md)**
+  — SB backend with GPD tails
+
+### Conditional Models (y \| X)
+
+- **[Conditional DPmix
+  CRP](https://example.com/DPmixGPD/articles/v08-conditional-DPmix-CRP.md)**
+  — CRP with covariates, heteroscedasticity analysis
+- **[Conditional DPmix
+  SB](https://example.com/DPmixGPD/articles/v09-conditional-DPmix-SB.md)**
+  — SB with covariates
+- **[Conditional DPmixGPD
+  CRP](https://example.com/DPmixGPD/articles/v10-conditional-DPmixGPD-CRP.md)**
+  — CRP with covariates and GPD tail
+- **[Conditional DPmixGPD
+  SB](https://example.com/DPmixGPD/articles/v11-conditional-DPmixGPD-SB.md)**
+  — SB with covariates and GPD tail
+
+### Causal Inference (treatment effects)
+
+- **[Same Backend
+  CRP](https://example.com/DPmixGPD/articles/v12-causal-same-backend-CRP.md)**
+  — Causal inference with CRP for both PS and outcome
+- **[Same Backend
+  SB](https://example.com/DPmixGPD/articles/v13-causal-same-backend-SB.md)**
+  — Causal inference with SB for both models
+- **[Different Backends (CRP for
+  PS)](https://example.com/DPmixGPD/articles/v14-causal-different-backends-CRP.md)**
+  — CRP for PS, varying outcome backends
+- **[Different Backends (SB for
+  PS)](https://example.com/DPmixGPD/articles/v15-causal-different-backends-SB.md)**
+  — SB for PS with all backend combinations
+
+## Available S3 Methods
+
+DPmixGPD provides standard S3 methods for fitted model objects
+(`mixgpd_fit` and `dpmixgpd_causal_fit`):
+
+- [`summary()`](https://rdrr.io/r/base/summary.html) — Posterior
+  summaries with ESS, Rhat, and diagnostics
+- [`plot()`](https://rdrr.io/r/graphics/plot.default.html) — Trace and
+  density plots via ggplot2
+- [`predict()`](https://rdrr.io/r/stats/predict.html) — Density, CDF,
+  quantile, and survival predictions
+- [`fitted()`](https://rdrr.io/r/stats/fitted.values.html) — Fitted
+  values at observed data points
+- [`residuals()`](https://rdrr.io/r/stats/residuals.html) — Residuals
+  (observed - fitted)
+- [`coef()`](https://rdrr.io/r/stats/coef.html) — Extract posterior mean
+  parameters
+- [`vcov()`](https://rdrr.io/r/stats/vcov.html) — Variance-covariance
+  matrices for bulk/tail parameters
 
 ## Status checks
 
