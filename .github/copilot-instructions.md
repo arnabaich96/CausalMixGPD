@@ -47,6 +47,12 @@ devtools::test()            # Run testthat suite
 renv::restore()             # Restore dependencies (renv.lock pinned to R 4.5.2)
 ```
 
+### Documentation & Vignette Standards
+- **Table Formatting**: Always use `kableExtra` wrapper when printing tables in vignettes or documentation
+  - Example: `kbl(table_data) %>% kable_styling()`
+  - Ensures consistent, professional table rendering across HTML and PDF outputs
+  - Required for all summary tables, parameter tables, and result comparisons
+
 ### Testing Patterns (See [tests/testthat/test-MCMC.R](tests/testthat/test-MCMC.R))
 - Grid test: all kernel × backend × GPD combinations (217 lines)
 - Always use `skip_if_not_installed("nimble")` and `skip_if_not_installed("coda")`
