@@ -2,7 +2,7 @@
 title: "14. Causal Inference: Different Backends (CRP for PS, Varied for Outcome)"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{14. Causal Inference: Different Backends (CRP for PS, Varied for Outcome)}
+  %\VignetteIndexEntry{14. Causal Different Backends CRP}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
