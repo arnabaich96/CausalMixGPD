@@ -113,6 +113,6 @@ qLognormalMix(0.50, w = w, meanlog = meanlog, sdlog = sdlog)
 qLognormalMix(0.95, w = w, meanlog = meanlog, sdlog = sdlog)
 #> [1] 4.147585
 replicate(10, rLognormalMix(1, w = w, meanlog = meanlog, sdlog = sdlog))
-#>  [1] 3.8478513 4.7960899 0.5207832 0.6186347 2.9530280 2.7537931 0.4690064
-#>  [8] 1.0588474 1.7788693 0.9336496
+#>  [1] 0.8301959 1.3442066 0.8212191 1.5379567 0.9370305 0.9323510 1.7093731
+#>  [8] 0.9438299 1.8472092 0.9354914
 ```

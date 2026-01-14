@@ -15,7 +15,8 @@ run_mcmc_causal(bundle, show_progress = TRUE)
 A list of class \code{"dpmixgpd_causal_fit"}.
 }
 \description{
-Executes the PS model and both outcome arms, returning a single causal fit.
+Executes the outcome arms (and PS model if enabled), returning a single causal fit.
+When \code{PS=FALSE} in the bundle, the PS model is skipped entirely.
 }
 \examples{
 \dontrun{

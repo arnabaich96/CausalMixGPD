@@ -1,0 +1,227 @@
+---
+title: "14. Causal Inference: Different Backends (CRP for PS, Varied for Outcome)"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{14. Causal Inference: Different Backends (CRP for PS, Varied for Outcome)}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = NA,
+  fig.width = 8,
+  fig.height = 6,
+  message = FALSE,
+  warning = FALSE,
+  eval = FALSE
+)
+library(DPmixGPD)
+library(ggplot2)
+set.seed(123)
+```
+
+# Causal Inference: Different Backends for PS (CRP) vs Outcome
+
+**Goal**: Apply **different backends** for PS and outcome modeling. PS uses **CRP**, outcome uses **varied backends** (CRP, SB) for flexibility.
+
+**Use Case**: When outcome and PS have different complexity requirements.
+
+---
+
+## Data Setup
+
+```{r data-setup}
+set.seed(42)
+n <- 200
+
+X <- cbind(
+  x1 = rnorm(n, mean = 0, sd = 1),
+  x2 = rnorm(n, mean = 0, sd = 1)
+)
+
+T <- rbinom(n, size = 1, prob = 0.5)
+
+y <- ifelse(
+  T == 1,
+  rnorm(n, mean = 3 + 0.5 * X[, 1], sd = 1.2),
+  rnorm(n, mean = 1 + 0.3 * X[, 1], sd = 1.0)
+)
+
+cat("Sample size:", n, "\n")
+cat("Treatment:", table(T), "\n")
+```
+
+---
+
+## Causal Bundle: CRP for PS, Varied Outcome Backend
+
+### CRP PS + CRP Outcome
+
+```{r crp-ps-crp-outcome}
+bundle_crp_crp <- build_causal_bundle(
+  y = y,
+  T = T,
+  X = X,
+  kernel = "normal",
+  backend = "crp",           # Outcome: CRP
+  PS = "logit",              # PS: logit (uses flexible modeling)
+  GPD = FALSE,
+  Kmax = 10,
+  mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
+)
+
+fit_crp_crp <- run_mcmc_bundle_manual(bundle_crp_crp)
+
+ate_crp_crp <- coef(fit_crp_crp)
+cat("=== CRP PS + CRP Outcome ===\n")
+cat("ATE:", ate_crp_crp, "\n")
+```
+
+### CRP PS + SB Outcome
+
+```{r crp-ps-sb-outcome}
+bundle_crp_sb <- build_causal_bundle(
+  y = y,
+  T = T,
+  X = X,
+  kernel = "normal",
+  backend = "sb",            # Outcome: SB
+  PS = "logit",              # PS: logit
+  GPD = FALSE,
+  J = 10,
+  mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
+)
+
+fit_crp_sb <- run_mcmc_bundle_manual(bundle_crp_sb)
+
+ate_crp_sb <- coef(fit_crp_sb)
+cat("\n=== CRP PS + SB Outcome ===\n")
+cat("ATE:", ate_crp_sb, "\n")
+```
+
+---
+
+## Backend Combination Comparison
+
+```{r comparison}
+df_backends <- data.frame(
+  Model = c("CRP PS + CRP Outcome", "CRP PS + SB Outcome"),
+  ATE = c(ate_crp_crp, ate_crp_sb),
+  Comparison = "See summary()"
+)
+
+cat("\n=== BACKEND COMPARISON ===\n")
+print(df_backends)
+
+# Visualization
+p_ate_comp <- ggplot(df_backends, aes(x = Model, y = ATE)) +
+  geom_point(size = 4, color = "steelblue") +
+  geom_errorbar(aes(ymin = ATE - 0.2, ymax = ATE + 0.2), width = 0.2) +
+  labs(title = "ATE by Backend Combination", x = "Model", y = "ATE") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+print(p_ate_comp)
+```
+
+---
+
+## PS Distribution & Overlap
+
+```{r ps}
+ps_fitted_crp <- fitted(fit_crp_crp, type = "ps")
+
+df_ps <- data.frame(ps = ps_fitted_crp, T = as.factor(T))
+
+p_ps <- ggplot(df_ps, aes(x = ps, fill = T)) +
+  geom_density(alpha = 0.5) +
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +
+  labs(title = "PS Distribution: CRP Backend", x = "PS", y = "Density") +
+  theme_minimal()
+
+print(p_ps)
+
+cat("\nPS Summary:\n")
+print(summary(ps_fitted_crp))
+```
+
+---
+
+## Treatment Effect Heterogeneity (HTE)
+
+### Conditional ATE by Covariate
+
+```{r hte}
+# CATE across X1 range
+X_hte <- cbind(x1 = seq(-2, 2, by = 0.5), x2 = 0)
+
+cate_crp_crp <- predict(fit_crp_crp, newdata = X_hte, type = "treatment.effect")
+cate_crp_sb <- predict(fit_crp_sb, newdata = X_hte, type = "treatment.effect")
+
+df_hte <- data.frame(
+  x1 = X_hte[, 1],
+  CRP_Outcome = cate_crp_crp,
+  SB_Outcome = cate_crp_sb
+)
+
+# Melt for ggplot
+library(reshape2)
+df_hte_long <- melt(df_hte, id.vars = "x1", 
+                     variable.name = "Backend", value.name = "CATE")
+
+p_hte <- ggplot(df_hte_long, aes(x = x1, y = CATE, color = Backend)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  scale_color_manual(values = c("CRP_Outcome" = "steelblue", "SB_Outcome" = "coral")) +
+  labs(title = "Treatment Effect Heterogeneity (HTE)", x = "X1", y = "CATE") +
+  theme_minimal()
+
+print(p_hte)
+```
+
+---
+
+## When to Use Different Backends
+
+```{r guidance}
+cat("\n=== WHEN TO USE DIFFERENT BACKENDS ===\n\n")
+
+cat("Use CRP for PS if:\n")
+cat("  ✓ Treatment assignment complex/nonlinear\n")
+cat("  ✓ Want flexible PS model\n\n")
+
+cat("Use SB for Outcome if:\n")
+cat("  ✓ Outcome model simpler than PS\n")
+cat("  ✓ Need faster inference\n")
+cat("  ✓ Large sample size\n\n")
+
+cat("Use CRP for Outcome if:\n")
+cat("  ✓ Outcome mixture complex\n")
+cat("  ✓ Treatment effect heterogeneous\n")
+cat("  ✓ Want adaptive # components\n")
+```
+
+---
+
+## Model Selection via LogLik
+
+```{r model-selection}
+cat("Model selection:\n")
+if (loglik_crp_crp > loglik_crp_sb) {
+  cat("✓ CRP outcome preferred (better fit)\n")
+} else {
+  cat("✓ SB outcome preferred (simpler, comparable fit)\n")
+}
+```
+
+---
+
+## Key Takeaways
+
+- **Different Backends**: Optimize PS and outcome models independently
+- **Flexibility**: Choose best backend for each component
+- **HTE Analysis**: Examine treatment effects across covariate space
+- **Model Selection**: Use LogLik to guide backend choice
+- **Next**: SB PS with varied outcome in vignette 15

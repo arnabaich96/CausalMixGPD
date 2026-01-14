@@ -2,17 +2,46 @@
 
 DPmixGPD delivers Dirichlet process mixtures with optional generalized Pareto tails so you can model the bulk and extremes with shared mixture weights and clean prediction APIs.
 
-## Vignette tour
+## Vignette Tour
 
-- **Onboarding:** [Start here](articles/v00-start-here.html) explains what problems the package solves and presents the canonical simul + fit loop.
-- **Installation & reproducibility:** [01-installation](articles/v01-installation-reproducibility.html) shows how to install, seed Nimble, and debug initialization warnings.
-- **Single-outcome modeling:** [v02-single-outcome-modeling](articles/v02-single-outcome-modeling.html) tells the full story for bulk + tail fits.
-- **Causal QTE:** [v05-causal-qte](articles/v05-causal-qte.html) plus [v06-causal-extras](articles/v06-causal-extras.html) cover treatment-specific fits, QTE plotting, and comparisons with ATE/CATE.
-- **Backends:** [v03-backends-crp-vs-sb](articles/v03-backends-crp-vs-sb.html) contrasts the CRP and stick-breaking engines.
-- **Kernel guidance:** [v04-kernels-guide](articles/v04-kernels-guide.html) and the kernel-specific pages provide parameter meanings, priors, and domain guidance.
-- **Prediction & exports:** [v08-prediction-and-exports](articles/v08-prediction-and-exports.html) plus the legacy [Prediction](articles/prediction.html) vignette detail density, quantile, and survival forecasts.
-- **Troubleshooting & survival:** [v09-troubleshooting](articles/v09-troubleshooting.html) and [v07-survival](articles/v07-survival.html) cover warning fixes and survival-style tips.
-- **Developer resources:** [v10-developer-guide](articles/v10-developer-guide.html) walks through kernel registration, Nimble hooks, and the regression checklist.
+### Getting Started
+
+- **[Introduction](articles/v01-introduction.html)** — Overview, three-phase workflow, PS strategies, and quickstart
+- **[Available Distributions](articles/v02-available-distributions.html)** — Comprehensive guide to all 7 kernels plus GPD with dqrp functions
+- **[Basic Model Workflow](articles/v03-basic-model-compile-run.html)** — Detailed three-phase guide: specification → bundle → MCMC
+
+### Unconditional Models (y only)
+
+- **[DPmix with CRP](articles/v04-unconditional-DPmix-CRP.html)** — Chinese Restaurant Process backend for bulk-only mixture modeling
+- **[DPmix with SB](articles/v05-unconditional-DPmix-SB.html)** — Stick-Breaking backend comparison
+- **[DPmixGPD with CRP](articles/v06-unconditional-DPmixGPD-CRP.html)** — Adding GPD tail augmentation to CRP
+- **[DPmixGPD with SB](articles/v07-unconditional-DPmixGPD-SB.html)** — SB backend with GPD tails
+
+### Conditional Models (y | X)
+
+- **[Conditional DPmix CRP](articles/v08-conditional-DPmix-CRP.html)** — CRP with covariates, heteroscedasticity analysis
+- **[Conditional DPmix SB](articles/v09-conditional-DPmix-SB.html)** — SB with covariates
+- **[Conditional DPmixGPD CRP](articles/v10-conditional-DPmixGPD-CRP.html)** — CRP with covariates and GPD tail
+- **[Conditional DPmixGPD SB](articles/v11-conditional-DPmixGPD-SB.html)** — SB with covariates and GPD tail
+
+### Causal Inference (treatment effects)
+
+- **[Same Backend CRP](articles/v12-causal-same-backend-CRP.html)** — Causal inference with CRP for both PS and outcome
+- **[Same Backend SB](articles/v13-causal-same-backend-SB.html)** — Causal inference with SB for both models
+- **[Different Backends (CRP for PS)](articles/v14-causal-different-backends-CRP.html)** — CRP for PS, varying outcome backends
+- **[Different Backends (SB for PS)](articles/v15-causal-different-backends-SB.html)** — SB for PS with all backend combinations
+
+## Available S3 Methods
+
+DPmixGPD provides standard S3 methods for fitted model objects (`mixgpd_fit` and `dpmixgpd_causal_fit`):
+
+- `summary()` — Posterior summaries with ESS, Rhat, and diagnostics
+- `plot()` — Trace and density plots via ggplot2
+- `predict()` — Density, CDF, quantile, and survival predictions
+- `fitted()` — Fitted values at observed data points
+- `residuals()` — Residuals (observed - fitted)
+- `coef()` — Extract posterior mean parameters
+- `vcov()` — Variance-covariance matrices for bulk/tail parameters
 
 ## Status checks
 
