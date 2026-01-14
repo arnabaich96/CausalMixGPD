@@ -353,48 +353,47 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">3</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="dv">90</span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">sim_bulk_tail</span>(n, <span class="at">tail_prob =</span> <span class="fl">0.15</span>)</span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">&quot;sb&quot;</span>,</span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">&quot;normal&quot;</span>,</span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  <span class="at">J =</span> <span class="dv">6</span>,</span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  <span class="at">mcmc =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">200</span>, <span class="at">nburnin =</span> <span class="dv">50</span>, <span class="at">thin =</span> <span class="dv">1</span>, <span class="at">nchains =</span> <span class="dv">2</span>, <span class="at">seed =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
-<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>)</span>
-<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="cf">if</span> (use_cached_fit) {</span>
-<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> fit_small</span>
-<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle, <span class="at">show_progress =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>}</span>
-<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a>draws <span class="ot">&lt;-</span> DPmixGPD<span class="sc">:::</span><span class="fu">.extract_draws_matrix</span>(fit, <span class="at">drop_v =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a>keep <span class="ot">&lt;-</span> <span class="fu">intersect</span>(<span class="fu">c</span>(<span class="st">&quot;alpha&quot;</span>, <span class="st">&quot;threshold[1]&quot;</span>, <span class="st">&quot;tail_shape&quot;</span>), <span class="fu">colnames</span>(draws))</span>
-<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="fu">head</span>(draws[, keep, <span class="at">drop =</span> <span class="cn">FALSE</span>])</span>
-<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="co">#&gt;         alpha</span></span>
-<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt; [1,] 3.340427</span></span>
-<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt; [2,] 3.340427</span></span>
-<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a><span class="co">#&gt; [3,] 2.526394</span></span>
-<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a><span class="co">#&gt; [4,] 1.904067</span></span>
-<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="co">#&gt; [5,] 1.904067</span></span>
-<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co">#&gt; [6,] 1.834272</span></span></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>pp <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">type =</span> <span class="st">&quot;sample&quot;</span>, <span class="at">nsim =</span> <span class="dv">200</span>)</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>draws_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">value =</span> pp<span class="sc">$</span>fit[, <span class="dv">1</span>])</span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="fu">ggplot</span>(draws_df, <span class="fu">aes</span>(<span class="at">x =</span> value)) <span class="sc">+</span></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">30</span>, <span class="at">fill =</span> <span class="st">&quot;#1f77b4&quot;</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">data =</span> <span class="fu">data.frame</span>(<span class="at">y =</span> y), <span class="fu">aes</span>(<span class="at">x =</span> y, <span class="at">y =</span> ..density..), <span class="at">color =</span> <span class="st">&quot;#d62728&quot;</span>) <span class="sc">+</span></span>
-<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Posterior predictive draws vs observed histogram&quot;</span>, <span class="at">x =</span> <span class="st">&quot;y&quot;</span>)</span></code></pre></div>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">sim_bulk_tail</span>(n, <span class="at">tail_prob =</span> <span class="fl">0.15</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">&quot;sb&quot;</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">&quot;normal&quot;</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  <span class="at">J =</span> <span class="dv">6</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>  <span class="at">mcmc =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">200</span>, <span class="at">nburnin =</span> <span class="dv">50</span>, <span class="at">thin =</span> <span class="dv">1</span>, <span class="at">nchains =</span> <span class="dv">2</span>, <span class="at">seed =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">2</span>))</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>)</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="cf">if</span> (use_cached_fit) {</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> fit_small</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle, <span class="at">show_progress =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>draws <span class="ot">&lt;-</span> DPmixGPD<span class="sc">:::</span><span class="fu">.extract_draws_matrix</span>(fit, <span class="at">drop_v =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>keep <span class="ot">&lt;-</span> <span class="fu">intersect</span>(<span class="fu">c</span>(<span class="st">&quot;alpha&quot;</span>, <span class="st">&quot;threshold[1]&quot;</span>, <span class="st">&quot;tail_shape&quot;</span>), <span class="fu">colnames</span>(draws))</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">head</span>(draws[, keep, <span class="at">drop =</span> <span class="cn">FALSE</span>])</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt;         alpha</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; [1,] 3.340427</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; [2,] 3.340427</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; [3,] 2.526394</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; [4,] 1.904067</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; [5,] 1.904067</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; [6,] 1.834272</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>pp <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">type =</span> <span class="st">&quot;sample&quot;</span>, <span class="at">nsim =</span> <span class="dv">200</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>draws_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">value =</span> pp<span class="sc">$</span>fit[, <span class="dv">1</span>])</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="fu">ggplot</span>(draws_df, <span class="fu">aes</span>(<span class="at">x =</span> value)) <span class="sc">+</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">30</span>, <span class="at">fill =</span> <span class="st">&quot;#1f77b4&quot;</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>) <span class="sc">+</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">data =</span> <span class="fu">data.frame</span>(<span class="at">y =</span> y), <span class="fu">aes</span>(<span class="at">x =</span> y, <span class="at">y =</span> ..density..), <span class="at">color =</span> <span class="st">&quot;#d62728&quot;</span>) <span class="sc">+</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">&quot;Posterior predictive draws vs observed histogram&quot;</span>, <span class="at">x =</span> <span class="st">&quot;y&quot;</span>)</span></code></pre></div>
 <div class="float">
 <img role="img" aria-label="Posterior predictive draws overlayed on data histogram." src="data:image/png;base64,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" alt="Posterior predictive draws overlayed on data histogram." />
 <div class="figcaption">Posterior predictive draws overlayed on data
 histogram.</div>
 </div>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">&quot;reports&quot;</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>quant_df <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">type =</span> <span class="st">&quot;quantile&quot;</span>, <span class="at">p =</span> <span class="fu">c</span>(.<span class="dv">5</span>, .<span class="dv">9</span>, .<span class="dv">99</span>), <span class="at">y =</span> <span class="cn">NULL</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>export_table <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="at">tau =</span> <span class="fu">c</span>(.<span class="dv">5</span>, .<span class="dv">9</span>, .<span class="dv">99</span>),</span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="at">quantile =</span> <span class="fu">c</span>(quant_df<span class="sc">$</span>fit)</span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>)</span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(export_table, <span class="at">caption =</span> <span class="st">&quot;Quantile export for reporting&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>quant_df <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">type =</span> <span class="st">&quot;quantile&quot;</span>, <span class="at">p =</span> <span class="fu">c</span>(.<span class="dv">5</span>, .<span class="dv">9</span>, .<span class="dv">99</span>), <span class="at">y =</span> <span class="cn">NULL</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>export_table <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="at">tau =</span> <span class="fu">c</span>(.<span class="dv">5</span>, .<span class="dv">9</span>, .<span class="dv">99</span>),</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="at">quantile =</span> <span class="fu">c</span>(quant_df<span class="sc">$</span>fit)</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>)</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>knitr<span class="sc">::</span><span class="fu">kable</span>(export_table, <span class="at">caption =</span> <span class="st">&quot;Quantile export for reporting&quot;</span>)</span></code></pre></div>
 <table>
 <caption>Quantile export for reporting</caption>
 <thead>
@@ -418,77 +417,78 @@ histogram.</div>
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">write.csv</span>(export_table, <span class="at">file =</span> <span class="st">&quot;reports/quantiles.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>recipes <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="st">&quot;Quantile curve&quot;</span> <span class="ot">=</span> <span class="cf">function</span>(newdata) <span class="fu">predict</span>(fit, <span class="at">newdata =</span> newdata, <span class="at">type =</span> <span class="st">&quot;quantile&quot;</span>, <span class="at">p =</span> <span class="fu">c</span>(.<span class="dv">5</span>, .<span class="dv">9</span>, .<span class="dv">99</span>)),</span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="st">&quot;Tail index surface&quot;</span> <span class="ot">=</span> <span class="cf">function</span>(newdata) <span class="fu">predict</span>(fit, <span class="at">newdata =</span> newdata, <span class="at">type =</span> <span class="st">&quot;quantile&quot;</span>, <span class="at">p =</span> .<span class="dv">995</span>),</span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  <span class="st">&quot;Tail exceedance rate&quot;</span> <span class="ot">=</span> <span class="cf">function</span>(newdata, ygrid) <span class="fu">predict</span>(fit, <span class="at">newdata =</span> newdata, <span class="at">type =</span> <span class="st">&quot;survival&quot;</span>, <span class="at">y =</span> ygrid)</span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>)</span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>recipes</span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; $`Quantile curve`</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; function (newdata) </span></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; predict(fit, newdata = newdata, type = &quot;quantile&quot;, p = c(0.5, </span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt;     0.9, 0.99))</span></span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; &lt;environment: 0x0000018713940158&gt;</span></span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; $`Tail index surface`</span></span>
-<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; function (newdata) </span></span>
-<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; predict(fit, newdata = newdata, type = &quot;quantile&quot;, p = 0.995)</span></span>
-<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; &lt;environment: 0x0000018713940158&gt;</span></span>
-<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt; $`Tail exceedance rate`</span></span>
-<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt; function (newdata, ygrid) </span></span>
-<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; predict(fit, newdata = newdata, type = &quot;survival&quot;, y = ygrid)</span></span>
-<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; &lt;environment: 0x0000018713940158&gt;</span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co">#&gt; R version 4.5.2 (2025-10-31 ucrt)</span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; Platform: x86_64-w64-mingw32/x64</span></span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt; Running under: Windows 11 x64 (build 26100)</span></span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; Matrix products: default</span></span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt;   LAPACK version 3.12.1</span></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; locale:</span></span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt; [1] LC_COLLATE=English_United States.utf8 </span></span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; [2] LC_CTYPE=English_United States.utf8   </span></span>
-<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; [3] LC_MONETARY=English_United States.utf8</span></span>
-<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; [4] LC_NUMERIC=C                          </span></span>
-<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a><span class="co">#&gt; [5] LC_TIME=English_United States.utf8    </span></span>
-<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a><span class="co">#&gt; time zone: America/New_York</span></span>
-<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a><span class="co">#&gt; tzcode source: internal</span></span>
-<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a><span class="co">#&gt; attached base packages:</span></span>
-<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a><span class="co">#&gt; [1] stats     graphics  grDevices datasets  utils     methods   base     </span></span>
-<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a><span class="co">#&gt; other attached packages:</span></span>
-<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a><span class="co">#&gt; [1] devtools_2.4.6 usethis_3.2.1  dplyr_1.1.4    ggplot2_4.0.1  nimble_1.4.0  </span></span>
-<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a><span class="co">#&gt; [6] DPmixGPD_0.0.8 testthat_3.3.1</span></span>
-<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
-<span id="cb7-27"><a href="#cb7-27" tabindex="-1"></a><span class="co">#&gt;  [1] gtable_0.3.6        xfun_0.55           bslib_0.9.0        </span></span>
-<span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a><span class="co">#&gt;  [4] remotes_2.5.0       GGally_2.4.0        lattice_0.22-7     </span></span>
-<span id="cb7-29"><a href="#cb7-29" tabindex="-1"></a><span class="co">#&gt;  [7] numDeriv_2016.8-1.1 vctrs_0.6.5         tools_4.5.2        </span></span>
-<span id="cb7-30"><a href="#cb7-30" tabindex="-1"></a><span class="co">#&gt; [10] generics_0.1.4      parallel_4.5.2      tibble_3.3.0       </span></span>
-<span id="cb7-31"><a href="#cb7-31" tabindex="-1"></a><span class="co">#&gt; [13] pkgconfig_2.0.3     RColorBrewer_1.1-3  ggmcmc_1.5.1.2     </span></span>
-<span id="cb7-32"><a href="#cb7-32" tabindex="-1"></a><span class="co">#&gt; [16] S7_0.2.1            desc_1.4.3          lifecycle_1.0.4    </span></span>
-<span id="cb7-33"><a href="#cb7-33" tabindex="-1"></a><span class="co">#&gt; [19] compiler_4.5.2      farver_2.1.2        brio_1.1.5         </span></span>
-<span id="cb7-34"><a href="#cb7-34" tabindex="-1"></a><span class="co">#&gt; [22] codetools_0.2-20    htmltools_0.5.9     sass_0.4.10        </span></span>
-<span id="cb7-35"><a href="#cb7-35" tabindex="-1"></a><span class="co">#&gt; [25] yaml_2.3.12         pracma_2.4.6        jquerylib_0.1.4    </span></span>
-<span id="cb7-36"><a href="#cb7-36" tabindex="-1"></a><span class="co">#&gt; [28] pillar_1.11.1       tidyr_1.3.2         MASS_7.3-65        </span></span>
-<span id="cb7-37"><a href="#cb7-37" tabindex="-1"></a><span class="co">#&gt; [31] ellipsis_0.3.2      cachem_1.1.0        sessioninfo_1.2.3  </span></span>
-<span id="cb7-38"><a href="#cb7-38" tabindex="-1"></a><span class="co">#&gt; [34] parallelly_1.46.0   ggstats_0.11.0      tidyselect_1.2.1   </span></span>
-<span id="cb7-39"><a href="#cb7-39" tabindex="-1"></a><span class="co">#&gt; [37] digest_0.6.39       future_1.68.0       purrr_1.2.0        </span></span>
-<span id="cb7-40"><a href="#cb7-40" tabindex="-1"></a><span class="co">#&gt; [40] listenv_0.10.0      labeling_0.4.3      rprojroot_2.1.1    </span></span>
-<span id="cb7-41"><a href="#cb7-41" tabindex="-1"></a><span class="co">#&gt; [43] fastmap_1.2.0       grid_4.5.2          cli_3.6.5          </span></span>
-<span id="cb7-42"><a href="#cb7-42" tabindex="-1"></a><span class="co">#&gt; [46] magrittr_2.0.4      pkgbuild_1.4.8      future.apply_1.20.1</span></span>
-<span id="cb7-43"><a href="#cb7-43" tabindex="-1"></a><span class="co">#&gt; [49] withr_3.0.2         scales_1.4.0        rmarkdown_2.30     </span></span>
-<span id="cb7-44"><a href="#cb7-44" tabindex="-1"></a><span class="co">#&gt; [52] globals_0.18.0      igraph_2.2.1        otel_0.2.0         </span></span>
-<span id="cb7-45"><a href="#cb7-45" tabindex="-1"></a><span class="co">#&gt; [55] coda_0.19-4.1       memoise_2.0.1       evaluate_1.0.5     </span></span>
-<span id="cb7-46"><a href="#cb7-46" tabindex="-1"></a><span class="co">#&gt; [58] knitr_1.51          viridisLite_0.4.2   rlang_1.1.6        </span></span>
-<span id="cb7-47"><a href="#cb7-47" tabindex="-1"></a><span class="co">#&gt; [61] glue_1.8.0          renv_1.1.5          pkgload_1.4.1      </span></span>
-<span id="cb7-48"><a href="#cb7-48" tabindex="-1"></a><span class="co">#&gt; [64] jsonlite_2.0.0      rstudioapi_0.17.1   R6_2.6.1           </span></span>
-<span id="cb7-49"><a href="#cb7-49" tabindex="-1"></a><span class="co">#&gt; [67] fs_1.6.6</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="st">&quot;reports&quot;</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="fu">write.csv</span>(export_table, <span class="at">file =</span> <span class="st">&quot;reports/quantiles.csv&quot;</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>recipes <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  <span class="st">&quot;Quantile curve&quot;</span> <span class="ot">=</span> <span class="cf">function</span>(newdata) <span class="fu">predict</span>(fit, <span class="at">newdata =</span> newdata, <span class="at">type =</span> <span class="st">&quot;quantile&quot;</span>, <span class="at">p =</span> <span class="fu">c</span>(.<span class="dv">5</span>, .<span class="dv">9</span>, .<span class="dv">99</span>)),</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="st">&quot;Tail index surface&quot;</span> <span class="ot">=</span> <span class="cf">function</span>(newdata) <span class="fu">predict</span>(fit, <span class="at">newdata =</span> newdata, <span class="at">type =</span> <span class="st">&quot;quantile&quot;</span>, <span class="at">p =</span> .<span class="dv">995</span>),</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="st">&quot;Tail exceedance rate&quot;</span> <span class="ot">=</span> <span class="cf">function</span>(newdata, ygrid) <span class="fu">predict</span>(fit, <span class="at">newdata =</span> newdata, <span class="at">type =</span> <span class="st">&quot;survival&quot;</span>, <span class="at">y =</span> ygrid)</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>)</span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>recipes</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; $`Quantile curve`</span></span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt; function (newdata) </span></span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt; predict(fit, newdata = newdata, type = &quot;quantile&quot;, p = c(0.5, </span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt;     0.9, 0.99))</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; &lt;environment: 0x000001a1a886f510&gt;</span></span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt; $`Tail index surface`</span></span>
+<span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co">#&gt; function (newdata) </span></span>
+<span id="cb9-15"><a href="#cb9-15" tabindex="-1"></a><span class="co">#&gt; predict(fit, newdata = newdata, type = &quot;quantile&quot;, p = 0.995)</span></span>
+<span id="cb9-16"><a href="#cb9-16" tabindex="-1"></a><span class="co">#&gt; &lt;environment: 0x000001a1a886f510&gt;</span></span>
+<span id="cb9-17"><a href="#cb9-17" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb9-18"><a href="#cb9-18" tabindex="-1"></a><span class="co">#&gt; $`Tail exceedance rate`</span></span>
+<span id="cb9-19"><a href="#cb9-19" tabindex="-1"></a><span class="co">#&gt; function (newdata, ygrid) </span></span>
+<span id="cb9-20"><a href="#cb9-20" tabindex="-1"></a><span class="co">#&gt; predict(fit, newdata = newdata, type = &quot;survival&quot;, y = ygrid)</span></span>
+<span id="cb9-21"><a href="#cb9-21" tabindex="-1"></a><span class="co">#&gt; &lt;environment: 0x000001a1a886f510&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt; R version 4.5.2 (2025-10-31 ucrt)</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; Platform: x86_64-w64-mingw32/x64</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt; Running under: Windows 11 x64 (build 26100)</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; Matrix products: default</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt;   LAPACK version 3.12.1</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#&gt; locale:</span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt; [1] LC_COLLATE=English_United States.utf8 </span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#&gt; [2] LC_CTYPE=English_United States.utf8   </span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt; [3] LC_MONETARY=English_United States.utf8</span></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="co">#&gt; [4] LC_NUMERIC=C                          </span></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#&gt; [5] LC_TIME=English_United States.utf8    </span></span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt; time zone: America/New_York</span></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="co">#&gt; tzcode source: internal</span></span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="co">#&gt; attached base packages:</span></span>
+<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a><span class="co">#&gt; [1] stats     graphics  grDevices datasets  utils     methods   base     </span></span>
+<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a><span class="co">#&gt; other attached packages:</span></span>
+<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a><span class="co">#&gt; [1] devtools_2.4.6 usethis_3.2.1  dplyr_1.1.4    ggplot2_4.0.1  DPmixGPD_0.0.8</span></span>
+<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a><span class="co">#&gt; [6] nimble_1.4.0   testthat_3.3.1</span></span>
+<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
+<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a><span class="co">#&gt;  [1] gtable_0.3.6        xfun_0.55           bslib_0.9.0        </span></span>
+<span id="cb10-28"><a href="#cb10-28" tabindex="-1"></a><span class="co">#&gt;  [4] remotes_2.5.0       GGally_2.4.0        lattice_0.22-7     </span></span>
+<span id="cb10-29"><a href="#cb10-29" tabindex="-1"></a><span class="co">#&gt;  [7] numDeriv_2016.8-1.1 vctrs_0.6.5         tools_4.5.2        </span></span>
+<span id="cb10-30"><a href="#cb10-30" tabindex="-1"></a><span class="co">#&gt; [10] generics_0.1.4      parallel_4.5.2      tibble_3.3.0       </span></span>
+<span id="cb10-31"><a href="#cb10-31" tabindex="-1"></a><span class="co">#&gt; [13] pkgconfig_2.0.3     RColorBrewer_1.1-3  ggmcmc_1.5.1.2     </span></span>
+<span id="cb10-32"><a href="#cb10-32" tabindex="-1"></a><span class="co">#&gt; [16] S7_0.2.1            desc_1.4.3          lifecycle_1.0.4    </span></span>
+<span id="cb10-33"><a href="#cb10-33" tabindex="-1"></a><span class="co">#&gt; [19] compiler_4.5.2      farver_2.1.2        brio_1.1.5         </span></span>
+<span id="cb10-34"><a href="#cb10-34" tabindex="-1"></a><span class="co">#&gt; [22] codetools_0.2-20    htmltools_0.5.9     sass_0.4.10        </span></span>
+<span id="cb10-35"><a href="#cb10-35" tabindex="-1"></a><span class="co">#&gt; [25] yaml_2.3.12         pracma_2.4.6        jquerylib_0.1.4    </span></span>
+<span id="cb10-36"><a href="#cb10-36" tabindex="-1"></a><span class="co">#&gt; [28] pillar_1.11.1       tidyr_1.3.2         MASS_7.3-65        </span></span>
+<span id="cb10-37"><a href="#cb10-37" tabindex="-1"></a><span class="co">#&gt; [31] ellipsis_0.3.2      cachem_1.1.0        sessioninfo_1.2.3  </span></span>
+<span id="cb10-38"><a href="#cb10-38" tabindex="-1"></a><span class="co">#&gt; [34] parallelly_1.46.0   ggstats_0.11.0      tidyselect_1.2.1   </span></span>
+<span id="cb10-39"><a href="#cb10-39" tabindex="-1"></a><span class="co">#&gt; [37] digest_0.6.39       future_1.68.0       purrr_1.2.0        </span></span>
+<span id="cb10-40"><a href="#cb10-40" tabindex="-1"></a><span class="co">#&gt; [40] listenv_0.10.0      labeling_0.4.3      rprojroot_2.1.1    </span></span>
+<span id="cb10-41"><a href="#cb10-41" tabindex="-1"></a><span class="co">#&gt; [43] fastmap_1.2.0       grid_4.5.2          cli_3.6.5          </span></span>
+<span id="cb10-42"><a href="#cb10-42" tabindex="-1"></a><span class="co">#&gt; [46] magrittr_2.0.4      utf8_1.2.6          pkgbuild_1.4.8     </span></span>
+<span id="cb10-43"><a href="#cb10-43" tabindex="-1"></a><span class="co">#&gt; [49] future.apply_1.20.1 withr_3.0.2         scales_1.4.0       </span></span>
+<span id="cb10-44"><a href="#cb10-44" tabindex="-1"></a><span class="co">#&gt; [52] rmarkdown_2.30      globals_0.18.0      igraph_2.2.1       </span></span>
+<span id="cb10-45"><a href="#cb10-45" tabindex="-1"></a><span class="co">#&gt; [55] otel_0.2.0          coda_0.19-4.1       memoise_2.0.1      </span></span>
+<span id="cb10-46"><a href="#cb10-46" tabindex="-1"></a><span class="co">#&gt; [58] evaluate_1.0.5      knitr_1.51          viridisLite_0.4.2  </span></span>
+<span id="cb10-47"><a href="#cb10-47" tabindex="-1"></a><span class="co">#&gt; [61] rlang_1.1.6         glue_1.8.0          renv_1.1.5         </span></span>
+<span id="cb10-48"><a href="#cb10-48" tabindex="-1"></a><span class="co">#&gt; [64] pkgload_1.4.1       jsonlite_2.0.0      rstudioapi_0.17.1  </span></span>
+<span id="cb10-49"><a href="#cb10-49" tabindex="-1"></a><span class="co">#&gt; [67] R6_2.6.1            fs_1.6.6</span></span></code></pre></div>
 
 
 

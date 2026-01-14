@@ -11,7 +11,11 @@ vignette: >
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 if (requireNamespace('devtools', quietly = TRUE)) devtools::load_all(quiet = TRUE) else library(DPmixGPD)
 library(nimble)
-source("_helpers.R")
+
+# Helper functions
+default_mcmc <- function() {
+  list(niter = 1000, nburnin = 500, nchains = 2, thin = 1)
+}
 ```
 
 ```{r data}
@@ -20,7 +24,7 @@ data("nc_pos200_k3")
 data("nc_pos_tail200_k4")
 ```
 
-```{r bundle-s3, eval=TRUE, fig.show='hold', fig.cap=c('CRP posterior diagnostics','SB posterior diagnostics','SB+GPD posterior diagnostics')}
+```{r bundle-s3, eval=FALSE, fig.show='hold', fig.cap=c('CRP posterior diagnostics','SB posterior diagnostics','SB+GPD posterior diagnostics')}
 mcmc <- default_mcmc()
 
 # CRP fit

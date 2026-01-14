@@ -14,6 +14,7 @@ predict(
   object,
   x = NULL,
   y = NULL,
+  ps = NULL,
   newdata = NULL,
   type = c("density", "survival", "quantile", "sample", "mean"),
   p = NULL,
@@ -41,6 +42,16 @@ predict(
 
   Numeric vector of evaluation points (required for `type="density"` or
   `"survival"`).
+
+- ps:
+
+  Ignored. Propensity scores are always computed internally from the
+  fitted PS model or stored training PS. For new covariates, PS are
+  derived from the attached PS posterior draws when available. For
+  causal workflows, use
+  [`qte()`](https://example.com/DPmixGPD/reference/qte.md) /
+  [`ate()`](https://example.com/DPmixGPD/reference/ate.md) which
+  orchestrate PS estimation and outcome prediction jointly.
 
 - newdata:
 

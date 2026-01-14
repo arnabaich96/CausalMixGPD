@@ -22,6 +22,8 @@
   [`rAmorosoMixGpd()`](https://example.com/DPmixGPD/reference/amoroso_mixgpd.md)
   [`qAmorosoMixGpd()`](https://example.com/DPmixGPD/reference/amoroso_mixgpd.md)
   : Amoroso mixture with a GPD tail
+- [`ate()`](https://example.com/DPmixGPD/reference/ate.md) : Average
+  treatment effects (ATE)
 - [`build_causal_bundle()`](https://example.com/DPmixGPD/reference/build_causal_bundle.md)
   : Build a causal bundle (design + two outcome arms)
 - [`build_nimble_bundle()`](https://example.com/DPmixGPD/reference/build_nimble_bundle.md)
@@ -36,10 +38,16 @@
   [`rCauchyMix()`](https://example.com/DPmixGPD/reference/cauchy_mix.md)
   [`qCauchyMix()`](https://example.com/DPmixGPD/reference/cauchy_mix.md)
   : Cauchy mixture distribution
+- [`causal_alt_pos500_p3_k3`](https://example.com/DPmixGPD/reference/causal_alt_pos500_p3_k3.md)
+  : causal_alt_pos500_p3_k3 dataset
+- [`causal_alt_pos500_p5_k4_tail`](https://example.com/DPmixGPD/reference/causal_alt_pos500_p5_k4_tail.md)
+  : causal_alt_pos500_p5_k4_tail dataset
+- [`causal_alt_real500_p4_k2`](https://example.com/DPmixGPD/reference/causal_alt_real500_p4_k2.md)
+  : causal_alt_real500_p4_k2 dataset
+- [`causal_pos500_p3_k2`](https://example.com/DPmixGPD/reference/causal_pos500_p3_k2.md)
+  : causal_pos500_p3_k2 dataset
 - [`coverage_status()`](https://example.com/DPmixGPD/reference/coverage_status.md)
   : Test coverage status helper
-- [`cqte()`](https://example.com/DPmixGPD/reference/cqte.md) :
-  Conditional quantile treatment effects (CQTE)
 - [`fitted(`*`<mixgpd_fit>`*`)`](https://example.com/DPmixGPD/reference/fitted.mixgpd_fit.md)
   : Fitted values for a MixGPD fit
 - [`dGammaGpd()`](https://example.com/DPmixGPD/reference/gamma_gpd.md)
@@ -121,6 +129,22 @@
   [`rLognormalMixGpd()`](https://example.com/DPmixGPD/reference/lognormal_mixgpd.md)
   [`qLognormalMixGpd()`](https://example.com/DPmixGPD/reference/lognormal_mixgpd.md)
   : Lognormal mixture with a Gpd tail
+- [`nc_pos200_k3`](https://example.com/DPmixGPD/reference/nc_pos200_k3.md)
+  : nc_pos200_k3 dataset
+- [`nc_posX100_p3_k2`](https://example.com/DPmixGPD/reference/nc_posX100_p3_k2.md)
+  : nc_posX100_p3_k2 dataset
+- [`nc_posX100_p4_k3`](https://example.com/DPmixGPD/reference/nc_posX100_p4_k3.md)
+  : nc_posX100_p4_k3 dataset
+- [`nc_posX100_p5_k4`](https://example.com/DPmixGPD/reference/nc_posX100_p5_k4.md)
+  : nc_posX100_p5_k4 dataset
+- [`nc_pos_tail200_k4`](https://example.com/DPmixGPD/reference/nc_pos_tail200_k4.md)
+  : nc_pos_tail200_k4 dataset
+- [`nc_real200_k2`](https://example.com/DPmixGPD/reference/nc_real200_k2.md)
+  : nc_real200_k2 dataset
+- [`nc_realX100_p3_k2`](https://example.com/DPmixGPD/reference/nc_realX100_p3_k2.md)
+  : nc_realX100_p3_k2 dataset
+- [`nc_realX100_p5_k3`](https://example.com/DPmixGPD/reference/nc_realX100_p5_k3.md)
+  : nc_realX100_p5_k3 dataset
 - [`dNormGpd()`](https://example.com/DPmixGPD/reference/normal_gpd.md)
   [`pNormGpd()`](https://example.com/DPmixGPD/reference/normal_gpd.md)
   [`rNormGpd()`](https://example.com/DPmixGPD/reference/normal_gpd.md)
@@ -140,6 +164,8 @@
   : Plot a causal fit
 - [`plot(`*`<mixgpd_fit>`*`)`](https://example.com/DPmixGPD/reference/plot.mixgpd_fit.md)
   : Plot MCMC diagnostics for a MixGPD fit (ggmcmc backend)
+- [`predict(`*`<dpmixgpd_causal_fit>`*`)`](https://example.com/DPmixGPD/reference/predict.dpmixgpd_causal_fit.md)
+  : Predict from a causal fit
 - [`predict(`*`<mixgpd_fit>`*`)`](https://example.com/DPmixGPD/reference/predict.mixgpd_fit.md)
   : Predict from a MixGPD fit
 - [`print(`*`<dpmixgpd_bundle>`*`)`](https://example.com/DPmixGPD/reference/print.dpmixgpd_bundle.md)
@@ -152,6 +178,8 @@
   : Print a MixGPD fitted object
 - [`print(`*`<mixgpd_summary>`*`)`](https://example.com/DPmixGPD/reference/print.mixgpd_summary.md)
   : Print a MixGPD summary object
+- [`qte()`](https://example.com/DPmixGPD/reference/qte.md) : Quantile
+  treatment effects (QTE)
 - [`read_coverage_status()`](https://example.com/DPmixGPD/reference/read_coverage_status.md)
   : Read stored coverage status
 - [`residuals(`*`<mixgpd_fit>`*`)`](https://example.com/DPmixGPD/reference/residuals.mixgpd_fit.md)
@@ -162,8 +190,8 @@
   : Run MCMC for a causal bundle
 - [`sim_bulk_tail()`](https://example.com/DPmixGPD/reference/sim_bulk_tail.md)
   : Simulate bulk + tail data
-- [`sim_causal_cqte()`](https://example.com/DPmixGPD/reference/sim_causal_cqte.md)
-  : Simulate causal CQTE data
+- [`sim_causal_qte()`](https://example.com/DPmixGPD/reference/sim_causal_qte.md)
+  : Simulate causal QTE data
 - [`sim_survival_tail()`](https://example.com/DPmixGPD/reference/sim_survival_tail.md)
   : Simulate survival tail data
 - [`summary(`*`<dpmixgpd_bundle>`*`)`](https://example.com/DPmixGPD/reference/summary.dpmixgpd_bundle.md)

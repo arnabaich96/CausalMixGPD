@@ -9,20 +9,52 @@ vignette: >
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
-library(DPmixGPD)
+if (requireNamespace("pkgload", quietly = TRUE)) {
+  pkgload::load_all(quiet = TRUE, helpers = FALSE)
+} else {
+  library(DPmixGPD)
+}
 library(nimble)
-source("_helpers.R")
+
+# Namespace-safe bindings (work in pkgdown/callr without attach)
+build_nimble_bundle <- getFromNamespace("build_nimble_bundle", "DPmixGPD")
+run_mcmc_bundle_manual <- getFromNamespace("run_mcmc_bundle_manual", "DPmixGPD")
+
+# Helper functions
+print_dataset_header <- function(data, name = deparse(substitute(data))) {
+  cat(sprintf("Dataset: %s (n=%d", name, length(data$y)))
+  if (!is.null(data$X)) cat(sprintf(", p=%d", ncol(data$X)))
+  cat(")\n")
+  invisible(NULL)
+}
+
+default_mcmc <- function() {
+  list(niter = 1000, nburnin = 500, nchains = 2, thin = 1, seed = 1)
+}
+
+# Resolve a data file path robustly when knitting via pkgdown/callr.
+resolve_data_file <- function(filename) {
+  vdir <- tryCatch(dirname(knitr::current_input(dir = TRUE)), error = function(e) NULL)
+  candidates <- c(
+    if (!is.null(vdir)) file.path(vdir, "..", "data", filename) else NULL,
+    file.path(getwd(), "data", filename),
+    if (!is.null(vdir)) file.path(vdir, "data", filename) else NULL
+  )
+  existing <- Filter(function(p) !is.null(p) && file.exists(p), candidates)
+  if (length(existing) == 0) stop(sprintf("Data file %s not found", filename))
+  existing[[1]]
+}
 ```
 
 ```{r data-pos}
-data("nc_posX100_p3_k2")
-data("nc_posX100_p4_k3")
-data("nc_posX100_p5_k4")
+load(resolve_data_file("nc_posX100_p3_k2.rda"), envir = environment())
+load(resolve_data_file("nc_posX100_p4_k3.rda"), envir = environment())
+load(resolve_data_file("nc_posX100_p5_k4.rda"), envir = environment())
 ```
 
 ```{r data-real}
-data("nc_realX100_p3_k2")
-data("nc_realX100_p5_k3")
+load(resolve_data_file("nc_realX100_p3_k2.rda"), envir = environment())
+load(resolve_data_file("nc_realX100_p5_k3.rda"), envir = environment())
 ```
 
 ```{r covariate-pos, eval=TRUE}
@@ -85,3 +117,4 @@ for (obj in real_sets) {
   }
 }
 ```
+

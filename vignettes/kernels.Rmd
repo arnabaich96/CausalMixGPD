@@ -9,15 +9,46 @@ vignette: >
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
-library(DPmixGPD)
+if (requireNamespace("pkgload", quietly = TRUE)) {
+  pkgload::load_all(quiet = TRUE, helpers = FALSE)
+} else {
+  library(DPmixGPD)
+}
 library(nimble)
-source("_helpers.R")
+
+# Make package helpers available even when the namespace is only loaded
+build_nimble_bundle <- getFromNamespace("build_nimble_bundle", "DPmixGPD")
+run_mcmc_bundle_manual <- getFromNamespace("run_mcmc_bundle_manual", "DPmixGPD")
+
+# Locate datasets when pkgdown builds without installing the package
+resolve_data_file <- function(filename) {
+  candidates <- c(
+    file.path("data", filename),
+    file.path("..", "data", filename),
+    file.path("..", "..", "data", filename)
+  )
+  existing <- candidates[file.exists(candidates)]
+  if (length(existing) == 0) stop(sprintf("Data file %s not found", filename))
+  existing[[1]]
+}
+
+# Helper functions
+print_dataset_header <- function(data, name = deparse(substitute(data))) {
+  cat(sprintf("Dataset: %s (n=%d", name, length(data$y)))
+  if (!is.null(data$X)) cat(sprintf(", p=%d", ncol(data$X)))
+  cat(")\n")
+  invisible(NULL)
+}
+
+default_mcmc <- function() {
+  list(niter = 1000, nburnin = 500, nchains = 2, thin = 1, seed = 1)
+}
 ```
 
 ## Real-line kernels
 
 ```{r realline-data-load}
-data("nc_real200_k2")
+load(resolve_data_file("nc_real200_k2.rda"), envir = environment())
 print_dataset_header(nc_real200_k2, "nc_real200_k2")
 ```
 
@@ -48,7 +79,7 @@ for (ker in real_kernels) {
 ## Positive-support kernels
 
 ```{r possupp-data-load}
-data("nc_pos200_k3")
+load(resolve_data_file("nc_pos200_k3.rda"), envir = environment())
 print_dataset_header(nc_pos200_k3, "nc_pos200_k3")
 ```
 
@@ -75,3 +106,4 @@ for (ker in pos_kernels) {
   }
 }
 ```
+

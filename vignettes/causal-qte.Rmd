@@ -11,10 +11,36 @@ vignette: >
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 if (requireNamespace('devtools', quietly = TRUE)) devtools::load_all(quiet = TRUE) else library(DPmixGPD)
 library(nimble)
-source("_helpers.R")
+
+# Helper functions
+resolve_data_file <- function(fname) {
+  .pkg_root <- knitr::opts_knit$get("root.dir")
+  if (is.null(.pkg_root) || is.na(.pkg_root)) {
+    .pkg_root <- normalizePath(file.path(dirname(knitr::current_input()), ".."), winslash = "/", mustWork = FALSE)
+  }
+  candidates <- unique(c(
+    system.file("data", fname, package = "DPmixGPD"),
+    file.path(.pkg_root, "data", fname)
+  ))
+  existing <- candidates[file.exists(candidates) & nzchar(candidates)]
+  if (length(existing) > 0) return(existing[[1]])
+  NULL
+}
+
+print_dataset_header <- function(data, name = deparse(substitute(data))) {
+  cat(sprintf("Dataset: %s (n=%d", name, length(data$y)))
+  if (!is.null(data$X)) cat(sprintf(", p=%d", ncol(data$X)))
+  cat(")\n")
+  invisible(NULL)
+}
+
+default_mcmc <- function() {
+  list(niter = 1000, nburnin = 500, nchains = 2, thin = 1)
+}
+
 ```
 
-```{r data}
+```{r data, eval=FALSE}
 .kg <- knitr::knit_global()
 if (!exists("causal_pos500_p3_k2", envir = .kg, inherits = FALSE)) {
   utils::data(list = "causal_pos500_p3_k2", package = "DPmixGPD", envir = .kg)
@@ -28,7 +54,7 @@ causal_pos500_p3_k2 <- get("causal_pos500_p3_k2", envir = .kg, inherits = FALSE)
 print_dataset_header(causal_pos500_p3_k2, "causal_pos500_p3_k2")
 ```
 
-```{r qte, eval=TRUE}
+```{r qte, eval=FALSE}
 mcmc <- default_mcmc()
 cb <- build_causal_bundle(
   y = causal_pos500_p3_k2$y,

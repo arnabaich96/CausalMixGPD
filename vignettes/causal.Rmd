@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r libraries}
+```{r libraries, eval=FALSE}
 if (requireNamespace("devtools", quietly = TRUE)) {
   devtools::load_all(quiet = TRUE)
 } else {
@@ -46,7 +46,7 @@ if (use_cached_fit) {
 }
 ```
 
-```{r data}
+```{r data, eval=FALSE}
 set.seed(1)
 dat <- sim_causal_qte(n = 120)
 X <- dat$X
@@ -66,7 +66,7 @@ cb <- build_causal_bundle(
 )
 ```
 
-```{r fit}
+```{r fit, eval=FALSE}
 if (use_cached_fit) {
   cf <- fit_causal_small
 } else {
@@ -76,7 +76,7 @@ summary(cf$outcome_fit$trt)
 newdata <- X
 ```
 
-```{r qte}
+```{r qte, eval=FALSE}
 qt <- qte(cf, probs = c(0.5, 0.9), newdata = newdata)
 qt$fit
 

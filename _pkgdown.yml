@@ -47,11 +47,6 @@ articles:
   - title: "Legacy articles"
     contents:
       - "starts_with('bundle-s3')"
-      - "starts_with('causal-cqte')"
-      - "starts_with('causal-kernel-compare')"
-      - "starts_with('causal-qte')"
-      - "starts_with('causal-quickstart')"
-      - "starts_with('causal-tail')"
       - "starts_with('covariates')"
       - "starts_with('coverage-index')"
       - "starts_with('dqrp')"

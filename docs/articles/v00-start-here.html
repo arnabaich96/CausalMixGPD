@@ -76,25 +76,27 @@
 <span>  <span class="fu">annotate</span><span class="op">(</span><span class="st">"text"</span>, x <span class="op">=</span> <span class="fl">4</span>, y <span class="op">=</span> <span class="fl">0.25</span>, label <span class="op">=</span> <span class="st">"DP mixture bulk"</span>, color <span class="op">=</span> <span class="st">"#66c2a5"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">labs</span><span class="op">(</span>x <span class="op">=</span> <span class="st">"Outcome"</span>, y <span class="op">=</span> <span class="st">"Density"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="v00-start-here_files/figure-html/diagram-1.png" class="r-plt" alt="DPmixGPD concept: flexible bulk + GPD tail stitched at a threshold." width="576"><p class="caption">
+<img src="v00-start-here_files/figure-html/start-viz-concept-1.png" alt="DPmixGPD concept: flexible bulk + GPD tail stitched at a threshold." width="576"><p class="caption">
 DPmixGPD concept: flexible bulk + GPD tail stitched at a threshold.
 </p>
 </div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">7</span><span class="op">)</span></span>
 <span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_bulk_tail.html">sim_bulk_tail</a></span><span class="op">(</span><span class="fl">90</span>, tail_prob <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span>
-<span><span class="va">J</span> <span class="op">&lt;-</span> <span class="fl">6</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="va">use_cached_fit</span><span class="op">)</span> <span class="op">{</span></span>
+<span><span class="va">J</span> <span class="op">&lt;-</span> <span class="fl">6</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">bundle</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_nimble_bundle.html">build_nimble_bundle</a></span><span class="op">(</span></span>
+<span>  y <span class="op">=</span> <span class="va">y</span>,</span>
+<span>  backend <span class="op">=</span> <span class="st">"sb"</span>,</span>
+<span>  kernel <span class="op">=</span> <span class="st">"lognormal"</span>,</span>
+<span>  GPD <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  J <span class="op">=</span> <span class="va">J</span>,</span>
+<span>  mcmc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">200</span>, nburnin <span class="op">=</span> <span class="fl">50</span>, thin <span class="op">=</span> <span class="fl">2</span>, nchains <span class="op">=</span> <span class="fl">2</span>, seed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="va">use_cached_fit</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="va">fit_small</span></span>
 <span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>  <span class="va">bundle</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_nimble_bundle.html">build_nimble_bundle</a></span><span class="op">(</span></span>
-<span>    y <span class="op">=</span> <span class="va">y</span>,</span>
-<span>    backend <span class="op">=</span> <span class="st">"sb"</span>,</span>
-<span>    kernel <span class="op">=</span> <span class="st">"lognormal"</span>,</span>
-<span>    GPD <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>    J <span class="op">=</span> <span class="va">J</span>,</span>
-<span>    mcmc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">200</span>, nburnin <span class="op">=</span> <span class="fl">50</span>, thin <span class="op">=</span> <span class="fl">2</span>, nchains <span class="op">=</span> <span class="fl">2</span>, seed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
 <span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mcmc_bundle_manual.html">run_mcmc_bundle_manual</a></span><span class="op">(</span><span class="va">bundle</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
@@ -121,18 +123,18 @@ DPmixGPD concept: flexible bulk + GPD tail stitched at a threshold.
 <span><span class="co">#&gt;       sd[1] 3.027 1.226  1.385  2.780  5.462  8.118</span></span>
 <span><span class="co">#&gt;       sd[2] 1.110 1.316  0.023  0.059  3.947  3.470</span></span>
 <span><span class="co">#&gt;       sd[3] 1.356 1.652  0.029  0.587  5.270 15.139</span></span></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"survival"</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">+</span> <span class="fl">5</span>, length.out <span class="op">=</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">surv_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">pred</span><span class="op">$</span><span class="va">grid</span>, survival <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">pred</span><span class="op">$</span><span class="va">fit</span><span class="op">[</span><span class="fl">1</span>, <span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu">ggplot</span><span class="op">(</span><span class="va">surv_df</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">y</span>, y <span class="op">=</span> <span class="va">survival</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_line</span><span class="op">(</span>color <span class="op">=</span> <span class="st">"#7b3294"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">labs</span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Posterior survival curve"</span>, y <span class="op">=</span> <span class="st">"Survival"</span>, x <span class="op">=</span> <span class="st">"y"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="v00-start-here_files/figure-html/predictions-1.png" class="r-plt" alt="Density prediction on held-out grid (posterior mean)." width="576"><p class="caption">
+<img src="v00-start-here_files/figure-html/start-s3-predict-1.png" alt="Density prediction on held-out grid (posterior mean)." width="576"><p class="caption">
 Density prediction on held-out grid (posterior mean).
 </p>
 </div>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.5</span>, <span class="fl">.8</span>, <span class="fl">.95</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; $fit</span></span>
 <span><span class="co">#&gt;          [,1]     [,2]     [,3]</span></span>
@@ -148,141 +150,8 @@ Density prediction on held-out grid (posterior mean).
 <span><span class="co">#&gt; [1] "quantile"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $grid</span></span>
-<span><span class="co">#&gt; [1] 0.50 0.80 0.95</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; $draws</span></span>
-<span><span class="co">#&gt; , , 1</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;           [,1]</span></span>
-<span><span class="co">#&gt;  [1,] 2.084684</span></span>
-<span><span class="co">#&gt;  [2,] 1.761678</span></span>
-<span><span class="co">#&gt;  [3,] 1.711988</span></span>
-<span><span class="co">#&gt;  [4,] 2.488099</span></span>
-<span><span class="co">#&gt;  [5,] 2.076856</span></span>
-<span><span class="co">#&gt;  [6,] 1.980510</span></span>
-<span><span class="co">#&gt;  [7,] 1.814564</span></span>
-<span><span class="co">#&gt;  [8,] 2.015153</span></span>
-<span><span class="co">#&gt;  [9,] 2.182712</span></span>
-<span><span class="co">#&gt; [10,] 2.031181</span></span>
-<span><span class="co">#&gt; [11,] 2.258826</span></span>
-<span><span class="co">#&gt; [12,] 2.569372</span></span>
-<span><span class="co">#&gt; [13,] 2.218166</span></span>
-<span><span class="co">#&gt; [14,] 2.193250</span></span>
-<span><span class="co">#&gt; [15,] 2.682655</span></span>
-<span><span class="co">#&gt; [16,] 2.117570</span></span>
-<span><span class="co">#&gt; [17,] 2.296713</span></span>
-<span><span class="co">#&gt; [18,] 2.129176</span></span>
-<span><span class="co">#&gt; [19,] 2.790298</span></span>
-<span><span class="co">#&gt; [20,] 2.822541</span></span>
-<span><span class="co">#&gt; [21,] 3.457669</span></span>
-<span><span class="co">#&gt; [22,] 2.982656</span></span>
-<span><span class="co">#&gt; [23,] 2.594728</span></span>
-<span><span class="co">#&gt; [24,] 2.355118</span></span>
-<span><span class="co">#&gt; [25,] 2.245933</span></span>
-<span><span class="co">#&gt; [26,] 2.183629</span></span>
-<span><span class="co">#&gt; [27,] 1.964829</span></span>
-<span><span class="co">#&gt; [28,] 2.134337</span></span>
-<span><span class="co">#&gt; [29,] 2.835128</span></span>
-<span><span class="co">#&gt; [30,] 2.387545</span></span>
-<span><span class="co">#&gt; [31,] 2.352759</span></span>
-<span><span class="co">#&gt; [32,] 3.252944</span></span>
-<span><span class="co">#&gt; [33,] 3.306005</span></span>
-<span><span class="co">#&gt; [34,] 2.716700</span></span>
-<span><span class="co">#&gt; [35,] 2.742817</span></span>
-<span><span class="co">#&gt; [36,] 2.507197</span></span>
-<span><span class="co">#&gt; [37,] 2.553163</span></span>
-<span><span class="co">#&gt; [38,] 3.063924</span></span>
-<span><span class="co">#&gt; [39,] 3.017153</span></span>
-<span><span class="co">#&gt; [40,] 2.908632</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; , , 2</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;           [,1]</span></span>
-<span><span class="co">#&gt;  [1,] 5.434103</span></span>
-<span><span class="co">#&gt;  [2,] 9.856694</span></span>
-<span><span class="co">#&gt;  [3,] 7.732760</span></span>
-<span><span class="co">#&gt;  [4,] 7.231164</span></span>
-<span><span class="co">#&gt;  [5,] 8.626198</span></span>
-<span><span class="co">#&gt;  [6,] 5.481327</span></span>
-<span><span class="co">#&gt;  [7,] 8.434266</span></span>
-<span><span class="co">#&gt;  [8,] 4.275549</span></span>
-<span><span class="co">#&gt;  [9,] 7.318695</span></span>
-<span><span class="co">#&gt; [10,] 5.642000</span></span>
-<span><span class="co">#&gt; [11,] 6.912834</span></span>
-<span><span class="co">#&gt; [12,] 6.270920</span></span>
-<span><span class="co">#&gt; [13,] 5.346794</span></span>
-<span><span class="co">#&gt; [14,] 5.415640</span></span>
-<span><span class="co">#&gt; [15,] 8.022615</span></span>
-<span><span class="co">#&gt; [16,] 5.277803</span></span>
-<span><span class="co">#&gt; [17,] 6.506667</span></span>
-<span><span class="co">#&gt; [18,] 9.289373</span></span>
-<span><span class="co">#&gt; [19,] 7.052828</span></span>
-<span><span class="co">#&gt; [20,] 7.175828</span></span>
-<span><span class="co">#&gt; [21,] 7.620988</span></span>
-<span><span class="co">#&gt; [22,] 7.014287</span></span>
-<span><span class="co">#&gt; [23,] 8.075880</span></span>
-<span><span class="co">#&gt; [24,] 7.732905</span></span>
-<span><span class="co">#&gt; [25,] 7.006633</span></span>
-<span><span class="co">#&gt; [26,] 4.351492</span></span>
-<span><span class="co">#&gt; [27,] 4.285172</span></span>
-<span><span class="co">#&gt; [28,] 5.359027</span></span>
-<span><span class="co">#&gt; [29,] 7.743145</span></span>
-<span><span class="co">#&gt; [30,] 5.187532</span></span>
-<span><span class="co">#&gt; [31,] 6.846878</span></span>
-<span><span class="co">#&gt; [32,] 8.544946</span></span>
-<span><span class="co">#&gt; [33,] 8.320800</span></span>
-<span><span class="co">#&gt; [34,] 8.421502</span></span>
-<span><span class="co">#&gt; [35,] 9.363206</span></span>
-<span><span class="co">#&gt; [36,] 8.034985</span></span>
-<span><span class="co">#&gt; [37,] 6.841856</span></span>
-<span><span class="co">#&gt; [38,] 7.803652</span></span>
-<span><span class="co">#&gt; [39,] 6.801644</span></span>
-<span><span class="co">#&gt; [40,] 7.628509</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; , , 3</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;            [,1]</span></span>
-<span><span class="co">#&gt;  [1,]  6.929665</span></span>
-<span><span class="co">#&gt;  [2,]  9.958749</span></span>
-<span><span class="co">#&gt;  [3,]  7.866946</span></span>
-<span><span class="co">#&gt;  [4,]  7.291517</span></span>
-<span><span class="co">#&gt;  [5,]  8.695036</span></span>
-<span><span class="co">#&gt;  [6,]  7.824644</span></span>
-<span><span class="co">#&gt;  [7,]  8.576632</span></span>
-<span><span class="co">#&gt;  [8,] 10.926664</span></span>
-<span><span class="co">#&gt;  [9,] 11.449937</span></span>
-<span><span class="co">#&gt; [10,] 10.852902</span></span>
-<span><span class="co">#&gt; [11,]  9.323045</span></span>
-<span><span class="co">#&gt; [12,]  9.995353</span></span>
-<span><span class="co">#&gt; [13,] 11.011613</span></span>
-<span><span class="co">#&gt; [14,]  8.606066</span></span>
-<span><span class="co">#&gt; [15,] 10.157453</span></span>
-<span><span class="co">#&gt; [16,]  9.665001</span></span>
-<span><span class="co">#&gt; [17,] 10.551923</span></span>
-<span><span class="co">#&gt; [18,]  9.373644</span></span>
-<span><span class="co">#&gt; [19,]  7.118737</span></span>
-<span><span class="co">#&gt; [20,]  7.219051</span></span>
-<span><span class="co">#&gt; [21,]  8.991530</span></span>
-<span><span class="co">#&gt; [22,]  8.422021</span></span>
-<span><span class="co">#&gt; [23,]  8.245483</span></span>
-<span><span class="co">#&gt; [24,] 10.600519</span></span>
-<span><span class="co">#&gt; [25,]  9.030669</span></span>
-<span><span class="co">#&gt; [26,] 11.626650</span></span>
-<span><span class="co">#&gt; [27,] 12.137861</span></span>
-<span><span class="co">#&gt; [28,] 11.299427</span></span>
-<span><span class="co">#&gt; [29,] 10.045535</span></span>
-<span><span class="co">#&gt; [30,] 11.666167</span></span>
-<span><span class="co">#&gt; [31,] 10.016763</span></span>
-<span><span class="co">#&gt; [32,]  8.981712</span></span>
-<span><span class="co">#&gt; [33,] 10.616308</span></span>
-<span><span class="co">#&gt; [34,]  8.548509</span></span>
-<span><span class="co">#&gt; [35,]  9.463882</span></span>
-<span><span class="co">#&gt; [36,]  8.134691</span></span>
-<span><span class="co">#&gt; [37,]  6.925275</span></span>
-<span><span class="co">#&gt; [38,]  7.877141</span></span>
-<span><span class="co">#&gt; [39,]  7.447362</span></span>
-<span><span class="co">#&gt; [40,]  7.722888</span></span></code></pre></div>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<span><span class="co">#&gt; [1] 0.50 0.80 0.95</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; R version 4.5.2 (2025-10-31 ucrt)</span></span>
 <span><span class="co">#&gt; Platform: x86_64-w64-mingw32/x64</span></span>
@@ -310,23 +179,23 @@ Density prediction on held-out grid (posterior mean).
 <span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
 <span><span class="co">#&gt;  [1] sass_0.4.10         future_1.68.0       generics_0.1.4     </span></span>
 <span><span class="co">#&gt;  [4] renv_1.1.5          lattice_0.22-7      listenv_0.10.0     </span></span>
-<span><span class="co">#&gt;  [7] pracma_2.4.6        digest_0.6.39       magrittr_2.0.4     </span></span>
+<span><span class="co">#&gt;  [7] pracma_2.4.6        digest_0.6.39       magrittr_2.0.3     </span></span>
 <span><span class="co">#&gt; [10] evaluate_1.0.5      grid_4.5.2          RColorBrewer_1.1-3 </span></span>
 <span><span class="co">#&gt; [13] fastmap_1.2.0       jsonlite_2.0.0      scales_1.4.0       </span></span>
-<span><span class="co">#&gt; [16] codetools_0.2-20    numDeriv_2016.8-1.1 textshaping_1.0.4  </span></span>
+<span><span class="co">#&gt; [16] codetools_0.2-20    numDeriv_2016.8-1.1 textshaping_1.0.1  </span></span>
 <span><span class="co">#&gt; [19] jquerylib_0.1.4     cli_3.6.5           rlang_1.1.6        </span></span>
-<span><span class="co">#&gt; [22] parallelly_1.46.0   future.apply_1.20.1 withr_3.0.2        </span></span>
-<span><span class="co">#&gt; [25] cachem_1.1.0        yaml_2.3.12         otel_0.2.0         </span></span>
-<span><span class="co">#&gt; [28] tools_4.5.2         parallel_4.5.2      coda_0.19-4.1      </span></span>
-<span><span class="co">#&gt; [31] dplyr_1.1.4         globals_0.18.0      vctrs_0.6.5        </span></span>
-<span><span class="co">#&gt; [34] R6_2.6.1            lifecycle_1.0.4     fs_1.6.6           </span></span>
-<span><span class="co">#&gt; [37] htmlwidgets_1.6.4   ragg_1.5.0          pkgconfig_2.0.3    </span></span>
-<span><span class="co">#&gt; [40] desc_1.4.3          pkgdown_2.2.0       bslib_0.9.0        </span></span>
-<span><span class="co">#&gt; [43] pillar_1.11.1       gtable_0.3.6        glue_1.8.0         </span></span>
-<span><span class="co">#&gt; [46] systemfonts_1.3.1   tidyselect_1.2.1    tibble_3.3.0       </span></span>
-<span><span class="co">#&gt; [49] xfun_0.55           knitr_1.51          farver_2.1.2       </span></span>
-<span><span class="co">#&gt; [52] htmltools_0.5.9     igraph_2.2.1        labeling_0.4.3     </span></span>
-<span><span class="co">#&gt; [55] rmarkdown_2.30      compiler_4.5.2      S7_0.2.1</span></span></code></pre></div>
+<span><span class="co">#&gt; [22] parallelly_1.46.1   future.apply_1.20.1 withr_3.0.2        </span></span>
+<span><span class="co">#&gt; [25] cachem_1.1.0        yaml_2.3.12         tools_4.5.2        </span></span>
+<span><span class="co">#&gt; [28] parallel_4.5.2      coda_0.19-4.1       dplyr_1.1.4        </span></span>
+<span><span class="co">#&gt; [31] globals_0.18.0      vctrs_0.6.5         R6_2.6.1           </span></span>
+<span><span class="co">#&gt; [34] lifecycle_1.0.5     fs_1.6.6            htmlwidgets_1.6.4  </span></span>
+<span><span class="co">#&gt; [37] ragg_1.5.0          pkgconfig_2.0.3     desc_1.4.3         </span></span>
+<span><span class="co">#&gt; [40] pkgdown_2.1.3       bslib_0.9.0         pillar_1.11.1      </span></span>
+<span><span class="co">#&gt; [43] gtable_0.3.6        glue_1.8.0          systemfonts_1.2.3  </span></span>
+<span><span class="co">#&gt; [46] xfun_0.52           tibble_3.3.0        tidyselect_1.2.1   </span></span>
+<span><span class="co">#&gt; [49] knitr_1.50          farver_2.1.2        htmltools_0.5.8.1  </span></span>
+<span><span class="co">#&gt; [52] igraph_2.2.1        labeling_0.4.3      rmarkdown_2.30     </span></span>
+<span><span class="co">#&gt; [55] compiler_4.5.2      S7_0.2.1</span></span></code></pre></div>
   </main>
 </div>
 
@@ -337,7 +206,7 @@ Density prediction on held-out grid (posterior mean).
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>
