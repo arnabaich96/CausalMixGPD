@@ -2,7 +2,7 @@
 title: "15. Causal Inference: Different Backends (SB for PS, Varied for Outcome)"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{15. Causal Inference: Different Backends (SB for PS, Varied for Outcome)}
+  %\VignetteIndexEntry{15. Causal Different Backends SB}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
