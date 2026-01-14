@@ -70,21 +70,24 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
 <span><span class="va">n</span> <span class="op">&lt;-</span> <span class="fl">90</span></span>
-<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_bulk_tail.html">sim_bulk_tail</a></span><span class="op">(</span><span class="va">n</span>, tail_prob <span class="op">=</span> <span class="fl">0.15</span><span class="op">)</span></span>
-<span><span class="va">bundle</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_nimble_bundle.html">build_nimble_bundle</a></span><span class="op">(</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/sim_bulk_tail.html">sim_bulk_tail</a></span><span class="op">(</span><span class="va">n</span>, tail_prob <span class="op">=</span> <span class="fl">0.15</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">bundle</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_nimble_bundle.html">build_nimble_bundle</a></span><span class="op">(</span></span>
 <span>  y <span class="op">=</span> <span class="va">y</span>,</span>
 <span>  backend <span class="op">=</span> <span class="st">"sb"</span>,</span>
 <span>  kernel <span class="op">=</span> <span class="st">"normal"</span>,</span>
 <span>  GPD <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  J <span class="op">=</span> <span class="fl">6</span>,</span>
 <span>  mcmc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">200</span>, nburnin <span class="op">=</span> <span class="fl">50</span>, thin <span class="op">=</span> <span class="fl">1</span>, nchains <span class="op">=</span> <span class="fl">2</span>, seed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="kw">if</span> <span class="op">(</span><span class="va">use_cached_fit</span><span class="op">)</span> <span class="op">{</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="va">use_cached_fit</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="va">fit_small</span></span>
 <span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
 <span>  <span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mcmc_bundle_manual.html">run_mcmc_bundle_manual</a></span><span class="op">(</span><span class="va">bundle</span>, show_progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="va">draws</span> <span class="op">&lt;-</span> <span class="fu">DPmixGPD</span><span class="fu">:::</span><span class="fu"><a href="../reference/dot-extract_draws_matrix.html">.extract_draws_matrix</a></span><span class="op">(</span><span class="va">fit</span>, drop_v <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="op">}</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">draws</span> <span class="op">&lt;-</span> <span class="fu">DPmixGPD</span><span class="fu">:::</span><span class="fu"><a href="../reference/dot-extract_draws_matrix.html">.extract_draws_matrix</a></span><span class="op">(</span><span class="va">fit</span>, drop_v <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">keep</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/sets.html" class="external-link">intersect</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"alpha"</span>, <span class="st">"threshold[1]"</span>, <span class="st">"tail_shape"</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">draws</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">draws</span><span class="op">[</span>, <span class="va">keep</span>, drop <span class="op">=</span> <span class="cn">FALSE</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         alpha</span></span>
@@ -94,7 +97,7 @@
 <span><span class="co">#&gt; [4,] 1.904067</span></span>
 <span><span class="co">#&gt; [5,] 1.904067</span></span>
 <span><span class="co">#&gt; [6,] 1.834272</span></span></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"sample"</span>, nsim <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
 <span><span class="va">draws_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>value <span class="op">=</span> <span class="va">pp</span><span class="op">$</span><span class="va">fit</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">draws_df</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">value</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
@@ -102,13 +105,12 @@
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_density.html" class="external-link">geom_density</a></span><span class="op">(</span>data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span><span class="op">)</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">y</span>, y <span class="op">=</span> <span class="va">..density..</span><span class="op">)</span>, color <span class="op">=</span> <span class="st">"#d62728"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Posterior predictive draws vs observed histogram"</span>, x <span class="op">=</span> <span class="st">"y"</span><span class="op">)</span></span></code></pre></div>
 <div class="figure">
-<img src="v08-prediction-and-exports_files/figure-html/predictive-draws-1.png" alt="Posterior predictive draws overlayed on data histogram." width="576"><p class="caption">
+<img src="v08-prediction-and-exports_files/figure-html/pred-exp-s3-sample-1.png" alt="Posterior predictive draws overlayed on data histogram." width="576"><p class="caption">
 Posterior predictive draws overlayed on data histogram.
 </p>
 </div>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="st">"reports"</span>, showWarnings <span class="op">=</span> <span class="cn">FALSE</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="va">quant_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.5</span>, <span class="fl">.9</span>, <span class="fl">.99</span><span class="op">)</span>, y <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">quant_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.5</span>, <span class="fl">.9</span>, <span class="fl">.99</span><span class="op">)</span>, y <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
 <span><span class="va">export_table</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
 <span>  tau <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.5</span>, <span class="fl">.9</span>, <span class="fl">.99</span><span class="op">)</span>,</span>
 <span>  quantile <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">quant_df</span><span class="op">$</span><span class="va">fit</span><span class="op">)</span></span>
@@ -135,9 +137,10 @@ Posterior predictive draws overlayed on data histogram.
 </tr>
 </tbody>
 </table>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span><span class="va">export_table</span>, file <span class="op">=</span> <span class="st">"reports/quantiles.csv"</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.create</a></span><span class="op">(</span><span class="st">"reports"</span>, showWarnings <span class="op">=</span> <span class="cn">FALSE</span>, recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/write.table.html" class="external-link">write.csv</a></span><span class="op">(</span><span class="va">export_table</span>, file <span class="op">=</span> <span class="st">"reports/quantiles.csv"</span>, row.names <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">recipes</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Quantile curve"</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">newdata</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, newdata <span class="op">=</span> <span class="va">newdata</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">.5</span>, <span class="fl">.9</span>, <span class="fl">.99</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  <span class="st">"Tail index surface"</span> <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">newdata</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, newdata <span class="op">=</span> <span class="va">newdata</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, p <span class="op">=</span> <span class="fl">.995</span><span class="op">)</span>,</span>
@@ -156,9 +159,9 @@ Posterior predictive draws overlayed on data histogram.
 <span><span class="co">#&gt; $`Tail exceedance rate`</span></span>
 <span><span class="co">#&gt; function (newdata, ygrid) </span></span>
 <span><span class="co">#&gt; predict(fit, newdata = newdata, type = "survival", y = ygrid)</span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; R version 4.5.1 (2025-06-13 ucrt)</span></span>
+<span><span class="co">#&gt; R version 4.5.2 (2025-10-31 ucrt)</span></span>
 <span><span class="co">#&gt; Platform: x86_64-w64-mingw32/x64</span></span>
 <span><span class="co">#&gt; Running under: Windows 11 x64 (build 26100)</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -185,13 +188,13 @@ Posterior predictive draws overlayed on data histogram.
 <span><span class="co">#&gt;  [1] sass_0.4.10         future_1.68.0       generics_0.1.4     </span></span>
 <span><span class="co">#&gt;  [4] renv_1.1.5          lattice_0.22-7      listenv_0.10.0     </span></span>
 <span><span class="co">#&gt;  [7] pracma_2.4.6        digest_0.6.39       magrittr_2.0.3     </span></span>
-<span><span class="co">#&gt; [10] evaluate_1.0.5      grid_4.5.1          RColorBrewer_1.1-3 </span></span>
+<span><span class="co">#&gt; [10] evaluate_1.0.5      grid_4.5.2          RColorBrewer_1.1-3 </span></span>
 <span><span class="co">#&gt; [13] fastmap_1.2.0       jsonlite_2.0.0      scales_1.4.0       </span></span>
 <span><span class="co">#&gt; [16] codetools_0.2-20    numDeriv_2016.8-1.1 textshaping_1.0.1  </span></span>
 <span><span class="co">#&gt; [19] jquerylib_0.1.4     cli_3.6.5           rlang_1.1.6        </span></span>
 <span><span class="co">#&gt; [22] parallelly_1.46.1   future.apply_1.20.1 withr_3.0.2        </span></span>
-<span><span class="co">#&gt; [25] cachem_1.1.0        yaml_2.3.10         tools_4.5.1        </span></span>
-<span><span class="co">#&gt; [28] parallel_4.5.1      coda_0.19-4.1       dplyr_1.1.4        </span></span>
+<span><span class="co">#&gt; [25] cachem_1.1.0        yaml_2.3.12         tools_4.5.2        </span></span>
+<span><span class="co">#&gt; [28] parallel_4.5.2      coda_0.19-4.1       dplyr_1.1.4        </span></span>
 <span><span class="co">#&gt; [31] globals_0.18.0      vctrs_0.6.5         R6_2.6.1           </span></span>
 <span><span class="co">#&gt; [34] lifecycle_1.0.5     fs_1.6.6            htmlwidgets_1.6.4  </span></span>
 <span><span class="co">#&gt; [37] ragg_1.5.0          pkgconfig_2.0.3     desc_1.4.3         </span></span>
@@ -200,7 +203,7 @@ Posterior predictive draws overlayed on data histogram.
 <span><span class="co">#&gt; [46] xfun_0.52           tibble_3.3.0        tidyselect_1.2.1   </span></span>
 <span><span class="co">#&gt; [49] knitr_1.50          farver_2.1.2        htmltools_0.5.8.1  </span></span>
 <span><span class="co">#&gt; [52] igraph_2.2.1        labeling_0.4.3      rmarkdown_2.30     </span></span>
-<span><span class="co">#&gt; [55] compiler_4.5.1      S7_0.2.1</span></span></code></pre></div>
+<span><span class="co">#&gt; [55] compiler_4.5.2      S7_0.2.1</span></span></code></pre></div>
   </main>
 </div>
 

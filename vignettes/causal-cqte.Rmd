@@ -16,10 +16,9 @@ knitr::opts_knit$set(root.dir = .pkg_root)
 
 if (requireNamespace('devtools', quietly = TRUE)) devtools::load_all(quiet = TRUE) else library(DPmixGPD)
 library(nimble)
-source("_helpers.R")
 ```
 
-```{r data}
+```{r data, eval=FALSE}
 # Load into knit global; fall back to package data/ if needed
 .kg <- knitr::knit_global()
 
@@ -48,7 +47,7 @@ causal_alt_pos500_p3_k3 <- get("causal_alt_pos500_p3_k3", envir = .kg, inherits 
 print_dataset_header(causal_alt_pos500_p3_k3, "causal_alt_pos500_p3_k3")
 ```
 
-```{r qte, eval=TRUE}
+```{r qte, eval=FALSE}
 mcmc <- default_mcmc()
 cb <- build_causal_bundle(
   y = causal_alt_pos500_p3_k3$y,

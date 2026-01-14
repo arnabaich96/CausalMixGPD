@@ -1,60 +1,4 @@
-# Start Here: What DPmixGPD Does
-
-What you’ll learn: how DPmixGPD splits bulk and tail modelling, what
-outputs you get, and where to go next.
-
-## What problem are we solving?
-
-Standard single-distribution fits throw up their hands when data are
-sparse in the tail: the bulk dominates, heavy excursions are ignored,
-and probabilistic forecasts understate rare events. DPmixGPD targets
-precisely that regime by pairing a flexible Dirichlet process mixture in
-the bulk with a dedicated generalized Pareto tail beyond a threshold so
-you can keep inference honest on extremes.
-
-## What DPmixGPD fits
-
-- **Bulk model:** DP mixture over kernels (`normal`, `gamma`,
-  `lognormal`, `Laplace`, `inverse Gaussian`, `Amoroso`) delivers
-  adaptively shaped density/conditional models.
-- **Tail model:** a Generalized Pareto Distribution is glued on at a
-  learned threshold, with smooth transitions and optional covariate
-  links.
-- **Prediction:** the same fitted object can forecast densities,
-  survival curves, quantiles, and posterior predictive draws.
-
-## Two workflows
-
-### Density / regression
-
-You build a bundle, run MCMC once, and derive density or quantile
-estimates via [`predict()`](https://rdrr.io/r/stats/predict.html) for
-new covariates.
-
-### Causal
-
-You fit the propensity score plus two outcome arms (treated `trt` and
-control `con`), then compare arm-specific predictions to produce CQTE
-curves.
-
-## What you get out
-
-- Posterior predictive distribution (density/survival).
-- Quantiles at arbitrary probabilities.
-- Tail index (shape/scale) and threshold diagnostics.
-- Standard trace/ESS summaries, block-specific plots, and credible bands
-  on predictions.
-
-## What to read next
-
-- [v02-single-outcome-modeling.Rmd](https://example.com/DPmixGPD/articles/v02-single-outcome-modeling.md)
-  for a canonical density recipe.
-- [v05-causal-cqte.Rmd](https://example.com/DPmixGPD/articles/v05-causal-cqte.md)
-  for the CQTE workflow.
-- [v08-prediction-and-exports.Rmd](https://example.com/DPmixGPD/articles/v08-prediction-and-exports.md)
-  for exporting predictions.
-
-## Bulk + tail diagram
+# Start Here
 
 ``` r
 bulk <- data.frame(x = seq(0, 10, length.out = 200))
@@ -78,27 +22,31 @@ ggplot() +
 ```
 
 ![DPmixGPD concept: flexible bulk + GPD tail stitched at a
-threshold.](v00-start-here_files/figure-html/diagram-1.png)
+threshold.](v00-start-here_files/figure-html/start-viz-concept-1.png)
 
 DPmixGPD concept: flexible bulk + GPD tail stitched at a threshold.
-
-## 10-line example
 
 ``` r
 set.seed(7)
 y <- sim_bulk_tail(90, tail_prob = 0.2)
 J <- 6
+```
+
+``` r
+bundle <- build_nimble_bundle(
+  y = y,
+  backend = "sb",
+  kernel = "lognormal",
+  GPD = TRUE,
+  J = J,
+  mcmc = list(niter = 200, nburnin = 50, thin = 2, nchains = 2, seed = c(1, 2))
+)
+```
+
+``` r
 if (use_cached_fit) {
   fit <- fit_small
 } else {
-  bundle <- build_nimble_bundle(
-    y = y,
-    backend = "sb",
-    kernel = "lognormal",
-    GPD = TRUE,
-    J = J,
-    mcmc = list(niter = 200, nburnin = 50, thin = 2, nchains = 2, seed = c(1, 2))
-  )
   fit <- run_mcmc_bundle_manual(bundle)
 }
 print(fit)
@@ -127,8 +75,6 @@ summary(fit, component = "tail")
 #>       sd[3] 1.356 1.652  0.029  0.587  5.270 15.139
 ```
 
-## Prediction and diagnostics
-
 ``` r
 pred <- predict(fit, type = "survival", y = seq(0, max(y) + 5, length.out = 100))
 surv_df <- data.frame(y = pred$grid, survival = as.numeric(pred$fit[1, ]))
@@ -138,7 +84,7 @@ ggplot(surv_df, aes(x = y, y = survival)) +
 ```
 
 ![Density prediction on held-out grid (posterior
-mean).](v00-start-here_files/figure-html/predictions-1.png)
+mean).](v00-start-here_files/figure-html/start-s3-predict-1.png)
 
 Density prediction on held-out grid (posterior mean).
 
@@ -160,8 +106,6 @@ predict(fit, type = "quantile", p = c(.5, .8, .95))
 #> $grid
 #> [1] 0.50 0.80 0.95
 ```
-
-## Session info
 
 ``` r
 sessionInfo()
@@ -191,22 +135,21 @@ sessionInfo()
 #> loaded via a namespace (and not attached):
 #>  [1] sass_0.4.10         future_1.68.0       generics_0.1.4     
 #>  [4] renv_1.1.5          lattice_0.22-7      listenv_0.10.0     
-#>  [7] pracma_2.4.6        digest_0.6.39       magrittr_2.0.4     
+#>  [7] pracma_2.4.6        digest_0.6.39       magrittr_2.0.3     
 #> [10] evaluate_1.0.5      grid_4.5.2          RColorBrewer_1.1-3 
 #> [13] fastmap_1.2.0       jsonlite_2.0.0      scales_1.4.0       
-#> [16] codetools_0.2-20    numDeriv_2016.8-1.1 textshaping_1.0.4  
+#> [16] codetools_0.2-20    numDeriv_2016.8-1.1 textshaping_1.0.1  
 #> [19] jquerylib_0.1.4     cli_3.6.5           rlang_1.1.6        
-#> [22] parallelly_1.46.0   future.apply_1.20.1 withr_3.0.2        
-#> [25] cachem_1.1.0        yaml_2.3.12         otel_0.2.0         
-#> [28] tools_4.5.2         parallel_4.5.2      coda_0.19-4.1      
-#> [31] dplyr_1.1.4         globals_0.18.0      vctrs_0.6.5        
-#> [34] R6_2.6.1            lifecycle_1.0.4     fs_1.6.6           
-#> [37] htmlwidgets_1.6.4   ragg_1.5.0          pkgconfig_2.0.3    
-#> [40] desc_1.4.3          pillar_1.11.1       pkgdown_2.2.0      
-#> [43] bslib_0.9.0         gtable_0.3.6        glue_1.8.0         
-#> [46] systemfonts_1.3.1   tidyselect_1.2.1    tibble_3.3.0       
-#> [49] xfun_0.55           rstudioapi_0.17.1   knitr_1.51         
-#> [52] farver_2.1.2        htmltools_0.5.9     igraph_2.2.1       
-#> [55] labeling_0.4.3      rmarkdown_2.30      compiler_4.5.2     
-#> [58] S7_0.2.1
+#> [22] parallelly_1.46.1   future.apply_1.20.1 withr_3.0.2        
+#> [25] cachem_1.1.0        yaml_2.3.12         tools_4.5.2        
+#> [28] parallel_4.5.2      coda_0.19-4.1       dplyr_1.1.4        
+#> [31] globals_0.18.0      vctrs_0.6.5         R6_2.6.1           
+#> [34] lifecycle_1.0.5     fs_1.6.6            htmlwidgets_1.6.4  
+#> [37] ragg_1.5.0          pkgconfig_2.0.3     desc_1.4.3         
+#> [40] pkgdown_2.1.3       bslib_0.9.0         pillar_1.11.1      
+#> [43] gtable_0.3.6        glue_1.8.0          systemfonts_1.2.3  
+#> [46] xfun_0.52           tibble_3.3.0        tidyselect_1.2.1   
+#> [49] knitr_1.50          farver_2.1.2        htmltools_0.5.8.1  
+#> [52] igraph_2.2.1        labeling_0.4.3      rmarkdown_2.30     
+#> [55] compiler_4.5.2      S7_0.2.1
 ```

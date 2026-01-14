@@ -2017,8 +2017,27 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
 
   Rmcmc <- nimble::buildMCMC(conf)
 
-  Cmodel <- nimble::compileNimble(Rmodel, showCompilerOutput = FALSE)
-  Cmcmc  <- nimble::compileNimble(Rmcmc, project = Rmodel, showCompilerOutput = FALSE)
+  compiled <- TRUE
+  Cmodel <- NULL
+  Cmcmc  <- NULL
+  Rmcmc_inst <- NULL
+  # Attempt to compile; on failure, fall back to running uncompiled MCMC
+  compile_err <- tryCatch({
+    Cmodel <- nimble::compileNimble(Rmodel, showCompilerOutput = FALSE)
+    Cmcmc  <- nimble::compileNimble(Rmcmc, project = Rmodel, showCompilerOutput = FALSE)
+    NULL
+  }, error = function(e) e)
+  if (inherits(compile_err, "error")) {
+    compiled <- FALSE
+    Rmcmc_inst <- Rmcmc()
+    warning(
+      paste0(
+        "nimble model compilation failed; running uncompiled MCMC for portability: ",
+        conditionMessage(compile_err)
+      ),
+      call. = FALSE
+    )
+  }
 
   niter   <- as.integer(m$niter   %||% 2000)
   nburnin <- as.integer(m$nburnin %||% 500)
@@ -2045,7 +2064,7 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
     inits_list <- inits_fun()
   }
 
-  engine_mcmc <- Cmcmc
+  engine_mcmc <- if (compiled) Cmcmc else Rmcmc_inst
 
   # Run MCMC (try WAIC; fall back if nimble version doesn’t support it)
   res <- tryCatch(
@@ -2091,10 +2110,10 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
     call = match.call(),
     spec = spec,
     data = data,
-    model = Cmodel,
+    model = if (compiled) Cmodel else Rmodel,
     mcmc_conf = conf,
     mcmc = list(
-      engine = "compiled",
+      engine = if (compiled) "compiled" else "uncompiled",
       niter = niter,
       nburnin = nburnin,
       thin = thin,

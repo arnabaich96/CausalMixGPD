@@ -16,11 +16,11 @@ weights and clean prediction APIs.
 - **Single-outcome modeling:**
   [v02-single-outcome-modeling](https://example.com/DPmixGPD/articles/v02-single-outcome-modeling.md)
   tells the full story for bulk + tail fits.
-- **Causal CQTE:**
-  [v05-causal-cqte](https://example.com/DPmixGPD/articles/v05-causal-cqte.md)
+- **Causal QTE:**
+  [v05-causal-qte](https://example.com/DPmixGPD/articles/v05-causal-qte.md)
   plus
   [v06-causal-extras](https://example.com/DPmixGPD/articles/v06-causal-extras.md)
-  cover treatment-specific fits, CQTE plotting, and comparisons with
+  cover treatment-specific fits, QTE plotting, and comparisons with
   ATE/CATE.
 - **Backends:**
   [v03-backends-crp-vs-sb](https://example.com/DPmixGPD/articles/v03-backends-crp-vs-sb.md)
@@ -100,6 +100,8 @@ keep the status data and home-page summary up to date.
   [`rAmorosoMixGpd()`](https://example.com/DPmixGPD/reference/amoroso_mixgpd.md)
   [`qAmorosoMixGpd()`](https://example.com/DPmixGPD/reference/amoroso_mixgpd.md)
   : Amoroso mixture with a GPD tail
+- [`ate()`](https://example.com/DPmixGPD/reference/ate.md) : Average
+  treatment effects (ATE)
 - [`build_causal_bundle()`](https://example.com/DPmixGPD/reference/build_causal_bundle.md)
   : Build a causal bundle (design + two outcome arms)
 - [`build_nimble_bundle()`](https://example.com/DPmixGPD/reference/build_nimble_bundle.md)
@@ -114,10 +116,16 @@ keep the status data and home-page summary up to date.
   [`rCauchyMix()`](https://example.com/DPmixGPD/reference/cauchy_mix.md)
   [`qCauchyMix()`](https://example.com/DPmixGPD/reference/cauchy_mix.md)
   : Cauchy mixture distribution
+- [`causal_alt_pos500_p3_k3`](https://example.com/DPmixGPD/reference/causal_alt_pos500_p3_k3.md)
+  : causal_alt_pos500_p3_k3 dataset
+- [`causal_alt_pos500_p5_k4_tail`](https://example.com/DPmixGPD/reference/causal_alt_pos500_p5_k4_tail.md)
+  : causal_alt_pos500_p5_k4_tail dataset
+- [`causal_alt_real500_p4_k2`](https://example.com/DPmixGPD/reference/causal_alt_real500_p4_k2.md)
+  : causal_alt_real500_p4_k2 dataset
+- [`causal_pos500_p3_k2`](https://example.com/DPmixGPD/reference/causal_pos500_p3_k2.md)
+  : causal_pos500_p3_k2 dataset
 - [`coverage_status()`](https://example.com/DPmixGPD/reference/coverage_status.md)
   : Test coverage status helper
-- [`cqte()`](https://example.com/DPmixGPD/reference/cqte.md) :
-  Conditional quantile treatment effects (CQTE)
 - [`fitted(`*`<mixgpd_fit>`*`)`](https://example.com/DPmixGPD/reference/fitted.mixgpd_fit.md)
   : Fitted values for a MixGPD fit
 - [`dGammaGpd()`](https://example.com/DPmixGPD/reference/gamma_gpd.md)
@@ -199,6 +207,22 @@ keep the status data and home-page summary up to date.
   [`rLognormalMixGpd()`](https://example.com/DPmixGPD/reference/lognormal_mixgpd.md)
   [`qLognormalMixGpd()`](https://example.com/DPmixGPD/reference/lognormal_mixgpd.md)
   : Lognormal mixture with a Gpd tail
+- [`nc_pos200_k3`](https://example.com/DPmixGPD/reference/nc_pos200_k3.md)
+  : nc_pos200_k3 dataset
+- [`nc_posX100_p3_k2`](https://example.com/DPmixGPD/reference/nc_posX100_p3_k2.md)
+  : nc_posX100_p3_k2 dataset
+- [`nc_posX100_p4_k3`](https://example.com/DPmixGPD/reference/nc_posX100_p4_k3.md)
+  : nc_posX100_p4_k3 dataset
+- [`nc_posX100_p5_k4`](https://example.com/DPmixGPD/reference/nc_posX100_p5_k4.md)
+  : nc_posX100_p5_k4 dataset
+- [`nc_pos_tail200_k4`](https://example.com/DPmixGPD/reference/nc_pos_tail200_k4.md)
+  : nc_pos_tail200_k4 dataset
+- [`nc_real200_k2`](https://example.com/DPmixGPD/reference/nc_real200_k2.md)
+  : nc_real200_k2 dataset
+- [`nc_realX100_p3_k2`](https://example.com/DPmixGPD/reference/nc_realX100_p3_k2.md)
+  : nc_realX100_p3_k2 dataset
+- [`nc_realX100_p5_k3`](https://example.com/DPmixGPD/reference/nc_realX100_p5_k3.md)
+  : nc_realX100_p5_k3 dataset
 - [`dNormGpd()`](https://example.com/DPmixGPD/reference/normal_gpd.md)
   [`pNormGpd()`](https://example.com/DPmixGPD/reference/normal_gpd.md)
   [`rNormGpd()`](https://example.com/DPmixGPD/reference/normal_gpd.md)
@@ -218,6 +242,8 @@ keep the status data and home-page summary up to date.
   : Plot a causal fit
 - [`plot(`*`<mixgpd_fit>`*`)`](https://example.com/DPmixGPD/reference/plot.mixgpd_fit.md)
   : Plot MCMC diagnostics for a MixGPD fit (ggmcmc backend)
+- [`predict(`*`<dpmixgpd_causal_fit>`*`)`](https://example.com/DPmixGPD/reference/predict.dpmixgpd_causal_fit.md)
+  : Predict from a causal fit
 - [`predict(`*`<mixgpd_fit>`*`)`](https://example.com/DPmixGPD/reference/predict.mixgpd_fit.md)
   : Predict from a MixGPD fit
 - [`print(`*`<dpmixgpd_bundle>`*`)`](https://example.com/DPmixGPD/reference/print.dpmixgpd_bundle.md)
@@ -230,6 +256,8 @@ keep the status data and home-page summary up to date.
   : Print a MixGPD fitted object
 - [`print(`*`<mixgpd_summary>`*`)`](https://example.com/DPmixGPD/reference/print.mixgpd_summary.md)
   : Print a MixGPD summary object
+- [`qte()`](https://example.com/DPmixGPD/reference/qte.md) : Quantile
+  treatment effects (QTE)
 - [`read_coverage_status()`](https://example.com/DPmixGPD/reference/read_coverage_status.md)
   : Read stored coverage status
 - [`residuals(`*`<mixgpd_fit>`*`)`](https://example.com/DPmixGPD/reference/residuals.mixgpd_fit.md)
@@ -240,8 +268,8 @@ keep the status data and home-page summary up to date.
   : Run MCMC for a causal bundle
 - [`sim_bulk_tail()`](https://example.com/DPmixGPD/reference/sim_bulk_tail.md)
   : Simulate bulk + tail data
-- [`sim_causal_cqte()`](https://example.com/DPmixGPD/reference/sim_causal_cqte.md)
-  : Simulate causal CQTE data
+- [`sim_causal_qte()`](https://example.com/DPmixGPD/reference/sim_causal_qte.md)
+  : Simulate causal QTE data
 - [`sim_survival_tail()`](https://example.com/DPmixGPD/reference/sim_survival_tail.md)
   : Simulate survival tail data
 - [`summary(`*`<dpmixgpd_bundle>`*`)`](https://example.com/DPmixGPD/reference/summary.dpmixgpd_bundle.md)
@@ -257,39 +285,45 @@ keep the status data and home-page summary up to date.
 
 ### Start here
 
-- [Start Here: What DPmixGPD
-  Does](https://example.com/DPmixGPD/articles/v00-start-here.md):
+- [Start Here](https://example.com/DPmixGPD/articles/v00-start-here.md):
 - [Quickstart](https://example.com/DPmixGPD/articles/quickstart.md):
 
 ### Installation & reproducibility
 
-- [Installation, Reproducibility, and Package
-  Structure](https://example.com/DPmixGPD/articles/v01-installation-reproducibility.md):
+- [Installation &
+  Reproducibility](https://example.com/DPmixGPD/articles/v01-installation-reproducibility.md):
 
 ### Single-outcome modeling
 
-- [Single-Outcome Modeling: Bulk + Tail in One
-  Model](https://example.com/DPmixGPD/articles/v02-single-outcome-modeling.md):
+- [Single-Outcome
+  Modeling](https://example.com/DPmixGPD/articles/v02-single-outcome-modeling.md):
 
 ### Causal modeling
 
-- [Causal Inference with DPmixGPD: CQTE
-  End-to-End](https://example.com/DPmixGPD/articles/v05-causal-cqte.md):
-- [Causal Modeling](https://example.com/DPmixGPD/articles/causal.md):
-- [Causal Extras: ATE, CATE, and
-  Comparators](https://example.com/DPmixGPD/articles/v06-causal-extras.md):
+- [Causal QTE
+  (Conditional)](https://example.com/DPmixGPD/articles/causal-cqte.md):
+- [Causal: Same vs Different
+  Kernels](https://example.com/DPmixGPD/articles/causal-kernel-compare.md):
+- [Causal QTE
+  (Unconditional)](https://example.com/DPmixGPD/articles/causal-qte.md):
+- [Causal
+  Quickstart](https://example.com/DPmixGPD/articles/causal-quickstart.md):
+- [Causal Tail
+  Examples](https://example.com/DPmixGPD/articles/causal-tail.md):
+- [Causal modeling
+  quickstart](https://example.com/DPmixGPD/articles/causal.md):
 
 ### Backends
 
 - [Backends: CRP vs
-  Stick-Breaking](https://example.com/DPmixGPD/articles/v03-backends-crp-vs-sb.md):
-- [Backends: SB vs
-  CRP](https://example.com/DPmixGPD/articles/backends.md):
+  SB](https://example.com/DPmixGPD/articles/v03-backends-crp-vs-sb.md):
+- [Backends: CRP vs
+  SB](https://example.com/DPmixGPD/articles/backends.md):
 
 ### Kernel registry
 
-- [Kernels: What They Mean and When to Use
-  Which](https://example.com/DPmixGPD/articles/v04-kernels-guide.md):
+- [Kernels
+  guide](https://example.com/DPmixGPD/articles/v04-kernels-guide.md):
 - [Kernel:
   Normal](https://example.com/DPmixGPD/articles/kernel-normal.md):
 - [Kernel:
@@ -307,18 +341,29 @@ keep the status data and home-page summary up to date.
 
 ### Prediction & exports
 
-- [Prediction, Posterior Draws, and Exporting
-  Results](https://example.com/DPmixGPD/articles/v08-prediction-and-exports.md):
+- [Prediction &
+  exports](https://example.com/DPmixGPD/articles/v08-prediction-and-exports.md):
 - [Prediction](https://example.com/DPmixGPD/articles/prediction.md):
+
+### Legacy articles
+
+- [Bundles and S3
+  Methods](https://example.com/DPmixGPD/articles/bundle-s3.md):
+- [Covariates](https://example.com/DPmixGPD/articles/covariates.md):
+- [Coverage
+  Index](https://example.com/DPmixGPD/articles/coverage-index.md):
+- [DQRP Reference](https://example.com/DPmixGPD/articles/dqrp.md):
+- [GPD Tail](https://example.com/DPmixGPD/articles/gpd-tail.md):
+- [Kernels](https://example.com/DPmixGPD/articles/kernels.md):
 
 ### Troubleshooting & survival
 
-- [Troubleshooting and Common
-  Errors](https://example.com/DPmixGPD/articles/v09-troubleshooting.md):
-- [Survival Outcomes: Censoring + Heavy
-  Tails](https://example.com/DPmixGPD/articles/v07-survival.md):
+- [Troubleshooting
+  checklist](https://example.com/DPmixGPD/articles/v09-troubleshooting.md):
+- [Survival
+  modeling](https://example.com/DPmixGPD/articles/v07-survival.md):
 
 ### Developer resources
 
-- [Developer Guide: Adding a Kernel / Extending the
-  Engine](https://example.com/DPmixGPD/articles/v10-developer-guide.md):
+- [Developer
+  guide](https://example.com/DPmixGPD/articles/v10-developer-guide.md):

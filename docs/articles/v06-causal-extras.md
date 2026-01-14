@@ -1,23 +1,31 @@
-# Causal Extras: ATE, CATE, and Comparators
+# Causal extras
 
-What you’ll learn: how CQTE fits into the broader causal toolkit, how to
-compare it with ATE/CATE estimands, and how to add simple baselines such
-as IPW quantiles.
-
-## Estimand relationships
-
-- CQTE subtracts conditional quantiles at levels `tau` for treated
-  (`trt`) vs control (`con`) arms at the same covariate point.
-- ATE averages the mean outcomes; CATE averages conditional means. CQTE
-  instead tracks tail behavior that matter for extremes.
-- If CQTE is flat across `tau`, the treatment effect does not depend on
-  extremeness; rising curves point to tail dominance.
-
-## Minimal causal-comparison example
+``` r
+library(DPmixGPD)
+library(nimble)
+use_cached_fit <- FALSE
+.fit_path <- function(name) {
+  path <- system.file("extdata", name, package = "DPmixGPD")
+  if (path == "") path <- file.path("inst", "extdata", name)
+  path
+}
+fit_causal_con <- readRDS(.fit_path("fit_causal_con.rds"))
+fit_causal_trt <- readRDS(.fit_path("fit_causal_trt.rds"))
+fit_causal_meta <- readRDS(.fit_path("fit_causal_meta.rds"))
+fit_causal_small <- list(
+  ps_fit = NULL,
+  outcome_fit = list(con = fit_causal_con, trt = fit_causal_trt),
+  bundle = fit_causal_meta,
+  call = NULL
+)
+class(fit_causal_small) <- "dpmixgpd_causal_fit"
+library(ggplot2)
+library(dplyr)
+```
 
 ``` r
 set.seed(10)
-data <- sim_causal_cqte(n = 200)
+data <- sim_causal_qte(n = 200)
 X <- data$X
 bundle <- build_causal_bundle(
   y = data$y,
@@ -35,13 +43,56 @@ if (use_cached_fit) {
 } else {
   fit <- run_mcmc_causal(bundle)
 }
-cq <- cqte(fit, probs = c(0.5, 0.9, 0.99), newdata = head(X, 3))
+#> ===== Monitors =====
+#> thin = 1: beta
+#> ===== Samplers =====
+#> RW sampler (4)
+#>   - beta[]  (4 elements)
+#> |-------------|-------------|-------------|-------------|
+#> |-------------------------------------------------------|
+#> |-------------|-------------|-------------|-------------|
+#> |-------------------------------------------------------|
+#> ===== Monitors =====
+#> thin = 1: alpha, beta_mean, beta_ps_mean, sd, w, z
+#> ===== Samplers =====
+#> RW sampler (25)
+#>   - alpha
+#>   - beta_mean[]  (15 elements)
+#>   - beta_ps_mean[]  (5 elements)
+#>   - v[]  (4 elements)
+#> conjugate sampler (5)
+#>   - sd[]  (5 elements)
+#> categorical sampler (99)
+#>   - z[]  (99 elements)
+#> |-------------|-------------|-------------|-------------|
+#> |-------------------------------------------------------|
+#> |-------------|-------------|-------------|-------------|
+#> |-------------------------------------------------------|
+#>   [Warning] There are 10 individual pWAIC values that are greater than 0.4. This may indicate that the WAIC estimate is unstable (Vehtari et al., 2017), at least in cases without grouping of data nodes or multivariate data nodes.
+#> ===== Monitors =====
+#> thin = 1: alpha, beta_mean, beta_ps_mean, sd, w, z
+#> ===== Samplers =====
+#> RW sampler (25)
+#>   - alpha
+#>   - beta_mean[]  (15 elements)
+#>   - beta_ps_mean[]  (5 elements)
+#>   - v[]  (4 elements)
+#> conjugate sampler (5)
+#>   - sd[]  (5 elements)
+#> categorical sampler (101)
+#>   - z[]  (101 elements)
+#> |-------------|-------------|-------------|-------------|
+#> |-------------------------------------------------------|
+#> |-------------|-------------|-------------|-------------|
+#> |-------------------------------------------------------|
+#>   [Warning] There are 15 individual pWAIC values that are greater than 0.4. This may indicate that the WAIC estimate is unstable (Vehtari et al., 2017), at least in cases without grouping of data nodes or multivariate data nodes.
+cq <- qte(fit, probs = c(0.5, 0.9, 0.99), newdata = head(X, 3))
 cq
 #> $fit
-#>             [,1]       [,2]      [,3]
-#> [1,] -0.07887929 -0.1838758 -0.772090
-#> [2,] -0.56656238 -0.6588275 -2.010648
-#> [3,] -4.11858969 -5.4210058 -5.891019
+#>          [,1]     [,2]     [,3]
+#> [1,] 6.443294 5.545184 4.138546
+#> [2,] 4.906652 4.413276 3.328724
+#> [3,] 2.272434 2.194315 2.201691
 #> 
 #> $lower
 #> NULL
@@ -54,10 +105,10 @@ cq
 #> 
 #> $trt
 #> $trt$fit
-#>           [,1]      [,2]      [,3]
-#> [1,]  3.797493  3.999549 4.0818921
-#> [2,]  1.177050  1.261966 1.5440782
-#> [3,] -3.677590 -2.197071 0.2013969
+#>          [,1]     [,2]     [,3]
+#> [1,] 8.232998 8.810592 9.594179
+#> [2,] 6.581475 7.105783 7.996816
+#> [3,] 4.419605 5.040193 6.444749
 #> 
 #> $trt$lower
 #> NULL
@@ -74,10 +125,10 @@ cq
 #> 
 #> $con
 #> $con$fit
-#>           [,1]     [,2]     [,3]
-#> [1,] 3.8763726 4.183425 4.853982
-#> [2,] 1.7436125 1.920793 3.554727
-#> [3,] 0.4409999 3.223935 6.092416
+#>          [,1]     [,2]     [,3]
+#> [1,] 1.789703 3.265408 5.455632
+#> [2,] 1.674822 2.692506 4.668092
+#> [3,] 2.147171 2.845878 4.243058
 #> 
 #> $con$lower
 #> NULL
@@ -93,16 +144,11 @@ cq
 #> 
 #> 
 #> $type
-#> [1] "cqte"
+#> [1] "qte"
 #> 
 #> attr(,"class")
-#> [1] "dpmixgpd_cqte"
+#> [1] "dpmixgpd_qte"
 ```
-
-The cached fit keeps `GPD = FALSE` for speed. Turn it on and adjust the
-kernel when you need tail-focused causal contrasts.
-
-## Diagnostic plot: treatment densities
 
 ``` r
 df_plot <- data.frame(y = data$y, arm = ifelse(data$t == 1, "trt", "con"))
@@ -112,14 +158,6 @@ ggplot(df_plot, aes(x = y, fill = arm)) +
 ```
 
 ![](v06-causal-extras_files/figure-html/causal-plot-1.png)
-
-## Comparison table and alternative baseline
-
-| Estimand | Description |
-|----|----|
-| CQTE | Difference between treatment and control quantiles (`trt` minus `con`) at tail probability `tau`. |
-| CATE | Mean difference conditional on covariates (special case of CQTE at `tau=0.5` when tails align). |
-| ATE | Average of CATE across the empirical covariate distribution. |
 
 ``` r
 arm_tbl <- data.frame(y = data$y, treatment = ifelse(data$t == 1, "trt", "con"))
@@ -134,19 +172,17 @@ ipw_q
 #> 2 trt         5.44  9.02
 ```
 
-## Prediction handoff
-
 ``` r
 pred_grid <- data.frame(x1 = seq(-1, 1, length.out = 5), x2 = rep(0, 5), x3 = 0)
-cq_pred <- cqte(fit, probs = c(0.9, 0.99), newdata = pred_grid)
+cq_pred <- qte(fit, probs = c(0.9, 0.99), newdata = pred_grid)
 cq_pred
 #> $fit
-#>            [,1]      [,2]
-#> [1,] -3.3104495 -4.672876
-#> [2,] -1.7213333 -3.521082
-#> [3,] -0.2961406 -2.533016
-#> [4,]  1.0014507 -1.501489
-#> [5,]  2.0640500 -0.321192
+#>          [,1]     [,2]
+#> [1,] 2.774312 2.380129
+#> [2,] 3.293220 2.610084
+#> [3,] 3.805295 2.923851
+#> [4,] 4.278417 3.276837
+#> [5,] 4.707379 3.610628
 #> 
 #> $lower
 #> NULL
@@ -159,12 +195,12 @@ cq_pred
 #> 
 #> $trt
 #> $trt$fit
-#>            [,1]      [,2]
-#> [1,] -1.3811586 0.2257941
-#> [2,] -0.6870986 0.4167933
-#> [3,]  0.0442925 0.6607280
-#> [4,]  1.1661257 1.3300628
-#> [5,]  2.2951368 2.4149671
+#>          [,1]     [,2]
+#> [1,] 5.383370 6.650663
+#> [2,] 5.736618 6.804223
+#> [3,] 6.133445 7.070378
+#> [4,] 6.539683 7.386865
+#> [5,] 6.929453 7.706779
 #> 
 #> $trt$lower
 #> NULL
@@ -181,12 +217,12 @@ cq_pred
 #> 
 #> $con
 #> $con$fit
-#>           [,1]     [,2]
-#> [1,] 1.9292909 4.898670
-#> [2,] 1.0342348 3.937876
-#> [3,] 0.3404331 3.193744
-#> [4,] 0.1646750 2.831552
-#> [5,] 0.2310868 2.736159
+#>          [,1]     [,2]
+#> [1,] 2.609058 4.270534
+#> [2,] 2.443398 4.194138
+#> [3,] 2.328150 4.146527
+#> [4,] 2.261266 4.110028
+#> [5,] 2.222074 4.096151
 #> 
 #> $con$lower
 #> NULL
@@ -202,17 +238,15 @@ cq_pred
 #> 
 #> 
 #> $type
-#> [1] "cqte"
+#> [1] "qte"
 #> 
 #> attr(,"class")
-#> [1] "dpmixgpd_cqte"
+#> [1] "dpmixgpd_qte"
 ```
-
-## Session info
 
 ``` r
 sessionInfo()
-#> R version 4.5.2 (2025-10-31 ucrt)
+#> R version 4.5.1 (2025-06-13 ucrt)
 #> Platform: x86_64-w64-mingw32/x64
 #> Running under: Windows 11 x64 (build 26100)
 #> 
@@ -239,21 +273,20 @@ sessionInfo()
 #>  [1] utf8_1.2.6          sass_0.4.10         future_1.68.0      
 #>  [4] generics_0.1.4      renv_1.1.5          lattice_0.22-7     
 #>  [7] listenv_0.10.0      pracma_2.4.6        digest_0.6.39      
-#> [10] magrittr_2.0.4      evaluate_1.0.5      grid_4.5.2         
+#> [10] magrittr_2.0.3      evaluate_1.0.5      grid_4.5.1         
 #> [13] RColorBrewer_1.1-3  fastmap_1.2.0       jsonlite_2.0.0     
 #> [16] scales_1.4.0        codetools_0.2-20    numDeriv_2016.8-1.1
-#> [19] textshaping_1.0.4   jquerylib_0.1.4     cli_3.6.5          
-#> [22] rlang_1.1.6         parallelly_1.46.0   future.apply_1.20.1
-#> [25] withr_3.0.2         cachem_1.1.0        yaml_2.3.12        
-#> [28] otel_0.2.0          tools_4.5.2         parallel_4.5.2     
-#> [31] coda_0.19-4.1       globals_0.18.0      vctrs_0.6.5        
-#> [34] R6_2.6.1            lifecycle_1.0.4     fs_1.6.6           
-#> [37] htmlwidgets_1.6.4   ragg_1.5.0          pkgconfig_2.0.3    
-#> [40] desc_1.4.3          pillar_1.11.1       pkgdown_2.2.0      
-#> [43] bslib_0.9.0         gtable_0.3.6        glue_1.8.0         
-#> [46] systemfonts_1.3.1   tidyselect_1.2.1    tibble_3.3.0       
-#> [49] xfun_0.55           rstudioapi_0.17.1   knitr_1.51         
-#> [52] farver_2.1.2        htmltools_0.5.9     igraph_2.2.1       
-#> [55] labeling_0.4.3      rmarkdown_2.30      compiler_4.5.2     
-#> [58] S7_0.2.1
+#> [19] textshaping_1.0.1   jquerylib_0.1.4     cli_3.6.5          
+#> [22] rlang_1.1.6         parallelly_1.46.1   future.apply_1.20.1
+#> [25] withr_3.0.2         cachem_1.1.0        yaml_2.3.10        
+#> [28] tools_4.5.1         parallel_4.5.1      coda_0.19-4.1      
+#> [31] globals_0.18.0      vctrs_0.6.5         R6_2.6.1           
+#> [34] lifecycle_1.0.5     fs_1.6.6            htmlwidgets_1.6.4  
+#> [37] ragg_1.5.0          pkgconfig_2.0.3     desc_1.4.3         
+#> [40] pkgdown_2.1.3       bslib_0.9.0         pillar_1.11.1      
+#> [43] gtable_0.3.6        glue_1.8.0          systemfonts_1.2.3  
+#> [46] xfun_0.52           tibble_3.3.0        tidyselect_1.2.1   
+#> [49] knitr_1.50          farver_2.1.2        htmltools_0.5.8.1  
+#> [52] igraph_2.2.1        labeling_0.4.3      rmarkdown_2.30     
+#> [55] compiler_4.5.1      S7_0.2.1
 ```
