@@ -1,5 +1,5 @@
 ---
-title: "2. Available Distributions & dqrp Functions"
+title: "2. Available Distributions and Related Functions"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{2. Available Distributions}
@@ -40,8 +40,70 @@ draw_many <- function(fn, args, n_draws = 5) {
 }
 ```
 
+## Mathematical definitions and conventions
+
+This vignette documents the probability distributions exported by **DPmixGPD** and the corresponding `d/p/q/r` functions used throughout the package. For a continuous random variable \(Y\) with parameter scalars \(\boldsymbol{\theta}\), we use the standard quartet:
+
+- **Density (PDF)**: \(f(y\mid\boldsymbol{\theta})\), implemented by `d*()`.
+- **Distribution (CDF)**: \(F(y\mid\boldsymbol{\theta})=\Pr(Y\le y)\), implemented by `p*()`.
+- **Quantile**: \(Q(p\mid\boldsymbol{\theta}) = \inf\{y: F(y\mid\boldsymbol{\theta})\ge p\}\), implemented by `q*()`.
+- **Random generation**: \(Y = Q(U\mid\boldsymbol{\theta})\) with \(U\sim \text{Unif}(0,1)\), implemented by `r*()`.
+
+All `d*()` functions optionally return log-densities via `log = TRUE`, i.e., \(\log f(y\mid\boldsymbol{\theta})\). This is numerically convenient because likelihoods multiply densities but add log-densities:
+\[
+\log\Big\{\prod_{i=1}^n f(y_i\mid\boldsymbol{\theta})\Big\}=\sum_{i=1}^n \log f(y_i\mid\boldsymbol{\theta}).
+\]
+
+All `p*()` functions support `lower.tail` and `log.p`:
+\[
+\Pr(Y>y)=1-F(y),\qquad \log F(y)\ \text{or}\ \log\{1-F(y)\}.
+\]
+
+### Finite mixtures
+
+Several kernels are available as **finite mixtures**. Let \(f_j(\cdot\mid\boldsymbol{\theta}_j)\) denote the \(j\)th component density and let \(\boldsymbol{w}=(w_1,\ldots,w_J)\) be mixture weights with \(w_j\ge 0\) and \(\sum_{j=1}^J w_j=1\). The mixture density and CDF are
+
+\[
+f(y)=\sum_{j=1}^J w_j f_j(y\mid\boldsymbol{\theta}_j),
+\qquad
+F(y)=\sum_{j=1}^J w_j F_j(y\mid\boldsymbol{\theta}_j).
+\]
+
+Random generation proceeds by sampling a latent component index \(Z\sim\text{Categorical}(\boldsymbol{w})\), then sampling \(Y\mid Z=j\sim f_j(\cdot\mid\boldsymbol{\theta}_j)\). Mixture quantiles typically require numerical inversion of the mixture CDF.
+
+### GPD tails and splicing
+
+The **Generalized Pareto Distribution (GPD)** is used for tail modeling relative to a threshold \(u\). In the spliced kernels (the `*Gpd` functions), a bulk kernel is used below \(u\) and a GPD tail is attached above \(u\), with parameters \((u,\sigma,\xi)\). In code, these are represented by `threshold = u`, `tail_scale = \sigma`, and `tail_shape = \xi` (the standalone GPD functions use `scale` and `shape` for \(\sigma\) and \(\xi\)).
+
+
+
 
 ## Introduction with GPD kernel
+
+
+### Generalized Pareto distribution (standalone tail)
+
+The standalone GPD functions `dGpd`, `pGpd`, `qGpd`, and `rGpd` implement the distribution of \(X\) **above a threshold** \(u\). For \(x\ge u\), the density is
+
+\[
+f(x;u,\sigma,\xi)=\frac{1}{\sigma}\left(1+\xi\frac{x-u}{\sigma}\right)^{-1/\xi-1},
+\quad \sigma>0,
+\quad 1+\xi\frac{x-u}{\sigma}>0.
+\]
+
+The CDF is
+\[
+F(x)=1-\left(1+\xi\frac{x-u}{\sigma}\right)^{-1/\xi},
+\quad x\ge u,
+\]
+and the quantile is
+\[
+Q(p)=u+\frac{\sigma}{\xi}\Big[(1-p)^{-\xi}-1\Big],\quad p\in(0,1),\ \xi\ne 0,
+\]
+with the exponential-limit case obtained as \(\xi\to 0\).
+
+**Parameter mapping (math \(\rightarrow\) code):** \(u\to\) `threshold`, \(\sigma\to\) `scale`, \(\xi\to\) `shape`. Log-densities are returned when `log = TRUE`.
+
 
 We show the DPmixGPD kernels in pairs: bulk-only and GPD-augmented. A GPD tail above threshold $u$ uses
 
@@ -95,9 +157,30 @@ Each subsection below defines the available $d/p/q/r$ functions, prints example 
 
 ## Normal
 
-### Without GPD (mixture kernel)
 
-Mixture density $f(x)=\sum_j w_j\,\mathcal N(x\mid \mu_j, \sigma_j^2)$. CDF/quantile are the weighted sums/inverse CDF of the mixture; RNG samples a component by $w$ then draws a Normal.
+### Normal mixture kernel
+
+A normal component is parameterized by \(\mu\in\mathbb{R}\) and \(\sigma>0\):
+\[
+f(y\mid\mu,\sigma)=\frac{1}{\sqrt{2\pi}\sigma}\exp\!\left(-\frac{(y-\mu)^2}{2\sigma^2}\right).
+\]
+
+A finite normal mixture with \(J\) components has density
+\[
+f(y)=\sum_{j=1}^J w_j\,\mathcal{N}(y\mid\mu_j,\sigma_j^2),
+\qquad \sum_{j=1}^J w_j=1.
+\]
+
+**Parameter mapping (math \(\rightarrow\) code):** \(\mu_j\to\) `mean[j]`, \(\sigma_j\to\) `sd[j]`, \(w_j\to\) `w[j]`.
+
+### Normal mixture with GPD tail
+
+In the spliced version, the bulk distribution is the normal mixture below \(u\), and a GPD tail is attached above \(u\). The tail parameters are \(\sigma>0\) and \(\xi\), applied to exceedances \(x-u\).
+
+**Tail mapping (math \(\rightarrow\) code):** \(u\to\) `threshold`, \(\sigma\to\) `tail_scale`, \(\xi\to\) `tail_shape`.
+
+
+### Without GPD (mixture kernel)
 
 ```{r normal-mix}
 grid <- seq(-4, 5, length.out = 400)
@@ -186,11 +269,150 @@ ggplot(df_norm_gpd, aes(x = x, y = density, color = label)) +
   theme_minimal() + theme(legend.position = "top")
 ```
 
-## Lognormal
+
+## Gamma
+
+
+### Gamma mixture kernel
+
+A gamma component with shape \(\alpha>0\) and scale \(\beta>0\) has density
+\[
+f(y\mid \alpha,\beta)
+=
+\frac{1}{\Gamma(\alpha)\,\beta^\alpha}\,y^{\alpha-1}\exp\!\left(-\frac{y}{\beta}\right),
+\qquad y>0.
+\]
+
+A finite gamma mixture with \(J\) components is
+\[
+f(y)=\sum_{j=1}^J w_j\,f_j(y\mid \alpha_j,\beta_j),
+\qquad w_j\ge 0,\ \sum_{j=1}^J w_j=1.
+\]
+
+**Parameter mapping (math \(\rightarrow\) code):** \(\alpha\to\) `shape`, \(\beta\to\) `scale`, and weights \(w_j\to\) `w[j]`.
+
+The `*MixGpd` variant uses the same splicing idea: gamma mixture below \(u\) and a GPD tail above \(u\).
+
+**Tail mapping (math \(\rightarrow\) code):** \(u\to\) `threshold`, \(\sigma\to\) `tail_scale`, \(\xi\to\) `tail_shape`.
+
 
 ### Without GPD (mixture kernel)
 
-Mixture density $f(x)=\sum_j w_j\,\text{Lognormal}(x\mid \mu_j, \sigma_j^2)$ on $x>0$.
+```{r gamma-mix}
+grid <- seq(0, 10, length.out = 400)
+gamma_sets <- list(
+  list(label = "Mix A", w = c(0.6, 0.3, 0.1), shape = c(2.0, 5.0, 9.0), scale = c(1.0, 0.6, 0.3)),
+  list(label = "Mix B", w = c(0.5, 0.3, 0.2), shape = c(1.5, 4.0, 7.0), scale = c(1.2, 0.7, 0.35)),
+  list(label = "Mix C", w = c(0.4, 0.3, 0.3), shape = c(1.2, 3.5, 6.0), scale = c(1.4, 0.75, 0.4))
+)
+example <- gamma_sets[[1]]
+
+dens <- do.call(rbind, lapply(gamma_sets, function(s) {
+  data.frame(
+    x = grid,
+    density = dGammaMix(grid, w = s$w, shape = s$shape, scale = s$scale),
+    label = s$label
+  )
+}))
+```
+
+```{r gamma-mix-d}
+dGammaMix(2, w = example$w, shape = example$shape, scale = example$scale)
+dGammaMix(2, w = example$w, shape = example$shape, scale = example$scale, log = TRUE)
+```
+
+```{r gamma-mix-p}
+pGammaMix(2, w = example$w, shape = example$shape, scale = example$scale)
+pGammaMix(2, w = example$w, shape = example$shape, scale = example$scale, lower.tail = FALSE)
+pGammaMix(2, w = example$w, shape = example$shape, scale = example$scale, log.p = TRUE)
+```
+
+```{r gamma-mix-q}
+qGammaMix(0.95, w = example$w, shape = example$shape, scale = example$scale)
+qGammaMix(0.95, w = example$w, shape = example$shape, scale = example$scale, lower.tail = FALSE)
+```
+
+```{r gamma-mix-r}
+df_gamma <- do.call(rbind, lapply(gamma_sets, function(ps) {
+  data.frame(x = grid, density = density_curve(grid, dGammaMix, list(w = ps$w, shape = ps$shape, scale = ps$scale)), label = ps$label)
+}))
+
+ggplot(df_norm, aes(x = x, y = density, color = label)) +
+  geom_line(linewidth = 1) +
+  labs(title = "Gamma mixtures (bulk)", x = "x", y = "density") +
+  theme_minimal() + theme(legend.position = "top")
+```
+
+### Gamma mixture with GPD tail
+
+```{r gamma-gpd}
+u <- 6
+tail_scale <- 1.0
+tail_shape <- 0.2
+```
+
+```{r gamma-gpd-d}
+dGammaMixGpd(6.5, w = example$w, shape = example$shape, scale = example$scale,
+             threshold = u, tail_scale = tail_scale, tail_shape = tail_shape)
+dGammaMixGpd(6.5, w = example$w, shape = example$shape, scale = example$scale,
+             threshold = u, tail_scale = tail_scale, tail_shape = tail_shape, log = TRUE)
+```
+
+```{r gamma-gpd-p}
+pGammaMixGpd(6.5, w = example$w, shape = example$shape, scale = example$scale,
+             threshold = u, tail_scale = tail_scale, tail_shape = tail_shape)
+pGammaMixGpd(6.5, w = example$w, shape = example$shape, scale = example$scale,
+             threshold = u, tail_scale = tail_scale, tail_shape = tail_shape, lower.tail = FALSE)
+```
+
+```{r gamma-gpd-q}
+qGammaMixGpd(0.95, w = example$w, shape = example$shape, scale = example$scale,
+             threshold = u, tail_scale = tail_scale, tail_shape = tail_shape)
+```
+
+```{r gamma-gpd-r}
+gamma_gpd_sets <- list(
+  list(label = "Mix A", w = c(0.6, 0.4), shape = c(2.0, 5.0), scale = c(1.0, 0.6), threshold = 6.0, tail_scale = 1.0, tail_shape = 0.2),
+  list(label = "Mix B", w = c(0.5, 0.5), shape = c(1.5, 4.0), scale = c(1.2, 0.7), threshold = 5.5, tail_scale = 0.8, tail_shape = 0.15),
+  list(label = "Mix C", w = c(0.7, 0.3), shape = c(1.2, 3.5), scale = c(1.4, 0.75), threshold = 6.5, tail_scale = 1.2, tail_shape = 0.25)
+)
+
+
+
+df_gamma_gpd <- do.call(rbind, lapply(gamma_gpd_sets, function(ps) {
+  data.frame(x = grid, density = density_curve(grid, dGammaMixGpd, list(w = ps$w, shape = ps$shape, scale = ps$scale, threshold = ps$threshold, tail_scale = ps$tail_scale, tail_shape = ps$tail_shape)), label = ps$label)
+}))
+
+ggplot(df_norm_gpd, aes(x = x, y = density, color = label)) +
+  geom_line(linewidth = 1) +
+  labs(title = "Gamma mixtures with GPD tail (different thresholds)", x = "x", y = "density") +
+  theme_minimal() + theme(legend.position = "top")
+```
+## Lognormal
+
+
+### Lognormal mixture kernel
+
+A lognormal component is defined by \(\log Y \sim \mathcal{N}(\mu,\sigma^2)\), i.e.,
+\[
+f(y\mid\mu,\sigma)=\frac{1}{y\,\sigma\sqrt{2\pi}}\exp\!\left(-\frac{(\log y-\mu)^2}{2\sigma^2}\right),\quad y>0.
+\]
+
+A finite lognormal mixture has density
+\[
+f(y)=\sum_{j=1}^J w_j\,\text{Lognormal}(y\mid\mu_j,\sigma_j^2),\quad y>0.
+\]
+
+**Parameter mapping (math \(\rightarrow\) code):** \(\mu_j\to\) `meanlog[j]`, \(\sigma_j\to\) `sdlog[j]`, \(w_j\to\) `w[j]`.
+
+### Lognormal mixture with GPD tail
+
+The `*MixGpd` variant uses the same splicing idea: lognormal mixture below \(u\), GPD tail above \(u\).
+
+**Tail mapping (math \(\rightarrow\) code):** \(u\to\) `threshold`, \(\sigma\to\) `tail_scale`, \(\xi\to\) `tail_shape`.
+
+
+### Without GPD (mixture kernel)
 
 ```{r lognormal-mix}
 grid <- seq(0, 8, length.out = 400)
@@ -278,6 +500,28 @@ ggplot(df_logn_gpd, aes(x = x, y = density, color = label)) +
 ```
 
 ## Laplace
+
+
+### Laplace mixture kernel
+
+A Laplace (double-exponential) component with location \(\ell\in\mathbb{R}\) and scale \(b>0\) has density
+\[
+f(y\mid \ell,b)=\frac{1}{2b}\exp\!\left(-\frac{|y-\ell|}{b}\right),\quad y\in\mathbb{R}.
+\]
+
+A finite Laplace mixture is
+\[
+f(y)=\sum_{j=1}^J w_j\,\text{Laplace}(y\mid \ell_j,b_j).
+\]
+
+**Parameter mapping (math \(\rightarrow\) code):** \(\ell_j\to\) `location[j]`, \(b_j\to\) `scale[j]`, \(w_j\to\) `w[j]`.
+
+### Laplace mixture with GPD tail
+
+The spliced kernel uses the Laplace mixture below \(u\) and a GPD tail above \(u\).
+
+**Tail mapping (math \(\rightarrow\) code):** \(u\to\) `threshold`, \(\sigma\to\) `tail_scale`, \(\xi\to\) `tail_shape`.
+
 
 ### Without GPD (mixture kernel)
 
@@ -370,9 +614,33 @@ ggplot(df_lap_gpd, aes(x = x, y = density, color = label)) +
 
 ## Inverse Gaussian (mixture kernel)
 
-### Without GPD
 
-Density $f(x)=\sum_j w_j\,\text{IG}(x\mid \mu_j, \lambda_j)$ on $x>0$.
+### Inverse Gaussian mixture kernel
+
+An inverse Gaussian component with mean \(\mu>0\) and shape \(\lambda>0\) has density
+\[
+f(y\mid \mu,\lambda)
+=
+\left(\frac{\lambda}{2\pi y^3}\right)^{1/2}
+\exp\!\left(-\frac{\lambda (y-\mu)^2}{2\mu^2 y}\right),
+\quad y>0.
+\]
+
+A finite inverse Gaussian mixture is
+\[
+f(y)=\sum_{j=1}^J w_j\,\text{IG}(y\mid \mu_j,\lambda_j),\quad y>0.
+\]
+
+**Parameter mapping (math \(\rightarrow\) code):** \(\mu_j\to\) `mean[j]`, \(\lambda_j\to\) `shape[j]`, \(w_j\to\) `w[j]`.
+
+### Inverse Gaussian mixture with GPD tail
+
+The spliced variant attaches a GPD tail above \(u\).
+
+**Tail mapping (math \(\rightarrow\) code):** \(u\to\) `threshold`, \(\sigma\to\) `tail_scale`, \(\xi\to\) `tail_shape`.
+
+
+### Without GPD
 
 ```{r invgauss-mix}
 grid <- seq(0.1, 6, length.out = 400)
@@ -461,9 +729,34 @@ ggplot(df_ig_gpd, aes(x = x, y = density, color = label)) +
 
 ## Amoroso (bulk kernel and mixture)
 
-### Without GPD
 
-Single Amoroso density $f(x)=\frac{|\text{scale}|}{\Gamma(shape1)}\left|\frac{x-loc}{scale}\right|^{shape1\,shape2-1}\exp\{-[(x-loc)/scale]^{shape2}\}$ with shape1, shape2 > 0 (sign depends on scale). Mixture is weighted sum.
+### Amoroso mixture kernel
+
+An Amoroso component with location \(a\in\mathbb{R}\), scale \(\theta\neq 0\), and shapes \(\alpha>0\), \(\beta>0\) has density (for \(y>a\))
+\[
+f(y\mid a,\theta,\alpha,\beta)
+=
+\frac{1}{\Gamma(\alpha)}
+\left|\frac{\beta}{\theta}\right|
+\left(\frac{y-a}{\theta}\right)^{\alpha\beta-1}
+\exp\!\left[-\left(\frac{y-a}{\theta}\right)^{\beta}\right].
+\]
+
+A finite Amoroso mixture is
+\[
+f(y)=\sum_{j=1}^J w_j\,f_j(y\mid a_j,\theta_j,\alpha_j,\beta_j).
+\]
+
+**Parameter mapping (math \(\rightarrow\) code):** \(a_j\to\) `loc[j]`, \(\theta_j\to\) `scale[j]`, \(\alpha_j\to\) `shape1[j]`, \(\beta_j\to\) `shape2[j]`, \(w_j\to\) `w[j]`.
+
+### Amoroso mixture with GPD tail
+
+The spliced kernel attaches a GPD tail above \(u\).
+
+**Tail mapping (math \(\rightarrow\) code):** \(u\to\) `threshold`, \(\sigma\to\) `tail_scale`, \(\xi\to\) `tail_shape`.
+
+
+### Without GPD
 
 ```{r amoroso-mix}
 grid <- seq(0.01, 6, length.out = 400)
@@ -590,9 +883,28 @@ ggplot(df_amor_gpd, aes(x = x, y = density, color = label)) +
 
 ## Inverse Gaussian (base kernel)
 
-### Without GPD
 
-Base IG density $f(x)=\left(\frac{\lambda}{2\pi x^3}\right)^{1/2}\exp\{-\frac{\lambda(x-\mu)^2}{2\mu^2 x}\}$.
+### Inverse Gaussian base kernel
+
+This section documents the same inverse Gaussian density as above, but for a **single** component rather than a mixture:
+\[
+f(y\mid \mu,\lambda)
+=
+\left(\frac{\lambda}{2\pi y^3}\right)^{1/2}
+\exp\!\left(-\frac{\lambda (y-\mu)^2}{2\mu^2 y}\right),
+\quad y>0.
+\]
+
+**Parameter mapping (math \(\rightarrow\) code):** \(\mu\to\) `mean`, \(\lambda\to\) `shape`.
+
+### Inverse Gaussian base with GPD tail
+
+The `dInvGaussGpd`, `pInvGaussGpd`, `qInvGaussGpd`, and `rInvGaussGpd` functions splice the base inverse Gaussian below \(u\) with a GPD tail above \(u\).
+
+**Tail mapping (math \(\rightarrow\) code):** \(u\to\) `threshold`, \(\sigma\to\) `tail_scale`, \(\xi\to\) `tail_shape`.
+
+
+### Without GPD
 
 ```{r invgauss-base}
 grid <- seq(0.1, 6, length.out = 400)
@@ -703,9 +1015,24 @@ ggplot(df_ig_base_gpd, aes(x = x, y = density, color = label)) +
 
 ## Cauchy
 
-### Without GPD (base and mixture)
 
-Cauchy density $f(x)=\frac{1}{\pi \gamma [1+((x-x_0)/\gamma)^2]}$. Mixture sums weighted Cauchy components.
+### Cauchy base and mixtures
+
+A Cauchy distribution with location \(x_0\in\mathbb{R}\) and scale \(\gamma>0\) has density
+\[
+f(y\mid x_0,\gamma)=\frac{1}{\pi\gamma\left[1+\left(\frac{y-x_0}{\gamma}\right)^2\right]},
+\quad y\in\mathbb{R}.
+\]
+
+A finite Cauchy mixture is
+\[
+f(y)=\sum_{j=1}^J w_j\,\text{Cauchy}(y\mid x_{0j},\gamma_j).
+\]
+
+**Parameter mapping (math \(\rightarrow\) code):** \(x_0\to\) `location`, \(\gamma\to\) `scale`; in mixtures \(x_{0j}\to\) `location[j]`, \(\gamma_j\to\) `scale[j]`, \(w_j\to\) `w[j]`.
+
+
+### Without GPD (base and mixture)
 
 ```{r cauchy-base}
 grid <- seq(-8, 8, length.out = 400)
@@ -764,3 +1091,116 @@ ggplot(df_cauchy, aes(x = x, y = density, color = label)) +
   labs(title = "Cauchy base and mixtures", x = "x", y = "density") +
   theme_minimal() + theme(legend.position = "top")
 ```
+
+## Summary: Distribution & Backend Reference
+
+This section provides a compact reference for the distributions supported by **DPmixGPD** and the corresponding user-facing function families.  
+The **CRP backend** uses base (single-kernel) functions, while the **SB backend** uses mixture (multi-component) functions. The “Type” column indicates whether each backend expects **scalar** parameters (single value per parameter) or **vectors** indexed by mixture component.
+
+
+```{r dist-backend-summary, echo=FALSE, message=FALSE, warning=FALSE}
+df <- data.frame(
+  Distribution = c(
+    "Normal","Gamma","Lognormal","Laplace","Inverse Gaussian","Amoroso","Cauchy",
+    "GPD",
+    "Normal + GPD","Gamma + GPD","Lognormal + GPD","Laplace + GPD","InvGauss + GPD","Amoroso + GPD"
+  ),
+  Parameters = c(
+    "$\\mu,\\,\\sigma$",
+    "$\\alpha,\\,\\beta$",
+    "$\\mu,\\,\\sigma$",
+    "$\\ell,\\,b$",
+    "$\\mu,\\,\\lambda$",
+    "$a,\\,\\theta,\\,\\alpha,\\,\\beta$",
+    "$x_0,\\,\\gamma$",
+    "$u,\\,\\sigma,\\,\\xi$",
+    "$\\mu,\\,\\sigma,\\,u,\\,\\sigma,\\,\\xi$",
+    "$\\alpha,\\,\\beta,\\,u,\\,\\sigma,\\,\\xi$",
+    "$\\mu,\\,\\sigma,\\,u,\\,\\sigma,\\,\\xi$",
+    "$\\ell,\\,b,\\,u,\\,\\sigma,\\,\\xi$",
+    "$\\mu,\\,\\lambda,\\,u,\\,\\sigma,\\,\\xi$",
+    "$a,\\,\\theta,\\,\\alpha,\\,\\beta,\\,u,\\,\\sigma,\\,\\xi$"
+  ),
+  `Arguments` = c(
+    "`mean`, `sd`",
+    "`shape`, `scale`",
+    "`meanlog`, `sdlog`",
+    "`location`, `scale`",
+    "`mean`, `shape`",
+    "`loc`, `scale`, `shape1`, `shape2`",
+    "`location`, `scale`",
+    "`threshold`, `scale`, `shape`",
+    "`mean`, `sd`, `threshold`, `tail_scale`, `tail_shape`",
+    "`shape`, `scale`, `threshold`, `tail_scale`, `tail_shape`",
+    "`meanlog`, `sdlog`, `threshold`, `tail_scale`, `tail_shape`",
+    "`location`, `scale`, `threshold`, `tail_scale`, `tail_shape`",
+    "`mean`, `shape`, `threshold`, `tail_scale`, `tail_shape`",
+    "`loc`, `scale`, `shape1`, `shape2`, `threshold`, `tail_scale`, `tail_shape`"
+  ),
+  `Type` = c(
+    "scalars","scalars","scalars","scalars","scalars","scalars","scalars",
+    "scalars",
+    "scalars","scalars","scalars","scalars","scalars","scalars"
+  ),
+  `Function` = c(
+    "`dnorm()`, `pnorm()`, `qnorm()`, `rnorm()`",
+    "`dgamma()`, `pgamma()`, `qgamma()`, `rgamma()`",
+    "`dlnorm()`, `plnorm()`, `qlnorm()`, `rlnorm()`",
+    "`ddexp()`, `pdexp()`, `qdexp()`, `rdexp()`",
+    "`dinvgauss()`, `pinvgauss()`, `qinvgauss()`, `rinvgauss()`",
+    "`damoroso()`, `pamoroso()`, `qamoroso()`, `ramoroso()`",
+    "`dcauchy()`, `pcauchy()`, `qcauchy()`, `rcauchy()`",
+    "`dGpd()`, `pGpd()`, `qGpd()`, `rGpd()`",
+    "`dNormGpd()`, `pNormGpd()`, `qNormGpd()`, `rNormGpd()`",
+    "`dGammaGpd()`, `pGammaGpd()`, `qGammaGpd()`, `rGammaGpd()`",
+    "`dLognormalGpd()`, `pLognormalGpd()`, `qLognormalGpd()`, `rLognormalGpd()`",
+    "`dLaplaceGpd()`, `pLaplaceGpd()`, `qLaplaceGpd()`, `rLaplaceGpd()`",
+    "`dInvGaussGpd()`, `pInvGaussGpd()`, `qInvGaussGpd()`, `rInvGaussGpd()`",
+    "`dAmorosoGpd()`, `pAmorosoGpd()`, `qAmorosoGpd()`, `rAmorosoGpd()`"
+  ),
+  `Type.` = c(
+    "vectors","vectors","vectors","vectors","vectors","vectors","vectors",
+    "NA",
+    "vectors","vectors + scalars","vectors + scalars","vectors + scalars","vectors + scalars","vectors + scalars"
+  ),
+  `Function.` = c(
+    "`dNormMix()`, `pNormMix()`, `qNormMix()`, `rNormMix()`",
+    "`dGammaMix()`, `pGammaMix()`, `qGammaMix()`, `rGammaMix()`",
+    "`dLognormalMix()`, `pLognormalMix()`, `qLognormalMix()`, `rLognormalMix()`",
+    "`dLaplaceMix()`, `pLaplaceMix()`, `qLaplaceMix()`, `rLaplaceMix()`",
+    "`dInvGaussMix()`, `pInvGaussMix()`, `qInvGaussMix()`, `rInvGaussMix()`",
+    "`dAmorosoMix()`, `pAmorosoMix()`, `qAmorosoMix()`, `rAmorosoMix()`",
+    "`dCauchyMix()`, `pCauchyMix()`, `qCauchyMix()`, `rCauchyMix()`",
+    "NA",
+    "`dNormMixGpd()`, `pNormMixGpd()`, `qNormMixGpd()`, `rNormMixGpd()`",
+    "`dGammaMixGpd()`, `pGammaMixGpd()`, `qGammaMixGpd()`, `rGammaMixGpd()`",
+    "`dLognormalMixGpd()`, `pLognormalMixGpd()`, `qLognormalMixGpd()`, `rLognormalMixGpd()`",
+    "`dLaplaceMixGpd()`, `pLaplaceMixGpd()`, `qLaplaceMixGpd()`, `rLaplaceMixGpd()`",
+    "`dInvGaussMixGpd()`, `pInvGaussMixGpd()`, `qInvGaussMixGpd()`, `rInvGaussMixGpd()`",
+    "`dAmorosoMixGpd()`, `pAmorosoMixGpd()`, `qAmorosoMixGpd()`, `rAmorosoMixGpd()`"
+  ),
+  check.names = FALSE
+)
+
+# Rename SB columns to match header labels cleanly
+names(df)[4:7] <- c("Type", "Function", "Type", "Function")
+
+knitr::kable(
+  df,
+  format = "html",
+  escape = FALSE,
+  align = c("l","c","l","c","l","c","l")
+) |>
+  kableExtra::kable_styling(full_width = TRUE) |>
+  kableExtra::add_header_above(c(" " = 3, "CRP" = 2, "SB" = 2)) |>
+  kableExtra::row_spec(0, bold = TRUE)
+```
+
+### Notes 
+
+- **CRP Backend** uses base (single-kernel) functions; parameters are scalar.
+
+- **SB Backend** uses mixture/spliced mixture functions; component-specific parameters are typically vectors indexed by component \(j\); mixture weights `w` are required as vector.
+
+- For **GPD-only**, SB entries are **NA** because there is no mixture-only GPD wrapper in the SB family.
+
