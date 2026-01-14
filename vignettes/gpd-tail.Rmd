@@ -11,11 +11,36 @@ vignette: >
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 library(DPmixGPD)
 library(nimble)
-source("_helpers.R")
+
+# Fetch helpers directly from the namespace to work even if not exported/attached during pkgdown
+build_nimble_bundle <- getFromNamespace("build_nimble_bundle", "DPmixGPD")
+run_mcmc_bundle_manual <- getFromNamespace("run_mcmc_bundle_manual", "DPmixGPD")
+# Use the generic predict from stats so S3 dispatch still works for mixgpd_fit
+predict <- stats::predict
+
+# Helper functions
+print_dataset_header <- function(data, name = deparse(substitute(data))) {
+  cat(sprintf("Dataset: %s (n=%d", name, length(data$y)))
+  if (!is.null(data$X)) cat(sprintf(", p=%d", ncol(data$X)))
+  cat(")\n")
+  invisible(NULL)
+}
+
+# Locate datasets when the package is not installed
+resolve_data_file <- function(filename) {
+  candidates <- c(
+    file.path("data", filename),
+    file.path("..", "data", filename),
+    file.path("..", "..", "data", filename)
+  )
+  existing <- candidates[file.exists(candidates)]
+  if (length(existing) == 0) stop(sprintf("Data file %s not found", filename))
+  existing[[1]]
+}
 ```
 
 ```{r data}
-data("nc_pos_tail200_k4")
+load(resolve_data_file("nc_pos_tail200_k4.rda"), envir = environment())
 print_dataset_header(nc_pos_tail200_k4, "nc_pos_tail200_k4")
 ```
 

@@ -1,0 +1,56 @@
+## ----setup, include=FALSE-----------------------------------------------------
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+if (requireNamespace('devtools', quietly = TRUE)) devtools::load_all(quiet = TRUE) else library(DPmixGPD)
+library(nimble)
+
+
+## ----data, eval=FALSE---------------------------------------------------------
+# data("causal_pos500_p3_k2")
+# data("causal_alt_pos500_p3_k3")
+# data("causal_alt_real500_p4_k2")
+
+## ----causal-compare, eval=FALSE-----------------------------------------------
+# mcmc <- default_mcmc()
+# 
+# # Same kernel by arm
+# cb_same <- build_causal_bundle(
+#   y = causal_pos500_p3_k2$y,
+#   X = causal_pos500_p3_k2$X,
+#   T = causal_pos500_p3_k2$T,
+#   backend = c("sb", "sb"),
+#   kernel = c("gamma", "gamma"),
+#   GPD = c(FALSE, FALSE),
+#   J = c(causal_pos500_p3_k2$meta$K0, causal_pos500_p3_k2$meta$K1),
+#   mcmc_outcome = mcmc,
+#   mcmc_ps = mcmc
+# )
+# cf_same <- run_mcmc_causal(cb_same, show_progress = FALSE)
+# 
+# # Different kernels by arm (positive)
+# cb_alt_pos <- build_causal_bundle(
+#   y = causal_alt_pos500_p3_k3$y,
+#   X = causal_alt_pos500_p3_k3$X,
+#   T = causal_alt_pos500_p3_k3$T,
+#   backend = c("sb", "sb"),
+#   kernel = c("lognormal", "gamma"),
+#   GPD = c(FALSE, FALSE),
+#   J = c(causal_alt_pos500_p3_k3$meta$K0, causal_alt_pos500_p3_k3$meta$K1),
+#   mcmc_outcome = mcmc,
+#   mcmc_ps = mcmc
+# )
+# cf_alt_pos <- run_mcmc_causal(cb_alt_pos, show_progress = FALSE)
+# 
+# # Different kernels by arm (real)
+# cb_alt_real <- build_causal_bundle(
+#   y = causal_alt_real500_p4_k2$y,
+#   X = causal_alt_real500_p4_k2$X,
+#   T = causal_alt_real500_p4_k2$T,
+#   backend = c("sb", "sb"),
+#   kernel = c("normal", "laplace"),
+#   GPD = c(FALSE, FALSE),
+#   J = c(causal_alt_real500_p4_k2$meta$K0, causal_alt_real500_p4_k2$meta$K1),
+#   mcmc_outcome = mcmc,
+#   mcmc_ps = mcmc
+# )
+# cf_alt_real <- run_mcmc_causal(cb_alt_real, show_progress = FALSE)
+

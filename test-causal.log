@@ -1,27 +1,0 @@
-✔ | F W  S  OK | Context
-⠏ |          0 | causal                                    ⠋ | 1        0 | causal                                    ✖ | 1        0 | causal
-───────────────────────────────────────────────────────────
-Error ('test-causal.R:25:3'): causal bundle and fit combos
-<packageNotFoundError/error/condition>
-Error in `loadNamespace(x)`: there is no package called 'DPmixGPD'
-Backtrace:
-    ▆
- 1. └─base::loadNamespace(x) at test-causal.R:25:3
- 2.   └─base::withRestarts(stop(cond), retry_loadNamespace = function() NULL)
- 3.     └─base (local) withOneRestart(expr, restarts[[1L]])
- 4.       └─base (local) doWithOneRestart(return(expr), restart)
-───────────────────────────────────────────────────────────
-
-══ Results ════════════════════════════════════════════════
-── Failed tests ───────────────────────────────────────────
-Error ('test-causal.R:25:3'): causal bundle and fit combos
-<packageNotFoundError/error/condition>
-Error in `loadNamespace(x)`: there is no package called 'DPmixGPD'
-Backtrace:
-    ▆
- 1. └─base::loadNamespace(x) at test-causal.R:25:3
- 2.   └─base::withRestarts(stop(cond), retry_loadNamespace = function() NULL)
- 3.     └─base (local) withOneRestart(expr, restarts[[1L]])
- 4.       └─base (local) doWithOneRestart(return(expr), restart)
-
-[ FAIL 1 | WARN 0 | SKIP 0 | PASS 0 ]

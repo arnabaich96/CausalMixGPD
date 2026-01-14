@@ -20,6 +20,7 @@ Creates a runnable "bundle" containing:
 build_nimble_bundle(
   y,
   X = NULL,
+  ps = NULL,
   backend = c("sb", "crp"),
   kernel,
   GPD = FALSE,
@@ -41,6 +42,14 @@ build_nimble_bundle(
 - X:
 
   Optional design matrix/data.frame (N x p) for conditional variants.
+
+- ps:
+
+  Numeric vector of estimated propensity scores (length N) used as a
+  covariate when constructing link-mode predictors. Mandatory for causal
+  inference models (with two treatment arms). When provided,
+  `beta_ps_<param>` coefficient vectors are added for each link-mode
+  bulk parameter; priors can be customized via `param_specs$ps`.
 
 - backend:
 
@@ -72,7 +81,8 @@ build_nimble_bundle(
 
 - param_specs:
 
-  Optional list with entries `bulk` and `tail` to override defaults.
+  Optional list with entries `bulk`, `tail`, and `ps` to override
+  defaults.
 
 - mcmc:
 
@@ -112,16 +122,7 @@ bundle <- build_nimble_bundle(
   components = 4,
   mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1, seed = 1)
 )
+#> Error in build_nimble_bundle(y = y, backend = "sb", kernel = "normal",     GPD = FALSE, components = 4, mcmc = list(niter = 200, nburnin = 50,         thin = 1, nchains = 1, seed = 1)): could not find function "build_nimble_bundle"
 bundle
-#> DPmixGPD bundle
-#>       Field                  Value
-#>     Backend Stick-Breaking Process
-#>      Kernel    Normal Distribution
-#>  Components                      4
-#>           N                     60
-#>           X                     NO
-#>         GPD                  FALSE
-#>     Epsilon                  0.025
-#> 
-#>   contains  : code, constants, data, dimensions, inits, monitors
+#> Error: object 'bundle' not found
 ```

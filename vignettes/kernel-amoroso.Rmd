@@ -16,17 +16,29 @@ knitr::opts_chunk$set(
   warning = FALSE,
   message = FALSE
 )
+
+# Make package helpers available even when the namespace is only loaded
+build_nimble_bundle <- getFromNamespace("build_nimble_bundle", "DPmixGPD")
+
+# Locate cached fits when pkgdown builds without installing the package
+resolve_extdata_file <- function(name) {
+  candidates <- c(
+    system.file("extdata", name, package = "DPmixGPD"),
+    file.path("inst", "extdata", name),
+    file.path("..", "inst", "extdata", name),
+    file.path("..", "..", "inst", "extdata", name)
+  )
+  existing <- candidates[file.exists(candidates) & nzchar(candidates)]
+  if (length(existing) == 0) stop(sprintf("Extdata file %s not found", name))
+  existing[[1]]
+}
 ```
 
 ```{r kernel-amoroso}
 library(DPmixGPD)
 library(nimble)
 use_cached_fit <- TRUE
-.fit_path <- function(name) {
-  path <- system.file("extdata", name, package = "DPmixGPD")
-  if (path == "") path <- file.path("inst", "extdata", name)
-  path
-}
+.fit_path <- resolve_extdata_file
 fit_small <- readRDS(.fit_path("fit_small.rds"))
 w <- c(0.6, 0.4)
 loc <- c(0.0, 0.5)
@@ -59,7 +71,7 @@ bundle <- build_nimble_bundle(
   backend = "sb",
   kernel = "amoroso",
   GPD = TRUE,
-  J = 6
+  components = 6
 )
 
 bundle$spec$meta

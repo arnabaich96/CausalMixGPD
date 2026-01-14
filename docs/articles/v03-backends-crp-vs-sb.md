@@ -1,33 +1,24 @@
-# Backends: CRP vs Stick-Breaking
+# Backends: CRP vs SB
 
-What you’ll learn: what SB and CRP backends control, what stays common,
-and how to compare the two on the same data with a shared prediction
-interface.
-
-## What the backend controls
-
-- **SB** rewrites the mixture as stick-breaking variables `v_j` and
-  clusters with deterministic weights.
-- **CRP** draws latent labels `z_i` and lets a Chinese Restaurant
-  Process allocate points to `j` components.
-- Both use the same kernel, threshold, and tail flags
-  (`GPD = TRUE/FALSE`), so the estimated mixture weights stay aligned
-  with prediction.
-
-## What stays the same
-
-- Kernel families, tail configuration, and
-  [`predict.mixgpd_fit()`](https://example.com/DPmixGPD/reference/predict.mixgpd_fit.md)
-  logic.
-- The output `mixgpd_fit` object contains the same fields even when one
-  backend uses cluster labels and the other uses sticks.
-- Diagnostics (trace plots, tail index, q/j grid) can be computed
-  identically from either backend.
-
-## Practical differences and example
+``` r
+library(DPmixGPD)
+library(nimble)
+use_cached_fit <- TRUE
+.fit_path <- function(name) {
+  path <- system.file("extdata", name, package = "DPmixGPD")
+  if (path == "") path <- file.path("inst", "extdata", name)
+  path
+}
+fit_small <- readRDS(.fit_path("fit_small.rds"))
+fit_small_crp <- readRDS(.fit_path("fit_small_crp.rds"))
+library(ggplot2)
+```
 
 ``` r
 y <- sim_bulk_tail(n = 150, tail_prob = 0.08, seed = 101)
+```
+
+``` r
 common_args <- list(
   y = y,
   kernel = "lognormal",
@@ -35,23 +26,33 @@ common_args <- list(
   J = 6,
   mcmc = list(niter = 200, nburnin = 50, thin = 2, nchains = 2, seed = c(1, 2))
 )
+```
 
+``` r
 if (use_cached_fit) {
   fit_sb <- fit_small
-  fit_crp <- fit_small_crp
   sb_time <- c(elapsed = NA_real_)
-  crp_time <- c(elapsed = NA_real_)
 } else {
   sb_time <- system.time({
     bundle_sb <- do.call(build_nimble_bundle, c(list(backend = "sb"), common_args))
     fit_sb <- run_mcmc_bundle_manual(bundle_sb)
   })
+}
+```
+
+``` r
+if (use_cached_fit) {
+  fit_crp <- fit_small_crp
+  crp_time <- c(elapsed = NA_real_)
+} else {
   crp_time <- system.time({
     bundle_crp <- do.call(build_nimble_bundle, c(list(backend = "crp"), common_args))
     fit_crp <- run_mcmc_bundle_manual(bundle_crp)
   })
 }
+```
 
+``` r
 system_time <- data.frame(
   backend = c("SB", "CRP"),
   elapsed = c(sb_time[["elapsed"]], crp_time[["elapsed"]])
@@ -62,17 +63,12 @@ system_time
 #> 2     CRP      NA
 ```
 
-CRP draws latent labels directly and tends to show slightly higher
-variance in weights, while SB trades variance for deterministic mixture
-stick lengths. The prediction stage honors whichever weights estimation
-produced.
-
-## Diagnostic plot
-
 ``` r
 q_sb <- predict(fit_sb, type = "quantile", p = c(0.5, 0.9))
 q_crp <- predict(fit_crp, type = "quantile", p = c(0.5, 0.9))
+```
 
+``` r
 data.frame(
   backend = rep(c("SB", "CRP"), each = 2),
   prob = rep(c(0.5, 0.9), 2),
@@ -84,9 +80,10 @@ data.frame(
   labs(title = "Quantiles by backend", y = "Quantile", x = "Probability")
 ```
 
-![](v03-backends-crp-vs-sb_files/figure-html/backend-plot-1.png)
+![Quantiles by
+backend.](v03-backends-crp-vs-sb_files/figure-html/backend-viz-quantiles-1.png)
 
-## Prediction example
+Quantiles by backend.
 
 ``` r
 quantiles_sb <- predict(fit_sb, type = "quantile", p = c(.95, .99))
@@ -128,17 +125,6 @@ list(sb = quantiles_sb, crp = quantiles_crp)
 #> [1] 0.95 0.99
 ```
 
-## Benchmark summary
-
-1.  SB tends to be faster in larger datasets because stick lengths
-    converge deterministically.
-2.  CRP is easier to debug thanks to explicit `z` assignments when
-    cluster rebalancing is needed.
-3.  Use the same `J` and `kernel` choices to make runtime comparisons
-    fair.
-
-## Session info
-
 ``` r
 sessionInfo()
 #> R version 4.5.2 (2025-10-31 ucrt)
@@ -167,22 +153,21 @@ sessionInfo()
 #> loaded via a namespace (and not attached):
 #>  [1] sass_0.4.10         future_1.68.0       generics_0.1.4     
 #>  [4] renv_1.1.5          lattice_0.22-7      listenv_0.10.0     
-#>  [7] pracma_2.4.6        digest_0.6.39       magrittr_2.0.4     
+#>  [7] pracma_2.4.6        digest_0.6.39       magrittr_2.0.3     
 #> [10] evaluate_1.0.5      grid_4.5.2          RColorBrewer_1.1-3 
 #> [13] fastmap_1.2.0       jsonlite_2.0.0      scales_1.4.0       
-#> [16] codetools_0.2-20    numDeriv_2016.8-1.1 textshaping_1.0.4  
+#> [16] codetools_0.2-20    numDeriv_2016.8-1.1 textshaping_1.0.1  
 #> [19] jquerylib_0.1.4     cli_3.6.5           rlang_1.1.6        
-#> [22] parallelly_1.46.0   future.apply_1.20.1 withr_3.0.2        
-#> [25] cachem_1.1.0        yaml_2.3.12         otel_0.2.0         
-#> [28] tools_4.5.2         parallel_4.5.2      coda_0.19-4.1      
-#> [31] dplyr_1.1.4         globals_0.18.0      vctrs_0.6.5        
-#> [34] R6_2.6.1            lifecycle_1.0.4     fs_1.6.6           
-#> [37] htmlwidgets_1.6.4   ragg_1.5.0          pkgconfig_2.0.3    
-#> [40] desc_1.4.3          pillar_1.11.1       pkgdown_2.2.0      
-#> [43] bslib_0.9.0         gtable_0.3.6        glue_1.8.0         
-#> [46] systemfonts_1.3.1   tidyselect_1.2.1    tibble_3.3.0       
-#> [49] xfun_0.55           rstudioapi_0.17.1   knitr_1.51         
-#> [52] farver_2.1.2        htmltools_0.5.9     igraph_2.2.1       
-#> [55] labeling_0.4.3      rmarkdown_2.30      compiler_4.5.2     
-#> [58] S7_0.2.1
+#> [22] parallelly_1.46.1   future.apply_1.20.1 withr_3.0.2        
+#> [25] cachem_1.1.0        yaml_2.3.12         tools_4.5.2        
+#> [28] parallel_4.5.2      coda_0.19-4.1       dplyr_1.1.4        
+#> [31] globals_0.18.0      vctrs_0.6.5         R6_2.6.1           
+#> [34] lifecycle_1.0.5     fs_1.6.6            htmlwidgets_1.6.4  
+#> [37] ragg_1.5.0          pkgconfig_2.0.3     desc_1.4.3         
+#> [40] pkgdown_2.1.3       bslib_0.9.0         pillar_1.11.1      
+#> [43] gtable_0.3.6        glue_1.8.0          systemfonts_1.2.3  
+#> [46] xfun_0.52           tibble_3.3.0        tidyselect_1.2.1   
+#> [49] knitr_1.50          farver_2.1.2        htmltools_0.5.8.1  
+#> [52] igraph_2.2.1        labeling_0.4.3      rmarkdown_2.30     
+#> [55] compiler_4.5.2      S7_0.2.1
 ```

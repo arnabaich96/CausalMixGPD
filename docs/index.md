@@ -16,11 +16,11 @@ weights and clean prediction APIs.
 - **Single-outcome modeling:**
   [v02-single-outcome-modeling](https://example.com/DPmixGPD/articles/v02-single-outcome-modeling.md)
   tells the full story for bulk + tail fits.
-- **Causal CQTE:**
-  [v05-causal-cqte](https://example.com/DPmixGPD/articles/v05-causal-cqte.md)
+- **Causal QTE:**
+  [v05-causal-qte](https://example.com/DPmixGPD/articles/v05-causal-qte.md)
   plus
   [v06-causal-extras](https://example.com/DPmixGPD/articles/v06-causal-extras.md)
-  cover treatment-specific fits, CQTE plotting, and comparisons with
+  cover treatment-specific fits, QTE plotting, and comparisons with
   ATE/CATE.
 - **Backends:**
   [v03-backends-crp-vs-sb](https://example.com/DPmixGPD/articles/v03-backends-crp-vs-sb.md)

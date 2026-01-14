@@ -1,0 +1,70 @@
+## ----setup, include=FALSE-----------------------------------------------------
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+if (requireNamespace('devtools', quietly = TRUE)) devtools::load_all(quiet = TRUE) else library(DPmixGPD)
+library(nimble)
+
+# Helper functions
+default_mcmc <- function() {
+  list(niter = 1000, nburnin = 500, nchains = 2, thin = 1)
+}
+
+## ----data---------------------------------------------------------------------
+data("nc_real200_k2")
+data("nc_pos200_k3")
+data("nc_pos_tail200_k4")
+
+## ----bundle-s3, eval=FALSE, fig.show='hold', fig.cap=c('CRP posterior diagnostics','SB posterior diagnostics','SB+GPD posterior diagnostics')----
+# mcmc <- default_mcmc()
+# 
+# # CRP fit
+# bundle_crp <- build_nimble_bundle(
+#   y = nc_real200_k2$y,
+#   backend = "crp",
+#   kernel = "normal",
+#   GPD = FALSE,
+#   components = nc_real200_k2$meta$K_true,
+#   mcmc = mcmc
+# )
+# summary(bundle_crp)
+# fit_crp <- run_mcmc_bundle_manual(bundle_crp, show_progress = FALSE)
+# summary(fit_crp)
+# print(fit_crp)
+# plot(fit_crp)
+# predict(fit_crp, type = "quantile", p = c(0.1, 0.25, 0.5, 0.9))
+# 
+# # SB fit
+# bundle_sb <- build_nimble_bundle(
+#   y = nc_pos200_k3$y,
+#   backend = "sb",
+#   kernel = "gamma",
+#   GPD = FALSE,
+#   components = nc_pos200_k3$meta$K_true,
+#   mcmc = mcmc
+# )
+# summary(bundle_sb)
+# fit_sb <- run_mcmc_bundle_manual(bundle_sb, show_progress = FALSE)
+# summary(fit_sb)
+# print(fit_sb)
+# plot(fit_sb)
+# predict(fit_sb, type = "quantile", p = c(0.1, 0.25, 0.5, 0.9))
+# 
+# # GPD=TRUE fit
+# bundle_gpd <- build_nimble_bundle(
+#   y = nc_pos_tail200_k4$y,
+#   backend = "sb",
+#   kernel = "lognormal",
+#   GPD = TRUE,
+#   components = nc_pos_tail200_k4$meta$K_true,
+#   mcmc = mcmc
+# )
+# summary(bundle_gpd)
+# fit_gpd <- run_mcmc_bundle_manual(bundle_gpd, show_progress = FALSE)
+# summary(fit_gpd)
+# plot(fit_gpd)
+# 
+# # Additional generics
+# coef(fit_sb)
+# "logLik() support was removed; use predictive metrics instead."
+# fitted(fit_sb)
+# residuals(fit_sb, type = "pit")
+

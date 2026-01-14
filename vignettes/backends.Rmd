@@ -11,10 +11,31 @@ vignette: >
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 library(DPmixGPD)
 library(nimble)
-source("_helpers.R")
 ```
 
 ```{r data}
+# Helper functions (kept with data so they are visible when knitr isolates chunks)
+resolve_data_file <- function(fname) {
+  .pkg_root <- knitr::opts_knit$get("root.dir")
+  if (is.null(.pkg_root) || is.na(.pkg_root)) {
+    .pkg_root <- normalizePath(file.path(dirname(knitr::current_input()), ".."), winslash = "/", mustWork = FALSE)
+  }
+  candidates <- unique(c(
+    system.file("data", fname, package = "DPmixGPD"),
+    file.path(.pkg_root, "data", fname)
+  ))
+  existing <- candidates[file.exists(candidates) & nzchar(candidates)]
+  if (length(existing) > 0) return(existing[[1]])
+  NULL
+}
+
+print_dataset_header <- function(data, name = deparse(substitute(data))) {
+  cat(sprintf("Dataset: %s (n=%d", name, length(data$y)))
+  if (!is.null(data$X)) cat(sprintf(", p=%d", ncol(data$X)))
+  cat(")\n")
+  invisible(NULL)
+}
+
 # Load into knit global; fall back to package data/ if needed
 .kg <- knitr::knit_global()
 if (!exists("nc_real200_k2", envir = .kg, inherits = FALSE)) {

@@ -11,16 +11,16 @@ vignette: >
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 if (requireNamespace('devtools', quietly = TRUE)) devtools::load_all(quiet = TRUE) else library(DPmixGPD)
 library(nimble)
-source("_helpers.R")
+
 ```
 
-```{r data}
+```{r data, eval=FALSE}
 data("causal_pos500_p3_k2")
 data("causal_alt_pos500_p3_k3")
 data("causal_alt_real500_p4_k2")
 ```
 
-```{r causal-compare, eval=TRUE}
+```{r causal-compare, eval=FALSE}
 mcmc <- default_mcmc()
 
 # Same kernel by arm

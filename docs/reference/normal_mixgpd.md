@@ -138,6 +138,6 @@ qNormMixGpd(0.50, w, mean, sd, threshold, tail_scale, tail_shape)
 qNormMixGpd(0.95, w, mean, sd, threshold, tail_scale, tail_shape)
 #> [1] 2.490405
 replicate(10, rNormMixGpd(1, w, mean, sd, threshold, tail_scale, tail_shape))
-#>  [1] -0.4337984 -1.7561974 -2.1660523  0.5807438 -0.4853472 -2.2408429
-#>  [7] -0.5379199 -2.2872148  0.5140893  0.7794415
+#>  [1] -1.6565061  0.1649877 -0.3634372 -0.7259626 -0.7769616  1.7688322
+#>  [7] -0.1982102 -0.2809843 -0.8258881 -0.1246915
 ```

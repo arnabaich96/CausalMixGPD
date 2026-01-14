@@ -2,39 +2,45 @@
 
 ### Start here
 
-- [Start Here: What DPmixGPD
-  Does](https://example.com/DPmixGPD/articles/v00-start-here.md):
+- [Start Here](https://example.com/DPmixGPD/articles/v00-start-here.md):
 - [Quickstart](https://example.com/DPmixGPD/articles/quickstart.md):
 
 ### Installation & reproducibility
 
-- [Installation, Reproducibility, and Package
-  Structure](https://example.com/DPmixGPD/articles/v01-installation-reproducibility.md):
+- [Installation &
+  Reproducibility](https://example.com/DPmixGPD/articles/v01-installation-reproducibility.md):
 
 ### Single-outcome modeling
 
-- [Single-Outcome Modeling: Bulk + Tail in One
-  Model](https://example.com/DPmixGPD/articles/v02-single-outcome-modeling.md):
+- [Single-Outcome
+  Modeling](https://example.com/DPmixGPD/articles/v02-single-outcome-modeling.md):
 
 ### Causal modeling
 
-- [Causal Inference with DPmixGPD: CQTE
-  End-to-End](https://example.com/DPmixGPD/articles/v05-causal-cqte.md):
-- [Causal Modeling](https://example.com/DPmixGPD/articles/causal.md):
-- [Causal Extras: ATE, CATE, and
-  Comparators](https://example.com/DPmixGPD/articles/v06-causal-extras.md):
+- [Causal QTE
+  (Conditional)](https://example.com/DPmixGPD/articles/causal-cqte.md):
+- [Causal: Same vs Different
+  Kernels](https://example.com/DPmixGPD/articles/causal-kernel-compare.md):
+- [Causal QTE
+  (Unconditional)](https://example.com/DPmixGPD/articles/causal-qte.md):
+- [Causal
+  Quickstart](https://example.com/DPmixGPD/articles/causal-quickstart.md):
+- [Causal Tail
+  Examples](https://example.com/DPmixGPD/articles/causal-tail.md):
+- [Causal modeling
+  quickstart](https://example.com/DPmixGPD/articles/causal.md):
 
 ### Backends
 
 - [Backends: CRP vs
-  Stick-Breaking](https://example.com/DPmixGPD/articles/v03-backends-crp-vs-sb.md):
-- [Backends: SB vs
-  CRP](https://example.com/DPmixGPD/articles/backends.md):
+  SB](https://example.com/DPmixGPD/articles/v03-backends-crp-vs-sb.md):
+- [Backends: CRP vs
+  SB](https://example.com/DPmixGPD/articles/backends.md):
 
 ### Kernel registry
 
-- [Kernels: What They Mean and When to Use
-  Which](https://example.com/DPmixGPD/articles/v04-kernels-guide.md):
+- [Kernels
+  guide](https://example.com/DPmixGPD/articles/v04-kernels-guide.md):
 - [Kernel:
   Normal](https://example.com/DPmixGPD/articles/kernel-normal.md):
 - [Kernel:
@@ -52,18 +58,29 @@
 
 ### Prediction & exports
 
-- [Prediction, Posterior Draws, and Exporting
-  Results](https://example.com/DPmixGPD/articles/v08-prediction-and-exports.md):
+- [Prediction &
+  exports](https://example.com/DPmixGPD/articles/v08-prediction-and-exports.md):
 - [Prediction](https://example.com/DPmixGPD/articles/prediction.md):
+
+### Legacy articles
+
+- [Bundles and S3
+  Methods](https://example.com/DPmixGPD/articles/bundle-s3.md):
+- [Covariates](https://example.com/DPmixGPD/articles/covariates.md):
+- [Coverage
+  Index](https://example.com/DPmixGPD/articles/coverage-index.md):
+- [DQRP Reference](https://example.com/DPmixGPD/articles/dqrp.md):
+- [GPD Tail](https://example.com/DPmixGPD/articles/gpd-tail.md):
+- [Kernels](https://example.com/DPmixGPD/articles/kernels.md):
 
 ### Troubleshooting & survival
 
-- [Troubleshooting and Common
-  Errors](https://example.com/DPmixGPD/articles/v09-troubleshooting.md):
-- [Survival Outcomes: Censoring + Heavy
-  Tails](https://example.com/DPmixGPD/articles/v07-survival.md):
+- [Troubleshooting
+  checklist](https://example.com/DPmixGPD/articles/v09-troubleshooting.md):
+- [Survival
+  modeling](https://example.com/DPmixGPD/articles/v07-survival.md):
 
 ### Developer resources
 
-- [Developer Guide: Adding a Kernel / Extending the
-  Engine](https://example.com/DPmixGPD/articles/v10-developer-guide.md):
+- [Developer
+  guide](https://example.com/DPmixGPD/articles/v10-developer-guide.md):

@@ -11,15 +11,26 @@ vignette: >
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 library(DPmixGPD)
 library(nimble)
-source("_helpers.R")
+
+# Helper functions
+print_dataset_header <- function(data, name = deparse(substitute(data))) {
+  cat(sprintf("Dataset: %s (n=%d", name, length(data$y)))
+  if (!is.null(data$X)) cat(sprintf(", p=%d", ncol(data$X)))
+  cat(")\n")
+  invisible(NULL)
+}
+
+default_mcmc <- function() {
+  list(niter = 1000, nburnin = 500, nchains = 2, thin = 1)
+}
 ```
 
-```{r data}
+```{r data, eval=FALSE}
 data("causal_alt_pos500_p5_k4_tail")
 print_dataset_header(causal_alt_pos500_p5_k4_tail, "causal_alt_pos500_p5_k4_tail")
 ```
 
-```{r causal-tail, eval=TRUE}
+```{r causal-tail, eval=FALSE}
 mcmc <- default_mcmc()
 cb <- build_causal_bundle(
   y = causal_alt_pos500_p5_k4_tail$y,
