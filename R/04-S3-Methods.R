@@ -1011,7 +1011,7 @@ plot.mixgpd_fitted <- function(x, y = NULL, ...) {
   axis_min <- min(c(p1_data$fitted, p1_data$observed), na.rm = TRUE)
   axis_max <- max(c(p1_data$fitted, p1_data$observed), na.rm = TRUE)
 
-  p1 <- ggplot2::ggplot(p1_data, ggplot2::aes(Y = fitted, x = observed)) +
+  p1 <- ggplot2::ggplot(p1_data, ggplot2::aes(x = fitted, y = observed)) +
     ggplot2::geom_point(size = 2, color = "darkblue", alpha = 0.6) +
     ggplot2::geom_abline(intercept = 0, slope = 1, linetype = "dashed",
                         color = "red", linewidth = 1) +

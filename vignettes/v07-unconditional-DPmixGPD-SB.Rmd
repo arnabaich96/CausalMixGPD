@@ -23,77 +23,80 @@ knitr::opts_chunk$set(
 library(DPmixGPD)
 if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
 library(ggplot2)
+library(gridExtra)
+library(kableExtra)
+library(dplyr)
+library(tibble)
 set.seed(123)
 ```
 
-# Unconditional DPmixGPD: Stick-Breaking (SB) Backend with Tail
+# Unconditional DPmixGPD: Stick-Breaking (SB) Backend with Tail Augmentation
 
-**Goal**: Apply **Stick-Breaking backend** with **GPD tail augmentation** for bulk + tail modeling.
-
-**Model**: 
-- **Bulk** ($y \leq u$): Fixed-J stick-breaking mixture
-- **Tail** ($y > u$): Generalized Pareto Distribution
+**Purpose**: Demonstrate the stick-breaking backend (`components = J`) while augmenting the extreme tail with a GPD. This mirrors the CRP+GPD pipeline (v06) but highlights the fixed-truncation behavior for bulk components.
 
 ---
 
 ## Data Setup
 
 ```{r data-setup}
-set.seed(42)
-bulk_comp1 <- rgamma(80, shape = 2, rate = 1.5)
-bulk_comp2 <- rgamma(60, shape = 1, rate = 0.8)
-bulk <- c(bulk_comp1, bulk_comp2)
+# Tail-heavy data
+data("nc_pos_tail200_k4")
+y_tail <- nc_pos_tail200_k4$y
 
-tail_component <- DPmixGPD::rGpd(30, threshold = 0, scale = 1.5, shape = 0.3)
-y_tail <- c(bulk, tail_component)
-
-u_threshold <- quantile(y_tail, 0.8)
-
-print("Sample size:", length(y_tail), "\n")
-print("Bulk:", sum(y_tail <= u_threshold), "| Tail:", sum(y_tail > u_threshold), "\n")
-
-df_raw <- data.frame(y = y_tail)
-p_raw <- ggplot(df_raw, aes(x = y)) +
-  geom_histogram(aes(y = after_stat(density)), bins = 40, alpha = 0.6, fill = "darkorange") +
-  geom_density(color = "darkred", linewidth = 1) +
-  geom_vline(xintercept = u_threshold, linetype = "dashed", color = "gray") +
-  labs(title = "Data with Tail", x = "y", y = "Density") +
-  theme_minimal()
-
-print(p_raw)
-```
-
----
-
-## Model Specification (SB + GPD)
-
-```{r spec-sb-gpd}
-spec_sb_gpd <- compile_model_spec(
-  y = y_tail,
-  kernel = "gamma",
-  backend = "sb",           # Stick-Breaking backend
-  GPD = TRUE,               # Enable tail
-  threshold = u_threshold,
-  components = 5            # Fixed components
+summary_tbl <- tibble(
+  statistic = c("N", "Mean", "SD", "Min", "Max"),
+  value = c(length(y_tail), mean(y_tail), sd(y_tail), min(y_tail), max(y_tail))
 )
 
-print("SB + GPD Specification:")
-print(paste("  Backend (bulk): sb (components =", spec_sb_gpd$meta$components, ")"))
-print(paste("  Tail: GPD (threshold =", round(u_threshold, 3), ")"))
+df_data <- data.frame(y = y_tail)
+
+p_raw <- ggplot(df_data, aes(x = y)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 40, fill = "darkorange", alpha = 0.6, color = "black") +
+  geom_density(color = "darkred", linewidth = 1) +
+  labs(title = "Tail-Designed Data", x = "y", y = "Density") +
+  theme_minimal()
+
+grid.arrange(p_raw, ncol = 1)
+```
+
+```{r data-table, echo=FALSE}
+summary_tbl %>%
+  mutate(value = signif(value, 4)) %>%
+  kable(caption = "Tail Dataset Summaries") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE)
 ```
 
 ---
 
-## Bundle & MCMC
+## Threshold Selection
 
-```{r bundle-mcmc}
+```{r threshold}
+thresholds <- quantile(y_tail, c(0.70, 0.75, 0.80, 0.85))
+u_threshold <- thresholds["80%"]
+
+ggplot(df_data, aes(x = y)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 40, fill = "skyblue", alpha = 0.6) +
+  geom_vline(xintercept = u_threshold, linetype = "dashed", color = "black") +
+  labs(title = paste("Threshold at", round(u_threshold, 2)), x = "y", y = "Density") +
+  theme_minimal()
+```
+
+---
+
+## Model Specification & Bundle
+
+```{r spec-bundle}
 bundle_sb_gpd <- build_nimble_bundle(
   y = y_tail,
-  kernel = "gamma",
+  kernel = "lognormal",
   backend = "sb",
   GPD = TRUE,
-  threshold = u_threshold,
-  components = 5,
+  components = 6,
+  param_specs = list(
+    gpd = list(
+      threshold = list(mode = "fixed", value = u_threshold)
+    )
+  ),
   mcmc = list(
     niter = 2000,
     nburnin = 500,
@@ -101,10 +104,14 @@ bundle_sb_gpd <- build_nimble_bundle(
     thin = 1
   )
 )
+```
 
+---
+
+## Running MCMC
+
+```{r mcmc-run}
 fit_sb_gpd <- run_mcmc_bundle_manual(bundle_sb_gpd)
-
-print("\n=== POSTERIOR SUMMARY (SB + GPD) ===\n")
 summary(fit_sb_gpd)
 ```
 
@@ -112,60 +119,76 @@ summary(fit_sb_gpd)
 
 ## Posterior Predictions
 
-### Full Distribution
-
-```{r pred-full}
+```{r density-predict}
 y_grid <- seq(0, max(y_tail) * 1.3, length.out = 300)
-
-# Posterior predictive density
 pred_density <- predict(fit_sb_gpd, y = y_grid, type = "density")
-
-# Use S3 plot method
 plot(pred_density)
 ```
 
----
+```{r survival-predict}
+y_surv <- seq(u_threshold, max(y_tail) * 1.1, length.out = 60)
+pred_surv <- predict(fit_sb_gpd, y = y_surv, type = "survival")
+plot(pred_surv)
+```
 
-## CRP vs SB for GPD Tail
-
-```{r comparison-crp-sb}
-# CRP + GPD (from vignette 6)
-bundle_crp_gpd <- build_nimble_bundle(
-  y = y_tail,
-  kernel = "gamma",
-  backend = "crp",
-  GPD = TRUE,
-  threshold = u_threshold,
-  Kmax = 5,
-  mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
-)
-fit_crp_gpd <- run_mcmc_bundle_manual(bundle_crp_gpd)
-
-print("\n=== CRP vs SB (with GPD Tail) ===\n")
+```{r quantile-predict}
+quant_probs <- c(0.90, 0.95, 0.99)
+pred_quant <- predict(fit_sb_gpd, type = "quantile", index = quant_probs, interval = "credible")
+plot(pred_quant)
 ```
 
 ---
 
-## Residual Analysis
+## Tail vs Bulk Comparison
+
+```{r bulk-comparison}
+bundle_sb_bulk <- build_nimble_bundle(
+  y = y_tail,
+  kernel = "lognormal",
+  backend = "sb",
+  GPD = FALSE,
+  components = 6,
+  mcmc = list(niter = 1500, nburnin = 300, nchains = 1)
+)
+fit_sb_bulk <- run_mcmc_bundle_manual(bundle_sb_bulk)
+
+bulk_quant <- predict(fit_sb_bulk, type = "quantile", index = quant_probs)
+t_quant <- predict(fit_sb_gpd, type = "quantile", index = quant_probs)
+
+bind_rows(
+  bulk_quant$fit %>% mutate(model = "Bulk-only"),
+  t_quant$fit %>% mutate(model = "Bulk + GPD")
+) %>%
+  select(model, index, estimate, lwr, upr) %>%
+  mutate(across(where(is.numeric), ~ round(.x, 3))) %>%
+  kable(caption = "Quantiles: Bulk-only vs GPD-augmented") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE)
+```
+
+```{r comparison-plots}
+plot(bulk_quant)
+plot(t_quant)
+```
+
+---
+
+## Residuals & Diagnostics
 
 ```{r residuals}
-residuals_vals <- residuals(fit_sb_gpd)
+fit_vals <- fitted(fit_sb_gpd)
+plot(fit_vals)
+```
 
-p_resid <- ggplot(data.frame(r = residuals_vals), aes(x = r)) +
-  geom_histogram(aes(y = after_stat(density)), bins = 40, alpha = 0.6, fill = "mediumpurple") +
-  geom_density(color = "purple", linewidth = 1) +
-  labs(title = "Residuals: SB + GPD", x = "Residuals", y = "Density") +
-  theme_minimal()
-
-print(p_resid)
+```{r diagnostics}
+plot(fit_sb_gpd, family = c("traceplot", "density"))
+plot(fit_sb_gpd, params = "w_", family = c("traceplot", "density"))
 ```
 
 ---
 
 ## Key Takeaways
 
-- **SB + GPD**: Fixed-component bulk with flexible tail
-- **Speed**: Generally faster than CRP + GPD
-- **Trade-off**: CRP more flexible; SB more efficient
-- **Next**: Conditional models (vignettes 8-11)
-
+- Stick-breaking truncation fixes the number of bulk components but still flexibly models the tail via GPD.
+- Posterior `predict()` + `plot()` workflows visualize densities, survival probabilities, and extreme quantiles.
+- Comparing bulk-only vs GPD-augmented quantiles reveals how tail augmentation shifts the 95–99% levels.
+- Next: conditional DPmix (v08–v11) to explore covariate effects before moving to causal regimes.

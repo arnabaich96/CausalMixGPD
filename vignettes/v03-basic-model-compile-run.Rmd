@@ -40,9 +40,9 @@ DPmixGPD uses a **three-phase model-building paradigm** designed for clarity and
 **Purpose**: Validate data, kernels, backends, and parameters WITHOUT generating NIMBLE code.
 
 ```{r spec-basic}
-# Simulate data
-set.seed(123)
-y <- rgamma(100, shape = 2, rate = 1)
+# Load packaged data
+data("nc_pos200_k3")
+y <- nc_pos200_k3$y
 
 # Create specification
 spec <- compile_model_spec(
@@ -70,9 +70,11 @@ spec_unconditional <- compile_model_spec(y, kernel = "gamma", backend = "crp", G
 spec_gpd <- compile_model_spec(y, kernel = "gamma", backend = "crp", GPD = TRUE)
 
 # 3. Conditional (with covariates)
-X <- matrix(rnorm(100 * 2), nrow = 100, ncol = 2)
+data("nc_posX100_p3_k2")
+y_cond <- nc_posX100_p3_k2$y
+X <- as.matrix(nc_posX100_p3_k2$X)
 spec_conditional <- compile_model_spec(
-  y = y,
+  y = y_cond,
   X = X,
   kernel = "lognormal",
   backend = "crp",
@@ -171,9 +173,9 @@ plot(fit, params = "alpha|beta")
 ## Complete Workflow: End-to-End Example
 
 ```{r workflow-complete}
-# Generate realistic data
-set.seed(789)
-y_data <- rgamma(150, shape = 1.8, rate = 0.9)
+# Load packaged data
+data("nc_pos200_k3")
+y_data <- nc_pos200_k3$y
 
 # PHASE 1: Specification
 spec_final <- compile_model_spec(
@@ -268,7 +270,8 @@ print("  cauchy:    Heavy-tailed, rare cases\n")
 
 ```{r gpd-example}
 # Data with tail behavior
-y_tail <- c(rgamma(120, shape = 2, rate = 1), rgamma(30, shape = 0.8, rate = 0.1))
+data("nc_pos_tail200_k4")
+y_tail <- nc_pos_tail200_k4$y
 
 # Build with GPD
 bundle_gpd <- build_nimble_bundle(

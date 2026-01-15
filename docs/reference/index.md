@@ -49,7 +49,7 @@
 - [`coverage_status()`](https://example.com/DPmixGPD/reference/coverage_status.md)
   : Test coverage status helper
 - [`fitted(`*`<mixgpd_fit>`*`)`](https://example.com/DPmixGPD/reference/fitted.mixgpd_fit.md)
-  : Fitted values for a MixGPD fit
+  : Fitted values and residuals for a MixGPD fit
 - [`dGammaGpd()`](https://example.com/DPmixGPD/reference/gamma_gpd.md)
   [`pGammaGpd()`](https://example.com/DPmixGPD/reference/gamma_gpd.md)
   [`rGammaGpd()`](https://example.com/DPmixGPD/reference/gamma_gpd.md)
@@ -164,6 +164,8 @@
   : Plot a causal fit
 - [`plot(`*`<mixgpd_fit>`*`)`](https://example.com/DPmixGPD/reference/plot.mixgpd_fit.md)
   : Plot MCMC diagnostics for a MixGPD fit (ggmcmc backend)
+- [`plot(`*`<mixgpd_predict>`*`)`](https://example.com/DPmixGPD/reference/plot.mixgpd_predict.md)
+  : Plot prediction results
 - [`predict(`*`<dpmixgpd_causal_fit>`*`)`](https://example.com/DPmixGPD/reference/predict.dpmixgpd_causal_fit.md)
   : Predict from a causal fit
 - [`predict(`*`<mixgpd_fit>`*`)`](https://example.com/DPmixGPD/reference/predict.mixgpd_fit.md)
@@ -182,8 +184,6 @@
   treatment effects (QTE)
 - [`read_coverage_status()`](https://example.com/DPmixGPD/reference/read_coverage_status.md)
   : Read stored coverage status
-- [`residuals(`*`<mixgpd_fit>`*`)`](https://example.com/DPmixGPD/reference/residuals.mixgpd_fit.md)
-  : Residual-style diagnostics for a MixGPD fit
 - [`run_mcmc_bundle_manual()`](https://example.com/DPmixGPD/reference/run_mcmc_bundle_manual.md)
   : Run MCMC for a prepared bundle
 - [`run_mcmc_causal()`](https://example.com/DPmixGPD/reference/run_mcmc_causal.md)

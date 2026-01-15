@@ -2,8 +2,8 @@
 
 Creates a causal bundle with:
 
-- a propensity score (PS) design model (logistic regression of `T` on
-  `X`)
+- a propensity score (PS) design model (logit/probit regression of `T`
+  on `X` or a naive Bayes classifier)
 
 - an outcome bundle for the control arm (`T = 0`)
 
@@ -121,6 +121,8 @@ build_causal_bundle(
 
   - `"probit"`: Probit regression PS model
 
+  - `"naive"`: Gaussian naive Bayes PS model
+
   - `FALSE`: No PS estimation; outcome models use only `X`
 
   The PS model choice is stored in bundle metadata for downstream use in
@@ -134,8 +136,8 @@ A list of class `"dpmixgpd_causal_bundle"`.
 ## Details
 
 The outcome bundles reuse the existing DPM + optional GPD tail
-machinery. The PS model is a lightweight NIMBLE logistic regression with
-normal priors on coefficients.
+machinery. The PS model is a lightweight NIMBLE estimator supporting
+logit/probit regression or a naive Bayes classifier with simple priors.
 
 ## Examples
 
@@ -154,7 +156,8 @@ cb <- build_causal_bundle(
   backend = "sb",
   kernel = "gamma",
   GPD = TRUE,
-  J = 10
+  J = 10,
+  PS = "probit"
 )
 } # }
 ```

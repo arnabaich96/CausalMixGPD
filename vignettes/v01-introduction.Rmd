@@ -109,9 +109,9 @@ fit <- run_mcmc_bundle_manual(bundle, niter=1000, nburnin=100)
 ## Quick Start
 
 ```{r intro-quickstart}
-# Generate data
-set.seed(123)
-y <- abs(rnorm(50)) + 0.1
+# Load packaged dataset
+data("nc_pos200_k3")
+y <- nc_pos200_k3$y
 
 # Build unconditional model: bulk-only, SB backend
 bundle <- build_nimble_bundle(
