@@ -75,6 +75,16 @@ devtools::test()            # Run testthat suite
 renv::restore()             # Restore dependencies (renv.lock pinned to R 4.5.2)
 ```
 
+### Documentation & Vignette Standards
+
+- **Table Formatting**: Always use `kableExtra` wrapper when printing
+  tables in vignettes or documentation
+  - Example: `kbl(table_data) %>% kable_styling()`
+  - Ensures consistent, professional table rendering across HTML and PDF
+    outputs
+  - Required for all summary tables, parameter tables, and result
+    comparisons
+
 ### Testing Patterns (See [tests/testthat/test-MCMC.R](https://example.com/DPmixGPD/tests/testthat/test-MCMC.R))
 
 - Grid test: all kernel × backend × GPD combinations (217 lines)
@@ -82,6 +92,8 @@ renv::restore()             # Restore dependencies (renv.lock pinned to R 4.5.2)
   `skip_if_not_installed("coda")`
 - Capture noisy output: `utils::capture.output(..., file = nullfile())`
 - Snapshot tests in `tests/testthat/_snaps/` for regression checks
+- **IMPORTANT**: Never create test files in root directory. Use
+  `test_output/` folder for all test scripts and temporary files
 
 ### File Organization Logic
 
@@ -122,7 +134,9 @@ renv::restore()             # Restore dependencies (renv.lock pinned to R 4.5.2)
 
 ## NIMBLE Integration
 
-- Models compiled via `nimbleModel()` + `compileNimble()`
+- Models compiled via
+  [`nimbleModel()`](https://rdrr.io/pkg/nimble/man/nimbleModel.html) +
+  [`compileNimble()`](https://rdrr.io/pkg/nimble/man/compileNimble.html)
 - Posterior samples converted to
   [`coda::mcmc.list`](https://rdrr.io/pkg/coda/man/mcmc.list.html) for
   diagnostics

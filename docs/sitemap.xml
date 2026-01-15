@@ -80,6 +80,8 @@
 <url><loc>https://example.com/DPmixGPD/reference/normal_mixgpd.html</loc></url>
 <url><loc>https://example.com/DPmixGPD/reference/plot.dpmixgpd_causal_fit.html</loc></url>
 <url><loc>https://example.com/DPmixGPD/reference/plot.mixgpd_fit.html</loc></url>
+<url><loc>https://example.com/DPmixGPD/reference/plot.mixgpd_fitted.html</loc></url>
+<url><loc>https://example.com/DPmixGPD/reference/plot.mixgpd_predict.html</loc></url>
 <url><loc>https://example.com/DPmixGPD/reference/predict.dpmixgpd_causal_fit.html</loc></url>
 <url><loc>https://example.com/DPmixGPD/reference/predict.mixgpd_fit.html</loc></url>
 <url><loc>https://example.com/DPmixGPD/reference/print.dpmixgpd_bundle.html</loc></url>
@@ -99,5 +101,6 @@
 <url><loc>https://example.com/DPmixGPD/reference/summary.dpmixgpd_causal_bundle.html</loc></url>
 <url><loc>https://example.com/DPmixGPD/reference/summary.dpmixgpd_causal_fit.html</loc></url>
 <url><loc>https://example.com/DPmixGPD/reference/summary.mixgpd_fit.html</loc></url>
+<url><loc>https://example.com/DPmixGPD/VIGNETTE_LAYOUT_STANDARD.html</loc></url>
 </urlset>
 

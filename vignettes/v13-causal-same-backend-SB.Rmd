@@ -1,6 +1,6 @@
 ---
 title: "13. Causal Inference: Same Backend (SB) for PS & Outcome"
-output: 
+output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
@@ -17,56 +17,70 @@ knitr::opts_chunk$set(
   fig.height = 6,
   message = FALSE,
   warning = FALSE,
-  eval = FALSE
+  eval = TRUE,
+  cache = TRUE
 )
 library(DPmixGPD)
 if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
 library(ggplot2)
+library(gridExtra)
+library(kableExtra)
+library(dplyr)
+library(tibble)
+library(patchwork)
 set.seed(123)
 ```
 
-# Causal Inference: SB Backend for Both Propensity Score & Outcome
+# Causal Inference: Same Backend (SB) for PS & Outcome
 
-**Goal**: Apply **Stick-Breaking backend** for both PS and outcome modeling in causal inference.
+**Purpose**: Repeat the causal workflow with a stick-breaking backend for both arms, highlighting fixed truncation and its effect on CQTE.
 
 ---
 
 ## Data Setup
 
 ```{r data-setup}
-set.seed(42)
-n <- 200
+data("causal_alt_real500_p4_k2")
+y <- causal_alt_real500_p4_k2$y
+T <- causal_alt_real500_p4_k2$T
+X <- as.matrix(causal_alt_real500_p4_k2$X)
 
-X <- cbind(
-  x1 = rnorm(n, mean = 0, sd = 1),
-  x2 = rnorm(n, mean = 0, sd = 1)
+summary_tbl <- tibble(
+  statistic = c("N", "Mean", "SD", "Min", "Max"),
+  value = c(length(y), mean(y), sd(y), min(y), max(y))
 )
 
-T <- rbinom(n, size = 1, prob = 0.5)
+df_causal <- data.frame(y = y, T = as.factor(T), x1 = X[, 1], x2 = X[, 2])
 
-y <- ifelse(
-  T == 1,
-  rnorm(n, mean = 3 + 0.5 * X[, 1], sd = 1.2),
-  rnorm(n, mean = 1 + 0.3 * X[, 1], sd = 1.0)
-)
+p_scatter <- ggplot(df_causal, aes(x = x1, y = y, color = T)) +
+  geom_point(alpha = 0.5) +
+  labs(title = "Outcomes by X1 & Treatment (SB)", x = "X1", y = "y", color = "Treatment") +
+  theme_minimal()
 
-print("Sample size:", n, "\n")
+grid.arrange(p_scatter, ncol = 1)
+```
+
+```{r data-table, echo=FALSE}
+summary_tbl %>%
+  mutate(value = signif(value, 4)) %>%
+  kable(caption = "Causal Dataset Summary (SB)") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE)
 ```
 
 ---
 
-## Causal Bundle with SB Backend
+## Bundle & MCMC
 
-```{r causal-sb}
+```{r bundle}
 bundle_causal_sb <- build_causal_bundle(
   y = y,
   T = T,
   X = X,
-  kernel = "normal",
-  backend = "sb",           # Stick-Breaking
+  kernel = c("normal", "normal"),
+  backend = c("sb", "sb"),
   PS = "logit",
-  GPD = FALSE,
-  J = 5,                   # Fixed components
+  GPD = c(FALSE, FALSE),
+  J = c(6, 6),
   mcmc = list(
     niter = 2000,
     nburnin = 500,
@@ -75,58 +89,77 @@ bundle_causal_sb <- build_causal_bundle(
   )
 )
 
-fit_causal_sb <- run_mcmc_bundle_manual(bundle_causal_sb)
-
-print("\n=== CAUSAL SB MODEL ===\n")
+fit_causal_sb <- run_mcmc_causal(bundle_causal_sb)
 summary(fit_causal_sb)
 ```
 
 ---
 
-## Treatment Effect Comparison: CRP vs SB
-
-```{r comparison}
-# CRP (from vignette 12)
-bundle_crp_logit <- build_causal_bundle(
-  y = y, T = T, X = X,
-  kernel = "normal", backend = "crp",
-  PS = "logit", GPD = FALSE, Kmax = 5,
-  mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
-)
-fit_crp_logit <- run_mcmc_bundle_manual(bundle_crp_logit)
-
-ate_crp <- coef(fit_crp_logit)
-ate_sb <- coef(fit_causal_sb)
-
-print("\n=== TREATMENT EFFECT COMPARISON ===\n")
-print("CRP ATE:", ate_crp, "\n")
-print("SB ATE: ", ate_sb, "\n")
-print("Difference:", abs(ate_crp - ate_sb), "\n")
-
-```
-
----
-
-## Propensity Score
+## Propensity Score Overlap
 
 ```{r ps}
-ps_fitted <- fitted(fit_causal_sb, type = "ps")
+ps_vals <- fitted(fit_causal_sb, type = "ps")
 
-df_ps <- data.frame(ps = ps_fitted, T = as.factor(T))
+df_ps <- data.frame(ps = ps_vals, T = as.factor(T))
 
 ggplot(df_ps, aes(x = ps, fill = T)) +
-  geom_histogram(alpha = 0.6, bins = 30) +
-  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +
-  labs(title = "PS Distribution (SB Backend)", x = "PS", y = "Count") +
+  geom_histogram(alpha = 0.6, bins = 30, position = "identity") +
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "firebrick")) +
+  labs(title = "Propensity Scores for SB Causal Fit", x = "PS", y = "Count") +
   theme_minimal()
 ```
 
 ---
 
-## Key Takeaways
+## CQTE
 
-- **SB Causal Models**: Fixed-component approach for faster inference
-- **Same PS Options**: logit, probit, naive available
-- **CRP vs SB Trade-off**: Applies to causal setting too
-- **Next**: Different backends for PS vs outcome in vignettes 14-15
+```{r cqte}
+X_ref <- matrix(colMeans(X), nrow = 1)
+tau_grid <- seq(0.05, 0.95, length.out = 10)
+pred_tau <- predict(fit_causal_sb, newdata = X_ref, type = "quantile", p = tau_grid)
 
+q_trt <- as.numeric(pred_tau$trt$fit)
+q_con <- as.numeric(pred_tau$con$fit)
+
+qte_tbl <- tibble(
+  tau = tau_grid,
+  cqte = q_trt - q_con
+)
+
+ggplot(qte_tbl, aes(x = tau, y = cqte)) +
+  geom_line(color = "darkgreen", linewidth = 1.2) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray") +
+  labs(title = "CQTE (SB backend)", x = "τ", y = "Q1 - Q0") +
+  theme_minimal()
+```
+
+---
+
+## Density Comparison
+
+```{r density-diff}
+y_grid <- seq(min(y), max(y), length.out = 200)
+pred_density <- predict(fit_causal_sb, newdata = X_ref, y = y_grid, type = "density")
+
+df_density <- data.frame(
+  y = y_grid,
+  control = pred_density$con$fit[[1]],
+  treated = pred_density$trt$fit[[1]]
+)
+
+ggplot(df_density, aes(x = y)) +
+  geom_line(aes(y = control, color = "Control")) +
+  geom_line(aes(y = treated, color = "Treated")) +
+  scale_color_manual(values = c("Control" = "steelblue", "Treated" = "firebrick")) +
+  labs(title = "Posterior Densities by Arm (SB)", y = "Density", color = "Arm") +
+  theme_minimal()
+```
+
+---
+
+## Takeaways
+
+- Stick-breaking truncation fixes component count while PS logit allows flexible weighting between arms.
+- CQTE curves still show heterogeneity and can be compared with the CRP results in `v12`.
+- Use `fitted(..., type = "ps")` + `predict()` for full PS-outcome diagnostics before trusting CQTE.
+- Next: switch to mixed backend scenarios (v14, v15) to highlight CRP/SB asymmetry.

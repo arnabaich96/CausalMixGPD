@@ -23,80 +23,54 @@ knitr::opts_chunk$set(
 library(DPmixGPD)
 if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
 library(ggplot2)
+library(gridExtra)
+library(kableExtra)
+library(dplyr)
+library(tibble)
 set.seed(123)
 ```
 
 # Conditional DPmix: CRP Backend with Covariates
 
-**Goal**: Model outcome $y$ conditional on **covariates** $X$ using nonparametric DP mixture.
-
-**Model**: $y_i | X_i, G_i \sim \int K(y_i; \theta_i) dG_i(\theta_i)$ where $\theta_i$ depends on $X_i$
-
-**Backend**: CRP for conditional mixture
+**Purpose**: Show how the CRP backend can model $y | X$ via a covariate-dependent Dirichlet Process mixture. This vignette parallels `v04` but includes $X$ so we can explore conditional predictions.
 
 ---
 
 ## Data Setup
 
 ```{r data-setup}
-set.seed(42)
-n <- 150
+data("nc_posX100_p3_k2")
+y <- nc_posX100_p3_k2$y
+X <- as.matrix(nc_posX100_p3_k2$X)
 
-# Covariates
-X <- cbind(
-  x1 = rnorm(n, mean = 0, sd = 1),
-  x2 = rnorm(n, mean = 0, sd = 1)
+summary_tbl <- tibble(
+  statistic = c("N", "Mean", "SD", "Min", "Max"),
+  value = c(length(y), mean(y), sd(y), min(y), max(y))
 )
 
-# Outcome: mixture conditional on X
-mean_shift_1 <- 1 + 0.5 * X[, 1] + 0.3 * X[, 2]
-mean_shift_2 <- 3 + 0.2 * X[, 1] - 0.4 * X[, 2]
+df_cov <- data.frame(y = y, x1 = X[, 1], x2 = X[, 2])
 
-component_1 <- rgamma(75, shape = 2, rate = 1.5) + mean_shift_1[1:75]
-component_2 <- rgamma(75, shape = 1, rate = 0.8) + mean_shift_2[76:150]
-y <- c(component_1, component_2)
-
-print("Sample size:", n, "\n")
-print("Covariates:", ncol(X), "\n")
-
-# Visualization
-df_data <- data.frame(y = y, x1 = X[, 1], x2 = X[, 2])
-
-p_scatter <- ggplot(df_data, aes(x = x1, y = y)) +
+p_cov <- ggplot(df_cov, aes(x = x1, y = y)) +
   geom_point(alpha = 0.6, color = "steelblue") +
-  geom_smooth(method = "loess", color = "red", fill = NA) +
-  labs(title = "Outcome vs Covariate X1", x = "X1", y = "y") +
+  geom_smooth(method = "loess", color = "firebrick", fill = NA) +
+  labs(title = "y vs X1 (loess smoother)", x = "X1", y = "y") +
   theme_minimal()
 
-print(p_scatter)
+grid.arrange(p_cov, ncol = 1)
+```
+
+```{r data-table, echo=FALSE}
+summary_tbl %>%
+  mutate(value = signif(value, 4)) %>%
+  kable(caption = "Summary of Conditional Dataset") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE)
 ```
 
 ---
 
-## Model Specification (Conditional, CRP)
+## Model Specification & Bundle
 
-```{r spec-conditional}
-spec_cond <- compile_model_spec(
-  y = y,
-  X = X,                     # NEW: Include covariates
-  kernel = "gamma",
-  backend = "crp",
-  GPD = FALSE,
-  components = 5
-)
-
-print("Conditional Specification:")
-print(paste("  Outcome (y):", length(y), "observations"))
-print(paste("  Covariates (X):", nrow(X), "×", ncol(X)))
-print("  Kernel: gamma (conditional)")
-print("  Backend: CRP\n")
-```
-
----
-
-## Bundle & MCMC
-
-```{r bundle-mcmc}
+```{r spec-bundle}
 bundle_cond <- build_nimble_bundle(
   y = y,
   X = X,
@@ -111,10 +85,14 @@ bundle_cond <- build_nimble_bundle(
     thin = 1
   )
 )
+```
 
+---
+
+## Running MCMC
+
+```{r mcmc-run}
 fit_cond <- run_mcmc_bundle_manual(bundle_cond)
-
-print("\n=== POSTERIOR SUMMARY (Conditional, CRP) ===\n")
 summary(fit_cond)
 ```
 
@@ -122,107 +100,77 @@ summary(fit_cond)
 
 ## Conditional Predictions
 
-### Predict at Specific Covariate Values
-
-```{r pred-conditional}
-# New covariate values for prediction
-X_new <- cbind(
-  x1 = c(-1, 0, 1),
-  x2 = c(-1, 0, 1)
+```{r cond-predict}
+X_new <- expand.grid(
+  x1 = seq(-2, 2, length.out = 3),
+  x2 = c(0, 1)
 )
 
-# Predict for each covariate combination
-y_grid <- seq(-2, 10, length.out = 100)
-
-# For each row of X_new, get conditional density
-densities_list <- list()
-for (i in 1:nrow(X_new)) {
-  X_rep <- X_new[i, , drop = FALSE]
-  dens <- predict(fit_cond, newdata = y_grid, X = X_rep)
-  densities_list[[i]] <- data.frame(
+y_grid <- seq(-1, 10, length.out = 200)
+densities <- lapply(seq_len(nrow(X_new)), function(i) {
+  pred <- predict(fit_cond, x = as.matrix(X_new[i, ]), y = y_grid, type = "density")
+  data.frame(
     y = y_grid,
-    density = dens,
-    group = paste("X1=", X_new[i, 1], ", X2=", X_new[i, 2], sep = "")
+    density = pred$fit[[1]],
+    group = paste0("x1=", round(X_new[i, "x1"], 1), ", x2=", X_new[i, "x2"])
   )
-}
+})
 
-df_cond_pred <- do.call(rbind, densities_list)
+df_dens <- do.call(rbind, densities)
 
-p_cond_pred <- ggplot(df_cond_pred, aes(x = y, y = density, color = group)) +
+ggplot(df_dens, aes(x = y, y = density, color = group)) +
   geom_line(linewidth = 1) +
-  labs(title = "Conditional Predictive Density", x = "y", y = "Density") +
+  labs(title = "Conditional Predictive Densities", x = "y", y = "Density") +
   theme_minimal() +
   theme(legend.position = "bottom")
-
-print(p_cond_pred)
 ```
 
 ---
 
-## Effect of Covariates on Outcome Distribution
+## Covariate Effect on Conditional Quantiles
 
-```{r covariate-effect}
-# Isolate effect of X1 (holding X2 = 0)
-X1_range <- seq(-2, 2, by = 0.5)
-X2_fixed <- 0
+```{r quantile-effect}
+X_grid <- cbind(
+  x1 = seq(-2, 2, length.out = 5),
+  x2 = 0,
+  x3 = 0
+)
 
-for (x1_val in X1_range[c(1, 3, 5)]) {  # Show 3 examples
-  X_eval <- cbind(x1 = x1_val, x2 = X2_fixed)
-  y_grid <- seq(-1, 10, length.out = 100)
-  dens <- predict(fit_cond, newdata = y_grid, X = X_eval)
-  
-  print("X1 =", x1_val, "=> Posterior predictive mean:", weighted.mean(y_grid, dens), "\n")
-}
+quant_probs <- c(0.25, 0.5, 0.75)
+quant_df <- lapply(seq_len(nrow(X_grid)), function(i) {
+  pred <- predict(fit_cond, x = X_grid[i, , drop = FALSE], type = "quantile", index = quant_probs)
+  data.frame(
+    x1 = X_grid[i, "x1"],
+    quant = quant_probs,
+    estimate = pred$fit$estimate
+  )
+})
+
+bind_rows(quant_df) %>%
+  ggplot(aes(x = x1, y = estimate, color = factor(quant))) +
+  geom_line(linewidth = 1) +
+  labs(title = "Conditional Quantiles vs x1 (x2=0)", x = "x1", y = "y", color = "Quantile") +
+  theme_minimal()
 ```
 
 ---
 
-## Covariate Coefficients
+## Residuals & Diagnostics
 
-```{r covariate-coef}
-# Extract covariate effects from posterior
-coefs <- coef(fit_cond)
-print("Covariate coefficients (posterior mean):\n")
-print(head(coefs))
-```
-
----
-
-## Heteroscedasticity Analysis
-
-```{r heteroscedasticity}
-# Extract fitted values with diagnostics
+```{r residuals}
 fit_vals <- fitted(fit_cond)
-
-# Use S3 plot method for diagnostic plots
 plot(fit_vals)
 ```
 
----
-
-## Unconditional vs Conditional
-
-```{r comparison}
-# Fit unconditional model on same data
-bundle_uncond <- build_nimble_bundle(
-  y = y,
-  kernel = "gamma",
-  backend = "crp",
-  GPD = FALSE,
-  components = 5,
-  mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
-)
-fit_uncond <- run_mcmc_bundle_manual(bundle_uncond)
-
-print("\n=== MODEL COMPARISON ===\n")
+```{r diagnostics}
+plot(fit_cond, family = c("traceplot", "density"))
 ```
 
 ---
 
-## Key Takeaways
+## Takeaways
 
-- **Conditional Models**: Account for covariate relationships
-- **Heteroscedasticity**: DP mixture captures varying conditional distributions
-- **Model Selection**: Conditional usually better with informative covariates
-- **Next**: Stick-Breaking conditional in vignette 9
-
+- Covariate-informed DP mixtures predict outcome distributions that shift with `x1` (and other covariates).
+- Use `predict(..., type = "density")` to visualize conditional densities and `type = "quantile"` for location shifts.
+- Diagnostics (`plot(fit_cond)`, `fitted(fit_cond)`) ensure the chains mix before relying on predictions.
+- Next vignette extends the same idea to the SB backend before adding tails.

@@ -4,7 +4,7 @@
 
 - [1. Introduction to
   DPmixGPD](https://example.com/DPmixGPD/articles/v01-introduction.md):
-- [2. Available Distributions & dqrp
+- [2. Available Distributions and Related
   Functions](https://example.com/DPmixGPD/articles/v02-available-distributions.md):
 - [3. Basic Workflow: Model Specification, Bundle, &
   MCMC](https://example.com/DPmixGPD/articles/v03-basic-model-compile-run.md):
