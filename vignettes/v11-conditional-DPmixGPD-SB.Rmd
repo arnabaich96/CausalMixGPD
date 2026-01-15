@@ -23,112 +23,160 @@ knitr::opts_chunk$set(
 library(DPmixGPD)
 if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
 library(ggplot2)
+library(gridExtra)
+library(kableExtra)
+library(dplyr)
+library(tibble)
 set.seed(123)
 ```
 
-# Conditional DPmixGPD: Stick-Breaking Backend with Covariates & Tail
+# Conditional DPmixGPD: Stick-Breaking Backend
 
-**Goal**: Apply **SB backend** with **covariates** and **GPD tail** for fixed-component conditional modeling.
+**Purpose**: Apply fixed-component stick-breaking truncation to covariate-dependent mixtures while keeping the GPD tail. This vignette mirrors `v10` but with the SB backend.
 
 ---
 
 ## Data Setup
 
 ```{r data-setup}
-set.seed(42)
-n <- 150
+data("nc_pos_tailX200_p3_k4")
+y <- nc_pos_tailX200_p3_k4$y
+X <- as.matrix(nc_pos_tailX200_p3_k4$X)
 
-X <- cbind(
-  x1 = rnorm(n, mean = 0, sd = 1),
-  x2 = rnorm(n, mean = 0, sd = 1)
+summary_tbl <- tibble(
+  statistic = c("N", "Mean", "SD", "Min", "Max"),
+  value = c(length(y), mean(y), sd(y), min(y), max(y))
 )
 
-mean_shift_1 <- 1 + 0.5 * X[, 1]
-mean_shift_2 <- 3 + 0.2 * X[, 1]
+ggplot(data.frame(y = y, x1 = X[, 1]), aes(x = x1, y = y)) +
+  geom_point(alpha = 0.6, color = "purple") +
+  geom_smooth(method = "loess", color = "orange", fill = NA) +
+  labs(title = "Tail Outcome vs x1 (SB)", x = "x1", y = "y") +
+  theme_minimal()
+```
 
-component_1 <- rgamma(75, shape = 2, rate = 1.5) + mean_shift_1[1:75]
-component_2 <- rgamma(75, shape = 1, rate = 0.8) + mean_shift_2[76:150]
+```{r data-table, echo=FALSE}
+summary_tbl %>%
+  mutate(value = signif(value, 4)) %>%
+  kable(caption = "Conditional Tail Summary (SB)") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE)
+```
 
-tail_component <- DPmixGPD::rGpd(20, threshold = 0, scale = 1, shape = 0.3)
-y_tail <- c(component_1, component_2, tail_component)
+---
 
-X_tail <- rbind(X, X[1:20, ])
-u_threshold <- quantile(y_tail, 0.8)
+## Threshold
 
-print("Sample size:", length(y_tail), "\n")
+```{r threshold}
+u_threshold <- quantile(y, 0.85)
+
+ggplot(data.frame(y = y), aes(x = y)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 40, fill = "lightgreen", alpha = 0.6) +
+  geom_vline(xintercept = u_threshold, linetype = "dashed", color = "black") +
+  labs(title = "Threshold for SB tail (85%)", x = "y", y = "Density") +
+  theme_minimal()
 ```
 
 ---
 
 ## Model Specification
 
-```{r spec}
-spec_cond_sb_gpd <- compile_model_spec(
-  y = y_tail,
-  X = X_tail,
-  kernel = "gamma",
-  backend = "sb",            # SB backend
-  GPD = TRUE,
-  threshold = u_threshold,
-  components = 5
-)
-
-message("Conditional SB + GPD Specification created.")
-```
-
----
-
-## Bundle & MCMC
-
-```{r bundle-mcmc}
-bundle_cond_sb_gpd <- build_nimble_bundle(
-  y = y_tail,
-  X = X_tail,
-  kernel = "gamma",
+```{r bundle}
+bundle_sb_cond_gpd <- build_nimble_bundle(
+  y = y,
+  X = X,
+  kernel = "lognormal",
   backend = "sb",
   GPD = TRUE,
-  threshold = u_threshold,
-  components = 5,
-  mcmc = list(niter = 2000, nburnin = 500, nchains = 2, thin = 1)
+  components = 8,
+  param_specs = list(
+    gpd = list(
+      threshold = list(mode = "fixed", value = u_threshold)
+    )
+  ),
+  mcmc = list(
+    niter = 2000,
+    nburnin = 500,
+    nchains = 2,
+    thin = 1
+  )
 )
-
-fit_cond_sb_gpd <- run_mcmc_bundle_manual(bundle_cond_sb_gpd)
-
-summary(fit_cond_sb_gpd)
 ```
 
 ---
 
-## Predictions
+## MCMC Execution
 
-```{r pred}
-X_new <- cbind(x1 = c(-1, 0, 1), x2 = 0)
-y_grid <- seq(-2, 15, length.out = 150)
+```{r mcmc}
+fit_sb_cond_gpd <- run_mcmc_bundle_manual(bundle_sb_cond_gpd)
+summary(fit_sb_cond_gpd)
+```
 
-# Conditional density predictions for each covariate level with GPD tail
-densities_list <- list()
-for (i in 1:nrow(X_new)) {
-  pred <- predict(fit_cond_sb_gpd, x = X_new[i, , drop = FALSE], y = y_grid, type = "density")
-  densities_list[[i]] <- data.frame(
-    y = pred$fit$y,
-    density = pred$fit$density,
-    group = paste("X1=", round(X_new[i, 1], 1), sep = "")
+---
+
+## Conditional Predictions
+
+```{r cond-predict}
+X_new <- matrix(c(-1, 0, 0, 0, 0, 0, 1, 1, 0), ncol = 3, byrow = TRUE)
+y_grid <- seq(0, max(y) * 1.2, length.out = 200)
+
+df_pred <- lapply(seq_len(nrow(X_new)), function(i) {
+  pred <- predict(fit_sb_cond_gpd, x = X_new[i, , drop = FALSE], y = y_grid, type = "density")
+  data.frame(
+    y = y_grid,
+    density = pred$fit[[1]],
+    label = paste("x1=", X_new[i, 1], ", x2=", X_new[i, 2], sep = "")
   )
-}
+})
 
-df_pred <- do.call(rbind, densities_list)
-
-ggplot(df_pred, aes(x = y, y = density, color = group)) +
+bind_rows(df_pred) %>%
+  ggplot(aes(x = y, y = density, color = label)) +
   geom_line(linewidth = 1) +
-  labs(title = "Conditional Density with Tail (SB + GPD)", x = "y", y = "Density") +
+  labs(title = "Conditional Density (SB + GPD)", x = "y", y = "Density") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
+---
+
+## Tail Quantiles
+
+```{r quantiles}
+X_grid <- cbind(x1 = seq(-1, 1, length.out = 5), x2 = 0, x3 = 0)
+quant_probs <- c(0.90, 0.95)
+
+quant_df <- lapply(seq_len(nrow(X_grid)), function(i) {
+  pred <- predict(fit_sb_cond_gpd, x = X_grid[i, , drop = FALSE], type = "quantile", index = quant_probs)
+  data.frame(
+    x1 = X_grid[i, "x1"],
+    quantile = quant_probs,
+    estimate = pred$fit$estimate
+  )
+})
+
+bind_rows(quant_df) %>%
+  ggplot(aes(x = x1, y = estimate, color = factor(quantile))) +
+  geom_line(linewidth = 1) +
+  labs(title = "Tail Quantiles vs x1 (SB)", x = "x1", y = "Quantile", color = "Probability") +
   theme_minimal()
 ```
 
 ---
 
-## Key Takeaways
+## Residuals & Diagnostics
 
-- **SB + Covariates + Tail**: Fixed components with flexible tail
-- **Efficiency**: Faster than CRP for large data
-- **Next**: Causal models in vignettes 12-15
+```{r residuals}
+plot(fitted(fit_sb_cond_gpd))
+```
 
+```{r diagnostics}
+plot(fit_sb_cond_gpd, family = c("traceplot", "density"))
+```
+
+---
+
+## Takeaways
+
+- Conditional stick-breaking mixtures capture covariate-dependent bulk structure while the GPD handles extremes.
+- `predict()` and `plot()` remain consistent for densities, quantiles, and residuals.
+- Expect threshold-selected tail quantiles to shift with `x1` even when `components` is fixed.
+- Next: move into causal models starting with same-backend CRP (v12).

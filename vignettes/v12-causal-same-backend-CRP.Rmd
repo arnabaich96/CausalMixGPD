@@ -1,6 +1,6 @@
 ---
 title: "12. Causal Inference: Same Backend (CRP) for PS & Outcome"
-output: 
+output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
@@ -17,86 +17,70 @@ knitr::opts_chunk$set(
   fig.height = 6,
   message = FALSE,
   warning = FALSE,
-  eval = FALSE
+  eval = TRUE,
+  cache = TRUE
 )
 library(DPmixGPD)
 if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
 library(ggplot2)
+library(gridExtra)
+library(kableExtra)
+library(dplyr)
+library(tibble)
+library(patchwork)
 set.seed(123)
 ```
 
-# Causal Inference: CRP Backend for Both Propensity Score & Outcome
+# Causal Inference: Same Backend (CRP) for PS & Outcome
 
-**Goal**: Estimate **treatment effects** with **propensity score modeling** (PS) using CRP backend.
-
-**Model**:
-- **PS Model** (logit/probit/naive): $P(T=1|X)$ via flexible DP mixture
-- **Outcome Model**: $Y|T,X,PS$ via DP mixture conditioning on covariates
-
-**PS Options**: `logit`, `probit`, `naive`, or `FALSE` (disabled)
+**Purpose**: Fit two outcome models (one per arm) with a shared CRP backend while estimating propensity scores via a logit DP mixture. We then compare density predictions, quantiles, and CQTE surfaces while monitoring PS overlap.
 
 ---
 
-## Data Setup: Two-Arm Study
+## Data Setup
 
 ```{r data-setup}
-set.seed(42)
-n <- 200
+data("causal_alt_real500_p4_k2")
+y <- causal_alt_real500_p4_k2$y
+T <- causal_alt_real500_p4_k2$T
+X <- as.matrix(causal_alt_real500_p4_k2$X)
 
-# Covariates
-X <- cbind(
-  x1 = rnorm(n, mean = 0, sd = 1),
-  x2 = rnorm(n, mean = 0, sd = 1)
+summary_tbl <- tibble(
+  statistic = c("N", "Mean", "SD", "Min", "Max"),
+  value = c(length(y), mean(y), sd(y), min(y), max(y))
 )
 
-# Treatment (binary)
-T <- rbinom(n, size = 1, prob = 0.5)
+df_causal <- data.frame(y = y, T = as.factor(T), x1 = X[, 1], x2 = X[, 2])
 
-# Outcome: function of treatment, covariates, and PS
-ps_prob <- 0.5  # True PS model (simplified)
-y <- ifelse(
-  T == 1,
-  rnorm(n, mean = 3 + 0.5 * X[, 1], sd = 1.2),  # Treatment arm
-  rnorm(n, mean = 1 + 0.3 * X[, 1], sd = 1.0)   # Control arm
-)
-
-df_causal <- data.frame(
-  y = y,
-  T = as.factor(T),
-  x1 = X[, 1],
-  x2 = X[, 2]
-)
-
-# Visualization
-p_raw <- ggplot(df_causal, aes(x = x1, y = y, color = T)) +
-  geom_point(alpha = 0.6) +
-  scale_color_manual(values = c("0" = "steelblue", "1" = "red")) +
-  labs(title = "Outcome by Treatment & Covariate", x = "X1", y = "y", color = "Treatment") +
+p_scatter <- ggplot(df_causal, aes(x = x1, y = y, color = T)) +
+  geom_point(alpha = 0.5) +
+  labs(title = "Outcome vs X1 by Treatment", x = "X1", y = "y", color = "Treatment") +
   theme_minimal()
 
-print(p_raw)
+grid.arrange(p_scatter, ncol = 1)
+```
 
-print("Sample size:", n, "\n")
-print("Treatment:", table(T), "\n")
-print("Mean outcome (T=0):", mean(y[T == 0]), "\n")
-print("Mean outcome (T=1):", mean(y[T == 1]), "\n")
+```{r data-table, echo=FALSE}
+summary_tbl %>%
+  mutate(value = signif(value, 4)) %>%
+  kable(caption = "Causal Dataset Summary") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE)
 ```
 
 ---
 
-## Causal Bundle Specification
+## Causal Bundle & MCMC
 
-```{r causal-spec}
-# Build causal bundle with PS modeling
+```{r bundle}
 bundle_causal_crp <- build_causal_bundle(
   y = y,
   T = T,
   X = X,
-  kernel = "normal",                # Outcome kernel
-  backend = "crp",                  # CRP for outcome
-  PS = "logit",                     # Propensity score: logit model
-  GPD = FALSE,
-  Kmax = 5,
+  kernel = c("normal", "normal"),
+  backend = c("crp", "crp"),
+  PS = "logit",
+  GPD = c(FALSE, FALSE),
+  Kmax = c(6, 6),
   mcmc = list(
     niter = 2000,
     nburnin = 500,
@@ -105,184 +89,81 @@ bundle_causal_crp <- build_causal_bundle(
   )
 )
 
-print("Causal bundle (CRP + logit PS) created.\n")
+fit_causal_crp <- run_mcmc_causal(bundle_causal_crp)
+summary(fit_causal_crp)
 ```
 
 ---
 
-## PS Model Variants
+## Propensity Score Diagnostics
 
-### Logit PS Model
+```{r ps-diagnostics}
+ps_vals <- fitted(fit_causal_crp, type = "ps")
 
-```{r ps-logit}
-# Logit: Default, flexible
-bundle_logit <- build_causal_bundle(
-  y = y, T = T, X = X,
-  kernel = "normal", backend = "crp",
-  PS = "logit",           # Bayesian logit via DP mixture
-  GPD = FALSE, Kmax = 5,
-  mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
-)
+df_ps <- data.frame(p = ps_vals, T = as.factor(T))
 
-fit_logit <- run_mcmc_bundle_manual(bundle_logit)
-print("\n=== Logit PS Model ===\n")
-summary(fit_logit)
-```
-
-### Probit PS Model
-
-```{r ps-probit}
-bundle_probit <- build_causal_bundle(
-  y = y, T = T, X = X,
-  kernel = "normal", backend = "crp",
-  PS = "probit",          # Bayesian probit
-  GPD = FALSE, Kmax = 5,
-  mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
-)
-
-fit_probit <- run_mcmc_bundle_manual(bundle_probit)
-print("\n=== Probit PS Model ===\n")
-summary(fit_probit)
-```
-
-### Naive PS Model
-
-```{r ps-naive}
-# Naive: No PS correction (treatment as covariate only)
-bundle_naive <- build_causal_bundle(
-  y = y, T = T, X = X,
-  kernel = "normal", backend = "crp",
-  PS = "naive",           # No PS model
-  GPD = FALSE, Kmax = 5,
-  mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
-)
-
-fit_naive <- run_mcmc_bundle_manual(bundle_naive)
-print("\n=== Naive PS Model (No PS Adjustment) ===\n")
-summary(fit_naive)
-```
-
----
-
-## Treatment Effect Estimation
-
-### Average Treatment Effect (ATE)
-
-```{r ate}
-# Extract treatment effect from fit
-print("\n=== TREATMENT EFFECTS ===\n")
-
-print("\nLogit PS Model:\n")
-ate_logit <- coef(fit_logit)
-print("Posterior mean treatment effect:", ate_logit, "\n")
-
-print("\nProbit PS Model:\n")
-ate_probit <- coef(fit_probit)
-print("Posterior mean treatment effect:", ate_probit, "\n")
-
-print("\nNaive Model:\n")
-ate_naive <- coef(fit_naive)
-print("Posterior mean treatment effect:", ate_naive, "\n")
-```
-
----
-
-## Conditional Average Treatment Effect (CATE)
-
-```{r cate}
-# CATE: ATE conditional on covariates
-X_cate <- cbind(x1 = c(-1, 0, 1), x2 = 0)
-
-cate_logit <- predict(fit_logit, newdata = X_cate, type = "treatment.effect")
-print("CATE at X1 = -1, 0, 1 (Logit PS):\n")
-print(cate_logit)
-```
-
----
-
-## PS Comparison: All Three Models
-
-```{r ps-comparison}
-print("\n=== MODEL COMPARISON ===\n")
-
-df_comp <- data.frame(
-  Model = c("Logit PS", "Probit PS", "Naive"),
-  Comparison = "See summary()",
-  ATE = c(ate_logit, ate_probit, ate_naive)
-)
-
-print(df_comp)
-
-print("\n✓ Logit typically preferred for binary outcome in treatment\n")
-```
-
----
-
-## Propensity Score Distribution
-
-```{r ps-dist}
-# Extract estimated PS values
-ps_fitted <- fitted(fit_logit, type = "ps")
-
-df_ps <- data.frame(ps = ps_fitted, T = as.factor(T))
-
-p_ps <- ggplot(df_ps, aes(x = ps, fill = T)) +
-  geom_histogram(alpha = 0.6, bins = 30) +
-  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +
-  labs(title = "Estimated Propensity Score Distribution", x = "PS", y = "Count") +
+ggplot(df_ps, aes(x = p, fill = T)) +
+  geom_histogram(position = "identity", alpha = 0.6, bins = 30) +
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "firebrick")) +
+  labs(title = "Estimated Propensity Scores", x = "PS", y = "Count") +
   theme_minimal()
-
-print(p_ps)
 ```
 
 ---
 
-## Overlap Assessment
+## CQTE Estimation
 
-```{r overlap}
-# PS overlap: critical for causal inference
-ps_control <- ps_fitted[T == 0]
-ps_treated <- ps_fitted[T == 1]
+```{r cqte}
+X_ref <- matrix(colMeans(X), nrow = 1)
+tau_grid <- seq(0.05, 0.95, length.out = 10)
+pred_tau <- predict(fit_causal_crp, newdata = X_ref, type = "quantile", p = tau_grid)
 
-p_overlap <- ggplot(data.frame(ps = ps_fitted, T = as.factor(T)), 
-                     aes(x = ps, fill = T)) +
-  geom_density(alpha = 0.5) +
-  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +
-  labs(title = "PS Overlap: Common Support", x = "PS", y = "Density") +
+q_trt <- as.numeric(pred_tau$trt$fit)
+q_con <- as.numeric(pred_tau$con$fit)
+qte <- q_trt - q_con
+
+qte_tbl <- tibble(
+  tau = tau_grid,
+  treated = q_trt,
+  control = q_con,
+  cqte = qte
+)
+
+qte_tbl %>%
+  ggplot(aes(x = tau, y = cqte)) +
+  geom_line(linewidth = 1.2, color = "darkorange") +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "gray") +
+  labs(title = "Conditional Quantile Treatment Effect (CQTE)", y = "Q1 - Q0", x = "τ") +
   theme_minimal()
-
-print(p_overlap)
-
-print("Common support check:\n")
-print("  Control PS range: [", min(ps_control), ",", max(ps_control), "]\n")
-print("  Treated PS range: [", min(ps_treated), ",", max(ps_treated), "]\n")
 ```
 
 ---
 
-## Residual Analysis
+## Density Difference
 
-```{r residuals}
-resid_vals <- residuals(fit_logit)
+```{r density-diff}
+y_grid <- seq(min(y), max(y), length.out = 200)
+pred_density <- predict(fit_causal_crp, newdata = X_ref, y = y_grid, type = "density")
 
-p_resid <- ggplot(data.frame(r = resid_vals, T = as.factor(T)), 
-                   aes(x = T, y = r, fill = T)) +
-  geom_boxplot(alpha = 0.6) +
-  geom_jitter(alpha = 0.3, width = 0.2) +
-  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +
-  labs(title = "Residuals by Treatment", x = "Treatment", y = "Residual") +
+df_density <- data.frame(
+  y = y_grid,
+  control = pred_density$con$fit[[1]],
+  treated = pred_density$trt$fit[[1]]
+)
+
+ggplot(df_density, aes(x = y)) +
+  geom_line(aes(y = control, color = "Control")) +
+  geom_line(aes(y = treated, color = "Treated")) +
+  scale_color_manual(values = c("Control" = "steelblue", "Treated" = "firebrick")) +
+  labs(title = "Posterior Predictive Densities by Arm", y = "Density", color = "Arm") +
   theme_minimal()
-
-print(p_resid)
 ```
 
 ---
 
-## Key Takeaways
+## Takeaways
 
-- **PS Models**: Logit, probit, and naive (covariate-only)
-- **CRP Backend**: Flexible outcome modeling given PS
-- **Treatment Effects**: ATE and CATE available
-- **Common Support**: Check PS overlap for valid inference
-- **Next**: SB backend in vignette 13, then heterogeneous effects
-
+- CRP backend allows flexible, data-adaptive mixture components for both arms while keeping identical specification.
+- `predict()` on a causal fit returns matched predictions for treated/control arms plus the stored PS for reweighting new data.
+- CQTE curves highlight how extreme quantiles are shifted between arms, making treatment effect heterogeneity explicit.
+- Next: switch to the SB backend for both arms (v13) to compare truncation behavior.

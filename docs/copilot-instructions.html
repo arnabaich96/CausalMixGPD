@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="index.html">DPmixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -86,6 +86,16 @@
 <span><span class="fu">renv</span><span class="fu">::</span><span class="fu"><a href="https://rstudio.github.io/renv/reference/restore.html" class="external-link">restore</a></span><span class="op">(</span><span class="op">)</span>             <span class="co"># Restore dependencies (renv.lock pinned to R 4.5.2)</span></span></code></pre></div>
 </div>
 <div class="section level3">
+<h3 id="documentation--vignette-standards">Documentation &amp; Vignette Standards<a class="anchor" aria-label="anchor" href="#documentation--vignette-standards"></a></h3>
+<ul><li>
+<strong>Table Formatting</strong>: Always use <code>kableExtra</code> wrapper when printing tables in vignettes or documentation
+<ul><li>Example: <code>kbl(table_data) %&gt;% kable_styling()</code>
+</li>
+<li>Ensures consistent, professional table rendering across HTML and PDF outputs</li>
+<li>Required for all summary tables, parameter tables, and result comparisons</li>
+</ul></li>
+</ul></div>
+<div class="section level3">
 <h3 id="testing-patterns-see-teststestthattest-mcmcr">Testing Patterns (See <a href="tests/testthat/test-MCMC.R">tests/testthat/test-MCMC.R</a>)<a class="anchor" aria-label="anchor" href="#testing-patterns-see-teststestthattest-mcmcr"></a></h3>
 <ul><li>Grid test: all kernel × backend × GPD combinations (217 lines)</li>
 <li>Always use <code>skip_if_not_installed("nimble")</code> and <code>skip_if_not_installed("coda")</code>
@@ -93,6 +103,8 @@
 <li>Capture noisy output: <code>utils::capture.output(..., file = nullfile())</code>
 </li>
 <li>Snapshot tests in <code>tests/testthat/_snaps/</code> for regression checks</li>
+<li>
+<strong>IMPORTANT</strong>: Never create test files in root directory. Use <code>test_output/</code> folder for all test scripts and temporary files</li>
 </ul></div>
 <div class="section level3">
 <h3 id="file-organization-logic">File Organization Logic<a class="anchor" aria-label="anchor" href="#file-organization-logic"></a></h3>
@@ -130,7 +142,7 @@
 </ol></div>
 <div class="section level2">
 <h2 id="nimble-integration">NIMBLE Integration<a class="anchor" aria-label="anchor" href="#nimble-integration"></a></h2>
-<ul><li>Models compiled via <code>nimbleModel()</code> + <code>compileNimble()</code>
+<ul><li>Models compiled via <code><a href="https://rdrr.io/pkg/nimble/man/nimbleModel.html" class="external-link">nimbleModel()</a></code> + <code><a href="https://rdrr.io/pkg/nimble/man/compileNimble.html" class="external-link">compileNimble()</a></code>
 </li>
 <li>Posterior samples converted to <code><a href="https://rdrr.io/pkg/coda/man/mcmc.list.html" class="external-link">coda::mcmc.list</a></code> for diagnostics</li>
 <li>Test failures often due to: invalid node indices, cyclic dependencies, or monitor name mismatches</li>

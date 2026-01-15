@@ -1,6 +1,6 @@
 ---
-title: "14. Causal Inference: Different Backends (CRP for PS, Varied for Outcome)"
-output: 
+title: "14. Causal Inference: Different Backends per Arm (Bulk-only)"
+output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
@@ -17,215 +17,153 @@ knitr::opts_chunk$set(
   fig.height = 6,
   message = FALSE,
   warning = FALSE,
-  eval = FALSE
+  eval = TRUE,
+  cache = TRUE
 )
 library(DPmixGPD)
 if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
 library(ggplot2)
+library(gridExtra)
+library(kableExtra)
+library(dplyr)
+library(tibble)
+library(patchwork)
 set.seed(123)
 ```
 
-# Causal Inference: Different Backends for PS (CRP) vs Outcome
+# Causal Inference: Different Backends per Arm (Bulk-only)
 
-**Goal**: Apply **different backends** for PS and outcome modeling. PS uses **CRP**, outcome uses **varied backends** (CRP, SB) for flexibility.
-
-**Use Case**: When outcome and PS have different complexity requirements.
+**Purpose**: Show how outcome backends can differ across arms (CRP vs SB) while PS is shared. This vignette fits both combinations and compares ATE/CQTE across settings, keeping `GPD = FALSE`.
 
 ---
 
 ## Data Setup
 
 ```{r data-setup}
-set.seed(42)
-n <- 200
+data("causal_alt_real500_p4_k2")
+y <- causal_alt_real500_p4_k2$y
+T <- causal_alt_real500_p4_k2$T
+X <- as.matrix(causal_alt_real500_p4_k2$X)
 
-X <- cbind(
-  x1 = rnorm(n, mean = 0, sd = 1),
-  x2 = rnorm(n, mean = 0, sd = 1)
+summary_tbl <- tibble(
+  statistic = c("N", "Mean", "SD", "Min", "Max"),
+  value = c(length(y), mean(y), sd(y), min(y), max(y))
 )
 
-T <- rbinom(n, size = 1, prob = 0.5)
+ggplot(data.frame(y = y, x1 = X[, 1], T = as.factor(T)), aes(x = x1, y = y, color = T)) +
+  geom_point(alpha = 0.5) +
+  labs(title = "Outcome vs X1 by Treatment", x = "X1", y = "y", color = "Treatment") +
+  theme_minimal()
+```
 
-y <- ifelse(
-  T == 1,
-  rnorm(n, mean = 3 + 0.5 * X[, 1], sd = 1.2),
-  rnorm(n, mean = 1 + 0.3 * X[, 1], sd = 1.0)
-)
-
-print("Sample size:", n, "\n")
-print("Treatment:", table(T), "\n")
+```{r data-table, echo=FALSE}
+summary_tbl %>%
+  mutate(value = signif(value, 4)) %>%
+  kable(caption = "Causal Dataset Summary") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE)
 ```
 
 ---
 
-## Causal Bundle: CRP for PS, Varied Outcome Backend
+## Backend Combinations
 
-### CRP PS + CRP Outcome
-
-```{r crp-ps-crp-outcome}
-bundle_crp_crp <- build_causal_bundle(
+```{r bundles}
+# Treated: SB, Control: CRP
+bundle_sb_crp <- build_causal_bundle(
   y = y,
   T = T,
   X = X,
-  kernel = "normal",
-  backend = "crp",           # Outcome: CRP
-  PS = "logit",              # PS: logit (uses flexible modeling)
-  GPD = FALSE,
-  Kmax = 5,
-  mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
+  kernel = c("normal", "normal"),
+  backend = c("sb", "crp"),
+  PS = "logit",
+  GPD = c(FALSE, FALSE),
+  J = c(6, 6),
+  mcmc = list(niter = 2000, nburnin = 500, nchains = 2, thin = 1)
 )
 
-fit_crp_crp <- run_mcmc_bundle_manual(bundle_crp_crp)
-
-ate_crp_crp <- coef(fit_crp_crp)
-print("=== CRP PS + CRP Outcome ===\n")
-print("ATE:", ate_crp_crp, "\n")
-```
-
-### CRP PS + SB Outcome
-
-```{r crp-ps-sb-outcome}
+# Treated: CRP, Control: SB
 bundle_crp_sb <- build_causal_bundle(
   y = y,
   T = T,
   X = X,
-  kernel = "normal",
-  backend = "sb",            # Outcome: SB
-  PS = "logit",              # PS: logit
-  GPD = FALSE,
-  J = 5,
-  mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
+  kernel = c("normal", "normal"),
+  backend = c("crp", "sb"),
+  PS = "logit",
+  GPD = c(FALSE, FALSE),
+  J = c(6, 6),
+  mcmc = list(niter = 2000, nburnin = 500, nchains = 2, thin = 1)
 )
-
-fit_crp_sb <- run_mcmc_bundle_manual(bundle_crp_sb)
-
-ate_crp_sb <- coef(fit_crp_sb)
-print("\n=== CRP PS + SB Outcome ===\n")
-print("ATE:", ate_crp_sb, "\n")
 ```
 
 ---
 
-## Backend Combination Comparison
+## MCMC Fits & ATE Comparison
 
-```{r comparison}
-df_backends <- data.frame(
-  Model = c("CRP PS + CRP Outcome", "CRP PS + SB Outcome"),
-  ATE = c(ate_crp_crp, ate_crp_sb),
-  Comparison = "See summary()"
+```{r mcmc-fits}
+fit_sb_crp <- run_mcmc_causal(bundle_sb_crp)
+fit_crp_sb <- run_mcmc_causal(bundle_crp_sb)
+
+ate_sb_crp <- coef(fit_sb_crp)
+ate_crp_sb <- coef(fit_crp_sb)
+
+ave_tbl <- tibble(
+  model = c("Treated=SB, Control=CRP", "Treated=CRP, Control=SB"),
+  ATE = c(ate_sb_crp, ate_crp_sb)
 )
 
-print("\n=== BACKEND COMPARISON ===\n")
-print(df_backends)
-
-# Visualization
-p_ate_comp <- ggplot(df_backends, aes(x = Model, y = ATE)) +
-  geom_point(size = 4, color = "steelblue") +
-  geom_errorbar(aes(ymin = ATE - 0.2, ymax = ATE + 0.2), width = 0.2) +
-  labs(title = "ATE by Backend Combination", x = "Model", y = "ATE") +
+ggplot(ave_tbl, aes(x = model, y = ATE)) +
+  geom_col(fill = c("mediumseagreen", "steelblue")) +
+  labs(title = "ATE under Different Backends", x = "Backend Combination", y = "ATE") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
-print(p_ate_comp)
 ```
 
 ---
 
-## PS Distribution & Overlap
+## PS Overlap (SB/CRP mixture)
 
-```{r ps}
-ps_fitted_crp <- fitted(fit_crp_crp, type = "ps")
+```{r ps-overlap}
+ps_vals <- fitted(fit_sb_crp, type = "ps")
+df_ps <- data.frame(ps = ps_vals, T = as.factor(T))
 
-df_ps <- data.frame(ps = ps_fitted_crp, T = as.factor(T))
-
-p_ps <- ggplot(df_ps, aes(x = ps, fill = T)) +
+ggplot(df_ps, aes(x = ps, fill = T)) +
   geom_density(alpha = 0.5) +
-  scale_fill_manual(values = c("0" = "steelblue", "1" = "red")) +
-  labs(title = "PS Distribution: CRP Backend", x = "PS", y = "Density") +
+  scale_fill_manual(values = c("0" = "steelblue", "1" = "firebrick")) +
+  labs(title = "Propensity Score Overlap (shared PS)", x = "PS", y = "Density") +
   theme_minimal()
-
-print(p_ps)
-
-print("\nPS Summary:\n")
-print(summary(ps_fitted_crp))
 ```
 
 ---
 
-## Treatment Effect Heterogeneity (HTE)
+## CQTE Across Backend Choices
 
-### Conditional ATE by Covariate
+```{r cqte-diff}
+X_ref <- matrix(colMeans(X), nrow = 1)
+tau_grid <- seq(0.05, 0.95, length.out = 10)
 
-```{r hte}
-# CATE across X1 range
-X_hte <- cbind(x1 = seq(-2, 2, by = 0.5), x2 = 0)
+pred_sb_crp <- predict(fit_sb_crp, newdata = X_ref, type = "quantile", p = tau_grid)
+pred_crp_sb <- predict(fit_crp_sb, newdata = X_ref, type = "quantile", p = tau_grid)
 
-cate_crp_crp <- predict(fit_crp_crp, newdata = X_hte, type = "treatment.effect")
-cate_crp_sb <- predict(fit_crp_sb, newdata = X_hte, type = "treatment.effect")
+qte_sb_crp <- as.numeric(pred_sb_crp$trt$fit - pred_sb_crp$con$fit)
+qte_crp_sb <- as.numeric(pred_crp_sb$trt$fit - pred_crp_sb$con$fit)
 
-df_hte <- data.frame(
-  x1 = X_hte[, 1],
-  CRP_Outcome = cate_crp_crp,
-  SB_Outcome = cate_crp_sb
+qte_df <- tibble(
+  tau = rep(tau_grid, 2),
+  cqte = c(qte_sb_crp, qte_crp_sb),
+  model = rep(c("SB/CRP", "CRP/SB"), each = length(tau_grid))
 )
 
-# Melt for ggplot
-library(reshape2)
-df_hte_long <- melt(df_hte, id.vars = "x1", 
-                     variable.name = "Backend", value.name = "CATE")
-
-p_hte <- ggplot(df_hte_long, aes(x = x1, y = CATE, color = Backend)) +
-  geom_line(linewidth = 1) +
-  geom_point(size = 2) +
-  scale_color_manual(values = c("CRP_Outcome" = "steelblue", "SB_Outcome" = "coral")) +
-  labs(title = "Treatment Effect Heterogeneity (HTE)", x = "X1", y = "CATE") +
+ggplot(qte_df, aes(x = tau, y = cqte, color = model)) +
+  geom_line(linewidth = 1.1) +
+  labs(title = "CQTE Comparison by Backend Combo", x = "τ", y = "Q1 − Q0") +
   theme_minimal()
-
-print(p_hte)
 ```
 
 ---
 
-## When to Use Different Backends
+## Takeaways
 
-```{r guidance}
-print("\n=== WHEN TO USE DIFFERENT BACKENDS ===\n\n")
-
-print("Use CRP for PS if:\n")
-print("  ✓ Treatment assignment complex/nonlinear\n")
-print("  ✓ Want flexible PS model\n\n")
-
-print("Use SB for Outcome if:\n")
-print("  ✓ Outcome model simpler than PS\n")
-print("  ✓ Need faster inference\n")
-print("  ✓ Large sample size\n\n")
-
-print("Use CRP for Outcome if:\n")
-print("  ✓ Outcome mixture complex\n")
-print("  ✓ Treatment effect heterogeneous\n")
-print("  ✓ Want adaptive # components\n")
-```
-
----
-
-## Model Selection via LogLik
-
-```{r model-selection}
-print("Model selection:\n")
-if (loglik_crp_crp > loglik_crp_sb) {
-  print("✓ CRP outcome preferred (better fit)\n")
-} else {
-  print("✓ SB outcome preferred (simpler, comparable fit)\n")
-}
-```
-
----
-
-## Key Takeaways
-
-- **Different Backends**: Optimize PS and outcome models independently
-- **Flexibility**: Choose best backend for each component
-- **HTE Analysis**: Examine treatment effects across covariate space
-- **Model Selection**: Use LogLik to guide backend choice
-- **Next**: SB PS with varied outcome in vignette 15
-
+- Different backend mixtures demonstrate how truncation style influences extreme quantiles even when PS is shared.
+- `predict()` returns paired `trt`/`con` outputs so subtracting them yields CQTE curves for any $\tau$.
+- Use the same PS diagnostics and `coef()` summaries across fits to ensure proper overlap before trusting treatment effects.
+- Next: add GPD tails to these mixed-backend workflows (`v15`).
