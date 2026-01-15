@@ -9,22 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = NA,
-  fig.width = 8,
-  fig.height = 6,
-  message = FALSE,
-  warning = FALSE,
-  eval = TRUE,
-  cache = TRUE
-)
-library(DPmixGPD)
-if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
-library(ggplot2)
-set.seed(123)
-```
+
 
 # Conditional DPmixGPD: Stick-Breaking Backend with Covariates & Tail
 
@@ -34,7 +19,8 @@ set.seed(123)
 
 ## Data Setup
 
-```{r data-setup}
+
+``` r
 set.seed(42)
 n <- 150
 
@@ -62,7 +48,8 @@ print("Sample size:", length(y_tail), "\n")
 
 ## Model Specification
 
-```{r spec}
+
+``` r
 spec_cond_sb_gpd <- compile_model_spec(
   y = y_tail,
   X = X_tail,
@@ -70,7 +57,8 @@ spec_cond_sb_gpd <- compile_model_spec(
   backend = "sb",            # SB backend
   GPD = TRUE,
   threshold = u_threshold,
-  components = 5
+  J = 5,
+  verbose = FALSE
 )
 
 message("Conditional SB + GPD Specification created.")
@@ -80,15 +68,10 @@ message("Conditional SB + GPD Specification created.")
 
 ## Bundle & MCMC
 
-```{r bundle-mcmc}
+
+``` r
 bundle_cond_sb_gpd <- build_nimble_bundle(
-  y = y_tail,
-  X = X_tail,
-  kernel = "gamma",
-  backend = "sb",
-  GPD = TRUE,
-  threshold = u_threshold,
-  components = 5,
+  spec_cond_sb_gpd,
   mcmc = list(niter = 2000, nburnin = 500, nchains = 2, thin = 1)
 )
 
@@ -101,7 +84,8 @@ summary(fit_cond_sb_gpd)
 
 ## Predictions
 
-```{r pred}
+
+``` r
 X_new <- cbind(x1 = c(-1, 0, 1), x2 = 0)
 y_grid <- seq(-2, 15, length.out = 150)
 

@@ -58,6 +58,7 @@ renv::restore()             # Restore dependencies (renv.lock pinned to R 4.5.2)
 - Always use `skip_if_not_installed("nimble")` and `skip_if_not_installed("coda")`
 - Capture noisy output: `utils::capture.output(..., file = nullfile())`
 - Snapshot tests in `tests/testthat/_snaps/` for regression checks
+- **IMPORTANT**: Never create test files in root directory. Use `test_output/` folder for all test scripts and temporary files
 
 ### File Organization Logic
 - [R/00-kernel-registry.R](R/00-kernel-registry.R): Registry initialization

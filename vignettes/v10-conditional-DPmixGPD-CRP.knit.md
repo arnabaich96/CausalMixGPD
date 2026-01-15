@@ -9,22 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = NA,
-  fig.width = 8,
-  fig.height = 6,
-  message = FALSE,
-  warning = FALSE,
-  eval = TRUE,
-  cache = TRUE
-)
-library(DPmixGPD)
-if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
-library(ggplot2)
-set.seed(123)
-```
+
 
 # Conditional DPmixGPD: CRP Backend with Covariates & Tail
 
@@ -34,7 +19,8 @@ set.seed(123)
 
 ## Data Setup
 
-```{r data-setup}
+
+``` r
 set.seed(42)
 n <- 150
 
@@ -66,7 +52,8 @@ print("Bulk:", sum(y_tail <= u_threshold), "| Tail:", sum(y_tail > u_threshold),
 
 ## Model Specification
 
-```{r spec}
+
+``` r
 spec_cond_gpd <- compile_model_spec(
   y = y_tail,
   X = X_tail,
@@ -74,7 +61,8 @@ spec_cond_gpd <- compile_model_spec(
   backend = "crp",
   GPD = TRUE,
   threshold = u_threshold,
-  components = 5
+  Kmax = 5,
+  verbose = FALSE
 )
 
 print("Conditional DPmixGPD (CRP):")
@@ -86,15 +74,10 @@ print("  Tail: GPD\n")
 
 ## Bundle & MCMC
 
-```{r bundle-mcmc}
+
+``` r
 bundle_cond_gpd <- build_nimble_bundle(
-  y = y_tail,
-  X = X_tail,
-  kernel = "gamma",
-  backend = "crp",
-  GPD = TRUE,
-  threshold = u_threshold,
-  components = 5,
+  spec_cond_gpd,
   mcmc = list(niter = 2000, nburnin = 500, nchains = 2, thin = 1)
 )
 
@@ -108,7 +91,8 @@ summary(fit_cond_gpd)
 
 ## Conditional Predictions with Tail
 
-```{r pred}
+
+``` r
 X_new <- cbind(x1 = c(-1, 0, 1), x2 = 0)
 y_grid <- seq(-2, 15, length.out = 150)
 
@@ -138,7 +122,8 @@ print(p_pred)
 
 ## Tail Behavior by Covariate
 
-```{r tail-behavior}
+
+``` r
 print("Tail probabilities by covariate value estimated.\n")
 print("GPD parameters (scale, shape) may vary with X.\n")
 ```

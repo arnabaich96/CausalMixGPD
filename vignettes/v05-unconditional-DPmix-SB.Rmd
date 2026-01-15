@@ -1,6 +1,8 @@
 ---
 title: "5. Unconditional DPmix with Stick-Breaking Backend"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    code_folding: show
 vignette: >
   %\VignetteIndexEntry{5. Unconditional DPmix SB}
   %\VignetteEngine{knitr::rmarkdown}
@@ -15,9 +17,11 @@ knitr::opts_chunk$set(
   fig.height = 6,
   message = FALSE,
   warning = FALSE,
-  eval = FALSE
+  eval = TRUE,
+  cache = TRUE
 )
 library(DPmixGPD)
+if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
 library(ggplot2)
 library(gridExtra)
 set.seed(123)
@@ -42,9 +46,9 @@ component1 <- rgamma(60, shape = 2, rate = 1.5)
 component2 <- rgamma(40, shape = 1, rate = 0.5)
 y_mixed <- c(component1, component2)
 
-cat("Sample size:", length(y_mixed), "\n")
-cat("Mean:", mean(y_mixed), "\n")
-cat("SD:", sd(y_mixed), "\n")
+paste("Sample size:", length(y_mixed))
+paste("Mean:", mean(y_mixed))
+paste("SD:", sd(y_mixed))
 
 # Visualization
 df_data <- data.frame(y = y_mixed)
@@ -67,31 +71,29 @@ spec_sb <- compile_model_spec(
   kernel = "gamma",           # Use gamma kernel
   backend = "sb",             # Stick-Breaking backend
   GPD = FALSE,                # No tail augmentation
-  J = 15,                     # FIXED number of components
-  alpha = 1.0,                # DP concentration
-  verbose = FALSE
+  components = 5              # FIXED number of components
 )
 
-cat("Specification created:\n")
-cat("  Kernel:", spec_sb$kernel, "\n")
-cat("  Backend:", spec_sb$backend, "\n")
-cat("  J (fixed components):", spec_sb$J, "\n")
-cat("  GPD:", spec_sb$GPD, "\n")
+print("Specification created:")
+print(paste("  Kernel:", spec_sb$meta$kernel))
+print(paste("  Backend:", spec_sb$meta$backend))
+print(paste("  Components:", spec_sb$meta$components))
+print(paste("  GPD:", spec_sb$meta$GPD))
 ```
 
 ### Key Difference: J vs Kmax
 
 ```{r spec-comparison}
-cat("\n=== CRP vs SB Parameters ===\n")
-cat("CRP (Vignette 4):\n")
-cat("  - Kmax: TRUNCATION level (max possible components)\n")
-cat("  - # components inferred from data (≤ Kmax)\n")
-cat("  - Flexible, data-adaptive\n\n")
-
-cat("SB (This Vignette):\n")
-cat("  - J: FIXED number of components\n")
-cat("  - Always uses exactly J components\n")
-cat("  - Simpler, faster (no label-switching)\n")
+print("=== CRP vs SB Parameters ===")
+print("CRP (Vignette 4):")
+print("  - Kmax: TRUNCATION level (max possible components)")
+print("  - # components inferred from data (≤ Kmax)")
+print("  - Flexible, data-adaptive")
+print("")
+print("SB (This Vignette):")
+print("  - J: FIXED number of components")
+print("  - Always uses exactly J components")
+print("  - Simpler, faster (no label-switching)")
 ```
 
 ---
@@ -100,7 +102,10 @@ cat("  - Simpler, faster (no label-switching)\n")
 
 ```{r bundle-mcmc-sb}
 bundle_sb <- build_nimble_bundle(
-  spec_sb,
+  y = y_mixed,
+  kernel = "gamma",
+  backend = "sb",
+  components = 5,
   mcmc = list(
     niter = 2000,           # Total iterations
     nburnin = 500,          # Burn-in
@@ -109,8 +114,8 @@ bundle_sb <- build_nimble_bundle(
   )
 )
 
-cat("Bundle compiled with SB sampler.\n")
-cat("Fixed", spec_sb$J, "components, no truncation variability.\n")
+message("Bundle compiled with SB sampler.")
+message(paste("Fixed 5 components, no truncation variability."))
 ```
 
 ---
@@ -120,7 +125,7 @@ cat("Fixed", spec_sb$J, "components, no truncation variability.\n")
 ```{r mcmc-sb}
 fit_sb <- run_mcmc_bundle_manual(bundle_sb)
 
-cat("\n=== POSTERIOR SUMMARY (SB Backend) ===\n")
+print("\n=== POSTERIOR SUMMARY (SB Backend) ===\n")
 summary(fit_sb)
 ```
 
@@ -139,7 +144,7 @@ plot(fit_sb, params = "w_|alpha|beta")
 
 ```{r diag-ess}
 # ESS and R-hat from summary
-cat("Check ESS and Rhat for convergence.\n")
+print("Check ESS and Rhat for convergence.\n")
 ```
 
 ---
@@ -152,10 +157,10 @@ cat("Check ESS and Rhat for convergence.\n")
 # Extract stick-breaking weights for each component
 # Weights w_j sum to 1, typically decreasing
 
-cat("Stick-breaking weight analysis:\n")
-cat("SB generates weights that sum to 1.\n")
-cat("Typically w_1 >= w_2 >= ... >= w_J\n")
-cat("Weights available from posterior samples.\n")
+print("Stick-breaking weight analysis:\n")
+print("SB generates weights that sum to 1.\n")
+print("Typically w_1 >= w_2 >= ... >= w_J\n")
+print("Weights available from posterior samples.\n")
 ```
 
 ### Effective Number of Components
@@ -164,8 +169,8 @@ cat("Weights available from posterior samples.\n")
 # Count components with posterior mean weight > threshold
 weight_threshold <- 0.05
 
-cat("Components with weight >", weight_threshold, "are 'active'.\n")
-cat("Remaining components absorb tail probability.\n")
+print("Components with weight >", weight_threshold, "are 'active'.\n")
+print("Remaining components absorb tail probability.\n")
 ```
 
 ---
@@ -179,21 +184,10 @@ cat("Remaining components absorb tail probability.\n")
 y_grid <- seq(0, max(y_mixed) * 1.2, length.out = 200)
 
 # Posterior predictive density
-pred_densities <- predict(fit_sb, newdata = y_grid)
+pred_density <- predict(fit_sb, y = y_grid, type = "density")
 
-df_pred <- data.frame(
-  y = y_grid,
-  density = pred_densities
-)
-
-p_pred <- ggplot(df_data, aes(x = y)) +
-  geom_histogram(aes(y = after_stat(density)), bins = 30, alpha = 0.4, fill = "darkorange") +
-  geom_line(data = df_pred, aes(x = y, y = density), color = "darkred", linewidth = 1.2) +
-  labs(title = "Data vs Posterior Predictive Density (SB)", 
-       x = "y", y = "Density") +
-  theme_minimal()
-
-print(p_pred)
+# Use S3 plot method
+plot(pred_density)
 ```
 
 ---
@@ -208,7 +202,7 @@ bundle_crp <- build_nimble_bundle(
   y = y_mixed,
   kernel = "gamma",
   backend = "crp",
-  Kmax = 15,
+  Kmax = 5,
   mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
 )
 fit_crp <- run_mcmc_bundle_manual(bundle_crp)
@@ -218,32 +212,32 @@ bundle_sb_quick <- build_nimble_bundle(
   y = y_mixed,
   kernel = "gamma",
   backend = "sb",
-  J = 15,
+  J = 5,
   mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
 )
 fit_sb_quick <- run_mcmc_bundle_manual(bundle_sb_quick)
 
 # Compare convergence diagnostics
-cat("\n=== BACKEND COMPARISON ===\n")
-cat("Use summary() to compare ESS and Rhat values.\n")
-cat("Both backends should produce similar fitted values.\n")
+print("\n=== BACKEND COMPARISON ===\n")
+print("Use summary() to compare ESS and Rhat values.\n")
+print("Both backends should produce similar fitted values.\n")
 ```
 
 ### Computational Efficiency
 
 ```{r comparison-speed}
-cat("\nComputational Considerations:\n")
-cat("CRP:\n")
-cat("  - Adaptive # components (Kmax truncation)\n")
-cat("  - Handles label-switching via NIMBLE\n")
-cat("  - Slower per iteration\n")
-cat("  - Better for unknown complexity\n\n")
+print("\nComputational Considerations:\n")
+print("CRP:\n")
+print("  - Adaptive # components (Kmax truncation)\n")
+print("  - Handles label-switching via NIMBLE\n")
+print("  - Slower per iteration\n")
+print("  - Better for unknown complexity\n\n")
 
-cat("SB:\n")
-cat("  - Fixed J components\n")
-cat("  - No label-switching overhead\n")
-cat("  - Faster per iteration\n")
-cat("  - Better when J known or for quick inference\n")
+print("SB:\n")
+print("  - Fixed J components\n")
+print("  - No label-switching overhead\n")
+print("  - Faster per iteration\n")
+print("  - Better when J known or for quick inference\n")
 ```
 
 ---
@@ -253,16 +247,16 @@ cat("  - Better when J known or for quick inference\n")
 ```{r j-sensitivity}
 j_values <- c(5, 10, 15, 20)
 
-cat("Testing J values:", paste(j_values, collapse = ", "), "\n")
-cat("Recommendation: Start with J=10-15 for mixture modeling.\n")
-cat("Adjust J based on data complexity and convergence diagnostics.\n")
+print("Testing J values:", paste(j_values, collapse = ", "), "\n")
+print("Recommendation: Start with J=3-5 for mixture modeling.\n")
+print("Adjust J based on data complexity and convergence diagnostics.\n")
 
 # Demonstrate with one value
 bundle_j <- build_nimble_bundle(
   y = y_mixed,
   kernel = "gamma",
   backend = "sb",
-  J = 10,
+  J = 5,
   mcmc = list(niter = 500, nburnin = 100, nchains = 1)
 )
 fit_j <- run_mcmc_bundle_manual(bundle_j)
@@ -274,22 +268,14 @@ summary(fit_j)
 ## Residual Analysis
 
 ```{r residuals}
-# Extract residuals
-residuals_vals <- residuals(fit_sb_quick)
+# Extract fitted values with diagnostics
+fit_vals <- fitted(fit_sb_quick)
 
-df_resid <- data.frame(residuals = residuals_vals)
+# Use S3 plot method for diagnostic plots
+plot(fit_vals)
 
-p_resid <- ggplot(df_resid, aes(x = residuals)) +
-  geom_histogram(aes(y = after_stat(density)), bins = 30, alpha = 0.6, fill = "mediumpurple") +
-  geom_density(color = "purple", linewidth = 1) +
-  geom_vline(xintercept = 0, linetype = "dashed", color = "gray") +
-  labs(title = "Residual Distribution (SB Backend)", x = "Residuals", y = "Density") +
-  theme_minimal()
-
-print(p_resid)
-
-cat("Residual Summary:\n")
-print(summary(residuals_vals))
+print("Residual Summary:\n")
+print(summary(residuals(fit_sb_quick)))
 ```
 
 ---
@@ -301,7 +287,7 @@ print(summary(residuals_vals))
 ```{r comp-details}
 # Extract component parameters (shape, rate for gamma)
 coef_sb <- coef(fit_sb_quick)
-cat("Component parameters (first 5 components):\n")
+print("Component parameters (first 5 components):\n")
 print(head(coef_sb, 5))
 ```
 
@@ -309,8 +295,8 @@ print(head(coef_sb, 5))
 
 ```{r comp-visualization}
 # Get component densities
-cat("Individual component contributions available.\n")
-cat("SB provides clean, fixed-J structure.\n")
+print("Individual component contributions available.\n")
+print("SB provides clean, fixed-J structure.\n")
 ```
 
 ---
@@ -328,17 +314,18 @@ cat("SB provides clean, fixed-J structure.\n")
 ## When to Use SB vs CRP
 
 ```{r when-use}
-cat("=== DECISION GUIDE ===\n\n")
+print("=== DECISION GUIDE ===\n\n")
 
-cat("USE CRP (Vignette 4) IF:\n")
-cat("  ✓ Unknown mixture complexity\n")
-cat("  ✓ Want data-adaptive # components\n")
-cat("  ✓ Willing to pay computational cost\n")
-cat("  ✓ Small to medium sample size\n\n")
+print("USE CRP (Vignette 4) IF:\n")
+print("  ✓ Unknown mixture complexity\n")
+print("  ✓ Want data-adaptive # components\n")
+print("  ✓ Willing to pay computational cost\n")
+print("  ✓ Small to medium sample size\n\n")
 
-cat("USE SB (This Vignette) IF:\n")
-cat("  ✓ Known or assumed # components\n")
-cat("  ✓ Need faster MCMC per iteration\n")
-cat("  ✓ Large dataset (SB scales better)\n")
-cat("  ✓ Prefer simpler, more stable inference\n")
+print("USE SB (This Vignette) IF:\n")
+print("  ✓ Known or assumed # components\n")
+print("  ✓ Need faster MCMC per iteration\n")
+print("  ✓ Large dataset (SB scales better)\n")
+print("  ✓ Prefer simpler, more stable inference\n")
 ```
+

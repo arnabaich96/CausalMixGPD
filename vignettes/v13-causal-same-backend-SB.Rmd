@@ -1,9 +1,11 @@
 ---
 title: "13. Causal Inference: Same Backend (SB) for PS & Outcome"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    code_folding: show
 vignette: >
   %\VignetteIndexEntry{13. Causal Same Backend SB}
-  %\VignetteEngine{kmitr::rmarkdown}
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
@@ -18,6 +20,7 @@ knitr::opts_chunk$set(
   eval = FALSE
 )
 library(DPmixGPD)
+if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
 library(ggplot2)
 set.seed(123)
 ```
@@ -47,7 +50,7 @@ y <- ifelse(
   rnorm(n, mean = 1 + 0.3 * X[, 1], sd = 1.0)
 )
 
-cat("Sample size:", n, "\n")
+print("Sample size:", n, "\n")
 ```
 
 ---
@@ -63,7 +66,7 @@ bundle_causal_sb <- build_causal_bundle(
   backend = "sb",           # Stick-Breaking
   PS = "logit",
   GPD = FALSE,
-  J = 10,                   # Fixed components
+  J = 5,                   # Fixed components
   mcmc = list(
     niter = 2000,
     nburnin = 500,
@@ -74,7 +77,7 @@ bundle_causal_sb <- build_causal_bundle(
 
 fit_causal_sb <- run_mcmc_bundle_manual(bundle_causal_sb)
 
-cat("\n=== CAUSAL SB MODEL ===\n")
+print("\n=== CAUSAL SB MODEL ===\n")
 summary(fit_causal_sb)
 ```
 
@@ -87,7 +90,7 @@ summary(fit_causal_sb)
 bundle_crp_logit <- build_causal_bundle(
   y = y, T = T, X = X,
   kernel = "normal", backend = "crp",
-  PS = "logit", GPD = FALSE, Kmax = 10,
+  PS = "logit", GPD = FALSE, Kmax = 5,
   mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
 )
 fit_crp_logit <- run_mcmc_bundle_manual(bundle_crp_logit)
@@ -95,10 +98,10 @@ fit_crp_logit <- run_mcmc_bundle_manual(bundle_crp_logit)
 ate_crp <- coef(fit_crp_logit)
 ate_sb <- coef(fit_causal_sb)
 
-cat("\n=== TREATMENT EFFECT COMPARISON ===\n")
-cat("CRP ATE:", ate_crp, "\n")
-cat("SB ATE: ", ate_sb, "\n")
-cat("Difference:", abs(ate_crp - ate_sb), "\n")
+print("\n=== TREATMENT EFFECT COMPARISON ===\n")
+print("CRP ATE:", ate_crp, "\n")
+print("SB ATE: ", ate_sb, "\n")
+print("Difference:", abs(ate_crp - ate_sb), "\n")
 
 ```
 
@@ -126,3 +129,4 @@ ggplot(df_ps, aes(x = ps, fill = T)) +
 - **Same PS Options**: logit, probit, naive available
 - **CRP vs SB Trade-off**: Applies to causal setting too
 - **Next**: Different backends for PS vs outcome in vignettes 14-15
+

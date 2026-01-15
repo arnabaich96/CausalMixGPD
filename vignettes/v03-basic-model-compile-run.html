@@ -372,11 +372,11 @@ parameters WITHOUT generating NIMBLE code.</p>
 <span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a>)</span>
 <span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a></span>
 <span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="co"># Inspect specification</span></span>
-<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Specification object class:&quot;</span>, <span class="fu">class</span>(spec), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Kernel chosen:&quot;</span>, spec<span class="sc">$</span>kernel, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Backend chosen:&quot;</span>, spec<span class="sc">$</span>backend, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;GPD enabled:&quot;</span>, spec<span class="sc">$</span>GPD, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Sample size n:&quot;</span>, <span class="fu">length</span>(spec<span class="sc">$</span>y), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Specification object class:&quot;</span>, <span class="fu">class</span>(spec), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Kernel chosen:&quot;</span>, spec<span class="sc">$</span>kernel, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Backend chosen:&quot;</span>, spec<span class="sc">$</span>backend, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;GPD enabled:&quot;</span>, spec<span class="sc">$</span>GPD, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Sample size n:&quot;</span>, <span class="fu">length</span>(spec<span class="sc">$</span>y), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
 <div id="specification-for-different-model-variants" class="section level3">
 <h3>Specification for Different Model Variants</h3>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># 1. Unconditional DPmix (bulk only, no tail)</span></span>
@@ -404,7 +404,7 @@ parameters WITHOUT generating NIMBLE code.</p>
 <span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>  <span class="at">mcmc =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">2000</span>, <span class="at">nburnin =</span> <span class="dv">500</span>, <span class="at">nchains =</span> <span class="dv">2</span>, <span class="at">thin =</span> <span class="dv">2</span>)</span>
 <span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>)</span>
 <span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a></span>
-<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Created 4 specification objects successfully.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Created 4 specification objects successfully.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
 <hr />
 </div>
 </div>
@@ -417,8 +417,8 @@ sampler, prepare for MCMC execution.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Method 1: From specification object</span></span>
 <span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(spec)</span>
 <span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
-<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Bundle object class:&quot;</span>, <span class="fu">class</span>(bundle), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Bundle contains compiled sampler ready for MCMC.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Bundle object class:&quot;</span>, <span class="fu">class</span>(bundle), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Bundle contains compiled sampler ready for MCMC.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
 </div>
 <div id="building-directly-alternative" class="section level3">
 <h3>Building Directly (Alternative)</h3>
@@ -431,17 +431,17 @@ sampler, prepare for MCMC execution.</p>
 <span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  <span class="at">mcmc =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">500</span>, <span class="at">nburnin =</span> <span class="dv">100</span>, <span class="at">nchains =</span> <span class="dv">1</span>)</span>
 <span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>)</span>
 <span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a></span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Direct bundle creation successful.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Direct bundle creation successful.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
 </div>
 <div id="inspecting-bundle-contents" class="section level3">
 <h3>Inspecting Bundle Contents</h3>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Bundle is an S3 object with structure</span></span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Bundle class:&quot;</span>, <span class="fu">class</span>(bundle_direct), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Bundle contains:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Bundle class:&quot;</span>, <span class="fu">class</span>(bundle_direct), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Bundle contains:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">names</span>(bundle_direct))</span>
 <span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a></span>
 <span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co"># Access key components</span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">MCMC settings:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">MCMC settings:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
 <span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="fu">print</span>(bundle_direct<span class="sc">$</span>mcmc_settings)</span></code></pre></div>
 <hr />
 </div>
@@ -455,13 +455,13 @@ bundle.</p>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Run MCMC</span></span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle_direct)</span>
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Fit object class:&quot;</span>, <span class="fu">class</span>(fit), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;MCMC execution complete. Posterior samples collected.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Fit object class:&quot;</span>, <span class="fu">class</span>(fit), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;MCMC execution complete. Posterior samples collected.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
 </div>
 <div id="accessing-posterior-samples" class="section level3">
 <h3>Accessing Posterior Samples</h3>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Posterior summary</span></span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">--- POSTERIOR SUMMARY ---</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">--- POSTERIOR SUMMARY ---</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
 <span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code></pre></div>
 </div>
 <div id="diagnostic-plots" class="section level3">
@@ -483,7 +483,7 @@ bundle.</p>
 <span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">&quot;gamma&quot;</span>,</span>
 <span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">&quot;crp&quot;</span>,</span>
 <span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>  <span class="at">Kmax =</span> <span class="dv">15</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a>  <span class="at">Kmax =</span> <span class="dv">5</span></span>
 <span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a>)</span>
 <span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a></span>
 <span id="cb9-14"><a href="#cb9-14" tabindex="-1"></a><span class="co"># PHASE 2: Bundle</span></span>
@@ -500,7 +500,7 @@ bundle.</p>
 <span id="cb9-25"><a href="#cb9-25" tabindex="-1"></a><span class="co"># PHASE 3: MCMC</span></span>
 <span id="cb9-26"><a href="#cb9-26" tabindex="-1"></a>fit_final <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle_final)</span>
 <span id="cb9-27"><a href="#cb9-27" tabindex="-1"></a></span>
-<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">=== THREE-PHASE WORKFLOW COMPLETE ===</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb9-28"><a href="#cb9-28" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">=== THREE-PHASE WORKFLOW COMPLETE ===</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
 <span id="cb9-29"><a href="#cb9-29" tabindex="-1"></a><span class="fu">summary</span>(fit_final)</span></code></pre></div>
 <hr />
 </div>
@@ -513,12 +513,12 @@ bundle.</p>
 <span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>  <span class="at">y =</span> y_data,</span>
 <span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">&quot;gamma&quot;</span>,</span>
 <span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">&quot;crp&quot;</span>,</span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>  <span class="at">Kmax =</span> <span class="dv">10</span>,</span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>  <span class="at">Kmax =</span> <span class="dv">5</span>,</span>
 <span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>  <span class="at">mcmc =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">500</span>, <span class="at">nburnin =</span> <span class="dv">100</span>, <span class="at">nchains =</span> <span class="dv">1</span>)</span>
 <span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>)</span>
 <span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a></span>
 <span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>fit_crp <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle_crp)</span>
-<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;CRP execution complete.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;CRP execution complete.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
 </div>
 <div id="stick-breaking-backend" class="section level3">
 <h3>Stick-Breaking Backend</h3>
@@ -527,12 +527,12 @@ bundle.</p>
 <span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>  <span class="at">y =</span> y_data,</span>
 <span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">&quot;gamma&quot;</span>,</span>
 <span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">&quot;sb&quot;</span>,</span>
-<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>  <span class="at">J =</span> <span class="dv">10</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a>  <span class="at">J =</span> <span class="dv">5</span>,</span>
 <span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a>  <span class="at">mcmc =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">500</span>, <span class="at">nburnin =</span> <span class="dv">100</span>, <span class="at">nchains =</span> <span class="dv">1</span>)</span>
 <span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a>)</span>
 <span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a></span>
 <span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a>fit_sb <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle_sb)</span>
-<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;SB execution complete.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;SB execution complete.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
 <hr />
 </div>
 </div>
@@ -540,19 +540,19 @@ bundle.</p>
 <h2>Kernel Selection Guide</h2>
 <div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>kernels_available <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;gamma&quot;</span>, <span class="st">&quot;lognormal&quot;</span>, <span class="st">&quot;normal&quot;</span>, <span class="st">&quot;laplace&quot;</span>, <span class="st">&quot;invgauss&quot;</span>, <span class="st">&quot;amoroso&quot;</span>, <span class="st">&quot;cauchy&quot;</span>)</span>
 <span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a></span>
-<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Available kernels:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Available kernels:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
 <span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="cf">for</span> (k <span class="cf">in</span> kernels_available) {</span>
-<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;  -&quot;</span>, k, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a>  <span class="fu">print</span>(<span class="st">&quot;  -&quot;</span>, k, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
 <span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a>}</span>
 <span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a></span>
-<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">Choose kernel based on:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  gamma:     Right-skewed, positive support</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  lognormal: Log-transformed normality</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  normal:    Symmetric, unbounded</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  laplace:   Sharp peak, exponential tails</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  invgauss:  Positive, near-normal shape</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb12-14"><a href="#cb12-14" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  amoroso:   Generalized, maximum flexibility</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb12-15"><a href="#cb12-15" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;  cauchy:    Heavy-tailed, rare cases</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">Choose kernel based on:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;  gamma:     Right-skewed, positive support</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;  lognormal: Log-transformed normality</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;  normal:    Symmetric, unbounded</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;  laplace:   Sharp peak, exponential tails</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-13"><a href="#cb12-13" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;  invgauss:  Positive, near-normal shape</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-14"><a href="#cb12-14" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;  amoroso:   Generalized, maximum flexibility</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-15"><a href="#cb12-15" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;  cauchy:    Heavy-tailed, rare cases</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
 <hr />
 </div>
 <div id="gpd-tail-augmentation" class="section level2">
@@ -572,7 +572,7 @@ bundle.</p>
 <span id="cb13-11"><a href="#cb13-11" tabindex="-1"></a>)</span>
 <span id="cb13-12"><a href="#cb13-12" tabindex="-1"></a></span>
 <span id="cb13-13"><a href="#cb13-13" tabindex="-1"></a>fit_gpd <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle_gpd)</span>
-<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">GPD augmentation applied to tail region.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb13-14"><a href="#cb13-14" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">GPD augmentation applied to tail region.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
 <span id="cb13-15"><a href="#cb13-15" tabindex="-1"></a><span class="fu">summary</span>(fit_gpd)</span></code></pre></div>
 <hr />
 </div>
@@ -619,18 +619,18 @@ bundle.</p>
 </div>
 <div id="common-parameter-settings" class="section level2">
 <h2>Common Parameter Settings</h2>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;=== Recommended MCMC Parameters ===</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Quick test:     niter=500,  nburnin=100, nchains=1</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Standard:       niter=2000, nburnin=500, nchains=2</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Production:     niter=5000, nburnin=1000, nchains=3</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">=== Backend Parameters ===</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;CRP: Kmax=10-30 (truncation for # components)</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;SB:  J=10-30    (fixed # components)</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">=== Kernel Selection ===</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Positive data:     gamma, lognormal, invgauss</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Any real data:     normal</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Symmetric tails:   laplace</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Extreme outliers:  cauchy</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;=== Recommended MCMC Parameters ===</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Quick test:     niter=500,  nburnin=100, nchains=1</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Standard:       niter=2000, nburnin=500, nchains=2</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Production:     niter=5000, nburnin=1000, nchains=3</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">=== Backend Parameters ===</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;CRP: Kmax=3-5 (truncation for # components)</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;SB:  J=3-5    (fixed # components)</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">=== Kernel Selection ===</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Positive data:     gamma, lognormal, invgauss</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Any real data:     normal</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Symmetric tails:   laplace</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a><span class="fu">print</span>(<span class="st">&quot;Extreme outliers:  cauchy</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
 <hr />
 </div>
 <div id="next-steps" class="section level2">
