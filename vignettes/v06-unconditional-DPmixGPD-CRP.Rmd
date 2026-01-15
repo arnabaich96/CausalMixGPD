@@ -118,9 +118,9 @@ bundle_gpd <- build_nimble_bundle(
   ),
   components = 5,
   mcmc = list(
-    niter = 1000,
-    nburnin = 250,
-    nchains = 2,
+    niter = 300,
+    nburnin = 60,
+    nchains = 1,
     thin = 1
   )
 )
@@ -181,7 +181,7 @@ bundle_bulk_only <- build_nimble_bundle(
   backend = "crp",
   GPD = FALSE,
   components = 5,
-  mcmc = list(niter = 1000, nburnin = 250, nchains = 1)
+  mcmc = list(niter = 300, nburnin = 60, nchains = 1)
 )
 fit_bulk_only <- run_mcmc_bundle_manual(bundle_bulk_only)
 ```
@@ -275,3 +275,4 @@ sensitivity_tbl %>%
 - **S3 workflows**: `predict()` and its `plot()` method make it easy to compare density, survival, and quantiles.
 - **Comparison**: Bulk-only fits under-estimate extreme quantiles without a GPD component.
 - **Next**: Explore Stick-Breaking (`v07`) for another backend with tail augmentation.
+

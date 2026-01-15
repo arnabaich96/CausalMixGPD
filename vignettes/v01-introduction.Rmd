@@ -158,3 +158,4 @@ packageVersion("ggplot2")
 ```
 
 Each vignette demonstrates complete workflows with reproducible examples.
+

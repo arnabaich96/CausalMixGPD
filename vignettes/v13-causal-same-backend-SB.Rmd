@@ -82,9 +82,9 @@ bundle_causal_sb <- build_causal_bundle(
   GPD = c(FALSE, FALSE),
   J = c(5, 5),
   mcmc = list(
-    niter = 1000,
-    nburnin = 250,
-    nchains = 2,
+    niter = 300,
+    nburnin = 60,
+    nchains = 1,
     thin = 1
   )
 )
@@ -163,3 +163,4 @@ ggplot(df_density, aes(x = y)) +
 - CQTE curves still show heterogeneity and can be compared with the CRP results in `v12`.
 - Use `fitted(..., type = "ps")` + `predict()` for full PS-outcome diagnostics before trusting CQTE.
 - Next: switch to mixed backend scenarios (v14, v15) to highlight CRP/SB asymmetry.
+

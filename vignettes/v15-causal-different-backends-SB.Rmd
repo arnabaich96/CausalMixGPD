@@ -78,7 +78,7 @@ bundle_sb_crp <- build_causal_bundle(
   PS = "logit",
   GPD = c(TRUE, TRUE),
   J = c(5, 5),
-  mcmc = list(niter = 1000, nburnin = 250, nchains = 2, thin = 1)
+  mcmc = list(niter = 300, nburnin = 60, nchains = 1, thin = 1)
 )
 
 # Treated: CRP, Control: SB
@@ -91,7 +91,7 @@ bundle_crp_sb <- build_causal_bundle(
   PS = "logit",
   GPD = c(TRUE, TRUE),
   J = c(5, 5),
-  mcmc = list(niter = 1000, nburnin = 250, nchains = 2, thin = 1)
+  mcmc = list(niter = 300, nburnin = 60, nchains = 1, thin = 1)
 )
 ```
 
@@ -179,3 +179,4 @@ ggplot(df_density, aes(x = y, y = density, color = combo)) +
 - GPD tails amplify differences between backend choices in the far right tail.
 - CQTE at extreme τ (0.90-0.99) reveals how tail modeling interacts with stick-breaking vs CRP mixtures.
 - Reuse the same PS diagnostics and `predict()`/`coef()` pipelines from earlier vignettes to maintain comparability across settings.
+
