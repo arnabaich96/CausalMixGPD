@@ -176,7 +176,7 @@ bundle_components <- build_nimble_bundle(
   y = y_mixed,
   kernel = "gamma",
   backend = "crp",
-  components = 10,
+  components = 5,
   mcmc = list(niter = 300, nburnin = 50, nchains = 1)
 )
 fit_components <- run_mcmc_bundle_manual(bundle_components)
@@ -215,7 +215,7 @@ bundle_gamma <- build_nimble_bundle(
   y = y_mixed,
   kernel = "gamma",
   backend = "crp",
-  components = 15,
+  components = 5,
   mcmc = list(niter = 300, nburnin = 50, nchains = 1)
 )
 fit_gamma <- run_mcmc_bundle_manual(bundle_gamma)
@@ -233,7 +233,7 @@ bundle_lognormal <- build_nimble_bundle(
   y = y_mixed,
   kernel = "lognormal",
   backend = "crp",
-  components = 15,
+  components = 5,
   mcmc = list(niter = 300, nburnin = 50, nchains = 1)
 )
 fit_lognormal <- run_mcmc_bundle_manual(bundle_lognormal)

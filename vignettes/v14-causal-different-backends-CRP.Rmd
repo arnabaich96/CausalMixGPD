@@ -77,8 +77,8 @@ bundle_sb_crp <- build_causal_bundle(
   backend = c("sb", "crp"),
   PS = "logit",
   GPD = c(FALSE, FALSE),
-  J = c(6, 6),
-  mcmc = list(niter = 2000, nburnin = 500, nchains = 2, thin = 1)
+  J = c(5, 5),
+  mcmc = list(niter = 1000, nburnin = 250, nchains = 2, thin = 1)
 )
 
 # Treated: CRP, Control: SB
@@ -90,8 +90,8 @@ bundle_crp_sb <- build_causal_bundle(
   backend = c("crp", "sb"),
   PS = "logit",
   GPD = c(FALSE, FALSE),
-  J = c(6, 6),
-  mcmc = list(niter = 2000, nburnin = 500, nchains = 2, thin = 1)
+  J = c(5, 5),
+  mcmc = list(niter = 1000, nburnin = 250, nchains = 2, thin = 1)
 )
 ```
 

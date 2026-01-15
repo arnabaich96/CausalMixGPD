@@ -80,10 +80,10 @@ bundle_causal_sb <- build_causal_bundle(
   backend = c("sb", "sb"),
   PS = "logit",
   GPD = c(FALSE, FALSE),
-  J = c(6, 6),
+  J = c(5, 5),
   mcmc = list(
-    niter = 2000,
-    nburnin = 500,
+    niter = 1000,
+    nburnin = 250,
     nchains = 2,
     thin = 1
   )
