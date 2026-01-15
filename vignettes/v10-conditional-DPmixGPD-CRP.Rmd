@@ -87,15 +87,15 @@ bundle_cond_gpd <- build_nimble_bundle(
   kernel = "lognormal",
   backend = "crp",
   GPD = TRUE,
-  components = 8,
+  components = 5,
   param_specs = list(
     gpd = list(
       threshold = list(mode = "fixed", value = u_threshold)
     )
   ),
   mcmc = list(
-    niter = 2000,
-    nburnin = 500,
+    niter = 1000,
+    nburnin = 250,
     nchains = 2,
     thin = 1
   )
