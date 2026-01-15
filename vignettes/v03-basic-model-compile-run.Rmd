@@ -87,7 +87,7 @@ spec_custom <- compile_model_spec(
   kernel = "gamma",
   backend = "crp",
   GPD = FALSE,
-  mcmc = list(niter = 1000, nburnin = 250, nchains = 2, thin = 2)
+  mcmc = list(niter = 300, nburnin = 60, nchains = 1, thin = 2)
 )
 
 print("Created 4 specification objects successfully.\n")
@@ -190,9 +190,9 @@ spec_final <- compile_model_spec(
 bundle_final <- build_nimble_bundle(
   spec_final,
   mcmc = list(
-    niter = 1000,
-    nburnin = 200,
-    nchains = 2,
+    niter = 300,
+    nburnin = 50,
+    nchains = 1,
     thin = 1
   )
 )
@@ -324,3 +324,4 @@ print("Extreme outliers:  cauchy\n")
 - Move to **vignette 6-7** for tail modeling with GPD
 - Move to **vignette 8-11** for conditional models with covariates
 - Move to **vignette 12-15** for causal inference workflows
+

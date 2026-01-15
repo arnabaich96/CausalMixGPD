@@ -81,9 +81,9 @@ bundle_sb <- build_nimble_bundle(
   components = 5,            # fixed truncation level for SB
   GPD = FALSE,               # bulk-only scenario
   mcmc = list(
-    niter = 1000,
-    nburnin = 250,
-    nchains = 2,
+    niter = 300,
+    nburnin = 60,
+    nchains = 1,
     thin = 1
   )
 )
@@ -153,7 +153,7 @@ bundle_crp_small <- build_nimble_bundle(
   backend = "crp",
   components = 5,
   GPD = FALSE,
-  mcmc = list(niter = 1000, nburnin = 250, nchains = 1)
+  mcmc = list(niter = 300, nburnin = 60, nchains = 1)
 )
 fit_crp_small <- run_mcmc_bundle_manual(bundle_crp_small)
 
@@ -192,3 +192,4 @@ plot(fit_vals)
 - **Predictions**: Posterior density, quantiles, and mean are all accessible via `predict()` and display credible bands for each summary.
 - **Backend comparison**: The CRP fit (`v04`) and SB fit deliver similar central quantiles while SB offers more control over truncation.
 - **Next**: Explore tail augmentation (`GPD = TRUE`) with the CRP backend in `v06` or SB backend in `v07`.
+

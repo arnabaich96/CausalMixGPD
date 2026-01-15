@@ -75,9 +75,9 @@ bundle_sb_cond <- build_nimble_bundle(
   GPD = FALSE,
   components = 5,
   mcmc = list(
-    niter = 1000,
-    nburnin = 250,
-    nchains = 2,
+    niter = 300,
+    nburnin = 60,
+    nchains = 1,
     thin = 1
   )
 )
@@ -162,3 +162,4 @@ plot(fit_sb_cond, family = c("traceplot", "density"))
 - `predict(..., type = "density")` returns group-specific densities for each `X`.
 - `predict(..., type = "quantile")` shows how median and 75% quantiles shift with `x1`.
 - Diagnoses rely on the same S3 `plot()`/`fitted()` pipeline available in other vignettes.
+

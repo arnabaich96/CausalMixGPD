@@ -79,9 +79,9 @@ bundle_cond <- build_nimble_bundle(
   GPD = FALSE,
   components = 5,
   mcmc = list(
-    niter = 1000,
-    nburnin = 250,
-    nchains = 2,
+    niter = 300,
+    nburnin = 60,
+    nchains = 1,
     thin = 1
   )
 )
@@ -174,3 +174,4 @@ plot(fit_cond, family = c("traceplot", "density"))
 - Use `predict(..., type = "density")` to visualize conditional densities and `type = "quantile"` for location shifts.
 - Diagnostics (`plot(fit_cond)`, `fitted(fit_cond)`) ensure the chains mix before relying on predictions.
 - Next vignette extends the same idea to the SB backend before adding tails.
+

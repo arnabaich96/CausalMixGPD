@@ -78,7 +78,7 @@ bundle_sb_crp <- build_causal_bundle(
   PS = "logit",
   GPD = c(FALSE, FALSE),
   J = c(5, 5),
-  mcmc = list(niter = 1000, nburnin = 250, nchains = 2, thin = 1)
+  mcmc = list(niter = 300, nburnin = 60, nchains = 1, thin = 1)
 )
 
 # Treated: CRP, Control: SB
@@ -91,7 +91,7 @@ bundle_crp_sb <- build_causal_bundle(
   PS = "logit",
   GPD = c(FALSE, FALSE),
   J = c(5, 5),
-  mcmc = list(niter = 1000, nburnin = 250, nchains = 2, thin = 1)
+  mcmc = list(niter = 300, nburnin = 60, nchains = 1, thin = 1)
 )
 ```
 
@@ -167,3 +167,4 @@ ggplot(qte_df, aes(x = tau, y = cqte, color = model)) +
 - `predict()` returns paired `trt`/`con` outputs so subtracting them yields CQTE curves for any $\tau$.
 - Use the same PS diagnostics and `coef()` summaries across fits to ensure proper overlap before trusting treatment effects.
 - Next: add GPD tails to these mixed-backend workflows (`v15`).
+
