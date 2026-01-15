@@ -82,9 +82,9 @@ bundle_causal_crp <- build_causal_bundle(
   GPD = c(FALSE, FALSE),
   Kmax = c(5, 5),
   mcmc = list(
-    niter = 1000,
-    nburnin = 250,
-    nchains = 2,
+    niter = 300,
+    nburnin = 60,
+    nchains = 1,
     thin = 1
   )
 )
@@ -167,3 +167,4 @@ ggplot(df_density, aes(x = y)) +
 - `predict()` on a causal fit returns matched predictions for treated/control arms plus the stored PS for reweighting new data.
 - CQTE curves highlight how extreme quantiles are shifted between arms, making treatment effect heterogeneity explicit.
 - Next: switch to the SB backend for both arms (v13) to compare truncation behavior.
+

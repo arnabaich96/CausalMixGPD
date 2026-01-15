@@ -94,9 +94,9 @@ bundle_cond_gpd <- build_nimble_bundle(
     )
   ),
   mcmc = list(
-    niter = 1000,
-    nburnin = 250,
-    nchains = 2,
+    niter = 300,
+    nburnin = 60,
+    nchains = 1,
     thin = 1
   )
 )
@@ -180,3 +180,4 @@ plot(fit_cond_gpd, family = c("traceplot", "density"))
 - The CRP backend samples the bulk and tail jointly while thresholding at the 85th percentile.
 - `predict()` + `plot()` remain the main tools for densities, survival curves, and quantiles; residual diagnostics check fit quality.
 - Next: Mirror this workflow with the SB backend in `v11`.
+

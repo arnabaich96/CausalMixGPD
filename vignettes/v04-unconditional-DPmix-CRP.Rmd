@@ -285,3 +285,4 @@ p_gamma + p_lognormal +
 - **Next**: Compare with **Stick-Breaking (SB)** backend in vignette 5
 
 
+
