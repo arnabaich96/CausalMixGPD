@@ -119,7 +119,7 @@ bundle <- build_nimble_bundle(
   backend = "sb",
   kernel = "gamma",
   GPD = FALSE,
-  components = 6,
+  components = 5,
   mcmc = list(niter = 200, nburnin = 50, nchains = 1)
 )
 

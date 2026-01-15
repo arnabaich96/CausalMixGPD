@@ -71,18 +71,18 @@ summary_tbl %>%
 
 ## Model Specification & Bundle
 
-We build the stick-breaking mixture explicitly with `components = 6` so that there is room for weight decay while keeping the MCMC runtime manageable for a vignette.
+We build the stick-breaking mixture explicitly with `components = 5` so that there is room for weight decay while keeping the MCMC runtime manageable for a vignette.
 
 ```{r bundle-mcmc-sb}
 bundle_sb <- build_nimble_bundle(
   y = y_mixed,
   kernel = "lognormal",
   backend = "sb",
-  components = 6,            # fixed truncation level for SB
+  components = 5,            # fixed truncation level for SB
   GPD = FALSE,               # bulk-only scenario
   mcmc = list(
-    niter = 2000,
-    nburnin = 500,
+    niter = 1000,
+    nburnin = 250,
     nchains = 2,
     thin = 1
   )
@@ -151,9 +151,9 @@ bundle_crp_small <- build_nimble_bundle(
   y = y_mixed,
   kernel = "lognormal",
   backend = "crp",
-  components = 6,
+  components = 5,
   GPD = FALSE,
-  mcmc = list(niter = 1500, nburnin = 300, nchains = 1)
+  mcmc = list(niter = 1000, nburnin = 250, nchains = 1)
 )
 fit_crp_small <- run_mcmc_bundle_manual(bundle_crp_small)
 

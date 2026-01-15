@@ -118,8 +118,8 @@ bundle_gpd <- build_nimble_bundle(
   ),
   components = 5,
   mcmc = list(
-    niter = 2000,
-    nburnin = 500,
+    niter = 1000,
+    nburnin = 250,
     nchains = 2,
     thin = 1
   )
@@ -181,7 +181,7 @@ bundle_bulk_only <- build_nimble_bundle(
   backend = "crp",
   GPD = FALSE,
   components = 5,
-  mcmc = list(niter = 1500, nburnin = 300, nchains = 1)
+  mcmc = list(niter = 1000, nburnin = 250, nchains = 1)
 )
 fit_bulk_only <- run_mcmc_bundle_manual(bundle_bulk_only)
 ```
