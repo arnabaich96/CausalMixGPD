@@ -1,6 +1,8 @@
 ---
 title: "1. Introduction to DPmixGPD"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    code_folding: show
 vignette: >
   %\VignetteIndexEntry{1. Introduction}
   %\VignetteEngine{knitr::rmarkdown}
@@ -16,6 +18,7 @@ knitr::opts_chunk$set(
   eval = FALSE
 )
 library(DPmixGPD)
+if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
 ```
 
 # DPmixGPD: Bayesian Nonparametric Mixture Models with GPD Tails

@@ -9,22 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = NA,
-  fig.width = 8,
-  fig.height = 6,
-  message = FALSE,
-  warning = FALSE,
-  eval = TRUE,
-  cache = TRUE
-)
-library(DPmixGPD)
-if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
-library(ggplot2)
-set.seed(123)
-```
+
 
 # Conditional DPmix: CRP Backend with Covariates
 
@@ -38,7 +23,8 @@ set.seed(123)
 
 ## Data Setup
 
-```{r data-setup}
+
+``` r
 set.seed(42)
 n <- 150
 
@@ -75,14 +61,16 @@ print(p_scatter)
 
 ## Model Specification (Conditional, CRP)
 
-```{r spec-conditional}
+
+``` r
 spec_cond <- compile_model_spec(
   y = y,
   X = X,                     # NEW: Include covariates
   kernel = "gamma",
   backend = "crp",
   GPD = FALSE,
-  components = 5
+  Kmax = 5,
+  verbose = FALSE
 )
 
 print("Conditional Specification:")
@@ -96,14 +84,10 @@ print("  Backend: CRP\n")
 
 ## Bundle & MCMC
 
-```{r bundle-mcmc}
+
+``` r
 bundle_cond <- build_nimble_bundle(
-  y = y,
-  X = X,
-  kernel = "gamma",
-  backend = "crp",
-  GPD = FALSE,
-  components = 5,
+  spec_cond,
   mcmc = list(
     niter = 2000,
     nburnin = 500,
@@ -124,7 +108,8 @@ summary(fit_cond)
 
 ### Predict at Specific Covariate Values
 
-```{r pred-conditional}
+
+``` r
 # New covariate values for prediction
 X_new <- cbind(
   x1 = c(-1, 0, 1),
@@ -161,7 +146,8 @@ print(p_cond_pred)
 
 ## Effect of Covariates on Outcome Distribution
 
-```{r covariate-effect}
+
+``` r
 # Isolate effect of X1 (holding X2 = 0)
 X1_range <- seq(-2, 2, by = 0.5)
 X2_fixed <- 0
@@ -179,7 +165,8 @@ for (x1_val in X1_range[c(1, 3, 5)]) {  # Show 3 examples
 
 ## Covariate Coefficients
 
-```{r covariate-coef}
+
+``` r
 # Extract covariate effects from posterior
 coefs <- coef(fit_cond)
 print("Covariate coefficients (posterior mean):\n")
@@ -190,7 +177,8 @@ print(head(coefs))
 
 ## Heteroscedasticity Analysis
 
-```{r heteroscedasticity}
+
+``` r
 # Extract fitted values with diagnostics
 fit_vals <- fitted(fit_cond)
 
@@ -202,14 +190,15 @@ plot(fit_vals)
 
 ## Unconditional vs Conditional
 
-```{r comparison}
+
+``` r
 # Fit unconditional model on same data
 bundle_uncond <- build_nimble_bundle(
   y = y,
   kernel = "gamma",
   backend = "crp",
   GPD = FALSE,
-  components = 5,
+  Kmax = 5,
   mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
 )
 fit_uncond <- run_mcmc_bundle_manual(bundle_uncond)

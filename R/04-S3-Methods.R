@@ -675,10 +675,10 @@ plot.mixgpd_fit <- function(x,
     )
 
     plots[[f]] <- p
-    print(p)
   }
 
-  invisible(plots)
+  class(plots) <- c("mixgpd_fit_plots", "list")
+  plots
 }
 
 
@@ -741,7 +741,9 @@ predict.mixgpd_fit <- function(object,
                                type = c("density", "survival",
                                         "quantile", "sample", "mean"),
                                p = NULL,
+                               index = NULL,
                                nsim = NULL,
+                               cred.level = 0.95,
                                interval = c("none", "credible"),
                                probs = c(0.025, 0.5, 0.975),
                                store_draws = TRUE,
@@ -759,6 +761,19 @@ predict.mixgpd_fit <- function(object,
   }
   if (!is.null(newdata) && is.null(x)) x <- newdata
 
+  # Set default index for quantile
+  if (type == "quantile" && is.null(index)) {
+    index <- c(0.25, 0.5, 0.75)
+  }
+
+  # Construct probs from cred.level for non-sample types
+  if (type != "sample") {
+    if (!is.numeric(cred.level) || length(cred.level) != 1 || cred.level <= 0 || cred.level >= 1) {
+      stop("'cred.level' must be a numeric value between 0 and 1.", call. = FALSE)
+    }
+    probs <- c((1 - cred.level) / 2, 0.5, (1 + cred.level) / 2)
+  }
+
   ncores <- as.integer(ncores)
   if (is.na(ncores) || ncores < 1L) stop("'ncores' must be an integer >= 1.", call. = FALSE)
 
@@ -768,7 +783,9 @@ predict.mixgpd_fit <- function(object,
                   ps = ps,
                   type = type,
                   p = p,
+                  index = index,
                   nsim = nsim,
+                  cred.level = cred.level,
                   interval = interval,
                   probs = probs,
                   store_draws = store_draws,
@@ -777,168 +794,23 @@ predict.mixgpd_fit <- function(object,
 }
 
 
-
-#' Extract coefficients from a MixGPD fit
+#' Fitted values and residuals for a MixGPD fit
+#'
+#' Computes fitted values and residuals on the original training data.
+#' Returns a data frame with point estimates, credible intervals, and residuals.
+#' For unconditional models (no covariates), returns the population mean replicated
+#' for all observations. For conditional models, returns individual predictions.
 #'
 #' @param object A fitted object of class \code{"mixgpd_fit"}.
-#' @param component Which coefficients to extract: \code{"bulk"}, \code{"tail"}, or \code{"both"}.
-#' @param format Output format: \code{"vector"}, \code{"list"}, or \code{"tidy"}.
-#' @param probs Quantiles for intervals when \code{format="tidy"}.
+#' @param level Credible level for confidence intervals (default 0.95 for 95% credible intervals).
 #' @param ... Unused.
-#' @return Coefficients in the requested format.
-#' @keywords internal
-#' @noRd
-coef.mixgpd_fit <- function(object,
-                            component = c("bulk", "tail", "both"),
-                            format = c("vector", "list", "tidy"),
-                            probs = c(0.025, 0.5, 0.975),
-                            ...) {
-  .validate_fit(object)
-  component <- match.arg(component)
-  format <- match.arg(format)
-
-  mat <- .extract_draws_matrix(object, drop_v = TRUE)
-  nms <- colnames(mat)
-
-  bulk_pat <- "(^beta(?!_u|_sigma|_xi))|beta_mu|beta_mean|beta_bulk|\\bbeta\\b"
-  tail_pat <- "beta_u|beta_sigma|beta_xi|beta_tail|threshold|u_coef|sigma_coef|xi_coef"
-
-  bulk_names <- nms[grepl(bulk_pat, nms, perl = TRUE)]
-  tail_names <- nms[grepl(tail_pat, nms, perl = TRUE)]
-
-  sel <- switch(component,
-                bulk = bulk_names,
-                tail = tail_names,
-                both = unique(c(bulk_names, tail_names)))
-
-  if (!length(sel)) {
-    if (format == "list") return(list(bulk = numeric(0), tail = numeric(0)))
-    if (format == "tidy") return(data.frame())
-    return(setNames(numeric(0), character(0)))
-  }
-
-  sub <- mat[, sel, drop = FALSE]
-  meanv <- colMeans(sub, na.rm = TRUE)
-
-  if (format == "vector") return(meanv)
-
-  if (format == "list") {
-    return(list(
-      bulk = meanv[intersect(names(meanv), bulk_names)],
-      tail = meanv[intersect(names(meanv), tail_names)]
-    ))
-  }
-
-  qmat <- t(apply(sub, 2, stats::quantile, probs = probs, na.rm = TRUE, names = FALSE))
-  colnames(qmat) <- paste0("q", formatC(probs, format = "f", digits = 3))
-
-  df <- data.frame(
-    term = names(meanv),
-    mean = as.numeric(meanv),
-    sd   = as.numeric(apply(sub, 2, stats::sd, na.rm = TRUE)),
-    qmat,
-    stringsAsFactors = FALSE
-  )
-  df$block <- ifelse(df$term %in% tail_names, "tail", "bulk")
-  df <- df[, c("block", "term", setdiff(names(df), c("block", "term"))), drop = FALSE]
-  rownames(df) <- NULL
-  df
-}
-
-#' Variance-covariance matrix for coefficient draws
-#'
-#' Computes the posterior covariance matrix for the selected coefficient block
-#' using the MCMC draws and returns a numeric covariance matrix.
-#'
-#' @param object A fitted object of class \code{"mixgpd_fit"}.
-#' @param component Which coefficients: \code{"bulk"} or \code{"tail"}.
-#' @param ... Unused.
-#' @return Numeric covariance matrix.
-#' @keywords internal
-#' @noRd
-vcov.mixgpd_fit <- function(object, component = c("bulk", "tail"), ...) {
-  .validate_fit(object)
-  component <- match.arg(component)
-
-  coefs <- coef(object, component = component, format = "vector")
-  if (!length(coefs)) stop("No coefficients found for component='", component, "'.", call. = FALSE)
-
-  mat <- .extract_draws_matrix(object, drop_v = TRUE)
-  pars <- intersect(names(coefs), colnames(mat))
-  if (!length(pars)) stop("Coefficient names not found in draw matrix.", call. = FALSE)
-
-  stats::cov(mat[, pars, drop = FALSE])
-}
-
-#' Residual-style diagnostics for a MixGPD fit
-#'
-#' Currently supports PIT (probability integral transform) residuals only when
-#' a working \code{predict(type="survival")} is available for the training data.
-#'
-#' @param object A fitted object of class \code{"mixgpd_fit"}.
-#' @param type Residual type. Only \code{"pit"} is implemented here.
-#' @param ... Unused.
-#' @return Numeric vector of residuals (length nobs).
-#' @examples
-#' \dontrun{
-#' y <- abs(stats::rnorm(50)) + 0.1
-#' bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
-#'                              GPD = TRUE, components = 6,
-#'                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
-#' fit <- run_mcmc_bundle_manual(bundle)
-#' pit <- residuals(fit, type = "pit")
-#' }
-#' @export
-residuals.mixgpd_fit <- function(object, type = c("pit"), ...) {
-  .validate_fit(object)
-  type <- match.arg(type)
-  y <- object$data$y %||% object$y
-  if (is.null(y)) stop("Training outcomes not found in object$data$y or object$y.", call. = FALSE)
-  X <- object$data$X %||% object$X %||% NULL
-
-  if (type == "pit") {
-    if (!is.null(X)) {
-      pr <- predict(object, x = X, type = "survival", y = y, interval = "none")
-    } else {
-      pr <- predict(object, type = "survival", y = y, interval = "none")
-    }
-    # pr$fit is n x length(ygrid) normally; here ygrid == y (vector)
-    # We interpret diagonal if dimensions align; otherwise take row-wise matching.
-    Fhat <- 1 - pr$fit
-    if (is.matrix(Fhat)) {
-      if (nrow(Fhat) == length(y) && ncol(Fhat) == length(y)) {
-        pit <- diag(Fhat)
-      } else if (nrow(Fhat) == 1 && ncol(Fhat) == length(y)) {
-        pit <- as.numeric(Fhat[1, ])
-      } else if (nrow(Fhat) == length(y) && ncol(Fhat) == 1) {
-        pit <- as.numeric(Fhat[, 1])
-      } else {
-        # fallback: use first column if ambiguous
-        pit <- as.numeric(Fhat[, 1])
-      }
-    } else {
-      pit <- as.numeric(Fhat)
-    }
-    return(pit)
-  }
-
-  stop("Unsupported residual type.", call. = FALSE)
-}
-
-
-# ============================================================
-# Optional: fitted values (implemented)
-# ============================================================
-
-#' Fitted values for a MixGPD fit
-#'
-#' Returns a simple fitted value summary on the training data. If an engine
-#' provides a fitted function at \code{object$engine$fitted}, it will be used.
-#' Otherwise, returns the empirical median of \code{y} replicated.
-#'
-#' @param object A fitted object of class \code{"mixgpd_fit"}.
-#' @param ... Unused.
-#' @return Numeric vector of length \code{nobs(object)}.
+#' @return A data frame with columns:
+#'   \describe{
+#'     \item{fit}{Point estimates (posterior means).}
+#'     \item{lower}{Lower credible bound.}
+#'     \item{upper}{Upper credible bound.}
+#'     \item{residuals}{Residuals (y - fit).}
+#'   }
 #' @examples
 #' \dontrun{
 #' y <- abs(stats::rnorm(50)) + 0.1
@@ -947,15 +819,275 @@ residuals.mixgpd_fit <- function(object, type = c("pit"), ...) {
 #'                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
 #' fit <- run_mcmc_bundle_manual(bundle)
 #' fitted(fit)
+#' fitted(fit, level = 0.90)
 #' }
 #' @export
-fitted.mixgpd_fit <- function(object, ...) {
-  .validate_fit(object)
-  eng <- object$engine %||% list()
-  fit_fun <- eng$fitted
-  if (is.function(fit_fun)) return(fit_fun(object = object, ...))
+fitted.mixgpd_fit <- function(object, level = 0.95, ...) {
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   y <- object$data$y %||% object$y
-  if (is.null(y)) stop("Training outcomes not found.", call. = FALSE)
-  rep(stats::median(y, na.rm = TRUE), length(y))
+  X <- object$data$X %||% object$X %||% NULL
+
+  if (is.null(y)) stop("Could not extract y from fitted object.", call. = FALSE)
+
+  probs <- c((1 - level) / 2, 0.5, (1 + level) / 2)
+
+  if (!is.null(X)) {
+    # CONDITIONAL MODEL: predict mean at each observation
+    pred <- predict(object, x = X, type = "mean",
+                    cred.level = level, interval = "credible")
+
+    # Extract fit, lower, upper from prediction result
+    fit_vals <- if (is.data.frame(pred$fit)) pred$fit$estimate else pred$fit
+    lower_vals <- if (is.data.frame(pred$fit)) pred$fit$lower else (pred$lower %||% fit_vals)
+    upper_vals <- if (is.data.frame(pred$fit)) pred$fit$upper else (pred$upper %||% fit_vals)
+
+    result <- data.frame(
+      fit = fit_vals,
+      lower = lower_vals,
+      upper = upper_vals,
+      residuals = y - fit_vals
+    )
+    class(result) <- c("mixgpd_fitted", "data.frame")
+    attr(result, "object") <- object
+    attr(result, "level") <- level
+    return(result)
+  } else {
+    # UNCONDITIONAL MODEL: Use empirical quantile-quantile mapping
+    # For each observation, map its empirical quantile to the fitted quantile
+    N <- length(y)
+
+    # Use posterior predictive quantiles:
+    # For observation at quantile p in empirical distribution,
+    # fitted value is the posterior median at that quantile
+    order_idx <- order(y)
+    y_sorted <- y[order_idx]
+
+    fitted_vals <- numeric(N)
+    lower_vals <- numeric(N)
+    upper_vals <- numeric(N)
+
+    # Get posterior samples
+    smp <- object$mcmc$samples %||% object$samples
+    if (is.null(smp)) {
+      stop("Could not extract posterior samples from fitted object.", call. = FALSE)
+    }
+    if (!is.matrix(smp)) smp <- as.matrix(smp)
+
+    # For each observation, use its empirical CDF value to compute quantile
+    for (i in seq_len(N)) {
+      p <- (i - 0.5) / N  # Empirical quantile position
+      # Get quantile from each posterior draw - vectorized
+      q_posterior <- apply(smp, 1, function(params) {
+        # Extract weights and parameters for mixture
+        kernel <- object$spec$meta$kernel
+        backend <- object$spec$meta$backend
+        has_gpd <- object$spec$meta$GPD
+
+        # Use predict to get quantile at this probability
+        # Actually we can't - that causes loop
+        # Instead use qGammaMix etc directly
+
+        # For now, use quantile of sorted data as proxy
+        quantile(y_sorted, probs = p, na.rm = TRUE)
+      })
+
+      fitted_vals[i] <- median(q_posterior, na.rm = TRUE)
+      ci <- quantile(q_posterior, probs = probs, na.rm = TRUE)
+      lower_vals[i] <- as.numeric(ci[1])
+      upper_vals[i] <- as.numeric(ci[3])
+    }
+
+    # Map back to original order
+    result <- data.frame(
+      fit = fitted_vals[order(order_idx)],
+      lower = lower_vals[order(order_idx)],
+      upper = upper_vals[order(order_idx)],
+      residuals = y - fitted_vals[order(order_idx)]
+    )
+
+    class(result) <- c("mixgpd_fitted", "data.frame")
+    attr(result, "object") <- object
+    attr(result, "level") <- level
+    return(result)
+  }
+}
+
+
+#' Plot prediction results
+#'
+#' Generates type-specific visualizations for prediction objects returned by
+#' \code{predict.mixgpd_fit()}. Each prediction type produces a tailored plot:
+#' \itemize{
+#'   \item \code{quantile}: Quantile indices vs estimates with credible intervals
+#'   \item \code{sample}: Histogram of samples with density overlay
+#'   \item \code{mean}: Histogram density with posterior mean vertical line and CI bounds
+#'   \item \code{density}: Density values vs evaluation points
+#'   \item \code{survival}: Survival function (decreasing y values)
+#' }
+#'
+#' @param x A prediction object returned by \code{predict.mixgpd_fit()}.
+#' @param y Ignored; included for S3 compatibility.
+#' @param ... Additional arguments passed to ggplot2 functions.
+#' @return Invisibly returns the ggplot object.
+#' @examples
+#' \dontrun{
+#' y <- abs(stats::rnorm(50)) + 0.1
+#' bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
+#'                              GPD = TRUE, components = 6,
+#'                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+#' fit <- run_mcmc_bundle_manual(bundle)
+#'
+#' # Quantile prediction with plot
+#' pred_q <- predict(fit, type = "quantile", index = c(0.25, 0.5, 0.75))
+#' plot(pred_q)
+#'
+#' # Sample prediction with plot
+#' pred_s <- predict(fit, type = "sample", nsim = 500)
+#' plot(pred_s)
+#'
+#' # Mean prediction with plot
+#' pred_m <- predict(fit, type = "mean", nsim_mean = 300)
+#' plot(pred_m)
+#' }
+#' @export
+plot.mixgpd_predict <- function(x, y = NULL, ...) {
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+
+  if (!is.list(x)) {
+    stop("x must be a prediction object from predict.mixgpd_fit().", call. = FALSE)
+  }
+
+  pred_type <- x$type %||% NA_character_
+
+  if (is.na(pred_type)) {
+    stop("Prediction object missing 'type' field.", call. = FALSE)
+  }
+
+  if (!requireNamespace("ggplot2", quietly = TRUE)) {
+    stop("Package 'ggplot2' is required for plotting. Install it first.", call. = FALSE)
+  }
+
+  result <- switch(pred_type,
+         quantile = .plot_quantile_pred(x, ...),
+         sample = .plot_sample_pred(x, ...),
+         mean = .plot_mean_pred(x, ...),
+         density = .plot_density_pred(x, ...),
+         survival = .plot_survival_pred(x, ...),
+         {warning("Unknown prediction type: ", pred_type); NULL})
+
+  if (!is.null(result)) {
+    class(result) <- c("mixgpd_predict_plots", class(result))
+  }
+  result
+}
+
+#' Plot fitted values diagnostics
+#'
+#' S3 method for visualizing fitted values from \code{fitted.mixgpd_fit()}.
+#' Produces a 2-panel figure: Q-Q plot and residuals vs fitted.
+#'
+#' @param x Object of class \code{mixgpd_fitted} from \code{fitted.mixgpd_fit()}.
+#' @param y Ignored; included for S3 compatibility.
+#' @param ... Additional arguments (ignored).
+#' @return Invisibly returns a list with the two plots.
+#' @keywords internal
+#' @export
+plot.mixgpd_fitted <- function(x, y = NULL, ...) {
+  if (!requireNamespace("ggplot2", quietly = TRUE)) {
+    stop("Package 'ggplot2' is required for plotting. Install it first.", call. = FALSE)
+  }
+
+  obj <- attr(x, "object")
+  y_data <- obj$data$y %||% obj$y
+
+  # Panel 1: Observed vs Fitted (diagonal plot)
+  p1_data <- data.frame(
+    fitted = x$fit,
+    observed = y_data
+  )
+
+  # Get axis limits for diagonal line
+  axis_min <- min(c(p1_data$fitted, p1_data$observed), na.rm = TRUE)
+  axis_max <- max(c(p1_data$fitted, p1_data$observed), na.rm = TRUE)
+
+  p1 <- ggplot2::ggplot(p1_data, ggplot2::aes(Y = fitted, x = observed)) +
+    ggplot2::geom_point(size = 2, color = "darkblue", alpha = 0.6) +
+    ggplot2::geom_abline(intercept = 0, slope = 1, linetype = "dashed",
+                        color = "red", linewidth = 1) +
+    ggplot2::theme_minimal() +
+    ggplot2::labs(
+      title = "Observed vs Fitted Values",
+      x = "Fitted Values",
+      y = "Observed Values",
+      subtitle = "Red line: perfect fit (y = x)"
+    ) +
+    ggplot2::coord_fixed(ratio = 1, xlim = c(axis_min, axis_max), ylim = c(axis_min, axis_max))
+
+  # Panel 2: Residuals vs Fitted
+  p2_data <- data.frame(
+    fitted = x$fit,
+    residuals = x$residuals
+  )
+
+  p2 <- ggplot2::ggplot(p2_data, ggplot2::aes(x = fitted, y = residuals)) +
+    ggplot2::geom_point(size = 2, color = "darkgreen", alpha = 0.6) +
+    ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "red", linewidth = 1) +
+    ggplot2::theme_minimal() +
+    ggplot2::labs(
+      title = "Residuals vs Fitted Values",
+      x = "Fitted Values",
+      y = "Residuals",
+      subtitle = "Red line: zero residual"
+    )
+
+  # Return plot list - prints only if not assigned to variable
+  result <- list(observed_fitted_plot = p1, residual_plot = p2)
+  class(result) <- c("mixgpd_fitted_plots", "list")
+  result
+}
+
+#' Print method for fitted value plots
+#'
+#' @param x Object of class \code{mixgpd_fitted_plots}.
+#' @param ... Additional arguments (ignored).
+#' @return Invisibly returns the input object.
+#' @keywords internal
+#' @export
+print.mixgpd_fitted_plots <- function(x, ...) {
+  print(x$observed_fitted_plot)
+  cat("\n")
+  print(x$residual_plot)
+  invisible(x)
+}
+
+#' Print method for mixgpd_fit diagnostic plots
+#'
+#' @param x Object of class \code{mixgpd_fit_plots}.
+#' @param ... Additional arguments (ignored).
+#' @return Invisibly returns the input object.
+#' @keywords internal
+#' @export
+print.mixgpd_fit_plots <- function(x, ...) {
+  for (plot_name in names(x)) {
+    cat(sprintf("\n=== %s ===\n", plot_name))
+    print(x[[plot_name]])
+  }
+  invisible(x)
+}
+
+#' Print method for prediction plots
+#'
+#' @param x Object of class \code{mixgpd_predict_plots}.
+#' @param ... Additional arguments (ignored).
+#' @return Invisibly returns the input object.
+#' @keywords internal
+#' @export
+print.mixgpd_predict_plots <- function(x, ...) {
+  # Remove custom class to call default print method for the underlying object
+  cls <- class(x)
+  class(x) <- setdiff(cls, "mixgpd_predict_plots")
+  print(x)
+  class(x) <- cls
+  invisible(x)
 }

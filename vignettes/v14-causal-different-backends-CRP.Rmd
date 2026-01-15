@@ -1,6 +1,8 @@
 ---
 title: "14. Causal Inference: Different Backends (CRP for PS, Varied for Outcome)"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    code_folding: show
 vignette: >
   %\VignetteIndexEntry{14. Causal Different Backends CRP}
   %\VignetteEngine{knitr::rmarkdown}
@@ -18,6 +20,7 @@ knitr::opts_chunk$set(
   eval = FALSE
 )
 library(DPmixGPD)
+if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
 library(ggplot2)
 set.seed(123)
 ```
@@ -49,8 +52,8 @@ y <- ifelse(
   rnorm(n, mean = 1 + 0.3 * X[, 1], sd = 1.0)
 )
 
-cat("Sample size:", n, "\n")
-cat("Treatment:", table(T), "\n")
+print("Sample size:", n, "\n")
+print("Treatment:", table(T), "\n")
 ```
 
 ---
@@ -68,15 +71,15 @@ bundle_crp_crp <- build_causal_bundle(
   backend = "crp",           # Outcome: CRP
   PS = "logit",              # PS: logit (uses flexible modeling)
   GPD = FALSE,
-  Kmax = 10,
+  Kmax = 5,
   mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
 )
 
 fit_crp_crp <- run_mcmc_bundle_manual(bundle_crp_crp)
 
 ate_crp_crp <- coef(fit_crp_crp)
-cat("=== CRP PS + CRP Outcome ===\n")
-cat("ATE:", ate_crp_crp, "\n")
+print("=== CRP PS + CRP Outcome ===\n")
+print("ATE:", ate_crp_crp, "\n")
 ```
 
 ### CRP PS + SB Outcome
@@ -90,15 +93,15 @@ bundle_crp_sb <- build_causal_bundle(
   backend = "sb",            # Outcome: SB
   PS = "logit",              # PS: logit
   GPD = FALSE,
-  J = 10,
+  J = 5,
   mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
 )
 
 fit_crp_sb <- run_mcmc_bundle_manual(bundle_crp_sb)
 
 ate_crp_sb <- coef(fit_crp_sb)
-cat("\n=== CRP PS + SB Outcome ===\n")
-cat("ATE:", ate_crp_sb, "\n")
+print("\n=== CRP PS + SB Outcome ===\n")
+print("ATE:", ate_crp_sb, "\n")
 ```
 
 ---
@@ -112,7 +115,7 @@ df_backends <- data.frame(
   Comparison = "See summary()"
 )
 
-cat("\n=== BACKEND COMPARISON ===\n")
+print("\n=== BACKEND COMPARISON ===\n")
 print(df_backends)
 
 # Visualization
@@ -143,7 +146,7 @@ p_ps <- ggplot(df_ps, aes(x = ps, fill = T)) +
 
 print(p_ps)
 
-cat("\nPS Summary:\n")
+print("\nPS Summary:\n")
 print(summary(ps_fitted_crp))
 ```
 
@@ -186,21 +189,21 @@ print(p_hte)
 ## When to Use Different Backends
 
 ```{r guidance}
-cat("\n=== WHEN TO USE DIFFERENT BACKENDS ===\n\n")
+print("\n=== WHEN TO USE DIFFERENT BACKENDS ===\n\n")
 
-cat("Use CRP for PS if:\n")
-cat("  ✓ Treatment assignment complex/nonlinear\n")
-cat("  ✓ Want flexible PS model\n\n")
+print("Use CRP for PS if:\n")
+print("  ✓ Treatment assignment complex/nonlinear\n")
+print("  ✓ Want flexible PS model\n\n")
 
-cat("Use SB for Outcome if:\n")
-cat("  ✓ Outcome model simpler than PS\n")
-cat("  ✓ Need faster inference\n")
-cat("  ✓ Large sample size\n\n")
+print("Use SB for Outcome if:\n")
+print("  ✓ Outcome model simpler than PS\n")
+print("  ✓ Need faster inference\n")
+print("  ✓ Large sample size\n\n")
 
-cat("Use CRP for Outcome if:\n")
-cat("  ✓ Outcome mixture complex\n")
-cat("  ✓ Treatment effect heterogeneous\n")
-cat("  ✓ Want adaptive # components\n")
+print("Use CRP for Outcome if:\n")
+print("  ✓ Outcome mixture complex\n")
+print("  ✓ Treatment effect heterogeneous\n")
+print("  ✓ Want adaptive # components\n")
 ```
 
 ---
@@ -208,11 +211,11 @@ cat("  ✓ Want adaptive # components\n")
 ## Model Selection via LogLik
 
 ```{r model-selection}
-cat("Model selection:\n")
+print("Model selection:\n")
 if (loglik_crp_crp > loglik_crp_sb) {
-  cat("✓ CRP outcome preferred (better fit)\n")
+  print("✓ CRP outcome preferred (better fit)\n")
 } else {
-  cat("✓ SB outcome preferred (simpler, comparable fit)\n")
+  print("✓ SB outcome preferred (simpler, comparable fit)\n")
 }
 ```
 
@@ -225,3 +228,4 @@ if (loglik_crp_crp > loglik_crp_sb) {
 - **HTE Analysis**: Examine treatment effects across covariate space
 - **Model Selection**: Use LogLik to guide backend choice
 - **Next**: SB PS with varied outcome in vignette 15
+

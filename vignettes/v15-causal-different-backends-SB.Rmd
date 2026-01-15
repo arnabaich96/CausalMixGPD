@@ -1,6 +1,8 @@
 ---
 title: "15. Causal Inference: Different Backends (SB for PS, Varied for Outcome)"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    code_folding: show
 vignette: >
   %\VignetteIndexEntry{15. Causal Different Backends SB}
   %\VignetteEngine{knitr::rmarkdown}
@@ -18,6 +20,7 @@ knitr::opts_chunk$set(
   eval = FALSE
 )
 library(DPmixGPD)
+if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
 library(ggplot2)
 set.seed(123)
 ```
@@ -49,7 +52,7 @@ y <- ifelse(
   rnorm(n, mean = 1 + 0.3 * X[, 1], sd = 1.0)
 )
 
-cat("Sample size:", n, "\n")
+print("Sample size:", n, "\n")
 ```
 
 ---
@@ -67,15 +70,15 @@ bundle_sb_crp <- build_causal_bundle(
   backend = "crp",           # Outcome: CRP (flexible)
   PS = "logit",              # PS: via SB (fixed components)
   GPD = FALSE,
-  Kmax = 10,
+  Kmax = 5,
   mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
 )
 
 fit_sb_crp <- run_mcmc_bundle_manual(bundle_sb_crp)
 
 ate_sb_crp <- coef(fit_sb_crp)
-cat("=== SB PS + CRP Outcome ===\n")
-cat("ATE:", ate_sb_crp, "\n")
+print("=== SB PS + CRP Outcome ===\n")
+print("ATE:", ate_sb_crp, "\n")
 ```
 
 ### SB PS + SB Outcome
@@ -89,15 +92,15 @@ bundle_sb_sb <- build_causal_bundle(
   backend = "sb",            # Outcome: SB (fixed)
   PS = "logit",              # PS: via SB
   GPD = FALSE,
-  J = 10,
+  J = 5,
   mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
 )
 
 fit_sb_sb <- run_mcmc_bundle_manual(bundle_sb_sb)
 
 ate_sb_sb <- coef(fit_sb_sb)
-cat("\n=== SB PS + SB Outcome ===\n")
-cat("ATE:", ate_sb_sb, "\n")
+print("\n=== SB PS + SB Outcome ===\n")
+print("ATE:", ate_sb_sb, "\n")
 ```
 
 ---
@@ -109,7 +112,7 @@ cat("ATE:", ate_sb_sb, "\n")
 bundle_crp_crp <- build_causal_bundle(
   y = y, T = T, X = X,
   kernel = "normal", backend = "crp",
-  PS = "logit", GPD = FALSE, Kmax = 10,
+  PS = "logit", GPD = FALSE, Kmax = 5,
   mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
 )
 fit_crp_crp <- run_mcmc_bundle_manual(bundle_crp_crp)
@@ -118,7 +121,7 @@ ate_crp_crp <- coef(fit_crp_crp)
 bundle_crp_sb <- build_causal_bundle(
   y = y, T = T, X = X,
   kernel = "normal", backend = "sb",
-  PS = "logit", GPD = FALSE, J = 10,
+  PS = "logit", GPD = FALSE, J = 5,
   mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
 )
 fit_crp_sb <- run_mcmc_bundle_manual(bundle_crp_sb)
@@ -131,7 +134,7 @@ df_all <- data.frame(
   Comparison = "See summary()"
 )
 
-cat("\n=== ALL 4 BACKEND COMBINATIONS ===\n")
+print("\n=== ALL 4 BACKEND COMBINATIONS ===\n")
 print(df_all)
 
 # Visualization
@@ -210,16 +213,16 @@ bundle_probit <- build_causal_bundle(
   y = y, T = T, X = X,
   kernel = "normal", backend = "crp",
   PS = "probit",           # Probit instead of logit
-  GPD = FALSE, Kmax = 10,
+  GPD = FALSE, Kmax = 5,
   mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
 )
 fit_probit <- run_mcmc_bundle_manual(bundle_probit)
 
 ate_probit <- coef(fit_probit)
-cat("\n=== PS MODEL VARIANT COMPARISON ===\n")
-cat("Logit PS + CRP Outcome ATE: ", ate_sb_crp, "\n")
-cat("Probit PS + CRP Outcome ATE:", ate_probit, "\n")
-cat("Difference:", abs(ate_sb_crp - ate_probit), "\n")
+print("\n=== PS MODEL VARIANT COMPARISON ===\n")
+print("Logit PS + CRP Outcome ATE: ", ate_sb_crp, "\n")
+print("Probit PS + CRP Outcome ATE:", ate_probit, "\n")
+print("Difference:", abs(ate_sb_crp - ate_probit), "\n")
 ```
 
 ---
@@ -227,23 +230,23 @@ cat("Difference:", abs(ate_sb_crp - ate_probit), "\n")
 ## Computational Efficiency
 
 ```{r efficiency}
-cat("\n=== COMPUTATIONAL TRADE-OFFS ===\n\n")
+print("\n=== COMPUTATIONAL TRADE-OFFS ===\n\n")
 
-cat("CRP + CRP:\n")
-cat("  Pros: Most flexible both PS and outcome\n")
-cat("  Cons: Slowest\n\n")
+print("CRP + CRP:\n")
+print("  Pros: Most flexible both PS and outcome\n")
+print("  Cons: Slowest\n\n")
 
-cat("CRP + SB:\n")
-cat("  Pros: Flexible PS, efficient outcome\n")
-cat("  Cons: Medium speed\n\n")
+print("CRP + SB:\n")
+print("  Pros: Flexible PS, efficient outcome\n")
+print("  Cons: Medium speed\n\n")
 
-cat("SB + CRP:\n")
-cat("  Pros: Efficient PS, flexible outcome\n")
-cat("  Cons: Medium speed\n\n")
+print("SB + CRP:\n")
+print("  Pros: Efficient PS, flexible outcome\n")
+print("  Cons: Medium speed\n\n")
 
-cat("SB + SB:\n")
-cat("  Pros: Fastest, simplest\n")
-cat("  Cons: Least flexible\n")
+print("SB + SB:\n")
+print("  Pros: Fastest, simplest\n")
+print("  Cons: Least flexible\n")
 ```
 
 ---
@@ -251,21 +254,21 @@ cat("  Cons: Least flexible\n")
 ## Recommendation Algorithm
 
 ```{r recommendation}
-cat("\n=== CHOOSING BACKENDS ===\n\n")
+print("\n=== CHOOSING BACKENDS ===\n\n")
 
-cat("Step 1: Check data complexity\n")
-cat("  - Sample size?\n")
-cat("  - Treatment assignment complexity?\n")
-cat("  - Outcome distribution shape?\n\n")
+print("Step 1: Check data complexity\n")
+print("  - Sample size?\n")
+print("  - Treatment assignment complexity?\n")
+print("  - Outcome distribution shape?\n\n")
 
-cat("Step 2: Fit models with different backends\n")
-cat("  - Check convergence (Rhat, ESS)\n")
-cat("  - Compare treatment effects\n\n")
+print("Step 2: Fit models with different backends\n")
+print("  - Check convergence (Rhat, ESS)\n")
+print("  - Compare treatment effects\n\n")
 
-cat("Step 3: Select based on:\n")
-cat("  ✓ Computational budget\n")
-cat("  ✓ Convergence diagnostics\n")
-cat("  ✓ Stability across runs\n")
+print("Step 3: Select based on:\n")
+print("  ✓ Computational budget\n")
+print("  ✓ Convergence diagnostics\n")
+print("  ✓ Stability across runs\n")
 ```
 
 ---
@@ -273,37 +276,37 @@ cat("  ✓ Stability across runs\n")
 ## Final Summary: All Vignettes
 
 ```{r summary}
-cat("\n=== 15-VIGNETTE ROADMAP ===\n\n")
+print("\n=== 15-VIGNETTE ROADMAP ===\n\n")
 
-cat("v01: Introduction - Overview & three-phase workflow\n")
-cat("v02: Distributions - All 7 kernels + GPD\n")
-cat("v03: Basic workflow - Spec → Bundle → MCMC\n\n")
+print("v01: Introduction - Overview & three-phase workflow\n")
+print("v02: Distributions - All 7 kernels + GPD\n")
+print("v03: Basic workflow - Spec → Bundle → MCMC\n\n")
 
-cat("v04-v05: Unconditional DPmix\n")
-cat("  v04: CRP backend\n")
-cat("  v05: SB backend\n\n")
+print("v04-v05: Unconditional DPmix\n")
+print("  v04: CRP backend\n")
+print("  v05: SB backend\n\n")
 
-cat("v06-v07: Unconditional DPmixGPD\n")
-cat("  v06: CRP + GPD tail\n")
-cat("  v07: SB + GPD tail\n\n")
+print("v06-v07: Unconditional DPmixGPD\n")
+print("  v06: CRP + GPD tail\n")
+print("  v07: SB + GPD tail\n\n")
 
-cat("v08-v09: Conditional DPmix\n")
-cat("  v08: CRP + covariates\n")
-cat("  v09: SB + covariates\n\n")
+print("v08-v09: Conditional DPmix\n")
+print("  v08: CRP + covariates\n")
+print("  v09: SB + covariates\n\n")
 
-cat("v10-v11: Conditional DPmixGPD\n")
-cat("  v10: CRP + covariates + GPD tail\n")
-cat("  v11: SB + covariates + GPD tail\n\n")
+print("v10-v11: Conditional DPmixGPD\n")
+print("  v10: CRP + covariates + GPD tail\n")
+print("  v11: SB + covariates + GPD tail\n\n")
 
-cat("v12-v13: Causal Same Backend\n")
-cat("  v12: CRP for both PS & outcome\n")
-cat("  v13: SB for both PS & outcome\n\n")
+print("v12-v13: Causal Same Backend\n")
+print("  v12: CRP for both PS & outcome\n")
+print("  v13: SB for both PS & outcome\n\n")
 
-cat("v14-v15: Causal Different Backends\n")
-cat("  v14: CRP PS, varied outcome\n")
-cat("  v15: SB PS, varied outcome (YOU ARE HERE)\n\n")
+print("v14-v15: Causal Different Backends\n")
+print("  v14: CRP PS, varied outcome\n")
+print("  v15: SB PS, varied outcome (YOU ARE HERE)\n\n")
 
-cat("✓ COMPLETE 15-VIGNETTE TUTORIAL SERIES\n")
+print("✓ COMPLETE 15-VIGNETTE TUTORIAL SERIES\n")
 ```
 
 ---
@@ -316,3 +319,4 @@ cat("✓ COMPLETE 15-VIGNETTE TUTORIAL SERIES\n")
 - **PS Methods**: logit, probit, naive for robust causal inference
 - **Treatment Effects**: ATE and CATE available across all models
 - **Model Selection**: Use LogLik, diagnostics, and subject-matter knowledge
+

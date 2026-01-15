@@ -27,6 +27,16 @@ document.addEventListener('DOMContentLoaded', function(e) {
   }
 });
 </script>
+<style type="text/css">detaiks.chunk-details > summary.chunk-summary {
+text-align: right;
+}
+details.chunk-details[open] > summary.chunk-summary::after {
+content: "Hide";
+}
+details.chunk-details[open] > summary.chunk-summary > span.chunk-summary-text {
+display: none;
+}
+</style>
 
 <style type="text/css">
 code{white-space: pre-wrap;}
@@ -432,16 +442,23 @@ covariates for confounding adjustment.</p>
 <div id="three-phase-model-building" class="section level3">
 <h3>Three-Phase Model Building</h3>
 <p><strong>Phase 1: Specification</strong></p>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>spec <span class="ot">&lt;-</span> <span class="fu">compile_model_spec</span>(y, <span class="at">kernel=</span><span class="st">&quot;gamma&quot;</span>, <span class="at">backend=</span><span class="st">&quot;crp&quot;</span>, <span class="at">GPD=</span><span class="cn">TRUE</span>)</span></code></pre></div>
+</details>
 <p><strong>Phase 2: Bundle</strong></p>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(spec)</span></code></pre></div>
+</details>
 <p><strong>Phase 3: MCMC</strong></p>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle, <span class="at">niter=</span><span class="dv">1000</span>, <span class="at">nburnin=</span><span class="dv">100</span>)</span></code></pre></div>
+</details>
 <hr />
 </div>
 </div>
 <div id="quick-start" class="section level2">
 <h2>Quick Start</h2>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Generate data</span></span>
 <span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">abs</span>(<span class="fu">rnorm</span>(<span class="dv">50</span>)) <span class="sc">+</span> <span class="fl">0.1</span></span>
@@ -458,6 +475,7 @@ covariates for confounding adjustment.</p>
 <span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a></span>
 <span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co"># Print bundle</span></span>
 <span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="fu">print</span>(bundle)</span></code></pre></div>
+</details>
 <hr />
 </div>
 <div id="outline-of-this-vignette-series" class="section level2">
@@ -496,9 +514,11 @@ SB</li>
 </div>
 <div id="dependencies" class="section level2">
 <h2>Dependencies</h2>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">&quot;DPmixGPD&quot;</span>)</span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">&quot;nimble&quot;</span>)</span>
 <span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="fu">packageVersion</span>(<span class="st">&quot;ggplot2&quot;</span>)</span></code></pre></div>
+</details>
 <p>Each vignette demonstrates complete workflows with reproducible
 examples.</p>
 </div>

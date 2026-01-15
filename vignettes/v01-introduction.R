@@ -7,6 +7,7 @@ knitr::opts_chunk$set(
   eval = FALSE
 )
 library(DPmixGPD)
+if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
 
 ## ----intro-quickstart---------------------------------------------------------
 # # Generate data
