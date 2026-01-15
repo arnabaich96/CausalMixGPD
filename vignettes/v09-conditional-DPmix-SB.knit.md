@@ -9,22 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = NA,
-  fig.width = 8,
-  fig.height = 6,
-  message = FALSE,
-  warning = FALSE,
-  eval = TRUE,
-  cache = TRUE
-)
-library(DPmixGPD)
-if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
-library(ggplot2)
-set.seed(123)
-```
+
 
 # Conditional DPmix: Stick-Breaking Backend with Covariates
 
@@ -36,7 +21,8 @@ set.seed(123)
 
 ## Data Setup
 
-```{r data-setup}
+
+``` r
 set.seed(42)
 n <- 150
 
@@ -60,18 +46,20 @@ print(ggplot(df_data, aes(x = x1, y = y)) + geom_point() + theme_minimal())
 
 ## Model Specification (Conditional, SB)
 
-```{r spec-conditional-sb}
+
+``` r
 spec_cond_sb <- compile_model_spec(
   y = y,
   X = X,
   kernel = "gamma",
   backend = "sb",           # Stick-Breaking
   GPD = FALSE,
-  components = 5            # Fixed components
+  J = 5,                    # Fixed components
+  verbose = FALSE
 )
 
 print("Conditional SB Specification:")
-print(paste("  Backend: SB (components =", spec_cond_sb$meta$components, ")"))
+print(paste("  Backend: SB (J =", spec_cond_sb$J, ")"))
 print(paste("  Covariates:", ncol(X)))
 ```
 
@@ -79,14 +67,10 @@ print(paste("  Covariates:", ncol(X)))
 
 ## Bundle & MCMC
 
-```{r bundle-mcmc}
+
+``` r
 bundle_cond_sb <- build_nimble_bundle(
-  y = y,
-  X = X,
-  kernel = "gamma",
-  backend = "sb",
-  GPD = FALSE,
-  components = 5,
+  spec_cond_sb,
   mcmc = list(
     niter = 2000,
     nburnin = 500,
@@ -105,7 +89,8 @@ summary(fit_cond_sb)
 
 ## Conditional Predictions
 
-```{r pred-conditional}
+
+``` r
 X_new <- cbind(x1 = c(-1, 0, 1), x2 = c(-1, 0, 1))
 y_grid <- seq(-2, 10, length.out = 100)
 
@@ -134,7 +119,8 @@ print(p_pred)
 
 ## CRP vs SB (Conditional)
 
-```{r comparison}
+
+``` r
 # CRP conditional (from vignette 8)
 bundle_cond_crp <- build_nimble_bundle(
   y = y,
@@ -142,7 +128,7 @@ bundle_cond_crp <- build_nimble_bundle(
   kernel = "gamma",
   backend = "crp",
   GPD = FALSE,
-  components = 5,
+  Kmax = 5,
   mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
 )
 fit_cond_crp <- run_mcmc_bundle_manual(bundle_cond_crp)

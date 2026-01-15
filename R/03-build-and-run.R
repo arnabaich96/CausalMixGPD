@@ -1989,21 +1989,34 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
   dims <- bundle$dimensions %||% list()
   monitors <- bundle$monitors %||% character(0)
 
-  Rmodel <- nimble::nimbleModel(
-    code = code,
-    data = data,
-    constants = constants,
-    inits = inits_fun(),
-    dimensions = dims,
-    check = TRUE,
-    calculate = FALSE
-  )
+  cat("[MCMC] Creating NIMBLE model...\n")
+  Rmodel <- tryCatch({
+    nimble::nimbleModel(
+      code = code,
+      data = data,
+      constants = constants,
+      inits = inits_fun(),
+      dimensions = dims,
+      check = TRUE,
+      calculate = FALSE
+    )
+  }, error = function(e) {
+    cat("[ERROR] Failed to create NIMBLE model:\n")
+    stop(e)
+  })
+  cat("[MCMC] NIMBLE model created successfully.\n")
 
-  conf <- nimble::configureMCMC(
-    Rmodel,
-    monitors = monitors,
-    enableWAIC = TRUE
-  )
+  cat("[MCMC] Configuring MCMC...\n")
+  conf <- tryCatch({
+    nimble::configureMCMC(
+      Rmodel,
+      monitors = monitors,
+      enableWAIC = TRUE
+    )
+  }, error = function(e) {
+    cat("[ERROR] Failed to configure MCMC:\n")
+    stop(e)
+  })
 
   # If any samplerConf is missing checkConjugacy, set it to FALSE.
   if (!is.null(conf$samplerConfs) && length(conf$samplerConfs) > 0) {
@@ -2014,22 +2027,45 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
       conf$samplerConfs[[i]]$control <- ctl
     }
   }
+  cat("[MCMC] MCMC configured.\n")
 
-  Rmcmc <- nimble::buildMCMC(conf)
+  cat("[MCMC] Building MCMC object...\n")
+  Rmcmc <- tryCatch({
+    nimble::buildMCMC(conf)
+  }, error = function(e) {
+    cat("[ERROR] Failed to build MCMC:\n")
+    stop(e)
+  })
+  cat("[MCMC] MCMC object built.\n")
 
   compiled <- TRUE
   Cmodel <- NULL
   Cmcmc  <- NULL
   Rmcmc_inst <- NULL
+  
   # Attempt to compile; on failure, fall back to running uncompiled MCMC
+  cat("[MCMC] Attempting NIMBLE compilation (this may take a minute)...\n")
   compile_err <- tryCatch({
+    cat("[MCMC] Compiling model...\n")
     Cmodel <- nimble::compileNimble(Rmodel, showCompilerOutput = FALSE)
+    cat("[MCMC] Compiling MCMC sampler...\n")
     Cmcmc  <- nimble::compileNimble(Rmcmc, project = Rmodel, showCompilerOutput = FALSE)
+    cat("[MCMC] Compilation successful.\n")
     NULL
-  }, error = function(e) e)
+  }, error = function(e) {
+    cat("[WARNING] Compilation failed, falling back to uncompiled MCMC.\n")
+    e
+  })
+  
   if (inherits(compile_err, "error")) {
     compiled <- FALSE
-    Rmcmc_inst <- Rmcmc()
+    cat("[MCMC] Creating uncompiled MCMC instance...\n")
+    Rmcmc_inst <- tryCatch({
+      Rmcmc()
+    }, error = function(e) {
+      cat("[ERROR] Failed to create uncompiled MCMC instance:\n")
+      stop(e)
+    })
     warning(
       paste0(
         "nimble model compilation failed; running uncompiled MCMC for portability: ",
@@ -2044,23 +2080,27 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
   thin    <- as.integer(m$thin    %||% 1)
   nchains <- as.integer(m$nchains %||% 1)
 
-  # Seeds: must be length == nchains when provided
+  # Seeds: if NULL or FALSE, generate a random seed; otherwise use provided seed
+  # Used for init generation only, NOT passed to runMCMC
   seed <- m$seed %||% NULL
-  if (!is.null(seed)) {
-    seed <- as.integer(seed)
-    if (length(seed) == 1L && nchains > 1L) seed <- seed + seq_len(nchains) - 1L
-    if (length(seed) != nchains) stop("mcmc$seed must be length 1 or length nchains.", call. = FALSE)
+  if (is.null(seed) || identical(seed, FALSE)) {
+    # Generate a random seed using system time combined with process ID
+    seed <- as.integer(Sys.time()) + Sys.getpid()
   }
+  seed <- as.integer(seed)
+  if (length(seed) == 1L && nchains > 1L) seed <- seed + seq_len(nchains) - 1L
+  if (length(seed) != nchains) stop("mcmc$seed must be length 1 or length nchains.", call. = FALSE)
 
   # Inits: list-of-lists for multiple chains
+  # Use seed to generate reproducible initial values, but don't pass seed to runMCMC
   if (nchains > 1L) {
     inits_list <- vector("list", nchains)
     for (ch in seq_len(nchains)) {
-      if (!is.null(seed)) set.seed(seed[ch])
+      set.seed(seed[ch])
       inits_list[[ch]] <- inits_fun()
     }
   } else {
-    if (!is.null(seed)) set.seed(seed[1])
+    set.seed(seed[1])
     inits_list <- inits_fun()
   }
 
@@ -2075,10 +2115,8 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
       thin = thin,
       nchains = nchains,
       inits = inits_list,
-      setSeed = seed,
       progressBar = isTRUE(show_progress),
-      samplesAsCodaMCMC = TRUE,
-      WAIC = TRUE
+      samplesAsCodaMCMC = TRUE
     ),
     error = function(e) e
   )
@@ -2091,19 +2129,35 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
       thin = thin,
       nchains = nchains,
       inits = inits_list,
-      setSeed = seed,
       progressBar = isTRUE(show_progress),
       samplesAsCodaMCMC = TRUE
     )
     waic_obj <- NULL
   } else {
-    if (is.list(res) && !is.null(res$samples)) {
+    # Extract WAIC if available
+    if (is.list(res) && !is.null(res$WAIC)) {
+      waic_obj <- res$WAIC
       samples <- res$samples
-      waic_obj <- res$WAIC %||% res$waic %||% NULL
     } else {
       samples <- res
-      waic_obj <- attr(res, "WAIC") %||% NULL
+      waic_obj <- NULL
     }
+  }
+
+  cat("[MCMC] MCMC execution complete. Processing results...\n")
+
+  # Attempt to calculate WAIC if enabled
+  if (is.null(waic_obj)) {
+    waic_obj <- tryCatch({
+      if (compiled) {
+        nimble::calculateWAIC(Cmcmc)
+      } else {
+        nimble::calculateWAIC(Rmcmc_inst)
+      }
+    }, error = function(e) {
+      cat("[Note] WAIC calculation not available or failed.\n")
+      NULL
+    })
   }
 
   fit <- list(

@@ -2,22 +2,31 @@
 % Please edit documentation in R/04-S3-Methods.R
 \name{fitted.mixgpd_fit}
 \alias{fitted.mixgpd_fit}
-\title{Fitted values for a MixGPD fit}
+\title{Fitted values and residuals for a MixGPD fit}
 \usage{
-\method{fitted}{mixgpd_fit}(object, ...)
+\method{fitted}{mixgpd_fit}(object, level = 0.95, ...)
 }
 \arguments{
 \item{object}{A fitted object of class \code{"mixgpd_fit"}.}
 
+\item{level}{Credible level for confidence intervals (default 0.95 for 95% credible intervals).}
+
 \item{...}{Unused.}
 }
 \value{
-Numeric vector of length \code{nobs(object)}.
+A data frame with columns:
+  \describe{
+    \item{fit}{Point estimates (posterior means).}
+    \item{lower}{Lower credible bound.}
+    \item{upper}{Upper credible bound.}
+    \item{residuals}{Residuals (y - fit).}
+  }
 }
 \description{
-Returns a simple fitted value summary on the training data. If an engine
-provides a fitted function at \code{object$engine$fitted}, it will be used.
-Otherwise, returns the empirical median of \code{y} replicated.
+Computes fitted values and residuals on the original training data.
+Returns a data frame with point estimates, credible intervals, and residuals.
+For unconditional models (no covariates), returns the population mean replicated
+for all observations. For conditional models, returns individual predictions.
 }
 \examples{
 \dontrun{
@@ -27,5 +36,6 @@ bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
 fit <- run_mcmc_bundle_manual(bundle)
 fitted(fit)
+fitted(fit, level = 0.90)
 }
 }

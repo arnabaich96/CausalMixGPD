@@ -9,22 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = NA,
-  fig.width = 8,
-  fig.height = 6,
-  message = FALSE,
-  warning = FALSE,
-  eval = TRUE,
-  cache = TRUE
-)
-library(DPmixGPD)
-if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
-library(ggplot2)
-set.seed(123)
-```
+
 
 # Unconditional DPmixGPD: Stick-Breaking (SB) Backend with Tail
 
@@ -38,7 +23,8 @@ set.seed(123)
 
 ## Data Setup
 
-```{r data-setup}
+
+``` r
 set.seed(42)
 bulk_comp1 <- rgamma(80, shape = 2, rate = 1.5)
 bulk_comp2 <- rgamma(60, shape = 1, rate = 0.8)
@@ -67,33 +53,31 @@ print(p_raw)
 
 ## Model Specification (SB + GPD)
 
-```{r spec-sb-gpd}
+
+``` r
 spec_sb_gpd <- compile_model_spec(
   y = y_tail,
   kernel = "gamma",
   backend = "sb",           # Stick-Breaking backend
   GPD = TRUE,               # Enable tail
   threshold = u_threshold,
-  components = 5            # Fixed components
+  J = 5,                    # Fixed components
+  verbose = FALSE
 )
 
 print("SB + GPD Specification:")
-print(paste("  Backend (bulk): sb (components =", spec_sb_gpd$meta$components, ")"))
-print(paste("  Tail: GPD (threshold =", round(u_threshold, 3), ")"))
+print(paste("  Backend (bulk): sb (J =", spec_sb_gpd$J, "components)"))
+print(paste("  Tail: GPD (threshold =", u_threshold, ")"))
 ```
 
 ---
 
 ## Bundle & MCMC
 
-```{r bundle-mcmc}
+
+``` r
 bundle_sb_gpd <- build_nimble_bundle(
-  y = y_tail,
-  kernel = "gamma",
-  backend = "sb",
-  GPD = TRUE,
-  threshold = u_threshold,
-  components = 5,
+  spec_sb_gpd,
   mcmc = list(
     niter = 2000,
     nburnin = 500,
@@ -114,7 +98,8 @@ summary(fit_sb_gpd)
 
 ### Full Distribution
 
-```{r pred-full}
+
+``` r
 y_grid <- seq(0, max(y_tail) * 1.3, length.out = 300)
 
 # Posterior predictive density
@@ -128,7 +113,8 @@ plot(pred_density)
 
 ## CRP vs SB for GPD Tail
 
-```{r comparison-crp-sb}
+
+``` r
 # CRP + GPD (from vignette 6)
 bundle_crp_gpd <- build_nimble_bundle(
   y = y_tail,
@@ -148,7 +134,8 @@ print("\n=== CRP vs SB (with GPD Tail) ===\n")
 
 ## Residual Analysis
 
-```{r residuals}
+
+``` r
 residuals_vals <- residuals(fit_sb_gpd)
 
 p_resid <- ggplot(data.frame(r = residuals_vals), aes(x = r)) +

@@ -9,23 +9,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = NA,
-  fig.width = 8,
-  fig.height = 6,
-  message = FALSE,
-  warning = FALSE,
-  eval = TRUE,
-  cache = TRUE
-)
-library(DPmixGPD)
-if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
-library(ggplot2)
-library(gridExtra)
-set.seed(123)
-```
+
 
 # Unconditional DPmixGPD: CRP Backend with Tail Augmentation
 
@@ -41,7 +25,8 @@ set.seed(123)
 
 ## Data with Tail Behavior
 
-```{r data-setup}
+
+``` r
 # Generate bimodal bulk + heavy tail
 set.seed(42)
 bulk_comp1 <- rgamma(80, shape = 2, rate = 1.5)
@@ -79,7 +64,8 @@ print(p_raw)
 
 **Critical**: Choose threshold $u$ to separate bulk from tail.
 
-```{r threshold-selection}
+
+``` r
 # Options for threshold selection:
 threshold_mean <- mean(y_tail)
 threshold_quantile90 <- quantile(y_tail, 0.9)
@@ -99,21 +85,23 @@ print("Selected threshold (80th percentile):", round(u_threshold, 3), "\n")
 
 ## Model Specification (with GPD)
 
-```{r spec-gpd-crp}
+
+``` r
 spec_gpd <- compile_model_spec(
   y = y_tail,
   kernel = "gamma",           # Bulk kernel
   backend = "crp",            # CRP for bulk
   GPD = TRUE,                 # ENABLE tail augmentation
   threshold = u_threshold,    # Tail threshold
-  components = 5              # Max bulk components
+  Kmax = 5,                   # Max bulk components
+  verbose = FALSE
 )
 
 print("Specification with GPD:")
-print(paste("  Kernel (bulk):", spec_gpd$meta$kernel))
-print(paste("  Backend (bulk):", spec_gpd$meta$backend))
-print(paste("  Threshold:", round(u_threshold, 3)))
-print(paste("  GPD enabled:", spec_gpd$meta$GPD))
+print(paste("  Kernel (bulk):", spec_gpd$kernel))
+print(paste("  Backend (bulk):", spec_gpd$backend))
+print(paste("  Threshold:", u_threshold))
+print(paste("  GPD enabled:", spec_gpd$GPD))
 print(paste("  Bulk observations:", sum(y_tail <= u_threshold)))
 print(paste("  Tail observations:", sum(y_tail > u_threshold)))
 ```
@@ -122,14 +110,10 @@ print(paste("  Tail observations:", sum(y_tail > u_threshold)))
 
 ## Bundle & MCMC
 
-```{r bundle-mcmc-gpd}
+
+``` r
 bundle_gpd <- build_nimble_bundle(
-  y = y_tail,
-  kernel = "gamma",
-  backend = "crp",
-  GPD = TRUE,
-  threshold = u_threshold,
-  components = 5,
+  spec_gpd,
   mcmc = list(
     niter = 2000,
     nburnin = 500,
@@ -145,7 +129,8 @@ print("Bundle compiled with CRP (bulk) + GPD (tail).\n")
 
 ## MCMC Execution
 
-```{r mcmc-gpd}
+
+``` r
 fit_gpd <- run_mcmc_bundle_manual(bundle_gpd)
 
 print("\n=== POSTERIOR SUMMARY (DPmixGPD, CRP Backend) ===\n")
@@ -158,7 +143,8 @@ summary(fit_gpd)
 
 ### Tail Parameters
 
-```{r gpd-params}
+
+``` r
 print("Tail Parameters Estimated:\n")
 print("  scale (σ):   > 0, controls tail spread\n")
 print("  shape (ξ):   > 0, controls tail heaviness\n")
@@ -176,7 +162,8 @@ print("Look for 'scale' and 'shape' parameters in MCMC output.\n")
 
 ### Predictive Density
 
-```{r pred-density}
+
+``` r
 # Full prediction grid including tail
 y_grid <- seq(0, max(y_tail) * 1.3, length.out = 300)
 
@@ -189,7 +176,8 @@ plot(pred_density)
 
 ### Survival Probability
 
-```{r pred-survival}
+
+``` r
 # Survival probabilities on tail
 y_surv <- seq(u_threshold, max(y_tail) * 1.1, length.out = 50)
 
@@ -206,13 +194,14 @@ plot(pred_surv)
 
 ### Without GPD (Bulk Only)
 
-```{r comp-no-gpd}
+
+``` r
 bundle_bulk_only <- build_nimble_bundle(
   y = y_tail,
   kernel = "gamma",
   backend = "crp",
   GPD = FALSE,
-  components = 5,
+  Kmax = 5,
   mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
 )
 fit_bulk_only <- run_mcmc_bundle_manual(bundle_bulk_only)
@@ -221,13 +210,15 @@ fit_bulk_only <- run_mcmc_bundle_manual(bundle_bulk_only)
 
 ### With GPD (Bulk + Tail)
 
-```{r comp-with-gpd}
+
+``` r
 # Model fit completed
 ```
 
 ### Model Comparison
 
-```{r comp-summary}
+
+``` r
 print("\n=== BULK ONLY vs BULK + GPD ===\n")
 print("Interpretation:\n")
 if (loglik_gpd > loglik_bulk) {
@@ -243,7 +234,8 @@ if (loglik_gpd > loglik_bulk) {
 
 ### Return Levels
 
-```{r return-levels}
+
+``` r
 # Estimate rare event probabilities
 probs <- c(0.99, 0.95, 0.90)
 return_levels <- predict(fit_gpd, newdata = data.frame(p = probs), type = "quantile")
@@ -258,7 +250,8 @@ print("  90th percentile:", return_levels[3], "\n")
 
 ## Residual Analysis
 
-```{r residuals}
+
+``` r
 # Extract fitted values with diagnostics
 fit_vals <- fitted(fit_gpd)
 
@@ -273,7 +266,8 @@ print(summary(residuals(fit_gpd)))
 
 ## Sensitivity to Threshold Choice
 
-```{r threshold-sensitivity}
+
+``` r
 thresholds <- quantile(y_tail, c(0.70, 0.75, 0.80, 0.85, 0.90))
 
 print("Testing threshold percentiles:\n")
@@ -288,7 +282,7 @@ bundle_thresh <- build_nimble_bundle(
   backend = "crp",
   GPD = TRUE,
   threshold = quantile(y_tail, 0.85),
-  components = 5,
+  Kmax = 5,
   mcmc = list(niter = 500, nburnin = 100, nchains = 1)
 )
 fit_thresh <- run_mcmc_bundle_manual(bundle_thresh)

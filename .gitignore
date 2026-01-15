@@ -24,6 +24,12 @@ vignettes/**/*.Rds
 vignettes/**/*.RDS
 vignettes/**/*.png
 
+# Cache files (knitr/rmarkdown)
+*_cache/
+**/*_cache/
+*.html
+test_*.html
+
 # pkgdown/site outputs
 docs/
 pkgdown/

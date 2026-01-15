@@ -644,7 +644,8 @@ stick_breaking <- nimble::nimbleFunction(
 .predict_mixgpd <- function(object,
                             x = NULL, y = NULL, ps = NULL,
                             type = c("density", "survival", "quantile", "sample", "mean"),
-                            p = NULL, nsim = NULL,
+                            p = NULL, index = NULL, nsim = NULL,
+                            cred.level = 0.95,
                             interval = c("none", "credible"),
                             probs = c(0.025, 0.5, 0.975),
                             store_draws = TRUE,
@@ -785,41 +786,77 @@ stick_breaking <- nimble::nimbleFunction(
              call. = FALSE)
       }
     } else {
-      # without X: y can be provided alone, otherwise default to training y
+      # UNCONDITIONAL: y can be provided or defaults to training y, no x allowed
+      if (!is.null(x)) stop("For unconditional model, 'x' is not allowed.", call. = FALSE)
       if (is.null(y)) {
         if (is.null(ytrain)) stop("Training y not found in fit object.", call. = FALSE)
         ygrid <- ytrain
       } else {
-        ygrid <- y
+        ygrid <- as.numeric(y)
+        if (anyNA(ygrid) || !all(is.finite(ygrid))) stop("y must be finite and contain no NA.", call. = FALSE)
       }
       Xpred <- NULL
     }
 
     if (is.null(ygrid) || length(ygrid) == 0) stop("y grid is empty.", call. = FALSE)
-    ygrid <- as.numeric(ygrid)
+    if (!is.numeric(ygrid)) ygrid <- as.numeric(ygrid)
     if (anyNA(ygrid) || !all(is.finite(ygrid))) stop("y must be finite and contain no NA.", call. = FALSE)
 
   } else if (type == "quantile") {
-    if (!is.null(y)) stop("For type='quantile', y must be NULL.", call. = FALSE)
-    if (is.null(p) || length(p) == 0) stop("For type='quantile', provide non-empty 'p'.", call. = FALSE)
-    pgrid <- as.numeric(p)
-    if (anyNA(pgrid) || !all(is.finite(pgrid)) || any(pgrid <= 0 | pgrid >= 1)) {
-      stop("p must be in (0,1), finite, no NA.", call. = FALSE)
+    # UNCONDITIONAL: quantile must use training y, no y or x allowed
+    if (!has_X) {
+      if (!is.null(x)) stop("For unconditional model and type='quantile', 'x' is not allowed.", call. = FALSE)
+      if (!is.null(y)) stop("For unconditional model and type='quantile', 'y' is not allowed.", call. = FALSE)
+      if (is.null(index) || length(index) == 0) stop("For type='quantile', provide non-empty 'index'.", call. = FALSE)
+      pgrid <- as.numeric(index)
+      if (anyNA(pgrid) || !all(is.finite(pgrid)) || any(pgrid <= 0 | pgrid >= 1)) {
+        stop("index must be in (0,1), finite, no NA.", call. = FALSE)
+      }
+      # Will use ytrain implicitly
+    } else {
+      # CONDITIONAL: original logic
+      if (!is.null(y)) stop("For type='quantile', y must be NULL.", call. = FALSE)
+      if (is.null(index) || length(index) == 0) stop("For type='quantile', provide non-empty 'index'.", call. = FALSE)
+      pgrid <- as.numeric(index)
+      if (anyNA(pgrid) || !all(is.finite(pgrid)) || any(pgrid <= 0 | pgrid >= 1)) {
+        stop("index must be in (0,1), finite, no NA.", call. = FALSE)
+      }
+      Xpred <- if (has_X) (x %||% Xtrain) else NULL
     }
-    Xpred <- if (has_X) (x %||% Xtrain) else NULL
 
   } else if (type == "sample") {
-    if (!is.null(y)) stop("For type='sample', y must be NULL.", call. = FALSE)
-    nsim <- nsim %||% NA_integer_
-    if (!is.numeric(nsim) || length(nsim) != 1 || is.na(nsim) || nsim < 1) {
-      stop("For type='sample', provide a positive integer 'nsim'.", call. = FALSE)
+    # UNCONDITIONAL: sample must use training y, default nsim = length(ytrain), no y or x allowed
+    if (!has_X) {
+      if (!is.null(x)) stop("For unconditional model and type='sample', 'x' is not allowed.", call. = FALSE)
+      if (!is.null(y)) stop("For unconditional model and type='sample', 'y' is not allowed.", call. = FALSE)
+      if (is.null(ytrain)) stop("Training y not found in fit object.", call. = FALSE)
+      nsim <- nsim %||% length(ytrain)
+      if (!is.numeric(nsim) || length(nsim) != 1 || is.na(nsim) || nsim < 1) {
+        stop("'num' must be a positive integer.", call. = FALSE)
+      }
+      nsim <- as.integer(nsim)
+    } else {
+      # CONDITIONAL: original logic
+      if (!is.null(y)) stop("For type='sample', y must be NULL.", call. = FALSE)
+      nsim <- nsim %||% NA_integer_
+      if (!is.numeric(nsim) || length(nsim) != 1 || is.na(nsim) || nsim < 1) {
+        stop("For type='sample', provide a positive integer 'nsim'.", call. = FALSE)
+      }
+      nsim <- as.integer(nsim)
+      Xpred <- if (has_X) (x %||% Xtrain) else NULL
     }
-    nsim <- as.integer(nsim)
-    Xpred <- if (has_X) (x %||% Xtrain) else NULL
 
   } else if (type == "mean") {
-    if (!is.null(y)) stop("For type='mean', y must be NULL.", call. = FALSE)
-    Xpred <- if (has_X) (x %||% Xtrain) else NULL
+    # UNCONDITIONAL: mean must use training y, no y or x allowed
+    if (!has_X) {
+      if (!is.null(x)) stop("For unconditional model and type='mean', 'x' is not allowed.", call. = FALSE)
+      if (!is.null(y)) stop("For unconditional model and type='mean', 'y' is not allowed.", call. = FALSE)
+      # Will use ytrain implicitly
+    } else {
+      # CONDITIONAL: original logic
+      if (!is.null(y)) stop("For type='mean', y must be NULL.", call. = FALSE)
+      Xpred <- if (has_X) (x %||% Xtrain) else NULL
+    }
 
   } else {
     stop("Unsupported prediction type.", call. = FALSE)
@@ -1067,8 +1104,9 @@ stick_breaking <- nimble::nimbleFunction(
 
 
   # -----------------------------
+
   # density / survival
-  # -----------------------------
+  # Returns data frame with columns: y, density/survival, lower, upper
   if (type %in% c("density", "survival")) {
     G <- length(ygrid)
 
@@ -1115,12 +1153,35 @@ stick_breaking <- nimble::nimbleFunction(
 
     fit <- apply(draws_arr, c(2, 3), mean, na.rm = TRUE)
 
-    lower <- upper <- NULL
-    if (interval == "credible") {
-      qarr <- apply(draws_arr, c(2, 3), stats::quantile, probs = probs, na.rm = TRUE)
-      lower <- qarr[1, , , drop = TRUE]
-      upper <- qarr[length(probs), , , drop = TRUE]
+     lower <- upper <- NULL
+     if (interval == "credible") {
+       # Apply quantile along dimension 1 (posterior draws) for each (i,j) combination
+       lower <- matrix(NA_real_, nrow = n_pred, ncol = G)
+       upper <- matrix(NA_real_, nrow = n_pred, ncol = G)
+       for (i in 1:n_pred) {
+         for (j in 1:G) {
+           q_vals <- stats::quantile(draws_arr[, i, j], probs = probs, na.rm = TRUE)
+           lower[i, j] <- q_vals[1]
+           upper[i, j] <- q_vals[length(probs)]
+         }
+       }
+     }
+
+    # Convert to data frame format with columns: y, estimate (density/survival), lower, upper
+    result_list <- list()
+    for (i in 1:n_pred) {
+      for (j in 1:G) {
+        row_data <- list(
+          y = ygrid[j],
+          estimate = fit[i, j],
+          lower = if (!is.null(lower)) lower[i, j] else NA_real_,
+          upper = if (!is.null(upper)) upper[i, j] else NA_real_
+        )
+        result_list[[length(result_list) + 1]] <- row_data
+      }
     }
+    fit_df <- do.call(rbind, lapply(result_list, as.data.frame))
+    colnames(fit_df) <- c("y", ifelse(type == "density", "density", "survival"), "lower", "upper")
 
     if (isTRUE(store_draws) && is.environment(object$cache)) {
       if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
@@ -1130,163 +1191,386 @@ stick_breaking <- nimble::nimbleFunction(
                                           backend = backend, kernel = kernel, GPD = GPD)
     }
 
-    return(list(fit = fit, lower = lower, upper = upper, type = type, grid = ygrid))
+    out <- list(fit = fit_df, lower = NULL, upper = NULL, type = type, grid = ygrid)
+    class(out) <- "mixgpd_predict"
+    return(out)
   }
 
   # -----------------------------
   # quantile
-  # -----------------------------
+  # For unconditional: compute quantiles over posterior draws using ytrain
+  # For conditional: compute quantiles for each X observation
+  # Returns data frame: index, quantile, lower, upper
   if (type == "quantile") {
-    M <- length(pgrid)
-
-    .one_draw <- function(s) {
-      w_s <- as.numeric(W_draws[s, ])
-      args0 <- list(w = w_s)
-      for (nm in base_params) {
-        args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
-      }
-      if (GPD) { args0$tail_shape <- tail_shape[s] }
-
-      link_eta <- .compute_link_eta(s)
-
-      out <- matrix(NA_real_, nrow = n_pred, ncol = M)
-      for (i in 1:n_pred) {
-        args <- args0
-        if (GPD) {
-          args$threshold <- if (has_X) threshold_mat[s, i] else threshold_scalar[s]
-          args$tail_scale <- .tail_scale_at(s, i)
+    if (!has_X) {
+      # UNCONDITIONAL: Compute quantiles over posterior draws for each training observation
+      G <- length(ytrain)
+      M <- length(pgrid)
+      
+      .one_draw_uncond <- function(s) {
+        w_s <- as.numeric(W_draws[s, ])
+        args0 <- list(w = w_s)
+        for (nm in base_params) {
+          args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
         }
-        if (length(link_params)) {
-          for (nm in link_params) args[[nm]] <- as.numeric(link_eta[[nm]][, i])
+        if (GPD) { args0$tail_shape <- tail_shape[s] }
+        
+        # Compute quantiles for each training observation
+        out <- matrix(NA_real_, nrow = G, ncol = M)
+        for (i in 1:G) {
+          args <- args0
+          if (GPD) {
+            args$threshold <- threshold_scalar[s]
+            args$tail_scale <- tail_scale[s]
+          }
+          out[i, ] <- as.numeric(do.call(q_fun, c(list(p = pgrid), args)))
         }
-        out[i, ] <- as.numeric(do.call(q_fun, c(list(p = pgrid), args)))
+        out
       }
-      out
-    }
-
-    mats <- .lapply_draws(.one_draw)
-
-    draws_arr <- array(NA_real_, dim = c(S, n_pred, M))
-    for (s in 1:S) draws_arr[s, , ] <- mats[[s]]
-
-    fit <- apply(draws_arr, c(2, 3), mean, na.rm = TRUE)
-
-    lower <- upper <- NULL
-    if (interval == "credible") {
+      
+      mats <- .lapply_draws(.one_draw_uncond)
+      
+      # draws_arr: S x G x M
+      draws_arr <- array(NA_real_, dim = c(S, G, M))
+      for (s in 1:S) draws_arr[s, , ] <- mats[[s]]
+      
+      # Aggregate over posterior draws using quantiles (median as estimate)
       qarr <- apply(draws_arr, c(2, 3), stats::quantile, probs = probs, na.rm = TRUE)
+      estimate <- qarr[which.min(abs(probs - 0.5)), , , drop = TRUE]
       lower <- qarr[1, , , drop = TRUE]
       upper <- qarr[length(probs), , , drop = TRUE]
+
+      # Collapse across observations: one row per requested index
+      if (M == 1) {
+        estimate_vec <- mean(estimate, na.rm = TRUE)
+        lower_vec    <- mean(lower, na.rm = TRUE)
+        upper_vec    <- mean(upper, na.rm = TRUE)
+      } else {
+        estimate_vec <- colMeans(estimate, na.rm = TRUE)
+        lower_vec    <- colMeans(lower, na.rm = TRUE)
+        upper_vec    <- colMeans(upper, na.rm = TRUE)
+      }
+      fit_df <- data.frame(
+        index    = pgrid,
+        estimate = estimate_vec,
+        lower    = lower_vec,
+        upper    = upper_vec,
+        row.names = NULL
+      )
+      
+      draws_out <- if (isTRUE(store_draws)) draws_arr else NULL
+      
+      if (isTRUE(store_draws) && is.environment(object$cache)) {
+        if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
+        key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
+                      "_g", G, "_m", M, "_S", S)
+        object$cache$predict[[key]] <- list(type = type, grid = pgrid, draws = draws_arr, fit = fit,
+                                            backend = backend, kernel = kernel, GPD = GPD)
+      }
+      
+      out <- list(fit = fit_df, lower = NULL, upper = NULL, type = type, grid = pgrid, draws = draws_out)
+      class(out) <- "mixgpd_predict"
+      return(out)
+    } else {
+      # CONDITIONAL: Original logic, return data frame
+      M <- length(pgrid)
+
+      .one_draw <- function(s) {
+        w_s <- as.numeric(W_draws[s, ])
+        args0 <- list(w = w_s)
+        for (nm in base_params) {
+          args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
+        }
+        if (GPD) { args0$tail_shape <- tail_shape[s] }
+
+        link_eta <- .compute_link_eta(s)
+
+        out <- matrix(NA_real_, nrow = n_pred, ncol = M)
+        for (i in 1:n_pred) {
+          args <- args0
+          if (GPD) {
+            args$threshold <- threshold_mat[s, i]
+            args$tail_scale <- .tail_scale_at(s, i)
+          }
+          if (length(link_params)) {
+            for (nm in link_params) args[[nm]] <- as.numeric(link_eta[[nm]][, i])
+          }
+          out[i, ] <- as.numeric(do.call(q_fun, c(list(p = pgrid), args)))
+        }
+        out
+      }
+
+      mats <- .lapply_draws(.one_draw)
+
+      draws_arr <- array(NA_real_, dim = c(S, n_pred, M))
+      for (s in 1:S) draws_arr[s, , ] <- mats[[s]]
+
+      qarr <- apply(draws_arr, c(2, 3), stats::quantile, probs = probs, na.rm = TRUE)
+      estimate <- qarr[which.min(abs(probs - 0.5)), , , drop = TRUE]
+      lower <- qarr[1, , , drop = TRUE]
+      upper <- qarr[length(probs), , , drop = TRUE]
+
+      estimate_vec <- if (M == 1) mean(estimate, na.rm = TRUE) else colMeans(estimate, na.rm = TRUE)
+      lower_vec    <- if (M == 1) mean(lower, na.rm = TRUE) else colMeans(lower, na.rm = TRUE)
+      upper_vec    <- if (M == 1) mean(upper, na.rm = TRUE) else colMeans(upper, na.rm = TRUE)
+      fit_df <- data.frame(
+        index    = pgrid,
+        estimate = estimate_vec,
+        lower    = lower_vec,
+        upper    = upper_vec,
+        row.names = NULL
+      )
+
+      draws_out <- if (isTRUE(store_draws)) draws_arr else NULL
+
+      if (isTRUE(store_draws) && is.environment(object$cache)) {
+        if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
+        key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
+                      "_n", n_pred, "_m", length(pgrid), "_S", S)
+        object$cache$predict[[key]] <- list(type = type, grid = pgrid, draws = draws_arr, fit = fit,
+                                            backend = backend, kernel = kernel, GPD = GPD)
+      }
+
+      out <- list(fit = fit_df, lower = NULL, upper = NULL, type = type, grid = pgrid, draws = draws_out)
+      class(out) <- "mixgpd_predict"
+      return(out)
     }
-
-    draws_out <- if (isTRUE(store_draws)) draws_arr else NULL
-
-    if (isTRUE(store_draws) && is.environment(object$cache)) {
-      if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
-      key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
-                    "_n", n_pred, "_m", length(pgrid), "_S", S)
-      object$cache$predict[[key]] <- list(type = type, grid = pgrid, draws = draws_arr, fit = fit,
-                                          backend = backend, kernel = kernel, GPD = GPD)
-    }
-
-    return(list(fit = fit, lower = lower, upper = upper, type = type, grid = pgrid, draws = draws_out))
   }
 
   # -----------------------------
-  # sample (posterior predictive)
-  # -----------------------------
+  # sample (posterior predictive via quantile inversion)
+  # Draw uniform samples and convert via quantile function
   if (type == "sample") {
-    idx <- sample.int(S, size = nsim, replace = TRUE)
-    out <- matrix(NA_real_, nrow = n_pred, ncol = nsim)
+    if (!has_X) {
+      # UNCONDITIONAL: Draw uniform samples and convert via quantile
+      if (is.na(nsim) || nsim < 1L) nsim <- length(ytrain)
+      idx <- sample.int(S, size = nsim, replace = TRUE)
+      u_samples <- runif(nsim)
+      out <- numeric(nsim)
 
-    for (t in 1:nsim) {
-      s <- idx[t]
-      w_s <- as.numeric(W_draws[s, ])
-      args0 <- list(w = w_s)
-      for (nm in base_params) {
-        args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
-      }
-      if (GPD) { args0$tail_shape <- tail_shape[s] }
-
-      link_eta <- .compute_link_eta(s)
-
-      for (i in 1:n_pred) {
+      for (t in 1:nsim) {
+        s <- idx[t]
+        w_s <- as.numeric(W_draws[s, ])
+        args0 <- list(w = w_s)
+        for (nm in base_params) {
+          args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
+        }
+        if (GPD) { args0$tail_shape <- tail_shape[s] }
         args <- args0
         if (GPD) {
-          args$threshold <- if (has_X) threshold_mat[s, i] else threshold_scalar[s]
-          args$tail_scale <- .tail_scale_at(s, i)
+          args$threshold <- threshold_scalar[s]
+          args$tail_scale <- tail_scale[s]
         }
-        if (length(link_params)) {
-          for (nm in link_params) args[[nm]] <- as.numeric(link_eta[[nm]][, i])
-        }
-        out[i, t] <- as.numeric(do.call(r_fun, c(list(n = 1L), args)))
+        out[t] <- as.numeric(do.call(q_fun, c(list(p = u_samples[t]), args)))
       }
-    }
 
-    if (is.environment(object$cache)) {
-      if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
-      key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
-                    "_n", n_pred, "_nsim", nsim)
-      object$cache$predict[[key]] <- list(type = type, draws = out, posterior_index = idx,
-                                          backend = backend, kernel = kernel, GPD = GPD)
-    }
+      if (is.environment(object$cache)) {
+        if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
+        key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
+                      "_nsim", nsim)
+        object$cache$predict[[key]] <- list(type = type, draws = out, posterior_index = idx,
+                                            backend = backend, kernel = kernel, GPD = GPD)
+      }
 
-    return(list(fit = out, lower = NULL, upper = NULL, type = type, grid = NULL))
+      res <- list(fit = out, lower = NULL, upper = NULL, type = type, grid = NULL)
+      class(res) <- "mixgpd_predict"
+      return(res)
+    } else {
+      # CONDITIONAL: Draw uniform samples and convert via quantile
+      if (is.na(nsim) || nsim < 1L) nsim <- n_pred
+      idx <- sample.int(S, size = nsim, replace = TRUE)
+      u_samples <- runif(nsim)
+      out <- matrix(NA_real_, nrow = n_pred, ncol = nsim)
+
+      for (t in 1:nsim) {
+        s <- idx[t]
+        w_s <- as.numeric(W_draws[s, ])
+        args0 <- list(w = w_s)
+        for (nm in base_params) {
+          args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
+        }
+        if (GPD) { args0$tail_shape <- tail_shape[s] }
+        link_eta <- .compute_link_eta(s)
+        for (i in 1:n_pred) {
+          args <- args0
+          if (GPD) {
+            args$threshold <- threshold_mat[s, i]
+            args$tail_scale <- .tail_scale_at(s, i)
+          }
+          if (length(link_params)) {
+            for (nm in link_params) args[[nm]] <- as.numeric(link_eta[[nm]][, i])
+          }
+          out[i, t] <- as.numeric(do.call(q_fun, c(list(p = u_samples[t]), args)))
+        }
+      }
+
+      if (is.environment(object$cache)) {
+        if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
+        key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
+                      "_n", n_pred, "_nsim", nsim)
+        object$cache$predict[[key]] <- list(type = type, draws = out, posterior_index = idx,
+                                            backend = backend, kernel = kernel, GPD = GPD)
+      }
+
+      res <- list(fit = out, lower = NULL, upper = NULL, type = type, grid = NULL)
+      class(res) <- "mixgpd_predict"
+      return(res)
+    }
   }
 
   # -----------------------------
-  # mean (Monte Carlo approximation via sampling)
-  # -----------------------------
+  # mean (via posterior samples from quantile inversion)
+  # Generate posterior samples via quantile inversion, compute mean and CI
   if (type == "mean") {
-    nsim_mean <- as.integer(nsim_mean)
-    if (is.na(nsim_mean) || nsim_mean < 10L) nsim_mean <- 200L
-
-    mean_draws <- matrix(NA_real_, nrow = S, ncol = n_pred)
-
-    for (s in 1:S) {
-      w_s <- as.numeric(W_draws[s, ])
-      args0 <- list(w = w_s)
-      for (nm in base_params) {
-        args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
-      }
-      if (GPD) { args0$tail_shape <- tail_shape[s] }
-
-      link_eta <- .compute_link_eta(s)
-
-      for (i in 1:n_pred) {
-        args <- args0
-        if (GPD) {
-          args$threshold <- if (has_X) threshold_mat[s, i] else threshold_scalar[s]
-          args$tail_scale <- .tail_scale_at(s, i)
+    if (!has_X) {
+      # UNCONDITIONAL: Compute observation-specific posterior means using quantile inversion
+      G <- length(ytrain)
+      nsim_inner <- as.integer(nsim_mean)
+      if (is.na(nsim_inner) || nsim_inner < 10L) nsim_inner <- 200L
+      
+      # Compute per-observation quantiles and means
+      fit <- numeric(G)
+      lower <- upper <- numeric(G)
+      
+      for (i in 1:G) {
+        # For observation i, compute nsim_inner posterior samples using quantile inversion
+        u_samples <- runif(nsim_inner)
+        idx <- sample.int(S, size = nsim_inner, replace = TRUE)
+        samples <- numeric(nsim_inner)
+        
+        for (t in 1:nsim_inner) {
+          s <- idx[t]
+          w_s <- as.numeric(W_draws[s, ])
+          args0 <- list(w = w_s)
+          for (nm in base_params) {
+            args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
+          }
+          if (GPD) { args0$tail_shape <- tail_shape[s] }
+          args <- args0
+          if (GPD) {
+            args$threshold <- threshold_scalar[s]
+            args$tail_scale <- tail_scale[s]
+          }
+          samples[t] <- as.numeric(do.call(q_fun, c(list(p = u_samples[t]), args)))
         }
-        if (length(link_params)) {
-          for (nm in link_params) args[[nm]] <- as.numeric(link_eta[[nm]][, i])
+        
+        fit[i] <- mean(samples, na.rm = TRUE)
+        if (interval == "credible") {
+          q_vals <- stats::quantile(samples, probs = probs, na.rm = TRUE, names = FALSE)
+          lower[i] <- q_vals[1]
+          upper[i] <- q_vals[length(probs)]
         }
-        yy <- vapply(seq_len(nsim_mean), function(k) {
-          as.numeric(do.call(r_fun, c(list(n = 1L), args)))
-        }, numeric(1))
-        mean_draws[s, i] <- mean(yy)
       }
+      
+      if (interval != "credible") {
+        lower <- upper <- NULL
+      }
+      
+      # Store all samples from all observations for plotting histogram
+      all_samples <- numeric(G * nsim_inner)
+      idx_start <- 1
+      for (i in 1:G) {
+        u_samples <- runif(nsim_inner)
+        idx <- sample.int(S, size = nsim_inner, replace = TRUE)
+        for (t in 1:nsim_inner) {
+          s <- idx[t]
+          w_s <- as.numeric(W_draws[s, ])
+          args0 <- list(w = w_s)
+          for (nm in base_params) {
+            args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
+          }
+          if (GPD) { args0$tail_shape <- tail_shape[s] }
+          args <- args0
+          if (GPD) {
+            args$threshold <- threshold_scalar[s]
+            args$tail_scale <- tail_scale[s]
+          }
+          all_samples[idx_start + t - 1] <- as.numeric(do.call(q_fun, c(list(p = u_samples[t]), args)))
+        }
+        idx_start <- idx_start + nsim_inner
+      }
+      
+      # Return data frame format
+      fit_df <- data.frame(
+        estimate = mean(fit, na.rm = TRUE),
+        lower = if (!is.null(lower)) mean(lower, na.rm = TRUE) else NA_real_,
+        upper = if (!is.null(upper)) mean(upper, na.rm = TRUE) else NA_real_
+      )
+      
+      if (isTRUE(store_draws) && is.environment(object$cache)) {
+        if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
+        key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
+                      "_g", G, "_nsim", nsim_inner)
+        object$cache$predict[[key]] <- list(type = type, draws = all_samples, fit = fit_df,
+                                            backend = backend, kernel = kernel, GPD = GPD)
+      }
+      res <- list(fit = fit_df, type = type, draws = all_samples)
+      class(res) <- "mixgpd_predict"
+      return(res)
+    } else {
+      # CONDITIONAL: Original logic
+      nsim_mean <- as.integer(nsim_mean)
+      if (is.na(nsim_mean) || nsim_mean < 10L) nsim_mean <- 200L
+
+      samples_mat <- matrix(NA_real_, nrow = n_pred, ncol = nsim_mean)
+
+      for (t in 1:nsim_mean) {
+        # Sample posterior index uniformly
+        s <- sample.int(S, size = 1L)
+        u <- runif(1)
+
+        w_s <- as.numeric(W_draws[s, ])
+        args0 <- list(w = w_s)
+        for (nm in base_params) {
+          args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
+        }
+        if (GPD) { args0$tail_shape <- tail_shape[s] }
+
+        link_eta <- .compute_link_eta(s)
+
+        for (i in 1:n_pred) {
+          args <- args0
+          if (GPD) {
+            args$threshold <- threshold_mat[s, i]
+            args$tail_scale <- .tail_scale_at(s, i)
+          }
+          if (length(link_params)) {
+            for (nm in link_params) args[[nm]] <- as.numeric(link_eta[[nm]][, i])
+          }
+          samples_mat[i, t] <- as.numeric(do.call(q_fun, c(list(p = u), args)))
+        }
+      }
+
+      fit <- rowMeans(samples_mat, na.rm = TRUE)
+      lower <- upper <- NULL
+      if (interval == "credible") {
+        qmat <- t(apply(samples_mat, 1, stats::quantile, probs = probs, na.rm = TRUE, names = FALSE))
+        lower <- qmat[, 1]
+        upper <- qmat[, length(probs)]
+      }
+
+      # Return data frame format with one row per observation
+      fit_df <- data.frame(
+        estimate = fit,
+        lower = if (!is.null(lower)) lower else rep(NA_real_, n_pred),
+        upper = if (!is.null(upper)) upper else rep(NA_real_, n_pred)
+      )
+      
+      # Flatten samples for histogram (all observations combined)
+      all_samples <- as.numeric(samples_mat)
+
+      if (isTRUE(store_draws) && is.environment(object$cache)) {
+        if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
+        key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
+                      "_n", n_pred, "_nsim", nsim_mean)
+        object$cache$predict[[key]] <- list(type = type, draws = all_samples, fit = fit_df,
+                                            backend = backend, kernel = kernel, GPD = GPD)
+      }
+
+      res <- list(fit = fit_df, type = type, draws = all_samples)
+      class(res) <- "mixgpd_predict"
+      return(res)
     }
-
-    fit <- colMeans(mean_draws, na.rm = TRUE)
-    lower <- upper <- NULL
-    if (interval == "credible") {
-      qmat <- t(apply(mean_draws, 2, stats::quantile, probs = probs, na.rm = TRUE, names = FALSE))
-      lower <- qmat[, 1]
-      upper <- qmat[, length(probs)]
-    }
-
-    draws_out <- if (isTRUE(store_draws)) mean_draws else NULL
-
-    if (isTRUE(store_draws) && is.environment(object$cache)) {
-      if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
-      key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
-                    "_n", n_pred, "_S", S)
-      object$cache$predict[[key]] <- list(type = type, draws = mean_draws, fit = fit,
-                                          backend = backend, kernel = kernel, GPD = GPD)
-    }
-
-    return(list(fit = fit, lower = lower, upper = upper, type = type, grid = NULL, draws = draws_out))
   }
 
   stop("Unsupported prediction type.", call. = FALSE)

@@ -533,13 +533,12 @@ normalize_param_plan <- function(backend,
 
   list(
     backend = backend,
-    kernel = kernel_def$key,
+    kernel = kernel,
     has_X = has_X,
     N = as.integer(N),
     P = as.integer(P),
-    J = J,
-    Kmax = Kmax,
-    alpha = alpha,
+    components = components,
+    concentration = conc_plan,
     bulk = bulk,
     gpd = gpd
   )

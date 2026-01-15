@@ -26,11 +26,11 @@ set.seed(42)
 # )
 # 
 # # Inspect specification
-# cat("Specification object class:", class(spec), "\n")
-# cat("Kernel chosen:", spec$kernel, "\n")
-# cat("Backend chosen:", spec$backend, "\n")
-# cat("GPD enabled:", spec$GPD, "\n")
-# cat("Sample size n:", length(spec$y), "\n")
+# print("Specification object class:", class(spec), "\n")
+# print("Kernel chosen:", spec$kernel, "\n")
+# print("Backend chosen:", spec$backend, "\n")
+# print("GPD enabled:", spec$GPD, "\n")
+# print("Sample size n:", length(spec$y), "\n")
 
 ## ----spec-variants------------------------------------------------------------
 # # 1. Unconditional DPmix (bulk only, no tail)
@@ -58,14 +58,14 @@ set.seed(42)
 #   mcmc = list(niter = 2000, nburnin = 500, nchains = 2, thin = 2)
 # )
 # 
-# cat("Created 4 specification objects successfully.\n")
+# print("Created 4 specification objects successfully.\n")
 
 ## ----bundle-from-spec---------------------------------------------------------
 # # Method 1: From specification object
 # bundle <- build_nimble_bundle(spec)
 # 
-# cat("Bundle object class:", class(bundle), "\n")
-# cat("Bundle contains compiled sampler ready for MCMC.\n")
+# print("Bundle object class:", class(bundle), "\n")
+# print("Bundle contains compiled sampler ready for MCMC.\n")
 
 ## ----bundle-direct------------------------------------------------------------
 # # Method 2: Direct call (recommended for quick workflows)
@@ -77,28 +77,28 @@ set.seed(42)
 #   mcmc = list(niter = 500, nburnin = 100, nchains = 1)
 # )
 # 
-# cat("Direct bundle creation successful.\n")
+# print("Direct bundle creation successful.\n")
 
 ## ----bundle-inspect-----------------------------------------------------------
 # # Bundle is an S3 object with structure
-# cat("Bundle class:", class(bundle_direct), "\n")
-# cat("Bundle contains:\n")
+# print("Bundle class:", class(bundle_direct), "\n")
+# print("Bundle contains:\n")
 # print(names(bundle_direct))
 # 
 # # Access key components
-# cat("\nMCMC settings:\n")
+# print("\nMCMC settings:\n")
 # print(bundle_direct$mcmc_settings)
 
 ## ----mcmc-basic---------------------------------------------------------------
 # # Run MCMC
 # fit <- run_mcmc_bundle_manual(bundle_direct)
 # 
-# cat("Fit object class:", class(fit), "\n")
-# cat("MCMC execution complete. Posterior samples collected.\n")
+# print("Fit object class:", class(fit), "\n")
+# print("MCMC execution complete. Posterior samples collected.\n")
 
 ## ----mcmc-posterior-----------------------------------------------------------
 # # Posterior summary
-# cat("\n--- POSTERIOR SUMMARY ---\n")
+# print("\n--- POSTERIOR SUMMARY ---\n")
 # summary(fit)
 
 ## ----mcmc-diagnostics---------------------------------------------------------
@@ -116,7 +116,7 @@ set.seed(42)
 #   kernel = "gamma",
 #   backend = "crp",
 #   GPD = FALSE,
-#   Kmax = 15
+#   Kmax = 5
 # )
 # 
 # # PHASE 2: Bundle
@@ -133,7 +133,7 @@ set.seed(42)
 # # PHASE 3: MCMC
 # fit_final <- run_mcmc_bundle_manual(bundle_final)
 # 
-# cat("\n=== THREE-PHASE WORKFLOW COMPLETE ===\n")
+# print("\n=== THREE-PHASE WORKFLOW COMPLETE ===\n")
 # summary(fit_final)
 
 ## ----backend-crp--------------------------------------------------------------
@@ -142,12 +142,12 @@ set.seed(42)
 #   y = y_data,
 #   kernel = "gamma",
 #   backend = "crp",
-#   Kmax = 10,
+#   Kmax = 5,
 #   mcmc = list(niter = 500, nburnin = 100, nchains = 1)
 # )
 # 
 # fit_crp <- run_mcmc_bundle_manual(bundle_crp)
-# cat("CRP execution complete.\n")
+# print("CRP execution complete.\n")
 
 ## ----backend-sb---------------------------------------------------------------
 # # Stick-Breaking Process
@@ -155,29 +155,29 @@ set.seed(42)
 #   y = y_data,
 #   kernel = "gamma",
 #   backend = "sb",
-#   J = 10,
+#   J = 5,
 #   mcmc = list(niter = 500, nburnin = 100, nchains = 1)
 # )
 # 
 # fit_sb <- run_mcmc_bundle_manual(bundle_sb)
-# cat("SB execution complete.\n")
+# print("SB execution complete.\n")
 
 ## ----kernel-guide-------------------------------------------------------------
 # kernels_available <- c("gamma", "lognormal", "normal", "laplace", "invgauss", "amoroso", "cauchy")
 # 
-# cat("Available kernels:\n")
+# print("Available kernels:\n")
 # for (k in kernels_available) {
-#   cat("  -", k, "\n")
+#   print("  -", k, "\n")
 # }
 # 
-# cat("\nChoose kernel based on:\n")
-# cat("  gamma:     Right-skewed, positive support\n")
-# cat("  lognormal: Log-transformed normality\n")
-# cat("  normal:    Symmetric, unbounded\n")
-# cat("  laplace:   Sharp peak, exponential tails\n")
-# cat("  invgauss:  Positive, near-normal shape\n")
-# cat("  amoroso:   Generalized, maximum flexibility\n")
-# cat("  cauchy:    Heavy-tailed, rare cases\n")
+# print("\nChoose kernel based on:\n")
+# print("  gamma:     Right-skewed, positive support\n")
+# print("  lognormal: Log-transformed normality\n")
+# print("  normal:    Symmetric, unbounded\n")
+# print("  laplace:   Sharp peak, exponential tails\n")
+# print("  invgauss:  Positive, near-normal shape\n")
+# print("  amoroso:   Generalized, maximum flexibility\n")
+# print("  cauchy:    Heavy-tailed, rare cases\n")
 
 ## ----gpd-example--------------------------------------------------------------
 # # Data with tail behavior
@@ -193,20 +193,20 @@ set.seed(42)
 # )
 # 
 # fit_gpd <- run_mcmc_bundle_manual(bundle_gpd)
-# cat("\nGPD augmentation applied to tail region.\n")
+# print("\nGPD augmentation applied to tail region.\n")
 # summary(fit_gpd)
 
 ## ----param-reference----------------------------------------------------------
-# cat("=== Recommended MCMC Parameters ===\n")
-# cat("Quick test:     niter=500,  nburnin=100, nchains=1\n")
-# cat("Standard:       niter=2000, nburnin=500, nchains=2\n")
-# cat("Production:     niter=5000, nburnin=1000, nchains=3\n")
-# cat("\n=== Backend Parameters ===\n")
-# cat("CRP: Kmax=10-30 (truncation for # components)\n")
-# cat("SB:  J=10-30    (fixed # components)\n")
-# cat("\n=== Kernel Selection ===\n")
-# cat("Positive data:     gamma, lognormal, invgauss\n")
-# cat("Any real data:     normal\n")
-# cat("Symmetric tails:   laplace\n")
-# cat("Extreme outliers:  cauchy\n")
+# print("=== Recommended MCMC Parameters ===\n")
+# print("Quick test:     niter=500,  nburnin=100, nchains=1\n")
+# print("Standard:       niter=2000, nburnin=500, nchains=2\n")
+# print("Production:     niter=5000, nburnin=1000, nchains=3\n")
+# print("\n=== Backend Parameters ===\n")
+# print("CRP: Kmax=3-5 (truncation for # components)\n")
+# print("SB:  J=3-5    (fixed # components)\n")
+# print("\n=== Kernel Selection ===\n")
+# print("Positive data:     gamma, lognormal, invgauss\n")
+# print("Any real data:     normal\n")
+# print("Symmetric tails:   laplace\n")
+# print("Extreme outliers:  cauchy\n")
 

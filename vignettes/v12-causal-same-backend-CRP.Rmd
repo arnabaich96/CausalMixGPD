@@ -1,6 +1,8 @@
 ---
 title: "12. Causal Inference: Same Backend (CRP) for PS & Outcome"
-output: rmarkdown::html_vignette
+output: 
+  rmarkdown::html_vignette:
+    code_folding: show
 vignette: >
   %\VignetteIndexEntry{12. Causal Same Backend CRP}
   %\VignetteEngine{knitr::rmarkdown}
@@ -18,6 +20,7 @@ knitr::opts_chunk$set(
   eval = FALSE
 )
 library(DPmixGPD)
+if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
 library(ggplot2)
 set.seed(123)
 ```
@@ -73,10 +76,10 @@ p_raw <- ggplot(df_causal, aes(x = x1, y = y, color = T)) +
 
 print(p_raw)
 
-cat("Sample size:", n, "\n")
-cat("Treatment:", table(T), "\n")
-cat("Mean outcome (T=0):", mean(y[T == 0]), "\n")
-cat("Mean outcome (T=1):", mean(y[T == 1]), "\n")
+print("Sample size:", n, "\n")
+print("Treatment:", table(T), "\n")
+print("Mean outcome (T=0):", mean(y[T == 0]), "\n")
+print("Mean outcome (T=1):", mean(y[T == 1]), "\n")
 ```
 
 ---
@@ -93,7 +96,7 @@ bundle_causal_crp <- build_causal_bundle(
   backend = "crp",                  # CRP for outcome
   PS = "logit",                     # Propensity score: logit model
   GPD = FALSE,
-  Kmax = 10,
+  Kmax = 5,
   mcmc = list(
     niter = 2000,
     nburnin = 500,
@@ -102,7 +105,7 @@ bundle_causal_crp <- build_causal_bundle(
   )
 )
 
-cat("Causal bundle (CRP + logit PS) created.\n")
+print("Causal bundle (CRP + logit PS) created.\n")
 ```
 
 ---
@@ -117,12 +120,12 @@ bundle_logit <- build_causal_bundle(
   y = y, T = T, X = X,
   kernel = "normal", backend = "crp",
   PS = "logit",           # Bayesian logit via DP mixture
-  GPD = FALSE, Kmax = 10,
+  GPD = FALSE, Kmax = 5,
   mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
 )
 
 fit_logit <- run_mcmc_bundle_manual(bundle_logit)
-cat("\n=== Logit PS Model ===\n")
+print("\n=== Logit PS Model ===\n")
 summary(fit_logit)
 ```
 
@@ -133,12 +136,12 @@ bundle_probit <- build_causal_bundle(
   y = y, T = T, X = X,
   kernel = "normal", backend = "crp",
   PS = "probit",          # Bayesian probit
-  GPD = FALSE, Kmax = 10,
+  GPD = FALSE, Kmax = 5,
   mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
 )
 
 fit_probit <- run_mcmc_bundle_manual(bundle_probit)
-cat("\n=== Probit PS Model ===\n")
+print("\n=== Probit PS Model ===\n")
 summary(fit_probit)
 ```
 
@@ -150,12 +153,12 @@ bundle_naive <- build_causal_bundle(
   y = y, T = T, X = X,
   kernel = "normal", backend = "crp",
   PS = "naive",           # No PS model
-  GPD = FALSE, Kmax = 10,
+  GPD = FALSE, Kmax = 5,
   mcmc = list(niter = 1000, nburnin = 200, nchains = 1)
 )
 
 fit_naive <- run_mcmc_bundle_manual(bundle_naive)
-cat("\n=== Naive PS Model (No PS Adjustment) ===\n")
+print("\n=== Naive PS Model (No PS Adjustment) ===\n")
 summary(fit_naive)
 ```
 
@@ -167,19 +170,19 @@ summary(fit_naive)
 
 ```{r ate}
 # Extract treatment effect from fit
-cat("\n=== TREATMENT EFFECTS ===\n")
+print("\n=== TREATMENT EFFECTS ===\n")
 
-cat("\nLogit PS Model:\n")
+print("\nLogit PS Model:\n")
 ate_logit <- coef(fit_logit)
-cat("Posterior mean treatment effect:", ate_logit, "\n")
+print("Posterior mean treatment effect:", ate_logit, "\n")
 
-cat("\nProbit PS Model:\n")
+print("\nProbit PS Model:\n")
 ate_probit <- coef(fit_probit)
-cat("Posterior mean treatment effect:", ate_probit, "\n")
+print("Posterior mean treatment effect:", ate_probit, "\n")
 
-cat("\nNaive Model:\n")
+print("\nNaive Model:\n")
 ate_naive <- coef(fit_naive)
-cat("Posterior mean treatment effect:", ate_naive, "\n")
+print("Posterior mean treatment effect:", ate_naive, "\n")
 ```
 
 ---
@@ -191,7 +194,7 @@ cat("Posterior mean treatment effect:", ate_naive, "\n")
 X_cate <- cbind(x1 = c(-1, 0, 1), x2 = 0)
 
 cate_logit <- predict(fit_logit, newdata = X_cate, type = "treatment.effect")
-cat("CATE at X1 = -1, 0, 1 (Logit PS):\n")
+print("CATE at X1 = -1, 0, 1 (Logit PS):\n")
 print(cate_logit)
 ```
 
@@ -200,7 +203,7 @@ print(cate_logit)
 ## PS Comparison: All Three Models
 
 ```{r ps-comparison}
-cat("\n=== MODEL COMPARISON ===\n")
+print("\n=== MODEL COMPARISON ===\n")
 
 df_comp <- data.frame(
   Model = c("Logit PS", "Probit PS", "Naive"),
@@ -210,7 +213,7 @@ df_comp <- data.frame(
 
 print(df_comp)
 
-cat("\n✓ Logit typically preferred for binary outcome in treatment\n")
+print("\n✓ Logit typically preferred for binary outcome in treatment\n")
 ```
 
 ---
@@ -250,9 +253,9 @@ p_overlap <- ggplot(data.frame(ps = ps_fitted, T = as.factor(T)),
 
 print(p_overlap)
 
-cat("Common support check:\n")
-cat("  Control PS range: [", min(ps_control), ",", max(ps_control), "]\n")
-cat("  Treated PS range: [", min(ps_treated), ",", max(ps_treated), "]\n")
+print("Common support check:\n")
+print("  Control PS range: [", min(ps_control), ",", max(ps_control), "]\n")
+print("  Treated PS range: [", min(ps_treated), ",", max(ps_treated), "]\n")
 ```
 
 ---
@@ -282,3 +285,4 @@ print(p_resid)
 - **Treatment Effects**: ATE and CATE available
 - **Common Support**: Check PS overlap for valid inference
 - **Next**: SB backend in vignette 13, then heterogeneous effects
+
