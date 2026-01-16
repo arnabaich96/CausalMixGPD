@@ -81,7 +81,7 @@ bundle_crp <- build_nimble_bundle(
   mcmc = list(
     niter = 50,             # Minimal for testing
     nburnin = 10,           # Minimal burnin
-    nchains = 1,            # Single chain for speed
+    nchains = 2,            # Two chains for diagnostics
     thin = 1                # No thinning
   )
 )
@@ -100,7 +100,7 @@ bundle_crp <- build_nimble_bundle(
   GPD = FALSE,
   components = 3,
   alpha_random = TRUE,
-  mcmc = list(niter = 50, nburnin = 10, nchains = 1, thin = 1)
+  mcmc = list(niter = 1500, nburnin = 250, nchains = 2, thin = 1)
 )
 ```
 
@@ -132,7 +132,7 @@ params_crp
 
 ```{r diag-trace}
 # Trace plots for key parameters
-plot(fit_crp, params = "alpha")
+plot(fit_crp, params = "alpha", family = c("traceplot", "density", "geweke"))
 ```
 
 
@@ -183,7 +183,7 @@ bundle_components <- build_nimble_bundle(
   kernel = "laplace",
   backend = "crp",
   components = 5,
-  mcmc = list(niter = 60, nburnin = 10, nchains = 1)
+  mcmc = list(niter = 2500, nburnin = 500, nchains = 1)
 )
 fit_components <- run_mcmc_bundle_manual(bundle_components)
 ```
@@ -222,7 +222,7 @@ bundle_laplace <- build_nimble_bundle(
   kernel = "laplace",
   backend = "crp",
   components = 5,
-  mcmc = list(niter = 60, nburnin = 10, nchains = 1)
+  mcmc = list(niter = 2500, nburnin = 500, nchains = 1)
 )
 fit_laplace <- run_mcmc_bundle_manual(bundle_laplace)
 ```
@@ -240,7 +240,7 @@ bundle_amoroso <- build_nimble_bundle(
   kernel = "amoroso",
   backend = "crp",
   components = 5,
-  mcmc = list(niter = 60, nburnin = 10, nchains = 1)
+  mcmc = list(niter = 2500, nburnin = 500, nchains = 1)
 )
 fit_amoroso <- run_mcmc_bundle_manual(bundle_amoroso)
 ```
@@ -289,6 +289,7 @@ p_gamma + p_lognormal +
 - **Kernel Choice**: Gamma suitable for positive, skewed data
 - **Diagnostics**: Check convergence (Rhat, ESS) and posterior predictive fit
 - **Next**: Compare with **Stick-Breaking (SB)** backend in vignette 5
+
 
 
 

@@ -5,6 +5,7 @@ if (!exists(".cache_enabled")) {
 
 test_that("causal bundle and fit combos", {
   skip_if_not(requireNamespace("nimble", quietly = TRUE))
+  skip_on_cran()
 
   set.seed(1)
   n <- 30
@@ -109,6 +110,7 @@ test_that("causal bundle and fit combos", {
 
 test_that("PS parameter: logit, probit, naive, FALSE all work", {
   skip_if_not(requireNamespace("nimble", quietly = TRUE))
+  skip_on_cran()
 
   set.seed(99)
   n <- 40
@@ -173,15 +175,15 @@ test_that("PS parameter: logit, probit, naive, FALSE all work", {
     # Test prediction
     X_new <- X[1:5, ]
     pred <- predict(cf, x = X_new, type = "mean", store_draws = FALSE)
-    expect_true(is.list(pred), info = label)
+    expect_true(is.matrix(pred), info = label)
+    expect_true(nrow(pred) == nrow(X_new), info = label)
+    expect_true(all(c("ps", "estimate", "lower", "upper") %in% colnames(pred)), info = label)
 
     if (isFALSE(ps_opt)) {
-      expect_true(is.null(pred$ps), info = label)
-      expect_true(is.null(pred$ps_trt), info = label)
+      expect_true(all(is.na(pred[, "ps"])), info = label)
     } else {
-      expect_true(!is.null(pred$ps), info = label)
-      expect_true(length(pred$ps) == nrow(X_new), info = label)
-      expect_true(all(pred$ps >= 0 & pred$ps <= 1), info = label)
+      expect_true(all(is.finite(pred[, "ps"])), info = label)
+      expect_true(all(pred[, "ps"] >= 0 & pred[, "ps"] <= 1), info = label)
     }
   }
 })

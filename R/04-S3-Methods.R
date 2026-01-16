@@ -750,9 +750,10 @@ print.mixgpd_summary <- function(x, digits = 3, max_rows = 60, ...) {
 #'
 #' @param x A fitted object of class \code{"mixgpd_fit"}.
 #' @param family Character vector of plot names (ggmcmc plot types) or a single one.
-#'   Supported: \code{histogram, density, traceplot, running, compare_partial,
-#'   autocorrelation, crosscorrelation, Rhat, grb, effective, geweke,
-#'   caterpillar, pairs}.
+#'   Use \code{"auto"} (or \code{"all"}) to include all plots supported for the
+#'   available number of chains/parameters. Supported: \code{histogram, density,
+#'   traceplot, running, compare_partial, autocorrelation, crosscorrelation, Rhat,
+#'   grb, effective, geweke, caterpillar, pairs}.
 #' @param params Optional parameter selector. Either:
 #'   (i) character vector of exact parameter names (e.g. \code{c("alpha","threshold")}),
 #'   or (ii) a single regex string (e.g. \code{"alpha|threshold|tail_"}).
@@ -771,7 +772,7 @@ print.mixgpd_summary <- function(x, digits = 3, max_rows = 60, ...) {
 #' }
 #' @export
 plot.mixgpd_fit <- function(x,
-                            family = c("traceplot", "density"),
+                            family = "auto",
                             params = NULL,
                             nLags = 50,
                             ...) {
@@ -846,6 +847,9 @@ plot.mixgpd_fit <- function(x,
   allowed <- c("histogram", "density", "traceplot", "running", "compare_partial",
                "autocorrelation", "crosscorrelation", "Rhat", "grb", "effective",
                "geweke", "caterpillar", "pairs")
+  if (length(family) == 1L && family %in% c("auto", "all")) {
+    family <- allowed
+  }
   bad <- setdiff(family, allowed)
   if (length(bad) > 0) stop("Unknown plot family: ", paste(bad, collapse = ", "), call. = FALSE)
 
@@ -853,8 +857,15 @@ plot.mixgpd_fit <- function(x,
 
   # Helper: only run chain-comparison diagnostics when possible
   .need_multi <- function(f) f %in% c("crosscorrelation", "Rhat", "grb", "effective")
+  .need_params <- function(f) f %in% c("pairs", "crosscorrelation")
   if (nChains < 2) {
     family <- family[!vapply(family, .need_multi, logical(1))]
+  }
+  if (n_param < 2) {
+    family <- family[!vapply(family, .need_params, logical(1))]
+  }
+  if (length(family) == 0) {
+    stop("No applicable MCMC plot families for the available chains/parameters.", call. = FALSE)
   }
 
   plots <- list()

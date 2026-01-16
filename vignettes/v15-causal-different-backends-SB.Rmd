@@ -102,8 +102,8 @@ bundle_sb_crp <- build_causal_bundle(
   GPD = c(TRUE, TRUE),
   J = c(5, 5),
   param_specs = param_specs_gpd,
-  mcmc_outcome = list(niter = 40, nburnin = 10, nchains = 1, thin = 1, seed = 1),
-  mcmc_ps = list(niter = 40, nburnin = 10, nchains = 1, thin = 1, seed = 1)
+  mcmc_outcome = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 1),
+  mcmc_ps = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 1)
 )
 
 bundle_sb_crp
@@ -117,7 +117,7 @@ params(fit_sb_crp)
 ```
 
 ```{r plot-fit-sb-crp}
-plot(fit_sb_crp)
+plot(fit_sb_crp, family = c("traceplot", "autocorrelation", "running"))
 ```
 
 ```{r predict-mean-sb-crp}
@@ -171,8 +171,8 @@ bundle_crp_sb <- build_causal_bundle(
   GPD = c(TRUE, TRUE),
   J = c(5, 5),
   param_specs = param_specs_gpd,
-  mcmc_outcome = list(niter = 40, nburnin = 10, nchains = 1, thin = 1, seed = 2),
-  mcmc_ps = list(niter = 40, nburnin = 10, nchains = 1, thin = 1, seed = 2)
+  mcmc_outcome = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 2),
+  mcmc_ps = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 2)
 )
 
 bundle_crp_sb
@@ -186,7 +186,7 @@ params(fit_crp_sb)
 ```
 
 ```{r plot-fit-crp-sb}
-plot(fit_crp_sb)
+plot(fit_crp_sb, family = c("density", "geweke", "caterpillar"))
 ```
 
 ```{r predict-mean-crp-sb}
@@ -224,3 +224,4 @@ qte_crp_sb <- qte(fit_crp_sb, probs = c(0.25, 0.5, 0.75),
                   newdata = x_eval, interval = "credible")
 plot(qte_crp_sb)
 ```
+
