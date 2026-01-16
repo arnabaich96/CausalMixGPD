@@ -151,7 +151,7 @@ tail_shape <- 0.2
 
 dAmorosoGpd(4.0, loc, scale, shape1, shape2,
            threshold, tail_scale, tail_shape, log = 0)
-#> [1] 1e-300
+#> [1] 0.1110036
 pAmorosoGpd(4.0, loc, scale, shape1, shape2,
            threshold, tail_scale, tail_shape, lower.tail = 1, log.p = 0)
 #> [1] 0.8667957

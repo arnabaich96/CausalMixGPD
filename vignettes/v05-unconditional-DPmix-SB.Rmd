@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   eval = TRUE,
-  cache = TRUE
+  cache = FALSE
 )
 library(DPmixGPD)
 if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
@@ -33,7 +33,7 @@ set.seed(123)
 
 # Unconditional DPmix: Stick-Breaking (SB) Backend
 
-**Purpose**: Showcase the stick-breaking backend that uses a fixed number of mixture components (`components = J`) and contrasts it with the CRP backend from `v04`. The bulk kernel is again a lognormal so that the comparison is apples-to-apples.
+**Purpose**: Showcase the stick-breaking backend that uses a fixed number of mixture components (`components = J`) and contrast it with the CRP backend from `v04`. In this vignette we fit **two** bulk kernels (**Gamma** and **Cauchy**) on the same dataset to highlight how heavier tails in the bulk can change the fit even without a GPD tail.
 
 ---
 
@@ -63,26 +63,42 @@ grid.arrange(p_raw, ncol = 1)
 ```{r data-table, echo=FALSE}
 summary_tbl %>%
   mutate(value = signif(value, 4)) %>%
-  kable(caption = "Summary of the SB Dataset") %>%
-  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE)
+  kable(caption = "Summary of the SB Dataset", align = "c") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
 ```
 
 ---
 
 ## Model Specification & Bundle
 
-We build the stick-breaking mixture explicitly with `components = 5` so that there is room for weight decay while keeping the MCMC runtime manageable for a vignette.
+We build the stick-breaking mixture explicitly with `components = 5` so that there is room for weight decay while keeping the MCMC runtime manageable for a vignette. We then refit the same SB model with a **Cauchy** kernel for comparison.
 
 ```{r bundle-mcmc-sb}
-bundle_sb <- build_nimble_bundle(
+# --- Gamma kernel ---
+bundle_sb_gamma <- build_nimble_bundle(
   y = y_mixed,
-  kernel = "lognormal",
+  kernel = "gamma",
   backend = "sb",
   components = 5,            # fixed truncation level for SB
   GPD = FALSE,               # bulk-only scenario
   mcmc = list(
-    niter = 300,
-    nburnin = 60,
+    niter = 60,
+    nburnin = 10,
+    nchains = 1,
+    thin = 1
+  )
+)
+
+# --- Cauchy kernel ---
+bundle_sb_cauchy <- build_nimble_bundle(
+  y = y_mixed,
+  kernel = "cauchy",
+  backend = "sb",
+  components = 5,
+  GPD = FALSE,
+  mcmc = list(
+    niter = 60,
+    nburnin = 10,
     nchains = 1,
     thin = 1
   )
@@ -94,11 +110,18 @@ bundle_sb <- build_nimble_bundle(
 ## Running MCMC & Summary
 
 ```{r mcmc-run}
-fit_sb <- run_mcmc_bundle_manual(bundle_sb)
+fit_sb_gamma <- run_mcmc_bundle_manual(bundle_sb_gamma)
+fit_sb_cauchy <- run_mcmc_bundle_manual(bundle_sb_cauchy)
 ```
 
 ```{r fit-summary}
-summary(fit_sb)
+summary(fit_sb_gamma)
+summary(fit_sb_cauchy)
+```
+
+```{r params-sb}
+params_gamma <- params(fit_sb_gamma)
+params_gamma
 ```
 
 ---
@@ -106,40 +129,49 @@ summary(fit_sb)
 ## MCMC Diagnostics (S3 Plot Methods)
 
 ```{r diag-plots}
-# Default diagnostics for the mixgpd fit
-plots_fit <- plot(fit_sb, family = c("traceplot", "density"))
-print(plots_fit)
-
- 
+# Default diagnostics for each fit
+plot(fit_sb_gamma, family = c("traceplot", "density"))
+plot(fit_sb_cauchy, family = c("traceplot", "density"))
 ``` 
 
-Use `summary(fit_sb)` to inspect effective sample size, R-hat, and other convergence diagnostics; the `plot()` calls above show the trace/density pairs for both global and stick-breaking weight parameters.
+Use `summary(fit_sb_gamma)` and `summary(fit_sb_cauchy)` to inspect effective sample size, R-hat, and other convergence diagnostics; the `plot()` calls above show the trace/density pairs for both global and stick-breaking weight parameters.
 
 ---
 
 ## Stick-Breaking Weights & Component Activity
 
-The stick-breaking weights are exposed via the `plot()` diagnostics above, and you can refer to the raw `fit_sb` object or its `summary()` output for exact posterior summaries of each component weight if your version exposes them.
+The stick-breaking weights are exposed via the `plot()` diagnostics above, and you can refer to the raw `fit_sb_gamma` / `fit_sb_cauchy` objects (or their `summary()` output) for posterior summaries of each component weight.
 
 ---
 
 ## Posterior Predictions
 
 ```{r density-predict}
-y_grid <- seq(0, max(y_mixed) * 1.3, length.out = 250)
-pred_density <- predict(fit_sb, y = y_grid, type = "density")
-plot(pred_density)
+y_grid <- seq(min(y_mixed), max(y_mixed) * 1.3, length.out = 250)
+
+pred_density_gamma <- predict(fit_sb_gamma, y = y_grid, type = "density")
+pred_density_cauchy <- predict(fit_sb_cauchy, y = y_grid, type = "density")
+
+plot(pred_density_gamma)
+plot(pred_density_cauchy)
 ```
 
 ```{r quantile-predict}
 quant_probs <- c(0.05, 0.25, 0.5, 0.75, 0.95)
-pred_q <- predict(fit_sb, type = "quantile", index = quant_probs, interval = "credible")
-plot(pred_q)
+
+pred_q_gamma <- predict(fit_sb_gamma, type = "quantile", index = quant_probs, interval = "credible")
+pred_q_cauchy <- predict(fit_sb_cauchy, type = "quantile", index = quant_probs, interval = "credible")
+
+plot(pred_q_gamma)
+plot(pred_q_cauchy)
 ```
 
 ```{r mean-predict}
-pred_mean <- predict(fit_sb, type = "mean")
-plot(pred_mean)
+pred_mean_gamma <- predict(fit_sb_gamma, type = "mean")
+pred_mean_cauchy <- predict(fit_sb_cauchy, type = "mean")
+
+plot(pred_mean_gamma)
+plot(pred_mean_cauchy)
 ```
 
 ---
@@ -149,25 +181,25 @@ plot(pred_mean)
 ```{r compare-backend}
 bundle_crp_small <- build_nimble_bundle(
   y = y_mixed,
-  kernel = "lognormal",
+  kernel = "gamma",
   backend = "crp",
   components = 5,
   GPD = FALSE,
-  mcmc = list(niter = 300, nburnin = 60, nchains = 1)
+  mcmc = list(niter = 60, nburnin = 10, nchains = 1)
 )
 fit_crp_small <- run_mcmc_bundle_manual(bundle_crp_small)
 
-crp_quant <- predict(fit_crp_small, type = "quantile", index = quant_probs)
-sb_quant <- predict(fit_sb, type = "quantile", index = quant_probs)
+crp_quant <- predict(fit_crp_small, type = "quantile", index = quant_probs, interval = "credible")
+sb_quant <- predict(fit_sb_gamma, type = "quantile", index = quant_probs, interval = "credible")
 
 bind_rows(
   crp_quant$fit %>% mutate(model = "CRP"),
   sb_quant$fit %>% mutate(model = "SB")
 ) %>%
-  select(model, index, estimate, lwr, upr) %>%
+  select(any_of(c("model", "index", "estimate", "lower", "upper"))) %>%
   mutate(across(where(is.numeric), ~ round(.x, 3))) %>%
-  kable(caption = "Quantile Comparison: CRP vs SB") %>%
-  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE)
+  kable(caption = "Quantile Comparison: CRP vs SB", align = "c") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
 ```
 
 ```{r compare-plots}
@@ -180,7 +212,7 @@ plot(sb_quant)
 ## Residuals & Fitted Values
 
 ```{r residuals}
-fit_vals <- fitted(fit_sb)
+fit_vals <- fitted(fit_sb_gamma)
 plot(fit_vals)
 ```
 
@@ -189,7 +221,8 @@ plot(fit_vals)
 ## Takeaways
 
 - **SB Backend**: Fixed `components` keeps label-switching manageable, and the diagnostic plots via the S3 `plot()` method show weight dynamics.
+- **Kernels matter**: Gamma vs Cauchy can behave very differently in the shoulders/tails, even without a GPD tail.
 - **Predictions**: Posterior density, quantiles, and mean are all accessible via `predict()` and display credible bands for each summary.
-- **Backend comparison**: The CRP fit (`v04`) and SB fit deliver similar central quantiles while SB offers more control over truncation.
+- **Backend comparison**: The CRP fit (`v04`) and the SB-gamma fit deliver similar central quantiles while SB offers more control over truncation.
 - **Next**: Explore tail augmentation (`GPD = TRUE`) with the CRP backend in `v06` or SB backend in `v07`.
 

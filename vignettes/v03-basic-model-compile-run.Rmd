@@ -87,7 +87,7 @@ spec_custom <- compile_model_spec(
   kernel = "gamma",
   backend = "crp",
   GPD = FALSE,
-  mcmc = list(niter = 300, nburnin = 60, nchains = 1, thin = 2)
+  mcmc = list(niter = 60, nburnin = 10, nchains = 1, thin = 2)
 )
 
 print("Created 4 specification objects successfully.\n")
@@ -118,7 +118,7 @@ bundle_direct <- build_nimble_bundle(
   kernel = "gamma",
   backend = "crp",
   GPD = FALSE,
-  mcmc = list(niter = 500, nburnin = 100, nchains = 1)
+  mcmc = list(niter = 100, nburnin = 20, nchains = 1)
 )
 
 print("Direct bundle creation successful.\n")
@@ -159,6 +159,10 @@ print("MCMC execution complete. Posterior samples collected.\n")
 # Posterior summary
 print("\n--- POSTERIOR SUMMARY ---\n")
 summary(fit)
+
+# Posterior mean parameters in original form
+params_fit <- params(fit)
+params_fit
 ```
 
 ### Diagnostic Plots
@@ -190,8 +194,8 @@ spec_final <- compile_model_spec(
 bundle_final <- build_nimble_bundle(
   spec_final,
   mcmc = list(
-    niter = 300,
-    nburnin = 50,
+    niter = 60,
+    nburnin = 10,
     nchains = 1,
     thin = 1
   )
@@ -217,7 +221,7 @@ bundle_crp <- build_nimble_bundle(
   kernel = "gamma",
   backend = "crp",
   Kmax = 5,
-  mcmc = list(niter = 500, nburnin = 100, nchains = 1)
+  mcmc = list(niter = 100, nburnin = 20, nchains = 1)
 )
 
 fit_crp <- run_mcmc_bundle_manual(bundle_crp)
@@ -233,7 +237,7 @@ bundle_sb <- build_nimble_bundle(
   kernel = "gamma",
   backend = "sb",
   J = 5,
-  mcmc = list(niter = 500, nburnin = 100, nchains = 1)
+  mcmc = list(niter = 100, nburnin = 20, nchains = 1)
 )
 
 fit_sb <- run_mcmc_bundle_manual(bundle_sb)
@@ -279,7 +283,7 @@ bundle_gpd <- build_nimble_bundle(
   kernel = "gamma",
   backend = "crp",
   GPD = TRUE,
-  mcmc = list(niter = 500, nburnin = 100, nchains = 1)
+  mcmc = list(niter = 100, nburnin = 20, nchains = 1)
 )
 
 fit_gpd <- run_mcmc_bundle_manual(bundle_gpd)
@@ -324,4 +328,6 @@ print("Extreme outliers:  cauchy\n")
 - Move to **vignette 6-7** for tail modeling with GPD
 - Move to **vignette 8-11** for conditional models with covariates
 - Move to **vignette 12-15** for causal inference workflows
+
+
 

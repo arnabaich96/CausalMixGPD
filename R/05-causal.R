@@ -454,6 +454,7 @@ qte <- function(fit,
     grid = probs,
     trt = pr_trt,
     con = pr_con,
+    ps = ps_new,
     type = "qte"
   )
   class(out) <- "dpmixgpd_qte"
@@ -541,6 +542,7 @@ ate <- function(fit,
     grid = NULL,
     trt = pr_trt,
     con = pr_con,
+    ps = ps_new,
     type = "ate"
   )
   class(out) <- "dpmixgpd_ate"
@@ -563,11 +565,14 @@ ate <- function(fit,
 #' @param ps Optional numeric vector of propensity scores aligned with \code{x}
 #'   / \code{newdata}. When provided, the supplied scores are used instead of
 #'   recomputing them from the stored PS model (needed only for custom inputs).
-#' @return A list with components \code{ps} (estimated propensity scores used for
-#'   prediction), \code{trt} (treated-arm prediction output), \code{con}
-#'   (control-arm prediction output), \code{type} (the requested prediction type),
-#'   and \code{grid} (matching grid from the outcome predictions, e.g., \code{p}
-#'   for quantiles or \code{y} for densities).
+#' @param type Prediction type. Supported: \code{"mean"}, \code{"quantile"},
+#'   \code{"density"}, \code{"prob"}.
+#' @return For \code{"mean"} or \code{"quantile"}, a numeric matrix with columns
+#'   \code{ps}, \code{estimate}, \code{lower}, \code{upper}, representing
+#'   treated-minus-control posterior summaries. When PS is disabled or X is absent,
+#'   \code{ps} is \code{NA} and no PS is used. For \code{"density"} and \code{"prob"},
+#'   a data frame with columns \code{y}, \code{ps}, \code{trt_estimate}, \code{trt_lower},
+#'   \code{trt_upper}, \code{con_estimate}, \code{con_lower}, \code{con_upper}.
 #' @examples
 #' \dontrun{
 #' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal")
@@ -581,7 +586,7 @@ predict.dpmixgpd_causal_fit <- function(object,
                                         y = NULL,
                                         ps = NULL,
                                         newdata = NULL,
-                                        type = c("density", "survival", "quantile", "sample", "mean"),
+                                        type = c("mean", "quantile", "density", "prob"),
                                         p = NULL,
                                         nsim = NULL,
                                         interval = c("none", "credible"),
@@ -601,22 +606,34 @@ predict.dpmixgpd_causal_fit <- function(object,
   interval <- match.arg(interval)
 
   bundle <- object$bundle %||% list()
-  
-  # Check if propensity scores are enabled and get model type
-  ps_enabled <- isTRUE(bundle$meta$ps$enabled)
-  ps_model_type <- bundle$meta$ps$model_type %||% FALSE
-  
+
   X_train <- bundle$data$X %||% NULL
   has_X <- !is.null(X_train)
   x_mat <- if (!is.null(x)) as.matrix(x) else NULL
   n_pred_default <- if (has_X) nrow(X_train) else 1L
   n_pred <- if (!is.null(x_mat)) nrow(x_mat) else n_pred_default
 
+  ps_enabled <- isTRUE(bundle$meta$ps$enabled) && has_X
+  ps_include_in_outcome <- isTRUE(bundle$meta$ps$include_in_outcome)
+  ps_model_type <- bundle$meta$ps$model_type %||% FALSE
+
+  if (type == "quantile") {
+    if (is.null(p) || length(p) != 1L || !is.finite(as.numeric(p))) {
+      stop("Causal predict for quantile requires a single finite probability in 'p'.", call. = FALSE)
+    }
+    p <- as.numeric(p)
+  }
+
+  if (type %in% c("density", "prob")) {
+    if (is.null(y)) stop("Causal predict for density/prob requires 'y'.", call. = FALSE)
+    y <- as.numeric(y)
+    if (!length(y) || any(!is.finite(y))) stop("'y' must be a finite numeric vector.", call. = FALSE)
+    if (length(y) != n_pred) {
+      stop("Length of 'y' must match the number of prediction rows (nrow(x) or training X).", call. = FALSE)
+    }
+  }
+
   ps_full <- NULL
-  ps_trt <- NULL
-  ps_con <- NULL
-  
-  # Only compute/use PS if enabled
   if (ps_enabled) {
     if (!is.null(ps)) {
       ps_full <- as.numeric(ps)
@@ -631,37 +648,106 @@ predict.dpmixgpd_causal_fit <- function(object,
       )
     } else {
       ps_full <- object$ps_hat %||% NULL
-      ps_trt <- object$outcome_fit$trt$data$ps %||% NULL
-      ps_con <- object$outcome_fit$con$data$ps %||% NULL
-      if (is.null(ps_trt) || is.null(ps_con)) {
-        idx_trt <- bundle$index$trt %||% integer(0)
-        idx_con <- bundle$index$con %||% integer(0)
-        if (!is.null(ps_full) && length(idx_trt) && length(idx_con)) {
-          ps_trt <- ps_full[idx_trt]
-          ps_con <- ps_full[idx_con]
-        }
-      }
     }
 
-    if (!is.null(ps_full) && !is.null(x_mat)) {
-      if (length(ps_full) != n_pred) {
-        stop("Length of 'ps' must equal the number of prediction rows (nrow(x)).", call. = FALSE)
-      }
-    }
-
-    if (!is.null(x_mat)) {
-      ps_trt <- ps_full
-      ps_con <- ps_full
+    if (!is.null(ps_full) && length(ps_full) != n_pred) {
+      stop("Length of 'ps' must equal the number of prediction rows (nrow(x)).", call. = FALSE)
     }
   }
 
-  if (!is.null(x_mat) && ps_include_in_outcome) {
-    ps_trt <- ps_full
-    ps_con <- ps_full
-  } else if (!ps_include_in_outcome) {
-    # PS not included in outcome models, so don't pass to predict
-    ps_trt <- NULL
-    ps_con <- NULL
+  ps_trt <- if (ps_enabled && ps_include_in_outcome) ps_full else NULL
+  ps_con <- if (ps_enabled && ps_include_in_outcome) ps_full else NULL
+
+  .extract_stats <- function(pr, n_pred) {
+    fit <- pr$fit
+    if (is.data.frame(fit)) {
+      if ("id" %in% names(fit)) {
+        fit <- fit[order(fit$id), , drop = FALSE]
+      }
+      est <- if ("estimate" %in% names(fit)) fit$estimate else as.numeric(fit[[1]])
+      lower <- if ("lower" %in% names(fit)) fit$lower else rep(NA_real_, length(est))
+      upper <- if ("upper" %in% names(fit)) fit$upper else rep(NA_real_, length(est))
+    } else if (is.matrix(fit)) {
+      est <- as.numeric(fit[, 1])
+      lower <- rep(NA_real_, length(est))
+      upper <- rep(NA_real_, length(est))
+    } else {
+      est <- as.numeric(fit)
+      lower <- rep(NA_real_, length(est))
+      upper <- rep(NA_real_, length(est))
+    }
+    if (length(est) == 1L && n_pred > 1L) {
+      est <- rep(est, n_pred)
+      lower <- rep(lower, n_pred)
+      upper <- rep(upper, n_pred)
+    }
+    if (length(est) != n_pred) {
+      stop("Unexpected prediction length in causal predict.", call. = FALSE)
+    }
+    list(estimate = est, lower = lower, upper = upper)
+  }
+
+  if (type %in% c("density", "prob")) {
+    pred_type <- if (type == "density") "density" else "survival"
+    x_pred <- if (!is.null(x_mat)) x_mat else if (has_X) X_train else NULL
+    y_vec <- y
+
+    .predict_pairwise <- function(fit, ps_vec) {
+      est <- lower <- upper <- numeric(n_pred)
+      for (i in seq_len(n_pred)) {
+        xi <- if (!is.null(x_pred)) x_pred[i, , drop = FALSE] else NULL
+        psi <- if (!is.null(ps_vec)) ps_vec[i] else NULL
+        pr <- predict(
+          fit,
+          x = xi,
+          y = y_vec[i],
+          ps = psi,
+          type = pred_type,
+          interval = interval,
+          probs = probs,
+          store_draws = FALSE,
+          ncores = 1L,
+          ...
+        )
+        stats <- .extract_stats(pr, 1L)
+        est[i] <- stats$estimate[1]
+        lower[i] <- stats$lower[1]
+        upper[i] <- stats$upper[1]
+      }
+      list(estimate = est, lower = lower, upper = upper)
+    }
+
+    trt_stats <- .predict_pairwise(object$outcome_fit$trt, ps_trt)
+    con_stats <- .predict_pairwise(object$outcome_fit$con, ps_con)
+
+    if (type == "prob") {
+      trt_stats <- list(
+        estimate = 1 - trt_stats$estimate,
+        lower = 1 - trt_stats$upper,
+        upper = 1 - trt_stats$lower
+      )
+      con_stats <- list(
+        estimate = 1 - con_stats$estimate,
+        lower = 1 - con_stats$upper,
+        upper = 1 - con_stats$lower
+      )
+    }
+
+    ps_col <- if (!is.null(ps_full)) ps_full else rep(NA_real_, n_pred)
+    out <- data.frame(
+      y = y_vec,
+      ps = ps_col,
+      trt_estimate = trt_stats$estimate,
+      trt_lower = trt_stats$lower,
+      trt_upper = trt_stats$upper,
+      con_estimate = con_stats$estimate,
+      con_lower = con_stats$lower,
+      con_upper = con_stats$upper,
+      row.names = NULL
+    )
+    attr(out, "type") <- type
+    class(out) <- c("dpmixgpd_causal_predict", class(out))
+    return(out)
   }
 
   pr_trt <- predict(
@@ -670,7 +756,7 @@ predict.dpmixgpd_causal_fit <- function(object,
     y = y,
     ps = ps_trt,
     type = type,
-    p = p,
+    index = if (type == "quantile") p else NULL,
     nsim = nsim,
     interval = interval,
     probs = probs,
@@ -686,7 +772,7 @@ predict.dpmixgpd_causal_fit <- function(object,
     y = y,
     ps = ps_con,
     type = type,
-    p = p,
+    index = if (type == "quantile") p else NULL,
     nsim = nsim,
     interval = interval,
     probs = probs,
@@ -696,15 +782,20 @@ predict.dpmixgpd_causal_fit <- function(object,
     ...
   )
 
-  out <- list(
-    ps = ps_full,
-    ps_trt = ps_trt,
-    ps_con = ps_con,
-    trt = pr_trt,
-    con = pr_con,
-    type = type,
-    grid = pr_trt$grid
-  )
+  trt_stats <- .extract_stats(pr_trt, n_pred)
+  con_stats <- .extract_stats(pr_con, n_pred)
+
+  diff_est <- trt_stats$estimate - con_stats$estimate
+  diff_lower <- trt_stats$lower - con_stats$lower
+  diff_upper <- trt_stats$upper - con_stats$upper
+
+  ps_col <- if (!is.null(ps_full)) ps_full else rep(NA_real_, n_pred)
+  out <- cbind(ps = ps_col, estimate = diff_est, lower = diff_lower, upper = diff_upper)
+  attr(out, "type") <- type
+  if (type == "quantile") attr(out, "index") <- p
+  attr(out, "trt") <- pr_trt
+  attr(out, "con") <- pr_con
+  class(out) <- c("dpmixgpd_causal_predict", class(out))
   out
 }
 

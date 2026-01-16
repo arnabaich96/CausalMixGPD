@@ -111,7 +111,7 @@ tail_scale <- 1.0
 tail_shape <- 0.2
 
 dLaplaceGpd(2.0, location, scale, threshold, tail_scale, tail_shape, log = FALSE)
-#> [1] 3.032653e-301
+#> [1] 0.1015629
 pLaplaceGpd(2.0, location, scale, threshold, tail_scale, tail_shape,
            lower.tail = TRUE, log.p = FALSE)
 #> [1] 0.8781245

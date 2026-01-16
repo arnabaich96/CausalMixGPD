@@ -113,7 +113,7 @@ tail_scale <- 0.9
 tail_shape <- 0.2
 
 dLognormalGpd(4.0, meanlog, sdlog, threshold, tail_scale, tail_shape, log = FALSE)
-#> [1] 1e-300
+#> [1] 0.007654624
 pLognormalGpd(4.0, meanlog, sdlog, threshold, tail_scale, tail_shape,
              lower.tail = TRUE, log.p = FALSE)
 #> [1] 0.9915799
