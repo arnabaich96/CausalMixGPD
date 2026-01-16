@@ -80,7 +80,7 @@ bundle_sb_normal <- build_nimble_bundle(
   mcmc = list(
     niter = 60,
     nburnin = 10,
-    nchains = 1,
+    nchains = 2,
     thin = 1
   )
 )
@@ -195,8 +195,8 @@ plot(fitted(fit_sb_cauchy))
 ```
 
 ```{r diagnostics}
-plot(fit_sb_normal, family = c("traceplot", "density"))
-plot(fit_sb_cauchy, family = c("traceplot", "density"))
+plot(fit_sb_normal, family = c("traceplot", "autocorrelation", "geweke"))
+plot(fit_sb_cauchy, family = c("density", "running", "caterpillar"))
 ```
 
 ---

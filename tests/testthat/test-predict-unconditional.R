@@ -4,6 +4,7 @@
 # Setup: Create shared fit object for all tests
 skip_if_not_installed("nimble")
 skip_if_not_installed("coda")
+skip_on_cran()
 
 set.seed(42)
 y <- abs(rnorm(60)) + 0.2
@@ -19,11 +20,12 @@ bundle <- build_nimble_bundle(
 
 # Suppress output during fit
 nullfile <- if (.Platform$OS.type == "windows") "NUL" else "/dev/null"
-fit <- utils::capture.output(
-  run_mcmc_bundle_manual(bundle),
+res <- NULL
+utils::capture.output(
+  res <- run_mcmc_bundle_manual(bundle, show_progress = FALSE),
   file = nullfile
 )
-fit <- run_mcmc_bundle_manual(bundle)
+fit <- res
 
 
 test_that("Unconditional model fitted successfully", {
@@ -76,10 +78,10 @@ test_that("Mean prediction returns data frame format", {
 
 
 test_that("Mean prediction with custom credible level", {
-  pred_mean_90 <- predict(fit, type = "mean", interval = "credible", 
-                          probs = c(0.05, 0.5, 0.95), nsim_mean = 200)
-  pred_mean_99 <- predict(fit, type = "mean", interval = "credible", 
-                          probs = c(0.005, 0.5, 0.995), nsim_mean = 200)
+  pred_mean_90 <- predict(fit, type = "mean", interval = "credible",
+                          cred.level = 0.90, nsim_mean = 200)
+  pred_mean_99 <- predict(fit, type = "mean", interval = "credible",
+                          cred.level = 0.99, nsim_mean = 200)
   
   width_90 <- pred_mean_90$fit$upper - pred_mean_90$fit$lower
   width_99 <- pred_mean_99$fit$upper - pred_mean_99$fit$lower

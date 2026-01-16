@@ -202,7 +202,7 @@
     `;
 
     const fab = el("button", {id:"rt-theme-fab", class:"rt-fab", type:"button", title:"Customize theme"});
-    fab.textContent = "🎨 Theme";
+    fab.textContent = "Theme";
 
     document.body.appendChild(panel);
     document.body.appendChild(fab);
@@ -276,7 +276,7 @@
     container.appendChild(labelRow("Base size (px)", rangeInput("baseSize", 12, 22, 1)));
     container.appendChild(labelRow("Line height", rangeInput("lineHeight", 1.2, 2.0, 0.05)));
     container.appendChild(labelRow("Radius (px)", rangeInput("radius", 0, 28, 1)));
-    container.appendChild(labelRow("Spacing ×", rangeInput("space", 0.8, 1.6, 0.05)));
+    container.appendChild(labelRow("Spacing x", rangeInput("space", 0.8, 1.6, 0.05)));
   }
 
   function syncUI(theme){
@@ -312,10 +312,30 @@
       panel.setAttribute("aria-hidden","true");
     }
 
-    fab.addEventListener("click", () => {
+    function toggle(){
       const openNow = document.documentElement.getAttribute("data-rt-open") === "true";
       if(openNow) close(); else open();
-    });
+    }
+
+    function attachNavbarButton(){
+      const navLists = document.querySelectorAll(".navbar .navbar-nav");
+      if(!navLists || navLists.length === 0) return null;
+      const navList = navLists[navLists.length - 1];
+      const li = el("li", {class:"nav-item"});
+      const btn = el("button", {type:"button", class:"nav-link rt-navbar-btn", title:"Customize theme"});
+      btn.textContent = "Theme";
+      btn.addEventListener("click", toggle);
+      li.appendChild(btn);
+      navList.appendChild(li);
+      return btn;
+    }
+
+    const navBtn = attachNavbarButton();
+    if(navBtn && fab && fab.parentNode){
+      fab.parentNode.removeChild(fab);
+    }else{
+      fab.addEventListener("click", toggle);
+    }
 
     panel.querySelector("#rt-close").addEventListener("click", close);
     panel.querySelector("#rt-reset").addEventListener("click", resetTheme);
@@ -332,3 +352,4 @@
     init();
   }
 })();
+

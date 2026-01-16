@@ -108,7 +108,7 @@ bundle_sb_gpd <- build_nimble_bundle(
   mcmc = list(
     niter = 60,
     nburnin = 10,
-    nchains = 1,
+    nchains = 2,
     thin = 1
   )
 )
@@ -161,7 +161,7 @@ bundle_sb_bulk <- build_nimble_bundle(
   backend = "sb",
   GPD = FALSE,
   components = 5,
-  mcmc = list(niter = 60, nburnin = 10, nchains = 1)
+  mcmc = list(niter = 2500, nburnin = 500, nchains = 1)
 )
 fit_sb_bulk <- run_mcmc_bundle_manual(bundle_sb_bulk)
 
@@ -193,7 +193,7 @@ plot(fit_vals)
 ```
 
 ```{r diagnostics}
-plot(fit_sb_gpd, family = c("traceplot", "density"))
+plot(fit_sb_gpd, family = c("histogram", "autocorrelation", "running"))
 ```
 
 ---
@@ -204,3 +204,4 @@ plot(fit_sb_gpd, family = c("traceplot", "density"))
 - Posterior `predict()` + `plot()` workflows visualize densities, survival probabilities, and extreme quantiles.
 - Comparing bulk-only vs GPD-augmented quantiles reveals how tail augmentation shifts the 95–99% levels.
 - Next: conditional DPmix (v08–v11) to explore covariate effects before moving to causal regimes.
+

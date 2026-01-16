@@ -99,7 +99,7 @@ bundle_cond_gpd_lognormal <- build_nimble_bundle(
   mcmc = list(
     niter = 60,
     nburnin = 10,
-    nchains = 1,
+    nchains = 2,
     thin = 1
   )
 )
@@ -221,8 +221,8 @@ plot(fitted(fit_cond_gpd_lognormal))
 ```
 
 ```{r diagnostics}
-plot(fit_cond_gpd_lognormal, family = c("traceplot", "density"))
-plot(fit_cond_gpd_normal, family = c("traceplot", "density"))
+plot(fit_cond_gpd_lognormal, family = c("traceplot", "density", "autocorrelation"))
+plot(fit_cond_gpd_normal, family = c("running", "geweke", "caterpillar"))
 ```
 
 ---

@@ -1,5 +1,6 @@
 test_that("ATE/QTE use matching posterior draws and shapes", {
   skip_if_not(requireNamespace("nimble", quietly = TRUE))
+  skip_on_cran()
 
   set.seed(42)
   n <- 20

@@ -84,29 +84,61 @@ if (!exists(".cache_enabled")) {
       X_new <- X[1:3, , drop = FALSE]
       pr_den <- predict(fit, x = X_new, y = y_grid, type = "density", ncores = 1)
       pr_surv <- predict(fit, x = X_new, y = y_grid, type = "survival", ncores = 1)
-      pr_q <- predict(fit, x = X_new, type = "quantile", p = p_grid, ncores = 1)
+      pr_q <- predict(fit, x = X_new, type = "quantile", index = p_grid, ncores = 1)
       pr_samp <- predict(fit, x = X_new, type = "sample", nsim = nsim)
       pr_mean <- predict(fit, x = X_new, type = "mean", nsim_mean = 50)
       n_pred <- nrow(X_new)
     } else {
       pr_den <- predict(fit, y = y_grid, type = "density", ncores = 1)
       pr_surv <- predict(fit, y = y_grid, type = "survival", ncores = 1)
-      pr_q <- predict(fit, type = "quantile", p = p_grid, ncores = 1)
+      pr_q <- predict(fit, type = "quantile", index = p_grid, ncores = 1)
       pr_samp <- predict(fit, type = "sample", nsim = nsim)
       pr_mean <- predict(fit, type = "mean", nsim_mean = 50)
       n_pred <- 1L
     }
 
-    if (!identical(dim(pr_den$fit), c(n_pred, length(y_grid)))) stop("density dims mismatch.")
-    if (!identical(dim(pr_surv$fit), c(n_pred, length(y_grid)))) stop("survival dims mismatch.")
-    if (!identical(dim(pr_q$fit), c(n_pred, length(p_grid)))) stop("quantile dims mismatch.")
-    if (!identical(dim(pr_samp$fit), c(n_pred, nsim))) stop("sample dims mismatch.")
-    if (!identical(length(pr_mean$fit), n_pred)) stop("mean length mismatch.")
+    if (!is.data.frame(pr_den$fit)) stop("density fit must be data.frame.")
+    if (!is.data.frame(pr_surv$fit)) stop("survival fit must be data.frame.")
+    if (!is.data.frame(pr_q$fit)) stop("quantile fit must be data.frame.")
+    if (!is.data.frame(pr_mean$fit)) stop("mean fit must be data.frame.")
 
-    if (any(!is.finite(pr_den$fit))) stop("density has non-finite values.")
-    if (any(pr_den$fit < 0)) stop("density has negative values.")
-    if (any(!is.finite(pr_surv$fit))) stop("survival has non-finite values.")
-    if (any(pr_surv$fit < 0 | pr_surv$fit > 1)) stop("survival outside [0,1].")
+    den_rows <- if (has_X) n_pred * length(y_grid) else length(y_grid)
+    if (nrow(pr_den$fit) != den_rows) stop("density rows mismatch.")
+    if (nrow(pr_surv$fit) != den_rows) stop("survival rows mismatch.")
+
+    q_rows <- if (has_X) n_pred * length(p_grid) else length(p_grid)
+    if (nrow(pr_q$fit) != q_rows) stop("quantile rows mismatch.")
+
+    mean_rows <- if (has_X) n_pred else 1L
+    if (nrow(pr_mean$fit) != mean_rows) stop("mean rows mismatch.")
+
+    if (has_X) {
+      if (!all(c("id", "index", "estimate", "lower", "upper") %in% names(pr_q$fit))) {
+        stop("quantile columns mismatch (conditional).")
+      }
+    } else {
+      if (!all(c("index", "estimate", "lower", "upper") %in% names(pr_q$fit))) {
+        stop("quantile columns mismatch (unconditional).")
+      }
+    }
+
+    den_col <- if ("density" %in% names(pr_den$fit)) "density" else "estimate"
+    surv_col <- if ("survival" %in% names(pr_surv$fit)) "survival" else "estimate"
+
+    if (any(!is.finite(pr_den$fit[[den_col]]))) stop("density has non-finite values.")
+    if (any(pr_den$fit[[den_col]] < 0)) stop("density has negative values.")
+    if (any(!is.finite(pr_surv$fit[[surv_col]]))) stop("survival has non-finite values.")
+    if (any(pr_surv$fit[[surv_col]] < 0 | pr_surv$fit[[surv_col]] > 1)) {
+      stop("survival outside [0,1].")
+    }
+
+    if (has_X) {
+      if (!identical(dim(pr_samp$fit), c(n_pred, nsim))) stop("sample dims mismatch.")
+    } else {
+      if (!is.numeric(pr_samp$fit) || length(pr_samp$fit) != nsim) {
+        stop("sample length mismatch.")
+      }
+    }
 
     res <- residuals(fit, type = "pit")
     if (length(res) != length(y)) stop("residuals length mismatch.")

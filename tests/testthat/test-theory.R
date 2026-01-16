@@ -31,6 +31,8 @@ test_that("Tail dominates at high quantiles with GPD", {
 })
 
 test_that("SB and CRP predictions agree in a small synthetic case", {
+  skip_if_not_installed("nimble")
+  skip_on_cran()
   set.seed(42)
   y <- abs(stats::rnorm(20)) + 0.1
   mcmc_cfg <- list(niter = 40, nburnin = 10, thin = 1, nchains = 1, seed = 1)
@@ -55,12 +57,14 @@ test_that("SB and CRP predictions agree in a small synthetic case", {
   sb_fit <- run_mcmc_bundle_manual(sb_bundle, show_progress = FALSE)
   crp_fit <- run_mcmc_bundle_manual(crp_bundle, show_progress = FALSE)
 
-  q_sb <- predict(sb_fit, type = "quantile", p = 0.5)$fit[1, 1]
-  q_crp <- predict(crp_fit, type = "quantile", p = 0.5)$fit[1, 1]
+  q_sb <- predict(sb_fit, type = "quantile", index = 0.5)$fit[1, 1]
+  q_crp <- predict(crp_fit, type = "quantile", index = 0.5)$fit[1, 1]
   expect_lt(abs(q_sb - q_crp), 1.0)
 })
 
 test_that("GPD on/off changes high-quantile behavior", {
+  skip_if_not_installed("nimble")
+  skip_on_cran()
   set.seed(123)
   y <- abs(stats::rnorm(20)) + 0.1
   mcmc_cfg <- list(niter = 40, nburnin = 10, thin = 1, nchains = 1, seed = 2)
@@ -83,8 +87,8 @@ test_that("GPD on/off changes high-quantile behavior", {
     mcmc = mcmc_cfg
   ), show_progress = FALSE)
 
-  q_off <- predict(fit_off, type = "quantile", p = 0.99)$fit[1, 1]
-  q_on <- predict(fit_on, type = "quantile", p = 0.99)$fit[1, 1]
+  q_off <- predict(fit_off, type = "quantile", index = 0.99)$fit[1, 1]
+  q_on <- predict(fit_on, type = "quantile", index = 0.99)$fit[1, 1]
   # Turning on the GPD tail should noticeably alter the high-quantile prediction,
   # even if the direction varies with the small synthetic sample and short chain.
   expect_gt(abs(q_on - q_off), 0.1)
