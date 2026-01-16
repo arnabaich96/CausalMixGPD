@@ -99,7 +99,7 @@ bundle_sb_cond_gpd_gamma <- build_nimble_bundle(
   mcmc = list(
     niter = 60,
     nburnin = 10,
-    nchains = 1,
+    nchains = 2,
     thin = 1
   )
 )
@@ -221,8 +221,8 @@ plot(fitted(fit_sb_cond_gpd_gamma))
 ```
 
 ```{r diagnostics}
-plot(fit_sb_cond_gpd_gamma, family = c("traceplot", "density"))
-plot(fit_sb_cond_gpd_laplace, family = c("traceplot", "density"))
+plot(fit_sb_cond_gpd_gamma, family = c("traceplot", "autocorrelation", "geweke"))
+plot(fit_sb_cond_gpd_laplace, family = c("density", "running", "caterpillar"))
 ```
 
 ---

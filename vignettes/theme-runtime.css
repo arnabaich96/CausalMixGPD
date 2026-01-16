@@ -72,6 +72,15 @@ a:hover{ filter: brightness(0.9); text-decoration: underline; text-underline-off
 .table, table{
   color: var(--rt-fg);
   border-color: var(--rt-border);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+table.kableExtra,
+.kableExtra table,
+.kable_wrapper table{
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
 
 /* Inline code */
@@ -100,7 +109,7 @@ main .container, .container{
   padding-right: calc(0.75rem * var(--rt-space));
 }
 
-/* Buttons – nudge Bootstrap to your primary */
+/* Buttons - nudge Bootstrap to your primary
 .btn-primary{
   background-color: var(--rt-primary) !important;
   border-color: var(--rt-primary) !important;
@@ -113,3 +122,19 @@ main .container, .container{
   background-color: var(--rt-primary) !important;
   color: var(--rt-bg) !important;
 }
+
+
+/* Navbar theme control */
+.navbar .rt-navbar-btn{
+  border: 1px solid var(--rt-border);
+  border-radius: 999px;
+  padding: 0.25rem 0.65rem;
+  margin-left: 0.35rem;
+  background: rgba(255,255,255,.7);
+  color: var(--rt-fg) !important;
+  cursor: pointer;
+}
+.navbar .rt-navbar-btn:hover{
+  background: rgba(255,255,255,.95);
+}
+

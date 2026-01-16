@@ -84,7 +84,7 @@ bundle_cond_normal <- build_nimble_bundle(
   mcmc = list(
     niter = 60,
     nburnin = 10,
-    nchains = 1,
+    nchains = 2,
     thin = 1
   )
 )
@@ -207,8 +207,8 @@ plot(fit_vals)
 ```
 
 ```{r diagnostics}
-plot(fit_cond_normal, family = c("traceplot", "density"))
-plot(fit_cond_amoroso, family = c("traceplot", "density"))
+plot(fit_cond_normal, family = c("traceplot", "autocorrelation", "geweke"))
+plot(fit_cond_amoroso, family = c("density", "running", "caterpillar"))
 ```
 
 ---

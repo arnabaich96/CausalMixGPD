@@ -84,7 +84,7 @@ bundle_sb_gamma <- build_nimble_bundle(
   mcmc = list(
     niter = 60,
     nburnin = 10,
-    nchains = 1,
+    nchains = 2,
     thin = 1
   )
 )
@@ -130,8 +130,8 @@ params_gamma
 
 ```{r diag-plots}
 # Default diagnostics for each fit
-plot(fit_sb_gamma, family = c("traceplot", "density"))
-plot(fit_sb_cauchy, family = c("traceplot", "density"))
+plot(fit_sb_gamma, family = c("traceplot", "autocorrelation", "running"))
+plot(fit_sb_cauchy, family = c("density", "geweke", "caterpillar"))
 ``` 
 
 Use `summary(fit_sb_gamma)` and `summary(fit_sb_cauchy)` to inspect effective sample size, R-hat, and other convergence diagnostics; the `plot()` calls above show the trace/density pairs for both global and stick-breaking weight parameters.
@@ -185,7 +185,7 @@ bundle_crp_small <- build_nimble_bundle(
   backend = "crp",
   components = 5,
   GPD = FALSE,
-  mcmc = list(niter = 60, nburnin = 10, nchains = 1)
+  mcmc = list(niter = 2500, nburnin = 500, nchains = 1)
 )
 fit_crp_small <- run_mcmc_bundle_manual(bundle_crp_small)
 

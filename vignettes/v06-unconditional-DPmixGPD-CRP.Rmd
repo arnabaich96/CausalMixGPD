@@ -114,7 +114,7 @@ bundle_gpd <- build_nimble_bundle(
   mcmc = list(
     niter = 60,
     nburnin = 10,
-    nchains = 1,
+    nchains = 2,
     thin = 1
   )
 )
@@ -139,8 +139,8 @@ params_gpd
 
 ```{r fit-plots}
 # S3 plot methods highlight trace + density diagnostics
-plot(fit_gpd)
-plot(fit_gpd, params = "alpha")
+plot(fit_gpd, family = c("traceplot", "density", "running"))
+plot(fit_gpd, params = "alpha", family = c("traceplot", "autocorrelation", "geweke"))
 ```
 
 ---
@@ -181,7 +181,7 @@ bundle_bulk_only <- build_nimble_bundle(
   backend = "crp",
   GPD = FALSE,
   components = 5,
-  mcmc = list(niter = 60, nburnin = 10, nchains = 1)
+  mcmc = list(niter = 2500, nburnin = 500, nchains = 1)
 )
 fit_bulk_only <- run_mcmc_bundle_manual(bundle_bulk_only)
 ```
@@ -243,7 +243,7 @@ sensitivity_fits <- lapply(thresholds, function(u) {
       )
     ),
     components = 5,
-    mcmc = list(niter = 100, nburnin = 20, nchains = 1)
+    mcmc = list(niter = 2500, nburnin = 500, nchains = 1)
   )
   fit <- run_mcmc_bundle_manual(bundle)
   list(threshold = u, fit = fit)
@@ -292,3 +292,4 @@ sensitivity_tbl %>%
 - **S3 workflows**: `predict()` and its `plot()` method make it easy to compare density, survival, and quantiles.
 - **Comparison**: Bulk-only fits under-estimate extreme quantiles without a GPD component.
 - **Next**: Explore Stick-Breaking (`v07`) for another backend with tail augmentation.
+

@@ -87,7 +87,7 @@ spec_custom <- compile_model_spec(
   kernel = "gamma",
   backend = "crp",
   GPD = FALSE,
-  mcmc = list(niter = 60, nburnin = 10, nchains = 1, thin = 2)
+  mcmc = list(niter = 1500, nburnin = 250, nchains = 2, thin = 2)
 )
 
 print("Created 4 specification objects successfully.\n")
@@ -118,7 +118,7 @@ bundle_direct <- build_nimble_bundle(
   kernel = "gamma",
   backend = "crp",
   GPD = FALSE,
-  mcmc = list(niter = 100, nburnin = 20, nchains = 1)
+  mcmc = list(niter = 1500, nburnin = 250, nchains = 2)
 )
 
 print("Direct bundle creation successful.\n")
@@ -169,7 +169,7 @@ params_fit
 
 ```{r mcmc-diagnostics}
 # Trace plots
-plot(fit, params = "alpha|beta")
+plot(fit, params = "alpha|beta", family = c("traceplot", "running", "autocorrelation"))
 ```
 
 ---
@@ -196,7 +196,7 @@ bundle_final <- build_nimble_bundle(
   mcmc = list(
     niter = 60,
     nburnin = 10,
-    nchains = 1,
+    nchains = 2,
     thin = 1
   )
 )
@@ -221,7 +221,7 @@ bundle_crp <- build_nimble_bundle(
   kernel = "gamma",
   backend = "crp",
   Kmax = 5,
-  mcmc = list(niter = 100, nburnin = 20, nchains = 1)
+  mcmc = list(niter = 1500, nburnin = 250, nchains = 2)
 )
 
 fit_crp <- run_mcmc_bundle_manual(bundle_crp)
@@ -237,7 +237,7 @@ bundle_sb <- build_nimble_bundle(
   kernel = "gamma",
   backend = "sb",
   J = 5,
-  mcmc = list(niter = 100, nburnin = 20, nchains = 1)
+  mcmc = list(niter = 100, nburnin = 20, nchains = 3)
 )
 
 fit_sb <- run_mcmc_bundle_manual(bundle_sb)
@@ -283,7 +283,7 @@ bundle_gpd <- build_nimble_bundle(
   kernel = "gamma",
   backend = "crp",
   GPD = TRUE,
-  mcmc = list(niter = 100, nburnin = 20, nchains = 1)
+  mcmc = list(niter = 2500, nburnin = 500, nchains = 1)
 )
 
 fit_gpd <- run_mcmc_bundle_manual(bundle_gpd)
@@ -328,6 +328,7 @@ print("Extreme outliers:  cauchy\n")
 - Move to **vignette 6-7** for tail modeling with GPD
 - Move to **vignette 8-11** for conditional models with covariates
 - Move to **vignette 12-15** for causal inference workflows
+
 
 
 

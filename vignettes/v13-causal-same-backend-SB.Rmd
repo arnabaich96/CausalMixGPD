@@ -86,8 +86,8 @@ bundle_sb_bulk <- build_causal_bundle(
   PS = "logit",
   GPD = FALSE,
   J = 5,
-  mcmc_outcome = list(niter = 40, nburnin = 10, nchains = 1, thin = 1, seed = 1),
-  mcmc_ps = list(niter = 40, nburnin = 10, nchains = 1, thin = 1, seed = 1)
+  mcmc_outcome = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 1),
+  mcmc_ps = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 1)
 )
 
 bundle_sb_bulk
@@ -101,7 +101,7 @@ params(fit_sb_bulk)
 ```
 
 ```{r plot-fit-sb-bulk}
-plot(fit_sb_bulk)
+plot(fit_sb_bulk, family = c("traceplot", "autocorrelation", "running"))
 ```
 
 ```{r predict-mean-sb-bulk}
@@ -165,8 +165,8 @@ bundle_sb_gpd <- build_causal_bundle(
   GPD = TRUE,
   J = 5,
   param_specs = param_specs_gpd,
-  mcmc_outcome = list(niter = 40, nburnin = 10, nchains = 1, thin = 1, seed = 2),
-  mcmc_ps = list(niter = 40, nburnin = 10, nchains = 1, thin = 1, seed = 2)
+  mcmc_outcome = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 2),
+  mcmc_ps = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 2)
 )
 
 bundle_sb_gpd
@@ -180,7 +180,7 @@ params(fit_sb_gpd)
 ```
 
 ```{r plot-fit-sb-gpd}
-plot(fit_sb_gpd)
+plot(fit_sb_gpd, family = c("density", "geweke", "caterpillar"))
 ```
 
 ```{r predict-mean-sb-gpd}
@@ -218,3 +218,4 @@ qte_gpd <- qte(fit_sb_gpd, probs = c(0.25, 0.5, 0.75),
                newdata = x_eval, interval = "credible")
 plot(qte_gpd)
 ```
+
