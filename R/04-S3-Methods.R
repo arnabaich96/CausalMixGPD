@@ -835,6 +835,11 @@ plot.mixgpd_fit <- function(x,
   # ---- build ggmcmc long format (DO NOT pass family here) ----
   D <- ggmcmc::ggs(smp, family = NA, burnin = FALSE)
   D <- D[D$Parameter %in% keep, , drop = FALSE]
+  if ("Chain" %in% names(D)) D$Chain <- as.factor(D$Chain)
+  if ("Parameter" %in% names(D)) D$Parameter <- as.factor(D$Parameter)
+  n_chain <- if ("Chain" %in% names(D)) nlevels(D$Chain) else 1L
+  n_param <- if ("Parameter" %in% names(D)) nlevels(D$Parameter) else 1L
+  pal <- .plot_palette(max(2L, n_chain, n_param))
 
   # ---- normalize family input ----
   family <- unique(as.character(family))
@@ -872,6 +877,10 @@ plot.mixgpd_fit <- function(x,
       pairs            = ggmcmc::ggs_pairs(D, family = NA, ...)
     )
 
+    p <- p +
+      .plot_theme() +
+      ggplot2::scale_color_manual(values = pal) +
+      ggplot2::scale_fill_manual(values = pal)
     plots[[f]] <- p
   }
 
@@ -1257,9 +1266,12 @@ plot.dpmixgpd_causal_predict <- function(x, y = NULL, ...) {
                  lower = con_stats$lower, upper = con_stats$upper)
     )
 
+    pal <- .plot_palette(2L)
     p_tc <- ggplot2::ggplot(df_tc, ggplot2::aes(x = x, y = estimate, color = group, fill = group)) +
       ggplot2::geom_line(linewidth = 0.8) +
-      ggplot2::theme_minimal() +
+      ggplot2::scale_color_manual(values = pal) +
+      ggplot2::scale_fill_manual(values = pal) +
+      .plot_theme() +
       ggplot2::labs(x = ax$label, y = paste0("Outcome ", pred_type), title = "Treated vs Control")
 
     if (any(is.finite(df_tc$lower)) && any(is.finite(df_tc$upper))) {
@@ -1275,13 +1287,13 @@ plot.dpmixgpd_causal_predict <- function(x, y = NULL, ...) {
     )
 
     p_te <- ggplot2::ggplot(df_te, ggplot2::aes(x = x, y = estimate)) +
-      ggplot2::geom_line(color = "black", linewidth = 0.8) +
-      ggplot2::theme_minimal() +
+      ggplot2::geom_line(color = pal[7], linewidth = 0.8) +
+      .plot_theme() +
       ggplot2::labs(x = ax$label, y = "Treatment effect", title = "Treated - Control")
 
     if (any(is.finite(df_te$lower)) && any(is.finite(df_te$upper))) {
       p_te <- p_te + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
-                                          alpha = 0.2, fill = "gray60", color = NA)
+                                          alpha = 0.2, fill = pal[5], color = NA)
     }
 
     result <- list(trt_control = p_tc, treatment_effect = p_te)
@@ -1298,9 +1310,12 @@ plot.dpmixgpd_causal_predict <- function(x, y = NULL, ...) {
                  lower = df$con_lower, upper = df$con_upper)
     )
 
+    pal <- .plot_palette(2L)
     p <- ggplot2::ggplot(df_long, ggplot2::aes(x = y, y = estimate, color = group, fill = group)) +
       ggplot2::geom_line(linewidth = 0.8) +
-      ggplot2::theme_minimal() +
+      ggplot2::scale_color_manual(values = pal) +
+      ggplot2::scale_fill_manual(values = pal) +
+      .plot_theme() +
       ggplot2::labs(x = "y", y = pred_type, title = "Treated vs Control")
 
     if (any(is.finite(df_long$lower)) && any(is.finite(df_long$upper))) {
@@ -1373,10 +1388,13 @@ plot.dpmixgpd_qte <- function(x, y = NULL, ...) {
   df_tc <- rbind(df_trt, df_con)
   df_tc$ps <- ax$x[df_tc$id]
 
+  pal <- .plot_palette(2L)
   p_tc <- ggplot2::ggplot(df_tc, ggplot2::aes(x = ps, y = estimate, color = group, fill = group)) +
     ggplot2::geom_line(linewidth = 0.8) +
+    ggplot2::scale_color_manual(values = pal) +
+    ggplot2::scale_fill_manual(values = pal) +
     ggplot2::facet_wrap(~ index, scales = "free_y") +
-    ggplot2::theme_minimal() +
+    .plot_theme() +
     ggplot2::labs(x = ax$label, y = "Quantile", title = "Treated vs Control")
 
   if (any(is.finite(df_tc$lower)) && any(is.finite(df_tc$upper))) {
@@ -1398,14 +1416,14 @@ plot.dpmixgpd_qte <- function(x, y = NULL, ...) {
   )
 
   p_te <- ggplot2::ggplot(df_te, ggplot2::aes(x = ps, y = estimate)) +
-    ggplot2::geom_line(color = "black", linewidth = 0.8) +
+    ggplot2::geom_line(color = pal[7], linewidth = 0.8) +
     ggplot2::facet_wrap(~ index, scales = "free_y") +
-    ggplot2::theme_minimal() +
+    .plot_theme() +
     ggplot2::labs(x = ax$label, y = "Treatment effect", title = "Treated - Control")
 
   if (any(is.finite(df_te$lower)) && any(is.finite(df_te$upper))) {
     p_te <- p_te + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
-                                        alpha = 0.2, fill = "gray60", color = NA)
+                                        alpha = 0.2, fill = pal[5], color = NA)
   }
 
   result <- list(trt_control = p_tc, treatment_effect = p_te)
@@ -1474,9 +1492,12 @@ plot.dpmixgpd_ate <- function(x, y = NULL, ...) {
                lower = con_stats$lower, upper = con_stats$upper)
   )
 
+  pal <- .plot_palette(2L)
   p_tc <- ggplot2::ggplot(df_tc, ggplot2::aes(x = x, y = estimate, color = group, fill = group)) +
     ggplot2::geom_line(linewidth = 0.8) +
-    ggplot2::theme_minimal() +
+    ggplot2::scale_color_manual(values = pal) +
+    ggplot2::scale_fill_manual(values = pal) +
+    .plot_theme() +
     ggplot2::labs(x = ax$label, y = "Mean", title = "Treated vs Control")
 
   if (any(is.finite(df_tc$lower)) && any(is.finite(df_tc$upper))) {
@@ -1492,13 +1513,13 @@ plot.dpmixgpd_ate <- function(x, y = NULL, ...) {
   )
 
   p_te <- ggplot2::ggplot(df_te, ggplot2::aes(x = x, y = estimate)) +
-    ggplot2::geom_line(color = "black", linewidth = 0.8) +
-    ggplot2::theme_minimal() +
+    ggplot2::geom_line(color = pal[7], linewidth = 0.8) +
+    .plot_theme() +
     ggplot2::labs(x = ax$label, y = "Treatment effect", title = "Treated - Control")
 
   if (any(is.finite(df_te$lower)) && any(is.finite(df_te$upper))) {
     p_te <- p_te + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
-                                        alpha = 0.2, fill = "gray60", color = NA)
+                                        alpha = 0.2, fill = pal[5], color = NA)
   }
 
   result <- list(trt_control = p_tc, treatment_effect = p_te)
@@ -1554,11 +1575,12 @@ plot.mixgpd_fitted <- function(x, y = NULL, ...) {
   axis_min <- min(c(p1_data$fitted, p1_data$observed), na.rm = TRUE)
   axis_max <- max(c(p1_data$fitted, p1_data$observed), na.rm = TRUE)
 
+  pal <- .plot_palette(4L)
   p1 <- ggplot2::ggplot(p1_data, ggplot2::aes(x = fitted, y = observed)) +
-    ggplot2::geom_point(size = 2, color = "darkblue", alpha = 0.6) +
+    ggplot2::geom_point(size = 2, color = pal[1], alpha = 0.6) +
     ggplot2::geom_abline(intercept = 0, slope = 1, linetype = "dashed",
-                        color = "red", linewidth = 1) +
-    ggplot2::theme_minimal() +
+                        color = pal[2], linewidth = 1) +
+    .plot_theme() +
     ggplot2::labs(
       title = "Observed vs Fitted Values",
       x = "Fitted Values",
@@ -1574,9 +1596,9 @@ plot.mixgpd_fitted <- function(x, y = NULL, ...) {
   )
 
   p2 <- ggplot2::ggplot(p2_data, ggplot2::aes(x = fitted, y = residuals)) +
-    ggplot2::geom_point(size = 2, color = "darkgreen", alpha = 0.6) +
-    ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "red", linewidth = 1) +
-    ggplot2::theme_minimal() +
+    ggplot2::geom_point(size = 2, color = pal[3], alpha = 0.6) +
+    ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = pal[2], linewidth = 1) +
+    .plot_theme() +
     ggplot2::labs(
       title = "Residuals vs Fitted Values",
       x = "Fitted Values",

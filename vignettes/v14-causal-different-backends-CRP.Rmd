@@ -1,10 +1,10 @@
 ---
-title: "14. Causal Inference: Mixed Backends (Bulk-only) - Lognormal Kernel"
+title: "14. Causal Inference: Mixed Backends (Bulk-only) - Cauchy Kernel"
 output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
-  %\VignetteIndexEntry{14. Causal Inference: Mixed Backends (Bulk-only) - Lognormal Kernel}
+  %\VignetteIndexEntry{14. Causal Inference: Mixed Backends (Bulk-only) - Cauchy Kernel}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -29,14 +29,12 @@ library(tibble)
 set.seed(123)
 ```
 
-# Causal Inference: Mixed Backends (Bulk-only) - Lognormal Kernel {#causal-different-backends-bulk}
+# Causal Inference: Mixed Backends (Bulk-only) - Cauchy Kernel {#causal-different-backends-bulk}
 
-This vignette fits two mixed-backend causal models with a shared lognormal kernel:
+This vignette fits two mixed-backend causal models with a shared Cauchy kernel:
 
 - Model A: Treated = SB, Control = CRP
 - Model B: Treated = CRP, Control = SB
-
-Lognormal requires positive outcomes, so we shift y before modeling.
 
 ---
 
@@ -44,12 +42,9 @@ Lognormal requires positive outcomes, so we shift y before modeling.
 
 ```{r data-setup}
 data("causal_alt_real500_p4_k2")
-y_raw <- causal_alt_real500_p4_k2$y
+y <- causal_alt_real500_p4_k2$y
 T <- causal_alt_real500_p4_k2$T
 X <- as.matrix(causal_alt_real500_p4_k2$X)
-
-shift <- abs(min(y_raw)) + 0.1
-y <- y_raw + shift
 
 summary_tbl <- tibble(
   statistic = c("N", "Mean", "SD", "Min", "Max"),
@@ -58,7 +53,7 @@ summary_tbl <- tibble(
 
 summary_tbl %>%
   mutate(value = signif(value, 4)) %>%
-  kable(caption = "Shifted Outcome Summary (Lognormal)", align = "c") %>%
+  kable(caption = "Outcome Summary (Cauchy)", align = "c") %>%
   kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
 
 x_eval <- X[1:40, , drop = FALSE]
@@ -70,7 +65,7 @@ df_causal <- data.frame(y = y, T = as.factor(T), x1 = X[, 1])
 
 p_scatter <- ggplot(df_causal, aes(x = x1, y = y, color = T)) +
   geom_point(alpha = 0.5) +
-  labs(title = "Shifted Outcome vs X1", x = "X1", y = "y (shifted)", color = "Treatment") +
+  labs(title = "Outcome vs X1", x = "X1", y = "y", color = "Treatment") +
   theme_minimal()
 
 p_scatter
@@ -78,14 +73,14 @@ p_scatter
 
 ---
 
-## Model A: Treated SB, Control CRP (Lognormal)
+## Model A: Treated SB, Control CRP (Cauchy)
 
 ```{r bundle-sb-crp}
 bundle_sb_crp <- build_causal_bundle(
   y = y,
   T = T,
   X = X,
-  kernel = c("lognormal", "lognormal"),
+  kernel = c("cauchy", "cauchy"),
   backend = c("sb", "crp"),
   PS = "logit",
   GPD = c(FALSE, FALSE),
@@ -146,14 +141,14 @@ plot(qte_sb_crp)
 
 ---
 
-## Model B: Treated CRP, Control SB (Lognormal)
+## Model B: Treated CRP, Control SB (Cauchy)
 
 ```{r bundle-crp-sb}
 bundle_crp_sb <- build_causal_bundle(
   y = y,
   T = T,
   X = X,
-  kernel = c("lognormal", "lognormal"),
+  kernel = c("cauchy", "cauchy"),
   backend = c("crp", "sb"),
   PS = "logit",
   GPD = c(FALSE, FALSE),

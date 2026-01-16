@@ -13,7 +13,7 @@ run_mcmc_bundle_manual(bundle, show_progress = TRUE)
 - bundle:
 
   A `dpmixgpd_bundle` from
-  [`build_nimble_bundle()`](https://example.com/DPmixGPD/reference/build_nimble_bundle.md).
+  [`build_nimble_bundle()`](https://arnabaich96.github.io/DPmixGPD/reference/build_nimble_bundle.md).
 
 - show_progress:
 

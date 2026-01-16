@@ -36,6 +36,6 @@ Suggests:
     patchwork
 RoxygenNote: 7.3.3
 Config/testthat/edition: 3
-URL: https://example.com/DPmixGPD
-BugReports: https://github.com/fsu-dpmixgpd/DPmixGPD/issues
+URL: https://github.com/arnabaich96/DPmixGPD
+BugReports: https://github.com/arnabaich96/DPmixGPD/issues
 VignetteBuilder: knitr

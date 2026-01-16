@@ -17,20 +17,36 @@
   
   plot_data <- fit_df
   has_id <- "id" %in% names(plot_data)
-  
-  p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = factor(index), y = estimate)) +
-    ggplot2::geom_point(ggplot2::aes(color = if (has_id) factor(id) else NULL), size = 3) +
-    ggplot2::geom_errorbar(ggplot2::aes(ymin = lower, ymax = upper,
-                                        group = if (has_id) id else 1,
-                                        color = if (has_id) factor(id) else NULL),
-                           width = 0.2, linewidth = 1) +
-    ggplot2::theme_minimal() +
-    ggplot2::labs(
-      title = "Quantile Predictions with Credible Intervals",
-      x = "Quantile Index",
-      y = "Estimate"
-    )
-  
+
+  if (has_id) {
+    n_id <- length(unique(plot_data$id))
+    pal <- .plot_palette(max(2L, n_id))
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = factor(index), y = estimate)) +
+      ggplot2::geom_point(ggplot2::aes(color = factor(id)), size = 3) +
+      ggplot2::geom_errorbar(ggplot2::aes(ymin = lower, ymax = upper,
+                                          group = id, color = factor(id)),
+                             width = 0.2, linewidth = 1) +
+      ggplot2::scale_color_manual(values = pal) +
+      .plot_theme() +
+      ggplot2::labs(
+        title = "Quantile Predictions with Credible Intervals",
+        x = "Quantile Index",
+        y = "Estimate"
+      )
+  } else {
+    pal <- .plot_palette(2L)
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = factor(index), y = estimate)) +
+      ggplot2::geom_point(color = pal[1], size = 3) +
+      ggplot2::geom_errorbar(ggplot2::aes(ymin = lower, ymax = upper),
+                             width = 0.2, linewidth = 1, color = pal[1]) +
+      .plot_theme() +
+      ggplot2::labs(
+        title = "Quantile Predictions with Credible Intervals",
+        x = "Quantile Index",
+        y = "Estimate"
+      )
+  }
+
   p
 }
 
@@ -45,12 +61,13 @@
   }
   
   plot_data <- data.frame(value = samples)
-  
+
+  pal <- .plot_palette(3L)
   p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = value)) +
     ggplot2::geom_histogram(ggplot2::aes(y = ggplot2::after_stat(density)),
-                           bins = 30, alpha = 0.6, fill = "blue", color = "black") +
-    ggplot2::geom_density(color = "red", linewidth = 1) +
-    ggplot2::theme_minimal() +
+                           bins = 30, alpha = 0.7, fill = pal[5], color = pal[7]) +
+    ggplot2::geom_density(color = pal[2], linewidth = 1) +
+    .plot_theme() +
     ggplot2::labs(
       title = "Posterior Predictive Samples",
       x = "Value",
@@ -84,22 +101,23 @@
   if (!is.null(pred$draws) && is.numeric(pred$draws) && length(pred$draws) > 1) {
     samples <- as.numeric(pred$draws)
     plot_data <- data.frame(value = samples)
-    
+
+    pal <- .plot_palette(4L)
     p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = value)) +
       ggplot2::geom_histogram(ggplot2::aes(y = ggplot2::after_stat(density)),
-                             bins = 30, alpha = 0.6, fill = "lightblue", color = "black") +
-      ggplot2::geom_density(color = "blue", linewidth = 1) +
-      ggplot2::geom_vline(xintercept = mean_val, color = "red", 
+                             bins = 30, alpha = 0.7, fill = pal[5], color = pal[7]) +
+      ggplot2::geom_density(color = pal[1], linewidth = 1) +
+      ggplot2::geom_vline(xintercept = mean_val, color = pal[2], 
                          linewidth = 1.2, linetype = "solid") +
       {if (!is.null(lower_val) && !is.null(upper_val) && !is.na(lower_val) && !is.na(upper_val)) {
         list(
-          ggplot2::geom_vline(xintercept = lower_val, color = "orange", 
+          ggplot2::geom_vline(xintercept = lower_val, color = pal[6], 
                              linewidth = 0.8, linetype = "dashed"),
-          ggplot2::geom_vline(xintercept = upper_val, color = "orange", 
+          ggplot2::geom_vline(xintercept = upper_val, color = pal[6], 
                              linewidth = 0.8, linetype = "dashed")
         )
       }} +
-      ggplot2::theme_minimal() +
+      .plot_theme() +
       ggplot2::labs(
         title = "Posterior Predictive Mean Distribution",
         subtitle = paste0("Mean = ", round(mean_val, 3)),
@@ -108,18 +126,19 @@
       )
   } else {
     # If no samples available, show vertical lines only
+    pal <- .plot_palette(3L)
     p <- ggplot2::ggplot(data.frame(x = mean_val), ggplot2::aes(x = x)) +
-      ggplot2::geom_vline(xintercept = mean_val, color = "red", 
+      ggplot2::geom_vline(xintercept = mean_val, color = pal[2], 
                          linewidth = 2, linetype = "solid") +
       {if (!is.null(lower_val) && !is.null(upper_val) && !is.na(lower_val) && !is.na(upper_val)) {
         list(
-          ggplot2::geom_vline(xintercept = lower_val, color = "orange", 
+          ggplot2::geom_vline(xintercept = lower_val, color = pal[6], 
                              linewidth = 1, linetype = "dashed"),
-          ggplot2::geom_vline(xintercept = upper_val, color = "orange", 
+          ggplot2::geom_vline(xintercept = upper_val, color = pal[6], 
                              linewidth = 1, linetype = "dashed")
         )
       }} +
-      ggplot2::theme_minimal() +
+      .plot_theme() +
       ggplot2::labs(
         title = "Posterior Mean Estimate",
         subtitle = paste0("Mean = ", round(mean_val, 3)),
@@ -155,19 +174,30 @@
     has_id <- FALSE
   }
   
-  p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = .data[[x_col]], y = .data[[y_col]])) +
-    ggplot2::geom_line(ggplot2::aes(group = if (has_id) id else 1), color = "blue", linewidth = 1) +
-    ggplot2::theme_minimal() +
-    ggplot2::labs(
-      title = "Posterior Predictive Density",
-      x = "Value",
-      y = "Density"
-    )
-  
   if (has_id) {
-    p <- p + ggplot2::geom_point(ggplot2::aes(color = factor(id)), size = 1.5)
+    n_id <- length(unique(plot_data$id))
+    pal <- .plot_palette(max(2L, n_id))
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = .data[[x_col]], y = .data[[y_col]])) +
+      ggplot2::geom_line(ggplot2::aes(group = id, color = factor(id)), linewidth = 1) +
+      ggplot2::geom_point(ggplot2::aes(color = factor(id)), size = 1.5) +
+      ggplot2::scale_color_manual(values = pal) +
+      .plot_theme() +
+      ggplot2::labs(
+        title = "Posterior Predictive Density",
+        x = "Value",
+        y = "Density"
+      )
   } else {
-    p <- p + ggplot2::geom_point(color = "blue", size = 2)
+    pal <- .plot_palette(2L)
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = .data[[x_col]], y = .data[[y_col]])) +
+      ggplot2::geom_line(color = pal[1], linewidth = 1) +
+      ggplot2::geom_point(color = pal[1], size = 2) +
+      .plot_theme() +
+      ggplot2::labs(
+        title = "Posterior Predictive Density",
+        x = "Value",
+        y = "Density"
+      )
   }
   
   p
@@ -200,21 +230,33 @@
   # Sort by y values for proper survival curve
   plot_data <- plot_data[order(plot_data$y), ]
   
-  p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = y, y = survival)) +
-    ggplot2::geom_step(ggplot2::aes(group = if (has_id) id else 1), direction = "hv",
-                       color = "blue", linewidth = 1) +
-    ggplot2::theme_minimal() +
-    ggplot2::labs(
-      title = "Posterior Predictive Survival Function",
-      x = "Value",
-      y = "Survival Probability"
-    ) +
-    ggplot2::ylim(0, 1)
-  
   if (has_id) {
-    p <- p + ggplot2::geom_point(ggplot2::aes(color = factor(id)), size = 1.5)
+    n_id <- length(unique(plot_data$id))
+    pal <- .plot_palette(max(2L, n_id))
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = y, y = survival)) +
+      ggplot2::geom_step(ggplot2::aes(group = id, color = factor(id)), direction = "hv",
+                         linewidth = 1) +
+      ggplot2::geom_point(ggplot2::aes(color = factor(id)), size = 1.5) +
+      ggplot2::scale_color_manual(values = pal) +
+      .plot_theme() +
+      ggplot2::labs(
+        title = "Posterior Predictive Survival Function",
+        x = "Value",
+        y = "Survival Probability"
+      ) +
+      ggplot2::ylim(0, 1)
   } else {
-    p <- p + ggplot2::geom_point(color = "blue", size = 2)
+    pal <- .plot_palette(2L)
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = y, y = survival)) +
+      ggplot2::geom_step(direction = "hv", color = pal[1], linewidth = 1) +
+      ggplot2::geom_point(color = pal[1], size = 2) +
+      .plot_theme() +
+      ggplot2::labs(
+        title = "Posterior Predictive Survival Function",
+        x = "Value",
+        y = "Survival Probability"
+      ) +
+      ggplot2::ylim(0, 1)
   }
   
   p

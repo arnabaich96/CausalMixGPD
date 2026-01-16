@@ -13,6 +13,32 @@
 #' @name null_coalescing
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 
+# ---- Plot styling helpers (internal) ----
+.plot_palette <- function(n = 8L) {
+  base <- c(
+    "#0072B2", # blue
+    "#D55E00", # vermillion
+    "#009E73", # green
+    "#CC79A7", # purple
+    "#56B4E9", # sky blue
+    "#E69F00", # orange
+    "#000000", # black
+    "#999999"  # gray
+  )
+  n <- as.integer(n %||% length(base))
+  if (n <= length(base)) return(base[seq_len(n)])
+  rep_len(base, n)
+}
+
+.plot_theme <- function() {
+  ggplot2::theme_minimal(base_size = 12) +
+    ggplot2::theme(
+      panel.grid.minor = ggplot2::element_blank(),
+      plot.title = ggplot2::element_text(face = "bold"),
+      legend.position = "top"
+    )
+}
+
 #' Nimble helpers
 #'
 #' @keywords internal

@@ -14,7 +14,7 @@ install.packages("DPmixGPD")
 
 ```r
 if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes")
-remotes::install_github("$LINK")
+remotes::install_github("arnabaich96/DPmixGPD")
 ```
 
 ## Quick start snapshot
@@ -37,7 +37,8 @@ predict(fit, type = "quantile", probs = c(0.5, 0.9, 0.99))
 
 ## Documentation & vignettes
 
-- Home: [DPmixGPD pkgdown site](https://example.com/DPmixGPD)
+- Home: [GitHub repository](https://github.com/arnabaich96/DPmixGPD)
+- Pkgdown site: https://arnabaich96.github.io/DPmixGPD/ (when published)
 - Vignette tour: see the `articles/` list on the website (Start here, Single-outcome modeling, Causal CQTE, Backends, Kernels, Prediction, Troubleshooting, Developer guide).
 - Kernel registry: follow the kernel-specific pages for parameter meanings and priors.
 - Reference: `?build_nimble_bundle`, `?predict.mixgpd_fit`, `?cqte`.
