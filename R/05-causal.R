@@ -127,9 +127,17 @@ build_causal_bundle <- function(
   # Validate and normalize PS parameter
   ps_model_type <- FALSE
   if (!isFALSE(PS)) {
-    ps_model_type <- as.character(PS)
     ps_choices <- c("logit", "probit", "naive")
-    ps_model_type <- match.arg(ps_model_type, choices = ps_choices)
+    if (isTRUE(PS)) {
+      ps_model_type <- "logit"
+    } else {
+      ps_model_type <- as.character(PS)
+      if (length(ps_model_type) == 1L && tolower(ps_model_type) %in% c("false", "none", "null")) {
+        ps_model_type <- FALSE
+      } else {
+        ps_model_type <- match.arg(ps_model_type, choices = ps_choices)
+      }
+    }
   }
 
   idx_con <- which(T == 0L)
@@ -230,6 +238,9 @@ build_causal_bundle <- function(
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   stopifnot(inherits(bundle, "dpmixgpd_ps_bundle"))
+  if (!"package:nimble" %in% search()) {
+    suppressPackageStartupMessages(base::require("nimble", quietly = TRUE, warn.conflicts = FALSE))
+  }
 
   code <- bundle$code
   constants <- bundle$constants %||% list()
@@ -1004,6 +1015,26 @@ predict.dpmixgpd_causal_fit <- function(object,
     # Naive Bayes: use Bayes rule with learned feature distributions
     X_new <- as.matrix(X_new)
     storage.mode(X_new) <- "double"
+    X_train <- ps_bundle$data$X %||% NULL
+    if (is.null(X_train)) stop("PS bundle missing training design matrix.", call. = FALSE)
+
+    include_intercept <- isTRUE(ps_bundle$spec$meta$include_intercept)
+    if (include_intercept && ncol(X_new) == (ncol(X_train) - 1L)) {
+      X_new <- cbind(`(Intercept)` = 1, X_new)
+    }
+
+    train_cols <- colnames(X_train)
+    if (!is.null(train_cols) && length(train_cols) == ncol(X_new)) {
+      new_cols <- colnames(X_new)
+      if (!is.null(new_cols) && all(train_cols %in% new_cols)) {
+        X_new <- X_new[, train_cols, drop = FALSE]
+      }
+    }
+
+    if (ncol(X_new) != ncol(X_train)) {
+      stop("Mismatch between PS training features and newdata columns.", call. = FALSE)
+    }
+
     n_pred <- nrow(X_new)
     S <- nrow(samples)  # Number of MCMC iterations
     
