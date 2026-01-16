@@ -103,7 +103,9 @@ test_that("causal bundle and fit combos", {
     fd_trt <- fitted(cf$outcome_fit$trt)
     rs_con <- residuals(cf$outcome_fit$con)
     rs_trt <- residuals(cf$outcome_fit$trt)
-    expect_true(is.numeric(fd_con) && is.numeric(fd_trt), info = info)
+    fit_con <- if (is.data.frame(fd_con)) fd_con$fit else fd_con
+    fit_trt <- if (is.data.frame(fd_trt)) fd_trt$fit else fd_trt
+    expect_true(is.numeric(fit_con) && is.numeric(fit_trt), info = info)
     expect_true(is.numeric(rs_con) && is.numeric(rs_trt), info = info)
   }
 })

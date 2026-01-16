@@ -169,15 +169,34 @@ qInvGaussMix <- function(p, w, mean, shape,
   if (log.p) p <- exp(p)
   if (!lower.tail) p <- 1 - p
   p <- pmax(pmin(p, 1), 0)
-  w <- as.numeric(w); w <- w / sum(w)
+  w <- as.numeric(w)
+  wsum <- sum(w)
+  if (!is.finite(wsum) || wsum <= 0) return(rep(0, length(p)))
+  w <- w / wsum
+  mean_mix <- sum(w * mean)
 
   out <- numeric(length(p))
   for (i in seq_along(p)) {
     pi <- p[i]
     if (pi <= 0) { out[i] <- 0; next }
     if (pi >= 1) { out[i] <- Inf; next }
+    p0 <- as.numeric(pInvGaussMix(0, w, mean, shape, 1, 0))
+    if (!is.finite(p0)) p0 <- 0
+    if (p0 >= pi) { out[i] <- 0; next }
+
+    hi <- max(1, mean_mix * 10)
+    phi <- as.numeric(pInvGaussMix(hi, w, mean, shape, 1, 0))
+    iter <- 0L
+    while (is.finite(phi) && phi < pi && hi < 1e20 && iter < 60L) {
+      hi <- hi * 2
+      phi <- as.numeric(pInvGaussMix(hi, w, mean, shape, 1, 0))
+      iter <- iter + 1L
+    }
+
+    if (!is.finite(phi) || phi < pi) { out[i] <- Inf; next }
+
     out[i] <- stats::uniroot(function(q) as.numeric(pInvGaussMix(q, w, mean, shape, 1, 0)) - pi,
-                             interval = c(0, 1e20),
+                             interval = c(0, hi),
                              tol = tol, maxiter = maxiter)$root
   }
   out

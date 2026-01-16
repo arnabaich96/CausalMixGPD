@@ -41,6 +41,17 @@ Thanks for your interest in contributing! This project is an experimental R pack
 - Prefer explicit, vectorized code over side effects; avoid premature optimization.
 - Keep changes minimal and focused; avoid unrelated refactors.
 
+### Optional pre-commit formatting
+
+This repo includes a pre-commit hook that runs `styler` on staged `.R` and `.Rmd` files.
+To enable it locally:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+To skip formatting for a commit, set `DPMIXGPD_SKIP_STYLER=1` in your environment.
+
 ## Testing
 
 - Use `testthat` (edition 3). Place tests under `tests/testthat/`.
