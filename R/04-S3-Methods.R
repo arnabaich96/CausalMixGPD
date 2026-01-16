@@ -1131,6 +1131,48 @@ fitted.mixgpd_fit <- function(object, level = 0.95, ...) {
   }
 }
 
+#' Residuals for a MixGPD fit
+#'
+#' Returns residuals aligned with the training data. For \code{type = "raw"},
+#' this uses fitted means. For \code{type = "pit"}, this returns approximate PIT
+#' values via the predictive survival function.
+#'
+#' @param object A fitted object of class \code{"mixgpd_fit"}.
+#' @param type Residual type: \code{"raw"} or \code{"pit"}.
+#' @param ... Unused.
+#' @return Numeric vector of residuals with length equal to the training sample size.
+#' @export
+residuals.mixgpd_fit <- function(object, type = c("raw", "pit"), ...) {
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+
+  type <- match.arg(type)
+  y <- object$data$y %||% object$y
+  if (is.null(y)) stop("Could not extract y from fitted object.", call. = FALSE)
+
+  if (type == "raw") {
+    fit_vals <- fitted(object)
+    return(as.numeric(fit_vals$residuals))
+  }
+
+  X <- object$data$X %||% object$X %||% NULL
+  if (is.null(X)) {
+    pr_surv <- predict(object, y = y, type = "survival",
+                       interval = "none", store_draws = FALSE, ncores = 1L)
+    surv_col <- if ("survival" %in% names(pr_surv$fit)) "survival" else "estimate"
+    return(as.numeric(1 - pr_surv$fit[[surv_col]]))
+  }
+
+  X <- as.matrix(X)
+  pit <- numeric(length(y))
+  for (i in seq_along(y)) {
+    pr_surv <- predict(object, x = X[i, , drop = FALSE], y = y[i], type = "survival",
+                       interval = "none", store_draws = FALSE, ncores = 1L)
+    surv_col <- if ("survival" %in% names(pr_surv$fit)) "survival" else "estimate"
+    pit[i] <- 1 - pr_surv$fit[[surv_col]][1]
+  }
+  pit
+}
+
 
 #' Plot prediction results
 #'
