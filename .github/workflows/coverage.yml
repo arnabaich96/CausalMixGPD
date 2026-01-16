@@ -30,4 +30,4 @@ jobs:
 
       - name: Run tests and upload coverage to Codecov
         run: |
-          Rscript -e "covr::codecov(quiet = FALSE)"
+          Rscript -e "covr::codecov(quiet = TRUE)"
