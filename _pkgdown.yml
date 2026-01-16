@@ -1,8 +1,6 @@
-url: https://example.com/DPmixGPD
+url: https://arnabaich96.github.io/DPmixGPD/
 template:
   bootstrap: 5
-  includes:
-    in_header: vignettes/rt-theme.html
 build:
   lazy: true
 navbar:

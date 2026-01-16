@@ -1,7 +1,7 @@
 # Summarize a dpmixgpd bundle
 
 User-facing summary for pre-run bundles produced by
-[`build_nimble_bundle()`](https://example.com/DPmixGPD/reference/build_nimble_bundle.md).
+[`build_nimble_bundle()`](https://arnabaich96.github.io/DPmixGPD/reference/build_nimble_bundle.md).
 This prints:
 
 - meta information (backend, kernel, components, N, covariates, GPD

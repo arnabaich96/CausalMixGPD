@@ -15,7 +15,7 @@ run_mcmc_causal(bundle, show_progress = TRUE)
 - bundle:
 
   A `"dpmixgpd_causal_bundle"` from
-  [`build_causal_bundle()`](https://example.com/DPmixGPD/reference/build_causal_bundle.md).
+  [`build_causal_bundle()`](https://arnabaich96.github.io/DPmixGPD/reference/build_causal_bundle.md).
 
 - show_progress:
 

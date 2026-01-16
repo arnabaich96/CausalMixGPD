@@ -1,10 +1,10 @@
 ---
-title: "15. Causal Inference: Mixed Backends with GPD - Gamma Kernel"
+title: "15. Causal Inference: Mixed Backends with GPD - Amoroso Kernel"
 output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
-  %\VignetteIndexEntry{15. Causal Inference: Mixed Backends with GPD - Gamma Kernel}
+  %\VignetteIndexEntry{15. Causal Inference: Mixed Backends with GPD - Amoroso Kernel}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -29,14 +29,14 @@ library(tibble)
 set.seed(123)
 ```
 
-# Causal Inference: Mixed Backends with GPD - Gamma Kernel {#causal-different-backends-gpd}
+# Causal Inference: Mixed Backends with GPD - Amoroso Kernel {#causal-different-backends-gpd}
 
-This vignette fits two mixed-backend causal models with GPD tails and a gamma kernel:
+This vignette fits two mixed-backend causal models with GPD tails and an Amoroso kernel:
 
 - Model A: Treated = SB, Control = CRP
 - Model B: Treated = CRP, Control = SB
 
-Gamma requires positive outcomes, so we shift y before modeling.
+We shift y to keep outcomes in a stable positive range.
 
 ---
 
@@ -58,7 +58,7 @@ summary_tbl <- tibble(
 
 summary_tbl %>%
   mutate(value = signif(value, 4)) %>%
-  kable(caption = "Shifted Outcome Summary (Gamma)", align = "c") %>%
+  kable(caption = "Shifted Outcome Summary (Amoroso)", align = "c") %>%
   kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
 
 x_eval <- X[1:40, , drop = FALSE]
@@ -79,7 +79,7 @@ p_scatter
 
 ---
 
-## Model A: Treated SB, Control CRP (Gamma + GPD)
+## Model A: Treated SB, Control CRP (Amoroso + GPD)
 
 ```{r bundle-sb-crp}
 param_specs_gpd <- list(
@@ -96,7 +96,7 @@ bundle_sb_crp <- build_causal_bundle(
   y = y,
   T = T,
   X = X,
-  kernel = c("gamma", "gamma"),
+  kernel = c("amoroso", "amoroso"),
   backend = c("sb", "crp"),
   PS = "logit",
   GPD = c(TRUE, TRUE),
@@ -158,14 +158,14 @@ plot(qte_sb_crp)
 
 ---
 
-## Model B: Treated CRP, Control SB (Gamma + GPD)
+## Model B: Treated CRP, Control SB (Amoroso + GPD)
 
 ```{r bundle-crp-sb}
 bundle_crp_sb <- build_causal_bundle(
   y = y,
   T = T,
   X = X,
-  kernel = c("gamma", "gamma"),
+  kernel = c("amoroso", "amoroso"),
   backend = c("crp", "sb"),
   PS = "logit",
   GPD = c(TRUE, TRUE),
