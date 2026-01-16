@@ -82,7 +82,7 @@
   
   # Use posterior samples for histogram
   if (!is.null(pred$draws) && is.numeric(pred$draws) && length(pred$draws) > 1) {
-    samples <- pred$draws
+    samples <- as.numeric(pred$draws)
     plot_data <- data.frame(value = samples)
     
     p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = value)) +
