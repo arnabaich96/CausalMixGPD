@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">DPmixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,6 +81,7 @@
 <span class="r-in"><span>  mcmc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">200</span>, nburnin <span class="op">=</span> <span class="fl">50</span>, thin <span class="op">=</span> <span class="fl">1</span>, nchains <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span><span class="op">(</span><span class="va">bundle</span>, show_progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [MCMC] Creating NIMBLE model...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Defining model</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] 'P' is provided in 'constants' but not used in the model code and is being ignored.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Building model</span>
@@ -90,6 +91,8 @@
 <span class="r-msg co"><span class="r-pr">#&gt;</span>          To see which variables are not initialized, use model$initializeInfo().</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>          For more information on model initialization, see help(modelInitialization).</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Checking model calculations</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [MCMC] NIMBLE model created successfully.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [MCMC] Configuring MCMC...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ===== Monitors =====</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> thin = 1: alpha, mean, sd, w, z</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ===== Samplers =====</span>
@@ -101,14 +104,26 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> RW sampler (3)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - alpha</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   - v[]  (2 elements)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [MCMC] MCMC configured.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [MCMC] Building MCMC object...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [MCMC] MCMC object built.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [MCMC] Attempting NIMBLE compilation (this may take a minute)...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [MCMC] Compiling model...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This may take a minute.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [MCMC] Compiling MCMC sampler...</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This may take a minute.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [MCMC] Compilation successful.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Warning] To calculate WAIC, set 'WAIC = TRUE', in addition to having enabled WAIC in building the MCMC.</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> running chain 1...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   [Warning] There are 3 individual pWAIC values that are greater than 0.4. This may indicate that the WAIC estimate is unstable (Vehtari et al., 2017), at least in cases without grouping of data nodes or multivariate data nodes.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [MCMC] MCMC execution complete. Processing results...</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This may take a minute.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Calculating WAIC.</span>
 <span class="r-in"><span><span class="va">fit</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> n = 40 | components = 3 | epsilon = 0.025</span>

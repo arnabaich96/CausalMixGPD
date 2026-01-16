@@ -204,8 +204,9 @@ stick_breaking <- nimble::nimbleFunction(
     p_list[[s]] <- tr$params
   }
 
-  Kt <- max(ks)
-  if (!is.finite(Kt) || Kt < 1) Kt <- 1L
+  # Fixed K across draws: keep only components selected in all draws
+  Kt <- min(ks)
+  if (!is.finite(Kt) || Kt < 1L) Kt <- 1L
 
   # ----- build new matrix: keep all NON-component columns + replace component blocks -----
   drop_pat <- c(
@@ -232,10 +233,11 @@ stick_breaking <- nimble::nimbleFunction(
 
   for (s in 1:S) {
     w_s <- w_list[[s]]
-    k_s <- length(w_s)
-    w_out[s, seq_len(k_s)] <- w_s
+    k_s <- min(length(w_s), Kt)
+    if (k_s < 1L) next
+    w_out[s, seq_len(k_s)] <- w_s[seq_len(k_s)]
     for (nm in bulk_params_present) {
-      out_params[[nm]][s, seq_len(k_s)] <- p_list[[s]][[nm]]
+      out_params[[nm]][s, seq_len(k_s)] <- p_list[[s]][[nm]][seq_len(k_s)]
     }
   }
 
@@ -487,7 +489,7 @@ stick_breaking <- nimble::nimbleFunction(
           keep <- keep | cn == "sdlog_u"
         }
       } else {
-        keep <- keep | grepl("^threshold\\[[0-9]+\\]$", cn)
+        keep <- keep | cn == "threshold" | grepl("^threshold\\[[0-9]+\\]$", cn)
       }
     }
 
@@ -530,6 +532,18 @@ stick_breaking <- nimble::nimbleFunction(
       pars <- setdiff(pars, wpars)
       mat <- mat[, pars, drop = FALSE]
     }
+  }
+
+  thr_cols <- grep("^threshold\\[[0-9]+\\]$", colnames(mat), value = TRUE)
+  if (length(thr_cols) >= 1) {
+    thr_vec <- if (length(thr_cols) == 1) {
+      as.numeric(mat[, thr_cols[1]])
+    } else {
+      rowMeans(mat[, thr_cols, drop = FALSE], na.rm = TRUE)
+    }
+    mat <- mat[, setdiff(colnames(mat), thr_cols), drop = FALSE]
+    mat <- cbind(mat, threshold = thr_vec)
+    pars <- c(setdiff(pars, thr_cols), "threshold")
   }
 
   meanv <- colMeans(mat, na.rm = TRUE)
@@ -892,6 +906,7 @@ stick_breaking <- nimble::nimbleFunction(
   # -----------------------------
   draw_mat <- .extract_draws_matrix(object, drop_v = TRUE)
   S <- nrow(draw_mat)
+  tr_info <- attr(draw_mat, "truncation") %||% list()
 
   # helper: indexed block
   .indexed_block <- function(mat, base, K = NULL) {
@@ -919,7 +934,7 @@ stick_breaking <- nimble::nimbleFunction(
   # Determine K and weights per draw (truncated/reordered weights)
   cn <- colnames(draw_mat)
   widx <- as.integer(sub("^w\\[([0-9]+)\\]$", "\\1", cn[grepl("^w\\[[0-9]+\\]$", cn)]))
-  K <- max(widx, na.rm = TRUE)
+  K <- tr_info$Kt %||% max(widx, na.rm = TRUE)
   if (!is.finite(K) || K < 1) stop("Could not infer K from w[] in posterior draws.", call. = FALSE)
   K <- as.integer(K)
   W_draws <- .indexed_block(draw_mat, "w", K = K)
@@ -1027,7 +1042,9 @@ stick_breaking <- nimble::nimbleFunction(
     if (!("tail_shape" %in% colnames(draw_mat))) stop("tail_shape not found in posterior draws.", call. = FALSE)
     tail_shape <- as.numeric(draw_mat[, "tail_shape"])
 
-    if (has_X) {
+    thr_mode <- gpd_plan$threshold$mode %||% NA_character_
+    if (identical(thr_mode, "link")) {
+      if (!has_X) stop("threshold is link-mode but X is missing.", call. = FALSE)
       P <- ncol(Xpred)
       beta_mat <- .indexed_block(draw_mat, "beta_threshold", K = P)  # S x P
       threshold_mat <- matrix(NA_real_, nrow = S, ncol = n_pred)
@@ -1063,6 +1080,11 @@ stick_breaking <- nimble::nimbleFunction(
       if (!("tail_scale" %in% colnames(draw_mat))) stop("tail_scale not found in posterior draws.", call. = FALSE)
       tail_scale <- as.numeric(draw_mat[, "tail_scale"])
     }
+  }
+
+  .threshold_at <- function(s, i) {
+    if (!is.null(threshold_mat)) return(threshold_mat[s, i])
+    threshold_scalar[s]
   }
 
   .tail_scale_at <- function(s, i) {
@@ -1124,7 +1146,7 @@ stick_breaking <- nimble::nimbleFunction(
       for (i in 1:n_pred) {
         args <- args0
         if (GPD) {
-          args$threshold <- if (has_X) threshold_mat[s, i] else threshold_scalar[s]
+          args$threshold <- .threshold_at(s, i)
           args$tail_scale <- .tail_scale_at(s, i)
         }
         if (length(link_params)) {
@@ -1167,21 +1189,23 @@ stick_breaking <- nimble::nimbleFunction(
        }
      }
 
-    # Convert to data frame format with columns: y, estimate (density/survival), lower, upper
-    result_list <- list()
+    # Convert to data frame format with columns: id, y, density/survival, lower, upper
+    result_list <- vector("list", n_pred * G)
+    k <- 1L
     for (i in 1:n_pred) {
       for (j in 1:G) {
-        row_data <- list(
+        result_list[[k]] <- list(
+          id = i,
           y = ygrid[j],
           estimate = fit[i, j],
           lower = if (!is.null(lower)) lower[i, j] else NA_real_,
           upper = if (!is.null(upper)) upper[i, j] else NA_real_
         )
-        result_list[[length(result_list) + 1]] <- row_data
+        k <- k + 1L
       }
     }
     fit_df <- do.call(rbind, lapply(result_list, as.data.frame))
-    colnames(fit_df) <- c("y", ifelse(type == "density", "density", "survival"), "lower", "upper")
+    colnames(fit_df) <- c("id", "y", ifelse(type == "density", "density", "survival"), "lower", "upper")
 
     if (isTRUE(store_draws) && is.environment(object$cache)) {
       if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
@@ -1257,6 +1281,7 @@ stick_breaking <- nimble::nimbleFunction(
         upper    = upper_vec,
         row.names = NULL
       )
+      fit <- fit_df
       
       draws_out <- if (isTRUE(store_draws)) draws_arr else NULL
       
@@ -1289,7 +1314,7 @@ stick_breaking <- nimble::nimbleFunction(
         for (i in 1:n_pred) {
           args <- args0
           if (GPD) {
-            args$threshold <- threshold_mat[s, i]
+            args$threshold <- .threshold_at(s, i)
             args$tail_scale <- .tail_scale_at(s, i)
           }
           if (length(link_params)) {
@@ -1310,16 +1335,15 @@ stick_breaking <- nimble::nimbleFunction(
       lower <- qarr[1, , , drop = TRUE]
       upper <- qarr[length(probs), , , drop = TRUE]
 
-      estimate_vec <- if (M == 1) mean(estimate, na.rm = TRUE) else colMeans(estimate, na.rm = TRUE)
-      lower_vec    <- if (M == 1) mean(lower, na.rm = TRUE) else colMeans(lower, na.rm = TRUE)
-      upper_vec    <- if (M == 1) mean(upper, na.rm = TRUE) else colMeans(upper, na.rm = TRUE)
       fit_df <- data.frame(
-        index    = pgrid,
-        estimate = estimate_vec,
-        lower    = lower_vec,
-        upper    = upper_vec,
+        id       = rep(seq_len(n_pred), times = M),
+        index    = rep(pgrid, each = n_pred),
+        estimate = as.vector(estimate),
+        lower    = as.vector(lower),
+        upper    = as.vector(upper),
         row.names = NULL
       )
+      fit <- fit_df
 
       draws_out <- if (isTRUE(store_draws)) draws_arr else NULL
 
@@ -1394,7 +1418,7 @@ stick_breaking <- nimble::nimbleFunction(
         for (i in 1:n_pred) {
           args <- args0
           if (GPD) {
-            args$threshold <- threshold_mat[s, i]
+            args$threshold <- .threshold_at(s, i)
             args$tail_scale <- .tail_scale_at(s, i)
           }
           if (length(link_params)) {
@@ -1531,7 +1555,7 @@ stick_breaking <- nimble::nimbleFunction(
         for (i in 1:n_pred) {
           args <- args0
           if (GPD) {
-            args$threshold <- threshold_mat[s, i]
+            args$threshold <- .threshold_at(s, i)
             args$tail_scale <- .tail_scale_at(s, i)
           }
           if (length(link_params)) {

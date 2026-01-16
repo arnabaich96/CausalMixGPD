@@ -141,7 +141,7 @@ tail_shape <- 0.2
 dLaplaceMixGpd(2.0, w = w, location = location, scale = scale,
               threshold = threshold, tail_scale = tail_scale,
               tail_shape = tail_shape, log = FALSE)
-#> [1] 2.583109e-301
+#> [1] 0.0865078
 pLaplaceMixGpd(2.0, w = w, location = location, scale = scale,
               threshold = threshold, tail_scale = tail_scale,
               tail_shape = tail_shape, lower.tail = TRUE, log.p = FALSE)

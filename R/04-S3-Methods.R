@@ -252,8 +252,13 @@ print.dpmixgpd_causal_fit <- function(x, ...) {
 #' @export
 summary.dpmixgpd_causal_fit <- function(object, ...) {
   stopifnot(inherits(object, "dpmixgpd_causal_fit"))
-  cat("-- PS fit --\n")
-  print(object$ps_fit)
+  bundle <- object$bundle %||% list()
+  has_X <- !is.null(bundle$data$X %||% NULL)
+  ps_enabled <- isTRUE(bundle$meta$ps$enabled) && has_X
+  if (ps_enabled) {
+    cat("-- PS fit --\n")
+    print(object$ps_fit)
+  }
   cat("\n-- Outcome fits --\n")
   cat("[control]\n")
   print(object$outcome_fit$con)
@@ -297,10 +302,11 @@ summary.dpmixgpd_ps_fit <- function(object, ...) {
 #' @param ... Additional arguments forwarded to the underlying outcome plot method.
 #' @return The result of the underlying plot call (invisibly).
 #' @export
-plot.dpmixgpd_causal_fit <- function(x, arm = 1, ...) {
+plot.dpmixgpd_causal_fit <- function(x, arm = "both", ...) {
   stopifnot(inherits(x, "dpmixgpd_causal_fit"))
+  if (is.null(arm)) arm <- "both"
   if (is.character(arm)) {
-    arm <- match.arg(tolower(arm), c("treated", "control"))
+    arm <- match.arg(tolower(arm), c("treated", "control", "both"))
   }
   if (is.numeric(arm)) {
     if (length(arm) != 1L || is.na(arm)) {
@@ -314,14 +320,22 @@ plot.dpmixgpd_causal_fit <- function(x, arm = 1, ...) {
       stop("arm must be 0 (control) or 1 (treated).", call. = FALSE)
     }
   }
+  if (identical(arm, "both")) {
+    out <- list(
+      treated = plot.mixgpd_fit(x$outcome_fit$trt, ...),
+      control = plot.mixgpd_fit(x$outcome_fit$con, ...)
+    )
+    class(out) <- c("dpmixgpd_causal_fit_plots", "list")
+    return(out)
+  }
   if (identical(arm, "treated")) {
     out <- plot.mixgpd_fit(x$outcome_fit$trt, ...)
   } else if (identical(arm, "control")) {
     out <- plot.mixgpd_fit(x$outcome_fit$con, ...)
   } else {
-    stop("arm must be 0/1 or 'treated'/'control'.", call. = FALSE)
+    stop("arm must be 0/1 or 'treated'/'control'/'both'.", call. = FALSE)
   }
-  invisible(out)
+  out
 }
 # helper
 `%||%` <- function(a, b) if (!is.null(a)) a else b
@@ -430,6 +444,182 @@ print.mixgpd_fit <- function(x, ...) {
   cat(paste(.format_fit_header(x), collapse = "\n"), "\n")
   cat("Fit\n")
   cat("Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.\n")
+  invisible(x)
+}
+
+#' Extract posterior mean parameters in original form
+#'
+#' Returns posterior means reshaped to their natural dimensions (scalars, vectors,
+#' or matrices). Intended as a lightweight extractor for model parameters.
+#'
+#' @param object A fitted object of class \code{"mixgpd_fit"}.
+#' @param ... Unused.
+#' @return An object of class \code{"mixgpd_params"} (a named list).
+#' @examples
+#' \dontrun{
+#' y <- abs(stats::rnorm(50)) + 0.1
+#' bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
+#'                              GPD = TRUE, components = 6,
+#'                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+#' fit <- run_mcmc_bundle_manual(bundle)
+#' params(fit)
+#' p <- params(fit)
+#' }
+#' @export
+params <- function(object, ...) {
+  UseMethod("params")
+}
+
+#' @export
+params.mixgpd_fit <- function(object, ...) {
+  stopifnot(inherits(object, "mixgpd_fit"))
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+
+  mat <- .extract_draws_matrix(object, drop_v = TRUE, epsilon = NULL)
+  means <- colMeans(mat, na.rm = TRUE)
+  means[!is.finite(means)] <- NA_real_
+  cn <- names(means)
+
+  spec <- object$spec %||% list()
+  plan <- spec$plan %||% list()
+  meta <- spec$meta %||% list()
+  bulk <- plan$bulk %||% list()
+  gpd <- plan$gpd %||% list()
+
+  X <- object$data$X %||% object$X %||% NULL
+  xnames <- if (!is.null(X) && !is.null(colnames(X))) colnames(X) else NULL
+
+  .get_vector <- function(prefix) {
+    cols <- grep(paste0("^", prefix, "\\[[0-9]+\\]$"), cn, value = TRUE)
+    if (!length(cols)) return(NULL)
+    idx <- as.integer(sub(paste0("^", prefix, "\\[([0-9]+)\\]$"), "\\1", cols))
+    ord <- order(idx, na.last = NA)
+    as.numeric(means[cols][ord])
+  }
+
+  .get_matrix <- function(prefix) {
+    cols <- grep(paste0("^", prefix, "\\[[0-9]+,\\s*[0-9]+\\]$"), cn, value = TRUE)
+    if (!length(cols)) return(NULL)
+    idx1 <- as.integer(sub(paste0("^", prefix, "\\[([0-9]+),\\s*([0-9]+)\\]$"), "\\1", cols))
+    idx2 <- as.integer(sub(paste0("^", prefix, "\\[([0-9]+),\\s*([0-9]+)\\]$"), "\\2", cols))
+    n1 <- max(idx1)
+    n2 <- max(idx2)
+    out <- matrix(NA_real_, nrow = n1, ncol = n2)
+    for (i in seq_along(cols)) {
+      out[idx1[i], idx2[i]] <- means[cols[i]]
+    }
+    if (!is.null(xnames) && length(xnames) == n2) colnames(out) <- xnames
+    rownames(out) <- paste0("comp", seq_len(n1))
+    out
+  }
+
+  out <- list()
+
+  if ("alpha" %in% cn) out$alpha <- unname(means["alpha"])
+
+  w <- .get_vector("w")
+  if (!is.null(w)) out$w <- w
+
+  for (nm in names(bulk)) {
+    ent <- bulk[[nm]] %||% list()
+    mode <- ent$mode %||% NA_character_
+
+    if (mode %in% c("fixed", "dist")) {
+      vec <- .get_vector(nm)
+      if (!is.null(vec)) out[[nm]] <- vec
+    } else if (identical(mode, "link")) {
+      beta <- .get_matrix(paste0("beta_", nm))
+      if (is.null(beta)) {
+        beta_vec <- .get_vector(paste0("beta_", nm))
+        if (!is.null(beta_vec)) {
+          beta <- matrix(beta_vec, ncol = 1)
+          rownames(beta) <- paste0("comp", seq_len(nrow(beta)))
+          if (!is.null(xnames) && length(xnames) == 1L) colnames(beta) <- xnames
+        }
+      }
+      if (!is.null(beta)) out[[paste0("beta_", nm)]] <- beta
+      beta_ps <- .get_vector(paste0("beta_ps_", nm))
+      if (!is.null(beta_ps)) out[[paste0("beta_ps_", nm)]] <- beta_ps
+    }
+  }
+
+  if (!is.null(gpd$threshold)) {
+    thr_mode <- gpd$threshold$mode %||% NA_character_
+    if (thr_mode %in% c("fixed", "dist")) {
+      thr <- .get_vector("threshold")
+      if (!is.null(thr)) out$threshold <- mean(thr, na.rm = TRUE)
+    } else if (identical(thr_mode, "link")) {
+      beta_thr <- .get_vector("beta_threshold")
+      if (!is.null(beta_thr)) out$beta_threshold <- beta_thr
+      if (!is.null(gpd$threshold$link_dist) &&
+          identical(gpd$threshold$link_dist$dist, "lognormal") &&
+          "sdlog_u" %in% cn) {
+        out$sdlog_u <- unname(means["sdlog_u"])
+      }
+    }
+  }
+
+  if (!is.null(gpd$tail_scale)) {
+    ts_mode <- gpd$tail_scale$mode %||% NA_character_
+    if (identical(ts_mode, "link")) {
+      beta_ts <- .get_vector("beta_tail_scale")
+      if (!is.null(beta_ts)) out$beta_tail_scale <- beta_ts
+    } else if (ts_mode %in% c("fixed", "dist")) {
+      if ("tail_scale" %in% cn) out$tail_scale <- unname(means["tail_scale"])
+    }
+  }
+
+  if (!is.null(gpd$tail_shape) && "tail_shape" %in% cn) {
+    out$tail_shape <- unname(means["tail_shape"])
+  }
+
+  class(out) <- "mixgpd_params"
+  out
+}
+
+#' @export
+params.dpmixgpd_causal_fit <- function(object, ...) {
+  stopifnot(inherits(object, "dpmixgpd_causal_fit"))
+  out <- list(
+    treated = params(object$outcome_fit$trt, ...),
+    control = params(object$outcome_fit$con, ...)
+  )
+  class(out) <- "mixgpd_params_pair"
+  out
+}
+
+#' @export
+print.mixgpd_params <- function(x, digits = 4, ...) {
+  cat("Posterior mean parameters\n")
+  if (!length(x)) {
+    cat("<empty>\n")
+    return(invisible(x))
+  }
+  for (nm in names(x)) {
+    cat("\n$", nm, "\n", sep = "")
+    val <- x[[nm]]
+    if (is.null(dim(val))) {
+      if (is.numeric(val)) {
+        print(signif(val, digits))
+      } else {
+        print(val)
+      }
+    } else if (is.matrix(val) || is.data.frame(val)) {
+      print(round(val, digits))
+    } else {
+      print(val)
+    }
+  }
+  invisible(x)
+}
+
+#' @export
+print.mixgpd_params_pair <- function(x, digits = 4, ...) {
+  cat("Posterior mean parameters (causal)\n")
+  cat("\n[treated]\n")
+  print(x$treated, digits = digits, ...)
+  cat("\n[control]\n")
+  print(x$control, digits = digits, ...)
   invisible(x)
 }
 
@@ -610,9 +800,17 @@ plot.mixgpd_fit <- function(x,
   cn <- colnames(as.matrix(smp[[1]]))
   if (is.null(params)) {
     # Prefer alpha + threshold/tail params + weights if present
+    thr_cols <- grep("^threshold\\[[0-9]+\\]$", cn, value = TRUE)
+    thr_keep <- if ("threshold" %in% cn) {
+      "threshold"
+    } else if (length(thr_cols)) {
+      thr_cols[order(as.integer(sub("^threshold\\[([0-9]+)\\]$", "\\1", thr_cols)))[1]]
+    } else {
+      character(0)
+    }
     pref <- unique(c(
       grep("^alpha$", cn, value = TRUE),
-      grep("threshold", cn, value = TRUE),
+      thr_keep,
       grep("^tail_", cn, value = TRUE),
       grep("^weights\\[", cn, value = TRUE)
     ))
@@ -982,6 +1180,351 @@ plot.mixgpd_predict <- function(x, y = NULL, ...) {
   result
 }
 
+#' Plot causal prediction outputs
+#'
+#' S3 method for visualizing causal predictions from \code{predict.dpmixgpd_causal_fit()}.
+#' For mean/quantile, plots treated/control and treatment effect versus PS (or index).
+#' For density/prob, plots treated/control values versus y.
+#'
+#' @param x Object of class \code{dpmixgpd_causal_predict}.
+#' @param y Ignored.
+#' @param ... Additional arguments passed to ggplot2 functions.
+#' @return A ggplot object or a list of ggplot objects.
+#' @export
+plot.dpmixgpd_causal_predict <- function(x, y = NULL, ...) {
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+
+  if (!requireNamespace("ggplot2", quietly = TRUE)) {
+    stop("Package 'ggplot2' is required for plotting. Install it first.", call. = FALSE)
+  }
+
+  pred_type <- attr(x, "type") %||% NA_character_
+  if (is.na(pred_type)) stop("Causal prediction object missing 'type' attribute.", call. = FALSE)
+
+  .extract_stats <- function(pr, n_pred) {
+    fit <- pr$fit
+    if (is.data.frame(fit)) {
+      if ("id" %in% names(fit)) fit <- fit[order(fit$id), , drop = FALSE]
+      est <- if ("estimate" %in% names(fit)) fit$estimate else as.numeric(fit[[1]])
+      lower <- if ("lower" %in% names(fit)) fit$lower else rep(NA_real_, length(est))
+      upper <- if ("upper" %in% names(fit)) fit$upper else rep(NA_real_, length(est))
+    } else if (is.matrix(fit)) {
+      est <- as.numeric(fit[, 1])
+      lower <- rep(NA_real_, length(est))
+      upper <- rep(NA_real_, length(est))
+    } else {
+      est <- as.numeric(fit)
+      lower <- rep(NA_real_, length(est))
+      upper <- rep(NA_real_, length(est))
+    }
+    if (length(est) == 1L && n_pred > 1L) {
+      est <- rep(est, n_pred)
+      lower <- rep(lower, n_pred)
+      upper <- rep(upper, n_pred)
+    }
+    if (length(est) != n_pred) {
+      stop("Unexpected prediction length in causal plot.", call. = FALSE)
+    }
+    list(estimate = est, lower = lower, upper = upper)
+  }
+
+  .x_axis <- function(ps_vec) {
+    if (is.null(ps_vec) || !any(is.finite(ps_vec))) {
+      list(x = seq_len(length(ps_vec)), label = "Index")
+    } else {
+      list(x = ps_vec, label = "Estimated PS")
+    }
+  }
+
+  if (pred_type %in% c("mean", "quantile")) {
+    trt <- attr(x, "trt")
+    con <- attr(x, "con")
+    if (is.null(trt) || is.null(con)) {
+      stop("Causal prediction missing treated/control objects for plotting.", call. = FALSE)
+    }
+
+    n_pred <- nrow(x)
+    ps_vec <- as.numeric(x[, "ps"])
+    ax <- .x_axis(ps_vec)
+
+    trt_stats <- .extract_stats(trt, n_pred)
+    con_stats <- .extract_stats(con, n_pred)
+
+    df_tc <- rbind(
+      data.frame(x = ax$x, group = "Treated", estimate = trt_stats$estimate,
+                 lower = trt_stats$lower, upper = trt_stats$upper),
+      data.frame(x = ax$x, group = "Control", estimate = con_stats$estimate,
+                 lower = con_stats$lower, upper = con_stats$upper)
+    )
+
+    p_tc <- ggplot2::ggplot(df_tc, ggplot2::aes(x = x, y = estimate, color = group, fill = group)) +
+      ggplot2::geom_line(linewidth = 0.8) +
+      ggplot2::theme_minimal() +
+      ggplot2::labs(x = ax$label, y = paste0("Outcome ", pred_type), title = "Treated vs Control")
+
+    if (any(is.finite(df_tc$lower)) && any(is.finite(df_tc$upper))) {
+      p_tc <- p_tc + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
+                                          alpha = 0.2, color = NA)
+    }
+
+    df_te <- data.frame(
+      x = ax$x,
+      estimate = as.numeric(x[, "estimate"]),
+      lower = as.numeric(x[, "lower"]),
+      upper = as.numeric(x[, "upper"])
+    )
+
+    p_te <- ggplot2::ggplot(df_te, ggplot2::aes(x = x, y = estimate)) +
+      ggplot2::geom_line(color = "black", linewidth = 0.8) +
+      ggplot2::theme_minimal() +
+      ggplot2::labs(x = ax$label, y = "Treatment effect", title = "Treated - Control")
+
+    if (any(is.finite(df_te$lower)) && any(is.finite(df_te$upper))) {
+      p_te <- p_te + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
+                                          alpha = 0.2, fill = "gray60", color = NA)
+    }
+
+    result <- list(trt_control = p_tc, treatment_effect = p_te)
+    class(result) <- c("dpmixgpd_causal_predict_plots", "list")
+    return(result)
+  }
+
+  if (pred_type %in% c("density", "prob")) {
+    df <- as.data.frame(x)
+    df_long <- rbind(
+      data.frame(y = df$y, group = "Treated", estimate = df$trt_estimate,
+                 lower = df$trt_lower, upper = df$trt_upper),
+      data.frame(y = df$y, group = "Control", estimate = df$con_estimate,
+                 lower = df$con_lower, upper = df$con_upper)
+    )
+
+    p <- ggplot2::ggplot(df_long, ggplot2::aes(x = y, y = estimate, color = group, fill = group)) +
+      ggplot2::geom_line(linewidth = 0.8) +
+      ggplot2::theme_minimal() +
+      ggplot2::labs(x = "y", y = pred_type, title = "Treated vs Control")
+
+    if (any(is.finite(df_long$lower)) && any(is.finite(df_long$upper))) {
+      p <- p + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
+                                    alpha = 0.2, color = NA)
+    }
+
+    return(p)
+  }
+
+  stop("Unsupported causal prediction type for plotting.", call. = FALSE)
+}
+
+#' Plot QTE results
+#'
+#' @param x Object of class \code{dpmixgpd_qte}.
+#' @param y Ignored.
+#' @param ... Additional arguments passed to ggplot2 functions.
+#' @return A list of ggplot objects.
+#' @export
+plot.dpmixgpd_qte <- function(x, y = NULL, ...) {
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+  if (!requireNamespace("ggplot2", quietly = TRUE)) {
+    stop("Package 'ggplot2' is required for plotting. Install it first.", call. = FALSE)
+  }
+  if (!is.list(x) || is.null(x$trt) || is.null(x$con)) {
+    stop("Invalid QTE object for plotting.", call. = FALSE)
+  }
+
+  pr_trt <- x$trt
+  pr_con <- x$con
+  probs <- x$grid %||% numeric()
+  fit_trt <- pr_trt$fit
+  if (is.data.frame(fit_trt)) {
+    if ("id" %in% names(fit_trt)) {
+      n_pred <- max(fit_trt$id, na.rm = TRUE)
+    } else if ("index" %in% names(fit_trt)) {
+      n_pred <- 1L
+    } else {
+      n_pred <- nrow(fit_trt)
+    }
+  } else if (is.matrix(fit_trt)) {
+    n_pred <- nrow(fit_trt)
+  } else {
+    n_pred <- length(fit_trt)
+  }
+
+  ps_vec <- x$ps %||% rep(NA_real_, n_pred)
+  if (!length(ps_vec)) ps_vec <- rep(NA_real_, n_pred)
+  ax <- if (any(is.finite(ps_vec))) list(x = ps_vec, label = "Estimated PS") else
+    list(x = seq_len(n_pred), label = "Index")
+
+  .as_df <- function(pr, n_pred, probs) {
+    fit <- pr$fit
+    if (!is.data.frame(fit)) {
+      stop("QTE plotting requires data.frame fit from predict().", call. = FALSE)
+    }
+    df <- fit
+    if (!("id" %in% names(df))) df$id <- rep(seq_len(n_pred), times = length(probs))
+    if (!("index" %in% names(df))) df$index <- rep(probs, each = n_pred)
+    df <- df[, c("id", "index", "estimate", "lower", "upper")]
+    df
+  }
+
+  df_trt <- .as_df(pr_trt, n_pred, probs)
+  df_con <- .as_df(pr_con, n_pred, probs)
+  df_trt$group <- "Treated"
+  df_con$group <- "Control"
+
+  df_tc <- rbind(df_trt, df_con)
+  df_tc$ps <- ax$x[df_tc$id]
+
+  p_tc <- ggplot2::ggplot(df_tc, ggplot2::aes(x = ps, y = estimate, color = group, fill = group)) +
+    ggplot2::geom_line(linewidth = 0.8) +
+    ggplot2::facet_wrap(~ index, scales = "free_y") +
+    ggplot2::theme_minimal() +
+    ggplot2::labs(x = ax$label, y = "Quantile", title = "Treated vs Control")
+
+  if (any(is.finite(df_tc$lower)) && any(is.finite(df_tc$upper))) {
+    p_tc <- p_tc + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
+                                        alpha = 0.2, color = NA)
+  }
+
+  te_mat <- x$fit
+  te_lower <- x$lower
+  te_upper <- x$upper
+
+  df_te <- data.frame(
+    id = rep(seq_len(n_pred), times = length(probs)),
+    index = rep(probs, each = n_pred),
+    estimate = as.vector(te_mat),
+    lower = if (!is.null(te_lower)) as.vector(te_lower) else NA_real_,
+    upper = if (!is.null(te_upper)) as.vector(te_upper) else NA_real_,
+    ps = rep(ax$x, times = length(probs))
+  )
+
+  p_te <- ggplot2::ggplot(df_te, ggplot2::aes(x = ps, y = estimate)) +
+    ggplot2::geom_line(color = "black", linewidth = 0.8) +
+    ggplot2::facet_wrap(~ index, scales = "free_y") +
+    ggplot2::theme_minimal() +
+    ggplot2::labs(x = ax$label, y = "Treatment effect", title = "Treated - Control")
+
+  if (any(is.finite(df_te$lower)) && any(is.finite(df_te$upper))) {
+    p_te <- p_te + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
+                                        alpha = 0.2, fill = "gray60", color = NA)
+  }
+
+  result <- list(trt_control = p_tc, treatment_effect = p_te)
+  class(result) <- c("dpmixgpd_causal_predict_plots", "list")
+  result
+}
+
+#' Plot ATE results
+#'
+#' @param x Object of class \code{dpmixgpd_ate}.
+#' @param y Ignored.
+#' @param ... Additional arguments passed to ggplot2 functions.
+#' @return A list of ggplot objects.
+#' @export
+plot.dpmixgpd_ate <- function(x, y = NULL, ...) {
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+  if (!requireNamespace("ggplot2", quietly = TRUE)) {
+    stop("Package 'ggplot2' is required for plotting. Install it first.", call. = FALSE)
+  }
+  if (!is.list(x) || is.null(x$trt) || is.null(x$con)) {
+    stop("Invalid ATE object for plotting.", call. = FALSE)
+  }
+
+  pr_trt <- x$trt
+  pr_con <- x$con
+  n_pred <- length(x$fit)
+  ps_vec <- x$ps %||% rep(NA_real_, n_pred)
+  if (!length(ps_vec)) ps_vec <- rep(NA_real_, n_pred)
+  ax <- if (any(is.finite(ps_vec))) list(x = ps_vec, label = "Estimated PS") else
+    list(x = seq_len(n_pred), label = "Index")
+
+  .extract_stats <- function(pr, n_pred) {
+    fit <- pr$fit
+    if (is.data.frame(fit)) {
+      if ("id" %in% names(fit)) fit <- fit[order(fit$id), , drop = FALSE]
+      est <- if ("estimate" %in% names(fit)) fit$estimate else as.numeric(fit[[1]])
+      lower <- if ("lower" %in% names(fit)) fit$lower else rep(NA_real_, length(est))
+      upper <- if ("upper" %in% names(fit)) fit$upper else rep(NA_real_, length(est))
+    } else if (is.matrix(fit)) {
+      est <- as.numeric(fit[, 1])
+      lower <- rep(NA_real_, length(est))
+      upper <- rep(NA_real_, length(est))
+    } else {
+      est <- as.numeric(fit)
+      lower <- rep(NA_real_, length(est))
+      upper <- rep(NA_real_, length(est))
+    }
+    if (length(est) == 1L && n_pred > 1L) {
+      est <- rep(est, n_pred)
+      lower <- rep(lower, n_pred)
+      upper <- rep(upper, n_pred)
+    }
+    if (length(est) != n_pred) {
+      stop("Unexpected prediction length in ATE plot.", call. = FALSE)
+    }
+    list(estimate = est, lower = lower, upper = upper)
+  }
+
+  trt_stats <- .extract_stats(pr_trt, n_pred)
+  con_stats <- .extract_stats(pr_con, n_pred)
+
+  df_tc <- rbind(
+    data.frame(x = ax$x, group = "Treated", estimate = trt_stats$estimate,
+               lower = trt_stats$lower, upper = trt_stats$upper),
+    data.frame(x = ax$x, group = "Control", estimate = con_stats$estimate,
+               lower = con_stats$lower, upper = con_stats$upper)
+  )
+
+  p_tc <- ggplot2::ggplot(df_tc, ggplot2::aes(x = x, y = estimate, color = group, fill = group)) +
+    ggplot2::geom_line(linewidth = 0.8) +
+    ggplot2::theme_minimal() +
+    ggplot2::labs(x = ax$label, y = "Mean", title = "Treated vs Control")
+
+  if (any(is.finite(df_tc$lower)) && any(is.finite(df_tc$upper))) {
+    p_tc <- p_tc + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
+                                        alpha = 0.2, color = NA)
+  }
+
+  df_te <- data.frame(
+    x = ax$x,
+    estimate = as.numeric(x$fit),
+    lower = if (!is.null(x$lower)) as.numeric(x$lower) else NA_real_,
+    upper = if (!is.null(x$upper)) as.numeric(x$upper) else NA_real_
+  )
+
+  p_te <- ggplot2::ggplot(df_te, ggplot2::aes(x = x, y = estimate)) +
+    ggplot2::geom_line(color = "black", linewidth = 0.8) +
+    ggplot2::theme_minimal() +
+    ggplot2::labs(x = ax$label, y = "Treatment effect", title = "Treated - Control")
+
+  if (any(is.finite(df_te$lower)) && any(is.finite(df_te$upper))) {
+    p_te <- p_te + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
+                                        alpha = 0.2, fill = "gray60", color = NA)
+  }
+
+  result <- list(trt_control = p_tc, treatment_effect = p_te)
+  class(result) <- c("dpmixgpd_causal_predict_plots", "list")
+  result
+}
+
+#' Print method for causal prediction plots
+#'
+#' @param x Object of class \code{dpmixgpd_causal_predict_plots}.
+#' @param ... Additional arguments (ignored).
+#' @return Invisibly returns the input object.
+#' @keywords internal
+#' @export
+print.dpmixgpd_causal_predict_plots <- function(x, ...) {
+  if (is.list(x)) {
+    for (nm in names(x)) {
+      print(x[[nm]])
+      cat("\n")
+    }
+  } else {
+    print(x)
+  }
+  invisible(x)
+}
+
 #' Plot fitted values diagnostics
 #'
 #' S3 method for visualizing fitted values from \code{fitted.mixgpd_fit()}.
@@ -1073,6 +1616,15 @@ print.mixgpd_fit_plots <- function(x, ...) {
     cat(sprintf("\n=== %s ===\n", plot_name))
     print(x[[plot_name]])
   }
+  invisible(x)
+}
+
+#' @export
+print.dpmixgpd_causal_fit_plots <- function(x, ...) {
+  cat("\n=== treated ===\n")
+  print(x$treated, ...)
+  cat("\n=== control ===\n")
+  print(x$control, ...)
   invisible(x)
 }
 

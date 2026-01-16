@@ -4,7 +4,7 @@ output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
-  %\VignetteIndexEntry{9. Conditional DPmix SB}
+  %\VignetteIndexEntry{9. Conditional DPmix with Stick-Breaking Backend}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   eval = TRUE,
-  cache = TRUE
+  cache = FALSE
 )
 library(DPmixGPD)
 if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
@@ -42,6 +42,9 @@ set.seed(123)
 data("nc_posX100_p3_k2")
 y <- nc_posX100_p3_k2$y
 X <- as.matrix(nc_posX100_p3_k2$X)
+if (is.null(colnames(X))) {
+  colnames(X) <- paste0("x", seq_len(ncol(X)))
+}
 
 summary_tbl <- tibble(
   statistic = c("N", "Mean", "SD", "Min", "Max"),
@@ -58,8 +61,8 @@ ggplot(data.frame(y = y, x1 = X[, 1]), aes(x = x1, y = y)) +
 ```{r data-table, echo=FALSE}
 summary_tbl %>%
   mutate(value = signif(value, 4)) %>%
-  kable(caption = "Conditional Dataset Summary (SB)") %>%
-  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE)
+  kable(caption = "Conditional Dataset Summary (SB)", align = "c") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
 ```
 
 ---
@@ -67,16 +70,31 @@ summary_tbl %>%
 ## Model Specification
 
 ```{r spec}
-bundle_sb_cond <- build_nimble_bundle(
+bundle_sb_normal <- build_nimble_bundle(
   y = y,
   X = X,
-  kernel = "gamma",
+  kernel = "normal",
   backend = "sb",
   GPD = FALSE,
   components = 5,
   mcmc = list(
-    niter = 300,
-    nburnin = 60,
+    niter = 60,
+    nburnin = 10,
+    nchains = 1,
+    thin = 1
+  )
+)
+
+bundle_sb_cauchy <- build_nimble_bundle(
+  y = y,
+  X = X,
+  kernel = "cauchy",
+  backend = "sb",
+  GPD = FALSE,
+  components = 5,
+  mcmc = list(
+    niter = 60,
+    nburnin = 10,
     nchains = 1,
     thin = 1
   )
@@ -88,8 +106,15 @@ bundle_sb_cond <- build_nimble_bundle(
 ## Running MCMC
 
 ```{r mcmc}
-fit_sb_cond <- run_mcmc_bundle_manual(bundle_sb_cond)
-summary(fit_sb_cond)
+fit_sb_normal <- run_mcmc_bundle_manual(bundle_sb_normal)
+fit_sb_cauchy <- run_mcmc_bundle_manual(bundle_sb_cauchy)
+summary(fit_sb_normal)
+summary(fit_sb_cauchy)
+```
+
+```{r params-cond-sb}
+params_sb <- params(fit_sb_normal)
+params_sb
 ```
 
 ---
@@ -98,21 +123,35 @@ summary(fit_sb_cond)
 
 ```{r cond-predict}
 X_new <- expand.grid(x1 = seq(-2, 2, length.out = 3), x2 = c(-1, 1), x3 = 0)
-y_grid <- seq(-1, 8, length.out = 200)
+colnames(X_new) <- colnames(X)
+y_min <- max(min(y), .Machine$double.eps)
+y_grid <- seq(y_min, max(y) * 1.1, length.out = 200)
 
-densities <- lapply(seq_len(nrow(X_new)), function(i) {
-  pred <- predict(fit_sb_cond, x = as.matrix(X_new[i, ]), y = y_grid, type = "density")
+densities_normal <- lapply(seq_len(nrow(X_new)), function(i) {
+  pred <- predict(fit_sb_normal, x = as.matrix(X_new[i, , drop = FALSE]), y = y_grid, type = "density")
   data.frame(
-    y = y_grid,
-    density = pred$fit[[1]],
-    label = paste0("x1=", round(X_new[i, "x1"], 1), ", x2=", X_new[i, "x2"])
+    y = pred$fit$y,
+    density = pred$fit$density,
+    label = paste0("x1=", round(X_new[i, "x1"], 1), ", x2=", X_new[i, "x2"]),
+    model = "Normal"
   )
 })
 
-df_cond <- bind_rows(densities)
+densities_cauchy <- lapply(seq_len(nrow(X_new)), function(i) {
+  pred <- predict(fit_sb_cauchy, x = as.matrix(X_new[i, , drop = FALSE]), y = y_grid, type = "density")
+  data.frame(
+    y = pred$fit$y,
+    density = pred$fit$density,
+    label = paste0("x1=", round(X_new[i, "x1"], 1), ", x2=", X_new[i, "x2"]),
+    model = "Cauchy"
+  )
+})
+
+df_cond <- bind_rows(densities_normal, densities_cauchy)
 
 ggplot(df_cond, aes(x = y, y = density, color = label)) +
   geom_line(linewidth = 1) +
+  facet_wrap(~ model) +
   labs(title = "SB Conditional Predictive Densities", x = "y", y = "Density") +
   theme_minimal() +
   theme(legend.position = "bottom")
@@ -124,20 +163,25 @@ ggplot(df_cond, aes(x = y, y = density, color = label)) +
 
 ```{r quantile-drift}
 X_eval <- cbind(x1 = seq(-2, 2, length.out = 5), x2 = 0, x3 = 0)
+colnames(X_eval) <- colnames(X)
 quant_probs <- c(0.25, 0.5, 0.75)
 
-quant_df <- lapply(seq_len(nrow(X_eval)), function(i) {
-  pred <- predict(fit_sb_cond, x = X_eval[i, , drop = FALSE], type = "quantile", index = quant_probs)
-  data.frame(
-    x1 = X_eval[i, "x1"],
-    quant = quant_probs,
-    estimate = pred$fit$estimate
-  )
-})
+pred_q_normal <- predict(fit_sb_normal, x = as.matrix(X_eval), type = "quantile", index = quant_probs)
+pred_q_cauchy <- predict(fit_sb_cauchy, x = as.matrix(X_eval), type = "quantile", index = quant_probs)
 
-bind_rows(quant_df) %>%
-  ggplot(aes(x = x1, y = estimate, color = factor(quant))) +
+quant_df_normal <- pred_q_normal$fit
+quant_df_normal$x1 <- X_eval[quant_df_normal$id, "x1"]
+quant_df_normal$model <- "Normal"
+
+quant_df_cauchy <- pred_q_cauchy$fit
+quant_df_cauchy$x1 <- X_eval[quant_df_cauchy$id, "x1"]
+quant_df_cauchy$model <- "Cauchy"
+
+bind_rows(quant_df_normal, quant_df_cauchy) %>%
+  ggplot(aes(x = x1, y = estimate, color = factor(index), group = index)) +
   geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  facet_wrap(~ model) +
   labs(title = "SB Conditional Quantiles vs x1", x = "x1", y = "y", color = "Quantile") +
   theme_minimal()
 ```
@@ -147,11 +191,12 @@ bind_rows(quant_df) %>%
 ## Residuals & Diagnostics
 
 ```{r residuals}
-plot(fitted(fit_sb_cond))
+plot(fitted(fit_sb_cauchy))
 ```
 
 ```{r diagnostics}
-plot(fit_sb_cond, family = c("traceplot", "density"))
+plot(fit_sb_normal, family = c("traceplot", "density"))
+plot(fit_sb_cauchy, family = c("traceplot", "density"))
 ```
 
 ---
@@ -162,4 +207,6 @@ plot(fit_sb_cond, family = c("traceplot", "density"))
 - `predict(..., type = "density")` returns group-specific densities for each `X`.
 - `predict(..., type = "quantile")` shows how median and 75% quantiles shift with `x1`.
 - Diagnoses rely on the same S3 `plot()`/`fitted()` pipeline available in other vignettes.
+
+
 

@@ -1192,9 +1192,9 @@ knitr::kable(
   df,
   format = "html",
   escape = FALSE,
-  align = c("l","c","l","c","l","c","l")
+  align = rep("c", 7)
 ) |>
-  kableExtra::kable_styling(full_width = TRUE) |>
+  kableExtra::kable_styling(full_width = FALSE, position = "center") |>
   kableExtra::add_header_above(c(" " = 3, "CRP" = 2, "SB" = 2)) |>
   kableExtra::row_spec(0, bold = TRUE)
 ```
@@ -1206,5 +1206,7 @@ knitr::kable(
 - **SB Backend** uses mixture/spliced mixture functions; component-specific parameters are typically vectors indexed by component \(j\); mixture weights `w` are required as vector.
 
 - For **GPD-only**, SB entries are **NA** because there is no mixture-only GPD wrapper in the SB family.
+
+
 
 

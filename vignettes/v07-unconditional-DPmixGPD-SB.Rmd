@@ -4,7 +4,7 @@ output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
-  %\VignetteIndexEntry{7. Unconditional DPmixGPD SB}
+  %\VignetteIndexEntry{7. Unconditional DPmixGPD with Stick-Breaking Backend}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,15 +18,17 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   eval = TRUE,
-  cache = TRUE
+  cache = FALSE
 )
 library(DPmixGPD)
 if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
+library(nimble)
 library(ggplot2)
 library(gridExtra)
 library(kableExtra)
 library(dplyr)
 library(tibble)
+library(patchwork)
 set.seed(123)
 ```
 
@@ -62,8 +64,8 @@ grid.arrange(p_raw, ncol = 1)
 ```{r data-table, echo=FALSE}
 summary_tbl %>%
   mutate(value = signif(value, 4)) %>%
-  kable(caption = "Tail Dataset Summaries") %>%
-  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE)
+  kable(caption = "Tail Dataset Summaries", align = "c") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
 ```
 
 ---
@@ -75,7 +77,7 @@ thresholds <- quantile(y_tail, c(0.70, 0.75, 0.80, 0.85))
 u_threshold <- thresholds["80%"]
 
 ggplot(df_data, aes(x = y)) +
-  geom_histogram(aes(y = after_stat(density)), bins = 40, fill = "skyblue", alpha = 0.6) +
+  geom_histogram(aes(y = after_stat(density)), bins = 40, fill = "skyblue", alpha = 0.6, color = "black") +
   geom_vline(xintercept = u_threshold, linetype = "dashed", color = "black") +
   labs(title = paste("Threshold at", round(u_threshold, 2)), x = "y", y = "Density") +
   theme_minimal()
@@ -85,21 +87,27 @@ ggplot(df_data, aes(x = y)) +
 
 ## Model Specification & Bundle
 
+This follows the same structure as the SB bulk-only vignette (`v05`): build a bundle with `build_nimble_bundle()`, run MCMC, then use the S3 `predict()` + `plot()` helpers. Compared with `v06` (CRP+GPD), here we keep the **stick-breaking** backend and use a **Gamma** bulk kernel with a lognormal threshold prior, then contrast it with a bulk-only **Laplace** fit.
+
 ```{r spec-bundle}
 bundle_sb_gpd <- build_nimble_bundle(
   y = y_tail,
-  kernel = "lognormal",
+  kernel = "gamma",
   backend = "sb",
   GPD = TRUE,
   components = 5,
   param_specs = list(
     gpd = list(
-      threshold = list(mode = "fixed", value = u_threshold)
+      threshold = list(
+        mode = "dist",
+        dist = "lognormal",
+        args = list(meanlog = log(max(u_threshold, .Machine$double.eps)), sdlog = 0.25)
+      )
     )
   ),
   mcmc = list(
-    niter = 300,
-    nburnin = 60,
+    niter = 60,
+    nburnin = 10,
     nchains = 1,
     thin = 1
   )
@@ -113,6 +121,11 @@ bundle_sb_gpd <- build_nimble_bundle(
 ```{r mcmc-run}
 fit_sb_gpd <- run_mcmc_bundle_manual(bundle_sb_gpd)
 summary(fit_sb_gpd)
+```
+
+```{r params-sb-gpd}
+params_sb_gpd <- params(fit_sb_gpd)
+params_sb_gpd
 ```
 
 ---
@@ -144,11 +157,11 @@ plot(pred_quant)
 ```{r bulk-comparison}
 bundle_sb_bulk <- build_nimble_bundle(
   y = y_tail,
-  kernel = "lognormal",
+  kernel = "laplace",
   backend = "sb",
   GPD = FALSE,
   components = 5,
-  mcmc = list(niter = 300, nburnin = 60, nchains = 1)
+  mcmc = list(niter = 60, nburnin = 10, nchains = 1)
 )
 fit_sb_bulk <- run_mcmc_bundle_manual(bundle_sb_bulk)
 
@@ -159,10 +172,10 @@ bind_rows(
   bulk_quant$fit %>% mutate(model = "Bulk-only"),
   t_quant$fit %>% mutate(model = "Bulk + GPD")
 ) %>%
-  select(model, index, estimate, lwr, upr) %>%
+  select(any_of(c("model", "index", "estimate", "lwr", "upr", "lower", "upper"))) %>%
   mutate(across(where(is.numeric), ~ round(.x, 3))) %>%
-  kable(caption = "Quantiles: Bulk-only vs GPD-augmented") %>%
-  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE)
+  kable(caption = "Quantiles: Bulk-only vs GPD-augmented", align = "c") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
 ```
 
 ```{r comparison-plots}
@@ -181,7 +194,6 @@ plot(fit_vals)
 
 ```{r diagnostics}
 plot(fit_sb_gpd, family = c("traceplot", "density"))
-plot(fit_sb_gpd, params = "w_", family = c("traceplot", "density"))
 ```
 
 ---
@@ -192,4 +204,3 @@ plot(fit_sb_gpd, params = "w_", family = c("traceplot", "density"))
 - Posterior `predict()` + `plot()` workflows visualize densities, survival probabilities, and extreme quantiles.
 - Comparing bulk-only vs GPD-augmented quantiles reveals how tail augmentation shifts the 95–99% levels.
 - Next: conditional DPmix (v08–v11) to explore covariate effects before moving to causal regimes.
-

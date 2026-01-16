@@ -6,42 +6,40 @@ DPmixGPD delivers Dirichlet process mixtures with optional generalized Pareto ta
 
 ### Getting Started
 
-- **[Introduction](articles/v01-introduction.html)** — Overview, three-phase workflow, PS strategies, and quickstart
-- **[Available Distributions](articles/v02-available-distributions.html)** — Comprehensive guide to all 7 kernels plus GPD with dqrp functions
-- **[Basic Model Workflow](articles/v03-basic-model-compile-run.html)** — Detailed three-phase guide: specification → bundle → MCMC
+- **[Introduction](articles/v01-introduction.html)** - Overview, three-phase workflow, PS strategies, and quickstart
+- **[Available Distributions](articles/v02-available-distributions.html)** - Comprehensive guide to all kernels plus GPD with dqrp functions
+- **[Basic Model Workflow](articles/v03-basic-model-compile-run.html)** - Detailed three-phase guide: specification -> bundle -> MCMC
 
 ### Unconditional Models (y only)
 
-- **[DPmix with CRP](articles/v04-unconditional-DPmix-CRP.html)** — Chinese Restaurant Process backend for bulk-only mixture modeling
-- **[DPmix with SB](articles/v05-unconditional-DPmix-SB.html)** — Stick-Breaking backend comparison
-- **[DPmixGPD with CRP](articles/v06-unconditional-DPmixGPD-CRP.html)** — Adding GPD tail augmentation to CRP
-- **[DPmixGPD with SB](articles/v07-unconditional-DPmixGPD-SB.html)** — SB backend with GPD tails
+- **[DPmix with CRP](articles/v04-unconditional-DPmix-CRP.html)** - Chinese Restaurant Process backend for bulk-only mixture modeling
+- **[DPmix with SB](articles/v05-unconditional-DPmix-SB.html)** - Stick-Breaking backend comparison
+- **[DPmixGPD with CRP](articles/v06-unconditional-DPmixGPD-CRP.html)** - Adding GPD tail augmentation to CRP
+- **[DPmixGPD with SB](articles/v07-unconditional-DPmixGPD-SB.html)** - SB backend with GPD tails
 
 ### Conditional Models (y | X)
 
-- **[Conditional DPmix CRP](articles/v08-conditional-DPmix-CRP.html)** — CRP with covariates, heteroscedasticity analysis
-- **[Conditional DPmix SB](articles/v09-conditional-DPmix-SB.html)** — SB with covariates
-- **[Conditional DPmixGPD CRP](articles/v10-conditional-DPmixGPD-CRP.html)** — CRP with covariates and GPD tail
-- **[Conditional DPmixGPD SB](articles/v11-conditional-DPmixGPD-SB.html)** — SB with covariates and GPD tail
+- **[Conditional DPmix CRP](articles/v08-conditional-DPmix-CRP.html)** - CRP with covariates, heteroscedasticity analysis
+- **[Conditional DPmix SB](articles/v09-conditional-DPmix-SB.html)** - SB with covariates
+- **[Conditional DPmixGPD CRP](articles/v10-conditional-DPmixGPD-CRP.html)** - CRP with covariates and GPD tail
+- **[Conditional DPmixGPD SB](articles/v11-conditional-DPmixGPD-SB.html)** - SB with covariates and GPD tail
 
 ### Causal Inference (treatment effects)
 
-- **[Same Backend CRP](articles/v12-causal-same-backend-CRP.html)** — Causal inference with CRP for both PS and outcome
-- **[Same Backend SB](articles/v13-causal-same-backend-SB.html)** — Causal inference with SB for both models
-- **[Different Backends (CRP for PS)](articles/v14-causal-different-backends-CRP.html)** — CRP for PS, varying outcome backends
-- **[Different Backends (SB for PS)](articles/v15-causal-different-backends-SB.html)** — SB for PS with all backend combinations
+- **[Same Backend CRP](articles/v12-causal-same-backend-CRP.html)** - Causal inference with CRP for both arms (optional PS)
+- **[Same Backend SB](articles/v13-causal-same-backend-SB.html)** - Causal inference with SB for both arms (optional PS)
+- **[Different Backends (CRP for PS)](articles/v14-causal-different-backends-CRP.html)** - CRP for PS (optional), mixed outcome backends
+- **[Different Backends (SB for PS)](articles/v15-causal-different-backends-SB.html)** - SB for PS (optional), mixed outcome backends
 
 ## Available S3 Methods
 
 DPmixGPD provides standard S3 methods for fitted model objects (`mixgpd_fit` and `dpmixgpd_causal_fit`):
 
-- `summary()` — Posterior summaries with ESS, Rhat, and diagnostics
-- `plot()` — Trace and density plots via ggplot2
-- `predict()` — Density, CDF, quantile, and survival predictions
-- `fitted()` — Fitted values at observed data points
-- `residuals()` — Residuals (observed - fitted)
-- `coef()` — Extract posterior mean parameters
-- `vcov()` — Variance-covariance matrices for bulk/tail parameters
+- `summary()` - Posterior summaries with ESS, Rhat, and diagnostics
+- `params()` - Posterior parameter tables (bulk, tail, and thresholds)
+- `plot()` - Trace and density plots via ggplot2 (causal returns treated/control lists)
+- `predict()` - Density, CDF, quantile, and survival predictions (causal: mean/quantile effects)
+- `fitted()` - Fitted values at observed data points
 
 ## Status checks
 

@@ -84,7 +84,7 @@ tail_scale <- 0.8
 tail_shape <- 0.2
 
 dGpd(1.5, threshold, tail_scale, tail_shape, log = 0)
-#> [1] 1e-300
+#> [1] 0.6165877
 pGpd(1.5, threshold, tail_scale, tail_shape, lower.tail = 1, log.p = 0)
 #> [1] 0.445071
 qGpd(0.50, threshold, tail_scale, tail_shape)

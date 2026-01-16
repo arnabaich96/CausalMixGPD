@@ -48,6 +48,7 @@ bundle <- build_nimble_bundle(
   mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1, seed = 1)
 )
 fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+#> [MCMC] Creating NIMBLE model...
 #> Defining model
 #>   [Note] 'P' is provided in 'constants' but not used in the model code and is being ignored.
 #> Building model
@@ -57,6 +58,8 @@ fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
 #>          To see which variables are not initialized, use model$initializeInfo().
 #>          For more information on model initialization, see help(modelInitialization).
 #> Checking model calculations
+#> [MCMC] NIMBLE model created successfully.
+#> [MCMC] Configuring MCMC...
 #> ===== Monitors =====
 #> thin = 1: alpha, mean, sd, w, z
 #> ===== Samplers =====
@@ -68,14 +71,26 @@ fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
 #> RW sampler (3)
 #>   - alpha
 #>   - v[]  (2 elements)
+#> [MCMC] MCMC configured.
+#> [MCMC] Building MCMC object...
+#> [MCMC] MCMC object built.
+#> [MCMC] Attempting NIMBLE compilation (this may take a minute)...
+#> [MCMC] Compiling model...
 #> Compiling
 #>   [Note] This may take a minute.
 #>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+#> [MCMC] Compiling MCMC sampler...
 #> Compiling
 #>   [Note] This may take a minute.
 #>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+#> [MCMC] Compilation successful.
+#>   [Warning] To calculate WAIC, set 'WAIC = TRUE', in addition to having enabled WAIC in building the MCMC.
 #> running chain 1...
-#>   [Warning] There are 3 individual pWAIC values that are greater than 0.4. This may indicate that the WAIC estimate is unstable (Vehtari et al., 2017), at least in cases without grouping of data nodes or multivariate data nodes.
+#> [MCMC] MCMC execution complete. Processing results...
+#> Compiling
+#>   [Note] This may take a minute.
+#>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+#> Calculating WAIC.
 fit
 #> MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: FALSE
 #> n = 40 | components = 3 | epsilon = 0.025

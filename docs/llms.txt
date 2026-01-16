@@ -364,7 +364,7 @@ Treatment effects with propensity score modeling
   Outcome](https://example.com/DPmixGPD/articles/v12-causal-same-backend-CRP.md):
 - [13. Causal Inference: Same Backend (SB) for PS &
   Outcome](https://example.com/DPmixGPD/articles/v13-causal-same-backend-SB.md):
-- [14. Causal Inference: Different Backends (CRP for PS, Varied for
-  Outcome)](https://example.com/DPmixGPD/articles/v14-causal-different-backends-CRP.md):
-- [15. Causal Inference: Different Backends (SB for PS, Varied for
-  Outcome)](https://example.com/DPmixGPD/articles/v15-causal-different-backends-SB.md):
+- [14. Causal Inference: Different Backends per Arm
+  (Bulk-only)](https://example.com/DPmixGPD/articles/v14-causal-different-backends-CRP.md):
+- [15. Causal Inference: Different Backends per Arm (GPD
+  Augmentation)](https://example.com/DPmixGPD/articles/v15-causal-different-backends-SB.md):

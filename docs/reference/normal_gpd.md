@@ -112,7 +112,7 @@ tail_scale <- 1.0
 tail_shape <- 0.2
 
 dNormGpd(3.0, mean, sd, threshold, tail_scale, tail_shape, log = FALSE)
-#> [1] 1e-300
+#> [1] 0.0223736
 pNormGpd(3.0, mean, sd, threshold, tail_scale, tail_shape,
         lower.tail = TRUE, log.p = FALSE)
 #> [1] 0.9731517
