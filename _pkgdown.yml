@@ -1,6 +1,8 @@
 url: https://example.com/DPmixGPD
 template:
   bootstrap: 5
+  includes:
+    in_header: vignettes/rt-theme.html
 build:
   lazy: true
 navbar:
