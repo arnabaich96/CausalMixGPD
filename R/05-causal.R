@@ -391,6 +391,7 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' qte(fit, probs = c(0.5, 0.9), newdata = X[1:5, ])
 #' }
+#' @export
 qte <- function(fit,
                 probs = c(0.1, 0.5, 0.9),
                 newdata = NULL,
@@ -422,11 +423,11 @@ qte <- function(fit,
     }
   }
 
-  pr_trt <- predict(fit$outcome_fit$trt, x = x_pred, type = "quantile", p = probs,
+  pr_trt <- predict(fit$outcome_fit$trt, x = x_pred, type = "quantile", index = probs,
                     ps = ps_new,
                     interval = interval,
                     store_draws = TRUE)
-  pr_con <- predict(fit$outcome_fit$con, x = x_pred, type = "quantile", p = probs,
+  pr_con <- predict(fit$outcome_fit$con, x = x_pred, type = "quantile", index = probs,
                     ps = ps_new,
                     interval = interval,
                     store_draws = TRUE)
@@ -440,11 +441,15 @@ qte <- function(fit,
 
   diff_draws <- pr_trt$draws - pr_con$draws  # dims: S x n_pred x length(probs)
   fit_mat <- apply(diff_draws, c(2, 3), mean, na.rm = TRUE)
+  n_pred <- if (!is.null(dim(pr_trt$draws))) dim(pr_trt$draws)[2] else length(pr_trt$fit)
+  n_prob <- length(probs)
+  fit_mat <- matrix(fit_mat, nrow = n_pred, ncol = n_prob)
   lower <- upper <- NULL
   if (interval == "credible") {
     qarr <- apply(diff_draws, c(2, 3), stats::quantile, probs = c(0.025, 0.975), na.rm = TRUE)
-    lower <- qarr[1, , , drop = TRUE]
-    upper <- qarr[2, , , drop = TRUE]
+    qarr <- array(qarr, dim = c(2, n_pred, n_prob))
+    lower <- matrix(qarr[1, , , drop = TRUE], nrow = n_pred, ncol = n_prob)
+    upper <- matrix(qarr[2, , , drop = TRUE], nrow = n_pred, ncol = n_prob)
   }
 
   out <- list(

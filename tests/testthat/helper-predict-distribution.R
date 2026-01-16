@@ -141,9 +141,10 @@ if (!exists(".cache_enabled")) {
     }
 
     res <- residuals(fit, type = "pit")
-    if (length(res) != length(y)) stop("residuals length mismatch.")
+    if (!is.numeric(res) || length(res) != length(y)) stop("residuals length mismatch.")
     ftd <- fitted(fit)
-    if (length(ftd) != length(y)) stop("fitted length mismatch.")
+    ftd_n <- if (is.data.frame(ftd)) nrow(ftd) else length(ftd)
+    if (ftd_n != length(y)) stop("fitted length mismatch.")
 
     if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quietly = TRUE)) {
       plots <- plot(fit, family = c("traceplot"), params = "alpha")
