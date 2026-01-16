@@ -25,9 +25,9 @@ fit <- run_mcmc_bundle_manual(bundle, niter = 1000, nburnin = 100)
 ### Kernel Registry System (Never Hardcode!)
 
 - All kernel properties stored in registry initialized at
-  [`.onLoad()`](https://example.com/DPmixGPD/reference/dot-onLoad.md)
+  [`.onLoad()`](https://arnabaich96.github.io/DPmixGPD/reference/dot-onLoad.md)
   (see
-  [R/00-kernel-registry.R](https://example.com/DPmixGPD/R/00-kernel-registry.R))
+  [R/00-kernel-registry.R](https://arnabaich96.github.io/DPmixGPD/R/00-kernel-registry.R))
 - Available kernels: `gamma`, `lognormal`, `normal`, `laplace`,
   `invgauss`, `amoroso`, `cauchy`
 - Query registry before any kernel operation:
@@ -39,18 +39,18 @@ fit <- run_mcmc_bundle_manual(bundle, niter = 1000, nburnin = 100)
 
 Pattern: `{d|p|q|r} + Kernel + [Mix] + [Gpd]` - `dGamma()` — base kernel
 density -
-[`dGammaMix()`](https://example.com/DPmixGPD/reference/gamma_mix.md) —
-mixture density (SB backend) -
-[`dGammaMixGpd()`](https://example.com/DPmixGPD/reference/gamma_mixgpd.md)
+[`dGammaMix()`](https://arnabaich96.github.io/DPmixGPD/reference/gamma_mix.md)
+— mixture density (SB backend) -
+[`dGammaMixGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/gamma_mixgpd.md)
 — mixture with GPD tail - All 4 variants (d/p/q/r) auto-generated for
 each kernel
 
 ### S3 Classes & Methods
 
 - `mixgpd_fit`: Fitted model with posterior samples (from
-  [`run_mcmc_bundle_manual()`](https://example.com/DPmixGPD/reference/run_mcmc_bundle_manual.md))
+  [`run_mcmc_bundle_manual()`](https://arnabaich96.github.io/DPmixGPD/reference/run_mcmc_bundle_manual.md))
 - `dpmixgpd_bundle`: Full MCMC bundle before execution (from
-  [`build_nimble_bundle()`](https://example.com/DPmixGPD/reference/build_nimble_bundle.md))
+  [`build_nimble_bundle()`](https://arnabaich96.github.io/DPmixGPD/reference/build_nimble_bundle.md))
 - Standard methods: [`summary()`](https://rdrr.io/r/base/summary.html),
   [`plot()`](https://rdrr.io/r/graphics/plot.default.html),
   [`coef()`](https://rdrr.io/r/stats/coef.html),
@@ -85,7 +85,7 @@ renv::restore()             # Restore dependencies (renv.lock pinned to R 4.5.2)
   - Required for all summary tables, parameter tables, and result
     comparisons
 
-### Testing Patterns (See [tests/testthat/test-MCMC.R](https://example.com/DPmixGPD/tests/testthat/test-MCMC.R))
+### Testing Patterns (See [tests/testthat/test-MCMC.R](https://arnabaich96.github.io/DPmixGPD/tests/testthat/test-MCMC.R))
 
 - Grid test: all kernel × backend × GPD combinations (217 lines)
 - Always use `skip_if_not_installed("nimble")` and
@@ -97,21 +97,21 @@ renv::restore()             # Restore dependencies (renv.lock pinned to R 4.5.2)
 
 ### File Organization Logic
 
-- [R/00-kernel-registry.R](https://example.com/DPmixGPD/R/00-kernel-registry.R):
+- [R/00-kernel-registry.R](https://arnabaich96.github.io/DPmixGPD/R/00-kernel-registry.R):
   Registry initialization
-- [R/01-compile-spec.R](https://example.com/DPmixGPD/R/01-compile-spec.R):
+- [R/01-compile-spec.R](https://arnabaich96.github.io/DPmixGPD/R/01-compile-spec.R):
   Model specification validation
-- [R/02-utilities-internal.R](https://example.com/DPmixGPD/R/02-utilities-internal.R):
+- [R/02-utilities-internal.R](https://arnabaich96.github.io/DPmixGPD/R/02-utilities-internal.R):
   MCMC extraction utilities (1089 lines — START HERE for posterior
   processing)
-- [R/03-build-and-run.R](https://example.com/DPmixGPD/R/03-build-and-run.R):
+- [R/03-build-and-run.R](https://arnabaich96.github.io/DPmixGPD/R/03-build-and-run.R):
   Bundle building + MCMC execution (main entry point)
-- [R/04-S3-Methods.R](https://example.com/DPmixGPD/R/04-S3-Methods.R):
+- [R/04-S3-Methods.R](https://arnabaich96.github.io/DPmixGPD/R/04-S3-Methods.R):
   All S3 print/summary/plot methods
-- [R/1-7-\*.R](https://example.com/DPmixGPD/R/): Kernel-specific
-  distribution functions (grouped by kernel)
-- [inst/crp.R](https://example.com/DPmixGPD/inst/crp.R),
-  [inst/sb.R](https://example.com/DPmixGPD/inst/sb.R): Minimal
+- [R/1-7-\*.R](https://arnabaich96.github.io/DPmixGPD/R/):
+  Kernel-specific distribution functions (grouped by kernel)
+- [inst/crp.R](https://arnabaich96.github.io/DPmixGPD/inst/crp.R),
+  [inst/sb.R](https://arnabaich96.github.io/DPmixGPD/inst/sb.R): Minimal
   reproducible examples
 
 ## Critical Gotchas
@@ -121,7 +121,8 @@ renv::restore()             # Restore dependencies (renv.lock pinned to R 4.5.2)
 2.  **GPD compatibility** — Not all kernels support GPD tails (check
     `kernel_def$allow_gpd` from registry)
 3.  **Global variables** — NIMBLE functions (`ddexp`, `pdexp`, etc.)
-    declared in [R/globals.R](https://example.com/DPmixGPD/R/globals.R)
+    declared in
+    [R/globals.R](https://arnabaich96.github.io/DPmixGPD/R/globals.R)
     for R CMD check
 4.  **Backend differences**:
     - SB: Uses `*Mix` density functions, fixed `J` components
@@ -129,7 +130,7 @@ renv::restore()             # Restore dependencies (renv.lock pinned to R 4.5.2)
       truncation
 5.  **Spec vs Bundle** — `compile_model_spec()` does NOT generate NIMBLE
     code; use
-    [`build_nimble_bundle()`](https://example.com/DPmixGPD/reference/build_nimble_bundle.md)
+    [`build_nimble_bundle()`](https://arnabaich96.github.io/DPmixGPD/reference/build_nimble_bundle.md)
     for that
 
 ## NIMBLE Integration

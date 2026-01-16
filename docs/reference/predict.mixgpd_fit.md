@@ -51,9 +51,9 @@ predict(
   fitted PS model or stored training PS. For new covariates, PS are
   derived from the attached PS posterior draws when available. For
   causal workflows, use
-  [`qte()`](https://example.com/DPmixGPD/reference/qte.md) /
-  [`ate()`](https://example.com/DPmixGPD/reference/ate.md) which
-  orchestrate PS estimation and outcome prediction jointly.
+  [`qte()`](https://arnabaich96.github.io/DPmixGPD/reference/qte.md) /
+  [`ate()`](https://arnabaich96.github.io/DPmixGPD/reference/ate.md)
+  which orchestrate PS estimation and outcome prediction jointly.
 
 - newdata:
 

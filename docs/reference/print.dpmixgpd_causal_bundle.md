@@ -1,7 +1,7 @@
 # Print a causal bundle
 
 User-facing print method for causal bundles produced by
-[`build_causal_bundle()`](https://example.com/DPmixGPD/reference/build_causal_bundle.md).
+[`build_causal_bundle()`](https://arnabaich96.github.io/DPmixGPD/reference/build_causal_bundle.md).
 
 ## Usage
 

@@ -7,15 +7,16 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/fsu-dpmixgpd/DPmixGPD/blob/HEAD/DESCRIPTION)
+[`inst/CITATION`](https://github.com/arnabaich96/DPmixGPD/blob/HEAD/inst/CITATION)
 
 Aich A (2026). *DPmixGPD: Dirichlet Process Mixtures with Generalized
-Pareto Tail*. R package version 0.0.9, <https://example.com/DPmixGPD>.
+Pareto Tail*. R package version 0.0.9,
+<https://github.com/arnabaich96/DPmixGPD>.
 
     @Manual{,
       title = {DPmixGPD: Dirichlet Process Mixtures with Generalized Pareto Tail},
       author = {Arnab Aich},
       year = {2026},
       note = {R package version 0.0.9},
-      url = {https://example.com/DPmixGPD},
+      url = {https://github.com/arnabaich96/DPmixGPD},
     }

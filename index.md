@@ -64,3 +64,11 @@ Run `tools/update_coverage_status.R` after expanding the test suite to keep the 
 ## Reference
 
 - Function reference: [Reference](reference/index.html)
+
+## Project metadata
+
+- License: [GPL-3 License](https://github.com/arnabaich96/DPmixGPD_Package/blob/master/LICENSE)
+- Contributing: [CONTRIBUTING.md](https://github.com/arnabaich96/DPmixGPD_Package/blob/master/CONTRIBUTING.md)
+- Code of Conduct: [CODE_OF_CONDUCT.md](https://github.com/arnabaich96/DPmixGPD_Package/blob/master/CODE_OF_CONDUCT.md)
+- Citation: Run `citation("DPmixGPD")` in R, or see [inst/CITATION](https://github.com/arnabaich96/DPmixGPD_Package/blob/master/inst/CITATION)
+- Changelog: [NEWS](news/index.html)

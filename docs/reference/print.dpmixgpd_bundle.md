@@ -1,7 +1,7 @@
 # Print a dpmixgpd bundle
 
 User-facing print method for pre-run bundles produced by
-[`build_nimble_bundle()`](https://example.com/DPmixGPD/reference/build_nimble_bundle.md).
+[`build_nimble_bundle()`](https://arnabaich96.github.io/DPmixGPD/reference/build_nimble_bundle.md).
 This prints a compact description of the model structure
 (backend/kernel/components), whether covariates are used, and whether a
 GPD tail is enabled.
