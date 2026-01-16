@@ -55,11 +55,11 @@
 </h3>
 <ul>
 <li>
-<strong><a href="articles/v01-introduction.html">Introduction</a></strong> — Overview, three-phase workflow, PS strategies, and quickstart</li>
+<strong><a href="articles/v01-introduction.html">Introduction</a></strong> - Overview, three-phase workflow, PS strategies, and quickstart</li>
 <li>
-<strong><a href="articles/v02-available-distributions.html">Available Distributions</a></strong> — Comprehensive guide to all 7 kernels plus GPD with dqrp functions</li>
+<strong><a href="articles/v02-available-distributions.html">Available Distributions</a></strong> - Comprehensive guide to all kernels plus GPD with dqrp functions</li>
 <li>
-<strong><a href="articles/v03-basic-model-compile-run.html">Basic Model Workflow</a></strong> — Detailed three-phase guide: specification → bundle → MCMC</li>
+<strong><a href="articles/v03-basic-model-compile-run.html">Basic Model Workflow</a></strong> - Detailed three-phase guide: specification -&gt; bundle -&gt; MCMC</li>
 </ul>
 </div>
 <div class="section level3">
@@ -67,13 +67,13 @@
 </h3>
 <ul>
 <li>
-<strong><a href="articles/v04-unconditional-DPmix-CRP.html">DPmix with CRP</a></strong> — Chinese Restaurant Process backend for bulk-only mixture modeling</li>
+<strong><a href="articles/v04-unconditional-DPmix-CRP.html">DPmix with CRP</a></strong> - Chinese Restaurant Process backend for bulk-only mixture modeling</li>
 <li>
-<strong><a href="articles/v05-unconditional-DPmix-SB.html">DPmix with SB</a></strong> — Stick-Breaking backend comparison</li>
+<strong><a href="articles/v05-unconditional-DPmix-SB.html">DPmix with SB</a></strong> - Stick-Breaking backend comparison</li>
 <li>
-<strong><a href="articles/v06-unconditional-DPmixGPD-CRP.html">DPmixGPD with CRP</a></strong> — Adding GPD tail augmentation to CRP</li>
+<strong><a href="articles/v06-unconditional-DPmixGPD-CRP.html">DPmixGPD with CRP</a></strong> - Adding GPD tail augmentation to CRP</li>
 <li>
-<strong><a href="articles/v07-unconditional-DPmixGPD-SB.html">DPmixGPD with SB</a></strong> — SB backend with GPD tails</li>
+<strong><a href="articles/v07-unconditional-DPmixGPD-SB.html">DPmixGPD with SB</a></strong> - SB backend with GPD tails</li>
 </ul>
 </div>
 <div class="section level3">
@@ -81,13 +81,13 @@
 </h3>
 <ul>
 <li>
-<strong><a href="articles/v08-conditional-DPmix-CRP.html">Conditional DPmix CRP</a></strong> — CRP with covariates, heteroscedasticity analysis</li>
+<strong><a href="articles/v08-conditional-DPmix-CRP.html">Conditional DPmix CRP</a></strong> - CRP with covariates, heteroscedasticity analysis</li>
 <li>
-<strong><a href="articles/v09-conditional-DPmix-SB.html">Conditional DPmix SB</a></strong> — SB with covariates</li>
+<strong><a href="articles/v09-conditional-DPmix-SB.html">Conditional DPmix SB</a></strong> - SB with covariates</li>
 <li>
-<strong><a href="articles/v10-conditional-DPmixGPD-CRP.html">Conditional DPmixGPD CRP</a></strong> — CRP with covariates and GPD tail</li>
+<strong><a href="articles/v10-conditional-DPmixGPD-CRP.html">Conditional DPmixGPD CRP</a></strong> - CRP with covariates and GPD tail</li>
 <li>
-<strong><a href="articles/v11-conditional-DPmixGPD-SB.html">Conditional DPmixGPD SB</a></strong> — SB with covariates and GPD tail</li>
+<strong><a href="articles/v11-conditional-DPmixGPD-SB.html">Conditional DPmixGPD SB</a></strong> - SB with covariates and GPD tail</li>
 </ul>
 </div>
 <div class="section level3">
@@ -95,13 +95,13 @@
 </h3>
 <ul>
 <li>
-<strong><a href="articles/v12-causal-same-backend-CRP.html">Same Backend CRP</a></strong> — Causal inference with CRP for both PS and outcome</li>
+<strong><a href="articles/v12-causal-same-backend-CRP.html">Same Backend CRP</a></strong> - Causal inference with CRP for both arms (optional PS)</li>
 <li>
-<strong><a href="articles/v13-causal-same-backend-SB.html">Same Backend SB</a></strong> — Causal inference with SB for both models</li>
+<strong><a href="articles/v13-causal-same-backend-SB.html">Same Backend SB</a></strong> - Causal inference with SB for both arms (optional PS)</li>
 <li>
-<strong><a href="articles/v14-causal-different-backends-CRP.html">Different Backends (CRP for PS)</a></strong> — CRP for PS, varying outcome backends</li>
+<strong><a href="articles/v14-causal-different-backends-CRP.html">Different Backends (CRP for PS)</a></strong> - CRP for PS (optional), mixed outcome backends</li>
 <li>
-<strong><a href="articles/v15-causal-different-backends-SB.html">Different Backends (SB for PS)</a></strong> — SB for PS with all backend combinations</li>
+<strong><a href="articles/v15-causal-different-backends-SB.html">Different Backends (SB for PS)</a></strong> - SB for PS (optional), mixed outcome backends</li>
 </ul>
 </div>
 </div>
@@ -111,19 +111,15 @@
 <p>DPmixGPD provides standard S3 methods for fitted model objects (<code>mixgpd_fit</code> and <code>dpmixgpd_causal_fit</code>):</p>
 <ul>
 <li>
-<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> — Posterior summaries with ESS, Rhat, and diagnostics</li>
+<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> - Posterior summaries with ESS, Rhat, and diagnostics</li>
 <li>
-<code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> — Trace and density plots via ggplot2</li>
+<code>params()</code> - Posterior parameter tables (bulk, tail, and thresholds)</li>
 <li>
-<code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> — Density, CDF, quantile, and survival predictions</li>
+<code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> - Trace and density plots via ggplot2 (causal returns treated/control lists)</li>
 <li>
-<code><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted()</a></code> — Fitted values at observed data points</li>
+<code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> - Density, CDF, quantile, and survival predictions (causal: mean/quantile effects)</li>
 <li>
-<code><a href="https://rdrr.io/r/stats/residuals.html" class="external-link">residuals()</a></code> — Residuals (observed - fitted)</li>
-<li>
-<code><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef()</a></code> — Extract posterior mean parameters</li>
-<li>
-<code><a href="https://rdrr.io/r/stats/vcov.html" class="external-link">vcov()</a></code> — Variance-covariance matrices for bulk/tail parameters</li>
+<code><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted()</a></code> - Fitted values at observed data points</li>
 </ul>
 </div>
 <div class="section level2">

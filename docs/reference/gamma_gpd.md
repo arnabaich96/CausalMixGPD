@@ -127,7 +127,7 @@ tail_shape <- 0.2
 dGammaGpd(4.0, scale = scale, shape = shape,
          threshold = threshold, tail_scale = tail_scale,
          tail_shape = tail_shape, log = 0)
-#> [1] 9.66231e-301
+#> [1] 0.3220605
 pGammaGpd(4.0, scale = scale, shape = shape,
          threshold = threshold, tail_scale = tail_scale,
          tail_shape = tail_shape, lower.tail = 1, log.p = 0)

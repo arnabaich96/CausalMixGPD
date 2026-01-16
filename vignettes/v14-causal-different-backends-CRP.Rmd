@@ -1,10 +1,10 @@
 ---
-title: "14. Causal Inference: Different Backends per Arm (Bulk-only)"
+title: "14. Causal Inference: Mixed Backends (Bulk-only) - Lognormal Kernel"
 output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
-  %\VignetteIndexEntry{14. Causal Different Backends CRP}
+  %\VignetteIndexEntry{14. Causal Inference: Mixed Backends (Bulk-only) - Lognormal Kernel}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,22 +18,25 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   eval = TRUE,
-  cache = TRUE
+  cache = FALSE
 )
 library(DPmixGPD)
 if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
 library(ggplot2)
-library(gridExtra)
 library(kableExtra)
 library(dplyr)
 library(tibble)
-library(patchwork)
 set.seed(123)
 ```
 
-# Causal Inference: Different Backends per Arm (Bulk-only)
+# Causal Inference: Mixed Backends (Bulk-only) - Lognormal Kernel {#causal-different-backends-bulk}
 
-**Purpose**: Show how outcome backends can differ across arms (CRP vs SB) while PS is shared. This vignette fits both combinations and compares ATE/CQTE across settings, keeping `GPD = FALSE`.
+This vignette fits two mixed-backend causal models with a shared lognormal kernel:
+
+- Model A: Treated = SB, Control = CRP
+- Model B: Treated = CRP, Control = SB
+
+Lognormal requires positive outcomes, so we shift y before modeling.
 
 ---
 
@@ -41,130 +44,170 @@ set.seed(123)
 
 ```{r data-setup}
 data("causal_alt_real500_p4_k2")
-y <- causal_alt_real500_p4_k2$y
+y_raw <- causal_alt_real500_p4_k2$y
 T <- causal_alt_real500_p4_k2$T
 X <- as.matrix(causal_alt_real500_p4_k2$X)
+
+shift <- abs(min(y_raw)) + 0.1
+y <- y_raw + shift
 
 summary_tbl <- tibble(
   statistic = c("N", "Mean", "SD", "Min", "Max"),
   value = c(length(y), mean(y), sd(y), min(y), max(y))
 )
 
-ggplot(data.frame(y = y, x1 = X[, 1], T = as.factor(T)), aes(x = x1, y = y, color = T)) +
-  geom_point(alpha = 0.5) +
-  labs(title = "Outcome vs X1 by Treatment", x = "X1", y = "y", color = "Treatment") +
-  theme_minimal()
-```
-
-```{r data-table, echo=FALSE}
 summary_tbl %>%
   mutate(value = signif(value, 4)) %>%
-  kable(caption = "Causal Dataset Summary") %>%
-  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE)
+  kable(caption = "Shifted Outcome Summary (Lognormal)", align = "c") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
+
+x_eval <- X[1:40, , drop = FALSE]
+y_eval <- y[1:40]
+```
+
+```{r data-scatter}
+df_causal <- data.frame(y = y, T = as.factor(T), x1 = X[, 1])
+
+p_scatter <- ggplot(df_causal, aes(x = x1, y = y, color = T)) +
+  geom_point(alpha = 0.5) +
+  labs(title = "Shifted Outcome vs X1", x = "X1", y = "y (shifted)", color = "Treatment") +
+  theme_minimal()
+
+p_scatter
 ```
 
 ---
 
-## Backend Combinations
+## Model A: Treated SB, Control CRP (Lognormal)
 
-```{r bundles}
-# Treated: SB, Control: CRP
+```{r bundle-sb-crp}
 bundle_sb_crp <- build_causal_bundle(
   y = y,
   T = T,
   X = X,
-  kernel = c("normal", "normal"),
+  kernel = c("lognormal", "lognormal"),
   backend = c("sb", "crp"),
   PS = "logit",
   GPD = c(FALSE, FALSE),
   J = c(5, 5),
-  mcmc = list(niter = 300, nburnin = 60, nchains = 1, thin = 1)
+  mcmc_outcome = list(niter = 40, nburnin = 10, nchains = 1, thin = 1, seed = 1),
+  mcmc_ps = list(niter = 40, nburnin = 10, nchains = 1, thin = 1, seed = 1)
 )
 
-# Treated: CRP, Control: SB
+bundle_sb_crp
+summary(bundle_sb_crp)
+```
+
+```{r fit-sb-crp}
+fit_sb_crp <- run_mcmc_causal(bundle_sb_crp)
+summary(fit_sb_crp)
+params(fit_sb_crp)
+```
+
+```{r plot-fit-sb-crp}
+plot(fit_sb_crp)
+```
+
+```{r predict-mean-sb-crp}
+pred_mean_sb_crp <- predict(fit_sb_crp, x = x_eval, type = "mean",
+                            interval = "credible", nsim_mean = 100)
+plot(pred_mean_sb_crp)
+```
+
+```{r predict-quantile-sb-crp}
+pred_q_sb_crp <- predict(fit_sb_crp, x = x_eval, type = "quantile",
+                         p = 0.5, interval = "credible")
+plot(pred_q_sb_crp)
+```
+
+```{r predict-density-sb-crp}
+pred_d_sb_crp <- predict(fit_sb_crp, x = x_eval, y = y_eval,
+                         type = "density", interval = "credible")
+plot(pred_d_sb_crp)
+```
+
+```{r predict-prob-sb-crp}
+pred_p_sb_crp <- predict(fit_sb_crp, x = x_eval, y = y_eval,
+                         type = "prob", interval = "credible")
+plot(pred_p_sb_crp)
+```
+
+```{r ate-sb-crp}
+ate_sb_crp <- ate(fit_sb_crp, newdata = x_eval,
+                  interval = "credible", nsim_mean = 100)
+plot(ate_sb_crp)
+```
+
+```{r qte-sb-crp}
+qte_sb_crp <- qte(fit_sb_crp, probs = c(0.25, 0.5, 0.75),
+                  newdata = x_eval, interval = "credible")
+plot(qte_sb_crp)
+```
+
+---
+
+## Model B: Treated CRP, Control SB (Lognormal)
+
+```{r bundle-crp-sb}
 bundle_crp_sb <- build_causal_bundle(
   y = y,
   T = T,
   X = X,
-  kernel = c("normal", "normal"),
+  kernel = c("lognormal", "lognormal"),
   backend = c("crp", "sb"),
   PS = "logit",
   GPD = c(FALSE, FALSE),
   J = c(5, 5),
-  mcmc = list(niter = 300, nburnin = 60, nchains = 1, thin = 1)
+  mcmc_outcome = list(niter = 40, nburnin = 10, nchains = 1, thin = 1, seed = 2),
+  mcmc_ps = list(niter = 40, nburnin = 10, nchains = 1, thin = 1, seed = 2)
 )
+
+bundle_crp_sb
+summary(bundle_crp_sb)
 ```
 
----
-
-## MCMC Fits & ATE Comparison
-
-```{r mcmc-fits}
-fit_sb_crp <- run_mcmc_causal(bundle_sb_crp)
+```{r fit-crp-sb}
 fit_crp_sb <- run_mcmc_causal(bundle_crp_sb)
-
-ate_sb_crp <- coef(fit_sb_crp)
-ate_crp_sb <- coef(fit_crp_sb)
-
-ave_tbl <- tibble(
-  model = c("Treated=SB, Control=CRP", "Treated=CRP, Control=SB"),
-  ATE = c(ate_sb_crp, ate_crp_sb)
-)
-
-ggplot(ave_tbl, aes(x = model, y = ATE)) +
-  geom_col(fill = c("mediumseagreen", "steelblue")) +
-  labs(title = "ATE under Different Backends", x = "Backend Combination", y = "ATE") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+summary(fit_crp_sb)
+params(fit_crp_sb)
 ```
 
----
-
-## PS Overlap (SB/CRP mixture)
-
-```{r ps-overlap}
-ps_vals <- fitted(fit_sb_crp, type = "ps")
-df_ps <- data.frame(ps = ps_vals, T = as.factor(T))
-
-ggplot(df_ps, aes(x = ps, fill = T)) +
-  geom_density(alpha = 0.5) +
-  scale_fill_manual(values = c("0" = "steelblue", "1" = "firebrick")) +
-  labs(title = "Propensity Score Overlap (shared PS)", x = "PS", y = "Density") +
-  theme_minimal()
+```{r plot-fit-crp-sb}
+plot(fit_crp_sb)
 ```
 
----
-
-## CQTE Across Backend Choices
-
-```{r cqte-diff}
-X_ref <- matrix(colMeans(X), nrow = 1)
-tau_grid <- seq(0.05, 0.95, length.out = 10)
-
-pred_sb_crp <- predict(fit_sb_crp, newdata = X_ref, type = "quantile", p = tau_grid)
-pred_crp_sb <- predict(fit_crp_sb, newdata = X_ref, type = "quantile", p = tau_grid)
-
-qte_sb_crp <- as.numeric(pred_sb_crp$trt$fit - pred_sb_crp$con$fit)
-qte_crp_sb <- as.numeric(pred_crp_sb$trt$fit - pred_crp_sb$con$fit)
-
-qte_df <- tibble(
-  tau = rep(tau_grid, 2),
-  cqte = c(qte_sb_crp, qte_crp_sb),
-  model = rep(c("SB/CRP", "CRP/SB"), each = length(tau_grid))
-)
-
-ggplot(qte_df, aes(x = tau, y = cqte, color = model)) +
-  geom_line(linewidth = 1.1) +
-  labs(title = "CQTE Comparison by Backend Combo", x = "τ", y = "Q1 − Q0") +
-  theme_minimal()
+```{r predict-mean-crp-sb}
+pred_mean_crp_sb <- predict(fit_crp_sb, x = x_eval, type = "mean",
+                            interval = "credible", nsim_mean = 100)
+plot(pred_mean_crp_sb)
 ```
 
----
+```{r predict-quantile-crp-sb}
+pred_q_crp_sb <- predict(fit_crp_sb, x = x_eval, type = "quantile",
+                         p = 0.5, interval = "credible")
+plot(pred_q_crp_sb)
+```
 
-## Takeaways
+```{r predict-density-crp-sb}
+pred_d_crp_sb <- predict(fit_crp_sb, x = x_eval, y = y_eval,
+                         type = "density", interval = "credible")
+plot(pred_d_crp_sb)
+```
 
-- Different backend mixtures demonstrate how truncation style influences extreme quantiles even when PS is shared.
-- `predict()` returns paired `trt`/`con` outputs so subtracting them yields CQTE curves for any $\tau$.
-- Use the same PS diagnostics and `coef()` summaries across fits to ensure proper overlap before trusting treatment effects.
-- Next: add GPD tails to these mixed-backend workflows (`v15`).
+```{r predict-prob-crp-sb}
+pred_p_crp_sb <- predict(fit_crp_sb, x = x_eval, y = y_eval,
+                         type = "prob", interval = "credible")
+plot(pred_p_crp_sb)
+```
 
+```{r ate-crp-sb}
+ate_crp_sb <- ate(fit_crp_sb, newdata = x_eval,
+                  interval = "credible", nsim_mean = 100)
+plot(ate_crp_sb)
+```
+
+```{r qte-crp-sb}
+qte_crp_sb <- qte(fit_crp_sb, probs = c(0.25, 0.5, 0.75),
+                  newdata = x_eval, interval = "credible")
+plot(qte_crp_sb)
+```

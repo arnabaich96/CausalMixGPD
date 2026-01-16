@@ -128,7 +128,7 @@ tail_shape <- 0.2
 dGammaMixGpd(4.0, w = w, scale = scale, shape = shape,
             threshold = threshold, tail_scale = tail_scale,
             tail_shape = tail_shape, log = 0)
-#> [1] 5.49395e-301
+#> [1] 0.1831223
 pGammaMixGpd(4.0, w = w, scale = scale, shape = shape,
             threshold = threshold, tail_scale = tail_scale,
             tail_shape = tail_shape, lower.tail = 1, log.p = 0)

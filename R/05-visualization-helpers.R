@@ -16,10 +16,14 @@
   }
   
   plot_data <- fit_df
+  has_id <- "id" %in% names(plot_data)
   
   p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = factor(index), y = estimate)) +
-    ggplot2::geom_point(size = 3) +
-    ggplot2::geom_errorbar(ggplot2::aes(ymin = lower, ymax = upper), width = 0.2, linewidth = 1) +
+    ggplot2::geom_point(ggplot2::aes(color = if (has_id) factor(id) else NULL), size = 3) +
+    ggplot2::geom_errorbar(ggplot2::aes(ymin = lower, ymax = upper,
+                                        group = if (has_id) id else 1,
+                                        color = if (has_id) factor(id) else NULL),
+                           width = 0.2, linewidth = 1) +
     ggplot2::theme_minimal() +
     ggplot2::labs(
       title = "Quantile Predictions with Credible Intervals",
@@ -27,8 +31,7 @@
       y = "Estimate"
     )
   
-  print(p)
-  invisible(p)
+  p
 }
 
 #' Plot sample predictions: histogram with density overlay
@@ -44,8 +47,8 @@
   plot_data <- data.frame(value = samples)
   
   p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = value)) +
-    ggplot2::geom_histogram(ggplot2::aes(y = ggplot2::after_stat(density)), 
-                           bins = 30, alpha = 0.6, fill = "blue") +
+    ggplot2::geom_histogram(ggplot2::aes(y = ggplot2::after_stat(density)),
+                           bins = 30, alpha = 0.6, fill = "blue", color = "black") +
     ggplot2::geom_density(color = "red", linewidth = 1) +
     ggplot2::theme_minimal() +
     ggplot2::labs(
@@ -54,8 +57,7 @@
       y = "Density"
     )
   
-  print(p)
-  invisible(p)
+  p
 }
 
 #' Plot mean predictions: histogram with mean line
@@ -84,8 +86,8 @@
     plot_data <- data.frame(value = samples)
     
     p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = value)) +
-      ggplot2::geom_histogram(ggplot2::aes(y = ggplot2::after_stat(density)), 
-                             bins = 30, alpha = 0.6, fill = "lightblue") +
+      ggplot2::geom_histogram(ggplot2::aes(y = ggplot2::after_stat(density)),
+                             bins = 30, alpha = 0.6, fill = "lightblue", color = "black") +
       ggplot2::geom_density(color = "blue", linewidth = 1) +
       ggplot2::geom_vline(xintercept = mean_val, color = "red", 
                          linewidth = 1.2, linetype = "solid") +
@@ -127,8 +129,7 @@
       ggplot2::theme(axis.text.y = ggplot2::element_blank())
   }
   
-  print(p)
-  invisible(p)
+  p
 }
 
 #' Plot density predictions
@@ -139,26 +140,23 @@
   
   # Handle both data frame and vector cases
   if (is.data.frame(fit_val)) {
-    # fit is a data frame with grid and density columns
     plot_data <- fit_val
-    if (!("grid" %in% names(plot_data))) {
-      names(plot_data)[1] <- "grid"
-    }
-    if (!("density" %in% names(plot_data))) {
-      names(plot_data)[2] <- "density"
-    }
+    x_col <- if ("y" %in% names(plot_data)) "y" else if ("grid" %in% names(plot_data)) "grid" else names(plot_data)[1]
+    y_col <- if ("density" %in% names(plot_data)) "density" else names(plot_data)[2]
+    has_id <- "id" %in% names(plot_data)
   } else {
-    # fit is a vector of density values
     y_grid <- pred$grid %||% seq_along(fit_val)
     plot_data <- data.frame(
-      grid = y_grid,
+      y = y_grid,
       density = as.numeric(fit_val)
     )
+    x_col <- "y"
+    y_col <- "density"
+    has_id <- FALSE
   }
   
-  p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = grid, y = density)) +
-    ggplot2::geom_line(color = "blue", linewidth = 1) +
-    ggplot2::geom_point(color = "blue", size = 2) +
+  p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = .data[[x_col]], y = .data[[y_col]])) +
+    ggplot2::geom_line(ggplot2::aes(group = if (has_id) id else 1), color = "blue", linewidth = 1) +
     ggplot2::theme_minimal() +
     ggplot2::labs(
       title = "Posterior Predictive Density",
@@ -166,8 +164,13 @@
       y = "Density"
     )
   
-  print(p)
-  invisible(p)
+  if (has_id) {
+    p <- p + ggplot2::geom_point(ggplot2::aes(color = factor(id)), size = 1.5)
+  } else {
+    p <- p + ggplot2::geom_point(color = "blue", size = 2)
+  }
+  
+  p
 }
 
 #' Plot survival function predictions
@@ -180,17 +183,10 @@
   
   # Handle data frame format from prediction
   if (is.data.frame(fit_val)) {
-    # Extract y and survival columns
-    if ("y" %in% names(fit_val) && "survival" %in% names(fit_val)) {
-      plot_data <- fit_val[, c("y", "survival")]
-    } else {
-      # Fallback: assume first two columns are y and survival
-      plot_data <- data.frame(
-        y = fit_val[[1]],
-        survival = fit_val[[2]]
-      )
-      names(plot_data) <- c("y", "survival")
-    }
+    plot_data <- fit_val
+    if (!("y" %in% names(plot_data))) names(plot_data)[1] <- "y"
+    if (!("survival" %in% names(plot_data))) names(plot_data)[2] <- "survival"
+    has_id <- "id" %in% names(plot_data)
   } else {
     # Handle vector format (old style)
     y_vals <- pred$grid %||% seq_along(fit_val)
@@ -198,14 +194,15 @@
       y = y_vals,
       survival = as.numeric(fit_val)
     )
+    has_id <- FALSE
   }
   
   # Sort by y values for proper survival curve
   plot_data <- plot_data[order(plot_data$y), ]
   
   p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = y, y = survival)) +
-    ggplot2::geom_step(direction = "hv", color = "blue", linewidth = 1) +
-    ggplot2::geom_point(color = "blue", size = 2) +
+    ggplot2::geom_step(ggplot2::aes(group = if (has_id) id else 1), direction = "hv",
+                       color = "blue", linewidth = 1) +
     ggplot2::theme_minimal() +
     ggplot2::labs(
       title = "Posterior Predictive Survival Function",
@@ -214,6 +211,11 @@
     ) +
     ggplot2::ylim(0, 1)
   
-  print(p)
-  invisible(p)
+  if (has_id) {
+    p <- p + ggplot2::geom_point(ggplot2::aes(color = factor(id)), size = 1.5)
+  } else {
+    p <- p + ggplot2::geom_point(color = "blue", size = 2)
+  }
+  
+  p
 }

@@ -379,7 +379,7 @@ build_data_from_inputs <- function(y, X = NULL, ps = NULL) {
 #'     }
 #'   \item GPD (if enabled):
 #'     \itemize{
-#'       \item threshold: monitor \code{threshold[1:N]} (always represented per i)
+#'       \item threshold: monitor scalar \code{threshold} when not link-mode; \code{threshold[1:N]} for link-mode
 #'       \item if threshold is link-mode: monitor \code{beta_threshold[1:P]}
 #'       \item if threshold uses LN link-dist default: monitor \code{sdlog_u}
 #'       \item tail_scale: if link-mode, monitor \code{beta_tail_scale[1:P]}
@@ -448,13 +448,11 @@ build_monitors_from_spec <- function(spec, monitor_v = FALSE) {
   if (isTRUE(meta$GPD)) {
     gpd <- plan$gpd %||% list()
 
-    # threshold is always represented as threshold[i] in the model layer
     if (!is.null(gpd$threshold)) {
-      mons <- c(mons, sprintf("threshold[1:%d]", N))
-
       thr_mode <- gpd$threshold$mode %||% NA_character_
       if (identical(thr_mode, "link")) {
         if (P < 1L) stop("GPD threshold is link-mode but P=0.", call. = FALSE)
+        mons <- c(mons, sprintf("threshold[1:%d]", N))
         mons <- c(mons, sprintf("beta_threshold[1:%d]", P))
 
         # LN around-link default: monitor sdlog_u if present in plan
@@ -463,7 +461,7 @@ build_monitors_from_spec <- function(spec, monitor_v = FALSE) {
           mons <- c(mons, "sdlog_u")
         }
       } else if (thr_mode %in% c("fixed", "dist")) {
-        # nothing extra
+        mons <- c(mons, "threshold")
       } else {
         stop("Invalid gpd$threshold mode.", call. = FALSE)
       }
@@ -505,7 +503,7 @@ build_monitors_from_spec <- function(spec, monitor_v = FALSE) {
 #'   \item Link-mode parameters initialize regression coefficients \code{beta_<param>}
 #'         with shape \code{components x P}.
 #'   \item Default GPD threshold under X is stochastic lognormal:
-#'         initializes \code{threshold[1:N]} and scalar \code{sdlog_u}.
+#'         initializes \code{threshold[1:N]} and scalar \code{sdlog_u} (non-link thresholds are scalar).
 #' }
 #'
 #' @param spec A compiled model specification produced by \code{compile_model_spec()}.
@@ -626,8 +624,7 @@ build_inits_from_spec <- function(spec, seed = NULL, y = NULL) {
       thr_mode <- gpd$threshold$mode %||% NA_character_
 
       if (thr_mode %in% c("fixed", "dist")) {
-        # threshold[i] is still represented per-i in our plan/code; initialize positive
-        inits$threshold <- rep(1, N)
+        inits$threshold <- 1
       } else if (identical(thr_mode, "link")) {
         if (P < 1L) stop("GPD threshold is link-mode but P=0.", call. = FALSE)
         inits$beta_threshold <- rep(0, P)
@@ -914,11 +911,9 @@ build_dimensions_from_spec <- function(spec) {
       thr_mode <- thr$mode %||% NA_character_
 
       if (thr_mode %in% c("fixed", "dist")) {
-        # we always represent threshold as per-observation in the model layer
-        # when used in likelihood; fixed/dist are generated as threshold[i]
-        dims$threshold <- c(N)
+        # scalar threshold
       } else if (identical(thr_mode, "link")) {
-        # default / typical: threshold[i] stochastic LN around X beta
+        # threshold[i] stochastic LN around X beta
         dims$threshold <- c(N)
         if (P < 1L) stop("GPD threshold is link-mode but P=0.", call. = FALSE)
         if (P > 1L) dims$beta_threshold <- c(P)
@@ -1214,11 +1209,21 @@ build_code_sb_from_spec <- function(spec) {
     # threshold
     thr <- gpd$threshold %||% NULL
     if (!is.null(thr)) {
+      thr_scalar <- thr$mode %in% c("fixed", "dist")
       if (thr$mode == "fixed") {
-        gpd_lines <- c(gpd_lines, sprintf("for (i in 1:N) threshold[i] <- %s", deparse1(thr$value)))
+        if (thr_scalar) {
+          gpd_lines <- c(gpd_lines, sprintf("threshold <- %s", deparse1(thr$value)))
+        } else {
+          gpd_lines <- c(gpd_lines, sprintf("for (i in 1:N) threshold[i] <- %s", deparse1(thr$value)))
+        }
       } else if (thr$mode == "dist") {
-        gpd_lines <- c(gpd_lines, sprintf("for (i in 1:N) threshold[i] ~ %s",
-                                          .codegen_prior_call(thr$dist, thr$args, backend = "SB")))
+        if (thr_scalar) {
+          gpd_lines <- c(gpd_lines, sprintf("threshold ~ %s",
+                                            .codegen_prior_call(thr$dist, thr$args, backend = "SB")))
+        } else {
+          gpd_lines <- c(gpd_lines, sprintf("for (i in 1:N) threshold[i] ~ %s",
+                                            .codegen_prior_call(thr$dist, thr$args, backend = "SB")))
+        }
       } else if (thr$mode == "link") {
         if (!has_X) stop("threshold link-mode requires X.", call. = FALSE)
         bp <- thr$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.2))
@@ -1295,6 +1300,9 @@ build_code_sb_from_spec <- function(spec) {
 
   # (5) Likelihood call
   like_lines <- character()
+  gpd_for_args <- plan$gpd %||% list()
+  thr_for_args <- gpd_for_args$threshold %||% NULL
+  thr_scalar <- !is.null(thr_for_args) && thr_for_args$mode %in% c("fixed", "dist")
   args_expr <- character()
   for (a in arg_order) {
     if (a %in% bulk_params) {
@@ -1305,7 +1313,7 @@ build_code_sb_from_spec <- function(spec) {
         args_expr <- c(args_expr, sprintf("%s[z[i]]", a))
       }
     } else if (a == "threshold") {
-      args_expr <- c(args_expr, "threshold[i]")
+      args_expr <- c(args_expr, if (thr_scalar) "threshold" else "threshold[i]")
     } else if (a == "tail_scale") {
       ts <- plan$gpd$tail_scale %||% NULL
       if (!is.null(ts) && identical(ts$mode, "link")) args_expr <- c(args_expr, "tail_scale[i]") else args_expr <- c(args_expr, "tail_scale")
@@ -1505,11 +1513,21 @@ build_code_crp_from_spec <- function(spec) {
     # threshold
     thr <- gpd$threshold %||% NULL
     if (!is.null(thr)) {
+      thr_scalar <- thr$mode %in% c("fixed", "dist")
       if (thr$mode == "fixed") {
-        add(sprintf("  for (i in 1:N) threshold[i] <- %s", deparse1(thr$value)))
+        if (thr_scalar) {
+          add(sprintf("  threshold <- %s", deparse1(thr$value)))
+        } else {
+          add(sprintf("  for (i in 1:N) threshold[i] <- %s", deparse1(thr$value)))
+        }
       } else if (thr$mode == "dist") {
-        add(sprintf("  for (i in 1:N) threshold[i] ~ %s",
-                    .codegen_prior_call(thr$dist, thr$args, backend = "CRP")))
+        if (thr_scalar) {
+          add(sprintf("  threshold ~ %s",
+                      .codegen_prior_call(thr$dist, thr$args, backend = "CRP")))
+        } else {
+          add(sprintf("  for (i in 1:N) threshold[i] ~ %s",
+                      .codegen_prior_call(thr$dist, thr$args, backend = "CRP")))
+        }
       } else if (thr$mode == "link") {
         if (!has_X) stop("threshold link-mode requires X.", call. = FALSE)
         bp <- thr$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.2))
@@ -1592,6 +1610,9 @@ build_code_crp_from_spec <- function(spec) {
   add("  for (i in 1:N) {")
 
   # build arg expressions in signature order
+  gpd_for_args <- plan$gpd %||% list()
+  thr_for_args <- gpd_for_args$threshold %||% NULL
+  thr_scalar <- !is.null(thr_for_args) && thr_for_args$mode %in% c("fixed", "dist")
   args_expr <- character()
   for (a in arg_order) {
     if (a %in% bulk_params) {
@@ -1602,7 +1623,7 @@ build_code_crp_from_spec <- function(spec) {
         args_expr <- c(args_expr, sprintf("%s[z[i]]", a))
       }
     } else if (a == "threshold") {
-      args_expr <- c(args_expr, "threshold[i]")
+      args_expr <- c(args_expr, if (thr_scalar) "threshold" else "threshold[i]")
     } else if (a == "tail_scale") {
       ts <- plan$gpd$tail_scale %||% NULL
       if (!is.null(ts) && identical(ts$mode, "link")) {
@@ -1726,13 +1747,16 @@ check_dpmixgpd_bundle <- function(bundle) {
     gpd <- plan$gpd %||% list()
 
     if (!is.null(gpd$threshold)) {
-      if (is.null(dims$threshold) || !identical(as.integer(dims$threshold), c(N))) {
-        stop("GPD threshold requires dims$threshold = N.", call. = FALSE)
-      }
-      if (!any(grepl("^threshold\\[", mons))) stop("Monitors should include threshold[1:N].", call. = FALSE)
-
-      if (identical(gpd$threshold$mode, "link")) {
+      thr_mode <- gpd$threshold$mode %||% NA_character_
+      if (thr_mode %in% c("fixed", "dist")) {
+        if (!is.null(dims$threshold)) stop("GPD threshold should be scalar when not link-mode.", call. = FALSE)
+        if (!any(mons == "threshold")) stop("Monitors should include threshold.", call. = FALSE)
+      } else if (identical(thr_mode, "link")) {
         if (!has_X) stop("threshold link-mode but has_X=FALSE.", call. = FALSE)
+        if (is.null(dims$threshold) || !identical(as.integer(dims$threshold), c(N))) {
+          stop("GPD threshold requires dims$threshold = N under link-mode.", call. = FALSE)
+        }
+        if (!any(grepl("^threshold\\[", mons))) stop("Monitors should include threshold[1:N].", call. = FALSE)
         if (P > 1L) {
           if (is.null(dims$beta_threshold) || !identical(as.integer(dims$beta_threshold), c(P))) {
             stop("threshold link-mode requires dims$beta_threshold = P.", call. = FALSE)
@@ -1743,6 +1767,8 @@ check_dpmixgpd_bundle <- function(bundle) {
         if (!is.null(gpd$threshold$link_dist) && identical(gpd$threshold$link_dist$dist, "lognormal")) {
           if (!any(mons == "sdlog_u")) stop("LN threshold requires monitoring sdlog_u.", call. = FALSE)
         }
+      } else {
+        stop("Invalid gpd$threshold mode.", call. = FALSE)
       }
     }
 
@@ -1868,13 +1894,13 @@ build_prior_table_from_spec <- function(spec) {
     thr <- gpd$threshold %||% NULL
     if (!is.null(thr)) {
       if (thr$mode == "fixed") {
-        rows[[length(rows) + 1L]] <- add_row("gpd", "threshold", "fixed", "observation (1:N)",
+        rows[[length(rows) + 1L]] <- add_row("gpd", "threshold", "fixed", "scalar",
                                              prior = deparse1(thr$value),
-                                             link = "", notes = "represented as threshold[i]")
+                                             link = "", notes = "scalar threshold")
       } else if (thr$mode == "dist") {
-        rows[[length(rows) + 1L]] <- add_row("gpd", "threshold", "dist", "observation (1:N)",
+        rows[[length(rows) + 1L]] <- add_row("gpd", "threshold", "dist", "scalar",
                                              prior = sprintf("%s(%s)", thr$dist, fmt_args(thr$args)),
-                                             link = "", notes = "threshold[i] iid across i")
+                                             link = "", notes = "scalar threshold")
       } else if (thr$mode == "link") {
         bp <- thr$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.2))
         lk <- thr$link %||% "identity"
