@@ -884,6 +884,7 @@ stick_breaking <- nimble::nimbleFunction(
   }
 
   n_pred <- if (has_X) nrow(Xpred) else 1L
+  P <- if (has_X) ncol(Xpred) else 0L
   if (is.na(n_pred) || n_pred < 1L) stop("Could not determine number of prediction rows.", call. = FALSE)
 
   # PS handling: always compute fresh PS from the attached PS model when available
@@ -1591,7 +1592,8 @@ stick_breaking <- nimble::nimbleFunction(
                                             backend = backend, kernel = kernel, GPD = GPD)
       }
 
-      res <- list(fit = fit_df, type = type, draws = all_samples)
+      draws_out <- if (isTRUE(store_draws)) t(samples_mat) else NULL
+      res <- list(fit = fit_df, type = type, draws = draws_out)
       class(res) <- "mixgpd_predict"
       return(res)
     }
