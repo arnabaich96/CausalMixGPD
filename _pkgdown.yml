@@ -5,10 +5,14 @@ build:
   lazy: true
 navbar:
   structure:
-    left: [home, reference, articles]
+    left: [home, reference, articles, coverage]
   right:
     - text: "GitHub"
       href: https://github.com/arnabaich96/DPmixGPD
+  components:
+    coverage:
+      text: "Coverage"
+      href: coverage/index.html
 
 articles:
   - title: "Getting Started"
