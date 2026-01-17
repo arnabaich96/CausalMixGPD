@@ -1,0 +1,123 @@
+---
+title: "0. Start Here"
+output:
+  rmarkdown::html_vignette:
+    code_folding: show
+vignette: >
+  %\VignetteIndexEntry{0. Start Here}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = NA,
+  fig.width = 8,
+  fig.height = 5,
+  message = FALSE,
+  warning = FALSE,
+  eval = TRUE
+)
+library(DPmixGPD)
+if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
+library(ggplot2)
+set.seed(1)
+
+quiet_mcmc <- function(expr) {
+  nullfile <- if (.Platform$OS.type == "windows") "NUL" else "/dev/null"
+  out <- NULL
+  utils::capture.output(
+    out <- eval(substitute(expr), envir = parent.frame()),
+    file = nullfile
+  )
+  out
+}
+```
+
+# Start Here
+
+This vignette gives a minimal, fully working workflow for an **unconditional** model and a **conditional** model. Everything uses short MCMC runs so the vignette renders quickly.
+
+---
+
+## Unconditional Model (CRP, bulk-only)
+
+```{r start-uncond-data}
+data("nc_pos200_k3")
+y <- nc_pos200_k3$y
+```
+
+```{r start-uncond-bundle}
+bundle_uncond <- build_nimble_bundle(
+  y = y,
+  backend = "crp",
+  kernel = "gamma",
+  GPD = FALSE,
+  components = 5,
+  mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+)
+```
+
+```{r start-uncond-fit}
+fit_uncond <- quiet_mcmc(run_mcmc_bundle_manual(bundle_uncond, show_progress = FALSE))
+summary(fit_uncond)
+```
+
+```{r start-uncond-predict}
+pred_q <- predict(fit_uncond, type = "quantile", index = c(0.5, 0.9), interval = "credible")
+head(pred_q$fit)
+plot(pred_q)
+```
+
+---
+
+## Conditional Model (SB, bulk-only)
+
+```{r start-cond-data}
+data("nc_posX100_p3_k2")
+yc <- nc_posX100_p3_k2$y
+X <- as.matrix(nc_posX100_p3_k2$X)
+```
+
+```{r start-cond-bundle}
+bundle_cond <- build_nimble_bundle(
+  y = yc,
+  X = X,
+  backend = "sb",
+  kernel = "lognormal",
+  GPD = FALSE,
+  components = 5,
+  mcmc = list(niter = 250, nburnin = 50, thin = 1, nchains = 1, seed = 2)
+)
+```
+
+```{r start-cond-fit}
+fit_cond <- quiet_mcmc(run_mcmc_bundle_manual(bundle_cond, show_progress = FALSE))
+summary(fit_cond)
+```
+
+```{r start-cond-predict}
+x_new <- X[1:20, , drop = FALSE]
+pred_mean <- predict(fit_cond, x = x_new, type = "mean", interval = "credible", nsim_mean = 200)
+head(pred_mean$fit)
+plot(pred_mean)
+```
+
+---
+
+## Useful S3 Methods
+
+```{r start-s3}
+params(fit_uncond)
+plot(fit_uncond, family = c("traceplot", "running"))
+```
+
+---
+
+## Next Steps
+
+- `vignette 1`: package overview and terminology
+- `vignette 5`: full three-phase workflow (spec ? bundle ? MCMC)
+- `vignette 6-13`: unconditional/conditional models with and without GPD
+- `vignette 14-19`: causal workflows
