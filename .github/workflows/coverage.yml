@@ -46,16 +46,14 @@ jobs:
       - name: Coverage
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}  # needed for private repos; harmless for public
+        shell: bash
         run: |
-          Rscript -e 'covr::codecov(
-            quiet = FALSE,
-            flags = paste0("${{ matrix.config.os }}","-R${{ matrix.config.r }}"),
-            name  = paste0("ci-", "${{ matrix.config.os }}", "-R", "${{ matrix.config.r }}")
-          )'
+          Rscript -e "covr::codecov(quiet = FALSE, flags = paste0('${{ matrix.config.os }}','-R${{ matrix.config.r }}'), name = paste0('ci-','${{ matrix.config.os }}','-R','${{ matrix.config.r }}'))"
 
       # If something fails, print testthat.Rout.fail (saves your sanity)
       - name: Dump testthat failure output
         if: failure()
+        shell: bash
         run: |
           for f in $(find . -name 'testthat.Rout.fail'); do
             echo "=== $f ==="
