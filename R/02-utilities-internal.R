@@ -921,7 +921,17 @@ stick_breaking <- nimble::nimbleFunction(
       pm_fit <- ps_model$fit %||% ps_model
       pm_bundle <- ps_model$bundle %||% ps_model$design %||% NULL
       if (inherits(pm_fit, "dpmixgpd_ps_fit") && inherits(pm_bundle, "dpmixgpd_ps_bundle")) {
-        ps_pred <- .compute_ps_from_fit(ps_fit = pm_fit, ps_bundle = pm_bundle, X_new = Xpred)
+        ps_summary <- ps_model$summary %||% "mean"
+        ps_scale <- ps_model$scale %||% "logit"
+        ps_clamp <- ps_model$clamp %||% 1e-6
+        ps_pred <- .compute_ps_from_fit(
+          ps_fit = pm_fit,
+          ps_bundle = pm_bundle,
+          X_new = Xpred,
+          summary = ps_summary,
+          clamp = ps_clamp
+        )
+        ps_pred <- .apply_ps_scale(ps_pred, scale = ps_scale, clamp = ps_clamp)
       } else {
         stop("Attached PS model is incomplete; cannot compute propensity scores for new data.", call. = FALSE)
       }
