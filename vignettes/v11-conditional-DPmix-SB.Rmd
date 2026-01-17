@@ -1,10 +1,10 @@
 ---
-title: "9. Conditional DPmix with Stick-Breaking Backend"
+title: "11. Conditional DPmix with Stick-Breaking Backend"
 output: 
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
-  %\VignetteIndexEntry{9. Conditional DPmix with Stick-Breaking Backend}
+  %\\VignetteIndexEntry{11. Conditional DPmix with Stick-Breaking Backend}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -207,6 +207,7 @@ plot(fit_sb_cauchy, family = c("density", "running", "caterpillar"))
 - `predict(..., type = "density")` returns group-specific densities for each `X`.
 - `predict(..., type = "quantile")` shows how median and 75% quantiles shift with `x1`.
 - Diagnoses rely on the same S3 `plot()`/`fitted()` pipeline available in other vignettes.
+
 
 
 

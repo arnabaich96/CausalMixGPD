@@ -1,10 +1,10 @@
 ---
-title: "5. Unconditional DPmix with Stick-Breaking Backend"
+title: "7. Unconditional DPmix with Stick-Breaking Backend"
 output: 
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
-  %\VignetteIndexEntry{5. Unconditional DPmix with Stick-Breaking Backend}
+  %\\VignetteIndexEntry{7. Unconditional DPmix with Stick-Breaking Backend}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -225,4 +225,5 @@ plot(fit_vals)
 - **Predictions**: Posterior density, quantiles, and mean are all accessible via `predict()` and display credible bands for each summary.
 - **Backend comparison**: The CRP fit (`v04`) and the SB-gamma fit deliver similar central quantiles while SB offers more control over truncation.
 - **Next**: Explore tail augmentation (`GPD = TRUE`) with the CRP backend in `v06` or SB backend in `v07`.
+
 

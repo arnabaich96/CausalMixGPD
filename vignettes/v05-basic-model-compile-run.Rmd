@@ -1,10 +1,10 @@
 ---
-title: "3. Basic Workflow: Model Specification, Bundle, & MCMC"
+title: "5. Basic Workflow: Model Specification, Bundle, & MCMC"
 output: 
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
-  %\VignetteIndexEntry{3. Basic Workflow: Model Specification, Bundle, & MCMC}
+  %\\VignetteIndexEntry{5. Basic Workflow: Model Specification, Bundle, & MCMC}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -324,10 +324,11 @@ print("Extreme outliers:  cauchy\n")
 
 ## Next Steps
 
-- Move to **vignette 4-5** for unconditional models (CRP vs SB backends)
-- Move to **vignette 6-7** for tail modeling with GPD
-- Move to **vignette 8-11** for conditional models with covariates
-- Move to **vignette 12-15** for causal inference workflows
+- Move to **vignette 6-7** for unconditional models (CRP vs SB backends)
+- Move to **vignette 8-9** for tail modeling with GPD
+- Move to **vignette 10-13** for conditional models with covariates
+- Move to **vignette 14-19** for causal inference workflows
+
 
 
 
