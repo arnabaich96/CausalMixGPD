@@ -637,6 +637,15 @@ stick_breaking <- nimble::nimbleFunction(
   r_name <- sub("^d", "r", d_name)
 
   ns <- asNamespace("DPmixGPD")
+  if (!exists(p_name, envir = ns, inherits = FALSE)) {
+    stop(sprintf("Missing p-function '%s' for kernel '%s'.", p_name, kernel), call. = FALSE)
+  }
+  if (!exists(q_name, envir = ns, inherits = FALSE)) {
+    stop(sprintf("Missing q-function '%s' for kernel '%s'.", q_name, kernel), call. = FALSE)
+  }
+  if (!exists(r_name, envir = ns, inherits = FALSE)) {
+    stop(sprintf("Missing r-function '%s' for kernel '%s'.", r_name, kernel), call. = FALSE)
+  }
   list(
     d = .wrap_scalar_first_arg(get(d_name, envir = ns), "x"),
     p = .wrap_scalar_p(get(p_name, envir = ns)),
@@ -784,7 +793,12 @@ stick_breaking <- nimble::nimbleFunction(
     if (!("n" %in% names(dots))) stop("Missing required argument: n", call. = FALSE)
     n <- as.integer(dots$n)
     dots$n <- NULL
-    if (is.na(n) || n < 1L) stop("n must be a positive integer.", call. = FALSE)
+    if (is.na(n) || n < 0L) stop("n must be a non-negative integer.", call. = FALSE)
+    if (n == 0L) {
+      one <- do.call(fun, c(list(n = 1L), dots))
+      if (length(one) <= 1L) return(numeric(0))
+      return(matrix(numeric(0), nrow = 0, ncol = length(one)))
+    }
     if (n == 1L) return(do.call(fun, c(list(n = 1L), dots)))
 
     one <- do.call(fun, c(list(n = 1L), dots))
