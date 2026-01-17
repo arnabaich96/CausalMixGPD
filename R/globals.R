@@ -43,5 +43,6 @@ utils::globalVariables(c(
 #' @keywords internal
 .onLoad <- function(libname, pkgname) {
   init_kernel_registry()
+  .vectorize_kernel_fns()
   invisible()
 }

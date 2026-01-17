@@ -6,6 +6,8 @@
 #'
 #' The density, CDF, and RNG are implemented as \code{nimbleFunction}s for use inside NIMBLE models.
 #' The quantile function is an R function computed by numerical inversion of the mixture CDF.
+#' The \code{d*}, \code{p*}, and \code{q*} functions accept vector inputs for their first argument
+#' and evaluate elementwise; \code{r*} supports \code{n > 1}.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -531,7 +533,6 @@ qInvGaussGpd <- function(p, mean, shape, threshold, tail_scale, tail_shape,
   }
   out
 }
-
 
 
 

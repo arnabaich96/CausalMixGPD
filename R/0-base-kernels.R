@@ -6,6 +6,8 @@
 #'
 #' Base generalized Pareto distribution (GPD) for threshold exceedances above \code{threshold}.
 #' Parameterization uses threshold \code{threshold}, scale \code{scale > 0}, and shape \code{shape}.
+#' The \code{d*}, \code{p*}, and \code{q*} functions accept vector inputs for their first argument
+#' and evaluate elementwise; \code{r*} supports \code{n > 1}.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -189,6 +191,8 @@ qGpd <- function(p, threshold, scale, shape,
 #' CDF, and RNG functions under the \code{mean}/\code{shape} parameterization
 #' (mean \eqn{\mu>0}, shape \eqn{\lambda>0}). A standalone mixture quantile function is computed by
 #' numerical inversion elsewhere; \code{qinvGauss} inverts the base CDF.
+#' The \code{d*}, \code{p*}, and \code{q*} functions accept vector inputs for their first argument
+#' and evaluate elementwise; \code{r*} supports \code{n > 1}.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -333,6 +337,8 @@ qInvGauss <- function(p, mean, shape,
 #'
 #' Base Amoroso distribution functions as implemented in this package.
 #' Function names and parameterization follow your existing Amoroso implementation.
+#' The \code{d*}, \code{p*}, and \code{q*} functions accept vector inputs for their first argument
+#' and evaluate elementwise; \code{r*} supports \code{n > 1}.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -480,6 +486,8 @@ rAmoroso <- nimble::nimbleFunction(
 #'
 #' Base Cauchy distribution functions implemented as nimbleFunctions so they can be used
 #' in NIMBLE models. Parameterization uses location and scale (scale > 0).
+#' The \code{d*}, \code{p*}, and \code{q*} functions accept vector inputs for their first argument
+#' and evaluate elementwise; \code{r*} supports \code{n > 1}.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.

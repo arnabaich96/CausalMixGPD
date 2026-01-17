@@ -638,10 +638,10 @@ stick_breaking <- nimble::nimbleFunction(
 
   ns <- asNamespace("DPmixGPD")
   list(
-    d = get(d_name, envir = ns),
-    p = get(p_name, envir = ns),
-    q = get(q_name, envir = ns),
-    r = get(r_name, envir = ns),
+    d = .wrap_scalar_first_arg(get(d_name, envir = ns), "x"),
+    p = .wrap_scalar_p(get(p_name, envir = ns)),
+    q = .wrap_scalar_first_arg(get(q_name, envir = ns), "p"),
+    r = .wrap_scalar_r(get(r_name, envir = ns)),
     bulk_params = kdef$bulk_params
   )
 }
@@ -685,6 +685,166 @@ stick_breaking <- nimble::nimbleFunction(
   dim(lower) <- dims[-length(dims)]
   dim(upper) <- dims[-length(dims)]
   list(estimate = estimate, lower = lower, upper = upper, q = qmat)
+}
+
+#' Detect the first present argument name in dots.
+#' @keywords internal
+.detect_first_present <- function(dots, candidates = c("q", "x")) {
+  for (nm in candidates) {
+    if (!is.null(dots[[nm]])) return(nm)
+  }
+  stop("Expected one of: ", paste(candidates, collapse = ", "), call. = FALSE)
+}
+
+#' Wrap scalar first-argument functions to handle vector inputs.
+#' @keywords internal
+.wrap_scalar_first_arg <- function(fun, first_arg_name) {
+  if (isTRUE(attr(fun, "vectorized_wrapper"))) return(fun)
+  force(fun)
+  force(first_arg_name)
+  wrapper <- function(...) {
+    dots <- list(...)
+    if (!first_arg_name %in% names(dots)) {
+      stop("Missing required argument: ", first_arg_name, call. = FALSE)
+    }
+    vec <- dots[[first_arg_name]]
+    if (length(vec) <= 1L) return(do.call(fun, dots))
+
+    dots[[first_arg_name]] <- vec[1]
+    one <- do.call(fun, dots)
+    if (length(one) <= 1L) {
+      return(vapply(vec, function(v) {
+        dots[[first_arg_name]] <- v
+        do.call(fun, dots)
+      }, numeric(1)))
+    }
+
+    mat <- vapply(vec, function(v) {
+      dots[[first_arg_name]] <- v
+      as.numeric(do.call(fun, dots))
+    }, numeric(length(one)))
+    t(mat)
+  }
+  attr(wrapper, "vectorized_wrapper") <- TRUE
+  wrapper
+}
+
+#' Wrap scalar CDF to handle q/x naming and vector inputs.
+#' @keywords internal
+.wrap_scalar_p <- function(fun) {
+  if (isTRUE(attr(fun, "vectorized_wrapper"))) return(fun)
+  force(fun)
+  wrapper <- function(...) {
+    dots <- list(...)
+    given <- .detect_first_present(dots, candidates = c("q", "x"))
+
+    formal_names <- names(formals(fun)) %||% character()
+    target <- if ("q" %in% formal_names && !"x" %in% formal_names) {
+      "q"
+    } else if ("x" %in% formal_names && !"q" %in% formal_names) {
+      "x"
+    } else {
+      given
+    }
+
+    if (!identical(given, target)) {
+      dots[[target]] <- dots[[given]]
+      dots[[given]] <- NULL
+    }
+
+    vec <- dots[[target]]
+    if (length(vec) <= 1L) return(do.call(fun, dots))
+
+    dots[[target]] <- vec[1]
+    one <- do.call(fun, dots)
+    if (length(one) <= 1L) {
+      return(vapply(vec, function(v) {
+        dots[[target]] <- v
+        do.call(fun, dots)
+      }, numeric(1)))
+    }
+
+    mat <- vapply(vec, function(v) {
+      dots[[target]] <- v
+      as.numeric(do.call(fun, dots))
+    }, numeric(length(one)))
+    t(mat)
+  }
+  attr(wrapper, "vectorized_wrapper") <- TRUE
+  wrapper
+}
+
+#' Wrap scalar RNG to handle n > 1.
+#' @keywords internal
+.wrap_scalar_r <- function(fun) {
+  if (isTRUE(attr(fun, "vectorized_wrapper"))) return(fun)
+  force(fun)
+  wrapper <- function(...) {
+    dots <- list(...)
+    if (!("n" %in% names(dots))) stop("Missing required argument: n", call. = FALSE)
+    n <- as.integer(dots$n)
+    dots$n <- NULL
+    if (is.na(n) || n < 1L) stop("n must be a positive integer.", call. = FALSE)
+    if (n == 1L) return(do.call(fun, c(list(n = 1L), dots)))
+
+    one <- do.call(fun, c(list(n = 1L), dots))
+    if (length(one) <= 1L) {
+      return(vapply(seq_len(n), function(i) {
+        do.call(fun, c(list(n = 1L), dots))
+      }, numeric(1)))
+    }
+
+    mat <- vapply(seq_len(n), function(i) {
+      as.numeric(do.call(fun, c(list(n = 1L), dots)))
+    }, numeric(length(one)))
+    t(mat)
+  }
+  attr(wrapper, "vectorized_wrapper") <- TRUE
+  wrapper
+}
+
+#' Vectorize exported kernel d/p/q/r functions in the namespace.
+#' @keywords internal
+.vectorize_kernel_fns <- function() {
+  ns <- asNamespace("DPmixGPD")
+  if (!exists(".scalar_fn_store", envir = ns, inherits = FALSE)) {
+    assign(".scalar_fn_store", new.env(parent = emptyenv()), envir = ns)
+  }
+  store <- get(".scalar_fn_store", envir = ns)
+
+  d_names <- unique(unlist(lapply(get_kernel_registry(), function(k) {
+    c(k$sb$d, k$sb$d_gpd, k$crp$d_base, k$crp$d_gpd)
+  }), use.names = FALSE))
+  d_names <- d_names[!is.na(d_names) & nzchar(d_names)]
+
+  wrap_one <- function(fname, wrap_fun) {
+    if (!exists(fname, envir = ns, inherits = FALSE)) return()
+    fun <- get(fname, envir = ns)
+    if (isTRUE(attr(fun, "vectorized_wrapper"))) return()
+    if (!exists(fname, envir = store, inherits = FALSE)) {
+      assign(fname, fun, envir = store)
+    }
+    scalar <- get(fname, envir = store)
+    wrapped <- wrap_fun(scalar)
+    assign(fname, wrapped, envir = ns)
+  }
+
+  for (d_name in d_names) {
+    wrap_one(d_name, function(f) .wrap_scalar_first_arg(f, "x"))
+    p_name <- sub("^d", "p", d_name)
+    q_name <- sub("^d", "q", d_name)
+    r_name <- sub("^d", "r", d_name)
+    wrap_one(p_name, .wrap_scalar_p)
+    wrap_one(q_name, function(f) .wrap_scalar_first_arg(f, "p"))
+    wrap_one(r_name, .wrap_scalar_r)
+  }
+
+  if (exists("dGpd", envir = ns, inherits = FALSE)) {
+    wrap_one("dGpd", function(f) .wrap_scalar_first_arg(f, "x"))
+    wrap_one("pGpd", .wrap_scalar_p)
+    wrap_one("qGpd", function(f) .wrap_scalar_first_arg(f, "p"))
+    wrap_one("rGpd", .wrap_scalar_r)
+  }
 }
 
 #' Truncate and reorder mixture components by cumulative weight mass
@@ -1259,11 +1419,7 @@ stick_breaking <- nimble::nimbleFunction(
       args0$tail_scale <- tail_scale[s]
     }
 
-    out <- numeric(nsim_inner)
-    for (t in seq_len(nsim_inner)) {
-      out[t] <- as.numeric(do.call(r_fun, c(list(n = 1L), args0)))
-    }
-    out
+    as.numeric(do.call(r_fun, c(list(n = nsim_inner), args0)))
   }
 
   .draw_samples_cond <- function(s, nsim_inner) {
@@ -1285,9 +1441,7 @@ stick_breaking <- nimble::nimbleFunction(
       if (length(link_params)) {
         for (nm in link_params) args_i[[nm]] <- as.numeric(link_eta[[nm]][, i])
       }
-      for (t in seq_len(nsim_inner)) {
-        out[i, t] <- as.numeric(do.call(r_fun, c(list(n = 1L), args_i)))
-      }
+      out[i, ] <- as.numeric(do.call(r_fun, c(list(n = nsim_inner), args_i)))
     }
     out
   }
@@ -1320,17 +1474,13 @@ stick_breaking <- nimble::nimbleFunction(
           for (nm in link_params) args[[nm]] <- as.numeric(link_eta[[nm]][, i])
         }
 
-        if (type == "density") {
-          out[i, ] <- vapply(ygrid, function(yy) {
-            do.call(d_fun, c(list(x = yy, log = 0L), args))
-          }, numeric(1))
-        } else {
-          cdfv <- vapply(ygrid, function(yy) {
-            do.call(p_fun, c(list(q = yy, lower.tail = 1L, log.p = 0L), args))
-          }, numeric(1))
-          if (type == "survival") cdfv <- 1 - cdfv
-          out[i, ] <- cdfv
-        }
+      if (type == "density") {
+        out[i, ] <- as.numeric(do.call(d_fun, c(list(x = ygrid, log = 0L), args)))
+      } else {
+        cdfv <- as.numeric(do.call(p_fun, c(list(q = ygrid, lower.tail = 1L, log.p = 0L), args)))
+        if (type == "survival") cdfv <- 1 - cdfv
+        out[i, ] <- cdfv
+      }
       }
       out
     }
@@ -1393,12 +1543,6 @@ stick_breaking <- nimble::nimbleFunction(
   if (type %in% c("quantile", "median")) {
     M <- length(pgrid)
 
-    .q_eval <- function(args, pgrid) {
-      vapply(pgrid, function(pp) {
-        as.numeric(do.call(q_fun, c(list(p = pp), args)))
-      }, numeric(1))
-    }
-
     if (!has_X) {
       draws_mat <- matrix(NA_real_, nrow = M, ncol = S)
       for (s in seq_len(S)) {
@@ -1412,7 +1556,7 @@ stick_breaking <- nimble::nimbleFunction(
           args0$threshold <- threshold_scalar[s]
           args0$tail_scale <- tail_scale[s]
         }
-        draws_mat[, s] <- .q_eval(args0, pgrid)
+        draws_mat[, s] <- as.numeric(do.call(q_fun, c(list(p = pgrid), args0)))
       }
 
       summ <- .posterior_summarize(draws_mat, probs = probs)
@@ -1462,7 +1606,7 @@ stick_breaking <- nimble::nimbleFunction(
           if (length(link_params)) {
             for (nm in link_params) args[[nm]] <- as.numeric(link_eta[[nm]][, i])
           }
-          draws_arr[i, , s] <- .q_eval(args, pgrid)
+          draws_arr[i, , s] <- as.numeric(do.call(q_fun, c(list(p = pgrid), args)))
         }
       }
 
