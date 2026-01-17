@@ -67,7 +67,11 @@ an outcome bundle for the treated arm (T = 1)
 <span>  ps_model <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"logit"</span><span class="op">)</span>,</span>
 <span>  ps_prior <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>mean <span class="op">=</span> <span class="fl">0</span>, sd <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span>
 <span>  include_intercept <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  PS <span class="op">=</span> <span class="st">"logit"</span></span>
+<span>  PS <span class="op">=</span> <span class="st">"logit"</span>,</span>
+<span>  design <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"rct"</span>, <span class="st">"observational"</span><span class="op">)</span>,</span>
+<span>  ps_scale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"logit"</span>, <span class="st">"prob"</span><span class="op">)</span>,</span>
+<span>  ps_summary <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"median"</span><span class="op">)</span>,</span>
+<span>  ps_clamp <span class="op">=</span> <span class="fl">1e-06</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -155,6 +159,22 @@ in the PS model.</p></dd>
 <li><p><code>FALSE</code>: No PS estimation; outcome models use only <code>X</code></p></li>
 </ul><p>The PS model choice is stored in bundle metadata for downstream use in prediction
 and summaries, enabling seamless integration of future PS estimation methods.</p></dd>
+
+
+<dt id="arg-design">design<a class="anchor" aria-label="anchor" href="#arg-design"></a></dt>
+<dd><p>Causal design: <code>"rct"</code> or <code>"observational"</code>.</p></dd>
+
+
+<dt id="arg-ps-scale">ps_scale<a class="anchor" aria-label="anchor" href="#arg-ps-scale"></a></dt>
+<dd><p>Scale used when augmenting outcomes with PS: <code>"logit"</code> or <code>"prob"</code>.</p></dd>
+
+
+<dt id="arg-ps-summary">ps_summary<a class="anchor" aria-label="anchor" href="#arg-ps-summary"></a></dt>
+<dd><p>Posterior summary for PS: <code>"mean"</code> or <code>"median"</code>.</p></dd>
+
+
+<dt id="arg-ps-clamp">ps_clamp<a class="anchor" aria-label="anchor" href="#arg-ps-clamp"></a></dt>
+<dd><p>Numeric epsilon for clamping PS values to \((\epsilon, 1-\epsilon)\).</p></dd>
 
 </dl></div>
     <div class="section level2">
