@@ -7,6 +7,8 @@
 #' Mixture density and CDF are computed by weighted sums. Random generation samples a component
 #' index according to weights and draws from the corresponding component. Quantiles are computed
 #' by numerical inversion of the mixture CDF.
+#' The \code{d*}, \code{p*}, and \code{q*} functions accept vector inputs for their first argument
+#' and evaluate elementwise; \code{r*} supports \code{n > 1}.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -454,5 +456,4 @@ qLaplaceGpd <- function(p, location, scale, threshold, tail_scale, tail_shape, l
   }
   out
 }
-
 
