@@ -1,10 +1,10 @@
 ---
-title: "13. Causal Inference: Same Backend (SB) - Laplace Kernel"
+title: "17. Causal Inference: Same Backend (SB) - Laplace Kernel"
 output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
-  %\VignetteIndexEntry{13. Causal Inference: Same Backend (SB) - Laplace Kernel}
+  %\\VignetteIndexEntry{17. Causal Inference: Same Backend (SB) - Laplace Kernel}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -218,4 +218,5 @@ qte_gpd <- qte(fit_sb_gpd, probs = c(0.25, 0.5, 0.75),
                newdata = x_eval, interval = "credible")
 plot(qte_gpd)
 ```
+
 
