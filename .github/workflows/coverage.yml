@@ -1,33 +1,57 @@
-name: coverage
+name: R-CMD-check-and-coverage
 
 on:
   push:
-    branches: ["master"]
   pull_request:
 
 jobs:
-  coverage:
-    runs-on: ubuntu-latest
-    env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+  check:
+    runs-on: ${{ matrix.config.os }}
+    name: ${{ matrix.config.os }} (R ${{ matrix.config.r }})
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { os: ubuntu-latest,   r: "release" }
+          - { os: ubuntu-latest,   r: "devel" }
+          - { os: macos-latest,    r: "release" }
+          - { os: windows-latest,  r: "release" }
 
-      - name: Set up R
-        uses: r-lib/actions/setup-r@v2
+    env:
+      R_KEEP_PKG_SOURCE: yes
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-pandoc@v2
+
+      - uses: r-lib/actions/setup-r@v2
         with:
+          r-version: ${{ matrix.config.r }}
           use-public-rspm: true
 
-      - name: Install dependencies
-        uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: |
-            any::covr
-            any::testthat
-          needs: coverage
+      # If you use renv.lock
+      - uses: r-lib/actions/setup-renv@v2
 
-      - name: Run tests and upload coverage to Codecov
+      - name: Install covr (if not in lockfile)
+        run: Rscript -e 'if (!requireNamespace("covr", quietly=TRUE)) install.packages("covr")'
+
+      # Run tests + generate coverage and upload to Codecov
+      - name: Coverage
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}  # needed for private repos; harmless for public
         run: |
-          Rscript -e "covr::codecov(quiet = TRUE)"
+          Rscript -e 'covr::codecov(
+            quiet = FALSE,
+            flags = paste0("${{ matrix.config.os }}","-R${{ matrix.config.r }}"),
+            name  = paste0("ci-", "${{ matrix.config.os }}", "-R", "${{ matrix.config.r }}")
+          )'
+
+      # If something fails, print testthat.Rout.fail (saves your sanity)
+      - name: Dump testthat failure output
+        if: failure()
+        run: |
+          for f in $(find . -name 'testthat.Rout.fail'); do
+            echo "=== $f ==="
+            cat "$f"
+          done
