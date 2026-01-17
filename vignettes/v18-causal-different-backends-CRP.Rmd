@@ -1,10 +1,10 @@
 ---
-title: "14. Causal Inference: Mixed Backends (Bulk-only) - Cauchy Kernel"
+title: "18. Causal Inference: Mixed Backends (Bulk-only) - Cauchy Kernel"
 output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
-  %\VignetteIndexEntry{14. Causal Inference: Mixed Backends (Bulk-only) - Cauchy Kernel}
+  %\\VignetteIndexEntry{18. Causal Inference: Mixed Backends (Bulk-only) - Cauchy Kernel}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -206,4 +206,5 @@ qte_crp_sb <- qte(fit_crp_sb, probs = c(0.25, 0.5, 0.75),
                   newdata = x_eval, interval = "credible")
 plot(qte_crp_sb)
 ```
+
 
