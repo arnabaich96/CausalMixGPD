@@ -139,6 +139,16 @@ rGpd <- nimble::nimbleFunction(
   }
 )
 
+#' @describeIn gpd Vectorized RNG wrapper (R-only)
+#' @export
+rGpd_vec <- function(n, threshold, scale, shape) {
+  n <- as.integer(n)
+  if (length(n) != 1L || is.na(n)) stop("'n' must be a single integer.", call. = FALSE)
+  if (n <= 0L) return(numeric(0))
+  if (n == 1L) return(as.numeric(rGpd(1, threshold, scale, shape)))
+  vapply(seq_len(n), function(i) as.numeric(rGpd(1, threshold, scale, shape)), numeric(1))
+}
+
 #' @describeIn gpd Generalized Pareto quantile function
 #' @export
 qGpd <- function(p, threshold, scale, shape,
@@ -151,7 +161,14 @@ qGpd <- function(p, threshold, scale, shape,
   for (i in seq_along(p)) {
     pi <- p[i]
     if (pi <= 0) { out[i] <- threshold; next }
-    if (pi >= 1) { out[i] <- Inf; next }
+    if (pi >= 1) {
+      if (shape < 0) {
+        out[i] <- threshold - scale / shape
+      } else {
+        out[i] <- Inf
+      }
+      next
+    }
 
     if (abs(shape) < 1e-12) {
       out[i] <- threshold - scale * log(1.0 - pi)

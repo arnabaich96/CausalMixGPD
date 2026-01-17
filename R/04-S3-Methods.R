@@ -979,9 +979,18 @@ predict.mixgpd_fit <- function(object,
   }
   if (!is.null(newdata) && is.null(x)) x <- newdata
 
-  # Set default index for quantile
-  if (type == "quantile" && is.null(index)) {
-    index <- c(0.25, 0.5, 0.75)
+  # Alias p -> index for quantile, with conflict check
+  if (type == "quantile") {
+    if (!is.null(p) && is.null(index)) {
+      index <- p
+    } else if (!is.null(p) && !is.null(index)) {
+      if (!isTRUE(all.equal(as.numeric(p), as.numeric(index)))) {
+        stop("Provide only one of 'p' or 'index' for quantile predictions.", call. = FALSE)
+      }
+    }
+    if (is.null(index)) index <- c(0.25, 0.5, 0.75)
+  } else if (!is.null(p)) {
+    warning("'p' is only used for type = 'quantile'; ignoring for other types.", call. = FALSE)
   }
 
   # Construct probs from cred.level for non-sample types
@@ -1051,84 +1060,32 @@ fitted.mixgpd_fit <- function(object, level = 0.95, ...) {
   probs <- c((1 - level) / 2, 0.5, (1 + level) / 2)
 
   if (!is.null(X)) {
-    # CONDITIONAL MODEL: predict mean at each observation
-    pred <- predict(object, x = X, type = "mean",
-                    cred.level = level, interval = "credible")
-
-    # Extract fit, lower, upper from prediction result
-    fit_vals <- if (is.data.frame(pred$fit)) pred$fit$estimate else pred$fit
-    lower_vals <- if (is.data.frame(pred$fit)) pred$fit$lower else (pred$lower %||% fit_vals)
-    upper_vals <- if (is.data.frame(pred$fit)) pred$fit$upper else (pred$upper %||% fit_vals)
-
-    result <- data.frame(
-      fit = fit_vals,
-      lower = lower_vals,
-      upper = upper_vals,
-      residuals = y - fit_vals
-    )
-    class(result) <- c("mixgpd_fitted", "data.frame")
-    attr(result, "object") <- object
-    attr(result, "level") <- level
-    return(result)
+    pred <- predict(object, x = X, type = "quantile",
+                    index = 0.5, cred.level = level, interval = "credible")
+    fit_df <- pred$fit
+    if ("id" %in% names(fit_df)) fit_df <- fit_df[order(fit_df$id), , drop = FALSE]
+    fit_vals <- fit_df$estimate
+    lower_vals <- fit_df$lower
+    upper_vals <- fit_df$upper
   } else {
-    # UNCONDITIONAL MODEL: Use empirical quantile-quantile mapping
-    # For each observation, map its empirical quantile to the fitted quantile
-    N <- length(y)
-
-    # Use posterior predictive quantiles:
-    # For observation at quantile p in empirical distribution,
-    # fitted value is the posterior median at that quantile
-    order_idx <- order(y)
-    y_sorted <- y[order_idx]
-
-    fitted_vals <- numeric(N)
-    lower_vals <- numeric(N)
-    upper_vals <- numeric(N)
-
-    # Get posterior samples
-    smp <- object$mcmc$samples %||% object$samples
-    if (is.null(smp)) {
-      stop("Could not extract posterior samples from fitted object.", call. = FALSE)
-    }
-    if (!is.matrix(smp)) smp <- as.matrix(smp)
-
-    # For each observation, use its empirical CDF value to compute quantile
-    for (i in seq_len(N)) {
-      p <- (i - 0.5) / N  # Empirical quantile position
-      # Get quantile from each posterior draw - vectorized
-      q_posterior <- apply(smp, 1, function(params) {
-        # Extract weights and parameters for mixture
-        kernel <- object$spec$meta$kernel
-        backend <- object$spec$meta$backend
-        has_gpd <- object$spec$meta$GPD
-
-        # Use predict to get quantile at this probability
-        # Actually we can't - that causes loop
-        # Instead use qGammaMix etc directly
-
-        # For now, use quantile of sorted data as proxy
-        quantile(y_sorted, probs = p, na.rm = TRUE)
-      })
-
-      fitted_vals[i] <- median(q_posterior, na.rm = TRUE)
-      ci <- quantile(q_posterior, probs = probs, na.rm = TRUE)
-      lower_vals[i] <- as.numeric(ci[1])
-      upper_vals[i] <- as.numeric(ci[3])
-    }
-
-    # Map back to original order
-    result <- data.frame(
-      fit = fitted_vals[order(order_idx)],
-      lower = lower_vals[order(order_idx)],
-      upper = upper_vals[order(order_idx)],
-      residuals = y - fitted_vals[order(order_idx)]
-    )
-
-    class(result) <- c("mixgpd_fitted", "data.frame")
-    attr(result, "object") <- object
-    attr(result, "level") <- level
-    return(result)
+    pred <- predict(object, type = "quantile",
+                    index = 0.5, cred.level = level, interval = "credible")
+    fit_df <- pred$fit
+    fit_vals <- rep(fit_df$estimate[1], length(y))
+    lower_vals <- rep(fit_df$lower[1], length(y))
+    upper_vals <- rep(fit_df$upper[1], length(y))
   }
+
+  result <- data.frame(
+    fit = fit_vals,
+    lower = lower_vals,
+    upper = upper_vals,
+    residuals = y - fit_vals
+  )
+  class(result) <- c("mixgpd_fitted", "data.frame")
+  attr(result, "object") <- object
+  attr(result, "level") <- level
+  return(result)
 }
 
 #' Residuals for a MixGPD fit
@@ -1611,6 +1568,8 @@ print.dpmixgpd_causal_predict_plots <- function(x, ...) {
 #' @keywords internal
 #' @export
 plot.mixgpd_fitted <- function(x, y = NULL, ...) {
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("Package 'ggplot2' is required for plotting. Install it first.", call. = FALSE)
   }
