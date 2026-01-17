@@ -39,7 +39,7 @@ set.seed(123)
 
 ## Data Setup
 
-```{r data-setup}
+```{r data-setup, fig.width=8, fig.height=6}
 # Load benchmark dataset
 data("nc_pos200_k3")
 y_mixed <- nc_pos200_k3$y

@@ -1,0 +1,38 @@
+---
+title: "Kernel reference: Amoroso"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Kernel reference: Amoroso}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+library(DPmixGPD)
+```
+
+The **Amoroso** kernel is parameterized by (`a`, `theta`, `alpha`, `beta`).
+
+## Exported mixture helpers
+
+- `dAmorosoMix(x, a, theta, alpha, beta, w, log = FALSE)`
+- `pAmorosoMix(q, a, theta, alpha, beta, w, lower.tail = TRUE, log.p = FALSE)`
+- `qAmorosoMix(p, a, theta, alpha, beta, w, lower.tail = TRUE, log.p = FALSE)`
+- `rAmorosoMix(n, a, theta, alpha, beta, w)`
+
+For the full catalog (including CRP utilities and GPD splicing), see:
+
+- [Available Distributions](v02-available-distributions.html)
+
+## Using Amoroso in a model
+
+```{r}
+bundle <- build_nimble_bundle(
+  y = y,
+  backend = "sb",
+  kernel  = "amoroso",
+  GPD     = TRUE,
+  Kmax    = 6
+)
+```

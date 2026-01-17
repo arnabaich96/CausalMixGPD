@@ -21,7 +21,11 @@ build_causal_bundle(
   ps_model = c("logit"),
   ps_prior = list(mean = 0, sd = 2),
   include_intercept = TRUE,
-  PS = "logit"
+  PS = "logit",
+  design = c("rct", "observational"),
+  ps_scale = c("logit", "prob"),
+  ps_summary = c("mean", "median"),
+  ps_clamp = 1e-06
 )
 }
 \arguments{
@@ -75,6 +79,14 @@ in the PS model.}
 }
 The PS model choice is stored in bundle metadata for downstream use in prediction
 and summaries, enabling seamless integration of future PS estimation methods.}
+
+\item{design}{Causal design: \code{"rct"} or \code{"observational"}.}
+
+\item{ps_scale}{Scale used when augmenting outcomes with PS: \code{"logit"} or \code{"prob"}.}
+
+\item{ps_summary}{Posterior summary for PS: \code{"mean"} or \code{"median"}.}
+
+\item{ps_clamp}{Numeric epsilon for clamping PS values to \eqn{(\epsilon, 1-\epsilon)}.}
 }
 \value{
 A list of class \code{"dpmixgpd_causal_bundle"}.

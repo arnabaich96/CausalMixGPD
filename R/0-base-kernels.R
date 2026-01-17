@@ -32,8 +32,6 @@
 #' qGpd(0.50, threshold, tail_scale, tail_shape)
 #' qGpd(0.95, threshold, tail_scale, tail_shape)
 #' replicate(10, rGpd(1, threshold, tail_scale, tail_shape))
-
-#'
 #' @rdname gpd
 #' @name gpd
 #' @aliases dGpd pGpd rGpd qGpd

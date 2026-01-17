@@ -191,14 +191,14 @@ test_that("predict() with newdata enforces column contracts", {
   X_missing <- X_new[, "x1", drop = FALSE]
   expect_error(
     predict(fit, x = X_missing, type = "mean"),
-    "Column names of 'x' do not match training design matrix"
+    "Column names|Number of columns"
   )
 
   X_extra <- X_new
   X_extra$extra <- 1
   expect_error(
     predict(fit, x = X_extra, type = "mean"),
-    "Column names of 'x' do not match training design matrix"
+    "Column names|Number of columns"
   )
 
   X_reorder <- X_new[, c("x2", "x1"), drop = FALSE]

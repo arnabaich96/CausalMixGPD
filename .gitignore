@@ -39,7 +39,7 @@ pkgdown/
 # pkgdown build artifacts (articles, reference, coverage)
 docs/articles/*_files/
 docs/articles/*.md
-docs/reference/*.md
+docs/reference/*.html
 docs/coverage/
 docs/news/
 

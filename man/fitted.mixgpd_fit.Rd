@@ -9,18 +9,18 @@
 \arguments{
 \item{object}{A fitted object of class \code{"mixgpd_fit"}.}
 
-\item{level}{Credible level for confidence intervals (default 0.95 for 95\% credible intervals).}
+\item{level}{Credible level for confidence intervals (default 0.95 for 95% credible intervals).}
 
 \item{...}{Unused.}
 }
 \value{
 A data frame with columns:
-\describe{
-\item{fit}{Point estimates (posterior means).}
-\item{lower}{Lower credible bound.}
-\item{upper}{Upper credible bound.}
-\item{residuals}{Residuals (y - fit).}
-}
+  \describe{
+    \item{fit}{Point estimates (posterior means).}
+    \item{lower}{Lower credible bound.}
+    \item{upper}{Upper credible bound.}
+    \item{residuals}{Residuals (y - fit).}
+  }
 }
 \description{
 Computes fitted values and residuals on the original training data.

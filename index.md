@@ -1,74 +1,101 @@
 # DPmixGPD
 
-DPmixGPD delivers Dirichlet process mixtures with optional generalized Pareto tails so you can model the bulk and extremes with shared mixture weights and clean prediction APIs.
+DPmixGPD fits **Dirichlet process mixture models** (CRP or stick-breaking backends) with an **optional Generalized Pareto (GPD) tail** so you can model the bulk and extremes *together* and still get clean, user-friendly prediction APIs.
 
-## Vignette Tour
+## Install
 
-### Getting Started
+```r
+# install.packages("remotes")
+remotes::install_github("arnabaich96/DPmixGPD")
+```
 
-- **[Introduction](articles/v01-introduction.html)** - Overview, three-phase workflow, PS strategies, and quickstart
-- **[Available Distributions](articles/v02-available-distributions.html)** - Comprehensive guide to all kernels plus GPD with dqrp functions
-- **[Basic Model Workflow](articles/v03-basic-model-compile-run.html)** - Detailed three-phase guide: specification -> bundle -> MCMC
+## Quickstart
 
-### Unconditional Models (y only)
+```r
+library(DPmixGPD)
 
-- **[DPmix with CRP](articles/v04-unconditional-DPmix-CRP.html)** - Chinese Restaurant Process backend for bulk-only mixture modeling
-- **[DPmix with SB](articles/v05-unconditional-DPmix-SB.html)** - Stick-Breaking backend comparison
-- **[DPmixGPD with CRP](articles/v06-unconditional-DPmixGPD-CRP.html)** - Adding GPD tail augmentation to CRP
-- **[DPmixGPD with SB](articles/v07-unconditional-DPmixGPD-SB.html)** - SB backend with GPD tails
+set.seed(1)
+y <- abs(rnorm(120)) + 0.2
 
-### Conditional Models (y | X)
+bundle <- build_nimble_bundle(
+  y = y,
+  backend = "crp",
+  kernel  = "lognormal",
+  GPD     = TRUE,
+  Kmax    = 6,
+  mcmc = list(niter = 800, nburnin = 200, thin = 2, nchains = 1, seed = 1)
+)
 
-- **[Conditional DPmix CRP](articles/v08-conditional-DPmix-CRP.html)** - CRP with covariates, heteroscedasticity analysis
-- **[Conditional DPmix SB](articles/v09-conditional-DPmix-SB.html)** - SB with covariates
-- **[Conditional DPmixGPD CRP](articles/v10-conditional-DPmixGPD-CRP.html)** - CRP with covariates and GPD tail
-- **[Conditional DPmixGPD SB](articles/v11-conditional-DPmixGPD-SB.html)** - SB with covariates and GPD tail
+fit <- run_mcmc_bundle_manual(bundle)
 
-### Causal Inference (treatment effects)
+summary(fit)
+plot(fit, family = "trace")
 
-- **[Same Backend CRP](articles/v12-causal-same-backend-CRP.html)** - Causal inference with CRP for both arms (optional PS)
-- **[Same Backend SB](articles/v13-causal-same-backend-SB.html)** - Causal inference with SB for both arms (optional PS)
-- **[Different Backends (CRP for PS)](articles/v14-causal-different-backends-CRP.html)** - CRP for PS (optional), mixed outcome backends
-- **[Different Backends (SB for PS)](articles/v15-causal-different-backends-SB.html)** - SB for PS (optional), mixed outcome backends
+# predictive quantities
+predict(fit, type = "quantile", p = c(0.1, 0.5, 0.9))
+```
 
-## Available S3 Methods
+## Learn the package by goal
 
-DPmixGPD provides standard S3 methods for fitted model objects (`mixgpd_fit` and `dpmixgpd_causal_fit`):
+### I want to…
 
-- `summary()` - Posterior summaries with ESS, Rhat, and diagnostics
-- `params()` - Posterior parameter tables (bulk, tail, and thresholds)
-- `plot()` - Trace and density plots via ggplot2 (causal returns treated/control lists)
-- `predict()` - Density, CDF, quantile, and survival predictions (causal: mean/quantile effects)
-- `fitted()` - Fitted values at observed data points
+- **Get oriented fast** → [Introduction](articles/v01-introduction.html)
+- **See every available distribution and its d/p/q/r helpers** → [Available Distributions](articles/v02-available-distributions.html)
+- **Understand the full workflow (spec → bundle → MCMC)** → [Basic Model Workflow](articles/v03-basic-model-compile-run.html)
 
-## Status checks
+### Unconditional models (y only)
+
+- [DPmix with CRP](articles/v04-unconditional-DPmix-CRP.html)
+- [DPmix with SB](articles/v05-unconditional-DPmix-SB.html)
+- [DPmixGPD with CRP](articles/v06-unconditional-DPmixGPD-CRP.html)
+- [DPmixGPD with SB](articles/v07-unconditional-DPmixGPD-SB.html)
+
+### Conditional models (y | X)
+
+- [Conditional DPmix CRP](articles/v08-conditional-DPmix-CRP.html)
+- [Conditional DPmix SB](articles/v09-conditional-DPmix-SB.html)
+- [Conditional DPmixGPD CRP](articles/v10-conditional-DPmixGPD-CRP.html)
+- [Conditional DPmixGPD SB](articles/v11-conditional-DPmixGPD-SB.html)
+
+### Causal inference (two-arm outcome models)
+
+- [Same Backend CRP](articles/v12-causal-same-backend-CRP.html)
+- [Same Backend SB](articles/v13-causal-same-backend-SB.html)
+- [Different Backends (CRP for PS)](articles/v14-causal-different-backends-CRP.html)
+- [Different Backends (SB for PS)](articles/v15-causal-different-backends-SB.html)
+
+## Kernel reference (short pages)
+
+These pages are quick reminders of parameterizations and the relevant exported helpers.
+
+- [Normal kernel](articles/kernel-normal.html)
+- [Lognormal kernel](articles/kernel-lognormal.html)
+- [Gamma kernel](articles/kernel-gamma.html)
+- [Inverse Gaussian kernel](articles/kernel-invgauss.html)
+- [Laplace kernel](articles/kernel-laplace.html)
+- [Amoroso kernel](articles/kernel-amoroso.html)
+- [Cauchy kernel](articles/kernel-cauchy.html)
+
+## Core S3 methods
+
+Fitted model objects (`mixgpd_fit` and `dpmixgpd_causal_fit`) support:
+
+- `print()`, `summary()`
+- `params()`
+- `plot()`
+- `predict()` (density / CDF / quantile / survival; causal: effects)
+- `fitted()`
+
+## Help and project links
+
+- Function reference: [Reference](reference/index.html)
+- Changelog: [News](news/index.html)
+- Source + issues: GitHub (see the navbar link)
+
+## Package health
 
 | Metric | Current value | Source |
 | --- | --- | --- |
 | Test coverage (tests) | `0%` | `inst/extdata/coverage_status.json` (run `tools/update_coverage_status.R`) |
 | Coverage helper | `DPmixGPD::coverage_status()` | runs `covr::package_coverage()` and can refresh the JSON file |
 | Status reader | `DPmixGPD::read_coverage_status()` | easy lookup for badges or pkgdown site |
-
-Run `tools/update_coverage_status.R` after expanding the test suite to keep the status data and home-page summary up to date.
-
-## Kernel reference pages
-
-- [Kernel: Normal](articles/kernel-normal.html)
-- [Kernel: Lognormal](articles/kernel-lognormal.html)
-- [Kernel: Gamma](articles/kernel-gamma.html)
-- [Kernel: Inverse Gaussian](articles/kernel-invgauss.html)
-- [Kernel: Laplace](articles/kernel-laplace.html)
-- [Kernel: Amoroso](articles/kernel-amoroso.html)
-- [Kernel: Cauchy](articles/kernel-cauchy.html)
-
-## Reference
-
-- Function reference: [Reference](reference/index.html)
-
-## Project metadata
-
-- License: [GPL-3 License](https://github.com/arnabaich96/DPmixGPD_Package/blob/master/LICENSE)
-- Contributing: [CONTRIBUTING.md](https://github.com/arnabaich96/DPmixGPD_Package/blob/master/CONTRIBUTING.md)
-- Code of Conduct: [CODE_OF_CONDUCT.md](https://github.com/arnabaich96/DPmixGPD_Package/blob/master/CODE_OF_CONDUCT.md)
-- Citation: Run `citation("DPmixGPD")` in R, or see [inst/CITATION](https://github.com/arnabaich96/DPmixGPD_Package/blob/master/inst/CITATION)
-- Changelog: [NEWS](news/index.html)

@@ -4,7 +4,7 @@ output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
-  %\VignetteIndexEntry{2. Available Distributions}
+  %\VignetteIndexEntry{2. Available Distributions and Related Functions}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
