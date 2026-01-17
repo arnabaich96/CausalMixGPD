@@ -4,7 +4,6 @@
 .Ruserdata
 *.zip
 .vscode/
-coverage/
 DPmixGPD.Rcheck/
 DPmixGPD_*.tar.gz
 vignettes/cache/
@@ -24,6 +23,10 @@ vignettes/**/*.Rds
 vignettes/**/*.RDS
 vignettes/**/*.png
 
+# Vignette cache artifacts (deeply nested cache dirs)
+vignettes/**/cache/
+vignettes/**/cache/**
+
 # Cache files (knitr/rmarkdown)
 *_cache/
 **/*_cache/
@@ -31,5 +34,16 @@ vignettes/**/*.png
 test_*.html
 
 # pkgdown/site outputs
-docs/
 pkgdown/
+
+# pkgdown build artifacts (articles, reference, coverage)
+docs/articles/*_files/
+docs/articles/*.html
+docs/articles/*.md
+docs/reference/*.html
+docs/reference/*.md
+docs/coverage/
+docs/news/
+
+# ignore generated pkgdown site content under docs/
+docs/**

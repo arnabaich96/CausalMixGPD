@@ -1,6 +1,4 @@
 test_that("Bundle generation: minimal y only", {
-  skip_if_not_installed("nimble")
-  skip_on_cran()
 
   set.seed(1)
   y <- abs(stats::rnorm(20)) + 0.1
@@ -18,8 +16,6 @@ test_that("Bundle generation: minimal y only", {
 })
 
 test_that("Bundle generation: with X", {
-  skip_if_not_installed("nimble")
-  skip_on_cran()
 
   set.seed(1)
   y <- abs(stats::rnorm(20)) + 0.1
@@ -39,8 +35,6 @@ test_that("Bundle generation: with X", {
 })
 
 test_that("Bundle generation: custom param_specs", {
-  skip_if_not_installed("nimble")
-  skip_on_cran()
 
   set.seed(1)
   y <- abs(stats::rnorm(20)) + 0.1
@@ -73,8 +67,6 @@ test_that("Bundle generation: custom param_specs", {
 })
 
 test_that("Bundle generation: custom mcmc args", {
-  skip_if_not_installed("nimble")
-  skip_on_cran()
 
   set.seed(1)
   y <- abs(stats::rnorm(20)) + 0.1

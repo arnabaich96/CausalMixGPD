@@ -4,8 +4,6 @@ if (!exists(".cache_enabled")) {
 }
 
 test_that("causal bundle and fit combos", {
-  skip_if_not(requireNamespace("nimble", quietly = TRUE))
-  skip_on_cran()
 
   set.seed(1)
   n <- 30
@@ -111,8 +109,6 @@ test_that("causal bundle and fit combos", {
 })
 
 test_that("PS parameter: logit, probit, naive, FALSE all work", {
-  skip_if_not(requireNamespace("nimble", quietly = TRUE))
-  skip_on_cran()
 
   set.seed(99)
   n <- 40
@@ -124,10 +120,11 @@ test_that("PS parameter: logit, probit, naive, FALSE all work", {
   mcmc_ps <- list(niter = 20, nburnin = 10, thin = 1, nchains = 1, seed = 1)
 
   # Test all four PS options
-  ps_options <- c("logit", "probit", "naive", FALSE)
+  ps_options <- list("logit", "probit", "naive", FALSE)
 
   for (ps_opt in ps_options) {
     label <- if (isFALSE(ps_opt)) "FALSE" else ps_opt
+    design <- if (isFALSE(ps_opt)) "rct" else "observational"
 
     # Build bundle
     cb <- DPmixGPD::build_causal_bundle(
@@ -140,7 +137,8 @@ test_that("PS parameter: logit, probit, naive, FALSE all work", {
       components = 4,
       mcmc_outcome = mcmc_out,
       mcmc_ps = mcmc_ps,
-      PS = ps_opt
+      PS = ps_opt,
+      design = design
     )
 
     # Check metadata
@@ -164,7 +162,7 @@ test_that("PS parameter: logit, probit, naive, FALSE all work", {
       # No PS model
       expect_true(is.null(cf$ps_fit), info = label)
       expect_true(is.null(cf$ps_hat), info = label)
-      expect_false(!is.null(cf$outcome_fit$con$ps_model), info = label)
+      expect_true(is.null(cf$ps), info = label)
     } else {
       # PS model computed
       expect_true(!is.null(cf$ps_fit), info = label)
@@ -188,4 +186,25 @@ test_that("PS parameter: logit, probit, naive, FALSE all work", {
       expect_true(all(pred[, "ps"] >= 0 & pred[, "ps"] <= 1), info = label)
     }
   }
+})
+
+test_that("design enforcement for observational/no X and rct PS override", {
+
+  set.seed(101)
+  n <- 20
+  X <- cbind(x1 = stats::rnorm(n), x2 = stats::runif(n, -1, 1))
+  T <- stats::rbinom(n, 1, 0.5)
+  y <- abs(stats::rnorm(n)) + 0.2
+
+  expect_error(
+    DPmixGPD::build_causal_bundle(y = y, X = NULL, T = T, kernel = "gamma",
+                                 backend = "crp", design = "observational"),
+    "requires non-empty X"
+  )
+
+  expect_warning(
+    DPmixGPD::build_causal_bundle(y = y, X = X, T = T, kernel = "gamma",
+                                 backend = "crp", design = "rct", PS = "logit"),
+    "ignores PS"
+  )
 })
