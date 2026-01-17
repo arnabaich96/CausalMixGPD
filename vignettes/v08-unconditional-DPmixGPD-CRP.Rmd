@@ -1,10 +1,10 @@
 ---
-title: "6. Unconditional DPmixGPD with CRP Backend"
+title: "8. Unconditional DPmixGPD with CRP Backend"
 output: 
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
-  %\VignetteIndexEntry{6. Unconditional DPmixGPD with CRP Backend}
+  %\\VignetteIndexEntry{8. Unconditional DPmixGPD with CRP Backend}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -292,4 +292,5 @@ sensitivity_tbl %>%
 - **S3 workflows**: `predict()` and its `plot()` method make it easy to compare density, survival, and quantiles.
 - **Comparison**: Bulk-only fits under-estimate extreme quantiles without a GPD component.
 - **Next**: Explore Stick-Breaking (`v07`) for another backend with tail augmentation.
+
 

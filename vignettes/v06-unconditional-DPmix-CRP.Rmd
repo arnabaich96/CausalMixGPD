@@ -1,10 +1,10 @@
 ---
-title: "4. Unconditional DPmix with CRP Backend"
+title: "6. Unconditional DPmix with CRP Backend"
 output: 
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
-  %\VignetteIndexEntry{4. Unconditional DPmix with CRP Backend}
+  %\\VignetteIndexEntry{6. Unconditional DPmix with CRP Backend}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -289,6 +289,7 @@ p_gamma + p_lognormal +
 - **Kernel Choice**: Gamma suitable for positive, skewed data
 - **Diagnostics**: Check convergence (Rhat, ESS) and posterior predictive fit
 - **Next**: Compare with **Stick-Breaking (SB)** backend in vignette 5
+
 
 
 
