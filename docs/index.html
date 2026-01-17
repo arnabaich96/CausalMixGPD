@@ -48,84 +48,131 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="dpmixgpd">DPmixGPD<a class="anchor" aria-label="anchor" href="#dpmixgpd"></a>
 </h1></div>
-<p>DPmixGPD delivers Dirichlet process mixtures with optional generalized Pareto tails so you can model the bulk and extremes with shared mixture weights and clean prediction APIs.</p>
+<p>DPmixGPD fits <strong>Dirichlet process mixture models</strong> (CRP or stick-breaking backends) with an <strong>optional Generalized Pareto (GPD) tail</strong> so you can model the bulk and extremes <em>together</em> and still get clean, user-friendly prediction APIs.</p>
 <div class="section level2">
-<h2 id="vignette-tour">Vignette Tour<a class="anchor" aria-label="anchor" href="#vignette-tour"></a>
+<h2 id="install">Install<a class="anchor" aria-label="anchor" href="#install"></a>
+</h2>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"arnabaich96/DPmixGPD"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="quickstart">Quickstart<a class="anchor" aria-label="anchor" href="#quickstart"></a>
+</h2>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://example.com/DPmixGPD" class="external-link">DPmixGPD</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">120</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.2</span></span>
+<span></span>
+<span><span class="va">bundle</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/build_nimble_bundle.html">build_nimble_bundle</a></span><span class="op">(</span></span>
+<span>  y <span class="op">=</span> <span class="va">y</span>,</span>
+<span>  backend <span class="op">=</span> <span class="st">"crp"</span>,</span>
+<span>  kernel  <span class="op">=</span> <span class="st">"lognormal"</span>,</span>
+<span>  GPD     <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  Kmax    <span class="op">=</span> <span class="fl">6</span>,</span>
+<span>  mcmc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">800</span>, nburnin <span class="op">=</span> <span class="fl">200</span>, thin <span class="op">=</span> <span class="fl">2</span>, nchains <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/run_mcmc_bundle_manual.html">run_mcmc_bundle_manual</a></span><span class="op">(</span><span class="va">bundle</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, family <span class="op">=</span> <span class="st">"trace"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># predictive quantities</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="learn-the-package-by-goal">Learn the package by goal<a class="anchor" aria-label="anchor" href="#learn-the-package-by-goal"></a>
 </h2>
 <div class="section level3">
-<h3 id="getting-started">Getting Started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
+<h3 id="i-want-to">I want to…<a class="anchor" aria-label="anchor" href="#i-want-to"></a>
 </h3>
 <ul>
 <li>
-<strong><a href="articles/v01-introduction.html">Introduction</a></strong> - Overview, three-phase workflow, PS strategies, and quickstart</li>
+<strong>Get oriented fast</strong> → <a href="articles/v01-introduction.html">Introduction</a>
+</li>
 <li>
-<strong><a href="articles/v02-available-distributions.html">Available Distributions</a></strong> - Comprehensive guide to all kernels plus GPD with dqrp functions</li>
+<strong>See every available distribution and its d/p/q/r helpers</strong> → <a href="articles/v02-available-distributions.html">Available Distributions</a>
+</li>
 <li>
-<strong><a href="articles/v03-basic-model-compile-run.html">Basic Model Workflow</a></strong> - Detailed three-phase guide: specification -&gt; bundle -&gt; MCMC</li>
+<strong>Understand the full workflow (spec → bundle → MCMC)</strong> → <a href="articles/v03-basic-model-compile-run.html">Basic Model Workflow</a>
+</li>
 </ul>
 </div>
 <div class="section level3">
-<h3 id="unconditional-models-y-only">Unconditional Models (y only)<a class="anchor" aria-label="anchor" href="#unconditional-models-y-only"></a>
+<h3 id="unconditional-models-y-only">Unconditional models (y only)<a class="anchor" aria-label="anchor" href="#unconditional-models-y-only"></a>
 </h3>
 <ul>
-<li>
-<strong><a href="articles/v04-unconditional-DPmix-CRP.html">DPmix with CRP</a></strong> - Chinese Restaurant Process backend for bulk-only mixture modeling</li>
-<li>
-<strong><a href="articles/v05-unconditional-DPmix-SB.html">DPmix with SB</a></strong> - Stick-Breaking backend comparison</li>
-<li>
-<strong><a href="articles/v06-unconditional-DPmixGPD-CRP.html">DPmixGPD with CRP</a></strong> - Adding GPD tail augmentation to CRP</li>
-<li>
-<strong><a href="articles/v07-unconditional-DPmixGPD-SB.html">DPmixGPD with SB</a></strong> - SB backend with GPD tails</li>
+<li><a href="articles/v04-unconditional-DPmix-CRP.html">DPmix with CRP</a></li>
+<li><a href="articles/v05-unconditional-DPmix-SB.html">DPmix with SB</a></li>
+<li><a href="articles/v06-unconditional-DPmixGPD-CRP.html">DPmixGPD with CRP</a></li>
+<li><a href="articles/v07-unconditional-DPmixGPD-SB.html">DPmixGPD with SB</a></li>
 </ul>
 </div>
 <div class="section level3">
-<h3 id="conditional-models-y--x">Conditional Models (y | X)<a class="anchor" aria-label="anchor" href="#conditional-models-y--x"></a>
+<h3 id="conditional-models-y--x">Conditional models (y | X)<a class="anchor" aria-label="anchor" href="#conditional-models-y--x"></a>
 </h3>
 <ul>
-<li>
-<strong><a href="articles/v08-conditional-DPmix-CRP.html">Conditional DPmix CRP</a></strong> - CRP with covariates, heteroscedasticity analysis</li>
-<li>
-<strong><a href="articles/v09-conditional-DPmix-SB.html">Conditional DPmix SB</a></strong> - SB with covariates</li>
-<li>
-<strong><a href="articles/v10-conditional-DPmixGPD-CRP.html">Conditional DPmixGPD CRP</a></strong> - CRP with covariates and GPD tail</li>
-<li>
-<strong><a href="articles/v11-conditional-DPmixGPD-SB.html">Conditional DPmixGPD SB</a></strong> - SB with covariates and GPD tail</li>
+<li><a href="articles/v08-conditional-DPmix-CRP.html">Conditional DPmix CRP</a></li>
+<li><a href="articles/v09-conditional-DPmix-SB.html">Conditional DPmix SB</a></li>
+<li><a href="articles/v10-conditional-DPmixGPD-CRP.html">Conditional DPmixGPD CRP</a></li>
+<li><a href="articles/v11-conditional-DPmixGPD-SB.html">Conditional DPmixGPD SB</a></li>
 </ul>
 </div>
 <div class="section level3">
-<h3 id="causal-inference-treatment-effects">Causal Inference (treatment effects)<a class="anchor" aria-label="anchor" href="#causal-inference-treatment-effects"></a>
+<h3 id="causal-inference-two-arm-outcome-models">Causal inference (two-arm outcome models)<a class="anchor" aria-label="anchor" href="#causal-inference-two-arm-outcome-models"></a>
 </h3>
 <ul>
-<li>
-<strong><a href="articles/v12-causal-same-backend-CRP.html">Same Backend CRP</a></strong> - Causal inference with CRP for both arms (optional PS)</li>
-<li>
-<strong><a href="articles/v13-causal-same-backend-SB.html">Same Backend SB</a></strong> - Causal inference with SB for both arms (optional PS)</li>
-<li>
-<strong><a href="articles/v14-causal-different-backends-CRP.html">Different Backends (CRP for PS)</a></strong> - CRP for PS (optional), mixed outcome backends</li>
-<li>
-<strong><a href="articles/v15-causal-different-backends-SB.html">Different Backends (SB for PS)</a></strong> - SB for PS (optional), mixed outcome backends</li>
+<li><a href="articles/v12-causal-same-backend-CRP.html">Same Backend CRP</a></li>
+<li><a href="articles/v13-causal-same-backend-SB.html">Same Backend SB</a></li>
+<li><a href="articles/v14-causal-different-backends-CRP.html">Different Backends (CRP for PS)</a></li>
+<li><a href="articles/v15-causal-different-backends-SB.html">Different Backends (SB for PS)</a></li>
 </ul>
 </div>
 </div>
 <div class="section level2">
-<h2 id="available-s3-methods">Available S3 Methods<a class="anchor" aria-label="anchor" href="#available-s3-methods"></a>
+<h2 id="kernel-reference-short-pages">Kernel reference (short pages)<a class="anchor" aria-label="anchor" href="#kernel-reference-short-pages"></a>
 </h2>
-<p>DPmixGPD provides standard S3 methods for fitted model objects (<code>mixgpd_fit</code> and <code>dpmixgpd_causal_fit</code>):</p>
+<p>These pages are quick reminders of parameterizations and the relevant exported helpers.</p>
 <ul>
-<li>
-<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> - Posterior summaries with ESS, Rhat, and diagnostics</li>
-<li>
-<code>params()</code> - Posterior parameter tables (bulk, tail, and thresholds)</li>
-<li>
-<code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> - Trace and density plots via ggplot2 (causal returns treated/control lists)</li>
-<li>
-<code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> - Density, CDF, quantile, and survival predictions (causal: mean/quantile effects)</li>
-<li>
-<code><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted()</a></code> - Fitted values at observed data points</li>
+<li><a href="articles/kernel-normal.html">Normal kernel</a></li>
+<li><a href="articles/kernel-lognormal.html">Lognormal kernel</a></li>
+<li><a href="articles/kernel-gamma.html">Gamma kernel</a></li>
+<li><a href="articles/kernel-invgauss.html">Inverse Gaussian kernel</a></li>
+<li><a href="articles/kernel-laplace.html">Laplace kernel</a></li>
+<li><a href="articles/kernel-amoroso.html">Amoroso kernel</a></li>
+<li><a href="articles/kernel-cauchy.html">Cauchy kernel</a></li>
 </ul>
 </div>
 <div class="section level2">
-<h2 id="status-checks">Status checks<a class="anchor" aria-label="anchor" href="#status-checks"></a>
+<h2 id="core-s3-methods">Core S3 methods<a class="anchor" aria-label="anchor" href="#core-s3-methods"></a>
+</h2>
+<p>Fitted model objects (<code>mixgpd_fit</code> and <code>dpmixgpd_causal_fit</code>) support:</p>
+<ul>
+<li>
+<code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>
+</li>
+<li><code>params()</code></li>
+<li><code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code></li>
+<li>
+<code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> (density / CDF / quantile / survival; causal: effects)</li>
+<li><code><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted()</a></code></li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="help-and-project-links">Help and project links<a class="anchor" aria-label="anchor" href="#help-and-project-links"></a>
+</h2>
+<ul>
+<li>Function reference: <a href="reference/index.html">Reference</a>
+</li>
+<li>Changelog: <a href="news/index.html">News</a>
+</li>
+<li>Source + issues: GitHub (see the navbar link)</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="package-health">Package health<a class="anchor" aria-label="anchor" href="#package-health"></a>
 </h2>
 <table class="table">
 <colgroup>
@@ -157,44 +204,6 @@
 </tr>
 </tbody>
 </table>
-<p>Run <code>tools/update_coverage_status.R</code> after expanding the test suite to keep the status data and home-page summary up to date.</p>
-</div>
-<div class="section level2">
-<h2 id="kernel-reference-pages">Kernel reference pages<a class="anchor" aria-label="anchor" href="#kernel-reference-pages"></a>
-</h2>
-<ul>
-<li><a href="articles/kernel-normal.html">Kernel: Normal</a></li>
-<li><a href="articles/kernel-lognormal.html">Kernel: Lognormal</a></li>
-<li><a href="articles/kernel-gamma.html">Kernel: Gamma</a></li>
-<li><a href="articles/kernel-invgauss.html">Kernel: Inverse Gaussian</a></li>
-<li><a href="articles/kernel-laplace.html">Kernel: Laplace</a></li>
-<li><a href="articles/kernel-amoroso.html">Kernel: Amoroso</a></li>
-<li><a href="articles/kernel-cauchy.html">Kernel: Cauchy</a></li>
-</ul>
-</div>
-<div class="section level2">
-<h2 id="reference">Reference<a class="anchor" aria-label="anchor" href="#reference"></a>
-</h2>
-<ul>
-<li>Function reference: <a href="reference/index.html">Reference</a>
-</li>
-</ul>
-</div>
-<div class="section level2">
-<h2 id="project-metadata">Project metadata<a class="anchor" aria-label="anchor" href="#project-metadata"></a>
-</h2>
-<ul>
-<li>License: <a href="https://github.com/arnabaich96/DPmixGPD_Package/blob/master/LICENSE" class="external-link">GPL-3 License</a>
-</li>
-<li>Contributing: <a href="https://github.com/arnabaich96/DPmixGPD_Package/blob/master/CONTRIBUTING.md" class="external-link">CONTRIBUTING.md</a>
-</li>
-<li>Code of Conduct: <a href="https://github.com/arnabaich96/DPmixGPD_Package/blob/master/CODE_OF_CONDUCT.md" class="external-link">CODE_OF_CONDUCT.md</a>
-</li>
-<li>Citation: Run <code>citation("DPmixGPD")</code> in R, or see <a href="https://github.com/arnabaich96/DPmixGPD_Package/blob/master/inst/CITATION" class="external-link">inst/CITATION</a>
-</li>
-<li>Changelog: <a href="news/index.html">NEWS</a>
-</li>
-</ul>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

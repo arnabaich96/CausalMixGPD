@@ -1158,6 +1158,11 @@ stick_breaking <- nimble::nimbleFunction(
     on.exit(future::plan(old_plan), add = TRUE)
     future::plan(future::multisession, workers = ncores)
 
+    old_max <- getOption("future.globals.maxSize")
+    on.exit(options(future.globals.maxSize = old_max), add = TRUE)
+    max_bytes <- max(as.numeric(if (is.null(old_max)) 0 else old_max), 5 * 1024^3)
+    options(future.globals.maxSize = max_bytes)
+
     future.apply::future_lapply(idx, FUN)
   }
 
@@ -1637,4 +1642,3 @@ stick_breaking <- nimble::nimbleFunction(
 
   stop("Unsupported prediction type.", call. = FALSE)
 }
-

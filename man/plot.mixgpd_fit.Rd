@@ -4,15 +4,16 @@
 \alias{plot.mixgpd_fit}
 \title{Plot MCMC diagnostics for a MixGPD fit (ggmcmc backend)}
 \usage{
-\method{plot}{mixgpd_fit}(x, family = c("traceplot", "density"), params = NULL, nLags = 50, ...)
+\method{plot}{mixgpd_fit}(x, family = "auto", params = NULL, nLags = 50, ...)
 }
 \arguments{
 \item{x}{A fitted object of class \code{"mixgpd_fit"}.}
 
 \item{family}{Character vector of plot names (ggmcmc plot types) or a single one.
-Supported: \code{histogram, density, traceplot, running, compare_partial,
-autocorrelation, crosscorrelation, Rhat, grb, effective, geweke,
-caterpillar, pairs}.}
+Use \code{"auto"} (or \code{"all"}) to include all plots supported for the
+available number of chains/parameters. Supported: \code{histogram, density,
+traceplot, running, compare_partial, autocorrelation, crosscorrelation, Rhat,
+grb, effective, geweke, caterpillar, pairs}.}
 
 \item{params}{Optional parameter selector. Either:
 (i) character vector of exact parameter names (e.g. \code{c("alpha","threshold")}),
