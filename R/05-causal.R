@@ -259,6 +259,7 @@ build_causal_bundle <- function(
       ps_clamp = ps_clamp,
       ps = list(
         enabled = !isFALSE(ps_model_type),
+        include_in_outcome = !isFALSE(ps_model_type),
         model_type = ps_model_type
       )
     ),
@@ -365,10 +366,15 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
   stopifnot(inherits(bundle, "dpmixgpd_causal_bundle"))
 
   # Check if propensity scores are enabled
-  ps_enabled <- isTRUE(bundle$meta$ps$enabled)
+  ps_meta <- bundle$meta$ps %||% list()
+  ps_enabled <- isTRUE(ps_meta$enabled) && isTRUE(bundle$meta$has_x)
+  ps_summary <- bundle$meta$ps_summary %||% "mean"
+  ps_scale <- bundle$meta$ps_scale %||% "logit"
+  ps_clamp <- bundle$meta$ps_clamp %||% 1e-6
   
   ps_fit <- NULL
   ps_hat <- NULL
+  ps_cov <- NULL
   ps_model <- NULL
   
   if (ps_enabled) {
@@ -381,14 +387,27 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
     storage.mode(ps_training_X) <- "double"
     
     # Compute propensity scores and assign to outcome data
-    ps_hat <- .compute_ps_from_fit(ps_fit = ps_fit, ps_bundle = bundle$design, X_new = ps_training_X)
+    ps_hat <- .compute_ps_from_fit(
+      ps_fit = ps_fit,
+      ps_bundle = bundle$design,
+      X_new = ps_training_X,
+      summary = ps_summary,
+      clamp = ps_clamp
+    )
+    ps_cov <- .apply_ps_scale(ps_hat, scale = ps_scale, clamp = ps_clamp)
     idx_con <- bundle$index$con
     idx_trt <- bundle$index$trt
-    bundle$outcome$con$data$ps <- ps_hat[idx_con]
-    bundle$outcome$trt$data$ps <- ps_hat[idx_trt]
+    bundle$outcome$con$data$ps <- ps_cov[idx_con]
+    bundle$outcome$trt$data$ps <- ps_cov[idx_trt]
     
     # Prepare PS model for downstream prediction
-    ps_model <- list(fit = ps_fit, bundle = bundle$design)
+    ps_model <- list(
+      fit = ps_fit,
+      bundle = bundle$design,
+      scale = ps_scale,
+      summary = ps_summary,
+      clamp = ps_clamp
+    )
   }
 
   # Regenerate code/constants/monitors (with or without PS)
@@ -414,6 +433,7 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
     outcome_fit = list(con = con_fit, trt = trt_fit),
     bundle = bundle,
     ps_hat = ps_hat,
+    ps_cov = ps_cov,
     call = match.call()
   )
   class(out) <- "dpmixgpd_causal_fit"
@@ -445,8 +465,15 @@ qte <- function(fit,
   interval <- match.arg(interval)
   x_pred <- newdata %||% (fit$bundle$data$X %||% NULL)
 
-  ps_new <- NULL
-  if (!is.null(x_pred)) {
+  ps_meta <- fit$bundle$meta$ps %||% list()
+  ps_enabled <- isTRUE(ps_meta$enabled) && isTRUE(fit$bundle$meta$has_x)
+  ps_scale <- fit$bundle$meta$ps_scale %||% "logit"
+  ps_summary <- fit$bundle$meta$ps_summary %||% "mean"
+  ps_clamp <- fit$bundle$meta$ps_clamp %||% 1e-6
+
+  ps_prob <- NULL
+  ps_cov <- NULL
+  if (!is.null(x_pred) && ps_enabled) {
     ps_fit_use <- fit$ps_fit
     ps_bundle_use <- fit$bundle$design
     
@@ -462,18 +489,25 @@ qte <- function(fit,
     # If PS model is still unavailable, warn and proceed without PS
     if (is.null(ps_fit_use) || is.null(ps_bundle_use)) {
       warning("Causal fit missing PS model; proceeding without PS adjustment.", call. = FALSE)
-      ps_new <- NULL
+      ps_prob <- NULL
     } else {
-      ps_new <- .compute_ps_from_fit(ps_fit = ps_fit_use, ps_bundle = ps_bundle_use, X_new = x_pred)
+      ps_prob <- .compute_ps_from_fit(
+        ps_fit = ps_fit_use,
+        ps_bundle = ps_bundle_use,
+        X_new = x_pred,
+        summary = ps_summary,
+        clamp = ps_clamp
+      )
+      ps_cov <- .apply_ps_scale(ps_prob, scale = ps_scale, clamp = ps_clamp)
     }
   }
 
   pr_trt <- predict(fit$outcome_fit$trt, x = x_pred, type = "quantile", index = probs,
-                    ps = ps_new,
+                    ps = ps_cov,
                     interval = interval,
                     store_draws = TRUE)
   pr_con <- predict(fit$outcome_fit$con, x = x_pred, type = "quantile", index = probs,
-                    ps = ps_new,
+                    ps = ps_cov,
                     interval = interval,
                     store_draws = TRUE)
 
@@ -504,7 +538,7 @@ qte <- function(fit,
     grid = probs,
     trt = pr_trt,
     con = pr_con,
-    ps = ps_new,
+    ps = ps_prob,
     type = "qte"
   )
   class(out) <- "dpmixgpd_qte"
@@ -539,8 +573,15 @@ ate <- function(fit,
   interval <- match.arg(interval)
   x_pred <- newdata %||% (fit$bundle$data$X %||% NULL)
 
-  ps_new <- NULL
-  if (!is.null(x_pred)) {
+  ps_meta <- fit$bundle$meta$ps %||% list()
+  ps_enabled <- isTRUE(ps_meta$enabled) && isTRUE(fit$bundle$meta$has_x)
+  ps_scale <- fit$bundle$meta$ps_scale %||% "logit"
+  ps_summary <- fit$bundle$meta$ps_summary %||% "mean"
+  ps_clamp <- fit$bundle$meta$ps_clamp %||% 1e-6
+
+  ps_prob <- NULL
+  ps_cov <- NULL
+  if (!is.null(x_pred) && ps_enabled) {
     ps_fit_use <- fit$ps_fit
     ps_bundle_use <- fit$bundle$design
     
@@ -556,17 +597,24 @@ ate <- function(fit,
     # If PS model is still unavailable, warn and proceed without PS
     if (is.null(ps_fit_use) || is.null(ps_bundle_use)) {
       warning("Causal fit missing PS model; proceeding without PS adjustment.", call. = FALSE)
-      ps_new <- NULL
+      ps_prob <- NULL
     } else {
-      ps_new <- .compute_ps_from_fit(ps_fit = ps_fit_use, ps_bundle = ps_bundle_use, X_new = x_pred)
+      ps_prob <- .compute_ps_from_fit(
+        ps_fit = ps_fit_use,
+        ps_bundle = ps_bundle_use,
+        X_new = x_pred,
+        summary = ps_summary,
+        clamp = ps_clamp
+      )
+      ps_cov <- .apply_ps_scale(ps_prob, scale = ps_scale, clamp = ps_clamp)
     }
   }
 
   pr_trt <- predict(fit$outcome_fit$trt, x = x_pred, type = "mean",
-                    ps = ps_new, interval = interval, probs = probs,
+                    ps = ps_cov, interval = interval, probs = probs,
                     nsim_mean = nsim_mean, store_draws = TRUE)
   pr_con <- predict(fit$outcome_fit$con, x = x_pred, type = "mean",
-                    ps = ps_new, interval = interval, probs = probs,
+                    ps = ps_cov, interval = interval, probs = probs,
                     nsim_mean = nsim_mean, store_draws = TRUE)
 
   if (is.null(pr_trt$draws) || is.null(pr_con$draws)) {
@@ -592,7 +640,7 @@ ate <- function(fit,
     grid = NULL,
     trt = pr_trt,
     con = pr_con,
-    ps = ps_new,
+    ps = ps_prob,
     type = "ate"
   )
   class(out) <- "dpmixgpd_ate"
@@ -665,7 +713,11 @@ predict.dpmixgpd_causal_fit <- function(object,
 
   ps_enabled <- isTRUE(bundle$meta$ps$enabled) && has_X
   ps_include_in_outcome <- isTRUE(bundle$meta$ps$include_in_outcome)
+  if (is.null(ps_include_in_outcome)) ps_include_in_outcome <- ps_enabled
   ps_model_type <- bundle$meta$ps$model_type %||% FALSE
+  ps_scale <- bundle$meta$ps_scale %||% "logit"
+  ps_summary <- bundle$meta$ps_summary %||% "mean"
+  ps_clamp <- bundle$meta$ps_clamp %||% 1e-6
 
   if (type == "quantile") {
     if (is.null(p) || length(p) != 1L || !is.finite(as.numeric(p))) {
@@ -684,9 +736,14 @@ predict.dpmixgpd_causal_fit <- function(object,
   }
 
   ps_full <- NULL
+  ps_cov <- NULL
   if (ps_enabled) {
     if (!is.null(ps)) {
       ps_full <- as.numeric(ps)
+      eps <- as.numeric(ps_clamp)[1]
+      if (is.finite(eps) && eps > 0) {
+        ps_full <- pmin(pmax(ps_full, eps), 1 - eps)
+      }
     } else if (!is.null(x_mat)) {
       if (is.null(object$ps_fit)) {
         stop(sprintf("Causal fit missing PS model (%s); cannot compute propensity scores for newdata.", ps_model_type), call. = FALSE)
@@ -694,7 +751,9 @@ predict.dpmixgpd_causal_fit <- function(object,
       ps_full <- .compute_ps_from_fit(
         ps_fit = object$ps_fit,
         ps_bundle = bundle$design,
-        X_new = x_mat
+        X_new = x_mat,
+        summary = ps_summary,
+        clamp = ps_clamp
       )
     } else {
       ps_full <- object$ps_hat %||% NULL
@@ -703,10 +762,13 @@ predict.dpmixgpd_causal_fit <- function(object,
     if (!is.null(ps_full) && length(ps_full) != n_pred) {
       stop("Length of 'ps' must equal the number of prediction rows (nrow(x)).", call. = FALSE)
     }
+    if (!is.null(ps_full)) {
+      ps_cov <- .apply_ps_scale(ps_full, scale = ps_scale, clamp = ps_clamp)
+    }
   }
 
-  ps_trt <- if (ps_enabled && ps_include_in_outcome) ps_full else NULL
-  ps_con <- if (ps_enabled && ps_include_in_outcome) ps_full else NULL
+  ps_trt <- if (ps_enabled && ps_include_in_outcome) ps_cov else NULL
+  ps_con <- if (ps_enabled && ps_include_in_outcome) ps_cov else NULL
 
   .extract_stats <- function(pr, n_pred) {
     fit <- pr$fit
@@ -1018,7 +1080,22 @@ predict.dpmixgpd_causal_fit <- function(object,
   out
 }
 
-.compute_ps_from_fit <- function(ps_fit, ps_bundle, X_new) {
+.apply_ps_scale <- function(ps_prob, scale = c("prob", "logit"), clamp = 1e-6) {
+  scale <- match.arg(scale)
+  ps_prob <- as.numeric(ps_prob)
+  if (scale == "prob") return(ps_prob)
+
+  eps <- as.numeric(clamp)[1]
+  if (is.finite(eps) && eps > 0) {
+    ps_prob <- pmin(pmax(ps_prob, eps), 1 - eps)
+  }
+  qlogis(ps_prob)
+}
+
+.compute_ps_from_fit <- function(ps_fit, ps_bundle, X_new,
+                                 summary = c("mean", "median"),
+                                 clamp = 1e-6) {
+  summary <- match.arg(summary)
   model_type <- ps_bundle$spec$model %||% "logit"
   samples <- as.matrix(ps_fit$mcmc$samples)
   
@@ -1043,7 +1120,16 @@ predict.dpmixgpd_causal_fit <- function(object,
     # Posterior predictive PS: average inverse link over beta draws
     eta <- beta_mat %*% t(design)  # S x n_pred
     ps_draws <- inv_link(eta)
-    colMeans(ps_draws)
+    ps_vec <- if (summary == "mean") {
+      colMeans(ps_draws)
+    } else {
+      apply(ps_draws, 2, stats::median)
+    }
+    eps <- as.numeric(clamp)[1]
+    if (is.finite(eps) && eps > 0) {
+      ps_vec <- pmin(pmax(ps_vec, eps), 1 - eps)
+    }
+    ps_vec
     
   } else if (model_type == "naive") {
     # Naive Bayes: use Bayes rule with learned feature distributions
@@ -1123,6 +1209,15 @@ predict.dpmixgpd_causal_fit <- function(object,
       ps_draws[s, ] <- exp(log_post_t1 - max_log) / (exp(log_post_t0 - max_log) + exp(log_post_t1 - max_log))
     }
     
-    colMeans(ps_draws)
+    ps_vec <- if (summary == "mean") {
+      colMeans(ps_draws)
+    } else {
+      apply(ps_draws, 2, stats::median)
+    }
+    eps <- as.numeric(clamp)[1]
+    if (is.finite(eps) && eps > 0) {
+      ps_vec <- pmin(pmax(ps_vec, eps), 1 - eps)
+    }
+    ps_vec
   }
 }
