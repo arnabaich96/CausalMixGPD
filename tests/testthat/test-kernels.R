@@ -1,7 +1,6 @@
 test_that(
   "Kernels: mixture families (mix / mix+GPD / scalar+GPD) semantic + roundtrip checks",
   {
-    skip_if_not_installed("nimble")
 
     # ---------- helpers ----------
     .norm_w <- function(w) {
@@ -301,7 +300,6 @@ test_that(
   }
 )
 test_that("All nimble::nimbleFunction-defined objects in R/ compile", {
-  skip_if_not_installed("nimble")
 
   r_dir <- test_path("..", "..", "R")
   expect_true(dir.exists(r_dir), info = paste("Missing R dir:", r_dir))
