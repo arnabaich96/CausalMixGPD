@@ -280,3 +280,30 @@ test_that("ncores=1 and ncores=2 agree for deterministic predictions", {
 
   expect_equal(p1$fit$density, p2$fit$density, tolerance = 1e-8)
 })
+
+test_that("quantile estimates average q_fun draws and median matches quantile(0.5)", {
+
+  fit <- .get_cached_fit("uncond_fit_predict_contracts", .build_uncond_fit)
+
+  pred_q <- predict(fit, type = "quantile", index = c(0.25, 0.5, 0.75),
+                    interval = "none", store_draws = TRUE)
+  expect_true(is.matrix(pred_q$draws))
+  expect_equal(pred_q$fit$estimate, rowMeans(pred_q$draws, na.rm = TRUE), tolerance = 1e-8)
+
+  pred_med <- predict(fit, type = "median", interval = "none", store_draws = TRUE)
+  pred_q50 <- predict(fit, type = "quantile", index = 0.5, interval = "none", store_draws = TRUE)
+  expect_equal(pred_med$fit$estimate, pred_q50$fit$estimate, tolerance = 1e-8)
+})
+
+test_that("fitted(type='location') returns mean and median columns", {
+
+  fit <- .get_cached_fit("uncond_fit_predict_contracts", .build_uncond_fit)
+
+  loc <- fitted(fit, type = "location")
+  m1 <- fitted(fit, type = "mean")
+  m2 <- fitted(fit, type = "median")
+
+  expect_true(all(c("mean", "median") %in% names(loc)))
+  expect_equal(loc$mean[1], m1$fit[1], tolerance = 1e-8)
+  expect_equal(loc$median[1], m2$fit[1], tolerance = 1e-8)
+})
