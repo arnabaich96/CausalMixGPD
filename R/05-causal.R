@@ -45,6 +45,10 @@
 #'   }
 #'   The PS model choice is stored in bundle metadata for downstream use in prediction
 #'   and summaries, enabling seamless integration of future PS estimation methods.
+#' @param design Causal design: \code{"rct"} or \code{"observational"}.
+#' @param ps_scale Scale used when augmenting outcomes with PS: \code{"logit"} or \code{"prob"}.
+#' @param ps_summary Posterior summary for PS: \code{"mean"} or \code{"median"}.
+#' @param ps_clamp Numeric epsilon for clamping PS values to \eqn{(\epsilon, 1-\epsilon)}.
 #' @return A list of class \code{"dpmixgpd_causal_bundle"}.
 #' @examples
 #' \dontrun{
@@ -83,7 +87,11 @@ build_causal_bundle <- function(
     ps_model = c("logit"),
     ps_prior = list(mean = 0, sd = 2),
     include_intercept = TRUE,
-    PS = "logit"
+    PS = "logit",
+    design = c("rct", "observational"),
+    ps_scale = c("logit", "prob"),
+    ps_summary = c("mean", "median"),
+    ps_clamp = 1e-6
 ) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
@@ -97,13 +105,24 @@ build_causal_bundle <- function(
   backend$trt <- match.arg(backend$trt, choices = c("sb", "crp"))
   backend$con <- match.arg(backend$con, choices = c("sb", "crp"))
   ps_model <- match.arg(ps_model, choices = c("logit"))
+  design <- match.arg(design)
+  ps_scale <- match.arg(ps_scale)
+  ps_summary <- match.arg(ps_summary)
 
   y <- as.numeric(y)
   if (!length(y)) stop("y must be a non-empty numeric vector.", call. = FALSE)
 
-  if (is.null(X)) stop("X is required for causal bundles.", call. = FALSE)
-  if (!is.matrix(X)) X <- as.matrix(X)
-  if (nrow(X) != length(y)) stop("X must have the same number of rows as length(y).", call. = FALSE)
+  has_x <- !is.null(X)
+  if (has_x) {
+    if (!is.matrix(X)) X <- as.matrix(X)
+    if (ncol(X) == 0L) {
+      X <- NULL
+      has_x <- FALSE
+    }
+  }
+  if (has_x && nrow(X) != length(y)) {
+    stop("X must have the same number of rows as length(y).", call. = FALSE)
+  }
 
   T <- as.integer(T)
   if (length(T) != length(y)) stop("T must have the same length as y.", call. = FALSE)
@@ -124,20 +143,29 @@ build_causal_bundle <- function(
     stop("components (control) must be an integer >= 2.", call. = FALSE)
   }
 
-  # Validate and normalize PS parameter
+  # Validate and normalize PS parameter with design rules
   ps_model_type <- FALSE
-  if (!isFALSE(PS)) {
-    ps_choices <- c("logit", "probit", "naive")
+  ps_choices <- c("logit", "probit", "naive")
+  if (identical(design, "rct")) {
+    if (!isFALSE(PS)) {
+      warning("design='rct' ignores PS; setting PS = FALSE.", call. = FALSE)
+    }
+    ps_model_type <- FALSE
+  } else if (identical(design, "observational")) {
+    if (!has_x) stop("design='observational' requires non-empty X.", call. = FALSE)
+    if (isFALSE(PS)) stop("design='observational' requires PS estimation.", call. = FALSE)
     if (isTRUE(PS)) {
       ps_model_type <- "logit"
     } else {
       ps_model_type <- as.character(PS)
       if (length(ps_model_type) == 1L && tolower(ps_model_type) %in% c("false", "none", "null")) {
-        ps_model_type <- FALSE
-      } else {
-        ps_model_type <- match.arg(ps_model_type, choices = ps_choices)
+        stop("design='observational' requires PS estimation.", call. = FALSE)
       }
+      ps_model_type <- match.arg(ps_model_type, choices = ps_choices)
     }
+  }
+  if (!has_x) {
+    ps_model_type <- FALSE
   }
 
   idx_con <- which(T == 0L)
@@ -186,7 +214,7 @@ build_causal_bundle <- function(
 
   bundle_con <- build_nimble_bundle(
     y = y[idx_con],
-    X = X[idx_con, , drop = FALSE],
+    X = if (has_x) X[idx_con, , drop = FALSE] else NULL,
     ps = if (!is.null(ps_placeholder)) ps_placeholder[idx_con] else NULL,
     backend = backend$con,
     kernel = kernel$con,
@@ -200,7 +228,7 @@ build_causal_bundle <- function(
 
   bundle_trt <- build_nimble_bundle(
     y = y[idx_trt],
-    X = X[idx_trt, , drop = FALSE],
+    X = if (has_x) X[idx_trt, , drop = FALSE] else NULL,
     ps = if (!is.null(ps_placeholder)) ps_placeholder[idx_trt] else NULL,
     backend = backend$trt,
     kernel = kernel$trt,
@@ -223,6 +251,12 @@ build_causal_bundle <- function(
       GPD = GPD,
       components = components,
       epsilon = epsilon,
+      design = design,
+      has_x = has_x,
+      needs_ps = !isFALSE(ps_model_type),
+      ps_scale = ps_scale,
+      ps_summary = ps_summary,
+      ps_clamp = ps_clamp,
       ps = list(
         enabled = !isFALSE(ps_model_type),
         model_type = ps_model_type
