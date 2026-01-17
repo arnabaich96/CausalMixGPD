@@ -1,10 +1,10 @@
 ---
-title: "10. Conditional DPmixGPD with CRP Backend"
+title: "12. Conditional DPmixGPD with CRP Backend"
 output: 
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
-  %\VignetteIndexEntry{10. Conditional DPmixGPD with CRP Backend}
+  %\\VignetteIndexEntry{12. Conditional DPmixGPD with CRP Backend}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -233,5 +233,6 @@ plot(fit_cond_gpd_normal, family = c("running", "geweke", "caterpillar"))
 - The CRP backend samples the bulk and tail jointly while thresholding at the 85th percentile.
 - `predict()` + `plot()` remain the main tools for densities, survival curves, and quantiles; residual diagnostics check fit quality.
 - Next: Mirror this workflow with the SB backend in `v11`.
+
 
 
