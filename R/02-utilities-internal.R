@@ -748,13 +748,21 @@ stick_breaking <- nimble::nimbleFunction(
   # -----------------------------
   # Resolve MIX functions for kernel
   # -----------------------------
-  .get_mix_fns <- function(kernel, GPD) {
+  .get_mix_fns <- function(kernel, GPD, backend) {
     kdef <- get_kernel_registry()[[kernel]]
     if (is.null(kdef)) stop(sprintf("Kernel '%s' not found in registry.", kernel), call. = FALSE)
     if (isTRUE(GPD) && isFALSE(kdef$allow_gpd)) stop(sprintf("Kernel '%s' does not allow GPD.", kernel), call. = FALSE)
 
-    d_name <- if (isTRUE(GPD)) kdef$sb$d_gpd else kdef$sb$d
-    if (is.na(d_name) || !nzchar(d_name)) stop("Missing sb dispatch in kernel registry.", call. = FALSE)
+    backend_key <- match.arg(backend, choices = c("sb", "crp"))
+    dispatch <- kdef[[backend_key]]
+    if (is.null(dispatch)) {
+      stop(sprintf("Missing %s dispatch in kernel registry.", backend_key), call. = FALSE)
+    }
+
+    d_name <- if (isTRUE(GPD)) dispatch$d_gpd else dispatch$d
+    if (is.na(d_name) || !nzchar(d_name)) {
+      stop(sprintf("Missing %s dispatch for kernel '%s'.", backend_key, kernel), call. = FALSE)
+    }
 
     p_name <- sub("^d", "p", d_name)
     q_name <- sub("^d", "q", d_name)
@@ -770,7 +778,7 @@ stick_breaking <- nimble::nimbleFunction(
     )
   }
 
-  fns <- .get_mix_fns(kernel = kernel, GPD = GPD)
+  fns <- .get_mix_fns(kernel = kernel, GPD = GPD, backend = backend)
   bulk_params <- fns$bulk_params
   d_fun <- fns$d
   p_fun <- fns$p
@@ -1168,6 +1176,55 @@ stick_breaking <- nimble::nimbleFunction(
 
 
   # -----------------------------
+  # Posterior predictive simulation helpers
+  # -----------------------------
+  .draw_samples_uncond <- function(s, nsim_inner) {
+    w_s <- as.numeric(W_draws[s, ])
+    args0 <- list(w = w_s)
+    for (nm in base_params) {
+      args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
+    }
+    if (GPD) { args0$tail_shape <- tail_shape[s] }
+
+    if (GPD) {
+      args0$threshold <- threshold_scalar[s]
+      args0$tail_scale <- tail_scale[s]
+    }
+
+    out <- numeric(nsim_inner)
+    for (t in seq_len(nsim_inner)) {
+      out[t] <- as.numeric(do.call(r_fun, c(list(n = 1L), args0)))
+    }
+    out
+  }
+
+  .draw_samples_cond <- function(s, nsim_inner) {
+    w_s <- as.numeric(W_draws[s, ])
+    args0 <- list(w = w_s)
+    for (nm in base_params) {
+      args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
+    }
+    if (GPD) { args0$tail_shape <- tail_shape[s] }
+
+    link_eta <- .compute_link_eta(s)
+    out <- matrix(NA_real_, nrow = n_pred, ncol = nsim_inner)
+    for (i in seq_len(n_pred)) {
+      args_i <- args0
+      if (GPD) {
+        args_i$threshold <- .threshold_at(s, i)
+        args_i$tail_scale <- .tail_scale_at(s, i)
+      }
+      if (length(link_params)) {
+        for (nm in link_params) args_i[[nm]] <- as.numeric(link_eta[[nm]][, i])
+      }
+      for (t in seq_len(nsim_inner)) {
+        out[i, t] <- as.numeric(do.call(r_fun, c(list(n = 1L), args_i)))
+      }
+    }
+    out
+  }
+
+  # -----------------------------
 
   # density / survival
   # Returns data frame with columns: y, density/survival, lower, upper
@@ -1268,54 +1325,23 @@ stick_breaking <- nimble::nimbleFunction(
   # For conditional: compute quantiles for each X observation
   # Returns data frame: index, quantile, lower, upper
   if (type == "quantile") {
-    if (!has_X) {
-      # UNCONDITIONAL: Compute quantiles over posterior draws for each training observation
-      G <- length(ytrain)
-      M <- length(pgrid)
-      
-      .one_draw_uncond <- function(s) {
-        w_s <- as.numeric(W_draws[s, ])
-        args0 <- list(w = w_s)
-        for (nm in base_params) {
-          args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
-        }
-        if (GPD) { args0$tail_shape <- tail_shape[s] }
-        
-        # Compute quantiles for each training observation
-        out <- matrix(NA_real_, nrow = G, ncol = M)
-        for (i in 1:G) {
-          args <- args0
-          if (GPD) {
-            args$threshold <- threshold_scalar[s]
-            args$tail_scale <- tail_scale[s]
-          }
-          out[i, ] <- as.numeric(do.call(q_fun, c(list(p = pgrid), args)))
-        }
-        out
-      }
-      
-      mats <- .lapply_draws(.one_draw_uncond)
-      
-      # draws_arr: S x G x M
-      draws_arr <- array(NA_real_, dim = c(S, G, M))
-      for (s in 1:S) draws_arr[s, , ] <- mats[[s]]
-      
-      # Aggregate over posterior draws using quantiles (median as estimate)
-      qarr <- apply(draws_arr, c(2, 3), stats::quantile, probs = probs, na.rm = TRUE)
-      estimate <- qarr[which.min(abs(probs - 0.5)), , , drop = TRUE]
-      lower <- qarr[1, , , drop = TRUE]
-      upper <- qarr[length(probs), , , drop = TRUE]
+    nsim_inner <- as.integer(nsim_mean)
+    if (is.na(nsim_inner) || nsim_inner < 10L) nsim_inner <- 200L
 
-      # Collapse across observations: one row per requested index
-      if (M == 1) {
-        estimate_vec <- mean(estimate, na.rm = TRUE)
-        lower_vec    <- mean(lower, na.rm = TRUE)
-        upper_vec    <- mean(upper, na.rm = TRUE)
-      } else {
-        estimate_vec <- colMeans(estimate, na.rm = TRUE)
-        lower_vec    <- colMeans(lower, na.rm = TRUE)
-        upper_vec    <- colMeans(upper, na.rm = TRUE)
+    if (!has_X) {
+      M <- length(pgrid)
+
+      draws_arr <- matrix(NA_real_, nrow = S, ncol = M)
+      for (s in seq_len(S)) {
+        samples <- .draw_samples_uncond(s, nsim_inner)
+        draws_arr[s, ] <- as.numeric(stats::quantile(samples, probs = pgrid, na.rm = TRUE, names = FALSE))
       }
+
+      qarr <- apply(draws_arr, 2, stats::quantile, probs = probs, na.rm = TRUE)
+      estimate_vec <- qarr[which.min(abs(probs - 0.5)), ]
+      lower_vec <- qarr[1, ]
+      upper_vec <- qarr[length(probs), ]
+
       fit_df <- data.frame(
         index    = pgrid,
         estimate = estimate_vec,
@@ -1324,13 +1350,13 @@ stick_breaking <- nimble::nimbleFunction(
         row.names = NULL
       )
       fit <- fit_df
-      
+
       draws_out <- if (isTRUE(store_draws)) draws_arr else NULL
       
       if (isTRUE(store_draws) && is.environment(object$cache)) {
         if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
         key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
-                      "_g", G, "_m", M, "_S", S)
+                      "_m", M, "_S", S)
         object$cache$predict[[key]] <- list(type = type, grid = pgrid, draws = draws_arr, fit = fit,
                                             backend = backend, kernel = kernel, GPD = GPD)
       }
@@ -1339,38 +1365,15 @@ stick_breaking <- nimble::nimbleFunction(
       class(out) <- "mixgpd_predict"
       return(out)
     } else {
-      # CONDITIONAL: Original logic, return data frame
       M <- length(pgrid)
 
-      .one_draw <- function(s) {
-        w_s <- as.numeric(W_draws[s, ])
-        args0 <- list(w = w_s)
-        for (nm in base_params) {
-          args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
-        }
-        if (GPD) { args0$tail_shape <- tail_shape[s] }
-
-        link_eta <- .compute_link_eta(s)
-
-        out <- matrix(NA_real_, nrow = n_pred, ncol = M)
-        for (i in 1:n_pred) {
-          args <- args0
-          if (GPD) {
-            args$threshold <- .threshold_at(s, i)
-            args$tail_scale <- .tail_scale_at(s, i)
-          }
-          if (length(link_params)) {
-            for (nm in link_params) args[[nm]] <- as.numeric(link_eta[[nm]][, i])
-          }
-          out[i, ] <- as.numeric(do.call(q_fun, c(list(p = pgrid), args)))
-        }
-        out
-      }
-
-      mats <- .lapply_draws(.one_draw)
-
       draws_arr <- array(NA_real_, dim = c(S, n_pred, M))
-      for (s in 1:S) draws_arr[s, , ] <- mats[[s]]
+      for (s in seq_len(S)) {
+        samples_mat <- .draw_samples_cond(s, nsim_inner)
+        for (i in seq_len(n_pred)) {
+          draws_arr[s, i, ] <- as.numeric(stats::quantile(samples_mat[i, ], probs = pgrid, na.rm = TRUE, names = FALSE))
+        }
+      }
 
       qarr <- apply(draws_arr, c(2, 3), stats::quantile, probs = probs, na.rm = TRUE)
       estimate <- qarr[which.min(abs(probs - 0.5)), , , drop = TRUE]
@@ -1488,129 +1491,51 @@ stick_breaking <- nimble::nimbleFunction(
   # mean (via posterior samples from quantile inversion)
   # Generate posterior samples via quantile inversion, compute mean and CI
   if (type == "mean") {
+    nsim_inner <- as.integer(nsim_mean)
+    if (is.na(nsim_inner) || nsim_inner < 10L) nsim_inner <- 200L
+
     if (!has_X) {
-      # UNCONDITIONAL: Compute observation-specific posterior means using quantile inversion
-      G <- length(ytrain)
-      nsim_inner <- as.integer(nsim_mean)
-      if (is.na(nsim_inner) || nsim_inner < 10L) nsim_inner <- 200L
-      
-      # Compute per-observation quantiles and means
-      fit <- numeric(G)
-      lower <- upper <- numeric(G)
-      
-      for (i in 1:G) {
-        # For observation i, compute nsim_inner posterior samples using quantile inversion
-        u_samples <- runif(nsim_inner)
-        idx <- sample.int(S, size = nsim_inner, replace = TRUE)
-        samples <- numeric(nsim_inner)
-        
-        for (t in 1:nsim_inner) {
-          s <- idx[t]
-          w_s <- as.numeric(W_draws[s, ])
-          args0 <- list(w = w_s)
-          for (nm in base_params) {
-            args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
-          }
-          if (GPD) { args0$tail_shape <- tail_shape[s] }
-          args <- args0
-          if (GPD) {
-            args$threshold <- threshold_scalar[s]
-            args$tail_scale <- tail_scale[s]
-          }
-          samples[t] <- as.numeric(do.call(q_fun, c(list(p = u_samples[t]), args)))
-        }
-        
-        fit[i] <- mean(samples, na.rm = TRUE)
-        if (interval == "credible") {
-          q_vals <- stats::quantile(samples, probs = probs, na.rm = TRUE, names = FALSE)
-          lower[i] <- q_vals[1]
-          upper[i] <- q_vals[length(probs)]
-        }
+      draws_mean <- numeric(S)
+      for (s in seq_len(S)) {
+        samples <- .draw_samples_uncond(s, nsim_inner)
+        draws_mean[s] <- mean(samples, na.rm = TRUE)
       }
-      
-      if (interval != "credible") {
-        lower <- upper <- NULL
+
+      estimate <- mean(draws_mean, na.rm = TRUE)
+      lower <- upper <- NULL
+      if (interval == "credible") {
+        q_vals <- stats::quantile(draws_mean, probs = probs, na.rm = TRUE, names = FALSE)
+        lower <- q_vals[1]
+        upper <- q_vals[length(probs)]
       }
-      
-      # Store all samples from all observations for plotting histogram
-      all_samples <- numeric(G * nsim_inner)
-      idx_start <- 1
-      for (i in 1:G) {
-        u_samples <- runif(nsim_inner)
-        idx <- sample.int(S, size = nsim_inner, replace = TRUE)
-        for (t in 1:nsim_inner) {
-          s <- idx[t]
-          w_s <- as.numeric(W_draws[s, ])
-          args0 <- list(w = w_s)
-          for (nm in base_params) {
-            args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
-          }
-          if (GPD) { args0$tail_shape <- tail_shape[s] }
-          args <- args0
-          if (GPD) {
-            args$threshold <- threshold_scalar[s]
-            args$tail_scale <- tail_scale[s]
-          }
-          all_samples[idx_start + t - 1] <- as.numeric(do.call(q_fun, c(list(p = u_samples[t]), args)))
-        }
-        idx_start <- idx_start + nsim_inner
-      }
-      
-      # Return data frame format
+
       fit_df <- data.frame(
-        estimate = mean(fit, na.rm = TRUE),
-        lower = if (!is.null(lower)) mean(lower, na.rm = TRUE) else NA_real_,
-        upper = if (!is.null(upper)) mean(upper, na.rm = TRUE) else NA_real_
+        estimate = estimate,
+        lower = if (!is.null(lower)) lower else NA_real_,
+        upper = if (!is.null(upper)) upper else NA_real_
       )
-      
+
       if (isTRUE(store_draws) && is.environment(object$cache)) {
         if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
         key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
-                      "_g", G, "_nsim", nsim_inner)
-        object$cache$predict[[key]] <- list(type = type, draws = all_samples, fit = fit_df,
+                      "_S", S, "_nsim", nsim_inner)
+        object$cache$predict[[key]] <- list(type = type, draws = draws_mean, fit = fit_df,
                                             backend = backend, kernel = kernel, GPD = GPD)
       }
-      res <- list(fit = fit_df, type = type, draws = all_samples)
+      res <- list(fit = fit_df, type = type, draws = draws_mean)
       class(res) <- "mixgpd_predict"
       return(res)
     } else {
-      # CONDITIONAL: Original logic
-      nsim_mean <- as.integer(nsim_mean)
-      if (is.na(nsim_mean) || nsim_mean < 10L) nsim_mean <- 200L
-
-      samples_mat <- matrix(NA_real_, nrow = n_pred, ncol = nsim_mean)
-
-      for (t in 1:nsim_mean) {
-        # Sample posterior index uniformly
-        s <- sample.int(S, size = 1L)
-        u <- runif(1)
-
-        w_s <- as.numeric(W_draws[s, ])
-        args0 <- list(w = w_s)
-        for (nm in base_params) {
-          args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
-        }
-        if (GPD) { args0$tail_shape <- tail_shape[s] }
-
-        link_eta <- .compute_link_eta(s)
-
-        for (i in 1:n_pred) {
-          args <- args0
-          if (GPD) {
-            args$threshold <- .threshold_at(s, i)
-            args$tail_scale <- .tail_scale_at(s, i)
-          }
-          if (length(link_params)) {
-            for (nm in link_params) args[[nm]] <- as.numeric(link_eta[[nm]][, i])
-          }
-          samples_mat[i, t] <- as.numeric(do.call(q_fun, c(list(p = u), args)))
-        }
+      draws_mean <- matrix(NA_real_, nrow = S, ncol = n_pred)
+      for (s in seq_len(S)) {
+        samples_mat <- .draw_samples_cond(s, nsim_inner)
+        draws_mean[s, ] <- rowMeans(samples_mat, na.rm = TRUE)
       }
 
-      fit <- rowMeans(samples_mat, na.rm = TRUE)
+      fit <- colMeans(draws_mean, na.rm = TRUE)
       lower <- upper <- NULL
       if (interval == "credible") {
-        qmat <- t(apply(samples_mat, 1, stats::quantile, probs = probs, na.rm = TRUE, names = FALSE))
+        qmat <- t(apply(draws_mean, 2, stats::quantile, probs = probs, na.rm = TRUE, names = FALSE))
         lower <- qmat[, 1]
         upper <- qmat[, length(probs)]
       }
@@ -1623,17 +1548,17 @@ stick_breaking <- nimble::nimbleFunction(
       )
       
       # Flatten samples for histogram (all observations combined)
-      all_samples <- as.numeric(samples_mat)
+      all_samples <- as.numeric(draws_mean)
 
       if (isTRUE(store_draws) && is.environment(object$cache)) {
         if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
         key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
-                      "_n", n_pred, "_nsim", nsim_mean)
+                      "_n", n_pred, "_S", S, "_nsim", nsim_inner)
         object$cache$predict[[key]] <- list(type = type, draws = all_samples, fit = fit_df,
                                             backend = backend, kernel = kernel, GPD = GPD)
       }
 
-      draws_out <- if (isTRUE(store_draws)) t(samples_mat) else NULL
+      draws_out <- if (isTRUE(store_draws)) all_samples else NULL
       res <- list(fit = fit_df, type = type, draws = draws_out)
       class(res) <- "mixgpd_predict"
       return(res)
