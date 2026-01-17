@@ -602,6 +602,91 @@ stick_breaking <- nimble::nimbleFunction(
   out
 }
 
+#' Resolve kernel dispatch functions
+#' @param spec_or_fit mixgpd_fit or spec list
+#' @return List with d/p/q/r functions and bulk_params.
+#' @keywords internal
+.get_dispatch <- function(spec_or_fit) {
+  spec <- spec_or_fit
+  if (inherits(spec_or_fit, "mixgpd_fit")) {
+    spec <- spec_or_fit$spec %||% list()
+  }
+
+  meta <- spec$meta %||% list()
+  backend <- meta$backend %||% spec$dispatch$backend %||% "<unknown>"
+  kernel <- meta$kernel %||% spec$kernel$key %||% "<unknown>"
+  GPD <- isTRUE(meta$GPD %||% spec$dispatch$GPD)
+
+  kdef <- get_kernel_registry()[[kernel]]
+  if (is.null(kdef)) stop(sprintf("Kernel '%s' not found in registry.", kernel), call. = FALSE)
+  if (isTRUE(GPD) && isFALSE(kdef$allow_gpd)) stop(sprintf("Kernel '%s' does not allow GPD.", kernel), call. = FALSE)
+
+  backend_key <- match.arg(backend, choices = c("sb", "crp"))
+  dispatch <- kdef[[backend_key]]
+  if (is.null(dispatch)) {
+    stop(sprintf("Missing %s dispatch in kernel registry.", backend_key), call. = FALSE)
+  }
+
+  d_name <- if (isTRUE(GPD)) dispatch$d_gpd else dispatch$d
+  if (is.na(d_name) || !nzchar(d_name)) {
+    stop(sprintf("Missing %s dispatch for kernel '%s'.", backend_key, kernel), call. = FALSE)
+  }
+
+  p_name <- sub("^d", "p", d_name)
+  q_name <- sub("^d", "q", d_name)
+  r_name <- sub("^d", "r", d_name)
+
+  ns <- asNamespace("DPmixGPD")
+  list(
+    d = get(d_name, envir = ns),
+    p = get(p_name, envir = ns),
+    q = get(q_name, envir = ns),
+    r = get(r_name, envir = ns),
+    bulk_params = kdef$bulk_params
+  )
+}
+
+#' Summarize posterior draws (mean + quantiles)
+#' @param draws Numeric vector, matrix, or array with draws in last dimension.
+#' @param probs Numeric quantile probs.
+#' @return List with estimate, lower, upper, and q.
+#' @keywords internal
+.posterior_summarize <- function(draws, probs = c(0.025, 0.5, 0.975)) {
+  probs <- as.numeric(probs)
+  if (is.null(dim(draws))) {
+    mat <- matrix(as.numeric(draws), nrow = 1)
+    qmat <- t(apply(mat, 1, stats::quantile, probs = probs, na.rm = TRUE, names = FALSE))
+    return(list(
+      estimate = rowMeans(mat, na.rm = TRUE),
+      lower = qmat[, 1],
+      upper = qmat[, length(probs)],
+      q = qmat
+    ))
+  }
+
+  dims <- dim(draws)
+  if (length(dims) == 2L) {
+    qmat <- t(apply(draws, 1, stats::quantile, probs = probs, na.rm = TRUE, names = FALSE))
+    return(list(
+      estimate = rowMeans(draws, na.rm = TRUE),
+      lower = qmat[, 1],
+      upper = qmat[, length(probs)],
+      q = qmat
+    ))
+  }
+
+  Sdim <- dims[length(dims)]
+  mat <- matrix(draws, nrow = prod(dims[-length(dims)]), ncol = Sdim)
+  qmat <- t(apply(mat, 1, stats::quantile, probs = probs, na.rm = TRUE, names = FALSE))
+  estimate <- rowMeans(mat, na.rm = TRUE)
+  lower <- qmat[, 1]
+  upper <- qmat[, length(probs)]
+  dim(estimate) <- dims[-length(dims)]
+  dim(lower) <- dims[-length(dims)]
+  dim(upper) <- dims[-length(dims)]
+  list(estimate = estimate, lower = lower, upper = upper, q = qmat)
+}
+
 #' Truncate and reorder mixture components by cumulative weight mass
 #'
 #' @param w Numeric vector of component weights (length K).
@@ -683,7 +768,7 @@ stick_breaking <- nimble::nimbleFunction(
 #' @keywords internal
 .predict_mixgpd <- function(object,
                             x = NULL, y = NULL, ps = NULL,
-                            type = c("density", "survival", "quantile", "sample", "mean"),
+                            type = c("density", "survival", "quantile", "sample", "mean", "median"),
                             p = NULL, index = NULL, nsim = NULL,
                             cred.level = 0.95,
                             interval = c("none", "credible"),
@@ -748,37 +833,7 @@ stick_breaking <- nimble::nimbleFunction(
   # -----------------------------
   # Resolve MIX functions for kernel
   # -----------------------------
-  .get_mix_fns <- function(kernel, GPD, backend) {
-    kdef <- get_kernel_registry()[[kernel]]
-    if (is.null(kdef)) stop(sprintf("Kernel '%s' not found in registry.", kernel), call. = FALSE)
-    if (isTRUE(GPD) && isFALSE(kdef$allow_gpd)) stop(sprintf("Kernel '%s' does not allow GPD.", kernel), call. = FALSE)
-
-    backend_key <- match.arg(backend, choices = c("sb", "crp"))
-    dispatch <- kdef[[backend_key]]
-    if (is.null(dispatch)) {
-      stop(sprintf("Missing %s dispatch in kernel registry.", backend_key), call. = FALSE)
-    }
-
-    d_name <- if (isTRUE(GPD)) dispatch$d_gpd else dispatch$d
-    if (is.na(d_name) || !nzchar(d_name)) {
-      stop(sprintf("Missing %s dispatch for kernel '%s'.", backend_key, kernel), call. = FALSE)
-    }
-
-    p_name <- sub("^d", "p", d_name)
-    q_name <- sub("^d", "q", d_name)
-    r_name <- sub("^d", "r", d_name)
-
-    ns <- asNamespace("DPmixGPD")
-    list(
-      d = get(d_name, envir = ns),
-      p = get(p_name, envir = ns),
-      q = get(q_name, envir = ns),
-      r = get(r_name, envir = ns),
-      bulk_params = kdef$bulk_params
-    )
-  }
-
-  fns <- .get_mix_fns(kernel = kernel, GPD = GPD, backend = backend)
+  fns <- .get_dispatch(object)
   bulk_params <- fns$bulk_params
   d_fun <- fns$d
   p_fun <- fns$p
@@ -850,24 +905,37 @@ stick_breaking <- nimble::nimbleFunction(
     if (!is.numeric(ygrid)) ygrid <- as.numeric(ygrid)
     if (anyNA(ygrid) || !all(is.finite(ygrid))) stop("y must be finite and contain no NA.", call. = FALSE)
 
-  } else if (type == "quantile") {
+  } else if (type %in% c("quantile", "median")) {
     # UNCONDITIONAL: quantile must use training y, no y or x allowed
     if (!has_X) {
       if (!is.null(x)) stop("For unconditional model and type='quantile', 'x' is not allowed.", call. = FALSE)
       if (!is.null(y)) stop("For unconditional model and type='quantile', 'y' is not allowed.", call. = FALSE)
-      if (is.null(index) || length(index) == 0) stop("For type='quantile', provide non-empty 'index'.", call. = FALSE)
-      pgrid <- as.numeric(index)
-      if (anyNA(pgrid) || !all(is.finite(pgrid)) || any(pgrid <= 0 | pgrid >= 1)) {
-        stop("index must be in (0,1), finite, no NA.", call. = FALSE)
+      if (type == "median") {
+        if (!is.null(index) && !isTRUE(all.equal(as.numeric(index), 0.5))) {
+          stop("index must be 0.5 for type='median'.", call. = FALSE)
+        }
+        pgrid <- 0.5
+      } else {
+        if (is.null(index) || length(index) == 0) stop("For type='quantile', provide non-empty 'index'.", call. = FALSE)
+        pgrid <- as.numeric(index)
+        if (anyNA(pgrid) || !all(is.finite(pgrid)) || any(pgrid <= 0 | pgrid >= 1)) {
+          stop("index must be in (0,1), finite, no NA.", call. = FALSE)
+        }
       }
-      # Will use ytrain implicitly
     } else {
       # CONDITIONAL: original logic
       if (!is.null(y)) stop("For type='quantile', y must be NULL.", call. = FALSE)
-      if (is.null(index) || length(index) == 0) stop("For type='quantile', provide non-empty 'index'.", call. = FALSE)
-      pgrid <- as.numeric(index)
-      if (anyNA(pgrid) || !all(is.finite(pgrid)) || any(pgrid <= 0 | pgrid >= 1)) {
-        stop("index must be in (0,1), finite, no NA.", call. = FALSE)
+      if (type == "median") {
+        if (!is.null(index) && !isTRUE(all.equal(as.numeric(index), 0.5))) {
+          stop("index must be 0.5 for type='median'.", call. = FALSE)
+        }
+        pgrid <- 0.5
+      } else {
+        if (is.null(index) || length(index) == 0) stop("For type='quantile', provide non-empty 'index'.", call. = FALSE)
+        pgrid <- as.numeric(index)
+        if (anyNA(pgrid) || !all(is.finite(pgrid)) || any(pgrid <= 0 | pgrid >= 1)) {
+          stop("index must be in (0,1), finite, no NA.", call. = FALSE)
+        }
       }
       Xpred <- if (has_X) (x %||% Xtrain) else NULL
     }
@@ -1320,72 +1388,95 @@ stick_breaking <- nimble::nimbleFunction(
   }
 
   # -----------------------------
-  # quantile
-  # For unconditional: compute quantiles over posterior draws using ytrain
-  # For conditional: compute quantiles for each X observation
-  # Returns data frame: index, quantile, lower, upper
-  if (type == "quantile") {
-    nsim_inner <- as.integer(nsim_mean)
-    if (is.na(nsim_inner) || nsim_inner < 10L) nsim_inner <- 200L
+  # quantile / median (q_fun per draw, then summarize)
+  # Returns data frame: index, estimate, lower, upper
+  if (type %in% c("quantile", "median")) {
+    M <- length(pgrid)
+
+    .q_eval <- function(args, pgrid) {
+      vapply(pgrid, function(pp) {
+        as.numeric(do.call(q_fun, c(list(p = pp), args)))
+      }, numeric(1))
+    }
 
     if (!has_X) {
-      M <- length(pgrid)
-
-      draws_arr <- matrix(NA_real_, nrow = S, ncol = M)
+      draws_mat <- matrix(NA_real_, nrow = M, ncol = S)
       for (s in seq_len(S)) {
-        samples <- .draw_samples_uncond(s, nsim_inner)
-        draws_arr[s, ] <- as.numeric(stats::quantile(samples, probs = pgrid, na.rm = TRUE, names = FALSE))
+        w_s <- as.numeric(W_draws[s, ])
+        args0 <- list(w = w_s)
+        for (nm in base_params) {
+          args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
+        }
+        if (GPD) { args0$tail_shape <- tail_shape[s] }
+        if (GPD) {
+          args0$threshold <- threshold_scalar[s]
+          args0$tail_scale <- tail_scale[s]
+        }
+        draws_mat[, s] <- .q_eval(args0, pgrid)
       }
 
-      qarr <- apply(draws_arr, 2, stats::quantile, probs = probs, na.rm = TRUE)
-      estimate_vec <- qarr[which.min(abs(probs - 0.5)), ]
-      lower_vec <- qarr[1, ]
-      upper_vec <- qarr[length(probs), ]
+      summ <- .posterior_summarize(draws_mat, probs = probs)
+      estimate_vec <- as.numeric(summ$estimate)
+      lower_vec <- as.numeric(summ$lower)
+      upper_vec <- as.numeric(summ$upper)
 
       fit_df <- data.frame(
         index    = pgrid,
         estimate = estimate_vec,
-        lower    = lower_vec,
-        upper    = upper_vec,
+        lower    = if (interval == "credible") lower_vec else NA_real_,
+        upper    = if (interval == "credible") upper_vec else NA_real_,
         row.names = NULL
       )
       fit <- fit_df
 
-      draws_out <- if (isTRUE(store_draws)) draws_arr else NULL
-      
+      draws_out <- if (isTRUE(store_draws)) draws_mat else NULL
+
       if (isTRUE(store_draws) && is.environment(object$cache)) {
         if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
         key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
                       "_m", M, "_S", S)
-        object$cache$predict[[key]] <- list(type = type, grid = pgrid, draws = draws_arr, fit = fit,
+        object$cache$predict[[key]] <- list(type = type, grid = pgrid, draws = draws_mat, fit = fit,
                                             backend = backend, kernel = kernel, GPD = GPD)
       }
-      
+
       out <- list(fit = fit_df, lower = NULL, upper = NULL, type = type, grid = pgrid, draws = draws_out)
       class(out) <- "mixgpd_predict"
       return(out)
     } else {
-      M <- length(pgrid)
-
-      draws_arr <- array(NA_real_, dim = c(S, n_pred, M))
+      draws_arr <- array(NA_real_, dim = c(n_pred, M, S))
       for (s in seq_len(S)) {
-        samples_mat <- .draw_samples_cond(s, nsim_inner)
+        w_s <- as.numeric(W_draws[s, ])
+        args0 <- list(w = w_s)
+        for (nm in base_params) {
+          args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
+        }
+        if (GPD) { args0$tail_shape <- tail_shape[s] }
+
+        link_eta <- .compute_link_eta(s)
         for (i in seq_len(n_pred)) {
-          draws_arr[s, i, ] <- as.numeric(stats::quantile(samples_mat[i, ], probs = pgrid, na.rm = TRUE, names = FALSE))
+          args <- args0
+          if (GPD) {
+            args$threshold <- .threshold_at(s, i)
+            args$tail_scale <- .tail_scale_at(s, i)
+          }
+          if (length(link_params)) {
+            for (nm in link_params) args[[nm]] <- as.numeric(link_eta[[nm]][, i])
+          }
+          draws_arr[i, , s] <- .q_eval(args, pgrid)
         }
       }
 
-      qarr <- apply(draws_arr, c(2, 3), stats::quantile, probs = probs, na.rm = TRUE)
-      estimate <- qarr[which.min(abs(probs - 0.5)), , , drop = TRUE]
-      lower <- qarr[1, , , drop = TRUE]
-      upper <- qarr[length(probs), , , drop = TRUE]
+      summ <- .posterior_summarize(draws_arr, probs = probs)
+      estimate <- summ$estimate
+      lower <- summ$lower
+      upper <- summ$upper
 
       fit_df <- data.frame(
         id       = rep(seq_len(n_pred), times = M),
         index    = rep(pgrid, each = n_pred),
         estimate = as.vector(estimate),
-        lower    = as.vector(lower),
-        upper    = as.vector(upper),
+        lower    = if (interval == "credible") as.vector(lower) else NA_real_,
+        upper    = if (interval == "credible") as.vector(upper) else NA_real_,
         row.names = NULL
       )
       fit <- fit_df
@@ -1501,13 +1592,10 @@ stick_breaking <- nimble::nimbleFunction(
         draws_mean[s] <- mean(samples, na.rm = TRUE)
       }
 
-      estimate <- mean(draws_mean, na.rm = TRUE)
-      lower <- upper <- NULL
-      if (interval == "credible") {
-        q_vals <- stats::quantile(draws_mean, probs = probs, na.rm = TRUE, names = FALSE)
-        lower <- q_vals[1]
-        upper <- q_vals[length(probs)]
-      }
+      summ <- .posterior_summarize(draws_mean, probs = probs)
+      estimate <- as.numeric(summ$estimate[1])
+      lower <- if (interval == "credible") as.numeric(summ$lower[1]) else NULL
+      upper <- if (interval == "credible") as.numeric(summ$upper[1]) else NULL
 
       fit_df <- data.frame(
         estimate = estimate,
@@ -1526,19 +1614,16 @@ stick_breaking <- nimble::nimbleFunction(
       class(res) <- "mixgpd_predict"
       return(res)
     } else {
-      draws_mean <- matrix(NA_real_, nrow = S, ncol = n_pred)
+      draws_mean <- matrix(NA_real_, nrow = n_pred, ncol = S)
       for (s in seq_len(S)) {
         samples_mat <- .draw_samples_cond(s, nsim_inner)
-        draws_mean[s, ] <- rowMeans(samples_mat, na.rm = TRUE)
+        draws_mean[, s] <- rowMeans(samples_mat, na.rm = TRUE)
       }
 
-      fit <- colMeans(draws_mean, na.rm = TRUE)
-      lower <- upper <- NULL
-      if (interval == "credible") {
-        qmat <- t(apply(draws_mean, 2, stats::quantile, probs = probs, na.rm = TRUE, names = FALSE))
-        lower <- qmat[, 1]
-        upper <- qmat[, length(probs)]
-      }
+      summ <- .posterior_summarize(draws_mean, probs = probs)
+      fit <- as.numeric(summ$estimate)
+      lower <- if (interval == "credible") as.numeric(summ$lower) else NULL
+      upper <- if (interval == "credible") as.numeric(summ$upper) else NULL
 
       # Return data frame format with one row per observation
       fit_df <- data.frame(
