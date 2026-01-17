@@ -1057,19 +1057,17 @@ fitted.mixgpd_fit <- function(object, level = 0.95, ...) {
 
   if (is.null(y)) stop("Could not extract y from fitted object.", call. = FALSE)
 
-  probs <- c((1 - level) / 2, 0.5, (1 + level) / 2)
-
   if (!is.null(X)) {
-    pred <- predict(object, x = X, type = "quantile",
-                    index = 0.5, cred.level = level, interval = "credible")
+    pred <- predict(object, x = X, type = "mean",
+                    cred.level = level, interval = "credible")
     fit_df <- pred$fit
     if ("id" %in% names(fit_df)) fit_df <- fit_df[order(fit_df$id), , drop = FALSE]
     fit_vals <- fit_df$estimate
     lower_vals <- fit_df$lower
     upper_vals <- fit_df$upper
   } else {
-    pred <- predict(object, type = "quantile",
-                    index = 0.5, cred.level = level, interval = "credible")
+    pred <- predict(object, type = "mean",
+                    cred.level = level, interval = "credible")
     fit_df <- pred$fit
     fit_vals <- rep(fit_df$estimate[1], length(y))
     lower_vals <- rep(fit_df$lower[1], length(y))
@@ -1112,20 +1110,26 @@ residuals.mixgpd_fit <- function(object, type = c("raw", "pit"), ...) {
   }
 
   X <- object$data$X %||% object$X %||% NULL
-  if (is.null(X)) {
-    pr_surv <- predict(object, y = y, type = "survival",
-                       interval = "none", store_draws = FALSE, ncores = 1L)
-    surv_col <- if ("survival" %in% names(pr_surv$fit)) "survival" else "estimate"
-    return(as.numeric(1 - pr_surv$fit[[surv_col]]))
+  pr_surv <- predict(object,
+                     x = X,
+                     y = y,
+                     type = "survival",
+                     interval = "none",
+                     store_draws = FALSE,
+                     ncores = 1L)
+  fit_df <- pr_surv$fit
+  surv_col <- if ("survival" %in% names(fit_df)) "survival" else "estimate"
+
+  if (!("id" %in% names(fit_df))) {
+    return(as.numeric(1 - fit_df[[surv_col]]))
   }
 
-  X <- as.matrix(X)
   pit <- numeric(length(y))
   for (i in seq_along(y)) {
-    pr_surv <- predict(object, x = X[i, , drop = FALSE], y = y[i], type = "survival",
-                       interval = "none", store_draws = FALSE, ncores = 1L)
-    surv_col <- if ("survival" %in% names(pr_surv$fit)) "survival" else "estimate"
-    pit[i] <- 1 - pr_surv$fit[[surv_col]][1]
+    rows <- fit_df[fit_df$id == i, , drop = FALSE]
+    if (!nrow(rows)) next
+    idx <- which.min(abs(rows$y - y[i]))
+    pit[i] <- 1 - rows[[surv_col]][idx]
   }
   pit
 }
