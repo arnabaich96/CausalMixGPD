@@ -95,8 +95,6 @@
 }
 
 test_that("build_nimble_bundle validates key inputs", {
-  skip_if_not_installed("nimble")
-  skip_on_cran()
 
   set.seed(1)
   y <- abs(stats::rnorm(10)) + 0.1
@@ -160,8 +158,6 @@ test_that("build_nimble_bundle validates key inputs", {
 })
 
 test_that("predict() rejects invalid type and index inputs", {
-  skip_if_not_installed("nimble")
-  skip_on_cran()
 
   fit <- .get_cached_fit("uncond_fit_predict_contracts", .build_uncond_fit)
 
@@ -177,8 +173,6 @@ test_that("predict() rejects invalid type and index inputs", {
 })
 
 test_that("predict() preserves y-grid order", {
-  skip_if_not_installed("nimble")
-  skip_on_cran()
 
   fit <- .get_cached_fit("uncond_fit_predict_contracts", .build_uncond_fit)
 
@@ -189,8 +183,6 @@ test_that("predict() preserves y-grid order", {
 })
 
 test_that("predict() with newdata enforces column contracts", {
-  skip_if_not_installed("nimble")
-  skip_on_cran()
 
   fit <- .get_cached_fit("cond_fit_predict_contracts", .build_cond_fit)
   X_train <- fit$data$X
@@ -223,8 +215,6 @@ test_that("predict() with newdata enforces column contracts", {
 })
 
 test_that("CDF from survival is monotone and bounded", {
-  skip_if_not_installed("nimble")
-  skip_on_cran()
 
   fit <- .get_cached_fit("uncond_fit_predict_contracts", .build_uncond_fit)
   y_grid <- seq(0.05, 3.5, length.out = 40)
@@ -237,8 +227,6 @@ test_that("CDF from survival is monotone and bounded", {
 })
 
 test_that("GPD tail is approximately continuous at threshold", {
-  skip_if_not_installed("nimble")
-  skip_on_cran()
 
   fit <- .get_cached_fit("uncond_fit_predict_contracts", .build_uncond_fit)
   pr <- params(fit)
@@ -256,8 +244,6 @@ test_that("GPD tail is approximately continuous at threshold", {
 })
 
 test_that("predict(type='sample') is reproducible with seed", {
-  skip_if_not_installed("nimble")
-  skip_on_cran()
 
   fit <- .get_cached_fit("uncond_fit_predict_contracts", .build_uncond_fit)
 
@@ -275,8 +261,6 @@ test_that("predict(type='sample') is reproducible with seed", {
 })
 
 test_that("PIT residuals are finite and in [0,1]", {
-  skip_if_not_installed("nimble")
-  skip_on_cran()
 
   fit <- .get_cached_fit("uncond_fit_predict_contracts", .build_uncond_fit)
   res <- residuals(fit, type = "pit")
@@ -286,10 +270,6 @@ test_that("PIT residuals are finite and in [0,1]", {
 })
 
 test_that("ncores=1 and ncores=2 agree for deterministic predictions", {
-  skip_if_not_installed("nimble")
-  skip_if_not_installed("future")
-  skip_if_not_installed("future.apply")
-  skip_on_cran()
 
   fit <- .get_cached_fit("cond_fit_predict_contracts", .build_cond_fit)
   X_new <- fit$data$X[1:3, , drop = FALSE]

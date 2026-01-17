@@ -2,9 +2,6 @@
 # Tests quantile, mean, density, survival, sample, and fitted predictions
 
 # Setup: Create shared fit object for all tests
-skip_if_not_installed("nimble")
-skip_if_not_installed("coda")
-skip_on_cran()
 
 set.seed(42)
 y <- abs(rnorm(60)) + 0.2
