@@ -1054,7 +1054,6 @@ build_code_sb_from_spec <- function(spec) {
     ent <- bulk_plan[[nm]]
     identical(ent$mode %||% NA_character_, "link")
   }, logical(1)))
-  has_ps <- isTRUE(meta$has_ps)
   default_ps_prior <- list(dist = "normal", args = list(mean = 0, sd = 2))
   ps_prior <- (plan$ps %||% list(prior = default_ps_prior))$prior
 
