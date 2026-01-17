@@ -9,7 +9,7 @@ This document confirms completion of the "polish loop" to make the DPmixGPD docu
 ## 🎯 Deliverables
 
 ### 1. **DOCS_QA.md** — Reusable Quality Assurance Checklist
-**Location:** `DOCS-MAINTENANCE/DOCS_QA.md`
+**Location:** `DOCS_QA.md`
 
 **What it contains:**
 - ✅ Quick reference checklist (links, titles, code, consistency, visibility)
@@ -50,7 +50,7 @@ testthat::test_file("tests/testthat/test-smoke-core-workflows.R")
 ---
 
 ### 3. **SITE_POLISH_SUMMARY.md** — Completion Summary
-**Location:** `DOCS-MAINTENANCE/SITE_POLISH_SUMMARY.md`
+**Location:** `SITE_POLISH_SUMMARY.md`
 
 Completion status and next steps for site maintenance.
 
@@ -67,7 +67,7 @@ Completion status and next steps for site maintenance.
 
 ### After Polish Loop
 - ✅ Navigation optimized for learning flow
-- ✅ QA process documented in DOCS-MAINTENANCE/DOCS_QA.md
+- ✅ QA process documented in DOCS_QA.md
 - ✅ Core workflows tested in test-smoke-core-workflows.R
 - ✅ Pre-release checklist ready to use
 - ✅ Site is **shippable & maintainable**
@@ -79,7 +79,7 @@ Completion status and next steps for site maintenance.
 ### Option 1: Manual Deployment (Recommended for now)
 ```bash
 # 1. Make final changes to vignettes
-# 2. Run QA checklist (DOCS-MAINTENANCE/DOCS_QA.md)
+# 2. Run QA checklist (DOCS_QA.md)
 # 3. Rebuild site
 devtools::load_all(quiet = TRUE)
 pkgdown::build_site(preview = FALSE)
@@ -103,7 +103,7 @@ Add `.github/workflows/docs.yml` for automated testing & deployment on each push
 **Every time you release, use this flow:**
 
 1. **Check (5 min)**
-   - Open `DOCS-MAINTENANCE/DOCS_QA.md`
+   - Open `DOCS_QA.md`
    - Go through the "Quick Reference Checklist"
    - Mark off each item
 
@@ -201,7 +201,7 @@ This flows naturally: **Start → Learn → Build → Extend → Infer**.
 ## 📞 Questions?
 
 Refer to:
-- **QA process:** `DOCS-MAINTENANCE/DOCS_QA.md`
+- **QA process:** `DOCS_QA.md`
 - **Test details:** `tests/testthat/test-smoke-core-workflows.R`
 - **Article order:** `_pkgdown.yml`
 - **Build config:** `_pkgdown.yml` (template settings)
@@ -223,4 +223,4 @@ Your DPmixGPD documentation site is now:
 
 **Last Updated:** January 17, 2026  
 **Status:** Complete ✅  
-**Maintenance:** Use DOCS-MAINTENANCE/DOCS_QA.md before each release
+**Maintenance:** Use DOCS_QA.md before each release

@@ -23,7 +23,7 @@ Conditional (DPmix, DPmixGPD) → Causal → Kernel Reference
 This matches the ideal learning flow: intro → distributions → build/run → unconditional → GPD → conditional → causal.
 
 ### 4. **Created Reusable QA Checklist** ✓
-- **File**: `DOCS-MAINTENANCE/DOCS_QA.md`
+- **File**: `DOCS_QA.md`
 - **Contents**: 
   - Quick reference checklist with 5 main categories
   - Step-by-step QA process for pre-release verification
@@ -58,7 +58,7 @@ This matches the ideal learning flow: intro → distributions → build/run → 
 
 ## 🎯 For Your Next Release
 
-### Pre-Release Checklist (Use DOCS-MAINTENANCE/DOCS_QA.md)
+### Pre-Release Checklist (Use DOCS_QA.md)
 1. Rebuild: `pkgdown::build_site(preview = FALSE)`
 2. Quick check: Open `docs/index.html` → click through navbar
 3. Validate: Run `testthat::test_dir("tests/testthat", filter = "smoke")` 
@@ -75,7 +75,7 @@ This matches the ideal learning flow: intro → distributions → build/run → 
 ## 📁 Files Created/Modified
 
 ### New Files
-- `DOCS-MAINTENANCE/DOCS_QA.md` — QA checklist & process (reusable)
+- `DOCS_QA.md` — QA checklist & process (reusable)
 - `tests/testthat/test-smoke-core-workflows.R` — Smoke tests for core workflows
 
 ### Verified Files (No Changes Needed)
@@ -98,7 +98,7 @@ Your site is now **shippable** 🎉
 - ✅ Reusable QA process is documented for ongoing maintenance
 
 **Next Steps:**
-1. Use `DOCS-MAINTENANCE/DOCS_QA.md` as your pre-release checklist
+1. Use `DOCS_QA.md` as your pre-release checklist
 2. Run smoke tests regularly to catch regressions early
 3. Deploy to GitHub Pages (if not already automated)
 
@@ -109,7 +109,7 @@ Your site is now **shippable** 🎉
 - The site was already well-structured; these changes ensure it *stays* polished
 - `test-smoke-core-workflows.R` focuses on user workflows (not comprehensive coverage)—think of these as "health checks"
 - If you add new vignettes, update `_pkgdown.yml` **and** add a corresponding smoke test
-- Keep `DOCS-MAINTENANCE/DOCS_QA.md` for your release process
+- Keep `DOCS_QA.md` for your release process
 
 ---
 
