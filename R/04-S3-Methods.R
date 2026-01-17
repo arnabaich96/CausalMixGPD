@@ -957,7 +957,7 @@ predict.mixgpd_fit <- function(object,
                                ps = NULL,
                                newdata = NULL,
                                type = c("density", "survival",
-                                        "quantile", "sample", "mean"),
+                                        "quantile", "sample", "mean", "median", "location"),
                                p = NULL,
                                index = NULL,
                                nsim = NULL,
@@ -989,6 +989,12 @@ predict.mixgpd_fit <- function(object,
       }
     }
     if (is.null(index)) index <- c(0.25, 0.5, 0.75)
+  } else if (type == "median") {
+    if (!is.null(p) && is.null(index)) index <- p
+    if (!is.null(index) && !isTRUE(all.equal(as.numeric(index), 0.5))) {
+      stop("Provide index = 0.5 for median predictions.", call. = FALSE)
+    }
+    index <- 0.5
   } else if (!is.null(p)) {
     warning("'p' is only used for type = 'quantile'; ignoring for other types.", call. = FALSE)
   }
@@ -1003,6 +1009,57 @@ predict.mixgpd_fit <- function(object,
 
   ncores <- as.integer(ncores)
   if (is.na(ncores) || ncores < 1L) stop("'ncores' must be an integer >= 1.", call. = FALSE)
+
+  if (type == "location") {
+    mean_pred <- .predict_mixgpd(object,
+                                x = x,
+                                y = y,
+                                ps = ps,
+                                type = "mean",
+                                p = p,
+                                index = index,
+                                nsim = nsim,
+                                cred.level = cred.level,
+                                interval = interval,
+                                probs = probs,
+                                store_draws = store_draws,
+                                nsim_mean = nsim_mean,
+                                ncores = ncores)
+
+    median_pred <- .predict_mixgpd(object,
+                                  x = x,
+                                  y = y,
+                                  ps = ps,
+                                  type = "median",
+                                  p = p,
+                                  index = index,
+                                  nsim = nsim,
+                                  cred.level = cred.level,
+                                  interval = interval,
+                                  probs = probs,
+                                  store_draws = store_draws,
+                                  nsim_mean = nsim_mean,
+                                  ncores = ncores)
+
+    fit_mean <- mean_pred$fit
+    fit_median <- median_pred$fit
+    extras <- setdiff(names(fit_mean), c("estimate", "lower", "upper"))
+    if (length(extras)) {
+      out_df <- fit_mean[, extras, drop = FALSE]
+    } else {
+      out_df <- data.frame(row.names = seq_len(nrow(fit_mean)))
+    }
+    out_df$mean <- fit_mean$estimate
+    out_df$mean_lower <- fit_mean$lower
+    out_df$mean_upper <- fit_mean$upper
+    out_df$median <- fit_median$estimate
+    out_df$median_lower <- fit_median$lower
+    out_df$median_upper <- fit_median$upper
+
+    out <- list(fit = out_df, lower = NULL, upper = NULL, type = "location", grid = mean_pred$grid)
+    class(out) <- "mixgpd_predict"
+    return(out)
+  }
 
   .predict_mixgpd(object,
                   x = x,
@@ -1029,11 +1086,12 @@ predict.mixgpd_fit <- function(object,
 #' for all observations. For conditional models, returns individual predictions.
 #'
 #' @param object A fitted object of class \code{"mixgpd_fit"}.
+#' @param type Which fitted location to return: mean, median, or both (\code{"location"}).
 #' @param level Credible level for confidence intervals (default 0.95 for 95% credible intervals).
 #' @param ... Unused.
 #' @return A data frame with columns:
 #'   \describe{
-#'     \item{fit}{Point estimates (posterior means).}
+#'     \item{fit}{Point estimates for the requested location.}
 #'     \item{lower}{Lower credible bound.}
 #'     \item{upper}{Upper credible bound.}
 #'     \item{residuals}{Residuals (y - fit).}
@@ -1049,16 +1107,33 @@ predict.mixgpd_fit <- function(object,
 #' fitted(fit, level = 0.90)
 #' }
 #' @export
-fitted.mixgpd_fit <- function(object, level = 0.95, ...) {
+fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median"), level = 0.95, ...) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
+  type <- match.arg(type)
   y <- object$data$y %||% object$y
   X <- object$data$X %||% object$X %||% NULL
 
   if (is.null(y)) stop("Could not extract y from fitted object.", call. = FALSE)
 
-  if (!is.null(X)) {
-    pred <- predict(object, x = X, type = "mean",
+  if (type == "location") {
+    pred_mean <- predict(object, x = X, type = "mean",
+                        cred.level = level, interval = "credible")
+    pred_median <- predict(object, x = X, type = "median",
+                          cred.level = level, interval = "credible")
+    fit_df <- pred_mean$fit
+    if ("id" %in% names(fit_df)) fit_df <- fit_df[order(fit_df$id), , drop = FALSE]
+    fit_vals <- fit_df$estimate
+    lower_vals <- fit_df$lower
+    upper_vals <- fit_df$upper
+
+    med_df <- pred_median$fit
+    if ("id" %in% names(med_df)) med_df <- med_df[order(med_df$id), , drop = FALSE]
+    med_vals <- med_df$estimate
+    med_lower <- med_df$lower
+    med_upper <- med_df$upper
+  } else if (!is.null(X)) {
+    pred <- predict(object, x = X, type = type,
                     cred.level = level, interval = "credible")
     fit_df <- pred$fit
     if ("id" %in% names(fit_df)) fit_df <- fit_df[order(fit_df$id), , drop = FALSE]
@@ -1066,7 +1141,7 @@ fitted.mixgpd_fit <- function(object, level = 0.95, ...) {
     lower_vals <- fit_df$lower
     upper_vals <- fit_df$upper
   } else {
-    pred <- predict(object, type = "mean",
+    pred <- predict(object, type = type,
                     cred.level = level, interval = "credible")
     fit_df <- pred$fit
     fit_vals <- rep(fit_df$estimate[1], length(y))
@@ -1074,12 +1149,23 @@ fitted.mixgpd_fit <- function(object, level = 0.95, ...) {
     upper_vals <- rep(fit_df$upper[1], length(y))
   }
 
-  result <- data.frame(
-    fit = fit_vals,
-    lower = lower_vals,
-    upper = upper_vals,
-    residuals = y - fit_vals
-  )
+  result <- data.frame(fit = fit_vals,
+                       lower = lower_vals,
+                       upper = upper_vals,
+                       residuals = y - fit_vals)
+  if (type == "location") {
+    if (is.null(X)) {
+      med_vals <- rep(med_vals[1], length(y))
+      med_lower <- rep(med_lower[1], length(y))
+      med_upper <- rep(med_upper[1], length(y))
+    }
+    result$mean <- fit_vals
+    result$mean_lower <- lower_vals
+    result$mean_upper <- upper_vals
+    result$median <- med_vals
+    result$median_lower <- med_lower
+    result$median_upper <- med_upper
+  }
   class(result) <- c("mixgpd_fitted", "data.frame")
   attr(result, "object") <- object
   attr(result, "level") <- level
@@ -1094,10 +1180,12 @@ fitted.mixgpd_fit <- function(object, level = 0.95, ...) {
 #'
 #' @param object A fitted object of class \code{"mixgpd_fit"}.
 #' @param type Residual type: \code{"raw"} or \code{"pit"}.
+#' @param fitted_type For \code{type = "raw"}, use fitted means or medians.
 #' @param ... Unused.
 #' @return Numeric vector of residuals with length equal to the training sample size.
 #' @export
-residuals.mixgpd_fit <- function(object, type = c("raw", "pit"), ...) {
+residuals.mixgpd_fit <- function(object, type = c("raw", "pit"),
+                                 fitted_type = c("mean", "median"), ...) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   type <- match.arg(type)
@@ -1105,7 +1193,8 @@ residuals.mixgpd_fit <- function(object, type = c("raw", "pit"), ...) {
   if (is.null(y)) stop("Could not extract y from fitted object.", call. = FALSE)
 
   if (type == "raw") {
-    fit_vals <- fitted(object)
+    fitted_type <- match.arg(fitted_type)
+    fit_vals <- fitted(object, type = fitted_type)
     return(as.numeric(fit_vals$residuals))
   }
 
@@ -1191,8 +1280,10 @@ plot.mixgpd_predict <- function(x, y = NULL, ...) {
 
   result <- switch(pred_type,
          quantile = .plot_quantile_pred(x, ...),
+         median = .plot_quantile_pred(x, ...),
          sample = .plot_sample_pred(x, ...),
          mean = .plot_mean_pred(x, ...),
+         location = .plot_location_pred(x, ...),
          density = .plot_density_pred(x, ...),
          survival = .plot_survival_pred(x, ...),
          {warning("Unknown prediction type: ", pred_type); NULL})

@@ -261,3 +261,70 @@
   
   p
 }
+
+#' Plot mean/median location predictions
+#' @keywords internal
+#' @noRd
+.plot_location_pred <- function(pred, ...) {
+  fit_df <- pred$fit
+
+  if (!is.data.frame(fit_df)) {
+    stop("Location prediction must return a data frame in $fit.", call. = FALSE)
+  }
+
+  has_id <- "id" %in% names(fit_df)
+  if (!has_id) {
+    plot_data <- data.frame(
+      type = factor(c("mean", "median"), levels = c("mean", "median")),
+      estimate = c(fit_df$mean[1], fit_df$median[1]),
+      lower = c(fit_df$mean_lower[1], fit_df$median_lower[1]),
+      upper = c(fit_df$mean_upper[1], fit_df$median_upper[1])
+    )
+
+    pal <- .plot_palette(2L)
+    p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = type, y = estimate, color = type)) +
+      ggplot2::geom_point(size = 3) +
+      ggplot2::geom_errorbar(ggplot2::aes(ymin = lower, ymax = upper),
+                             width = 0.2, linewidth = 1) +
+      ggplot2::scale_color_manual(values = pal) +
+      .plot_theme() +
+      ggplot2::labs(
+        title = "Location Predictions",
+        x = "",
+        y = "Estimate"
+      )
+    return(p)
+  }
+
+  plot_data <- rbind(
+    data.frame(
+      id = fit_df$id,
+      type = "mean",
+      estimate = fit_df$mean,
+      lower = fit_df$mean_lower,
+      upper = fit_df$mean_upper
+    ),
+    data.frame(
+      id = fit_df$id,
+      type = "median",
+      estimate = fit_df$median,
+      lower = fit_df$median_lower,
+      upper = fit_df$median_upper
+    )
+  )
+
+  pal <- .plot_palette(2L)
+  p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = id, y = estimate, color = type)) +
+    ggplot2::geom_line(linewidth = 0.8) +
+    ggplot2::geom_point(size = 2) +
+    ggplot2::geom_errorbar(ggplot2::aes(ymin = lower, ymax = upper),
+                           width = 0.2, linewidth = 0.8) +
+    ggplot2::scale_color_manual(values = pal) +
+    .plot_theme() +
+    ggplot2::labs(
+      title = "Location Predictions",
+      x = "Observation",
+      y = "Estimate"
+    )
+  p
+}
