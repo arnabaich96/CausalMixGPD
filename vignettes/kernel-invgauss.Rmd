@@ -1,0 +1,38 @@
+---
+title: "Kernel reference: Inverse Gaussian"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Kernel reference: Inverse Gaussian}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+library(DPmixGPD)
+```
+
+The **Inverse Gaussian** kernel is parameterized by `mean` and `shape`.
+
+## Exported mixture helpers
+
+- `dInvGaussMix(x, mean, shape, w, log = FALSE)`
+- `pInvGaussMix(q, mean, shape, w, lower.tail = TRUE, log.p = FALSE)`
+- `qInvGaussMix(p, mean, shape, w, lower.tail = TRUE, log.p = FALSE)`
+- `rInvGaussMix(n, mean, shape, w)`
+
+For the full catalog (including CRP utilities and GPD splicing), see:
+
+- [Available Distributions](v02-available-distributions.html)
+
+## Using Inverse Gaussian in a model
+
+```{r}
+bundle <- build_nimble_bundle(
+  y = y,
+  backend = "crp",
+  kernel  = "invgauss",
+  GPD     = TRUE,
+  Kmax    = 6
+)
+```

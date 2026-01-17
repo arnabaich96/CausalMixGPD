@@ -41,3 +41,13 @@ articles:
       - v13-causal-same-backend-SB
       - v14-causal-different-backends-CRP
       - v15-causal-different-backends-SB
+  - title: "Kernel Reference"
+    desc: "Short reminders of parameterizations and exported helpers"
+    contents:
+      - kernel-normal
+      - kernel-lognormal
+      - kernel-gamma
+      - kernel-invgauss
+      - kernel-laplace
+      - kernel-amoroso
+      - kernel-cauchy

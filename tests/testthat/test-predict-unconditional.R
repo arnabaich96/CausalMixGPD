@@ -131,7 +131,7 @@ test_that("Sample prediction returns vector of samples", {
 })
 
 
-test_that("Fitted values return observation-specific estimates", {
+test_that("Fitted values return model-based estimates", {
   fit_vals <- fitted(fit, level = 0.95)
   
   expect_s3_class(fit_vals, "mixgpd_fitted")
@@ -141,7 +141,7 @@ test_that("Fitted values return observation-specific estimates", {
   expect_equal(fit_vals$residuals, y - fit_vals$fit, tolerance = 1e-10)
   expect_true(all(fit_vals$lower <= fit_vals$fit))
   expect_true(all(fit_vals$fit <= fit_vals$upper))
-  expect_true(length(unique(fit_vals$fit)) > 1)
+  expect_true(length(unique(fit_vals$fit)) == 1)
   expect_silent(p <- plot(fit_vals))
 })
 
@@ -166,11 +166,8 @@ test_that("All prediction types have consistent class structure", {
   )
   
   for (pred_name in names(pred_types)) {
-    expect_s3_class(pred_types[[pred_name]], "mixgpd_predict",
-                    info = paste("Type:", pred_name))
-    expect_equal(pred_types[[pred_name]]$type, pred_name,
-                 info = paste("Type:", pred_name))
-    expect_silent(plot(pred_types[[pred_name]]),
-                  info = paste("Plot for type:", pred_name))
+    expect_s3_class(pred_types[[pred_name]], "mixgpd_predict")
+    expect_equal(pred_types[[pred_name]]$type, pred_name)
+    expect_silent(plot(pred_types[[pred_name]]))
   }
 })

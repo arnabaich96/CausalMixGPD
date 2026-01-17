@@ -4,7 +4,7 @@
 \alias{plot.dpmixgpd_causal_fit}
 \title{Plot a causal fit}
 \usage{
-\method{plot}{dpmixgpd_causal_fit}(x, arm = 1, ...)
+\method{plot}{dpmixgpd_causal_fit}(x, arm = "both", ...)
 }
 \arguments{
 \item{x}{A \code{"dpmixgpd_causal_fit"} object.}

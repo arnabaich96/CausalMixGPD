@@ -72,3 +72,13 @@ The `tools/update_coverage_status.R` script runs `covr::package_coverage()` (via
 | cauchy | ❌ | ✔ | ✔ | ✔ |
 
 Run `Rscript tools/kernel_support_table.R` to regenerate the markdown snippet above whenever the kernel registry changes; it relies on `kernel_support_table()` to reflect the registry definitions tested in `tests/testthat/test-kernels.R`.
+
+---
+
+## 📚 Site Maintenance & QA
+
+For documentation site quality assurance and maintenance processes, see **[DOCS-MAINTENANCE/](DOCS-MAINTENANCE/)** folder:
+- [`DOCS-MAINTENANCE/DOCS_QA.md`](DOCS-MAINTENANCE/DOCS_QA.md) — Pre-release QA checklist
+- [`DOCS-MAINTENANCE/SITE_POLISH_SUMMARY.md`](DOCS-MAINTENANCE/SITE_POLISH_SUMMARY.md) — Polish loop summary
+
+Use `DOCS-MAINTENANCE/DOCS_QA.md` before each release to ensure the site stays polished and consistent.

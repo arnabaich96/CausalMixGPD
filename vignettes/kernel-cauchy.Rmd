@@ -1,0 +1,38 @@
+---
+title: "Kernel reference: Cauchy"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Kernel reference: Cauchy}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+library(DPmixGPD)
+```
+
+The **Cauchy** kernel is parameterized by `location` and `scale`.
+
+## Exported mixture helpers
+
+- `dCauchyMix(x, location, scale, w, log = FALSE)`
+- `pCauchyMix(q, location, scale, w, lower.tail = TRUE, log.p = FALSE)`
+- `qCauchyMix(p, location, scale, w, lower.tail = TRUE, log.p = FALSE)`
+- `rCauchyMix(n, location, scale, w)`
+
+For the full catalog (including CRP utilities and GPD splicing), see:
+
+- [Available Distributions](v02-available-distributions.html)
+
+## Using Cauchy in a model
+
+```{r}
+bundle <- build_nimble_bundle(
+  y = y,
+  backend = "crp",
+  kernel  = "cauchy",
+  GPD     = TRUE,
+  Kmax    = 6
+)
+```

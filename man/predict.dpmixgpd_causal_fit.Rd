@@ -10,7 +10,7 @@
   y = NULL,
   ps = NULL,
   newdata = NULL,
-  type = c("density", "survival", "quantile", "sample", "mean"),
+  type = c("mean", "quantile", "density", "prob"),
   p = NULL,
   nsim = NULL,
   interval = c("none", "credible"),
@@ -35,8 +35,8 @@ recomputing them from the stored PS model (needed only for custom inputs).}
 
 \item{newdata}{Optional new data. If \code{NULL}, uses training design (if stored).}
 
-\item{type}{Prediction type: \code{"density"}, \code{"survival"}, \code{"quantile"},
-\code{"sample"}, \code{"mean"}.}
+\item{type}{Prediction type. Supported: \code{"mean"}, \code{"quantile"},
+\code{"density"}, \code{"prob"}.}
 
 \item{p}{Numeric vector of probabilities for quantiles (required for \code{type="quantile"}).}
 
@@ -55,11 +55,12 @@ recomputing them from the stored PS model (needed only for custom inputs).}
 \item{...}{Unused.}
 }
 \value{
-A list with components \code{ps} (estimated propensity scores used for
-  prediction), \code{trt} (treated-arm prediction output), \code{con}
-  (control-arm prediction output), \code{type} (the requested prediction type),
-  and \code{grid} (matching grid from the outcome predictions, e.g., \code{p}
-  for quantiles or \code{y} for densities).
+For \code{"mean"} or \code{"quantile"}, a numeric matrix with columns
+  \code{ps}, \code{estimate}, \code{lower}, \code{upper}, representing
+  treated-minus-control posterior summaries. When PS is disabled or X is absent,
+  \code{ps} is \code{NA} and no PS is used. For \code{"density"} and \code{"prob"},
+  a data frame with columns \code{y}, \code{ps}, \code{trt_estimate}, \code{trt_lower},
+  \code{trt_upper}, \code{con_estimate}, \code{con_lower}, \code{con_upper}.
 }
 \description{
 Provides a unified interface to the treated and control outcome models while
