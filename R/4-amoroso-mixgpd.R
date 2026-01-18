@@ -171,6 +171,15 @@ qAmorosoMix <- function(p, w, loc, scale, shape1, shape2,
     hi <- max(qAmoroso(pi, loc, scale, shape1, shape2, lower.tail = TRUE, log.p = FALSE), na.rm = TRUE)
     if (!is.finite(lo)) lo <- -1e10
     if (!is.finite(hi)) hi <- 1e10
+    if (lo > hi) {
+      tmp <- lo
+      lo <- hi
+      hi <- tmp
+    }
+    if (lo == hi) {
+      lo <- lo - 1
+      hi <- hi + 1
+    }
     f_lo <- as.numeric(pAmorosoMix(lo, w, loc, scale, shape1, shape2, 1, 0) - pi)
     f_hi <- as.numeric(pAmorosoMix(hi, w, loc, scale, shape1, shape2, 1, 0) - pi)
     iter <- 0L
@@ -544,6 +553,15 @@ qAmorosoGpd <- function(p, loc, scale, shape1, shape2,
       if (!is.finite(lo)) {
         lo <- -1e10
         hi <- 1e10
+      }
+      if (lo > hi) {
+        tmp <- lo
+        lo <- hi
+        hi <- tmp
+      }
+      if (lo == hi) {
+        lo <- lo - 1
+        hi <- hi + 1
       }
       f_lo <- as.numeric(pAmoroso(lo, loc, scale, shape1, shape2, 1, 0) - pi)
       f_hi <- as.numeric(pAmoroso(hi, loc, scale, shape1, shape2, 1, 0) - pi)
