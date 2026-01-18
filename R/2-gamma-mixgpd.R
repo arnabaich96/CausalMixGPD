@@ -162,7 +162,7 @@ qGammaMix <- function(p, w, shape, scale,
       fhi <- as.numeric(pGammaMix(hi, w = w, shape = shape, scale = scale, lower.tail = 1, log.p = 0) - pi)
       iter <- iter + 1L
     }
-    if (!is.finite(fhi) || f0 * fhi > 0) {
+    if (!is.finite(hi) || hi <= 0 || !is.finite(fhi) || f0 * fhi > 0) {
       out[i] <- Inf
     } else {
       out[i] <- stats::uniroot(

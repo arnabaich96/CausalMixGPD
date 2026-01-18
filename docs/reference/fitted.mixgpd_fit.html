@@ -70,8 +70,11 @@
 <p>...Unused.</p></dd>
 
 </dl><p>A data frame with columns:
-  <code>fit</code> (point estimates), <code>lower</code> (lower credible bound),
-  <code>upper</code> (upper credible bound), and <code>residuals</code> (y - fit).
+</p><dl><dt>fit</dt>
+<dd><p>Point estimates for the requested location.</p></dd><dt>lower</dt>
+<dd><p>Lower credible bound.</p></dd><dt>upper</dt>
+<dd><p>Upper credible bound.</p></dd><dt>residuals</dt>
+<dd><p>Residuals (y - fit).</p></dd></dl>
 
 
 Computes fitted values and residuals on the original training data.
@@ -87,7 +90,7 @@ bundle &lt;- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
 fit &lt;- run_mcmc_bundle_manual(bundle)
 fitted(fit)
-fitted(fit, level = 0.90)</p>
+fitted(fit, level = 0.90)
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

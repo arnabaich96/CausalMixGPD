@@ -151,7 +151,7 @@ qLognormalMix <- function(p, w, meanlog, sdlog,
       fhi <- as.numeric(pLognormalMix(hi, w = w, meanlog = meanlog, sdlog = sdlog, 1, 0) - pi)
       iter <- iter + 1L
     }
-    if (!is.finite(fhi) || f0 * fhi > 0) {
+    if (!is.finite(hi) || hi <= 0 || !is.finite(fhi) || f0 * fhi > 0) {
       out[i] <- Inf
     } else {
       out[i] <- stats::uniroot(
