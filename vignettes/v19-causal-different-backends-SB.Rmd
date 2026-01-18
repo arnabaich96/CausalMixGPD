@@ -101,7 +101,7 @@ bundle_sb_crp <- build_causal_bundle(
   backend = c("sb", "crp"),
   PS = "logit",
   GPD = c(TRUE, TRUE),
-  J = c(5, 5),
+  components = c(5, 5),
   param_specs = param_specs_gpd,
   mcmc_outcome = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 1),
   mcmc_ps = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 1)
@@ -170,7 +170,7 @@ bundle_crp_sb <- build_causal_bundle(
   backend = c("crp", "sb"),
   PS = "logit",
   GPD = c(TRUE, TRUE),
-  J = c(5, 5),
+  components = c(5, 5),
   param_specs = param_specs_gpd,
   mcmc_outcome = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 2),
   mcmc_ps = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 2)
@@ -225,5 +225,9 @@ qte_crp_sb <- qte(fit_crp_sb, probs = c(0.25, 0.5, 0.75),
                   newdata = x_eval, interval = "credible")
 plot(qte_crp_sb)
 ```
+
+
+
+
 
 

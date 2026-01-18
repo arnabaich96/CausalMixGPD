@@ -108,7 +108,7 @@ build_nimble_bundle <- function(
     alpha_random = alpha_random
   )
 
-  code <- build_code_from_spec(spec)
+  code <- .wrap_nimble_code(build_code_from_spec(spec))
 
   bundle <- list(
     spec       = spec,
@@ -1998,7 +1998,7 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
   meta <- spec$meta
   m <- bundle$mcmc %||% list()
 
-  code <- bundle$code
+  code <- .extract_nimble_code(bundle$code)
   constants <- bundle$constants %||% list()
   data <- bundle$data %||% list()
 

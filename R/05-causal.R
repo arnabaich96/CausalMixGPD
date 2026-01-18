@@ -277,7 +277,7 @@ build_causal_bundle <- function(
     suppressPackageStartupMessages(base::require("nimble", quietly = TRUE, warn.conflicts = FALSE))
   }
 
-  code <- bundle$code
+  code <- .extract_nimble_code(bundle$code)
   constants <- bundle$constants %||% list()
   data <- bundle$data %||% list()
   inits <- bundle$inits %||% list()

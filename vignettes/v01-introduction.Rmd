@@ -15,7 +15,9 @@ knitr::opts_chunk$set(
   comment = NA,
   fig.width = 7,
   fig.height = 5,
-  eval = FALSE
+  eval = TRUE,
+  cache = TRUE,
+  cache.path = "../.cache/vignettes/"
 )
 library(DPmixGPD)
 if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
@@ -59,14 +61,14 @@ Two outcome arms with optional propensity score (PS) adjustment:
 ## MCMC Backends
 
 ### Stick-Breaking (SB)
-- Fixed number of mixture components $J$
-- Exact truncation at $J$ components
+- Fixed number of mixture components `components`
+- Exact truncation at the chosen `components`
 - Faster per-iteration computation
 - Use when computational cost is primary concern
 
 ### Chinese Restaurant Process (CRP)
-- Truncation at $K_{\max}$ for sampling
-- Adaptively discovers number of clusters
+- Finite `components` cap for sampling
+- Adaptively discovers number of occupied clusters within that cap
 - More flexible cluster allocation
 - Default for exploratory analysis
 
@@ -87,21 +89,18 @@ When PS is estimated, scores are injected into outcome model covariates for conf
 
 ## Workflow Overview
 
-### Three-Phase Model Building
+### Direct Model Building
 
-**Phase 1: Specification**
 ```r
-spec <- compile_model_spec(y, kernel="gamma", backend="crp", GPD=TRUE)
-```
-
-**Phase 2: Bundle**
-```r
-bundle <- build_nimble_bundle(spec)
-```
-
-**Phase 3: MCMC**
-```r
-fit <- run_mcmc_bundle_manual(bundle, niter=1000, nburnin=100)
+bundle <- build_nimble_bundle(
+  y = y,
+  kernel = "gamma",
+  backend = "crp",
+  GPD = TRUE,
+  components = 5,
+  mcmc = list(niter = 1000, nburnin = 100, nchains = 1)
+)
+fit <- run_mcmc_bundle_manual(bundle)
 ```
 
 ---
@@ -158,6 +157,9 @@ packageVersion("ggplot2")
 ```
 
 Each vignette demonstrates complete workflows with reproducible examples.
+
+
+
 
 
 

@@ -13,6 +13,23 @@
 #' @name null_coalescing
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 
+#' Extract nimbleCode from bundle code
+#' @keywords internal
+.extract_nimble_code <- function(code) {
+  if (is.list(code) && !inherits(code, "nimbleCode")) {
+    if (!is.null(code$nimble)) return(code$nimble)
+    if (!is.null(code$code)) return(code$code)
+  }
+  code
+}
+
+#' Wrap nimbleCode for bundle storage
+#' @keywords internal
+.wrap_nimble_code <- function(code) {
+  if (is.list(code) && !inherits(code, "nimbleCode")) return(code)
+  list(nimble = code)
+}
+
 # ---- Plot styling helpers (internal) ----
 .plot_palette <- function(n = 8L) {
   base <- c(
@@ -607,7 +624,7 @@ stick_breaking <- nimble::nimbleFunction(
 #' @param spec_or_fit mixgpd_fit or spec list
 #' @return List with d/p/q/r functions and bulk_params.
 #' @keywords internal
-.get_dispatch_scalar <- function(spec_or_fit) {
+.get_dispatch_scalar <- function(spec_or_fit, backend_override = NULL) {
   spec <- spec_or_fit
   if (inherits(spec_or_fit, "mixgpd_fit")) {
     spec <- spec_or_fit$spec %||% list()
@@ -615,6 +632,7 @@ stick_breaking <- nimble::nimbleFunction(
 
   meta <- spec$meta %||% list()
   backend <- meta$backend %||% spec$dispatch$backend %||% "<unknown>"
+  if (!is.null(backend_override)) backend <- backend_override
   kernel <- meta$kernel %||% spec$kernel$key %||% "<unknown>"
   GPD <- isTRUE(meta$GPD %||% spec$dispatch$GPD)
 
@@ -628,7 +646,11 @@ stick_breaking <- nimble::nimbleFunction(
     stop(sprintf("Missing %s dispatch in kernel registry.", backend_key), call. = FALSE)
   }
 
-  d_name <- if (isTRUE(GPD)) dispatch$d_gpd else dispatch$d
+  d_name <- if (isTRUE(GPD)) {
+    dispatch$d_gpd
+  } else {
+    dispatch$d %||% dispatch$d_base
+  }
   if (is.na(d_name) || !nzchar(d_name)) {
     stop(sprintf("Missing %s dispatch for kernel '%s'.", backend_key, kernel), call. = FALSE)
   }
@@ -637,23 +659,27 @@ stick_breaking <- nimble::nimbleFunction(
   q_name <- sub("^d", "q", d_name)
   r_name <- sub("^d", "r", d_name)
 
-  ns <- asNamespace("DPmixGPD")
-  if (!exists(d_name, envir = ns, inherits = FALSE)) {
-    stop(sprintf("Missing d-function '%s' for kernel '%s'.", d_name, kernel), call. = FALSE)
+  ns_pkg <- asNamespace("DPmixGPD")
+  ns_stats <- asNamespace("stats")
+  ns_nimble <- asNamespace("nimble")
+
+  .resolve_fun <- function(fname, kernel) {
+    if (exists(fname, envir = ns_pkg, inherits = FALSE)) {
+      return(get(fname, envir = ns_pkg))
+    }
+    if (exists(fname, envir = ns_stats, inherits = FALSE)) {
+      return(get(fname, envir = ns_stats))
+    }
+    if (exists(fname, envir = ns_nimble, inherits = FALSE)) {
+      return(get(fname, envir = ns_nimble))
+    }
+    stop(sprintf("Missing function '%s' for kernel '%s'.", fname, kernel), call. = FALSE)
   }
-  if (!exists(p_name, envir = ns, inherits = FALSE)) {
-    stop(sprintf("Missing p-function '%s' for kernel '%s'.", p_name, kernel), call. = FALSE)
-  }
-  if (!exists(q_name, envir = ns, inherits = FALSE)) {
-    stop(sprintf("Missing q-function '%s' for kernel '%s'.", q_name, kernel), call. = FALSE)
-  }
-  if (!exists(r_name, envir = ns, inherits = FALSE)) {
-    stop(sprintf("Missing r-function '%s' for kernel '%s'.", r_name, kernel), call. = FALSE)
-  }
-  d_fun <- get(d_name, envir = ns)
-  p_fun <- get(p_name, envir = ns)
-  q_fun <- get(q_name, envir = ns)
-  r_fun <- get(r_name, envir = ns)
+
+  d_fun <- .wrap_density_fun(.resolve_fun(d_name, kernel))
+  p_fun <- .wrap_cdf_fun(.resolve_fun(p_name, kernel))
+  q_fun <- .wrap_quantile_fun(.resolve_fun(q_name, kernel))
+  r_fun <- .wrap_rng_fun(.resolve_fun(r_name, kernel))
 
   if (isTRUE(attr(d_fun, "vectorized_wrapper")) ||
       isTRUE(attr(p_fun, "vectorized_wrapper")) ||
@@ -670,8 +696,8 @@ stick_breaking <- nimble::nimbleFunction(
 #' @param spec_or_fit mixgpd_fit or spec list
 #' @return List with d/p/q/r functions and bulk_params.
 #' @keywords internal
-.get_dispatch <- function(spec_or_fit) {
-  scalar <- .get_dispatch_scalar(spec_or_fit)
+.get_dispatch <- function(spec_or_fit, backend_override = NULL) {
+  scalar <- .get_dispatch_scalar(spec_or_fit, backend_override = backend_override)
   list(
     d = .wrap_scalar_first_arg(scalar$d, "x"),
     p = .wrap_scalar_p(scalar$p),
@@ -951,6 +977,9 @@ stick_breaking <- nimble::nimbleFunction(
   kernel  <- meta$kernel  %||% spec$kernel$key %||% "<unknown>"
   GPD     <- isTRUE(meta$GPD %||% spec$dispatch$GPD)
 
+  # Use mixture dispatch for prediction even when backend is CRP
+  pred_backend <- if (identical(backend, "crp")) "sb" else backend
+
   # training data
   Xtrain <- object$data$X %||% object$X %||% NULL
   ytrain <- object$data$y %||% object$y %||% NULL
@@ -989,7 +1018,7 @@ stick_breaking <- nimble::nimbleFunction(
   # -----------------------------
   # Resolve MIX functions for kernel
   # -----------------------------
-  fns <- .get_dispatch(object)
+  fns <- .get_dispatch(object, backend_override = pred_backend)
   bulk_params <- fns$bulk_params
   d_fun <- fns$d
   p_fun <- fns$p
@@ -1392,8 +1421,7 @@ stick_breaking <- nimble::nimbleFunction(
 
     old_max <- getOption("future.globals.maxSize")
     on.exit(options(future.globals.maxSize = old_max), add = TRUE)
-    max_bytes <- max(as.numeric(if (is.null(old_max)) 0 else old_max), 5 * 1024^3)
-    options(future.globals.maxSize = max_bytes)
+    options(future.globals.maxSize = Inf)
 
     future.apply::future_lapply(idx, FUN)
   }
@@ -1404,7 +1432,7 @@ stick_breaking <- nimble::nimbleFunction(
   # -----------------------------
   .draw_samples_uncond <- function(s, nsim_inner) {
     w_s <- as.numeric(W_draws[s, ])
-    args0 <- list(w = w_s)
+    args0 <- if (pred_backend == "sb") list(w = w_s) else list()
     for (nm in base_params) {
       args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
     }
@@ -1420,7 +1448,7 @@ stick_breaking <- nimble::nimbleFunction(
 
   .draw_samples_cond <- function(s, nsim_inner) {
     w_s <- as.numeric(W_draws[s, ])
-    args0 <- list(w = w_s)
+    args0 <- if (pred_backend == "sb") list(w = w_s) else list()
     for (nm in base_params) {
       args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
     }
@@ -1451,7 +1479,7 @@ stick_breaking <- nimble::nimbleFunction(
 
     .one_draw <- function(s) {
       w_s <- as.numeric(W_draws[s, ])
-      args0 <- list(w = w_s)
+      args0 <- if (pred_backend == "sb") list(w = w_s) else list()
       for (nm in base_params) {
         args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
       }
@@ -1543,7 +1571,7 @@ stick_breaking <- nimble::nimbleFunction(
       draws_mat <- matrix(NA_real_, nrow = M, ncol = S)
       for (s in seq_len(S)) {
         w_s <- as.numeric(W_draws[s, ])
-        args0 <- list(w = w_s)
+        args0 <- if (pred_backend == "sb") list(w = w_s) else list()
         for (nm in base_params) {
           args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
         }
@@ -1561,8 +1589,8 @@ stick_breaking <- nimble::nimbleFunction(
       upper_vec <- as.numeric(summ$upper)
 
       fit_df <- data.frame(
-        index    = pgrid,
         estimate = estimate_vec,
+        index    = pgrid,
         lower    = if (interval == "credible") lower_vec else NA_real_,
         upper    = if (interval == "credible") upper_vec else NA_real_,
         row.names = NULL
@@ -1586,7 +1614,7 @@ stick_breaking <- nimble::nimbleFunction(
       draws_arr <- array(NA_real_, dim = c(n_pred, M, S))
       for (s in seq_len(S)) {
         w_s <- as.numeric(W_draws[s, ])
-        args0 <- list(w = w_s)
+        args0 <- if (pred_backend == "sb") list(w = w_s) else list()
         for (nm in base_params) {
           args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
         }
@@ -1612,22 +1640,22 @@ stick_breaking <- nimble::nimbleFunction(
       upper <- summ$upper
 
       fit_df <- data.frame(
-        id       = rep(seq_len(n_pred), times = M),
-        index    = rep(pgrid, each = n_pred),
         estimate = as.vector(estimate),
+        index    = rep(pgrid, each = n_pred),
+        id       = rep(seq_len(n_pred), times = M),
         lower    = if (interval == "credible") as.vector(lower) else NA_real_,
         upper    = if (interval == "credible") as.vector(upper) else NA_real_,
         row.names = NULL
       )
       fit <- fit_df
 
-      draws_out <- if (isTRUE(store_draws)) draws_arr else NULL
+      draws_out <- if (isTRUE(store_draws)) aperm(draws_arr, c(3, 1, 2)) else NULL
 
       if (isTRUE(store_draws) && is.environment(object$cache)) {
         if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
         key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
                       "_n", n_pred, "_m", length(pgrid), "_S", S)
-        object$cache$predict[[key]] <- list(type = type, grid = pgrid, draws = draws_arr, fit = fit,
+        object$cache$predict[[key]] <- list(type = type, grid = pgrid, draws = draws_out, fit = fit,
                                             backend = backend, kernel = kernel, GPD = GPD)
       }
 
@@ -1651,7 +1679,7 @@ stick_breaking <- nimble::nimbleFunction(
       for (t in 1:nsim) {
         s <- idx[t]
         w_s <- as.numeric(W_draws[s, ])
-        args0 <- list(w = w_s)
+        args0 <- if (pred_backend == "sb") list(w = w_s) else list()
         for (nm in base_params) {
           args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
         }
@@ -1685,7 +1713,7 @@ stick_breaking <- nimble::nimbleFunction(
       for (t in 1:nsim) {
         s <- idx[t]
         w_s <- as.numeric(W_draws[s, ])
-        args0 <- list(w = w_s)
+        args0 <- if (pred_backend == "sb") list(w = w_s) else list()
         for (nm in base_params) {
           args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
         }
@@ -1726,6 +1754,28 @@ stick_breaking <- nimble::nimbleFunction(
     if (is.na(nsim_inner) || nsim_inner < 10L) nsim_inner <- 200L
 
     if (!has_X) {
+      if (isTRUE(store_draws) && is.environment(object$cache) &&
+          !is.null(object$cache$predict)) {
+        key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
+                      "_S", S, "_nsim", nsim_inner)
+        cached <- object$cache$predict[[key]] %||% NULL
+        if (!is.null(cached) && !is.null(cached$draws)) {
+          draws_mean <- cached$draws
+          summ <- .posterior_summarize(draws_mean, probs = probs)
+          estimate <- as.numeric(summ$estimate[1])
+          lower <- if (interval == "credible") as.numeric(summ$lower[1]) else NULL
+          upper <- if (interval == "credible") as.numeric(summ$upper[1]) else NULL
+          fit_df <- data.frame(
+            estimate = estimate,
+            lower = if (!is.null(lower)) lower else NA_real_,
+            upper = if (!is.null(upper)) upper else NA_real_
+          )
+          res <- list(fit = fit_df, type = type, draws = draws_mean)
+          class(res) <- "mixgpd_predict"
+          return(res)
+        }
+      }
+
       draws_mean <- numeric(S)
       for (s in seq_len(S)) {
         samples <- .draw_samples_uncond(s, nsim_inner)
@@ -1754,6 +1804,29 @@ stick_breaking <- nimble::nimbleFunction(
       class(res) <- "mixgpd_predict"
       return(res)
     } else {
+      if (isTRUE(store_draws) && is.environment(object$cache) &&
+          !is.null(object$cache$predict)) {
+        key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
+                      "_n", n_pred, "_S", S, "_nsim", nsim_inner)
+        cached <- object$cache$predict[[key]] %||% NULL
+        if (!is.null(cached) && !is.null(cached$draws)) {
+          draws_mean <- cached$draws
+          summ <- .posterior_summarize(draws_mean, probs = probs)
+          fit <- as.numeric(summ$estimate)
+          lower <- if (interval == "credible") as.numeric(summ$lower) else NULL
+          upper <- if (interval == "credible") as.numeric(summ$upper) else NULL
+          fit_df <- data.frame(
+            estimate = fit,
+            lower = if (!is.null(lower)) lower else rep(NA_real_, n_pred),
+            upper = if (!is.null(upper)) upper else rep(NA_real_, n_pred)
+          )
+          draws_out <- if (isTRUE(store_draws)) t(draws_mean) else NULL
+          res <- list(fit = fit_df, type = type, draws = draws_out)
+          class(res) <- "mixgpd_predict"
+          return(res)
+        }
+      }
+
       draws_mean <- matrix(NA_real_, nrow = n_pred, ncol = S)
       for (s in seq_len(S)) {
         samples_mat <- .draw_samples_cond(s, nsim_inner)
@@ -1779,11 +1852,11 @@ stick_breaking <- nimble::nimbleFunction(
         if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
         key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
                       "_n", n_pred, "_S", S, "_nsim", nsim_inner)
-        object$cache$predict[[key]] <- list(type = type, draws = all_samples, fit = fit_df,
+        object$cache$predict[[key]] <- list(type = type, draws = draws_mean, fit = fit_df,
                                             backend = backend, kernel = kernel, GPD = GPD)
       }
 
-      draws_out <- if (isTRUE(store_draws)) all_samples else NULL
+      draws_out <- if (isTRUE(store_draws)) t(draws_mean) else NULL
       res <- list(fit = fit_df, type = type, draws = draws_out)
       class(res) <- "mixgpd_predict"
       return(res)
@@ -1791,4 +1864,34 @@ stick_breaking <- nimble::nimbleFunction(
   }
 
   stop("Unsupported prediction type.", call. = FALSE)
+}
+.wrap_density_fun <- function(fun) {
+  function(x, ...) {
+    if (length(x) == 0) return(numeric(0))
+    if (length(x) == 1) return(as.numeric(fun(x, ...)))
+    vapply(x, function(xx) as.numeric(fun(xx, ...)), numeric(1))
+  }
+}
+
+.wrap_cdf_fun <- function(fun) {
+  function(q, ...) {
+    if (length(q) == 0) return(numeric(0))
+    if (length(q) == 1) return(as.numeric(fun(q, ...)))
+    vapply(q, function(qq) as.numeric(fun(qq, ...)), numeric(1))
+  }
+}
+
+.wrap_quantile_fun <- function(fun) {
+  function(p, ...) {
+    if (length(p) == 0) return(numeric(0))
+    fun(p, ...)
+  }
+}
+
+.wrap_rng_fun <- function(fun) {
+  function(n, ...) {
+    if (n <= 0) return(numeric(0))
+    if (n == 1) return(as.numeric(fun(1, ...)))
+    vapply(seq_len(n), function(i) as.numeric(fun(1, ...)), numeric(1))
+  }
 }

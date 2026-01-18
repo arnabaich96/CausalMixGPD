@@ -200,3 +200,6 @@ qte_gpd <- qte(fit_crp_gpd, probs = c(0.25, 0.5, 0.75), interval = "credible")
 head(qte_gpd)
 plot(qte_gpd)
 ```
+
+
+

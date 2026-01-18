@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
   fig.height = 6,
   message = FALSE,
   warning = FALSE,
-  eval = FALSE,
+  eval = TRUE,
   cache = TRUE,
   cache.path = "../.cache/vignettes/"
 )
@@ -290,6 +290,9 @@ p_gamma + p_lognormal +
 - **Kernel Choice**: Gamma suitable for positive, skewed data
 - **Diagnostics**: Check convergence (Rhat, ESS) and posterior predictive fit
 - **Next**: Compare with **Stick-Breaking (SB)** backend in vignette 5
+
+
+
 
 
 

@@ -54,10 +54,11 @@ print.dpmixgpd_bundle <- function(x, code = FALSE, max_code_lines = 200L, ...) {
 
   if (isTRUE(code)) {
     cat("\nModel code\n")
-    if (is.null(x$code)) {
+    code_obj <- .extract_nimble_code(x$code)
+    if (is.null(code_obj)) {
       cat("  <no code available>\n")
     } else {
-      out <- paste(deparse(x$code), collapse = "\n")
+      out <- paste(deparse(code_obj), collapse = "\n")
       out <- strsplit(out, "\n", fixed = TRUE)[[1]]
       if (!is.finite(max_code_lines) || max_code_lines <= 0L) {
         cat(paste(out, collapse = "\n"), "\n")
@@ -1108,12 +1109,20 @@ predict.mixgpd_fit <- function(object,
 #' fitted(fit, level = 0.90)
 #' }
 #' @export
-fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median"), level = 0.95, ...) {
+fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median", "quantile"), p = 0.5, level = 0.95, seed = 1, ...) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   type <- match.arg(type)
   y <- object$data$y %||% object$y
   X <- object$data$X %||% object$X %||% NULL
+
+  if (!is.null(seed)) {
+    old_seed <- if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) .Random.seed else NULL
+    on.exit({
+      if (!is.null(old_seed)) .Random.seed <<- old_seed
+    }, add = TRUE)
+    set.seed(as.integer(seed))
+  }
 
   if (is.null(y)) stop("Could not extract y from fitted object.", call. = FALSE)
 
@@ -1133,6 +1142,22 @@ fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median"), le
     med_vals <- med_df$estimate
     med_lower <- med_df$lower
     med_upper <- med_df$upper
+  } else if (type == "quantile") {
+    pred <- predict(object, x = X, type = "quantile",
+                    index = p, cred.level = level, interval = "credible")
+    fit_df <- pred$fit
+    if ("id" %in% names(fit_df)) fit_df <- fit_df[order(fit_df$id), , drop = FALSE]
+    fit_vals <- fit_df$estimate
+    lower_vals <- fit_df$lower
+    upper_vals <- fit_df$upper
+
+    if (is.null(X)) {
+      if (length(fit_vals) == 1L) {
+        fit_vals <- rep(fit_vals, length(y))
+        lower_vals <- rep(lower_vals, length(y))
+        upper_vals <- rep(upper_vals, length(y))
+      }
+    }
   } else if (!is.null(X)) {
     pred <- predict(object, x = X, type = type,
                     cred.level = level, interval = "credible")

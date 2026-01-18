@@ -466,3 +466,48 @@ qGammaGpd <- function(p, shape, scale, threshold, tail_scale, tail_shape,
   }
   out
 }
+
+# ---- R-side vectorized wrappers for Gamma mix functions (tests/usage) ----
+
+dGammaMix_nf <- dGammaMix
+pGammaMix_nf <- pGammaMix
+rGammaMix_nf <- rGammaMix
+
+dGammaMix <- local({
+  nf <- dGammaMix_nf
+  function(x, w, shape, scale, log = FALSE) {
+    x <- as.numeric(x)
+    if (length(x) == 0) return(numeric(0))
+    vapply(x, function(xx) {
+      as.numeric(nf(xx, w = w, shape = shape, scale = scale, log = as.integer(log)))
+    }, numeric(1))
+  }
+})
+
+pGammaMix <- local({
+  nf <- pGammaMix_nf
+  function(q, w, shape, scale, lower.tail = TRUE, log.p = FALSE, x = NULL) {
+    if (!is.null(x)) {
+      if (!missing(q)) stop("Provide only one of 'q' or 'x'.", call. = FALSE)
+      q <- x
+    }
+    q <- as.numeric(q)
+    if (length(q) == 0) return(numeric(0))
+    vapply(q, function(qq) {
+      as.numeric(nf(qq, w = w, shape = shape, scale = scale,
+                   lower.tail = as.integer(lower.tail), log.p = as.integer(log.p)))
+    }, numeric(1))
+  }
+})
+
+rGammaMix <- local({
+  nf <- rGammaMix_nf
+  function(n, w, shape, scale) {
+    n <- as.integer(n)
+    if (is.na(n) || n < 0L) stop("n must be a non-negative integer.", call. = FALSE)
+    if (n == 0L) return(numeric(0))
+    vapply(seq_len(n), function(i) {
+      as.numeric(nf(1L, w = w, shape = shape, scale = scale))
+    }, numeric(1))
+  }
+})
