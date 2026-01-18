@@ -19,6 +19,7 @@ parameters location and scale. Base Laplace functions are taken from nimble."></
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/index.html">Articles</a></li>
+<li class="nav-item"><a class="nav-link" href="../legacy/index.html">Legacy</a></li>
 <li class="nav-item"><a class="nav-link" href="../coverage/index.html">Coverage</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/arnabaich96/DPmixGPD">GitHub</a></li>
       </ul></div>
@@ -152,8 +153,8 @@ parameters <code>location</code> and <code>scale</code>. Base Laplace functions 
 <span class="r-in"><span><span class="fu">qLaplaceGpd</span><span class="op">(</span><span class="fl">0.95</span>, <span class="va">location</span>, <span class="va">scale</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.170353</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rLaplaceGpd</span><span class="op">(</span><span class="fl">1</span>, <span class="va">location</span>, <span class="va">scale</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  3.2012094  1.2789137  1.5708633  2.5020907  6.5262022  0.7961656</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.3716472  0.2411670  2.0425770  0.8059346</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  1.3102336 -1.3619575 -0.4785054  0.5563315  0.1484730  1.1242182</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.6386540  1.3892833  1.5203290 -1.1871087</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

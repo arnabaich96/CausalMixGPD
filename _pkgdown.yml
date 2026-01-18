@@ -5,7 +5,7 @@ build:
   lazy: true
 navbar:
   structure:
-    left: [home, reference, articles, coverage]
+    left: [home, reference, articles, legacy, coverage]
   right:
     - text: "GitHub"
       href: https://github.com/arnabaich96/DPmixGPD
@@ -13,49 +13,24 @@ navbar:
     coverage:
       text: "Coverage"
       href: coverage/index.html
+    legacy:
+      text: "Legacy"
+      href: legacy/index.html
 
 articles:
-  - title: "Getting Started"
+  - title: "Get Started"
     contents:
-      - v00-start-here
-      - v01-introduction
-      - v02-available-distributions
-      - v03-basic-model-compile-run
-      - v04-backends-and-workflow
-      - v05-unconditional-DPmix-CRP
-  - title: "Unconditional Models"
-    desc: "DPmix and DPmixGPD without covariates"
+      - introduction
+  - title: "Manual"
     contents:
-      - v06-unconditional-DPmix-CRP
-      - v07-unconditional-DPmix-SB
-      - v08-unconditional-DPmixGPD-CRP
-      - v09-unconditional-DPmixGPD-SB
-  - title: "Conditional Models"
-    desc: "DPmix and DPmixGPD with covariates"
+      - distributions
+      - model-spec
+      - mcmc-workflow
+      - unconditional
+      - conditional
+      - causal
+      - backends
+      - reference-s3
+  - title: "Legacy"
     contents:
-      - v10-conditional-DPmix-CRP
-      - v11-conditional-DPmix-SB
-      - v12-conditional-DPmixGPD-CRP
-      - v13-conditional-DPmixGPD-SB
-  - title: "Causal Inference"
-    desc: "Treatment effects with propensity score modeling"
-    contents:
-      - v14-causal-no-x-CRP
-      - v15-causal-x-no-ps-SB
-      - v16-causal-same-backend-CRP
-      - v17-causal-same-backend-SB
-      - v18-causal-different-backends-CRP
-      - v19-causal-different-backends-SB
-  - title: "Troubleshooting"
-    contents:
-      - v20-troubleshooting
-  - title: "Kernel Reference"
-    desc: "Short reminders of parameterizations and exported helpers"
-    contents:
-      - kernel-normal
-      - kernel-lognormal
-      - kernel-gamma
-      - kernel-invgauss
-      - kernel-laplace
-      - kernel-amoroso
-      - kernel-cauchy
+      - starts_with("legacy/")

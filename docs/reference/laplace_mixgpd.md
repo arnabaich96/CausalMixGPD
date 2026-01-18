@@ -149,7 +149,7 @@ pLaplaceMixGpd(2.0, w = w, location = location, scale = scale,
 qLaplaceMixGpd(0.50, w = w, location = location, scale = scale,
               threshold = threshold, tail_scale = tail_scale,
               tail_shape = tail_shape)
-#> [1] -0.0254679
+#> [1] -0.02546085
 qLaplaceMixGpd(0.95, w = w, location = location, scale = scale,
               threshold = threshold, tail_scale = tail_scale,
               tail_shape = tail_shape)
@@ -158,6 +158,6 @@ replicate(10, rLaplaceMixGpd(1, w = w, location = location, scale = scale,
                             threshold = threshold,
                             tail_scale = tail_scale,
                             tail_shape = tail_shape))
-#>  [1] -3.3887699 -0.6755452  0.2367145  0.1628920  1.5121312 -1.2014621
-#>  [7]  1.2195007  1.4762319  1.1826586  0.5214404
+#>  [1]  2.3575969 -0.7314386  1.5493416 -1.5075673  1.4471097  1.3451593
+#>  [7]  0.4536589  0.4869627 -1.2862912  1.6929401
 ```

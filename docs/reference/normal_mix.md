@@ -4,7 +4,9 @@ A finite mixture of Normal components. Base Normal functions are taken
 from stats. Mixture density and CDF are computed by weighted sums.
 Random generation samples a component index according to weights and
 draws from the corresponding component. Quantiles are computed by
-numerical inversion of the mixture CDF.
+numerical inversion of the mixture CDF. The `d*`, `p*`, and `q*`
+functions accept vector inputs for their first argument and evaluate
+elementwise; `r*` supports `n > 1`.
 
 ## Usage
 
@@ -113,6 +115,6 @@ qNormMix(0.50, w = w, mean = mean, sd = sd)
 qNormMix(0.95, w = w, mean = mean, sd = sd)
 #> [1] 2.571684
 replicate(10, rNormMix(1, w = w, mean = mean, sd = sd))
-#>  [1] -2.24084294 -0.81965065  0.27401683 -0.24524639  0.51408932  0.20787154
-#>  [7] -0.61336908 -2.08948315 -1.08405889  0.04062087
+#>  [1] -0.3084431 -3.3710229 -1.5896280 -1.7658900  0.4164409 -1.3112171
+#>  [7]  0.1732244  0.9671088  0.8194253  1.4791538
 ```

@@ -1,0 +1,72 @@
+# Introduction
+
+## What problem does DPmixGPD solve?
+
+DPmixGPD models **entire outcome distributions**, not just means. It is
+designed for:
+
+- **Distributional modeling** (shape, skew, multi-modality)
+- **Extremes and tail risk** (via optional GPD tails)
+- **Causal contrast of distributions** when identification is provided
+  externally
+
+If your outcome is heavy‑tailed, skewed, or multi‑modal, DPmixGPD
+provides a flexible mixture‑plus‑tail approach that can be used in
+unconditional, conditional, or group‑comparison settings.
+
+## One unified framework
+
+DPmixGPD is one engine with three common use cases:
+
+1.  **Unconditional**: fit a flexible mixture to the bulk of the data.
+2.  **Conditional**: let mixture parameters depend on covariates via
+    links.
+3.  **Causal**: fit **separate outcome models by treatment group** and
+    compare distributions.
+
+The model structure stays the same:
+
+- **Bulk**: Dirichlet process mixture over a kernel family.
+- **Tail (optional)**: splice a Generalized Pareto Distribution (GPD)
+  above a threshold.
+
+## What “causal” means in this package
+
+DPmixGPD **does not identify causal effects on its own**. It provides
+tools to **model outcome distributions** for treated and control groups
+and then compute **distributional contrasts** (e.g., CQTE) **if** your
+identification assumptions are satisfied outside the package.
+
+This package:
+
+- **does** fit outcome models and compute contrasts
+- **does not** supply identification, randomization, or validity
+  guarantees
+
+## Motivating example (conceptual)
+
+Imagine a policy that changes not only the **mean** of earnings but also
+the **tail risk** (very high or very low outcomes). A mean‑only analysis
+would miss distributional shifts. DPmixGPD lets you fit flexible outcome
+distributions for each group and compare effects at specific quantiles
+or in the tail.
+
+## Where to go next
+
+- **Distributions**:
+  [distributions](https://arnabaich96.github.io/DPmixGPD/articles/distributions.Rmd)
+  for kernel choices and parameter meanings.
+- **Model specification**:
+  [model-spec](https://arnabaich96.github.io/DPmixGPD/articles/model-spec.Rmd)
+  for what you build vs what is generated.
+- **MCMC workflow**:
+  [mcmc-workflow](https://arnabaich96.github.io/DPmixGPD/articles/mcmc-workflow.Rmd)
+  for responsible inference.
+- **Worked examples**:
+  - [unconditional](https://arnabaich96.github.io/DPmixGPD/articles/unconditional.Rmd)
+  - [conditional](https://arnabaich96.github.io/DPmixGPD/articles/conditional.Rmd)
+  - [causal](https://arnabaich96.github.io/DPmixGPD/articles/causal.Rmd)
+- **Backends**:
+  [backends](https://arnabaich96.github.io/DPmixGPD/articles/backends.Rmd)
+- **S3 reference**:
+  [reference-s3](https://arnabaich96.github.io/DPmixGPD/articles/reference-s3.Rmd)

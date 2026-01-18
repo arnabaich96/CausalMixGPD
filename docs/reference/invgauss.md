@@ -6,7 +6,8 @@ times. This package provides NIMBLE-compatible density, CDF, and RNG
 functions under the `mean`/`shape` parameterization (mean \\\mu\>0\\,
 shape \\\lambda\>0\\). A standalone mixture quantile function is
 computed by numerical inversion elsewhere; `qinvGauss` inverts the base
-CDF.
+CDF. The `d*`, `p*`, and `q*` functions accept vector inputs for their
+first argument and evaluate elementwise; `r*` supports `n > 1`.
 
 ## Usage
 
@@ -110,6 +111,6 @@ qInvGauss(0.50, mean, shape)
 qInvGauss(0.95, mean, shape)
 #> [1] 4.458125
 replicate(10, rInvGauss(1, mean, shape))
-#>  [1] 1.6132609 1.5399333 0.7868938 2.7946069 1.2522880 1.3089821 1.3382698
-#>  [8] 1.5815589 0.9791832 2.4212992
+#>  [1] 2.9918691 1.9544809 0.9107896 0.6577423 1.9954764 1.9244103 0.6185390
+#>  [8] 0.8328306 1.8092876 2.0030581
 ```

@@ -87,7 +87,9 @@ a numeric vector with the same length as `p`.
 
 The density, CDF, and RNG are implemented as `nimbleFunction`s for use
 inside NIMBLE models. The quantile function is an R function computed by
-numerical inversion of the mixture CDF.
+numerical inversion of the mixture CDF. The `d*`, `p*`, and `q*`
+functions accept vector inputs for their first argument and evaluate
+elementwise; `r*` supports `n > 1`.
 
 ## Functions
 
@@ -116,6 +118,6 @@ qInvGaussMix(0.50, w = w, mean = mean, shape = shape)
 qInvGaussMix(0.95, w = w, mean = mean, shape = shape)
 #> [1] 6.489781
 replicate(10, rInvGaussMix(1, w = w, mean = mean, shape = shape))
-#>  [1] 1.1107784 0.6394550 2.6216670 4.6625934 1.2470273 1.0056430 0.2549927
-#>  [8] 0.3752957 5.3715940 1.8885472
+#>  [1] 0.5988448 1.9985614 2.0014658 0.9038113 1.7843153 1.9464676 5.5706347
+#>  [8] 2.3552675 1.6961112 0.9025232
 ```

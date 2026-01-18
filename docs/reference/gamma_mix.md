@@ -4,14 +4,16 @@ A finite mixture of Gamma components. Base Gamma functions are taken
 from stats. Mixture density and CDF are computed by weighted sums.
 Random generation samples a component according to weights and draws
 from the corresponding component. Quantiles are computed by numerical
-inversion of the mixture CDF.
+inversion of the mixture CDF. The `d*`, `p*`, and `q*` functions accept
+vector inputs for their first argument and evaluate elementwise; `r*`
+supports `n > 1`.
 
 ## Usage
 
 ``` r
-dGammaMix(x, w, shape, scale, log = 0)
+dGammaMix(x, w, shape, scale, log = FALSE)
 
-pGammaMix(q, w, shape, scale, lower.tail = 1, log.p = 0)
+pGammaMix(q, w, shape, scale, lower.tail = TRUE, log.p = FALSE, x = NULL)
 
 rGammaMix(n, w, shape, scale)
 
@@ -109,6 +111,6 @@ qGammaMix(0.50, w = w, scale = scale, shape = shape)
 qGammaMix(0.95, w = w, scale = scale, shape = shape)
 #> [1] 33.81667
 replicate(10, rGammaMix(1, w = w, scale = scale, shape = shape))
-#>  [1] 13.8210717  7.5800453  0.3793628  0.1723408  1.6215481 11.3634480
-#>  [7] 34.3823032 10.3478839 22.1313342 27.9601308
+#>  [1] 39.1317208  0.1450424 33.0143491 11.4696000  2.1138243  3.1501005
+#>  [7] 55.9808384 20.5056600  0.4500626 28.4787082
 ```

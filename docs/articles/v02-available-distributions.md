@@ -45,6 +45,23 @@ All `p*()` functions support `lower.tail` and `log.p`:
 \Pr(Y>y)=1-F(y),\qquad \log F(y)\ \text{or}\ \log\{1-F(y)\}.
 ```
 
+The `d*()`, `p*()`, and `q*()` functions accept vector inputs for their
+first argument and evaluate elementwise; `r*()` supports `n > 1`
+(including `n = 0`).
+
+``` r
+w <- c(0.60, 0.40)
+shape <- c(2.0, 5.0)
+scale <- c(1.0, 2.0)
+
+dGammaMix(seq(0.5, 2.0, length.out = 5), w = w, shape = shape, scale = scale)
+[1] 0.1819845 0.2190497 0.2155592 0.1936004 0.1654680
+qGammaMix(c(0.1, 0.5, 0.9), w = w, shape = shape, scale = scale)
+[1]  0.7309733  3.1258068 12.5500460
+rGammaMix(5, w = w, shape = shape, scale = scale)
+[1] 16.665600 10.606554  4.923651  2.294765  1.386307
+```
+
 ### Finite mixtures
 
 Several kernels are available as **finite mixtures**. Let
@@ -146,7 +163,7 @@ q_vec(qGpd, c(log(0.25), log(0.5), log(0.75)), threshold = 1.5, scale = 0.5,
 
 ``` r
 draw_many(rGpd, list(threshold = 1.5, scale = 0.5, shape = 0.2))
-[1] 3.091271 3.346863 1.674344 2.565162 2.069741
+[1] 1.563279 1.843856 1.946559 2.994976 1.575788
 ```
 
 ``` r
@@ -247,7 +264,7 @@ q_vec(qNormMix, c(log(0.25), log(0.5), log(0.75)), w = example$w,
 
 ``` r
 draw_many(rNormMix, list(w = example$w, mean = example$mean, sd = example$sd))
-[1]  0.2657252  0.8234143  1.4069132  2.1097911 -1.1254282
+[1]  3.7747101 -1.5575775  0.9563351  0.3294482  0.9315058
 ```
 
 ``` r
@@ -297,7 +314,7 @@ q_vec(qNormMixGpd, c(0.5, 0.9), w = example$w, mean = example$mean, sd = example
 
 ``` r
 draw_many(rNormMixGpd, example)
-[1]  1.8608586  3.5294576 -1.1393944  2.5087603 -0.1251643
+[1]  2.22716625 -0.03221412  2.96425523  2.24194474 -0.60592969
 ```
 
 ``` r
@@ -522,7 +539,7 @@ q_vec(qLognormalMix, c(log(0.25), log(0.5), log(0.75)), w = example$w,
 
 ``` r
 draw_many(rLognormalMix, list(w = example$w, meanlog = example$meanlog, sdlog = example$sdlog))
-[1] 0.7219291 1.1579842 2.1689186 3.7765271 2.1846564
+[1] 1.6990150 1.0145593 2.7812554 0.8694293 1.7375526
 ```
 
 ``` r
@@ -567,7 +584,7 @@ q_vec(qLognormalMixGpd, c(0.5, 0.9), w = example$w, meanlog = example$meanlog, s
 
 ``` r
 draw_many(rLognormalMixGpd, example)
-[1] 1.266734 1.691151 7.829337 1.750816 3.166433
+[1] 0.7903039 0.8129352 1.0637491 3.9712528 0.6633289
 ```
 
 ``` r
@@ -646,18 +663,18 @@ pLaplaceMix(0, w = example$w, location = example$location, scale = example$scale
 ``` r
 q_vec(qLaplaceMix, c(0.25, 0.5, 0.75), w = example$w,
       location = example$location, scale = example$scale)
-[1] -0.7341353  0.1712553  1.0499983
+[1] -0.7341261  0.1712536  1.0499993
 q_vec(qLaplaceMix, c(0.25, 0.5, 0.75), w = example$w,
       location = example$location, scale = example$scale, lower.tail = FALSE)
-[1]  1.0499983  0.1712553 -0.7341353
+[1]  1.0499993  0.1712536 -0.7341261
 q_vec(qLaplaceMix, c(log(0.25), log(0.5), log(0.75)), w = example$w,
       location = example$location, scale = example$scale, log.p = TRUE)
-[1] -0.7341353  0.1712553  1.0499983
+[1] -0.7341261  0.1712536  1.0499993
 ```
 
 ``` r
 draw_many(rLaplaceMix, list(w = example$w, location = example$location, scale = example$scale))
-[1] -1.51012711 -1.96557710 -0.07559634 -0.16320801 -0.29126376
+[1] -0.8493686 -1.4849925  0.4879493  2.3827666 -1.4723184
 ```
 
 ``` r
@@ -697,12 +714,12 @@ pLaplaceMixGpd(1, w = example$w, location = example$location, scale = example$sc
 
 ``` r
 q_vec(qLaplaceMixGpd, c(0.5, 0.9), w = example$w, location = example$location, scale = example$scale, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
-[1] -0.1619042  1.4304680
+[1] -0.1619177  1.4304946
 ```
 
 ``` r
 draw_many(rLaplaceMixGpd, example)
-[1] -1.507651921  2.884934338 -0.304820283  0.006465693  2.080692910
+[1] -0.5871500  0.9570520 -0.5897065 -0.5587807  0.9028803
 ```
 
 ``` r
@@ -792,7 +809,7 @@ q_vec(qInvGaussMix, c(log(0.25), log(0.5), log(0.75)), w = example$w,
 
 ``` r
 draw_many(rInvGaussMix, list(w = example$w, mean = example$mean, shape = example$shape))
-[1] 1.5982748 0.9320554 0.1582005 1.9433535 1.5046554
+[1] 0.6152170 4.1037850 0.6038831 1.0658372 0.7736633
 ```
 
 ``` r
@@ -837,7 +854,7 @@ q_vec(qInvGaussMixGpd, c(0.5, 0.9), w = example$w, mean = example$mean, shape = 
 
 ``` r
 draw_many(rInvGaussMixGpd, example)
-[1] 2.6374959 3.1747011 2.9841132 0.6038831 1.7125841
+[1] 1.6531770 1.1368277 2.2266611 0.9180892 2.0407428
 ```
 
 ``` r
@@ -939,7 +956,7 @@ q_vec(qAmorosoMix, c(log(0.25), log(0.5), log(0.75)), w = example$w,
 draw_many(rAmorosoMix, list(w = example$w, loc = example$loc,
                             scale = example$scale, shape1 = example$shape1,
                             shape2 = example$shape2))
-[1] 4.580032 1.494620 2.819055 3.068636 4.710832
+[1] 1.455945 3.810470 4.669594 7.780940 1.798048
 ```
 
 ``` r
@@ -1018,7 +1035,7 @@ q_vec(qAmorosoMixGpd, c(log(0.25), log(0.5), log(0.75)), w = example$w,
 
 ``` r
 draw_many(rAmorosoMixGpd, example)
-[1] 1.453515 4.253115 3.204376 1.583776 1.390419
+[1] 3.433480 3.541045 1.626134 2.855955 1.143805
 ```
 
 ``` r
@@ -1104,7 +1121,7 @@ q_vec(qInvGauss, c(log(0.25), log(0.5), log(0.75)), mean = example$mean,
 
 ``` r
 draw_many(rInvGauss, list(mean = example$mean, shape = example$shape))
-[1] 0.6874146 1.0461303 0.6078624 2.0064715 0.6093223
+[1] 1.2622572 0.8143682 0.6268980 1.0948292 0.7895287
 ```
 
 ``` r
@@ -1176,7 +1193,7 @@ q_vec(qInvGaussGpd, c(log(0.25), log(0.5), log(0.75)), mean = example$mean,
 
 ``` r
 draw_many(rInvGaussGpd, example)
-[1] 2.6503775 2.4248832 0.5837196 0.5472127 2.3134523
+[1] 1.042674 2.372893 1.352987 1.366026 2.152237
 ```
 
 ``` r
@@ -1258,7 +1275,7 @@ q_vec(qCauchy, c(log(0.25), log(0.5), log(0.75)), location = base_par$location,
 
 ``` r
 draw_many(rCauchy, list(location = base_par$location, scale = base_par$scale))
-[1]  1.9923986 -0.1816708 -1.8480412 -0.1832018  9.8312655
+[1] -1.5176373 -6.5331839 -1.0275563 -0.5051529 -1.8323010
 ```
 
 ``` r
@@ -1270,7 +1287,7 @@ dCauchyMix(0, w = mix_par1$w, location = mix_par1$location, scale = mix_par1$sca
 
 ``` r
 draw_many(rCauchyMix, list(w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale))
-[1] -1.9846713 -0.8672310 -0.6773953 -1.1541657  0.2866489
+[1] -19.1206666   3.8342141   1.3095352  -1.2521455  -0.8045539
 ```
 
 ``` r

@@ -1,135 +1,7 @@
-# DPmixGPD
-
-DPmixGPD fits **Dirichlet process mixture models** (CRP or
-stick-breaking backends) with an **optional Generalized Pareto (GPD)
-tail** so you can model the bulk and extremes *together* and still get
-clean, user-friendly prediction APIs.
-
-## Install
-
-``` r
-# install.packages("remotes")
-remotes::install_github("arnabaich96/DPmixGPD")
-```
-
-## Quickstart
-
-``` r
-library(DPmixGPD)
-
-set.seed(1)
-y <- abs(rnorm(120)) + 0.2
-
-bundle <- build_nimble_bundle(
-  y = y,
-  backend = "crp",
-  kernel  = "lognormal",
-  GPD     = TRUE,
-  Kmax    = 6,
-  mcmc = list(niter = 800, nburnin = 200, thin = 2, nchains = 1, seed = 1)
-)
-
-fit <- run_mcmc_bundle_manual(bundle)
-
-summary(fit)
-plot(fit, family = "trace")
-
-# predictive quantities
-predict(fit, type = "quantile", p = c(0.1, 0.5, 0.9))
-```
-
-## Learn the package by goal
-
-### I want to…
-
-- **Get oriented fast** →
-  [Introduction](https://arnabaich96.github.io/DPmixGPD/articles/v01-introduction.md)
-- **See every available distribution and its d/p/q/r helpers** →
-  [Available
-  Distributions](https://arnabaich96.github.io/DPmixGPD/articles/v02-available-distributions.md)
-- **Understand the full workflow (spec → bundle → MCMC)** → [Basic Model
-  Workflow](https://arnabaich96.github.io/DPmixGPD/articles/v03-basic-model-compile-run.md)
-
-### Unconditional models (y only)
-
-- [DPmix with
-  CRP](https://arnabaich96.github.io/DPmixGPD/articles/v04-unconditional-DPmix-CRP.md)
-- [DPmix with
-  SB](https://arnabaich96.github.io/DPmixGPD/articles/v05-unconditional-DPmix-SB.md)
-- [DPmixGPD with
-  CRP](https://arnabaich96.github.io/DPmixGPD/articles/v06-unconditional-DPmixGPD-CRP.md)
-- [DPmixGPD with
-  SB](https://arnabaich96.github.io/DPmixGPD/articles/v07-unconditional-DPmixGPD-SB.md)
-
-### Conditional models (y \| X)
-
-- [Conditional DPmix
-  CRP](https://arnabaich96.github.io/DPmixGPD/articles/v08-conditional-DPmix-CRP.md)
-- [Conditional DPmix
-  SB](https://arnabaich96.github.io/DPmixGPD/articles/v09-conditional-DPmix-SB.md)
-- [Conditional DPmixGPD
-  CRP](https://arnabaich96.github.io/DPmixGPD/articles/v10-conditional-DPmixGPD-CRP.md)
-- [Conditional DPmixGPD
-  SB](https://arnabaich96.github.io/DPmixGPD/articles/v11-conditional-DPmixGPD-SB.md)
-
-### Causal inference (two-arm outcome models)
-
-- [Same Backend
-  CRP](https://arnabaich96.github.io/DPmixGPD/articles/v12-causal-same-backend-CRP.md)
-- [Same Backend
-  SB](https://arnabaich96.github.io/DPmixGPD/articles/v13-causal-same-backend-SB.md)
-- [Different Backends (CRP for
-  PS)](https://arnabaich96.github.io/DPmixGPD/articles/v14-causal-different-backends-CRP.md)
-- [Different Backends (SB for
-  PS)](https://arnabaich96.github.io/DPmixGPD/articles/v15-causal-different-backends-SB.md)
-
-## Kernel reference (short pages)
-
-These pages are quick reminders of parameterizations and the relevant
-exported helpers.
-
-- [Normal
-  kernel](https://arnabaich96.github.io/DPmixGPD/articles/kernel-normal.md)
-- [Lognormal
-  kernel](https://arnabaich96.github.io/DPmixGPD/articles/kernel-lognormal.md)
-- [Gamma
-  kernel](https://arnabaich96.github.io/DPmixGPD/articles/kernel-gamma.md)
-- [Inverse Gaussian
-  kernel](https://arnabaich96.github.io/DPmixGPD/articles/kernel-invgauss.md)
-- [Laplace
-  kernel](https://arnabaich96.github.io/DPmixGPD/articles/kernel-laplace.md)
-- [Amoroso
-  kernel](https://arnabaich96.github.io/DPmixGPD/articles/kernel-amoroso.md)
-- [Cauchy
-  kernel](https://arnabaich96.github.io/DPmixGPD/articles/kernel-cauchy.md)
-
-## Core S3 methods
-
-Fitted model objects (`mixgpd_fit` and `dpmixgpd_causal_fit`) support:
-
-- [`print()`](https://rdrr.io/r/base/print.html),
-  [`summary()`](https://rdrr.io/r/base/summary.html)
-- [`params()`](https://arnabaich96.github.io/DPmixGPD/reference/params.md)
-- [`plot()`](https://rdrr.io/r/graphics/plot.default.html)
-- [`predict()`](https://rdrr.io/r/stats/predict.html) (density / CDF /
-  quantile / survival; causal: effects)
-- [`fitted()`](https://rdrr.io/r/stats/fitted.values.html)
-
-## Help and project links
-
-- Function reference:
-  [Reference](https://arnabaich96.github.io/DPmixGPD/reference/index.md)
-- Changelog:
-  [News](https://arnabaich96.github.io/DPmixGPD/news/index.md)
-- Source + issues: GitHub (see the navbar link)
-
-## Package health
-
-| Metric | Current value | Source |
-|----|----|----|
-| Test coverage (tests) | `0%` | `inst/extdata/coverage_status.json` (run `tools/update_coverage_status.R`) |
-| Coverage helper | [`DPmixGPD::coverage_status()`](https://arnabaich96.github.io/DPmixGPD/reference/coverage_status.md) | runs [`covr::package_coverage()`](http://covr.r-lib.org/reference/package_coverage.md) and can refresh the JSON file |
-| Status reader | [`DPmixGPD::read_coverage_status()`](https://arnabaich96.github.io/DPmixGPD/reference/read_coverage_status.md) | easy lookup for badges or pkgdown site |
+Experimental framework for Dirichlet process mixture regression and
+unconditional models with flexible kernels (gamma, lognormal, normal,
+Laplace, inverse Gaussian, Amoroso) and optional generalized Pareto
+(GPD) tail extension.
 
 # Package index
 
@@ -202,8 +74,34 @@ Fitted model objects (`mixgpd_fit` and `dpmixgpd_causal_fit`) support:
   : Get kernel registry
 - [`get_tail_registry()`](https://arnabaich96.github.io/DPmixGPD/reference/get_tail_registry.md)
   : Get tail registry
+- [`dGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/gpd.md)
+  [`pGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/gpd.md)
+  [`rGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/gpd.md)
+  [`rGpd_vec()`](https://arnabaich96.github.io/DPmixGPD/reference/gpd.md)
+  [`qGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/gpd.md) :
+  Generalized Pareto distribution
 - [`init_kernel_registry()`](https://arnabaich96.github.io/DPmixGPD/reference/init_kernel_registry.md)
   : Initialize kernel registries
+- [`dInvGauss()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss.md)
+  [`pInvGauss()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss.md)
+  [`rInvGauss()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss.md)
+  [`qInvGauss()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss.md)
+  : Inverse Gaussian (Wald) distribution
+- [`dInvGaussGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss_gpd.md)
+  [`pInvGaussGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss_gpd.md)
+  [`rInvGaussGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss_gpd.md)
+  [`qInvGaussGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss_gpd.md)
+  : Inverse Gaussian with a Gpd tail
+- [`dInvGaussMix()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss_mix.md)
+  [`pInvGaussMix()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss_mix.md)
+  [`rInvGaussMix()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss_mix.md)
+  [`qInvGaussMix()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss_mix.md)
+  : Inverse Gaussian mixture distribution
+- [`dInvGaussMixGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss_mixgpd.md)
+  [`pInvGaussMixGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss_mixgpd.md)
+  [`rInvGaussMixGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss_mixgpd.md)
+  [`qInvGaussMixGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss_mixgpd.md)
+  : Inverse Gaussian mixture with a Gpd tail
 - [`kernel_support_table()`](https://arnabaich96.github.io/DPmixGPD/reference/kernel_support_table.md)
   : Kernel support matrix Returns a data frame summarizing each kernel's
   supported features.
@@ -217,6 +115,11 @@ Fitted model objects (`mixgpd_fit` and `dpmixgpd_causal_fit`) support:
   [`rLaplaceMix()`](https://arnabaich96.github.io/DPmixGPD/reference/laplace_mix.md)
   [`qLaplaceMix()`](https://arnabaich96.github.io/DPmixGPD/reference/laplace_mix.md)
   : Laplace (double exponential) mixture distribution
+- [`dLaplaceMixGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/laplace_MixGpd.md)
+  [`pLaplaceMixGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/laplace_MixGpd.md)
+  [`rLaplaceMixGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/laplace_MixGpd.md)
+  [`qLaplaceMixGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/laplace_MixGpd.md)
+  : Laplace mixture with a Gpd tail
 - [`dLognormalGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/lognormal_gpd.md)
   [`pLognormalGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/lognormal_gpd.md)
   [`rLognormalGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/lognormal_gpd.md)
@@ -318,69 +221,25 @@ Fitted model objects (`mixgpd_fit` and `dpmixgpd_causal_fit`) support:
 
 # Articles
 
-### Getting Started
+### Get Started
 
-- [1. Introduction to
-  DPmixGPD](https://arnabaich96.github.io/DPmixGPD/articles/v01-introduction.md):
-- [2. Available Distributions and Related
-  Functions](https://arnabaich96.github.io/DPmixGPD/articles/v02-available-distributions.md):
-- [3. Basic Workflow: Model Specification, Bundle, &
-  MCMC](https://arnabaich96.github.io/DPmixGPD/articles/v03-basic-model-compile-run.md):
+- [Introduction](https://arnabaich96.github.io/DPmixGPD/articles/introduction.md):
 
-### Unconditional Models
+### Manual
 
-DPmix and DPmixGPD without covariates
+- [Distributions](https://arnabaich96.github.io/DPmixGPD/articles/distributions.md):
+- [Model
+  Specification](https://arnabaich96.github.io/DPmixGPD/articles/model-spec.md):
+- [MCMC
+  Workflow](https://arnabaich96.github.io/DPmixGPD/articles/mcmc-workflow.md):
+- [Unconditional
+  Modeling](https://arnabaich96.github.io/DPmixGPD/articles/unconditional.md):
+- [Conditional
+  Modeling](https://arnabaich96.github.io/DPmixGPD/articles/conditional.md):
+- [Causal Modeling
+  (Scoped)](https://arnabaich96.github.io/DPmixGPD/articles/causal.md):
+- [Backends](https://arnabaich96.github.io/DPmixGPD/articles/backends.md):
+- [S3 Methods
+  Reference](https://arnabaich96.github.io/DPmixGPD/articles/reference-s3.md):
 
-- [4. Unconditional DPmix with CRP
-  Backend](https://arnabaich96.github.io/DPmixGPD/articles/v04-unconditional-DPmix-CRP.md):
-- [5. Unconditional DPmix with Stick-Breaking
-  Backend](https://arnabaich96.github.io/DPmixGPD/articles/v05-unconditional-DPmix-SB.md):
-- [6. Unconditional DPmixGPD with CRP
-  Backend](https://arnabaich96.github.io/DPmixGPD/articles/v06-unconditional-DPmixGPD-CRP.md):
-- [7. Unconditional DPmixGPD with Stick-Breaking
-  Backend](https://arnabaich96.github.io/DPmixGPD/articles/v07-unconditional-DPmixGPD-SB.md):
-
-### Conditional Models
-
-DPmix and DPmixGPD with covariates
-
-- [8. Conditional DPmix with CRP
-  Backend](https://arnabaich96.github.io/DPmixGPD/articles/v08-conditional-DPmix-CRP.md):
-- [9. Conditional DPmix with Stick-Breaking
-  Backend](https://arnabaich96.github.io/DPmixGPD/articles/v09-conditional-DPmix-SB.md):
-- [10. Conditional DPmixGPD with CRP
-  Backend](https://arnabaich96.github.io/DPmixGPD/articles/v10-conditional-DPmixGPD-CRP.md):
-- [11. Conditional DPmixGPD with Stick-Breaking
-  Backend](https://arnabaich96.github.io/DPmixGPD/articles/v11-conditional-DPmixGPD-SB.md):
-
-### Causal Inference
-
-Treatment effects with propensity score modeling
-
-- [12. Causal Inference: Same Backend (CRP) - Normal
-  Kernel](https://arnabaich96.github.io/DPmixGPD/articles/v12-causal-same-backend-CRP.md):
-- [13. Causal Inference: Same Backend (SB) - Laplace
-  Kernel](https://arnabaich96.github.io/DPmixGPD/articles/v13-causal-same-backend-SB.md):
-- [14. Causal Inference: Mixed Backends (Bulk-only) - Cauchy
-  Kernel](https://arnabaich96.github.io/DPmixGPD/articles/v14-causal-different-backends-CRP.md):
-- [15. Causal Inference: Mixed Backends with GPD - Amoroso
-  Kernel](https://arnabaich96.github.io/DPmixGPD/articles/v15-causal-different-backends-SB.md):
-
-### Kernel Reference
-
-Short reminders of parameterizations and exported helpers
-
-- [Kernel reference:
-  Normal](https://arnabaich96.github.io/DPmixGPD/articles/kernel-normal.md):
-- [Kernel reference:
-  Lognormal](https://arnabaich96.github.io/DPmixGPD/articles/kernel-lognormal.md):
-- [Kernel reference:
-  Gamma](https://arnabaich96.github.io/DPmixGPD/articles/kernel-gamma.md):
-- [Kernel reference: Inverse
-  Gaussian](https://arnabaich96.github.io/DPmixGPD/articles/kernel-invgauss.md):
-- [Kernel reference:
-  Laplace](https://arnabaich96.github.io/DPmixGPD/articles/kernel-laplace.md):
-- [Kernel reference:
-  Amoroso](https://arnabaich96.github.io/DPmixGPD/articles/kernel-amoroso.md):
-- [Kernel reference:
-  Cauchy](https://arnabaich96.github.io/DPmixGPD/articles/kernel-cauchy.md):
+### Legacy

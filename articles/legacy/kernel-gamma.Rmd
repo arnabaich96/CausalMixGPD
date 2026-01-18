@@ -1,0 +1,48 @@
+---
+title: "Legacy: Kernel reference: Gamma"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Legacy: Kernel reference: Gamma}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = TRUE
+)
+library(DPmixGPD)
+```
+
+> **Legacy note:** This kernel reference is retained for historical context alongside the extended legacy materials.
+
+The **Gamma** kernel is parameterized by `shape` and `rate`.
+
+## Exported mixture helpers
+
+- `dGammaMix(x, shape, rate, w, log = FALSE)`
+- `pGammaMix(q, shape, rate, w, lower.tail = TRUE, log.p = FALSE)`
+- `qGammaMix(p, shape, rate, w, lower.tail = TRUE, log.p = FALSE)`
+- `rGammaMix(n, shape, rate, w)`
+
+For the full catalog (including CRP utilities and GPD splicing), see:
+
+- [Legacy distributions](legacy/v02-available-distributions.html)
+
+## Using Gamma in a model
+
+```{r}
+y <- abs(stats::rnorm(50)) + 0.1
+bundle <- build_nimble_bundle(
+  y = y,
+  backend = "sb",
+  kernel  = "gamma",
+  GPD     = TRUE,
+  components = 6
+)
+```
+
+
+

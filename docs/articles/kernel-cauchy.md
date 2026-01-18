@@ -17,11 +17,12 @@ For the full catalog (including CRP utilities and GPD splicing), see:
 ## Using Cauchy in a model
 
 ``` r
+y <- abs(stats::rnorm(50)) + 0.1
 bundle <- build_nimble_bundle(
   y = y,
   backend = "crp",
   kernel  = "cauchy",
-  GPD     = TRUE,
-  Kmax    = 6
+  GPD     = FALSE,
+  components = 6
 )
 ```

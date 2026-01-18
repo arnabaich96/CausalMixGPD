@@ -69,8 +69,34 @@
   : Get kernel registry
 - [`get_tail_registry()`](https://arnabaich96.github.io/DPmixGPD/reference/get_tail_registry.md)
   : Get tail registry
+- [`dGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/gpd.md)
+  [`pGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/gpd.md)
+  [`rGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/gpd.md)
+  [`rGpd_vec()`](https://arnabaich96.github.io/DPmixGPD/reference/gpd.md)
+  [`qGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/gpd.md) :
+  Generalized Pareto distribution
 - [`init_kernel_registry()`](https://arnabaich96.github.io/DPmixGPD/reference/init_kernel_registry.md)
   : Initialize kernel registries
+- [`dInvGauss()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss.md)
+  [`pInvGauss()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss.md)
+  [`rInvGauss()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss.md)
+  [`qInvGauss()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss.md)
+  : Inverse Gaussian (Wald) distribution
+- [`dInvGaussGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss_gpd.md)
+  [`pInvGaussGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss_gpd.md)
+  [`rInvGaussGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss_gpd.md)
+  [`qInvGaussGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss_gpd.md)
+  : Inverse Gaussian with a Gpd tail
+- [`dInvGaussMix()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss_mix.md)
+  [`pInvGaussMix()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss_mix.md)
+  [`rInvGaussMix()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss_mix.md)
+  [`qInvGaussMix()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss_mix.md)
+  : Inverse Gaussian mixture distribution
+- [`dInvGaussMixGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss_mixgpd.md)
+  [`pInvGaussMixGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss_mixgpd.md)
+  [`rInvGaussMixGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss_mixgpd.md)
+  [`qInvGaussMixGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/InvGauss_mixgpd.md)
+  : Inverse Gaussian mixture with a Gpd tail
 - [`kernel_support_table()`](https://arnabaich96.github.io/DPmixGPD/reference/kernel_support_table.md)
   : Kernel support matrix Returns a data frame summarizing each kernel's
   supported features.
@@ -84,6 +110,11 @@
   [`rLaplaceMix()`](https://arnabaich96.github.io/DPmixGPD/reference/laplace_mix.md)
   [`qLaplaceMix()`](https://arnabaich96.github.io/DPmixGPD/reference/laplace_mix.md)
   : Laplace (double exponential) mixture distribution
+- [`dLaplaceMixGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/laplace_MixGpd.md)
+  [`pLaplaceMixGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/laplace_MixGpd.md)
+  [`rLaplaceMixGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/laplace_MixGpd.md)
+  [`qLaplaceMixGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/laplace_MixGpd.md)
+  : Laplace mixture with a Gpd tail
 - [`dLognormalGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/lognormal_gpd.md)
   [`pLognormalGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/lognormal_gpd.md)
   [`rLognormalGpd()`](https://arnabaich96.github.io/DPmixGPD/reference/lognormal_gpd.md)

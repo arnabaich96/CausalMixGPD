@@ -4,7 +4,9 @@ A finite mixture of Lognormal components. Base Lognormal functions are
 taken from stats. Mixture density and CDF are computed by weighted sums.
 Random generation samples a component index according to weights and
 draws from the corresponding component. Quantiles are computed by
-numerical inversion of the mixture CDF.
+numerical inversion of the mixture CDF. The `d*`, `p*`, and `q*`
+functions accept vector inputs for their first argument and evaluate
+elementwise; `r*` supports `n > 1`.
 
 ## Usage
 
@@ -113,6 +115,6 @@ qLognormalMix(0.50, w = w, meanlog = meanlog, sdlog = sdlog)
 qLognormalMix(0.95, w = w, meanlog = meanlog, sdlog = sdlog)
 #> [1] 4.147585
 replicate(10, rLognormalMix(1, w = w, meanlog = meanlog, sdlog = sdlog))
-#>  [1] 0.8301959 1.3442066 0.8212191 1.5379567 0.9370305 0.9323510 1.7093731
-#>  [8] 0.9438299 1.8472092 0.9354914
+#>  [1] 5.2456834 2.3325388 0.8745521 1.8161562 0.5021116 1.3068884 0.4199004
+#>  [8] 5.4610490 0.6691172 0.7624799
 ```

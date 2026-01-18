@@ -4,7 +4,9 @@ A finite mixture of Cauchy components. Base Cauchy functions are taken
 from stats. The mixture density and distribution function are computed
 by weighted sums. Random generation samples a component index according
 to the weights and draws from the corresponding component. Quantiles are
-computed by numerical inversion of the mixture CDF.
+computed by numerical inversion of the mixture CDF. The `d*`, `p*`, and
+`q*` functions accept vector inputs for their first argument and
+evaluate elementwise; `r*` supports `n > 1`.
 
 ## Usage
 
@@ -110,6 +112,6 @@ qCauchyMix(0.50, w = w, location = location, scale = scale)
 qCauchyMix(0.95, w = w, location = location, scale = scale)
 #> [1] 6.996407
 replicate(10, rCauchyMix(1, w = w, location = location, scale = scale))
-#>  [1]   3.5155053 -10.2397681  -5.2861358  -0.2135951  -4.3825518   1.1442423
-#>  [7]  -0.9390494   1.1627078  -2.9320746 -23.5370772
+#>  [1]  3.4476371  0.6153722 -2.0349897 -2.4688998 -4.3986562 -0.5004555
+#>  [7] -2.4758329 53.9271662 30.8903937 -0.1477133
 ```
