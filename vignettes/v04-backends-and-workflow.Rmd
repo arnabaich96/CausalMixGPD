@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
   fig.height = 5,
   message = FALSE,
   warning = FALSE,
-  eval = FALSE,
+  eval = TRUE,
   cache = TRUE,
   cache.path = "../.cache/vignettes/"
 )
@@ -27,11 +27,11 @@ if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRU
 
 # Big picture
 
-DPmixGPD has two orthogonal “dials” you turn when building models:
+DPmixGPD has two orthogonal dials you turn when building models:
 
 - **Backend** (how the mixture weights / clustering are represented)
   - **CRP**: Chinese Restaurant Process representation.
-  - **SB**: stick-breaking truncation with a fixed maximum number of components.
+  - **SB**: stick-breaking truncation with a fixed number of components.
 
 - **Kernel / family** (what distribution models the bulk of the data)
   - Examples: normal, lognormal, gamma, inverse-Gaussian, Laplace, Cauchy, Amoroso, etc.
@@ -42,21 +42,21 @@ Optionally, you can also turn on:
 
 # What changes between CRP and SB?
 
-Both backends target the same posterior over densities. The difference is *representation*:
+Both backends target the same posterior over densities. The difference is representation:
 
-- **CRP** learns a random number of occupied clusters (conceptually infinite), and you track allocations.
-- **SB** uses a finite truncation level `Kmax` and learns stick-breaking weights.
+- **CRP** learns a random number of occupied clusters within a finite `components` cap.
+- **SB** uses the same finite `components` cap and learns stick-breaking weights.
 
 Practical rule of thumb:
 
-- **CRP** is convenient when you want adaptive complexity without choosing `Kmax`.
+- **CRP** is convenient when you want adaptive complexity while still using a finite `components` cap.
 - **SB** is convenient when you want predictable memory/time and easy vectorization.
 
 # What does the workflow look like?
 
-DPmixGPD uses a consistent build → run → summarize loop:
+DPmixGPD uses a consistent build -> run -> summarize loop:
 
-1. **Build a bundle** using `build_nimble_bundle()` (or causal builders if you’re doing TE work).
+1. **Build a bundle** using `build_nimble_bundle()` (or causal builders if you are doing TE work).
 2. **Run MCMC** using `run_mcmc_bundle_manual()`.
 3. **Inspect and summarize** using `print()`, `summary()`, `plot()`.
 4. **Predict** using `predict()` (and optionally `fitted()`).
@@ -68,6 +68,7 @@ bundle <- build_nimble_bundle(
   backend = "crp",
   kernel = "normal",
   GPD = FALSE,
+  components = 5,
   mcmc = list(niter = 200, nburnin = 100, thin = 1, nchains = 1, seed = 1)
 )
 
@@ -90,6 +91,8 @@ kernel_support()
 
 # Where to go next
 
-- **Available distributions**: see **v05** for the `d/p/q/r` functions and examples.
+- **Available distributions**: see **v02** for the `d/p/q/r` functions and examples.
 - **Basic build/compile/run**: see **v03**.
 - **Unconditional / Conditional / Causal**: continue through v06+.
+
+

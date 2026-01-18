@@ -237,3 +237,6 @@ plot(fit_cond_gpd_normal, family = c("running", "geweke", "caterpillar"))
 
 
 
+
+
+

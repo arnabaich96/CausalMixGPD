@@ -212,3 +212,6 @@ plot(fit_sb_cauchy, family = c("density", "running", "caterpillar"))
 
 
 
+
+
+
