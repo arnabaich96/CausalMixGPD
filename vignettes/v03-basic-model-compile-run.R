@@ -88,3 +88,46 @@ fit_final <- run_mcmc_bundle_manual(bundle_final)
 print("\n=== THREE-PHASE WORKFLOW COMPLETE ===\n")
 summary(fit_final)
 
+## ----backend-crp--------------------------------------------------------------
+# Chinese Restaurant Process
+bundle_crp <- build_nimble_bundle(
+  y = y_data,
+  kernel = "gamma",
+  backend = "crp",
+  components = 5,
+  mcmc = list(niter = 1500, nburnin = 250, nchains = 2)
+)
+
+fit_crp <- run_mcmc_bundle_manual(bundle_crp)
+print("CRP execution complete.\n")
+
+## ----backend-sb---------------------------------------------------------------
+# Stick-Breaking Process
+bundle_sb <- build_nimble_bundle(
+  y = y_data,
+  kernel = "gamma",
+  backend = "sb",
+  components = 5,
+  mcmc = list(niter = 100, nburnin = 20, nchains = 3)
+)
+
+fit_sb <- run_mcmc_bundle_manual(bundle_sb)
+print("SB execution complete.\n")
+
+## ----kernel-guide-------------------------------------------------------------
+kernels_available <- c("gamma", "lognormal", "normal", "laplace", "invgauss", "amoroso", "cauchy")
+
+cat("Available kernels:\n")
+for (k in kernels_available) {
+  cat("  -", k, "\n")
+}
+
+print("\nChoose kernel based on:\n")
+print("  gamma:     Right-skewed, positive support\n")
+print("  lognormal: Log-transformed normality\n")
+print("  normal:    Symmetric, unbounded\n")
+print("  laplace:   Sharp peak, exponential tails\n")
+print("  invgauss:  Positive, near-normal shape\n")
+print("  amoroso:   Generalized, maximum flexibility\n")
+print("  cauchy:    Heavy-tailed, rare cases\n")
+
