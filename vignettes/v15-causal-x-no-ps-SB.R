@@ -121,3 +121,37 @@ bundle_sb_bulk <- build_causal_bundle(
 
 bundle_sb_bulk
 
+## ----fit-sb-bulk--------------------------------------------------------------
+fit_sb_bulk <- quiet_mcmc(run_mcmc_causal(bundle_sb_bulk))
+summary(fit_sb_bulk)
+
+## ----predict-mean-sb-bulk-----------------------------------------------------
+pred_mean_bulk <- predict(fit_sb_bulk, x = x_eval, type = "mean", interval = "credible", nsim_mean = 150)
+head(pred_mean_bulk)
+plot(pred_mean_bulk)
+
+## ----predict-quantile-sb-bulk-------------------------------------------------
+pred_q_bulk <- predict(fit_sb_bulk, x = x_eval, type = "quantile", p = 0.5, interval = "credible")
+head(pred_q_bulk)
+plot(pred_q_bulk)
+
+## ----predict-density-sb-bulk--------------------------------------------------
+pred_d_bulk <- predict(fit_sb_bulk, x = x_eval, y = y_eval, type = "density", interval = "credible")
+head(pred_d_bulk)
+plot(pred_d_bulk)
+
+## ----predict-survival-sb-bulk-------------------------------------------------
+pred_surv_bulk <- predict(fit_sb_bulk, x = x_eval, y = y_eval, type = "survival", interval = "credible")
+head(pred_surv_bulk)
+plot(pred_surv_bulk)
+
+## ----ate-sb-bulk--------------------------------------------------------------
+ate_bulk <- ate(fit_sb_bulk, newdata = x_eval, interval = "credible", nsim_mean = 150)
+head(ate_bulk)
+plot(ate_bulk)
+
+## ----qte-sb-bulk--------------------------------------------------------------
+qte_bulk <- qte(fit_sb_bulk, probs = c(0.25, 0.5, 0.75), newdata = x_eval, interval = "credible")
+head(qte_bulk)
+plot(qte_bulk)
+
