@@ -1094,14 +1094,14 @@ predict.mixgpd_fit <- function(object,
 #' @param seed Random seed used for deterministic fitted values.
 #' @param ... Unused.
 #' @return A data frame with columns:
-#'   \describe{
-#'     \item{fit}{Point estimates for the requested location.}
-#'     \item{lower}{Lower credible bound.}
-#'     \item{upper}{Upper credible bound.}
-#'     \item{residuals}{Residuals (y - fit).}
-#'   }
+#' \describe{
+#' \item{fit}{Point estimates for the requested location.}
+#' \item{lower}{Lower credible bound.}
+#' \item{upper}{Upper credible bound.}
+#' \item{residuals}{Residuals (y - fit).}
+#' }
 #' @examples
-#' \dontrun{
+#' if (FALSE) {
 #' y <- abs(stats::rnorm(50)) + 0.1
 #' bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
 #'                              GPD = TRUE, components = 6,

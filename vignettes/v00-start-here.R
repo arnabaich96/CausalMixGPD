@@ -39,3 +39,7 @@ plot(pred_mean)
 params(fit_uncond)
 plot(fit_uncond, family = c("traceplot", "running"))
 
+## ----start-cond-fit-----------------------------------------------------------
+fit_cond <- quiet_mcmc(run_mcmc_bundle_manual(bundle_cond, show_progress = FALSE))
+summary(fit_cond)
+

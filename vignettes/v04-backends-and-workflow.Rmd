@@ -83,10 +83,10 @@ plot(fit)
 
 # Kernel support quick check
 
-Use `kernel_support()` and the kernel registry helpers to confirm what is available.
+Use `kernel_support_table()` and the kernel registry helpers to confirm what is available.
 
 ```{r}
-kernel_support()
+kernel_support_table()
 ```
 
 # Where to go next

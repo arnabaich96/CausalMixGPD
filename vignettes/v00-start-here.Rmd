@@ -66,7 +66,7 @@ fit_uncond <- quiet_mcmc(run_mcmc_bundle_manual(bundle_uncond, show_progress = F
 summary(fit_uncond)
 ```
 
-```{r start-uncond-predict}
+```{r start-uncond-predict, cache=FALSE}
 pred_q <- predict(fit_uncond, type = "quantile", index = c(0.5, 0.9), interval = "credible")
 head(pred_q$fit)
 plot(pred_q)
@@ -99,7 +99,7 @@ fit_cond <- quiet_mcmc(run_mcmc_bundle_manual(bundle_cond, show_progress = FALSE
 summary(fit_cond)
 ```
 
-```{r start-cond-predict}
+```{r start-cond-predict, cache=FALSE}
 x_new <- X[1:20, , drop = FALSE]
 pred_mean <- predict(fit_cond, x = x_new, type = "mean", interval = "credible", nsim_mean = 200)
 head(pred_mean$fit)
