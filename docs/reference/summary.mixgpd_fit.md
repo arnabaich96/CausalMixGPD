@@ -92,14 +92,14 @@ summary(fit, pars = c("alpha", "threshold"))
 #> MixGPD summary | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: TRUE | epsilon: 0.025
 #> n = 50 | components = 6
 #> Summary
-#> Initial components: 6 | Components after truncation: 2
+#> Initial components: 6 | Components after truncation: 1
 #> 
-#> WAIC: 76.018
-#> lppd: -35.537 | pWAIC: 2.472
+#> WAIC: 79.589
+#> lppd: -26.461 | pWAIC: 13.334
 #> 
 #> Summary table
-#>  parameter  mean    sd q0.025 q0.500 q0.975    ess
-#>      alpha 0.654 0.293  0.233  0.606  1.298 37.340
-#>  threshold 0.384 0.087  0.254  0.463  0.463  1.361
+#>  parameter mean    sd q0.025 q0.500 q0.975   ess
+#>      alpha 0.59 0.457  0.126  0.389  1.834 3.382
+#>  threshold 1.38 0.746  0.912  0.975  3.918 3.997
 # }
 ```
