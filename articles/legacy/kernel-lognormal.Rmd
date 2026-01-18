@@ -11,9 +11,7 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  eval = TRUE,
-  cache = TRUE,
-  cache.path = "../.cache/vignettes/"
+  eval = TRUE
 )
 library(DPmixGPD)
 ```
