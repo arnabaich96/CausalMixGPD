@@ -1,4 +1,4 @@
-# 0. Start Here
+# Legacy: 0. Getting Started {#legacy-start}
 
 
 

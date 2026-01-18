@@ -25,36 +25,59 @@ University/MyFSU_OneDrive/R-Codes/DPMGPD_package/DPmixGPD/docs
 
 ΓöÇΓöÇ Building home ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
-Reading .github/copilot-instructions.md
+Error: 
+! in callr subprocess.
+Caused by error in `data_template(pkg, depth = depth)`:
+! Run `pkgdown::init_site()` first.
+Γä╣ This is an internal error that was detected in the pkgdown package.
+  Please report it at <https://github.com/r-lib/pkgdown/issues> with a reprex
+  (<https://tidyverse.org/help/>) and the full backtrace.
+---
+Standard error:
+ΓöÇΓöÇ Building pkgdown site for package DPmixGPD ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
-Reading 'DESCRIPTION'
+Reading from: D:/OneDrive - Florida State
 
-Writing `404.html`
+University/MyFSU_OneDrive/R-Codes/DPMGPD_package/DPmixGPD
 
-ΓöÇΓöÇ Building function reference ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+Writing to: D:/OneDrive - Florida State
 
-Reading man/fitted.mixgpd_fit.Rd
+University/MyFSU_OneDrive/R-Codes/DPMGPD_package/DPmixGPD/docs
 
-ΓöÇΓöÇ Building articles ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+ΓöÇΓöÇ Sitrep ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
-ΓöÇΓöÇ Building sitemap ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+Γ£ö URLs ok.
 
-ΓöÇΓöÇ Building docs for llms ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+Γ£ö Favicons ok.
 
-[WARNING] Duplicate identifier 'start-here' at input line 7 column 1
+Γ£ö Open graph metadata ok.
 
-ΓöÇΓöÇ Building redirects ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+Γ£ö Articles metadata ok.
 
-ΓöÇΓöÇ Building search index ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+Γ£ö Reference metadata ok.
 
-ΓöÇΓöÇ Checking for problems ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
-
-ΓöÇΓöÇ Finished building pkgdown site for package DPmixGPD ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
-
-ΓöÇΓöÇ Finished building pkgdown site for package DPmixGPD ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
-Warning messages:
-1: In tools::parse_Rd(path, macros = macros, encoding = "UTF-8") :
-  ./man/fitted.mixgpd_fit.Rd:5: unexpected '{'
-2: In utils::install.packages(pkg$src_path, repos = NULL, type = "source",  :
-  installation of package 'D:/OneDrive - Florida State University/MyFSU_OneDrive/R-Codes/DPMGPD_package/DPmixGPD' had non-zero exit status
-> 
+ΓöÇΓöÇ Building home ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+---
+Backtrace:
+1. pkgdown::build_site(lazy = TRUE, run_dont_run = TRUE, new_process = TRUE)
+2. pkgdown:::build_site_external(pkg = pkg, examples = examples, run_dont_run = run_donΓÇª
+3. callr::r(function(..., cli_colors, hyperlinks) { ΓÇª
+4. callr:::get_result(output = out, options)
+5. callr:::throw(callr_remote_error(remerr, output), parent = fix_msg(remerr[[3]]))
+---
+Subprocess backtrace:
+ 1. pkgdown::build_site(...)
+ 2. pkgdown:::build_site_local(pkg = pkg, examples = examples, run_dont_run = run_dont_rΓÇª
+ 3. pkgdown::build_home(pkg, override = override, quiet = quiet, preview = FALSE)
+ 4. pkgdown:::build_citation_authors(pkg)
+ 5. pkgdown::render_page(pkg, "citation-authors", data, "authors.html")
+ 6. pkgdown:::render_page_html(pkg, name = name, data = data, depth = depth)
+ 7. pkgdown:::modify_list(data_template(pkg, depth = depth), data)
+ 8. pkgdown::data_template(pkg, depth = depth)
+ 9. pkgdown:::data_deps(pkg = pkg, depth = depth)
+10. cli::cli_abort("Run {.fn pkgdown::init_site} first.", .internal = TRUE, ΓÇª
+11. | rlang::abort(message, ..., call = call, use_cli_format = TRUE, ΓÇª at rlang.R:45:3
+12. | rlang:::signal_abort(cnd, .file)
+13. | base::signalCondition(cnd)
+14. global (function (e) ΓÇª
+Execution halted
