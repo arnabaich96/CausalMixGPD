@@ -21,6 +21,7 @@ jobs:
 
     env:
       R_KEEP_PKG_SOURCE: yes
+      RENV_CONFIG_CACHE_ENABLED: true
 
     steps:
       - uses: actions/checkout@v4
@@ -44,8 +45,10 @@ jobs:
           brew update
           brew install pkg-config curl
 
-      # If you use renv.lock
+      # If you use renv.lock (enables caching)
       - uses: r-lib/actions/setup-renv@v2
+        with:
+          cache-version: 2
 
       - name: Install roxygen2 (if not in lockfile)
         run: Rscript -e 'if (!requireNamespace("roxygen2", quietly=TRUE)) install.packages("roxygen2")'

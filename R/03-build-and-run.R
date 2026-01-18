@@ -1997,6 +1997,7 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
   spec <- bundle$spec
   meta <- spec$meta
   m <- bundle$mcmc %||% list()
+  waic_enabled <- !isFALSE(m$waic)
 
   code <- .extract_nimble_code(bundle$code)
   constants <- bundle$constants %||% list()
@@ -2036,7 +2037,7 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
     nimble::configureMCMC(
       Rmodel,
       monitors = monitors,
-      enableWAIC = TRUE
+      enableWAIC = waic_enabled
     )
   }, error = function(e) {
     cat("[ERROR] Failed to configure MCMC:\n")
@@ -2172,7 +2173,7 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
   cat("[MCMC] MCMC execution complete. Processing results...\n")
 
   # Attempt to calculate WAIC if enabled
-  if (is.null(waic_obj)) {
+  if (is.null(waic_obj) && waic_enabled) {
     waic_obj <- tryCatch({
       if (compiled) {
         nimble::calculateWAIC(Cmcmc)
