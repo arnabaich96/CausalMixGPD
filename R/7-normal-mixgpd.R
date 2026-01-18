@@ -151,11 +151,19 @@ qNormMix <- function(p, w, mean, sd,
     if (pi <= 0) { out[i] <- -Inf; next }
     if (pi >= 1) { out[i] <- Inf; next }
 
-    out[i] <- stats::uniroot(
-      function(z) pNormMix(z, w = w, mean = mean, sd = sd, lower.tail = 1, log.p = 0) - pi,
-      interval = c(-1e20, 1e20),
-      tol = tol, maxiter = maxiter
-    )$root
+    lo <- min(stats::qnorm(pi, mean = mean, sd = sd), na.rm = TRUE)
+    hi <- max(stats::qnorm(pi, mean = mean, sd = sd), na.rm = TRUE)
+    if (!is.finite(lo)) lo <- -1e20
+    if (!is.finite(hi)) hi <- 1e20
+    if (lo == hi) {
+      out[i] <- lo
+    } else {
+      out[i] <- stats::uniroot(
+        function(z) pNormMix(z, w = w, mean = mean, sd = sd, lower.tail = 1, log.p = 0) - pi,
+        interval = c(lo, hi),
+        tol = tol, maxiter = maxiter
+      )$root
+    }
   }
   out
 }
