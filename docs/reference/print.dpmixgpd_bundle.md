@@ -38,11 +38,57 @@ The object `x`, invisibly.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \dontrun{
 y <- abs(stats::rnorm(50)) + 0.1
 bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
                              GPD = FALSE, components = 6)
 print(bundle)
+#> DPmixGPD bundle
+#>       Field                  Value
+#>     Backend Stick-Breaking Process
+#>      Kernel    Normal Distribution
+#>  Components                      6
+#>           N                     50
+#>           X                     NO
+#>         GPD                  FALSE
+#>     Epsilon                  0.025
+#> 
+#>   contains  : code, constants, data, dimensions, inits, monitors
 print(bundle, code = TRUE, max_code_lines = 30)
-} # }
+#> DPmixGPD bundle
+#>       Field                  Value
+#>     Backend Stick-Breaking Process
+#>      Kernel    Normal Distribution
+#>  Components                      6
+#>           N                     50
+#>           X                     NO
+#>         GPD                  FALSE
+#>     Epsilon                  0.025
+#> 
+#>   contains  : code, constants, data, dimensions, inits, monitors
+#> 
+#> Model code
+#> {
+#>     alpha ~ dgamma(1, 1)
+#>     for (j in 1:(components - 1)) {
+#>         v[j] ~ dbeta(1, alpha)
+#>     }
+#>     stick_mass[1] <- 1
+#>     for (j in 2:components) {
+#>         stick_mass[j] <- stick_mass[j - 1] * (1 - v[j - 1])
+#>     }
+#>     for (j in 1:(components - 1)) {
+#>         w[j] <- v[j] * stick_mass[j]
+#>     }
+#>     w[components] <- stick_mass[components]
+#>     for (j in 1:components) {
+#>         mean[j] ~ dnorm(0, sd = 5)
+#>         sd[j] ~ dgamma(2, 1)
+#>     }
+#>     for (i in 1:N) {
+#>         z[i] ~ dcat(prob = w[1:components])
+#>         y[i] ~ dnorm(mean[z[i]], sd[z[i]])
+#>     }
+#> } 
+# }
 ```

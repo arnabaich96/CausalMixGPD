@@ -2,7 +2,9 @@
 
 Base Cauchy distribution functions implemented as nimbleFunctions so
 they can be used in NIMBLE models. Parameterization uses location and
-scale (scale \> 0).
+scale (scale \> 0). The `d*`, `p*`, and `q*` functions accept vector
+inputs for their first argument and evaluate elementwise; `r*` supports
+`n > 1`.
 
 ## Usage
 
@@ -88,6 +90,6 @@ qCauchy(0.50, location, scale)
 qCauchy(0.95, location, scale)
 #> [1] 9.470627
 replicate(10, rCauchy(1, location, scale))
-#>  [1]   2.2772311  -6.6163527   0.1267352   1.6326938  -0.3087354   0.2495345
-#>  [7]  -2.0105351 -15.3404089  15.7139745  -2.3865428
+#>  [1]  5.9058079 -8.9707262 -0.4298921 -0.2070371 -0.4059996  0.8893472
+#>  [7]  1.5665227  5.2648272  2.3628356 -4.9504437
 ```

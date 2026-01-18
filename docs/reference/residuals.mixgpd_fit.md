@@ -8,7 +8,12 @@ values via the predictive survival function.
 
 ``` r
 # S3 method for class 'mixgpd_fit'
-residuals(object, type = c("raw", "pit"), ...)
+residuals(
+  object,
+  type = c("raw", "pit"),
+  fitted_type = c("mean", "median"),
+  ...
+)
 ```
 
 ## Arguments
@@ -20,6 +25,10 @@ residuals(object, type = c("raw", "pit"), ...)
 - type:
 
   Residual type: `"raw"` or `"pit"`.
+
+- fitted_type:
+
+  For `type = "raw"`, use fitted means or medians.
 
 - ...:
 

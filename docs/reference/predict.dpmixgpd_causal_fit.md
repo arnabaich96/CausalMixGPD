@@ -17,7 +17,7 @@ predict(
   y = NULL,
   ps = NULL,
   newdata = NULL,
-  type = c("mean", "quantile", "density", "prob"),
+  type = c("mean", "quantile", "density", "survival", "prob"),
   p = NULL,
   nsim = NULL,
   interval = c("none", "credible"),
@@ -59,7 +59,7 @@ predict(
 - type:
 
   Prediction type. Supported: `"mean"`, `"quantile"`, `"density"`,
-  `"prob"`.
+  `"survival"`, `"prob"`.
 
 - p:
 
@@ -100,16 +100,19 @@ predict(
 For `"mean"` or `"quantile"`, a numeric matrix with columns `ps`,
 `estimate`, `lower`, `upper`, representing treated-minus-control
 posterior summaries. When PS is disabled or X is absent, `ps` is `NA`
-and no PS is used. For `"density"` and `"prob"`, a data frame with
-columns `y`, `ps`, `trt_estimate`, `trt_lower`, `trt_upper`,
+and no PS is used. For `"density"`, `"survival"`, and `"prob"`, a data
+frame with columns `y`, `ps`, `trt_estimate`, `trt_lower`, `trt_upper`,
 `con_estimate`, `con_lower`, `con_upper`.
 
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \dontrun{
 cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal")
+#> Error: object 'y' not found
 fit <- run_mcmc_causal(cb)
+#> Error: object 'cb' not found
 predict(fit, x = X[1:10, ], type = "quantile", p = c(0.25, 0.5, 0.75))
-} # }
+#> Error: object 'fit' not found
+# }
 ```

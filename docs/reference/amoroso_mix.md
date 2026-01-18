@@ -106,6 +106,8 @@ returns a numeric vector with the same length as `p`.
 The density, CDF, and RNG are implemented as `nimbleFunction`s so they
 can be called from NIMBLE models. The quantile function is provided as
 an R function and is computed by numerical inversion of the mixture CDF.
+The `d*`, `p*`, and `q*` functions accept vector inputs for their first
+argument and evaluate elementwise; `r*` supports `n > 1`.
 
 ## Functions
 

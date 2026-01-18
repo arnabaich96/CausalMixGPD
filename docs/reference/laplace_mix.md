@@ -90,7 +90,9 @@ a numeric vector with the same length as `p`.
 Mixture density and CDF are computed by weighted sums. Random generation
 samples a component index according to weights and draws from the
 corresponding component. Quantiles are computed by numerical inversion
-of the mixture CDF.
+of the mixture CDF. The `d*`, `p*`, and `q*` functions accept vector
+inputs for their first argument and evaluate elementwise; `r*` supports
+`n > 1`.
 
 ## Functions
 
@@ -115,10 +117,10 @@ pLaplaceMix(0.8, w = w, location = location, scale = scale,
            lower.tail = TRUE, log.p = FALSE)
 #> [1] 0.7033967
 qLaplaceMix(0.50, w = w, location = location, scale = scale)
-#> [1] -0.0254679
+#> [1] -0.02546085
 qLaplaceMix(0.95, w = w, location = location, scale = scale)
-#> [1] 3.183436
+#> [1] 3.18341
 replicate(10, rLaplaceMix(1, w = w, location = location, scale = scale))
-#>  [1] -1.1575630 -0.9015586  0.2434687  1.1279241  0.4278453 -0.4431168
-#>  [7] -0.7000141  3.7166614  0.4184242  1.6680590
+#>  [1] -1.66286044  0.07042769  0.35313649  3.82039178 -2.28844305  1.28557134
+#>  [7]  0.45672739  4.87556356  0.72547054  0.97727681
 ```

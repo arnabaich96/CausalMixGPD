@@ -50,15 +50,15 @@ $`Y_i^{(0)} \sim \text{DPM}_{\text{con}}(X_i, PS_i)`$ - **Treated**
 
 #### Stick-Breaking (SB)
 
-- Fixed number of mixture components $`J`$
-- Exact truncation at $`J`$ components
+- Fixed number of mixture components `components`
+- Exact truncation at the chosen `components`
 - Faster per-iteration computation
 - Use when computational cost is primary concern
 
 #### Chinese Restaurant Process (CRP)
 
-- Truncation at $`K_{\max}`$ for sampling
-- Adaptively discovers number of clusters
+- Finite `components` cap for sampling
+- Adaptively discovers number of occupied clusters within that cap
 - More flexible cluster allocation
 - Default for exploratory analysis
 
@@ -80,24 +80,18 @@ for confounding adjustment.
 
 ### Workflow Overview
 
-#### Three-Phase Model Building
-
-**Phase 1: Specification**
+#### Direct Model Building
 
 ``` r
-spec <- compile_model_spec(y, kernel="gamma", backend="crp", GPD=TRUE)
-```
-
-**Phase 2: Bundle**
-
-``` r
-bundle <- build_nimble_bundle(spec)
-```
-
-**Phase 3: MCMC**
-
-``` r
-fit <- run_mcmc_bundle_manual(bundle, niter=1000, nburnin=100)
+bundle <- build_nimble_bundle(
+  y = y,
+  kernel = "gamma",
+  backend = "crp",
+  GPD = TRUE,
+  components = 5,
+  mcmc = list(niter = 1000, nburnin = 100, nchains = 1)
+)
+fit <- run_mcmc_bundle_manual(bundle)
 ```
 
 ------------------------------------------------------------------------
@@ -121,6 +115,17 @@ bundle <- build_nimble_bundle(
 
 # Print bundle
 print(bundle)
+DPmixGPD bundle
+      Field                  Value
+    Backend Stick-Breaking Process
+     Kernel     Gamma Distribution
+ Components                      5
+          N                    200
+          X                     NO
+        GPD                  FALSE
+    Epsilon                  0.025
+
+  contains  : code, constants, data, dimensions, inits, monitors
 ```
 
 ------------------------------------------------------------------------
@@ -150,8 +155,11 @@ print(bundle)
 
 ``` r
 packageVersion("DPmixGPD")
+[1] '0.0.9'
 packageVersion("nimble")
+[1] '1.4.0'
 packageVersion("ggplot2")
+[1] '4.0.1'
 ```
 
 Each vignette demonstrates complete workflows with reproducible

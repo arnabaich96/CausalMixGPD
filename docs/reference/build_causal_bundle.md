@@ -162,7 +162,7 @@ logit/probit regression or a naive Bayes classifier with simple priors.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \dontrun{
 set.seed(1)
 N <- 100
 X <- cbind(x1 = rnorm(N), x2 = runif(N))
@@ -179,5 +179,6 @@ cb <- build_causal_bundle(
   J = 10,
   PS = "probit"
 )
-} # }
+#> Warning: design='rct' ignores PS; setting PS = FALSE.
+# }
 ```

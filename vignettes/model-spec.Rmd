@@ -1,0 +1,98 @@
+---
+title: "Model Specification"
+output:
+  rmarkdown::html_vignette:
+    code_folding: show
+vignette: >
+  %\VignetteIndexEntry{Model Specification}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = NA,
+  message = FALSE,
+  warning = FALSE,
+  eval = FALSE
+)
+library(DPmixGPD)
+```
+
+# What is a “bundle”?
+
+A **bundle** is the complete, pre‑MCMC object created by `build_nimble_bundle()` (or the causal builders). It includes:
+
+- NIMBLE model code
+- data/constants/dimensions
+- initialization function
+- monitor list
+- stored MCMC settings
+
+It is intentionally **pre‑run**. You execute MCMC later with `run_mcmc_bundle_manual()`.
+
+# What users specify vs. what is generated
+
+**You specify**:
+
+- data (`y`, and optionally `X` or propensity scores)
+- kernel family and GPD option
+- backend (`"sb"` or `"crp"`)
+- truncation (`J`/`components`)
+- MCMC settings (stored in the bundle)
+- optional `param_specs` overrides
+
+**The package generates**:
+
+- mixture code for the chosen kernel
+- link‑mode covariate structure
+- priors (default or user‑overridden)
+- monitors and dimensions
+
+# Role of priors and links
+
+DPmixGPD supports **link‑mode** parameters. When a parameter is linked to covariates, the model introduces regression coefficients named `beta_<param>` (component‑specific) and optionally `beta_ps_<param>` (propensity score covariate). Priors for these coefficients are set via `param_specs`.
+
+Example (non‑executed):
+
+```{r bundle-example}
+bundle <- build_nimble_bundle(
+  y = y,
+  X = X,
+  kernel = "gamma",
+  backend = "crp",
+  GPD = TRUE,
+  J = 5,
+  mcmc = list(niter = 200, nburnin = 50, nchains = 1)
+)
+```
+
+# Conditional structure
+
+When covariates are present (`X`), selected parameters are encoded as
+
+$$\theta_{ik} = g^{-1}(X_i^\top \beta_{k})$$
+
+where $k$ indexes mixture components and $g$ is the link function (e.g., identity or log).
+
+# How causal models reuse the same structure
+
+Causal workflows **reuse the same mixture model**. The difference is that the outcome model is fit **separately by treatment group**, and contrasts are computed across the resulting distributions. The identification assumptions are external to the package.
+
+# Internal naming conventions (high‑level)
+
+- Component regression coefficients: `beta_<param>[1:K,1:P]`
+- Propensity score coefficients (if used): `beta_ps_<param>[1:K]`
+- GPD threshold link coefficients: `beta_threshold[1:P]`
+- GPD tail scale link coefficients: `beta_tail_scale[1:P]`
+
+These names appear in model code, monitors, and posterior summaries.
+
+# What this vignette does NOT cover
+
+- Diagnostics or convergence assessment
+- Long examples
+- Interpretation of effects
+
+For MCMC practice, see [mcmc-workflow](mcmc-workflow.Rmd).

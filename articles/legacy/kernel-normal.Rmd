@@ -1,0 +1,50 @@
+---
+title: "Legacy: Kernel reference: Normal"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Legacy: Kernel reference: Normal}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = TRUE
+)
+library(DPmixGPD)
+```
+
+> **Legacy note:** This kernel reference is retained for historical context alongside the extended legacy materials.
+
+The **Normal** kernel is parameterized by mean `mean` and standard deviation `sd`.
+
+## Exported mixture helpers
+
+For the stick-breaking (SB) backend, the package provides vectorized mixture helpers:
+
+- `dNormMix(x, mean, sd, w, log = FALSE)`
+- `pNormMix(q, mean, sd, w, lower.tail = TRUE, log.p = FALSE)`
+- `qNormMix(p, mean, sd, w, lower.tail = TRUE, log.p = FALSE)`
+- `rNormMix(n, mean, sd, w)`
+
+For a full catalog (including CRP utilities and GPD splicing), see:
+
+- [Legacy distributions](legacy/v02-available-distributions.html)
+
+## Using Normal in a model
+
+```{r}
+y <- abs(stats::rnorm(50)) + 0.1
+bundle <- build_nimble_bundle(
+  y = y,
+  backend = "sb",
+  kernel  = "normal",
+  GPD     = TRUE,
+  components = 6
+)
+```
+
+
+

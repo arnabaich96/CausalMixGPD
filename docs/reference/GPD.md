@@ -2,7 +2,9 @@
 
 Base generalized Pareto distribution (GPD) for threshold exceedances
 above `threshold`. Parameterization uses threshold `threshold`, scale
-`scale > 0`, and shape `shape`.
+`scale > 0`, and shape `shape`. The `d*`, `p*`, and `q*` functions
+accept vector inputs for their first argument and evaluate elementwise;
+`r*` supports `n > 1`.
 
 ## Usage
 
@@ -12,6 +14,8 @@ dGpd(x, threshold, scale, shape, log = 0)
 pGpd(q, threshold, scale, shape, lower.tail = 1, log.p = 0)
 
 rGpd(n, threshold, scale, shape)
+
+rGpd_vec(n, threshold, scale, shape)
 
 qGpd(p, threshold, scale, shape, lower.tail = TRUE, log.p = FALSE)
 ```
@@ -74,6 +78,8 @@ CDF; `rGpd` returns one random draw; `qGpd` returns a numeric quantile.
 
 - `rGpd()`: Generalized Pareto random generation
 
+- `rGpd_vec()`: Vectorized RNG wrapper (R-only)
+
 - `qGpd()`: Generalized Pareto quantile function
 
 ## Examples
@@ -92,6 +98,6 @@ qGpd(0.50, threshold, tail_scale, tail_shape)
 qGpd(0.95, threshold, tail_scale, tail_shape)
 #> [1] 4.282257
 replicate(10, rGpd(1, threshold, tail_scale, tail_shape))
-#>  [1] 2.679374 2.181256 1.383534 1.639107 1.541350 1.083883 1.624845 1.507601
-#>  [9] 1.691521 1.933145
+#>  [1] 1.408732 2.334629 2.967143 2.020987 2.013669 1.146944 2.534881 2.130734
+#>  [9] 3.783375 1.006023
 ```

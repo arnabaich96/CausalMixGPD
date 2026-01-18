@@ -45,23 +45,35 @@ Invisibly returns the ggplot object.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \dontrun{
 y <- abs(stats::rnorm(50)) + 0.1
 bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
                              GPD = TRUE, components = 6,
                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
 fit <- run_mcmc_bundle_manual(bundle)
+#> [MCMC] Creating NIMBLE model...
+#> Defining model
+#>   [Note] 'P' is provided in 'constants' but not used in the model code and is being ignored.
+#> Building model
+#> [ERROR] Failed to create NIMBLE model:
+#> Error in getNimbleOption("determinePredictiveNodesInModel"): could not find function "getNimbleOption"
 
 # Quantile prediction with plot
 pred_q <- predict(fit, type = "quantile", index = c(0.25, 0.5, 0.75))
+#> Error: object 'fit' not found
 plot(pred_q)
+#> Error: object 'pred_q' not found
 
 # Sample prediction with plot
 pred_s <- predict(fit, type = "sample", nsim = 500)
+#> Error: object 'fit' not found
 plot(pred_s)
+#> Error: object 'pred_s' not found
 
 # Mean prediction with plot
 pred_m <- predict(fit, type = "mean", nsim_mean = 300)
+#> Error: object 'fit' not found
 plot(pred_m)
-} # }
+#> Error: object 'pred_m' not found
+# }
 ```
