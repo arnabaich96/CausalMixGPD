@@ -11,15 +11,15 @@ Description: Experimental framework for Dirichlet process mixture regression and
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-Depends: R (>= 4.5.0),Nimble
+Depends: R (>= 4.5.0)
 Imports:
     stats,
     coda,
-    nimble,
     ggmcmc,
     future,
     future.apply,
-    utils
+    utils, 
+    nimble
 Suggests:
     testthat (>= 3.0.0),
     crayon,
