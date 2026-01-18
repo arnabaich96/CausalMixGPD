@@ -5,19 +5,9 @@ on:
   pull_request:
 
 jobs:
-  check:
-    runs-on: ${{ matrix.config.os }}
-    name: ${{ matrix.config.os }} (R ${{ matrix.config.r }})
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-          - { os: ubuntu-latest,   r: "release" }
-          - { os: ubuntu-latest,   r: "devel" }
-          - { os: macos-latest,    r: "release" }
-          - { os: macos-latest,    r: "devel" }
-          - { os: windows-latest,  r: "release" }
-          - { os: windows-latest,  r: "devel" }
+  check-coverage:
+    runs-on: ubuntu-latest
+    name: ubuntu-latest (R release)
 
     env:
       R_KEEP_PKG_SOURCE: yes
@@ -30,22 +20,14 @@ jobs:
 
       - uses: r-lib/actions/setup-r@v2
         with:
-          r-version: ${{ matrix.config.r }}
+          r-version: "release"
           use-public-rspm: true
 
       - name: Install system dependencies (Linux)
-        if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y libglpk-dev libglpk40 libpng-dev libx11-dev libcurl4-openssl-dev pkg-config
 
-      - name: Install system dependencies (macOS)
-        if: runner.os == 'macOS'
-        run: |
-          brew update
-          brew install pkg-config curl
-
-      # If you use renv.lock (enables caching)
       - uses: r-lib/actions/setup-renv@v2
         with:
           cache-version: 2
@@ -56,18 +38,23 @@ jobs:
       - name: Regenerate Rd files
         run: Rscript -e 'roxygen2::roxygenise()'
 
+      - name: R CMD check
+        uses: r-lib/actions/check-r-package@v2
+
       - name: Install covr (if not in lockfile)
         run: Rscript -e 'if (!requireNamespace("covr", quietly=TRUE)) install.packages("covr")'
 
-      # Run tests + generate coverage and upload to Codecov
-      - name: Coverage
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}  # needed for private repos; harmless for public
-        shell: bash
+      - name: Generate coverage (Cobertura)
         run: |
-          Rscript -e "covr::codecov(quiet = FALSE, flags = paste0('${{ matrix.config.os }}','-R${{ matrix.config.r }}'), name = paste0('ci-','${{ matrix.config.os }}','-R','${{ matrix.config.r }}'))"
+          Rscript -e 'covr::package_coverage(type="tests") |> covr::to_cobertura(filename="coverage.xml")'
 
-      # If something fails, print testthat.Rout.fail (saves your sanity)
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          files: coverage.xml
+          fail_ci_if_error: true
+          token: ${{ secrets.CODECOV_TOKEN }}
+
       - name: Dump testthat failure output
         if: failure()
         shell: bash
@@ -76,3 +63,4 @@ jobs:
             echo "=== $f ==="
             cat "$f"
           done
+
