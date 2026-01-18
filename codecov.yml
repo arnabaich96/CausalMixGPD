@@ -12,6 +12,7 @@ coverage:
         threshold: 2%
 
 ignore:
+  - "R/zzz.R"
   - "tests/"
   - "inst/"
 
