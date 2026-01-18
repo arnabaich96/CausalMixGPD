@@ -147,7 +147,7 @@ plot(fit_gpd, params = "alpha", family = c("traceplot", "autocorrelation", "gewe
 
 ## Posterior Predictions: Bulk and Tail
 
-We use the **S3 `predict()` objects** and their dedicated `plot()` methods to visualize densities, survival curves, and quantiles.
+We use the **S3 `predict()` objects** and their dedicated `plot()` methods to visualize densities, survival curves, and posterior-mean quantiles (i.e., averages of q(p | θ) over draws).
 
 ```{r density-predict}
 y_min <- max(min(y_tail), .Machine$double.eps)
@@ -198,7 +198,7 @@ compare_tbl <- bind_rows(
 
 compare_tbl %>%
   mutate(across(where(is.numeric), ~ round(.x, 3))) %>%
-  kable(caption = "Posterior Quantiles for Bulk-Only vs GPD Models", align = "c") %>%
+  kable(caption = "Posterior-Mean Quantiles for Bulk-Only vs GPD Models", align = "c") %>%
   kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
 ```
 
