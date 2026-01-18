@@ -21,6 +21,7 @@ articles:
       - v01-introduction
       - v02-available-distributions
       - v03-basic-model-compile-run
+      - v04-backends-and-workflow
       - v05-basic-model-compile-run
   - title: "Unconditional Models"
     desc: "DPmix and DPmixGPD without covariates"
