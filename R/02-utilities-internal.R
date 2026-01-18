@@ -602,11 +602,12 @@ stick_breaking <- nimble::nimbleFunction(
   out
 }
 
-#' Resolve kernel dispatch functions
+#' Resolve kernel dispatch functions (scalar)
+#' Dispatch returns raw scalar nimbleFunctions for codegen; do not wrap.
 #' @param spec_or_fit mixgpd_fit or spec list
 #' @return List with d/p/q/r functions and bulk_params.
 #' @keywords internal
-.get_dispatch <- function(spec_or_fit) {
+.get_dispatch_scalar <- function(spec_or_fit) {
   spec <- spec_or_fit
   if (inherits(spec_or_fit, "mixgpd_fit")) {
     spec <- spec_or_fit$spec %||% list()
@@ -637,6 +638,9 @@ stick_breaking <- nimble::nimbleFunction(
   r_name <- sub("^d", "r", d_name)
 
   ns <- asNamespace("DPmixGPD")
+  if (!exists(d_name, envir = ns, inherits = FALSE)) {
+    stop(sprintf("Missing d-function '%s' for kernel '%s'.", d_name, kernel), call. = FALSE)
+  }
   if (!exists(p_name, envir = ns, inherits = FALSE)) {
     stop(sprintf("Missing p-function '%s' for kernel '%s'.", p_name, kernel), call. = FALSE)
   }
@@ -646,12 +650,34 @@ stick_breaking <- nimble::nimbleFunction(
   if (!exists(r_name, envir = ns, inherits = FALSE)) {
     stop(sprintf("Missing r-function '%s' for kernel '%s'.", r_name, kernel), call. = FALSE)
   }
+  d_fun <- get(d_name, envir = ns)
+  p_fun <- get(p_name, envir = ns)
+  q_fun <- get(q_name, envir = ns)
+  r_fun <- get(r_name, envir = ns)
+
+  if (isTRUE(attr(d_fun, "vectorized_wrapper")) ||
+      isTRUE(attr(p_fun, "vectorized_wrapper")) ||
+      isTRUE(attr(q_fun, "vectorized_wrapper")) ||
+      isTRUE(attr(r_fun, "vectorized_wrapper"))) {
+    stop("Scalar dispatch unexpectedly received vectorized wrappers.", call. = FALSE)
+  }
+
+  list(d = d_fun, p = p_fun, q = q_fun, r = r_fun, bulk_params = kdef$bulk_params)
+}
+
+#' Resolve kernel dispatch functions
+#' Dispatch returns vector-aware d/p/q and n-aware r via wrappers; do not mutate namespace.
+#' @param spec_or_fit mixgpd_fit or spec list
+#' @return List with d/p/q/r functions and bulk_params.
+#' @keywords internal
+.get_dispatch <- function(spec_or_fit) {
+  scalar <- .get_dispatch_scalar(spec_or_fit)
   list(
-    d = .wrap_scalar_first_arg(get(d_name, envir = ns), "x"),
-    p = .wrap_scalar_p(get(p_name, envir = ns)),
-    q = .wrap_scalar_first_arg(get(q_name, envir = ns), "p"),
-    r = .wrap_scalar_r(get(r_name, envir = ns)),
-    bulk_params = kdef$bulk_params
+    d = .wrap_scalar_first_arg(scalar$d, "x"),
+    p = .wrap_scalar_p(scalar$p),
+    q = .wrap_scalar_first_arg(scalar$q, "p"),
+    r = .wrap_scalar_r(scalar$r),
+    bulk_params = scalar$bulk_params
   )
 }
 
@@ -815,50 +841,6 @@ stick_breaking <- nimble::nimbleFunction(
   }
   attr(wrapper, "vectorized_wrapper") <- TRUE
   wrapper
-}
-
-#' Vectorize exported kernel d/p/q/r functions in the namespace.
-#' @keywords internal
-.vectorize_kernel_fns <- function() {
-  ns <- asNamespace("DPmixGPD")
-  if (!exists(".scalar_fn_store", envir = ns, inherits = FALSE)) {
-    assign(".scalar_fn_store", new.env(parent = emptyenv()), envir = ns)
-  }
-  store <- get(".scalar_fn_store", envir = ns)
-
-  d_names <- unique(unlist(lapply(get_kernel_registry(), function(k) {
-    c(k$sb$d, k$sb$d_gpd, k$crp$d_base, k$crp$d_gpd)
-  }), use.names = FALSE))
-  d_names <- d_names[!is.na(d_names) & nzchar(d_names)]
-
-  wrap_one <- function(fname, wrap_fun) {
-    if (!exists(fname, envir = ns, inherits = FALSE)) return()
-    fun <- get(fname, envir = ns)
-    if (isTRUE(attr(fun, "vectorized_wrapper"))) return()
-    if (!exists(fname, envir = store, inherits = FALSE)) {
-      assign(fname, fun, envir = store)
-    }
-    scalar <- get(fname, envir = store)
-    wrapped <- wrap_fun(scalar)
-    assign(fname, wrapped, envir = ns)
-  }
-
-  for (d_name in d_names) {
-    wrap_one(d_name, function(f) .wrap_scalar_first_arg(f, "x"))
-    p_name <- sub("^d", "p", d_name)
-    q_name <- sub("^d", "q", d_name)
-    r_name <- sub("^d", "r", d_name)
-    wrap_one(p_name, .wrap_scalar_p)
-    wrap_one(q_name, function(f) .wrap_scalar_first_arg(f, "p"))
-    wrap_one(r_name, .wrap_scalar_r)
-  }
-
-  if (exists("dGpd", envir = ns, inherits = FALSE)) {
-    wrap_one("dGpd", function(f) .wrap_scalar_first_arg(f, "x"))
-    wrap_one("pGpd", .wrap_scalar_p)
-    wrap_one("qGpd", function(f) .wrap_scalar_first_arg(f, "p"))
-    wrap_one("rGpd", .wrap_scalar_r)
-  }
 }
 
 #' Truncate and reorder mixture components by cumulative weight mass

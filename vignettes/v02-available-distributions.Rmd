@@ -62,7 +62,7 @@ All `p*()` functions support `lower.tail` and `log.p`:
 \Pr(Y>y)=1-F(y),\qquad \log F(y)\ \text{or}\ \log\{1-F(y)\}.
 \]
 
-The `d*()`, `p*()`, and `q*()` functions accept vector inputs for their first argument and evaluate elementwise; `r*()` supports `n > 1`.
+The `d*()`, `p*()`, and `q*()` functions accept vector inputs for their first argument and evaluate elementwise; `r*()` supports `n > 1` (including `n = 0`).
 
 ```{r vectorized-dqrp}
 w <- c(0.60, 0.40)
@@ -1218,6 +1218,5 @@ knitr::kable(
 - **SB Backend** uses mixture/spliced mixture functions; component-specific parameters are typically vectors indexed by component \(j\); mixture weights `w` are required as vector.
 
 - For **GPD-only**, SB entries are **NA** because there is no mixture-only GPD wrapper in the SB family.
-
 
 
