@@ -98,7 +98,7 @@ bundle_crp_bulk <- build_causal_bundle(
   backend = "crp",
   PS = "logit",
   GPD = FALSE,
-  J = 5,
+  components = 5,
   mcmc_outcome = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 1),
   mcmc_ps = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 1)
 )
@@ -182,7 +182,7 @@ bundle_sb_gpd <- build_causal_bundle(
   backend = "sb",
   PS = "logit",
   GPD = TRUE,
-  J = 5,
+  components = 5,
   param_specs = param_specs_gpd,
   mcmc_outcome = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 2),
   mcmc_ps = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 2)
@@ -243,5 +243,9 @@ qte_gpd <- qte(fit_sb_gpd, probs = c(0.25, 0.5, 0.75),
 head(qte_gpd)
 plot(qte_gpd)
 ```
+
+
+
+
 
 

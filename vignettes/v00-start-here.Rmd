@@ -17,7 +17,9 @@ knitr::opts_chunk$set(
   fig.height = 5,
   message = FALSE,
   warning = FALSE,
-  eval = FALSE
+  eval = TRUE,
+  cache = TRUE,
+  cache.path = "../.cache/vignettes/"
 )
 library(DPmixGPD)
 if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
@@ -121,3 +123,6 @@ plot(fit_uncond, family = c("traceplot", "running"))
 - `vignette 5`: full three-phase workflow (spec ? bundle ? MCMC)
 - `vignette 6-13`: unconditional/conditional models with and without GPD
 - `vignette 14-19`: causal workflows
+
+
+

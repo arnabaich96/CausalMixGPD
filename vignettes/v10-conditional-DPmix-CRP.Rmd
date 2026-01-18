@@ -224,3 +224,6 @@ plot(fit_cond_amoroso, family = c("density", "running", "caterpillar"))
 
 
 
+
+
+

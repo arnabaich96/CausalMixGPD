@@ -207,3 +207,6 @@ plot(fit_sb_gpd, family = c("histogram", "autocorrelation", "running"))
 - Next: conditional DPmix (v08–v11) to explore covariate effects before moving to causal regimes.
 
 
+
+
+

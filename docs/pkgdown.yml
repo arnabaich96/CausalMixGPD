@@ -9,22 +9,28 @@ articles:
   kernel-laplace: kernel-laplace.html
   kernel-lognormal: kernel-lognormal.html
   kernel-normal: kernel-normal.html
+  v00-start-here: v00-start-here.html
   v01-introduction: v01-introduction.html
   v02-available-distributions: v02-available-distributions.html
   v03-basic-model-compile-run: v03-basic-model-compile-run.html
-  v04-unconditional-DPmix-CRP: v04-unconditional-DPmix-CRP.html
-  v05-unconditional-DPmix-SB: v05-unconditional-DPmix-SB.html
-  v06-unconditional-DPmixGPD-CRP: v06-unconditional-DPmixGPD-CRP.html
-  v07-unconditional-DPmixGPD-SB: v07-unconditional-DPmixGPD-SB.html
-  v08-conditional-DPmix-CRP: v08-conditional-DPmix-CRP.html
-  v09-conditional-DPmix-SB: v09-conditional-DPmix-SB.html
-  v10-conditional-DPmixGPD-CRP: v10-conditional-DPmixGPD-CRP.html
-  v11-conditional-DPmixGPD-SB: v11-conditional-DPmixGPD-SB.html
-  v12-causal-same-backend-CRP: v12-causal-same-backend-CRP.html
-  v13-causal-same-backend-SB: v13-causal-same-backend-SB.html
-  v14-causal-different-backends-CRP: v14-causal-different-backends-CRP.html
-  v15-causal-different-backends-SB: v15-causal-different-backends-SB.html
-last_built: 2026-01-17T11:27Z
+  v04-backends-and-workflow: v04-backends-and-workflow.html
+  v05-basic-model-compile-run: v05-basic-model-compile-run.html
+  v06-unconditional-DPmix-CRP: v06-unconditional-DPmix-CRP.html
+  v07-unconditional-DPmix-SB: v07-unconditional-DPmix-SB.html
+  v08-unconditional-DPmixGPD-CRP: v08-unconditional-DPmixGPD-CRP.html
+  v09-unconditional-DPmixGPD-SB: v09-unconditional-DPmixGPD-SB.html
+  v10-conditional-DPmix-CRP: v10-conditional-DPmix-CRP.html
+  v11-conditional-DPmix-SB: v11-conditional-DPmix-SB.html
+  v12-conditional-DPmixGPD-CRP: v12-conditional-DPmixGPD-CRP.html
+  v13-conditional-DPmixGPD-SB: v13-conditional-DPmixGPD-SB.html
+  v14-causal-no-x-CRP: v14-causal-no-x-CRP.html
+  v15-causal-x-no-ps-SB: v15-causal-x-no-ps-SB.html
+  v16-causal-same-backend-CRP: v16-causal-same-backend-CRP.html
+  v17-causal-same-backend-SB: v17-causal-same-backend-SB.html
+  v18-causal-different-backends-CRP: v18-causal-different-backends-CRP.html
+  v19-causal-different-backends-SB: v19-causal-different-backends-SB.html
+  v20-troubleshooting: v20-troubleshooting.html
+last_built: 2026-01-18T05:20Z
 urls:
   reference: https://arnabaich96.github.io/DPmixGPD/reference
   article: https://arnabaich96.github.io/DPmixGPD/articles

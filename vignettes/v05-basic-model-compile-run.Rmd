@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
   fig.height = 6,
   message = FALSE,
   warning = FALSE,
-  eval = FALSE,
+  eval = TRUE,
   cache = TRUE,
   cache.path = "../.cache/vignettes/"
 )
@@ -27,99 +27,33 @@ library(ggplot2)
 set.seed(42)
 ```
 
-# The Three-Phase Workflow
+# Workflow Overview
 
-DPmixGPD uses a **three-phase model-building paradigm** designed for clarity and control:
+DPmixGPD uses a direct two-step workflow:
 
-1. **Specification** (`compile_model_spec`): Validate inputs, NO NIMBLE code generation
-2. **Bundle** (`build_nimble_bundle`): Generate NIMBLE code, compile sampler
-3. **MCMC** (`run_mcmc_bundle_manual`): Execute posterior sampling
+1. **Bundle** (`build_nimble_bundle`): Generate NIMBLE code and compile the sampler.
+2. **MCMC** (`run_mcmc_bundle_manual`): Execute posterior sampling.
 
 ---
 
-## Phase 1: Specification (Input Validation)
+## Phase 1: Bundle (NIMBLE Code Generation & Compilation)
 
-**Purpose**: Validate data, kernels, backends, and parameters WITHOUT generating NIMBLE code.
+**Purpose**: Generate NIMBLE model code, compile sampler, prepare for MCMC execution.
 
-```{r spec-basic}
+### Building Directly
+
+```{r bundle-direct}
 # Load packaged data
 data("nc_pos200_k3")
 y <- nc_pos200_k3$y
 
-# Create specification
-spec <- compile_model_spec(
-  y = y,
-  kernel = "gamma",
-  backend = "crp",
-  GPD = FALSE
-)
-
-# Inspect specification
-print("Specification object class:", class(spec), "\n")
-print("Kernel chosen:", spec$kernel, "\n")
-print("Backend chosen:", spec$backend, "\n")
-print("GPD enabled:", spec$GPD, "\n")
-print("Sample size n:", length(spec$y), "\n")
-```
-
-### Specification for Different Model Variants
-
-```{r spec-variants}
-# 1. Unconditional DPmix (bulk only, no tail)
-spec_unconditional <- compile_model_spec(y, kernel = "gamma", backend = "crp", GPD = FALSE)
-
-# 2. Unconditional DPmixGPD (bulk + tail)
-spec_gpd <- compile_model_spec(y, kernel = "gamma", backend = "crp", GPD = TRUE)
-
-# 3. Conditional (with covariates)
-data("nc_posX100_p3_k2")
-y_cond <- nc_posX100_p3_k2$y
-X <- as.matrix(nc_posX100_p3_k2$X)
-spec_conditional <- compile_model_spec(
-  y = y_cond,
-  X = X,
-  kernel = "lognormal",
-  backend = "crp",
-  GPD = FALSE
-)
-
-# 4. With custom MCMC settings
-spec_custom <- compile_model_spec(
-  y = y,
-  kernel = "gamma",
-  backend = "crp",
-  GPD = FALSE,
-  mcmc = list(niter = 1500, nburnin = 250, nchains = 2, thin = 2)
-)
-
-print("Created 4 specification objects successfully.\n")
-```
-
----
-
-## Phase 2: Bundle (NIMBLE Code Generation & Compilation)
-
-**Purpose**: Generate NIMBLE model code, compile sampler, prepare for MCMC execution.
-
-### Building from Specification
-
-```{r bundle-from-spec}
-# Method 1: From specification object
-bundle <- build_nimble_bundle(spec)
-
-print("Bundle object class:", class(bundle), "\n")
-print("Bundle contains compiled sampler ready for MCMC.\n")
-```
-
-### Building Directly (Alternative)
-
-```{r bundle-direct}
-# Method 2: Direct call (recommended for quick workflows)
+# Direct call
 bundle_direct <- build_nimble_bundle(
   y = y,
   kernel = "gamma",
   backend = "crp",
   GPD = FALSE,
+  components = 5,
   mcmc = list(niter = 1500, nburnin = 250, nchains = 2)
 )
 
@@ -183,18 +117,13 @@ plot(fit, params = "alpha|beta", family = c("traceplot", "running", "autocorrela
 data("nc_pos200_k3")
 y_data <- nc_pos200_k3$y
 
-# PHASE 1: Specification
-spec_final <- compile_model_spec(
+# PHASE 1: Bundle
+bundle_final <- build_nimble_bundle(
   y = y_data,
   kernel = "gamma",
   backend = "crp",
   GPD = FALSE,
-  Kmax = 5
-)
-
-# PHASE 2: Bundle
-bundle_final <- build_nimble_bundle(
-  spec_final,
+  components = 5,
   mcmc = list(
     niter = 60,
     nburnin = 10,
@@ -203,7 +132,7 @@ bundle_final <- build_nimble_bundle(
   )
 )
 
-# PHASE 3: MCMC
+# PHASE 2: MCMC
 fit_final <- run_mcmc_bundle_manual(bundle_final)
 
 print("\n=== THREE-PHASE WORKFLOW COMPLETE ===\n")
@@ -222,7 +151,7 @@ bundle_crp <- build_nimble_bundle(
   y = y_data,
   kernel = "gamma",
   backend = "crp",
-  Kmax = 5,
+  components = 5,
   mcmc = list(niter = 1500, nburnin = 250, nchains = 2)
 )
 
@@ -238,7 +167,7 @@ bundle_sb <- build_nimble_bundle(
   y = y_data,
   kernel = "gamma",
   backend = "sb",
-  J = 5,
+  components = 5,
   mcmc = list(niter = 100, nburnin = 20, nchains = 3)
 )
 
@@ -299,9 +228,8 @@ summary(fit_gpd)
 
 | Phase | Function | Input | Output |
 |-------|----------|-------|--------|
-| **1. Spec** | `compile_model_spec()` | y, X (optional), kernel, backend, GPD | `dpmixgpd_spec` |
-| **2. Bundle** | `build_nimble_bundle()` | spec or y, kernel, backend, GPD | `dpmixgpd_bundle` |
-| **3. MCMC** | `run_mcmc_bundle_manual()` | bundle | `mixgpd_fit` |
+| **1. Bundle** | `build_nimble_bundle()` | y, X (optional), kernel, backend, GPD, components | `dpmixgpd_bundle` |
+| **2. MCMC** | `run_mcmc_bundle_manual()` | bundle | `mixgpd_fit` |
 
 ---
 
@@ -313,8 +241,7 @@ print("Quick test:     niter=500,  nburnin=100, nchains=1\n")
 print("Standard:       niter=1000, nburnin=250, nchains=2\n")
 print("Production:     niter=1000, nburnin=250, nchains=3\n")
 print("\n=== Backend Parameters ===\n")
-print("CRP: Kmax=3-5 (truncation for # components)\n")
-print("SB:  J=3-5    (fixed # components)\n")
+print("Use components=3-5 for both backends in this implementation.\n")
 print("\n=== Kernel Selection ===\n")
 print("Positive data:     gamma, lognormal, invgauss\n")
 print("Any real data:     normal\n")
@@ -330,6 +257,9 @@ print("Extreme outliers:  cauchy\n")
 - Move to **vignette 8-9** for tail modeling with GPD
 - Move to **vignette 10-13** for conditional models with covariates
 - Move to **vignette 14-19** for causal inference workflows
+
+
+
 
 
 
