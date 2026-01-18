@@ -121,10 +121,10 @@ pred_d_sb_crp <- predict(fit_sb_crp, x = x_eval, y = y_eval,
 plot(pred_d_sb_crp)
 ```
 
-```{r predict-prob-sb-crp}
-pred_p_sb_crp <- predict(fit_sb_crp, x = x_eval, y = y_eval,
-                         type = "prob", interval = "credible")
-plot(pred_p_sb_crp)
+```{r predict-survival-sb-crp}
+pred_surv_sb_crp <- predict(fit_sb_crp, x = x_eval, y = y_eval,
+                            type = "survival", interval = "credible")
+plot(pred_surv_sb_crp)
 ```
 
 ```{r ate-sb-crp}
@@ -189,10 +189,10 @@ pred_d_crp_sb <- predict(fit_crp_sb, x = x_eval, y = y_eval,
 plot(pred_d_crp_sb)
 ```
 
-```{r predict-prob-crp-sb}
-pred_p_crp_sb <- predict(fit_crp_sb, x = x_eval, y = y_eval,
-                         type = "prob", interval = "credible")
-plot(pred_p_crp_sb)
+```{r predict-survival-crp-sb}
+pred_surv_crp_sb <- predict(fit_crp_sb, x = x_eval, y = y_eval,
+                            type = "survival", interval = "credible")
+plot(pred_surv_crp_sb)
 ```
 
 ```{r ate-crp-sb}
