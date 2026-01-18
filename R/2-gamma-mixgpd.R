@@ -137,6 +137,11 @@ rGammaMix <- nimble::nimbleFunction(
   }
 )
 
+# ---- nimbleFunction aliases for internal use ----
+dGammaMix_nf <- dGammaMix
+pGammaMix_nf <- pGammaMix
+rGammaMix_nf <- rGammaMix
+
 #' @describeIn gamma_mix Gamma mixture quantile function
 #' @export
 qGammaMix <- function(p, w, shape, scale,
@@ -241,9 +246,9 @@ dGammaMixGpd <- nimble::nimbleFunction(
                  log = integer(0, default = 0)) {
     returnType(double(0))
 
-    if (x < threshold) return(dGammaMix(x, w, shape, scale, log))
+          if (x < threshold) return(dGammaMix_nf(x, w, shape, scale, log))
 
-    Fu <- pGammaMix(threshold, w, shape, scale, 1, 0)
+          Fu <- pGammaMix_nf(threshold, w, shape, scale, 1, 0)
     val <- (1.0 - Fu) * dGpd(x, threshold, tail_scale, tail_shape, 0)
 
     if (log == 1) return(log(val))
@@ -265,9 +270,9 @@ pGammaMixGpd <- nimble::nimbleFunction(
                  log.p = integer(0, default = 0)) {
     returnType(double(0))
 
-    if (q < threshold) return(pGammaMix(q, w, shape, scale, lower.tail, log.p))
+          if (q < threshold) return(pGammaMix_nf(q, w, shape, scale, lower.tail, log.p))
 
-    Fu <- pGammaMix(threshold, w, shape, scale, 1, 0)
+          Fu <- pGammaMix_nf(threshold, w, shape, scale, 1, 0)
     G  <- pGpd(q, threshold, tail_scale, tail_shape, 1, 0)
 
     cdf <- Fu + (1.0 - Fu) * G
@@ -295,10 +300,10 @@ rGammaMixGpd <- nimble::nimbleFunction(
 
     if (n != 1) return(0.0)
 
-    Fu <- pGammaMix(threshold, w, shape, scale, 1, 0)
+    Fu <- pGammaMix_nf(threshold, w, shape, scale, 1, 0)
     u  <- runif(1, 0.0, 1.0)
 
-    if (u < Fu) return(rGammaMix(1, w, shape, scale))
+    if (u < Fu) return(rGammaMix_nf(1, w, shape, scale))
     return(rGpd(1, threshold, tail_scale, tail_shape))
   }
 )
@@ -482,11 +487,6 @@ qGammaGpd <- function(p, shape, scale, threshold, tail_scale, tail_shape,
 }
 
 # ---- R-side vectorized wrappers for Gamma mix functions (tests/usage) ----
-
-dGammaMix_nf <- dGammaMix
-pGammaMix_nf <- pGammaMix
-rGammaMix_nf <- rGammaMix
-
 dGammaMix <- local({
   nf <- dGammaMix_nf
   function(x, w, shape, scale, log = FALSE) {
