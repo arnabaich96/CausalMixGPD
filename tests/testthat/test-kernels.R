@@ -371,6 +371,14 @@ test_that("All nimble::nimbleFunction-defined objects in R/ compile", {
 
     obj <- get(nm, envir = ns, inherits = FALSE)
 
+    # If a nimbleFunction was wrapped for vectorization, compile its *_nf alias.
+    if (!inherits(obj, "nimbleFunction")) {
+      nf_name <- paste0(nm, "_nf")
+      if (exists(nf_name, envir = ns, inherits = FALSE)) {
+        obj <- get(nf_name, envir = ns, inherits = FALSE)
+      }
+    }
+
     err <- tryCatch({
       suppressWarnings(nimble::compileNimble(obj))
       NULL
