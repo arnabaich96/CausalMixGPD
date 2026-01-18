@@ -222,7 +222,7 @@ plot(fit_vals)
 
 - **SB Backend**: Fixed `components` keeps label-switching manageable, and the diagnostic plots via the S3 `plot()` method show weight dynamics.
 - **Kernels matter**: Gamma vs Cauchy can behave very differently in the shoulders/tails, even without a GPD tail.
-- **Predictions**: Posterior density, quantiles, and mean are all accessible via `predict()` and display credible bands for each summary.
+- **Predictions**: Posterior density, posterior-mean quantiles, and mean (via predictive sampling) are accessible via `predict()` with credible bands.
 - **Backend comparison**: The CRP fit (`v04`) and the SB-gamma fit deliver similar central quantiles while SB offers more control over truncation.
 - **Next**: Explore tail augmentation (`GPD = TRUE`) with the CRP backend in `v06` or SB backend in `v07`.
 

@@ -1407,7 +1407,7 @@ plot.dpmixgpd_causal_predict <- function(x, y = NULL, ...) {
     return(result)
   }
 
-  if (pred_type %in% c("density", "prob")) {
+  if (pred_type %in% c("density", "survival", "prob")) {
     df <- as.data.frame(x)
     df_long <- rbind(
       data.frame(y = df$y, group = "Treated", estimate = df$trt_estimate,
