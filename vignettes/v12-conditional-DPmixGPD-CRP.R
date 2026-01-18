@@ -1,15 +1,4 @@
----
-title: "12. Conditional DPmixGPD with CRP Backend"
-output: 
-  rmarkdown::html_vignette:
-    code_folding: show
-vignette: >
-  %\VignetteIndexEntry{12. Conditional DPmixGPD with CRP Backend}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
----
-
-```{r setup, include=FALSE}
+## ----setup, include=FALSE-----------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = NA,
@@ -29,17 +18,8 @@ library(kableExtra)
 library(dplyr)
 library(tibble)
 set.seed(123)
-```
 
-# Conditional DPmixGPD: CRP Backend with Tail Augmentation
-
-**Purpose**: Combine conditional modeling with GPD tail augmentation so each covariate slice inherits both mixture bulk and tail behavior. This extends the unconditional GPD (v06) and conditional DP (v08).
-
----
-
-## Data Setup
-
-```{r data-setup}
+## ----data-setup---------------------------------------------------------------
 data("nc_posX100_p5_k4")
 y <- nc_posX100_p5_k4$y
 X <- as.matrix(nc_posX100_p5_k4$X)
@@ -57,20 +37,14 @@ ggplot(data.frame(y = y, x1 = X[, 1]), aes(x = x1, y = y)) +
   geom_smooth(method = "loess", color = "steelblue", fill = NA) +
   labs(title = "Outcome vs X1 (Tail dataset)", x = "X1", y = "y") +
   theme_minimal()
-```
 
-```{r data-table, echo=FALSE}
+## ----data-table, echo=FALSE---------------------------------------------------
 summary_tbl %>%
   mutate(value = signif(value, 4)) %>%
   kable(caption = "Conditional Tail Dataset Summary", align = "c") %>%
   kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
-```
 
----
-
-## Threshold Selection
-
-```{r threshold}
+## ----threshold----------------------------------------------------------------
 u_threshold <- quantile(y, 0.85)
 
 ggplot(data.frame(y = y), aes(x = y)) +
@@ -78,13 +52,8 @@ ggplot(data.frame(y = y), aes(x = y)) +
   geom_vline(xintercept = u_threshold, linetype = "dashed", color = "black") +
   labs(title = paste("Threshold at", signif(u_threshold, 3)), x = "y", y = "Density") +
   theme_minimal()
-```
 
----
-
-## Model Specification & Bundle
-
-```{r bundle}
+## ----bundle-------------------------------------------------------------------
 bundle_cond_gpd_lognormal <- build_nimble_bundle(
   y = y,
   X = X,
@@ -124,29 +93,18 @@ bundle_cond_gpd_normal <- build_nimble_bundle(
     thin = 1
   )
 )
-```
 
----
-
-## Running MCMC
-
-```{r mcmc-run}
+## ----mcmc-run-----------------------------------------------------------------
 fit_cond_gpd_lognormal <- run_mcmc_bundle_manual(bundle_cond_gpd_lognormal)
 fit_cond_gpd_normal <- run_mcmc_bundle_manual(bundle_cond_gpd_normal)
 summary(fit_cond_gpd_lognormal)
 summary(fit_cond_gpd_normal)
-```
 
-```{r params-cond-gpd-crp}
+## ----params-cond-gpd-crp------------------------------------------------------
 params_cond_gpd <- params(fit_cond_gpd_lognormal)
 params_cond_gpd
-```
 
----
-
-## Conditional Tail-aware Predictions
-
-```{r density-predict}
+## ----density-predict----------------------------------------------------------
 X_new <- rbind(
   c(-1, 0, 0, 0, 0),
   c(0, 0, 0, 0, 0),
@@ -182,13 +140,8 @@ bind_rows(df_pred_lognormal, df_pred_normal) %>%
   labs(title = "Conditional Density with GPD Tail", x = "y", y = "Density") +
   theme_minimal() +
   theme(legend.position = "bottom")
-```
 
----
-
-## Tail Quantiles vs Covariates
-
-```{r quantiles}
+## ----quantiles----------------------------------------------------------------
 X_grid <- cbind(x1 = seq(-1, 1, length.out = 5), x2 = 0, x3 = 0, x4 = 0, x5 = 0)
 colnames(X_grid) <- colnames(X)
 quant_probs <- c(0.90, 0.95)
@@ -211,32 +164,11 @@ bind_rows(quant_df_lognormal, quant_df_normal) %>%
   facet_wrap(~ model) +
   labs(title = "Tail Quantiles vs x1 (CRP)", x = "x1", y = "Quantile", color = "Probability") +
   theme_minimal()
-```
 
----
-
-## Residuals & Diagnostics
-
-```{r residuals}
+## ----residuals----------------------------------------------------------------
 plot(fitted(fit_cond_gpd_lognormal))
-```
 
-```{r diagnostics}
+## ----diagnostics--------------------------------------------------------------
 plot(fit_cond_gpd_lognormal, family = c("traceplot", "density", "autocorrelation"))
 plot(fit_cond_gpd_normal, family = c("running", "geweke", "caterpillar"))
-```
-
----
-
-## Takeaways
-
-- Conditional DPmix with a GPD tail lets posterior-mean extreme quantiles vary with covariates.
-- The CRP backend samples the bulk and tail jointly while thresholding at the 85th percentile.
-- `predict()` + `plot()` remain the main tools for densities, survival curves, and quantiles; residual diagnostics check fit quality.
-- Next: Mirror this workflow with the SB backend in `v11`.
-
-
-
-
-
 

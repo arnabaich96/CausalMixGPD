@@ -1,0 +1,78 @@
+## ----setup, include=FALSE-----------------------------------------------------
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = NA,
+  fig.width = 8,
+  fig.height = 6,
+  message = FALSE,
+  warning = FALSE,
+  eval = TRUE,
+  cache = TRUE,
+  cache.path = "../.cache/vignettes/"
+)
+library(DPmixGPD)
+if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
+library(ggplot2)
+library(dplyr)
+library(tibble)
+set.seed(123)
+
+quiet_mcmc <- function(expr) {
+  nullfile <- if (.Platform$OS.type == "windows") "NUL" else "/dev/null"
+  out <- NULL
+  utils::capture.output(
+    out <- eval(substitute(expr), envir = parent.frame()),
+    file = nullfile
+  )
+  out
+}
+
+## ----data-setup---------------------------------------------------------------
+data("causal_alt_real500_p4_k2")
+y <- abs(causal_alt_real500_p4_k2$y) + 0.01
+T <- causal_alt_real500_p4_k2$T
+X <- as.matrix(causal_alt_real500_p4_k2$X)
+
+summary_tbl <- tibble(
+  statistic = c("N", "Mean", "SD", "Min", "Max"),
+  value = c(length(y), mean(y), sd(y), min(y), max(y))
+)
+
+summary_tbl %>%
+  mutate(value = signif(value, 4)) %>%
+  print()
+
+x_eval <- X[1:40, , drop = FALSE]
+y_eval <- y[1:40]
+u_threshold <- as.numeric(stats::quantile(y, 0.8, names = FALSE))
+
+## ----bundle-crp-gpd-----------------------------------------------------------
+param_specs_gpd <- list(
+  gpd = list(
+    threshold = list(
+      mode = "dist",
+      dist = "lognormal",
+      args = list(meanlog = log(max(u_threshold, .Machine$double.eps)), sdlog = 0.25)
+    )
+  )
+)
+
+bundle_crp_gpd <- build_causal_bundle(
+  y = y,
+  T = T,
+  X = X,
+  kernel = "invgauss",
+  backend = "crp",
+  PS = FALSE,
+  GPD = TRUE,
+  components = 6,
+  param_specs = param_specs_gpd,
+  mcmc_outcome = list(niter = 300, nburnin = 80, nchains = 1, thin = 1, seed = 3)
+)
+
+bundle_crp_gpd
+
+## ----fit-crp-gpd--------------------------------------------------------------
+fit_crp_gpd <- quiet_mcmc(run_mcmc_causal(bundle_crp_gpd))
+summary(fit_crp_gpd)
+

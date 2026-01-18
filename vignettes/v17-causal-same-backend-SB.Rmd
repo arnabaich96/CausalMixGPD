@@ -4,7 +4,7 @@ output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
-  %\\VignetteIndexEntry{17. Causal Inference: Same Backend (SB) - Laplace Kernel}
+  %\VignetteIndexEntry{17. Causal Inference: Same Backend (SB) - Laplace Kernel}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
