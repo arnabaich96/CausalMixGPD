@@ -229,7 +229,7 @@ plot(fit_cond_gpd_normal, family = c("running", "geweke", "caterpillar"))
 
 ## Takeaways
 
-- Conditional DPmix with a GPD tail lets extreme quantiles vary with covariates.
+- Conditional DPmix with a GPD tail lets posterior-mean extreme quantiles vary with covariates.
 - The CRP backend samples the bulk and tail jointly while thresholding at the 85th percentile.
 - `predict()` + `plot()` remain the main tools for densities, survival curves, and quantiles; residual diagnostics check fit quality.
 - Next: Mirror this workflow with the SB backend in `v11`.
