@@ -4,7 +4,7 @@ output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
-  %\\VignetteIndexEntry{9. Unconditional DPmixGPD with Stick-Breaking Backend}
+  %\VignetteIndexEntry{9. Unconditional DPmixGPD with Stick-Breaking Backend}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

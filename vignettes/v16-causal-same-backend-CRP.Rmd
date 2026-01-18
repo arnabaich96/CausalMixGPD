@@ -4,7 +4,7 @@ output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
-  %\\VignetteIndexEntry{16. Causal Inference: Mixed Backends (CRP+SB) - Cauchy/Laplace}
+  %\VignetteIndexEntry{16. Causal Inference: Mixed Backends (CRP+SB) - Cauchy/Laplace}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

@@ -27,13 +27,9 @@
 \item{...}{Unused.}
 }
 \value{
-A data frame with columns:
-\describe{
-\item{fit}{Point estimates for the requested location.}
-\item{lower}{Lower credible bound.}
-\item{upper}{Upper credible bound.}
-\item{residuals}{Residuals (y - fit).}
-}
+A data frame with columns: 
+  \code{fit} (point estimates), \code{lower} (lower credible bound),
+  \code{upper} (upper credible bound), and \code{residuals} (y - fit).
 }
 \description{
 Computes fitted values and residuals on the original training data.
