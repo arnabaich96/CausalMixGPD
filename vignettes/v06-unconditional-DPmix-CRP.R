@@ -74,3 +74,116 @@ summary(bundle_crp)
 ## ----mcmc-crp-fit, results = "hide"-------------------------------------------
 fit_crp <- run_mcmc_bundle_manual(bundle_crp)
 
+## -----------------------------------------------------------------------------
+summary(fit_crp)
+
+## ----params-crp---------------------------------------------------------------
+params_crp <- params(fit_crp)
+params_crp
+
+## ----diag-trace---------------------------------------------------------------
+# Trace plots for key parameters
+plot(fit_crp, params = "alpha", family = c("traceplot", "density", "geweke"))
+
+## ----pred-density-------------------------------------------------------------
+# Generate prediction grid
+y_grid <- seq(0, max(y_mixed) * 1.2, length.out = 200)
+
+# Posterior predictive density
+pred_density <- predict(fit_crp, y = y_grid, type = "density")
+
+# Use S3 plot method
+plot(pred_density)
+
+## ----pred-quantiles-----------------------------------------------------------
+# Posterior predictive quantiles with credible intervals
+quantiles_pred <- predict(fit_crp, type = "quantile", 
+                          index = c(0.05, 0.25, 0.5, 0.75, 0.95),
+                          interval = "credible")
+
+# Display table
+quantiles_pred$fit %>%
+ kbl(caption = "Posterior Predictive Quantiles with Credible Intervals",
+   align = "c",
+                  digits = 3) %>%
+ kable_styling(bootstrap_options = "striped", full_width = FALSE, position = "center")
+
+# Use S3 plot method
+plot(quantiles_pred)
+
+## ----components-sensitivity---------------------------------------------------
+# Demonstrate with one value
+bundle_components <- build_nimble_bundle(
+  y = y_mixed,
+  kernel = "laplace",
+  backend = "crp",
+  components = 5,
+  mcmc = list(niter = 2500, nburnin = 500, nchains = 1)
+)
+fit_components <- run_mcmc_bundle_manual(bundle_components)
+
+## -----------------------------------------------------------------------------
+summary(fit_components)
+
+## ----residuals-analysis-------------------------------------------------------
+# Extract fitted values with diagnostics
+Fit <- fitted(fit_components)
+
+# Display table
+kableExtra::kbl(head(Fit), caption = "Fitted Values, Residuals and Credible Interval", digits = 3, align = "c") %>%
+ kable_styling(bootstrap_options = "striped", full_width = FALSE, position = "center")
+
+# Use S3 plot method for diagnostic plots
+fit.plots <- plot(Fit)
+fit.plots$residual_plot
+
+## ----comp-laplace-------------------------------------------------------------
+bundle_laplace <- build_nimble_bundle(
+  y = y_mixed,
+  kernel = "laplace",
+  backend = "crp",
+  components = 5,
+  mcmc = list(niter = 2500, nburnin = 500, nchains = 1)
+)
+fit_laplace <- run_mcmc_bundle_manual(bundle_laplace)
+
+## -----------------------------------------------------------------------------
+summary(fit_laplace)
+
+## ----comp-amoroso-------------------------------------------------------------
+bundle_amoroso <- build_nimble_bundle(
+  y = y_mixed,
+  kernel = "amoroso",
+  backend = "crp",
+  components = 5,
+  mcmc = list(niter = 2500, nburnin = 500, nchains = 1)
+)
+fit_amoroso <- run_mcmc_bundle_manual(bundle_amoroso)
+
+## -----------------------------------------------------------------------------
+summary(fit_amoroso)
+
+## ----comp-summary-------------------------------------------------------------
+# Compare fitted values using S3 plot method
+fitted_laplace <- fitted(fit_laplace)
+fitted_amoroso <- fitted(fit_amoroso)
+# Plot diagnostics for both models
+g.plot <- plot(fitted_laplace)
+l.plot <- plot(fitted_amoroso)
+
+## ----fig.height=6, fig.width=10-----------------------------------------------
+p_gamma <- g.plot$observed_fitted_plot +
+  ggtitle("Laplace kernel") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+p_lognormal <- l.plot$observed_fitted_plot +
+  ggtitle("Amoroso kernel") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+p_gamma + p_lognormal +
+  plot_layout(ncol = 2) +
+  plot_annotation(
+    title = "Observed vs Fitted"
+  ) +
+  theme(plot.title = element_text(hjust = 0.5))
+

@@ -174,7 +174,7 @@ qNormMix <- function(p, w, mean, sd,
         f_hi <- as.numeric(pNormMix(hi, w = w, mean = mean, sd = sd, lower.tail = 1, log.p = 0) - pi)
         iter <- iter + 1L
       }
-      if (!is.finite(f_lo) || !is.finite(f_hi) || f_lo * f_hi > 0) {
+      if (!is.finite(lo) || !is.finite(hi) || lo >= hi || !is.finite(f_lo) || !is.finite(f_hi) || f_lo * f_hi > 0) {
         out[i] <- NA_real_
       } else {
         out[i] <- stats::uniroot(

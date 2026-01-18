@@ -76,3 +76,48 @@ bundle_crp_gpd
 fit_crp_gpd <- quiet_mcmc(run_mcmc_causal(bundle_crp_gpd))
 summary(fit_crp_gpd)
 
+## ----predict-mean-crp-gpd-----------------------------------------------------
+pred_mean_gpd <- predict(fit_crp_gpd, x = x_eval, type = "mean", interval = "credible", nsim_mean = 150)
+head(pred_mean_gpd)
+plot(pred_mean_gpd)
+
+## ----predict-quantile-crp-gpd-------------------------------------------------
+pred_q_gpd <- predict(fit_crp_gpd, x = x_eval, type = "quantile", p = 0.5, interval = "credible")
+head(pred_q_gpd)
+plot(pred_q_gpd)
+
+## ----predict-density-crp-gpd--------------------------------------------------
+pred_d_gpd <- predict(fit_crp_gpd, x = x_eval, y = y_eval, type = "density", interval = "credible")
+head(pred_d_gpd)
+plot(pred_d_gpd)
+
+## ----predict-survival-crp-gpd-------------------------------------------------
+pred_surv_gpd <- predict(fit_crp_gpd, x = x_eval, y = y_eval, type = "survival", interval = "credible")
+head(pred_surv_gpd)
+plot(pred_surv_gpd)
+
+## ----ate-crp-gpd--------------------------------------------------------------
+ate_gpd <- ate(fit_crp_gpd, newdata = x_eval, interval = "credible", nsim_mean = 150)
+head(ate_gpd)
+plot(ate_gpd)
+
+## ----qte-crp-gpd--------------------------------------------------------------
+qte_gpd <- qte(fit_crp_gpd, probs = c(0.25, 0.5, 0.75), newdata = x_eval, interval = "credible")
+head(qte_gpd)
+plot(qte_gpd)
+
+## ----bundle-sb-bulk-----------------------------------------------------------
+bundle_sb_bulk <- build_causal_bundle(
+  y = y,
+  T = T,
+  X = X,
+  kernel = "amoroso",
+  backend = "sb",
+  PS = FALSE,
+  GPD = FALSE,
+  components = 6,
+  mcmc_outcome = list(niter = 300, nburnin = 80, nchains = 1, thin = 1, seed = 4)
+)
+
+bundle_sb_bulk
+

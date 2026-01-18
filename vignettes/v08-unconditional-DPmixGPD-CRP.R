@@ -161,3 +161,55 @@ return_levels$fit %>%
 fit_vals <- fitted(fit_gpd)
 plot(fit_vals)
 
+## ----threshold-sensitivity----------------------------------------------------
+sensitivity_fits <- lapply(thresholds, function(u) {
+  bundle <- build_nimble_bundle(
+    y = y_tail,
+    kernel = "invgauss",
+    backend = "crp",
+    GPD = TRUE,
+    param_specs = list(
+      gpd = list(
+        threshold = list(mode = "fixed", value = u)
+      )
+    ),
+    components = 5,
+    mcmc = list(niter = 2500, nburnin = 500, nchains = 1)
+  )
+  fit <- run_mcmc_bundle_manual(bundle)
+  list(threshold = u, fit = fit)
+})
+
+sensitivity_tbl <- bind_rows(lapply(sensitivity_fits, function(entry) {
+  quant <- predict(entry$fit, type = "quantile", index = 0.99, interval = "credible")
+  qfit <- as.data.frame(quant$fit)
+  qfit$threshold <- entry$threshold
+
+  # Keep the usual columns if present
+  keep <- intersect(names(qfit), c("threshold", "index", "estimate", "lower", "upper", "lwr", "upr"))
+  qfit <- qfit[, keep, drop = FALSE]
+
+  # Standardize to one set of CI column names
+  if (!"lower" %in% names(qfit) && "lwr" %in% names(qfit)) qfit$lower <- qfit$lwr
+  if (!"upper" %in% names(qfit) && "upr" %in% names(qfit)) qfit$upper <- qfit$upr
+
+  # If estimate isn't present for some reason, fall back to the first numeric column
+  if (!"estimate" %in% names(qfit)) {
+    num_cols <- names(qfit)[vapply(qfit, is.numeric, logical(1))]
+    if (length(num_cols) > 0) qfit$estimate <- qfit[[num_cols[1]]]
+  }
+
+  out <- data.frame(
+    threshold = qfit$threshold[1],
+    q_99 = qfit$estimate[1],
+    q_99_lwr = if ("lower" %in% names(qfit)) qfit$lower[1] else NA_real_,
+    q_99_upr = if ("upper" %in% names(qfit)) qfit$upper[1] else NA_real_
+  )
+  tibble::as_tibble(out)
+}))
+
+sensitivity_tbl %>%
+  mutate(across(where(is.numeric), ~ round(.x, 3))) %>%
+  kable(caption = "Threshold Sensitivity: 99th Quantile", align = "c") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
+

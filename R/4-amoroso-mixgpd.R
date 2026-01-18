@@ -196,7 +196,7 @@ qAmorosoMix <- function(p, w, loc, scale, shape1, shape2,
       f_hi <- as.numeric(pAmorosoMix(hi, w, loc, scale, shape1, shape2, 1, 0) - pi)
       iter <- iter + 1L
     }
-    if (!is.finite(f_lo) || !is.finite(f_hi) || f_lo * f_hi > 0) {
+    if (!is.finite(lo) || !is.finite(hi) || lo >= hi || !is.finite(f_lo) || !is.finite(f_hi) || f_lo * f_hi > 0) {
       out[i] <- NA_real_
     } else {
       out[i] <- stats::uniroot(
@@ -579,7 +579,7 @@ qAmorosoGpd <- function(p, loc, scale, shape1, shape2,
         f_hi <- as.numeric(pAmoroso(hi, loc, scale, shape1, shape2, 1, 0) - pi)
         iter <- iter + 1L
       }
-      if (!is.finite(f_lo) || !is.finite(f_hi) || f_lo * f_hi > 0) {
+      if (!is.finite(lo) || !is.finite(hi) || lo >= hi || !is.finite(f_lo) || !is.finite(f_hi) || f_lo * f_hi > 0) {
         out[i] <- NA_real_
       } else {
         out[i] <- stats::uniroot(
