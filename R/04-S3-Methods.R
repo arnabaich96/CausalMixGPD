@@ -1088,8 +1088,10 @@ predict.mixgpd_fit <- function(object,
 #' for all observations. For conditional models, returns individual predictions.
 #'
 #' @param object A fitted object of class \code{"mixgpd_fit"}.
-#' @param type Which fitted location to return: mean, median, or both (\code{"location"}).
+#' @param type Which fitted location to return: mean, median, quantile, or both (\code{"location"}).
+#' @param p Quantile level used when \code{type = "quantile"}.
 #' @param level Credible level for confidence intervals (default 0.95 for 95% credible intervals).
+#' @param seed Random seed used for deterministic fitted values.
 #' @param ... Unused.
 #' @return A data frame with columns:
 #'   \describe{

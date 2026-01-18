@@ -4,12 +4,19 @@
 \alias{residuals.mixgpd_fit}
 \title{Residuals for a MixGPD fit}
 \usage{
-\method{residuals}{mixgpd_fit}(object, type = c("raw", "pit"), ...)
+\method{residuals}{mixgpd_fit}(
+  object,
+  type = c("raw", "pit"),
+  fitted_type = c("mean", "median"),
+  ...
+)
 }
 \arguments{
 \item{object}{A fitted object of class \code{"mixgpd_fit"}.}
 
 \item{type}{Residual type: \code{"raw"} or \code{"pit"}.}
+
+\item{fitted_type}{For \code{type = "raw"}, use fitted means or medians.}
 
 \item{...}{Unused.}
 }

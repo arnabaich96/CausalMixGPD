@@ -167,11 +167,35 @@ qAmorosoMix <- function(p, w, loc, scale, shape1, shape2,
     if (pi <= 0) { out[i] <- -Inf; next }
     if (pi >= 1) { out[i] <- Inf; next }
 
-    out[i] <- stats::uniroot(
-      function(z) pAmorosoMix(z, w, loc, scale, shape1, shape2, 1, 0) - pi,
-      interval = c(-1e10, 1e10),
-      tol = tol, maxiter = maxiter
-    )$root
+    lo <- min(qAmoroso(pi, loc, scale, shape1, shape2, lower.tail = TRUE, log.p = FALSE), na.rm = TRUE)
+    hi <- max(qAmoroso(pi, loc, scale, shape1, shape2, lower.tail = TRUE, log.p = FALSE), na.rm = TRUE)
+    if (!is.finite(lo)) lo <- -1e10
+    if (!is.finite(hi)) hi <- 1e10
+    f_lo <- as.numeric(pAmorosoMix(lo, w, loc, scale, shape1, shape2, 1, 0) - pi)
+    f_hi <- as.numeric(pAmorosoMix(hi, w, loc, scale, shape1, shape2, 1, 0) - pi)
+    iter <- 0L
+    while (is.finite(f_lo) && f_lo > 0 && lo > -1e20 && iter < 60L) {
+      step <- max(1, abs(lo))
+      lo <- lo - step
+      f_lo <- as.numeric(pAmorosoMix(lo, w, loc, scale, shape1, shape2, 1, 0) - pi)
+      iter <- iter + 1L
+    }
+    iter <- 0L
+    while (is.finite(f_hi) && f_hi < 0 && hi < 1e20 && iter < 60L) {
+      step <- max(1, abs(hi))
+      hi <- hi + step
+      f_hi <- as.numeric(pAmorosoMix(hi, w, loc, scale, shape1, shape2, 1, 0) - pi)
+      iter <- iter + 1L
+    }
+    if (!is.finite(f_lo) || !is.finite(f_hi) || f_lo * f_hi > 0) {
+      out[i] <- NA_real_
+    } else {
+      out[i] <- stats::uniroot(
+        function(z) pAmorosoMix(z, w, loc, scale, shape1, shape2, 1, 0) - pi,
+        interval = c(lo, hi),
+        tol = tol, maxiter = maxiter
+      )$root
+    }
   }
   out
 }
@@ -515,11 +539,37 @@ qAmorosoGpd <- function(p, loc, scale, shape1, shape2,
     pi <- p[i]
     if (pi <= Fu) {
       # bulk quantile via numerical inversion of base CDF
-      out[i] <- stats::uniroot(
-        function(z) pAmoroso(z, loc, scale, shape1, shape2, 1, 0) - pi,
-        interval = c(-1e10, 1e10),
-        tol = tol, maxiter = maxiter
-      )$root
+      lo <- qAmoroso(pi, loc, scale, shape1, shape2, lower.tail = TRUE, log.p = FALSE)
+      hi <- lo
+      if (!is.finite(lo)) {
+        lo <- -1e10
+        hi <- 1e10
+      }
+      f_lo <- as.numeric(pAmoroso(lo, loc, scale, shape1, shape2, 1, 0) - pi)
+      f_hi <- as.numeric(pAmoroso(hi, loc, scale, shape1, shape2, 1, 0) - pi)
+      iter <- 0L
+      while (is.finite(f_lo) && f_lo > 0 && lo > -1e20 && iter < 60L) {
+        step <- max(1, abs(lo))
+        lo <- lo - step
+        f_lo <- as.numeric(pAmoroso(lo, loc, scale, shape1, shape2, 1, 0) - pi)
+        iter <- iter + 1L
+      }
+      iter <- 0L
+      while (is.finite(f_hi) && f_hi < 0 && hi < 1e20 && iter < 60L) {
+        step <- max(1, abs(hi))
+        hi <- hi + step
+        f_hi <- as.numeric(pAmoroso(hi, loc, scale, shape1, shape2, 1, 0) - pi)
+        iter <- iter + 1L
+      }
+      if (!is.finite(f_lo) || !is.finite(f_hi) || f_lo * f_hi > 0) {
+        out[i] <- NA_real_
+      } else {
+        out[i] <- stats::uniroot(
+          function(z) pAmoroso(z, loc, scale, shape1, shape2, 1, 0) - pi,
+          interval = c(lo, hi),
+          tol = tol, maxiter = maxiter
+        )$root
+      }
     } else {
       g <- if (Fu >= 1) 0 else (pi - Fu) / (1 - Fu)
       out[i] <- qGpd(g, threshold = threshold, scale = tail_scale, shape = tail_shape)
