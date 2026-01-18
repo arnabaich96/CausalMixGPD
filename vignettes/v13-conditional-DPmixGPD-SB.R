@@ -1,15 +1,4 @@
----
-title: "13. Conditional DPmixGPD with Stick-Breaking Backend"
-output: 
-  rmarkdown::html_vignette:
-    code_folding: show
-vignette: >
-  %\VignetteIndexEntry{13. Conditional DPmixGPD with Stick-Breaking Backend}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
----
-
-```{r setup, include=FALSE}
+## ----setup, include=FALSE-----------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = NA,
@@ -29,17 +18,8 @@ library(kableExtra)
 library(dplyr)
 library(tibble)
 set.seed(123)
-```
 
-# Conditional DPmixGPD: Stick-Breaking Backend
-
-**Purpose**: Apply fixed-component stick-breaking truncation to covariate-dependent mixtures while keeping the GPD tail. This vignette mirrors `v10` but with the SB backend.
-
----
-
-## Data Setup
-
-```{r data-setup}
+## ----data-setup---------------------------------------------------------------
 data("nc_posX100_p5_k4")
 y <- nc_posX100_p5_k4$y
 X <- as.matrix(nc_posX100_p5_k4$X)
@@ -57,20 +37,14 @@ ggplot(data.frame(y = y, x1 = X[, 1]), aes(x = x1, y = y)) +
   geom_smooth(method = "loess", color = "orange", fill = NA) +
   labs(title = "Tail Outcome vs x1 (SB)", x = "x1", y = "y") +
   theme_minimal()
-```
 
-```{r data-table, echo=FALSE}
+## ----data-table, echo=FALSE---------------------------------------------------
 summary_tbl %>%
   mutate(value = signif(value, 4)) %>%
   kable(caption = "Conditional Tail Summary (SB)", align = "c") %>%
   kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
-```
 
----
-
-## Threshold
-
-```{r threshold}
+## ----threshold----------------------------------------------------------------
 u_threshold <- quantile(y, 0.85)
 
 ggplot(data.frame(y = y), aes(x = y)) +
@@ -78,13 +52,8 @@ ggplot(data.frame(y = y), aes(x = y)) +
   geom_vline(xintercept = u_threshold, linetype = "dashed", color = "black") +
   labs(title = "Threshold for SB tail (85%)", x = "y", y = "Density") +
   theme_minimal()
-```
 
----
-
-## Model Specification
-
-```{r bundle}
+## ----bundle-------------------------------------------------------------------
 bundle_sb_cond_gpd_gamma <- build_nimble_bundle(
   y = y,
   X = X,
@@ -124,29 +93,18 @@ bundle_sb_cond_gpd_laplace <- build_nimble_bundle(
     thin = 1
   )
 )
-```
 
----
-
-## MCMC Execution
-
-```{r mcmc}
+## ----mcmc---------------------------------------------------------------------
 fit_sb_cond_gpd_gamma <- run_mcmc_bundle_manual(bundle_sb_cond_gpd_gamma)
 fit_sb_cond_gpd_laplace <- run_mcmc_bundle_manual(bundle_sb_cond_gpd_laplace)
 summary(fit_sb_cond_gpd_gamma)
 summary(fit_sb_cond_gpd_laplace)
-```
 
-```{r params-cond-gpd-sb}
+## ----params-cond-gpd-sb-------------------------------------------------------
 params_sb_cond <- params(fit_sb_cond_gpd_gamma)
 params_sb_cond
-```
 
----
-
-## Conditional Predictions
-
-```{r cond-predict}
+## ----cond-predict-------------------------------------------------------------
 X_new <- rbind(
   c(-1, 0, 0, 0, 0),
   c(0, 0, 0, 0, 0),
@@ -182,13 +140,8 @@ bind_rows(df_pred_gamma, df_pred_laplace) %>%
   labs(title = "Conditional Density (SB + GPD)", x = "y", y = "Density") +
   theme_minimal() +
   theme(legend.position = "bottom")
-```
 
----
-
-## Tail Quantiles
-
-```{r quantiles}
+## ----quantiles----------------------------------------------------------------
 X_grid <- cbind(x1 = seq(-1, 1, length.out = 5), x2 = 0, x3 = 0, x4 = 0, x5 = 0)
 colnames(X_grid) <- colnames(X)
 quant_probs <- c(0.90, 0.95)
@@ -211,32 +164,11 @@ bind_rows(quant_df_gamma, quant_df_laplace) %>%
   facet_wrap(~ model) +
   labs(title = "Tail Quantiles vs x1 (SB)", x = "x1", y = "Quantile", color = "Probability") +
   theme_minimal()
-```
 
----
-
-## Residuals & Diagnostics
-
-```{r residuals}
+## ----residuals----------------------------------------------------------------
 plot(fitted(fit_sb_cond_gpd_gamma))
-```
 
-```{r diagnostics}
+## ----diagnostics--------------------------------------------------------------
 plot(fit_sb_cond_gpd_gamma, family = c("traceplot", "autocorrelation", "geweke"))
 plot(fit_sb_cond_gpd_laplace, family = c("density", "running", "caterpillar"))
-```
-
----
-
-## Takeaways
-
-- Conditional stick-breaking mixtures capture covariate-dependent bulk structure while the GPD handles extremes.
-- `predict()` and `plot()` remain consistent for densities, posterior-mean quantiles, and residuals.
-- Expect threshold-selected posterior-mean tail quantiles to shift with `x1` even when `components` is fixed.
-- Next: move into causal models starting with same-backend CRP (v12).
-
-
-
-
-
 

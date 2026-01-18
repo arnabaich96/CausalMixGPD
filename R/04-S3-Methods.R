@@ -1093,13 +1093,9 @@ predict.mixgpd_fit <- function(object,
 #' @param level Credible level for confidence intervals (default 0.95 for 95% credible intervals).
 #' @param seed Random seed used for deterministic fitted values.
 #' @param ... Unused.
-#' @return A data frame with columns:
-#' \describe{
-#' \item{fit}{Point estimates for the requested location.}
-#' \item{lower}{Lower credible bound.}
-#' \item{upper}{Upper credible bound.}
-#' \item{residuals}{Residuals (y - fit).}
-#' }
+#' @return A data frame with columns: 
+#'   \code{fit} (point estimates), \code{lower} (lower credible bound),
+#'   \code{upper} (upper credible bound), and \code{residuals} (y - fit).
 #' @examples
 #' if (FALSE) {
 #' y <- abs(stats::rnorm(50)) + 0.1

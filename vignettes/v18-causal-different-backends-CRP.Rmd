@@ -4,7 +4,7 @@ output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
-  %\\VignetteIndexEntry{18. Causal Inference: Mixed Backends (Bulk-only) - Cauchy Kernel}
+  %\VignetteIndexEntry{18. Causal Inference: Mixed Backends (Bulk-only) - Cauchy Kernel}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

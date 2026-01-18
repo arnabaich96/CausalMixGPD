@@ -4,7 +4,7 @@ output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
-  %\\VignetteIndexEntry{19. Causal Inference: Mixed Backends with GPD - Amoroso Kernel}
+  %\VignetteIndexEntry{19. Causal Inference: Mixed Backends with GPD - Amoroso Kernel}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

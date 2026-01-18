@@ -4,7 +4,7 @@ output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
-  %\\VignetteIndexEntry{8. Unconditional DPmixGPD with CRP Backend}
+  %\VignetteIndexEntry{8. Unconditional DPmixGPD with CRP Backend}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
