@@ -28,12 +28,12 @@
 }
 \value{
 A data frame with columns:
-  \describe{
-    \item{fit}{Point estimates for the requested location.}
-    \item{lower}{Lower credible bound.}
-    \item{upper}{Upper credible bound.}
-    \item{residuals}{Residuals (y - fit).}
-  }
+\describe{
+\item{fit}{Point estimates for the requested location.}
+\item{lower}{Lower credible bound.}
+\item{upper}{Upper credible bound.}
+\item{residuals}{Residuals (y - fit).}
+}
 }
 \description{
 Computes fitted values and residuals on the original training data.
@@ -42,7 +42,7 @@ For unconditional models (no covariates), returns the population mean replicated
 for all observations. For conditional models, returns individual predictions.
 }
 \examples{
-\dontrun{
+if (FALSE) {
 y <- abs(stats::rnorm(50)) + 0.1
 bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
                              GPD = TRUE, components = 6,

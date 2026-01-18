@@ -27,7 +27,7 @@ bundle_direct <- build_nimble_bundle(
   backend = "crp",
   GPD = FALSE,
   components = 5,
-  mcmc = list(niter = 1500, nburnin = 250, nchains = 2)
+  mcmc = list(niter = 200, nburnin = 50, nchains = 1)
 )
 
 print("Direct bundle creation successful.\n")
@@ -44,7 +44,7 @@ print(bundle_direct$mcmc_settings)
 
 ## ----mcmc-basic---------------------------------------------------------------
 # Run MCMC
-fit <- run_mcmc_bundle_manual(bundle_direct)
+fit <- run_mcmc_bundle_manual(bundle_direct, show_progress = FALSE)
 
 cat("Fit object class:", class(fit), "\n")
 cat("MCMC execution complete. Posterior samples collected.\n")
@@ -75,15 +75,15 @@ bundle_final <- build_nimble_bundle(
   GPD = FALSE,
   components = 5,
   mcmc = list(
-    niter = 60,
-    nburnin = 10,
-    nchains = 2,
+    niter = 120,
+    nburnin = 20,
+    nchains = 1,
     thin = 1
   )
 )
 
 # PHASE 2: MCMC
-fit_final <- run_mcmc_bundle_manual(bundle_final)
+fit_final <- run_mcmc_bundle_manual(bundle_final, show_progress = FALSE)
 
 print("\n=== THREE-PHASE WORKFLOW COMPLETE ===\n")
 summary(fit_final)
@@ -95,10 +95,10 @@ bundle_crp <- build_nimble_bundle(
   kernel = "gamma",
   backend = "crp",
   components = 5,
-  mcmc = list(niter = 1500, nburnin = 250, nchains = 2)
+  mcmc = list(niter = 200, nburnin = 50, nchains = 1)
 )
 
-fit_crp <- run_mcmc_bundle_manual(bundle_crp)
+fit_crp <- run_mcmc_bundle_manual(bundle_crp, show_progress = FALSE)
 print("CRP execution complete.\n")
 
 ## ----backend-sb---------------------------------------------------------------
@@ -108,10 +108,10 @@ bundle_sb <- build_nimble_bundle(
   kernel = "gamma",
   backend = "sb",
   components = 5,
-  mcmc = list(niter = 100, nburnin = 20, nchains = 3)
+  mcmc = list(niter = 120, nburnin = 20, nchains = 1)
 )
 
-fit_sb <- run_mcmc_bundle_manual(bundle_sb)
+fit_sb <- run_mcmc_bundle_manual(bundle_sb, show_progress = FALSE)
 print("SB execution complete.\n")
 
 ## ----kernel-guide-------------------------------------------------------------
@@ -130,4 +130,36 @@ print("  laplace:   Sharp peak, exponential tails\n")
 print("  invgauss:  Positive, near-normal shape\n")
 print("  amoroso:   Generalized, maximum flexibility\n")
 print("  cauchy:    Heavy-tailed, rare cases\n")
+
+## ----gpd-example, eval=FALSE--------------------------------------------------
+# # Data with tail behavior
+# data("nc_pos_tail200_k4")
+# y_tail <- nc_pos_tail200_k4$y
+# 
+# # Build with GPD
+# bundle_gpd <- build_nimble_bundle(
+#   y = y_tail,
+#   kernel = "gamma",
+#   backend = "sb",
+#   GPD = TRUE,
+#   components = 6,
+#   mcmc = list(niter = 200, nburnin = 50, nchains = 1, waic = FALSE)
+# )
+# 
+# fit_gpd <- run_mcmc_bundle_manual(bundle_gpd, show_progress = FALSE)
+# print("\nGPD augmentation applied to tail region.\n")
+# summary(fit_gpd)
+
+## ----param-reference----------------------------------------------------------
+print("=== Recommended MCMC Parameters ===\n")
+print("Quick test:     niter=500,  nburnin=100, nchains=1\n")
+print("Standard:       niter=1000, nburnin=250, nchains=2\n")
+print("Production:     niter=1000, nburnin=250, nchains=3\n")
+print("\n=== Backend Parameters ===\n")
+print("Use components=3-5 for both backends in this implementation.\n")
+print("\n=== Kernel Selection ===\n")
+print("Positive data:     gamma, lognormal, invgauss\n")
+print("Any real data:     normal\n")
+print("Symmetric tails:   laplace\n")
+print("Extreme outliers:  cauchy\n")
 
