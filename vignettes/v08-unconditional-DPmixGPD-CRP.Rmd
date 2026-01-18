@@ -18,7 +18,8 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   eval = TRUE,
-  cache = FALSE
+  cache = TRUE,
+  cache.path = "../.cache/vignettes/"
 )
 library(DPmixGPD)
 if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
