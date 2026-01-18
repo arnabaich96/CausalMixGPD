@@ -664,11 +664,12 @@ ate <- function(fit,
 #'   / \code{newdata}. When provided, the supplied scores are used instead of
 #'   recomputing them from the stored PS model (needed only for custom inputs).
 #' @param type Prediction type. Supported: \code{"mean"}, \code{"quantile"},
-#'   \code{"density"}, \code{"prob"}.
+#'   \code{"density"}, \code{"survival"}, \code{"prob"}.
 #' @return For \code{"mean"} or \code{"quantile"}, a numeric matrix with columns
 #'   \code{ps}, \code{estimate}, \code{lower}, \code{upper}, representing
 #'   treated-minus-control posterior summaries. When PS is disabled or X is absent,
-#'   \code{ps} is \code{NA} and no PS is used. For \code{"density"} and \code{"prob"},
+#'   \code{ps} is \code{NA} and no PS is used. For \code{"density"}, \code{"survival"},
+#'   and \code{"prob"},
 #'   a data frame with columns \code{y}, \code{ps}, \code{trt_estimate}, \code{trt_lower},
 #'   \code{trt_upper}, \code{con_estimate}, \code{con_lower}, \code{con_upper}.
 #' @examples
@@ -684,7 +685,7 @@ predict.dpmixgpd_causal_fit <- function(object,
                                         y = NULL,
                                         ps = NULL,
                                         newdata = NULL,
-                                        type = c("mean", "quantile", "density", "prob"),
+                                        type = c("mean", "quantile", "density", "survival", "prob"),
                                         p = NULL,
                                         nsim = NULL,
                                         interval = c("none", "credible"),
@@ -726,8 +727,8 @@ predict.dpmixgpd_causal_fit <- function(object,
     p <- as.numeric(p)
   }
 
-  if (type %in% c("density", "prob")) {
-    if (is.null(y)) stop("Causal predict for density/prob requires 'y'.", call. = FALSE)
+  if (type %in% c("density", "survival", "prob")) {
+    if (is.null(y)) stop("Causal predict for density/survival/prob requires 'y'.", call. = FALSE)
     y <- as.numeric(y)
     if (!length(y) || any(!is.finite(y))) stop("'y' must be a finite numeric vector.", call. = FALSE)
     if (length(y) != n_pred) {
@@ -799,7 +800,7 @@ predict.dpmixgpd_causal_fit <- function(object,
     list(estimate = est, lower = lower, upper = upper)
   }
 
-  if (type %in% c("density", "prob")) {
+  if (type %in% c("density", "survival", "prob")) {
     pred_type <- if (type == "density") "density" else "survival"
     x_pred <- if (!is.null(x_mat)) x_mat else if (has_X) X_train else NULL
     y_vec <- y

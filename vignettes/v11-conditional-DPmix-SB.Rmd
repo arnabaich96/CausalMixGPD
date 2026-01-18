@@ -205,7 +205,7 @@ plot(fit_sb_cauchy, family = c("density", "running", "caterpillar"))
 
 - Stick-breaking component count is fixed but still supports covariate-dependent mixtures.
 - `predict(..., type = "density")` returns group-specific densities for each `X`.
-- `predict(..., type = "quantile")` shows how median and 75% quantiles shift with `x1`.
+- `predict(..., type = "quantile")` reports posterior-mean quantiles; the median is the 0.5 quantile and shifts with `x1`.
 - Diagnoses rely on the same S3 `plot()`/`fitted()` pipeline available in other vignettes.
 
 

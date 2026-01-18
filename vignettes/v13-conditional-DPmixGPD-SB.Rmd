@@ -230,8 +230,8 @@ plot(fit_sb_cond_gpd_laplace, family = c("density", "running", "caterpillar"))
 ## Takeaways
 
 - Conditional stick-breaking mixtures capture covariate-dependent bulk structure while the GPD handles extremes.
-- `predict()` and `plot()` remain consistent for densities, quantiles, and residuals.
-- Expect threshold-selected tail quantiles to shift with `x1` even when `components` is fixed.
+- `predict()` and `plot()` remain consistent for densities, posterior-mean quantiles, and residuals.
+- Expect threshold-selected posterior-mean tail quantiles to shift with `x1` even when `components` is fixed.
 - Next: move into causal models starting with same-backend CRP (v12).
 
 

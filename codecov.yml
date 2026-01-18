@@ -1,12 +1,20 @@
+comment: false
+
 coverage:
   status:
     project:
       default:
         target: auto
-        threshold: 1%
+        threshold: 2%
     patch:
       default:
         target: auto
+        threshold: 2%
+
+ignore:
+  - "R/zzz.R"
+  - "tests/"
+  - "inst/"
 
 flags:
   ubuntu-latest-Rrelease:

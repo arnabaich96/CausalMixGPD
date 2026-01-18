@@ -122,10 +122,10 @@ pred_d_bulk <- predict(fit_sb_bulk, x = x_eval, y = y_eval,
 plot(pred_d_bulk)
 ```
 
-```{r predict-prob-sb-bulk}
-pred_p_bulk <- predict(fit_sb_bulk, x = x_eval, y = y_eval,
-                       type = "prob", interval = "credible")
-plot(pred_p_bulk)
+```{r predict-survival-sb-bulk}
+pred_surv_bulk <- predict(fit_sb_bulk, x = x_eval, y = y_eval,
+                          type = "survival", interval = "credible")
+plot(pred_surv_bulk)
 ```
 
 ```{r ate-sb-bulk}
@@ -201,10 +201,10 @@ pred_d_gpd <- predict(fit_sb_gpd, x = x_eval, y = y_eval,
 plot(pred_d_gpd)
 ```
 
-```{r predict-prob-sb-gpd}
-pred_p_gpd <- predict(fit_sb_gpd, x = x_eval, y = y_eval,
-                      type = "prob", interval = "credible")
-plot(pred_p_gpd)
+```{r predict-survival-sb-gpd}
+pred_surv_gpd <- predict(fit_sb_gpd, x = x_eval, y = y_eval,
+                         type = "survival", interval = "credible")
+plot(pred_surv_gpd)
 ```
 
 ```{r ate-sb-gpd}
