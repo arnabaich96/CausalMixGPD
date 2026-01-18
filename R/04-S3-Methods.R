@@ -923,7 +923,7 @@ plot.mixgpd_fit <- function(x,
 #'   posterior draws when available. For causal workflows, use \code{qte()} / \code{ate()} which
 #'   orchestrate PS estimation and outcome prediction jointly.
 #' @param type Prediction type: \code{"density"}, \code{"survival"}, \code{"quantile"},
-#'   \code{"sample"}, \code{"mean"}.
+#'   \code{"sample"}, \code{"mean"}, \code{"median"}, \code{"location"}.
 #' @param p Numeric vector of probabilities for quantiles (required for \code{type="quantile"}).
 #' @param y Numeric vector of evaluation points (required for \code{type="density"} or \code{"survival"}).
 #' @param interval \code{"none"} or \code{"credible"} for posterior credible bands.
@@ -935,8 +935,9 @@ plot.mixgpd_fit <- function(x,
 #' @param ... Unused.
 #' @return A list with elements:
 #'   \itemize{
-#'     \item \code{fit}: matrix (nrow = n_newdata, ncol = length(p or y)) of posterior medians.
-#'     \item \code{lower}, \code{upper}: matrices for credible interval if requested (else \code{NULL}).
+#'     \item \code{fit}: data frame with \code{estimate}/\code{lower}/\code{upper} columns (posterior means
+#'       over draws) plus any index columns (e.g. \code{id}, \code{y}, \code{index}).
+#'     \item \code{lower}, \code{upper}: reserved for backward compatibility (typically \code{NULL}).
 #'     \item \code{type}, \code{grid}: metadata.
 #'   }
 #' @examples
