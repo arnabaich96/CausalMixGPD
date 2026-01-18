@@ -514,6 +514,23 @@ qte <- function(fit,
   if (is.null(pr_trt$draws) || is.null(pr_con$draws)) {
     stop("QTE requires stored posterior quantile draws; set store_draws=TRUE in predict().", call. = FALSE)
   }
+  # Coerce unconditional quantile draws (M x S) into array (S x 1 x M)
+  if (is.matrix(pr_trt$draws) && length(dim(pr_trt$draws)) == 2L) {
+    M <- nrow(pr_trt$draws)
+    S <- ncol(pr_trt$draws)
+    arr <- array(NA_real_, dim = c(S, 1L, M))
+    for (s in seq_len(S)) arr[s, 1L, ] <- pr_trt$draws[, s]
+    pr_trt$draws <- arr
+  }
+  if (is.matrix(pr_con$draws) && length(dim(pr_con$draws)) == 2L) {
+    M <- nrow(pr_con$draws)
+    S <- ncol(pr_con$draws)
+    arr <- array(NA_real_, dim = c(S, 1L, M))
+    for (s in seq_len(S)) arr[s, 1L, ] <- pr_con$draws[, s]
+    pr_con$draws <- arr
+  }
+  if (is.null(dim(pr_trt$draws))) pr_trt$draws <- array(pr_trt$draws, dim = c(length(pr_trt$draws), 1L, 1L))
+  if (is.null(dim(pr_con$draws))) pr_con$draws <- array(pr_con$draws, dim = c(length(pr_con$draws), 1L, 1L))
   if (!identical(dim(pr_trt$draws), dim(pr_con$draws))) {
     stop("Treated and control posterior draws must have matching dimensions for QTE.", call. = FALSE)
   }
@@ -620,6 +637,12 @@ ate <- function(fit,
   if (is.null(pr_trt$draws) || is.null(pr_con$draws)) {
     stop("ATE requires stored posterior mean draws; set store_draws=TRUE in predict().", call. = FALSE)
   }
+  if (is.null(dim(pr_trt$draws))) {
+    pr_trt$draws <- matrix(pr_trt$draws, ncol = 1L)
+  }
+  if (is.null(dim(pr_con$draws))) {
+    pr_con$draws <- matrix(pr_con$draws, ncol = 1L)
+  }
   if (!identical(dim(pr_trt$draws), dim(pr_con$draws))) {
     stop("Treated and control posterior draws must have matching dimensions for ATE.", call. = FALSE)
   }
@@ -709,7 +732,13 @@ predict.dpmixgpd_causal_fit <- function(object,
   X_train <- bundle$data$X %||% NULL
   has_X <- !is.null(X_train)
   x_mat <- if (!is.null(x)) as.matrix(x) else NULL
-  n_pred_default <- if (has_X) nrow(X_train) else 1L
+  n_pred_default <- if (has_X) {
+    nrow(X_train)
+  } else if (type %in% c("density", "survival", "prob") && !is.null(y)) {
+    length(as.numeric(y))
+  } else {
+    1L
+  }
   n_pred <- if (!is.null(x_mat)) nrow(x_mat) else n_pred_default
 
   ps_enabled <- isTRUE(bundle$meta$ps$enabled) && has_X

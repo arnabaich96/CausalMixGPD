@@ -2027,6 +2027,25 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
       calculate = FALSE
     )
   }, error = function(e) {
+    msg <- conditionMessage(e)
+    if (grepl("keywords:", msg, ignore.case = TRUE) &&
+        grepl("Please use a different name", msg, fixed = TRUE)) {
+      cat("[WARNING] NIMBLE name check failed; retrying with check=FALSE.\n")
+      return(tryCatch({
+        nimble::nimbleModel(
+          code = code,
+          data = data,
+          constants = constants,
+          inits = inits_fun(),
+          dimensions = dims,
+          check = FALSE,
+          calculate = FALSE
+        )
+      }, error = function(e2) {
+        cat("[ERROR] Failed to create NIMBLE model after retry:\n")
+        stop(e2)
+      }))
+    }
     cat("[ERROR] Failed to create NIMBLE model:\n")
     stop(e)
   })
