@@ -3,11 +3,15 @@
 right-skewed and often used for waiting times. This package provides NIMBLE-compatible density,
 CDF, and RNG functions under the mean/shape parameterization
 (mean \(\mu&amp;gt;0\), shape \(\lambda&amp;gt;0\)). A standalone mixture quantile function is computed by
-numerical inversion elsewhere; qinvGauss inverts the base CDF."><meta property="og:description" content="The inverse Gaussian (also called the Wald distribution) is a positive-support model that is
+numerical inversion elsewhere; qinvGauss inverts the base CDF.
+The d*, p*, and q* functions accept vector inputs for their first argument
+and evaluate elementwise; r* supports n &amp;gt; 1."><meta property="og:description" content="The inverse Gaussian (also called the Wald distribution) is a positive-support model that is
 right-skewed and often used for waiting times. This package provides NIMBLE-compatible density,
 CDF, and RNG functions under the mean/shape parameterization
 (mean \(\mu&amp;gt;0\), shape \(\lambda&amp;gt;0\)). A standalone mixture quantile function is computed by
-numerical inversion elsewhere; qinvGauss inverts the base CDF."></head><body>
+numerical inversion elsewhere; qinvGauss inverts the base CDF.
+The d*, p*, and q* functions accept vector inputs for their first argument
+and evaluate elementwise; r* supports n &amp;gt; 1."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -37,7 +41,7 @@ numerical inversion elsewhere; qinvGauss inverts the base CDF."></head><body>
 
       <h1>Inverse Gaussian (Wald) distribution</h1>
       <small class="dont-index">Source: <a href="https://github.com/arnabaich96/DPmixGPD/blob/HEAD/R/0-base-kernels.R" class="external-link"><code>R/0-base-kernels.R</code></a></small>
-      <div class="d-none name"><code>invgauss.Rd</code></div>
+      <div class="d-none name"><code>InvGauss.Rd</code></div>
     </div>
 
     <div class="ref-description section level2">
@@ -45,7 +49,9 @@ numerical inversion elsewhere; qinvGauss inverts the base CDF."></head><body>
 right-skewed and often used for waiting times. This package provides NIMBLE-compatible density,
 CDF, and RNG functions under the <code>mean</code>/<code>shape</code> parameterization
 (mean \(\mu&gt;0\), shape \(\lambda&gt;0\)). A standalone mixture quantile function is computed by
-numerical inversion elsewhere; <code>qinvGauss</code> inverts the base CDF.</p>
+numerical inversion elsewhere; <code>qinvGauss</code> inverts the base CDF.
+The <code>d*</code>, <code>p*</code>, and <code>q*</code> functions accept vector inputs for their first argument
+and evaluate elementwise; <code>r*</code> supports <code>n &gt; 1</code>.</p>
     </div>
 
     <div class="section level2">
@@ -144,8 +150,8 @@ the RNG implementation supports <code>n = 1</code>.</p></dd>
 <span class="r-in"><span><span class="fu">qInvGauss</span><span class="op">(</span><span class="fl">0.95</span>, <span class="va">mean</span>, <span class="va">shape</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4.458125</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rInvGauss</span><span class="op">(</span><span class="fl">1</span>, <span class="va">mean</span>, <span class="va">shape</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 1.6132609 1.5399333 0.7868938 2.7946069 1.2522880 1.3089821 1.3382698</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 1.5815589 0.9791832 2.4212992</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 0.9339036 1.3338613 1.2821814 1.3449153 4.4874003 2.3395556 1.9121206</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 2.1441869 3.0557617 1.0453398</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

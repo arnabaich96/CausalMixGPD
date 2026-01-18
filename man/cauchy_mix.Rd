@@ -58,6 +58,8 @@ A finite mixture of Cauchy components. Base Cauchy functions are taken from \pkg
 The mixture density and distribution function are computed by weighted sums. Random generation
 samples a component index according to the weights and draws from the corresponding component.
 Quantiles are computed by numerical inversion of the mixture CDF.
+The \code{d*}, \code{p*}, and \code{q*} functions accept vector inputs for their first argument
+and evaluate elementwise; \code{r*} supports \code{n > 1}.
 }
 \section{Functions}{
 \itemize{

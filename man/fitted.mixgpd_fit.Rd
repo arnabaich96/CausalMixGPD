@@ -2,25 +2,38 @@
 % Please edit documentation in R/04-S3-Methods.R
 \name{fitted.mixgpd_fit}
 \alias{fitted.mixgpd_fit}
-	itle{Fitted values and residuals for a MixGPD fit}
+\title{Fitted values and residuals for a MixGPD fit}
 \usage{
-\method{fitted}{mixgpd_fit}(object, level = 0.95, ...)
+\method{fitted}{mixgpd_fit}(
+  object,
+  type = c("location", "mean", "median", "quantile"),
+  p = 0.5,
+  level = 0.95,
+  seed = 1,
+  ...
+)
 }
 \arguments{
 \item{object}{A fitted object of class \code{"mixgpd_fit"}.}
 
+\item{type}{Which fitted location to return: mean, median, quantile, or both (\code{"location"}).}
+
+\item{p}{Quantile level used when \code{type = "quantile"}.}
+
 \item{level}{Credible level for confidence intervals (default 0.95 for 95% credible intervals).}
+
+\item{seed}{Random seed used for deterministic fitted values.}
 
 \item{...}{Unused.}
 }
 \value{
 A data frame with columns:
-\describe{
-\item{fit}{Point estimates (posterior means).}
-\item{lower}{Lower credible bound.}
-\item{upper}{Upper credible bound.}
-\item{residuals}{Residuals (y - fit).}
-}
+  \describe{
+    \item{fit}{Point estimates for the requested location.}
+    \item{lower}{Lower credible bound.}
+    \item{upper}{Upper credible bound.}
+    \item{residuals}{Residuals (y - fit).}
+  }
 }
 \description{
 Computes fitted values and residuals on the original training data.
@@ -31,14 +44,9 @@ for all observations. For conditional models, returns individual predictions.
 \examples{
 \dontrun{
 y <- abs(stats::rnorm(50)) + 0.1
-bundle <- build_nimble_bundle(
-    y = y,
-    backend = "sb",
-    kernel = "normal",
-    GPD = TRUE,
-    components = 6,
-    mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1)
-)
+bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
+                             GPD = TRUE, components = 6,
+                             mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
 fit <- run_mcmc_bundle_manual(bundle)
 fitted(fit)
 fitted(fit, level = 0.90)

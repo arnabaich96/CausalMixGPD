@@ -153,13 +153,25 @@ qGammaMix <- function(p, w, shape, scale,
     if (pi >= 1) { out[i] <- Inf; next }
 
     hi <- max(stats::qgamma(pi, shape = shape, scale = scale), na.rm = TRUE)
-    if (!is.finite(hi) || hi <= 0) hi <- 1e20
-    out[i] <- stats::uniroot(
-      function(z) pGammaMix(z, w = w, shape = shape, scale = scale,
-                            lower.tail = 1, log.p = 0) - pi,
-      interval = c(0, hi),
-      tol = tol, maxiter = maxiter
-    )$root
+    if (!is.finite(hi) || hi <= 0) hi <- 1
+    f0 <- as.numeric(pGammaMix(0, w = w, shape = shape, scale = scale, lower.tail = 1, log.p = 0) - pi)
+    fhi <- as.numeric(pGammaMix(hi, w = w, shape = shape, scale = scale, lower.tail = 1, log.p = 0) - pi)
+    iter <- 0L
+    while (is.finite(fhi) && f0 * fhi > 0 && hi < 1e20 && iter < 60L) {
+      hi <- hi * 2
+      fhi <- as.numeric(pGammaMix(hi, w = w, shape = shape, scale = scale, lower.tail = 1, log.p = 0) - pi)
+      iter <- iter + 1L
+    }
+    if (!is.finite(fhi) || f0 * fhi > 0) {
+      out[i] <- Inf
+    } else {
+      out[i] <- stats::uniroot(
+        function(z) pGammaMix(z, w = w, shape = shape, scale = scale,
+                              lower.tail = 1, log.p = 0) - pi,
+        interval = c(0, hi),
+        tol = tol, maxiter = maxiter
+      )$root
+    }
   }
   out
 }

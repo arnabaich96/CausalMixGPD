@@ -136,7 +136,9 @@ the RNG implementation supports <code>n = 1</code>.</p></dd>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The density, CDF, and RNG are implemented as <code>nimbleFunction</code>s so they can be called from
 NIMBLE models. The quantile function is provided as an R function and is computed by numerical
-inversion of the mixture CDF.</p>
+inversion of the mixture CDF.
+The <code>d*</code>, <code>p*</code>, and <code>q*</code> functions accept vector inputs for their first argument
+and evaluate elementwise; <code>r*</code> supports <code>n &gt; 1</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a></h2>

@@ -197,9 +197,15 @@ qInvGaussMix <- function(p, w, mean, shape,
 
     if (!is.finite(phi) || phi < pi) { out[i] <- Inf; next }
 
-    out[i] <- stats::uniroot(function(q) as.numeric(pInvGaussMix(q, w, mean, shape, 1, 0)) - pi,
-                             interval = c(0, hi),
-                             tol = tol, maxiter = maxiter)$root
+    f0 <- as.numeric(pInvGaussMix(0, w, mean, shape, 1, 0) - pi)
+    fhi <- as.numeric(pInvGaussMix(hi, w, mean, shape, 1, 0) - pi)
+    if (!is.finite(fhi) || f0 * fhi > 0) {
+      out[i] <- Inf
+    } else {
+      out[i] <- stats::uniroot(function(q) as.numeric(pInvGaussMix(q, w, mean, shape, 1, 0)) - pi,
+                               interval = c(0, hi),
+                               tol = tol, maxiter = maxiter)$root
+    }
   }
   out
 }

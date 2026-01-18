@@ -1,13 +1,20 @@
 ## ----setup, include=FALSE-----------------------------------------------------
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>", eval = FALSE)
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = TRUE,
+  cache = TRUE,
+  cache.path = "../.cache/vignettes/"
+)
 library(DPmixGPD)
 
 ## -----------------------------------------------------------------------------
-# bundle <- build_nimble_bundle(
-#   y = y,
-#   backend = "sb",
-#   kernel  = "gamma",
-#   GPD     = TRUE,
-#   Kmax    = 6
-# )
+y <- abs(stats::rnorm(50)) + 0.1
+bundle <- build_nimble_bundle(
+  y = y,
+  backend = "sb",
+  kernel  = "gamma",
+  GPD     = TRUE,
+  components = 6
+)
 

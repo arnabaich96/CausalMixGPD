@@ -10,7 +10,7 @@
   y = NULL,
   ps = NULL,
   newdata = NULL,
-  type = c("density", "survival", "quantile", "sample", "mean"),
+  type = c("density", "survival", "quantile", "sample", "mean", "median", "location"),
   p = NULL,
   index = NULL,
   nsim = NULL,
@@ -38,7 +38,7 @@ orchestrate PS estimation and outcome prediction jointly.}
 \item{newdata}{Optional new data. If \code{NULL}, uses training design (if stored).}
 
 \item{type}{Prediction type: \code{"density"}, \code{"survival"}, \code{"quantile"},
-\code{"sample"}, \code{"mean"}.}
+\code{"sample"}, \code{"mean"}, \code{"median"}, \code{"location"}.}
 
 \item{p}{Numeric vector of probabilities for quantiles (required for \code{type="quantile"}).}
 
@@ -59,8 +59,9 @@ orchestrate PS estimation and outcome prediction jointly.}
 \value{
 A list with elements:
   \itemize{
-    \item \code{fit}: matrix (nrow = n_newdata, ncol = length(p or y)) of posterior medians.
-    \item \code{lower}, \code{upper}: matrices for credible interval if requested (else \code{NULL}).
+    \item \code{fit}: data frame with \code{estimate}/\code{lower}/\code{upper} columns (posterior means
+      over draws) plus any index columns (e.g. \code{id}, \code{y}, \code{index}).
+    \item \code{lower}, \code{upper}: reserved for backward compatibility (typically \code{NULL}).
     \item \code{type}, \code{grid}: metadata.
   }
 }

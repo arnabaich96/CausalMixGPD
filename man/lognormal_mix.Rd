@@ -58,6 +58,8 @@ A finite mixture of Lognormal components. Base Lognormal functions are taken fro
 Mixture density and CDF are computed by weighted sums. Random generation samples a component
 index according to weights and draws from the corresponding component. Quantiles are computed
 by numerical inversion of the mixture CDF.
+The \code{d*}, \code{p*}, and \code{q*} functions accept vector inputs for their first argument
+and evaluate elementwise; \code{r*} supports \code{n > 1}.
 }
 \section{Functions}{
 \itemize{
