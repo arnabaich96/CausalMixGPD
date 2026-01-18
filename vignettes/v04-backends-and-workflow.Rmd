@@ -1,0 +1,95 @@
+---
+title: "4. Backends, Kernels, and Workflow Map"
+output:
+  rmarkdown::html_vignette:
+    code_folding: show
+vignette: >
+  %\VignetteIndexEntry{4. Backends, Kernels, and Workflow Map}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = NA,
+  fig.width = 8,
+  fig.height = 5,
+  message = FALSE,
+  warning = FALSE,
+  eval = FALSE,
+  cache = TRUE,
+  cache.path = "../.cache/vignettes/"
+)
+library(DPmixGPD)
+if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
+```
+
+# Big picture
+
+DPmixGPD has two orthogonal “dials” you turn when building models:
+
+- **Backend** (how the mixture weights / clustering are represented)
+  - **CRP**: Chinese Restaurant Process representation.
+  - **SB**: stick-breaking truncation with a fixed maximum number of components.
+
+- **Kernel / family** (what distribution models the bulk of the data)
+  - Examples: normal, lognormal, gamma, inverse-Gaussian, Laplace, Cauchy, Amoroso, etc.
+
+Optionally, you can also turn on:
+
+- **GPD = TRUE/FALSE** to splice a Generalized Pareto tail beyond a threshold.
+
+# What changes between CRP and SB?
+
+Both backends target the same posterior over densities. The difference is *representation*:
+
+- **CRP** learns a random number of occupied clusters (conceptually infinite), and you track allocations.
+- **SB** uses a finite truncation level `Kmax` and learns stick-breaking weights.
+
+Practical rule of thumb:
+
+- **CRP** is convenient when you want adaptive complexity without choosing `Kmax`.
+- **SB** is convenient when you want predictable memory/time and easy vectorization.
+
+# What does the workflow look like?
+
+DPmixGPD uses a consistent build → run → summarize loop:
+
+1. **Build a bundle** using `build_nimble_bundle()` (or causal builders if you’re doing TE work).
+2. **Run MCMC** using `run_mcmc_bundle_manual()`.
+3. **Inspect and summarize** using `print()`, `summary()`, `plot()`.
+4. **Predict** using `predict()` (and optionally `fitted()`).
+
+```{r}
+# Build
+bundle <- build_nimble_bundle(
+  y = rnorm(50),
+  backend = "crp",
+  kernel = "normal",
+  GPD = FALSE,
+  mcmc = list(niter = 200, nburnin = 100, thin = 1, nchains = 1, seed = 1)
+)
+
+# Run
+fit <- run_mcmc_bundle_manual(bundle)
+
+# Summarize
+print(fit)
+summary(fit)
+plot(fit)
+```
+
+# Kernel support quick check
+
+Use `kernel_support()` and the kernel registry helpers to confirm what is available.
+
+```{r}
+kernel_support()
+```
+
+# Where to go next
+
+- **Available distributions**: see **v05** for the `d/p/q/r` functions and examples.
+- **Basic build/compile/run**: see **v03**.
+- **Unconditional / Conditional / Causal**: continue through v06+.
