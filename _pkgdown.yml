@@ -31,6 +31,35 @@ articles:
       - causal
       - backends
       - reference-s3
+  - title: "Kernels"
+    contents:
+      - legacy/kernel-amoroso
+      - legacy/kernel-cauchy
+      - legacy/kernel-gamma
+      - legacy/kernel-invgauss
+      - legacy/kernel-laplace
+      - legacy/kernel-lognormal
+      - legacy/kernel-normal
   - title: "Legacy"
     contents:
-      - starts_with("legacy/")
+      - legacy/v00-start-here
+      - legacy/v01-introduction
+      - legacy/v02-available-distributions
+      - legacy/v03-basic-model-compile-run
+      - legacy/v04-backends-and-workflow
+      - legacy/v05-unconditional-DPmix-CRP
+      - legacy/v06-unconditional-DPmix-CRP
+      - legacy/v07-unconditional-DPmix-SB
+      - legacy/v08-unconditional-DPmixGPD-CRP
+      - legacy/v09-unconditional-DPmixGPD-SB
+      - legacy/v10-conditional-DPmix-CRP
+      - legacy/v11-conditional-DPmix-SB
+      - legacy/v12-conditional-DPmixGPD-CRP
+      - legacy/v13-conditional-DPmixGPD-SB
+      - legacy/v14-causal-no-x-CRP
+      - legacy/v15-causal-x-no-ps-SB
+      - legacy/v16-causal-same-backend-CRP
+      - legacy/v17-causal-same-backend-SB
+      - legacy/v18-causal-different-backends-CRP
+      - legacy/v19-causal-different-backends-SB
+      - legacy/v20-troubleshooting
