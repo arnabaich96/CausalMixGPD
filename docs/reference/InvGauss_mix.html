@@ -33,7 +33,7 @@ shape[j]."></head><body>
 
       <h1>Inverse Gaussian mixture distribution</h1>
       <small class="dont-index">Source: <a href="https://github.com/arnabaich96/DPmixGPD/blob/HEAD/R/5-invgauss-mixgpd.R" class="external-link"><code>R/5-invgauss-mixgpd.R</code></a></small>
-      <div class="d-none name"><code>invgauss_mix.Rd</code></div>
+      <div class="d-none name"><code>InvGauss_mix.Rd</code></div>
     </div>
 
     <div class="ref-description section level2">
@@ -120,7 +120,9 @@ the RNG implementation supports <code>n = 1</code>.</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The density, CDF, and RNG are implemented as <code>nimbleFunction</code>s for use inside NIMBLE models.
-The quantile function is an R function computed by numerical inversion of the mixture CDF.</p>
+The quantile function is an R function computed by numerical inversion of the mixture CDF.
+The <code>d*</code>, <code>p*</code>, and <code>q*</code> functions accept vector inputs for their first argument
+and evaluate elementwise; <code>r*</code> supports <code>n &gt; 1</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a></h2>
@@ -147,8 +149,8 @@ The quantile function is an R function computed by numerical inversion of the mi
 <span class="r-in"><span><span class="fu">qInvGaussMix</span><span class="op">(</span><span class="fl">0.95</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mean</span>, shape <span class="op">=</span> <span class="va">shape</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 6.489781</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rInvGaussMix</span><span class="op">(</span><span class="fl">1</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mean</span>, shape <span class="op">=</span> <span class="va">shape</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 1.1107784 0.6394550 2.6216670 4.6625934 1.2470273 1.0056430 0.2549927</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 0.3752957 5.3715940 1.8885472</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 0.7568149 1.1107784 0.6394550 2.6216670 4.6625934 1.2470273 1.0056430</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 0.2549927 0.3752957 5.3715940</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

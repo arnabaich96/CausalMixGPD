@@ -344,9 +344,22 @@ qInvGauss <- function(p, mean, shape,
     pi <- p[i]
     if (pi <= 0) { out[i] <- 0; next }
     if (pi >= 1) { out[i] <- Inf; next }
-    out[i] <- stats::uniroot(function(q) pInvGauss(q, mean, shape) - pi,
-                             interval = c(0, 1e20),
-                             tol = tol, maxiter = maxiter)$root
+    hi <- max(1, mean * 10)
+    f0 <- as.numeric(pInvGauss(0, mean, shape) - pi)
+    fhi <- as.numeric(pInvGauss(hi, mean, shape) - pi)
+    iter <- 0L
+    while (is.finite(fhi) && f0 * fhi > 0 && hi < 1e20 && iter < 60L) {
+      hi <- hi * 2
+      fhi <- as.numeric(pInvGauss(hi, mean, shape) - pi)
+      iter <- iter + 1L
+    }
+    if (!is.finite(fhi) || f0 * fhi > 0) {
+      out[i] <- Inf
+    } else {
+      out[i] <- stats::uniroot(function(q) pInvGauss(q, mean, shape) - pi,
+                               interval = c(0, hi),
+                               tol = tol, maxiter = maxiter)$root
+    }
   }
   out
 }
@@ -476,12 +489,30 @@ pAmoroso <- nimble::nimbleFunction(
 qAmoroso <- function(p, loc, scale, shape1, shape2, lower.tail = TRUE, log.p = FALSE) {
   if (log.p) p <- exp(p)
   if (!lower.tail) p <- 1 - p
-  if (shape2 < 0) p <- 1 - p
+
+  len <- max(length(p), length(loc), length(scale), length(shape1), length(shape2))
+  p <- rep_len(p, len)
+  loc <- rep_len(loc, len)
+  scale <- rep_len(scale, len)
+  shape1 <- rep_len(shape1, len)
+  shape2 <- rep_len(shape2, len)
+
+  p <- ifelse(shape2 < 0, 1 - p, p)
   p <- pmax(pmin(p, 1), 0)
-  if (p <= 0) return(loc)
-  if (p >= 1) return(if (scale > 0) Inf else -Inf)
-  z <- qgamma(p, shape = shape1, scale = 1.0)
-  loc + scale * (z^(1/shape2))
+
+  out <- numeric(len)
+  at_zero <- p <= 0
+  at_one <- p >= 1
+  out[at_zero] <- loc[at_zero]
+  out[at_one] <- ifelse(scale[at_one] > 0, Inf, -Inf)
+
+  mid <- !(at_zero | at_one)
+  if (any(mid)) {
+    z <- stats::qgamma(p[mid], shape = shape1[mid], scale = 1.0)
+    out[mid] <- loc[mid] + scale[mid] * (z^(1 / shape2[mid]))
+  }
+
+  out
 }
 
 #' @describeIn amoroso Sample generating Function of Amoroso Distribution

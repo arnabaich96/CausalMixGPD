@@ -155,11 +155,36 @@ qLaplaceMix <- function(p, w, location, scale,
     if (pi <= 0) { out[i] <- -Inf; next }
     if (pi >= 1) { out[i] <- Inf; next }
 
-    out[i] <- stats::uniroot(
-      function(z) pLaplaceMix(z, w = w,  location, scale,
-                              lower.tail = TRUE, log.p = FALSE) - pi,
-      interval = c(-1e20, 1e20)
-    )$root
+    lo <- min(nimble::qdexp(pi, location, scale, lower.tail = TRUE, log.p = FALSE), na.rm = TRUE)
+    hi <- max(nimble::qdexp(pi, location, scale, lower.tail = TRUE, log.p = FALSE), na.rm = TRUE)
+    if (!is.finite(lo)) lo <- -1e20
+    if (!is.finite(hi)) hi <- 1e20
+    f_lo <- as.numeric(pLaplaceMix(lo, w = w, location, scale, lower.tail = TRUE, log.p = FALSE) - pi)
+    f_hi <- as.numeric(pLaplaceMix(hi, w = w, location, scale, lower.tail = TRUE, log.p = FALSE) - pi)
+    iter <- 0L
+    while (is.finite(f_lo) && f_lo > 0 && lo > -1e20 && iter < 60L) {
+      step <- max(1, abs(lo))
+      lo <- lo - step
+      f_lo <- as.numeric(pLaplaceMix(lo, w = w, location, scale, lower.tail = TRUE, log.p = FALSE) - pi)
+      iter <- iter + 1L
+    }
+    iter <- 0L
+    while (is.finite(f_hi) && f_hi < 0 && hi < 1e20 && iter < 60L) {
+      step <- max(1, abs(hi))
+      hi <- hi + step
+      f_hi <- as.numeric(pLaplaceMix(hi, w = w, location, scale, lower.tail = TRUE, log.p = FALSE) - pi)
+      iter <- iter + 1L
+    }
+    if (!is.finite(f_lo) || !is.finite(f_hi) || f_lo * f_hi > 0) {
+      out[i] <- NA_real_
+    } else {
+      out[i] <- stats::uniroot(
+        function(z) pLaplaceMix(z, w = w,  location, scale,
+                                lower.tail = TRUE, log.p = FALSE) - pi,
+        interval = c(lo, hi),
+        tol = tol, maxiter = maxiter
+      )$root
+    }
   }
   out
 }

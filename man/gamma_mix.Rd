@@ -8,9 +8,9 @@
 \alias{qGammaMix}
 \title{Gamma mixture distribution}
 \usage{
-dGammaMix(x, w, shape, scale, log = 0)
+dGammaMix(x, w, shape, scale, log = FALSE)
 
-pGammaMix(q, w, shape, scale, lower.tail = 1, log.p = 0)
+pGammaMix(q, w, shape, scale, lower.tail = TRUE, log.p = FALSE, x = NULL)
 
 rGammaMix(n, w, shape, scale)
 
@@ -58,6 +58,8 @@ A finite mixture of Gamma components. Base Gamma functions are taken from \pkg{s
 Mixture density and CDF are computed by weighted sums. Random generation samples a component
 according to weights and draws from the corresponding component. Quantiles are computed by
 numerical inversion of the mixture CDF.
+The \code{d*}, \code{p*}, and \code{q*} functions accept vector inputs for their first argument
+and evaluate elementwise; \code{r*} supports \code{n > 1}.
 }
 \section{Functions}{
 \itemize{

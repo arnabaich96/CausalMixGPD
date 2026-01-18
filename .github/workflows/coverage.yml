@@ -36,10 +36,22 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libglpk-dev libglpk40 libpng-dev libx11-dev
+          sudo apt-get install -y libglpk-dev libglpk40 libpng-dev libx11-dev libcurl4-openssl-dev pkg-config
+
+      - name: Install system dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew update
+          brew install pkg-config curl
 
       # If you use renv.lock
       - uses: r-lib/actions/setup-renv@v2
+
+      - name: Install roxygen2 (if not in lockfile)
+        run: Rscript -e 'if (!requireNamespace("roxygen2", quietly=TRUE)) install.packages("roxygen2")'
+
+      - name: Regenerate Rd files
+        run: Rscript -e 'roxygen2::roxygenise()'
 
       - name: Install covr (if not in lockfile)
         run: Rscript -e 'if (!requireNamespace("covr", quietly=TRUE)) install.packages("covr")'

@@ -158,11 +158,31 @@ qNormMix <- function(p, w, mean, sd,
     if (lo == hi) {
       out[i] <- lo
     } else {
-      out[i] <- stats::uniroot(
-        function(z) pNormMix(z, w = w, mean = mean, sd = sd, lower.tail = 1, log.p = 0) - pi,
-        interval = c(lo, hi),
-        tol = tol, maxiter = maxiter
-      )$root
+      f_lo <- as.numeric(pNormMix(lo, w = w, mean = mean, sd = sd, lower.tail = 1, log.p = 0) - pi)
+      f_hi <- as.numeric(pNormMix(hi, w = w, mean = mean, sd = sd, lower.tail = 1, log.p = 0) - pi)
+      iter <- 0L
+      while (is.finite(f_lo) && f_lo > 0 && lo > -1e20 && iter < 60L) {
+        step <- max(1, abs(lo))
+        lo <- lo - step
+        f_lo <- as.numeric(pNormMix(lo, w = w, mean = mean, sd = sd, lower.tail = 1, log.p = 0) - pi)
+        iter <- iter + 1L
+      }
+      iter <- 0L
+      while (is.finite(f_hi) && f_hi < 0 && hi < 1e20 && iter < 60L) {
+        step <- max(1, abs(hi))
+        hi <- hi + step
+        f_hi <- as.numeric(pNormMix(hi, w = w, mean = mean, sd = sd, lower.tail = 1, log.p = 0) - pi)
+        iter <- iter + 1L
+      }
+      if (!is.finite(f_lo) || !is.finite(f_hi) || f_lo * f_hi > 0) {
+        out[i] <- NA_real_
+      } else {
+        out[i] <- stats::uniroot(
+          function(z) pNormMix(z, w = w, mean = mean, sd = sd, lower.tail = 1, log.p = 0) - pi,
+          interval = c(lo, hi),
+          tol = tol, maxiter = maxiter
+        )$root
+      }
     }
   }
   out

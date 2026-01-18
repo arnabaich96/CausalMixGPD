@@ -10,7 +10,7 @@
   y = NULL,
   ps = NULL,
   newdata = NULL,
-  type = c("mean", "quantile", "density", "prob"),
+  type = c("mean", "quantile", "density", "survival", "prob"),
   p = NULL,
   nsim = NULL,
   interval = c("none", "credible"),
@@ -36,7 +36,7 @@ recomputing them from the stored PS model (needed only for custom inputs).}
 \item{newdata}{Optional new data. If \code{NULL}, uses training design (if stored).}
 
 \item{type}{Prediction type. Supported: \code{"mean"}, \code{"quantile"},
-\code{"density"}, \code{"prob"}.}
+\code{"density"}, \code{"survival"}, \code{"prob"}.}
 
 \item{p}{Numeric vector of probabilities for quantiles (required for \code{type="quantile"}).}
 
@@ -58,7 +58,8 @@ recomputing them from the stored PS model (needed only for custom inputs).}
 For \code{"mean"} or \code{"quantile"}, a numeric matrix with columns
   \code{ps}, \code{estimate}, \code{lower}, \code{upper}, representing
   treated-minus-control posterior summaries. When PS is disabled or X is absent,
-  \code{ps} is \code{NA} and no PS is used. For \code{"density"} and \code{"prob"},
+  \code{ps} is \code{NA} and no PS is used. For \code{"density"}, \code{"survival"},
+  and \code{"prob"},
   a data frame with columns \code{y}, \code{ps}, \code{trt_estimate}, \code{trt_lower},
   \code{trt_upper}, \code{con_estimate}, \code{con_lower}, \code{con_upper}.
 }
