@@ -1,4 +1,18 @@
-## ----setup, include=FALSE-----------------------------------------------------
+---
+title: "5. Unconditional DPmix (CRP Backend)"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    theme: flatly
+    highlight: tango
+vignette: >
+  %\VignetteIndexEntry{5. Unconditional DPmix (CRP Backend)}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = NA,
@@ -9,7 +23,7 @@ knitr::opts_chunk$set(
   eval = TRUE,
   cache = FALSE
 )
-library(nimble)  
+library(nimble)
 library(DPmixGPD)
 if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
 library(ggplot2)
@@ -17,9 +31,16 @@ library(gridExtra)
 library(kableExtra)
 library(patchwork)
 set.seed(123)
+```
 
+# Overview
 
-## ----data-setup---------------------------------------------------------------
+This vignette demonstrates an **unconditional DPmix model** using the **CRP backend** on a positive dataset.
+We use a Laplace kernel for the bulk distribution and no GPD tail augmentation.
+
+# Data Setup
+
+```{r data-setup}
 # Load pre-generated dataset: 200 observations from mixture of 3 gamma components
 data(nc_pos200_k3)
 y_mixed <- nc_pos200_k3$y
@@ -32,14 +53,18 @@ paste("Range:", paste(range(y_mixed), collapse = " to "))
 # Visualization
 df_data <- data.frame(y = y_mixed)
 p_raw <- ggplot(df_data, aes(x = y)) +
-  geom_histogram(aes(y = after_stat(density)), bins = 30, alpha = 0.6, fill = "steelblue",color = "black") +
+  geom_histogram(aes(y = after_stat(density)), bins = 30, alpha = 0.6,
+                 fill = "steelblue", color = "black") +
   geom_density(color = "red", linewidth = 1) +
   labs(title = "Raw Data: Mixed Gamma Distribution", x = "y", y = "Density") +
   theme_minimal()
 
 print(p_raw)
+```
 
-## ----bundle-mcmc-crp----------------------------------------------------------
+# Build Bundle (CRP)
+
+```{r bundle-mcmc-crp}
 bundle_crp <- build_nimble_bundle(
   y = y_mixed,
   kernel = "laplace",         # Use laplace kernel
@@ -54,9 +79,11 @@ bundle_crp <- build_nimble_bundle(
     thin = 1                # No thinning
   )
 )
+```
 
+# Run MCMC (Longer Run)
 
-## ----mcmc-crp-----------------------------------------------------------------
+```{r mcmc-crp}
 bundle_crp <- build_nimble_bundle(
   y_mixed,
   kernel = "laplace",
@@ -66,25 +93,37 @@ bundle_crp <- build_nimble_bundle(
   alpha_random = TRUE,
   mcmc = list(niter = 1500, nburnin = 250, nchains = 2, thin = 1)
 )
+```
 
-## -----------------------------------------------------------------------------
+```{r}
 summary(bundle_crp)
+```
 
-## ----mcmc-crp-fit, results = "hide"-------------------------------------------
+```{r mcmc-crp-fit, results = "hide"}
 fit_crp <- run_mcmc_bundle_manual(bundle_crp)
+```
 
-## -----------------------------------------------------------------------------
+```{r}
 summary(fit_crp)
+```
 
-## ----params-crp---------------------------------------------------------------
+# Posterior Parameters
+
+```{r params-crp}
 params_crp <- params(fit_crp)
 params_crp
+```
 
-## ----diag-trace---------------------------------------------------------------
+# Diagnostics
+
+```{r diag-trace}
 # Trace plots for key parameters
 plot(fit_crp, params = "alpha", family = c("traceplot", "density", "geweke"))
+```
 
-## ----pred-density-------------------------------------------------------------
+# Posterior Predictive Density
+
+```{r pred-density}
 # Generate prediction grid
 y_grid <- seq(0, max(y_mixed) * 1.2, length.out = 200)
 
@@ -93,4 +132,4 @@ pred_density <- predict(fit_crp, y = y_grid, type = "density")
 
 # Use S3 plot method
 plot(pred_density)
-
+```
