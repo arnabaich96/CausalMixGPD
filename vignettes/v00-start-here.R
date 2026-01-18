@@ -25,11 +25,50 @@ quiet_mcmc <- function(expr) {
   out
 }
 
+## ----start-uncond-data--------------------------------------------------------
+data("nc_pos200_k3")
+y <- nc_pos200_k3$y
+
+## ----start-uncond-bundle------------------------------------------------------
+bundle_uncond <- build_nimble_bundle(
+  y = y,
+  backend = "crp",
+  kernel = "gamma",
+  GPD = FALSE,
+  components = 5,
+  mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+)
+
+## ----start-uncond-fit---------------------------------------------------------
+fit_uncond <- quiet_mcmc(run_mcmc_bundle_manual(bundle_uncond, show_progress = FALSE))
+summary(fit_uncond)
+
+## ----start-uncond-predict, cache=FALSE----------------------------------------
+pred_q <- predict(fit_uncond, type = "quantile", index = c(0.5, 0.9), interval = "credible")
+head(pred_q$fit)
+plot(pred_q)
+
+## ----start-cond-data----------------------------------------------------------
+data("nc_posX100_p3_k2")
+yc <- nc_posX100_p3_k2$y
+X <- as.matrix(nc_posX100_p3_k2$X)
+
+## ----start-cond-bundle--------------------------------------------------------
+bundle_cond <- build_nimble_bundle(
+  y = yc,
+  X = X,
+  backend = "sb",
+  kernel = "lognormal",
+  GPD = FALSE,
+  components = 5,
+  mcmc = list(niter = 250, nburnin = 50, thin = 1, nchains = 1, seed = 2)
+)
+
 ## ----start-cond-fit-----------------------------------------------------------
 fit_cond <- quiet_mcmc(run_mcmc_bundle_manual(bundle_cond, show_progress = FALSE))
 summary(fit_cond)
 
-## ----start-cond-predict-------------------------------------------------------
+## ----start-cond-predict, cache=FALSE------------------------------------------
 x_new <- X[1:20, , drop = FALSE]
 pred_mean <- predict(fit_cond, x = x_new, type = "mean", interval = "credible", nsim_mean = 200)
 head(pred_mean$fit)
@@ -38,8 +77,4 @@ plot(pred_mean)
 ## ----start-s3-----------------------------------------------------------------
 params(fit_uncond)
 plot(fit_uncond, family = c("traceplot", "running"))
-
-## ----start-cond-fit-----------------------------------------------------------
-fit_cond <- quiet_mcmc(run_mcmc_bundle_manual(bundle_cond, show_progress = FALSE))
-summary(fit_cond)
 

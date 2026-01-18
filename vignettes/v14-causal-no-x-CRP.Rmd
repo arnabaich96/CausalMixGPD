@@ -131,7 +131,7 @@ plot(qte_bulk)
 
 ---
 
-## Model B: CRP with GPD Tail (Gamma)
+## Model B: SB with GPD Tail (Gamma)
 
 ```{r bundle-crp-gpd}
 param_specs_gpd <- list(
@@ -149,7 +149,7 @@ bundle_crp_gpd <- build_causal_bundle(
   T = T,
   X = NULL,
   kernel = "gamma",
-  backend = "crp",
+  backend = "sb",
   PS = FALSE,
   GPD = TRUE,
   components = 6,
