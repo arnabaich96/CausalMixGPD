@@ -1,0 +1,59 @@
+---
+title: "S3 Methods Reference"
+output:
+  rmarkdown::html_vignette:
+    code_folding: show
+vignette: >
+  %\VignetteIndexEntry{S3 Methods Reference}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = NA,
+  message = FALSE,
+  warning = FALSE,
+  eval = FALSE
+)
+library(DPmixGPD)
+```
+
+# Core S3 methods
+
+| Method | Object | Purpose | Output |
+|---|---|---|---|
+| `print()` | `dpmixgpd_bundle` | quick bundle summary | concise configuration | 
+| `summary()` | `dpmixgpd_bundle` | detailed bundle summary | lists code/data/monitors |
+| `print()` | `mixgpd_fit` | fit summary | kernel/backends/mcmc info |
+| `summary()` | `mixgpd_fit` | posterior summary | parameter tables |
+| `plot()` | `mixgpd_fit` | diagnostics | trace, running mean, autocorrelation |
+| `predict()` | `mixgpd_fit` | posterior predictive | density, quantile, mean, survival |
+
+# Parameter naming conventions
+
+Common parameter names in outputs:
+
+- `w` (mixture weights)
+- `alpha` (concentration)
+- kernel parameters (e.g., `mean`, `sd`, `shape`, `scale`)
+- link coefficients: `beta_<param>`
+- GPD links: `beta_threshold`, `beta_tail_scale`
+
+# Typical usage patterns
+
+```{r s3-example}
+fit <- run_mcmc_bundle_manual(bundle)
+print(fit)
+summary(fit)
+plot(fit, family = c("traceplot", "running"))
+q_pred <- predict(fit, type = "quantile", index = c(0.1, 0.5, 0.9))
+plot(q_pred)
+```
+
+# Notes
+
+- `predict()` returns a structured object with `fit` and interval summaries.
+- `plot()` accepts families such as `traceplot`, `running`, and `autocorrelation`.
+- Use `params()` for convenient access to posterior draws in original scales.

@@ -1090,14 +1090,14 @@ predict.mixgpd_fit <- function(object,
 #' @param object A fitted object of class \code{"mixgpd_fit"}.
 #' @param type Which fitted location to return: mean, median, quantile, or both (\code{"location"}).
 #' @param p Quantile level used when \code{type = "quantile"}.
-#' @param level Credible level for confidence intervals (default 0.95 for 95% credible intervals).
+#' @param level Credible level for confidence intervals (default 0.95 for 95\% credible intervals).
 #' @param seed Random seed used for deterministic fitted values.
 #' @param ... Unused.
 #' @return A data frame with columns: 
 #'   \code{fit} (point estimates), \code{lower} (lower credible bound),
 #'   \code{upper} (upper credible bound), and \code{residuals} (y - fit).
 #' @examples
-#' if (FALSE) {
+#' \dontrun{
 #' y <- abs(stats::rnorm(50)) + 0.1
 #' bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
 #'                              GPD = TRUE, components = 6,

@@ -16,7 +16,7 @@ predict(
   y = NULL,
   ps = NULL,
   newdata = NULL,
-  type = c("density", "survival", "quantile", "sample", "mean"),
+  type = c("density", "survival", "quantile", "sample", "mean", "median", "location"),
   p = NULL,
   index = NULL,
   nsim = NULL,
@@ -62,7 +62,7 @@ predict(
 - type:
 
   Prediction type: `"density"`, `"survival"`, `"quantile"`, `"sample"`,
-  `"mean"`.
+  `"mean"`, `"median"`, `"location"`.
 
 - p:
 
@@ -102,10 +102,10 @@ predict(
 
 A list with elements:
 
-- `fit`: matrix (nrow = n_newdata, ncol = length(p or y)) of posterior
-  medians.
+- `fit`: data frame with `estimate`/`lower`/`upper` columns (posterior
+  means over draws) plus any index columns (e.g. `id`, `y`, `index`).
 
-- `lower`, `upper`: matrices for credible interval if requested (else
+- `lower`, `upper`: reserved for backward compatibility (typically
   `NULL`).
 
 - `type`, `grid`: metadata.
@@ -118,14 +118,23 @@ signature and swap the internals without breaking user code.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+# \dontrun{
 y <- abs(stats::rnorm(50)) + 0.1
 bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
                              GPD = TRUE, components = 6,
                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
 fit <- run_mcmc_bundle_manual(bundle)
+#> [MCMC] Creating NIMBLE model...
+#> Defining model
+#>   [Note] 'P' is provided in 'constants' but not used in the model code and is being ignored.
+#> Building model
+#> [ERROR] Failed to create NIMBLE model:
+#> Error in getNimbleOption("determinePredictiveNodesInModel"): could not find function "getNimbleOption"
 pr <- predict(fit, type = "quantile", p = c(0.5, 0.9))
+#> Error: object 'fit' not found
 pr_surv <- predict(fit, y = sort(y), type = "survival")
+#> Error: object 'fit' not found
 pr_cdf <- list(fit = 1 - pr_surv$fit)
-} # }
+#> Error: object 'pr_surv' not found
+# }
 ```

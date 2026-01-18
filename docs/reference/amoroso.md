@@ -2,7 +2,9 @@
 
 Base Amoroso distribution functions as implemented in this package.
 Function names and parameterization follow your existing Amoroso
-implementation.
+implementation. The `d*`, `p*`, and `q*` functions accept vector inputs
+for their first argument and evaluate elementwise; `r*` supports
+`n > 1`.
 
 ## Usage
 

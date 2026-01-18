@@ -1,0 +1,48 @@
+---
+title: "Legacy: Kernel reference: Laplace"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Legacy: Kernel reference: Laplace}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = TRUE
+)
+library(DPmixGPD)
+```
+
+> **Legacy note:** This kernel reference is retained for historical context alongside the extended legacy materials.
+
+The **Laplace** kernel is parameterized by `location` and `scale`.
+
+## Exported mixture helpers
+
+- `dLaplaceMix(x, location, scale, w, log = FALSE)`
+- `pLaplaceMix(q, location, scale, w, lower.tail = TRUE, log.p = FALSE)`
+- `qLaplaceMix(p, location, scale, w, lower.tail = TRUE, log.p = FALSE)`
+- `rLaplaceMix(n, location, scale, w)`
+
+For the full catalog (including CRP utilities and GPD splicing), see:
+
+- [Legacy distributions](legacy/v02-available-distributions.html)
+
+## Using Laplace in a model
+
+```{r}
+y <- abs(stats::rnorm(50)) + 0.1
+bundle <- build_nimble_bundle(
+  y = y,
+  backend = "sb",
+  kernel  = "laplace",
+  GPD     = TRUE,
+  components = 6
+)
+```
+
+
+

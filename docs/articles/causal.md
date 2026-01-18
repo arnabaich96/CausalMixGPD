@@ -1,0 +1,51 @@
+# Causal Modeling (Scoped)
+
+## Scope and estimands
+
+DPmixGPD supports **distributional causal estimands** computed from
+**separately modeled outcome distributions** for treated and control
+groups. Examples include:
+
+- **CQTE** (conditional quantile treatment effects)
+- **Tail risk effects** (differences in extreme quantiles or tail
+  probabilities)
+
+## What is (and is not) identified
+
+- **Identification** is **external** to this package.
+- DPmixGPD **does not** guarantee causal validity.
+- You are responsible for the design/assumptions that justify causal
+  interpretation.
+
+## Workflow (conceptual)
+
+1.  Split by treatment group.
+2.  Fit an outcome model to each group.
+3.  Compare the fitted distributions to compute contrasts.
+
+``` r
+# Pseudocode only (not executed)
+fit0 <- build_nimble_bundle(y = y0, X = X0, kernel = "gamma", GPD = TRUE)
+fit1 <- build_nimble_bundle(y = y1, X = X1, kernel = "gamma", GPD = TRUE)
+# run MCMC for each, then compare predictive distributions
+```
+
+## What the contrasts mean
+
+- **CQTE** compares $`Q_1(p) - Q_0(p)`$ at quantile level $`p`$.
+- **Tail effects** compare exceedance probabilities or extreme
+  quantiles.
+
+## Responsible framing
+
+This package **models outcomes** and **computes contrasts**. It does not
+perform identification, design, or sensitivity analysis.
+
+## What this vignette does NOT cover
+
+- Propensity score modeling
+- Identification theory
+- Heavy simulations
+
+See legacy material in the pkgdown **Legacy** section for extended
+studies.

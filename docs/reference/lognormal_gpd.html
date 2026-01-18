@@ -19,6 +19,7 @@ parameters meanlog and sdlog. Base Lognormal functions are taken from stats."></
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/index.html">Articles</a></li>
+<li class="nav-item"><a class="nav-link" href="../legacy/index.html">Legacy</a></li>
 <li class="nav-item"><a class="nav-link" href="../coverage/index.html">Coverage</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/arnabaich96/DPmixGPD">GitHub</a></li>
       </ul></div>
@@ -152,8 +153,8 @@ parameters <code>meanlog</code> and <code>sdlog</code>. Base Lognormal functions
 <span class="r-in"><span><span class="fu">qLognormalGpd</span><span class="op">(</span><span class="fl">0.95</span>, <span class="va">meanlog</span>, <span class="va">sdlog</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.65302</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rLognormalGpd</span><span class="op">(</span><span class="fl">1</span>, <span class="va">meanlog</span>, <span class="va">sdlog</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 1.4379607 0.7857890 1.1149317 0.9059939 1.5881729 1.6711589 1.0603531</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 2.6230252 1.7190734 1.6648508</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 0.9433664 1.5663757 2.9756614 1.1434546 0.8204563 1.7108574 1.3177066</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 1.7148802 3.1690926 1.1320054</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

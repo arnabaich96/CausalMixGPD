@@ -21,11 +21,12 @@ For a full catalog (including CRP utilities and GPD splicing), see:
 ## Using Normal in a model
 
 ``` r
+y <- abs(stats::rnorm(50)) + 0.1
 bundle <- build_nimble_bundle(
   y = y,
   backend = "sb",
   kernel  = "normal",
   GPD     = TRUE,
-  Kmax    = 6
+  components = 6
 )
 ```

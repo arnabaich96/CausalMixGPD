@@ -20,7 +20,7 @@
 
 \item{p}{Quantile level used when \code{type = "quantile"}.}
 
-\item{level}{Credible level for confidence intervals (default 0.95 for 95% credible intervals).}
+\item{level}{Credible level for confidence intervals (default 0.95 for 95\% credible intervals).}
 
 \item{seed}{Random seed used for deterministic fitted values.}
 
@@ -38,7 +38,7 @@ For unconditional models (no covariates), returns the population mean replicated
 for all observations. For conditional models, returns individual predictions.
 }
 \examples{
-if (FALSE) {
+\dontrun{
 y <- abs(stats::rnorm(50)) + 0.1
 bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
                              GPD = TRUE, components = 6,
