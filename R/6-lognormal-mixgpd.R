@@ -141,9 +141,11 @@ qLognormalMix <- function(p, w, meanlog, sdlog,
     if (pi <= 0) { out[i] <- 0; next }
     if (pi >= 1) { out[i] <- Inf; next }
 
+    hi <- max(stats::qlnorm(pi, meanlog = meanlog, sdlog = sdlog), na.rm = TRUE)
+    if (!is.finite(hi) || hi <= 0) hi <- 1e20
     out[i] <- stats::uniroot(
       function(z) as.numeric(pLognormalMix(z, w = w, meanlog = meanlog, sdlog = sdlog, 1, 0)) - pi,
-      interval = c(0, 1e20),
+      interval = c(0, hi),
       tol = tol, maxiter = maxiter
     )$root
   }
