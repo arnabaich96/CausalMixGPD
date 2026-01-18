@@ -37,32 +37,40 @@ predict(fit, type = "quantile", p = c(0.1, 0.5, 0.9))
 
 ## Learn the package by goal
 
-### I want to…
+### I want to
 
-- **Get oriented fast** → [Introduction](articles/v01-introduction.html)
-- **See every available distribution and its d/p/q/r helpers** → [Available Distributions](articles/v02-available-distributions.html)
-- **Understand the full workflow (spec → bundle → MCMC)** → [Basic Model Workflow](articles/v03-basic-model-compile-run.html)
+- **Get oriented fast** -> [Start Here](articles/v00-start-here.html)
+- **Get oriented fast (overview)** -> [Introduction](articles/v01-introduction.html)
+- **See every available distribution and its d/p/q/r helpers** -> [Available Distributions](articles/v02-available-distributions.html)
+- **Understand the full workflow (spec -> bundle -> MCMC)** -> [Basic Model Workflow](articles/v05-basic-model-compile-run.html)
+- **See how backends and kernels fit together** -> [Backends, Kernels, and Workflow Map](articles/v04-backends-and-workflow.html)
 
 ### Unconditional models (y only)
 
-- [DPmix with CRP](articles/v04-unconditional-DPmix-CRP.html)
-- [DPmix with SB](articles/v05-unconditional-DPmix-SB.html)
-- [DPmixGPD with CRP](articles/v06-unconditional-DPmixGPD-CRP.html)
-- [DPmixGPD with SB](articles/v07-unconditional-DPmixGPD-SB.html)
+- [DPmix with CRP](articles/v06-unconditional-DPmix-CRP.html)
+- [DPmix with SB](articles/v07-unconditional-DPmix-SB.html)
+- [DPmixGPD with CRP](articles/v08-unconditional-DPmixGPD-CRP.html)
+- [DPmixGPD with SB](articles/v09-unconditional-DPmixGPD-SB.html)
 
 ### Conditional models (y | X)
 
-- [Conditional DPmix CRP](articles/v08-conditional-DPmix-CRP.html)
-- [Conditional DPmix SB](articles/v09-conditional-DPmix-SB.html)
-- [Conditional DPmixGPD CRP](articles/v10-conditional-DPmixGPD-CRP.html)
-- [Conditional DPmixGPD SB](articles/v11-conditional-DPmixGPD-SB.html)
+- [Conditional DPmix CRP](articles/v10-conditional-DPmix-CRP.html)
+- [Conditional DPmix SB](articles/v11-conditional-DPmix-SB.html)
+- [Conditional DPmixGPD CRP](articles/v12-conditional-DPmixGPD-CRP.html)
+- [Conditional DPmixGPD SB](articles/v13-conditional-DPmixGPD-SB.html)
 
 ### Causal inference (two-arm outcome models)
 
-- [Same Backend CRP](articles/v12-causal-same-backend-CRP.html)
-- [Same Backend SB](articles/v13-causal-same-backend-SB.html)
-- [Different Backends (CRP for PS)](articles/v14-causal-different-backends-CRP.html)
-- [Different Backends (SB for PS)](articles/v15-causal-different-backends-SB.html)
+- [No X (CRP)](articles/v14-causal-no-x-CRP.html)
+- [X without PS (SB)](articles/v15-causal-x-no-ps-SB.html)
+- [Same Backend CRP](articles/v16-causal-same-backend-CRP.html)
+- [Same Backend SB](articles/v17-causal-same-backend-SB.html)
+- [Different Backends (CRP)](articles/v18-causal-different-backends-CRP.html)
+- [Different Backends (SB)](articles/v19-causal-different-backends-SB.html)
+
+### Troubleshooting
+
+- [Troubleshooting](articles/v20-troubleshooting.html)
 
 ## Kernel reference (short pages)
 

@@ -7,6 +7,7 @@
 DPmixGPD.Rcheck/
 DPmixGPD_*.tar.gz
 vignettes/cache/
+.cache/
 inst/doc/
 ..Rcheck/
 tests/testthat/_cache/
@@ -33,15 +34,3 @@ vignettes/**/cache/**
 *.html
 test_*.html
 
-# pkgdown/site outputs
-pkgdown/
-
-# pkgdown build artifacts (articles, reference, coverage)
-docs/articles/*_files/
-docs/articles/*.md
-docs/reference/*.html
-docs/coverage/
-docs/news/
-
-# ignore generated pkgdown site content under docs/
-docs/**
