@@ -1,14 +1,23 @@
 ---
+<<<<<<< HEAD
 title: "2. Available Distributions and Related Functions"
+=======
+title: "Legacy: 2. Available Distributions and Related Functions"
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 output: 
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
+<<<<<<< HEAD
   %\VignetteIndexEntry{2. Available Distributions and Related Functions}
+=======
+  %\VignetteIndexEntry{Legacy: 2. Available Distributions and Related Functions}
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
+<<<<<<< HEAD
 ```{r legacy-setup, include=FALSE}
 source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
 ```
@@ -75,6 +84,28 @@ quiet_mcmc <- function(expr) {
 > Last verified: **2026-01-18**.
 >
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
+=======
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = NA,
+  fig.width = 8,
+  fig.height = 6,
+  message = FALSE,
+  warning = FALSE,
+  eval = TRUE,
+  tidy = FALSE,
+  width = 80
+)
+library(DPmixGPD)
+if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
+library(ggplot2)
+library(gridExtra)
+set.seed(42)
+```
+
+> **Legacy note:** This page is preserved for historical context and extended detail. It predates the streamlined official vignettes and may include longer runs or exploratory material.
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 
 ```{r helpers}

@@ -6,16 +6,23 @@
 ^.*\examples
 ^.csv
 ^\.github$
+<<<<<<< HEAD
 ^\.githooks$
 ^\.git$
 ^\.cache$
 ^\.cache/
+=======
+^\.git$
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 ^.*\zip
 ^\.vscode$
 ^\.gitignore$
 ^docs$
+<<<<<<< HEAD
 ^pkgdown$
 ^pkgdown/
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 ^DPmixGPD\.Rcheck$
 ^\.{2}Rcheck$
 ^DPmixGPD_.*\.tar\.gz$
@@ -23,12 +30,16 @@
 ^vignettes/cache/
 ^vignettes/reports$
 ^vignettes/reports/
+<<<<<<< HEAD
 ^vignettes/legacy$
 ^vignettes/.*\.html$
 ^vignettes/\.build\.timestamp$
 ^vignettes/legacy-precomputed$
 ^vignettes/legacy-precomputed/
 ^vignettes$
+=======
+^vignettes/.*\.html$
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 ^data-raw$
 ^tests/testthat/_cache$
 ^tests/testthat/tests/testthat/_cache$
@@ -41,5 +52,8 @@
 ^doc$
 ^Meta$
 ^DOCS-MAINTENANCE$
+<<<<<<< HEAD
 ^Misc$
 ^codecov\.yml$
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090

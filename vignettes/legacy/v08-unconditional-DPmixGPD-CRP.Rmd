@@ -1,14 +1,23 @@
 ---
+<<<<<<< HEAD
 title: "8. Unconditional DPmixGPD with CRP Backend"
+=======
+title: "Legacy: 8. Unconditional DPmixGPD with CRP Backend"
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 output: 
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
+<<<<<<< HEAD
   %\VignetteIndexEntry{8. Unconditional DPmixGPD with CRP Backend}
+=======
+  %\VignetteIndexEntry{Legacy: 8. Unconditional DPmixGPD with CRP Backend}
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
+<<<<<<< HEAD
 ```{r legacy-setup, include=FALSE}
 source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
 ```
@@ -77,6 +86,30 @@ quiet_mcmc <- function(expr) {
 >
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+=======
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = NA,
+  fig.width = 8,
+  fig.height = 6,
+  message = FALSE,
+  warning = FALSE,
+  eval = TRUE
+)
+library(DPmixGPD)
+if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
+library(nimble)
+library(ggplot2)
+library(gridExtra)
+library(kableExtra)
+library(dplyr)
+library(patchwork)
+set.seed(123)
+```
+
+> **Legacy note:** This page is preserved for historical context and extended detail. It predates the streamlined official vignettes and may include longer runs or exploratory material.
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 # Unconditional DPmixGPD: CRP Backend with Tail Augmentation
 
@@ -158,7 +191,16 @@ bundle_gpd <- build_nimble_bundle(
       )
     )
   ),
+<<<<<<< HEAD
   mcmc = mcmc
+=======
+  mcmc = list(
+    niter = 60,
+    nburnin = 10,
+    nchains = 2,
+    thin = 1
+  )
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 )
 ```
 
@@ -167,7 +209,11 @@ bundle_gpd <- build_nimble_bundle(
 ## Running MCMC & Diagnostics
 
 ```{r mcmc-run}
+<<<<<<< HEAD
 fit_gpd <- load_or_fit("v08-unconditional-DPmixGPD-CRP-fit_gpd", run_mcmc_bundle_manual(bundle_gpd))
+=======
+fit_gpd <- run_mcmc_bundle_manual(bundle_gpd)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 ```
 
 ```{r fit-summary}
@@ -223,9 +269,15 @@ bundle_bulk_only <- build_nimble_bundle(
   backend = "crp",
   GPD = FALSE,
   components = 5,
+<<<<<<< HEAD
   mcmc = mcmc
 )
 fit_bulk_only <- load_or_fit("v08-unconditional-DPmixGPD-CRP-fit_bulk_only", run_mcmc_bundle_manual(bundle_bulk_only))
+=======
+  mcmc = list(niter = 2500, nburnin = 500, nchains = 1)
+)
+fit_bulk_only <- run_mcmc_bundle_manual(bundle_bulk_only)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 ```
 
 ```{r compare-quantiles}
@@ -285,9 +337,15 @@ sensitivity_fits <- lapply(thresholds, function(u) {
       )
     ),
     components = 5,
+<<<<<<< HEAD
     mcmc = mcmc
   )
   fit <- load_or_fit("v08-unconditional-DPmixGPD-CRP-fit", run_mcmc_bundle_manual(bundle))
+=======
+    mcmc = list(niter = 2500, nburnin = 500, nchains = 1)
+  )
+  fit <- run_mcmc_bundle_manual(bundle)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   list(threshold = u, fit = fit)
 })
 

@@ -1,12 +1,20 @@
 ---
+<<<<<<< HEAD
 title: "Kernel reference: Normal"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Kernel reference: Normal}
+=======
+title: "Legacy: Kernel reference: Normal"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Legacy: Kernel reference: Normal}
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
+<<<<<<< HEAD
 ```{r legacy-setup, include=FALSE}
 source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
 ```
@@ -74,6 +82,18 @@ quiet_mcmc <- function(expr) {
 >
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+=======
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = TRUE
+)
+library(DPmixGPD)
+```
+
+> **Legacy note:** This kernel reference is retained for historical context alongside the extended legacy materials.
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 The **Normal** kernel is parameterized by mean `mean` and standard deviation `sd`.
 
@@ -88,7 +108,11 @@ For the stick-breaking (SB) backend, the package provides vectorized mixture hel
 
 For a full catalog (including CRP utilities and GPD splicing), see:
 
+<<<<<<< HEAD
 - [Available Distributions](v02-available-distributions.html)
+=======
+- [Legacy distributions](legacy/v02-available-distributions.html)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 ## Using Normal in a model
 

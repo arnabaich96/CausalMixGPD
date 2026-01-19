@@ -1,12 +1,20 @@
 ---
+<<<<<<< HEAD
 title: "Kernel reference: Amoroso"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Kernel reference: Amoroso}
+=======
+title: "Legacy: Kernel reference: Lognormal"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Legacy: Kernel reference: Lognormal}
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
+<<<<<<< HEAD
 ```{r legacy-setup, include=FALSE}
 source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
 ```
@@ -89,16 +97,52 @@ For the full catalog (including CRP utilities and GPD splicing), see:
 - [Available Distributions](v02-available-distributions.html)
 
 ## Using Amoroso in a model
+=======
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = TRUE
+)
+library(DPmixGPD)
+```
+
+> **Legacy note:** This kernel reference is retained for historical context alongside the extended legacy materials.
+
+The **Lognormal** kernel is parameterized by `meanlog` and `sdlog` (i.e., `log(y)` is Normal).
+
+## Exported mixture helpers
+
+- `dLognormalMix(x, meanlog, sdlog, w, log = FALSE)`
+- `pLognormalMix(q, meanlog, sdlog, w, lower.tail = TRUE, log.p = FALSE)`
+- `qLognormalMix(p, meanlog, sdlog, w, lower.tail = TRUE, log.p = FALSE)`
+- `rLognormalMix(n, meanlog, sdlog, w)`
+
+For the full catalog (including CRP utilities and GPD splicing), see:
+
+- [Legacy distributions](legacy/v02-available-distributions.html)
+
+## Using Lognormal in a model
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 ```{r}
 y <- abs(stats::rnorm(50)) + 0.1
 bundle <- build_nimble_bundle(
   y = y,
+<<<<<<< HEAD
   backend = "sb",
   kernel  = "amoroso",
+=======
+  backend = "crp",
+  kernel  = "lognormal",
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   GPD     = TRUE,
   components = 6
 )
 ```
 
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090

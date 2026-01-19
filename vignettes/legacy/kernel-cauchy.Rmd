@@ -1,12 +1,20 @@
 ---
+<<<<<<< HEAD
 title: "Kernel reference: Cauchy"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Kernel reference: Cauchy}
+=======
+title: "Legacy: Kernel reference: Cauchy"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Legacy: Kernel reference: Cauchy}
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
+<<<<<<< HEAD
 ```{r legacy-setup, include=FALSE}
 source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
 ```
@@ -74,6 +82,18 @@ quiet_mcmc <- function(expr) {
 >
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+=======
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  eval = TRUE
+)
+library(DPmixGPD)
+```
+
+> **Legacy note:** This kernel reference is retained for historical context alongside the extended legacy materials.
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 The **Cauchy** kernel is parameterized by `location` and `scale`.
 
@@ -86,7 +106,11 @@ The **Cauchy** kernel is parameterized by `location` and `scale`.
 
 For the full catalog (including CRP utilities and GPD splicing), see:
 
+<<<<<<< HEAD
 - [Available Distributions](v02-available-distributions.html)
+=======
+- [Legacy distributions](legacy/v02-available-distributions.html)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 ## Using Cauchy in a model
 

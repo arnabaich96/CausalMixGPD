@@ -1,0 +1,140 @@
+/* vignettes/theme-runtime.css
+   Runtime theming via CSS variables (user-adjustable)
+*/
+
+:root{
+  /* Core palette */
+  --rt-bg: #ffffff;
+  --rt-fg: #111827;
+  --rt-muted: #6b7280;
+  --rt-border: #e5e7eb;
+
+  --rt-primary: #2a6f97;
+  --rt-link: #2a6f97;
+
+  /* Typography */
+  --rt-font-base: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  --rt-font-heading: var(--rt-font-base);
+  --rt-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+
+  --rt-base-size: 16px;
+  --rt-line-height: 1.6;
+
+  /* Shape + layout */
+  --rt-radius: 14px;
+  --rt-space: 1; /* multiplier */
+
+  /* Code blocks */
+  --rt-code-bg: #0b1220;
+  --rt-code-fg: #e5e7eb;
+  --rt-code-border: rgba(255,255,255,.10);
+
+  /* Optional: subtle elevation */
+  --rt-shadow: 0 12px 30px rgba(0,0,0,.08);
+}
+
+/* Global text + background */
+html { font-size: var(--rt-base-size); }
+body{
+  background: var(--rt-bg);
+  color: var(--rt-fg);
+  font-family: var(--rt-font-base);
+  line-height: var(--rt-line-height);
+}
+
+/* Headings */
+h1,h2,h3,h4,h5,h6{
+  font-family: var(--rt-font-heading);
+  letter-spacing: -0.02em;
+}
+
+/* Links */
+a{ color: var(--rt-link); }
+a:hover{ filter: brightness(0.9); text-decoration: underline; text-underline-offset: .2em; }
+
+/* Navbar (works for most pkgdown navbars) */
+.navbar{
+  background: color-mix(in srgb, var(--rt-primary) 18%, var(--rt-bg)) !important;
+  border-bottom: 1px solid var(--rt-border) !important;
+}
+.navbar .navbar-brand,
+.navbar .nav-link{ color: var(--rt-fg) !important; }
+.navbar .nav-link:hover{ color: var(--rt-primary) !important; }
+
+/* Cards / boxes commonly used by pkgdown */
+.card, .contents, .ref-index, .ref-usage, .ref-arguments, .ref-examples, .ref-details{
+  border-radius: var(--rt-radius) !important;
+  border: 1px solid var(--rt-border) !important;
+  box-shadow: var(--rt-shadow);
+}
+
+/* Tables */
+.table, table{
+  color: var(--rt-fg);
+  border-color: var(--rt-border);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+table.kableExtra,
+.kableExtra table,
+.kable_wrapper table{
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Inline code */
+code{
+  font-family: var(--rt-font-mono);
+  border-radius: calc(var(--rt-radius) * 0.6);
+  padding: 0 .35em;
+  background: color-mix(in srgb, var(--rt-bg) 80%, var(--rt-border));
+  border: 1px solid var(--rt-border);
+}
+
+/* Code blocks */
+pre{
+  font-family: var(--rt-font-mono);
+  background: var(--rt-code-bg) !important;
+  color: var(--rt-code-fg) !important;
+  border: 1px solid var(--rt-code-border);
+  border-radius: var(--rt-radius);
+  padding: calc(1rem * var(--rt-space)) !important;
+  overflow: auto;
+}
+
+/* Spacing multiplier (light touch) */
+main .container, .container{
+  padding-left: calc(0.75rem * var(--rt-space));
+  padding-right: calc(0.75rem * var(--rt-space));
+}
+
+/* Buttons - nudge Bootstrap to your primary
+.btn-primary{
+  background-color: var(--rt-primary) !important;
+  border-color: var(--rt-primary) !important;
+}
+.btn-outline-primary{
+  color: var(--rt-primary) !important;
+  border-color: var(--rt-primary) !important;
+}
+.btn-outline-primary:hover{
+  background-color: var(--rt-primary) !important;
+  color: var(--rt-bg) !important;
+}
+
+
+/* Navbar theme control */
+.navbar .rt-navbar-btn{
+  border: 1px solid var(--rt-border);
+  border-radius: 999px;
+  padding: 0.25rem 0.65rem;
+  margin-left: 0.35rem;
+  background: rgba(255,255,255,.7);
+  color: var(--rt-fg) !important;
+  cursor: pointer;
+}
+.navbar .rt-navbar-btn:hover{
+  background: rgba(255,255,255,.95);
+}
+

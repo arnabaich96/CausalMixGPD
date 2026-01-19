@@ -1,8 +1,17 @@
 ---
+<<<<<<< HEAD
 title: "Conditional models"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Conditional models}
+=======
+title: "Conditional Modeling"
+output:
+  rmarkdown::html_vignette:
+    code_folding: show
+vignette: >
+  %\VignetteIndexEntry{Conditional Modeling}
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -10,6 +19,7 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
+<<<<<<< HEAD
   comment = "#>",
   message = FALSE,
   warning = FALSE,
@@ -115,3 +125,64 @@ legend("topleft", legend = paste0("tau=", q_levels), lty = 1, bty = "n")
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+=======
+  comment = NA,
+  fig.width = 7,
+  fig.height = 4.5,
+  message = FALSE,
+  warning = FALSE,
+  eval = FALSE
+)
+library(DPmixGPD)
+```
+
+# Goal
+
+Conditional modeling lets **distributional features** (not just means) vary with covariates. This is **not** mean regression; it is full distributional regression.
+
+# Example data
+
+```{r data}
+data("nc_posX100_p3_k2")
+X <- as.matrix(nc_posX100_p3_k2$X)
+y <- nc_posX100_p3_k2$y
+```
+
+# Conditional mixture
+
+```{r cond}
+bundle_cond <- build_nimble_bundle(
+  y = y,
+  X = X,
+  kernel = "lognormal",
+  backend = "sb",
+  GPD = TRUE,
+  J = 4,
+  mcmc = list(niter = 250, nburnin = 50, nchains = 1)
+)
+fit_cond <- run_mcmc_bundle_manual(bundle_cond, show_progress = FALSE)
+```
+
+# Interpretation across quantiles
+
+```{r cond-pred}
+x_new <- X[1:10, , drop = FALSE]
+q_pred <- predict(fit_cond, x = x_new, type = "quantile", index = c(0.1, 0.5, 0.9))
+plot(q_pred)
+```
+
+# Covariates and tails
+
+By allowing tail parameters to depend on $X$, DPmixGPD can capture **heterogeneous tail risk** (e.g., extreme outcomes becoming more likely in certain covariate regimes).
+
+# Connection to unconditional models
+
+The unconditional case is the special case with **no covariates**. See [unconditional](unconditional.Rmd).
+
+# What this is NOT
+
+- It is **not** treatment effect modeling.
+- It is **not** identification or causal inference.
+
+For causal contrasts, see [causal](causal.Rmd).
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090

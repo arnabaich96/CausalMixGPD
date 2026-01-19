@@ -1,6 +1,7 @@
 ## ----setup, include=FALSE-----------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
+<<<<<<< HEAD
   comment = "#>",
   message = FALSE,
   warning = FALSE,
@@ -57,3 +58,14 @@ try(plot(fit, family = "trace"), silent = TRUE)
 ## ----sessioninfo, include=FALSE-----------------------------------------------
 sessionInfo()
 
+=======
+  comment = NA,
+  fig.width = 7,
+  fig.height = 4.5,
+  message = FALSE,
+  warning = FALSE,
+  eval = FALSE
+)
+library(DPmixGPD)
+
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090

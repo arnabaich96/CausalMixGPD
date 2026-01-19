@@ -1,14 +1,23 @@
 ---
+<<<<<<< HEAD
 title: "7. Unconditional DPmix with Stick-Breaking Backend"
+=======
+title: "Legacy: 7. Unconditional DPmix with Stick-Breaking Backend"
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 output: 
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
+<<<<<<< HEAD
   %\VignetteIndexEntry{7. Unconditional DPmix with Stick-Breaking Backend}
+=======
+  %\VignetteIndexEntry{Legacy: 7. Unconditional DPmix with Stick-Breaking Backend}
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
+<<<<<<< HEAD
 ```{r legacy-setup, include=FALSE}
 source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
 ```
@@ -77,6 +86,30 @@ quiet_mcmc <- function(expr) {
 >
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+=======
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = NA,
+  fig.width = 8,
+  fig.height = 6,
+  message = FALSE,
+  warning = FALSE,
+  eval = TRUE
+)
+library(DPmixGPD)
+if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
+library(ggplot2)
+library(gridExtra)
+library(kableExtra)
+library(dplyr)
+library(patchwork)
+library(purrr)
+set.seed(123)
+```
+
+> **Legacy note:** This page is preserved for historical context and extended detail. It predates the streamlined official vignettes and may include longer runs or exploratory material.
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 # Unconditional DPmix: Stick-Breaking (SB) Backend
 
@@ -128,7 +161,16 @@ bundle_sb_gamma <- build_nimble_bundle(
   backend = "sb",
   components = 5,            # fixed truncation level for SB
   GPD = FALSE,               # bulk-only scenario
+<<<<<<< HEAD
   mcmc = mcmc
+=======
+  mcmc = list(
+    niter = 60,
+    nburnin = 10,
+    nchains = 2,
+    thin = 1
+  )
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 )
 
 # --- Cauchy kernel ---
@@ -138,7 +180,16 @@ bundle_sb_cauchy <- build_nimble_bundle(
   backend = "sb",
   components = 5,
   GPD = FALSE,
+<<<<<<< HEAD
   mcmc = mcmc
+=======
+  mcmc = list(
+    niter = 60,
+    nburnin = 10,
+    nchains = 1,
+    thin = 1
+  )
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 )
 ```
 
@@ -147,8 +198,13 @@ bundle_sb_cauchy <- build_nimble_bundle(
 ## Running MCMC & Summary
 
 ```{r mcmc-run}
+<<<<<<< HEAD
 fit_sb_gamma <- load_or_fit("v07-unconditional-DPmix-SB-fit_sb_gamma", run_mcmc_bundle_manual(bundle_sb_gamma))
 fit_sb_cauchy <- load_or_fit("v07-unconditional-DPmix-SB-fit_sb_cauchy", run_mcmc_bundle_manual(bundle_sb_cauchy))
+=======
+fit_sb_gamma <- run_mcmc_bundle_manual(bundle_sb_gamma)
+fit_sb_cauchy <- run_mcmc_bundle_manual(bundle_sb_cauchy)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 ```
 
 ```{r fit-summary}
@@ -222,9 +278,15 @@ bundle_crp_small <- build_nimble_bundle(
   backend = "crp",
   components = 5,
   GPD = FALSE,
+<<<<<<< HEAD
   mcmc = mcmc
 )
 fit_crp_small <- load_or_fit("v07-unconditional-DPmix-SB-fit_crp_small", run_mcmc_bundle_manual(bundle_crp_small))
+=======
+  mcmc = list(niter = 2500, nburnin = 500, nchains = 1)
+)
+fit_crp_small <- run_mcmc_bundle_manual(bundle_crp_small)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 crp_quant <- predict(fit_crp_small, type = "quantile", index = quant_probs, interval = "credible")
 sb_quant <- predict(fit_sb_gamma, type = "quantile", index = quant_probs, interval = "credible")

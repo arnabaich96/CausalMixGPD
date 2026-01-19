@@ -926,10 +926,15 @@ plot.mixgpd_fit <- function(x,
 #' @param type Prediction type: \code{"density"}, \code{"survival"}, \code{"quantile"},
 #'   \code{"sample"}, \code{"mean"}, \code{"median"}, \code{"location"}.
 #' @param p Numeric vector of probabilities for quantiles (required for \code{type="quantile"}).
+<<<<<<< HEAD
 #' @param index Alternative name for \code{p} (used internally for quantiles).
 #' @param y Numeric vector of evaluation points (required for \code{type="density"} or \code{"survival"}).
 #' @param interval \code{"none"} or \code{"credible"} for posterior credible bands.
 #' @param cred.level Credible level for posterior intervals (used when \code{interval = "credible"}).
+=======
+#' @param y Numeric vector of evaluation points (required for \code{type="density"} or \code{"survival"}).
+#' @param interval \code{"none"} or \code{"credible"} for posterior credible bands.
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 #' @param probs Quantiles for credible interval bands.
 #' @param nsim Number of posterior predictive samples (for \code{type="sample"}).
 #' @param store_draws Logical; whether to store all posterior draws (for \code{type="sample"}).
@@ -1090,6 +1095,7 @@ predict.mixgpd_fit <- function(object,
 #' for all observations. For conditional models, returns individual predictions.
 #'
 #' @param object A fitted object of class \code{"mixgpd_fit"}.
+<<<<<<< HEAD
 #' @param type Which fitted location to return: \code{"mean"} or \code{"median"}.
 #' @param level Credible level for credible intervals (default 0.95 for 95\% credible intervals).
 #' @param seed Optional RNG seed. If \code{NULL}, RNG state is untouched. Otherwise the RNG is
@@ -1097,6 +1103,16 @@ predict.mixgpd_fit <- function(object,
 #' @param ... Unused.
 #' @return A data frame with columns \code{obs}, \code{fit}, \code{lower}, \code{upper},
 #'   and \code{residuals} (\code{obs - fit}).
+=======
+#' @param type Which fitted location to return: mean, median, quantile, or both (\code{"location"}).
+#' @param p Quantile level used when \code{type = "quantile"}.
+#' @param level Credible level for confidence intervals (default 0.95 for 95\% credible intervals).
+#' @param seed Random seed used for deterministic fitted values.
+#' @param ... Unused.
+#' @return A data frame with columns: 
+#'   \code{fit} (point estimates), \code{lower} (lower credible bound),
+#'   \code{upper} (upper credible bound), and \code{residuals} (y - fit).
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 #' @examples
 #' \dontrun{
 #' y <- abs(stats::rnorm(50)) + 0.1
@@ -1108,7 +1124,11 @@ predict.mixgpd_fit <- function(object,
 #' fitted(fit, level = 0.90)
 #' }
 #' @export
+<<<<<<< HEAD
 fitted.mixgpd_fit <- function(object, type = c("mean", "median"), level = 0.95, seed = 1, ...) {
+=======
+fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median", "quantile"), p = 0.5, level = 0.95, seed = 1, ...) {
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   type <- match.arg(type)
@@ -1118,6 +1138,7 @@ fitted.mixgpd_fit <- function(object, type = c("mean", "median"), level = 0.95, 
   if (!is.null(seed)) {
     old_seed <- if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) .Random.seed else NULL
     on.exit({
+<<<<<<< HEAD
       if (is.null(old_seed)) {
         if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
           rm(".Random.seed", envir = .GlobalEnv)
@@ -1125,13 +1146,52 @@ fitted.mixgpd_fit <- function(object, type = c("mean", "median"), level = 0.95, 
       } else {
         .Random.seed <<- old_seed
       }
+=======
+      if (!is.null(old_seed)) .Random.seed <<- old_seed
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
     }, add = TRUE)
     set.seed(as.integer(seed))
   }
 
   if (is.null(y)) stop("Could not extract y from fitted object.", call. = FALSE)
 
+<<<<<<< HEAD
   if (!is.null(X)) {
+=======
+  if (type == "location") {
+    pred_mean <- predict(object, x = X, type = "mean",
+                        cred.level = level, interval = "credible")
+    pred_median <- predict(object, x = X, type = "median",
+                          cred.level = level, interval = "credible")
+    fit_df <- pred_mean$fit
+    if ("id" %in% names(fit_df)) fit_df <- fit_df[order(fit_df$id), , drop = FALSE]
+    fit_vals <- fit_df$estimate
+    lower_vals <- fit_df$lower
+    upper_vals <- fit_df$upper
+
+    med_df <- pred_median$fit
+    if ("id" %in% names(med_df)) med_df <- med_df[order(med_df$id), , drop = FALSE]
+    med_vals <- med_df$estimate
+    med_lower <- med_df$lower
+    med_upper <- med_df$upper
+  } else if (type == "quantile") {
+    pred <- predict(object, x = X, type = "quantile",
+                    index = p, cred.level = level, interval = "credible")
+    fit_df <- pred$fit
+    if ("id" %in% names(fit_df)) fit_df <- fit_df[order(fit_df$id), , drop = FALSE]
+    fit_vals <- fit_df$estimate
+    lower_vals <- fit_df$lower
+    upper_vals <- fit_df$upper
+
+    if (is.null(X)) {
+      if (length(fit_vals) == 1L) {
+        fit_vals <- rep(fit_vals, length(y))
+        lower_vals <- rep(lower_vals, length(y))
+        upper_vals <- rep(upper_vals, length(y))
+      }
+    }
+  } else if (!is.null(X)) {
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
     pred <- predict(object, x = X, type = type,
                     cred.level = level, interval = "credible")
     fit_df <- pred$fit
@@ -1148,11 +1208,31 @@ fitted.mixgpd_fit <- function(object, type = c("mean", "median"), level = 0.95, 
     upper_vals <- rep(fit_df$upper[1], length(y))
   }
 
+<<<<<<< HEAD
   result <- data.frame(obs = y,
                        fit = fit_vals,
                        lower = lower_vals,
                        upper = upper_vals,
                        residuals = y - fit_vals)
+=======
+  result <- data.frame(fit = fit_vals,
+                       lower = lower_vals,
+                       upper = upper_vals,
+                       residuals = y - fit_vals)
+  if (type == "location") {
+    if (is.null(X)) {
+      med_vals <- rep(med_vals[1], length(y))
+      med_lower <- rep(med_lower[1], length(y))
+      med_upper <- rep(med_upper[1], length(y))
+    }
+    result$mean <- fit_vals
+    result$mean_lower <- lower_vals
+    result$mean_upper <- upper_vals
+    result$median <- med_vals
+    result$median_lower <- med_lower
+    result$median_upper <- med_upper
+  }
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   class(result) <- c("mixgpd_fitted", "data.frame")
   attr(result, "object") <- object
   attr(result, "level") <- level

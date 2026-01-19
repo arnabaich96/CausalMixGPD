@@ -42,12 +42,17 @@ orchestrate PS estimation and outcome prediction jointly.}
 
 \item{p}{Numeric vector of probabilities for quantiles (required for \code{type="quantile"}).}
 
+<<<<<<< HEAD
 \item{index}{Alternative name for \code{p} (used internally for quantiles).}
 
 \item{nsim}{Number of posterior predictive samples (for \code{type="sample"}).}
 
 \item{cred.level}{Credible level for posterior intervals (used when \code{interval = "credible"}).}
 
+=======
+\item{nsim}{Number of posterior predictive samples (for \code{type="sample"}).}
+
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 \item{interval}{\code{"none"} or \code{"credible"} for posterior credible bands.}
 
 \item{probs}{Quantiles for credible interval bands.}

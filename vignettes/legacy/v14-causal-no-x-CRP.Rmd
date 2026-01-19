@@ -1,24 +1,36 @@
 ---
+<<<<<<< HEAD
 title: "14. Causal Inference: No X (CRP) - Gamma Kernel"
+=======
+title: "Legacy: 14. Causal Inference: No X (CRP) - Gamma Kernel"
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
+<<<<<<< HEAD
   %\VignetteIndexEntry{14. Causal Inference: No X (CRP) - Gamma Kernel}
+=======
+  %\VignetteIndexEntry{Legacy: 14. Causal Inference: No X (CRP) - Gamma Kernel}
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
+<<<<<<< HEAD
 ```{r legacy-setup, include=FALSE}
 source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
 ```
 
 
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = FALSE,
   comment = NA,
   fig.width = 8,
+<<<<<<< HEAD
   fig.height = 5,
   message = FALSE,
   warning = FALSE,
@@ -61,6 +73,22 @@ load_or_fit <- function(tag, expr) {
 
 quiet_mcmc <- function(expr) {
   nullfile <- if (.Platform$OS.type == 'windows') 'NUL' else '/dev/null'
+=======
+  fig.height = 6,
+  message = FALSE,
+  warning = FALSE,
+  eval = TRUE
+)
+library(DPmixGPD)
+if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
+library(ggplot2)
+library(dplyr)
+library(tibble)
+set.seed(123)
+
+quiet_mcmc <- function(expr) {
+  nullfile <- if (.Platform$OS.type == "windows") "NUL" else "/dev/null"
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   out <- NULL
   utils::capture.output(
     out <- eval(substitute(expr), envir = parent.frame()),
@@ -70,6 +98,7 @@ quiet_mcmc <- function(expr) {
 }
 ```
 
+<<<<<<< HEAD
 
 > **Legacy vignette (for the website / historical notes).**
 > These files may not match the current exported API one-to-one.
@@ -77,6 +106,9 @@ quiet_mcmc <- function(expr) {
 >
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+=======
+> **Legacy note:** This page is preserved for historical context and extended detail. It predates the streamlined official vignettes and may include longer runs or exploratory material.
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 # Causal Inference: No Covariates (CRP)
 
@@ -170,7 +202,11 @@ plot(qte_bulk)
 
 ---
 
+<<<<<<< HEAD
 ## Model B: CRP with GPD Tail (Gamma)
+=======
+## Model B: SB with GPD Tail (Gamma)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 ```{r bundle-crp-gpd}
 param_specs_gpd <- list(
@@ -188,7 +224,11 @@ bundle_crp_gpd <- build_causal_bundle(
   T = T,
   X = NULL,
   kernel = "gamma",
+<<<<<<< HEAD
   backend = "crp",
+=======
+  backend = "sb",
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   PS = FALSE,
   GPD = TRUE,
   components = 6,

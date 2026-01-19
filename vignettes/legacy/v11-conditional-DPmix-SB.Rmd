@@ -1,14 +1,23 @@
 ---
+<<<<<<< HEAD
 title: "11. Conditional DPmix with Stick-Breaking Backend"
+=======
+title: "Legacy: 11. Conditional DPmix with Stick-Breaking Backend"
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 output: 
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
+<<<<<<< HEAD
   %\VignetteIndexEntry{11. Conditional DPmix with Stick-Breaking Backend}
+=======
+  %\VignetteIndexEntry{Legacy: 11. Conditional DPmix with Stick-Breaking Backend}
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
+<<<<<<< HEAD
 ```{r legacy-setup, include=FALSE}
 source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
 ```
@@ -77,6 +86,29 @@ quiet_mcmc <- function(expr) {
 >
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+=======
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = NA,
+  fig.width = 8,
+  fig.height = 6,
+  message = FALSE,
+  warning = FALSE,
+  eval = TRUE
+)
+library(DPmixGPD)
+if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
+library(ggplot2)
+library(gridExtra)
+library(kableExtra)
+library(dplyr)
+library(tibble)
+set.seed(123)
+```
+
+> **Legacy note:** This page is preserved for historical context and extended detail. It predates the streamlined official vignettes and may include longer runs or exploratory material.
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 # Conditional DPmix: Stick-Breaking Backend
 
@@ -125,7 +157,16 @@ bundle_sb_normal <- build_nimble_bundle(
   backend = "sb",
   GPD = FALSE,
   components = 5,
+<<<<<<< HEAD
   mcmc = mcmc
+=======
+  mcmc = list(
+    niter = 60,
+    nburnin = 10,
+    nchains = 2,
+    thin = 1
+  )
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 )
 
 bundle_sb_cauchy <- build_nimble_bundle(
@@ -135,7 +176,16 @@ bundle_sb_cauchy <- build_nimble_bundle(
   backend = "sb",
   GPD = FALSE,
   components = 5,
+<<<<<<< HEAD
   mcmc = mcmc
+=======
+  mcmc = list(
+    niter = 60,
+    nburnin = 10,
+    nchains = 1,
+    thin = 1
+  )
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 )
 ```
 
@@ -144,8 +194,13 @@ bundle_sb_cauchy <- build_nimble_bundle(
 ## Running MCMC
 
 ```{r mcmc}
+<<<<<<< HEAD
 fit_sb_normal <- load_or_fit("v11-conditional-DPmix-SB-fit_sb_normal", run_mcmc_bundle_manual(bundle_sb_normal))
 fit_sb_cauchy <- load_or_fit("v11-conditional-DPmix-SB-fit_sb_cauchy", run_mcmc_bundle_manual(bundle_sb_cauchy))
+=======
+fit_sb_normal <- run_mcmc_bundle_manual(bundle_sb_normal)
+fit_sb_cauchy <- run_mcmc_bundle_manual(bundle_sb_cauchy)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 summary(fit_sb_normal)
 summary(fit_sb_cauchy)
 ```

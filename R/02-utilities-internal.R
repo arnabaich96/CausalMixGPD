@@ -13,6 +13,7 @@
 #' @name null_coalescing
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 
+<<<<<<< HEAD
 #' Reserved-name validation for NIMBLE
 #' @param names Character vector of names to validate.
 #' @param context Human-readable context for error messages.
@@ -44,6 +45,8 @@
   invisible(TRUE)
 }
 
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 #' Extract nimbleCode from bundle code
 #' @keywords internal
 .extract_nimble_code <- function(code) {

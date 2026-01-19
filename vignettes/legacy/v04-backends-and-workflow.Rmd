@@ -1,14 +1,23 @@
 ---
+<<<<<<< HEAD
 title: "4. Backends, Kernels, and Workflow Map"
+=======
+title: "Legacy: 4. Backends, Kernels, and Workflow Map"
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
+<<<<<<< HEAD
   %\VignetteIndexEntry{4. Backends, Kernels, and Workflow Map}
+=======
+  %\VignetteIndexEntry{Legacy: 4. Backends, Kernels, and Workflow Map}
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
+<<<<<<< HEAD
 ```{r legacy-setup, include=FALSE}
 source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
 ```
@@ -17,11 +26,17 @@ source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = FALSE,
+=======
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   comment = NA,
   fig.width = 8,
   fig.height = 5,
   message = FALSE,
   warning = FALSE,
+<<<<<<< HEAD
   cache = TRUE,
   cache.path = 'legacy-cache/'
 )
@@ -77,6 +92,15 @@ quiet_mcmc <- function(expr) {
 >
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+=======
+  eval = TRUE
+)
+library(DPmixGPD)
+if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
+```
+
+> **Legacy note:** This page is preserved for historical context and extended detail. It predates the streamlined official vignettes and may include longer runs or exploratory material.
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 # Big picture
 
@@ -122,11 +146,19 @@ bundle <- build_nimble_bundle(
   kernel = "normal",
   GPD = FALSE,
   components = 5,
+<<<<<<< HEAD
   mcmc = mcmc
 )
 
 # Run
 fit <- load_or_fit("v04-backends-and-workflow-fit", run_mcmc_bundle_manual(bundle))
+=======
+  mcmc = list(niter = 200, nburnin = 100, thin = 1, nchains = 1, seed = 1)
+)
+
+# Run
+fit <- run_mcmc_bundle_manual(bundle)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 # Summarize
 print(fit)

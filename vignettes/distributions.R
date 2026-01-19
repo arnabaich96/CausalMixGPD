@@ -1,6 +1,7 @@
 ## ----setup, include=FALSE-----------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
+<<<<<<< HEAD
   comment = "#>",
   message = FALSE,
   warning = FALSE,
@@ -50,4 +51,20 @@ plot(x, dlnorm(x, meanlog = 0, sdlog = 0.6), type = "l", xlab = "x", ylab = "den
 
 ## ----sessioninfo, include=FALSE-----------------------------------------------
 sessionInfo()
+=======
+  comment = NA,
+  message = FALSE,
+  warning = FALSE,
+  eval = FALSE
+)
+library(DPmixGPD)
+
+## ----kernel-help--------------------------------------------------------------
+# ?dGammaMix
+# ?dLognormalMix
+# ?dLaplaceMix
+# ?dInvGaussMix
+# ?dAmorosoMix
+# ?dCauchyMix
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 

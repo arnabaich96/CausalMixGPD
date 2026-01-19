@@ -1,6 +1,7 @@
 ## ----setup, include=FALSE-----------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
+<<<<<<< HEAD
   comment = "#>",
   message = FALSE,
   warning = FALSE
@@ -29,4 +30,23 @@ bundle
 # X <- data.frame(if = rnorm(40))
 # # Fix:
 # names(X)[names(X) == "if"] <- "x_if"
+=======
+  comment = NA,
+  message = FALSE,
+  warning = FALSE,
+  eval = FALSE
+)
+library(DPmixGPD)
+
+## ----bundle-example-----------------------------------------------------------
+# bundle <- build_nimble_bundle(
+#   y = y,
+#   X = X,
+#   kernel = "gamma",
+#   backend = "crp",
+#   GPD = TRUE,
+#   J = 5,
+#   mcmc = list(niter = 200, nburnin = 50, nchains = 1)
+# )
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 

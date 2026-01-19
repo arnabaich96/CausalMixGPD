@@ -1,5 +1,9 @@
 ---
+<<<<<<< HEAD
 title: "5. Unconditional DPmix (CRP Backend)"
+=======
+title: "Legacy: 5. Unconditional DPmix (CRP Backend)"
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 output:
   html_document:
     toc: true
@@ -7,11 +11,16 @@ output:
     theme: flatly
     highlight: tango
 vignette: >
+<<<<<<< HEAD
   %\VignetteIndexEntry{5. Unconditional DPmix (CRP Backend)}
+=======
+  %\VignetteIndexEntry{Legacy: 5. Unconditional DPmix (CRP Backend)}
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
+<<<<<<< HEAD
 ```{r legacy-setup, include=FALSE}
 source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
 ```
@@ -80,6 +89,30 @@ quiet_mcmc <- function(expr) {
 >
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+=======
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = NA,
+  fig.width = 8,
+  fig.height = 6,
+  message = FALSE,
+  warning = FALSE,
+  eval = TRUE,
+  cache = FALSE
+)
+library(nimble)
+library(DPmixGPD)
+if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
+library(ggplot2)
+library(gridExtra)
+library(kableExtra)
+library(patchwork)
+set.seed(123)
+```
+
+> **Legacy note:** This page is preserved for historical context and extended detail. It predates the streamlined official vignettes and may include longer runs or exploratory material.
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 # Overview
 
@@ -120,7 +153,16 @@ bundle_crp <- build_nimble_bundle(
   GPD = FALSE,                # No tail augmentation
   components = 3,             # Minimal for testing
   alpha_random = TRUE,        # Random DP concentration
+<<<<<<< HEAD
   mcmc = mcmc
+=======
+  mcmc = list(
+    niter = 50,             # Minimal for testing
+    nburnin = 10,           # Minimal burnin
+    nchains = 2,            # Two chains for diagnostics
+    thin = 1                # No thinning
+  )
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 )
 ```
 
@@ -134,7 +176,11 @@ bundle_crp <- build_nimble_bundle(
   GPD = FALSE,
   components = 3,
   alpha_random = TRUE,
+<<<<<<< HEAD
   mcmc = mcmc
+=======
+  mcmc = list(niter = 1500, nburnin = 250, nchains = 2, thin = 1)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 )
 ```
 
@@ -143,7 +189,11 @@ summary(bundle_crp)
 ```
 
 ```{r mcmc-crp-fit, results = "hide"}
+<<<<<<< HEAD
 fit_crp <- load_or_fit("v05-unconditional-DPmix-CRP-fit_crp", run_mcmc_bundle_manual(bundle_crp))
+=======
+fit_crp <- run_mcmc_bundle_manual(bundle_crp)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 ```
 
 ```{r}

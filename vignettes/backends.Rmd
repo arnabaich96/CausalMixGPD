@@ -1,8 +1,17 @@
 ---
+<<<<<<< HEAD
 title: "Backends: SB vs CRP"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Backends: SB vs CRP}
+=======
+title: "Backends"
+output:
+  rmarkdown::html_vignette:
+    code_folding: show
+vignette: >
+  %\VignetteIndexEntry{Backends}
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -10,6 +19,7 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
+<<<<<<< HEAD
   comment = "#>",
   message = FALSE,
   warning = FALSE,
@@ -99,3 +109,46 @@ rbind(
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+=======
+  comment = NA,
+  message = FALSE,
+  warning = FALSE,
+  eval = FALSE
+)
+library(DPmixGPD)
+```
+
+# Two backends, same model
+
+DPmixGPD offers two equivalent representations of the same mixture model:
+
+- **SB (stick‑breaking)**
+- **CRP (Chinese restaurant process)**
+
+# SB vs CRP: conceptual comparison
+
+| Aspect | SB | CRP |
+|---|---|---|
+| Components | fixed truncation $K$ | capped but adaptive occupancy |
+| Computation | predictable, vectorized | flexible clustering |
+| Interpretation | weights from stick‑breaking | cluster allocation process |
+
+# When to use each
+
+- Use **SB** when runtime and memory predictability matter.
+- Use **CRP** when you want adaptive cluster occupancy within the same $K$.
+
+# Computational tradeoffs
+
+- SB often runs faster per iteration.
+- CRP can mix better for clustering structure.
+
+# Minimal example (non‑executed)
+
+```{r backend-example}
+bundle_sb <- build_nimble_bundle(y = y, kernel = "gamma", backend = "sb", J = 5)
+bundle_crp <- build_nimble_bundle(y = y, kernel = "gamma", backend = "crp", J = 5)
+```
+
+This vignette is intentionally short. For model building, see [model-spec](model-spec.Rmd).
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090

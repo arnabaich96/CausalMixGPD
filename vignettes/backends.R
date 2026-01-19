@@ -1,6 +1,7 @@
 ## ----setup, include=FALSE-----------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
+<<<<<<< HEAD
   comment = "#>",
   message = FALSE,
   warning = FALSE,
@@ -21,4 +22,16 @@ library(DPmixGPD)
 
 n <- 90
 y <- abs(rnorm(n)) + 0.2
+=======
+  comment = NA,
+  message = FALSE,
+  warning = FALSE,
+  eval = FALSE
+)
+library(DPmixGPD)
+
+## ----backend-example----------------------------------------------------------
+# bundle_sb <- build_nimble_bundle(y = y, kernel = "gamma", backend = "sb", J = 5)
+# bundle_crp <- build_nimble_bundle(y = y, kernel = "gamma", backend = "crp", J = 5)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 

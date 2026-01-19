@@ -1,14 +1,23 @@
 ---
+<<<<<<< HEAD
 title: "3. Basic Workflow: Model Specification, Bundle, & MCMC"
+=======
+title: "Legacy: 3. Basic Workflow: Model Specification, Bundle, & MCMC"
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 output: 
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
+<<<<<<< HEAD
   %\VignetteIndexEntry{3. Basic Workflow: Model Specification, Bundle, & MCMC}
+=======
+  %\VignetteIndexEntry{Legacy: 3. Basic Workflow: Model Specification, Bundle, & MCMC}
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
+<<<<<<< HEAD
 ```{r legacy-setup, include=FALSE}
 source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
 ```
@@ -77,6 +86,25 @@ quiet_mcmc <- function(expr) {
 >
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+=======
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = NA,
+  fig.width = 8,
+  fig.height = 6,
+  message = FALSE,
+  warning = FALSE,
+  eval = TRUE
+)
+library(DPmixGPD)
+if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
+library(ggplot2)
+set.seed(42)
+```
+
+> **Legacy note:** This page is preserved for historical context and extended detail. It predates the streamlined official vignettes and may include longer runs or exploratory material.
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 # Workflow Overview
 
@@ -105,7 +133,11 @@ bundle_direct <- build_nimble_bundle(
   backend = "crp",
   GPD = FALSE,
   components = 5,
+<<<<<<< HEAD
   mcmc = mcmc
+=======
+  mcmc = list(niter = 200, nburnin = 50, nchains = 1)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 )
 
 print("Direct bundle creation successful.\n")
@@ -134,7 +166,11 @@ print(bundle_direct$mcmc_settings)
 
 ```{r mcmc-basic}
 # Run MCMC
+<<<<<<< HEAD
 fit <- load_or_fit("v03-basic-model-compile-run-fit", run_mcmc_bundle_manual(bundle_direct, show_progress = FALSE))
+=======
+fit <- run_mcmc_bundle_manual(bundle_direct, show_progress = FALSE)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 cat("Fit object class:", class(fit), "\n")
 cat("MCMC execution complete. Posterior samples collected.\n")
@@ -175,11 +211,24 @@ bundle_final <- build_nimble_bundle(
   backend = "crp",
   GPD = FALSE,
   components = 5,
+<<<<<<< HEAD
   mcmc = mcmc
 )
 
 # PHASE 2: MCMC
 fit_final <- load_or_fit("v03-basic-model-compile-run-fit_final", run_mcmc_bundle_manual(bundle_final, show_progress = FALSE))
+=======
+  mcmc = list(
+    niter = 120,
+    nburnin = 20,
+    nchains = 1,
+    thin = 1
+  )
+)
+
+# PHASE 2: MCMC
+fit_final <- run_mcmc_bundle_manual(bundle_final, show_progress = FALSE)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 print("\n=== THREE-PHASE WORKFLOW COMPLETE ===\n")
 summary(fit_final)
@@ -198,10 +247,17 @@ bundle_crp <- build_nimble_bundle(
   kernel = "gamma",
   backend = "crp",
   components = 5,
+<<<<<<< HEAD
   mcmc = mcmc
 )
 
 fit_crp <- load_or_fit("v03-basic-model-compile-run-fit_crp", run_mcmc_bundle_manual(bundle_crp, show_progress = FALSE))
+=======
+  mcmc = list(niter = 200, nburnin = 50, nchains = 1)
+)
+
+fit_crp <- run_mcmc_bundle_manual(bundle_crp, show_progress = FALSE)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 print("CRP execution complete.\n")
 ```
 
@@ -214,10 +270,17 @@ bundle_sb <- build_nimble_bundle(
   kernel = "gamma",
   backend = "sb",
   components = 5,
+<<<<<<< HEAD
   mcmc = mcmc
 )
 
 fit_sb <- load_or_fit("v03-basic-model-compile-run-fit_sb", run_mcmc_bundle_manual(bundle_sb, show_progress = FALSE))
+=======
+  mcmc = list(niter = 120, nburnin = 20, nchains = 1)
+)
+
+fit_sb <- run_mcmc_bundle_manual(bundle_sb, show_progress = FALSE)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 print("SB execution complete.\n")
 ```
 
@@ -261,10 +324,17 @@ bundle_gpd <- build_nimble_bundle(
   backend = "sb",
   GPD = TRUE,
   components = 6,
+<<<<<<< HEAD
   mcmc = mcmc
 )
 
 fit_gpd <- load_or_fit("v03-basic-model-compile-run-fit_gpd", run_mcmc_bundle_manual(bundle_gpd, show_progress = FALSE))
+=======
+  mcmc = list(niter = 200, nburnin = 50, nchains = 1, waic = FALSE)
+)
+
+fit_gpd <- run_mcmc_bundle_manual(bundle_gpd, show_progress = FALSE)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 print("\nGPD augmentation applied to tail region.\n")
 summary(fit_gpd)
 ```

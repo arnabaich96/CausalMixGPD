@@ -1,14 +1,23 @@
 ---
+<<<<<<< HEAD
 title: "1. Introduction to DPmixGPD"
+=======
+title: "Legacy: 1. Introduction to DPmixGPD"
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 output: 
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
+<<<<<<< HEAD
   %\VignetteIndexEntry{1. Introduction to DPmixGPD}
+=======
+  %\VignetteIndexEntry{Legacy: 1. Introduction to DPmixGPD}
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
+<<<<<<< HEAD
 ```{r legacy-setup, include=FALSE}
 source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
 ```
@@ -77,6 +86,21 @@ quiet_mcmc <- function(expr) {
 >
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+=======
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = NA,
+  fig.width = 7,
+  fig.height = 5,
+  eval = TRUE
+)
+library(DPmixGPD)
+if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
+```
+
+> **Legacy note:** This page is preserved for historical context and extended detail. It predates the streamlined official vignettes and may include longer runs or exploratory material.
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 # DPmixGPD: Bayesian Nonparametric Mixture Models with GPD Tails
 
@@ -153,7 +177,11 @@ bundle <- build_nimble_bundle(
   backend = "crp",
   GPD = TRUE,
   components = 5,
+<<<<<<< HEAD
   mcmc = mcmc
+=======
+  mcmc = list(niter = 1000, nburnin = 100, nchains = 1)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 )
 fit <- run_mcmc_bundle_manual(bundle)
 ```
@@ -174,7 +202,11 @@ bundle <- build_nimble_bundle(
   kernel = "gamma",
   GPD = FALSE,
   components = 5,
+<<<<<<< HEAD
   mcmc = mcmc
+=======
+  mcmc = list(niter = 200, nburnin = 10, nchains = 1)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 )
 
 # Print bundle
