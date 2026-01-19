@@ -1,8 +1,0 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
-if [ "${DPMIXGPD_SKIP_STYLER:-0}" = "1" ]; then
-  exit 0
-fi
-
-Rscript --vanilla tools/styler_precommit.R
