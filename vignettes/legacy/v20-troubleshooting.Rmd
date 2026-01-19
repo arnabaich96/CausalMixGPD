@@ -1,6 +1,10 @@
 ---
 <<<<<<< HEAD
+<<<<<<< HEAD
 title: "20. Troubleshooting"
+=======
+title: "Legacy: 20. Troubleshooting"
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 title: "Legacy: 20. Troubleshooting"
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -9,7 +13,11 @@ output:
     code_folding: show
 vignette: >
 <<<<<<< HEAD
+<<<<<<< HEAD
   %\VignetteIndexEntry{20. Troubleshooting}
+=======
+  %\VignetteIndexEntry{Legacy: 20. Troubleshooting}
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
   %\VignetteIndexEntry{Legacy: 20. Troubleshooting}
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -18,6 +26,7 @@ vignette: >
 ---
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ```{r legacy-setup, include=FALSE}
 source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
 ```
@@ -25,10 +34,13 @@ source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
 
 =======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = FALSE,
   comment = NA,
+<<<<<<< HEAD
 <<<<<<< HEAD
   fig.width = 8,
   fig.height = 5,
@@ -90,6 +102,8 @@ quiet_mcmc <- function(expr) {
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   message = FALSE,
   warning = FALSE,
   eval = TRUE
@@ -98,6 +112,9 @@ library(DPmixGPD)
 ```
 
 > **Legacy note:** This page is preserved for historical context and extended detail. It predates the streamlined official vignettes and may include longer runs or exploratory material.
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 # Troubleshooting
@@ -171,7 +188,11 @@ bundle <- build_nimble_bundle(
   GPD = TRUE,
   components = 6,
 <<<<<<< HEAD
+<<<<<<< HEAD
   mcmc = mcmc
+=======
+  mcmc = list(niter = 1500, nburnin = 300, thin = 1, nchains = 2)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
   mcmc = list(niter = 1500, nburnin = 300, thin = 1, nchains = 2)
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -207,7 +228,11 @@ bundle <- build_nimble_bundle(
   kernel = "normal",
   components = 4,
 <<<<<<< HEAD
+<<<<<<< HEAD
   mcmc = mcmc
+=======
+  mcmc = list(niter = 300, nburnin = 80, nchains = 1)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
   mcmc = list(niter = 300, nburnin = 80, nchains = 1)
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090

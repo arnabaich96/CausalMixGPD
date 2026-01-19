@@ -147,7 +147,10 @@ importFrom(nimble,pdexp)
 importFrom(nimble,qdexp)
 importFrom(nimble,rdexp)
 <<<<<<< HEAD
+<<<<<<< HEAD
 importFrom(rlang,.data)
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 importFrom(stats,coef)
@@ -156,6 +159,7 @@ importFrom(stats,density)
 importFrom(stats,dgamma)
 importFrom(stats,dlnorm)
 importFrom(stats,dnorm)
+<<<<<<< HEAD
 <<<<<<< HEAD
 importFrom(stats,fitted)
 importFrom(stats,kernel)
@@ -168,13 +172,21 @@ importFrom(stats,pcauchy)
 importFrom(stats,pgamma)
 importFrom(stats,plnorm)
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
+importFrom(stats,pcauchy)
+importFrom(stats,pgamma)
+importFrom(stats,plnorm)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 importFrom(stats,pnorm)
 importFrom(stats,predict)
 importFrom(stats,qcauchy)
 importFrom(stats,qgamma)
 importFrom(stats,qlnorm)
 <<<<<<< HEAD
+<<<<<<< HEAD
 importFrom(stats,qlogis)
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 importFrom(stats,qnorm)
@@ -182,7 +194,10 @@ importFrom(stats,quantile)
 importFrom(stats,rbinom)
 importFrom(stats,rcauchy)
 <<<<<<< HEAD
+<<<<<<< HEAD
 importFrom(stats,residuals)
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 importFrom(stats,rexp)
@@ -191,7 +206,10 @@ importFrom(stats,rlnorm)
 importFrom(stats,rnorm)
 importFrom(stats,runif)
 <<<<<<< HEAD
+<<<<<<< HEAD
 importFrom(stats,sd)
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 importFrom(stats,setNames)

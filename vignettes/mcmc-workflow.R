@@ -2,6 +2,7 @@
 knitr::opts_chunk$set(
   collapse = TRUE,
 <<<<<<< HEAD
+<<<<<<< HEAD
   comment = "#>",
   message = FALSE,
   warning = FALSE,
@@ -58,6 +59,8 @@ if (!is.null(fit$mcmc$samples)) {
 ## ----sessioninfo, include=FALSE-----------------------------------------------
 sessionInfo()
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   comment = NA,
   message = FALSE,
   warning = FALSE,
@@ -76,5 +79,8 @@ library(DPmixGPD)
 # )
 # fit <- run_mcmc_bundle_manual(bundle)
 # plot(fit, family = c("traceplot", "running"))
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 

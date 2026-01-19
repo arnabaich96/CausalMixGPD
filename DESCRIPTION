@@ -19,9 +19,14 @@ Imports:
     future,
     future.apply,
 <<<<<<< HEAD
+<<<<<<< HEAD
     utils,
     nimble,
     rlang
+=======
+    utils, 
+    nimble
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
     utils, 
     nimble
@@ -30,6 +35,7 @@ Suggests:
     testthat (>= 3.0.0),
     crayon,
     dplyr,
+<<<<<<< HEAD
 <<<<<<< HEAD
     gridExtra,
     ggplot2,
@@ -42,6 +48,8 @@ Suggests:
     jsonlite,
     patchwork
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
     ggplot2,
     knitr,
     rmarkdown,
@@ -54,4 +62,7 @@ Config/testthat/edition: 3
 URL: https://arnabaich96.github.io/DPmixGPD/, https://github.com/arnabaich96/DPmixGPD
 BugReports: https://github.com/arnabaich96/DPmixGPD/issues
 VignetteBuilder: knitr
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090

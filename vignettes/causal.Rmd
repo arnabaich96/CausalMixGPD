@@ -1,16 +1,22 @@
 ---
 <<<<<<< HEAD
+<<<<<<< HEAD
 title: "Causal workflow (two-arm outcome modeling)"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Causal workflow (two-arm outcome modeling)}
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 title: "Causal Modeling (Scoped)"
 output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
   %\VignetteIndexEntry{Causal Modeling (Scoped)}
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
@@ -19,6 +25,7 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
+<<<<<<< HEAD
 <<<<<<< HEAD
   comment = "#>",
   message = FALSE,
@@ -143,6 +150,8 @@ legend("topleft", legend = paste0("tau=", taus), lty = 1, bty = "n")
 sessionInfo()
 ```
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   comment = NA,
   message = FALSE,
   warning = FALSE,
@@ -193,4 +202,7 @@ This package **models outcomes** and **computes contrasts**. It does not perform
 - Heavy simulations
 
 See legacy material in the pkgdown **Legacy** section for extended studies.
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090

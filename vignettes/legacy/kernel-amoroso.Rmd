@@ -1,19 +1,26 @@
 ---
 <<<<<<< HEAD
+<<<<<<< HEAD
 title: "Kernel reference: Amoroso"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Kernel reference: Amoroso}
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 title: "Legacy: Kernel reference: Lognormal"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Legacy: Kernel reference: Lognormal}
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 ```{r legacy-setup, include=FALSE}
 source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
@@ -98,6 +105,8 @@ For the full catalog (including CRP utilities and GPD splicing), see:
 
 ## Using Amoroso in a model
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -123,6 +132,9 @@ For the full catalog (including CRP utilities and GPD splicing), see:
 - [Legacy distributions](legacy/v02-available-distributions.html)
 
 ## Using Lognormal in a model
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 ```{r}
@@ -130,8 +142,13 @@ y <- abs(stats::rnorm(50)) + 0.1
 bundle <- build_nimble_bundle(
   y = y,
 <<<<<<< HEAD
+<<<<<<< HEAD
   backend = "sb",
   kernel  = "amoroso",
+=======
+  backend = "crp",
+  kernel  = "lognormal",
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
   backend = "crp",
   kernel  = "lognormal",
@@ -143,6 +160,10 @@ bundle <- build_nimble_bundle(
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090

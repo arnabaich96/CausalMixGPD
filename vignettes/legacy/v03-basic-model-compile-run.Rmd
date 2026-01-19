@@ -1,6 +1,10 @@
 ---
 <<<<<<< HEAD
+<<<<<<< HEAD
 title: "3. Basic Workflow: Model Specification, Bundle, & MCMC"
+=======
+title: "Legacy: 3. Basic Workflow: Model Specification, Bundle, & MCMC"
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 title: "Legacy: 3. Basic Workflow: Model Specification, Bundle, & MCMC"
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -9,7 +13,11 @@ output:
     code_folding: show
 vignette: >
 <<<<<<< HEAD
+<<<<<<< HEAD
   %\VignetteIndexEntry{3. Basic Workflow: Model Specification, Bundle, & MCMC}
+=======
+  %\VignetteIndexEntry{Legacy: 3. Basic Workflow: Model Specification, Bundle, & MCMC}
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
   %\VignetteIndexEntry{Legacy: 3. Basic Workflow: Model Specification, Bundle, & MCMC}
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -17,6 +25,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 ```{r legacy-setup, include=FALSE}
 source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
@@ -87,6 +96,8 @@ quiet_mcmc <- function(expr) {
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -104,6 +115,9 @@ set.seed(42)
 ```
 
 > **Legacy note:** This page is preserved for historical context and extended detail. It predates the streamlined official vignettes and may include longer runs or exploratory material.
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 # Workflow Overview
@@ -134,7 +148,11 @@ bundle_direct <- build_nimble_bundle(
   GPD = FALSE,
   components = 5,
 <<<<<<< HEAD
+<<<<<<< HEAD
   mcmc = mcmc
+=======
+  mcmc = list(niter = 200, nburnin = 50, nchains = 1)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
   mcmc = list(niter = 200, nburnin = 50, nchains = 1)
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -167,7 +185,11 @@ print(bundle_direct$mcmc_settings)
 ```{r mcmc-basic}
 # Run MCMC
 <<<<<<< HEAD
+<<<<<<< HEAD
 fit <- load_or_fit("v03-basic-model-compile-run-fit", run_mcmc_bundle_manual(bundle_direct, show_progress = FALSE))
+=======
+fit <- run_mcmc_bundle_manual(bundle_direct, show_progress = FALSE)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 fit <- run_mcmc_bundle_manual(bundle_direct, show_progress = FALSE)
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -212,12 +234,15 @@ bundle_final <- build_nimble_bundle(
   GPD = FALSE,
   components = 5,
 <<<<<<< HEAD
+<<<<<<< HEAD
   mcmc = mcmc
 )
 
 # PHASE 2: MCMC
 fit_final <- load_or_fit("v03-basic-model-compile-run-fit_final", run_mcmc_bundle_manual(bundle_final, show_progress = FALSE))
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   mcmc = list(
     niter = 120,
     nburnin = 20,
@@ -228,6 +253,9 @@ fit_final <- load_or_fit("v03-basic-model-compile-run-fit_final", run_mcmc_bundl
 
 # PHASE 2: MCMC
 fit_final <- run_mcmc_bundle_manual(bundle_final, show_progress = FALSE)
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 print("\n=== THREE-PHASE WORKFLOW COMPLETE ===\n")
@@ -248,15 +276,21 @@ bundle_crp <- build_nimble_bundle(
   backend = "crp",
   components = 5,
 <<<<<<< HEAD
+<<<<<<< HEAD
   mcmc = mcmc
 )
 
 fit_crp <- load_or_fit("v03-basic-model-compile-run-fit_crp", run_mcmc_bundle_manual(bundle_crp, show_progress = FALSE))
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   mcmc = list(niter = 200, nburnin = 50, nchains = 1)
 )
 
 fit_crp <- run_mcmc_bundle_manual(bundle_crp, show_progress = FALSE)
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 print("CRP execution complete.\n")
 ```
@@ -271,15 +305,21 @@ bundle_sb <- build_nimble_bundle(
   backend = "sb",
   components = 5,
 <<<<<<< HEAD
+<<<<<<< HEAD
   mcmc = mcmc
 )
 
 fit_sb <- load_or_fit("v03-basic-model-compile-run-fit_sb", run_mcmc_bundle_manual(bundle_sb, show_progress = FALSE))
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   mcmc = list(niter = 120, nburnin = 20, nchains = 1)
 )
 
 fit_sb <- run_mcmc_bundle_manual(bundle_sb, show_progress = FALSE)
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 print("SB execution complete.\n")
 ```
@@ -325,15 +365,21 @@ bundle_gpd <- build_nimble_bundle(
   GPD = TRUE,
   components = 6,
 <<<<<<< HEAD
+<<<<<<< HEAD
   mcmc = mcmc
 )
 
 fit_gpd <- load_or_fit("v03-basic-model-compile-run-fit_gpd", run_mcmc_bundle_manual(bundle_gpd, show_progress = FALSE))
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   mcmc = list(niter = 200, nburnin = 50, nchains = 1, waic = FALSE)
 )
 
 fit_gpd <- run_mcmc_bundle_manual(bundle_gpd, show_progress = FALSE)
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 print("\nGPD augmentation applied to tail region.\n")
 summary(fit_gpd)

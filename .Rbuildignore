@@ -7,10 +7,14 @@
 ^.csv
 ^\.github$
 <<<<<<< HEAD
+<<<<<<< HEAD
 ^\.githooks$
 ^\.git$
 ^\.cache$
 ^\.cache/
+=======
+^\.git$
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 ^\.git$
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -19,8 +23,11 @@
 ^\.gitignore$
 ^docs$
 <<<<<<< HEAD
+<<<<<<< HEAD
 ^pkgdown$
 ^pkgdown/
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 ^DPmixGPD\.Rcheck$
@@ -31,12 +38,16 @@
 ^vignettes/reports$
 ^vignettes/reports/
 <<<<<<< HEAD
+<<<<<<< HEAD
 ^vignettes/legacy$
 ^vignettes/.*\.html$
 ^vignettes/\.build\.timestamp$
 ^vignettes/legacy-precomputed$
 ^vignettes/legacy-precomputed/
 ^vignettes$
+=======
+^vignettes/.*\.html$
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 ^vignettes/.*\.html$
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -53,7 +64,10 @@
 ^Meta$
 ^DOCS-MAINTENANCE$
 <<<<<<< HEAD
+<<<<<<< HEAD
 ^Misc$
 ^codecov\.yml$
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090

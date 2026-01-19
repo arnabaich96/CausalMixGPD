@@ -1,6 +1,10 @@
 ---
 <<<<<<< HEAD
+<<<<<<< HEAD
 title: "0. Start Here"
+=======
+title: "Legacy: 0. Getting Started"
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 title: "Legacy: 0. Getting Started"
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -9,7 +13,11 @@ output:
     code_folding: show
 vignette: >
 <<<<<<< HEAD
+<<<<<<< HEAD
   %\VignetteIndexEntry{0. Start Here}
+=======
+  %\VignetteIndexEntry{Legacy: 0. Getting Started}
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
   %\VignetteIndexEntry{Legacy: 0. Getting Started}
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -18,11 +26,14 @@ vignette: >
 ---
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ```{r legacy-setup, include=FALSE}
 source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
 ```
 
 
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 ```{r setup, include=FALSE}
@@ -33,6 +44,7 @@ knitr::opts_chunk$set(
   fig.height = 5,
   message = FALSE,
   warning = FALSE,
+<<<<<<< HEAD
 <<<<<<< HEAD
   cache = TRUE,
   cache.path = 'legacy-cache/'
@@ -74,6 +86,8 @@ load_or_fit <- function(tag, expr) {
 quiet_mcmc <- function(expr) {
   nullfile <- if (.Platform$OS.type == 'windows') 'NUL' else '/dev/null'
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   eval = TRUE
 )
 library(DPmixGPD)
@@ -83,6 +97,9 @@ set.seed(1)
 
 quiet_mcmc <- function(expr) {
   nullfile <- if (.Platform$OS.type == "windows") "NUL" else "/dev/null"
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   out <- NULL
   utils::capture.output(
@@ -94,6 +111,7 @@ quiet_mcmc <- function(expr) {
 ```
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 > **Legacy vignette (for the website / historical notes).**
 > These files may not match the current exported API one-to-one.
@@ -103,6 +121,11 @@ quiet_mcmc <- function(expr) {
 
 
 # Start Here
+=======
+> **Legacy note:** This page is preserved for historical context and extended detail. It predates the streamlined official vignettes and may include longer runs or exploratory material.
+
+# Legacy Overview {#legacy-overview}
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 > **Legacy note:** This page is preserved for historical context and extended detail. It predates the streamlined official vignettes and may include longer runs or exploratory material.
 
@@ -128,7 +151,11 @@ bundle_uncond <- build_nimble_bundle(
   GPD = FALSE,
   components = 5,
 <<<<<<< HEAD
+<<<<<<< HEAD
   mcmc = mcmc
+=======
+  mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
   mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1, seed = 1)
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -137,7 +164,11 @@ bundle_uncond <- build_nimble_bundle(
 
 ```{r start-uncond-fit}
 <<<<<<< HEAD
+<<<<<<< HEAD
 fit_uncond <- load_or_fit("v00-start-here-fit_uncond", quiet_mcmc(run_mcmc_bundle_manual(bundle_uncond, show_progress = FALSE)))
+=======
+fit_uncond <- quiet_mcmc(run_mcmc_bundle_manual(bundle_uncond, show_progress = FALSE))
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 fit_uncond <- quiet_mcmc(run_mcmc_bundle_manual(bundle_uncond, show_progress = FALSE))
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -169,7 +200,11 @@ bundle_cond <- build_nimble_bundle(
   GPD = FALSE,
   components = 5,
 <<<<<<< HEAD
+<<<<<<< HEAD
   mcmc = mcmc
+=======
+  mcmc = list(niter = 250, nburnin = 50, thin = 1, nchains = 1, seed = 2)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
   mcmc = list(niter = 250, nburnin = 50, thin = 1, nchains = 1, seed = 2)
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -178,7 +213,11 @@ bundle_cond <- build_nimble_bundle(
 
 ```{r start-cond-fit}
 <<<<<<< HEAD
+<<<<<<< HEAD
 fit_cond <- load_or_fit("v00-start-here-fit_cond", quiet_mcmc(run_mcmc_bundle_manual(bundle_cond, show_progress = FALSE)))
+=======
+fit_cond <- quiet_mcmc(run_mcmc_bundle_manual(bundle_cond, show_progress = FALSE))
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 fit_cond <- quiet_mcmc(run_mcmc_bundle_manual(bundle_cond, show_progress = FALSE))
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090

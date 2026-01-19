@@ -1,6 +1,10 @@
 ---
 <<<<<<< HEAD
+<<<<<<< HEAD
 title: "1. Introduction to DPmixGPD"
+=======
+title: "Legacy: 1. Introduction to DPmixGPD"
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 title: "Legacy: 1. Introduction to DPmixGPD"
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -9,7 +13,11 @@ output:
     code_folding: show
 vignette: >
 <<<<<<< HEAD
+<<<<<<< HEAD
   %\VignetteIndexEntry{1. Introduction to DPmixGPD}
+=======
+  %\VignetteIndexEntry{Legacy: 1. Introduction to DPmixGPD}
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
   %\VignetteIndexEntry{Legacy: 1. Introduction to DPmixGPD}
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -17,6 +25,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 ```{r legacy-setup, include=FALSE}
 source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
@@ -87,6 +96,8 @@ quiet_mcmc <- function(expr) {
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -100,6 +111,9 @@ if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRU
 ```
 
 > **Legacy note:** This page is preserved for historical context and extended detail. It predates the streamlined official vignettes and may include longer runs or exploratory material.
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 # DPmixGPD: Bayesian Nonparametric Mixture Models with GPD Tails
@@ -178,7 +192,11 @@ bundle <- build_nimble_bundle(
   GPD = TRUE,
   components = 5,
 <<<<<<< HEAD
+<<<<<<< HEAD
   mcmc = mcmc
+=======
+  mcmc = list(niter = 1000, nburnin = 100, nchains = 1)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
   mcmc = list(niter = 1000, nburnin = 100, nchains = 1)
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -203,7 +221,11 @@ bundle <- build_nimble_bundle(
   GPD = FALSE,
   components = 5,
 <<<<<<< HEAD
+<<<<<<< HEAD
   mcmc = mcmc
+=======
+  mcmc = list(niter = 200, nburnin = 10, nchains = 1)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
   mcmc = list(niter = 200, nburnin = 10, nchains = 1)
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090

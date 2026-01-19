@@ -296,6 +296,7 @@ test_that("quantile estimates average q_fun draws and median matches quantile(0.
 })
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 test_that("fitted() returns expected columns for mean/median", {
 
   fit <- .get_cached_fit("uncond_fit_predict_contracts", .build_uncond_fit)
@@ -307,6 +308,8 @@ test_that("fitted() returns expected columns for mean/median", {
   expect_equal(m1$obs[1], fit$data$y[1])
   expect_true(is.finite(m2$fit[1]))
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 test_that("fitted(type='location') returns mean and median columns", {
 
   fit <- .get_cached_fit("uncond_fit_predict_contracts", .build_uncond_fit)
@@ -318,5 +321,8 @@ test_that("fitted(type='location') returns mean and median columns", {
   expect_true(all(c("mean", "median") %in% names(loc)))
   expect_equal(loc$mean[1], m1$fit[1], tolerance = 1e-8)
   expect_equal(loc$median[1], m2$fit[1], tolerance = 1e-8)
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 })
