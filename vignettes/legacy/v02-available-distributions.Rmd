@@ -33,7 +33,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
 library(DPmixGPD)
-
+library(ggplot2)
 # Precomputed results for fast website builds
 PRECOMP_DIR <- file.path("articles", "legacy-precomputed")
 if (!dir.exists(PRECOMP_DIR)) dir.create(PRECOMP_DIR, recursive = TRUE, showWarnings = FALSE)

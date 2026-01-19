@@ -29,11 +29,16 @@ FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAS
 mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
 mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
 
+# Required for %>% and kable_styling
+library(magrittr)
+library(kableExtra)
+library(patchwork)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
+
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
 library(DPmixGPD)
-
 # Precomputed results for fast website builds
 PRECOMP_DIR <- file.path("articles", "legacy-precomputed")
 if (!dir.exists(PRECOMP_DIR)) dir.create(PRECOMP_DIR, recursive = TRUE, showWarnings = FALSE)
