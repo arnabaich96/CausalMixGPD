@@ -53,21 +53,50 @@ build/
 .Rapp.history
 .RData
 .Ruserdata
+<<<<<<< HEAD
 .DS_Store
 Thumbs.db
 .cache/
 vignettes/**/cache/
 vignettes/**/figure-html/
 vignettes/**/figure-markdown_html/
+=======
+*.zip
+.vscode/
+DPmixGPD.Rcheck/
+DPmixGPD_*.tar.gz
+vignettes/cache/
+.cache/
+inst/doc/
+..Rcheck/
+tests/testthat/_cache/
+tests/testthat/tests/testthat/_cache/
+tools/pandoc-*/
+tools/pandoc-*.zip
+/doc/
+/Meta/
+
+# Generated vignette artifacts (figures, cached draws)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 vignettes/*_files/
 vignettes/**/*.rds
 vignettes/**/*.Rds
 vignettes/**/*.RDS
 vignettes/**/*.png
+<<<<<<< HEAD
+=======
+
+# Vignette cache artifacts (deeply nested cache dirs)
+vignettes/**/cache/
+vignettes/**/cache/**
+
+# Cache files (knitr/rmarkdown)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 *_cache/
 **/*_cache/
 *.html
 test_*.html
+<<<<<<< HEAD
 .vscode/
 inst/doc/
 Meta/
@@ -76,4 +105,6 @@ DPmixGPD_*.tar.gz
 tools/pandoc-*/
 tools/pandoc-*.zip
 
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 

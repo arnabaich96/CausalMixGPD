@@ -2,6 +2,7 @@
 knitr::opts_chunk$set(
   collapse = TRUE,
 <<<<<<< HEAD
+<<<<<<< HEAD
   comment = "#>",
   message = FALSE,
   warning = FALSE,
@@ -93,6 +94,8 @@ legend("topleft", legend = paste0("tau=", taus), lty = 1, bty = "n")
 ## ----sessioninfo, include=FALSE-----------------------------------------------
 sessionInfo()
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   comment = NA,
   message = FALSE,
   warning = FALSE,
@@ -105,5 +108,8 @@ library(DPmixGPD)
 # fit0 <- build_nimble_bundle(y = y0, X = X0, kernel = "gamma", GPD = TRUE)
 # fit1 <- build_nimble_bundle(y = y1, X = X1, kernel = "gamma", GPD = TRUE)
 # # run MCMC for each, then compare predictive distributions
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 

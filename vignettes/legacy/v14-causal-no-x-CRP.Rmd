@@ -1,6 +1,10 @@
 ---
 <<<<<<< HEAD
+<<<<<<< HEAD
 title: "14. Causal Inference: No X (CRP) - Gamma Kernel"
+=======
+title: "Legacy: 14. Causal Inference: No X (CRP) - Gamma Kernel"
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 title: "Legacy: 14. Causal Inference: No X (CRP) - Gamma Kernel"
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -9,7 +13,11 @@ output:
     code_folding: show
 vignette: >
 <<<<<<< HEAD
+<<<<<<< HEAD
   %\VignetteIndexEntry{14. Causal Inference: No X (CRP) - Gamma Kernel}
+=======
+  %\VignetteIndexEntry{Legacy: 14. Causal Inference: No X (CRP) - Gamma Kernel}
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
   %\VignetteIndexEntry{Legacy: 14. Causal Inference: No X (CRP) - Gamma Kernel}
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -18,6 +26,7 @@ vignette: >
 ---
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ```{r legacy-setup, include=FALSE}
 source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
 ```
@@ -25,11 +34,14 @@ source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
 
 =======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = FALSE,
   comment = NA,
   fig.width = 8,
+<<<<<<< HEAD
 <<<<<<< HEAD
   fig.height = 5,
   message = FALSE,
@@ -74,6 +86,8 @@ load_or_fit <- function(tag, expr) {
 quiet_mcmc <- function(expr) {
   nullfile <- if (.Platform$OS.type == 'windows') 'NUL' else '/dev/null'
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   fig.height = 6,
   message = FALSE,
   warning = FALSE,
@@ -88,6 +102,9 @@ set.seed(123)
 
 quiet_mcmc <- function(expr) {
   nullfile <- if (.Platform$OS.type == "windows") "NUL" else "/dev/null"
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   out <- NULL
   utils::capture.output(
@@ -99,6 +116,7 @@ quiet_mcmc <- function(expr) {
 ```
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 > **Legacy vignette (for the website / historical notes).**
 > These files may not match the current exported API one-to-one.
@@ -106,6 +124,9 @@ quiet_mcmc <- function(expr) {
 >
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+=======
+> **Legacy note:** This page is preserved for historical context and extended detail. It predates the streamlined official vignettes and may include longer runs or exploratory material.
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 > **Legacy note:** This page is preserved for historical context and extended detail. It predates the streamlined official vignettes and may include longer runs or exploratory material.
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -203,7 +224,11 @@ plot(qte_bulk)
 ---
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 ## Model B: CRP with GPD Tail (Gamma)
+=======
+## Model B: SB with GPD Tail (Gamma)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 ## Model B: SB with GPD Tail (Gamma)
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -225,7 +250,11 @@ bundle_crp_gpd <- build_causal_bundle(
   X = NULL,
   kernel = "gamma",
 <<<<<<< HEAD
+<<<<<<< HEAD
   backend = "crp",
+=======
+  backend = "sb",
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
   backend = "sb",
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090

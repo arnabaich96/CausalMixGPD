@@ -1,6 +1,10 @@
 ---
 <<<<<<< HEAD
+<<<<<<< HEAD
 title: "9. Unconditional DPmixGPD with Stick-Breaking Backend"
+=======
+title: "Legacy: 9. Unconditional DPmixGPD with Stick-Breaking Backend"
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 title: "Legacy: 9. Unconditional DPmixGPD with Stick-Breaking Backend"
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -9,7 +13,11 @@ output:
     code_folding: show
 vignette: >
 <<<<<<< HEAD
+<<<<<<< HEAD
   %\VignetteIndexEntry{9. Unconditional DPmixGPD with Stick-Breaking Backend}
+=======
+  %\VignetteIndexEntry{Legacy: 9. Unconditional DPmixGPD with Stick-Breaking Backend}
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
   %\VignetteIndexEntry{Legacy: 9. Unconditional DPmixGPD with Stick-Breaking Backend}
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -17,6 +25,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 ```{r legacy-setup, include=FALSE}
 source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
@@ -87,6 +96,8 @@ quiet_mcmc <- function(expr) {
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -110,6 +121,9 @@ set.seed(123)
 ```
 
 > **Legacy note:** This page is preserved for historical context and extended detail. It predates the streamlined official vignettes and may include longer runs or exploratory material.
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 # Unconditional DPmixGPD: Stick-Breaking (SB) Backend with Tail Augmentation
@@ -186,14 +200,20 @@ bundle_sb_gpd <- build_nimble_bundle(
     )
   ),
 <<<<<<< HEAD
+<<<<<<< HEAD
   mcmc = mcmc
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   mcmc = list(
     niter = 60,
     nburnin = 10,
     nchains = 2,
     thin = 1
   )
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 )
 ```
@@ -204,7 +224,11 @@ bundle_sb_gpd <- build_nimble_bundle(
 
 ```{r mcmc-run}
 <<<<<<< HEAD
+<<<<<<< HEAD
 fit_sb_gpd <- load_or_fit("v09-unconditional-DPmixGPD-SB-fit_sb_gpd", run_mcmc_bundle_manual(bundle_sb_gpd))
+=======
+fit_sb_gpd <- run_mcmc_bundle_manual(bundle_sb_gpd)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 fit_sb_gpd <- run_mcmc_bundle_manual(bundle_sb_gpd)
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -250,9 +274,15 @@ bundle_sb_bulk <- build_nimble_bundle(
   GPD = FALSE,
   components = 5,
 <<<<<<< HEAD
+<<<<<<< HEAD
   mcmc = mcmc
 )
 fit_sb_bulk <- load_or_fit("v09-unconditional-DPmixGPD-SB-fit_sb_bulk", run_mcmc_bundle_manual(bundle_sb_bulk))
+=======
+  mcmc = list(niter = 2500, nburnin = 500, nchains = 1)
+)
+fit_sb_bulk <- run_mcmc_bundle_manual(bundle_sb_bulk)
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
   mcmc = list(niter = 2500, nburnin = 500, nchains = 1)
 )

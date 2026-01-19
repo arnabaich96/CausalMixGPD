@@ -7,8 +7,11 @@
 #' @keywords internal
 #' @importFrom stats uniroot pgamma predict rgamma density quantile coef setNames
 <<<<<<< HEAD
+<<<<<<< HEAD
 #' @importFrom stats fitted residuals kernel plogis qlogis sd
 #' @importFrom rlang .data
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 #' @importFrom utils head
@@ -40,6 +43,7 @@ utils::globalVariables(c(
   "S_upper",
   "arm",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "stick_breaking",
   ".data",
   "conc_plan",
@@ -63,6 +67,9 @@ utils::globalVariables(c(
   "value",
   "x",
   "y"
+=======
+  "stick_breaking"
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
   "stick_breaking"
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090

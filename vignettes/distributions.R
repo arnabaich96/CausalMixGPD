@@ -2,6 +2,7 @@
 knitr::opts_chunk$set(
   collapse = TRUE,
 <<<<<<< HEAD
+<<<<<<< HEAD
   comment = "#>",
   message = FALSE,
   warning = FALSE,
@@ -52,6 +53,8 @@ plot(x, dlnorm(x, meanlog = 0, sdlog = 0.6), type = "l", xlab = "x", ylab = "den
 ## ----sessioninfo, include=FALSE-----------------------------------------------
 sessionInfo()
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   comment = NA,
   message = FALSE,
   warning = FALSE,
@@ -66,5 +69,8 @@ library(DPmixGPD)
 # ?dInvGaussMix
 # ?dAmorosoMix
 # ?dCauchyMix
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 

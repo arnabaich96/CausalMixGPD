@@ -2,6 +2,7 @@
 knitr::opts_chunk$set(
   collapse = TRUE,
 <<<<<<< HEAD
+<<<<<<< HEAD
   comment = "#>",
   message = FALSE,
   warning = FALSE,
@@ -80,6 +81,8 @@ legend("topleft", legend = paste0("tau=", q_levels), lty = 1, bty = "n")
 ## ----sessioninfo, include=FALSE-----------------------------------------------
 sessionInfo()
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   comment = NA,
   fig.width = 7,
   fig.height = 4.5,
@@ -110,5 +113,8 @@ library(DPmixGPD)
 # x_new <- X[1:10, , drop = FALSE]
 # q_pred <- predict(fit_cond, x = x_new, type = "quantile", index = c(0.1, 0.5, 0.9))
 # plot(q_pred)
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 

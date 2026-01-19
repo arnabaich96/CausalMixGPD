@@ -1,16 +1,22 @@
 ---
 <<<<<<< HEAD
+<<<<<<< HEAD
 title: "Reference: S3 methods"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Reference: S3 methods}
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 title: "S3 Methods Reference"
 output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
   %\VignetteIndexEntry{S3 Methods Reference}
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
@@ -19,6 +25,7 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
+<<<<<<< HEAD
 <<<<<<< HEAD
   comment = "#>",
   message = FALSE,
@@ -104,6 +111,8 @@ str(fit, max.level = 2)
 sessionInfo()
 ```
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   comment = NA,
   message = FALSE,
   warning = FALSE,
@@ -149,4 +158,7 @@ plot(q_pred)
 - `predict()` returns a structured object with `fit` and interval summaries.
 - `plot()` accepts families such as `traceplot`, `running`, and `autocorrelation`.
 - Use `params()` for convenient access to posterior draws in original scales.
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090

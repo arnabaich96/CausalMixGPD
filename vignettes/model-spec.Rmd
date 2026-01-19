@@ -1,16 +1,22 @@
 ---
 <<<<<<< HEAD
+<<<<<<< HEAD
 title: "Model specification"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Model specification}
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 title: "Model Specification"
 output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
   %\VignetteIndexEntry{Model Specification}
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
@@ -19,6 +25,7 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
+<<<<<<< HEAD
 <<<<<<< HEAD
   comment = "#>",
   message = FALSE,
@@ -108,6 +115,8 @@ Good packages fail loudly and early. If your build step does not yet validate in
 - See **Backends** for SB vs CRP differences.
 
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   comment = NA,
   message = FALSE,
   warning = FALSE,
@@ -192,4 +201,7 @@ These names appear in model code, monitors, and posterior summaries.
 - Interpretation of effects
 
 For MCMC practice, see [mcmc-workflow](mcmc-workflow.Rmd).
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090

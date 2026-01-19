@@ -1,16 +1,22 @@
 ---
 <<<<<<< HEAD
+<<<<<<< HEAD
 title: "DPmixGPD: quick start"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{DPmixGPD: quick start}
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 title: "Introduction"
 output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
   %\VignetteIndexEntry{Introduction}
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
@@ -19,6 +25,7 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
+<<<<<<< HEAD
 <<<<<<< HEAD
   comment = "#>",
   message = FALSE,
@@ -120,6 +127,8 @@ try(plot(fit, family = "trace"), silent = TRUE)
 sessionInfo()
 ```
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   comment = NA,
   fig.width = 7,
   fig.height = 4.5,
@@ -177,4 +186,7 @@ Imagine a policy that changes not only the **mean** of earnings but also the **t
   - [causal](causal.Rmd)
 - **Backends**: [backends](backends.Rmd)
 - **S3 reference**: [reference-s3](reference-s3.Rmd)
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090

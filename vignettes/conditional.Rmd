@@ -1,16 +1,22 @@
 ---
 <<<<<<< HEAD
+<<<<<<< HEAD
 title: "Conditional models"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Conditional models}
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 title: "Conditional Modeling"
 output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
   %\VignetteIndexEntry{Conditional Modeling}
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
@@ -19,6 +25,7 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
+<<<<<<< HEAD
 <<<<<<< HEAD
   comment = "#>",
   message = FALSE,
@@ -126,6 +133,8 @@ legend("topleft", legend = paste0("tau=", q_levels), lty = 1, bty = "n")
 sessionInfo()
 ```
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   comment = NA,
   fig.width = 7,
   fig.height = 4.5,
@@ -185,4 +194,7 @@ The unconditional case is the special case with **no covariates**. See [uncondit
 - It is **not** identification or causal inference.
 
 For causal contrasts, see [causal](causal.Rmd).
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090

@@ -1,6 +1,10 @@
 ---
 <<<<<<< HEAD
+<<<<<<< HEAD
 title: "19. Causal Inference: Mixed Backends with GPD - Amoroso Kernel"
+=======
+title: "Legacy: 19. Causal Inference: Mixed Backends with GPD - Amoroso Kernel"
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 title: "Legacy: 19. Causal Inference: Mixed Backends with GPD - Amoroso Kernel"
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -9,7 +13,11 @@ output:
     code_folding: show
 vignette: >
 <<<<<<< HEAD
+<<<<<<< HEAD
   %\VignetteIndexEntry{19. Causal Inference: Mixed Backends with GPD - Amoroso Kernel}
+=======
+  %\VignetteIndexEntry{Legacy: 19. Causal Inference: Mixed Backends with GPD - Amoroso Kernel}
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
   %\VignetteIndexEntry{Legacy: 19. Causal Inference: Mixed Backends with GPD - Amoroso Kernel}
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
@@ -17,6 +25,7 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 ```{r legacy-setup, include=FALSE}
 source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
@@ -87,6 +96,8 @@ quiet_mcmc <- function(expr) {
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -107,6 +118,9 @@ set.seed(123)
 ```
 
 > **Legacy note:** This page is preserved for historical context and extended detail. It predates the streamlined official vignettes and may include longer runs or exploratory material.
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 # Causal Inference: Mixed Backends with GPD - Amoroso Kernel {#causal-different-backends-gpd}

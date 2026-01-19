@@ -128,7 +128,10 @@ build_nimble_bundle <- function(
 
 # Internal helpers shared by SB and CRP code generators.
 <<<<<<< HEAD
+<<<<<<< HEAD
 # nocov start
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 .codegen_prior_call <- function(dist, args, backend = "<codegen>") {
@@ -177,8 +180,11 @@ build_nimble_bundle <- function(
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 # nocov end
 
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
@@ -239,7 +245,10 @@ spec_requires_conditional <- function(spec) {
 #' @keywords internal
 #' @noRd
 <<<<<<< HEAD
+<<<<<<< HEAD
 # nocov start
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 assert_codegen_supported <- function(spec) {
@@ -315,7 +324,10 @@ assert_codegen_supported <- function(spec) {
   invisible(TRUE)
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 # nocov end
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
@@ -1021,7 +1033,10 @@ build_code_from_spec <- function(spec) {
 #' @keywords internal
 #' @noRd
 <<<<<<< HEAD
+<<<<<<< HEAD
 # nocov start
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 build_code_sb_from_spec <- function(spec) {
@@ -1396,7 +1411,10 @@ build_code_sb_from_spec <- function(spec) {
 #' @keywords internal
 #' @noRd
 <<<<<<< HEAD
+<<<<<<< HEAD
 # nocov start
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 build_code_crp_from_spec <- function(spec) {
@@ -1671,8 +1689,11 @@ build_code_crp_from_spec <- function(spec) {
   nimble::nimbleCode(expr)
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 # nocov end
 # nocov end
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 

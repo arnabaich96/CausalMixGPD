@@ -1,16 +1,22 @@
 ---
 <<<<<<< HEAD
+<<<<<<< HEAD
 title: "Available distributions"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Available distributions}
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 title: "Distributions"
 output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
   %\VignetteIndexEntry{Distributions}
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
@@ -19,6 +25,7 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
+<<<<<<< HEAD
 <<<<<<< HEAD
   comment = "#>",
   message = FALSE,
@@ -111,6 +118,8 @@ plot(x, dlnorm(x, meanlog = 0, sdlog = 0.6), type = "l", xlab = "x", ylab = "den
 sessionInfo()
 ```
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   comment = NA,
   message = FALSE,
   warning = FALSE,
@@ -180,4 +189,7 @@ Always verify parameter meanings in the kernel help pages:
 - Causal interpretation
 
 Those are covered in the dedicated vignettes listed in [introduction](introduction.Rmd).
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090

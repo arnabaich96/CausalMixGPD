@@ -70,9 +70,12 @@ compile_model_spec <- function(
     P <- ncol(X)
     if (P < 1) stop("X must have at least one column.", call. = FALSE)
 <<<<<<< HEAD
+<<<<<<< HEAD
     if (!is.null(colnames(X))) {
       .validate_nimble_reserved_names(colnames(X), "X column names")
     }
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 =======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   } else {

@@ -2,6 +2,7 @@
 knitr::opts_chunk$set(
   collapse = TRUE,
 <<<<<<< HEAD
+<<<<<<< HEAD
   comment = "#>",
   message = FALSE,
   warning = FALSE,
@@ -58,6 +59,8 @@ str(fit, max.level = 2)
 ## ----sessioninfo, include=FALSE-----------------------------------------------
 sessionInfo()
 =======
+=======
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   comment = NA,
   message = FALSE,
   warning = FALSE,
@@ -72,5 +75,8 @@ library(DPmixGPD)
 # plot(fit, family = c("traceplot", "running"))
 # q_pred <- predict(fit, type = "quantile", index = c(0.1, 0.5, 0.9))
 # plot(q_pred)
+<<<<<<< HEAD
+>>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+=======
 >>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
