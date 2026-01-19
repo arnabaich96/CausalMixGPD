@@ -39,6 +39,9 @@ test_*.html
 .Rhistory
 vignettes/legacy/legacy-cache/
 inst/extdata/legacy-precomputed/
+# Legacy precomputed results (generated locally, not tracked in git)
+vignettes/legacy/articles/legacy-precomputed/
+**/legacy-precomputed/
 
 # Ignore local temporary folder
 .tmp/

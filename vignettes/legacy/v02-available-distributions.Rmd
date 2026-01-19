@@ -35,33 +35,7 @@ mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 library(DPmixGPD)
 library(ggplot2)
 # Precomputed results for fast website builds
-PRECOMP_DIR <- file.path("articles", "legacy-precomputed")
-if (!dir.exists(PRECOMP_DIR)) dir.create(PRECOMP_DIR, recursive = TRUE, showWarnings = FALSE)
-
-.precomp_path <- function(tag) file.path(PRECOMP_DIR, paste0(tag, ".rds"))
-
-load_or_fit <- function(tag, expr) {
-  path <- .precomp_path(tag)
-  if (isTRUE(FAST) && file.exists(path)) {
-    return(readRDS(path))
-  }
-  # If FAST but cache missing, run the expression with fast MCMC and save.
-  out <- eval(substitute(expr), envir = parent.frame())
-  # Save only if it looks like a fit object
-  try(saveRDS(out, path), silent = TRUE)
-  out
-}
-
-
-quiet_mcmc <- function(expr) {
-  nullfile <- if (.Platform$OS.type == 'windows') 'NUL' else '/dev/null'
-  out <- NULL
-  utils::capture.output(
-    out <- eval(substitute(expr), envir = parent.frame()),
-    file = nullfile
-  )
-  out
-}
+source("_legacy-setup.R")
 ```
 
 
