@@ -1,23 +1,10 @@
 ---
-<<<<<<< HEAD
-<<<<<<< HEAD
-title: "Available distributions"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Available distributions}
-=======
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 title: "Distributions"
 output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
   %\VignetteIndexEntry{Distributions}
-<<<<<<< HEAD
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -25,101 +12,6 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-<<<<<<< HEAD
-<<<<<<< HEAD
-  comment = "#>",
-  message = FALSE,
-  warning = FALSE,
-  fig.width = 7,
-  fig.height = 4.5
-)
-set.seed(1)
-```
-
-## Goal
-
-DPmixGPD supports multiple *bulk kernels* for the mixture components, and can optionally splice a Generalized Pareto tail (GPD) beyond a threshold.
-
-This vignette:
-
-- summarizes the kernel choices,
-- shows how the kernel choice appears in the API,
-- gives quick distribution sanity checks using base R `d/p/q/r` functions.
-
-## Kernel summary
-
-Below is a compact summary of common bulk kernels and their usual parameters.
-
-```{r}
-knitr::kable(
-  data.frame(
-    kernel = c("normal", "gamma", "lognormal", "cauchy", "laplace", "invgauss", "amoroso"),
-    typical_parameters = c(
-      "mean, sd",
-      "shape, rate",
-      "meanlog, sdlog",
-      "location, scale",
-      "location, scale",
-      "mean, shape",
-      "location/scale/shape (family-specific)"
-    )
-  ),
-  caption = "Common bulk kernels (names may vary by version)"
-)
-```
-
-## Where you choose the kernel
-
-The kernel is selected in `build_nimble_bundle()` via the `kernel` argument.
-
-```{r, eval=FALSE}
-bundle <- build_nimble_bundle(
-  y = y,
-  backend = "sb",      # or "crp"
-  kernel  = "lognormal",
-  GPD     = TRUE,
-  components = 6,
-  mcmc = list(niter = 500, nburnin = 100, thin = 2, nchains = 1, seed = 1)
-)
-```
-
-## Quick distribution checks
-
-These plots are *not* from the DP mixture model; they are just sanity checks for the underlying parametric families.
-
-### Normal
-
-```{r}
-x <- seq(-4, 4, length.out = 400)
-plot(x, dnorm(x, mean = 0, sd = 1), type = "l", xlab = "x", ylab = "density", main = "Normal(0,1) density")
-```
-
-### Gamma
-
-```{r}
-x <- seq(0, 12, length.out = 400)
-plot(x, dgamma(x, shape = 2, rate = 1), type = "l", xlab = "x", ylab = "density", main = "Gamma(shape=2, rate=1) density")
-```
-
-### Lognormal
-
-```{r}
-x <- seq(0, 12, length.out = 400)
-plot(x, dlnorm(x, meanlog = 0, sdlog = 0.6), type = "l", xlab = "x", ylab = "density", main = "Lognormal(meanlog=0, sdlog=0.6) density")
-```
-
-## Notes
-
-- Mixture models use these families as *components*; the overall fitted distribution can be much more flexible.
-- Turning `GPD = TRUE` adds EVT-motivated tail behavior beyond a threshold.
-- When in doubt, start with `kernel = "normal"` for debugging, then switch to heavier-tailed kernels.
-
-```{r sessioninfo, include=FALSE}
-sessionInfo()
-```
-=======
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   comment = NA,
   message = FALSE,
   warning = FALSE,
@@ -189,7 +81,3 @@ Always verify parameter meanings in the kernel help pages:
 - Causal interpretation
 
 Those are covered in the dedicated vignettes listed in [introduction](introduction.Rmd).
-<<<<<<< HEAD
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090

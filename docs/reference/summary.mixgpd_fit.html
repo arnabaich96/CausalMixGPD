@@ -70,73 +70,14 @@
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \dontrun{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
 <span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">50</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.1</span></span></span>
 <span class="r-in"><span><span class="va">bundle</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_nimble_bundle.html">build_nimble_bundle</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, backend <span class="op">=</span> <span class="st">"sb"</span>, kernel <span class="op">=</span> <span class="st">"normal"</span>,</span></span>
 <span class="r-in"><span>                             GPD <span class="op">=</span> <span class="cn">TRUE</span>, components <span class="op">=</span> <span class="fl">6</span>,</span></span>
 <span class="r-in"><span>                             mcmc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">200</span>, nburnin <span class="op">=</span> <span class="fl">50</span>, thin <span class="op">=</span> <span class="fl">1</span>, nchains <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="run_mcmc_bundle_manual.html">run_mcmc_bundle_manual</a></span><span class="op">(</span><span class="va">bundle</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [MCMC] Creating NIMBLE model...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Defining model</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] 'P' is provided in 'constants' but not used in the model code and is being ignored.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Building model</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Setting data and initial values</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Checking model sizes and dimensions</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This model is not fully initialized. This is not an error.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>          To see which variables are not initialized, use model$initializeInfo().</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>          For more information on model initialization, see help(modelInitialization).</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Checking model calculations</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [MCMC] NIMBLE model created successfully.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [MCMC] Configuring MCMC...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ===== Monitors =====</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> thin = 1: alpha, mean, sd, tail_scale, tail_shape, threshold, w, z</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> ===== Samplers =====</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> categorical sampler (50)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - z[]  (50 elements)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> RW sampler (21)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - alpha</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - mean[]  (6 elements)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - sd[]  (6 elements)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - threshold</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - tail_scale</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - tail_shape</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - v[]  (5 elements)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [MCMC] MCMC configured.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [MCMC] Building MCMC object...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [MCMC] MCMC object built.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [MCMC] Attempting NIMBLE compilation (this may take a minute)...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [MCMC] Compiling model...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This may take a minute.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [MCMC] Compiling MCMC sampler...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This may take a minute.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [MCMC] Compilation successful.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Warning] To calculate WAIC, set 'WAIC = TRUE', in addition to having enabled WAIC in building the MCMC.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> running chain 1...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |-------------|-------------|-------------|-------------|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> |-------------------------------------------------------|</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [MCMC] MCMC execution complete. Processing results...</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Compiling</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] This may take a minute.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Calculating WAIC.</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span>, pars <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"alpha"</span>, <span class="st">"threshold"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> MixGPD summary | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: TRUE | epsilon: 0.025</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> n = 50 | components = 6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Summary</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Initial components: 6 | Components after truncation: 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> WAIC: 79.589</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> lppd: -26.461 | pWAIC: 13.334</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Summary table</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  parameter mean    sd q0.025 q0.500 q0.975   ess</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      alpha 0.59 0.457  0.126  0.389  1.834 3.382</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  threshold 1.38 0.746  0.912  0.975  3.918 3.997</span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
