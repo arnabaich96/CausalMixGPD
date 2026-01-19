@@ -1,10 +1,8 @@
 ---
-title: "S3 Methods Reference"
-output:
-  rmarkdown::html_vignette:
-    code_folding: show
+title: "Reference: S3 methods"
+output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{S3 Methods Reference}
+  %\VignetteIndexEntry{Reference: S3 methods}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -12,48 +10,85 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = NA,
+  comment = "#>",
   message = FALSE,
   warning = FALSE,
-  eval = FALSE
+  fig.width = 7,
+  fig.height = 4.5
 )
+set.seed(1)
+FAST <- TRUE
+mcmc <- if (FAST) {
+  list(niter = 300, nburnin = 80, thin = 2, nchains = 1, seed = 1)
+} else {
+  list(niter = 5000, nburnin = 1500, thin = 5, nchains = 2, seed = c(1, 2))
+}
+```
+
+## Goal
+
+This vignette is a quick reference for common S3 methods on a `mixgpd_fit` object.
+
+## Fit a small model
+
+```{r}
 library(DPmixGPD)
+
+y <- abs(rnorm(50)) + 0.1
+bundle <- build_nimble_bundle(
+  y = y,
+  backend = "sb",
+  kernel = "normal",
+  GPD = TRUE,
+  components = 6,
+  mcmc = mcmc
+)
+fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
 ```
 
-# Core S3 methods
+## `print()`
 
-| Method | Object | Purpose | Output |
-|---|---|---|---|
-| `print()` | `dpmixgpd_bundle` | quick bundle summary | concise configuration | 
-| `summary()` | `dpmixgpd_bundle` | detailed bundle summary | lists code/data/monitors |
-| `print()` | `mixgpd_fit` | fit summary | kernel/backends/mcmc info |
-| `summary()` | `mixgpd_fit` | posterior summary | parameter tables |
-| `plot()` | `mixgpd_fit` | diagnostics | trace, running mean, autocorrelation |
-| `predict()` | `mixgpd_fit` | posterior predictive | density, quantile, mean, survival |
-
-# Parameter naming conventions
-
-Common parameter names in outputs:
-
-- `w` (mixture weights)
-- `alpha` (concentration)
-- kernel parameters (e.g., `mean`, `sd`, `shape`, `scale`)
-- link coefficients: `beta_<param>`
-- GPD links: `beta_threshold`, `beta_tail_scale`
-
-# Typical usage patterns
-
-```{r s3-example}
-fit <- run_mcmc_bundle_manual(bundle)
+```{r}
 print(fit)
-summary(fit)
-plot(fit, family = c("traceplot", "running"))
-q_pred <- predict(fit, type = "quantile", index = c(0.1, 0.5, 0.9))
-plot(q_pred)
 ```
 
-# Notes
+## `summary()`
 
-- `predict()` returns a structured object with `fit` and interval summaries.
-- `plot()` accepts families such as `traceplot`, `running`, and `autocorrelation`.
-- Use `params()` for convenient access to posterior draws in original scales.
+```{r}
+summary(fit)
+```
+
+## `plot()`
+
+```{r}
+try(plot(fit, family = "trace"), silent = TRUE)
+```
+
+## `predict()`
+
+```{r}
+# Mean / median
+predict(fit, type = "mean", cred.level = 0.90, interval = "credible")$fit
+predict(fit, type = "median", cred.level = 0.90, interval = "credible")$fit
+
+# Quantile
+predict(fit, type = "quantile", index = 0.90, cred.level = 0.90, interval = "credible")$fit
+```
+
+## `fitted()`
+
+```{r}
+# Returns a data.frame with fit, interval, residuals
+f <- fitted(fit, type = "mean", level = 0.90)
+head(f)
+```
+
+## Object structure
+
+```{r}
+str(fit, max.level = 2)
+```
+
+```{r sessioninfo, include=FALSE}
+sessionInfo()
+```

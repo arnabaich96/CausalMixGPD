@@ -1,10 +1,8 @@
 ---
-title: "MCMC Workflow"
-output:
-  rmarkdown::html_vignette:
-    code_folding: show
+title: "MCMC workflow"
+output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{MCMC Workflow}
+  %\VignetteIndexEntry{MCMC workflow}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -12,81 +10,98 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = NA,
+  comment = "#>",
   message = FALSE,
   warning = FALSE,
-  eval = FALSE
+  fig.width = 7,
+  fig.height = 4.5
 )
-library(DPmixGPD)
+set.seed(1)
+FAST <- TRUE
+mcmc <- if (FAST) {
+  list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
+} else {
+  list(niter = 6000, nburnin = 2000, thin = 5, nchains = 2, seed = c(1, 2))
+}
 ```
 
-# What MCMC settings mean
+## Goal
 
-Key knobs in `mcmc = list(...)`:
+This vignette shows a practical MCMC loop: build -> run -> inspect -> extract.
 
-- `niter`: total iterations
-- `nburnin`: burn‑in discarded
-- `thin`: thinning interval
-- `nchains`: number of chains
-- `seed`: reproducibility
+**Runtime:** fast in `FAST` mode.
 
-Short runs are useful for **debugging**, not for inference.
+## Build and run
 
-# What short runs can and cannot tell you
+```{r}
+library(DPmixGPD)
 
-**Short runs can**:
-
-- verify model compiles
-- check for coding mistakes
-- produce quick sanity plots
-
-**Short runs cannot**:
-
-- guarantee convergence
-- stabilize tail estimates
-- justify causal or distributional claims
-
-# Basic diagnostics philosophy
-
-You should check at least:
-
-- trace plots for major parameters
-- mixing of mixture weights and kernel parameters
-- stability of posterior predictive summaries
-
-# Common failure modes
-
-- **Compilation errors**: often missing data dimensions or unsupported kernels.
-- **Poor mixing**: can be due to weak identifiability or too few components.
-- **Identifiability issues**: especially with flexible kernels or tail parameters.
-- **Over‑complex models**: too many components for small $n$.
-
-# Practical guidance
-
-- Start with **small** `J` (e.g., 3–5) and increase only if needed.
-- Use **simple kernels** first (e.g., gamma/normal) before amoroso or cauchy.
-- Treat tail parameters as high‑variance; stabilize with enough data above the threshold.
-
-Example workflow (non‑executed):
-
-```{r mcmc-example}
+y <- abs(rnorm(60)) + 0.15
 bundle <- build_nimble_bundle(
   y = y,
-  kernel = "gamma",
-  backend = "crp",
+  backend = "sb",
+  kernel = "normal",
   GPD = TRUE,
-  J = 5,
-  mcmc = list(niter = 1000, nburnin = 250, nchains = 2)
+  components = 6,
+  mcmc = mcmc
 )
-fit <- run_mcmc_bundle_manual(bundle)
-plot(fit, family = c("traceplot", "running"))
+
+fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+fit
 ```
 
-# When *not* to trust results
+## Print and summary
 
-- single‑chain, very short runs
-- widely divergent traces
-- effective sample sizes near zero
-- tail estimates based on very few exceedances
+```{r}
+print(fit)
+summary(fit)
+```
 
-This package gives you flexible models; it does not replace careful MCMC practice.
+## Plots
+
+Different versions of the package may support different plot families; `trace` is usually the safest.
+
+```{r}
+try(plot(fit, family = "trace"), silent = TRUE)
+```
+
+## Extract posterior draws
+
+The exact storage depends on how your fit object is organized, but most workflows expose a draws object.
+
+```{r}
+# Common patterns
+if (!is.null(fit$mcmc$samples)) {
+  s <- fit$mcmc$samples
+  mat <- try(as.matrix(s), silent = TRUE)
+  if (!inherits(mat, "try-error")) {
+    dim(mat)
+    colnames(mat)[1:min(20, ncol(mat))]
+  }
+}
+```
+
+## Re-running with different MCMC settings
+
+A helpful pattern is: build once, rerun MCMC with different settings. If your API supports it, use it.
+Otherwise rebuild with a different `mcmc` list.
+
+```{r, eval=FALSE}
+# Example (pseudo):
+# bundle2 <- update_mcmc(bundle, niter = 8000, nburnin = 2000)
+# fit2 <- run_mcmc_bundle_manual(bundle2)
+```
+
+## Troubleshooting
+
+- **Compilation errors**: call `printErrors()` if NIMBLE suggests it.
+- **Slow runs**: start with `FAST <- TRUE`, then scale up.
+- **Multi-chain seeds**: prefer a vector of seeds (one per chain).
+
+## Next
+
+- See **Unconditional** and **Conditional** for prediction and diagnostics.
+
+```{r sessioninfo, include=FALSE}
+sessionInfo()
+```
