@@ -4,32 +4,23 @@
 \alias{fitted.mixgpd_fit}
 \title{Fitted values and residuals for a MixGPD fit}
 \usage{
-\method{fitted}{mixgpd_fit}(
-  object,
-  type = c("location", "mean", "median", "quantile"),
-  p = 0.5,
-  level = 0.95,
-  seed = 1,
-  ...
-)
+\method{fitted}{mixgpd_fit}(object, type = c("mean", "median"), level = 0.95, seed = 1, ...)
 }
 \arguments{
 \item{object}{A fitted object of class \code{"mixgpd_fit"}.}
 
-\item{type}{Which fitted location to return: mean, median, quantile, or both (\code{"location"}).}
+\item{type}{Which fitted location to return: \code{"mean"} or \code{"median"}.}
 
-\item{p}{Quantile level used when \code{type = "quantile"}.}
+\item{level}{Credible level for credible intervals (default 0.95 for 95\% credible intervals).}
 
-\item{level}{Credible level for confidence intervals (default 0.95 for 95\% credible intervals).}
-
-\item{seed}{Random seed used for deterministic fitted values.}
+\item{seed}{Optional RNG seed. If \code{NULL}, RNG state is untouched. Otherwise the RNG is
+set before prediction and restored on exit.}
 
 \item{...}{Unused.}
 }
 \value{
-A data frame with columns: 
-  \code{fit} (point estimates), \code{lower} (lower credible bound),
-  \code{upper} (upper credible bound), and \code{residuals} (y - fit).
+A data frame with columns \code{obs}, \code{fit}, \code{lower}, \code{upper},
+  and \code{residuals} (\code{obs - fit}).
 }
 \description{
 Computes fitted values and residuals on the original training data.

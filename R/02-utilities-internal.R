@@ -13,6 +13,37 @@
 #' @name null_coalescing
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 
+#' Reserved-name validation for NIMBLE
+#' @param names Character vector of names to validate.
+#' @param context Human-readable context for error messages.
+#' @keywords internal
+#' @noRd
+.validate_nimble_reserved_names <- function(names, context = "names") {
+  if (is.null(names) || !length(names)) return(invisible(TRUE))
+  names <- as.character(names)
+  names <- names[!is.na(names) & nzchar(names)]
+  if (!length(names)) return(invisible(TRUE))
+
+  reserved <- c(
+    "if", "else", "for", "while", "repeat", "break", "next", "in",
+    "function", "return",
+    "true", "false", "null", "na", "nan", "inf",
+    "na_integer_", "na_real_", "na_character_", "na_complex_",
+    "t", "f"
+  )
+
+  bad <- unique(names[tolower(names) %in% reserved])
+  if (length(bad)) {
+    stop(sprintf(
+      "%s include reserved NIMBLE keywords: %s. Rename columns (e.g., if -> x_if).",
+      context,
+      paste(bad, collapse = ", ")
+    ), call. = FALSE)
+  }
+
+  invisible(TRUE)
+}
+
 #' Extract nimbleCode from bundle code
 #' @keywords internal
 .extract_nimble_code <- function(code) {

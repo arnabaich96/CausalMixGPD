@@ -1,10 +1,8 @@
 ---
-title: "Introduction"
-output:
-  rmarkdown::html_vignette:
-    code_folding: show
+title: "DPmixGPD: quick start"
+output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Introduction}
+  %\VignetteIndexEntry{DPmixGPD: quick start}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -12,60 +10,102 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = NA,
-  fig.width = 7,
-  fig.height = 4.5,
+  comment = "#>",
   message = FALSE,
   warning = FALSE,
-  eval = FALSE
+  fig.width = 7,
+  fig.height = 4.5
 )
-library(DPmixGPD)
+library(nimble)
+set.seed(1)
+FAST <- TRUE
+mcmc <- if (FAST) {
+  list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
+} else {
+  list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
+}
 ```
 
-# What problem does DPmixGPD solve?
+## Goal
 
-DPmixGPD models **entire outcome distributions**, not just means. It is designed for:
+This vignette is a fast, end-to-end tour:
 
-- **Distributional modeling** (shape, skew, multi-modality)
-- **Extremes and tail risk** (via optional GPD tails)
-- **Causal contrast of distributions** when identification is provided externally
+- build a model specification,
+- run MCMC,
+- extract fitted values and predictions.
 
-If your outcome is heavy‑tailed, skewed, or multi‑modal, DPmixGPD provides a flexible mixture‑plus‑tail approach that can be used in unconditional, conditional, or group‑comparison settings.
+**Runtime:** designed to run quickly in "FAST" mode.
 
-# One unified framework
+## What DPmixGPD models
 
-DPmixGPD is one engine with three common use cases:
+DPmixGPD fits flexible mixture models for the *bulk* of the distribution and can splice a Generalized Pareto tail beyond a threshold. In practice, you use it when:
 
-1. **Unconditional**: fit a flexible mixture to the bulk of the data.
-2. **Conditional**: let mixture parameters depend on covariates via links.
-3. **Causal**: fit **separate outcome models by treatment group** and compare distributions.
+- the center of the data is not well described by a single parametric family, and
+- the extreme right tail needs principled extrapolation.
 
-The model structure stays the same:
+## A minimal run
 
-- **Bulk**: Dirichlet process mixture over a kernel family.
-- **Tail (optional)**: splice a Generalized Pareto Distribution (GPD) above a threshold.
+```{r minimal-run}
+library(DPmixGPD)
 
-# What “causal” means in this package
+# A toy heavy-ish tail sample
+n <- 80
+y <- abs(rnorm(n)) + 0.15
 
-DPmixGPD **does not identify causal effects on its own**. It provides tools to **model outcome distributions** for treated and control groups and then compute **distributional contrasts** (e.g., CQTE) **if** your identification assumptions are satisfied outside the package.
+bundle <- build_nimble_bundle(
+  y = y,
+  backend = "sb",
+  kernel = "normal",
+  GPD = TRUE,
+  components = 6,
+  mcmc = mcmc
+)
 
-This package:
+fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+fit
+```
 
-- **does** fit outcome models and compute contrasts
-- **does not** supply identification, randomization, or validity guarantees
+## Fitted values and residuals
 
-# Motivating example (conceptual)
+```{r fitted}
+f <- fitted(fit, type = "mean", level = 0.90)
+head(f)
 
-Imagine a policy that changes not only the **mean** of earnings but also the **tail risk** (very high or very low outcomes). A mean‑only analysis would miss distributional shifts. DPmixGPD lets you fit flexible outcome distributions for each group and compare effects at specific quantiles or in the tail.
+# quick residual sanity check
+summary(f$residuals)
+```
 
-# Where to go next
+## Predictions
 
-- **Distributions**: [distributions](distributions.Rmd) for kernel choices and parameter meanings.
-- **Model specification**: [model-spec](model-spec.Rmd) for what you build vs what is generated.
-- **MCMC workflow**: [mcmc-workflow](mcmc-workflow.Rmd) for responsible inference.
-- **Worked examples**:
-  - [unconditional](unconditional.Rmd)
-  - [conditional](conditional.Rmd)
-  - [causal](causal.Rmd)
-- **Backends**: [backends](backends.Rmd)
-- **S3 reference**: [reference-s3](reference-s3.Rmd)
+```{r predict}
+# For unconditional models, predict() returns population-level summaries
+pred_mean <- predict(fit, type = "mean", cred.level = 0.90, interval = "credible")
+pred_q90  <- predict(fit, type = "quantile", index = 0.90, cred.level = 0.90, interval = "credible")
+
+pred_mean$fit
+pred_q90$fit
+```
+
+## A quick diagnostic plot
+
+```{r plot-fit}
+# Plot methods may vary by version; keep this simple.
+# If your plot() method supports a family argument, trace plots are the safest.
+try(plot(fit, family = "trace"), silent = TRUE)
+```
+
+## Troubleshooting
+
+- **"keywords: if" from NIMBLE**: a covariate column is named `if` (or another reserved keyword). Rename columns (e.g., `if` -> `x_if`).
+- **"No space left on device" during build/check**: set `TMPDIR`/`TEMP`/`TMP` to a drive with free space (e.g., `D:/Rtmp`).
+- **Coverage looks low**: code generation (e.g., `eval(parse())`) is hard to trace. Focus tests on user-facing functions.
+
+## Where to go next
+
+- See **Model specification** for all options.
+- See **Unconditional** for density and tail diagnostics.
+- See **Backends** for SB vs CRP comparisons.
+
+```{r sessioninfo, include=FALSE}
+sessionInfo()
+```

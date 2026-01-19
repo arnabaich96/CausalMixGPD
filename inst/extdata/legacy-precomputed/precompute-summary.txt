@@ -1,0 +1,89 @@
+Legacy precompute summary
+Total files:  28 
+Failed:  28 
+
+Failures:
+-  vignettes/legacy/kernel-amoroso.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/kernel-cauchy.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/kernel-gamma.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/kernel-invgauss.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/kernel-laplace.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/kernel-lognormal.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/kernel-normal.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/v00-start-here.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/v01-introduction.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/v02-available-distributions.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/v03-basic-model-compile-run.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/v04-backends-and-workflow.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/v05-unconditional-DPmix-CRP.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/v06-unconditional-DPmix-CRP.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/v07-unconditional-DPmix-SB.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/v08-unconditional-DPmixGPD-CRP.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/v09-unconditional-DPmixGPD-SB.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/v10-conditional-DPmix-CRP.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/v11-conditional-DPmix-SB.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/v12-conditional-DPmixGPD-CRP.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/v13-conditional-DPmixGPD-SB.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/v14-causal-no-x-CRP.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/v15-causal-x-no-ps-SB.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/v16-causal-same-backend-CRP.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/v17-causal-same-backend-SB.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/v18-causal-different-backends-CRP.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/v19-causal-different-backends-SB.Rmd 
+   cannot open the connection 
+
+-  vignettes/legacy/v20-troubleshooting.Rmd 
+   cannot open the connection 
+

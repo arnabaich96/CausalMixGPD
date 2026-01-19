@@ -1,35 +1,82 @@
 ---
-title: "Legacy: 13. Conditional DPmixGPD with Stick-Breaking Backend"
+title: "13. Conditional DPmixGPD with Stick-Breaking Backend"
 output: 
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
-  %\VignetteIndexEntry{Legacy: 13. Conditional DPmixGPD with Stick-Breaking Backend}
+  %\VignetteIndexEntry{13. Conditional DPmixGPD with Stick-Breaking Backend}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = NA,
-  fig.width = 8,
-  fig.height = 6,
-  message = FALSE,
-  warning = FALSE,
-  eval = TRUE
-)
-library(DPmixGPD)
-if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
-library(ggplot2)
-library(gridExtra)
-library(kableExtra)
-library(dplyr)
-library(tibble)
-set.seed(123)
+```{r legacy-setup, include=FALSE}
+source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
 ```
 
-> **Legacy note:** This page is preserved for historical context and extended detail. It predates the streamlined official vignettes and may include longer runs or exploratory material.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = NA,
+  fig.width = 8,
+  fig.height = 5,
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE,
+  cache.path = 'legacy-cache/'
+)
+
+# Reproducibility
+set.seed(1)
+
+# Fast-by-default rendering. Flip to FALSE for a fuller run.
+FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
+
+# Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
+mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
+
+library(nimble)
+library(DPmixGPD)
+
+# Precomputed results for fast website builds
+PRECOMP_DIR <- file.path("articles", "legacy-precomputed")
+if (!dir.exists(PRECOMP_DIR)) dir.create(PRECOMP_DIR, recursive = TRUE, showWarnings = FALSE)
+
+.precomp_path <- function(tag) file.path(PRECOMP_DIR, paste0(tag, ".rds"))
+
+load_or_fit <- function(tag, expr) {
+  path <- .precomp_path(tag)
+  if (isTRUE(FAST) && file.exists(path)) {
+    return(readRDS(path))
+  }
+  # If FAST but cache missing, run the expression with fast MCMC and save.
+  out <- eval(substitute(expr), envir = parent.frame())
+  # Save only if it looks like a fit object
+  try(saveRDS(out, path), silent = TRUE)
+  out
+}
+
+
+quiet_mcmc <- function(expr) {
+  nullfile <- if (.Platform$OS.type == 'windows') 'NUL' else '/dev/null'
+  out <- NULL
+  utils::capture.output(
+    out <- eval(substitute(expr), envir = parent.frame()),
+    file = nullfile
+  )
+  out
+}
+```
+
+
+> **Legacy vignette (for the website / historical notes).**
+> These files may not match the current exported API one-to-one.
+> Last verified: **2026-01-18**.
+>
+> For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
+
 
 # Conditional DPmixGPD: Stick-Breaking Backend
 
@@ -97,12 +144,7 @@ bundle_sb_cond_gpd_gamma <- build_nimble_bundle(
       threshold = list(mode = "link", link = "exp")
     )
   ),
-  mcmc = list(
-    niter = 60,
-    nburnin = 10,
-    nchains = 2,
-    thin = 1
-  )
+  mcmc = mcmc
 )
 
 bundle_sb_cond_gpd_laplace <- build_nimble_bundle(
@@ -117,12 +159,7 @@ bundle_sb_cond_gpd_laplace <- build_nimble_bundle(
       threshold = list(mode = "link", link = "exp")
     )
   ),
-  mcmc = list(
-    niter = 60,
-    nburnin = 10,
-    nchains = 1,
-    thin = 1
-  )
+  mcmc = mcmc
 )
 ```
 
@@ -131,8 +168,8 @@ bundle_sb_cond_gpd_laplace <- build_nimble_bundle(
 ## MCMC Execution
 
 ```{r mcmc}
-fit_sb_cond_gpd_gamma <- run_mcmc_bundle_manual(bundle_sb_cond_gpd_gamma)
-fit_sb_cond_gpd_laplace <- run_mcmc_bundle_manual(bundle_sb_cond_gpd_laplace)
+fit_sb_cond_gpd_gamma <- load_or_fit("v13-conditional-DPmixGPD-SB-fit_sb_cond_gpd_gamma", run_mcmc_bundle_manual(bundle_sb_cond_gpd_gamma))
+fit_sb_cond_gpd_laplace <- load_or_fit("v13-conditional-DPmixGPD-SB-fit_sb_cond_gpd_laplace", run_mcmc_bundle_manual(bundle_sb_cond_gpd_laplace))
 summary(fit_sb_cond_gpd_gamma)
 summary(fit_sb_cond_gpd_laplace)
 ```

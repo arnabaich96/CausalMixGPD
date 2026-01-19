@@ -1,48 +1,104 @@
 ---
-title: "Legacy: Kernel reference: Lognormal"
+title: "Kernel reference: Amoroso"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Legacy: Kernel reference: Lognormal}
+  %\VignetteIndexEntry{Kernel reference: Amoroso}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>",
-  eval = TRUE
-)
-library(DPmixGPD)
+```{r legacy-setup, include=FALSE}
+source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
 ```
 
-> **Legacy note:** This kernel reference is retained for historical context alongside the extended legacy materials.
 
-The **Lognormal** kernel is parameterized by `meanlog` and `sdlog` (i.e., `log(y)` is Normal).
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = NA,
+  fig.width = 8,
+  fig.height = 5,
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE,
+  cache.path = 'legacy-cache/'
+)
+
+# Reproducibility
+set.seed(1)
+
+# Fast-by-default rendering. Flip to FALSE for a fuller run.
+FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
+
+# Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
+mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
+
+library(DPmixGPD)
+
+# Precomputed results for fast website builds
+PRECOMP_DIR <- file.path("articles", "legacy-precomputed")
+if (!dir.exists(PRECOMP_DIR)) dir.create(PRECOMP_DIR, recursive = TRUE, showWarnings = FALSE)
+
+.precomp_path <- function(tag) file.path(PRECOMP_DIR, paste0(tag, ".rds"))
+
+load_or_fit <- function(tag, expr) {
+  path <- .precomp_path(tag)
+  if (isTRUE(FAST) && file.exists(path)) {
+    return(readRDS(path))
+  }
+  # If FAST but cache missing, run the expression with fast MCMC and save.
+  out <- eval(substitute(expr), envir = parent.frame())
+  # Save only if it looks like a fit object
+  try(saveRDS(out, path), silent = TRUE)
+  out
+}
+
+
+quiet_mcmc <- function(expr) {
+  nullfile <- if (.Platform$OS.type == 'windows') 'NUL' else '/dev/null'
+  out <- NULL
+  utils::capture.output(
+    out <- eval(substitute(expr), envir = parent.frame()),
+    file = nullfile
+  )
+  out
+}
+```
+
+
+> **Legacy vignette (for the website / historical notes).**
+> These files may not match the current exported API one-to-one.
+> Last verified: **2026-01-18**.
+>
+> For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
+
+
+The **Amoroso** kernel is parameterized by (`a`, `theta`, `alpha`, `beta`).
 
 ## Exported mixture helpers
 
-- `dLognormalMix(x, meanlog, sdlog, w, log = FALSE)`
-- `pLognormalMix(q, meanlog, sdlog, w, lower.tail = TRUE, log.p = FALSE)`
-- `qLognormalMix(p, meanlog, sdlog, w, lower.tail = TRUE, log.p = FALSE)`
-- `rLognormalMix(n, meanlog, sdlog, w)`
+- `dAmorosoMix(x, a, theta, alpha, beta, w, log = FALSE)`
+- `pAmorosoMix(q, a, theta, alpha, beta, w, lower.tail = TRUE, log.p = FALSE)`
+- `qAmorosoMix(p, a, theta, alpha, beta, w, lower.tail = TRUE, log.p = FALSE)`
+- `rAmorosoMix(n, a, theta, alpha, beta, w)`
 
 For the full catalog (including CRP utilities and GPD splicing), see:
 
-- [Legacy distributions](legacy/v02-available-distributions.html)
+- [Available Distributions](v02-available-distributions.html)
 
-## Using Lognormal in a model
+## Using Amoroso in a model
 
 ```{r}
 y <- abs(stats::rnorm(50)) + 0.1
 bundle <- build_nimble_bundle(
   y = y,
-  backend = "crp",
-  kernel  = "lognormal",
+  backend = "sb",
+  kernel  = "amoroso",
   GPD     = TRUE,
   components = 6
 )
 ```
-
 
 

@@ -1,14 +1,24 @@
 ## ----setup, include=FALSE-----------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = NA,
+  comment = "#>",
   message = FALSE,
   warning = FALSE,
-  eval = FALSE
+  fig.width = 7,
+  fig.height = 4.5
 )
+library(nimble)
+set.seed(1)
+FAST <- TRUE
+mcmc <- if (FAST) {
+  list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
+} else {
+  list(niter = 9000, nburnin = 2500, thin = 5, nchains = 2, seed = c(1, 2))
+}
+
+## -----------------------------------------------------------------------------
 library(DPmixGPD)
 
-## ----backend-example----------------------------------------------------------
-# bundle_sb <- build_nimble_bundle(y = y, kernel = "gamma", backend = "sb", J = 5)
-# bundle_crp <- build_nimble_bundle(y = y, kernel = "gamma", backend = "crp", J = 5)
+n <- 90
+y <- abs(rnorm(n)) + 0.2
 

@@ -41,10 +41,5 @@ test_that("Conditional fitted returns one value per observation", {
   expect_s3_class(ftd, "mixgpd_fitted")
   expect_equal(nrow(ftd), N)
   expect_true(all(is.finite(ftd$fit)))
-})
-
-test_that("Conditional fitted supports quantile type", {
-  ftd <- fitted(fit, type = "quantile", p = 0.8, level = 0.9, seed = 1)
-  expect_equal(nrow(ftd), N)
-  expect_true(all(is.finite(ftd$fit)))
+  expect_true(all(c("obs", "fit", "lower", "upper", "residuals") %in% names(ftd)))
 })

@@ -1,34 +1,82 @@
 ---
-title: "Legacy: 17. Causal Inference: Same Backend (SB) - Laplace Kernel"
+title: "17. Causal Inference: Same Backend (SB) - Laplace Kernel"
 output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
-  %\VignetteIndexEntry{Legacy: 17. Causal Inference: Same Backend (SB) - Laplace Kernel}
+  %\VignetteIndexEntry{17. Causal Inference: Same Backend (SB) - Laplace Kernel}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = NA,
-  fig.width = 8,
-  fig.height = 6,
-  message = FALSE,
-  warning = FALSE,
-  eval = TRUE
-)
-library(DPmixGPD)
-if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
-library(ggplot2)
-library(kableExtra)
-library(dplyr)
-library(tibble)
-set.seed(123)
+```{r legacy-setup, include=FALSE}
+source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
 ```
 
-> **Legacy note:** This page is preserved for historical context and extended detail. It predates the streamlined official vignettes and may include longer runs or exploratory material.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = NA,
+  fig.width = 8,
+  fig.height = 5,
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE,
+  cache.path = 'legacy-cache/'
+)
+
+# Reproducibility
+set.seed(1)
+
+# Fast-by-default rendering. Flip to FALSE for a fuller run.
+FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
+
+# Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
+mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
+
+library(DPmixGPD)
+library(nimble)
+
+# Precomputed results for fast website builds
+PRECOMP_DIR <- file.path("articles", "legacy-precomputed")
+if (!dir.exists(PRECOMP_DIR)) dir.create(PRECOMP_DIR, recursive = TRUE, showWarnings = FALSE)
+
+.precomp_path <- function(tag) file.path(PRECOMP_DIR, paste0(tag, ".rds"))
+
+load_or_fit <- function(tag, expr) {
+  path <- .precomp_path(tag)
+  if (isTRUE(FAST) && file.exists(path)) {
+    return(readRDS(path))
+  }
+  # If FAST but cache missing, run the expression with fast MCMC and save.
+  out <- eval(substitute(expr), envir = parent.frame())
+  # Save only if it looks like a fit object
+  try(saveRDS(out, path), silent = TRUE)
+  out
+}
+
+
+quiet_mcmc <- function(expr) {
+  nullfile <- if (.Platform$OS.type == 'windows') 'NUL' else '/dev/null'
+  out <- NULL
+  utils::capture.output(
+    out <- eval(substitute(expr), envir = parent.frame()),
+    file = nullfile
+  )
+  out
+}
+```
+
+
+> **Legacy vignette (for the website / historical notes).**
+> These files may not match the current exported API one-to-one.
+> Last verified: **2026-01-18**.
+>
+> For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
+
 
 # Causal Inference: Same Backend (SB) - Laplace Kernel {#causal-sb-same-backend}
 

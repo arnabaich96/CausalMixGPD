@@ -24,10 +24,13 @@ Suggests:
     testthat (>= 3.0.0),
     crayon,
     dplyr,
+    gridExtra,
     ggplot2,
+    kableExtra,
     knitr,
     rmarkdown,
     pkgdown,
+    tibble,
     covr,
     jsonlite,
     patchwork

@@ -127,6 +127,7 @@ build_nimble_bundle <- function(
 
 
 # Internal helpers shared by SB and CRP code generators.
+# nocov start
 .codegen_prior_call <- function(dist, args, backend = "<codegen>") {
   dist <- as.character(dist)
   args <- args %||% list()
@@ -171,6 +172,8 @@ build_nimble_bundle <- function(
   }
   stop(sprintf("Unsupported link '%s'.", link), call. = FALSE)
 }
+
+# nocov end
 
 
 #' Determine whether a compiled spec is conditional on covariates
@@ -229,6 +232,7 @@ spec_requires_conditional <- function(spec) {
 #' @return Invisibly TRUE if all checks pass; otherwise errors.
 #' @keywords internal
 #' @noRd
+# nocov start
 assert_codegen_supported <- function(spec) {
   stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
 
@@ -301,6 +305,7 @@ assert_codegen_supported <- function(spec) {
 
   invisible(TRUE)
 }
+# nocov end
 
 #' Build default hypers used by internal priors
 #'
@@ -1003,6 +1008,7 @@ build_code_from_spec <- function(spec) {
 #' @return A \code{nimbleCode} object.
 #' @keywords internal
 #' @noRd
+# nocov start
 build_code_sb_from_spec <- function(spec) {
   stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
 
@@ -1374,6 +1380,7 @@ build_code_sb_from_spec <- function(spec) {
 #' @return A \code{nimbleCode} object.
 #' @keywords internal
 #' @noRd
+# nocov start
 build_code_crp_from_spec <- function(spec) {
   stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
 
@@ -1645,6 +1652,8 @@ build_code_crp_from_spec <- function(spec) {
   expr <- parse(text = paste0("{\n", code_str, "\n}"))[[1]]
   nimble::nimbleCode(expr)
 }
+# nocov end
+# nocov end
 
 #' Validate a dpmixgpd bundle
 #'

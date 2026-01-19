@@ -69,6 +69,9 @@ compile_model_spec <- function(
     if (nrow(X) != N) stop("X must have the same number of rows as length(y).", call. = FALSE)
     P <- ncol(X)
     if (P < 1) stop("X must have at least one column.", call. = FALSE)
+    if (!is.null(colnames(X))) {
+      .validate_nimble_reserved_names(colnames(X), "X column names")
+    }
   } else {
     P <- 0L
   }

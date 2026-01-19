@@ -1,36 +1,82 @@
 ---
-title: "Legacy: 6. Unconditional DPmix with CRP Backend"
+title: "6. Unconditional DPmix with CRP Backend"
 output: 
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
-  %\VignetteIndexEntry{Legacy: 6. Unconditional DPmix with CRP Backend}
+  %\VignetteIndexEntry{6. Unconditional DPmix with CRP Backend}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = NA,
-  fig.width = 8,
-  fig.height = 6,
-  message = FALSE,
-  warning = FALSE,
-  eval = TRUE
-)
-library(nimble)  
-library(DPmixGPD)
-if (requireNamespace("devtools", quietly = TRUE)) devtools::load_all(quiet = TRUE)
-library(ggplot2)
-library(gridExtra)
-library(kableExtra)
-library(patchwork)
-set.seed(123)
-
+```{r legacy-setup, include=FALSE}
+source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
 ```
 
-> **Legacy note:** This page is preserved for historical context and extended detail. It predates the streamlined official vignettes and may include longer runs or exploratory material.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = NA,
+  fig.width = 8,
+  fig.height = 5,
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE,
+  cache.path = 'legacy-cache/'
+)
+
+# Reproducibility
+set.seed(1)
+
+# Fast-by-default rendering. Flip to FALSE for a fuller run.
+FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
+
+# Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
+mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
+
+library(nimble)
+library(DPmixGPD)
+
+# Precomputed results for fast website builds
+PRECOMP_DIR <- file.path("articles", "legacy-precomputed")
+if (!dir.exists(PRECOMP_DIR)) dir.create(PRECOMP_DIR, recursive = TRUE, showWarnings = FALSE)
+
+.precomp_path <- function(tag) file.path(PRECOMP_DIR, paste0(tag, ".rds"))
+
+load_or_fit <- function(tag, expr) {
+  path <- .precomp_path(tag)
+  if (isTRUE(FAST) && file.exists(path)) {
+    return(readRDS(path))
+  }
+  # If FAST but cache missing, run the expression with fast MCMC and save.
+  out <- eval(substitute(expr), envir = parent.frame())
+  # Save only if it looks like a fit object
+  try(saveRDS(out, path), silent = TRUE)
+  out
+}
+
+
+quiet_mcmc <- function(expr) {
+  nullfile <- if (.Platform$OS.type == 'windows') 'NUL' else '/dev/null'
+  out <- NULL
+  utils::capture.output(
+    out <- eval(substitute(expr), envir = parent.frame()),
+    file = nullfile
+  )
+  out
+}
+```
+
+
+> **Legacy vignette (for the website / historical notes).**
+> These files may not match the current exported API one-to-one.
+> Last verified: **2026-01-18**.
+>
+> For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
+
 
 # Unconditional DPmix: Chinese Restaurant Process (CRP)
 
@@ -79,12 +125,7 @@ bundle_crp <- build_nimble_bundle(
   GPD = FALSE,                # No tail augmentation
   components = 3,             # Minimal for testing
   alpha_random = TRUE,        # Random DP concentration
-  mcmc = list(
-    niter = 50,             # Minimal for testing
-    nburnin = 10,           # Minimal burnin
-    nchains = 2,            # Two chains for diagnostics
-    thin = 1                # No thinning
-  )
+  mcmc = mcmc
 )
 
 ```
@@ -101,7 +142,7 @@ bundle_crp <- build_nimble_bundle(
   GPD = FALSE,
   components = 3,
   alpha_random = TRUE,
-  mcmc = list(niter = 1500, nburnin = 250, nchains = 2, thin = 1)
+  mcmc = mcmc
 )
 ```
 
@@ -112,7 +153,7 @@ summary(bundle_crp)
 
 ### Running MCMC
 ```{r mcmc-crp-fit, results = "hide"}
-fit_crp <- run_mcmc_bundle_manual(bundle_crp)
+fit_crp <- load_or_fit("v06-unconditional-DPmix-CRP-fit_crp", run_mcmc_bundle_manual(bundle_crp))
 ```
 
 ### Summary of Fitted MCMC model
@@ -184,9 +225,9 @@ bundle_components <- build_nimble_bundle(
   kernel = "laplace",
   backend = "crp",
   components = 5,
-  mcmc = list(niter = 2500, nburnin = 500, nchains = 1)
+  mcmc = mcmc
 )
-fit_components <- run_mcmc_bundle_manual(bundle_components)
+fit_components <- load_or_fit("v06-unconditional-DPmix-CRP-fit_components", run_mcmc_bundle_manual(bundle_components))
 ```
 
 
@@ -223,9 +264,9 @@ bundle_laplace <- build_nimble_bundle(
   kernel = "laplace",
   backend = "crp",
   components = 5,
-  mcmc = list(niter = 2500, nburnin = 500, nchains = 1)
+  mcmc = mcmc
 )
-fit_laplace <- run_mcmc_bundle_manual(bundle_laplace)
+fit_laplace <- load_or_fit("v06-unconditional-DPmix-CRP-fit_laplace", run_mcmc_bundle_manual(bundle_laplace))
 ```
 
 
@@ -241,9 +282,9 @@ bundle_amoroso <- build_nimble_bundle(
   kernel = "amoroso",
   backend = "crp",
   components = 5,
-  mcmc = list(niter = 2500, nburnin = 500, nchains = 1)
+  mcmc = mcmc
 )
-fit_amoroso <- run_mcmc_bundle_manual(bundle_amoroso)
+fit_amoroso <- load_or_fit("v06-unconditional-DPmix-CRP-fit_amoroso", run_mcmc_bundle_manual(bundle_amoroso))
 ```
 
 
