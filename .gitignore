@@ -1,3 +1,43 @@
+## R / RStudio
+.Rhistory
+.Rapp.history
+.RData
+.Ruserdata
+*.Rproj.user/
+*.Rproj
+
+## R build / package artifacts
+*.tar.gz
+*.Rcheck/
+*.Rout
+*.Rout.save
+build/
+_pkgdown.yml
+
+## R internal DB / index files (ignore compiled DBs left from builds)
+*.rdb
+*.rdx
+
+## R data caches and outputs
+*.rda
+*.rds
+
+## Vignette caches and figures (keep source .Rmd files tracked)
+vignettes/**/cache/
+vignettes/**/figure-html/
+vignettes/**/figure-markdown_html/
+
+## nix / editors / OS
+.DS_Store
+Thumbs.db
+/.Rproj.user
+
+## Logs and temporary
+*.log
+*.tmp
+
+## Do NOT ignore: source dirs (R/, man/, data/, inst/, docs/ should remain tracked)
+# Keep docs/ tracked for GitHub Pages; do not add `docs/` here
 .Rproj.user
 .Rhistory
 .RData
