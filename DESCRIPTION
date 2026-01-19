@@ -26,11 +26,13 @@ Suggests:
     dplyr,
     ggplot2,
     knitr,
+    magrittr,
     rmarkdown,
     pkgdown,
     covr,
     jsonlite,
-    patchwork
+    patchwork,
+    kableExtra
 RoxygenNote: 7.3.3
 Config/testthat/edition: 3
 URL: https://arnabaich96.github.io/DPmixGPD/, https://github.com/arnabaich96/DPmixGPD
