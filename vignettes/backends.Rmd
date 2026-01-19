@@ -1,23 +1,10 @@
 ---
-<<<<<<< HEAD
-<<<<<<< HEAD
-title: "Backends: SB vs CRP"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{Backends: SB vs CRP}
-=======
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 title: "Backends"
 output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
   %\VignetteIndexEntry{Backends}
-<<<<<<< HEAD
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -25,100 +12,6 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-<<<<<<< HEAD
-<<<<<<< HEAD
-  comment = "#>",
-  message = FALSE,
-  warning = FALSE,
-  fig.width = 7,
-  fig.height = 4.5
-)
-library(nimble)
-set.seed(1)
-FAST <- TRUE
-mcmc <- if (FAST) {
-  list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
-} else {
-  list(niter = 9000, nburnin = 2500, thin = 5, nchains = 2, seed = c(1, 2))
-}
-```
-
-## Goal
-
-Compare the two mixture backends:
-
-- **SB**: stick-breaking (finite truncation), controlled by `components`.
-- **CRP**: Chinese Restaurant Process (cluster allocations).
-
-We use the same data and kernel, then compare fitted summaries.
-
-## Data
-
-```{r}
-library(DPmixGPD)
-
-n <- 90
-y <- abs(rnorm(n)) + 0.2
-```
-
-## Fit SB
-
-```{r}
-bundle_sb <- build_nimble_bundle(
-  y = y,
-  backend = "sb",
-  kernel = "normal",
-  GPD = TRUE,
-  components = 6,
-  mcmc = mcmc
-)
-
-fit_sb <- run_mcmc_bundle_manual(bundle_sb, show_progress = FALSE)
-```
-
-## Fit CRP
-
-```{r}
-bundle_crp <- build_nimble_bundle(
-  y = y,
-  backend = "crp",
-  kernel = "normal",
-  GPD = TRUE,
-  components = 6,
-  mcmc = mcmc
-)
-
-fit_crp <- run_mcmc_bundle_manual(bundle_crp, show_progress = FALSE)
-```
-
-## Compare fitted summaries
-
-```{r}
-mean_sb <- predict(fit_sb, type = "mean", cred.level = 0.90, interval = "credible")$fit
-mean_crp <- predict(fit_crp, type = "mean", cred.level = 0.90, interval = "credible")$fit
-
-rbind(
-  SB  = unlist(mean_sb[1, c("estimate","lower","upper")]),
-  CRP = unlist(mean_crp[1, c("estimate","lower","upper")])
-)
-```
-
-## Practical guidance
-
-- Choose **SB** when you want explicit control over truncation (`components`) and stable computation.
-- Choose **CRP** when you want the number of clusters to adapt more directly, at the cost of potentially more label/cluster dynamics.
-
-## Troubleshooting
-
-- Compilation errors often point to unsupported kernel/backend combinations or reserved names.
-- Start with small `niter` and one chain, then scale up.
-
-```{r sessioninfo, include=FALSE}
-sessionInfo()
-```
-=======
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   comment = NA,
   message = FALSE,
   warning = FALSE,
@@ -160,7 +53,3 @@ bundle_crp <- build_nimble_bundle(y = y, kernel = "gamma", backend = "crp", J = 
 ```
 
 This vignette is intentionally short. For model building, see [model-spec](model-spec.Rmd).
-<<<<<<< HEAD
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090

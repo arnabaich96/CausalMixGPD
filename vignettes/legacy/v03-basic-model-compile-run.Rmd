@@ -1,103 +1,14 @@
 ---
-<<<<<<< HEAD
-<<<<<<< HEAD
-title: "3. Basic Workflow: Model Specification, Bundle, & MCMC"
-=======
 title: "Legacy: 3. Basic Workflow: Model Specification, Bundle, & MCMC"
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
-=======
-title: "Legacy: 3. Basic Workflow: Model Specification, Bundle, & MCMC"
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 output: 
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
-<<<<<<< HEAD
-<<<<<<< HEAD
-  %\VignetteIndexEntry{3. Basic Workflow: Model Specification, Bundle, & MCMC}
-=======
   %\VignetteIndexEntry{Legacy: 3. Basic Workflow: Model Specification, Bundle, & MCMC}
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
-=======
-  %\VignetteIndexEntry{Legacy: 3. Basic Workflow: Model Specification, Bundle, & MCMC}
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-```{r legacy-setup, include=FALSE}
-source(file.path(dirname(knitr::current_input(dir = TRUE)), "_legacy-setup.R"))
-```
-
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  collapse = FALSE,
-  comment = NA,
-  fig.width = 8,
-  fig.height = 5,
-  message = FALSE,
-  warning = FALSE,
-  cache = TRUE,
-  cache.path = 'legacy-cache/'
-)
-
-# Reproducibility
-set.seed(1)
-
-# Fast-by-default rendering. Flip to FALSE for a fuller run.
-FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
-mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
-mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
-
-# Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
-mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
-
-library(nimble)
-library(DPmixGPD)
-
-# Precomputed results for fast website builds
-PRECOMP_DIR <- file.path("articles", "legacy-precomputed")
-if (!dir.exists(PRECOMP_DIR)) dir.create(PRECOMP_DIR, recursive = TRUE, showWarnings = FALSE)
-
-.precomp_path <- function(tag) file.path(PRECOMP_DIR, paste0(tag, ".rds"))
-
-load_or_fit <- function(tag, expr) {
-  path <- .precomp_path(tag)
-  if (isTRUE(FAST) && file.exists(path)) {
-    return(readRDS(path))
-  }
-  # If FAST but cache missing, run the expression with fast MCMC and save.
-  out <- eval(substitute(expr), envir = parent.frame())
-  # Save only if it looks like a fit object
-  try(saveRDS(out, path), silent = TRUE)
-  out
-}
-
-
-quiet_mcmc <- function(expr) {
-  nullfile <- if (.Platform$OS.type == 'windows') 'NUL' else '/dev/null'
-  out <- NULL
-  utils::capture.output(
-    out <- eval(substitute(expr), envir = parent.frame()),
-    file = nullfile
-  )
-  out
-}
-```
-
-
-> **Legacy vignette (for the website / historical notes).**
-> These files may not match the current exported API one-to-one.
-> Last verified: **2026-01-18**.
->
-> For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
-
-=======
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -115,10 +26,6 @@ set.seed(42)
 ```
 
 > **Legacy note:** This page is preserved for historical context and extended detail. It predates the streamlined official vignettes and may include longer runs or exploratory material.
-<<<<<<< HEAD
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 # Workflow Overview
 
@@ -147,15 +54,7 @@ bundle_direct <- build_nimble_bundle(
   backend = "crp",
   GPD = FALSE,
   components = 5,
-<<<<<<< HEAD
-<<<<<<< HEAD
-  mcmc = mcmc
-=======
   mcmc = list(niter = 200, nburnin = 50, nchains = 1)
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
-=======
-  mcmc = list(niter = 200, nburnin = 50, nchains = 1)
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 )
 
 print("Direct bundle creation successful.\n")
@@ -184,15 +83,7 @@ print(bundle_direct$mcmc_settings)
 
 ```{r mcmc-basic}
 # Run MCMC
-<<<<<<< HEAD
-<<<<<<< HEAD
-fit <- load_or_fit("v03-basic-model-compile-run-fit", run_mcmc_bundle_manual(bundle_direct, show_progress = FALSE))
-=======
 fit <- run_mcmc_bundle_manual(bundle_direct, show_progress = FALSE)
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
-=======
-fit <- run_mcmc_bundle_manual(bundle_direct, show_progress = FALSE)
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 cat("Fit object class:", class(fit), "\n")
 cat("MCMC execution complete. Posterior samples collected.\n")
@@ -233,16 +124,6 @@ bundle_final <- build_nimble_bundle(
   backend = "crp",
   GPD = FALSE,
   components = 5,
-<<<<<<< HEAD
-<<<<<<< HEAD
-  mcmc = mcmc
-)
-
-# PHASE 2: MCMC
-fit_final <- load_or_fit("v03-basic-model-compile-run-fit_final", run_mcmc_bundle_manual(bundle_final, show_progress = FALSE))
-=======
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   mcmc = list(
     niter = 120,
     nburnin = 20,
@@ -253,10 +134,6 @@ fit_final <- load_or_fit("v03-basic-model-compile-run-fit_final", run_mcmc_bundl
 
 # PHASE 2: MCMC
 fit_final <- run_mcmc_bundle_manual(bundle_final, show_progress = FALSE)
-<<<<<<< HEAD
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 
 print("\n=== THREE-PHASE WORKFLOW COMPLETE ===\n")
 summary(fit_final)
@@ -275,23 +152,10 @@ bundle_crp <- build_nimble_bundle(
   kernel = "gamma",
   backend = "crp",
   components = 5,
-<<<<<<< HEAD
-<<<<<<< HEAD
-  mcmc = mcmc
-)
-
-fit_crp <- load_or_fit("v03-basic-model-compile-run-fit_crp", run_mcmc_bundle_manual(bundle_crp, show_progress = FALSE))
-=======
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   mcmc = list(niter = 200, nburnin = 50, nchains = 1)
 )
 
 fit_crp <- run_mcmc_bundle_manual(bundle_crp, show_progress = FALSE)
-<<<<<<< HEAD
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 print("CRP execution complete.\n")
 ```
 
@@ -304,23 +168,10 @@ bundle_sb <- build_nimble_bundle(
   kernel = "gamma",
   backend = "sb",
   components = 5,
-<<<<<<< HEAD
-<<<<<<< HEAD
-  mcmc = mcmc
-)
-
-fit_sb <- load_or_fit("v03-basic-model-compile-run-fit_sb", run_mcmc_bundle_manual(bundle_sb, show_progress = FALSE))
-=======
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   mcmc = list(niter = 120, nburnin = 20, nchains = 1)
 )
 
 fit_sb <- run_mcmc_bundle_manual(bundle_sb, show_progress = FALSE)
-<<<<<<< HEAD
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 print("SB execution complete.\n")
 ```
 
@@ -364,23 +215,10 @@ bundle_gpd <- build_nimble_bundle(
   backend = "sb",
   GPD = TRUE,
   components = 6,
-<<<<<<< HEAD
-<<<<<<< HEAD
-  mcmc = mcmc
-)
-
-fit_gpd <- load_or_fit("v03-basic-model-compile-run-fit_gpd", run_mcmc_bundle_manual(bundle_gpd, show_progress = FALSE))
-=======
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   mcmc = list(niter = 200, nburnin = 50, nchains = 1, waic = FALSE)
 )
 
 fit_gpd <- run_mcmc_bundle_manual(bundle_gpd, show_progress = FALSE)
-<<<<<<< HEAD
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 print("\nGPD augmentation applied to tail region.\n")
 summary(fit_gpd)
 ```

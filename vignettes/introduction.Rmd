@@ -1,23 +1,10 @@
 ---
-<<<<<<< HEAD
-<<<<<<< HEAD
-title: "DPmixGPD: quick start"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{DPmixGPD: quick start}
-=======
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 title: "Introduction"
 output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
   %\VignetteIndexEntry{Introduction}
-<<<<<<< HEAD
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -25,110 +12,6 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-<<<<<<< HEAD
-<<<<<<< HEAD
-  comment = "#>",
-  message = FALSE,
-  warning = FALSE,
-  fig.width = 7,
-  fig.height = 4.5
-)
-library(nimble)
-set.seed(1)
-FAST <- TRUE
-mcmc <- if (FAST) {
-  list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
-} else {
-  list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
-}
-```
-
-## Goal
-
-This vignette is a fast, end-to-end tour:
-
-- build a model specification,
-- run MCMC,
-- extract fitted values and predictions.
-
-**Runtime:** designed to run quickly in "FAST" mode.
-
-## What DPmixGPD models
-
-DPmixGPD fits flexible mixture models for the *bulk* of the distribution and can splice a Generalized Pareto tail beyond a threshold. In practice, you use it when:
-
-- the center of the data is not well described by a single parametric family, and
-- the extreme right tail needs principled extrapolation.
-
-## A minimal run
-
-```{r minimal-run}
-library(DPmixGPD)
-
-# A toy heavy-ish tail sample
-n <- 80
-y <- abs(rnorm(n)) + 0.15
-
-bundle <- build_nimble_bundle(
-  y = y,
-  backend = "sb",
-  kernel = "normal",
-  GPD = TRUE,
-  components = 6,
-  mcmc = mcmc
-)
-
-fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
-fit
-```
-
-## Fitted values and residuals
-
-```{r fitted}
-f <- fitted(fit, type = "mean", level = 0.90)
-head(f)
-
-# quick residual sanity check
-summary(f$residuals)
-```
-
-## Predictions
-
-```{r predict}
-# For unconditional models, predict() returns population-level summaries
-pred_mean <- predict(fit, type = "mean", cred.level = 0.90, interval = "credible")
-pred_q90  <- predict(fit, type = "quantile", index = 0.90, cred.level = 0.90, interval = "credible")
-
-pred_mean$fit
-pred_q90$fit
-```
-
-## A quick diagnostic plot
-
-```{r plot-fit}
-# Plot methods may vary by version; keep this simple.
-# If your plot() method supports a family argument, trace plots are the safest.
-try(plot(fit, family = "trace"), silent = TRUE)
-```
-
-## Troubleshooting
-
-- **"keywords: if" from NIMBLE**: a covariate column is named `if` (or another reserved keyword). Rename columns (e.g., `if` -> `x_if`).
-- **"No space left on device" during build/check**: set `TMPDIR`/`TEMP`/`TMP` to a drive with free space (e.g., `D:/Rtmp`).
-- **Coverage looks low**: code generation (e.g., `eval(parse())`) is hard to trace. Focus tests on user-facing functions.
-
-## Where to go next
-
-- See **Model specification** for all options.
-- See **Unconditional** for density and tail diagnostics.
-- See **Backends** for SB vs CRP comparisons.
-
-```{r sessioninfo, include=FALSE}
-sessionInfo()
-```
-=======
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   comment = NA,
   fig.width = 7,
   fig.height = 4.5,
@@ -186,7 +69,3 @@ Imagine a policy that changes not only the **mean** of earnings but also the **t
   - [causal](causal.Rmd)
 - **Backends**: [backends](backends.Rmd)
 - **S3 reference**: [reference-s3](reference-s3.Rmd)
-<<<<<<< HEAD
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090

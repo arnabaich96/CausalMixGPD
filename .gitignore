@@ -1,66 +1,9 @@
-# Ignore test cache folders
-tests/testthat/_cache/
-tests/testthat/tests/testthat/_cache/
-
-# Only track docs/ and package source files. Ignore all cache, build, and binary files.
-
-# Keep these folders tracked:
-!docs/
-!R/
-!man/
-!data/
-!inst/
-!tests/
-!vignettes/*.Rmd
-!DESCRIPTION
-!NAMESPACE
-!LICENSE*
-!*.Rproj
-
-# Ignore everything else by default
-/*
-
-# But allow the above exceptions
-!docs/**
-!R/**
-!man/**
-!data/**
-!inst/**
-!tests/**
-!vignettes/*.Rmd
-!DESCRIPTION
-!NAMESPACE
-!LICENSE*
-!*.Rproj
-
-# Ignore cache, build, and binary files everywhere
-*.rda
-*.rds
-*.Rds
-*.RDS
-*.rdb
-*.rdx
-*.log
-*.tmp
-*.tar.gz
-*.zip
-*.Rcheck/
-*.Rout
-*.Rout.save
-build/
-.Rproj.user/
-.Rhistory
-.Rapp.history
-.RData
-.Ruserdata
-<<<<<<< HEAD
 .DS_Store
 Thumbs.db
 .cache/
 vignettes/**/cache/
 vignettes/**/figure-html/
 vignettes/**/figure-markdown_html/
-=======
 *.zip
 .vscode/
 DPmixGPD.Rcheck/
@@ -75,36 +18,27 @@ tools/pandoc-*/
 tools/pandoc-*.zip
 /doc/
 /Meta/
-
 # Generated vignette artifacts (figures, cached draws)
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 vignettes/*_files/
 vignettes/**/*.rds
 vignettes/**/*.Rds
 vignettes/**/*.RDS
 vignettes/**/*.png
-<<<<<<< HEAD
-=======
-
 # Vignette cache artifacts (deeply nested cache dirs)
 vignettes/**/cache/
 vignettes/**/cache/**
-
 # Cache files (knitr/rmarkdown)
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 *_cache/
-**/*_cache/
+**/*_cache/*
 *.html
 test_*.html
-<<<<<<< HEAD
-.vscode/
-inst/doc/
-Meta/
-DPmixGPD.Rcheck/
-DPmixGPD_*.tar.gz
-tools/pandoc-*/
-tools/pandoc-*.zip
 
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
+.Rproj.user
 
+# Ignore R history and legacy vignette cache/logs
+.Rhistory
+vignettes/legacy/legacy-cache/
+inst/extdata/legacy-precomputed/
+
+# Ignore local temporary folder
+.tmp/

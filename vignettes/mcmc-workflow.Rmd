@@ -1,23 +1,10 @@
 ---
-<<<<<<< HEAD
-<<<<<<< HEAD
-title: "MCMC workflow"
-output: rmarkdown::html_vignette
-vignette: >
-  %\VignetteIndexEntry{MCMC workflow}
-=======
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
 title: "MCMC Workflow"
 output:
   rmarkdown::html_vignette:
     code_folding: show
 vignette: >
   %\VignetteIndexEntry{MCMC Workflow}
-<<<<<<< HEAD
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -25,107 +12,6 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-<<<<<<< HEAD
-<<<<<<< HEAD
-  comment = "#>",
-  message = FALSE,
-  warning = FALSE,
-  fig.width = 7,
-  fig.height = 4.5
-)
-library(nimble)
-set.seed(1)
-FAST <- TRUE
-mcmc <- if (FAST) {
-  list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
-} else {
-  list(niter = 6000, nburnin = 2000, thin = 5, nchains = 2, seed = c(1, 2))
-}
-```
-
-## Goal
-
-This vignette shows a practical MCMC loop: build -> run -> inspect -> extract.
-
-**Runtime:** fast in `FAST` mode.
-
-## Build and run
-
-```{r}
-library(DPmixGPD)
-
-y <- abs(rnorm(60)) + 0.15
-bundle <- build_nimble_bundle(
-  y = y,
-  backend = "sb",
-  kernel = "normal",
-  GPD = TRUE,
-  components = 6,
-  mcmc = mcmc
-)
-
-fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
-fit
-```
-
-## Print and summary
-
-```{r}
-print(fit)
-summary(fit)
-```
-
-## Plots
-
-Different versions of the package may support different plot families; `trace` is usually the safest.
-
-```{r}
-try(plot(fit, family = "trace"), silent = TRUE)
-```
-
-## Extract posterior draws
-
-The exact storage depends on how your fit object is organized, but most workflows expose a draws object.
-
-```{r}
-# Common patterns
-if (!is.null(fit$mcmc$samples)) {
-  s <- fit$mcmc$samples
-  mat <- try(as.matrix(s), silent = TRUE)
-  if (!inherits(mat, "try-error")) {
-    dim(mat)
-    colnames(mat)[1:min(20, ncol(mat))]
-  }
-}
-```
-
-## Re-running with different MCMC settings
-
-A helpful pattern is: build once, rerun MCMC with different settings. If your API supports it, use it.
-Otherwise rebuild with a different `mcmc` list.
-
-```{r, eval=FALSE}
-# Example (pseudo):
-# bundle2 <- update_mcmc(bundle, niter = 8000, nburnin = 2000)
-# fit2 <- run_mcmc_bundle_manual(bundle2)
-```
-
-## Troubleshooting
-
-- **Compilation errors**: call `printErrors()` if NIMBLE suggests it.
-- **Slow runs**: start with `FAST <- TRUE`, then scale up.
-- **Multi-chain seeds**: prefer a vector of seeds (one per chain).
-
-## Next
-
-- See **Unconditional** and **Conditional** for prediction and diagnostics.
-
-```{r sessioninfo, include=FALSE}
-sessionInfo()
-```
-=======
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
   comment = NA,
   message = FALSE,
   warning = FALSE,
@@ -204,7 +90,3 @@ plot(fit, family = c("traceplot", "running"))
 - tail estimates based on very few exceedances
 
 This package gives you flexible models; it does not replace careful MCMC practice.
-<<<<<<< HEAD
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
-=======
->>>>>>> 50289162bd36853addda01bb01ee507dfa332090
