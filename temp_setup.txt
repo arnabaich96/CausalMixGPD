@@ -1,7 +1,4 @@
-# Legacy vignette shared setup for precomputed results
-# This file is sourced by all legacy vignettes to provide consistent
-# precomputed file handling and MCMC output suppression.
-
+﻿# Precomputed results for fast website builds
 # Try multiple possible locations for precomputed files
 .find_precomp_dir <- function() {
   # Hardcode the known location of precomputed files
@@ -48,18 +45,16 @@
   return(known_path)
 }
 
-# Initialize precomputed directory
 PRECOMP_DIR <- .find_precomp_dir()
 if (!dir.exists(PRECOMP_DIR)) dir.create(PRECOMP_DIR, recursive = TRUE, showWarnings = FALSE)
 
 .precomp_path <- function(tag) file.path(PRECOMP_DIR, paste0(tag, ".rds"))
 
-# Load from cache or fit and save
 load_or_fit <- function(tag, expr) {
   path <- .precomp_path(tag)
   
-  # Try to load from cache first (only if in FAST mode)
-  if (isTRUE(FAST) && file.exists(path)) {
+  # Try to load from cache first (if in FAST mode or if file exists)
+  if (file.exists(path)) {
     tryCatch({
       cached <- readRDS(path)
       return(cached)
@@ -88,30 +83,28 @@ load_or_fit <- function(tag, expr) {
   
   # Evaluate the expression
   if (!is.null(expr_sub) && is.language(expr_sub)) {
-    # Successfully captured unevaluated expression - evaluate it
+    # Successfully captured expression - evaluate it
     out <- eval(expr_sub, envir = parent.frame())
   } else {
-    # Could not capture unevaluated expression - expr may already be evaluated
-    # This happens when called like load_or_fit("tag", quiet_mcmc(...)) 
-    # where quiet_mcmc() executes before the argument is passed
-    # Use force() to handle both already-evaluated values and promises
-    out <- tryCatch({
-      force(expr)
-    }, error = function(e) {
-      if (isTRUE(FAST)) {
-        # In FAST mode, if we can't evaluate, provide a helpful error
-        stop("Precomputed file not found for tag '", tag, "' and cannot evaluate expression.\n",
-             "  Expected path: ", path, "\n",
-             "  PRECOMP_DIR: ", PRECOMP_DIR, "\n",
-             "  PRECOMP_DIR exists: ", dir.exists(PRECOMP_DIR), "\n",
-             "  Current working directory: ", getwd(), "\n",
-             "  Error: ", conditionMessage(e), "\n",
-             "  Please ensure precomputed files exist in: ", PRECOMP_DIR)
-      } else {
+    # Could not capture expression (e.g., in pkgdown context)
+    # Try to evaluate expr directly - it may already be evaluated
+    if (isTRUE(FAST)) {
+      # In FAST mode and can't capture expression, this is a problem
+      stop("Precomputed file not found for tag '", tag, "' and cannot evaluate expression in this context.\n",
+           "  Expected path: ", path, "\n",
+           "  PRECOMP_DIR: ", PRECOMP_DIR, "\n",
+           "  PRECOMP_DIR exists: ", dir.exists(PRECOMP_DIR), "\n",
+           "  Current working directory: ", getwd(), "\n",
+           "  Please ensure precomputed files exist in: ", PRECOMP_DIR)
+    } else {
+      # In non-FAST mode, try to evaluate expr directly
+      out <- tryCatch({
+        force(expr)
+      }, error = function(e) {
         stop("Could not evaluate expression for tag '", tag, "'. ",
              "Error: ", conditionMessage(e))
-      }
-    })
+      })
+    }
   }
   
   # Save the result for future use (if path is valid)
@@ -121,7 +114,7 @@ load_or_fit <- function(tag, expr) {
   out
 }
 
-# Suppress MCMC output during evaluation
+
 quiet_mcmc <- function(expr) {
   nullfile <- if (.Platform$OS.type == 'windows') 'NUL' else '/dev/null'
   # Capture unevaluated expression to suppress output during evaluation
@@ -156,3 +149,4 @@ quiet_mcmc <- function(expr) {
   }
   out
 }
+```
