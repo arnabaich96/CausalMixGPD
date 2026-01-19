@@ -116,8 +116,8 @@ test_that("PS parameter: logit, probit, naive, FALSE all work", {
   T <- stats::rbinom(n, 1, stats::plogis(0.3 + 0.4 * X[, 1]))
   y <- abs(stats::rnorm(n)) + 0.2
 
-  mcmc_out <- list(niter = 20, nburnin = 10, thin = 1, nchains = 1, seed = 1)
-  mcmc_ps <- list(niter = 20, nburnin = 10, thin = 1, nchains = 1, seed = 1)
+  mcmc_out <- list(niter = 20, nburnin = 5, thin = 1, nchains = 1, seed = 1)
+  mcmc_ps <- list(niter = 20, nburnin = 5, thin = 1, nchains = 1, seed = 1)
 
   # Test all four PS options
   ps_options <- list("logit", "probit", "naive", FALSE)
