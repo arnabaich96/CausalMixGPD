@@ -27,6 +27,9 @@ set.seed(1)
 # Fast-by-default rendering. Flip to FALSE for a fuller run.
 FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
 mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
+library(tibble)
+library(gridExtra)
+library(dplyr)
 mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
 
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.

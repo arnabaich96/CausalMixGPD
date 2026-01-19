@@ -7,7 +7,7 @@
 #' @keywords internal
 #' @importFrom stats uniroot pgamma predict rgamma density quantile coef setNames
 #' @importFrom utils head
-#' @import nimble
+#' @import nimble ggplot2 kableExtra
 NULL
 
 utils::globalVariables(c(
