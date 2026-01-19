@@ -926,8 +926,10 @@ plot.mixgpd_fit <- function(x,
 #' @param type Prediction type: \code{"density"}, \code{"survival"}, \code{"quantile"},
 #'   \code{"sample"}, \code{"mean"}, \code{"median"}, \code{"location"}.
 #' @param p Numeric vector of probabilities for quantiles (required for \code{type="quantile"}).
+#' @param index Alternative name for \code{p} (used internally for quantiles).
 #' @param y Numeric vector of evaluation points (required for \code{type="density"} or \code{"survival"}).
 #' @param interval \code{"none"} or \code{"credible"} for posterior credible bands.
+#' @param cred.level Credible level for posterior intervals (used when \code{interval = "credible"}).
 #' @param probs Quantiles for credible interval bands.
 #' @param nsim Number of posterior predictive samples (for \code{type="sample"}).
 #' @param store_draws Logical; whether to store all posterior draws (for \code{type="sample"}).

@@ -6,11 +6,16 @@
 ^.*\examples
 ^.csv
 ^\.github$
+^\.githooks$
 ^\.git$
+^\.cache$
+^\.cache/
 ^.*\zip
 ^\.vscode$
 ^\.gitignore$
 ^docs$
+^pkgdown$
+^pkgdown/
 ^DPmixGPD\.Rcheck$
 ^\.{2}Rcheck$
 ^DPmixGPD_.*\.tar\.gz$
@@ -20,6 +25,10 @@
 ^vignettes/reports/
 ^vignettes/legacy$
 ^vignettes/.*\.html$
+^vignettes/\.build\.timestamp$
+^vignettes/legacy-precomputed$
+^vignettes/legacy-precomputed/
+^vignettes$
 ^data-raw$
 ^tests/testthat/_cache$
 ^tests/testthat/tests/testthat/_cache$
@@ -32,3 +41,5 @@
 ^doc$
 ^Meta$
 ^DOCS-MAINTENANCE$
+^Misc$
+^codecov\.yml$
