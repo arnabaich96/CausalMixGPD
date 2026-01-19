@@ -1,76 +1,79 @@
-## R / RStudio
-.Rhistory
-.Rapp.history
-.RData
-.Ruserdata
-*.Rproj.user/
-*.Rproj
+# Ignore test cache folders
+tests/testthat/_cache/
+tests/testthat/tests/testthat/_cache/
 
-## R build / package artifacts
+# Only track docs/ and package source files. Ignore all cache, build, and binary files.
+
+# Keep these folders tracked:
+!docs/
+!R/
+!man/
+!data/
+!inst/
+!tests/
+!vignettes/*.Rmd
+!DESCRIPTION
+!NAMESPACE
+!LICENSE*
+!*.Rproj
+
+# Ignore everything else by default
+/*
+
+# But allow the above exceptions
+!docs/**
+!R/**
+!man/**
+!data/**
+!inst/**
+!tests/**
+!vignettes/*.Rmd
+!DESCRIPTION
+!NAMESPACE
+!LICENSE*
+!*.Rproj
+
+# Ignore cache, build, and binary files everywhere
+*.rda
+*.rds
+*.Rds
+*.RDS
+*.rdb
+*.rdx
+*.log
+*.tmp
 *.tar.gz
+*.zip
 *.Rcheck/
 *.Rout
 *.Rout.save
 build/
-_pkgdown.yml
-
-## R internal DB / index files (ignore compiled DBs left from builds)
-*.rdb
-*.rdx
-
-## R data caches and outputs
-*.rda
-*.rds
-
-## Vignette caches and figures (keep source .Rmd files tracked)
+.Rproj.user/
+.Rhistory
+.Rapp.history
+.RData
+.Ruserdata
+.DS_Store
+Thumbs.db
+.cache/
 vignettes/**/cache/
 vignettes/**/figure-html/
 vignettes/**/figure-markdown_html/
-
-## nix / editors / OS
-.DS_Store
-Thumbs.db
-/.Rproj.user
-
-## Logs and temporary
-*.log
-*.tmp
-
-## Do NOT ignore: source dirs (R/, man/, data/, inst/, docs/ should remain tracked)
-# Keep docs/ tracked for GitHub Pages; do not add `docs/` here
-.Rproj.user
-.Rhistory
-.RData
-.Ruserdata
-*.zip
-.vscode/
-DPmixGPD.Rcheck/
-DPmixGPD_*.tar.gz
-vignettes/cache/
-.cache/
-inst/doc/
-..Rcheck/
-tests/testthat/_cache/
-tests/testthat/tests/testthat/_cache/
-tools/pandoc-*/
-tools/pandoc-*.zip
-/doc/
-/Meta/
-
-# Generated vignette artifacts (figures, cached draws)
 vignettes/*_files/
 vignettes/**/*.rds
 vignettes/**/*.Rds
 vignettes/**/*.RDS
 vignettes/**/*.png
-
-# Vignette cache artifacts (deeply nested cache dirs)
-vignettes/**/cache/
-vignettes/**/cache/**
-
-# Cache files (knitr/rmarkdown)
 *_cache/
 **/*_cache/
 *.html
 test_*.html
+.vscode/
+inst/doc/
+Meta/
+DPmixGPD.Rcheck/
+DPmixGPD_*.tar.gz
+tools/pandoc-*/
+tools/pandoc-*.zip
+
 
