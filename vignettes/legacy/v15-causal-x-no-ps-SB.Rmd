@@ -139,14 +139,24 @@ plot(pred_surv_gpd)
 
 ```{r ate-crp-gpd}
 ate_gpd <- ate(fit_crp_gpd, newdata = x_eval, interval = "credible", nsim_mean = 150)
-head(ate_gpd)
-plot(ate_gpd)
+print(ate_gpd)
+summary(ate_gpd)
+```
+
+```{r fig.width=7, fig.height=5}
+ate_plots_gpd <- plot(ate_gpd)
+ate_plots_gpd$treatment_effect
 ```
 
 ```{r qte-crp-gpd}
 qte_gpd <- qte(fit_crp_gpd, probs = c(0.25, 0.5, 0.75), newdata = x_eval, interval = "credible")
-head(qte_gpd)
-plot(qte_gpd)
+print(qte_gpd)
+summary(qte_gpd)
+```
+
+```{r fig.width=7, fig.height=5}
+qte_plots_gpd <- plot(qte_gpd)
+qte_plots_gpd$treatment_effect
 ```
 
 ---
@@ -200,14 +210,24 @@ plot(pred_surv_bulk)
 
 ```{r ate-sb-bulk}
 ate_bulk <- ate(fit_sb_bulk, newdata = x_eval, interval = "credible", nsim_mean = 150)
-head(ate_bulk)
-plot(ate_bulk)
+print(ate_bulk)
+summary(ate_bulk)
+```
+
+```{r fig.width=7, fig.height=5}
+ate_plots_bulk <- plot(ate_bulk)
+ate_plots_bulk$treatment_effect
 ```
 
 ```{r qte-sb-bulk}
 qte_bulk <- qte(fit_sb_bulk, probs = c(0.25, 0.5, 0.75), newdata = x_eval, interval = "credible")
-head(qte_bulk)
-plot(qte_bulk)
+print(qte_bulk)
+summary(qte_bulk)
+```
+
+```{r fig.width=7, fig.height=5}
+qte_plots_bulk <- plot(qte_bulk)
+qte_plots_bulk$treatment_effect
 ```
 
 

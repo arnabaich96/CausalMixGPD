@@ -19,10 +19,6 @@
 #'
 #' @param y Numeric outcome vector.
 #' @param X Optional design matrix/data.frame (N x p) for conditional variants.
-#' @param ps Numeric vector of estimated propensity scores (length N) used as a covariate
-#'   when constructing link-mode predictors. Mandatory for causal inference models
-#'   (with two treatment arms). When provided, \code{beta_ps_<param>} coefficient vectors
-#'   are added for each link-mode bulk parameter; priors can be customized via \code{param_specs$ps}.
 #' @param backend Character; \code{"sb"} (stick-breaking) or \code{"crp"} (Chinese Restaurant Process).
 #' @param kernel Character kernel name (must exist in \code{get_kernel_registry()}).
 #' @param GPD Logical; whether a GPD tail is requested.
@@ -33,7 +29,7 @@
 #'   }
 #' @param components Deprecated alias for \code{J}. Only one of \code{J} or \code{components}
 #'   should be supplied.
-#' @param param_specs Optional list with entries \code{bulk}, \code{tail}, and \code{ps} to override defaults.
+#' @param param_specs Optional list with entries \code{bulk} and \code{tail} to override defaults.
 #' @param mcmc Named list of MCMC settings (niter, nburnin, thin, nchains, seed). Stored in bundle.
 #' @param epsilon Numeric in [0,1). For downstream summaries/plots/prediction we keep the
 #'   smaller k defined by either (i) cumulative mass >= 1 - epsilon or (ii) per-component

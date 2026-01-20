@@ -164,13 +164,25 @@ plot(pred_surv_sb_crp)
 ```{r ate-sb-crp}
 ate_sb_crp <- ate(fit_sb_crp, newdata = x_eval,
                   interval = "credible", nsim_mean = 100)
-plot(ate_sb_crp)
+print(ate_sb_crp)
+summary(ate_sb_crp)
+```
+
+```{r fig.width=7, fig.height=5}
+ate_plots_sb_crp <- plot(ate_sb_crp)
+ate_plots_sb_crp$treatment_effect
 ```
 
 ```{r qte-sb-crp}
 qte_sb_crp <- qte(fit_sb_crp, probs = c(0.25, 0.5, 0.75),
                   newdata = x_eval, interval = "credible")
-plot(qte_sb_crp)
+print(qte_sb_crp)
+summary(qte_sb_crp)
+```
+
+```{r fig.width=7, fig.height=5}
+qte_plots_sb_crp <- plot(qte_sb_crp)
+qte_plots_sb_crp$treatment_effect
 ```
 
 ---
@@ -233,13 +245,25 @@ plot(pred_surv_crp_sb)
 ```{r ate-crp-sb}
 ate_crp_sb <- ate(fit_crp_sb, newdata = x_eval,
                   interval = "credible", nsim_mean = 100)
-plot(ate_crp_sb)
+print(ate_crp_sb)
+summary(ate_crp_sb)
+```
+
+```{r fig.width=7, fig.height=5}
+ate_plots_crp_sb <- plot(ate_crp_sb)
+ate_plots_crp_sb$treatment_effect
 ```
 
 ```{r qte-crp-sb}
 qte_crp_sb <- qte(fit_crp_sb, probs = c(0.25, 0.5, 0.75),
                   newdata = x_eval, interval = "credible")
-plot(qte_crp_sb)
+print(qte_crp_sb)
+summary(qte_crp_sb)
+```
+
+```{r fig.width=7, fig.height=5}
+qte_plots_crp_sb <- plot(qte_crp_sb)
+qte_plots_crp_sb$treatment_effect
 ```
 
 

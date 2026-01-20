@@ -8,17 +8,23 @@ qte(
   fit,
   probs = c(0.1, 0.5, 0.9),
   newdata = NULL,
-  interval = c("none", "credible")
+  interval = "credible",
+  level = 0.95
 )
 }
 \arguments{
 \item{fit}{A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.}
 
-\item{probs}{Numeric vector of probabilities in (0, 1).}
+\item{probs}{Numeric vector of probabilities in (0, 1) specifying the quantile levels
+of the outcome distribution to estimate treatment effects at.}
 
 \item{newdata}{Optional data.frame or matrix of covariates for prediction.}
 
-\item{interval}{Credible interval type passed to \code{predict()}.}
+\item{interval}{Character or NULL; type of credible interval: \code{NULL} for no interval,
+\code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
+highest posterior density intervals.}
+
+\item{level}{Numeric credible level for intervals (default 0.95 for 95\% CI).}
 }
 \value{
 A list with elements \code{fit} (QTE), \code{grid} (probabilities),
@@ -32,5 +38,8 @@ Computes treated-minus-control quantiles from a causal fit.
 cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", J = 6)
 fit <- run_mcmc_causal(cb, show_progress = FALSE)
 qte(fit, probs = c(0.5, 0.9), newdata = X[1:5, ])
+qte(fit, probs = c(0.5, 0.9), interval = "credible", level = 0.90)  # 90\% CI
+qte(fit, probs = c(0.5, 0.9), interval = "hpd")  # HPD intervals
+qte(fit, probs = c(0.5, 0.9), interval = NULL)   # No intervals
 }
 }

@@ -13,7 +13,7 @@
   type = c("mean", "quantile", "density", "survival", "prob"),
   p = NULL,
   nsim = NULL,
-  interval = c("none", "credible"),
+  interval = "credible",
   probs = c(0.025, 0.5, 0.975),
   store_draws = TRUE,
   nsim_mean = 200L,
@@ -42,7 +42,9 @@ recomputing them from the stored PS model (needed only for custom inputs).}
 
 \item{nsim}{Number of posterior predictive samples (for \code{type="sample"}).}
 
-\item{interval}{\code{"none"} or \code{"credible"} for posterior credible bands.}
+\item{interval}{Character or NULL; type of credible interval: \code{NULL} for no interval,
+\code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
+highest posterior density intervals.}
 
 \item{probs}{Quantiles for credible interval bands.}
 
@@ -76,5 +78,7 @@ predictions use only the original covariates \code{X}.
 cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal")
 fit <- run_mcmc_causal(cb)
 predict(fit, x = X[1:10, ], type = "quantile", p = c(0.25, 0.5, 0.75))
+predict(fit, x = X[1:10, ], type = "mean", interval = "hpd")  # HPD intervals
+predict(fit, x = X[1:10, ], type = "mean", interval = NULL)   # No intervals
 }
 }

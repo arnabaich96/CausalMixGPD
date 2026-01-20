@@ -4,18 +4,46 @@
 \alias{plot.dpmixgpd_qte}
 \title{Plot QTE results}
 \usage{
-\method{plot}{dpmixgpd_qte}(x, y = NULL, ...)
+\method{plot}{dpmixgpd_qte}(
+  x,
+  y = NULL,
+  type = c("both", "effect", "arms"),
+  facet_by = c("tau", "id"),
+  ...
+)
 }
 \arguments{
 \item{x}{Object of class \code{dpmixgpd_qte}.}
 
 \item{y}{Ignored.}
 
+\item{type}{Character; plot type: \code{"both"} (default), \code{"effect"}, or \code{"arms"}.}
+
+\item{facet_by}{Character; faceting strategy when multiple prediction points exist.
+\code{"tau"} (default) facets by quantile level, \code{"id"} facets by prediction point.}
+
 \item{...}{Additional arguments passed to ggplot2 functions.}
 }
 \value{
-A list of ggplot objects.
+A list of ggplot objects with elements \code{trt_control} and \code{treatment_effect}
+  (if \code{type="both"}), or a single ggplot object (if \code{type} is \code{"effect"} or
+  \code{"arms"}).
 }
 \description{
-Plot QTE results
+Generates visualizations for quantile treatment effects. The \code{type} parameter
+controls the plot style:
+\itemize{
+  \item \code{"both"} (default): Returns a list with both \code{trt_control} (treated vs
+    control quantile curves) and \code{treatment_effect} (QTE curve) plots
+  \item \code{"effect"}: QTE curve vs quantile levels (\code{probs}) with CI ribbon
+  \item \code{"arms"}: Treated and control quantile curves vs \code{probs}, with CI ribbons
+}
+}
+\examples{
+\dontrun{
+qte_result <- qte(fit, probs = c(0.1, 0.5, 0.9), newdata = X_new)
+plot(qte_result)  # default: returns list with both plots
+plot(qte_result, type = "effect")  # single QTE plot
+plot(qte_result, type = "arms")    # single arms plot
+}
 }
