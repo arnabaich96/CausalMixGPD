@@ -919,6 +919,8 @@ plot.mixgpd_fit <- function(x,
 #' @param object A fitted object of class \code{"mixgpd_fit"}.
 #' @param x Optional new data. Alias for \code{newdata}.
 #' @param newdata Optional new data. If \code{NULL}, uses training design (if stored).
+#' @param ps Optional numeric vector of propensity scores for conditional prediction.
+#'   Used when the model was fit with propensity score augmentation.
 #' @param type Prediction type: \code{"density"}, \code{"survival"}, \code{"quantile"},
 #'   \code{"sample"}, \code{"mean"}, \code{"median"}, \code{"location"}.
 #' @param p Numeric vector of probabilities for quantiles (required for \code{type="quantile"}).
