@@ -919,17 +919,15 @@ plot.mixgpd_fit <- function(x,
 #' @param object A fitted object of class \code{"mixgpd_fit"}.
 #' @param x Optional new data. Alias for \code{newdata}.
 #' @param newdata Optional new data. If \code{NULL}, uses training design (if stored).
-#' @param ps Ignored. Propensity scores are always computed internally from the fitted PS
-#'   model or stored training PS. For new covariates, PS are derived from the attached PS
-#'   posterior draws when available. For causal workflows, use \code{qte()} / \code{ate()} which
-#'   orchestrate PS estimation and outcome prediction jointly.
 #' @param type Prediction type: \code{"density"}, \code{"survival"}, \code{"quantile"},
 #'   \code{"sample"}, \code{"mean"}, \code{"median"}, \code{"location"}.
 #' @param p Numeric vector of probabilities for quantiles (required for \code{type="quantile"}).
 #' @param index Alias for \code{p}; numeric vector of quantile levels.
 #' @param y Numeric vector of evaluation points (required for \code{type="density"} or \code{"survival"}).
 #' @param cred.level Credible level for credible intervals (default 0.95 for 95\% credible intervals).
-#' @param interval \code{"none"} or \code{"credible"} for posterior credible bands.
+#' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
+#'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
+#'   highest posterior density intervals.
 #' @param probs Quantiles for credible interval bands.
 #' @param nsim Number of posterior predictive samples (for \code{type="sample"}).
 #' @param store_draws Logical; whether to store all posterior draws (for \code{type="sample"}).
@@ -953,6 +951,10 @@ plot.mixgpd_fit <- function(x,
 #' pr <- predict(fit, type = "quantile", p = c(0.5, 0.9))
 #' pr_surv <- predict(fit, y = sort(y), type = "survival")
 #' pr_cdf <- list(fit = 1 - pr_surv$fit)
+#' # HPD intervals
+#' pr_hpd <- predict(fit, type = "quantile", p = c(0.5, 0.9), interval = "hpd")
+#' # No intervals
+#' pr_none <- predict(fit, type = "quantile", p = c(0.5, 0.9), interval = NULL)
 #' }
 #' @export
 predict.mixgpd_fit <- function(object,
@@ -966,7 +968,7 @@ predict.mixgpd_fit <- function(object,
                                index = NULL,
                                nsim = NULL,
                                cred.level = 0.95,
-                               interval = c("none", "credible"),
+                               interval = "credible",
                                probs = c(0.025, 0.5, 0.975),
                                store_draws = TRUE,
                                nsim_mean = 200L,
@@ -975,7 +977,11 @@ predict.mixgpd_fit <- function(object,
   .validate_fit(object)
 
   type <- match.arg(type)
-  interval <- match.arg(interval)
+  
+  # Handle interval: NULL means no interval, otherwise match to credible/hpd
+  if (!is.null(interval)) {
+    interval <- match.arg(interval, choices = c("credible", "hpd"))
+  }
 
   # Backwards-compat: allow newdata alias for x
   if (!is.null(newdata) && !is.null(x)) {
@@ -1093,6 +1099,9 @@ predict.mixgpd_fit <- function(object,
 #' @param type Which fitted location to return: mean, median, quantile, or both (\code{"location"}).
 #' @param p Quantile level used when \code{type = "quantile"}.
 #' @param level Credible level for confidence intervals (default 0.95 for 95\% credible intervals).
+#' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
+#'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
+#'   highest posterior density intervals.
 #' @param seed Random seed used for deterministic fitted values.
 #' @param ... Unused.
 #' @return A data frame with columns: 
@@ -1107,12 +1116,21 @@ predict.mixgpd_fit <- function(object,
 #' fit <- run_mcmc_bundle_manual(bundle)
 #' fitted(fit)
 #' fitted(fit, level = 0.90)
+#' fitted(fit, interval = "hpd")  # HPD intervals
+#' fitted(fit, interval = NULL)   # No intervals
 #' }
 #' @export
-fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median", "quantile"), p = 0.5, level = 0.95, seed = 1, ...) {
+fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median", "quantile"), 
+                              p = 0.5, level = 0.95, 
+                              interval = "credible",
+                              seed = 1, ...) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   type <- match.arg(type)
+  # Handle interval: NULL means no interval, otherwise match to credible/hpd
+  if (!is.null(interval)) {
+    interval <- match.arg(interval, choices = c("credible", "hpd"))
+  }
   y <- object$data$y %||% object$y
   X <- object$data$X %||% object$X %||% NULL
 
@@ -1128,9 +1146,9 @@ fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median", "qu
 
   if (type == "location") {
     pred_mean <- predict(object, x = X, type = "mean",
-                        cred.level = level, interval = "credible")
+                        cred.level = level, interval = interval)
     pred_median <- predict(object, x = X, type = "median",
-                          cred.level = level, interval = "credible")
+                          cred.level = level, interval = interval)
     fit_df <- pred_mean$fit
     if ("id" %in% names(fit_df)) fit_df <- fit_df[order(fit_df$id), , drop = FALSE]
     fit_vals <- fit_df$estimate
@@ -1144,7 +1162,7 @@ fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median", "qu
     med_upper <- med_df$upper
   } else if (type == "quantile") {
     pred <- predict(object, x = X, type = "quantile",
-                    index = p, cred.level = level, interval = "credible")
+                    index = p, cred.level = level, interval = interval)
     fit_df <- pred$fit
     if ("id" %in% names(fit_df)) fit_df <- fit_df[order(fit_df$id), , drop = FALSE]
     fit_vals <- fit_df$estimate
@@ -1160,7 +1178,7 @@ fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median", "qu
     }
   } else if (!is.null(X)) {
     pred <- predict(object, x = X, type = type,
-                    cred.level = level, interval = "credible")
+                    cred.level = level, interval = interval)
     fit_df <- pred$fit
     if ("id" %in% names(fit_df)) fit_df <- fit_df[order(fit_df$id), , drop = FALSE]
     fit_vals <- fit_df$estimate
@@ -1168,7 +1186,7 @@ fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median", "qu
     upper_vals <- fit_df$upper
   } else {
     pred <- predict(object, type = type,
-                    cred.level = level, interval = "credible")
+                    cred.level = level, interval = interval)
     fit_df <- pred$fit
     fit_vals <- rep(fit_df$estimate[1], length(y))
     lower_vals <- rep(fit_df$lower[1], length(y))
@@ -1195,6 +1213,7 @@ fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median", "qu
   class(result) <- c("mixgpd_fitted", "data.frame")
   attr(result, "object") <- object
   attr(result, "level") <- level
+  attr(result, "interval") <- interval
   return(result)
 }
 
@@ -1397,11 +1416,11 @@ plot.dpmixgpd_causal_predict <- function(x, y = NULL, ...) {
                  lower = con_stats$lower, upper = con_stats$upper)
     )
 
-    pal <- .plot_palette(2L)
+    pal <- .plot_palette(8L)
     p_tc <- ggplot2::ggplot(df_tc, ggplot2::aes(x = x, y = estimate, color = group, fill = group)) +
       ggplot2::geom_line(linewidth = 0.8) +
-      ggplot2::scale_color_manual(values = pal) +
-      ggplot2::scale_fill_manual(values = pal) +
+      ggplot2::scale_color_manual(values = pal[1:2]) +
+      ggplot2::scale_fill_manual(values = pal[1:2]) +
       .plot_theme() +
       ggplot2::labs(x = ax$label, y = paste0("Outcome ", pred_type), title = "Treated vs Control")
 
@@ -1460,26 +1479,535 @@ plot.dpmixgpd_causal_predict <- function(x, y = NULL, ...) {
   stop("Unsupported causal prediction type for plotting.", call. = FALSE)
 }
 
+
+# S3 methods for QTE/ATE objects -------------------------------------------
+
+#' Print a QTE object
+#'
+#' User-facing print method for \code{"dpmixgpd_qte"} objects produced by \code{qte()}.
+#' Displays a compact summary: prediction points, quantile grid, credible level,
+#' and the first few rows of QTE estimates.
+#'
+#' @param x A \code{"dpmixgpd_qte"} object from \code{qte()}.
+#' @param digits Number of digits to display.
+#' @param max_rows Maximum number of estimate rows to display.
+#' @param ... Unused.
+#' @return The object \code{x}, invisibly.
+#' @examples
+#' \dontrun{
+#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", J = 6)
+#' fit <- run_mcmc_causal(cb, show_progress = FALSE)
+#' q <- qte(fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
+#' print(q)
+#' }
+#' @export
+#' @method print dpmixgpd_qte
+print.dpmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
+  stopifnot(inherits(x, "dpmixgpd_qte"))
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+
+  probs <- x$probs %||% x$grid %||% numeric(0)
+  n_pred <- x$n_pred %||% 1L
+  level <- x$level %||% 0.95
+  interval <- x$interval %||% "none"
+  meta <- x$meta %||% list()
+
+  cat("QTE (Quantile Treatment Effect)\n")
+  cat(sprintf("  Prediction points: %d\n", n_pred))
+  cat(sprintf("  Quantile grid: %s\n", paste(round(probs, digits), collapse = ", ")))
+  
+  has_x <- !is.null(x$x)
+  ps_used <- !is.null(x$ps) && any(is.finite(x$ps))
+  cat(sprintf("  Conditional (covariates): %s\n", if (has_x) "YES" else "NO"))
+  cat(sprintf("  Propensity score used: %s\n", if (ps_used) "YES" else "NO"))
+  if (ps_used && !is.null(meta$ps_scale)) {
+    cat(sprintf("  PS scale: %s\n", meta$ps_scale))
+  }
+  cat(sprintf("  Credible interval: %s", interval))
+  if (interval == "credible") {
+    cat(sprintf(" (%.0f%%)\n", level * 100))
+  } else {
+    cat("\n")
+  }
+
+  cat("\nQTE estimates (treated - control):\n")
+  qte_fit <- x$qte$fit %||% NULL
+  if (!is.null(qte_fit) && is.data.frame(qte_fit)) {
+    show_df <- qte_fit
+    show_df$estimate <- round(show_df$estimate, digits)
+    if ("lower" %in% names(show_df)) show_df$lower <- round(show_df$lower, digits)
+    if ("upper" %in% names(show_df)) show_df$upper <- round(show_df$upper, digits)
+    
+    if (nrow(show_df) > max_rows) {
+      print(utils::head(show_df, max_rows), row.names = FALSE)
+      cat(sprintf("... (%d more rows)\n", nrow(show_df) - max_rows))
+    } else {
+      print(show_df, row.names = FALSE)
+    }
+  } else if (!is.null(x$fit)) {
+    # Fallback to raw matrix
+    fit_mat <- x$fit
+    show_n <- min(nrow(fit_mat), max_rows)
+    cat(sprintf("  (matrix: %d x %d)\n", nrow(fit_mat), ncol(fit_mat)))
+    print(round(fit_mat[seq_len(show_n), , drop = FALSE], digits))
+    if (nrow(fit_mat) > show_n) {
+      cat(sprintf("... (%d more rows)\n", nrow(fit_mat) - show_n))
+    }
+  }
+
+  invisible(x)
+}
+
+#' Print an ATE object
+#'
+#' User-facing print method for \code{"dpmixgpd_ate"} objects produced by \code{ate()}.
+#' Displays a compact summary: prediction points, credible level, and the first
+#' few ATE estimates.
+#'
+#' @param x A \code{"dpmixgpd_ate"} object from \code{ate()}.
+#' @param digits Number of digits to display.
+#' @param max_rows Maximum number of estimate rows to display.
+#' @param ... Unused.
+#' @return The object \code{x}, invisibly.
+#' @examples
+#' \dontrun{
+#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", J = 6)
+#' fit <- run_mcmc_causal(cb, show_progress = FALSE)
+#' a <- ate(fit, interval = "credible")
+#' print(a)
+#' }
+#' @export
+#' @method print dpmixgpd_ate
+print.dpmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
+  stopifnot(inherits(x, "dpmixgpd_ate"))
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+
+  n_pred <- x$n_pred %||% length(x$fit)
+  level <- x$level %||% 0.95
+  interval <- x$interval %||% "none"
+  nsim_mean <- x$nsim_mean %||% NA
+  meta <- x$meta %||% list()
+
+  cat("ATE (Average Treatment Effect)\n")
+  cat(sprintf("  Prediction points: %d\n", n_pred))
+  
+  has_x <- !is.null(x$x)
+  ps_used <- !is.null(x$ps) && any(is.finite(x$ps))
+  cat(sprintf("  Conditional (covariates): %s\n", if (has_x) "YES" else "NO"))
+  cat(sprintf("  Propensity score used: %s\n", if (ps_used) "YES" else "NO"))
+  if (ps_used && !is.null(meta$ps_scale)) {
+    cat(sprintf("  PS scale: %s\n", meta$ps_scale))
+  }
+  if (!is.na(nsim_mean)) {
+    cat(sprintf("  Posterior mean draws: %d\n", nsim_mean))
+  }
+  cat(sprintf("  Credible interval: %s", interval))
+  if (interval == "credible") {
+    cat(sprintf(" (%.0f%%)\n", level * 100))
+  } else {
+    cat("\n")
+  }
+
+  cat("\nATE estimates (treated - control):\n")
+  ate_fit <- x$ate$fit %||% NULL
+  if (!is.null(ate_fit) && is.data.frame(ate_fit)) {
+    show_df <- ate_fit
+    show_df$estimate <- round(show_df$estimate, digits)
+    if ("lower" %in% names(show_df)) show_df$lower <- round(show_df$lower, digits)
+    if ("upper" %in% names(show_df)) show_df$upper <- round(show_df$upper, digits)
+    
+    if (nrow(show_df) > max_rows) {
+      print(utils::head(show_df, max_rows), row.names = FALSE)
+      cat(sprintf("... (%d more rows)\n", nrow(show_df) - max_rows))
+    } else {
+      print(show_df, row.names = FALSE)
+    }
+  } else if (!is.null(x$fit)) {
+    # Fallback to raw vector
+    fit_vec <- x$fit
+    show_n <- min(length(fit_vec), max_rows)
+    cat(sprintf("  (vector: %d)\n", length(fit_vec)))
+    print(round(fit_vec[seq_len(show_n)], digits))
+    if (length(fit_vec) > show_n) {
+      cat(sprintf("... (%d more)\n", length(fit_vec) - show_n))
+    }
+  }
+
+  invisible(x)
+}
+
+#' Summarize a QTE object
+#'
+#' Returns a structured summary of QTE results for further analysis or display.
+#' Includes overall statistics, per-quantile summaries, and metadata.
+#'
+#' @param object A \code{"dpmixgpd_qte"} object from \code{qte()}.
+#' @param ... Unused.
+#' @return An object of class \code{"summary.dpmixgpd_qte"} containing summary statistics.
+#' @examples
+#' \dontrun{
+#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", J = 6)
+#' fit <- run_mcmc_causal(cb, show_progress = FALSE)
+#' q <- qte(fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
+#' summary(q)
+#' }
+#' @export
+#' @method summary dpmixgpd_qte
+summary.dpmixgpd_qte <- function(object, ...) {
+  stopifnot(inherits(object, "dpmixgpd_qte"))
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+
+  probs <- object$probs %||% object$grid %||% numeric(0)
+  n_pred <- object$n_pred %||% 1L
+  level <- object$level %||% 0.95
+  interval <- object$interval %||% "none"
+  meta <- object$meta %||% list()
+
+  # Overall summary
+  overall <- list(
+    n_pred = n_pred,
+    n_quantiles = length(probs),
+    quantiles = probs,
+    level = level,
+    interval = interval,
+    has_covariates = !is.null(object$x),
+    ps_used = !is.null(object$ps) && any(is.finite(object$ps))
+  )
+
+  # Per-quantile summary statistics
+  qte_fit <- object$qte$fit %||% NULL
+  quantile_summary <- NULL
+  if (!is.null(qte_fit) && is.data.frame(qte_fit)) {
+    quantile_summary <- do.call(rbind, lapply(probs, function(tau) {
+      rows <- qte_fit[qte_fit$index == tau, , drop = FALSE]
+      if (nrow(rows) == 0L) return(NULL)
+      est <- rows$estimate
+      data.frame(
+        quantile = tau,
+        mean_qte = mean(est, na.rm = TRUE),
+        median_qte = stats::median(est, na.rm = TRUE),
+        min_qte = min(est, na.rm = TRUE),
+        max_qte = max(est, na.rm = TRUE),
+        sd_qte = if (length(est) > 1) stats::sd(est, na.rm = TRUE) else NA_real_
+      )
+    }))
+  } else if (!is.null(object$fit) && is.matrix(object$fit)) {
+    fit_mat <- object$fit
+    quantile_summary <- do.call(rbind, lapply(seq_along(probs), function(j) {
+      est <- fit_mat[, j]
+      data.frame(
+        quantile = probs[j],
+        mean_qte = mean(est, na.rm = TRUE),
+        median_qte = stats::median(est, na.rm = TRUE),
+        min_qte = min(est, na.rm = TRUE),
+        max_qte = max(est, na.rm = TRUE),
+        sd_qte = if (length(est) > 1) stats::sd(est, na.rm = TRUE) else NA_real_
+      )
+    }))
+  }
+
+  # CI width summary (for both credible and HPD intervals)
+  ci_summary <- NULL
+  if (interval %in% c("credible", "hpd") && !is.null(object$lower) && !is.null(object$upper)) {
+    widths <- as.vector(object$upper - object$lower)
+    ci_summary <- list(
+      mean_width = mean(widths, na.rm = TRUE),
+      median_width = stats::median(widths, na.rm = TRUE),
+      min_width = min(widths, na.rm = TRUE),
+      max_width = max(widths, na.rm = TRUE)
+    )
+  }
+
+  out <- list(
+    overall = overall,
+    quantile_summary = quantile_summary,
+    ci_summary = ci_summary,
+    meta = meta,
+    object = object
+  )
+  class(out) <- "summary.dpmixgpd_qte"
+  out
+}
+
+#' Print a QTE summary
+#'
+#' @param x A \code{"summary.dpmixgpd_qte"} object.
+#' @param digits Number of digits to display.
+#' @param ... Unused.
+#' @return The object \code{x}, invisibly.
+#' @export
+#' @method print summary.dpmixgpd_qte
+print.summary.dpmixgpd_qte <- function(x, digits = 3, ...) {
+  stopifnot(inherits(x, "summary.dpmixgpd_qte"))
+
+  ov <- x$overall
+  meta <- x$meta %||% list()
+
+  cat("QTE Summary\n")
+  cat(paste(rep("=", 50), collapse = ""), "\n")
+  cat(sprintf("Prediction points: %d | Quantiles: %d\n", ov$n_pred, ov$n_quantiles))
+  cat(sprintf("Quantile grid: %s\n", paste(round(ov$quantiles, digits), collapse = ", ")))
+  cat(sprintf("Conditional: %s | PS used: %s\n", 
+              if (ov$has_covariates) "YES" else "NO",
+              if (ov$ps_used) "YES" else "NO"))
+  cat(sprintf("Interval: %s", ov$interval))
+  if (ov$interval == "credible") {
+    cat(sprintf(" (%.0f%%)", ov$level * 100))
+  }
+  cat("\n\n")
+
+  # Model info
+  if (!is.null(meta$backend) || !is.null(meta$kernel)) {
+    cat("Model specification:\n")
+    if (!is.null(meta$backend)) {
+      cat(sprintf("  Backend (trt/con): %s / %s\n", 
+                  meta$backend$trt %||% "?", meta$backend$con %||% "?"))
+    }
+    if (!is.null(meta$kernel)) {
+      cat(sprintf("  Kernel (trt/con): %s / %s\n", 
+                  meta$kernel$trt %||% "?", meta$kernel$con %||% "?"))
+    }
+    if (!is.null(meta$GPD)) {
+      cat(sprintf("  GPD tail (trt/con): %s / %s\n",
+                  if (isTRUE(meta$GPD$trt)) "YES" else "NO",
+                  if (isTRUE(meta$GPD$con)) "YES" else "NO"))
+    }
+    cat("\n")
+  }
+
+  # Quantile summary table
+  qs <- x$quantile_summary
+  if (!is.null(qs) && nrow(qs) > 0) {
+    cat("QTE by quantile:\n")
+    qs_print <- qs
+    for (col in names(qs_print)) {
+      if (is.numeric(qs_print[[col]])) {
+        qs_print[[col]] <- round(qs_print[[col]], digits)
+      }
+    }
+    print(qs_print, row.names = FALSE)
+    cat("\n")
+  }
+
+  # CI summary
+  ci <- x$ci_summary
+  if (!is.null(ci)) {
+    cat("Credible interval width:\n")
+    cat(sprintf("  Mean: %s | Median: %s\n",
+                round(ci$mean_width, digits), round(ci$median_width, digits)))
+    cat(sprintf("  Range: [%s, %s]\n",
+                round(ci$min_width, digits), round(ci$max_width, digits)))
+  }
+
+  invisible(x)
+}
+
+#' Summarize an ATE object
+#'
+#' Returns a structured summary of ATE results for further analysis or display.
+#' Includes overall statistics and metadata.
+#'
+#' @param object A \code{"dpmixgpd_ate"} object from \code{ate()}.
+#' @param ... Unused.
+#' @return An object of class \code{"summary.dpmixgpd_ate"} containing summary statistics.
+#' @examples
+#' \dontrun{
+#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", J = 6)
+#' fit <- run_mcmc_causal(cb, show_progress = FALSE)
+#' a <- ate(fit, interval = "credible")
+#' summary(a)
+#' }
+#' @export
+#' @method summary dpmixgpd_ate
+summary.dpmixgpd_ate <- function(object, ...) {
+  stopifnot(inherits(object, "dpmixgpd_ate"))
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+
+  n_pred <- object$n_pred %||% length(object$fit)
+  level <- object$level %||% 0.95
+  interval <- object$interval %||% "none"
+  nsim_mean <- object$nsim_mean %||% NA
+  meta <- object$meta %||% list()
+
+  # Overall summary
+  overall <- list(
+    n_pred = n_pred,
+    level = level,
+    interval = interval,
+    nsim_mean = nsim_mean,
+    has_covariates = !is.null(object$x),
+    ps_used = !is.null(object$ps) && any(is.finite(object$ps))
+  )
+
+  # ATE statistics
+  ate_fit <- object$ate$fit %||% NULL
+  ate_stats <- NULL
+  if (!is.null(ate_fit) && is.data.frame(ate_fit)) {
+    est <- ate_fit$estimate
+    ate_stats <- list(
+      mean_ate = mean(est, na.rm = TRUE),
+      median_ate = stats::median(est, na.rm = TRUE),
+      min_ate = min(est, na.rm = TRUE),
+      max_ate = max(est, na.rm = TRUE),
+      sd_ate = if (length(est) > 1) stats::sd(est, na.rm = TRUE) else NA_real_
+    )
+  } else if (!is.null(object$fit)) {
+    est <- object$fit
+    ate_stats <- list(
+      mean_ate = mean(est, na.rm = TRUE),
+      median_ate = stats::median(est, na.rm = TRUE),
+      min_ate = min(est, na.rm = TRUE),
+      max_ate = max(est, na.rm = TRUE),
+      sd_ate = if (length(est) > 1) stats::sd(est, na.rm = TRUE) else NA_real_
+    )
+  }
+
+  # CI width summary (for both credible and HPD intervals)
+  ci_summary <- NULL
+  if (interval %in% c("credible", "hpd") && !is.null(object$lower) && !is.null(object$upper)) {
+    widths <- object$upper - object$lower
+    ci_summary <- list(
+      mean_width = mean(widths, na.rm = TRUE),
+      median_width = stats::median(widths, na.rm = TRUE),
+      min_width = min(widths, na.rm = TRUE),
+      max_width = max(widths, na.rm = TRUE)
+    )
+  }
+
+  out <- list(
+    overall = overall,
+    ate_stats = ate_stats,
+    ci_summary = ci_summary,
+    meta = meta,
+    object = object
+  )
+  class(out) <- "summary.dpmixgpd_ate"
+  out
+}
+
+#' Print an ATE summary
+#'
+#' @param x A \code{"summary.dpmixgpd_ate"} object.
+#' @param digits Number of digits to display.
+#' @param ... Unused.
+#' @return The object \code{x}, invisibly.
+#' @export
+#' @method print summary.dpmixgpd_ate
+print.summary.dpmixgpd_ate <- function(x, digits = 3, ...) {
+  stopifnot(inherits(x, "summary.dpmixgpd_ate"))
+
+  ov <- x$overall
+  meta <- x$meta %||% list()
+
+  cat("ATE Summary\n")
+  cat(paste(rep("=", 50), collapse = ""), "\n")
+  cat(sprintf("Prediction points: %d\n", ov$n_pred))
+  cat(sprintf("Conditional: %s | PS used: %s\n",
+              if (ov$has_covariates) "YES" else "NO",
+              if (ov$ps_used) "YES" else "NO"))
+  if (!is.na(ov$nsim_mean)) {
+    cat(sprintf("Posterior mean draws: %d\n", ov$nsim_mean))
+  }
+  cat(sprintf("Interval: %s", ov$interval))
+  if (ov$interval == "credible") {
+    cat(sprintf(" (%.0f%%)", ov$level * 100))
+  }
+  cat("\n\n")
+
+  # Model info
+  if (!is.null(meta$backend) || !is.null(meta$kernel)) {
+    cat("Model specification:\n")
+    if (!is.null(meta$backend)) {
+      cat(sprintf("  Backend (trt/con): %s / %s\n",
+                  meta$backend$trt %||% "?", meta$backend$con %||% "?"))
+    }
+    if (!is.null(meta$kernel)) {
+      cat(sprintf("  Kernel (trt/con): %s / %s\n",
+                  meta$kernel$trt %||% "?", meta$kernel$con %||% "?"))
+    }
+    if (!is.null(meta$GPD)) {
+      cat(sprintf("  GPD tail (trt/con): %s / %s\n",
+                  if (isTRUE(meta$GPD$trt)) "YES" else "NO",
+                  if (isTRUE(meta$GPD$con)) "YES" else "NO"))
+    }
+    cat("\n")
+  }
+
+  # ATE statistics
+  as <- x$ate_stats
+  if (!is.null(as)) {
+    cat("ATE statistics:\n")
+    cat(sprintf("  Mean: %s | Median: %s\n",
+                round(as$mean_ate, digits), round(as$median_ate, digits)))
+    cat(sprintf("  Range: [%s, %s]\n",
+                round(as$min_ate, digits), round(as$max_ate, digits)))
+    if (!is.na(as$sd_ate)) {
+      cat(sprintf("  SD: %s\n", round(as$sd_ate, digits)))
+    }
+    cat("\n")
+  }
+
+  # CI summary
+  ci <- x$ci_summary
+  if (!is.null(ci)) {
+    cat("Credible interval width:\n")
+    cat(sprintf("  Mean: %s | Median: %s\n",
+                round(ci$mean_width, digits), round(ci$median_width, digits)))
+    cat(sprintf("  Range: [%s, %s]\n",
+                round(ci$min_width, digits), round(ci$max_width, digits)))
+  }
+
+  invisible(x)
+}
+
 #' Plot QTE results
+#'
+#' Generates visualizations for quantile treatment effects. The \code{type} parameter
+#' controls the plot style:
+#' \itemize{
+#'   \item \code{"both"} (default): Returns a list with both \code{trt_control} (treated vs
+#'     control quantile curves) and \code{treatment_effect} (QTE curve) plots
+#'   \item \code{"effect"}: QTE curve vs quantile levels (\code{probs}) with CI ribbon
+#'   \item \code{"arms"}: Treated and control quantile curves vs \code{probs}, with CI ribbons
+#' }
 #'
 #' @param x Object of class \code{dpmixgpd_qte}.
 #' @param y Ignored.
+#' @param type Character; plot type: \code{"both"} (default), \code{"effect"}, or \code{"arms"}.
+#' @param facet_by Character; faceting strategy when multiple prediction points exist.
+#'   \code{"tau"} (default) facets by quantile level, \code{"id"} facets by prediction point.
 #' @param ... Additional arguments passed to ggplot2 functions.
-#' @return A list of ggplot objects.
+#' @return A list of ggplot objects with elements \code{trt_control} and \code{treatment_effect}
+#'   (if \code{type="both"}), or a single ggplot object (if \code{type} is \code{"effect"} or
+#'   \code{"arms"}).
+#' @examples
+#' \dontrun{
+#' qte_result <- qte(fit, probs = c(0.1, 0.5, 0.9), newdata = X_new)
+#' plot(qte_result)  # default: returns list with both plots
+#' plot(qte_result, type = "effect")  # single QTE plot
+#' plot(qte_result, type = "arms")    # single arms plot
+#' }
 #' @export
-plot.dpmixgpd_qte <- function(x, y = NULL, ...) {
+plot.dpmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"),
+                              facet_by = c("tau", "id"), ...) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("Package 'ggplot2' is required for plotting. Install it first.", call. = FALSE)
   }
+
+  type <- match.arg(type)
+  facet_by <- match.arg(facet_by)
+
   if (!is.list(x) || is.null(x$trt) || is.null(x$con)) {
     stop("Invalid QTE object for plotting.", call. = FALSE)
   }
 
   pr_trt <- x$trt
   pr_con <- x$con
-  probs <- x$grid %||% numeric()
+  probs <- x$grid %||% x$probs %||% numeric()
   fit_trt <- pr_trt$fit
+
+  # Determine n_pred (number of prediction points)
   if (is.data.frame(fit_trt)) {
     if ("id" %in% names(fit_trt)) {
       n_pred <- max(fit_trt$id, na.rm = TRUE)
@@ -1499,81 +2027,166 @@ plot.dpmixgpd_qte <- function(x, y = NULL, ...) {
   ax <- if (any(is.finite(ps_vec))) list(x = ps_vec, label = "Estimated PS") else
     list(x = seq_len(n_pred), label = "Index")
 
+  # Helper to coerce prediction fit to data.frame
   .as_df <- function(pr, n_pred, probs) {
     fit <- pr$fit
     if (!is.data.frame(fit)) {
-      stop("QTE plotting requires data.frame fit from predict().", call. = FALSE)
+      # Try to coerce using helper
+      fit <- .coerce_fit_df(fit, n_pred = n_pred, probs = probs)
     }
     df <- fit
     if (!("id" %in% names(df))) df$id <- rep(seq_len(n_pred), times = length(probs))
     if (!("index" %in% names(df))) df$index <- rep(probs, each = n_pred)
-    df <- df[, c("id", "index", "estimate", "lower", "upper")]
+    if (!("estimate" %in% names(df))) df$estimate <- NA_real_
+    if (!("lower" %in% names(df))) df$lower <- NA_real_
+    if (!("upper" %in% names(df))) df$upper <- NA_real_
+    df <- df[, c("id", "index", "estimate", "lower", "upper"), drop = FALSE]
     df
   }
 
-  df_trt <- .as_df(pr_trt, n_pred, probs)
-  df_con <- .as_df(pr_con, n_pred, probs)
-  df_trt$group <- "Treated"
-  df_con$group <- "Control"
+  pal <- .plot_palette(8L)
 
-  df_tc <- rbind(df_trt, df_con)
-  df_tc$ps <- ax$x[df_tc$id]
+  # Build arms plot (treated vs control)
+  .build_arms_plot <- function() {
+    df_trt <- .as_df(pr_trt, n_pred, probs)
+    df_con <- .as_df(pr_con, n_pred, probs)
+    df_trt$group <- "Treated"
+    df_con$group <- "Control"
 
-  pal <- .plot_palette(2L)
-  p_tc <- ggplot2::ggplot(df_tc, ggplot2::aes(x = ps, y = estimate, color = group, fill = group)) +
-    ggplot2::geom_line(linewidth = 0.8) +
-    ggplot2::scale_color_manual(values = pal) +
-    ggplot2::scale_fill_manual(values = pal) +
-    ggplot2::facet_wrap(~ index, scales = "free_y") +
-    .plot_theme() +
-    ggplot2::labs(x = ax$label, y = "Quantile", title = "Treated vs Control")
+    df_tc <- rbind(df_trt, df_con)
+    df_tc$ps <- ax$x[df_tc$id]
+    df_tc$tau <- factor(paste0("\u03C4 = ", df_tc$index), levels = paste0("\u03C4 = ", probs))
 
-  if (any(is.finite(df_tc$lower)) && any(is.finite(df_tc$upper))) {
-    p_tc <- p_tc + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
-                                        alpha = 0.2, color = NA)
+    # Choose faceting
+    facet_formula <- if (facet_by == "tau" && length(probs) > 1) {
+      ~ tau
+    } else if (facet_by == "id" && n_pred > 1) {
+      ~ id
+    } else if (length(probs) > 1) {
+      ~ tau
+    } else {
+      NULL
+    }
+
+    p <- ggplot2::ggplot(df_tc, ggplot2::aes(x = ps, y = estimate, color = group, fill = group)) +
+      ggplot2::geom_line(linewidth = 0.8) +
+      ggplot2::scale_color_manual(values = pal[1:2]) +
+      ggplot2::scale_fill_manual(values = pal[1:2]) +
+      .plot_theme() +
+      ggplot2::labs(x = ax$label, y = "Quantile", title = "Treated vs Control Quantiles",
+                    color = "Arm", fill = "Arm")
+
+    if (!is.null(facet_formula)) {
+      p <- p + ggplot2::facet_wrap(facet_formula, scales = "free_y")
+    }
+
+    if (any(is.finite(df_tc$lower)) && any(is.finite(df_tc$upper))) {
+      p <- p + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
+                                    alpha = 0.2, color = NA)
+    }
+    p
   }
 
-  te_mat <- x$fit
-  te_lower <- x$lower
-  te_upper <- x$upper
+  # Build effect plot (QTE = treated - control)
+  .build_effect_plot <- function() {
+    te_mat <- x$fit
+    te_lower <- x$lower
+    te_upper <- x$upper
 
-  df_te <- data.frame(
-    id = rep(seq_len(n_pred), times = length(probs)),
-    index = rep(probs, each = n_pred),
-    estimate = as.vector(te_mat),
-    lower = if (!is.null(te_lower)) as.vector(te_lower) else NA_real_,
-    upper = if (!is.null(te_upper)) as.vector(te_upper) else NA_real_,
-    ps = rep(ax$x, times = length(probs))
+    df_te <- data.frame(
+      id = rep(seq_len(n_pred), times = length(probs)),
+      index = rep(probs, each = n_pred),
+      estimate = as.vector(te_mat),
+      lower = if (!is.null(te_lower)) as.vector(te_lower) else NA_real_,
+      upper = if (!is.null(te_upper)) as.vector(te_upper) else NA_real_,
+      ps = rep(ax$x, times = length(probs))
+    )
+    df_te$tau <- factor(paste0("\u03C4 = ", df_te$index), levels = paste0("\u03C4 = ", probs))
+
+    # Choose faceting
+    facet_formula <- if (facet_by == "tau" && length(probs) > 1) {
+      ~ tau
+    } else if (facet_by == "id" && n_pred > 1) {
+      ~ id
+    } else if (length(probs) > 1) {
+      ~ tau
+    } else {
+      NULL
+    }
+
+    p <- ggplot2::ggplot(df_te, ggplot2::aes(x = ps, y = estimate)) +
+      ggplot2::geom_line(color = pal[7], linewidth = 0.8) +
+      ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray50", linewidth = 0.5) +
+      .plot_theme() +
+      ggplot2::labs(x = ax$label, y = "Quantile Treatment Effect", title = "QTE")
+
+    if (!is.null(facet_formula)) {
+      p <- p + ggplot2::facet_wrap(facet_formula, scales = "free_y")
+    }
+
+    if (any(is.finite(df_te$lower)) && any(is.finite(df_te$upper))) {
+      p <- p + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
+                                    alpha = 0.2, fill = pal[5], color = NA)
+    }
+    p
+  }
+
+  # Return based on type
+  if (type == "effect") {
+    result <- .build_effect_plot()
+    class(result) <- c("dpmixgpd_qte_plot", class(result))
+    return(result)
+  }
+
+  if (type == "arms") {
+    result <- .build_arms_plot()
+    class(result) <- c("dpmixgpd_qte_plot", class(result))
+    return(result)
+  }
+
+  # type == "both" (default) - maintain backward compatible naming
+  result <- list(
+    trt_control = .build_arms_plot(),
+    treatment_effect = .build_effect_plot()
   )
-
-  p_te <- ggplot2::ggplot(df_te, ggplot2::aes(x = ps, y = estimate)) +
-    ggplot2::geom_line(color = pal[7], linewidth = 0.8) +
-    ggplot2::facet_wrap(~ index, scales = "free_y") +
-    .plot_theme() +
-    ggplot2::labs(x = ax$label, y = "Treatment effect", title = "Treated - Control")
-
-  if (any(is.finite(df_te$lower)) && any(is.finite(df_te$upper))) {
-    p_te <- p_te + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
-                                        alpha = 0.2, fill = pal[5], color = NA)
-  }
-
-  result <- list(trt_control = p_tc, treatment_effect = p_te)
   class(result) <- c("dpmixgpd_causal_predict_plots", "list")
   result
 }
 
 #' Plot ATE results
 #'
+#' Generates visualizations for average treatment effects. The \code{type} parameter
+#' controls the plot style:
+#' \itemize{
+#'   \item \code{"both"} (default): Returns a list with both \code{trt_control} (treated vs
+#'     control means) and \code{treatment_effect} (ATE curve) plots
+#'   \item \code{"effect"}: ATE curve/points vs index/PS with CI ribbon/bars
+#'   \item \code{"arms"}: Treated mean vs control mean, with CI ribbons
+#' }
+#'
 #' @param x Object of class \code{dpmixgpd_ate}.
 #' @param y Ignored.
+#' @param type Character; plot type: \code{"both"} (default), \code{"effect"}, or \code{"arms"}.
 #' @param ... Additional arguments passed to ggplot2 functions.
-#' @return A list of ggplot objects.
+#' @return A list of ggplot objects with elements \code{trt_control} and \code{treatment_effect}
+#'   (if \code{type="both"}), or a single ggplot object (if \code{type} is \code{"effect"} or
+#'   \code{"arms"}).
+#' @examples
+#' \dontrun{
+#' ate_result <- ate(fit, newdata = X_new, interval = "credible")
+#' plot(ate_result)  # default: returns list with both plots
+#' plot(ate_result, type = "effect")  # single ATE plot
+#' plot(ate_result, type = "arms")    # single arms plot
+#' }
 #' @export
-plot.dpmixgpd_ate <- function(x, y = NULL, ...) {
+plot.dpmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"), ...) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("Package 'ggplot2' is required for plotting. Install it first.", call. = FALSE)
   }
+
+  type <- match.arg(type)
+
   if (!is.list(x) || is.null(x$trt) || is.null(x$con)) {
     stop("Invalid ATE object for plotting.", call. = FALSE)
   }
@@ -1586,6 +2199,7 @@ plot.dpmixgpd_ate <- function(x, y = NULL, ...) {
   ax <- if (any(is.finite(ps_vec))) list(x = ps_vec, label = "Estimated PS") else
     list(x = seq_len(n_pred), label = "Index")
 
+  # Helper to extract statistics from prediction objects
   .extract_stats <- function(pr, n_pred) {
     fit <- pr$fit
     if (is.data.frame(fit)) {
@@ -1594,9 +2208,11 @@ plot.dpmixgpd_ate <- function(x, y = NULL, ...) {
       lower <- if ("lower" %in% names(fit)) fit$lower else rep(NA_real_, length(est))
       upper <- if ("upper" %in% names(fit)) fit$upper else rep(NA_real_, length(est))
     } else if (is.matrix(fit)) {
-      est <- as.numeric(fit[, 1])
-      lower <- rep(NA_real_, length(est))
-      upper <- rep(NA_real_, length(est))
+      # Try to coerce using helper
+      fit_df <- .coerce_fit_df(fit, n_pred = n_pred)
+      est <- fit_df$estimate
+      lower <- fit_df$lower
+      upper <- fit_df$upper
     } else {
       est <- as.numeric(fit)
       lower <- rep(NA_real_, length(est))
@@ -1613,47 +2229,77 @@ plot.dpmixgpd_ate <- function(x, y = NULL, ...) {
     list(estimate = est, lower = lower, upper = upper)
   }
 
-  trt_stats <- .extract_stats(pr_trt, n_pred)
-  con_stats <- .extract_stats(pr_con, n_pred)
+  pal <- .plot_palette(8L)
 
-  df_tc <- rbind(
-    data.frame(x = ax$x, group = "Treated", estimate = trt_stats$estimate,
-               lower = trt_stats$lower, upper = trt_stats$upper),
-    data.frame(x = ax$x, group = "Control", estimate = con_stats$estimate,
-               lower = con_stats$lower, upper = con_stats$upper)
-  )
+  # Build arms plot (treated vs control means)
+  .build_arms_plot <- function() {
+    trt_stats <- .extract_stats(pr_trt, n_pred)
+    con_stats <- .extract_stats(pr_con, n_pred)
 
-  pal <- .plot_palette(2L)
-  p_tc <- ggplot2::ggplot(df_tc, ggplot2::aes(x = x, y = estimate, color = group, fill = group)) +
-    ggplot2::geom_line(linewidth = 0.8) +
-    ggplot2::scale_color_manual(values = pal) +
-    ggplot2::scale_fill_manual(values = pal) +
-    .plot_theme() +
-    ggplot2::labs(x = ax$label, y = "Mean", title = "Treated vs Control")
+    df_tc <- rbind(
+      data.frame(x = ax$x, group = "Treated", estimate = trt_stats$estimate,
+                 lower = trt_stats$lower, upper = trt_stats$upper),
+      data.frame(x = ax$x, group = "Control", estimate = con_stats$estimate,
+                 lower = con_stats$lower, upper = con_stats$upper)
+    )
 
-  if (any(is.finite(df_tc$lower)) && any(is.finite(df_tc$upper))) {
-    p_tc <- p_tc + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
-                                        alpha = 0.2, color = NA)
+    p <- ggplot2::ggplot(df_tc, ggplot2::aes(x = x, y = estimate, color = group, fill = group)) +
+      ggplot2::geom_line(linewidth = 0.8) +
+      ggplot2::geom_point(size = 2) +
+      ggplot2::scale_color_manual(values = pal[1:2]) +
+      ggplot2::scale_fill_manual(values = pal[1:2]) +
+      .plot_theme() +
+      ggplot2::labs(x = ax$label, y = "Mean Outcome", title = "Treated vs Control Means",
+                    color = "Arm", fill = "Arm")
+
+    if (any(is.finite(df_tc$lower)) && any(is.finite(df_tc$upper))) {
+      p <- p + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
+                                    alpha = 0.2, color = NA)
+    }
+    p
   }
 
-  df_te <- data.frame(
-    x = ax$x,
-    estimate = as.numeric(x$fit),
-    lower = if (!is.null(x$lower)) as.numeric(x$lower) else NA_real_,
-    upper = if (!is.null(x$upper)) as.numeric(x$upper) else NA_real_
-  )
+  # Build effect plot (ATE = treated - control)
+  .build_effect_plot <- function() {
+    df_te <- data.frame(
+      x = ax$x,
+      estimate = as.numeric(x$fit),
+      lower = if (!is.null(x$lower)) as.numeric(x$lower) else NA_real_,
+      upper = if (!is.null(x$upper)) as.numeric(x$upper) else NA_real_
+    )
 
-  p_te <- ggplot2::ggplot(df_te, ggplot2::aes(x = x, y = estimate)) +
-    ggplot2::geom_line(color = pal[7], linewidth = 0.8) +
-    .plot_theme() +
-    ggplot2::labs(x = ax$label, y = "Treatment effect", title = "Treated - Control")
+    p <- ggplot2::ggplot(df_te, ggplot2::aes(x = x, y = estimate)) +
+      ggplot2::geom_line(color = pal[7], linewidth = 0.8) +
+      ggplot2::geom_point(color = pal[7], size = 2) +
+      ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray50", linewidth = 0.5) +
+      .plot_theme() +
+      ggplot2::labs(x = ax$label, y = "Average Treatment Effect", title = "ATE")
 
-  if (any(is.finite(df_te$lower)) && any(is.finite(df_te$upper))) {
-    p_te <- p_te + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
-                                        alpha = 0.2, fill = pal[5], color = NA)
+    if (any(is.finite(df_te$lower)) && any(is.finite(df_te$upper))) {
+      p <- p + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
+                                    alpha = 0.2, fill = pal[5], color = NA)
+    }
+    p
   }
 
-  result <- list(trt_control = p_tc, treatment_effect = p_te)
+  # Return based on type
+  if (type == "effect") {
+    result <- .build_effect_plot()
+    class(result) <- c("dpmixgpd_ate_plot", class(result))
+    return(result)
+  }
+
+  if (type == "arms") {
+    result <- .build_arms_plot()
+    class(result) <- c("dpmixgpd_ate_plot", class(result))
+    return(result)
+  }
+
+  # type == "both" (default) - maintain backward compatible naming
+  result <- list(
+    trt_control = .build_arms_plot(),
+    treatment_effect = .build_effect_plot()
+  )
   class(result) <- c("dpmixgpd_causal_predict_plots", "list")
   result
 }

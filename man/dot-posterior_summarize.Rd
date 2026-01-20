@@ -4,12 +4,20 @@
 \alias{.posterior_summarize}
 \title{Summarize posterior draws (mean + quantiles)}
 \usage{
-.posterior_summarize(draws, probs = c(0.025, 0.5, 0.975))
+.posterior_summarize(
+  draws,
+  probs = c(0.025, 0.5, 0.975),
+  interval = c("credible", "hpd")
+)
 }
 \arguments{
 \item{draws}{Numeric vector, matrix, or array with draws in last dimension.}
 
 \item{probs}{Numeric quantile probs.}
+
+\item{interval}{Character or NULL; \code{NULL} for no interval,
+\code{"credible"} for equal-tailed quantile intervals (default),
+\code{"hpd"} for highest posterior density intervals.}
 }
 \value{
 List with estimate, lower, upper, and q.

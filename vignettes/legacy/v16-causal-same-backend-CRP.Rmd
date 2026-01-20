@@ -125,44 +125,54 @@ plot(fit_crp_bulk, family = c("traceplot", "autocorrelation", "running"))
 
 ```{r predict-mean-crp-bulk}
 pred_mean_bulk <- predict(fit_crp_bulk, x = x_eval, type = "mean",
-                          interval = "credible", nsim_mean = 100)
+                          interval = "hpd", nsim_mean = 100)
 head(pred_mean_bulk)
 plot(pred_mean_bulk)
 ```
 
 ```{r predict-quantile-crp-bulk}
 pred_q_bulk <- predict(fit_crp_bulk, x = x_eval, type = "quantile",
-                       p = 0.5, interval = "credible")
+                       p = 0.5, interval = "hpd")
 head(pred_q_bulk)
 plot(pred_q_bulk)
 ```
 
 ```{r predict-density-crp-bulk}
 pred_d_bulk <- predict(fit_crp_bulk, x = x_eval, y = y_eval,
-                       type = "density", interval = "credible")
+                       type = "density", interval = "hpd")
 head(pred_d_bulk)
 plot(pred_d_bulk)
 ```
 
 ```{r predict-survival-crp-bulk}
 pred_surv_bulk <- predict(fit_crp_bulk, x = x_eval, y = y_eval,
-                          type = "survival", interval = "credible")
+                          type = "survival", interval = "hpd")
 head(pred_surv_bulk)
 plot(pred_surv_bulk)
 ```
 
 ```{r ate-crp-bulk}
 ate_bulk <- ate(fit_crp_bulk, newdata = x_eval,
-                interval = "credible", nsim_mean = 100)
-head(ate_bulk)
-plot(ate_bulk)
+                interval = "hpd", nsim_mean = 100)
+print(ate_bulk)
+summary(ate_bulk)
+```
+
+```{r fig.width=7, fig.height=5}
+ate_plots_bulk <- plot(ate_bulk)
+ate_plots_bulk$treatment_effect
 ```
 
 ```{r qte-crp-bulk}
 qte_bulk <- qte(fit_crp_bulk, probs = c(0.25, 0.5, 0.75),
-                newdata = x_eval, interval = "credible")
-head(qte_bulk)
-plot(qte_bulk)
+                newdata = x_eval, interval = "hpd")
+print(qte_bulk)
+summary(qte_bulk)
+```
+
+```{r fig.width=7, fig.height=5}
+qte_plots_bulk <- plot(qte_bulk)
+qte_plots_bulk$treatment_effect
 ```
 
 ---
@@ -239,15 +249,25 @@ plot(pred_surv_gpd)
 ```{r ate-sb-gpd}
 ate_gpd <- ate(fit_sb_gpd, newdata = x_eval,
                interval = "credible", nsim_mean = 100)
-head(ate_gpd)
-plot(ate_gpd)
+print(ate_gpd)
+summary(ate_gpd)
+```
+
+```{r fig.width=7, fig.height=5}
+ate_plots_gpd <- plot(ate_gpd)
+ate_plots_gpd$treatment_effect
 ```
 
 ```{r qte-sb-gpd}
 qte_gpd <- qte(fit_sb_gpd, probs = c(0.25, 0.5, 0.75),
                newdata = x_eval, interval = "credible")
-head(qte_gpd)
-plot(qte_gpd)
+print(qte_gpd)
+summary(qte_gpd)
+```
+
+```{r fig.width=7, fig.height=5}
+qte_plots_gpd <- plot(qte_gpd)
+qte_plots_gpd$treatment_effect
 ```
 
 

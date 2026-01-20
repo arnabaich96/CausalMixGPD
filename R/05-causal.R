@@ -445,9 +445,13 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
 #' Computes treated-minus-control quantiles from a causal fit.
 #'
 #' @param fit A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.
-#' @param probs Numeric vector of probabilities in (0, 1).
+#' @param probs Numeric vector of probabilities in (0, 1) specifying the quantile levels
+#'   of the outcome distribution to estimate treatment effects at.
 #' @param newdata Optional data.frame or matrix of covariates for prediction.
-#' @param interval Credible interval type passed to \code{predict()}.
+#' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
+#'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
+#'   highest posterior density intervals.
+#' @param level Numeric credible level for intervals (default 0.95 for 95\% CI).
 #' @return A list with elements \code{fit} (QTE), \code{grid} (probabilities),
 #'   and the treated/control prediction objects.
 #' @examples
@@ -455,14 +459,31 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
 #' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", J = 6)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' qte(fit, probs = c(0.5, 0.9), newdata = X[1:5, ])
+#' qte(fit, probs = c(0.5, 0.9), interval = "credible", level = 0.90)  # 90% CI
+#' qte(fit, probs = c(0.5, 0.9), interval = "hpd")  # HPD intervals
+#' qte(fit, probs = c(0.5, 0.9), interval = NULL)   # No intervals
 #' }
 #' @export
 qte <- function(fit,
                 probs = c(0.1, 0.5, 0.9),
                 newdata = NULL,
-                interval = c("none", "credible")) {
+                interval = "credible",
+                level = 0.95) {
   stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
-  interval <- match.arg(interval)
+  
+  # Handle interval: NULL means no interval, otherwise match to credible/hpd
+  compute_interval <- TRUE
+  if (is.null(interval)) {
+    compute_interval <- FALSE
+    interval <- "credible"  # placeholder for downstream
+  } else {
+    interval <- match.arg(interval, choices = c("credible", "hpd"))
+  }
+  
+  # Validate level parameter
+  if (!is.numeric(level) || length(level) != 1 || level <= 0 || level >= 1) {
+    stop("'level' must be a numeric value between 0 and 1.", call. = FALSE)
+  }
   x_pred <- newdata %||% (fit$bundle$data$X %||% NULL)
 
   ps_meta <- fit$bundle$meta$ps %||% list()
@@ -504,11 +525,11 @@ qte <- function(fit,
 
   pr_trt <- predict(fit$outcome_fit$trt, x = x_pred, type = "quantile", index = probs,
                     ps = ps_cov,
-                    interval = interval,
+                    interval = if (compute_interval) interval else NULL,
                     store_draws = TRUE)
   pr_con <- predict(fit$outcome_fit$con, x = x_pred, type = "quantile", index = probs,
                     ps = ps_cov,
-                    interval = interval,
+                    interval = if (compute_interval) interval else NULL,
                     store_draws = TRUE)
 
   if (is.null(pr_trt$draws) || is.null(pr_con$draws)) {
@@ -541,22 +562,55 @@ qte <- function(fit,
   n_prob <- length(probs)
   fit_mat <- matrix(fit_mat, nrow = n_pred, ncol = n_prob)
   lower <- upper <- NULL
-  if (interval == "credible") {
-    qarr <- apply(diff_draws, c(2, 3), stats::quantile, probs = c(0.025, 0.975), na.rm = TRUE)
-    qarr <- array(qarr, dim = c(2, n_pred, n_prob))
-    lower <- matrix(qarr[1, , , drop = TRUE], nrow = n_pred, ncol = n_prob)
-    upper <- matrix(qarr[2, , , drop = TRUE], nrow = n_pred, ncol = n_prob)
+  if (compute_interval) {
+    # Compute intervals for each (prediction, quantile) combination
+    lower <- matrix(NA_real_, nrow = n_pred, ncol = n_prob)
+    upper <- matrix(NA_real_, nrow = n_pred, ncol = n_prob)
+    for (i in seq_len(n_pred)) {
+      for (j in seq_len(n_prob)) {
+        iv <- .compute_interval(diff_draws[, i, j], level = level, type = interval)
+        lower[i, j] <- iv["lower"]
+        upper[i, j] <- iv["upper"]
+      }
+    }
   }
+
+  # Create QTE fit data frame for convenience
+  qte_fit <- data.frame(
+    index = rep(probs, each = n_pred),
+    id = if (n_pred > 1L) rep(seq_len(n_pred), times = n_prob) else rep(1L, n_prob),
+    estimate = as.vector(fit_mat),
+    lower = if (!is.null(lower)) as.vector(lower) else NA_real_,
+    upper = if (!is.null(upper)) as.vector(upper) else NA_real_
+  )
+
+  # Extract meta from causal fit
+  meta <- fit$bundle$meta %||% list()
 
   out <- list(
     fit = fit_mat,
     lower = lower,
     upper = upper,
+    qte = list(fit = qte_fit, draws = diff_draws),
+    probs = probs,
     grid = probs,
     trt = pr_trt,
     con = pr_con,
+    x = x_pred,
     ps = ps_prob,
-    type = "qte"
+    n_pred = n_pred,
+    level = level,
+    interval = if (compute_interval) interval else "none",
+    type = "qte",
+    meta = list(
+      design = meta$design %||% "observational",
+      ps_enabled = ps_enabled,
+      ps_scale = ps_scale,
+      ps_summary = ps_summary,
+      backend = meta$backend,
+      kernel = meta$kernel,
+      GPD = meta$GPD
+    )
   )
   class(out) <- "dpmixgpd_qte"
   out
@@ -569,9 +623,11 @@ qte <- function(fit,
 #'
 #' @param fit A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.
 #' @param newdata Optional data.frame or matrix of covariates for prediction.
-#' @param interval Credible interval type passed to \code{predict()}.
+#' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
+#'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
+#'   highest posterior density intervals.
+#' @param level Numeric credible level for intervals (default 0.95 for 95\% CI).
 #' @param nsim_mean Number of posterior predictive draws to approximate the mean.
-#' @param probs Quantiles for credible intervals when \code{interval="credible"}.
 #' @return A list with elements \code{fit} (ATE), optional \code{lower}/\code{upper},
 #'   and the treated/control prediction objects.
 #' @examples
@@ -579,15 +635,32 @@ qte <- function(fit,
 #' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", J = 6)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' ate(fit, newdata = X[1:5, ])
+#' ate(fit, interval = "credible", level = 0.90)  # 90% CI
+#' ate(fit, interval = "hpd")  # HPD intervals
+#' ate(fit, interval = NULL)   # No intervals
 #' }
 #' @export
 ate <- function(fit,
                 newdata = NULL,
-                interval = c("none", "credible"),
-                nsim_mean = 200L,
-                probs = c(0.025, 0.5, 0.975)) {
+                interval = "credible",
+                level = 0.95,
+                nsim_mean = 200L) {
   stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
-  interval <- match.arg(interval)
+  
+  # Handle interval: NULL means no interval, otherwise match to credible/hpd
+  compute_interval <- TRUE
+  if (is.null(interval)) {
+    compute_interval <- FALSE
+    interval <- "credible"  # placeholder for downstream
+  } else {
+    interval <- match.arg(interval, choices = c("credible", "hpd"))
+  }
+  
+  # Validate level parameter
+  if (!is.numeric(level) || length(level) != 1 || level <= 0 || level >= 1) {
+    stop("'level' must be a numeric value between 0 and 1.", call. = FALSE)
+  }
+  
   x_pred <- newdata %||% (fit$bundle$data$X %||% NULL)
 
   ps_meta <- fit$bundle$meta$ps %||% list()
@@ -628,11 +701,11 @@ ate <- function(fit,
   }
 
   pr_trt <- predict(fit$outcome_fit$trt, x = x_pred, type = "mean",
-                    ps = ps_cov, interval = interval, probs = probs,
-                    nsim_mean = nsim_mean, store_draws = TRUE)
+                    ps = ps_cov, interval = if (compute_interval) interval else NULL,
+                    cred.level = level, nsim_mean = nsim_mean, store_draws = TRUE)
   pr_con <- predict(fit$outcome_fit$con, x = x_pred, type = "mean",
-                    ps = ps_cov, interval = interval, probs = probs,
-                    nsim_mean = nsim_mean, store_draws = TRUE)
+                    ps = ps_cov, interval = if (compute_interval) interval else NULL,
+                    cred.level = level, nsim_mean = nsim_mean, store_draws = TRUE)
 
   if (is.null(pr_trt$draws) || is.null(pr_con$draws)) {
     stop("ATE requires stored posterior mean draws; set store_draws=TRUE in predict().", call. = FALSE)
@@ -649,22 +722,55 @@ ate <- function(fit,
 
   diff_draws <- pr_trt$draws - pr_con$draws  # dims: S x n_pred
   fit_vec <- colMeans(diff_draws, na.rm = TRUE)
+  n_pred <- length(fit_vec)
   lower <- upper <- NULL
-  if (interval == "credible") {
-    qmat <- t(apply(diff_draws, 2, stats::quantile, probs = probs, na.rm = TRUE))
-    lower <- qmat[, 1]
-    upper <- qmat[, length(probs)]
+  if (compute_interval) {
+    # Compute intervals for each prediction point
+    lower <- numeric(n_pred)
+    upper <- numeric(n_pred)
+    for (i in seq_len(n_pred)) {
+      iv <- .compute_interval(diff_draws[, i], level = level, type = interval)
+      lower[i] <- iv["lower"]
+      upper[i] <- iv["upper"]
+    }
   }
+
+  # Create ATE fit data frame for convenience
+  ate_fit <- data.frame(
+    id = seq_len(n_pred),
+    estimate = fit_vec,
+    lower = if (!is.null(lower)) lower else NA_real_,
+    upper = if (!is.null(upper)) upper else NA_real_
+  )
+
+  # Extract meta from causal fit
+  meta <- fit$bundle$meta %||% list()
+  ps_enabled <- isTRUE(ps_meta$enabled) && isTRUE(meta$has_x)
 
   out <- list(
     fit = fit_vec,
     lower = lower,
     upper = upper,
+    ate = list(fit = ate_fit, draws = diff_draws),
     grid = NULL,
     trt = pr_trt,
     con = pr_con,
+    x = x_pred,
     ps = ps_prob,
-    type = "ate"
+    n_pred = n_pred,
+    nsim_mean = nsim_mean,
+    level = level,
+    interval = if (compute_interval) interval else "none",
+    type = "ate",
+    meta = list(
+      design = meta$design %||% "observational",
+      ps_enabled = ps_enabled,
+      ps_scale = ps_scale,
+      ps_summary = ps_summary,
+      backend = meta$backend,
+      kernel = meta$kernel,
+      GPD = meta$GPD
+    )
   )
   class(out) <- "dpmixgpd_ate"
   out
@@ -688,6 +794,9 @@ ate <- function(fit,
 #'   recomputing them from the stored PS model (needed only for custom inputs).
 #' @param type Prediction type. Supported: \code{"mean"}, \code{"quantile"},
 #'   \code{"density"}, \code{"survival"}, \code{"prob"}.
+#' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
+#'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
+#'   highest posterior density intervals.
 #' @return For \code{"mean"} or \code{"quantile"}, a numeric matrix with columns
 #'   \code{ps}, \code{estimate}, \code{lower}, \code{upper}, representing
 #'   treated-minus-control posterior summaries. When PS is disabled or X is absent,
@@ -700,6 +809,8 @@ ate <- function(fit,
 #' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal")
 #' fit <- run_mcmc_causal(cb)
 #' predict(fit, x = X[1:10, ], type = "quantile", p = c(0.25, 0.5, 0.75))
+#' predict(fit, x = X[1:10, ], type = "mean", interval = "hpd")  # HPD intervals
+#' predict(fit, x = X[1:10, ], type = "mean", interval = NULL)   # No intervals
 #' }
 #' @export
 #' @method predict dpmixgpd_causal_fit
@@ -711,7 +822,7 @@ predict.dpmixgpd_causal_fit <- function(object,
                                         type = c("mean", "quantile", "density", "survival", "prob"),
                                         p = NULL,
                                         nsim = NULL,
-                                        interval = c("none", "credible"),
+                                        interval = "credible",
                                         probs = c(0.025, 0.5, 0.975),
                                         store_draws = TRUE,
                                         nsim_mean = 200L,
@@ -725,7 +836,11 @@ predict.dpmixgpd_causal_fit <- function(object,
   if (!is.null(newdata)) x <- newdata
 
   type <- match.arg(type)
-  interval <- match.arg(interval)
+  
+  # Handle interval: NULL means no interval, otherwise match to credible/hpd
+  if (!is.null(interval)) {
+    interval <- match.arg(interval, choices = c("credible", "hpd"))
+  }
 
   bundle <- object$bundle %||% list()
 

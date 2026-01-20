@@ -85,53 +85,70 @@ fit
 ## Average Treatment Effect (ATE)
 
 ```{r}
-# ATE at observed covariate values
-ate_result <- ate(fit, interval = "credible", nsim_mean = 100)
-head(ate_result$fit)
+# ATE at observed covariate values using HPD intervals
+ate_result <- ate(fit, interval = "hpd", nsim_mean = 100)
+print(ate_result)
 
-# ATE on a new covariate grid
+# ATE on a new covariate grid with HPD intervals
 X_new <- data.frame(x = seq(min(X$x), max(X$x), length.out = 20))
-ate_grid <- ate(fit, newdata = X_new, interval = "credible", nsim_mean = 100)
+ate_grid <- ate(fit, newdata = X_new, interval = "hpd", nsim_mean = 100,
+                level = 0.90)  # 90% HPD interval
 
-# Plot ATE with credible intervals
-plot(X_new$x, ate_grid$fit, type = "l", lwd = 2, col = "blue",
-     xlab = "Covariate x", ylab = "ATE", 
-     main = "Average Treatment Effect",
-     ylim = range(c(ate_grid$fit, ate_grid$lower, ate_grid$upper), na.rm = TRUE))
-lines(X_new$x, ate_grid$lower, lty = 2, col = "blue")
-lines(X_new$x, ate_grid$upper, lty = 2, col = "blue")
-abline(h = 0, lty = 3, col = "gray")
-legend("topright", legend = c("ATE", "90% Credible Interval"), 
-       lty = c(1, 2), col = c("blue", "blue"), bty = "n")
+# Print and summarize the ATE result
+print(ate_grid)
+summary(ate_grid)
+```
+
+### ATE Plots
+
+The `plot()` method for ATE objects supports multiple visualization types:
+
+- `type = "both"` (default): Returns a list with both `trt_control` and `treatment_effect` plots
+- `type = "effect"`: Shows the treatment effect curve with credible intervals
+- `type = "arms"`: Shows treated vs control mean outcomes
+
+```{r fig.width=7, fig.height=5}
+# Default: returns list with both plots
+ate_plots <- plot(ate_grid)
+ate_plots$treatment_effect
+```
+
+```{r fig.width=7, fig.height=5}
+ate_plots$trt_control
 ```
 
 ## Quantile Treatment Effect (QTE)
 
 ```{r}
-# QTE at multiple quantiles
+# QTE at multiple quantiles using HPD intervals
 probs <- c(0.1, 0.5, 0.9)
-qte_result <- qte(fit, probs = probs, interval = "credible")
-# qte_result$fit is a matrix: rows = observations, cols = quantiles
-head(qte_result$fit)
+qte_result <- qte(fit, probs = probs, interval = "hpd")
+print(qte_result)
 
-# QTE on a covariate grid
-qte_grid <- qte(fit, probs = probs, newdata = X_new, interval = "credible")
+# QTE on a covariate grid with HPD intervals
+qte_grid <- qte(fit, probs = probs, newdata = X_new, interval = "hpd")
 
-# Plot QTE curves
-# qte_grid$fit is a matrix with nrow(X_new) rows and length(probs) columns
-tau_colors <- c("red", "blue", "green")
-names(tau_colors) <- as.character(probs)
+# Print and summarize the QTE result
+print(qte_grid)
+summary(qte_grid)
+```
 
-plot(X_new$x, qte_grid$fit[, 2],  # median (0.5) is column 2
-     type = "l", lwd = 2, col = tau_colors["0.5"],
-     xlab = "Covariate x", ylab = "QTE", 
-     main = "Quantile Treatment Effects",
-     ylim = range(qte_grid$fit, na.rm = TRUE))
-lines(X_new$x, qte_grid$fit[, 1], lwd = 2, col = tau_colors["0.1"])  # 0.1 is column 1
-lines(X_new$x, qte_grid$fit[, 3], lwd = 2, col = tau_colors["0.9"])  # 0.9 is column 3
-abline(h = 0, lty = 3, col = "gray")
-legend("topright", legend = paste0("τ = ", probs), 
-       lty = 1, lwd = 2, col = tau_colors, bty = "n")
+### QTE Plots
+
+The `plot()` method for QTE objects supports multiple visualization types:
+
+- `type = "both"` (default): Returns a list with both `trt_control` and `treatment_effect` plots
+- `type = "effect"`: Shows the quantile treatment effect curves faceted by quantile level
+- `type = "arms"`: Shows treated vs control quantile curves
+
+```{r fig.width=7, fig.height=5}
+# Default: returns list with both plots
+qte_plots <- plot(qte_grid)
+qte_plots$treatment_effect
+```
+
+```{r fig.width=7, fig.height=5}
+qte_plots$trt_control
 ```
 
 ## Summary and diagnostics

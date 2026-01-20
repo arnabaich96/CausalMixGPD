@@ -87,6 +87,98 @@
     )
 }
 
+#' Coerce fit object to standardized data frame
+#'
+#' Converts various fit object formats (vector, matrix, data.frame) to a
+
+#' standardized data.frame with columns: estimate, lower, upper, and id.
+#' Used by plot methods to ensure consistent input handling.
+#'
+#' @param fit A fit object: vector, matrix, or data.frame.
+#' @param n_pred Optional expected number of prediction rows for validation.
+#' @param probs Optional vector of probability levels (for QTE-style objects).
+#' @return A data.frame with columns: estimate, lower, upper, id (and optionally index).
+#' @keywords internal
+#' @noRd
+.coerce_fit_df <- function(fit, n_pred = NULL, probs = NULL) {
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+
+  # Case 1: Already a data.frame
+
+  if (is.data.frame(fit)) {
+    df <- fit
+    # Ensure required columns exist
+    if (!"estimate" %in% names(df)) {
+      # Try to find a suitable column
+      if ("fit" %in% names(df)) {
+        df$estimate <- df$fit
+      } else if (ncol(df) >= 1 && is.numeric(df[[1]])) {
+        df$estimate <- df[[1]]
+      } else {
+        df$estimate <- NA_real_
+      }
+    }
+    if (!"lower" %in% names(df)) df$lower <- NA_real_
+    if (!"upper" %in% names(df)) df$upper <- NA_real_
+    if (!"id" %in% names(df)) {
+      df$id <- seq_len(nrow(df))
+    }
+    return(df)
+  }
+
+  # Case 2: Matrix (rows = observations, cols = quantiles or estimate/lower/upper)
+  if (is.matrix(fit)) {
+    nr <- nrow(fit)
+    nc <- ncol(fit)
+    cn <- colnames(fit)
+
+    # Check if columns are named estimate/lower/upper
+    if (!is.null(cn) && all(c("estimate", "lower", "upper") %in% cn)) {
+      df <- as.data.frame(fit)
+      df$id <- seq_len(nr)
+      return(df)
+    }
+
+    # If probs provided, assume matrix is n_pred x length(probs) of estimates
+    if (!is.null(probs) && nc == length(probs)) {
+      # Expand to long format: id x index
+      df <- data.frame(
+        id = rep(seq_len(nr), times = nc),
+        index = rep(probs, each = nr),
+        estimate = as.vector(fit),
+        lower = NA_real_,
+        upper = NA_real_
+      )
+      return(df)
+    }
+
+    # Default: treat first column as estimate
+    df <- data.frame(
+      id = seq_len(nr),
+      estimate = fit[, 1],
+      lower = if (nc >= 2) fit[, 2] else NA_real_,
+      upper = if (nc >= 3) fit[, 3] else NA_real_
+    )
+    return(df)
+  }
+
+  # Case 3: Numeric vector -> single-row or multi-row df
+  if (is.numeric(fit)) {
+    n <- length(fit)
+    df <- data.frame(
+      id = seq_len(n),
+      estimate = fit,
+      lower = NA_real_,
+      upper = NA_real_
+    )
+    return(df)
+  }
+
+  # Fallback: error
+
+  stop("Cannot coerce fit to data.frame: unsupported type.", call. = FALSE)
+}
+
 #' Nimble helpers
 #'
 #' @keywords internal
@@ -738,20 +830,82 @@ stick_breaking <- nimble::nimbleFunction(
   )
 }
 
+#' Compute credible or HPD interval from posterior draws
+#'
+#' Dispatches to either equal-tailed quantile intervals or highest posterior
+#' density (HPD) intervals using \code{coda::HPDinterval()}.
+#'
+#' @param draws Numeric vector of posterior draws.
+#' @param level Numeric; credible level (e.g., 0.95 for 95\% interval).
+#' @param type Character; \code{"credible"} for equal-tailed quantile intervals,
+#'   \code{"hpd"} for highest posterior density intervals.
+#' @return Named numeric vector with \code{lower} and \code{upper}.
+#' @keywords internal
+#' @noRd
+.compute_interval <- function(draws, level = 0.95, type = c("credible", "hpd")) {
+  type <- match.arg(type)
+  draws <- draws[is.finite(draws)]
+  if (length(draws) < 2L) {
+    return(c(lower = NA_real_, upper = NA_real_))
+  }
+  
+  if (type == "credible") {
+    probs <- c((1 - level) / 2, (1 + level) / 2)
+    q <- stats::quantile(draws, probs = probs, na.rm = TRUE)
+    c(lower = unname(q[1]), upper = unname(q[2]))
+  } else {
+    # HPD via coda
+    if (!requireNamespace("coda", quietly = TRUE)) {
+      stop("Package 'coda' is required for HPD intervals.", call. = FALSE)
+    }
+    hpd <- coda::HPDinterval(coda::as.mcmc(draws), prob = level)
+    c(lower = hpd[1, "lower"], upper = hpd[1, "upper"])
+  }
+}
+
 #' Summarize posterior draws (mean + quantiles)
 #' @param draws Numeric vector, matrix, or array with draws in last dimension.
 #' @param probs Numeric quantile probs.
+#' @param interval Character or NULL; \code{NULL} for no interval,
+#'   \code{"credible"} for equal-tailed quantile intervals (default),
+#'   \code{"hpd"} for highest posterior density intervals.
 #' @return List with estimate, lower, upper, and q.
 #' @keywords internal
-.posterior_summarize <- function(draws, probs = c(0.025, 0.5, 0.975)) {
+.posterior_summarize <- function(draws, probs = c(0.025, 0.5, 0.975),
+                                 interval = c("credible", "hpd")) {
+  # Handle NULL interval (no interval computation)
+  if (is.null(interval)) {
+    interval <- "none"
+  } else {
+    interval <- match.arg(interval, choices = c("credible", "hpd"))
+  }
   probs <- as.numeric(probs)
+  
+  # Compute credible level from probs (for HPD)
+  level <- probs[length(probs)] - probs[1]
+  if (!is.finite(level) || level <= 0 || level >= 1) level <- 0.95
+  
+  # Helper to compute intervals for a row of draws
+  .row_interval <- function(row) {
+    if (interval == "none") {
+      c(NA_real_, NA_real_)
+    } else if (interval == "credible") {
+      q <- stats::quantile(row, probs = probs, na.rm = TRUE, names = FALSE)
+      c(q[1], q[length(probs)])
+    } else {
+      iv <- .compute_interval(row, level = level, type = "hpd")
+      c(iv["lower"], iv["upper"])
+    }
+  }
+  
   if (is.null(dim(draws))) {
     mat <- matrix(as.numeric(draws), nrow = 1)
     qmat <- t(apply(mat, 1, stats::quantile, probs = probs, na.rm = TRUE, names = FALSE))
+    iv <- .row_interval(as.numeric(draws))
     return(list(
       estimate = rowMeans(mat, na.rm = TRUE),
-      lower = qmat[, 1],
-      upper = qmat[, length(probs)],
+      lower = iv[1],
+      upper = iv[2],
       q = qmat
     ))
   }
@@ -759,10 +913,11 @@ stick_breaking <- nimble::nimbleFunction(
   dims <- dim(draws)
   if (length(dims) == 2L) {
     qmat <- t(apply(draws, 1, stats::quantile, probs = probs, na.rm = TRUE, names = FALSE))
+    ivmat <- t(apply(draws, 1, .row_interval))
     return(list(
       estimate = rowMeans(draws, na.rm = TRUE),
-      lower = qmat[, 1],
-      upper = qmat[, length(probs)],
+      lower = ivmat[, 1],
+      upper = ivmat[, 2],
       q = qmat
     ))
   }
@@ -770,9 +925,10 @@ stick_breaking <- nimble::nimbleFunction(
   Sdim <- dims[length(dims)]
   mat <- matrix(draws, nrow = prod(dims[-length(dims)]), ncol = Sdim)
   qmat <- t(apply(mat, 1, stats::quantile, probs = probs, na.rm = TRUE, names = FALSE))
+  ivmat <- t(apply(mat, 1, .row_interval))
   estimate <- rowMeans(mat, na.rm = TRUE)
-  lower <- qmat[, 1]
-  upper <- qmat[, length(probs)]
+  lower <- ivmat[, 1]
+  upper <- ivmat[, 2]
   dim(estimate) <- dims[-length(dims)]
   dim(lower) <- dims[-length(dims)]
   dim(upper) <- dims[-length(dims)]
@@ -984,7 +1140,7 @@ stick_breaking <- nimble::nimbleFunction(
                             type = c("density", "survival", "quantile", "sample", "mean", "median"),
                             p = NULL, index = NULL, nsim = NULL,
                             cred.level = 0.95,
-                            interval = c("none", "credible"),
+                            interval = c("credible", "hpd"),
                             probs = c(0.025, 0.5, 0.975),
                             store_draws = TRUE,
                             nsim_mean = 200L,
@@ -993,7 +1149,15 @@ stick_breaking <- nimble::nimbleFunction(
 
   .validate_fit(object)
   type <- match.arg(type)
-  interval <- match.arg(interval)
+  
+  # Handle interval: NULL means no interval, otherwise match to credible/hpd
+  compute_interval <- TRUE
+  if (is.null(interval)) {
+    compute_interval <- FALSE
+    interval <- "credible"  # placeholder for downstream code
+  } else {
+    interval <- match.arg(interval, choices = c("credible", "hpd"))
+  }
 
   ncores <- as.integer(ncores)
   if (is.na(ncores) || ncores < 1L) stop("'ncores' must be an integer >= 1.", call. = FALSE)
@@ -1548,15 +1712,17 @@ stick_breaking <- nimble::nimbleFunction(
     fit <- apply(draws_arr, c(2, 3), mean, na.rm = TRUE)
 
      lower <- upper <- NULL
-     if (interval == "credible") {
-       # Apply quantile along dimension 1 (posterior draws) for each (i,j) combination
+     if (compute_interval) {
+       # Apply interval computation along dimension 1 (posterior draws) for each (i,j) combination
        lower <- matrix(NA_real_, nrow = n_pred, ncol = G)
        upper <- matrix(NA_real_, nrow = n_pred, ncol = G)
+       level <- probs[length(probs)] - probs[1]
+       if (!is.finite(level) || level <= 0 || level >= 1) level <- 0.95
        for (i in 1:n_pred) {
          for (j in 1:G) {
-           q_vals <- stats::quantile(draws_arr[, i, j], probs = probs, na.rm = TRUE)
-           lower[i, j] <- q_vals[1]
-           upper[i, j] <- q_vals[length(probs)]
+           iv <- .compute_interval(draws_arr[, i, j], level = level, type = interval)
+           lower[i, j] <- iv["lower"]
+           upper[i, j] <- iv["upper"]
          }
        }
      }
@@ -1614,7 +1780,7 @@ stick_breaking <- nimble::nimbleFunction(
         draws_mat[, s] <- as.numeric(do.call(q_fun, c(list(p = pgrid), args0)))
       }
 
-      summ <- .posterior_summarize(draws_mat, probs = probs)
+      summ <- .posterior_summarize(draws_mat, probs = probs, interval = if (compute_interval) interval else NULL)
       estimate_vec <- as.numeric(summ$estimate)
       lower_vec <- as.numeric(summ$lower)
       upper_vec <- as.numeric(summ$upper)
@@ -1622,8 +1788,8 @@ stick_breaking <- nimble::nimbleFunction(
       fit_df <- data.frame(
         estimate = estimate_vec,
         index    = pgrid,
-        lower    = if (interval == "credible") lower_vec else NA_real_,
-        upper    = if (interval == "credible") upper_vec else NA_real_,
+        lower    = if (compute_interval) lower_vec else NA_real_,
+        upper    = if (compute_interval) upper_vec else NA_real_,
         row.names = NULL
       )
       fit <- fit_df
@@ -1665,7 +1831,7 @@ stick_breaking <- nimble::nimbleFunction(
         }
       }
 
-      summ <- .posterior_summarize(draws_arr, probs = probs)
+      summ <- .posterior_summarize(draws_arr, probs = probs, interval = if (compute_interval) interval else NULL)
       estimate <- summ$estimate
       lower <- summ$lower
       upper <- summ$upper
@@ -1674,8 +1840,8 @@ stick_breaking <- nimble::nimbleFunction(
         estimate = as.vector(estimate),
         index    = rep(pgrid, each = n_pred),
         id       = rep(seq_len(n_pred), times = M),
-        lower    = if (interval == "credible") as.vector(lower) else NA_real_,
-        upper    = if (interval == "credible") as.vector(upper) else NA_real_,
+        lower    = if (compute_interval) as.vector(lower) else NA_real_,
+        upper    = if (compute_interval) as.vector(upper) else NA_real_,
         row.names = NULL
       )
       fit <- fit_df
@@ -1792,10 +1958,10 @@ stick_breaking <- nimble::nimbleFunction(
         cached <- object$cache$predict[[key]] %||% NULL
         if (!is.null(cached) && !is.null(cached$draws)) {
           draws_mean <- cached$draws
-          summ <- .posterior_summarize(draws_mean, probs = probs)
+          summ <- .posterior_summarize(draws_mean, probs = probs, interval = if (compute_interval) interval else NULL)
           estimate <- as.numeric(summ$estimate[1])
-          lower <- if (interval == "credible") as.numeric(summ$lower[1]) else NULL
-          upper <- if (interval == "credible") as.numeric(summ$upper[1]) else NULL
+          lower <- if (compute_interval) as.numeric(summ$lower[1]) else NULL
+          upper <- if (compute_interval) as.numeric(summ$upper[1]) else NULL
           fit_df <- data.frame(
             estimate = estimate,
             lower = if (!is.null(lower)) lower else NA_real_,
@@ -1813,10 +1979,10 @@ stick_breaking <- nimble::nimbleFunction(
         draws_mean[s] <- mean(samples, na.rm = TRUE)
       }
 
-      summ <- .posterior_summarize(draws_mean, probs = probs)
+      summ <- .posterior_summarize(draws_mean, probs = probs, interval = if (compute_interval) interval else NULL)
       estimate <- as.numeric(summ$estimate[1])
-      lower <- if (interval == "credible") as.numeric(summ$lower[1]) else NULL
-      upper <- if (interval == "credible") as.numeric(summ$upper[1]) else NULL
+      lower <- if (compute_interval) as.numeric(summ$lower[1]) else NULL
+      upper <- if (compute_interval) as.numeric(summ$upper[1]) else NULL
 
       fit_df <- data.frame(
         estimate = estimate,
@@ -1842,10 +2008,10 @@ stick_breaking <- nimble::nimbleFunction(
         cached <- object$cache$predict[[key]] %||% NULL
         if (!is.null(cached) && !is.null(cached$draws)) {
           draws_mean <- cached$draws
-          summ <- .posterior_summarize(draws_mean, probs = probs)
+          summ <- .posterior_summarize(draws_mean, probs = probs, interval = if (compute_interval) interval else NULL)
           fit <- as.numeric(summ$estimate)
-          lower <- if (interval == "credible") as.numeric(summ$lower) else NULL
-          upper <- if (interval == "credible") as.numeric(summ$upper) else NULL
+          lower <- if (compute_interval) as.numeric(summ$lower) else NULL
+          upper <- if (compute_interval) as.numeric(summ$upper) else NULL
           fit_df <- data.frame(
             estimate = fit,
             lower = if (!is.null(lower)) lower else rep(NA_real_, n_pred),
@@ -1864,10 +2030,10 @@ stick_breaking <- nimble::nimbleFunction(
         draws_mean[, s] <- rowMeans(samples_mat, na.rm = TRUE)
       }
 
-      summ <- .posterior_summarize(draws_mean, probs = probs)
+      summ <- .posterior_summarize(draws_mean, probs = probs, interval = if (compute_interval) interval else NULL)
       fit <- as.numeric(summ$estimate)
-      lower <- if (interval == "credible") as.numeric(summ$lower) else NULL
-      upper <- if (interval == "credible") as.numeric(summ$upper) else NULL
+      lower <- if (compute_interval) as.numeric(summ$lower) else NULL
+      upper <- if (compute_interval) as.numeric(summ$upper) else NULL
 
       # Return data frame format with one row per observation
       fit_df <- data.frame(

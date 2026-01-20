@@ -148,8 +148,14 @@ This document maps test coverage by feature area to help identify gaps and guide
 | summary.dpmixgpd_causal_fit | `test-causal-predict.R` | ✅ |
 | print.dpmixgpd_causal_bundle | `test-causal-predict.R` | ✅ |
 | plot.dpmixgpd_causal_fit | `test-causal-predict.R` | ✅ |
-| plot.dpmixgpd_qte | `test-causal-predict.R` | ✅ |
-| plot.dpmixgpd_ate | `test-causal-predict.R` | ✅ |
+| print.dpmixgpd_qte | `test-s3-causal-effects.R` | ✅ |
+| print.dpmixgpd_ate | `test-s3-causal-effects.R` | ✅ |
+| summary.dpmixgpd_qte | `test-s3-causal-effects.R` | ✅ |
+| summary.dpmixgpd_ate | `test-s3-causal-effects.R` | ✅ |
+| print.summary.dpmixgpd_qte | `test-s3-causal-effects.R` | ✅ |
+| print.summary.dpmixgpd_ate | `test-s3-causal-effects.R` | ✅ |
+| plot.dpmixgpd_qte | `test-causal-predict.R`, `test-s3-causal-effects.R` | ✅ |
+| plot.dpmixgpd_ate | `test-causal-predict.R`, `test-s3-causal-effects.R` | ✅ |
 | plot.dpmixgpd_causal_predict | `test-causal-predict.R` | ✅ |
 
 **Tier:** B (ci)
@@ -205,6 +211,7 @@ The following gaps were identified and have been addressed with tests:
 - `test-causal.R` (representative combos)
 - `test-causal-ate.R`
 - `test-causal-predict.R` (predict types, PS options, params, plotting)
+- `test-s3-causal-effects.R` (print/summary for QTE/ATE, plot build tests)
 
 ### Tier C (full) - Exhaustive
 - `test-causal.R` (exhaustive kernel x backend x GPD grid)

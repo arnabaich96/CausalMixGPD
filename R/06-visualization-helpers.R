@@ -62,7 +62,7 @@
   
   plot_data <- data.frame(value = samples)
 
-  pal <- .plot_palette(3L)
+  pal <- .plot_palette(8L)
   p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = value)) +
     ggplot2::geom_histogram(ggplot2::aes(y = ggplot2::after_stat(density)),
                            bins = 30, alpha = 0.7, fill = pal[5], color = pal[7]) +
@@ -102,7 +102,7 @@
     samples <- as.numeric(pred$draws)
     plot_data <- data.frame(value = samples)
 
-    pal <- .plot_palette(4L)
+    pal <- .plot_palette(8L)
     p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = value)) +
       ggplot2::geom_histogram(ggplot2::aes(y = ggplot2::after_stat(density)),
                              bins = 30, alpha = 0.7, fill = pal[5], color = pal[7]) +
@@ -126,7 +126,7 @@
       )
   } else {
     # If no samples available, show vertical lines only
-    pal <- .plot_palette(3L)
+    pal <- .plot_palette(8L)
     p <- ggplot2::ggplot(data.frame(x = mean_val), ggplot2::aes(x = x)) +
       ggplot2::geom_vline(xintercept = mean_val, color = pal[2], 
                          linewidth = 2, linetype = "solid") +

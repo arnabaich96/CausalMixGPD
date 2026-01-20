@@ -15,7 +15,7 @@
   index = NULL,
   nsim = NULL,
   cred.level = 0.95,
-  interval = c("none", "credible"),
+  interval = "credible",
   probs = c(0.025, 0.5, 0.975),
   store_draws = TRUE,
   nsim_mean = 200L,
@@ -30,11 +30,6 @@
 
 \item{y}{Numeric vector of evaluation points (required for \code{type="density"} or \code{"survival"}).}
 
-\item{ps}{Ignored. Propensity scores are always computed internally from the fitted PS
-model or stored training PS. For new covariates, PS are derived from the attached PS
-posterior draws when available. For causal workflows, use \code{qte()} / \code{ate()} which
-orchestrate PS estimation and outcome prediction jointly.}
-
 \item{newdata}{Optional new data. If \code{NULL}, uses training design (if stored).}
 
 \item{type}{Prediction type: \code{"density"}, \code{"survival"}, \code{"quantile"},
@@ -48,7 +43,9 @@ orchestrate PS estimation and outcome prediction jointly.}
 
 \item{cred.level}{Credible level for credible intervals (default 0.95 for 95\% credible intervals).}
 
-\item{interval}{\code{"none"} or \code{"credible"} for posterior credible bands.}
+\item{interval}{Character or NULL; type of credible interval: \code{NULL} for no interval,
+\code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
+highest posterior density intervals.}
 
 \item{probs}{Quantiles for credible interval bands.}
 
@@ -92,5 +89,9 @@ fit <- run_mcmc_bundle_manual(bundle)
 pr <- predict(fit, type = "quantile", p = c(0.5, 0.9))
 pr_surv <- predict(fit, y = sort(y), type = "survival")
 pr_cdf <- list(fit = 1 - pr_surv$fit)
+# HPD intervals
+pr_hpd <- predict(fit, type = "quantile", p = c(0.5, 0.9), interval = "hpd")
+# No intervals
+pr_none <- predict(fit, type = "quantile", p = c(0.5, 0.9), interval = NULL)
 }
 }

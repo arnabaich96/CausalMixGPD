@@ -4,24 +4,20 @@
 \alias{ate}
 \title{Average treatment effects (ATE)}
 \usage{
-ate(
-  fit,
-  newdata = NULL,
-  interval = c("none", "credible"),
-  nsim_mean = 200L,
-  probs = c(0.025, 0.5, 0.975)
-)
+ate(fit, newdata = NULL, interval = "credible", level = 0.95, nsim_mean = 200L)
 }
 \arguments{
 \item{fit}{A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.}
 
 \item{newdata}{Optional data.frame or matrix of covariates for prediction.}
 
-\item{interval}{Credible interval type passed to \code{predict()}.}
+\item{interval}{Character or NULL; type of credible interval: \code{NULL} for no interval,
+\code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
+highest posterior density intervals.}
+
+\item{level}{Numeric credible level for intervals (default 0.95 for 95\% CI).}
 
 \item{nsim_mean}{Number of posterior predictive draws to approximate the mean.}
-
-\item{probs}{Quantiles for credible intervals when \code{interval="credible"}.}
 }
 \value{
 A list with elements \code{fit} (ATE), optional \code{lower}/\code{upper},
@@ -35,5 +31,8 @@ Computes treated-minus-control posterior means from a causal fit.
 cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", J = 6)
 fit <- run_mcmc_causal(cb, show_progress = FALSE)
 ate(fit, newdata = X[1:5, ])
+ate(fit, interval = "credible", level = 0.90)  # 90\% CI
+ate(fit, interval = "hpd")  # HPD intervals
+ate(fit, interval = NULL)   # No intervals
 }
 }

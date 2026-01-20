@@ -9,6 +9,7 @@
   type = c("location", "mean", "median", "quantile"),
   p = 0.5,
   level = 0.95,
+  interval = "credible",
   seed = 1,
   ...
 )
@@ -21,6 +22,10 @@
 \item{p}{Quantile level used when \code{type = "quantile"}.}
 
 \item{level}{Credible level for confidence intervals (default 0.95 for 95\% credible intervals).}
+
+\item{interval}{Character or NULL; type of credible interval: \code{NULL} for no interval,
+\code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
+highest posterior density intervals.}
 
 \item{seed}{Random seed used for deterministic fitted values.}
 
@@ -46,5 +51,7 @@ bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
 fit <- run_mcmc_bundle_manual(bundle)
 fitted(fit)
 fitted(fit, level = 0.90)
+fitted(fit, interval = "hpd")  # HPD intervals
+fitted(fit, interval = NULL)   # No intervals
 }
 }
