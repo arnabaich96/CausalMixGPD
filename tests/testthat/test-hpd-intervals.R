@@ -18,8 +18,8 @@ test_that(".compute_interval computes equal-tailed intervals correctly", {
   
   # Check approximate quantiles
   q <- quantile(draws, probs = c(0.025, 0.975))
-  expect_equal(iv["lower"], unname(q[1]))
-  expect_equal(iv["upper"], unname(q[2]))
+  expect_equal(unname(iv["lower"]), unname(q[1]))
+  expect_equal(unname(iv["upper"]), unname(q[2]))
 })
 
 
@@ -36,8 +36,8 @@ test_that(".compute_interval computes HPD intervals correctly", {
   
   # HPD should approximately match coda::HPDinterval
   hpd_coda <- coda::HPDinterval(coda::as.mcmc(draws), prob = 0.95)
-  expect_equal(iv["lower"], hpd_coda[1, "lower"], tolerance = 0.001)
-  expect_equal(iv["upper"], hpd_coda[1, "upper"], tolerance = 0.001)
+  expect_equal(unname(iv["lower"]), unname(hpd_coda[1, "lower"]), tolerance = 0.001)
+  expect_equal(unname(iv["upper"]), unname(hpd_coda[1, "upper"]), tolerance = 0.001)
 })
 
 

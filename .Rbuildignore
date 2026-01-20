@@ -6,6 +6,7 @@
 ^renv\.lock$
 ^\.githooks$
 ^\.git$
+^\.github$
 ^\.cache$
 ^\.cache/
 ^pkgdown$
