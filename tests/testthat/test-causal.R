@@ -192,6 +192,11 @@ test_that("causal workflow: exhaustive kernel combos (Tier C)", {
 # =============================================================================
 
 test_that("PS parameter: logit, probit, naive, FALSE all work", {
+  # Skip during coverage runs due to covr/nimble interaction causing
+
+  # "variable name conflicts with C++ keywords" error
+
+  skip_if(nzchar(Sys.getenv("COVERAGE")), "Skipping during coverage due to covr/nimble interaction")
 
   set.seed(99)
   n <- 40
