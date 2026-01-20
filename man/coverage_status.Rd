@@ -12,22 +12,22 @@ coverage_status(
 )
 }
 \arguments{
-\item{type}{Coverage type, passed to `covr::package_coverage()`. Currently
-supports `tests` (the default) and `all`.}
+\item{type}{Coverage type, passed to \code{covr::package_coverage()}. Currently
+supports \code{tests} (the default) and \code{all}.}
 
 \item{path}{Path to the package root. Defaults to the current working directory.}
 
 \item{data_file}{Optional file path to write the status JSON (useful for
-documentation or pkgdown badges). When `NULL` no file is written.}
+documentation or pkgdown badges). When \code{NULL} no file is written.}
 
-\item{quiet}{Passed to `covr::package_coverage()` to control console output.}
+\item{quiet}{Passed to \code{covr::package_coverage()} to control console output.}
 }
 \value{
-A named list with `percent`, `type`, `timestamp`, `statements`, and
-  `files`. Invisibly returns the same list when writing to disk.
+A named list with \code{percent}, \code{type}, \code{timestamp}, \code{statements}, and
+\code{files}. Invisibly returns the same list when writing to disk.
 }
 \description{
-`coverage_status()` runs `covr::package_coverage()` against the package tests
+\code{coverage_status()} runs \code{covr::package_coverage()} against the package tests
 and returns a small summary that can be stored for docs or dashboards. Use
-`read_coverage_status()` to read previously saved results.
+\code{read_coverage_status()} to read previously saved results.
 }

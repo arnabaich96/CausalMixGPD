@@ -17,4 +17,3 @@ Invisibly returns the input object.
 \description{
 Print method for fitted value plots
 }
-\keyword{internal}

@@ -10,10 +10,10 @@ read_coverage_status(
 }
 \arguments{
 \item{file}{Path to a JSON status file produced by
-`coverage_status(..., data_file = ...)`. Defaults to `inst/extdata/coverage_status.json`.}
+\code{coverage_status(..., data_file = ...)}. Defaults to \code{inst/extdata/coverage_status.json}.}
 }
 \value{
-Named list as saved by `coverage_status()`.
+Named list as saved by \code{coverage_status()}.
 }
 \description{
 Read stored coverage status

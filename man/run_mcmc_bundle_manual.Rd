@@ -18,6 +18,7 @@ A fitted object of class \code{"mixgpd_fit"}.
 Run MCMC for a prepared bundle
 }
 \examples{
+\dontrun{
 library(nimble)
 y <- abs(rnorm(40)) + 0.1
 bundle <- build_nimble_bundle(
@@ -30,4 +31,5 @@ bundle <- build_nimble_bundle(
 )
 fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
 fit
+}
 }

@@ -121,7 +121,7 @@ plot(pred_mean)
 
 ```{r start-s3}
 params(fit_uncond)
-plot(fit_uncond, family = c("traceplot", "running"))
+plot(fit_uncond, params = "shape", family = "traceplot")
 ```
 
 ---

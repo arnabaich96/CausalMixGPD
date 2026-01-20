@@ -7,10 +7,10 @@
 \format{
 A list with:
 \describe{
-  \item{y}{Numeric outcome vector.}
-  \item{X}{NULL.}
-  \item{meta}{List with n, support, p, K_true, tail, exceed_frac, seed.}
-  \item{truth}{List with kernel, weights, params, threshold, tail_params.}
+\item{y}{Numeric outcome vector.}
+\item{X}{NULL.}
+\item{meta}{List with n, support, p, K_true, tail, exceed_frac, seed.}
+\item{truth}{List with kernel, weights, params, threshold, tail_params.}
 }
 }
 \usage{

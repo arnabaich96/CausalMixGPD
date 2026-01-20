@@ -14,8 +14,11 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   fig.width = 7,
-  fig.height = 4.5
+  fig.height = 4.5,
+  fig.align = "center"
 )
+library(ggplot2)
+library(kableExtra)
 set.seed(1)
 FAST <- TRUE
 mcmc <- if (FAST) {
@@ -25,14 +28,12 @@ mcmc <- if (FAST) {
 }
 ```
 
-## Goal
+## Overview
 
-Compare the two mixture backends:
+This vignette compares the two mixture backends:
 
-- **SB**: stick-breaking (finite truncation), controlled by `components`.
-- **CRP**: Chinese Restaurant Process (cluster allocations).
-
-We use the same data and kernel, then compare fitted summaries.
+- **SB**: Stick-breaking (finite truncation), controlled by `components`
+- **CRP**: Chinese Restaurant Process (cluster allocations)
 
 ## Data
 
@@ -43,7 +44,7 @@ n <- 90
 y <- abs(rnorm(n)) + 0.2
 ```
 
-## Fit SB
+## Stick-Breaking Backend
 
 ```{r}
 bundle_sb <- build_nimble_bundle(
@@ -58,7 +59,7 @@ bundle_sb <- build_nimble_bundle(
 fit_sb <- run_mcmc_bundle_manual(bundle_sb, show_progress = FALSE)
 ```
 
-## Fit CRP
+## CRP Backend
 
 ```{r}
 bundle_crp <- build_nimble_bundle(
@@ -73,27 +74,31 @@ bundle_crp <- build_nimble_bundle(
 fit_crp <- run_mcmc_bundle_manual(bundle_crp, show_progress = FALSE)
 ```
 
-## Compare fitted summaries
+## Comparison of Fitted Summaries
 
 ```{r}
 mean_sb <- predict(fit_sb, type = "mean", cred.level = 0.90, interval = "credible")$fit
 mean_crp <- predict(fit_crp, type = "mean", cred.level = 0.90, interval = "credible")$fit
 
-rbind(
-  SB  = unlist(mean_sb[1, c("estimate","lower","upper")]),
-  CRP = unlist(mean_crp[1, c("estimate","lower","upper")])
+comparison_df <- data.frame(
+  Backend = c("SB", "CRP"),
+  Estimate = c(mean_sb$estimate[1], mean_crp$estimate[1]),
+  Lower = c(mean_sb$lower[1], mean_crp$lower[1]),
+  Upper = c(mean_sb$upper[1], mean_crp$upper[1])
 )
+
+kable(comparison_df, digits = 3, align = "c",
+      caption = "Posterior Mean Comparison: SB vs CRP") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = FALSE, position = "center")
 ```
 
-## Practical guidance
+## Backend Selection Guidelines
 
-- Choose **SB** when you want explicit control over truncation (`components`) and stable computation.
-- Choose **CRP** when you want the number of clusters to adapt more directly, at the cost of potentially more label/cluster dynamics.
-
-## Troubleshooting (Backends)
-
-- Compilation errors often point to unsupported kernel/backend combinations or reserved names.
-- Start with small `niter` and one chain, then scale up.
+| Backend | Use Case |
+|---------|----------|
+| **SB** | Explicit control over truncation level; stable computation |
+| **CRP** | Adaptive cluster number; more label/cluster dynamics |
 
 ```{r sessioninfo, include=FALSE}
 sessionInfo()

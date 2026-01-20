@@ -78,7 +78,7 @@ qLognormalMixGpd(
 }
 \value{
 Spliced density/CDF/RNG functions return numeric scalars.
-  \code{qLognormalMixGpd} returns a numeric vector with the same length as \code{p}.
+\code{qLognormalMixGpd} returns a numeric vector with the same length as \code{p}.
 }
 \description{
 Splices a generalized Pareto distribution (Gpd) above \code{threshold} onto a Lognormal mixture bulk.

@@ -17,17 +17,17 @@
 }
 \value{
 A list of ggplot objects with elements \code{trt_control} and \code{treatment_effect}
-  (if \code{type="both"}), or a single ggplot object (if \code{type} is \code{"effect"} or
-  \code{"arms"}).
+(if \code{type="both"}), or a single ggplot object (if \code{type} is \code{"effect"} or
+\code{"arms"}).
 }
 \description{
 Generates visualizations for average treatment effects. The \code{type} parameter
 controls the plot style:
 \itemize{
-  \item \code{"both"} (default): Returns a list with both \code{trt_control} (treated vs
-    control means) and \code{treatment_effect} (ATE curve) plots
-  \item \code{"effect"}: ATE curve/points vs index/PS with CI ribbon/bars
-  \item \code{"arms"}: Treated mean vs control mean, with CI ribbons
+\item \code{"both"} (default): Returns a list with both \code{trt_control} (treated vs
+control means) and \code{treatment_effect} (ATE curve) plots
+\item \code{"effect"}: ATE curve/points vs index/PS with CI ribbon/bars
+\item \code{"arms"}: Treated mean vs control mean, with CI ribbons
 }
 }
 \examples{

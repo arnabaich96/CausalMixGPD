@@ -152,9 +152,9 @@ params_gpd
 ```
 
 ```{r fit-plots}
-# S3 plot methods highlight trace + density diagnostics
-plot(fit_gpd, family = c("traceplot", "density", "running"))
-plot(fit_gpd, params = "alpha", family = c("traceplot", "autocorrelation", "geweke"))
+plot(fit_gpd, params = c("threshold", "tail_shape", "tail_scale"), family = c("caterpillar", "traceplot"))
+plot(fit_gpd, params = "mean", family = "traceplot")
+plot(fit_gpd, params = "shape", family = "caterpillar")
 ```
 
 ---

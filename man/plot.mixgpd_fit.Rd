@@ -12,8 +12,8 @@
 \item{family}{Character vector of plot names (ggmcmc plot types) or a single one.
 Use \code{"auto"} (or \code{"all"}) to include all plots supported for the
 available number of chains/parameters. Supported: \code{histogram, density,
-traceplot, running, compare_partial, autocorrelation, crosscorrelation, Rhat,
-grb, effective, geweke, caterpillar, pairs}.}
+  traceplot, running, compare_partial, autocorrelation, crosscorrelation, Rhat,
+  grb, effective, geweke, caterpillar, pairs}.}
 
 \item{params}{Optional parameter selector. Either:
 (i) character vector of exact parameter names (e.g. \code{c("alpha","threshold")}),

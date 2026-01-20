@@ -85,7 +85,7 @@ qAmorosoGpd(
 }
 \value{
 Spliced density/CDF/RNG functions return numeric scalars. \code{qAmorosoGpd} returns a numeric vector
-  with the same length as \code{p}.
+with the same length as \code{p}.
 }
 \description{
 Splices a generalized Pareto distribution (GPD) above a threshold \code{threshold} onto a single Amoroso bulk

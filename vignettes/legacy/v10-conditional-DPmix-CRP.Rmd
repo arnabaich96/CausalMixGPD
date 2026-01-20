@@ -75,7 +75,7 @@ p_cov <- ggplot(df_cov, aes(x = x1, y = y)) +
   labs(title = "y vs X1 (loess smoother)", x = "X1", y = "y") +
   theme_minimal()
 
-grid.arrange(p_cov, ncol = 1)
+print(p_cov)
 ```
 
 ```{r data-table, echo=FALSE}
@@ -213,8 +213,10 @@ plot(fit_vals)
 ```
 
 ```{r diagnostics}
-plot(fit_cond_normal, family = c("traceplot", "autocorrelation", "geweke"))
-plot(fit_cond_amoroso, family = c("density", "running", "caterpillar"))
+plot(fit_cond_normal, params = "mean", family = "traceplot")
+plot(fit_cond_normal, params = "sd", family = "caterpillar")
+plot(fit_cond_amoroso, params = "loc", family = "traceplot")
+plot(fit_cond_amoroso, params = "scale", family = "caterpillar")
 ```
 
 ---

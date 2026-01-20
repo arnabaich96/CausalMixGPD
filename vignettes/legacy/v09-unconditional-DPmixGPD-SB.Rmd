@@ -72,7 +72,7 @@ p_raw <- ggplot(df_data, aes(x = y)) +
   labs(title = "Tail-Designed Data", x = "y", y = "Density") +
   theme_minimal()
 
-grid.arrange(p_raw, ncol = 1)
+print(p_raw)
 ```
 
 ```{r data-table, echo=FALSE}
@@ -202,7 +202,9 @@ plot(fit_vals)
 ```
 
 ```{r diagnostics}
-plot(fit_sb_gpd, family = c("histogram", "autocorrelation", "running"))
+plot(fit_sb_gpd, params = c("threshold", "tail_shape", "tail_scale"), family = c("caterpillar", "traceplot"))
+plot(fit_sb_gpd, params = "shape", family = "traceplot")
+plot(fit_sb_gpd, params = "scale", family = "caterpillar")
 ```
 
 ---

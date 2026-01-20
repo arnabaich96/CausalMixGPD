@@ -102,7 +102,7 @@ the RNG implementation supports \code{n = 1}.}
 }
 \value{
 Spliced density/CDF/RNG functions return numeric scalars. \code{qAmorosoMixGpd} returns a numeric
-  vector with the same length as \code{p}.
+vector with the same length as \code{p}.
 }
 \description{
 This family splices a generalized Pareto distribution (GPD) above a threshold \code{threshold} onto an

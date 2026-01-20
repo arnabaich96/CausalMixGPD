@@ -53,7 +53,7 @@ internally when needed.}
 }
 \value{
 Density/CDF/RNG functions return numeric scalars. \code{qLaplaceMix} returns a numeric vector
-  with the same length as \code{p}.
+with the same length as \code{p}.
 }
 \description{
 A finite mixture of Laplace (double exponential) components for real-valued data.

@@ -57,7 +57,6 @@ We use a Laplace kernel for the bulk distribution and no GPD tail augmentation.
 # Data Setup
 
 ```{r data-setup}
-# Load pre-generated dataset: 200 observations from mixture of 3 gamma components
 data(nc_pos200_k3)
 y_mixed <- nc_pos200_k3$y
 
@@ -66,7 +65,6 @@ paste("Mean:", mean(y_mixed))
 paste("SD:", sd(y_mixed))
 paste("Range:", paste(range(y_mixed), collapse = " to "))
 
-# Visualization
 df_data <- data.frame(y = y_mixed)
 p_raw <- ggplot(df_data, aes(x = y)) +
   geom_histogram(aes(y = after_stat(density)), bins = 30, alpha = 0.6,
@@ -83,11 +81,11 @@ print(p_raw)
 ```{r bundle-mcmc-crp}
 bundle_crp <- build_nimble_bundle(
   y = y_mixed,
-  kernel = "laplace",         # Use laplace kernel
-  backend = "crp",            # CRP backend
-  GPD = FALSE,                # No tail augmentation
-  components = 3,             # Minimal for testing
-  alpha_random = TRUE,        # Random DP concentration
+  kernel = "laplace",
+  backend = "crp",
+  GPD = FALSE,
+  components = 3,
+  alpha_random = TRUE,
   mcmc = mcmc
 )
 ```
@@ -128,19 +126,14 @@ params_crp
 # Diagnostics
 
 ```{r diag-trace}
-# Trace plots for key parameters
-plot(fit_crp, params = "alpha", family = c("traceplot", "density", "geweke"))
+plot(fit_crp, params = "location", family = "traceplot")
+plot(fit_crp, params = "scale", family = "caterpillar")
 ```
 
 # Posterior Predictive Density
 
 ```{r pred-density}
-# Generate prediction grid
 y_grid <- seq(0, max(y_mixed) * 1.2, length.out = 200)
-
-# Posterior predictive density
 pred_density <- predict(fit_crp, y = y_grid, type = "density")
-
-# Use S3 plot method
 plot(pred_density)
 ```

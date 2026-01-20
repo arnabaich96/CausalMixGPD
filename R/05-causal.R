@@ -813,7 +813,6 @@ ate <- function(fit,
 #' predict(fit, x = X[1:10, ], type = "mean", interval = NULL)   # No intervals
 #' }
 #' @export
-#' @method predict dpmixgpd_causal_fit
 predict.dpmixgpd_causal_fit <- function(object,
                                         x = NULL,
                                         y = NULL,

@@ -61,7 +61,7 @@ the RNG implementation supports \code{n = 1}.}
 }
 \value{
 Mixture density/CDF/RNG functions return numeric scalars. \code{qAmorosoMix} returns a numeric
-  vector with the same length as \code{p}.
+vector with the same length as \code{p}.
 }
 \description{
 A finite mixture of Amoroso components is often a convenient bulk model when the response is

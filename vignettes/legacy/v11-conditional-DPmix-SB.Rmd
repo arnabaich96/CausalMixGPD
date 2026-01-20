@@ -201,8 +201,10 @@ plot(fitted(fit_sb_cauchy))
 ```
 
 ```{r diagnostics}
-plot(fit_sb_normal, family = c("traceplot", "autocorrelation", "geweke"))
-plot(fit_sb_cauchy, family = c("density", "running", "caterpillar"))
+plot(fit_sb_normal, params = "mean", family = "traceplot")
+plot(fit_sb_normal, params = "sd", family = "caterpillar")
+plot(fit_sb_cauchy, params = "location", family = "traceplot")
+plot(fit_sb_cauchy, params = "scale", family = "caterpillar")
 ```
 
 ---

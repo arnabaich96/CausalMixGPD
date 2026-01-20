@@ -227,8 +227,10 @@ plot(fitted(fit_sb_cond_gpd_gamma))
 ```
 
 ```{r diagnostics}
-plot(fit_sb_cond_gpd_gamma, family = c("traceplot", "autocorrelation", "geweke"))
-plot(fit_sb_cond_gpd_laplace, family = c("density", "running", "caterpillar"))
+plot(fit_sb_cond_gpd_gamma, params = c("threshold", "tail_shape", "tail_scale"), family = c("caterpillar", "traceplot"))
+plot(fit_sb_cond_gpd_gamma, params = "shape", family = "traceplot")
+plot(fit_sb_cond_gpd_laplace, params = c("threshold", "tail_shape", "tail_scale"), family = c("caterpillar", "traceplot"))
+plot(fit_sb_cond_gpd_laplace, params = "scale", family = "caterpillar")
 ```
 
 ---
