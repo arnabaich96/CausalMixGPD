@@ -19,6 +19,8 @@
 #'
 #' @param y Numeric outcome vector.
 #' @param X Optional design matrix/data.frame (N x p) for conditional variants.
+#' @param ps Optional numeric vector (length N) of propensity scores. When provided,
+#'   augments the design matrix for PS-adjusted outcome modeling.
 #' @param backend Character; \code{"sb"} (stick-breaking) or \code{"crp"} (Chinese Restaurant Process).
 #' @param kernel Character kernel name (must exist in \code{get_kernel_registry()}).
 #' @param GPD Logical; whether a GPD tail is requested.
