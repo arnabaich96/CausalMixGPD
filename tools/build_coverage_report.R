@@ -6,18 +6,26 @@ if (!nzchar(Sys.getenv("CODECOV_TOKEN"))) {
 Sys.setenv(DPMIXGPD_TEST_LEVEL = "cran")
 Sys.setenv(COVERAGE = "1")
 
+# Unload the package if it's already loaded to avoid covr instrumentation conflicts
+# This prevents the "'from' must be a finite number" error
+if (isNamespaceLoaded("DPmixGPD")) {
+  cat("Unloading DPmixGPD namespace for clean coverage calculation...\n")
+  try(unloadNamespace("DPmixGPD"), silent = TRUE)
+}
+
 # Calculate and upload coverage - continue even if some tests fail
 cat("Calculating coverage (some test failures are acceptable)...\n")
 cat("This may take several minutes...\n")
 
 result <- tryCatch({
-  # Calculate coverage - skip vignettes to avoid build issues
-  cat("Step 1: Calculating package coverage (skipping vignettes)...\n")
-  # Use type="tests" to skip vignettes, or "all" but with better error handling
+  # Calculate coverage using type = "none" with custom test code that tolerates failures
+  # This approach allows coverage to complete even when some tests fail
+  cat("Step 1: Calculating package coverage...\n")
   cov <- covr::package_coverage(
-    type = "tests",  # Only test coverage, skip vignettes
+    type = "none",
+    code = "try(testthat::test_local(stop_on_failure = FALSE), silent = TRUE)",
     quiet = FALSE,
-    pre_clean = FALSE
+    pre_clean = TRUE
   )
   
   # Upload coverage even if there were test failures
@@ -25,16 +33,19 @@ result <- tryCatch({
   covr::codecov(coverage = cov, quiet = FALSE)
   TRUE
 }, error = function(e) {
-  cat("Warning: Coverage calculation had issues, but attempting upload anyway...\n")
+  cat("Warning: Primary coverage method had issues.\n")
   cat("Error details: ", conditionMessage(e), "\n")
+  cat("Attempting alternative coverage method...\n\n")
   
-  # Try to upload whatever coverage we have using codecov() directly
-  # This will recalculate but might work better
+  # Fallback: try type = "tests" approach
   tryCatch({
-    cat("Attempting direct codecov upload (will recalculate coverage)...\n")
-    # Try with tests only to avoid vignette issues
-    options(covr.gcov = NULL)
-    covr::codecov(quiet = FALSE)
+    cat("Attempting coverage with type='tests'...\n")
+    cov <- covr::package_coverage(
+      type = "tests",
+      quiet = FALSE,
+      pre_clean = TRUE
+    )
+    covr::codecov(coverage = cov, quiet = FALSE)
     TRUE
   }, error = function(e2) {
     cat("Failed to upload coverage: ", conditionMessage(e2), "\n")
