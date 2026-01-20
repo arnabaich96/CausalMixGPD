@@ -70,7 +70,7 @@ the RNG implementation supports \code{n = 1}.}
 }
 \value{
 Spliced density/CDF/RNG functions return numeric scalars.
-  \code{qInvGaussMixGpd} returns a numeric vector with the same length as \code{p}.
+\code{qInvGaussMixGpd} returns a numeric vector with the same length as \code{p}.
 }
 \description{
 This family splices a generalized Pareto distribution (Gpd) above a threshold

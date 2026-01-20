@@ -31,10 +31,73 @@ MCMC settings list (stored but not used for code generation)
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="../articles/index.html">Articles</a></li>
-<li class="nav-item"><a class="nav-link" href="../legacy/index.html">Legacy</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-manual" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Manual</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-manual"><li><a class="dropdown-item" href="../articles/manual-index.html">Manual Overview</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Get Started</h6></li>
+    <li><a class="dropdown-item" href="../articles/introduction.html">Introduction</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>User Guide</h6></li>
+    <li><a class="dropdown-item" href="../articles/distributions.html">Available Distributions</a></li>
+    <li><a class="dropdown-item" href="../articles/model-spec.html">Model Specification</a></li>
+    <li><a class="dropdown-item" href="../articles/mcmc-workflow.html">MCMC Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/unconditional.html">Unconditional Models</a></li>
+    <li><a class="dropdown-item" href="../articles/conditional.html">Conditional Models</a></li>
+    <li><a class="dropdown-item" href="../articles/causal.html">Causal Inference</a></li>
+    <li><a class="dropdown-item" href="../articles/backends.html">Backends (CRP vs SB)</a></li>
+    <li><a class="dropdown-item" href="../articles/reference-s3.html">S3 Methods Reference</a></li>
+  </ul></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-kernels" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Kernels</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-kernels"><li><a class="dropdown-item" href="../articles/kernels-index.html">Kernels Overview</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/kernels/kernel-amoroso.html">Amoroso</a></li>
+    <li><a class="dropdown-item" href="../articles/kernels/kernel-cauchy.html">Cauchy</a></li>
+    <li><a class="dropdown-item" href="../articles/kernels/kernel-gamma.html">Gamma</a></li>
+    <li><a class="dropdown-item" href="../articles/kernels/kernel-invgauss.html">Inverse Gaussian</a></li>
+    <li><a class="dropdown-item" href="../articles/kernels/kernel-laplace.html">Laplace</a></li>
+    <li><a class="dropdown-item" href="../articles/kernels/kernel-lognormal.html">Lognormal</a></li>
+    <li><a class="dropdown-item" href="../articles/kernels/kernel-normal.html">Normal</a></li>
+  </ul></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-legacy" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Legacy</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-legacy"><li><a class="dropdown-item" href="../articles/legacy-index.html">Legacy Overview</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Getting Started</h6></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v00-start-here.html">Start Here</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v01-introduction.html">Introduction</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v02-available-distributions.html">Available Distributions</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Core Concepts</h6></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v03-basic-model-compile-run.html">Basic Model Compile &amp; Run</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v04-backends-and-workflow.html">Backends and Workflow</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Unconditional Models</h6></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v05-unconditional-DPmix-CRP.html">DPmix CRP (v05)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v06-unconditional-DPmix-CRP.html">DPmix CRP Extended (v06)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v07-unconditional-DPmix-SB.html">DPmix SB (v07)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v08-unconditional-DPmixGPD-CRP.html">DPmixGPD CRP (v08)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v09-unconditional-DPmixGPD-SB.html">DPmixGPD SB (v09)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Conditional Models</h6></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v10-conditional-DPmix-CRP.html">DPmix CRP (v10)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v11-conditional-DPmix-SB.html">DPmix SB (v11)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v12-conditional-DPmixGPD-CRP.html">DPmixGPD CRP (v12)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v13-conditional-DPmixGPD-SB.html">DPmixGPD SB (v13)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Causal Inference</h6></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v14-causal-no-x-CRP.html">No Covariates CRP (v14)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v15-causal-x-no-ps-SB.html">With Covariates SB (v15)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v16-causal-same-backend-CRP.html">Same Backend CRP (v16)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v17-causal-same-backend-SB.html">Same Backend SB (v17)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v18-causal-different-backends-CRP.html">Different Backends CRP (v18)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v19-causal-different-backends-SB.html">Different Backends SB (v19)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v20-troubleshooting.html">Troubleshooting (v20)</a></li>
+  </ul></li>
 <li class="nav-item"><a class="nav-link" href="../coverage/index.html">Coverage</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/arnabaich96/DPmixGPD">GitHub</a></li>
       </ul></div>
 
@@ -146,7 +209,8 @@ Use <code><a href="run_mcmc_bundle_manual.html">run_mcmc_bundle_manual()</a></co
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">60</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.1</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">60</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0.1</span></span></span>
 <span class="r-in"><span><span class="va">bundle</span> <span class="op">&lt;-</span> <span class="fu">build_nimble_bundle</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  y <span class="op">=</span> <span class="va">y</span>,</span></span>
 <span class="r-in"><span>  backend <span class="op">=</span> <span class="st">"sb"</span>,</span></span>
@@ -156,17 +220,7 @@ Use <code><a href="run_mcmc_bundle_manual.html">run_mcmc_bundle_manual()</a></co
 <span class="r-in"><span>  mcmc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">200</span>, nburnin <span class="op">=</span> <span class="fl">50</span>, thin <span class="op">=</span> <span class="fl">1</span>, nchains <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">bundle</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> DPmixGPD bundle</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       Field                  Value</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Backend Stick-Breaking Process</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      Kernel    Normal Distribution</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  Components                      4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           N                     60</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           X                     NO</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         GPD                  FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     Epsilon                  0.025</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   contains  : code, constants, data, dimensions, inits, monitors</span>
+<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -20,4 +20,3 @@ Invisibly returns a list with the two plots.
 S3 method for visualizing fitted values from \code{fitted.mixgpd_fit()}.
 Produces a 2-panel figure: Q-Q plot and residuals vs fitted.
 }
-\keyword{internal}

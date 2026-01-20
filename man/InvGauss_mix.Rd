@@ -52,7 +52,7 @@ the RNG implementation supports \code{n = 1}.}
 }
 \value{
 Density/CDF/RNG functions return numeric scalars. \code{qInvGaussMix} returns a numeric vector
-  with the same length as \code{p}.
+with the same length as \code{p}.
 }
 \description{
 A finite mixture of inverse Gaussian components provides a flexible bulk model for positive data

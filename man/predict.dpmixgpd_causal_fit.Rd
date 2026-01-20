@@ -58,12 +58,12 @@ highest posterior density intervals.}
 }
 \value{
 For \code{"mean"} or \code{"quantile"}, a numeric matrix with columns
-  \code{ps}, \code{estimate}, \code{lower}, \code{upper}, representing
-  treated-minus-control posterior summaries. When PS is disabled or X is absent,
-  \code{ps} is \code{NA} and no PS is used. For \code{"density"}, \code{"survival"},
-  and \code{"prob"},
-  a data frame with columns \code{y}, \code{ps}, \code{trt_estimate}, \code{trt_lower},
-  \code{trt_upper}, \code{con_estimate}, \code{con_lower}, \code{con_upper}.
+\code{ps}, \code{estimate}, \code{lower}, \code{upper}, representing
+treated-minus-control posterior summaries. When PS is disabled or X is absent,
+\code{ps} is \code{NA} and no PS is used. For \code{"density"}, \code{"survival"},
+and \code{"prob"},
+a data frame with columns \code{y}, \code{ps}, \code{trt_estimate}, \code{trt_lower},
+\code{trt_upper}, \code{con_estimate}, \code{con_lower}, \code{con_upper}.
 }
 \description{
 Provides a unified interface to the treated and control outcome models while

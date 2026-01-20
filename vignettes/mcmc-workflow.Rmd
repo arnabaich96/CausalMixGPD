@@ -1,8 +1,8 @@
 ---
-title: "MCMC workflow"
+title: "MCMC Workflow"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{MCMC workflow}
+  %\VignetteIndexEntry{MCMC Workflow}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,8 +14,11 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   fig.width = 7,
-  fig.height = 4.5
+  fig.height = 4.5,
+  fig.align = "center"
 )
+library(ggplot2)
+library(kableExtra)
 set.seed(1)
 FAST <- TRUE
 mcmc <- if (FAST) {
@@ -25,13 +28,11 @@ mcmc <- if (FAST) {
 }
 ```
 
-## Goal
+## Overview
 
-This vignette shows a practical MCMC loop: build -> run -> inspect -> extract.
+This vignette demonstrates the MCMC workflow: build, run, inspect, and extract.
 
-**Runtime:** fast in `FAST` mode.
-
-## Build and run
+## Model Building and Sampling
 
 ```{r}
 library(DPmixGPD)
@@ -50,31 +51,26 @@ fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
 fit
 ```
 
-## Print and summary
+## Model Summary
 
 ```{r}
 print(fit)
 summary(fit)
 ```
 
-## Plots
-
-Different versions of the package may support different plot families; `trace` is usually the safest.
+## Diagnostic Plots
 
 ```{r}
 if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quietly = TRUE)) {
   plot(fit)
 } else {
-  message("Plotting requires 'ggmcmc' and 'coda' packages. Install them to view diagnostic plots.")
+  message("Plotting requires 'ggmcmc' and 'coda' packages.")
 }
 ```
 
-## Extract posterior draws
-
-The exact storage depends on how your fit object is organized, but most workflows expose a draws object.
+## Posterior Sample Extraction
 
 ```{r}
-# Common patterns
 if (!is.null(fit$mcmc$samples)) {
   s <- fit$mcmc$samples
   if (requireNamespace("coda", quietly = TRUE)) {
@@ -86,28 +82,14 @@ if (!is.null(fit$mcmc$samples)) {
   }
 }
 ```
-```
 
-## Re-running with different MCMC settings
-
-A helpful pattern is: build once, rerun MCMC with different settings. If your API supports it, use it.
-Otherwise rebuild with a different `mcmc` list.
+## Re-running with Different Settings
 
 ```{r, eval=FALSE}
-# Example (pseudo):
+# Rebuild with modified MCMC settings
 # bundle2 <- update_mcmc(bundle, niter = 8000, nburnin = 2000)
 # fit2 <- run_mcmc_bundle_manual(bundle2)
 ```
-
-## Troubleshooting (MCMC Workflow)
-
-- **Compilation errors**: call `printErrors()` if NIMBLE suggests it.
-- **Slow runs**: start with `FAST <- TRUE`, then scale up.
-- **Multi-chain seeds**: prefer a vector of seeds (one per chain).
-
-## Next
-
-- See **Unconditional** and **Conditional** for prediction and diagnostics.
 
 ```{r sessioninfo, include=FALSE}
 sessionInfo()

@@ -68,7 +68,7 @@ the RNG implementation supports \code{n = 1}.}
 }
 \value{
 Spliced density/CDF/RNG functions return numeric scalars.
-  \code{qInvGaussGpd} returns a numeric vector with the same length as \code{p}.
+\code{qInvGaussGpd} returns a numeric vector with the same length as \code{p}.
 }
 \description{
 Splices a generalized Pareto distribution (Gpd) above \code{threshold} onto a

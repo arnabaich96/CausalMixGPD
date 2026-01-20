@@ -12,7 +12,6 @@
 ^pkgdown$
 ^pkgdown/
 ^vignettes/legacy$
-^
 ^vignettes/.*\.html$
 ^vignettes/\.build\.timestamp$
 ^vignettes/legacy-precomputed$
@@ -34,5 +33,6 @@
 ^Rplots\.pdf$
 ^README\.md$
 ^tools/build_coverage_report.R$
+^tools/\.codecov_token$
 ^vignettes/manuscript/
 ^vignettes/manuscript/$

@@ -14,7 +14,6 @@ coverage:
         base: auto
 
 ignore:
-  - "R/zzz.R"
   - "tests/"
   - "inst/"
 

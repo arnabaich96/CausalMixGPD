@@ -134,7 +134,8 @@ params(fit_sb_crp)
 ```
 
 ```{r plot-fit-sb-crp}
-plot(fit_sb_crp, family = c("traceplot", "autocorrelation", "running"))
+plot(fit_sb_crp, params = "location", family = "traceplot")
+plot(fit_sb_crp, params = "scale", family = "caterpillar")
 ```
 
 ```{r predict-mean-sb-crp}
@@ -215,7 +216,8 @@ params(fit_crp_sb)
 ```
 
 ```{r plot-fit-crp-sb}
-plot(fit_crp_sb, family = c("density", "geweke", "caterpillar"))
+plot(fit_crp_sb, params = c("threshold", "tail_shape", "tail_scale"), family = c("caterpillar", "traceplot"))
+plot(fit_crp_sb, params = "location", family = "traceplot")
 ```
 
 ```{r predict-mean-crp-sb}

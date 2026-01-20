@@ -8,10 +8,10 @@ Returns a data frame summarizing each kernel's supported features.}
 kernel_support_table(round = TRUE)
 }
 \arguments{
-\item{round}{Logical; `TRUE` to replace logical values with symbols.}
+\item{round}{Logical; \code{TRUE} to replace logical values with symbols.}
 }
 \value{
-data.frame with columns `kernel`, `gpd`, `covariates`, `sb`, `crp`.
+data.frame with columns \code{kernel}, \code{gpd}, \code{covariates}, \code{sb}, \code{crp}.
 }
 \description{
 Kernel support matrix

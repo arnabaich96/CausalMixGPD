@@ -17,4 +17,3 @@ Invisibly returns the input object.
 \description{
 Print method for mixgpd_fit diagnostic plots
 }
-\keyword{internal}

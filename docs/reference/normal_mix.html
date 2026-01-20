@@ -25,10 +25,73 @@ and evaluate elementwise; r* supports n &amp;gt; 1."></head><body>
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="../articles/index.html">Articles</a></li>
-<li class="nav-item"><a class="nav-link" href="../legacy/index.html">Legacy</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-manual" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Manual</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-manual"><li><a class="dropdown-item" href="../articles/manual-index.html">Manual Overview</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Get Started</h6></li>
+    <li><a class="dropdown-item" href="../articles/introduction.html">Introduction</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>User Guide</h6></li>
+    <li><a class="dropdown-item" href="../articles/distributions.html">Available Distributions</a></li>
+    <li><a class="dropdown-item" href="../articles/model-spec.html">Model Specification</a></li>
+    <li><a class="dropdown-item" href="../articles/mcmc-workflow.html">MCMC Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/unconditional.html">Unconditional Models</a></li>
+    <li><a class="dropdown-item" href="../articles/conditional.html">Conditional Models</a></li>
+    <li><a class="dropdown-item" href="../articles/causal.html">Causal Inference</a></li>
+    <li><a class="dropdown-item" href="../articles/backends.html">Backends (CRP vs SB)</a></li>
+    <li><a class="dropdown-item" href="../articles/reference-s3.html">S3 Methods Reference</a></li>
+  </ul></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-kernels" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Kernels</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-kernels"><li><a class="dropdown-item" href="../articles/kernels-index.html">Kernels Overview</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/kernels/kernel-amoroso.html">Amoroso</a></li>
+    <li><a class="dropdown-item" href="../articles/kernels/kernel-cauchy.html">Cauchy</a></li>
+    <li><a class="dropdown-item" href="../articles/kernels/kernel-gamma.html">Gamma</a></li>
+    <li><a class="dropdown-item" href="../articles/kernels/kernel-invgauss.html">Inverse Gaussian</a></li>
+    <li><a class="dropdown-item" href="../articles/kernels/kernel-laplace.html">Laplace</a></li>
+    <li><a class="dropdown-item" href="../articles/kernels/kernel-lognormal.html">Lognormal</a></li>
+    <li><a class="dropdown-item" href="../articles/kernels/kernel-normal.html">Normal</a></li>
+  </ul></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-legacy" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Legacy</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-legacy"><li><a class="dropdown-item" href="../articles/legacy-index.html">Legacy Overview</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Getting Started</h6></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v00-start-here.html">Start Here</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v01-introduction.html">Introduction</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v02-available-distributions.html">Available Distributions</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Core Concepts</h6></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v03-basic-model-compile-run.html">Basic Model Compile &amp; Run</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v04-backends-and-workflow.html">Backends and Workflow</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Unconditional Models</h6></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v05-unconditional-DPmix-CRP.html">DPmix CRP (v05)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v06-unconditional-DPmix-CRP.html">DPmix CRP Extended (v06)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v07-unconditional-DPmix-SB.html">DPmix SB (v07)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v08-unconditional-DPmixGPD-CRP.html">DPmixGPD CRP (v08)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v09-unconditional-DPmixGPD-SB.html">DPmixGPD SB (v09)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Conditional Models</h6></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v10-conditional-DPmix-CRP.html">DPmix CRP (v10)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v11-conditional-DPmix-SB.html">DPmix SB (v11)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v12-conditional-DPmixGPD-CRP.html">DPmixGPD CRP (v12)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v13-conditional-DPmixGPD-SB.html">DPmixGPD SB (v13)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Causal Inference</h6></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v14-causal-no-x-CRP.html">No Covariates CRP (v14)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v15-causal-x-no-ps-SB.html">With Covariates SB (v15)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v16-causal-same-backend-CRP.html">Same Backend CRP (v16)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v17-causal-same-backend-SB.html">Same Backend SB (v17)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v18-causal-different-backends-CRP.html">Different Backends CRP (v18)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v19-causal-different-backends-SB.html">Different Backends SB (v19)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v20-troubleshooting.html">Troubleshooting (v20)</a></li>
+  </ul></li>
 <li class="nav-item"><a class="nav-link" href="../coverage/index.html">Coverage</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/arnabaich96/DPmixGPD">GitHub</a></li>
       </ul></div>
 
@@ -124,7 +187,7 @@ internally when needed.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Density/CDF/RNG functions return numeric scalars. <code>qNormMix</code> returns a numeric vector
-  with the same length as <code>p</code>.</p>
+with the same length as <code>p</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a></h2>
@@ -142,17 +205,16 @@ internally when needed.</p></dd>
 <span class="r-in"><span><span class="va">sd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.0</span>, <span class="fl">0.7</span>, <span class="fl">1.3</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">dNormMix</span><span class="op">(</span><span class="fl">0.5</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mean</span>, sd <span class="op">=</span> <span class="va">sd</span>, log <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2438468</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dNormMix(0.5, w = w, mean = mean, sd = sd, log = FALSE):</span> could not find function "dNormMix"</span>
 <span class="r-in"><span><span class="fu">pNormMix</span><span class="op">(</span><span class="fl">0.5</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mean</span>, sd <span class="op">=</span> <span class="va">sd</span>,</span></span>
 <span class="r-in"><span>        lower.tail <span class="op">=</span> <span class="cn">TRUE</span>, log.p <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.7035579</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in pNormMix(0.5, w = w, mean = mean, sd = sd, lower.tail = TRUE,     log.p = FALSE):</span> could not find function "pNormMix"</span>
 <span class="r-in"><span><span class="fu">qNormMix</span><span class="op">(</span><span class="fl">0.50</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mean</span>, sd <span class="op">=</span> <span class="va">sd</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.2713211</span>
 <span class="r-in"><span><span class="fu">qNormMix</span><span class="op">(</span><span class="fl">0.95</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mean</span>, sd <span class="op">=</span> <span class="va">sd</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.571684</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rNormMix</span><span class="op">(</span><span class="fl">1</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mean</span>, sd <span class="op">=</span> <span class="va">sd</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -2.24084294 -0.81965065  0.27401683 -0.24524639  0.51408932  0.20787154</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.61336908 -2.08948315 -1.08405889  0.04062087</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in rNormMix(1, w = w, mean = mean, sd = sd):</span> could not find function "rNormMix"</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

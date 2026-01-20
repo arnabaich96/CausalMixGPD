@@ -38,8 +38,8 @@ should be supplied.}
 
 \item{J}{Integer >= 2. Single user-facing truncation parameter:
 \itemize{
-  \item SB: number of mixture components used in stick-breaking truncation
-  \item CRP: maximum number of clusters represented in the finite NIMBLE model
+\item SB: number of mixture components used in stick-breaking truncation
+\item CRP: maximum number of clusters represented in the finite NIMBLE model
 }}
 
 \item{param_specs}{Optional list with entries \code{bulk} and \code{tail} to override defaults.}
@@ -58,12 +58,12 @@ A named list (bundle) of class \code{"dpmixgpd_bundle"}.
 \description{
 Creates a runnable "bundle" containing:
 \itemize{
-  \item compiled model \code{spec}
-  \item \code{nimbleCode} model code
-  \item \code{constants}, \code{data}, explicit \code{dimensions}
-  \item initialization function \code{inits} (stored as a function)
-  \item monitor specification
-  \item MCMC settings list (stored but not used for code generation)
+\item compiled model \code{spec}
+\item \code{nimbleCode} model code
+\item \code{constants}, \code{data}, explicit \code{dimensions}
+\item initialization function \code{inits} (stored as a function)
+\item monitor specification
+\item MCMC settings list (stored but not used for code generation)
 }
 }
 \details{
@@ -71,6 +71,7 @@ This function intentionally stops at the "pre-run" stage (spec/code/constants/da
 Use \code{run_mcmc_bundle_manual()} to execute MCMC with the stored settings.
 }
 \examples{
+\dontrun{
 y <- abs(rnorm(60)) + 0.1
 bundle <- build_nimble_bundle(
   y = y,
@@ -81,4 +82,5 @@ bundle <- build_nimble_bundle(
   mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1, seed = 1)
 )
 bundle
+}
 }

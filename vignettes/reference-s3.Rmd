@@ -1,8 +1,8 @@
 ---
-title: "Reference: S3 methods"
+title: "Reference: S3 Methods"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Reference: S3 methods}
+  %\VignetteIndexEntry{Reference: S3 Methods}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,8 +14,11 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   fig.width = 7,
-  fig.height = 4.5
+  fig.height = 4.5,
+  fig.align = "center"
 )
+library(ggplot2)
+library(kableExtra)
 set.seed(1)
 FAST <- TRUE
 mcmc <- if (FAST) {
@@ -25,11 +28,11 @@ mcmc <- if (FAST) {
 }
 ```
 
-## Goal
+## Overview
 
-This vignette is a quick reference for common S3 methods on a `mixgpd_fit` object.
+This vignette provides a reference for S3 methods on `mixgpd_fit` objects.
 
-## Fit a small model
+## Model Fitting
 
 ```{r}
 library(DPmixGPD)
@@ -46,47 +49,41 @@ bundle <- build_nimble_bundle(
 fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
 ```
 
-## `print()`
+## print()
 
 ```{r}
 print(fit)
 ```
 
-## `summary()`
+## summary()
 
 ```{r}
 summary(fit)
 ```
 
-## `plot()`
+## plot()
 
 ```{r}
 try(plot(fit, family = "trace"), silent = TRUE)
 ```
 
-## `predict()`
+## predict()
 
 ```{r}
-# Mean / median with equal-tailed credible intervals
 predict(fit, type = "mean", cred.level = 0.90, interval = "credible")$fit
 predict(fit, type = "median", cred.level = 0.90, interval = "credible")$fit
-
-# Quantile with HPD (Highest Posterior Density) intervals
 predict(fit, type = "quantile", index = 0.90, cred.level = 0.90, interval = "hpd")$fit
-
-# No intervals (point estimates only)
 predict(fit, type = "quantile", index = 0.90, interval = NULL)$fit
 ```
 
-## `fitted()`
+## fitted()
 
 ```{r}
-# Returns a data.frame with fit, interval, residuals
 f <- fitted(fit, type = "mean", level = 0.90)
 head(f)
 ```
 
-## Object structure
+## Object Structure
 
 ```{r}
 str(fit, max.level = 2)
@@ -94,12 +91,11 @@ str(fit, max.level = 2)
 
 ## Causal S3 Methods
 
-For causal inference workflows, `ate()` and `qte()` return objects with their own S3 methods.
+The `ate()` and `qte()` functions return objects with their own S3 methods.
 
-### Fit a causal model
+### Causal Model Fitting
 
 ```{r}
-# Simulate causal data
 n <- 60
 X <- data.frame(x = rnorm(n))
 T_ind <- rbinom(n, 1, plogis(0.2 + 0.5 * X$x))
@@ -108,7 +104,6 @@ te <- 0.4 + 0.6 * (X$x > 0)
 y1 <- y0 + te
 y <- ifelse(T_ind == 1, y1, y0)
 
-# Build and fit causal bundle
 causal_bundle <- build_causal_bundle(
   y = y,
   X = X,
@@ -128,52 +123,40 @@ causal_fit <- run_mcmc_causal(causal_bundle, show_progress = FALSE)
 ### ATE S3 Methods
 
 ```{r}
-# Compute ATE with HPD intervals
 ate_result <- ate(causal_fit, interval = "hpd", nsim_mean = 50)
-
-# print() method
 print(ate_result)
 ```
 
 ```{r}
-# summary() method
 summary(ate_result)
 ```
 
 ```{r fig.width=7, fig.height=5}
-# plot() method - default returns list with both plots
 ate_plots <- plot(ate_result)
 ate_plots$treatment_effect
 ```
 
 ```{r fig.width=7, fig.height=5}
-# Plot with type parameter
 plot(ate_result, type = "effect")
 ```
 
 ### QTE S3 Methods
 
 ```{r}
-# Compute QTE with HPD intervals
 qte_result <- qte(causal_fit, probs = c(0.1, 0.5, 0.9), interval = "hpd")
-
-# print() method
 print(qte_result)
 ```
 
 ```{r}
-# summary() method
 summary(qte_result)
 ```
 
 ```{r fig.width=7, fig.height=5}
-# plot() method - default returns list with both plots
 qte_plots <- plot(qte_result)
 qte_plots$treatment_effect
 ```
 
 ```{r fig.width=7, fig.height=5}
-# Plot with type parameter
 plot(qte_result, type = "effect")
 ```
 

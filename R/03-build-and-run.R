@@ -39,6 +39,7 @@
 #' @param alpha_random Logical; whether concentration \code{alpha} is stochastic.
 #' @return A named list (bundle) of class \code{"dpmixgpd_bundle"}.
 #' @examples
+#' \dontrun{
 #' y <- abs(rnorm(60)) + 0.1
 #' bundle <- build_nimble_bundle(
 #'   y = y,
@@ -49,6 +50,7 @@
 #'   mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1, seed = 1)
 #' )
 #' bundle
+#' }
 #' @export
 build_nimble_bundle <- function(
     y,
@@ -1795,7 +1797,7 @@ check_dpmixgpd_bundle <- function(bundle) {
 #' Creates a human-readable table describing how each parameter is modeled:
 #' fixed value, prior distribution (no regression), or regression/link (with beta prior),
 #' including the special case where a linked parameter is stochastic around the link
-#' (e.g., threshold[i] ~ Lognormal(meanlog = X beta, sdlog = sdlog_u)).
+#' (e.g., `threshold[i] ~ Lognormal(meanlog = X %*% beta, sdlog = sdlog_u)`).
 #'
 #' This is purely descriptive and is used by bundle-level summaries.
 #'
@@ -1976,6 +1978,7 @@ build_prior_table_from_spec <- function(spec) {
 #' @param show_progress Logical; passed to nimble.
 #' @return A fitted object of class \code{"mixgpd_fit"}.
 #' @examples
+#' \dontrun{
 #' library(nimble)
 #' y <- abs(rnorm(40)) + 0.1
 #' bundle <- build_nimble_bundle(
@@ -1988,6 +1991,7 @@ build_prior_table_from_spec <- function(spec) {
 #' )
 #' fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
 #' fit
+#' }
 #' @export
 run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b

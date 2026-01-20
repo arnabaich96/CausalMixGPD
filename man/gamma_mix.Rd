@@ -51,7 +51,7 @@ internally when needed.}
 }
 \value{
 Density/CDF/RNG functions return numeric scalars. \code{qGammaMix} returns a numeric vector
-  with the same length as \code{p}.
+with the same length as \code{p}.
 }
 \description{
 A finite mixture of Gamma components. Base Gamma functions are taken from \pkg{stats}.

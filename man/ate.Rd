@@ -15,13 +15,13 @@ ate(fit, newdata = NULL, interval = "credible", level = 0.95, nsim_mean = 200L)
 \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
 highest posterior density intervals.}
 
-\item{level}{Numeric credible level for intervals (default 0.95 for 95\% CI).}
+\item{level}{Numeric credible level for intervals (default 0.95 for 95\\% CI).}
 
 \item{nsim_mean}{Number of posterior predictive draws to approximate the mean.}
 }
 \value{
 A list with elements \code{fit} (ATE), optional \code{lower}/\code{upper},
-  and the treated/control prediction objects.
+and the treated/control prediction objects.
 }
 \description{
 Computes treated-minus-control posterior means from a causal fit.

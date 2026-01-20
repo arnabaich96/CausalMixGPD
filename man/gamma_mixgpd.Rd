@@ -69,7 +69,7 @@ qGammaMixGpd(
 }
 \value{
 Spliced density/CDF/RNG functions return numeric scalars. \code{qGammaMixGpd} returns a numeric vector
-  with the same length as \code{p}.
+with the same length as \code{p}.
 }
 \description{
 Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a Gamma mixture bulk.

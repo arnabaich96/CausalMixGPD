@@ -38,7 +38,7 @@ the RNG implementation supports \code{n = 1}.}
 }
 \value{
 \code{dCauchy} returns a numeric scalar density; \code{pCauchy} returns a numeric scalar CDF;
-  \code{rCauchy} returns one random draw; \code{qCauchy} returns a numeric quantile.
+\code{rCauchy} returns one random draw; \code{qCauchy} returns a numeric quantile.
 }
 \description{
 Base Cauchy distribution functions implemented as nimbleFunctions so they can be used

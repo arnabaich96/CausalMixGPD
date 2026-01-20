@@ -118,7 +118,8 @@ params(fit_sb_bulk)
 ```
 
 ```{r plot-fit-sb-bulk}
-plot(fit_sb_bulk, family = c("traceplot", "autocorrelation", "running"))
+plot(fit_sb_bulk, params = "location", family = "traceplot")
+plot(fit_sb_bulk, params = "scale", family = "caterpillar")
 ```
 
 ```{r predict-mean-sb-bulk}
@@ -209,7 +210,8 @@ params(fit_sb_gpd)
 ```
 
 ```{r plot-fit-sb-gpd}
-plot(fit_sb_gpd, family = c("density", "geweke", "caterpillar"))
+plot(fit_sb_gpd, params = c("threshold", "tail_shape", "tail_scale"), family = c("caterpillar", "traceplot"))
+plot(fit_sb_gpd, params = "location", family = "traceplot")
 ```
 
 ```{r predict-mean-sb-gpd}

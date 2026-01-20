@@ -1,34 +1,35 @@
-# Kernel vignette shared setup
-# This file is sourced by all kernel vignettes to provide consistent settings.
+# Kernel vignette shared setup.
+# Sourced by all kernel vignettes for consistent settings.
 
 # Disable knitr caching in non-interactive renders to avoid serializing
 # NIMBLE objects with external pointers (which can break pkgdown builds).
 if (!interactive() && requireNamespace("knitr", quietly = TRUE)) {
-  knitr::opts_chunk$set(cache = FALSE)
+  knitr::opts_chunk$set(cache = FALSE, fig.align = "center")
+} else if (requireNamespace("knitr", quietly = TRUE)) {
+  knitr::opts_chunk$set(fig.align = "center")
 }
 
-# Ensure ggplot2 functions are available in kernel vignettes without
-# requiring each file to attach the package explicitly.
+# Load ggplot2 for plotting.
 if (requireNamespace("ggplot2", quietly = TRUE)) {
   suppressPackageStartupMessages(library(ggplot2))
 }
 
-# kableExtra helpers are used in several vignettes.
+# Load kableExtra for table formatting.
 if (requireNamespace("kableExtra", quietly = TRUE)) {
   suppressPackageStartupMessages(library(kableExtra))
 }
 
-# tibble is used directly in a few vignettes.
+# Load tibble for data manipulation.
 if (requireNamespace("tibble", quietly = TRUE)) {
   suppressPackageStartupMessages(library(tibble))
 }
 
-# gridExtra provides grid.arrange used in some plots.
-if (requireNamespace("gridExtra", quietly = TRUE)) {
-  suppressPackageStartupMessages(library(gridExtra))
+# Load patchwork for combining plots.
+if (requireNamespace("patchwork", quietly = TRUE)) {
+  suppressPackageStartupMessages(library(patchwork))
 }
 
-# dplyr verbs are used in a few tables.
+# Load dplyr for data manipulation.
 if (requireNamespace("dplyr", quietly = TRUE)) {
   suppressPackageStartupMessages(library(dplyr))
 }

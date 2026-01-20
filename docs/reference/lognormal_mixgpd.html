@@ -23,10 +23,73 @@ is the Gpd CDF for exceedances above threshold."></head><body>
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="../articles/index.html">Articles</a></li>
-<li class="nav-item"><a class="nav-link" href="../legacy/index.html">Legacy</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-manual" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Manual</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-manual"><li><a class="dropdown-item" href="../articles/manual-index.html">Manual Overview</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Get Started</h6></li>
+    <li><a class="dropdown-item" href="../articles/introduction.html">Introduction</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>User Guide</h6></li>
+    <li><a class="dropdown-item" href="../articles/distributions.html">Available Distributions</a></li>
+    <li><a class="dropdown-item" href="../articles/model-spec.html">Model Specification</a></li>
+    <li><a class="dropdown-item" href="../articles/mcmc-workflow.html">MCMC Workflow</a></li>
+    <li><a class="dropdown-item" href="../articles/unconditional.html">Unconditional Models</a></li>
+    <li><a class="dropdown-item" href="../articles/conditional.html">Conditional Models</a></li>
+    <li><a class="dropdown-item" href="../articles/causal.html">Causal Inference</a></li>
+    <li><a class="dropdown-item" href="../articles/backends.html">Backends (CRP vs SB)</a></li>
+    <li><a class="dropdown-item" href="../articles/reference-s3.html">S3 Methods Reference</a></li>
+  </ul></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-kernels" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Kernels</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-kernels"><li><a class="dropdown-item" href="../articles/kernels-index.html">Kernels Overview</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/kernels/kernel-amoroso.html">Amoroso</a></li>
+    <li><a class="dropdown-item" href="../articles/kernels/kernel-cauchy.html">Cauchy</a></li>
+    <li><a class="dropdown-item" href="../articles/kernels/kernel-gamma.html">Gamma</a></li>
+    <li><a class="dropdown-item" href="../articles/kernels/kernel-invgauss.html">Inverse Gaussian</a></li>
+    <li><a class="dropdown-item" href="../articles/kernels/kernel-laplace.html">Laplace</a></li>
+    <li><a class="dropdown-item" href="../articles/kernels/kernel-lognormal.html">Lognormal</a></li>
+    <li><a class="dropdown-item" href="../articles/kernels/kernel-normal.html">Normal</a></li>
+  </ul></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-legacy" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Legacy</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-legacy"><li><a class="dropdown-item" href="../articles/legacy-index.html">Legacy Overview</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Getting Started</h6></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v00-start-here.html">Start Here</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v01-introduction.html">Introduction</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v02-available-distributions.html">Available Distributions</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Core Concepts</h6></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v03-basic-model-compile-run.html">Basic Model Compile &amp; Run</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v04-backends-and-workflow.html">Backends and Workflow</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Unconditional Models</h6></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v05-unconditional-DPmix-CRP.html">DPmix CRP (v05)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v06-unconditional-DPmix-CRP.html">DPmix CRP Extended (v06)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v07-unconditional-DPmix-SB.html">DPmix SB (v07)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v08-unconditional-DPmixGPD-CRP.html">DPmixGPD CRP (v08)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v09-unconditional-DPmixGPD-SB.html">DPmixGPD SB (v09)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Conditional Models</h6></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v10-conditional-DPmix-CRP.html">DPmix CRP (v10)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v11-conditional-DPmix-SB.html">DPmix SB (v11)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v12-conditional-DPmixGPD-CRP.html">DPmixGPD CRP (v12)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v13-conditional-DPmixGPD-SB.html">DPmixGPD SB (v13)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Causal Inference</h6></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v14-causal-no-x-CRP.html">No Covariates CRP (v14)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v15-causal-x-no-ps-SB.html">With Covariates SB (v15)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v16-causal-same-backend-CRP.html">Same Backend CRP (v16)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v17-causal-same-backend-SB.html">Same Backend SB (v17)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v18-causal-different-backends-CRP.html">Different Backends CRP (v18)</a></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v19-causal-different-backends-SB.html">Different Backends SB (v19)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="../articles/legacy/v20-troubleshooting.html">Troubleshooting (v20)</a></li>
+  </ul></li>
 <li class="nav-item"><a class="nav-link" href="../coverage/index.html">Coverage</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/arnabaich96/DPmixGPD">GitHub</a></li>
       </ul></div>
 
@@ -154,7 +217,7 @@ is the Gpd CDF for exceedances above <code>threshold</code>.</p>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>Spliced density/CDF/RNG functions return numeric scalars.
-  <code>qLognormalMixGpd</code> returns a numeric vector with the same length as <code>p</code>.</p>
+<code>qLognormalMixGpd</code> returns a numeric vector with the same length as <code>p</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -182,11 +245,11 @@ it uses numerical inversion in the bulk region and the closed-form Gpd quantile 
 <span class="r-in"><span><span class="fu">dLognormalMixGpd</span><span class="op">(</span><span class="fl">4.0</span>, w <span class="op">=</span> <span class="va">w</span>, meanlog <span class="op">=</span> <span class="va">meanlog</span>, sdlog <span class="op">=</span> <span class="va">sdlog</span>,</span></span>
 <span class="r-in"><span>                threshold <span class="op">=</span> <span class="va">threshold</span>, tail_scale <span class="op">=</span> <span class="va">tail_scale</span>,</span></span>
 <span class="r-in"><span>                tail_shape <span class="op">=</span> <span class="va">tail_shape</span>, log <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.03315338</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dLognormalMixGpd(4, w = w, meanlog = meanlog, sdlog = sdlog,     threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape,     log = FALSE):</span> could not find function "dLognormalMixGpd"</span>
 <span class="r-in"><span><span class="fu">pLognormalMixGpd</span><span class="op">(</span><span class="fl">4.0</span>, w <span class="op">=</span> <span class="va">w</span>, meanlog <span class="op">=</span> <span class="va">meanlog</span>, sdlog <span class="op">=</span> <span class="va">sdlog</span>,</span></span>
 <span class="r-in"><span>                threshold <span class="op">=</span> <span class="va">threshold</span>, tail_scale <span class="op">=</span> <span class="va">tail_scale</span>,</span></span>
 <span class="r-in"><span>                tail_shape <span class="op">=</span> <span class="va">tail_shape</span>, lower.tail <span class="op">=</span> <span class="cn">TRUE</span>, log.p <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.9635313</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in pLognormalMixGpd(4, w = w, meanlog = meanlog, sdlog = sdlog,     threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape,     lower.tail = TRUE, log.p = FALSE):</span> could not find function "pLognormalMixGpd"</span>
 <span class="r-in"><span><span class="fu">qLognormalMixGpd</span><span class="op">(</span><span class="fl">0.50</span>, w <span class="op">=</span> <span class="va">w</span>, meanlog <span class="op">=</span> <span class="va">meanlog</span>, sdlog <span class="op">=</span> <span class="va">sdlog</span>,</span></span>
 <span class="r-in"><span>                threshold <span class="op">=</span> <span class="va">threshold</span>, tail_scale <span class="op">=</span> <span class="va">tail_scale</span>,</span></span>
 <span class="r-in"><span>                tail_shape <span class="op">=</span> <span class="va">tail_shape</span><span class="op">)</span></span></span>
@@ -199,8 +262,7 @@ it uses numerical inversion in the bulk region and the closed-form Gpd quantile 
 <span class="r-in"><span>                              threshold <span class="op">=</span> <span class="va">threshold</span>,</span></span>
 <span class="r-in"><span>                              tail_scale <span class="op">=</span> <span class="va">tail_scale</span>,</span></span>
 <span class="r-in"><span>                              tail_shape <span class="op">=</span> <span class="va">tail_shape</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 0.6241338 1.0414840 1.6177531 0.3387945 8.5712332 0.8091717 0.6202308</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 0.9334205 5.7284051 1.9207468</span>
+<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in rLognormalMixGpd(1, w = w, meanlog = meanlog, sdlog = sdlog,     threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape):</span> could not find function "rLognormalMixGpd"</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

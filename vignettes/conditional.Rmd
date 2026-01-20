@@ -1,8 +1,8 @@
 ---
-title: "Conditional models"
+title: "Conditional Models"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Conditional models}
+  %\VignetteIndexEntry{Conditional Models}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -14,8 +14,11 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   fig.width = 7,
-  fig.height = 4.5
+  fig.height = 4.5,
+  fig.align = "center"
 )
+library(ggplot2)
+library(kableExtra)
 set.seed(1)
 FAST <- TRUE
 mcmc <- if (FAST) {
@@ -25,11 +28,11 @@ mcmc <- if (FAST) {
 }
 ```
 
-## Goal
+## Overview
 
-Fit a conditional model (with covariates) and generate predictions on a grid of new covariate values.
+This vignette demonstrates fitting a conditional model with covariates and generating predictions on a grid of new covariate values.
 
-## Simulated data
+## Data Generation
 
 ```{r}
 library(DPmixGPD)
@@ -37,12 +40,10 @@ library(DPmixGPD)
 n <- 120
 x <- rnorm(n)
 X <- data.frame(x = x)
-
-# simple signal + heavy-ish noise
 y <- 0.5 + 0.8 * x + abs(rnorm(n)) + 0.1
 ```
 
-## Fit
+## Model Fitting
 
 ```{r}
 bundle <- build_nimble_bundle(
@@ -59,17 +60,15 @@ fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
 fit
 ```
 
-## Fitted values (training data)
+## Fitted Values
 
 ```{r}
 f <- fitted(fit, type = "mean", level = 0.90)
 head(f)
-
-# residual summary
 summary(f$residuals)
 ```
 
-## Predictions on new data
+## Predictions on New Data
 
 ```{r}
 new_X <- data.frame(x = seq(min(x), max(x), length.out = 25))
@@ -81,7 +80,7 @@ head(pred_mean$fit)
 head(pred_med$fit)
 ```
 
-## Quantile curves
+## Quantile Curves
 
 ```{r}
 q_levels <- c(0.1, 0.5, 0.9)
@@ -89,7 +88,6 @@ q_fits <- lapply(q_levels, function(tau) {
   predict(fit, x = new_X, type = "quantile", index = tau, cred.level = 0.90, interval = "credible")$fit
 })
 
-# Bind into a simple long data.frame for plotting
 q_df <- do.call(rbind, Map(function(tau, df) {
   data.frame(x = new_X$x, tau = tau, estimate = df$estimate, lower = df$lower, upper = df$upper)
 }, q_levels, q_fits))
@@ -98,18 +96,14 @@ head(q_df)
 ```
 
 ```{r}
-# Minimal base plotting to avoid extra dependencies
-plot(q_df$x[q_df$tau == 0.5], q_df$estimate[q_df$tau == 0.5], type = "l",
-     xlab = "x", ylab = "Predicted quantile", main = "Conditional quantile curves")
-lines(q_df$x[q_df$tau == 0.1], q_df$estimate[q_df$tau == 0.1])
-lines(q_df$x[q_df$tau == 0.9], q_df$estimate[q_df$tau == 0.9])
-legend("topleft", legend = paste0("tau=", q_levels), lty = 1, bty = "n")
+ggplot(q_df, aes(x = x, y = estimate, color = factor(tau))) +
+  geom_line(linewidth = 1) +
+  geom_ribbon(aes(ymin = lower, ymax = upper, fill = factor(tau)), alpha = 0.2, color = NA) +
+  labs(x = "x", y = "Predicted Quantile", color = "Quantile", fill = "Quantile",
+       title = "Conditional Quantile Curves") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
 ```
-
-## Notes
-
-- If you see a NIMBLE error mentioning keywords (e.g., `if`), rename covariate columns.
-- Increase `niter` and run multiple chains for serious inference.
 
 ```{r sessioninfo, include=FALSE}
 sessionInfo()

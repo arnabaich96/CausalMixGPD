@@ -43,7 +43,7 @@ the RNG implementation supports \code{n = 1}.}
 }
 \value{
 \code{dGpd} returns a numeric scalar density; \code{pGpd} returns a numeric scalar CDF;
-  \code{rGpd} returns one random draw; \code{qGpd} returns a numeric quantile.
+\code{rGpd} returns one random draw; \code{qGpd} returns a numeric quantile.
 }
 \description{
 Base generalized Pareto distribution (GPD) for threshold exceedances above \code{threshold}.

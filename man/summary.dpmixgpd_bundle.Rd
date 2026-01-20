@@ -18,9 +18,9 @@ An invisible list with elements \code{meta}, \code{priors}, \code{monitors}.
 User-facing summary for pre-run bundles produced by \code{build_nimble_bundle()}.
 This prints:
 \itemize{
-  \item meta information (backend, kernel, components, N, covariates, GPD flag)
-  \item a readable prior/parameter table derived from \code{spec$plan}
-  \item monitor set overview
+\item meta information (backend, kernel, components, N, covariates, GPD flag)
+\item a readable prior/parameter table derived from \code{spec$plan}
+\item monitor set overview
 }
 }
 \examples{

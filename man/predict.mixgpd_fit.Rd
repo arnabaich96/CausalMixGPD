@@ -44,7 +44,7 @@ Used when the model was fit with propensity score augmentation.}
 
 \item{nsim}{Number of posterior predictive samples (for \code{type="sample"}).}
 
-\item{cred.level}{Credible level for credible intervals (default 0.95 for 95\% credible intervals).}
+\item{cred.level}{Credible level for credible intervals (default 0.95 for 95\\% credible intervals).}
 
 \item{interval}{Character or NULL; type of credible interval: \code{NULL} for no interval,
 \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
@@ -62,21 +62,23 @@ highest posterior density intervals.}
 }
 \value{
 A list with elements:
-  \itemize{
-    \item \code{fit}: data frame with \code{estimate}/\code{lower}/\code{upper} columns (posterior means
-      over draws) plus any index columns (e.g. \code{id}, \code{y}, \code{index}).
-    \item \code{lower}, \code{upper}: reserved for backward compatibility (typically \code{NULL}).
-    \item \code{type}, \code{grid}: metadata.
-  }
+\itemize{
+\item \code{fit}: data frame with \code{estimate}/\code{lower}/\code{upper} columns (posterior means
+over draws) plus any index columns (e.g. \code{id}, \code{y}, \code{index}).
+\item \code{lower}, \code{upper}: reserved for backward compatibility (typically \code{NULL}).
+\item \code{type}, \code{grid}: metadata.
+}
 }
 \description{
 This provides a stable interface for distributional predictions.
 The default implementation supports:
-- \code{type="density"} using \code{y}
-- \code{type="survival"} using \code{y}
-- \code{type="quantile"} using \code{p}
-- \code{type="sample"} (posterior predictive draws)
-- \code{type="mean"} (posterior predictive mean)
+\itemize{
+\item \code{type="density"} using \code{y}
+\item \code{type="survival"} using \code{y}
+\item \code{type="quantile"} using \code{p}
+\item \code{type="sample"} (posterior predictive draws)
+\item \code{type="mean"} (posterior predictive mean)
+}
 }
 \details{
 If your object stores dedicated predictive machinery, you can keep this signature

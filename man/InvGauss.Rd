@@ -51,7 +51,7 @@ the RNG implementation supports \code{n = 1}.}
 }
 \value{
 \code{dInvGauss} returns a numeric scalar density; \code{pInvGauss} returns a numeric scalar CDF;
-  \code{rInvGauss} returns one random draw; \code{qinvGauss} returns a numeric quantile.
+\code{rInvGauss} returns one random draw; \code{qinvGauss} returns a numeric quantile.
 }
 \description{
 The inverse Gaussian (also called the Wald distribution) is a positive-support model that is

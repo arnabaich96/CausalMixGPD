@@ -1,8 +1,8 @@
 ---
-title: "Model specification"
+title: "Model Specification"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Model specification}
+  %\VignetteIndexEntry{Model Specification}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -12,20 +12,21 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   message = FALSE,
-  warning = FALSE
+  warning = FALSE,
+  fig.align = "center"
 )
+library(ggplot2)
+library(kableExtra)
 set.seed(1)
 ```
 
-## Goal
+## Overview
 
 This vignette documents the inputs that define a DPmixGPD model and how they map to a compiled NIMBLE bundle.
 
-**Runtime:** fast (no long MCMC).
+## Core Constructor
 
-## The core constructor
-
-Most workflows start with `build_nimble_bundle()`.
+Most workflows begin with `build_nimble_bundle()`.
 
 ```{r}
 library(DPmixGPD)
@@ -46,54 +47,41 @@ bundle <- build_nimble_bundle(
 bundle
 ```
 
-## Key arguments
+## Key Arguments
 
-### `backend`
+```{r, echo=FALSE}
+args_df <- data.frame(
+  Argument = c("backend", "backend", "kernel", "GPD", "GPD"),
+  Value = c("sb", "crp", "(various)", "TRUE", "FALSE"),
+  Description = c(
+    "Stick-breaking mixture (finite truncation)",
+    "Chinese Restaurant Process mixture",
+    "Bulk component family (normal, gamma, lognormal, ...)",
+    "Splice GPD tail beyond threshold",
+    "Bulk-only model"
+  )
+)
 
-- `"sb"`: stick-breaking mixture (finite truncation).
-- `"crp"`: Chinese Restaurant Process mixture.
-
-### `kernel`
-
-Controls the bulk component family (e.g., `"normal"`, `"gamma"`, `"lognormal"`, ...).
-
-### `GPD`
-
-- `TRUE`: splice a GPD tail beyond a threshold.
-- `FALSE`: bulk-only model.
-
-## Conditional vs unconditional
-
-- **Unconditional**: omit `X` (or pass `X = NULL`). Predictions are population-level and replicated across observations.
-- **Conditional**: provide `X`. Predictions are computed per-row of `X`.
-
-## Common input hazards
-
-### Reserved variable names (NIMBLE keywords)
-
-If a covariate column is named `if`, `for`, `while`, etc., NIMBLE compilation fails.
-
-```{r, eval=FALSE}
-X <- data.frame(if = rnorm(40))
-# Fix:
-names(X)[names(X) == "if"] <- "x_if"
+kable(args_df, align = "c", caption = "Model Specification Arguments") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = FALSE, position = "center")
 ```
 
-### Shape checks
+## Model Types
 
-- `length(y)` must equal `nrow(X)` for conditional models.
-- Covariates should be numeric for regression-style links.
+| Type | Specification | Prediction Behavior |
+|------|---------------|---------------------|
+| **Unconditional** | Omit `X` or pass `X = NULL` | Population-level, replicated across observations |
+| **Conditional** | Provide `X` | Computed per-row of `X` |
 
-## Validity and error messages
+## Input Requirements
 
-Good packages fail loudly and early. If your build step does not yet validate inputs, consider adding checks that:
+- For conditional models, `length(y)` must equal `nrow(X)`
+- Covariates must be numeric for regression-style links
+- Covariate names must not use NIMBLE reserved keywords (`if`, `for`, `while`, etc.)
 
-- confirm supported `backend` and `kernel` values,
-- prevent reserved names,
-- validate the `mcmc` list.
-
-## Next
-
-- See **MCMC workflow** for running chains and extracting samples.
-- See **Backends** for SB vs CRP differences.
+```{r, eval=FALSE}
+# Rename reserved keywords
+names(X)[names(X) == "if"] <- "x_if"
+```
 

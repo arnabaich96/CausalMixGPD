@@ -54,8 +54,58 @@ To skip formatting for a commit, set `DPMIXGPD_SKIP_STYLER=1` in your environmen
 
 ## Testing
 
-- Use `testthat` (edition 3). Place tests under `tests/testthat/`.
-- Aim for deterministic tests; mark long-running or stochastic tests with `skip_on_cran()` if applicable.
+DPmixGPD uses a **tiered testing system** to balance thoroughness with speed. For comprehensive documentation, see [tests/testthat/README.md](../tests/testthat/README.md).
+
+### Quick Start
+
+```r
+# Run fast tests (default "cran" level)
+devtools::test()
+
+# Run integration tests including MCMC
+Sys.setenv(DPMIXGPD_TEST_LEVEL = "ci")
+devtools::test()
+
+# Run exhaustive tests (all kernel/backend combinations)
+Sys.setenv(DPMIXGPD_TEST_LEVEL = "full")
+devtools::test()
+```
+
+### Test Tiers
+
+| Level  | What Runs                     | When to Use             |
+|--------|-------------------------------|-------------------------|
+| `cran` | Fast unit tests only          | Development, quick CI   |
+| `ci`   | + MCMC integration tests      | PR validation           |
+| `full` | + Exhaustive kernel combos    | Pre-release             |
+
+### Writing Tests
+
+- Place tests in `tests/testthat/test-*.R`
+- Use `skip_if_not_test_level("ci")` for MCMC-dependent tests
+- Use `skip_if_not_full()` for exhaustive tests
+- Use `mcmc_fast()` helper for minimal MCMC settings
+- Set random seeds for reproducibility
+
+### Coverage
+
+```r
+source("tools/coverage.R")
+
+# Generate local coverage report (default: tests + examples)
+coverage_report()
+
+# Tests only (fastest)
+coverage_report(sources = "tests")
+
+# All sources (tests + examples + vignettes)
+coverage_report(sources = "all")
+
+# Upload to Codecov (requires CODECOV_TOKEN)
+coverage_upload()
+```
+
+Coverage reports are generated at `docs/coverage/`.
 
 ## Reporting Issues
 

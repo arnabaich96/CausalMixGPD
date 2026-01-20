@@ -20,11 +20,11 @@ Invisibly returns the ggplot object.
 Generates type-specific visualizations for prediction objects returned by
 \code{predict.mixgpd_fit()}. Each prediction type produces a tailored plot:
 \itemize{
-  \item \code{quantile}: Quantile indices vs estimates with credible intervals
-  \item \code{sample}: Histogram of samples with density overlay
-  \item \code{mean}: Histogram density with posterior mean vertical line and CI bounds
-  \item \code{density}: Density values vs evaluation points
-  \item \code{survival}: Survival function (decreasing y values)
+\item \code{quantile}: Quantile indices vs estimates with credible intervals
+\item \code{sample}: Histogram of samples with density overlay
+\item \code{mean}: Histogram density with posterior mean vertical line and CI bounds
+\item \code{density}: Density values vs evaluation points
+\item \code{survival}: Survival function (decreasing y values)
 }
 }
 \examples{

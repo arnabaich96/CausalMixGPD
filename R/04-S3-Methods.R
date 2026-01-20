@@ -176,8 +176,7 @@ summary.dpmixgpd_causal_bundle <- function(object, code = FALSE, max_code_lines 
 #' @param max_code_lines Integer; maximum number of code lines to print when \code{code=TRUE}.
 #' @param ... Unused.
 #' @return The input object (invisibly).
-#' @keywords internal
-#' @noRd
+#' @export
 print.dpmixgpd_ps_bundle <- function(x, code = FALSE, max_code_lines = 200L, ...) {
   stopifnot(inherits(x, "dpmixgpd_ps_bundle"))
 
@@ -206,8 +205,7 @@ print.dpmixgpd_ps_bundle <- function(x, code = FALSE, max_code_lines = 200L, ...
   invisible(x)
 }
 
-#' @keywords internal
-#' @noRd
+#' @export
 summary.dpmixgpd_ps_bundle <- function(object, code = FALSE, max_code_lines = 200L, ...) {
   print.dpmixgpd_ps_bundle(object, code = isTRUE(code), max_code_lines = max_code_lines)
   invisible(object)
@@ -273,8 +271,7 @@ summary.dpmixgpd_causal_fit <- function(object, ...) {
 #' @param x A \code{"dpmixgpd_ps_fit"} object.
 #' @param ... Unused.
 #' @return The input object (invisibly).
-#' @keywords internal
-#' @noRd
+#' @export
 print.dpmixgpd_ps_fit <- function(x, ...) {
   stopifnot(inherits(x, "dpmixgpd_ps_fit"))
   cat("DPmixGPD PS fit\n")
@@ -288,8 +285,7 @@ print.dpmixgpd_ps_fit <- function(x, ...) {
   invisible(x)
 }
 
-#' @keywords internal
-#' @noRd
+#' @export
 summary.dpmixgpd_ps_fit <- function(object, ...) {
   print.dpmixgpd_ps_fit(object)
   invisible(object)
@@ -1503,7 +1499,6 @@ plot.dpmixgpd_causal_predict <- function(x, y = NULL, ...) {
 #' print(q)
 #' }
 #' @export
-#' @method print dpmixgpd_qte
 print.dpmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
   stopifnot(inherits(x, "dpmixgpd_qte"))
   `%||%` <- function(a, b) if (!is.null(a)) a else b
@@ -1579,7 +1574,6 @@ print.dpmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
 #' print(a)
 #' }
 #' @export
-#' @method print dpmixgpd_ate
 print.dpmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
   stopifnot(inherits(x, "dpmixgpd_ate"))
   `%||%` <- function(a, b) if (!is.null(a)) a else b
@@ -1654,7 +1648,6 @@ print.dpmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
 #' summary(q)
 #' }
 #' @export
-#' @method summary dpmixgpd_qte
 summary.dpmixgpd_qte <- function(object, ...) {
   stopifnot(inherits(object, "dpmixgpd_qte"))
   `%||%` <- function(a, b) if (!is.null(a)) a else b
@@ -1738,7 +1731,6 @@ summary.dpmixgpd_qte <- function(object, ...) {
 #' @param ... Unused.
 #' @return The object \code{x}, invisibly.
 #' @export
-#' @method print summary.dpmixgpd_qte
 print.summary.dpmixgpd_qte <- function(x, digits = 3, ...) {
   stopifnot(inherits(x, "summary.dpmixgpd_qte"))
 
@@ -1820,7 +1812,6 @@ print.summary.dpmixgpd_qte <- function(x, digits = 3, ...) {
 #' summary(a)
 #' }
 #' @export
-#' @method summary dpmixgpd_ate
 summary.dpmixgpd_ate <- function(object, ...) {
   stopifnot(inherits(object, "dpmixgpd_ate"))
   `%||%` <- function(a, b) if (!is.null(a)) a else b
@@ -1894,7 +1885,6 @@ summary.dpmixgpd_ate <- function(object, ...) {
 #' @param ... Unused.
 #' @return The object \code{x}, invisibly.
 #' @export
-#' @method print summary.dpmixgpd_ate
 print.summary.dpmixgpd_ate <- function(x, digits = 3, ...) {
   stopifnot(inherits(x, "summary.dpmixgpd_ate"))
 
@@ -2311,7 +2301,6 @@ plot.dpmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"), .
 #' @param x Object of class \code{dpmixgpd_causal_predict_plots}.
 #' @param ... Additional arguments (ignored).
 #' @return Invisibly returns the input object.
-#' @keywords internal
 #' @export
 print.dpmixgpd_causal_predict_plots <- function(x, ...) {
   if (is.list(x)) {
@@ -2334,7 +2323,6 @@ print.dpmixgpd_causal_predict_plots <- function(x, ...) {
 #' @param y Ignored; included for S3 compatibility.
 #' @param ... Additional arguments (ignored).
 #' @return Invisibly returns a list with the two plots.
-#' @keywords internal
 #' @export
 plot.mixgpd_fitted <- function(x, y = NULL, ...) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
@@ -2398,7 +2386,6 @@ plot.mixgpd_fitted <- function(x, y = NULL, ...) {
 #' @param x Object of class \code{mixgpd_fitted_plots}.
 #' @param ... Additional arguments (ignored).
 #' @return Invisibly returns the input object.
-#' @keywords internal
 #' @export
 print.mixgpd_fitted_plots <- function(x, ...) {
   print(x$observed_fitted_plot)
@@ -2412,7 +2399,6 @@ print.mixgpd_fitted_plots <- function(x, ...) {
 #' @param x Object of class \code{mixgpd_fit_plots}.
 #' @param ... Additional arguments (ignored).
 #' @return Invisibly returns the input object.
-#' @keywords internal
 #' @export
 print.mixgpd_fit_plots <- function(x, ...) {
   for (plot_name in names(x)) {
@@ -2436,7 +2422,6 @@ print.dpmixgpd_causal_fit_plots <- function(x, ...) {
 #' @param x Object of class \code{mixgpd_predict_plots}.
 #' @param ... Additional arguments (ignored).
 #' @return Invisibly returns the input object.
-#' @keywords internal
 #' @export
 print.mixgpd_predict_plots <- function(x, ...) {
   # Remove custom class to call default print method for the underlying object

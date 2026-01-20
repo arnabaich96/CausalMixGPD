@@ -21,7 +21,7 @@
 
 \item{p}{Quantile level used when \code{type = "quantile"}.}
 
-\item{level}{Credible level for confidence intervals (default 0.95 for 95\% credible intervals).}
+\item{level}{Credible level for confidence intervals (default 0.95 for 95\\% credible intervals).}
 
 \item{interval}{Character or NULL; type of credible interval: \code{NULL} for no interval,
 \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
@@ -32,9 +32,9 @@ highest posterior density intervals.}
 \item{...}{Unused.}
 }
 \value{
-A data frame with columns: 
-  \code{fit} (point estimates), \code{lower} (lower credible bound),
-  \code{upper} (upper credible bound), and \code{residuals} (y - fit).
+A data frame with columns:
+\code{fit} (point estimates), \code{lower} (lower credible bound),
+\code{upper} (upper credible bound), and \code{residuals} (y - fit).
 }
 \description{
 Computes fitted values and residuals on the original training data.

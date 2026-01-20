@@ -123,8 +123,8 @@ params_fit
 ### Diagnostic Plots
 
 ```{r mcmc-diagnostics}
-# Trace plots
-plot(fit, params = "alpha|beta", family = c("traceplot", "running", "autocorrelation"))
+plot(fit, params = "shape", family = "traceplot")
+plot(fit, params = "scale", family = "caterpillar")
 ```
 
 ---
