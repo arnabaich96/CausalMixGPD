@@ -30,6 +30,9 @@
 
 \item{y}{Numeric vector of evaluation points (required for \code{type="density"} or \code{"survival"}).}
 
+\item{ps}{Optional numeric vector of propensity scores for conditional prediction.
+Used when the model was fit with propensity score augmentation.}
+
 \item{newdata}{Optional new data. If \code{NULL}, uses training design (if stored).}
 
 \item{type}{Prediction type: \code{"density"}, \code{"survival"}, \code{"quantile"},

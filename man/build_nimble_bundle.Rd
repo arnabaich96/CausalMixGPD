@@ -24,6 +24,9 @@ build_nimble_bundle(
 
 \item{X}{Optional design matrix/data.frame (N x p) for conditional variants.}
 
+\item{ps}{Optional numeric vector (length N) of propensity scores. When provided,
+augments the design matrix for PS-adjusted outcome modeling.}
+
 \item{backend}{Character; \code{"sb"} (stick-breaking) or \code{"crp"} (Chinese Restaurant Process).}
 
 \item{kernel}{Character kernel name (must exist in \code{get_kernel_registry()}).}

@@ -7,7 +7,7 @@
 .posterior_summarize(
   draws,
   probs = c(0.025, 0.5, 0.975),
-  interval = c("credible", "hpd")
+  interval = "credible"
 )
 }
 \arguments{
