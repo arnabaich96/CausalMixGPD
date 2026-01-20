@@ -32,10 +32,79 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
-<li class="nav-item"><a class="nav-link" href="articles/index.html">Articles</a></li>
-<li class="nav-item"><a class="nav-link" href="legacy/index.html">Legacy</a></li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-manual" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Manual</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-manual">
+<li><a class="dropdown-item" href="articles/manual-index.html">Manual Overview</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Get Started</h6></li>
+    <li><a class="dropdown-item" href="articles/introduction.html">Introduction</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>User Guide</h6></li>
+    <li><a class="dropdown-item" href="articles/distributions.html">Available Distributions</a></li>
+    <li><a class="dropdown-item" href="articles/model-spec.html">Model Specification</a></li>
+    <li><a class="dropdown-item" href="articles/mcmc-workflow.html">MCMC Workflow</a></li>
+    <li><a class="dropdown-item" href="articles/unconditional.html">Unconditional Models</a></li>
+    <li><a class="dropdown-item" href="articles/conditional.html">Conditional Models</a></li>
+    <li><a class="dropdown-item" href="articles/causal.html">Causal Inference</a></li>
+    <li><a class="dropdown-item" href="articles/backends.html">Backends (CRP vs SB)</a></li>
+    <li><a class="dropdown-item" href="articles/reference-s3.html">S3 Methods Reference</a></li>
+  </ul>
+</li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-kernels" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Kernels</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-kernels">
+<li><a class="dropdown-item" href="articles/kernels-index.html">Kernels Overview</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="articles/kernels/kernel-amoroso.html">Amoroso</a></li>
+    <li><a class="dropdown-item" href="articles/kernels/kernel-cauchy.html">Cauchy</a></li>
+    <li><a class="dropdown-item" href="articles/kernels/kernel-gamma.html">Gamma</a></li>
+    <li><a class="dropdown-item" href="articles/kernels/kernel-invgauss.html">Inverse Gaussian</a></li>
+    <li><a class="dropdown-item" href="articles/kernels/kernel-laplace.html">Laplace</a></li>
+    <li><a class="dropdown-item" href="articles/kernels/kernel-lognormal.html">Lognormal</a></li>
+    <li><a class="dropdown-item" href="articles/kernels/kernel-normal.html">Normal</a></li>
+  </ul>
+</li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-legacy" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Legacy</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-legacy">
+<li><a class="dropdown-item" href="articles/legacy-index.html">Legacy Overview</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Getting Started</h6></li>
+    <li><a class="dropdown-item" href="articles/legacy/v00-start-here.html">Start Here</a></li>
+    <li><a class="dropdown-item" href="articles/legacy/v01-introduction.html">Introduction</a></li>
+    <li><a class="dropdown-item" href="articles/legacy/v02-available-distributions.html">Available Distributions</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Core Concepts</h6></li>
+    <li><a class="dropdown-item" href="articles/legacy/v03-basic-model-compile-run.html">Basic Model Compile &amp; Run</a></li>
+    <li><a class="dropdown-item" href="articles/legacy/v04-backends-and-workflow.html">Backends and Workflow</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Unconditional Models</h6></li>
+    <li><a class="dropdown-item" href="articles/legacy/v05-unconditional-DPmix-CRP.html">DPmix CRP (v05)</a></li>
+    <li><a class="dropdown-item" href="articles/legacy/v06-unconditional-DPmix-CRP.html">DPmix CRP Extended (v06)</a></li>
+    <li><a class="dropdown-item" href="articles/legacy/v07-unconditional-DPmix-SB.html">DPmix SB (v07)</a></li>
+    <li><a class="dropdown-item" href="articles/legacy/v08-unconditional-DPmixGPD-CRP.html">DPmixGPD CRP (v08)</a></li>
+    <li><a class="dropdown-item" href="articles/legacy/v09-unconditional-DPmixGPD-SB.html">DPmixGPD SB (v09)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Conditional Models</h6></li>
+    <li><a class="dropdown-item" href="articles/legacy/v10-conditional-DPmix-CRP.html">DPmix CRP (v10)</a></li>
+    <li><a class="dropdown-item" href="articles/legacy/v11-conditional-DPmix-SB.html">DPmix SB (v11)</a></li>
+    <li><a class="dropdown-item" href="articles/legacy/v12-conditional-DPmixGPD-CRP.html">DPmixGPD CRP (v12)</a></li>
+    <li><a class="dropdown-item" href="articles/legacy/v13-conditional-DPmixGPD-SB.html">DPmixGPD SB (v13)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Causal Inference</h6></li>
+    <li><a class="dropdown-item" href="articles/legacy/v14-causal-no-x-CRP.html">No Covariates CRP (v14)</a></li>
+    <li><a class="dropdown-item" href="articles/legacy/v15-causal-x-no-ps-SB.html">With Covariates SB (v15)</a></li>
+    <li><a class="dropdown-item" href="articles/legacy/v16-causal-same-backend-CRP.html">Same Backend CRP (v16)</a></li>
+    <li><a class="dropdown-item" href="articles/legacy/v17-causal-same-backend-SB.html">Same Backend SB (v17)</a></li>
+    <li><a class="dropdown-item" href="articles/legacy/v18-causal-different-backends-CRP.html">Different Backends CRP (v18)</a></li>
+    <li><a class="dropdown-item" href="articles/legacy/v19-causal-different-backends-SB.html">Different Backends SB (v19)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><a class="dropdown-item" href="articles/legacy/v20-troubleshooting.html">Troubleshooting (v20)</a></li>
+  </ul>
+</li>
 <li class="nav-item"><a class="nav-link" href="coverage/index.html">Coverage</a></li>
+<li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/arnabaich96/DPmixGPD">GitHub</a></li>
@@ -46,8 +115,77 @@
   </div>
 </nav><div class="container template-home">
 <div class="row">
-  <main id="main" class="col-md-9">
-Experimental framework for Dirichlet process mixture regression and unconditional models with flexible kernels (gamma, lognormal, normal, Laplace, inverse Gaussian, Amoroso) and optional generalized Pareto (GPD) tail extension.
+  <main id="main" class="col-md-9"><div class="section level1">
+<div class="page-header"><h1 id="dpmixgpd">DPmixGPD<a class="anchor" aria-label="anchor" href="#dpmixgpd"></a>
+</h1></div>
+<p><a href="https://codecov.io/gh/arnabaich96/DPmixGPD_Package" class="external-link"><img src="https://codecov.io/gh/arnabaich96/DPmixGPD_Package/branch/master/graph/badge.svg" alt="Codecov"></a></p>
+<p><strong>DPmixGPD</strong> fits Dirichlet process mixture models (CRP or stick-breaking backends) with an optional Generalized Pareto (GPD) tail, enabling unified modeling of bulk distributions and extreme values with clean, user-friendly prediction APIs.</p>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("remotes")</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"arnabaich96/DPmixGPD"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level2">
+<h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
+</h2>
+<div class="section level3">
+<h3 id="manual">Manual<a class="anchor" aria-label="anchor" href="#manual"></a>
+</h3>
+<p>Comprehensive user documentation:</p>
+<ul>
+<li>
+<a href="https://arnabaich96.github.io/DPmixGPD/articles/manual-index.html"><strong>Manual Overview</strong></a> - Complete guide to using DPmixGPD</li>
+<li>
+<a href="https://arnabaich96.github.io/DPmixGPD/articles/introduction.html"><strong>Introduction</strong></a> - Quick start guide with basic examples</li>
+<li>
+<a href="https://arnabaich96.github.io/DPmixGPD/articles/distributions.html"><strong>Available Distributions</strong></a> - Overview of supported mixture kernels</li>
+<li>
+<a href="https://arnabaich96.github.io/DPmixGPD/articles/model-spec.html"><strong>Model Specification</strong></a> - How to specify models and priors</li>
+<li>
+<a href="https://arnabaich96.github.io/DPmixGPD/articles/mcmc-workflow.html"><strong>MCMC Workflow</strong></a> - Running and diagnosing MCMC chains</li>
+<li>
+<a href="https://arnabaich96.github.io/DPmixGPD/articles/unconditional.html"><strong>Unconditional Models</strong></a> - Density estimation without covariates</li>
+<li>
+<a href="https://arnabaich96.github.io/DPmixGPD/articles/conditional.html"><strong>Conditional Models</strong></a> - Covariate-dependent density estimation</li>
+<li>
+<a href="https://arnabaich96.github.io/DPmixGPD/articles/causal.html"><strong>Causal Inference</strong></a> - Treatment effect estimation with propensity scores</li>
+<li>
+<a href="https://arnabaich96.github.io/DPmixGPD/articles/backends.html"><strong>Backends (CRP vs SB)</strong></a> - Comparing inference approaches</li>
+<li>
+<a href="https://arnabaich96.github.io/DPmixGPD/articles/reference-s3.html"><strong>S3 Methods Reference</strong></a> - Using print, summary, plot, predict, etc.</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="kernels">Kernels<a class="anchor" aria-label="anchor" href="#kernels"></a>
+</h3>
+<ul>
+<li>
+<a href="https://arnabaich96.github.io/DPmixGPD/articles/kernels-index.html"><strong>Kernels Overview</strong></a> - Guide to available mixture kernels</li>
+<li>
+<a href="https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-amoroso.html">Amoroso</a> | <a href="https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-cauchy.html">Cauchy</a> | <a href="https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-gamma.html">Gamma</a> | <a href="https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-invgauss.html">Inverse Gaussian</a> | <a href="https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-laplace.html">Laplace</a> | <a href="https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-lognormal.html">Lognormal</a> | <a href="https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-normal.html">Normal</a>
+</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="legacy">Legacy<a class="anchor" aria-label="anchor" href="#legacy"></a>
+</h3>
+<ul>
+<li>
+<a href="https://arnabaich96.github.io/DPmixGPD/articles/legacy-index.html"><strong>Legacy Documentation</strong></a> - Previous version tutorials and detailed examples</li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="reference">Reference<a class="anchor" aria-label="anchor" href="#reference"></a>
+</h3>
+<ul>
+<li>
+<a href="https://arnabaich96.github.io/DPmixGPD/reference/index.html"><strong>Function Reference</strong></a> - Complete API documentation</li>
+</ul>
+</div>
+</div>
+</div>
   </main><aside class="col-md-3"><div class="links">
 <h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">

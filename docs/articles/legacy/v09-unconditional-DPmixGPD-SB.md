@@ -109,40 +109,6 @@ bundle_sb_gpd <- build_nimble_bundle(
 
 ``` r
 fit_sb_gpd <- load_or_fit("v09-unconditional-DPmixGPD-SB-fit_sb_gpd", run_mcmc_bundle_manual(bundle_sb_gpd))
-```
-
-    [MCMC] Creating NIMBLE model...
-
-    [MCMC] NIMBLE model created successfully.
-    [MCMC] Configuring MCMC...
-    ===== Monitors =====
-    thin = 1: alpha, scale, shape, tail_scale, tail_shape, threshold, w, z
-    ===== Samplers =====
-    RW sampler (18)
-      - alpha
-      - shape[]  (5 elements)
-      - scale[]  (5 elements)
-      - threshold
-      - tail_scale
-      - tail_shape
-      - v[]  (4 elements)
-    categorical sampler (200)
-      - z[]  (200 elements)
-    [MCMC] MCMC configured.
-    [MCMC] Building MCMC object...
-    [MCMC] MCMC object built.
-    [MCMC] Attempting NIMBLE compilation (this may take a minute)...
-    [MCMC] Compiling model...
-
-    [MCMC] Compiling MCMC sampler...
-
-    [MCMC] Compilation successful.
-
-    |-------------|-------------|-------------|-------------|
-    |-------------------------------------------------------|
-    [MCMC] MCMC execution complete. Processing results...
-
-``` r
 summary(fit_sb_gpd)
 ```
 
@@ -240,38 +206,7 @@ bundle_sb_bulk <- build_nimble_bundle(
   mcmc = mcmc
 )
 fit_sb_bulk <- load_or_fit("v09-unconditional-DPmixGPD-SB-fit_sb_bulk", run_mcmc_bundle_manual(bundle_sb_bulk))
-```
 
-    [MCMC] Creating NIMBLE model...
-
-    [MCMC] NIMBLE model created successfully.
-    [MCMC] Configuring MCMC...
-    ===== Monitors =====
-    thin = 1: alpha, location, scale, w, z
-    ===== Samplers =====
-    RW sampler (10)
-      - alpha
-      - location[]  (5 elements)
-      - v[]  (4 elements)
-    conjugate sampler (5)
-      - scale[]  (5 elements)
-    categorical sampler (200)
-      - z[]  (200 elements)
-    [MCMC] MCMC configured.
-    [MCMC] Building MCMC object...
-    [MCMC] MCMC object built.
-    [MCMC] Attempting NIMBLE compilation (this may take a minute)...
-    [MCMC] Compiling model...
-
-    [MCMC] Compiling MCMC sampler...
-
-    [MCMC] Compilation successful.
-
-    |-------------|-------------|-------------|-------------|
-    |-------------------------------------------------------|
-    [MCMC] MCMC execution complete. Processing results...
-
-``` r
 bulk_quant <- predict(fit_sb_bulk, type = "quantile", index = quant_probs)
 t_quant <- predict(fit_sb_gpd, type = "quantile", index = quant_probs)
 
@@ -285,14 +220,14 @@ bind_rows(
   kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
 ```
 
-|   model    | index | estimate | lower | upper |
-|:----------:|:-----:|:--------:|:-----:|:-----:|
-| Bulk-only  | 0.90  |  6.821   |  NA   |  NA   |
-| Bulk-only  | 0.95  |  8.712   |  NA   |  NA   |
-| Bulk-only  | 0.99  |  14.107  |  NA   |  NA   |
-| Bulk + GPD | 0.90  |  4.792   |  NA   |  NA   |
-| Bulk + GPD | 0.95  |  6.579   |  NA   |  NA   |
-| Bulk + GPD | 0.99  |  12.141  |  NA   |  NA   |
+|   model    | index | estimate | lower  | upper  |
+|:----------:|:-----:|:--------:|:------:|:------:|
+| Bulk-only  | 0.90  |  6.821   | 5.393  | 8.681  |
+| Bulk-only  | 0.95  |  8.712   | 6.995  | 10.327 |
+| Bulk-only  | 0.99  |  14.107  | 11.113 | 17.966 |
+| Bulk + GPD | 0.90  |  4.792   | 4.148  | 5.494  |
+| Bulk + GPD | 0.95  |  6.579   | 5.530  | 7.690  |
+| Bulk + GPD | 0.99  |  12.141  | 8.919  | 15.903 |
 
 Quantiles: Bulk-only vs GPD-augmented
 

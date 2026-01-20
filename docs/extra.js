@@ -1,8 +1,8 @@
 /* vignettes/theme-picker.js
-   Full runtime theme editor with persistence
+   Full runtime theme editor with persistence and preset themes
 */
 (function(){
-  const STORAGE_KEY = "pkgdown-runtime-theme-v1";
+  const STORAGE_KEY = "pkgdown-runtime-theme-v2";
 
   const defaults = {
     bg: "#ffffff",
@@ -22,6 +22,42 @@
     lineHeight: 1.6,
     radius: 14,
     space: 1.0
+  };
+
+  // Preset themes - curated color schemes
+  const presets = {
+    "Light (Default)": {
+      bg: "#ffffff", fg: "#111827", muted: "#6b7280", border: "#e5e7eb",
+      primary: "#2a6f97", link: "#2a6f97", codeBg: "#0b1220", codeFg: "#e5e7eb"
+    },
+    "Dark": {
+      bg: "#0f172a", fg: "#f1f5f9", muted: "#94a3b8", border: "#334155",
+      primary: "#38bdf8", link: "#38bdf8", codeBg: "#1e293b", codeFg: "#e2e8f0"
+    },
+    "Ocean": {
+      bg: "#f0f9ff", fg: "#0c4a6e", muted: "#0369a1", border: "#bae6fd",
+      primary: "#0284c7", link: "#0369a1", codeBg: "#082f49", codeFg: "#e0f2fe"
+    },
+    "Forest": {
+      bg: "#f0fdf4", fg: "#14532d", muted: "#166534", border: "#bbf7d0",
+      primary: "#16a34a", link: "#15803d", codeBg: "#052e16", codeFg: "#dcfce7"
+    },
+    "Sunset": {
+      bg: "#fffbeb", fg: "#78350f", muted: "#a16207", border: "#fde68a",
+      primary: "#d97706", link: "#b45309", codeBg: "#451a03", codeFg: "#fef3c7"
+    },
+    "Rose": {
+      bg: "#fff1f2", fg: "#881337", muted: "#be123c", border: "#fecdd3",
+      primary: "#e11d48", link: "#be123c", codeBg: "#4c0519", codeFg: "#ffe4e6"
+    },
+    "Midnight": {
+      bg: "#1a1a2e", fg: "#eaeaea", muted: "#a0a0a0", border: "#16213e",
+      primary: "#e94560", link: "#e94560", codeBg: "#0f0f1a", codeFg: "#d4d4d4"
+    },
+    "Lavender": {
+      bg: "#faf5ff", fg: "#581c87", muted: "#7c3aed", border: "#e9d5ff",
+      primary: "#8b5cf6", link: "#7c3aed", codeBg: "#2e1065", codeFg: "#f3e8ff"
+    }
   };
 
   const googleFontMap = {
@@ -140,25 +176,35 @@
           position: fixed;
           right: 16px;
           bottom: 16px;
-          width: 320px;
-          max-height: 75vh;
+          width: 340px;
+          max-height: 80vh;
           overflow: auto;
           z-index: 9999;
-          background: rgba(255,255,255,.92);
+          background: rgba(255,255,255,.95);
           color: #111827;
           border: 1px solid rgba(0,0,0,.12);
           border-radius: 16px;
           box-shadow: 0 18px 60px rgba(0,0,0,.25);
           backdrop-filter: blur(10px);
-          padding: 12px 12px 10px 12px;
+          padding: 14px 14px 12px 14px;
           display: none;
         }
         [data-rt-open="true"] .rt-panel{ display:block; }
-        .rt-title{ font-weight:700; margin: 4px 0 10px 0; }
+        .rt-title{ font-weight:700; margin: 4px 0 8px 0; font-size: 15px; }
+        .rt-section{ 
+          font-weight: 600; 
+          font-size: 11px; 
+          text-transform: uppercase; 
+          letter-spacing: 0.5px;
+          margin: 14px 0 6px 0; 
+          color: #6b7280;
+          border-bottom: 1px solid rgba(0,0,0,.08);
+          padding-bottom: 4px;
+        }
         .rt-row{ display:flex; align-items:center; gap:10px; margin: 8px 0; }
         .rt-label{ flex: 1; font-size: 12px; opacity:.85; }
-        .rt-row input[type="color"]{ width: 42px; height: 28px; padding:0; border: none; background: transparent; }
-        .rt-row input[type="range"]{ width: 160px; }
+        .rt-row input[type="color"]{ width: 42px; height: 28px; padding:0; border: none; background: transparent; cursor: pointer; }
+        .rt-row input[type="range"]{ width: 120px; }
         .rt-row select, .rt-row input[type="number"]{
           flex: 1;
           font-size: 12px;
@@ -167,7 +213,11 @@
           border: 1px solid rgba(0,0,0,.15);
           background: white;
         }
-        .rt-actions{ display:flex; gap:8px; margin-top: 10px; }
+        #rt-preset{
+          font-weight: 500;
+          background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        }
+        .rt-actions{ display:flex; gap:8px; margin-top: 14px; }
         .rt-actions button{
           flex:1;
           font-size: 12px;
@@ -176,24 +226,33 @@
           border: 1px solid rgba(0,0,0,.15);
           background: white;
           cursor: pointer;
+          font-weight: 500;
         }
-        .rt-actions button:hover{ filter: brightness(.98); }
+        .rt-actions button:hover{ filter: brightness(.97); }
         .rt-fab{
           position: fixed;
           right: 16px;
           bottom: 16px;
           z-index: 9998;
           border-radius: 999px;
-          padding: 10px 12px;
+          padding: 10px 14px;
           border: 1px solid rgba(0,0,0,.12);
-          background: rgba(255,255,255,.92);
+          background: rgba(255,255,255,.95);
           box-shadow: 0 18px 60px rgba(0,0,0,.20);
           backdrop-filter: blur(10px);
           cursor: pointer;
           font-size: 13px;
+          font-weight: 500;
         }
+        .rt-fab:hover{ background: rgba(255,255,255,1); }
       </style>
       <div class="rt-title">Theme Editor</div>
+      <div class="rt-row">
+        <label class="rt-label" style="font-weight:500;">Preset</label>
+        <select id="rt-preset">
+          <option value="">Custom</option>
+        </select>
+      </div>
       <div id="rt-form"></div>
       <div class="rt-actions">
         <button id="rt-close" type="button">Close</button>
@@ -259,24 +318,35 @@
 
     container.innerHTML = "";
 
+    function sectionHeader(text){
+      const h = el("div", {class:"rt-section"});
+      h.textContent = text;
+      return h;
+    }
+
+    container.appendChild(sectionHeader("Colors"));
     container.appendChild(labelRow("Background", colorInput("bg")));
     container.appendChild(labelRow("Text", colorInput("fg")));
     container.appendChild(labelRow("Muted text", colorInput("muted")));
     container.appendChild(labelRow("Border", colorInput("border")));
     container.appendChild(labelRow("Primary", colorInput("primary")));
     container.appendChild(labelRow("Link", colorInput("link")));
-    container.appendChild(labelRow("Code background", colorInput("codeBg")));
-    container.appendChild(labelRow("Code text", colorInput("codeFg")));
 
+    container.appendChild(sectionHeader("Code Blocks"));
+    container.appendChild(labelRow("Background", colorInput("codeBg")));
+    container.appendChild(labelRow("Text", colorInput("codeFg")));
+
+    container.appendChild(sectionHeader("Typography"));
     const fontOptions = Object.keys(googleFontMap);
     container.appendChild(labelRow("Base font", selectInput("baseFont", fontOptions)));
     container.appendChild(labelRow("Heading font", selectInput("headingFont", fontOptions)));
     container.appendChild(labelRow("Mono font", selectInput("monoFont", fontOptions)));
 
+    container.appendChild(sectionHeader("Layout"));
     container.appendChild(labelRow("Base size (px)", rangeInput("baseSize", 12, 22, 1)));
     container.appendChild(labelRow("Line height", rangeInput("lineHeight", 1.2, 2.0, 0.05)));
     container.appendChild(labelRow("Radius (px)", rangeInput("radius", 0, 28, 1)));
-    container.appendChild(labelRow("Spacing x", rangeInput("space", 0.8, 1.6, 0.05)));
+    container.appendChild(labelRow("Spacing", rangeInput("space", 0.8, 1.6, 0.05)));
   }
 
   function syncUI(theme){
@@ -302,14 +372,59 @@
     const form = panel.querySelector("#rt-form");
     buildForm(form, theme);
 
+    // Populate preset dropdown
+    const presetSelect = panel.querySelector("#rt-preset");
+    Object.keys(presets).forEach(name => {
+      const opt = document.createElement("option");
+      opt.value = name;
+      opt.textContent = name;
+      presetSelect.appendChild(opt);
+    });
+
+    // Handle preset selection
+    presetSelect.addEventListener("change", () => {
+      if (presetSelect.value && presets[presetSelect.value]) {
+        // Apply preset colors (keep typography/layout settings)
+        Object.assign(theme, presets[presetSelect.value]);
+        setTheme(theme);
+        syncUI(theme);
+      }
+    });
+
+    // Detect when user customizes after selecting preset
+    function markCustom() {
+      presetSelect.value = "";
+    }
+
+    // Add listeners to color inputs to detect custom changes
+    ["bg","fg","muted","border","primary","link","codeBg","codeFg"].forEach(k => {
+      if(ui[k]) ui[k].addEventListener("input", markCustom);
+    });
+
     function open(){
       document.documentElement.setAttribute("data-rt-open","true");
       panel.setAttribute("aria-hidden","false");
       syncUI(theme);
+      // Try to detect current preset
+      detectCurrentPreset();
     }
     function close(){
       document.documentElement.removeAttribute("data-rt-open");
       panel.setAttribute("aria-hidden","true");
+    }
+
+    function detectCurrentPreset(){
+      // Check if current colors match any preset
+      for(const [name, preset] of Object.entries(presets)){
+        const matches = ["bg","fg","muted","border","primary","link","codeBg","codeFg"].every(
+          k => theme[k] && theme[k].toLowerCase() === preset[k].toLowerCase()
+        );
+        if(matches){
+          presetSelect.value = name;
+          return;
+        }
+      }
+      presetSelect.value = "";
     }
 
     function toggle(){
@@ -338,7 +453,10 @@
     }
 
     panel.querySelector("#rt-close").addEventListener("click", close);
-    panel.querySelector("#rt-reset").addEventListener("click", resetTheme);
+    panel.querySelector("#rt-reset").addEventListener("click", () => {
+      resetTheme();
+      presetSelect.value = "Light (Default)";
+    });
 
     // Close on ESC
     window.addEventListener("keydown", (e) => {

@@ -15,6 +15,7 @@ fitted(
   type = c("location", "mean", "median", "quantile"),
   p = 0.5,
   level = 0.95,
+  interval = "credible",
   seed = 1,
   ...
 )
@@ -39,6 +40,12 @@ fitted(
 
   Credible level for confidence intervals (default 0.95 for 95% credible
   intervals).
+
+- interval:
+
+  Character or NULL; type of credible interval: `NULL` for no interval,
+  `"credible"` for equal-tailed quantile intervals (default), or `"hpd"`
+  for highest posterior density intervals.
 
 - seed:
 
@@ -65,5 +72,7 @@ bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
 fit <- run_mcmc_bundle_manual(bundle)
 fitted(fit)
 fitted(fit, level = 0.90)
+fitted(fit, interval = "hpd")  # HPD intervals
+fitted(fit, interval = NULL)   # No intervals
 } # }
 ```

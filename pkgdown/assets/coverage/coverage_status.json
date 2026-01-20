@@ -1,0 +1,6 @@
+{
+  "percent": null,
+  "timestamp": null,
+  "status": "pending",
+  "message": "Run source('tools/build_coverage_site.R') to generate coverage report"
+}

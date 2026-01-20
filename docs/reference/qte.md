@@ -9,7 +9,8 @@ qte(
   fit,
   probs = c(0.1, 0.5, 0.9),
   newdata = NULL,
-  interval = c("none", "credible")
+  interval = "credible",
+  level = 0.95
 )
 ```
 
@@ -22,7 +23,8 @@ qte(
 
 - probs:
 
-  Numeric vector of probabilities in (0, 1).
+  Numeric vector of probabilities in (0, 1) specifying the quantile
+  levels of the outcome distribution to estimate treatment effects at.
 
 - newdata:
 
@@ -30,8 +32,13 @@ qte(
 
 - interval:
 
-  Credible interval type passed to
-  [`predict()`](https://rdrr.io/r/stats/predict.html).
+  Character or NULL; type of credible interval: `NULL` for no interval,
+  `"credible"` for equal-tailed quantile intervals (default), or `"hpd"`
+  for highest posterior density intervals.
+
+- level:
+
+  Numeric credible level for intervals (default 0.95 for 95% CI).
 
 ## Value
 
@@ -45,5 +52,8 @@ if (FALSE) { # \dontrun{
 cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", J = 6)
 fit <- run_mcmc_causal(cb, show_progress = FALSE)
 qte(fit, probs = c(0.5, 0.9), newdata = X[1:5, ])
+qte(fit, probs = c(0.5, 0.9), interval = "credible", level = 0.90)  # 90% CI
+qte(fit, probs = c(0.5, 0.9), interval = "hpd")  # HPD intervals
+qte(fit, probs = c(0.5, 0.9), interval = NULL)   # No intervals
 } # }
 ```

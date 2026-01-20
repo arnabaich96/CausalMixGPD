@@ -7,6 +7,8 @@
 
 ### Manual
 
+- [Manual
+  Overview](https://arnabaich96.github.io/DPmixGPD/articles/manual-index.md):
 - [Available
   distributions](https://arnabaich96.github.io/DPmixGPD/articles/distributions.md):
 - [Model
@@ -26,23 +28,27 @@
 
 ### Kernels
 
+- [Kernels
+  Overview](https://arnabaich96.github.io/DPmixGPD/articles/kernels-index.md):
 - [Kernel reference:
-  Amoroso](https://arnabaich96.github.io/DPmixGPD/articles/legacy/kernel-amoroso.md):
+  Amoroso](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-amoroso.md):
 - [Kernel reference:
-  Cauchy](https://arnabaich96.github.io/DPmixGPD/articles/legacy/kernel-cauchy.md):
+  Cauchy](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-cauchy.md):
 - [Kernel reference:
-  Gamma](https://arnabaich96.github.io/DPmixGPD/articles/legacy/kernel-gamma.md):
+  Gamma](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-gamma.md):
 - [Kernel reference: Inverse
-  Gaussian](https://arnabaich96.github.io/DPmixGPD/articles/legacy/kernel-invgauss.md):
+  Gaussian](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-invgauss.md):
 - [Kernel reference:
-  Laplace](https://arnabaich96.github.io/DPmixGPD/articles/legacy/kernel-laplace.md):
+  Laplace](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-laplace.md):
 - [Kernel reference:
-  Lognormal](https://arnabaich96.github.io/DPmixGPD/articles/legacy/kernel-lognormal.md):
+  Lognormal](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-lognormal.md):
 - [Kernel reference:
-  Normal](https://arnabaich96.github.io/DPmixGPD/articles/legacy/kernel-normal.md):
+  Normal](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-normal.md):
 
 ### Legacy
 
+- [Legacy
+  Documentation](https://arnabaich96.github.io/DPmixGPD/articles/legacy-index.md):
 - [0. Start
   Here](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v00-start-here.md):
 - [1. Introduction to

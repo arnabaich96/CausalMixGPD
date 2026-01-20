@@ -6,10 +6,12 @@ coverage:
       default:
         target: auto
         threshold: 2%
+        base: auto
     patch:
       default:
         target: auto
         threshold: 2%
+        base: auto
 
 ignore:
   - "R/zzz.R"

@@ -20,7 +20,7 @@ reuse in treatment effects.
   index = NULL,
   nsim = NULL,
   cred.level = 0.95,
-  interval = c("none", "credible"),
+  interval = "credible",
   probs = c(0.025, 0.5, 0.975),
   store_draws = TRUE,
   nsim_mean = 200L,

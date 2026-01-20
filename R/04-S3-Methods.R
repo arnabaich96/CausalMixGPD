@@ -979,7 +979,7 @@ predict.mixgpd_fit <- function(object,
   .validate_fit(object)
 
   type <- match.arg(type)
-  
+
   # Handle interval: NULL means no interval, otherwise match to credible/hpd
   if (!is.null(interval)) {
     interval <- match.arg(interval, choices = c("credible", "hpd"))
@@ -1106,7 +1106,7 @@ predict.mixgpd_fit <- function(object,
 #'   highest posterior density intervals.
 #' @param seed Random seed used for deterministic fitted values.
 #' @param ... Unused.
-#' @return A data frame with columns: 
+#' @return A data frame with columns:
 #'   \code{fit} (point estimates), \code{lower} (lower credible bound),
 #'   \code{upper} (upper credible bound), and \code{residuals} (y - fit).
 #' @examples
@@ -1122,8 +1122,8 @@ predict.mixgpd_fit <- function(object,
 #' fitted(fit, interval = NULL)   # No intervals
 #' }
 #' @export
-fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median", "quantile"), 
-                              p = 0.5, level = 0.95, 
+fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median", "quantile"),
+                              p = 0.5, level = 0.95,
                               interval = "credible",
                               seed = 1, ...) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
@@ -1391,7 +1391,7 @@ plot.dpmixgpd_causal_predict <- function(x, y = NULL, ...) {
 
   .x_axis <- function(ps_vec) {
     if (is.null(ps_vec) || !any(is.finite(ps_vec))) {
-      list(x = seq_len(length(ps_vec)), label = "Index")
+      list(x = seq_along(ps_vec), label = "Index")
     } else {
       list(x = ps_vec, label = "Estimated PS")
     }
@@ -1517,7 +1517,7 @@ print.dpmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
   cat("QTE (Quantile Treatment Effect)\n")
   cat(sprintf("  Prediction points: %d\n", n_pred))
   cat(sprintf("  Quantile grid: %s\n", paste(round(probs, digits), collapse = ", ")))
-  
+
   has_x <- !is.null(x$x)
   ps_used <- !is.null(x$ps) && any(is.finite(x$ps))
   cat(sprintf("  Conditional (covariates): %s\n", if (has_x) "YES" else "NO"))
@@ -1539,7 +1539,7 @@ print.dpmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
     show_df$estimate <- round(show_df$estimate, digits)
     if ("lower" %in% names(show_df)) show_df$lower <- round(show_df$lower, digits)
     if ("upper" %in% names(show_df)) show_df$upper <- round(show_df$upper, digits)
-    
+
     if (nrow(show_df) > max_rows) {
       print(utils::head(show_df, max_rows), row.names = FALSE)
       cat(sprintf("... (%d more rows)\n", nrow(show_df) - max_rows))
@@ -1592,7 +1592,7 @@ print.dpmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
 
   cat("ATE (Average Treatment Effect)\n")
   cat(sprintf("  Prediction points: %d\n", n_pred))
-  
+
   has_x <- !is.null(x$x)
   ps_used <- !is.null(x$ps) && any(is.finite(x$ps))
   cat(sprintf("  Conditional (covariates): %s\n", if (has_x) "YES" else "NO"))
@@ -1617,7 +1617,7 @@ print.dpmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
     show_df$estimate <- round(show_df$estimate, digits)
     if ("lower" %in% names(show_df)) show_df$lower <- round(show_df$lower, digits)
     if ("upper" %in% names(show_df)) show_df$upper <- round(show_df$upper, digits)
-    
+
     if (nrow(show_df) > max_rows) {
       print(utils::head(show_df, max_rows), row.names = FALSE)
       cat(sprintf("... (%d more rows)\n", nrow(show_df) - max_rows))
@@ -1749,7 +1749,7 @@ print.summary.dpmixgpd_qte <- function(x, digits = 3, ...) {
   cat(paste(rep("=", 50), collapse = ""), "\n")
   cat(sprintf("Prediction points: %d | Quantiles: %d\n", ov$n_pred, ov$n_quantiles))
   cat(sprintf("Quantile grid: %s\n", paste(round(ov$quantiles, digits), collapse = ", ")))
-  cat(sprintf("Conditional: %s | PS used: %s\n", 
+  cat(sprintf("Conditional: %s | PS used: %s\n",
               if (ov$has_covariates) "YES" else "NO",
               if (ov$ps_used) "YES" else "NO"))
   cat(sprintf("Interval: %s", ov$interval))
@@ -1762,11 +1762,11 @@ print.summary.dpmixgpd_qte <- function(x, digits = 3, ...) {
   if (!is.null(meta$backend) || !is.null(meta$kernel)) {
     cat("Model specification:\n")
     if (!is.null(meta$backend)) {
-      cat(sprintf("  Backend (trt/con): %s / %s\n", 
+      cat(sprintf("  Backend (trt/con): %s / %s\n",
                   meta$backend$trt %||% "?", meta$backend$con %||% "?"))
     }
     if (!is.null(meta$kernel)) {
-      cat(sprintf("  Kernel (trt/con): %s / %s\n", 
+      cat(sprintf("  Kernel (trt/con): %s / %s\n",
                   meta$kernel$trt %||% "?", meta$kernel$con %||% "?"))
     }
     if (!is.null(meta$GPD)) {

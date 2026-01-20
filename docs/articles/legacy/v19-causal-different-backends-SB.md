@@ -357,18 +357,113 @@ plot(pred_surv_sb_crp)
 ``` r
 ate_sb_crp <- ate(fit_sb_crp, newdata = x_eval,
                   interval = "credible", nsim_mean = 100)
-plot(ate_sb_crp)
+print(ate_sb_crp)
 ```
 
-![](v19-causal-different-backends-SB_files/figure-html/ate-sb-crp-1.png)![](v19-causal-different-backends-SB_files/figure-html/ate-sb-crp-2.png)
+    ATE (Average Treatment Effect)
+      Prediction points: 40
+      Conditional (covariates): YES
+      Propensity score used: NO
+      Posterior mean draws: 100
+      Credible interval: credible (95%)
+
+    ATE estimates (treated - control):
+     id     estimate   lower upper
+      1 2.581014e+07 -10.058 1.968
+      2 4.689608e+18 -11.367 3.807
+      3 6.748636e+27  -8.916 1.752
+      4 5.608703e+12 -10.455 2.148
+      5 7.337398e+18 -12.359 2.499
+      6 1.863384e+09  -8.680 2.809
+    ... (34 more rows)
+
+``` r
+summary(ate_sb_crp)
+```
+
+    ATE Summary
+    ================================================== 
+    Prediction points: 40
+    Conditional: YES | PS used: NO
+    Posterior mean draws: 100
+    Interval: credible (95%)
+
+    Model specification:
+      Backend (trt/con): sb / crp
+      Kernel (trt/con): amoroso / amoroso
+      GPD tail (trt/con): YES / YES
+
+    ATE statistics:
+      Mean: 7.46634083157349e+31 | Median: 1.11937649685337e+22
+      Range: [25810139.203, 2.97090867303624e+33]
+      SD: 4.69683170335436e+32
+
+    Credible interval width:
+      Mean: 13.236 | Median: 12.569
+      Range: [9.751, 20.666]
+
+``` r
+ate_plots_sb_crp <- plot(ate_sb_crp)
+ate_plots_sb_crp$treatment_effect
+```
+
+![](v19-causal-different-backends-SB_files/figure-html/unnamed-chunk-1-1.png)
 
 ``` r
 qte_sb_crp <- qte(fit_sb_crp, probs = c(0.25, 0.5, 0.75),
                   newdata = x_eval, interval = "credible")
-plot(qte_sb_crp)
+print(qte_sb_crp)
 ```
 
-![](v19-causal-different-backends-SB_files/figure-html/qte-sb-crp-1.png)![](v19-causal-different-backends-SB_files/figure-html/qte-sb-crp-2.png)
+    QTE (Quantile Treatment Effect)
+      Prediction points: 40
+      Quantile grid: 0.25, 0.5, 0.75
+      Conditional (covariates): YES
+      Propensity score used: NO
+      Credible interval: credible (95%)
+
+    QTE estimates (treated - control):
+     index id estimate   lower upper
+      0.25  1   -1.237  -9.456 0.507
+      0.25  2   -2.178  -9.763 0.913
+      0.25  3   -1.848  -7.410 0.407
+      0.25  4   -2.499  -8.852 0.469
+      0.25  5   -2.607 -10.749 0.536
+      0.25  6   -0.522  -7.722 0.707
+    ... (114 more rows)
+
+``` r
+summary(qte_sb_crp)
+```
+
+    QTE Summary
+    ================================================== 
+    Prediction points: 40 | Quantiles: 3
+    Quantile grid: 0.25, 0.5, 0.75
+    Conditional: YES | PS used: NO
+    Interval: credible (95%)
+
+    Model specification:
+      Backend (trt/con): sb / crp
+      Kernel (trt/con): amoroso / amoroso
+      GPD tail (trt/con): YES / YES
+
+    QTE by quantile:
+     quantile mean_qte median_qte min_qte max_qte sd_qte
+         0.25   -1.673     -1.634  -3.787  -0.522  0.757
+         0.50   -2.004     -1.983  -4.369  -0.644  0.841
+         0.75   -2.155     -2.074  -4.982  -0.360  1.051
+
+    Credible interval width:
+      Mean: 10.506 | Median: 10.119
+      Range: [5.913, 21.099]
+
+``` r
+qte_plots_sb_crp <- plot(qte_sb_crp)
+qte_plots_sb_crp$treatment_effect
+```
+
+![](v19-causal-different-backends-SB_files/figure-html/unnamed-chunk-2-1.png)
 
 ------------------------------------------------------------------------
 
@@ -646,15 +741,110 @@ plot(pred_surv_crp_sb)
 ``` r
 ate_crp_sb <- ate(fit_crp_sb, newdata = x_eval,
                   interval = "credible", nsim_mean = 100)
-plot(ate_crp_sb)
+print(ate_crp_sb)
 ```
 
-![](v19-causal-different-backends-SB_files/figure-html/ate-crp-sb-1.png)![](v19-causal-different-backends-SB_files/figure-html/ate-crp-sb-2.png)
+    ATE (Average Treatment Effect)
+      Prediction points: 40
+      Conditional (covariates): YES
+      Propensity score used: NO
+      Posterior mean draws: 100
+      Credible interval: credible (95%)
+
+    ATE estimates (treated - control):
+     id      estimate  lower upper
+      1 -3.399077e+76 -1.235 2.177
+      2 -6.082183e+03 -2.059 1.672
+      3 -2.053348e+70 -0.801 2.558
+      4 -4.897980e+66 -0.806 2.869
+      5 -1.524862e+56 -0.803 3.410
+      6 -9.169515e+91 -2.334 1.327
+    ... (34 more rows)
+
+``` r
+summary(ate_crp_sb)
+```
+
+    ATE Summary
+    ================================================== 
+    Prediction points: 40
+    Conditional: YES | PS used: NO
+    Posterior mean draws: 100
+    Interval: credible (95%)
+
+    Model specification:
+      Backend (trt/con): crp / sb
+      Kernel (trt/con): amoroso / amoroso
+      GPD tail (trt/con): YES / YES
+
+    ATE statistics:
+      Mean: -6.04065080680751e+96 | Median: -7363264.563
+      Range: [-2.41625940577152e+98, 0.702]
+      SD: 3.8204415328467e+97
+
+    Credible interval width:
+      Mean: 3.718 | Median: 3.653
+      Range: [3.281, 5.508]
+
+``` r
+ate_plots_crp_sb <- plot(ate_crp_sb)
+ate_plots_crp_sb$treatment_effect
+```
+
+![](v19-causal-different-backends-SB_files/figure-html/unnamed-chunk-3-1.png)
 
 ``` r
 qte_crp_sb <- qte(fit_crp_sb, probs = c(0.25, 0.5, 0.75),
                   newdata = x_eval, interval = "credible")
-plot(qte_crp_sb)
+print(qte_crp_sb)
 ```
 
-![](v19-causal-different-backends-SB_files/figure-html/qte-crp-sb-1.png)![](v19-causal-different-backends-SB_files/figure-html/qte-crp-sb-2.png)
+    QTE (Quantile Treatment Effect)
+      Prediction points: 40
+      Quantile grid: 0.25, 0.5, 0.75
+      Conditional (covariates): YES
+      Propensity score used: NO
+      Credible interval: credible (95%)
+
+    QTE estimates (treated - control):
+     index id estimate  lower upper
+      0.25  1    0.784 -0.143 2.313
+      0.25  2    0.904 -0.181 2.601
+      0.25  3    1.066  0.131 2.572
+      0.25  4    1.352  0.263 3.099
+      0.25  5    1.242  0.112 2.937
+      0.25  6    0.577 -0.378 2.134
+    ... (114 more rows)
+
+``` r
+summary(qte_crp_sb)
+```
+
+    QTE Summary
+    ================================================== 
+    Prediction points: 40 | Quantiles: 3
+    Quantile grid: 0.25, 0.5, 0.75
+    Conditional: YES | PS used: NO
+    Interval: credible (95%)
+
+    Model specification:
+      Backend (trt/con): crp / sb
+      Kernel (trt/con): amoroso / amoroso
+      GPD tail (trt/con): YES / YES
+
+    QTE by quantile:
+     quantile mean_qte median_qte min_qte max_qte sd_qte
+         0.25    0.920      0.912   0.490   1.527  0.235
+         0.50    0.975      1.108  -0.258   1.851  0.503
+         0.75    0.538      0.791  -2.206   2.117  1.032
+
+    Credible interval width:
+      Mean: 2.797 | Median: 2.641
+      Range: [2.419, 5.927]
+
+``` r
+qte_plots_crp_sb <- plot(qte_crp_sb)
+qte_plots_crp_sb$treatment_effect
+```
+
+![](v19-causal-different-backends-SB_files/figure-html/unnamed-chunk-4-1.png)

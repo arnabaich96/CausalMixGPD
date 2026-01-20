@@ -371,12 +371,12 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
   ps_summary <- bundle$meta$ps_summary %||% "mean"
   ps_scale <- bundle$meta$ps_scale %||% "logit"
   ps_clamp <- bundle$meta$ps_clamp %||% 1e-6
-  
+
   ps_fit <- NULL
   ps_hat <- NULL
   ps_cov <- NULL
   ps_model <- NULL
-  
+
   if (ps_enabled) {
     ps_fit <- .run_ps_mcmc_bundle(bundle$design, show_progress = show_progress)
     ps_training_X <- bundle$data$X
@@ -385,7 +385,7 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
     }
     ps_training_X <- if (is.matrix(ps_training_X)) ps_training_X else as.matrix(ps_training_X)
     storage.mode(ps_training_X) <- "double"
-    
+
     # Compute propensity scores and assign to outcome data
     ps_hat <- .compute_ps_from_fit(
       ps_fit = ps_fit,
@@ -399,7 +399,7 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
     idx_trt <- bundle$index$trt
     bundle$outcome$con$data$ps <- ps_cov[idx_con]
     bundle$outcome$trt$data$ps <- ps_cov[idx_trt]
-    
+
     # Prepare PS model for downstream prediction
     ps_model <- list(
       fit = ps_fit,
@@ -470,7 +470,7 @@ qte <- function(fit,
                 interval = "credible",
                 level = 0.95) {
   stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
-  
+
   # Handle interval: NULL means no interval, otherwise match to credible/hpd
   compute_interval <- TRUE
   if (is.null(interval)) {
@@ -479,7 +479,7 @@ qte <- function(fit,
   } else {
     interval <- match.arg(interval, choices = c("credible", "hpd"))
   }
-  
+
   # Validate level parameter
   if (!is.numeric(level) || length(level) != 1 || level <= 0 || level >= 1) {
     stop("'level' must be a numeric value between 0 and 1.", call. = FALSE)
@@ -497,7 +497,7 @@ qte <- function(fit,
   if (!is.null(x_pred) && ps_enabled) {
     ps_fit_use <- fit$ps_fit
     ps_bundle_use <- fit$bundle$design
-    
+
     # Fallback: try to retrieve PS model from outcome fits if causal fit missing it
     if (is.null(ps_fit_use)) {
       ps_model_try <- (fit$outcome_fit$trt$ps_model %||% fit$outcome_fit$con$ps_model %||% NULL)
@@ -506,7 +506,7 @@ qte <- function(fit,
         ps_bundle_use <- ps_model_try$bundle
       }
     }
-    
+
     # If PS model is still unavailable, warn and proceed without PS
     if (is.null(ps_fit_use) || is.null(ps_bundle_use)) {
       warning("Causal fit missing PS model; proceeding without PS adjustment.", call. = FALSE)
@@ -646,7 +646,7 @@ ate <- function(fit,
                 level = 0.95,
                 nsim_mean = 200L) {
   stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
-  
+
   # Handle interval: NULL means no interval, otherwise match to credible/hpd
   compute_interval <- TRUE
   if (is.null(interval)) {
@@ -655,12 +655,12 @@ ate <- function(fit,
   } else {
     interval <- match.arg(interval, choices = c("credible", "hpd"))
   }
-  
+
   # Validate level parameter
   if (!is.numeric(level) || length(level) != 1 || level <= 0 || level >= 1) {
     stop("'level' must be a numeric value between 0 and 1.", call. = FALSE)
   }
-  
+
   x_pred <- newdata %||% (fit$bundle$data$X %||% NULL)
 
   ps_meta <- fit$bundle$meta$ps %||% list()
@@ -674,7 +674,7 @@ ate <- function(fit,
   if (!is.null(x_pred) && ps_enabled) {
     ps_fit_use <- fit$ps_fit
     ps_bundle_use <- fit$bundle$design
-    
+
     # Fallback: try to retrieve PS model from outcome fits if causal fit missing it
     if (is.null(ps_fit_use)) {
       ps_model_try <- (fit$outcome_fit$trt$ps_model %||% fit$outcome_fit$con$ps_model %||% NULL)
@@ -683,7 +683,7 @@ ate <- function(fit,
         ps_bundle_use <- ps_model_try$bundle
       }
     }
-    
+
     # If PS model is still unavailable, warn and proceed without PS
     if (is.null(ps_fit_use) || is.null(ps_bundle_use)) {
       warning("Causal fit missing PS model; proceeding without PS adjustment.", call. = FALSE)
@@ -836,7 +836,7 @@ predict.dpmixgpd_causal_fit <- function(object,
   if (!is.null(newdata)) x <- newdata
 
   type <- match.arg(type)
-  
+
   # Handle interval: NULL means no interval, otherwise match to credible/hpd
   if (!is.null(interval)) {
     interval <- match.arg(interval, choices = c("credible", "hpd"))
@@ -1113,7 +1113,7 @@ predict.dpmixgpd_causal_fit <- function(object,
   }
 
   constants <- list(N = N, P = P)
-  
+
   # Set model-specific constants, data, inits, and monitors
   if (model %in% c("logit", "probit")) {
     constants$beta_mean <- as.numeric(spec$prior$mean %||% 0)
@@ -1146,11 +1146,11 @@ predict.dpmixgpd_causal_fit <- function(object,
   }
 
   # Store model type for downstream PS computation
-  model_type_name <- if (model == "logit") "ps_logit" 
-                     else if (model == "probit") "ps_probit" 
+  model_type_name <- if (model == "logit") "ps_logit"
+                     else if (model == "probit") "ps_probit"
                      else if (model == "naive") "ps_naive"
                      else "ps_unknown"
-  
+
   bundle <- list(
     spec = list(
       meta = list(type = model_type_name, include_intercept = isTRUE(spec$include_intercept)),
@@ -1243,7 +1243,7 @@ predict.dpmixgpd_causal_fit <- function(object,
   summary <- match.arg(summary)
   model_type <- ps_bundle$spec$model %||% "logit"
   samples <- as.matrix(ps_fit$mcmc$samples)
-  
+
   if (model_type %in% c("logit", "probit")) {
     # Linear model PS: logit or probit
     design <- .ps_design_matrix(ps_bundle, X_new)
@@ -1261,7 +1261,7 @@ predict.dpmixgpd_causal_fit <- function(object,
 
     # Determine inverse link function
     inv_link <- if (model_type == "logit") plogis else if (model_type == "probit") pnorm else plogis
-    
+
     # Posterior predictive PS: average inverse link over beta draws
     eta <- beta_mat %*% t(design)  # S x n_pred
     ps_draws <- inv_link(eta)
@@ -1275,7 +1275,7 @@ predict.dpmixgpd_causal_fit <- function(object,
       ps_vec <- pmin(pmax(ps_vec, eps), 1 - eps)
     }
     ps_vec
-    
+
   } else if (model_type == "naive") {
     # Naive Bayes: use Bayes rule with learned feature distributions
     X_new <- as.matrix(X_new)
@@ -1302,58 +1302,58 @@ predict.dpmixgpd_causal_fit <- function(object,
 
     n_pred <- nrow(X_new)
     S <- nrow(samples)  # Number of MCMC iterations
-    
+
     # Extract posterior samples
     pi_cols <- grep("^pi_prior$", colnames(samples), value = TRUE)
     mu_cols <- grep("^mu\\[", colnames(samples), value = TRUE)
     sigma_cols <- grep("^sigma\\[", colnames(samples), value = TRUE)
-    
+
     if (!length(pi_cols) || !length(mu_cols) || !length(sigma_cols)) {
       stop("Naive Bayes PS samples missing (pi_prior, mu, or sigma).", call. = FALSE)
     }
-    
+
     # Extract samples as matrices
     pi_samples <- samples[, pi_cols, drop = FALSE]
     mu_samples <- samples[, mu_cols, drop = FALSE]
     sigma_samples <- samples[, sigma_cols, drop = FALSE]
-    
+
     # Initialize PS matrix
     ps_draws <- matrix(0, nrow = S, ncol = n_pred)
-    
+
     # For each posterior sample, compute P(T=1|X) using Bayes rule
     for (s in 1:S) {
       pi_prior <- pi_samples[s, 1]  # P(T=1)
-      
+
       # Reshape mu and sigma from samples to (K=2, P) matrices
       # mu and sigma are stored as mu[1,1], mu[1,2], ..., mu[2,1], mu[2,2], ...
       P <- ncol(X_new)
       mu_mat <- matrix(mu_samples[s, ], nrow = 2, ncol = P, byrow = FALSE)
       sigma_mat <- matrix(sigma_samples[s, ], nrow = 2, ncol = P, byrow = FALSE)
-      
+
       # Compute likelihood P(X|T=k) for each treatment group
       # Using independence: P(X|T) = prod_j P(X_j|T)
       log_lik_t0 <- matrix(0, nrow = n_pred, ncol = P)
       log_lik_t1 <- matrix(0, nrow = n_pred, ncol = P)
-      
+
       for (j in 1:P) {
         log_lik_t0[, j] <- dnorm(X_new[, j], mean = mu_mat[1, j], sd = sigma_mat[1, j], log = TRUE)
         log_lik_t1[, j] <- dnorm(X_new[, j], mean = mu_mat[2, j], sd = sigma_mat[2, j], log = TRUE)
       }
-      
+
       # Sum across features (log scale)
       log_lik_t0_sum <- rowSums(log_lik_t0)
       log_lik_t1_sum <- rowSums(log_lik_t1)
-      
+
       # Apply Bayes rule: P(T=1|X) = P(X|T=1)P(T=1) / [P(X|T=1)P(T=1) + P(X|T=0)P(T=0)]
       # Using log-sum-exp trick for numerical stability
       log_post_t0 <- log(1 - pi_prior) + log_lik_t0_sum
       log_post_t1 <- log(pi_prior) + log_lik_t1_sum
-      
+
       # Convert back from log scale
       max_log <- pmax(log_post_t0, log_post_t1)
       ps_draws[s, ] <- exp(log_post_t1 - max_log) / (exp(log_post_t0 - max_log) + exp(log_post_t1 - max_log))
     }
-    
+
     ps_vec <- if (summary == "mean") {
       colMeans(ps_draws)
     } else {

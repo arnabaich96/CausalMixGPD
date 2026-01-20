@@ -45,11 +45,8 @@ build_nimble_bundle(
 
 - ps:
 
-  Numeric vector of estimated propensity scores (length N) used as a
-  covariate when constructing link-mode predictors. Mandatory for causal
-  inference models (with two treatment arms). When provided,
-  `beta_ps_<param>` coefficient vectors are added for each link-mode
-  bulk parameter; priors can be customized via `param_specs$ps`.
+  Optional numeric vector (length N) of propensity scores. When
+  provided, augments the design matrix for PS-adjusted outcome modeling.
 
 - backend:
 
@@ -81,8 +78,7 @@ build_nimble_bundle(
 
 - param_specs:
 
-  Optional list with entries `bulk`, `tail`, and `ps` to override
-  defaults.
+  Optional list with entries `bulk` and `tail` to override defaults.
 
 - mcmc:
 
