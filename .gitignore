@@ -45,3 +45,6 @@ vignettes/legacy/articles/legacy-precomputed/
 
 # Ignore local temporary folder
 .tmp/
+
+# Codecov token (secret - do not commit)
+tools/.codecov_token

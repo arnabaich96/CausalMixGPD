@@ -229,7 +229,7 @@ We keep the example light enough to render quickly, but in real analysis users s
 \begin{verbatim}
 ## MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: TRUE
 ## n = 80 | components = 8 | epsilon = 0.025
-## MCMC: niter=2000, nburnin=500, thin=2, nchains=1 
+## MCMC: niter=2000, nburnin=500, thin=2, nchains=1
 ## Fit
 ## Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 \end{verbatim}
@@ -241,10 +241,10 @@ We keep the example light enough to render quickly, but in real analysis users s
 ## n = 80 | components = 8
 ## Summary
 ## Initial components: 8 | Components after truncation: 1
-## 
+##
 ## WAIC: 105.296
 ## lppd: -50.816 | pWAIC: 1.832
-## 
+##
 ## Summary table
 ##   parameter   mean    sd q0.025 q0.500 q0.975     ess
 ##  weights[1]  0.943 0.115  0.537  1.000  1.000   8.989
@@ -276,19 +276,19 @@ Exact return formats depend on the package version; the goal below is to demonst
 ## 1 1.769000  0.90 1.503608 2.084883
 ## 2 2.126957  0.95 1.807205 2.603623
 ## 3 2.813156  0.99 2.291959 3.877913
-## 
+##
 ## $lower
 ## NULL
-## 
+##
 ## $upper
 ## NULL
-## 
+##
 ## $type
 ## [1] "quantile"
-## 
+##
 ## $grid
 ## [1] 0.90 0.95 0.99
-## 
+##
 ## $draws
 ##          [,1]     [,2]     [,3]     [,4]     [,5]     [,6]     [,7]     [,8]
 ## [1,] 1.635421 1.808567 1.975137 1.810814 1.749452 1.711951 1.607117 1.623328
@@ -666,7 +666,7 @@ Exact return formats depend on the package version; the goal below is to demonst
 ## [1,] 1.742529 1.803104 1.574601 1.623878 1.597064 1.682666
 ## [2,] 2.068011 2.151476 1.862051 1.918896 1.880226 1.984855
 ## [3,] 2.648159 2.782567 2.371160 2.438303 2.371465 2.511218
-## 
+##
 ## attr(,"class")
 ## [1] "mixgpd_predict"
 \end{verbatim}
@@ -879,16 +879,16 @@ Exact return formats depend on the package version; the goal below is to demonst
 ## 198  1 3.8652274 0.002161865 1.000000e-300 0.01248049
 ## 199  1 3.8838270 0.002080942 1.000000e-300 0.01215785
 ## 200  1 3.9024266 0.002003476 1.000000e-300 0.01184308
-## 
+##
 ## $lower
 ## NULL
-## 
+##
 ## $upper
 ## NULL
-## 
+##
 ## $type
 ## [1] "density"
-## 
+##
 ## $grid
 ##   [1] 0.2011054 0.2197050 0.2383046 0.2569042 0.2755038 0.2941034 0.3127030
 ##   [8] 0.3313026 0.3499022 0.3685018 0.3871014 0.4057010 0.4243006 0.4429002
@@ -919,7 +919,7 @@ Exact return formats depend on the package version; the goal below is to demonst
 ## [183] 3.5862334 3.6048330 3.6234326 3.6420322 3.6606318 3.6792314 3.6978310
 ## [190] 3.7164306 3.7350302 3.7536298 3.7722294 3.7908290 3.8094286 3.8280282
 ## [197] 3.8466278 3.8652274 3.8838270 3.9024266
-## 
+##
 ## attr(,"class")
 ## [1] "mixgpd_predict"
 \end{verbatim}
@@ -954,7 +954,7 @@ While not an extreme-value benchmark dataset, it demonstrates conditional distri
 \hlkwd{summary}\hldef{(y)}
 \end{alltt}
 \begin{verbatim}
-##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.
 ##     1.0    18.0    31.0    42.1    62.0   168.0
 \end{verbatim}
 \end{kframe}
@@ -1052,7 +1052,7 @@ For strictly positive outcomes with skewness, a lognormal kernel is a practical 
 \begin{verbatim}
 ## MixGPD fit | backend: Stick-Breaking Process | kernel: Lognormal Distribution | GPD tail: FALSE
 ## n = 111 | components = 10 | epsilon = 0.025
-## MCMC: niter=6000, nburnin=2000, thin=4, nchains=1 
+## MCMC: niter=6000, nburnin=2000, thin=4, nchains=1
 ## Fit
 ## Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 \end{verbatim}
@@ -1062,7 +1062,7 @@ For strictly positive outcomes with skewness, a lognormal kernel is a practical 
 \begin{verbatim}
 ## MixGPD fit | backend: Stick-Breaking Process | kernel: Lognormal Distribution | GPD tail: TRUE
 ## n = 111 | components = 10 | epsilon = 0.025
-## MCMC: niter=6000, nburnin=2000, thin=4, nchains=1 
+## MCMC: niter=6000, nburnin=2000, thin=4, nchains=1
 ## Fit
 ## Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 \end{verbatim}
@@ -1103,22 +1103,22 @@ low temperature/high wind, average conditions, and high temperature/low wind.
 ## 7    26.237757  0.99  1 0.4931788  146.132489
 ## 8    34.309521  0.99  2 1.6599650   45.984970
 ## 9 39355.227676  0.99  3 0.2936960 4059.630896
-## 
+##
 ## $lower
 ## NULL
-## 
+##
 ## $upper
 ## NULL
-## 
+##
 ## $type
 ## [1] "quantile"
-## 
+##
 ## $grid
 ## [1] 0.90 0.95 0.99
-## 
+##
 ## $draws
 ## , , 1
-## 
+##
 ##                [,1]     [,2]         [,3]
 ##    [1,]   1.0889808 1.275297 1.058067e+03
 ##    [2,]   4.3208031 1.438221 1.861925e+02
@@ -2120,9 +2120,9 @@ low temperature/high wind, average conditions, and high temperature/low wind.
 ##  [998,]   1.6168157 1.489248 9.634053e-01
 ##  [999,]   6.3768118 1.618995 2.184350e+00
 ## [1000,]   2.7949818 1.416823 3.633103e+00
-## 
+##
 ## , , 2
-## 
+##
 ##                [,1]      [,2]         [,3]
 ##    [1,]   1.1386635  1.451038 1.220548e+03
 ##    [2,]   5.1772671  1.712237 1.980830e+02
@@ -3124,9 +3124,9 @@ low temperature/high wind, average conditions, and high temperature/low wind.
 ##  [998,]   1.7515099  1.738220 1.125425e+00
 ##  [999,]   7.9479508  2.015891 2.340249e+00
 ## [1000,]   3.2243509  1.600163 3.958087e+00
-## 
+##
 ## , , 3
-## 
+##
 ##                 [,1]         [,2]         [,3]
 ##    [1,]    1.2328253     1.855172 1.561156e+03
 ##    [2,]    7.1188527     2.354054 2.207360e+02
@@ -4128,8 +4128,8 @@ low temperature/high wind, average conditions, and high temperature/low wind.
 ##  [998,]    2.1644540     2.303409 1.491381e+00
 ##  [999,]   11.7638812     2.983740 2.635560e+00
 ## [1000,]    4.1609161     2.047809 4.585401e+00
-## 
-## 
+##
+##
 ## attr(,"class")
 ## [1] "mixgpd_predict"
 \end{verbatim}
@@ -4148,22 +4148,22 @@ low temperature/high wind, average conditions, and high temperature/low wind.
 ## 7    2.1139608  0.99  1    0.9257686     4.970918
 ## 8   56.5277366  0.99  2   18.2338126   147.884523
 ## 9 5825.2268124  0.99  3 2329.3901055 13182.098194
-## 
+##
 ## $lower
 ## NULL
-## 
+##
 ## $upper
 ## NULL
-## 
+##
 ## $type
 ## [1] "quantile"
-## 
+##
 ## $grid
 ## [1] 0.90 0.95 0.99
-## 
+##
 ## $draws
 ## , , 1
-## 
+##
 ##              [,1]      [,2]      [,3]
 ##    [1,] 0.4679814  7.236234  388.5279
 ##    [2,] 0.8601478  7.236234  322.1997
@@ -5165,9 +5165,9 @@ low temperature/high wind, average conditions, and high temperature/low wind.
 ##  [998,] 0.7993896  7.686607  915.3648
 ##  [999,] 1.4524951  5.388352  638.0653
 ## [1000,] 0.9218433  7.158166  921.7416
-## 
+##
 ## , , 2
-## 
+##
 ##              [,1]      [,2]      [,3]
 ##    [1,] 0.7208724 14.060436  755.2997
 ##    [2,] 1.1525966 14.060436  626.8812
@@ -6169,9 +6169,9 @@ low temperature/high wind, average conditions, and high temperature/low wind.
 ##  [998,] 0.9040623 15.281279 1820.7515
 ##  [999,] 1.5266392  9.375183 1111.3357
 ## [1000,] 1.0229148 13.851784 1784.4905
-## 
+##
 ## , , 3
-## 
+##
 ##              [,1]      [,2]      [,3]
 ##    [1,] 2.4005691  59.38665  3191.391
 ##    [2,] 3.0950360  59.38665  2650.569
@@ -7173,8 +7173,8 @@ low temperature/high wind, average conditions, and high temperature/low wind.
 ##  [998,] 1.6362606  68.40690  8154.038
 ##  [999,] 1.9075346  29.85645  3542.635
 ## [1000,] 1.6879932  57.89766  7461.618
-## 
-## 
+##
+##
 ## attr(,"class")
 ## [1] "mixgpd_predict"
 \end{verbatim}
@@ -7649,16 +7649,16 @@ We compute conditional survival curves over a grid of ozone values for the same 
 ## 448  3 215.481879 0.0627264884 0.000000e+00 0.435225163
 ## 449  3 216.940940 0.0623710264 0.000000e+00 0.435224891
 ## 450  3 218.400000 0.0620177637 0.000000e+00 0.435224595
-## 
+##
 ## $lower
 ## NULL
-## 
+##
 ## $upper
 ## NULL
-## 
+##
 ## $type
 ## [1] "survival"
-## 
+##
 ## $grid
 ##   [1]   1.000000   2.459060   3.918121   5.377181   6.836242   8.295302
 ##   [7]   9.754362  11.213423  12.672483  14.131544  15.590604  17.049664
@@ -7685,7 +7685,7 @@ We compute conditional survival curves over a grid of ozone values for the same 
 ## [133] 193.595973 195.055034 196.514094 197.973154 199.432215 200.891275
 ## [139] 202.350336 203.809396 205.268456 206.727517 208.186577 209.645638
 ## [145] 211.104698 212.563758 214.022819 215.481879 216.940940 218.400000
-## 
+##
 ## attr(,"class")
 ## [1] "mixgpd_predict"
 \end{verbatim}
@@ -8145,16 +8145,16 @@ We compute conditional survival curves over a grid of ozone values for the same 
 ## 448  3 215.481879 3.094132e-01 1.797005e-01 0.4541337434
 ## 449  3 216.940940 3.078656e-01 1.787988e-01 0.4522723110
 ## 450  3 218.400000 3.063319e-01 1.779069e-01 0.4504236700
-## 
+##
 ## $lower
 ## NULL
-## 
+##
 ## $upper
 ## NULL
-## 
+##
 ## $type
 ## [1] "survival"
-## 
+##
 ## $grid
 ##   [1]   1.000000   2.459060   3.918121   5.377181   6.836242   8.295302
 ##   [7]   9.754362  11.213423  12.672483  14.131544  15.590604  17.049664
@@ -8181,7 +8181,7 @@ We compute conditional survival curves over a grid of ozone values for the same 
 ## [133] 193.595973 195.055034 196.514094 197.973154 199.432215 200.891275
 ## [139] 202.350336 203.809396 205.268456 206.727517 208.186577 209.645638
 ## [145] 211.104698 212.563758 214.022819 215.481879 216.940940 218.400000
-## 
+##
 ## attr(,"class")
 ## [1] "mixgpd_predict"
 \end{verbatim}
