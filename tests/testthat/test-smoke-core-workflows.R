@@ -119,55 +119,79 @@ test_that("Smoke test: Conditional model structure (as per v08-v11)", {
   expect_true(isTRUE(bundle_cond$spec$meta$has_X))
 })
 
-test_that("Smoke test: Causal inference setup (as per v12-v15)", {
-  # This test verifies causal bundles can be set up
-  # See: vignettes/v12-v15-causal.Rmd
+test_that("Smoke test: Causal bundle setup (build_causal_bundle API)", {
+  # This test verifies the actual causal API bundle creation
+  # Note: MCMC fitting is tested in test-causal.R
   
   set.seed(999)
+
   
   # Generate synthetic causal data
-  n <- 40
-  z <- rbinom(n, 1, 0.5)  # Treatment indicator
-  x <- rnorm(n)           # Confounder
+  n <- 30
+  X <- data.frame(
+    x1 = rnorm(n),
+    x2 = runif(n, -1, 1)
+  )
+  T_ind <- rbinom(n, 1, plogis(0.2 + 0.5 * X$x1))  # Treatment indicator
   
-  # Outcome depends on treatment and confounder
-  y <- 2 + 1.5 * z + 0.8 * x + rnorm(n, 0, 0.5)
+  # Outcome depends on treatment and confounders
+  y <- 2 + 1.5 * T_ind + 0.8 * X$x1 + 0.3 * X$x2 + rnorm(n, 0, 0.5)
   y <- abs(y) + 0.1  # Make positive
   
-  # Build propensity score model bundle
+  # Test observational design with PS model
   expect_no_error({
-    bundle_ps <- build_nimble_bundle(
-      y = z,  # z is binary treatment
-      backend = "crp",
-      kernel = "normal",
-      GPD = FALSE,
-      components = 2  # Just 2 for simplicity
-    )
-  })
-  expect_true(inherits(bundle_ps, "dpmixgpd_bundle"))
-  
-  # Build outcome model bundle
-  X_outcome <- data.frame(x = x, z = z)
-  expect_no_error({
-    bundle_outcome <- build_nimble_bundle(
+    causal_bundle <- build_causal_bundle(
       y = y,
-      X = X_outcome,
+      X = X,
+      T = T_ind,
       backend = "crp",
       kernel = "normal",
       GPD = FALSE,
-      components = 3
+      components = 3,
+      PS = "logit",
+      design = "observational"
     )
   })
-  expect_true(inherits(bundle_outcome, "dpmixgpd_bundle"))
+  expect_true(inherits(causal_bundle, "dpmixgpd_causal_bundle"))
+  expect_true(causal_bundle$meta$ps$enabled)
+  expect_equal(causal_bundle$meta$ps$model_type, "logit")
+  
+  # Test RCT design without PS model
+  expect_no_error({
+    causal_bundle_rct <- build_causal_bundle(
+      y = y,
+      X = X,
+      T = T_ind,
+      backend = "sb",
+      kernel = "gamma",
+      GPD = FALSE,
+      components = 3,
+      PS = FALSE,
+      design = "rct"
+    )
+  })
+  expect_true(inherits(causal_bundle_rct, "dpmixgpd_causal_bundle"))
+  expect_false(causal_bundle_rct$meta$ps$enabled)
 })
 
-test_that("Smoke test: Kernel distributions available (as per kernel-*.Rmd)", {
-  # This test verifies exported kernel helper functions are available
-  # See: vignettes/kernel-*.Rmd
+test_that("Smoke test: Kernel registry and distributions available", {
+  # This test verifies the kernel registry is initialized and key functions exist
   
-  # Verify key kernel-related functions exist
-  expect_true(exists("dnormal"), info = "dnormal available")
-  expect_true(exists("dgamma"), info = "dgamma available (or wrapper)")
-  expect_true(exists("dlaplace"), info = "dlaplace available")
-  expect_true(exists("damoroso"), info = "damoroso available")
+  # Verify kernel registry is available
+  registry <- get_kernel_registry()
+  expect_true(is.list(registry))
+  expect_true(length(registry) > 0)
+  
+  # Check expected kernels are registered
+  expected_kernels <- c("normal", "gamma", "lognormal", "laplace", "invgauss", "amoroso", "cauchy")
+  for (k in expected_kernels) {
+    expect_true(k %in% names(registry), info = paste0("kernel '", k, "' registered"))
+  }
+  
+  # Verify key exported distribution functions exist
+  expect_true(exists("dNormMix", mode = "function"), info = "dNormMix available")
+  expect_true(exists("dGammaMix", mode = "function"), info = "dGammaMix available")
+  expect_true(exists("dLaplaceMix", mode = "function"), info = "dLaplaceMix available")
+  expect_true(exists("dAmoroso", mode = "function"), info = "dAmoroso available")
+  expect_true(exists("dGpd", mode = "function"), info = "dGpd available")
 })

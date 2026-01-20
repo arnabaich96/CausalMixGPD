@@ -1,3 +1,9 @@
+# test-predict-contracts.R
+# Prediction contract tests
+#
+# Tier A (cran): Input validation tests (build_nimble_bundle)
+# Tier B (ci):   Prediction behavior tests requiring MCMC fits
+
 .fit_cache_env <- new.env(parent = emptyenv())
 
 .get_cached_fit <- function(key, build_fun) {
@@ -158,7 +164,8 @@ test_that("build_nimble_bundle validates key inputs", {
 })
 
 test_that("predict() rejects invalid type and index inputs", {
-
+  skip_if_not_test_level("ci")
+  
   fit <- .get_cached_fit("uncond_fit_predict_contracts", .build_uncond_fit)
 
   expect_error(
@@ -173,7 +180,8 @@ test_that("predict() rejects invalid type and index inputs", {
 })
 
 test_that("predict() preserves y-grid order", {
-
+  skip_if_not_test_level("ci")
+  
   fit <- .get_cached_fit("uncond_fit_predict_contracts", .build_uncond_fit)
 
   y_grid <- c(1.0, 0.2, 2.5, 0.5)
@@ -183,7 +191,8 @@ test_that("predict() preserves y-grid order", {
 })
 
 test_that("predict() with newdata enforces column contracts", {
-
+  skip_if_not_test_level("ci")
+  
   fit <- .get_cached_fit("cond_fit_predict_contracts", .build_cond_fit)
   X_train <- fit$data$X
   X_new <- X_train[1:4, , drop = FALSE]
@@ -215,7 +224,8 @@ test_that("predict() with newdata enforces column contracts", {
 })
 
 test_that("CDF from survival is monotone and bounded", {
-
+  skip_if_not_test_level("ci")
+  
   fit <- .get_cached_fit("uncond_fit_predict_contracts", .build_uncond_fit)
   y_grid <- seq(0.05, 3.5, length.out = 40)
   pred_surv <- predict(fit, type = "survival", y = y_grid)
@@ -227,7 +237,8 @@ test_that("CDF from survival is monotone and bounded", {
 })
 
 test_that("GPD tail is approximately continuous at threshold", {
-
+  skip_if_not_test_level("ci")
+  
   fit <- .get_cached_fit("uncond_fit_predict_contracts", .build_uncond_fit)
   pr <- params(fit)
   u <- pr$threshold
@@ -244,7 +255,8 @@ test_that("GPD tail is approximately continuous at threshold", {
 })
 
 test_that("predict(type='sample') is reproducible with seed", {
-
+  skip_if_not_test_level("ci")
+  
   fit <- .get_cached_fit("uncond_fit_predict_contracts", .build_uncond_fit)
 
   set.seed(999)
@@ -261,7 +273,8 @@ test_that("predict(type='sample') is reproducible with seed", {
 })
 
 test_that("PIT residuals are finite and in [0,1]", {
-
+  skip_if_not_test_level("ci")
+  
   fit <- .get_cached_fit("uncond_fit_predict_contracts", .build_uncond_fit)
   res <- residuals(fit, type = "pit")
 
@@ -270,7 +283,8 @@ test_that("PIT residuals are finite and in [0,1]", {
 })
 
 test_that("ncores=1 and ncores=2 agree for deterministic predictions", {
-
+  skip_if_not_test_level("ci")
+  
   fit <- .get_cached_fit("cond_fit_predict_contracts", .build_cond_fit)
   X_new <- fit$data$X[1:3, , drop = FALSE]
   y_grid <- seq(0.1, 2.0, length.out = 8)
@@ -282,7 +296,8 @@ test_that("ncores=1 and ncores=2 agree for deterministic predictions", {
 })
 
 test_that("quantile estimates average q_fun draws and median matches quantile(0.5)", {
-
+  skip_if_not_test_level("ci")
+  
   fit <- .get_cached_fit("uncond_fit_predict_contracts", .build_uncond_fit)
 
   pred_q <- predict(fit, type = "quantile", index = c(0.25, 0.5, 0.75),
@@ -296,7 +311,8 @@ test_that("quantile estimates average q_fun draws and median matches quantile(0.
 })
 
 test_that("fitted(type='location') returns mean and median columns", {
-
+  skip_if_not_test_level("ci")
+  
   fit <- .get_cached_fit("uncond_fit_predict_contracts", .build_uncond_fit)
 
   loc <- fitted(fit, type = "location")

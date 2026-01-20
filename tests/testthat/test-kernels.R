@@ -1,6 +1,11 @@
+# test-kernels.R
+# Kernel distribution tests (Tier A - pure math, no MCMC)
+# These are fast unit tests that verify d/p/q/r functions work correctly
+
 test_that(
   "Kernels: mixture families (mix / mix+GPD / scalar+GPD) semantic + roundtrip checks",
   {
+    # This test runs kernel math checks - fast, no MCMC compilation
 
     # ---------- helpers ----------
     .norm_w <- function(w) {

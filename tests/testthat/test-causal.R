@@ -1,10 +1,89 @@
+# test-causal.R
+# Causal inference workflow tests
+#
+# Tier A (cran): Basic PS parameter tests, design enforcement
+# Tier B (ci):   Representative causal combos with full workflow
+# Tier C (full): Exhaustive kernel x backend x GPD grid
+
 if (!exists(".cache_enabled")) {
   helper_path <- file.path("tests", "testthat", "helper-cache.R")
   if (file.exists(helper_path)) source(helper_path)
 }
 
-test_that("causal bundle and fit combos", {
+# =============================================================================
+# Tier B (ci): Representative causal combos - covers main code paths
+# =============================================================================
+test_that("causal workflow: representative combos (Tier B)", {
+  skip_if_not_test_level("ci")
+  
+  set.seed(1)
+  n <- 25
+  X <- cbind(x1 = stats::rnorm(n), x2 = stats::runif(n, -1, 1))
+  t_ind <- stats::rbinom(n, 1, stats::plogis(0.2 + 0.5 * X[, 1]))
+  y <- stats::rexp(n) + 0.1
+  
+  mcmc_out <- mcmc_fast(seed = 1L)
+  mcmc_ps <- mcmc_fast(seed = 2L)
+  
+  # Representative combos that cover main branches
+  combos <- representative_causal_combos()
+  
+  for (cfg in combos) {
+    info <- cfg$label
+    
+    cb <- DPmixGPD::build_causal_bundle(
+      y = y,
+      X = X,
+      T = t_ind,
+      backend = cfg$backend,
+      kernel = cfg$kernel,
+      GPD = cfg$GPD,
+      components = c(4, 4),
+      mcmc_outcome = mcmc_out,
+      mcmc_ps = mcmc_ps,
+      PS = cfg$PS,
+      design = cfg$design
+    )
+    
+    cf <- DPmixGPD::run_mcmc_causal(cb, show_progress = FALSE)
+    
+    # Basic structure checks
+    expect_true(inherits(cf, "dpmixgpd_causal_fit"), info = info)
+    expect_true(inherits(cf$outcome_fit$con, "mixgpd_fit"), info = info)
+    expect_true(inherits(cf$outcome_fit$trt, "mixgpd_fit"), info = info)
+    
+    # Summary works
+    s_con <- summary(cf$outcome_fit$con)
+    s_trt <- summary(cf$outcome_fit$trt)
+    expect_true(inherits(s_con, "mixgpd_summary"), info = info)
+    expect_true(inherits(s_trt, "mixgpd_summary"), info = info)
+    
+    # Predictions work
+    pr_con <- predict(cf$outcome_fit$con, type = "mean")
+    pr_trt <- predict(cf$outcome_fit$trt, type = "mean")
+    expect_true(is.list(pr_con) && "fit" %in% names(pr_con), info = info)
+    expect_true(is.list(pr_trt) && "fit" %in% names(pr_trt), info = info)
+    
+    # Fitted/residuals work
+    fd_con <- fitted(cf$outcome_fit$con)
+    rs_con <- residuals(cf$outcome_fit$con)
+    expect_true(is.data.frame(fd_con), info = info)
+    expect_true(is.numeric(rs_con), info = info)
+    
+    # Causal predict works
+    X_new <- X[1:3, , drop = FALSE]
+    pred <- predict(cf, x = X_new, type = "mean", store_draws = FALSE)
+    expect_true(is.matrix(pred), info = info)
+    expect_true(nrow(pred) == nrow(X_new), info = info)
+  }
+})
 
+# =============================================================================
+# Tier C (full): Exhaustive kernel x backend x GPD grid
+# =============================================================================
+test_that("causal workflow: exhaustive kernel combos (Tier C)", {
+  skip_if_not_full()
+  
   set.seed(1)
   n <- 30
   x_base <- cbind(x1 = stats::rnorm(n), x2 = stats::runif(n, -1, 1))
@@ -18,8 +97,8 @@ test_that("causal bundle and fit combos", {
   t_ind <- stats::rbinom(n, 1, stats::plogis(0.2 + 0.5 * x_base[, 1]))
   y <- stats::rexp(n) + 0.1
 
-  mcmc_out <- list(niter = 15, nburnin = 5, thin = 1, nchains = 1, seed = 1)
-  mcmc_ps <- list(niter = 15, nburnin = 5, thin = 1, nchains = 1, seed = 1)
+  mcmc_out <- mcmc_fast(seed = 1L)
+  mcmc_ps <- mcmc_fast(seed = 2L)
 
   kernels <- names(DPmixGPD::get_kernel_registry())
   combos <- list()
@@ -107,6 +186,10 @@ test_that("causal bundle and fit combos", {
     expect_true(is.numeric(rs_con) && is.numeric(rs_trt), info = info)
   }
 })
+
+# =============================================================================
+# Tier A (cran): PS parameter tests - fast, no MCMC compilation loops
+# =============================================================================
 
 test_that("PS parameter: logit, probit, naive, FALSE all work", {
 
