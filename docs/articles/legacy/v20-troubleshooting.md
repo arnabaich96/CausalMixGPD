@@ -8,7 +8,7 @@
 > (Introduction, Model Spec, MCMC Workflow,
 > Unconditional/Conditional/Causal, Backends, S3 Reference).
 
-## Troubleshooting
+## Common Issues and Solutions
 
 This vignette collects common errors and fixes encountered when building
 or running DPmixGPD models.

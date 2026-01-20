@@ -8,7 +8,7 @@
 > (Introduction, Model Spec, MCMC Workflow,
 > Unconditional/Conditional/Causal, Backends, S3 Reference).
 
-## Start Here
+## Getting Started
 
 This vignette gives a minimal, fully working workflow for an
 **unconditional** model and a **conditional** model. Everything uses
@@ -135,13 +135,13 @@ pred_mean <- predict(fit_cond, x = x_new, type = "mean", interval = "credible", 
 head(pred_mean$fit)
 ```
 
-        estimate     lower     upper
-    1  105.31145 1.0997955  79.83264
-    2 7222.81340 1.1877629 430.76516
-    3  184.49999 1.0674614 482.51688
-    4   51.95651 0.9704383 341.49957
-    5  115.44919 1.1062941 267.75300
-    6  496.56809 1.1267696 405.78169
+       estimate     lower     upper
+    1  23.62939 1.0384949   79.5652
+    2 860.62971 1.2116048  292.5505
+    3 417.98643 1.0122467  905.8613
+    4  51.01261 0.9716226  313.9089
+    5  22.55919 0.9997776  160.8679
+    6 173.71838 1.1046723 1067.1688
 
 ``` r
 plot(pred_mean)

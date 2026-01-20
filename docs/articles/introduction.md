@@ -113,7 +113,7 @@ pred_q90$fit
 try(plot(fit, family = "trace"), silent = TRUE)
 ```
 
-## Troubleshooting
+## Troubleshooting (Quick Start)
 
 - **“keywords: if” from NIMBLE**: a covariate column is named `if` (or
   another reserved keyword). Rename columns (e.g., `if` -\> `x_if`).

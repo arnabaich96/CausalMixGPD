@@ -126,7 +126,7 @@ list.
 # fit2 <- run_mcmc_bundle_manual(bundle2)
 ```
 
-## Troubleshooting
+## Troubleshooting (MCMC Workflow)
 
 - **Compilation errors**: call
   [`printErrors()`](https://rdrr.io/pkg/nimble/man/printErrors.html) if
