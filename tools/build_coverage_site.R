@@ -43,8 +43,8 @@ if (!dir.exists(assets_dir)) {
 # ============================================================================
 cat("Step 1/4: Calculating package coverage (this may take a few minutes)...\n")
 
-# Set test level to avoid problematic tests during coverage
-Sys.setenv(DPMIXGPD_TEST_LEVEL = "cran")
+# Set test level to "ci" to run MCMC-dependent tests for comprehensive coverage
+Sys.setenv(DPMIXGPD_TEST_LEVEL = "ci")
 Sys.setenv(COVERAGE = "1")
 
 # Unload the package if it's already loaded to avoid covr instrumentation conflicts
@@ -57,24 +57,24 @@ if (isNamespaceLoaded("DPmixGPD")) {
 
 # Calculate coverage using type = "none" with custom test code that tolerates failures
 # This approach allows coverage to complete even when some tests fail
-# We use try() to ensure test failures don't abort coverage calculation
+# The key is using testthat::test_dir with stop_on_failure = FALSE and reporter = "silent"
 cov <- tryCatch({
   covr::package_coverage(
     type = "none",
-    code = "try(testthat::test_local(stop_on_failure = FALSE), silent = TRUE)",
+    code = 'testthat::test_dir("tests/testthat", stop_on_failure = FALSE, reporter = "minimal")',
     quiet = FALSE,
     pre_clean = TRUE
   )
 }, error = function(e) {
   cat("\nWarning: Primary coverage method encountered an error.\n")
   cat("Error: ", conditionMessage(e), "\n")
-  cat("Attempting alternative coverage method with type='tests'...\n\n")
+  cat("Attempting alternative with simpler test execution...\n\n")
   
- # Fallback: try standard type = "tests" approach
-  # This may fail if tests fail, but gives more accurate coverage if it succeeds
+  # Fallback: try with even simpler test execution
   tryCatch({
     covr::package_coverage(
-      type = "tests",
+      type = "none",
+      code = 'for(f in list.files("tests/testthat", pattern = "^test.*\\\\.R$", full.names = TRUE)) try(source(f), silent = TRUE)',
       quiet = FALSE,
       pre_clean = TRUE
     )
@@ -139,16 +139,16 @@ cat("Step 3/4: Extracting coverage statistics...\n")
 # Overall percentage
 percent <- covr::percent_coverage(cov)
 
-# Per-file coverage using tally_coverage
-file_cov <- covr::tally_coverage(cov, by = "file")
+# Per-file coverage using tally_coverage (by = "line" then aggregate)
+file_cov <- covr::tally_coverage(cov, by = "line")
 
-# Aggregate by file
+# Aggregate by file - each line has value (times hit) and we count covered if value > 0
 file_stats <- aggregate(
-  cbind(value, covered = value > 0) ~ filename,
+  cbind(lines = 1, covered = value > 0) ~ filename,
   data = file_cov,
   FUN = sum
 )
-file_stats$percent <- round(100 * file_stats$covered / file_stats$value, 1)
+file_stats$percent <- round(100 * file_stats$covered / file_stats$lines, 1)
 file_stats <- file_stats[order(-file_stats$percent, file_stats$filename), ]
 names(file_stats) <- c("File", "Lines", "Covered", "Percent")
 
