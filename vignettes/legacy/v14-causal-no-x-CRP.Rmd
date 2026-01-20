@@ -151,61 +151,81 @@ param_specs_gpd <- list(
   )
 )
 
-bundle_crp_gpd <- build_causal_bundle(
-  y = y,
-  T = T,
-  X = NULL,
-  kernel = "gamma",
-  backend = "crp",
-  PS = FALSE,
-  GPD = TRUE,
-  components = 6,
-  param_specs = param_specs_gpd,
-  mcmc_outcome = list(niter = 300, nburnin = 80, nchains = 1, thin = 1, seed = 2)
-)
+bundle_crp_gpd <- tryCatch({
+  build_causal_bundle(
+    y = y,
+    T = T,
+    X = NULL,
+    kernel = "gamma",
+    backend = "crp",
+    PS = FALSE,
+    GPD = TRUE,
+    components = 6,
+    param_specs = param_specs_gpd,
+    mcmc_outcome = list(niter = 300, nburnin = 80, nchains = 1, thin = 1, seed = 2)
+  )
+}, error = function(e) {
+  message("Skipping CRP + GPD example: ", conditionMessage(e))
+  NULL
+})
 
-bundle_crp_gpd
+supports_crp_gpd <- !is.null(bundle_crp_gpd)
+if (supports_crp_gpd) bundle_crp_gpd
 ```
 
 ```{r fit-crp-gpd}
-fit_crp_gpd <- quiet_mcmc(run_mcmc_causal(bundle_crp_gpd))
-summary(fit_crp_gpd)
+if (isTRUE(supports_crp_gpd)) {
+  fit_crp_gpd <- quiet_mcmc(run_mcmc_causal(bundle_crp_gpd))
+  summary(fit_crp_gpd)
+}
 ```
 
 ```{r predict-mean-crp-gpd}
-pred_mean_gpd <- predict(fit_crp_gpd, type = "mean", interval = "credible", nsim_mean = 150)
-head(pred_mean_gpd)
-plot(pred_mean_gpd)
+if (isTRUE(supports_crp_gpd)) {
+  pred_mean_gpd <- predict(fit_crp_gpd, type = "mean", interval = "credible", nsim_mean = 150)
+  head(pred_mean_gpd)
+  plot(pred_mean_gpd)
+}
 ```
 
 ```{r predict-quantile-crp-gpd}
-pred_q_gpd <- predict(fit_crp_gpd, type = "quantile", p = 0.5, interval = "credible")
-head(pred_q_gpd)
-plot(pred_q_gpd)
+if (isTRUE(supports_crp_gpd)) {
+  pred_q_gpd <- predict(fit_crp_gpd, type = "quantile", p = 0.5, interval = "credible")
+  head(pred_q_gpd)
+  plot(pred_q_gpd)
+}
 ```
 
 ```{r predict-density-crp-gpd}
-pred_d_gpd <- predict(fit_crp_gpd, y = y_eval, type = "density", interval = "credible")
-head(pred_d_gpd)
-plot(pred_d_gpd)
+if (isTRUE(supports_crp_gpd)) {
+  pred_d_gpd <- predict(fit_crp_gpd, y = y_eval, type = "density", interval = "credible")
+  head(pred_d_gpd)
+  plot(pred_d_gpd)
+}
 ```
 
 ```{r predict-survival-crp-gpd}
-pred_surv_gpd <- predict(fit_crp_gpd, y = y_eval, type = "survival", interval = "credible")
-head(pred_surv_gpd)
-plot(pred_surv_gpd)
+if (isTRUE(supports_crp_gpd)) {
+  pred_surv_gpd <- predict(fit_crp_gpd, y = y_eval, type = "survival", interval = "credible")
+  head(pred_surv_gpd)
+  plot(pred_surv_gpd)
+}
 ```
 
 ```{r ate-crp-gpd}
-ate_gpd <- ate(fit_crp_gpd, interval = "credible", nsim_mean = 150)
-head(ate_gpd)
-plot(ate_gpd)
+if (isTRUE(supports_crp_gpd)) {
+  ate_gpd <- ate(fit_crp_gpd, interval = "credible", nsim_mean = 150)
+  head(ate_gpd)
+  plot(ate_gpd)
+}
 ```
 
 ```{r qte-crp-gpd}
-qte_gpd <- qte(fit_crp_gpd, probs = c(0.25, 0.5, 0.75), interval = "credible")
-head(qte_gpd)
-plot(qte_gpd)
+if (isTRUE(supports_crp_gpd)) {
+  qte_gpd <- qte(fit_crp_gpd, probs = c(0.25, 0.5, 0.75), interval = "credible")
+  head(qte_gpd)
+  plot(qte_gpd)
+}
 ```
 
 

@@ -1,8 +1,12 @@
-# Legacy: 1. Introduction to DPmixGPD
+# 1. Introduction to DPmixGPD
 
-> **Legacy note:** This page is preserved for historical context and
-> extended detail. It predates the streamlined official vignettes and
-> may include longer runs or exploratory material.
+> **Legacy vignette (for the website / historical notes).** These files
+> may not match the current exported API one-to-one. Last verified:
+> **2026-01-18**.
+>
+> For the up-to-date workflow, see the main package vignettes
+> (Introduction, Model Spec, MCMC Workflow,
+> Unconditional/Conditional/Causal, Backends, S3 Reference).
 
 ## DPmixGPD: Bayesian Nonparametric Mixture Models with GPD Tails
 
@@ -93,7 +97,7 @@ bundle <- build_nimble_bundle(
   backend = "crp",
   GPD = TRUE,
   components = 5,
-  mcmc = list(niter = 1000, nburnin = 100, nchains = 1)
+  mcmc = mcmc
 )
 fit <- run_mcmc_bundle_manual(bundle)
 ```
@@ -114,23 +118,24 @@ bundle <- build_nimble_bundle(
   kernel = "gamma",
   GPD = FALSE,
   components = 5,
-  mcmc = list(niter = 200, nburnin = 10, nchains = 1)
+  mcmc = mcmc
 )
 
 # Print bundle
 print(bundle)
-DPmixGPD bundle
-      Field                  Value
-    Backend Stick-Breaking Process
-     Kernel     Gamma Distribution
- Components                      5
-          N                    200
-          X                     NO
-        GPD                  FALSE
-    Epsilon                  0.025
-
-  contains  : code, constants, data, dimensions, inits, monitors
 ```
+
+    DPmixGPD bundle
+          Field                  Value
+        Backend Stick-Breaking Process
+         Kernel     Gamma Distribution
+     Components                      5
+              N                    200
+              X                     NO
+            GPD                  FALSE
+        Epsilon                  0.025
+
+      contains  : code, constants, data, dimensions, inits, monitors
 
 ------------------------------------------------------------------------
 
@@ -159,12 +164,21 @@ DPmixGPD bundle
 
 ``` r
 packageVersion("DPmixGPD")
-[1] '0.0.9'
-packageVersion("nimble")
-[1] '1.4.0'
-packageVersion("ggplot2")
-[1] '4.0.1'
 ```
+
+    [1] '0.0.9'
+
+``` r
+packageVersion("nimble")
+```
+
+    [1] '1.4.0'
+
+``` r
+packageVersion("ggplot2")
+```
+
+    [1] '4.0.1'
 
 Each vignette demonstrates complete workflows with reproducible
 examples.

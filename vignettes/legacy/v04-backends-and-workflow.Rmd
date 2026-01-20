@@ -82,7 +82,7 @@ DPmixGPD uses a consistent build -> run -> summarize loop:
 3. **Inspect and summarize** using `print()`, `summary()`, `plot()`.
 4. **Predict** using `predict()` (and optionally `fitted()`).
 
-```{r}
+```{r, cache=FALSE}
 # Build
 bundle <- build_nimble_bundle(
   y = rnorm(50),

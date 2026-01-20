@@ -2,44 +2,86 @@
 
 ### Get Started
 
-- [Introduction](https://arnabaich96.github.io/DPmixGPD/articles/introduction.md):
+- [DPmixGPD: quick
+  start](https://arnabaich96.github.io/DPmixGPD/articles/introduction.md):
 
 ### Manual
 
-- [Distributions](https://arnabaich96.github.io/DPmixGPD/articles/distributions.md):
+- [Available
+  distributions](https://arnabaich96.github.io/DPmixGPD/articles/distributions.md):
 - [Model
-  Specification](https://arnabaich96.github.io/DPmixGPD/articles/model-spec.md):
+  specification](https://arnabaich96.github.io/DPmixGPD/articles/model-spec.md):
 - [MCMC
-  Workflow](https://arnabaich96.github.io/DPmixGPD/articles/mcmc-workflow.md):
+  workflow](https://arnabaich96.github.io/DPmixGPD/articles/mcmc-workflow.md):
 - [Unconditional
-  Modeling](https://arnabaich96.github.io/DPmixGPD/articles/unconditional.md):
+  models](https://arnabaich96.github.io/DPmixGPD/articles/unconditional.md):
 - [Conditional
-  Modeling](https://arnabaich96.github.io/DPmixGPD/articles/conditional.md):
-- [Causal Modeling
-  (Scoped)](https://arnabaich96.github.io/DPmixGPD/articles/causal.md):
-- [Backends](https://arnabaich96.github.io/DPmixGPD/articles/backends.md):
-- [S3 Methods
-  Reference](https://arnabaich96.github.io/DPmixGPD/articles/reference-s3.md):
+  models](https://arnabaich96.github.io/DPmixGPD/articles/conditional.md):
+- [Causal workflow (two-arm outcome
+  modeling)](https://arnabaich96.github.io/DPmixGPD/articles/causal.md):
+- [Backends: SB vs
+  CRP](https://arnabaich96.github.io/DPmixGPD/articles/backends.md):
+- [Reference: S3
+  methods](https://arnabaich96.github.io/DPmixGPD/articles/reference-s3.md):
+
+### Kernels
+
+- [Kernel reference:
+  Amoroso](https://arnabaich96.github.io/DPmixGPD/articles/legacy/kernel-amoroso.md):
+- [Kernel reference:
+  Cauchy](https://arnabaich96.github.io/DPmixGPD/articles/legacy/kernel-cauchy.md):
+- [Kernel reference:
+  Gamma](https://arnabaich96.github.io/DPmixGPD/articles/legacy/kernel-gamma.md):
+- [Kernel reference: Inverse
+  Gaussian](https://arnabaich96.github.io/DPmixGPD/articles/legacy/kernel-invgauss.md):
+- [Kernel reference:
+  Laplace](https://arnabaich96.github.io/DPmixGPD/articles/legacy/kernel-laplace.md):
+- [Kernel reference:
+  Lognormal](https://arnabaich96.github.io/DPmixGPD/articles/legacy/kernel-lognormal.md):
+- [Kernel reference:
+  Normal](https://arnabaich96.github.io/DPmixGPD/articles/legacy/kernel-normal.md):
 
 ### Legacy
 
-- [Legacy: 0. Getting
-  Started](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v00-start-here.md):
-- [Legacy: 1. Introduction to
+- [0. Start
+  Here](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v00-start-here.md):
+- [1. Introduction to
   DPmixGPD](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v01-introduction.md):
-- [Legacy: 2. Available Distributions and Related
+- [2. Available Distributions and Related
   Functions](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v02-available-distributions.md):
-- [Legacy: 3. Basic Workflow: Model Specification, Bundle, &
+- [3. Basic Workflow: Model Specification, Bundle, &
   MCMC](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v03-basic-model-compile-run.md):
-- [Legacy: 4. Backends, Kernels, and Workflow
+- [4. Backends, Kernels, and Workflow
   Map](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v04-backends-and-workflow.md):
-- [Legacy: 5. Unconditional DPmix (CRP
+- [5. Unconditional DPmix (CRP
   Backend)](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v05-unconditional-DPmix-CRP.md):
-- [Legacy: 11. Conditional DPmix with Stick-Breaking
+- [6. Unconditional DPmix with CRP
+  Backend](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v06-unconditional-DPmix-CRP.md):
+- [7. Unconditional DPmix with Stick-Breaking
+  Backend](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v07-unconditional-DPmix-SB.md):
+- [8. Unconditional DPmixGPD with CRP
+  Backend](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v08-unconditional-DPmixGPD-CRP.md):
+- [9. Unconditional DPmixGPD with Stick-Breaking
+  Backend](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v09-unconditional-DPmixGPD-SB.md):
+- [10. Conditional DPmix with CRP
+  Backend](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v10-conditional-DPmix-CRP.md):
+- [11. Conditional DPmix with Stick-Breaking
   Backend](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v11-conditional-DPmix-SB.md):
-- [Legacy: 14. Causal Inference: No X (CRP) - Gamma
+- [12. Conditional DPmixGPD with CRP
+  Backend](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v12-conditional-DPmixGPD-CRP.md):
+- [13. Conditional DPmixGPD with Stick-Breaking
+  Backend](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v13-conditional-DPmixGPD-SB.md):
+- [14. Causal Inference: No X (CRP) - Gamma
   Kernel](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v14-causal-no-x-CRP.md):
-- [Legacy: 15. Causal Inference: X Without PS (CRP+SB) -
+- [15. Causal Inference: X Without PS (CRP+SB) -
   InvGauss/Amoroso](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v15-causal-x-no-ps-SB.md):
-- [Legacy: 16. Causal Inference: Mixed Backends (CRP+SB) -
+- [16. Causal Inference: Mixed Backends (CRP+SB) -
   Cauchy/Laplace](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v16-causal-same-backend-CRP.md):
+- [17. Causal Inference: Same Backend (SB) - Laplace
+  Kernel](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v17-causal-same-backend-SB.md):
+- [18. Causal Inference: Mixed Backends (Bulk-only) - Cauchy
+  Kernel](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v18-causal-different-backends-CRP.md):
+- [19. Causal Inference: Mixed Backends with GPD - Amoroso
+  Kernel](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v19-causal-different-backends-SB.md):
+- [20.
+  Troubleshooting](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v20-troubleshooting.md):

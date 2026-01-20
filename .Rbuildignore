@@ -15,9 +15,18 @@
 ^vignettes/\.build\.timestamp$
 ^vignettes/legacy-precomputed$
 ^vignettes/legacy-precomputed/
-^vignettes$
 ^Misc$
 ^codecov\.yml$
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^docs$
+^doc$
+^Meta$
+# Non-standard top-level files
+^DPmixGPD\.code-workspace$
+^_pkgdown\.yml$
+^build_with_tmp\.ps1$
+^data-raw$
+^generate_precomputed\.R$
+^temp_setup\.txt$
+^Rplots\.pdf$

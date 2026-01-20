@@ -1,72 +1,129 @@
-# Introduction
+# DPmixGPD: quick start
 
-## What problem does DPmixGPD solve?
+## Goal
 
-DPmixGPD models **entire outcome distributions**, not just means. It is
-designed for:
+This vignette is a fast, end-to-end tour:
 
-- **Distributional modeling** (shape, skew, multi-modality)
-- **Extremes and tail risk** (via optional GPD tails)
-- **Causal contrast of distributions** when identification is provided
-  externally
+- build a model specification,
+- run MCMC,
+- extract fitted values and predictions.
 
-If your outcome is heavy‑tailed, skewed, or multi‑modal, DPmixGPD
-provides a flexible mixture‑plus‑tail approach that can be used in
-unconditional, conditional, or group‑comparison settings.
+**Runtime:** designed to run quickly in “FAST” mode.
 
-## One unified framework
+## What DPmixGPD models
 
-DPmixGPD is one engine with three common use cases:
+DPmixGPD fits flexible mixture models for the *bulk* of the distribution
+and can splice a Generalized Pareto tail beyond a threshold. In
+practice, you use it when:
 
-1.  **Unconditional**: fit a flexible mixture to the bulk of the data.
-2.  **Conditional**: let mixture parameters depend on covariates via
-    links.
-3.  **Causal**: fit **separate outcome models by treatment group** and
-    compare distributions.
+- the center of the data is not well described by a single parametric
+  family, and
+- the extreme right tail needs principled extrapolation.
 
-The model structure stays the same:
+## A minimal run
 
-- **Bulk**: Dirichlet process mixture over a kernel family.
-- **Tail (optional)**: splice a Generalized Pareto Distribution (GPD)
-  above a threshold.
+``` r
+library(DPmixGPD)
 
-## What “causal” means in this package
+# A toy heavy-ish tail sample
+n <- 80
+y <- abs(rnorm(n)) + 0.15
 
-DPmixGPD **does not identify causal effects on its own**. It provides
-tools to **model outcome distributions** for treated and control groups
-and then compute **distributional contrasts** (e.g., CQTE) **if** your
-identification assumptions are satisfied outside the package.
+bundle <- build_nimble_bundle(
+  y = y,
+  backend = "sb",
+  kernel = "normal",
+  GPD = TRUE,
+  components = 6,
+  mcmc = mcmc
+)
 
-This package:
+fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+#> [MCMC] Creating NIMBLE model...
+#> [MCMC] NIMBLE model created successfully.
+#> [MCMC] Configuring MCMC...
+#> ===== Monitors =====
+#> thin = 1: alpha, mean, sd, tail_scale, tail_shape, threshold, w, z
+#> ===== Samplers =====
+#> RW sampler (21)
+#>   - alpha
+#>   - mean[]  (6 elements)
+#>   - sd[]  (6 elements)
+#>   - threshold
+#>   - tail_scale
+#>   - tail_shape
+#>   - v[]  (5 elements)
+#> categorical sampler (80)
+#>   - z[]  (80 elements)
+#> [MCMC] MCMC configured.
+#> [MCMC] Building MCMC object...
+#> [MCMC] MCMC object built.
+#> [MCMC] Attempting NIMBLE compilation (this may take a minute)...
+#> [MCMC] Compiling model...
+#> [MCMC] Compiling MCMC sampler...
+#> [MCMC] Compilation successful.
+#> [MCMC] MCMC execution complete. Processing results...
+fit
+#> MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: TRUE
+#> n = 80 | components = 6 | epsilon = 0.025
+#> MCMC: niter=400, nburnin=100, thin=2, nchains=1 
+#> Fit
+#> Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
+```
 
-- **does** fit outcome models and compute contrasts
-- **does not** supply identification, randomization, or validity
-  guarantees
+## Fitted values and residuals
 
-## Motivating example (conceptual)
+``` r
+f <- fitted(fit, type = "mean", level = 0.90)
+head(f)
+#>         fit     lower   upper   residuals
+#> 1 0.8630258 0.7083039 1.00949 -0.08657197
+#> 2 0.8630258 0.7083039 1.00949 -0.52938246
+#> 3 0.8630258 0.7083039 1.00949  0.12260283
+#> 4 0.8630258 0.7083039 1.00949  0.88225502
+#> 5 0.8630258 0.7083039 1.00949 -0.38351801
+#> 6 0.8630258 0.7083039 1.00949  0.10744260
 
-Imagine a policy that changes not only the **mean** of earnings but also
-the **tail risk** (very high or very low outcomes). A mean‑only analysis
-would miss distributional shifts. DPmixGPD lets you fit flexible outcome
-distributions for each group and compare effects at specific quantiles
-or in the tail.
+# quick residual sanity check
+summary(f$residuals)
+#>     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+#> -0.71192 -0.41112 -0.11071 -0.01264  0.20973  1.68859
+```
+
+## Predictions
+
+``` r
+# For unconditional models, predict() returns population-level summaries
+pred_mean <- predict(fit, type = "mean", cred.level = 0.90, interval = "credible")
+pred_q90  <- predict(fit, type = "quantile", index = 0.90, cred.level = 0.90, interval = "credible")
+
+pred_mean$fit
+#>    estimate     lower    upper
+#> 1 0.8614389 0.7192627 1.001022
+pred_q90$fit
+#>   estimate index    lower   upper
+#> 1 1.620146   0.9 1.228256 1.92826
+```
+
+## A quick diagnostic plot
+
+``` r
+# Plot methods may vary by version; keep this simple.
+# If your plot() method supports a family argument, trace plots are the safest.
+try(plot(fit, family = "trace"), silent = TRUE)
+```
+
+## Troubleshooting
+
+- **“keywords: if” from NIMBLE**: a covariate column is named `if` (or
+  another reserved keyword). Rename columns (e.g., `if` -\> `x_if`).
+- **“No space left on device” during build/check**: set
+  `TMPDIR`/`TEMP`/`TMP` to a drive with free space (e.g., `D:/Rtmp`).
+- **Coverage looks low**: code generation (e.g., `eval(parse())`) is
+  hard to trace. Focus tests on user-facing functions.
 
 ## Where to go next
 
-- **Distributions**:
-  [distributions](https://arnabaich96.github.io/DPmixGPD/articles/distributions.Rmd)
-  for kernel choices and parameter meanings.
-- **Model specification**:
-  [model-spec](https://arnabaich96.github.io/DPmixGPD/articles/model-spec.Rmd)
-  for what you build vs what is generated.
-- **MCMC workflow**:
-  [mcmc-workflow](https://arnabaich96.github.io/DPmixGPD/articles/mcmc-workflow.Rmd)
-  for responsible inference.
-- **Worked examples**:
-  - [unconditional](https://arnabaich96.github.io/DPmixGPD/articles/unconditional.Rmd)
-  - [conditional](https://arnabaich96.github.io/DPmixGPD/articles/conditional.Rmd)
-  - [causal](https://arnabaich96.github.io/DPmixGPD/articles/causal.Rmd)
-- **Backends**:
-  [backends](https://arnabaich96.github.io/DPmixGPD/articles/backends.Rmd)
-- **S3 reference**:
-  [reference-s3](https://arnabaich96.github.io/DPmixGPD/articles/reference-s3.Rmd)
+- See **Model specification** for all options.
+- See **Unconditional** for density and tail diagnostics.
+- See **Backends** for SB vs CRP comparisons.

@@ -1,10 +1,14 @@
-# Legacy: 0. Getting Started
+# 0. Start Here
 
-> **Legacy note:** This page is preserved for historical context and
-> extended detail. It predates the streamlined official vignettes and
-> may include longer runs or exploratory material.
+> **Legacy vignette (for the website / historical notes).** These files
+> may not match the current exported API one-to-one. Last verified:
+> **2026-01-18**.
+>
+> For the up-to-date workflow, see the main package vignettes
+> (Introduction, Model Spec, MCMC Workflow,
+> Unconditional/Conditional/Causal, Backends, S3 Reference).
 
-## Legacy Overview
+## Start Here
 
 This vignette gives a minimal, fully working workflow for an
 **unconditional** model and a **conditional** model. Everything uses
@@ -26,12 +30,12 @@ bundle_uncond <- build_nimble_bundle(
   kernel = "gamma",
   GPD = FALSE,
   components = 5,
-  mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1, seed = 1)
+  mcmc = mcmc
 )
 ```
 
 ``` r
-fit_uncond <- quiet_mcmc(run_mcmc_bundle_manual(bundle_uncond, show_progress = FALSE))
+fit_uncond <- load_or_fit("v00-start-here-fit_uncond", quiet_mcmc(run_mcmc_bundle_manual(bundle_uncond, show_progress = FALSE)))
 summary(fit_uncond)
 ```
 
@@ -40,24 +44,24 @@ summary(fit_uncond)
     Summary
     Initial components: 5 | Components after truncation: 1
 
-    WAIC: 959.740
-    lppd: -443.324 | pWAIC: 36.546
+    WAIC: 963.248
+    lppd: -456.908 | pWAIC: 24.716
 
     Summary table
       parameter  mean    sd q0.025 q0.500 q0.975    ess
-     weights[1] 0.767 0.238  0.356  0.792  1.000  0.900
-          alpha 0.453 0.381  0.028  0.324  1.440 17.102
-       shape[1] 1.162 0.400  0.892  1.101  3.029 49.302
-       scale[1] 0.300 0.053  0.220  0.288  0.429  7.406
+     weights[1] 0.883 0.138  0.474  0.917  1.000  8.469
+          alpha 0.457 0.398  0.022  0.354  1.503 42.380
+       shape[1] 1.161 0.151  0.915  1.159  1.483 14.106
+       scale[1] 0.265 0.037  0.204  0.266  0.338 25.996
 
 ``` r
 pred_q <- predict(fit_uncond, type = "quantile", index = c(0.5, 0.9), interval = "credible")
 head(pred_q$fit)
 ```
 
-       estimate index     lower    upper
-    1 0.2611341   0.5 0.1311752 1.005642
-    2 0.7756552   0.9 0.4704576 1.995032
+       estimate index     lower     upper
+    1 0.2280813   0.5 0.1346529 0.3416814
+    2 0.6867466   0.9 0.4673580 0.9148642
 
 ``` r
 plot(pred_q)
@@ -83,45 +87,47 @@ bundle_cond <- build_nimble_bundle(
   kernel = "lognormal",
   GPD = FALSE,
   components = 5,
-  mcmc = list(niter = 250, nburnin = 50, thin = 1, nchains = 1, seed = 2)
+  mcmc = mcmc
 )
 ```
 
 ``` r
-fit_cond <- quiet_mcmc(run_mcmc_bundle_manual(bundle_cond, show_progress = FALSE))
+fit_cond <- load_or_fit("v00-start-here-fit_cond", quiet_mcmc(run_mcmc_bundle_manual(bundle_cond, show_progress = FALSE)))
 summary(fit_cond)
 ```
 
     MixGPD summary | backend: Stick-Breaking Process | kernel: Lognormal Distribution | GPD tail: FALSE | epsilon: 0.025
     n = 100 | components = 5
     Summary
-    Initial components: 5 | Components after truncation: 2
+    Initial components: 5 | Components after truncation: 3
 
-    WAIC: 521.641
-    lppd: -242.085 | pWAIC: 18.736
+    WAIC: 509.609
+    lppd: -220.586 | pWAIC: 34.218
 
     Summary table
               parameter   mean    sd q0.025 q0.500 q0.975     ess
-             weights[1]  0.828 0.053  0.739  0.830  0.930  12.172
-             weights[2]  0.109 0.038  0.050  0.100  0.190  22.720
-                  alpha  0.855 0.442  0.240  0.684  2.177  29.244
-     beta_meanlog[1, 1]  0.152 0.169 -0.181  0.100  0.696  15.806
-     beta_meanlog[2, 1] -0.271 1.345 -3.367 -0.187  1.525   8.917
-     beta_meanlog[3, 1] -0.320 1.684 -3.627 -0.238  2.323  15.701
-     beta_meanlog[4, 1]  0.292 1.045 -1.579  0.121  2.523  14.330
-     beta_meanlog[5, 1]  0.304 1.935 -3.805  0.032  3.703  15.017
-     beta_meanlog[1, 2] -0.272 0.251 -0.813 -0.266  0.370   7.531
-     beta_meanlog[2, 2]  0.999 0.946 -0.910  1.156  2.302  13.323
-     beta_meanlog[3, 2]  0.513 1.899 -2.889  0.349  4.011   9.540
-     beta_meanlog[4, 2] -0.089 1.235 -2.357 -0.222  2.362  19.507
-     beta_meanlog[5, 2]  0.212 2.350 -4.017  0.655  3.975   7.818
-     beta_meanlog[1, 3]  0.058 0.169 -0.214  0.040  0.363  19.102
-     beta_meanlog[2, 3] -0.036 1.275 -3.054  0.439  1.544   4.432
-     beta_meanlog[3, 3]  0.558 1.440 -1.379  0.052  3.973  21.168
-     beta_meanlog[4, 3]  0.118 1.732 -2.727 -0.372  4.063   6.610
-     beta_meanlog[5, 3] -0.292 1.302 -2.312 -0.298  2.124  29.647
-               sdlog[1]  0.702 0.115  0.498  0.696  0.946 125.465
-               sdlog[2]  2.019 1.181  0.479  1.775  4.856  74.255
+             weights[1]  0.432 0.073  0.297  0.430  0.563  20.008
+             weights[2]  0.298 0.064  0.177  0.310  0.400  12.128
+             weights[3]  0.159 0.054  0.060  0.160  0.263  19.977
+                  alpha  1.609 0.883  0.552  1.409  3.673  23.402
+     beta_meanlog[1, 1] -0.089 0.261 -0.641 -0.130  0.493  24.612
+     beta_meanlog[2, 1]  0.150 0.271 -0.404  0.153  0.554  14.485
+     beta_meanlog[3, 1] -0.302 1.288 -3.537 -0.193  1.910   7.210
+     beta_meanlog[4, 1]  0.149 1.197 -2.431  0.514  1.794  14.772
+     beta_meanlog[5, 1]  0.500 0.617 -0.809  0.611  1.458  10.102
+     beta_meanlog[1, 2]  0.698 0.775 -0.752  0.533  2.260   9.533
+     beta_meanlog[2, 2] -1.014 0.373 -1.782 -1.023 -0.337  12.472
+     beta_meanlog[3, 2]  0.531 1.862 -2.809  0.718  4.688  17.038
+     beta_meanlog[4, 2] -0.536 1.666 -3.483 -0.785  2.860   6.288
+     beta_meanlog[5, 2]  0.878 1.020 -1.310  1.159  2.590   4.981
+     beta_meanlog[1, 3]  0.120 0.377 -0.730  0.209  0.737  21.374
+     beta_meanlog[2, 3] -0.139 0.324 -0.683 -0.184  0.444  11.118
+     beta_meanlog[3, 3]  0.171 0.980 -1.645  0.257  2.249  24.319
+     beta_meanlog[4, 3] -0.108 1.353 -3.217 -0.042  2.262  13.235
+     beta_meanlog[5, 3]  0.322 0.458 -0.736  0.316  1.343  12.508
+               sdlog[1]  1.076 0.440  0.511  1.002  2.048  50.890
+               sdlog[2]  1.246 0.567  0.459  1.147  2.495  26.925
+               sdlog[3]  1.757 1.185  0.464  1.432  4.916 106.303
 
 ``` r
 x_new <- X[1:20, , drop = FALSE]
@@ -129,13 +135,13 @@ pred_mean <- predict(fit_cond, x = x_new, type = "mean", interval = "credible", 
 head(pred_mean$fit)
 ```
 
-       estimate     lower     upper
-    1  35.11909 0.9063155 264.63309
-    2 295.69775 0.8120162 688.18616
-    3 130.77507 0.6894209 680.07152
-    4 179.93781 0.8671459 309.30449
-    5  40.36869 0.9266639  72.43701
-    6 112.47209 0.8304477 319.06719
+        estimate     lower     upper
+    1  105.31145 1.0997955  79.83264
+    2 7222.81340 1.1877629 430.76516
+    3  184.49999 1.0674614 482.51688
+    4   51.95651 0.9704383 341.49957
+    5  115.44919 1.1062941 267.75300
+    6  496.56809 1.1267696 405.78169
 
 ``` r
 plot(pred_mean)
@@ -154,16 +160,16 @@ params(fit_uncond)
     Posterior mean parameters
 
     $alpha
-    [1] 0.4527
+    [1] 0.4573
 
     $w
-    [1] 0.7669
+    [1] 0.8829
 
     $shape
-    [1] 1.162
+    [1] 1.161
 
     $scale
-    [1] 0.2997
+    [1] 0.2653
 
 ``` r
 plot(fit_uncond, family = c("traceplot", "running"))

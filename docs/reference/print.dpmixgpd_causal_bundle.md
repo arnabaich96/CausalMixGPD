@@ -35,10 +35,8 @@ The input object (invisibly).
 ## Examples
 
 ``` r
-# \dontrun{
+if (FALSE) { # \dontrun{
 cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal")
-#> Error: object 'y' not found
 print(cb)
-#> Error: object 'cb' not found
-# }
+} # }
 ```

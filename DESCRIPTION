@@ -19,12 +19,13 @@ Imports:
     future,
     future.apply,
     utils,
-    rlang
+    ggplot2,
+    kableExtra
 Suggests:
     testthat (>= 3.0.0),
     crayon,
     dplyr,
-    ggplot2,
+    tibble,
     knitr,
     magrittr,
     rmarkdown,
@@ -32,9 +33,9 @@ Suggests:
     covr,
     jsonlite,
     patchwork,
-    kableExtra
+    gridExtra
 RoxygenNote: 7.3.3
 Config/testthat/edition: 3
 URL: https://arnabaich96.github.io/DPmixGPD/, https://github.com/arnabaich96/DPmixGPD
 BugReports: https://github.com/arnabaich96/DPmixGPD/issues
-VignetteBuilder: knitr,dplyr,ggplot2,kableExtra
+VignetteBuilder: knitr

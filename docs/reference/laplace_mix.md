@@ -121,6 +121,6 @@ qLaplaceMix(0.50, w = w, location = location, scale = scale)
 qLaplaceMix(0.95, w = w, location = location, scale = scale)
 #> [1] 3.18341
 replicate(10, rLaplaceMix(1, w = w, location = location, scale = scale))
-#>  [1] -1.66286044  0.07042769  0.35313649  3.82039178 -2.28844305  1.28557134
-#>  [7]  0.45672739  4.87556356  0.72547054  0.97727681
+#>  [1] -1.1575630 -0.9015586  0.2434687  1.1279241  0.4278453 -0.4431168
+#>  [7] -0.7000141  3.7166614  0.4184242  1.6680590
 ```

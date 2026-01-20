@@ -1,8 +1,12 @@
-# Legacy: 4. Backends, Kernels, and Workflow Map
+# 4. Backends, Kernels, and Workflow Map
 
-> **Legacy note:** This page is preserved for historical context and
-> extended detail. It predates the streamlined official vignettes and
-> may include longer runs or exploratory material.
+> **Legacy vignette (for the website / historical notes).** These files
+> may not match the current exported API one-to-one. Last verified:
+> **2026-01-18**.
+>
+> For the up-to-date workflow, see the main package vignettes
+> (Introduction, Model Spec, MCMC Workflow,
+> Unconditional/Conditional/Causal, Backends, S3 Reference).
 
 ## Big picture
 
@@ -62,62 +66,46 @@ bundle <- build_nimble_bundle(
   kernel = "normal",
   GPD = FALSE,
   components = 5,
-  mcmc = list(niter = 200, nburnin = 100, thin = 1, nchains = 1, seed = 1)
+  mcmc = mcmc
 )
 
 # Run
-fit <- run_mcmc_bundle_manual(bundle)
-[MCMC] Creating NIMBLE model...
-[MCMC] NIMBLE model created successfully.
-[MCMC] Configuring MCMC...
-===== Monitors =====
-thin = 1: alpha, mean, sd, z
-===== Samplers =====
-CRP_concentration sampler (1)
-  - alpha
-CRP_cluster_wrapper sampler (10)
-  - sd[]  (5 elements)
-  - mean[]  (5 elements)
-CRP sampler (1)
-  - z[1:50] 
-[MCMC] MCMC configured.
-[MCMC] Building MCMC object...
-[MCMC] MCMC object built.
-[MCMC] Attempting NIMBLE compilation (this may take a minute)...
-[MCMC] Compiling model...
-[MCMC] Compiling MCMC sampler...
-[MCMC] Compilation successful.
-|-------------|-------------|-------------|-------------|
-|  [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.
--------------------------------------------------------|
-[MCMC] MCMC execution complete. Processing results...
+fit <- load_or_fit("v04-backends-and-workflow-fit", run_mcmc_bundle_manual(bundle))
 
 # Summarize
 print(fit)
-MixGPD fit | backend: Chinese Restaurant Process | kernel: Normal Distribution | GPD tail: FALSE
-n = 50 | components = 5 | epsilon = 0.025
-MCMC: niter=200, nburnin=100, thin=1, nchains=1 
-Fit
-Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
-summary(fit)
-MixGPD summary | backend: Chinese Restaurant Process | kernel: Normal Distribution | GPD tail: FALSE | epsilon: 0.025
-n = 50 | components = 5
-Summary
-Initial components: 5 | Components after truncation: 1
-
-WAIC: 151.097
-lppd: -71.454 | pWAIC: 4.095
-
-Summary table
-  parameter   mean    sd q0.025 q0.500 q0.975     ess
- weights[1]  0.993 0.020  0.940  1.000  1.000  46.158
-      alpha  0.313 0.351  0.005  0.225  1.180  69.702
-    mean[1] -0.094 0.155 -0.375 -0.097  0.180 100.000
-      sd[1]  0.931 0.173  0.631  0.921  1.308 100.000
-plot(fit)
-
-=== histogram ===
 ```
+
+    MixGPD fit | backend: Chinese Restaurant Process | kernel: Normal Distribution | GPD tail: FALSE
+    n = 50 | components = 5 | epsilon = 0.025
+    MCMC: niter=400, nburnin=100, thin=2, nchains=1 
+    Fit
+    Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
+
+``` r
+summary(fit)
+```
+
+    MixGPD summary | backend: Chinese Restaurant Process | kernel: Normal Distribution | GPD tail: FALSE | epsilon: 0.025
+    n = 50 | components = 5
+    Summary
+    Initial components: 5 | Components after truncation: 1
+
+    WAIC: 126.441
+    lppd: -57.216 | pWAIC: 6.004
+
+    Summary table
+      parameter  mean    sd q0.025 q0.500 q0.975     ess
+     weights[1] 0.962 0.080  0.735  1.000  1.000  23.073
+          alpha 0.306 0.291  0.005  0.218  1.046  46.898
+        mean[1] 0.128 0.133 -0.104  0.112  0.404 150.000
+          sd[1] 1.539 0.422  0.967  1.483  2.602  80.825
+
+``` r
+plot(fit)
+```
+
+    === histogram ===
 
 ![](v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-1.png)
 
@@ -161,15 +149,16 @@ and the kernel registry helpers to confirm what is available.
 
 ``` r
 kernel_support_table()
-             kernel gpd covariates sb crp
-normal       normal   ✔          ✔  ✔   ✔
-lognormal lognormal   ✔          ✔  ✔   ✔
-invgauss   invgauss   ✔          ✔  ✔   ✔
-gamma         gamma   ✔          ✔  ✔   ✔
-laplace     laplace   ✔          ✔  ✔   ✔
-amoroso     amoroso   ✔          ✔  ✔   ✔
-cauchy       cauchy  ❌          ✔  ✔   ✔
 ```
+
+                 kernel gpd covariates sb crp
+    normal       normal   ✔          ✔  ✔   ✔
+    lognormal lognormal   ✔          ✔  ✔   ✔
+    invgauss   invgauss   ✔          ✔  ✔   ✔
+    gamma         gamma   ✔          ✔  ✔   ✔
+    laplace     laplace   ✔          ✔  ✔   ✔
+    amoroso     amoroso   ✔          ✔  ✔   ✔
+    cauchy       cauchy  ❌          ✔  ✔   ✔
 
 ## Where to go next
 

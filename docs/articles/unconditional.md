@@ -1,89 +1,116 @@
-# Unconditional Modeling
+# Unconditional models
 
 ## Goal
 
-Unconditional modeling fits a flexible mixture to the **bulk**
-distribution, with an optional **GPD tail** for extremes. This is the
-base case for DPmixGPD.
+Fit an unconditional DP mixture (optionally with a GPD tail) and examine
+fitted values and basic diagnostics.
 
-## Example data
-
-``` r
-data("nc_pos200_k3")
-y <- nc_pos200_k3$y
-```
-
-## Bulk‑only mixture
+## Fit
 
 ``` r
-bundle_bulk <- build_nimble_bundle(
+library(DPmixGPD)
+
+n <- 100
+y <- abs(rnorm(n)) + 0.2
+
+bundle <- build_nimble_bundle(
   y = y,
-  kernel = "gamma",
-  backend = "crp",
-  GPD = FALSE,
-  J = 4,
-  mcmc = list(niter = 200, nburnin = 50, nchains = 1)
-)
-fit_bulk <- run_mcmc_bundle_manual(bundle_bulk, show_progress = FALSE)
-```
-
-## Bulk + GPD tail
-
-``` r
-bundle_tail <- build_nimble_bundle(
-  y = y,
-  kernel = "gamma",
-  backend = "crp",
+  backend = "sb",
+  kernel = "normal",
   GPD = TRUE,
-  J = 4,
-  mcmc = list(niter = 200, nburnin = 50, nchains = 1)
+  components = 6,
+  mcmc = mcmc
 )
-fit_tail <- run_mcmc_bundle_manual(bundle_tail, show_progress = FALSE)
+
+fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+#> [MCMC] Creating NIMBLE model...
+#> [MCMC] NIMBLE model created successfully.
+#> [MCMC] Configuring MCMC...
+#> ===== Monitors =====
+#> thin = 1: alpha, mean, sd, tail_scale, tail_shape, threshold, w, z
+#> ===== Samplers =====
+#> RW sampler (21)
+#>   - alpha
+#>   - mean[]  (6 elements)
+#>   - sd[]  (6 elements)
+#>   - threshold
+#>   - tail_scale
+#>   - tail_shape
+#>   - v[]  (5 elements)
+#> categorical sampler (100)
+#>   - z[]  (100 elements)
+#> [MCMC] MCMC configured.
+#> [MCMC] Building MCMC object...
+#> [MCMC] MCMC object built.
+#> [MCMC] Attempting NIMBLE compilation (this may take a minute)...
+#> [MCMC] Compiling model...
+#> [MCMC] Compiling MCMC sampler...
+#> [MCMC] Compilation successful.
+#> [MCMC] MCMC execution complete. Processing results...
+fit
+#> MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: TRUE
+#> n = 100 | components = 6 | epsilon = 0.025
+#> MCMC: niter=400, nburnin=100, thin=2, nchains=1 
+#> Fit
+#> Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 ```
 
-## Distributional interpretation
-
-- The **bulk** mixture captures multi‑modality or skewness.
-- The **GPD tail** isolates extreme exceedances and stabilizes tail risk
-  estimates.
-
-## One “money” plot (bulk vs tail)
-
-The plot below compares a **bulk‑only** kernel to a **bulk+GPD** splice
-using fixed parameters (no MCMC required for the illustration).
+## Fitted summaries
 
 ``` r
-grid <- seq(0, 8, length.out = 200)
-bulk <- dGammaMix(grid, w = c(0.7, 0.3), shape = c(2, 6), scale = c(1, 0.4))
-tail <- vapply(
-  grid,
-  function(x) dGammaMixGpd(
-    x,
-    w = c(0.7, 0.3),
-    shape = c(2, 6),
-    scale = c(1, 0.4),
-    threshold = 4,
-    tail_scale = 1.0,
-    tail_shape = 0.2
-  ),
-  numeric(1)
-)
-plot(grid, bulk, type = "l", lwd = 2, col = "steelblue", ylab = "density", xlab = "y")
-lines(grid, tail, lwd = 2, col = "firebrick")
-legend("topright", legend = c("Bulk only", "Bulk + GPD"), col = c("steelblue", "firebrick"), lwd = 2, bty = "n")
+# For unconditional models, fitted values replicate a population-level location
+f_mean <- fitted(fit, type = "mean", level = 0.90)
+head(f_mean)
+#>        fit    lower    upper  residuals
+#> 1 1.371307 1.002138 1.989462 -0.5448536
+#> 2 1.371307 1.002138 1.989462 -0.9876641
+#> 3 1.371307 1.002138 1.989462 -0.3356788
+#> 4 1.371307 1.002138 1.989462  0.4239734
+#> 5 1.371307 1.002138 1.989462 -0.8417996
+#> 6 1.371307 1.002138 1.989462 -0.3508390
+
+f_med <- fitted(fit, type = "median", level = 0.90)
+head(f_med)
+#>         fit     lower    upper   residuals
+#> 1 0.7676098 0.7012283 0.857014  0.05884404
+#> 2 0.7676098 0.7012283 0.857014 -0.38396645
+#> 3 0.7676098 0.7012283 0.857014  0.26801884
+#> 4 0.7676098 0.7012283 0.857014  1.02767103
+#> 5 0.7676098 0.7012283 0.857014 -0.23810200
+#> 6 0.7676098 0.7012283 0.857014  0.25285861
 ```
 
-![](unconditional_files/figure-html/money-plot-1.png)
+## Posterior predictive summaries
 
-## Why the GPD tail exists
+``` r
+pred_mean <- predict(fit, type = "mean", cred.level = 0.90, interval = "credible")
+pred_q95  <- predict(fit, type = "quantile", index = 0.95, cred.level = 0.90, interval = "credible")
 
-Mixture kernels are excellent for the **center** of the distribution but
-can be unstable in the far tail. The GPD tail gives a principled
-extreme‑value model while keeping the bulk flexible.
+pred_mean$fit
+#>   estimate     lower  upper
+#> 1 1.365748 0.9977448 2.0355
+pred_q95$fit
+#>   estimate index    lower    upper
+#> 1 2.056073  0.95 1.788326 2.348427
+```
 
-## Next steps
+## Residual check
 
-- For covariates, see
-  [conditional](https://arnabaich96.github.io/DPmixGPD/articles/conditional.Rmd).
-- For careful inference, see
-  [mcmc-workflow](https://arnabaich96.github.io/DPmixGPD/articles/mcmc-workflow.Rmd).
+``` r
+res <- f_mean$residuals
+summary(res)
+#>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#> -1.1702 -0.8392 -0.5774 -0.4546 -0.1224  1.2303
+```
+
+## Plot
+
+``` r
+try(plot(fit, family = "trace"), silent = TRUE)
+```
+
+## Notes
+
+- For heavier tail behavior, use `GPD = TRUE` and increase MCMC
+  iterations.
+- For bulk-only comparisons, set `GPD = FALSE`.

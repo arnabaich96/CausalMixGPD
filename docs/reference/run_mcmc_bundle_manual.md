@@ -27,17 +27,6 @@ A fitted object of class `"mixgpd_fit"`.
 
 ``` r
 library(nimble)
-#> nimble version 1.4.0 is loaded.
-#> For more information on NIMBLE and a User Manual,
-#> please visit https://R-nimble.org.
-#> 
-#> Attaching package: 'nimble'
-#> The following object is masked from 'package:stats':
-#> 
-#>     simulate
-#> The following object is masked from 'package:base':
-#> 
-#>     declare
 y <- abs(rnorm(40)) + 0.1
 bundle <- build_nimble_bundle(
   y = y,

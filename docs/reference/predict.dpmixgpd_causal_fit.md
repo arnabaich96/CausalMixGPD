@@ -107,12 +107,9 @@ frame with columns `y`, `ps`, `trt_estimate`, `trt_lower`, `trt_upper`,
 ## Examples
 
 ``` r
-# \dontrun{
+if (FALSE) { # \dontrun{
 cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal")
-#> Error: object 'y' not found
 fit <- run_mcmc_causal(cb)
-#> Error: object 'cb' not found
 predict(fit, x = X[1:10, ], type = "quantile", p = c(0.25, 0.5, 0.75))
-#> Error: object 'fit' not found
-# }
+} # }
 ```
