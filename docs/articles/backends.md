@@ -120,7 +120,7 @@ rbind(
 - Choose **CRP** when you want the number of clusters to adapt more
   directly, at the cost of potentially more label/cluster dynamics.
 
-## Troubleshooting
+## Troubleshooting (Backends)
 
 - Compilation errors often point to unsupported kernel/backend
   combinations or reserved names.

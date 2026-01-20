@@ -46,7 +46,7 @@ source("_legacy-setup.R")
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
 
-# Start Here
+# Getting Started
 
 This vignette gives a minimal, fully working workflow for an **unconditional** model and a **conditional** model. Everything uses short MCMC runs so the vignette renders quickly.
 

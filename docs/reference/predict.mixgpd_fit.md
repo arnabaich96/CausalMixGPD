@@ -69,9 +69,18 @@ predict(
   Numeric vector of probabilities for quantiles (required for
   `type="quantile"`).
 
+- index:
+
+  Alias for `p`; numeric vector of quantile levels.
+
 - nsim:
 
   Number of posterior predictive samples (for `type="sample"`).
+
+- cred.level:
+
+  Credible level for credible intervals (default 0.95 for 95% credible
+  intervals).
 
 - interval:
 
