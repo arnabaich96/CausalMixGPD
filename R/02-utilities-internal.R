@@ -872,7 +872,7 @@ stick_breaking <- nimble::nimbleFunction(
 #' @return List with estimate, lower, upper, and q.
 #' @keywords internal
 .posterior_summarize <- function(draws, probs = c(0.025, 0.5, 0.975),
-                                 interval = c("credible", "hpd")) {
+                                 interval = "credible") {
   # Handle NULL interval (no interval computation)
   if (is.null(interval)) {
     interval <- "none"
@@ -1140,7 +1140,7 @@ stick_breaking <- nimble::nimbleFunction(
                             type = c("density", "survival", "quantile", "sample", "mean", "median"),
                             p = NULL, index = NULL, nsim = NULL,
                             cred.level = 0.95,
-                            interval = c("credible", "hpd"),
+                            interval = "credible",
                             probs = c(0.025, 0.5, 0.975),
                             store_draws = TRUE,
                             nsim_mean = 200L,
