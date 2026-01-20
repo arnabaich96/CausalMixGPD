@@ -86,75 +86,7 @@ bundle_cond_amoroso <- build_nimble_bundle(
 
 ``` r
 fit_cond_normal <- load_or_fit("v10-conditional-DPmix-CRP-fit_cond_normal", run_mcmc_bundle_manual(bundle_cond_normal))
-```
-
-    [MCMC] Creating NIMBLE model...
-
-    [MCMC] NIMBLE model created successfully.
-    [MCMC] Configuring MCMC...
-    ===== Monitors =====
-    thin = 1: alpha, mean, sd, z
-    ===== Samplers =====
-    CRP_concentration sampler (1)
-      - alpha
-    CRP_cluster_wrapper sampler (10)
-      - sd[]  (5 elements)
-      - mean[]  (5 elements)
-    CRP sampler (1)
-      - z[1:100] 
-    [MCMC] MCMC configured.
-    [MCMC] Building MCMC object...
-
-    [MCMC] MCMC object built.
-    [MCMC] Attempting NIMBLE compilation (this may take a minute)...
-    [MCMC] Compiling model...
-
-    [MCMC] Compiling MCMC sampler...
-
-    [MCMC] Compilation successful.
-
-    |-------------|-------------|-------------|-------------|
-    |  [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.
-    -------------------------------------------------------|
-    [MCMC] MCMC execution complete. Processing results...
-
-``` r
 fit_cond_amoroso <- load_or_fit("v10-conditional-DPmix-CRP-fit_cond_amoroso", run_mcmc_bundle_manual(bundle_cond_amoroso))
-```
-
-    [MCMC] Creating NIMBLE model...
-
-    [MCMC] NIMBLE model created successfully.
-    [MCMC] Configuring MCMC...
-    ===== Monitors =====
-    thin = 1: alpha, loc, scale, shape1, shape2, z
-    ===== Samplers =====
-    CRP_concentration sampler (1)
-      - alpha
-    CRP_cluster_wrapper sampler (20)
-      - loc[]  (5 elements)
-      - scale[]  (5 elements)
-      - shape1[]  (5 elements)
-      - shape2[]  (5 elements)
-    CRP sampler (1)
-      - z[1:100] 
-    [MCMC] MCMC configured.
-    [MCMC] Building MCMC object...
-
-    [MCMC] MCMC object built.
-    [MCMC] Attempting NIMBLE compilation (this may take a minute)...
-    [MCMC] Compiling model...
-
-    [MCMC] Compiling MCMC sampler...
-
-    [MCMC] Compilation successful.
-
-    |-------------|-------------|-------------|-------------|
-    |  [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.
-    -------------------------------------------------------|
-    [MCMC] MCMC execution complete. Processing results...
-
-``` r
 summary(fit_cond_normal)
 ```
 

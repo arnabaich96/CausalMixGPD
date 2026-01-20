@@ -21,7 +21,7 @@ predict(
   index = NULL,
   nsim = NULL,
   cred.level = 0.95,
-  interval = c("none", "credible"),
+  interval = "credible",
   probs = c(0.025, 0.5, 0.975),
   store_draws = TRUE,
   nsim_mean = 200L,
@@ -47,13 +47,9 @@ predict(
 
 - ps:
 
-  Ignored. Propensity scores are always computed internally from the
-  fitted PS model or stored training PS. For new covariates, PS are
-  derived from the attached PS posterior draws when available. For
-  causal workflows, use
-  [`qte()`](https://arnabaich96.github.io/DPmixGPD/reference/qte.md) /
-  [`ate()`](https://arnabaich96.github.io/DPmixGPD/reference/ate.md)
-  which orchestrate PS estimation and outcome prediction jointly.
+  Optional numeric vector of propensity scores for conditional
+  prediction. Used when the model was fit with propensity score
+  augmentation.
 
 - newdata:
 
@@ -84,7 +80,9 @@ predict(
 
 - interval:
 
-  `"none"` or `"credible"` for posterior credible bands.
+  Character or NULL; type of credible interval: `NULL` for no interval,
+  `"credible"` for equal-tailed quantile intervals (default), or `"hpd"`
+  for highest posterior density intervals.
 
 - probs:
 
@@ -136,5 +134,9 @@ fit <- run_mcmc_bundle_manual(bundle)
 pr <- predict(fit, type = "quantile", p = c(0.5, 0.9))
 pr_surv <- predict(fit, y = sort(y), type = "survival")
 pr_cdf <- list(fit = 1 - pr_surv$fit)
+# HPD intervals
+pr_hpd <- predict(fit, type = "quantile", p = c(0.5, 0.9), interval = "hpd")
+# No intervals
+pr_none <- predict(fit, type = "quantile", p = c(0.5, 0.9), interval = NULL)
 } # }
 ```

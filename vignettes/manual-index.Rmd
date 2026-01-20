@@ -1,0 +1,51 @@
+---
+title: "Manual Overview"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Manual Overview}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+# DPmixGPD User Manual
+
+Welcome to the DPmixGPD user manual. This section provides comprehensive documentation for using the package effectively.
+
+## Getting Started
+
+Begin here if you're new to DPmixGPD:
+
+- [**Introduction**](introduction.html) - Quick start guide with basic examples to get you up and running
+
+## User Guide
+
+Detailed documentation organized by topic:
+
+### Core Concepts
+
+- [**Available Distributions**](distributions.html) - Overview of supported mixture kernels (Normal, Lognormal, Gamma, etc.) and their properties
+
+- [**Model Specification**](model-spec.html) - How to specify models, set priors, and configure parameters
+
+- [**MCMC Workflow**](mcmc-workflow.html) - Running MCMC chains, convergence diagnostics, and best practices
+
+### Model Types
+
+- [**Unconditional Models**](unconditional.html) - Density estimation without covariates for univariate data
+
+- [**Conditional Models**](conditional.html) - Covariate-dependent density estimation using parameter linking
+
+- [**Causal Inference**](causal.html) - Treatment effect estimation with propensity score adjustment
+
+### Advanced Topics
+
+- [**Backends (CRP vs SB)**](backends.html) - Comparing Chinese Restaurant Process and Stick-Breaking inference approaches
+
+- [**S3 Methods Reference**](reference-s3.html) - Complete guide to using `print()`, `summary()`, `plot()`, `predict()`, and other S3 methods
+
+## How to Use This Manual
+
+1. **New users**: Start with the [Introduction](introduction.html) for a quick overview
+2. **Building models**: Read [Model Specification](model-spec.html) and [MCMC Workflow](mcmc-workflow.html)
+3. **Specific use cases**: Jump to [Unconditional](unconditional.html), [Conditional](conditional.html), or [Causal](causal.html) based on your needs
+4. **API details**: See [S3 Methods Reference](reference-s3.html) for comprehensive method documentation

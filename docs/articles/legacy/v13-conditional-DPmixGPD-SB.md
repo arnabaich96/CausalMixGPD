@@ -108,75 +108,7 @@ bundle_sb_cond_gpd_laplace <- build_nimble_bundle(
 
 ``` r
 fit_sb_cond_gpd_gamma <- load_or_fit("v13-conditional-DPmixGPD-SB-fit_sb_cond_gpd_gamma", run_mcmc_bundle_manual(bundle_sb_cond_gpd_gamma))
-```
-
-    [MCMC] Creating NIMBLE model...
-
-    [MCMC] NIMBLE model created successfully.
-    [MCMC] Configuring MCMC...
-    ===== Monitors =====
-    thin = 1: alpha, beta_scale, beta_tail_scale, beta_threshold, shape, tail_shape, threshold, w, z
-    ===== Samplers =====
-    RW sampler (46)
-      - alpha
-      - shape[]  (5 elements)
-      - beta_scale[]  (25 elements)
-      - beta_threshold[]  (5 elements)
-      - beta_tail_scale[]  (5 elements)
-      - tail_shape
-      - v[]  (4 elements)
-    categorical sampler (100)
-      - z[]  (100 elements)
-    [MCMC] MCMC configured.
-    [MCMC] Building MCMC object...
-    [MCMC] MCMC object built.
-    [MCMC] Attempting NIMBLE compilation (this may take a minute)...
-    [MCMC] Compiling model...
-
-    [MCMC] Compiling MCMC sampler...
-
-    [MCMC] Compilation successful.
-
-    |-------------|-------------|-------------|-------------|
-    |-------------------------------------------------------|
-    [MCMC] MCMC execution complete. Processing results...
-
-``` r
 fit_sb_cond_gpd_laplace <- load_or_fit("v13-conditional-DPmixGPD-SB-fit_sb_cond_gpd_laplace", run_mcmc_bundle_manual(bundle_sb_cond_gpd_laplace))
-```
-
-    [MCMC] Creating NIMBLE model...
-
-    [MCMC] NIMBLE model created successfully.
-    [MCMC] Configuring MCMC...
-    ===== Monitors =====
-    thin = 1: alpha, beta_location, beta_tail_scale, beta_threshold, scale, tail_shape, threshold, w, z
-    ===== Samplers =====
-    RW sampler (46)
-      - alpha
-      - scale[]  (5 elements)
-      - beta_location[]  (25 elements)
-      - beta_threshold[]  (5 elements)
-      - beta_tail_scale[]  (5 elements)
-      - tail_shape
-      - v[]  (4 elements)
-    categorical sampler (100)
-      - z[]  (100 elements)
-    [MCMC] MCMC configured.
-    [MCMC] Building MCMC object...
-    [MCMC] MCMC object built.
-    [MCMC] Attempting NIMBLE compilation (this may take a minute)...
-    [MCMC] Compiling model...
-
-    [MCMC] Compiling MCMC sampler...
-
-    [MCMC] Compilation successful.
-
-    |-------------|-------------|-------------|-------------|
-    |-------------------------------------------------------|
-    [MCMC] MCMC execution complete. Processing results...
-
-``` r
 summary(fit_sb_cond_gpd_gamma)
 ```
 

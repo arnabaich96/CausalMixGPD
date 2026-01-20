@@ -273,7 +273,7 @@ plot(fit_sb_bulk, family = c("traceplot", "autocorrelation", "running"))
 
 ``` r
 pred_mean_bulk <- predict(fit_sb_bulk, x = x_eval, type = "mean",
-                          interval = "credible", nsim_mean = 100)
+                          interval = "hpd", nsim_mean = 100)
 plot(pred_mean_bulk)
 ```
 
@@ -281,7 +281,7 @@ plot(pred_mean_bulk)
 
 ``` r
 pred_q_bulk <- predict(fit_sb_bulk, x = x_eval, type = "quantile",
-                       p = 0.5, interval = "credible")
+                       p = 0.5, interval = "hpd")
 plot(pred_q_bulk)
 ```
 
@@ -289,7 +289,7 @@ plot(pred_q_bulk)
 
 ``` r
 pred_d_bulk <- predict(fit_sb_bulk, x = x_eval, y = y_eval,
-                       type = "density", interval = "credible")
+                       type = "density", interval = "hpd")
 plot(pred_d_bulk)
 ```
 
@@ -297,7 +297,7 @@ plot(pred_d_bulk)
 
 ``` r
 pred_surv_bulk <- predict(fit_sb_bulk, x = x_eval, y = y_eval,
-                          type = "survival", interval = "credible")
+                          type = "survival", interval = "hpd")
 plot(pred_surv_bulk)
 ```
 
@@ -305,19 +305,114 @@ plot(pred_surv_bulk)
 
 ``` r
 ate_bulk <- ate(fit_sb_bulk, newdata = x_eval,
-                interval = "credible", nsim_mean = 100)
-plot(ate_bulk)
+                interval = "hpd", nsim_mean = 100)
+print(ate_bulk)
 ```
 
-![](v17-causal-same-backend-SB_files/figure-html/ate-sb-bulk-1.png)![](v17-causal-same-backend-SB_files/figure-html/ate-sb-bulk-2.png)
+    ATE (Average Treatment Effect)
+      Prediction points: 40
+      Conditional (covariates): YES
+      Propensity score used: NO
+      Posterior mean draws: 100
+      Credible interval: hpd
+
+    ATE estimates (treated - control):
+     id estimate  lower upper
+      1   -0.896 -2.848 0.986
+      2   -0.077 -1.539 1.296
+      3    0.111 -0.951 1.088
+      4    0.466 -0.747 1.698
+      5    0.854 -1.471 2.905
+      6   -0.621 -2.019 0.790
+    ... (34 more rows)
+
+``` r
+summary(ate_bulk)
+```
+
+    ATE Summary
+    ================================================== 
+    Prediction points: 40
+    Conditional: YES | PS used: NO
+    Posterior mean draws: 100
+    Interval: hpd
+
+    Model specification:
+      Backend (trt/con): sb / sb
+      Kernel (trt/con): laplace / laplace
+      GPD tail (trt/con): NO / NO
+
+    ATE statistics:
+      Mean: -0.176 | Median: -0.206
+      Range: [-0.896, 0.854]
+      SD: 0.419
+
+    Credible interval width:
+      Mean: 3 | Median: 2.816
+      Range: [1.413, 5.789]
+
+``` r
+ate_plots_bulk <- plot(ate_bulk)
+ate_plots_bulk$treatment_effect
+```
+
+![](v17-causal-same-backend-SB_files/figure-html/unnamed-chunk-1-1.png)
 
 ``` r
 qte_bulk <- qte(fit_sb_bulk, probs = c(0.25, 0.5, 0.75),
-                newdata = x_eval, interval = "credible")
-plot(qte_bulk)
+                newdata = x_eval, interval = "hpd")
+print(qte_bulk)
 ```
 
-![](v17-causal-same-backend-SB_files/figure-html/qte-sb-bulk-1.png)![](v17-causal-same-backend-SB_files/figure-html/qte-sb-bulk-2.png)
+    QTE (Quantile Treatment Effect)
+      Prediction points: 40
+      Quantile grid: 0.25, 0.5, 0.75
+      Conditional (covariates): YES
+      Propensity score used: NO
+      Credible interval: hpd
+
+    QTE estimates (treated - control):
+     index id estimate  lower upper
+      0.25  1   -0.716 -2.436 0.907
+      0.25  2    0.035 -1.657 1.800
+      0.25  3    0.375 -0.703 1.500
+      0.25  4    0.531 -0.992 2.135
+      0.25  5    0.931 -2.407 4.030
+      0.25  6   -0.172 -1.660 1.071
+    ... (114 more rows)
+
+``` r
+summary(qte_bulk)
+```
+
+    QTE Summary
+    ================================================== 
+    Prediction points: 40 | Quantiles: 3
+    Quantile grid: 0.25, 0.5, 0.75
+    Conditional: YES | PS used: NO
+    Interval: hpd
+
+    Model specification:
+      Backend (trt/con): sb / sb
+      Kernel (trt/con): laplace / laplace
+      GPD tail (trt/con): NO / NO
+
+    QTE by quantile:
+     quantile mean_qte median_qte min_qte max_qte sd_qte
+         0.25    0.099      0.108  -0.716   0.931  0.369
+         0.50   -0.238     -0.261  -0.816   0.622  0.363
+         0.75   -0.452     -0.547  -1.205   0.887  0.534
+
+    Credible interval width:
+      Mean: 3.38 | Median: 3.199
+      Range: [1.188, 7.465]
+
+``` r
+qte_plots_bulk <- plot(qte_bulk)
+qte_plots_bulk$treatment_effect
+```
+
+![](v17-causal-same-backend-SB_files/figure-html/unnamed-chunk-2-1.png)
 
 ------------------------------------------------------------------------
 
@@ -586,15 +681,110 @@ plot(pred_surv_gpd)
 ``` r
 ate_gpd <- ate(fit_sb_gpd, newdata = x_eval,
                interval = "credible", nsim_mean = 100)
-plot(ate_gpd)
+print(ate_gpd)
 ```
 
-![](v17-causal-same-backend-SB_files/figure-html/ate-sb-gpd-1.png)![](v17-causal-same-backend-SB_files/figure-html/ate-sb-gpd-2.png)
+    ATE (Average Treatment Effect)
+      Prediction points: 40
+      Conditional (covariates): YES
+      Propensity score used: NO
+      Posterior mean draws: 100
+      Credible interval: credible (95%)
+
+    ATE estimates (treated - control):
+     id estimate  lower upper
+      1   -0.853 -3.932 3.271
+      2    0.561 -2.375 4.373
+      3    0.330 -2.280 2.628
+      4    0.968 -2.336 4.525
+      5    1.342 -3.902 8.184
+      6   -0.475 -3.194 2.956
+    ... (34 more rows)
+
+``` r
+summary(ate_gpd)
+```
+
+    ATE Summary
+    ================================================== 
+    Prediction points: 40
+    Conditional: YES | PS used: NO
+    Posterior mean draws: 100
+    Interval: credible (95%)
+
+    Model specification:
+      Backend (trt/con): sb / sb
+      Kernel (trt/con): laplace / laplace
+      GPD tail (trt/con): YES / YES
+
+    ATE statistics:
+      Mean: 0.146 | Median: 0.182
+      Range: [-0.924, 1.363]
+      SD: 0.593
+
+    Credible interval width:
+      Mean: 6.703 | Median: 6.304
+      Range: [2.864, 12.086]
+
+``` r
+ate_plots_gpd <- plot(ate_gpd)
+ate_plots_gpd$treatment_effect
+```
+
+![](v17-causal-same-backend-SB_files/figure-html/unnamed-chunk-3-1.png)
 
 ``` r
 qte_gpd <- qte(fit_sb_gpd, probs = c(0.25, 0.5, 0.75),
                newdata = x_eval, interval = "credible")
-plot(qte_gpd)
+print(qte_gpd)
 ```
 
-![](v17-causal-same-backend-SB_files/figure-html/qte-sb-gpd-1.png)![](v17-causal-same-backend-SB_files/figure-html/qte-sb-gpd-2.png)
+    QTE (Quantile Treatment Effect)
+      Prediction points: 40
+      Quantile grid: 0.25, 0.5, 0.75
+      Conditional (covariates): YES
+      Propensity score used: NO
+      Credible interval: credible (95%)
+
+    QTE estimates (treated - control):
+     index id estimate  lower upper
+      0.25  1   -1.013 -4.260 3.340
+      0.25  2    0.076 -2.767 3.773
+      0.25  3    0.297 -1.827 2.246
+      0.25  4    0.838 -1.879 4.438
+      0.25  5    1.519 -3.473 8.968
+      0.25  6   -0.748 -3.294 2.185
+    ... (114 more rows)
+
+``` r
+summary(qte_gpd)
+```
+
+    QTE Summary
+    ================================================== 
+    Prediction points: 40 | Quantiles: 3
+    Quantile grid: 0.25, 0.5, 0.75
+    Conditional: YES | PS used: NO
+    Interval: credible (95%)
+
+    Model specification:
+      Backend (trt/con): sb / sb
+      Kernel (trt/con): laplace / laplace
+      GPD tail (trt/con): YES / YES
+
+    QTE by quantile:
+     quantile mean_qte median_qte min_qte max_qte sd_qte
+         0.25   -0.044     -0.058  -1.013   1.521  0.641
+         0.50    0.079      0.154  -0.874   1.213  0.556
+         0.75   -0.119     -0.146  -0.902   0.804  0.436
+
+    Credible interval width:
+      Mean: 6.235 | Median: 5.524
+      Range: [2.491, 15.654]
+
+``` r
+qte_plots_gpd <- plot(qte_gpd)
+qte_plots_gpd$treatment_effect
+```
+
+![](v17-causal-same-backend-SB_files/figure-html/unnamed-chunk-4-1.png)

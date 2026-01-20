@@ -91,37 +91,7 @@ print(bundle_direct$mcmc_settings)
 ``` r
 # Run MCMC
 fit <- load_or_fit("v03-basic-model-compile-run-fit", run_mcmc_bundle_manual(bundle_direct, show_progress = FALSE))
-```
 
-    [MCMC] Creating NIMBLE model...
-
-    [MCMC] NIMBLE model created successfully.
-    [MCMC] Configuring MCMC...
-    ===== Monitors =====
-    thin = 1: alpha, scale, shape, z
-    ===== Samplers =====
-    CRP_concentration sampler (1)
-      - alpha
-    CRP_cluster_wrapper sampler (10)
-      - scale[]  (5 elements)
-      - shape[]  (5 elements)
-    CRP sampler (1)
-      - z[1:200] 
-    [MCMC] MCMC configured.
-    [MCMC] Building MCMC object...
-
-    [MCMC] MCMC object built.
-    [MCMC] Attempting NIMBLE compilation (this may take a minute)...
-    [MCMC] Compiling model...
-
-    [MCMC] Compiling MCMC sampler...
-
-    [MCMC] Compilation successful.
-
-      [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.
-    [MCMC] MCMC execution complete. Processing results...
-
-``` r
 cat("Fit object class:", class(fit), "\n")
 ```
 
@@ -221,37 +191,7 @@ bundle_final <- build_nimble_bundle(
 
 # PHASE 2: MCMC
 fit_final <- load_or_fit("v03-basic-model-compile-run-fit_final", run_mcmc_bundle_manual(bundle_final, show_progress = FALSE))
-```
 
-    [MCMC] Creating NIMBLE model...
-
-    [MCMC] NIMBLE model created successfully.
-    [MCMC] Configuring MCMC...
-    ===== Monitors =====
-    thin = 1: alpha, scale, shape, z
-    ===== Samplers =====
-    CRP_concentration sampler (1)
-      - alpha
-    CRP_cluster_wrapper sampler (10)
-      - scale[]  (5 elements)
-      - shape[]  (5 elements)
-    CRP sampler (1)
-      - z[1:200] 
-    [MCMC] MCMC configured.
-    [MCMC] Building MCMC object...
-
-    [MCMC] MCMC object built.
-    [MCMC] Attempting NIMBLE compilation (this may take a minute)...
-    [MCMC] Compiling model...
-
-    [MCMC] Compiling MCMC sampler...
-
-    [MCMC] Compilation successful.
-
-      [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.
-    [MCMC] MCMC execution complete. Processing results...
-
-``` r
 print("\n=== THREE-PHASE WORKFLOW COMPLETE ===\n")
 ```
 
@@ -296,37 +236,6 @@ bundle_crp <- build_nimble_bundle(
 )
 
 fit_crp <- load_or_fit("v03-basic-model-compile-run-fit_crp", run_mcmc_bundle_manual(bundle_crp, show_progress = FALSE))
-```
-
-    [MCMC] Creating NIMBLE model...
-
-    [MCMC] NIMBLE model created successfully.
-    [MCMC] Configuring MCMC...
-    ===== Monitors =====
-    thin = 1: alpha, scale, shape, z
-    ===== Samplers =====
-    CRP_concentration sampler (1)
-      - alpha
-    CRP_cluster_wrapper sampler (10)
-      - scale[]  (5 elements)
-      - shape[]  (5 elements)
-    CRP sampler (1)
-      - z[1:200] 
-    [MCMC] MCMC configured.
-    [MCMC] Building MCMC object...
-
-    [MCMC] MCMC object built.
-    [MCMC] Attempting NIMBLE compilation (this may take a minute)...
-    [MCMC] Compiling model...
-
-    [MCMC] Compiling MCMC sampler...
-
-    [MCMC] Compilation successful.
-
-      [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.
-    [MCMC] MCMC execution complete. Processing results...
-
-``` r
 print("CRP execution complete.\n")
 ```
 
@@ -345,36 +254,6 @@ bundle_sb <- build_nimble_bundle(
 )
 
 fit_sb <- load_or_fit("v03-basic-model-compile-run-fit_sb", run_mcmc_bundle_manual(bundle_sb, show_progress = FALSE))
-```
-
-    [MCMC] Creating NIMBLE model...
-
-    [MCMC] NIMBLE model created successfully.
-    [MCMC] Configuring MCMC...
-    ===== Monitors =====
-    thin = 1: alpha, scale, shape, w, z
-    ===== Samplers =====
-    RW sampler (10)
-      - alpha
-      - shape[]  (5 elements)
-      - v[]  (4 elements)
-    conjugate sampler (5)
-      - scale[]  (5 elements)
-    categorical sampler (200)
-      - z[]  (200 elements)
-    [MCMC] MCMC configured.
-    [MCMC] Building MCMC object...
-    [MCMC] MCMC object built.
-    [MCMC] Attempting NIMBLE compilation (this may take a minute)...
-    [MCMC] Compiling model...
-
-    [MCMC] Compiling MCMC sampler...
-
-    [MCMC] Compilation successful.
-
-    [MCMC] MCMC execution complete. Processing results...
-
-``` r
 print("SB execution complete.\n")
 ```
 

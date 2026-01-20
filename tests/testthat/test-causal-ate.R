@@ -3,7 +3,7 @@
 
 test_that("ATE/QTE use matching posterior draws and shapes", {
   skip_if_not_test_level("ci")
-  
+
   set.seed(42)
   n <- 20
   X <- cbind(x1 = stats::rnorm(n), x2 = stats::runif(n, -1, 1))

@@ -10,11 +10,11 @@
 #' @noRd
 .plot_quantile_pred <- function(pred, ...) {
   fit_df <- pred$fit
-  
+
   if (!is.data.frame(fit_df)) {
     stop("Quantile prediction must return a data frame in $fit.", call. = FALSE)
   }
-  
+
   plot_data <- fit_df
   has_id <- "id" %in% names(plot_data)
 
@@ -55,11 +55,11 @@
 #' @noRd
 .plot_sample_pred <- function(pred, ...) {
   samples <- pred$fit
-  
+
   if (!is.numeric(samples)) {
     stop("Sample prediction must return a numeric vector in $fit.", call. = FALSE)
   }
-  
+
   plot_data <- data.frame(value = samples)
 
   pal <- .plot_palette(8L)
@@ -73,7 +73,7 @@
       x = "Value",
       y = "Density"
     )
-  
+
   p
 }
 
@@ -82,9 +82,9 @@
 #' @noRd
 .plot_mean_pred <- function(pred, ...) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
-  
+
   fit_df <- pred$fit
-  
+
   # Extract estimate, lower, upper from data frame
   if (is.data.frame(fit_df)) {
     mean_val <- mean(fit_df$estimate, na.rm = TRUE)
@@ -96,7 +96,7 @@
     lower_val <- NULL
     upper_val <- NULL
   }
-  
+
   # Use posterior samples for histogram
   if (!is.null(pred$draws) && is.numeric(pred$draws) && length(pred$draws) > 1) {
     samples <- as.numeric(pred$draws)
@@ -107,13 +107,13 @@
       ggplot2::geom_histogram(ggplot2::aes(y = ggplot2::after_stat(density)),
                              bins = 30, alpha = 0.7, fill = pal[5], color = pal[7]) +
       ggplot2::geom_density(color = pal[1], linewidth = 1) +
-      ggplot2::geom_vline(xintercept = mean_val, color = pal[2], 
+      ggplot2::geom_vline(xintercept = mean_val, color = pal[2],
                          linewidth = 1.2, linetype = "solid") +
       {if (!is.null(lower_val) && !is.null(upper_val) && !is.na(lower_val) && !is.na(upper_val)) {
         list(
-          ggplot2::geom_vline(xintercept = lower_val, color = pal[6], 
+          ggplot2::geom_vline(xintercept = lower_val, color = pal[6],
                              linewidth = 0.8, linetype = "dashed"),
-          ggplot2::geom_vline(xintercept = upper_val, color = pal[6], 
+          ggplot2::geom_vline(xintercept = upper_val, color = pal[6],
                              linewidth = 0.8, linetype = "dashed")
         )
       }} +
@@ -128,13 +128,13 @@
     # If no samples available, show vertical lines only
     pal <- .plot_palette(8L)
     p <- ggplot2::ggplot(data.frame(x = mean_val), ggplot2::aes(x = x)) +
-      ggplot2::geom_vline(xintercept = mean_val, color = pal[2], 
+      ggplot2::geom_vline(xintercept = mean_val, color = pal[2],
                          linewidth = 2, linetype = "solid") +
       {if (!is.null(lower_val) && !is.null(upper_val) && !is.na(lower_val) && !is.na(upper_val)) {
         list(
-          ggplot2::geom_vline(xintercept = lower_val, color = pal[6], 
+          ggplot2::geom_vline(xintercept = lower_val, color = pal[6],
                              linewidth = 1, linetype = "dashed"),
-          ggplot2::geom_vline(xintercept = upper_val, color = pal[6], 
+          ggplot2::geom_vline(xintercept = upper_val, color = pal[6],
                              linewidth = 1, linetype = "dashed")
         )
       }} +
@@ -147,7 +147,7 @@
       ) +
       ggplot2::theme(axis.text.y = ggplot2::element_blank())
   }
-  
+
   p
 }
 
@@ -156,7 +156,7 @@
 #' @noRd
 .plot_density_pred <- function(pred, ...) {
   fit_val <- pred$fit
-  
+
   # Handle both data frame and vector cases
   if (is.data.frame(fit_val)) {
     plot_data <- fit_val
@@ -173,7 +173,7 @@
     y_col <- "density"
     has_id <- FALSE
   }
-  
+
   if (has_id) {
     n_id <- length(unique(plot_data$id))
     pal <- .plot_palette(max(2L, n_id))
@@ -199,7 +199,7 @@
         y = "Density"
       )
   }
-  
+
   p
 }
 
@@ -208,9 +208,9 @@
 #' @noRd
 .plot_survival_pred <- function(pred, ...) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
-  
+
   fit_val <- pred$fit
-  
+
   # Handle data frame format from prediction
   if (is.data.frame(fit_val)) {
     plot_data <- fit_val
@@ -226,10 +226,10 @@
     )
     has_id <- FALSE
   }
-  
+
   # Sort by y values for proper survival curve
   plot_data <- plot_data[order(plot_data$y), ]
-  
+
   if (has_id) {
     n_id <- length(unique(plot_data$id))
     pal <- .plot_palette(max(2L, n_id))
@@ -258,7 +258,7 @@
       ) +
       ggplot2::ylim(0, 1)
   }
-  
+
   p
 }
 

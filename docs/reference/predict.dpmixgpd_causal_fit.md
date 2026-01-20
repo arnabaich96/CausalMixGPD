@@ -20,7 +20,7 @@ predict(
   type = c("mean", "quantile", "density", "survival", "prob"),
   p = NULL,
   nsim = NULL,
-  interval = c("none", "credible"),
+  interval = "credible",
   probs = c(0.025, 0.5, 0.975),
   store_draws = TRUE,
   nsim_mean = 200L,
@@ -72,7 +72,9 @@ predict(
 
 - interval:
 
-  `"none"` or `"credible"` for posterior credible bands.
+  Character or NULL; type of credible interval: `NULL` for no interval,
+  `"credible"` for equal-tailed quantile intervals (default), or `"hpd"`
+  for highest posterior density intervals.
 
 - probs:
 
@@ -111,5 +113,7 @@ if (FALSE) { # \dontrun{
 cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal")
 fit <- run_mcmc_causal(cb)
 predict(fit, x = X[1:10, ], type = "quantile", p = c(0.25, 0.5, 0.75))
+predict(fit, x = X[1:10, ], type = "mean", interval = "hpd")  # HPD intervals
+predict(fit, x = X[1:10, ], type = "mean", interval = NULL)   # No intervals
 } # }
 ```

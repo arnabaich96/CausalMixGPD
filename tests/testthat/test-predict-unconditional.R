@@ -33,7 +33,7 @@ test_that("Unconditional model fitted successfully", {
 
 test_that("Quantile prediction with default quartiles", {
   pred_quant <- predict(fit, type = "quantile", interval = "credible")
-  
+
   expect_s3_class(pred_quant, "mixgpd_predict")
   expect_type(pred_quant, "list")
   expect_equal(pred_quant$type, "quantile")
@@ -50,7 +50,7 @@ test_that("Quantile prediction with default quartiles", {
 test_that("Quantile prediction with custom index", {
   custom_idx <- c(0.1, 0.5, 0.9)
   pred_quant <- predict(fit, type = "quantile", index = custom_idx, interval = "credible")
-  
+
   expect_equal(nrow(pred_quant$fit), length(custom_idx))
   expect_equal(pred_quant$fit$index, custom_idx)
   expect_silent(p <- plot(pred_quant))
@@ -59,7 +59,7 @@ test_that("Quantile prediction with custom index", {
 
 test_that("Mean prediction returns data frame format", {
   pred_mean <- predict(fit, type = "mean", interval = "credible", nsim_mean = 200)
-  
+
   expect_s3_class(pred_mean, "mixgpd_predict")
   expect_equal(pred_mean$type, "mean")
   expect_s3_class(pred_mean$fit, "data.frame")
@@ -79,7 +79,7 @@ test_that("Mean prediction with custom credible level", {
                           cred.level = 0.90, nsim_mean = 200)
   pred_mean_99 <- predict(fit, type = "mean", interval = "credible",
                           cred.level = 0.99, nsim_mean = 200)
-  
+
   width_90 <- pred_mean_90$fit$upper - pred_mean_90$fit$lower
   width_99 <- pred_mean_99$fit$upper - pred_mean_99$fit$lower
   expect_true(width_99 > width_90)
@@ -89,13 +89,13 @@ test_that("Mean prediction with custom credible level", {
 test_that("Density prediction returns data frame with grid", {
   y_grid <- seq(0.1, 2, length.out = 10)
   pred_dens <- predict(fit, type = "density", y = y_grid, interval = "credible")
-  
+
   expect_s3_class(pred_dens, "mixgpd_predict")
   expect_equal(pred_dens$type, "density")
   expect_s3_class(pred_dens$fit, "data.frame")
   expect_equal(nrow(pred_dens$fit), length(y_grid))
   expect_equal(pred_dens$grid, y_grid)
-  
+
   density_col <- which(names(pred_dens$fit) %in% c("density", "estimate"))[1]
   expect_true(all(pred_dens$fit[[density_col]] >= 0))
   expect_silent(p <- plot(pred_dens))
@@ -105,7 +105,7 @@ test_that("Density prediction returns data frame with grid", {
 test_that("Survival prediction returns data frame with probabilities", {
   y_grid <- seq(0.1, 2, length.out = 10)
   pred_surv <- predict(fit, type = "survival", y = y_grid, interval = "credible")
-  
+
   expect_s3_class(pred_surv, "mixgpd_predict")
   expect_equal(pred_surv$type, "survival")
   expect_s3_class(pred_surv$fit, "data.frame")
@@ -121,7 +121,7 @@ test_that("Survival prediction returns data frame with probabilities", {
 test_that("Sample prediction returns vector of samples", {
   nsim <- 100
   pred_samp <- predict(fit, type = "sample", nsim = nsim)
-  
+
   expect_s3_class(pred_samp, "mixgpd_predict")
   expect_equal(pred_samp$type, "sample")
   expect_type(pred_samp$fit, "double")
@@ -133,7 +133,7 @@ test_that("Sample prediction returns vector of samples", {
 
 test_that("Fitted values return model-based estimates", {
   fit_vals <- fitted(fit, level = 0.95)
-  
+
   expect_s3_class(fit_vals, "mixgpd_fitted")
   expect_s3_class(fit_vals, "data.frame")
   expect_true(all(c("fit", "lower", "upper", "residuals") %in% names(fit_vals)))
@@ -149,7 +149,7 @@ test_that("Fitted values return model-based estimates", {
 test_that("Fitted values with different credible levels", {
   fit_90 <- fitted(fit, level = 0.90)
   fit_99 <- fitted(fit, level = 0.99)
-  
+
   width_90 <- mean(fit_90$upper - fit_90$lower)
   width_99 <- mean(fit_99$upper - fit_99$lower)
   expect_true(width_99 > width_90)
@@ -164,7 +164,7 @@ test_that("All prediction types have consistent class structure", {
     survival = predict(fit, type = "survival", y = seq(0.1, 2, length.out = 5)),
     sample = predict(fit, type = "sample", nsim = 50)
   )
-  
+
   for (pred_name in names(pred_types)) {
     expect_s3_class(pred_types[[pred_name]], "mixgpd_predict")
     expect_equal(pred_types[[pred_name]]$type, pred_name)

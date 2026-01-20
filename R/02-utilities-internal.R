@@ -848,7 +848,7 @@ stick_breaking <- nimble::nimbleFunction(
   if (length(draws) < 2L) {
     return(c(lower = NA_real_, upper = NA_real_))
   }
-  
+
   if (type == "credible") {
     probs <- c((1 - level) / 2, (1 + level) / 2)
     q <- stats::quantile(draws, probs = probs, na.rm = TRUE)
@@ -880,11 +880,11 @@ stick_breaking <- nimble::nimbleFunction(
     interval <- match.arg(interval, choices = c("credible", "hpd"))
   }
   probs <- as.numeric(probs)
-  
+
   # Compute credible level from probs (for HPD)
   level <- probs[length(probs)] - probs[1]
   if (!is.finite(level) || level <= 0 || level >= 1) level <- 0.95
-  
+
   # Helper to compute intervals for a row of draws
   .row_interval <- function(row) {
     if (interval == "none") {
@@ -897,7 +897,7 @@ stick_breaking <- nimble::nimbleFunction(
       c(iv["lower"], iv["upper"])
     }
   }
-  
+
   if (is.null(dim(draws))) {
     mat <- matrix(as.numeric(draws), nrow = 1)
     qmat <- t(apply(mat, 1, stats::quantile, probs = probs, na.rm = TRUE, names = FALSE))
@@ -1149,7 +1149,7 @@ stick_breaking <- nimble::nimbleFunction(
 
   .validate_fit(object)
   type <- match.arg(type)
-  
+
   # Handle interval: NULL means no interval, otherwise match to credible/hpd
   compute_interval <- TRUE
   if (is.null(interval)) {
@@ -1487,7 +1487,7 @@ stick_breaking <- nimble::nimbleFunction(
       link_specs[[nm]] <- list(link = ent$link %||% "identity", link_power = ent$link_power %||% NULL)
     }
   }
- 
+
   link_beta_ps <- list()
   # Extract link-mode PS coefficients (mandatory if PS was used in fitting)
   link_beta_ps <- list()
@@ -2041,7 +2041,7 @@ stick_breaking <- nimble::nimbleFunction(
         lower = if (!is.null(lower)) lower else rep(NA_real_, n_pred),
         upper = if (!is.null(upper)) upper else rep(NA_real_, n_pred)
       )
-      
+
       # Flatten samples for histogram (all observations combined)
       all_samples <- as.numeric(draws_mean)
 

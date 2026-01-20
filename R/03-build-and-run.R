@@ -2087,7 +2087,7 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
   Cmodel <- NULL
   Cmcmc  <- NULL
   Rmcmc_inst <- NULL
-  
+
   # Attempt to compile; on failure, fall back to running uncompiled MCMC
   cat("[MCMC] Attempting NIMBLE compilation (this may take a minute)...\n")
   compile_err <- tryCatch({
@@ -2101,7 +2101,7 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
     cat("[WARNING] Compilation failed, falling back to uncompiled MCMC.\n")
     e
   })
-  
+
   if (inherits(compile_err, "error")) {
     compiled <- FALSE
     cat("[MCMC] Creating uncompiled MCMC instance...\n")

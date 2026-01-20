@@ -82,70 +82,7 @@ bundle_sb_cauchy <- build_nimble_bundle(
 
 ``` r
 fit_sb_normal <- load_or_fit("v11-conditional-DPmix-SB-fit_sb_normal", run_mcmc_bundle_manual(bundle_sb_normal))
-```
-
-    [MCMC] Creating NIMBLE model...
-
-    [MCMC] NIMBLE model created successfully.
-    [MCMC] Configuring MCMC...
-    ===== Monitors =====
-    thin = 1: alpha, beta_mean, sd, w, z
-    ===== Samplers =====
-    RW sampler (20)
-      - alpha
-      - beta_mean[]  (15 elements)
-      - v[]  (4 elements)
-    conjugate sampler (5)
-      - sd[]  (5 elements)
-    categorical sampler (100)
-      - z[]  (100 elements)
-    [MCMC] MCMC configured.
-    [MCMC] Building MCMC object...
-    [MCMC] MCMC object built.
-    [MCMC] Attempting NIMBLE compilation (this may take a minute)...
-    [MCMC] Compiling model...
-
-    [MCMC] Compiling MCMC sampler...
-
-    [MCMC] Compilation successful.
-
-    |-------------|-------------|-------------|-------------|
-    |-------------------------------------------------------|
-    [MCMC] MCMC execution complete. Processing results...
-
-``` r
 fit_sb_cauchy <- load_or_fit("v11-conditional-DPmix-SB-fit_sb_cauchy", run_mcmc_bundle_manual(bundle_sb_cauchy))
-```
-
-    [MCMC] Creating NIMBLE model...
-
-    [MCMC] NIMBLE model created successfully.
-    [MCMC] Configuring MCMC...
-    ===== Monitors =====
-    thin = 1: alpha, beta_location, scale, w, z
-    ===== Samplers =====
-    RW sampler (25)
-      - alpha
-      - scale[]  (5 elements)
-      - beta_location[]  (15 elements)
-      - v[]  (4 elements)
-    categorical sampler (100)
-      - z[]  (100 elements)
-    [MCMC] MCMC configured.
-    [MCMC] Building MCMC object...
-    [MCMC] MCMC object built.
-    [MCMC] Attempting NIMBLE compilation (this may take a minute)...
-    [MCMC] Compiling model...
-
-    [MCMC] Compiling MCMC sampler...
-
-    [MCMC] Compilation successful.
-
-    |-------------|-------------|-------------|-------------|
-    |-------------------------------------------------------|
-    [MCMC] MCMC execution complete. Processing results...
-
-``` r
 summary(fit_sb_normal)
 ```
 

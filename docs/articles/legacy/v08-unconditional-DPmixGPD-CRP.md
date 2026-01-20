@@ -269,14 +269,14 @@ compare_tbl %>%
   kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
 ```
 
-|   model    | index | estimate  | lower | upper |
-|:----------:|:-----:|:---------:|:-----:|:-----:|
-| Bulk only  | 0.90  |  161.454  |  NA   |  NA   |
-| Bulk only  | 0.95  | 1217.893  |  NA   |  NA   |
-| Bulk only  | 0.99  | 71808.370 |  NA   |  NA   |
-| Bulk + GPD | 0.90  |   4.786   |  NA   |  NA   |
-| Bulk + GPD | 0.95  |   6.407   |  NA   |  NA   |
-| Bulk + GPD | 0.99  |  11.101   |  NA   |  NA   |
+|   model    | index | estimate  | lower  |   upper    |
+|:----------:|:-----:|:---------:|:------:|:----------:|
+| Bulk only  | 0.90  |  161.454  | 11.877 |  1486.452  |
+| Bulk only  | 0.95  | 1217.893  | 20.455 | 11932.352  |
+| Bulk only  | 0.99  | 71808.370 | 57.049 | 630249.252 |
+| Bulk + GPD | 0.90  |   4.786   | 3.607  |   5.720    |
+| Bulk + GPD | 0.95  |   6.407   | 4.788  |   7.995    |
+| Bulk + GPD | 0.99  |  11.101   | 8.345  |   15.509   |
 
 Posterior-Mean Quantiles for Bulk-Only vs GPD Models
 
@@ -306,11 +306,11 @@ return_levels$fit %>%
   kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
 ```
 
-| estimate | index | lower | upper |
-|:--------:|:-----:|:-----:|:-----:|
-|  13.584  | 0.995 |  NA   |  NA   |
-|  11.101  | 0.990 |  NA   |  NA   |
-|  8.270   | 0.975 |  NA   |  NA   |
+| estimate | index | lower  | upper  |
+|:--------:|:-----:|:------:|:------:|
+|  13.584  | 0.995 | 10.092 | 20.358 |
+|  11.101  | 0.990 | 8.345  | 15.509 |
+|  8.270   | 0.975 | 6.358  | 11.114 |
 
 Extreme Quantile Estimates (Posterior Mean and Credible Intervals)
 

@@ -185,7 +185,10 @@ qGpd <- function(p, threshold, scale, shape,
   out <- numeric(length(p))
   for (i in seq_along(p)) {
     pi <- p[i]
-    if (pi <= 0) { out[i] <- threshold; next }
+    if (pi <= 0) {
+      out[i] <- threshold
+      next
+    }
     if (pi >= 1) {
       if (shape < 0) {
         out[i] <- threshold - scale / shape
@@ -342,8 +345,14 @@ qInvGauss <- function(p, mean, shape,
   out <- numeric(length(p))
   for (i in seq_along(p)) {
     pi <- p[i]
-    if (pi <= 0) { out[i] <- 0; next }
-    if (pi >= 1) { out[i] <- Inf; next }
+    if (pi <= 0) {
+      out[i] <- 0
+      next
+    }
+    if (pi >= 1) {
+      out[i] <- Inf
+      next
+    }
     hi <- max(1, mean * 10)
     f0 <- as.numeric(pInvGauss(0, mean, shape) - pi)
     fhi <- as.numeric(pInvGauss(hi, mean, shape) - pi)
@@ -436,7 +445,7 @@ dAmoroso <- nimble::nimbleFunction(
     }
 
     z <- (x - loc) / scale
-    lik <- abs(shape2/scale) * (z^(shape1*shape2 - 1.0)) * exp(-z^shape2) / gamma(shape1)
+    lik <- abs(shape2 / scale) * (z^(shape1 * shape2 - 1.0)) * exp(-z^shape2) / gamma(shape1)
     if (lik < eps) lik <- eps
     if (log == 1) return(log(lik)) else return(lik)
   }
@@ -529,7 +538,7 @@ rAmoroso <- nimble::nimbleFunction(
     # call R quantile via nimbleFunction's R-call boundary isn't allowed; use gamma inverse and algebra
     if (shape2 < 0) p <- 1.0 - p
     z <- qgamma(p, shape = shape1, scale = 1.0, lower.tail = 1, log.p = 0)
-    return(loc + scale * (z)^(1.0/shape2))
+    return(loc + scale * (z)^(1.0 / shape2))
   }
 )
 
@@ -643,4 +652,3 @@ qCauchy <- function(p, location, scale,
   if (p >= 1) return(Inf)
   location + scale * tan(pi * (p - 0.5))
 }
-

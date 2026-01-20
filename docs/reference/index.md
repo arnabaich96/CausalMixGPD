@@ -179,16 +179,24 @@
   : Predict from a causal fit
 - [`predict(`*`<mixgpd_fit>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/predict.mixgpd_fit.md)
   : Predict from a MixGPD fit
+- [`print(`*`<dpmixgpd_ate>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.dpmixgpd_ate.md)
+  : Print an ATE object
 - [`print(`*`<dpmixgpd_bundle>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.dpmixgpd_bundle.md)
   : Print a dpmixgpd bundle
 - [`print(`*`<dpmixgpd_causal_bundle>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.dpmixgpd_causal_bundle.md)
   : Print a causal bundle
 - [`print(`*`<dpmixgpd_causal_fit>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.dpmixgpd_causal_fit.md)
   : Print a causal fit
+- [`print(`*`<dpmixgpd_qte>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.dpmixgpd_qte.md)
+  : Print a QTE object
 - [`print(`*`<mixgpd_fit>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.mixgpd_fit.md)
   : Print a MixGPD fitted object
 - [`print(`*`<mixgpd_summary>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.mixgpd_summary.md)
   : Print a MixGPD summary object
+- [`print(`*`<summary.dpmixgpd_ate>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.summary.dpmixgpd_ate.md)
+  : Print an ATE summary
+- [`print(`*`<summary.dpmixgpd_qte>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.summary.dpmixgpd_qte.md)
+  : Print a QTE summary
 - [`qte()`](https://arnabaich96.github.io/DPmixGPD/reference/qte.md) :
   Quantile treatment effects (QTE)
 - [`read_coverage_status()`](https://arnabaich96.github.io/DPmixGPD/reference/read_coverage_status.md)
@@ -205,11 +213,15 @@
   : Simulate causal QTE data
 - [`sim_survival_tail()`](https://arnabaich96.github.io/DPmixGPD/reference/sim_survival_tail.md)
   : Simulate survival tail data
+- [`summary(`*`<dpmixgpd_ate>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/summary.dpmixgpd_ate.md)
+  : Summarize an ATE object
 - [`summary(`*`<dpmixgpd_bundle>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/summary.dpmixgpd_bundle.md)
   : Summarize a dpmixgpd bundle
 - [`summary(`*`<dpmixgpd_causal_bundle>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/summary.dpmixgpd_causal_bundle.md)
   : Summarize a causal bundle
 - [`summary(`*`<dpmixgpd_causal_fit>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/summary.dpmixgpd_causal_fit.md)
   : Summarize a causal fit
+- [`summary(`*`<dpmixgpd_qte>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/summary.dpmixgpd_qte.md)
+  : Summarize a QTE object
 - [`summary(`*`<mixgpd_fit>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/summary.mixgpd_fit.md)
   : Summarize a MixGPD fitted object

@@ -140,66 +140,194 @@ fit
 ## Average Treatment Effect (ATE)
 
 ``` r
-# ATE at observed covariate values
-ate_result <- ate(fit, interval = "credible", nsim_mean = 100)
-head(ate_result$fit)
-#> [1] -0.6158624  0.1237440 -0.8590129  0.7119736  0.1962235 -0.8688013
+# ATE at observed covariate values using HPD intervals
+ate_result <- ate(fit, interval = "hpd", nsim_mean = 100)
+print(ate_result)
+#> ATE (Average Treatment Effect)
+#>   Prediction points: 80
+#>   Conditional (covariates): YES
+#>   Propensity score used: YES
+#>   PS scale: logit
+#>   Posterior mean draws: 100
+#>   Credible interval: hpd
+#> 
+#> ATE estimates (treated - control):
+#>  id estimate  lower upper
+#>   1   -0.616 -3.028 1.903
+#>   2    0.124 -0.850 0.848
+#>   3   -0.859 -3.253 2.892
+#>   4    0.712 -0.690 1.884
+#>   5    0.196 -0.702 1.176
+#>   6   -0.869 -3.536 2.671
+#> ... (74 more rows)
 
-# ATE on a new covariate grid
+# ATE on a new covariate grid with HPD intervals
 X_new <- data.frame(x = seq(min(X$x), max(X$x), length.out = 20))
-ate_grid <- ate(fit, newdata = X_new, interval = "credible", nsim_mean = 100)
+ate_grid <- ate(fit, newdata = X_new, interval = "hpd", nsim_mean = 100,
+                level = 0.90)  # 90% HPD interval
 
-# Plot ATE with credible intervals
-plot(X_new$x, ate_grid$fit, type = "l", lwd = 2, col = "blue",
-     xlab = "Covariate x", ylab = "ATE", 
-     main = "Average Treatment Effect",
-     ylim = range(c(ate_grid$fit, ate_grid$lower, ate_grid$upper), na.rm = TRUE))
-lines(X_new$x, ate_grid$lower, lty = 2, col = "blue")
-lines(X_new$x, ate_grid$upper, lty = 2, col = "blue")
-abline(h = 0, lty = 3, col = "gray")
-legend("topright", legend = c("ATE", "90% Credible Interval"), 
-       lty = c(1, 2), col = c("blue", "blue"), bty = "n")
+# Print and summarize the ATE result
+print(ate_grid)
+#> ATE (Average Treatment Effect)
+#>   Prediction points: 20
+#>   Conditional (covariates): YES
+#>   Propensity score used: YES
+#>   PS scale: logit
+#>   Posterior mean draws: 100
+#>   Credible interval: hpd
+#> 
+#> ATE estimates (treated - control):
+#>  id estimate  lower upper
+#>   1   -2.840 -9.079 5.400
+#>   2   -2.372 -7.811 5.000
+#>   3   -2.043 -7.980 3.055
+#>   4   -1.738 -6.583 3.628
+#>   5   -1.397 -4.939 3.397
+#>   6   -1.029 -4.374 2.133
+#> ... (14 more rows)
+summary(ate_grid)
+#> ATE Summary
+#> ================================================== 
+#> Prediction points: 20
+#> Conditional: YES | PS used: YES
+#> Posterior mean draws: 100
+#> Interval: hpd
+#> 
+#> Model specification:
+#>   Backend (trt/con): sb / sb
+#>   Kernel (trt/con): normal / normal
+#>   GPD tail (trt/con): YES / YES
+#> 
+#> ATE statistics:
+#>   Mean: -0.347 | Median: 0.053
+#>   Range: [-2.84, 0.947]
+#>   SD: 1.18
+#> 
+#> Credible interval width:
+#>   Mean: 4.856 | Median: 2.907
+#>   Range: [1.233, 14.48]
 ```
 
-![](causal_files/figure-html/unnamed-chunk-4-1.png)
+### ATE Plots
+
+The [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method for
+ATE objects supports multiple visualization types:
+
+- `type = "both"` (default): Returns a list with both `trt_control` and
+  `treatment_effect` plots
+- `type = "effect"`: Shows the treatment effect curve with credible
+  intervals
+- `type = "arms"`: Shows treated vs control mean outcomes
+
+``` r
+# Default: returns list with both plots
+ate_plots <- plot(ate_grid)
+ate_plots$treatment_effect
+```
+
+![](causal_files/figure-html/unnamed-chunk-5-1.png)
+
+``` r
+ate_plots$trt_control
+```
+
+![](causal_files/figure-html/unnamed-chunk-6-1.png)
 
 ## Quantile Treatment Effect (QTE)
 
 ``` r
-# QTE at multiple quantiles
+# QTE at multiple quantiles using HPD intervals
 probs <- c(0.1, 0.5, 0.9)
-qte_result <- qte(fit, probs = probs, interval = "credible")
-# qte_result$fit is a matrix: rows = observations, cols = quantiles
-head(qte_result$fit)
-#>            [,1]         [,2]        [,3]
-#> [1,] -3.5232472 -0.847587303 -0.11390989
-#> [2,] -2.3704133 -0.007149581  0.04375487
-#> [3,] -3.8216608 -1.140482887 -0.13755142
-#> [4,] -0.3144076  0.366987162  0.54327430
-#> [5,] -2.1667334  0.020958881  0.08457944
-#> [6,] -3.8000151 -1.119331515 -0.13598435
+qte_result <- qte(fit, probs = probs, interval = "hpd")
+print(qte_result)
+#> QTE (Quantile Treatment Effect)
+#>   Prediction points: 80
+#>   Quantile grid: 0.1, 0.5, 0.9
+#>   Conditional (covariates): YES
+#>   Propensity score used: YES
+#>   PS scale: logit
+#>   Credible interval: hpd
+#> 
+#> QTE estimates (treated - control):
+#>  index id estimate   lower upper
+#>    0.1  1   -3.523  -8.570 2.117
+#>    0.1  2   -2.370  -6.542 2.635
+#>    0.1  3   -3.822 -10.235 1.651
+#>    0.1  4   -0.314  -6.040 4.471
+#>    0.1  5   -2.167  -6.590 3.054
+#>    0.1  6   -3.800 -10.179 1.666
+#> ... (234 more rows)
 
-# QTE on a covariate grid
-qte_grid <- qte(fit, probs = probs, newdata = X_new, interval = "credible")
+# QTE on a covariate grid with HPD intervals
+qte_grid <- qte(fit, probs = probs, newdata = X_new, interval = "hpd")
 
-# Plot QTE curves
-# qte_grid$fit is a matrix with nrow(X_new) rows and length(probs) columns
-tau_colors <- c("red", "blue", "green")
-names(tau_colors) <- as.character(probs)
-
-plot(X_new$x, qte_grid$fit[, 2],  # median (0.5) is column 2
-     type = "l", lwd = 2, col = tau_colors["0.5"],
-     xlab = "Covariate x", ylab = "QTE", 
-     main = "Quantile Treatment Effects",
-     ylim = range(qte_grid$fit, na.rm = TRUE))
-lines(X_new$x, qte_grid$fit[, 1], lwd = 2, col = tau_colors["0.1"])  # 0.1 is column 1
-lines(X_new$x, qte_grid$fit[, 3], lwd = 2, col = tau_colors["0.9"])  # 0.9 is column 3
-abline(h = 0, lty = 3, col = "gray")
-legend("topright", legend = paste0("τ = ", probs), 
-       lty = 1, lwd = 2, col = tau_colors, bty = "n")
+# Print and summarize the QTE result
+print(qte_grid)
+#> QTE (Quantile Treatment Effect)
+#>   Prediction points: 20
+#>   Quantile grid: 0.1, 0.5, 0.9
+#>   Conditional (covariates): YES
+#>   Propensity score used: YES
+#>   PS scale: logit
+#>   Credible interval: hpd
+#> 
+#> QTE estimates (treated - control):
+#>  index id estimate   lower upper
+#>    0.1  1   -5.807 -15.822 3.767
+#>    0.1  2   -5.455 -14.665 3.515
+#>    0.1  3   -5.103 -14.381 2.303
+#>    0.1  4   -4.753 -13.040 1.945
+#>    0.1  5   -4.404 -12.452 1.399
+#>    0.1  6   -4.056 -10.841 1.757
+#> ... (54 more rows)
+summary(qte_grid)
+#> QTE Summary
+#> ================================================== 
+#> Prediction points: 20 | Quantiles: 3
+#> Quantile grid: 0.1, 0.5, 0.9
+#> Conditional: YES | PS used: YES
+#> Interval: hpd
+#> 
+#> Model specification:
+#>   Backend (trt/con): sb / sb
+#>   Kernel (trt/con): normal / normal
+#>   GPD tail (trt/con): YES / YES
+#> 
+#> QTE by quantile:
+#>  quantile mean_qte median_qte min_qte max_qte sd_qte
+#>       0.1   -2.514     -2.499  -5.807   0.507  2.024
+#>       0.5   -0.617     -0.021  -3.030   0.666  1.180
+#>       0.9    0.113      0.021  -0.585   0.950  0.425
+#> 
+#> Credible interval width:
+#>   Mean: 7.19 | Median: 7.234
+#>   Range: [0.336, 19.589]
 ```
 
-![](causal_files/figure-html/unnamed-chunk-5-1.png)
+### QTE Plots
+
+The [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method for
+QTE objects supports multiple visualization types:
+
+- `type = "both"` (default): Returns a list with both `trt_control` and
+  `treatment_effect` plots
+- `type = "effect"`: Shows the quantile treatment effect curves faceted
+  by quantile level
+- `type = "arms"`: Shows treated vs control quantile curves
+
+``` r
+# Default: returns list with both plots
+qte_plots <- plot(qte_grid)
+qte_plots$treatment_effect
+```
+
+![](causal_files/figure-html/unnamed-chunk-8-1.png)
+
+``` r
+qte_plots$trt_control
+```
+
+![](causal_files/figure-html/unnamed-chunk-9-1.png)
 
 ## Summary and diagnostics
 

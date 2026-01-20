@@ -89,10 +89,8 @@ MCMC settings list (stored but not used for code generation)
 
 
 <dt id="arg-ps">ps<a class="anchor" aria-label="anchor" href="#arg-ps"></a></dt>
-<dd><p>Numeric vector of estimated propensity scores (length N) used as a covariate
-when constructing link-mode predictors. Mandatory for causal inference models
-(with two treatment arms). When provided, <code>beta_ps_&lt;param&gt;</code> coefficient vectors
-are added for each link-mode bulk parameter; priors can be customized via <code>param_specs$ps</code>.</p></dd>
+<dd><p>Optional numeric vector (length N) of propensity scores. When provided,
+augments the design matrix for PS-adjusted outcome modeling.</p></dd>
 
 
 <dt id="arg-backend">backend<a class="anchor" aria-label="anchor" href="#arg-backend"></a></dt>
@@ -119,7 +117,7 @@ should be supplied.</p></dd>
 
 
 <dt id="arg-param-specs">param_specs<a class="anchor" aria-label="anchor" href="#arg-param-specs"></a></dt>
-<dd><p>Optional list with entries <code>bulk</code>, <code>tail</code>, and <code>ps</code> to override defaults.</p></dd>
+<dd><p>Optional list with entries <code>bulk</code> and <code>tail</code> to override defaults.</p></dd>
 
 
 <dt id="arg-mcmc">mcmc<a class="anchor" aria-label="anchor" href="#arg-mcmc"></a></dt>

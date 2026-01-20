@@ -12,6 +12,7 @@
 ^pkgdown$
 ^pkgdown/
 ^vignettes/legacy$
+^
 ^vignettes/.*\.html$
 ^vignettes/\.build\.timestamp$
 ^vignettes/legacy-precomputed$
@@ -31,3 +32,4 @@
 ^generate_precomputed\.R$
 ^temp_setup\.txt$
 ^Rplots\.pdf$
+^README\.md$

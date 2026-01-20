@@ -69,7 +69,7 @@ The default implementation supports:
 <span>  index <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  nsim <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cred.level <span class="op">=</span> <span class="fl">0.95</span>,</span>
-<span>  interval <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"credible"</span><span class="op">)</span>,</span>
+<span>  interval <span class="op">=</span> <span class="st">"credible"</span>,</span>
 <span>  probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">0.5</span>, <span class="fl">0.975</span><span class="op">)</span>,</span>
 <span>  store_draws <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  nsim_mean <span class="op">=</span> <span class="fl">200L</span>,</span>
@@ -95,10 +95,8 @@ The default implementation supports:
 
 
 <dt id="arg-ps">ps<a class="anchor" aria-label="anchor" href="#arg-ps"></a></dt>
-<dd><p>Ignored. Propensity scores are always computed internally from the fitted PS
-model or stored training PS. For new covariates, PS are derived from the attached PS
-posterior draws when available. For causal workflows, use <code><a href="qte.html">qte()</a></code> / <code><a href="ate.html">ate()</a></code> which
-orchestrate PS estimation and outcome prediction jointly.</p></dd>
+<dd><p>Optional numeric vector of propensity scores for conditional prediction.
+Used when the model was fit with propensity score augmentation.</p></dd>
 
 
 <dt id="arg-newdata">newdata<a class="anchor" aria-label="anchor" href="#arg-newdata"></a></dt>
@@ -127,7 +125,9 @@ orchestrate PS estimation and outcome prediction jointly.</p></dd>
 
 
 <dt id="arg-interval">interval<a class="anchor" aria-label="anchor" href="#arg-interval"></a></dt>
-<dd><p><code>"none"</code> or <code>"credible"</code> for posterior credible bands.</p></dd>
+<dd><p>Character or NULL; type of credible interval: <code>NULL</code> for no interval,
+<code>"credible"</code> for equal-tailed quantile intervals (default), or <code>"hpd"</code> for
+highest posterior density intervals.</p></dd>
 
 
 <dt id="arg-probs">probs<a class="anchor" aria-label="anchor" href="#arg-probs"></a></dt>
@@ -174,6 +174,10 @@ and swap the internals without breaking user code.</p>
 <span class="r-in"><span><span class="va">pr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pr_surv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sort.html" class="external-link">sort</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"survival"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">pr_cdf</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>fit <span class="op">=</span> <span class="fl">1</span> <span class="op">-</span> <span class="va">pr_surv</span><span class="op">$</span><span class="va">fit</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># HPD intervals</span></span></span>
+<span class="r-in"><span><span class="va">pr_hpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span>, interval <span class="op">=</span> <span class="st">"hpd"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># No intervals</span></span></span>
+<span class="r-in"><span><span class="va">pr_none</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span>, interval <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
