@@ -1,8 +1,12 @@
-# Legacy: 2. Available Distributions and Related Functions
+# 2. Available Distributions and Related Functions
 
-> **Legacy note:** This page is preserved for historical context and
-> extended detail. It predates the streamlined official vignettes and
-> may include longer runs or exploratory material.
+> **Legacy vignette (for the website / historical notes).** These files
+> may not match the current exported API one-to-one. Last verified:
+> **2026-01-18**.
+>
+> For the up-to-date workflow, see the main package vignettes
+> (Introduction, Model Spec, MCMC Workflow,
+> Unconditional/Conditional/Causal, Backends, S3 Reference).
 
 ``` r
 # Helpers
@@ -59,12 +63,21 @@ shape <- c(2.0, 5.0)
 scale <- c(1.0, 2.0)
 
 dGammaMix(seq(0.5, 2.0, length.out = 5), w = w, shape = shape, scale = scale)
-[1] 0.1819845 0.2190497 0.2155592 0.1936004 0.1654680
-qGammaMix(c(0.1, 0.5, 0.9), w = w, shape = shape, scale = scale)
-[1]  0.7309733  3.1258068 12.5500460
-rGammaMix(5, w = w, shape = shape, scale = scale)
-[1] 16.665600 10.606554  4.923651  2.294765  1.386307
 ```
+
+    [1] 0.1819845 0.2190497 0.2155592 0.1936004 0.1654680
+
+``` r
+qGammaMix(c(0.1, 0.5, 0.9), w = w, shape = shape, scale = scale)
+```
+
+    [1]  0.7309733  3.1258068 12.5500460
+
+``` r
+rGammaMix(5, w = w, shape = shape, scale = scale)
+```
+
+    [1]  1.1270544  3.4631704 10.4522708  0.5783015  8.9755486
 
 ### Finite mixtures
 
@@ -140,35 +153,59 @@ The standalone GPD tail distribution is available via `dGpd`, `pGpd`,
 
 ``` r
 dGpd(1.8, threshold = 1.5, scale = 0.5, shape = 0.2)
-[1] 1.013262
-dGpd(1.8, threshold = 1.5, scale = 0.5, shape = 0.2, log = TRUE)
-[1] 0.01317507
 ```
+
+    [1] 1.013262
+
+``` r
+dGpd(1.8, threshold = 1.5, scale = 0.5, shape = 0.2, log = TRUE)
+```
+
+    [1] 0.01317507
 
 ``` r
 pGpd(1.8, threshold = 1.5, scale = 0.5, shape = 0.2)
-[1] 0.4325731
-pGpd(1.8, threshold = 1.5, scale = 0.5, shape = 0.2, lower.tail = FALSE)
-[1] 0.5674269
-pGpd(1.8, threshold = 1.5, scale = 0.5, shape = 0.2, log.p = TRUE)
-[1] -0.8380038
 ```
+
+    [1] 0.4325731
+
+``` r
+pGpd(1.8, threshold = 1.5, scale = 0.5, shape = 0.2, lower.tail = FALSE)
+```
+
+    [1] 0.5674269
+
+``` r
+pGpd(1.8, threshold = 1.5, scale = 0.5, shape = 0.2, log.p = TRUE)
+```
+
+    [1] -0.8380038
 
 ``` r
 q_vec(qGpd, c(0.25, 0.5, 0.75), threshold = 1.5, scale = 0.5, shape = 0.2)
-[1] 1.648060 1.871746 2.298770
+```
+
+    [1] 1.648060 1.871746 2.298770
+
+``` r
 q_vec(qGpd, c(0.25, 0.5, 0.75), threshold = 1.5, scale = 0.5, shape = 0.2,
       lower.tail = FALSE)
-[1] 2.298770 1.871746 1.648060
+```
+
+    [1] 2.298770 1.871746 1.648060
+
+``` r
 q_vec(qGpd, c(log(0.25), log(0.5), log(0.75)), threshold = 1.5, scale = 0.5,
       shape = 0.2, log.p = TRUE)
-[1] 1.648060 1.871746 2.298770
 ```
+
+    [1] 1.648060 1.871746 2.298770
 
 ``` r
 draw_many(rGpd, list(threshold = 1.5, scale = 0.5, shape = 0.2))
-[1] 1.563279 1.843856 1.946559 2.994976 1.575788
 ```
+
+    [1] 1.750848 2.376390 3.314836 1.622107 2.087044
 
 ``` r
 grid <- seq(-4, 15, length.out = 500)
@@ -240,36 +277,60 @@ example <- normal_sets[[1]]
 
 ``` r
 dNormMix(0, w = example$w, mean = example$mean, sd = example$sd)
-[1] 0.2535206
-dNormMix(0, w = example$w, mean = example$mean, sd = example$sd, log = TRUE)
-[1] -1.37231
 ```
+
+    [1] 0.2535206
+
+``` r
+dNormMix(0, w = example$w, mean = example$mean, sd = example$sd, log = TRUE)
+```
+
+    [1] -1.37231
 
 ``` r
 pNormMix(0, w = example$w, mean = example$mean, sd = example$sd)
-[1] 0.4790278
-pNormMix(0, w = example$w, mean = example$mean, sd = example$sd, lower.tail = FALSE)
-[1] 0.5209722
-pNormMix(0, w = example$w, mean = example$mean, sd = example$sd, log.p = TRUE)
-[1] -0.7359966
 ```
+
+    [1] 0.4790278
+
+``` r
+pNormMix(0, w = example$w, mean = example$mean, sd = example$sd, lower.tail = FALSE)
+```
+
+    [1] 0.5209722
+
+``` r
+pNormMix(0, w = example$w, mean = example$mean, sd = example$sd, log.p = TRUE)
+```
+
+    [1] -0.7359966
 
 ``` r
 q_vec(qNormMix, c(0.25, 0.5, 0.75), w = example$w, mean = example$mean,
       sd = example$sd)
-[1] -1.42337727  0.08046623  0.94945934
+```
+
+    [1] -1.42337727  0.08046623  0.94945934
+
+``` r
 q_vec(qNormMix, c(0.25, 0.5, 0.75), w = example$w, mean = example$mean,
       sd = example$sd, lower.tail = FALSE)
-[1]  0.94945934  0.08046623 -1.42337727
+```
+
+    [1]  0.94945934  0.08046623 -1.42337727
+
+``` r
 q_vec(qNormMix, c(log(0.25), log(0.5), log(0.75)), w = example$w,
       mean = example$mean, sd = example$sd, log.p = TRUE)
-[1] -1.42337727  0.08046623  0.94945934
 ```
+
+    [1] -1.42337727  0.08046623  0.94945934
 
 ``` r
 draw_many(rNormMix, list(w = example$w, mean = example$mean, sd = example$sd))
-[1]  3.7747101 -1.5575775  0.9563351  0.3294482  0.9315058
 ```
+
+    [1] -2.2424812 -1.5984302 -1.0898672 -2.7838423  0.9927327
 
 ``` r
 df_norm <- do.call(rbind, lapply(normal_sets, function(ps) {
@@ -303,23 +364,27 @@ example <- normal_gpd_sets[[1]]
 
 ``` r
 dNormMixGpd(2, w = example$w, mean = example$mean, sd = example$sd, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
-[1] 0.3322395
 ```
+
+    [1] 0.3322395
 
 ``` r
 pNormMixGpd(2, w = example$w, mean = example$mean, sd = example$sd, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
-[1] 0.8504922
 ```
+
+    [1] 0.8504922
 
 ``` r
 q_vec(qNormMixGpd, c(0.5, 0.9), w = example$w, mean = example$mean, sd = example$sd, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
-[1] -0.5173894  2.1903912
 ```
+
+    [1] -0.5173894  2.1903912
 
 ``` r
 draw_many(rNormMixGpd, example)
-[1]  2.22716625 -0.03221412  2.96425523  2.24194474 -0.60592969
 ```
+
+    [1] -0.5405113  2.1568247  0.4085186  1.9550970 -1.7353762
 
 ``` r
 df_norm_gpd <- do.call(rbind, lapply(normal_gpd_sets, function(ps) {
@@ -386,26 +451,45 @@ dens <- do.call(rbind, lapply(gamma_sets, function(s) {
 
 ``` r
 dGammaMix(2, w = example$w, shape = example$shape, scale = example$scale)
-[1] 0.2952082
-dGammaMix(2, w = example$w, shape = example$shape, scale = example$scale, log = TRUE)
-[1] -1.220074
 ```
+
+    [1] 0.2952082
+
+``` r
+dGammaMix(2, w = example$w, shape = example$shape, scale = example$scale, log = TRUE)
+```
+
+    [1] -1.220074
 
 ``` r
 pGammaMix(2, w = example$w, shape = example$shape, scale = example$scale)
-[1] 0.452308
-pGammaMix(2, w = example$w, shape = example$shape, scale = example$scale, lower.tail = FALSE)
-[1] 0.547692
-pGammaMix(2, w = example$w, shape = example$shape, scale = example$scale, log.p = TRUE)
-[1] -0.7933919
 ```
+
+    [1] 0.452308
+
+``` r
+pGammaMix(2, w = example$w, shape = example$shape, scale = example$scale, lower.tail = FALSE)
+```
+
+    [1] 0.547692
+
+``` r
+pGammaMix(2, w = example$w, shape = example$shape, scale = example$scale, log.p = TRUE)
+```
+
+    [1] -0.7933919
 
 ``` r
 qGammaMix(0.95, w = example$w, shape = example$shape, scale = example$scale)
-[1] 5.008484
-qGammaMix(0.95, w = example$w, shape = example$shape, scale = example$scale, lower.tail = FALSE)
-[1] 0.4747765
 ```
+
+    [1] 5.008484
+
+``` r
+qGammaMix(0.95, w = example$w, shape = example$shape, scale = example$scale, lower.tail = FALSE)
+```
+
+    [1] 0.4747765
 
 ``` r
 df_gamma <- do.call(rbind, lapply(gamma_sets, function(ps) {
@@ -431,26 +515,37 @@ tail_shape <- 0.2
 ``` r
 dGammaMixGpd(6.5, w = example$w, shape = example$shape, scale = example$scale,
              threshold = u, tail_scale = tail_scale, tail_shape = tail_shape)
-[1] 0.01094814
+```
+
+    [1] 0.01094814
+
+``` r
 dGammaMixGpd(6.5, w = example$w, shape = example$shape, scale = example$scale,
              threshold = u, tail_scale = tail_scale, tail_shape = tail_shape, log = TRUE)
-[1] -4.514586
 ```
+
+    [1] -4.514586
 
 ``` r
 pGammaMixGpd(6.5, w = example$w, shape = example$shape, scale = example$scale,
              threshold = u, tail_scale = tail_scale, tail_shape = tail_shape)
-[1] 0.987957
+```
+
+    [1] 0.987957
+
+``` r
 pGammaMixGpd(6.5, w = example$w, shape = example$shape, scale = example$scale,
              threshold = u, tail_scale = tail_scale, tail_shape = tail_shape, lower.tail = FALSE)
-[1] 0.01204295
 ```
+
+    [1] 0.01204295
 
 ``` r
 qGammaMixGpd(0.95, w = example$w, shape = example$shape, scale = example$scale,
              threshold = u, tail_scale = tail_scale, tail_shape = tail_shape)
-[1] 5.008484
 ```
+
+    [1] 5.008484
 
 ``` r
 gamma_gpd_sets <- list(
@@ -515,36 +610,60 @@ example <- logn_sets[[1]]
 
 ``` r
 dLognormalMix(1, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog)
-[1] 0.8386766
-dLognormalMix(1, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog, log = TRUE)
-[1] -0.1759301
 ```
+
+    [1] 0.8386766
+
+``` r
+dLognormalMix(1, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog, log = TRUE)
+```
+
+    [1] -0.1759301
 
 ``` r
 pLognormalMix(1, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog)
-[1] 0.3981415
-pLognormalMix(1, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog, lower.tail = FALSE)
-[1] 0.6018585
-pLognormalMix(1, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog, log.p = TRUE)
-[1] -0.9209479
 ```
+
+    [1] 0.3981415
+
+``` r
+pLognormalMix(1, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog, lower.tail = FALSE)
+```
+
+    [1] 0.6018585
+
+``` r
+pLognormalMix(1, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog, log.p = TRUE)
+```
+
+    [1] -0.9209479
 
 ``` r
 q_vec(qLognormalMix, c(0.25, 0.5, 0.75), w = example$w,
       meanlog = example$meanlog, sdlog = example$sdlog)
-[1] 0.8282429 1.1278180 1.5752146
+```
+
+    [1] 0.8282429 1.1278180 1.5752146
+
+``` r
 q_vec(qLognormalMix, c(0.25, 0.5, 0.75), w = example$w,
       meanlog = example$meanlog, sdlog = example$sdlog, lower.tail = FALSE)
-[1] 1.5752146 1.1278180 0.8282429
+```
+
+    [1] 1.5752146 1.1278180 0.8282429
+
+``` r
 q_vec(qLognormalMix, c(log(0.25), log(0.5), log(0.75)), w = example$w,
       meanlog = example$meanlog, sdlog = example$sdlog, log.p = TRUE)
-[1] 0.8282429 1.1278180 1.5752146
 ```
+
+    [1] 0.8282429 1.1278180 1.5752146
 
 ``` r
 draw_many(rLognormalMix, list(w = example$w, meanlog = example$meanlog, sdlog = example$sdlog))
-[1] 1.6990150 1.0145593 2.7812554 0.8694293 1.7375526
 ```
+
+    [1] 1.0188662 1.7219749 0.8408650 0.9787079 1.5852858
 
 ``` r
 df_logn <- do.call(rbind, lapply(logn_sets, function(ps) {
@@ -573,23 +692,27 @@ example <- logn_gpd_sets[[1]]
 
 ``` r
 dLognormalMixGpd(2.5, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
-[1] 0.4545372
 ```
+
+    [1] 0.4545372
 
 ``` r
 pLognormalMixGpd(2.5, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
-[1] 0.7727314
 ```
+
+    [1] 0.7727314
 
 ``` r
 q_vec(qLognormalMixGpd, c(0.5, 0.9), w = example$w, meanlog = example$meanlog, sdlog = example$sdlog, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
-[1] 1.273895 2.946103
 ```
+
+    [1] 1.273895 2.946103
 
 ``` r
 draw_many(rLognormalMixGpd, example)
-[1] 0.7903039 0.8129352 1.0637491 3.9712528 0.6633289
 ```
+
+    [1] 2.7221702 1.4498951 6.5466374 0.8729865 1.5169697
 
 ``` r
 df_logn_gpd <- do.call(rbind, lapply(logn_gpd_sets, function(ps) {
@@ -650,36 +773,60 @@ example <- lap_sets[[1]]
 
 ``` r
 dLaplaceMix(0, w = example$w, location = example$location, scale = example$scale)
-[1] 0.3622437
-dLaplaceMix(0, w = example$w, location = example$location, scale = example$scale, log = TRUE)
-[1] -1.015438
 ```
+
+    [1] 0.3622437
+
+``` r
+dLaplaceMix(0, w = example$w, location = example$location, scale = example$scale, log = TRUE)
+```
+
+    [1] -1.015438
 
 ``` r
 pLaplaceMix(0, w = example$w, location = example$location, scale = example$scale)
-[1] 0.4412629
-pLaplaceMix(0, w = example$w, location = example$location, scale = example$scale, lower.tail = FALSE)
-[1] 0.5587371
-pLaplaceMix(0, w = example$w, location = example$location, scale = example$scale, log.p = TRUE)
-[1] -0.8181144
 ```
+
+    [1] 0.4412629
+
+``` r
+pLaplaceMix(0, w = example$w, location = example$location, scale = example$scale, lower.tail = FALSE)
+```
+
+    [1] 0.5587371
+
+``` r
+pLaplaceMix(0, w = example$w, location = example$location, scale = example$scale, log.p = TRUE)
+```
+
+    [1] -0.8181144
 
 ``` r
 q_vec(qLaplaceMix, c(0.25, 0.5, 0.75), w = example$w,
       location = example$location, scale = example$scale)
-[1] -0.7341261  0.1712536  1.0499993
+```
+
+    [1] -0.7341261  0.1712536  1.0499993
+
+``` r
 q_vec(qLaplaceMix, c(0.25, 0.5, 0.75), w = example$w,
       location = example$location, scale = example$scale, lower.tail = FALSE)
-[1]  1.0499993  0.1712536 -0.7341261
+```
+
+    [1]  1.0499993  0.1712536 -0.7341261
+
+``` r
 q_vec(qLaplaceMix, c(log(0.25), log(0.5), log(0.75)), w = example$w,
       location = example$location, scale = example$scale, log.p = TRUE)
-[1] -0.7341261  0.1712536  1.0499993
 ```
+
+    [1] -0.7341261  0.1712536  1.0499993
 
 ``` r
 draw_many(rLaplaceMix, list(w = example$w, location = example$location, scale = example$scale))
-[1] -0.8493686 -1.4849925  0.4879493  2.3827666 -1.4723184
 ```
+
+    [1] -3.2177890  1.8796562  1.9953426  0.2669865 -1.1081767
 
 ``` r
 df_lap <- do.call(rbind, lapply(lap_sets, function(ps) {
@@ -708,23 +855,27 @@ example <- lap_gpd_sets[[1]]
 
 ``` r
 dLaplaceMixGpd(1, w = example$w, location = example$location, scale = example$scale, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
-[1] 0.3509716
 ```
+
+    [1] 0.3509716
 
 ``` r
 pLaplaceMixGpd(1, w = example$w, location = example$location, scale = example$scale, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
-[1] 0.7929447
 ```
+
+    [1] 0.7929447
 
 ``` r
 q_vec(qLaplaceMixGpd, c(0.5, 0.9), w = example$w, location = example$location, scale = example$scale, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
-[1] -0.1619177  1.4304946
 ```
+
+    [1] -0.1619177  1.4304946
 
 ``` r
 draw_many(rLaplaceMixGpd, example)
-[1] -0.5871500  0.9570520 -0.5897065 -0.5587807  0.9028803
 ```
+
+    [1]  2.0647657 -2.4331251 -0.6120808  1.7658926 -0.1651974
 
 ``` r
 df_lap_gpd <- do.call(rbind, lapply(lap_gpd_sets, function(ps) {
@@ -785,36 +936,60 @@ example <- ig_sets[[1]]
 
 ``` r
 dInvGaussMix(1, w = example$w, mean = example$mean, shape = example$shape)
-[1] 0.5623806
-dInvGaussMix(1.5, w = example$w, mean = example$mean, shape = example$shape, log = TRUE)
-[1] -1.175151
 ```
+
+    [1] 0.5623806
+
+``` r
+dInvGaussMix(1.5, w = example$w, mean = example$mean, shape = example$shape, log = TRUE)
+```
+
+    [1] -1.175151
 
 ``` r
 pInvGaussMix(1.5, w = example$w, mean = example$mean, shape = example$shape)
-[1] 0.7287565
-pInvGaussMix(1.5, w = example$w, mean = example$mean, shape = example$shape, lower.tail = FALSE)
-[1] 0.2712435
-pInvGaussMix(1.5, w = example$w, mean = example$mean, shape = example$shape, log.p = TRUE)
-[1] -0.3164157
 ```
+
+    [1] 0.7287565
+
+``` r
+pInvGaussMix(1.5, w = example$w, mean = example$mean, shape = example$shape, lower.tail = FALSE)
+```
+
+    [1] 0.2712435
+
+``` r
+pInvGaussMix(1.5, w = example$w, mean = example$mean, shape = example$shape, log.p = TRUE)
+```
+
+    [1] -0.3164157
 
 ``` r
 q_vec(qInvGaussMix, c(0.25, 0.5, 0.75), w = example$w, mean = example$mean,
       shape = example$shape)
-[1] 0.6082680 0.9714913 1.5718861
+```
+
+    [1] 0.6082680 0.9714913 1.5718861
+
+``` r
 q_vec(qInvGaussMix, c(0.25, 0.5, 0.75), w = example$w, mean = example$mean,
       shape = example$shape, lower.tail = FALSE)
-[1] 1.5718861 0.9714913 0.6082680
+```
+
+    [1] 1.5718861 0.9714913 0.6082680
+
+``` r
 q_vec(qInvGaussMix, c(log(0.25), log(0.5), log(0.75)), w = example$w,
       mean = example$mean, shape = example$shape, log.p = TRUE)
-[1] 0.6082680 0.9714913 1.5718861
 ```
+
+    [1] 0.6082680 0.9714913 1.5718861
 
 ``` r
 draw_many(rInvGaussMix, list(w = example$w, mean = example$mean, shape = example$shape))
-[1] 0.6152170 4.1037850 0.6038831 1.0658372 0.7736633
 ```
+
+    [1] 0.8427395 1.2943944 0.9548876 1.2507577 1.6318351
 
 ``` r
 df_ig <- do.call(rbind, lapply(ig_sets, function(ps) {
@@ -843,23 +1018,27 @@ example <- ig_gpd_sets[[1]]
 
 ``` r
 dInvGaussMixGpd(2.5, w = example$w, mean = example$mean, shape = example$shape, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
-[1] 0.3251727
 ```
+
+    [1] 0.3251727
 
 ``` r
 pInvGaussMixGpd(2.5, w = example$w, mean = example$mean, shape = example$shape, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
-[1] 0.8374137
 ```
+
+    [1] 0.8374137
 
 ``` r
 q_vec(qInvGaussMixGpd, c(0.5, 0.9), w = example$w, mean = example$mean, shape = example$shape, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
-[1] 1.061874 2.758401
 ```
+
+    [1] 1.061874 2.758401
 
 ``` r
 draw_many(rInvGaussMixGpd, example)
-[1] 1.6531770 1.1368277 2.2266611 0.9180892 2.0407428
 ```
+
+    [1] 1.9174888 0.5303355 0.6706898 2.0467130 1.2647710
 
 ``` r
 df_ig_gpd <- do.call(rbind, lapply(ig_gpd_sets, function(ps) {
@@ -924,44 +1103,68 @@ example <- amor_sets[[1]]
 ``` r
 dAmorosoMix(2, w = example$w, loc = example$loc, scale = example$scale,
             shape1 = example$shape1, shape2 = example$shape2)
-[1] 0.3047048
+```
+
+    [1] 0.3047048
+
+``` r
 dAmorosoMix(2, w = example$w, loc = example$loc, scale = example$scale,
             shape1 = example$shape1, shape2 = example$shape2, log = TRUE)
-[1] -1.188412
 ```
+
+    [1] -1.188412
 
 ``` r
 pAmorosoMix(2, w = example$w, loc = example$loc, scale = example$scale,
             shape1 = example$shape1, shape2 = example$shape2)
-[1] 0.2402211
+```
+
+    [1] 0.2402211
+
+``` r
 pAmorosoMix(2, w = example$w, loc = example$loc, scale = example$scale,
             shape1 = example$shape1, shape2 = example$shape2, lower.tail = FALSE)
-[1] 0.7597789
+```
+
+    [1] 0.7597789
+
+``` r
 pAmorosoMix(2, w = example$w, loc = example$loc, scale = example$scale,
             shape1 = example$shape1, shape2 = example$shape2, log.p = TRUE)
-[1] -1.426196
 ```
+
+    [1] -1.426196
 
 ``` r
 q_vec(qAmorosoMix, c(0.25, 0.5, 0.75), w = example$w, loc = example$loc,
       scale = example$scale, shape1 = example$shape1, shape2 = example$shape2)
-[1] 2.031993 2.858225 3.993931
+```
+
+    [1] 2.031993 2.858225 3.993931
+
+``` r
 q_vec(qAmorosoMix, c(0.25, 0.5, 0.75), w = example$w, loc = example$loc,
       scale = example$scale, shape1 = example$shape1, shape2 = example$shape2,
       lower.tail = FALSE)
-[1] 3.993931 2.858225 2.031993
+```
+
+    [1] 3.993931 2.858225 2.031993
+
+``` r
 q_vec(qAmorosoMix, c(log(0.25), log(0.5), log(0.75)), w = example$w,
       loc = example$loc, scale = example$scale, shape1 = example$shape1,
       shape2 = example$shape2, log.p = TRUE)
-[1] 2.031993 2.858225 3.993931
 ```
+
+    [1] 2.031993 2.858225 3.993931
 
 ``` r
 draw_many(rAmorosoMix, list(w = example$w, loc = example$loc,
                             scale = example$scale, shape1 = example$shape1,
                             shape2 = example$shape2))
-[1] 1.455945 3.810470 4.669594 7.780940 1.798048
 ```
+
+    [1] 2.103899 4.032512 3.864348 4.200887 3.966389
 
 ``` r
 df_amor <- do.call(rbind, lapply(amor_sets, function(ps) {
@@ -992,55 +1195,79 @@ dAmorosoMixGpd(3, w = example$w, loc = example$loc, scale = example$scale,
                shape1 = example$shape1, shape2 = example$shape2,
                threshold = example$threshold, tail_scale = example$tail_scale,
                tail_shape = example$tail_shape)
-[1] 0.7287094
+```
+
+    [1] 0.7287094
+
+``` r
 dAmorosoMixGpd(3, w = example$w, loc = example$loc, scale = example$scale,
                shape1 = example$shape1, shape2 = example$shape2,
                threshold = example$threshold, tail_scale = example$tail_scale,
                tail_shape = example$tail_shape, log = TRUE)
-[1] -0.3164802
 ```
+
+    [1] -0.3164802
 
 ``` r
 pAmorosoMixGpd(3, w = example$w, loc = example$loc, scale = example$scale,
                shape1 = example$shape1, shape2 = example$shape2,
                threshold = example$threshold, tail_scale = example$tail_scale,
                tail_shape = example$tail_shape)
-[1] 0.6793679
+```
+
+    [1] 0.6793679
+
+``` r
 pAmorosoMixGpd(3, w = example$w, loc = example$loc, scale = example$scale,
                shape1 = example$shape1, shape2 = example$shape2,
                threshold = example$threshold, tail_scale = example$tail_scale,
                tail_shape = example$tail_shape, lower.tail = FALSE)
-[1] 0.3206321
+```
+
+    [1] 0.3206321
+
+``` r
 pAmorosoMixGpd(3, w = example$w, loc = example$loc, scale = example$scale,
                shape1 = example$shape1, shape2 = example$shape2,
                threshold = example$threshold, tail_scale = example$tail_scale,
                tail_shape = example$tail_shape, log.p = TRUE)
-[1] -0.3865925
 ```
+
+    [1] -0.3865925
 
 ``` r
 q_vec(qAmorosoMixGpd, c(0.25, 0.5, 0.75), w = example$w, loc = example$loc,
       scale = example$scale, shape1 = example$shape1, shape2 = example$shape2,
       threshold = example$threshold, tail_scale = example$tail_scale,
       tail_shape = example$tail_shape)
-[1] 2.031993 2.812937 3.112257
+```
+
+    [1] 2.031993 2.812937 3.112257
+
+``` r
 q_vec(qAmorosoMixGpd, c(0.25, 0.5, 0.75), w = example$w, loc = example$loc,
       scale = example$scale, shape1 = example$shape1, shape2 = example$shape2,
       threshold = example$threshold, tail_scale = example$tail_scale,
       tail_shape = example$tail_shape, lower.tail = FALSE)
-[1] 3.112257 2.812937 2.031993
+```
+
+    [1] 3.112257 2.812937 2.031993
+
+``` r
 q_vec(qAmorosoMixGpd, c(log(0.25), log(0.5), log(0.75)), w = example$w,
       loc = example$loc, scale = example$scale, shape1 = example$shape1,
       shape2 = example$shape2, threshold = example$threshold,
       tail_scale = example$tail_scale, tail_shape = example$tail_shape,
       log.p = TRUE)
-[1] 2.031993 2.812937 3.112257
 ```
+
+    [1] 2.031993 2.812937 3.112257
 
 ``` r
 draw_many(rAmorosoMixGpd, example)
-[1] 3.433480 3.541045 1.626134 2.855955 1.143805
 ```
+
+    [1] 3.841513 4.419389 3.143875 3.007030 4.147190
 
 ``` r
 df_amor_gpd <- do.call(rbind, lapply(amor_gpd_sets, function(ps) {
@@ -1097,36 +1324,60 @@ example <- ig_base_sets[[1]]
 
 ``` r
 dInvGauss(1, mean = example$mean, shape = example$shape)
-[1] 0.6627887
-dInvGauss(1, mean = example$mean, shape = example$shape, log = TRUE)
-[1] -0.4112991
 ```
+
+    [1] 0.6627887
+
+``` r
+dInvGauss(1, mean = example$mean, shape = example$shape, log = TRUE)
+```
+
+    [1] -0.4112991
 
 ``` r
 pInvGauss(1, mean = example$mean, shape = example$shape)
-[1] 0.4974402
-pInvGauss(1, mean = example$mean, shape = example$shape, lower.tail = FALSE)
-[1] 0.5025598
-pInvGauss(1, mean = example$mean, shape = example$shape, log.p = TRUE)
-[1] -0.6982799
 ```
+
+    [1] 0.4974402
+
+``` r
+pInvGauss(1, mean = example$mean, shape = example$shape, lower.tail = FALSE)
+```
+
+    [1] 0.5025598
+
+``` r
+pInvGauss(1, mean = example$mean, shape = example$shape, log.p = TRUE)
+```
+
+    [1] -0.6982799
 
 ``` r
 q_vec(qInvGauss, c(0.25, 0.5, 0.75), mean = example$mean,
       shape = example$shape)
-[1] 0.6732028 1.0038699 1.5093817
+```
+
+    [1] 0.6732028 1.0038699 1.5093817
+
+``` r
 q_vec(qInvGauss, c(0.25, 0.5, 0.75), mean = example$mean,
       shape = example$shape, lower.tail = FALSE)
-[1] 1.5093817 1.0038699 0.6732028
+```
+
+    [1] 1.5093817 1.0038699 0.6732028
+
+``` r
 q_vec(qInvGauss, c(log(0.25), log(0.5), log(0.75)), mean = example$mean,
       shape = example$shape, log.p = TRUE)
-[1] 0.6732028 1.0038699 1.5093817
 ```
+
+    [1] 0.6732028 1.0038699 1.5093817
 
 ``` r
 draw_many(rInvGauss, list(mean = example$mean, shape = example$shape))
-[1] 1.2622572 0.8143682 0.6268980 1.0948292 0.7895287
 ```
+
+    [1] 1.3868569 0.8904965 0.7377545 0.6796944 2.4177307
 
 ``` r
 df_ig_base <- do.call(rbind, lapply(ig_base_sets, function(ps) {
@@ -1156,49 +1407,73 @@ example <- ig_base_gpd_sets[[1]]
 dInvGaussGpd(2, mean = example$mean, shape = example$shape,
              threshold = example$threshold, tail_scale = example$tail_scale,
              tail_shape = example$tail_shape)
-[1] 0.5704499
+```
+
+    [1] 0.5704499
+
+``` r
 dInvGaussGpd(2, mean = example$mean, shape = example$shape,
              threshold = example$threshold, tail_scale = example$tail_scale,
              tail_shape = example$tail_shape, log = TRUE)
-[1] -0.56133
 ```
+
+    [1] -0.56133
 
 ``` r
 pInvGaussGpd(2, mean = example$mean, shape = example$shape,
              threshold = example$threshold, tail_scale = example$tail_scale,
              tail_shape = example$tail_shape)
-[1] 0.77182
+```
+
+    [1] 0.77182
+
+``` r
 pInvGaussGpd(2, mean = example$mean, shape = example$shape,
              threshold = example$threshold, tail_scale = example$tail_scale,
              tail_shape = example$tail_shape, lower.tail = FALSE)
-[1] 0.22818
+```
+
+    [1] 0.22818
+
+``` r
 pInvGaussGpd(2, mean = example$mean, shape = example$shape,
              threshold = example$threshold, tail_scale = example$tail_scale,
              tail_shape = example$tail_shape, log.p = TRUE)
-[1] -0.2590039
 ```
+
+    [1] -0.2590039
 
 ``` r
 q_vec(qInvGaussGpd, c(0.25, 0.5, 0.75), mean = example$mean,
       shape = example$shape, threshold = example$threshold,
       tail_scale = example$tail_scale, tail_shape = example$tail_shape)
-[1] 0.6561675 1.1013488 1.8902777
+```
+
+    [1] 0.6561675 1.1013488 1.8902777
+
+``` r
 q_vec(qInvGaussGpd, c(0.25, 0.5, 0.75), mean = example$mean,
       shape = example$shape, threshold = example$threshold,
       tail_scale = example$tail_scale, tail_shape = example$tail_shape,
       lower.tail = FALSE)
-[1] 1.8902777 1.1013488 0.6561675
+```
+
+    [1] 1.8902777 1.1013488 0.6561675
+
+``` r
 q_vec(qInvGaussGpd, c(log(0.25), log(0.5), log(0.75)), mean = example$mean,
       shape = example$shape, threshold = example$threshold,
       tail_scale = example$tail_scale, tail_shape = example$tail_shape,
       log.p = TRUE)
-[1] 0.6561675 1.1013488 1.8902777
 ```
+
+    [1] 0.6561675 1.1013488 1.8902777
 
 ``` r
 draw_many(rInvGaussGpd, example)
-[1] 1.042674 2.372893 1.352987 1.366026 2.152237
 ```
+
+    [1] 2.0426553 0.4040757 0.3893099 0.6613434 2.3076028
 
 ``` r
 df_ig_base_gpd <- do.call(rbind, lapply(ig_base_gpd_sets, function(ps) {
@@ -1251,48 +1526,78 @@ mix_par1 <- cauchy_sets[[2]]
 
 ``` r
 dCauchy(0, location = base_par$location, scale = base_par$scale)
-[1] 0.3183099
-dCauchy(0, location = base_par$location, scale = base_par$scale, log = TRUE)
-[1] -1.14473
 ```
+
+    [1] 0.3183099
+
+``` r
+dCauchy(0, location = base_par$location, scale = base_par$scale, log = TRUE)
+```
+
+    [1] -1.14473
 
 ``` r
 pCauchy(0, location = base_par$location, scale = base_par$scale)
-[1] 0.5
-pCauchy(0, location = base_par$location, scale = base_par$scale, lower.tail = FALSE)
-[1] 0.5
-pCauchy(0, location = base_par$location, scale = base_par$scale, log.p = TRUE)
-[1] -0.6931472
 ```
+
+    [1] 0.5
+
+``` r
+pCauchy(0, location = base_par$location, scale = base_par$scale, lower.tail = FALSE)
+```
+
+    [1] 0.5
+
+``` r
+pCauchy(0, location = base_par$location, scale = base_par$scale, log.p = TRUE)
+```
+
+    [1] -0.6931472
 
 ``` r
 q_vec(qCauchy, c(0.25, 0.5, 0.75), location = base_par$location,
       scale = base_par$scale)
-[1] -1  0  1
+```
+
+    [1] -1  0  1
+
+``` r
 q_vec(qCauchy, c(0.25, 0.5, 0.75), location = base_par$location,
       scale = base_par$scale, lower.tail = FALSE)
-[1]  1  0 -1
+```
+
+    [1]  1  0 -1
+
+``` r
 q_vec(qCauchy, c(log(0.25), log(0.5), log(0.75)), location = base_par$location,
       scale = base_par$scale, log.p = TRUE)
-[1] -1  0  1
 ```
+
+    [1] -1  0  1
 
 ``` r
 draw_many(rCauchy, list(location = base_par$location, scale = base_par$scale))
-[1] -1.5176373 -6.5331839 -1.0275563 -0.5051529 -1.8323010
 ```
+
+    [1] -0.9532252 -6.8024137 -0.2639476  2.0251497 -0.5205333
 
 ``` r
 dCauchyMix(0, w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale)
-[1] 0.1878028
-dCauchyMix(0, w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale, log = TRUE)
-[1] -1.672363
 ```
+
+    [1] 0.1878028
+
+``` r
+dCauchyMix(0, w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale, log = TRUE)
+```
+
+    [1] -1.672363
 
 ``` r
 draw_many(rCauchyMix, list(w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale))
-[1] -19.1206666   3.8342141   1.3095352  -1.2521455  -0.8045539
 ```
+
+    [1] -1.4161035 -0.4316905  0.8122905 -1.2247657 -1.6960595
 
 ``` r
 df_cauchy <- rbind(

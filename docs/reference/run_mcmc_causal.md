@@ -28,10 +28,8 @@ A list of class `"dpmixgpd_causal_fit"`.
 ## Examples
 
 ``` r
-# \dontrun{
+if (FALSE) { # \dontrun{
 cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal")
-#> Error: object 'y' not found
 fit <- run_mcmc_causal(cb)
-#> Error: object 'cb' not found
-# }
+} # }
 ```

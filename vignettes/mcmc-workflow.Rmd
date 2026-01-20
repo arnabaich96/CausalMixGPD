@@ -92,7 +92,7 @@ Otherwise rebuild with a different `mcmc` list.
 # fit2 <- run_mcmc_bundle_manual(bundle2)
 ```
 
-## Troubleshooting
+## Troubleshooting (MCMC Workflow)
 
 - **Compilation errors**: call `printErrors()` if NIMBLE suggests it.
 - **Slow runs**: start with `FAST <- TRUE`, then scale up.

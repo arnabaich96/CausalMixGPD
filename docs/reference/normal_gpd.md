@@ -121,6 +121,6 @@ qNormGpd(0.50, mean, sd, threshold, tail_scale, tail_shape)
 qNormGpd(0.95, mean, sd, threshold, tail_scale, tail_shape)
 #> [1] 2.29835
 replicate(10, rNormGpd(1, mean, sd, threshold, tail_scale, tail_shape))
-#>  [1]  1.6865752  0.8022651  1.7308504  2.5057186  1.4508674  0.2386494
-#>  [7]  2.4180484  1.4333887 -0.2568675  0.8535367
+#>  [1] -0.19800504  0.34228524  1.37530850 -0.81670841  1.06620161 -0.04294042
+#>  [7]  0.01074167  0.99587085  0.61534822  0.87896715
 ```

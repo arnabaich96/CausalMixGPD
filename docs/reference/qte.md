@@ -41,12 +41,9 @@ treated/control prediction objects.
 ## Examples
 
 ``` r
-# \dontrun{
+if (FALSE) { # \dontrun{
 cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", J = 6)
-#> Error: object 'y' not found
 fit <- run_mcmc_causal(cb, show_progress = FALSE)
-#> Error: object 'cb' not found
 qte(fit, probs = c(0.5, 0.9), newdata = X[1:5, ])
-#> Error: object 'fit' not found
-# }
+} # }
 ```

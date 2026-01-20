@@ -122,6 +122,6 @@ qLognormalGpd(0.50, meanlog, sdlog, threshold, tail_scale, tail_shape)
 qLognormalGpd(0.95, meanlog, sdlog, threshold, tail_scale, tail_shape)
 #> [1] 2.65302
 replicate(10, rLognormalGpd(1, meanlog, sdlog, threshold, tail_scale, tail_shape))
-#>  [1] 0.9433664 1.5663757 2.9756614 1.1434546 0.8204563 1.7108574 1.3177066
-#>  [8] 1.7148802 3.1690926 1.1320054
+#>  [1] 1.1149317 0.9059939 1.5881729 1.6711589 1.0603531 2.6230252 1.7190734
+#>  [8] 1.6648508 2.2918030 2.1176562
 ```

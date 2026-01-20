@@ -90,7 +90,7 @@ rbind(
 - Choose **SB** when you want explicit control over truncation (`components`) and stable computation.
 - Choose **CRP** when you want the number of clusters to adapt more directly, at the cost of potentially more label/cluster dynamics.
 
-## Troubleshooting
+## Troubleshooting (Backends)
 
 - Compilation errors often point to unsupported kernel/backend combinations or reserved names.
 - Start with small `niter` and one chain, then scale up.

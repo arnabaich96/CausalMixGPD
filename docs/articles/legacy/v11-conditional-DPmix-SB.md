@@ -1,8 +1,12 @@
-# Legacy: 11. Conditional DPmix with Stick-Breaking Backend
+# 11. Conditional DPmix with Stick-Breaking Backend
 
-> **Legacy note:** This page is preserved for historical context and
-> extended detail. It predates the streamlined official vignettes and
-> may include longer runs or exploratory material.
+> **Legacy vignette (for the website / historical notes).** These files
+> may not match the current exported API one-to-one. Last verified:
+> **2026-01-18**.
+>
+> For the up-to-date workflow, see the main package vignettes
+> (Introduction, Model Spec, MCMC Workflow,
+> Unconditional/Conditional/Causal, Backends, S3 Reference).
 
 ## Conditional DPmix: Stick-Breaking Backend
 
@@ -58,12 +62,7 @@ bundle_sb_normal <- build_nimble_bundle(
   backend = "sb",
   GPD = FALSE,
   components = 5,
-  mcmc = list(
-    niter = 60,
-    nburnin = 10,
-    nchains = 2,
-    thin = 1
-  )
+  mcmc = mcmc
 )
 
 bundle_sb_cauchy <- build_nimble_bundle(
@@ -73,12 +72,7 @@ bundle_sb_cauchy <- build_nimble_bundle(
   backend = "sb",
   GPD = FALSE,
   components = 5,
-  mcmc = list(
-    niter = 60,
-    nburnin = 10,
-    nchains = 1,
-    thin = 1
-  )
+  mcmc = mcmc
 )
 ```
 
@@ -87,151 +81,163 @@ bundle_sb_cauchy <- build_nimble_bundle(
 ### Running MCMC
 
 ``` r
-fit_sb_normal <- run_mcmc_bundle_manual(bundle_sb_normal)
-[MCMC] Creating NIMBLE model...
-[MCMC] NIMBLE model created successfully.
-[MCMC] Configuring MCMC...
-===== Monitors =====
-thin = 1: alpha, beta_mean, sd, w, z
-===== Samplers =====
-RW sampler (20)
-  - alpha
-  - beta_mean[]  (15 elements)
-  - v[]  (4 elements)
-conjugate sampler (5)
-  - sd[]  (5 elements)
-categorical sampler (100)
-  - z[]  (100 elements)
-[MCMC] MCMC configured.
-[MCMC] Building MCMC object...
-[MCMC] MCMC object built.
-[MCMC] Attempting NIMBLE compilation (this may take a minute)...
-[MCMC] Compiling model...
-[MCMC] Compiling MCMC sampler...
-[MCMC] Compilation successful.
-|-------------|-------------|-------------|-------------|
-|-------------------------------------------------------|
-|-------------|-------------|-------------|-------------|
-|-------------------------------------------------------|
-[MCMC] MCMC execution complete. Processing results...
-fit_sb_cauchy <- run_mcmc_bundle_manual(bundle_sb_cauchy)
-[MCMC] Creating NIMBLE model...
-[MCMC] NIMBLE model created successfully.
-[MCMC] Configuring MCMC...
-===== Monitors =====
-thin = 1: alpha, beta_location, scale, w, z
-===== Samplers =====
-RW sampler (25)
-  - alpha
-  - scale[]  (5 elements)
-  - beta_location[]  (15 elements)
-  - v[]  (4 elements)
-categorical sampler (100)
-  - z[]  (100 elements)
-[MCMC] MCMC configured.
-[MCMC] Building MCMC object...
-[MCMC] MCMC object built.
-[MCMC] Attempting NIMBLE compilation (this may take a minute)...
-[MCMC] Compiling model...
-[MCMC] Compiling MCMC sampler...
-[MCMC] Compilation successful.
-|-------------|-------------|-------------|-------------|
-|-------------------------------------------------------|
-[MCMC] MCMC execution complete. Processing results...
-summary(fit_sb_normal)
-MixGPD summary | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: FALSE | epsilon: 0.025
-n = 100 | components = 5
-Summary
-Initial components: 5 | Components after truncation: 3
-
-WAIC: 549.708
-lppd: -229.028 | pWAIC: 45.826
-
-Summary table
-       parameter   mean    sd q0.025 q0.500 q0.975    ess
-      weights[1]  0.476 0.050  0.390  0.470  0.575  6.034
-      weights[2]  0.361 0.041  0.280  0.370  0.420 53.070
-      weights[3]  0.093 0.026  0.050  0.090  0.145 13.431
-           alpha  1.012 0.486  0.406  0.905  2.235 24.753
- beta_mean[1, 1]  0.205 1.228 -2.279  0.088  2.558  8.646
- beta_mean[2, 1]  0.919 0.690 -0.241  0.791  2.204 10.907
- beta_mean[3, 1]  0.277 1.338 -2.143  0.606  2.474  3.295
- beta_mean[4, 1] -0.047 1.650 -3.340  0.524  2.484  2.836
- beta_mean[5, 1]  1.431 1.550 -0.804  1.411  4.758  4.756
- beta_mean[1, 2]  0.666 0.835 -0.736  0.641  2.690 13.341
- beta_mean[2, 2] -1.685 0.949 -3.379 -1.570 -0.108 13.996
- beta_mean[3, 2]  0.848 1.688 -2.089  0.550  3.519  4.634
- beta_mean[4, 2]  1.844 1.098 -0.313  2.000  3.649  2.732
- beta_mean[5, 2] -0.310 1.873 -3.172 -0.280  3.051  3.067
- beta_mean[1, 3]  1.379 0.778  0.047  1.258  3.172 12.503
- beta_mean[2, 3] -1.078 0.601 -2.291 -1.143  0.261 22.774
- beta_mean[3, 3] -0.453 1.730 -3.300  0.180  1.655  2.778
- beta_mean[4, 3]  0.999 0.967 -0.572  0.834  3.556 13.834
- beta_mean[5, 3] -0.223 1.347 -2.518 -0.178  2.362  6.226
-           sd[1]  0.070 0.020  0.039  0.068  0.108 60.523
-           sd[2]  0.065 0.025  0.032  0.060  0.132 45.082
-           sd[3]  2.245 1.549  0.404  1.847  5.752 33.330
-summary(fit_sb_cauchy)
-MixGPD summary | backend: Stick-Breaking Process | kernel: Cauchy Distribution | GPD tail: FALSE | epsilon: 0.025
-n = 100 | components = 5
-Summary
-Initial components: 5 | Components after truncation: 5
-
-WAIC: 613.394
-lppd: -243.915 | pWAIC: 62.782
-
-Summary table
-           parameter   mean    sd q0.025 q0.500 q0.975    ess
-          weights[1]  0.292 0.034  0.232  0.290  0.360  6.026
-          weights[2]  0.244 0.032  0.192  0.240  0.305  5.038
-          weights[3]  0.208 0.024  0.160  0.210  0.258 13.254
-          weights[4]  0.148 0.038  0.080  0.160  0.208  3.956
-          weights[5]  0.109 0.033  0.050  0.110  0.160 12.835
-               alpha  1.964 0.827  0.959  1.858  3.549  5.613
- beta_location[1, 1]  1.578 0.693  0.566  1.353  2.673  2.483
- beta_location[2, 1] -0.904 0.972 -2.135 -1.059  0.820  3.933
- beta_location[3, 1] -0.545 0.853 -2.335 -0.752  0.895  9.340
- beta_location[4, 1]  4.482 0.477  3.667  4.550  5.287 24.286
- beta_location[5, 1] -1.161 0.896 -2.595 -1.356  0.928  7.206
- beta_location[1, 2]  0.145 0.959 -1.699  0.244  1.437  6.229
- beta_location[2, 2]  1.331 0.699  0.026  1.431  2.382  7.669
- beta_location[3, 2] -0.506 1.031 -2.950 -0.388  0.996  4.031
- beta_location[4, 2]  2.373 0.859  0.180  2.684  3.122  8.753
- beta_location[5, 2] -0.108 2.596 -3.539 -0.946  5.577  2.430
- beta_location[1, 3] -0.969 0.849 -2.831 -0.590 -0.036  4.210
- beta_location[2, 3]  0.884 1.129 -1.630  1.089  2.690  6.325
- beta_location[3, 3] -1.091 1.037 -2.875 -1.065  0.686  4.788
- beta_location[4, 3]  1.253 0.489  0.498  1.262  2.224  7.531
- beta_location[5, 3]  1.321 0.645  0.070  1.544  2.380  7.169
-            scale[1]  1.860 0.779  0.859  1.473  3.695  6.567
-            scale[2]  1.915 0.774  0.632  1.895  3.533 31.350
-            scale[3]  1.700 0.726  0.849  1.519  3.166 15.029
-            scale[4]  1.293 0.708  0.237  1.331  2.773 50.000
-            scale[5]  1.761 1.225  0.237  1.324  4.110  7.918
+fit_sb_normal <- load_or_fit("v11-conditional-DPmix-SB-fit_sb_normal", run_mcmc_bundle_manual(bundle_sb_normal))
 ```
+
+    [MCMC] Creating NIMBLE model...
+
+    [MCMC] NIMBLE model created successfully.
+    [MCMC] Configuring MCMC...
+    ===== Monitors =====
+    thin = 1: alpha, beta_mean, sd, w, z
+    ===== Samplers =====
+    RW sampler (20)
+      - alpha
+      - beta_mean[]  (15 elements)
+      - v[]  (4 elements)
+    conjugate sampler (5)
+      - sd[]  (5 elements)
+    categorical sampler (100)
+      - z[]  (100 elements)
+    [MCMC] MCMC configured.
+    [MCMC] Building MCMC object...
+    [MCMC] MCMC object built.
+    [MCMC] Attempting NIMBLE compilation (this may take a minute)...
+    [MCMC] Compiling model...
+
+    [MCMC] Compiling MCMC sampler...
+
+    [MCMC] Compilation successful.
+
+    |-------------|-------------|-------------|-------------|
+    |-------------------------------------------------------|
+    [MCMC] MCMC execution complete. Processing results...
+
+``` r
+fit_sb_cauchy <- load_or_fit("v11-conditional-DPmix-SB-fit_sb_cauchy", run_mcmc_bundle_manual(bundle_sb_cauchy))
+```
+
+    [MCMC] Creating NIMBLE model...
+
+    [MCMC] NIMBLE model created successfully.
+    [MCMC] Configuring MCMC...
+    ===== Monitors =====
+    thin = 1: alpha, beta_location, scale, w, z
+    ===== Samplers =====
+    RW sampler (25)
+      - alpha
+      - scale[]  (5 elements)
+      - beta_location[]  (15 elements)
+      - v[]  (4 elements)
+    categorical sampler (100)
+      - z[]  (100 elements)
+    [MCMC] MCMC configured.
+    [MCMC] Building MCMC object...
+    [MCMC] MCMC object built.
+    [MCMC] Attempting NIMBLE compilation (this may take a minute)...
+    [MCMC] Compiling model...
+
+    [MCMC] Compiling MCMC sampler...
+
+    [MCMC] Compilation successful.
+
+    |-------------|-------------|-------------|-------------|
+    |-------------------------------------------------------|
+    [MCMC] MCMC execution complete. Processing results...
+
+``` r
+summary(fit_sb_normal)
+```
+
+    MixGPD summary | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: FALSE | epsilon: 0.025
+    n = 100 | components = 5
+    Summary
+    Initial components: 5 | Components after truncation: 1
+
+    WAIC: 557.275
+    lppd: -243.030 | pWAIC: 35.608
+
+    Summary table
+           parameter   mean    sd q0.025 q0.500 q0.975     ess
+          weights[1]  0.810 0.129  0.480  0.825  1.000   4.525
+               alpha  1.275 0.724  0.346  1.138  2.937  26.667
+     beta_mean[1, 1]  0.839 0.674 -0.143  0.787  2.468  38.443
+     beta_mean[2, 1] -0.290 1.523 -3.093 -0.433  3.243   8.076
+     beta_mean[3, 1]  0.119 1.685 -3.157  0.600  2.795  12.208
+     beta_mean[4, 1] -0.085 1.640 -2.479 -0.435  3.255  16.761
+     beta_mean[5, 1] -0.103 1.192 -1.878 -0.377  2.716  16.102
+     beta_mean[1, 2]  0.108 0.773 -1.064  0.032  1.788  39.354
+     beta_mean[2, 2] -0.286 1.977 -4.361  0.064  3.231   5.473
+     beta_mean[3, 2]  0.319 1.740 -2.770  0.482  3.901   8.968
+     beta_mean[4, 2] -0.756 1.740 -3.657 -0.838  2.397  29.061
+     beta_mean[5, 2] -0.983 1.884 -3.459 -1.439  2.772   8.028
+     beta_mean[1, 3]  0.328 0.633 -0.868  0.210  1.943  26.597
+     beta_mean[2, 3] -0.749 1.493 -3.730 -0.591  1.768   6.438
+     beta_mean[3, 3] -0.711 1.664 -3.429 -0.741  2.547  15.724
+     beta_mean[4, 3]  0.662 1.233 -2.649  0.957  2.519  32.085
+     beta_mean[5, 3]  1.415 1.454 -1.670  1.579  3.639  17.512
+               sd[1]  0.054 0.010  0.036  0.053  0.073 112.333
+
+``` r
+summary(fit_sb_cauchy)
+```
+
+    MixGPD summary | backend: Stick-Breaking Process | kernel: Cauchy Distribution | GPD tail: FALSE | epsilon: 0.025
+    n = 100 | components = 5
+    Summary
+    Initial components: 5 | Components after truncation: 3
+
+    WAIC: 608.289
+    lppd: -250.281 | pWAIC: 53.864
+
+    Summary table
+               parameter   mean    sd q0.025 q0.500 q0.975    ess
+              weights[1]  0.439 0.091  0.300  0.420  0.640  9.896
+              weights[2]  0.283 0.057  0.167  0.290  0.370 11.716
+              weights[3]  0.183 0.056  0.090  0.170  0.293  8.184
+                   alpha  1.911 1.122  0.522  1.663  4.689 26.383
+     beta_location[1, 1] -0.046 0.971 -1.707 -0.049  1.814  8.544
+     beta_location[2, 1]  0.409 1.988 -3.490  0.464  3.522 21.689
+     beta_location[3, 1]  1.567 1.814 -1.400  1.827  4.686  6.793
+     beta_location[4, 1]  0.705 2.333 -4.090  0.795  4.337 10.000
+     beta_location[5, 1] -0.684 1.004 -2.437 -0.670  1.589 11.242
+     beta_location[1, 2] -0.785 1.853 -3.938 -1.114  3.103 14.580
+     beta_location[2, 2]  0.389 2.294 -3.943  0.597  3.849 16.460
+     beta_location[3, 2]  0.377 1.407 -2.735  0.642  2.855 19.471
+     beta_location[4, 2] -0.287 2.070 -4.024 -0.135  3.440 23.622
+     beta_location[5, 2] -0.861 1.905 -3.746 -1.155  4.068 10.795
+     beta_location[1, 3] -0.804 1.118 -2.986 -0.860  1.004 12.234
+     beta_location[2, 3]  0.274 1.967 -3.563  0.495  3.655 15.622
+     beta_location[3, 3]  1.959 0.785  0.314  2.053  3.303 29.800
+     beta_location[4, 3]  0.078 1.877 -3.056  0.066  3.709 21.214
+     beta_location[5, 3] -0.554 1.324 -2.745 -0.520  1.550  5.984
+                scale[1]  1.999 0.518  1.101  1.961  3.019 48.500
+                scale[2]  1.930 0.703  0.779  1.861  3.332 53.699
+                scale[3]  1.523 0.757  0.470  1.360  3.577 53.635
 
 ``` r
 params_sb <- params(fit_sb_normal)
 params_sb
-Posterior mean parameters
-
-$alpha
-[1] 1.012
-
-$w
-[1] 0.4762 0.3607 0.0929
-
-$beta_mean
-           x1      x2      x3
-comp1  0.2050  0.6655  1.3785
-comp2  0.9191 -1.6848 -1.0785
-comp3  0.2768  0.8479 -0.4529
-comp4 -0.0471  1.8443  0.9991
-comp5  1.4310 -0.3103 -0.2231
-
-$sd
-[1] 0.06955 0.06514 2.24500
 ```
+
+    Posterior mean parameters
+
+    $alpha
+    [1] 1.275
+
+    $w
+    [1] 0.8103
+
+    $beta_mean
+               x1      x2      x3
+    comp1  0.8391  0.1077  0.3282
+    comp2 -0.2902 -0.2859 -0.7494
+    comp3  0.1185  0.3192 -0.7111
+    comp4 -0.0846 -0.7557  0.6625
+    comp5 -0.1035 -0.9825  1.4152
+
+    $sd
+    [1] 0.05429
 
 ------------------------------------------------------------------------
 
@@ -318,9 +324,9 @@ plot(fitted(fit_sb_cauchy))
 
 ``` r
 plot(fit_sb_normal, family = c("traceplot", "autocorrelation", "geweke"))
-
-=== traceplot ===
 ```
+
+    === traceplot ===
 
 ![](v11-conditional-DPmix-SB_files/figure-html/diagnostics-1.png)
 
@@ -334,9 +340,9 @@ plot(fit_sb_normal, family = c("traceplot", "autocorrelation", "geweke"))
 
 ``` r
 plot(fit_sb_cauchy, family = c("density", "running", "caterpillar"))
-
-=== density ===
 ```
+
+    === density ===
 
 ![](v11-conditional-DPmix-SB_files/figure-html/diagnostics-4.png)
 

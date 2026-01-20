@@ -1,57 +1,153 @@
-# Conditional Modeling
+# Conditional models
 
 ## Goal
 
-Conditional modeling lets **distributional features** (not just means)
-vary with covariates. This is **not** mean regression; it is full
-distributional regression.
+Fit a conditional model (with covariates) and generate predictions on a
+grid of new covariate values.
 
-## Example data
+## Simulated data
 
 ``` r
-data("nc_posX100_p3_k2")
-X <- as.matrix(nc_posX100_p3_k2$X)
-y <- nc_posX100_p3_k2$y
+library(DPmixGPD)
+
+n <- 120
+x <- rnorm(n)
+X <- data.frame(x = x)
+
+# simple signal + heavy-ish noise
+y <- 0.5 + 0.8 * x + abs(rnorm(n)) + 0.1
 ```
 
-## Conditional mixture
+## Fit
 
 ``` r
-bundle_cond <- build_nimble_bundle(
+bundle <- build_nimble_bundle(
   y = y,
   X = X,
-  kernel = "lognormal",
   backend = "sb",
+  kernel = "normal",
   GPD = TRUE,
-  J = 4,
-  mcmc = list(niter = 250, nburnin = 50, nchains = 1)
+  components = 6,
+  mcmc = mcmc
 )
-fit_cond <- run_mcmc_bundle_manual(bundle_cond, show_progress = FALSE)
+
+fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+#> [MCMC] Creating NIMBLE model...
+#> [MCMC] NIMBLE model created successfully.
+#> [MCMC] Configuring MCMC...
+#> ===== Monitors =====
+#> thin = 1: alpha, beta_mean, beta_tail_scale, beta_threshold, sd, sdlog_u, tail_shape, threshold, w, z
+#> ===== Samplers =====
+#> RW sampler (141)
+#>   - alpha
+#>   - sd[]  (6 elements)
+#>   - beta_mean[]  (6 elements)
+#>   - sdlog_u
+#>   - beta_tail_scale[]  (1 element)
+#>   - tail_shape
+#>   - v[]  (5 elements)
+#>   - threshold[]  (120 elements)
+#> conjugate sampler (1)
+#>   - beta_threshold[]  (1 element)
+#> categorical sampler (120)
+#>   - z[]  (120 elements)
+#> [MCMC] MCMC configured.
+#> [MCMC] Building MCMC object...
+#> [MCMC] MCMC object built.
+#> [MCMC] Attempting NIMBLE compilation (this may take a minute)...
+#> [MCMC] Compiling model...
+#> [MCMC] Compiling MCMC sampler...
+#> [MCMC] Compilation successful.
+#> [MCMC] MCMC execution complete. Processing results...
+fit
+#> MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: TRUE
+#> n = 120 | components = 6 | epsilon = 0.025
+#> MCMC: niter=600, nburnin=150, thin=2, nchains=1 
+#> Fit
+#> Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 ```
 
-## Interpretation across quantiles
+## Fitted values (training data)
 
 ``` r
-x_new <- X[1:10, , drop = FALSE]
-q_pred <- predict(fit_cond, x = x_new, type = "quantile", index = c(0.1, 0.5, 0.9))
-plot(q_pred)
+f <- fitted(fit, type = "mean", level = 0.90)
+head(f)
+#>          fit      lower       upper residuals
+#> 1 -0.5901029 -1.4627355 -0.06634379 1.1948973
+#> 2  0.5767265  0.3237072  0.85556141 1.5132270
+#> 3 -0.9781067 -2.2084905 -0.28797693 1.1241832
+#> 4  1.6929842  1.3798675  2.07077008 0.3627969
+#> 5  0.7569056  0.4790120  1.09498294 0.2068914
+#> 6 -0.9146150 -2.1484723 -0.20834390 1.5709066
+
+# residual summary
+summary(f$residuals)
+#>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#> 0.07205 0.57101 1.17353 1.22845 1.67585 4.06900
 ```
 
-## Covariates and tails
+## Predictions on new data
 
-By allowing tail parameters to depend on $`X`$, DPmixGPD can capture
-**heterogeneous tail risk** (e.g., extreme outcomes becoming more likely
-in certain covariate regimes).
+``` r
+new_X <- data.frame(x = seq(min(x), max(x), length.out = 25))
 
-## Connection to unconditional models
+pred_mean <- predict(fit, x = new_X, type = "mean", cred.level = 0.90, interval = "credible")
+pred_med  <- predict(fit, x = new_X, type = "median", cred.level = 0.90, interval = "credible")
 
-The unconditional case is the special case with **no covariates**. See
-[unconditional](https://arnabaich96.github.io/DPmixGPD/articles/unconditional.Rmd).
+head(pred_mean$fit)
+#>    estimate     lower      upper
+#> 1 -3.735223 -7.061410 -1.7113696
+#> 2 -3.324069 -6.664825 -1.4552753
+#> 3 -2.934963 -5.983609 -1.2725523
+#> 4 -2.550885 -5.229443 -1.1156674
+#> 5 -2.148124 -4.449988 -0.9371768
+#> 6 -1.771301 -3.642262 -0.7155524
+head(pred_med$fit)
+#>    estimate index id     lower     upper
+#> 1 -4.203870   0.5  1 -7.607502 -2.407350
+#> 2 -3.838764   0.5  2 -6.946791 -2.198272
+#> 3 -3.473658   0.5  3 -6.286080 -1.989194
+#> 4 -3.108552   0.5  4 -5.625369 -1.780116
+#> 5 -2.743446   0.5  5 -4.964657 -1.571037
+#> 6 -2.378341   0.5  6 -4.303946 -1.361959
+```
 
-## What this is NOT
+## Quantile curves
 
-- It is **not** treatment effect modeling.
-- It is **not** identification or causal inference.
+``` r
+q_levels <- c(0.1, 0.5, 0.9)
+q_fits <- lapply(q_levels, function(tau) {
+  predict(fit, x = new_X, type = "quantile", index = tau, cred.level = 0.90, interval = "credible")$fit
+})
 
-For causal contrasts, see
-[causal](https://arnabaich96.github.io/DPmixGPD/articles/causal.Rmd).
+# Bind into a simple long data.frame for plotting
+q_df <- do.call(rbind, Map(function(tau, df) {
+  data.frame(x = new_X$x, tau = tau, estimate = df$estimate, lower = df$lower, upper = df$upper)
+}, q_levels, q_fits))
+
+head(q_df)
+#>           x tau  estimate      lower     upper
+#> 1 -2.214700 0.1 -7.908704 -11.916578 -5.107839
+#> 2 -2.022353 0.1 -7.543598 -11.215605 -4.882099
+#> 3 -1.830007 0.1 -7.178493 -10.675358 -4.656360
+#> 4 -1.637660 0.1 -6.813387 -10.011870 -4.430620
+#> 5 -1.445314 0.1 -6.448281  -9.362249 -4.204881
+#> 6 -1.252967 0.1 -6.083175  -8.805185 -3.979141
+```
+
+``` r
+# Minimal base plotting to avoid extra dependencies
+plot(q_df$x[q_df$tau == 0.5], q_df$estimate[q_df$tau == 0.5], type = "l",
+     xlab = "x", ylab = "Predicted quantile", main = "Conditional quantile curves")
+lines(q_df$x[q_df$tau == 0.1], q_df$estimate[q_df$tau == 0.1])
+lines(q_df$x[q_df$tau == 0.9], q_df$estimate[q_df$tau == 0.9])
+legend("topleft", legend = paste0("tau=", q_levels), lty = 1, bty = "n")
+```
+
+![](conditional_files/figure-html/unnamed-chunk-6-1.png)
+
+## Notes
+
+- If you see a NIMBLE error mentioning keywords (e.g., `if`), rename
+  covariate columns.
+- Increase `niter` and run multiple chains for serious inference.

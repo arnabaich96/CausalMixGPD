@@ -5,7 +5,7 @@
 #'
 #' @name globals
 #' @keywords internal
-#' @importFrom stats uniroot pgamma predict rgamma density quantile coef setNames
+#' @importFrom stats uniroot pgamma predict rgamma density quantile coef setNames fitted plogis qlogis residuals sd
 #' @importFrom utils head
 #' @import nimble ggplot2 kableExtra
 NULL
@@ -30,11 +30,33 @@ utils::globalVariables(c(
   "HASX_DET_BLOCK",
   "LIKELIHOOD_BLOCK",
   "logit<-",
+  "probit<-",
   "S",
   "S_lower",
   "S_upper",
   "arm",
-  "stick_breaking"
+  "stick_breaking",
+  # ggplot2 NSE variables
+  "conc_plan",
+  "estimate",
+  "fitted",
+  "group",
+  "id",
+  "index",
+  "kernel",
+  "lower",
+  "observed",
+  "plogis",
+  "ps",
+  "qlogis",
+  "residuals",
+  "sd",
+  "survival",
+  "type",
+  "upper",
+  "value",
+  "x",
+  "y"
 ))
 #' Package hooks
 #'

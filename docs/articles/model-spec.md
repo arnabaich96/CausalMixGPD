@@ -1,92 +1,98 @@
-# Model Specification
+# Model specification
 
-## What is a “bundle”?
+## Goal
 
-A **bundle** is the complete, pre‑MCMC object created by
-[`build_nimble_bundle()`](https://arnabaich96.github.io/DPmixGPD/reference/build_nimble_bundle.md)
-(or the causal builders). It includes:
+This vignette documents the inputs that define a DPmixGPD model and how
+they map to a compiled NIMBLE bundle.
 
-- NIMBLE model code
-- data/constants/dimensions
-- initialization function
-- monitor list
-- stored MCMC settings
+**Runtime:** fast (no long MCMC).
 
-It is intentionally **pre‑run**. You execute MCMC later with
-[`run_mcmc_bundle_manual()`](https://arnabaich96.github.io/DPmixGPD/reference/run_mcmc_bundle_manual.md).
+## The core constructor
 
-## What users specify vs. what is generated
-
-**You specify**:
-
-- data (`y`, and optionally `X` or propensity scores)
-- kernel family and GPD option
-- backend (`"sb"` or `"crp"`)
-- truncation (`J`/`components`)
-- MCMC settings (stored in the bundle)
-- optional `param_specs` overrides
-
-**The package generates**:
-
-- mixture code for the chosen kernel
-- link‑mode covariate structure
-- priors (default or user‑overridden)
-- monitors and dimensions
-
-## Role of priors and links
-
-DPmixGPD supports **link‑mode** parameters. When a parameter is linked
-to covariates, the model introduces regression coefficients named
-`beta_<param>` (component‑specific) and optionally `beta_ps_<param>`
-(propensity score covariate). Priors for these coefficients are set via
-`param_specs`.
-
-Example (non‑executed):
+Most workflows start with
+[`build_nimble_bundle()`](https://arnabaich96.github.io/DPmixGPD/reference/build_nimble_bundle.md).
 
 ``` r
+library(DPmixGPD)
+
+y <- abs(rnorm(40)) + 0.2
+X <- data.frame(x = rnorm(40))
+
 bundle <- build_nimble_bundle(
   y = y,
   X = X,
-  kernel = "gamma",
-  backend = "crp",
-  GPD = TRUE,
-  J = 5,
-  mcmc = list(niter = 200, nburnin = 50, nchains = 1)
+  backend = "sb",
+  kernel  = "normal",
+  GPD     = TRUE,
+  components = 6,
+  mcmc = list(niter = 200, nburnin = 50, thin = 2, nchains = 1, seed = 1)
 )
+
+bundle
+#> DPmixGPD bundle
+#>       Field                  Value
+#>     Backend Stick-Breaking Process
+#>      Kernel    Normal Distribution
+#>  Components                      6
+#>           N                     40
+#>           X              YES (P=1)
+#>         GPD                   TRUE
+#>     Epsilon                  0.025
+#> 
+#>   contains  : code, constants, data, dimensions, inits, monitors
 ```
 
-## Conditional structure
+## Key arguments
 
-When covariates are present (`X`), selected parameters are encoded as
+### `backend`
 
-``` math
-\theta_{ik} = g^{-1}(X_i^\top \beta_{k})
+- `"sb"`: stick-breaking mixture (finite truncation).
+- `"crp"`: Chinese Restaurant Process mixture.
+
+### `kernel`
+
+Controls the bulk component family (e.g., `"normal"`, `"gamma"`,
+`"lognormal"`, …).
+
+### `GPD`
+
+- `TRUE`: splice a GPD tail beyond a threshold.
+- `FALSE`: bulk-only model.
+
+## Conditional vs unconditional
+
+- **Unconditional**: omit `X` (or pass `X = NULL`). Predictions are
+  population-level and replicated across observations.
+- **Conditional**: provide `X`. Predictions are computed per-row of `X`.
+
+## Common input hazards
+
+### Reserved variable names (NIMBLE keywords)
+
+If a covariate column is named `if`, `for`, `while`, etc., NIMBLE
+compilation fails.
+
+``` r
+X <- data.frame(if = rnorm(40))
+# Fix:
+names(X)[names(X) == "if"] <- "x_if"
 ```
 
-where $`k`$ indexes mixture components and $`g`$ is the link function
-(e.g., identity or log).
+### Shape checks
 
-## How causal models reuse the same structure
+- `length(y)` must equal `nrow(X)` for conditional models.
+- Covariates should be numeric for regression-style links.
 
-Causal workflows **reuse the same mixture model**. The difference is
-that the outcome model is fit **separately by treatment group**, and
-contrasts are computed across the resulting distributions. The
-identification assumptions are external to the package.
+## Validity and error messages
 
-## Internal naming conventions (high‑level)
+Good packages fail loudly and early. If your build step does not yet
+validate inputs, consider adding checks that:
 
-- Component regression coefficients: `beta_<param>[1:K,1:P]`
-- Propensity score coefficients (if used): `beta_ps_<param>[1:K]`
-- GPD threshold link coefficients: `beta_threshold[1:P]`
-- GPD tail scale link coefficients: `beta_tail_scale[1:P]`
+- confirm supported `backend` and `kernel` values,
+- prevent reserved names,
+- validate the `mcmc` list.
 
-These names appear in model code, monitors, and posterior summaries.
+## Next
 
-## What this vignette does NOT cover
-
-- Diagnostics or convergence assessment
-- Long examples
-- Interpretation of effects
-
-For MCMC practice, see
-[mcmc-workflow](https://arnabaich96.github.io/DPmixGPD/articles/mcmc-workflow.Rmd).
+- See **MCMC workflow** for running chains and extracting samples.
+- See **Backends** for SB vs CRP differences.
