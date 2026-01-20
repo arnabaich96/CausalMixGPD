@@ -110,8 +110,56 @@ pred_q90$fit
 ``` r
 # Plot methods may vary by version; keep this simple.
 # If your plot() method supports a family argument, trace plots are the safest.
-try(plot(fit, family = "trace"), silent = TRUE)
+if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quietly = TRUE)) {
+  plot(fit)
+} else {
+  message("Plotting requires 'ggmcmc' and 'coda' packages. Install them to view diagnostic plots.")
+}
+#> 
+#> === histogram ===
 ```
+
+![](introduction_files/figure-html/plot-fit-1.png)
+
+    #> 
+    #> === density ===
+
+![](introduction_files/figure-html/plot-fit-2.png)
+
+    #> 
+    #> === traceplot ===
+
+![](introduction_files/figure-html/plot-fit-3.png)
+
+    #> 
+    #> === running ===
+
+![](introduction_files/figure-html/plot-fit-4.png)
+
+    #> 
+    #> === compare_partial ===
+
+![](introduction_files/figure-html/plot-fit-5.png)
+
+    #> 
+    #> === autocorrelation ===
+
+![](introduction_files/figure-html/plot-fit-6.png)
+
+    #> 
+    #> === geweke ===
+
+![](introduction_files/figure-html/plot-fit-7.png)
+
+    #> 
+    #> === caterpillar ===
+
+![](introduction_files/figure-html/plot-fit-8.png)
+
+    #> 
+    #> === pairs ===
+
+![](introduction_files/figure-html/plot-fit-9.png)
 
 ## Troubleshooting (Quick Start)
 

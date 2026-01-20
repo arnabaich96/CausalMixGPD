@@ -90,8 +90,56 @@ Different versions of the package may support different plot families;
 `trace` is usually the safest.
 
 ``` r
-try(plot(fit, family = "trace"), silent = TRUE)
+if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quietly = TRUE)) {
+  plot(fit)
+} else {
+  message("Plotting requires 'ggmcmc' and 'coda' packages. Install them to view diagnostic plots.")
+}
+#> 
+#> === histogram ===
 ```
+
+![](mcmc-workflow_files/figure-html/unnamed-chunk-3-1.png)
+
+    #> 
+    #> === density ===
+
+![](mcmc-workflow_files/figure-html/unnamed-chunk-3-2.png)
+
+    #> 
+    #> === traceplot ===
+
+![](mcmc-workflow_files/figure-html/unnamed-chunk-3-3.png)
+
+    #> 
+    #> === running ===
+
+![](mcmc-workflow_files/figure-html/unnamed-chunk-3-4.png)
+
+    #> 
+    #> === compare_partial ===
+
+![](mcmc-workflow_files/figure-html/unnamed-chunk-3-5.png)
+
+    #> 
+    #> === autocorrelation ===
+
+![](mcmc-workflow_files/figure-html/unnamed-chunk-3-6.png)
+
+    #> 
+    #> === geweke ===
+
+![](mcmc-workflow_files/figure-html/unnamed-chunk-3-7.png)
+
+    #> 
+    #> === caterpillar ===
+
+![](mcmc-workflow_files/figure-html/unnamed-chunk-3-8.png)
+
+    #> 
+    #> === pairs ===
+
+![](mcmc-workflow_files/figure-html/unnamed-chunk-3-9.png)
 
 ## Extract posterior draws
 
@@ -102,10 +150,12 @@ workflows expose a draws object.
 # Common patterns
 if (!is.null(fit$mcmc$samples)) {
   s <- fit$mcmc$samples
-  mat <- try(as.matrix(s), silent = TRUE)
-  if (!inherits(mat, "try-error")) {
+  if (requireNamespace("coda", quietly = TRUE)) {
+    mat <- as.matrix(s)
     dim(mat)
     colnames(mat)[1:min(20, ncol(mat))]
+  } else {
+    message("Sample extraction requires 'coda' package.")
   }
 }
 #>  [1] "alpha"      "mean[1]"    "mean[2]"    "mean[3]"    "mean[4]"   
@@ -114,17 +164,16 @@ if (!is.null(fit$mcmc$samples)) {
 #> [16] "threshold"  "w[1]"       "w[2]"       "w[3]"       "w[4]"
 ```
 
-## Re-running with different MCMC settings
+    ## Re-running with different MCMC settings
 
-A helpful pattern is: build once, rerun MCMC with different settings. If
-your API supports it, use it. Otherwise rebuild with a different `mcmc`
-list.
+    A helpful pattern is: build once, rerun MCMC with different settings. If your API supports it, use it.
+    Otherwise rebuild with a different `mcmc` list.
 
-``` r
-# Example (pseudo):
-# bundle2 <- update_mcmc(bundle, niter = 8000, nburnin = 2000)
-# fit2 <- run_mcmc_bundle_manual(bundle2)
-```
+
+    ``` r
+    # Example (pseudo):
+    # bundle2 <- update_mcmc(bundle, niter = 8000, nburnin = 2000)
+    # fit2 <- run_mcmc_bundle_manual(bundle2)
 
 ## Troubleshooting (MCMC Workflow)
 
