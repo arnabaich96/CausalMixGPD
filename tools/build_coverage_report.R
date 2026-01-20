@@ -2,8 +2,8 @@ if (!nzchar(Sys.getenv("CODECOV_TOKEN"))) {
   stop("CODECOV_TOKEN is not set. Restart RStudio or set it via setx.")
 }
 
-# Set test level to "cran" to skip problematic tests during codecov runs
-Sys.setenv(DPMIXGPD_TEST_LEVEL = "cran")
+# Set test level to "ci" to run MCMC-dependent tests for comprehensive coverage
+Sys.setenv(DPMIXGPD_TEST_LEVEL = "ci")
 Sys.setenv(COVERAGE = "1")
 
 # Unload the package if it's already loaded to avoid covr instrumentation conflicts
@@ -19,11 +19,11 @@ cat("This may take several minutes...\n")
 
 result <- tryCatch({
   # Calculate coverage using type = "none" with custom test code that tolerates failures
-  # This approach allows coverage to complete even when some tests fail
+  # Using test_dir with stop_on_failure = FALSE and minimal reporter
   cat("Step 1: Calculating package coverage...\n")
   cov <- covr::package_coverage(
     type = "none",
-    code = "try(testthat::test_local(stop_on_failure = FALSE), silent = TRUE)",
+    code = 'testthat::test_dir("tests/testthat", stop_on_failure = FALSE, reporter = "minimal")',
     quiet = FALSE,
     pre_clean = TRUE
   )
@@ -37,11 +37,12 @@ result <- tryCatch({
   cat("Error details: ", conditionMessage(e), "\n")
   cat("Attempting alternative coverage method...\n\n")
   
-  # Fallback: try type = "tests" approach
+  # Fallback: try with simpler test execution  
   tryCatch({
-    cat("Attempting coverage with type='tests'...\n")
+    cat("Attempting coverage with simpler test execution...\n")
     cov <- covr::package_coverage(
-      type = "tests",
+      type = "none",
+      code = 'for(f in list.files("tests/testthat", pattern = "^test.*\\\\.R$", full.names = TRUE)) try(source(f), silent = TRUE)',
       quiet = FALSE,
       pre_clean = TRUE
     )

@@ -1,37 +1,54 @@
 # Test unconditional predict() methods with all output formats
 # Tests quantile, mean, density, survival, sample, and fitted predictions
+#
+# NOTE: All tests in this file require ci level due to MCMC fitting
 
-# Setup: Create shared fit object for all tests
+# Setup: Create shared fit object for all tests (only at ci level or higher)
+fit <- NULL
 
-set.seed(42)
-y <- abs(rnorm(60)) + 0.2
+.build_unconditional_fit <- function() {
+  set.seed(42)
+  y <- abs(rnorm(60)) + 0.2
 
-bundle <- build_nimble_bundle(
-  y = y,
-  backend = "sb",
-  kernel = "gamma",
-  GPD = TRUE,
-  components = 8,
-  mcmc = list(niter = 300, nburnin = 50, nchains = 1)
-)
+  bundle <- build_nimble_bundle(
+    y = y,
+    backend = "sb",
+    kernel = "gamma",
+    GPD = TRUE,
+    components = 8,
+    mcmc = list(niter = 300, nburnin = 50, nchains = 1)
+  )
 
-# Suppress output during fit
-nullfile <- if (.Platform$OS.type == "windows") "NUL" else "/dev/null"
-res <- NULL
-utils::capture.output(
-  res <- run_mcmc_bundle_manual(bundle, show_progress = FALSE),
-  file = nullfile
-)
-fit <- res
+  # Suppress output during fit
+  nullfile <- if (.Platform$OS.type == "windows") "NUL" else "/dev/null"
+  res <- NULL
+  utils::capture.output(
+    res <- run_mcmc_bundle_manual(bundle, show_progress = FALSE),
+    file = nullfile
+  )
+  res
+}
 
+.get_fit <- function() {
+  if (is.null(fit)) {
+    fit <<- .build_unconditional_fit()
+  }
+  fit
+}
 
 test_that("Unconditional model fitted successfully", {
+  skip_if_not_test_level("ci")  # Requires MCMC
+  
+  fit <- .get_fit()
   expect_s3_class(fit, "mixgpd_fit")
   expect_true(!is.null(fit$samples))
 })
 
 
 test_that("Quantile prediction with default quartiles", {
+  skip_if_not_test_level("ci")  # Requires MCMC
+  
+  fit <- .get_fit()
   pred_quant <- predict(fit, type = "quantile", interval = "credible")
 
   expect_s3_class(pred_quant, "mixgpd_predict")
@@ -48,6 +65,9 @@ test_that("Quantile prediction with default quartiles", {
 
 
 test_that("Quantile prediction with custom index", {
+  skip_if_not_test_level("ci")  # Requires MCMC
+  
+  fit <- .get_fit()
   custom_idx <- c(0.1, 0.5, 0.9)
   pred_quant <- predict(fit, type = "quantile", index = custom_idx, interval = "credible")
 
@@ -58,6 +78,9 @@ test_that("Quantile prediction with custom index", {
 
 
 test_that("Mean prediction returns data frame format", {
+  skip_if_not_test_level("ci")  # Requires MCMC
+  
+  fit <- .get_fit()
   pred_mean <- predict(fit, type = "mean", interval = "credible", nsim_mean = 200)
 
   expect_s3_class(pred_mean, "mixgpd_predict")
@@ -75,6 +98,9 @@ test_that("Mean prediction returns data frame format", {
 
 
 test_that("Mean prediction with custom credible level", {
+  skip_if_not_test_level("ci")  # Requires MCMC
+  
+  fit <- .get_fit()
   pred_mean_90 <- predict(fit, type = "mean", interval = "credible",
                           cred.level = 0.90, nsim_mean = 200)
   pred_mean_99 <- predict(fit, type = "mean", interval = "credible",
@@ -87,6 +113,9 @@ test_that("Mean prediction with custom credible level", {
 
 
 test_that("Density prediction returns data frame with grid", {
+  skip_if_not_test_level("ci")  # Requires MCMC
+  
+  fit <- .get_fit()
   y_grid <- seq(0.1, 2, length.out = 10)
   pred_dens <- predict(fit, type = "density", y = y_grid, interval = "credible")
 
@@ -103,6 +132,9 @@ test_that("Density prediction returns data frame with grid", {
 
 
 test_that("Survival prediction returns data frame with probabilities", {
+  skip_if_not_test_level("ci")  # Requires MCMC
+  
+  fit <- .get_fit()
   y_grid <- seq(0.1, 2, length.out = 10)
   pred_surv <- predict(fit, type = "survival", y = y_grid, interval = "credible")
 
@@ -119,6 +151,9 @@ test_that("Survival prediction returns data frame with probabilities", {
 
 
 test_that("Sample prediction returns vector of samples", {
+  skip_if_not_test_level("ci")  # Requires MCMC
+  
+  fit <- .get_fit()
   nsim <- 100
   pred_samp <- predict(fit, type = "sample", nsim = nsim)
 
@@ -132,6 +167,11 @@ test_that("Sample prediction returns vector of samples", {
 
 
 test_that("Fitted values return model-based estimates", {
+  skip_if_not_test_level("ci")  # Requires MCMC
+  
+  fit <- .get_fit()
+  set.seed(42)  # recreate y for comparison
+  y <- abs(rnorm(60)) + 0.2
   fit_vals <- fitted(fit, level = 0.95)
 
   expect_s3_class(fit_vals, "mixgpd_fitted")
@@ -147,6 +187,9 @@ test_that("Fitted values return model-based estimates", {
 
 
 test_that("Fitted values with different credible levels", {
+  skip_if_not_test_level("ci")  # Requires MCMC
+  
+  fit <- .get_fit()
   fit_90 <- fitted(fit, level = 0.90)
   fit_99 <- fitted(fit, level = 0.99)
 
@@ -157,6 +200,9 @@ test_that("Fitted values with different credible levels", {
 
 
 test_that("All prediction types have consistent class structure", {
+  skip_if_not_test_level("ci")  # Requires MCMC
+  
+  fit <- .get_fit()
   pred_types <- list(
     quantile = predict(fit, type = "quantile"),
     mean = predict(fit, type = "mean", nsim_mean = 100),

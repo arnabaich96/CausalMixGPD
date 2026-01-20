@@ -22,20 +22,25 @@ if (exists(".cache_enabled") && isTRUE(.cache_enabled())) {
 }
 cached <- if (!is.null(cache_key)) .cache_get(cache_key) else NULL
 
-if (!is.null(cached) && inherits(cached$fit, "mixgpd_fit")) {
-  fit <- cached$fit
-} else {
-  bundle <- build_nimble_bundle(
-    y = y,
-    X = X,
-    backend = "sb",
-    kernel = "normal",
-    GPD = FALSE,
-    components = 5,
-    mcmc = mcmc_cfg
-  )
-  fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
-  if (!is.null(cache_key)) .cache_set(cache_key, list(fit = fit))
+# Only build the fit if we're at ci level or higher
+# This prevents expensive MCMC compilation at cran level
+fit <- NULL
+if (test_level_at_least("ci")) {
+  if (!is.null(cached) && inherits(cached$fit, "mixgpd_fit")) {
+    fit <- cached$fit
+  } else {
+    bundle <- build_nimble_bundle(
+      y = y,
+      X = X,
+      backend = "sb",
+      kernel = "normal",
+      GPD = FALSE,
+      components = 5,
+      mcmc = mcmc_cfg
+    )
+    fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+    if (!is.null(cache_key)) .cache_set(cache_key, list(fit = fit))
+  }
 }
 
 test_that("Conditional fitted returns one value per observation", {

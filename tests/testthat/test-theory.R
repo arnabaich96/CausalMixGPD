@@ -31,6 +31,8 @@ test_that("Tail dominates at high quantiles with GPD", {
 })
 
 test_that("SB and CRP predictions agree in a small synthetic case", {
+  skip_if_not_test_level("ci")  # MCMC tests are slow, skip at cran level
+
   set.seed(42)
   y <- abs(stats::rnorm(20)) + 0.1
   mcmc_cfg <- list(niter = 40, nburnin = 10, thin = 1, nchains = 1, seed = 1)
@@ -61,6 +63,8 @@ test_that("SB and CRP predictions agree in a small synthetic case", {
 })
 
 test_that("GPD on/off changes high-quantile behavior", {
+  skip_if_not_test_level("ci")  # MCMC tests are slow, skip at cran level
+
   set.seed(123)
   y <- abs(stats::rnorm(20)) + 0.1
   mcmc_cfg <- list(niter = 40, nburnin = 10, thin = 1, nchains = 1, seed = 2)

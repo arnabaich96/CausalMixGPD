@@ -33,3 +33,6 @@
 ^temp_setup\.txt$
 ^Rplots\.pdf$
 ^README\.md$
+^tools/build_coverage_report.R$
+^vignettes/manuscript/
+^vignettes/manuscript/$
