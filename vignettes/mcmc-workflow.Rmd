@@ -62,7 +62,11 @@ summary(fit)
 Different versions of the package may support different plot families; `trace` is usually the safest.
 
 ```{r}
-try(plot(fit, family = "trace"), silent = TRUE)
+if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quietly = TRUE)) {
+  plot(fit)
+} else {
+  message("Plotting requires 'ggmcmc' and 'coda' packages. Install them to view diagnostic plots.")
+}
 ```
 
 ## Extract posterior draws
@@ -73,12 +77,15 @@ The exact storage depends on how your fit object is organized, but most workflow
 # Common patterns
 if (!is.null(fit$mcmc$samples)) {
   s <- fit$mcmc$samples
-  mat <- try(as.matrix(s), silent = TRUE)
-  if (!inherits(mat, "try-error")) {
+  if (requireNamespace("coda", quietly = TRUE)) {
+    mat <- as.matrix(s)
     dim(mat)
     colnames(mat)[1:min(20, ncol(mat))]
+  } else {
+    message("Sample extraction requires 'coda' package.")
   }
 }
+```
 ```
 
 ## Re-running with different MCMC settings
