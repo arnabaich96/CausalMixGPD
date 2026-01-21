@@ -33,6 +33,36 @@
   invisible(TRUE)
 }
 
+# Resolve coverage settings from environment overrides
+.resolve_coverage_inputs <- function(sources, test_level) {
+  env_sources <- Sys.getenv("DPMIXGPD_COVERAGE_SOURCES", "")
+  if (nzchar(env_sources)) {
+    sources <- strsplit(env_sources, "\\s*,\\s*")[[1]]
+  }
+  env_level <- Sys.getenv("DPMIXGPD_TEST_LEVEL", "")
+  if (nzchar(env_level)) {
+    test_level <- tolower(env_level)
+  }
+  list(sources = sources, test_level = test_level)
+}
+
+# Avoid slow vignette/manual builds during coverage installs
+.set_covr_install_opts <- function() {
+  options(covr.install = c("--no-build-vignettes", "--no-manual"))
+  invisible(TRUE)
+}
+
+# Files to exclude entirely from coverage
+.coverage_line_exclusions <- function(path = ".") {
+  files <- c(
+    "R/Utility.R",
+    "R/00-kernel-registry.R",
+    "R/globals.R"
+  )
+  full_paths <- normalizePath(file.path(path, files), winslash = "/", mustWork = FALSE)
+  stats::setNames(as.list(rep(Inf, length(full_paths))), full_paths)
+}
+
 # Get Codecov token from codecov.yml
 .get_codecov_token <- function() {
   yaml_file <- "codecov.yml"
@@ -91,6 +121,7 @@ calculate_coverage <- function(
     quiet = FALSE
 ) {
   .check_coverage_deps()
+  .set_covr_install_opts()
 
   # Validate inputs
   valid_sources <- c("tests", "examples", "vignettes", "all")
@@ -134,7 +165,8 @@ calculate_coverage <- function(
       covr::package_coverage(
         type = setdiff(sources, "tests"),
         quiet = quiet,
-        pre_clean = TRUE
+        pre_clean = TRUE,
+        line_exclusions = .coverage_line_exclusions()
       )
     }
   }, error = function(e) {
@@ -154,7 +186,8 @@ if (is.null(cov) && "tests" %in% sources) {
         type = "none",
         code = 'for(f in list.files("tests/testthat", pattern = "^test.*\\\\.R$", full.names = TRUE)) try(source(f), silent = TRUE)',
         quiet = quiet,
-        pre_clean = TRUE
+        pre_clean = TRUE,
+        line_exclusions = .coverage_line_exclusions()
       )
     }, error = function(e2) {
       if (!quiet) cat("Fallback also failed:", conditionMessage(e2), "\n")
@@ -176,7 +209,8 @@ if (is.null(cov) && "tests" %in% sources) {
     type = "none",
     code = 'testthat::test_dir("tests/testthat", stop_on_failure = FALSE, reporter = "minimal")',
     quiet = quiet,
-    pre_clean = TRUE
+    pre_clean = TRUE,
+    line_exclusions = .coverage_line_exclusions()
   )
 }
 
@@ -194,7 +228,8 @@ if (is.null(cov) && "tests" %in% sources) {
         type = non_test_sources,
         code = 'testthat::test_dir("tests/testthat", stop_on_failure = FALSE, reporter = "minimal")',
         quiet = quiet,
-        pre_clean = TRUE
+        pre_clean = TRUE,
+        line_exclusions = .coverage_line_exclusions()
       )
     }, error = function(e) {
       # Fall back to tests only if combined fails
@@ -205,7 +240,8 @@ if (is.null(cov) && "tests" %in% sources) {
     covr::package_coverage(
       type = non_test_sources,
       quiet = quiet,
-      pre_clean = TRUE
+      pre_clean = TRUE,
+      line_exclusions = .coverage_line_exclusions()
     )
   } else {
     .calculate_tests_coverage(quiet = quiet)
@@ -249,6 +285,9 @@ coverage_report <- function(
     browse = FALSE
 ) {
   .check_coverage_deps()
+  resolved <- .resolve_coverage_inputs(sources, test_level)
+  sources <- resolved$sources
+  test_level <- resolved$test_level
 
   assets_dir <- "pkgdown/assets/coverage"
 
@@ -372,6 +411,9 @@ coverage_upload <- function(
     quiet = FALSE
 ) {
   .check_coverage_deps()
+  resolved <- .resolve_coverage_inputs(sources, test_level)
+  sources <- resolved$sources
+  test_level <- resolved$test_level
 
   # Check if token is available
   token_available <- nzchar(token)
@@ -510,7 +552,7 @@ coverage_upload <- function(
 
   # Badge color
   badge_color <- if (percent >= 80) {
-    "brightgreen"
+    "green"
   } else if (percent >= 60) {
     "yellow"
   } else if (percent >= 40) {

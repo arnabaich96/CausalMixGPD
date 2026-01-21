@@ -2,14 +2,9 @@
 
 # Test Coverage Report
 
-[![codecov](https://codecov.io/gh/arnabaich96/DPmixGPD/branch/master/graph/badge.svg?token=80IYA0FANW)](https://codecov.io/gh/arnabaich96/DPmixGPD)
+![Coverage: 69.3%](https://img.shields.io/badge/coverage-69.3%25-yellow)
 
-### Coverage Sunburst
-
-[![Coverage
-sunburst](https://codecov.io/gh/arnabaich96/DPmixGPD/graphs/sunburst.svg?token=80IYA0FANW)](https://codecov.io/gh/arnabaich96/DPmixGPD)
-
-**Generated:** January 21, 2026 at 01:49 UTC
+**Generated:** January 21, 2026 at 06:05 UTC
 
 **Sources:** all
 
@@ -19,10 +14,10 @@ sunburst](https://codecov.io/gh/arnabaich96/DPmixGPD/graphs/sunburst.svg?token=8
 
 |                  |           |
 |------------------|-----------|
-| Overall Coverage | **47.7%** |
-| Total Lines      | 5799      |
-| Covered Lines    | 2765      |
-| Files Analyzed   | 20        |
+| Overall Coverage | **69.3%** |
+| Total Lines      | 6022      |
+| Covered Lines    | 4171      |
+| Files Analyzed   | 19        |
 
 ------------------------------------------------------------------------
 
@@ -40,25 +35,24 @@ file.
 
 | File                         | Lines | Covered | Coverage   |
 |------------------------------|-------|---------|------------|
-| `00-global-contracts.R`      | 12    | 12      | **100.0%** |
+| `00-global-contracts.R`      | 4     | 4       | **100.0%** |
 | `99-simulated-data.R`        | 31    | 31      | **100.0%** |
-| `kernel_support.R`           | 27    | 27      | **100.0%** |
 | `06-visualization-helpers.R` | 237   | 235     | **99.2%**  |
-| `1-cauchy-mix.R`             | 41    | 35      | **85.4%**  |
-| `6-lognormal-mixgpd.R`       | 54    | 44      | **81.5%**  |
-| `2-gamma-mixgpd.R`           | 71    | 57      | **80.3%**  |
-| `02-utilities-internal.R`    | 1337  | 1046    | **78.2%**  |
-| `3-laplace-mixgpd.R`         | 62    | 48      | **77.4%**  |
-| `5-invgauss-mixgpd.R`        | 64    | 48      | **75.0%**  |
-| `7-normal-mixgpd.R`          | 62    | 43      | **69.4%**  |
-| `4-amoroso-mixgpd.R`         | 106   | 70      | **66.0%**  |
-| `0-base-kernels.R`           | 83    | 46      | **55.4%**  |
-| `01-compile-spec.R`          | 315   | 157     | **49.8%**  |
-| `03-build-and-run.R`         | 861   | 341     | **39.6%**  |
-| `04-S3-Methods.R`            | 1361  | 317     | **23.3%**  |
-| `05-causal.R`                | 858   | 197     | **23.0%**  |
-| `status.R`                   | 31    | 5       | **16.1%**  |
-| `00-kernel-registry.R`       | 184   | 6       | **3.3%**   |
+| `02-utilities-internal.R`    | 1337  | 1076    | **80.5%**  |
+| `04-S3-Methods.R`            | 1361  | 1092    | **80.2%**  |
+| `01-compile-spec.R`          | 220   | 173     | **78.6%**  |
+| `1-cauchy-mix.R`             | 60    | 47      | **78.3%**  |
+| `03-build-and-run.R`         | 705   | 520     | **73.8%**  |
+| `0-base-kernels.R`           | 140   | 102     | **72.9%**  |
+| `7-normal-mixgpd.R`          | 133   | 87      | **65.4%**  |
+| `05-causal.R`                | 849   | 499     | **58.8%**  |
+| `2-gamma-mixgpd.R`           | 122   | 57      | **46.7%**  |
+| `4-amoroso-mixgpd.R`         | 186   | 70      | **37.6%**  |
+| `3-laplace-mixgpd.R`         | 133   | 48      | **36.1%**  |
+| `5-invgauss-mixgpd.R`        | 135   | 48      | **35.6%**  |
+| `6-lognormal-mixgpd.R`       | 125   | 44      | **35.2%**  |
+| `Utility.R`                  | 31    | 5       | **16.1%**  |
+| `00-kernel-registry.R`       | 211   | 33      | **15.6%**  |
 | `globals.R`                  | 2     | 0       | **0.0%**   |
 
 ------------------------------------------------------------------------

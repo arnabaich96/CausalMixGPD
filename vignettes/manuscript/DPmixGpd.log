@@ -1,9 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2026.1.20)  20 JAN 2026 17:28
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2026.1.20)  21 JAN 2026 02:50
 entering extended mode
- \write18 enabled.
+ restricted \write18 enabled.
  %&-line parsing enabled.
-**"D:/OneDrive - Florida State University/MyFSU_OneDrive/R-Codes/DPMGPD_package/DPmixGPD/vignettes/manuscript/DPmixGpd.tex"
-(d:/OneDrive - Florida State University/MyFSU_OneDrive/R-Codes/DPMGPD_package/DPmixGPD/vignettes/manuscript/DPmixGpd.tex
+**DPmixGpd.tex
+(./DPmixGpd.tex
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-10>
 (./jss.cls
@@ -344,7 +344,7 @@ Package: float 2001/11/08 v1.3d Float enhancements (AL)
 \@floatcapt=\box57
 )
 ! Undefined control sequence.
-l.88 \Bibliography
+l.89 \Bibliography
                   {ref}
 The control sequence at the end of the top line
 of your error message was never \def'ed. If you have
@@ -354,11 +354,11 @@ and I'll forget about whatever was undefined.
 
  
 Here is how much of TeX's memory you used:
- 10880 strings out of 469513
- 162390 string characters out of 5468180
+ 10878 strings out of 469513
+ 161960 string characters out of 5468180
  565904 words of memory out of 5000000
  39429 multiletter control sequences out of 15000+600000
  630285 words of font info for 43 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 90i,0n,93p,432b,97s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 90i,0n,93p,323b,97s stack positions out of 10000i,1000n,20000p,200000b,200000s
 !  ==> Fatal error occurred, no output PDF file produced!

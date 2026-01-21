@@ -102,7 +102,7 @@
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">run_mcmc_bundle_manual</span><span class="op">(</span><span class="va">bundle</span>, show_progress <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">run_mcmc_bundle_manual</span><span class="op">(</span><span class="va">bundle</span>, show_progress <span class="op">=</span> <span class="cn">TRUE</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -115,6 +115,11 @@
 
 <dt id="arg-show-progress">show_progress<a class="anchor" aria-label="anchor" href="#arg-show-progress"></a></dt>
 <dd><p>Logical; passed to nimble.</p></dd>
+
+
+<dt id="arg-quiet">quiet<a class="anchor" aria-label="anchor" href="#arg-quiet"></a></dt>
+<dd><p>Logical; if TRUE (default), suppress console status messages.
+Set to FALSE to see progress messages during MCMC setup and execution.</p></dd>
 
 </dl></div>
     <div class="section level2">

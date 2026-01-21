@@ -612,10 +612,11 @@ qCauchy <- function(p, location, scale,
                     lower.tail = TRUE, log.p = FALSE) {
   if (log.p) p <- exp(p)
   if (!lower.tail) p <- 1 - p
-  p <- pmax(pmin(p, 1), 0)
-  if (p <= 0) return(-Inf)
-  if (p >= 1) return(Inf)
-  location + scale * tan(pi * (p - 0.5))
+  # Handle boundary cases for vectorized input
+  out <- location + scale * tan(pi * (p - 0.5))
+  out[p <= 0] <- -Inf
+  out[p >= 1] <- Inf
+  out
 }
 
 

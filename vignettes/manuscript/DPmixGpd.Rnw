@@ -6,7 +6,8 @@
 \usepackage{graphicx}
 \usepackage{float}
 
-%% -- Metadata (edit these)
+
+%% -- Metadata
 \title{\pkg{DPmixGPD}: Dirichlet Process Mixtures with Generalized Pareto Tails in \proglang{R}}
 
 \author{Arnab \And Coauthor Two\footnote{Affiliation placeholder.} \\
@@ -45,12 +46,10 @@ We demonstrate density estimation, conditional modeling with covariates, and a r
 Real-world data are often shaped by two competing demands: (i) the \emph{bulk} of the distribution can exhibit complex structure such as skewness or multimodality, and (ii) the \emph{tail} may contain extreme outcomes that require principled extrapolation beyond observed values.
 Bayesian nonparametric mixture models address (i) by allowing flexible densities without fixing the number of components in advance, typically through a Dirichlet process (DP) prior \citep{Ferguson1973, Neal2000}.
 Extreme value theory addresses (ii) by characterizing exceedances above a high threshold via the generalized Pareto distribution (GPD) \citep{Pickands1975, DeHaanFerreira2006}.
-
 The \pkg{DPmixGPD} package combines these ideas in a unified Bayesian framework.
 The bulk distribution is modeled as a Dirichlet process mixture (DPM) with selectable kernels and backends.
 Optionally, the upper tail is modeled using a GPD beyond a threshold, yielding a spliced distribution that preserves bulk flexibility while enforcing extreme-value tail behavior.
 This design targets settings where bulk-only mixtures can be sensitive in extreme extrapolation (e.g., unstable very-high quantiles), and where purely parametric bulk+tail models are too rigid for the central distribution.
-
 The package emphasizes a practical workflow:
 \begin{enumerate}
   \item \code{build_nimble_bundle()} constructs a \pkg{NIMBLE}-based model bundle from data and a model specification.
@@ -99,7 +98,6 @@ F(y) = F_{\text{bulk}}(u) + \{1-F_{\text{bulk}}(u)\} F_{\text{GPD}}(y;u,\sigma,\
 where $F_{\text{GPD}}(\cdot)$ is the GPD CDF with scale $\sigma>0$ and shape $\xi$ \citep{Pickands1975, DeHaanFerreira2006}.
 This formulation ensures a valid distribution with continuity at $u$ and interpretable tail behavior:
 $\xi>0$ corresponds to heavy tails, $\xi=0$ to exponential-like tails, and $\xi<0$ to bounded tails.
-
 The threshold $u$ can be fixed or inferred.
 In many applications, the threshold is treated as unknown with a weakly informative prior centered near a high empirical quantile.
 The resulting posterior uncertainty in $u$ is then propagated into tail quantiles and exceedance probabilities.
@@ -165,7 +163,7 @@ pred_d <- predict(fit, y = y_grid, type = "density")
 pred_d
 @
 
-\section{Real data application: conditional ozone modeling with tail risk}
+\section{Real data application: conditional ozone modeling}
 
 To provide a fully reproducible illustration without external files, we analyze the built-in \code{airquality} dataset in base \proglang{R}, which records daily ozone and meteorological measurements in New York during 1973.
 Ozone concentrations are right-skewed with occasional high episodes.
@@ -194,7 +192,8 @@ summary(y)
 \subsection{Model fitting: bulk-only vs bulk+GPD}
 
 We compare a conditional bulk-only DPM model to a conditional bulk+GPD model using the same bulk kernel.
-For strictly positive outcomes with skewness, a lognormal kernel is a practical default; users may also consider gamma or inverse Gaussian depending on domain knowledge.
+For strictly positive outcomes with skewness, a lognormal kernel is a practical default;
+users may also consider gamma or inverse Gaussian depending on domain knowledge.
 
 <<realdata-fit, echo=TRUE, message=FALSE, warning=FALSE>>=
 mcmc <- list(niter = 6000, nburnin = 2000, thin = 4, nchains = 1, seed = 1)
@@ -227,7 +226,8 @@ print(fit_gpd)
 
 \subsection{Conditional high-quantile prediction}
 
-We compute conditional 0.90, 0.95, and 0.99 quantiles under three representative covariate profiles:
+We compute conditional 0.90, 0.95, and 0.99 quantiles under
+three representative covariate profiles:
 low temperature/high wind, average conditions, and high temperature/low wind.
 
 <<realdata-quantiles, echo=TRUE, message=FALSE, warning=FALSE>>=
@@ -268,18 +268,66 @@ Across profiles, the bulk-only mixture typically captures central quantiles well
 The bulk+GPD specification enforces an extreme-value tail form beyond the learned threshold, which can stabilize inference for the 0.95--0.99 quantiles and exceedance probabilities.
 In applications where decisions depend on rare high outcomes (e.g., risk, reliability, safety), this tail regularization is often the main practical value of the model \citep{Pickands1975, DeHaanFerreira2006}.
 
+\section{Benchmark application: Heavy-tailed positive data}
+
+In addition to conditional modeling, \pkg{DPmixGPD} is effective for standard density estimation tasks where the data generating process is complex. We analyze the \code{nc_pos200_k3} dataset included in the package, which consists of 200 positive-valued observations from a three-component mixture with a heavy tail.
+
+\subsection{Model specification}
+
+Since the data are strictly positive, we employ a Gamma kernel for the Dirichlet Process mixture bulk. We enable the GPD tail option to robustly capture the extreme observations.
+
+<<benchmark-fit, echo=TRUE, message=FALSE, warning=FALSE>>=
+# Load package data
+data("nc_pos200_k3", package = "DPmixGPD")
+y_bench <- nc_pos200_k3
+
+# Configure the model bundle
+# - 'sb' backend for stick-breaking approximation
+# - 'gamma' kernel appropriate for positive data
+# - 'GPD = TRUE' to enable tail splicing
+bundle_bench <- build_nimble_bundle(
+  y = y_bench,
+  backend = "sb",
+  kernel = "gamma",
+  GPD = TRUE,
+  components = 10,
+  mcmc = list(niter = 3000, nburnin = 1000, thin = 1, nchains = 1, seed = 123)
+)
+
+# Run MCMC
+fit_bench <- run_mcmc_bundle_manual(bundle_bench, show_progress = FALSE)
+@
+
+\subsection{Diagnostics and results}
+
+The summary output provides the posterior mean and credible intervals for the GPD shape parameter $\xi$. A positive $\xi$ confirms the detection of heavy-tailed behavior in the data.
+
+<<benchmark-summary, echo=TRUE>>=
+# Print summary to see tail index (xi) and threshold (u)
+print(fit_bench)
+summary(fit_bench)
+@
+
+We can visualize the fit by comparing the posterior predictive density against the histogram of the observed data. The combination of the Gamma mixture for the bulk and the GPD for the tail provides a smooth fit that adheres closely to the data across the entire support.
+
+<<benchmark-plot, echo=TRUE, fig=TRUE, height=5, width=7>>=
+# Plot posterior predictive density
+plot(fit_bench, type = "density",
+     main = "Posterior Predictive Fit: Gamma-DPM + GPD")
+@
+
 \section{Discussion and future work}
 
 \pkg{DPmixGPD} provides a unified Bayesian workflow for flexible bulk modeling and principled tail inference.
 Compared to purely parametric bulk+tail approaches, the DPM bulk reduces risk of misspecifying central features such as multimodality or skewness.
 Compared to bulk-only nonparametric mixtures, the explicit GPD tail can reduce instability in extreme quantiles.
-
 Planned extensions include: (i) additional kernels and regression-link options, (ii) improved posterior predictive diagnostics for tail adequacy, (iii) computational refinements for larger datasets (e.g., faster sampling or approximate inference), and (iv) expanded causal and survival modeling modules where tail behavior is scientifically central.
 
 \section*{Computational details}
 
 All examples were run in \proglang{R} with \pkg{DPmixGPD}.
-MCMC settings in the manuscript are chosen for illustrative runtime; for substantive analysis, longer runs and convergence checks are recommended.
+MCMC settings in the manuscript are chosen for illustrative runtime;
+for substantive analysis, longer runs and convergence checks are recommended.
 
 \bibliography{ref}
 

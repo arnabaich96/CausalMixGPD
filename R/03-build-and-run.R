@@ -1697,6 +1697,8 @@ build_prior_table_from_spec <- function(spec) {
 #'
 #' @param bundle A \code{dpmixgpd_bundle} from \code{build_nimble_bundle()}.
 #' @param show_progress Logical; passed to nimble.
+#' @param quiet Logical; if TRUE (default), suppress console status messages.
+#'   Set to FALSE to see progress messages during MCMC setup and execution.
 #' @return A fitted object of class \code{"mixgpd_fit"}.
 #' @examples
 #' \dontrun{
@@ -1714,7 +1716,7 @@ build_prior_table_from_spec <- function(spec) {
 #' fit
 #' }
 #' @export
-run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
+run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = TRUE) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   stopifnot(inherits(bundle, "dpmixgpd_bundle"))
@@ -1740,7 +1742,9 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
   dims <- bundle$dimensions %||% list()
   monitors <- bundle$monitors %||% character(0)
 
-  cat("[MCMC] Creating NIMBLE model...\n")
+  log_msg <- function(...) if (!isTRUE(quiet)) cat(...)
+
+  log_msg("[MCMC] Creating NIMBLE model...\n")
   Rmodel <- tryCatch({
     nimble::nimbleModel(
       code = code,
@@ -1755,7 +1759,7 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
     msg <- conditionMessage(e)
     if (grepl("keywords:", msg, ignore.case = TRUE) &&
         grepl("Please use a different name", msg, fixed = TRUE)) {
-      cat("[WARNING] NIMBLE name check failed; retrying with check=FALSE.\n")
+      log_msg("[WARNING] NIMBLE name check failed; retrying with check=FALSE.\n")
       return(tryCatch({
         nimble::nimbleModel(
           code = code,
@@ -1767,16 +1771,16 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
           calculate = FALSE
         )
       }, error = function(e2) {
-        cat("[ERROR] Failed to create NIMBLE model after retry:\n")
+        log_msg("[ERROR] Failed to create NIMBLE model after retry:\n")
         stop(e2)
       }))
     }
-    cat("[ERROR] Failed to create NIMBLE model:\n")
+    log_msg("[ERROR] Failed to create NIMBLE model:\n")
     stop(e)
   })
-  cat("[MCMC] NIMBLE model created successfully.\n")
+  log_msg("[MCMC] NIMBLE model created successfully.\n")
 
-  cat("[MCMC] Configuring MCMC...\n")
+  log_msg("[MCMC] Configuring MCMC...\n")
   conf <- tryCatch({
     nimble::configureMCMC(
       Rmodel,
@@ -1784,7 +1788,7 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
       enableWAIC = waic_enabled
     )
   }, error = function(e) {
-    cat("[ERROR] Failed to configure MCMC:\n")
+    log_msg("[ERROR] Failed to configure MCMC:\n")
     stop(e)
   })
 
@@ -1797,16 +1801,16 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
       conf$samplerConfs[[i]]$control <- ctl
     }
   }
-  cat("[MCMC] MCMC configured.\n")
+  log_msg("[MCMC] MCMC configured.\n")
 
-  cat("[MCMC] Building MCMC object...\n")
+  log_msg("[MCMC] Building MCMC object...\n")
   Rmcmc <- tryCatch({
     nimble::buildMCMC(conf)
   }, error = function(e) {
-    cat("[ERROR] Failed to build MCMC:\n")
+    log_msg("[ERROR] Failed to build MCMC:\n")
     stop(e)
   })
-  cat("[MCMC] MCMC object built.\n")
+  log_msg("[MCMC] MCMC object built.\n")
 
   compiled <- TRUE
   Cmodel <- NULL
@@ -1814,26 +1818,26 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
   Rmcmc_inst <- NULL
 
   # Attempt to compile; on failure, fall back to running uncompiled MCMC
-  cat("[MCMC] Attempting NIMBLE compilation (this may take a minute)...\n")
+  log_msg("[MCMC] Attempting NIMBLE compilation (this may take a minute)...\n")
   compile_err <- tryCatch({
-    cat("[MCMC] Compiling model...\n")
+    log_msg("[MCMC] Compiling model...\n")
     Cmodel <- nimble::compileNimble(Rmodel, showCompilerOutput = FALSE)
-    cat("[MCMC] Compiling MCMC sampler...\n")
+    log_msg("[MCMC] Compiling MCMC sampler...\n")
     Cmcmc  <- nimble::compileNimble(Rmcmc, project = Rmodel, showCompilerOutput = FALSE)
-    cat("[MCMC] Compilation successful.\n")
+    log_msg("[MCMC] Compilation successful.\n")
     NULL
   }, error = function(e) {
-    cat("[WARNING] Compilation failed, falling back to uncompiled MCMC.\n")
+    log_msg("[WARNING] Compilation failed, falling back to uncompiled MCMC.\n")
     e
   })
 
   if (inherits(compile_err, "error")) {
     compiled <- FALSE
-    cat("[MCMC] Creating uncompiled MCMC instance...\n")
+    log_msg("[MCMC] Creating uncompiled MCMC instance...\n")
     Rmcmc_inst <- tryCatch({
       Rmcmc()
     }, error = function(e) {
-      cat("[ERROR] Failed to create uncompiled MCMC instance:\n")
+      log_msg("[ERROR] Failed to create uncompiled MCMC instance:\n")
       stop(e)
     })
     warning(
@@ -1885,7 +1889,7 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
       thin = thin,
       nchains = nchains,
       inits = inits_list,
-      progressBar = isTRUE(show_progress),
+      progressBar = isTRUE(show_progress) && !isTRUE(quiet),
       samplesAsCodaMCMC = TRUE
     ),
     error = function(e) e
@@ -1899,7 +1903,7 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
       thin = thin,
       nchains = nchains,
       inits = inits_list,
-      progressBar = isTRUE(show_progress),
+      progressBar = isTRUE(show_progress) && !isTRUE(quiet),
       samplesAsCodaMCMC = TRUE
     )
     waic_obj <- NULL
@@ -1914,7 +1918,7 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
     }
   }
 
-  cat("[MCMC] MCMC execution complete. Processing results...\n")
+  log_msg("[MCMC] MCMC execution complete. Processing results...\n")
 
   # Attempt to calculate WAIC if enabled
   if (is.null(waic_obj) && waic_enabled) {
@@ -1925,7 +1929,7 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE) {
         nimble::calculateWAIC(Rmcmc_inst)
       }
     }, error = function(e) {
-      cat("[Note] WAIC calculation not available or failed.\n")
+      log_msg("[Note] WAIC calculation not available or failed.\n")
       NULL
     })
   }

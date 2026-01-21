@@ -117,8 +117,6 @@ and evaluate elementwise; <code>r*</code> supports <code>n &gt; 1</code>.</p>
 <span></span>
 <span><span class="fu">rGpd</span><span class="op">(</span><span class="va">n</span>, <span class="va">threshold</span>, <span class="va">scale</span>, <span class="va">shape</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">rGpd_vec</span><span class="op">(</span><span class="va">n</span>, <span class="va">threshold</span>, <span class="va">scale</span>, <span class="va">shape</span><span class="op">)</span></span>
-<span></span>
 <span><span class="fu">qGpd</span><span class="op">(</span><span class="va">p</span>, <span class="va">threshold</span>, <span class="va">scale</span>, <span class="va">shape</span>, lower.tail <span class="op">=</span> <span class="cn">TRUE</span>, log.p <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -178,7 +176,6 @@ the RNG implementation supports <code>n = 1</code>.</p></dd>
 <ul><li><p><code>dGpd()</code>: Generalized Pareto density function</p></li>
 <li><p><code>pGpd()</code>: Generalized Pareto distribution function</p></li>
 <li><p><code>rGpd()</code>: Generalized Pareto random generation</p></li>
-<li><p><code>rGpd_vec()</code>: Vectorized RNG wrapper (R-only)</p></li>
 <li><p><code>qGpd()</code>: Generalized Pareto quantile function</p></li>
 </ul></div>
 
@@ -197,8 +194,8 @@ the RNG implementation supports <code>n = 1</code>.</p></dd>
 <span class="r-in"><span><span class="fu">qGpd</span><span class="op">(</span><span class="fl">0.95</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4.282257</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rGpd</span><span class="op">(</span><span class="fl">1</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 1.846195 1.800843 1.440456 2.912937 1.627998 5.686369 1.013753 2.003449</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] 1.389016 3.596423</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 1.081583 2.346487 2.365271 7.197142 5.093887 1.414462 1.526602 1.314719</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] 1.156570 1.655129</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
