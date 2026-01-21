@@ -12,6 +12,9 @@ coverage:
         target: auto
         threshold: 2%
         base: auto
+  ignore:
+    - "R/00-kernel-registry.R"
+    - "R/globals.R"
 
 flags:
   ubuntu-latest-Rrelease:

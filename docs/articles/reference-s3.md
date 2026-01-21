@@ -1,11 +1,11 @@
-# Reference: S3 methods
+# Reference: S3 Methods
 
-## Goal
+## Overview
 
-This vignette is a quick reference for common S3 methods on a
-`mixgpd_fit` object.
+This vignette provides a reference for S3 methods on `mixgpd_fit`
+objects.
 
-## Fit a small model
+## Model Fitting
 
 ``` r
 library(DPmixGPD)
@@ -46,7 +46,7 @@ fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
 #> [MCMC] MCMC execution complete. Processing results...
 ```
 
-## `print()`
+## print()
 
 ``` r
 print(fit)
@@ -57,7 +57,7 @@ print(fit)
 #> Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 ```
 
-## `summary()`
+## summary()
 
 ``` r
 summary(fit)
@@ -83,38 +83,32 @@ summary(fit)
 #>       sd[2]  0.459 0.498  0.095  0.195  1.634  3.771
 ```
 
-## `plot()`
+## plot()
 
 ``` r
 try(plot(fit, family = "trace"), silent = TRUE)
 ```
 
-## `predict()`
+## predict()
 
 ``` r
-# Mean / median with equal-tailed credible intervals
 predict(fit, type = "mean", cred.level = 0.90, interval = "credible")$fit
 #>   estimate    lower    upper
 #> 1 2.271623 1.036961 4.245987
 predict(fit, type = "median", cred.level = 0.90, interval = "credible")$fit
 #>    estimate index     lower     upper
 #> 1 0.6574151   0.5 0.5767237 0.7107128
-
-# Quantile with HPD (Highest Posterior Density) intervals
 predict(fit, type = "quantile", index = 0.90, cred.level = 0.90, interval = "hpd")$fit
 #>   estimate index    lower    upper
 #> 1  1.50624   0.9 1.269403 1.678693
-
-# No intervals (point estimates only)
 predict(fit, type = "quantile", index = 0.90, interval = NULL)$fit
 #>   estimate index lower upper
 #> 1  1.50624   0.9    NA    NA
 ```
 
-## `fitted()`
+## fitted()
 
 ``` r
-# Returns a data.frame with fit, interval, residuals
 f <- fitted(fit, type = "mean", level = 0.90)
 head(f)
 #>        fit    lower    upper  residuals
@@ -126,7 +120,7 @@ head(f)
 #> 6 2.233923 1.035704 4.016735 -1.3134548
 ```
 
-## Object structure
+## Object Structure
 
 ``` r
 str(fit, max.level = 2)
@@ -211,15 +205,13 @@ str(fit, max.level = 2)
 
 ## Causal S3 Methods
 
-For causal inference workflows,
-[`ate()`](https://arnabaich96.github.io/DPmixGPD/reference/ate.md) and
-[`qte()`](https://arnabaich96.github.io/DPmixGPD/reference/qte.md)
-return objects with their own S3 methods.
+The [`ate()`](https://arnabaich96.github.io/DPmixGPD/reference/ate.html)
+and [`qte()`](https://arnabaich96.github.io/DPmixGPD/reference/qte.html)
+functions return objects with their own S3 methods.
 
-### Fit a causal model
+### Causal Model Fitting
 
 ``` r
-# Simulate causal data
 n <- 60
 X <- data.frame(x = rnorm(n))
 T_ind <- rbinom(n, 1, plogis(0.2 + 0.5 * X$x))
@@ -228,7 +220,6 @@ te <- 0.4 + 0.6 * (X$x > 0)
 y1 <- y0 + te
 y <- ifelse(T_ind == 1, y1, y0)
 
-# Build and fit causal bundle
 causal_bundle <- build_causal_bundle(
   y = y,
   X = X,
@@ -309,10 +300,7 @@ causal_fit <- run_mcmc_causal(causal_bundle, show_progress = FALSE)
 ### ATE S3 Methods
 
 ``` r
-# Compute ATE with HPD intervals
 ate_result <- ate(causal_fit, interval = "hpd", nsim_mean = 50)
-
-# print() method
 print(ate_result)
 #> ATE (Average Treatment Effect)
 #>   Prediction points: 60
@@ -334,7 +322,6 @@ print(ate_result)
 ```
 
 ``` r
-# summary() method
 summary(ate_result)
 #> ATE Summary
 #> ================================================== 
@@ -359,7 +346,6 @@ summary(ate_result)
 ```
 
 ``` r
-# plot() method - default returns list with both plots
 ate_plots <- plot(ate_result)
 ate_plots$treatment_effect
 ```
@@ -367,7 +353,6 @@ ate_plots$treatment_effect
 ![](reference-s3_files/figure-html/unnamed-chunk-11-1.png)
 
 ``` r
-# Plot with type parameter
 plot(ate_result, type = "effect")
 ```
 
@@ -376,10 +361,7 @@ plot(ate_result, type = "effect")
 ### QTE S3 Methods
 
 ``` r
-# Compute QTE with HPD intervals
 qte_result <- qte(causal_fit, probs = c(0.1, 0.5, 0.9), interval = "hpd")
-
-# print() method
 print(qte_result)
 #> QTE (Quantile Treatment Effect)
 #>   Prediction points: 60
@@ -401,7 +383,6 @@ print(qte_result)
 ```
 
 ``` r
-# summary() method
 summary(qte_result)
 #> QTE Summary
 #> ================================================== 
@@ -427,7 +408,6 @@ summary(qte_result)
 ```
 
 ``` r
-# plot() method - default returns list with both plots
 qte_plots <- plot(qte_result)
 qte_plots$treatment_effect
 ```
@@ -435,7 +415,6 @@ qte_plots$treatment_effect
 ![](reference-s3_files/figure-html/unnamed-chunk-15-1.png)
 
 ``` r
-# Plot with type parameter
 plot(qte_result, type = "effect")
 ```
 

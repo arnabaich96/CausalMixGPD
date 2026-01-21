@@ -79,8 +79,8 @@ Comprehensive user documentation:
 
 - [**Function
   Reference**](https://arnabaich96.github.io/DPmixGPD/reference/index.html) -
-  Complete API documentation
+  Complete API documentation \### Coverage
 
-### Coverage
-
-[![Coverage sunburst](https://codecov.io/gh/arnabaich96/DPmixGPD/graphs/sunburst.svg?token=80IYA0FANW)](https://codecov.io/gh/arnabaich96/DPmixGPD)
+- ![Coverage
+  sunburst](https://codecov.io/gh/arnabaich96/DPmixGPD/graphs/sunburst.svg?token=80IYA0FANW)
+  Coverage sunburst

@@ -2,29 +2,29 @@
 
 ### Get Started
 
-- [DPmixGPD: quick
-  start](https://arnabaich96.github.io/DPmixGPD/articles/introduction.md):
+- [DPmixGPD: Quick
+  Start](https://arnabaich96.github.io/DPmixGPD/articles/introduction.md):
 
 ### Manual
 
 - [Manual
   Overview](https://arnabaich96.github.io/DPmixGPD/articles/manual-index.md):
 - [Available
-  distributions](https://arnabaich96.github.io/DPmixGPD/articles/distributions.md):
+  Distributions](https://arnabaich96.github.io/DPmixGPD/articles/distributions.md):
 - [Model
-  specification](https://arnabaich96.github.io/DPmixGPD/articles/model-spec.md):
+  Specification](https://arnabaich96.github.io/DPmixGPD/articles/model-spec.md):
 - [MCMC
-  workflow](https://arnabaich96.github.io/DPmixGPD/articles/mcmc-workflow.md):
+  Workflow](https://arnabaich96.github.io/DPmixGPD/articles/mcmc-workflow.md):
 - [Unconditional
-  models](https://arnabaich96.github.io/DPmixGPD/articles/unconditional.md):
+  Models](https://arnabaich96.github.io/DPmixGPD/articles/unconditional.md):
 - [Conditional
-  models](https://arnabaich96.github.io/DPmixGPD/articles/conditional.md):
-- [Causal workflow (two-arm outcome
-  modeling)](https://arnabaich96.github.io/DPmixGPD/articles/causal.md):
+  Models](https://arnabaich96.github.io/DPmixGPD/articles/conditional.md):
+- [Causal
+  Workflow](https://arnabaich96.github.io/DPmixGPD/articles/causal.md):
 - [Backends: SB vs
   CRP](https://arnabaich96.github.io/DPmixGPD/articles/backends.md):
 - [Reference: S3
-  methods](https://arnabaich96.github.io/DPmixGPD/articles/reference-s3.md):
+  Methods](https://arnabaich96.github.io/DPmixGPD/articles/reference-s3.md):
 
 ### Kernels
 

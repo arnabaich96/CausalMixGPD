@@ -154,21 +154,20 @@ params_fit
 #### Diagnostic Plots
 
 ``` r
-# Trace plots
-plot(fit, params = "alpha|beta", family = c("traceplot", "running", "autocorrelation"))
+plot(fit, params = "shape", family = "traceplot")
 ```
 
     === traceplot ===
 
 ![](v03-basic-model-compile-run_files/figure-html/mcmc-diagnostics-1.png)
 
-    === running ===
+``` r
+plot(fit, params = "scale", family = "caterpillar")
+```
+
+    === caterpillar ===
 
 ![](v03-basic-model-compile-run_files/figure-html/mcmc-diagnostics-2.png)
-
-    === autocorrelation ===
-
-![](v03-basic-model-compile-run_files/figure-html/mcmc-diagnostics-3.png)
 
 ------------------------------------------------------------------------
 

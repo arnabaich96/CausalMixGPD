@@ -1,11 +1,11 @@
-# Conditional models
+# Conditional Models
 
-## Goal
+## Overview
 
-Fit a conditional model (with covariates) and generate predictions on a
-grid of new covariate values.
+This vignette demonstrates fitting a conditional model with covariates
+and generating predictions on a grid of new covariate values.
 
-## Simulated data
+## Data Generation
 
 ``` r
 library(DPmixGPD)
@@ -13,12 +13,10 @@ library(DPmixGPD)
 n <- 120
 x <- rnorm(n)
 X <- data.frame(x = x)
-
-# simple signal + heavy-ish noise
 y <- 0.5 + 0.8 * x + abs(rnorm(n)) + 0.1
 ```
 
-## Fit
+## Model Fitting
 
 ``` r
 bundle <- build_nimble_bundle(
@@ -67,7 +65,7 @@ fit
 #> Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 ```
 
-## Fitted values (training data)
+## Fitted Values
 
 ``` r
 f <- fitted(fit, type = "mean", level = 0.90)
@@ -79,14 +77,12 @@ head(f)
 #> 4  1.6929842  1.3798675  2.07077008 0.3627969
 #> 5  0.7569056  0.4790120  1.09498294 0.2068914
 #> 6 -0.9146150 -2.1484723 -0.20834390 1.5709066
-
-# residual summary
 summary(f$residuals)
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 #> 0.07205 0.57101 1.17353 1.22845 1.67585 4.06900
 ```
 
-## Predictions on new data
+## Predictions on New Data
 
 ``` r
 new_X <- data.frame(x = seq(min(x), max(x), length.out = 25))
@@ -112,7 +108,7 @@ head(pred_med$fit)
 #> 6 -2.378341   0.5  6 -4.303946 -1.361959
 ```
 
-## Quantile curves
+## Quantile Curves
 
 ``` r
 q_levels <- c(0.1, 0.5, 0.9)
@@ -120,7 +116,6 @@ q_fits <- lapply(q_levels, function(tau) {
   predict(fit, x = new_X, type = "quantile", index = tau, cred.level = 0.90, interval = "credible")$fit
 })
 
-# Bind into a simple long data.frame for plotting
 q_df <- do.call(rbind, Map(function(tau, df) {
   data.frame(x = new_X$x, tau = tau, estimate = df$estimate, lower = df$lower, upper = df$upper)
 }, q_levels, q_fits))
@@ -136,18 +131,13 @@ head(q_df)
 ```
 
 ``` r
-# Minimal base plotting to avoid extra dependencies
-plot(q_df$x[q_df$tau == 0.5], q_df$estimate[q_df$tau == 0.5], type = "l",
-     xlab = "x", ylab = "Predicted quantile", main = "Conditional quantile curves")
-lines(q_df$x[q_df$tau == 0.1], q_df$estimate[q_df$tau == 0.1])
-lines(q_df$x[q_df$tau == 0.9], q_df$estimate[q_df$tau == 0.9])
-legend("topleft", legend = paste0("tau=", q_levels), lty = 1, bty = "n")
+ggplot(q_df, aes(x = x, y = estimate, color = factor(tau))) +
+  geom_line(linewidth = 1) +
+  geom_ribbon(aes(ymin = lower, ymax = upper, fill = factor(tau)), alpha = 0.2, color = NA) +
+  labs(x = "x", y = "Predicted Quantile", color = "Quantile", fill = "Quantile",
+       title = "Conditional Quantile Curves") +
+  theme_minimal() +
+  theme(legend.position = "bottom")
 ```
 
 ![](conditional_files/figure-html/unnamed-chunk-6-1.png)
-
-## Notes
-
-- If you see a NIMBLE error mentioning keywords (e.g., `if`), rename
-  covariate columns.
-- Increase `niter` and run multiple chains for serious inference.

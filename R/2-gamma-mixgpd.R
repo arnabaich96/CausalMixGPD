@@ -486,42 +486,190 @@ qGammaGpd <- function(p, shape, scale, threshold, tail_scale, tail_shape,
   out
 }
 
-# ---- R-side vectorized wrappers for Gamma mix functions (tests/usage) ----
-dGammaMix <- local({
-  nf <- dGammaMix_nf
-  function(x, w, shape, scale, log = FALSE) {
-    x <- as.numeric(x)
-    if (length(x) == 0) return(numeric(0))
-    vapply(x, function(xx) {
-      as.numeric(nf(xx, w = w, shape = shape, scale = scale, log = as.integer(log)))
-    }, numeric(1))
-  }
-})
+# ==========================================================
+# Lowercase vectorized R wrappers for Gamma kernels
+# ==========================================================
 
-pGammaMix <- local({
-  nf <- pGammaMix_nf
-  function(q, w, shape, scale, lower.tail = TRUE, log.p = FALSE, x = NULL) {
-    if (!is.null(x)) {
-      if (!missing(q)) stop("Provide only one of 'q' or 'x'.", call. = FALSE)
-      q <- x
-    }
-    q <- as.numeric(q)
-    if (length(q) == 0) return(numeric(0))
-    vapply(q, function(qq) {
-      as.numeric(nf(qq, w = w, shape = shape, scale = scale,
-                   lower.tail = as.integer(lower.tail), log.p = as.integer(log.p)))
-    }, numeric(1))
-  }
-})
+#' Lowercase vectorized Gamma distribution functions
+#'
+#' Vectorized R wrappers for Gamma mixture, Gamma mixture + GPD, and
+#' Gamma + GPD distribution functions. These lowercase versions accept vector
+#' inputs for the first argument (\code{x}, \code{q}, or \code{p}) and return
+#' a numeric vector. The \code{r*} functions support \code{n > 1}.
+#'
+#' @param x Numeric vector of quantiles.
+#' @param q Numeric vector of quantiles.
+#' @param p Numeric vector of probabilities.
+#' @param n Integer number of observations to generate.
+#' @param w Numeric vector of mixture weights.
+#' @param shape,scale Numeric vectors (mix) or scalars (base+gpd) of component parameters.
+#' @param threshold,tail_scale,tail_shape GPD tail parameters (scalars).
+#' @param log Logical; if \code{TRUE}, return log-density.
+#' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le x)}.
+#' @param log.p Logical; if \code{TRUE}, probabilities are on log scale.
+#' @param tol,maxiter Tolerance and max iterations for numerical inversion.
+#'
+#' @return Numeric vector of densities, probabilities, quantiles, or random variates.
+#'
+#' @examples
+#' w <- c(0.55, 0.3, 0.15)
+#' shp <- c(2, 4, 6)
+#' scl <- c(1, 2.5, 5)
+#'
+#' # Gamma mixture
+#' dgammamix(c(1, 2, 3), w = w, shape = shp, scale = scl)
+#' rgammamix(5, w = w, shape = shp, scale = scl)
+#'
+#' # Gamma mixture + GPD
+#' dgammamixgpd(c(2, 3, 4), w = w, shape = shp, scale = scl,
+#'              threshold = 3, tail_scale = 0.9, tail_shape = 0.2)
+#'
+#' # Gamma + GPD (single component)
+#' dgammagpd(c(2, 3, 4), shape = 4, scale = 2.5, threshold = 3,
+#'           tail_scale = 0.9, tail_shape = 0.2)
+#'
+#' @name gamma_lowercase
+#' @rdname gamma_lowercase
+NULL
 
-rGammaMix <- local({
-  nf <- rGammaMix_nf
-  function(n, w, shape, scale) {
-    n <- as.integer(n)
-    if (is.na(n) || n < 0L) stop("n must be a non-negative integer.", call. = FALSE)
-    if (n == 0L) return(numeric(0))
-    vapply(seq_len(n), function(i) {
-      as.numeric(nf(1L, w = w, shape = shape, scale = scale))
-    }, numeric(1))
-  }
-})
+# ---- Gamma Mix lowercase wrappers ----
+
+#' @describeIn gamma_lowercase Gamma mixture density (vectorized)
+#' @export
+dgammamix <- function(x, w, shape, scale, log = FALSE) {
+  x <- as.numeric(x)
+  if (length(x) == 0L) return(numeric(0L))
+  log_int <- as.integer(log)
+  vapply(x, function(xi) as.numeric(dGammaMix_nf(xi, w = w, shape = shape, scale = scale, log = log_int)),
+         numeric(1L))
+}
+
+#' @describeIn gamma_lowercase Gamma mixture distribution function (vectorized)
+#' @export
+pgammamix <- function(q, w, shape, scale, lower.tail = TRUE, log.p = FALSE) {
+  q <- as.numeric(q)
+  if (length(q) == 0L) return(numeric(0L))
+  lt_int <- as.integer(lower.tail)
+  lp_int <- as.integer(log.p)
+  vapply(q, function(qi) as.numeric(pGammaMix_nf(qi, w = w, shape = shape, scale = scale,
+                                                  lower.tail = lt_int, log.p = lp_int)),
+         numeric(1L))
+}
+
+#' @describeIn gamma_lowercase Gamma mixture quantile function (vectorized)
+#' @export
+qgammamix <- function(p, w, shape, scale, lower.tail = TRUE, log.p = FALSE,
+                      tol = 1e-10, maxiter = 200) {
+  qGammaMix(p, w = w, shape = shape, scale = scale, lower.tail = lower.tail,
+            log.p = log.p, tol = tol, maxiter = maxiter)
+}
+
+#' @describeIn gamma_lowercase Gamma mixture random generation (vectorized)
+#' @export
+rgammamix <- function(n, w, shape, scale) {
+  n <- as.integer(n)
+  if (length(n) != 1L || is.na(n)) stop("'n' must be a single integer.", call. = FALSE)
+  if (n <= 0L) return(numeric(0L))
+  vapply(seq_len(n), function(i) as.numeric(rGammaMix_nf(1L, w = w, shape = shape, scale = scale)),
+         numeric(1L))
+}
+
+# ---- Gamma Mix + GPD lowercase wrappers ----
+
+#' @describeIn gamma_lowercase Gamma mixture + GPD density (vectorized)
+#' @export
+dgammamixgpd <- function(x, w, shape, scale, threshold, tail_scale, tail_shape, log = FALSE) {
+  x <- as.numeric(x)
+  if (length(x) == 0L) return(numeric(0L))
+  log_int <- as.integer(log)
+  vapply(x, function(xi) as.numeric(dGammaMixGpd(xi, w = w, shape = shape, scale = scale,
+                                                  threshold = threshold, tail_scale = tail_scale,
+                                                  tail_shape = tail_shape, log = log_int)),
+         numeric(1L))
+}
+
+#' @describeIn gamma_lowercase Gamma mixture + GPD distribution function (vectorized)
+#' @export
+pgammamixgpd <- function(q, w, shape, scale, threshold, tail_scale, tail_shape,
+                         lower.tail = TRUE, log.p = FALSE) {
+  q <- as.numeric(q)
+  if (length(q) == 0L) return(numeric(0L))
+  lt_int <- as.integer(lower.tail)
+  lp_int <- as.integer(log.p)
+  vapply(q, function(qi) as.numeric(pGammaMixGpd(qi, w = w, shape = shape, scale = scale,
+                                                  threshold = threshold, tail_scale = tail_scale,
+                                                  tail_shape = tail_shape,
+                                                  lower.tail = lt_int, log.p = lp_int)),
+         numeric(1L))
+}
+
+#' @describeIn gamma_lowercase Gamma mixture + GPD quantile function (vectorized)
+#' @export
+qgammamixgpd <- function(p, w, shape, scale, threshold, tail_scale, tail_shape,
+                         lower.tail = TRUE, log.p = FALSE, tol = 1e-10, maxiter = 200) {
+  qGammaMixGpd(p, w = w, shape = shape, scale = scale, threshold = threshold,
+               tail_scale = tail_scale, tail_shape = tail_shape,
+               lower.tail = lower.tail, log.p = log.p, tol = tol, maxiter = maxiter)
+}
+
+#' @describeIn gamma_lowercase Gamma mixture + GPD random generation (vectorized)
+#' @export
+rgammamixgpd <- function(n, w, shape, scale, threshold, tail_scale, tail_shape) {
+  n <- as.integer(n)
+  if (length(n) != 1L || is.na(n)) stop("'n' must be a single integer.", call. = FALSE)
+  if (n <= 0L) return(numeric(0L))
+  vapply(seq_len(n), function(i) as.numeric(rGammaMixGpd(1L, w = w, shape = shape, scale = scale,
+                                                          threshold = threshold, tail_scale = tail_scale,
+                                                          tail_shape = tail_shape)),
+         numeric(1L))
+}
+
+# ---- Gamma + GPD lowercase wrappers ----
+
+#' @describeIn gamma_lowercase Gamma + GPD density (vectorized)
+#' @export
+dgammagpd <- function(x, shape, scale, threshold, tail_scale, tail_shape, log = FALSE) {
+  x <- as.numeric(x)
+  if (length(x) == 0L) return(numeric(0L))
+  log_int <- as.integer(log)
+  vapply(x, function(xi) as.numeric(dGammaGpd(xi, shape = shape, scale = scale,
+                                               threshold = threshold, tail_scale = tail_scale,
+                                               tail_shape = tail_shape, log = log_int)),
+         numeric(1L))
+}
+
+#' @describeIn gamma_lowercase Gamma + GPD distribution function (vectorized)
+#' @export
+pgammagpd <- function(q, shape, scale, threshold, tail_scale, tail_shape,
+                      lower.tail = TRUE, log.p = FALSE) {
+  q <- as.numeric(q)
+  if (length(q) == 0L) return(numeric(0L))
+  lt_int <- as.integer(lower.tail)
+  lp_int <- as.integer(log.p)
+  vapply(q, function(qi) as.numeric(pGammaGpd(qi, shape = shape, scale = scale,
+                                               threshold = threshold, tail_scale = tail_scale,
+                                               tail_shape = tail_shape,
+                                               lower.tail = lt_int, log.p = lp_int)),
+         numeric(1L))
+}
+
+#' @describeIn gamma_lowercase Gamma + GPD quantile function (vectorized)
+#' @export
+qgammagpd <- function(p, shape, scale, threshold, tail_scale, tail_shape,
+                      lower.tail = TRUE, log.p = FALSE) {
+  qGammaGpd(p, shape = shape, scale = scale, threshold = threshold,
+            tail_scale = tail_scale, tail_shape = tail_shape,
+            lower.tail = lower.tail, log.p = log.p)
+}
+
+#' @describeIn gamma_lowercase Gamma + GPD random generation (vectorized)
+#' @export
+rgammagpd <- function(n, shape, scale, threshold, tail_scale, tail_shape) {
+  n <- as.integer(n)
+  if (length(n) != 1L || is.na(n)) stop("'n' must be a single integer.", call. = FALSE)
+  if (n <= 0L) return(numeric(0L))
+  vapply(seq_len(n), function(i) as.numeric(rGammaGpd(1L, shape = shape, scale = scale,
+                                                       threshold = threshold, tail_scale = tail_scale,
+                                                       tail_shape = tail_shape)),
+         numeric(1L))
+}

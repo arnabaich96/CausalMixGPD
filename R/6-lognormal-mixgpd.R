@@ -470,3 +470,188 @@ qLognormalGpd <- function(p, meanlog, sdlog, threshold, tail_scale, tail_shape,
   out
 }
 
+
+# ==========================================================
+# Lowercase vectorized R wrappers for Lognormal kernels
+# ==========================================================
+
+#' Lowercase vectorized Lognormal distribution functions
+#'
+#' Vectorized R wrappers for Lognormal mixture, Lognormal mixture + GPD, and
+#' Lognormal + GPD distribution functions. These lowercase versions accept vector
+#' inputs for the first argument (\code{x}, \code{q}, or \code{p}) and return
+#' a numeric vector. The \code{r*} functions support \code{n > 1}.
+#'
+#' @param x Numeric vector of quantiles.
+#' @param q Numeric vector of quantiles.
+#' @param p Numeric vector of probabilities.
+#' @param n Integer number of observations to generate.
+#' @param w Numeric vector of mixture weights.
+#' @param meanlog,sdlog Numeric vectors (mix) or scalars (base+gpd) of component parameters.
+#' @param threshold,tail_scale,tail_shape GPD tail parameters (scalars).
+#' @param log Logical; if \code{TRUE}, return log-density.
+#' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le x)}.
+#' @param log.p Logical; if \code{TRUE}, probabilities are on log scale.
+#' @param tol,maxiter Tolerance and max iterations for numerical inversion.
+#'
+#' @return Numeric vector of densities, probabilities, quantiles, or random variates.
+#'
+#' @examples
+#' w <- c(0.6, 0.3, 0.1)
+#' ml <- c(0, 0.3, 0.6)
+#' sl <- c(0.4, 0.5, 0.6)
+#'
+#' # Lognormal mixture
+#' dlognormalmix(c(1, 2, 3), w = w, meanlog = ml, sdlog = sl)
+#' rlognormalmix(5, w = w, meanlog = ml, sdlog = sl)
+#'
+#' # Lognormal mixture + GPD
+#' dlognormalmixgpd(c(2, 3, 4), w = w, meanlog = ml, sdlog = sl,
+#'                  threshold = 2.5, tail_scale = 0.5, tail_shape = 0.2)
+#'
+#' @name lognormal_lowercase
+#' @rdname lognormal_lowercase
+NULL
+
+# ---- Lognormal Mix lowercase wrappers ----
+
+#' @describeIn lognormal_lowercase Lognormal mixture density (vectorized)
+#' @export
+dlognormalmix <- function(x, w, meanlog, sdlog, log = FALSE) {
+  x <- as.numeric(x)
+  if (length(x) == 0L) return(numeric(0L))
+  log_int <- as.integer(log)
+  vapply(x, function(xi) as.numeric(dLognormalMix(xi, w = w, meanlog = meanlog, sdlog = sdlog, log = log_int)),
+         numeric(1L))
+}
+
+#' @describeIn lognormal_lowercase Lognormal mixture distribution function (vectorized)
+#' @export
+plognormalmix <- function(q, w, meanlog, sdlog, lower.tail = TRUE, log.p = FALSE) {
+  q <- as.numeric(q)
+  if (length(q) == 0L) return(numeric(0L))
+  lt_int <- as.integer(lower.tail)
+  lp_int <- as.integer(log.p)
+  vapply(q, function(qi) as.numeric(pLognormalMix(qi, w = w, meanlog = meanlog, sdlog = sdlog,
+                                                   lower.tail = lt_int, log.p = lp_int)),
+         numeric(1L))
+}
+
+#' @describeIn lognormal_lowercase Lognormal mixture quantile function (vectorized)
+#' @export
+qlognormalmix <- function(p, w, meanlog, sdlog, lower.tail = TRUE, log.p = FALSE,
+                          tol = 1e-10, maxiter = 200) {
+  qLognormalMix(p, w = w, meanlog = meanlog, sdlog = sdlog, lower.tail = lower.tail,
+                log.p = log.p, tol = tol, maxiter = maxiter)
+}
+
+#' @describeIn lognormal_lowercase Lognormal mixture random generation (vectorized)
+#' @export
+rlognormalmix <- function(n, w, meanlog, sdlog) {
+  n <- as.integer(n)
+  if (length(n) != 1L || is.na(n)) stop("'n' must be a single integer.", call. = FALSE)
+  if (n <= 0L) return(numeric(0L))
+  vapply(seq_len(n), function(i) as.numeric(rLognormalMix(1L, w = w, meanlog = meanlog, sdlog = sdlog)),
+         numeric(1L))
+}
+
+# ---- Lognormal Mix + GPD lowercase wrappers ----
+
+#' @describeIn lognormal_lowercase Lognormal mixture + GPD density (vectorized)
+#' @export
+dlognormalmixgpd <- function(x, w, meanlog, sdlog, threshold, tail_scale, tail_shape, log = FALSE) {
+  x <- as.numeric(x)
+  if (length(x) == 0L) return(numeric(0L))
+  log_int <- as.integer(log)
+  vapply(x, function(xi) as.numeric(dLognormalMixGpd(xi, w = w, meanlog = meanlog, sdlog = sdlog,
+                                                      threshold = threshold, tail_scale = tail_scale,
+                                                      tail_shape = tail_shape, log = log_int)),
+         numeric(1L))
+}
+
+#' @describeIn lognormal_lowercase Lognormal mixture + GPD distribution function (vectorized)
+#' @export
+plognormalmixgpd <- function(q, w, meanlog, sdlog, threshold, tail_scale, tail_shape,
+                             lower.tail = TRUE, log.p = FALSE) {
+  q <- as.numeric(q)
+  if (length(q) == 0L) return(numeric(0L))
+  lt_int <- as.integer(lower.tail)
+  lp_int <- as.integer(log.p)
+  vapply(q, function(qi) as.numeric(pLognormalMixGpd(qi, w = w, meanlog = meanlog, sdlog = sdlog,
+                                                      threshold = threshold, tail_scale = tail_scale,
+                                                      tail_shape = tail_shape,
+                                                      lower.tail = lt_int, log.p = lp_int)),
+         numeric(1L))
+}
+
+#' @describeIn lognormal_lowercase Lognormal mixture + GPD quantile function (vectorized)
+#' @export
+qlognormalmixgpd <- function(p, w, meanlog, sdlog, threshold, tail_scale, tail_shape,
+                             lower.tail = TRUE, log.p = FALSE, tol = 1e-10, maxiter = 200) {
+  qLognormalMixGpd(p, w = w, meanlog = meanlog, sdlog = sdlog, threshold = threshold,
+                   tail_scale = tail_scale, tail_shape = tail_shape,
+                   lower.tail = lower.tail, log.p = log.p, tol = tol, maxiter = maxiter)
+}
+
+#' @describeIn lognormal_lowercase Lognormal mixture + GPD random generation (vectorized)
+#' @export
+rlognormalmixgpd <- function(n, w, meanlog, sdlog, threshold, tail_scale, tail_shape) {
+  n <- as.integer(n)
+  if (length(n) != 1L || is.na(n)) stop("'n' must be a single integer.", call. = FALSE)
+  if (n <= 0L) return(numeric(0L))
+  vapply(seq_len(n), function(i) as.numeric(rLognormalMixGpd(1L, w = w, meanlog = meanlog, sdlog = sdlog,
+                                                              threshold = threshold, tail_scale = tail_scale,
+                                                              tail_shape = tail_shape)),
+         numeric(1L))
+}
+
+# ---- Lognormal + GPD lowercase wrappers ----
+
+#' @describeIn lognormal_lowercase Lognormal + GPD density (vectorized)
+#' @export
+dlognormalgpd <- function(x, meanlog, sdlog, threshold, tail_scale, tail_shape, log = FALSE) {
+  x <- as.numeric(x)
+  if (length(x) == 0L) return(numeric(0L))
+  log_int <- as.integer(log)
+  vapply(x, function(xi) as.numeric(dLognormalGpd(xi, meanlog = meanlog, sdlog = sdlog,
+                                                   threshold = threshold, tail_scale = tail_scale,
+                                                   tail_shape = tail_shape, log = log_int)),
+         numeric(1L))
+}
+
+#' @describeIn lognormal_lowercase Lognormal + GPD distribution function (vectorized)
+#' @export
+plognormalgpd <- function(q, meanlog, sdlog, threshold, tail_scale, tail_shape,
+                          lower.tail = TRUE, log.p = FALSE) {
+  q <- as.numeric(q)
+  if (length(q) == 0L) return(numeric(0L))
+  lt_int <- as.integer(lower.tail)
+  lp_int <- as.integer(log.p)
+  vapply(q, function(qi) as.numeric(pLognormalGpd(qi, meanlog = meanlog, sdlog = sdlog,
+                                                   threshold = threshold, tail_scale = tail_scale,
+                                                   tail_shape = tail_shape,
+                                                   lower.tail = lt_int, log.p = lp_int)),
+         numeric(1L))
+}
+
+#' @describeIn lognormal_lowercase Lognormal + GPD quantile function (vectorized)
+#' @export
+qlognormalgpd <- function(p, meanlog, sdlog, threshold, tail_scale, tail_shape,
+                          lower.tail = TRUE, log.p = FALSE) {
+  qLognormalGpd(p, meanlog = meanlog, sdlog = sdlog, threshold = threshold,
+                tail_scale = tail_scale, tail_shape = tail_shape,
+                lower.tail = lower.tail, log.p = log.p)
+}
+
+#' @describeIn lognormal_lowercase Lognormal + GPD random generation (vectorized)
+#' @export
+rlognormalgpd <- function(n, meanlog, sdlog, threshold, tail_scale, tail_shape) {
+  n <- as.integer(n)
+  if (length(n) != 1L || is.na(n)) stop("'n' must be a single integer.", call. = FALSE)
+  if (n <= 0L) return(numeric(0L))
+  vapply(seq_len(n), function(i) as.numeric(rLognormalGpd(1L, meanlog = meanlog, sdlog = sdlog,
+                                                          threshold = threshold, tail_scale = tail_scale,
+                                                          tail_shape = tail_shape)),
+         numeric(1L))
+}
+

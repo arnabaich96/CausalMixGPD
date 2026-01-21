@@ -139,16 +139,6 @@ rGpd <- nimble::nimbleFunction(
   }
 )
 
-#' @describeIn gpd Vectorized RNG wrapper (R-only)
-#' @export
-rGpd_vec <- function(n, threshold, scale, shape) {
-  n <- as.integer(n)
-  if (length(n) != 1L || is.na(n)) stop("'n' must be a single integer.", call. = FALSE)
-  if (n <= 0L) return(numeric(0))
-  if (n == 1L) return(as.numeric(rGpd(1, threshold, scale, shape)))
-  vapply(seq_len(n), function(i) as.numeric(rGpd(1, threshold, scale, shape)), numeric(1))
-}
-
 #' @describeIn gpd Generalized Pareto quantile function
 #' @export
 qGpd <- function(p, threshold, scale, shape,
@@ -626,4 +616,218 @@ qCauchy <- function(p, location, scale,
   if (p <= 0) return(-Inf)
   if (p >= 1) return(Inf)
   location + scale * tan(pi * (p - 0.5))
+}
+
+
+# ==========================================================
+# 5) Lowercase vectorized R wrappers for base kernels
+# ==========================================================
+
+#' Lowercase vectorized distribution functions (base kernels)
+#'
+#' Vectorized R wrappers for the base distribution functions. These lowercase
+#' versions accept vector inputs for the first argument (\code{x}, \code{q}, or
+#' \code{p}) and return a numeric vector. The \code{r*} functions support
+#' \code{n > 1} and return a numeric vector of length \code{n}.
+#'
+#' The underlying scalar functions are NIMBLE-compatible nimbleFunctions.
+#' These wrappers are for convenient R-side usage and are not intended for
+#' use inside NIMBLE models.
+#'
+#' @param x Numeric vector of quantiles.
+#' @param q Numeric vector of quantiles.
+#' @param p Numeric vector of probabilities.
+#' @param n Integer number of observations to generate.
+#' @param threshold,scale,shape,mean,loc,scale,shape1,shape2,location
+#'   Distribution parameters (scalars).
+#' @param log Logical; if \code{TRUE}, return log-density.
+#' @param lower.tail Logical; if \code{TRUE} (default), probabilities are
+#'   \eqn{P(X \le x)}.
+#' @param log.p Logical; if \code{TRUE}, probabilities are on log scale.
+#' @param tol,maxiter Tolerance and max iterations for numerical inversion.
+#'
+#' @return Numeric vector of densities, probabilities, quantiles, or random
+#'   variates.
+#'
+#' @examples
+#' # GPD
+#' dgpd(c(1.5, 2.0, 2.5), threshold = 1, scale = 0.8, shape = 0.2)
+#' pgpd(c(1.5, 2.0), threshold = 1, scale = 0.8, shape = 0.2)
+#' qgpd(c(0.5, 0.9), threshold = 1, scale = 0.8, shape = 0.2)
+#' rgpd(5, threshold = 1, scale = 0.8, shape = 0.2)
+#'
+#' # Inverse Gaussian
+#' dinvgauss(c(1, 2, 3), mean = 2, shape = 5)
+#' rinvgauss(5, mean = 2, shape = 5)
+#'
+#' # Amoroso
+#' damoroso(c(1, 2), loc = 0, scale = 1.5, shape1 = 2, shape2 = 1.2)
+#' ramoroso(5, loc = 0, scale = 1.5, shape1 = 2, shape2 = 1.2)
+#'
+#' # Cauchy
+#' dcauchy_vec(c(-1, 0, 1), location = 0, scale = 1)
+#' rcauchy_vec(5, location = 0, scale = 1)
+#'
+#' @name base_lowercase
+#' @rdname base_lowercase
+NULL
+
+# ---- GPD lowercase wrappers ----
+
+#' @describeIn base_lowercase GPD density (vectorized)
+#' @export
+dgpd <- function(x, threshold, scale, shape, log = FALSE) {
+
+  x <- as.numeric(x)
+  if (length(x) == 0L) return(numeric(0L))
+  log_int <- as.integer(log)
+  vapply(x, function(xi) as.numeric(dGpd(xi, threshold, scale, shape, log_int)),
+         numeric(1L))
+}
+
+#' @describeIn base_lowercase GPD distribution function (vectorized)
+#' @export
+pgpd <- function(q, threshold, scale, shape, lower.tail = TRUE, log.p = FALSE) {
+  q <- as.numeric(q)
+
+  if (length(q) == 0L) return(numeric(0L))
+  lt_int <- as.integer(lower.tail)
+  lp_int <- as.integer(log.p)
+  vapply(q, function(qi) as.numeric(pGpd(qi, threshold, scale, shape, lt_int, lp_int)),
+         numeric(1L))
+}
+
+#' @describeIn base_lowercase GPD quantile function (vectorized)
+#' @export
+qgpd <- function(p, threshold, scale, shape, lower.tail = TRUE, log.p = FALSE) {
+  qGpd(p, threshold, scale, shape, lower.tail = lower.tail, log.p = log.p)
+}
+
+#' @describeIn base_lowercase GPD random generation (vectorized)
+#' @export
+rgpd <- function(n, threshold, scale, shape) {
+  n <- as.integer(n)
+  if (length(n) != 1L || is.na(n)) stop("'n' must be a single integer.", call. = FALSE)
+  if (n <= 0L) return(numeric(0L))
+  vapply(seq_len(n), function(i) as.numeric(rGpd(1L, threshold, scale, shape)),
+         numeric(1L))
+}
+
+# ---- Inverse Gaussian lowercase wrappers ----
+
+#' @describeIn base_lowercase Inverse Gaussian density (vectorized)
+#' @export
+dinvgauss <- function(x, mean, shape, log = FALSE) {
+  x <- as.numeric(x)
+  if (length(x) == 0L) return(numeric(0L))
+  log_int <- as.integer(log)
+  vapply(x, function(xi) as.numeric(dInvGauss(xi, mean, shape, log_int)),
+         numeric(1L))
+}
+
+#' @describeIn base_lowercase Inverse Gaussian distribution function (vectorized)
+#' @export
+pinvgauss <- function(q, mean, shape, lower.tail = TRUE, log.p = FALSE) {
+  q <- as.numeric(q)
+  if (length(q) == 0L) return(numeric(0L))
+  lt_int <- as.integer(lower.tail)
+  lp_int <- as.integer(log.p)
+  vapply(q, function(qi) as.numeric(pInvGauss(qi, mean, shape, lt_int, lp_int)),
+         numeric(1L))
+}
+
+#' @describeIn base_lowercase Inverse Gaussian quantile function (vectorized)
+#' @export
+qinvgauss <- function(p, mean, shape, lower.tail = TRUE, log.p = FALSE,
+                      tol = 1e-10, maxiter = 200) {
+  qInvGauss(p, mean, shape, lower.tail = lower.tail, log.p = log.p,
+            tol = tol, maxiter = maxiter)
+}
+
+#' @describeIn base_lowercase Inverse Gaussian random generation (vectorized)
+#' @export
+rinvgauss <- function(n, mean, shape) {
+  n <- as.integer(n)
+  if (length(n) != 1L || is.na(n)) stop("'n' must be a single integer.", call. = FALSE)
+  if (n <= 0L) return(numeric(0L))
+  vapply(seq_len(n), function(i) as.numeric(rInvGauss(1L, mean, shape)),
+         numeric(1L))
+}
+
+# ---- Amoroso lowercase wrappers ----
+
+#' @describeIn base_lowercase Amoroso density (vectorized)
+#' @export
+damoroso <- function(x, loc, scale, shape1, shape2, log = FALSE) {
+  x <- as.numeric(x)
+  if (length(x) == 0L) return(numeric(0L))
+  log_int <- as.integer(log)
+  vapply(x, function(xi) as.numeric(dAmoroso(xi, loc, scale, shape1, shape2, log_int)),
+         numeric(1L))
+}
+
+#' @describeIn base_lowercase Amoroso distribution function (vectorized)
+#' @export
+pamoroso <- function(q, loc, scale, shape1, shape2, lower.tail = TRUE, log.p = FALSE) {
+  q <- as.numeric(q)
+  if (length(q) == 0L) return(numeric(0L))
+  lt_int <- as.integer(lower.tail)
+  lp_int <- as.integer(log.p)
+  vapply(q, function(qi) as.numeric(pAmoroso(qi, loc, scale, shape1, shape2, lt_int, lp_int)),
+         numeric(1L))
+}
+
+#' @describeIn base_lowercase Amoroso quantile function (vectorized)
+#' @export
+qamoroso <- function(p, loc, scale, shape1, shape2, lower.tail = TRUE, log.p = FALSE) {
+  qAmoroso(p, loc, scale, shape1, shape2, lower.tail = lower.tail, log.p = log.p)
+}
+
+#' @describeIn base_lowercase Amoroso random generation (vectorized)
+#' @export
+ramoroso <- function(n, loc, scale, shape1, shape2) {
+  n <- as.integer(n)
+  if (length(n) != 1L || is.na(n)) stop("'n' must be a single integer.", call. = FALSE)
+  if (n <= 0L) return(numeric(0L))
+  vapply(seq_len(n), function(i) as.numeric(rAmoroso(1L, loc, scale, shape1, shape2)),
+         numeric(1L))
+}
+
+# ---- Cauchy lowercase wrappers ----
+
+#' @describeIn base_lowercase Cauchy density (vectorized)
+#' @export
+dcauchy_vec <- function(x, location, scale, log = FALSE) {
+  x <- as.numeric(x)
+  if (length(x) == 0L) return(numeric(0L))
+  log_int <- as.integer(log)
+  vapply(x, function(xi) as.numeric(dCauchy(xi, location, scale, log_int)),
+         numeric(1L))
+}
+
+#' @describeIn base_lowercase Cauchy distribution function (vectorized)
+#' @export
+pcauchy_vec <- function(q, location, scale, lower.tail = TRUE, log.p = FALSE) {
+  q <- as.numeric(q)
+  if (length(q) == 0L) return(numeric(0L))
+  lt_int <- as.integer(lower.tail)
+  lp_int <- as.integer(log.p)
+  vapply(q, function(qi) as.numeric(pCauchy(qi, location, scale, lt_int, lp_int)),
+         numeric(1L))
+}
+
+#' @describeIn base_lowercase Cauchy quantile function (vectorized)
+#' @export
+qcauchy_vec <- function(p, location, scale, lower.tail = TRUE, log.p = FALSE) {
+  qCauchy(p, location, scale, lower.tail = lower.tail, log.p = log.p)
+}
+
+#' @describeIn base_lowercase Cauchy random generation (vectorized)
+#' @export
+rcauchy_vec <- function(n, location, scale) {
+  n <- as.integer(n)
+  if (length(n) != 1L || is.na(n)) stop("'n' must be a single integer.", call. = FALSE)
+  if (n <= 0L) return(numeric(0L))
+  vapply(seq_len(n), function(i) as.numeric(rCauchy(1L, location, scale)),
+         numeric(1L))
 }

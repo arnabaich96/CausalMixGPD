@@ -1,27 +1,21 @@
 {
-  "percent": 47.68,
-  "timestamp": "2026-01-21T01:49:57Z",
+  "percent": 63.88,
+  "timestamp": "2026-01-21T04:05:36Z",
   "sources": "all",
-  "total_lines": 5799,
-  "covered_lines": 2765,
-  "files": 20,
+  "total_lines": 5524,
+  "covered_lines": 3529,
+  "files": 19,
   "file_coverage": [
     {
       "file": "R/00-global-contracts.R",
-      "lines": 12,
-      "covered": 12,
+      "lines": 4,
+      "covered": 4,
       "percent": 100
     },
     {
       "file": "R/99-simulated-data.R",
       "lines": 31,
       "covered": 31,
-      "percent": 100
-    },
-    {
-      "file": "R/kernel_support.R",
-      "lines": 27,
-      "covered": 27,
       "percent": 100
     },
     {
@@ -43,16 +37,22 @@
       "percent": 81.5
     },
     {
-      "file": "R/2-gamma-mixgpd.R",
-      "lines": 71,
-      "covered": 57,
-      "percent": 80.3
-    },
-    {
       "file": "R/02-utilities-internal.R",
       "lines": 1337,
-      "covered": 1046,
-      "percent": 78.2
+      "covered": 1076,
+      "percent": 80.5
+    },
+    {
+      "file": "R/01-compile-spec.R",
+      "lines": 220,
+      "covered": 173,
+      "percent": 78.6
+    },
+    {
+      "file": "R/2-gamma-mixgpd.R",
+      "lines": 71,
+      "covered": 55,
+      "percent": 77.5
     },
     {
       "file": "R/3-laplace-mixgpd.R",
@@ -73,40 +73,34 @@
       "percent": 69.4
     },
     {
+      "file": "R/04-S3-Methods.R",
+      "lines": 1361,
+      "covered": 926,
+      "percent": 68
+    },
+    {
       "file": "R/4-amoroso-mixgpd.R",
       "lines": 106,
       "covered": 70,
       "percent": 66
     },
     {
-      "file": "R/0-base-kernels.R",
-      "lines": 83,
-      "covered": 46,
-      "percent": 55.4
-    },
-    {
-      "file": "R/01-compile-spec.R",
-      "lines": 315,
-      "covered": 157,
-      "percent": 49.8
-    },
-    {
       "file": "R/03-build-and-run.R",
-      "lines": 861,
-      "covered": 341,
-      "percent": 39.6
+      "lines": 705,
+      "covered": 418,
+      "percent": 59.3
     },
     {
-      "file": "R/04-S3-Methods.R",
-      "lines": 1361,
-      "covered": 317,
-      "percent": 23.3
+      "file": "R/0-base-kernels.R",
+      "lines": 76,
+      "covered": 45,
+      "percent": 59.2
     },
     {
       "file": "R/05-causal.R",
-      "lines": 858,
-      "covered": 197,
-      "percent": 23
+      "lines": 849,
+      "covered": 240,
+      "percent": 28.3
     },
     {
       "file": "R/status.R",
@@ -116,9 +110,9 @@
     },
     {
       "file": "R/00-kernel-registry.R",
-      "lines": 184,
-      "covered": 6,
-      "percent": 3.3
+      "lines": 211,
+      "covered": 33,
+      "percent": 15.6
     },
     {
       "file": "R/globals.R",

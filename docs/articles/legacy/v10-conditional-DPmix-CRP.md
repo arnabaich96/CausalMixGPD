@@ -39,7 +39,7 @@ p_cov <- ggplot(df_cov, aes(x = x1, y = y)) +
   labs(title = "y vs X1 (loess smoother)", x = "X1", y = "y") +
   theme_minimal()
 
-grid.arrange(p_cov, ncol = 1)
+print(p_cov)
 ```
 
 ![](v10-conditional-DPmix-CRP_files/figure-html/data-setup-1.png)
@@ -245,36 +245,36 @@ plot(fit_vals)
 ![](v10-conditional-DPmix-CRP_files/figure-html/residuals-1.png)![](v10-conditional-DPmix-CRP_files/figure-html/residuals-2.png)
 
 ``` r
-plot(fit_cond_normal, family = c("traceplot", "autocorrelation", "geweke"))
+plot(fit_cond_normal, params = "mean", family = "traceplot")
 ```
 
     === traceplot ===
 
 ![](v10-conditional-DPmix-CRP_files/figure-html/diagnostics-1.png)
 
-    === autocorrelation ===
+``` r
+plot(fit_cond_normal, params = "sd", family = "caterpillar")
+```
+
+    === caterpillar ===
 
 ![](v10-conditional-DPmix-CRP_files/figure-html/diagnostics-2.png)
 
-    === geweke ===
+``` r
+plot(fit_cond_amoroso, params = "loc", family = "traceplot")
+```
+
+    === traceplot ===
 
 ![](v10-conditional-DPmix-CRP_files/figure-html/diagnostics-3.png)
 
 ``` r
-plot(fit_cond_amoroso, family = c("density", "running", "caterpillar"))
+plot(fit_cond_amoroso, params = "scale", family = "caterpillar")
 ```
-
-    === density ===
-
-![](v10-conditional-DPmix-CRP_files/figure-html/diagnostics-4.png)
-
-    === running ===
-
-![](v10-conditional-DPmix-CRP_files/figure-html/diagnostics-5.png)
 
     === caterpillar ===
 
-![](v10-conditional-DPmix-CRP_files/figure-html/diagnostics-6.png)
+![](v10-conditional-DPmix-CRP_files/figure-html/diagnostics-4.png)
 
 ------------------------------------------------------------------------
 

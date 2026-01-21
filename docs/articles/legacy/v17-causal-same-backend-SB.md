@@ -240,7 +240,7 @@ params(fit_sb_bulk)
     [1] 1.044 1.192 1.563
 
 ``` r
-plot(fit_sb_bulk, family = c("traceplot", "autocorrelation", "running"))
+plot(fit_sb_bulk, params = "location", family = "traceplot")
 ```
 
     === treated ===
@@ -249,27 +249,27 @@ plot(fit_sb_bulk, family = c("traceplot", "autocorrelation", "running"))
 
 ![](v17-causal-same-backend-SB_files/figure-html/plot-fit-sb-bulk-1.png)
 
-    === autocorrelation ===
+    === control ===
+
+    === traceplot ===
 
 ![](v17-causal-same-backend-SB_files/figure-html/plot-fit-sb-bulk-2.png)
 
-    === running ===
+``` r
+plot(fit_sb_bulk, params = "scale", family = "caterpillar")
+```
+
+    === treated ===
+
+    === caterpillar ===
 
 ![](v17-causal-same-backend-SB_files/figure-html/plot-fit-sb-bulk-3.png)
 
     === control ===
 
-    === traceplot ===
+    === caterpillar ===
 
 ![](v17-causal-same-backend-SB_files/figure-html/plot-fit-sb-bulk-4.png)
-
-    === autocorrelation ===
-
-![](v17-causal-same-backend-SB_files/figure-html/plot-fit-sb-bulk-5.png)
-
-    === running ===
-
-![](v17-causal-same-backend-SB_files/figure-html/plot-fit-sb-bulk-6.png)
 
 ``` r
 pred_mean_bulk <- predict(fit_sb_bulk, x = x_eval, type = "mean",
@@ -615,36 +615,20 @@ params(fit_sb_gpd)
     [1] 0.003756
 
 ``` r
-plot(fit_sb_gpd, family = c("density", "geweke", "caterpillar"))
+plot(fit_sb_gpd, family = "traceplot")
 ```
 
     === treated ===
 
-    === density ===
+    === traceplot ===
 
 ![](v17-causal-same-backend-SB_files/figure-html/plot-fit-sb-gpd-1.png)
 
-    === geweke ===
-
-![](v17-causal-same-backend-SB_files/figure-html/plot-fit-sb-gpd-2.png)
-
-    === caterpillar ===
-
-![](v17-causal-same-backend-SB_files/figure-html/plot-fit-sb-gpd-3.png)
-
     === control ===
 
-    === density ===
+    === traceplot ===
 
-![](v17-causal-same-backend-SB_files/figure-html/plot-fit-sb-gpd-4.png)
-
-    === geweke ===
-
-![](v17-causal-same-backend-SB_files/figure-html/plot-fit-sb-gpd-5.png)
-
-    === caterpillar ===
-
-![](v17-causal-same-backend-SB_files/figure-html/plot-fit-sb-gpd-6.png)
+![](v17-causal-same-backend-SB_files/figure-html/plot-fit-sb-gpd-2.png)
 
 ``` r
 pred_mean_gpd <- predict(fit_sb_gpd, x = x_eval, type = "mean",

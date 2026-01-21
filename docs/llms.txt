@@ -1,6 +1,6 @@
 # DPmixGPD
 
-[![Codecov](https://codecov.io/gh/arnabaich96/DPmixGPD_Package/branch/master/graph/badge.svg)](https://codecov.io/gh/arnabaich96/DPmixGPD_Package)
+[![codecov](https://codecov.io/gh/arnabaich96/DPmixGPD/branch/master/graph/badge.svg?token=80IYA0FANW)](https://codecov.io/gh/arnabaich96/DPmixGPD)
 
 **DPmixGPD** fits Dirichlet process mixture models (CRP or
 stick-breaking backends) with an optional Generalized Pareto (GPD) tail,
@@ -79,7 +79,11 @@ Comprehensive user documentation:
 
 - [**Function
   Reference**](https://arnabaich96.github.io/DPmixGPD/reference/index.html) -
-  Complete API documentation
+  Complete API documentation \### Coverage
+
+- ![Coverage
+  sunburst](https://codecov.io/gh/arnabaich96/DPmixGPD/graphs/sunburst.svg?token=80IYA0FANW)
+  Coverage sunburst
 
 # Package index
 
@@ -256,6 +260,8 @@ Comprehensive user documentation:
   : Plot QTE results
 - [`plot(`*`<mixgpd_fit>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/plot.mixgpd_fit.md)
   : Plot MCMC diagnostics for a MixGPD fit (ggmcmc backend)
+- [`plot(`*`<mixgpd_fitted>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/plot.mixgpd_fitted.md)
+  : Plot fitted values diagnostics
 - [`plot(`*`<mixgpd_predict>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/plot.mixgpd_predict.md)
   : Plot prediction results
 - [`predict(`*`<dpmixgpd_causal_fit>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/predict.dpmixgpd_causal_fit.md)
@@ -270,10 +276,22 @@ Comprehensive user documentation:
   : Print a causal bundle
 - [`print(`*`<dpmixgpd_causal_fit>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.dpmixgpd_causal_fit.md)
   : Print a causal fit
+- [`print(`*`<dpmixgpd_causal_predict_plots>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.dpmixgpd_causal_predict_plots.md)
+  : Print method for causal prediction plots
+- [`print(`*`<dpmixgpd_ps_bundle>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.dpmixgpd_ps_bundle.md)
+  : Print a propensity score bundle
+- [`print(`*`<dpmixgpd_ps_fit>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.dpmixgpd_ps_fit.md)
+  : Print a propensity score fit
 - [`print(`*`<dpmixgpd_qte>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.dpmixgpd_qte.md)
   : Print a QTE object
 - [`print(`*`<mixgpd_fit>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.mixgpd_fit.md)
   : Print a MixGPD fitted object
+- [`print(`*`<mixgpd_fitted_plots>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.mixgpd_fitted_plots.md)
+  : Print method for fitted value plots
+- [`print(`*`<mixgpd_fit_plots>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.mixgpd_fit_plots.md)
+  : Print method for mixgpd_fit diagnostic plots
+- [`print(`*`<mixgpd_predict_plots>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.mixgpd_predict_plots.md)
+  : Print method for prediction plots
 - [`print(`*`<mixgpd_summary>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.mixgpd_summary.md)
   : Print a MixGPD summary object
 - [`print(`*`<summary.dpmixgpd_ate>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.summary.dpmixgpd_ate.md)
@@ -313,29 +331,29 @@ Comprehensive user documentation:
 
 ### Get Started
 
-- [DPmixGPD: quick
-  start](https://arnabaich96.github.io/DPmixGPD/articles/introduction.md):
+- [DPmixGPD: Quick
+  Start](https://arnabaich96.github.io/DPmixGPD/articles/introduction.md):
 
 ### Manual
 
 - [Manual
   Overview](https://arnabaich96.github.io/DPmixGPD/articles/manual-index.md):
 - [Available
-  distributions](https://arnabaich96.github.io/DPmixGPD/articles/distributions.md):
+  Distributions](https://arnabaich96.github.io/DPmixGPD/articles/distributions.md):
 - [Model
-  specification](https://arnabaich96.github.io/DPmixGPD/articles/model-spec.md):
+  Specification](https://arnabaich96.github.io/DPmixGPD/articles/model-spec.md):
 - [MCMC
-  workflow](https://arnabaich96.github.io/DPmixGPD/articles/mcmc-workflow.md):
+  Workflow](https://arnabaich96.github.io/DPmixGPD/articles/mcmc-workflow.md):
 - [Unconditional
-  models](https://arnabaich96.github.io/DPmixGPD/articles/unconditional.md):
+  Models](https://arnabaich96.github.io/DPmixGPD/articles/unconditional.md):
 - [Conditional
-  models](https://arnabaich96.github.io/DPmixGPD/articles/conditional.md):
-- [Causal workflow (two-arm outcome
-  modeling)](https://arnabaich96.github.io/DPmixGPD/articles/causal.md):
+  Models](https://arnabaich96.github.io/DPmixGPD/articles/conditional.md):
+- [Causal
+  Workflow](https://arnabaich96.github.io/DPmixGPD/articles/causal.md):
 - [Backends: SB vs
   CRP](https://arnabaich96.github.io/DPmixGPD/articles/backends.md):
 - [Reference: S3
-  methods](https://arnabaich96.github.io/DPmixGPD/articles/reference-s3.md):
+  Methods](https://arnabaich96.github.io/DPmixGPD/articles/reference-s3.md):
 
 ### Kernels
 

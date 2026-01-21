@@ -8,9 +8,9 @@
 \alias{qGammaMix}
 \title{Gamma mixture distribution}
 \usage{
-dGammaMix(x, w, shape, scale, log = FALSE)
+dGammaMix(x, w, shape, scale, log = 0)
 
-pGammaMix(q, w, shape, scale, lower.tail = TRUE, log.p = FALSE, x = NULL)
+pGammaMix(q, w, shape, scale, lower.tail = 1, log.p = 0)
 
 rGammaMix(n, w, shape, scale)
 

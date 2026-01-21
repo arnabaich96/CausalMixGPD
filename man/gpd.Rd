@@ -6,7 +6,6 @@
 \alias{pGpd}
 \alias{rGpd}
 \alias{qGpd}
-\alias{rGpd_vec}
 \title{Generalized Pareto distribution}
 \usage{
 dGpd(x, threshold, scale, shape, log = 0)
@@ -14,8 +13,6 @@ dGpd(x, threshold, scale, shape, log = 0)
 pGpd(q, threshold, scale, shape, lower.tail = 1, log.p = 0)
 
 rGpd(n, threshold, scale, shape)
-
-rGpd_vec(n, threshold, scale, shape)
 
 qGpd(p, threshold, scale, shape, lower.tail = TRUE, log.p = FALSE)
 }
@@ -58,8 +55,6 @@ and evaluate elementwise; \code{r*} supports \code{n > 1}.
 \item \code{pGpd()}: Generalized Pareto distribution function
 
 \item \code{rGpd()}: Generalized Pareto random generation
-
-\item \code{rGpd_vec()}: Vectorized RNG wrapper (R-only)
 
 \item \code{qGpd()}: Generalized Pareto quantile function
 

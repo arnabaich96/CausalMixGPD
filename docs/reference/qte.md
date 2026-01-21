@@ -38,7 +38,7 @@ qte(
 
 - level:
 
-  Numeric credible level for intervals (default 0.95 for 95% CI).
+  Numeric credible level for intervals (default 0.95 for 95 percent CI).
 
 ## Value
 

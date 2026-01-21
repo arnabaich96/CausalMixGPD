@@ -27,7 +27,7 @@ ate(fit, newdata = NULL, interval = "credible", level = 0.95, nsim_mean = 200L)
 
 - level:
 
-  Numeric credible level for intervals (default 0.95 for 95% CI).
+  Numeric credible level for intervals (default 0.95 for 95 percent CI).
 
 - nsim_mean:
 

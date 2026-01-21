@@ -109,6 +109,7 @@ to execute MCMC with the stored settings.
 ## Examples
 
 ``` r
+if (FALSE) { # \dontrun{
 y <- abs(rnorm(60)) + 0.1
 bundle <- build_nimble_bundle(
   y = y,
@@ -119,15 +120,5 @@ bundle <- build_nimble_bundle(
   mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1, seed = 1)
 )
 bundle
-#> DPmixGPD bundle
-#>       Field                  Value
-#>     Backend Stick-Breaking Process
-#>      Kernel    Normal Distribution
-#>  Components                      4
-#>           N                     60
-#>           X                     NO
-#>         GPD                  FALSE
-#>     Epsilon                  0.025
-#> 
-#>   contains  : code, constants, data, dimensions, inits, monitors
+} # }
 ```
