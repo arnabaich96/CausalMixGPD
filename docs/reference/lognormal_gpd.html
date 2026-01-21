@@ -207,16 +207,17 @@ with the same length as <code>p</code>.</p>
 <span class="r-in"><span><span class="va">tail_shape</span> <span class="op">&lt;-</span> <span class="fl">0.2</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">dLognormalGpd</span><span class="op">(</span><span class="fl">4.0</span>, <span class="va">meanlog</span>, <span class="va">sdlog</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span>, log <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dLognormalGpd(4, meanlog, sdlog, threshold, tail_scale, tail_shape,     log = FALSE):</span> could not find function "dLognormalGpd"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.007654624</span>
 <span class="r-in"><span><span class="fu">pLognormalGpd</span><span class="op">(</span><span class="fl">4.0</span>, <span class="va">meanlog</span>, <span class="va">sdlog</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span>,</span></span>
 <span class="r-in"><span>             lower.tail <span class="op">=</span> <span class="cn">TRUE</span>, log.p <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in pLognormalGpd(4, meanlog, sdlog, threshold, tail_scale, tail_shape,     lower.tail = TRUE, log.p = FALSE):</span> could not find function "pLognormalGpd"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.9915799</span>
 <span class="r-in"><span><span class="fu">qLognormalGpd</span><span class="op">(</span><span class="fl">0.50</span>, <span class="va">meanlog</span>, <span class="va">sdlog</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.491825</span>
 <span class="r-in"><span><span class="fu">qLognormalGpd</span><span class="op">(</span><span class="fl">0.95</span>, <span class="va">meanlog</span>, <span class="va">sdlog</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.65302</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rLognormalGpd</span><span class="op">(</span><span class="fl">1</span>, <span class="va">meanlog</span>, <span class="va">sdlog</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in rLognormalGpd(1, meanlog, sdlog, threshold, tail_scale, tail_shape):</span> could not find function "rLognormalGpd"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 1.4864546 1.4139771 0.7147994 1.5386991 1.4392022 1.8746791 0.6961768</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 3.0964726 1.4959481 1.7047988</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

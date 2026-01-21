@@ -189,15 +189,16 @@ the RNG implementation supports <code>n = 1</code>.</p></dd>
 <span class="r-in"><span><span class="va">tail_shape</span> <span class="op">&lt;-</span> <span class="fl">0.2</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">dGpd</span><span class="op">(</span><span class="fl">1.5</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span>, log <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dGpd(1.5, threshold, tail_scale, tail_shape, log = 0):</span> could not find function "dGpd"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.6165877</span>
 <span class="r-in"><span><span class="fu">pGpd</span><span class="op">(</span><span class="fl">1.5</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span>, lower.tail <span class="op">=</span> <span class="fl">1</span>, log.p <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in pGpd(1.5, threshold, tail_scale, tail_shape, lower.tail = 1,     log.p = 0):</span> could not find function "pGpd"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.445071</span>
 <span class="r-in"><span><span class="fu">qGpd</span><span class="op">(</span><span class="fl">0.50</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.594793</span>
 <span class="r-in"><span><span class="fu">qGpd</span><span class="op">(</span><span class="fl">0.95</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4.282257</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rGpd</span><span class="op">(</span><span class="fl">1</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in rGpd(1, threshold, tail_scale, tail_shape):</span> could not find function "rGpd"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 1.846195 1.800843 1.440456 2.912937 1.627998 5.686369 1.013753 2.003449</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] 1.389016 3.596423</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

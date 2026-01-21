@@ -202,7 +202,7 @@ plot(fit_vals)
 ```
 
 ```{r diagnostics}
-plot(fit_sb_gpd, params = c("threshold", "tail_shape", "tail_scale"), family = c("caterpillar", "traceplot"))
+plot(fit_sb_gpd, family = "traceplot")
 plot(fit_sb_gpd, params = "shape", family = "traceplot")
 plot(fit_sb_gpd, params = "scale", family = "caterpillar")
 ```

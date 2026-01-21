@@ -152,7 +152,7 @@ params_gpd
 ```
 
 ```{r fit-plots}
-plot(fit_gpd, params = c("threshold", "tail_shape", "tail_scale"), family = c("caterpillar", "traceplot"))
+plot(fit_gpd, family = "traceplot")
 plot(fit_gpd, params = "mean", family = "traceplot")
 plot(fit_gpd, params = "shape", family = "caterpillar")
 ```
