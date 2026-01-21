@@ -210,8 +210,7 @@ params(fit_sb_gpd)
 ```
 
 ```{r plot-fit-sb-gpd}
-plot(fit_sb_gpd, params = c("threshold", "tail_shape", "tail_scale"), family = c("caterpillar", "traceplot"))
-plot(fit_sb_gpd, params = "location", family = "traceplot")
+plot(fit_sb_gpd, family = "traceplot")
 ```
 
 ```{r predict-mean-sb-gpd}

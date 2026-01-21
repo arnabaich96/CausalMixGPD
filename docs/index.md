@@ -1,6 +1,6 @@
 # DPmixGPD
 
-[![Codecov](https://codecov.io/gh/arnabaich96/DPmixGPD_Package/branch/master/graph/badge.svg)](https://codecov.io/gh/arnabaich96/DPmixGPD_Package)
+[![codecov](https://codecov.io/gh/arnabaich96/DPmixGPD/branch/master/graph/badge.svg?token=80IYA0FANW)](https://codecov.io/gh/arnabaich96/DPmixGPD)
 
 **DPmixGPD** fits Dirichlet process mixture models (CRP or
 stick-breaking backends) with an optional Generalized Pareto (GPD) tail,
@@ -80,3 +80,7 @@ Comprehensive user documentation:
 - [**Function
   Reference**](https://arnabaich96.github.io/DPmixGPD/reference/index.html) -
   Complete API documentation
+
+### Coverage
+
+[![Coverage sunburst](https://codecov.io/gh/arnabaich96/DPmixGPD/graphs/sunburst.svg?token=80IYA0FANW)](https://codecov.io/gh/arnabaich96/DPmixGPD)

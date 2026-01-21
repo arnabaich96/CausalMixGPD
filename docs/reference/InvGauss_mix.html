@@ -204,16 +204,17 @@ and evaluate elementwise; <code>r*</code> supports <code>n &gt; 1</code>.</p>
 <span class="r-in"><span><span class="va">shape</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">8</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">dInvGaussMix</span><span class="op">(</span><span class="fl">2.0</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mean</span>, shape <span class="op">=</span> <span class="va">shape</span>, log <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dInvGaussMix(2, w = w, mean = mean, shape = shape, log = 0):</span> could not find function "dInvGaussMix"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.17698</span>
 <span class="r-in"><span><span class="fu">pInvGaussMix</span><span class="op">(</span><span class="fl">2.0</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mean</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span></span>
 <span class="r-in"><span>            lower.tail <span class="op">=</span> <span class="fl">1</span>, log.p <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in pInvGaussMix(2, w = w, mean = mean, shape = shape, lower.tail = 1,     log.p = 0):</span> could not find function "pInvGaussMix"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.6866789</span>
 <span class="r-in"><span><span class="fu">qInvGaussMix</span><span class="op">(</span><span class="fl">0.50</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mean</span>, shape <span class="op">=</span> <span class="va">shape</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.251694</span>
 <span class="r-in"><span><span class="fu">qInvGaussMix</span><span class="op">(</span><span class="fl">0.95</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mean</span>, shape <span class="op">=</span> <span class="va">shape</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 6.489781</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rInvGaussMix</span><span class="op">(</span><span class="fl">1</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mean</span>, shape <span class="op">=</span> <span class="va">shape</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in rInvGaussMix(1, w = w, mean = mean, shape = shape):</span> could not find function "rInvGaussMix"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 1.2121526 0.8304820 1.3536225 1.8771959 1.6650262 5.3042084 5.2527404</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 0.4881889 0.4173882 0.2376235</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

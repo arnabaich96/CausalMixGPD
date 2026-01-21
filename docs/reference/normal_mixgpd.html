@@ -220,16 +220,17 @@ with the same length as <code>p</code>.</p>
 <span class="r-in"><span><span class="va">tail_shape</span> <span class="op">&lt;-</span> <span class="fl">0.2</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">dNormMixGpd</span><span class="op">(</span><span class="fl">3.0</span>, <span class="va">w</span>, <span class="va">mean</span>, <span class="va">sd</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span>, log <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dNormMixGpd(3, w, mean, sd, threshold, tail_scale, tail_shape,     log = FALSE):</span> could not find function "dNormMixGpd"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.0267334</span>
 <span class="r-in"><span><span class="fu">pNormMixGpd</span><span class="op">(</span><span class="fl">3.0</span>, <span class="va">w</span>, <span class="va">mean</span>, <span class="va">sd</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span>,</span></span>
 <span class="r-in"><span>           lower.tail <span class="op">=</span> <span class="cn">TRUE</span>, log.p <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in pNormMixGpd(3, w, mean, sd, threshold, tail_scale, tail_shape,     lower.tail = TRUE, log.p = FALSE):</span> could not find function "pNormMixGpd"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.9679199</span>
 <span class="r-in"><span><span class="fu">qNormMixGpd</span><span class="op">(</span><span class="fl">0.50</span>, <span class="va">w</span>, <span class="va">mean</span>, <span class="va">sd</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.2713211</span>
 <span class="r-in"><span><span class="fu">qNormMixGpd</span><span class="op">(</span><span class="fl">0.95</span>, <span class="va">w</span>, <span class="va">mean</span>, <span class="va">sd</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.490405</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rNormMixGpd</span><span class="op">(</span><span class="fl">1</span>, <span class="va">w</span>, <span class="va">mean</span>, <span class="va">sd</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in rNormMixGpd(1, w, mean, sd, threshold, tail_scale, tail_shape):</span> could not find function "rNormMixGpd"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  2.74982379  2.61237156  0.82712518  0.87452040  0.06287646  0.80348336</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] -0.01754664 -0.08241367 -1.17382011  0.01109939</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

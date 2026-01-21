@@ -13,10 +13,6 @@ coverage:
         threshold: 2%
         base: auto
 
-ignore:
-  - "tests/"
-  - "inst/"
-
 flags:
   ubuntu-latest-Rrelease:
     carryforward: false
