@@ -1,7 +1,5 @@
 # DPmixGPD
-
-[![Codecov](https://codecov.io/gh/arnabaich96/DPmixGPD_Package/branch/master/graph/badge.svg)](https://codecov.io/gh/arnabaich96/DPmixGPD_Package)
-https://codecov.io/gh/arnabaich96/DPmixGPD/graphs/sunburst.svg?token=80IYA0FANW
+[![codecov](https://codecov.io/gh/arnabaich96/DPmixGPD/branch/master/graph/badge.svg?token=80IYA0FANW)](https://codecov.io/gh/arnabaich96/DPmixGPD)
 
 **DPmixGPD** fits Dirichlet process mixture models (CRP or stick-breaking backends) with an optional Generalized Pareto (GPD) tail, enabling unified modeling of bulk distributions and extreme values with clean, user-friendly prediction APIs.
 
