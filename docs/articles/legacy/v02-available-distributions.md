@@ -53,28 +53,31 @@ All `p*()` functions support `lower.tail` and `log.p`:
 \Pr(Y>y)=1-F(y),\qquad \log F(y)\ \text{or}\ \log\{1-F(y)\}.
 ```
 
-The `d*()`, `p*()`, and `q*()` functions accept vector inputs for their
-first argument and evaluate elementwise; `r*()` supports `n > 1`
-(including `n = 0`).
+The lowercase `d*()`, `p*()`, and `q*()` functions (e.g., `dgammamix`,
+`pgammamix`) accept vector inputs for their first argument and evaluate
+elementwise; `r*()` supports `n > 1` (including `n = 0`). The CamelCase
+versions (e.g., `dGammaMix`) are NIMBLE-compatible scalar functions for
+use in model code.
 
 ``` r
 w <- c(0.60, 0.40)
 shape <- c(2.0, 5.0)
 scale <- c(1.0, 2.0)
 
-dGammaMix(seq(0.5, 2.0, length.out = 5), w = w, shape = shape, scale = scale)
+# Use lowercase vectorized wrappers for R-side usage
+dgammamix(seq(0.5, 2.0, length.out = 5), w = w, shape = shape, scale = scale)
 ```
 
     [1] 0.1819845 0.2190497 0.2155592 0.1936004 0.1654680
 
 ``` r
-qGammaMix(c(0.1, 0.5, 0.9), w = w, shape = shape, scale = scale)
+qgammamix(c(0.1, 0.5, 0.9), w = w, shape = shape, scale = scale)
 ```
 
     [1]  0.7309733  3.1258068 12.5500460
 
 ``` r
-rGammaMix(5, w = w, shape = shape, scale = scale)
+rgammamix(5, w = w, shape = shape, scale = scale)
 ```
 
     [1]  1.1270544  3.4631704 10.4522708  0.5783015  8.9755486

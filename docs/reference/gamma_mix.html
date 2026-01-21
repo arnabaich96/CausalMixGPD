@@ -117,9 +117,9 @@ and evaluate elementwise; <code>r*</code> supports <code>n &gt; 1</code>.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">dGammaMix</span><span class="op">(</span><span class="va">x</span>, <span class="va">w</span>, <span class="va">shape</span>, <span class="va">scale</span>, log <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">dGammaMix</span><span class="op">(</span><span class="va">x</span>, <span class="va">w</span>, <span class="va">shape</span>, <span class="va">scale</span>, log <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">pGammaMix</span><span class="op">(</span><span class="va">q</span>, <span class="va">w</span>, <span class="va">shape</span>, <span class="va">scale</span>, lower.tail <span class="op">=</span> <span class="cn">TRUE</span>, log.p <span class="op">=</span> <span class="cn">FALSE</span>, x <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
+<span><span class="fu">pGammaMix</span><span class="op">(</span><span class="va">q</span>, <span class="va">w</span>, <span class="va">shape</span>, <span class="va">scale</span>, lower.tail <span class="op">=</span> <span class="fl">1</span>, log.p <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">rGammaMix</span><span class="op">(</span><span class="va">n</span>, <span class="va">w</span>, <span class="va">shape</span>, <span class="va">scale</span><span class="op">)</span></span>
 <span></span>
@@ -213,8 +213,8 @@ with the same length as <code>p</code>.</p>
 <span class="r-in"><span><span class="fu">qGammaMix</span><span class="op">(</span><span class="fl">0.95</span>, w <span class="op">=</span> <span class="va">w</span>, scale <span class="op">=</span> <span class="va">scale</span>, shape <span class="op">=</span> <span class="va">shape</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 33.81667</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rGammaMix</span><span class="op">(</span><span class="fl">1</span>, w <span class="op">=</span> <span class="va">w</span>, scale <span class="op">=</span> <span class="va">scale</span>, shape <span class="op">=</span> <span class="va">shape</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 54.693797 29.961135 34.409040  2.306703  1.915193 10.846415 64.544736</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8]  1.097391  3.546284  8.529316</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  1.3984846 12.5935191  0.9939523  1.1737385 11.9390556 35.6239312</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  2.1932376  0.7190608  1.2980509  0.6945420</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

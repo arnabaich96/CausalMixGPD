@@ -5,7 +5,7 @@ Run MCMC for a prepared bundle
 ## Usage
 
 ``` r
-run_mcmc_bundle_manual(bundle, show_progress = TRUE)
+run_mcmc_bundle_manual(bundle, show_progress = TRUE, quiet = TRUE)
 ```
 
 ## Arguments
@@ -18,6 +18,11 @@ run_mcmc_bundle_manual(bundle, show_progress = TRUE)
 - show_progress:
 
   Logical; passed to nimble.
+
+- quiet:
+
+  Logical; if TRUE (default), suppress console status messages. Set to
+  FALSE to see progress messages during MCMC setup and execution.
 
 ## Value
 

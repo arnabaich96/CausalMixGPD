@@ -11,9 +11,9 @@ supports `n > 1`.
 ## Usage
 
 ``` r
-dGammaMix(x, w, shape, scale, log = FALSE)
+dGammaMix(x, w, shape, scale, log = 0)
 
-pGammaMix(q, w, shape, scale, lower.tail = TRUE, log.p = FALSE, x = NULL)
+pGammaMix(q, w, shape, scale, lower.tail = 1, log.p = 0)
 
 rGammaMix(n, w, shape, scale)
 
@@ -111,6 +111,6 @@ qGammaMix(0.50, w = w, scale = scale, shape = shape)
 qGammaMix(0.95, w = w, scale = scale, shape = shape)
 #> [1] 33.81667
 replicate(10, rGammaMix(1, w = w, scale = scale, shape = shape))
-#>  [1] 54.693797 29.961135 34.409040  2.306703  1.915193 10.846415 64.544736
-#>  [8]  1.097391  3.546284  8.529316
+#>  [1]  1.3984846 12.5935191  0.9939523  1.1737385 11.9390556 35.6239312
+#>  [7]  2.1932376  0.7190608  1.2980509  0.6945420
 ```

@@ -15,8 +15,6 @@ pGpd(q, threshold, scale, shape, lower.tail = 1, log.p = 0)
 
 rGpd(n, threshold, scale, shape)
 
-rGpd_vec(n, threshold, scale, shape)
-
 qGpd(p, threshold, scale, shape, lower.tail = TRUE, log.p = FALSE)
 ```
 
@@ -78,8 +76,6 @@ CDF; `rGpd` returns one random draw; `qGpd` returns a numeric quantile.
 
 - `rGpd()`: Generalized Pareto random generation
 
-- `rGpd_vec()`: Vectorized RNG wrapper (R-only)
-
 - `qGpd()`: Generalized Pareto quantile function
 
 ## Examples
@@ -98,6 +94,6 @@ qGpd(0.50, threshold, tail_scale, tail_shape)
 qGpd(0.95, threshold, tail_scale, tail_shape)
 #> [1] 4.282257
 replicate(10, rGpd(1, threshold, tail_scale, tail_shape))
-#>  [1] 1.846195 1.800843 1.440456 2.912937 1.627998 5.686369 1.013753 2.003449
-#>  [9] 1.389016 3.596423
+#>  [1] 1.081583 2.346487 2.365271 7.197142 5.093887 1.414462 1.526602 1.314719
+#>  [9] 1.156570 1.655129
 ```

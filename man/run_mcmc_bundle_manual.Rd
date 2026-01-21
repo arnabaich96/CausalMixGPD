@@ -4,12 +4,15 @@
 \alias{run_mcmc_bundle_manual}
 \title{Run MCMC for a prepared bundle}
 \usage{
-run_mcmc_bundle_manual(bundle, show_progress = TRUE)
+run_mcmc_bundle_manual(bundle, show_progress = TRUE, quiet = TRUE)
 }
 \arguments{
 \item{bundle}{A \code{dpmixgpd_bundle} from \code{build_nimble_bundle()}.}
 
 \item{show_progress}{Logical; passed to nimble.}
+
+\item{quiet}{Logical; if TRUE (default), suppress console status messages.
+Set to FALSE to see progress messages during MCMC setup and execution.}
 }
 \value{
 A fitted object of class \code{"mixgpd_fit"}.

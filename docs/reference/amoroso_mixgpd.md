@@ -197,6 +197,6 @@ qAmorosoMixGpd(0.95, w, loc, scale, shape1, shape2,
 #> [1] 5.893917
 replicate(10, rAmorosoMixGpd(1, w, loc, scale, shape1, shape2,
                             threshold, tail_scale, tail_shape))
-#>  [1] 3.1726642 1.1954265 3.2171814 3.8463938 3.3374576 0.2579286 0.2150753
+#>  [1] 3.3304140 3.4262481 3.2171814 3.8463938 3.3374576 0.2579286 0.2150753
 #>  [8] 3.4350296 2.0246966 1.6155426
 ```
