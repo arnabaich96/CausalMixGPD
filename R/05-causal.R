@@ -1168,19 +1168,6 @@ predict.dpmixgpd_causal_fit <- function(object,
   bundle
 }
 
-
- .ps_beta_means <- function(ps_fit) {
-  stopifnot(inherits(ps_fit, "dpmixgpd_ps_fit"))
-  samples <- as.matrix(ps_fit$mcmc$samples)
-  beta_cols <- grep("^beta\\[[0-9]+\\]$", colnames(samples), value = TRUE)
-  if (!length(beta_cols)) stop("PS beta draws not found.", call. = FALSE)
-  beta_inds <- as.integer(sub("^beta\\[([0-9]+)\\]$", "\\1", beta_cols))
-  order_idx <- order(beta_inds, na.last = NA)
-  beta_means <- colMeans(samples[, beta_cols, drop = FALSE])
-  beta_means <- as.numeric(beta_means[order_idx])
-  beta_means
-}
-
 .ps_design_matrix <- function(ps_bundle, X_new) {
   stopifnot(inherits(ps_bundle, "dpmixgpd_ps_bundle"))
   X_train <- ps_bundle$data$X

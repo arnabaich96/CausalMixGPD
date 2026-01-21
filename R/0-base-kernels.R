@@ -40,31 +40,6 @@
 #' @importFrom stats runif
 NULL
 
-# Simple base-kernel helpers (R-side) to satisfy dispatch/tests ----
-# These wrap base R or nimble functions and are vectorized over x.
-
-dnormal <- function(x, mean = 0, sd = 1, log = FALSE) {
-  stats::dnorm(x, mean = mean, sd = sd, log = log)
-}
-
-# Laplace density wrapper using nimble's ddexp parameterization (location, scale)
-dlaplace <- function(x, location = 0, scale = 1, log = FALSE) {
-  nimble::ddexp(x, location = location, scale = scale, log = log)
-}
-
-# Alias to nimble's ddexp (some code/tests expect this name to exist)
-ddexp <- function(x, location = 0, scale = 1, log = FALSE) {
-  nimble::ddexp(x, location = location, scale = scale, log = log)
-}
-
-# Amoroso wrapper using existing nimbleFunction dAmoroso
-damoroso <- function(x, loc, scale, shape1, shape2, log = FALSE) {
-  if (length(x) == 0) return(numeric(0))
-  fn <- function(v) as.numeric(dAmoroso(v, loc, scale, shape1, shape2, as.integer(log)))
-  if (length(x) == 1) return(fn(x))
-  vapply(x, fn, numeric(1))
-}
-
 #' @describeIn gpd Generalized Pareto density function
 #' @export
 dGpd <- nimble::nimbleFunction(
