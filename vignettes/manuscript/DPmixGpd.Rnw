@@ -8,35 +8,33 @@
 
 
 %% -- Metadata
-\title{\pkg{DPmixGPD}: Dirichlet Process Mixtures with Generalized Pareto Tails in \proglang{R}}
+\title{DPmixGPD: Dirichlet Process Mixtures with Generalized Pareto Tails in R}
 
-\author{Arnab \And Coauthor Two\footnote{Affiliation placeholder.} \\
+\author{Arnab \\ Coauthor Two \\
   University / Institute Placeholder
 }
 
 \Plainauthor{Arnab; Coauthor Two}
 \Plaintitle{DPmixGPD: Dirichlet Process Mixtures with Generalized Pareto Tails in R}
-\Shorttitle{\pkg{DPmixGPD}}
+\Shorttitle{DPmixGPD}
 
 \Abstract{
-We present \pkg{DPmixGPD}, an \proglang{R} package for Bayesian nonparametric mixture modeling with explicit extreme-value tail behavior.
+We present DPmixGPD, an R package for Bayesian nonparametric mixture modeling with explicit extreme-value tail behavior.
 The package models the bulk distribution using a Dirichlet process mixture (DPM) with multiple kernel families and supports both Chinese restaurant process (CRP) and truncated stick-breaking (SB) backends.
-For heavy-tailed outcomes, \pkg{DPmixGPD} optionally splices a generalized Pareto distribution (GPD) above a threshold, enabling coherent extrapolation for extreme quantiles and tail probabilities while retaining flexible bulk fit.
-The workflow is designed around two main functions: \code{build_nimble_bundle()} constructs a compiled \pkg{NIMBLE} model bundle, and \code{run_mcmc_bundle_manual()} runs MCMC to produce a fitted object with \code{print}, \code{summary}, \code{plot}, \code{fitted}, and \code{predict} methods.
-We demonstrate density estimation, conditional modeling with covariates, and a real-data application using the built-in \code{airquality} dataset, highlighting stable high-quantile inference and tail exceedance summaries.
+For heavy-tailed outcomes, DPmixGPD optionally splices a generalized Pareto distribution (GPD) above a threshold, enabling coherent extrapolation for extreme quantiles and tail probabilities while retaining flexible bulk fit.
+The workflow is designed around two main functions: build-nimble-bundle constructs a compiled NIMBLE model bundle, and run-mcmc-bundle-manual runs MCMC to produce a fitted object with print, summary, plot, fitted, and predict methods.
+We demonstrate density estimation, conditional modeling with covariates, and a real-data application using the built-in airquality dataset, highlighting stable high-quantile inference and tail exceedance summaries.
 }
 
-\Keywords{Bayesian nonparametrics, Dirichlet process mixture, generalized Pareto distribution, extreme value theory, tail modeling, NIMBLE, R}
-\Plainkeywords{Bayesian nonparametrics, Dirichlet process mixture, generalized Pareto distribution, extreme value theory, tail modeling, NIMBLE, R}
+
+
+\Plainkeywords{Bayesian nonparametrics; Dirichlet process mixture; generalized Pareto distribution; extreme value theory; tail modeling; NIMBLE; R}
 
 \Volume{XX}
 \Issue{YY}
 \Year{2026}
 \Submitdate{2026-01-20}
 \Acceptdate{TBD}
-
-%% -- Bibliography style for JSS
-\Bibliography{ref}
 
 \begin{document}
 \maketitle
@@ -138,7 +136,7 @@ bundle <- build_nimble_bundle(
   kernel  = "normal",
   GPD     = TRUE,
   components = 8,
-  mcmc = list(niter = 2000, nburnin = 500, thin = 2, nchains = 1, seed = 1)
+  mcmc = list(niter = 200, nburnin = 50, thin = 2, nchains = 1, seed = 1)
 )
 
 fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
@@ -196,7 +194,7 @@ For strictly positive outcomes with skewness, a lognormal kernel is a practical 
 users may also consider gamma or inverse Gaussian depending on domain knowledge.
 
 <<realdata-fit, echo=TRUE, message=FALSE, warning=FALSE>>=
-mcmc <- list(niter = 6000, nburnin = 2000, thin = 4, nchains = 1, seed = 1)
+mcmc <- list(niter = 600, nburnin = 200, thin = 4, nchains = 1, seed = 1)
 
 bundle_bulk <- build_nimble_bundle(
   y = y,
@@ -204,7 +202,7 @@ bundle_bulk <- build_nimble_bundle(
   backend = "sb",
   kernel = "lognormal",
   GPD = FALSE,
-  components = 10,
+  components = 5,
   mcmc = mcmc
 )
 fit_bulk <- run_mcmc_bundle_manual(bundle_bulk, show_progress = FALSE)
@@ -215,7 +213,7 @@ bundle_gpd <- build_nimble_bundle(
   backend = "sb",
   kernel = "lognormal",
   GPD = TRUE,
-  components = 10,
+  components = 4,
   mcmc = mcmc
 )
 fit_gpd <- run_mcmc_bundle_manual(bundle_gpd, show_progress = FALSE)
@@ -290,8 +288,8 @@ bundle_bench <- build_nimble_bundle(
   backend = "sb",
   kernel = "gamma",
   GPD = TRUE,
-  components = 10,
-  mcmc = list(niter = 3000, nburnin = 1000, thin = 1, nchains = 1, seed = 123)
+  components =6,
+  mcmc = list(niter = 300, nburnin = 100, thin = 1, nchains = 1, seed = 123)
 )
 
 # Run MCMC
