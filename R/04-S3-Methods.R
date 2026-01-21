@@ -922,7 +922,7 @@ plot.mixgpd_fit <- function(x,
 #' @param p Numeric vector of probabilities for quantiles (required for \code{type="quantile"}).
 #' @param index Alias for \code{p}; numeric vector of quantile levels.
 #' @param y Numeric vector of evaluation points (required for \code{type="density"} or \code{"survival"}).
-#' @param cred.level Credible level for credible intervals (default 0.95 for 95\% credible intervals).
+#' @param cred.level Credible level for credible intervals (default 0.95 for 95 percent intervals).
 #' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
 #'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
 #'   highest posterior density intervals.
@@ -1096,7 +1096,7 @@ predict.mixgpd_fit <- function(object,
 #' @param object A fitted object of class \code{"mixgpd_fit"}.
 #' @param type Which fitted location to return: mean, median, quantile, or both (\code{"location"}).
 #' @param p Quantile level used when \code{type = "quantile"}.
-#' @param level Credible level for confidence intervals (default 0.95 for 95\% credible intervals).
+#' @param level Credible level for confidence intervals (default 0.95 for 95 percent credible intervals).
 #' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
 #'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
 #'   highest posterior density intervals.

@@ -451,7 +451,7 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
 #' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
 #'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
 #'   highest posterior density intervals.
-#' @param level Numeric credible level for intervals (default 0.95 for 95\% CI).
+#' @param level Numeric credible level for intervals (default 0.95 for 95 percent CI).
 #' @return A list with elements \code{fit} (QTE), \code{grid} (probabilities),
 #'   and the treated/control prediction objects.
 #' @examples
@@ -626,7 +626,7 @@ qte <- function(fit,
 #' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
 #'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
 #'   highest posterior density intervals.
-#' @param level Numeric credible level for intervals (default 0.95 for 95\% CI).
+#' @param level Numeric credible level for intervals (default 0.95 for 95 percent CI).
 #' @param nsim_mean Number of posterior predictive draws to approximate the mean.
 #' @return A list with elements \code{fit} (ATE), optional \code{lower}/\code{upper},
 #'   and the treated/control prediction objects.

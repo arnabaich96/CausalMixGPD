@@ -836,7 +836,7 @@ stick_breaking <- nimble::nimbleFunction(
 #' density (HPD) intervals using \code{coda::HPDinterval()}.
 #'
 #' @param draws Numeric vector of posterior draws.
-#' @param level Numeric; credible level (e.g., 0.95 for 95\% interval).
+#' @param level Numeric; credible level (e.g., 0.95 for 95 percent interval).
 #' @param type Character; \code{"credible"} for equal-tailed quantile intervals,
 #'   \code{"hpd"} for highest posterior density intervals.
 #' @return Named numeric vector with \code{lower} and \code{upper}.

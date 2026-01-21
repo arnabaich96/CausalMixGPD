@@ -227,10 +227,8 @@ plot(fitted(fit_cond_gpd_lognormal))
 ```
 
 ```{r diagnostics}
-plot(fit_cond_gpd_lognormal, params = c("threshold", "tail_shape", "tail_scale"), family = c("caterpillar", "traceplot"))
-plot(fit_cond_gpd_lognormal, params = "meanlog", family = "traceplot")
-plot(fit_cond_gpd_normal, params = c("threshold", "tail_shape", "tail_scale"), family = c("caterpillar", "traceplot"))
-plot(fit_cond_gpd_normal, params = "sd", family = "caterpillar")
+plot(fit_cond_gpd_lognormal, family = "traceplot")
+plot(fit_cond_gpd_normal, family = "caterpillar")
 ```
 
 ---
