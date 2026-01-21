@@ -2,11 +2,11 @@
 
 # Test Coverage Report
 
-![Coverage: 69.3%](https://img.shields.io/badge/coverage-69.3%25-yellow)
+![Coverage: 73.2%](https://img.shields.io/badge/coverage-73.2%25-yellow)
 
-**Generated:** January 21, 2026 at 06:05 UTC
+**Generated:** January 21, 2026 at 07:30 UTC
 
-**Sources:** all
+**Sources:** tests
 
 ------------------------------------------------------------------------
 
@@ -14,9 +14,9 @@
 
 |                  |           |
 |------------------|-----------|
-| Overall Coverage | **69.3%** |
-| Total Lines      | 6022      |
-| Covered Lines    | 4171      |
+| Overall Coverage | **73.2%** |
+| Total Lines      | 6023      |
+| Covered Lines    | 4408      |
 | Files Analyzed   | 19        |
 
 ------------------------------------------------------------------------
@@ -42,15 +42,15 @@ file.
 | `04-S3-Methods.R`            | 1361  | 1092    | **80.2%**  |
 | `01-compile-spec.R`          | 220   | 173     | **78.6%**  |
 | `1-cauchy-mix.R`             | 60    | 47      | **78.3%**  |
-| `03-build-and-run.R`         | 705   | 520     | **73.8%**  |
+| `2-gamma-mixgpd.R`           | 122   | 91      | **74.6%**  |
+| `7-normal-mixgpd.R`          | 133   | 99      | **74.4%**  |
+| `03-build-and-run.R`         | 706   | 521     | **73.8%**  |
 | `0-base-kernels.R`           | 140   | 102     | **72.9%**  |
-| `7-normal-mixgpd.R`          | 133   | 87      | **65.4%**  |
+| `6-lognormal-mixgpd.R`       | 125   | 90      | **72.0%**  |
+| `3-laplace-mixgpd.R`         | 133   | 94      | **70.7%**  |
+| `5-invgauss-mixgpd.R`        | 135   | 94      | **69.6%**  |
+| `4-amoroso-mixgpd.R`         | 186   | 122     | **65.6%**  |
 | `05-causal.R`                | 849   | 499     | **58.8%**  |
-| `2-gamma-mixgpd.R`           | 122   | 57      | **46.7%**  |
-| `4-amoroso-mixgpd.R`         | 186   | 70      | **37.6%**  |
-| `3-laplace-mixgpd.R`         | 133   | 48      | **36.1%**  |
-| `5-invgauss-mixgpd.R`        | 135   | 48      | **35.6%**  |
-| `6-lognormal-mixgpd.R`       | 125   | 44      | **35.2%**  |
 | `Utility.R`                  | 31    | 5       | **16.1%**  |
 | `00-kernel-registry.R`       | 211   | 33      | **15.6%**  |
 | `globals.R`                  | 2     | 0       | **0.0%**   |

@@ -60,7 +60,8 @@
     "R/globals.R"
   )
   full_paths <- normalizePath(file.path(path, files), winslash = "/", mustWork = FALSE)
-  stats::setNames(as.list(rep(Inf, length(full_paths))), full_paths)
+  all_paths <- unique(c(files, full_paths))
+  stats::setNames(as.list(rep(Inf, length(all_paths))), all_paths)
 }
 
 # Get Codecov token from codecov.yml
@@ -309,7 +310,7 @@ coverage_report <- function(
   }
 
   # Step 1: Calculate coverage
-  cat("\nStep 1/4: Calculating package coverage...\n")
+  cat("\nStep 1/5: Calculating package coverage...\n")
   cov <- calculate_coverage(sources = sources, test_level = test_level, quiet = FALSE)
 
   if (is.null(cov)) {
@@ -318,7 +319,7 @@ coverage_report <- function(
   }
 
   # Step 2: Generate interactive HTML report
-  cat("Step 2/4: Generating interactive HTML report...\n")
+  cat("Step 2/5: Generating interactive HTML report...\n")
   report_file <- file.path(output_dir, "report.html")
   covr::report(cov, file = report_file, browse = FALSE)
   cat("Saved:", report_file, "\n")
@@ -328,7 +329,7 @@ coverage_report <- function(
   cat("Copied to:", assets_report, "\n\n")
 
   # Step 3: Extract and save statistics
-  cat("Step 3/4: Extracting coverage statistics...\n")
+  cat("Step 3/5: Extracting coverage statistics...\n")
   stats <- .extract_coverage_stats(cov, sources)
   json_file <- file.path(output_dir, "coverage_status.json")
   jsonlite::write_json(stats$summary, json_file, auto_unbox = TRUE, pretty = TRUE)
@@ -338,8 +339,19 @@ coverage_report <- function(
   file.copy(json_file, assets_json, overwrite = TRUE)
   cat("Copied to:", assets_json, "\n\n")
 
-  # Step 4: Generate summary HTML page
-  cat("Step 4/4: Generating HTML summary page...\n")
+  # Step 4: Write unused function report
+  cat("Step 4/5: Writing unused function report...\n")
+  unused_file <- file.path(output_dir, "unused_functions.md")
+  unused_by_file <- .extract_unused_functions(cov)
+  .write_unused_functions_report(unused_by_file, unused_file, sources, test_level)
+  cat("Saved:", unused_file, "\n")
+
+  assets_unused <- file.path(assets_dir, "unused_functions.md")
+  file.copy(unused_file, assets_unused, overwrite = TRUE)
+  cat("Copied to:", assets_unused, "\n\n")
+
+  # Step 5: Generate summary HTML page
+  cat("Step 5/5: Generating HTML summary page...\n")
   html_file <- file.path(output_dir, "index.html")
   .generate_summary_html(stats, html_file, sources)
   cat("Saved:", html_file, "\n")
@@ -356,6 +368,7 @@ coverage_report <- function(
   cat("  - ", html_file, " (summary page)\n", sep = "")
   cat("  - ", report_file, " (interactive report)\n", sep = "")
   cat("  - ", json_file, " (JSON data)\n", sep = "")
+  cat("  - ", unused_file, " (unused functions)\n", sep = "")
   cat("\nOverall coverage: ", round(stats$percent, 1), "%\n", sep = "")
   cat("\nNext steps:\n")
   cat("  1. Rebuild pkgdown site: pkgdown::build_site()\n")
@@ -510,6 +523,68 @@ coverage_upload <- function(
     file_stats = file_stats,
     summary = summary_data
   )
+}
+
+# Extract functions with 0% coverage grouped by file
+.extract_unused_functions <- function(cov) {
+  line_cov <- covr::tally_coverage(cov, by = "line")
+  if (!is.data.frame(line_cov) || nrow(line_cov) == 0L) return(list())
+
+  file_col <- if ("filename" %in% names(line_cov)) "filename" else if ("file" %in% names(line_cov)) "file" else NULL
+  fun_col <- intersect(names(line_cov), c("function", "fun", "func"))
+  value_col <- if ("value" %in% names(line_cov)) "value" else if ("covered" %in% names(line_cov)) "covered" else NULL
+
+  if (is.null(file_col) || length(fun_col) == 0L || is.null(value_col)) return(list())
+
+  fun_col <- fun_col[1]
+  df <- data.frame(
+    file = line_cov[[file_col]],
+    func = line_cov[[fun_col]],
+    value = line_cov[[value_col]],
+    stringsAsFactors = FALSE
+  )
+  df <- df[!is.na(df$func) & nzchar(df$func), , drop = FALSE]
+  if (nrow(df) == 0L) return(list())
+
+  df$total_line <- !is.na(df$value)
+  df$covered_line <- df$value > 0
+
+  agg <- aggregate(
+    cbind(total_line, covered_line) ~ file + func,
+    data = df,
+    FUN = sum,
+    na.rm = TRUE
+  )
+  unused <- agg[agg$covered_line == 0 & agg$total_line > 0, , drop = FALSE]
+  if (nrow(unused) == 0L) return(list())
+
+  unused <- unused[order(unused$file, unused$func), , drop = FALSE]
+  split(unused$func, unused$file)
+}
+
+# Write unused function report
+.write_unused_functions_report <- function(unused_by_file, output_file, sources, test_level) {
+  timestamp <- format(Sys.time(), "%B %d, %Y at %H:%M UTC", tz = "UTC")
+  lines <- c(
+    "# Unused Functions (0% covered)",
+    "",
+    paste("**Generated:**", timestamp),
+    paste("**Sources:**", paste(sources, collapse = ", ")),
+    paste("**Test level:**", test_level),
+    ""
+  )
+
+  if (length(unused_by_file) == 0L) {
+    lines <- c(lines, "All functions have non-zero coverage.")
+  } else {
+    for (file in names(unused_by_file)) {
+      lines <- c(lines, paste0("## `", file, "`"), "")
+      funcs <- unused_by_file[[file]]
+      lines <- c(lines, paste0("- `", funcs, "`"), "")
+    }
+  }
+
+  writeLines(lines, output_file)
 }
 
 # Create placeholder report when coverage fails
