@@ -24,7 +24,7 @@ of the outcome distribution to estimate treatment effects at.}
 \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
 highest posterior density intervals.}
 
-\item{level}{Numeric credible level for intervals (default 0.95 for 95\\% CI).}
+\item{level}{Numeric credible level for intervals (default 0.95 for 95 percent CI).}
 }
 \value{
 A list with elements \code{fit} (QTE), \code{grid} (probabilities),

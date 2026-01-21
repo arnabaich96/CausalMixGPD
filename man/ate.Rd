@@ -15,7 +15,7 @@ ate(fit, newdata = NULL, interval = "credible", level = 0.95, nsim_mean = 200L)
 \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
 highest posterior density intervals.}
 
-\item{level}{Numeric credible level for intervals (default 0.95 for 95\\% CI).}
+\item{level}{Numeric credible level for intervals (default 0.95 for 95 percent CI).}
 
 \item{nsim_mean}{Number of posterior predictive draws to approximate the mean.}
 }

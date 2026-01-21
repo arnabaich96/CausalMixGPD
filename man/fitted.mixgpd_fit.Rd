@@ -21,7 +21,7 @@
 
 \item{p}{Quantile level used when \code{type = "quantile"}.}
 
-\item{level}{Credible level for confidence intervals (default 0.95 for 95\\% credible intervals).}
+\item{level}{Credible level for confidence intervals (default 0.95 for 95 percent credible intervals).}
 
 \item{interval}{Character or NULL; type of credible interval: \code{NULL} for no interval,
 \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for

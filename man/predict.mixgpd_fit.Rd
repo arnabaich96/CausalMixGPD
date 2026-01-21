@@ -44,7 +44,7 @@ Used when the model was fit with propensity score augmentation.}
 
 \item{nsim}{Number of posterior predictive samples (for \code{type="sample"}).}
 
-\item{cred.level}{Credible level for credible intervals (default 0.95 for 95\\% credible intervals).}
+\item{cred.level}{Credible level for credible intervals (default 0.95 for 95 percent intervals).}
 
 \item{interval}{Character or NULL; type of credible interval: \code{NULL} for no interval,
 \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for

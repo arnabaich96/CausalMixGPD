@@ -33,26 +33,35 @@
   invisible(TRUE)
 }
 
-# Get Codecov token from environment variable or local token file
+# Get Codecov token from codecov.yml
 .get_codecov_token <- function() {
-  # First check environment variable
+  yaml_file <- "codecov.yml"
+  if (file.exists(yaml_file)) {
+    lines <- readLines(yaml_file, warn = FALSE)
+    lines <- sub("\\s+#.*$", "", lines)
 
-  token <- Sys.getenv("CODECOV_TOKEN")
-  if (nzchar(token)) {
-    return(token)
-  }
+    codecov_idx <- grep("^\\s*codecov\\s*:", lines)
+    if (length(codecov_idx) > 0) {
+      base_indent <- attr(regexpr("^\\s*", lines[codecov_idx[1]]), "match.length")
+      for (i in seq.int(codecov_idx[1] + 1L, length(lines))) {
+        line <- lines[i]
+        if (!nzchar(trimws(line))) next
+        indent <- attr(regexpr("^\\s*", line), "match.length")
+        if (indent <= base_indent) break
+        if (grepl("^\\s*token\\s*:", line)) {
+          token <- trimws(sub("^\\s*token\\s*:\\s*", "", line))
+          if (nzchar(token)) return(token)
+        }
+      }
+    }
 
-
-  # Fall back to local token file
-token_file <- "tools/.codecov_token"
-  if (file.exists(token_file)) {
-    token <- trimws(readLines(token_file, n = 1, warn = FALSE))
-    if (nzchar(token)) {
-      return(token)
+    token_line <- grep("^\\s*token\\s*:", lines, value = TRUE)
+    if (length(token_line) > 0) {
+      token <- trimws(sub("^\\s*token\\s*:\\s*", "", token_line[1]))
+      if (nzchar(token)) return(token)
     }
   }
 
-  # No token found
   return("")
 }
 
