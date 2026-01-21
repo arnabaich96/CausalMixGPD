@@ -13,9 +13,8 @@ kernel_support_table(round = TRUE)
 
 - round:
 
-  Logical; \`TRUE\` to replace logical values with symbols.
+  Logical; `TRUE` to replace logical values with symbols.
 
 ## Value
 
-data.frame with columns \`kernel\`, \`gpd\`, \`covariates\`, \`sb\`,
-\`crp\`.
+data.frame with columns `kernel`, `gpd`, `covariates`, `sb`, `crp`.

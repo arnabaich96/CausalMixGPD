@@ -17,7 +17,6 @@ bulk distribution and no GPD tail augmentation.
 ## Data Setup
 
 ``` r
-# Load pre-generated dataset: 200 observations from mixture of 3 gamma components
 data(nc_pos200_k3)
 y_mixed <- nc_pos200_k3$y
 
@@ -45,7 +44,6 @@ paste("Range:", paste(range(y_mixed), collapse = " to "))
     [1] "Range: 0.0403111680208858 to 19.6013451514889"
 
 ``` r
-# Visualization
 df_data <- data.frame(y = y_mixed)
 p_raw <- ggplot(df_data, aes(x = y)) +
   geom_histogram(aes(y = after_stat(density)), bins = 30, alpha = 0.6,
@@ -64,11 +62,11 @@ print(p_raw)
 ``` r
 bundle_crp <- build_nimble_bundle(
   y = y_mixed,
-  kernel = "laplace",         # Use laplace kernel
-  backend = "crp",            # CRP backend
-  GPD = FALSE,                # No tail augmentation
-  components = 3,             # Minimal for testing
-  alpha_random = TRUE,        # Random DP concentration
+  kernel = "laplace",
+  backend = "crp",
+  GPD = FALSE,
+  components = 3,
+  alpha_random = TRUE,
   mcmc = mcmc
 )
 ```
@@ -175,32 +173,26 @@ params_crp
 ## Diagnostics
 
 ``` r
-# Trace plots for key parameters
-plot(fit_crp, params = "alpha", family = c("traceplot", "density", "geweke"))
+plot(fit_crp, params = "location", family = "traceplot")
 ```
 
     === traceplot ===
 
 ![](v05-unconditional-DPmix-CRP_files/figure-html/diag-trace-1.png)
 
-    === density ===
+``` r
+plot(fit_crp, params = "scale", family = "caterpillar")
+```
+
+    === caterpillar ===
 
 ![](v05-unconditional-DPmix-CRP_files/figure-html/diag-trace-2.png)
-
-    === geweke ===
-
-![](v05-unconditional-DPmix-CRP_files/figure-html/diag-trace-3.png)
 
 ## Posterior Predictive Density
 
 ``` r
-# Generate prediction grid
 y_grid <- seq(0, max(y_mixed) * 1.2, length.out = 200)
-
-# Posterior predictive density
 pred_density <- predict(fit_crp, y = y_grid, type = "density")
-
-# Use S3 plot method
 plot(pred_density)
 ```
 

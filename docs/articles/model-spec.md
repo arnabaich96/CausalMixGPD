@@ -1,16 +1,14 @@
-# Model specification
+# Model Specification
 
-## Goal
+## Overview
 
 This vignette documents the inputs that define a DPmixGPD model and how
 they map to a compiled NIMBLE bundle.
 
-**Runtime:** fast (no long MCMC).
+## Core Constructor
 
-## The core constructor
-
-Most workflows start with
-[`build_nimble_bundle()`](https://arnabaich96.github.io/DPmixGPD/reference/build_nimble_bundle.md).
+Most workflows begin with
+[`build_nimble_bundle()`](https://arnabaich96.github.io/DPmixGPD/reference/build_nimble_bundle.html).
 
 ``` r
 library(DPmixGPD)
@@ -42,57 +40,33 @@ bundle
 #>   contains  : code, constants, data, dimensions, inits, monitors
 ```
 
-## Key arguments
+## Key Arguments
 
-### `backend`
+| Argument |   Value   |                     Description                     |
+|:--------:|:---------:|:---------------------------------------------------:|
+| backend  |    sb     |     Stick-breaking mixture (finite truncation)      |
+| backend  |    crp    |         Chinese Restaurant Process mixture          |
+|  kernel  | (various) | Bulk component family (normal, gamma, lognormal, …) |
+|   GPD    |   TRUE    |          Splice GPD tail beyond threshold           |
+|   GPD    |   FALSE   |                   Bulk-only model                   |
 
-- `"sb"`: stick-breaking mixture (finite truncation).
-- `"crp"`: Chinese Restaurant Process mixture.
+Model Specification Arguments
 
-### `kernel`
+## Model Types
 
-Controls the bulk component family (e.g., `"normal"`, `"gamma"`,
-`"lognormal"`, …).
+| Type | Specification | Prediction Behavior |
+|----|----|----|
+| **Unconditional** | Omit `X` or pass `X = NULL` | Population-level, replicated across observations |
+| **Conditional** | Provide `X` | Computed per-row of `X` |
 
-### `GPD`
+## Input Requirements
 
-- `TRUE`: splice a GPD tail beyond a threshold.
-- `FALSE`: bulk-only model.
-
-## Conditional vs unconditional
-
-- **Unconditional**: omit `X` (or pass `X = NULL`). Predictions are
-  population-level and replicated across observations.
-- **Conditional**: provide `X`. Predictions are computed per-row of `X`.
-
-## Common input hazards
-
-### Reserved variable names (NIMBLE keywords)
-
-If a covariate column is named `if`, `for`, `while`, etc., NIMBLE
-compilation fails.
+- For conditional models, `length(y)` must equal `nrow(X)`
+- Covariates must be numeric for regression-style links
+- Covariate names must not use NIMBLE reserved keywords (`if`, `for`,
+  `while`, etc.)
 
 ``` r
-X <- data.frame(if = rnorm(40))
-# Fix:
+# Rename reserved keywords
 names(X)[names(X) == "if"] <- "x_if"
 ```
-
-### Shape checks
-
-- `length(y)` must equal `nrow(X)` for conditional models.
-- Covariates should be numeric for regression-style links.
-
-## Validity and error messages
-
-Good packages fail loudly and early. If your build step does not yet
-validate inputs, consider adding checks that:
-
-- confirm supported `backend` and `kernel` values,
-- prevent reserved names,
-- validate the `mcmc` list.
-
-## Next
-
-- See **MCMC workflow** for running chains and extracting samples.
-- See **Backends** for SB vs CRP differences.

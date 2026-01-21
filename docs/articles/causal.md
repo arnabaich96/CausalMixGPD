@@ -1,41 +1,40 @@
-# Causal workflow (two-arm outcome modeling)
+# Causal Workflow
 
-## Goal
+## Overview
 
 This vignette demonstrates the causal inference workflow using
-[`build_causal_bundle()`](https://arnabaich96.github.io/DPmixGPD/reference/build_causal_bundle.md)
+[`build_causal_bundle()`](https://arnabaich96.github.io/DPmixGPD/reference/build_causal_bundle.html)
 and
-[`run_mcmc_causal()`](https://arnabaich96.github.io/DPmixGPD/reference/run_mcmc_causal.md).
-We compute distributional treatment effects, including:
+[`run_mcmc_causal()`](https://arnabaich96.github.io/DPmixGPD/reference/run_mcmc_causal.html).
+The package computes distributional treatment effects:
 
 - **Average Treatment Effect (ATE)**: $`E[Y(1) - Y(0) \mid X]`$
 - **Quantile Treatment Effect (QTE)**:
   $`Q_{Y(1)}(\tau) - Q_{Y(0)}(\tau)`$
 
-## Simulated data
+## Data Generation
 
 ``` r
 library(DPmixGPD)
 
 n <- 80
 X <- data.frame(x = rnorm(n))
-
-# Treatment assignment (with propensity score)
 T_ind <- rbinom(n, 1, plogis(0.2 + 0.5 * X$x))
-
-# Outcome with heterogeneous treatment effect
 y0 <- 0.5 + 0.7 * X$x + abs(rnorm(n)) + 0.1
-te <- 0.4 + 0.6 * (X$x > 0)  # Treatment effect varies with x
+te <- 0.4 + 0.6 * (X$x > 0)
 y1 <- y0 + te
 y <- ifelse(T_ind == 1, y1, y0)
 ```
 
-## Build causal bundle
+## Causal Bundle Construction
 
 The
-[`build_causal_bundle()`](https://arnabaich96.github.io/DPmixGPD/reference/build_causal_bundle.md)
-function creates a unified structure for: - Propensity score (PS) model
-(optional) - Control arm outcome model - Treated arm outcome model
+[`build_causal_bundle()`](https://arnabaich96.github.io/DPmixGPD/reference/build_causal_bundle.html)
+function creates a unified structure containing:
+
+- Propensity score (PS) model (optional)
+- Control arm outcome model
+- Treated arm outcome model
 
 ``` r
 bundle <- build_causal_bundle(
@@ -46,7 +45,7 @@ bundle <- build_causal_bundle(
   kernel = "normal",
   GPD = TRUE,
   components = 6,
-  PS = "logit",  # Logistic regression for PS
+  PS = "logit",
   design = "observational",
   mcmc_outcome = mcmc,
   mcmc_ps = mcmc
@@ -64,7 +63,7 @@ bundle
 #> n (control) = 38 | n (treated) = 42
 ```
 
-## Run MCMC
+## MCMC Sampling
 
 ``` r
 fit <- run_mcmc_causal(bundle, show_progress = FALSE)
@@ -140,7 +139,6 @@ fit
 ## Average Treatment Effect (ATE)
 
 ``` r
-# ATE at observed covariate values using HPD intervals
 ate_result <- ate(fit, interval = "hpd", nsim_mean = 100)
 print(ate_result)
 #> ATE (Average Treatment Effect)
@@ -161,12 +159,9 @@ print(ate_result)
 #>   6   -0.869 -3.536 2.671
 #> ... (74 more rows)
 
-# ATE on a new covariate grid with HPD intervals
 X_new <- data.frame(x = seq(min(X$x), max(X$x), length.out = 20))
-ate_grid <- ate(fit, newdata = X_new, interval = "hpd", nsim_mean = 100,
-                level = 0.90)  # 90% HPD interval
+ate_grid <- ate(fit, newdata = X_new, interval = "hpd", nsim_mean = 100, level = 0.90)
 
-# Print and summarize the ATE result
 print(ate_grid)
 #> ATE (Average Treatment Effect)
 #>   Prediction points: 20
@@ -208,19 +203,17 @@ summary(ate_grid)
 #>   Range: [1.233, 14.48]
 ```
 
-### ATE Plots
+### ATE Visualization
 
 The [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method for
 ATE objects supports multiple visualization types:
 
-- `type = "both"` (default): Returns a list with both `trt_control` and
+- `type = "both"` (default): Returns a list with `trt_control` and
   `treatment_effect` plots
-- `type = "effect"`: Shows the treatment effect curve with credible
-  intervals
-- `type = "arms"`: Shows treated vs control mean outcomes
+- `type = "effect"`: Treatment effect curve with credible intervals
+- `type = "arms"`: Treated vs control mean outcomes
 
 ``` r
-# Default: returns list with both plots
 ate_plots <- plot(ate_grid)
 ate_plots$treatment_effect
 ```
@@ -236,7 +229,6 @@ ate_plots$trt_control
 ## Quantile Treatment Effect (QTE)
 
 ``` r
-# QTE at multiple quantiles using HPD intervals
 probs <- c(0.1, 0.5, 0.9)
 qte_result <- qte(fit, probs = probs, interval = "hpd")
 print(qte_result)
@@ -258,10 +250,7 @@ print(qte_result)
 #>    0.1  6   -3.800 -10.179 1.666
 #> ... (234 more rows)
 
-# QTE on a covariate grid with HPD intervals
 qte_grid <- qte(fit, probs = probs, newdata = X_new, interval = "hpd")
-
-# Print and summarize the QTE result
 print(qte_grid)
 #> QTE (Quantile Treatment Effect)
 #>   Prediction points: 20
@@ -304,19 +293,18 @@ summary(qte_grid)
 #>   Range: [0.336, 19.589]
 ```
 
-### QTE Plots
+### QTE Visualization
 
 The [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method for
 QTE objects supports multiple visualization types:
 
-- `type = "both"` (default): Returns a list with both `trt_control` and
+- `type = "both"` (default): Returns a list with `trt_control` and
   `treatment_effect` plots
-- `type = "effect"`: Shows the quantile treatment effect curves faceted
-  by quantile level
-- `type = "arms"`: Shows treated vs control quantile curves
+- `type = "effect"`: Quantile treatment effect curves faceted by
+  quantile level
+- `type = "arms"`: Treated vs control quantile curves
 
 ``` r
-# Default: returns list with both plots
 qte_plots <- plot(qte_grid)
 qte_plots$treatment_effect
 ```
@@ -329,7 +317,7 @@ qte_plots$trt_control
 
 ![](causal_files/figure-html/unnamed-chunk-9-1.png)
 
-## Summary and diagnostics
+## Model Summary
 
 ``` r
 summary(fit)
@@ -352,12 +340,3 @@ summary(fit)
 #> Fit
 #> Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 ```
-
-## Notes and troubleshooting
-
-- **Propensity score**: Set `PS = FALSE` for RCT designs, or use
-  `PS = "logit"`/`"probit"` for observational studies.
-- **Backend selection**: Use `backend = "sb"` for stable computation,
-  `backend = "crp"` for adaptive clustering.
-- **Treatment effect interpretation**: ATE and QTE are differences;
-  ensure both arms have converged MCMC chains.

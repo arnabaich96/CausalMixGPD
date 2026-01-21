@@ -285,36 +285,20 @@ plot(fitted(fit_cond_gpd_lognormal))
 ![](v12-conditional-DPmixGPD-CRP_files/figure-html/residuals-1.png)![](v12-conditional-DPmixGPD-CRP_files/figure-html/residuals-2.png)
 
 ``` r
-plot(fit_cond_gpd_lognormal, family = c("traceplot", "density", "autocorrelation"))
+plot(fit_cond_gpd_lognormal, family = "traceplot")
 ```
 
     === traceplot ===
 
 ![](v12-conditional-DPmixGPD-CRP_files/figure-html/diagnostics-1.png)
 
-    === density ===
-
-![](v12-conditional-DPmixGPD-CRP_files/figure-html/diagnostics-2.png)
-
-    === autocorrelation ===
-
-![](v12-conditional-DPmixGPD-CRP_files/figure-html/diagnostics-3.png)
-
 ``` r
-plot(fit_cond_gpd_normal, family = c("running", "geweke", "caterpillar"))
+plot(fit_cond_gpd_normal, family = "caterpillar")
 ```
-
-    === running ===
-
-![](v12-conditional-DPmixGPD-CRP_files/figure-html/diagnostics-4.png)
-
-    === geweke ===
-
-![](v12-conditional-DPmixGPD-CRP_files/figure-html/diagnostics-5.png)
 
     === caterpillar ===
 
-![](v12-conditional-DPmixGPD-CRP_files/figure-html/diagnostics-6.png)
+![](v12-conditional-DPmixGPD-CRP_files/figure-html/diagnostics-2.png)
 
 ------------------------------------------------------------------------
 

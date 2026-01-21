@@ -1,11 +1,11 @@
-# Unconditional models
+# Unconditional Models
 
-## Goal
+## Overview
 
-Fit an unconditional DP mixture (optionally with a GPD tail) and examine
-fitted values and basic diagnostics.
+This vignette demonstrates fitting an unconditional DP mixture model
+with optional GPD tail augmentation.
 
-## Fit
+## Model Fitting
 
 ``` r
 library(DPmixGPD)
@@ -55,10 +55,9 @@ fit
 #> Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 ```
 
-## Fitted summaries
+## Fitted Summaries
 
 ``` r
-# For unconditional models, fitted values replicate a population-level location
 f_mean <- fitted(fit, type = "mean", level = 0.90)
 head(f_mean)
 #>        fit    lower    upper  residuals
@@ -80,7 +79,7 @@ head(f_med)
 #> 6 0.7676098 0.7012283 0.857014  0.25285861
 ```
 
-## Posterior predictive summaries
+## Posterior Predictive Summaries
 
 ``` r
 pred_mean <- predict(fit, type = "mean", cred.level = 0.90, interval = "credible")
@@ -94,7 +93,7 @@ pred_q95$fit
 #> 1 2.056073  0.95 1.788326 2.348427
 ```
 
-## Residual check
+## Residual Analysis
 
 ``` r
 res <- f_mean$residuals
@@ -103,13 +102,13 @@ summary(res)
 #> -1.1702 -0.8392 -0.5774 -0.4546 -0.1224  1.2303
 ```
 
-## Plot
+## Diagnostic Plots
 
 ``` r
 if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quietly = TRUE)) {
   plot(fit)
 } else {
-  message("Plotting requires 'ggmcmc' and 'coda' packages. Install them to view diagnostic plots.")
+  message("Plotting requires 'ggmcmc' and 'coda' packages.")
 }
 #> 
 #> === histogram ===
@@ -156,9 +155,3 @@ if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quiet
     #> === pairs ===
 
 ![](unconditional_files/figure-html/unnamed-chunk-5-9.png)
-
-## Notes
-
-- For heavier tail behavior, use `GPD = TRUE` and increase MCMC
-  iterations.
-- For bulk-only comparisons, set `GPD = FALSE`.

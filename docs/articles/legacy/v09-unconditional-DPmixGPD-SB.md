@@ -37,7 +37,7 @@ p_raw <- ggplot(df_data, aes(x = y)) +
   labs(title = "Tail-Designed Data", x = "y", y = "Density") +
   theme_minimal()
 
-grid.arrange(p_raw, ncol = 1)
+print(p_raw)
 ```
 
 ![](v09-unconditional-DPmixGPD-SB_files/figure-html/data-setup-1.png)
@@ -255,18 +255,26 @@ plot(fit_vals)
 ![](v09-unconditional-DPmixGPD-SB_files/figure-html/residuals-1.png)![](v09-unconditional-DPmixGPD-SB_files/figure-html/residuals-2.png)
 
 ``` r
-plot(fit_sb_gpd, family = c("histogram", "autocorrelation", "running"))
+plot(fit_sb_gpd, family = "traceplot")
 ```
 
-    === histogram ===
+    === traceplot ===
 
 ![](v09-unconditional-DPmixGPD-SB_files/figure-html/diagnostics-1.png)
 
-    === autocorrelation ===
+``` r
+plot(fit_sb_gpd, params = "shape", family = "traceplot")
+```
+
+    === traceplot ===
 
 ![](v09-unconditional-DPmixGPD-SB_files/figure-html/diagnostics-2.png)
 
-    === running ===
+``` r
+plot(fit_sb_gpd, params = "scale", family = "caterpillar")
+```
+
+    === caterpillar ===
 
 ![](v09-unconditional-DPmixGPD-SB_files/figure-html/diagnostics-3.png)
 

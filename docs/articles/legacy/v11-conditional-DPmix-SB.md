@@ -260,36 +260,36 @@ plot(fitted(fit_sb_cauchy))
 ![](v11-conditional-DPmix-SB_files/figure-html/residuals-1.png)![](v11-conditional-DPmix-SB_files/figure-html/residuals-2.png)
 
 ``` r
-plot(fit_sb_normal, family = c("traceplot", "autocorrelation", "geweke"))
+plot(fit_sb_normal, params = "mean", family = "traceplot")
 ```
 
     === traceplot ===
 
 ![](v11-conditional-DPmix-SB_files/figure-html/diagnostics-1.png)
 
-    === autocorrelation ===
+``` r
+plot(fit_sb_normal, params = "sd", family = "caterpillar")
+```
+
+    === caterpillar ===
 
 ![](v11-conditional-DPmix-SB_files/figure-html/diagnostics-2.png)
 
-    === geweke ===
+``` r
+plot(fit_sb_cauchy, params = "location", family = "traceplot")
+```
+
+    === traceplot ===
 
 ![](v11-conditional-DPmix-SB_files/figure-html/diagnostics-3.png)
 
 ``` r
-plot(fit_sb_cauchy, family = c("density", "running", "caterpillar"))
+plot(fit_sb_cauchy, params = "scale", family = "caterpillar")
 ```
-
-    === density ===
-
-![](v11-conditional-DPmix-SB_files/figure-html/diagnostics-4.png)
-
-    === running ===
-
-![](v11-conditional-DPmix-SB_files/figure-html/diagnostics-5.png)
 
     === caterpillar ===
 
-![](v11-conditional-DPmix-SB_files/figure-html/diagnostics-6.png)
+![](v11-conditional-DPmix-SB_files/figure-html/diagnostics-4.png)
 
 ------------------------------------------------------------------------
 

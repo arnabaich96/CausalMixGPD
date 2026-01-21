@@ -1,63 +1,54 @@
-# Available distributions
+# Available Distributions
 
-## Goal
+## Overview
 
-DPmixGPD supports multiple *bulk kernels* for the mixture components,
-and can optionally splice a Generalized Pareto tail (GPD) beyond a
-threshold.
+DPmixGPD supports multiple bulk kernels for the mixture components and
+can optionally splice a Generalized Pareto Distribution (GPD) tail
+beyond a threshold.
 
-This vignette:
-
-- summarizes the kernel choices,
-- shows how the kernel choice appears in the API,
-- gives quick distribution sanity checks using base R `d/p/q/r`
-  functions.
-
-## Kernel summary
-
-Below is a compact summary of common bulk kernels and their usual
-parameters.
+## Kernel Summary
 
 ``` r
-knitr::kable(
-  data.frame(
-    kernel = c("normal", "gamma", "lognormal", "cauchy", "laplace", "invgauss", "amoroso"),
-    typical_parameters = c(
-      "mean, sd",
-      "shape, rate",
-      "meanlog, sdlog",
-      "location, scale",
-      "location, scale",
-      "mean, shape",
-      "location/scale/shape (family-specific)"
-    )
-  ),
-  caption = "Common bulk kernels (names may vary by version)"
+kernel_df <- data.frame(
+  Kernel = c("normal", "gamma", "lognormal", "cauchy", "laplace", "invgauss", "amoroso"),
+  Parameters = c(
+    "mean, sd",
+    "shape, rate",
+    "meanlog, sdlog",
+    "location, scale",
+    "location, scale",
+    "mean, shape",
+    "location, scale, shape"
+  )
 )
+
+kable(kernel_df, align = "c", caption = "Available Bulk Kernels") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = FALSE, position = "center")
 ```
 
-| kernel    | typical_parameters                     |
-|:----------|:---------------------------------------|
-| normal    | mean, sd                               |
-| gamma     | shape, rate                            |
-| lognormal | meanlog, sdlog                         |
-| cauchy    | location, scale                        |
-| laplace   | location, scale                        |
-| invgauss  | mean, shape                            |
-| amoroso   | location/scale/shape (family-specific) |
+|  Kernel   |       Parameters       |
+|:---------:|:----------------------:|
+|  normal   |        mean, sd        |
+|   gamma   |      shape, rate       |
+| lognormal |     meanlog, sdlog     |
+|  cauchy   |    location, scale     |
+|  laplace  |    location, scale     |
+| invgauss  |      mean, shape       |
+|  amoroso  | location, scale, shape |
 
-Common bulk kernels (names may vary by version)
+Available Bulk Kernels
 
-## Where you choose the kernel
+## Kernel Selection
 
-The kernel is selected in
-[`build_nimble_bundle()`](https://arnabaich96.github.io/DPmixGPD/reference/build_nimble_bundle.md)
+The kernel is specified in
+[`build_nimble_bundle()`](https://arnabaich96.github.io/DPmixGPD/reference/build_nimble_bundle.html)
 via the `kernel` argument.
 
 ``` r
 bundle <- build_nimble_bundle(
   y = y,
-  backend = "sb",      # or "crp"
+  backend = "sb",
   kernel  = "lognormal",
   GPD     = TRUE,
   components = 6,
@@ -65,43 +56,40 @@ bundle <- build_nimble_bundle(
 )
 ```
 
-## Quick distribution checks
+## Distribution Visualizations
 
-These plots are *not* from the DP mixture model; they are just sanity
-checks for the underlying parametric families.
-
-### Normal
+### Normal Distribution
 
 ``` r
 x <- seq(-4, 4, length.out = 400)
-plot(x, dnorm(x, mean = 0, sd = 1), type = "l", xlab = "x", ylab = "density", main = "Normal(0,1) density")
+ggplot(data.frame(x = x, y = dnorm(x, mean = 0, sd = 1)), aes(x, y)) +
+  geom_line(linewidth = 1, color = "steelblue") +
+  labs(x = "x", y = "Density", title = "Normal(0, 1)") +
+  theme_minimal()
 ```
 
 ![](distributions_files/figure-html/unnamed-chunk-3-1.png)
 
-### Gamma
+### Gamma Distribution
 
 ``` r
 x <- seq(0, 12, length.out = 400)
-plot(x, dgamma(x, shape = 2, rate = 1), type = "l", xlab = "x", ylab = "density", main = "Gamma(shape=2, rate=1) density")
+ggplot(data.frame(x = x, y = dgamma(x, shape = 2, rate = 1)), aes(x, y)) +
+  geom_line(linewidth = 1, color = "steelblue") +
+  labs(x = "x", y = "Density", title = "Gamma(shape = 2, rate = 1)") +
+  theme_minimal()
 ```
 
 ![](distributions_files/figure-html/unnamed-chunk-4-1.png)
 
-### Lognormal
+### Lognormal Distribution
 
 ``` r
 x <- seq(0, 12, length.out = 400)
-plot(x, dlnorm(x, meanlog = 0, sdlog = 0.6), type = "l", xlab = "x", ylab = "density", main = "Lognormal(meanlog=0, sdlog=0.6) density")
+ggplot(data.frame(x = x, y = dlnorm(x, meanlog = 0, sdlog = 0.6)), aes(x, y)) +
+  geom_line(linewidth = 1, color = "steelblue") +
+  labs(x = "x", y = "Density", title = "Lognormal(meanlog = 0, sdlog = 0.6)") +
+  theme_minimal()
 ```
 
 ![](distributions_files/figure-html/unnamed-chunk-5-1.png)
-
-## Notes
-
-- Mixture models use these families as *components*; the overall fitted
-  distribution can be much more flexible.
-- Turning `GPD = TRUE` adds EVT-motivated tail behavior beyond a
-  threshold.
-- When in doubt, start with `kernel = "normal"` for debugging, then
-  switch to heavier-tailed kernels.

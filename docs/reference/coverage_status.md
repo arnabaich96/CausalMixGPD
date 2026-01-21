@@ -1,9 +1,11 @@
 # Test coverage status helper
 
-\`coverage_status()\` runs \`covr::package_coverage()\` against the
-package tests and returns a small summary that can be stored for docs or
-dashboards. Use \`read_coverage_status()\` to read previously saved
-results.
+`coverage_status()` runs
+[`covr::package_coverage()`](http://covr.r-lib.org/reference/package_coverage.md)
+against the package tests and returns a small summary that can be stored
+for docs or dashboards. Use
+[`read_coverage_status()`](https://arnabaich96.github.io/DPmixGPD/reference/read_coverage_status.md)
+to read previously saved results.
 
 ## Usage
 
@@ -20,8 +22,9 @@ coverage_status(
 
 - type:
 
-  Coverage type, passed to \`covr::package_coverage()\`. Currently
-  supports \`tests\` (the default) and \`all\`.
+  Coverage type, passed to
+  [`covr::package_coverage()`](http://covr.r-lib.org/reference/package_coverage.md).
+  Currently supports `tests` (the default) and `all`.
 
 - path:
 
@@ -30,13 +33,15 @@ coverage_status(
 - data_file:
 
   Optional file path to write the status JSON (useful for documentation
-  or pkgdown badges). When \`NULL\` no file is written.
+  or pkgdown badges). When `NULL` no file is written.
 
 - quiet:
 
-  Passed to \`covr::package_coverage()\` to control console output.
+  Passed to
+  [`covr::package_coverage()`](http://covr.r-lib.org/reference/package_coverage.md)
+  to control console output.
 
 ## Value
 
-A named list with \`percent\`, \`type\`, \`timestamp\`, \`statements\`,
-and \`files\`. Invisibly returns the same list when writing to disk.
+A named list with `percent`, `type`, `timestamp`, `statements`, and
+`files`. Invisibly returns the same list when writing to disk.

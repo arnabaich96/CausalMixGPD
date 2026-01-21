@@ -166,37 +166,28 @@ params_gpd
     [1] 0.1513
 
 ``` r
-# S3 plot methods highlight trace + density diagnostics
-plot(fit_gpd, family = c("traceplot", "density", "running"))
+plot(fit_gpd, family = "traceplot")
 ```
 
     === traceplot ===
 
 ![](v08-unconditional-DPmixGPD-CRP_files/figure-html/fit-plots-1.png)
 
-    === density ===
-
-![](v08-unconditional-DPmixGPD-CRP_files/figure-html/fit-plots-2.png)
-
-    === running ===
-
-![](v08-unconditional-DPmixGPD-CRP_files/figure-html/fit-plots-3.png)
-
 ``` r
-plot(fit_gpd, params = "alpha", family = c("traceplot", "autocorrelation", "geweke"))
+plot(fit_gpd, params = "mean", family = "traceplot")
 ```
 
     === traceplot ===
 
-![](v08-unconditional-DPmixGPD-CRP_files/figure-html/fit-plots-4.png)
+![](v08-unconditional-DPmixGPD-CRP_files/figure-html/fit-plots-2.png)
 
-    === autocorrelation ===
+``` r
+plot(fit_gpd, params = "shape", family = "caterpillar")
+```
 
-![](v08-unconditional-DPmixGPD-CRP_files/figure-html/fit-plots-5.png)
+    === caterpillar ===
 
-    === geweke ===
-
-![](v08-unconditional-DPmixGPD-CRP_files/figure-html/fit-plots-6.png)
+![](v08-unconditional-DPmixGPD-CRP_files/figure-html/fit-plots-3.png)
 
 ------------------------------------------------------------------------
 

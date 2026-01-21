@@ -206,3 +206,78 @@ qCauchyMix <- function(p, w, location, scale,
   out
 }
 
+
+# ==========================================================
+# Lowercase vectorized R wrappers for Cauchy mixture
+# ==========================================================
+
+#' Lowercase vectorized Cauchy mixture distribution functions
+#'
+#' Vectorized R wrappers for Cauchy mixture distribution functions. These lowercase
+#' versions accept vector inputs for the first argument (\code{x}, \code{q}, or
+#' \code{p}) and return a numeric vector. The \code{r*} functions support \code{n > 1}.
+#'
+#' @param x Numeric vector of quantiles.
+#' @param q Numeric vector of quantiles.
+#' @param p Numeric vector of probabilities.
+#' @param n Integer number of observations to generate.
+#' @param w Numeric vector of mixture weights.
+#' @param location,scale Numeric vectors of component parameters.
+#' @param log Logical; if \code{TRUE}, return log-density.
+#' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le x)}.
+#' @param log.p Logical; if \code{TRUE}, probabilities are on log scale.
+#' @param tol,maxiter Tolerance and max iterations for numerical inversion.
+#'
+#' @return Numeric vector of densities, probabilities, quantiles, or random variates.
+#'
+#' @examples
+#' w <- c(0.6, 0.3, 0.1)
+#' loc <- c(-1, 0, 1)
+#' scl <- c(1, 1.2, 2)
+#'
+#' dcauchymix(c(-2, 0, 2), w = w, location = loc, scale = scl)
+#' rcauchymix(5, w = w, location = loc, scale = scl)
+#'
+#' @name cauchy_mix_lowercase
+#' @rdname cauchy_mix_lowercase
+NULL
+
+#' @describeIn cauchy_mix_lowercase Cauchy mixture density (vectorized)
+#' @export
+dcauchymix <- function(x, w, location, scale, log = FALSE) {
+  x <- as.numeric(x)
+  if (length(x) == 0L) return(numeric(0L))
+  log_int <- as.integer(log)
+  vapply(x, function(xi) as.numeric(dCauchyMix(xi, w = w, location = location, scale = scale, log = log_int)),
+         numeric(1L))
+}
+
+#' @describeIn cauchy_mix_lowercase Cauchy mixture distribution function (vectorized)
+#' @export
+pcauchymix <- function(q, w, location, scale, lower.tail = TRUE, log.p = FALSE) {
+  q <- as.numeric(q)
+  if (length(q) == 0L) return(numeric(0L))
+  lt_int <- as.integer(lower.tail)
+  lp_int <- as.integer(log.p)
+  vapply(q, function(qi) as.numeric(pCauchyMix(qi, w = w, location = location, scale = scale,
+                                                lower.tail = lt_int, log.p = lp_int)),
+         numeric(1L))
+}
+
+#' @describeIn cauchy_mix_lowercase Cauchy mixture quantile function (vectorized)
+#' @export
+qcauchymix <- function(p, w, location, scale, lower.tail = TRUE, log.p = FALSE,
+                       tol = 1e-10, maxiter = 200) {
+  qCauchyMix(p, w = w, location = location, scale = scale, lower.tail = lower.tail,
+             log.p = log.p, tol = tol, maxiter = maxiter)
+}
+
+#' @describeIn cauchy_mix_lowercase Cauchy mixture random generation (vectorized)
+#' @export
+rcauchymix <- function(n, w, location, scale) {
+  n <- as.integer(n)
+  if (length(n) != 1L || is.na(n)) stop("'n' must be a single integer.", call. = FALSE)
+  if (n <= 0L) return(numeric(0L))
+  vapply(seq_len(n), function(i) as.numeric(rCauchyMix(1L, w = w, location = location, scale = scale)),
+         numeric(1L))
+}

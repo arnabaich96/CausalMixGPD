@@ -24,7 +24,6 @@ $`G \sim \text{DP}(\alpha, G_0)`$
 ### Data Setup
 
 ``` r
-# Load pre-generated dataset: 200 observations from mixture of 3 gamma components
 data(nc_pos200_k3)
 y_mixed <- nc_pos200_k3$y
 
@@ -52,7 +51,6 @@ paste("Range:", paste(range(y_mixed), collapse = " to "))
     [1] "Range: 0.0403111680208858 to 19.6013451514889"
 
 ``` r
-# Visualization
 df_data <- data.frame(y = y_mixed)
 p_raw <- ggplot(df_data, aes(x = y)) +
   geom_histogram(aes(y = after_stat(density)), bins = 30, alpha = 0.6, fill = "steelblue",color = "black") +
@@ -75,11 +73,11 @@ specification and bundle creation.
 ``` r
 bundle_crp <- build_nimble_bundle(
   y = y_mixed,
-  kernel = "laplace",         # Use laplace kernel
-  backend = "crp",            # CRP backend
-  GPD = FALSE,                # No tail augmentation
-  components = 3,             # Minimal for testing
-  alpha_random = TRUE,        # Random DP concentration
+  kernel = "laplace",
+  backend = "crp",
+  GPD = FALSE,
+  components = 3,
+  alpha_random = TRUE,
   mcmc = mcmc
 )
 ```
@@ -194,21 +192,20 @@ params_crp
 ### MCMC Diagnostics Plots
 
 ``` r
-# Trace plots for key parameters
-plot(fit_crp, params = "alpha", family = c("traceplot", "density", "geweke"))
+plot(fit_crp, params = "location", family = "traceplot")
 ```
 
     === traceplot ===
 
 ![](v06-unconditional-DPmix-CRP_files/figure-html/diag-trace-1.png)
 
-    === density ===
+``` r
+plot(fit_crp, params = "scale", family = "caterpillar")
+```
+
+    === caterpillar ===
 
 ![](v06-unconditional-DPmix-CRP_files/figure-html/diag-trace-2.png)
-
-    === geweke ===
-
-![](v06-unconditional-DPmix-CRP_files/figure-html/diag-trace-3.png)
 
 ------------------------------------------------------------------------
 
@@ -217,13 +214,8 @@ plot(fit_crp, params = "alpha", family = c("traceplot", "density", "geweke"))
 #### Predictive Density
 
 ``` r
-# Generate prediction grid
 y_grid <- seq(0, max(y_mixed) * 1.2, length.out = 200)
-
-# Posterior predictive density
 pred_density <- predict(fit_crp, y = y_grid, type = "density")
-
-# Use S3 plot method
 plot(pred_density)
 ```
 
@@ -232,17 +224,14 @@ plot(pred_density)
 #### Quantile Predictions
 
 ``` r
-# Posterior predictive quantiles with credible intervals
 quantiles_pred <- predict(fit_crp, type = "quantile", 
                           index = c(0.05, 0.25, 0.5, 0.75, 0.95),
                           interval = "credible")
 
-# Display table
 quantiles_pred$fit %>%
- kbl(caption = "Posterior Predictive Quantiles with Credible Intervals",
-   align = "c",
-                  digits = 3) %>%
- kable_styling(bootstrap_options = "striped", full_width = FALSE, position = "center")
+  kbl(caption = "Posterior Predictive Quantiles with Credible Intervals",
+      align = "c", digits = 3) %>%
+  kable_styling(bootstrap_options = "striped", full_width = FALSE, position = "center")
 ```
 
 | estimate | index | lower  | upper |
@@ -256,7 +245,6 @@ quantiles_pred$fit %>%
 Posterior Predictive Quantiles with Credible Intervals
 
 ``` r
-# Use S3 plot method
 plot(quantiles_pred)
 ```
 
@@ -308,12 +296,11 @@ summary(fit_components)
 ### Residual Analysis
 
 ``` r
-# Extract fitted values with diagnostics
 Fit <- fitted(fit_components)
 
-# Display table
-kableExtra::kbl(head(Fit), caption = "Fitted Values, Residuals and Credible Interval", digits = 3, align = "c") %>%
- kable_styling(bootstrap_options = "striped", full_width = FALSE, position = "center")
+kableExtra::kbl(head(Fit), caption = "Fitted Values, Residuals and Credible Interval", 
+                digits = 3, align = "c") %>%
+  kable_styling(bootstrap_options = "striped", full_width = FALSE, position = "center")
 ```
 
 | fit | lower | upper | residuals | mean | mean_lower | mean_upper | median | median_lower | median_upper |
@@ -328,7 +315,6 @@ kableExtra::kbl(head(Fit), caption = "Fitted Values, Residuals and Credible Inte
 Fitted Values, Residuals and Credible Interval
 
 ``` r
-# Use S3 plot method for diagnostic plots
 fit.plots <- plot(Fit)
 fit.plots$residual_plot
 ```

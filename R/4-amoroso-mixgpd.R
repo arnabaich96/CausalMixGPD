@@ -596,3 +596,194 @@ qAmorosoGpd <- function(p, loc, scale, shape1, shape2,
   out
 }
 
+
+# ==========================================================
+# Lowercase vectorized R wrappers for Amoroso kernels
+# ==========================================================
+
+#' Lowercase vectorized Amoroso distribution functions
+#'
+#' Vectorized R wrappers for Amoroso mixture, Amoroso mixture + GPD, and
+#' Amoroso + GPD distribution functions. These lowercase versions accept vector
+#' inputs for the first argument (\code{x}, \code{q}, or \code{p}) and return
+#' a numeric vector. The \code{r*} functions support \code{n > 1}.
+#'
+#' @param x Numeric vector of quantiles.
+#' @param q Numeric vector of quantiles.
+#' @param p Numeric vector of probabilities.
+#' @param n Integer number of observations to generate.
+#' @param w Numeric vector of mixture weights.
+#' @param loc,scale,shape1,shape2 Numeric vectors (mix) or scalars (base+gpd) of component parameters.
+#' @param threshold,tail_scale,tail_shape GPD tail parameters (scalars).
+#' @param log Logical; if \code{TRUE}, return log-density.
+#' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le x)}.
+#' @param log.p Logical; if \code{TRUE}, probabilities are on log scale.
+#' @param tol,maxiter Tolerance and max iterations for numerical inversion.
+#'
+#' @return Numeric vector of densities, probabilities, quantiles, or random variates.
+#'
+#' @examples
+#' w <- c(0.6, 0.3, 0.1)
+#' locs <- c(0.5, 0.5, 0.5)
+#' scls <- c(1, 1.3, 1.6)
+#' s1 <- c(2.5, 3, 4)
+#' s2 <- c(1.2, 1.2, 1.2)
+#'
+#' # Amoroso mixture
+#' damorosomix(c(1, 2, 3), w = w, loc = locs, scale = scls, shape1 = s1, shape2 = s2)
+#' ramorosomix(5, w = w, loc = locs, scale = scls, shape1 = s1, shape2 = s2)
+#'
+#' @name amoroso_lowercase
+#' @rdname amoroso_lowercase
+NULL
+
+# ---- Amoroso Mix lowercase wrappers ----
+
+#' @describeIn amoroso_lowercase Amoroso mixture density (vectorized)
+#' @export
+damorosomix <- function(x, w, loc, scale, shape1, shape2, log = FALSE) {
+  x <- as.numeric(x)
+  if (length(x) == 0L) return(numeric(0L))
+  log_int <- as.integer(log)
+  vapply(x, function(xi) as.numeric(dAmorosoMix(xi, w = w, loc = loc, scale = scale,
+                                                 shape1 = shape1, shape2 = shape2, log = log_int)),
+         numeric(1L))
+}
+
+#' @describeIn amoroso_lowercase Amoroso mixture distribution function (vectorized)
+#' @export
+pamorosomix <- function(q, w, loc, scale, shape1, shape2, lower.tail = TRUE, log.p = FALSE) {
+  q <- as.numeric(q)
+  if (length(q) == 0L) return(numeric(0L))
+  lt_int <- as.integer(lower.tail)
+  lp_int <- as.integer(log.p)
+  vapply(q, function(qi) as.numeric(pAmorosoMix(qi, w = w, loc = loc, scale = scale,
+                                                 shape1 = shape1, shape2 = shape2,
+                                                 lower.tail = lt_int, log.p = lp_int)),
+         numeric(1L))
+}
+
+#' @describeIn amoroso_lowercase Amoroso mixture quantile function (vectorized)
+#' @export
+qamorosomix <- function(p, w, loc, scale, shape1, shape2, lower.tail = TRUE, log.p = FALSE,
+                        tol = 1e-10, maxiter = 200) {
+  qAmorosoMix(p, w = w, loc = loc, scale = scale, shape1 = shape1, shape2 = shape2,
+              lower.tail = lower.tail, log.p = log.p, tol = tol, maxiter = maxiter)
+}
+
+#' @describeIn amoroso_lowercase Amoroso mixture random generation (vectorized)
+#' @export
+ramorosomix <- function(n, w, loc, scale, shape1, shape2) {
+  n <- as.integer(n)
+  if (length(n) != 1L || is.na(n)) stop("'n' must be a single integer.", call. = FALSE)
+  if (n <= 0L) return(numeric(0L))
+  vapply(seq_len(n), function(i) as.numeric(rAmorosoMix(1L, w = w, loc = loc, scale = scale,
+                                                         shape1 = shape1, shape2 = shape2)),
+         numeric(1L))
+}
+
+# ---- Amoroso Mix + GPD lowercase wrappers ----
+
+#' @describeIn amoroso_lowercase Amoroso mixture + GPD density (vectorized)
+#' @export
+damorosomixgpd <- function(x, w, loc, scale, shape1, shape2, threshold, tail_scale, tail_shape, log = FALSE) {
+  x <- as.numeric(x)
+  if (length(x) == 0L) return(numeric(0L))
+  log_int <- as.integer(log)
+  vapply(x, function(xi) as.numeric(dAmorosoMixGpd(xi, w = w, loc = loc, scale = scale,
+                                                    shape1 = shape1, shape2 = shape2,
+                                                    threshold = threshold, tail_scale = tail_scale,
+                                                    tail_shape = tail_shape, log = log_int)),
+         numeric(1L))
+}
+
+#' @describeIn amoroso_lowercase Amoroso mixture + GPD distribution function (vectorized)
+#' @export
+pamorosomixgpd <- function(q, w, loc, scale, shape1, shape2, threshold, tail_scale, tail_shape,
+                           lower.tail = TRUE, log.p = FALSE) {
+  q <- as.numeric(q)
+  if (length(q) == 0L) return(numeric(0L))
+  lt_int <- as.integer(lower.tail)
+  lp_int <- as.integer(log.p)
+  vapply(q, function(qi) as.numeric(pAmorosoMixGpd(qi, w = w, loc = loc, scale = scale,
+                                                    shape1 = shape1, shape2 = shape2,
+                                                    threshold = threshold, tail_scale = tail_scale,
+                                                    tail_shape = tail_shape,
+                                                    lower.tail = lt_int, log.p = lp_int)),
+         numeric(1L))
+}
+
+#' @describeIn amoroso_lowercase Amoroso mixture + GPD quantile function (vectorized)
+#' @export
+qamorosomixgpd <- function(p, w, loc, scale, shape1, shape2, threshold, tail_scale, tail_shape,
+                           lower.tail = TRUE, log.p = FALSE, tol = 1e-10, maxiter = 200) {
+  qAmorosoMixGpd(p, w = w, loc = loc, scale = scale, shape1 = shape1, shape2 = shape2,
+                 threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape,
+                 lower.tail = lower.tail, log.p = log.p, tol = tol, maxiter = maxiter)
+}
+
+#' @describeIn amoroso_lowercase Amoroso mixture + GPD random generation (vectorized)
+#' @export
+ramorosomixgpd <- function(n, w, loc, scale, shape1, shape2, threshold, tail_scale, tail_shape) {
+  n <- as.integer(n)
+  if (length(n) != 1L || is.na(n)) stop("'n' must be a single integer.", call. = FALSE)
+  if (n <= 0L) return(numeric(0L))
+  vapply(seq_len(n), function(i) as.numeric(rAmorosoMixGpd(1L, w = w, loc = loc, scale = scale,
+                                                           shape1 = shape1, shape2 = shape2,
+                                                           threshold = threshold, tail_scale = tail_scale,
+                                                           tail_shape = tail_shape)),
+         numeric(1L))
+}
+
+# ---- Amoroso + GPD lowercase wrappers ----
+
+#' @describeIn amoroso_lowercase Amoroso + GPD density (vectorized)
+#' @export
+damorosogpd <- function(x, loc, scale, shape1, shape2, threshold, tail_scale, tail_shape, log = FALSE) {
+  x <- as.numeric(x)
+  if (length(x) == 0L) return(numeric(0L))
+  log_int <- as.integer(log)
+  vapply(x, function(xi) as.numeric(dAmorosoGpd(xi, loc = loc, scale = scale,
+                                                 shape1 = shape1, shape2 = shape2,
+                                                 threshold = threshold, tail_scale = tail_scale,
+                                                 tail_shape = tail_shape, log = log_int)),
+         numeric(1L))
+}
+
+#' @describeIn amoroso_lowercase Amoroso + GPD distribution function (vectorized)
+#' @export
+pamorosogpd <- function(q, loc, scale, shape1, shape2, threshold, tail_scale, tail_shape,
+                        lower.tail = TRUE, log.p = FALSE) {
+  q <- as.numeric(q)
+  if (length(q) == 0L) return(numeric(0L))
+  lt_int <- as.integer(lower.tail)
+  lp_int <- as.integer(log.p)
+  vapply(q, function(qi) as.numeric(pAmorosoGpd(qi, loc = loc, scale = scale,
+                                                 shape1 = shape1, shape2 = shape2,
+                                                 threshold = threshold, tail_scale = tail_scale,
+                                                 tail_shape = tail_shape,
+                                                 lower.tail = lt_int, log.p = lp_int)),
+         numeric(1L))
+}
+
+#' @describeIn amoroso_lowercase Amoroso + GPD quantile function (vectorized)
+#' @export
+qamorosogpd <- function(p, loc, scale, shape1, shape2, threshold, tail_scale, tail_shape,
+                        lower.tail = TRUE, log.p = FALSE, tol = 1e-10, maxiter = 200) {
+  qAmorosoGpd(p, loc = loc, scale = scale, shape1 = shape1, shape2 = shape2,
+              threshold = threshold, tail_scale = tail_scale, tail_shape = tail_shape,
+              lower.tail = lower.tail, log.p = log.p, tol = tol, maxiter = maxiter)
+}
+
+#' @describeIn amoroso_lowercase Amoroso + GPD random generation (vectorized)
+#' @export
+ramorosogpd <- function(n, loc, scale, shape1, shape2, threshold, tail_scale, tail_shape) {
+  n <- as.integer(n)
+  if (length(n) != 1L || is.na(n)) stop("'n' must be a single integer.", call. = FALSE)
+  if (n <= 0L) return(numeric(0L))
+  vapply(seq_len(n), function(i) as.numeric(rAmorosoGpd(1L, loc = loc, scale = scale,
+                                                         shape1 = shape1, shape2 = shape2,
+                                                         threshold = threshold, tail_scale = tail_scale,
+                                                         tail_shape = tail_shape)),
+         numeric(1L))
+}

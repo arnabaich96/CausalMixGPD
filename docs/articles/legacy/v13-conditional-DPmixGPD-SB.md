@@ -337,36 +337,20 @@ plot(fitted(fit_sb_cond_gpd_gamma))
 ![](v13-conditional-DPmixGPD-SB_files/figure-html/residuals-1.png)![](v13-conditional-DPmixGPD-SB_files/figure-html/residuals-2.png)
 
 ``` r
-plot(fit_sb_cond_gpd_gamma, family = c("traceplot", "autocorrelation", "geweke"))
+plot(fit_sb_cond_gpd_gamma, family = "traceplot")
 ```
 
     === traceplot ===
 
 ![](v13-conditional-DPmixGPD-SB_files/figure-html/diagnostics-1.png)
 
-    === autocorrelation ===
-
-![](v13-conditional-DPmixGPD-SB_files/figure-html/diagnostics-2.png)
-
-    === geweke ===
-
-![](v13-conditional-DPmixGPD-SB_files/figure-html/diagnostics-3.png)
-
 ``` r
-plot(fit_sb_cond_gpd_laplace, family = c("density", "running", "caterpillar"))
+plot(fit_sb_cond_gpd_laplace, family = "caterpillar")
 ```
-
-    === density ===
-
-![](v13-conditional-DPmixGPD-SB_files/figure-html/diagnostics-4.png)
-
-    === running ===
-
-![](v13-conditional-DPmixGPD-SB_files/figure-html/diagnostics-5.png)
 
     === caterpillar ===
 
-![](v13-conditional-DPmixGPD-SB_files/figure-html/diagnostics-6.png)
+![](v13-conditional-DPmixGPD-SB_files/figure-html/diagnostics-2.png)
 
 ------------------------------------------------------------------------
 

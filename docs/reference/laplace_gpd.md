@@ -120,6 +120,6 @@ qLaplaceGpd(0.50, location, scale, threshold, tail_scale, tail_shape)
 qLaplaceGpd(0.95, location, scale, threshold, tail_scale, tail_shape)
 #> [1] 3.170353
 replicate(10, rLaplaceGpd(1, location, scale, threshold, tail_scale, tail_shape))
-#>  [1]  1.5708633  2.5020907  6.5262022  0.7961656 -0.3716472  0.2411670
-#>  [7]  2.0425770  0.8059346  0.8532216  2.5026978
+#>  [1]  0.6416301 -0.8912912  1.9742237 -0.2066811 -0.6598996  1.2638142
+#>  [7]  1.2268526  5.9817040  2.7507877  3.0992175
 ```

@@ -1,13 +1,11 @@
-# MCMC workflow
+# MCMC Workflow
 
-## Goal
+## Overview
 
-This vignette shows a practical MCMC loop: build -\> run -\> inspect -\>
+This vignette demonstrates the MCMC workflow: build, run, inspect, and
 extract.
 
-**Runtime:** fast in `FAST` mode.
-
-## Build and run
+## Model Building and Sampling
 
 ``` r
 library(DPmixGPD)
@@ -55,7 +53,7 @@ fit
 #> Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 ```
 
-## Print and summary
+## Model Summary
 
 ``` r
 print(fit)
@@ -84,16 +82,13 @@ summary(fit)
 #>       sd[1]  1.304 0.650  0.234  1.250  2.523 28.040
 ```
 
-## Plots
-
-Different versions of the package may support different plot families;
-`trace` is usually the safest.
+## Diagnostic Plots
 
 ``` r
 if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quietly = TRUE)) {
   plot(fit)
 } else {
-  message("Plotting requires 'ggmcmc' and 'coda' packages. Install them to view diagnostic plots.")
+  message("Plotting requires 'ggmcmc' and 'coda' packages.")
 }
 #> 
 #> === histogram ===
@@ -141,13 +136,9 @@ if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quiet
 
 ![](mcmc-workflow_files/figure-html/unnamed-chunk-3-9.png)
 
-## Extract posterior draws
-
-The exact storage depends on how your fit object is organized, but most
-workflows expose a draws object.
+## Posterior Sample Extraction
 
 ``` r
-# Common patterns
 if (!is.null(fit$mcmc$samples)) {
   s <- fit$mcmc$samples
   if (requireNamespace("coda", quietly = TRUE)) {
@@ -164,26 +155,10 @@ if (!is.null(fit$mcmc$samples)) {
 #> [16] "threshold"  "w[1]"       "w[2]"       "w[3]"       "w[4]"
 ```
 
-    ## Re-running with different MCMC settings
+## Re-running with Different Settings
 
-    A helpful pattern is: build once, rerun MCMC with different settings. If your API supports it, use it.
-    Otherwise rebuild with a different `mcmc` list.
-
-
-    ``` r
-    # Example (pseudo):
-    # bundle2 <- update_mcmc(bundle, niter = 8000, nburnin = 2000)
-    # fit2 <- run_mcmc_bundle_manual(bundle2)
-
-## Troubleshooting (MCMC Workflow)
-
-- **Compilation errors**: call
-  [`printErrors()`](https://rdrr.io/pkg/nimble/man/printErrors.html) if
-  NIMBLE suggests it.
-- **Slow runs**: start with `FAST <- TRUE`, then scale up.
-- **Multi-chain seeds**: prefer a vector of seeds (one per chain).
-
-## Next
-
-- See **Unconditional** and **Conditional** for prediction and
-  diagnostics.
+``` r
+# Rebuild with modified MCMC settings
+# bundle2 <- update_mcmc(bundle, niter = 8000, nburnin = 2000)
+# fit2 <- run_mcmc_bundle_manual(bundle2)
+```

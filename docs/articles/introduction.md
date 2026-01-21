@@ -1,31 +1,29 @@
-# DPmixGPD: quick start
+# DPmixGPD: Quick Start
 
-## Goal
+## Overview
 
-This vignette is a fast, end-to-end tour:
+This vignette provides an end-to-end introduction to the DPmixGPD
+workflow:
 
-- build a model specification,
-- run MCMC,
-- extract fitted values and predictions.
+- Build a model specification
+- Run MCMC sampling
+- Extract fitted values and predictions
 
-**Runtime:** designed to run quickly in “FAST” mode.
+## Model Description
 
-## What DPmixGPD models
+DPmixGPD fits flexible mixture models for the bulk of the distribution
+and can splice a Generalized Pareto Distribution (GPD) tail beyond a
+threshold. This approach is appropriate when:
 
-DPmixGPD fits flexible mixture models for the *bulk* of the distribution
-and can splice a Generalized Pareto tail beyond a threshold. In
-practice, you use it when:
+- The center of the data is not well described by a single parametric
+  family
+- The extreme right tail requires principled extrapolation
 
-- the center of the data is not well described by a single parametric
-  family, and
-- the extreme right tail needs principled extrapolation.
-
-## A minimal run
+## Minimal Example
 
 ``` r
 library(DPmixGPD)
 
-# A toy heavy-ish tail sample
 n <- 80
 y <- abs(rnorm(n)) + 0.15
 
@@ -71,7 +69,7 @@ fit
 #> Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 ```
 
-## Fitted values and residuals
+## Fitted Values and Residuals
 
 ``` r
 f <- fitted(fit, type = "mean", level = 0.90)
@@ -83,8 +81,6 @@ head(f)
 #> 4 0.8630258 0.7083039 1.00949  0.88225502
 #> 5 0.8630258 0.7083039 1.00949 -0.38351801
 #> 6 0.8630258 0.7083039 1.00949  0.10744260
-
-# quick residual sanity check
 summary(f$residuals)
 #>     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
 #> -0.71192 -0.41112 -0.11071 -0.01264  0.20973  1.68859
@@ -93,7 +89,6 @@ summary(f$residuals)
 ## Predictions
 
 ``` r
-# For unconditional models, predict() returns population-level summaries
 pred_mean <- predict(fit, type = "mean", cred.level = 0.90, interval = "credible")
 pred_q90  <- predict(fit, type = "quantile", index = 0.90, cred.level = 0.90, interval = "credible")
 
@@ -105,15 +100,13 @@ pred_q90$fit
 #> 1 1.620146   0.9 1.228256 1.92826
 ```
 
-## A quick diagnostic plot
+## Diagnostic Plots
 
 ``` r
-# Plot methods may vary by version; keep this simple.
-# If your plot() method supports a family argument, trace plots are the safest.
 if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quietly = TRUE)) {
   plot(fit)
 } else {
-  message("Plotting requires 'ggmcmc' and 'coda' packages. Install them to view diagnostic plots.")
+  message("Plotting requires 'ggmcmc' and 'coda' packages.")
 }
 #> 
 #> === histogram ===
@@ -161,17 +154,15 @@ if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quiet
 
 ![](introduction_files/figure-html/plot-fit-9.png)
 
-## Troubleshooting (Quick Start)
+## Troubleshooting
 
-- **“keywords: if” from NIMBLE**: a covariate column is named `if` (or
-  another reserved keyword). Rename columns (e.g., `if` -\> `x_if`).
-- **“No space left on device” during build/check**: set
-  `TMPDIR`/`TEMP`/`TMP` to a drive with free space (e.g., `D:/Rtmp`).
-- **Coverage looks low**: code generation (e.g., `eval(parse())`) is
-  hard to trace. Focus tests on user-facing functions.
+- **NIMBLE keyword error**: Rename covariate columns that use reserved
+  keywords (e.g., `if` to `x_if`).
+- **Disk space error**: Set `TMPDIR`/`TEMP`/`TMP` to a drive with
+  sufficient free space.
 
-## Where to go next
+## Next Steps
 
-- See **Model specification** for all options.
-- See **Unconditional** for density and tail diagnostics.
-- See **Backends** for SB vs CRP comparisons.
+- **Model Specification**: Complete documentation of all options
+- **Unconditional Models**: Density estimation and tail diagnostics
+- **Backends**: Comparison of SB and CRP backends

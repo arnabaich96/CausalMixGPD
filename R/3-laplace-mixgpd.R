@@ -482,3 +482,184 @@ qLaplaceGpd <- function(p, location, scale, threshold, tail_scale, tail_shape, l
   out
 }
 
+
+# ==========================================================
+# Lowercase vectorized R wrappers for Laplace kernels
+# ==========================================================
+
+#' Lowercase vectorized Laplace distribution functions
+#'
+#' Vectorized R wrappers for Laplace mixture, Laplace mixture + GPD, and
+#' Laplace + GPD distribution functions. These lowercase versions accept vector
+#' inputs for the first argument (\code{x}, \code{q}, or \code{p}) and return
+#' a numeric vector. The \code{r*} functions support \code{n > 1}.
+#'
+#' @param x Numeric vector of quantiles.
+#' @param q Numeric vector of quantiles.
+#' @param p Numeric vector of probabilities.
+#' @param n Integer number of observations to generate.
+#' @param w Numeric vector of mixture weights.
+#' @param location,scale Numeric vectors (mix) or scalars (base+gpd) of component parameters.
+#' @param threshold,tail_scale,tail_shape GPD tail parameters (scalars).
+#' @param log Logical; if \code{TRUE}, return log-density.
+#' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le x)}.
+#' @param log.p Logical; if \code{TRUE}, probabilities are on log scale.
+#' @param tol,maxiter Tolerance and max iterations for numerical inversion.
+#'
+#' @return Numeric vector of densities, probabilities, quantiles, or random variates.
+#'
+#' @examples
+#' w <- c(0.6, 0.3, 0.1)
+#' loc <- c(0, 1, -2)
+#' scl <- c(1, 0.9, 1.1)
+#'
+#' # Laplace mixture
+#' dlaplacemix(c(-1, 0, 1), w = w, location = loc, scale = scl)
+#' rlaplacemix(5, w = w, location = loc, scale = scl)
+#'
+#' @name laplace_lowercase
+#' @rdname laplace_lowercase
+NULL
+
+# ---- Laplace Mix lowercase wrappers ----
+
+#' @describeIn laplace_lowercase Laplace mixture density (vectorized)
+#' @export
+dlaplacemix <- function(x, w, location, scale, log = FALSE) {
+  x <- as.numeric(x)
+  if (length(x) == 0L) return(numeric(0L))
+  log_int <- as.integer(log)
+  vapply(x, function(xi) as.numeric(dLaplaceMix(xi, w = w, location = location, scale = scale, log = log_int)),
+         numeric(1L))
+}
+
+#' @describeIn laplace_lowercase Laplace mixture distribution function (vectorized)
+#' @export
+plaplacemix <- function(q, w, location, scale, lower.tail = TRUE, log.p = FALSE) {
+  q <- as.numeric(q)
+  if (length(q) == 0L) return(numeric(0L))
+  lt_int <- as.integer(lower.tail)
+  lp_int <- as.integer(log.p)
+  vapply(q, function(qi) as.numeric(pLaplaceMix(qi, w = w, location = location, scale = scale,
+                                                 lower.tail = lt_int, log.p = lp_int)),
+         numeric(1L))
+}
+
+#' @describeIn laplace_lowercase Laplace mixture quantile function (vectorized)
+#' @export
+qlaplacemix <- function(p, w, location, scale, lower.tail = TRUE, log.p = FALSE,
+                        tol = 1e-10, maxiter = 200) {
+  qLaplaceMix(p, w = w, location = location, scale = scale, lower.tail = lower.tail,
+              log.p = log.p, tol = tol, maxiter = maxiter)
+}
+
+#' @describeIn laplace_lowercase Laplace mixture random generation (vectorized)
+#' @export
+rlaplacemix <- function(n, w, location, scale) {
+  n <- as.integer(n)
+  if (length(n) != 1L || is.na(n)) stop("'n' must be a single integer.", call. = FALSE)
+  if (n <= 0L) return(numeric(0L))
+  vapply(seq_len(n), function(i) as.numeric(rLaplaceMix(1L, w = w, location = location, scale = scale)),
+         numeric(1L))
+}
+
+# ---- Laplace Mix + GPD lowercase wrappers ----
+
+#' @describeIn laplace_lowercase Laplace mixture + GPD density (vectorized)
+#' @export
+dlaplacemixgpd <- function(x, w, location, scale, threshold, tail_scale, tail_shape, log = FALSE) {
+  x <- as.numeric(x)
+  if (length(x) == 0L) return(numeric(0L))
+  log_int <- as.integer(log)
+  vapply(x, function(xi) as.numeric(dLaplaceMixGpd(xi, w = w, location = location, scale = scale,
+                                                    threshold = threshold, tail_scale = tail_scale,
+                                                    tail_shape = tail_shape, log = log_int)),
+         numeric(1L))
+}
+
+#' @describeIn laplace_lowercase Laplace mixture + GPD distribution function (vectorized)
+#' @export
+plaplacemixgpd <- function(q, w, location, scale, threshold, tail_scale, tail_shape,
+                           lower.tail = TRUE, log.p = FALSE) {
+  q <- as.numeric(q)
+  if (length(q) == 0L) return(numeric(0L))
+  lt_int <- as.integer(lower.tail)
+  lp_int <- as.integer(log.p)
+  vapply(q, function(qi) as.numeric(pLaplaceMixGpd(qi, w = w, location = location, scale = scale,
+                                                    threshold = threshold, tail_scale = tail_scale,
+                                                    tail_shape = tail_shape,
+                                                    lower.tail = lt_int, log.p = lp_int)),
+         numeric(1L))
+}
+
+#' @describeIn laplace_lowercase Laplace mixture + GPD quantile function (vectorized)
+#' @export
+qlaplacemixgpd <- function(p, w, location, scale, threshold, tail_scale, tail_shape,
+                           lower.tail = TRUE, log.p = FALSE, tol = 1e-10, maxiter = 200) {
+  qLaplaceMixGpd(p, w = w, location = location, scale = scale, threshold = threshold,
+                 tail_scale = tail_scale, tail_shape = tail_shape,
+                 lower.tail = lower.tail, log.p = log.p, tol = tol, maxiter = maxiter)
+}
+
+#' @describeIn laplace_lowercase Laplace mixture + GPD random generation (vectorized)
+#' @export
+rlaplacemixgpd <- function(n, w, location, scale, threshold, tail_scale, tail_shape) {
+  n <- as.integer(n)
+  if (length(n) != 1L || is.na(n)) stop("'n' must be a single integer.", call. = FALSE)
+  if (n <= 0L) return(numeric(0L))
+  vapply(seq_len(n), function(i) as.numeric(rLaplaceMixGpd(1L, w = w, location = location, scale = scale,
+                                                           threshold = threshold, tail_scale = tail_scale,
+                                                           tail_shape = tail_shape)),
+         numeric(1L))
+}
+
+# ---- Laplace + GPD lowercase wrappers ----
+
+#' @describeIn laplace_lowercase Laplace + GPD density (vectorized)
+#' @export
+dlaplacegpd <- function(x, location, scale, threshold, tail_scale, tail_shape, log = FALSE) {
+  x <- as.numeric(x)
+  if (length(x) == 0L) return(numeric(0L))
+  log_int <- as.integer(log)
+  vapply(x, function(xi) as.numeric(dLaplaceGpd(xi, location = location, scale = scale,
+                                                 threshold = threshold, tail_scale = tail_scale,
+                                                 tail_shape = tail_shape, log = log_int)),
+         numeric(1L))
+}
+
+#' @describeIn laplace_lowercase Laplace + GPD distribution function (vectorized)
+#' @export
+plaplacegpd <- function(q, location, scale, threshold, tail_scale, tail_shape,
+                        lower.tail = TRUE, log.p = FALSE) {
+  q <- as.numeric(q)
+  if (length(q) == 0L) return(numeric(0L))
+  lt_int <- as.integer(lower.tail)
+  lp_int <- as.integer(log.p)
+  vapply(q, function(qi) as.numeric(pLaplaceGpd(qi, location = location, scale = scale,
+                                                 threshold = threshold, tail_scale = tail_scale,
+                                                 tail_shape = tail_shape,
+                                                 lower.tail = lt_int, log.p = lp_int)),
+         numeric(1L))
+}
+
+#' @describeIn laplace_lowercase Laplace + GPD quantile function (vectorized)
+#' @export
+qlaplacegpd <- function(p, location, scale, threshold, tail_scale, tail_shape,
+                        lower.tail = TRUE, log.p = FALSE) {
+  qLaplaceGpd(p, location = location, scale = scale, threshold = threshold,
+              tail_scale = tail_scale, tail_shape = tail_shape,
+              lower.tail = lower.tail, log.p = log.p)
+}
+
+#' @describeIn laplace_lowercase Laplace + GPD random generation (vectorized)
+#' @export
+rlaplacegpd <- function(n, location, scale, threshold, tail_scale, tail_shape) {
+  n <- as.integer(n)
+  if (length(n) != 1L || is.na(n)) stop("'n' must be a single integer.", call. = FALSE)
+  if (n <= 0L) return(numeric(0L))
+  vapply(seq_len(n), function(i) as.numeric(rLaplaceGpd(1L, location = location, scale = scale,
+                                                         threshold = threshold, tail_scale = tail_scale,
+                                                         tail_shape = tail_shape)),
+         numeric(1L))
+}
+

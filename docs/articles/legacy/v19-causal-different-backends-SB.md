@@ -291,7 +291,7 @@ params(fit_sb_crp)
     [1] 0.02556
 
 ``` r
-plot(fit_sb_crp, family = c("traceplot", "autocorrelation", "running"))
+plot(fit_sb_crp, params = "loc", family = "traceplot")
 ```
 
     === treated ===
@@ -300,27 +300,27 @@ plot(fit_sb_crp, family = c("traceplot", "autocorrelation", "running"))
 
 ![](v19-causal-different-backends-SB_files/figure-html/plot-fit-sb-crp-1.png)
 
-    === autocorrelation ===
+    === control ===
+
+    === traceplot ===
 
 ![](v19-causal-different-backends-SB_files/figure-html/plot-fit-sb-crp-2.png)
 
-    === running ===
+``` r
+plot(fit_sb_crp, params = "scale", family = "caterpillar")
+```
+
+    === treated ===
+
+    === caterpillar ===
 
 ![](v19-causal-different-backends-SB_files/figure-html/plot-fit-sb-crp-3.png)
 
     === control ===
 
-    === traceplot ===
+    === caterpillar ===
 
 ![](v19-causal-different-backends-SB_files/figure-html/plot-fit-sb-crp-4.png)
-
-    === autocorrelation ===
-
-![](v19-causal-different-backends-SB_files/figure-html/plot-fit-sb-crp-5.png)
-
-    === running ===
-
-![](v19-causal-different-backends-SB_files/figure-html/plot-fit-sb-crp-6.png)
 
 ``` r
 pred_mean_sb_crp <- predict(fit_sb_crp, x = x_eval, type = "mean",
@@ -675,36 +675,20 @@ params(fit_crp_sb)
     [1] 0.004585
 
 ``` r
-plot(fit_crp_sb, family = c("density", "geweke", "caterpillar"))
+plot(fit_crp_sb, family = "traceplot")
 ```
 
     === treated ===
 
-    === density ===
+    === traceplot ===
 
 ![](v19-causal-different-backends-SB_files/figure-html/plot-fit-crp-sb-1.png)
 
-    === geweke ===
-
-![](v19-causal-different-backends-SB_files/figure-html/plot-fit-crp-sb-2.png)
-
-    === caterpillar ===
-
-![](v19-causal-different-backends-SB_files/figure-html/plot-fit-crp-sb-3.png)
-
     === control ===
 
-    === density ===
+    === traceplot ===
 
-![](v19-causal-different-backends-SB_files/figure-html/plot-fit-crp-sb-4.png)
-
-    === geweke ===
-
-![](v19-causal-different-backends-SB_files/figure-html/plot-fit-crp-sb-5.png)
-
-    === caterpillar ===
-
-![](v19-causal-different-backends-SB_files/figure-html/plot-fit-crp-sb-6.png)
+![](v19-causal-different-backends-SB_files/figure-html/plot-fit-crp-sb-2.png)
 
 ``` r
 pred_mean_crp_sb <- predict(fit_crp_sb, x = x_eval, type = "mean",

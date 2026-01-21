@@ -173,6 +173,8 @@
   : Plot QTE results
 - [`plot(`*`<mixgpd_fit>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/plot.mixgpd_fit.md)
   : Plot MCMC diagnostics for a MixGPD fit (ggmcmc backend)
+- [`plot(`*`<mixgpd_fitted>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/plot.mixgpd_fitted.md)
+  : Plot fitted values diagnostics
 - [`plot(`*`<mixgpd_predict>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/plot.mixgpd_predict.md)
   : Plot prediction results
 - [`predict(`*`<dpmixgpd_causal_fit>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/predict.dpmixgpd_causal_fit.md)
@@ -187,10 +189,22 @@
   : Print a causal bundle
 - [`print(`*`<dpmixgpd_causal_fit>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.dpmixgpd_causal_fit.md)
   : Print a causal fit
+- [`print(`*`<dpmixgpd_causal_predict_plots>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.dpmixgpd_causal_predict_plots.md)
+  : Print method for causal prediction plots
+- [`print(`*`<dpmixgpd_ps_bundle>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.dpmixgpd_ps_bundle.md)
+  : Print a propensity score bundle
+- [`print(`*`<dpmixgpd_ps_fit>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.dpmixgpd_ps_fit.md)
+  : Print a propensity score fit
 - [`print(`*`<dpmixgpd_qte>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.dpmixgpd_qte.md)
   : Print a QTE object
 - [`print(`*`<mixgpd_fit>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.mixgpd_fit.md)
   : Print a MixGPD fitted object
+- [`print(`*`<mixgpd_fitted_plots>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.mixgpd_fitted_plots.md)
+  : Print method for fitted value plots
+- [`print(`*`<mixgpd_fit_plots>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.mixgpd_fit_plots.md)
+  : Print method for mixgpd_fit diagnostic plots
+- [`print(`*`<mixgpd_predict_plots>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.mixgpd_predict_plots.md)
+  : Print method for prediction plots
 - [`print(`*`<mixgpd_summary>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.mixgpd_summary.md)
   : Print a MixGPD summary object
 - [`print(`*`<summary.dpmixgpd_ate>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/print.summary.dpmixgpd_ate.md)

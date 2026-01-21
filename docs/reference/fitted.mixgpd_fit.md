@@ -38,8 +38,8 @@ fitted(
 
 - level:
 
-  Credible level for confidence intervals (default 0.95 for 95% credible
-  intervals).
+  Credible level for confidence intervals (default 0.95 for 95 percent
+  credible intervals).
 
 - interval:
 

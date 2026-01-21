@@ -38,7 +38,7 @@ p_raw <- ggplot(df_data, aes(x = y)) +
   labs(title = "Raw Data: Mixed Gamma Distribution", x = "y", y = "Density") +
   theme_minimal()
 
-grid.arrange(p_raw, ncol = 1)
+print(p_raw)
 ```
 
 ![](v07-unconditional-DPmix-SB_files/figure-html/data-setup-1.png)
@@ -167,37 +167,36 @@ params_gamma
 ### MCMC Diagnostics (S3 Plot Methods)
 
 ``` r
-# Default diagnostics for each fit
-plot(fit_sb_gamma, family = c("traceplot", "autocorrelation", "running"))
+plot(fit_sb_gamma, params = "shape", family = "traceplot")
 ```
 
     === traceplot ===
 
 ![](v07-unconditional-DPmix-SB_files/figure-html/diag-plots-1.png)
 
-    === autocorrelation ===
+``` r
+plot(fit_sb_gamma, params = "scale", family = "caterpillar")
+```
+
+    === caterpillar ===
 
 ![](v07-unconditional-DPmix-SB_files/figure-html/diag-plots-2.png)
 
-    === running ===
+``` r
+plot(fit_sb_cauchy, params = "location", family = "traceplot")
+```
+
+    === traceplot ===
 
 ![](v07-unconditional-DPmix-SB_files/figure-html/diag-plots-3.png)
 
 ``` r
-plot(fit_sb_cauchy, family = c("density", "geweke", "caterpillar"))
+plot(fit_sb_cauchy, params = "scale", family = "caterpillar")
 ```
-
-    === density ===
-
-![](v07-unconditional-DPmix-SB_files/figure-html/diag-plots-4.png)
-
-    === geweke ===
-
-![](v07-unconditional-DPmix-SB_files/figure-html/diag-plots-5.png)
 
     === caterpillar ===
 
-![](v07-unconditional-DPmix-SB_files/figure-html/diag-plots-6.png)
+![](v07-unconditional-DPmix-SB_files/figure-html/diag-plots-4.png)
 
 Use `summary(fit_sb_gamma)` and `summary(fit_sb_cauchy)` to inspect
 effective sample size, R-hat, and other convergence diagnostics; the

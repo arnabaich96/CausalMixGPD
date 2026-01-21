@@ -172,16 +172,12 @@ params(fit_uncond)
     [1] 0.2653
 
 ``` r
-plot(fit_uncond, family = c("traceplot", "running"))
+plot(fit_uncond, params = "shape", family = "traceplot")
 ```
 
     === traceplot ===
 
 ![](v00-start-here_files/figure-html/start-s3-1.png)
-
-    === running ===
-
-![](v00-start-here_files/figure-html/start-s3-2.png)
 
 ------------------------------------------------------------------------
 

@@ -14,9 +14,11 @@ read_coverage_status(
 
 - file:
 
-  Path to a JSON status file produced by \`coverage_status(...,
-  data_file = ...)\`. Defaults to \`inst/extdata/coverage_status.json\`.
+  Path to a JSON status file produced by
+  `coverage_status(..., data_file = ...)`. Defaults to
+  `inst/extdata/coverage_status.json`.
 
 ## Value
 
-Named list as saved by \`coverage_status()\`.
+Named list as saved by
+[`coverage_status()`](https://arnabaich96.github.io/DPmixGPD/reference/coverage_status.md).

@@ -1,10 +1,17 @@
 # Predict from a MixGPD fit
 
 This provides a stable interface for distributional predictions. The
-default implementation supports: - `type="density"` using `y` -
-`type="survival"` using `y` - `type="quantile"` using `p` -
-`type="sample"` (posterior predictive draws) - `type="mean"` (posterior
-predictive mean)
+default implementation supports:
+
+- `type="density"` using `y`
+
+- `type="survival"` using `y`
+
+- `type="quantile"` using `p`
+
+- `type="sample"` (posterior predictive draws)
+
+- `type="mean"` (posterior predictive mean)
 
 ## Usage
 
@@ -75,7 +82,7 @@ predict(
 
 - cred.level:
 
-  Credible level for credible intervals (default 0.95 for 95% credible
+  Credible level for credible intervals (default 0.95 for 95 percent
   intervals).
 
 - interval:
