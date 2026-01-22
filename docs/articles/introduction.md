@@ -9,6 +9,16 @@ workflow:
 - Run MCMC sampling
 - Extract fitted values and predictions
 
+## Theory (brief)
+
+DPmixGPD models the bulk of a distribution with a Dirichlet process (DP)
+mixture, then optionally splices a Generalized Pareto Distribution (GPD)
+tail beyond a threshold $`u`$. For outcomes $`y_i`$ and kernel $`K`$,
+the bulk model is \$\$ f(y_i) = \int K(y_i; \\theta)\\, dG(\\theta),
+\\quad G \\sim \\mathrm{DP}(\\alpha, G_0). \$\$ When a tail is included,
+the density is replaced for $`y > u`$ by a GPD tail with scale and shape
+parameters, preserving continuity at $`u`$.
+
 ## Model Description
 
 DPmixGPD fits flexible mixture models for the bulk of the distribution
@@ -24,8 +34,8 @@ threshold. This approach is appropriate when:
 ``` r
 library(DPmixGPD)
 
-n <- 80
-y <- abs(rnorm(n)) + 0.15
+data("faithful", package = "datasets")
+y <- faithful$eruptions
 
 bundle <- build_nimble_bundle(
   y = y,
@@ -37,36 +47,6 @@ bundle <- build_nimble_bundle(
 )
 
 fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
-#> [MCMC] Creating NIMBLE model...
-#> [MCMC] NIMBLE model created successfully.
-#> [MCMC] Configuring MCMC...
-#> ===== Monitors =====
-#> thin = 1: alpha, mean, sd, tail_scale, tail_shape, threshold, w, z
-#> ===== Samplers =====
-#> RW sampler (21)
-#>   - alpha
-#>   - mean[]  (6 elements)
-#>   - sd[]  (6 elements)
-#>   - threshold
-#>   - tail_scale
-#>   - tail_shape
-#>   - v[]  (5 elements)
-#> categorical sampler (80)
-#>   - z[]  (80 elements)
-#> [MCMC] MCMC configured.
-#> [MCMC] Building MCMC object...
-#> [MCMC] MCMC object built.
-#> [MCMC] Attempting NIMBLE compilation (this may take a minute)...
-#> [MCMC] Compiling model...
-#> [MCMC] Compiling MCMC sampler...
-#> [MCMC] Compilation successful.
-#> [MCMC] MCMC execution complete. Processing results...
-fit
-#> MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: TRUE
-#> n = 80 | components = 6 | epsilon = 0.025
-#> MCMC: niter=400, nburnin=100, thin=2, nchains=1 
-#> Fit
-#> Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 ```
 
 ## Fitted Values and Residuals
@@ -74,16 +54,16 @@ fit
 ``` r
 f <- fitted(fit, type = "mean", level = 0.90)
 head(f)
-#>         fit     lower   upper   residuals
-#> 1 0.8630258 0.7083039 1.00949 -0.08657197
-#> 2 0.8630258 0.7083039 1.00949 -0.52938246
-#> 3 0.8630258 0.7083039 1.00949  0.12260283
-#> 4 0.8630258 0.7083039 1.00949  0.88225502
-#> 5 0.8630258 0.7083039 1.00949 -0.38351801
-#> 6 0.8630258 0.7083039 1.00949  0.10744260
+#>        fit   lower    upper  residuals
+#> 1 3.200441 3.06478 3.358841  0.3995592
+#> 2 3.200441 3.06478 3.358841 -1.4004408
+#> 3 3.200441 3.06478 3.358841  0.1325592
+#> 4 3.200441 3.06478 3.358841 -0.9174408
+#> 5 3.200441 3.06478 3.358841  1.3325592
+#> 6 3.200441 3.06478 3.358841 -0.3174408
 summary(f$residuals)
-#>     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
-#> -0.71192 -0.41112 -0.11071 -0.01264  0.20973  1.68859
+#>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#> -1.6004 -1.0377  0.7996  0.2873  1.2538  1.8996
 ```
 
 ## Predictions
@@ -93,11 +73,11 @@ pred_mean <- predict(fit, type = "mean", cred.level = 0.90, interval = "credible
 pred_q90  <- predict(fit, type = "quantile", index = 0.90, cred.level = 0.90, interval = "credible")
 
 pred_mean$fit
-#>    estimate     lower    upper
-#> 1 0.8614389 0.7192627 1.001022
+#>   estimate    lower    upper
+#> 1 3.194483 3.049934 3.317868
 pred_q90$fit
-#>   estimate index    lower   upper
-#> 1 1.620146   0.9 1.228256 1.92826
+#>   estimate index    lower    upper
+#> 1 4.550209   0.9 4.448418 4.670306
 ```
 
 ## Diagnostic Plots

@@ -136,6 +136,14 @@ one-to-one. Last verified: <strong>2026-01-18</strong>.</p>
 (Introduction, Model Spec, MCMC Workflow,
 Unconditional/Conditional/Causal, Backends, S3 Reference).</p>
 </blockquote>
+<div class="section level3">
+<h3 id="theory-brief">Theory (brief)<a class="anchor" aria-label="anchor" href="#theory-brief"></a>
+</h3>
+<p>The causal workflow fits treated and control arms with covariate
+adjustment, optionally including propensity scores. Using the same
+backend and kernel emphasizes treatment-induced distributional
+differences.</p>
+</div>
 <div class="section level2">
 <h2 id="causal-sb-same-backend">Causal Inference: Same Backend (SB) - Laplace Kernel<a class="anchor" aria-label="anchor" href="#causal-sb-same-backend"></a>
 </h2>
@@ -276,10 +284,7 @@ epsilon (treated/control): 0.025 / 0.025
 n (control) = 232 | n (treated) = 268 </code></pre>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_sb_bulk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/run_mcmc_causal.html">run_mcmc_causal</a></span><span class="op">(</span><span class="va">bundle_sb_bulk</span><span class="op">)</span></span></code></pre></div>
-<pre><code>[MCMC] Creating NIMBLE model...</code></pre>
-<pre><code>[MCMC] NIMBLE model created successfully.
-[MCMC] Configuring MCMC...
-===== Monitors =====
+<pre><code>===== Monitors =====
 thin = 1: alpha, beta_location, scale, w, z
 ===== Samplers =====
 RW sampler (25)
@@ -289,21 +294,8 @@ RW sampler (25)
 conjugate sampler (5)
   - scale[]  (5 elements)
 categorical sampler (232)
-  - z[]  (232 elements)
-[MCMC] MCMC configured.
-[MCMC] Building MCMC object...
-[MCMC] MCMC object built.
-[MCMC] Attempting NIMBLE compilation (this may take a minute)...
-[MCMC] Compiling model...</code></pre>
-<pre><code>[MCMC] Compiling MCMC sampler...</code></pre>
-<pre><code>[MCMC] Compilation successful.</code></pre>
-<pre><code>|-------------|-------------|-------------|-------------|
-|-------------------------------------------------------|
-[MCMC] MCMC execution complete. Processing results...</code></pre>
-<pre><code>[MCMC] Creating NIMBLE model...</code></pre>
-<pre><code>[MCMC] NIMBLE model created successfully.
-[MCMC] Configuring MCMC...
-===== Monitors =====
+  - z[]  (232 elements)</code></pre>
+<pre><code>===== Monitors =====
 thin = 1: alpha, beta_location, scale, w, z
 ===== Samplers =====
 RW sampler (25)
@@ -313,18 +305,8 @@ RW sampler (25)
 conjugate sampler (5)
   - scale[]  (5 elements)
 categorical sampler (268)
-  - z[]  (268 elements)
-[MCMC] MCMC configured.
-[MCMC] Building MCMC object...
-[MCMC] MCMC object built.
-[MCMC] Attempting NIMBLE compilation (this may take a minute)...
-[MCMC] Compiling model...</code></pre>
-<pre><code>[MCMC] Compiling MCMC sampler...</code></pre>
-<pre><code>[MCMC] Compilation successful.</code></pre>
-<pre><code>|-------------|-------------|-------------|-------------|
-|-------------------------------------------------------|
-[MCMC] MCMC execution complete. Processing results...</code></pre>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+  - z[]  (268 elements)</code></pre>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_sb_bulk</span><span class="op">)</span></span></code></pre></div>
 <pre><code>
 -- Outcome fits --
@@ -341,7 +323,7 @@ n = 268 | components = 5 | epsilon = 0.025
 MCMC: niter=2500, nburnin=500, thin=1, nchains=1 
 Fit
 Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</code></pre>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../../reference/params.html">params</a></span><span class="op">(</span><span class="va">fit_sb_bulk</span><span class="op">)</span></span></code></pre></div>
 <pre><code>Posterior mean parameters (causal)
 
@@ -384,7 +366,7 @@ comp5 -0.8253 -0.3299  0.0108 0.3473
 
 $scale
 [1] 1.044 1.192 1.563</code></pre>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_sb_bulk</span>, params <span class="op">=</span> <span class="st">"location"</span>, family <span class="op">=</span> <span class="st">"traceplot"</span><span class="op">)</span></span></code></pre></div>
 <pre><code>
 === treated ===
@@ -396,7 +378,7 @@ $scale
 
 === traceplot ===</code></pre>
 <p><img src="v17-causal-same-backend-SB_files/figure-html/plot-fit-sb-bulk-2.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_sb_bulk</span>, params <span class="op">=</span> <span class="st">"scale"</span>, family <span class="op">=</span> <span class="st">"caterpillar"</span><span class="op">)</span></span></code></pre></div>
 <pre><code>
 === treated ===
@@ -408,27 +390,27 @@ $scale
 
 === caterpillar ===</code></pre>
 <p><img src="v17-causal-same-backend-SB_files/figure-html/plot-fit-sb-bulk-4.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_mean_bulk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_sb_bulk</span>, x <span class="op">=</span> <span class="va">x_eval</span>, type <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>                          interval <span class="op">=</span> <span class="st">"hpd"</span>, nsim_mean <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_mean_bulk</span><span class="op">)</span></span></code></pre></div>
 <p><img src="v17-causal-same-backend-SB_files/figure-html/predict-mean-sb-bulk-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"><img src="v17-causal-same-backend-SB_files/figure-html/predict-mean-sb-bulk-2.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_q_bulk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_sb_bulk</span>, x <span class="op">=</span> <span class="va">x_eval</span>, type <span class="op">=</span> <span class="st">"quantile"</span>,</span>
 <span>                       p <span class="op">=</span> <span class="fl">0.5</span>, interval <span class="op">=</span> <span class="st">"hpd"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_q_bulk</span><span class="op">)</span></span></code></pre></div>
 <p><img src="v17-causal-same-backend-SB_files/figure-html/predict-quantile-sb-bulk-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"><img src="v17-causal-same-backend-SB_files/figure-html/predict-quantile-sb-bulk-2.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_d_bulk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_sb_bulk</span>, x <span class="op">=</span> <span class="va">x_eval</span>, y <span class="op">=</span> <span class="va">y_eval</span>,</span>
 <span>                       type <span class="op">=</span> <span class="st">"density"</span>, interval <span class="op">=</span> <span class="st">"hpd"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_d_bulk</span><span class="op">)</span></span></code></pre></div>
 <p><img src="v17-causal-same-backend-SB_files/figure-html/predict-density-sb-bulk-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_surv_bulk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_sb_bulk</span>, x <span class="op">=</span> <span class="va">x_eval</span>, y <span class="op">=</span> <span class="va">y_eval</span>,</span>
 <span>                          type <span class="op">=</span> <span class="st">"survival"</span>, interval <span class="op">=</span> <span class="st">"hpd"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_surv_bulk</span><span class="op">)</span></span></code></pre></div>
 <p><img src="v17-causal-same-backend-SB_files/figure-html/predict-survival-sb-bulk-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ate_bulk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ate.html">ate</a></span><span class="op">(</span><span class="va">fit_sb_bulk</span>, newdata <span class="op">=</span> <span class="va">x_eval</span>,</span>
 <span>                interval <span class="op">=</span> <span class="st">"hpd"</span>, nsim_mean <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ate_bulk</span><span class="op">)</span></span></code></pre></div>
@@ -448,7 +430,7 @@ ATE estimates (treated - control):
   5    0.854 -1.471 2.905
   6   -0.621 -2.019 0.790
 ... (34 more rows)</code></pre>
-<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">ate_bulk</span><span class="op">)</span></span></code></pre></div>
 <pre><code>ATE Summary
 ================================================== 
@@ -470,11 +452,11 @@ ATE statistics:
 Credible interval width:
   Mean: 3 | Median: 2.816
   Range: [1.413, 5.789]</code></pre>
-<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ate_plots_bulk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ate_bulk</span><span class="op">)</span></span>
 <span><span class="va">ate_plots_bulk</span><span class="op">$</span><span class="va">treatment_effect</span></span></code></pre></div>
 <p><img src="v17-causal-same-backend-SB_files/figure-html/unnamed-chunk-1-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">qte_bulk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/qte.html">qte</a></span><span class="op">(</span><span class="va">fit_sb_bulk</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span><span class="op">)</span>,</span>
 <span>                newdata <span class="op">=</span> <span class="va">x_eval</span>, interval <span class="op">=</span> <span class="st">"hpd"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">qte_bulk</span><span class="op">)</span></span></code></pre></div>
@@ -494,7 +476,7 @@ QTE estimates (treated - control):
   0.25  5    0.931 -2.407 4.030
   0.25  6   -0.172 -1.660 1.071
 ... (114 more rows)</code></pre>
-<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">qte_bulk</span><span class="op">)</span></span></code></pre></div>
 <pre><code>QTE Summary
 ================================================== 
@@ -517,7 +499,7 @@ QTE by quantile:
 Credible interval width:
   Mean: 3.38 | Median: 3.199
   Range: [1.188, 7.465]</code></pre>
-<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">qte_plots_bulk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">qte_bulk</span><span class="op">)</span></span>
 <span><span class="va">qte_plots_bulk</span><span class="op">$</span><span class="va">treatment_effect</span></span></code></pre></div>
 <p><img src="v17-causal-same-backend-SB_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
@@ -526,7 +508,7 @@ Credible interval width:
 <div class="section level3">
 <h3 id="model-b-sb-with-gpd-tail-laplace">Model B: SB with GPD Tail (Laplace)<a class="anchor" aria-label="anchor" href="#model-b-sb-with-gpd-tail-laplace"></a>
 </h3>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">param_specs_gpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>  gpd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    threshold <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -561,7 +543,7 @@ components (treated/control): 5 / 5
 Outcome PS included: FALSE 
 epsilon (treated/control): 0.025 / 0.025 
 n (control) = 232 | n (treated) = 268 </code></pre>
-<div class="sourceCode" id="cb45"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb37"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">bundle_sb_gpd</span><span class="op">)</span></span></code></pre></div>
 <pre><code>DPmixGPD causal bundle summary
 DPmixGPD causal bundle
@@ -573,12 +555,9 @@ components (treated/control): 5 / 5
 Outcome PS included: FALSE 
 epsilon (treated/control): 0.025 / 0.025 
 n (control) = 232 | n (treated) = 268 </code></pre>
-<div class="sourceCode" id="cb47"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_sb_gpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/run_mcmc_causal.html">run_mcmc_causal</a></span><span class="op">(</span><span class="va">bundle_sb_gpd</span><span class="op">)</span></span></code></pre></div>
-<pre><code>[MCMC] Creating NIMBLE model...</code></pre>
-<pre><code>[MCMC] NIMBLE model created successfully.
-[MCMC] Configuring MCMC...
-===== Monitors =====
+<pre><code>===== Monitors =====
 thin = 1: alpha, beta_location, beta_tail_scale, scale, tail_shape, threshold, w, z
 ===== Samplers =====
 RW sampler (36)
@@ -590,21 +569,8 @@ RW sampler (36)
   - tail_shape
   - v[]  (4 elements)
 categorical sampler (232)
-  - z[]  (232 elements)
-[MCMC] MCMC configured.
-[MCMC] Building MCMC object...
-[MCMC] MCMC object built.
-[MCMC] Attempting NIMBLE compilation (this may take a minute)...
-[MCMC] Compiling model...</code></pre>
-<pre><code>[MCMC] Compiling MCMC sampler...</code></pre>
-<pre><code>[MCMC] Compilation successful.</code></pre>
-<pre><code>|-------------|-------------|-------------|-------------|
-|-------------------------------------------------------|
-[MCMC] MCMC execution complete. Processing results...</code></pre>
-<pre><code>[MCMC] Creating NIMBLE model...</code></pre>
-<pre><code>[MCMC] NIMBLE model created successfully.
-[MCMC] Configuring MCMC...
-===== Monitors =====
+  - z[]  (232 elements)</code></pre>
+<pre><code>===== Monitors =====
 thin = 1: alpha, beta_location, beta_tail_scale, scale, tail_shape, threshold, w, z
 ===== Samplers =====
 RW sampler (36)
@@ -616,18 +582,8 @@ RW sampler (36)
   - tail_shape
   - v[]  (4 elements)
 categorical sampler (268)
-  - z[]  (268 elements)
-[MCMC] MCMC configured.
-[MCMC] Building MCMC object...
-[MCMC] MCMC object built.
-[MCMC] Attempting NIMBLE compilation (this may take a minute)...
-[MCMC] Compiling model...</code></pre>
-<pre><code>[MCMC] Compiling MCMC sampler...</code></pre>
-<pre><code>[MCMC] Compilation successful.</code></pre>
-<pre><code>|-------------|-------------|-------------|-------------|
-|-------------------------------------------------------|
-[MCMC] MCMC execution complete. Processing results...</code></pre>
-<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
+  - z[]  (268 elements)</code></pre>
+<div class="sourceCode" id="cb42"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_sb_gpd</span><span class="op">)</span></span></code></pre></div>
 <pre><code>
 -- Outcome fits --
@@ -644,7 +600,7 @@ n = 268 | components = 5 | epsilon = 0.025
 MCMC: niter=2500, nburnin=500, thin=1, nchains=1 
 Fit
 Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</code></pre>
-<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../../reference/params.html">params</a></span><span class="op">(</span><span class="va">fit_sb_gpd</span><span class="op">)</span></span></code></pre></div>
 <pre><code>Posterior mean parameters (causal)
 
@@ -699,7 +655,7 @@ $beta_tail_scale
 
 $tail_shape
 [1] 0.003756</code></pre>
-<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_sb_gpd</span>, family <span class="op">=</span> <span class="st">"traceplot"</span><span class="op">)</span></span></code></pre></div>
 <pre><code>
 === treated ===
@@ -711,27 +667,27 @@ $tail_shape
 
 === traceplot ===</code></pre>
 <p><img src="v17-causal-same-backend-SB_files/figure-html/plot-fit-sb-gpd-2.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb49"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_mean_gpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_sb_gpd</span>, x <span class="op">=</span> <span class="va">x_eval</span>, type <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>                         interval <span class="op">=</span> <span class="st">"credible"</span>, nsim_mean <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_mean_gpd</span><span class="op">)</span></span></code></pre></div>
 <p><img src="v17-causal-same-backend-SB_files/figure-html/predict-mean-sb-gpd-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"><img src="v17-causal-same-backend-SB_files/figure-html/predict-mean-sb-gpd-2.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb66"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_q_gpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_sb_gpd</span>, x <span class="op">=</span> <span class="va">x_eval</span>, type <span class="op">=</span> <span class="st">"quantile"</span>,</span>
 <span>                      p <span class="op">=</span> <span class="fl">0.5</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_q_gpd</span><span class="op">)</span></span></code></pre></div>
 <p><img src="v17-causal-same-backend-SB_files/figure-html/predict-quantile-sb-gpd-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"><img src="v17-causal-same-backend-SB_files/figure-html/predict-quantile-sb-gpd-2.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_d_gpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_sb_gpd</span>, x <span class="op">=</span> <span class="va">x_eval</span>, y <span class="op">=</span> <span class="va">y_eval</span>,</span>
 <span>                      type <span class="op">=</span> <span class="st">"density"</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_d_gpd</span><span class="op">)</span></span></code></pre></div>
 <p><img src="v17-causal-same-backend-SB_files/figure-html/predict-density-sb-gpd-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb68"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_surv_gpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_sb_gpd</span>, x <span class="op">=</span> <span class="va">x_eval</span>, y <span class="op">=</span> <span class="va">y_eval</span>,</span>
 <span>                         type <span class="op">=</span> <span class="st">"survival"</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_surv_gpd</span><span class="op">)</span></span></code></pre></div>
 <p><img src="v17-causal-same-backend-SB_files/figure-html/predict-survival-sb-gpd-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ate_gpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ate.html">ate</a></span><span class="op">(</span><span class="va">fit_sb_gpd</span>, newdata <span class="op">=</span> <span class="va">x_eval</span>,</span>
 <span>               interval <span class="op">=</span> <span class="st">"credible"</span>, nsim_mean <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ate_gpd</span><span class="op">)</span></span></code></pre></div>
@@ -751,7 +707,7 @@ ATE estimates (treated - control):
   5    1.342 -3.902 8.184
   6   -0.475 -3.194 2.956
 ... (34 more rows)</code></pre>
-<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">ate_gpd</span><span class="op">)</span></span></code></pre></div>
 <pre><code>ATE Summary
 ================================================== 
@@ -773,11 +729,11 @@ ATE statistics:
 Credible interval width:
   Mean: 6.703 | Median: 6.304
   Range: [2.864, 12.086]</code></pre>
-<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ate_plots_gpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ate_gpd</span><span class="op">)</span></span>
 <span><span class="va">ate_plots_gpd</span><span class="op">$</span><span class="va">treatment_effect</span></span></code></pre></div>
 <p><img src="v17-causal-same-backend-SB_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb74"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">qte_gpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/qte.html">qte</a></span><span class="op">(</span><span class="va">fit_sb_gpd</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span><span class="op">)</span>,</span>
 <span>               newdata <span class="op">=</span> <span class="va">x_eval</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">qte_gpd</span><span class="op">)</span></span></code></pre></div>
@@ -797,7 +753,7 @@ QTE estimates (treated - control):
   0.25  5    1.519 -3.473 8.968
   0.25  6   -0.748 -3.294 2.185
 ... (114 more rows)</code></pre>
-<div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">qte_gpd</span><span class="op">)</span></span></code></pre></div>
 <pre><code>QTE Summary
 ================================================== 
@@ -820,7 +776,7 @@ QTE by quantile:
 Credible interval width:
   Mean: 6.235 | Median: 5.524
   Range: [2.491, 15.654]</code></pre>
-<div class="sourceCode" id="cb78"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">qte_plots_gpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">qte_gpd</span><span class="op">)</span></span>
 <span><span class="va">qte_plots_gpd</span><span class="op">$</span><span class="va">treatment_effect</span></span></code></pre></div>
 <p><img src="v17-causal-same-backend-SB_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>

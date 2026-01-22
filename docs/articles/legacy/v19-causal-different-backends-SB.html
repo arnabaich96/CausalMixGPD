@@ -136,6 +136,13 @@ one-to-one. Last verified: <strong>2026-01-18</strong>.</p>
 (Introduction, Model Spec, MCMC Workflow,
 Unconditional/Conditional/Causal, Backends, S3 Reference).</p>
 </blockquote>
+<div class="section level3">
+<h3 id="theory-brief">Theory (brief)<a class="anchor" aria-label="anchor" href="#theory-brief"></a>
+</h3>
+<p>Mixed-backend causal models allow each treatment arm to use a
+different DP mixture representation. This can improve fit when treated
+and control groups exhibit distinct distributional complexity.</p>
+</div>
 <div class="section level2">
 <h2 id="causal-different-backends-gpd">Causal Inference: Mixed Backends with GPD - Amoroso Kernel<a class="anchor" aria-label="anchor" href="#causal-different-backends-gpd"></a>
 </h2>
@@ -291,10 +298,7 @@ epsilon (treated/control): 0.025 / 0.025
 n (control) = 232 | n (treated) = 268 </code></pre>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_sb_crp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/run_mcmc_causal.html">run_mcmc_causal</a></span><span class="op">(</span><span class="va">bundle_sb_crp</span><span class="op">)</span></span></code></pre></div>
-<pre><code>[MCMC] Creating NIMBLE model...</code></pre>
-<pre><code>[MCMC] NIMBLE model created successfully.
-[MCMC] Configuring MCMC...
-===== Monitors =====
+<pre><code>===== Monitors =====
 thin = 1: alpha, beta_tail_scale, loc, scale, shape1, shape2, tail_shape, threshold, z
 ===== Samplers =====
 RW sampler (6)
@@ -309,22 +313,9 @@ CRP_cluster_wrapper sampler (20)
   - shape1[]  (5 elements)
   - shape2[]  (5 elements)
 CRP sampler (1)
-  - z[1:232] 
-[MCMC] MCMC configured.
-[MCMC] Building MCMC object...</code></pre>
-<pre><code>[MCMC] MCMC object built.
-[MCMC] Attempting NIMBLE compilation (this may take a minute)...
-[MCMC] Compiling model...</code></pre>
-<pre><code>[MCMC] Compiling MCMC sampler...</code></pre>
-<pre><code>[MCMC] Compilation successful.</code></pre>
-<pre><code>|-------------|-------------|-------------|-------------|
-|  [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.
--------------------------------------------------------|
-[MCMC] MCMC execution complete. Processing results...</code></pre>
-<pre><code>[MCMC] Creating NIMBLE model...</code></pre>
-<pre><code>[MCMC] NIMBLE model created successfully.
-[MCMC] Configuring MCMC...
-===== Monitors =====
+  - z[1:232] </code></pre>
+<pre><code>  [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.</code></pre>
+<pre><code>===== Monitors =====
 thin = 1: alpha, beta_loc, beta_scale, beta_tail_scale, shape1, shape2, tail_shape, threshold, w, z
 ===== Samplers =====
 RW sampler (61)
@@ -338,18 +329,8 @@ RW sampler (61)
   - tail_shape
   - v[]  (4 elements)
 categorical sampler (268)
-  - z[]  (268 elements)
-[MCMC] MCMC configured.
-[MCMC] Building MCMC object...
-[MCMC] MCMC object built.
-[MCMC] Attempting NIMBLE compilation (this may take a minute)...
-[MCMC] Compiling model...</code></pre>
-<pre><code>[MCMC] Compiling MCMC sampler...</code></pre>
-<pre><code>[MCMC] Compilation successful.</code></pre>
-<pre><code>|-------------|-------------|-------------|-------------|
-|-------------------------------------------------------|
-[MCMC] MCMC execution complete. Processing results...</code></pre>
-<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
+  - z[]  (268 elements)</code></pre>
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_sb_crp</span><span class="op">)</span></span></code></pre></div>
 <pre><code>
 -- Outcome fits --
@@ -366,7 +347,7 @@ n = 268 | components = 5 | epsilon = 0.025
 MCMC: niter=2500, nburnin=500, thin=1, nchains=1 
 Fit
 Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</code></pre>
-<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../../reference/params.html">params</a></span><span class="op">(</span><span class="va">fit_sb_crp</span><span class="op">)</span></span></code></pre></div>
 <pre><code>Posterior mean parameters (causal)
 
@@ -433,7 +414,7 @@ $beta_tail_scale
 
 $tail_shape
 [1] 0.02556</code></pre>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_sb_crp</span>, params <span class="op">=</span> <span class="st">"loc"</span>, family <span class="op">=</span> <span class="st">"traceplot"</span><span class="op">)</span></span></code></pre></div>
 <pre><code>
 === treated ===
@@ -445,7 +426,7 @@ $tail_shape
 
 === traceplot ===</code></pre>
 <p><img src="v19-causal-different-backends-SB_files/figure-html/plot-fit-sb-crp-2.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_sb_crp</span>, params <span class="op">=</span> <span class="st">"scale"</span>, family <span class="op">=</span> <span class="st">"caterpillar"</span><span class="op">)</span></span></code></pre></div>
 <pre><code>
 === treated ===
@@ -457,27 +438,27 @@ $tail_shape
 
 === caterpillar ===</code></pre>
 <p><img src="v19-causal-different-backends-SB_files/figure-html/plot-fit-sb-crp-4.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_mean_sb_crp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_sb_crp</span>, x <span class="op">=</span> <span class="va">x_eval</span>, type <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>                            interval <span class="op">=</span> <span class="st">"credible"</span>, nsim_mean <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_mean_sb_crp</span><span class="op">)</span></span></code></pre></div>
 <p><img src="v19-causal-different-backends-SB_files/figure-html/predict-mean-sb-crp-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"><img src="v19-causal-different-backends-SB_files/figure-html/predict-mean-sb-crp-2.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_q_sb_crp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_sb_crp</span>, x <span class="op">=</span> <span class="va">x_eval</span>, type <span class="op">=</span> <span class="st">"quantile"</span>,</span>
 <span>                         p <span class="op">=</span> <span class="fl">0.5</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_q_sb_crp</span><span class="op">)</span></span></code></pre></div>
 <p><img src="v19-causal-different-backends-SB_files/figure-html/predict-quantile-sb-crp-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"><img src="v19-causal-different-backends-SB_files/figure-html/predict-quantile-sb-crp-2.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_d_sb_crp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_sb_crp</span>, x <span class="op">=</span> <span class="va">x_eval</span>, y <span class="op">=</span> <span class="va">y_eval</span>,</span>
 <span>                         type <span class="op">=</span> <span class="st">"density"</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_d_sb_crp</span><span class="op">)</span></span></code></pre></div>
 <p><img src="v19-causal-different-backends-SB_files/figure-html/predict-density-sb-crp-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_surv_sb_crp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_sb_crp</span>, x <span class="op">=</span> <span class="va">x_eval</span>, y <span class="op">=</span> <span class="va">y_eval</span>,</span>
 <span>                            type <span class="op">=</span> <span class="st">"survival"</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_surv_sb_crp</span><span class="op">)</span></span></code></pre></div>
 <p><img src="v19-causal-different-backends-SB_files/figure-html/predict-survival-sb-crp-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ate_sb_crp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ate.html">ate</a></span><span class="op">(</span><span class="va">fit_sb_crp</span>, newdata <span class="op">=</span> <span class="va">x_eval</span>,</span>
 <span>                  interval <span class="op">=</span> <span class="st">"credible"</span>, nsim_mean <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ate_sb_crp</span><span class="op">)</span></span></code></pre></div>
@@ -497,7 +478,7 @@ ATE estimates (treated - control):
   5 7.337398e+18 -12.359 2.499
   6 1.863384e+09  -8.680 2.809
 ... (34 more rows)</code></pre>
-<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">ate_sb_crp</span><span class="op">)</span></span></code></pre></div>
 <pre><code>ATE Summary
 ================================================== 
@@ -519,11 +500,11 @@ ATE statistics:
 Credible interval width:
   Mean: 13.236 | Median: 12.569
   Range: [9.751, 20.666]</code></pre>
-<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ate_plots_sb_crp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ate_sb_crp</span><span class="op">)</span></span>
 <span><span class="va">ate_plots_sb_crp</span><span class="op">$</span><span class="va">treatment_effect</span></span></code></pre></div>
 <p><img src="v19-causal-different-backends-SB_files/figure-html/unnamed-chunk-1-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">qte_sb_crp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/qte.html">qte</a></span><span class="op">(</span><span class="va">fit_sb_crp</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span><span class="op">)</span>,</span>
 <span>                  newdata <span class="op">=</span> <span class="va">x_eval</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">qte_sb_crp</span><span class="op">)</span></span></code></pre></div>
@@ -543,7 +524,7 @@ QTE estimates (treated - control):
   0.25  5   -2.607 -10.749 0.536
   0.25  6   -0.522  -7.722 0.707
 ... (114 more rows)</code></pre>
-<div class="sourceCode" id="cb41"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb33"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">qte_sb_crp</span><span class="op">)</span></span></code></pre></div>
 <pre><code>QTE Summary
 ================================================== 
@@ -566,7 +547,7 @@ QTE by quantile:
 Credible interval width:
   Mean: 10.506 | Median: 10.119
   Range: [5.913, 21.099]</code></pre>
-<div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">qte_plots_sb_crp</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">qte_sb_crp</span><span class="op">)</span></span>
 <span><span class="va">qte_plots_sb_crp</span><span class="op">$</span><span class="va">treatment_effect</span></span></code></pre></div>
 <p><img src="v19-causal-different-backends-SB_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
@@ -575,7 +556,7 @@ Credible interval width:
 <div class="section level3">
 <h3 id="model-b-treated-crp-control-sb-amoroso-gpd">Model B: Treated CRP, Control SB (Amoroso + GPD)<a class="anchor" aria-label="anchor" href="#model-b-treated-crp-control-sb-amoroso-gpd"></a>
 </h3>
-<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb36"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bundle_crp_sb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/build_causal_bundle.html">build_causal_bundle</a></span><span class="op">(</span></span>
 <span>  y <span class="op">=</span> <span class="va">y</span>,</span>
 <span>  T <span class="op">=</span> <span class="cn">T</span>,</span>
@@ -600,7 +581,7 @@ components (treated/control): 5 / 5
 Outcome PS included: FALSE 
 epsilon (treated/control): 0.025 / 0.025 
 n (control) = 232 | n (treated) = 268 </code></pre>
-<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb38"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">bundle_crp_sb</span><span class="op">)</span></span></code></pre></div>
 <pre><code>DPmixGPD causal bundle summary
 DPmixGPD causal bundle
@@ -612,12 +593,9 @@ components (treated/control): 5 / 5
 Outcome PS included: FALSE 
 epsilon (treated/control): 0.025 / 0.025 
 n (control) = 232 | n (treated) = 268 </code></pre>
-<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit_crp_sb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/run_mcmc_causal.html">run_mcmc_causal</a></span><span class="op">(</span><span class="va">bundle_crp_sb</span><span class="op">)</span></span></code></pre></div>
-<pre><code>[MCMC] Creating NIMBLE model...</code></pre>
-<pre><code>[MCMC] NIMBLE model created successfully.
-[MCMC] Configuring MCMC...
-===== Monitors =====
+<pre><code>===== Monitors =====
 thin = 1: alpha, beta_loc, beta_scale, beta_tail_scale, shape1, shape2, tail_shape, threshold, w, z
 ===== Samplers =====
 RW sampler (61)
@@ -631,21 +609,8 @@ RW sampler (61)
   - tail_shape
   - v[]  (4 elements)
 categorical sampler (232)
-  - z[]  (232 elements)
-[MCMC] MCMC configured.
-[MCMC] Building MCMC object...
-[MCMC] MCMC object built.
-[MCMC] Attempting NIMBLE compilation (this may take a minute)...
-[MCMC] Compiling model...</code></pre>
-<pre><code>[MCMC] Compiling MCMC sampler...</code></pre>
-<pre><code>[MCMC] Compilation successful.</code></pre>
-<pre><code>|-------------|-------------|-------------|-------------|
-|-------------------------------------------------------|
-[MCMC] MCMC execution complete. Processing results...</code></pre>
-<pre><code>[MCMC] Creating NIMBLE model...</code></pre>
-<pre><code>[MCMC] NIMBLE model created successfully.
-[MCMC] Configuring MCMC...
-===== Monitors =====
+  - z[]  (232 elements)</code></pre>
+<pre><code>===== Monitors =====
 thin = 1: alpha, beta_tail_scale, loc, scale, shape1, shape2, tail_shape, threshold, z
 ===== Samplers =====
 RW sampler (6)
@@ -660,19 +625,9 @@ CRP_cluster_wrapper sampler (20)
   - shape1[]  (5 elements)
   - shape2[]  (5 elements)
 CRP sampler (1)
-  - z[1:268] 
-[MCMC] MCMC configured.
-[MCMC] Building MCMC object...</code></pre>
-<pre><code>[MCMC] MCMC object built.
-[MCMC] Attempting NIMBLE compilation (this may take a minute)...
-[MCMC] Compiling model...</code></pre>
-<pre><code>[MCMC] Compiling MCMC sampler...</code></pre>
-<pre><code>[MCMC] Compilation successful.</code></pre>
-<pre><code>|-------------|-------------|-------------|-------------|
-|  [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.
--------------------------------------------------------|
-[MCMC] MCMC execution complete. Processing results...</code></pre>
-<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
+  - z[1:268] </code></pre>
+<pre><code>  [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.</code></pre>
+<div class="sourceCode" id="cb44"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit_crp_sb</span><span class="op">)</span></span></code></pre></div>
 <pre><code>
 -- Outcome fits --
@@ -689,7 +644,7 @@ n = 268 | components = 5 | epsilon = 0.025
 MCMC: niter=2500, nburnin=500, thin=1, nchains=1 
 Fit
 Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</code></pre>
-<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../../reference/params.html">params</a></span><span class="op">(</span><span class="va">fit_crp_sb</span><span class="op">)</span></span></code></pre></div>
 <pre><code>Posterior mean parameters (causal)
 
@@ -756,7 +711,7 @@ $beta_tail_scale
 
 $tail_shape
 [1] 0.004585</code></pre>
-<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_crp_sb</span>, family <span class="op">=</span> <span class="st">"traceplot"</span><span class="op">)</span></span></code></pre></div>
 <pre><code>
 === treated ===
@@ -768,27 +723,27 @@ $tail_shape
 
 === traceplot ===</code></pre>
 <p><img src="v19-causal-different-backends-SB_files/figure-html/plot-fit-crp-sb-2.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_mean_crp_sb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_crp_sb</span>, x <span class="op">=</span> <span class="va">x_eval</span>, type <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>                            interval <span class="op">=</span> <span class="st">"credible"</span>, nsim_mean <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_mean_crp_sb</span><span class="op">)</span></span></code></pre></div>
 <p><img src="v19-causal-different-backends-SB_files/figure-html/predict-mean-crp-sb-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"><img src="v19-causal-different-backends-SB_files/figure-html/predict-mean-crp-sb-2.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb68"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_q_crp_sb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_crp_sb</span>, x <span class="op">=</span> <span class="va">x_eval</span>, type <span class="op">=</span> <span class="st">"quantile"</span>,</span>
 <span>                         p <span class="op">=</span> <span class="fl">0.5</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_q_crp_sb</span><span class="op">)</span></span></code></pre></div>
 <p><img src="v19-causal-different-backends-SB_files/figure-html/predict-quantile-crp-sb-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"><img src="v19-causal-different-backends-SB_files/figure-html/predict-quantile-crp-sb-2.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_d_crp_sb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_crp_sb</span>, x <span class="op">=</span> <span class="va">x_eval</span>, y <span class="op">=</span> <span class="va">y_eval</span>,</span>
 <span>                         type <span class="op">=</span> <span class="st">"density"</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_d_crp_sb</span><span class="op">)</span></span></code></pre></div>
 <p><img src="v19-causal-different-backends-SB_files/figure-html/predict-density-crp-sb-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_surv_crp_sb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_crp_sb</span>, x <span class="op">=</span> <span class="va">x_eval</span>, y <span class="op">=</span> <span class="va">y_eval</span>,</span>
 <span>                            type <span class="op">=</span> <span class="st">"survival"</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_surv_crp_sb</span><span class="op">)</span></span></code></pre></div>
 <p><img src="v19-causal-different-backends-SB_files/figure-html/predict-survival-crp-sb-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb71"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb55"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ate_crp_sb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ate.html">ate</a></span><span class="op">(</span><span class="va">fit_crp_sb</span>, newdata <span class="op">=</span> <span class="va">x_eval</span>,</span>
 <span>                  interval <span class="op">=</span> <span class="st">"credible"</span>, nsim_mean <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ate_crp_sb</span><span class="op">)</span></span></code></pre></div>
@@ -808,7 +763,7 @@ ATE estimates (treated - control):
   5 -1.524862e+56 -0.803 3.410
   6 -9.169515e+91 -2.334 1.327
 ... (34 more rows)</code></pre>
-<div class="sourceCode" id="cb73"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">ate_crp_sb</span><span class="op">)</span></span></code></pre></div>
 <pre><code>ATE Summary
 ================================================== 
@@ -830,11 +785,11 @@ ATE statistics:
 Credible interval width:
   Mean: 3.718 | Median: 3.653
   Range: [3.281, 5.508]</code></pre>
-<div class="sourceCode" id="cb75"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ate_plots_crp_sb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ate_crp_sb</span><span class="op">)</span></span>
 <span><span class="va">ate_plots_crp_sb</span><span class="op">$</span><span class="va">treatment_effect</span></span></code></pre></div>
 <p><img src="v19-causal-different-backends-SB_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
-<div class="sourceCode" id="cb76"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">qte_crp_sb</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/qte.html">qte</a></span><span class="op">(</span><span class="va">fit_crp_sb</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span><span class="op">)</span>,</span>
 <span>                  newdata <span class="op">=</span> <span class="va">x_eval</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">qte_crp_sb</span><span class="op">)</span></span></code></pre></div>
@@ -854,7 +809,7 @@ QTE estimates (treated - control):
   0.25  5    1.242  0.112 2.937
   0.25  6    0.577 -0.378 2.134
 ... (114 more rows)</code></pre>
-<div class="sourceCode" id="cb78"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">qte_crp_sb</span><span class="op">)</span></span></code></pre></div>
 <pre><code>QTE Summary
 ================================================== 
@@ -877,7 +832,7 @@ QTE by quantile:
 Credible interval width:
   Mean: 2.797 | Median: 2.641
   Range: [2.419, 5.927]</code></pre>
-<div class="sourceCode" id="cb80"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">qte_plots_crp_sb</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">qte_crp_sb</span><span class="op">)</span></span>
 <span><span class="va">qte_plots_crp_sb</span><span class="op">$</span><span class="va">treatment_effect</span></span></code></pre></div>
 <p><img src="v19-causal-different-backends-SB_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>

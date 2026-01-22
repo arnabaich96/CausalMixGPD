@@ -8,6 +8,12 @@
 > (Introduction, Model Spec, MCMC Workflow,
 > Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+### Theory (brief)
+
+Conditional DP mixtures allow covariate-dependent kernels. Adding a GPD
+tail replaces the bulk kernel beyond a threshold, improving stability
+for extremes. The CRP backend governs allocation dynamics in the bulk.
+
 ## Conditional DPmixGPD: CRP Backend with Tail Augmentation
 
 **Purpose**: Combine conditional modeling with GPD tail augmentation so

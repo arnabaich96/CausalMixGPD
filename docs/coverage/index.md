@@ -2,11 +2,11 @@
 
 # Test Coverage Report
 
-![Coverage: 73.2%](https://img.shields.io/badge/coverage-73.2%25-yellow)
+![Coverage: 75.6%](https://img.shields.io/badge/coverage-75.6%25-yellow)
 
-**Generated:** January 21, 2026 at 07:30 UTC
+**Generated:** January 21, 2026 at 09:01 UTC
 
-**Sources:** tests
+**Sources:** all
 
 ------------------------------------------------------------------------
 
@@ -14,10 +14,10 @@
 
 |                  |           |
 |------------------|-----------|
-| Overall Coverage | **73.2%** |
-| Total Lines      | 6023      |
-| Covered Lines    | 4408      |
-| Files Analyzed   | 19        |
+| Overall Coverage | **75.6%** |
+| Total Lines      | 5779      |
+| Covered Lines    | 4370      |
+| Files Analyzed   | 16        |
 
 ------------------------------------------------------------------------
 
@@ -51,9 +51,6 @@ file.
 | `5-invgauss-mixgpd.R`        | 135   | 94      | **69.6%**  |
 | `4-amoroso-mixgpd.R`         | 186   | 122     | **65.6%**  |
 | `05-causal.R`                | 849   | 499     | **58.8%**  |
-| `Utility.R`                  | 31    | 5       | **16.1%**  |
-| `00-kernel-registry.R`       | 211   | 33      | **15.6%**  |
-| `globals.R`                  | 2     | 0       | **0.0%**   |
 
 ------------------------------------------------------------------------
 

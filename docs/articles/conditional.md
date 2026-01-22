@@ -5,15 +5,25 @@
 This vignette demonstrates fitting a conditional model with covariates
 and generating predictions on a grid of new covariate values.
 
-## Data Generation
+## Theory (brief)
+
+Conditional models allow the bulk mixture parameters to vary with
+covariates. We write the conditional density as \$\$ f(y_i \\mid x_i) =
+\\int K(y_i; \\theta(x_i))\\, dG(\\theta), \$\$ where the link between
+\$\\theta\$ and $`x_i`$ is encoded through the kernel-specific
+regression structure. The DP prior provides flexible, data-driven
+clustering of local distributions across covariate space.
+
+## Data Setup
 
 ``` r
 library(DPmixGPD)
 
-n <- 120
-x <- rnorm(n)
-X <- data.frame(x = x)
-y <- 0.5 + 0.8 * x + abs(rnorm(n)) + 0.1
+data("mtcars", package = "datasets")
+df <- mtcars
+y <- df$mpg
+X <- df[, c("wt", "hp")]
+X <- as.data.frame(X)
 ```
 
 ## Model Fitting
@@ -30,39 +40,6 @@ bundle <- build_nimble_bundle(
 )
 
 fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
-#> [MCMC] Creating NIMBLE model...
-#> [MCMC] NIMBLE model created successfully.
-#> [MCMC] Configuring MCMC...
-#> ===== Monitors =====
-#> thin = 1: alpha, beta_mean, beta_tail_scale, beta_threshold, sd, sdlog_u, tail_shape, threshold, w, z
-#> ===== Samplers =====
-#> RW sampler (141)
-#>   - alpha
-#>   - sd[]  (6 elements)
-#>   - beta_mean[]  (6 elements)
-#>   - sdlog_u
-#>   - beta_tail_scale[]  (1 element)
-#>   - tail_shape
-#>   - v[]  (5 elements)
-#>   - threshold[]  (120 elements)
-#> conjugate sampler (1)
-#>   - beta_threshold[]  (1 element)
-#> categorical sampler (120)
-#>   - z[]  (120 elements)
-#> [MCMC] MCMC configured.
-#> [MCMC] Building MCMC object...
-#> [MCMC] MCMC object built.
-#> [MCMC] Attempting NIMBLE compilation (this may take a minute)...
-#> [MCMC] Compiling model...
-#> [MCMC] Compiling MCMC sampler...
-#> [MCMC] Compilation successful.
-#> [MCMC] MCMC execution complete. Processing results...
-fit
-#> MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: TRUE
-#> n = 120 | components = 6 | epsilon = 0.025
-#> MCMC: niter=600, nburnin=150, thin=2, nchains=1 
-#> Fit
-#> Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 ```
 
 ## Fitted Values
@@ -70,42 +47,45 @@ fit
 ``` r
 f <- fitted(fit, type = "mean", level = 0.90)
 head(f)
-#>          fit      lower       upper residuals
-#> 1 -0.5901029 -1.4627355 -0.06634379 1.1948973
-#> 2  0.5767265  0.3237072  0.85556141 1.5132270
-#> 3 -0.9781067 -2.2084905 -0.28797693 1.1241832
-#> 4  1.6929842  1.3798675  2.07077008 0.3627969
-#> 5  0.7569056  0.4790120  1.09498294 0.2068914
-#> 6 -0.9146150 -2.1484723 -0.20834390 1.5709066
+#>        fit     lower    upper  residuals
+#> 1 14.53927  7.155984 23.35003   6.460725
+#> 2 18.31677  9.232510 30.85224   2.683232
+#> 3 11.36667  6.597628 17.53469  11.433335
+#> 4 25.01445 12.414485 45.68892  -3.614445
+#> 5 28.50104  9.535786 53.95542  -9.801045
+#> 6 32.37875 15.538596 58.20715 -14.278754
 summary(f$residuals)
-#>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#> 0.07205 0.57101 1.17353 1.22845 1.67585 4.06900
+#>     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+#> -177.965  -17.858   -7.979  -17.704    7.004   26.321
 ```
 
 ## Predictions on New Data
 
 ``` r
-new_X <- data.frame(x = seq(min(x), max(x), length.out = 25))
+new_X <- data.frame(
+  wt = seq(min(X$wt), max(X$wt), length.out = 25),
+  hp = stats::median(X$hp)
+)
 
 pred_mean <- predict(fit, x = new_X, type = "mean", cred.level = 0.90, interval = "credible")
 pred_med  <- predict(fit, x = new_X, type = "median", cred.level = 0.90, interval = "credible")
 
 head(pred_mean$fit)
-#>    estimate     lower      upper
-#> 1 -3.735223 -7.061410 -1.7113696
-#> 2 -3.324069 -6.664825 -1.4552753
-#> 3 -2.934963 -5.983609 -1.2725523
-#> 4 -2.550885 -5.229443 -1.1156674
-#> 5 -2.148124 -4.449988 -0.9371768
-#> 6 -1.771301 -3.642262 -0.7155524
+#>    estimate    lower    upper
+#> 1  5.923982 3.118031  9.11613
+#> 2  6.733985 3.417078 10.21538
+#> 3  7.585048 3.855476 11.89324
+#> 4  8.662212 4.615547 13.33712
+#> 5  9.794758 4.818015 16.57881
+#> 6 11.239667 5.562320 18.24414
 head(pred_med$fit)
-#>    estimate index id     lower     upper
-#> 1 -4.203870   0.5  1 -7.607502 -2.407350
-#> 2 -3.838764   0.5  2 -6.946791 -2.198272
-#> 3 -3.473658   0.5  3 -6.286080 -1.989194
-#> 4 -3.108552   0.5  4 -5.625369 -1.780116
-#> 5 -2.743446   0.5  5 -4.964657 -1.571037
-#> 6 -2.378341   0.5  6 -4.303946 -1.361959
+#>   estimate index id    lower     upper
+#> 1 3.413474   0.5  1 2.426814  4.544073
+#> 2 3.909395   0.5  2 2.693864  5.385009
+#> 3 4.481646   0.5  3 2.985334  6.418755
+#> 4 5.143251   0.5  4 3.334559  7.601785
+#> 5 5.909897   0.5  5 3.704631  8.986027
+#> 6 6.800397   0.5  6 4.132824 10.510483
 ```
 
 ## Quantile Curves
@@ -117,25 +97,25 @@ q_fits <- lapply(q_levels, function(tau) {
 })
 
 q_df <- do.call(rbind, Map(function(tau, df) {
-  data.frame(x = new_X$x, tau = tau, estimate = df$estimate, lower = df$lower, upper = df$upper)
+  data.frame(wt = new_X$wt, tau = tau, estimate = df$estimate, lower = df$lower, upper = df$upper)
 }, q_levels, q_fits))
 
 head(q_df)
-#>           x tau  estimate      lower     upper
-#> 1 -2.214700 0.1 -7.908704 -11.916578 -5.107839
-#> 2 -2.022353 0.1 -7.543598 -11.215605 -4.882099
-#> 3 -1.830007 0.1 -7.178493 -10.675358 -4.656360
-#> 4 -1.637660 0.1 -6.813387 -10.011870 -4.430620
-#> 5 -1.445314 0.1 -6.448281  -9.362249 -4.204881
-#> 6 -1.252967 0.1 -6.083175  -8.805185 -3.979141
+#>         wt tau   estimate      lower    upper
+#> 1 1.513000 0.1 -0.2925464 -3.6660604 1.934948
+#> 2 1.675958 0.1  0.2137438 -3.0245694 2.076944
+#> 3 1.838917 0.1  0.6850905 -2.2964308 2.237707
+#> 4 2.001875 0.1  1.1297091 -1.5130531 2.418173
+#> 5 2.164833 0.1  1.5285199 -0.9637076 2.620008
+#> 6 2.327792 0.1  1.8950226 -0.4024057 2.830299
 ```
 
 ``` r
-ggplot(q_df, aes(x = x, y = estimate, color = factor(tau))) +
+ggplot(q_df, aes(x = wt, y = estimate, color = factor(tau))) +
   geom_line(linewidth = 1) +
   geom_ribbon(aes(ymin = lower, ymax = upper, fill = factor(tau)), alpha = 0.2, color = NA) +
-  labs(x = "x", y = "Predicted Quantile", color = "Quantile", fill = "Quantile",
-       title = "Conditional Quantile Curves") +
+  labs(x = "Weight (wt)", y = "Predicted Quantile", color = "Quantile", fill = "Quantile",
+       title = "Conditional Quantile Curves at Median Horsepower") +
   theme_minimal() +
   theme(legend.position = "bottom")
 ```

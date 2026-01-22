@@ -8,6 +8,13 @@
 > (Introduction, Model Spec, MCMC Workflow,
 > Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+### Theory (brief)
+
+DP mixtures represent densities as \$f(y)=\\int
+K(y;\\theta)\\,dG(\\theta)\$ with \$G \\sim \\mathrm{DP}(\\alpha,
+G_0)\$. Optional GPD splicing replaces the tail beyond a threshold,
+providing principled extreme-value behavior.
+
 ## DPmixGPD: Bayesian Nonparametric Mixture Models with GPD Tails
 
 ### Overview

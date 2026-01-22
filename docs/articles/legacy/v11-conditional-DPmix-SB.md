@@ -8,6 +8,12 @@
 > (Introduction, Model Spec, MCMC Workflow,
 > Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+### Theory (brief)
+
+Conditional DP mixtures allow kernel parameters to depend on covariates,
+giving flexible regression-style distributions. The stick-breaking
+backend truncates the mixture to a fixed number of components.
+
 ## Conditional DPmix: Stick-Breaking Backend
 
 **Purpose**: Replace the CRP backend with stick-breaking truncation

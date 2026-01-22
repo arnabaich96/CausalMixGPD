@@ -8,6 +8,12 @@
 > (Introduction, Model Spec, MCMC Workflow,
 > Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+### Theory (brief)
+
+The CRP and stick-breaking backends are two equivalent representations
+of the DP mixture. They differ in computation (allocation vs truncation)
+but target the same underlying prior over distributions.
+
 ## Big picture
 
 DPmixGPD has two orthogonal dials you turn when building models:

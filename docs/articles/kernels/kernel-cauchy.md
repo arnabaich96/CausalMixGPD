@@ -10,6 +10,13 @@
 
 The **Cauchy** kernel is parameterized by `location` and `scale`.
 
+## Theory (brief)
+
+The Cauchy density is heavy-tailed: \$\$ f(y) =
+\\frac{1}{\\pi\\gamma\\left\[1 +
+\\left(\\frac{y-x_0}{\\gamma}\\right)^2\\right\]}, \$\$ with location
+$`x_0`$ and scale \$\\gamma\$.
+
 ## Exported mixture helpers
 
 - `dCauchyMix(x, location, scale, w, log = FALSE)`
@@ -20,12 +27,13 @@ The **Cauchy** kernel is parameterized by `location` and `scale`.
 For the full catalog (including CRP utilities and GPD splicing), see:
 
 - [Available
-  Distributions](https://arnabaich96.github.io/DPmixGPD/articles/kernels/v02-available-distributions.html)
+  Distributions](https://arnabaich96.github.io/DPmixGPD/articles/kernels/v02-available-distributions.md)
 
 ## Using Cauchy in a model
 
 ``` r
-y <- abs(stats::rnorm(50)) + 0.1
+data("faithful", package = "datasets")
+y <- faithful$eruptions
 bundle <- build_nimble_bundle(
   y = y,
   backend = "crp",

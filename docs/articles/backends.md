@@ -7,13 +7,22 @@ This vignette compares the two mixture backends:
 - **SB**: Stick-breaking (finite truncation), controlled by `components`
 - **CRP**: Chinese Restaurant Process (cluster allocations)
 
+## Theory (brief)
+
+Both backends represent a DP mixture, but they differ in how the random
+measure $`G`$ is constructed. The stick-breaking backend uses a
+truncated stick-breaking representation, while the CRP backend uses an
+allocation-based partitioning scheme. In practice, SB offers explicit
+control over truncation, while CRP adapts the number of clusters through
+the allocation process.
+
 ## Data
 
 ``` r
 library(DPmixGPD)
 
-n <- 90
-y <- abs(rnorm(n)) + 0.2
+data("faithful", package = "datasets")
+y <- faithful$eruptions
 ```
 
 ## Stick-Breaking Backend
@@ -29,30 +38,6 @@ bundle_sb <- build_nimble_bundle(
 )
 
 fit_sb <- run_mcmc_bundle_manual(bundle_sb, show_progress = FALSE)
-#> [MCMC] Creating NIMBLE model...
-#> [MCMC] NIMBLE model created successfully.
-#> [MCMC] Configuring MCMC...
-#> ===== Monitors =====
-#> thin = 1: alpha, mean, sd, tail_scale, tail_shape, threshold, w, z
-#> ===== Samplers =====
-#> RW sampler (21)
-#>   - alpha
-#>   - mean[]  (6 elements)
-#>   - sd[]  (6 elements)
-#>   - threshold
-#>   - tail_scale
-#>   - tail_shape
-#>   - v[]  (5 elements)
-#> categorical sampler (90)
-#>   - z[]  (90 elements)
-#> [MCMC] MCMC configured.
-#> [MCMC] Building MCMC object...
-#> [MCMC] MCMC object built.
-#> [MCMC] Attempting NIMBLE compilation (this may take a minute)...
-#> [MCMC] Compiling model...
-#> [MCMC] Compiling MCMC sampler...
-#> [MCMC] Compilation successful.
-#> [MCMC] MCMC execution complete. Processing results...
 ```
 
 ## CRP Backend
@@ -68,31 +53,6 @@ bundle_crp <- build_nimble_bundle(
 )
 
 fit_crp <- run_mcmc_bundle_manual(bundle_crp, show_progress = FALSE)
-#> [MCMC] Creating NIMBLE model...
-#> [MCMC] NIMBLE model created successfully.
-#> [MCMC] Configuring MCMC...
-#> ===== Monitors =====
-#> thin = 1: alpha, mean, sd, tail_scale, tail_shape, threshold, z
-#> ===== Samplers =====
-#> RW sampler (3)
-#>   - threshold
-#>   - tail_scale
-#>   - tail_shape
-#> CRP_concentration sampler (1)
-#>   - alpha
-#> CRP_cluster_wrapper sampler (12)
-#>   - mean[]  (6 elements)
-#>   - sd[]  (6 elements)
-#> CRP sampler (1)
-#>   - z[1:90] 
-#> [MCMC] MCMC configured.
-#> [MCMC] Building MCMC object...
-#> [MCMC] MCMC object built.
-#> [MCMC] Attempting NIMBLE compilation (this may take a minute)...
-#> [MCMC] Compiling model...
-#> [MCMC] Compiling MCMC sampler...
-#> [MCMC] Compilation successful.
-#> [MCMC] MCMC execution complete. Processing results...
 ```
 
 ## Comparison of Fitted Summaries
@@ -116,8 +76,8 @@ kable(comparison_df, digits = 3, align = "c",
 
 | Backend | Estimate | Lower | Upper |
 |:-------:|:--------:|:-----:|:-----:|
-|   SB    |  0.913   | 0.774 | 1.065 |
-|   CRP   |  0.922   | 0.812 | 1.055 |
+|   SB    |  3.202   | 3.070 | 3.328 |
+|   CRP   |  3.206   | 3.088 | 3.339 |
 
 Posterior Mean Comparison: SB vs CRP
 
