@@ -8,6 +8,12 @@
 > (Introduction, Model Spec, MCMC Workflow,
 > Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+### Theory (brief)
+
+Mixed-backend causal models allow each treatment arm to use a different
+DP mixture representation. This can improve fit when treated and control
+groups exhibit distinct distributional complexity.
+
 ## Causal Inference: Mixed Backends with GPD - Amoroso Kernel
 
 This vignette fits two mixed-backend causal models with GPD tails and an
@@ -132,10 +138,6 @@ summary(bundle_sb_crp)
 fit_sb_crp <- run_mcmc_causal(bundle_sb_crp)
 ```
 
-    [MCMC] Creating NIMBLE model...
-
-    [MCMC] NIMBLE model created successfully.
-    [MCMC] Configuring MCMC...
     ===== Monitors =====
     thin = 1: alpha, beta_tail_scale, loc, scale, shape1, shape2, tail_shape, threshold, z
     ===== Samplers =====
@@ -152,26 +154,9 @@ fit_sb_crp <- run_mcmc_causal(bundle_sb_crp)
       - shape2[]  (5 elements)
     CRP sampler (1)
       - z[1:232] 
-    [MCMC] MCMC configured.
-    [MCMC] Building MCMC object...
 
-    [MCMC] MCMC object built.
-    [MCMC] Attempting NIMBLE compilation (this may take a minute)...
-    [MCMC] Compiling model...
+      [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.
 
-    [MCMC] Compiling MCMC sampler...
-
-    [MCMC] Compilation successful.
-
-    |-------------|-------------|-------------|-------------|
-    |  [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.
-    -------------------------------------------------------|
-    [MCMC] MCMC execution complete. Processing results...
-
-    [MCMC] Creating NIMBLE model...
-
-    [MCMC] NIMBLE model created successfully.
-    [MCMC] Configuring MCMC...
     ===== Monitors =====
     thin = 1: alpha, beta_loc, beta_scale, beta_tail_scale, shape1, shape2, tail_shape, threshold, w, z
     ===== Samplers =====
@@ -187,19 +172,6 @@ fit_sb_crp <- run_mcmc_causal(bundle_sb_crp)
       - v[]  (4 elements)
     categorical sampler (268)
       - z[]  (268 elements)
-    [MCMC] MCMC configured.
-    [MCMC] Building MCMC object...
-    [MCMC] MCMC object built.
-    [MCMC] Attempting NIMBLE compilation (this may take a minute)...
-    [MCMC] Compiling model...
-
-    [MCMC] Compiling MCMC sampler...
-
-    [MCMC] Compilation successful.
-
-    |-------------|-------------|-------------|-------------|
-    |-------------------------------------------------------|
-    [MCMC] MCMC execution complete. Processing results...
 
 ``` r
 summary(fit_sb_crp)
@@ -516,10 +488,6 @@ summary(bundle_crp_sb)
 fit_crp_sb <- run_mcmc_causal(bundle_crp_sb)
 ```
 
-    [MCMC] Creating NIMBLE model...
-
-    [MCMC] NIMBLE model created successfully.
-    [MCMC] Configuring MCMC...
     ===== Monitors =====
     thin = 1: alpha, beta_loc, beta_scale, beta_tail_scale, shape1, shape2, tail_shape, threshold, w, z
     ===== Samplers =====
@@ -535,24 +503,7 @@ fit_crp_sb <- run_mcmc_causal(bundle_crp_sb)
       - v[]  (4 elements)
     categorical sampler (232)
       - z[]  (232 elements)
-    [MCMC] MCMC configured.
-    [MCMC] Building MCMC object...
-    [MCMC] MCMC object built.
-    [MCMC] Attempting NIMBLE compilation (this may take a minute)...
-    [MCMC] Compiling model...
 
-    [MCMC] Compiling MCMC sampler...
-
-    [MCMC] Compilation successful.
-
-    |-------------|-------------|-------------|-------------|
-    |-------------------------------------------------------|
-    [MCMC] MCMC execution complete. Processing results...
-
-    [MCMC] Creating NIMBLE model...
-
-    [MCMC] NIMBLE model created successfully.
-    [MCMC] Configuring MCMC...
     ===== Monitors =====
     thin = 1: alpha, beta_tail_scale, loc, scale, shape1, shape2, tail_shape, threshold, z
     ===== Samplers =====
@@ -569,21 +520,8 @@ fit_crp_sb <- run_mcmc_causal(bundle_crp_sb)
       - shape2[]  (5 elements)
     CRP sampler (1)
       - z[1:268] 
-    [MCMC] MCMC configured.
-    [MCMC] Building MCMC object...
 
-    [MCMC] MCMC object built.
-    [MCMC] Attempting NIMBLE compilation (this may take a minute)...
-    [MCMC] Compiling model...
-
-    [MCMC] Compiling MCMC sampler...
-
-    [MCMC] Compilation successful.
-
-    |-------------|-------------|-------------|-------------|
-    |  [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.
-    -------------------------------------------------------|
-    [MCMC] MCMC execution complete. Processing results...
+      [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.
 
 ``` r
 summary(fit_crp_sb)

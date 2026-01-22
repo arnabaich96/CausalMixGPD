@@ -8,6 +8,13 @@
 > (Introduction, Model Spec, MCMC Workflow,
 > Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+### Theory (brief)
+
+The stick-breaking backend truncates the DP mixture to a fixed number of
+components, while the GPD tail handles extreme values beyond a
+threshold. This combination yields flexible bulk fit and stable tail
+inference.
+
 ## Unconditional DPmixGPD: Stick-Breaking (SB) Backend with Tail Augmentation
 
 **Purpose**: Demonstrate the stick-breaking backend (`components = J`)

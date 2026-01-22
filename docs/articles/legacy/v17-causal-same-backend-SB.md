@@ -8,6 +8,13 @@
 > (Introduction, Model Spec, MCMC Workflow,
 > Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+### Theory (brief)
+
+The causal workflow fits treated and control arms with covariate
+adjustment, optionally including propensity scores. Using the same
+backend and kernel emphasizes treatment-induced distributional
+differences.
+
 ## Causal Inference: Same Backend (SB) - Laplace Kernel
 
 This vignette fits two SB-based causal models using the same kernel
@@ -116,10 +123,6 @@ summary(bundle_sb_bulk)
 fit_sb_bulk <- run_mcmc_causal(bundle_sb_bulk)
 ```
 
-    [MCMC] Creating NIMBLE model...
-
-    [MCMC] NIMBLE model created successfully.
-    [MCMC] Configuring MCMC...
     ===== Monitors =====
     thin = 1: alpha, beta_location, scale, w, z
     ===== Samplers =====
@@ -131,24 +134,7 @@ fit_sb_bulk <- run_mcmc_causal(bundle_sb_bulk)
       - scale[]  (5 elements)
     categorical sampler (232)
       - z[]  (232 elements)
-    [MCMC] MCMC configured.
-    [MCMC] Building MCMC object...
-    [MCMC] MCMC object built.
-    [MCMC] Attempting NIMBLE compilation (this may take a minute)...
-    [MCMC] Compiling model...
 
-    [MCMC] Compiling MCMC sampler...
-
-    [MCMC] Compilation successful.
-
-    |-------------|-------------|-------------|-------------|
-    |-------------------------------------------------------|
-    [MCMC] MCMC execution complete. Processing results...
-
-    [MCMC] Creating NIMBLE model...
-
-    [MCMC] NIMBLE model created successfully.
-    [MCMC] Configuring MCMC...
     ===== Monitors =====
     thin = 1: alpha, beta_location, scale, w, z
     ===== Samplers =====
@@ -160,19 +146,6 @@ fit_sb_bulk <- run_mcmc_causal(bundle_sb_bulk)
       - scale[]  (5 elements)
     categorical sampler (268)
       - z[]  (268 elements)
-    [MCMC] MCMC configured.
-    [MCMC] Building MCMC object...
-    [MCMC] MCMC object built.
-    [MCMC] Attempting NIMBLE compilation (this may take a minute)...
-    [MCMC] Compiling model...
-
-    [MCMC] Compiling MCMC sampler...
-
-    [MCMC] Compilation successful.
-
-    |-------------|-------------|-------------|-------------|
-    |-------------------------------------------------------|
-    [MCMC] MCMC execution complete. Processing results...
 
 ``` r
 summary(fit_sb_bulk)
@@ -475,10 +448,6 @@ summary(bundle_sb_gpd)
 fit_sb_gpd <- run_mcmc_causal(bundle_sb_gpd)
 ```
 
-    [MCMC] Creating NIMBLE model...
-
-    [MCMC] NIMBLE model created successfully.
-    [MCMC] Configuring MCMC...
     ===== Monitors =====
     thin = 1: alpha, beta_location, beta_tail_scale, scale, tail_shape, threshold, w, z
     ===== Samplers =====
@@ -492,24 +461,7 @@ fit_sb_gpd <- run_mcmc_causal(bundle_sb_gpd)
       - v[]  (4 elements)
     categorical sampler (232)
       - z[]  (232 elements)
-    [MCMC] MCMC configured.
-    [MCMC] Building MCMC object...
-    [MCMC] MCMC object built.
-    [MCMC] Attempting NIMBLE compilation (this may take a minute)...
-    [MCMC] Compiling model...
 
-    [MCMC] Compiling MCMC sampler...
-
-    [MCMC] Compilation successful.
-
-    |-------------|-------------|-------------|-------------|
-    |-------------------------------------------------------|
-    [MCMC] MCMC execution complete. Processing results...
-
-    [MCMC] Creating NIMBLE model...
-
-    [MCMC] NIMBLE model created successfully.
-    [MCMC] Configuring MCMC...
     ===== Monitors =====
     thin = 1: alpha, beta_location, beta_tail_scale, scale, tail_shape, threshold, w, z
     ===== Samplers =====
@@ -523,19 +475,6 @@ fit_sb_gpd <- run_mcmc_causal(bundle_sb_gpd)
       - v[]  (4 elements)
     categorical sampler (268)
       - z[]  (268 elements)
-    [MCMC] MCMC configured.
-    [MCMC] Building MCMC object...
-    [MCMC] MCMC object built.
-    [MCMC] Attempting NIMBLE compilation (this may take a minute)...
-    [MCMC] Compiling model...
-
-    [MCMC] Compiling MCMC sampler...
-
-    [MCMC] Compilation successful.
-
-    |-------------|-------------|-------------|-------------|
-    |-------------------------------------------------------|
-    [MCMC] MCMC execution complete. Processing results...
 
 ``` r
 summary(fit_sb_gpd)

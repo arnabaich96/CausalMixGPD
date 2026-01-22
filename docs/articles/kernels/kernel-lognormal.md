@@ -11,6 +11,13 @@
 The **Lognormal** kernel is parameterized by `meanlog` and `sdlog`
 (i.e., `log(y)` is Normal).
 
+## Theory (brief)
+
+If \$Z \\sim \\mathcal{N}(\\mu, \\sigma^2)\$ then \$Y = \\exp(Z)\$ is
+lognormal. The kernel has density on $`y>0`$: \$\$ f(y) =
+\\frac{1}{y\\sigma\\sqrt{2\\pi}}\\exp\\left(-\\frac{(\\log
+y-\\mu)^2}{2\\sigma^2}\\right). \$\$
+
 ## Exported mixture helpers
 
 - `dLognormalMix(x, meanlog, sdlog, w, log = FALSE)`
@@ -21,12 +28,13 @@ The **Lognormal** kernel is parameterized by `meanlog` and `sdlog`
 For the full catalog (including CRP utilities and GPD splicing), see:
 
 - [Available
-  Distributions](https://arnabaich96.github.io/DPmixGPD/articles/kernels/v02-available-distributions.html)
+  Distributions](https://arnabaich96.github.io/DPmixGPD/articles/kernels/v02-available-distributions.md)
 
 ## Using Lognormal in a model
 
 ``` r
-y <- abs(stats::rnorm(50)) + 0.1
+data("faithful", package = "datasets")
+y <- faithful$eruptions
 bundle <- build_nimble_bundle(
   y = y,
   backend = "crp",

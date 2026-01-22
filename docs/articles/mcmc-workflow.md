@@ -5,12 +5,21 @@
 This vignette demonstrates the MCMC workflow: build, run, inspect, and
 extract.
 
+## Theory (brief)
+
+The posterior is explored with Markov chain Monte Carlo. Diagnostics
+summarize mixing and convergence behavior, such as traceplots, effective
+sample size, and Geweke statistics comparing early vs late chain
+segments. These checks help ensure that posterior summaries are
+reliable.
+
 ## Model Building and Sampling
 
 ``` r
 library(DPmixGPD)
 
-y <- abs(rnorm(60)) + 0.15
+data("faithful", package = "datasets")
+y <- faithful$eruptions
 bundle <- build_nimble_bundle(
   y = y,
   backend = "sb",
@@ -21,36 +30,6 @@ bundle <- build_nimble_bundle(
 )
 
 fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
-#> [MCMC] Creating NIMBLE model...
-#> [MCMC] NIMBLE model created successfully.
-#> [MCMC] Configuring MCMC...
-#> ===== Monitors =====
-#> thin = 1: alpha, mean, sd, tail_scale, tail_shape, threshold, w, z
-#> ===== Samplers =====
-#> RW sampler (21)
-#>   - alpha
-#>   - mean[]  (6 elements)
-#>   - sd[]  (6 elements)
-#>   - threshold
-#>   - tail_scale
-#>   - tail_shape
-#>   - v[]  (5 elements)
-#> categorical sampler (60)
-#>   - z[]  (60 elements)
-#> [MCMC] MCMC configured.
-#> [MCMC] Building MCMC object...
-#> [MCMC] MCMC object built.
-#> [MCMC] Attempting NIMBLE compilation (this may take a minute)...
-#> [MCMC] Compiling model...
-#> [MCMC] Compiling MCMC sampler...
-#> [MCMC] Compilation successful.
-#> [MCMC] MCMC execution complete. Processing results...
-fit
-#> MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: TRUE
-#> n = 60 | components = 6 | epsilon = 0.025
-#> MCMC: niter=400, nburnin=100, thin=2, nchains=1 
-#> Fit
-#> Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 ```
 
 ## Model Summary
@@ -58,83 +37,56 @@ fit
 ``` r
 print(fit)
 #> MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: TRUE
-#> n = 60 | components = 6 | epsilon = 0.025
+#> n = 272 | components = 6 | epsilon = 0.025
 #> MCMC: niter=400, nburnin=100, thin=2, nchains=1 
 #> Fit
 #> Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 summary(fit)
 #> MixGPD summary | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: TRUE | epsilon: 0.025
-#> n = 60 | components = 6
+#> n = 272 | components = 6
 #> Summary
-#> Initial components: 6 | Components after truncation: 1
+#> Initial components: 6 | Components after truncation: 3
 #> 
-#> WAIC: 80.392
-#> lppd: -35.213 | pWAIC: 4.983
+#> WAIC: 733.039
+#> lppd: -359.414 | pWAIC: 7.106
 #> 
 #> Summary table
 #>   parameter   mean    sd q0.025 q0.500 q0.975    ess
-#>  weights[1]  0.973 0.036  0.895  1.000  1.000 15.251
-#>       alpha  0.662 0.399  0.161  0.560  2.102 16.098
-#>  tail_scale  0.852 0.143  0.614  0.860  1.186 13.322
-#>  tail_shape -0.214 0.135 -0.451 -0.218  0.075 13.205
-#>   threshold  0.164 0.018  0.135  0.163  0.186  3.059
-#>     mean[1]  4.791 1.791  1.937  4.735  9.800 13.590
-#>       sd[1]  1.304 0.650  0.234  1.250  2.523 28.040
+#>  weights[1]  0.433 0.081  0.323  0.417  0.597  3.046
+#>  weights[2]  0.276 0.056  0.162  0.285  0.371  7.301
+#>  weights[3]  0.192 0.051  0.107  0.197  0.282  4.688
+#>       alpha  1.281 0.659  0.380  1.273  2.920 16.212
+#>  tail_scale  2.570 0.086  2.423  2.561  2.689  5.752
+#>  tail_shape -0.729 0.038 -0.769 -0.749 -0.618  2.310
+#>   threshold  1.687 0.027  1.664  1.664  1.728  2.389
+#>     mean[1]  7.592 3.263  3.042  7.262 14.606 23.106
+#>     mean[2]  7.402 2.658  3.605  7.203 12.746 63.863
+#>     mean[3]  6.890 2.362  3.702  6.396 12.253 25.889
+#>       sd[1]  1.782 1.234  0.134  1.418  4.977  5.532
+#>       sd[2]  1.378 0.783  0.353  1.170  3.432 28.357
+#>       sd[3]  1.379 0.842  0.199  1.251  3.217 26.071
 ```
 
 ## Diagnostic Plots
 
 ``` r
 if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quietly = TRUE)) {
-  plot(fit)
+  smp <- fit$mcmc$samples
+  params <- if (!is.null(smp)) {
+    cn <- colnames(as.matrix(smp))
+    cn[1:min(6, length(cn))]
+  } else {
+    NULL
+  }
+  plot(fit, family = "geweke", params = params)
 } else {
   message("Plotting requires 'ggmcmc' and 'coda' packages.")
 }
 #> 
-#> === histogram ===
+#> === geweke ===
 ```
 
 ![](mcmc-workflow_files/figure-html/unnamed-chunk-3-1.png)
-
-    #> 
-    #> === density ===
-
-![](mcmc-workflow_files/figure-html/unnamed-chunk-3-2.png)
-
-    #> 
-    #> === traceplot ===
-
-![](mcmc-workflow_files/figure-html/unnamed-chunk-3-3.png)
-
-    #> 
-    #> === running ===
-
-![](mcmc-workflow_files/figure-html/unnamed-chunk-3-4.png)
-
-    #> 
-    #> === compare_partial ===
-
-![](mcmc-workflow_files/figure-html/unnamed-chunk-3-5.png)
-
-    #> 
-    #> === autocorrelation ===
-
-![](mcmc-workflow_files/figure-html/unnamed-chunk-3-6.png)
-
-    #> 
-    #> === geweke ===
-
-![](mcmc-workflow_files/figure-html/unnamed-chunk-3-7.png)
-
-    #> 
-    #> === caterpillar ===
-
-![](mcmc-workflow_files/figure-html/unnamed-chunk-3-8.png)
-
-    #> 
-    #> === pairs ===
-
-![](mcmc-workflow_files/figure-html/unnamed-chunk-3-9.png)
 
 ## Posterior Sample Extraction
 

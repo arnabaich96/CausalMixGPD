@@ -8,6 +8,13 @@
 > (Introduction, Model Spec, MCMC Workflow,
 > Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+### Theory (brief)
+
+Most troubleshooting issues relate to model compilation, MCMC stability,
+or data compatibility. Understanding the DP mixture structure and MCMC
+diagnostics helps identify whether issues stem from model specification,
+priors, or runtime limits.
+
 ## Common Issues and Solutions
 
 This vignette collects common errors and fixes encountered when building

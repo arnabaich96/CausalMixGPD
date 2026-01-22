@@ -8,6 +8,12 @@
 > (Introduction, Model Spec, MCMC Workflow,
 > Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+### Theory (brief)
+
+The causal model fits separate outcome distributions for treated and
+control arms. Without covariates, the estimands reduce to contrasts
+between two unconditional DP mixtures (optionally with GPD tails).
+
 ## Causal Inference: No Covariates (CRP)
 
 This vignette fits **two no-X causal models** where the treatment arms

@@ -8,6 +8,13 @@
 > (Introduction, Model Spec, MCMC Workflow,
 > Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+### Theory (brief)
+
+The causal workflow fits treated and control arms with covariate
+adjustment, optionally including propensity scores. Backend choices
+control how mixtures are represented but target the same posterior
+quantities.
+
 ## Causal Inference: Mixed Backends (CRP+SB)
 
 This vignette fits two causal models using different backends and

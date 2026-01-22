@@ -8,6 +8,13 @@
 > (Introduction, Model Spec, MCMC Workflow,
 > Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+### Theory (brief)
+
+Conditional DP mixtures allow covariate-dependent kernels. Adding a GPD
+tail replaces the bulk kernel beyond a threshold, improving stability
+for extremes. The stick-breaking backend truncates the mixture to a
+fixed number of components.
+
 ## Conditional DPmixGPD: Stick-Breaking Backend
 
 **Purpose**: Apply fixed-component stick-breaking truncation to

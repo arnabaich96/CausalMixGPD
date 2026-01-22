@@ -10,6 +10,13 @@
 
 The **Inverse Gaussian** kernel is parameterized by `mean` and `shape`.
 
+## Theory (brief)
+
+The inverse Gaussian is a positive-support distribution with density
+\$\$ f(y) = \\left(\\frac{\\lambda}{2\\pi y^3}\\right)^{1/2}
+\\exp\\left(-\\frac{\\lambda (y-\\mu)^2}{2\\mu^2 y}\\right), \$\$ where
+\$\\mu\$ is the mean and \$\\lambda\$ is the shape parameter.
+
 ## Exported mixture helpers
 
 - `dInvGaussMix(x, mean, shape, w, log = FALSE)`
@@ -20,12 +27,13 @@ The **Inverse Gaussian** kernel is parameterized by `mean` and `shape`.
 For the full catalog (including CRP utilities and GPD splicing), see:
 
 - [Available
-  Distributions](https://arnabaich96.github.io/DPmixGPD/articles/kernels/v02-available-distributions.html)
+  Distributions](https://arnabaich96.github.io/DPmixGPD/articles/kernels/v02-available-distributions.md)
 
 ## Using Inverse Gaussian in a model
 
 ``` r
-y <- abs(stats::rnorm(50)) + 0.1
+data("faithful", package = "datasets")
+y <- faithful$eruptions
 bundle <- build_nimble_bundle(
   y = y,
   backend = "crp",

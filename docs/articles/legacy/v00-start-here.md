@@ -8,6 +8,13 @@
 > (Introduction, Model Spec, MCMC Workflow,
 > Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+## Theory (brief)
+
+The DP mixture models the bulk density as \$f(y)=\\int
+K(y;\\theta)\\,dG(\\theta)\$ with \$G \\sim \\mathrm{DP}(\\alpha,
+G_0)\$. This gives a flexible, data-driven mixture representation while
+keeping inference in a Bayesian framework.
+
 ## Getting Started
 
 This vignette gives a minimal, fully working workflow for an

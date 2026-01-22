@@ -8,6 +8,12 @@
 > (Introduction, Model Spec, MCMC Workflow,
 > Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+### Theory (brief)
+
+Conditional DP mixtures allow kernel parameters to depend on covariates,
+giving flexible regression-style distributions. The CRP backend
+introduces clustering of conditional distributions via allocations.
+
 ## Conditional DPmix: CRP Backend with Covariates
 
 **Purpose**: Show how the CRP backend can model $`y | X`$ via a

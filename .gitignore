@@ -34,16 +34,7 @@ vignettes/**/cache/**
 *.html
 test_*.html
 !docs/**/*.html
-# Ignore specific files in docs/ (figures, cache, data files) but track HTML, JS, CSS, and index files
-docs/**/*.png
-docs/**/*.jpg
-docs/**/*.jpeg
-docs/**/*.gif
-docs/**/*.svg
-docs/**/*.pdf
-docs/**/*.rds
-docs/**/*.Rds
-docs/**/*.RDS
+# Ignore docs cache artifacts but track site assets (images, JS, CSS, etc.)
 docs/**/cache/
 docs/**/cache/**
 # Track HTML files and their dependencies in docs/ (must come after ignore patterns)

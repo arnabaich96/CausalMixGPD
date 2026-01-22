@@ -8,6 +8,12 @@
 > (Introduction, Model Spec, MCMC Workflow,
 > Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+### Theory (brief)
+
+The bulk density is modeled with a DP mixture, while a GPD tail is
+spliced above a threshold $`u`$ to stabilize tail inference. The CRP
+backend governs cluster allocations in the bulk.
+
 ## Unconditional DPmixGPD: CRP Backend with Tail Augmentation
 
 **Purpose**: Model the **bulk** of the distribution with a DP mixture

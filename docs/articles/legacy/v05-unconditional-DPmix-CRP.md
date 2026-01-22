@@ -8,6 +8,13 @@
 > (Introduction, Model Spec, MCMC Workflow,
 > Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+## Theory (brief)
+
+An unconditional DP mixture models exchangeable outcomes via
+\$f(y)=\\int K(y;\\theta)\\,dG(\\theta)\$ with \$G \\sim
+\\mathrm{DP}(\\alpha, G_0)\$. The CRP backend implements this using
+cluster allocations.
+
 ## Overview
 
 This vignette demonstrates an **unconditional DPmix model** using the

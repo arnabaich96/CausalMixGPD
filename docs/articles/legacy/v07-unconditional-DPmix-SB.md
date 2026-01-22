@@ -8,6 +8,12 @@
 > (Introduction, Model Spec, MCMC Workflow,
 > Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+### Theory (brief)
+
+The stick-breaking backend represents the DP mixture by truncating a
+stick-breaking prior on mixture weights. This yields an explicit finite
+mixture approximation controlled by `components`.
+
 ## Unconditional DPmix: Stick-Breaking (SB) Backend
 
 **Purpose**: Showcase the stick-breaking backend that uses a fixed

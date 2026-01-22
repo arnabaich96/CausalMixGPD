@@ -8,6 +8,13 @@
 > (Introduction, Model Spec, MCMC Workflow,
 > Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+### Theory (brief)
+
+With covariates but no propensity score adjustment, the model conditions
+outcome distributions on $`X`$ within each treatment arm. Causal effects
+are derived from differences in the arm-specific conditional
+distributions.
+
 ## Causal Inference: X Without PS (CRP+SB)
 
 This vignette uses **covariates X** but disables PS estimation. Outcome

@@ -11,6 +11,13 @@
 The **Amoroso** kernel is parameterized by (`a`, `theta`, `alpha`,
 `beta`).
 
+## Theory (brief)
+
+The Amoroso distribution is a flexible positive-support family that
+generalizes gamma and Weibull-type shapes. Its parameters control
+location, scale, and tail behavior, making it useful when standard
+parametric kernels are too rigid.
+
 ## Exported mixture helpers
 
 - `dAmorosoMix(x, a, theta, alpha, beta, w, log = FALSE)`
@@ -21,12 +28,13 @@ The **Amoroso** kernel is parameterized by (`a`, `theta`, `alpha`,
 For the full catalog (including CRP utilities and GPD splicing), see:
 
 - [Available
-  Distributions](https://arnabaich96.github.io/DPmixGPD/articles/kernels/v02-available-distributions.html)
+  Distributions](https://arnabaich96.github.io/DPmixGPD/articles/kernels/v02-available-distributions.md)
 
 ## Using Amoroso in a model
 
 ``` r
-y <- abs(stats::rnorm(50)) + 0.1
+data("faithful", package = "datasets")
+y <- faithful$eruptions
 bundle <- build_nimble_bundle(
   y = y,
   backend = "sb",

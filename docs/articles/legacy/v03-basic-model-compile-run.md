@@ -8,6 +8,12 @@
 > (Introduction, Model Spec, MCMC Workflow,
 > Unconditional/Conditional/Causal, Backends, S3 Reference).
 
+### Theory (brief)
+
+The workflow builds a DP mixture model, compiles the NIMBLE code, and
+then explores the posterior with MCMC. Posterior draws are used to
+summarize density, quantiles, and uncertainty in model parameters.
+
 ## Workflow Overview
 
 DPmixGPD uses a direct two-step workflow:
