@@ -46,6 +46,12 @@ source("_legacy-setup.R")
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
 
+## Theory (brief)
+
+Mixed-backend causal models allow each treatment arm to use a different DP
+mixture representation. This can improve fit when treated and control groups
+exhibit distinct distributional complexity.
+
 # Causal Inference: Mixed Backends (Bulk-only) - Cauchy Kernel {#causal-different-backends-bulk}
 
 This vignette fits two mixed-backend causal models with a shared Cauchy kernel:

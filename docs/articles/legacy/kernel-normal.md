@@ -24,7 +24,7 @@ mixture helpers:
 For a full catalog (including CRP utilities and GPD splicing), see:
 
 - [Available
-  Distributions](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v02-available-distributions.md)
+  Distributions](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v02-available-distributions.html)
 
 ## Using Normal in a model
 

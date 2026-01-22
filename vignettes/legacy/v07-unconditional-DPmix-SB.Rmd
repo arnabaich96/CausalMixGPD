@@ -50,6 +50,12 @@ source("_legacy-setup.R")
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
 
+## Theory (brief)
+
+The stick-breaking backend represents the DP mixture by truncating a
+stick-breaking prior on mixture weights. This yields an explicit finite mixture
+approximation controlled by `components`.
+
 # Unconditional DPmix: Stick-Breaking (SB) Backend
 
 **Purpose**: Showcase the stick-breaking backend that uses a fixed number of mixture components (`components = J`) and contrast it with the CRP backend from `v04`. In this vignette we fit **two** bulk kernels (**Gamma** and **Cauchy**) on the same dataset to highlight how heavier tails in the bulk can change the fit even without a GPD tail.

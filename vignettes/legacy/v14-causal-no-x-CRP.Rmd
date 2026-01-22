@@ -46,6 +46,12 @@ source("_legacy-setup.R")
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
 
+## Theory (brief)
+
+The causal model fits separate outcome distributions for treated and control
+arms. Without covariates, the estimands reduce to contrasts between two
+unconditional DP mixtures (optionally with GPD tails).
+
 # Causal Inference: No Covariates (CRP)
 
 This vignette fits **two no-X causal models** where the treatment arms are modeled independently using **unconditional** outcome models.

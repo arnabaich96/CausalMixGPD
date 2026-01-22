@@ -35,18 +35,26 @@ This vignette compares the two mixture backends:
 - **SB**: Stick-breaking (finite truncation), controlled by `components`
 - **CRP**: Chinese Restaurant Process (cluster allocations)
 
+## Theory (brief)
+
+Both backends represent a DP mixture, but they differ in how the random measure
+$G$ is constructed. The stick-breaking backend uses a truncated stick-breaking
+representation, while the CRP backend uses an allocation-based partitioning
+scheme. In practice, SB offers explicit control over truncation, while CRP adapts
+the number of clusters through the allocation process.
+
 ## Data
 
 ```{r}
 library(DPmixGPD)
 
-n <- 90
-y <- abs(rnorm(n)) + 0.2
+data("faithful", package = "datasets")
+y <- faithful$eruptions
 ```
 
 ## Stick-Breaking Backend
 
-```{r}
+```{r, results='hide'}
 bundle_sb <- build_nimble_bundle(
   y = y,
   backend = "sb",
@@ -61,7 +69,7 @@ fit_sb <- run_mcmc_bundle_manual(bundle_sb, show_progress = FALSE)
 
 ## CRP Backend
 
-```{r}
+```{r, results='hide'}
 bundle_crp <- build_nimble_bundle(
   y = y,
   backend = "crp",

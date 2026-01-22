@@ -20,7 +20,7 @@ The **Gamma** kernel is parameterized by `shape` and `rate`.
 For the full catalog (including CRP utilities and GPD splicing), see:
 
 - [Available
-  Distributions](https://arnabaich96.github.io/DPmixGPD/articles/kernels/v02-available-distributions.md)
+  Distributions](https://arnabaich96.github.io/DPmixGPD/articles/kernels/v02-available-distributions.html)
 
 ## Using Gamma in a model
 

@@ -30,8 +30,26 @@ vignettes/**/cache/**
 # Cache files (knitr/rmarkdown)
 *_cache/
 **/*_cache/*
+# Ignore HTML files except in docs/ directory
 *.html
 test_*.html
+!docs/**/*.html
+# Ignore specific files in docs/ (figures, cache, data files) but track HTML, JS, CSS, and index files
+docs/**/*.png
+docs/**/*.jpg
+docs/**/*.jpeg
+docs/**/*.gif
+docs/**/*.svg
+docs/**/*.pdf
+docs/**/*.rds
+docs/**/*.Rds
+docs/**/*.RDS
+docs/**/cache/
+docs/**/cache/**
+# Track HTML files and their dependencies in docs/ (must come after ignore patterns)
+!docs/**/*.js
+!docs/**/*.css
+!docs/**/*.md
 
 .Rproj.user
 

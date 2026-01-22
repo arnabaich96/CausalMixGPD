@@ -49,3 +49,9 @@ Detailed documentation organized by topic:
 2. **Building models**: Read [Model Specification](model-spec.html) and [MCMC Workflow](mcmc-workflow.html)
 3. **Specific use cases**: Jump to [Unconditional](unconditional.html), [Conditional](conditional.html), or [Causal](causal.html) based on your needs
 4. **API details**: See [S3 Methods Reference](reference-s3.html) for comprehensive method documentation
+
+## NIMBLE Version Notes
+
+DPmixGPD is developed and tested with **nimble 1.4.0** (see `renv.lock`). Other
+recent nimble releases should work, but if you encounter compilation or sampler
+issues, please match the tested version first.

@@ -46,6 +46,12 @@ source("_legacy-setup.R")
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
 
+## Theory (brief)
+
+Conditional DP mixtures allow covariate-dependent kernels. Adding a GPD tail
+replaces the bulk kernel beyond a threshold, improving stability for extremes.
+The stick-breaking backend truncates the mixture to a fixed number of components.
+
 # Conditional DPmixGPD: Stick-Breaking Backend
 
 **Purpose**: Apply fixed-component stick-breaking truncation to covariate-dependent mixtures while keeping the GPD tail. This vignette mirrors `v10` but with the SB backend.

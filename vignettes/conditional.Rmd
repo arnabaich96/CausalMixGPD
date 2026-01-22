@@ -32,20 +32,32 @@ mcmc <- if (FAST) {
 
 This vignette demonstrates fitting a conditional model with covariates and generating predictions on a grid of new covariate values.
 
-## Data Generation
+## Theory (brief)
+
+Conditional models allow the bulk mixture parameters to vary with covariates.
+We write the conditional density as
+$$
+f(y_i \\mid x_i) = \\int K(y_i; \\theta(x_i))\\, dG(\\theta),
+$$
+where the link between $\\theta$ and $x_i$ is encoded through the kernel-specific
+regression structure. The DP prior provides flexible, data-driven clustering of
+local distributions across covariate space.
+
+## Data Setup
 
 ```{r}
 library(DPmixGPD)
 
-n <- 120
-x <- rnorm(n)
-X <- data.frame(x = x)
-y <- 0.5 + 0.8 * x + abs(rnorm(n)) + 0.1
+data("mtcars", package = "datasets")
+df <- mtcars
+y <- df$mpg
+X <- df[, c("wt", "hp")]
+X <- as.data.frame(X)
 ```
 
 ## Model Fitting
 
-```{r}
+```{r, results='hide'}
 bundle <- build_nimble_bundle(
   y = y,
   X = X,
@@ -57,7 +69,6 @@ bundle <- build_nimble_bundle(
 )
 
 fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
-fit
 ```
 
 ## Fitted Values
@@ -71,7 +82,10 @@ summary(f$residuals)
 ## Predictions on New Data
 
 ```{r}
-new_X <- data.frame(x = seq(min(x), max(x), length.out = 25))
+new_X <- data.frame(
+  wt = seq(min(X$wt), max(X$wt), length.out = 25),
+  hp = stats::median(X$hp)
+)
 
 pred_mean <- predict(fit, x = new_X, type = "mean", cred.level = 0.90, interval = "credible")
 pred_med  <- predict(fit, x = new_X, type = "median", cred.level = 0.90, interval = "credible")
@@ -89,18 +103,18 @@ q_fits <- lapply(q_levels, function(tau) {
 })
 
 q_df <- do.call(rbind, Map(function(tau, df) {
-  data.frame(x = new_X$x, tau = tau, estimate = df$estimate, lower = df$lower, upper = df$upper)
+  data.frame(wt = new_X$wt, tau = tau, estimate = df$estimate, lower = df$lower, upper = df$upper)
 }, q_levels, q_fits))
 
 head(q_df)
 ```
 
 ```{r}
-ggplot(q_df, aes(x = x, y = estimate, color = factor(tau))) +
+ggplot(q_df, aes(x = wt, y = estimate, color = factor(tau))) +
   geom_line(linewidth = 1) +
   geom_ribbon(aes(ymin = lower, ymax = upper, fill = factor(tau)), alpha = 0.2, color = NA) +
-  labs(x = "x", y = "Predicted Quantile", color = "Quantile", fill = "Quantile",
-       title = "Conditional Quantile Curves") +
+  labs(x = "Weight (wt)", y = "Predicted Quantile", color = "Quantile", fill = "Quantile",
+       title = "Conditional Quantile Curves at Median Horsepower") +
   theme_minimal() +
   theme(legend.position = "bottom")
 ```

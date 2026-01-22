@@ -46,6 +46,12 @@ source("_legacy-setup.R")
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
 
+## Theory (brief)
+
+The stick-breaking backend truncates the DP mixture to a fixed number of
+components, while the GPD tail handles extreme values beyond a threshold. This
+combination yields flexible bulk fit and stable tail inference.
+
 # Unconditional DPmixGPD: Stick-Breaking (SB) Backend with Tail Augmentation
 
 **Purpose**: Demonstrate the stick-breaking backend (`components = J`) while augmenting the extreme tail with a GPD. This mirrors the CRP+GPD pipeline (v06) but highlights the fixed-truncation behavior for bulk components.

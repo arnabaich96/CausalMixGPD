@@ -32,12 +32,20 @@ mcmc <- if (FAST) {
 
 This vignette demonstrates the MCMC workflow: build, run, inspect, and extract.
 
+## Theory (brief)
+
+The posterior is explored with Markov chain Monte Carlo. Diagnostics summarize
+mixing and convergence behavior, such as traceplots, effective sample size, and
+Geweke statistics comparing early vs late chain segments. These checks help
+ensure that posterior summaries are reliable.
+
 ## Model Building and Sampling
 
-```{r}
+```{r, results='hide'}
 library(DPmixGPD)
 
-y <- abs(rnorm(60)) + 0.15
+data("faithful", package = "datasets")
+y <- faithful$eruptions
 bundle <- build_nimble_bundle(
   y = y,
   backend = "sb",
@@ -48,7 +56,6 @@ bundle <- build_nimble_bundle(
 )
 
 fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
-fit
 ```
 
 ## Model Summary
@@ -62,7 +69,14 @@ summary(fit)
 
 ```{r}
 if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quietly = TRUE)) {
-  plot(fit)
+  smp <- fit$mcmc$samples
+  params <- if (!is.null(smp)) {
+    cn <- colnames(as.matrix(smp))
+    cn[1:min(6, length(cn))]
+  } else {
+    NULL
+  }
+  plot(fit, family = "geweke", params = params)
 } else {
   message("Plotting requires 'ggmcmc' and 'coda' packages.")
 }

@@ -32,13 +32,24 @@ mcmc <- if (FAST) {
 
 This vignette demonstrates fitting an unconditional DP mixture model with optional GPD tail augmentation.
 
+## Theory (brief)
+
+Unconditional models treat observations as exchangeable draws from a mixture
+distribution. The DP prior on the mixing measure $G$ yields flexible density
+estimation:
+$$
+y_i \\mid G \\sim \\int K(y_i; \\theta)\\, dG(\\theta), \\quad G \\sim \\mathrm{DP}(\\alpha, G_0).
+$$
+When $\\mathrm{GPD} = \\mathrm{TRUE}$, a GPD tail replaces the bulk kernel beyond a
+threshold $u$ to stabilize tail behavior.
+
 ## Model Fitting
 
-```{r}
+```{r, results='hide'}
 library(DPmixGPD)
 
-n <- 100
-y <- abs(rnorm(n)) + 0.2
+data("faithful", package = "datasets")
+y <- faithful$eruptions
 
 bundle <- build_nimble_bundle(
   y = y,
@@ -50,7 +61,6 @@ bundle <- build_nimble_bundle(
 )
 
 fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
-fit
 ```
 
 ## Fitted Summaries

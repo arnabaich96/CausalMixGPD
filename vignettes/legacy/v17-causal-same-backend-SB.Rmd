@@ -46,6 +46,12 @@ source("_legacy-setup.R")
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
 
+## Theory (brief)
+
+The causal workflow fits treated and control arms with covariate adjustment,
+optionally including propensity scores. Using the same backend and kernel
+emphasizes treatment-induced distributional differences.
+
 # Causal Inference: Same Backend (SB) - Laplace Kernel {#causal-sb-same-backend}
 
 This vignette fits two SB-based causal models using the same kernel (Laplace):

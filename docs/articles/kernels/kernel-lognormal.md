@@ -21,7 +21,7 @@ The **Lognormal** kernel is parameterized by `meanlog` and `sdlog`
 For the full catalog (including CRP utilities and GPD splicing), see:
 
 - [Available
-  Distributions](https://arnabaich96.github.io/DPmixGPD/articles/kernels/v02-available-distributions.md)
+  Distributions](https://arnabaich96.github.io/DPmixGPD/articles/kernels/v02-available-distributions.html)
 
 ## Using Lognormal in a model
 
