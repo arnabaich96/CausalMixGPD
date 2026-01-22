@@ -1,10 +1,10 @@
 {
-  "percent": 73.19,
-  "timestamp": "2026-01-21T07:30:59Z",
-  "sources": "tests",
-  "total_lines": 6023,
-  "covered_lines": 4408,
-  "files": 19,
+  "percent": 75.62,
+  "timestamp": "2026-01-21T09:01:30Z",
+  "sources": "all",
+  "total_lines": 5779,
+  "covered_lines": 4370,
+  "files": 16,
   "file_coverage": [
     {
       "file": "R/00-global-contracts.R",
@@ -101,24 +101,6 @@
       "lines": 849,
       "covered": 499,
       "percent": 58.8
-    },
-    {
-      "file": "R/Utility.R",
-      "lines": 31,
-      "covered": 5,
-      "percent": 16.1
-    },
-    {
-      "file": "R/00-kernel-registry.R",
-      "lines": 211,
-      "covered": 33,
-      "percent": 15.6
-    },
-    {
-      "file": "R/globals.R",
-      "lines": 2,
-      "covered": 0,
-      "percent": 0
     }
   ]
 }
