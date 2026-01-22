@@ -35,18 +35,28 @@ This vignette demonstrates the causal inference workflow using `build_causal_bun
 - **Average Treatment Effect (ATE)**: \(E[Y(1) - Y(0) \mid X]\)
 - **Quantile Treatment Effect (QTE)**: \(Q_{Y(1)}(\tau) - Q_{Y(0)}(\tau)\)
 
-## Data Generation
+## Theory (brief)
+
+The causal workflow models the potential outcome distributions for treated and
+control groups while adjusting for covariates and (optionally) propensity
+scores. For each treatment arm $t \\in \\{0,1\\}$,
+$$
+f_t(y \\mid x) = \\int K(y; \\theta_t(x))\\, dG_t(\\theta_t),
+$$
+and causal estimands are derived from differences in the fitted distributions,
+such as $\\mathbb{E}[Y(1) - Y(0) \\mid X]$ and quantile contrasts.
+
+## Data Setup
 
 ```{r}
 library(DPmixGPD)
 
-n <- 80
-X <- data.frame(x = rnorm(n))
-T_ind <- rbinom(n, 1, plogis(0.2 + 0.5 * X$x))
-y0 <- 0.5 + 0.7 * X$x + abs(rnorm(n)) + 0.1
-te <- 0.4 + 0.6 * (X$x > 0)
-y1 <- y0 + te
-y <- ifelse(T_ind == 1, y1, y0)
+data("mtcars", package = "datasets")
+df <- mtcars
+X <- df[, c("wt", "hp", "qsec", "cyl")]
+X <- as.data.frame(X)
+T_ind <- df$am
+y <- df$mpg
 ```
 
 ## Causal Bundle Construction
@@ -77,9 +87,8 @@ bundle
 
 ## MCMC Sampling
 
-```{r}
+```{r, results='hide'}
 fit <- run_mcmc_causal(bundle, show_progress = FALSE)
-fit
 ```
 
 ## Average Treatment Effect (ATE)
@@ -88,7 +97,12 @@ fit
 ate_result <- ate(fit, interval = "hpd", nsim_mean = 100)
 print(ate_result)
 
-X_new <- data.frame(x = seq(min(X$x), max(X$x), length.out = 20))
+X_new <- data.frame(
+  wt = seq(min(X$wt), max(X$wt), length.out = 20),
+  hp = stats::median(X$hp),
+  qsec = stats::median(X$qsec),
+  cyl = stats::median(X$cyl)
+)
 ate_grid <- ate(fit, newdata = X_new, interval = "hpd", nsim_mean = 100, level = 0.90)
 
 print(ate_grid)

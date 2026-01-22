@@ -13,15 +13,15 @@ types and modeling scenarios.
 These kernels have location and scale parameters, making them suitable
 for real-valued data:
 
-- [**Normal**](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-normal.md) -
+- [**Normal**](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-normal.html) -
   Gaussian kernel with `mean` and `sd` parameters. Best for symmetric,
   bell-shaped distributions.
 
-- [**Cauchy**](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-cauchy.md) -
+- [**Cauchy**](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-cauchy.html) -
   Heavy-tailed kernel with `location` and `scale` parameters. Robust to
   outliers but does not support GPD tail.
 
-- [**Laplace**](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-laplace.md) -
+- [**Laplace**](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-laplace.html) -
   Double exponential kernel with `location` and `scale` parameters. Has
   heavier tails than Normal.
 
@@ -30,22 +30,22 @@ for real-valued data:
 These kernels are defined for positive values only, ideal for positive
 data like durations, sizes, or amounts:
 
-- [**Lognormal**](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-lognormal.md) -
+- [**Lognormal**](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-lognormal.html) -
   Log-transformed Normal with `meanlog` and `sdlog` parameters. Good for
   right-skewed positive data.
 
-- [**Gamma**](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-gamma.md) -
+- [**Gamma**](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-gamma.html) -
   Flexible positive kernel with `shape` and `scale` parameters. Can
   model various skewness levels.
 
 - [**Inverse
-  Gaussian**](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-invgauss.md) -
+  Gaussian**](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-invgauss.html) -
   Alternative positive kernel with `mean` and `shape` parameters. Often
   used for waiting times.
 
 #### Generalized Families
 
-- [**Amoroso**](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-amoroso.md) -
+- [**Amoroso**](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-amoroso.html) -
   Four-parameter generalization with `loc`, `scale`, `shape1`, and
   `shape2`. Includes Gamma, Weibull, and other distributions as special
   cases.

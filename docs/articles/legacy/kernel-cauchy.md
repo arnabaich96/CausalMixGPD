@@ -20,7 +20,7 @@ The **Cauchy** kernel is parameterized by `location` and `scale`.
 For the full catalog (including CRP utilities and GPD splicing), see:
 
 - [Available
-  Distributions](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v02-available-distributions.md)
+  Distributions](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v02-available-distributions.html)
 
 ## Using Cauchy in a model
 

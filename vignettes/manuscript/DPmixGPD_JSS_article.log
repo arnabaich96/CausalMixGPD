@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2026.1.20)  22 JAN 2026 01:24
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (TeX Live 2025) (preloaded format=pdflatex 2026.1.20)  22 JAN 2026 04:57
 entering extended mode
  \write18 enabled.
  %&-line parsing enabled.
@@ -496,18 +496,18 @@ L3 programming layer <2026-01-10>
 LaTeX Warning: There were undefined references.
 
 Package rerunfilecheck Info: File `DPmixGPD_JSS_article.out' has not changed.
-(rerunfilecheck)             Checksum: 95C0D99B595FB87566D26EA020EA7AB8;3306.
+(rerunfilecheck)             Checksum: F02430B3567812907BB46D1E58817580;3392.
  ) 
 Here is how much of TeX's memory you used:
  11767 strings out of 469513
- 183560 string characters out of 5468180
+ 183592 string characters out of 5468180
  594930 words of memory out of 5000000
  40140 multiletter control sequences out of 15000+600000
  706587 words of font info for 85 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  90i,10n,93p,740b,619s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <c:/Users/arnab/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/arnab/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/arnab/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx8.pfb><c:/Users/arnab/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmex10.pfb><c:/Users/arnab/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi10.pfb><c:/Users/arnab/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi6.pfb><c:/Users/arnab/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmmi8.pfb><c:/Users/arnab/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/arnab/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr8.pfb><c:/Users/arnab/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmri10.pfb><c:/Users/arnab/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmro10.pfb><c:/Users/arnab/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmss10.pfb><c:/Users/arnab/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/Users/arnab/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy8.pfb><c:/Users/arnab/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb><c:/Users/arnab/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtti10.pfb><c:/Users/arnab/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb><c:/Users/arnab/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/urw/zapfchan/uzcmi8a.pfb>
-Output written on DPmixGPD_JSS_article.pdf (9 pages, 340867 bytes).
+Output written on DPmixGPD_JSS_article.pdf (9 pages, 340886 bytes).
 PDF statistics:
  400 PDF objects out of 1000 (max. 8388607)
  345 compressed objects within 4 object streams

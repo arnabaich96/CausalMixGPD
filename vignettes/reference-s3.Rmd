@@ -32,12 +32,20 @@ mcmc <- if (FAST) {
 
 This vignette provides a reference for S3 methods on `mixgpd_fit` objects.
 
+## Theory (brief)
+
+S3 methods provide a consistent interface for posterior summaries and
+diagnostics on fitted objects. They expose predictions, fitted values, and
+standard MCMC visualizations while keeping the underlying model specification
+unchanged.
+
 ## Model Fitting
 
-```{r}
+```{r, results='hide'}
 library(DPmixGPD)
 
-y <- abs(rnorm(50)) + 0.1
+data("faithful", package = "datasets")
+y <- faithful$eruptions
 bundle <- build_nimble_bundle(
   y = y,
   backend = "sb",
@@ -96,13 +104,12 @@ The `ate()` and `qte()` functions return objects with their own S3 methods.
 ### Causal Model Fitting
 
 ```{r}
-n <- 60
-X <- data.frame(x = rnorm(n))
-T_ind <- rbinom(n, 1, plogis(0.2 + 0.5 * X$x))
-y0 <- 0.5 + 0.7 * X$x + abs(rnorm(n)) + 0.1
-te <- 0.4 + 0.6 * (X$x > 0)
-y1 <- y0 + te
-y <- ifelse(T_ind == 1, y1, y0)
+data("mtcars", package = "datasets")
+df <- mtcars
+X <- df[, c("wt", "hp", "qsec", "cyl")]
+X <- as.data.frame(X)
+T_ind <- df$am
+y <- df$mpg
 
 causal_bundle <- build_causal_bundle(
   y = y,
@@ -117,6 +124,9 @@ causal_bundle <- build_causal_bundle(
   mcmc_outcome = mcmc,
   mcmc_ps = mcmc
 )
+```
+
+```{r, results='hide'}
 causal_fit <- run_mcmc_causal(causal_bundle, show_progress = FALSE)
 ```
 

@@ -47,6 +47,12 @@ source("_legacy-setup.R")
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
 
+# Theory (brief)
+
+An unconditional DP mixture models exchangeable outcomes via
+$f(y)=\\int K(y;\\theta)\\,dG(\\theta)$ with $G \\sim \\mathrm{DP}(\\alpha, G_0)$.
+The CRP backend implements this using cluster allocations.
+
 # Unconditional DPmix: Chinese Restaurant Process (CRP)
 
 **Goal**: Estimate density of univariate outcome $y$ using **nonparametric Dirichlet Process mixture** with **Chinese Restaurant Process** backend.

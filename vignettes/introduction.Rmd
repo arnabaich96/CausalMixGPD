@@ -36,6 +36,17 @@ This vignette provides an end-to-end introduction to the DPmixGPD workflow:
 - Run MCMC sampling
 - Extract fitted values and predictions
 
+## Theory (brief)
+
+DPmixGPD models the bulk of a distribution with a Dirichlet process (DP) mixture,
+then optionally splices a Generalized Pareto Distribution (GPD) tail beyond a
+threshold $u$. For outcomes $y_i$ and kernel $K$, the bulk model is
+$$
+f(y_i) = \\int K(y_i; \\theta)\\, dG(\\theta), \\quad G \\sim \\mathrm{DP}(\\alpha, G_0).
+$$
+When a tail is included, the density is replaced for $y > u$ by a GPD tail with
+scale and shape parameters, preserving continuity at $u$.
+
 ## Model Description
 
 DPmixGPD fits flexible mixture models for the bulk of the distribution and can splice a Generalized Pareto Distribution (GPD) tail beyond a threshold. This approach is appropriate when:
@@ -45,11 +56,11 @@ DPmixGPD fits flexible mixture models for the bulk of the distribution and can s
 
 ## Minimal Example
 
-```{r minimal-run}
+```{r minimal-run, results='hide'}
 library(DPmixGPD)
 
-n <- 80
-y <- abs(rnorm(n)) + 0.15
+data("faithful", package = "datasets")
+y <- faithful$eruptions
 
 bundle <- build_nimble_bundle(
   y = y,
@@ -61,7 +72,6 @@ bundle <- build_nimble_bundle(
 )
 
 fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
-fit
 ```
 
 ## Fitted Values and Residuals

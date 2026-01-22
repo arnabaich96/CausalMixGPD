@@ -20,7 +20,7 @@ The **Inverse Gaussian** kernel is parameterized by `mean` and `shape`.
 For the full catalog (including CRP utilities and GPD splicing), see:
 
 - [Available
-  Distributions](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v02-available-distributions.md)
+  Distributions](https://arnabaich96.github.io/DPmixGPD/articles/legacy/v02-available-distributions.html)
 
 ## Using Inverse Gaussian in a model
 
