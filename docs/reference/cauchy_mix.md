@@ -103,15 +103,14 @@ location <- c(-2, 0, 3)
 scale <- c(1.0, 0.7, 1.5)
 
 dCauchyMix(0.5, w = w, location = location, scale = scale, log = FALSE)
-#> [1] 0.1235181
+#> [1] 0.124
 pCauchyMix(0.5, w = w, location = location, scale = scale,
            lower.tail = TRUE, log.p = FALSE)
-#> [1] 0.6830742
+#> [1] 0.683
 qCauchyMix(0.50, w = w, location = location, scale = scale)
-#> [1] -0.6639507
+#> [1] -0.664
 qCauchyMix(0.95, w = w, location = location, scale = scale)
-#> [1] 6.996407
+#> [1] 7
 replicate(10, rCauchyMix(1, w = w, location = location, scale = scale))
-#>  [1]   0.02594232   4.15434700 -38.57465351 133.69621213  -0.33217389
-#>  [6]   0.19025854   1.47153823  -0.68694099   6.38862006  -2.31494157
+#>  [1]  5.345 -0.846 -0.862 -2.580 -0.690  1.779  5.349  3.392 45.684 -0.874
 ```

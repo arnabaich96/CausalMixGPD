@@ -127,23 +127,22 @@ tail_shape <- 0.2
 dGammaGpd(4.0, scale = scale, shape = shape,
          threshold = threshold, tail_scale = tail_scale,
          tail_shape = tail_shape, log = 0)
-#> [1] 0.3220605
+#> [1] 0.322
 pGammaGpd(4.0, scale = scale, shape = shape,
          threshold = threshold, tail_scale = tail_scale,
          tail_shape = tail_shape, lower.tail = 1, log.p = 0)
-#> [1] 0.6457335
+#> [1] 0.646
 qGammaGpd(0.50, scale = scale, shape = shape,
          threshold = threshold, tail_scale = tail_scale,
          tail_shape = tail_shape)
-#> [1] 3.63375
+#> [1] 3.63
 qGammaGpd(0.95, scale = scale, shape = shape,
          threshold = threshold, tail_scale = tail_scale,
          tail_shape = tail_shape)
-#> [1] 6.636445
+#> [1] 6.64
 replicate(10, rGammaGpd(1, scale = scale, shape = shape,
                        threshold = threshold,
                        tail_scale = tail_scale,
                        tail_shape = tail_shape))
-#>  [1] 3.041267 3.066459 3.937674 5.774885 3.887805 5.725403 4.224517 4.338427
-#>  [9] 3.583110 3.823371
+#>  [1]  5.47  3.10  4.55 20.63  6.61  3.03  5.12  3.22  6.53  4.60
 ```

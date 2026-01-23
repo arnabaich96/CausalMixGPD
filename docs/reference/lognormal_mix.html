@@ -205,17 +205,16 @@ with the same length as <code>p</code>.</p>
 <span class="r-in"><span><span class="va">sdlog</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.4</span>, <span class="fl">0.3</span>, <span class="fl">0.5</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">dLognormalMix</span><span class="op">(</span><span class="fl">2.0</span>, w <span class="op">=</span> <span class="va">w</span>, meanlog <span class="op">=</span> <span class="va">meanlog</span>, sdlog <span class="op">=</span> <span class="va">sdlog</span>, log <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2189383</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.219</span>
 <span class="r-in"><span><span class="fu">pLognormalMix</span><span class="op">(</span><span class="fl">2.0</span>, w <span class="op">=</span> <span class="va">w</span>, meanlog <span class="op">=</span> <span class="va">meanlog</span>, sdlog <span class="op">=</span> <span class="va">sdlog</span>,</span></span>
 <span class="r-in"><span>             lower.tail <span class="op">=</span> <span class="cn">TRUE</span>, log.p <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.7711135</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.771</span>
 <span class="r-in"><span><span class="fu">qLognormalMix</span><span class="op">(</span><span class="fl">0.50</span>, w <span class="op">=</span> <span class="va">w</span>, meanlog <span class="op">=</span> <span class="va">meanlog</span>, sdlog <span class="op">=</span> <span class="va">sdlog</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.151134</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.15</span>
 <span class="r-in"><span><span class="fu">qLognormalMix</span><span class="op">(</span><span class="fl">0.95</span>, w <span class="op">=</span> <span class="va">w</span>, meanlog <span class="op">=</span> <span class="va">meanlog</span>, sdlog <span class="op">=</span> <span class="va">sdlog</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4.147585</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4.15</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rLognormalMix</span><span class="op">(</span><span class="fl">1</span>, w <span class="op">=</span> <span class="va">w</span>, meanlog <span class="op">=</span> <span class="va">meanlog</span>, sdlog <span class="op">=</span> <span class="va">sdlog</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 1.1127043 0.7090102 0.5668726 1.0114902 2.0339960 2.4874730 0.8932713</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 4.1695204 0.7636585 0.8616865</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 4.129 0.687 1.332 0.649 0.985 1.638 3.332 0.702 2.544 2.154</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

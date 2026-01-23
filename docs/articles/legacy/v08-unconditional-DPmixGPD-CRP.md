@@ -48,13 +48,13 @@ ggplot(df_data, aes(x = y)) +
 
 ![](v08-unconditional-DPmixGPD-CRP_files/figure-html/data-setup-1.png)
 
-| statistic |  value   |
-|:---------:|:--------:|
-|     N     | 200.0000 |
-|   Mean    |  2.3340  |
-|    SD     |  2.3000  |
-|    Min    |  0.3283  |
-|    Max    | 19.8700  |
+| statistic |  value  |
+|:---------:|:-------:|
+|     N     | 200.000 |
+|   Mean    |  2.334  |
+|    SD     |  2.300  |
+|    Min    |  0.328  |
+|    Max    | 19.870  |
 
 Summary of the Tail Dataset
 
@@ -134,17 +134,17 @@ summary(fit_gpd)
     lppd: -283.017 | pWAIC: 45.395
 
     Summary table
-      parameter  mean    sd q0.025 q0.500 q0.975     ess
-     weights[1] 0.548 0.068  0.445  0.540  0.693  32.721
-     weights[2] 0.376 0.078  0.224  0.390  0.491  20.487
-          alpha 0.547 0.334  0.105  0.461  1.333 150.000
-     tail_scale 2.091 0.788  1.284  1.845  4.208  22.592
-     tail_shape 0.151 0.130 -0.038  0.153  0.495  28.026
-      threshold 3.361 0.878  2.161  3.145  5.485  14.433
-        mean[1] 3.038 1.640  1.211  2.881  6.659  15.294
-        mean[2] 2.846 2.192  1.211  1.565  8.351  22.600
-       shape[1] 3.572 0.980  2.003  3.528  5.537  42.923
-       shape[2] 4.458 1.230  2.229  4.302  6.853  37.979
+      parameter  mean    sd q0.025 q0.500 q0.975    ess
+     weights[1] 0.548 0.068  0.445   0.54  0.693 32.721
+     weights[2] 0.376 0.078  0.224   0.39  0.491 20.487
+          alpha 0.547 0.334  0.105  0.461  1.333    150
+     tail_scale 2.091 0.788  1.284  1.845  4.208 22.592
+     tail_shape 0.151  0.13 -0.038  0.153  0.495 28.026
+      threshold 3.361 0.878  2.161  3.145  5.485 14.433
+        mean[1] 3.038  1.64  1.211  2.881  6.659 15.294
+        mean[2] 2.846 2.192  1.211  1.565  8.351   22.6
+       shape[1] 3.572  0.98  2.003  3.528  5.537 42.923
+       shape[2] 4.458  1.23  2.229  4.302  6.853 37.979
 
 ``` r
 params_gpd <- params(fit_gpd)
@@ -154,22 +154,22 @@ params_gpd
     Posterior mean parameters
 
     $alpha
-    [1] 0.5469
+    [1] "0.547"
 
     $w
-    [1] 0.5482 0.3758
+    [1] "0.548" "0.376"
 
     $mean
-    [1] 3.038 2.846
+    [1] "3.038" "2.846"
 
     $shape
-    [1] 3.572 4.458
+    [1] "3.572" "4.458"
 
     $tail_scale
-    [1] 2.091
+    [1] "2.091"
 
     $tail_shape
-    [1] 0.1513
+    [1] "0.151"
 
 ``` r
 plot(fit_gpd, family = "traceplot")
@@ -266,14 +266,14 @@ compare_tbl %>%
   kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
 ```
 
-|   model    | index | estimate  | lower  |   upper    |
-|:----------:|:-----:|:---------:|:------:|:----------:|
-| Bulk only  | 0.90  |  161.454  | 11.877 |  1486.452  |
-| Bulk only  | 0.95  | 1217.893  | 20.455 | 11932.352  |
-| Bulk only  | 0.99  | 71808.370 | 57.049 | 630249.252 |
-| Bulk + GPD | 0.90  |   4.786   | 3.607  |   5.720    |
-| Bulk + GPD | 0.95  |   6.407   | 4.788  |   7.995    |
-| Bulk + GPD | 0.99  |  11.101   | 8.345  |   15.509   |
+|   model    | index | estimate | lower |  upper   |
+|:----------:|:-----:|:--------:|:-----:|:--------:|
+| Bulk only  | 0.90  |  161.45  | 11.88 | 1.49e+03 |
+| Bulk only  | 0.95  | 1217.89  | 20.45 | 1.19e+04 |
+| Bulk only  | 0.99  | 71808.37 | 57.05 | 6.30e+05 |
+| Bulk + GPD | 0.90  |   4.79   | 3.61  | 5.72e+00 |
+| Bulk + GPD | 0.95  |   6.41   | 4.79  | 8.00e+00 |
+| Bulk + GPD | 0.99  |  11.10   | 8.35  | 1.55e+01 |
 
 Posterior-Mean Quantiles for Bulk-Only vs GPD Models
 
@@ -303,11 +303,11 @@ return_levels$fit %>%
   kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
 ```
 
-| estimate | index | lower  | upper  |
-|:--------:|:-----:|:------:|:------:|
-|  13.584  | 0.995 | 10.092 | 20.358 |
-|  11.101  | 0.990 | 8.345  | 15.509 |
-|  8.270   | 0.975 | 6.358  | 11.114 |
+| estimate | index | lower | upper |
+|:--------:|:-----:|:-----:|:-----:|
+|  13.58   | 0.995 | 10.09 | 20.4  |
+|  11.10   | 0.990 | 8.35  | 15.5  |
+|   8.27   | 0.975 | 6.36  | 11.1  |
 
 Extreme Quantile Estimates (Posterior Mean and Credible Intervals)
 
@@ -375,13 +375,13 @@ sensitivity_tbl %>%
   kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
 ```
 
-| threshold |  q_99  | q_99_lwr | q_99_upr |
-|:---------:|:------:|:--------:|:--------:|
-|   2.652   | 11.292 |  4.744   |  17.357  |
-|   3.044   | 11.292 |  4.744   |  17.357  |
-|   3.507   | 11.292 |  4.744   |  17.357  |
-|   3.938   | 11.292 |  4.744   |  17.357  |
-|   4.597   | 11.292 |  4.744   |  17.357  |
+| threshold | q_99 | q_99_lwr | q_99_upr |
+|:---------:|:----:|:--------:|:--------:|
+|   2.65    | 11.3 |   4.74   |   17.4   |
+|   3.04    | 11.3 |   4.74   |   17.4   |
+|   3.51    | 11.3 |   4.74   |   17.4   |
+|   3.94    | 11.3 |   4.74   |   17.4   |
+|   4.60    | 11.3 |   4.74   |   17.4   |
 
 Threshold Sensitivity: 99th Quantile
 

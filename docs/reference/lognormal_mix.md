@@ -106,15 +106,14 @@ meanlog <- c(-0.2, 0.6, 1.2)
 sdlog <- c(0.4, 0.3, 0.5)
 
 dLognormalMix(2.0, w = w, meanlog = meanlog, sdlog = sdlog, log = FALSE)
-#> [1] 0.2189383
+#> [1] 0.219
 pLognormalMix(2.0, w = w, meanlog = meanlog, sdlog = sdlog,
              lower.tail = TRUE, log.p = FALSE)
-#> [1] 0.7711135
+#> [1] 0.771
 qLognormalMix(0.50, w = w, meanlog = meanlog, sdlog = sdlog)
-#> [1] 1.151134
+#> [1] 1.15
 qLognormalMix(0.95, w = w, meanlog = meanlog, sdlog = sdlog)
-#> [1] 4.147585
+#> [1] 4.15
 replicate(10, rLognormalMix(1, w = w, meanlog = meanlog, sdlog = sdlog))
-#>  [1] 1.1127043 0.7090102 0.5668726 1.0114902 2.0339960 2.4874730 0.8932713
-#>  [8] 4.1695204 0.7636585 0.8616865
+#>  [1] 4.129 0.687 1.332 0.649 0.985 1.638 3.332 0.702 2.544 2.154
 ```

@@ -189,7 +189,7 @@ value
 N
 </td>
 <td style="text-align:center;">
-500.0000
+500.000
 </td>
 </tr>
 <tr>
@@ -197,7 +197,7 @@ N
 Mean
 </td>
 <td style="text-align:center;">
-0.2737
+0.274
 </td>
 </tr>
 <tr>
@@ -205,7 +205,7 @@ Mean
 SD
 </td>
 <td style="text-align:center;">
-1.7640
+1.764
 </td>
 </tr>
 <tr>
@@ -213,7 +213,7 @@ SD
 Min
 </td>
 <td style="text-align:center;">
--8.0890
+-8.089
 </td>
 </tr>
 <tr>
@@ -221,7 +221,7 @@ Min
 Max
 </td>
 <td style="text-align:center;">
-5.2750
+5.275
 </td>
 </tr>
 </tbody>
@@ -328,36 +328,36 @@ Use summary() for posterior summaries; plot() for diagnostics; predict() for pre
 Posterior mean parameters
 
 $alpha
-[1] 1.842
+[1] "1.842"
 
 $w
-[1] 0.3642 0.2690 0.1856
+[1] "0.364" "0.269" "0.186"
 
 $beta_location
-           x1      x2      x3      x4
-comp1  0.1561  0.9044  0.2751  0.4910
-comp2  0.5350 -1.2568 -0.5554  0.3711
-comp3 -0.2288  0.7405 -0.1809 -0.0433
-comp4 -0.2499 -0.2137 -0.4999  0.0471
-comp5  0.1978 -1.6964  1.0204  1.2210
+      x1       x2       x3       x4      
+comp1 "0.156"  "0.904"  "0.275"  "0.491" 
+comp2 "0.535"  "-1.257" "-0.555" "0.371" 
+comp3 "-0.229" "0.741"  "-0.181" "-0.043"
+comp4 "-0.25"  "-0.214" "-0.5"   "0.047" 
+comp5 "0.198"  "-1.696" "1.02"   "1.221" 
 
 $scale
-[1] 0.6466 0.5748 0.5353
+[1] "0.647" "0.575" "0.535"
 
 [control]
 Posterior mean parameters
 
 $alpha
-[1] 0.6324
+[1] "0.632"
 
 $w
-[1] 0.4170 0.3015 0.2190
+[1] "0.417" "0.302" "0.219"
 
 $location
-[1] -0.04636  0.66170 -0.17040
+[1] "-0.046" "0.662"  "-0.17" 
 
 $scale
-[1] 0.5236 0.5235 0.4180</code></pre>
+[1] "0.524" "0.523" "0.418"</code></pre>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_sb_crp</span>, params <span class="op">=</span> <span class="st">"location"</span>, family <span class="op">=</span> <span class="st">"traceplot"</span><span class="op">)</span></span></code></pre></div>
 <pre><code>
@@ -415,12 +415,12 @@ $scale
 
 ATE estimates (treated - control):
  id estimate   lower  upper
-  1   -1.210 -13.810 11.837
-  2    1.540 -13.971 13.643
-  3  -24.599 -12.300 16.204
+  1    -1.21  -13.81 11.837
+  2     1.54 -13.971 13.643
+  3  -24.599   -12.3 16.204
   4    1.358 -13.718 17.049
-  5    0.040 -13.646 14.767
-  6   -2.540 -14.096 15.756
+  5     0.04 -13.646 14.767
+  6    -2.54 -14.096 15.756
 ... (34 more rows)</code></pre>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">ate_sb_crp</span><span class="op">)</span></span></code></pre></div>
@@ -462,9 +462,9 @@ Credible interval width:
 QTE estimates (treated - control):
  index id estimate  lower upper
   0.25  1   -0.466 -2.604 1.003
-  0.25  2   -0.040 -2.678 1.856
+  0.25  2    -0.04 -2.678 1.856
   0.25  3    0.436 -1.264 1.354
-  0.25  4   -0.150 -3.310 1.168
+  0.25  4    -0.15  -3.31 1.168
   0.25  5   -1.409 -7.716 1.471
   0.25  6    0.426 -1.851 1.639
 ... (114 more rows)</code></pre>
@@ -485,7 +485,7 @@ Model specification:
 QTE by quantile:
  quantile mean_qte median_qte min_qte max_qte sd_qte
      0.25   -0.121     -0.053  -1.865   0.549  0.535
-     0.50    0.263      0.268  -0.134   0.822  0.273
+      0.5    0.263      0.268  -0.134   0.822  0.273
      0.75   -0.084     -0.104  -0.636   1.102  0.405
 
 Credible interval width:
@@ -584,36 +584,36 @@ Use summary() for posterior summaries; plot() for diagnostics; predict() for pre
 Posterior mean parameters
 
 $alpha
-[1] 0.4149
+[1] "0.415"
 
 $w
-[1] 0.5306 0.4452
+[1] "0.531" "0.445"
 
 $location
-[1]  0.7087 -0.1926
+[1] "0.709"  "-0.193"
 
 $scale
-[1] 0.6337 0.5286
+[1] "0.634" "0.529"
 
 [control]
 Posterior mean parameters
 
 $alpha
-[1] 1.937
+[1] "1.937"
 
 $w
-[1] 0.3371 0.2508 0.1889
+[1] "0.337" "0.251" "0.189"
 
 $beta_location
-           x1      x2      x3      x4
-comp1 -0.1033  0.1383 -0.0918 -1.0608
-comp2 -0.1120 -0.2083 -0.2446 -0.1722
-comp3 -0.1308 -0.3945 -0.3063  1.5690
-comp4 -0.3138 -0.1543 -0.1642  0.9584
-comp5 -0.1600 -0.3008  0.0725  0.5797
+      x1       x2       x3       x4      
+comp1 "-0.103" "0.138"  "-0.092" "-1.061"
+comp2 "-0.112" "-0.208" "-0.245" "-0.172"
+comp3 "-0.131" "-0.395" "-0.306" "1.569" 
+comp4 "-0.314" "-0.154" "-0.164" "0.958" 
+comp5 "-0.16"  "-0.301" "0.072"  "0.58"  
 
 $scale
-[1] 0.6275 0.5393 0.4912</code></pre>
+[1] "0.628" "0.539" "0.491"</code></pre>
 <div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_crp_sb</span>, family <span class="op">=</span> <span class="st">"traceplot"</span><span class="op">)</span></span></code></pre></div>
 <pre><code>
@@ -659,12 +659,12 @@ $scale
 
 ATE estimates (treated - control):
  id estimate   lower  upper
-  1    1.940 -13.504 15.804
+  1     1.94 -13.504 15.804
   2    0.953 -15.077 18.431
-  3    0.392 -12.060 16.755
+  3    0.392  -12.06 16.755
   4   14.966 -13.577 17.189
-  5    1.631 -12.740 14.193
-  6   -0.791 -11.782 13.140
+  5    1.631  -12.74 14.193
+  6   -0.791 -11.782  13.14
 ... (34 more rows)</code></pre>
 <div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">ate_crp_sb</span><span class="op">)</span></span></code></pre></div>
@@ -707,8 +707,8 @@ QTE estimates (treated - control):
  index id estimate  lower upper
   0.25  1   -0.076 -1.476 0.901
   0.25  2    0.472 -0.592 3.011
-  0.25  3    0.107 -1.175 1.840
-  0.25  4    0.440 -0.619 2.790
+  0.25  3    0.107 -1.175  1.84
+  0.25  4     0.44 -0.619  2.79
   0.25  5    1.135 -0.433 5.031
   0.25  6    0.066 -1.457 1.183
 ... (114 more rows)</code></pre>
@@ -729,8 +729,8 @@ Model specification:
 QTE by quantile:
  quantile mean_qte median_qte min_qte max_qte sd_qte
      0.25    0.272      0.184  -0.408   1.368  0.412
-     0.50    0.386      0.384  -0.116   0.967  0.252
-     0.75    0.388      0.391  -0.733   0.930  0.346
+      0.5    0.386      0.384  -0.116   0.967  0.252
+     0.75    0.388      0.391  -0.733    0.93  0.346
 
 Credible interval width:
   Mean: 3.021 | Median: 2.886

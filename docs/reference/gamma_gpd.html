@@ -226,25 +226,24 @@ so the overall CDF is proper.</p>
 <span class="r-in"><span><span class="fu">dGammaGpd</span><span class="op">(</span><span class="fl">4.0</span>, scale <span class="op">=</span> <span class="va">scale</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span></span>
 <span class="r-in"><span>         threshold <span class="op">=</span> <span class="va">threshold</span>, tail_scale <span class="op">=</span> <span class="va">tail_scale</span>,</span></span>
 <span class="r-in"><span>         tail_shape <span class="op">=</span> <span class="va">tail_shape</span>, log <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.3220605</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.322</span>
 <span class="r-in"><span><span class="fu">pGammaGpd</span><span class="op">(</span><span class="fl">4.0</span>, scale <span class="op">=</span> <span class="va">scale</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span></span>
 <span class="r-in"><span>         threshold <span class="op">=</span> <span class="va">threshold</span>, tail_scale <span class="op">=</span> <span class="va">tail_scale</span>,</span></span>
 <span class="r-in"><span>         tail_shape <span class="op">=</span> <span class="va">tail_shape</span>, lower.tail <span class="op">=</span> <span class="fl">1</span>, log.p <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.6457335</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.646</span>
 <span class="r-in"><span><span class="fu">qGammaGpd</span><span class="op">(</span><span class="fl">0.50</span>, scale <span class="op">=</span> <span class="va">scale</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span></span>
 <span class="r-in"><span>         threshold <span class="op">=</span> <span class="va">threshold</span>, tail_scale <span class="op">=</span> <span class="va">tail_scale</span>,</span></span>
 <span class="r-in"><span>         tail_shape <span class="op">=</span> <span class="va">tail_shape</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.63375</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.63</span>
 <span class="r-in"><span><span class="fu">qGammaGpd</span><span class="op">(</span><span class="fl">0.95</span>, scale <span class="op">=</span> <span class="va">scale</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span></span>
 <span class="r-in"><span>         threshold <span class="op">=</span> <span class="va">threshold</span>, tail_scale <span class="op">=</span> <span class="va">tail_scale</span>,</span></span>
 <span class="r-in"><span>         tail_shape <span class="op">=</span> <span class="va">tail_shape</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 6.636445</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 6.64</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rGammaGpd</span><span class="op">(</span><span class="fl">1</span>, scale <span class="op">=</span> <span class="va">scale</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span></span>
 <span class="r-in"><span>                       threshold <span class="op">=</span> <span class="va">threshold</span>,</span></span>
 <span class="r-in"><span>                       tail_scale <span class="op">=</span> <span class="va">tail_scale</span>,</span></span>
 <span class="r-in"><span>                       tail_shape <span class="op">=</span> <span class="va">tail_shape</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 3.041267 3.066459 3.937674 5.774885 3.887805 5.725403 4.224517 4.338427</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] 3.583110 3.823371</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  5.47  3.10  4.55 20.63  6.61  3.03  5.12  3.22  6.53  4.60</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

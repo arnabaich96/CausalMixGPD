@@ -91,14 +91,13 @@ shape1 <- 2
 shape2 <- 1.2
 
 dAmoroso(1.0, loc, scale, shape1, shape2, log = 0)
-#> [1] 0.2452362
+#> [1] 0.245
 pAmoroso(1.0, loc, scale, shape1, shape2, lower.tail = 1, log.p = 0)
-#> [1] 0.126778
+#> [1] 0.127
 qAmoroso(0.50, loc, scale, shape1, shape2)
-#> [1] 2.309366
+#> [1] 2.31
 qAmoroso(0.95, loc, scale, shape1, shape2)
-#> [1] 5.489526
+#> [1] 5.49
 replicate(10, rAmoroso(1, loc, scale, shape1, shape2))
-#>  [1] 2.7006836 1.1196594 0.2684797 2.1882428 2.3012404 1.5863122 3.3273216
-#>  [8] 3.5601145 4.3648873 1.1861036
+#>  [1] 2.701 1.120 0.268 2.188 2.301 1.586 3.327 3.560 4.365 1.186
 ```

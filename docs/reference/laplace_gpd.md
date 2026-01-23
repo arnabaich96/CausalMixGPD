@@ -111,15 +111,15 @@ tail_scale <- 1.0
 tail_shape <- 0.2
 
 dLaplaceGpd(2.0, location, scale, threshold, tail_scale, tail_shape, log = FALSE)
-#> [1] 0.1015629
+#> [1] 0.102
 pLaplaceGpd(2.0, location, scale, threshold, tail_scale, tail_shape,
            lower.tail = TRUE, log.p = FALSE)
-#> [1] 0.8781245
+#> [1] 0.878
 qLaplaceGpd(0.50, location, scale, threshold, tail_scale, tail_shape)
 #> [1] 0.5
 qLaplaceGpd(0.95, location, scale, threshold, tail_scale, tail_shape)
-#> [1] 3.170353
+#> [1] 3.17
 replicate(10, rLaplaceGpd(1, location, scale, threshold, tail_scale, tail_shape))
-#>  [1]  0.6416301 -0.8912912  1.9742237 -0.2066811 -0.6598996  1.2638142
-#>  [7]  1.2268526  5.9817040  2.7507877  3.0992175
+#>  [1]  1.2630  0.6412 -0.4555  0.1926  1.0271  2.7936 -0.2406 -1.3453  0.0436
+#> [10]  1.8280
 ```

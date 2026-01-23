@@ -129,15 +129,14 @@ tail_scale <- 1.0
 tail_shape <- 0.2
 
 dNormMixGpd(3.0, w, mean, sd, threshold, tail_scale, tail_shape, log = FALSE)
-#> [1] 0.0267334
+#> [1] 0.0267
 pNormMixGpd(3.0, w, mean, sd, threshold, tail_scale, tail_shape,
            lower.tail = TRUE, log.p = FALSE)
-#> [1] 0.9679199
+#> [1] 0.968
 qNormMixGpd(0.50, w, mean, sd, threshold, tail_scale, tail_shape)
-#> [1] -0.2713211
+#> [1] -0.271
 qNormMixGpd(0.95, w, mean, sd, threshold, tail_scale, tail_shape)
-#> [1] 2.490405
+#> [1] 2.49
 replicate(10, rNormMixGpd(1, w, mean, sd, threshold, tail_scale, tail_shape))
-#>  [1]  2.74982379  2.61237156  0.82712518  0.87452040  0.06287646  0.80348336
-#>  [7] -0.01754664 -0.08241367 -1.17382011  0.01109939
+#>  [1]  2.590 -0.434 -1.756 -2.166  0.581 -0.485 -2.241 -0.538 -2.287  0.514
 ```

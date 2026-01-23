@@ -110,8 +110,8 @@ pred_mean_bulk <- predict(fit_crp_bulk, type = "mean", interval = "credible", ns
 head(pred_mean_bulk)
 ```
 
-         ps  estimate     lower      upper
-    [1,] NA -1.313784 -1.973323 -0.2823862
+         ps estimate lower  upper
+    [1,] NA    -1.31 -1.97 -0.282
 
 ``` r
 plot(pred_mean_bulk)
@@ -124,8 +124,8 @@ pred_q_bulk <- predict(fit_crp_bulk, type = "quantile", p = 0.5, interval = "cre
 head(pred_q_bulk)
 ```
 
-         ps  estimate     lower      upper
-    [1,] NA -1.139858 -1.687581 -0.4101725
+         ps estimate lower upper
+    [1,] NA    -1.14 -1.69 -0.41
 
 ``` r
 plot(pred_q_bulk)
@@ -138,20 +138,13 @@ pred_d_bulk <- predict(fit_crp_bulk, y = y_eval, type = "density", interval = "c
 head(pred_d_bulk)
 ```
 
-              y ps trt_estimate  trt_lower trt_upper con_estimate  con_lower
-    1 0.9001906 NA            1 0.02409229 0.4021935            1 0.03031288
-    2 1.3517565 NA            1 0.04349703 0.3423511            1 0.04227198
-    3 1.1475287 NA            1 0.03459086 0.3730424            1 0.03643608
-    4 1.9323578 NA            1 0.06783753 0.2623051            1 0.05824336
-    5 3.3439817 NA            1 0.09321880 0.1785609            1 0.07555778
-    6 0.9493979 NA            1 0.02613220 0.3974834            1 0.03142415
-      con_upper
-    1 0.1806315
-    2 0.1636283
-    3 0.1668065
-    4 0.1638685
-    5 0.1621003
-    6 0.1777212
+          y ps trt_estimate trt_lower trt_upper con_estimate con_lower con_upper
+    1 0.900 NA            1    0.0241     0.402            1    0.0303     0.181
+    2 1.352 NA            1    0.0435     0.342            1    0.0423     0.164
+    3 1.148 NA            1    0.0346     0.373            1    0.0364     0.167
+    4 1.932 NA            1    0.0678     0.262            1    0.0582     0.164
+    5 3.344 NA            1    0.0932     0.179            1    0.0756     0.162
+    6 0.949 NA            1    0.0261     0.397            1    0.0314     0.178
 
 ``` r
 plot(pred_d_bulk)
@@ -164,20 +157,13 @@ pred_surv_bulk <- predict(fit_crp_bulk, y = y_eval, type = "survival", interval 
 head(pred_surv_bulk)
 ```
 
-              y ps trt_estimate trt_lower trt_upper con_estimate con_lower
-    1 0.9001906 NA            1 0.6902667 0.9917456            1 0.7637875
-    2 1.3517565 NA            1 0.5210217 0.9765268            1 0.6866502
-    3 1.1475287 NA            1 0.5941341 0.9844997            1 0.7193641
-    4 1.9323578 NA            1 0.3492719 0.9440786            1 0.6198187
-    5 3.3439817 NA            1 0.1197759 0.8162919            1 0.4667351
-    6 0.9493979 NA            1 0.6705890 0.9905101            1 0.7545498
-      con_upper
-    1 0.9881603
-    2 0.9690829
-    3 0.9789502
-    4 0.9303311
-    5 0.8168910
-    6 0.9865656
+          y ps trt_estimate trt_lower trt_upper con_estimate con_lower con_upper
+    1 0.900 NA            1     0.690     0.992            1     0.764     0.988
+    2 1.352 NA            1     0.521     0.977            1     0.687     0.969
+    3 1.148 NA            1     0.594     0.984            1     0.719     0.979
+    4 1.932 NA            1     0.349     0.944            1     0.620     0.930
+    5 3.344 NA            1     0.120     0.816            1     0.467     0.817
+    6 0.949 NA            1     0.671     0.991            1     0.755     0.987
 
 ``` r
 plot(pred_surv_bulk)
@@ -246,9 +232,9 @@ print(qte_bulk)
 
     QTE estimates (treated - control):
      index id estimate  lower upper
-      0.25  1   -0.470 -2.932 2.316
-      0.50  1   -1.140 -4.810 2.712
-      0.75  1   -1.904 -7.040 2.830
+      0.25  1    -0.47 -2.932 2.316
+       0.5  1    -1.14  -4.81 2.712
+      0.75  1   -1.904  -7.04  2.83
 
 ``` r
 summary(qte_bulk)
@@ -268,8 +254,8 @@ summary(qte_bulk)
 
     QTE by quantile:
      quantile mean_qte median_qte min_qte max_qte sd_qte
-         0.25   -0.470     -0.470  -0.470  -0.470     NA
-         0.50   -1.140     -1.140  -1.140  -1.140     NA
+         0.25    -0.47      -0.47   -0.47   -0.47     NA
+          0.5    -1.14      -1.14   -1.14   -1.14     NA
          0.75   -1.904     -1.904  -1.904  -1.904     NA
 
     Credible interval width:

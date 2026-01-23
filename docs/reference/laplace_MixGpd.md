@@ -141,23 +141,22 @@ tail_shape <- 0.2
 dLaplaceMixGpd(2.0, w = w, location = location, scale = scale,
               threshold = threshold, tail_scale = tail_scale,
               tail_shape = tail_shape, log = FALSE)
-#> [1] 0.0865078
+#> [1] 0.0865
 pLaplaceMixGpd(2.0, w = w, location = location, scale = scale,
               threshold = threshold, tail_scale = tail_scale,
               tail_shape = tail_shape, lower.tail = TRUE, log.p = FALSE)
-#> [1] 0.8961906
+#> [1] 0.896
 qLaplaceMixGpd(0.50, w = w, location = location, scale = scale,
               threshold = threshold, tail_scale = tail_scale,
               tail_shape = tail_shape)
-#> [1] -0.02546085
+#> [1] -0.0255
 qLaplaceMixGpd(0.95, w = w, location = location, scale = scale,
               threshold = threshold, tail_scale = tail_scale,
               tail_shape = tail_shape)
-#> [1] 2.943917
+#> [1] 2.94
 replicate(10, rLaplaceMixGpd(1, w = w, location = location, scale = scale,
                             threshold = threshold,
                             tail_scale = tail_scale,
                             tail_shape = tail_shape))
-#>  [1]  0.4777538 -0.8662619 -1.2175676  2.0034918 -0.6589030 -0.9083755
-#>  [7]  1.2361682  4.8218533 -0.1688681 -0.9815452
+#>  [1]  0.535  2.231  1.441  2.502  6.526  6.168 -0.576 -0.694  0.693 -1.158
 ```

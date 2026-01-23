@@ -279,14 +279,14 @@ a numeric vector. The <code>r*</code> functions support <code>n &gt; 1</code>.</
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Lognormal mixture</span></span></span>
 <span class="r-in"><span><span class="fu">dlognormalmix</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, w <span class="op">=</span> <span class="va">w</span>, meanlog <span class="op">=</span> <span class="va">ml</span>, sdlog <span class="op">=</span> <span class="va">sl</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dlognormalmix(c(1, 2, 3), w = w, meanlog = ml, sdlog = sl):</span> could not find function "dlognormalmix"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.8387 0.1874 0.0426</span>
 <span class="r-in"><span><span class="fu">rlognormalmix</span><span class="op">(</span><span class="fl">5</span>, w <span class="op">=</span> <span class="va">w</span>, meanlog <span class="op">=</span> <span class="va">ml</span>, sdlog <span class="op">=</span> <span class="va">sl</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in rlognormalmix(5, w = w, meanlog = ml, sdlog = sl):</span> could not find function "rlognormalmix"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.636 0.756 1.583 1.456 0.573</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Lognormal mixture + GPD</span></span></span>
 <span class="r-in"><span><span class="fu">dlognormalmixgpd</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span><span class="op">)</span>, w <span class="op">=</span> <span class="va">w</span>, meanlog <span class="op">=</span> <span class="va">ml</span>, sdlog <span class="op">=</span> <span class="va">sl</span>,</span></span>
 <span class="r-in"><span>                 threshold <span class="op">=</span> <span class="fl">2.5</span>, tail_scale <span class="op">=</span> <span class="fl">0.5</span>, tail_shape <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dlognormalmixgpd(c(2, 3, 4), w = w, meanlog = ml, sdlog = sl,     threshold = 2.5, tail_scale = 0.5, tail_shape = 0.2):</span> could not find function "dlognormalmixgpd"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.18737 0.04632 0.00824</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

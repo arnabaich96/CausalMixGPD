@@ -229,25 +229,24 @@ the RNG implementation supports <code>n = 1</code>.</p></dd>
 <span class="r-in"><span><span class="fu">dInvGaussMixGpd</span><span class="op">(</span><span class="fl">4.0</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mean</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span></span>
 <span class="r-in"><span>               threshold <span class="op">=</span> <span class="va">threshold</span>, tail_scale <span class="op">=</span> <span class="va">tail_scale</span>,</span></span>
 <span class="r-in"><span>               tail_shape <span class="op">=</span> <span class="va">tail_shape</span>, log <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.06286562</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.0629</span>
 <span class="r-in"><span><span class="fu">pInvGaussMixGpd</span><span class="op">(</span><span class="fl">4.0</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mean</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span></span>
 <span class="r-in"><span>               threshold <span class="op">=</span> <span class="va">threshold</span>, tail_scale <span class="op">=</span> <span class="va">tail_scale</span>,</span></span>
 <span class="r-in"><span>               tail_shape <span class="op">=</span> <span class="va">tail_shape</span>, lower.tail <span class="op">=</span> <span class="fl">1</span>, log.p <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.9308478</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.931</span>
 <span class="r-in"><span><span class="fu">qInvGaussMixGpd</span><span class="op">(</span><span class="fl">0.50</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mean</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span></span>
 <span class="r-in"><span>               threshold <span class="op">=</span> <span class="va">threshold</span>, tail_scale <span class="op">=</span> <span class="va">tail_scale</span>,</span></span>
 <span class="r-in"><span>               tail_shape <span class="op">=</span> <span class="va">tail_shape</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.251694</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.25</span>
 <span class="r-in"><span><span class="fu">qInvGaussMixGpd</span><span class="op">(</span><span class="fl">0.95</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mean</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span></span>
 <span class="r-in"><span>               threshold <span class="op">=</span> <span class="va">threshold</span>, tail_scale <span class="op">=</span> <span class="va">tail_scale</span>,</span></span>
 <span class="r-in"><span>               tail_shape <span class="op">=</span> <span class="va">tail_shape</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4.368537</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4.37</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rInvGaussMixGpd</span><span class="op">(</span><span class="fl">1</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mean</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span></span>
 <span class="r-in"><span>                             threshold <span class="op">=</span> <span class="va">threshold</span>,</span></span>
 <span class="r-in"><span>                             tail_scale <span class="op">=</span> <span class="va">tail_scale</span>,</span></span>
 <span class="r-in"><span>                             tail_shape <span class="op">=</span> <span class="va">tail_shape</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  3.0434736 19.9183609  3.0320847  0.4207465  5.1568710  0.5631483</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  7.1150727  4.5704561  3.4546414  5.0240218</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 0.355 0.608 2.363 0.769 5.092 1.874 1.027 0.879 0.436 0.560</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

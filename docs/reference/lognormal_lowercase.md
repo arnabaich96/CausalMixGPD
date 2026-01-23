@@ -189,12 +189,12 @@ sl <- c(0.4, 0.5, 0.6)
 
 # Lognormal mixture
 dlognormalmix(c(1, 2, 3), w = w, meanlog = ml, sdlog = sl)
-#> Error in dlognormalmix(c(1, 2, 3), w = w, meanlog = ml, sdlog = sl): could not find function "dlognormalmix"
+#> [1] 0.8387 0.1874 0.0426
 rlognormalmix(5, w = w, meanlog = ml, sdlog = sl)
-#> Error in rlognormalmix(5, w = w, meanlog = ml, sdlog = sl): could not find function "rlognormalmix"
+#> [1] 0.636 0.756 1.583 1.456 0.573
 
 # Lognormal mixture + GPD
 dlognormalmixgpd(c(2, 3, 4), w = w, meanlog = ml, sdlog = sl,
                  threshold = 2.5, tail_scale = 0.5, tail_shape = 0.2)
-#> Error in dlognormalmixgpd(c(2, 3, 4), w = w, meanlog = ml, sdlog = sl,     threshold = 2.5, tail_scale = 0.5, tail_shape = 0.2): could not find function "dlognormalmixgpd"
+#> [1] 0.18737 0.04632 0.00824
 ```

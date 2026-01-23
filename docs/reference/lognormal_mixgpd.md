@@ -151,23 +151,22 @@ tail_shape <- 0.2
 dLognormalMixGpd(4.0, w = w, meanlog = meanlog, sdlog = sdlog,
                 threshold = threshold, tail_scale = tail_scale,
                 tail_shape = tail_shape, log = FALSE)
-#> [1] 0.03315338
+#> [1] 0.0332
 pLognormalMixGpd(4.0, w = w, meanlog = meanlog, sdlog = sdlog,
                 threshold = threshold, tail_scale = tail_scale,
                 tail_shape = tail_shape, lower.tail = TRUE, log.p = FALSE)
-#> [1] 0.9635313
+#> [1] 0.964
 qLognormalMixGpd(0.50, w = w, meanlog = meanlog, sdlog = sdlog,
                 threshold = threshold, tail_scale = tail_scale,
                 tail_shape = tail_shape)
-#> [1] 1.151134
+#> [1] 1.15
 qLognormalMixGpd(0.95, w = w, meanlog = meanlog, sdlog = sdlog,
                 threshold = threshold, tail_scale = tail_scale,
                 tail_shape = tail_shape)
-#> [1] 3.663602
+#> [1] 3.66
 replicate(10, rLognormalMixGpd(1, w = w, meanlog = meanlog, sdlog = sdlog,
                               threshold = threshold,
                               tail_scale = tail_scale,
                               tail_shape = tail_shape))
-#>  [1] 5.4938753 0.5251954 1.6228067 0.9577604 5.4434957 1.3605324 2.4944713
-#>  [8] 4.0151502 0.9157975 1.9846161
+#>  [1] 1.133 3.115 1.213 1.420 0.764 1.478 0.554 5.907 0.678 2.633
 ```

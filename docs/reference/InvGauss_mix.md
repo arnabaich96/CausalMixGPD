@@ -109,15 +109,14 @@ mean <- c(1.0, 2.5, 5.0)
 shape <- c(2, 4, 8)
 
 dInvGaussMix(2.0, w = w, mean = mean, shape = shape, log = 0)
-#> [1] 0.17698
+#> [1] 0.177
 pInvGaussMix(2.0, w = w, mean = mean, shape = shape,
             lower.tail = 1, log.p = 0)
-#> [1] 0.6866789
+#> [1] 0.687
 qInvGaussMix(0.50, w = w, mean = mean, shape = shape)
-#> [1] 1.251694
+#> [1] 1.25
 qInvGaussMix(0.95, w = w, mean = mean, shape = shape)
-#> [1] 6.489781
+#> [1] 6.49
 replicate(10, rInvGaussMix(1, w = w, mean = mean, shape = shape))
-#>  [1] 1.2121526 0.8304820 1.3536225 1.8771959 1.6650262 5.3042084 5.2527404
-#>  [8] 0.4881889 0.4173882 0.2376235
+#>  [1] 0.996 1.544 0.950 0.343 1.575 4.759 1.562 0.414 0.763 4.194
 ```

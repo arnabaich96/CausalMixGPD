@@ -18,6 +18,10 @@ knitr::opts_chunk$set(
   fig.align = "center"
 )
 library(DPmixGPD)
+# Ensure kernel registry is available (may not be initialized in pkgdown environment)
+if (!exists("kernel_registry", envir = asNamespace("DPmixGPD"), inherits = FALSE)) {
+  init_kernel_registry()
+}
 library(ggplot2)
 library(kableExtra)
 set.seed(1)

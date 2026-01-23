@@ -195,7 +195,7 @@ value
 N
 </td>
 <td style="text-align:center;">
-200.0000
+200.000
 </td>
 </tr>
 <tr>
@@ -203,7 +203,7 @@ N
 Mean
 </td>
 <td style="text-align:center;">
-2.3340
+2.334
 </td>
 </tr>
 <tr>
@@ -211,7 +211,7 @@ Mean
 SD
 </td>
 <td style="text-align:center;">
-2.3000
+2.300
 </td>
 </tr>
 <tr>
@@ -219,7 +219,7 @@ SD
 Min
 </td>
 <td style="text-align:center;">
-0.3283
+0.328
 </td>
 </tr>
 <tr>
@@ -227,7 +227,7 @@ Min
 Max
 </td>
 <td style="text-align:center;">
-19.8700
+19.870
 </td>
 </tr>
 </tbody>
@@ -300,39 +300,39 @@ WAIC: 656.824
 lppd: -283.017 | pWAIC: 45.395
 
 Summary table
-  parameter  mean    sd q0.025 q0.500 q0.975     ess
- weights[1] 0.548 0.068  0.445  0.540  0.693  32.721
- weights[2] 0.376 0.078  0.224  0.390  0.491  20.487
-      alpha 0.547 0.334  0.105  0.461  1.333 150.000
- tail_scale 2.091 0.788  1.284  1.845  4.208  22.592
- tail_shape 0.151 0.130 -0.038  0.153  0.495  28.026
-  threshold 3.361 0.878  2.161  3.145  5.485  14.433
-    mean[1] 3.038 1.640  1.211  2.881  6.659  15.294
-    mean[2] 2.846 2.192  1.211  1.565  8.351  22.600
-   shape[1] 3.572 0.980  2.003  3.528  5.537  42.923
-   shape[2] 4.458 1.230  2.229  4.302  6.853  37.979</code></pre>
+  parameter  mean    sd q0.025 q0.500 q0.975    ess
+ weights[1] 0.548 0.068  0.445   0.54  0.693 32.721
+ weights[2] 0.376 0.078  0.224   0.39  0.491 20.487
+      alpha 0.547 0.334  0.105  0.461  1.333    150
+ tail_scale 2.091 0.788  1.284  1.845  4.208 22.592
+ tail_shape 0.151  0.13 -0.038  0.153  0.495 28.026
+  threshold 3.361 0.878  2.161  3.145  5.485 14.433
+    mean[1] 3.038  1.64  1.211  2.881  6.659 15.294
+    mean[2] 2.846 2.192  1.211  1.565  8.351   22.6
+   shape[1] 3.572  0.98  2.003  3.528  5.537 42.923
+   shape[2] 4.458  1.23  2.229  4.302  6.853 37.979</code></pre>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">params_gpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/params.html">params</a></span><span class="op">(</span><span class="va">fit_gpd</span><span class="op">)</span></span>
 <span><span class="va">params_gpd</span></span></code></pre></div>
 <pre><code>Posterior mean parameters
 
 $alpha
-[1] 0.5469
+[1] "0.547"
 
 $w
-[1] 0.5482 0.3758
+[1] "0.548" "0.376"
 
 $mean
-[1] 3.038 2.846
+[1] "3.038" "2.846"
 
 $shape
-[1] 3.572 4.458
+[1] "3.572" "4.458"
 
 $tail_scale
-[1] 2.091
+[1] "2.091"
 
 $tail_shape
-[1] 0.1513</code></pre>
+[1] "0.151"</code></pre>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_gpd</span>, family <span class="op">=</span> <span class="st">"traceplot"</span><span class="op">)</span></span></code></pre></div>
 <pre><code>
@@ -435,13 +435,13 @@ Bulk only
 0.90
 </td>
 <td style="text-align:center;">
-161.454
+161.45
 </td>
 <td style="text-align:center;">
-11.877
+11.88
 </td>
 <td style="text-align:center;">
-1486.452
+1.49e+03
 </td>
 </tr>
 <tr>
@@ -452,13 +452,13 @@ Bulk only
 0.95
 </td>
 <td style="text-align:center;">
-1217.893
+1217.89
 </td>
 <td style="text-align:center;">
-20.455
+20.45
 </td>
 <td style="text-align:center;">
-11932.352
+1.19e+04
 </td>
 </tr>
 <tr>
@@ -469,13 +469,13 @@ Bulk only
 0.99
 </td>
 <td style="text-align:center;">
-71808.370
+71808.37
 </td>
 <td style="text-align:center;">
-57.049
+57.05
 </td>
 <td style="text-align:center;">
-630249.252
+6.30e+05
 </td>
 </tr>
 <tr>
@@ -486,13 +486,13 @@ Bulk + GPD
 0.90
 </td>
 <td style="text-align:center;">
-4.786
+4.79
 </td>
 <td style="text-align:center;">
-3.607
+3.61
 </td>
 <td style="text-align:center;">
-5.720
+5.72e+00
 </td>
 </tr>
 <tr>
@@ -503,13 +503,13 @@ Bulk + GPD
 0.95
 </td>
 <td style="text-align:center;">
-6.407
+6.41
 </td>
 <td style="text-align:center;">
-4.788
+4.79
 </td>
 <td style="text-align:center;">
-7.995
+8.00e+00
 </td>
 </tr>
 <tr>
@@ -520,13 +520,13 @@ Bulk + GPD
 0.99
 </td>
 <td style="text-align:center;">
-11.101
+11.10
 </td>
 <td style="text-align:center;">
-8.345
+8.35
 </td>
 <td style="text-align:center;">
-15.509
+1.55e+01
 </td>
 </tr>
 </tbody>
@@ -571,44 +571,44 @@ upper
 <tbody>
 <tr>
 <td style="text-align:center;">
-13.584
+13.58
 </td>
 <td style="text-align:center;">
 0.995
 </td>
 <td style="text-align:center;">
-10.092
+10.09
 </td>
 <td style="text-align:center;">
-20.358
+20.4
 </td>
 </tr>
 <tr>
 <td style="text-align:center;">
-11.101
+11.10
 </td>
 <td style="text-align:center;">
 0.990
 </td>
 <td style="text-align:center;">
-8.345
+8.35
 </td>
 <td style="text-align:center;">
-15.509
+15.5
 </td>
 </tr>
 <tr>
 <td style="text-align:center;">
-8.270
+8.27
 </td>
 <td style="text-align:center;">
 0.975
 </td>
 <td style="text-align:center;">
-6.358
+6.36
 </td>
 <td style="text-align:center;">
-11.114
+11.1
 </td>
 </tr>
 </tbody>
@@ -694,72 +694,72 @@ q_99_upr
 <tbody>
 <tr>
 <td style="text-align:center;">
-2.652
+2.65
 </td>
 <td style="text-align:center;">
-11.292
+11.3
 </td>
 <td style="text-align:center;">
-4.744
+4.74
 </td>
 <td style="text-align:center;">
-17.357
-</td>
-</tr>
-<tr>
-<td style="text-align:center;">
-3.044
-</td>
-<td style="text-align:center;">
-11.292
-</td>
-<td style="text-align:center;">
-4.744
-</td>
-<td style="text-align:center;">
-17.357
+17.4
 </td>
 </tr>
 <tr>
 <td style="text-align:center;">
-3.507
+3.04
 </td>
 <td style="text-align:center;">
-11.292
+11.3
 </td>
 <td style="text-align:center;">
-4.744
+4.74
 </td>
 <td style="text-align:center;">
-17.357
-</td>
-</tr>
-<tr>
-<td style="text-align:center;">
-3.938
-</td>
-<td style="text-align:center;">
-11.292
-</td>
-<td style="text-align:center;">
-4.744
-</td>
-<td style="text-align:center;">
-17.357
+17.4
 </td>
 </tr>
 <tr>
 <td style="text-align:center;">
-4.597
+3.51
 </td>
 <td style="text-align:center;">
-11.292
+11.3
 </td>
 <td style="text-align:center;">
-4.744
+4.74
 </td>
 <td style="text-align:center;">
-17.357
+17.4
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+3.94
+</td>
+<td style="text-align:center;">
+11.3
+</td>
+<td style="text-align:center;">
+4.74
+</td>
+<td style="text-align:center;">
+17.4
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+4.60
+</td>
+<td style="text-align:center;">
+11.3
+</td>
+<td style="text-align:center;">
+4.74
+</td>
+<td style="text-align:center;">
+17.4
 </td>
 </tr>
 </tbody>

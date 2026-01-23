@@ -229,31 +229,31 @@ use inside NIMBLE models.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># GPD</span></span></span>
 <span class="r-in"><span><span class="fu">dgpd</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.5</span>, <span class="fl">2.0</span>, <span class="fl">2.5</span><span class="op">)</span>, threshold <span class="op">=</span> <span class="fl">1</span>, scale <span class="op">=</span> <span class="fl">0.8</span>, shape <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dgpd(c(1.5, 2, 2.5), threshold = 1, scale = 0.8, shape = 0.2):</span> could not find function "dgpd"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.617 0.328 0.185</span>
 <span class="r-in"><span><span class="fu">pgpd</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.5</span>, <span class="fl">2.0</span><span class="op">)</span>, threshold <span class="op">=</span> <span class="fl">1</span>, scale <span class="op">=</span> <span class="fl">0.8</span>, shape <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in pgpd(c(1.5, 2), threshold = 1, scale = 0.8, shape = 0.2):</span> could not find function "pgpd"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.445 0.672</span>
 <span class="r-in"><span><span class="fu">qgpd</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span>, threshold <span class="op">=</span> <span class="fl">1</span>, scale <span class="op">=</span> <span class="fl">0.8</span>, shape <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in qgpd(c(0.5, 0.9), threshold = 1, scale = 0.8, shape = 0.2):</span> could not find function "qgpd"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.59 3.34</span>
 <span class="r-in"><span><span class="fu">rgpd</span><span class="op">(</span><span class="fl">5</span>, threshold <span class="op">=</span> <span class="fl">1</span>, scale <span class="op">=</span> <span class="fl">0.8</span>, shape <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in rgpd(5, threshold = 1, scale = 0.8, shape = 0.2):</span> could not find function "rgpd"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.55 2.60 1.44 1.20 1.46</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Inverse Gaussian</span></span></span>
 <span class="r-in"><span><span class="fu">dinvgauss</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, mean <span class="op">=</span> <span class="fl">2</span>, shape <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dinvgauss(c(1, 2, 3), mean = 2, shape = 5):</span> could not find function "dinvgauss"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.477 0.315 0.139</span>
 <span class="r-in"><span><span class="fu">rinvgauss</span><span class="op">(</span><span class="fl">5</span>, mean <span class="op">=</span> <span class="fl">2</span>, shape <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in rinvgauss(5, mean = 2, shape = 5):</span> could not find function "rinvgauss"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.634 2.038 4.068 0.429 3.210</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Amoroso</span></span></span>
 <span class="r-in"><span><span class="fu">damoroso</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, loc <span class="op">=</span> <span class="fl">0</span>, scale <span class="op">=</span> <span class="fl">1.5</span>, shape1 <span class="op">=</span> <span class="fl">2</span>, shape2 <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in damoroso(c(1, 2), loc = 0, scale = 1.5, shape1 = 2, shape2 = 1.2):</span> could not find function "damoroso"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.245 0.292</span>
 <span class="r-in"><span><span class="fu">ramoroso</span><span class="op">(</span><span class="fl">5</span>, loc <span class="op">=</span> <span class="fl">0</span>, scale <span class="op">=</span> <span class="fl">1.5</span>, shape1 <span class="op">=</span> <span class="fl">2</span>, shape2 <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in ramoroso(5, loc = 0, scale = 1.5, shape1 = 2, shape2 = 1.2):</span> could not find function "ramoroso"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4.21 2.56 1.46 4.91 4.29</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Cauchy</span></span></span>
 <span class="r-in"><span><span class="fu">dcauchy_vec</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, location <span class="op">=</span> <span class="fl">0</span>, scale <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dcauchy_vec(c(-1, 0, 1), location = 0, scale = 1):</span> could not find function "dcauchy_vec"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.159 0.318 0.159</span>
 <span class="r-in"><span><span class="fu">rcauchy_vec</span><span class="op">(</span><span class="fl">5</span>, location <span class="op">=</span> <span class="fl">0</span>, scale <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in rcauchy_vec(5, location = 0, scale = 1):</span> could not find function "rcauchy_vec"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -1.009 -0.315  1.132 -2.538 -1.426</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

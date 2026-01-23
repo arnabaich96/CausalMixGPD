@@ -205,17 +205,16 @@ with the same length as <code>p</code>.</p>
 <span class="r-in"><span><span class="va">scale</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.0</span>, <span class="fl">0.7</span>, <span class="fl">1.5</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">dCauchyMix</span><span class="op">(</span><span class="fl">0.5</span>, w <span class="op">=</span> <span class="va">w</span>, location <span class="op">=</span> <span class="va">location</span>, scale <span class="op">=</span> <span class="va">scale</span>, log <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1235181</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.124</span>
 <span class="r-in"><span><span class="fu">pCauchyMix</span><span class="op">(</span><span class="fl">0.5</span>, w <span class="op">=</span> <span class="va">w</span>, location <span class="op">=</span> <span class="va">location</span>, scale <span class="op">=</span> <span class="va">scale</span>,</span></span>
 <span class="r-in"><span>           lower.tail <span class="op">=</span> <span class="cn">TRUE</span>, log.p <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.6830742</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.683</span>
 <span class="r-in"><span><span class="fu">qCauchyMix</span><span class="op">(</span><span class="fl">0.50</span>, w <span class="op">=</span> <span class="va">w</span>, location <span class="op">=</span> <span class="va">location</span>, scale <span class="op">=</span> <span class="va">scale</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.6639507</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.664</span>
 <span class="r-in"><span><span class="fu">qCauchyMix</span><span class="op">(</span><span class="fl">0.95</span>, w <span class="op">=</span> <span class="va">w</span>, location <span class="op">=</span> <span class="va">location</span>, scale <span class="op">=</span> <span class="va">scale</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 6.996407</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 7</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rCauchyMix</span><span class="op">(</span><span class="fl">1</span>, w <span class="op">=</span> <span class="va">w</span>, location <span class="op">=</span> <span class="va">location</span>, scale <span class="op">=</span> <span class="va">scale</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]   0.02594232   4.15434700 -38.57465351 133.69621213  -0.33217389</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [6]   0.19025854   1.47153823  -0.68694099   6.38862006  -2.31494157</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  5.345 -0.846 -0.862 -2.580 -0.690  1.779  5.349  3.392 45.684 -0.874</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

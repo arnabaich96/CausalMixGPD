@@ -137,29 +137,29 @@ use inside NIMBLE models.
 ``` r
 # GPD
 dgpd(c(1.5, 2.0, 2.5), threshold = 1, scale = 0.8, shape = 0.2)
-#> Error in dgpd(c(1.5, 2, 2.5), threshold = 1, scale = 0.8, shape = 0.2): could not find function "dgpd"
+#> [1] 0.617 0.328 0.185
 pgpd(c(1.5, 2.0), threshold = 1, scale = 0.8, shape = 0.2)
-#> Error in pgpd(c(1.5, 2), threshold = 1, scale = 0.8, shape = 0.2): could not find function "pgpd"
+#> [1] 0.445 0.672
 qgpd(c(0.5, 0.9), threshold = 1, scale = 0.8, shape = 0.2)
-#> Error in qgpd(c(0.5, 0.9), threshold = 1, scale = 0.8, shape = 0.2): could not find function "qgpd"
+#> [1] 1.59 3.34
 rgpd(5, threshold = 1, scale = 0.8, shape = 0.2)
-#> Error in rgpd(5, threshold = 1, scale = 0.8, shape = 0.2): could not find function "rgpd"
+#> [1] 2.55 2.60 1.44 1.20 1.46
 
 # Inverse Gaussian
 dinvgauss(c(1, 2, 3), mean = 2, shape = 5)
-#> Error in dinvgauss(c(1, 2, 3), mean = 2, shape = 5): could not find function "dinvgauss"
+#> [1] 0.477 0.315 0.139
 rinvgauss(5, mean = 2, shape = 5)
-#> Error in rinvgauss(5, mean = 2, shape = 5): could not find function "rinvgauss"
+#> [1] 2.634 2.038 4.068 0.429 3.210
 
 # Amoroso
 damoroso(c(1, 2), loc = 0, scale = 1.5, shape1 = 2, shape2 = 1.2)
-#> Error in damoroso(c(1, 2), loc = 0, scale = 1.5, shape1 = 2, shape2 = 1.2): could not find function "damoroso"
+#> [1] 0.245 0.292
 ramoroso(5, loc = 0, scale = 1.5, shape1 = 2, shape2 = 1.2)
-#> Error in ramoroso(5, loc = 0, scale = 1.5, shape1 = 2, shape2 = 1.2): could not find function "ramoroso"
+#> [1] 4.21 2.56 1.46 4.91 4.29
 
 # Cauchy
 dcauchy_vec(c(-1, 0, 1), location = 0, scale = 1)
-#> Error in dcauchy_vec(c(-1, 0, 1), location = 0, scale = 1): could not find function "dcauchy_vec"
+#> [1] 0.159 0.318 0.159
 rcauchy_vec(5, location = 0, scale = 1)
-#> Error in rcauchy_vec(5, location = 0, scale = 1): could not find function "rcauchy_vec"
+#> [1] -1.009 -0.315  1.132 -2.538 -1.426
 ```
