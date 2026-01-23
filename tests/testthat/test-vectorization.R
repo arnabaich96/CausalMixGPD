@@ -705,3 +705,258 @@ test_that("lowercase mixgpd and gpd r wrappers support n > 1", {
   expect_length(draws_gpd, 7)
   expect_true(all(is.finite(draws_gpd)))
 })
+
+test_that("vectorized d/p/q options match scalar versions", {
+  d_specs <- list(
+    list(vec = dgpd, scalar = dGpd, x = c(1.2, 1.6, 2.0),
+         args = list(threshold = 1.0, scale = 0.8, shape = 0.2)),
+    list(vec = dnormmix, scalar = dNormMix, x = c(-1.0, 0.5, 1.2),
+         args = list(w = c(0.7, 0.3), mean = c(0.0, 1.2), sd = c(1.0, 1.6))),
+    list(vec = dnormmixgpd, scalar = dNormMixGpd, x = c(-0.5, 0.5, 2.5),
+         args = list(w = c(0.6, 0.4), mean = c(0.0, 1.5), sd = c(1.0, 1.8),
+                     threshold = 1.2, tail_scale = 1.0, tail_shape = 0.15)),
+    list(vec = dnormgpd, scalar = dNormGpd, x = c(-0.5, 0.5, 2.5),
+         args = list(mean = 0.0, sd = 1.0, threshold = 1.2, tail_scale = 1.0, tail_shape = 0.15)),
+    list(vec = dgammamix, scalar = dGammaMix, x = c(1.0, 2.2, 4.5),
+         args = list(w = c(0.6, 0.4), shape = c(2.0, 4.0), scale = c(1.0, 2.0))),
+    list(vec = dgammamixgpd, scalar = dGammaMixGpd, x = c(1.0, 2.2, 4.5),
+         args = list(w = c(0.6, 0.4), shape = c(2.0, 4.0), scale = c(1.0, 2.0),
+                     threshold = 2.5, tail_scale = 0.9, tail_shape = 0.2)),
+    list(vec = dgammagpd, scalar = dGammaGpd, x = c(1.0, 2.2, 4.5),
+         args = list(shape = 2.0, scale = 1.0, threshold = 2.5, tail_scale = 0.9, tail_shape = 0.2)),
+    list(vec = dlognormalmix, scalar = dLognormalMix, x = c(0.5, 1.2, 3.0),
+         args = list(w = c(0.7, 0.3), meanlog = c(0.0, 0.4), sdlog = c(0.3, 0.6))),
+    list(vec = dlognormalmixgpd, scalar = dLognormalMixGpd, x = c(0.5, 1.2, 3.0),
+         args = list(w = c(0.7, 0.3), meanlog = c(0.0, 0.4), sdlog = c(0.3, 0.6),
+                     threshold = 1.8, tail_scale = 0.8, tail_shape = 0.1)),
+    list(vec = dlognormalgpd, scalar = dLognormalGpd, x = c(0.5, 1.2, 3.0),
+         args = list(meanlog = 0.0, sdlog = 0.3, threshold = 1.8, tail_scale = 0.8, tail_shape = 0.1)),
+    list(vec = dlaplacemix, scalar = dLaplaceMix, x = c(-1.0, 0.5, 2.0),
+         args = list(w = c(0.7, 0.3), location = c(-0.5, 1.0), scale = c(1.0, 1.4))),
+    list(vec = dlaplacemixgpd, scalar = dLaplaceMixGpd, x = c(-1.0, 0.5, 2.0),
+         args = list(w = c(0.7, 0.3), location = c(-0.5, 1.0), scale = c(1.0, 1.4),
+                     threshold = 0.8, tail_scale = 0.9, tail_shape = 0.15)),
+    list(vec = dlaplacegpd, scalar = dLaplaceGpd, x = c(-1.0, 0.5, 2.0),
+         args = list(location = -0.5, scale = 1.0, threshold = 0.8, tail_scale = 0.9, tail_shape = 0.15)),
+    list(vec = dinvgaussmix, scalar = dInvGaussMix, x = c(0.8, 1.5, 3.0),
+         args = list(w = c(0.6, 0.4), mean = c(1.2, 2.0), shape = c(2.5, 4.0))),
+    list(vec = dinvgaussmixgpd, scalar = dInvGaussMixGpd, x = c(0.8, 1.5, 3.0),
+         args = list(w = c(0.6, 0.4), mean = c(1.2, 2.0), shape = c(2.5, 4.0),
+                     threshold = 1.6, tail_scale = 0.7, tail_shape = 0.15)),
+    list(vec = dinvgaussgpd, scalar = dInvGaussGpd, x = c(0.8, 1.5, 3.0),
+         args = list(mean = 1.2, shape = 2.5, threshold = 1.6, tail_scale = 0.7, tail_shape = 0.15)),
+    list(vec = dinvgauss, scalar = dInvGauss, x = c(1.2, 1.5, 2.0),
+         args = list(mean = 2.0, shape = 3.0)),
+    list(vec = damorosomix, scalar = dAmorosoMix, x = c(0.8, 1.4, 3.0),
+         args = list(w = c(0.5, 0.3, 0.2), loc = c(0.0, 0.5, 1.0), scale = c(1.0, 1.2, 1.5),
+                     shape1 = c(2.0, 3.0, 4.0), shape2 = c(1.1, 1.2, 1.3))),
+    list(vec = damorosomixgpd, scalar = dAmorosoMixGpd, x = c(0.8, 1.4, 3.0),
+         args = list(w = c(0.5, 0.3, 0.2), loc = c(0.0, 0.5, 1.0), scale = c(1.0, 1.2, 1.5),
+                     shape1 = c(2.0, 3.0, 4.0), shape2 = c(1.1, 1.2, 1.3),
+                     threshold = 1.6, tail_scale = 0.8, tail_shape = 0.15)),
+    list(vec = damorosogpd, scalar = dAmorosoGpd, x = c(0.8, 1.4, 3.0),
+         args = list(loc = 0.0, scale = 1.0, shape1 = 2.0, shape2 = 1.1,
+                     threshold = 1.6, tail_scale = 0.8, tail_shape = 0.15)),
+    list(vec = damoroso, scalar = dAmoroso, x = c(1.2, 1.5, 2.0),
+         args = list(loc = 0.0, scale = 1.2, shape1 = 2.0, shape2 = 1.5)),
+    list(vec = dcauchy_vec, scalar = dCauchy, x = c(-1.0, 0.0, 1.0),
+         args = list(location = 0.0, scale = 1.1)),
+    list(vec = dcauchymix, scalar = dCauchyMix, x = c(-1.0, 0.5, 1.2),
+         args = list(w = c(0.7, 0.3), location = c(-0.5, 0.8), scale = c(1.0, 1.5)))
+  )
+
+  for (spec in d_specs) {
+    vec <- do.call(spec$vec, c(list(spec$x), spec$args, list(log = TRUE)))
+    scalar <- vapply(
+      spec$x,
+      function(xx) as.numeric(do.call(spec$scalar, c(list(xx), spec$args, list(log = 1L)))),
+      numeric(1)
+    )
+    expect_equal(vec, scalar, tolerance = 1e-10)
+  }
+
+  p_specs <- list(
+    list(vec = pgpd, scalar = pGpd, q = c(1.2, 1.6, 2.0),
+         args = list(threshold = 1.0, scale = 0.8, shape = 0.2)),
+    list(vec = pnormmix, scalar = pNormMix, q = c(-1.0, 0.5, 1.2),
+         args = list(w = c(0.7, 0.3), mean = c(0.0, 1.2), sd = c(1.0, 1.6))),
+    list(vec = pnormmixgpd, scalar = pNormMixGpd, q = c(-0.5, 0.5, 2.5),
+         args = list(w = c(0.6, 0.4), mean = c(0.0, 1.5), sd = c(1.0, 1.8),
+                     threshold = 1.2, tail_scale = 1.0, tail_shape = 0.15)),
+    list(vec = pnormgpd, scalar = pNormGpd, q = c(-0.5, 0.5, 2.5),
+         args = list(mean = 0.0, sd = 1.0, threshold = 1.2, tail_scale = 1.0, tail_shape = 0.15)),
+    list(vec = pgammamix, scalar = pGammaMix, q = c(1.0, 2.2, 4.5),
+         args = list(w = c(0.6, 0.4), shape = c(2.0, 4.0), scale = c(1.0, 2.0))),
+    list(vec = pgammamixgpd, scalar = pGammaMixGpd, q = c(1.0, 2.2, 4.5),
+         args = list(w = c(0.6, 0.4), shape = c(2.0, 4.0), scale = c(1.0, 2.0),
+                     threshold = 2.5, tail_scale = 0.9, tail_shape = 0.2)),
+    list(vec = pgammagpd, scalar = pGammaGpd, q = c(1.0, 2.2, 4.5),
+         args = list(shape = 2.0, scale = 1.0, threshold = 2.5, tail_scale = 0.9, tail_shape = 0.2)),
+    list(vec = plognormalmix, scalar = pLognormalMix, q = c(0.5, 1.2, 3.0),
+         args = list(w = c(0.7, 0.3), meanlog = c(0.0, 0.4), sdlog = c(0.3, 0.6))),
+    list(vec = plognormalmixgpd, scalar = pLognormalMixGpd, q = c(0.5, 1.2, 3.0),
+         args = list(w = c(0.7, 0.3), meanlog = c(0.0, 0.4), sdlog = c(0.3, 0.6),
+                     threshold = 1.8, tail_scale = 0.8, tail_shape = 0.1)),
+    list(vec = plognormalgpd, scalar = pLognormalGpd, q = c(0.5, 1.2, 3.0),
+         args = list(meanlog = 0.0, sdlog = 0.3, threshold = 1.8, tail_scale = 0.8, tail_shape = 0.1)),
+    list(vec = plaplacemix, scalar = pLaplaceMix, q = c(-1.0, 0.5, 2.0),
+         args = list(w = c(0.7, 0.3), location = c(-0.5, 1.0), scale = c(1.0, 1.4))),
+    list(vec = plaplacemixgpd, scalar = pLaplaceMixGpd, q = c(-1.0, 0.5, 2.0),
+         args = list(w = c(0.7, 0.3), location = c(-0.5, 1.0), scale = c(1.0, 1.4),
+                     threshold = 0.8, tail_scale = 0.9, tail_shape = 0.15)),
+    list(vec = plaplacegpd, scalar = pLaplaceGpd, q = c(-1.0, 0.5, 2.0),
+         args = list(location = -0.5, scale = 1.0, threshold = 0.8, tail_scale = 0.9, tail_shape = 0.15)),
+    list(vec = pinvgaussmix, scalar = pInvGaussMix, q = c(0.8, 1.5, 3.0),
+         args = list(w = c(0.6, 0.4), mean = c(1.2, 2.0), shape = c(2.5, 4.0))),
+    list(vec = pinvgaussmixgpd, scalar = pInvGaussMixGpd, q = c(0.8, 1.5, 3.0),
+         args = list(w = c(0.6, 0.4), mean = c(1.2, 2.0), shape = c(2.5, 4.0),
+                     threshold = 1.6, tail_scale = 0.7, tail_shape = 0.15)),
+    list(vec = pinvgaussgpd, scalar = pInvGaussGpd, q = c(0.8, 1.5, 3.0),
+         args = list(mean = 1.2, shape = 2.5, threshold = 1.6, tail_scale = 0.7, tail_shape = 0.15)),
+    list(vec = pinvgauss, scalar = pInvGauss, q = c(1.2, 1.5, 2.0),
+         args = list(mean = 2.0, shape = 3.0)),
+    list(vec = pamorosomix, scalar = pAmorosoMix, q = c(0.8, 1.4, 3.0),
+         args = list(w = c(0.5, 0.3, 0.2), loc = c(0.0, 0.5, 1.0), scale = c(1.0, 1.2, 1.5),
+                     shape1 = c(2.0, 3.0, 4.0), shape2 = c(1.1, 1.2, 1.3))),
+    list(vec = pamorosomixgpd, scalar = pAmorosoMixGpd, q = c(0.8, 1.4, 3.0),
+         args = list(w = c(0.5, 0.3, 0.2), loc = c(0.0, 0.5, 1.0), scale = c(1.0, 1.2, 1.5),
+                     shape1 = c(2.0, 3.0, 4.0), shape2 = c(1.1, 1.2, 1.3),
+                     threshold = 1.6, tail_scale = 0.8, tail_shape = 0.15)),
+    list(vec = pamorosogpd, scalar = pAmorosoGpd, q = c(0.8, 1.4, 3.0),
+         args = list(loc = 0.0, scale = 1.0, shape1 = 2.0, shape2 = 1.1,
+                     threshold = 1.6, tail_scale = 0.8, tail_shape = 0.15)),
+    list(vec = pamoroso, scalar = pAmoroso, q = c(1.2, 1.5, 2.0),
+         args = list(loc = 0.0, scale = 1.2, shape1 = 2.0, shape2 = 1.5)),
+    list(vec = pcauchy_vec, scalar = pCauchy, q = c(-1.0, 0.0, 1.0),
+         args = list(location = 0.0, scale = 1.1)),
+    list(vec = pcauchymix, scalar = pCauchyMix, q = c(-1.0, 0.5, 1.2),
+         args = list(w = c(0.7, 0.3), location = c(-0.5, 0.8), scale = c(1.0, 1.5)))
+  )
+
+  for (spec in p_specs) {
+    vec <- do.call(spec$vec, c(list(spec$q), spec$args, list(lower.tail = FALSE, log.p = TRUE)))
+    scalar <- vapply(
+      spec$q,
+      function(xx) as.numeric(do.call(spec$scalar, c(list(xx), spec$args, list(lower.tail = 0L, log.p = 1L)))),
+      numeric(1)
+    )
+    expect_equal(vec, scalar, tolerance = 1e-10)
+  }
+
+  q_specs <- list(
+    list(vec = qgpd, scalar = qGpd, p = c(0.1, 0.5, 0.9),
+         args = list(threshold = 1.0, scale = 0.8, shape = 0.2)),
+    list(vec = qnormmix, scalar = qNormMix, p = c(0.2, 0.5, 0.8),
+         args = list(w = c(0.7, 0.3), mean = c(0.0, 1.2), sd = c(1.0, 1.6))),
+    list(vec = qnormmixgpd, scalar = qNormMixGpd, p = c(0.2, 0.5, 0.8),
+         args = list(w = c(0.6, 0.4), mean = c(0.0, 1.5), sd = c(1.0, 1.8),
+                     threshold = 1.2, tail_scale = 1.0, tail_shape = 0.15)),
+    list(vec = qnormgpd, scalar = qNormGpd, p = c(0.2, 0.5, 0.8),
+         args = list(mean = 0.0, sd = 1.0, threshold = 1.2, tail_scale = 1.0, tail_shape = 0.15)),
+    list(vec = qgammamix, scalar = qGammaMix, p = c(0.2, 0.5, 0.8),
+         args = list(w = c(0.6, 0.4), shape = c(2.0, 4.0), scale = c(1.0, 2.0))),
+    list(vec = qgammamixgpd, scalar = qGammaMixGpd, p = c(0.2, 0.5, 0.8),
+         args = list(w = c(0.6, 0.4), shape = c(2.0, 4.0), scale = c(1.0, 2.0),
+                     threshold = 2.5, tail_scale = 0.9, tail_shape = 0.2)),
+    list(vec = qgammagpd, scalar = qGammaGpd, p = c(0.2, 0.5, 0.8),
+         args = list(shape = 2.0, scale = 1.0, threshold = 2.5, tail_scale = 0.9, tail_shape = 0.2)),
+    list(vec = qlognormalmix, scalar = qLognormalMix, p = c(0.2, 0.5, 0.8),
+         args = list(w = c(0.7, 0.3), meanlog = c(0.0, 0.4), sdlog = c(0.3, 0.6))),
+    list(vec = qlognormalmixgpd, scalar = qLognormalMixGpd, p = c(0.2, 0.5, 0.8),
+         args = list(w = c(0.7, 0.3), meanlog = c(0.0, 0.4), sdlog = c(0.3, 0.6),
+                     threshold = 1.8, tail_scale = 0.8, tail_shape = 0.1)),
+    list(vec = qlognormalgpd, scalar = qLognormalGpd, p = c(0.2, 0.5, 0.8),
+         args = list(meanlog = 0.0, sdlog = 0.3, threshold = 1.8, tail_scale = 0.8, tail_shape = 0.1)),
+    list(vec = qlaplacemix, scalar = qLaplaceMix, p = c(0.2, 0.5, 0.8),
+         args = list(w = c(0.7, 0.3), location = c(-0.5, 1.0), scale = c(1.0, 1.4))),
+    list(vec = qlaplacemixgpd, scalar = qLaplaceMixGpd, p = c(0.2, 0.5, 0.8),
+         args = list(w = c(0.7, 0.3), location = c(-0.5, 1.0), scale = c(1.0, 1.4),
+                     threshold = 0.8, tail_scale = 0.9, tail_shape = 0.15)),
+    list(vec = qlaplacegpd, scalar = qLaplaceGpd, p = c(0.2, 0.5, 0.8),
+         args = list(location = -0.5, scale = 1.0, threshold = 0.8, tail_scale = 0.9, tail_shape = 0.15)),
+    list(vec = qinvgaussmix, scalar = qInvGaussMix, p = c(0.2, 0.5, 0.8),
+         args = list(w = c(0.6, 0.4), mean = c(1.2, 2.0), shape = c(2.5, 4.0))),
+    list(vec = qinvgaussmixgpd, scalar = qInvGaussMixGpd, p = c(0.2, 0.5, 0.8),
+         args = list(w = c(0.6, 0.4), mean = c(1.2, 2.0), shape = c(2.5, 4.0),
+                     threshold = 1.6, tail_scale = 0.7, tail_shape = 0.15)),
+    list(vec = qinvgaussgpd, scalar = qInvGaussGpd, p = c(0.2, 0.5, 0.8),
+         args = list(mean = 1.2, shape = 2.5, threshold = 1.6, tail_scale = 0.7, tail_shape = 0.15)),
+    list(vec = qinvgauss, scalar = qInvGauss, p = c(0.2, 0.5, 0.8),
+         args = list(mean = 2.0, shape = 3.0)),
+    list(vec = qamorosomix, scalar = qAmorosoMix, p = c(0.2, 0.5, 0.8),
+         args = list(w = c(0.5, 0.3, 0.2), loc = c(0.0, 0.5, 1.0), scale = c(1.0, 1.2, 1.5),
+                     shape1 = c(2.0, 3.0, 4.0), shape2 = c(1.1, 1.2, 1.3))),
+    list(vec = qamorosomixgpd, scalar = qAmorosoMixGpd, p = c(0.2, 0.5, 0.8),
+         args = list(w = c(0.5, 0.3, 0.2), loc = c(0.0, 0.5, 1.0), scale = c(1.0, 1.2, 1.5),
+                     shape1 = c(2.0, 3.0, 4.0), shape2 = c(1.1, 1.2, 1.3),
+                     threshold = 1.6, tail_scale = 0.8, tail_shape = 0.15)),
+    list(vec = qamorosogpd, scalar = qAmorosoGpd, p = c(0.2, 0.5, 0.8),
+         args = list(loc = 0.0, scale = 1.0, shape1 = 2.0, shape2 = 1.1,
+                     threshold = 1.6, tail_scale = 0.8, tail_shape = 0.15)),
+    list(vec = qamoroso, scalar = qAmoroso, p = c(0.2, 0.5, 0.8),
+         args = list(loc = 0.0, scale = 1.2, shape1 = 2.0, shape2 = 1.5)),
+    list(vec = qcauchy_vec, scalar = qCauchy, p = c(0.2, 0.5, 0.8),
+         args = list(location = 0.0, scale = 1.1)),
+    list(vec = qcauchymix, scalar = qCauchyMix, p = c(0.2, 0.5, 0.8),
+         args = list(w = c(0.7, 0.3), location = c(-0.5, 0.8), scale = c(1.0, 1.5)))
+  )
+
+  for (spec in q_specs) {
+    vec <- do.call(spec$vec, c(list(log(spec$p)), spec$args, list(lower.tail = TRUE, log.p = TRUE)))
+    scalar <- vapply(
+      log(spec$p),
+      function(pp) do.call(spec$scalar, c(list(pp), spec$args, list(lower.tail = TRUE, log.p = TRUE))),
+      numeric(1)
+    )
+    expect_equal(vec, scalar, tolerance = 1e-10)
+  }
+})
+
+test_that("vectorized r functions match scalar draws with same seed", {
+  r_specs <- list(
+    list(vec = rgpd, scalar = rGpd, args = list(threshold = 1.0, scale = 0.8, shape = 0.2)),
+    list(vec = rnormmix, scalar = rNormMix, args = list(w = c(0.7, 0.3), mean = c(0.0, 1.2), sd = c(1.0, 1.6))),
+    list(vec = rnormmixgpd, scalar = rNormMixGpd, args = list(w = c(0.6, 0.4), mean = c(0.0, 1.5), sd = c(1.0, 1.8),
+                                                               threshold = 1.2, tail_scale = 1.0, tail_shape = 0.15)),
+    list(vec = rnormgpd, scalar = rNormGpd, args = list(mean = 0.0, sd = 1.0, threshold = 1.2, tail_scale = 1.0, tail_shape = 0.15)),
+    list(vec = rgammamix, scalar = rGammaMix, args = list(w = c(0.6, 0.4), shape = c(2.0, 4.0), scale = c(1.0, 2.0))),
+    list(vec = rgammamixgpd, scalar = rGammaMixGpd, args = list(w = c(0.6, 0.4), shape = c(2.0, 4.0), scale = c(1.0, 2.0),
+                                                                 threshold = 2.5, tail_scale = 0.9, tail_shape = 0.2)),
+    list(vec = rgammagpd, scalar = rGammaGpd, args = list(shape = 2.0, scale = 1.0, threshold = 2.5, tail_scale = 0.9, tail_shape = 0.2)),
+    list(vec = rlognormalmix, scalar = rLognormalMix, args = list(w = c(0.7, 0.3), meanlog = c(0.0, 0.4), sdlog = c(0.3, 0.6))),
+    list(vec = rlognormalmixgpd, scalar = rLognormalMixGpd, args = list(w = c(0.7, 0.3), meanlog = c(0.0, 0.4), sdlog = c(0.3, 0.6),
+                                                                       threshold = 1.8, tail_scale = 0.8, tail_shape = 0.1)),
+    list(vec = rlognormalgpd, scalar = rLognormalGpd, args = list(meanlog = 0.0, sdlog = 0.3, threshold = 1.8, tail_scale = 0.8, tail_shape = 0.1)),
+    list(vec = rlaplacemix, scalar = rLaplaceMix, args = list(w = c(0.7, 0.3), location = c(-0.5, 1.0), scale = c(1.0, 1.4))),
+    list(vec = rlaplacemixgpd, scalar = rLaplaceMixGpd, args = list(w = c(0.7, 0.3), location = c(-0.5, 1.0), scale = c(1.0, 1.4),
+                                                                     threshold = 0.8, tail_scale = 0.9, tail_shape = 0.15)),
+    list(vec = rlaplacegpd, scalar = rLaplaceGpd, args = list(location = -0.5, scale = 1.0, threshold = 0.8, tail_scale = 0.9, tail_shape = 0.15)),
+    list(vec = rinvgaussmix, scalar = rInvGaussMix, args = list(w = c(0.6, 0.4), mean = c(1.2, 2.0), shape = c(2.5, 4.0))),
+    list(vec = rinvgaussmixgpd, scalar = rInvGaussMixGpd, args = list(w = c(0.6, 0.4), mean = c(1.2, 2.0), shape = c(2.5, 4.0),
+                                                                     threshold = 1.6, tail_scale = 0.7, tail_shape = 0.15)),
+    list(vec = rinvgaussgpd, scalar = rInvGaussGpd, args = list(mean = 1.2, shape = 2.5, threshold = 1.6, tail_scale = 0.7, tail_shape = 0.15)),
+    list(vec = rinvgauss, scalar = rInvGauss, args = list(mean = 2.0, shape = 3.0)),
+    list(vec = ramorosomix, scalar = rAmorosoMix, args = list(w = c(0.5, 0.3, 0.2), loc = c(0.0, 0.5, 1.0), scale = c(1.0, 1.2, 1.5),
+                                                             shape1 = c(2.0, 3.0, 4.0), shape2 = c(1.1, 1.2, 1.3))),
+    list(vec = ramorosomixgpd, scalar = rAmorosoMixGpd, args = list(w = c(0.5, 0.3, 0.2), loc = c(0.0, 0.5, 1.0), scale = c(1.0, 1.2, 1.5),
+                                                                   shape1 = c(2.0, 3.0, 4.0), shape2 = c(1.1, 1.2, 1.3),
+                                                                   threshold = 1.6, tail_scale = 0.8, tail_shape = 0.15)),
+    list(vec = ramorosogpd, scalar = rAmorosoGpd, args = list(loc = 0.0, scale = 1.0, shape1 = 2.0, shape2 = 1.1,
+                                                             threshold = 1.6, tail_scale = 0.8, tail_shape = 0.15)),
+    list(vec = ramoroso, scalar = rAmoroso, args = list(loc = 0.0, scale = 1.2, shape1 = 2.0, shape2 = 1.5)),
+    list(vec = rcauchy_vec, scalar = rCauchy, args = list(location = 0.0, scale = 1.1)),
+    list(vec = rcauchymix, scalar = rCauchyMix, args = list(w = c(0.7, 0.3), location = c(-0.5, 0.8), scale = c(1.0, 1.5)))
+  )
+
+  for (spec in r_specs) {
+    set.seed(123)
+    vec <- do.call(spec$vec, c(list(n = 7), spec$args))
+    set.seed(123)
+    scalar <- vapply(
+      seq_len(7),
+      function(i) do.call(spec$scalar, c(list(n = 1), spec$args)),
+      numeric(1)
+    )
+    expect_equal(vec, scalar, tolerance = 1e-10)
+  }
+})

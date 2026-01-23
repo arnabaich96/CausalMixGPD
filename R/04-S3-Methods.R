@@ -46,10 +46,10 @@ print.dpmixgpd_bundle <- function(x, code = FALSE, max_code_lines = 200L, ...) {
               as.character(N),
               if (has_X) sprintf("YES (P=%d)", P) else "NO",
               if (GPD) "TRUE" else "FALSE",
-              as.character(x$epsilon %||% 0.025)),
+              fmt3(x$epsilon %||% 0.025)),
     stringsAsFactors = FALSE
   )
-  print(tbl, row.names = FALSE)
+  print_fmt3(tbl, row.names = FALSE)
   cat("\n  contains  : code, constants, data, dimensions, inits, monitors\n")
 
   if (isTRUE(code)) {
@@ -122,7 +122,7 @@ print.dpmixgpd_causal_bundle <- function(x, code = FALSE, max_code_lines = 200L,
       "/", ifelse(isTRUE(gpd$con), "TRUE", "FALSE"), "\n")
   cat("components (treated/control):", comps$trt %||% "?", "/", comps$con %||% "?", "\n")
   cat("Outcome PS included:", ifelse(isTRUE(meta$ps$enabled), "TRUE", "FALSE"), "\n")
-  cat("epsilon (treated/control):", eps$trt %||% "?", "/", eps$con %||% "?", "\n")
+  cat("epsilon (treated/control):", fmt3(eps$trt %||% NA_real_), "/", fmt3(eps$con %||% NA_real_), "\n")
   cat("n (control) =", length(x$index$con %||% integer(0)),
       "| n (treated) =", length(x$index$trt %||% integer(0)), "\n")
 
@@ -381,16 +381,16 @@ summary.dpmixgpd_bundle <- function(object, ...) {
               as.character(N),
               if (has_X) sprintf("YES (P=%d)", P) else "NO",
               if (GPD) "TRUE" else "FALSE",
-              as.character(object$epsilon %||% 0.025)),
+              fmt3(object$epsilon %||% 0.025)),
     stringsAsFactors = FALSE
   )
-  print(meta_tbl, row.names = FALSE)
+  print_fmt3(meta_tbl, row.names = FALSE)
   cat("\n")
 
   # Prior/parameter table
   pri <- build_prior_table_from_spec(spec)
   cat("Parameter specification\n")
-  print(pri, row.names = FALSE)
+  print_fmt3(pri, row.names = FALSE)
   cat("\n")
 
   # Monitor overview (compact)
@@ -597,12 +597,12 @@ print.mixgpd_params <- function(x, digits = 4, ...) {
     val <- x[[nm]]
     if (is.null(dim(val))) {
       if (is.numeric(val)) {
-        print(signif(val, digits))
+        print_fmt3(val)
       } else {
         print(val)
       }
     } else if (is.matrix(val) || is.data.frame(val)) {
-      print(round(val, digits))
+      print_fmt3(val)
     } else {
       print(val)
     }
@@ -700,7 +700,7 @@ print.mixgpd_summary <- function(x, digits = 3, max_rows = 60, ...) {
               .backend_label(model$backend %||% "<unknown>"),
               .kernel_label(model$kernel  %||% "<unknown>"),
               gpd_txt,
-              ifelse(is.na(eps), "<unknown>", eps)))
+              ifelse(is.na(eps), "<unknown>", fmt3(eps))))
   cat(sprintf("n = %s | components = %s\n",
               ifelse(is.na(model$n), "<unknown>", model$n),
               ifelse(is.na(model$components), "<unknown>", model$components)))
@@ -717,11 +717,11 @@ print.mixgpd_summary <- function(x, digits = 3, max_rows = 60, ...) {
     lp <- waic$lppd %||% waic[["lppd"]] %||% NA_real_
     pw <- waic$pWAIC %||% waic[["pWAIC"]] %||% NA_real_
     cat(sprintf("\nWAIC: %s\n",
-                ifelse(is.na(wa), "<unknown>", formatC(wa, format = "f", digits = digits))))
+                ifelse(is.na(wa), "<unknown>", fmt3(wa))))
     if (is.finite(lp) || is.finite(pw)) {
       cat(sprintf("lppd: %s | pWAIC: %s\n",
-                  ifelse(is.finite(lp), formatC(lp, format = "f", digits = digits), "<unknown>"),
-                  ifelse(is.finite(pw), formatC(pw, format = "f", digits = digits), "<unknown>")))
+                  ifelse(is.finite(lp), fmt3(lp), "<unknown>"),
+                  ifelse(is.finite(pw), fmt3(pw), "<unknown>")))
     }
   }
   cat("\nSummary table\n")
@@ -735,7 +735,7 @@ print.mixgpd_summary <- function(x, digits = 3, max_rows = 60, ...) {
     tab_print <- tab_print[seq_len(max_rows), , drop = FALSE]
   }
 
-  print(tab_print, row.names = FALSE)
+  print_fmt3(tab_print, row.names = FALSE)
   invisible(x)
 }
 
@@ -1511,7 +1511,7 @@ print.dpmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
 
   cat("QTE (Quantile Treatment Effect)\n")
   cat(sprintf("  Prediction points: %d\n", n_pred))
-  cat(sprintf("  Quantile grid: %s\n", paste(round(probs, digits), collapse = ", ")))
+  cat(sprintf("  Quantile grid: %s\n", fmt3_vec(probs)))
 
   has_x <- !is.null(x$x)
   ps_used <- !is.null(x$ps) && any(is.finite(x$ps))
@@ -1536,17 +1536,17 @@ print.dpmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
     if ("upper" %in% names(show_df)) show_df$upper <- round(show_df$upper, digits)
 
     if (nrow(show_df) > max_rows) {
-      print(utils::head(show_df, max_rows), row.names = FALSE)
+      print_fmt3(utils::head(show_df, max_rows), row.names = FALSE)
       cat(sprintf("... (%d more rows)\n", nrow(show_df) - max_rows))
     } else {
-      print(show_df, row.names = FALSE)
+      print_fmt3(show_df, row.names = FALSE)
     }
   } else if (!is.null(x$fit)) {
     # Fallback to raw matrix
     fit_mat <- x$fit
     show_n <- min(nrow(fit_mat), max_rows)
     cat(sprintf("  (matrix: %d x %d)\n", nrow(fit_mat), ncol(fit_mat)))
-    print(round(fit_mat[seq_len(show_n), , drop = FALSE], digits))
+    print_fmt3(fit_mat[seq_len(show_n), , drop = FALSE])
     if (nrow(fit_mat) > show_n) {
       cat(sprintf("... (%d more rows)\n", nrow(fit_mat) - show_n))
     }
@@ -1613,17 +1613,17 @@ print.dpmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
     if ("upper" %in% names(show_df)) show_df$upper <- round(show_df$upper, digits)
 
     if (nrow(show_df) > max_rows) {
-      print(utils::head(show_df, max_rows), row.names = FALSE)
+      print_fmt3(utils::head(show_df, max_rows), row.names = FALSE)
       cat(sprintf("... (%d more rows)\n", nrow(show_df) - max_rows))
     } else {
-      print(show_df, row.names = FALSE)
+      print_fmt3(show_df, row.names = FALSE)
     }
   } else if (!is.null(x$fit)) {
     # Fallback to raw vector
     fit_vec <- x$fit
     show_n <- min(length(fit_vec), max_rows)
     cat(sprintf("  (vector: %d)\n", length(fit_vec)))
-    print(round(fit_vec[seq_len(show_n)], digits))
+    print_fmt3(fit_vec[seq_len(show_n)])
     if (length(fit_vec) > show_n) {
       cat(sprintf("... (%d more)\n", length(fit_vec) - show_n))
     }
@@ -1740,7 +1740,7 @@ print.summary.dpmixgpd_qte <- function(x, digits = 3, ...) {
   cat("QTE Summary\n")
   cat(paste(rep("=", 50), collapse = ""), "\n")
   cat(sprintf("Prediction points: %d | Quantiles: %d\n", ov$n_pred, ov$n_quantiles))
-  cat(sprintf("Quantile grid: %s\n", paste(round(ov$quantiles, digits), collapse = ", ")))
+  cat(sprintf("Quantile grid: %s\n", fmt3_vec(ov$quantiles)))
   cat(sprintf("Conditional: %s | PS used: %s\n",
               if (ov$has_covariates) "YES" else "NO",
               if (ov$ps_used) "YES" else "NO"))
@@ -1774,12 +1774,7 @@ print.summary.dpmixgpd_qte <- function(x, digits = 3, ...) {
   if (!is.null(qs) && nrow(qs) > 0) {
     cat("QTE by quantile:\n")
     qs_print <- qs
-    for (col in names(qs_print)) {
-      if (is.numeric(qs_print[[col]])) {
-        qs_print[[col]] <- round(qs_print[[col]], digits)
-      }
-    }
-    print(qs_print, row.names = FALSE)
+    print_fmt3(qs_print, row.names = FALSE)
     cat("\n")
   }
 
@@ -1788,9 +1783,9 @@ print.summary.dpmixgpd_qte <- function(x, digits = 3, ...) {
   if (!is.null(ci)) {
     cat("Credible interval width:\n")
     cat(sprintf("  Mean: %s | Median: %s\n",
-                round(ci$mean_width, digits), round(ci$median_width, digits)))
+                fmt3(ci$mean_width), fmt3(ci$median_width)))
     cat(sprintf("  Range: [%s, %s]\n",
-                round(ci$min_width, digits), round(ci$max_width, digits)))
+                fmt3(ci$min_width), fmt3(ci$max_width)))
   }
 
   invisible(x)
@@ -1930,11 +1925,11 @@ print.summary.dpmixgpd_ate <- function(x, digits = 3, ...) {
   if (!is.null(as)) {
     cat("ATE statistics:\n")
     cat(sprintf("  Mean: %s | Median: %s\n",
-                round(as$mean_ate, digits), round(as$median_ate, digits)))
+                fmt3(as$mean_ate), fmt3(as$median_ate)))
     cat(sprintf("  Range: [%s, %s]\n",
-                round(as$min_ate, digits), round(as$max_ate, digits)))
+                fmt3(as$min_ate), fmt3(as$max_ate)))
     if (!is.na(as$sd_ate)) {
-      cat(sprintf("  SD: %s\n", round(as$sd_ate, digits)))
+      cat(sprintf("  SD: %s\n", fmt3(as$sd_ate)))
     }
     cat("\n")
   }
@@ -1944,9 +1939,9 @@ print.summary.dpmixgpd_ate <- function(x, digits = 3, ...) {
   if (!is.null(ci)) {
     cat("Credible interval width:\n")
     cat(sprintf("  Mean: %s | Median: %s\n",
-                round(ci$mean_width, digits), round(ci$median_width, digits)))
+                fmt3(ci$mean_width), fmt3(ci$median_width)))
     cat(sprintf("  Range: [%s, %s]\n",
-                round(ci$min_width, digits), round(ci$max_width, digits)))
+                fmt3(ci$min_width), fmt3(ci$max_width)))
   }
 
   invisible(x)
