@@ -17,87 +17,368 @@ knitr::opts_chunk$set(
   fig.height = 4.5,
   fig.align = "center"
 )
+
 library(ggplot2)
 library(kableExtra)
 library(DPmixGPD)
 set.seed(1)
+
+options(digits = 3)
+
+fmt3 <- function(x) {
+  formatC(x, digits = 3, format = "f", drop0trailing = TRUE)
+}
+
+knitr::opts_chunk$set(
+  digits = 3
+)
 ```
 
 ## Overview
 
-DPmixGPD supports multiple bulk kernels for the mixture components and can optionally splice a Generalized Pareto Distribution (GPD) tail beyond a threshold.
+DPmixGPD supports multiple bulk kernels for mixture components and can optionally
+splice a Generalized Pareto Distribution (GPD) tail beyond a threshold.
 
-## Theory (brief)
+All examples below use **vectorized R wrappers** (lowercase) only.
 
-Each kernel defines the component density $K(y; \\theta)$. The mixture density
-is a convex combination of kernel components, and the GPD tail replaces the
-bulk kernel for $y > u$ when tail augmentation is enabled. This vignette focuses
-on the bulk kernel shapes.
+```{r helpers, include=FALSE}
+format_value <- function(v, digits = 3) {
+  if (length(v) > 1) {
+    paste0("(", paste(formatC(v, digits = digits, format = "f"), collapse = ", "), ")")
+  } else {
+    formatC(v, digits = digits, format = "f")
+  }
+}
 
-## Kernel Summary
+param_label <- function(params, digits = 3) {
+  paste(names(params), "=", vapply(params, format_value, character(1), digits = digits),
+        collapse = ", ")
+}
 
-```{r}
-kernel_df <- data.frame(
-  Kernel = c("normal", "gamma", "lognormal", "cauchy", "laplace", "invgauss", "amoroso"),
-  Parameters = c(
-    "mean, sd",
-    "shape, rate",
-    "meanlog, sdlog",
-    "location, scale",
-    "location, scale",
-    "mean, shape",
-    "location, scale, shape"
+plot_density_overlay <- function(grid, sets, title) {
+  df <- do.call(rbind, lapply(sets, function(s) {
+    y <- do.call(s$fn, c(list(x = grid), s$params))
+    data.frame(x = grid, density = y, label = s$label)
+  }))
+
+  ggplot(df, aes(x = x, y = density, color = label)) +
+    geom_line(linewidth = 1) +
+    labs(x = "x", y = "Density", title = title) +
+    theme_minimal() +
+    theme(legend.position = "top")
+}
+
+param_table <- function(title, sets) {
+  df <- data.frame(
+    Label = vapply(sets, function(s) s$label, character(1)),
+    Parameters = vapply(sets, function(s) param_label(s$params), character(1)),
+    check.names = FALSE
   )
+
+  kable(df, align = "c", caption = title) %>%
+    kable_styling(bootstrap_options = c("striped", "hover"),
+                  full_width = FALSE, position = "center")
+}
+```
+
+## Generalized Pareto (GPD)
+
+```{r gpd-params, echo=FALSE}
+sets <- list(
+  list(label = "GPD A", fn = dgpd, params = list(threshold = 1.0, scale = 0.6, shape = 0.15)),
+  list(label = "GPD B", fn = dgpd, params = list(threshold = 1.5, scale = 0.5, shape = 0.25)),
+  list(label = "GPD C", fn = dgpd, params = list(threshold = 2.0, scale = 0.7, shape = 0.10))
 )
 
-kable(kernel_df, align = "c", caption = "Available Bulk Kernels") %>%
+param_table("GPD parameter sets", sets)
+```
+
+```{r gpd-plot}
+grid <- seq(0.0, 12.0, length.out = 400)
+plot_density_overlay(grid, sets, "GPD densities (vectorized)")
+```
+
+## Normal
+
+```{r norm-params, echo=FALSE}
+sets <- list(
+  list(label = "Base", fn = dnorm, params = list(mean = 0, sd = 1)),
+  list(label = "Base + GPD", fn = dnormgpd,
+       params = list(mean = 0, sd = 1, threshold = 1.5, tail_scale = 0.5, tail_shape = 0.2)),
+  list(label = "Mixture", fn = dnormmix,
+       params = list(w = c(0.7, 0.3), mean = c(-1, 1.5), sd = c(1.0, 0.7))),
+  list(label = "Mixture + GPD", fn = dnormmixgpd,
+       params = list(w = c(0.7, 0.3), mean = c(-1, 1), sd = c(1.0, 0.7),
+                     threshold = 1.5, tail_scale = 0.5, tail_shape = 0.2))
+)
+
+param_table("Normal parameter sets", sets)
+```
+
+```{r norm-plot}
+grid <- seq(-6, 6, length.out = 400)
+plot_density_overlay(grid, sets, "Normal densities (vectorized)")
+```
+
+## Gamma
+
+```{r gamma-params, echo=FALSE}
+sets <- list(
+  list(label = "Base", fn = dgamma, params = list(shape = 2.5, scale = 1.0)),
+  list(label = "Base + GPD", fn = dgammagpd,
+       params = list(shape = 3, scale = 1.0, threshold = 5.0, tail_scale = 1.0, tail_shape = 0.2)),
+  list(label = "Mixture", fn = dgammamix,
+       params = list(w = c(0.6, 0.4), shape = c(2, 5), scale = c(1.0, 0.7))),
+  list(label = "Mixture + GPD", fn = dgammamixgpd,
+       params = list(w = c(0.6, 0.4), shape = c(2, 5), scale = c(1.0, 0.7),
+                     threshold = 5.0, tail_scale = 1.0, tail_shape = 0.2))
+)
+
+param_table("Gamma parameter sets", sets)
+```
+
+```{r gamma-plot}
+grid <- seq(0.01, 12, length.out = 400)
+plot_density_overlay(grid, sets, "Gamma densities (vectorized)")
+```
+
+## Lognormal
+
+```{r logn-params, echo=FALSE}
+sets <- list(
+  list(label = "Base", fn = dlnorm, params = list(meanlog = 0.2, sdlog = 0.5)),
+  list(label = "Base + GPD", fn = dlognormalgpd,
+       params = list(meanlog = 0.2, sdlog = 0.5, threshold = 3.0, tail_scale = 0.8, tail_shape = 0.2)),
+  list(label = "Mixture", fn = dlognormalmix,
+       params = list(w = c(0.6, 0.4), meanlog = c(0, 0.6), sdlog = c(0.4, 0.5))),
+  list(label = "Mixture + GPD", fn = dlognormalmixgpd,
+       params = list(w = c(0.6, 0.4), meanlog = c(0, 0.6), sdlog = c(0.4, 0.5),
+                     threshold = 3.0, tail_scale = 0.8, tail_shape = 0.2))
+)
+
+param_table("Lognormal parameter sets", sets)
+```
+
+```{r logn-plot}
+grid <- seq(0.01, 10, length.out = 400)
+plot_density_overlay(grid, sets, "Lognormal densities (vectorized)")
+```
+
+## Laplace
+
+```{r laplace-params, echo=FALSE}
+sets <- list(
+  list(label = "Base", fn = nimble::ddexp, params = list(location = 0, scale = 0.8)),
+  list(label = "Base + GPD", fn = dlaplacegpd,
+       params = list(location = 0, scale = 0.8, threshold = 2.0, tail_scale = 0.5, tail_shape = 0.2)),
+  list(label = "Mixture", fn = dlaplacemix,
+       params = list(w = c(0.7, 0.3), location = c(0, 0.8), scale = c(0.5, 0.8))),
+  list(label = "Mixture + GPD", fn = dlaplacemixgpd,
+       params = list(w = c(0.7, 0.3), location = c(0, 0.8), scale = c(0.5, 0.8),
+                     threshold = 2.0, tail_scale = 0.5, tail_shape = 0.2))
+)
+
+param_table("Laplace parameter sets", sets)
+```
+
+```{r laplace-plot}
+grid <- seq(-6, 6, length.out = 400)
+plot_density_overlay(grid, sets, "Laplace densities (vectorized)")
+```
+
+## Inverse Gaussian
+
+```{r ig-params, echo=FALSE}
+sets <- list(
+  list(label = "Base", fn = dinvgauss, params = list(mean = 1.2, shape = 3.0)),
+  list(label = "Base + GPD", fn = dinvgaussgpd,
+       params = list(mean = 1.2, shape = 3.0, threshold = 2.0, tail_scale = 0.5, tail_shape = 0.2)),
+  list(label = "Mixture", fn = dinvgaussmix,
+       params = list(w = c(0.6, 0.4), mean = c(1.0, 2.0), shape = c(2.0, 4.0))),
+  list(label = "Mixture + GPD", fn = dinvgaussmixgpd,
+       params = list(w = c(0.6, 0.4), mean = c(1.0, 2.0), shape = c(2.0, 4.0),
+                     threshold = 2.0, tail_scale = 0.5, tail_shape = 0.2))
+)
+
+param_table("Inverse Gaussian parameter sets", sets)
+```
+
+```{r ig-plot}
+grid <- seq(0.01, 10, length.out = 400)
+plot_density_overlay(grid, sets, "Inverse Gaussian densities (vectorized)")
+```
+
+## Amoroso
+
+```{r amor-params, echo=FALSE}
+sets <- list(
+  list(label = "Base", fn = damoroso,
+       params = list(loc = 0, scale = 1.2, shape1 = 2.5, shape2 = 1.2)),
+  list(label = "Base + GPD", fn = damorosogpd,
+       params = list(loc = 0, scale = 1.2, shape1 = 2.5, shape2 = 1.2,
+                     threshold = 2.5, tail_scale = 0.4, tail_shape = 0.2)),
+  list(label = "Mixture", fn = damorosomix,
+       params = list(w = c(0.6, 0.4), loc = c(0, 0), scale = c(1.0, 1.5),
+                     shape1 = c(2, 3), shape2 = c(1.2, 1.2))),
+  list(label = "Mixture + GPD", fn = damorosomixgpd,
+       params = list(w = c(0.6, 0.4), loc = c(0, 0), scale = c(1.0, 1.5),
+                     shape1 = c(2, 3), shape2 = c(1.2, 1.2),
+                     threshold = 2.5, tail_scale = 0.4, tail_shape = 0.2))
+)
+
+param_table("Amoroso parameter sets", sets)
+```
+
+```{r amor-plot}
+grid <- seq(0.01, 10, length.out = 400)
+plot_density_overlay(grid, sets, "Amoroso densities (vectorized)")
+```
+
+## Cauchy
+
+```{r cauchy-params, echo=FALSE}
+sets <- list(
+  list(label = "Base", fn = dcauchy_vec, params = list(location = 0, scale = 1.0)),
+  list(label = "Mixture", fn = dcauchymix,
+       params = list(w = c(0.6, 0.4), location = c(-1, 1), scale = c(1.0, 1.5)))
+)
+
+param_table("Cauchy parameter sets", sets)
+```
+
+```{r cauchy-plot}
+grid <- seq(-8, 8, length.out = 400)
+plot_density_overlay(grid, sets, "Cauchy densities (vectorized)")
+```
+
+## Complete Function Reference
+
+```{r full-ref, echo=FALSE}
+ref_df <- data.frame(
+  Distribution = c(
+    "GPD",
+    rep("Normal", 4),
+    rep("Gamma", 4),
+    rep("Lognormal", 4),
+    rep("Laplace", 4),
+    rep("Inverse Gaussian", 4),
+    rep("Amoroso", 4),
+    rep("Cauchy", 2)
+  ),
+  Variant = c(
+    "Standalone",
+    "Base", "Base + GPD", "Mixture", "Mixture + GPD",
+    "Base", "Base + GPD", "Mixture", "Mixture + GPD",
+    "Base", "Base + GPD", "Mixture", "Mixture + GPD",
+    "Base", "Base + GPD", "Mixture", "Mixture + GPD",
+    "Base", "Base + GPD", "Mixture", "Mixture + GPD",
+    "Base", "Base + GPD", "Mixture", "Mixture + GPD",
+    "Base", "Mixture"
+  ),
+  `NIMBLE call` = c(
+    "dGpd / pGpd / qGpd / rGpd",
+    "dnorm / pnorm / qnorm / rnorm",
+    "dNormGpd / pNormGpd / qNormGpd / rNormGpd",
+    "dNormMix / pNormMix / qNormMix / rNormMix",
+    "dNormMixGpd / pNormMixGpd / qNormMixGpd / rNormMixGpd",
+    "dgamma / pgamma / qgamma / rgamma",
+    "dGammaGpd / pGammaGpd / qGammaGpd / rGammaGpd",
+    "dGammaMix / pGammaMix / qGammaMix / rGammaMix",
+    "dGammaMixGpd / pGammaMixGpd / qGammaMixGpd / rGammaMixGpd",
+    "dlnorm / plnorm / qlnorm / rlnorm",
+    "dLognormalGpd / pLognormalGpd / qLognormalGpd / rLognormalGpd",
+    "dLognormalMix / pLognormalMix / qLognormalMix / rLognormalMix",
+    "dLognormalMixGpd / pLognormalMixGpd / qLognormalMixGpd / rLognormalMixGpd",
+    "ddexp / pdexp / qdexp / rdexp",
+    "dLaplaceGpd / pLaplaceGpd / qLaplaceGpd / rLaplaceGpd",
+    "dLaplaceMix / pLaplaceMix / qLaplaceMix / rLaplaceMix",
+    "dLaplaceMixGpd / pLaplaceMixGpd / qLaplaceMixGpd / rLaplaceMixGpd",
+    "dInvGauss / pInvGauss / qInvGauss / rInvGauss",
+    "dInvGaussGpd / pInvGaussGpd / qInvGaussGpd / rInvGaussGpd",
+    "dInvGaussMix / pInvGaussMix / qInvGaussMix / rInvGaussMix",
+    "dInvGaussMixGpd / pInvGaussMixGpd / qInvGaussMixGpd / rInvGaussMixGpd",
+    "dAmoroso / pAmoroso / qAmoroso / rAmoroso",
+    "dAmorosoGpd / pAmorosoGpd / qAmorosoGpd / rAmorosoGpd",
+    "dAmorosoMix / pAmorosoMix / qAmorosoMix / rAmorosoMix",
+    "dAmorosoMixGpd / pAmorosoMixGpd / qAmorosoMixGpd / rAmorosoMixGpd",
+    "dCauchy / pCauchy / qCauchy / rCauchy",
+    "dCauchyMix / pCauchyMix / qCauchyMix / rCauchyMix"
+  ),
+  `R call` = c(
+    "dgpd / pgpd / qgpd / rgpd",
+    "dnorm / pnorm / qnorm / rnorm",
+    "dnormgpd / pnormgpd / qnormgpd / rnormgpd",
+    "dnormmix / pnormmix / qnormmix / rnormmix",
+    "dnormmixgpd / pnormmixgpd / qnormmixgpd / rnormmixgpd",
+    "dgamma / pgamma / qgamma / rgamma",
+    "dgammagpd / pgammagpd / qgammagpd / rgammagpd",
+    "dgammamix / pgammamix / qgammamix / rgammamix",
+    "dgammamixgpd / pgammamixgpd / qgammamixgpd / rgammamixgpd",
+    "dlnorm / plnorm / qlnorm / rlnorm",
+    "dlognormalgpd / plognormalgpd / qlognormalgpd / rlognormalgpd",
+    "dlognormalmix / plognormalmix / qlognormalmix / rlognormalmix",
+    "dlognormalmixgpd / plognormalmixgpd / qlognormalmixgpd / rlognormalmixgpd",
+    "ddexp / pdexp / qdexp / rdexp",
+    "dlaplacegpd / plaplacegpd / qlaplacegpd / rlaplacegpd",
+    "dlaplacemix / plaplacemix / qlaplacemix / rlaplacemix",
+    "dlaplacemixgpd / plaplacemixgpd / qlaplacemixgpd / rlaplacemixgpd",
+    "dinvgauss / pinvgauss / qinvgauss / rinvgauss",
+    "dinvgaussgpd / pinvgaussgpd / qinvgaussgpd / rinvgaussgpd",
+    "dinvgaussmix / pinvgaussmix / qinvgaussmix / rinvgaussmix",
+    "dinvgaussmixgpd / pinvgaussmixgpd / qinvgaussmixgpd / rinvgaussmixgpd",
+    "damoroso / pamoroso / qamoroso / ramoroso",
+    "damorosogpd / pamorosogpd / qamorosogpd / ramorosogpd",
+    "damorosomix / pamorosomix / qamorosomix / ramorosomix",
+    "damorosomixgpd / pamorosomixgpd / qamorosomixgpd / ramorosomixgpd",
+    "dcauchy_vec / pcauchy_vec / qcauchy_vec / rcauchy_vec",
+    "dcauchymix / pcauchymix / qcauchymix / rcauchymix"
+  ),
+  `Vector params` = c(
+    "",
+    "", "", "w, mean, sd", "w, mean, sd",
+    "", "", "w, shape, scale", "w, shape, scale",
+    "", "", "w, meanlog, sdlog", "w, meanlog, sdlog",
+    "", "", "w, location, scale", "w, location, scale",
+    "", "", "w, mean, shape", "w, mean, shape",
+    "", "", "w, loc, scale, shape1, shape2", "w, loc, scale, shape1, shape2",
+    "", "w, location, scale"
+  ),
+  `Scalar params` = c(
+    "threshold, scale, shape",
+    "mean, sd",
+    "mean, sd, threshold, tail_scale, tail_shape",
+    "",
+    "threshold, tail_scale, tail_shape",
+    "shape, scale",
+    "shape, scale, threshold, tail_scale, tail_shape",
+    "",
+    "threshold, tail_scale, tail_shape",
+    "meanlog, sdlog",
+    "meanlog, sdlog, threshold, tail_scale, tail_shape",
+    "",
+    "threshold, tail_scale, tail_shape",
+    "location, scale",
+    "location, scale, threshold, tail_scale, tail_shape",
+    "",
+    "threshold, tail_scale, tail_shape",
+    "mean, shape",
+    "mean, shape, threshold, tail_scale, tail_shape",
+    "",
+    "threshold, tail_scale, tail_shape",
+    "loc, scale, shape1, shape2",
+    "loc, scale, shape1, shape2, threshold, tail_scale, tail_shape",
+    "",
+    "threshold, tail_scale, tail_shape",
+    "location, scale",
+    ""
+  ),
+  check.names = FALSE
+)
+
+kable(ref_df, align = "c", caption = "Complete distribution reference") %>%
   kable_styling(bootstrap_options = c("striped", "hover"),
-                full_width = FALSE, position = "center")
-```
-
-## Kernel Selection
-
-The kernel is specified in `build_nimble_bundle()` via the `kernel` argument.
-
-```{r, eval=FALSE}
-bundle <- build_nimble_bundle(
-  y = y,
-  backend = "sb",
-  kernel  = "lognormal",
-  GPD     = TRUE,
-  components = 6,
-  mcmc = list(niter = 500, nburnin = 100, thin = 2, nchains = 1, seed = 1)
-)
-```
-
-## Distribution Visualizations
-
-```{r}
-x_all <- seq(-4, 4, length.out = 300)
-x_pos <- seq(0.01, 8, length.out = 300)
-
-dens_list <- list(
-  Normal = data.frame(x = x_all, density = dNormMix(x_all, w = 1, mean = 0, sd = 1)),
-  Cauchy = data.frame(x = x_all, density = dCauchyMix(x_all, w = 1, location = 0, scale = 1)),
-  Laplace = data.frame(x = x_all, density = dLaplaceMix(x_all, w = 1, location = 0, scale = 1)),
-  Gamma = data.frame(x = x_pos, density = dGammaMix(x_pos, w = 1, shape = 2, scale = 1)),
-  Lognormal = data.frame(x = x_pos, density = dLognormalMix(x_pos, w = 1, meanlog = 0, sdlog = 0.6)),
-  InvGauss = data.frame(x = x_pos, density = dInvGaussMix(x_pos, w = 1, mean = 1, shape = 2)),
-  Amoroso = data.frame(x = x_pos, density = dAmorosoMix(x_pos, w = 1, loc = 0, scale = 1, shape1 = 1.5, shape2 = 2))
-)
-
-plot_df <- do.call(rbind, lapply(names(dens_list), function(name) {
-  df <- dens_list[[name]]
-  df$Kernel <- name
-  df
-}))
-
-ggplot(plot_df, aes(x = x, y = density, color = Kernel)) +
-  geom_line(linewidth = 1) +
-  facet_wrap(~ Kernel, scales = "free") +
-  labs(x = "x", y = "Density", title = "Bulk Kernel Shapes (Vectorized DPmixGPD Functions)") +
-  theme_minimal() +
-  theme(legend.position = "none")
+                full_width = FALSE, position = "center") %>%
+  kableExtra::collapse_rows(columns = 1, valign = "top")
 ```
 
 ```{r sessioninfo, include=FALSE}

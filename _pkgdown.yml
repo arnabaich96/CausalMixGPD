@@ -138,13 +138,14 @@ articles:
   - title: "Kernels"
     contents:
       - kernels-index
-      - kernels/kernel-amoroso
-      - kernels/kernel-cauchy
-      - kernels/kernel-gamma
-      - kernels/kernel-invgauss
-      - kernels/kernel-laplace
-      - kernels/kernel-lognormal
-      - kernels/kernel-normal
+      # Kernel files are not yet available - uncomment when created
+      # - "kernels/kernel-amoroso"
+      # - "kernels/kernel-cauchy"
+      # - "kernels/kernel-gamma"
+      # - "kernels/kernel-invgauss"
+      # - "kernels/kernel-laplace"
+      # - "kernels/kernel-lognormal"
+      # - "kernels/kernel-normal"
   - title: "Legacy"
     contents:
       - legacy-index
