@@ -39,23 +39,23 @@ fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
 ``` r
 f_mean <- fitted(fit, type = "mean", level = 0.90)
 head(f_mean)
-#>        fit   lower    upper  residuals
-#> 1 3.200441 3.06478 3.358841  0.3995592
-#> 2 3.200441 3.06478 3.358841 -1.4004408
-#> 3 3.200441 3.06478 3.358841  0.1325592
-#> 4 3.200441 3.06478 3.358841 -0.9174408
-#> 5 3.200441 3.06478 3.358841  1.3325592
-#> 6 3.200441 3.06478 3.358841 -0.3174408
+#>   fit lower upper residuals
+#> 1 3.2  3.06  3.36     0.400
+#> 2 3.2  3.06  3.36    -1.400
+#> 3 3.2  3.06  3.36     0.133
+#> 4 3.2  3.06  3.36    -0.917
+#> 5 3.2  3.06  3.36     1.333
+#> 6 3.2  3.06  3.36    -0.317
 
 f_med <- fitted(fit, type = "median", level = 0.90)
 head(f_med)
-#>        fit    lower    upper  residuals
-#> 1 3.076048 2.999175 3.155785  0.5239522
-#> 2 3.076048 2.999175 3.155785 -1.2760478
-#> 3 3.076048 2.999175 3.155785  0.2569522
-#> 4 3.076048 2.999175 3.155785 -0.7930478
-#> 5 3.076048 2.999175 3.155785  1.4569522
-#> 6 3.076048 2.999175 3.155785 -0.1930478
+#>    fit lower upper residuals
+#> 1 3.08     3  3.16     0.524
+#> 2 3.08     3  3.16    -1.276
+#> 3 3.08     3  3.16     0.257
+#> 4 3.08     3  3.16    -0.793
+#> 5 3.08     3  3.16     1.457
+#> 6 3.08     3  3.16    -0.193
 ```
 
 ## Posterior Predictive Summaries
@@ -65,11 +65,11 @@ pred_mean <- predict(fit, type = "mean", cred.level = 0.90, interval = "credible
 pred_q95  <- predict(fit, type = "quantile", index = 0.95, cred.level = 0.90, interval = "credible")
 
 pred_mean$fit
-#>   estimate    lower    upper
-#> 1 3.194483 3.049934 3.317868
+#>   estimate lower upper
+#> 1     3.19  3.05  3.32
 pred_q95$fit
-#>   estimate index    lower    upper
-#> 1 4.812598  0.95 4.718165 4.929821
+#>   estimate index lower upper
+#> 1     4.81  0.95  4.72  4.93
 ```
 
 ## Residual Analysis
@@ -78,7 +78,7 @@ pred_q95$fit
 res <- f_mean$residuals
 summary(res)
 #>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#> -1.6004 -1.0377  0.7996  0.2873  1.2538  1.8996
+#>  -1.600  -1.038   0.800   0.287   1.254   1.900
 ```
 
 ## Diagnostic Plots

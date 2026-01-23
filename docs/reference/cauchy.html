@@ -181,16 +181,15 @@ the RNG implementation supports <code>n = 1</code>.</p></dd>
 <span class="r-in"><span><span class="va">scale</span> <span class="op">&lt;-</span> <span class="fl">1.5</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">dCauchy</span><span class="op">(</span><span class="fl">0.5</span>, <span class="va">location</span>, <span class="va">scale</span>, log <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1909859</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.191</span>
 <span class="r-in"><span><span class="fu">pCauchy</span><span class="op">(</span><span class="fl">0.5</span>, <span class="va">location</span>, <span class="va">scale</span>, lower.tail <span class="op">=</span> <span class="fl">1</span>, log.p <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.6024164</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.602</span>
 <span class="r-in"><span><span class="fu">qCauchy</span><span class="op">(</span><span class="fl">0.50</span>, <span class="va">location</span>, <span class="va">scale</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
 <span class="r-in"><span><span class="fu">qCauchy</span><span class="op">(</span><span class="fl">0.95</span>, <span class="va">location</span>, <span class="va">scale</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 9.470627</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 9.47</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rCauchy</span><span class="op">(</span><span class="fl">1</span>, <span class="va">location</span>, <span class="va">scale</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  -1.5841815   0.2233149   2.6259796 -17.0352026  -0.1447196   2.1440060</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]   2.2687672  -0.4670837  -1.8314950  -0.3933763</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]   1.00  -1.55 -10.63   5.15  -6.64 153.59   0.55  -2.49   5.13 -12.69</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -86,14 +86,13 @@ tail_scale <- 0.8
 tail_shape <- 0.2
 
 dGpd(1.5, threshold, tail_scale, tail_shape, log = 0)
-#> [1] 0.6165877
+#> [1] 0.617
 pGpd(1.5, threshold, tail_scale, tail_shape, lower.tail = 1, log.p = 0)
-#> [1] 0.445071
+#> [1] 0.445
 qGpd(0.50, threshold, tail_scale, tail_shape)
-#> [1] 1.594793
+#> [1] 1.59
 qGpd(0.95, threshold, tail_scale, tail_shape)
-#> [1] 4.282257
+#> [1] 4.28
 replicate(10, rGpd(1, threshold, tail_scale, tail_shape))
-#>  [1] 1.081583 2.346487 2.365271 7.197142 5.093887 1.414462 1.526602 1.314719
-#>  [9] 1.156570 1.655129
+#>  [1] 2.28 2.16 1.62 5.35 1.37 1.15 2.43 1.03 2.46 1.15
 ```

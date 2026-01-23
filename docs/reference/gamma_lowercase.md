@@ -178,17 +178,17 @@ scl <- c(1, 2.5, 5)
 
 # Gamma mixture
 dgammamix(c(1, 2, 3), w = w, shape = shp, scale = scl)
-#> Error in dgammamix(c(1, 2, 3), w = w, shape = shp, scale = scl): could not find function "dgammamix"
+#> [1] 0.2032 0.1535 0.0926
 rgammamix(5, w = w, shape = shp, scale = scl)
-#> Error in rgammamix(5, w = w, shape = shp, scale = scl): could not find function "rgammamix"
+#> [1]  5.249 13.925  0.463 10.743 34.572
 
 # Gamma mixture + GPD
 dgammamixgpd(c(2, 3, 4), w = w, shape = shp, scale = scl,
              threshold = 3, tail_scale = 0.9, tail_shape = 0.2)
-#> Error in dgammamixgpd(c(2, 3, 4), w = w, shape = shp, scale = scl, threshold = 3,     tail_scale = 0.9, tail_shape = 0.2): could not find function "dgammamixgpd"
+#> [1] 0.153 0.610 0.183
 
 # Gamma + GPD (single component)
 dgammagpd(c(2, 3, 4), shape = 4, scale = 2.5, threshold = 3,
           tail_scale = 0.9, tail_shape = 0.2)
-#> Error in dgammagpd(c(2, 3, 4), shape = 4, scale = 2.5, threshold = 3,     tail_scale = 0.9, tail_shape = 0.2): could not find function "dgammagpd"
+#> [1] 0.0153 1.0736 0.3221
 ```

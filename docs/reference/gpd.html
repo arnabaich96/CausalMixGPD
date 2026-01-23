@@ -186,16 +186,15 @@ the RNG implementation supports <code>n = 1</code>.</p></dd>
 <span class="r-in"><span><span class="va">tail_shape</span> <span class="op">&lt;-</span> <span class="fl">0.2</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">dGpd</span><span class="op">(</span><span class="fl">1.5</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span>, log <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.6165877</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.617</span>
 <span class="r-in"><span><span class="fu">pGpd</span><span class="op">(</span><span class="fl">1.5</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span>, lower.tail <span class="op">=</span> <span class="fl">1</span>, log.p <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.445071</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.445</span>
 <span class="r-in"><span><span class="fu">qGpd</span><span class="op">(</span><span class="fl">0.50</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.594793</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.59</span>
 <span class="r-in"><span><span class="fu">qGpd</span><span class="op">(</span><span class="fl">0.95</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4.282257</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4.28</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rGpd</span><span class="op">(</span><span class="fl">1</span>, <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 1.081583 2.346487 2.365271 7.197142 5.093887 1.414462 1.526602 1.314719</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] 1.156570 1.655129</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 2.28 2.16 1.62 5.35 1.37 1.15 2.43 1.03 2.46 1.15</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

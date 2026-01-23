@@ -458,20 +458,6 @@ Comprehensive user documentation:
 
 - [Kernels
   Overview](https://arnabaich96.github.io/DPmixGPD/articles/kernels-index.md):
-- [Kernel reference:
-  Amoroso](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-amoroso.md):
-- [Kernel reference:
-  Cauchy](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-cauchy.md):
-- [Kernel reference:
-  Gamma](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-gamma.md):
-- [Kernel reference: Inverse
-  Gaussian](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-invgauss.md):
-- [Kernel reference:
-  Laplace](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-laplace.md):
-- [Kernel reference:
-  Lognormal](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-lognormal.md):
-- [Kernel reference:
-  Normal](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-normal.md):
 
 ### Legacy
 

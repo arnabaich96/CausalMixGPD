@@ -128,23 +128,22 @@ tail_shape <- 0.2
 dGammaMixGpd(4.0, w = w, scale = scale, shape = shape,
             threshold = threshold, tail_scale = tail_scale,
             tail_shape = tail_shape, log = 0)
-#> [1] 0.1831223
+#> [1] 0.183
 pGammaMixGpd(4.0, w = w, scale = scale, shape = shape,
             threshold = threshold, tail_scale = tail_scale,
             tail_shape = tail_shape, lower.tail = 1, log.p = 0)
-#> [1] 0.7985655
+#> [1] 0.799
 qGammaMixGpd(0.50, w = w, scale = scale, shape = shape,
             threshold = threshold, tail_scale = tail_scale,
             tail_shape = tail_shape)
-#> [1] 3.085593
+#> [1] 3.09
 qGammaMixGpd(0.95, w = w, scale = scale, shape = shape,
             threshold = threshold, tail_scale = tail_scale,
             tail_shape = tail_shape)
-#> [1] 5.767674
+#> [1] 5.77
 replicate(10, rGammaMixGpd(1, w = w, scale = scale, shape = shape,
                           threshold = threshold,
                           tail_scale = tail_scale,
                           tail_shape = tail_shape))
-#>  [1] 3.071102 4.091845 3.316654 3.326887 3.878007 4.960760 3.513246 2.032069
-#>  [9] 3.374264 4.284959
+#>  [1]  4.80  2.51  3.21 17.76  3.92  3.03  2.20  3.96  3.21  4.90
 ```

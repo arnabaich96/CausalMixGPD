@@ -8,20 +8,6 @@
 > (Introduction, Model Spec, MCMC Workflow,
 > Unconditional/Conditional/Causal, Backends, S3 Reference).
 
-``` r
-# Helpers
-q_vec <- function(fn, probs, ...) vapply(probs, function(p) fn(p, ...), numeric(1))
-density_curve <- function(grid, fn, args) {
-  vapply(grid, function(x) do.call(fn, c(list(x = x), args)), numeric(1))
-}
-
-draw_many <- function(fn, args, n_draws = 5) {
-  if (!is.null(args$label)) args$label <- NULL
-  vapply(seq_len(n_draws), function(i) do.call(fn, c(list(n = 1), args)), numeric(1))
-
-}
-```
-
 ## Mathematical definitions and conventions
 
 This vignette documents the probability distributions exported by
@@ -68,19 +54,19 @@ scale <- c(1.0, 2.0)
 dgammamix(seq(0.5, 2.0, length.out = 5), w = w, shape = shape, scale = scale)
 ```
 
-    [1] 0.1819845 0.2190497 0.2155592 0.1936004 0.1654680
+    [1] 0.182 0.219 0.216 0.194 0.165
 
 ``` r
 qgammamix(c(0.1, 0.5, 0.9), w = w, shape = shape, scale = scale)
 ```
 
-    [1]  0.7309733  3.1258068 12.5500460
+    [1]  0.731  3.126 12.550
 
 ``` r
 rgammamix(5, w = w, shape = shape, scale = scale)
 ```
 
-    [1]  1.1270544  3.4631704 10.4522708  0.5783015  8.9755486
+    [1]  1.127  3.463 10.452  0.578  8.976
 
 ### Finite mixtures
 
@@ -158,57 +144,114 @@ The standalone GPD tail distribution is available via `dGpd`, `pGpd`,
 dGpd(1.8, threshold = 1.5, scale = 0.5, shape = 0.2)
 ```
 
-    [1] 1.013262
+    [1] 1.01
 
 ``` r
 dGpd(1.8, threshold = 1.5, scale = 0.5, shape = 0.2, log = TRUE)
 ```
 
-    [1] 0.01317507
+    [1] 0.0132
 
 ``` r
 pGpd(1.8, threshold = 1.5, scale = 0.5, shape = 0.2)
 ```
 
-    [1] 0.4325731
+    [1] 0.433
 
 ``` r
 pGpd(1.8, threshold = 1.5, scale = 0.5, shape = 0.2, lower.tail = FALSE)
 ```
 
-    [1] 0.5674269
+    [1] 0.567
 
 ``` r
 pGpd(1.8, threshold = 1.5, scale = 0.5, shape = 0.2, log.p = TRUE)
 ```
 
-    [1] -0.8380038
+    [1] -0.838
 
 ``` r
-q_vec(qGpd, c(0.25, 0.5, 0.75), threshold = 1.5, scale = 0.5, shape = 0.2)
+qgpd(c(0.25, 0.5, 0.75), threshold = 1.5, scale = 0.5, shape = 0.2)
 ```
 
-    [1] 1.648060 1.871746 2.298770
+    [1] 1.65 1.87 2.30
 
 ``` r
-q_vec(qGpd, c(0.25, 0.5, 0.75), threshold = 1.5, scale = 0.5, shape = 0.2,
-      lower.tail = FALSE)
+qgpd(c(0.25, 0.5, 0.75), threshold = 1.5, scale = 0.5, shape = 0.2,
+     lower.tail = FALSE)
 ```
 
-    [1] 2.298770 1.871746 1.648060
+    [1] 2.30 1.87 1.65
 
 ``` r
-q_vec(qGpd, c(log(0.25), log(0.5), log(0.75)), threshold = 1.5, scale = 0.5,
-      shape = 0.2, log.p = TRUE)
+qgpd(c(log(0.25), log(0.5), log(0.75)), threshold = 1.5, scale = 0.5,
+     shape = 0.2, log.p = TRUE)
 ```
 
-    [1] 1.648060 1.871746 2.298770
+    [1] 1.65 1.87 2.30
 
 ``` r
-draw_many(rGpd, list(threshold = 1.5, scale = 0.5, shape = 0.2))
+x_vals <- c(1.6, 2.0, 2.4)
+probs <- c(0.25, 0.5, 0.75)
+
+vec_d <- dgpd(x_vals, threshold = 1.5, scale = 0.5, shape = 0.2, log = FALSE)
+scalar_d <- vapply(
+  x_vals,
+  function(xx) as.numeric(dGpd(xx, threshold = 1.5, scale = 0.5, shape = 0.2, log = 0L)),
+  numeric(1)
+)
+all.equal(vec_d, scalar_d)
 ```
 
-    [1] 1.750848 2.376390 3.314836 1.622107 2.087044
+    [1] TRUE
+
+``` r
+vec_p <- pgpd(x_vals, threshold = 1.5, scale = 0.5, shape = 0.2,
+              lower.tail = TRUE, log.p = FALSE)
+scalar_p <- vapply(
+  x_vals,
+  function(xx) as.numeric(pGpd(xx, threshold = 1.5, scale = 0.5, shape = 0.2,
+                               lower.tail = 1L, log.p = 0L)),
+  numeric(1)
+)
+all.equal(vec_p, scalar_p)
+```
+
+    [1] TRUE
+
+``` r
+vec_q <- qgpd(probs, threshold = 1.5, scale = 0.5, shape = 0.2,
+              lower.tail = TRUE, log.p = FALSE)
+scalar_q <- vapply(
+  probs,
+  function(pp) qGpd(pp, threshold = 1.5, scale = 0.5, shape = 0.2,
+                    lower.tail = TRUE, log.p = FALSE),
+  numeric(1)
+)
+all.equal(vec_q, scalar_q)
+```
+
+    [1] TRUE
+
+``` r
+set.seed(123)
+vec_r <- rgpd(5, threshold = 1.5, scale = 0.5, shape = 0.2)
+set.seed(123)
+scalar_r <- vapply(
+  seq_len(5),
+  function(i) rGpd(1, threshold = 1.5, scale = 0.5, shape = 0.2),
+  numeric(1)
+)
+all.equal(vec_r, scalar_r)
+```
+
+    [1] TRUE
+
+``` r
+rgpd(5, threshold = 1.5, scale = 0.5, shape = 0.2)
+```
+
+    [1] 1.52 1.91 2.90 1.93 1.82
 
 ``` r
 grid <- seq(-4, 15, length.out = 500)
@@ -219,7 +262,11 @@ gpd_sets <- list(
 )
 
 df_gpd <- do.call(rbind, lapply(gpd_sets, function(ps) {
-  data.frame(x = grid, density = density_curve(grid, dGpd, list(threshold = ps$threshold, scale = ps$tail_scale, shape = ps$tail_shape)), label = ps$label)
+  data.frame(
+    x = grid,
+    density = dgpd(grid, threshold = ps$threshold, scale = ps$tail_scale, shape = ps$tail_shape),
+    label = ps$label
+  )
 }))
 
 ggplot(df_gpd, aes(x = x, y = density, color = label)) +
@@ -282,62 +329,123 @@ example <- normal_sets[[1]]
 dNormMix(0, w = example$w, mean = example$mean, sd = example$sd)
 ```
 
-    [1] 0.2535206
+    [1] 0.254
 
 ``` r
 dNormMix(0, w = example$w, mean = example$mean, sd = example$sd, log = TRUE)
 ```
 
-    [1] -1.37231
+    [1] -1.37
 
 ``` r
 pNormMix(0, w = example$w, mean = example$mean, sd = example$sd)
 ```
 
-    [1] 0.4790278
+    [1] 0.479
 
 ``` r
 pNormMix(0, w = example$w, mean = example$mean, sd = example$sd, lower.tail = FALSE)
 ```
 
-    [1] 0.5209722
+    [1] 0.521
 
 ``` r
 pNormMix(0, w = example$w, mean = example$mean, sd = example$sd, log.p = TRUE)
 ```
 
-    [1] -0.7359966
+    [1] -0.736
 
 ``` r
-q_vec(qNormMix, c(0.25, 0.5, 0.75), w = example$w, mean = example$mean,
-      sd = example$sd)
+qnormmix(c(0.25, 0.5, 0.75), w = example$w, mean = example$mean,
+         sd = example$sd)
 ```
 
-    [1] -1.42337727  0.08046623  0.94945934
+    [1] -1.4234  0.0805  0.9495
 
 ``` r
-q_vec(qNormMix, c(0.25, 0.5, 0.75), w = example$w, mean = example$mean,
-      sd = example$sd, lower.tail = FALSE)
+qnormmix(c(0.25, 0.5, 0.75), w = example$w, mean = example$mean,
+         sd = example$sd, lower.tail = FALSE)
 ```
 
-    [1]  0.94945934  0.08046623 -1.42337727
+    [1]  0.9495  0.0805 -1.4234
 
 ``` r
-q_vec(qNormMix, c(log(0.25), log(0.5), log(0.75)), w = example$w,
-      mean = example$mean, sd = example$sd, log.p = TRUE)
+qnormmix(c(log(0.25), log(0.5), log(0.75)), w = example$w,
+         mean = example$mean, sd = example$sd, log.p = TRUE)
 ```
 
-    [1] -1.42337727  0.08046623  0.94945934
+    [1] -1.4234  0.0805  0.9495
 
 ``` r
-draw_many(rNormMix, list(w = example$w, mean = example$mean, sd = example$sd))
+x_vals <- c(-1.0, 0.0, 1.0)
+probs <- c(0.25, 0.5, 0.75)
+
+vec_d <- dnormmix(x_vals, w = example$w, mean = example$mean, sd = example$sd, log = FALSE)
+scalar_d <- vapply(
+  x_vals,
+  function(xx) as.numeric(dNormMix(xx, w = example$w, mean = example$mean, sd = example$sd, log = 0L)),
+  numeric(1)
+)
+all.equal(vec_d, scalar_d)
 ```
 
-    [1] -2.2424812 -1.5984302 -1.0898672 -2.7838423  0.9927327
+    [1] TRUE
+
+``` r
+vec_p <- pnormmix(x_vals, w = example$w, mean = example$mean, sd = example$sd,
+                  lower.tail = TRUE, log.p = FALSE)
+scalar_p <- vapply(
+  x_vals,
+  function(xx) as.numeric(pNormMix(xx, w = example$w, mean = example$mean, sd = example$sd,
+                                   lower.tail = 1L, log.p = 0L)),
+  numeric(1)
+)
+all.equal(vec_p, scalar_p)
+```
+
+    [1] TRUE
+
+``` r
+vec_q <- qnormmix(probs, w = example$w, mean = example$mean, sd = example$sd,
+                  lower.tail = TRUE, log.p = FALSE)
+scalar_q <- vapply(
+  probs,
+  function(pp) qNormMix(pp, w = example$w, mean = example$mean, sd = example$sd,
+                        lower.tail = TRUE, log.p = FALSE),
+  numeric(1)
+)
+all.equal(vec_q, scalar_q)
+```
+
+    [1] TRUE
+
+``` r
+set.seed(123)
+vec_r <- rnormmix(5, w = example$w, mean = example$mean, sd = example$sd)
+set.seed(123)
+scalar_r <- vapply(
+  seq_len(5),
+  function(i) rNormMix(1, w = example$w, mean = example$mean, sd = example$sd),
+  numeric(1)
+)
+all.equal(vec_r, scalar_r)
+```
+
+    [1] TRUE
+
+``` r
+rnormmix(5, w = example$w, mean = example$mean, sd = example$sd)
+```
+
+    [1]  0.0879  2.3804  0.7159  0.8295 -2.1117
 
 ``` r
 df_norm <- do.call(rbind, lapply(normal_sets, function(ps) {
-  data.frame(x = grid, density = density_curve(grid, dNormMix, list(w = ps$w, mean = ps$mean, sd = ps$sd)), label = ps$label)
+  data.frame(
+    x = grid,
+    density = dnormmix(grid, w = ps$w, mean = ps$mean, sd = ps$sd),
+    label = ps$label
+  )
 }))
 
 ggplot(df_norm, aes(x = x, y = density, color = label)) +
@@ -369,29 +477,172 @@ example <- normal_gpd_sets[[1]]
 dNormMixGpd(2, w = example$w, mean = example$mean, sd = example$sd, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
 ```
 
-    [1] 0.3322395
+    [1] 0.332
 
 ``` r
 pNormMixGpd(2, w = example$w, mean = example$mean, sd = example$sd, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
 ```
 
-    [1] 0.8504922
+    [1] 0.85
 
 ``` r
-q_vec(qNormMixGpd, c(0.5, 0.9), w = example$w, mean = example$mean, sd = example$sd, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
+qnormmixgpd(c(0.5, 0.9), w = example$w, mean = example$mean, sd = example$sd,
+            threshold = example$threshold, tail_scale = example$tail_scale,
+            tail_shape = example$tail_shape)
 ```
 
-    [1] -0.5173894  2.1903912
+    [1] -0.517  2.190
 
 ``` r
-draw_many(rNormMixGpd, example)
+x_vals <- c(1.0, 2.0, 3.0)
+probs <- c(0.5, 0.9)
+
+vec_d <- dnormmixgpd(
+  x_vals,
+  w = example$w,
+  mean = example$mean,
+  sd = example$sd,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape,
+  log = FALSE
+)
+scalar_d <- vapply(
+  x_vals,
+  function(xx) as.numeric(dNormMixGpd(
+    xx,
+    w = example$w,
+    mean = example$mean,
+    sd = example$sd,
+    threshold = example$threshold,
+    tail_scale = example$tail_scale,
+    tail_shape = example$tail_shape,
+    log = 0L
+  )),
+  numeric(1)
+)
+all.equal(vec_d, scalar_d)
 ```
 
-    [1] -0.5405113  2.1568247  0.4085186  1.9550970 -1.7353762
+    [1] TRUE
+
+``` r
+vec_p <- pnormmixgpd(
+  x_vals,
+  w = example$w,
+  mean = example$mean,
+  sd = example$sd,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape,
+  lower.tail = TRUE,
+  log.p = FALSE
+)
+scalar_p <- vapply(
+  x_vals,
+  function(xx) as.numeric(pNormMixGpd(
+    xx,
+    w = example$w,
+    mean = example$mean,
+    sd = example$sd,
+    threshold = example$threshold,
+    tail_scale = example$tail_scale,
+    tail_shape = example$tail_shape,
+    lower.tail = 1L,
+    log.p = 0L
+  )),
+  numeric(1)
+)
+all.equal(vec_p, scalar_p)
+```
+
+    [1] TRUE
+
+``` r
+vec_q <- qnormmixgpd(
+  probs,
+  w = example$w,
+  mean = example$mean,
+  sd = example$sd,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape,
+  lower.tail = TRUE,
+  log.p = FALSE
+)
+scalar_q <- vapply(
+  probs,
+  function(pp) qNormMixGpd(
+    pp,
+    w = example$w,
+    mean = example$mean,
+    sd = example$sd,
+    threshold = example$threshold,
+    tail_scale = example$tail_scale,
+    tail_shape = example$tail_shape,
+    lower.tail = TRUE,
+    log.p = FALSE
+  ),
+  numeric(1)
+)
+all.equal(vec_q, scalar_q)
+```
+
+    [1] TRUE
+
+``` r
+set.seed(123)
+vec_r <- rnormmixgpd(
+  5,
+  w = example$w,
+  mean = example$mean,
+  sd = example$sd,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape
+)
+set.seed(123)
+scalar_r <- vapply(
+  seq_len(5),
+  function(i) rNormMixGpd(
+    1,
+    w = example$w,
+    mean = example$mean,
+    sd = example$sd,
+    threshold = example$threshold,
+    tail_scale = example$tail_scale,
+    tail_shape = example$tail_shape
+  ),
+  numeric(1)
+)
+all.equal(vec_r, scalar_r)
+```
+
+    [1] TRUE
+
+``` r
+rnormmixgpd(5, w = example$w, mean = example$mean, sd = example$sd,
+            threshold = example$threshold, tail_scale = example$tail_scale,
+            tail_shape = example$tail_shape)
+```
+
+    [1] -1.22  2.35  2.32 -1.28  3.06
 
 ``` r
 df_norm_gpd <- do.call(rbind, lapply(normal_gpd_sets, function(ps) {
-  data.frame(x = grid, density = density_curve(grid, dNormMixGpd, list(w = ps$w, mean = ps$mean, sd = ps$sd, threshold = ps$threshold, tail_scale = ps$tail_scale, tail_shape = ps$tail_shape)), label = ps$label)
+  data.frame(
+    x = grid,
+    density = dnormmixgpd(
+      grid,
+      w = ps$w,
+      mean = ps$mean,
+      sd = ps$sd,
+      threshold = ps$threshold,
+      tail_scale = ps$tail_scale,
+      tail_shape = ps$tail_shape
+    ),
+    label = ps$label
+  )
 }))
 
 ggplot(df_norm_gpd, aes(x = x, y = density, color = label)) +
@@ -446,7 +697,7 @@ example <- gamma_sets[[1]]
 dens <- do.call(rbind, lapply(gamma_sets, function(s) {
   data.frame(
     x = grid,
-    density = dGammaMix(grid, w = s$w, shape = s$shape, scale = s$scale),
+    density = dgammamix(grid, w = s$w, shape = s$shape, scale = s$scale),
     label = s$label
   )
 }))
@@ -456,47 +707,108 @@ dens <- do.call(rbind, lapply(gamma_sets, function(s) {
 dGammaMix(2, w = example$w, shape = example$shape, scale = example$scale)
 ```
 
-    [1] 0.2952082
+    [1] 0.295
 
 ``` r
 dGammaMix(2, w = example$w, shape = example$shape, scale = example$scale, log = TRUE)
 ```
 
-    [1] -1.220074
+    [1] -1.22
 
 ``` r
 pGammaMix(2, w = example$w, shape = example$shape, scale = example$scale)
 ```
 
-    [1] 0.452308
+    [1] 0.452
 
 ``` r
 pGammaMix(2, w = example$w, shape = example$shape, scale = example$scale, lower.tail = FALSE)
 ```
 
-    [1] 0.547692
+    [1] 0.548
 
 ``` r
 pGammaMix(2, w = example$w, shape = example$shape, scale = example$scale, log.p = TRUE)
 ```
 
-    [1] -0.7933919
+    [1] -0.793
 
 ``` r
 qGammaMix(0.95, w = example$w, shape = example$shape, scale = example$scale)
 ```
 
-    [1] 5.008484
+    [1] 5.01
 
 ``` r
 qGammaMix(0.95, w = example$w, shape = example$shape, scale = example$scale, lower.tail = FALSE)
 ```
 
-    [1] 0.4747765
+    [1] 0.475
+
+``` r
+x_vals <- c(0.5, 2.0, 5.0)
+probs <- c(0.1, 0.5, 0.9)
+
+vec_d <- dgammamix(x_vals, w = example$w, shape = example$shape, scale = example$scale, log = FALSE)
+scalar_d <- vapply(
+  x_vals,
+  function(xx) as.numeric(dGammaMix(xx, w = example$w, shape = example$shape, scale = example$scale, log = 0L)),
+  numeric(1)
+)
+all.equal(vec_d, scalar_d)
+```
+
+    [1] TRUE
+
+``` r
+vec_p <- pgammamix(x_vals, w = example$w, shape = example$shape, scale = example$scale,
+                   lower.tail = TRUE, log.p = FALSE)
+scalar_p <- vapply(
+  x_vals,
+  function(xx) as.numeric(pGammaMix(xx, w = example$w, shape = example$shape, scale = example$scale,
+                                    lower.tail = 1L, log.p = 0L)),
+  numeric(1)
+)
+all.equal(vec_p, scalar_p)
+```
+
+    [1] TRUE
+
+``` r
+vec_q <- qgammamix(probs, w = example$w, shape = example$shape, scale = example$scale,
+                   lower.tail = TRUE, log.p = FALSE)
+scalar_q <- vapply(
+  probs,
+  function(pp) qGammaMix(pp, w = example$w, shape = example$shape, scale = example$scale,
+                         lower.tail = TRUE, log.p = FALSE),
+  numeric(1)
+)
+all.equal(vec_q, scalar_q)
+```
+
+    [1] TRUE
+
+``` r
+set.seed(123)
+vec_r <- rgammamix(5, w = example$w, shape = example$shape, scale = example$scale)
+set.seed(123)
+scalar_r <- vapply(
+  seq_len(5),
+  function(i) rGammaMix(1, w = example$w, shape = example$shape, scale = example$scale),
+  numeric(1)
+)
+all.equal(vec_r, scalar_r)
+```
+
+    [1] TRUE
 
 ``` r
 df_gamma <- do.call(rbind, lapply(gamma_sets, function(ps) {
-  data.frame(x = grid, density = density_curve(grid, dGammaMix, list(w = ps$w, shape = ps$shape, scale = ps$scale)), label = ps$label)
+  data.frame(
+    x = grid,
+    density = dgammamix(grid, w = ps$w, shape = ps$shape, scale = ps$scale),
+    label = ps$label
+  )
 }))
 
 ggplot(df_norm, aes(x = x, y = density, color = label)) +
@@ -520,35 +832,162 @@ dGammaMixGpd(6.5, w = example$w, shape = example$shape, scale = example$scale,
              threshold = u, tail_scale = tail_scale, tail_shape = tail_shape)
 ```
 
-    [1] 0.01094814
+    [1] 0.0109
 
 ``` r
 dGammaMixGpd(6.5, w = example$w, shape = example$shape, scale = example$scale,
              threshold = u, tail_scale = tail_scale, tail_shape = tail_shape, log = TRUE)
 ```
 
-    [1] -4.514586
+    [1] -4.51
 
 ``` r
 pGammaMixGpd(6.5, w = example$w, shape = example$shape, scale = example$scale,
              threshold = u, tail_scale = tail_scale, tail_shape = tail_shape)
 ```
 
-    [1] 0.987957
+    [1] 0.988
 
 ``` r
 pGammaMixGpd(6.5, w = example$w, shape = example$shape, scale = example$scale,
              threshold = u, tail_scale = tail_scale, tail_shape = tail_shape, lower.tail = FALSE)
 ```
 
-    [1] 0.01204295
+    [1] 0.012
 
 ``` r
 qGammaMixGpd(0.95, w = example$w, shape = example$shape, scale = example$scale,
              threshold = u, tail_scale = tail_scale, tail_shape = tail_shape)
 ```
 
-    [1] 5.008484
+    [1] 5.01
+
+``` r
+x_vals <- c(5.5, 6.5, 7.5)
+probs <- c(0.5, 0.9)
+
+vec_d <- dgammamixgpd(
+  x_vals,
+  w = example$w,
+  shape = example$shape,
+  scale = example$scale,
+  threshold = u,
+  tail_scale = tail_scale,
+  tail_shape = tail_shape,
+  log = FALSE
+)
+scalar_d <- vapply(
+  x_vals,
+  function(xx) as.numeric(dGammaMixGpd(
+    xx,
+    w = example$w,
+    shape = example$shape,
+    scale = example$scale,
+    threshold = u,
+    tail_scale = tail_scale,
+    tail_shape = tail_shape,
+    log = 0L
+  )),
+  numeric(1)
+)
+all.equal(vec_d, scalar_d)
+```
+
+    [1] TRUE
+
+``` r
+vec_p <- pgammamixgpd(
+  x_vals,
+  w = example$w,
+  shape = example$shape,
+  scale = example$scale,
+  threshold = u,
+  tail_scale = tail_scale,
+  tail_shape = tail_shape,
+  lower.tail = TRUE,
+  log.p = FALSE
+)
+scalar_p <- vapply(
+  x_vals,
+  function(xx) as.numeric(pGammaMixGpd(
+    xx,
+    w = example$w,
+    shape = example$shape,
+    scale = example$scale,
+    threshold = u,
+    tail_scale = tail_scale,
+    tail_shape = tail_shape,
+    lower.tail = 1L,
+    log.p = 0L
+  )),
+  numeric(1)
+)
+all.equal(vec_p, scalar_p)
+```
+
+    [1] TRUE
+
+``` r
+vec_q <- qgammamixgpd(
+  probs,
+  w = example$w,
+  shape = example$shape,
+  scale = example$scale,
+  threshold = u,
+  tail_scale = tail_scale,
+  tail_shape = tail_shape,
+  lower.tail = TRUE,
+  log.p = FALSE
+)
+scalar_q <- vapply(
+  probs,
+  function(pp) qGammaMixGpd(
+    pp,
+    w = example$w,
+    shape = example$shape,
+    scale = example$scale,
+    threshold = u,
+    tail_scale = tail_scale,
+    tail_shape = tail_shape,
+    lower.tail = TRUE,
+    log.p = FALSE
+  ),
+  numeric(1)
+)
+all.equal(vec_q, scalar_q)
+```
+
+    [1] TRUE
+
+``` r
+set.seed(123)
+vec_r <- rgammamixgpd(
+  5,
+  w = example$w,
+  shape = example$shape,
+  scale = example$scale,
+  threshold = u,
+  tail_scale = tail_scale,
+  tail_shape = tail_shape
+)
+set.seed(123)
+scalar_r <- vapply(
+  seq_len(5),
+  function(i) rGammaMixGpd(
+    1,
+    w = example$w,
+    shape = example$shape,
+    scale = example$scale,
+    threshold = u,
+    tail_scale = tail_scale,
+    tail_shape = tail_shape
+  ),
+  numeric(1)
+)
+all.equal(vec_r, scalar_r)
+```
+
+    [1] TRUE
 
 ``` r
 gamma_gpd_sets <- list(
@@ -560,7 +999,19 @@ gamma_gpd_sets <- list(
 
 
 df_gamma_gpd <- do.call(rbind, lapply(gamma_gpd_sets, function(ps) {
-  data.frame(x = grid, density = density_curve(grid, dGammaMixGpd, list(w = ps$w, shape = ps$shape, scale = ps$scale, threshold = ps$threshold, tail_scale = ps$tail_scale, tail_shape = ps$tail_shape)), label = ps$label)
+  data.frame(
+    x = grid,
+    density = dgammamixgpd(
+      grid,
+      w = ps$w,
+      shape = ps$shape,
+      scale = ps$scale,
+      threshold = ps$threshold,
+      tail_scale = ps$tail_scale,
+      tail_shape = ps$tail_shape
+    ),
+    label = ps$label
+  )
 }))
 
 ggplot(df_norm_gpd, aes(x = x, y = density, color = label)) +
@@ -615,62 +1066,123 @@ example <- logn_sets[[1]]
 dLognormalMix(1, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog)
 ```
 
-    [1] 0.8386766
+    [1] 0.839
 
 ``` r
 dLognormalMix(1, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog, log = TRUE)
 ```
 
-    [1] -0.1759301
+    [1] -0.176
 
 ``` r
 pLognormalMix(1, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog)
 ```
 
-    [1] 0.3981415
+    [1] 0.398
 
 ``` r
 pLognormalMix(1, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog, lower.tail = FALSE)
 ```
 
-    [1] 0.6018585
+    [1] 0.602
 
 ``` r
 pLognormalMix(1, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog, log.p = TRUE)
 ```
 
-    [1] -0.9209479
+    [1] -0.921
 
 ``` r
-q_vec(qLognormalMix, c(0.25, 0.5, 0.75), w = example$w,
-      meanlog = example$meanlog, sdlog = example$sdlog)
+qlognormalmix(c(0.25, 0.5, 0.75), w = example$w,
+              meanlog = example$meanlog, sdlog = example$sdlog)
 ```
 
-    [1] 0.8282429 1.1278180 1.5752146
+    [1] 0.828 1.128 1.575
 
 ``` r
-q_vec(qLognormalMix, c(0.25, 0.5, 0.75), w = example$w,
-      meanlog = example$meanlog, sdlog = example$sdlog, lower.tail = FALSE)
+qlognormalmix(c(0.25, 0.5, 0.75), w = example$w,
+              meanlog = example$meanlog, sdlog = example$sdlog, lower.tail = FALSE)
 ```
 
-    [1] 1.5752146 1.1278180 0.8282429
+    [1] 1.575 1.128 0.828
 
 ``` r
-q_vec(qLognormalMix, c(log(0.25), log(0.5), log(0.75)), w = example$w,
-      meanlog = example$meanlog, sdlog = example$sdlog, log.p = TRUE)
+qlognormalmix(c(log(0.25), log(0.5), log(0.75)), w = example$w,
+              meanlog = example$meanlog, sdlog = example$sdlog, log.p = TRUE)
 ```
 
-    [1] 0.8282429 1.1278180 1.5752146
+    [1] 0.828 1.128 1.575
 
 ``` r
-draw_many(rLognormalMix, list(w = example$w, meanlog = example$meanlog, sdlog = example$sdlog))
+x_vals <- c(0.5, 1.0, 2.0)
+probs <- c(0.25, 0.5, 0.75)
+
+vec_d <- dlognormalmix(x_vals, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog, log = FALSE)
+scalar_d <- vapply(
+  x_vals,
+  function(xx) as.numeric(dLognormalMix(xx, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog, log = 0L)),
+  numeric(1)
+)
+all.equal(vec_d, scalar_d)
 ```
 
-    [1] 1.0188662 1.7219749 0.8408650 0.9787079 1.5852858
+    [1] TRUE
+
+``` r
+vec_p <- plognormalmix(x_vals, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog,
+                       lower.tail = TRUE, log.p = FALSE)
+scalar_p <- vapply(
+  x_vals,
+  function(xx) as.numeric(pLognormalMix(xx, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog,
+                                        lower.tail = 1L, log.p = 0L)),
+  numeric(1)
+)
+all.equal(vec_p, scalar_p)
+```
+
+    [1] TRUE
+
+``` r
+vec_q <- qlognormalmix(probs, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog,
+                       lower.tail = TRUE, log.p = FALSE)
+scalar_q <- vapply(
+  probs,
+  function(pp) qLognormalMix(pp, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog,
+                             lower.tail = TRUE, log.p = FALSE),
+  numeric(1)
+)
+all.equal(vec_q, scalar_q)
+```
+
+    [1] TRUE
+
+``` r
+set.seed(123)
+vec_r <- rlognormalmix(5, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog)
+set.seed(123)
+scalar_r <- vapply(
+  seq_len(5),
+  function(i) rLognormalMix(1, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog),
+  numeric(1)
+)
+all.equal(vec_r, scalar_r)
+```
+
+    [1] TRUE
+
+``` r
+rlognormalmix(5, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog)
+```
+
+    [1] 0.958 1.966 1.616 1.776 0.801
 
 ``` r
 df_logn <- do.call(rbind, lapply(logn_sets, function(ps) {
-  data.frame(x = grid, density = density_curve(grid, dLognormalMix, list(w = ps$w, meanlog = ps$meanlog, sdlog = ps$sdlog)), label = ps$label)
+  data.frame(
+    x = grid,
+    density = dlognormalmix(grid, w = ps$w, meanlog = ps$meanlog, sdlog = ps$sdlog),
+    label = ps$label
+  )
 }))
 
 ggplot(df_logn, aes(x = x, y = density, color = label)) +
@@ -697,29 +1209,172 @@ example <- logn_gpd_sets[[1]]
 dLognormalMixGpd(2.5, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
 ```
 
-    [1] 0.4545372
+    [1] 0.455
 
 ``` r
 pLognormalMixGpd(2.5, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
 ```
 
-    [1] 0.7727314
+    [1] 0.773
 
 ``` r
-q_vec(qLognormalMixGpd, c(0.5, 0.9), w = example$w, meanlog = example$meanlog, sdlog = example$sdlog, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
+qlognormalmixgpd(c(0.5, 0.9), w = example$w, meanlog = example$meanlog,
+                 sdlog = example$sdlog, threshold = example$threshold,
+                 tail_scale = example$tail_scale, tail_shape = example$tail_shape)
 ```
 
-    [1] 1.273895 2.946103
+    [1] 1.27 2.95
 
 ``` r
-draw_many(rLognormalMixGpd, example)
+x_vals <- c(2.0, 3.0, 4.0)
+probs <- c(0.5, 0.9)
+
+vec_d <- dlognormalmixgpd(
+  x_vals,
+  w = example$w,
+  meanlog = example$meanlog,
+  sdlog = example$sdlog,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape,
+  log = FALSE
+)
+scalar_d <- vapply(
+  x_vals,
+  function(xx) as.numeric(dLognormalMixGpd(
+    xx,
+    w = example$w,
+    meanlog = example$meanlog,
+    sdlog = example$sdlog,
+    threshold = example$threshold,
+    tail_scale = example$tail_scale,
+    tail_shape = example$tail_shape,
+    log = 0L
+  )),
+  numeric(1)
+)
+all.equal(vec_d, scalar_d)
 ```
 
-    [1] 2.7221702 1.4498951 6.5466374 0.8729865 1.5169697
+    [1] TRUE
+
+``` r
+vec_p <- plognormalmixgpd(
+  x_vals,
+  w = example$w,
+  meanlog = example$meanlog,
+  sdlog = example$sdlog,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape,
+  lower.tail = TRUE,
+  log.p = FALSE
+)
+scalar_p <- vapply(
+  x_vals,
+  function(xx) as.numeric(pLognormalMixGpd(
+    xx,
+    w = example$w,
+    meanlog = example$meanlog,
+    sdlog = example$sdlog,
+    threshold = example$threshold,
+    tail_scale = example$tail_scale,
+    tail_shape = example$tail_shape,
+    lower.tail = 1L,
+    log.p = 0L
+  )),
+  numeric(1)
+)
+all.equal(vec_p, scalar_p)
+```
+
+    [1] TRUE
+
+``` r
+vec_q <- qlognormalmixgpd(
+  probs,
+  w = example$w,
+  meanlog = example$meanlog,
+  sdlog = example$sdlog,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape,
+  lower.tail = TRUE,
+  log.p = FALSE
+)
+scalar_q <- vapply(
+  probs,
+  function(pp) qLognormalMixGpd(
+    pp,
+    w = example$w,
+    meanlog = example$meanlog,
+    sdlog = example$sdlog,
+    threshold = example$threshold,
+    tail_scale = example$tail_scale,
+    tail_shape = example$tail_shape,
+    lower.tail = TRUE,
+    log.p = FALSE
+  ),
+  numeric(1)
+)
+all.equal(vec_q, scalar_q)
+```
+
+    [1] TRUE
+
+``` r
+set.seed(123)
+vec_r <- rlognormalmixgpd(
+  5,
+  w = example$w,
+  meanlog = example$meanlog,
+  sdlog = example$sdlog,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape
+)
+set.seed(123)
+scalar_r <- vapply(
+  seq_len(5),
+  function(i) rLognormalMixGpd(
+    1,
+    w = example$w,
+    meanlog = example$meanlog,
+    sdlog = example$sdlog,
+    threshold = example$threshold,
+    tail_scale = example$tail_scale,
+    tail_shape = example$tail_shape
+  ),
+  numeric(1)
+)
+all.equal(vec_r, scalar_r)
+```
+
+    [1] TRUE
+
+``` r
+rlognormalmixgpd(5, w = example$w, meanlog = example$meanlog, sdlog = example$sdlog,
+                 threshold = example$threshold, tail_scale = example$tail_scale,
+                 tail_shape = example$tail_shape)
+```
+
+    [1] 0.875 3.166 3.321 0.846 3.981
 
 ``` r
 df_logn_gpd <- do.call(rbind, lapply(logn_gpd_sets, function(ps) {
-  data.frame(x = grid, density = density_curve(grid, dLognormalMixGpd, list(w = ps$w, meanlog = ps$meanlog, sdlog = ps$sdlog, threshold = ps$threshold, tail_scale = ps$tail_scale, tail_shape = ps$tail_shape)), label = ps$label)
+  data.frame(
+    x = grid,
+    density = dlognormalmixgpd(
+      grid,
+      w = ps$w,
+      meanlog = ps$meanlog,
+      sdlog = ps$sdlog,
+      threshold = ps$threshold,
+      tail_scale = ps$tail_scale,
+      tail_shape = ps$tail_shape
+    ),
+    label = ps$label
+  )
 }))
 
 ggplot(df_logn_gpd, aes(x = x, y = density, color = label)) +
@@ -778,62 +1433,123 @@ example <- lap_sets[[1]]
 dLaplaceMix(0, w = example$w, location = example$location, scale = example$scale)
 ```
 
-    [1] 0.3622437
+    [1] 0.362
 
 ``` r
 dLaplaceMix(0, w = example$w, location = example$location, scale = example$scale, log = TRUE)
 ```
 
-    [1] -1.015438
+    [1] -1.02
 
 ``` r
 pLaplaceMix(0, w = example$w, location = example$location, scale = example$scale)
 ```
 
-    [1] 0.4412629
+    [1] 0.441
 
 ``` r
 pLaplaceMix(0, w = example$w, location = example$location, scale = example$scale, lower.tail = FALSE)
 ```
 
-    [1] 0.5587371
+    [1] 0.559
 
 ``` r
 pLaplaceMix(0, w = example$w, location = example$location, scale = example$scale, log.p = TRUE)
 ```
 
-    [1] -0.8181144
+    [1] -0.818
 
 ``` r
-q_vec(qLaplaceMix, c(0.25, 0.5, 0.75), w = example$w,
-      location = example$location, scale = example$scale)
+qlaplacemix(c(0.25, 0.5, 0.75), w = example$w,
+            location = example$location, scale = example$scale)
 ```
 
-    [1] -0.7341261  0.1712536  1.0499993
+    [1] -0.734  0.171  1.050
 
 ``` r
-q_vec(qLaplaceMix, c(0.25, 0.5, 0.75), w = example$w,
-      location = example$location, scale = example$scale, lower.tail = FALSE)
+qlaplacemix(c(0.25, 0.5, 0.75), w = example$w,
+            location = example$location, scale = example$scale, lower.tail = FALSE)
 ```
 
-    [1]  1.0499993  0.1712536 -0.7341261
+    [1]  1.050  0.171 -0.734
 
 ``` r
-q_vec(qLaplaceMix, c(log(0.25), log(0.5), log(0.75)), w = example$w,
-      location = example$location, scale = example$scale, log.p = TRUE)
+qlaplacemix(c(log(0.25), log(0.5), log(0.75)), w = example$w,
+            location = example$location, scale = example$scale, log.p = TRUE)
 ```
 
-    [1] -0.7341261  0.1712536  1.0499993
+    [1] -0.734  0.171  1.050
 
 ``` r
-draw_many(rLaplaceMix, list(w = example$w, location = example$location, scale = example$scale))
+x_vals <- c(-1.0, 0.0, 1.0)
+probs <- c(0.25, 0.5, 0.75)
+
+vec_d <- dlaplacemix(x_vals, w = example$w, location = example$location, scale = example$scale, log = FALSE)
+scalar_d <- vapply(
+  x_vals,
+  function(xx) as.numeric(dLaplaceMix(xx, w = example$w, location = example$location, scale = example$scale, log = 0L)),
+  numeric(1)
+)
+all.equal(vec_d, scalar_d)
 ```
 
-    [1] -3.2177890  1.8796562  1.9953426  0.2669865 -1.1081767
+    [1] TRUE
+
+``` r
+vec_p <- plaplacemix(x_vals, w = example$w, location = example$location, scale = example$scale,
+                     lower.tail = TRUE, log.p = FALSE)
+scalar_p <- vapply(
+  x_vals,
+  function(xx) as.numeric(pLaplaceMix(xx, w = example$w, location = example$location, scale = example$scale,
+                                      lower.tail = 1L, log.p = 0L)),
+  numeric(1)
+)
+all.equal(vec_p, scalar_p)
+```
+
+    [1] TRUE
+
+``` r
+vec_q <- qlaplacemix(probs, w = example$w, location = example$location, scale = example$scale,
+                     lower.tail = TRUE, log.p = FALSE)
+scalar_q <- vapply(
+  probs,
+  function(pp) qLaplaceMix(pp, w = example$w, location = example$location, scale = example$scale,
+                           lower.tail = TRUE, log.p = FALSE),
+  numeric(1)
+)
+all.equal(vec_q, scalar_q)
+```
+
+    [1] TRUE
+
+``` r
+set.seed(123)
+vec_r <- rlaplacemix(5, w = example$w, location = example$location, scale = example$scale)
+set.seed(123)
+scalar_r <- vapply(
+  seq_len(5),
+  function(i) rLaplaceMix(1, w = example$w, location = example$location, scale = example$scale),
+  numeric(1)
+)
+all.equal(vec_r, scalar_r)
+```
+
+    [1] TRUE
+
+``` r
+rlaplacemix(5, w = example$w, location = example$location, scale = example$scale)
+```
+
+    [1]  1.253 -1.541  0.850  0.479 -0.517
 
 ``` r
 df_lap <- do.call(rbind, lapply(lap_sets, function(ps) {
-  data.frame(x = grid, density = density_curve(grid, dLaplaceMix, list(w = ps$w, location = ps$location, scale = ps$scale)), label = ps$label)
+  data.frame(
+    x = grid,
+    density = dlaplacemix(grid, w = ps$w, location = ps$location, scale = ps$scale),
+    label = ps$label
+  )
 }))
 
 ggplot(df_lap, aes(x = x, y = density, color = label)) +
@@ -860,29 +1576,172 @@ example <- lap_gpd_sets[[1]]
 dLaplaceMixGpd(1, w = example$w, location = example$location, scale = example$scale, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
 ```
 
-    [1] 0.3509716
+    [1] 0.351
 
 ``` r
 pLaplaceMixGpd(1, w = example$w, location = example$location, scale = example$scale, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
 ```
 
-    [1] 0.7929447
+    [1] 0.793
 
 ``` r
-q_vec(qLaplaceMixGpd, c(0.5, 0.9), w = example$w, location = example$location, scale = example$scale, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
+qlaplacemixgpd(c(0.5, 0.9), w = example$w, location = example$location,
+               scale = example$scale, threshold = example$threshold,
+               tail_scale = example$tail_scale, tail_shape = example$tail_shape)
 ```
 
-    [1] -0.1619177  1.4304946
+    [1] -0.162  1.430
 
 ``` r
-draw_many(rLaplaceMixGpd, example)
+x_vals <- c(1.0, 2.0, 3.0)
+probs <- c(0.5, 0.9)
+
+vec_d <- dlaplacemixgpd(
+  x_vals,
+  w = example$w,
+  location = example$location,
+  scale = example$scale,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape,
+  log = FALSE
+)
+scalar_d <- vapply(
+  x_vals,
+  function(xx) as.numeric(dLaplaceMixGpd(
+    xx,
+    w = example$w,
+    location = example$location,
+    scale = example$scale,
+    threshold = example$threshold,
+    tail_scale = example$tail_scale,
+    tail_shape = example$tail_shape,
+    log = 0L
+  )),
+  numeric(1)
+)
+all.equal(vec_d, scalar_d)
 ```
 
-    [1]  2.0647657 -2.4331251 -0.6120808  1.7658926 -0.1651974
+    [1] TRUE
+
+``` r
+vec_p <- plaplacemixgpd(
+  x_vals,
+  w = example$w,
+  location = example$location,
+  scale = example$scale,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape,
+  lower.tail = TRUE,
+  log.p = FALSE
+)
+scalar_p <- vapply(
+  x_vals,
+  function(xx) as.numeric(pLaplaceMixGpd(
+    xx,
+    w = example$w,
+    location = example$location,
+    scale = example$scale,
+    threshold = example$threshold,
+    tail_scale = example$tail_scale,
+    tail_shape = example$tail_shape,
+    lower.tail = 1L,
+    log.p = 0L
+  )),
+  numeric(1)
+)
+all.equal(vec_p, scalar_p)
+```
+
+    [1] TRUE
+
+``` r
+vec_q <- qlaplacemixgpd(
+  probs,
+  w = example$w,
+  location = example$location,
+  scale = example$scale,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape,
+  lower.tail = TRUE,
+  log.p = FALSE
+)
+scalar_q <- vapply(
+  probs,
+  function(pp) qLaplaceMixGpd(
+    pp,
+    w = example$w,
+    location = example$location,
+    scale = example$scale,
+    threshold = example$threshold,
+    tail_scale = example$tail_scale,
+    tail_shape = example$tail_shape,
+    lower.tail = TRUE,
+    log.p = FALSE
+  ),
+  numeric(1)
+)
+all.equal(vec_q, scalar_q)
+```
+
+    [1] TRUE
+
+``` r
+set.seed(123)
+vec_r <- rlaplacemixgpd(
+  5,
+  w = example$w,
+  location = example$location,
+  scale = example$scale,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape
+)
+set.seed(123)
+scalar_r <- vapply(
+  seq_len(5),
+  function(i) rLaplaceMixGpd(
+    1,
+    w = example$w,
+    location = example$location,
+    scale = example$scale,
+    threshold = example$threshold,
+    tail_scale = example$tail_scale,
+    tail_shape = example$tail_shape
+  ),
+  numeric(1)
+)
+all.equal(vec_r, scalar_r)
+```
+
+    [1] TRUE
+
+``` r
+rlaplacemixgpd(5, w = example$w, location = example$location, scale = example$scale,
+               threshold = example$threshold, tail_scale = example$tail_scale,
+               tail_shape = example$tail_shape)
+```
+
+    [1] -1.125  2.677  0.494 -1.041 -1.099
 
 ``` r
 df_lap_gpd <- do.call(rbind, lapply(lap_gpd_sets, function(ps) {
-  data.frame(x = grid, density = density_curve(grid, dLaplaceMixGpd, list(w = ps$w, location = ps$location, scale = ps$scale, threshold = ps$threshold, tail_scale = ps$tail_scale, tail_shape = ps$tail_shape)), label = ps$label)
+  data.frame(
+    x = grid,
+    density = dlaplacemixgpd(
+      grid,
+      w = ps$w,
+      location = ps$location,
+      scale = ps$scale,
+      threshold = ps$threshold,
+      tail_scale = ps$tail_scale,
+      tail_shape = ps$tail_shape
+    ),
+    label = ps$label
+  )
 }))
 
 ggplot(df_lap_gpd, aes(x = x, y = density, color = label)) +
@@ -941,62 +1800,123 @@ example <- ig_sets[[1]]
 dInvGaussMix(1, w = example$w, mean = example$mean, shape = example$shape)
 ```
 
-    [1] 0.5623806
+    [1] 0.562
 
 ``` r
 dInvGaussMix(1.5, w = example$w, mean = example$mean, shape = example$shape, log = TRUE)
 ```
 
-    [1] -1.175151
+    [1] -1.18
 
 ``` r
 pInvGaussMix(1.5, w = example$w, mean = example$mean, shape = example$shape)
 ```
 
-    [1] 0.7287565
+    [1] 0.729
 
 ``` r
 pInvGaussMix(1.5, w = example$w, mean = example$mean, shape = example$shape, lower.tail = FALSE)
 ```
 
-    [1] 0.2712435
+    [1] 0.271
 
 ``` r
 pInvGaussMix(1.5, w = example$w, mean = example$mean, shape = example$shape, log.p = TRUE)
 ```
 
-    [1] -0.3164157
+    [1] -0.316
 
 ``` r
-q_vec(qInvGaussMix, c(0.25, 0.5, 0.75), w = example$w, mean = example$mean,
-      shape = example$shape)
+qinvgaussmix(c(0.25, 0.5, 0.75), w = example$w, mean = example$mean,
+             shape = example$shape)
 ```
 
-    [1] 0.6082680 0.9714913 1.5718861
+    [1] 0.608 0.971 1.572
 
 ``` r
-q_vec(qInvGaussMix, c(0.25, 0.5, 0.75), w = example$w, mean = example$mean,
-      shape = example$shape, lower.tail = FALSE)
+qinvgaussmix(c(0.25, 0.5, 0.75), w = example$w, mean = example$mean,
+             shape = example$shape, lower.tail = FALSE)
 ```
 
-    [1] 1.5718861 0.9714913 0.6082680
+    [1] 1.572 0.971 0.608
 
 ``` r
-q_vec(qInvGaussMix, c(log(0.25), log(0.5), log(0.75)), w = example$w,
-      mean = example$mean, shape = example$shape, log.p = TRUE)
+qinvgaussmix(c(log(0.25), log(0.5), log(0.75)), w = example$w,
+             mean = example$mean, shape = example$shape, log.p = TRUE)
 ```
 
-    [1] 0.6082680 0.9714913 1.5718861
+    [1] 0.608 0.971 1.572
 
 ``` r
-draw_many(rInvGaussMix, list(w = example$w, mean = example$mean, shape = example$shape))
+x_vals <- c(0.5, 1.5, 3.0)
+probs <- c(0.25, 0.5, 0.75)
+
+vec_d <- dinvgaussmix(x_vals, w = example$w, mean = example$mean, shape = example$shape, log = FALSE)
+scalar_d <- vapply(
+  x_vals,
+  function(xx) as.numeric(dInvGaussMix(xx, w = example$w, mean = example$mean, shape = example$shape, log = 0L)),
+  numeric(1)
+)
+all.equal(vec_d, scalar_d)
 ```
 
-    [1] 0.8427395 1.2943944 0.9548876 1.2507577 1.6318351
+    [1] TRUE
+
+``` r
+vec_p <- pinvgaussmix(x_vals, w = example$w, mean = example$mean, shape = example$shape,
+                      lower.tail = TRUE, log.p = FALSE)
+scalar_p <- vapply(
+  x_vals,
+  function(xx) as.numeric(pInvGaussMix(xx, w = example$w, mean = example$mean, shape = example$shape,
+                                       lower.tail = 1L, log.p = 0L)),
+  numeric(1)
+)
+all.equal(vec_p, scalar_p)
+```
+
+    [1] TRUE
+
+``` r
+vec_q <- qinvgaussmix(probs, w = example$w, mean = example$mean, shape = example$shape,
+                      lower.tail = TRUE, log.p = FALSE)
+scalar_q <- vapply(
+  probs,
+  function(pp) qInvGaussMix(pp, w = example$w, mean = example$mean, shape = example$shape,
+                            lower.tail = TRUE, log.p = FALSE),
+  numeric(1)
+)
+all.equal(vec_q, scalar_q)
+```
+
+    [1] TRUE
+
+``` r
+set.seed(123)
+vec_r <- rinvgaussmix(5, w = example$w, mean = example$mean, shape = example$shape)
+set.seed(123)
+scalar_r <- vapply(
+  seq_len(5),
+  function(i) rInvGaussMix(1, w = example$w, mean = example$mean, shape = example$shape),
+  numeric(1)
+)
+all.equal(vec_r, scalar_r)
+```
+
+    [1] TRUE
+
+``` r
+rinvgaussmix(5, w = example$w, mean = example$mean, shape = example$shape)
+```
+
+    [1] 2.138 1.020 2.066 0.843 0.867
 
 ``` r
 df_ig <- do.call(rbind, lapply(ig_sets, function(ps) {
-  data.frame(x = grid, density = density_curve(grid, dInvGaussMix, list(w = ps$w, mean = ps$mean, shape = ps$shape)), label = ps$label)
+  data.frame(
+    x = grid,
+    density = dinvgaussmix(grid, w = ps$w, mean = ps$mean, shape = ps$shape),
+    label = ps$label
+  )
 }))
 
 ggplot(df_ig, aes(x = x, y = density, color = label)) +
@@ -1023,29 +1943,172 @@ example <- ig_gpd_sets[[1]]
 dInvGaussMixGpd(2.5, w = example$w, mean = example$mean, shape = example$shape, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
 ```
 
-    [1] 0.3251727
+    [1] 0.325
 
 ``` r
 pInvGaussMixGpd(2.5, w = example$w, mean = example$mean, shape = example$shape, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
 ```
 
-    [1] 0.8374137
+    [1] 0.837
 
 ``` r
-q_vec(qInvGaussMixGpd, c(0.5, 0.9), w = example$w, mean = example$mean, shape = example$shape, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
+qinvgaussmixgpd(c(0.5, 0.9), w = example$w, mean = example$mean,
+                shape = example$shape, threshold = example$threshold,
+                tail_scale = example$tail_scale, tail_shape = example$tail_shape)
 ```
 
-    [1] 1.061874 2.758401
+    [1] 1.06 2.76
 
 ``` r
-draw_many(rInvGaussMixGpd, example)
+x_vals <- c(2.0, 2.5, 3.0)
+probs <- c(0.5, 0.9)
+
+vec_d <- dinvgaussmixgpd(
+  x_vals,
+  w = example$w,
+  mean = example$mean,
+  shape = example$shape,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape,
+  log = FALSE
+)
+scalar_d <- vapply(
+  x_vals,
+  function(xx) as.numeric(dInvGaussMixGpd(
+    xx,
+    w = example$w,
+    mean = example$mean,
+    shape = example$shape,
+    threshold = example$threshold,
+    tail_scale = example$tail_scale,
+    tail_shape = example$tail_shape,
+    log = 0L
+  )),
+  numeric(1)
+)
+all.equal(vec_d, scalar_d)
 ```
 
-    [1] 1.9174888 0.5303355 0.6706898 2.0467130 1.2647710
+    [1] TRUE
+
+``` r
+vec_p <- pinvgaussmixgpd(
+  x_vals,
+  w = example$w,
+  mean = example$mean,
+  shape = example$shape,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape,
+  lower.tail = TRUE,
+  log.p = FALSE
+)
+scalar_p <- vapply(
+  x_vals,
+  function(xx) as.numeric(pInvGaussMixGpd(
+    xx,
+    w = example$w,
+    mean = example$mean,
+    shape = example$shape,
+    threshold = example$threshold,
+    tail_scale = example$tail_scale,
+    tail_shape = example$tail_shape,
+    lower.tail = 1L,
+    log.p = 0L
+  )),
+  numeric(1)
+)
+all.equal(vec_p, scalar_p)
+```
+
+    [1] TRUE
+
+``` r
+vec_q <- qinvgaussmixgpd(
+  probs,
+  w = example$w,
+  mean = example$mean,
+  shape = example$shape,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape,
+  lower.tail = TRUE,
+  log.p = FALSE
+)
+scalar_q <- vapply(
+  probs,
+  function(pp) qInvGaussMixGpd(
+    pp,
+    w = example$w,
+    mean = example$mean,
+    shape = example$shape,
+    threshold = example$threshold,
+    tail_scale = example$tail_scale,
+    tail_shape = example$tail_shape,
+    lower.tail = TRUE,
+    log.p = FALSE
+  ),
+  numeric(1)
+)
+all.equal(vec_q, scalar_q)
+```
+
+    [1] TRUE
+
+``` r
+set.seed(123)
+vec_r <- rinvgaussmixgpd(
+  5,
+  w = example$w,
+  mean = example$mean,
+  shape = example$shape,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape
+)
+set.seed(123)
+scalar_r <- vapply(
+  seq_len(5),
+  function(i) rInvGaussMixGpd(
+    1,
+    w = example$w,
+    mean = example$mean,
+    shape = example$shape,
+    threshold = example$threshold,
+    tail_scale = example$tail_scale,
+    tail_shape = example$tail_shape
+  ),
+  numeric(1)
+)
+all.equal(vec_r, scalar_r)
+```
+
+    [1] TRUE
+
+``` r
+rinvgaussmixgpd(5, w = example$w, mean = example$mean, shape = example$shape,
+                threshold = example$threshold, tail_scale = example$tail_scale,
+                tail_shape = example$tail_shape)
+```
+
+    [1] 1.738 2.066 0.498 0.599 0.491
 
 ``` r
 df_ig_gpd <- do.call(rbind, lapply(ig_gpd_sets, function(ps) {
-  data.frame(x = grid, density = density_curve(grid, dInvGaussMixGpd, list(w = ps$w, mean = ps$mean, shape = ps$shape, threshold = ps$threshold, tail_scale = ps$tail_scale, tail_shape = ps$tail_shape)), label = ps$label)
+  data.frame(
+    x = grid,
+    density = dinvgaussmixgpd(
+      grid,
+      w = ps$w,
+      mean = ps$mean,
+      shape = ps$shape,
+      threshold = ps$threshold,
+      tail_scale = ps$tail_scale,
+      tail_shape = ps$tail_shape
+    ),
+    label = ps$label
+  )
 }))
 
 ggplot(df_ig_gpd, aes(x = x, y = density, color = label)) +
@@ -1108,70 +2171,205 @@ dAmorosoMix(2, w = example$w, loc = example$loc, scale = example$scale,
             shape1 = example$shape1, shape2 = example$shape2)
 ```
 
-    [1] 0.3047048
+    [1] 0.305
 
 ``` r
 dAmorosoMix(2, w = example$w, loc = example$loc, scale = example$scale,
             shape1 = example$shape1, shape2 = example$shape2, log = TRUE)
 ```
 
-    [1] -1.188412
+    [1] -1.19
 
 ``` r
 pAmorosoMix(2, w = example$w, loc = example$loc, scale = example$scale,
             shape1 = example$shape1, shape2 = example$shape2)
 ```
 
-    [1] 0.2402211
+    [1] 0.24
 
 ``` r
 pAmorosoMix(2, w = example$w, loc = example$loc, scale = example$scale,
             shape1 = example$shape1, shape2 = example$shape2, lower.tail = FALSE)
 ```
 
-    [1] 0.7597789
+    [1] 0.76
 
 ``` r
 pAmorosoMix(2, w = example$w, loc = example$loc, scale = example$scale,
             shape1 = example$shape1, shape2 = example$shape2, log.p = TRUE)
 ```
 
-    [1] -1.426196
+    [1] -1.43
 
 ``` r
-q_vec(qAmorosoMix, c(0.25, 0.5, 0.75), w = example$w, loc = example$loc,
-      scale = example$scale, shape1 = example$shape1, shape2 = example$shape2)
+qamorosomix(c(0.25, 0.5, 0.75), w = example$w, loc = example$loc,
+            scale = example$scale, shape1 = example$shape1, shape2 = example$shape2)
 ```
 
-    [1] 2.031993 2.858225 3.993931
+    [1] 2.03 2.86 3.99
 
 ``` r
-q_vec(qAmorosoMix, c(0.25, 0.5, 0.75), w = example$w, loc = example$loc,
-      scale = example$scale, shape1 = example$shape1, shape2 = example$shape2,
-      lower.tail = FALSE)
+qamorosomix(c(0.25, 0.5, 0.75), w = example$w, loc = example$loc,
+            scale = example$scale, shape1 = example$shape1, shape2 = example$shape2,
+            lower.tail = FALSE)
 ```
 
-    [1] 3.993931 2.858225 2.031993
+    [1] 3.99 2.86 2.03
 
 ``` r
-q_vec(qAmorosoMix, c(log(0.25), log(0.5), log(0.75)), w = example$w,
-      loc = example$loc, scale = example$scale, shape1 = example$shape1,
-      shape2 = example$shape2, log.p = TRUE)
+qamorosomix(c(log(0.25), log(0.5), log(0.75)), w = example$w,
+            loc = example$loc, scale = example$scale, shape1 = example$shape1,
+            shape2 = example$shape2, log.p = TRUE)
 ```
 
-    [1] 2.031993 2.858225 3.993931
+    [1] 2.03 2.86 3.99
 
 ``` r
-draw_many(rAmorosoMix, list(w = example$w, loc = example$loc,
-                            scale = example$scale, shape1 = example$shape1,
-                            shape2 = example$shape2))
+x_vals <- c(0.8, 1.4, 2.2)
+probs <- c(0.25, 0.5, 0.75)
+
+vec_d <- damorosomix(
+  x_vals,
+  w = example$w,
+  loc = example$loc,
+  scale = example$scale,
+  shape1 = example$shape1,
+  shape2 = example$shape2,
+  log = FALSE
+)
+scalar_d <- vapply(
+  x_vals,
+  function(xx) as.numeric(dAmorosoMix(
+    xx,
+    w = example$w,
+    loc = example$loc,
+    scale = example$scale,
+    shape1 = example$shape1,
+    shape2 = example$shape2,
+    log = 0L
+  )),
+  numeric(1)
+)
+all.equal(vec_d, scalar_d)
 ```
 
-    [1] 2.103899 4.032512 3.864348 4.200887 3.966389
+    [1] TRUE
+
+``` r
+vec_p <- pamorosomix(
+  x_vals,
+  w = example$w,
+  loc = example$loc,
+  scale = example$scale,
+  shape1 = example$shape1,
+  shape2 = example$shape2,
+  lower.tail = TRUE,
+  log.p = FALSE
+)
+scalar_p <- vapply(
+  x_vals,
+  function(xx) as.numeric(pAmorosoMix(
+    xx,
+    w = example$w,
+    loc = example$loc,
+    scale = example$scale,
+    shape1 = example$shape1,
+    shape2 = example$shape2,
+    lower.tail = 1L,
+    log.p = 0L
+  )),
+  numeric(1)
+)
+all.equal(vec_p, scalar_p)
+```
+
+    [1] TRUE
+
+``` r
+vec_q <- qamorosomix(
+  probs,
+  w = example$w,
+  loc = example$loc,
+  scale = example$scale,
+  shape1 = example$shape1,
+  shape2 = example$shape2,
+  lower.tail = TRUE,
+  log.p = FALSE
+)
+scalar_q <- vapply(
+  probs,
+  function(pp) qAmorosoMix(
+    pp,
+    w = example$w,
+    loc = example$loc,
+    scale = example$scale,
+    shape1 = example$shape1,
+    shape2 = example$shape2,
+    lower.tail = TRUE,
+    log.p = FALSE
+  ),
+  numeric(1)
+)
+all.equal(vec_q, scalar_q)
+```
+
+    [1] TRUE
+
+``` r
+set.seed(123)
+vec_r <- ramorosomix(
+  5,
+  w = example$w,
+  loc = example$loc,
+  scale = example$scale,
+  shape1 = example$shape1,
+  shape2 = example$shape2
+)
+set.seed(123)
+scalar_r <- vapply(
+  seq_len(5),
+  function(i) rAmorosoMix(
+    1,
+    w = example$w,
+    loc = example$loc,
+    scale = example$scale,
+    shape1 = example$shape1,
+    shape2 = example$shape2
+  ),
+  numeric(1)
+)
+all.equal(vec_r, scalar_r)
+```
+
+    [1] TRUE
+
+``` r
+ramorosomix(
+  5,
+  w = example$w,
+  loc = example$loc,
+  scale = example$scale,
+  shape1 = example$shape1,
+  shape2 = example$shape2
+)
+```
+
+    [1] 4.99 3.73 4.08 1.09 4.74
 
 ``` r
 df_amor <- do.call(rbind, lapply(amor_sets, function(ps) {
-  data.frame(x = grid, density = density_curve(grid, dAmorosoMix, list(w = ps$w, loc = ps$loc, scale = ps$scale, shape1 = ps$shape1, shape2 = ps$shape2)), label = ps$label)
+  data.frame(
+    x = grid,
+    density = damorosomix(
+      grid,
+      w = ps$w,
+      loc = ps$loc,
+      scale = ps$scale,
+      shape1 = ps$shape1,
+      shape2 = ps$shape2
+    ),
+    label = ps$label
+  )
 }))
 
 ggplot(df_amor, aes(x = x, y = density, color = label)) +
@@ -1200,7 +2398,7 @@ dAmorosoMixGpd(3, w = example$w, loc = example$loc, scale = example$scale,
                tail_shape = example$tail_shape)
 ```
 
-    [1] 0.7287094
+    [1] 0.729
 
 ``` r
 dAmorosoMixGpd(3, w = example$w, loc = example$loc, scale = example$scale,
@@ -1209,7 +2407,7 @@ dAmorosoMixGpd(3, w = example$w, loc = example$loc, scale = example$scale,
                tail_shape = example$tail_shape, log = TRUE)
 ```
 
-    [1] -0.3164802
+    [1] -0.316
 
 ``` r
 pAmorosoMixGpd(3, w = example$w, loc = example$loc, scale = example$scale,
@@ -1218,7 +2416,7 @@ pAmorosoMixGpd(3, w = example$w, loc = example$loc, scale = example$scale,
                tail_shape = example$tail_shape)
 ```
 
-    [1] 0.6793679
+    [1] 0.679
 
 ``` r
 pAmorosoMixGpd(3, w = example$w, loc = example$loc, scale = example$scale,
@@ -1227,7 +2425,7 @@ pAmorosoMixGpd(3, w = example$w, loc = example$loc, scale = example$scale,
                tail_shape = example$tail_shape, lower.tail = FALSE)
 ```
 
-    [1] 0.3206321
+    [1] 0.321
 
 ``` r
 pAmorosoMixGpd(3, w = example$w, loc = example$loc, scale = example$scale,
@@ -1236,45 +2434,212 @@ pAmorosoMixGpd(3, w = example$w, loc = example$loc, scale = example$scale,
                tail_shape = example$tail_shape, log.p = TRUE)
 ```
 
-    [1] -0.3865925
+    [1] -0.387
 
 ``` r
-q_vec(qAmorosoMixGpd, c(0.25, 0.5, 0.75), w = example$w, loc = example$loc,
-      scale = example$scale, shape1 = example$shape1, shape2 = example$shape2,
-      threshold = example$threshold, tail_scale = example$tail_scale,
-      tail_shape = example$tail_shape)
+qamorosomixgpd(c(0.25, 0.5, 0.75), w = example$w, loc = example$loc,
+               scale = example$scale, shape1 = example$shape1, shape2 = example$shape2,
+               threshold = example$threshold, tail_scale = example$tail_scale,
+               tail_shape = example$tail_shape)
 ```
 
-    [1] 2.031993 2.812937 3.112257
+    [1] 2.03 2.81 3.11
 
 ``` r
-q_vec(qAmorosoMixGpd, c(0.25, 0.5, 0.75), w = example$w, loc = example$loc,
-      scale = example$scale, shape1 = example$shape1, shape2 = example$shape2,
-      threshold = example$threshold, tail_scale = example$tail_scale,
-      tail_shape = example$tail_shape, lower.tail = FALSE)
+qamorosomixgpd(c(0.25, 0.5, 0.75), w = example$w, loc = example$loc,
+               scale = example$scale, shape1 = example$shape1, shape2 = example$shape2,
+               threshold = example$threshold, tail_scale = example$tail_scale,
+               tail_shape = example$tail_shape, lower.tail = FALSE)
 ```
 
-    [1] 3.112257 2.812937 2.031993
+    [1] 3.11 2.81 2.03
 
 ``` r
-q_vec(qAmorosoMixGpd, c(log(0.25), log(0.5), log(0.75)), w = example$w,
-      loc = example$loc, scale = example$scale, shape1 = example$shape1,
-      shape2 = example$shape2, threshold = example$threshold,
-      tail_scale = example$tail_scale, tail_shape = example$tail_shape,
-      log.p = TRUE)
+qamorosomixgpd(c(log(0.25), log(0.5), log(0.75)), w = example$w,
+               loc = example$loc, scale = example$scale, shape1 = example$shape1,
+               shape2 = example$shape2, threshold = example$threshold,
+               tail_scale = example$tail_scale, tail_shape = example$tail_shape,
+               log.p = TRUE)
 ```
 
-    [1] 2.031993 2.812937 3.112257
+    [1] 2.03 2.81 3.11
 
 ``` r
-draw_many(rAmorosoMixGpd, example)
+x_vals <- c(2.0, 3.0, 4.0)
+probs <- c(0.25, 0.5, 0.75)
+
+vec_d <- damorosomixgpd(
+  x_vals,
+  w = example$w,
+  loc = example$loc,
+  scale = example$scale,
+  shape1 = example$shape1,
+  shape2 = example$shape2,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape,
+  log = FALSE
+)
+scalar_d <- vapply(
+  x_vals,
+  function(xx) as.numeric(dAmorosoMixGpd(
+    xx,
+    w = example$w,
+    loc = example$loc,
+    scale = example$scale,
+    shape1 = example$shape1,
+    shape2 = example$shape2,
+    threshold = example$threshold,
+    tail_scale = example$tail_scale,
+    tail_shape = example$tail_shape,
+    log = 0L
+  )),
+  numeric(1)
+)
+all.equal(vec_d, scalar_d)
 ```
 
-    [1] 3.841513 4.419389 3.143875 3.007030 4.147190
+    [1] TRUE
+
+``` r
+vec_p <- pamorosomixgpd(
+  x_vals,
+  w = example$w,
+  loc = example$loc,
+  scale = example$scale,
+  shape1 = example$shape1,
+  shape2 = example$shape2,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape,
+  lower.tail = TRUE,
+  log.p = FALSE
+)
+scalar_p <- vapply(
+  x_vals,
+  function(xx) as.numeric(pAmorosoMixGpd(
+    xx,
+    w = example$w,
+    loc = example$loc,
+    scale = example$scale,
+    shape1 = example$shape1,
+    shape2 = example$shape2,
+    threshold = example$threshold,
+    tail_scale = example$tail_scale,
+    tail_shape = example$tail_shape,
+    lower.tail = 1L,
+    log.p = 0L
+  )),
+  numeric(1)
+)
+all.equal(vec_p, scalar_p)
+```
+
+    [1] TRUE
+
+``` r
+vec_q <- qamorosomixgpd(
+  probs,
+  w = example$w,
+  loc = example$loc,
+  scale = example$scale,
+  shape1 = example$shape1,
+  shape2 = example$shape2,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape,
+  lower.tail = TRUE,
+  log.p = FALSE
+)
+scalar_q <- vapply(
+  probs,
+  function(pp) qAmorosoMixGpd(
+    pp,
+    w = example$w,
+    loc = example$loc,
+    scale = example$scale,
+    shape1 = example$shape1,
+    shape2 = example$shape2,
+    threshold = example$threshold,
+    tail_scale = example$tail_scale,
+    tail_shape = example$tail_shape,
+    lower.tail = TRUE,
+    log.p = FALSE
+  ),
+  numeric(1)
+)
+all.equal(vec_q, scalar_q)
+```
+
+    [1] TRUE
+
+``` r
+set.seed(123)
+vec_r <- ramorosomixgpd(
+  5,
+  w = example$w,
+  loc = example$loc,
+  scale = example$scale,
+  shape1 = example$shape1,
+  shape2 = example$shape2,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape
+)
+set.seed(123)
+scalar_r <- vapply(
+  seq_len(5),
+  function(i) rAmorosoMixGpd(
+    1,
+    w = example$w,
+    loc = example$loc,
+    scale = example$scale,
+    shape1 = example$shape1,
+    shape2 = example$shape2,
+    threshold = example$threshold,
+    tail_scale = example$tail_scale,
+    tail_shape = example$tail_shape
+  ),
+  numeric(1)
+)
+all.equal(vec_r, scalar_r)
+```
+
+    [1] TRUE
+
+``` r
+ramorosomixgpd(
+  5,
+  w = example$w,
+  loc = example$loc,
+  scale = example$scale,
+  shape1 = example$shape1,
+  shape2 = example$shape2,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape
+)
+```
+
+    [1] 3.17 2.54 4.74 3.33 6.42
 
 ``` r
 df_amor_gpd <- do.call(rbind, lapply(amor_gpd_sets, function(ps) {
-  data.frame(x = grid, density = density_curve(grid, dAmorosoMixGpd, list(w = ps$w, loc = ps$loc, scale = ps$scale, shape1 = ps$shape1, shape2 = ps$shape2, threshold = ps$threshold, tail_scale = ps$tail_scale, tail_shape = ps$tail_shape)), label = ps$label)
+  data.frame(
+    x = grid,
+    density = damorosomixgpd(
+      grid,
+      w = ps$w,
+      loc = ps$loc,
+      scale = ps$scale,
+      shape1 = ps$shape1,
+      shape2 = ps$shape2,
+      threshold = ps$threshold,
+      tail_scale = ps$tail_scale,
+      tail_shape = ps$tail_shape
+    ),
+    label = ps$label
+  )
 }))
 
 ggplot(df_amor_gpd, aes(x = x, y = density, color = label)) +
@@ -1329,62 +2694,123 @@ example <- ig_base_sets[[1]]
 dInvGauss(1, mean = example$mean, shape = example$shape)
 ```
 
-    [1] 0.6627887
+    [1] 0.663
 
 ``` r
 dInvGauss(1, mean = example$mean, shape = example$shape, log = TRUE)
 ```
 
-    [1] -0.4112991
+    [1] -0.411
 
 ``` r
 pInvGauss(1, mean = example$mean, shape = example$shape)
 ```
 
-    [1] 0.4974402
+    [1] 0.497
 
 ``` r
 pInvGauss(1, mean = example$mean, shape = example$shape, lower.tail = FALSE)
 ```
 
-    [1] 0.5025598
+    [1] 0.503
 
 ``` r
 pInvGauss(1, mean = example$mean, shape = example$shape, log.p = TRUE)
 ```
 
-    [1] -0.6982799
+    [1] -0.698
 
 ``` r
-q_vec(qInvGauss, c(0.25, 0.5, 0.75), mean = example$mean,
-      shape = example$shape)
+qinvgauss(c(0.25, 0.5, 0.75), mean = example$mean,
+          shape = example$shape)
 ```
 
-    [1] 0.6732028 1.0038699 1.5093817
+    [1] 0.673 1.004 1.509
 
 ``` r
-q_vec(qInvGauss, c(0.25, 0.5, 0.75), mean = example$mean,
-      shape = example$shape, lower.tail = FALSE)
+qinvgauss(c(0.25, 0.5, 0.75), mean = example$mean,
+          shape = example$shape, lower.tail = FALSE)
 ```
 
-    [1] 1.5093817 1.0038699 0.6732028
+    [1] 1.509 1.004 0.673
 
 ``` r
-q_vec(qInvGauss, c(log(0.25), log(0.5), log(0.75)), mean = example$mean,
-      shape = example$shape, log.p = TRUE)
+qinvgauss(c(log(0.25), log(0.5), log(0.75)), mean = example$mean,
+          shape = example$shape, log.p = TRUE)
 ```
 
-    [1] 0.6732028 1.0038699 1.5093817
+    [1] 0.673 1.004 1.509
 
 ``` r
-draw_many(rInvGauss, list(mean = example$mean, shape = example$shape))
+x_vals <- c(0.5, 1.5, 3.0)
+probs <- c(0.25, 0.5, 0.75)
+
+vec_d <- dinvgauss(x_vals, mean = example$mean, shape = example$shape, log = FALSE)
+scalar_d <- vapply(
+  x_vals,
+  function(xx) as.numeric(dInvGauss(xx, mean = example$mean, shape = example$shape, log = 0L)),
+  numeric(1)
+)
+all.equal(vec_d, scalar_d)
 ```
 
-    [1] 1.3868569 0.8904965 0.7377545 0.6796944 2.4177307
+    [1] TRUE
+
+``` r
+vec_p <- pinvgauss(x_vals, mean = example$mean, shape = example$shape,
+                   lower.tail = TRUE, log.p = FALSE)
+scalar_p <- vapply(
+  x_vals,
+  function(xx) as.numeric(pInvGauss(xx, mean = example$mean, shape = example$shape,
+                                    lower.tail = 1L, log.p = 0L)),
+  numeric(1)
+)
+all.equal(vec_p, scalar_p)
+```
+
+    [1] TRUE
+
+``` r
+vec_q <- qinvgauss(probs, mean = example$mean, shape = example$shape,
+                   lower.tail = TRUE, log.p = FALSE)
+scalar_q <- vapply(
+  probs,
+  function(pp) qInvGauss(pp, mean = example$mean, shape = example$shape,
+                         lower.tail = TRUE, log.p = FALSE),
+  numeric(1)
+)
+all.equal(vec_q, scalar_q)
+```
+
+    [1] TRUE
+
+``` r
+set.seed(123)
+vec_r <- rinvgauss(5, mean = example$mean, shape = example$shape)
+set.seed(123)
+scalar_r <- vapply(
+  seq_len(5),
+  function(i) rInvGauss(1, mean = example$mean, shape = example$shape),
+  numeric(1)
+)
+all.equal(vec_r, scalar_r)
+```
+
+    [1] TRUE
+
+``` r
+rinvgauss(5, mean = example$mean, shape = example$shape)
+```
+
+    [1] 0.545 1.589 1.648 0.932 1.032
 
 ``` r
 df_ig_base <- do.call(rbind, lapply(ig_base_sets, function(ps) {
-  data.frame(x = grid, density = density_curve(grid, dInvGauss, list(mean = ps$mean, shape = ps$shape)), label = ps$label)
+  data.frame(
+    x = grid,
+    density = dinvgauss(grid, mean = ps$mean, shape = ps$shape),
+    label = ps$label
+  )
 }))
 
 ggplot(df_ig_base, aes(x = x, y = density, color = label)) +
@@ -1412,7 +2838,7 @@ dInvGaussGpd(2, mean = example$mean, shape = example$shape,
              tail_shape = example$tail_shape)
 ```
 
-    [1] 0.5704499
+    [1] 0.57
 
 ``` r
 dInvGaussGpd(2, mean = example$mean, shape = example$shape,
@@ -1420,7 +2846,7 @@ dInvGaussGpd(2, mean = example$mean, shape = example$shape,
              tail_shape = example$tail_shape, log = TRUE)
 ```
 
-    [1] -0.56133
+    [1] -0.561
 
 ``` r
 pInvGaussGpd(2, mean = example$mean, shape = example$shape,
@@ -1428,7 +2854,7 @@ pInvGaussGpd(2, mean = example$mean, shape = example$shape,
              tail_shape = example$tail_shape)
 ```
 
-    [1] 0.77182
+    [1] 0.772
 
 ``` r
 pInvGaussGpd(2, mean = example$mean, shape = example$shape,
@@ -1436,7 +2862,7 @@ pInvGaussGpd(2, mean = example$mean, shape = example$shape,
              tail_shape = example$tail_shape, lower.tail = FALSE)
 ```
 
-    [1] 0.22818
+    [1] 0.228
 
 ``` r
 pInvGaussGpd(2, mean = example$mean, shape = example$shape,
@@ -1444,43 +2870,180 @@ pInvGaussGpd(2, mean = example$mean, shape = example$shape,
              tail_shape = example$tail_shape, log.p = TRUE)
 ```
 
-    [1] -0.2590039
+    [1] -0.259
 
 ``` r
-q_vec(qInvGaussGpd, c(0.25, 0.5, 0.75), mean = example$mean,
-      shape = example$shape, threshold = example$threshold,
-      tail_scale = example$tail_scale, tail_shape = example$tail_shape)
+qinvgaussgpd(c(0.25, 0.5, 0.75), mean = example$mean,
+             shape = example$shape, threshold = example$threshold,
+             tail_scale = example$tail_scale, tail_shape = example$tail_shape)
 ```
 
-    [1] 0.6561675 1.1013488 1.8902777
+    [1] 0.656 1.101 1.890
 
 ``` r
-q_vec(qInvGaussGpd, c(0.25, 0.5, 0.75), mean = example$mean,
-      shape = example$shape, threshold = example$threshold,
-      tail_scale = example$tail_scale, tail_shape = example$tail_shape,
-      lower.tail = FALSE)
+qinvgaussgpd(c(0.25, 0.5, 0.75), mean = example$mean,
+             shape = example$shape, threshold = example$threshold,
+             tail_scale = example$tail_scale, tail_shape = example$tail_shape,
+             lower.tail = FALSE)
 ```
 
-    [1] 1.8902777 1.1013488 0.6561675
+    [1] 1.890 1.101 0.656
 
 ``` r
-q_vec(qInvGaussGpd, c(log(0.25), log(0.5), log(0.75)), mean = example$mean,
-      shape = example$shape, threshold = example$threshold,
-      tail_scale = example$tail_scale, tail_shape = example$tail_shape,
-      log.p = TRUE)
+qinvgaussgpd(c(log(0.25), log(0.5), log(0.75)), mean = example$mean,
+             shape = example$shape, threshold = example$threshold,
+             tail_scale = example$tail_scale, tail_shape = example$tail_shape,
+             log.p = TRUE)
 ```
 
-    [1] 0.6561675 1.1013488 1.8902777
+    [1] 0.656 1.101 1.890
 
 ``` r
-draw_many(rInvGaussGpd, example)
+x_vals <- c(1.5, 2.0, 2.5)
+probs <- c(0.25, 0.5, 0.75)
+
+vec_d <- dinvgaussgpd(
+  x_vals,
+  mean = example$mean,
+  shape = example$shape,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape,
+  log = FALSE
+)
+scalar_d <- vapply(
+  x_vals,
+  function(xx) as.numeric(dInvGaussGpd(
+    xx,
+    mean = example$mean,
+    shape = example$shape,
+    threshold = example$threshold,
+    tail_scale = example$tail_scale,
+    tail_shape = example$tail_shape,
+    log = 0L
+  )),
+  numeric(1)
+)
+all.equal(vec_d, scalar_d)
 ```
 
-    [1] 2.0426553 0.4040757 0.3893099 0.6613434 2.3076028
+    [1] TRUE
+
+``` r
+vec_p <- pinvgaussgpd(
+  x_vals,
+  mean = example$mean,
+  shape = example$shape,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape,
+  lower.tail = TRUE,
+  log.p = FALSE
+)
+scalar_p <- vapply(
+  x_vals,
+  function(xx) as.numeric(pInvGaussGpd(
+    xx,
+    mean = example$mean,
+    shape = example$shape,
+    threshold = example$threshold,
+    tail_scale = example$tail_scale,
+    tail_shape = example$tail_shape,
+    lower.tail = 1L,
+    log.p = 0L
+  )),
+  numeric(1)
+)
+all.equal(vec_p, scalar_p)
+```
+
+    [1] TRUE
+
+``` r
+vec_q <- qinvgaussgpd(
+  probs,
+  mean = example$mean,
+  shape = example$shape,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape,
+  lower.tail = TRUE,
+  log.p = FALSE
+)
+scalar_q <- vapply(
+  probs,
+  function(pp) qInvGaussGpd(
+    pp,
+    mean = example$mean,
+    shape = example$shape,
+    threshold = example$threshold,
+    tail_scale = example$tail_scale,
+    tail_shape = example$tail_shape,
+    lower.tail = TRUE,
+    log.p = FALSE
+  ),
+  numeric(1)
+)
+all.equal(vec_q, scalar_q)
+```
+
+    [1] TRUE
+
+``` r
+set.seed(123)
+vec_r <- rinvgaussgpd(
+  5,
+  mean = example$mean,
+  shape = example$shape,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape
+)
+set.seed(123)
+scalar_r <- vapply(
+  seq_len(5),
+  function(i) rInvGaussGpd(
+    1,
+    mean = example$mean,
+    shape = example$shape,
+    threshold = example$threshold,
+    tail_scale = example$tail_scale,
+    tail_shape = example$tail_shape
+  ),
+  numeric(1)
+)
+all.equal(vec_r, scalar_r)
+```
+
+    [1] TRUE
+
+``` r
+rinvgaussgpd(
+  5,
+  mean = example$mean,
+  shape = example$shape,
+  threshold = example$threshold,
+  tail_scale = example$tail_scale,
+  tail_shape = example$tail_shape
+)
+```
+
+    [1] 5.980 2.532 0.226 1.221 3.185
 
 ``` r
 df_ig_base_gpd <- do.call(rbind, lapply(ig_base_gpd_sets, function(ps) {
-  data.frame(x = grid, density = density_curve(grid, dInvGaussGpd, list(mean = ps$mean, shape = ps$shape, threshold = ps$threshold, tail_scale = ps$tail_scale, tail_shape = ps$tail_shape)), label = ps$label)
+  data.frame(
+    x = grid,
+    density = dinvgaussgpd(
+      grid,
+      mean = ps$mean,
+      shape = ps$shape,
+      threshold = ps$threshold,
+      tail_scale = ps$tail_scale,
+      tail_shape = ps$tail_shape
+    ),
+    label = ps$label
+  )
 }))
 
 ggplot(df_ig_base_gpd, aes(x = x, y = density, color = label)) +
@@ -1531,13 +3094,13 @@ mix_par1 <- cauchy_sets[[2]]
 dCauchy(0, location = base_par$location, scale = base_par$scale)
 ```
 
-    [1] 0.3183099
+    [1] 0.318
 
 ``` r
 dCauchy(0, location = base_par$location, scale = base_par$scale, log = TRUE)
 ```
 
-    [1] -1.14473
+    [1] -1.14
 
 ``` r
 pCauchy(0, location = base_par$location, scale = base_par$scale)
@@ -1555,58 +3118,189 @@ pCauchy(0, location = base_par$location, scale = base_par$scale, lower.tail = FA
 pCauchy(0, location = base_par$location, scale = base_par$scale, log.p = TRUE)
 ```
 
-    [1] -0.6931472
+    [1] -0.693
 
 ``` r
-q_vec(qCauchy, c(0.25, 0.5, 0.75), location = base_par$location,
-      scale = base_par$scale)
+qcauchy_vec(c(0.25, 0.5, 0.75), location = base_par$location,
+            scale = base_par$scale)
 ```
 
     [1] -1  0  1
 
 ``` r
-q_vec(qCauchy, c(0.25, 0.5, 0.75), location = base_par$location,
-      scale = base_par$scale, lower.tail = FALSE)
+qcauchy_vec(c(0.25, 0.5, 0.75), location = base_par$location,
+            scale = base_par$scale, lower.tail = FALSE)
 ```
 
     [1]  1  0 -1
 
 ``` r
-q_vec(qCauchy, c(log(0.25), log(0.5), log(0.75)), location = base_par$location,
-      scale = base_par$scale, log.p = TRUE)
+qcauchy_vec(c(log(0.25), log(0.5), log(0.75)), location = base_par$location,
+            scale = base_par$scale, log.p = TRUE)
 ```
 
     [1] -1  0  1
 
 ``` r
-draw_many(rCauchy, list(location = base_par$location, scale = base_par$scale))
+x_vals <- c(-1.0, 0.0, 1.0)
+probs <- c(0.25, 0.5, 0.75)
+
+vec_d <- dcauchy_vec(x_vals, location = base_par$location, scale = base_par$scale, log = FALSE)
+scalar_d <- vapply(
+  x_vals,
+  function(xx) as.numeric(dCauchy(xx, location = base_par$location, scale = base_par$scale, log = 0L)),
+  numeric(1)
+)
+all.equal(vec_d, scalar_d)
 ```
 
-    [1] -0.9532252 -6.8024137 -0.2639476  2.0251497 -0.5205333
+    [1] TRUE
+
+``` r
+vec_p <- pcauchy_vec(x_vals, location = base_par$location, scale = base_par$scale,
+                     lower.tail = TRUE, log.p = FALSE)
+scalar_p <- vapply(
+  x_vals,
+  function(xx) as.numeric(pCauchy(xx, location = base_par$location, scale = base_par$scale,
+                                  lower.tail = 1L, log.p = 0L)),
+  numeric(1)
+)
+all.equal(vec_p, scalar_p)
+```
+
+    [1] TRUE
+
+``` r
+vec_q <- qcauchy_vec(probs, location = base_par$location, scale = base_par$scale,
+                     lower.tail = TRUE, log.p = FALSE)
+scalar_q <- vapply(
+  probs,
+  function(pp) qCauchy(pp, location = base_par$location, scale = base_par$scale,
+                       lower.tail = TRUE, log.p = FALSE),
+  numeric(1)
+)
+all.equal(vec_q, scalar_q)
+```
+
+    [1] TRUE
+
+``` r
+set.seed(123)
+vec_r <- rcauchy_vec(5, location = base_par$location, scale = base_par$scale)
+set.seed(123)
+scalar_r <- vapply(
+  seq_len(5),
+  function(i) rCauchy(1, location = base_par$location, scale = base_par$scale),
+  numeric(1)
+)
+all.equal(vec_r, scalar_r)
+```
+
+    [1] TRUE
+
+``` r
+rcauchy_vec(5, location = base_par$location, scale = base_par$scale)
+```
+
+    [1] -6.9394  0.0885  2.8453  0.1630 -0.1371
 
 ``` r
 dCauchyMix(0, w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale)
 ```
 
-    [1] 0.1878028
+    [1] 0.188
 
 ``` r
 dCauchyMix(0, w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale, log = TRUE)
 ```
 
-    [1] -1.672363
+    [1] -1.67
 
 ``` r
-draw_many(rCauchyMix, list(w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale))
+x_vals <- c(-1.0, 0.0, 1.0)
+
+vec_d <- dcauchymix(x_vals, w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale, log = FALSE)
+scalar_d <- vapply(
+  x_vals,
+  function(xx) as.numeric(dCauchyMix(xx, w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale, log = 0L)),
+  numeric(1)
+)
+all.equal(vec_d, scalar_d)
 ```
 
-    [1] -1.4161035 -0.4316905  0.8122905 -1.2247657 -1.6960595
+    [1] TRUE
+
+``` r
+vec_p <- pcauchymix(x_vals, w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale,
+                    lower.tail = TRUE, log.p = FALSE)
+scalar_p <- vapply(
+  x_vals,
+  function(xx) as.numeric(pCauchyMix(xx, w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale,
+                                     lower.tail = 1L, log.p = 0L)),
+  numeric(1)
+)
+all.equal(vec_p, scalar_p)
+```
+
+    [1] TRUE
+
+``` r
+probs <- c(0.25, 0.5, 0.75)
+vec_q <- qcauchymix(probs, w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale,
+                    lower.tail = TRUE, log.p = FALSE)
+scalar_q <- vapply(
+  probs,
+  function(pp) qCauchyMix(pp, w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale,
+                          lower.tail = TRUE, log.p = FALSE),
+  numeric(1)
+)
+all.equal(vec_q, scalar_q)
+```
+
+    [1] TRUE
+
+``` r
+set.seed(123)
+vec_r <- rcauchymix(5, w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale)
+set.seed(123)
+scalar_r <- vapply(
+  seq_len(5),
+  function(i) rCauchyMix(1, w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale),
+  numeric(1)
+)
+all.equal(vec_r, scalar_r)
+```
+
+    [1] TRUE
+
+``` r
+rcauchymix(5, w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale)
+```
+
+    [1]  0.705  0.279  2.072 -8.524  5.949
 
 ``` r
 df_cauchy <- rbind(
-  data.frame(x = grid, density = density_curve(grid, dCauchy, list(location = base_par$location, scale = base_par$scale)), label = "Base"),
-  data.frame(x = grid, density = density_curve(grid, dCauchyMix, list(w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale)), label = "Mix A"),
-  data.frame(x = grid, density = density_curve(grid, dCauchyMix, list(w = cauchy_sets[[3]]$w, location = cauchy_sets[[3]]$location, scale = cauchy_sets[[3]]$scale)), label = "Mix B")
+  data.frame(
+    x = grid,
+    density = dcauchy_vec(grid, location = base_par$location, scale = base_par$scale),
+    label = "Base"
+  ),
+  data.frame(
+    x = grid,
+    density = dcauchymix(grid, w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale),
+    label = "Mix A"
+  ),
+  data.frame(
+    x = grid,
+    density = dcauchymix(
+      grid,
+      w = cauchy_sets[[3]]$w,
+      location = cauchy_sets[[3]]$location,
+      scale = cauchy_sets[[3]]$scale
+    ),
+    label = "Mix B"
+  )
 )
 
 ggplot(df_cauchy, aes(x = x, y = density, color = label)) +

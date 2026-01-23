@@ -193,7 +193,7 @@ value
 N
 </td>
 <td style="text-align:center;">
-500.000
+500.00
 </td>
 </tr>
 <tr>
@@ -201,7 +201,7 @@ N
 Mean
 </td>
 <td style="text-align:center;">
-8.463
+8.46
 </td>
 </tr>
 <tr>
@@ -209,7 +209,7 @@ Mean
 SD
 </td>
 <td style="text-align:center;">
-1.764
+1.76
 </td>
 </tr>
 <tr>
@@ -217,7 +217,7 @@ SD
 Min
 </td>
 <td style="text-align:center;">
-0.100
+0.10
 </td>
 </tr>
 <tr>
@@ -225,7 +225,7 @@ Min
 Max
 </td>
 <td style="text-align:center;">
-13.460
+13.46
 </td>
 </tr>
 </tbody>
@@ -355,65 +355,65 @@ Use summary() for posterior summaries; plot() for diagnostics; predict() for pre
 Posterior mean parameters
 
 $alpha
-[1] 0.6522
+[1] "0.652"
 
 $w
-[1] 0.8047
+[1] "0.805"
 
 $beta_loc
-          x1      x2      x3      x4
-comp1 0.1815  0.5934  0.0932  0.6064
-comp2 0.7532 -0.6500 -0.3995  2.7063
-comp3 0.0649  0.6424 -0.1371  0.5915
-comp4 0.4177 -0.0813  0.3858 -0.0447
-comp5 0.1086  0.0129 -0.2786  0.4027
+      x1      x2       x3       x4      
+comp1 "0.181" "0.593"  "0.093"  "0.606" 
+comp2 "0.753" "-0.65"  "-0.399" "2.706" 
+comp3 "0.065" "0.642"  "-0.137" "0.591" 
+comp4 "0.418" "-0.081" "0.386"  "-0.045"
+comp5 "0.109" "0.013"  "-0.279" "0.403" 
 
 $beta_scale
-           x1      x2      x3      x4
-comp1 -0.5327 -0.1020 -0.7913  0.6659
-comp2 -0.1070  0.0591  0.0979 -0.8481
-comp3 -0.2930 -0.0124 -0.1288 -0.0472
-comp4 -0.3084  0.2436 -0.3645  0.2645
-comp5 -0.4055  0.1748  0.3110 -0.0215
+      x1       x2       x3       x4      
+comp1 "-0.533" "-0.102" "-0.791" "0.666" 
+comp2 "-0.107" "0.059"  "0.098"  "-0.848"
+comp3 "-0.293" "-0.012" "-0.129" "-0.047"
+comp4 "-0.308" "0.244"  "-0.364" "0.265" 
+comp5 "-0.406" "0.175"  "0.311"  "-0.022"
 
 $shape1
-[1] 8.524
+[1] "8.524"
 
 $shape2
-[1] 0.8242
+[1] "0.824"
 
 $beta_tail_scale
-[1] 0.04707 0.02875 0.05825 1.10900
+[1] "0.047" "0.029" "0.058" "1.109"
 
 $tail_shape
-[1] 0.04245
+[1] "0.042"
 
 [control]
 Posterior mean parameters
 
 $alpha
-[1] 0.2132
+[1] "0.213"
 
 $w
-[1] 0.9583
+[1] "0.958"
 
 $loc
-[1] 4.355
+[1] "4.355"
 
 $scale
-[1] 1.714
+[1] "1.714"
 
 $shape1
-[1] 3.467
+[1] "3.467"
 
 $shape2
-[1] 1.418
+[1] "1.418"
 
 $beta_tail_scale
-[1]  0.28210  0.14660  0.01011 -0.21720
+[1] "0.282"  "0.147"  "0.01"   "-0.217"
 
 $tail_shape
-[1] 0.02556</code></pre>
+[1] "0.026"</code></pre>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_sb_crp</span>, params <span class="op">=</span> <span class="st">"loc"</span>, family <span class="op">=</span> <span class="st">"traceplot"</span><span class="op">)</span></span></code></pre></div>
 <pre><code>
@@ -470,13 +470,13 @@ $tail_shape
   Credible interval: credible (95%)
 
 ATE estimates (treated - control):
- id     estimate   lower upper
-  1 2.581014e+07 -10.058 1.968
-  2 4.689608e+18 -11.367 3.807
-  3 6.748636e+27  -8.916 1.752
-  4 5.608703e+12 -10.455 2.148
-  5 7.337398e+18 -12.359 2.499
-  6 1.863384e+09  -8.680 2.809
+ id                     estimate   lower upper
+  1                 25810139.203 -10.058 1.968
+  2          4689608124927236096 -11.367 3.807
+  3 6748635966270292425266626862  -8.916 1.752
+  4            5608703142521.394 -10.455 2.148
+  5          7337398484634635264 -12.359 2.499
+  6               1863384220.798   -8.68 2.809
 ... (34 more rows)</code></pre>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">ate_sb_crp</span><span class="op">)</span></span></code></pre></div>
@@ -493,9 +493,9 @@ Model specification:
   GPD tail (trt/con): YES / YES
 
 ATE statistics:
-  Mean: 7.46634083157349e+31 | Median: 1.11937649685337e+22
-  Range: [25810139.203, 2.97090867303624e+33]
-  SD: 4.69683170335436e+32
+  Mean: 74663408315734949098080840642424 | Median: 11193764968533738914622
+  Range: [25810139.203, 2970908673036240160000820240826260]
+  SD: 469683170335435607168086868842684
 
 Credible interval width:
   Mean: 13.236 | Median: 12.569
@@ -519,7 +519,7 @@ QTE estimates (treated - control):
  index id estimate   lower upper
   0.25  1   -1.237  -9.456 0.507
   0.25  2   -2.178  -9.763 0.913
-  0.25  3   -1.848  -7.410 0.407
+  0.25  3   -1.848   -7.41 0.407
   0.25  4   -2.499  -8.852 0.469
   0.25  5   -2.607 -10.749 0.536
   0.25  6   -0.522  -7.722 0.707
@@ -541,8 +541,8 @@ Model specification:
 QTE by quantile:
  quantile mean_qte median_qte min_qte max_qte sd_qte
      0.25   -1.673     -1.634  -3.787  -0.522  0.757
-     0.50   -2.004     -1.983  -4.369  -0.644  0.841
-     0.75   -2.155     -2.074  -4.982  -0.360  1.051
+      0.5   -2.004     -1.983  -4.369  -0.644  0.841
+     0.75   -2.155     -2.074  -4.982   -0.36  1.051
 
 Credible interval width:
   Mean: 10.506 | Median: 10.119
@@ -652,65 +652,65 @@ Use summary() for posterior summaries; plot() for diagnostics; predict() for pre
 Posterior mean parameters
 
 $alpha
-[1] 0.6378
+[1] "0.638"
 
 $w
-[1] 0.662
+[1] "0.662"
 
 $loc
-[1] 5.617
+[1] "5.617"
 
 $scale
-[1] 2.078
+[1] "2.078"
 
 $shape1
-[1] 2.084
+[1] "2.084"
 
 $shape2
-[1] 1.789
+[1] "1.789"
 
 $beta_tail_scale
-[1]  0.06430 -0.09033  0.12000 -0.09931
+[1] "0.064"  "-0.09"  "0.12"   "-0.099"
 
 $tail_shape
-[1] -0.00839
+[1] "-0.008"
 
 [control]
 Posterior mean parameters
 
 $alpha
-[1] 0.3475
+[1] "0.348"
 
 $w
-[1] 0.9614
+[1] "0.961"
 
 $beta_loc
-           x1      x2      x3      x4
-comp1 -0.1198 -0.0434  1.8418  1.3384
-comp2 -0.2500  0.0317  0.2836  0.1584
-comp3 -0.0343 -0.0763  0.2136 -0.0024
-comp4 -0.0930 -0.2598 -0.0409  0.0537
-comp5 -0.0935 -0.0966  0.0186  0.0171
+      x1       x2       x3       x4      
+comp1 "-0.12"  "-0.043" "1.842"  "1.338" 
+comp2 "-0.25"  "0.032"  "0.284"  "0.158" 
+comp3 "-0.034" "-0.076" "0.214"  "-0.002"
+comp4 "-0.093" "-0.26"  "-0.041" "0.054" 
+comp5 "-0.093" "-0.097" "0.019"  "0.017" 
 
 $beta_scale
-           x1      x2      x3      x4
-comp1  0.0051 -0.0655 -0.6749 -0.2475
-comp2 -0.0604  0.0294  0.0090  0.1069
-comp3 -0.0726 -0.0421 -0.0786  0.2108
-comp4  0.0625 -0.1077 -0.1326  0.1364
-comp5  0.0409  0.0977 -0.1192 -0.0357
+      x1       x2       x3       x4      
+comp1 "0.005"  "-0.065" "-0.675" "-0.247"
+comp2 "-0.06"  "0.029"  "0.009"  "0.107" 
+comp3 "-0.073" "-0.042" "-0.079" "0.211" 
+comp4 "0.062"  "-0.108" "-0.133" "0.136" 
+comp5 "0.041"  "0.098"  "-0.119" "-0.036"
 
 $shape1
-[1] 8.296
+[1] "8.296"
 
 $shape2
-[1] 0.7804
+[1] "0.78"
 
 $beta_tail_scale
-[1] -0.10700 -0.02478 -0.02101  1.22300
+[1] "-0.107" "-0.025" "-0.021" "1.223" 
 
 $tail_shape
-[1] 0.004585</code></pre>
+[1] "0.005"</code></pre>
 <div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_crp_sb</span>, family <span class="op">=</span> <span class="st">"traceplot"</span><span class="op">)</span></span></code></pre></div>
 <pre><code>
@@ -755,13 +755,27 @@ $tail_shape
   Credible interval: credible (95%)
 
 ATE estimates (treated - control):
- id      estimate  lower upper
-  1 -3.399077e+76 -1.235 2.177
-  2 -6.082183e+03 -2.059 1.672
-  3 -2.053348e+70 -0.801 2.558
-  4 -4.897980e+66 -0.806 2.869
-  5 -1.524862e+56 -0.803 3.410
-  6 -9.169515e+91 -2.334 1.327
+ id
+  1
+  2
+  3
+  4
+  5
+  6
+                                                                                      estimate
+                -33990774157664791912460464684044064246404644086408466480066062424484026024488
+                                                                                     -6082.183
+                      -20533477987966883722224688642420482424822468464646482824024406040666866
+                          -4897980214640208097280068604844804806684282266824202820440466002046
+                                    -152486246608400842666406662620086826688222484480000660882
+ -91695146433545785666648882466086882442448046208642624406402062800642644408482066266286042468
+  lower upper
+ -1.235 2.177
+ -2.059 1.672
+ -0.801 2.558
+ -0.806 2.869
+ -0.803  3.41
+ -2.334 1.327
 ... (34 more rows)</code></pre>
 <div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">ate_crp_sb</span><span class="op">)</span></span></code></pre></div>
@@ -778,9 +792,9 @@ Model specification:
   GPD tail (trt/con): YES / YES
 
 ATE statistics:
-  Mean: -6.04065080680751e+96 | Median: -7363264.563
-  Range: [-2.41625940577152e+98, 0.702]
-  SD: 3.8204415328467e+97
+  Mean: -6040650806807507854426822208400842282022066660060622480062848842240080800046620482024682080886622 | Median: -7363264.563
+  Range: [-241625940577151533488284802002862880660820684822004286660420240882006060002284006828424040008282424, 0.702]
+  SD: 38204415328467011210020288600208004446606448260606268046404824002064846288848462228822008840880220
 
 Credible interval width:
   Mean: 3.718 | Median: 3.653
@@ -825,8 +839,8 @@ Model specification:
 
 QTE by quantile:
  quantile mean_qte median_qte min_qte max_qte sd_qte
-     0.25    0.920      0.912   0.490   1.527  0.235
-     0.50    0.975      1.108  -0.258   1.851  0.503
+     0.25     0.92      0.912    0.49   1.527  0.235
+      0.5    0.975      1.108  -0.258   1.851  0.503
      0.75    0.538      0.791  -2.206   2.117  1.032
 
 Credible interval width:

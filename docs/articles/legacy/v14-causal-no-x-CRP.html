@@ -230,56 +230,42 @@ Use summary() for posterior summaries; plot() for diagnostics; predict() for pre
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_mean_bulk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_crp_bulk</span>, type <span class="op">=</span> <span class="st">"mean"</span>, interval <span class="op">=</span> <span class="st">"credible"</span>, nsim_mean <span class="op">=</span> <span class="fl">150</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pred_mean_bulk</span><span class="op">)</span></span></code></pre></div>
-<pre><code>     ps  estimate     lower      upper
-[1,] NA -1.313784 -1.973323 -0.2823862</code></pre>
+<pre><code>     ps estimate lower  upper
+[1,] NA    -1.31 -1.97 -0.282</code></pre>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_mean_bulk</span><span class="op">)</span></span></code></pre></div>
 <p><img src="v14-causal-no-x-CRP_files/figure-html/predict-mean-crp-bulk-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"><img src="v14-causal-no-x-CRP_files/figure-html/predict-mean-crp-bulk-2.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_q_bulk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_crp_bulk</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, p <span class="op">=</span> <span class="fl">0.5</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pred_q_bulk</span><span class="op">)</span></span></code></pre></div>
-<pre><code>     ps  estimate     lower      upper
-[1,] NA -1.139858 -1.687581 -0.4101725</code></pre>
+<pre><code>     ps estimate lower upper
+[1,] NA    -1.14 -1.69 -0.41</code></pre>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_q_bulk</span><span class="op">)</span></span></code></pre></div>
 <p><img src="v14-causal-no-x-CRP_files/figure-html/predict-quantile-crp-bulk-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"><img src="v14-causal-no-x-CRP_files/figure-html/predict-quantile-crp-bulk-2.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_d_bulk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_crp_bulk</span>, y <span class="op">=</span> <span class="va">y_eval</span>, type <span class="op">=</span> <span class="st">"density"</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pred_d_bulk</span><span class="op">)</span></span></code></pre></div>
-<pre><code>          y ps trt_estimate  trt_lower trt_upper con_estimate  con_lower
-1 0.9001906 NA            1 0.02409229 0.4021935            1 0.03031288
-2 1.3517565 NA            1 0.04349703 0.3423511            1 0.04227198
-3 1.1475287 NA            1 0.03459086 0.3730424            1 0.03643608
-4 1.9323578 NA            1 0.06783753 0.2623051            1 0.05824336
-5 3.3439817 NA            1 0.09321880 0.1785609            1 0.07555778
-6 0.9493979 NA            1 0.02613220 0.3974834            1 0.03142415
-  con_upper
-1 0.1806315
-2 0.1636283
-3 0.1668065
-4 0.1638685
-5 0.1621003
-6 0.1777212</code></pre>
+<pre><code>      y ps trt_estimate trt_lower trt_upper con_estimate con_lower con_upper
+1 0.900 NA            1    0.0241     0.402            1    0.0303     0.181
+2 1.352 NA            1    0.0435     0.342            1    0.0423     0.164
+3 1.148 NA            1    0.0346     0.373            1    0.0364     0.167
+4 1.932 NA            1    0.0678     0.262            1    0.0582     0.164
+5 3.344 NA            1    0.0932     0.179            1    0.0756     0.162
+6 0.949 NA            1    0.0261     0.397            1    0.0314     0.178</code></pre>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_d_bulk</span><span class="op">)</span></span></code></pre></div>
 <p><img src="v14-causal-no-x-CRP_files/figure-html/predict-density-crp-bulk-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_surv_bulk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_crp_bulk</span>, y <span class="op">=</span> <span class="va">y_eval</span>, type <span class="op">=</span> <span class="st">"survival"</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pred_surv_bulk</span><span class="op">)</span></span></code></pre></div>
-<pre><code>          y ps trt_estimate trt_lower trt_upper con_estimate con_lower
-1 0.9001906 NA            1 0.6902667 0.9917456            1 0.7637875
-2 1.3517565 NA            1 0.5210217 0.9765268            1 0.6866502
-3 1.1475287 NA            1 0.5941341 0.9844997            1 0.7193641
-4 1.9323578 NA            1 0.3492719 0.9440786            1 0.6198187
-5 3.3439817 NA            1 0.1197759 0.8162919            1 0.4667351
-6 0.9493979 NA            1 0.6705890 0.9905101            1 0.7545498
-  con_upper
-1 0.9881603
-2 0.9690829
-3 0.9789502
-4 0.9303311
-5 0.8168910
-6 0.9865656</code></pre>
+<pre><code>      y ps trt_estimate trt_lower trt_upper con_estimate con_lower con_upper
+1 0.900 NA            1     0.690     0.992            1     0.764     0.988
+2 1.352 NA            1     0.521     0.977            1     0.687     0.969
+3 1.148 NA            1     0.594     0.984            1     0.719     0.979
+4 1.932 NA            1     0.349     0.944            1     0.620     0.930
+5 3.344 NA            1     0.120     0.816            1     0.467     0.817
+6 0.949 NA            1     0.671     0.991            1     0.755     0.987</code></pre>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_surv_bulk</span><span class="op">)</span></span></code></pre></div>
 <p><img src="v14-causal-no-x-CRP_files/figure-html/predict-survival-crp-bulk-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
@@ -333,9 +319,9 @@ Credible interval width:
 
 QTE estimates (treated - control):
  index id estimate  lower upper
-  0.25  1   -0.470 -2.932 2.316
-  0.50  1   -1.140 -4.810 2.712
-  0.75  1   -1.904 -7.040 2.830</code></pre>
+  0.25  1    -0.47 -2.932 2.316
+   0.5  1    -1.14  -4.81 2.712
+  0.75  1   -1.904  -7.04  2.83</code></pre>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">qte_bulk</span><span class="op">)</span></span></code></pre></div>
 <pre><code>QTE Summary
@@ -352,8 +338,8 @@ Model specification:
 
 QTE by quantile:
  quantile mean_qte median_qte min_qte max_qte sd_qte
-     0.25   -0.470     -0.470  -0.470  -0.470     NA
-     0.50   -1.140     -1.140  -1.140  -1.140     NA
+     0.25    -0.47      -0.47   -0.47   -0.47     NA
+      0.5    -1.14      -1.14   -1.14   -1.14     NA
      0.75   -1.904     -1.904  -1.904  -1.904     NA
 
 Credible interval width:

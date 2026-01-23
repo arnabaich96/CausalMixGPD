@@ -130,14 +130,13 @@ shape1 <- c(2, 4, 6)
 shape2 <- c(1.0, 1.2, 1.5)
 
 dAmorosoMix(2.0, w, loc, scale, shape1, shape2, log = 0)
-#> [1] 0.1717337
+#> [1] 0.172
 pAmorosoMix(2.0, w, loc, scale, shape1, shape2, lower.tail = 1, log.p = 0)
-#> [1] 0.3587001
+#> [1] 0.359
 qAmorosoMix(0.50, w, loc, scale, shape1, shape2)
-#> [1] 2.929829
+#> [1] 2.93
 qAmorosoMix(0.95, w, loc, scale, shape1, shape2)
-#> [1] 8.017293
+#> [1] 8.02
 replicate(10, rAmorosoMix(1, w, loc, scale, shape1, shape2))
-#>  [1] 0.8709308 4.5432113 5.2145970 2.7806131 9.2746856 6.6966960 1.1390523
-#>  [8] 1.7812916 2.8622365 2.5033891
+#>  [1] 6.697 1.139 1.781 2.862 2.503 1.247 3.699 1.195 0.801 7.240
 ```

@@ -180,7 +180,7 @@ scl <- c(1, 0.9, 1.1)
 
 # Laplace mixture
 dlaplacemix(c(-1, 0, 1), w = w, location = loc, scale = scl)
-#> Error in dlaplacemix(c(-1, 0, 1), w = w, location = loc, scale = scl): could not find function "dlaplacemix"
+#> [1] 0.147 0.362 0.280
 rlaplacemix(5, w = w, location = loc, scale = scl)
-#> Error in rlaplacemix(5, w = w, location = loc, scale = scl): could not find function "rlaplacemix"
+#> [1]  0.190  1.633 -0.753 -0.372  1.501
 ```

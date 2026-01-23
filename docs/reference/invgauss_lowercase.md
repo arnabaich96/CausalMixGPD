@@ -190,7 +190,7 @@ lam <- c(2, 3, 4)
 
 # Inverse Gaussian mixture
 dinvgaussmix(c(1, 2, 3), w = w, mean = mu, shape = lam)
-#> Error in dinvgaussmix(c(1, 2, 3), w = w, mean = mu, shape = lam): could not find function "dinvgaussmix"
+#> [1] 0.5624 0.1682 0.0544
 rinvgaussmix(5, w = w, mean = mu, shape = lam)
-#> Error in rinvgaussmix(5, w = w, mean = mu, shape = lam): could not find function "rinvgaussmix"
+#> [1] 0.980 0.745 0.624 0.814 1.279
 ```

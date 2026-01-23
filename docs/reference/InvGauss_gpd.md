@@ -124,23 +124,22 @@ tail_shape <- 0.2
 dInvGaussGpd(4.0, mean = mean, shape = shape,
             threshold = threshold, tail_scale = tail_scale,
             tail_shape = tail_shape, log = 0)
-#> [1] 0.09181898
+#> [1] 0.0918
 pInvGaussGpd(4.0, mean = mean, shape = shape,
             threshold = threshold, tail_scale = tail_scale,
             tail_shape = tail_shape, lower.tail = 1, log.p = 0)
-#> [1] 0.8989991
+#> [1] 0.899
 qInvGaussGpd(0.50, mean = mean, shape = shape,
             threshold = threshold, tail_scale = tail_scale,
             tail_shape = tail_shape)
-#> [1] 2.077493
+#> [1] 2.08
 qInvGaussGpd(0.95, mean = mean, shape = shape,
             threshold = threshold, tail_scale = tail_scale,
             tail_shape = tail_shape)
-#> [1] 4.830437
+#> [1] 4.83
 replicate(10, rInvGaussGpd(1, mean = mean, shape = shape,
                           threshold = threshold,
                           tail_scale = tail_scale,
                           tail_shape = tail_shape))
-#>  [1] 4.2383195 4.0800706 1.0909502 1.7961159 0.9640382 2.3105687 3.5771580
-#>  [8] 1.6197351 3.4213257 4.1221991
+#>  [1]  0.917  2.662  4.684  1.173  1.969  3.757  3.702  5.135 19.008  1.188
 ```

@@ -262,19 +262,19 @@ a numeric vector. The <code>r*</code> functions support <code>n &gt; 1</code>.</
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Normal mixture</span></span></span>
 <span class="r-in"><span><span class="fu">dnormmix</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mu</span>, sd <span class="op">=</span> <span class="va">sig</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dnormmix(c(0, 1, 2), w = w, mean = mu, sd = sig):</span> could not find function "dnormmix"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.270 0.177 0.063</span>
 <span class="r-in"><span><span class="fu">rnormmix</span><span class="op">(</span><span class="fl">5</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mu</span>, sd <span class="op">=</span> <span class="va">sig</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in rnormmix(5, w = w, mean = mu, sd = sig):</span> could not find function "rnormmix"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -2.18  1.50 -1.61 -3.81 -1.66</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Normal mixture + GPD</span></span></span>
 <span class="r-in"><span><span class="fu">dnormmixgpd</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mu</span>, sd <span class="op">=</span> <span class="va">sig</span>,</span></span>
 <span class="r-in"><span>            threshold <span class="op">=</span> <span class="fl">2</span>, tail_scale <span class="op">=</span> <span class="fl">1</span>, tail_shape <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dnormmixgpd(c(1, 2, 3), w = w, mean = mu, sd = sig, threshold = 2,     tail_scale = 1, tail_shape = 0.2):</span> could not find function "dnormmixgpd"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1770 0.0798 0.0267</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Normal + GPD (single component)</span></span></span>
 <span class="r-in"><span><span class="fu">dnormgpd</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, mean <span class="op">=</span> <span class="fl">0.5</span>, sd <span class="op">=</span> <span class="fl">1</span>, threshold <span class="op">=</span> <span class="fl">2</span>,</span></span>
 <span class="r-in"><span>         tail_scale <span class="op">=</span> <span class="fl">1</span>, tail_shape <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in dnormgpd(c(1, 2, 3), mean = 0.5, sd = 1, threshold = 2, tail_scale = 1,     tail_shape = 0.2):</span> could not find function "dnormgpd"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.3521 0.0668 0.0224</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -112,15 +112,14 @@ tail_scale <- 1.0
 tail_shape <- 0.2
 
 dNormGpd(3.0, mean, sd, threshold, tail_scale, tail_shape, log = FALSE)
-#> [1] 0.0223736
+#> [1] 0.0224
 pNormGpd(3.0, mean, sd, threshold, tail_scale, tail_shape,
         lower.tail = TRUE, log.p = FALSE)
-#> [1] 0.9731517
+#> [1] 0.973
 qNormGpd(0.50, mean, sd, threshold, tail_scale, tail_shape)
 #> [1] 0.5
 qNormGpd(0.95, mean, sd, threshold, tail_scale, tail_shape)
-#> [1] 2.29835
+#> [1] 2.3
 replicate(10, rNormGpd(1, mean, sd, threshold, tail_scale, tail_shape))
-#>  [1]  0.5720257  2.1168092  1.2642656  1.8939778 -0.3372059  1.5521554
-#>  [7]  1.3252238  0.3307199  0.3381657 -0.6353433
+#>  [1]  2.131  1.434  2.091  0.855  2.534  0.833  0.297 -0.178 -0.345 -0.250
 ```

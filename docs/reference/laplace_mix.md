@@ -112,15 +112,14 @@ location <- c(-1, 0.5, 2.0)
 scale <- c(1.0, 0.7, 1.4)
 
 dLaplaceMix(0.8, w = w, location = location, scale = scale, log = FALSE)
-#> [1] 0.2112312
+#> [1] 0.211
 pLaplaceMix(0.8, w = w, location = location, scale = scale,
            lower.tail = TRUE, log.p = FALSE)
-#> [1] 0.7033967
+#> [1] 0.703
 qLaplaceMix(0.50, w = w, location = location, scale = scale)
-#> [1] -0.02546085
+#> [1] -0.0255
 qLaplaceMix(0.95, w = w, location = location, scale = scale)
-#> [1] 3.18341
+#> [1] 3.18
 replicate(10, rLaplaceMix(1, w = w, location = location, scale = scale))
-#>  [1] -1.35955260  0.43075383 -0.10770524  2.37304838 -2.05016270 -0.96274728
-#>  [7] -0.11661270 -0.45504630 -1.50049577 -0.01666817
+#>  [1] -0.183  0.323  2.584 -0.481 -0.532 -1.979 -1.704  0.531 -0.518  2.654
 ```

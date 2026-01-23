@@ -113,15 +113,14 @@ tail_scale <- 0.9
 tail_shape <- 0.2
 
 dLognormalGpd(4.0, meanlog, sdlog, threshold, tail_scale, tail_shape, log = FALSE)
-#> [1] 0.007654624
+#> [1] 0.00765
 pLognormalGpd(4.0, meanlog, sdlog, threshold, tail_scale, tail_shape,
              lower.tail = TRUE, log.p = FALSE)
-#> [1] 0.9915799
+#> [1] 0.992
 qLognormalGpd(0.50, meanlog, sdlog, threshold, tail_scale, tail_shape)
-#> [1] 1.491825
+#> [1] 1.49
 qLognormalGpd(0.95, meanlog, sdlog, threshold, tail_scale, tail_shape)
-#> [1] 2.65302
+#> [1] 2.65
 replicate(10, rLognormalGpd(1, meanlog, sdlog, threshold, tail_scale, tail_shape))
-#>  [1] 1.4864546 1.4139771 0.7147994 1.5386991 1.4392022 1.8746791 0.6961768
-#>  [8] 3.0964726 1.4959481 1.7047988
+#>  [1] 1.68 1.71 3.14 1.95 2.43 1.11 2.16 1.99 1.41 1.41
 ```

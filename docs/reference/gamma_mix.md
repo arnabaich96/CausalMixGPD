@@ -103,14 +103,13 @@ scale <- c(1.0, 2.5, 5.0)
 shape <- c(2, 4, 6)
 
 dGammaMix(2.0, w = w, scale = scale, shape = shape, log = 0)
-#> [1] 0.1534717
+#> [1] 0.153
 pGammaMix(2.0, w = w, scale = scale, shape = shape, lower.tail = 1, log.p = 0)
-#> [1] 0.3294213
+#> [1] 0.329
 qGammaMix(0.50, w = w, scale = scale, shape = shape)
-#> [1] 3.623739
+#> [1] 3.62
 qGammaMix(0.95, w = w, scale = scale, shape = shape)
-#> [1] 33.81667
+#> [1] 33.8
 replicate(10, rGammaMix(1, w = w, scale = scale, shape = shape))
-#>  [1]  1.3984846 12.5935191  0.9939523  1.1737385 11.9390556 35.6239312
-#>  [7]  2.1932376  0.7190608  1.2980509  0.6945420
+#>  [1]  7.487  7.683 58.538  0.758 10.475 21.654  0.425  9.136  1.173 17.900
 ```

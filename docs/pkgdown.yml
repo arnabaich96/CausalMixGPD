@@ -7,13 +7,6 @@ articles:
   conditional: conditional.html
   distributions: distributions.html
   introduction: introduction.html
-  kernels/kernel-amoroso: kernels/kernel-amoroso.html
-  kernels/kernel-cauchy: kernels/kernel-cauchy.html
-  kernels/kernel-gamma: kernels/kernel-gamma.html
-  kernels/kernel-invgauss: kernels/kernel-invgauss.html
-  kernels/kernel-laplace: kernels/kernel-laplace.html
-  kernels/kernel-lognormal: kernels/kernel-lognormal.html
-  kernels/kernel-normal: kernels/kernel-normal.html
   kernels-index: kernels-index.html
   legacy-index: legacy-index.html
   manual-index: manual-index.html
@@ -42,7 +35,7 @@ articles:
   legacy/v18-causal-different-backends-CRP: legacy/v18-causal-different-backends-CRP.html
   legacy/v19-causal-different-backends-SB: legacy/v19-causal-different-backends-SB.html
   legacy/v20-troubleshooting: legacy/v20-troubleshooting.html
-last_built: 2026-01-21T05:42Z
+last_built: 2026-01-23T00:35Z
 urls:
   reference: https://arnabaich96.github.io/DPmixGPD/reference
   article: https://arnabaich96.github.io/DPmixGPD/articles
