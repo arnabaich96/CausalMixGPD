@@ -1,0 +1,10 @@
+.git
+.Rproj.user
+renv/library
+renv/staging
+temp
+data
+data-raw
+docs
+pkgdown
+Meta
