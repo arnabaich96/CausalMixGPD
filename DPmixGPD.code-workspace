@@ -1,12 +1,8 @@
-
 {
 	"folders": [
 		{
 			"path": "."
 		}
-],
-	"settings": {
-		"github-actions.workflows.pinned.workflows": []
-	}}
-
-	
+	],
+	"settings": {}
+}
