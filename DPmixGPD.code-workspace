@@ -4,5 +4,12 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"terminal.integrated.profiles.windows": {
+			"R": {
+				"path": "R"
+			}
+		},
+		"terminal.integrated.defaultProfile.windows": "R"
+	}
 }
