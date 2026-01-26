@@ -23,6 +23,9 @@ vignettes/*_files/
 vignettes/**/*.rds
 vignettes/**/*.Rds
 vignettes/**/*.RDS
+vignettes/**/*.rdb
+vignettes/**/*.Rdb
+vignettes/**/*.RDB
 vignettes/**/*.png
 # Vignette cache artifacts (deeply nested cache dirs)
 vignettes/**/cache/
@@ -57,3 +60,6 @@ vignettes/legacy/articles/legacy-precomputed/
 
 # Codecov token (secret - do not commit)
 tools/.codecov_token
+# renv
+renv/
+renv

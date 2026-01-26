@@ -1,3 +1,0 @@
-{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H1","location":"tools/coverage.R:313","message":"step_message","data":{"step":"1","text":"\nStep 1/4: Calculating package coverage...\n"},"timestamp":1768983918606.342} 
-{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H2","location":"tools/coverage.R:322","message":"step_message","data":{"step":"2","text":"Step 2/4: Generating interactive HTML report...\n"},"timestamp":1768986074568.77} 
-{"sessionId":"debug-session","runId":"pre-fix","hypothesisId":"H3","location":"tools/coverage.R:332","message":"step_message","data":{"step":"3","text":"Step 3/4: Extracting coverage statistics...\n"},"timestamp":1768986090538.634} 

@@ -116,13 +116,32 @@ print.dpmixgpd_causal_bundle <- function(x, code = FALSE, max_code_lines = 200L,
   comps <- meta$components %||% list()
   eps <- meta$epsilon %||% list()
 
-  cat("Outcome (treated): backend =", backend$trt %||% "?", "| kernel =", kernel$trt %||% "?", "\n")
-  cat("Outcome (control): backend =", backend$con %||% "?", "| kernel =", kernel$con %||% "?", "\n")
-  cat("GPD tail (treated/control):", ifelse(isTRUE(gpd$trt), "TRUE", "FALSE"),
-      "/", ifelse(isTRUE(gpd$con), "TRUE", "FALSE"), "\n")
-  cat("components (treated/control):", comps$trt %||% "?", "/", comps$con %||% "?", "\n")
+  trt_backend <- backend$trt %||% "?"
+  con_backend <- backend$con %||% "?"
+  trt_kernel <- kernel$trt %||% "?"
+  con_kernel <- kernel$con %||% "?"
+
+  tbl <- data.frame(
+    Field = c("Backend", "Kernel", "Components", "GPD tail", "Epsilon"),
+    Treated = c(
+      if (trt_backend %in% c("sb", "crp")) .backend_label(trt_backend) else trt_backend,
+      trt_kernel,
+      as.character(comps$trt %||% "?"),
+      ifelse(isTRUE(gpd$trt), "TRUE", "FALSE"),
+      fmt3(eps$trt %||% NA_real_)
+    ),
+    Control = c(
+      if (con_backend %in% c("sb", "crp")) .backend_label(con_backend) else con_backend,
+      con_kernel,
+      as.character(comps$con %||% "?"),
+      ifelse(isTRUE(gpd$con), "TRUE", "FALSE"),
+      fmt3(eps$con %||% NA_real_)
+    ),
+    stringsAsFactors = FALSE
+  )
+  print_fmt3(tbl, row.names = FALSE)
+  cat("\n")
   cat("Outcome PS included:", ifelse(isTRUE(meta$ps$enabled), "TRUE", "FALSE"), "\n")
-  cat("epsilon (treated/control):", fmt3(eps$trt %||% NA_real_), "/", fmt3(eps$con %||% NA_real_), "\n")
   cat("n (control) =", length(x$index$con %||% integer(0)),
       "| n (treated) =", length(x$index$trt %||% integer(0)), "\n")
 
@@ -682,8 +701,7 @@ summary.mixgpd_fit <- function(object, pars = NULL, probs = c(0.025, 0.5, 0.975)
 #'                              GPD = TRUE, components = 6,
 #'                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
 #' fit <- run_mcmc_bundle_manual(bundle)
-#' s <- summary(fit)
-#' print(s, digits = 2)
+#' summary(fit)
 #' }
 #' @export
 print.mixgpd_summary <- function(x, digits = 3, max_rows = 60, ...) {
@@ -868,22 +886,41 @@ plot.mixgpd_fit <- function(x,
   plots <- list()
 
   for (f in family) {
-    p <- switch(
-      f,
-      histogram        = ggmcmc::ggs_histogram(D, family = NA, ...),
-      density          = ggmcmc::ggs_density(D, family = NA, ...),
-      traceplot        = ggmcmc::ggs_traceplot(D, family = NA, ...),
-      running          = ggmcmc::ggs_running(D, family = NA, ...),
-      compare_partial  = ggmcmc::ggs_compare_partial(D, family = NA, ...),
-      autocorrelation  = ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...),
-      crosscorrelation = ggmcmc::ggs_crosscorrelation(D, family = NA, ...),
-      Rhat             = ggmcmc::ggs_Rhat(D, family = NA, ...),
-      grb              = ggmcmc::ggs_grb(D, family = NA, ...),
-      effective        = ggmcmc::ggs_effective(D, family = NA, ...),
-      geweke           = ggmcmc::ggs_geweke(D, family = NA, ...),
-      caterpillar      = ggmcmc::ggs_caterpillar(D, family = NA, ...),
-      pairs            = ggmcmc::ggs_pairs(D, family = NA, ...)
-    )
+    if (identical(f, "geweke")) {
+      z_obj <- coda::geweke.diag(smp)
+      z_list <- if (inherits(z_obj, "geweke.diag")) list(z_obj) else z_obj
+      z_df <- do.call(rbind, lapply(seq_along(z_list), function(i) {
+        z_vals <- z_list[[i]]$z %||% z_list[[i]]
+        data.frame(
+          Parameter = names(z_vals),
+          z = as.numeric(z_vals),
+          Chain = factor(i),
+          stringsAsFactors = FALSE
+        )
+      }))
+      z_df <- z_df[z_df$Parameter %in% keep, , drop = FALSE]
+      z_df$Parameter <- factor(z_df$Parameter, levels = rev(unique(keep)))
+      p <- ggplot2::ggplot(z_df, ggplot2::aes(x = z, y = Parameter, color = Chain)) +
+        ggplot2::geom_point(position = ggplot2::position_jitter(height = 0.15, width = 0)) +
+        ggplot2::geom_vline(xintercept = c(-1.96, 1.96), linetype = "dashed", color = "grey50") +
+        ggplot2::labs(x = "Geweke z-score", y = NULL, title = "Geweke diagnostic")
+    } else {
+      p <- switch(
+        f,
+        histogram        = ggmcmc::ggs_histogram(D, family = NA, ...),
+        density          = ggmcmc::ggs_density(D, family = NA, ...),
+        traceplot        = ggmcmc::ggs_traceplot(D, family = NA, ...),
+        running          = ggmcmc::ggs_running(D, family = NA, ...),
+        compare_partial  = ggmcmc::ggs_compare_partial(D, family = NA, ...),
+        autocorrelation  = ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...),
+        crosscorrelation = ggmcmc::ggs_crosscorrelation(D, family = NA, ...),
+        Rhat             = ggmcmc::ggs_Rhat(D, family = NA, ...),
+        grb              = ggmcmc::ggs_grb(D, family = NA, ...),
+        effective        = ggmcmc::ggs_effective(D, family = NA, ...),
+        caterpillar      = ggmcmc::ggs_caterpillar(D, family = NA, ...),
+        pairs            = ggmcmc::ggs_pairs(D, family = NA, ...)
+      )
+    }
 
     p <- p +
       .plot_theme() +
@@ -1493,7 +1530,7 @@ plot.dpmixgpd_causal_predict <- function(x, y = NULL, ...) {
 #' @return The object \code{x}, invisibly.
 #' @examples
 #' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", J = 6)
+#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' q <- qte(fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
 #' print(q)
@@ -1531,22 +1568,18 @@ print.dpmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
   qte_fit <- x$qte$fit %||% NULL
   if (!is.null(qte_fit) && is.data.frame(qte_fit)) {
     show_df <- qte_fit
-    show_df$estimate <- round(show_df$estimate, digits)
-    if ("lower" %in% names(show_df)) show_df$lower <- round(show_df$lower, digits)
-    if ("upper" %in% names(show_df)) show_df$upper <- round(show_df$upper, digits)
-
     if (nrow(show_df) > max_rows) {
-      print_fmt3(utils::head(show_df, max_rows), row.names = FALSE)
+      print_fmt3_sci(utils::head(show_df, max_rows), row.names = FALSE, digits = digits)
       cat(sprintf("... (%d more rows)\n", nrow(show_df) - max_rows))
     } else {
-      print_fmt3(show_df, row.names = FALSE)
+      print_fmt3_sci(show_df, row.names = FALSE, digits = digits)
     }
   } else if (!is.null(x$fit)) {
     # Fallback to raw matrix
     fit_mat <- x$fit
     show_n <- min(nrow(fit_mat), max_rows)
     cat(sprintf("  (matrix: %d x %d)\n", nrow(fit_mat), ncol(fit_mat)))
-    print_fmt3(fit_mat[seq_len(show_n), , drop = FALSE])
+    print_fmt3_sci(fit_mat[seq_len(show_n), , drop = FALSE], digits = digits)
     if (nrow(fit_mat) > show_n) {
       cat(sprintf("... (%d more rows)\n", nrow(fit_mat) - show_n))
     }
@@ -1568,7 +1601,7 @@ print.dpmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
 #' @return The object \code{x}, invisibly.
 #' @examples
 #' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", J = 6)
+#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' a <- ate(fit, interval = "credible")
 #' print(a)
@@ -1608,22 +1641,18 @@ print.dpmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
   ate_fit <- x$ate$fit %||% NULL
   if (!is.null(ate_fit) && is.data.frame(ate_fit)) {
     show_df <- ate_fit
-    show_df$estimate <- round(show_df$estimate, digits)
-    if ("lower" %in% names(show_df)) show_df$lower <- round(show_df$lower, digits)
-    if ("upper" %in% names(show_df)) show_df$upper <- round(show_df$upper, digits)
-
     if (nrow(show_df) > max_rows) {
-      print_fmt3(utils::head(show_df, max_rows), row.names = FALSE)
+      print_fmt3_sci(utils::head(show_df, max_rows), row.names = FALSE, digits = digits)
       cat(sprintf("... (%d more rows)\n", nrow(show_df) - max_rows))
     } else {
-      print_fmt3(show_df, row.names = FALSE)
+      print_fmt3_sci(show_df, row.names = FALSE, digits = digits)
     }
   } else if (!is.null(x$fit)) {
     # Fallback to raw vector
     fit_vec <- x$fit
     show_n <- min(length(fit_vec), max_rows)
     cat(sprintf("  (vector: %d)\n", length(fit_vec)))
-    print_fmt3(fit_vec[seq_len(show_n)])
+    print_fmt3_sci(fit_vec[seq_len(show_n)], digits = digits)
     if (length(fit_vec) > show_n) {
       cat(sprintf("... (%d more)\n", length(fit_vec) - show_n))
     }
@@ -1642,7 +1671,7 @@ print.dpmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
 #' @return An object of class \code{"summary.dpmixgpd_qte"} containing summary statistics.
 #' @examples
 #' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", J = 6)
+#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' q <- qte(fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
 #' summary(q)
@@ -1774,7 +1803,7 @@ print.summary.dpmixgpd_qte <- function(x, digits = 3, ...) {
   if (!is.null(qs) && nrow(qs) > 0) {
     cat("QTE by quantile:\n")
     qs_print <- qs
-    print_fmt3(qs_print, row.names = FALSE)
+    print_fmt3_sci(qs_print, row.names = FALSE, digits = digits)
     cat("\n")
   }
 
@@ -1783,9 +1812,9 @@ print.summary.dpmixgpd_qte <- function(x, digits = 3, ...) {
   if (!is.null(ci)) {
     cat("Credible interval width:\n")
     cat(sprintf("  Mean: %s | Median: %s\n",
-                fmt3(ci$mean_width), fmt3(ci$median_width)))
+                fmt3_sci(ci$mean_width, digits = digits), fmt3_sci(ci$median_width, digits = digits)))
     cat(sprintf("  Range: [%s, %s]\n",
-                fmt3(ci$min_width), fmt3(ci$max_width)))
+                fmt3_sci(ci$min_width, digits = digits), fmt3_sci(ci$max_width, digits = digits)))
   }
 
   invisible(x)
@@ -1801,7 +1830,7 @@ print.summary.dpmixgpd_qte <- function(x, digits = 3, ...) {
 #' @return An object of class \code{"summary.dpmixgpd_ate"} containing summary statistics.
 #' @examples
 #' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", J = 6)
+#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' a <- ate(fit, interval = "credible")
 #' summary(a)
@@ -1925,11 +1954,11 @@ print.summary.dpmixgpd_ate <- function(x, digits = 3, ...) {
   if (!is.null(as)) {
     cat("ATE statistics:\n")
     cat(sprintf("  Mean: %s | Median: %s\n",
-                fmt3(as$mean_ate), fmt3(as$median_ate)))
+                fmt3_sci(as$mean_ate, digits = digits), fmt3_sci(as$median_ate, digits = digits)))
     cat(sprintf("  Range: [%s, %s]\n",
-                fmt3(as$min_ate), fmt3(as$max_ate)))
+                fmt3_sci(as$min_ate, digits = digits), fmt3_sci(as$max_ate, digits = digits)))
     if (!is.na(as$sd_ate)) {
-      cat(sprintf("  SD: %s\n", fmt3(as$sd_ate)))
+      cat(sprintf("  SD: %s\n", fmt3_sci(as$sd_ate, digits = digits)))
     }
     cat("\n")
   }
@@ -1939,9 +1968,9 @@ print.summary.dpmixgpd_ate <- function(x, digits = 3, ...) {
   if (!is.null(ci)) {
     cat("Credible interval width:\n")
     cat(sprintf("  Mean: %s | Median: %s\n",
-                fmt3(ci$mean_width), fmt3(ci$median_width)))
+                fmt3_sci(ci$mean_width, digits = digits), fmt3_sci(ci$median_width, digits = digits)))
     cat(sprintf("  Range: [%s, %s]\n",
-                fmt3(ci$min_width), fmt3(ci$max_width)))
+                fmt3_sci(ci$min_width, digits = digits), fmt3_sci(ci$max_width, digits = digits)))
   }
 
   invisible(x)
@@ -2426,3 +2455,4 @@ print.mixgpd_predict_plots <- function(x, ...) {
   class(x) <- cls
   invisible(x)
 }
+

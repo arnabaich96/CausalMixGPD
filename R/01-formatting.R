@@ -9,6 +9,22 @@ fmt3 <- function(x) {
   formatC(x, digits = 3, format = "f", drop0trailing = TRUE)
 }
 
+#' Format numbers to 3 decimals, switching to scientific for large values
+#' @param x numeric vector
+#' @param digits number of digits after decimal
+#' @param big absolute value threshold to switch to scientific notation
+#' @return character vector
+#' @noRd
+fmt3_sci <- function(x, digits = 3, big = 1e4) {
+  out <- formatC(x, digits = digits, format = "f", drop0trailing = TRUE)
+  if (!length(x)) return(out)
+  big_idx <- is.finite(x) & abs(x) >= big
+  if (any(big_idx)) {
+    out[big_idx] <- formatC(x[big_idx], digits = digits, format = "e")
+  }
+  out
+}
+
 #' @noRd
 fmt3_vec <- function(x) {
   if (!length(x)) return("")
@@ -24,6 +40,14 @@ format_df3 <- function(df) {
 }
 
 #' @noRd
+format_df3_sci <- function(df, digits = 3, big = 1e4) {
+  if (!is.data.frame(df)) return(df)
+  num_cols <- vapply(df, is.numeric, logical(1))
+  df[num_cols] <- lapply(df[num_cols], fmt3_sci, digits = digits, big = big)
+  df
+}
+
+#' @noRd
 format_mat3 <- function(mat) {
   if (!is.matrix(mat)) return(mat)
   out <- apply(mat, 2, fmt3)
@@ -33,15 +57,86 @@ format_mat3 <- function(mat) {
 }
 
 #' @noRd
+format_mat3_sci <- function(mat, digits = 3, big = 1e4) {
+  if (!is.matrix(mat)) return(mat)
+  out <- apply(mat, 2, fmt3_sci, digits = digits, big = big)
+  dim(out) <- dim(mat)
+  dimnames(out) <- dimnames(mat)
+  out
+}
+
+#' @noRd
+.is_knitr_output <- function() {
+  isTRUE(getOption("knitr.in.progress")) &&
+    requireNamespace("knitr", quietly = TRUE)
+}
+
+#' @noRd
+.kable_fmt <- function() {
+  if (!requireNamespace("knitr", quietly = TRUE)) return("markdown")
+  if (knitr::is_latex_output()) return("latex")
+  if (knitr::is_html_output()) return("html")
+  "markdown"
+}
+
+#' @noRd
+.kable_table <- function(df, row.names = TRUE) {
+  if (!requireNamespace("knitr", quietly = TRUE)) return(NULL)
+  kbl <- knitr::kable(df, align = "c", row.names = row.names, format = .kable_fmt())
+  if (requireNamespace("kableExtra", quietly = TRUE)) {
+    kbl <- kableExtra::kable_styling(kbl, full_width = FALSE, position = "center")
+  }
+  kbl
+}
+
+#' @noRd
 print_fmt3 <- function(x, ...) {
+  args <- list(...)
+  row_names <- if (!is.null(args$row.names)) args$row.names else TRUE
   if (is.data.frame(x)) {
-    return(print(format_df3(x), ...))
+    df <- format_df3(x)
+    if (.is_knitr_output()) {
+      kbl <- .kable_table(df, row.names = row_names)
+      if (!is.null(kbl)) return(print(kbl))
+    }
+    return(print(df, ...))
   }
   if (is.matrix(x)) {
-    return(print(format_mat3(x), ...))
+    mat <- format_mat3(x)
+    if (.is_knitr_output()) {
+      kbl <- .kable_table(as.data.frame(mat), row.names = row_names)
+      if (!is.null(kbl)) return(print(kbl))
+    }
+    return(print(mat, ...))
   }
   if (is.numeric(x)) {
     return(print(fmt3(x), ...))
+  }
+  print(x, ...)
+}
+
+#' @noRd
+print_fmt3_sci <- function(x, digits = 3, big = 1e4, ...) {
+  args <- list(...)
+  row_names <- if (!is.null(args$row.names)) args$row.names else TRUE
+  if (is.data.frame(x)) {
+    df <- format_df3_sci(x, digits = digits, big = big)
+    if (.is_knitr_output()) {
+      kbl <- .kable_table(df, row.names = row_names)
+      if (!is.null(kbl)) return(print(kbl))
+    }
+    return(print(df, ...))
+  }
+  if (is.matrix(x)) {
+    mat <- format_mat3_sci(x, digits = digits, big = big)
+    if (.is_knitr_output()) {
+      kbl <- .kable_table(as.data.frame(mat), row.names = row_names)
+      if (!is.null(kbl)) return(print(kbl))
+    }
+    return(print(mat, ...))
+  }
+  if (is.numeric(x)) {
+    return(print(fmt3_sci(x, digits = digits, big = big), ...))
   }
   print(x, ...)
 }

@@ -6,15 +6,15 @@ build:
   lazy: true
 navbar:
   structure:
-    left: [home, manual, kernels, legacy, coverage, reference]
+    left: [home, manual, allin1, kernels, cookbook, coverage, reference]
   right:
     - text: "GitHub"
       href: https://github.com/arnabaich96/DPmixGPD
   components:
     manual:
-      text: "Manual"
+      text: "Vignettes"
       menu:
-        - text: "Manual Overview"
+        - text: "Vignettes Overview"
           href: articles/manual-index.html
         - text: "---"
         - text: "Get Started"
@@ -34,14 +34,17 @@ navbar:
           href: articles/conditional.html
         - text: "Causal Inference"
           href: articles/causal.html
-        - text: "Umbrella: Custom Models (All-in-One)"
-          href: articles/allin1/umbrella.html
-        - text: "Customization: Build NIMBLE Models from Scratch"
-          href: articles/allin1/customization.html
         - text: "Backends (CRP vs SB)"
           href: articles/backends.html
         - text: "S3 Methods Reference"
           href: articles/reference-s3.html
+    allin1:
+      text: "All-in-One"
+      menu:
+        - text: "Umbrella: Custom Models (All-in-One)"
+          href: articles/Customization/umbrella.html
+        - text: "Customization: Build NIMBLE Models from Scratch"
+          href: articles/Customization/customization.html
     kernels:
       text: "Kernels"
       menu:
@@ -62,64 +65,64 @@ navbar:
           href: articles/kernels/kernel-lognormal.html
         - text: "Normal"
           href: articles/kernels/kernel-normal.html
-    legacy:
-      text: "Legacy"
+    cookbook:
+      text: "Cookbook"
       menu:
-        - text: "Legacy Overview"
-          href: articles/legacy-index.html
+        - text: "Cookbook Overview"
+          href: articles/workflows-index.html
         - text: "---"
         - text: "Getting Started"
         - text: "Start Here"
-          href: articles/legacy/v00-start-here.html
+          href: articles/workflows/v00-start-here.html
         - text: "Introduction"
-          href: articles/legacy/v01-introduction.html
+          href: articles/workflows/v01-introduction.html
         - text: "Available Distributions"
-          href: articles/legacy/v02-available-distributions.html
+          href: articles/workflows/v02-available-distributions.html
         - text: "---"
         - text: "Core Concepts"
         - text: "Basic Model Compile & Run"
-          href: articles/legacy/v03-basic-model-compile-run.html
+          href: articles/workflows/v03-basic-model-compile-run.html
         - text: "Backends and Workflow"
-          href: articles/legacy/v04-backends-and-workflow.html
+          href: articles/workflows/v04-backends-and-workflow.html
         - text: "---"
         - text: "Unconditional Models"
         - text: "DPmix CRP (v05)"
-          href: articles/legacy/v05-unconditional-DPmix-CRP.html
+          href: articles/workflows/v05-unconditional-DPmix-CRP.html
         - text: "DPmix CRP Extended (v06)"
-          href: articles/legacy/v06-unconditional-DPmix-CRP.html
+          href: articles/workflows/v06-unconditional-DPmix-CRP.html
         - text: "DPmix SB (v07)"
-          href: articles/legacy/v07-unconditional-DPmix-SB.html
+          href: articles/workflows/v07-unconditional-DPmix-SB.html
         - text: "DPmixGPD CRP (v08)"
-          href: articles/legacy/v08-unconditional-DPmixGPD-CRP.html
+          href: articles/workflows/v08-unconditional-DPmixGPD-CRP.html
         - text: "DPmixGPD SB (v09)"
-          href: articles/legacy/v09-unconditional-DPmixGPD-SB.html
+          href: articles/workflows/v09-unconditional-DPmixGPD-SB.html
         - text: "---"
         - text: "Conditional Models"
         - text: "DPmix CRP (v10)"
-          href: articles/legacy/v10-conditional-DPmix-CRP.html
+          href: articles/workflows/v10-conditional-DPmix-CRP.html
         - text: "DPmix SB (v11)"
-          href: articles/legacy/v11-conditional-DPmix-SB.html
+          href: articles/workflows/v11-conditional-DPmix-SB.html
         - text: "DPmixGPD CRP (v12)"
-          href: articles/legacy/v12-conditional-DPmixGPD-CRP.html
+          href: articles/workflows/v12-conditional-DPmixGPD-CRP.html
         - text: "DPmixGPD SB (v13)"
-          href: articles/legacy/v13-conditional-DPmixGPD-SB.html
+          href: articles/workflows/v13-conditional-DPmixGPD-SB.html
         - text: "---"
         - text: "Causal Inference"
         - text: "No Covariates CRP (v14)"
-          href: articles/legacy/v14-causal-no-x-CRP.html
+          href: articles/workflows/v14-causal-no-x-CRP.html
         - text: "With Covariates SB (v15)"
-          href: articles/legacy/v15-causal-x-no-ps-SB.html
+          href: articles/workflows/v15-causal-x-no-ps-SB.html
         - text: "Same Backend CRP (v16)"
-          href: articles/legacy/v16-causal-same-backend-CRP.html
+          href: articles/workflows/v16-causal-same-backend-CRP.html
         - text: "Same Backend SB (v17)"
-          href: articles/legacy/v17-causal-same-backend-SB.html
+          href: articles/workflows/v17-causal-same-backend-SB.html
         - text: "Different Backends CRP (v18)"
-          href: articles/legacy/v18-causal-different-backends-CRP.html
+          href: articles/workflows/v18-causal-different-backends-CRP.html
         - text: "Different Backends SB (v19)"
-          href: articles/legacy/v19-causal-different-backends-SB.html
+          href: articles/workflows/v19-causal-different-backends-SB.html
         - text: "---"
         - text: "Troubleshooting (v20)"
-          href: articles/legacy/v20-troubleshooting.html
+          href: articles/workflows/v20-troubleshooting.html
     coverage:
       text: "Coverage"
       href: coverage/index.html
@@ -127,23 +130,25 @@ navbar:
 articles:
   - title: "Get Started"
     contents:
-      - introduction
-  - title: "Manual"
+      - '"introduction"'
+  - title: "Vignettes"
     contents:
-      - manual-index
-      - distributions
-      - model-spec
-      - mcmc-workflow
-      - unconditional
-      - conditional
-      - causal
-      - allin1/umbrella
-      - allin1/customization
-      - backends
-      - reference-s3
+      - '"manual-index"'
+      - '"distributions"'
+      - '"model-spec"'
+      - '"mcmc-workflow"'
+      - '"unconditional"'
+      - '"conditional"'
+      - '"causal"'
+      - '"backends"'
+      - '"reference-s3"'
+  - title: "All-in-One"
+    contents:
+      - '"Customization/umbrella"'
+      - '"Customization/customization"'
   - title: "Kernels"
     contents:
-      - kernels-index
+      - '"kernels-index"'
       # Kernel files are not yet available - uncomment when created
       # - "kernels/kernel-amoroso"
       # - "kernels/kernel-cauchy"
@@ -152,27 +157,27 @@ articles:
       # - "kernels/kernel-laplace"
       # - "kernels/kernel-lognormal"
       # - "kernels/kernel-normal"
-  - title: "Legacy"
+  - title: "Cookbook"
     contents:
-      - legacy-index
-      - legacy/v00-start-here
-      - legacy/v01-introduction
-      - legacy/v02-available-distributions
-      - legacy/v03-basic-model-compile-run
-      - legacy/v04-backends-and-workflow
-      - legacy/v05-unconditional-DPmix-CRP
-      - legacy/v06-unconditional-DPmix-CRP
-      - legacy/v07-unconditional-DPmix-SB
-      - legacy/v08-unconditional-DPmixGPD-CRP
-      - legacy/v09-unconditional-DPmixGPD-SB
-      - legacy/v10-conditional-DPmix-CRP
-      - legacy/v11-conditional-DPmix-SB
-      - legacy/v12-conditional-DPmixGPD-CRP
-      - legacy/v13-conditional-DPmixGPD-SB
-      - legacy/v14-causal-no-x-CRP
-      - legacy/v15-causal-x-no-ps-SB
-      - legacy/v16-causal-same-backend-CRP
-      - legacy/v17-causal-same-backend-SB
-      - legacy/v18-causal-different-backends-CRP
-      - legacy/v19-causal-different-backends-SB
-      - legacy/v20-troubleshooting
+      - '"workflows-index"'
+      - '"workflows/v00-start-here"'
+      - '"workflows/v01-introduction"'
+      - '"workflows/v02-available-distributions"'
+      - '"workflows/v03-basic-model-compile-run"'
+      - '"workflows/v04-backends-and-workflow"'
+      - '"workflows/v05-unconditional-DPmix-CRP"'
+      - '"workflows/v06-unconditional-DPmix-CRP"'
+      - '"workflows/v07-unconditional-DPmix-SB"'
+      - '"workflows/v08-unconditional-DPmixGPD-CRP"'
+      - '"workflows/v09-unconditional-DPmixGPD-SB"'
+      - '"workflows/v10-conditional-DPmix-CRP"'
+      - '"workflows/v11-conditional-DPmix-SB"'
+      - '"workflows/v12-conditional-DPmixGPD-CRP"'
+      - '"workflows/v13-conditional-DPmixGPD-SB"'
+      - '"workflows/v14-causal-no-x-CRP"'
+      - '"workflows/v15-causal-x-no-ps-SB"'
+      - '"workflows/v16-causal-same-backend-CRP"'
+      - '"workflows/v17-causal-same-backend-SB"'
+      - '"workflows/v18-causal-different-backends-CRP"'
+      - '"workflows/v19-causal-different-backends-SB"'
+      - '"workflows/v20-troubleshooting"'

@@ -10,7 +10,7 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
+  comment = NA,
   message = FALSE,
   warning = FALSE,
   fig.width = 7,
@@ -120,7 +120,6 @@ causal_bundle <- build_causal_bundle(
   GPD = TRUE,
   components = 6,
   PS = "logit",
-  design = "observational",
   mcmc_outcome = mcmc,
   mcmc_ps = mcmc
 )
@@ -173,3 +172,4 @@ plot(qte_result, type = "effect")
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+

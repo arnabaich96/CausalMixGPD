@@ -10,6 +10,7 @@
 				"path": "R"
 			}
 		},
-		"terminal.integrated.defaultProfile.windows": "R"
+		"terminal.integrated.defaultProfile.windows": "R",
+		"chatgpt.openOnStartup": false
 	}
 }

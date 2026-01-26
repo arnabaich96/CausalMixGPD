@@ -12,7 +12,6 @@ build_nimble_bundle(
   kernel,
   GPD = FALSE,
   components = NULL,
-  J = NULL,
   param_specs = NULL,
   mcmc = list(niter = 2000, nburnin = 500, thin = 1, nchains = 1, seed = 1),
   epsilon = 0.025,
@@ -33,10 +32,7 @@ augments the design matrix for PS-adjusted outcome modeling.}
 
 \item{GPD}{Logical; whether a GPD tail is requested.}
 
-\item{components}{Deprecated alias for \code{J}. Only one of \code{J} or \code{components}
-should be supplied.}
-
-\item{J}{Integer >= 2. Single user-facing truncation parameter:
+\item{components}{Integer >= 2. Single user-facing truncation parameter:
 \itemize{
 \item SB: number of mixture components used in stick-breaking truncation
 \item CRP: maximum number of clusters represented in the finite NIMBLE model

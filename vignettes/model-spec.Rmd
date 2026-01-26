@@ -10,7 +10,7 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
+  comment = NA,
   message = FALSE,
   warning = FALSE,
   fig.align = "center"
@@ -138,4 +138,5 @@ kable(args_df, align = "c", caption = "Model Specification Arguments") %>%
 # Rename reserved keywords
 names(X)[names(X) == "if"] <- "x_if"
 ```
+
 

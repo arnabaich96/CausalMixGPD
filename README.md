@@ -33,12 +33,13 @@ Comprehensive user documentation:
 - [**Kernels Overview**](https://arnabaich96.github.io/DPmixGPD/articles/kernels-index.html) - Guide to available mixture kernels
 - [Amoroso](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-amoroso.html) | [Cauchy](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-cauchy.html) | [Gamma](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-gamma.html) | [Inverse Gaussian](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-invgauss.html) | [Laplace](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-laplace.html) | [Lognormal](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-lognormal.html) | [Normal](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-normal.html)
 
-### Legacy
+### Workflows & Case Studies
 
-- [**Legacy Documentation**](https://arnabaich96.github.io/DPmixGPD/articles/legacy-index.html) - Previous version tutorials and detailed examples
+- [**Workflows & Case Studies**](https://arnabaich96.github.io/DPmixGPD/articles/workflows-index.html) - Extended tutorials and case studies
 
 ### Reference
 
 - [**Function Reference**](https://arnabaich96.github.io/DPmixGPD/reference/index.html) - Complete API documentation
 ### Coverage
 - ![Coverage sunburst](https://codecov.io/gh/arnabaich96/DPmixGPD/graphs/sunburst.svg?token=80IYA0FANW)
+

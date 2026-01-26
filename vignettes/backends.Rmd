@@ -10,7 +10,7 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
+  comment = NA,
   message = FALSE,
   warning = FALSE,
   fig.width = 7,
@@ -111,3 +111,4 @@ kable(comparison_df, digits = 3, align = "c",
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+
