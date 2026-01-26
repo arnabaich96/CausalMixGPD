@@ -10,7 +10,7 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
+  comment = NA,
   message = FALSE,
   warning = FALSE,
   fig.width = 7,
@@ -122,3 +122,4 @@ ggplot(q_df, aes(x = wt, y = estimate, color = factor(tau))) +
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+

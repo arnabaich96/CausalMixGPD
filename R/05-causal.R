@@ -20,10 +20,8 @@
 #'   the first entry is used for treated (\code{T=1}) and the second for control (\code{T=0}).
 #' @param GPD Logical; include GPD tail for outcomes if TRUE. If length 2,
 #'   the first entry is used for treated (\code{T=1}) and the second for control (\code{T=0}).
-#' @param J Integer >= 2; truncation parameter for outcome mixtures. If length 2,
+#' @param components Integer >= 2; truncation parameter for outcome mixtures. If length 2,
 #'   the first entry is used for treated (\code{T=1}) and the second for control (\code{T=0}).
-#' @param components Deprecated alias for \code{J}. Only one of \code{J} or \code{components}
-#'   should be supplied.
 #' @param param_specs Outcome parameter overrides (same structure as \code{build_nimble_bundle()}).
 #'   You can pass a single list used for both arms or a list with \code{con} and \code{trt} entries.
 #' @param mcmc_outcome MCMC settings list for the outcome bundles.
@@ -31,8 +29,6 @@
 #' @param epsilon Numeric in [0,1) used by outcome bundles for posterior truncation summaries.
 #'   If length 2, the first entry is used for treated (\code{T=1}) and the second for control (\code{T=0}).
 #' @param alpha_random Logical; whether outcome concentration \code{alpha} is stochastic.
-#' @param ps_model PS model specification for backward compatibility (deprecated).
-#'   Recommend using \code{PS} parameter instead.
 #' @param ps_prior Normal prior for PS coefficients. List with \code{mean} and \code{sd}.
 #' @param include_intercept Logical; if TRUE, an intercept column is prepended to \code{X}
 #'   in the PS model.
@@ -45,7 +41,6 @@
 #'   }
 #'   The PS model choice is stored in bundle metadata for downstream use in prediction
 #'   and summaries, enabling seamless integration of future PS estimation methods.
-#' @param design Causal design: \code{"rct"} or \code{"observational"}.
 #' @param ps_scale Scale used when augmenting outcomes with PS: \code{"logit"} or \code{"prob"}.
 #' @param ps_summary Posterior summary for PS: \code{"mean"} or \code{"median"}.
 #' @param ps_clamp Numeric epsilon for clamping PS values to \eqn{(\epsilon, 1-\epsilon)}.
@@ -65,7 +60,7 @@
 #'   backend = "sb",
 #'   kernel = "gamma",
 #'   GPD = TRUE,
-#'   J = 10,
+#'   components = 10,
 #'   PS = "probit"
 #' )
 #' }
@@ -78,17 +73,14 @@ build_causal_bundle <- function(
     kernel,
     GPD = FALSE,
     components = NULL,
-    J = NULL,
     param_specs = NULL,
     mcmc_outcome = list(niter = 2000, nburnin = 500, thin = 1, nchains = 1, seed = 1),
     mcmc_ps = list(niter = 2000, nburnin = 500, thin = 1, nchains = 1, seed = 1),
     epsilon = 0.025,
     alpha_random = TRUE,
-    ps_model = c("logit"),
     ps_prior = list(mean = 0, sd = 2),
     include_intercept = TRUE,
     PS = "logit",
-    design = c("rct", "observational"),
     ps_scale = c("logit", "prob"),
     ps_summary = c("mean", "median"),
     ps_clamp = 1e-6
@@ -104,8 +96,6 @@ build_causal_bundle <- function(
   backend <- .arm_value(backend, "backend")
   backend$trt <- match.arg(backend$trt, choices = c("sb", "crp"))
   backend$con <- match.arg(backend$con, choices = c("sb", "crp"))
-  ps_model <- match.arg(ps_model, choices = c("logit"))
-  design <- match.arg(design)
   ps_scale <- match.arg(ps_scale)
   ps_summary <- match.arg(ps_summary)
 
@@ -128,10 +118,6 @@ build_causal_bundle <- function(
   if (length(T) != length(y)) stop("T must have the same length as y.", call. = FALSE)
   if (anyNA(T) || !all(T %in% c(0L, 1L))) stop("T must be binary (0/1) with no NA.", call. = FALSE)
 
-  if (!is.null(J) && !is.null(components)) {
-    stop("Provide only one of 'J' or 'components'.", call. = FALSE)
-  }
-  if (!is.null(J)) components <- J
   if (is.null(components)) components <- length(y)
   components <- .arm_value(components, "components")
   components$trt <- as.integer(components$trt)
@@ -143,29 +129,18 @@ build_causal_bundle <- function(
     stop("components (control) must be an integer >= 2.", call. = FALSE)
   }
 
-  # Validate and normalize PS parameter with design rules
+  # Validate and normalize PS parameter
   ps_model_type <- FALSE
   ps_choices <- c("logit", "probit", "naive")
-  if (identical(design, "rct")) {
-    if (!isFALSE(PS)) {
-      warning("design='rct' ignores PS; setting PS = FALSE.", call. = FALSE)
-    }
+  if (isFALSE(PS) || is.null(PS)) {
     ps_model_type <- FALSE
-  } else if (identical(design, "observational")) {
-    if (!has_x) stop("design='observational' requires non-empty X.", call. = FALSE)
-    if (isFALSE(PS)) stop("design='observational' requires PS estimation.", call. = FALSE)
-    if (isTRUE(PS)) {
-      ps_model_type <- "logit"
-    } else {
-      ps_model_type <- as.character(PS)
-      if (length(ps_model_type) == 1L && tolower(ps_model_type) %in% c("false", "none", "null")) {
-        stop("design='observational' requires PS estimation.", call. = FALSE)
-      }
-      ps_model_type <- match.arg(ps_model_type, choices = ps_choices)
-    }
+  } else if (isTRUE(PS)) {
+    ps_model_type <- "logit"
+  } else {
+    ps_model_type <- match.arg(as.character(PS), choices = ps_choices)
   }
-  if (!has_x) {
-    ps_model_type <- FALSE
+  if (!isFALSE(ps_model_type) && !has_x) {
+    stop("PS estimation requires non-empty X.", call. = FALSE)
   }
 
   idx_con <- which(T == 0L)
@@ -251,7 +226,6 @@ build_causal_bundle <- function(
       GPD = GPD,
       components = components,
       epsilon = epsilon,
-      design = design,
       has_x = has_x,
       needs_ps = !isFALSE(ps_model_type),
       ps_scale = ps_scale,
@@ -456,7 +430,7 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
 #'   and the treated/control prediction objects.
 #' @examples
 #' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", J = 6)
+#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' qte(fit, probs = c(0.5, 0.9), newdata = X[1:5, ])
 #' qte(fit, probs = c(0.5, 0.9), interval = "credible", level = 0.90)  # 90% CI
@@ -603,7 +577,6 @@ qte <- function(fit,
     interval = if (compute_interval) interval else "none",
     type = "qte",
     meta = list(
-      design = meta$design %||% "observational",
       ps_enabled = ps_enabled,
       ps_scale = ps_scale,
       ps_summary = ps_summary,
@@ -632,7 +605,7 @@ qte <- function(fit,
 #'   and the treated/control prediction objects.
 #' @examples
 #' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", J = 6)
+#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' ate(fit, newdata = X[1:5, ])
 #' ate(fit, interval = "credible", level = 0.90)  # 90% CI
@@ -763,7 +736,6 @@ ate <- function(fit,
     interval = if (compute_interval) interval else "none",
     type = "ate",
     meta = list(
-      design = meta$design %||% "observational",
       ps_enabled = ps_enabled,
       ps_scale = ps_scale,
       ps_summary = ps_summary,

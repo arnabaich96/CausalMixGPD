@@ -12,17 +12,14 @@ build_causal_bundle(
   kernel,
   GPD = FALSE,
   components = NULL,
-  J = NULL,
   param_specs = NULL,
   mcmc_outcome = list(niter = 2000, nburnin = 500, thin = 1, nchains = 1, seed = 1),
   mcmc_ps = list(niter = 2000, nburnin = 500, thin = 1, nchains = 1, seed = 1),
   epsilon = 0.025,
   alpha_random = TRUE,
-  ps_model = c("logit"),
   ps_prior = list(mean = 0, sd = 2),
   include_intercept = TRUE,
   PS = "logit",
-  design = c("rct", "observational"),
   ps_scale = c("logit", "prob"),
   ps_summary = c("mean", "median"),
   ps_clamp = 1e-06
@@ -44,10 +41,7 @@ the first entry is used for treated (\code{T=1}) and the second for control (\co
 \item{GPD}{Logical; include GPD tail for outcomes if TRUE. If length 2,
 the first entry is used for treated (\code{T=1}) and the second for control (\code{T=0}).}
 
-\item{components}{Deprecated alias for \code{J}. Only one of \code{J} or \code{components}
-should be supplied.}
-
-\item{J}{Integer >= 2; truncation parameter for outcome mixtures. If length 2,
+\item{components}{Integer >= 2; truncation parameter for outcome mixtures. If length 2,
 the first entry is used for treated (\code{T=1}) and the second for control (\code{T=0}).}
 
 \item{param_specs}{Outcome parameter overrides (same structure as \code{build_nimble_bundle()}).
@@ -61,9 +55,6 @@ You can pass a single list used for both arms or a list with \code{con} and \cod
 If length 2, the first entry is used for treated (\code{T=1}) and the second for control (\code{T=0}).}
 
 \item{alpha_random}{Logical; whether outcome concentration \code{alpha} is stochastic.}
-
-\item{ps_model}{PS model specification for backward compatibility (deprecated).
-Recommend using \code{PS} parameter instead.}
 
 \item{ps_prior}{Normal prior for PS coefficients. List with \code{mean} and \code{sd}.}
 
@@ -79,8 +70,6 @@ in the PS model.}
 }
 The PS model choice is stored in bundle metadata for downstream use in prediction
 and summaries, enabling seamless integration of future PS estimation methods.}
-
-\item{design}{Causal design: \code{"rct"} or \code{"observational"}.}
 
 \item{ps_scale}{Scale used when augmenting outcomes with PS: \code{"logit"} or \code{"prob"}.}
 
@@ -119,7 +108,7 @@ cb <- build_causal_bundle(
   backend = "sb",
   kernel = "gamma",
   GPD = TRUE,
-  J = 10,
+  components = 10,
   PS = "probit"
 )
 }

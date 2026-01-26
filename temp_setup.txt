@@ -2,8 +2,8 @@
 # Try multiple possible locations for precomputed files
 .find_precomp_dir <- function() {
   # Hardcode the known location of precomputed files
-  # They are in vignettes/legacy/articles/legacy-precomputed relative to package root
-  known_path <- file.path("vignettes", "legacy", "articles", "legacy-precomputed")
+  # They are in vignettes/cookbook/articles/cookbook-precomputed relative to package root
+  known_path <- file.path("vignettes", "cookbook", "articles", "cookbook-precomputed")
   
   # Try relative to vignette location first (for knitr context)
   vignette_dir <- tryCatch({
@@ -20,7 +20,7 @@
   
   # 1. Relative to vignette directory (most reliable in knitr context)
   if (!is.null(vignette_dir)) {
-    candidates[[length(candidates) + 1]] <- file.path(vignette_dir, "articles", "legacy-precomputed")
+    candidates[[length(candidates) + 1]] <- file.path(vignette_dir, "articles", "cookbook-precomputed")
   }
   
   # 2. Known standard location (most common)
@@ -29,10 +29,10 @@
   # 3. Absolute from current working directory
   cwd <- getwd()
   candidates[[length(candidates) + 1]] <- file.path(cwd, known_path)
-  candidates[[length(candidates) + 1]] <- file.path(cwd, "articles", "legacy-precomputed")
+  candidates[[length(candidates) + 1]] <- file.path(cwd, "articles", "cookbook-precomputed")
   
   # 4. Try relative paths
-  candidates[[length(candidates) + 1]] <- file.path("articles", "legacy-precomputed")
+  candidates[[length(candidates) + 1]] <- file.path("articles", "cookbook-precomputed")
   
   # Check each candidate
   for (cand in candidates) {

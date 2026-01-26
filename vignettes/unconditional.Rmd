@@ -10,7 +10,7 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
+  comment = NA,
   message = FALSE,
   warning = FALSE,
   fig.width = 7,
@@ -103,3 +103,4 @@ if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quiet
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+

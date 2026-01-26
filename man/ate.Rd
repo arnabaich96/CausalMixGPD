@@ -28,7 +28,7 @@ Computes treated-minus-control posterior means from a causal fit.
 }
 \examples{
 \dontrun{
-cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", J = 6)
+cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
 fit <- run_mcmc_causal(cb, show_progress = FALSE)
 ate(fit, newdata = X[1:5, ])
 ate(fit, interval = "credible", level = 0.90)  # 90\% CI
@@ -36,3 +36,4 @@ ate(fit, interval = "hpd")  # HPD intervals
 ate(fit, interval = NULL)   # No intervals
 }
 }
+

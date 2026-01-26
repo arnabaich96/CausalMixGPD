@@ -10,7 +10,7 @@ vignette: >
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>",
+  comment = NA,
   message = FALSE,
   warning = FALSE,
   fig.width = 7,
@@ -647,4 +647,5 @@ print(knitr::kable(ref_df, align = "c", caption = "Complete distribution referen
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+
 

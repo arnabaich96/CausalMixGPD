@@ -24,13 +24,11 @@
 #' @param backend Character; \code{"sb"} (stick-breaking) or \code{"crp"} (Chinese Restaurant Process).
 #' @param kernel Character kernel name (must exist in \code{get_kernel_registry()}).
 #' @param GPD Logical; whether a GPD tail is requested.
-#' @param J Integer >= 2. Single user-facing truncation parameter:
+#' @param components Integer >= 2. Single user-facing truncation parameter:
 #'   \itemize{
 #'     \item SB: number of mixture components used in stick-breaking truncation
 #'     \item CRP: maximum number of clusters represented in the finite NIMBLE model
 #'   }
-#' @param components Deprecated alias for \code{J}. Only one of \code{J} or \code{components}
-#'   should be supplied.
 #' @param param_specs Optional list with entries \code{bulk} and \code{tail} to override defaults.
 #' @param mcmc Named list of MCMC settings (niter, nburnin, thin, nchains, seed). Stored in bundle.
 #' @param epsilon Numeric in [0,1). For downstream summaries/plots/prediction we keep the
@@ -60,7 +58,6 @@ build_nimble_bundle <- function(
     kernel,
     GPD = FALSE,
     components = NULL,
-    J = NULL,
     param_specs = NULL,
     mcmc = list(niter = 2000, nburnin = 500, thin = 1, nchains = 1, seed = 1),
     epsilon = 0.025,
@@ -80,11 +77,10 @@ build_nimble_bundle <- function(
   }
 
   # Single truncation parameter for both backends
-  if (!is.null(J) && !is.null(components)) {
-    stop("Provide only one of 'J' or 'components'.", call. = FALSE)
-  }
-  if (!is.null(J)) components <- J
   if (is.null(components)) components <- length(y)
+  if (length(components) != 1L) {
+    stop("components must be a single integer >= 2.", call. = FALSE)
+  }
   components <- as.integer(components)
   if (!is.finite(components) || components < 2L) {
     stop("components must be an integer >= 2.", call. = FALSE)

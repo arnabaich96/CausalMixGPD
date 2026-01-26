@@ -1,6 +1,6 @@
 # Kernel reference: Lognormal
 
-> **Legacy vignette (for the website / historical notes).** These files
+> **Cookbook vignette (for the website / historical notes).** These files
 > may not match the current exported API one-to-one. Last verified:
 > **2026-01-18**.
 >
