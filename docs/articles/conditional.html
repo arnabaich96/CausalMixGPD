@@ -45,6 +45,8 @@
     <li><a class="dropdown-item" href="../articles/unconditional.html">Unconditional Models</a></li>
     <li><a class="dropdown-item" href="../articles/conditional.html">Conditional Models</a></li>
     <li><a class="dropdown-item" href="../articles/causal.html">Causal Inference</a></li>
+    <li><a class="dropdown-item" href="../articles/allin1/umbrella.html">Umbrella: Custom Models (All-in-One)</a></li>
+    <li><a class="dropdown-item" href="../articles/allin1/customization.html">Customization: Build NIMBLE Models from Scratch</a></li>
     <li><a class="dropdown-item" href="../articles/backends.html">Backends (CRP vs SB)</a></li>
     <li><a class="dropdown-item" href="../articles/reference-s3.html">S3 Methods Reference</a></li>
   </ul>
@@ -181,16 +183,16 @@ across covariate space.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"mean"</span>, level <span class="op">=</span> <span class="fl">0.90</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span>
-<span><span class="co">#&gt;        fit     lower    upper  residuals</span></span>
-<span><span class="co">#&gt; 1 14.53927  7.155984 23.35003   6.460725</span></span>
-<span><span class="co">#&gt; 2 18.31677  9.232510 30.85224   2.683232</span></span>
-<span><span class="co">#&gt; 3 11.36667  6.597628 17.53469  11.433335</span></span>
-<span><span class="co">#&gt; 4 25.01445 12.414485 45.68892  -3.614445</span></span>
-<span><span class="co">#&gt; 5 28.50104  9.535786 53.95542  -9.801045</span></span>
-<span><span class="co">#&gt; 6 32.37875 15.538596 58.20715 -14.278754</span></span>
+<span><span class="co">#&gt;    fit lower upper residuals</span></span>
+<span><span class="co">#&gt; 1 14.5  7.16  23.4      6.46</span></span>
+<span><span class="co">#&gt; 2 18.3  9.23  30.9      2.68</span></span>
+<span><span class="co">#&gt; 3 11.4  6.60  17.5     11.43</span></span>
+<span><span class="co">#&gt; 4 25.0 12.41  45.7     -3.61</span></span>
+<span><span class="co">#&gt; 5 28.5  9.54  54.0     -9.80</span></span>
+<span><span class="co">#&gt; 6 32.4 15.54  58.2    -14.28</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">f</span><span class="op">$</span><span class="va">residuals</span><span class="op">)</span></span>
-<span><span class="co">#&gt;     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. </span></span>
-<span><span class="co">#&gt; -177.965  -17.858   -7.979  -17.704    7.004   26.321</span></span></code></pre></div>
+<span><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
+<span><span class="co">#&gt; -177.96  -17.86   -7.98  -17.70    7.00   26.32</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="predictions-on-new-data">Predictions on New Data<a class="anchor" aria-label="anchor" href="#predictions-on-new-data"></a>
@@ -205,21 +207,21 @@ across covariate space.</p>
 <span><span class="va">pred_med</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, x <span class="op">=</span> <span class="va">new_X</span>, type <span class="op">=</span> <span class="st">"median"</span>, cred.level <span class="op">=</span> <span class="fl">0.90</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pred_mean</span><span class="op">$</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    estimate    lower    upper</span></span>
-<span><span class="co">#&gt; 1  5.923982 3.118031  9.11613</span></span>
-<span><span class="co">#&gt; 2  6.733985 3.417078 10.21538</span></span>
-<span><span class="co">#&gt; 3  7.585048 3.855476 11.89324</span></span>
-<span><span class="co">#&gt; 4  8.662212 4.615547 13.33712</span></span>
-<span><span class="co">#&gt; 5  9.794758 4.818015 16.57881</span></span>
-<span><span class="co">#&gt; 6 11.239667 5.562320 18.24414</span></span>
+<span><span class="co">#&gt;   estimate lower upper</span></span>
+<span><span class="co">#&gt; 1     5.92  3.12  9.12</span></span>
+<span><span class="co">#&gt; 2     6.73  3.42 10.22</span></span>
+<span><span class="co">#&gt; 3     7.59  3.86 11.89</span></span>
+<span><span class="co">#&gt; 4     8.66  4.62 13.34</span></span>
+<span><span class="co">#&gt; 5     9.79  4.82 16.58</span></span>
+<span><span class="co">#&gt; 6    11.24  5.56 18.24</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pred_med</span><span class="op">$</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   estimate index id    lower     upper</span></span>
-<span><span class="co">#&gt; 1 3.413474   0.5  1 2.426814  4.544073</span></span>
-<span><span class="co">#&gt; 2 3.909395   0.5  2 2.693864  5.385009</span></span>
-<span><span class="co">#&gt; 3 4.481646   0.5  3 2.985334  6.418755</span></span>
-<span><span class="co">#&gt; 4 5.143251   0.5  4 3.334559  7.601785</span></span>
-<span><span class="co">#&gt; 5 5.909897   0.5  5 3.704631  8.986027</span></span>
-<span><span class="co">#&gt; 6 6.800397   0.5  6 4.132824 10.510483</span></span></code></pre></div>
+<span><span class="co">#&gt;   estimate index id lower upper</span></span>
+<span><span class="co">#&gt; 1     3.41   0.5  1  2.43  4.54</span></span>
+<span><span class="co">#&gt; 2     3.91   0.5  2  2.69  5.39</span></span>
+<span><span class="co">#&gt; 3     4.48   0.5  3  2.99  6.42</span></span>
+<span><span class="co">#&gt; 4     5.14   0.5  4  3.33  7.60</span></span>
+<span><span class="co">#&gt; 5     5.91   0.5  5  3.70  8.99</span></span>
+<span><span class="co">#&gt; 6     6.80   0.5  6  4.13 10.51</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="quantile-curves">Quantile Curves<a class="anchor" aria-label="anchor" href="#quantile-curves"></a>
@@ -235,13 +237,13 @@ across covariate space.</p>
 <span><span class="op">}</span>, <span class="va">q_levels</span>, <span class="va">q_fits</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">q_df</span><span class="op">)</span></span>
-<span><span class="co">#&gt;         wt tau   estimate      lower    upper</span></span>
-<span><span class="co">#&gt; 1 1.513000 0.1 -0.2925464 -3.6660604 1.934948</span></span>
-<span><span class="co">#&gt; 2 1.675958 0.1  0.2137438 -3.0245694 2.076944</span></span>
-<span><span class="co">#&gt; 3 1.838917 0.1  0.6850905 -2.2964308 2.237707</span></span>
-<span><span class="co">#&gt; 4 2.001875 0.1  1.1297091 -1.5130531 2.418173</span></span>
-<span><span class="co">#&gt; 5 2.164833 0.1  1.5285199 -0.9637076 2.620008</span></span>
-<span><span class="co">#&gt; 6 2.327792 0.1  1.8950226 -0.4024057 2.830299</span></span></code></pre></div>
+<span><span class="co">#&gt;     wt tau estimate  lower upper</span></span>
+<span><span class="co">#&gt; 1 1.51 0.1   -0.293 -3.666  1.93</span></span>
+<span><span class="co">#&gt; 2 1.68 0.1    0.214 -3.025  2.08</span></span>
+<span><span class="co">#&gt; 3 1.84 0.1    0.685 -2.296  2.24</span></span>
+<span><span class="co">#&gt; 4 2.00 0.1    1.130 -1.513  2.42</span></span>
+<span><span class="co">#&gt; 5 2.16 0.1    1.529 -0.964  2.62</span></span>
+<span><span class="co">#&gt; 6 2.33 0.1    1.895 -0.402  2.83</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="va">q_df</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">wt</span>, y <span class="op">=</span> <span class="va">estimate</span>, color <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">tau</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_line</span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
@@ -250,7 +252,7 @@ across covariate space.</p>
 <span>       title <span class="op">=</span> <span class="st">"Conditional Quantile Curves at Median Horsepower"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme</span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="conditional_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+<p><img src="conditional_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -263,7 +265,7 @@ across covariate space.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>

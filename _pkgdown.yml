@@ -34,6 +34,10 @@ navbar:
           href: articles/conditional.html
         - text: "Causal Inference"
           href: articles/causal.html
+        - text: "Umbrella: Custom Models (All-in-One)"
+          href: articles/allin1/umbrella.html
+        - text: "Customization: Build NIMBLE Models from Scratch"
+          href: articles/allin1/customization.html
         - text: "Backends (CRP vs SB)"
           href: articles/backends.html
         - text: "S3 Methods Reference"
@@ -133,6 +137,8 @@ articles:
       - unconditional
       - conditional
       - causal
+      - allin1/umbrella
+      - allin1/customization
       - backends
       - reference-s3
   - title: "Kernels"

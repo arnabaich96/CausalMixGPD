@@ -45,6 +45,8 @@
     <li><a class="dropdown-item" href="../../articles/unconditional.html">Unconditional Models</a></li>
     <li><a class="dropdown-item" href="../../articles/conditional.html">Conditional Models</a></li>
     <li><a class="dropdown-item" href="../../articles/causal.html">Causal Inference</a></li>
+    <li><a class="dropdown-item" href="../../articles/allin1/umbrella.html">Umbrella: Custom Models (All-in-One)</a></li>
+    <li><a class="dropdown-item" href="../../articles/allin1/customization.html">Customization: Build NIMBLE Models from Scratch</a></li>
     <li><a class="dropdown-item" href="../../articles/backends.html">Backends (CRP vs SB)</a></li>
     <li><a class="dropdown-item" href="../../articles/reference-s3.html">S3 Methods Reference</a></li>
   </ul>
@@ -184,7 +186,7 @@ components</strong></p>
 <span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">p_raw</span><span class="op">)</span></span></code></pre></div>
-<p><img src="v06-unconditional-DPmix-CRP_files/figure-html/data-setup-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v06-unconditional-DPmix-CRP_files/figure-html/data-setup-1.png" width="768" style="display: block; margin: auto;"></p>
 <hr>
 </div>
 <div class="section level3">
@@ -310,12 +312,12 @@ $scale
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_crp</span>, params <span class="op">=</span> <span class="st">"location"</span>, family <span class="op">=</span> <span class="st">"traceplot"</span><span class="op">)</span></span></code></pre></div>
 <pre><code>
 === traceplot ===</code></pre>
-<p><img src="v06-unconditional-DPmix-CRP_files/figure-html/diag-trace-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v06-unconditional-DPmix-CRP_files/figure-html/diag-trace-1.png" width="768" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_crp</span>, params <span class="op">=</span> <span class="st">"scale"</span>, family <span class="op">=</span> <span class="st">"caterpillar"</span><span class="op">)</span></span></code></pre></div>
 <pre><code>
 === caterpillar ===</code></pre>
-<p><img src="v06-unconditional-DPmix-CRP_files/figure-html/diag-trace-2.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v06-unconditional-DPmix-CRP_files/figure-html/diag-trace-2.png" width="768" style="display: block; margin: auto;"></p>
 <hr>
 </div>
 <div class="section level3">
@@ -328,7 +330,7 @@ $scale
 <code class="sourceCode R"><span><span class="va">y_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">y_mixed</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1.2</span>, length.out <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
 <span><span class="va">pred_density</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_crp</span>, y <span class="op">=</span> <span class="va">y_grid</span>, type <span class="op">=</span> <span class="st">"density"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_density</span><span class="op">)</span></span></code></pre></div>
-<p><img src="v06-unconditional-DPmix-CRP_files/figure-html/pred-density-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v06-unconditional-DPmix-CRP_files/figure-html/pred-density-1.png" width="768" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level4">
 <h4 id="quantile-predictions">Quantile Predictions<a class="anchor" aria-label="anchor" href="#quantile-predictions"></a>
@@ -435,7 +437,7 @@ upper
 </table>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">quantiles_pred</span><span class="op">)</span></span></code></pre></div>
-<p><img src="v06-unconditional-DPmix-CRP_files/figure-html/pred-quantiles-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v06-unconditional-DPmix-CRP_files/figure-html/pred-quantiles-1.png" width="768" style="display: block; margin: auto;"></p>
 <hr>
 </div>
 </div>
@@ -719,7 +721,7 @@ median_upper
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fit.plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">Fit</span><span class="op">)</span></span>
 <span><span class="va">fit.plots</span><span class="op">$</span><span class="va">residual_plot</span></span></code></pre></div>
-<p><img src="v06-unconditional-DPmix-CRP_files/figure-html/residuals-analysis-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v06-unconditional-DPmix-CRP_files/figure-html/residuals-analysis-1.png" width="768" style="display: block; margin: auto;"></p>
 <hr>
 </div>
 <div class="section level3">
@@ -816,7 +818,7 @@ Summary table
 <span>    title <span class="op">=</span> <span class="st">"Observed vs Fitted"</span></span>
 <span>  <span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme</span><span class="op">(</span>plot.title <span class="op">=</span> <span class="fu">element_text</span><span class="op">(</span>hjust <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="v06-unconditional-DPmix-CRP_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="960" style="display: block; margin: auto;"></p>
+<p><img src="v06-unconditional-DPmix-CRP_files/figure-html/unnamed-chunk-6-1.png" width="960" style="display: block; margin: auto;"></p>
 </div>
 </div>
 <div class="section level3">
@@ -852,7 +854,7 @@ posterior predictive fit</li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>

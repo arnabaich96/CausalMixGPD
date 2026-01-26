@@ -45,6 +45,8 @@
     <li><a class="dropdown-item" href="../../articles/unconditional.html">Unconditional Models</a></li>
     <li><a class="dropdown-item" href="../../articles/conditional.html">Conditional Models</a></li>
     <li><a class="dropdown-item" href="../../articles/causal.html">Causal Inference</a></li>
+    <li><a class="dropdown-item" href="../../articles/allin1/umbrella.html">Umbrella: Custom Models (All-in-One)</a></li>
+    <li><a class="dropdown-item" href="../../articles/allin1/customization.html">Customization: Build NIMBLE Models from Scratch</a></li>
     <li><a class="dropdown-item" href="../../articles/backends.html">Backends (CRP vs SB)</a></li>
     <li><a class="dropdown-item" href="../../articles/reference-s3.html">S3 Methods Reference</a></li>
   </ul>
@@ -242,7 +244,7 @@ Max
 <span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">p_scatter</span></span></code></pre></div>
-<p><img src="v16-causal-same-backend-CRP_files/figure-html/data-scatter-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v16-causal-same-backend-CRP_files/figure-html/data-scatter-1.png" width="768" style="display: block; margin: auto;"></p>
 <hr>
 </div>
 <div class="section level3">
@@ -341,24 +343,24 @@ $scale
 === treated ===
 
 === traceplot ===</code></pre>
-<p><img src="v16-causal-same-backend-CRP_files/figure-html/plot-fit-crp-bulk-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v16-causal-same-backend-CRP_files/figure-html/plot-fit-crp-bulk-1.png" width="768" style="display: block; margin: auto;"></p>
 <pre><code>
 === control ===
 
 === traceplot ===</code></pre>
-<p><img src="v16-causal-same-backend-CRP_files/figure-html/plot-fit-crp-bulk-2.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v16-causal-same-backend-CRP_files/figure-html/plot-fit-crp-bulk-2.png" width="768" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_crp_bulk</span>, params <span class="op">=</span> <span class="st">"scale"</span>, family <span class="op">=</span> <span class="st">"caterpillar"</span><span class="op">)</span></span></code></pre></div>
 <pre><code>
 === treated ===
 
 === caterpillar ===</code></pre>
-<p><img src="v16-causal-same-backend-CRP_files/figure-html/plot-fit-crp-bulk-3.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v16-causal-same-backend-CRP_files/figure-html/plot-fit-crp-bulk-3.png" width="768" style="display: block; margin: auto;"></p>
 <pre><code>
 === control ===
 
 === caterpillar ===</code></pre>
-<p><img src="v16-causal-same-backend-CRP_files/figure-html/plot-fit-crp-bulk-4.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v16-causal-same-backend-CRP_files/figure-html/plot-fit-crp-bulk-4.png" width="768" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_mean_bulk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_crp_bulk</span>, x <span class="op">=</span> <span class="va">x_eval</span>, type <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>                          interval <span class="op">=</span> <span class="st">"hpd"</span>, nsim_mean <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
@@ -372,7 +374,7 @@ $scale
 [6,] NA   0.9312 -0.5459  3.226</code></pre>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_mean_bulk</span><span class="op">)</span></span></code></pre></div>
-<p><img src="v16-causal-same-backend-CRP_files/figure-html/predict-mean-crp-bulk-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"><img src="v16-causal-same-backend-CRP_files/figure-html/predict-mean-crp-bulk-2.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v16-causal-same-backend-CRP_files/figure-html/predict-mean-crp-bulk-1.png" width="768" style="display: block; margin: auto;"><img src="v16-causal-same-backend-CRP_files/figure-html/predict-mean-crp-bulk-2.png" width="768" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_q_bulk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_crp_bulk</span>, x <span class="op">=</span> <span class="va">x_eval</span>, type <span class="op">=</span> <span class="st">"quantile"</span>,</span>
 <span>                       p <span class="op">=</span> <span class="fl">0.5</span>, interval <span class="op">=</span> <span class="st">"hpd"</span><span class="op">)</span></span>
@@ -386,7 +388,7 @@ $scale
 [6,] NA    0.444 0.341  0.56</code></pre>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_q_bulk</span><span class="op">)</span></span></code></pre></div>
-<p><img src="v16-causal-same-backend-CRP_files/figure-html/predict-quantile-crp-bulk-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"><img src="v16-causal-same-backend-CRP_files/figure-html/predict-quantile-crp-bulk-2.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v16-causal-same-backend-CRP_files/figure-html/predict-quantile-crp-bulk-1.png" width="768" style="display: block; margin: auto;"><img src="v16-causal-same-backend-CRP_files/figure-html/predict-quantile-crp-bulk-2.png" width="768" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_d_bulk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_crp_bulk</span>, x <span class="op">=</span> <span class="va">x_eval</span>, y <span class="op">=</span> <span class="va">y_eval</span>,</span>
 <span>                       type <span class="op">=</span> <span class="st">"density"</span>, interval <span class="op">=</span> <span class="st">"hpd"</span><span class="op">)</span></span>
@@ -400,7 +402,7 @@ $scale
 6  0.939 NA            1    0.1488    0.2767            1    0.0572    0.1584</code></pre>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_d_bulk</span><span class="op">)</span></span></code></pre></div>
-<p><img src="v16-causal-same-backend-CRP_files/figure-html/predict-density-crp-bulk-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v16-causal-same-backend-CRP_files/figure-html/predict-density-crp-bulk-1.png" width="768" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_surv_bulk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_crp_bulk</span>, x <span class="op">=</span> <span class="va">x_eval</span>, y <span class="op">=</span> <span class="va">y_eval</span>,</span>
 <span>                          type <span class="op">=</span> <span class="st">"survival"</span>, interval <span class="op">=</span> <span class="st">"hpd"</span><span class="op">)</span></span>
@@ -414,7 +416,7 @@ $scale
 6  0.939 NA            1     0.350     0.454            1     0.219     0.394</code></pre>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_surv_bulk</span><span class="op">)</span></span></code></pre></div>
-<p><img src="v16-causal-same-backend-CRP_files/figure-html/predict-survival-crp-bulk-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v16-causal-same-backend-CRP_files/figure-html/predict-survival-crp-bulk-1.png" width="768" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ate_bulk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ate.html">ate</a></span><span class="op">(</span><span class="va">fit_crp_bulk</span>, newdata <span class="op">=</span> <span class="va">x_eval</span>,</span>
 <span>                interval <span class="op">=</span> <span class="st">"hpd"</span>, nsim_mean <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
@@ -460,7 +462,7 @@ Credible interval width:
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ate_plots_bulk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ate_bulk</span><span class="op">)</span></span>
 <span><span class="va">ate_plots_bulk</span><span class="op">$</span><span class="va">treatment_effect</span></span></code></pre></div>
-<p><img src="v16-causal-same-backend-CRP_files/figure-html/unnamed-chunk-1-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+<p><img src="v16-causal-same-backend-CRP_files/figure-html/unnamed-chunk-1-1.png" width="672" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">qte_bulk</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/qte.html">qte</a></span><span class="op">(</span><span class="va">fit_crp_bulk</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span><span class="op">)</span>,</span>
 <span>                newdata <span class="op">=</span> <span class="va">x_eval</span>, interval <span class="op">=</span> <span class="st">"hpd"</span><span class="op">)</span></span>
@@ -507,7 +509,7 @@ Credible interval width:
 <div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">qte_plots_bulk</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">qte_bulk</span><span class="op">)</span></span>
 <span><span class="va">qte_plots_bulk</span><span class="op">$</span><span class="va">treatment_effect</span></span></code></pre></div>
-<p><img src="v16-causal-same-backend-CRP_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+<p><img src="v16-causal-same-backend-CRP_files/figure-html/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;"></p>
 <hr>
 </div>
 <div class="section level3">
@@ -639,12 +641,12 @@ $tail_shape
 === treated ===
 
 === traceplot ===</code></pre>
-<p><img src="v16-causal-same-backend-CRP_files/figure-html/plot-fit-sb-gpd-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v16-causal-same-backend-CRP_files/figure-html/plot-fit-sb-gpd-1.png" width="768" style="display: block; margin: auto;"></p>
 <pre><code>
 === control ===
 
 === traceplot ===</code></pre>
-<p><img src="v16-causal-same-backend-CRP_files/figure-html/plot-fit-sb-gpd-2.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v16-causal-same-backend-CRP_files/figure-html/plot-fit-sb-gpd-2.png" width="768" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_mean_gpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_sb_gpd</span>, x <span class="op">=</span> <span class="va">x_eval</span>, type <span class="op">=</span> <span class="st">"mean"</span>,</span>
 <span>                         interval <span class="op">=</span> <span class="st">"credible"</span>, nsim_mean <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
@@ -658,7 +660,7 @@ $tail_shape
 [6,] NA    0.607  2.95 -0.416</code></pre>
 <div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_mean_gpd</span><span class="op">)</span></span></code></pre></div>
-<p><img src="v16-causal-same-backend-CRP_files/figure-html/predict-mean-sb-gpd-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"><img src="v16-causal-same-backend-CRP_files/figure-html/predict-mean-sb-gpd-2.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v16-causal-same-backend-CRP_files/figure-html/predict-mean-sb-gpd-1.png" width="768" style="display: block; margin: auto;"><img src="v16-causal-same-backend-CRP_files/figure-html/predict-mean-sb-gpd-2.png" width="768" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_q_gpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_sb_gpd</span>, x <span class="op">=</span> <span class="va">x_eval</span>, type <span class="op">=</span> <span class="st">"quantile"</span>,</span>
 <span>                      p <span class="op">=</span> <span class="fl">0.5</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
@@ -672,7 +674,7 @@ $tail_shape
 [6,] NA    0.425  3.21 -0.684</code></pre>
 <div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_q_gpd</span><span class="op">)</span></span></code></pre></div>
-<p><img src="v16-causal-same-backend-CRP_files/figure-html/predict-quantile-sb-gpd-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"><img src="v16-causal-same-backend-CRP_files/figure-html/predict-quantile-sb-gpd-2.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v16-causal-same-backend-CRP_files/figure-html/predict-quantile-sb-gpd-1.png" width="768" style="display: block; margin: auto;"><img src="v16-causal-same-backend-CRP_files/figure-html/predict-quantile-sb-gpd-2.png" width="768" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb57"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_d_gpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_sb_gpd</span>, x <span class="op">=</span> <span class="va">x_eval</span>, y <span class="op">=</span> <span class="va">y_eval</span>,</span>
 <span>                      type <span class="op">=</span> <span class="st">"density"</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
@@ -686,7 +688,7 @@ $tail_shape
 6  0.939 NA            1   0.10860     0.359            1   0.03993     0.368</code></pre>
 <div class="sourceCode" id="cb59"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_d_gpd</span><span class="op">)</span></span></code></pre></div>
-<p><img src="v16-causal-same-backend-CRP_files/figure-html/predict-density-sb-gpd-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v16-causal-same-backend-CRP_files/figure-html/predict-density-sb-gpd-1.png" width="768" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pred_surv_gpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit_sb_gpd</span>, x <span class="op">=</span> <span class="va">x_eval</span>, y <span class="op">=</span> <span class="va">y_eval</span>,</span>
 <span>                         type <span class="op">=</span> <span class="st">"survival"</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
@@ -700,7 +702,7 @@ $tail_shape
 6  0.939 NA            1     0.225     0.744            1    0.0377     0.709</code></pre>
 <div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">pred_surv_gpd</span><span class="op">)</span></span></code></pre></div>
-<p><img src="v16-causal-same-backend-CRP_files/figure-html/predict-survival-sb-gpd-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v16-causal-same-backend-CRP_files/figure-html/predict-survival-sb-gpd-1.png" width="768" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ate_gpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/ate.html">ate</a></span><span class="op">(</span><span class="va">fit_sb_gpd</span>, newdata <span class="op">=</span> <span class="va">x_eval</span>,</span>
 <span>               interval <span class="op">=</span> <span class="st">"credible"</span>, nsim_mean <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
@@ -746,7 +748,7 @@ Credible interval width:
 <div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ate_plots_gpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ate_gpd</span><span class="op">)</span></span>
 <span><span class="va">ate_plots_gpd</span><span class="op">$</span><span class="va">treatment_effect</span></span></code></pre></div>
-<p><img src="v16-causal-same-backend-CRP_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+<p><img src="v16-causal-same-backend-CRP_files/figure-html/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb68"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">qte_gpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="../../reference/qte.html">qte</a></span><span class="op">(</span><span class="va">fit_sb_gpd</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span><span class="op">)</span>,</span>
 <span>               newdata <span class="op">=</span> <span class="va">x_eval</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
@@ -793,7 +795,7 @@ Credible interval width:
 <div class="sourceCode" id="cb72"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">qte_plots_gpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">qte_gpd</span><span class="op">)</span></span>
 <span><span class="va">qte_plots_gpd</span><span class="op">$</span><span class="va">treatment_effect</span></span></code></pre></div>
-<p><img src="v16-causal-same-backend-CRP_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+<p><img src="v16-causal-same-backend-CRP_files/figure-html/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;"></p>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -807,7 +809,7 @@ Credible interval width:
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>

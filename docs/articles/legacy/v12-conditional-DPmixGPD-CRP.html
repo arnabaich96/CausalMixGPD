@@ -45,6 +45,8 @@
     <li><a class="dropdown-item" href="../../articles/unconditional.html">Unconditional Models</a></li>
     <li><a class="dropdown-item" href="../../articles/conditional.html">Conditional Models</a></li>
     <li><a class="dropdown-item" href="../../articles/causal.html">Causal Inference</a></li>
+    <li><a class="dropdown-item" href="../../articles/allin1/umbrella.html">Umbrella: Custom Models (All-in-One)</a></li>
+    <li><a class="dropdown-item" href="../../articles/allin1/customization.html">Customization: Build NIMBLE Models from Scratch</a></li>
     <li><a class="dropdown-item" href="../../articles/backends.html">Backends (CRP vs SB)</a></li>
     <li><a class="dropdown-item" href="../../articles/reference-s3.html">S3 Methods Reference</a></li>
   </ul>
@@ -173,7 +175,7 @@ behavior. This extends the unconditional GPD (v06) and conditional DP
 <span>  <span class="fu">geom_smooth</span><span class="op">(</span>method <span class="op">=</span> <span class="st">"loess"</span>, color <span class="op">=</span> <span class="st">"steelblue"</span>, fill <span class="op">=</span> <span class="cn">NA</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">labs</span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Outcome vs X1 (Tail dataset)"</span>, x <span class="op">=</span> <span class="st">"X1"</span>, y <span class="op">=</span> <span class="st">"y"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="v12-conditional-DPmixGPD-CRP_files/figure-html/data-setup-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v12-conditional-DPmixGPD-CRP_files/figure-html/data-setup-1.png" width="768" style="display: block; margin: auto;"></p>
 <table class="table table table-striped table-hover" style="width: auto !important; margin-left: auto; margin-right: auto;">
 <caption>
 Conditional Tail Dataset Summary
@@ -242,7 +244,7 @@ Max
 <span>  <span class="fu">geom_vline</span><span class="op">(</span>xintercept <span class="op">=</span> <span class="va">u_threshold</span>, linetype <span class="op">=</span> <span class="st">"dashed"</span>, color <span class="op">=</span> <span class="st">"black"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">labs</span><span class="op">(</span>title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Threshold at"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">signif</a></span><span class="op">(</span><span class="va">u_threshold</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span>, x <span class="op">=</span> <span class="st">"y"</span>, y <span class="op">=</span> <span class="st">"Density"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="v12-conditional-DPmixGPD-CRP_files/figure-html/threshold-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v12-conditional-DPmixGPD-CRP_files/figure-html/threshold-1.png" width="768" style="display: block; margin: auto;"></p>
 <hr>
 </div>
 <div class="section level3">
@@ -408,7 +410,7 @@ $tail_shape
 <span>  <span class="fu">labs</span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Conditional Density with GPD Tail"</span>, x <span class="op">=</span> <span class="st">"y"</span>, y <span class="op">=</span> <span class="st">"Density"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme</span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="v12-conditional-DPmixGPD-CRP_files/figure-html/density-predict-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v12-conditional-DPmixGPD-CRP_files/figure-html/density-predict-1.png" width="768" style="display: block; margin: auto;"></p>
 <hr>
 </div>
 <div class="section level3">
@@ -437,7 +439,7 @@ $tail_shape
 <span>  <span class="fu">facet_wrap</span><span class="op">(</span><span class="op">~</span> <span class="va">model</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">labs</span><span class="op">(</span>title <span class="op">=</span> <span class="st">"Tail Quantiles vs x1 (CRP)"</span>, x <span class="op">=</span> <span class="st">"x1"</span>, y <span class="op">=</span> <span class="st">"Quantile"</span>, color <span class="op">=</span> <span class="st">"Probability"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="v12-conditional-DPmixGPD-CRP_files/figure-html/quantiles-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v12-conditional-DPmixGPD-CRP_files/figure-html/quantiles-1.png" width="768" style="display: block; margin: auto;"></p>
 <hr>
 </div>
 <div class="section level3">
@@ -445,17 +447,17 @@ $tail_shape
 </h3>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted</a></span><span class="op">(</span><span class="va">fit_cond_gpd_lognormal</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="v12-conditional-DPmixGPD-CRP_files/figure-html/residuals-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"><img src="v12-conditional-DPmixGPD-CRP_files/figure-html/residuals-2.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v12-conditional-DPmixGPD-CRP_files/figure-html/residuals-1.png" width="768" style="display: block; margin: auto;"><img src="v12-conditional-DPmixGPD-CRP_files/figure-html/residuals-2.png" width="768" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_cond_gpd_lognormal</span>, family <span class="op">=</span> <span class="st">"traceplot"</span><span class="op">)</span></span></code></pre></div>
 <pre><code>
 === traceplot ===</code></pre>
-<p><img src="v12-conditional-DPmixGPD-CRP_files/figure-html/diagnostics-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v12-conditional-DPmixGPD-CRP_files/figure-html/diagnostics-1.png" width="768" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit_cond_gpd_normal</span>, family <span class="op">=</span> <span class="st">"caterpillar"</span><span class="op">)</span></span></code></pre></div>
 <pre><code>
 === caterpillar ===</code></pre>
-<p><img src="v12-conditional-DPmixGPD-CRP_files/figure-html/diagnostics-2.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<p><img src="v12-conditional-DPmixGPD-CRP_files/figure-html/diagnostics-2.png" width="768" style="display: block; margin: auto;"></p>
 <hr>
 </div>
 <div class="section level3">
@@ -486,7 +488,7 @@ check fit quality.</li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>
