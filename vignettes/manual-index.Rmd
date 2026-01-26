@@ -37,6 +37,9 @@ Detailed documentation organized by topic:
 
 - [**Causal Inference**](causal.html) - Treatment effect estimation with propensity score adjustment
 
+- [**Umbrella: Custom Models (All-in-One)**](allin1/umbrella.html) - Consolidated custom model recipes for CRP/SB, GPD, and causal workflows
+- **Customization: Build NIMBLE Models from Scratch** - Manual SB/CRP workflows using exported nimbleFunctions with full NIMBLE pipelines
+
 ### Advanced Topics
 
 - [**Backends (CRP vs SB)**](backends.html) - Comparing Chinese Restaurant Process and Stick-Breaking inference approaches
