@@ -31,9 +31,9 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="active nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-manual" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Manual</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-manual">
-<li><a class="dropdown-item" href="../articles/manual-index.html">Manual Overview</a></li>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
+<li><a class="dropdown-item" href="../articles/manual-index.html">Vignettes Overview</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Get Started</h6></li>
     <li><a class="dropdown-item" href="../articles/introduction.html">Introduction</a></li>
@@ -45,10 +45,15 @@
     <li><a class="dropdown-item" href="../articles/unconditional.html">Unconditional Models</a></li>
     <li><a class="dropdown-item" href="../articles/conditional.html">Conditional Models</a></li>
     <li><a class="dropdown-item" href="../articles/causal.html">Causal Inference</a></li>
-    <li><a class="dropdown-item" href="../articles/allin1/umbrella.html">Umbrella: Custom Models (All-in-One)</a></li>
-    <li><a class="dropdown-item" href="../articles/allin1/customization.html">Customization: Build NIMBLE Models from Scratch</a></li>
     <li><a class="dropdown-item" href="../articles/backends.html">Backends (CRP vs SB)</a></li>
     <li><a class="dropdown-item" href="../articles/reference-s3.html">S3 Methods Reference</a></li>
+  </ul>
+</li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-all-in-one" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">All-in-One</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-all-in-one">
+<li><a class="dropdown-item" href="../articles/Customization/umbrella.html">Umbrella: Custom Models (All-in-One)</a></li>
+    <li><a class="dropdown-item" href="../articles/Customization/customization.html">Customization: Build NIMBLE Models from Scratch</a></li>
   </ul>
 </li>
 <li class="nav-item dropdown">
@@ -68,7 +73,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-cookbook" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Cookbook</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-cookbook">
-<li><a class="dropdown-item" href="../articles/cookbook-index.html">Cookbook Overview</a></li>
+<li><a class="dropdown-item" href="../articles/workflows-index.html">Cookbook Overview</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Getting Started</h6></li>
     <li><a class="dropdown-item" href="../articles/cookbook/v00-start-here.html">Start Here</a></li>
@@ -167,76 +172,191 @@ reliable.</p>
 <div class="section level2">
 <h2 id="model-summary">Model Summary<a class="anchor" aria-label="anchor" href="#model-summary"></a>
 </h2>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: TRUE</span></span>
-<span><span class="co">#&gt; n = 272 | components = 6 | epsilon = 0.025</span></span>
-<span><span class="co">#&gt; MCMC: niter=400, nburnin=100, thin=2, nchains=1 </span></span>
-<span><span class="co">#&gt; Fit</span></span>
-<span><span class="co">#&gt; Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; MixGPD summary | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: TRUE | epsilon: 0.025</span></span>
-<span><span class="co">#&gt; n = 272 | components = 6</span></span>
-<span><span class="co">#&gt; Summary</span></span>
-<span><span class="co">#&gt; Initial components: 6 | Components after truncation: 3</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; WAIC: 733.039</span></span>
-<span><span class="co">#&gt; lppd: -359.414 | pWAIC: 7.106</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Summary table</span></span>
-<span><span class="co">#&gt;   parameter   mean    sd q0.025 q0.500 q0.975    ess</span></span>
-<span><span class="co">#&gt;  weights[1]  0.433 0.081  0.323  0.417  0.597  3.046</span></span>
-<span><span class="co">#&gt;  weights[2]  0.276 0.056  0.162  0.285  0.371  7.301</span></span>
-<span><span class="co">#&gt;  weights[3]  0.192 0.051  0.107  0.197  0.282  4.688</span></span>
-<span><span class="co">#&gt;       alpha  1.281 0.659   0.38  1.273   2.92 16.212</span></span>
-<span><span class="co">#&gt;  tail_scale   2.57 0.086  2.423  2.561  2.689  5.752</span></span>
-<span><span class="co">#&gt;  tail_shape -0.729 0.038 -0.769 -0.749 -0.618   2.31</span></span>
-<span><span class="co">#&gt;   threshold  1.687 0.027  1.664  1.664  1.728  2.389</span></span>
-<span><span class="co">#&gt;     mean[1]  7.592 3.263  3.042  7.262 14.606 23.106</span></span>
-<span><span class="co">#&gt;     mean[2]  7.402 2.658  3.605  7.203 12.746 63.863</span></span>
-<span><span class="co">#&gt;     mean[3]   6.89 2.362  3.702  6.396 12.253 25.889</span></span>
-<span><span class="co">#&gt;       sd[1]  1.782 1.234  0.134  1.418  4.977  5.532</span></span>
-<span><span class="co">#&gt;       sd[2]  1.378 0.783  0.353   1.17  3.432 28.357</span></span>
-<span><span class="co">#&gt;       sd[3]  1.379 0.842  0.199  1.251  3.217 26.071</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">print</span>(fit)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>MixGPD fit <span class="sc">|</span> backend<span class="sc">:</span> Stick<span class="sc">-</span>Breaking Process <span class="sc">|</span> kernel<span class="sc">:</span> Normal Distribution <span class="sc">|</span> GPD tail<span class="sc">:</span> <span class="cn">TRUE</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>n <span class="ot">=</span> <span class="dv">272</span> <span class="sc">|</span> components <span class="ot">=</span> <span class="dv">6</span> <span class="sc">|</span> epsilon <span class="ot">=</span> <span class="fl">0.025</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>MCMC<span class="sc">:</span> niter<span class="ot">=</span><span class="dv">400</span>, nburnin<span class="ot">=</span><span class="dv">100</span>, thin<span class="ot">=</span><span class="dv">2</span>, nchains<span class="ot">=</span><span class="dv">1</span> </span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>Fit</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>Use <span class="fu">summary</span>() <span class="cf">for</span> posterior summaries; <span class="fu">plot</span>() <span class="cf">for</span> diagnostics; <span class="fu">predict</span>() <span class="cf">for</span> predictions.</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="fu">summary</span>(fit)</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>MixGPD summary <span class="sc">|</span> backend<span class="sc">:</span> Stick<span class="sc">-</span>Breaking Process <span class="sc">|</span> kernel<span class="sc">:</span> Normal Distribution <span class="sc">|</span> GPD tail<span class="sc">:</span> <span class="cn">TRUE</span> <span class="sc">|</span> epsilon<span class="sc">:</span> <span class="fl">0.025</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>n <span class="ot">=</span> <span class="dv">272</span> <span class="sc">|</span> components <span class="ot">=</span> <span class="dv">6</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>Summary</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>Initial components<span class="sc">:</span> <span class="dv">6</span> <span class="sc">|</span> Components after truncation<span class="sc">:</span> <span class="dv">3</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a>WAIC<span class="sc">:</span> <span class="fl">733.039</span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>lppd<span class="sc">:</span> <span class="sc">-</span><span class="fl">359.414</span> <span class="sc">|</span> pWAIC<span class="sc">:</span> <span class="fl">7.106</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a></span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>Summary table</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="sc">&lt;</span>table class<span class="ot">=</span><span class="st">"table"</span> style<span class="ot">=</span><span class="st">"width: auto !important; margin-left: auto; margin-right: auto;"</span><span class="sc">&gt;</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a> <span class="er">&lt;</span>thead<span class="sc">&gt;</span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> parameter <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> mean <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> sd <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> q0<span class="fl">.025</span> <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> q0<span class="fl">.500</span> <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> q0<span class="fl">.975</span> <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> ess <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a> <span class="er">&lt;/</span>thead<span class="sc">&gt;</span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a><span class="er">&lt;</span>tbody<span class="sc">&gt;</span></span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> weights[<span class="dv">1</span>] <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.433</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.081</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.323</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.417</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.597</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">3.046</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> weights[<span class="dv">2</span>] <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.276</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-42"><a href="#cb2-42" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.056</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-43"><a href="#cb2-43" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.162</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-44"><a href="#cb2-44" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.285</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-45"><a href="#cb2-45" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.371</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-46"><a href="#cb2-46" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">7.301</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-47"><a href="#cb2-47" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-48"><a href="#cb2-48" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-49"><a href="#cb2-49" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> weights[<span class="dv">3</span>] <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-50"><a href="#cb2-50" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.192</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-51"><a href="#cb2-51" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.051</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-52"><a href="#cb2-52" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.107</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-53"><a href="#cb2-53" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.197</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-54"><a href="#cb2-54" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.282</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-55"><a href="#cb2-55" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">4.688</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-56"><a href="#cb2-56" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-57"><a href="#cb2-57" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-58"><a href="#cb2-58" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> alpha <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-59"><a href="#cb2-59" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">1.281</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-60"><a href="#cb2-60" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.659</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-61"><a href="#cb2-61" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.38</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-62"><a href="#cb2-62" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">1.273</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-63"><a href="#cb2-63" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">2.92</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-64"><a href="#cb2-64" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">16.212</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-65"><a href="#cb2-65" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-66"><a href="#cb2-66" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-67"><a href="#cb2-67" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> tail_scale <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-68"><a href="#cb2-68" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">2.57</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-69"><a href="#cb2-69" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.086</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-70"><a href="#cb2-70" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">2.423</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-71"><a href="#cb2-71" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">2.561</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-72"><a href="#cb2-72" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">2.689</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-73"><a href="#cb2-73" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">5.752</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-74"><a href="#cb2-74" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-75"><a href="#cb2-75" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-76"><a href="#cb2-76" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> tail_shape <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-77"><a href="#cb2-77" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">0.729</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-78"><a href="#cb2-78" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.038</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-79"><a href="#cb2-79" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">0.769</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-80"><a href="#cb2-80" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">0.749</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-81"><a href="#cb2-81" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">0.618</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-82"><a href="#cb2-82" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">2.31</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-83"><a href="#cb2-83" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-84"><a href="#cb2-84" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-85"><a href="#cb2-85" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> threshold <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-86"><a href="#cb2-86" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">1.687</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-87"><a href="#cb2-87" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.027</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-88"><a href="#cb2-88" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">1.664</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-89"><a href="#cb2-89" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">1.664</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-90"><a href="#cb2-90" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">1.728</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-91"><a href="#cb2-91" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">2.389</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-92"><a href="#cb2-92" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-93"><a href="#cb2-93" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-94"><a href="#cb2-94" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> mean[<span class="dv">1</span>] <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-95"><a href="#cb2-95" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">7.592</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-96"><a href="#cb2-96" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">3.263</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-97"><a href="#cb2-97" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">3.042</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-98"><a href="#cb2-98" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">7.262</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-99"><a href="#cb2-99" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">14.606</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-100"><a href="#cb2-100" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">23.106</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-101"><a href="#cb2-101" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-102"><a href="#cb2-102" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-103"><a href="#cb2-103" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> mean[<span class="dv">2</span>] <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-104"><a href="#cb2-104" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">7.402</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-105"><a href="#cb2-105" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">2.658</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-106"><a href="#cb2-106" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">3.605</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-107"><a href="#cb2-107" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">7.203</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-108"><a href="#cb2-108" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">12.746</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-109"><a href="#cb2-109" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">63.863</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-110"><a href="#cb2-110" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-111"><a href="#cb2-111" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-112"><a href="#cb2-112" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> mean[<span class="dv">3</span>] <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-113"><a href="#cb2-113" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">6.89</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-114"><a href="#cb2-114" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">2.362</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-115"><a href="#cb2-115" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">3.702</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-116"><a href="#cb2-116" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">6.396</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-117"><a href="#cb2-117" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">12.253</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-118"><a href="#cb2-118" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">25.889</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-119"><a href="#cb2-119" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-120"><a href="#cb2-120" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-121"><a href="#cb2-121" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> sd[<span class="dv">1</span>] <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-122"><a href="#cb2-122" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">1.782</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-123"><a href="#cb2-123" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">1.234</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-124"><a href="#cb2-124" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.134</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-125"><a href="#cb2-125" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">1.418</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-126"><a href="#cb2-126" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">4.977</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-127"><a href="#cb2-127" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">5.532</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-128"><a href="#cb2-128" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-129"><a href="#cb2-129" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-130"><a href="#cb2-130" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> sd[<span class="dv">2</span>] <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-131"><a href="#cb2-131" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">1.378</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-132"><a href="#cb2-132" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.783</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-133"><a href="#cb2-133" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.353</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-134"><a href="#cb2-134" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">1.17</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-135"><a href="#cb2-135" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">3.432</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-136"><a href="#cb2-136" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">28.357</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-137"><a href="#cb2-137" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-138"><a href="#cb2-138" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-139"><a href="#cb2-139" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> sd[<span class="dv">3</span>] <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-140"><a href="#cb2-140" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">1.379</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-141"><a href="#cb2-141" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.842</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-142"><a href="#cb2-142" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.199</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-143"><a href="#cb2-143" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">1.251</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-144"><a href="#cb2-144" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">3.217</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-145"><a href="#cb2-145" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">26.071</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-146"><a href="#cb2-146" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-147"><a href="#cb2-147" tabindex="-1"></a><span class="er">&lt;/</span>tbody<span class="sc">&gt;</span></span>
+<span id="cb2-148"><a href="#cb2-148" tabindex="-1"></a><span class="er">&lt;/</span>table<span class="sc">&gt;</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="diagnostic-plots">Diagnostic Plots<a class="anchor" aria-label="anchor" href="#diagnostic-plots"></a>
 </h2>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"ggmcmc"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"coda"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">smp</span> <span class="op">&lt;-</span> <span class="va">fit</span><span class="op">$</span><span class="va">mcmc</span><span class="op">$</span><span class="va">samples</span></span>
-<span>  <span class="va">params</span> <span class="op">&lt;-</span> <span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">smp</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">cn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">smp</span><span class="op">)</span><span class="op">)</span></span>
-<span>    <span class="va">cn</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">cn</span><span class="op">)</span><span class="op">)</span><span class="op">]</span></span>
-<span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>    <span class="cn">NULL</span></span>
-<span>  <span class="op">}</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span>, family <span class="op">=</span> <span class="st">"geweke"</span>, params <span class="op">=</span> <span class="va">params</span><span class="op">)</span></span>
-<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Plotting requires 'ggmcmc' and 'coda' packages."</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; === geweke ===</span></span></code></pre></div>
-<p><img src="mcmc-workflow_files/figure-html/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">requireNamespace</span>(<span class="st">"ggmcmc"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>) <span class="sc">&amp;&amp;</span> <span class="fu">requireNamespace</span>(<span class="st">"coda"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  smp <span class="ot">&lt;-</span> fit<span class="sc">$</span>mcmc<span class="sc">$</span>samples</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>  params <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(smp)) {</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>    cn <span class="ot">&lt;-</span> <span class="fu">colnames</span>(<span class="fu">as.matrix</span>(smp))</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>    cn[<span class="dv">1</span><span class="sc">:</span><span class="fu">min</span>(<span class="dv">6</span>, <span class="fu">length</span>(cn))]</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>    <span class="cn">NULL</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  }</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>  <span class="fu">plot</span>(fit, <span class="at">family =</span> <span class="st">"geweke"</span>, <span class="at">params =</span> params)</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>  <span class="fu">message</span>(<span class="st">"Plotting requires 'ggmcmc' and 'coda' packages."</span>)</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>}</span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="sc">==</span><span class="er">=</span> geweke <span class="sc">==</span><span class="er">=</span></span></code></pre></div>
+<p><img src="mcmc-workflow_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
 <h2 id="posterior-sample-extraction">Posterior Sample Extraction<a class="anchor" aria-label="anchor" href="#posterior-sample-extraction"></a>
 </h2>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NULL.html" class="external-link">is.null</a></span><span class="op">(</span><span class="va">fit</span><span class="op">$</span><span class="va">mcmc</span><span class="op">$</span><span class="va">samples</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="va">s</span> <span class="op">&lt;-</span> <span class="va">fit</span><span class="op">$</span><span class="va">mcmc</span><span class="op">$</span><span class="va">samples</span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"coda"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>    <span class="va">mat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">s</span><span class="op">)</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/dim.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">ncol</a></span><span class="op">(</span><span class="va">mat</span><span class="op">)</span><span class="op">)</span><span class="op">]</span></span>
-<span>  <span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>    <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Sample extraction requires 'coda' package."</span><span class="op">)</span></span>
-<span>  <span class="op">}</span></span>
-<span><span class="op">}</span></span>
-<span><span class="co">#&gt;  [1] "alpha"      "mean[1]"    "mean[2]"    "mean[3]"    "mean[4]"   </span></span>
-<span><span class="co">#&gt;  [6] "mean[5]"    "mean[6]"    "sd[1]"      "sd[2]"      "sd[3]"     </span></span>
-<span><span class="co">#&gt; [11] "sd[4]"      "sd[5]"      "sd[6]"      "tail_scale" "tail_shape"</span></span>
-<span><span class="co">#&gt; [16] "threshold"  "w[1]"       "w[2]"       "w[3]"       "w[4]"</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(fit<span class="sc">$</span>mcmc<span class="sc">$</span>samples)) {</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  s <span class="ot">&lt;-</span> fit<span class="sc">$</span>mcmc<span class="sc">$</span>samples</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">requireNamespace</span>(<span class="st">"coda"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>    mat <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(s)</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>    <span class="fu">dim</span>(mat)</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>    <span class="fu">colnames</span>(mat)[<span class="dv">1</span><span class="sc">:</span><span class="fu">min</span>(<span class="dv">20</span>, <span class="fu">ncol</span>(mat))]</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>    <span class="fu">message</span>(<span class="st">"Sample extraction requires 'coda' package."</span>)</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>  }</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>}</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a> [<span class="dv">1</span>] <span class="st">"alpha"</span>      <span class="st">"mean[1]"</span>    <span class="st">"mean[2]"</span>    <span class="st">"mean[3]"</span>    <span class="st">"mean[4]"</span>   </span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a> [<span class="dv">6</span>] <span class="st">"mean[5]"</span>    <span class="st">"mean[6]"</span>    <span class="st">"sd[1]"</span>      <span class="st">"sd[2]"</span>      <span class="st">"sd[3]"</span>     </span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>[<span class="dv">11</span>] <span class="st">"sd[4]"</span>      <span class="st">"sd[5]"</span>      <span class="st">"sd[6]"</span>      <span class="st">"tail_scale"</span> <span class="st">"tail_shape"</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>[<span class="dv">16</span>] <span class="st">"threshold"</span>  <span class="st">"w[1]"</span>       <span class="st">"w[2]"</span>       <span class="st">"w[3]"</span>       <span class="st">"w[4]"</span>      </span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="re-running-with-different-settings">Re-running with Different Settings<a class="anchor" aria-label="anchor" href="#re-running-with-different-settings"></a>
@@ -257,7 +377,7 @@ reliable.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

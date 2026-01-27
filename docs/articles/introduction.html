@@ -31,9 +31,9 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="active nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-manual" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Manual</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-manual">
-<li><a class="dropdown-item" href="../articles/manual-index.html">Manual Overview</a></li>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
+<li><a class="dropdown-item" href="../articles/manual-index.html">Vignettes Overview</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Get Started</h6></li>
     <li><a class="dropdown-item" href="../articles/introduction.html">Introduction</a></li>
@@ -45,10 +45,15 @@
     <li><a class="dropdown-item" href="../articles/unconditional.html">Unconditional Models</a></li>
     <li><a class="dropdown-item" href="../articles/conditional.html">Conditional Models</a></li>
     <li><a class="dropdown-item" href="../articles/causal.html">Causal Inference</a></li>
-    <li><a class="dropdown-item" href="../articles/allin1/umbrella.html">Umbrella: Custom Models (All-in-One)</a></li>
-    <li><a class="dropdown-item" href="../articles/allin1/customization.html">Customization: Build NIMBLE Models from Scratch</a></li>
     <li><a class="dropdown-item" href="../articles/backends.html">Backends (CRP vs SB)</a></li>
     <li><a class="dropdown-item" href="../articles/reference-s3.html">S3 Methods Reference</a></li>
+  </ul>
+</li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-all-in-one" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">All-in-One</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-all-in-one">
+<li><a class="dropdown-item" href="../articles/Customization/umbrella.html">Umbrella: Custom Models (All-in-One)</a></li>
+    <li><a class="dropdown-item" href="../articles/Customization/customization.html">Customization: Build NIMBLE Models from Scratch</a></li>
   </ul>
 </li>
 <li class="nav-item dropdown">
@@ -68,7 +73,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-cookbook" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Cookbook</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-cookbook">
-<li><a class="dropdown-item" href="../articles/cookbook-index.html">Cookbook Overview</a></li>
+<li><a class="dropdown-item" href="../articles/workflows-index.html">Cookbook Overview</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Getting Started</h6></li>
     <li><a class="dropdown-item" href="../articles/cookbook/v00-start-here.html">Start Here</a></li>
@@ -195,70 +200,67 @@ family</li>
 <div class="section level2">
 <h2 id="fitted-values-and-residuals">Fitted Values and Residuals<a class="anchor" aria-label="anchor" href="#fitted-values-and-residuals"></a>
 </h2>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"mean"</span>, level <span class="op">=</span> <span class="fl">0.90</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   fit lower upper residuals</span></span>
-<span><span class="co">#&gt; 1 3.2  3.06  3.36     0.400</span></span>
-<span><span class="co">#&gt; 2 3.2  3.06  3.36    -1.400</span></span>
-<span><span class="co">#&gt; 3 3.2  3.06  3.36     0.133</span></span>
-<span><span class="co">#&gt; 4 3.2  3.06  3.36    -0.917</span></span>
-<span><span class="co">#&gt; 5 3.2  3.06  3.36     1.333</span></span>
-<span><span class="co">#&gt; 6 3.2  3.06  3.36    -0.317</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">f</span><span class="op">$</span><span class="va">residuals</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
-<span><span class="co">#&gt;  -1.600  -1.038   0.800   0.287   1.254   1.900</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="fu">fitted</span>(fit, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">level =</span> <span class="fl">0.90</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">head</span>(f)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  fit lower upper residuals</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="dv">1</span> <span class="fl">3.2</span>  <span class="fl">3.06</span>  <span class="fl">3.36</span>     <span class="fl">0.400</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="dv">2</span> <span class="fl">3.2</span>  <span class="fl">3.06</span>  <span class="fl">3.36</span>    <span class="sc">-</span><span class="fl">1.400</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="dv">3</span> <span class="fl">3.2</span>  <span class="fl">3.06</span>  <span class="fl">3.36</span>     <span class="fl">0.133</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="dv">4</span> <span class="fl">3.2</span>  <span class="fl">3.06</span>  <span class="fl">3.36</span>    <span class="sc">-</span><span class="fl">0.917</span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="dv">5</span> <span class="fl">3.2</span>  <span class="fl">3.06</span>  <span class="fl">3.36</span>     <span class="fl">1.333</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="dv">6</span> <span class="fl">3.2</span>  <span class="fl">3.06</span>  <span class="fl">3.36</span>    <span class="sc">-</span><span class="fl">0.317</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="fu">summary</span>(f<span class="sc">$</span>residuals)</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>   Min. <span class="dv">1</span>st Qu.  Median    Mean <span class="dv">3</span>rd Qu.    Max. </span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a> <span class="sc">-</span><span class="fl">1.600</span>  <span class="sc">-</span><span class="fl">1.038</span>   <span class="fl">0.800</span>   <span class="fl">0.287</span>   <span class="fl">1.254</span>   <span class="fl">1.900</span> </span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="predictions">Predictions<a class="anchor" aria-label="anchor" href="#predictions"></a>
 </h2>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pred_mean</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"mean"</span>, cred.level <span class="op">=</span> <span class="fl">0.90</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
-<span><span class="va">pred_q90</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, index <span class="op">=</span> <span class="fl">0.90</span>, cred.level <span class="op">=</span> <span class="fl">0.90</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">pred_mean</span><span class="op">$</span><span class="va">fit</span></span>
-<span><span class="co">#&gt;   estimate lower upper</span></span>
-<span><span class="co">#&gt; 1     3.19  3.05  3.32</span></span>
-<span><span class="va">pred_q90</span><span class="op">$</span><span class="va">fit</span></span>
-<span><span class="co">#&gt;   estimate index lower upper</span></span>
-<span><span class="co">#&gt; 1     4.55   0.9  4.45  4.67</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>pred_mean <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">cred.level =</span> <span class="fl">0.90</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>pred_q90  <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> <span class="fl">0.90</span>, <span class="at">cred.level =</span> <span class="fl">0.90</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>pred_mean<span class="sc">$</span>fit</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  estimate lower upper</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="dv">1</span>     <span class="fl">3.19</span>  <span class="fl">3.05</span>  <span class="fl">3.32</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>pred_q90<span class="sc">$</span>fit</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  estimate index lower upper</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="dv">1</span>     <span class="fl">4.55</span>   <span class="fl">0.9</span>  <span class="fl">4.45</span>  <span class="fl">4.67</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="diagnostic-plots">Diagnostic Plots<a class="anchor" aria-label="anchor" href="#diagnostic-plots"></a>
 </h2>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"ggmcmc"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"coda"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Plotting requires 'ggmcmc' and 'coda' packages."</span><span class="op">)</span></span>
-<span><span class="op">}</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; === histogram ===</span></span></code></pre></div>
-<p><img src="introduction_files/figure-html/plot-fit-1.png" width="672" style="display: block; margin: auto;"></p>
-<pre><code><span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; === density ===</span></span></code></pre>
-<p><img src="introduction_files/figure-html/plot-fit-2.png" width="672" style="display: block; margin: auto;"></p>
-<pre><code><span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; === traceplot ===</span></span></code></pre>
-<p><img src="introduction_files/figure-html/plot-fit-3.png" width="672" style="display: block; margin: auto;"></p>
-<pre><code><span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; === running ===</span></span></code></pre>
-<p><img src="introduction_files/figure-html/plot-fit-4.png" width="672" style="display: block; margin: auto;"></p>
-<pre><code><span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; === compare_partial ===</span></span></code></pre>
-<p><img src="introduction_files/figure-html/plot-fit-5.png" width="672" style="display: block; margin: auto;"></p>
-<pre><code><span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; === autocorrelation ===</span></span></code></pre>
-<p><img src="introduction_files/figure-html/plot-fit-6.png" width="672" style="display: block; margin: auto;"></p>
-<pre><code><span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; === geweke ===</span></span></code></pre>
-<p><img src="introduction_files/figure-html/plot-fit-7.png" width="672" style="display: block; margin: auto;"></p>
-<pre><code><span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; === caterpillar ===</span></span></code></pre>
-<p><img src="introduction_files/figure-html/plot-fit-8.png" width="672" style="display: block; margin: auto;"></p>
-<pre><code><span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; === pairs ===</span></span></code></pre>
-<p><img src="introduction_files/figure-html/plot-fit-9.png" width="672" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">requireNamespace</span>(<span class="st">"ggmcmc"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>) <span class="sc">&amp;&amp;</span> <span class="fu">requireNamespace</span>(<span class="st">"coda"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="fu">plot</span>(fit)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="fu">message</span>(<span class="st">"Plotting requires 'ggmcmc' and 'coda' packages."</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>}</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="sc">==</span><span class="er">=</span> histogram <span class="sc">==</span><span class="er">=</span></span></code></pre></div>
+<p><img src="introduction_files/figure-html/plot-fit-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+<pre><code>
+=== density ===</code></pre>
+<p><img src="introduction_files/figure-html/plot-fit-2.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+<pre><code>
+=== traceplot ===</code></pre>
+<p><img src="introduction_files/figure-html/plot-fit-3.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+<pre><code>
+=== running ===</code></pre>
+<p><img src="introduction_files/figure-html/plot-fit-4.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+<pre><code>
+=== compare_partial ===</code></pre>
+<p><img src="introduction_files/figure-html/plot-fit-5.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+<pre><code>
+=== autocorrelation ===</code></pre>
+<p><img src="introduction_files/figure-html/plot-fit-6.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+<pre><code>
+=== geweke ===</code></pre>
+<p><img src="introduction_files/figure-html/plot-fit-7.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+<pre><code>
+=== caterpillar ===</code></pre>
+<p><img src="introduction_files/figure-html/plot-fit-8.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
+<pre><code>
+=== pairs ===</code></pre>
+<p><img src="introduction_files/figure-html/plot-fit-9.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
 </div>
 <div class="section level2">
 <h2 id="troubleshooting">Troubleshooting<a class="anchor" aria-label="anchor" href="#troubleshooting"></a>
@@ -298,7 +300,7 @@ diagnostics</li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

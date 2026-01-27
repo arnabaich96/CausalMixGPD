@@ -31,9 +31,9 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="active nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-manual" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Manual</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-manual">
-<li><a class="dropdown-item" href="../articles/manual-index.html">Manual Overview</a></li>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
+<li><a class="dropdown-item" href="../articles/manual-index.html">Vignettes Overview</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Get Started</h6></li>
     <li><a class="dropdown-item" href="../articles/introduction.html">Introduction</a></li>
@@ -45,10 +45,15 @@
     <li><a class="dropdown-item" href="../articles/unconditional.html">Unconditional Models</a></li>
     <li><a class="dropdown-item" href="../articles/conditional.html">Conditional Models</a></li>
     <li><a class="dropdown-item" href="../articles/causal.html">Causal Inference</a></li>
-    <li><a class="dropdown-item" href="../articles/allin1/umbrella.html">Umbrella: Custom Models (All-in-One)</a></li>
-    <li><a class="dropdown-item" href="../articles/allin1/customization.html">Customization: Build NIMBLE Models from Scratch</a></li>
     <li><a class="dropdown-item" href="../articles/backends.html">Backends (CRP vs SB)</a></li>
     <li><a class="dropdown-item" href="../articles/reference-s3.html">S3 Methods Reference</a></li>
+  </ul>
+</li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-all-in-one" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">All-in-One</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-all-in-one">
+<li><a class="dropdown-item" href="../articles/Customization/umbrella.html">Umbrella: Custom Models (All-in-One)</a></li>
+    <li><a class="dropdown-item" href="../articles/Customization/customization.html">Customization: Build NIMBLE Models from Scratch</a></li>
   </ul>
 </li>
 <li class="nav-item dropdown">
@@ -68,7 +73,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-cookbook" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Cookbook</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-cookbook">
-<li><a class="dropdown-item" href="../articles/cookbook-index.html">Cookbook Overview</a></li>
+<li><a class="dropdown-item" href="../articles/workflows-index.html">Cookbook Overview</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Getting Started</h6></li>
     <li><a class="dropdown-item" href="../articles/cookbook/v00-start-here.html">Start Here</a></li>
@@ -180,70 +185,67 @@ across covariate space.</p>
 <div class="section level2">
 <h2 id="fitted-values">Fitted Values<a class="anchor" aria-label="anchor" href="#fitted-values"></a>
 </h2>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"mean"</span>, level <span class="op">=</span> <span class="fl">0.90</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">f</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    fit lower upper residuals</span></span>
-<span><span class="co">#&gt; 1 14.5  7.16  23.4      6.46</span></span>
-<span><span class="co">#&gt; 2 18.3  9.23  30.9      2.68</span></span>
-<span><span class="co">#&gt; 3 11.4  6.60  17.5     11.43</span></span>
-<span><span class="co">#&gt; 4 25.0 12.41  45.7     -3.61</span></span>
-<span><span class="co">#&gt; 5 28.5  9.54  54.0     -9.80</span></span>
-<span><span class="co">#&gt; 6 32.4 15.54  58.2    -14.28</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">f</span><span class="op">$</span><span class="va">residuals</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. </span></span>
-<span><span class="co">#&gt; -177.96  -17.86   -7.98  -17.70    7.00   26.32</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="fu">fitted</span>(fit, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">level =</span> <span class="fl">0.90</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="fu">head</span>(f)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>   fit lower upper residuals</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="dv">1</span> <span class="fl">14.5</span>  <span class="fl">7.16</span>  <span class="fl">23.4</span>      <span class="fl">6.46</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="dv">2</span> <span class="fl">18.3</span>  <span class="fl">9.23</span>  <span class="fl">30.9</span>      <span class="fl">2.68</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="dv">3</span> <span class="fl">11.4</span>  <span class="fl">6.60</span>  <span class="fl">17.5</span>     <span class="fl">11.43</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="dv">4</span> <span class="fl">25.0</span> <span class="fl">12.41</span>  <span class="fl">45.7</span>     <span class="sc">-</span><span class="fl">3.61</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="dv">5</span> <span class="fl">28.5</span>  <span class="fl">9.54</span>  <span class="fl">54.0</span>     <span class="sc">-</span><span class="fl">9.80</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="dv">6</span> <span class="fl">32.4</span> <span class="fl">15.54</span>  <span class="fl">58.2</span>    <span class="sc">-</span><span class="fl">14.28</span></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="fu">summary</span>(f<span class="sc">$</span>residuals)</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>   Min. <span class="dv">1</span>st Qu.  Median    Mean <span class="dv">3</span>rd Qu.    Max. </span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="sc">-</span><span class="fl">177.96</span>  <span class="sc">-</span><span class="fl">17.86</span>   <span class="sc">-</span><span class="fl">7.98</span>  <span class="sc">-</span><span class="fl">17.70</span>    <span class="fl">7.00</span>   <span class="fl">26.32</span> </span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="predictions-on-new-data">Predictions on New Data<a class="anchor" aria-label="anchor" href="#predictions-on-new-data"></a>
 </h2>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">new_X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  wt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">X</span><span class="op">$</span><span class="va">wt</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">X</span><span class="op">$</span><span class="va">wt</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="fl">25</span><span class="op">)</span>,</span>
-<span>  hp <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">X</span><span class="op">$</span><span class="va">hp</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">pred_mean</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, x <span class="op">=</span> <span class="va">new_X</span>, type <span class="op">=</span> <span class="st">"mean"</span>, cred.level <span class="op">=</span> <span class="fl">0.90</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
-<span><span class="va">pred_med</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, x <span class="op">=</span> <span class="va">new_X</span>, type <span class="op">=</span> <span class="st">"median"</span>, cred.level <span class="op">=</span> <span class="fl">0.90</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pred_mean</span><span class="op">$</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   estimate lower upper</span></span>
-<span><span class="co">#&gt; 1     5.92  3.12  9.12</span></span>
-<span><span class="co">#&gt; 2     6.73  3.42 10.22</span></span>
-<span><span class="co">#&gt; 3     7.59  3.86 11.89</span></span>
-<span><span class="co">#&gt; 4     8.66  4.62 13.34</span></span>
-<span><span class="co">#&gt; 5     9.79  4.82 16.58</span></span>
-<span><span class="co">#&gt; 6    11.24  5.56 18.24</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pred_med</span><span class="op">$</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   estimate index id lower upper</span></span>
-<span><span class="co">#&gt; 1     3.41   0.5  1  2.43  4.54</span></span>
-<span><span class="co">#&gt; 2     3.91   0.5  2  2.69  5.39</span></span>
-<span><span class="co">#&gt; 3     4.48   0.5  3  2.99  6.42</span></span>
-<span><span class="co">#&gt; 4     5.14   0.5  4  3.33  7.60</span></span>
-<span><span class="co">#&gt; 5     5.91   0.5  5  3.70  8.99</span></span>
-<span><span class="co">#&gt; 6     6.80   0.5  6  4.13 10.51</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>new_X <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="at">wt =</span> <span class="fu">seq</span>(<span class="fu">min</span>(X<span class="sc">$</span>wt), <span class="fu">max</span>(X<span class="sc">$</span>wt), <span class="at">length.out =</span> <span class="dv">25</span>),</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">hp =</span> stats<span class="sc">::</span><span class="fu">median</span>(X<span class="sc">$</span>hp)</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>)</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>pred_mean <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">x =</span> new_X, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">cred.level =</span> <span class="fl">0.90</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>pred_med  <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">x =</span> new_X, <span class="at">type =</span> <span class="st">"median"</span>, <span class="at">cred.level =</span> <span class="fl">0.90</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="fu">head</span>(pred_mean<span class="sc">$</span>fit)</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>  estimate lower upper</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="dv">1</span>     <span class="fl">5.92</span>  <span class="fl">3.12</span>  <span class="fl">9.12</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="dv">2</span>     <span class="fl">6.73</span>  <span class="fl">3.42</span> <span class="fl">10.22</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="dv">3</span>     <span class="fl">7.59</span>  <span class="fl">3.86</span> <span class="fl">11.89</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="dv">4</span>     <span class="fl">8.66</span>  <span class="fl">4.62</span> <span class="fl">13.34</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="dv">5</span>     <span class="fl">9.79</span>  <span class="fl">4.82</span> <span class="fl">16.58</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="dv">6</span>    <span class="fl">11.24</span>  <span class="fl">5.56</span> <span class="fl">18.24</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="fu">head</span>(pred_med<span class="sc">$</span>fit)</span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>  estimate index id lower upper</span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a><span class="dv">1</span>     <span class="fl">3.41</span>   <span class="fl">0.5</span>  <span class="dv">1</span>  <span class="fl">2.43</span>  <span class="fl">4.54</span></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a><span class="dv">2</span>     <span class="fl">3.91</span>   <span class="fl">0.5</span>  <span class="dv">2</span>  <span class="fl">2.69</span>  <span class="fl">5.39</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="dv">3</span>     <span class="fl">4.48</span>   <span class="fl">0.5</span>  <span class="dv">3</span>  <span class="fl">2.99</span>  <span class="fl">6.42</span></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a><span class="dv">4</span>     <span class="fl">5.14</span>   <span class="fl">0.5</span>  <span class="dv">4</span>  <span class="fl">3.33</span>  <span class="fl">7.60</span></span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a><span class="dv">5</span>     <span class="fl">5.91</span>   <span class="fl">0.5</span>  <span class="dv">5</span>  <span class="fl">3.70</span>  <span class="fl">8.99</span></span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a><span class="dv">6</span>     <span class="fl">6.80</span>   <span class="fl">0.5</span>  <span class="dv">6</span>  <span class="fl">4.13</span> <span class="fl">10.51</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="quantile-curves">Quantile Curves<a class="anchor" aria-label="anchor" href="#quantile-curves"></a>
 </h2>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">q_levels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span></span>
-<span><span class="va">q_fits</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">q_levels</span>, <span class="kw">function</span><span class="op">(</span><span class="va">tau</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, x <span class="op">=</span> <span class="va">new_X</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, index <span class="op">=</span> <span class="va">tau</span>, cred.level <span class="op">=</span> <span class="fl">0.90</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span><span class="op">$</span><span class="va">fit</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">q_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/funprog.html" class="external-link">Map</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="va">tau</span>, <span class="va">df</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>wt <span class="op">=</span> <span class="va">new_X</span><span class="op">$</span><span class="va">wt</span>, tau <span class="op">=</span> <span class="va">tau</span>, estimate <span class="op">=</span> <span class="va">df</span><span class="op">$</span><span class="va">estimate</span>, lower <span class="op">=</span> <span class="va">df</span><span class="op">$</span><span class="va">lower</span>, upper <span class="op">=</span> <span class="va">df</span><span class="op">$</span><span class="va">upper</span><span class="op">)</span></span>
-<span><span class="op">}</span>, <span class="va">q_levels</span>, <span class="va">q_fits</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">q_df</span><span class="op">)</span></span>
-<span><span class="co">#&gt;     wt tau estimate  lower upper</span></span>
-<span><span class="co">#&gt; 1 1.51 0.1   -0.293 -3.666  1.93</span></span>
-<span><span class="co">#&gt; 2 1.68 0.1    0.214 -3.025  2.08</span></span>
-<span><span class="co">#&gt; 3 1.84 0.1    0.685 -2.296  2.24</span></span>
-<span><span class="co">#&gt; 4 2.00 0.1    1.130 -1.513  2.42</span></span>
-<span><span class="co">#&gt; 5 2.16 0.1    1.529 -0.964  2.62</span></span>
-<span><span class="co">#&gt; 6 2.33 0.1    1.895 -0.402  2.83</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>q_levels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>q_fits <span class="ot">&lt;-</span> <span class="fu">lapply</span>(q_levels, <span class="cf">function</span>(tau) {</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="fu">predict</span>(fit, <span class="at">x =</span> new_X, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> tau, <span class="at">cred.level =</span> <span class="fl">0.90</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)<span class="sc">$</span>fit</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>})</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>q_df <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, <span class="fu">Map</span>(<span class="cf">function</span>(tau, df) {</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">wt =</span> new_X<span class="sc">$</span>wt, <span class="at">tau =</span> tau, <span class="at">estimate =</span> df<span class="sc">$</span>estimate, <span class="at">lower =</span> df<span class="sc">$</span>lower, <span class="at">upper =</span> df<span class="sc">$</span>upper)</span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a>}, q_levels, q_fits))</span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="fu">head</span>(q_df)</span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a>    wt tau estimate  lower upper</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="dv">1</span> <span class="fl">1.51</span> <span class="fl">0.1</span>   <span class="sc">-</span><span class="fl">0.293</span> <span class="sc">-</span><span class="fl">3.666</span>  <span class="fl">1.93</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="dv">2</span> <span class="fl">1.68</span> <span class="fl">0.1</span>    <span class="fl">0.214</span> <span class="sc">-</span><span class="fl">3.025</span>  <span class="fl">2.08</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="dv">3</span> <span class="fl">1.84</span> <span class="fl">0.1</span>    <span class="fl">0.685</span> <span class="sc">-</span><span class="fl">2.296</span>  <span class="fl">2.24</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="dv">4</span> <span class="fl">2.00</span> <span class="fl">0.1</span>    <span class="fl">1.130</span> <span class="sc">-</span><span class="fl">1.513</span>  <span class="fl">2.42</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="dv">5</span> <span class="fl">2.16</span> <span class="fl">0.1</span>    <span class="fl">1.529</span> <span class="sc">-</span><span class="fl">0.964</span>  <span class="fl">2.62</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="dv">6</span> <span class="fl">2.33</span> <span class="fl">0.1</span>    <span class="fl">1.895</span> <span class="sc">-</span><span class="fl">0.402</span>  <span class="fl">2.83</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">ggplot</span><span class="op">(</span><span class="va">q_df</span>, <span class="fu">aes</span><span class="op">(</span>x <span class="op">=</span> <span class="va">wt</span>, y <span class="op">=</span> <span class="va">estimate</span>, color <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">tau</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">geom_line</span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>
@@ -252,7 +254,7 @@ across covariate space.</p>
 <span>       title <span class="op">=</span> <span class="st">"Conditional Quantile Curves at Median Horsepower"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme_minimal</span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">theme</span><span class="op">(</span>legend.position <span class="op">=</span> <span class="st">"bottom"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="conditional_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;"></p>
+<p><img src="conditional_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -265,7 +267,7 @@ across covariate space.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

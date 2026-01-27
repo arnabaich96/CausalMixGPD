@@ -31,11 +31,11 @@ Comprehensive user documentation:
 ### Kernels
 
 - [**Kernels Overview**](https://arnabaich96.github.io/DPmixGPD/articles/kernels-index.html) - Guide to available mixture kernels
-- [Amoroso](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-amoroso.html) | [Cauchy](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-cauchy.html) | [Gamma](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-gamma.html) | [Inverse Gaussian](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-invgauss.html) | [Laplace](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-laplace.html) | [Lognormal](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-lognormal.html) | [Normal](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-normal.html)
+- [Amoroso](https://arnabaich96.github.io/DPmixGPD/articles/distributions.html#amoroso) | [Cauchy](https://arnabaich96.github.io/DPmixGPD/articles/distributions.html#cauchy) | [Gamma](https://arnabaich96.github.io/DPmixGPD/articles/distributions.html#gamma) | [Inverse Gaussian](https://arnabaich96.github.io/DPmixGPD/articles/distributions.html#inverse-gaussian) | [Laplace](https://arnabaich96.github.io/DPmixGPD/articles/distributions.html#laplace) | [Lognormal](https://arnabaich96.github.io/DPmixGPD/articles/distributions.html#lognormal) | [Normal](https://arnabaich96.github.io/DPmixGPD/articles/distributions.html#normal)
 
-### Workflows & Case Studies
+### Cookbook
 
-- [**Workflows & Case Studies**](https://arnabaich96.github.io/DPmixGPD/articles/workflows-index.html) - Extended tutorials and case studies
+- [**Recipe Book**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook-index.html) - Extended tutorials and case studies
 
 ### Reference
 

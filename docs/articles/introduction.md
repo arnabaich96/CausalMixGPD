@@ -54,16 +54,16 @@ fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
 ``` r
 f <- fitted(fit, type = "mean", level = 0.90)
 head(f)
-#>   fit lower upper residuals
-#> 1 3.2  3.06  3.36     0.400
-#> 2 3.2  3.06  3.36    -1.400
-#> 3 3.2  3.06  3.36     0.133
-#> 4 3.2  3.06  3.36    -0.917
-#> 5 3.2  3.06  3.36     1.333
-#> 6 3.2  3.06  3.36    -0.317
+  fit lower upper residuals
+1 3.2  3.06  3.36     0.400
+2 3.2  3.06  3.36    -1.400
+3 3.2  3.06  3.36     0.133
+4 3.2  3.06  3.36    -0.917
+5 3.2  3.06  3.36     1.333
+6 3.2  3.06  3.36    -0.317
 summary(f$residuals)
-#>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#>  -1.600  -1.038   0.800   0.287   1.254   1.900
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ -1.600  -1.038   0.800   0.287   1.254   1.900 
 ```
 
 ## Predictions
@@ -73,11 +73,11 @@ pred_mean <- predict(fit, type = "mean", cred.level = 0.90, interval = "credible
 pred_q90  <- predict(fit, type = "quantile", index = 0.90, cred.level = 0.90, interval = "credible")
 
 pred_mean$fit
-#>   estimate lower upper
-#> 1     3.19  3.05  3.32
+  estimate lower upper
+1     3.19  3.05  3.32
 pred_q90$fit
-#>   estimate index lower upper
-#> 1     4.55   0.9  4.45  4.67
+  estimate index lower upper
+1     4.55   0.9  4.45  4.67
 ```
 
 ## Diagnostic Plots
@@ -88,49 +88,41 @@ if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quiet
 } else {
   message("Plotting requires 'ggmcmc' and 'coda' packages.")
 }
-#> 
-#> === histogram ===
+
+=== histogram ===
 ```
 
 ![](introduction_files/figure-html/plot-fit-1.png)
 
-    #> 
-    #> === density ===
+    === density ===
 
 ![](introduction_files/figure-html/plot-fit-2.png)
 
-    #> 
-    #> === traceplot ===
+    === traceplot ===
 
 ![](introduction_files/figure-html/plot-fit-3.png)
 
-    #> 
-    #> === running ===
+    === running ===
 
 ![](introduction_files/figure-html/plot-fit-4.png)
 
-    #> 
-    #> === compare_partial ===
+    === compare_partial ===
 
 ![](introduction_files/figure-html/plot-fit-5.png)
 
-    #> 
-    #> === autocorrelation ===
+    === autocorrelation ===
 
 ![](introduction_files/figure-html/plot-fit-6.png)
 
-    #> 
-    #> === geweke ===
+    === geweke ===
 
 ![](introduction_files/figure-html/plot-fit-7.png)
 
-    #> 
-    #> === caterpillar ===
+    === caterpillar ===
 
 ![](introduction_files/figure-html/plot-fit-8.png)
 
-    #> 
-    #> === pairs ===
+    === pairs ===
 
 ![](introduction_files/figure-html/plot-fit-9.png)
 

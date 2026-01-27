@@ -39,23 +39,23 @@ fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
 ``` r
 f_mean <- fitted(fit, type = "mean", level = 0.90)
 head(f_mean)
-#>   fit lower upper residuals
-#> 1 3.2  3.06  3.36     0.400
-#> 2 3.2  3.06  3.36    -1.400
-#> 3 3.2  3.06  3.36     0.133
-#> 4 3.2  3.06  3.36    -0.917
-#> 5 3.2  3.06  3.36     1.333
-#> 6 3.2  3.06  3.36    -0.317
+  fit lower upper residuals
+1 3.2  3.06  3.36     0.400
+2 3.2  3.06  3.36    -1.400
+3 3.2  3.06  3.36     0.133
+4 3.2  3.06  3.36    -0.917
+5 3.2  3.06  3.36     1.333
+6 3.2  3.06  3.36    -0.317
 
 f_med <- fitted(fit, type = "median", level = 0.90)
 head(f_med)
-#>    fit lower upper residuals
-#> 1 3.08     3  3.16     0.524
-#> 2 3.08     3  3.16    -1.276
-#> 3 3.08     3  3.16     0.257
-#> 4 3.08     3  3.16    -0.793
-#> 5 3.08     3  3.16     1.457
-#> 6 3.08     3  3.16    -0.193
+   fit lower upper residuals
+1 3.08     3  3.16     0.524
+2 3.08     3  3.16    -1.276
+3 3.08     3  3.16     0.257
+4 3.08     3  3.16    -0.793
+5 3.08     3  3.16     1.457
+6 3.08     3  3.16    -0.193
 ```
 
 ## Posterior Predictive Summaries
@@ -65,11 +65,11 @@ pred_mean <- predict(fit, type = "mean", cred.level = 0.90, interval = "credible
 pred_q95  <- predict(fit, type = "quantile", index = 0.95, cred.level = 0.90, interval = "credible")
 
 pred_mean$fit
-#>   estimate lower upper
-#> 1     3.19  3.05  3.32
+  estimate lower upper
+1     3.19  3.05  3.32
 pred_q95$fit
-#>   estimate index lower upper
-#> 1     4.81  0.95  4.72  4.93
+  estimate index lower upper
+1     4.81  0.95  4.72  4.93
 ```
 
 ## Residual Analysis
@@ -77,8 +77,8 @@ pred_q95$fit
 ``` r
 res <- f_mean$residuals
 summary(res)
-#>    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-#>  -1.600  -1.038   0.800   0.287   1.254   1.900
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ -1.600  -1.038   0.800   0.287   1.254   1.900 
 ```
 
 ## Diagnostic Plots
@@ -89,48 +89,40 @@ if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quiet
 } else {
   message("Plotting requires 'ggmcmc' and 'coda' packages.")
 }
-#> 
-#> === histogram ===
+
+=== histogram ===
 ```
 
 ![](unconditional_files/figure-html/unnamed-chunk-5-1.png)
 
-    #> 
-    #> === density ===
+    === density ===
 
 ![](unconditional_files/figure-html/unnamed-chunk-5-2.png)
 
-    #> 
-    #> === traceplot ===
+    === traceplot ===
 
 ![](unconditional_files/figure-html/unnamed-chunk-5-3.png)
 
-    #> 
-    #> === running ===
+    === running ===
 
 ![](unconditional_files/figure-html/unnamed-chunk-5-4.png)
 
-    #> 
-    #> === compare_partial ===
+    === compare_partial ===
 
 ![](unconditional_files/figure-html/unnamed-chunk-5-5.png)
 
-    #> 
-    #> === autocorrelation ===
+    === autocorrelation ===
 
 ![](unconditional_files/figure-html/unnamed-chunk-5-6.png)
 
-    #> 
-    #> === geweke ===
+    === geweke ===
 
 ![](unconditional_files/figure-html/unnamed-chunk-5-7.png)
 
-    #> 
-    #> === caterpillar ===
+    === caterpillar ===
 
 ![](unconditional_files/figure-html/unnamed-chunk-5-8.png)
 
-    #> 
-    #> === pairs ===
+    === pairs ===
 
 ![](unconditional_files/figure-html/unnamed-chunk-5-9.png)

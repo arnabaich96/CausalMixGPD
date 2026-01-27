@@ -16,11 +16,11 @@ remotes::install_github("arnabaich96/DPmixGPD")
 
 ## Documentation
 
-### Package Vignettes
+### Manual
 
 Comprehensive user documentation:
 
-- [**Vignettes
+- [**Manual
   Overview**](https://arnabaich96.github.io/DPmixGPD/articles/manual-index.html) -
   Complete guide to using DPmixGPD
 - [**Introduction**](https://arnabaich96.github.io/DPmixGPD/articles/introduction.html) -
@@ -50,40 +50,37 @@ Comprehensive user documentation:
   Reference**](https://arnabaich96.github.io/DPmixGPD/articles/reference-s3.html) -
   Using print, summary, plot, predict, etc.
 
-### All-in-One
-
-- [**Umbrella: Custom Models (All-in-One)**](https://arnabaich96.github.io/DPmixGPD/articles/allin1/umbrella.html) -
-  Unified, customizable modeling workflow
-- [**Customization: Build NIMBLE Models from Scratch**](https://arnabaich96.github.io/DPmixGPD/articles/allin1/customization.html) -
-  Full-control model construction
-
 ### Kernels
 
+- [**Kernels
+  Overview**](https://arnabaich96.github.io/DPmixGPD/articles/kernels-index.html) -
+  Guide to available mixture kernels
+- [Amoroso](https://arnabaich96.github.io/DPmixGPD/articles/distributions.html#amoroso)
+  \|
+  [Cauchy](https://arnabaich96.github.io/DPmixGPD/articles/distributions.html#cauchy)
+  \|
+  [Gamma](https://arnabaich96.github.io/DPmixGPD/articles/distributions.html#gamma)
+  \| [Inverse
+  Gaussian](https://arnabaich96.github.io/DPmixGPD/articles/distributions.html#inverse-gaussian)
+  \|
+  [Laplace](https://arnabaich96.github.io/DPmixGPD/articles/distributions.html#laplace)
+  \|
+  [Lognormal](https://arnabaich96.github.io/DPmixGPD/articles/distributions.html#lognormal)
+  \|
+  [Normal](https://arnabaich96.github.io/DPmixGPD/articles/distributions.html#normal)
 
-- [Amoroso](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-amoroso.html)
-  
--  [Cauchy](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-cauchy.html)
-  
--  [Gamma](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-gamma.html)
--   [Inverse
-  Gaussian](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-invgauss.html)
-  
--  [Laplace](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-laplace.html)
-  
--  [Lognormal](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-lognormal.html)
-  
--  [Normal](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-normal.html)
+### Cookbook
 
-### Cookbook (Example Suite)
-
-- [**Cookbook
-  Documentation**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook-index.html) -
-  Full cookbook: each model combination is a recipe
+- [**Recipe
+  Book**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook-index.html) -
+  Extended tutorials and case studies
 
 ### Reference
 
 - [**Function
   Reference**](https://arnabaich96.github.io/DPmixGPD/reference/index.html) -
-  Complete documentation .
+  Complete API documentation \### Coverage
 
- 
+- ![Coverage
+  sunburst](https://codecov.io/gh/arnabaich96/DPmixGPD/graphs/sunburst.svg?token=80IYA0FANW)
+  Coverage sunburst

@@ -55,21 +55,51 @@ bundle <- build_causal_bundle(
   GPD = TRUE,
   components = 6,
   PS = "logit",
-  design = "observational",
   mcmc_outcome = mcmc,
   mcmc_ps = mcmc
 )
 
 bundle
-#> DPmixGPD causal bundle
-#> PS model: Bayesian logit (T | X) 
-#> Outcome (treated): backend = sb | kernel = normal 
-#> Outcome (control): backend = sb | kernel = normal 
-#> GPD tail (treated/control): TRUE / TRUE 
-#> components (treated/control): 6 / 6 
-#> Outcome PS included: TRUE 
-#> epsilon (treated/control): 0.025 / 0.025 
-#> n (control) = 19 | n (treated) = 13
+DPmixGPD causal bundle
+PS model: Bayesian logit (T | X) 
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:center;"> Field </th>
+   <th style="text-align:center;"> Treated </th>
+   <th style="text-align:center;"> Control </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:center;"> Backend </td>
+   <td style="text-align:center;"> Stick-Breaking Process </td>
+   <td style="text-align:center;"> Stick-Breaking Process </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> Kernel </td>
+   <td style="text-align:center;"> normal </td>
+   <td style="text-align:center;"> normal </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> Components </td>
+   <td style="text-align:center;"> 6 </td>
+   <td style="text-align:center;"> 6 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> GPD tail </td>
+   <td style="text-align:center;"> TRUE </td>
+   <td style="text-align:center;"> TRUE </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> Epsilon </td>
+   <td style="text-align:center;"> 0.025 </td>
+   <td style="text-align:center;"> 0.025 </td>
+  </tr>
+</tbody>
+</table>
+Outcome PS included: TRUE 
+n (control) = 19 | n (treated) = 13 
 ```
 
 ## MCMC Sampling
@@ -83,23 +113,63 @@ fit <- run_mcmc_causal(bundle, show_progress = FALSE)
 ``` r
 ate_result <- ate(fit, interval = "hpd", nsim_mean = 100)
 print(ate_result)
-#> ATE (Average Treatment Effect)
-#>   Prediction points: 32
-#>   Conditional (covariates): YES
-#>   Propensity score used: YES
-#>   PS scale: logit
-#>   Posterior mean draws: 100
-#>   Credible interval: hpd
-#> 
-#> ATE estimates (treated - control):
-#>  id      estimate         lower        upper
-#>   1  7.096668e+66 -2.747790e+27 7.637892e+39
-#>   2  1.092792e+67 -4.880833e+27 7.560155e+39
-#>   3  3.148231e+57 -7.112172e+25 5.379520e+33
-#>   4  6.368702e+67 -3.863970e+28 7.036002e+39
-#>   5 2.951968e+104 -1.131116e+40 3.774128e+63
-#>   6  1.570600e+65 -1.172550e+28 1.350685e+38
-#> ... (26 more rows)
+ATE (Average Treatment Effect)
+  Prediction points: 32
+  Conditional (covariates): YES
+  Propensity score used: YES
+  PS scale: logit
+  Posterior mean draws: 100
+  Credible interval: hpd
+
+ATE estimates (treated - control):
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:center;"> id </th>
+   <th style="text-align:center;"> estimate </th>
+   <th style="text-align:center;"> lower </th>
+   <th style="text-align:center;"> upper </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:center;"> 1 </td>
+   <td style="text-align:center;"> 7.097e+66 </td>
+   <td style="text-align:center;"> -2.748e+27 </td>
+   <td style="text-align:center;"> 7.638e+39 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> 2 </td>
+   <td style="text-align:center;"> 1.093e+67 </td>
+   <td style="text-align:center;"> -4.881e+27 </td>
+   <td style="text-align:center;"> 7.560e+39 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> 3 </td>
+   <td style="text-align:center;"> 3.148e+57 </td>
+   <td style="text-align:center;"> -7.112e+25 </td>
+   <td style="text-align:center;"> 5.380e+33 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> 4 </td>
+   <td style="text-align:center;"> 6.369e+67 </td>
+   <td style="text-align:center;"> -3.864e+28 </td>
+   <td style="text-align:center;"> 7.036e+39 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> 5 </td>
+   <td style="text-align:center;"> 2.952e+104 </td>
+   <td style="text-align:center;"> -1.131e+40 </td>
+   <td style="text-align:center;"> 3.774e+63 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> 6 </td>
+   <td style="text-align:center;"> 1.571e+65 </td>
+   <td style="text-align:center;"> -1.173e+28 </td>
+   <td style="text-align:center;"> 1.351e+38 </td>
+  </tr>
+</tbody>
+</table>... (26 more rows)
 
 X_new <- data.frame(
   wt = seq(min(X$wt), max(X$wt), length.out = 20),
@@ -110,44 +180,84 @@ X_new <- data.frame(
 ate_grid <- ate(fit, newdata = X_new, interval = "hpd", nsim_mean = 100, level = 0.90)
 
 print(ate_grid)
-#> ATE (Average Treatment Effect)
-#>   Prediction points: 20
-#>   Conditional (covariates): YES
-#>   Propensity score used: YES
-#>   PS scale: logit
-#>   Posterior mean draws: 100
-#>   Credible interval: hpd
-#> 
-#> ATE estimates (treated - control):
-#>  id     estimate         lower        upper
-#>   1 3.562911e+74 -1.060663e+31 9.152400e+29
-#>   2 3.155030e+74 -1.105315e+31 7.386341e+29
-#>   3 4.198869e+74 -7.024421e+30 6.078306e+29
-#>   4 4.386679e+74 -7.786960e+30 5.286629e+29
-#>   5 4.331852e+74 -6.407762e+30 4.840438e+29
-#>   6 4.791778e+74 -5.115586e+30 3.809410e+29
-#> ... (14 more rows)
+ATE (Average Treatment Effect)
+  Prediction points: 20
+  Conditional (covariates): YES
+  Propensity score used: YES
+  PS scale: logit
+  Posterior mean draws: 100
+  Credible interval: hpd
+
+ATE estimates (treated - control):
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:center;"> id </th>
+   <th style="text-align:center;"> estimate </th>
+   <th style="text-align:center;"> lower </th>
+   <th style="text-align:center;"> upper </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:center;"> 1 </td>
+   <td style="text-align:center;"> 3.563e+74 </td>
+   <td style="text-align:center;"> -1.061e+31 </td>
+   <td style="text-align:center;"> 9.152e+29 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> 2 </td>
+   <td style="text-align:center;"> 3.155e+74 </td>
+   <td style="text-align:center;"> -1.105e+31 </td>
+   <td style="text-align:center;"> 7.386e+29 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> 3 </td>
+   <td style="text-align:center;"> 4.199e+74 </td>
+   <td style="text-align:center;"> -7.024e+30 </td>
+   <td style="text-align:center;"> 6.078e+29 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> 4 </td>
+   <td style="text-align:center;"> 4.387e+74 </td>
+   <td style="text-align:center;"> -7.787e+30 </td>
+   <td style="text-align:center;"> 5.287e+29 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> 5 </td>
+   <td style="text-align:center;"> 4.332e+74 </td>
+   <td style="text-align:center;"> -6.408e+30 </td>
+   <td style="text-align:center;"> 4.840e+29 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> 6 </td>
+   <td style="text-align:center;"> 4.792e+74 </td>
+   <td style="text-align:center;"> -5.116e+30 </td>
+   <td style="text-align:center;"> 3.809e+29 </td>
+  </tr>
+</tbody>
+</table>... (14 more rows)
 summary(ate_grid)
-#> ATE Summary
-#> ================================================== 
-#> Prediction points: 20
-#> Conditional: YES | PS used: YES
-#> Posterior mean draws: 100
-#> Interval: hpd
-#> 
-#> Model specification:
-#>   Backend (trt/con): sb / sb
-#>   Kernel (trt/con): normal / normal
-#>   GPD tail (trt/con): YES / YES
-#> 
-#> ATE statistics:
-#>   Mean: 5.65186376147264e+74 | Median: 5.12898071566214e+74
-#>   Range: [3.15502974835712e+74, 9.2349665402096e+74]
-#>   SD: 1.61418131241249e+74
-#> 
-#> Credible interval width:
-#>   Mean: 4.47971558863383e+30 | Median: 3.75941826993285e+30
-#>   Range: [2.08686307002747e+26, 1.17917838120348e+31]
+ATE Summary
+================================================== 
+Prediction points: 20
+Conditional: YES | PS used: YES
+Posterior mean draws: 100
+Interval: hpd
+
+Model specification:
+  Backend (trt/con): sb / sb
+  Kernel (trt/con): normal / normal
+  GPD tail (trt/con): YES / YES
+
+ATE statistics:
+  Mean: 5.652e+74 | Median: 5.129e+74
+  Range: [3.155e+74, 9.235e+74]
+  SD: 1.614e+74
+
+Credible interval width:
+  Mean: 4.480e+30 | Median: 3.759e+30
+  Range: [2.087e+26, 1.179e+31]
 ```
 
 ### ATE Visualization
@@ -179,65 +289,192 @@ ate_plots$trt_control
 probs <- c(0.1, 0.5, 0.9)
 qte_result <- qte(fit, probs = probs, interval = "hpd")
 print(qte_result)
-#> QTE (Quantile Treatment Effect)
-#>   Prediction points: 32
-#>   Quantile grid: 0.1, 0.5, 0.9
-#>   Conditional (covariates): YES
-#>   Propensity score used: YES
-#>   PS scale: logit
-#>   Credible interval: hpd
-#> 
-#> QTE estimates (treated - control):
-#>  index id      estimate         lower        upper
-#>    0.1  1  6.504045e+65 -2.256136e+26 5.320135e+38
-#>    0.1  2  1.037103e+66 -3.513881e+26 5.328788e+38
-#>    0.1  3  3.980819e+56 -5.332544e+24 4.169594e+32
-#>    0.1  4  6.539472e+66 -3.865800e+27 4.825881e+38
-#>    0.1  5 3.301256e+103 -1.026751e+39 3.286743e+62
-#>    0.1  6  1.636091e+64 -7.144390e+26 6.866406e+36
-#> ... (90 more rows)
+QTE (Quantile Treatment Effect)
+  Prediction points: 32
+  Quantile grid: 0.1, 0.5, 0.9
+  Conditional (covariates): YES
+  Propensity score used: YES
+  PS scale: logit
+  Credible interval: hpd
+
+QTE estimates (treated - control):
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:center;"> index </th>
+   <th style="text-align:center;"> id </th>
+   <th style="text-align:center;"> estimate </th>
+   <th style="text-align:center;"> lower </th>
+   <th style="text-align:center;"> upper </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:center;"> 0.1 </td>
+   <td style="text-align:center;"> 1 </td>
+   <td style="text-align:center;"> 6.504e+65 </td>
+   <td style="text-align:center;"> -2.256e+26 </td>
+   <td style="text-align:center;"> 5.320e+38 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> 0.1 </td>
+   <td style="text-align:center;"> 2 </td>
+   <td style="text-align:center;"> 1.037e+66 </td>
+   <td style="text-align:center;"> -3.514e+26 </td>
+   <td style="text-align:center;"> 5.329e+38 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> 0.1 </td>
+   <td style="text-align:center;"> 3 </td>
+   <td style="text-align:center;"> 3.981e+56 </td>
+   <td style="text-align:center;"> -5.333e+24 </td>
+   <td style="text-align:center;"> 4.170e+32 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> 0.1 </td>
+   <td style="text-align:center;"> 4 </td>
+   <td style="text-align:center;"> 6.539e+66 </td>
+   <td style="text-align:center;"> -3.866e+27 </td>
+   <td style="text-align:center;"> 4.826e+38 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> 0.1 </td>
+   <td style="text-align:center;"> 5 </td>
+   <td style="text-align:center;"> 3.301e+103 </td>
+   <td style="text-align:center;"> -1.027e+39 </td>
+   <td style="text-align:center;"> 3.287e+62 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> 0.1 </td>
+   <td style="text-align:center;"> 6 </td>
+   <td style="text-align:center;"> 1.636e+64 </td>
+   <td style="text-align:center;"> -7.144e+26 </td>
+   <td style="text-align:center;"> 6.866e+36 </td>
+  </tr>
+</tbody>
+</table>... (90 more rows)
 
 qte_grid <- qte(fit, probs = probs, newdata = X_new, interval = "hpd")
 print(qte_grid)
-#> QTE (Quantile Treatment Effect)
-#>   Prediction points: 20
-#>   Quantile grid: 0.1, 0.5, 0.9
-#>   Conditional (covariates): YES
-#>   Propensity score used: YES
-#>   PS scale: logit
-#>   Credible interval: hpd
-#> 
-#> QTE estimates (treated - control):
-#>  index id     estimate         lower        upper
-#>    0.1  1 3.701822e+73 -8.451444e+29 2.588857e+43
-#>    0.1  2 3.881035e+73 -7.416909e+29 2.664172e+43
-#>    0.1  3 4.068925e+73 -6.509011e+29 2.741678e+43
-#>    0.1  4 4.265911e+73 -5.712248e+29 2.821439e+43
-#>    0.1  5 4.472434e+73 -5.013017e+29 2.903521e+43
-#>    0.1  6 4.688955e+73 -4.399377e+29 2.987990e+43
-#> ... (54 more rows)
+QTE (Quantile Treatment Effect)
+  Prediction points: 20
+  Quantile grid: 0.1, 0.5, 0.9
+  Conditional (covariates): YES
+  Propensity score used: YES
+  PS scale: logit
+  Credible interval: hpd
+
+QTE estimates (treated - control):
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:center;"> index </th>
+   <th style="text-align:center;"> id </th>
+   <th style="text-align:center;"> estimate </th>
+   <th style="text-align:center;"> lower </th>
+   <th style="text-align:center;"> upper </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:center;"> 0.1 </td>
+   <td style="text-align:center;"> 1 </td>
+   <td style="text-align:center;"> 3.702e+73 </td>
+   <td style="text-align:center;"> -8.451e+29 </td>
+   <td style="text-align:center;"> 2.589e+43 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> 0.1 </td>
+   <td style="text-align:center;"> 2 </td>
+   <td style="text-align:center;"> 3.881e+73 </td>
+   <td style="text-align:center;"> -7.417e+29 </td>
+   <td style="text-align:center;"> 2.664e+43 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> 0.1 </td>
+   <td style="text-align:center;"> 3 </td>
+   <td style="text-align:center;"> 4.069e+73 </td>
+   <td style="text-align:center;"> -6.509e+29 </td>
+   <td style="text-align:center;"> 2.742e+43 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> 0.1 </td>
+   <td style="text-align:center;"> 4 </td>
+   <td style="text-align:center;"> 4.266e+73 </td>
+   <td style="text-align:center;"> -5.712e+29 </td>
+   <td style="text-align:center;"> 2.821e+43 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> 0.1 </td>
+   <td style="text-align:center;"> 5 </td>
+   <td style="text-align:center;"> 4.472e+73 </td>
+   <td style="text-align:center;"> -5.013e+29 </td>
+   <td style="text-align:center;"> 2.904e+43 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> 0.1 </td>
+   <td style="text-align:center;"> 6 </td>
+   <td style="text-align:center;"> 4.689e+73 </td>
+   <td style="text-align:center;"> -4.399e+29 </td>
+   <td style="text-align:center;"> 2.988e+43 </td>
+  </tr>
+</tbody>
+</table>... (54 more rows)
 summary(qte_grid)
-#> QTE Summary
-#> ================================================== 
-#> Prediction points: 20 | Quantiles: 3
-#> Quantile grid: 0.1, 0.5, 0.9
-#> Conditional: YES | PS used: YES
-#> Interval: hpd
-#> 
-#> Model specification:
-#>   Backend (trt/con): sb / sb
-#>   Kernel (trt/con): normal / normal
-#>   GPD tail (trt/con): YES / YES
-#> 
-#> QTE by quantile:
-#>  quantile     mean_qte   median_qte      min_qte      max_qte       sd_qte
-#>       0.1 6.017011e+73 5.802194e+73 3.701822e+73 9.073018e+73 1.668230e+73
-#>       0.5 3.939864e+74 3.798390e+74 2.423385e+74 5.948655e+74 1.093560e+74
-#>       0.9 1.291351e+75 1.244946e+75 7.942781e+74 1.950085e+75 3.584829e+74
-#> 
-#> Credible interval width:
-#>   Mean: 4.54299494313147e+44 | Median: 2.19277425358873e+44
-#>   Range: [7.05972174744674e+28, 1.53846697783865e+45]
+QTE Summary
+================================================== 
+Prediction points: 20 | Quantiles: 3
+Quantile grid: 0.1, 0.5, 0.9
+Conditional: YES | PS used: YES
+Interval: hpd
+
+Model specification:
+  Backend (trt/con): sb / sb
+  Kernel (trt/con): normal / normal
+  GPD tail (trt/con): YES / YES
+
+QTE by quantile:
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:center;"> quantile </th>
+   <th style="text-align:center;"> mean_qte </th>
+   <th style="text-align:center;"> median_qte </th>
+   <th style="text-align:center;"> min_qte </th>
+   <th style="text-align:center;"> max_qte </th>
+   <th style="text-align:center;"> sd_qte </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:center;"> 0.1 </td>
+   <td style="text-align:center;"> 6.017e+73 </td>
+   <td style="text-align:center;"> 5.802e+73 </td>
+   <td style="text-align:center;"> 3.702e+73 </td>
+   <td style="text-align:center;"> 9.073e+73 </td>
+   <td style="text-align:center;"> 1.668e+73 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> 0.5 </td>
+   <td style="text-align:center;"> 3.940e+74 </td>
+   <td style="text-align:center;"> 3.798e+74 </td>
+   <td style="text-align:center;"> 2.423e+74 </td>
+   <td style="text-align:center;"> 5.949e+74 </td>
+   <td style="text-align:center;"> 1.094e+74 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> 0.9 </td>
+   <td style="text-align:center;"> 1.291e+75 </td>
+   <td style="text-align:center;"> 1.245e+75 </td>
+   <td style="text-align:center;"> 7.943e+74 </td>
+   <td style="text-align:center;"> 1.950e+75 </td>
+   <td style="text-align:center;"> 3.585e+74 </td>
+  </tr>
+</tbody>
+</table>
+Credible interval width:
+  Mean: 4.543e+44 | Median: 2.193e+44
+  Range: [7.060e+28, 1.538e+45]
 ```
 
 ### QTE Visualization
@@ -268,22 +505,22 @@ qte_plots$trt_control
 
 ``` r
 summary(fit)
-#> -- PS fit --
-#> DPmixGPD PS fit
-#> model: logit 
-#> 
-#> -- Outcome fits --
-#> [control]
-#> MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: TRUE
-#> n = 19 | components = 6 | epsilon = 0.025
-#> MCMC: niter=400, nburnin=100, thin=2, nchains=1 
-#> Fit
-#> Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
-#> 
-#> [treated]
-#> MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: TRUE
-#> n = 13 | components = 6 | epsilon = 0.025
-#> MCMC: niter=400, nburnin=100, thin=2, nchains=1 
-#> Fit
-#> Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
+-- PS fit --
+DPmixGPD PS fit
+model: logit 
+
+-- Outcome fits --
+[control]
+MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: TRUE
+n = 19 | components = 6 | epsilon = 0.025
+MCMC: niter=400, nburnin=100, thin=2, nchains=1 
+Fit
+Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
+
+[treated]
+MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: TRUE
+n = 13 | components = 6 | epsilon = 0.025
+MCMC: niter=400, nburnin=100, thin=2, nchains=1 
+Fit
+Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 ```
