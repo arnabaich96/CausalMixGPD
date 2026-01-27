@@ -76,8 +76,8 @@ kable(comparison_df, digits = 3, align = "c",
 
 | Backend | Estimate | Lower | Upper |
 |:-------:|:--------:|:-----:|:-----:|
-|   SB    |  3.202   | 3.070 | 3.328 |
-|   CRP   |  3.206   | 3.088 | 3.339 |
+|   SB    |   3.20   | 3.07  | 3.33  |
+|   CRP   |   3.21   | 3.09  | 3.34  |
 
 Posterior Mean Comparison: SB vs CRP
 

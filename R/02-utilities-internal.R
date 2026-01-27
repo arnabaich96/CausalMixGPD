@@ -87,6 +87,29 @@
     )
 }
 
+.wrap_plotly <- function(p) {
+  if (requireNamespace("plotly", quietly = TRUE)) {
+    if (is.list(p) && !inherits(p, "ggplot")) {
+      # List of plots - wrap each, preserve class
+      result <- lapply(p, function(plt) {
+        if (inherits(plt, "ggplot")) plotly::ggplotly(plt) else plt
+      })
+      # Preserve original class attributes
+      class(result) <- class(p)
+      result
+    } else if (inherits(p, "ggplot")) {
+      # Single ggplot - wrap it
+      plotly::ggplotly(p)
+    } else {
+      # Not a ggplot, return as-is
+      p
+    }
+  } else {
+    # plotly not available - return original
+    p
+  }
+}
+
 #' Coerce fit object to standardized data frame
 #'
 #' Converts various fit object formats (vector, matrix, data.frame) to a

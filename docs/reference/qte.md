@@ -49,7 +49,7 @@ treated/control prediction objects.
 
 ``` r
 if (FALSE) { # \dontrun{
-cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", J = 6)
+cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
 fit <- run_mcmc_causal(cb, show_progress = FALSE)
 qte(fit, probs = c(0.5, 0.9), newdata = X[1:5, ])
 qte(fit, probs = c(0.5, 0.9), interval = "credible", level = 0.90)  # 90% CI

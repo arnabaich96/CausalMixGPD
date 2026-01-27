@@ -25,7 +25,7 @@
   --rt-grad-hero: linear-gradient(120deg, #e6f1ff 0%, #f7f9ff 50%, #ffffff 100%);
   --rt-grad-nav: linear-gradient(90deg, #0f4c81 0%, #1e6fb8 55%, #2a86d6 100%);
   --rt-grad-card: linear-gradient(180deg, rgba(255,255,255,0.94) 0%, rgba(248,250,255,0.98) 100%);
-  --rt-grad-code: linear-gradient(180deg, #0b1220 0%, #111b2e 100%);
+  --rt-grad-code: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
 
   /* Typography */
   --rt-font-base: "Source Sans 3", "Helvetica Neue", Arial, sans-serif;
@@ -214,8 +214,8 @@ code{
 pre{
   font-family: var(--rt-font-mono);
   background: var(--rt-grad-code) !important;
-  color: #e2e8f0 !important;
-  border: 1px solid rgba(255,255,255,0.10);
+  color: var(--rt-ink) !important;
+  border: 1px solid var(--rt-border);
   border-radius: var(--rt-radius);
   padding: calc(1rem * var(--rt-space)) !important;
   box-shadow: var(--rt-shadow-sm);
@@ -225,6 +225,54 @@ pre code{
   background: transparent;
   border: none;
   color: inherit;
+}
+
+/* Ensure HTML tables in R output are rendered properly */
+.r-output,
+.r-output pre {
+  background: var(--rt-surface) !important;
+  color: var(--rt-ink) !important;
+  border: 1px solid var(--rt-border) !important;
+}
+.r-output pre code {
+  background: transparent !important;
+  color: var(--rt-ink) !important;
+  white-space: pre-wrap !important;
+}
+/* When HTML is embedded in R output, ensure it renders */
+.r-output pre code:has(table),
+.r-output:has(table) {
+  white-space: normal !important;
+}
+.r-output table,
+.r-output pre table,
+.r-output pre code table {
+  display: table !important;
+  width: auto !important;
+  margin: 1em auto !important;
+  border-collapse: collapse !important;
+  background: var(--rt-surface) !important;
+  color: var(--rt-ink) !important;
+  font-family: var(--rt-font-base) !important;
+}
+.r-output table th,
+.r-output table td,
+.r-output pre table th,
+.r-output pre table td,
+.r-output pre code table th,
+.r-output pre code table td {
+  display: table-cell !important;
+  padding: 0.5em 1em !important;
+  border: 1px solid var(--rt-border) !important;
+  text-align: center !important;
+  background: var(--rt-surface) !important;
+  color: var(--rt-ink) !important;
+}
+.r-output table thead th,
+.r-output pre table thead th,
+.r-output pre code table thead th {
+  background: #f1f5f9 !important;
+  font-weight: 600 !important;
 }
 
 /* Buttons */

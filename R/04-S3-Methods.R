@@ -342,7 +342,7 @@ plot.dpmixgpd_causal_fit <- function(x, arm = "both", ...) {
       control = plot.mixgpd_fit(x$outcome_fit$con, ...)
     )
     class(out) <- c("dpmixgpd_causal_fit_plots", "list")
-    return(out)
+    return(.wrap_plotly(out))
   }
   if (identical(arm, "treated")) {
     out <- plot.mixgpd_fit(x$outcome_fit$trt, ...)
@@ -351,7 +351,7 @@ plot.dpmixgpd_causal_fit <- function(x, arm = "both", ...) {
   } else {
     stop("arm must be 0/1 or 'treated'/'control'/'both'.", call. = FALSE)
   }
-  out
+  .wrap_plotly(out)
 }
 # helper
 `%||%` <- function(a, b) if (!is.null(a)) a else b
@@ -930,7 +930,7 @@ plot.mixgpd_fit <- function(x,
   }
 
   class(plots) <- c("mixgpd_fit_plots", "list")
-  plots
+  .wrap_plotly(plots)
 }
 
 
@@ -1371,7 +1371,7 @@ plot.mixgpd_predict <- function(x, y = NULL, ...) {
   if (!is.null(result)) {
     class(result) <- c("mixgpd_predict_plots", class(result))
   }
-  result
+  .wrap_plotly(result)
 }
 
 #' Plot causal prediction outputs
@@ -1483,7 +1483,7 @@ plot.dpmixgpd_causal_predict <- function(x, y = NULL, ...) {
 
     result <- list(trt_control = p_tc, treatment_effect = p_te)
     class(result) <- c("dpmixgpd_causal_predict_plots", "list")
-    return(result)
+    return(.wrap_plotly(result))
   }
 
   if (pred_type %in% c("density", "survival", "prob")) {
@@ -1508,7 +1508,7 @@ plot.dpmixgpd_causal_predict <- function(x, y = NULL, ...) {
                                     alpha = 0.2, color = NA)
     }
 
-    return(p)
+    return(.wrap_plotly(p))
   }
 
   stop("Unsupported causal prediction type for plotting.", call. = FALSE)
@@ -2151,13 +2151,13 @@ plot.dpmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"),
   if (type == "effect") {
     result <- .build_effect_plot()
     class(result) <- c("dpmixgpd_qte_plot", class(result))
-    return(result)
+    return(.wrap_plotly(result))
   }
 
   if (type == "arms") {
     result <- .build_arms_plot()
     class(result) <- c("dpmixgpd_qte_plot", class(result))
-    return(result)
+    return(.wrap_plotly(result))
   }
 
   # type == "both" (default) - maintain backward compatible naming
@@ -2166,7 +2166,7 @@ plot.dpmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"),
     treatment_effect = .build_effect_plot()
   )
   class(result) <- c("dpmixgpd_causal_predict_plots", "list")
-  result
+  .wrap_plotly(result)
 }
 
 #' Plot ATE results
@@ -2302,13 +2302,13 @@ plot.dpmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"), .
   if (type == "effect") {
     result <- .build_effect_plot()
     class(result) <- c("dpmixgpd_ate_plot", class(result))
-    return(result)
+    return(.wrap_plotly(result))
   }
 
   if (type == "arms") {
     result <- .build_arms_plot()
     class(result) <- c("dpmixgpd_ate_plot", class(result))
-    return(result)
+    return(.wrap_plotly(result))
   }
 
   # type == "both" (default) - maintain backward compatible naming
@@ -2317,7 +2317,7 @@ plot.dpmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"), .
     treatment_effect = .build_effect_plot()
   )
   class(result) <- c("dpmixgpd_causal_predict_plots", "list")
-  result
+  .wrap_plotly(result)
 }
 
 #' Print method for causal prediction plots
@@ -2402,7 +2402,7 @@ plot.mixgpd_fitted <- function(x, y = NULL, ...) {
   # Return plot list - prints only if not assigned to variable
   result <- list(observed_fitted_plot = p1, residual_plot = p2)
   class(result) <- c("mixgpd_fitted_plots", "list")
-  result
+  .wrap_plotly(result)
 }
 
 #' Print method for fitted value plots

@@ -45,6 +45,14 @@ Detailed documentation organized by topic:
   Inference**](https://arnabaich96.github.io/DPmixGPD/articles/causal.md) -
   Treatment effect estimation with propensity score adjustment
 
+- [**Umbrella: Custom Models
+  (All-in-One)**](https://arnabaich96.github.io/DPmixGPD/articles/allin1/umbrella.md) -
+  Consolidated custom model recipes for CRP/SB, GPD, and causal
+  workflows
+
+- **Customization: Build NIMBLE Models from Scratch** - Manual SB/CRP
+  workflows using exported nimbleFunctions with full NIMBLE pipelines
+
 #### Advanced Topics
 
 - [**Backends (CRP vs

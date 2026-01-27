@@ -1,8 +1,8 @@
 # 14. Causal Inference: No X (CRP) - Gamma Kernel
 
-> **Cookbook vignette (for the website / historical notes).** These files
-> may not match the current exported API one-to-one. Last verified:
-> **2026-01-18**.
+> **Cookbook vignette (for the website / historical notes).** These
+> files may not match the current exported API one-to-one. Last
+> verified: **2026-01-18**.
 >
 > For the up-to-date workflow, see the main package vignettes
 > (Introduction, Model Spec, MCMC Workflow,

@@ -47,7 +47,7 @@
       )
   }
 
-  p
+  .wrap_plotly(p)
 }
 
 #' Plot sample predictions: histogram with density overlay
@@ -74,7 +74,7 @@
       y = "Density"
     )
 
-  p
+  .wrap_plotly(p)
 }
 
 #' Plot mean predictions: histogram with mean line
@@ -148,7 +148,7 @@
       ggplot2::theme(axis.text.y = ggplot2::element_blank())
   }
 
-  p
+  .wrap_plotly(p)
 }
 
 #' Plot density predictions
@@ -200,7 +200,7 @@
       )
   }
 
-  p
+  .wrap_plotly(p)
 }
 
 #' Plot survival function predictions
@@ -259,7 +259,7 @@
       ggplot2::ylim(0, 1)
   }
 
-  p
+  .wrap_plotly(p)
 }
 
 #' Plot mean/median location predictions
@@ -293,7 +293,7 @@
         x = "",
         y = "Estimate"
       )
-    return(p)
+    return(.wrap_plotly(p))
   }
 
   plot_data <- rbind(
@@ -321,10 +321,10 @@
                            width = 0.2, linewidth = 0.8) +
     ggplot2::scale_color_manual(values = pal) +
     .plot_theme() +
-    ggplot2::labs(
-      title = "Location Predictions",
-      x = "Observation",
-      y = "Estimate"
-    )
-  p
+      ggplot2::labs(
+        title = "Location Predictions",
+        x = "Observation",
+        y = "Estimate"
+      )
+  .wrap_plotly(p)
 }

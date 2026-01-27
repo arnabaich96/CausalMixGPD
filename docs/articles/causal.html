@@ -31,9 +31,9 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="active nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-manual" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Manual</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-manual">
-<li><a class="dropdown-item" href="../articles/manual-index.html">Manual Overview</a></li>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
+<li><a class="dropdown-item" href="../articles/manual-index.html">Vignettes Overview</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Get Started</h6></li>
     <li><a class="dropdown-item" href="../articles/introduction.html">Introduction</a></li>
@@ -45,10 +45,15 @@
     <li><a class="dropdown-item" href="../articles/unconditional.html">Unconditional Models</a></li>
     <li><a class="dropdown-item" href="../articles/conditional.html">Conditional Models</a></li>
     <li><a class="dropdown-item" href="../articles/causal.html">Causal Inference</a></li>
-    <li><a class="dropdown-item" href="../articles/allin1/umbrella.html">Umbrella: Custom Models (All-in-One)</a></li>
-    <li><a class="dropdown-item" href="../articles/allin1/customization.html">Customization: Build NIMBLE Models from Scratch</a></li>
     <li><a class="dropdown-item" href="../articles/backends.html">Backends (CRP vs SB)</a></li>
     <li><a class="dropdown-item" href="../articles/reference-s3.html">S3 Methods Reference</a></li>
+  </ul>
+</li>
+<li class="nav-item dropdown">
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-all-in-one" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">All-in-One</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-all-in-one">
+<li><a class="dropdown-item" href="../articles/Customization/umbrella.html">Umbrella: Custom Models (All-in-One)</a></li>
+    <li><a class="dropdown-item" href="../articles/Customization/customization.html">Customization: Build NIMBLE Models from Scratch</a></li>
   </ul>
 </li>
 <li class="nav-item dropdown">
@@ -68,7 +73,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-cookbook" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Cookbook</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-cookbook">
-<li><a class="dropdown-item" href="../articles/cookbook-index.html">Cookbook Overview</a></li>
+<li><a class="dropdown-item" href="../articles/workflows-index.html">Cookbook Overview</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Getting Started</h6></li>
     <li><a class="dropdown-item" href="../articles/cookbook/v00-start-here.html">Start Here</a></li>
@@ -181,31 +186,60 @@ structure containing:</p>
 <li>Control arm outcome model</li>
 <li>Treated arm outcome model</li>
 </ul>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">bundle</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_causal_bundle.html">build_causal_bundle</a></span><span class="op">(</span></span>
-<span>  y <span class="op">=</span> <span class="va">y</span>,</span>
-<span>  X <span class="op">=</span> <span class="va">X</span>,</span>
-<span>  T <span class="op">=</span> <span class="va">T_ind</span>,</span>
-<span>  backend <span class="op">=</span> <span class="st">"sb"</span>,</span>
-<span>  kernel <span class="op">=</span> <span class="st">"normal"</span>,</span>
-<span>  GPD <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  components <span class="op">=</span> <span class="fl">6</span>,</span>
-<span>  PS <span class="op">=</span> <span class="st">"logit"</span>,</span>
-<span>  design <span class="op">=</span> <span class="st">"observational"</span>,</span>
-<span>  mcmc_outcome <span class="op">=</span> <span class="va">mcmc</span>,</span>
-<span>  mcmc_ps <span class="op">=</span> <span class="va">mcmc</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">bundle</span></span>
-<span><span class="co">#&gt; DPmixGPD causal bundle</span></span>
-<span><span class="co">#&gt; PS model: Bayesian logit (T | X) </span></span>
-<span><span class="co">#&gt; Outcome (treated): backend = sb | kernel = normal </span></span>
-<span><span class="co">#&gt; Outcome (control): backend = sb | kernel = normal </span></span>
-<span><span class="co">#&gt; GPD tail (treated/control): TRUE / TRUE </span></span>
-<span><span class="co">#&gt; components (treated/control): 6 / 6 </span></span>
-<span><span class="co">#&gt; Outcome PS included: TRUE </span></span>
-<span><span class="co">#&gt; epsilon (treated/control): 0.025 / 0.025 </span></span>
-<span><span class="co">#&gt; n (control) = 19 | n (treated) = 13</span></span></code></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> <span class="fu">build_causal_bundle</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="at">X =</span> X,</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="at">T =</span> T_ind,</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"normal"</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">6</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  <span class="at">PS =</span> <span class="st">"logit"</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>  <span class="at">mcmc_outcome =</span> mcmc,</span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a>  <span class="at">mcmc_ps =</span> mcmc</span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a>)</span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a>bundle</span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a>DPmixGPD causal bundle</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a>PS model<span class="sc">:</span> Bayesian <span class="fu">logit</span> (T <span class="sc">|</span> X) </span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="sc">&lt;</span>table class<span class="ot">=</span><span class="st">"table"</span> style<span class="ot">=</span><span class="st">"width: auto !important; margin-left: auto; margin-right: auto;"</span><span class="sc">&gt;</span></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a> <span class="er">&lt;</span>thead<span class="sc">&gt;</span></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> Field <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> Treated <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> Control <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a> <span class="er">&lt;/</span>thead<span class="sc">&gt;</span></span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a><span class="er">&lt;</span>tbody<span class="sc">&gt;</span></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> Backend <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-28"><a href="#cb2-28" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> Stick<span class="sc">-</span>Breaking Process <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-29"><a href="#cb2-29" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> Stick<span class="sc">-</span>Breaking Process <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-30"><a href="#cb2-30" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-31"><a href="#cb2-31" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-32"><a href="#cb2-32" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> Kernel <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-33"><a href="#cb2-33" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> normal <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-34"><a href="#cb2-34" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> normal <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-35"><a href="#cb2-35" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-36"><a href="#cb2-36" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-37"><a href="#cb2-37" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> Components <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-38"><a href="#cb2-38" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">6</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-39"><a href="#cb2-39" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">6</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-40"><a href="#cb2-40" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-41"><a href="#cb2-41" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-42"><a href="#cb2-42" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> GPD tail <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-43"><a href="#cb2-43" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="cn">TRUE</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-44"><a href="#cb2-44" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="cn">TRUE</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-45"><a href="#cb2-45" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-46"><a href="#cb2-46" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-47"><a href="#cb2-47" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> Epsilon <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-48"><a href="#cb2-48" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.025</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-49"><a href="#cb2-49" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.025</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb2-50"><a href="#cb2-50" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb2-51"><a href="#cb2-51" tabindex="-1"></a><span class="er">&lt;/</span>tbody<span class="sc">&gt;</span></span>
+<span id="cb2-52"><a href="#cb2-52" tabindex="-1"></a><span class="er">&lt;/</span>table<span class="sc">&gt;</span></span>
+<span id="cb2-53"><a href="#cb2-53" tabindex="-1"></a>Outcome PS included<span class="sc">:</span> <span class="cn">TRUE</span> </span>
+<span id="cb2-54"><a href="#cb2-54" tabindex="-1"></a><span class="fu">n</span> (control) <span class="ot">=</span> <span class="dv">19</span> <span class="sc">|</span> <span class="fu">n</span> (treated) <span class="ot">=</span> <span class="dv">13</span> </span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="mcmc-sampling">MCMC Sampling<a class="anchor" aria-label="anchor" href="#mcmc-sampling"></a>
@@ -216,102 +250,153 @@ structure containing:</p>
 <div class="section level2">
 <h2 id="average-treatment-effect-ate">Average Treatment Effect (ATE)<a class="anchor" aria-label="anchor" href="#average-treatment-effect-ate"></a>
 </h2>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ate_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ate.html">ate</a></span><span class="op">(</span><span class="va">fit</span>, interval <span class="op">=</span> <span class="st">"hpd"</span>, nsim_mean <span class="op">=</span> <span class="fl">100</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ate_result</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ATE (Average Treatment Effect)</span></span>
-<span><span class="co">#&gt;   Prediction points: 32</span></span>
-<span><span class="co">#&gt;   Conditional (covariates): YES</span></span>
-<span><span class="co">#&gt;   Propensity score used: YES</span></span>
-<span><span class="co">#&gt;   PS scale: logit</span></span>
-<span><span class="co">#&gt;   Posterior mean draws: 100</span></span>
-<span><span class="co">#&gt;   Credible interval: hpd</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ATE estimates (treated - control):</span></span>
-<span><span class="co">#&gt;  id</span></span>
-<span><span class="co">#&gt;   1</span></span>
-<span><span class="co">#&gt;   2</span></span>
-<span><span class="co">#&gt;   3</span></span>
-<span><span class="co">#&gt;   4</span></span>
-<span><span class="co">#&gt;   5</span></span>
-<span><span class="co">#&gt;   6</span></span>
-<span><span class="co">#&gt;                                                                                                   estimate</span></span>
-<span><span class="co">#&gt;                                        7096667510866028365642428628044606666822224404484288428622200606604</span></span>
-<span><span class="co">#&gt;                                       10927924379432985311062624488260860420202224688024066204226826282040</span></span>
-<span><span class="co">#&gt;                                                 3148231478745433839686822406262662282062424408060400026860</span></span>
-<span><span class="co">#&gt;                                       63687017154676256678026000046260662204804022422460426088868260262286</span></span>
-<span><span class="co">#&gt;  295196764188676856844006666882882664046808848206640062406268282208486068402080600844880844806426024806208</span></span>
-<span><span class="co">#&gt;                                         157059985200717430784060004660006682664600624046884428444462248006</span></span>
-<span><span class="co">#&gt;                                       lower</span></span>
-<span><span class="co">#&gt;               -2747790272822462333666200826</span></span>
-<span><span class="co">#&gt;               -4880832504754283040848062006</span></span>
-<span><span class="co">#&gt;                 -71121724819515471532862622</span></span>
-<span><span class="co">#&gt;              -38639703248965966492868266068</span></span>
-<span><span class="co">#&gt;  -11311162535858176138606606628802086224684</span></span>
-<span><span class="co">#&gt;              -11725495887471299434446442606</span></span>
-<span><span class="co">#&gt;                                                             upper</span></span>
-<span><span class="co">#&gt;                          7637892067445605590408406242460200048422</span></span>
-<span><span class="co">#&gt;                          7560155135420391095088842462046008644262</span></span>
-<span><span class="co">#&gt;                                5379519611544052621242002608824246</span></span>
-<span><span class="co">#&gt;                          7036001880198412145282226882860046222682</span></span>
-<span><span class="co">#&gt;  3774127950000666032408820608600868668200440862424800064860600622</span></span>
-<span><span class="co">#&gt;                           135068503763886957392828008242420062622</span></span>
-<span><span class="co">#&gt; ... (26 more rows)</span></span>
-<span></span>
-<span><span class="va">X_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  wt <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">X</span><span class="op">$</span><span class="va">wt</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">X</span><span class="op">$</span><span class="va">wt</span><span class="op">)</span>, length.out <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>,</span>
-<span>  hp <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">X</span><span class="op">$</span><span class="va">hp</span><span class="op">)</span>,</span>
-<span>  qsec <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">X</span><span class="op">$</span><span class="va">qsec</span><span class="op">)</span>,</span>
-<span>  cyl <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/median.html" class="external-link">median</a></span><span class="op">(</span><span class="va">X</span><span class="op">$</span><span class="va">cyl</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">ate_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ate.html">ate</a></span><span class="op">(</span><span class="va">fit</span>, newdata <span class="op">=</span> <span class="va">X_new</span>, interval <span class="op">=</span> <span class="st">"hpd"</span>, nsim_mean <span class="op">=</span> <span class="fl">100</span>, level <span class="op">=</span> <span class="fl">0.90</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">ate_grid</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ATE (Average Treatment Effect)</span></span>
-<span><span class="co">#&gt;   Prediction points: 20</span></span>
-<span><span class="co">#&gt;   Conditional (covariates): YES</span></span>
-<span><span class="co">#&gt;   Propensity score used: YES</span></span>
-<span><span class="co">#&gt;   PS scale: logit</span></span>
-<span><span class="co">#&gt;   Posterior mean draws: 100</span></span>
-<span><span class="co">#&gt;   Credible interval: hpd</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ATE estimates (treated - control):</span></span>
-<span><span class="co">#&gt;  id                                                                    estimate</span></span>
-<span><span class="co">#&gt;   1 356291123625066394184866000266024442226442464404080022020264880482642686264</span></span>
-<span><span class="co">#&gt;   2 315502974835711680788664866222022862860220464602406846402804284828060026642</span></span>
-<span><span class="co">#&gt;   3 419886906742639523166888024484000824820404006442448006408824842080080408266</span></span>
-<span><span class="co">#&gt;   4 438667860694979024960862882246680684240488040828264642808004684604824066408</span></span>
-<span><span class="co">#&gt;   5 433185240151963102004206468286064404286848666460886286246666844664200464420</span></span>
-<span><span class="co">#&gt;   6 479177795249027216928284226800024822008060888066662084846626224064200284628</span></span>
-<span><span class="co">#&gt;                              lower                          upper</span></span>
-<span><span class="co">#&gt;  -10606632799802708049846888086866 915239986334302631764266680828</span></span>
-<span><span class="co">#&gt;  -11053149677324241554462806222406 738634134710587895764842286840</span></span>
-<span><span class="co">#&gt;   -7024420947056082042046840860802 607830592355878008926220680004</span></span>
-<span><span class="co">#&gt;   -7786960419907729740808224680264 528662899568321857204626406400</span></span>
-<span><span class="co">#&gt;   -6407761805367234753844640240488 484043760964961238164684446004</span></span>
-<span><span class="co">#&gt;   -5115586452450254644806426426268 380940956566093815764844048404</span></span>
-<span><span class="co">#&gt; ... (14 more rows)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">ate_grid</span><span class="op">)</span></span>
-<span><span class="co">#&gt; ATE Summary</span></span>
-<span><span class="co">#&gt; ================================================== </span></span>
-<span><span class="co">#&gt; Prediction points: 20</span></span>
-<span><span class="co">#&gt; Conditional: YES | PS used: YES</span></span>
-<span><span class="co">#&gt; Posterior mean draws: 100</span></span>
-<span><span class="co">#&gt; Interval: hpd</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Model specification:</span></span>
-<span><span class="co">#&gt;   Backend (trt/con): sb / sb</span></span>
-<span><span class="co">#&gt;   Kernel (trt/con): normal / normal</span></span>
-<span><span class="co">#&gt;   GPD tail (trt/con): YES / YES</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; ATE statistics:</span></span>
-<span><span class="co">#&gt;   Mean: 565186376147263644928062462826028020488060442600600042804400224482042426688 | Median: 512898071566213885928884420806820288484288048666040244266286462840466284426</span></span>
-<span><span class="co">#&gt;   Range: [315502974835711680788664866222022862860220464602406846402804284828060026642, 923496654020960354660264020806284420046888042808688222004600200864828826880]</span></span>
-<span><span class="co">#&gt;   SD: 161418131241249470490684028668426280422602000286682084420228040446264820002</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Credible interval width:</span></span>
-<span><span class="co">#&gt;   Mean: 4479715588633826153286204220422 | Median: 3759418269932851645224442886406</span></span>
-<span><span class="co">#&gt;   Range: [208686307002747477200800466, 11791783812034830154608624806486]</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>ate_result <span class="ot">&lt;-</span> <span class="fu">ate</span>(fit, <span class="at">interval =</span> <span class="st">"hpd"</span>, <span class="at">nsim_mean =</span> <span class="dv">100</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="fu">print</span>(ate_result)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="fu">ATE</span> (Average Treatment Effect)</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  Prediction points<span class="sc">:</span> <span class="dv">32</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="fu">Conditional</span> (covariates)<span class="sc">:</span> YES</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>  Propensity score used<span class="sc">:</span> YES</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a>  PS scale<span class="sc">:</span> logit</span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a>  Posterior mean draws<span class="sc">:</span> <span class="dv">100</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a>  Credible interval<span class="sc">:</span> hpd</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>ATE <span class="fu">estimates</span> (treated <span class="sc">-</span> control)<span class="sc">:</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="er">&lt;</span>table class<span class="ot">=</span><span class="st">"table"</span> style<span class="ot">=</span><span class="st">"width: auto !important; margin-left: auto; margin-right: auto;"</span><span class="sc">&gt;</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a> <span class="er">&lt;</span>thead<span class="sc">&gt;</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> id <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> estimate <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> lower <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> upper <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a> <span class="er">&lt;/</span>thead<span class="sc">&gt;</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a><span class="er">&lt;</span>tbody<span class="sc">&gt;</span></span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">1</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">7.097e+66</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">2.748e+27</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">7.638e+39</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-28"><a href="#cb4-28" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-29"><a href="#cb4-29" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">2</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-30"><a href="#cb4-30" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">1.093e+67</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-31"><a href="#cb4-31" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">4.881e+27</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-32"><a href="#cb4-32" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">7.560e+39</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-33"><a href="#cb4-33" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-34"><a href="#cb4-34" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-35"><a href="#cb4-35" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">3</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-36"><a href="#cb4-36" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">3.148e+57</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-37"><a href="#cb4-37" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">7.112e+25</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-38"><a href="#cb4-38" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">5.380e+33</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-39"><a href="#cb4-39" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-40"><a href="#cb4-40" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-41"><a href="#cb4-41" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">4</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-42"><a href="#cb4-42" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">6.369e+67</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-43"><a href="#cb4-43" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">3.864e+28</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-44"><a href="#cb4-44" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">7.036e+39</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-45"><a href="#cb4-45" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-46"><a href="#cb4-46" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-47"><a href="#cb4-47" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">5</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-48"><a href="#cb4-48" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">2.952e+104</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-49"><a href="#cb4-49" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">1.131e+40</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-50"><a href="#cb4-50" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">3.774e+63</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-51"><a href="#cb4-51" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-52"><a href="#cb4-52" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-53"><a href="#cb4-53" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">6</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-54"><a href="#cb4-54" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">1.571e+65</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-55"><a href="#cb4-55" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">1.173e+28</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-56"><a href="#cb4-56" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">1.351e+38</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-57"><a href="#cb4-57" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-58"><a href="#cb4-58" tabindex="-1"></a><span class="er">&lt;/</span>tbody<span class="sc">&gt;</span></span>
+<span id="cb4-59"><a href="#cb4-59" tabindex="-1"></a><span class="er">&lt;/</span>table<span class="sc">&gt;</span><span class="fu">...</span> (<span class="dv">26</span> more rows)</span>
+<span id="cb4-60"><a href="#cb4-60" tabindex="-1"></a></span>
+<span id="cb4-61"><a href="#cb4-61" tabindex="-1"></a>X_new <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb4-62"><a href="#cb4-62" tabindex="-1"></a>  <span class="at">wt =</span> <span class="fu">seq</span>(<span class="fu">min</span>(X<span class="sc">$</span>wt), <span class="fu">max</span>(X<span class="sc">$</span>wt), <span class="at">length.out =</span> <span class="dv">20</span>),</span>
+<span id="cb4-63"><a href="#cb4-63" tabindex="-1"></a>  <span class="at">hp =</span> stats<span class="sc">::</span><span class="fu">median</span>(X<span class="sc">$</span>hp),</span>
+<span id="cb4-64"><a href="#cb4-64" tabindex="-1"></a>  <span class="at">qsec =</span> stats<span class="sc">::</span><span class="fu">median</span>(X<span class="sc">$</span>qsec),</span>
+<span id="cb4-65"><a href="#cb4-65" tabindex="-1"></a>  <span class="at">cyl =</span> stats<span class="sc">::</span><span class="fu">median</span>(X<span class="sc">$</span>cyl)</span>
+<span id="cb4-66"><a href="#cb4-66" tabindex="-1"></a>)</span>
+<span id="cb4-67"><a href="#cb4-67" tabindex="-1"></a>ate_grid <span class="ot">&lt;-</span> <span class="fu">ate</span>(fit, <span class="at">newdata =</span> X_new, <span class="at">interval =</span> <span class="st">"hpd"</span>, <span class="at">nsim_mean =</span> <span class="dv">100</span>, <span class="at">level =</span> <span class="fl">0.90</span>)</span>
+<span id="cb4-68"><a href="#cb4-68" tabindex="-1"></a></span>
+<span id="cb4-69"><a href="#cb4-69" tabindex="-1"></a><span class="fu">print</span>(ate_grid)</span>
+<span id="cb4-70"><a href="#cb4-70" tabindex="-1"></a><span class="fu">ATE</span> (Average Treatment Effect)</span>
+<span id="cb4-71"><a href="#cb4-71" tabindex="-1"></a>  Prediction points<span class="sc">:</span> <span class="dv">20</span></span>
+<span id="cb4-72"><a href="#cb4-72" tabindex="-1"></a>  <span class="fu">Conditional</span> (covariates)<span class="sc">:</span> YES</span>
+<span id="cb4-73"><a href="#cb4-73" tabindex="-1"></a>  Propensity score used<span class="sc">:</span> YES</span>
+<span id="cb4-74"><a href="#cb4-74" tabindex="-1"></a>  PS scale<span class="sc">:</span> logit</span>
+<span id="cb4-75"><a href="#cb4-75" tabindex="-1"></a>  Posterior mean draws<span class="sc">:</span> <span class="dv">100</span></span>
+<span id="cb4-76"><a href="#cb4-76" tabindex="-1"></a>  Credible interval<span class="sc">:</span> hpd</span>
+<span id="cb4-77"><a href="#cb4-77" tabindex="-1"></a></span>
+<span id="cb4-78"><a href="#cb4-78" tabindex="-1"></a>ATE <span class="fu">estimates</span> (treated <span class="sc">-</span> control)<span class="sc">:</span></span>
+<span id="cb4-79"><a href="#cb4-79" tabindex="-1"></a><span class="er">&lt;</span>table class<span class="ot">=</span><span class="st">"table"</span> style<span class="ot">=</span><span class="st">"width: auto !important; margin-left: auto; margin-right: auto;"</span><span class="sc">&gt;</span></span>
+<span id="cb4-80"><a href="#cb4-80" tabindex="-1"></a> <span class="er">&lt;</span>thead<span class="sc">&gt;</span></span>
+<span id="cb4-81"><a href="#cb4-81" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-82"><a href="#cb4-82" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> id <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb4-83"><a href="#cb4-83" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> estimate <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb4-84"><a href="#cb4-84" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> lower <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb4-85"><a href="#cb4-85" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> upper <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb4-86"><a href="#cb4-86" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-87"><a href="#cb4-87" tabindex="-1"></a> <span class="er">&lt;/</span>thead<span class="sc">&gt;</span></span>
+<span id="cb4-88"><a href="#cb4-88" tabindex="-1"></a><span class="er">&lt;</span>tbody<span class="sc">&gt;</span></span>
+<span id="cb4-89"><a href="#cb4-89" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-90"><a href="#cb4-90" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">1</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-91"><a href="#cb4-91" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">3.563e+74</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-92"><a href="#cb4-92" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">1.061e+31</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-93"><a href="#cb4-93" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">9.152e+29</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-94"><a href="#cb4-94" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-95"><a href="#cb4-95" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-96"><a href="#cb4-96" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">2</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-97"><a href="#cb4-97" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">3.155e+74</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-98"><a href="#cb4-98" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">1.105e+31</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-99"><a href="#cb4-99" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">7.386e+29</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-100"><a href="#cb4-100" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-101"><a href="#cb4-101" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-102"><a href="#cb4-102" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">3</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-103"><a href="#cb4-103" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">4.199e+74</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-104"><a href="#cb4-104" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">7.024e+30</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-105"><a href="#cb4-105" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">6.078e+29</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-106"><a href="#cb4-106" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-107"><a href="#cb4-107" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-108"><a href="#cb4-108" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">4</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-109"><a href="#cb4-109" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">4.387e+74</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-110"><a href="#cb4-110" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">7.787e+30</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-111"><a href="#cb4-111" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">5.287e+29</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-112"><a href="#cb4-112" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-113"><a href="#cb4-113" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-114"><a href="#cb4-114" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">5</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-115"><a href="#cb4-115" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">4.332e+74</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-116"><a href="#cb4-116" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">6.408e+30</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-117"><a href="#cb4-117" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">4.840e+29</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-118"><a href="#cb4-118" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-119"><a href="#cb4-119" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-120"><a href="#cb4-120" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">6</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-121"><a href="#cb4-121" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">4.792e+74</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-122"><a href="#cb4-122" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">5.116e+30</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-123"><a href="#cb4-123" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">3.809e+29</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb4-124"><a href="#cb4-124" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb4-125"><a href="#cb4-125" tabindex="-1"></a><span class="er">&lt;/</span>tbody<span class="sc">&gt;</span></span>
+<span id="cb4-126"><a href="#cb4-126" tabindex="-1"></a><span class="er">&lt;/</span>table<span class="sc">&gt;</span><span class="fu">...</span> (<span class="dv">14</span> more rows)</span>
+<span id="cb4-127"><a href="#cb4-127" tabindex="-1"></a><span class="fu">summary</span>(ate_grid)</span>
+<span id="cb4-128"><a href="#cb4-128" tabindex="-1"></a>ATE Summary</span>
+<span id="cb4-129"><a href="#cb4-129" tabindex="-1"></a><span class="sc">==</span><span class="er">================================================</span> </span>
+<span id="cb4-130"><a href="#cb4-130" tabindex="-1"></a>Prediction points<span class="sc">:</span> <span class="dv">20</span></span>
+<span id="cb4-131"><a href="#cb4-131" tabindex="-1"></a>Conditional<span class="sc">:</span> YES <span class="sc">|</span> PS used<span class="sc">:</span> YES</span>
+<span id="cb4-132"><a href="#cb4-132" tabindex="-1"></a>Posterior mean draws<span class="sc">:</span> <span class="dv">100</span></span>
+<span id="cb4-133"><a href="#cb4-133" tabindex="-1"></a>Interval<span class="sc">:</span> hpd</span>
+<span id="cb4-134"><a href="#cb4-134" tabindex="-1"></a></span>
+<span id="cb4-135"><a href="#cb4-135" tabindex="-1"></a>Model specification<span class="sc">:</span></span>
+<span id="cb4-136"><a href="#cb4-136" tabindex="-1"></a>  <span class="fu">Backend</span> (trt<span class="sc">/</span>con)<span class="sc">:</span> sb <span class="sc">/</span> sb</span>
+<span id="cb4-137"><a href="#cb4-137" tabindex="-1"></a>  <span class="fu">Kernel</span> (trt<span class="sc">/</span>con)<span class="sc">:</span> normal <span class="sc">/</span> normal</span>
+<span id="cb4-138"><a href="#cb4-138" tabindex="-1"></a>  GPD <span class="fu">tail</span> (trt<span class="sc">/</span>con)<span class="sc">:</span> YES <span class="sc">/</span> YES</span>
+<span id="cb4-139"><a href="#cb4-139" tabindex="-1"></a></span>
+<span id="cb4-140"><a href="#cb4-140" tabindex="-1"></a>ATE statistics<span class="sc">:</span></span>
+<span id="cb4-141"><a href="#cb4-141" tabindex="-1"></a>  Mean<span class="sc">:</span> <span class="fl">5.652e+74</span> <span class="sc">|</span> Median<span class="sc">:</span> <span class="fl">5.129e+74</span></span>
+<span id="cb4-142"><a href="#cb4-142" tabindex="-1"></a>  Range<span class="sc">:</span> [<span class="fl">3.155e+74</span>, <span class="fl">9.235e+74</span>]</span>
+<span id="cb4-143"><a href="#cb4-143" tabindex="-1"></a>  SD<span class="sc">:</span> <span class="fl">1.614e+74</span></span>
+<span id="cb4-144"><a href="#cb4-144" tabindex="-1"></a></span>
+<span id="cb4-145"><a href="#cb4-145" tabindex="-1"></a>Credible interval width<span class="sc">:</span></span>
+<span id="cb4-146"><a href="#cb4-146" tabindex="-1"></a>  Mean<span class="sc">:</span> <span class="fl">4.480e+30</span> <span class="sc">|</span> Median<span class="sc">:</span> <span class="fl">3.759e+30</span></span>
+<span id="cb4-147"><a href="#cb4-147" tabindex="-1"></a>  Range<span class="sc">:</span> [<span class="fl">2.087e+26</span>, <span class="fl">1.179e+31</span>]</span></code></pre></div>
 <div class="section level3">
 <h3 id="ate-visualization">ATE Visualization<a class="anchor" aria-label="anchor" href="#ate-visualization"></a>
 </h3>
@@ -330,133 +415,204 @@ intervals</li>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ate_plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">ate_grid</span><span class="op">)</span></span>
 <span><span class="va">ate_plots</span><span class="op">$</span><span class="va">treatment_effect</span></span></code></pre></div>
-<p><img src="causal_files/figure-html/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;"></p>
+<p><img src="causal_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ate_plots</span><span class="op">$</span><span class="va">trt_control</span></span></code></pre></div>
-<p><img src="causal_files/figure-html/unnamed-chunk-6-1.png" width="672" style="display: block; margin: auto;"></p>
+<p><img src="causal_files/figure-html/unnamed-chunk-6-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="quantile-treatment-effect-qte">Quantile Treatment Effect (QTE)<a class="anchor" aria-label="anchor" href="#quantile-treatment-effect-qte"></a>
 </h2>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">probs</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span></span>
-<span><span class="va">qte_result</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/qte.html">qte</a></span><span class="op">(</span><span class="va">fit</span>, probs <span class="op">=</span> <span class="va">probs</span>, interval <span class="op">=</span> <span class="st">"hpd"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">qte_result</span><span class="op">)</span></span>
-<span><span class="co">#&gt; QTE (Quantile Treatment Effect)</span></span>
-<span><span class="co">#&gt;   Prediction points: 32</span></span>
-<span><span class="co">#&gt;   Quantile grid: 0.1, 0.5, 0.9</span></span>
-<span><span class="co">#&gt;   Conditional (covariates): YES</span></span>
-<span><span class="co">#&gt;   Propensity score used: YES</span></span>
-<span><span class="co">#&gt;   PS scale: logit</span></span>
-<span><span class="co">#&gt;   Credible interval: hpd</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; QTE estimates (treated - control):</span></span>
-<span><span class="co">#&gt;  index id</span></span>
-<span><span class="co">#&gt;    0.1  1</span></span>
-<span><span class="co">#&gt;    0.1  2</span></span>
-<span><span class="co">#&gt;    0.1  3</span></span>
-<span><span class="co">#&gt;    0.1  4</span></span>
-<span><span class="co">#&gt;    0.1  5</span></span>
-<span><span class="co">#&gt;    0.1  6</span></span>
-<span><span class="co">#&gt;                                                                                                  estimate</span></span>
-<span><span class="co">#&gt;                                        650404490659630692928248040288022486826228088608424088488046048800</span></span>
-<span><span class="co">#&gt;                                       1037102931530306356580800860242622808644426668248644282266208884668</span></span>
-<span><span class="co">#&gt;                                                 398081875308040653786022866402468488288248668440824602468</span></span>
-<span><span class="co">#&gt;                                       6539472114607083069208426220262820088400866280800684004646246862268</span></span>
-<span><span class="co">#&gt;  33012558298783776118206840680206486646822040880806600624280206066848444280226460600464646248648646622866</span></span>
-<span><span class="co">#&gt;                                         16360914652806056706268428880028084068200888844004844822284428286</span></span>
-<span><span class="co">#&gt;                                      lower</span></span>
-<span><span class="co">#&gt;               -225613606647888984042442202</span></span>
-<span><span class="co">#&gt;               -351388101540508207264646604</span></span>
-<span><span class="co">#&gt;                 -5332543871018899853220468</span></span>
-<span><span class="co">#&gt;              -3865799738613898444062848664</span></span>
-<span><span class="co">#&gt;  -1026750679860844839124848802842820082000</span></span>
-<span><span class="co">#&gt;               -714438999854781366922660426</span></span>
-<span><span class="co">#&gt;                                                            upper</span></span>
-<span><span class="co">#&gt;                          532013503598497433248668626244266462400</span></span>
-<span><span class="co">#&gt;                          532878765743108933846862804206842822264</span></span>
-<span><span class="co">#&gt;                                416959370197471316928286042202042</span></span>
-<span><span class="co">#&gt;                          482588083140434884202400422684062064822</span></span>
-<span><span class="co">#&gt;  328674345596142111926800648004046242460288028068240264688462628</span></span>
-<span><span class="co">#&gt;                            6866405888576005597204004006848462688</span></span>
-<span><span class="co">#&gt; ... (90 more rows)</span></span>
-<span></span>
-<span><span class="va">qte_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/qte.html">qte</a></span><span class="op">(</span><span class="va">fit</span>, probs <span class="op">=</span> <span class="va">probs</span>, newdata <span class="op">=</span> <span class="va">X_new</span>, interval <span class="op">=</span> <span class="st">"hpd"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">qte_grid</span><span class="op">)</span></span>
-<span><span class="co">#&gt; QTE (Quantile Treatment Effect)</span></span>
-<span><span class="co">#&gt;   Prediction points: 20</span></span>
-<span><span class="co">#&gt;   Quantile grid: 0.1, 0.5, 0.9</span></span>
-<span><span class="co">#&gt;   Conditional (covariates): YES</span></span>
-<span><span class="co">#&gt;   Propensity score used: YES</span></span>
-<span><span class="co">#&gt;   PS scale: logit</span></span>
-<span><span class="co">#&gt;   Credible interval: hpd</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; QTE estimates (treated - control):</span></span>
-<span><span class="co">#&gt;  index id</span></span>
-<span><span class="co">#&gt;    0.1  1</span></span>
-<span><span class="co">#&gt;    0.1  2</span></span>
-<span><span class="co">#&gt;    0.1  3</span></span>
-<span><span class="co">#&gt;    0.1  4</span></span>
-<span><span class="co">#&gt;    0.1  5</span></span>
-<span><span class="co">#&gt;    0.1  6</span></span>
-<span><span class="co">#&gt;                                                                    estimate</span></span>
-<span><span class="co">#&gt;  37018216935626900484468480448440822888464606600486042842208866840282828662</span></span>
-<span><span class="co">#&gt;  38810351651509365144644288624244466844062228020440268046208488468248440688</span></span>
-<span><span class="co">#&gt;  40689249465861041744220262062204280006282824288222282202268886246680242048</span></span>
-<span><span class="co">#&gt;  42659110974376508284882666660400840204848824200820424402642088684442846444</span></span>
-<span><span class="co">#&gt;  44724340146518614336048682862686448080628486402646646266066622260606042220</span></span>
-<span><span class="co">#&gt;  46889554159204924732882202202042242402288204682404608068244246066000684840</span></span>
-<span><span class="co">#&gt;                            lower                                        upper</span></span>
-<span><span class="co">#&gt;  -845144394215988977600884644262 25888567401960837298646206204846282646086622</span></span>
-<span><span class="co">#&gt;  -741690938141381292244806802664 26641718856267959944088068666046082826068026</span></span>
-<span><span class="co">#&gt;  -650901137706007963402042860208 27416781029091017804806800048040402286226626</span></span>
-<span><span class="co">#&gt;  -571224844850693377728820666266 28214391348112217488068640402868208262268042</span></span>
-<span><span class="co">#&gt;  -501301663912711333466026826286 29035205785090748824042622004084082424666422</span></span>
-<span><span class="co">#&gt;  -439937724185191273642246884486 29879899395347893216080404406620682822820242</span></span>
-<span><span class="co">#&gt; ... (54 more rows)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">qte_grid</span><span class="op">)</span></span>
-<span><span class="co">#&gt; QTE Summary</span></span>
-<span><span class="co">#&gt; ================================================== </span></span>
-<span><span class="co">#&gt; Prediction points: 20 | Quantiles: 3</span></span>
-<span><span class="co">#&gt; Quantile grid: 0.1, 0.5, 0.9</span></span>
-<span><span class="co">#&gt; Conditional: YES | PS used: YES</span></span>
-<span><span class="co">#&gt; Interval: hpd</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Model specification:</span></span>
-<span><span class="co">#&gt;   Backend (trt/con): sb / sb</span></span>
-<span><span class="co">#&gt;   Kernel (trt/con): normal / normal</span></span>
-<span><span class="co">#&gt;   GPD tail (trt/con): YES / YES</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; QTE by quantile:</span></span>
-<span><span class="co">#&gt;  quantile</span></span>
-<span><span class="co">#&gt;       0.1</span></span>
-<span><span class="co">#&gt;       0.5</span></span>
-<span><span class="co">#&gt;       0.9</span></span>
-<span><span class="co">#&gt;                                                                      mean_qte</span></span>
-<span><span class="co">#&gt;    60170109297553223224624866248024202246428462424408040242248446406660846660</span></span>
-<span><span class="co">#&gt;   393986445151065435444226466002648842824842448424462080620000864046804602842</span></span>
-<span><span class="co">#&gt;  1291350832900484849528662806826822688228028020482820422628064824242482260444</span></span>
-<span><span class="co">#&gt;                                                                    median_qte</span></span>
-<span><span class="co">#&gt;    58021936172310087418244620220062844228424468882800660400002002602680204824</span></span>
-<span><span class="co">#&gt;   379838996866779433306200644444440486226848264284620660648004882680428246420</span></span>
-<span><span class="co">#&gt;  1244946457902224178000600806828004488844826222204488626244208822406084646846</span></span>
-<span><span class="co">#&gt;                                                                      min_qte</span></span>
-<span><span class="co">#&gt;   37018216935626900484468480448440822888464606600486042842208866840282828662</span></span>
-<span><span class="co">#&gt;  242338465280927359162824628862660486820882864244420224446402220220864844800</span></span>
-<span><span class="co">#&gt;  794278081601866283908828868860006008640820800448886062804688464400248888404</span></span>
-<span><span class="co">#&gt;                                                                       max_qte</span></span>
-<span><span class="co">#&gt;    90730176796431427920202444420880820462808480608480664484446880802402060062</span></span>
-<span><span class="co">#&gt;   594865475049534360040026404220406280246044808266222606446088224280040844480</span></span>
-<span><span class="co">#&gt;  1950084526264157262464262468200628664206280446884066288600642228068802046622</span></span>
-<span><span class="co">#&gt;                                                                       sd_qte</span></span>
-<span><span class="co">#&gt;   16682297749508098956808624440482648848462480440082064224646608888420822224</span></span>
-<span><span class="co">#&gt;  109355964239522834122462424866844668666060404888486660228882080262860848264</span></span>
-<span><span class="co">#&gt;  358482851897598298708840044284226880828444026468842062460688268400020224022</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Credible interval width:</span></span>
-<span><span class="co">#&gt;   Mean: 454299494313147415486288202266040604484404808 | Median: 219277425358873240266022684082444682282408200</span></span>
-<span><span class="co">#&gt;   Range: [70597217474467358216442662808, 1538466977838651271140684046288826246428880884]</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>probs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>qte_result <span class="ot">&lt;-</span> <span class="fu">qte</span>(fit, <span class="at">probs =</span> probs, <span class="at">interval =</span> <span class="st">"hpd"</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">print</span>(qte_result)</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="fu">QTE</span> (Quantile Treatment Effect)</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>  Prediction points<span class="sc">:</span> <span class="dv">32</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>  Quantile grid<span class="sc">:</span> <span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  <span class="fu">Conditional</span> (covariates)<span class="sc">:</span> YES</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  Propensity score used<span class="sc">:</span> YES</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>  PS scale<span class="sc">:</span> logit</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>  Credible interval<span class="sc">:</span> hpd</span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>QTE <span class="fu">estimates</span> (treated <span class="sc">-</span> control)<span class="sc">:</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="er">&lt;</span>table class<span class="ot">=</span><span class="st">"table"</span> style<span class="ot">=</span><span class="st">"width: auto !important; margin-left: auto; margin-right: auto;"</span><span class="sc">&gt;</span></span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a> <span class="er">&lt;</span>thead<span class="sc">&gt;</span></span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> index <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb7-17"><a href="#cb7-17" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> id <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb7-18"><a href="#cb7-18" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> estimate <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb7-19"><a href="#cb7-19" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> lower <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb7-20"><a href="#cb7-20" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> upper <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb7-21"><a href="#cb7-21" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-22"><a href="#cb7-22" tabindex="-1"></a> <span class="er">&lt;/</span>thead<span class="sc">&gt;</span></span>
+<span id="cb7-23"><a href="#cb7-23" tabindex="-1"></a><span class="er">&lt;</span>tbody<span class="sc">&gt;</span></span>
+<span id="cb7-24"><a href="#cb7-24" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-25"><a href="#cb7-25" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.1</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-26"><a href="#cb7-26" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">1</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-27"><a href="#cb7-27" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">6.504e+65</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-28"><a href="#cb7-28" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">2.256e+26</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-29"><a href="#cb7-29" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">5.320e+38</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-30"><a href="#cb7-30" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-31"><a href="#cb7-31" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-32"><a href="#cb7-32" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.1</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-33"><a href="#cb7-33" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">2</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-34"><a href="#cb7-34" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">1.037e+66</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-35"><a href="#cb7-35" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">3.514e+26</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-36"><a href="#cb7-36" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">5.329e+38</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-37"><a href="#cb7-37" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-38"><a href="#cb7-38" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-39"><a href="#cb7-39" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.1</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-40"><a href="#cb7-40" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">3</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-41"><a href="#cb7-41" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">3.981e+56</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-42"><a href="#cb7-42" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">5.333e+24</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-43"><a href="#cb7-43" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">4.170e+32</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-44"><a href="#cb7-44" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-45"><a href="#cb7-45" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-46"><a href="#cb7-46" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.1</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-47"><a href="#cb7-47" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">4</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-48"><a href="#cb7-48" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">6.539e+66</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-49"><a href="#cb7-49" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">3.866e+27</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-50"><a href="#cb7-50" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">4.826e+38</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-51"><a href="#cb7-51" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-52"><a href="#cb7-52" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-53"><a href="#cb7-53" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.1</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-54"><a href="#cb7-54" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">5</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-55"><a href="#cb7-55" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">3.301e+103</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-56"><a href="#cb7-56" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">1.027e+39</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-57"><a href="#cb7-57" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">3.287e+62</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-58"><a href="#cb7-58" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-59"><a href="#cb7-59" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-60"><a href="#cb7-60" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.1</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-61"><a href="#cb7-61" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">6</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-62"><a href="#cb7-62" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">1.636e+64</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-63"><a href="#cb7-63" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">7.144e+26</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-64"><a href="#cb7-64" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">6.866e+36</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-65"><a href="#cb7-65" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-66"><a href="#cb7-66" tabindex="-1"></a><span class="er">&lt;/</span>tbody<span class="sc">&gt;</span></span>
+<span id="cb7-67"><a href="#cb7-67" tabindex="-1"></a><span class="er">&lt;/</span>table<span class="sc">&gt;</span><span class="fu">...</span> (<span class="dv">90</span> more rows)</span>
+<span id="cb7-68"><a href="#cb7-68" tabindex="-1"></a></span>
+<span id="cb7-69"><a href="#cb7-69" tabindex="-1"></a>qte_grid <span class="ot">&lt;-</span> <span class="fu">qte</span>(fit, <span class="at">probs =</span> probs, <span class="at">newdata =</span> X_new, <span class="at">interval =</span> <span class="st">"hpd"</span>)</span>
+<span id="cb7-70"><a href="#cb7-70" tabindex="-1"></a><span class="fu">print</span>(qte_grid)</span>
+<span id="cb7-71"><a href="#cb7-71" tabindex="-1"></a><span class="fu">QTE</span> (Quantile Treatment Effect)</span>
+<span id="cb7-72"><a href="#cb7-72" tabindex="-1"></a>  Prediction points<span class="sc">:</span> <span class="dv">20</span></span>
+<span id="cb7-73"><a href="#cb7-73" tabindex="-1"></a>  Quantile grid<span class="sc">:</span> <span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span></span>
+<span id="cb7-74"><a href="#cb7-74" tabindex="-1"></a>  <span class="fu">Conditional</span> (covariates)<span class="sc">:</span> YES</span>
+<span id="cb7-75"><a href="#cb7-75" tabindex="-1"></a>  Propensity score used<span class="sc">:</span> YES</span>
+<span id="cb7-76"><a href="#cb7-76" tabindex="-1"></a>  PS scale<span class="sc">:</span> logit</span>
+<span id="cb7-77"><a href="#cb7-77" tabindex="-1"></a>  Credible interval<span class="sc">:</span> hpd</span>
+<span id="cb7-78"><a href="#cb7-78" tabindex="-1"></a></span>
+<span id="cb7-79"><a href="#cb7-79" tabindex="-1"></a>QTE <span class="fu">estimates</span> (treated <span class="sc">-</span> control)<span class="sc">:</span></span>
+<span id="cb7-80"><a href="#cb7-80" tabindex="-1"></a><span class="er">&lt;</span>table class<span class="ot">=</span><span class="st">"table"</span> style<span class="ot">=</span><span class="st">"width: auto !important; margin-left: auto; margin-right: auto;"</span><span class="sc">&gt;</span></span>
+<span id="cb7-81"><a href="#cb7-81" tabindex="-1"></a> <span class="er">&lt;</span>thead<span class="sc">&gt;</span></span>
+<span id="cb7-82"><a href="#cb7-82" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-83"><a href="#cb7-83" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> index <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb7-84"><a href="#cb7-84" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> id <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb7-85"><a href="#cb7-85" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> estimate <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb7-86"><a href="#cb7-86" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> lower <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb7-87"><a href="#cb7-87" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> upper <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb7-88"><a href="#cb7-88" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-89"><a href="#cb7-89" tabindex="-1"></a> <span class="er">&lt;/</span>thead<span class="sc">&gt;</span></span>
+<span id="cb7-90"><a href="#cb7-90" tabindex="-1"></a><span class="er">&lt;</span>tbody<span class="sc">&gt;</span></span>
+<span id="cb7-91"><a href="#cb7-91" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-92"><a href="#cb7-92" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.1</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-93"><a href="#cb7-93" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">1</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-94"><a href="#cb7-94" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">3.702e+73</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-95"><a href="#cb7-95" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">8.451e+29</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-96"><a href="#cb7-96" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">2.589e+43</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-97"><a href="#cb7-97" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-98"><a href="#cb7-98" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-99"><a href="#cb7-99" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.1</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-100"><a href="#cb7-100" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">2</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-101"><a href="#cb7-101" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">3.881e+73</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-102"><a href="#cb7-102" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">7.417e+29</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-103"><a href="#cb7-103" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">2.664e+43</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-104"><a href="#cb7-104" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-105"><a href="#cb7-105" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-106"><a href="#cb7-106" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.1</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-107"><a href="#cb7-107" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">3</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-108"><a href="#cb7-108" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">4.069e+73</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-109"><a href="#cb7-109" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">6.509e+29</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-110"><a href="#cb7-110" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">2.742e+43</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-111"><a href="#cb7-111" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-112"><a href="#cb7-112" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-113"><a href="#cb7-113" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.1</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-114"><a href="#cb7-114" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">4</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-115"><a href="#cb7-115" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">4.266e+73</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-116"><a href="#cb7-116" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">5.712e+29</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-117"><a href="#cb7-117" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">2.821e+43</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-118"><a href="#cb7-118" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-119"><a href="#cb7-119" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-120"><a href="#cb7-120" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.1</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-121"><a href="#cb7-121" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">5</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-122"><a href="#cb7-122" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">4.472e+73</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-123"><a href="#cb7-123" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">5.013e+29</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-124"><a href="#cb7-124" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">2.904e+43</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-125"><a href="#cb7-125" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-126"><a href="#cb7-126" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-127"><a href="#cb7-127" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.1</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-128"><a href="#cb7-128" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="dv">6</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-129"><a href="#cb7-129" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">4.689e+73</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-130"><a href="#cb7-130" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="sc">-</span><span class="fl">4.399e+29</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-131"><a href="#cb7-131" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">2.988e+43</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-132"><a href="#cb7-132" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-133"><a href="#cb7-133" tabindex="-1"></a><span class="er">&lt;/</span>tbody<span class="sc">&gt;</span></span>
+<span id="cb7-134"><a href="#cb7-134" tabindex="-1"></a><span class="er">&lt;/</span>table<span class="sc">&gt;</span><span class="fu">...</span> (<span class="dv">54</span> more rows)</span>
+<span id="cb7-135"><a href="#cb7-135" tabindex="-1"></a><span class="fu">summary</span>(qte_grid)</span>
+<span id="cb7-136"><a href="#cb7-136" tabindex="-1"></a>QTE Summary</span>
+<span id="cb7-137"><a href="#cb7-137" tabindex="-1"></a><span class="sc">==</span><span class="er">================================================</span> </span>
+<span id="cb7-138"><a href="#cb7-138" tabindex="-1"></a>Prediction points<span class="sc">:</span> <span class="dv">20</span> <span class="sc">|</span> Quantiles<span class="sc">:</span> <span class="dv">3</span></span>
+<span id="cb7-139"><a href="#cb7-139" tabindex="-1"></a>Quantile grid<span class="sc">:</span> <span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span></span>
+<span id="cb7-140"><a href="#cb7-140" tabindex="-1"></a>Conditional<span class="sc">:</span> YES <span class="sc">|</span> PS used<span class="sc">:</span> YES</span>
+<span id="cb7-141"><a href="#cb7-141" tabindex="-1"></a>Interval<span class="sc">:</span> hpd</span>
+<span id="cb7-142"><a href="#cb7-142" tabindex="-1"></a></span>
+<span id="cb7-143"><a href="#cb7-143" tabindex="-1"></a>Model specification<span class="sc">:</span></span>
+<span id="cb7-144"><a href="#cb7-144" tabindex="-1"></a>  <span class="fu">Backend</span> (trt<span class="sc">/</span>con)<span class="sc">:</span> sb <span class="sc">/</span> sb</span>
+<span id="cb7-145"><a href="#cb7-145" tabindex="-1"></a>  <span class="fu">Kernel</span> (trt<span class="sc">/</span>con)<span class="sc">:</span> normal <span class="sc">/</span> normal</span>
+<span id="cb7-146"><a href="#cb7-146" tabindex="-1"></a>  GPD <span class="fu">tail</span> (trt<span class="sc">/</span>con)<span class="sc">:</span> YES <span class="sc">/</span> YES</span>
+<span id="cb7-147"><a href="#cb7-147" tabindex="-1"></a></span>
+<span id="cb7-148"><a href="#cb7-148" tabindex="-1"></a>QTE by quantile<span class="sc">:</span></span>
+<span id="cb7-149"><a href="#cb7-149" tabindex="-1"></a><span class="er">&lt;</span>table class<span class="ot">=</span><span class="st">"table"</span> style<span class="ot">=</span><span class="st">"width: auto !important; margin-left: auto; margin-right: auto;"</span><span class="sc">&gt;</span></span>
+<span id="cb7-150"><a href="#cb7-150" tabindex="-1"></a> <span class="er">&lt;</span>thead<span class="sc">&gt;</span></span>
+<span id="cb7-151"><a href="#cb7-151" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-152"><a href="#cb7-152" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> quantile <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb7-153"><a href="#cb7-153" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> mean_qte <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb7-154"><a href="#cb7-154" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> median_qte <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb7-155"><a href="#cb7-155" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> min_qte <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb7-156"><a href="#cb7-156" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> max_qte <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb7-157"><a href="#cb7-157" tabindex="-1"></a>   <span class="er">&lt;</span>th style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> sd_qte <span class="sc">&lt;</span><span class="er">/</span>th<span class="sc">&gt;</span></span>
+<span id="cb7-158"><a href="#cb7-158" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-159"><a href="#cb7-159" tabindex="-1"></a> <span class="er">&lt;/</span>thead<span class="sc">&gt;</span></span>
+<span id="cb7-160"><a href="#cb7-160" tabindex="-1"></a><span class="er">&lt;</span>tbody<span class="sc">&gt;</span></span>
+<span id="cb7-161"><a href="#cb7-161" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-162"><a href="#cb7-162" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.1</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-163"><a href="#cb7-163" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">6.017e+73</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-164"><a href="#cb7-164" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">5.802e+73</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-165"><a href="#cb7-165" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">3.702e+73</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-166"><a href="#cb7-166" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">9.073e+73</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-167"><a href="#cb7-167" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">1.668e+73</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-168"><a href="#cb7-168" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-169"><a href="#cb7-169" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-170"><a href="#cb7-170" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.5</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-171"><a href="#cb7-171" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">3.940e+74</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-172"><a href="#cb7-172" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">3.798e+74</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-173"><a href="#cb7-173" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">2.423e+74</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-174"><a href="#cb7-174" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">5.949e+74</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-175"><a href="#cb7-175" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">1.094e+74</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-176"><a href="#cb7-176" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-177"><a href="#cb7-177" tabindex="-1"></a>  <span class="er">&lt;</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-178"><a href="#cb7-178" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">0.9</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-179"><a href="#cb7-179" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">1.291e+75</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-180"><a href="#cb7-180" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">1.245e+75</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-181"><a href="#cb7-181" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">7.943e+74</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-182"><a href="#cb7-182" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">1.950e+75</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-183"><a href="#cb7-183" tabindex="-1"></a>   <span class="er">&lt;</span>td style<span class="ot">=</span><span class="st">"text-align:center;"</span><span class="sc">&gt;</span> <span class="fl">3.585e+74</span> <span class="sc">&lt;</span><span class="er">/</span>td<span class="sc">&gt;</span></span>
+<span id="cb7-184"><a href="#cb7-184" tabindex="-1"></a>  <span class="er">&lt;/</span>tr<span class="sc">&gt;</span></span>
+<span id="cb7-185"><a href="#cb7-185" tabindex="-1"></a><span class="er">&lt;/</span>tbody<span class="sc">&gt;</span></span>
+<span id="cb7-186"><a href="#cb7-186" tabindex="-1"></a><span class="er">&lt;/</span>table<span class="sc">&gt;</span></span>
+<span id="cb7-187"><a href="#cb7-187" tabindex="-1"></a>Credible interval width<span class="sc">:</span></span>
+<span id="cb7-188"><a href="#cb7-188" tabindex="-1"></a>  Mean<span class="sc">:</span> <span class="fl">4.543e+44</span> <span class="sc">|</span> Median<span class="sc">:</span> <span class="fl">2.193e+44</span></span>
+<span id="cb7-189"><a href="#cb7-189" tabindex="-1"></a>  Range<span class="sc">:</span> [<span class="fl">7.060e+28</span>, <span class="fl">1.538e+45</span>]</span></code></pre></div>
 <div class="section level3">
 <h3 id="qte-visualization">QTE Visualization<a class="anchor" aria-label="anchor" href="#qte-visualization"></a>
 </h3>
@@ -475,35 +631,34 @@ faceted by quantile level</li>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">qte_plots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">qte_grid</span><span class="op">)</span></span>
 <span><span class="va">qte_plots</span><span class="op">$</span><span class="va">treatment_effect</span></span></code></pre></div>
-<p><img src="causal_files/figure-html/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;"></p>
+<p><img src="causal_files/figure-html/unnamed-chunk-8-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">qte_plots</span><span class="op">$</span><span class="va">trt_control</span></span></code></pre></div>
-<p><img src="causal_files/figure-html/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;"></p>
+<p><img src="causal_files/figure-html/unnamed-chunk-9-1.png" class="r-plt" alt="" width="672" style="display: block; margin: auto;"></p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="model-summary">Model Summary<a class="anchor" aria-label="anchor" href="#model-summary"></a>
 </h2>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="co">#&gt; -- PS fit --</span></span>
-<span><span class="co">#&gt; DPmixGPD PS fit</span></span>
-<span><span class="co">#&gt; model: logit </span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; -- Outcome fits --</span></span>
-<span><span class="co">#&gt; [control]</span></span>
-<span><span class="co">#&gt; MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: TRUE</span></span>
-<span><span class="co">#&gt; n = 19 | components = 6 | epsilon = 0.025</span></span>
-<span><span class="co">#&gt; MCMC: niter=400, nburnin=100, thin=2, nchains=1 </span></span>
-<span><span class="co">#&gt; Fit</span></span>
-<span><span class="co">#&gt; Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</span></span>
-<span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; [treated]</span></span>
-<span><span class="co">#&gt; MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: TRUE</span></span>
-<span><span class="co">#&gt; n = 13 | components = 6 | epsilon = 0.025</span></span>
-<span><span class="co">#&gt; MCMC: niter=400, nburnin=100, thin=2, nchains=1 </span></span>
-<span><span class="co">#&gt; Fit</span></span>
-<span><span class="co">#&gt; Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">summary</span>(fit)</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="sc">--</span> PS fit <span class="sc">--</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>DPmixGPD PS fit</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>model<span class="sc">:</span> logit </span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="sc">--</span> Outcome fits <span class="sc">--</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>[control]</span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a>MixGPD fit <span class="sc">|</span> backend<span class="sc">:</span> Stick<span class="sc">-</span>Breaking Process <span class="sc">|</span> kernel<span class="sc">:</span> Normal Distribution <span class="sc">|</span> GPD tail<span class="sc">:</span> <span class="cn">TRUE</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a>n <span class="ot">=</span> <span class="dv">19</span> <span class="sc">|</span> components <span class="ot">=</span> <span class="dv">6</span> <span class="sc">|</span> epsilon <span class="ot">=</span> <span class="fl">0.025</span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a>MCMC<span class="sc">:</span> niter<span class="ot">=</span><span class="dv">400</span>, nburnin<span class="ot">=</span><span class="dv">100</span>, thin<span class="ot">=</span><span class="dv">2</span>, nchains<span class="ot">=</span><span class="dv">1</span> </span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a>Fit</span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>Use <span class="fu">summary</span>() <span class="cf">for</span> posterior summaries; <span class="fu">plot</span>() <span class="cf">for</span> diagnostics; <span class="fu">predict</span>() <span class="cf">for</span> predictions.</span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a>[treated]</span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a>MixGPD fit <span class="sc">|</span> backend<span class="sc">:</span> Stick<span class="sc">-</span>Breaking Process <span class="sc">|</span> kernel<span class="sc">:</span> Normal Distribution <span class="sc">|</span> GPD tail<span class="sc">:</span> <span class="cn">TRUE</span></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a>n <span class="ot">=</span> <span class="dv">13</span> <span class="sc">|</span> components <span class="ot">=</span> <span class="dv">6</span> <span class="sc">|</span> epsilon <span class="ot">=</span> <span class="fl">0.025</span></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a>MCMC<span class="sc">:</span> niter<span class="ot">=</span><span class="dv">400</span>, nburnin<span class="ot">=</span><span class="dv">100</span>, thin<span class="ot">=</span><span class="dv">2</span>, nchains<span class="ot">=</span><span class="dv">1</span> </span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a>Fit</span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a>Use <span class="fu">summary</span>() <span class="cf">for</span> posterior summaries; <span class="fu">plot</span>() <span class="cf">for</span> diagnostics; <span class="fu">predict</span>() <span class="cf">for</span> predictions.</span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>
@@ -516,7 +671,7 @@ faceted by quantile level</li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

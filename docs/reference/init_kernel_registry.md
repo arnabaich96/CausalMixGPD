@@ -19,13 +19,11 @@ Invisibly returns TRUE.
 
 ``` r
 init_kernel_registry()
-#> Error in assign("kernel_registry", kernel_registry, envir = ns): cannot add bindings to a locked environment
 reg <- get_kernel_registry()
-#> Error in get("kernel_registry", envir = asNamespace("DPmixGPD")): object 'kernel_registry' not found
 names(reg)
-#> Error: object 'reg' not found
+#> [1] "normal"    "lognormal" "invgauss"  "gamma"     "laplace"   "amoroso"  
+#> [7] "cauchy"   
 tail <- get_tail_registry()
-#> Error in get("tail_registry", envir = asNamespace("DPmixGPD")): object 'tail_registry' not found
 tail$params
-#> Error in tail$params: object of type 'closure' is not subsettable
+#> [1] "threshold"  "tail_scale" "tail_shape"
 ```

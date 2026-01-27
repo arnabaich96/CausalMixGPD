@@ -1,8 +1,8 @@
 # 18. Causal Inference: Mixed Backends (Bulk-only) - Cauchy Kernel
 
-> **Cookbook vignette (for the website / historical notes).** These files
-> may not match the current exported API one-to-one. Last verified:
-> **2026-01-18**.
+> **Cookbook vignette (for the website / historical notes).** These
+> files may not match the current exported API one-to-one. Last
+> verified: **2026-01-18**.
 >
 > For the up-to-date workflow, see the main package vignettes
 > (Introduction, Model Spec, MCMC Workflow,

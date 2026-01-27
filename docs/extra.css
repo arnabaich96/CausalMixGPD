@@ -1,81 +1,199 @@
-/* vignettes/theme-runtime.css
-   Runtime theming via CSS variables (user-adjustable)
+/* pkgdown/extra.css
+   Custom theme overrides for pkgdown
 */
+
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
 
 :root{
   /* Core palette */
-  --rt-bg: #ffffff;
-  --rt-fg: #111827;
-  --rt-muted: #6b7280;
-  --rt-border: #e5e7eb;
+  --rt-bg: #f6f8fb;
+  --rt-bg-soft: #eef2f7;
+  --rt-surface: #ffffff;
+  --rt-ink: #0b1220;
+  --rt-ink-soft: #233045;
+  --rt-muted: #64748b;
+  --rt-border: #e2e8f0;
 
-  --rt-primary: #2a6f97;
-  --rt-link: #2a6f97;
+  --rt-primary: #1e6fb8;
+  --rt-primary-2: #0f4c81;
+  --rt-accent: #f2a93b;
+  --rt-accent-2: #e86f3e;
+  --rt-success: #1f8a70;
+  --rt-warning: #d97706;
+
+  /* Gradients */
+  --rt-grad-hero: linear-gradient(120deg, #e6f1ff 0%, #f7f9ff 50%, #ffffff 100%);
+  --rt-grad-nav: linear-gradient(90deg, #0f4c81 0%, #1e6fb8 55%, #2a86d6 100%);
+  --rt-grad-card: linear-gradient(180deg, rgba(255,255,255,0.94) 0%, rgba(248,250,255,0.98) 100%);
+  --rt-grad-code: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
 
   /* Typography */
-  --rt-font-base: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-  --rt-font-heading: var(--rt-font-base);
-  --rt-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-
+  --rt-font-base: "Source Sans 3", "Helvetica Neue", Arial, sans-serif;
+  --rt-font-heading: "Space Grotesk", "Source Sans 3", Arial, sans-serif;
+  --rt-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   --rt-base-size: 16px;
-  --rt-line-height: 1.6;
+  --rt-line-height: 1.65;
 
   /* Shape + layout */
   --rt-radius: 14px;
-  --rt-space: 1; /* multiplier */
+  --rt-radius-sm: 10px;
+  --rt-radius-lg: 20px;
+  --rt-space: 1;
 
-  /* Code blocks */
-  --rt-code-bg: #0b1220;
-  --rt-code-fg: #e5e7eb;
-  --rt-code-border: rgba(255,255,255,.10);
+  /* Shadows */
+  --rt-shadow-sm: 0 6px 18px rgba(15, 23, 42, 0.10);
+  --rt-shadow: 0 14px 34px rgba(15, 23, 42, 0.14);
+  --rt-shadow-hover: 0 18px 38px rgba(15, 23, 42, 0.18);
 
-  /* Optional: subtle elevation */
-  --rt-shadow: 0 12px 30px rgba(0,0,0,.08);
+  /* Motion */
+  --rt-transition: 180ms ease;
 }
 
-/* Global text + background */
-html { font-size: var(--rt-base-size); }
+html{ font-size: var(--rt-base-size); }
 body{
   background: var(--rt-bg);
-  color: var(--rt-fg);
+  color: var(--rt-ink);
   font-family: var(--rt-font-base);
   line-height: var(--rt-line-height);
+}
+
+body::before{
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(800px 500px at 15% -10%, rgba(30,111,184,0.12), transparent 60%),
+    radial-gradient(900px 600px at 90% 10%, rgba(242,169,59,0.12), transparent 60%),
+    linear-gradient(180deg, var(--rt-bg) 0%, #ffffff 80%);
+  z-index: -1;
+}
+
+/* Page-specific background treatments */
+body:has(.template-home)::before{
+  background:
+    radial-gradient(900px 500px at 20% -20%, rgba(30,111,184,0.16), transparent 60%),
+    radial-gradient(800px 600px at 85% 10%, rgba(242,169,59,0.16), transparent 60%),
+    var(--rt-grad-hero);
+}
+body:has(.template-article)::before,
+body:has(.template-article-index)::before{
+  background:
+    radial-gradient(700px 480px at 10% -10%, rgba(30,111,184,0.10), transparent 60%),
+    radial-gradient(650px 520px at 90% 0%, rgba(31,138,112,0.10), transparent 60%),
+    linear-gradient(180deg, #f3f6fb 0%, #ffffff 85%);
+}
+body:has(.template-reference)::before,
+body:has(.template-reference-index)::before{
+  background:
+    radial-gradient(780px 520px at 85% -5%, rgba(30,111,184,0.10), transparent 60%),
+    linear-gradient(180deg, #f5f7fb 0%, #ffffff 85%);
+}
+body:has(.template-article a[href*="kernels/"])::before{
+  background:
+    radial-gradient(900px 520px at 15% -20%, rgba(12, 92, 148, 0.18), transparent 60%),
+    radial-gradient(700px 500px at 90% 0%, rgba(242,169,59,0.18), transparent 60%),
+    linear-gradient(180deg, #edf3ff 0%, #ffffff 85%);
+}
+
+/* Content container polish */
+main .container,
+.container.template-home,
+.container.template-article,
+.container.template-reference{
+  background: var(--rt-surface);
+  border: 1px solid var(--rt-border);
+  border-radius: var(--rt-radius-lg);
+  box-shadow: var(--rt-shadow-sm);
+  padding: calc(1.1rem * var(--rt-space)) calc(1.25rem * var(--rt-space));
 }
 
 /* Headings */
 h1,h2,h3,h4,h5,h6{
   font-family: var(--rt-font-heading);
   letter-spacing: -0.02em;
+  color: var(--rt-ink);
 }
+h1{ font-size: clamp(2rem, 2.2vw + 1.2rem, 3rem); }
+h2{ font-size: clamp(1.6rem, 1.5vw + 1rem, 2.2rem); }
+h3{ font-size: clamp(1.3rem, 1.1vw + 0.9rem, 1.7rem); }
 
 /* Links */
-a{ color: var(--rt-link); }
-a:hover{ filter: brightness(0.9); text-decoration: underline; text-underline-offset: .2em; }
-
-/* Navbar (works for most pkgdown navbars) */
-.navbar{
-  background: color-mix(in srgb, var(--rt-primary) 18%, var(--rt-bg)) !important;
-  border-bottom: 1px solid var(--rt-border) !important;
+a{
+  color: var(--rt-primary);
+  text-decoration: none;
+  transition: color var(--rt-transition), box-shadow var(--rt-transition);
 }
-.navbar .navbar-brand,
-.navbar .nav-link{ color: var(--rt-fg) !important; }
-.navbar .nav-link:hover{ color: var(--rt-primary) !important; }
+a:hover{
+  color: var(--rt-primary-2);
+  box-shadow: inset 0 -0.2em 0 rgba(30,111,184,0.18);
+}
 
-/* Cards / boxes commonly used by pkgdown */
-.card, .contents, .ref-index, .ref-usage, .ref-arguments, .ref-examples, .ref-details{
+/* Navbar */
+.navbar{
+  background: var(--rt-grad-nav) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.18) !important;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+}
+.navbar .navbar-brand{
+  font-family: var(--rt-font-heading);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #ffffff !important;
+}
+.navbar .nav-link{
+  color: rgba(255,255,255,0.88) !important;
+  transition: color var(--rt-transition), transform var(--rt-transition);
+}
+.navbar .nav-link:hover{
+  color: #ffffff !important;
+  transform: translateY(-1px);
+}
+.navbar .dropdown-menu{
+  border-radius: var(--rt-radius);
+  border: 1px solid var(--rt-border);
+  box-shadow: var(--rt-shadow-sm);
+}
+.navbar .dropdown-item:hover{
+  background: rgba(30,111,184,0.08);
+}
+
+/* Cards / content boxes */
+.card, .contents, .ref-index, .ref-usage, .ref-arguments, .ref-examples, .ref-details, .tocify{
   border-radius: var(--rt-radius) !important;
   border: 1px solid var(--rt-border) !important;
   box-shadow: var(--rt-shadow);
+  background: var(--rt-grad-card);
+  transition: transform var(--rt-transition), box-shadow var(--rt-transition);
+}
+.card:hover, .contents:hover{
+  transform: translateY(-2px);
+  box-shadow: var(--rt-shadow-hover);
 }
 
 /* Tables */
 .table, table{
-  color: var(--rt-fg);
+  color: var(--rt-ink);
   border-color: var(--rt-border);
   margin-left: auto;
   margin-right: auto;
+  text-align: center;
 }
-
+table th, table td{
+  text-align: center;
+  vertical-align: middle;
+}
+.table thead th, table thead th{
+  background: #f1f5f9;
+  color: var(--rt-ink);
+  border-bottom: 2px solid var(--rt-border);
+  font-weight: 600;
+}
+.table tbody tr:nth-child(odd), table tbody tr:nth-child(odd){
+  background: #fbfdff;
+}
+.table tbody tr:hover, table tbody tr:hover{
+  background: #eef6ff;
+}
 table.kableExtra,
 .kableExtra table,
 .kable_wrapper table{
@@ -86,33 +204,90 @@ table.kableExtra,
 /* Inline code */
 code{
   font-family: var(--rt-font-mono);
-  border-radius: calc(var(--rt-radius) * 0.6);
+  border-radius: var(--rt-radius-sm);
   padding: 0 .35em;
-  background: color-mix(in srgb, var(--rt-bg) 80%, var(--rt-border));
+  background: color-mix(in srgb, var(--rt-bg) 70%, var(--rt-border));
   border: 1px solid var(--rt-border);
 }
 
 /* Code blocks */
 pre{
   font-family: var(--rt-font-mono);
-  background: var(--rt-code-bg) !important;
-  color: var(--rt-code-fg) !important;
-  border: 1px solid var(--rt-code-border);
+  background: var(--rt-grad-code) !important;
+  color: var(--rt-ink) !important;
+  border: 1px solid var(--rt-border);
   border-radius: var(--rt-radius);
   padding: calc(1rem * var(--rt-space)) !important;
+  box-shadow: var(--rt-shadow-sm);
   overflow: auto;
 }
-
-/* Spacing multiplier (light touch) */
-main .container, .container{
-  padding-left: calc(0.75rem * var(--rt-space));
-  padding-right: calc(0.75rem * var(--rt-space));
+pre code{
+  background: transparent;
+  border: none;
+  color: inherit;
 }
 
-/* Buttons - nudge Bootstrap to your primary */
+/* Ensure HTML tables in R output are rendered properly */
+.r-output,
+.r-output pre {
+  background: var(--rt-surface) !important;
+  color: var(--rt-ink) !important;
+  border: 1px solid var(--rt-border) !important;
+}
+.r-output pre code {
+  background: transparent !important;
+  color: var(--rt-ink) !important;
+  white-space: pre-wrap !important;
+}
+/* When HTML is embedded in R output, ensure it renders */
+.r-output pre code:has(table),
+.r-output:has(table) {
+  white-space: normal !important;
+}
+.r-output table,
+.r-output pre table,
+.r-output pre code table {
+  display: table !important;
+  width: auto !important;
+  margin: 1em auto !important;
+  border-collapse: collapse !important;
+  background: var(--rt-surface) !important;
+  color: var(--rt-ink) !important;
+  font-family: var(--rt-font-base) !important;
+}
+.r-output table th,
+.r-output table td,
+.r-output pre table th,
+.r-output pre table td,
+.r-output pre code table th,
+.r-output pre code table td {
+  display: table-cell !important;
+  padding: 0.5em 1em !important;
+  border: 1px solid var(--rt-border) !important;
+  text-align: center !important;
+  background: var(--rt-surface) !important;
+  color: var(--rt-ink) !important;
+}
+.r-output table thead th,
+.r-output pre table thead th,
+.r-output pre code table thead th {
+  background: #f1f5f9 !important;
+  font-weight: 600 !important;
+}
+
+/* Buttons */
+.btn{
+  border-radius: 999px;
+  transition: transform var(--rt-transition), box-shadow var(--rt-transition), background var(--rt-transition);
+}
 .btn-primary{
-  background-color: var(--rt-primary) !important;
-  border-color: var(--rt-primary) !important;
+  background: linear-gradient(120deg, var(--rt-primary) 0%, var(--rt-primary-2) 100%) !important;
+  border-color: transparent !important;
+  box-shadow: 0 8px 16px rgba(30,111,184,0.24);
+}
+.btn-primary:hover{
+  transform: translateY(-1px);
+  box-shadow: 0 12px 20px rgba(30,111,184,0.30);
 }
 .btn-outline-primary{
   color: var(--rt-primary) !important;
@@ -120,19 +295,52 @@ main .container, .container{
 }
 .btn-outline-primary:hover{
   background-color: var(--rt-primary) !important;
-  color: var(--rt-bg) !important;
+  color: #ffffff !important;
+}
+
+/* Forms + inputs */
+input, select, textarea{
+  border-radius: var(--rt-radius-sm);
+  border: 1px solid var(--rt-border);
+  transition: border-color var(--rt-transition), box-shadow var(--rt-transition);
+}
+input:focus, select:focus, textarea:focus{
+  border-color: var(--rt-primary);
+  box-shadow: 0 0 0 3px rgba(30,111,184,0.18);
+}
+
+/* Spacing */
+main .container, .container{
+  padding-left: calc(1rem * var(--rt-space));
+  padding-right: calc(1rem * var(--rt-space));
 }
 
 /* Navbar theme control */
 .navbar .rt-navbar-btn{
-  border: 1px solid var(--rt-border);
+  border: 1px solid rgba(255,255,255,0.35);
   border-radius: 999px;
   padding: 0.25rem 0.65rem;
   margin-left: 0.35rem;
-  background: rgba(255,255,255,.7);
-  color: var(--rt-fg) !important;
+  background: rgba(255,255,255,.15);
+  color: #ffffff !important;
   cursor: pointer;
+  transition: background var(--rt-transition), transform var(--rt-transition);
 }
 .navbar .rt-navbar-btn:hover{
-  background: rgba(255,255,255,.95);
+  background: rgba(255,255,255,.30);
+  transform: translateY(-1px);
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px){
+  main .container,
+  .container.template-home,
+  .container.template-article,
+  .container.template-reference{
+    padding: 1rem;
+    border-radius: var(--rt-radius);
+  }
+  .navbar{
+    box-shadow: none;
+  }
 }

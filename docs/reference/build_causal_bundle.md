@@ -20,17 +20,14 @@ build_causal_bundle(
   kernel,
   GPD = FALSE,
   components = NULL,
-  J = NULL,
   param_specs = NULL,
   mcmc_outcome = list(niter = 2000, nburnin = 500, thin = 1, nchains = 1, seed = 1),
   mcmc_ps = list(niter = 2000, nburnin = 500, thin = 1, nchains = 1, seed = 1),
   epsilon = 0.025,
   alpha_random = TRUE,
-  ps_model = c("logit"),
   ps_prior = list(mean = 0, sd = 2),
   include_intercept = TRUE,
   PS = "logit",
-  design = c("rct", "observational"),
   ps_scale = c("logit", "prob"),
   ps_summary = c("mean", "median"),
   ps_clamp = 1e-06
@@ -69,11 +66,6 @@ build_causal_bundle(
 
 - components:
 
-  Deprecated alias for `J`. Only one of `J` or `components` should be
-  supplied.
-
-- J:
-
   Integer \>= 2; truncation parameter for outcome mixtures. If length 2,
   the first entry is used for treated (`T=1`) and the second for control
   (`T=0`).
@@ -103,11 +95,6 @@ build_causal_bundle(
 
   Logical; whether outcome concentration `alpha` is stochastic.
 
-- ps_model:
-
-  PS model specification for backward compatibility (deprecated).
-  Recommend using `PS` parameter instead.
-
 - ps_prior:
 
   Normal prior for PS coefficients. List with `mean` and `sd`.
@@ -132,10 +119,6 @@ build_causal_bundle(
   The PS model choice is stored in bundle metadata for downstream use in
   prediction and summaries, enabling seamless integration of future PS
   estimation methods.
-
-- design:
-
-  Causal design: `"rct"` or `"observational"`.
 
 - ps_scale:
 
@@ -176,7 +159,7 @@ cb <- build_causal_bundle(
   backend = "sb",
   kernel = "gamma",
   GPD = TRUE,
-  J = 10,
+  components = 10,
   PS = "probit"
 )
 } # }

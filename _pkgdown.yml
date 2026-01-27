@@ -12,43 +12,43 @@ navbar:
       href: https://github.com/arnabaich96/DPmixGPD
   components:
     manual:
-      text: "Vignettes"
+      text: "Pantry"
       menu:
-        - text: "Vignettes Overview"
+        - text: "Pantry Overview"
           href: articles/manual-index.html
         - text: "---"
-        - text: "Get Started"
-        - text: "Introduction"
+        - text: "Starters"
+        - text: "Starter: Introduction"
           href: articles/introduction.html
         - text: "---"
-        - text: "User Guide"
-        - text: "Available Distributions"
+        - text: "Main Course"
+        - text: "Ingredient List (Distributions)"
           href: articles/distributions.html
-        - text: "Model Specification"
+        - text: "Recipe Spec (Model)"
           href: articles/model-spec.html
-        - text: "MCMC Workflow"
+        - text: "Prep and Cook (MCMC)"
           href: articles/mcmc-workflow.html
-        - text: "Unconditional Models"
+        - text: "Mains: Unconditional"
           href: articles/unconditional.html
-        - text: "Conditional Models"
+        - text: "Sides: Conditional"
           href: articles/conditional.html
-        - text: "Causal Inference"
+        - text: "Dessert: Causal"
           href: articles/causal.html
-        - text: "Backends (CRP vs SB)"
+        - text: "Oven Choice (CRP vs SB)"
           href: articles/backends.html
-        - text: "S3 Methods Reference"
+        - text: "Utensil Guide (S3 Methods)"
           href: articles/reference-s3.html
     allin1:
-      text: "All-in-One"
+      text: "Chef Specials"
       menu:
-        - text: "Umbrella: Custom Models (All-in-One)"
+        - text: "Chef Special: Umbrella Custom Models"
           href: articles/Customization/umbrella.html
-        - text: "Customization: Build NIMBLE Models from Scratch"
+        - text: "Custom Order: Build NIMBLE from Scratch"
           href: articles/Customization/customization.html
     kernels:
-      text: "Kernels"
+      text: "Ingredients"
       menu:
-        - text: "Kernels Overview"
+        - text: "Ingredient Overview"
           href: articles/kernels-index.html
         - text: "---"
         - text: "Amoroso"
@@ -68,61 +68,68 @@ navbar:
     cookbook:
       text: "Cookbook"
       menu:
-        - text: "Cookbook Overview"
-          href: articles/workflows-index.html
+        - text: "Recipe Book"
+          href: articles/cookbook-index.html
         - text: "---"
-        - text: "Getting Started"
-        - text: "Start Here"
-          href: articles/workflows/v00-start-here.html
-        - text: "Introduction"
-          href: articles/workflows/v01-introduction.html
-        - text: "Available Distributions"
-          href: articles/workflows/v02-available-distributions.html
+        - text: "Starters"
+        - text: "Starter Broth (Start Here)"
+          href: articles/cookbook/v00-start-here.html
+        - text: "Chef's Notes (Introduction)"
+          href: articles/cookbook/v01-introduction.html
+        - text: "Spice Rack Sampler (Distributions)"
+          href: articles/cookbook/v02-available-distributions.html
         - text: "---"
-        - text: "Core Concepts"
-        - text: "Basic Model Compile & Run"
-          href: articles/workflows/v03-basic-model-compile-run.html
-        - text: "Backends and Workflow"
-          href: articles/workflows/v04-backends-and-workflow.html
+        - text: "Entrees"
+        - text: "Mainline Sear (Compile & Run)"
+          href: articles/cookbook/v03-basic-model-compile-run.html
+        - text: "Two-Oven Roast (Backends)"
+          href: articles/cookbook/v04-backends-and-workflow.html
         - text: "---"
-        - text: "Unconditional Models"
-        - text: "DPmix CRP (v05)"
-          href: articles/workflows/v05-unconditional-DPmix-CRP.html
-        - text: "DPmix CRP Extended (v06)"
-          href: articles/workflows/v06-unconditional-DPmix-CRP.html
-        - text: "DPmix SB (v07)"
-          href: articles/workflows/v07-unconditional-DPmix-SB.html
-        - text: "DPmixGPD CRP (v08)"
-          href: articles/workflows/v08-unconditional-DPmixGPD-CRP.html
-        - text: "DPmixGPD SB (v09)"
-          href: articles/workflows/v09-unconditional-DPmixGPD-SB.html
+        - text: "Chef Specials (All-in-One)"
+        - text: "House Platter (Umbrella)"
+          href: articles/Customization/umbrella.html
+        - text: "Chef's Tasting Menu (NIMBLE)"
+          href: articles/Customization/customization.html
         - text: "---"
-        - text: "Conditional Models"
-        - text: "DPmix CRP (v10)"
-          href: articles/workflows/v10-conditional-DPmix-CRP.html
-        - text: "DPmix SB (v11)"
-          href: articles/workflows/v11-conditional-DPmix-SB.html
-        - text: "DPmixGPD CRP (v12)"
-          href: articles/workflows/v12-conditional-DPmixGPD-CRP.html
-        - text: "DPmixGPD SB (v13)"
-          href: articles/workflows/v13-conditional-DPmixGPD-SB.html
+        - text: "Mains (Unconditional)"
+        - text: "Classic Stew (CRP)"
+          href: articles/cookbook/v05-unconditional-DPmix-CRP.html
+        - text: "Extended Braise (CRP Extended)"
+          href: articles/cookbook/v06-unconditional-DPmix-CRP.html
+        - text: "Layered Lasagna (SB)"
+          href: articles/cookbook/v07-unconditional-DPmix-SB.html
+        - text: "Tail-Spice Chili (GPD CRP)"
+          href: articles/cookbook/v08-unconditional-DPmixGPD-CRP.html
+        - text: "Tail-Spice Bake (GPD SB)"
+          href: articles/cookbook/v09-unconditional-DPmixGPD-SB.html
         - text: "---"
-        - text: "Causal Inference"
-        - text: "No Covariates CRP (v14)"
-          href: articles/workflows/v14-causal-no-x-CRP.html
-        - text: "With Covariates SB (v15)"
-          href: articles/workflows/v15-causal-x-no-ps-SB.html
-        - text: "Same Backend CRP (v16)"
-          href: articles/workflows/v16-causal-same-backend-CRP.html
-        - text: "Same Backend SB (v17)"
-          href: articles/workflows/v17-causal-same-backend-SB.html
-        - text: "Different Backends CRP (v18)"
-          href: articles/workflows/v18-causal-different-backends-CRP.html
-        - text: "Different Backends SB (v19)"
-          href: articles/workflows/v19-causal-different-backends-SB.html
+        - text: "Sides (Conditional)"
+        - text: "Seasoned Sides (CRP)"
+          href: articles/cookbook/v10-conditional-DPmix-CRP.html
+        - text: "Stirred Layers (SB)"
+          href: articles/cookbook/v11-conditional-DPmix-SB.html
+        - text: "Citrus Tart (GPD CRP)"
+          href: articles/cookbook/v12-conditional-DPmixGPD-CRP.html
+        - text: "Glazed Side (GPD SB)"
+          href: articles/cookbook/v13-conditional-DPmixGPD-SB.html
         - text: "---"
-        - text: "Troubleshooting (v20)"
-          href: articles/workflows/v20-troubleshooting.html
+        - text: "Desserts (Causal)"
+        - text: "Simple Sweet (No Covariates)"
+          href: articles/cookbook/v14-causal-no-x-CRP.html
+        - text: "Layer Cake (With Covariates)"
+          href: articles/cookbook/v15-causal-x-no-ps-SB.html
+        - text: "Twin Scoops (Same Backend CRP)"
+          href: articles/cookbook/v16-causal-same-backend-CRP.html
+        - text: "Twin Parfaits (Same Backend SB)"
+          href: articles/cookbook/v17-causal-same-backend-SB.html
+        - text: "Two-Style Tasting (Different CRP)"
+          href: articles/cookbook/v18-causal-different-backends-CRP.html
+        - text: "Split Plating (Different SB)"
+          href: articles/cookbook/v19-causal-different-backends-SB.html
+        - text: "---"
+        - text: "Kitchen Notes"
+        - text: "Fix-It Fry (Troubleshooting)"
+          href: articles/cookbook/v20-troubleshooting.html
     coverage:
       text: "Coverage"
       href: coverage/index.html
@@ -157,27 +164,28 @@ articles:
       # - "kernels/kernel-laplace"
       # - "kernels/kernel-lognormal"
       # - "kernels/kernel-normal"
-  - title: "Cookbook"
-    contents:
-      - '"workflows-index"'
-      - '"workflows/v00-start-here"'
-      - '"workflows/v01-introduction"'
-      - '"workflows/v02-available-distributions"'
-      - '"workflows/v03-basic-model-compile-run"'
-      - '"workflows/v04-backends-and-workflow"'
-      - '"workflows/v05-unconditional-DPmix-CRP"'
-      - '"workflows/v06-unconditional-DPmix-CRP"'
-      - '"workflows/v07-unconditional-DPmix-SB"'
-      - '"workflows/v08-unconditional-DPmixGPD-CRP"'
-      - '"workflows/v09-unconditional-DPmixGPD-SB"'
-      - '"workflows/v10-conditional-DPmix-CRP"'
-      - '"workflows/v11-conditional-DPmix-SB"'
-      - '"workflows/v12-conditional-DPmixGPD-CRP"'
-      - '"workflows/v13-conditional-DPmixGPD-SB"'
-      - '"workflows/v14-causal-no-x-CRP"'
-      - '"workflows/v15-causal-x-no-ps-SB"'
-      - '"workflows/v16-causal-same-backend-CRP"'
-      - '"workflows/v17-causal-same-backend-SB"'
-      - '"workflows/v18-causal-different-backends-CRP"'
-      - '"workflows/v19-causal-different-backends-SB"'
-      - '"workflows/v20-troubleshooting"'
+  # Workflow landing page removed; cookbook-index is a static docs page.
+      # Note: Cookbook workflow files (v00-v20) are pre-built HTML files
+      # They are referenced in the navbar but not rebuilt by pkgdown
+      # since source Rmd files are not available in vignettes/cookbook/
+      # - '"cookbook/v00-start-here"'
+      # - '"cookbook/v01-introduction"'
+      # - '"cookbook/v02-available-distributions"'
+      # - '"cookbook/v03-basic-model-compile-run"'
+      # - '"cookbook/v04-backends-and-workflow"'
+      # - '"cookbook/v05-unconditional-DPmix-CRP"'
+      # - '"cookbook/v06-unconditional-DPmix-CRP"'
+      # - '"cookbook/v07-unconditional-DPmix-SB"'
+      # - '"cookbook/v08-unconditional-DPmixGPD-CRP"'
+      # - '"cookbook/v09-unconditional-DPmixGPD-SB"'
+      # - '"cookbook/v10-conditional-DPmix-CRP"'
+      # - '"cookbook/v11-conditional-DPmix-SB"'
+      # - '"cookbook/v12-conditional-DPmixGPD-CRP"'
+      # - '"cookbook/v13-conditional-DPmixGPD-SB"'
+      # - '"cookbook/v14-causal-no-x-CRP"'
+      # - '"cookbook/v15-causal-x-no-ps-SB"'
+      # - '"cookbook/v16-causal-same-backend-CRP"'
+      # - '"cookbook/v17-causal-same-backend-SB"'
+      # - '"cookbook/v18-causal-different-backends-CRP"'
+      # - '"cookbook/v19-causal-different-backends-SB"'
+      # - '"cookbook/v20-troubleshooting"'

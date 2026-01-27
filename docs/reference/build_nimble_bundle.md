@@ -25,7 +25,6 @@ build_nimble_bundle(
   kernel,
   GPD = FALSE,
   components = NULL,
-  J = NULL,
   param_specs = NULL,
   mcmc = list(niter = 2000, nburnin = 500, thin = 1, nchains = 1, seed = 1),
   epsilon = 0.025,
@@ -63,11 +62,6 @@ build_nimble_bundle(
   Logical; whether a GPD tail is requested.
 
 - components:
-
-  Deprecated alias for `J`. Only one of `J` or `components` should be
-  supplied.
-
-- J:
 
   Integer \>= 2. Single user-facing truncation parameter:
 
