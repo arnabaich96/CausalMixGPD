@@ -11,11 +11,6 @@
 ^\.cache/
 ^pkgdown$
 ^pkgdown/
-^vignettes/legacy$
-^vignettes/.*\.html$
-^vignettes/\.build\.timestamp$
-^vignettes/legacy-precomputed$
-^vignettes/legacy-precomputed/
 ^Misc$
 ^codecov\.yml$
 ^.*\.Rproj$
@@ -36,3 +31,7 @@
 ^tools/\.codecov_token$
 ^vignettes/manuscript/
 ^vignettes/manuscript/$
+^vignettes/workflows/
+^vignettes/workflows/$
+^vignettes/customization/
+^vignettes/customization/$
