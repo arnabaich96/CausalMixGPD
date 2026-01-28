@@ -31,4 +31,3 @@ a <- ate(fit, interval = "credible")
 print(a)
 }
 }
-

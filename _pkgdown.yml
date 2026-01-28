@@ -164,28 +164,26 @@ articles:
       # - "kernels/kernel-laplace"
       # - "kernels/kernel-lognormal"
       # - "kernels/kernel-normal"
-  # Workflow landing page removed; cookbook-index is a static docs page.
-      # Note: Cookbook workflow files (v00-v20) are pre-built HTML files
-      # They are referenced in the navbar but not rebuilt by pkgdown
-      # since source Rmd files are not available in vignettes/cookbook/
-      # - '"cookbook/v00-start-here"'
-      # - '"cookbook/v01-introduction"'
-      # - '"cookbook/v02-available-distributions"'
-      # - '"cookbook/v03-basic-model-compile-run"'
-      # - '"cookbook/v04-backends-and-workflow"'
-      # - '"cookbook/v05-unconditional-DPmix-CRP"'
-      # - '"cookbook/v06-unconditional-DPmix-CRP"'
-      # - '"cookbook/v07-unconditional-DPmix-SB"'
-      # - '"cookbook/v08-unconditional-DPmixGPD-CRP"'
-      # - '"cookbook/v09-unconditional-DPmixGPD-SB"'
-      # - '"cookbook/v10-conditional-DPmix-CRP"'
-      # - '"cookbook/v11-conditional-DPmix-SB"'
-      # - '"cookbook/v12-conditional-DPmixGPD-CRP"'
-      # - '"cookbook/v13-conditional-DPmixGPD-SB"'
-      # - '"cookbook/v14-causal-no-x-CRP"'
-      # - '"cookbook/v15-causal-x-no-ps-SB"'
-      # - '"cookbook/v16-causal-same-backend-CRP"'
-      # - '"cookbook/v17-causal-same-backend-SB"'
-      # - '"cookbook/v18-causal-different-backends-CRP"'
-      # - '"cookbook/v19-causal-different-backends-SB"'
-      # - '"cookbook/v20-troubleshooting"'
+  - title: "Cookbook Workflows"
+    contents:
+      - "workflows/v00-start-here"
+      - "workflows/v01-introduction"
+      - "workflows/v02-available-distributions"
+      - "workflows/v03-basic-model-compile-run"
+      - "workflows/v04-backends-and-workflow"
+      - "workflows/v05-unconditional-DPmix-CRP"
+      - "workflows/v06-unconditional-DPmix-CRP"
+      - "workflows/v07-unconditional-DPmix-SB"
+      - "workflows/v08-unconditional-DPmixGPD-CRP"
+      - "workflows/v09-unconditional-DPmixGPD-SB"
+      - "workflows/v10-conditional-DPmix-CRP"
+      - "workflows/v11-conditional-DPmix-SB"
+      - "workflows/v12-conditional-DPmixGPD-CRP"
+      - "workflows/v13-conditional-DPmixGPD-SB"
+      - "workflows/v14-causal-no-x-CRP"
+      - "workflows/v15-causal-x-no-ps-SB"
+      - "workflows/v16-causal-same-backend-CRP"
+      - "workflows/v17-causal-same-backend-SB"
+      - "workflows/v18-causal-different-backends-CRP"
+      - "workflows/v19-causal-different-backends-SB"
+      - "workflows/v20-troubleshooting"

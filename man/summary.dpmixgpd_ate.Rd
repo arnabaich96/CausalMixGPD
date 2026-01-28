@@ -26,4 +26,3 @@ a <- ate(fit, interval = "credible")
 summary(a)
 }
 }
-
