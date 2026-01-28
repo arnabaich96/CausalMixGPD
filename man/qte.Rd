@@ -43,4 +43,3 @@ qte(fit, probs = c(0.5, 0.9), interval = "hpd")  # HPD intervals
 qte(fit, probs = c(0.5, 0.9), interval = NULL)   # No intervals
 }
 }
-

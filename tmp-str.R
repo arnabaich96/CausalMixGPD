@@ -1,0 +1,4 @@
+library(devtools)
+load_all('.')
+data('nc_pos200_k3')
+print(str(nc_pos200_k3))

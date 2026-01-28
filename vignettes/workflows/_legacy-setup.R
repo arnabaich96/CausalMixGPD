@@ -2,6 +2,11 @@
 # This file is sourced by all legacy vignettes to provide consistent
 # precomputed file handling and MCMC output suppression.
 
+if (!requireNamespace("kableExtra", quietly = TRUE)) {
+  stop("Please install 'kableExtra' using install.packages('kableExtra') so the legacy workflows can render.")
+}
+library(kableExtra)
+
 # Try multiple possible locations for precomputed files
 .find_precomp_dir <- function() {
   # Hardcode the known location of precomputed files
@@ -33,6 +38,9 @@
   cwd <- getwd()
   candidates[[length(candidates) + 1]] <- file.path(cwd, known_path)
   candidates[[length(candidates) + 1]] <- file.path(cwd, "articles", "legacy-precomputed")
+  # Legacy workflow cache location
+  candidates[[length(candidates) + 1]] <- file.path("vignettes", "workflows", "legacy-cache")
+  candidates[[length(candidates) + 1]] <- file.path(cwd, "vignettes", "workflows", "legacy-cache")
   
   # 4. Try relative paths
   candidates[[length(candidates) + 1]] <- file.path("articles", "legacy-precomputed")

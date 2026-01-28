@@ -36,4 +36,3 @@ ate(fit, interval = "hpd")  # HPD intervals
 ate(fit, interval = NULL)   # No intervals
 }
 }
-
