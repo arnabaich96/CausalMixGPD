@@ -25,6 +25,7 @@ Suggests:
     testthat (>= 3.0.0),
     crayon,
     dplyr,
+    DT,
     tibble,
     knitr,
     magrittr,

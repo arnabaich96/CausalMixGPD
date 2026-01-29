@@ -1,4 +1,5 @@
 library/
+cache/
 local/
 cellar/
 lock/

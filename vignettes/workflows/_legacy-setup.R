@@ -7,6 +7,14 @@ if (!requireNamespace("kableExtra", quietly = TRUE)) {
 }
 library(kableExtra)
 
+# Use a stable figure directory so cached plots resolve across runs.
+CACHE_DIR <- file.path("vignettes", "workflows", "legacy-cache")
+if (!dir.exists(CACHE_DIR)) dir.create(CACHE_DIR, recursive = TRUE, showWarnings = FALSE)
+CACHE_DIR_ABS <- normalizePath(CACHE_DIR, winslash = "/", mustWork = FALSE)
+FIG_DIR <- file.path(CACHE_DIR_ABS, "figure-html/")
+if (!dir.exists(FIG_DIR)) dir.create(FIG_DIR, recursive = TRUE, showWarnings = FALSE)
+knitr::opts_chunk$set(fig.path = FIG_DIR)
+
 # Try multiple possible locations for precomputed files
 .find_precomp_dir <- function() {
   # Hardcode the known location of precomputed files
@@ -44,6 +52,8 @@ library(kableExtra)
   
   # 4. Try relative paths
   candidates[[length(candidates) + 1]] <- file.path("articles", "legacy-precomputed")
+  candidates[[length(candidates) + 1]] <- file.path("vignettes", "cookbook", "articles", "cookbook-precomputed")
+  candidates[[length(candidates) + 1]] <- file.path(cwd, "vignettes", "cookbook", "articles", "cookbook-precomputed")
   
   # Check each candidate
   for (cand in candidates) {

@@ -1,4 +1,4 @@
----
+﻿---
 title: "17. Causal Inference: Same Backend (SB) - Laplace Kernel"
 output:
   rmarkdown::html_vignette:
@@ -32,6 +32,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
+devtools::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -93,7 +94,7 @@ p_scatter
 
 ## Model A: SB Bulk-only (Laplace)
 
-```{r bundle-sb-bulk}
+```{r bundle-sb-bulk, cache=FALSE}
 bundle_sb_bulk <- build_causal_bundle(
   y = y,
   T = T,
@@ -111,7 +112,7 @@ bundle_sb_bulk
 summary(bundle_sb_bulk)
 ```
 
-```{r fit-sb-bulk}
+```{r fit-sb-bulk, cache=FALSE}
 fit_sb_bulk <- run_mcmc_causal(bundle_sb_bulk)
 summary(fit_sb_bulk)
 params(fit_sb_bulk)
@@ -161,7 +162,7 @@ plot(qte_bulk)
 
 ## Model B: SB with GPD Tail (Laplace)
 
-```{r bundle-sb-gpd}
+```{r bundle-sb-gpd, cache=FALSE}
 param_specs_gpd <- list(
   gpd = list(
     threshold = list(
@@ -190,7 +191,7 @@ bundle_sb_gpd
 summary(bundle_sb_gpd)
 ```
 
-```{r fit-sb-gpd}
+```{r fit-sb-gpd, cache=FALSE}
 fit_sb_gpd <- run_mcmc_causal(bundle_sb_gpd)
 summary(fit_sb_gpd)
 params(fit_sb_gpd)
@@ -235,6 +236,7 @@ qte_gpd <- qte(fit_sb_gpd, probs = c(0.25, 0.5, 0.75),
                newdata = x_eval, interval = "credible")
 plot(qte_gpd)
 ```
+
 
 
 

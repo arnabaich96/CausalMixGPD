@@ -1,5 +1,7 @@
 .git
 .Rproj.user
+.cursor
+agent-transcripts
 renv/library
 renv/staging
 temp
@@ -8,3 +10,23 @@ data-raw
 docs
 pkgdown
 Meta
+
+# Ignore rendered / cached vignette artifacts (keep vignettes/*.Rmd)
+vignettes/**/cache
+vignettes/**/cache/**
+vignettes/**/_cache
+vignettes/**/_cache/**
+vignettes/**/figure-html
+vignettes/**/figure-html/**
+vignettes/**/figure-markdown_html
+vignettes/**/figure-markdown_html/**
+vignettes/*_files
+vignettes/*_files/**
+
+# Legacy workflow caches (can be huge)
+vignettes/workflows/legacy-cache
+vignettes/workflows/legacy-cache/**
+
+# Precomputed cookbook outputs (generated)
+vignettes/cookbook/articles/cookbook-precomputed
+vignettes/cookbook/articles/cookbook-precomputed/**

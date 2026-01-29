@@ -87,19 +87,39 @@
     )
 }
 
+.strip_fill_scales <- function(p) {
+  if (!inherits(p, "ggplot")) return(p)
+  if (is.null(p$scales) || !length(p$scales$scales)) return(p)
+  keep <- vapply(p$scales$scales, function(s) {
+    !("fill" %in% (s$aesthetics %||% character()))
+  }, logical(1))
+  p$scales$scales <- p$scales$scales[keep]
+  p
+}
+
+.safe_ggplotly <- function(p) {
+  tryCatch(
+    plotly::ggplotly(p),
+    error = function(e) {
+      p2 <- .strip_fill_scales(p)
+      tryCatch(plotly::ggplotly(p2), error = function(e2) p2)
+    }
+  )
+}
+
 .wrap_plotly <- function(p) {
   if (requireNamespace("plotly", quietly = TRUE)) {
     if (is.list(p) && !inherits(p, "ggplot")) {
       # List of plots - wrap each, preserve class
       result <- lapply(p, function(plt) {
-        if (inherits(plt, "ggplot")) plotly::ggplotly(plt) else plt
+        if (inherits(plt, "ggplot")) .safe_ggplotly(plt) else plt
       })
       # Preserve original class attributes
       class(result) <- class(p)
       result
     } else if (inherits(p, "ggplot")) {
       # Single ggplot - wrap it
-      plotly::ggplotly(p)
+      .safe_ggplotly(p)
     } else {
       # Not a ggplot, return as-is
       p

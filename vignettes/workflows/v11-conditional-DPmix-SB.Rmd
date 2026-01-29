@@ -1,4 +1,4 @@
----
+﻿---
 title: "11. Conditional DPmix with Stick-Breaking Backend"
 output: 
   rmarkdown::html_vignette:
@@ -32,6 +32,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
+devtools::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -85,7 +86,7 @@ summary_tbl %>%
 
 ## Model Specification
 
-```{r spec}
+```{r spec, cache=FALSE}
 bundle_sb_normal <- build_nimble_bundle(
   y = y,
   X = X,
@@ -111,7 +112,7 @@ bundle_sb_cauchy <- build_nimble_bundle(
 
 ## Running MCMC
 
-```{r mcmc}
+```{r mcmc, cache=FALSE}
 fit_sb_normal <- load_or_fit("v11-conditional-DPmix-SB-fit_sb_normal", run_mcmc_bundle_manual(bundle_sb_normal))
 fit_sb_cauchy <- load_or_fit("v11-conditional-DPmix-SB-fit_sb_cauchy", run_mcmc_bundle_manual(bundle_sb_cauchy))
 summary(fit_sb_normal)
@@ -196,7 +197,7 @@ bind_rows(quant_df_normal, quant_df_cauchy) %>%
 
 ## Residuals & Diagnostics
 
-```{r residuals}
+```{r residuals, cache=FALSE}
 plot(fitted(fit_sb_cauchy))
 ```
 
@@ -213,6 +214,7 @@ plot(fit_sb_cauchy, family = c("density", "running", "caterpillar"))
 - `predict(..., type = "density")` returns group-specific densities for each `X`.
 - `predict(..., type = "quantile")` reports posterior-mean quantiles; the median is the 0.5 quantile and shifts with `x1`.
 - Diagnoses rely on the same S3 `plot()`/`fitted()` pipeline available in other vignettes.
+
 
 
 

@@ -1,4 +1,4 @@
----
+﻿---
 title: "8. Unconditional DPmixGPD with CRP Backend"
 output: 
   rmarkdown::html_vignette:
@@ -36,6 +36,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
+devtools::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -113,7 +114,7 @@ ggplot(df_tail, aes(x = y, fill = region)) +
 
 This mirrors the direct `build_nimble_bundle()` workflow in `v04`, but with **tail augmentation** turned on (`GPD = TRUE`). Here we use an **Inverse Gaussian** bulk kernel and estimate the GPD threshold with a lognormal prior centered at the empirical 80th percentile.
 
-```{r bundle-mcmc-crp-gpd}
+```{r bundle-mcmc-crp-gpd, cache=FALSE}
 bundle_gpd <- build_nimble_bundle(
   y = y_tail,
   kernel = "invgauss",
@@ -138,7 +139,7 @@ bundle_gpd <- build_nimble_bundle(
 
 ## Running MCMC & Diagnostics
 
-```{r mcmc-run}
+```{r mcmc-run, cache=FALSE}
 fit_gpd <- load_or_fit("v08-unconditional-DPmixGPD-CRP-fit_gpd", run_mcmc_bundle_manual(bundle_gpd))
 ```
 
@@ -161,7 +162,7 @@ plot(fit_gpd, params = "alpha", family = c("traceplot", "autocorrelation", "gewe
 
 ## Posterior Predictions: Bulk and Tail
 
-We use the **S3 `predict()` objects** and their dedicated `plot()` methods to visualize densities, survival curves, and posterior-mean quantiles (i.e., averages of q(p | θ) over draws).
+We use the **S3 `predict()` objects** and their dedicated `plot()` methods to visualize densities, survival curves, and posterior-mean quantiles (i.e., averages of q(p | Î¸) over draws).
 
 ```{r density-predict}
 y_min <- max(min(y_tail), .Machine$double.eps)
@@ -188,7 +189,7 @@ plot(pred_quantiles)
 
 To demonstrate the value of tail augmentation, we fit a bulk-only lognormal DP mixture and compare posterior summaries against the InvGauss+GPD fit.
 
-```{r bulk-only-fit}
+```{r bulk-only-fit, cache=FALSE}
 bundle_bulk_only <- build_nimble_bundle(
   y = y_tail,
   kernel = "lognormal",
@@ -235,7 +236,7 @@ return_levels$fit %>%
   kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
 ```
 
-```{r residuals}
+```{r residuals, cache=FALSE}
 fit_vals <- fitted(fit_gpd)
 plot(fit_vals)
 ```
@@ -244,7 +245,7 @@ plot(fit_vals)
 
 ## Threshold Sensitivity
 
-```{r threshold-sensitivity}
+```{r threshold-sensitivity, cache=FALSE}
 sensitivity_fits <- lapply(thresholds, function(u) {
   bundle <- build_nimble_bundle(
     y = y_tail,
@@ -306,6 +307,7 @@ sensitivity_tbl %>%
 - **S3 workflows**: `predict()` and its `plot()` method make it easy to compare density, survival, and quantiles.
 - **Comparison**: Bulk-only fits under-estimate extreme quantiles without a GPD component.
 - **Next**: Explore Stick-Breaking (`v07`) for another backend with tail augmentation.
+
 
 
 

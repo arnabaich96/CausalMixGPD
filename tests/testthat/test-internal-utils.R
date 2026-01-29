@@ -7,6 +7,10 @@
 .compute_interval <- DPmixGPD:::.compute_interval
 .posterior_summarize <- DPmixGPD:::.posterior_summarize
 .truncate_components_one_draw <- DPmixGPD:::.truncate_components_one_draw
+.wrap_plotly <- DPmixGPD:::.wrap_plotly
+.plot_palette <- DPmixGPD:::.plot_palette
+.extract_nimble_code <- DPmixGPD:::.extract_nimble_code
+.wrap_nimble_code <- DPmixGPD:::.wrap_nimble_code
 
 # ======================================================================
 # .validate_nimble_reserved_names
@@ -41,6 +45,50 @@ test_that(".validate_nimble_reserved_names rejects reserved keywords", {
 test_that(".validate_nimble_reserved_names handles edge cases", {
   expect_invisible(.validate_nimble_reserved_names(c("", NA_character_)))
   expect_invisible(.validate_nimble_reserved_names(c("iffy", "truly", "nullify")))
+})
+
+# ======================================================================
+# Plot helpers / code wrappers
+# ======================================================================
+
+test_that(".plot_palette returns requested length", {
+  expect_length(.plot_palette(3), 3)
+  expect_length(.plot_palette(8), 8)
+  expect_length(.plot_palette(12), 12)
+})
+
+test_that(".extract_nimble_code and .wrap_nimble_code handle wrapped/list code", {
+  code_obj <- quote({ a <- 1 })
+  wrapped <- .wrap_nimble_code(code_obj)
+  expect_true(is.list(wrapped))
+  expect_true(!is.null(wrapped$nimble))
+
+  # extract returns $nimble when stored in a list wrapper
+  extracted <- .extract_nimble_code(wrapped)
+  expect_equal(deparse(extracted), deparse(code_obj))
+
+  # if already a list, wrapper should pass-through
+  pass <- .wrap_nimble_code(list(nimble = code_obj))
+  expect_true(is.list(pass))
+  expect_true(!is.null(pass$nimble))
+})
+
+test_that(".wrap_plotly returns plotly when available, otherwise passthrough", {
+  p <- ggplot2::ggplot() + ggplot2::geom_point(ggplot2::aes(1, 1))
+
+  out <- .wrap_plotly(p)
+  if (requireNamespace("plotly", quietly = TRUE)) {
+    expect_true(is.list(out))
+    expect_true(inherits(out, "plotly") || inherits(out, "htmlwidget"))
+  } else {
+    expect_true(inherits(out, "ggplot"))
+  }
+
+  plots <- list(a = p, b = p)
+  class(plots) <- c("mixgpd_fit_plots", "list")
+  out2 <- .wrap_plotly(plots)
+  expect_true(inherits(out2, "mixgpd_fit_plots"))
+  expect_true(is.list(out2))
 })
 
 # ======================================================================

@@ -35,3 +35,6 @@
 ^vignettes/workflows/$
 ^vignettes/customization/
 ^vignettes/customization/$
+^tmp-.*\.R$
+^\.Rhistory$
+# Ignore renv folder and all subfolders

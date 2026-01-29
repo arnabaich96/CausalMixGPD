@@ -1,4 +1,4 @@
----
+﻿---
 title: "20. Troubleshooting"
 output:
   rmarkdown::html_vignette:
@@ -32,6 +32,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
+devtools::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds

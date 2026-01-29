@@ -1,4 +1,4 @@
----
+﻿---
 title: "0. Start Here"
 output:
   rmarkdown::html_vignette:
@@ -32,6 +32,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
+devtools::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -59,7 +60,7 @@ data("nc_pos200_k3")
 y <- nc_pos200_k3$y
 ```
 
-```{r start-uncond-bundle}
+```{r start-uncond-bundle, cache=FALSE}
 bundle_uncond <- build_nimble_bundle(
   y = y,
   backend = "crp",
@@ -70,7 +71,7 @@ bundle_uncond <- build_nimble_bundle(
 )
 ```
 
-```{r start-uncond-fit}
+```{r start-uncond-fit, cache=FALSE}
 fit_uncond <- load_or_fit("v00-start-here-fit_uncond", quiet_mcmc(run_mcmc_bundle_manual(bundle_uncond, show_progress = FALSE)))
 summary(fit_uncond)
 ```
@@ -91,7 +92,7 @@ yc <- nc_posX100_p3_k2$y
 X <- as.matrix(nc_posX100_p3_k2$X)
 ```
 
-```{r start-cond-bundle}
+```{r start-cond-bundle, cache=FALSE}
 bundle_cond <- build_nimble_bundle(
   y = yc,
   X = X,
@@ -103,7 +104,7 @@ bundle_cond <- build_nimble_bundle(
 )
 ```
 
-```{r start-cond-fit}
+```{r start-cond-fit, cache=FALSE}
 fit_cond <- load_or_fit("v00-start-here-fit_cond", quiet_mcmc(run_mcmc_bundle_manual(bundle_cond, show_progress = FALSE)))
 summary(fit_cond)
 ```

@@ -1,4 +1,4 @@
----
+﻿---
 title: "12. Conditional DPmixGPD with CRP Backend"
 output: 
   rmarkdown::html_vignette:
@@ -32,6 +32,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
+devtools::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -99,7 +100,7 @@ ggplot(data.frame(y = y), aes(x = y)) +
 
 ## Model Specification & Bundle
 
-```{r bundle}
+```{r bundle, cache=FALSE}
 bundle_cond_gpd_lognormal <- build_nimble_bundle(
   y = y,
   X = X,
@@ -135,7 +136,7 @@ bundle_cond_gpd_normal <- build_nimble_bundle(
 
 ## Running MCMC
 
-```{r mcmc-run}
+```{r mcmc-run, cache=FALSE}
 fit_cond_gpd_lognormal <- load_or_fit("v12-conditional-DPmixGPD-CRP-fit_cond_gpd_lognormal", run_mcmc_bundle_manual(bundle_cond_gpd_lognormal))
 fit_cond_gpd_normal <- load_or_fit("v12-conditional-DPmixGPD-CRP-fit_cond_gpd_normal", run_mcmc_bundle_manual(bundle_cond_gpd_normal))
 summary(fit_cond_gpd_lognormal)
@@ -222,7 +223,7 @@ bind_rows(quant_df_lognormal, quant_df_normal) %>%
 
 ## Residuals & Diagnostics
 
-```{r residuals}
+```{r residuals, cache=FALSE}
 plot(fitted(fit_cond_gpd_lognormal))
 ```
 
@@ -239,6 +240,7 @@ plot(fit_cond_gpd_normal, family = c("running", "geweke", "caterpillar"))
 - The CRP backend samples the bulk and tail jointly while thresholding at the 85th percentile.
 - `predict()` + `plot()` remain the main tools for densities, survival curves, and quantiles; residual diagnostics check fit quality.
 - Next: Mirror this workflow with the SB backend in `v11`.
+
 
 
 

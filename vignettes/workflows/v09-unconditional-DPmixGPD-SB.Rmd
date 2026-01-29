@@ -1,4 +1,4 @@
----
+﻿---
 title: "9. Unconditional DPmixGPD with Stick-Breaking Backend"
 output: 
   rmarkdown::html_vignette:
@@ -32,6 +32,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
+devtools::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -103,7 +104,7 @@ ggplot(df_data, aes(x = y)) +
 
 This follows the same structure as the SB bulk-only vignette (`v05`): build a bundle with `build_nimble_bundle()`, run MCMC, then use the S3 `predict()` + `plot()` helpers. Compared with `v06` (CRP+GPD), here we keep the **stick-breaking** backend and use a **Gamma** bulk kernel with a lognormal threshold prior, then contrast it with a bulk-only **Laplace** fit.
 
-```{r spec-bundle}
+```{r spec-bundle, cache=FALSE}
 bundle_sb_gpd <- build_nimble_bundle(
   y = y_tail,
   kernel = "gamma",
@@ -127,7 +128,7 @@ bundle_sb_gpd <- build_nimble_bundle(
 
 ## Running MCMC
 
-```{r mcmc-run}
+```{r mcmc-run, cache=FALSE}
 fit_sb_gpd <- load_or_fit("v09-unconditional-DPmixGPD-SB-fit_sb_gpd", run_mcmc_bundle_manual(bundle_sb_gpd))
 summary(fit_sb_gpd)
 ```
@@ -163,7 +164,7 @@ plot(pred_quant)
 
 ## Tail vs Bulk Comparison
 
-```{r bulk-comparison}
+```{r bulk-comparison, cache=FALSE}
 bundle_sb_bulk <- build_nimble_bundle(
   y = y_tail,
   kernel = "laplace",
@@ -196,7 +197,7 @@ plot(t_quant)
 
 ## Residuals & Diagnostics
 
-```{r residuals}
+```{r residuals, cache=FALSE}
 fit_vals <- fitted(fit_sb_gpd)
 plot(fit_vals)
 ```
@@ -211,8 +212,9 @@ plot(fit_sb_gpd, family = c("histogram", "autocorrelation", "running"))
 
 - Stick-breaking truncation fixes the number of bulk components but still flexibly models the tail via GPD.
 - Posterior `predict()` + `plot()` workflows visualize densities, survival probabilities, and posterior-mean extreme quantiles.
-- Comparing bulk-only vs GPD-augmented quantiles reveals how tail augmentation shifts the 95–99% levels.
-- Next: conditional DPmix (v08–v11) to explore covariate effects before moving to causal regimes.
+- Comparing bulk-only vs GPD-augmented quantiles reveals how tail augmentation shifts the 95â€“99% levels.
+- Next: conditional DPmix (v08â€“v11) to explore covariate effects before moving to causal regimes.
+
 
 
 

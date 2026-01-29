@@ -305,9 +305,8 @@ test_that(
   }
 )
 test_that("All nimble::nimbleFunction-defined objects in R/ compile", {
-  # Skip during coverage runs - compileNimble is expensive and may fail in covr's isolated environment
-  skip_if(nzchar(Sys.getenv("COVERAGE")), "Skipping nimble compilation during coverage")
-  skip_if(any(grepl("covr", loadedNamespaces(), ignore.case = TRUE)), "Skipping nimble compilation during coverage")
+  # Keep this out of Tier A (cran) because it's expensive; allow it for CI + coverage.
+  skip_if_not_test_level("ci")
 
   r_dir <- test_path("..", "..", "R")
   expect_true(dir.exists(r_dir), info = paste("Missing R dir:", r_dir))

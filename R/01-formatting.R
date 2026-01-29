@@ -90,23 +90,68 @@ format_mat3_sci <- function(mat, digits = 3, big = 1e4) {
 }
 
 #' @noRd
+.dt_view_table <- function(df, row.names = TRUE, digits = 3, min_rows = 10L, min_cols = 8L) {
+  # Goal: still print a regular data.frame to the console, but if DT is installed
+  # and we're in an interactive session (not knitr), also open an interactive view.
+  if (!interactive()) return(invisible(NULL))
+  if (isTRUE(getOption("knitr.in.progress"))) return(invisible(NULL))
+  if (!requireNamespace("DT", quietly = TRUE)) return(invisible(NULL))
+
+  df <- as.data.frame(df)
+  if (NROW(df) < as.integer(min_rows) || NCOL(df) < as.integer(min_cols)) {
+    return(invisible(NULL))
+  }
+
+  num_cols <- vapply(df, is.numeric, logical(1))
+  dt <- DT::datatable(
+    df,
+    rownames = isTRUE(row.names),
+    class = "compact stripe hover",
+    options = list(
+      pageLength = min(25L, NROW(df)),
+      scrollX = TRUE,
+      autoWidth = TRUE,
+      columnDefs = list(list(className = "dt-center", targets = "_all"))
+    )
+  )
+  if (any(num_cols)) {
+    dt <- DT::formatRound(dt, columns = names(df)[num_cols], digits = digits)
+  }
+
+  # In RStudio this typically opens the Viewer; otherwise it may open a browser tab.
+  withCallingHandlers(
+    print(dt),
+    warning = function(w) {
+      # Log suppressed warnings for debugging without showing them as warnings
+      message("DT view warning (suppressed): ", conditionMessage(w))
+      invokeRestart("muffleWarning")
+    }
+  )
+  invisible(NULL)
+}
+
+#' @noRd
 print_fmt3 <- function(x, ...) {
   args <- list(...)
   row_names <- if (!is.null(args$row.names)) args$row.names else TRUE
   if (is.data.frame(x)) {
+    df_raw <- x
     df <- format_df3(x)
     if (.is_knitr_output()) {
       kbl <- .kable_table(df, row.names = row_names)
       if (!is.null(kbl)) return(print(kbl))
     }
+    .dt_view_table(df_raw, row.names = row_names, digits = 3)
     return(print(df, ...))
   }
   if (is.matrix(x)) {
+    mat_raw <- x
     mat <- format_mat3(x)
     if (.is_knitr_output()) {
       kbl <- .kable_table(as.data.frame(mat), row.names = row_names)
       if (!is.null(kbl)) return(print(kbl))
     }
+    .dt_view_table(as.data.frame(mat_raw), row.names = row_names, digits = 3)
     return(print(mat, ...))
   }
   if (is.numeric(x)) {
@@ -120,19 +165,23 @@ print_fmt3_sci <- function(x, digits = 3, big = 1e4, ...) {
   args <- list(...)
   row_names <- if (!is.null(args$row.names)) args$row.names else TRUE
   if (is.data.frame(x)) {
+    df_raw <- x
     df <- format_df3_sci(x, digits = digits, big = big)
     if (.is_knitr_output()) {
       kbl <- .kable_table(df, row.names = row_names)
       if (!is.null(kbl)) return(print(kbl))
     }
+    .dt_view_table(df_raw, row.names = row_names, digits = digits)
     return(print(df, ...))
   }
   if (is.matrix(x)) {
+    mat_raw <- x
     mat <- format_mat3_sci(x, digits = digits, big = big)
     if (.is_knitr_output()) {
       kbl <- .kable_table(as.data.frame(mat), row.names = row_names)
       if (!is.null(kbl)) return(print(kbl))
     }
+    .dt_view_table(as.data.frame(mat_raw), row.names = row_names, digits = digits)
     return(print(mat, ...))
   }
   if (is.numeric(x)) {

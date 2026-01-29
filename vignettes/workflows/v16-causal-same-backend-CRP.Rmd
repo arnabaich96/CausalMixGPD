@@ -1,4 +1,4 @@
----
+﻿---
 title: "16. Causal Inference: Mixed Backends (CRP+SB) - Cauchy/Laplace"
 output:
   rmarkdown::html_vignette:
@@ -32,6 +32,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
+devtools::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -95,7 +96,7 @@ p_scatter
 
 ## Model A: CRP Bulk-only (Cauchy)
 
-```{r bundle-crp-bulk}
+```{r bundle-crp-bulk, cache=FALSE}
 bundle_crp_bulk <- build_causal_bundle(
   y = y,
   T = T,
@@ -113,7 +114,7 @@ bundle_crp_bulk
 summary(bundle_crp_bulk)
 ```
 
-```{r fit-crp-bulk}
+```{r fit-crp-bulk, cache=FALSE}
 fit_crp_bulk <- quiet_mcmc(run_mcmc_causal(bundle_crp_bulk))
 summary(fit_crp_bulk)
 params(fit_crp_bulk)
@@ -169,7 +170,7 @@ plot(qte_bulk)
 
 ## Model B: SB with GPD Tail (Laplace)
 
-```{r bundle-crp-gpd}
+```{r bundle-crp-gpd, cache=FALSE}
 param_specs_gpd <- list(
   gpd = list(
     threshold = list(
@@ -198,7 +199,7 @@ bundle_sb_gpd
 summary(bundle_sb_gpd)
 ```
 
-```{r fit-sb-gpd}
+```{r fit-sb-gpd, cache=FALSE}
 fit_sb_gpd <- quiet_mcmc(run_mcmc_causal(bundle_sb_gpd))
 summary(fit_sb_gpd)
 params(fit_sb_gpd)
@@ -249,6 +250,7 @@ qte_gpd <- qte(fit_sb_gpd, probs = c(0.25, 0.5, 0.75),
 head(qte_gpd)
 plot(qte_gpd)
 ```
+
 
 
 

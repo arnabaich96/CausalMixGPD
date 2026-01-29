@@ -15,8 +15,28 @@ articles:
   reference-s3: reference-s3.html
   Customization/umbrella: Customization/umbrella.html
   unconditional: unconditional.html
-  workflows-index: workflows-index.html
-last_built: 2026-01-27T00:35Z
+  workflows/v00-start-here: workflows/v00-start-here.html
+  workflows/v01-introduction: workflows/v01-introduction.html
+  workflows/v02-available-distributions: workflows/v02-available-distributions.html
+  workflows/v03-basic-model-compile-run: workflows/v03-basic-model-compile-run.html
+  workflows/v04-backends-and-workflow: workflows/v04-backends-and-workflow.html
+  workflows/v05-unconditional-DPmix-CRP: workflows/v05-unconditional-DPmix-CRP.html
+  workflows/v06-unconditional-DPmix-CRP: workflows/v06-unconditional-DPmix-CRP.html
+  workflows/v07-unconditional-DPmix-SB: workflows/v07-unconditional-DPmix-SB.html
+  workflows/v08-unconditional-DPmixGPD-CRP: workflows/v08-unconditional-DPmixGPD-CRP.html
+  workflows/v09-unconditional-DPmixGPD-SB: workflows/v09-unconditional-DPmixGPD-SB.html
+  workflows/v10-conditional-DPmix-CRP: workflows/v10-conditional-DPmix-CRP.html
+  workflows/v11-conditional-DPmix-SB: workflows/v11-conditional-DPmix-SB.html
+  workflows/v12-conditional-DPmixGPD-CRP: workflows/v12-conditional-DPmixGPD-CRP.html
+  workflows/v13-conditional-DPmixGPD-SB: workflows/v13-conditional-DPmixGPD-SB.html
+  workflows/v14-causal-no-x-CRP: workflows/v14-causal-no-x-CRP.html
+  workflows/v15-causal-x-no-ps-SB: workflows/v15-causal-x-no-ps-SB.html
+  workflows/v16-causal-same-backend-CRP: workflows/v16-causal-same-backend-CRP.html
+  workflows/v17-causal-same-backend-SB: workflows/v17-causal-same-backend-SB.html
+  workflows/v18-causal-different-backends-CRP: workflows/v18-causal-different-backends-CRP.html
+  workflows/v19-causal-different-backends-SB: workflows/v19-causal-different-backends-SB.html
+  workflows/v20-troubleshooting: workflows/v20-troubleshooting.html
+last_built: 2026-01-28T03:56Z
 urls:
   reference: https://arnabaich96.github.io/DPmixGPD/reference
   article: https://arnabaich96.github.io/DPmixGPD/articles

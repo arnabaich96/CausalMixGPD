@@ -1,4 +1,4 @@
----
+﻿---
 title: "10. Conditional DPmix with CRP Backend"
 output: 
   rmarkdown::html_vignette:
@@ -32,6 +32,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
+devtools::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -89,7 +90,7 @@ summary_tbl %>%
 
 ## Model Specification & Bundle
 
-```{r spec-bundle}
+```{r spec-bundle, cache=FALSE}
 bundle_cond_normal <- build_nimble_bundle(
   y = y,
   X = X,
@@ -115,7 +116,7 @@ bundle_cond_amoroso <- build_nimble_bundle(
 
 ## Running MCMC
 
-```{r mcmc-run}
+```{r mcmc-run, cache=FALSE}
 fit_cond_normal <- load_or_fit("v10-conditional-DPmix-CRP-fit_cond_normal", run_mcmc_bundle_manual(bundle_cond_normal))
 fit_cond_amoroso <- load_or_fit("v10-conditional-DPmix-CRP-fit_cond_amoroso", run_mcmc_bundle_manual(bundle_cond_amoroso))
 summary(fit_cond_normal)
@@ -207,7 +208,7 @@ bind_rows(quant_df_normal, quant_df_amoroso) %>%
 
 ## Residuals & Diagnostics
 
-```{r residuals}
+```{r residuals, cache=FALSE}
 fit_vals <- fitted(fit_cond_normal)
 plot(fit_vals)
 ```
@@ -225,6 +226,7 @@ plot(fit_cond_amoroso, family = c("density", "running", "caterpillar"))
 - Use `predict(..., type = "density")` to visualize conditional densities and `type = "quantile"` for posterior-mean location shifts.
 - Diagnostics (`plot(fit_cond_normal)`, `fitted(fit_cond_normal)`) ensure the chains mix before relying on predictions.
 - Next vignette extends the same idea to the SB backend before adding tails.
+
 
 
 

@@ -1,4 +1,4 @@
----
+﻿---
 title: "7. Unconditional DPmix with Stick-Breaking Backend"
 output: 
   rmarkdown::html_vignette:
@@ -37,6 +37,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
+devtools::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -60,9 +61,23 @@ source("_legacy-setup.R")
 ## Data Setup
 
 ```{r data-setup, fig.width=8, fig.height=6}
-# Load benchmark dataset
-data("nc_pos200_k3")
-y_mixed <- nc_pos200_k3$y
+# Generate a reproducible mock dataset instead of relying on saved cache files.
+set.seed(10102)
+n <- 200
+weights <- c(0.4, 0.35, 0.25)
+params <- list(
+  list(shape = 2.0, rate = 1.5),
+  list(shape = 4.0, rate = 1.0),
+  list(shape = 7.0, rate = 0.7)
+)
+component <- sample(seq_along(weights), size = n, replace = TRUE, prob = weights)
+y_mixed <- numeric(n)
+for (k in seq_along(params)) {
+  idx <- which(component == k)
+  if (length(idx) > 0) {
+    y_mixed[idx] <- rgamma(length(idx), shape = params[[k]]$shape, rate = params[[k]]$rate)
+  }
+}
 
 df_data <- data.frame(y = y_mixed)
 
@@ -93,7 +108,7 @@ summary_tbl %>%
 
 We build the stick-breaking mixture explicitly with `components = 5` so that there is room for weight decay while keeping the MCMC runtime manageable for a vignette. We then refit the same SB model with a **Cauchy** kernel for comparison.
 
-```{r bundle-mcmc-sb}
+```{r bundle-mcmc-sb, cache=FALSE}
 # --- Gamma kernel ---
 bundle_sb_gamma <- build_nimble_bundle(
   y = y_mixed,
@@ -119,7 +134,7 @@ bundle_sb_cauchy <- build_nimble_bundle(
 
 ## Running MCMC & Summary
 
-```{r mcmc-run}
+```{r mcmc-run, cache=FALSE}
 fit_sb_gamma <- load_or_fit("v07-unconditional-DPmix-SB-fit_sb_gamma", run_mcmc_bundle_manual(bundle_sb_gamma))
 fit_sb_cauchy <- load_or_fit("v07-unconditional-DPmix-SB-fit_sb_cauchy", run_mcmc_bundle_manual(bundle_sb_cauchy))
 ```
@@ -188,7 +203,7 @@ plot(pred_mean_cauchy)
 
 ## Bulk-only vs CRP Backends
 
-```{r compare-backend}
+```{r compare-backend, cache=FALSE}
 bundle_crp_small <- build_nimble_bundle(
   y = y_mixed,
   kernel = "gamma",
@@ -221,7 +236,7 @@ plot(sb_quant)
 
 ## Residuals & Fitted Values
 
-```{r residuals}
+```{r residuals, cache=FALSE}
 fit_vals <- fitted(fit_sb_gamma)
 plot(fit_vals)
 ```
@@ -235,7 +250,6 @@ plot(fit_vals)
 - **Predictions**: Posterior density, posterior-mean quantiles, and mean (via predictive sampling) are accessible via `predict()` with credible bands.
 - **Backend comparison**: The CRP fit (`v04`) and the SB-gamma fit deliver similar central quantiles while SB offers more control over truncation.
 - **Next**: Explore tail augmentation (`GPD = TRUE`) with the CRP backend in `v06` or SB backend in `v07`.
-
 
 
 

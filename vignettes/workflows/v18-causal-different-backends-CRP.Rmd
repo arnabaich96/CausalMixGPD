@@ -1,4 +1,4 @@
----
+﻿---
 title: "18. Causal Inference: Mixed Backends (Bulk-only) - Cauchy Kernel"
 output:
   rmarkdown::html_vignette:
@@ -32,6 +32,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
+devtools::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -92,7 +93,7 @@ p_scatter
 
 ## Model A: Treated SB, Control CRP (Cauchy)
 
-```{r bundle-sb-crp}
+```{r bundle-sb-crp, cache=FALSE}
 bundle_sb_crp <- build_causal_bundle(
   y = y,
   T = T,
@@ -110,7 +111,7 @@ bundle_sb_crp
 summary(bundle_sb_crp)
 ```
 
-```{r fit-sb-crp}
+```{r fit-sb-crp, cache=FALSE}
 fit_sb_crp <- run_mcmc_causal(bundle_sb_crp)
 summary(fit_sb_crp)
 params(fit_sb_crp)
@@ -160,7 +161,7 @@ plot(qte_sb_crp)
 
 ## Model B: Treated CRP, Control SB (Cauchy)
 
-```{r bundle-crp-sb}
+```{r bundle-crp-sb, cache=FALSE}
 bundle_crp_sb <- build_causal_bundle(
   y = y,
   T = T,
@@ -178,7 +179,7 @@ bundle_crp_sb
 summary(bundle_crp_sb)
 ```
 
-```{r fit-crp-sb}
+```{r fit-crp-sb, cache=FALSE}
 fit_crp_sb <- run_mcmc_causal(bundle_crp_sb)
 summary(fit_crp_sb)
 params(fit_crp_sb)
@@ -223,6 +224,7 @@ qte_crp_sb <- qte(fit_crp_sb, probs = c(0.25, 0.5, 0.75),
                   newdata = x_eval, interval = "credible")
 plot(qte_crp_sb)
 ```
+
 
 
 

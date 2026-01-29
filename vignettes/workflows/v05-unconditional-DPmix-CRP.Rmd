@@ -1,4 +1,4 @@
----
+﻿---
 title: "5. Unconditional DPmix (CRP Backend)"
 output:
   html_document:
@@ -35,6 +35,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
+devtools::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -80,7 +81,7 @@ print(p_raw)
 
 # Build Bundle (CRP)
 
-```{r bundle-mcmc-crp}
+```{r bundle-mcmc-crp, cache=FALSE}
 bundle_crp <- build_nimble_bundle(
   y = y_mixed,
   kernel = "laplace",         # Use laplace kernel
@@ -94,7 +95,7 @@ bundle_crp <- build_nimble_bundle(
 
 # Run MCMC (Longer Run)
 
-```{r mcmc-crp}
+```{r mcmc-crp, cache=FALSE}
 bundle_crp <- build_nimble_bundle(
   y_mixed,
   kernel = "laplace",
@@ -110,7 +111,7 @@ bundle_crp <- build_nimble_bundle(
 summary(bundle_crp)
 ```
 
-```{r mcmc-crp-fit, results = "hide"}
+```{r mcmc-crp-fit, results = "hide", cache=FALSE}
 fit_crp <- load_or_fit("v05-unconditional-DPmix-CRP-fit_crp", run_mcmc_bundle_manual(bundle_crp))
 ```
 
@@ -144,3 +145,4 @@ pred_density <- predict(fit_crp, y = y_grid, type = "density")
 # Use S3 plot method
 plot(pred_density)
 ```
+

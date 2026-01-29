@@ -922,10 +922,31 @@ plot.mixgpd_fit <- function(x,
       )
     }
 
-    p <- p +
-      .plot_theme() +
-      ggplot2::scale_color_manual(values = pal) +
-      ggplot2::scale_fill_manual(values = pal)
+    fill_scale <- "manual"
+    built <- tryCatch(ggplot2::ggplot_build(p), error = function(e) NULL)
+    if (!is.null(built)) {
+      fill_vals <- unlist(lapply(built$data, function(df) {
+        if ("fill" %in% names(df)) df$fill else NULL
+      }), use.names = FALSE)
+      if (length(fill_vals)) {
+        non_na <- fill_vals[!is.na(fill_vals)]
+        if (!length(non_na)) {
+          fill_scale <- "none"
+        } else if (is.numeric(non_na)) {
+          fill_scale <- "continuous"
+        } else {
+          fill_scale <- "manual"
+        }
+      }
+    }
+
+    p <- p + .plot_theme()
+    p <- tryCatch(p + ggplot2::scale_color_manual(values = pal), error = function(e) p)
+    if (identical(fill_scale, "manual")) {
+      p <- tryCatch(p + ggplot2::scale_fill_manual(values = pal), error = function(e) p)
+    } else if (identical(fill_scale, "continuous")) {
+      p <- tryCatch(p + ggplot2::scale_fill_viridis_c(option = "C"), error = function(e) p)
+    }
     plots[[f]] <- p
   }
 
@@ -2357,8 +2378,28 @@ plot.mixgpd_fitted <- function(x, y = NULL, ...) {
 
   obj <- attr(x, "object")
   y_data <- obj$data$y %||% obj$y
+  if (is.list(y_data) && !is.null(y_data$y)) {
+    y_data <- y_data$y
+  }
 
   # Panel 1: Observed vs Fitted (diagonal plot)
+  if (is.null(x$fit) || length(x$fit) == 0L) {
+    if (!is.null(obj)) {
+      x_recalc <- tryCatch(fitted.mixgpd_fit(obj), error = function(e) NULL)
+      if (!is.null(x_recalc) && !is.null(x_recalc$fit) && length(x_recalc$fit) > 0L) {
+        x <- x_recalc
+      }
+    }
+  }
+  if (is.null(x$fit) || length(x$fit) == 0L || is.null(y_data) || length(y_data) == 0L) {
+    stop("Fitted values are unavailable; ensure the model has fitted values before plotting.",
+         call. = FALSE)
+  }
+  if (length(x$fit) != length(y_data)) {
+    stop("Fitted values length does not match observed data length.",
+         call. = FALSE)
+  }
+
   p1_data <- data.frame(
     fitted = x$fit,
     observed = y_data
@@ -2455,4 +2496,3 @@ print.mixgpd_predict_plots <- function(x, ...) {
   class(x) <- cls
   invisible(x)
 }
-

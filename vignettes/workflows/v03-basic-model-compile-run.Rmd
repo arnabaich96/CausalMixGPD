@@ -1,4 +1,4 @@
----
+﻿---
 title: "3. Basic Workflow: Model Specification, Bundle, & MCMC"
 output: 
   rmarkdown::html_vignette:
@@ -32,6 +32,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
+devtools::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -61,7 +62,7 @@ DPmixGPD uses a direct two-step workflow:
 
 ### Building Directly
 
-```{r bundle-direct}
+```{r bundle-direct, cache=FALSE}
 # Load packaged data
 data("nc_pos200_k3")
 y <- nc_pos200_k3$y
@@ -100,7 +101,7 @@ print(bundle_direct$mcmc_settings)
 
 ### Basic MCMC Run
 
-```{r mcmc-basic}
+```{r mcmc-basic, cache=FALSE}
 # Run MCMC
 fit <- load_or_fit("v03-basic-model-compile-run-fit", run_mcmc_bundle_manual(bundle_direct, show_progress = FALSE))
 
@@ -131,7 +132,7 @@ plot(fit, params = "alpha|beta", family = c("traceplot", "running", "autocorrela
 
 ## Complete Workflow: End-to-End Example
 
-```{r workflow-complete}
+```{r workflow-complete, cache=FALSE}
 # Load packaged data
 data("nc_pos200_k3")
 y_data <- nc_pos200_k3$y
@@ -159,7 +160,7 @@ summary(fit_final)
 
 ### CRP Backend
 
-```{r backend-crp}
+```{r backend-crp, cache=FALSE}
 # Chinese Restaurant Process
 bundle_crp <- build_nimble_bundle(
   y = y_data,
@@ -175,7 +176,7 @@ print("CRP execution complete.\n")
 
 ### Stick-Breaking Backend
 
-```{r backend-sb}
+```{r backend-sb, cache=FALSE}
 # Stick-Breaking Process
 bundle_sb <- build_nimble_bundle(
   y = y_data,
@@ -217,7 +218,7 @@ print("  cauchy:    Heavy-tailed, rare cases\n")
 
 ### Unconditional with GPD
 
-```{r gpd-example, eval=FALSE}
+```{r gpd-example, eval=FALSE, cache=FALSE}
 # Data with tail behavior
 data("nc_pos_tail200_k4")
 y_tail <- nc_pos_tail200_k4$y
@@ -272,6 +273,7 @@ print("Extreme outliers:  cauchy\n")
 - Move to **vignette 8-9** for tail modeling with GPD
 - Move to **vignette 10-13** for conditional models with covariates
 - Move to **vignette 14-19** for causal inference workflows
+
 
 
 

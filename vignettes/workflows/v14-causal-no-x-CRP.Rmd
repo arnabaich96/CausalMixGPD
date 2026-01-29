@@ -1,4 +1,4 @@
----
+﻿---
 title: "14. Causal Inference: No X (CRP) - Gamma Kernel"
 output:
   rmarkdown::html_vignette:
@@ -32,6 +32,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
+devtools::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -79,7 +80,7 @@ y_eval <- y[1:40]
 
 ## Model A: CRP Bulk-only (Gamma)
 
-```{r bundle-crp-bulk}
+```{r bundle-crp-bulk, cache=FALSE}
 bundle_crp_bulk <- build_causal_bundle(
   y = y,
   T = T,
@@ -95,7 +96,7 @@ bundle_crp_bulk <- build_causal_bundle(
 bundle_crp_bulk
 ```
 
-```{r fit-crp-bulk}
+```{r fit-crp-bulk, cache=FALSE}
 fit_crp_bulk <- quiet_mcmc(run_mcmc_causal(bundle_crp_bulk))
 summary(fit_crp_bulk)
 ```
@@ -140,7 +141,7 @@ plot(qte_bulk)
 
 ## Model B: CRP with GPD Tail (Gamma)
 
-```{r bundle-crp-gpd}
+```{r bundle-crp-gpd, cache=FALSE}
 param_specs_gpd <- list(
   gpd = list(
     threshold = list(
@@ -167,7 +168,7 @@ bundle_crp_gpd <- build_causal_bundle(
 bundle_crp_gpd
 ```
 
-```{r fit-crp-gpd}
+```{r fit-crp-gpd, cache=FALSE}
 fit_crp_gpd <- quiet_mcmc(run_mcmc_causal(bundle_crp_gpd))
 summary(fit_crp_gpd)
 ```
@@ -207,6 +208,7 @@ qte_gpd <- qte(fit_crp_gpd, probs = c(0.25, 0.5, 0.75), interval = "credible")
 head(qte_gpd)
 plot(qte_gpd)
 ```
+
 
 
 

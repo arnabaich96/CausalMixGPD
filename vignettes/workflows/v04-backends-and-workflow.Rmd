@@ -1,4 +1,4 @@
----
+﻿---
 title: "4. Backends, Kernels, and Workflow Map"
 output:
   rmarkdown::html_vignette:
@@ -32,6 +32,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
+devtools::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -82,7 +83,7 @@ DPmixGPD uses a consistent build -> run -> summarize loop:
 3. **Inspect and summarize** using `print()`, `summary()`, `plot()`.
 4. **Predict** using `predict()` (and optionally `fitted()`).
 
-```{r}
+```{r, cache=FALSE}
 # Build
 bundle <- build_nimble_bundle(
   y = rnorm(50),
@@ -115,5 +116,6 @@ kernel_support_table()
 - **Available distributions**: see **v02** for the `d/p/q/r` functions and examples.
 - **Basic build/compile/run**: see **v03**.
 - **Unconditional / Conditional / Causal**: continue through v06+.
+
 
 

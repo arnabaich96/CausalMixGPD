@@ -1,4 +1,4 @@
----
+﻿---
 title: "13. Conditional DPmixGPD with Stick-Breaking Backend"
 output: 
   rmarkdown::html_vignette:
@@ -32,6 +32,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
+devtools::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -99,7 +100,7 @@ ggplot(data.frame(y = y), aes(x = y)) +
 
 ## Model Specification
 
-```{r bundle}
+```{r bundle, cache=FALSE}
 bundle_sb_cond_gpd_gamma <- build_nimble_bundle(
   y = y,
   X = X,
@@ -135,7 +136,7 @@ bundle_sb_cond_gpd_laplace <- build_nimble_bundle(
 
 ## MCMC Execution
 
-```{r mcmc}
+```{r mcmc, cache=FALSE}
 fit_sb_cond_gpd_gamma <- load_or_fit("v13-conditional-DPmixGPD-SB-fit_sb_cond_gpd_gamma", run_mcmc_bundle_manual(bundle_sb_cond_gpd_gamma))
 fit_sb_cond_gpd_laplace <- load_or_fit("v13-conditional-DPmixGPD-SB-fit_sb_cond_gpd_laplace", run_mcmc_bundle_manual(bundle_sb_cond_gpd_laplace))
 summary(fit_sb_cond_gpd_gamma)
@@ -222,7 +223,7 @@ bind_rows(quant_df_gamma, quant_df_laplace) %>%
 
 ## Residuals & Diagnostics
 
-```{r residuals}
+```{r residuals, cache=FALSE}
 plot(fitted(fit_sb_cond_gpd_gamma))
 ```
 
@@ -239,6 +240,7 @@ plot(fit_sb_cond_gpd_laplace, family = c("density", "running", "caterpillar"))
 - `predict()` and `plot()` remain consistent for densities, posterior-mean quantiles, and residuals.
 - Expect threshold-selected posterior-mean tail quantiles to shift with `x1` even when `components` is fixed.
 - Next: move into causal models starting with same-backend CRP (v12).
+
 
 
 

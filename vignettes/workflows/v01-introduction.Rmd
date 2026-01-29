@@ -1,4 +1,4 @@
----
+﻿---
 title: "1. Introduction to DPmixGPD"
 output: 
   rmarkdown::html_vignette:
@@ -32,6 +32,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
+devtools::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -130,7 +131,7 @@ fit <- run_mcmc_bundle_manual(bundle)
 
 ## Quick Start
 
-```{r intro-quickstart}
+```{r intro-quickstart, cache=FALSE}
 # Load packaged dataset
 data("nc_pos200_k3")
 y <- nc_pos200_k3$y
@@ -155,7 +156,7 @@ print(bundle)
 
 1. **Introduction** (this vignette)
 2. **Available Distributions**: dqrp functions, 10k samples, visualizations
-3. **Basic Model Workflow**: compile → bundle → MCMC
+3. **Basic Model Workflow**: compile â†’ bundle â†’ MCMC
 4. **Unconditional DPmix (CRP)**: bulk-only, no covariates
 5. **Unconditional DPmix (SB)**: bulk-only, no covariates
 6. **Unconditional DPmixGPD (CRP)**: bulk+tail, no covariates
@@ -180,6 +181,7 @@ packageVersion("ggplot2")
 ```
 
 Each vignette demonstrates complete workflows with reproducible examples.
+
 
 
 
