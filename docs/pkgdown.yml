@@ -37,7 +37,7 @@ articles:
   workflows/v18-causal-different-backends-CRP: workflows/v18-causal-different-backends-CRP.html
   workflows/v19-causal-different-backends-SB: workflows/v19-causal-different-backends-SB.html
   workflows/v20-troubleshooting: workflows/v20-troubleshooting.html
-last_built: 2026-01-29T23:05Z
+last_built: 2026-01-30T20:29Z
 urls:
   reference: https://arnabaich96.github.io/DPmixGPD/reference
   article: https://arnabaich96.github.io/DPmixGPD/articles

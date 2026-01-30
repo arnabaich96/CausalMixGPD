@@ -1,4 +1,4 @@
-﻿---
+---
 title: "9. Unconditional DPmixGPD with Stick-Breaking Backend"
 output:
   rmarkdown::html_vignette:
@@ -33,8 +33,8 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
-pkgload::load_all()
 source("_load_pkg.R")
+library(DPmixGPD)
 library(dplyr)
 
 # Precomputed results for fast website builds
@@ -209,8 +209,8 @@ if (interactive()) plot(fit_sb_gpd, family = c("histogram", "autocorrelation", "
 
 - Stick-breaking truncation fixes the number of bulk components but still flexibly models the tail via GPD.
 - Posterior `predict()` + `if (interactive()) plot()` workflows visualize densities, survival probabilities, and posterior-mean extreme quantiles.
-- Comparing bulk-only vs GPD-augmented quantiles reveals how tail augmentation shifts the 95â€“99% levels.
-- Next: conditional DPmix (v08â€“v11) to explore covariate effects before moving to causal regimes.
+- Comparing bulk-only vs GPD-augmented quantiles reveals how tail augmentation shifts the 95–99% levels.
+- Next: conditional DPmix (v08–v11) to explore covariate effects before moving to causal regimes.
 
 
 

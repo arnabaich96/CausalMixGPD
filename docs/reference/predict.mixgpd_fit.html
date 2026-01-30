@@ -6,6 +6,7 @@ type="survival" using y
 type="quantile" using p
 type="sample" (posterior predictive draws)
 type="mean" (posterior predictive mean)
+type="rmean" (restricted mean with finite cutoff)
 
 '><meta property="og:description" content='This provides a stable interface for distributional predictions.
 The default implementation supports:
@@ -14,6 +15,7 @@ type="survival" using y
 type="quantile" using p
 type="sample" (posterior predictive draws)
 type="mean" (posterior predictive mean)
+type="rmean" (restricted mean with finite cutoff)
 
 '></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -23,7 +25,7 @@ type="mean" (posterior predictive mean)
 
     <a class="navbar-brand me-2" href="../index.html">DPmixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.9</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -129,6 +131,7 @@ The default implementation supports:</p><ul><li><p><code>type="density"</code> u
 <li><p><code>type="quantile"</code> using <code>p</code></p></li>
 <li><p><code>type="sample"</code> (posterior predictive draws)</p></li>
 <li><p><code>type="mean"</code> (posterior predictive mean)</p></li>
+<li><p><code>type="rmean"</code> (restricted mean with finite cutoff)</p></li>
 </ul></div>
 
     <div class="section level2">
@@ -140,8 +143,8 @@ The default implementation supports:</p><ul><li><p><code>type="density"</code> u
 <span>  y <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ps <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  newdata <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"density"</span>, <span class="st">"survival"</span>, <span class="st">"quantile"</span>, <span class="st">"sample"</span>, <span class="st">"mean"</span>, <span class="st">"median"</span>, <span class="st">"location"</span>,</span>
-<span>    <span class="st">"fit"</span><span class="op">)</span>,</span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"density"</span>, <span class="st">"survival"</span>, <span class="st">"quantile"</span>, <span class="st">"sample"</span>, <span class="st">"mean"</span>, <span class="st">"rmean"</span>, <span class="st">"median"</span>,</span>
+<span>    <span class="st">"location"</span>, <span class="st">"fit"</span><span class="op">)</span>,</span>
 <span>  p <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  index <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  nsim <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -150,6 +153,7 @@ The default implementation supports:</p><ul><li><p><code>type="density"</code> u
 <span>  probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.025</span>, <span class="fl">0.5</span>, <span class="fl">0.975</span><span class="op">)</span>,</span>
 <span>  store_draws <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  nsim_mean <span class="op">=</span> <span class="fl">200L</span>,</span>
+<span>  cutoff <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  ncores <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -181,8 +185,17 @@ Used when the model was fit with propensity score augmentation.</p></dd>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
-<dd><p>Prediction type: <code>"density"</code>, <code>"survival"</code>, <code>"quantile"</code>,
-<code>"sample"</code>, <code>"mean"</code>, <code>"median"</code>, <code>"location"</code>.</p></dd>
+<dd><p>Prediction type:</p><ul><li><p><code>"density"</code>: Posterior predictive density f(y | x, data)</p></li>
+<li><p><code>"survival"</code>: Posterior predictive survival S(y | x, data) = 1 - F(y | x, data)</p></li>
+<li><p><code>"quantile"</code>: Posterior predictive quantiles Q(p | x, data)</p></li>
+<li><p><code>"sample"</code>: Posterior predictive samples Y^rep ~ f(y | x, data)</p></li>
+<li><p><code>"mean"</code>: Posterior predictive mean E(Y | x, data) (averaged over posterior parameter uncertainty)</p></li>
+<li><p><code>"rmean"</code>: Posterior predictive restricted mean \(E[\min(Y, cutoff) \mid x, data]\)</p></li>
+<li><p><code>"median"</code>: Posterior predictive median (quantile at p=0.5)</p></li>
+<li><p><code>"location"</code>: Alias for "mean"</p></li>
+<li><p><code>"fit"</code>: Per-observation posterior predictive draws</p></li>
+</ul><p>Note: <code>type="mean"</code> returns the posterior predictive mean, which integrates over
+parameter uncertainty. This differs from the mean of a single model distribution.</p></dd>
 
 
 <dt id="arg-p">p<a class="anchor" aria-label="anchor" href="#arg-p"></a></dt>
@@ -219,6 +232,10 @@ highest posterior density intervals.</p></dd>
 <dd><p>Number of posterior predictive samples to use for posterior mean estimation (for <code>type="mean"</code>).</p></dd>
 
 
+<dt id="arg-cutoff">cutoff<a class="anchor" aria-label="anchor" href="#arg-cutoff"></a></dt>
+<dd><p>Finite numeric cutoff for <code>type="rmean"</code> (restricted mean).</p></dd>
+
+
 <dt id="arg-ncores">ncores<a class="anchor" aria-label="anchor" href="#arg-ncores"></a></dt>
 <dd><p>Number of CPU cores to use for parallel prediction (if supported).</p></dd>
 
@@ -238,6 +255,11 @@ over draws) plus any index columns (e.g. <code>id</code>, <code>y</code>, <code>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>If your object stores dedicated predictive machinery, you can keep this signature
 and swap the internals without breaking user code.</p>
+<p>The <code>type="mean"</code> option computes the posterior predictive mean by:</p><ol><li><p>For each posterior draw s, computing E(Y | x, theta_s) via Monte Carlo simulation</p></li>
+<li><p>Averaging these conditional means over the posterior: E(Y | x, data) = mean_s(E(Y | x, theta_s))</p></li>
+</ol><p>This accounts for parameter uncertainty and is the Bayesian predictive mean. When the tail
+shape parameter xi &gt;= 1 (heavy tail), the mean is undefined and the function returns Inf
+with a warning suggesting alternatives like median or restricted mean.</p>
     </div>
 
     <div class="section level2">
@@ -255,6 +277,8 @@ and swap the internals without breaking user code.</p>
 <span class="r-in"><span><span class="va">pr_hpd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span>, interval <span class="op">=</span> <span class="st">"hpd"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># No intervals</span></span></span>
 <span class="r-in"><span><span class="va">pr_none</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span>, interval <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Restricted mean (finite under heavy tails)</span></span></span>
+<span class="r-in"><span><span class="va">pr_rmean</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"rmean"</span>, cutoff <span class="op">=</span> <span class="fl">10</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

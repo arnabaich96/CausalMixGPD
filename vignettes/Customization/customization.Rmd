@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Customization: Build NIMBLE Models from Scratch"
 output:
   rmarkdown::html_vignette:
@@ -10,7 +10,6 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-pkgload::load_all()
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = NA,

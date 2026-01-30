@@ -1,4 +1,4 @@
-﻿---
+---
 title: "20. Troubleshooting"
 output:
   rmarkdown::html_vignette:
@@ -33,7 +33,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
-pkgload::load_all()
+# Centralize package loading (development vs installed package) in one place
 source("_load_pkg.R")
 
 # Precomputed results for fast website builds
@@ -186,7 +186,7 @@ cb <- build_causal_bundle(
 
 **Cause**: The project or package lives in OneDrive (or another synced/network path). Windows cannot map file-owner SIDs to account names when R uses `file.info()` on those paths.
 
-**Fix**: The warnings are harmless; DPmixGPD and nimble load and run normally. If you **keep the project in OneDrive** (e.g. as a backup to GitHub), the project `.Rprofile` suppresses these warnings automatically when using R â‰¥ 4.0. Otherwise, move the project to a local non-synced path or take ownership of the OneDrive folder (rightâ€‘click â†’ Properties â†’ Security â†’ Advanced â†’ Take ownership).
+**Fix**: The warnings are harmless; DPmixGPD and nimble load and run normally. If you **keep the project in OneDrive** (e.g. as a backup to GitHub), the project `.Rprofile` suppresses these warnings automatically when using R ≥ 4.0. Otherwise, move the project to a local non-synced path or take ownership of the OneDrive folder (right‑click → Properties → Security → Advanced → Take ownership).
 
 
 

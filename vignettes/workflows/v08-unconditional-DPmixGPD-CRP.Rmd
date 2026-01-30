@@ -1,4 +1,4 @@
-﻿---
+---
 title: "8. Unconditional DPmixGPD with CRP Backend"
 output:
   rmarkdown::html_vignette:
@@ -37,7 +37,6 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
-pkgload::load_all()
 source("_load_pkg.R")
 
 # Precomputed results for fast website builds
@@ -163,7 +162,7 @@ if (interactive()) plot(fit_gpd, params = "alpha", family = c("traceplot", "auto
 
 ## Posterior Predictions: Bulk and Tail
 
-We use the **S3 `predict()` objects** and their dedicated `if (interactive()) plot()` methods to visualize densities, survival curves, and posterior-mean quantiles (i.e., averages of q(p | Î¸) over draws).
+We use the **S3 `predict()` objects** and their dedicated `if (interactive()) plot()` methods to visualize densities, survival curves, and posterior-mean quantiles (i.e., averages of q(p | θ) over draws).
 
 ```{r density-predict, cache=FALSE}
 y_min <- max(min(y_tail), .Machine$double.eps)

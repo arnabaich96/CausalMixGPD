@@ -34,7 +34,10 @@ Suggests:
     covr,
     jsonlite,
     patchwork,
-    plotly
+    plotly,
+    here,
+    devtools,
+    pkgload
 RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE, roclets = c("rd", "collate"))
 Config/testthat/edition: 3

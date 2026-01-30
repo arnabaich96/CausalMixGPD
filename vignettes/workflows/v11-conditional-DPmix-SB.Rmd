@@ -1,4 +1,4 @@
-﻿---
+---
 title: "11. Conditional DPmix with Stick-Breaking Backend"
 output:
   rmarkdown::html_vignette:
@@ -33,7 +33,6 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
-pkgload::load_all()
 source("_load_pkg.R")
 
 # Precomputed results for fast website builds
