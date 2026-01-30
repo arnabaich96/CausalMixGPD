@@ -1,7 +1,7 @@
 # test-causal.R
 # Causal inference workflow tests
 #
-# Tier A (cran): Basic PS parameter tests, design enforcement
+# Tier A (cran): Basic PS parameter tests
 # Tier B (ci):   Representative causal combos with full workflow
 # Tier C (full): Exhaustive kernel x backend x GPD grid
 
@@ -42,7 +42,7 @@ test_that("causal workflow: representative combos (Tier B)", {
       mcmc_outcome = mcmc_out,
       mcmc_ps = mcmc_ps,
       PS = cfg$PS,
-      design = cfg$design
+      
     )
 
     cf <- DPmixGPD::run_mcmc_causal(cb, show_progress = FALSE)
@@ -215,8 +215,6 @@ test_that("PS parameter: logit, probit, naive, FALSE all work", {
 
   for (ps_opt in ps_options) {
     label <- if (isFALSE(ps_opt)) "FALSE" else ps_opt
-    design <- if (isFALSE(ps_opt)) "rct" else "observational"
-
     # Build bundle
     cb <- DPmixGPD::build_causal_bundle(
       y = y,
@@ -229,7 +227,6 @@ test_that("PS parameter: logit, probit, naive, FALSE all work", {
       mcmc_outcome = mcmc_out,
       mcmc_ps = mcmc_ps,
       PS = ps_opt,
-      design = design
     )
 
     # Check metadata
@@ -238,11 +235,9 @@ test_that("PS parameter: logit, probit, naive, FALSE all work", {
     if (isFALSE(ps_opt)) {
       expect_false(cb$meta$ps$enabled, info = label)
       expect_false(cb$meta$ps$model_type, info = label)
-      expect_true(is.null(cb$design), info = label)
     } else {
       expect_true(cb$meta$ps$enabled, info = label)
       expect_equal(cb$meta$ps$model_type, ps_opt, info = label)
-      expect_true(!is.null(cb$design), info = label)
     }
 
     # Run MCMC
@@ -279,23 +274,3 @@ test_that("PS parameter: logit, probit, naive, FALSE all work", {
   }
 })
 
-test_that("design enforcement for observational/no X and rct PS override", {
-
-  set.seed(101)
-  n <- 20
-  X <- cbind(x1 = stats::rnorm(n), x2 = stats::runif(n, -1, 1))
-  T <- stats::rbinom(n, 1, 0.5)
-  y <- abs(stats::rnorm(n)) + 0.2
-
-  expect_error(
-    DPmixGPD::build_causal_bundle(y = y, X = NULL, T = T, kernel = "gamma",
-                                 backend = "crp", design = "observational"),
-    "requires non-empty X"
-  )
-
-  expect_warning(
-    DPmixGPD::build_causal_bundle(y = y, X = X, T = T, kernel = "gamma",
-                                 backend = "crp", design = "rct", PS = "logit"),
-    "ignores PS"
-  )
-})

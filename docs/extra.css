@@ -1,31 +1,32 @@
 /* pkgdown/extra.css
-   Custom theme overrides for pkgdown
+   Kitchen-themed pkgdown: warm palette, per-page backgrounds (incl. RMD-generated pages).
+   Page theme is set by extra.js (data-page-theme on body) so no Rmd changes needed.
 */
 
 @import url("https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
 
 :root{
-  /* Core palette */
-  --rt-bg: #f6f8fb;
-  --rt-bg-soft: #eef2f7;
-  --rt-surface: #ffffff;
-  --rt-ink: #0b1220;
-  --rt-ink-soft: #233045;
-  --rt-muted: #64748b;
-  --rt-border: #e2e8f0;
+  /* Kitchen palette: cream, terracotta, wood, herb */
+  --rt-bg: #f8f6f2;
+  --rt-bg-soft: #f0ebe3;
+  --rt-surface: #fffefb;
+  --rt-ink: #2c2419;
+  --rt-ink-soft: #4a4035;
+  --rt-muted: #6b5d4f;
+  --rt-border: #e8e0d4;
 
-  --rt-primary: #1e6fb8;
-  --rt-primary-2: #0f4c81;
-  --rt-accent: #f2a93b;
-  --rt-accent-2: #e86f3e;
-  --rt-success: #1f8a70;
-  --rt-warning: #d97706;
+  --rt-primary: #b85c38;
+  --rt-primary-2: #8b4428;
+  --rt-accent: #c9a227;
+  --rt-accent-2: #a67c1f;
+  --rt-success: #4a7c59;
+  --rt-warning: #c9a227;
 
-  /* Gradients */
-  --rt-grad-hero: linear-gradient(120deg, #e6f1ff 0%, #f7f9ff 50%, #ffffff 100%);
-  --rt-grad-nav: linear-gradient(90deg, #0f4c81 0%, #1e6fb8 55%, #2a86d6 100%);
-  --rt-grad-card: linear-gradient(180deg, rgba(255,255,255,0.94) 0%, rgba(248,250,255,0.98) 100%);
-  --rt-grad-code: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  /* Gradients (kitchen warmth) */
+  --rt-grad-hero: linear-gradient(120deg, #fdf8f2 0%, #faf5ed 50%, #fffefb 100%);
+  --rt-grad-nav: linear-gradient(90deg, #8b4428 0%, #b85c38 55%, #c97a4a 100%);
+  --rt-grad-card: linear-gradient(180deg, rgba(255,254,251,0.96) 0%, rgba(253,250,245,0.98) 100%);
+  --rt-grad-code: linear-gradient(180deg, #f5f2ec 0%, #ebe6de 100%);
 
   /* Typography */
   --rt-font-base: "Source Sans 3", "Helvetica Neue", Arial, sans-serif;
@@ -62,37 +63,67 @@ body::before{
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(800px 500px at 15% -10%, rgba(30,111,184,0.12), transparent 60%),
-    radial-gradient(900px 600px at 90% 10%, rgba(242,169,59,0.12), transparent 60%),
-    linear-gradient(180deg, var(--rt-bg) 0%, #ffffff 80%);
+    radial-gradient(800px 500px at 15% -10%, rgba(184,92,56,0.12), transparent 60%),
+    radial-gradient(900px 600px at 90% 10%, rgba(201,162,39,0.12), transparent 60%),
+    linear-gradient(180deg, var(--rt-bg) 0%, #fffefb 80%);
   z-index: -1;
 }
 
-/* Page-specific background treatments */
-body:has(.template-home)::before{
+/* Per-page backgrounds (data-page-theme set by extra.js; works for all pages including RMD-generated) */
+body[data-page-theme="home"]::before{
   background:
-    radial-gradient(900px 500px at 20% -20%, rgba(30,111,184,0.16), transparent 60%),
-    radial-gradient(800px 600px at 85% 10%, rgba(242,169,59,0.16), transparent 60%),
+    radial-gradient(900px 500px at 20% -20%, rgba(184,92,56,0.18), transparent 60%),
+    radial-gradient(800px 600px at 85% 10%, rgba(201,162,39,0.16), transparent 60%),
     var(--rt-grad-hero);
 }
-body:has(.template-article)::before,
-body:has(.template-article-index)::before{
+body[data-page-theme="articles-index"]::before{
   background:
-    radial-gradient(700px 480px at 10% -10%, rgba(30,111,184,0.10), transparent 60%),
-    radial-gradient(650px 520px at 90% 0%, rgba(31,138,112,0.10), transparent 60%),
-    linear-gradient(180deg, #f3f6fb 0%, #ffffff 85%);
+    radial-gradient(700px 480px at 10% -10%, rgba(139,68,40,0.12), transparent 60%),
+    radial-gradient(650px 520px at 90% 0%, rgba(74,124,89,0.12), transparent 60%),
+    linear-gradient(180deg, #faf6f0 0%, #fffefb 85%);
 }
-body:has(.template-reference)::before,
-body:has(.template-reference-index)::before{
+body[data-page-theme="reference"]::before{
   background:
-    radial-gradient(780px 520px at 85% -5%, rgba(30,111,184,0.10), transparent 60%),
-    linear-gradient(180deg, #f5f7fb 0%, #ffffff 85%);
+    radial-gradient(780px 520px at 85% -5%, rgba(107,93,79,0.14), transparent 60%),
+    linear-gradient(180deg, #f5f2ed 0%, #fffefb 85%);
 }
-body:has(.template-article a[href*="kernels/"])::before{
+body[data-page-theme="cookbook"]::before{
   background:
-    radial-gradient(900px 520px at 15% -20%, rgba(12, 92, 148, 0.18), transparent 60%),
-    radial-gradient(700px 500px at 90% 0%, rgba(242,169,59,0.18), transparent 60%),
-    linear-gradient(180deg, #edf3ff 0%, #ffffff 85%);
+    radial-gradient(900px 520px at 15% -20%, rgba(201,162,39,0.18), transparent 60%),
+    radial-gradient(700px 500px at 90% 0%, rgba(184,92,56,0.14), transparent 60%),
+    linear-gradient(180deg, #fdf9f2 0%, #fffefb 85%);
+}
+body[data-page-theme="manual"]::before{
+  background:
+    radial-gradient(800px 500px at 20% -10%, rgba(74,124,89,0.14), transparent 60%),
+    radial-gradient(700px 520px at 88% 5%, rgba(184,92,56,0.12), transparent 60%),
+    linear-gradient(180deg, #f6f8f4 0%, #fffefb 85%);
+}
+body[data-page-theme="kernels"]::before{
+  background:
+    radial-gradient(900px 520px at 15% -20%, rgba(74,124,89,0.16), transparent 60%),
+    radial-gradient(700px 500px at 90% 0%, rgba(201,162,39,0.14), transparent 60%),
+    linear-gradient(180deg, #f4f8f2 0%, #fffefb 85%);
+}
+/* RMD-generated article pages: default article theme */
+body[data-page-theme^="article"]::before{
+  background:
+    radial-gradient(700px 480px at 10% -10%, rgba(184,92,56,0.08), transparent 60%),
+    radial-gradient(650px 520px at 90% 0%, rgba(74,124,89,0.08), transparent 60%),
+    linear-gradient(180deg, #f8f6f2 0%, #fffefb 85%);
+}
+/* Optional: distinct theme for specific articles (e.g. causal, introduction) */
+body[data-page-theme="article-causal"]::before{
+  background:
+    radial-gradient(750px 500px at 15% -15%, rgba(184,92,56,0.14), transparent 60%),
+    radial-gradient(700px 480px at 88% 0%, rgba(201,162,39,0.12), transparent 60%),
+    linear-gradient(180deg, #faf5f0 0%, #fffefb 85%);
+}
+body[data-page-theme="article-introduction"]::before{
+  background:
+    radial-gradient(800px 520px at 20% -10%, rgba(201,162,39,0.12), transparent 60%),
+    radial-gradient(650px 500px at 85% 5%, rgba(74,124,89,0.10), transparent 60%),
+    linear-gradient(180deg, #faf9f6 0%, #fffefb 85%);
 }
 
 /* Content container polish */
@@ -125,14 +156,14 @@ a{
 }
 a:hover{
   color: var(--rt-primary-2);
-  box-shadow: inset 0 -0.2em 0 rgba(30,111,184,0.18);
+  box-shadow: inset 0 -0.2em 0 rgba(184,92,56,0.18);
 }
 
 /* Navbar */
 .navbar{
   background: var(--rt-grad-nav) !important;
-  border-bottom: 1px solid rgba(255,255,255,0.18) !important;
-  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+  border-bottom: 1px solid rgba(255,255,255,0.22) !important;
+  box-shadow: 0 10px 24px rgba(44,36,25,0.12);
 }
 .navbar .navbar-brand{
   font-family: var(--rt-font-heading);
@@ -154,7 +185,7 @@ a:hover{
   box-shadow: var(--rt-shadow-sm);
 }
 .navbar .dropdown-item:hover{
-  background: rgba(30,111,184,0.08);
+  background: rgba(184,92,56,0.08);
 }
 
 /* Cards / content boxes */
@@ -283,11 +314,11 @@ pre code{
 .btn-primary{
   background: linear-gradient(120deg, var(--rt-primary) 0%, var(--rt-primary-2) 100%) !important;
   border-color: transparent !important;
-  box-shadow: 0 8px 16px rgba(30,111,184,0.24);
+  box-shadow: 0 8px 16px rgba(184,92,56,0.24);
 }
 .btn-primary:hover{
   transform: translateY(-1px);
-  box-shadow: 0 12px 20px rgba(30,111,184,0.30);
+  box-shadow: 0 12px 20px rgba(184,92,56,0.30);
 }
 .btn-outline-primary{
   color: var(--rt-primary) !important;
@@ -306,7 +337,7 @@ input, select, textarea{
 }
 input:focus, select:focus, textarea:focus{
   border-color: var(--rt-primary);
-  box-shadow: 0 0 0 3px rgba(30,111,184,0.18);
+  box-shadow: 0 0 0 3px rgba(184,92,56,0.18);
 }
 
 /* Spacing */

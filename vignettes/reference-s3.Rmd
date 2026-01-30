@@ -1,6 +1,8 @@
 ---
 title: "Reference: S3 Methods"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    highlight: null
 vignette: >
   %\VignetteIndexEntry{Reference: S3 Methods}
   %\VignetteEngine{knitr::rmarkdown}
@@ -69,10 +71,10 @@ print(fit)
 summary(fit)
 ```
 
-## plot()
+## if (interactive()) plot()
 
 ```{r}
-try(plot(fit, family = "trace"), silent = TRUE)
+if (interactive()) plot(fit, family = "traceplot")
 ```
 
 ## predict()
@@ -84,12 +86,7 @@ predict(fit, type = "quantile", index = 0.90, cred.level = 0.90, interval = "hpd
 predict(fit, type = "quantile", index = 0.90, interval = NULL)$fit
 ```
 
-## fitted()
-
-```{r}
-f <- fitted(fit, type = "mean", level = 0.90)
-head(f)
-```
+`fitted()` is supported for conditional (covariate) models only; this example is unconditional, so use `predict()` above.
 
 ## Object Structure
 
@@ -141,12 +138,12 @@ summary(ate_result)
 ```
 
 ```{r fig.width=7, fig.height=5}
-ate_plots <- plot(ate_result)
+ate_plots <- if (interactive()) plot(ate_result)
 ate_plots$treatment_effect
 ```
 
 ```{r fig.width=7, fig.height=5}
-plot(ate_result, type = "effect")
+if (interactive()) plot(ate_result, type = "effect")
 ```
 
 ### QTE S3 Methods
@@ -161,15 +158,16 @@ summary(qte_result)
 ```
 
 ```{r fig.width=7, fig.height=5}
-qte_plots <- plot(qte_result)
+qte_plots <- if (interactive()) plot(qte_result)
 qte_plots$treatment_effect
 ```
 
 ```{r fig.width=7, fig.height=5}
-plot(qte_result, type = "effect")
+if (interactive()) plot(qte_result, type = "effect")
 ```
 
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+
 

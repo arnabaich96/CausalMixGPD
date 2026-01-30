@@ -1,7 +1,8 @@
-﻿---
+---
 title: "4. Backends, Kernels, and Workflow Map"
 output:
   rmarkdown::html_vignette:
+    highlight: null
     code_folding: show
 vignette: >
   %\VignetteIndexEntry{4. Backends, Kernels, and Workflow Map}
@@ -32,7 +33,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
-devtools::load_all()
+pkgload::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -80,8 +81,8 @@ DPmixGPD uses a consistent build -> run -> summarize loop:
 
 1. **Build a bundle** using `build_nimble_bundle()` (or causal builders if you are doing TE work).
 2. **Run MCMC** using `run_mcmc_bundle_manual()`.
-3. **Inspect and summarize** using `print()`, `summary()`, `plot()`.
-4. **Predict** using `predict()` (and optionally `fitted()`).
+3. **Inspect and summarize** using `print()`, `summary()`, `if (interactive()) plot()`.
+4. **Predict** using `predict()`. For conditional (covariate) models, `fitted()` is also available.
 
 ```{r, cache=FALSE}
 # Build
@@ -100,7 +101,7 @@ fit <- load_or_fit("v04-backends-and-workflow-fit", run_mcmc_bundle_manual(bundl
 # Summarize
 print(fit)
 summary(fit)
-plot(fit)
+if (interactive()) plot(fit)
 ```
 
 # Kernel support quick check
@@ -116,6 +117,8 @@ kernel_support_table()
 - **Available distributions**: see **v02** for the `d/p/q/r` functions and examples.
 - **Basic build/compile/run**: see **v03**.
 - **Unconditional / Conditional / Causal**: continue through v06+.
+
+
 
 
 

@@ -27,6 +27,7 @@ are modeled independently using **unconditional** outcome models.
 ### Data Setup (No X)
 
 ``` r
+
 data("causal_alt_real500_p4_k2")
 y <- abs(causal_alt_real500_p4_k2$y) + 0.01
 T <- causal_alt_real500_p4_k2$T
@@ -51,6 +52,7 @@ summary_tbl %>%
      [38;5;250m5 [39m Max         8.10  
 
 ``` r
+
 u_threshold <- as.numeric(stats::quantile(y, 0.8, names = FALSE))
 y_eval <- y[1:40]
 ```
@@ -60,6 +62,7 @@ y_eval <- y[1:40]
 ### Model A: CRP Bulk-only (Gamma)
 
 ``` r
+
 bundle_crp_bulk <- build_causal_bundle(
   y = y,
   T = T,
@@ -86,9 +89,11 @@ bundle_crp_bulk
     n (control) = 232 | n (treated) = 268 
 
 ``` r
+
 fit_crp_bulk <- quiet_mcmc(run_mcmc_causal(bundle_crp_bulk))
 summary(fit_crp_bulk)
 ```
+
 
     -- Outcome fits --
     [control]
@@ -106,6 +111,7 @@ summary(fit_crp_bulk)
     Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 
 ``` r
+
 pred_mean_bulk <- predict(fit_crp_bulk, type = "mean", interval = "credible", nsim_mean = 150)
 head(pred_mean_bulk)
 ```
@@ -114,12 +120,14 @@ head(pred_mean_bulk)
     [1,] NA    -1.31 -1.97 -0.282
 
 ``` r
+
 plot(pred_mean_bulk)
 ```
 
 ![](v14-causal-no-x-CRP_files/figure-html/predict-mean-crp-bulk-1.png)![](v14-causal-no-x-CRP_files/figure-html/predict-mean-crp-bulk-2.png)
 
 ``` r
+
 pred_q_bulk <- predict(fit_crp_bulk, type = "quantile", p = 0.5, interval = "credible")
 head(pred_q_bulk)
 ```
@@ -128,12 +136,14 @@ head(pred_q_bulk)
     [1,] NA    -1.14 -1.69 -0.41
 
 ``` r
+
 plot(pred_q_bulk)
 ```
 
 ![](v14-causal-no-x-CRP_files/figure-html/predict-quantile-crp-bulk-1.png)![](v14-causal-no-x-CRP_files/figure-html/predict-quantile-crp-bulk-2.png)
 
 ``` r
+
 pred_d_bulk <- predict(fit_crp_bulk, y = y_eval, type = "density", interval = "credible")
 head(pred_d_bulk)
 ```
@@ -147,12 +157,14 @@ head(pred_d_bulk)
     6 0.949 NA            1    0.0261     0.397            1    0.0314     0.178
 
 ``` r
+
 plot(pred_d_bulk)
 ```
 
 ![](v14-causal-no-x-CRP_files/figure-html/predict-density-crp-bulk-1.png)
 
 ``` r
+
 pred_surv_bulk <- predict(fit_crp_bulk, y = y_eval, type = "survival", interval = "credible")
 head(pred_surv_bulk)
 ```
@@ -166,12 +178,14 @@ head(pred_surv_bulk)
     6 0.949 NA            1     0.671     0.991            1     0.755     0.987
 
 ``` r
+
 plot(pred_surv_bulk)
 ```
 
 ![](v14-causal-no-x-CRP_files/figure-html/predict-survival-crp-bulk-1.png)
 
 ``` r
+
 ate_bulk <- ate(fit_crp_bulk, interval = "credible", nsim_mean = 150)
 print(ate_bulk)
 ```
@@ -188,6 +202,7 @@ print(ate_bulk)
       1   -1.333 -5.16 2.468
 
 ``` r
+
 summary(ate_bulk)
 ```
 
@@ -212,6 +227,7 @@ summary(ate_bulk)
       Range: [7.628, 7.628]
 
 ``` r
+
 ate_plots_bulk <- plot(ate_bulk)
 ate_plots_bulk$treatment_effect
 ```
@@ -219,6 +235,7 @@ ate_plots_bulk$treatment_effect
 ![](v14-causal-no-x-CRP_files/figure-html/unnamed-chunk-1-1.png)
 
 ``` r
+
 qte_bulk <- qte(fit_crp_bulk, probs = c(0.25, 0.5, 0.75), interval = "credible")
 print(qte_bulk)
 ```
@@ -237,6 +254,7 @@ print(qte_bulk)
       0.75  1   -1.904  -7.04  2.83
 
 ``` r
+
 summary(qte_bulk)
 ```
 
@@ -263,6 +281,7 @@ summary(qte_bulk)
       Range: [5.248, 9.87]
 
 ``` r
+
 qte_plots_bulk <- plot(qte_bulk)
 qte_plots_bulk$treatment_effect
 ```
@@ -274,6 +293,7 @@ qte_plots_bulk$treatment_effect
 ### Model B: CRP with GPD Tail (Gamma)
 
 ``` r
+
 param_specs_gpd <- list(
   gpd = list(
     threshold = list(
@@ -307,6 +327,7 @@ if (supports_crp_gpd) bundle_crp_gpd
 ```
 
 ``` r
+
 if (isTRUE(supports_crp_gpd)) {
   fit_crp_gpd <- quiet_mcmc(run_mcmc_causal(bundle_crp_gpd))
   summary(fit_crp_gpd)
@@ -314,6 +335,7 @@ if (isTRUE(supports_crp_gpd)) {
 ```
 
 ``` r
+
 if (isTRUE(supports_crp_gpd)) {
   pred_mean_gpd <- predict(fit_crp_gpd, type = "mean", interval = "credible", nsim_mean = 150)
   head(pred_mean_gpd)
@@ -322,6 +344,7 @@ if (isTRUE(supports_crp_gpd)) {
 ```
 
 ``` r
+
 if (isTRUE(supports_crp_gpd)) {
   pred_q_gpd <- predict(fit_crp_gpd, type = "quantile", p = 0.5, interval = "credible")
   head(pred_q_gpd)
@@ -330,6 +353,7 @@ if (isTRUE(supports_crp_gpd)) {
 ```
 
 ``` r
+
 if (isTRUE(supports_crp_gpd)) {
   pred_d_gpd <- predict(fit_crp_gpd, y = y_eval, type = "density", interval = "credible")
   head(pred_d_gpd)
@@ -338,6 +362,7 @@ if (isTRUE(supports_crp_gpd)) {
 ```
 
 ``` r
+
 if (isTRUE(supports_crp_gpd)) {
   pred_surv_gpd <- predict(fit_crp_gpd, y = y_eval, type = "survival", interval = "credible")
   head(pred_surv_gpd)
@@ -346,6 +371,7 @@ if (isTRUE(supports_crp_gpd)) {
 ```
 
 ``` r
+
 if (isTRUE(supports_crp_gpd)) {
   ate_gpd <- ate(fit_crp_gpd, interval = "credible", nsim_mean = 150)
   print(ate_gpd)
@@ -354,6 +380,7 @@ if (isTRUE(supports_crp_gpd)) {
 ```
 
 ``` r
+
 if (isTRUE(supports_crp_gpd)) {
   ate_plots_gpd <- plot(ate_gpd)
   ate_plots_gpd$treatment_effect
@@ -361,6 +388,7 @@ if (isTRUE(supports_crp_gpd)) {
 ```
 
 ``` r
+
 if (isTRUE(supports_crp_gpd)) {
   qte_gpd <- qte(fit_crp_gpd, probs = c(0.25, 0.5, 0.75), interval = "credible")
   print(qte_gpd)
@@ -369,6 +397,7 @@ if (isTRUE(supports_crp_gpd)) {
 ```
 
 ``` r
+
 if (isTRUE(supports_crp_gpd)) {
   qte_plots_gpd <- plot(qte_gpd)
   qte_plots_gpd$treatment_effect

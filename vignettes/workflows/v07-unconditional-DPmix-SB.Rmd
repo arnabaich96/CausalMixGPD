@@ -1,7 +1,8 @@
-﻿---
+---
 title: "7. Unconditional DPmix with Stick-Breaking Backend"
-output: 
+output:
   rmarkdown::html_vignette:
+    highlight: null
     code_folding: show
 vignette: >
   %\VignetteIndexEntry{7. Unconditional DPmix with Stick-Breaking Backend}
@@ -37,7 +38,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
-devtools::load_all()
+pkgload::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -155,17 +156,17 @@ params_gamma
 
 ```{r diag-plots}
 # Default diagnostics for each fit
-plot(fit_sb_gamma, family = c("traceplot", "autocorrelation", "running"))
-plot(fit_sb_cauchy, family = c("density", "geweke", "caterpillar"))
+if (interactive()) plot(fit_sb_gamma, family = c("traceplot", "autocorrelation", "running"))
+if (interactive()) plot(fit_sb_cauchy, family = c("density", "geweke", "caterpillar"))
 ``` 
 
-Use `summary(fit_sb_gamma)` and `summary(fit_sb_cauchy)` to inspect effective sample size, R-hat, and other convergence diagnostics; the `plot()` calls above show the trace/density pairs for both global and stick-breaking weight parameters.
+Use `summary(fit_sb_gamma)` and `summary(fit_sb_cauchy)` to inspect effective sample size, R-hat, and other convergence diagnostics; the `if (interactive()) plot()` calls above show the trace/density pairs for both global and stick-breaking weight parameters.
 
 ---
 
 ## Stick-Breaking Weights & Component Activity
 
-The stick-breaking weights are exposed via the `plot()` diagnostics above, and you can refer to the raw `fit_sb_gamma` / `fit_sb_cauchy` objects (or their `summary()` output) for posterior summaries of each component weight.
+The stick-breaking weights are exposed via the `if (interactive()) plot()` diagnostics above, and you can refer to the raw `fit_sb_gamma` / `fit_sb_cauchy` objects (or their `summary()` output) for posterior summaries of each component weight.
 
 ---
 
@@ -177,8 +178,8 @@ y_grid <- seq(min(y_mixed), max(y_mixed) * 1.3, length.out = 250)
 pred_density_gamma <- predict(fit_sb_gamma, y = y_grid, type = "density")
 pred_density_cauchy <- predict(fit_sb_cauchy, y = y_grid, type = "density")
 
-plot(pred_density_gamma)
-plot(pred_density_cauchy)
+if (interactive()) plot(pred_density_gamma)
+if (interactive()) plot(pred_density_cauchy)
 ```
 
 ```{r quantile-predict}
@@ -187,16 +188,16 @@ quant_probs <- c(0.05, 0.25, 0.5, 0.75, 0.95)
 pred_q_gamma <- predict(fit_sb_gamma, type = "quantile", index = quant_probs, interval = "credible")
 pred_q_cauchy <- predict(fit_sb_cauchy, type = "quantile", index = quant_probs, interval = "credible")
 
-plot(pred_q_gamma)
-plot(pred_q_cauchy)
+if (interactive()) plot(pred_q_gamma)
+if (interactive()) plot(pred_q_cauchy)
 ```
 
 ```{r mean-predict}
 pred_mean_gamma <- predict(fit_sb_gamma, type = "mean")
 pred_mean_cauchy <- predict(fit_sb_cauchy, type = "mean")
 
-plot(pred_mean_gamma)
-plot(pred_mean_cauchy)
+if (interactive()) plot(pred_mean_gamma)
+if (interactive()) plot(pred_mean_cauchy)
 ```
 
 ---
@@ -228,28 +229,25 @@ bind_rows(
 ```
 
 ```{r compare-plots}
-plot(crp_quant)
-plot(sb_quant)
+if (interactive()) plot(crp_quant)
+if (interactive()) plot(sb_quant)
 ```
 
 ---
 
-## Residuals & Fitted Values
-
-```{r residuals, cache=FALSE}
-fit_vals <- fitted(fit_sb_gamma)
-plot(fit_vals)
-```
+For unconditional models, use `predict()` only; `fitted()` and `residuals()` are not supported.
 
 ---
 
 ## Takeaways
 
-- **SB Backend**: Fixed `components` keeps label-switching manageable, and the diagnostic plots via the S3 `plot()` method show weight dynamics.
+- **SB Backend**: Fixed `components` keeps label-switching manageable, and the diagnostic plots via the S3 `if (interactive()) plot()` method show weight dynamics.
 - **Kernels matter**: Gamma vs Cauchy can behave very differently in the shoulders/tails, even without a GPD tail.
 - **Predictions**: Posterior density, posterior-mean quantiles, and mean (via predictive sampling) are accessible via `predict()` with credible bands.
 - **Backend comparison**: The CRP fit (`v04`) and the SB-gamma fit deliver similar central quantiles while SB offers more control over truncation.
 - **Next**: Explore tail augmentation (`GPD = TRUE`) with the CRP backend in `v06` or SB backend in `v07`.
+
+
 
 
 

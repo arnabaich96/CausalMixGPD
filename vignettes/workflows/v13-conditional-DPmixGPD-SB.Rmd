@@ -1,7 +1,8 @@
-﻿---
+---
 title: "13. Conditional DPmixGPD with Stick-Breaking Backend"
-output: 
+output:
   rmarkdown::html_vignette:
+    highlight: null
     code_folding: show
 vignette: >
   %\VignetteIndexEntry{13. Conditional DPmixGPD with Stick-Breaking Backend}
@@ -32,7 +33,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
-devtools::load_all()
+pkgload::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -224,12 +225,12 @@ bind_rows(quant_df_gamma, quant_df_laplace) %>%
 ## Residuals & Diagnostics
 
 ```{r residuals, cache=FALSE}
-plot(fitted(fit_sb_cond_gpd_gamma))
+if (interactive()) plot(fitted(fit_sb_cond_gpd_gamma))
 ```
 
 ```{r diagnostics}
-plot(fit_sb_cond_gpd_gamma, family = c("traceplot", "autocorrelation", "geweke"))
-plot(fit_sb_cond_gpd_laplace, family = c("density", "running", "caterpillar"))
+if (interactive()) plot(fit_sb_cond_gpd_gamma, family = c("traceplot", "autocorrelation", "geweke"))
+if (interactive()) plot(fit_sb_cond_gpd_laplace, family = c("density", "running", "caterpillar"))
 ```
 
 ---
@@ -237,9 +238,11 @@ plot(fit_sb_cond_gpd_laplace, family = c("density", "running", "caterpillar"))
 ## Takeaways
 
 - Conditional stick-breaking mixtures capture covariate-dependent bulk structure while the GPD handles extremes.
-- `predict()` and `plot()` remain consistent for densities, posterior-mean quantiles, and residuals.
+- `predict()` and `if (interactive()) plot()` remain consistent for densities, posterior-mean quantiles, and residuals.
 - Expect threshold-selected posterior-mean tail quantiles to shift with `x1` even when `components` is fixed.
 - Next: move into causal models starting with same-backend CRP (v12).
+
+
 
 
 

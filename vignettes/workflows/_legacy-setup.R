@@ -7,13 +7,21 @@ if (!requireNamespace("kableExtra", quietly = TRUE)) {
 }
 library(kableExtra)
 
-# Use a stable figure directory so cached plots resolve across runs.
+# Use a per-vignette figure directory so pkgdown can find images (must be under vignettes/).
+# Shared legacy-cache/figure-html is gitignored, so pkgdown on CI would miss images.
 CACHE_DIR <- file.path("vignettes", "workflows", "legacy-cache")
 if (!dir.exists(CACHE_DIR)) dir.create(CACHE_DIR, recursive = TRUE, showWarnings = FALSE)
 CACHE_DIR_ABS <- normalizePath(CACHE_DIR, winslash = "/", mustWork = FALSE)
-FIG_DIR <- file.path(CACHE_DIR_ABS, "figure-html/")
-if (!dir.exists(FIG_DIR)) dir.create(FIG_DIR, recursive = TRUE, showWarnings = FALSE)
-knitr::opts_chunk$set(fig.path = FIG_DIR)
+input_name <- tryCatch(knitr::current_input(), error = function(e) NULL)
+if (!is.null(input_name) && nzchar(input_name)) {
+  base_name <- tools::file_path_sans_ext(basename(input_name))
+  fig_path <- paste0(base_name, "_files/figure-html/")
+  knitr::opts_chunk$set(fig.path = fig_path)
+} else {
+  FIG_DIR <- file.path(CACHE_DIR_ABS, "figure-html/")
+  if (!dir.exists(FIG_DIR)) dir.create(FIG_DIR, recursive = TRUE, showWarnings = FALSE)
+  knitr::opts_chunk$set(fig.path = FIG_DIR)
+}
 
 # Try multiple possible locations for precomputed files
 .find_precomp_dir <- function() {

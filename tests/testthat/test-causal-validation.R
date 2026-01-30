@@ -17,8 +17,8 @@ test_that("build_causal_bundle errors on empty y", {
       backend = "sb",
       kernel = "normal",
       GPD = FALSE,
-      J = 4,
-      design = "rct"
+      components = 4,
+
     ),
     regexp = "non-empty"
   )
@@ -38,8 +38,8 @@ test_that("build_causal_bundle errors on T length mismatch", {
       backend = "sb",
       kernel = "normal",
       GPD = FALSE,
-      J = 4,
-      design = "rct"
+      components = 4,
+
     ),
     regexp = "same length"
   )
@@ -59,8 +59,8 @@ test_that("build_causal_bundle errors on non-binary T", {
       backend = "sb",
       kernel = "normal",
       GPD = FALSE,
-      J = 4,
-      design = "rct"
+      components = 4,
+
     ),
     regexp = "binary|0/1"
   )
@@ -80,8 +80,8 @@ test_that("build_causal_bundle errors on T with NA values", {
       backend = "sb",
       kernel = "normal",
       GPD = FALSE,
-      J = 4,
-      design = "rct"
+      components = 4,
+
     ),
     regexp = "binary|NA"
   )
@@ -101,8 +101,8 @@ test_that("build_causal_bundle errors when only one treatment arm has data", {
       backend = "sb",
       kernel = "normal",
       GPD = FALSE,
-      J = 4,
-      design = "rct"
+      components = 4,
+
     ),
     regexp = "Both treatment arms|at least one"
   )
@@ -122,32 +122,10 @@ test_that("build_causal_bundle errors when X row mismatch", {
       backend = "sb",
       kernel = "normal",
       GPD = FALSE,
-      J = 4,
-      design = "rct"
+      components = 4,
+
     ),
     regexp = "same number of rows"
-  )
-})
-
-test_that("build_causal_bundle errors when both J and components provided", {
-  set.seed(1)
-  y <- rnorm(20)
-  X <- matrix(rnorm(40), ncol = 2)
-  T <- c(rep(0, 10), rep(1, 10))
-
-  expect_error(
-    build_causal_bundle(
-      y = y,
-      X = X,
-      T = T,
-      backend = "sb",
-      kernel = "normal",
-      GPD = FALSE,
-      J = 4,
-      components = 6,
-      design = "rct"
-    ),
-    regexp = "only one of"
   )
 })
 
@@ -165,8 +143,8 @@ test_that("build_causal_bundle errors on components < 2", {
       backend = "sb",
       kernel = "normal",
       GPD = FALSE,
-      J = 1,
-      design = "rct"
+      components = 1,
+
     ),
     regexp = ">= 2"
   )
@@ -186,80 +164,11 @@ test_that("build_causal_bundle errors on invalid epsilon", {
       backend = "sb",
       kernel = "normal",
       GPD = FALSE,
-      J = 4,
+      components = 4,
       epsilon = -0.1,
-      design = "rct"
+
     ),
     regexp = "epsilon|\\[0.*1\\)"
-  )
-})
-
-# ======================================================================
-# Design-specific validation tests
-# ======================================================================
-
-test_that("build_causal_bundle warns and ignores PS for RCT design", {
-  set.seed(1)
-  y <- rnorm(20)
-  X <- matrix(rnorm(40), ncol = 2)
-  T <- c(rep(0, 10), rep(1, 10))
-
-  expect_warning(
-    bundle <- build_causal_bundle(
-      y = y,
-      X = X,
-      T = T,
-      backend = "sb",
-      kernel = "normal",
-      GPD = FALSE,
-      J = 4,
-      design = "rct",
-      PS = "logit"  # Should be ignored with warning
-    ),
-    regexp = "ignores PS|PS.*FALSE"
-  )
-})
-
-test_that("build_causal_bundle errors on observational without X", {
-  set.seed(1)
-  y <- rnorm(20)
-  T <- c(rep(0, 10), rep(1, 10))
-
-  expect_error(
-    build_causal_bundle(
-      y = y,
-      X = NULL,
-      T = T,
-      backend = "sb",
-      kernel = "normal",
-      GPD = FALSE,
-      J = 4,
-      design = "observational",
-      PS = "logit"
-    ),
-    regexp = "observational.*requires.*X"
-  )
-})
-
-test_that("build_causal_bundle errors on observational without PS", {
-  set.seed(1)
-  y <- rnorm(20)
-  X <- matrix(rnorm(40), ncol = 2)
-  T <- c(rep(0, 10), rep(1, 10))
-
-  expect_error(
-    build_causal_bundle(
-      y = y,
-      X = X,
-      T = T,
-      backend = "sb",
-      kernel = "normal",
-      GPD = FALSE,
-      J = 4,
-      design = "observational",
-      PS = FALSE
-    ),
-    regexp = "observational.*requires PS"
   )
 })
 
@@ -280,8 +189,8 @@ test_that("build_causal_bundle returns correct class", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4,
-    design = "rct"
+    components = 4,
+
   )
 
   expect_s3_class(bundle, "dpmixgpd_causal_bundle")
@@ -300,8 +209,8 @@ test_that("build_causal_bundle has required components", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4,
-    design = "rct"
+    components = 4,
+
   )
 
   expect_true("outcome" %in% names(bundle))
@@ -323,8 +232,8 @@ test_that("build_causal_bundle creates outcome bundles for both arms", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4,
-    design = "rct"
+    components = 4,
+
   )
 
   expect_true("trt" %in% names(bundle$outcome))
@@ -346,8 +255,8 @@ test_that("build_causal_bundle stores correct indices", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4,
-    design = "rct"
+    components = 4,
+
   )
 
   expect_equal(bundle$index$con, 1:10)
@@ -371,8 +280,8 @@ test_that("build_causal_bundle allows arm-specific backends", {
     backend = c("sb", "crp"),  # trt=sb, con=crp
     kernel = "normal",
     GPD = FALSE,
-    J = 4,
-    design = "rct"
+    components = 4,
+
   )
 
   expect_equal(bundle$meta$backend$trt, "sb")
@@ -392,8 +301,8 @@ test_that("build_causal_bundle allows arm-specific kernels", {
     backend = "sb",
     kernel = c("normal", "gamma"),  # trt=normal, con=gamma
     GPD = FALSE,
-    J = 4,
-    design = "rct"
+    components = 4,
+
   )
 
   expect_equal(bundle$meta$kernel$trt, "normal")
@@ -413,15 +322,15 @@ test_that("build_causal_bundle allows arm-specific GPD", {
     backend = "sb",
     kernel = "normal",
     GPD = c(TRUE, FALSE),  # trt=TRUE, con=FALSE
-    J = 4,
-    design = "rct"
+    components = 4,
+
   )
 
   expect_true(bundle$meta$GPD$trt)
   expect_false(bundle$meta$GPD$con)
 })
 
-test_that("build_causal_bundle allows arm-specific J", {
+test_that("build_causal_bundle allows arm-specific components", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
@@ -434,8 +343,8 @@ test_that("build_causal_bundle allows arm-specific J", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = c(6, 8),  # trt=6, con=8
-    design = "rct"
+    components = c(6, 8),  # trt=6, con=8
+
   )
 
   expect_equal(bundle$meta$components$trt, 6)
@@ -455,9 +364,9 @@ test_that("build_causal_bundle allows arm-specific epsilon", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4,
+    components = 4,
     epsilon = c(0.01, 0.05),  # trt=0.01, con=0.05
-    design = "rct"
+
   )
 
   expect_equal(bundle$meta$epsilon$trt, 0.01)
@@ -481,8 +390,8 @@ test_that("build_causal_bundle supports PS='logit'", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4,
-    design = "observational",
+    components = 4,
+
     PS = "logit"
   )
 
@@ -503,8 +412,7 @@ test_that("build_causal_bundle supports PS='probit'", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4,
-    design = "observational",
+    components = 4,
     PS = "probit"
   )
 
@@ -525,8 +433,7 @@ test_that("build_causal_bundle supports PS='naive'", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4,
-    design = "observational",
+    components = 4,
     PS = "naive"
   )
 
@@ -550,8 +457,7 @@ test_that("build_causal_bundle handles NULL X for RCT", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4,
-    design = "rct"
+    components = 4
   )
 
   expect_s3_class(bundle, "dpmixgpd_causal_bundle")
@@ -571,8 +477,7 @@ test_that("build_causal_bundle handles empty matrix X", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4,
-    design = "rct"
+    components = 4
   )
 
   expect_s3_class(bundle, "dpmixgpd_causal_bundle")
@@ -596,9 +501,8 @@ test_that("build_causal_bundle stores MCMC settings", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4,
-    mcmc_outcome = list(niter = 100, nburnin = 20, thin = 2, nchains = 1, seed = 42),
-    design = "rct"
+    components = 4,
+    mcmc_outcome = list(niter = 100, nburnin = 20, thin = 2, nchains = 1, seed = 42)
   )
 
   expect_equal(bundle$outcome$trt$mcmc$niter, 100)
@@ -628,9 +532,8 @@ test_that("build_causal_bundle applies shared param_specs", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4,
-    param_specs = param_specs,
-    design = "rct"
+    components = 4,
+    param_specs = param_specs
   )
 
   expect_equal(bundle$outcome$trt$spec$plan$bulk$mean$mode, "link")
@@ -655,9 +558,8 @@ test_that("build_causal_bundle applies arm-specific param_specs", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4,
-    param_specs = param_specs,
-    design = "rct"
+    components = 4,
+    param_specs = param_specs
   )
 
   expect_equal(bundle$outcome$trt$spec$plan$bulk$mean$mode, "link")

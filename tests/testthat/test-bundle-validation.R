@@ -15,7 +15,7 @@ test_that("build_nimble_bundle errors on empty y", {
       backend = "sb",
       kernel = "normal",
       GPD = FALSE,
-      J = 4
+      components = 4
     ),
     regexp = "non-empty"
   )
@@ -28,25 +28,9 @@ test_that("build_nimble_bundle errors on NULL y", {
       backend = "sb",
       kernel = "normal",
       GPD = FALSE,
-      J = 4
+      components = 4
     ),
     regexp = "non-empty|length"
-  )
-})
-
-test_that("build_nimble_bundle errors when both J and components are provided", {
-  set.seed(1)
-  y <- abs(rnorm(20)) + 0.1
-  expect_error(
-    build_nimble_bundle(
-      y = y,
-      backend = "sb",
-      kernel = "normal",
-      GPD = FALSE,
-      J = 4,
-      components = 6
-    ),
-    regexp = "only one of"
   )
 })
 
@@ -59,7 +43,7 @@ test_that("build_nimble_bundle errors on components < 2", {
       backend = "sb",
       kernel = "normal",
       GPD = FALSE,
-      J = 1
+      components = 1
     ),
     regexp = ">= 2"
   )
@@ -75,7 +59,7 @@ test_that("build_nimble_bundle errors on invalid epsilon", {
       backend = "sb",
       kernel = "normal",
       GPD = FALSE,
-      J = 4,
+      components = 4,
       epsilon = -0.1
     ),
     regexp = "epsilon|\\[0.*1\\)"
@@ -87,7 +71,7 @@ test_that("build_nimble_bundle errors on invalid epsilon", {
       backend = "sb",
       kernel = "normal",
       GPD = FALSE,
-      J = 4,
+      components = 4,
       epsilon = 1.5
     ),
     regexp = "epsilon|\\[0.*1\\)"
@@ -99,7 +83,7 @@ test_that("build_nimble_bundle errors on invalid epsilon", {
       backend = "sb",
       kernel = "normal",
       GPD = FALSE,
-      J = 4,
+      components = 4,
       epsilon = NA
     ),
     regexp = "epsilon|numeric"
@@ -118,7 +102,7 @@ test_that("build_nimble_bundle errors on ps length mismatch", {
       backend = "sb",
       kernel = "normal",
       GPD = FALSE,
-      J = 4
+      components = 4
     ),
     regexp = "same length"
   )
@@ -136,7 +120,7 @@ test_that("build_nimble_bundle returns correct class", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4
+    components = 4
   )
   expect_s3_class(bundle, "dpmixgpd_bundle")
 })
@@ -149,7 +133,7 @@ test_that("build_nimble_bundle has required components", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4
+    components = 4
   )
 
   expect_true("spec" %in% names(bundle))
@@ -170,7 +154,7 @@ test_that("build_nimble_bundle stores epsilon value", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4,
+    components = 4,
     epsilon = 0.05
   )
   expect_equal(bundle$epsilon, 0.05)
@@ -184,7 +168,7 @@ test_that("build_nimble_bundle stores custom MCMC settings", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4,
+    components = 4,
     mcmc = list(niter = 100, nburnin = 20, thin = 2, nchains = 2, seed = 42)
   )
 
@@ -207,7 +191,7 @@ test_that("build_nimble_bundle works with CRP backend", {
     backend = "crp",
     kernel = "normal",
     GPD = FALSE,
-    J = 4
+    components = 4
   )
 
   expect_s3_class(bundle, "dpmixgpd_bundle")
@@ -222,7 +206,7 @@ test_that("build_nimble_bundle works with GPD tail", {
     backend = "sb",
     kernel = "normal",
     GPD = TRUE,
-    J = 4
+    components = 4
   )
 
   expect_s3_class(bundle, "dpmixgpd_bundle")
@@ -244,7 +228,7 @@ test_that("build_nimble_bundle works with all kernels (sb, no GPD)", {
       backend = "sb",
       kernel = k,
       GPD = FALSE,
-      J = 4
+      components = 4
     )
     expect_s3_class(bundle, "dpmixgpd_bundle")
     expect_equal(bundle$spec$meta$kernel, k)
@@ -263,7 +247,7 @@ test_that("build_nimble_bundle works with X matrix", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4
+    components = 4
   )
 
   expect_s3_class(bundle, "dpmixgpd_bundle")
@@ -282,7 +266,7 @@ test_that("build_nimble_bundle converts data.frame X to matrix", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4
+    components = 4
   )
 
   expect_s3_class(bundle, "dpmixgpd_bundle")
@@ -302,7 +286,7 @@ test_that("build_nimble_bundle respects alpha_random = FALSE", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4,
+    components = 4,
     alpha_random = FALSE
   )
 
@@ -318,7 +302,7 @@ test_that("build_nimble_bundle respects alpha_random = TRUE", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4,
+    components = 4,
     alpha_random = TRUE
   )
 
@@ -348,7 +332,7 @@ test_that("build_nimble_bundle applies param_specs overrides", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4,
+    components = 4,
     param_specs = param_specs
   )
 
@@ -359,22 +343,6 @@ test_that("build_nimble_bundle applies param_specs overrides", {
 # ======================================================================
 # J parameter alias tests
 # ======================================================================
-
-test_that("build_nimble_bundle uses J parameter correctly", {
-  set.seed(1)
-  y <- abs(rnorm(20)) + 0.1
-
-  bundle <- build_nimble_bundle(
-    y = y,
-    backend = "sb",
-    kernel = "normal",
-    GPD = FALSE,
-    J = 8
-  )
-
-  expect_s3_class(bundle, "dpmixgpd_bundle")
-  expect_equal(bundle$spec$meta$components, 8)
-})
 
 test_that("build_nimble_bundle uses components parameter correctly", {
   set.seed(1)
@@ -407,7 +375,7 @@ test_that("build_nimble_bundle works with propensity score vector", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4
+    components = 4
   )
 
   expect_s3_class(bundle, "dpmixgpd_bundle")
@@ -428,7 +396,7 @@ test_that("build_nimble_bundle works with X and ps combined", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4
+    components = 4
   )
 
   expect_s3_class(bundle, "dpmixgpd_bundle")

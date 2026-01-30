@@ -1,11 +1,11 @@
-﻿---
+---
 title: "5. Unconditional DPmix (CRP Backend)"
 output:
   html_document:
     toc: true
     toc_depth: 3
     theme: flatly
-    highlight: tango
+    highlight: null
 vignette: >
   %\VignetteIndexEntry{5. Unconditional DPmix (CRP Backend)}
   %\VignetteEngine{knitr::rmarkdown}
@@ -35,7 +35,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
-devtools::load_all()
+pkgload::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -130,7 +130,7 @@ params_crp
 
 ```{r diag-trace}
 # Trace plots for key parameters
-plot(fit_crp, params = "alpha", family = c("traceplot", "density", "geweke"))
+if (interactive()) plot(fit_crp, params = "alpha", family = c("traceplot", "density", "geweke"))
 ```
 
 # Posterior Predictive Density
@@ -143,6 +143,6 @@ y_grid <- seq(0, max(y_mixed) * 1.2, length.out = 200)
 pred_density <- predict(fit_crp, y = y_grid, type = "density")
 
 # Use S3 plot method
-plot(pred_density)
+if (interactive()) plot(pred_density)
 ```
 

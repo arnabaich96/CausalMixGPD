@@ -1,8 +1,10 @@
 # Residuals for a MixGPD fit
 
-Returns residuals aligned with the training data. For `type = "raw"`,
-this uses fitted means. For `type = "pit"`, this returns approximate PIT
-values via the predictive survival function.
+Returns residuals aligned with the training data for **conditional
+(covariate) models only**. Not supported for unconditional models (no
+covariates); use `predict()` for predictions in that case. For
+`type = "raw"`, this uses fitted means. For `type = "pit"`, this returns
+approximate PIT values via the predictive survival function.
 
 ## Usage
 

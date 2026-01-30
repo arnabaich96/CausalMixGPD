@@ -37,6 +37,7 @@ Most workflows begin with
 The bundle includes compiled NIMBLE code and MCMC settings.
 
 ``` r
+
 library(DPmixGPD)
 
 data("faithful", package = "datasets")
@@ -55,6 +56,7 @@ bundle_uncond <- build_nimble_bundle(
 ## Conditional example
 
 ``` r
+
 data("mtcars", package = "datasets")
 df <- mtcars
 X <- df[, c("wt", "hp")]
@@ -84,7 +86,8 @@ bundle_cond <- build_nimble_bundle(
 | components | K | Truncation level for SB (maximum components) |
 | alpha_random | TRUE/FALSE | Learn concentration parameter (DP strength) |
 
-Model Specification Arguments
+Model Specification Arguments {.table .table .table-striped .table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ## Model types
 
@@ -101,6 +104,7 @@ Model Specification Arguments
   `while`, etc.)
 
 ``` r
+
 # Rename reserved keywords
 names(X)[names(X) == "if"] <- "x_if"
 ```

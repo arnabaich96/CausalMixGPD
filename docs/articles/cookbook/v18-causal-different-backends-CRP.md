@@ -27,6 +27,7 @@ kernel:
 ### Data Setup
 
 ``` r
+
 data("causal_alt_real500_p4_k2")
 y <- causal_alt_real500_p4_k2$y
 T <- causal_alt_real500_p4_k2$T
@@ -51,14 +52,17 @@ summary_tbl %>%
 |    Min    | -8.089  |
 |    Max    |  5.275  |
 
-Outcome Summary (Cauchy)
+Outcome Summary (Cauchy) {.table .table .table-striped .table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ``` r
+
 x_eval <- X[1:40, , drop = FALSE]
 y_eval <- y[1:40]
 ```
 
 ``` r
+
 df_causal <- data.frame(y = y, T = as.factor(T), x1 = X[, 1])
 
 p_scatter <- ggplot(df_causal, aes(x = x1, y = y, color = T)) +
@@ -76,6 +80,7 @@ p_scatter
 ### Model A: Treated SB, Control CRP (Cauchy)
 
 ``` r
+
 bundle_sb_crp <- build_causal_bundle(
   y = y,
   T = T,
@@ -103,6 +108,7 @@ bundle_sb_crp
     n (control) = 232 | n (treated) = 268 
 
 ``` r
+
 summary(bundle_sb_crp)
 ```
 
@@ -118,6 +124,7 @@ summary(bundle_sb_crp)
     n (control) = 232 | n (treated) = 268 
 
 ``` r
+
 fit_sb_crp <- run_mcmc_causal(bundle_sb_crp)
 ```
 
@@ -146,8 +153,10 @@ fit_sb_crp <- run_mcmc_causal(bundle_sb_crp)
       - z[]  (268 elements)
 
 ``` r
+
 summary(fit_sb_crp)
 ```
+
 
     -- Outcome fits --
     [control]
@@ -165,6 +174,7 @@ summary(fit_sb_crp)
     Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 
 ``` r
+
 params(fit_sb_crp)
 ```
 
@@ -206,14 +216,17 @@ params(fit_sb_crp)
     [1] "0.524" "0.523" "0.418"
 
 ``` r
+
 plot(fit_sb_crp, params = "location", family = "traceplot")
 ```
+
 
     === treated ===
 
     === traceplot ===
 
 ![](v18-causal-different-backends-CRP_files/figure-html/plot-fit-sb-crp-1.png)
+
 
     === control ===
 
@@ -222,14 +235,17 @@ plot(fit_sb_crp, params = "location", family = "traceplot")
 ![](v18-causal-different-backends-CRP_files/figure-html/plot-fit-sb-crp-2.png)
 
 ``` r
+
 plot(fit_sb_crp, params = "scale", family = "caterpillar")
 ```
+
 
     === treated ===
 
     === caterpillar ===
 
 ![](v18-causal-different-backends-CRP_files/figure-html/plot-fit-sb-crp-3.png)
+
 
     === control ===
 
@@ -238,6 +254,7 @@ plot(fit_sb_crp, params = "scale", family = "caterpillar")
 ![](v18-causal-different-backends-CRP_files/figure-html/plot-fit-sb-crp-4.png)
 
 ``` r
+
 pred_mean_sb_crp <- predict(fit_sb_crp, x = x_eval, type = "mean",
                             interval = "credible", nsim_mean = 100)
 plot(pred_mean_sb_crp)
@@ -246,6 +263,7 @@ plot(pred_mean_sb_crp)
 ![](v18-causal-different-backends-CRP_files/figure-html/predict-mean-sb-crp-1.png)![](v18-causal-different-backends-CRP_files/figure-html/predict-mean-sb-crp-2.png)
 
 ``` r
+
 pred_q_sb_crp <- predict(fit_sb_crp, x = x_eval, type = "quantile",
                          p = 0.5, interval = "credible")
 plot(pred_q_sb_crp)
@@ -254,6 +272,7 @@ plot(pred_q_sb_crp)
 ![](v18-causal-different-backends-CRP_files/figure-html/predict-quantile-sb-crp-1.png)![](v18-causal-different-backends-CRP_files/figure-html/predict-quantile-sb-crp-2.png)
 
 ``` r
+
 pred_d_sb_crp <- predict(fit_sb_crp, x = x_eval, y = y_eval,
                          type = "density", interval = "credible")
 plot(pred_d_sb_crp)
@@ -262,6 +281,7 @@ plot(pred_d_sb_crp)
 ![](v18-causal-different-backends-CRP_files/figure-html/predict-density-sb-crp-1.png)
 
 ``` r
+
 pred_surv_sb_crp <- predict(fit_sb_crp, x = x_eval, y = y_eval,
                             type = "survival", interval = "credible")
 plot(pred_surv_sb_crp)
@@ -270,6 +290,7 @@ plot(pred_surv_sb_crp)
 ![](v18-causal-different-backends-CRP_files/figure-html/predict-survival-sb-crp-1.png)
 
 ``` r
+
 ate_sb_crp <- ate(fit_sb_crp, newdata = x_eval,
                   interval = "credible", nsim_mean = 100)
 print(ate_sb_crp)
@@ -293,6 +314,7 @@ print(ate_sb_crp)
     ... (34 more rows)
 
 ``` r
+
 summary(ate_sb_crp)
 ```
 
@@ -318,6 +340,7 @@ summary(ate_sb_crp)
       Range: [22.307, 36.637]
 
 ``` r
+
 ate_plots_sb_crp <- plot(ate_sb_crp)
 ate_plots_sb_crp$treatment_effect
 ```
@@ -325,6 +348,7 @@ ate_plots_sb_crp$treatment_effect
 ![](v18-causal-different-backends-CRP_files/figure-html/unnamed-chunk-1-1.png)
 
 ``` r
+
 qte_sb_crp <- qte(fit_sb_crp, probs = c(0.25, 0.5, 0.75),
                   newdata = x_eval, interval = "credible")
 print(qte_sb_crp)
@@ -348,6 +372,7 @@ print(qte_sb_crp)
     ... (114 more rows)
 
 ``` r
+
 summary(qte_sb_crp)
 ```
 
@@ -374,6 +399,7 @@ summary(qte_sb_crp)
       Range: [1.217, 9.187]
 
 ``` r
+
 qte_plots_sb_crp <- plot(qte_sb_crp)
 qte_plots_sb_crp$treatment_effect
 ```
@@ -385,6 +411,7 @@ qte_plots_sb_crp$treatment_effect
 ### Model B: Treated CRP, Control SB (Cauchy)
 
 ``` r
+
 bundle_crp_sb <- build_causal_bundle(
   y = y,
   T = T,
@@ -412,6 +439,7 @@ bundle_crp_sb
     n (control) = 232 | n (treated) = 268 
 
 ``` r
+
 summary(bundle_crp_sb)
 ```
 
@@ -427,6 +455,7 @@ summary(bundle_crp_sb)
     n (control) = 232 | n (treated) = 268 
 
 ``` r
+
 fit_crp_sb <- run_mcmc_causal(bundle_crp_sb)
 ```
 
@@ -455,8 +484,10 @@ fit_crp_sb <- run_mcmc_causal(bundle_crp_sb)
       [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.
 
 ``` r
+
 summary(fit_crp_sb)
 ```
+
 
     -- Outcome fits --
     [control]
@@ -474,6 +505,7 @@ summary(fit_crp_sb)
     Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 
 ``` r
+
 params(fit_crp_sb)
 ```
 
@@ -515,14 +547,17 @@ params(fit_crp_sb)
     [1] "0.628" "0.539" "0.491"
 
 ``` r
+
 plot(fit_crp_sb, family = "traceplot")
 ```
+
 
     === treated ===
 
     === traceplot ===
 
 ![](v18-causal-different-backends-CRP_files/figure-html/plot-fit-crp-sb-1.png)
+
 
     === control ===
 
@@ -531,6 +566,7 @@ plot(fit_crp_sb, family = "traceplot")
 ![](v18-causal-different-backends-CRP_files/figure-html/plot-fit-crp-sb-2.png)
 
 ``` r
+
 pred_mean_crp_sb <- predict(fit_crp_sb, x = x_eval, type = "mean",
                             interval = "credible", nsim_mean = 100)
 plot(pred_mean_crp_sb)
@@ -539,6 +575,7 @@ plot(pred_mean_crp_sb)
 ![](v18-causal-different-backends-CRP_files/figure-html/predict-mean-crp-sb-1.png)![](v18-causal-different-backends-CRP_files/figure-html/predict-mean-crp-sb-2.png)
 
 ``` r
+
 pred_q_crp_sb <- predict(fit_crp_sb, x = x_eval, type = "quantile",
                          p = 0.5, interval = "credible")
 plot(pred_q_crp_sb)
@@ -547,6 +584,7 @@ plot(pred_q_crp_sb)
 ![](v18-causal-different-backends-CRP_files/figure-html/predict-quantile-crp-sb-1.png)![](v18-causal-different-backends-CRP_files/figure-html/predict-quantile-crp-sb-2.png)
 
 ``` r
+
 pred_d_crp_sb <- predict(fit_crp_sb, x = x_eval, y = y_eval,
                          type = "density", interval = "credible")
 plot(pred_d_crp_sb)
@@ -555,6 +593,7 @@ plot(pred_d_crp_sb)
 ![](v18-causal-different-backends-CRP_files/figure-html/predict-density-crp-sb-1.png)
 
 ``` r
+
 pred_surv_crp_sb <- predict(fit_crp_sb, x = x_eval, y = y_eval,
                             type = "survival", interval = "credible")
 plot(pred_surv_crp_sb)
@@ -563,6 +602,7 @@ plot(pred_surv_crp_sb)
 ![](v18-causal-different-backends-CRP_files/figure-html/predict-survival-crp-sb-1.png)
 
 ``` r
+
 ate_crp_sb <- ate(fit_crp_sb, newdata = x_eval,
                   interval = "credible", nsim_mean = 100)
 print(ate_crp_sb)
@@ -586,6 +626,7 @@ print(ate_crp_sb)
     ... (34 more rows)
 
 ``` r
+
 summary(ate_crp_sb)
 ```
 
@@ -611,6 +652,7 @@ summary(ate_crp_sb)
       Range: [21.733, 33.711]
 
 ``` r
+
 ate_plots_crp_sb <- plot(ate_crp_sb)
 ate_plots_crp_sb$treatment_effect
 ```
@@ -618,6 +660,7 @@ ate_plots_crp_sb$treatment_effect
 ![](v18-causal-different-backends-CRP_files/figure-html/unnamed-chunk-3-1.png)
 
 ``` r
+
 qte_crp_sb <- qte(fit_crp_sb, probs = c(0.25, 0.5, 0.75),
                   newdata = x_eval, interval = "credible")
 print(qte_crp_sb)
@@ -641,6 +684,7 @@ print(qte_crp_sb)
     ... (114 more rows)
 
 ``` r
+
 summary(qte_crp_sb)
 ```
 
@@ -667,6 +711,7 @@ summary(qte_crp_sb)
       Range: [1.171, 5.551]
 
 ``` r
+
 qte_plots_crp_sb <- plot(qte_crp_sb)
 qte_plots_crp_sb$treatment_effect
 ```

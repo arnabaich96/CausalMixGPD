@@ -1,10 +1,12 @@
-# Workflow 4: Backends, Kernels, and Workflow Map
+# 4. Backends, Kernels, and Workflow Map
 
-### Theory (brief)
-
-The CRP and stick-breaking backends are two equivalent representations
-of the DP mixture. They differ in computation (allocation vs truncation)
-but target the same underlying prior over distributions.
+> **Legacy vignette (for the website / historical notes).** These files
+> may not match the current exported API one-to-one. Last verified:
+> **2026-01-18**.
+>
+> For the up-to-date workflow, see the main package vignettes
+> (Introduction, Model Spec, MCMC Workflow,
+> Unconditional/Conditional/Causal, Backends, S3 Reference).
 
 ## Big picture
 
@@ -51,12 +53,13 @@ DPmixGPD uses a consistent build -\> run -\> summarize loop:
 3.  **Inspect and summarize** using
     [`print()`](https://rdrr.io/r/base/print.html),
     [`summary()`](https://rdrr.io/r/base/summary.html),
-    [`plot()`](https://rdrr.io/r/graphics/plot.default.html).
+    `if (interactive()) plot()`.
 4.  **Predict** using
     [`predict()`](https://rdrr.io/r/stats/predict.html) (and optionally
     [`fitted()`](https://rdrr.io/r/stats/fitted.values.html)).
 
 ``` r
+
 # Build
 bundle <- build_nimble_bundle(
   y = rnorm(50),
@@ -69,33 +72,19 @@ bundle <- build_nimble_bundle(
 
 # Run
 fit <- load_or_fit("v04-backends-and-workflow-fit", run_mcmc_bundle_manual(bundle))
-```
 
-    ===== Monitors =====
-    thin = 1: alpha, mean, sd, z
-    ===== Samplers =====
-    CRP_concentration sampler (1)
-      - alpha
-    CRP_cluster_wrapper sampler (10)
-      - sd[]  (5 elements)
-      - mean[]  (5 elements)
-    CRP sampler (1)
-      - z[1:50] 
-
-      [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.
-
-``` r
 # Summarize
 print(fit)
 ```
 
     MixGPD fit | backend: Chinese Restaurant Process | kernel: Normal Distribution | GPD tail: FALSE
     n = 50 | components = 5 | epsilon = 0.025
-    MCMC: niter=400, nburnin=100, thin=2, nchains=1 
+    MCMC: niter=4000, nburnin=1000, thin=5, nchains=2 
     Fit
     Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 
 ``` r
+
 summary(fit)
 ```
 
@@ -104,8 +93,8 @@ summary(fit)
     Summary
     Initial components: 5 | Components after truncation: 1
 
-    WAIC: 126.441
-    lppd: -57.216 | pWAIC: 6.004
+    WAIC: 126.256
+    lppd: -55.18 | pWAIC: 7.948
 
     Summary table
     <table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
@@ -123,82 +112,47 @@ summary(fit)
     <tbody>
       <tr>
        <td style="text-align:center;"> weights[1] </td>
-       <td style="text-align:center;"> 0.962 </td>
-       <td style="text-align:center;"> 0.08 </td>
-       <td style="text-align:center;"> 0.735 </td>
+       <td style="text-align:center;"> 0.933 </td>
+       <td style="text-align:center;"> 0.122 </td>
+       <td style="text-align:center;"> 0.56 </td>
        <td style="text-align:center;"> 1 </td>
        <td style="text-align:center;"> 1 </td>
-       <td style="text-align:center;"> 23.073 </td>
+       <td style="text-align:center;"> 224.34 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> alpha </td>
-       <td style="text-align:center;"> 0.306 </td>
-       <td style="text-align:center;"> 0.291 </td>
-       <td style="text-align:center;"> 0.005 </td>
-       <td style="text-align:center;"> 0.218 </td>
-       <td style="text-align:center;"> 1.046 </td>
-       <td style="text-align:center;"> 46.898 </td>
+       <td style="text-align:center;"> 0.337 </td>
+       <td style="text-align:center;"> 0.349 </td>
+       <td style="text-align:center;"> 0.006 </td>
+       <td style="text-align:center;"> 0.233 </td>
+       <td style="text-align:center;"> 1.291 </td>
+       <td style="text-align:center;"> 801.989 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> mean[1] </td>
-       <td style="text-align:center;"> 0.128 </td>
-       <td style="text-align:center;"> 0.133 </td>
-       <td style="text-align:center;"> -0.104 </td>
-       <td style="text-align:center;"> 0.112 </td>
-       <td style="text-align:center;"> 0.404 </td>
-       <td style="text-align:center;"> 150 </td>
+       <td style="text-align:center;"> 0.152 </td>
+       <td style="text-align:center;"> 0.156 </td>
+       <td style="text-align:center;"> -0.13 </td>
+       <td style="text-align:center;"> 0.146 </td>
+       <td style="text-align:center;"> 0.489 </td>
+       <td style="text-align:center;"> 595.413 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> sd[1] </td>
-       <td style="text-align:center;"> 1.539 </td>
-       <td style="text-align:center;"> 0.422 </td>
-       <td style="text-align:center;"> 0.967 </td>
-       <td style="text-align:center;"> 1.483 </td>
-       <td style="text-align:center;"> 2.602 </td>
-       <td style="text-align:center;"> 80.825 </td>
+       <td style="text-align:center;"> 1.71 </td>
+       <td style="text-align:center;"> 0.577 </td>
+       <td style="text-align:center;"> 0.989 </td>
+       <td style="text-align:center;"> 1.582 </td>
+       <td style="text-align:center;"> 3.286 </td>
+       <td style="text-align:center;"> 376.985 </td>
       </tr>
     </tbody>
     </table>
 
 ``` r
-plot(fit)
+
+if (interactive()) plot(fit)
 ```
-
-    === histogram ===
-
-![](v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-1.png)
-
-    === density ===
-
-![](v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-2.png)
-
-    === traceplot ===
-
-![](v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-3.png)
-
-    === running ===
-
-![](v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-4.png)
-
-    === compare_partial ===
-
-![](v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-5.png)
-
-    === autocorrelation ===
-
-![](v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-6.png)
-
-    === geweke ===
-
-![](v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-7.png)
-
-    === caterpillar ===
-
-![](v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-8.png)
-
-    === pairs ===
-
-![](v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-9.png)
 
 ## Kernel support quick check
 
@@ -207,6 +161,7 @@ Use
 and the kernel registry helpers to confirm what is available.
 
 ``` r
+
 kernel_support_table()
 ```
 

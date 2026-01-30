@@ -1,6 +1,8 @@
 ---
 title: "Available Distributions"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    highlight: null
 vignette: >
   %\VignetteIndexEntry{Available Distributions}
   %\VignetteEngine{knitr::rmarkdown}
@@ -647,5 +649,6 @@ print(knitr::kable(ref_df, align = "c", caption = "Complete distribution referen
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+
 
 

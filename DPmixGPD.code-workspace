@@ -11,6 +11,7 @@
 			}
 		},
 		"terminal.integrated.defaultProfile.windows": "R",
-		"chatgpt.openOnStartup": false
+		"chatgpt.openOnStartup": false,
+		"files.autoSave": "onFocusChange"
 	}
 }

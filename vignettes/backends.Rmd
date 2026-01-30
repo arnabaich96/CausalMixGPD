@@ -1,6 +1,8 @@
 ---
 title: "Backends: SB vs CRP"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    highlight: null
 vignette: >
   %\VignetteIndexEntry{Backends: SB vs CRP}
   %\VignetteEngine{knitr::rmarkdown}
@@ -111,4 +113,5 @@ kable(comparison_df, digits = 3, align = "c",
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+
 

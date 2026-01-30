@@ -1,6 +1,34 @@
-/* vignettes/theme-picker.js
-   Full runtime theme editor with persistence and preset themes
+/* pkgdown/extra.js
+   - Page theme: set data-page-theme on body from pathname (different bg/theme per page, incl. RMD-generated).
+   - Theme editor: runtime theme picker with persistence and presets.
 */
+(function(){
+  /* --- Page theme (runs first, no Rmd changes) --- */
+  function setPageTheme(){
+    if(!document.body) return;
+    var path = (window.location.pathname || "").replace(/^\/+/, "").replace(/\/+$/, "");
+    if(path.indexOf("DPmixGPD/") !== -1) path = path.replace(/^[^/]*DPmixGPD\/?/, "");
+    path = path || "index.html";
+    var theme = "article";
+    if(path === "index.html" || path === "") theme = "home";
+    else if(path === "articles/index.html") theme = "articles-index";
+    else if(path.indexOf("reference") === 0) theme = "reference";
+    else if(path === "articles/cookbook-index.html") theme = "cookbook";
+    else if(path === "articles/manual-index.html") theme = "manual";
+    else if(path === "articles/kernels-index.html") theme = "kernels";
+    else if(path.indexOf("articles/") === 0){
+      var base = path.split("/").pop().replace(".html", "") || "article";
+      theme = "article-" + base;
+    }
+    document.body.setAttribute("data-page-theme", theme);
+  }
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", setPageTheme);
+  }else{
+    setPageTheme();
+  }
+})();
+
 (function(){
   const STORAGE_KEY = "pkgdown-runtime-theme-v2";
 

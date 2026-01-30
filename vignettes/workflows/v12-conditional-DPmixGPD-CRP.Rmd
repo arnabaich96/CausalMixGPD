@@ -1,7 +1,8 @@
-﻿---
+---
 title: "12. Conditional DPmixGPD with CRP Backend"
-output: 
+output:
   rmarkdown::html_vignette:
+    highlight: null
     code_folding: show
 vignette: >
   %\VignetteIndexEntry{12. Conditional DPmixGPD with CRP Backend}
@@ -32,7 +33,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
-devtools::load_all()
+pkgload::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -224,12 +225,12 @@ bind_rows(quant_df_lognormal, quant_df_normal) %>%
 ## Residuals & Diagnostics
 
 ```{r residuals, cache=FALSE}
-plot(fitted(fit_cond_gpd_lognormal))
+if (interactive()) plot(fitted(fit_cond_gpd_lognormal))
 ```
 
 ```{r diagnostics}
-plot(fit_cond_gpd_lognormal, family = c("traceplot", "density", "autocorrelation"))
-plot(fit_cond_gpd_normal, family = c("running", "geweke", "caterpillar"))
+if (interactive()) plot(fit_cond_gpd_lognormal, family = c("traceplot", "density", "autocorrelation"))
+if (interactive()) plot(fit_cond_gpd_normal, family = c("running", "geweke", "caterpillar"))
 ```
 
 ---
@@ -238,8 +239,10 @@ plot(fit_cond_gpd_normal, family = c("running", "geweke", "caterpillar"))
 
 - Conditional DPmix with a GPD tail lets posterior-mean extreme quantiles vary with covariates.
 - The CRP backend samples the bulk and tail jointly while thresholding at the 85th percentile.
-- `predict()` + `plot()` remain the main tools for densities, survival curves, and quantiles; residual diagnostics check fit quality.
+- `predict()` + `if (interactive()) plot()` remain the main tools for densities, survival curves, and quantiles; residual diagnostics check fit quality.
 - Next: Mirror this workflow with the SB backend in `v11`.
+
+
 
 
 

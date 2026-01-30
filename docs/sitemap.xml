@@ -45,6 +45,27 @@
 <url><loc>https://arnabaich96.github.io/DPmixGPD/articles/model-spec.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/articles/reference-s3.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/articles/unconditional.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/workflows/v00-start-here.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/workflows/v01-introduction.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/workflows/v02-available-distributions.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/workflows/v03-basic-model-compile-run.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/workflows/v04-backends-and-workflow.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/workflows/v05-unconditional-DPmix-CRP.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/workflows/v06-unconditional-DPmix-CRP.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/workflows/v07-unconditional-DPmix-SB.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/workflows/v08-unconditional-DPmixGPD-CRP.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/workflows/v09-unconditional-DPmixGPD-SB.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/workflows/v10-conditional-DPmix-CRP.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/workflows/v11-conditional-DPmix-SB.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/workflows/v12-conditional-DPmixGPD-CRP.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/workflows/v13-conditional-DPmixGPD-SB.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/workflows/v14-causal-no-x-CRP.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/workflows/v15-causal-x-no-ps-SB.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/workflows/v16-causal-same-backend-CRP.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/workflows/v17-causal-same-backend-SB.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/workflows/v18-causal-different-backends-CRP.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/workflows/v19-causal-different-backends-SB.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/workflows/v20-troubleshooting.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/authors.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/coverage/index.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/coverage/report.html</loc></url>
@@ -166,5 +187,6 @@
 <url><loc>https://arnabaich96.github.io/DPmixGPD/reference/summary.dpmixgpd_causal_fit.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/reference/summary.dpmixgpd_qte.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/reference/summary.mixgpd_fit.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/REPO_BLUEPRINT.html</loc></url>
 </urlset>
 

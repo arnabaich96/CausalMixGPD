@@ -1,11 +1,12 @@
-# Workflow 6: Unconditional DPmix with CRP Backend
+# 6. Unconditional DPmix with CRP Backend
 
-## Theory (brief)
-
-An unconditional DP mixture models exchangeable outcomes via
-\$f(y)=\\int K(y;\\theta)\\,dG(\\theta)\$ with \$G \\sim
-\\mathrm{DP}(\\alpha, G_0)\$. The CRP backend implements this using
-cluster allocations.
+> **Legacy vignette (for the website / historical notes).** These files
+> may not match the current exported API one-to-one. Last verified:
+> **2026-01-18**.
+>
+> For the up-to-date workflow, see the main package vignettes
+> (Introduction, Model Spec, MCMC Workflow,
+> Unconditional/Conditional/Causal, Backends, S3 Reference).
 
 ## Unconditional DPmix: Chinese Restaurant Process (CRP)
 
@@ -23,6 +24,8 @@ $`G \sim \text{DP}(\alpha, G_0)`$
 ### Data Setup
 
 ``` r
+
+# Load pre-generated dataset: 200 observations from mixture of 3 gamma components
 data(nc_pos200_k3)
 y_mixed <- nc_pos200_k3$y
 
@@ -32,24 +35,29 @@ paste("Sample size:", length(y_mixed))
     [1] "Sample size: 200"
 
 ``` r
+
 paste("Mean:", mean(y_mixed))
 ```
 
     [1] "Mean: 4.21476750434594"
 
 ``` r
+
 paste("SD:", sd(y_mixed))
 ```
 
     [1] "SD: 4.10835046697183"
 
 ``` r
+
 paste("Range:", paste(range(y_mixed), collapse = " to "))
 ```
 
     [1] "Range: 0.0403111680208858 to 19.6013451514889"
 
 ``` r
+
+# Visualization
 df_data <- data.frame(y = y_mixed)
 p_raw <- ggplot(df_data, aes(x = y)) +
   geom_histogram(aes(y = after_stat(density)), bins = 30, alpha = 0.6, fill = "steelblue",color = "black") +
@@ -60,7 +68,7 @@ p_raw <- ggplot(df_data, aes(x = y)) +
 print(p_raw)
 ```
 
-![](v06-unconditional-DPmix-CRP_files/figure-html/data-setup-1.png)
+![](articles/workflows/legacy-cache/figure-htmldata-setup-1.png)
 
 ------------------------------------------------------------------------
 
@@ -70,13 +78,14 @@ We’ll use the `build_nimble_bundle` function directly which handles both
 specification and bundle creation.
 
 ``` r
+
 bundle_crp <- build_nimble_bundle(
   y = y_mixed,
-  kernel = "laplace",
-  backend = "crp",
-  GPD = FALSE,
-  components = 3,
-  alpha_random = TRUE,
+  kernel = "laplace",         # Use laplace kernel
+  backend = "crp",            # CRP backend
+  GPD = FALSE,                # No tail augmentation
+  components = 3,             # Minimal for testing
+  alpha_random = TRUE,        # Random DP concentration
   mcmc = mcmc
 )
 ```
@@ -86,6 +95,7 @@ bundle_crp <- build_nimble_bundle(
 #### Building MCMC bundle
 
 ``` r
+
 bundle_crp <- build_nimble_bundle(
   y_mixed,
   kernel = "laplace",
@@ -100,6 +110,7 @@ bundle_crp <- build_nimble_bundle(
 #### Summary of MCMC Bundle
 
 ``` r
+
 summary(bundle_crp)
 ```
 
@@ -237,12 +248,14 @@ summary(bundle_crp)
 #### Running MCMC
 
 ``` r
+
 fit_crp <- load_or_fit("v06-unconditional-DPmix-CRP-fit_crp", run_mcmc_bundle_manual(bundle_crp))
 ```
 
 #### Summary of Fitted MCMC model
 
 ``` r
+
 summary(fit_crp)
 ```
 
@@ -251,8 +264,8 @@ summary(fit_crp)
     Summary
     Initial components: 3 | Components after truncation: 2
 
-    WAIC: 930.316
-    lppd: -376.708 | pWAIC: 88.45
+    WAIC: 914.162
+    lppd: -346.856 | pWAIC: 110.226
 
     Summary table
     <table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
@@ -270,71 +283,72 @@ summary(fit_crp)
     <tbody>
       <tr>
        <td style="text-align:center;"> weights[1] </td>
-       <td style="text-align:center;"> 0.493 </td>
-       <td style="text-align:center;"> 0.082 </td>
-       <td style="text-align:center;"> 0.364 </td>
-       <td style="text-align:center;"> 0.51 </td>
-       <td style="text-align:center;"> 0.62 </td>
-       <td style="text-align:center;"> 2.803 </td>
+       <td style="text-align:center;"> 0.42 </td>
+       <td style="text-align:center;"> 0.036 </td>
+       <td style="text-align:center;"> 0.36 </td>
+       <td style="text-align:center;"> 0.415 </td>
+       <td style="text-align:center;"> 0.5 </td>
+       <td style="text-align:center;"> 372.213 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> weights[2] </td>
-       <td style="text-align:center;"> 0.382 </td>
-       <td style="text-align:center;"> 0.07 </td>
-       <td style="text-align:center;"> 0.238 </td>
-       <td style="text-align:center;"> 0.38 </td>
-       <td style="text-align:center;"> 0.49 </td>
-       <td style="text-align:center;"> 13.673 </td>
+       <td style="text-align:center;"> 0.348 </td>
+       <td style="text-align:center;"> 0.036 </td>
+       <td style="text-align:center;"> 0.28 </td>
+       <td style="text-align:center;"> 0.345 </td>
+       <td style="text-align:center;"> 0.415 </td>
+       <td style="text-align:center;"> 386.238 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> alpha </td>
-       <td style="text-align:center;"> 0.463 </td>
-       <td style="text-align:center;"> 0.284 </td>
-       <td style="text-align:center;"> 0.09 </td>
-       <td style="text-align:center;"> 0.41 </td>
-       <td style="text-align:center;"> 1.13 </td>
-       <td style="text-align:center;"> 291.26 </td>
+       <td style="text-align:center;"> 0.482 </td>
+       <td style="text-align:center;"> 0.296 </td>
+       <td style="text-align:center;"> 0.098 </td>
+       <td style="text-align:center;"> 0.42 </td>
+       <td style="text-align:center;"> 1.197 </td>
+       <td style="text-align:center;"> 1200 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> location[1] </td>
-       <td style="text-align:center;"> 3.237 </td>
-       <td style="text-align:center;"> 2.572 </td>
-       <td style="text-align:center;"> 1.094 </td>
-       <td style="text-align:center;"> 1.535 </td>
-       <td style="text-align:center;"> 7.395 </td>
-       <td style="text-align:center;"> 20.702 </td>
+       <td style="text-align:center;"> 5.585 </td>
+       <td style="text-align:center;"> 2.267 </td>
+       <td style="text-align:center;"> 1.052 </td>
+       <td style="text-align:center;"> 6.739 </td>
+       <td style="text-align:center;"> 7.715 </td>
+       <td style="text-align:center;"> 415.444 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> location[2] </td>
-       <td style="text-align:center;"> 5.12 </td>
-       <td style="text-align:center;"> 2.644 </td>
-       <td style="text-align:center;"> 0.868 </td>
-       <td style="text-align:center;"> 6.463 </td>
-       <td style="text-align:center;"> 7.943 </td>
-       <td style="text-align:center;"> 27.292 </td>
+       <td style="text-align:center;"> 3.17 </td>
+       <td style="text-align:center;"> 2.504 </td>
+       <td style="text-align:center;"> 0.808 </td>
+       <td style="text-align:center;"> 2.257 </td>
+       <td style="text-align:center;"> 7.968 </td>
+       <td style="text-align:center;"> 424.174 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> scale[1] </td>
-       <td style="text-align:center;"> 0.888 </td>
-       <td style="text-align:center;"> 0.421 </td>
-       <td style="text-align:center;"> 0.277 </td>
-       <td style="text-align:center;"> 1.044 </td>
-       <td style="text-align:center;"> 1.531 </td>
-       <td style="text-align:center;"> 34.308 </td>
+       <td style="text-align:center;"> 0.555 </td>
+       <td style="text-align:center;"> 0.42 </td>
+       <td style="text-align:center;"> 0.261 </td>
+       <td style="text-align:center;"> 0.339 </td>
+       <td style="text-align:center;"> 1.708 </td>
+       <td style="text-align:center;"> 397.138 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> scale[2] </td>
-       <td style="text-align:center;"> 0.732 </td>
-       <td style="text-align:center;"> 0.624 </td>
-       <td style="text-align:center;"> 0.261 </td>
-       <td style="text-align:center;"> 0.35 </td>
-       <td style="text-align:center;"> 2.124 </td>
-       <td style="text-align:center;"> 15.309 </td>
+       <td style="text-align:center;"> 1.202 </td>
+       <td style="text-align:center;"> 0.641 </td>
+       <td style="text-align:center;"> 0.28 </td>
+       <td style="text-align:center;"> 1.202 </td>
+       <td style="text-align:center;"> 2.419 </td>
+       <td style="text-align:center;"> 480.74 </td>
       </tr>
     </tbody>
     </table>
 
 ``` r
+
 params_crp <- params(fit_crp)
 params_crp
 ```
@@ -342,36 +356,26 @@ params_crp
     Posterior mean parameters
 
     $alpha
-    [1] "0.463"
+    [1] "0.482"
 
     $w
-    [1] "0.493" "0.382"
+    [1] "0.42"  "0.348"
 
     $location
-    [1] "3.237" "5.12" 
+    [1] "5.585" "3.17" 
 
     $scale
-    [1] "0.888" "0.732"
+    [1] "0.555" "1.202"
 
 ------------------------------------------------------------------------
 
 ### MCMC Diagnostics Plots
 
 ``` r
-plot(fit_crp, params = "location", family = "traceplot")
+
+# Trace plots for key parameters
+if (interactive()) plot(fit_crp, params = "alpha", family = c("traceplot", "density", "geweke"))
 ```
-
-    === traceplot ===
-
-![](v06-unconditional-DPmix-CRP_files/figure-html/diag-trace-1.png)
-
-``` r
-plot(fit_crp, params = "scale", family = "caterpillar")
-```
-
-    === caterpillar ===
-
-![](v06-unconditional-DPmix-CRP_files/figure-html/diag-trace-2.png)
 
 ------------------------------------------------------------------------
 
@@ -380,47 +384,58 @@ plot(fit_crp, params = "scale", family = "caterpillar")
 #### Predictive Density
 
 ``` r
-y_grid <- seq(0, max(y_mixed) * 1.2, length.out = 200)
-pred_density <- predict(fit_crp, y = y_grid, type = "density")
-plot(pred_density)
-```
 
-![](v06-unconditional-DPmix-CRP_files/figure-html/pred-density-1.png)
+# Generate prediction grid
+y_grid <- seq(0, max(y_mixed) * 1.2, length.out = 200)
+
+# Posterior predictive density
+pred_density <- predict(fit_crp, y = y_grid, type = "density")
+
+# Use S3 plot method
+if (interactive()) plot(pred_density)
+```
 
 #### Quantile Predictions
 
 ``` r
+
+# Posterior predictive quantiles with credible intervals
 quantiles_pred <- predict(fit_crp, type = "quantile", 
                           index = c(0.05, 0.25, 0.5, 0.75, 0.95),
                           interval = "credible")
 
+# Display table
 quantiles_pred$fit %>%
-  kbl(caption = "Posterior Predictive Quantiles with Credible Intervals",
-      align = "c", digits = 3) %>%
-  kable_styling(bootstrap_options = "striped", full_width = FALSE, position = "center")
+ kbl(caption = "Posterior Predictive Quantiles with Credible Intervals",
+   align = "c",
+                  digits = 3) %>%
+ kable_styling(bootstrap_options = "striped", full_width = FALSE, position = "center")
 ```
 
-| estimate | index | lower  | upper |
-|:--------:|:-----:|:------:|:-----:|
-|  -0.65   | 0.05  | -2.293 | 1.12  |
-|   1.42   | 0.25  | 0.964  | 2.66  |
-|   4.30   | 0.50  | 2.175  | 6.86  |
-|   6.82   | 0.75  | 5.424  | 8.01  |
-|   7.40   | 0.95  | 5.995  | 8.56  |
+| estimate | index | lower | upper |
+|:--------:|:-----:|:-----:|:-----:|
+|  -0.39   | 0.05  | -2.57 | 1.16  |
+|   1.93   | 0.25  | 0.94  | 2.84  |
+|   5.90   | 0.50  | 3.05  | 7.14  |
+|   7.00   | 0.75  | 5.87  | 8.02  |
+|   7.56   | 0.95  | 6.44  | 8.55  |
 
-Posterior Predictive Quantiles with Credible Intervals
+Posterior Predictive Quantiles with Credible Intervals {.table .table
+.table-striped
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ``` r
-plot(quantiles_pred)
-```
 
-![](v06-unconditional-DPmix-CRP_files/figure-html/pred-quantiles-1.png)
+# Use S3 plot method
+if (interactive()) plot(quantiles_pred)
+```
 
 ------------------------------------------------------------------------
 
 ### Varying Truncation Level (components)
 
 ``` r
+
 # Demonstrate with one value
 bundle_components <- build_nimble_bundle(
   y = y_mixed,
@@ -432,20 +447,8 @@ bundle_components <- build_nimble_bundle(
 fit_components <- load_or_fit("v06-unconditional-DPmix-CRP-fit_components", run_mcmc_bundle_manual(bundle_components))
 ```
 
-    ===== Monitors =====
-    thin = 1: alpha, location, scale, z
-    ===== Samplers =====
-    CRP_concentration sampler (1)
-      - alpha
-    CRP_cluster_wrapper sampler (10)
-      - scale[]  (5 elements)
-      - location[]  (5 elements)
-    CRP sampler (1)
-      - z[1:200] 
-
-      [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.
-
 ``` r
+
 summary(fit_components)
 ```
 
@@ -454,8 +457,8 @@ summary(fit_components)
     Summary
     Initial components: 5 | Components after truncation: 3
 
-    WAIC: 887.981
-    lppd: -320.298 | pWAIC: 123.693
+    WAIC: 891.092
+    lppd: -295.218 | pWAIC: 150.327
 
     Summary table
     <table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
@@ -473,93 +476,93 @@ summary(fit_components)
     <tbody>
       <tr>
        <td style="text-align:center;"> weights[1] </td>
-       <td style="text-align:center;"> 0.394 </td>
-       <td style="text-align:center;"> 0.051 </td>
-       <td style="text-align:center;"> 0.307 </td>
+       <td style="text-align:center;"> 0.39 </td>
+       <td style="text-align:center;"> 0.05 </td>
+       <td style="text-align:center;"> 0.28 </td>
        <td style="text-align:center;"> 0.395 </td>
-       <td style="text-align:center;"> 0.515 </td>
-       <td style="text-align:center;"> 22.736 </td>
+       <td style="text-align:center;"> 0.48 </td>
+       <td style="text-align:center;"> 124.026 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> weights[2] </td>
-       <td style="text-align:center;"> 0.295 </td>
-       <td style="text-align:center;"> 0.056 </td>
-       <td style="text-align:center;"> 0.199 </td>
+       <td style="text-align:center;"> 0.296 </td>
+       <td style="text-align:center;"> 0.05 </td>
+       <td style="text-align:center;"> 0.2 </td>
        <td style="text-align:center;"> 0.295 </td>
        <td style="text-align:center;"> 0.39 </td>
-       <td style="text-align:center;"> 10.172 </td>
+       <td style="text-align:center;"> 166.462 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> weights[3] </td>
-       <td style="text-align:center;"> 0.217 </td>
-       <td style="text-align:center;"> 0.038 </td>
-       <td style="text-align:center;"> 0.154 </td>
-       <td style="text-align:center;"> 0.215 </td>
-       <td style="text-align:center;"> 0.29 </td>
-       <td style="text-align:center;"> 46.436 </td>
+       <td style="text-align:center;"> 0.213 </td>
+       <td style="text-align:center;"> 0.046 </td>
+       <td style="text-align:center;"> 0.125 </td>
+       <td style="text-align:center;"> 0.21 </td>
+       <td style="text-align:center;"> 0.295 </td>
+       <td style="text-align:center;"> 204.79 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> alpha </td>
-       <td style="text-align:center;"> 0.703 </td>
-       <td style="text-align:center;"> 0.37 </td>
-       <td style="text-align:center;"> 0.171 </td>
-       <td style="text-align:center;"> 0.613 </td>
-       <td style="text-align:center;"> 1.613 </td>
-       <td style="text-align:center;"> 150 </td>
+       <td style="text-align:center;"> 0.752 </td>
+       <td style="text-align:center;"> 0.404 </td>
+       <td style="text-align:center;"> 0.187 </td>
+       <td style="text-align:center;"> 0.678 </td>
+       <td style="text-align:center;"> 1.733 </td>
+       <td style="text-align:center;"> 541.565 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> location[1] </td>
-       <td style="text-align:center;"> 3.657 </td>
-       <td style="text-align:center;"> 2.465 </td>
-       <td style="text-align:center;"> 0.808 </td>
-       <td style="text-align:center;"> 2.289 </td>
-       <td style="text-align:center;"> 7.659 </td>
-       <td style="text-align:center;"> 10.694 </td>
+       <td style="text-align:center;"> 5.06 </td>
+       <td style="text-align:center;"> 2.48 </td>
+       <td style="text-align:center;"> 0.923 </td>
+       <td style="text-align:center;"> 6.499 </td>
+       <td style="text-align:center;"> 7.902 </td>
+       <td style="text-align:center;"> 68.982 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> location[2] </td>
-       <td style="text-align:center;"> 4.068 </td>
-       <td style="text-align:center;"> 2.928 </td>
-       <td style="text-align:center;"> 0.655 </td>
-       <td style="text-align:center;"> 2.45 </td>
-       <td style="text-align:center;"> 9.09 </td>
-       <td style="text-align:center;"> 18.434 </td>
+       <td style="text-align:center;"> 3.143 </td>
+       <td style="text-align:center;"> 2.637 </td>
+       <td style="text-align:center;"> 0.709 </td>
+       <td style="text-align:center;"> 2.287 </td>
+       <td style="text-align:center;"> 9.177 </td>
+       <td style="text-align:center;"> 248.114 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> location[3] </td>
-       <td style="text-align:center;"> 3.007 </td>
-       <td style="text-align:center;"> 3.433 </td>
-       <td style="text-align:center;"> 0.592 </td>
-       <td style="text-align:center;"> 0.81 </td>
-       <td style="text-align:center;"> 10.372 </td>
-       <td style="text-align:center;"> 8.343 </td>
+       <td style="text-align:center;"> 2.572 </td>
+       <td style="text-align:center;"> 2.573 </td>
+       <td style="text-align:center;"> 0.444 </td>
+       <td style="text-align:center;"> 1.502 </td>
+       <td style="text-align:center;"> 9.801 </td>
+       <td style="text-align:center;"> 104.292 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> scale[1] </td>
-       <td style="text-align:center;"> 0.965 </td>
-       <td style="text-align:center;"> 0.523 </td>
-       <td style="text-align:center;"> 0.28 </td>
-       <td style="text-align:center;"> 1.015 </td>
-       <td style="text-align:center;"> 2.006 </td>
-       <td style="text-align:center;"> 14.348 </td>
+       <td style="text-align:center;"> 0.705 </td>
+       <td style="text-align:center;"> 0.558 </td>
+       <td style="text-align:center;"> 0.263 </td>
+       <td style="text-align:center;"> 0.363 </td>
+       <td style="text-align:center;"> 2.13 </td>
+       <td style="text-align:center;"> 63.482 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> scale[2] </td>
-       <td style="text-align:center;"> 1.177 </td>
-       <td style="text-align:center;"> 0.851 </td>
-       <td style="text-align:center;"> 0.294 </td>
-       <td style="text-align:center;"> 1.076 </td>
-       <td style="text-align:center;"> 2.994 </td>
-       <td style="text-align:center;"> 16.202 </td>
+       <td style="text-align:center;"> 1.344 </td>
+       <td style="text-align:center;"> 0.73 </td>
+       <td style="text-align:center;"> 0.284 </td>
+       <td style="text-align:center;"> 1.315 </td>
+       <td style="text-align:center;"> 2.798 </td>
+       <td style="text-align:center;"> 630.231 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> scale[3] </td>
+       <td style="text-align:center;"> 1.853 </td>
+       <td style="text-align:center;"> 0.941 </td>
+       <td style="text-align:center;"> 0.291 </td>
        <td style="text-align:center;"> 1.833 </td>
-       <td style="text-align:center;"> 1.073 </td>
-       <td style="text-align:center;"> 0.284 </td>
-       <td style="text-align:center;"> 1.999 </td>
-       <td style="text-align:center;"> 3.578 </td>
-       <td style="text-align:center;"> 17.734 </td>
+       <td style="text-align:center;"> 3.784 </td>
+       <td style="text-align:center;"> 218.337 </td>
       </tr>
     </tbody>
     </table>
@@ -569,30 +572,36 @@ summary(fit_components)
 ### Residual Analysis
 
 ``` r
+
+# Extract fitted values with diagnostics
 Fit <- fitted(fit_components)
 
-kableExtra::kbl(head(Fit), caption = "Fitted Values, Residuals and Credible Interval", 
-                digits = 3, align = "c") %>%
-  kable_styling(bootstrap_options = "striped", full_width = FALSE, position = "center")
+# Display table
+kableExtra::kbl(head(Fit), caption = "Fitted Values, Residuals and Credible Interval", digits = 3, align = "c") %>%
+ kable_styling(bootstrap_options = "striped", full_width = FALSE, position = "center")
 ```
 
 | fit | lower | upper | residuals | mean | mean_lower | mean_upper | median | median_lower | median_upper |
 |:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
-| 3.56 | 2.38 | 4.55 | -2.912 | 3.56 | 2.38 | 4.55 | 3.13 | 2.35 | 4.47 |
-| 3.56 | 2.38 | 4.55 | -0.685 | 3.56 | 2.38 | 4.55 | 3.13 | 2.35 | 4.47 |
-| 3.56 | 2.38 | 4.55 | 6.285 | 3.56 | 2.38 | 4.55 | 3.13 | 2.35 | 4.47 |
-| 3.56 | 2.38 | 4.55 | -0.374 | 3.56 | 2.38 | 4.55 | 3.13 | 2.35 | 4.47 |
-| 3.56 | 2.38 | 4.55 | 3.738 | 3.56 | 2.38 | 4.55 | 3.13 | 2.35 | 4.47 |
-| 3.56 | 2.38 | 4.55 | 3.530 | 3.56 | 2.38 | 4.55 | 3.13 | 2.35 | 4.47 |
+| 3.89 | 2.81 | 4.9 | -3.245 | 3.89 | 2.81 | 4.9 | 4 | 2.52 | 6.33 |
+| 3.89 | 2.81 | 4.9 | -1.018 | 3.89 | 2.81 | 4.9 | 4 | 2.52 | 6.33 |
+| 3.89 | 2.81 | 4.9 | 5.952 | 3.89 | 2.81 | 4.9 | 4 | 2.52 | 6.33 |
+| 3.89 | 2.81 | 4.9 | -0.707 | 3.89 | 2.81 | 4.9 | 4 | 2.52 | 6.33 |
+| 3.89 | 2.81 | 4.9 | 3.405 | 3.89 | 2.81 | 4.9 | 4 | 2.52 | 6.33 |
+| 3.89 | 2.81 | 4.9 | 3.197 | 3.89 | 2.81 | 4.9 | 4 | 2.52 | 6.33 |
 
-Fitted Values, Residuals and Credible Interval
+Fitted Values, Residuals and Credible Interval {.table .table
+.table-striped
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ``` r
-fit.plots <- plot(Fit)
+
+# Use S3 plot method for diagnostic plots
+fit.plots <- if (interactive()) plot(Fit)
 fit.plots$residual_plot
 ```
 
-![](v06-unconditional-DPmix-CRP_files/figure-html/residuals-analysis-1.png)
+    NULL
 
 ------------------------------------------------------------------------
 
@@ -601,6 +610,7 @@ fit.plots$residual_plot
 #### Laplace Kernel (Current)
 
 ``` r
+
 bundle_laplace <- build_nimble_bundle(
   y = y_mixed,
   kernel = "laplace",
@@ -611,30 +621,18 @@ bundle_laplace <- build_nimble_bundle(
 fit_laplace <- load_or_fit("v06-unconditional-DPmix-CRP-fit_laplace", run_mcmc_bundle_manual(bundle_laplace))
 ```
 
-    ===== Monitors =====
-    thin = 1: alpha, location, scale, z
-    ===== Samplers =====
-    CRP_concentration sampler (1)
-      - alpha
-    CRP_cluster_wrapper sampler (10)
-      - scale[]  (5 elements)
-      - location[]  (5 elements)
-    CRP sampler (1)
-      - z[1:200] 
-
-      [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.
-
 ``` r
+
 summary(fit_laplace)
 ```
 
     MixGPD summary | backend: Chinese Restaurant Process | kernel: Laplace Distribution | GPD tail: FALSE | epsilon: 0.025
     n = 200 | components = 5
     Summary
-    Initial components: 5 | Components after truncation: 3
+    Initial components: 5 | Components after truncation: 2
 
-    WAIC: 896.756
-    lppd: -312.429 | pWAIC: 135.948
+    WAIC: 889.569
+    lppd: -307.083 | pWAIC: 137.701
 
     Summary table
     <table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
@@ -652,93 +650,66 @@ summary(fit_laplace)
     <tbody>
       <tr>
        <td style="text-align:center;"> weights[1] </td>
-       <td style="text-align:center;"> 0.415 </td>
-       <td style="text-align:center;"> 0.038 </td>
-       <td style="text-align:center;"> 0.35 </td>
-       <td style="text-align:center;"> 0.41 </td>
-       <td style="text-align:center;"> 0.49 </td>
-       <td style="text-align:center;"> 29.262 </td>
+       <td style="text-align:center;"> 0.392 </td>
+       <td style="text-align:center;"> 0.053 </td>
+       <td style="text-align:center;"> 0.275 </td>
+       <td style="text-align:center;"> 0.395 </td>
+       <td style="text-align:center;"> 0.48 </td>
+       <td style="text-align:center;"> 151.984 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> weights[2] </td>
-       <td style="text-align:center;"> 0.286 </td>
-       <td style="text-align:center;"> 0.063 </td>
-       <td style="text-align:center;"> 0.194 </td>
-       <td style="text-align:center;"> 0.275 </td>
+       <td style="text-align:center;"> 0.305 </td>
+       <td style="text-align:center;"> 0.055 </td>
+       <td style="text-align:center;"> 0.205 </td>
+       <td style="text-align:center;"> 0.305 </td>
        <td style="text-align:center;"> 0.41 </td>
-       <td style="text-align:center;"> 19.433 </td>
-      </tr>
-      <tr>
-       <td style="text-align:center;"> weights[3] </td>
-       <td style="text-align:center;"> 0.18 </td>
-       <td style="text-align:center;"> 0.04 </td>
-       <td style="text-align:center;"> 0.104 </td>
-       <td style="text-align:center;"> 0.18 </td>
-       <td style="text-align:center;"> 0.251 </td>
-       <td style="text-align:center;"> 30.176 </td>
+       <td style="text-align:center;"> 138.525 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> alpha </td>
-       <td style="text-align:center;"> 0.755 </td>
-       <td style="text-align:center;"> 0.376 </td>
-       <td style="text-align:center;"> 0.189 </td>
-       <td style="text-align:center;"> 0.712 </td>
-       <td style="text-align:center;"> 1.606 </td>
-       <td style="text-align:center;"> 150 </td>
+       <td style="text-align:center;"> 0.737 </td>
+       <td style="text-align:center;"> 0.381 </td>
+       <td style="text-align:center;"> 0.154 </td>
+       <td style="text-align:center;"> 0.677 </td>
+       <td style="text-align:center;"> 1.63 </td>
+       <td style="text-align:center;"> 903.061 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> location[1] </td>
-       <td style="text-align:center;"> 6.514 </td>
-       <td style="text-align:center;"> 1.346 </td>
-       <td style="text-align:center;"> 2.232 </td>
-       <td style="text-align:center;"> 6.936 </td>
-       <td style="text-align:center;"> 7.589 </td>
-       <td style="text-align:center;"> 61.16 </td>
+       <td style="text-align:center;"> 4.736 </td>
+       <td style="text-align:center;"> 2.615 </td>
+       <td style="text-align:center;"> 0.909 </td>
+       <td style="text-align:center;"> 6.299 </td>
+       <td style="text-align:center;"> 7.888 </td>
+       <td style="text-align:center;"> 119.679 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> location[2] </td>
-       <td style="text-align:center;"> 2.223 </td>
-       <td style="text-align:center;"> 1.631 </td>
-       <td style="text-align:center;"> 0.577 </td>
-       <td style="text-align:center;"> 1.714 </td>
-       <td style="text-align:center;"> 7.555 </td>
-       <td style="text-align:center;"> 45.299 </td>
-      </tr>
-      <tr>
-       <td style="text-align:center;"> location[3] </td>
-       <td style="text-align:center;"> 1.37 </td>
-       <td style="text-align:center;"> 0.907 </td>
-       <td style="text-align:center;"> 0.493 </td>
-       <td style="text-align:center;"> 0.891 </td>
-       <td style="text-align:center;"> 2.973 </td>
-       <td style="text-align:center;"> 53.128 </td>
+       <td style="text-align:center;"> 3.459 </td>
+       <td style="text-align:center;"> 2.822 </td>
+       <td style="text-align:center;"> 0.718 </td>
+       <td style="text-align:center;"> 2.326 </td>
+       <td style="text-align:center;"> 9.378 </td>
+       <td style="text-align:center;"> 413.229 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> scale[1] </td>
-       <td style="text-align:center;"> 0.39 </td>
-       <td style="text-align:center;"> 0.224 </td>
+       <td style="text-align:center;"> 0.789 </td>
+       <td style="text-align:center;"> 0.586 </td>
        <td style="text-align:center;"> 0.263 </td>
-       <td style="text-align:center;"> 0.33 </td>
-       <td style="text-align:center;"> 1.123 </td>
-       <td style="text-align:center;"> 33.621 </td>
+       <td style="text-align:center;"> 0.392 </td>
+       <td style="text-align:center;"> 2.135 </td>
+       <td style="text-align:center;"> 103.007 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> scale[2] </td>
-       <td style="text-align:center;"> 1.573 </td>
-       <td style="text-align:center;"> 0.669 </td>
-       <td style="text-align:center;"> 0.32 </td>
-       <td style="text-align:center;"> 1.457 </td>
-       <td style="text-align:center;"> 2.991 </td>
-       <td style="text-align:center;"> 34.794 </td>
-      </tr>
-      <tr>
-       <td style="text-align:center;"> scale[3] </td>
-       <td style="text-align:center;"> 2.425 </td>
-       <td style="text-align:center;"> 0.943 </td>
-       <td style="text-align:center;"> 0.991 </td>
-       <td style="text-align:center;"> 2.371 </td>
-       <td style="text-align:center;"> 4.59 </td>
-       <td style="text-align:center;"> 64.012 </td>
+       <td style="text-align:center;"> 1.265 </td>
+       <td style="text-align:center;"> 0.739 </td>
+       <td style="text-align:center;"> 0.267 </td>
+       <td style="text-align:center;"> 1.262 </td>
+       <td style="text-align:center;"> 2.669 </td>
+       <td style="text-align:center;"> 415.897 </td>
       </tr>
     </tbody>
     </table>
@@ -746,6 +717,7 @@ summary(fit_laplace)
 #### Amoroso Kernel (Alternative)
 
 ``` r
+
 bundle_amoroso <- build_nimble_bundle(
   y = y_mixed,
   kernel = "amoroso",
@@ -756,22 +728,8 @@ bundle_amoroso <- build_nimble_bundle(
 fit_amoroso <- load_or_fit("v06-unconditional-DPmix-CRP-fit_amoroso", run_mcmc_bundle_manual(bundle_amoroso))
 ```
 
-    ===== Monitors =====
-    thin = 1: alpha, loc, scale, shape1, shape2, z
-    ===== Samplers =====
-    CRP_concentration sampler (1)
-      - alpha
-    CRP_cluster_wrapper sampler (20)
-      - loc[]  (5 elements)
-      - scale[]  (5 elements)
-      - shape1[]  (5 elements)
-      - shape2[]  (5 elements)
-    CRP sampler (1)
-      - z[1:200] 
-
-      [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.
-
 ``` r
+
 summary(fit_amoroso)
 ```
 
@@ -780,8 +738,8 @@ summary(fit_amoroso)
     Summary
     Initial components: 5 | Components after truncation: 1
 
-    WAIC: 955.64
-    lppd: -445.666 | pWAIC: 32.154
+    WAIC: 921.494
+    lppd: -418.642 | pWAIC: 42.105
 
     Summary table
     <table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
@@ -799,57 +757,57 @@ summary(fit_amoroso)
     <tbody>
       <tr>
        <td style="text-align:center;"> weights[1] </td>
-       <td style="text-align:center;"> 0.869 </td>
-       <td style="text-align:center;"> 0.164 </td>
-       <td style="text-align:center;"> 0.527 </td>
-       <td style="text-align:center;"> 0.968 </td>
+       <td style="text-align:center;"> 0.901 </td>
+       <td style="text-align:center;"> 0.175 </td>
+       <td style="text-align:center;"> 0.495 </td>
        <td style="text-align:center;"> 1 </td>
-       <td style="text-align:center;"> 4.063 </td>
+       <td style="text-align:center;"> 1 </td>
+       <td style="text-align:center;"> 4.591 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> alpha </td>
-       <td style="text-align:center;"> 0.346 </td>
-       <td style="text-align:center;"> 0.344 </td>
-       <td style="text-align:center;"> 0.014 </td>
-       <td style="text-align:center;"> 0.212 </td>
-       <td style="text-align:center;"> 1.273 </td>
-       <td style="text-align:center;"> 56.418 </td>
+       <td style="text-align:center;"> 0.292 </td>
+       <td style="text-align:center;"> 0.29 </td>
+       <td style="text-align:center;"> 0.007 </td>
+       <td style="text-align:center;"> 0.201 </td>
+       <td style="text-align:center;"> 1.101 </td>
+       <td style="text-align:center;"> 140.654 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> loc[1] </td>
-       <td style="text-align:center;"> 0.038 </td>
-       <td style="text-align:center;"> 0.186 </td>
-       <td style="text-align:center;"> -0.086 </td>
-       <td style="text-align:center;"> 0.008 </td>
-       <td style="text-align:center;"> 0.681 </td>
-       <td style="text-align:center;"> 11.853 </td>
+       <td style="text-align:center;"> 0.017 </td>
+       <td style="text-align:center;"> 0.32 </td>
+       <td style="text-align:center;"> -0.385 </td>
+       <td style="text-align:center;"> 0.01 </td>
+       <td style="text-align:center;"> 1.264 </td>
+       <td style="text-align:center;"> 257.023 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> scale[1] </td>
-       <td style="text-align:center;"> 1.577 </td>
-       <td style="text-align:center;"> 0.675 </td>
-       <td style="text-align:center;"> 0.907 </td>
-       <td style="text-align:center;"> 1.287 </td>
-       <td style="text-align:center;"> 3.683 </td>
-       <td style="text-align:center;"> 6.43 </td>
+       <td style="text-align:center;"> 2.333 </td>
+       <td style="text-align:center;"> 1.18 </td>
+       <td style="text-align:center;"> 0.543 </td>
+       <td style="text-align:center;"> 2.213 </td>
+       <td style="text-align:center;"> 4.932 </td>
+       <td style="text-align:center;"> 14.698 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> shape1[1] </td>
-       <td style="text-align:center;"> 1.847 </td>
-       <td style="text-align:center;"> 0.325 </td>
-       <td style="text-align:center;"> 1.102 </td>
-       <td style="text-align:center;"> 1.941 </td>
-       <td style="text-align:center;"> 2.289 </td>
-       <td style="text-align:center;"> 2.79 </td>
+       <td style="text-align:center;"> 1.624 </td>
+       <td style="text-align:center;"> 0.617 </td>
+       <td style="text-align:center;"> 0.532 </td>
+       <td style="text-align:center;"> 1.524 </td>
+       <td style="text-align:center;"> 2.98 </td>
+       <td style="text-align:center;"> 19.586 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> shape2[1] </td>
-       <td style="text-align:center;"> 0.717 </td>
-       <td style="text-align:center;"> 0.09 </td>
-       <td style="text-align:center;"> 0.61 </td>
-       <td style="text-align:center;"> 0.709 </td>
-       <td style="text-align:center;"> 0.924 </td>
-       <td style="text-align:center;"> 7.017 </td>
+       <td style="text-align:center;"> 0.91 </td>
+       <td style="text-align:center;"> 0.326 </td>
+       <td style="text-align:center;"> 0.566 </td>
+       <td style="text-align:center;"> 0.834 </td>
+       <td style="text-align:center;"> 1.943 </td>
+       <td style="text-align:center;"> 10.792 </td>
       </tr>
     </tbody>
     </table>
@@ -857,32 +815,37 @@ summary(fit_amoroso)
 #### Model Comparison via Predictions
 
 ``` r
+
 # Compare fitted values using S3 plot method
 fitted_laplace <- fitted(fit_laplace)
 fitted_amoroso <- fitted(fit_amoroso)
 # Plot diagnostics for both models
-g.plot <- plot(fitted_laplace)
-l.plot <- plot(fitted_amoroso)
+g.plot <- if (interactive()) plot(fitted_laplace)
+l.plot <- if (interactive()) plot(fitted_amoroso)
 ```
 
 ``` r
-p_gamma <- g.plot$observed_fitted_plot +
-  ggtitle("Laplace kernel") +
-  theme(plot.title = element_text(hjust = 0.5))
 
-p_lognormal <- l.plot$observed_fitted_plot +
-  ggtitle("Amoroso kernel") +
-  theme(plot.title = element_text(hjust = 0.5))
+p_gamma <- g.plot$observed_fitted_plot
+p_lognormal <- l.plot$observed_fitted_plot
 
-p_gamma + p_lognormal +
-  plot_layout(ncol = 2) +
-  plot_annotation(
-    title = "Observed vs Fitted"
-  ) +
-  theme(plot.title = element_text(hjust = 0.5))
+plots <- list(
+  if (inherits(p_gamma, "ggplot")) p_gamma + ggtitle("Laplace kernel") else NULL,
+  if (inherits(p_lognormal, "ggplot")) p_lognormal + ggtitle("Amoroso kernel") else NULL
+)
+plots <- Filter(Negate(is.null), plots)
+
+if (length(plots) == 0) {
+  plot.new()
+  text(0.5, 0.5, "Observed vs Fitted plots unavailable", cex = 1.1)
+} else {
+  patchwork::wrap_plots(plots, ncol = 2) +
+    patchwork::plot_annotation(title = "Observed vs Fitted") &
+    theme(plot.title = element_text(hjust = 0.5))
+}
 ```
 
-![](v06-unconditional-DPmix-CRP_files/figure-html/unnamed-chunk-6-1.png)
+![](articles/workflows/legacy-cache/figure-htmlunnamed-chunk-6-1.png)
 
 ### Key Takeaways
 

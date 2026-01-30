@@ -29,6 +29,7 @@ or running DPmixGPD models.
 **Fix**: Use the same column names and order as the training matrix.
 
 ``` r
+
 X_train <- fit$data$X
 X_new <- X_train[1:5, , drop = FALSE]
 X_new <- X_new[, colnames(X_train), drop = FALSE]
@@ -45,6 +46,7 @@ predict(fit, x = X_new, type = "mean")
 **Fix**: Use a different kernel or disable GPD.
 
 ``` r
+
 bundle <- build_nimble_bundle(
   y = y,
   kernel = "cauchy",
@@ -60,9 +62,10 @@ bundle <- build_nimble_bundle(
 **Cause**: Observational causal modeling requires covariates for PS
 estimation.
 
-**Fix**: Provide `X`, or switch to `design = "rct"`.
+**Fix**: Provide `X`, or switch to .
 
 ``` r
+
 cb <- build_causal_bundle(
   y = y,
   T = T,
@@ -81,6 +84,7 @@ cb <- build_causal_bundle(
 **Fix**: Increase iterations or relax tail priors.
 
 ``` r
+
 bundle <- build_nimble_bundle(
   y = y,
   kernel = "gamma",
@@ -100,6 +104,7 @@ bundle <- build_nimble_bundle(
 **Fix**: Set a higher limit or use `ncores = 1`.
 
 ``` r
+
 options(future.globals.maxSize = 4 * 1024^3)
 
 pred <- predict(fit, x = X_new, y = y_grid, type = "density", ncores = 2)
@@ -115,6 +120,7 @@ pred <- predict(fit, x = X_new, y = y_grid, type = "density", ncores = 2)
 CRP.
 
 ``` r
+
 bundle <- build_nimble_bundle(
   y = y,
   backend = "crp",
@@ -135,6 +141,7 @@ summaries.
 observation-specific fitted values.
 
 ``` r
+
 fit_vals <- fitted(fit)
 head(fit_vals)
 ```
@@ -148,6 +155,7 @@ head(fit_vals)
 **Fix**: Provide `X` and enable PS.
 
 ``` r
+
 cb <- build_causal_bundle(
   y = y,
   T = T,
@@ -167,6 +175,7 @@ fit <- run_mcmc_causal(cb)
 positive-support or both real-line).
 
 ``` r
+
 cb <- build_causal_bundle(
   y = y,
   T = T,

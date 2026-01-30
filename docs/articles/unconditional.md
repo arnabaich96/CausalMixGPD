@@ -17,6 +17,7 @@ kernel beyond a threshold $`u`$ to stabilize tail behavior.
 ## Model Fitting
 
 ``` r
+
 library(DPmixGPD)
 
 data("faithful", package = "datasets")
@@ -84,45 +85,10 @@ summary(res)
 ## Diagnostic Plots
 
 ``` r
+
 if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quietly = TRUE)) {
-  plot(fit)
+  if (interactive()) plot(fit)
 } else {
   message("Plotting requires 'ggmcmc' and 'coda' packages.")
 }
-
-=== histogram ===
 ```
-
-![](unconditional_files/figure-html/unnamed-chunk-5-1.png)
-
-    === density ===
-
-![](unconditional_files/figure-html/unnamed-chunk-5-2.png)
-
-    === traceplot ===
-
-![](unconditional_files/figure-html/unnamed-chunk-5-3.png)
-
-    === running ===
-
-![](unconditional_files/figure-html/unnamed-chunk-5-4.png)
-
-    === compare_partial ===
-
-![](unconditional_files/figure-html/unnamed-chunk-5-5.png)
-
-    === autocorrelation ===
-
-![](unconditional_files/figure-html/unnamed-chunk-5-6.png)
-
-    === geweke ===
-
-![](unconditional_files/figure-html/unnamed-chunk-5-7.png)
-
-    === caterpillar ===
-
-![](unconditional_files/figure-html/unnamed-chunk-5-8.png)
-
-    === pairs ===
-
-![](unconditional_files/figure-html/unnamed-chunk-5-9.png)

@@ -98,6 +98,7 @@ for confounding adjustment.
 #### Direct Model Building
 
 ``` r
+
 bundle <- build_nimble_bundle(
   y = y,
   kernel = "gamma",
@@ -114,6 +115,7 @@ fit <- run_mcmc_bundle_manual(bundle)
 ### Quick Start
 
 ``` r
+
 # Load packaged dataset
 data("nc_pos200_k3")
 y <- nc_pos200_k3$y
@@ -170,18 +172,21 @@ print(bundle)
 ### Dependencies
 
 ``` r
+
 packageVersion("DPmixGPD")
 ```
 
     [1] '0.0.9'
 
 ``` r
+
 packageVersion("nimble")
 ```
 
     [1] '1.4.0'
 
 ``` r
+
 packageVersion("ggplot2")
 ```
 

@@ -1,7 +1,8 @@
-﻿---
+---
 title: "3. Basic Workflow: Model Specification, Bundle, & MCMC"
-output: 
+output:
   rmarkdown::html_vignette:
+    highlight: null
     code_folding: show
 vignette: >
   %\VignetteIndexEntry{3. Basic Workflow: Model Specification, Bundle, & MCMC}
@@ -32,7 +33,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
-devtools::load_all()
+pkgload::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -125,7 +126,7 @@ params_fit
 
 ```{r mcmc-diagnostics}
 # Trace plots
-plot(fit, params = "alpha|beta", family = c("traceplot", "running", "autocorrelation"))
+if (interactive()) plot(fit, params = "alpha|beta", family = c("traceplot", "running", "autocorrelation"))
 ```
 
 ---
@@ -273,6 +274,8 @@ print("Extreme outliers:  cauchy\n")
 - Move to **vignette 8-9** for tail modeling with GPD
 - Move to **vignette 10-13** for conditional models with covariates
 - Move to **vignette 14-19** for causal inference workflows
+
+
 
 
 

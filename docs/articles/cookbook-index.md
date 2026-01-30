@@ -1,100 +1,96 @@
 # Recipe Book
 
-## Menu Notes
+## Recipe Book
+
+### Menu Notes
 
 This section contains documentation from previous versions of DPmixGPD.
 These vignettes are preserved for reference and may not reflect the
 current API exactly.
 
 > **Note**: For the most up-to-date documentation, please refer to the
-> [Manual](https://arnabaich96.github.io/DPmixGPD/articles/manual-index.md)
+> [Pantry](https://arnabaich96.github.io/DPmixGPD/articles/manual-index.md)
 > section.
 
-### Getting Started (Cookbook)
+### Starters
 
-- [**v00 - Start
-  Here**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v00-start-here.md) -
+- [**Starter Broth (Start
+  Here)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v00-start-here.md) -
   Original quick start guide
-- [**v01 -
-  Introduction**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v01-introduction.md) -
+- [**Chef’s Notes
+  (Introduction)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v01-introduction.md) -
   Package overview and motivation
-- [**v02 - Available
-  Distributions**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v02-available-distributions.md) -
-  Detailed distribution catalog with visualizations
+- [**Spice Rack Sampler
+  (Distributions)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v02-available-distributions.md) -
+  Distribution catalog with visualizations
 
-### Core Concepts
+### Entrees
 
-- [**v03 - Basic Model Compile &
-  Run**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v03-basic-model-compile-run.md) -
+- [**Mainline Sear (Compile &
+  Run)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v03-basic-model-compile-run.md) -
   Step-by-step model building
-- [**v04 - Backends and
-  Workflow**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v04-backends-and-workflow.md) -
+- [**Two-Oven Roast
+  (Backends)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v04-backends-and-workflow.md) -
   CRP vs SB backend comparison
 
-### Unconditional Models
+### Mains (Unconditional)
 
-Density estimation without covariates:
-
-- [**v05 - DPmix
-  CRP**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v05-unconditional-DPmix-CRP.md) -
+- [**Classic Stew
+  (CRP)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v05-unconditional-DPmix-CRP.md) -
   Basic CRP mixture model
-- [**v06 - DPmix CRP
-  Extended**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v06-unconditional-DPmix-CRP.md) -
+- [**Extended Braise (CRP
+  Extended)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v06-unconditional-DPmix-CRP.md) -
   Extended CRP examples with diagnostics
-- [**v07 - DPmix
-  SB**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v07-unconditional-DPmix-SB.md) -
+- [**Layered Lasagna
+  (SB)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v07-unconditional-DPmix-SB.md) -
   Stick-Breaking mixture model
-- [**v08 - DPmixGPD
-  CRP**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v08-unconditional-DPmixGPD-CRP.md) -
+- [**Tail-Spice Chili (GPD
+  CRP)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v08-unconditional-DPmixGPD-CRP.md) -
   CRP with GPD tail
-- [**v09 - DPmixGPD
-  SB**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v09-unconditional-DPmixGPD-SB.md) -
+- [**Tail-Spice Bake (GPD
+  SB)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v09-unconditional-DPmixGPD-SB.md) -
   Stick-Breaking with GPD tail
 
-### Conditional Models
+### Sides (Conditional)
 
-Covariate-dependent density estimation:
-
-- [**v10 - DPmix
-  CRP**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v10-conditional-DPmix-CRP.md) -
+- [**Seasoned Sides
+  (CRP)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v10-conditional-DPmix-CRP.md) -
   Conditional CRP mixture
-- [**v11 - DPmix
-  SB**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v11-conditional-DPmix-SB.md) -
+- [**Stirred Layers
+  (SB)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v11-conditional-DPmix-SB.md) -
   Conditional Stick-Breaking mixture
-- [**v12 - DPmixGPD
-  CRP**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v12-conditional-DPmixGPD-CRP.md) -
+- [**Citrus Tart (GPD
+  CRP)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v12-conditional-DPmixGPD-CRP.md) -
   Conditional CRP with GPD tail
-- [**v13 - DPmixGPD
-  SB**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v13-conditional-DPmixGPD-SB.md) -
+- [**Glazed Side (GPD
+  SB)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v13-conditional-DPmixGPD-SB.md) -
   Conditional Stick-Breaking with GPD tail
 
-### Causal Inference
+### Desserts (Causal)
 
-Treatment effect estimation:
-
-- [**v14 - No Covariates
-  CRP**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v14-causal-no-x-CRP.md) -
+- [**Simple Sweet (No
+  Covariates)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v14-causal-no-x-CRP.md) -
   Causal inference without confounders
-- [**v15 - With Covariates
-  SB**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v15-causal-x-no-ps-SB.md) -
+- [**Layer Cake (With
+  Covariates)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v15-causal-x-no-ps-SB.md) -
   Causal inference with covariates
-- [**v16 - Same Backend
-  CRP**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v16-causal-same-backend-CRP.md) -
+- [**Twin Scoops (Same Backend
+  CRP)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v16-causal-same-backend-CRP.md) -
   Treatment/control with same CRP backend
-- [**v17 - Same Backend
-  SB**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v17-causal-same-backend-SB.md) -
+- [**Twin Parfaits (Same Backend
+  SB)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v17-causal-same-backend-SB.md) -
   Treatment/control with same SB backend
-- [**v18 - Different Backends
-  CRP**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v18-causal-different-backends-CRP.md) -
+- [**Two-Style Tasting (Different
+  CRP)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v18-causal-different-backends-CRP.md) -
   Mixed backend causal analysis
-- [**v19 - Different Backends
-  SB**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v19-causal-different-backends-SB.md) -
+- [**Split Plating (Different
+  SB)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v19-causal-different-backends-SB.md) -
   Mixed backend causal analysis
 
-### Troubleshooting
+### Kitchen Notes
 
-- [**v20 -
-  Troubleshooting**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v20-troubleshooting.md) -
+- [**Fix-It Fry
+  (Troubleshooting)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v20-troubleshooting.md) -
   Common issues and solutions
 
 ### Why This Recipe Book?

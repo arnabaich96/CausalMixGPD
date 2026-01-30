@@ -1,10 +1,9 @@
 # Fitted values and residuals for a MixGPD fit
 
-Computes fitted values and residuals on the original training data.
-Returns a data frame with point estimates, credible intervals, and
-residuals. For unconditional models (no covariates), returns the
-population mean replicated for all observations. For conditional models,
-returns individual predictions.
+Computes fitted values and residuals on the original training data for
+**conditional (covariate) models only**. Returns a data frame with point
+estimates, credible intervals, and residuals. Not supported for unconditional
+models (no covariates); use `predict()` for predictions in that case.
 
 ## Usage
 

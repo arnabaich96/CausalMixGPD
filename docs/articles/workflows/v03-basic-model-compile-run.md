@@ -1,10 +1,12 @@
-# Workflow 3: Basic Workflow: Model Specification, Bundle, & MCMC
+# 3. Basic Workflow: Model Specification, Bundle, & MCMC
 
-### Theory (brief)
-
-The workflow builds a DP mixture model, compiles the NIMBLE code, and
-then explores the posterior with MCMC. Posterior draws are used to
-summarize density, quantiles, and uncertainty in model parameters.
+> **Legacy vignette (for the website / historical notes).** These files
+> may not match the current exported API one-to-one. Last verified:
+> **2026-01-18**.
+>
+> For the up-to-date workflow, see the main package vignettes
+> (Introduction, Model Spec, MCMC Workflow,
+> Unconditional/Conditional/Causal, Backends, S3 Reference).
 
 ## Workflow Overview
 
@@ -24,6 +26,7 @@ MCMC execution.
 #### Building Directly
 
 ``` r
+
 # Load packaged data
 data("nc_pos200_k3")
 y <- nc_pos200_k3$y
@@ -46,6 +49,7 @@ print("Direct bundle creation successful.\n")
 #### Inspecting Bundle Contents
 
 ``` r
+
 # Bundle is an S3 object with structure
 cat("Bundle class:", class(bundle_direct), "\n")
 ```
@@ -53,12 +57,14 @@ cat("Bundle class:", class(bundle_direct), "\n")
     Bundle class: dpmixgpd_bundle 
 
 ``` r
+
 cat("Bundle contains:\n")
 ```
 
     Bundle contains:
 
 ``` r
+
 print(names(bundle_direct))
 ```
 
@@ -66,13 +72,16 @@ print(names(bundle_direct))
     [6] "inits"      "monitors"   "mcmc"       "epsilon"   
 
 ``` r
+
 # Access key components
 cat("\nMCMC settings:\n")
 ```
 
+
     MCMC settings:
 
 ``` r
+
 print(bundle_direct$mcmc_settings)
 ```
 
@@ -87,30 +96,17 @@ print(bundle_direct$mcmc_settings)
 #### Basic MCMC Run
 
 ``` r
+
 # Run MCMC
 fit <- load_or_fit("v03-basic-model-compile-run-fit", run_mcmc_bundle_manual(bundle_direct, show_progress = FALSE))
-```
 
-    ===== Monitors =====
-    thin = 1: alpha, scale, shape, z
-    ===== Samplers =====
-    CRP_concentration sampler (1)
-      - alpha
-    CRP_cluster_wrapper sampler (10)
-      - scale[]  (5 elements)
-      - shape[]  (5 elements)
-    CRP sampler (1)
-      - z[1:200] 
-
-      [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.
-
-``` r
 cat("Fit object class:", class(fit), "\n")
 ```
 
     Fit object class: mixgpd_fit list 
 
 ``` r
+
 cat("MCMC execution complete. Posterior samples collected.\n")
 ```
 
@@ -119,6 +115,7 @@ cat("MCMC execution complete. Posterior samples collected.\n")
 #### Accessing Posterior Samples
 
 ``` r
+
 # Posterior summary
 print("\n--- POSTERIOR SUMMARY ---\n")
 ```
@@ -126,6 +123,7 @@ print("\n--- POSTERIOR SUMMARY ---\n")
     [1] "\n--- POSTERIOR SUMMARY ---\n"
 
 ``` r
+
 summary(fit)
 ```
 
@@ -134,8 +132,8 @@ summary(fit)
     Summary
     Initial components: 5 | Components after truncation: 1
 
-    WAIC: 963.248
-    lppd: -456.908 | pWAIC: 24.716
+    WAIC: 929.279
+    lppd: -399.887 | pWAIC: 64.752
 
     Summary table
     <table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
@@ -153,44 +151,45 @@ summary(fit)
     <tbody>
       <tr>
        <td style="text-align:center;"> weights[1] </td>
-       <td style="text-align:center;"> 0.883 </td>
-       <td style="text-align:center;"> 0.138 </td>
-       <td style="text-align:center;"> 0.474 </td>
-       <td style="text-align:center;"> 0.917 </td>
+       <td style="text-align:center;"> 0.684 </td>
+       <td style="text-align:center;"> 0.216 </td>
+       <td style="text-align:center;"> 0.36 </td>
+       <td style="text-align:center;"> 0.63 </td>
        <td style="text-align:center;"> 1 </td>
-       <td style="text-align:center;"> 8.469 </td>
+       <td style="text-align:center;"> 25.041 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> alpha </td>
-       <td style="text-align:center;"> 0.457 </td>
-       <td style="text-align:center;"> 0.398 </td>
-       <td style="text-align:center;"> 0.022 </td>
-       <td style="text-align:center;"> 0.354 </td>
-       <td style="text-align:center;"> 1.503 </td>
-       <td style="text-align:center;"> 42.38 </td>
+       <td style="text-align:center;"> 0.559 </td>
+       <td style="text-align:center;"> 0.388 </td>
+       <td style="text-align:center;"> 0.028 </td>
+       <td style="text-align:center;"> 0.498 </td>
+       <td style="text-align:center;"> 1.526 </td>
+       <td style="text-align:center;"> 204.872 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> shape[1] </td>
-       <td style="text-align:center;"> 1.161 </td>
-       <td style="text-align:center;"> 0.151 </td>
-       <td style="text-align:center;"> 0.915 </td>
-       <td style="text-align:center;"> 1.159 </td>
+       <td style="text-align:center;"> 1.784 </td>
+       <td style="text-align:center;"> 0.847 </td>
+       <td style="text-align:center;"> 0.943 </td>
        <td style="text-align:center;"> 1.483 </td>
-       <td style="text-align:center;"> 14.106 </td>
+       <td style="text-align:center;"> 3.912 </td>
+       <td style="text-align:center;"> 27.633 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> scale[1] </td>
-       <td style="text-align:center;"> 0.265 </td>
-       <td style="text-align:center;"> 0.037 </td>
-       <td style="text-align:center;"> 0.204 </td>
-       <td style="text-align:center;"> 0.266 </td>
-       <td style="text-align:center;"> 0.338 </td>
-       <td style="text-align:center;"> 25.996 </td>
+       <td style="text-align:center;"> 0.494 </td>
+       <td style="text-align:center;"> 0.343 </td>
+       <td style="text-align:center;"> 0.212 </td>
+       <td style="text-align:center;"> 0.35 </td>
+       <td style="text-align:center;"> 1.402 </td>
+       <td style="text-align:center;"> 59.82 </td>
       </tr>
     </tbody>
     </table>
 
 ``` r
+
 # Posterior mean parameters in original form
 params_fit <- params(fit)
 params_fit
@@ -199,40 +198,31 @@ params_fit
     Posterior mean parameters
 
     $alpha
-    [1] "0.457"
+    [1] "0.559"
 
     $w
-    [1] "0.883"
+    [1] "0.684"
 
     $shape
-    [1] "1.161"
+    [1] "1.784"
 
     $scale
-    [1] "0.265"
+    [1] "0.494"
 
 #### Diagnostic Plots
 
 ``` r
-plot(fit, params = "shape", family = "traceplot")
+
+# Trace plots
+if (interactive()) plot(fit, params = "alpha|beta", family = c("traceplot", "running", "autocorrelation"))
 ```
-
-    === traceplot ===
-
-![](v03-basic-model-compile-run_files/figure-html/mcmc-diagnostics-1.png)
-
-``` r
-plot(fit, params = "scale", family = "caterpillar")
-```
-
-    === caterpillar ===
-
-![](v03-basic-model-compile-run_files/figure-html/mcmc-diagnostics-2.png)
 
 ------------------------------------------------------------------------
 
 ### Complete Workflow: End-to-End Example
 
 ``` r
+
 # Load packaged data
 data("nc_pos200_k3")
 y_data <- nc_pos200_k3$y
@@ -249,38 +239,24 @@ bundle_final <- build_nimble_bundle(
 
 # PHASE 2: MCMC
 fit_final <- load_or_fit("v03-basic-model-compile-run-fit_final", run_mcmc_bundle_manual(bundle_final, show_progress = FALSE))
-```
 
-    ===== Monitors =====
-    thin = 1: alpha, scale, shape, z
-    ===== Samplers =====
-    CRP_concentration sampler (1)
-      - alpha
-    CRP_cluster_wrapper sampler (10)
-      - scale[]  (5 elements)
-      - shape[]  (5 elements)
-    CRP sampler (1)
-      - z[1:200] 
-
-      [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.
-
-``` r
 print("\n=== THREE-PHASE WORKFLOW COMPLETE ===\n")
 ```
 
     [1] "\n=== THREE-PHASE WORKFLOW COMPLETE ===\n"
 
 ``` r
+
 summary(fit_final)
 ```
 
     MixGPD summary | backend: Chinese Restaurant Process | kernel: Gamma Distribution | GPD tail: FALSE | epsilon: 0.025
     n = 200 | components = 5
     Summary
-    Initial components: 5 | Components after truncation: 2
+    Initial components: 5 | Components after truncation: 1
 
-    WAIC: 906.001
-    lppd: -382.021 | pWAIC: 70.979
+    WAIC: 943.55
+    lppd: -417.985 | pWAIC: 53.791
 
     Summary table
     <table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
@@ -298,66 +274,39 @@ summary(fit_final)
     <tbody>
       <tr>
        <td style="text-align:center;"> weights[1] </td>
-       <td style="text-align:center;"> 0.544 </td>
-       <td style="text-align:center;"> 0.074 </td>
-       <td style="text-align:center;"> 0.408 </td>
-       <td style="text-align:center;"> 0.54 </td>
-       <td style="text-align:center;"> 0.681 </td>
-       <td style="text-align:center;"> 20.835 </td>
-      </tr>
-      <tr>
-       <td style="text-align:center;"> weights[2] </td>
-       <td style="text-align:center;"> 0.358 </td>
-       <td style="text-align:center;"> 0.077 </td>
-       <td style="text-align:center;"> 0.187 </td>
-       <td style="text-align:center;"> 0.37 </td>
-       <td style="text-align:center;"> 0.48 </td>
-       <td style="text-align:center;"> 22.198 </td>
+       <td style="text-align:center;"> 0.701 </td>
+       <td style="text-align:center;"> 0.192 </td>
+       <td style="text-align:center;"> 0.39 </td>
+       <td style="text-align:center;"> 0.665 </td>
+       <td style="text-align:center;"> 1 </td>
+       <td style="text-align:center;"> 27.636 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> alpha </td>
-       <td style="text-align:center;"> 0.607 </td>
-       <td style="text-align:center;"> 0.389 </td>
-       <td style="text-align:center;"> 0.134 </td>
-       <td style="text-align:center;"> 0.519 </td>
-       <td style="text-align:center;"> 1.59 </td>
-       <td style="text-align:center;"> 104.174 </td>
+       <td style="text-align:center;"> 0.543 </td>
+       <td style="text-align:center;"> 0.388 </td>
+       <td style="text-align:center;"> 0.037 </td>
+       <td style="text-align:center;"> 0.464 </td>
+       <td style="text-align:center;"> 1.511 </td>
+       <td style="text-align:center;"> 183.632 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> shape[1] </td>
-       <td style="text-align:center;"> 2.091 </td>
-       <td style="text-align:center;"> 0.573 </td>
-       <td style="text-align:center;"> 1.344 </td>
-       <td style="text-align:center;"> 2.135 </td>
-       <td style="text-align:center;"> 3.367 </td>
-       <td style="text-align:center;"> 14.987 </td>
-      </tr>
-      <tr>
-       <td style="text-align:center;"> shape[2] </td>
-       <td style="text-align:center;"> 2.805 </td>
-       <td style="text-align:center;"> 0.895 </td>
-       <td style="text-align:center;"> 1.179 </td>
-       <td style="text-align:center;"> 2.992 </td>
-       <td style="text-align:center;"> 4.062 </td>
-       <td style="text-align:center;"> 11.818 </td>
+       <td style="text-align:center;"> 1.599 </td>
+       <td style="text-align:center;"> 0.622 </td>
+       <td style="text-align:center;"> 0.926 </td>
+       <td style="text-align:center;"> 1.422 </td>
+       <td style="text-align:center;"> 3.312 </td>
+       <td style="text-align:center;"> 35.47 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> scale[1] </td>
-       <td style="text-align:center;"> 0.583 </td>
-       <td style="text-align:center;"> 0.298 </td>
-       <td style="text-align:center;"> 0.28 </td>
-       <td style="text-align:center;"> 0.43 </td>
-       <td style="text-align:center;"> 1.17 </td>
-       <td style="text-align:center;"> 19.365 </td>
-      </tr>
-      <tr>
-       <td style="text-align:center;"> scale[2] </td>
-       <td style="text-align:center;"> 1.032 </td>
-       <td style="text-align:center;"> 0.644 </td>
-       <td style="text-align:center;"> 0.304 </td>
-       <td style="text-align:center;"> 0.844 </td>
-       <td style="text-align:center;"> 2.226 </td>
-       <td style="text-align:center;"> 4.07 </td>
+       <td style="text-align:center;"> 0.409 </td>
+       <td style="text-align:center;"> 0.266 </td>
+       <td style="text-align:center;"> 0.198 </td>
+       <td style="text-align:center;"> 0.299 </td>
+       <td style="text-align:center;"> 1.132 </td>
+       <td style="text-align:center;"> 40.43 </td>
       </tr>
     </tbody>
     </table>
@@ -369,6 +318,7 @@ summary(fit_final)
 #### CRP Backend
 
 ``` r
+
 # Chinese Restaurant Process
 bundle_crp <- build_nimble_bundle(
   y = y_data,
@@ -379,22 +329,6 @@ bundle_crp <- build_nimble_bundle(
 )
 
 fit_crp <- load_or_fit("v03-basic-model-compile-run-fit_crp", run_mcmc_bundle_manual(bundle_crp, show_progress = FALSE))
-```
-
-    ===== Monitors =====
-    thin = 1: alpha, scale, shape, z
-    ===== Samplers =====
-    CRP_concentration sampler (1)
-      - alpha
-    CRP_cluster_wrapper sampler (10)
-      - scale[]  (5 elements)
-      - shape[]  (5 elements)
-    CRP sampler (1)
-      - z[1:200] 
-
-      [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.
-
-``` r
 print("CRP execution complete.\n")
 ```
 
@@ -403,6 +337,7 @@ print("CRP execution complete.\n")
 #### Stick-Breaking Backend
 
 ``` r
+
 # Stick-Breaking Process
 bundle_sb <- build_nimble_bundle(
   y = y_data,
@@ -413,21 +348,6 @@ bundle_sb <- build_nimble_bundle(
 )
 
 fit_sb <- load_or_fit("v03-basic-model-compile-run-fit_sb", run_mcmc_bundle_manual(bundle_sb, show_progress = FALSE))
-```
-
-    ===== Monitors =====
-    thin = 1: alpha, scale, shape, w, z
-    ===== Samplers =====
-    RW sampler (10)
-      - alpha
-      - shape[]  (5 elements)
-      - v[]  (4 elements)
-    conjugate sampler (5)
-      - scale[]  (5 elements)
-    categorical sampler (200)
-      - z[]  (200 elements)
-
-``` r
 print("SB execution complete.\n")
 ```
 
@@ -438,6 +358,7 @@ print("SB execution complete.\n")
 ### Kernel Selection Guide
 
 ``` r
+
 kernels_available <- c("gamma", "lognormal", "normal", "laplace", "invgauss", "amoroso", "cauchy")
 
 cat("Available kernels:\n")
@@ -446,6 +367,7 @@ cat("Available kernels:\n")
     Available kernels:
 
 ``` r
+
 for (k in kernels_available) {
   cat("  -", k, "\n")
 }
@@ -460,48 +382,56 @@ for (k in kernels_available) {
       - cauchy 
 
 ``` r
+
 print("\nChoose kernel based on:\n")
 ```
 
     [1] "\nChoose kernel based on:\n"
 
 ``` r
+
 print("  gamma:     Right-skewed, positive support\n")
 ```
 
     [1] "  gamma:     Right-skewed, positive support\n"
 
 ``` r
+
 print("  lognormal: Log-transformed normality\n")
 ```
 
     [1] "  lognormal: Log-transformed normality\n"
 
 ``` r
+
 print("  normal:    Symmetric, unbounded\n")
 ```
 
     [1] "  normal:    Symmetric, unbounded\n"
 
 ``` r
+
 print("  laplace:   Sharp peak, exponential tails\n")
 ```
 
     [1] "  laplace:   Sharp peak, exponential tails\n"
 
 ``` r
+
 print("  invgauss:  Positive, near-normal shape\n")
 ```
 
     [1] "  invgauss:  Positive, near-normal shape\n"
 
 ``` r
+
 print("  amoroso:   Generalized, maximum flexibility\n")
 ```
 
     [1] "  amoroso:   Generalized, maximum flexibility\n"
 
 ``` r
+
 print("  cauchy:    Heavy-tailed, rare cases\n")
 ```
 
@@ -514,6 +444,7 @@ print("  cauchy:    Heavy-tailed, rare cases\n")
 #### Unconditional with GPD
 
 ``` r
+
 # Data with tail behavior
 data("nc_pos_tail200_k4")
 y_tail <- nc_pos_tail200_k4$y
@@ -547,66 +478,77 @@ summary(fit_gpd)
 ### Common Parameter Settings
 
 ``` r
+
 print("=== Recommended MCMC Parameters ===\n")
 ```
 
     [1] "=== Recommended MCMC Parameters ===\n"
 
 ``` r
+
 print("Quick test:     niter=500,  nburnin=100, nchains=1\n")
 ```
 
     [1] "Quick test:     niter=500,  nburnin=100, nchains=1\n"
 
 ``` r
+
 print("Standard:       niter=1000, nburnin=250, nchains=2\n")
 ```
 
     [1] "Standard:       niter=1000, nburnin=250, nchains=2\n"
 
 ``` r
+
 print("Production:     niter=1000, nburnin=250, nchains=3\n")
 ```
 
     [1] "Production:     niter=1000, nburnin=250, nchains=3\n"
 
 ``` r
+
 print("\n=== Backend Parameters ===\n")
 ```
 
     [1] "\n=== Backend Parameters ===\n"
 
 ``` r
+
 print("Use components=3-5 for both backends in this implementation.\n")
 ```
 
     [1] "Use components=3-5 for both backends in this implementation.\n"
 
 ``` r
+
 print("\n=== Kernel Selection ===\n")
 ```
 
     [1] "\n=== Kernel Selection ===\n"
 
 ``` r
+
 print("Positive data:     gamma, lognormal, invgauss\n")
 ```
 
     [1] "Positive data:     gamma, lognormal, invgauss\n"
 
 ``` r
+
 print("Any real data:     normal\n")
 ```
 
     [1] "Any real data:     normal\n"
 
 ``` r
+
 print("Symmetric tails:   laplace\n")
 ```
 
     [1] "Symmetric tails:   laplace\n"
 
 ``` r
+
 print("Extreme outliers:  cauchy\n")
 ```
 

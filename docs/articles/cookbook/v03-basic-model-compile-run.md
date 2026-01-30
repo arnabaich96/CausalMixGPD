@@ -32,6 +32,7 @@ MCMC execution.
 #### Building Directly
 
 ``` r
+
 # Load packaged data
 data("nc_pos200_k3")
 y <- nc_pos200_k3$y
@@ -54,6 +55,7 @@ print("Direct bundle creation successful.\n")
 #### Inspecting Bundle Contents
 
 ``` r
+
 # Bundle is an S3 object with structure
 cat("Bundle class:", class(bundle_direct), "\n")
 ```
@@ -61,12 +63,14 @@ cat("Bundle class:", class(bundle_direct), "\n")
     Bundle class: dpmixgpd_bundle 
 
 ``` r
+
 cat("Bundle contains:\n")
 ```
 
     Bundle contains:
 
 ``` r
+
 print(names(bundle_direct))
 ```
 
@@ -74,13 +78,16 @@ print(names(bundle_direct))
     [6] "inits"      "monitors"   "mcmc"       "epsilon"   
 
 ``` r
+
 # Access key components
 cat("\nMCMC settings:\n")
 ```
 
+
     MCMC settings:
 
 ``` r
+
 print(bundle_direct$mcmc_settings)
 ```
 
@@ -95,6 +102,7 @@ print(bundle_direct$mcmc_settings)
 #### Basic MCMC Run
 
 ``` r
+
 # Run MCMC
 fit <- load_or_fit("v03-basic-model-compile-run-fit", run_mcmc_bundle_manual(bundle_direct, show_progress = FALSE))
 
@@ -104,6 +112,7 @@ cat("Fit object class:", class(fit), "\n")
     Fit object class: mixgpd_fit list 
 
 ``` r
+
 cat("MCMC execution complete. Posterior samples collected.\n")
 ```
 
@@ -112,6 +121,7 @@ cat("MCMC execution complete. Posterior samples collected.\n")
 #### Accessing Posterior Samples
 
 ``` r
+
 # Posterior summary
 print("\n--- POSTERIOR SUMMARY ---\n")
 ```
@@ -119,6 +129,7 @@ print("\n--- POSTERIOR SUMMARY ---\n")
     [1] "\n--- POSTERIOR SUMMARY ---\n"
 
 ``` r
+
 summary(fit)
 ```
 
@@ -138,6 +149,7 @@ summary(fit)
        scale[1] 0.265 0.037  0.204  0.266  0.338 25.996
 
 ``` r
+
 # Posterior mean parameters in original form
 params_fit <- params(fit)
 params_fit
@@ -160,16 +172,20 @@ params_fit
 #### Diagnostic Plots
 
 ``` r
+
 plot(fit, params = "shape", family = "traceplot")
 ```
+
 
     === traceplot ===
 
 ![](v03-basic-model-compile-run_files/figure-html/mcmc-diagnostics-1.png)
 
 ``` r
+
 plot(fit, params = "scale", family = "caterpillar")
 ```
+
 
     === caterpillar ===
 
@@ -180,6 +196,7 @@ plot(fit, params = "scale", family = "caterpillar")
 ### Complete Workflow: End-to-End Example
 
 ``` r
+
 # Load packaged data
 data("nc_pos200_k3")
 y_data <- nc_pos200_k3$y
@@ -203,6 +220,7 @@ print("\n=== THREE-PHASE WORKFLOW COMPLETE ===\n")
     [1] "\n=== THREE-PHASE WORKFLOW COMPLETE ===\n"
 
 ``` r
+
 summary(fit_final)
 ```
 
@@ -231,6 +249,7 @@ summary(fit_final)
 #### CRP Backend
 
 ``` r
+
 # Chinese Restaurant Process
 bundle_crp <- build_nimble_bundle(
   y = y_data,
@@ -249,6 +268,7 @@ print("CRP execution complete.\n")
 #### Stick-Breaking Backend
 
 ``` r
+
 # Stick-Breaking Process
 bundle_sb <- build_nimble_bundle(
   y = y_data,
@@ -269,6 +289,7 @@ print("SB execution complete.\n")
 ### Kernel Selection Guide
 
 ``` r
+
 kernels_available <- c("gamma", "lognormal", "normal", "laplace", "invgauss", "amoroso", "cauchy")
 
 cat("Available kernels:\n")
@@ -277,6 +298,7 @@ cat("Available kernels:\n")
     Available kernels:
 
 ``` r
+
 for (k in kernels_available) {
   cat("  -", k, "\n")
 }
@@ -291,48 +313,56 @@ for (k in kernels_available) {
       - cauchy 
 
 ``` r
+
 print("\nChoose kernel based on:\n")
 ```
 
     [1] "\nChoose kernel based on:\n"
 
 ``` r
+
 print("  gamma:     Right-skewed, positive support\n")
 ```
 
     [1] "  gamma:     Right-skewed, positive support\n"
 
 ``` r
+
 print("  lognormal: Log-transformed normality\n")
 ```
 
     [1] "  lognormal: Log-transformed normality\n"
 
 ``` r
+
 print("  normal:    Symmetric, unbounded\n")
 ```
 
     [1] "  normal:    Symmetric, unbounded\n"
 
 ``` r
+
 print("  laplace:   Sharp peak, exponential tails\n")
 ```
 
     [1] "  laplace:   Sharp peak, exponential tails\n"
 
 ``` r
+
 print("  invgauss:  Positive, near-normal shape\n")
 ```
 
     [1] "  invgauss:  Positive, near-normal shape\n"
 
 ``` r
+
 print("  amoroso:   Generalized, maximum flexibility\n")
 ```
 
     [1] "  amoroso:   Generalized, maximum flexibility\n"
 
 ``` r
+
 print("  cauchy:    Heavy-tailed, rare cases\n")
 ```
 
@@ -345,6 +375,7 @@ print("  cauchy:    Heavy-tailed, rare cases\n")
 #### Unconditional with GPD
 
 ``` r
+
 # Data with tail behavior
 data("nc_pos_tail200_k4")
 y_tail <- nc_pos_tail200_k4$y
@@ -378,66 +409,77 @@ summary(fit_gpd)
 ### Common Parameter Settings
 
 ``` r
+
 print("=== Recommended MCMC Parameters ===\n")
 ```
 
     [1] "=== Recommended MCMC Parameters ===\n"
 
 ``` r
+
 print("Quick test:     niter=500,  nburnin=100, nchains=1\n")
 ```
 
     [1] "Quick test:     niter=500,  nburnin=100, nchains=1\n"
 
 ``` r
+
 print("Standard:       niter=1000, nburnin=250, nchains=2\n")
 ```
 
     [1] "Standard:       niter=1000, nburnin=250, nchains=2\n"
 
 ``` r
+
 print("Production:     niter=1000, nburnin=250, nchains=3\n")
 ```
 
     [1] "Production:     niter=1000, nburnin=250, nchains=3\n"
 
 ``` r
+
 print("\n=== Backend Parameters ===\n")
 ```
 
     [1] "\n=== Backend Parameters ===\n"
 
 ``` r
+
 print("Use components=3-5 for both backends in this implementation.\n")
 ```
 
     [1] "Use components=3-5 for both backends in this implementation.\n"
 
 ``` r
+
 print("\n=== Kernel Selection ===\n")
 ```
 
     [1] "\n=== Kernel Selection ===\n"
 
 ``` r
+
 print("Positive data:     gamma, lognormal, invgauss\n")
 ```
 
     [1] "Positive data:     gamma, lognormal, invgauss\n"
 
 ``` r
+
 print("Any real data:     normal\n")
 ```
 
     [1] "Any real data:     normal\n"
 
 ``` r
+
 print("Symmetric tails:   laplace\n")
 ```
 
     [1] "Symmetric tails:   laplace\n"
 
 ``` r
+
 print("Extreme outliers:  cauchy\n")
 ```
 

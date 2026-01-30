@@ -1,7 +1,8 @@
-﻿---
+---
 title: "20. Troubleshooting"
 output:
   rmarkdown::html_vignette:
+    highlight: null
     code_folding: show
 vignette: >
   %\VignetteIndexEntry{20. Troubleshooting}
@@ -32,7 +33,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
-devtools::load_all()
+pkgload::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -47,7 +48,7 @@ source("_legacy-setup.R")
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
 
-# Troubleshooting
+## Common issues and solutions
 
 This vignette collects common errors and fixes encountered when building or running DPmixGPD models.
 
@@ -86,25 +87,7 @@ bundle <- build_nimble_bundle(
 
 ---
 
-## 3. "design='observational' requires non-empty X"
-
-**Cause**: Observational causal modeling requires covariates for PS estimation.
-
-**Fix**: Provide `X`, or switch to `design = "rct"`.
-
-```r
-cb <- build_causal_bundle(
-  y = y,
-  T = T,
-  X = X,
-  design = "observational",
-  PS = "logit"
-)
-```
-
----
-
-## 4. "GPD tail not moving" (threshold/shape stuck)
+## 3. "GPD tail not moving" (threshold/shape stuck)
 
 **Cause**: Very short chains or overly restrictive priors.
 
@@ -123,7 +106,7 @@ bundle <- build_nimble_bundle(
 
 ---
 
-## 5. "future.globals.maxSize exceeded"
+## 4. "future.globals.maxSize exceeded"
 
 **Cause**: Parallel predictions export large functions/objects.
 
@@ -137,7 +120,7 @@ pred <- predict(fit, x = X_new, y = y_grid, type = "density", ncores = 2)
 
 ---
 
-## 6. MCMC is slow
+## 5. MCMC is slow
 
 **Cause**: Large datasets, many components, or heavy kernels.
 
@@ -155,20 +138,15 @@ bundle <- build_nimble_bundle(
 
 ---
 
-## 7. Prediction returns constant fitted values in unconditional models
+## 6. fitted() and residuals() for unconditional models
 
-**Cause**: Unconditional fitted values are model-based population summaries.
+**Cause**: You called `fitted()` or `residuals()` on an unconditional (no-covariate) fit.
 
-**Fix**: This is expected. Use conditional models if you need observation-specific fitted values.
-
-```r
-fit_vals <- fitted(fit)
-head(fit_vals)
-```
+**Fix**: `fitted()` and `residuals()` are not supported for unconditional models. Use `predict()` for predictions and posterior summaries (e.g. `predict(fit, type = "mean")`, `predict(fit, type = "quantile", index = 0.5)`).
 
 ---
 
-## 8. PS not used in causal model
+## 7. PS not used in causal model
 
 **Cause**: `PS=FALSE` or `X` missing.
 
@@ -186,7 +164,7 @@ fit <- run_mcmc_causal(cb)
 
 ---
 
-## 9. Kernel mismatch when mixing arms
+## 8. Kernel mismatch when mixing arms
 
 **Cause**: Using kernels with different supports across arms.
 
@@ -201,6 +179,16 @@ cb <- build_causal_bundle(
   backend = c("sb", "crp")
 )
 ```
+
+---
+
+## 9. "Cannot resolve owner of file" / "No mapping between account names and security IDs" (Windows)
+
+**Cause**: The project or package lives in OneDrive (or another synced/network path). Windows cannot map file-owner SIDs to account names when R uses `file.info()` on those paths.
+
+**Fix**: The warnings are harmless; DPmixGPD and nimble load and run normally. If you **keep the project in OneDrive** (e.g. as a backup to GitHub), the project `.Rprofile` suppresses these warnings automatically when using R ≥ 4.0. Otherwise, move the project to a local non-synced path or take ownership of the OneDrive folder (right‑click → Properties → Security → Advanced → Take ownership).
+
+
 
 
 

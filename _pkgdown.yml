@@ -137,25 +137,25 @@ navbar:
 articles:
   - title: "Get Started"
     contents:
-      - '"introduction"'
+      - "introduction"
   - title: "Vignettes"
     contents:
-      - '"manual-index"'
-      - '"distributions"'
-      - '"model-spec"'
-      - '"mcmc-workflow"'
-      - '"unconditional"'
-      - '"conditional"'
-      - '"causal"'
-      - '"backends"'
-      - '"reference-s3"'
+      - "manual-index"
+      - "distributions"
+      - "model-spec"
+      - "mcmc-workflow"
+      - "unconditional"
+      - "conditional"
+      - "causal"
+      - "backends"
+      - "reference-s3"
   - title: "All-in-One"
     contents:
-      - '"Customization/umbrella"'
-      - '"Customization/customization"'
+      - "Customization/umbrella"
+      - "Customization/customization"
   - title: "Kernels"
     contents:
-      - '"kernels-index"'
+      - "kernels-index"
       # Kernel files are not yet available - uncomment when created
       # - "kernels/kernel-amoroso"
       # - "kernels/kernel-cauchy"
@@ -166,6 +166,7 @@ articles:
       # - "kernels/kernel-normal"
   - title: "Cookbook Workflows"
     contents:
+      - "cookbook-index"
       - "workflows/v00-start-here"
       - "workflows/v01-introduction"
       - "workflows/v02-available-distributions"

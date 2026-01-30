@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Workflow 1: Introduction to DPmixGPD • DPmixGPD</title>
+<title>1. Introduction to DPmixGPD • DPmixGPD</title>
 <script src="../../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../../deps/headroom-0.11.0/headroom.min.js"></script><script src="../../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../../deps/search-1.0.0/fuse.min.js"></script><script src="../../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../../pkgdown.js"></script><link href="../../extra.css" rel="stylesheet">
-<script src="../../extra.js"></script><meta property="og:title" content="Workflow 1: Introduction to DPmixGPD">
+<script src="../../extra.js"></script><meta property="og:title" content="1. Introduction to DPmixGPD">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -31,35 +31,35 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
-<li><a class="dropdown-item" href="../../articles/manual-index.html">Vignettes Overview</a></li>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-pantry" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Pantry</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-pantry">
+<li><a class="dropdown-item" href="../../articles/manual-index.html">Pantry Overview</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Get Started</h6></li>
-    <li><a class="dropdown-item" href="../../articles/introduction.html">Introduction</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Starters</h6></li>
+    <li><a class="dropdown-item" href="../../articles/introduction.html">Starter: Introduction</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>User Guide</h6></li>
-    <li><a class="dropdown-item" href="../../articles/distributions.html">Available Distributions</a></li>
-    <li><a class="dropdown-item" href="../../articles/model-spec.html">Model Specification</a></li>
-    <li><a class="dropdown-item" href="../../articles/mcmc-workflow.html">MCMC Workflow</a></li>
-    <li><a class="dropdown-item" href="../../articles/unconditional.html">Unconditional Models</a></li>
-    <li><a class="dropdown-item" href="../../articles/conditional.html">Conditional Models</a></li>
-    <li><a class="dropdown-item" href="../../articles/causal.html">Causal Inference</a></li>
-    <li><a class="dropdown-item" href="../../articles/backends.html">Backends (CRP vs SB)</a></li>
-    <li><a class="dropdown-item" href="../../articles/reference-s3.html">S3 Methods Reference</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Main Course</h6></li>
+    <li><a class="dropdown-item" href="../../articles/distributions.html">Ingredient List (Distributions)</a></li>
+    <li><a class="dropdown-item" href="../../articles/model-spec.html">Recipe Spec (Model)</a></li>
+    <li><a class="dropdown-item" href="../../articles/mcmc-workflow.html">Prep and Cook (MCMC)</a></li>
+    <li><a class="dropdown-item" href="../../articles/unconditional.html">Mains: Unconditional</a></li>
+    <li><a class="dropdown-item" href="../../articles/conditional.html">Sides: Conditional</a></li>
+    <li><a class="dropdown-item" href="../../articles/causal.html">Dessert: Causal</a></li>
+    <li><a class="dropdown-item" href="../../articles/backends.html">Oven Choice (CRP vs SB)</a></li>
+    <li><a class="dropdown-item" href="../../articles/reference-s3.html">Utensil Guide (S3 Methods)</a></li>
   </ul>
 </li>
 <li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-all-in-one" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">All-in-One</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-all-in-one">
-<li><a class="dropdown-item" href="../../articles/Customization/umbrella.html">Umbrella: Custom Models (All-in-One)</a></li>
-    <li><a class="dropdown-item" href="../../articles/Customization/customization.html">Customization: Build NIMBLE Models from Scratch</a></li>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-chef-specials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Chef Specials</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-chef-specials">
+<li><a class="dropdown-item" href="../../articles/Customization/umbrella.html">Chef Special: Umbrella Custom Models</a></li>
+    <li><a class="dropdown-item" href="../../articles/Customization/customization.html">Custom Order: Build NIMBLE from Scratch</a></li>
   </ul>
 </li>
 <li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-kernels" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Kernels</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-kernels">
-<li><a class="dropdown-item" href="../../articles/kernels-index.html">Kernels Overview</a></li>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-ingredients" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Ingredients</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-ingredients">
+<li><a class="dropdown-item" href="../../articles/kernels-index.html">Ingredient Overview</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../../articles/kernels/kernel-amoroso.html">Amoroso</a></li>
     <li><a class="dropdown-item" href="../../articles/kernels/kernel-cauchy.html">Cauchy</a></li>
@@ -70,42 +70,47 @@
     <li><a class="dropdown-item" href="../../articles/kernels/kernel-normal.html">Normal</a></li>
   </ul>
 </li>
-<li class="active nav-item dropdown">
+<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-cookbook" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Cookbook</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-cookbook">
-<li><a class="dropdown-item" href="../../articles/workflows-index.html">Cookbook Overview</a></li>
+<li><a class="dropdown-item" href="../../articles/cookbook-index.html">Recipe Book</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Getting Started</h6></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v00-start-here.html">Start Here</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v01-introduction.html">Introduction</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v02-available-distributions.html">Available Distributions</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Starters</h6></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v00-start-here.html">Starter Broth (Start Here)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v01-introduction.html">Chef's Notes (Introduction)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v02-available-distributions.html">Spice Rack Sampler (Distributions)</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Core Concepts</h6></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v03-basic-model-compile-run.html">Basic Model Compile &amp; Run</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v04-backends-and-workflow.html">Backends and Workflow</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Entrees</h6></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v03-basic-model-compile-run.html">Mainline Sear (Compile &amp; Run)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v04-backends-and-workflow.html">Two-Oven Roast (Backends)</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Unconditional Models</h6></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v05-unconditional-DPmix-CRP.html">DPmix CRP (v05)</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v06-unconditional-DPmix-CRP.html">DPmix CRP Extended (v06)</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v07-unconditional-DPmix-SB.html">DPmix SB (v07)</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v08-unconditional-DPmixGPD-CRP.html">DPmixGPD CRP (v08)</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v09-unconditional-DPmixGPD-SB.html">DPmixGPD SB (v09)</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Chef Specials (All-in-One)</h6></li>
+    <li><a class="dropdown-item" href="../../articles/Customization/umbrella.html">House Platter (Umbrella)</a></li>
+    <li><a class="dropdown-item" href="../../articles/Customization/customization.html">Chef's Tasting Menu (NIMBLE)</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Conditional Models</h6></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v10-conditional-DPmix-CRP.html">DPmix CRP (v10)</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v11-conditional-DPmix-SB.html">DPmix SB (v11)</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v12-conditional-DPmixGPD-CRP.html">DPmixGPD CRP (v12)</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v13-conditional-DPmixGPD-SB.html">DPmixGPD SB (v13)</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Mains (Unconditional)</h6></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v05-unconditional-DPmix-CRP.html">Classic Stew (CRP)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v06-unconditional-DPmix-CRP.html">Extended Braise (CRP Extended)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v07-unconditional-DPmix-SB.html">Layered Lasagna (SB)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v08-unconditional-DPmixGPD-CRP.html">Tail-Spice Chili (GPD CRP)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v09-unconditional-DPmixGPD-SB.html">Tail-Spice Bake (GPD SB)</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Causal Inference</h6></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v14-causal-no-x-CRP.html">No Covariates CRP (v14)</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v15-causal-x-no-ps-SB.html">With Covariates SB (v15)</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v16-causal-same-backend-CRP.html">Same Backend CRP (v16)</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v17-causal-same-backend-SB.html">Same Backend SB (v17)</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v18-causal-different-backends-CRP.html">Different Backends CRP (v18)</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v19-causal-different-backends-SB.html">Different Backends SB (v19)</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Sides (Conditional)</h6></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v10-conditional-DPmix-CRP.html">Seasoned Sides (CRP)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v11-conditional-DPmix-SB.html">Stirred Layers (SB)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v12-conditional-DPmixGPD-CRP.html">Citrus Tart (GPD CRP)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v13-conditional-DPmixGPD-SB.html">Glazed Side (GPD SB)</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v20-troubleshooting.html">Troubleshooting (v20)</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Desserts (Causal)</h6></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v14-causal-no-x-CRP.html">Simple Sweet (No Covariates)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v15-causal-x-no-ps-SB.html">Layer Cake (With Covariates)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v16-causal-same-backend-CRP.html">Twin Scoops (Same Backend CRP)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v17-causal-same-backend-SB.html">Twin Parfaits (Same Backend SB)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v18-causal-different-backends-CRP.html">Two-Style Tasting (Different CRP)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v19-causal-different-backends-SB.html">Split Plating (Different SB)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Kitchen Notes</h6></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v20-troubleshooting.html">Fix-It Fry (Troubleshooting)</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../../coverage/index.html">Coverage</a></li>
@@ -126,7 +131,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Workflow 1: Introduction to DPmixGPD</h1>
+      <h1>1. Introduction to DPmixGPD</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/arnabaich96/DPmixGPD/blob/HEAD/vignettes/workflows/v01-introduction.Rmd" class="external-link"><code>vignettes/workflows/v01-introduction.Rmd</code></a></small>
@@ -135,14 +140,14 @@
 
     
     
-<div class="section level3">
-<h3 id="theory-brief">Theory (brief)<a class="anchor" aria-label="anchor" href="#theory-brief"></a>
-</h3>
-<p>DP mixtures represent densities as <span class="math inline">$f(y)=\\int K(y;\\theta)\\,dG(\\theta)$</span> with
-<span class="math inline">$G \\sim \\mathrm{DP}(\\alpha, G_0)$</span>.
-Optional GPD splicing replaces the tail beyond a threshold, providing
-principled extreme-value behavior.</p>
-</div>
+<blockquote>
+<p><strong>Legacy vignette (for the website / historical
+notes).</strong> These files may not match the current exported API
+one-to-one. Last verified: <strong>2026-01-18</strong>.</p>
+<p>For the up-to-date workflow, see the main package vignettes
+(Introduction, Model Spec, MCMC Workflow,
+Unconditional/Conditional/Causal, Backends, S3 Reference).</p>
+</blockquote>
 <div class="section level2">
 <h2 id="dpmixgpd-bayesian-nonparametric-mixture-models-with-gpd-tails">DPmixGPD: Bayesian Nonparametric Mixture Models with GPD Tails<a class="anchor" aria-label="anchor" href="#dpmixgpd-bayesian-nonparametric-mixture-models-with-gpd-tails"></a>
 </h2>
@@ -185,9 +190,9 @@ quantile, sample, mean</li>
 <h4 id="single-outcome-model">Single-Outcome Model<a class="anchor" aria-label="anchor" href="#single-outcome-model"></a>
 </h4>
 <p><strong>Bulk</strong>: Dirichlet Process mixture
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Y</mi><mi>i</mi></msub><mo>∼</mo><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mo accent="false">∞</mo></munderover><msub><mi>w</mi><mi>k</mi></msub><msub><mi>f</mi><mi>k</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>;</mo><msub><mi>θ</mi><mi>k</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">Y_i \sim \sum_{k=1}^{\infty} w_k f_k(y_i; \theta_k)</annotation></semantics></math></p>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Y</mi><mi>i</mi></msub><mo>∼</mo><munderover><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mo accent="false">∞</mo></munderover><msub><mi>w</mi><mi>k</mi></msub><msub><mi>f</mi><mi>k</mi></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>;</mo><msub><mi>θ</mi><mi>k</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">Y_i \sim \sum_{k=1}^{\infty} w_k f_k(y_i; \theta_k)</annotation></semantics></math></p>
 <p><strong>Tail (optional)</strong>: GPD beyond threshold
-<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>Y</mi><mo>&gt;</mo><mi>u</mi><mo stretchy="false" form="prefix">|</mo><mi>Y</mi><mo>&gt;</mo><mi>u</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>∼</mo><mtext mathvariant="normal">GPD</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mtext mathvariant="normal">scale</mtext><mo>,</mo><mtext mathvariant="normal">shape</mtext><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">P(Y &gt; u | Y &gt; u) \sim \text{GPD}(\text{scale}, \text{shape})</annotation></semantics></math></p>
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false" form="prefix">(</mo><mi>Y</mi><mo>&gt;</mo><mi>u</mi><mo stretchy="false" form="prefix">|</mo><mi>Y</mi><mo>&gt;</mo><mi>u</mi><mo stretchy="false" form="postfix">)</mo><mo>∼</mo><mtext mathvariant="normal">GPD</mtext><mo stretchy="false" form="prefix">(</mo><mtext mathvariant="normal">scale</mtext><mo>,</mo><mtext mathvariant="normal">shape</mtext><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">P(Y &gt; u | Y &gt; u) \sim \text{GPD}(\text{scale}, \text{shape})</annotation></semantics></math></p>
 </div>
 <div class="section level4">
 <h4 id="causal-model">Causal Model<a class="anchor" aria-label="anchor" href="#causal-model"></a>
@@ -195,10 +200,10 @@ quantile, sample, mean</li>
 <p>Two outcome arms with optional propensity score (PS) adjustment: -
 <strong>Control</strong>
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">T=0</annotation></semantics></math>):
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>Y</mi><mi>i</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>0</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>∼</mo><msub><mtext mathvariant="normal">DPM</mtext><mtext mathvariant="normal">con</mtext></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo>,</mo><mi>P</mi><msub><mi>S</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">Y_i^{(0)} \sim \text{DPM}_{\text{con}}(X_i, PS_i)</annotation></semantics></math>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>Y</mi><mi>i</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>∼</mo><msub><mtext mathvariant="normal">DPM</mtext><mtext mathvariant="normal">con</mtext></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo>,</mo><mi>P</mi><msub><mi>S</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">Y_i^{(0)} \sim \text{DPM}_{\text{con}}(X_i, PS_i)</annotation></semantics></math>
 - <strong>Treated</strong>
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>T</mi><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">T=1</annotation></semantics></math>):
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>Y</mi><mi>i</mi><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo stretchy="true" form="postfix">)</mo></mrow></msubsup><mo>∼</mo><msub><mtext mathvariant="normal">DPM</mtext><mtext mathvariant="normal">trt</mtext></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo>,</mo><mi>P</mi><msub><mi>S</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">Y_i^{(1)} \sim \text{DPM}_{\text{trt}}(X_i, PS_i)</annotation></semantics></math></p>
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>Y</mi><mi>i</mi><mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo stretchy="false" form="postfix">)</mo></mrow></msubsup><mo>∼</mo><msub><mtext mathvariant="normal">DPM</mtext><mtext mathvariant="normal">trt</mtext></msub><mo stretchy="false" form="prefix">(</mo><msub><mi>X</mi><mi>i</mi></msub><mo>,</mo><mi>P</mi><msub><mi>S</mi><mi>i</mi></msub><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">Y_i^{(1)} \sim \text{DPM}_{\text{trt}}(X_i, PS_i)</annotation></semantics></math></p>
 <hr>
 </div>
 </div>

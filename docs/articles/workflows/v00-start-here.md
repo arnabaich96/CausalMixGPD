@@ -1,13 +1,14 @@
-# Workflow 0: Start Here
+# 0. Start Here
 
-## Theory (brief)
+> **Legacy vignette (for the website / historical notes).** These files
+> may not match the current exported API one-to-one. Last verified:
+> **2026-01-18**.
+>
+> For the up-to-date workflow, see the main package vignettes
+> (Introduction, Model Spec, MCMC Workflow,
+> Unconditional/Conditional/Causal, Backends, S3 Reference).
 
-The DP mixture models the bulk density as \$f(y)=\\int
-K(y;\\theta)\\,dG(\\theta)\$ with \$G \\sim \\mathrm{DP}(\\alpha,
-G_0)\$. This gives a flexible, data-driven mixture representation while
-keeping inference in a Bayesian framework.
-
-## Getting Started
+## Start Here
 
 This vignette gives a minimal, fully working workflow for an
 **unconditional** model and a **conditional** model. Everything uses
@@ -18,11 +19,13 @@ short MCMC runs so the vignette renders quickly.
 ### Unconditional Model (CRP, bulk-only)
 
 ``` r
+
 data("nc_pos200_k3")
 y <- nc_pos200_k3$y
 ```
 
 ``` r
+
 bundle_uncond <- build_nimble_bundle(
   y = y,
   backend = "crp",
@@ -34,6 +37,7 @@ bundle_uncond <- build_nimble_bundle(
 ```
 
 ``` r
+
 fit_uncond <- load_or_fit("v00-start-here-fit_uncond", quiet_mcmc(run_mcmc_bundle_manual(bundle_uncond, show_progress = FALSE)))
 summary(fit_uncond)
 ```
@@ -43,8 +47,8 @@ summary(fit_uncond)
     Summary
     Initial components: 5 | Components after truncation: 1
 
-    WAIC: 963.248
-    lppd: -456.908 | pWAIC: 24.716
+    WAIC: 929.279
+    lppd: -399.887 | pWAIC: 64.752
 
     Summary table
     <table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
@@ -62,69 +66,71 @@ summary(fit_uncond)
     <tbody>
       <tr>
        <td style="text-align:center;"> weights[1] </td>
-       <td style="text-align:center;"> 0.883 </td>
-       <td style="text-align:center;"> 0.138 </td>
-       <td style="text-align:center;"> 0.474 </td>
-       <td style="text-align:center;"> 0.917 </td>
+       <td style="text-align:center;"> 0.684 </td>
+       <td style="text-align:center;"> 0.216 </td>
+       <td style="text-align:center;"> 0.36 </td>
+       <td style="text-align:center;"> 0.63 </td>
        <td style="text-align:center;"> 1 </td>
-       <td style="text-align:center;"> 8.469 </td>
+       <td style="text-align:center;"> 25.041 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> alpha </td>
-       <td style="text-align:center;"> 0.457 </td>
-       <td style="text-align:center;"> 0.398 </td>
-       <td style="text-align:center;"> 0.022 </td>
-       <td style="text-align:center;"> 0.354 </td>
-       <td style="text-align:center;"> 1.503 </td>
-       <td style="text-align:center;"> 42.38 </td>
+       <td style="text-align:center;"> 0.559 </td>
+       <td style="text-align:center;"> 0.388 </td>
+       <td style="text-align:center;"> 0.028 </td>
+       <td style="text-align:center;"> 0.498 </td>
+       <td style="text-align:center;"> 1.526 </td>
+       <td style="text-align:center;"> 204.872 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> shape[1] </td>
-       <td style="text-align:center;"> 1.161 </td>
-       <td style="text-align:center;"> 0.151 </td>
-       <td style="text-align:center;"> 0.915 </td>
-       <td style="text-align:center;"> 1.159 </td>
+       <td style="text-align:center;"> 1.784 </td>
+       <td style="text-align:center;"> 0.847 </td>
+       <td style="text-align:center;"> 0.943 </td>
        <td style="text-align:center;"> 1.483 </td>
-       <td style="text-align:center;"> 14.106 </td>
+       <td style="text-align:center;"> 3.912 </td>
+       <td style="text-align:center;"> 27.633 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> scale[1] </td>
-       <td style="text-align:center;"> 0.265 </td>
-       <td style="text-align:center;"> 0.037 </td>
-       <td style="text-align:center;"> 0.204 </td>
-       <td style="text-align:center;"> 0.266 </td>
-       <td style="text-align:center;"> 0.338 </td>
-       <td style="text-align:center;"> 25.996 </td>
+       <td style="text-align:center;"> 0.494 </td>
+       <td style="text-align:center;"> 0.343 </td>
+       <td style="text-align:center;"> 0.212 </td>
+       <td style="text-align:center;"> 0.35 </td>
+       <td style="text-align:center;"> 1.402 </td>
+       <td style="text-align:center;"> 59.82 </td>
       </tr>
     </tbody>
     </table>
 
 ``` r
-pred_q <- predict(fit_uncond, type = "quantile", index = c(0.5, 0.9), interval = "credible")
+
+pred_q <- predict(fit_uncond, type = "quantile", p = c(0.5, 0.9), interval = "credible")
 head(pred_q$fit)
 ```
 
       estimate index lower upper
-    1    0.228   0.5 0.135 0.342
-    2    0.687   0.9 0.467 0.915
+    1    0.841   0.5 0.139  3.50
+    2    1.913   0.9 0.476  7.16
 
 ``` r
-plot(pred_q)
-```
 
-![](v00-start-here_files/figure-html/start-uncond-predict-1.png)
+if (interactive()) plot(pred_q)
+```
 
 ------------------------------------------------------------------------
 
 ### Conditional Model (SB, bulk-only)
 
 ``` r
+
 data("nc_posX100_p3_k2")
 yc <- nc_posX100_p3_k2$y
 X <- as.matrix(nc_posX100_p3_k2$X)
 ```
 
 ``` r
+
 bundle_cond <- build_nimble_bundle(
   y = yc,
   X = X,
@@ -137,6 +143,7 @@ bundle_cond <- build_nimble_bundle(
 ```
 
 ``` r
+
 fit_cond <- load_or_fit("v00-start-here-fit_cond", quiet_mcmc(run_mcmc_bundle_manual(bundle_cond, show_progress = FALSE)))
 summary(fit_cond)
 ```
@@ -144,10 +151,10 @@ summary(fit_cond)
     MixGPD summary | backend: Stick-Breaking Process | kernel: Lognormal Distribution | GPD tail: FALSE | epsilon: 0.025
     n = 100 | components = 5
     Summary
-    Initial components: 5 | Components after truncation: 3
+    Initial components: 5 | Components after truncation: 1
 
-    WAIC: 509.609
-    lppd: -220.586 | pWAIC: 34.218
+    WAIC: 526.697
+    lppd: -255.693 | pWAIC: 7.655
 
     Summary table
     <table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
@@ -165,254 +172,216 @@ summary(fit_cond)
     <tbody>
       <tr>
        <td style="text-align:center;"> weights[1] </td>
-       <td style="text-align:center;"> 0.432 </td>
-       <td style="text-align:center;"> 0.073 </td>
-       <td style="text-align:center;"> 0.297 </td>
-       <td style="text-align:center;"> 0.43 </td>
-       <td style="text-align:center;"> 0.563 </td>
-       <td style="text-align:center;"> 20.008 </td>
-      </tr>
-      <tr>
-       <td style="text-align:center;"> weights[2] </td>
-       <td style="text-align:center;"> 0.298 </td>
-       <td style="text-align:center;"> 0.064 </td>
-       <td style="text-align:center;"> 0.177 </td>
-       <td style="text-align:center;"> 0.31 </td>
-       <td style="text-align:center;"> 0.4 </td>
-       <td style="text-align:center;"> 12.128 </td>
-      </tr>
-      <tr>
-       <td style="text-align:center;"> weights[3] </td>
-       <td style="text-align:center;"> 0.159 </td>
-       <td style="text-align:center;"> 0.054 </td>
-       <td style="text-align:center;"> 0.06 </td>
-       <td style="text-align:center;"> 0.16 </td>
-       <td style="text-align:center;"> 0.263 </td>
-       <td style="text-align:center;"> 19.977 </td>
+       <td style="text-align:center;"> 0.973 </td>
+       <td style="text-align:center;"> 0.056 </td>
+       <td style="text-align:center;"> 0.8 </td>
+       <td style="text-align:center;"> 1 </td>
+       <td style="text-align:center;"> 1 </td>
+       <td style="text-align:center;"> 60.977 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> alpha </td>
-       <td style="text-align:center;"> 1.609 </td>
-       <td style="text-align:center;"> 0.883 </td>
-       <td style="text-align:center;"> 0.552 </td>
-       <td style="text-align:center;"> 1.409 </td>
-       <td style="text-align:center;"> 3.673 </td>
-       <td style="text-align:center;"> 23.402 </td>
+       <td style="text-align:center;"> 0.465 </td>
+       <td style="text-align:center;"> 0.272 </td>
+       <td style="text-align:center;"> 0.111 </td>
+       <td style="text-align:center;"> 0.402 </td>
+       <td style="text-align:center;"> 1.128 </td>
+       <td style="text-align:center;"> 243.504 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> beta_meanlog[1, 1] </td>
-       <td style="text-align:center;"> -0.089 </td>
-       <td style="text-align:center;"> 0.261 </td>
-       <td style="text-align:center;"> -0.641 </td>
-       <td style="text-align:center;"> -0.13 </td>
-       <td style="text-align:center;"> 0.493 </td>
-       <td style="text-align:center;"> 24.612 </td>
+       <td style="text-align:center;"> 0.119 </td>
+       <td style="text-align:center;"> 0.133 </td>
+       <td style="text-align:center;"> -0.138 </td>
+       <td style="text-align:center;"> 0.114 </td>
+       <td style="text-align:center;"> 0.37 </td>
+       <td style="text-align:center;"> 937.946 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> beta_meanlog[2, 1] </td>
-       <td style="text-align:center;"> 0.15 </td>
-       <td style="text-align:center;"> 0.271 </td>
-       <td style="text-align:center;"> -0.404 </td>
-       <td style="text-align:center;"> 0.153 </td>
-       <td style="text-align:center;"> 0.554 </td>
-       <td style="text-align:center;"> 14.485 </td>
+       <td style="text-align:center;"> 0.151 </td>
+       <td style="text-align:center;"> 1.717 </td>
+       <td style="text-align:center;"> -3.398 </td>
+       <td style="text-align:center;"> 0.203 </td>
+       <td style="text-align:center;"> 3.557 </td>
+       <td style="text-align:center;"> 737.604 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> beta_meanlog[3, 1] </td>
-       <td style="text-align:center;"> -0.302 </td>
-       <td style="text-align:center;"> 1.288 </td>
-       <td style="text-align:center;"> -3.537 </td>
-       <td style="text-align:center;"> -0.193 </td>
-       <td style="text-align:center;"> 1.91 </td>
-       <td style="text-align:center;"> 7.21 </td>
+       <td style="text-align:center;"> -0.03 </td>
+       <td style="text-align:center;"> 1.944 </td>
+       <td style="text-align:center;"> -3.97 </td>
+       <td style="text-align:center;"> 0.066 </td>
+       <td style="text-align:center;"> 3.631 </td>
+       <td style="text-align:center;"> 846.559 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> beta_meanlog[4, 1] </td>
-       <td style="text-align:center;"> 0.149 </td>
-       <td style="text-align:center;"> 1.197 </td>
-       <td style="text-align:center;"> -2.431 </td>
-       <td style="text-align:center;"> 0.514 </td>
-       <td style="text-align:center;"> 1.794 </td>
-       <td style="text-align:center;"> 14.772 </td>
+       <td style="text-align:center;"> 0.07 </td>
+       <td style="text-align:center;"> 2.074 </td>
+       <td style="text-align:center;"> -4.033 </td>
+       <td style="text-align:center;"> 0.029 </td>
+       <td style="text-align:center;"> 4.109 </td>
+       <td style="text-align:center;"> 1246.061 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> beta_meanlog[5, 1] </td>
-       <td style="text-align:center;"> 0.5 </td>
-       <td style="text-align:center;"> 0.617 </td>
-       <td style="text-align:center;"> -0.809 </td>
-       <td style="text-align:center;"> 0.611 </td>
-       <td style="text-align:center;"> 1.458 </td>
-       <td style="text-align:center;"> 10.102 </td>
+       <td style="text-align:center;"> 0.091 </td>
+       <td style="text-align:center;"> 1.977 </td>
+       <td style="text-align:center;"> -3.802 </td>
+       <td style="text-align:center;"> 0.085 </td>
+       <td style="text-align:center;"> 3.816 </td>
+       <td style="text-align:center;"> 1124.342 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> beta_meanlog[1, 2] </td>
-       <td style="text-align:center;"> 0.698 </td>
-       <td style="text-align:center;"> 0.775 </td>
-       <td style="text-align:center;"> -0.752 </td>
-       <td style="text-align:center;"> 0.533 </td>
-       <td style="text-align:center;"> 2.26 </td>
-       <td style="text-align:center;"> 9.533 </td>
+       <td style="text-align:center;"> -0.17 </td>
+       <td style="text-align:center;"> 0.246 </td>
+       <td style="text-align:center;"> -0.643 </td>
+       <td style="text-align:center;"> -0.168 </td>
+       <td style="text-align:center;"> 0.314 </td>
+       <td style="text-align:center;"> 431.197 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> beta_meanlog[2, 2] </td>
-       <td style="text-align:center;"> -1.014 </td>
-       <td style="text-align:center;"> 0.373 </td>
-       <td style="text-align:center;"> -1.782 </td>
-       <td style="text-align:center;"> -1.023 </td>
-       <td style="text-align:center;"> -0.337 </td>
-       <td style="text-align:center;"> 12.472 </td>
+       <td style="text-align:center;"> 0.193 </td>
+       <td style="text-align:center;"> 1.881 </td>
+       <td style="text-align:center;"> -3.543 </td>
+       <td style="text-align:center;"> 0.208 </td>
+       <td style="text-align:center;"> 3.649 </td>
+       <td style="text-align:center;"> 365.618 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> beta_meanlog[3, 2] </td>
-       <td style="text-align:center;"> 0.531 </td>
-       <td style="text-align:center;"> 1.862 </td>
-       <td style="text-align:center;"> -2.809 </td>
-       <td style="text-align:center;"> 0.718 </td>
-       <td style="text-align:center;"> 4.688 </td>
-       <td style="text-align:center;"> 17.038 </td>
+       <td style="text-align:center;"> 0.006 </td>
+       <td style="text-align:center;"> 1.938 </td>
+       <td style="text-align:center;"> -3.896 </td>
+       <td style="text-align:center;"> -0.013 </td>
+       <td style="text-align:center;"> 3.772 </td>
+       <td style="text-align:center;"> 1050.905 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> beta_meanlog[4, 2] </td>
-       <td style="text-align:center;"> -0.536 </td>
-       <td style="text-align:center;"> 1.666 </td>
-       <td style="text-align:center;"> -3.483 </td>
-       <td style="text-align:center;"> -0.785 </td>
-       <td style="text-align:center;"> 2.86 </td>
-       <td style="text-align:center;"> 6.288 </td>
+       <td style="text-align:center;"> 0.046 </td>
+       <td style="text-align:center;"> 2.004 </td>
+       <td style="text-align:center;"> -3.936 </td>
+       <td style="text-align:center;"> 0.081 </td>
+       <td style="text-align:center;"> 3.885 </td>
+       <td style="text-align:center;"> 1056.479 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> beta_meanlog[5, 2] </td>
-       <td style="text-align:center;"> 0.878 </td>
-       <td style="text-align:center;"> 1.02 </td>
-       <td style="text-align:center;"> -1.31 </td>
-       <td style="text-align:center;"> 1.159 </td>
-       <td style="text-align:center;"> 2.59 </td>
-       <td style="text-align:center;"> 4.981 </td>
+       <td style="text-align:center;"> -0.03 </td>
+       <td style="text-align:center;"> 1.999 </td>
+       <td style="text-align:center;"> -3.979 </td>
+       <td style="text-align:center;"> -0.023 </td>
+       <td style="text-align:center;"> 3.947 </td>
+       <td style="text-align:center;"> 1236.055 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> beta_meanlog[1, 3] </td>
-       <td style="text-align:center;"> 0.12 </td>
-       <td style="text-align:center;"> 0.377 </td>
-       <td style="text-align:center;"> -0.73 </td>
-       <td style="text-align:center;"> 0.209 </td>
-       <td style="text-align:center;"> 0.737 </td>
-       <td style="text-align:center;"> 21.374 </td>
+       <td style="text-align:center;"> 0.063 </td>
+       <td style="text-align:center;"> 0.128 </td>
+       <td style="text-align:center;"> -0.187 </td>
+       <td style="text-align:center;"> 0.064 </td>
+       <td style="text-align:center;"> 0.316 </td>
+       <td style="text-align:center;"> 804.499 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> beta_meanlog[2, 3] </td>
-       <td style="text-align:center;"> -0.139 </td>
-       <td style="text-align:center;"> 0.324 </td>
-       <td style="text-align:center;"> -0.683 </td>
-       <td style="text-align:center;"> -0.184 </td>
-       <td style="text-align:center;"> 0.444 </td>
-       <td style="text-align:center;"> 11.118 </td>
+       <td style="text-align:center;"> -0.049 </td>
+       <td style="text-align:center;"> 1.71 </td>
+       <td style="text-align:center;"> -3.555 </td>
+       <td style="text-align:center;"> -0.002 </td>
+       <td style="text-align:center;"> 3.222 </td>
+       <td style="text-align:center;"> 495.136 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> beta_meanlog[3, 3] </td>
-       <td style="text-align:center;"> 0.171 </td>
-       <td style="text-align:center;"> 0.98 </td>
-       <td style="text-align:center;"> -1.645 </td>
-       <td style="text-align:center;"> 0.257 </td>
-       <td style="text-align:center;"> 2.249 </td>
-       <td style="text-align:center;"> 24.319 </td>
+       <td style="text-align:center;"> 0.074 </td>
+       <td style="text-align:center;"> 1.944 </td>
+       <td style="text-align:center;"> -3.677 </td>
+       <td style="text-align:center;"> 0.078 </td>
+       <td style="text-align:center;"> 3.963 </td>
+       <td style="text-align:center;"> 982.923 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> beta_meanlog[4, 3] </td>
-       <td style="text-align:center;"> -0.108 </td>
-       <td style="text-align:center;"> 1.353 </td>
-       <td style="text-align:center;"> -3.217 </td>
-       <td style="text-align:center;"> -0.042 </td>
-       <td style="text-align:center;"> 2.262 </td>
-       <td style="text-align:center;"> 13.235 </td>
+       <td style="text-align:center;"> 0.017 </td>
+       <td style="text-align:center;"> 2.03 </td>
+       <td style="text-align:center;"> -3.895 </td>
+       <td style="text-align:center;"> 0.052 </td>
+       <td style="text-align:center;"> 3.882 </td>
+       <td style="text-align:center;"> 1032.749 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> beta_meanlog[5, 3] </td>
-       <td style="text-align:center;"> 0.322 </td>
-       <td style="text-align:center;"> 0.458 </td>
-       <td style="text-align:center;"> -0.736 </td>
-       <td style="text-align:center;"> 0.316 </td>
-       <td style="text-align:center;"> 1.343 </td>
-       <td style="text-align:center;"> 12.508 </td>
+       <td style="text-align:center;"> -0.003 </td>
+       <td style="text-align:center;"> 1.952 </td>
+       <td style="text-align:center;"> -3.996 </td>
+       <td style="text-align:center;"> -0.044 </td>
+       <td style="text-align:center;"> 3.945 </td>
+       <td style="text-align:center;"> 1051.657 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> sdlog[1] </td>
-       <td style="text-align:center;"> 1.076 </td>
-       <td style="text-align:center;"> 0.44 </td>
-       <td style="text-align:center;"> 0.511 </td>
-       <td style="text-align:center;"> 1.002 </td>
-       <td style="text-align:center;"> 2.048 </td>
-       <td style="text-align:center;"> 50.89 </td>
-      </tr>
-      <tr>
-       <td style="text-align:center;"> sdlog[2] </td>
-       <td style="text-align:center;"> 1.246 </td>
-       <td style="text-align:center;"> 0.567 </td>
-       <td style="text-align:center;"> 0.459 </td>
-       <td style="text-align:center;"> 1.147 </td>
-       <td style="text-align:center;"> 2.495 </td>
-       <td style="text-align:center;"> 26.925 </td>
-      </tr>
-      <tr>
-       <td style="text-align:center;"> sdlog[3] </td>
-       <td style="text-align:center;"> 1.757 </td>
-       <td style="text-align:center;"> 1.185 </td>
-       <td style="text-align:center;"> 0.464 </td>
-       <td style="text-align:center;"> 1.432 </td>
-       <td style="text-align:center;"> 4.916 </td>
-       <td style="text-align:center;"> 106.303 </td>
+       <td style="text-align:center;"> 0.673 </td>
+       <td style="text-align:center;"> 0.099 </td>
+       <td style="text-align:center;"> 0.5 </td>
+       <td style="text-align:center;"> 0.663 </td>
+       <td style="text-align:center;"> 0.897 </td>
+       <td style="text-align:center;"> 1200 </td>
       </tr>
     </tbody>
     </table>
 
 ``` r
+
 x_new <- X[1:20, , drop = FALSE]
 pred_mean <- predict(fit_cond, x = x_new, type = "mean", interval = "credible", nsim_mean = 200)
 head(pred_mean$fit)
 ```
 
       estimate lower upper
-    1      105  1.10  79.8
-    2     7223  1.19 430.8
-    3      184  1.07 482.5
-    4       52  0.97 341.5
-    5      115  1.11 267.8
-    6      497  1.13 405.8
+    1    1.519 0.830  2.58
+    2    1.099 0.688  1.71
+    3    0.955 0.556  1.54
+    4    1.272 0.857  1.79
+    5    1.362 0.891  1.99
+    6    1.040 0.663  1.60
 
 ``` r
-plot(pred_mean)
-```
 
-![](v00-start-here_files/figure-html/start-cond-predict-1.png)
+if (interactive()) plot(pred_mean)
+```
 
 ------------------------------------------------------------------------
 
 ### Useful S3 Methods
 
 ``` r
+
 params(fit_uncond)
 ```
 
     Posterior mean parameters
 
     $alpha
-    [1] "0.457"
+    [1] "0.559"
 
     $w
-    [1] "0.883"
+    [1] "0.684"
 
     $shape
-    [1] "1.161"
+    [1] "1.784"
 
     $scale
-    [1] "0.265"
+    [1] "0.494"
 
 ``` r
-plot(fit_uncond, params = "shape", family = "traceplot")
+
+if (interactive()) plot(fit_uncond, family = c("traceplot", "running"))
 ```
-
-    === traceplot ===
-
-![](v00-start-here_files/figure-html/start-s3-1.png)
 
 ------------------------------------------------------------------------
 

@@ -322,7 +322,12 @@ plot.dpmixgpd_causal_fit <- function(x, arm = "both", ...) {
   stopifnot(inherits(x, "dpmixgpd_causal_fit"))
   if (is.null(arm)) arm <- "both"
   if (is.character(arm)) {
-    arm <- match.arg(tolower(arm), c("treated", "control", "both"))
+    arm_chr <- tolower(arm)
+    # accept common aliases
+    if (arm_chr %in% c("trt", "t")) arm_chr <- "treated"
+    if (arm_chr %in% c("con", "c", "ctrl")) arm_chr <- "control"
+    if (arm_chr %in% c("both", "all")) arm_chr <- "both"
+    arm <- match.arg(arm_chr, c("treated", "control", "both"))
   }
   if (is.numeric(arm)) {
     if (length(arm) != 1L || is.na(arm)) {
@@ -1019,7 +1024,7 @@ predict.mixgpd_fit <- function(object,
                                ps = NULL,
                                newdata = NULL,
                                type = c("density", "survival",
-                                        "quantile", "sample", "mean", "median", "location"),
+                                        "quantile", "sample", "mean", "median", "location", "fit"),
                                p = NULL,
                                index = NULL,
                                nsim = NULL,
@@ -1035,6 +1040,9 @@ predict.mixgpd_fit <- function(object,
   type <- match.arg(type)
 
   # Handle interval: NULL means no interval, otherwise match to credible/hpd
+  if (is.character(interval) && length(interval) == 1L && identical(tolower(interval), "none")) {
+    interval <- NULL
+  }
   if (!is.null(interval)) {
     interval <- match.arg(interval, choices = c("credible", "hpd"))
   }
@@ -1146,12 +1154,12 @@ predict.mixgpd_fit <- function(object,
 
 #' Fitted values and residuals for a MixGPD fit
 #'
-#' Computes fitted values and residuals on the original training data.
-#' Returns a data frame with point estimates, credible intervals, and residuals.
-#' For unconditional models (no covariates), returns the population mean replicated
-#' for all observations. For conditional models, returns individual predictions.
+#' Computes fitted values and residuals on the original training data for
+#' \strong{conditional (covariate) models only}. Returns a data frame with point
+#' estimates, credible intervals, and residuals. Not supported for unconditional
+#' models (no covariates); use \code{predict()} for predictions in that case.
 #'
-#' @param object A fitted object of class \code{"mixgpd_fit"}.
+#' @param object A fitted object of class \code{"mixgpd_fit"} (must have covariates).
 #' @param type Which fitted location to return: mean, median, quantile, or both (\code{"location"}).
 #' @param p Quantile level used when \code{type = "quantile"}.
 #' @param level Credible level for confidence intervals (default 0.95 for 95 percent credible intervals).
@@ -1165,8 +1173,10 @@ predict.mixgpd_fit <- function(object,
 #'   \code{upper} (upper credible bound), and \code{residuals} (y - fit).
 #' @examples
 #' \dontrun{
+#' # Conditional model (with covariates X)
 #' y <- abs(stats::rnorm(50)) + 0.1
-#' bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
+#' X <- data.frame(x1 = stats::rnorm(50), x2 = stats::runif(50))
+#' bundle <- build_nimble_bundle(y = y, X = X, backend = "sb", kernel = "normal",
 #'                              GPD = TRUE, components = 6,
 #'                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
 #' fit <- run_mcmc_bundle_manual(bundle)
@@ -1199,6 +1209,7 @@ fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median", "qu
   }
 
   if (is.null(y)) stop("Could not extract y from fitted object.", call. = FALSE)
+  if (is.null(X)) stop("fitted() is not supported for unconditional models (no covariates). Use predict() for predictions.", call. = FALSE)
 
   if (type == "location") {
     pred_mean <- predict(object, x = X, type = "mean",
@@ -1275,11 +1286,13 @@ fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median", "qu
 
 #' Residuals for a MixGPD fit
 #'
-#' Returns residuals aligned with the training data. For \code{type = "raw"},
-#' this uses fitted means. For \code{type = "pit"}, this returns approximate PIT
-#' values via the predictive survival function.
+#' Returns residuals aligned with the training data for \strong{conditional
+#' (covariate) models only}. Not supported for unconditional models (no
+#' covariates); use \code{predict()} for predictions in that case. For
+#' \code{type = "raw"}, this uses fitted means. For \code{type = "pit"}, this
+#' returns approximate PIT values via the predictive survival function.
 #'
-#' @param object A fitted object of class \code{"mixgpd_fit"}.
+#' @param object A fitted object of class \code{"mixgpd_fit"} (must have covariates).
 #' @param type Residual type: \code{"raw"} or \code{"pit"}.
 #' @param fitted_type For \code{type = "raw"}, use fitted means or medians.
 #' @param ... Unused.
@@ -1291,7 +1304,9 @@ residuals.mixgpd_fit <- function(object, type = c("raw", "pit"),
 
   type <- match.arg(type)
   y <- object$data$y %||% object$y
+  X <- object$data$X %||% object$X %||% NULL
   if (is.null(y)) stop("Could not extract y from fitted object.", call. = FALSE)
+  if (is.null(X)) stop("residuals() is not supported for unconditional models (no covariates). Use predict() for predictions.", call. = FALSE)
 
   if (type == "raw") {
     fitted_type <- match.arg(fitted_type)
@@ -1299,7 +1314,6 @@ residuals.mixgpd_fit <- function(object, type = c("raw", "pit"),
     return(as.numeric(fit_vals$residuals))
   }
 
-  X <- object$data$X %||% object$X %||% NULL
   pr_surv <- predict(object,
                      x = X,
                      y = y,
@@ -1383,6 +1397,7 @@ plot.mixgpd_predict <- function(x, y = NULL, ...) {
          quantile = .plot_quantile_pred(x, ...),
          median = .plot_quantile_pred(x, ...),
          sample = .plot_sample_pred(x, ...),
+         fit = .plot_fit_pred(x, ...),
          mean = .plot_mean_pred(x, ...),
          location = .plot_location_pred(x, ...),
          density = .plot_density_pred(x, ...),

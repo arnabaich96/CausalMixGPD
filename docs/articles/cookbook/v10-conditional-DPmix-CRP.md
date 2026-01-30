@@ -25,6 +25,7 @@ covariate-dependent Dirichlet Process mixture. This vignette parallels
 ### Data Setup
 
 ``` r
+
 data("nc_posX100_p3_k2")
 y <- nc_posX100_p3_k2$y
 X <- as.matrix(nc_posX100_p3_k2$X)
@@ -58,13 +59,16 @@ print(p_cov)
 |    Min    |  0.377  |
 |    Max    | 10.870  |
 
-Summary of Conditional Dataset
+Summary of Conditional Dataset {.table .table .table-striped
+.table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ------------------------------------------------------------------------
 
 ### Model Specification & Bundle
 
 ``` r
+
 bundle_cond_normal <- build_nimble_bundle(
   y = y,
   X = X,
@@ -91,6 +95,7 @@ bundle_cond_amoroso <- build_nimble_bundle(
 ### Running MCMC
 
 ``` r
+
 fit_cond_normal <- load_or_fit("v10-conditional-DPmix-CRP-fit_cond_normal", run_mcmc_bundle_manual(bundle_cond_normal))
 fit_cond_amoroso <- load_or_fit("v10-conditional-DPmix-CRP-fit_cond_amoroso", run_mcmc_bundle_manual(bundle_cond_amoroso))
 summary(fit_cond_normal)
@@ -115,6 +120,7 @@ summary(fit_cond_normal)
           sd[2] 0.804 0.804  0.166  0.392  2.919 73.942
 
 ``` r
+
 summary(fit_cond_amoroso)
 ```
 
@@ -141,6 +147,7 @@ summary(fit_cond_amoroso)
       shape2[2]  1.522 0.533  0.845  1.347   2.93  14.002
 
 ``` r
+
 params_cond <- params(fit_cond_normal)
 params_cond
 ```
@@ -164,6 +171,7 @@ params_cond
 ### Conditional Predictions
 
 ``` r
+
 X_new <- expand.grid(
   x1 = seq(-2, 2, length.out = 3),
   x2 = c(0, 1),
@@ -209,6 +217,7 @@ ggplot(df_dens, aes(x = y, y = density, color = group)) +
 ### Covariate Effect on Conditional Quantiles
 
 ``` r
+
 X_grid <- cbind(
   x1 = seq(-2, 2, length.out = 5),
   x2 = 0,
@@ -244,6 +253,7 @@ bind_rows(quant_df_normal, quant_df_amoroso) %>%
 ### Residuals & Diagnostics
 
 ``` r
+
 fit_vals <- fitted(fit_cond_normal)
 plot(fit_vals)
 ```
@@ -251,32 +261,40 @@ plot(fit_vals)
 ![](v10-conditional-DPmix-CRP_files/figure-html/residuals-1.png)![](v10-conditional-DPmix-CRP_files/figure-html/residuals-2.png)
 
 ``` r
+
 plot(fit_cond_normal, params = "mean", family = "traceplot")
 ```
+
 
     === traceplot ===
 
 ![](v10-conditional-DPmix-CRP_files/figure-html/diagnostics-1.png)
 
 ``` r
+
 plot(fit_cond_normal, params = "sd", family = "caterpillar")
 ```
+
 
     === caterpillar ===
 
 ![](v10-conditional-DPmix-CRP_files/figure-html/diagnostics-2.png)
 
 ``` r
+
 plot(fit_cond_amoroso, params = "loc", family = "traceplot")
 ```
+
 
     === traceplot ===
 
 ![](v10-conditional-DPmix-CRP_files/figure-html/diagnostics-3.png)
 
 ``` r
+
 plot(fit_cond_amoroso, params = "scale", family = "caterpillar")
 ```
+
 
     === caterpillar ===
 

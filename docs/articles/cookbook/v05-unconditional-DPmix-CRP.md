@@ -24,6 +24,7 @@ bulk distribution and no GPD tail augmentation.
 ## Data Setup
 
 ``` r
+
 data(nc_pos200_k3)
 y_mixed <- nc_pos200_k3$y
 
@@ -33,24 +34,28 @@ paste("Sample size:", length(y_mixed))
     [1] "Sample size: 200"
 
 ``` r
+
 paste("Mean:", mean(y_mixed))
 ```
 
     [1] "Mean: 4.21476750434594"
 
 ``` r
+
 paste("SD:", sd(y_mixed))
 ```
 
     [1] "SD: 4.10835046697183"
 
 ``` r
+
 paste("Range:", paste(range(y_mixed), collapse = " to "))
 ```
 
     [1] "Range: 0.0403111680208858 to 19.6013451514889"
 
 ``` r
+
 df_data <- data.frame(y = y_mixed)
 p_raw <- ggplot(df_data, aes(x = y)) +
   geom_histogram(aes(y = after_stat(density)), bins = 30, alpha = 0.6,
@@ -67,6 +72,7 @@ print(p_raw)
 ## Build Bundle (CRP)
 
 ``` r
+
 bundle_crp <- build_nimble_bundle(
   y = y_mixed,
   kernel = "laplace",
@@ -81,6 +87,7 @@ bundle_crp <- build_nimble_bundle(
 ## Run MCMC (Longer Run)
 
 ``` r
+
 bundle_crp <- build_nimble_bundle(
   y_mixed,
   kernel = "laplace",
@@ -93,6 +100,7 @@ bundle_crp <- build_nimble_bundle(
 ```
 
 ``` r
+
 summary(bundle_crp)
 ```
 
@@ -131,10 +139,12 @@ summary(bundle_crp)
       alpha, z[1:200], location[1:3], scale[1:3]
 
 ``` r
+
 fit_crp <- load_or_fit("v05-unconditional-DPmix-CRP-fit_crp", run_mcmc_bundle_manual(bundle_crp))
 ```
 
 ``` r
+
 summary(fit_crp)
 ```
 
@@ -159,6 +169,7 @@ summary(fit_crp)
 ## Posterior Parameters
 
 ``` r
+
 params_crp <- params(fit_crp)
 params_crp
 ```
@@ -180,16 +191,20 @@ params_crp
 ## Diagnostics
 
 ``` r
+
 plot(fit_crp, params = "location", family = "traceplot")
 ```
+
 
     === traceplot ===
 
 ![](v05-unconditional-DPmix-CRP_files/figure-html/diag-trace-1.png)
 
 ``` r
+
 plot(fit_crp, params = "scale", family = "caterpillar")
 ```
+
 
     === caterpillar ===
 
@@ -198,6 +213,7 @@ plot(fit_crp, params = "scale", family = "caterpillar")
 ## Posterior Predictive Density
 
 ``` r
+
 y_grid <- seq(0, max(y_mixed) * 1.2, length.out = 200)
 pred_density <- predict(fit_crp, y = y_grid, type = "density")
 plot(pred_density)

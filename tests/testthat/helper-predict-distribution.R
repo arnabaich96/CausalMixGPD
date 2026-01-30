@@ -140,11 +140,13 @@ if (!exists(".cache_enabled")) {
       }
     }
 
-    res <- residuals(fit, type = "pit")
-    if (!is.numeric(res) || length(res) != length(y)) stop("residuals length mismatch.")
-    ftd <- fitted(fit)
-    ftd_n <- if (is.data.frame(ftd)) nrow(ftd) else length(ftd)
-    if (ftd_n != length(y)) stop("fitted length mismatch.")
+    if (has_X) {
+      res <- residuals(fit, type = "pit")
+      if (!is.numeric(res) || length(res) != length(y)) stop("residuals length mismatch.")
+      ftd <- fitted(fit)
+      ftd_n <- if (is.data.frame(ftd)) nrow(ftd) else length(ftd)
+      if (ftd_n != length(y)) stop("fitted length mismatch.")
+    }
 
     if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quietly = TRUE)) {
       plots <- plot(fit, family = c("traceplot"), params = "alpha")

@@ -101,8 +101,8 @@ init_kernel_registry <- function() {
       ),
       crp = list(
         d_base = "dgamma",
-        d_gpd = NA_character_,
-        args_gpd = NA_character_
+        d_gpd = "dGammaGpd",
+        args_gpd = c("shape", "scale", "threshold", "tail_scale", "tail_shape")
       )
     ),
 

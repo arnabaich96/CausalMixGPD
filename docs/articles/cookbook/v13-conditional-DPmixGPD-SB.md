@@ -26,6 +26,7 @@ mirrors `v10` but with the SB backend.
 ### Data Setup
 
 ``` r
+
 data("nc_posX100_p5_k4")
 y <- nc_posX100_p5_k4$y
 X <- as.matrix(nc_posX100_p5_k4$X)
@@ -55,13 +56,15 @@ ggplot(data.frame(y = y, x1 = X[, 1]), aes(x = x1, y = y)) +
 |    Min    |  0.488  |
 |    Max    |  5.278  |
 
-Conditional Tail Summary (SB)
+Conditional Tail Summary (SB) {.table .table .table-striped .table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ------------------------------------------------------------------------
 
 ### Threshold
 
 ``` r
+
 u_threshold <- quantile(y, 0.85)
 
 ggplot(data.frame(y = y), aes(x = y)) +
@@ -78,6 +81,7 @@ ggplot(data.frame(y = y), aes(x = y)) +
 ### Model Specification
 
 ``` r
+
 bundle_sb_cond_gpd_gamma <- build_nimble_bundle(
   y = y,
   X = X,
@@ -114,6 +118,7 @@ bundle_sb_cond_gpd_laplace <- build_nimble_bundle(
 ### MCMC Execution
 
 ``` r
+
 fit_sb_cond_gpd_gamma <- load_or_fit("v13-conditional-DPmixGPD-SB-fit_sb_cond_gpd_gamma", run_mcmc_bundle_manual(bundle_sb_cond_gpd_gamma))
 fit_sb_cond_gpd_laplace <- load_or_fit("v13-conditional-DPmixGPD-SB-fit_sb_cond_gpd_laplace", run_mcmc_bundle_manual(bundle_sb_cond_gpd_laplace))
 summary(fit_sb_cond_gpd_gamma)
@@ -172,6 +177,7 @@ summary(fit_sb_cond_gpd_gamma)
                shape[2]  3.417 1.114  1.644  3.324  5.746  21.125
 
 ``` r
+
 summary(fit_sb_cond_gpd_laplace)
 ```
 
@@ -226,6 +232,7 @@ summary(fit_sb_cond_gpd_laplace)
                 scale[1]  1.133  0.29  0.629  1.129  1.841 14.876
 
 ``` r
+
 params_sb_cond <- params(fit_sb_cond_gpd_gamma)
 params_sb_cond
 ```
@@ -263,6 +270,7 @@ params_sb_cond
 ### Conditional Predictions
 
 ``` r
+
 X_new <- rbind(
   c(-1, 0, 0, 0, 0),
   c(0, 0, 0, 0, 0),
@@ -307,6 +315,7 @@ bind_rows(df_pred_gamma, df_pred_laplace) %>%
 ### Tail Quantiles
 
 ``` r
+
 X_grid <- cbind(x1 = seq(-1, 1, length.out = 5), x2 = 0, x3 = 0, x4 = 0, x5 = 0)
 colnames(X_grid) <- colnames(X)
 quant_probs <- c(0.90, 0.95)
@@ -338,22 +347,27 @@ bind_rows(quant_df_gamma, quant_df_laplace) %>%
 ### Residuals & Diagnostics
 
 ``` r
+
 plot(fitted(fit_sb_cond_gpd_gamma))
 ```
 
 ![](v13-conditional-DPmixGPD-SB_files/figure-html/residuals-1.png)![](v13-conditional-DPmixGPD-SB_files/figure-html/residuals-2.png)
 
 ``` r
+
 plot(fit_sb_cond_gpd_gamma, family = "traceplot")
 ```
+
 
     === traceplot ===
 
 ![](v13-conditional-DPmixGPD-SB_files/figure-html/diagnostics-1.png)
 
 ``` r
+
 plot(fit_sb_cond_gpd_laplace, family = "caterpillar")
 ```
+
 
     === caterpillar ===
 

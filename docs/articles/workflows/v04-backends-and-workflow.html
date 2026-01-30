@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Workflow 4: Backends, Kernels, and Workflow Map • DPmixGPD</title>
+<title>4. Backends, Kernels, and Workflow Map • DPmixGPD</title>
 <script src="../../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../../deps/headroom-0.11.0/headroom.min.js"></script><script src="../../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../../deps/search-1.0.0/fuse.min.js"></script><script src="../../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../../pkgdown.js"></script><link href="../../extra.css" rel="stylesheet">
-<script src="../../extra.js"></script><meta property="og:title" content="Workflow 4: Backends, Kernels, and Workflow Map">
+<script src="../../extra.js"></script><meta property="og:title" content="4. Backends, Kernels, and Workflow Map">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -31,35 +31,35 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-vignettes" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Vignettes</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-vignettes">
-<li><a class="dropdown-item" href="../../articles/manual-index.html">Vignettes Overview</a></li>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-pantry" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Pantry</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-pantry">
+<li><a class="dropdown-item" href="../../articles/manual-index.html">Pantry Overview</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Get Started</h6></li>
-    <li><a class="dropdown-item" href="../../articles/introduction.html">Introduction</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Starters</h6></li>
+    <li><a class="dropdown-item" href="../../articles/introduction.html">Starter: Introduction</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>User Guide</h6></li>
-    <li><a class="dropdown-item" href="../../articles/distributions.html">Available Distributions</a></li>
-    <li><a class="dropdown-item" href="../../articles/model-spec.html">Model Specification</a></li>
-    <li><a class="dropdown-item" href="../../articles/mcmc-workflow.html">MCMC Workflow</a></li>
-    <li><a class="dropdown-item" href="../../articles/unconditional.html">Unconditional Models</a></li>
-    <li><a class="dropdown-item" href="../../articles/conditional.html">Conditional Models</a></li>
-    <li><a class="dropdown-item" href="../../articles/causal.html">Causal Inference</a></li>
-    <li><a class="dropdown-item" href="../../articles/backends.html">Backends (CRP vs SB)</a></li>
-    <li><a class="dropdown-item" href="../../articles/reference-s3.html">S3 Methods Reference</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Main Course</h6></li>
+    <li><a class="dropdown-item" href="../../articles/distributions.html">Ingredient List (Distributions)</a></li>
+    <li><a class="dropdown-item" href="../../articles/model-spec.html">Recipe Spec (Model)</a></li>
+    <li><a class="dropdown-item" href="../../articles/mcmc-workflow.html">Prep and Cook (MCMC)</a></li>
+    <li><a class="dropdown-item" href="../../articles/unconditional.html">Mains: Unconditional</a></li>
+    <li><a class="dropdown-item" href="../../articles/conditional.html">Sides: Conditional</a></li>
+    <li><a class="dropdown-item" href="../../articles/causal.html">Dessert: Causal</a></li>
+    <li><a class="dropdown-item" href="../../articles/backends.html">Oven Choice (CRP vs SB)</a></li>
+    <li><a class="dropdown-item" href="../../articles/reference-s3.html">Utensil Guide (S3 Methods)</a></li>
   </ul>
 </li>
 <li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-all-in-one" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">All-in-One</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-all-in-one">
-<li><a class="dropdown-item" href="../../articles/Customization/umbrella.html">Umbrella: Custom Models (All-in-One)</a></li>
-    <li><a class="dropdown-item" href="../../articles/Customization/customization.html">Customization: Build NIMBLE Models from Scratch</a></li>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-chef-specials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Chef Specials</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-chef-specials">
+<li><a class="dropdown-item" href="../../articles/Customization/umbrella.html">Chef Special: Umbrella Custom Models</a></li>
+    <li><a class="dropdown-item" href="../../articles/Customization/customization.html">Custom Order: Build NIMBLE from Scratch</a></li>
   </ul>
 </li>
 <li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-kernels" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Kernels</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-kernels">
-<li><a class="dropdown-item" href="../../articles/kernels-index.html">Kernels Overview</a></li>
+  <button class="nav-link dropdown-toggle" type="button" id="dropdown-ingredients" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Ingredients</button>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-ingredients">
+<li><a class="dropdown-item" href="../../articles/kernels-index.html">Ingredient Overview</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../../articles/kernels/kernel-amoroso.html">Amoroso</a></li>
     <li><a class="dropdown-item" href="../../articles/kernels/kernel-cauchy.html">Cauchy</a></li>
@@ -70,42 +70,47 @@
     <li><a class="dropdown-item" href="../../articles/kernels/kernel-normal.html">Normal</a></li>
   </ul>
 </li>
-<li class="active nav-item dropdown">
+<li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-cookbook" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Cookbook</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-cookbook">
-<li><a class="dropdown-item" href="../../articles/workflows-index.html">Cookbook Overview</a></li>
+<li><a class="dropdown-item" href="../../articles/cookbook-index.html">Recipe Book</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Getting Started</h6></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v00-start-here.html">Start Here</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v01-introduction.html">Introduction</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v02-available-distributions.html">Available Distributions</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Starters</h6></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v00-start-here.html">Starter Broth (Start Here)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v01-introduction.html">Chef's Notes (Introduction)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v02-available-distributions.html">Spice Rack Sampler (Distributions)</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Core Concepts</h6></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v03-basic-model-compile-run.html">Basic Model Compile &amp; Run</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v04-backends-and-workflow.html">Backends and Workflow</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Entrees</h6></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v03-basic-model-compile-run.html">Mainline Sear (Compile &amp; Run)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v04-backends-and-workflow.html">Two-Oven Roast (Backends)</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Unconditional Models</h6></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v05-unconditional-DPmix-CRP.html">DPmix CRP (v05)</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v06-unconditional-DPmix-CRP.html">DPmix CRP Extended (v06)</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v07-unconditional-DPmix-SB.html">DPmix SB (v07)</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v08-unconditional-DPmixGPD-CRP.html">DPmixGPD CRP (v08)</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v09-unconditional-DPmixGPD-SB.html">DPmixGPD SB (v09)</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Chef Specials (All-in-One)</h6></li>
+    <li><a class="dropdown-item" href="../../articles/Customization/umbrella.html">House Platter (Umbrella)</a></li>
+    <li><a class="dropdown-item" href="../../articles/Customization/customization.html">Chef's Tasting Menu (NIMBLE)</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Conditional Models</h6></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v10-conditional-DPmix-CRP.html">DPmix CRP (v10)</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v11-conditional-DPmix-SB.html">DPmix SB (v11)</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v12-conditional-DPmixGPD-CRP.html">DPmixGPD CRP (v12)</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v13-conditional-DPmixGPD-SB.html">DPmixGPD SB (v13)</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Mains (Unconditional)</h6></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v05-unconditional-DPmix-CRP.html">Classic Stew (CRP)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v06-unconditional-DPmix-CRP.html">Extended Braise (CRP Extended)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v07-unconditional-DPmix-SB.html">Layered Lasagna (SB)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v08-unconditional-DPmixGPD-CRP.html">Tail-Spice Chili (GPD CRP)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v09-unconditional-DPmixGPD-SB.html">Tail-Spice Bake (GPD SB)</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><h6 class="dropdown-header" data-toc-skip>Causal Inference</h6></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v14-causal-no-x-CRP.html">No Covariates CRP (v14)</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v15-causal-x-no-ps-SB.html">With Covariates SB (v15)</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v16-causal-same-backend-CRP.html">Same Backend CRP (v16)</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v17-causal-same-backend-SB.html">Same Backend SB (v17)</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v18-causal-different-backends-CRP.html">Different Backends CRP (v18)</a></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v19-causal-different-backends-SB.html">Different Backends SB (v19)</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Sides (Conditional)</h6></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v10-conditional-DPmix-CRP.html">Seasoned Sides (CRP)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v11-conditional-DPmix-SB.html">Stirred Layers (SB)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v12-conditional-DPmixGPD-CRP.html">Citrus Tart (GPD CRP)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v13-conditional-DPmixGPD-SB.html">Glazed Side (GPD SB)</a></li>
     <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../../articles/workflows/v20-troubleshooting.html">Troubleshooting (v20)</a></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Desserts (Causal)</h6></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v14-causal-no-x-CRP.html">Simple Sweet (No Covariates)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v15-causal-x-no-ps-SB.html">Layer Cake (With Covariates)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v16-causal-same-backend-CRP.html">Twin Scoops (Same Backend CRP)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v17-causal-same-backend-SB.html">Twin Parfaits (Same Backend SB)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v18-causal-different-backends-CRP.html">Two-Style Tasting (Different CRP)</a></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v19-causal-different-backends-SB.html">Split Plating (Different SB)</a></li>
+    <li><hr class="dropdown-divider"></li>
+    <li><h6 class="dropdown-header" data-toc-skip>Kitchen Notes</h6></li>
+    <li><a class="dropdown-item" href="../../articles/cookbook/v20-troubleshooting.html">Fix-It Fry (Troubleshooting)</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../../coverage/index.html">Coverage</a></li>
@@ -126,7 +131,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Workflow 4: Backends, Kernels, and Workflow Map</h1>
+      <h1>4. Backends, Kernels, and Workflow Map</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/arnabaich96/DPmixGPD/blob/HEAD/vignettes/workflows/v04-backends-and-workflow.Rmd" class="external-link"><code>vignettes/workflows/v04-backends-and-workflow.Rmd</code></a></small>
@@ -135,14 +140,14 @@
 
     
     
-<div class="section level3">
-<h3 id="theory-brief">Theory (brief)<a class="anchor" aria-label="anchor" href="#theory-brief"></a>
-</h3>
-<p>The CRP and stick-breaking backends are two equivalent
-representations of the DP mixture. They differ in computation
-(allocation vs truncation) but target the same underlying prior over
-distributions.</p>
-</div>
+<blockquote>
+<p><strong>Legacy vignette (for the website / historical
+notes).</strong> These files may not match the current exported API
+one-to-one. Last verified: <strong>2026-01-18</strong>.</p>
+<p>For the up-to-date workflow, see the main package vignettes
+(Introduction, Model Spec, MCMC Workflow,
+Unconditional/Conditional/Causal, Backends, S3 Reference).</p>
+</blockquote>
 <div class="section level2">
 <h2 id="big-picture">Big picture<a class="anchor" aria-label="anchor" href="#big-picture"></a>
 </h2>
@@ -213,10 +218,11 @@ TE work).</li>
 <code><a href="../../reference/run_mcmc_bundle_manual.html">run_mcmc_bundle_manual()</a></code>.</li>
 <li>
 <strong>Inspect and summarize</strong> using <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>,
-<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>.</li>
+<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>, <code>if (interactive()) plot()</code>.</li>
 <li>
-<strong>Predict</strong> using <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> (and
-optionally <code><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted()</a></code>).</li>
+<strong>Predict</strong> using <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code>. For
+conditional (covariate) models, <code><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted()</a></code> is also
+available.</li>
 </ol>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Build</span></span>
@@ -230,35 +236,24 @@ optionally <code><a href="https://rdrr.io/r/stats/fitted.values.html" class="ext
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Run</span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">load_or_fit</span><span class="op">(</span><span class="st">"v04-backends-and-workflow-fit"</span>, <span class="fu"><a href="../../reference/run_mcmc_bundle_manual.html">run_mcmc_bundle_manual</a></span><span class="op">(</span><span class="va">bundle</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code>===== Monitors =====
-thin = 1: alpha, mean, sd, z
-===== Samplers =====
-CRP_concentration sampler (1)
-  - alpha
-CRP_cluster_wrapper sampler (10)
-  - sd[]  (5 elements)
-  - mean[]  (5 elements)
-CRP sampler (1)
-  - z[1:50] </code></pre>
-<pre><code>  [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.</code></pre>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Summarize</span></span>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu">load_or_fit</span><span class="op">(</span><span class="st">"v04-backends-and-workflow-fit"</span>, <span class="fu"><a href="../../reference/run_mcmc_bundle_manual.html">run_mcmc_bundle_manual</a></span><span class="op">(</span><span class="va">bundle</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Summarize</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
 <pre><code>MixGPD fit | backend: Chinese Restaurant Process | kernel: Normal Distribution | GPD tail: FALSE
 n = 50 | components = 5 | epsilon = 0.025
-MCMC: niter=400, nburnin=100, thin=2, nchains=1 
+MCMC: niter=4000, nburnin=1000, thin=5, nchains=2 
 Fit
 Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</code></pre>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
 <pre><code>MixGPD summary | backend: Chinese Restaurant Process | kernel: Normal Distribution | GPD tail: FALSE | epsilon: 0.025
 n = 50 | components = 5
 Summary
 Initial components: 5 | Components after truncation: 1
 
-WAIC: 126.441
-lppd: -57.216 | pWAIC: 6.004
+WAIC: 126.256
+lppd: -55.18 | pWAIC: 7.948
 
 Summary table
 &lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
@@ -276,78 +271,51 @@ Summary table
 &lt;tbody&gt;
   &lt;tr&gt;
    &lt;td style="text-align:center;"&gt; weights[1] &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.962 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.08 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.735 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.933 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.122 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.56 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
    &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 23.073 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 224.34 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:center;"&gt; alpha &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.306 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.291 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.005 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.218 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 1.046 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 46.898 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.337 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.349 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.006 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.233 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.291 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 801.989 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:center;"&gt; mean[1] &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.128 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.133 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; -0.104 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.112 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.404 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 150 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.152 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.156 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.13 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.146 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.489 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 595.413 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:center;"&gt; sd[1] &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 1.539 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.422 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.967 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 1.483 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2.602 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 80.825 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.71 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.577 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.989 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.582 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.286 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 376.985 &lt;/td&gt;
   &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;</code></pre>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
-<pre><code>
-=== histogram ===</code></pre>
-<p><img src="v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-1.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<pre><code>
-=== density ===</code></pre>
-<p><img src="v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-2.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<pre><code>
-=== traceplot ===</code></pre>
-<p><img src="v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-3.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<pre><code>
-=== running ===</code></pre>
-<p><img src="v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-4.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<pre><code>
-=== compare_partial ===</code></pre>
-<p><img src="v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-5.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<pre><code>
-=== autocorrelation ===</code></pre>
-<p><img src="v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-6.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<pre><code>
-=== geweke ===</code></pre>
-<p><img src="v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-7.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<pre><code>
-=== caterpillar ===</code></pre>
-<p><img src="v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-8.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
-<pre><code>
-=== pairs ===</code></pre>
-<p><img src="v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-9.png" class="r-plt" alt="" width="768" style="display: block; margin: auto;"></p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="kernel-support-quick-check">Kernel support quick check<a class="anchor" aria-label="anchor" href="#kernel-support-quick-check"></a>
 </h2>
 <p>Use <code><a href="../../reference/kernel_support_table.html">kernel_support_table()</a></code> and the kernel registry
 helpers to confirm what is available.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../../reference/kernel_support_table.html">kernel_support_table</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre><code>             kernel gpd covariates sb crp
 normal       normal   ✔          ✔  ✔   ✔

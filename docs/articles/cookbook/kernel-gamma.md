@@ -25,6 +25,7 @@ For the full catalog (including CRP utilities and GPD splicing), see:
 ## Using Gamma in a model
 
 ``` r
+
 y <- abs(stats::rnorm(50)) + 0.1
 bundle <- build_nimble_bundle(
   y = y,

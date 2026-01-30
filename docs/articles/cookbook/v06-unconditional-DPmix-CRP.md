@@ -31,6 +31,7 @@ $`G \sim \text{DP}(\alpha, G_0)`$
 ### Data Setup
 
 ``` r
+
 data(nc_pos200_k3)
 y_mixed <- nc_pos200_k3$y
 
@@ -40,24 +41,28 @@ paste("Sample size:", length(y_mixed))
     [1] "Sample size: 200"
 
 ``` r
+
 paste("Mean:", mean(y_mixed))
 ```
 
     [1] "Mean: 4.21476750434594"
 
 ``` r
+
 paste("SD:", sd(y_mixed))
 ```
 
     [1] "SD: 4.10835046697183"
 
 ``` r
+
 paste("Range:", paste(range(y_mixed), collapse = " to "))
 ```
 
     [1] "Range: 0.0403111680208858 to 19.6013451514889"
 
 ``` r
+
 df_data <- data.frame(y = y_mixed)
 p_raw <- ggplot(df_data, aes(x = y)) +
   geom_histogram(aes(y = after_stat(density)), bins = 30, alpha = 0.6, fill = "steelblue",color = "black") +
@@ -78,6 +83,7 @@ We’ll use the `build_nimble_bundle` function directly which handles both
 specification and bundle creation.
 
 ``` r
+
 bundle_crp <- build_nimble_bundle(
   y = y_mixed,
   kernel = "laplace",
@@ -94,6 +100,7 @@ bundle_crp <- build_nimble_bundle(
 #### Building MCMC bundle
 
 ``` r
+
 bundle_crp <- build_nimble_bundle(
   y_mixed,
   kernel = "laplace",
@@ -108,6 +115,7 @@ bundle_crp <- build_nimble_bundle(
 #### Summary of MCMC Bundle
 
 ``` r
+
 summary(bundle_crp)
 ```
 
@@ -148,12 +156,14 @@ summary(bundle_crp)
 #### Running MCMC
 
 ``` r
+
 fit_crp <- load_or_fit("v06-unconditional-DPmix-CRP-fit_crp", run_mcmc_bundle_manual(bundle_crp))
 ```
 
 #### Summary of Fitted MCMC model
 
 ``` r
+
 summary(fit_crp)
 ```
 
@@ -176,6 +186,7 @@ summary(fit_crp)
         scale[2] 0.732 0.624  0.261   0.35  2.124 15.309
 
 ``` r
+
 params_crp <- params(fit_crp)
 params_crp
 ```
@@ -199,16 +210,20 @@ params_crp
 ### MCMC Diagnostics Plots
 
 ``` r
+
 plot(fit_crp, params = "location", family = "traceplot")
 ```
+
 
     === traceplot ===
 
 ![](v06-unconditional-DPmix-CRP_files/figure-html/diag-trace-1.png)
 
 ``` r
+
 plot(fit_crp, params = "scale", family = "caterpillar")
 ```
+
 
     === caterpillar ===
 
@@ -221,6 +236,7 @@ plot(fit_crp, params = "scale", family = "caterpillar")
 #### Predictive Density
 
 ``` r
+
 y_grid <- seq(0, max(y_mixed) * 1.2, length.out = 200)
 pred_density <- predict(fit_crp, y = y_grid, type = "density")
 plot(pred_density)
@@ -231,6 +247,7 @@ plot(pred_density)
 #### Quantile Predictions
 
 ``` r
+
 quantiles_pred <- predict(fit_crp, type = "quantile", 
                           index = c(0.05, 0.25, 0.5, 0.75, 0.95),
                           interval = "credible")
@@ -249,9 +266,12 @@ quantiles_pred$fit %>%
 |   6.82   | 0.75  | 5.424  | 8.01  |
 |   7.40   | 0.95  | 5.995  | 8.56  |
 
-Posterior Predictive Quantiles with Credible Intervals
+Posterior Predictive Quantiles with Credible Intervals {.table .table
+.table-striped
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ``` r
+
 plot(quantiles_pred)
 ```
 
@@ -262,6 +282,7 @@ plot(quantiles_pred)
 ### Varying Truncation Level (components)
 
 ``` r
+
 # Demonstrate with one value
 bundle_components <- build_nimble_bundle(
   y = y_mixed,
@@ -274,6 +295,7 @@ fit_components <- load_or_fit("v06-unconditional-DPmix-CRP-fit_components", run_
 ```
 
 ``` r
+
 summary(fit_components)
 ```
 
@@ -303,6 +325,7 @@ summary(fit_components)
 ### Residual Analysis
 
 ``` r
+
 Fit <- fitted(fit_components)
 
 kableExtra::kbl(head(Fit), caption = "Fitted Values, Residuals and Credible Interval", 
@@ -319,9 +342,12 @@ kableExtra::kbl(head(Fit), caption = "Fitted Values, Residuals and Credible Inte
 | 3.56 | 2.38 | 4.55 | 3.738 | 3.56 | 2.38 | 4.55 | 3.13 | 2.35 | 4.47 |
 | 3.56 | 2.38 | 4.55 | 3.530 | 3.56 | 2.38 | 4.55 | 3.13 | 2.35 | 4.47 |
 
-Fitted Values, Residuals and Credible Interval
+Fitted Values, Residuals and Credible Interval {.table .table
+.table-striped
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ``` r
+
 fit.plots <- plot(Fit)
 fit.plots$residual_plot
 ```
@@ -335,6 +361,7 @@ fit.plots$residual_plot
 #### Laplace Kernel (Current)
 
 ``` r
+
 bundle_laplace <- build_nimble_bundle(
   y = y_mixed,
   kernel = "laplace",
@@ -346,6 +373,7 @@ fit_laplace <- load_or_fit("v06-unconditional-DPmix-CRP-fit_laplace", run_mcmc_b
 ```
 
 ``` r
+
 summary(fit_laplace)
 ```
 
@@ -373,6 +401,7 @@ summary(fit_laplace)
 #### Amoroso Kernel (Alternative)
 
 ``` r
+
 bundle_amoroso <- build_nimble_bundle(
   y = y_mixed,
   kernel = "amoroso",
@@ -384,6 +413,7 @@ fit_amoroso <- load_or_fit("v06-unconditional-DPmix-CRP-fit_amoroso", run_mcmc_b
 ```
 
 ``` r
+
 summary(fit_amoroso)
 ```
 
@@ -407,6 +437,7 @@ summary(fit_amoroso)
 #### Model Comparison via Predictions
 
 ``` r
+
 # Compare fitted values using S3 plot method
 fitted_laplace <- fitted(fit_laplace)
 fitted_amoroso <- fitted(fit_amoroso)
@@ -416,6 +447,7 @@ l.plot <- plot(fitted_amoroso)
 ```
 
 ``` r
+
 p_gamma <- g.plot$observed_fitted_plot +
   ggtitle("Laplace kernel") +
   theme(plot.title = element_text(hjust = 0.5))

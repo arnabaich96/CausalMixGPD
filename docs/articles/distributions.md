@@ -27,6 +27,7 @@ sets (R + NIMBLE) and Rd links.
 - Base: `dgpd`, `pgpd`, `qgpd`, `rgpd`
 
 ``` r
+
 sets <- list(
   list(label = "GPD A", fn = dgpd, params = list(threshold = 1.0, scale = 0.6, shape = 0.15)),
   list(label = "GPD B", fn = dgpd, params = list(threshold = 1.5, scale = 0.5, shape = 0.25)),
@@ -42,9 +43,11 @@ param_table("GPD parameter sets", sets)
 | GPD B | threshold = 1.5, scale = 0.5, shape = 0.25 |
 | GPD C |  threshold = 2, scale = 0.7, shape = 0.1   |
 
-GPD parameter sets
+GPD parameter sets {.table .table .table-striped .table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ``` r
+
 variants <- list(
   list(label = "GPD A", d = dgpd, p = pgpd, q = qgpd, r = rgpd,
        params = list(threshold = 1.0, scale = 0.6, shape = 0.15)),
@@ -63,7 +66,9 @@ demo_table("GPD function demo (x = 2.0, p = 0.8, n = 3)", variants, x = 2.0)
 |  GPD B  | 0.655 | 0.590 | 2.49 | 3.134, 1.616, 3.042 |
 |  GPD C  | 1.429 | 0.000 | 3.22 |  4.35, 2.799, 2.73  |
 
-GPD function demo (x = 2.0, p = 0.8, n = 3)
+GPD function demo (x = 2.0, p = 0.8, n = 3) {.table .table
+.table-striped .table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ![](distributions_files/figure-html/gpd-plot-1.png)
 
@@ -78,6 +83,7 @@ GPD function demo (x = 2.0, p = 0.8, n = 3)
   `rnormmixgpd`
 
 ``` r
+
 sets <- list(
   list(label = "Base", fn = dnorm, params = list(mean = 0, sd = 1)),
   list(label = "Base + GPD", fn = dnormgpd,
@@ -99,9 +105,11 @@ param_table("Normal parameter sets", sets)
 | Mixture | w = (0.7, 0.3), mean = (-1, 1.5), sd = (1, 0.7) |
 | Mixture + GPD | w = (0.7, 0.3), mean = (-1, 1), sd = (1, 0.7), threshold = 1.5, tail_scale = 0.5, tail_shape = 0.2 |
 
-Normal parameter sets
+Normal parameter sets {.table .table .table-striped .table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ``` r
+
 variants <- list(
   list(label = "Base", d = dnorm, p = pnorm, q = qnorm, r = rnorm,
        params = list(mean = 0, sd = 1)),
@@ -124,7 +132,9 @@ demo_table("Normal function demo (x = 0.5, p = 0.8, n = 3)", variants, x = 0.5)
 |    Mixture    | 0.152 | 0.676 | 1.252 | -1.289, 0.125, -0.748 |
 | Mixture + GPD | 0.223 | 0.724 | 0.841 |  1.305, 0.843, 1.093  |
 
-Normal function demo (x = 0.5, p = 0.8, n = 3)
+Normal function demo (x = 0.5, p = 0.8, n = 3) {.table .table
+.table-striped .table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ![](distributions_files/figure-html/norm-plot-1.png)
 
@@ -139,6 +149,7 @@ Normal function demo (x = 0.5, p = 0.8, n = 3)
   `rgammamixgpd`
 
 ``` r
+
 sets <- list(
   list(label = "Base", fn = dgamma, params = list(shape = 2.5, scale = 1.0)),
   list(label = "Base + GPD", fn = dgammagpd,
@@ -160,9 +171,11 @@ param_table("Gamma parameter sets", sets)
 | Mixture | w = (0.6, 0.4), shape = (2, 5), scale = (1, 0.7) |
 | Mixture + GPD | w = (0.6, 0.4), shape = (2, 5), scale = (1, 0.7), threshold = 5, tail_scale = 1, tail_shape = 0.2 |
 
-Gamma parameter sets
+Gamma parameter sets {.table .table .table-striped .table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ``` r
+
 variants <- list(
   list(label = "Base", d = dgamma, p = pgamma, q = qgamma, r = rgamma,
        params = list(shape = 2.5, scale = 1.0)),
@@ -185,7 +198,9 @@ demo_table("Gamma function demo (x = 3.0, p = 0.8, n = 3)", variants, x = 3.0)
 |    Mixture    | 0.200 | 0.651 | 3.89 | 1.016, 2.522, 2.564 |
 | Mixture + GPD | 0.200 | 0.651 | 3.89 |  3.4, 6.301, 0.997  |
 
-Gamma function demo (x = 3.0, p = 0.8, n = 3)
+Gamma function demo (x = 3.0, p = 0.8, n = 3) {.table .table
+.table-striped .table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ![](distributions_files/figure-html/gamma-plot-1.png)
 
@@ -202,6 +217,7 @@ Gamma function demo (x = 3.0, p = 0.8, n = 3)
   `qlognormalmixgpd`, `rlognormalmixgpd`
 
 ``` r
+
 sets <- list(
   list(label = "Base", fn = dlnorm, params = list(meanlog = 0.2, sdlog = 0.5)),
   list(label = "Base + GPD", fn = dlognormalgpd,
@@ -223,9 +239,11 @@ param_table("Lognormal parameter sets", sets)
 | Mixture | w = (0.6, 0.4), meanlog = (0, 0.6), sdlog = (0.4, 0.5) |
 | Mixture + GPD | w = (0.6, 0.4), meanlog = (0, 0.6), sdlog = (0.4, 0.5), threshold = 3, tail_scale = 0.8, tail_shape = 0.2 |
 
-Lognormal parameter sets
+Lognormal parameter sets {.table .table .table-striped .table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ``` r
+
 variants <- list(
   list(label = "Base", d = dlnorm, p = plnorm, q = qlnorm, r = rlnorm,
        params = list(meanlog = 0.2, sdlog = 0.5)),
@@ -249,7 +267,9 @@ demo_table("Lognormal function demo (x = 1.2, p = 0.8, n = 3)", variants, x = 1.
 |    Mixture    | 0.637 | 0.486 | 1.98 | 0.783, 1.224, 1.774 |
 | Mixture + GPD | 0.637 | 0.486 | 1.98 | 4.204, 0.659, 0.947 |
 
-Lognormal function demo (x = 1.2, p = 0.8, n = 3)
+Lognormal function demo (x = 1.2, p = 0.8, n = 3) {.table .table
+.table-striped .table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ![](distributions_files/figure-html/logn-plot-1.png)
 
@@ -264,6 +284,7 @@ Lognormal function demo (x = 1.2, p = 0.8, n = 3)
   `rlaplacemixgpd`
 
 ``` r
+
 sets <- list(
   list(label = "Base", fn = nimble::ddexp, params = list(location = 0, scale = 0.8)),
   list(label = "Base + GPD", fn = dlaplacegpd,
@@ -285,9 +306,11 @@ param_table("Laplace parameter sets", sets)
 | Mixture | w = (0.7, 0.3), location = (0, 0.8), scale = (0.5, 0.8) |
 | Mixture + GPD | w = (0.7, 0.3), location = (0, 0.8), scale = (0.5, 0.8), threshold = 2, tail_scale = 0.5, tail_shape = 0.2 |
 
-Laplace parameter sets
+Laplace parameter sets {.table .table .table-striped .table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ``` r
+
 variants <- list(
   list(label = "Base", d = nimble::ddexp, p = nimble::pdexp, q = nimble::qdexp, r = nimble::rdexp,
        params = list(location = 0, scale = 0.8)),
@@ -311,7 +334,9 @@ demo_table("Laplace function demo (x = 0.5, p = 0.8, n = 3)", variants, x = 0.5)
 |    Mixture    | 0.386 | 0.674 | 0.866 | 0.783, -0.247, 0.115  |
 | Mixture + GPD | 0.386 | 0.674 | 0.866 |   -0, -0.402, 0.617   |
 
-Laplace function demo (x = 0.5, p = 0.8, n = 3)
+Laplace function demo (x = 0.5, p = 0.8, n = 3) {.table .table
+.table-striped .table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ![](distributions_files/figure-html/laplace-plot-1.png)
 
@@ -328,6 +353,7 @@ Laplace function demo (x = 0.5, p = 0.8, n = 3)
   `qinvgaussmixgpd`, `rinvgaussmixgpd`
 
 ``` r
+
 sets <- list(
   list(label = "Base", fn = dinvgauss, params = list(mean = 1.2, shape = 3.0)),
   list(label = "Base + GPD", fn = dinvgaussgpd,
@@ -349,9 +375,12 @@ param_table("Inverse Gaussian parameter sets", sets)
 | Mixture | w = (0.6, 0.4), mean = (1, 2), shape = (2, 4) |
 | Mixture + GPD | w = (0.6, 0.4), mean = (1, 2), shape = (2, 4), threshold = 2, tail_scale = 0.5, tail_shape = 0.2 |
 
-Inverse Gaussian parameter sets
+Inverse Gaussian parameter sets {.table .table .table-striped
+.table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ``` r
+
 variants <- list(
   list(label = "Base", d = dinvgauss, p = pinvgauss, q = qinvgauss, r = rinvgauss,
        params = list(mean = 1.2, shape = 3.0)),
@@ -375,7 +404,9 @@ demo_table("Inverse Gaussian function demo (x = 1.5, p = 0.8, n = 3)", variants,
 |    Mixture    | 0.316 | 0.678 | 2.00 | 3.693, 1.838, 0.372 |
 | Mixture + GPD | 0.316 | 0.678 | 2.00 | 1.433, 0.649, 1.582 |
 
-Inverse Gaussian function demo (x = 1.5, p = 0.8, n = 3)
+Inverse Gaussian function demo (x = 1.5, p = 0.8, n = 3) {.table .table
+.table-striped .table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ![](distributions_files/figure-html/ig-plot-1.png)
 
@@ -390,6 +421,7 @@ Inverse Gaussian function demo (x = 1.5, p = 0.8, n = 3)
   `ramorosomixgpd`
 
 ``` r
+
 sets <- list(
   list(label = "Base", fn = damoroso,
        params = list(loc = 0, scale = 1.2, shape1 = 2.5, shape2 = 1.2)),
@@ -415,9 +447,11 @@ param_table("Amoroso parameter sets", sets)
 | Mixture | w = (0.6, 0.4), loc = (0, 0), scale = (1, 1.5), shape1 = (2, 3), shape2 = (1.2, 1.2) |
 | Mixture + GPD | w = (0.6, 0.4), loc = (0, 0), scale = (1, 1.5), shape1 = (2, 3), shape2 = (1.2, 1.2), threshold = 2.5, tail_scale = 0.4, tail_shape = 0.2 |
 
-Amoroso parameter sets
+Amoroso parameter sets {.table .table .table-striped .table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ``` r
+
 variants <- list(
   list(label = "Base", d = damoroso, p = pamoroso, q = qamoroso, r = ramoroso,
        params = list(loc = 0, scale = 1.2, shape1 = 2.5, shape2 = 1.2)),
@@ -444,7 +478,9 @@ demo_table("Amoroso function demo (x = 1.8, p = 0.8, n = 3)", variants, x = 1.8)
 |    Mixture    | 0.291 | 0.412 | 3.71 | 0.767, 1.564, 3.452 |
 | Mixture + GPD | 0.291 | 0.412 | 2.81 | 1.346, 2.678, 1.888 |
 
-Amoroso function demo (x = 1.8, p = 0.8, n = 3)
+Amoroso function demo (x = 1.8, p = 0.8, n = 3) {.table .table
+.table-striped .table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ![](distributions_files/figure-html/amor-plot-1.png)
 
@@ -456,6 +492,7 @@ Amoroso function demo (x = 1.8, p = 0.8, n = 3)
 - Mixture: `dcauchymix`, `pcauchymix`, `qcauchymix`, `rcauchymix`
 
 ``` r
+
 sets <- list(
   list(label = "Base", fn = dcauchy_vec, params = list(location = 0, scale = 1.0)),
   list(label = "Mixture", fn = dcauchymix,
@@ -470,9 +507,11 @@ param_table("Cauchy parameter sets", sets)
 |  Base   |               location = 0, scale = 1                |
 | Mixture | w = (0.6, 0.4), location = (-1, 1), scale = (1, 1.5) |
 
-Cauchy parameter sets
+Cauchy parameter sets {.table .table .table-striped .table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ``` r
+
 variants <- list(
   list(label = "Base", d = dcauchy_vec, p = pcauchy_vec, q = qcauchy_vec, r = rcauchy_vec,
        params = list(location = 0, scale = 1.0)),
@@ -488,7 +527,9 @@ demo_table("Cauchy function demo (x = 0.5, p = 0.8, n = 3)", variants, x = 0.5)
 |  Base   | 0.255 | 0.648 | 1.38 |  -0.36, 0.678, 0.677  |
 | Mixture | 0.135 | 0.647 | 1.84 | -1.225, -1.696, 2.457 |
 
-Cauchy function demo (x = 0.5, p = 0.8, n = 3)
+Cauchy function demo (x = 0.5, p = 0.8, n = 3) {.table .table
+.table-striped .table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ![](distributions_files/figure-html/cauchy-plot-1.png)
 
@@ -524,7 +565,9 @@ Cauchy function demo (x = 0.5, p = 0.8, n = 3)
 | Cauchy | Base | [cauchy](https://arnabaich96.github.io/DPmixGPD/reference/cauchy.md) | dCauchy / pCauchy / qCauchy / rCauchy | dcauchy_vec / pcauchy_vec / qcauchy_vec / rcauchy_vec |  | location, scale |
 |  | Mixture | [cauchy_mix](https://arnabaich96.github.io/DPmixGPD/reference/cauchy_mix.md) | dCauchyMix / pCauchyMix / qCauchyMix / rCauchyMix | dcauchymix / pcauchymix / qcauchymix / rcauchymix | w, location, scale |  |
 
-Complete distribution reference
+Complete distribution reference {.table .table .table-striped
+.table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ## NIMBLE vs R functions
 

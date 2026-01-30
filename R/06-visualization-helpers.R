@@ -151,6 +151,34 @@
   .wrap_plotly(p)
 }
 
+#' Plot fit predictions (per-observation dots with CI)
+#' @keywords internal
+#' @noRd
+.plot_fit_pred <- function(pred, ...) {
+  fit_df <- pred$fit
+  if (!is.data.frame(fit_df) || !all(c("id", "estimate") %in% names(fit_df))) {
+    stop("Fit prediction must return a data.frame with columns 'id' and 'estimate'.", call. = FALSE)
+  }
+
+  plot_data <- fit_df
+  pal <- .plot_palette(max(2L, length(unique(plot_data$id))))
+  p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = factor(id), y = estimate)) +
+    ggplot2::geom_point(ggplot2::aes(color = factor(id)), size = 3) +
+    {if ("lower" %in% names(plot_data) && "upper" %in% names(plot_data)) {
+      ggplot2::geom_errorbar(ggplot2::aes(ymin = lower, ymax = upper, group = id, color = factor(id)),
+                             width = 0.2, linewidth = 1)
+    }} +
+    ggplot2::scale_color_manual(values = pal) +
+    .plot_theme() +
+    ggplot2::labs(
+      title = "Per-observation Fit Estimates with Credible Intervals",
+      x = "Observation (id)",
+      y = "Estimate"
+    )
+
+  .wrap_plotly(p)
+}
+
 #' Plot density predictions
 #' @keywords internal
 #' @noRd

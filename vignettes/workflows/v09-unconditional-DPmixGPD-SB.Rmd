@@ -1,7 +1,8 @@
-﻿---
+---
 title: "9. Unconditional DPmixGPD with Stick-Breaking Backend"
-output: 
+output:
   rmarkdown::html_vignette:
+    highlight: null
     code_folding: show
 vignette: >
   %\VignetteIndexEntry{9. Unconditional DPmixGPD with Stick-Breaking Backend}
@@ -32,8 +33,9 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
-devtools::load_all()
+pkgload::load_all()
 library(DPmixGPD)
+library(dplyr)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
@@ -102,7 +104,7 @@ ggplot(df_data, aes(x = y)) +
 
 ## Model Specification & Bundle
 
-This follows the same structure as the SB bulk-only vignette (`v05`): build a bundle with `build_nimble_bundle()`, run MCMC, then use the S3 `predict()` + `plot()` helpers. Compared with `v06` (CRP+GPD), here we keep the **stick-breaking** backend and use a **Gamma** bulk kernel with a lognormal threshold prior, then contrast it with a bulk-only **Laplace** fit.
+This follows the same structure as the SB bulk-only vignette (`v05`): build a bundle with `build_nimble_bundle()`, run MCMC, then use the S3 `predict()` + `if (interactive()) plot()` helpers. Compared with `v06` (CRP+GPD), here we keep the **stick-breaking** backend and use a **Gamma** bulk kernel with a lognormal threshold prior, then contrast it with a bulk-only **Laplace** fit.
 
 ```{r spec-bundle, cache=FALSE}
 bundle_sb_gpd <- build_nimble_bundle(
@@ -145,19 +147,19 @@ params_sb_gpd
 ```{r density-predict}
 y_grid <- seq(0, max(y_tail) * 1.3, length.out = 300)
 pred_density <- predict(fit_sb_gpd, y = y_grid, type = "density")
-plot(pred_density)
+if (interactive()) plot(pred_density)
 ```
 
 ```{r survival-predict}
 y_surv <- seq(u_threshold, max(y_tail) * 1.1, length.out = 60)
 pred_surv <- predict(fit_sb_gpd, y = y_surv, type = "survival")
-plot(pred_surv)
+if (interactive()) plot(pred_surv)
 ```
 
 ```{r quantile-predict}
 quant_probs <- c(0.90, 0.95, 0.99)
 pred_quant <- predict(fit_sb_gpd, type = "quantile", index = quant_probs, interval = "credible")
-plot(pred_quant)
+if (interactive()) plot(pred_quant)
 ```
 
 ---
@@ -189,21 +191,16 @@ bind_rows(
 ```
 
 ```{r comparison-plots}
-plot(bulk_quant)
-plot(t_quant)
+if (interactive()) plot(bulk_quant)
+if (interactive()) plot(t_quant)
 ```
 
 ---
 
-## Residuals & Diagnostics
-
-```{r residuals, cache=FALSE}
-fit_vals <- fitted(fit_sb_gpd)
-plot(fit_vals)
-```
+## Diagnostics
 
 ```{r diagnostics}
-plot(fit_sb_gpd, family = c("histogram", "autocorrelation", "running"))
+if (interactive()) plot(fit_sb_gpd, family = c("histogram", "autocorrelation", "running"))
 ```
 
 ---
@@ -211,9 +208,11 @@ plot(fit_sb_gpd, family = c("histogram", "autocorrelation", "running"))
 ## Key Takeaways
 
 - Stick-breaking truncation fixes the number of bulk components but still flexibly models the tail via GPD.
-- Posterior `predict()` + `plot()` workflows visualize densities, survival probabilities, and posterior-mean extreme quantiles.
-- Comparing bulk-only vs GPD-augmented quantiles reveals how tail augmentation shifts the 95â€“99% levels.
-- Next: conditional DPmix (v08â€“v11) to explore covariate effects before moving to causal regimes.
+- Posterior `predict()` + `if (interactive()) plot()` workflows visualize densities, survival probabilities, and posterior-mean extreme quantiles.
+- Comparing bulk-only vs GPD-augmented quantiles reveals how tail augmentation shifts the 95–99% levels.
+- Next: conditional DPmix (v08–v11) to explore covariate effects before moving to causal regimes.
+
+
 
 
 

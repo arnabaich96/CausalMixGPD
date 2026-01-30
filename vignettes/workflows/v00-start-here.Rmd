@@ -1,7 +1,8 @@
-﻿---
+---
 title: "0. Start Here"
 output:
   rmarkdown::html_vignette:
+    highlight: null
     code_folding: show
 vignette: >
   %\VignetteIndexEntry{0. Start Here}
@@ -32,7 +33,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
-devtools::load_all()
+pkgload::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -47,7 +48,7 @@ source("_legacy-setup.R")
 > For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
 
 
-# Start Here
+## Quick start
 
 This vignette gives a minimal, fully working workflow for an **unconditional** model and a **conditional** model. Everything uses short MCMC runs so the vignette renders quickly.
 
@@ -77,9 +78,9 @@ summary(fit_uncond)
 ```
 
 ```{r start-uncond-predict, cache=FALSE}
-pred_q <- predict(fit_uncond, type = "quantile", index = c(0.5, 0.9), interval = "credible")
+pred_q <- predict(fit_uncond, type = "quantile", p = c(0.5, 0.9), interval = "credible")
 head(pred_q$fit)
-plot(pred_q)
+if (interactive()) plot(pred_q)
 ```
 
 ---
@@ -113,7 +114,7 @@ summary(fit_cond)
 x_new <- X[1:20, , drop = FALSE]
 pred_mean <- predict(fit_cond, x = x_new, type = "mean", interval = "credible", nsim_mean = 200)
 head(pred_mean$fit)
-plot(pred_mean)
+if (interactive()) plot(pred_mean)
 ```
 
 ---
@@ -122,7 +123,7 @@ plot(pred_mean)
 
 ```{r start-s3}
 params(fit_uncond)
-plot(fit_uncond, family = c("traceplot", "running"))
+if (interactive()) plot(fit_uncond, family = c("traceplot", "running"))
 ```
 
 ---
@@ -133,6 +134,7 @@ plot(fit_uncond, family = c("traceplot", "running"))
 - `vignette 5`: full three-phase workflow (spec ? bundle ? MCMC)
 - `vignette 6-13`: unconditional/conditional models with and without GPD
 - `vignette 14-19`: causal workflows
+
 
 
 

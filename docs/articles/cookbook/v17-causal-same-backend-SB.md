@@ -28,6 +28,7 @@ This vignette fits two SB-based causal models using the same kernel
 ### Data Setup
 
 ``` r
+
 data("causal_alt_real500_p4_k2")
 y <- causal_alt_real500_p4_k2$y
 T <- causal_alt_real500_p4_k2$T
@@ -52,15 +53,18 @@ summary_tbl %>%
 |    Min    | -8.089  |
 |    Max    |  5.275  |
 
-Causal Dataset Summary
+Causal Dataset Summary {.table .table .table-striped .table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ``` r
+
 x_eval <- X[1:40, , drop = FALSE]
 y_eval <- y[1:40]
 u_threshold <- as.numeric(stats::quantile(y, 0.8, names = FALSE))
 ```
 
 ``` r
+
 df_causal <- data.frame(y = y, T = as.factor(T), x1 = X[, 1], x2 = X[, 2])
 
 p_scatter <- ggplot(df_causal, aes(x = x1, y = y, color = T)) +
@@ -78,6 +82,7 @@ p_scatter
 ### Model A: SB Bulk-only (Laplace)
 
 ``` r
+
 bundle_sb_bulk <- build_causal_bundle(
   y = y,
   T = T,
@@ -105,6 +110,7 @@ bundle_sb_bulk
     n (control) = 232 | n (treated) = 268 
 
 ``` r
+
 summary(bundle_sb_bulk)
 ```
 
@@ -120,6 +126,7 @@ summary(bundle_sb_bulk)
     n (control) = 232 | n (treated) = 268 
 
 ``` r
+
 fit_sb_bulk <- run_mcmc_causal(bundle_sb_bulk)
 ```
 
@@ -148,8 +155,10 @@ fit_sb_bulk <- run_mcmc_causal(bundle_sb_bulk)
       - z[]  (268 elements)
 
 ``` r
+
 summary(fit_sb_bulk)
 ```
+
 
     -- Outcome fits --
     [control]
@@ -167,6 +176,7 @@ summary(fit_sb_bulk)
     Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 
 ``` r
+
 params(fit_sb_bulk)
 ```
 
@@ -213,14 +223,17 @@ params(fit_sb_bulk)
     [1] "1.044" "1.192" "1.563"
 
 ``` r
+
 plot(fit_sb_bulk, params = "location", family = "traceplot")
 ```
+
 
     === treated ===
 
     === traceplot ===
 
 ![](v17-causal-same-backend-SB_files/figure-html/plot-fit-sb-bulk-1.png)
+
 
     === control ===
 
@@ -229,14 +242,17 @@ plot(fit_sb_bulk, params = "location", family = "traceplot")
 ![](v17-causal-same-backend-SB_files/figure-html/plot-fit-sb-bulk-2.png)
 
 ``` r
+
 plot(fit_sb_bulk, params = "scale", family = "caterpillar")
 ```
+
 
     === treated ===
 
     === caterpillar ===
 
 ![](v17-causal-same-backend-SB_files/figure-html/plot-fit-sb-bulk-3.png)
+
 
     === control ===
 
@@ -245,6 +261,7 @@ plot(fit_sb_bulk, params = "scale", family = "caterpillar")
 ![](v17-causal-same-backend-SB_files/figure-html/plot-fit-sb-bulk-4.png)
 
 ``` r
+
 pred_mean_bulk <- predict(fit_sb_bulk, x = x_eval, type = "mean",
                           interval = "hpd", nsim_mean = 100)
 plot(pred_mean_bulk)
@@ -253,6 +270,7 @@ plot(pred_mean_bulk)
 ![](v17-causal-same-backend-SB_files/figure-html/predict-mean-sb-bulk-1.png)![](v17-causal-same-backend-SB_files/figure-html/predict-mean-sb-bulk-2.png)
 
 ``` r
+
 pred_q_bulk <- predict(fit_sb_bulk, x = x_eval, type = "quantile",
                        p = 0.5, interval = "hpd")
 plot(pred_q_bulk)
@@ -261,6 +279,7 @@ plot(pred_q_bulk)
 ![](v17-causal-same-backend-SB_files/figure-html/predict-quantile-sb-bulk-1.png)![](v17-causal-same-backend-SB_files/figure-html/predict-quantile-sb-bulk-2.png)
 
 ``` r
+
 pred_d_bulk <- predict(fit_sb_bulk, x = x_eval, y = y_eval,
                        type = "density", interval = "hpd")
 plot(pred_d_bulk)
@@ -269,6 +288,7 @@ plot(pred_d_bulk)
 ![](v17-causal-same-backend-SB_files/figure-html/predict-density-sb-bulk-1.png)
 
 ``` r
+
 pred_surv_bulk <- predict(fit_sb_bulk, x = x_eval, y = y_eval,
                           type = "survival", interval = "hpd")
 plot(pred_surv_bulk)
@@ -277,6 +297,7 @@ plot(pred_surv_bulk)
 ![](v17-causal-same-backend-SB_files/figure-html/predict-survival-sb-bulk-1.png)
 
 ``` r
+
 ate_bulk <- ate(fit_sb_bulk, newdata = x_eval,
                 interval = "hpd", nsim_mean = 100)
 print(ate_bulk)
@@ -300,6 +321,7 @@ print(ate_bulk)
     ... (34 more rows)
 
 ``` r
+
 summary(ate_bulk)
 ```
 
@@ -325,6 +347,7 @@ summary(ate_bulk)
       Range: [1.413, 5.789]
 
 ``` r
+
 ate_plots_bulk <- plot(ate_bulk)
 ate_plots_bulk$treatment_effect
 ```
@@ -332,6 +355,7 @@ ate_plots_bulk$treatment_effect
 ![](v17-causal-same-backend-SB_files/figure-html/unnamed-chunk-1-1.png)
 
 ``` r
+
 qte_bulk <- qte(fit_sb_bulk, probs = c(0.25, 0.5, 0.75),
                 newdata = x_eval, interval = "hpd")
 print(qte_bulk)
@@ -355,6 +379,7 @@ print(qte_bulk)
     ... (114 more rows)
 
 ``` r
+
 summary(qte_bulk)
 ```
 
@@ -381,6 +406,7 @@ summary(qte_bulk)
       Range: [1.188, 7.465]
 
 ``` r
+
 qte_plots_bulk <- plot(qte_bulk)
 qte_plots_bulk$treatment_effect
 ```
@@ -392,6 +418,7 @@ qte_plots_bulk$treatment_effect
 ### Model B: SB with GPD Tail (Laplace)
 
 ``` r
+
 param_specs_gpd <- list(
   gpd = list(
     threshold = list(
@@ -430,6 +457,7 @@ bundle_sb_gpd
     n (control) = 232 | n (treated) = 268 
 
 ``` r
+
 summary(bundle_sb_gpd)
 ```
 
@@ -445,6 +473,7 @@ summary(bundle_sb_gpd)
     n (control) = 232 | n (treated) = 268 
 
 ``` r
+
 fit_sb_gpd <- run_mcmc_causal(bundle_sb_gpd)
 ```
 
@@ -477,8 +506,10 @@ fit_sb_gpd <- run_mcmc_causal(bundle_sb_gpd)
       - z[]  (268 elements)
 
 ``` r
+
 summary(fit_sb_gpd)
 ```
+
 
     -- Outcome fits --
     [control]
@@ -496,6 +527,7 @@ summary(fit_sb_gpd)
     Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 
 ``` r
+
 params(fit_sb_gpd)
 ```
 
@@ -554,14 +586,17 @@ params(fit_sb_gpd)
     [1] "0.004"
 
 ``` r
+
 plot(fit_sb_gpd, family = "traceplot")
 ```
+
 
     === treated ===
 
     === traceplot ===
 
 ![](v17-causal-same-backend-SB_files/figure-html/plot-fit-sb-gpd-1.png)
+
 
     === control ===
 
@@ -570,6 +605,7 @@ plot(fit_sb_gpd, family = "traceplot")
 ![](v17-causal-same-backend-SB_files/figure-html/plot-fit-sb-gpd-2.png)
 
 ``` r
+
 pred_mean_gpd <- predict(fit_sb_gpd, x = x_eval, type = "mean",
                          interval = "credible", nsim_mean = 100)
 plot(pred_mean_gpd)
@@ -578,6 +614,7 @@ plot(pred_mean_gpd)
 ![](v17-causal-same-backend-SB_files/figure-html/predict-mean-sb-gpd-1.png)![](v17-causal-same-backend-SB_files/figure-html/predict-mean-sb-gpd-2.png)
 
 ``` r
+
 pred_q_gpd <- predict(fit_sb_gpd, x = x_eval, type = "quantile",
                       p = 0.5, interval = "credible")
 plot(pred_q_gpd)
@@ -586,6 +623,7 @@ plot(pred_q_gpd)
 ![](v17-causal-same-backend-SB_files/figure-html/predict-quantile-sb-gpd-1.png)![](v17-causal-same-backend-SB_files/figure-html/predict-quantile-sb-gpd-2.png)
 
 ``` r
+
 pred_d_gpd <- predict(fit_sb_gpd, x = x_eval, y = y_eval,
                       type = "density", interval = "credible")
 plot(pred_d_gpd)
@@ -594,6 +632,7 @@ plot(pred_d_gpd)
 ![](v17-causal-same-backend-SB_files/figure-html/predict-density-sb-gpd-1.png)
 
 ``` r
+
 pred_surv_gpd <- predict(fit_sb_gpd, x = x_eval, y = y_eval,
                          type = "survival", interval = "credible")
 plot(pred_surv_gpd)
@@ -602,6 +641,7 @@ plot(pred_surv_gpd)
 ![](v17-causal-same-backend-SB_files/figure-html/predict-survival-sb-gpd-1.png)
 
 ``` r
+
 ate_gpd <- ate(fit_sb_gpd, newdata = x_eval,
                interval = "credible", nsim_mean = 100)
 print(ate_gpd)
@@ -625,6 +665,7 @@ print(ate_gpd)
     ... (34 more rows)
 
 ``` r
+
 summary(ate_gpd)
 ```
 
@@ -650,6 +691,7 @@ summary(ate_gpd)
       Range: [2.864, 12.086]
 
 ``` r
+
 ate_plots_gpd <- plot(ate_gpd)
 ate_plots_gpd$treatment_effect
 ```
@@ -657,6 +699,7 @@ ate_plots_gpd$treatment_effect
 ![](v17-causal-same-backend-SB_files/figure-html/unnamed-chunk-3-1.png)
 
 ``` r
+
 qte_gpd <- qte(fit_sb_gpd, probs = c(0.25, 0.5, 0.75),
                newdata = x_eval, interval = "credible")
 print(qte_gpd)
@@ -680,6 +723,7 @@ print(qte_gpd)
     ... (114 more rows)
 
 ``` r
+
 summary(qte_gpd)
 ```
 
@@ -706,6 +750,7 @@ summary(qte_gpd)
       Range: [2.491, 15.654]
 
 ``` r
+
 qte_plots_gpd <- plot(qte_gpd)
 qte_plots_gpd$treatment_effect
 ```

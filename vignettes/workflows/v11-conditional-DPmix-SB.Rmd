@@ -1,7 +1,8 @@
-﻿---
+---
 title: "11. Conditional DPmix with Stick-Breaking Backend"
-output: 
+output:
   rmarkdown::html_vignette:
+    highlight: null
     code_folding: show
 vignette: >
   %\VignetteIndexEntry{11. Conditional DPmix with Stick-Breaking Backend}
@@ -32,7 +33,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
-devtools::load_all()
+pkgload::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -198,12 +199,12 @@ bind_rows(quant_df_normal, quant_df_cauchy) %>%
 ## Residuals & Diagnostics
 
 ```{r residuals, cache=FALSE}
-plot(fitted(fit_sb_cauchy))
+if (interactive()) plot(fitted(fit_sb_cauchy))
 ```
 
 ```{r diagnostics}
-plot(fit_sb_normal, family = c("traceplot", "autocorrelation", "geweke"))
-plot(fit_sb_cauchy, family = c("density", "running", "caterpillar"))
+if (interactive()) plot(fit_sb_normal, family = c("traceplot", "autocorrelation", "geweke"))
+if (interactive()) plot(fit_sb_cauchy, family = c("density", "running", "caterpillar"))
 ```
 
 ---
@@ -213,7 +214,9 @@ plot(fit_sb_cauchy, family = c("density", "running", "caterpillar"))
 - Stick-breaking component count is fixed but still supports covariate-dependent mixtures.
 - `predict(..., type = "density")` returns group-specific densities for each `X`.
 - `predict(..., type = "quantile")` reports posterior-mean quantiles; the median is the 0.5 quantile and shifts with `x1`.
-- Diagnoses rely on the same S3 `plot()`/`fitted()` pipeline available in other vignettes.
+- Diagnoses rely on the same S3 `if (interactive()) plot()`/`fitted()` pipeline available in other vignettes.
+
+
 
 
 

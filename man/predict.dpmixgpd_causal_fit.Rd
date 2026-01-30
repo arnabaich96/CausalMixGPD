@@ -10,7 +10,7 @@
   y = NULL,
   ps = NULL,
   newdata = NULL,
-  type = c("mean", "quantile", "density", "survival", "prob"),
+  type = c("mean", "quantile", "density", "survival", "prob", "location"),
   p = NULL,
   nsim = NULL,
   interval = "credible",

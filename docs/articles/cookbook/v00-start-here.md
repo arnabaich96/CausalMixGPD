@@ -26,11 +26,13 @@ short MCMC runs so the vignette renders quickly.
 ### Unconditional Model (CRP, bulk-only)
 
 ``` r
+
 data("nc_pos200_k3")
 y <- nc_pos200_k3$y
 ```
 
 ``` r
+
 bundle_uncond <- build_nimble_bundle(
   y = y,
   backend = "crp",
@@ -42,6 +44,7 @@ bundle_uncond <- build_nimble_bundle(
 ```
 
 ``` r
+
 fit_uncond <- load_or_fit("v00-start-here-fit_uncond", quiet_mcmc(run_mcmc_bundle_manual(bundle_uncond, show_progress = FALSE)))
 summary(fit_uncond)
 ```
@@ -62,6 +65,7 @@ summary(fit_uncond)
        scale[1] 0.265 0.037  0.204  0.266  0.338 25.996
 
 ``` r
+
 pred_q <- predict(fit_uncond, type = "quantile", index = c(0.5, 0.9), interval = "credible")
 head(pred_q$fit)
 ```
@@ -71,6 +75,7 @@ head(pred_q$fit)
     2    0.687   0.9 0.467 0.915
 
 ``` r
+
 plot(pred_q)
 ```
 
@@ -81,12 +86,14 @@ plot(pred_q)
 ### Conditional Model (SB, bulk-only)
 
 ``` r
+
 data("nc_posX100_p3_k2")
 yc <- nc_posX100_p3_k2$y
 X <- as.matrix(nc_posX100_p3_k2$X)
 ```
 
 ``` r
+
 bundle_cond <- build_nimble_bundle(
   y = yc,
   X = X,
@@ -99,6 +106,7 @@ bundle_cond <- build_nimble_bundle(
 ```
 
 ``` r
+
 fit_cond <- load_or_fit("v00-start-here-fit_cond", quiet_mcmc(run_mcmc_bundle_manual(bundle_cond, show_progress = FALSE)))
 summary(fit_cond)
 ```
@@ -137,6 +145,7 @@ summary(fit_cond)
                sdlog[3]  1.757 1.185  0.464  1.432  4.916 106.303
 
 ``` r
+
 x_new <- X[1:20, , drop = FALSE]
 pred_mean <- predict(fit_cond, x = x_new, type = "mean", interval = "credible", nsim_mean = 200)
 head(pred_mean$fit)
@@ -151,6 +160,7 @@ head(pred_mean$fit)
     6    173.7 1.105 1067.2
 
 ``` r
+
 plot(pred_mean)
 ```
 
@@ -161,6 +171,7 @@ plot(pred_mean)
 ### Useful S3 Methods
 
 ``` r
+
 params(fit_uncond)
 ```
 
@@ -179,8 +190,10 @@ params(fit_uncond)
     [1] "0.265"
 
 ``` r
+
 plot(fit_uncond, params = "shape", family = "traceplot")
 ```
+
 
     === traceplot ===
 

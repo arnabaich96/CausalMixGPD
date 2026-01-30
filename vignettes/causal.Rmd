@@ -1,6 +1,8 @@
 ---
 title: "Causal Workflow"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    highlight: null
 vignette: >
   %\VignetteIndexEntry{Causal Workflow}
   %\VignetteEngine{knitr::rmarkdown}
@@ -110,14 +112,14 @@ summary(ate_grid)
 
 ### ATE Visualization
 
-The `plot()` method for ATE objects supports multiple visualization types:
+The `if (interactive()) plot()` method for ATE objects supports multiple visualization types:
 
 - `type = "both"` (default): Returns a list with `trt_control` and `treatment_effect` plots
 - `type = "effect"`: Treatment effect curve with credible intervals
 - `type = "arms"`: Treated vs control mean outcomes
 
 ```{r fig.width=7, fig.height=5}
-ate_plots <- plot(ate_grid)
+ate_plots <- if (interactive()) plot(ate_grid)
 ate_plots$treatment_effect
 ```
 
@@ -139,14 +141,14 @@ summary(qte_grid)
 
 ### QTE Visualization
 
-The `plot()` method for QTE objects supports multiple visualization types:
+The `if (interactive()) plot()` method for QTE objects supports multiple visualization types:
 
 - `type = "both"` (default): Returns a list with `trt_control` and `treatment_effect` plots
 - `type = "effect"`: Quantile treatment effect curves faceted by quantile level
 - `type = "arms"`: Treated vs control quantile curves
 
 ```{r fig.width=7, fig.height=5}
-qte_plots <- plot(qte_grid)
+qte_plots <- if (interactive()) plot(qte_grid)
 qte_plots$treatment_effect
 ```
 
@@ -163,4 +165,5 @@ summary(fit)
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+
 

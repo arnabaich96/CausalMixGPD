@@ -1,10 +1,11 @@
-pandoc: 3.6.3
+pandoc: 3.8.3
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   backends: backends.html
   causal: causal.html
   conditional: conditional.html
+  cookbook-index: cookbook-index.html
   Customization/customization: Customization/customization.html
   distributions: distributions.html
   introduction: introduction.html
@@ -36,7 +37,7 @@ articles:
   workflows/v18-causal-different-backends-CRP: workflows/v18-causal-different-backends-CRP.html
   workflows/v19-causal-different-backends-SB: workflows/v19-causal-different-backends-SB.html
   workflows/v20-troubleshooting: workflows/v20-troubleshooting.html
-last_built: 2026-01-28T03:56Z
+last_built: 2026-01-29T23:05Z
 urls:
   reference: https://arnabaich96.github.io/DPmixGPD/reference
   article: https://arnabaich96.github.io/DPmixGPD/articles

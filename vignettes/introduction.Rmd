@@ -1,6 +1,8 @@
 ---
 title: "DPmixGPD: Quick Start"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    highlight: null
 vignette: >
   %\VignetteIndexEntry{DPmixGPD: Quick Start}
   %\VignetteEngine{knitr::rmarkdown}
@@ -79,13 +81,7 @@ bundle <- build_nimble_bundle(
 fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
 ```
 
-## Fitted Values and Residuals
-
-```{r fitted}
-f <- fitted(fit, type = "mean", level = 0.90)
-head(f)
-summary(f$residuals)
-```
+For unconditional models, use `predict()` only; `fitted()` and `residuals()` are for conditional (covariate) models.
 
 ## Predictions
 
@@ -101,16 +97,17 @@ pred_q90$fit
 
 ```{r plot-fit}
 if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quietly = TRUE)) {
-  plot(fit)
+  if (interactive()) plot(fit)
 } else {
   message("Plotting requires 'ggmcmc' and 'coda' packages.")
 }
 ```
 
-## Troubleshooting
+## Common issues
 
 - **NIMBLE keyword error**: Rename covariate columns that use reserved keywords (e.g., `if` to `x_if`).
 - **Disk space error**: Set `TMPDIR`/`TEMP`/`TMP` to a drive with sufficient free space.
+- **"Cannot resolve owner of file" / "No mapping between account names and security IDs" (Windows):** These warnings often appear when the project lives in OneDrive or another synced folder. They are harmless and do not affect DPmixGPD. If you keep the project in OneDrive (e.g. as a backup to GitHub), the project `.Rprofile` suppresses these warnings automatically on R \>= 4.0. Otherwise, move the project to a local non-synced path or take ownership of the folder.
 
 ## Next Steps
 
@@ -121,4 +118,5 @@ if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quiet
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+
 

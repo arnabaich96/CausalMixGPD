@@ -23,7 +23,7 @@ predict(
   y = NULL,
   ps = NULL,
   newdata = NULL,
-  type = c("density", "survival", "quantile", "sample", "mean", "median", "location"),
+  type = c("density", "survival", "quantile", "sample", "mean", "median", "location", "fit"),
   p = NULL,
   index = NULL,
   nsim = NULL,

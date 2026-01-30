@@ -63,7 +63,7 @@ rcauchy_vec(n, location, scale)
 \arguments{
 \item{x}{Numeric vector of quantiles.}
 
-\item{threshold, scale, shape, mean, loc, scale, shape1, shape2, location}{Distribution parameters (scalars).}
+\item{threshold, scale, shape, mean, loc, shape1, shape2, location}{Distribution parameters (scalars).}
 
 \item{log}{Logical; if \code{TRUE}, return log-density.}
 

@@ -25,6 +25,7 @@ how fixed `components` interplay with covariates.
 ### Data Setup
 
 ``` r
+
 data("nc_posX100_p3_k2")
 y <- nc_posX100_p3_k2$y
 X <- as.matrix(nc_posX100_p3_k2$X)
@@ -54,13 +55,16 @@ ggplot(data.frame(y = y, x1 = X[, 1]), aes(x = x1, y = y)) +
 |    Min    |  0.377  |
 |    Max    | 10.870  |
 
-Conditional Dataset Summary (SB)
+Conditional Dataset Summary (SB) {.table .table .table-striped
+.table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ------------------------------------------------------------------------
 
 ### Model Specification
 
 ``` r
+
 bundle_sb_normal <- build_nimble_bundle(
   y = y,
   X = X,
@@ -87,6 +91,7 @@ bundle_sb_cauchy <- build_nimble_bundle(
 ### Running MCMC
 
 ``` r
+
 fit_sb_normal <- load_or_fit("v11-conditional-DPmix-SB-fit_sb_normal", run_mcmc_bundle_manual(bundle_sb_normal))
 fit_sb_cauchy <- load_or_fit("v11-conditional-DPmix-SB-fit_sb_cauchy", run_mcmc_bundle_manual(bundle_sb_cauchy))
 summary(fit_sb_normal)
@@ -122,6 +127,7 @@ summary(fit_sb_normal)
                sd[1]  0.054  0.01  0.036  0.053  0.073 112.333
 
 ``` r
+
 summary(fit_sb_cauchy)
 ```
 
@@ -159,6 +165,7 @@ summary(fit_sb_cauchy)
                 scale[3]  1.523 0.757   0.47   1.36  3.577 53.635
 
 ``` r
+
 params_sb <- params(fit_sb_normal)
 params_sb
 ```
@@ -187,6 +194,7 @@ params_sb
 ### Conditional Predictive Density
 
 ``` r
+
 X_new <- expand.grid(x1 = seq(-2, 2, length.out = 3), x2 = c(-1, 1), x3 = 0)
 colnames(X_new) <- colnames(X)
 y_min <- max(min(y), .Machine$double.eps)
@@ -229,6 +237,7 @@ ggplot(df_cond, aes(x = y, y = density, color = label)) +
 ### Quantile Drift with Covariates
 
 ``` r
+
 X_eval <- cbind(x1 = seq(-2, 2, length.out = 5), x2 = 0, x3 = 0)
 colnames(X_eval) <- colnames(X)
 quant_probs <- c(0.25, 0.5, 0.75)
@@ -260,38 +269,47 @@ bind_rows(quant_df_normal, quant_df_cauchy) %>%
 ### Residuals & Diagnostics
 
 ``` r
+
 plot(fitted(fit_sb_cauchy))
 ```
 
 ![](v11-conditional-DPmix-SB_files/figure-html/residuals-1.png)![](v11-conditional-DPmix-SB_files/figure-html/residuals-2.png)
 
 ``` r
+
 plot(fit_sb_normal, params = "mean", family = "traceplot")
 ```
+
 
     === traceplot ===
 
 ![](v11-conditional-DPmix-SB_files/figure-html/diagnostics-1.png)
 
 ``` r
+
 plot(fit_sb_normal, params = "sd", family = "caterpillar")
 ```
+
 
     === caterpillar ===
 
 ![](v11-conditional-DPmix-SB_files/figure-html/diagnostics-2.png)
 
 ``` r
+
 plot(fit_sb_cauchy, params = "location", family = "traceplot")
 ```
+
 
     === traceplot ===
 
 ![](v11-conditional-DPmix-SB_files/figure-html/diagnostics-3.png)
 
 ``` r
+
 plot(fit_sb_cauchy, params = "scale", family = "caterpillar")
 ```
+
 
     === caterpillar ===
 

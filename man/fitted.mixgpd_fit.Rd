@@ -37,15 +37,17 @@ A data frame with columns:
 \code{upper} (upper credible bound), and \code{residuals} (y - fit).
 }
 \description{
-Computes fitted values and residuals on the original training data.
-Returns a data frame with point estimates, credible intervals, and residuals.
-For unconditional models (no covariates), returns the population mean replicated
-for all observations. For conditional models, returns individual predictions.
+Computes fitted values and residuals on the original training data for
+\strong{conditional (covariate) models only}. Returns a data frame with point
+estimates, credible intervals, and residuals. Not supported for unconditional
+models (no covariates); use \code{predict()} for predictions in that case.
 }
 \examples{
 \dontrun{
+# Conditional model (with covariates X)
 y <- abs(stats::rnorm(50)) + 0.1
-bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
+X <- data.frame(x1 = stats::rnorm(50), x2 = stats::runif(50))
+bundle <- build_nimble_bundle(y = y, X = X, backend = "sb", kernel = "normal",
                              GPD = TRUE, components = 6,
                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
 fit <- run_mcmc_bundle_manual(bundle)

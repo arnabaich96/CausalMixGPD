@@ -23,6 +23,7 @@ plus **S3 methods** (`print`, `summary`, `plot`, `predict`, `fitted`,
 ## Data
 
 ``` r
+
 library(DPmixGPD)
 
 data("mtcars", package = "datasets")
@@ -50,6 +51,7 @@ X <- as.data.frame(X)
   - `tail_scale`: exp link (default prior)
 
 ``` r
+
 param_specs_amoroso <- list(
   bulk = list(
     loc = list(
@@ -79,6 +81,7 @@ param_specs_amoroso <- list(
 ```
 
 ``` r
+
 # Requested variant (not runnable): link-mode beta priors must be normal
 param_specs_amoroso_requested <- list(
   bulk = list(
@@ -118,6 +121,7 @@ model that supports the same customization and lets this vignette
 compile end-to-end.
 
 ``` r
+
 # Requested CRP specification (not runnable due to CRP link-mode restriction)
 bundle_amoroso_crp <- build_nimble_bundle(
   y = y,
@@ -132,6 +136,7 @@ bundle_amoroso_crp <- build_nimble_bundle(
 ```
 
 ``` r
+
 # Runnable SB equivalent (supports link-mode parameters)
 bundle_amoroso <- build_nimble_bundle(
   y = y,
@@ -150,6 +155,7 @@ fit_amoroso <- run_mcmc_bundle_manual(bundle_amoroso, show_progress = FALSE)
 ### User-Level Functions
 
 ``` r
+
 print(bundle_amoroso)
 #> DPmixGPD bundle
 #>       Field                  Value
@@ -223,6 +229,7 @@ summary(bundle_amoroso)
 ```
 
 ``` r
+
 print(fit_amoroso)
 #> MixGPD fit | backend: Stick-Breaking Process | kernel: Amoroso Distribution | GPD tail: TRUE
 #> n = 32 | components = 5 | epsilon = 0.025
@@ -274,6 +281,7 @@ summary(fit_amoroso)
 ### S3 Methods (Fit)
 
 ``` r
+
 tryCatch(
   plot(fit_amoroso, family = "trace"),
   error = function(e) {
@@ -283,6 +291,7 @@ tryCatch(
 ```
 
 ``` r
+
 pred_mean <- predict(fit_amoroso, x = X, type = "mean", cred.level = 0.90, interval = "credible")
 pred_q90 <- predict(fit_amoroso, x = X, type = "quantile", index = 0.90, cred.level = 0.90, interval = "credible")
 head(pred_mean$fit)
@@ -304,6 +313,7 @@ head(pred_q90$fit)
 ```
 
 ``` r
+
 fvals <- fitted(fit_amoroso, type = "mean", level = 0.90)
 head(fvals)
 #>     fit lower upper residuals
@@ -319,12 +329,14 @@ summary(fvals$residuals)
 ```
 
 ``` r
+
 raw_resid <- residuals(fit_amoroso, type = "raw")
 head(raw_resid)
 #> [1] 11.23  7.44 15.64  1.81 -3.08 -7.10
 ```
 
 ``` r
+
 p <- params(fit_amoroso)
 names(p)
 #> [1] "alpha"           "w"               "beta_loc"        "beta_scale"     
@@ -345,6 +357,7 @@ names(p)
   - Scale: Gamma prior
 
 ``` r
+
 X_causal <- df[, c("wt", "hp", "qsec", "cyl")]
 X_causal <- as.data.frame(X_causal)
 T_ind <- df$am
@@ -384,6 +397,7 @@ param_specs_causal <- list(
 ### Build + Run
 
 ``` r
+
 causal_bundle <- build_causal_bundle(
   y = y,
   X = X_causal,
@@ -405,6 +419,7 @@ causal_fit <- run_mcmc_causal(causal_bundle, show_progress = FALSE)
 ### User-Level Functions
 
 ``` r
+
 print(causal_bundle)
 #> DPmixGPD causal bundle
 #> PS model: Bayesian logit (T | X) 
@@ -429,6 +444,7 @@ summary(causal_bundle)
 ```
 
 ``` r
+
 print(causal_fit)
 #> DPmixGPD causal fit
 #> PS model: Bayesian logit (T | X) 
@@ -459,10 +475,12 @@ summary(causal_fit)
 ### S3 Methods (Causal)
 
 ``` r
+
 try(plot(causal_fit, family = "trace"), silent = TRUE)
 ```
 
 ``` r
+
 pred_causal_mean <- predict(causal_fit, x = X_causal, type = "mean", interval = "credible")
 head(pred_causal_mean)
 #>                      ps estimate lower upper
@@ -475,6 +493,7 @@ head(pred_causal_mean)
 ```
 
 ``` r
+
 ate_result <- ate(causal_fit, interval = "credible", nsim_mean = 50)
 print(ate_result)
 #> ATE (Average Treatment Effect)
@@ -518,6 +537,7 @@ summary(ate_result)
 ```
 
 ``` r
+
 qte_result <- qte(causal_fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
 # Plotting may fail on some graphics devices (e.g., non-interactive or CI environments),
 # so errors are intentionally suppressed to ensure the vignette renders successfully.

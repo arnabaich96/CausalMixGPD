@@ -55,7 +55,7 @@ rcauchy_vec(n, location, scale)
 
   Numeric vector of quantiles.
 
-- threshold, scale, shape, mean, loc, scale, shape1, shape2, location:
+- threshold, scale, shape, mean, loc, shape1, shape2, location:
 
   Distribution parameters (scalars).
 

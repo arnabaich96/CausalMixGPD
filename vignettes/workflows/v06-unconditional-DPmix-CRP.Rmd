@@ -1,7 +1,8 @@
-﻿---
+---
 title: "6. Unconditional DPmix with CRP Backend"
-output: 
+output:
   rmarkdown::html_vignette:
+    highlight: null
     code_folding: show
 vignette: >
   %\VignetteIndexEntry{6. Unconditional DPmix with CRP Backend}
@@ -39,7 +40,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
 
-devtools::load_all()
+pkgload::load_all()
 library(DPmixGPD)
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
@@ -149,7 +150,7 @@ params_crp
 
 ```{r diag-trace}
 # Trace plots for key parameters
-plot(fit_crp, params = "alpha", family = c("traceplot", "density", "geweke"))
+if (interactive()) plot(fit_crp, params = "alpha", family = c("traceplot", "density", "geweke"))
 ```
 
 
@@ -167,7 +168,7 @@ y_grid <- seq(0, max(y_mixed) * 1.2, length.out = 200)
 pred_density <- predict(fit_crp, y = y_grid, type = "density")
 
 # Use S3 plot method
-plot(pred_density)
+if (interactive()) plot(pred_density)
 ```
 
 ### Quantile Predictions
@@ -186,7 +187,7 @@ quantiles_pred$fit %>%
  kable_styling(bootstrap_options = "striped", full_width = FALSE, position = "center")
 
 # Use S3 plot method
-plot(quantiles_pred)
+if (interactive()) plot(quantiles_pred)
 ```
 
 ---
@@ -212,20 +213,7 @@ summary(fit_components)
 
 ---
 
-## Residual Analysis
-
-```{r residuals-analysis, cache=FALSE}
-# Extract fitted values with diagnostics
-Fit <- fitted(fit_components)
-
-# Display table
-kableExtra::kbl(head(Fit), caption = "Fitted Values, Residuals and Credible Interval", digits = 3, align = "c") %>%
- kable_styling(bootstrap_options = "striped", full_width = FALSE, position = "center")
-
-# Use S3 plot method for diagnostic plots
-fit.plots <- plot(Fit)
-fit.plots$residual_plot
-```
+For unconditional models, use `predict()` for posterior summaries; `fitted()` and `residuals()` are not supported.
 
 ---
 
@@ -270,34 +258,13 @@ summary(fit_amoroso)
 ### Model Comparison via Predictions
 
 ```{r comp-summary, cache=FALSE}
-# Compare fitted values using S3 plot method
-fitted_laplace <- fitted(fit_laplace)
-fitted_amoroso <- fitted(fit_amoroso)
-# Plot diagnostics for both models
-g.plot <- plot(fitted_laplace)
-l.plot <- plot(fitted_amoroso)
+# Compare models using predict() (fitted/residuals not supported for unconditional)
+pred_laplace <- predict(fit_laplace, type = "mean", cred.level = 0.9, interval = "credible")
+pred_amoroso <- predict(fit_amoroso, type = "mean", cred.level = 0.9, interval = "credible")
 ```
 
-
-
 ```{r fig.height=6, fig.width=10, cache=FALSE}
-p_gamma <- g.plot$observed_fitted_plot
-p_lognormal <- l.plot$observed_fitted_plot
-
-plots <- list(
-  if (inherits(p_gamma, "ggplot")) p_gamma + ggtitle("Laplace kernel") else NULL,
-  if (inherits(p_lognormal, "ggplot")) p_lognormal + ggtitle("Amoroso kernel") else NULL
-)
-plots <- Filter(Negate(is.null), plots)
-
-if (length(plots) == 0) {
-  plot.new()
-  text(0.5, 0.5, "Observed vs Fitted plots unavailable", cex = 1.1)
-} else {
-  patchwork::wrap_plots(plots, ncol = 2) +
-    patchwork::plot_annotation(title = "Observed vs Fitted") &
-    theme(plot.title = element_text(hjust = 0.5))
-}
+# For unconditional models, fitted() is not supported; use predict() for comparisons (see pred_laplace, pred_amoroso above).
 ```
 
 
@@ -309,6 +276,8 @@ if (length(plots) == 0) {
 - **Kernel Choice**: Gamma suitable for positive, skewed data
 - **Diagnostics**: Check convergence (Rhat, ESS) and posterior predictive fit
 - **Next**: Compare with **Stick-Breaking (SB)** backend in vignette 5
+
+
 
 
 

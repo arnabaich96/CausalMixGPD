@@ -21,6 +21,7 @@ We cover three workflows:
 ## Data
 
 ``` r
+
 data("mtcars", package = "datasets")
 
 df <- mtcars
@@ -44,6 +45,7 @@ distribution, we use a **zeros-trick** likelihood based on the exported
 ### Constants, data, and inits
 
 ``` r
+
 N <- length(y)
 K <- 3
 
@@ -63,6 +65,7 @@ inits_sb <- function() {
 ### NIMBLE code
 
 ``` r
+
 code_sb <- nimble::nimbleCode({
   alpha ~ dgamma(1, 1)
 
@@ -91,6 +94,7 @@ code_sb <- nimble::nimbleCode({
 ### Compile and run (manual)
 
 ``` r
+
 Rmodel_sb <- nimble::nimbleModel(
   code = code_sb,
   constants = constants_sb,
@@ -120,6 +124,7 @@ samples_sb <- nimble::runMCMC(
 ### Sample extraction
 
 ``` r
+
 head(samples_sb[, 1:min(6, ncol(samples_sb))])
 #>      alpha mu[1] mu[2] mu[3] sigma[1] sigma[2]
 #> [1,] 0.334  19.8  7.67 -12.3     4.97     4.74
@@ -144,6 +149,7 @@ For comparison, we build a **bundle** for the same SB Normal mixture and
 use DPmixGPD’s S3 methods for posterior inference.
 
 ``` r
+
 bundle_sb <- build_nimble_bundle(
   y = y,
   X = NULL,
@@ -158,6 +164,7 @@ fit_sb <- run_mcmc_bundle_manual(bundle_sb, show_progress = FALSE)
 ```
 
 ``` r
+
 print(bundle_sb)
 #> DPmixGPD bundle
 #>       Field                  Value
@@ -207,6 +214,7 @@ summary(bundle_sb)
 ```
 
 ``` r
+
 print(fit_sb)
 #> MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: FALSE
 #> n = 32 | components = 3 | epsilon = 0.025
@@ -231,10 +239,12 @@ summary(fit_sb)
 ```
 
 ``` r
+
 try(plot(fit_sb, family = "trace"), silent = TRUE)
 ```
 
 ``` r
+
 pred_sb <- predict(fit_sb, type = "mean", interval = "credible")
 head(pred_sb$fit)
 #>   estimate lower upper
@@ -250,6 +260,7 @@ generated NIMBLE code calls DPmixGPD’s GPD kernels under the hood.
 ### Specification
 
 ``` r
+
 param_specs_crp <- list(
   bulk = list(
     loc = list(
@@ -281,6 +292,7 @@ param_specs_crp <- list(
 ### Build bundle and extract pieces
 
 ``` r
+
 bundle_crp <- build_nimble_bundle(
   y = y,
   X = X,
@@ -301,6 +313,7 @@ inits_crp <- if (is.function(bundle_crp$inits_fun)) bundle_crp$inits_fun else bu
 ### Compile and run (manual)
 
 ``` r
+
 samples_crp <- NULL
 crp_err <- NULL
 
@@ -346,6 +359,7 @@ tryCatch({
 ### Sample extraction
 
 ``` r
+
 if (is.null(samples_crp)) {
   message("Manual CRP MCMC build failed in this session: ", crp_err)
 } else {
@@ -356,6 +370,7 @@ if (is.null(samples_crp)) {
 ### S3 methods for posterior inference
 
 ``` r
+
 fit_crp <- NULL
 crp_fit_err <- NULL
 
@@ -367,6 +382,7 @@ tryCatch({
 ```
 
 ``` r
+
 if (is.null(fit_crp)) {
   message("CRP bundle MCMC failed in this session: ", crp_fit_err)
 } else {
@@ -376,12 +392,14 @@ if (is.null(fit_crp)) {
 ```
 
 ``` r
+
 if (!is.null(fit_crp)) {
   try(plot(fit_crp, family = "trace"), silent = TRUE)
 }
 ```
 
 ``` r
+
 if (!is.null(fit_crp)) {
   pred_crp_mean <- predict(fit_crp, x = X, type = "mean", interval = "credible")
   pred_crp_q90 <- predict(fit_crp, x = X, type = "quantile", index = 0.90, interval = "credible")
@@ -398,6 +416,7 @@ This uses the same fast MCMC settings and then demonstrates
 [`qte()`](https://arnabaich96.github.io/DPmixGPD/reference/qte.md).
 
 ``` r
+
 X_causal <- df[, c("wt", "hp", "qsec", "cyl")]
 X_causal <- as.data.frame(X_causal)
 T_ind <- df$am
@@ -435,6 +454,7 @@ param_specs_causal <- list(
 ```
 
 ``` r
+
 causal_bundle <- build_causal_bundle(
   y = y,
   X = X_causal,
@@ -454,6 +474,7 @@ causal_fit <- run_mcmc_causal(causal_bundle, show_progress = FALSE)
 ```
 
 ``` r
+
 print(causal_bundle)
 #> DPmixGPD causal bundle
 #> PS model: Bayesian logit (T | X) 
@@ -478,6 +499,7 @@ summary(causal_bundle)
 ```
 
 ``` r
+
 print(causal_fit)
 #> DPmixGPD causal fit
 #> PS model: Bayesian logit (T | X) 
@@ -506,10 +528,12 @@ summary(causal_fit)
 ```
 
 ``` r
+
 try(plot(causal_fit, family = "trace"), silent = TRUE)
 ```
 
 ``` r
+
 pred_causal_mean <- predict(causal_fit, x = X_causal, type = "mean", interval = "credible")
 head(pred_causal_mean)
 #>                      ps estimate lower upper
@@ -522,6 +546,7 @@ head(pred_causal_mean)
 ```
 
 ``` r
+
 ate_result <- ate(causal_fit, interval = "credible", nsim_mean = 50)
 qte_result <- qte(causal_fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
 

@@ -19,6 +19,7 @@ the allocation process.
 ## Data
 
 ``` r
+
 library(DPmixGPD)
 
 data("faithful", package = "datasets")
@@ -28,6 +29,7 @@ y <- faithful$eruptions
 ## Stick-Breaking Backend
 
 ``` r
+
 bundle_sb <- build_nimble_bundle(
   y = y,
   backend = "sb",
@@ -43,6 +45,7 @@ fit_sb <- run_mcmc_bundle_manual(bundle_sb, show_progress = FALSE)
 ## CRP Backend
 
 ``` r
+
 bundle_crp <- build_nimble_bundle(
   y = y,
   backend = "crp",
@@ -58,6 +61,7 @@ fit_crp <- run_mcmc_bundle_manual(bundle_crp, show_progress = FALSE)
 ## Comparison of Fitted Summaries
 
 ``` r
+
 mean_sb <- predict(fit_sb, type = "mean", cred.level = 0.90, interval = "credible")$fit
 mean_crp <- predict(fit_crp, type = "mean", cred.level = 0.90, interval = "credible")$fit
 
@@ -79,7 +83,9 @@ kable(comparison_df, digits = 3, align = "c",
 |   SB    |   3.20   | 3.07  | 3.33  |
 |   CRP   |   3.21   | 3.09  | 3.34  |
 
-Posterior Mean Comparison: SB vs CRP
+Posterior Mean Comparison: SB vs CRP {.table .table .table-striped
+.table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ## Backend Selection Guidelines
 

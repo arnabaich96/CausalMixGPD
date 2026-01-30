@@ -32,6 +32,7 @@ threshold. This approach is appropriate when:
 ## Minimal Example
 
 ``` r
+
 library(DPmixGPD)
 
 data("faithful", package = "datasets")
@@ -83,48 +84,13 @@ pred_q90$fit
 ## Diagnostic Plots
 
 ``` r
+
 if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quietly = TRUE)) {
-  plot(fit)
+  if (interactive()) plot(fit)
 } else {
   message("Plotting requires 'ggmcmc' and 'coda' packages.")
 }
-
-=== histogram ===
 ```
-
-![](introduction_files/figure-html/plot-fit-1.png)
-
-    === density ===
-
-![](introduction_files/figure-html/plot-fit-2.png)
-
-    === traceplot ===
-
-![](introduction_files/figure-html/plot-fit-3.png)
-
-    === running ===
-
-![](introduction_files/figure-html/plot-fit-4.png)
-
-    === compare_partial ===
-
-![](introduction_files/figure-html/plot-fit-5.png)
-
-    === autocorrelation ===
-
-![](introduction_files/figure-html/plot-fit-6.png)
-
-    === geweke ===
-
-![](introduction_files/figure-html/plot-fit-7.png)
-
-    === caterpillar ===
-
-![](introduction_files/figure-html/plot-fit-8.png)
-
-    === pairs ===
-
-![](introduction_files/figure-html/plot-fit-9.png)
 
 ## Troubleshooting
 
@@ -132,6 +98,13 @@ if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quiet
   keywords (e.g., `if` to `x_if`).
 - **Disk space error**: Set `TMPDIR`/`TEMP`/`TMP` to a drive with
   sufficient free space.
+- **“Cannot resolve owner of file” / “No mapping between account names
+  and security IDs” (Windows):** These warnings often appear when the
+  project lives in OneDrive or another synced folder. They are harmless
+  and do not affect DPmixGPD. If you keep the project in OneDrive
+  (e.g. as a backup to GitHub), the project `.Rprofile` suppresses these
+  warnings automatically on R \>= 4.0. Otherwise, move the project to a
+  local non-synced path or take ownership of the folder.
 
 ## Next Steps
 

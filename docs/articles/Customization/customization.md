@@ -21,6 +21,7 @@ We cover three workflows:
 ## Data
 
 ``` r
+
 data("mtcars", package = "datasets")
 
 df <- mtcars
@@ -44,6 +45,7 @@ distribution, we use a **zeros-trick** likelihood based on the exported
 ### Constants, data, and inits
 
 ``` r
+
 N <- length(y)
 K <- 3
 
@@ -63,6 +65,7 @@ inits_sb <- function() {
 ### NIMBLE code
 
 ``` r
+
 code_sb <- nimble::nimbleCode({
   alpha ~ dgamma(1, 1)
 
@@ -91,6 +94,7 @@ code_sb <- nimble::nimbleCode({
 ### Compile and run (manual)
 
 ``` r
+
 Rmodel_sb <- nimble::nimbleModel(
   code = code_sb,
   constants = constants_sb,
@@ -144,6 +148,7 @@ For comparison, we build a **bundle** for the same SB Normal mixture and
 use DPmixGPD’s S3 methods for posterior inference.
 
 ``` r
+
 bundle_sb <- build_nimble_bundle(
   y = y,
   X = NULL,
@@ -403,7 +408,8 @@ Summary table
 ```
 
 ``` r
-try(plot(fit_sb, family = "trace"), silent = TRUE)
+
+if (interactive()) plot(fit_sb, family = "traceplot")
 ```
 
 ``` r
@@ -413,38 +419,40 @@ head(pred_sb$fit)
 1     19.3  17.3  21.4
 ```
 
-## CRP + GPD Case: Manual Pipeline with Codegen
+## SB + GPD Case: Manual Pipeline with Codegen
 
-This example uses **CRP + Amoroso + GPD**, but we still walk through the
+This example uses **SB + Amoroso + GPD**, but we still walk through the
 manual NIMBLE steps (constants, inits, code, compile, run). The
 generated NIMBLE code calls DPmixGPD’s GPD kernels under the hood.
 
 ### Specification
 
 ``` r
+
 param_specs_crp <- list(
   bulk = list(
     loc = list(
-      mode = "link",
-      link = "identity",
-      beta_prior = list(dist = "normal", args = list(mean = 0, sd = 2))
+      mode = "dist",
+      dist = "normal",
+      args = list(mean = 0, sd = 2)
     ),
     scale = list(
-      mode = "link",
-      link = "identity",
-      beta_prior = list(dist = "normal", args = list(mean = 0, sd = 2))
+      mode = "dist",
+      dist = "gamma",
+      args = list(shape = 2, rate = 1)
     ),
     shape1 = list(mode = "fixed", value = 1)
   ),
   gpd = list(
     threshold = list(
-      mode = "link",
-      link = "exp",
-      beta_prior = list(dist = "normal", args = list(mean = 0, sd = 0.2))
+      mode = "dist",
+      dist = "gamma",
+      args = list(shape = 2, rate = 1)
     ),
     tail_scale = list(
-      mode = "link",
-      link = "exp"
+      mode = "dist",
+      dist = "gamma",
+      args = list(shape = 2, rate = 1)
     )
   )
 )
@@ -453,10 +461,12 @@ param_specs_crp <- list(
 ### Build bundle and extract pieces
 
 ``` r
+
+X_crp <- NULL
 bundle_crp <- build_nimble_bundle(
   y = y,
-  X = X,
-  backend = "crp",
+  X = X_crp,
+  backend = "sb",
   kernel = "amoroso",
   GPD = TRUE,
   components = 5,
@@ -473,93 +483,191 @@ inits_crp <- if (is.function(bundle_crp$inits_fun)) bundle_crp$inits_fun else bu
 ### Compile and run (manual)
 
 ``` r
-samples_crp <- NULL
-crp_err <- NULL
 
-tryCatch({
-  Rmodel_crp <- nimble::nimbleModel(
-    code = code_crp,
-    constants = constants_crp,
-    data = data_crp,
-    inits = if (is.function(inits_crp)) inits_crp() else inits_crp
-  )
+Rmodel_crp <- nimble::nimbleModel(
+  code = code_crp,
+  constants = constants_crp,
+  data = data_crp,
+  inits = if (is.function(inits_crp)) inits_crp() else inits_crp
+)
 
-  conf_crp <- nimble::configureMCMC(
-    Rmodel_crp,
-    monitors = bundle_crp$monitors
-  )
+conf_crp <- nimble::configureMCMC(
+  Rmodel_crp,
+  monitors = bundle_crp$monitors
+)
 
-  if (!is.null(conf_crp$samplerConfs) && length(conf_crp$samplerConfs) > 0) {
-    for (i in seq_along(conf_crp$samplerConfs)) {
-      ctl <- conf_crp$samplerConfs[[i]]$control
-      if (is.null(ctl)) ctl <- list()
-      if (is.null(ctl$checkConjugacy)) ctl$checkConjugacy <- FALSE
-      conf_crp$samplerConfs[[i]]$control <- ctl
-    }
+if (!is.null(conf_crp$samplerConfs) && length(conf_crp$samplerConfs) > 0) {
+  for (i in seq_along(conf_crp$samplerConfs)) {
+    ctl <- conf_crp$samplerConfs[[i]]$control
+    if (is.null(ctl)) ctl <- list()
+    if (is.null(ctl$checkConjugacy)) ctl$checkConjugacy <- FALSE
+    conf_crp$samplerConfs[[i]]$control <- ctl
   }
+}
 
-  Rmcmc_crp <- nimble::buildMCMC(conf_crp)
-  Cmodel_crp <- nimble::compileNimble(Rmodel_crp, showCompilerOutput = FALSE)
-  Cmcmc_crp <- nimble::compileNimble(Rmcmc_crp, project = Rmodel_crp, showCompilerOutput = FALSE)
+Rmcmc_crp <- nimble::buildMCMC(conf_crp)
+Cmodel_crp <- nimble::compileNimble(Rmodel_crp, showCompilerOutput = FALSE)
+Cmcmc_crp <- nimble::compileNimble(Rmcmc_crp, project = Rmodel_crp, showCompilerOutput = FALSE)
 
-  samples_crp <- nimble::runMCMC(
-    Cmcmc_crp,
-    niter = mcmc$niter,
-    nburnin = mcmc$nburnin,
-    thin = mcmc$thin,
-    nchains = mcmc$nchains,
-    setSeed = mcmc$seed
-  )
-}, error = function(e) {
-  crp_err <<- conditionMessage(e)
-})
+samples_crp <- nimble::runMCMC(
+  Cmcmc_crp,
+  niter = mcmc$niter,
+  nburnin = mcmc$nburnin,
+  thin = mcmc$thin,
+  nchains = mcmc$nchains,
+  setSeed = mcmc$seed
+)
 ```
 
 ### Sample extraction
 
 ``` r
-if (is.null(samples_crp)) {
-  message("Manual CRP MCMC build failed in this session: ", crp_err)
-} else {
-  head(samples_crp[, 1:min(6, ncol(samples_crp))])
-}
+head(samples_crp[, 1:min(6, ncol(samples_crp))])
+     alpha loc[1] loc[2] loc[3] loc[4] loc[5]
+[1,] 2.051   1.84  3.281  0.522  2.396  1.683
+[2,] 0.305   2.53  2.381 -1.763  2.674  0.854
+[3,] 0.839   3.97  1.364 -1.819  1.729  1.682
+[4,] 0.839   3.76  1.093 -0.920  1.361  2.224
+[5,] 1.422   4.14  1.194 -0.143  0.967  1.289
+[6,] 2.613   2.11  0.873 -0.114  1.153  1.534
 ```
 
 ### S3 methods for posterior inference
 
 ``` r
-fit_crp <- NULL
-crp_fit_err <- NULL
 
-tryCatch({
-  fit_crp <- run_mcmc_bundle_manual(bundle_crp, show_progress = FALSE)
-}, error = function(e) {
-  crp_fit_err <<- conditionMessage(e)
-})
+fit_crp <- run_mcmc_bundle_manual(bundle_crp, show_progress = FALSE)
 ```
 
 ``` r
-if (is.null(fit_crp)) {
-  message("CRP bundle MCMC failed in this session: ", crp_fit_err)
-} else {
-  print(fit_crp)
-  summary(fit_crp)
-}
+print(fit_crp)
+MixGPD fit | backend: Stick-Breaking Process | kernel: Amoroso Distribution | GPD tail: TRUE
+n = 32 | components = 5 | epsilon = 0.025
+MCMC: niter=600, nburnin=150, thin=2, nchains=1 
+Fit
+Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
+summary(fit_crp)
+MixGPD summary | backend: Stick-Breaking Process | kernel: Amoroso Distribution | GPD tail: TRUE | epsilon: 0.025
+n = 32 | components = 5
+Summary
+Initial components: 5 | Components after truncation: 1
+
+WAIC: 230.102
+lppd: -112.071 | pWAIC: 2.98
+
+Summary table
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+ <thead>
+  <tr>
+   <th style="text-align:center;"> parameter </th>
+   <th style="text-align:center;"> mean </th>
+   <th style="text-align:center;"> sd </th>
+   <th style="text-align:center;"> q0.025 </th>
+   <th style="text-align:center;"> q0.500 </th>
+   <th style="text-align:center;"> q0.975 </th>
+   <th style="text-align:center;"> ess </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:center;"> weights[1] </td>
+   <td style="text-align:center;"> 0.893 </td>
+   <td style="text-align:center;"> 0.169 </td>
+   <td style="text-align:center;"> 0.5 </td>
+   <td style="text-align:center;"> 1 </td>
+   <td style="text-align:center;"> 1 </td>
+   <td style="text-align:center;"> 3.484 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> alpha </td>
+   <td style="text-align:center;"> 0.495 </td>
+   <td style="text-align:center;"> 0.363 </td>
+   <td style="text-align:center;"> 0.159 </td>
+   <td style="text-align:center;"> 0.383 </td>
+   <td style="text-align:center;"> 1.457 </td>
+   <td style="text-align:center;"> 13.486 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> tail_scale </td>
+   <td style="text-align:center;"> 11.413 </td>
+   <td style="text-align:center;"> 3.058 </td>
+   <td style="text-align:center;"> 6.661 </td>
+   <td style="text-align:center;"> 11.683 </td>
+   <td style="text-align:center;"> 16.876 </td>
+   <td style="text-align:center;"> 3.253 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> tail_shape </td>
+   <td style="text-align:center;"> -0.19 </td>
+   <td style="text-align:center;"> 0.178 </td>
+   <td style="text-align:center;"> -0.492 </td>
+   <td style="text-align:center;"> -0.165 </td>
+   <td style="text-align:center;"> 0.104 </td>
+   <td style="text-align:center;"> 19.531 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> threshold </td>
+   <td style="text-align:center;"> 7.225 </td>
+   <td style="text-align:center;"> 3.394 </td>
+   <td style="text-align:center;"> 1.9 </td>
+   <td style="text-align:center;"> 6.146 </td>
+   <td style="text-align:center;"> 13.155 </td>
+   <td style="text-align:center;"> 2.182 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> loc[1] </td>
+   <td style="text-align:center;"> 4.35 </td>
+   <td style="text-align:center;"> 1.607 </td>
+   <td style="text-align:center;"> 0.891 </td>
+   <td style="text-align:center;"> 4.539 </td>
+   <td style="text-align:center;"> 6.988 </td>
+   <td style="text-align:center;"> 14.748 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> scale[1] </td>
+   <td style="text-align:center;"> 5.921 </td>
+   <td style="text-align:center;"> 4.85 </td>
+   <td style="text-align:center;"> 0.454 </td>
+   <td style="text-align:center;"> 4.752 </td>
+   <td style="text-align:center;"> 15.181 </td>
+   <td style="text-align:center;"> 3.488 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> shape1[1] </td>
+   <td style="text-align:center;"> 1 </td>
+   <td style="text-align:center;"> 0 </td>
+   <td style="text-align:center;"> 1 </td>
+   <td style="text-align:center;"> 1 </td>
+   <td style="text-align:center;"> 1 </td>
+   <td style="text-align:center;"> 0 </td>
+  </tr>
+  <tr>
+   <td style="text-align:center;"> shape2[1] </td>
+   <td style="text-align:center;"> 4.056 </td>
+   <td style="text-align:center;"> 2.513 </td>
+   <td style="text-align:center;"> 0.216 </td>
+   <td style="text-align:center;"> 3.543 </td>
+   <td style="text-align:center;"> 9.703 </td>
+   <td style="text-align:center;"> 11.617 </td>
+  </tr>
+</tbody>
+</table>
 ```
 
 ``` r
-if (!is.null(fit_crp)) {
-  try(plot(fit_crp, family = "trace"), silent = TRUE)
-}
+
+if (interactive()) plot(fit_crp, family = "traceplot")
 ```
 
 ``` r
-if (!is.null(fit_crp)) {
-  pred_crp_mean <- predict(fit_crp, x = X, type = "mean", interval = "credible")
-  pred_crp_q90 <- predict(fit_crp, x = X, type = "quantile", index = 0.90, interval = "credible")
-  head(pred_crp_mean$fit)
-  head(pred_crp_q90$fit)
-}
+pred_crp_mean <- predict(fit_crp, type = "mean", interval = "credible")
+pred_crp_q90 <- predict(fit_crp, type = "quantile", index = 0.90, interval = "credible")
+head(pred_crp_mean$fit)
+  estimate lower upper
+1     16.4  12.2  20.1
+head(pred_crp_q90$fit)
+  estimate index lower upper
+1     27.9   0.9  23.4    33
 ```
 
 ## Causal Model: From Bundle to S3 Inference
@@ -570,6 +678,7 @@ This uses the same fast MCMC settings and then demonstrates
 [`qte()`](https://arnabaich96.github.io/DPmixGPD/reference/qte.md).
 
 ``` r
+
 X_causal <- df[, c("wt", "hp", "qsec", "cyl")]
 X_causal <- as.data.frame(X_causal)
 T_ind <- df$am
@@ -607,6 +716,7 @@ param_specs_causal <- list(
 ```
 
 ``` r
+
 causal_bundle <- build_causal_bundle(
   y = y,
   X = X_causal,
@@ -739,7 +849,8 @@ Use summary() for posterior summaries; plot() for diagnostics; predict() for pre
 ```
 
 ``` r
-try(plot(causal_fit, family = "trace"), silent = TRUE)
+
+if (interactive()) plot(causal_fit, family = "traceplot")
 ```
 
 ``` r
@@ -838,10 +949,6 @@ Credible interval width:
   Mean: 978.617 | Median: 812.036
   Range: [371.937, 2227.255]
 
-try({
-  plot(ate_result, type = "effect")
-  plot(qte_result, type = "effect")
-}, silent = TRUE)
+if (interactive()) plot(ate_result, type = "effect")
+if (interactive()) plot(qte_result, type = "effect")
 ```
-
-![](customization_files/figure-html/unnamed-chunk-25-1.png)

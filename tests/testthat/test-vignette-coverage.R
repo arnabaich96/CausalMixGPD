@@ -91,10 +91,7 @@ test_that("unconditional SB bulk model works (v07 coverage)", {
   
   fit <- quiet_run(run_mcmc_bundle_manual(bundle, show_progress = FALSE))
   expect_s3_class(fit, "mixgpd_fit")
-  
-  # Test fitted values
-  fv <- fitted(fit, type = "mean")
-  expect_s3_class(fv, "mixgpd_fitted")
+  # fitted() not supported for unconditional; use predict() only
 })
 
 test_that("unconditional SB GPD model works (v09 coverage)", {
@@ -429,10 +426,10 @@ test_that("all kernel types work with SB backend", {
       components = 2,
       mcmc = list(niter = 30, nburnin = 5, thin = 1, nchains = 1, seed = 1)
     )
-    expect_s3_class(bundle, "dpmixgpd_bundle", info = paste("kernel:", kernel))
+    expect_s3_class(bundle, "dpmixgpd_bundle")
     
     fit <- quiet_run(run_mcmc_bundle_manual(bundle, show_progress = FALSE))
-    expect_s3_class(fit, "mixgpd_fit", info = paste("kernel:", kernel))
+    expect_s3_class(fit, "mixgpd_fit")
   }
   
   # Real support kernels
@@ -445,10 +442,10 @@ test_that("all kernel types work with SB backend", {
       components = 2,
       mcmc = list(niter = 30, nburnin = 5, thin = 1, nchains = 1, seed = 1)
     )
-    expect_s3_class(bundle, "dpmixgpd_bundle", info = paste("kernel:", kernel))
+    expect_s3_class(bundle, "dpmixgpd_bundle")
     
     fit <- quiet_run(run_mcmc_bundle_manual(bundle, show_progress = FALSE))
-    expect_s3_class(fit, "mixgpd_fit", info = paste("kernel:", kernel))
+    expect_s3_class(fit, "mixgpd_fit")
   }
 })
 

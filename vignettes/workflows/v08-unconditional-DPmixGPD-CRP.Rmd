@@ -1,7 +1,8 @@
-﻿---
+---
 title: "8. Unconditional DPmixGPD with CRP Backend"
-output: 
+output:
   rmarkdown::html_vignette:
+    highlight: null
     code_folding: show
 vignette: >
   %\VignetteIndexEntry{8. Unconditional DPmixGPD with CRP Backend}
@@ -36,7 +37,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
-devtools::load_all()
+pkgload::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -154,33 +155,33 @@ params_gpd
 
 ```{r fit-plots}
 # S3 plot methods highlight trace + density diagnostics
-plot(fit_gpd, family = c("traceplot", "density", "running"))
-plot(fit_gpd, params = "alpha", family = c("traceplot", "autocorrelation", "geweke"))
+if (interactive()) plot(fit_gpd, family = c("traceplot", "density", "running"))
+if (interactive()) plot(fit_gpd, params = "alpha", family = c("traceplot", "autocorrelation", "geweke"))
 ```
 
 ---
 
 ## Posterior Predictions: Bulk and Tail
 
-We use the **S3 `predict()` objects** and their dedicated `plot()` methods to visualize densities, survival curves, and posterior-mean quantiles (i.e., averages of q(p | Î¸) over draws).
+We use the **S3 `predict()` objects** and their dedicated `if (interactive()) plot()` methods to visualize densities, survival curves, and posterior-mean quantiles (i.e., averages of q(p | θ) over draws).
 
-```{r density-predict}
+```{r density-predict, cache=FALSE}
 y_min <- max(min(y_tail), .Machine$double.eps)
 y_grid <- seq(y_min, max(y_tail) * 1.3, length.out = 300)
 pred_density <- predict(fit_gpd, y = y_grid, type = "density")
-plot(pred_density)
+if (interactive()) plot(pred_density)
 ```
 
-```{r survival-predict}
+```{r survival-predict, cache=FALSE}
 y_surv <- seq(max(u_threshold, y_min), max(y_tail) * 1.1, length.out = 60)
 pred_surv <- predict(fit_gpd, y = y_surv, type = "survival")
-plot(pred_surv)
+if (interactive()) plot(pred_surv)
 ```
 
-```{r quantile-predict}
+```{r quantile-predict, cache=FALSE}
 quantile_probs <- c(0.90, 0.95, 0.99)
 pred_quantiles <- predict(fit_gpd, type = "quantile", index = quantile_probs, interval = "credible")
-plot(pred_quantiles)
+if (interactive()) plot(pred_quantiles)
 ```
 
 ---
@@ -218,8 +219,8 @@ compare_tbl %>%
 ```
 
 ```{r quantile-plot}
-plot(bulk_quantiles)
-plot(tail_quantiles)
+if (interactive()) plot(bulk_quantiles)
+if (interactive()) plot(tail_quantiles)
 ```
 
 ---
@@ -236,10 +237,7 @@ return_levels$fit %>%
   kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
 ```
 
-```{r residuals, cache=FALSE}
-fit_vals <- fitted(fit_gpd)
-plot(fit_vals)
-```
+For unconditional models, use `predict()` only; `fitted()` and `residuals()` are not supported.
 
 ---
 
@@ -304,9 +302,11 @@ sensitivity_tbl %>%
 
 - **Bulk + Tail**: DPmix explains the bulk, and GPD captures the extremes.
 - **Threshold**: 0.8 quantile is our running default, but sensitivity checks guide the choice.
-- **S3 workflows**: `predict()` and its `plot()` method make it easy to compare density, survival, and quantiles.
+- **S3 workflows**: `predict()` and its `if (interactive()) plot()` method make it easy to compare density, survival, and quantiles.
 - **Comparison**: Bulk-only fits under-estimate extreme quantiles without a GPD component.
 - **Next**: Explore Stick-Breaking (`v07`) for another backend with tail augmentation.
+
+
 
 
 

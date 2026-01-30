@@ -16,6 +16,7 @@ reliable.
 ## Model Building and Sampling
 
 ``` r
+
 library(DPmixGPD)
 
 data("faithful", package = "datasets")
@@ -188,6 +189,7 @@ Summary table
 ## Diagnostic Plots
 
 ``` r
+
 if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quietly = TRUE)) {
   smp <- fit$mcmc$samples
   params <- if (!is.null(smp)) {
@@ -196,15 +198,11 @@ if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quiet
   } else {
     NULL
   }
-  plot(fit, family = "geweke", params = params)
+  if (interactive()) plot(fit, family = "geweke", params = params)
 } else {
   message("Plotting requires 'ggmcmc' and 'coda' packages.")
 }
-
-=== geweke ===
 ```
-
-![](mcmc-workflow_files/figure-html/unnamed-chunk-3-1.png)
 
 ## Posterior Sample Extraction
 
@@ -228,6 +226,7 @@ if (!is.null(fit$mcmc$samples)) {
 ## Re-running with Different Settings
 
 ``` r
+
 # Rebuild with modified MCMC settings
 # bundle2 <- update_mcmc(bundle, niter = 8000, nburnin = 2000)
 # fit2 <- run_mcmc_bundle_manual(bundle2)

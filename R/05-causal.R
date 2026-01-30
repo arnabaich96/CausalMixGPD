@@ -129,18 +129,17 @@ build_causal_bundle <- function(
     stop("components (control) must be an integer >= 2.", call. = FALSE)
   }
 
-  # Validate and normalize PS parameter
+  # Validate and normalize PS parameter (disable PS when X is missing/empty)
   ps_model_type <- FALSE
   ps_choices <- c("logit", "probit", "naive")
-  if (isFALSE(PS) || is.null(PS)) {
+  if (!has_x) {
+    ps_model_type <- FALSE
+  } else if (isFALSE(PS) || is.null(PS)) {
     ps_model_type <- FALSE
   } else if (isTRUE(PS)) {
     ps_model_type <- "logit"
   } else {
     ps_model_type <- match.arg(as.character(PS), choices = ps_choices)
-  }
-  if (!isFALSE(ps_model_type) && !has_x) {
-    stop("PS estimation requires non-empty X.", call. = FALSE)
   }
 
   idx_con <- which(T == 0L)
@@ -790,7 +789,7 @@ predict.dpmixgpd_causal_fit <- function(object,
                                         y = NULL,
                                         ps = NULL,
                                         newdata = NULL,
-                                        type = c("mean", "quantile", "density", "survival", "prob"),
+                                        type = c("mean", "quantile", "density", "survival", "prob", "location"),
                                         p = NULL,
                                         nsim = NULL,
                                         interval = "credible",
@@ -808,8 +807,15 @@ predict.dpmixgpd_causal_fit <- function(object,
 
   type <- match.arg(type)
 
-  # Handle interval: NULL means no interval, otherwise match to credible/hpd
-  if (!is.null(interval)) {
+  # Handle interval: NULL/"none" means no interval, otherwise match to credible/hpd
+  compute_interval <- TRUE
+  if (is.character(interval) && length(interval) == 1L && identical(tolower(interval), "none")) {
+    interval <- NULL
+  }
+  if (is.null(interval)) {
+    compute_interval <- FALSE
+    interval <- "credible"  # placeholder for downstream calls
+  } else {
     interval <- match.arg(interval, choices = c("credible", "hpd"))
   }
 
@@ -836,10 +842,13 @@ predict.dpmixgpd_causal_fit <- function(object,
   ps_clamp <- bundle$meta$ps_clamp %||% 1e-6
 
   if (type == "quantile") {
-    if (is.null(p) || length(p) != 1L || !is.finite(as.numeric(p))) {
-      stop("Causal predict for quantile requires a single finite probability in 'p'.", call. = FALSE)
+    if (is.null(p) || length(p) == 0 || any(!is.finite(as.numeric(p)))) {
+      stop("Causal predict for quantile requires one or more finite probabilities in 'p'.", call. = FALSE)
     }
     p <- as.numeric(p)
+    if (any(p <= 0 | p >= 1)) {
+      stop("Probabilities in 'p' must be in (0, 1).", call. = FALSE)
+    }
   }
 
   if (type %in% c("density", "survival", "prob")) {
@@ -931,7 +940,7 @@ predict.dpmixgpd_causal_fit <- function(object,
           y = y_vec[i],
           ps = psi,
           type = pred_type,
-          interval = interval,
+          interval = if (compute_interval) interval else NULL,
           probs = probs,
           store_draws = FALSE,
           ncores = 1L,
@@ -986,7 +995,7 @@ predict.dpmixgpd_causal_fit <- function(object,
     type = type,
     index = if (type == "quantile") p else NULL,
     nsim = nsim,
-    interval = interval,
+    interval = if (compute_interval) interval else NULL,
     probs = probs,
     store_draws = store_draws,
     nsim_mean = nsim_mean,
@@ -1002,13 +1011,133 @@ predict.dpmixgpd_causal_fit <- function(object,
     type = type,
     index = if (type == "quantile") p else NULL,
     nsim = nsim,
-    interval = interval,
+    interval = if (compute_interval) interval else NULL,
     probs = probs,
     store_draws = store_draws,
     nsim_mean = nsim_mean,
     ncores = ncores,
     ...
   )
+  # If quantile draws are available, compute intervals on the treatment effect directly.
+  if (type == "quantile" && !is.null(pr_trt$draws) && !is.null(pr_con$draws)) {
+    normalize_draws <- function(draws) {
+      if (is.null(dim(draws))) {
+        return(array(as.numeric(draws), dim = c(length(draws), 1L, 1L)))
+      }
+      d <- dim(draws)
+      if (length(d) == 2L) {
+        # Unconditional case: draws is M x S -> convert to S x 1 x M
+        M <- d[1]
+        S <- d[2]
+        arr <- array(NA_real_, dim = c(S, 1L, M))
+        for (s in seq_len(S)) arr[s, 1L, ] <- draws[, s]
+        return(arr)
+      }
+      if (length(d) == 3L) return(draws) # S x n_pred x M
+      stop("Unexpected draw dimensions in causal quantile prediction.", call. = FALSE)
+    }
+
+    trt_draws <- normalize_draws(pr_trt$draws)
+    con_draws <- normalize_draws(pr_con$draws)
+    if (!identical(dim(trt_draws), dim(con_draws))) {
+      stop("Treated and control posterior draws must have matching dimensions.", call. = FALSE)
+    }
+
+    diff_draws <- trt_draws - con_draws  # S x n_pred x M
+    # .posterior_summarize expects draws in last dimension
+    diff_for_sum <- aperm(diff_draws, c(2, 3, 1))  # n_pred x M x S
+    summ <- .posterior_summarize(
+      diff_for_sum,
+      probs = probs,
+      interval = if (compute_interval) interval else NULL
+    )
+
+    est <- summ$estimate
+    lower <- summ$lower
+    upper <- summ$upper
+    ps_col <- if (!is.null(ps_full)) ps_full else rep(NA_real_, n_pred)
+
+    if (length(p) > 1L) {
+      out_df <- data.frame(
+        id = rep(seq_len(n_pred), times = length(p)),
+        index = rep(p, each = n_pred),
+        ps = rep(ps_col, times = length(p)),
+        estimate = as.vector(est),
+        lower = if (compute_interval) as.vector(lower) else NA_real_,
+        upper = if (compute_interval) as.vector(upper) else NA_real_,
+        row.names = NULL
+      )
+      attr(out_df, "type") <- type
+      attr(out_df, "index") <- p
+      attr(out_df, "trt") <- pr_trt
+      attr(out_df, "con") <- pr_con
+      class(out_df) <- c("dpmixgpd_causal_predict", class(out_df))
+      return(out_df)
+    }
+
+    est_vec <- as.numeric(est)
+    lower_vec <- if (compute_interval) as.numeric(lower) else rep(NA_real_, n_pred)
+    upper_vec <- if (compute_interval) as.numeric(upper) else rep(NA_real_, n_pred)
+    out <- cbind(ps = ps_col, estimate = est_vec, lower = lower_vec, upper = upper_vec)
+    attr(out, "type") <- type
+    attr(out, "index") <- p
+    attr(out, "trt") <- pr_trt
+    attr(out, "con") <- pr_con
+    class(out) <- c("dpmixgpd_causal_predict", class(out))
+    return(out)
+  }
+  # Special handling for quantile with possibly multiple probabilities
+  if (type == "quantile" && length(p) > 1L) {
+    # Expect pr_trt$fit and pr_con$fit to be data.frames with rows ordered per index block:
+    # index varies slowest in returned fit: index repeated each n_pred, with ids within block.
+    fit_tr <- pr_trt$fit
+    fit_co <- pr_con$fit
+    if (!is.data.frame(fit_tr) || !is.data.frame(fit_co) ||
+        !("index" %in% names(fit_tr)) || !("id" %in% names(fit_tr))) {
+      stop("Unexpected format from underlying predict() for multiple quantiles.", call. = FALSE)
+    }
+    M <- length(p)
+    # Ensure expected row count
+    if (nrow(fit_tr) != n_pred * M || nrow(fit_co) != n_pred * M) {
+      stop("Unexpected prediction length in causal predict.", call. = FALSE)
+    }
+    # Build matrices: columns = probs, rows = prediction rows
+    trt_mat <- matrix(NA_real_, nrow = n_pred, ncol = M)
+    trt_lower <- matrix(NA_real_, nrow = n_pred, ncol = M)
+    trt_upper <- matrix(NA_real_, nrow = n_pred, ncol = M)
+    con_mat <- matrix(NA_real_, nrow = n_pred, ncol = M)
+    con_lower <- matrix(NA_real_, nrow = n_pred, ncol = M)
+    con_upper <- matrix(NA_real_, nrow = n_pred, ncol = M)
+    for (j in seq_len(M)) {
+      rows <- ((j - 1L) * n_pred + 1L):(j * n_pred)
+      trt_mat[, j] <- as.numeric(fit_tr$estimate[rows])
+      trt_lower[, j] <- if ("lower" %in% names(fit_tr)) as.numeric(fit_tr$lower[rows]) else NA_real_
+      trt_upper[, j] <- if ("upper" %in% names(fit_tr)) as.numeric(fit_tr$upper[rows]) else NA_real_
+      con_mat[, j] <- as.numeric(fit_co$estimate[rows])
+      con_lower[, j] <- if ("lower" %in% names(fit_co)) as.numeric(fit_co$lower[rows]) else NA_real_
+      con_upper[, j] <- if ("upper" %in% names(fit_co)) as.numeric(fit_co$upper[rows]) else NA_real_
+    }
+    diff_mat <- trt_mat - con_mat
+    diff_lower <- trt_lower - con_upper
+    diff_upper <- trt_upper - con_lower
+
+    ps_col <- if (!is.null(ps_full)) ps_full else rep(NA_real_, n_pred)
+    out_df <- data.frame(
+      id = rep(seq_len(n_pred), times = M),
+      index = rep(p, each = n_pred),
+      ps = rep(ps_col, times = M),
+      estimate = as.vector(diff_mat),
+      lower = as.vector(diff_lower),
+      upper = as.vector(diff_upper),
+      row.names = NULL
+    )
+    attr(out_df, "type") <- type
+    attr(out_df, "index") <- p
+    attr(out_df, "trt") <- pr_trt
+    attr(out_df, "con") <- pr_con
+    class(out_df) <- c("dpmixgpd_causal_predict", class(out_df))
+    return(out_df)
+  }
 
   trt_stats <- .extract_stats(pr_trt, n_pred)
   con_stats <- .extract_stats(pr_con, n_pred)

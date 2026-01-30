@@ -17,6 +17,7 @@ clustering of local distributions across covariate space.
 ## Data Setup
 
 ``` r
+
 library(DPmixGPD)
 
 data("mtcars", package = "datasets")
@@ -29,6 +30,7 @@ X <- as.data.frame(X)
 ## Model Fitting
 
 ``` r
+
 bundle <- build_nimble_bundle(
   y = y,
   X = X,
@@ -111,6 +113,7 @@ head(q_df)
 ```
 
 ``` r
+
 ggplot(q_df, aes(x = wt, y = estimate, color = factor(tau))) +
   geom_line(linewidth = 1) +
   geom_ribbon(aes(ymin = lower, ymax = upper, fill = factor(tau)), alpha = 0.2, color = NA) +

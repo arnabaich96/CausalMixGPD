@@ -37,6 +37,8 @@ utils::globalVariables(c(
   "arm",
   "stick_breaking",
   # ggplot2 NSE variables
+  "Chain",
+  "Parameter",
   "conc_plan",
   "estimate",
   "fitted",
@@ -56,7 +58,8 @@ utils::globalVariables(c(
   "upper",
   "value",
   "x",
-  "y"
+  "y",
+  "z"
 ))
 #' Package hooks
 #'

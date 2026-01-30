@@ -165,10 +165,13 @@ test_that("fitted.mixgpd_fit supports unified interval parameter", {
   skip_on_cran()
 
   set.seed(42)
-  y <- abs(rnorm(30)) + 0.2
+  n <- 30
+  y <- abs(rnorm(n)) + 0.2
+  X <- data.frame(x1 = rnorm(n), x2 = runif(n))
 
   bundle <- build_nimble_bundle(
     y = y,
+    X = X,
     backend = "sb",
     kernel = "gamma",
     GPD = FALSE,

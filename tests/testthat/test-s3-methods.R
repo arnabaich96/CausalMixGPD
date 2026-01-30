@@ -674,7 +674,7 @@ test_that("print.dpmixgpd_bundle works with basic bundle", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4
+    components = 4
   )
   expect_output(print_dpmixgpd_bundle(bundle), "DPmixGPD bundle")
   expect_output(print_dpmixgpd_bundle(bundle), "Stick-Breaking")
@@ -689,7 +689,7 @@ test_that("print.dpmixgpd_bundle shows code when requested", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4
+    components = 4
   )
   expect_output(print_dpmixgpd_bundle(bundle, code = TRUE), "Model code")
 })
@@ -702,7 +702,7 @@ test_that("summary.dpmixgpd_bundle works", {
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
-    J = 4
+    components = 4
   )
   expect_output(summary_dpmixgpd_bundle(bundle), "DPmixGPD bundle summary")
   expect_output(summary_dpmixgpd_bundle(bundle), "Parameter specification")
@@ -722,7 +722,7 @@ test_that("print.dpmixgpd_causal_bundle works", {
   bundle <- build_causal_bundle(
     y = y, X = X, T = T,
     backend = "sb", kernel = "normal",
-    GPD = FALSE, J = 4, design = "rct"
+    GPD = FALSE, components = 4
   )
   expect_output(print_dpmixgpd_causal_bundle(bundle), "DPmixGPD causal bundle")
   expect_output(print_dpmixgpd_causal_bundle(bundle), "Outcome.*treated")
@@ -738,7 +738,7 @@ test_that("print.dpmixgpd_causal_bundle shows PS info for observational", {
   bundle <- build_causal_bundle(
     y = y, X = X, T = T,
     backend = "sb", kernel = "normal",
-    GPD = FALSE, J = 4, design = "observational", PS = "logit"
+    GPD = FALSE, components = 4, PS = "logit"
   )
   expect_output(print_dpmixgpd_causal_bundle(bundle), "PS model.*logit")
 })
@@ -752,7 +752,7 @@ test_that("summary.dpmixgpd_causal_bundle works", {
   bundle <- build_causal_bundle(
     y = y, X = X, T = T,
     backend = "sb", kernel = "normal",
-    GPD = FALSE, J = 4, design = "rct"
+    GPD = FALSE, components = 4
   )
   expect_output(summary_dpmixgpd_causal_bundle(bundle), "DPmixGPD causal bundle summary")
 })

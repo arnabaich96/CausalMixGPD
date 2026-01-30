@@ -1,11 +1,12 @@
-# Workflow 5: Unconditional DPmix (CRP Backend)
+# 5. Unconditional DPmix (CRP Backend)
 
-## Theory (brief)
-
-An unconditional DP mixture models exchangeable outcomes via
-\$f(y)=\\int K(y;\\theta)\\,dG(\\theta)\$ with \$G \\sim
-\\mathrm{DP}(\\alpha, G_0)\$. The CRP backend implements this using
-cluster allocations.
+> **Legacy vignette (for the website / historical notes).** These files
+> may not match the current exported API one-to-one. Last verified:
+> **2026-01-18**.
+>
+> For the up-to-date workflow, see the main package vignettes
+> (Introduction, Model Spec, MCMC Workflow,
+> Unconditional/Conditional/Causal, Backends, S3 Reference).
 
 ## Overview
 
@@ -16,6 +17,8 @@ bulk distribution and no GPD tail augmentation.
 ## Data Setup
 
 ``` r
+
+# Load pre-generated dataset: 200 observations from mixture of 3 gamma components
 data(nc_pos200_k3)
 y_mixed <- nc_pos200_k3$y
 
@@ -25,24 +28,29 @@ paste("Sample size:", length(y_mixed))
     [1] "Sample size: 200"
 
 ``` r
+
 paste("Mean:", mean(y_mixed))
 ```
 
     [1] "Mean: 4.21476750434594"
 
 ``` r
+
 paste("SD:", sd(y_mixed))
 ```
 
     [1] "SD: 4.10835046697183"
 
 ``` r
+
 paste("Range:", paste(range(y_mixed), collapse = " to "))
 ```
 
     [1] "Range: 0.0403111680208858 to 19.6013451514889"
 
 ``` r
+
+# Visualization
 df_data <- data.frame(y = y_mixed)
 p_raw <- ggplot(df_data, aes(x = y)) +
   geom_histogram(aes(y = after_stat(density)), bins = 30, alpha = 0.6,
@@ -54,18 +62,19 @@ p_raw <- ggplot(df_data, aes(x = y)) +
 print(p_raw)
 ```
 
-![](v05-unconditional-DPmix-CRP_files/figure-html/data-setup-1.png)
+![](articles/workflows/legacy-cache/figure-htmldata-setup-1.png)
 
 ## Build Bundle (CRP)
 
 ``` r
+
 bundle_crp <- build_nimble_bundle(
   y = y_mixed,
-  kernel = "laplace",
-  backend = "crp",
-  GPD = FALSE,
-  components = 3,
-  alpha_random = TRUE,
+  kernel = "laplace",         # Use laplace kernel
+  backend = "crp",            # CRP backend
+  GPD = FALSE,                # No tail augmentation
+  components = 3,             # Minimal for testing
+  alpha_random = TRUE,        # Random DP concentration
   mcmc = mcmc
 )
 ```
@@ -73,6 +82,7 @@ bundle_crp <- build_nimble_bundle(
 ## Run MCMC (Longer Run)
 
 ``` r
+
 bundle_crp <- build_nimble_bundle(
   y_mixed,
   kernel = "laplace",
@@ -85,6 +95,7 @@ bundle_crp <- build_nimble_bundle(
 ```
 
 ``` r
+
 summary(bundle_crp)
 ```
 
@@ -220,10 +231,12 @@ summary(bundle_crp)
       alpha, z[1:200], location[1:3], scale[1:3]
 
 ``` r
+
 fit_crp <- load_or_fit("v05-unconditional-DPmix-CRP-fit_crp", run_mcmc_bundle_manual(bundle_crp))
 ```
 
 ``` r
+
 summary(fit_crp)
 ```
 
@@ -232,8 +245,8 @@ summary(fit_crp)
     Summary
     Initial components: 3 | Components after truncation: 2
 
-    WAIC: 930.316
-    lppd: -376.708 | pWAIC: 88.45
+    WAIC: 914.162
+    lppd: -346.856 | pWAIC: 110.226
 
     Summary table
     <table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
@@ -251,66 +264,66 @@ summary(fit_crp)
     <tbody>
       <tr>
        <td style="text-align:center;"> weights[1] </td>
-       <td style="text-align:center;"> 0.493 </td>
-       <td style="text-align:center;"> 0.082 </td>
-       <td style="text-align:center;"> 0.364 </td>
-       <td style="text-align:center;"> 0.51 </td>
-       <td style="text-align:center;"> 0.62 </td>
-       <td style="text-align:center;"> 2.803 </td>
+       <td style="text-align:center;"> 0.42 </td>
+       <td style="text-align:center;"> 0.036 </td>
+       <td style="text-align:center;"> 0.36 </td>
+       <td style="text-align:center;"> 0.415 </td>
+       <td style="text-align:center;"> 0.5 </td>
+       <td style="text-align:center;"> 372.213 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> weights[2] </td>
-       <td style="text-align:center;"> 0.382 </td>
-       <td style="text-align:center;"> 0.07 </td>
-       <td style="text-align:center;"> 0.238 </td>
-       <td style="text-align:center;"> 0.38 </td>
-       <td style="text-align:center;"> 0.49 </td>
-       <td style="text-align:center;"> 13.673 </td>
+       <td style="text-align:center;"> 0.348 </td>
+       <td style="text-align:center;"> 0.036 </td>
+       <td style="text-align:center;"> 0.28 </td>
+       <td style="text-align:center;"> 0.345 </td>
+       <td style="text-align:center;"> 0.415 </td>
+       <td style="text-align:center;"> 386.238 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> alpha </td>
-       <td style="text-align:center;"> 0.463 </td>
-       <td style="text-align:center;"> 0.284 </td>
-       <td style="text-align:center;"> 0.09 </td>
-       <td style="text-align:center;"> 0.41 </td>
-       <td style="text-align:center;"> 1.13 </td>
-       <td style="text-align:center;"> 291.26 </td>
+       <td style="text-align:center;"> 0.482 </td>
+       <td style="text-align:center;"> 0.296 </td>
+       <td style="text-align:center;"> 0.098 </td>
+       <td style="text-align:center;"> 0.42 </td>
+       <td style="text-align:center;"> 1.197 </td>
+       <td style="text-align:center;"> 1200 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> location[1] </td>
-       <td style="text-align:center;"> 3.237 </td>
-       <td style="text-align:center;"> 2.572 </td>
-       <td style="text-align:center;"> 1.094 </td>
-       <td style="text-align:center;"> 1.535 </td>
-       <td style="text-align:center;"> 7.395 </td>
-       <td style="text-align:center;"> 20.702 </td>
+       <td style="text-align:center;"> 5.585 </td>
+       <td style="text-align:center;"> 2.267 </td>
+       <td style="text-align:center;"> 1.052 </td>
+       <td style="text-align:center;"> 6.739 </td>
+       <td style="text-align:center;"> 7.715 </td>
+       <td style="text-align:center;"> 415.444 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> location[2] </td>
-       <td style="text-align:center;"> 5.12 </td>
-       <td style="text-align:center;"> 2.644 </td>
-       <td style="text-align:center;"> 0.868 </td>
-       <td style="text-align:center;"> 6.463 </td>
-       <td style="text-align:center;"> 7.943 </td>
-       <td style="text-align:center;"> 27.292 </td>
+       <td style="text-align:center;"> 3.17 </td>
+       <td style="text-align:center;"> 2.504 </td>
+       <td style="text-align:center;"> 0.808 </td>
+       <td style="text-align:center;"> 2.257 </td>
+       <td style="text-align:center;"> 7.968 </td>
+       <td style="text-align:center;"> 424.174 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> scale[1] </td>
-       <td style="text-align:center;"> 0.888 </td>
-       <td style="text-align:center;"> 0.421 </td>
-       <td style="text-align:center;"> 0.277 </td>
-       <td style="text-align:center;"> 1.044 </td>
-       <td style="text-align:center;"> 1.531 </td>
-       <td style="text-align:center;"> 34.308 </td>
+       <td style="text-align:center;"> 0.555 </td>
+       <td style="text-align:center;"> 0.42 </td>
+       <td style="text-align:center;"> 0.261 </td>
+       <td style="text-align:center;"> 0.339 </td>
+       <td style="text-align:center;"> 1.708 </td>
+       <td style="text-align:center;"> 397.138 </td>
       </tr>
       <tr>
        <td style="text-align:center;"> scale[2] </td>
-       <td style="text-align:center;"> 0.732 </td>
-       <td style="text-align:center;"> 0.624 </td>
-       <td style="text-align:center;"> 0.261 </td>
-       <td style="text-align:center;"> 0.35 </td>
-       <td style="text-align:center;"> 2.124 </td>
-       <td style="text-align:center;"> 15.309 </td>
+       <td style="text-align:center;"> 1.202 </td>
+       <td style="text-align:center;"> 0.641 </td>
+       <td style="text-align:center;"> 0.28 </td>
+       <td style="text-align:center;"> 1.202 </td>
+       <td style="text-align:center;"> 2.419 </td>
+       <td style="text-align:center;"> 480.74 </td>
       </tr>
     </tbody>
     </table>
@@ -318,6 +331,7 @@ summary(fit_crp)
 ## Posterior Parameters
 
 ``` r
+
 params_crp <- params(fit_crp)
 params_crp
 ```
@@ -325,41 +339,35 @@ params_crp
     Posterior mean parameters
 
     $alpha
-    [1] "0.463"
+    [1] "0.482"
 
     $w
-    [1] "0.493" "0.382"
+    [1] "0.42"  "0.348"
 
     $location
-    [1] "3.237" "5.12" 
+    [1] "5.585" "3.17" 
 
     $scale
-    [1] "0.888" "0.732"
+    [1] "0.555" "1.202"
 
 ## Diagnostics
 
 ``` r
-plot(fit_crp, params = "location", family = "traceplot")
+
+# Trace plots for key parameters
+if (interactive()) plot(fit_crp, params = "alpha", family = c("traceplot", "density", "geweke"))
 ```
-
-    === traceplot ===
-
-![](v05-unconditional-DPmix-CRP_files/figure-html/diag-trace-1.png)
-
-``` r
-plot(fit_crp, params = "scale", family = "caterpillar")
-```
-
-    === caterpillar ===
-
-![](v05-unconditional-DPmix-CRP_files/figure-html/diag-trace-2.png)
 
 ## Posterior Predictive Density
 
 ``` r
-y_grid <- seq(0, max(y_mixed) * 1.2, length.out = 200)
-pred_density <- predict(fit_crp, y = y_grid, type = "density")
-plot(pred_density)
-```
 
-![](v05-unconditional-DPmix-CRP_files/figure-html/pred-density-1.png)
+# Generate prediction grid
+y_grid <- seq(0, max(y_mixed) * 1.2, length.out = 200)
+
+# Posterior predictive density
+pred_density <- predict(fit_crp, y = y_grid, type = "density")
+
+# Use S3 plot method
+if (interactive()) plot(pred_density)
+```

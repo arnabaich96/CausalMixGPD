@@ -26,6 +26,7 @@ toggle `GPD = TRUE` to augment the tail.
 ### Data Setup
 
 ``` r
+
 # Load data with an obvious tail
 data("nc_pos_tail200_k4")
 y_tail <- nc_pos_tail200_k4$y
@@ -56,13 +57,15 @@ ggplot(df_data, aes(x = y)) +
 |    Min    |  0.328  |
 |    Max    | 19.870  |
 
-Summary of the Tail Dataset
+Summary of the Tail Dataset {.table .table .table-striped .table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ------------------------------------------------------------------------
 
 ### Threshold & Tail Partition
 
 ``` r
+
 thresholds <- quantile(y_tail, c(0.70, 0.75, 0.80, 0.85, 0.90))
 u_threshold <- thresholds["80%"]
 
@@ -93,6 +96,7 @@ estimate the GPD threshold with a lognormal prior centered at the
 empirical 80th percentile.
 
 ``` r
+
 bundle_gpd <- build_nimble_bundle(
   y = y_tail,
   kernel = "invgauss",
@@ -118,10 +122,12 @@ bundle_gpd <- build_nimble_bundle(
 ### Running MCMC & Diagnostics
 
 ``` r
+
 fit_gpd <- load_or_fit("v08-unconditional-DPmixGPD-CRP-fit_gpd", run_mcmc_bundle_manual(bundle_gpd))
 ```
 
 ``` r
+
 summary(fit_gpd)
 ```
 
@@ -147,6 +153,7 @@ summary(fit_gpd)
        shape[2] 4.458  1.23  2.229  4.302  6.853 37.979
 
 ``` r
+
 params_gpd <- params(fit_gpd)
 params_gpd
 ```
@@ -172,24 +179,30 @@ params_gpd
     [1] "0.151"
 
 ``` r
+
 plot(fit_gpd, family = "traceplot")
 ```
+
 
     === traceplot ===
 
 ![](v08-unconditional-DPmixGPD-CRP_files/figure-html/fit-plots-1.png)
 
 ``` r
+
 plot(fit_gpd, params = "mean", family = "traceplot")
 ```
+
 
     === traceplot ===
 
 ![](v08-unconditional-DPmixGPD-CRP_files/figure-html/fit-plots-2.png)
 
 ``` r
+
 plot(fit_gpd, params = "shape", family = "caterpillar")
 ```
+
 
     === caterpillar ===
 
@@ -206,6 +219,7 @@ visualize densities, survival curves, and posterior-mean quantiles
 (i.e., averages of q(p \| θ) over draws).
 
 ``` r
+
 y_min <- max(min(y_tail), .Machine$double.eps)
 y_grid <- seq(y_min, max(y_tail) * 1.3, length.out = 300)
 pred_density <- predict(fit_gpd, y = y_grid, type = "density")
@@ -215,6 +229,7 @@ plot(pred_density)
 ![](v08-unconditional-DPmixGPD-CRP_files/figure-html/density-predict-1.png)
 
 ``` r
+
 y_surv <- seq(max(u_threshold, y_min), max(y_tail) * 1.1, length.out = 60)
 pred_surv <- predict(fit_gpd, y = y_surv, type = "survival")
 plot(pred_surv)
@@ -223,6 +238,7 @@ plot(pred_surv)
 ![](v08-unconditional-DPmixGPD-CRP_files/figure-html/survival-predict-1.png)
 
 ``` r
+
 quantile_probs <- c(0.90, 0.95, 0.99)
 pred_quantiles <- predict(fit_gpd, type = "quantile", index = quantile_probs, interval = "credible")
 plot(pred_quantiles)
@@ -239,6 +255,7 @@ lognormal DP mixture and compare posterior summaries against the
 InvGauss+GPD fit.
 
 ``` r
+
 bundle_bulk_only <- build_nimble_bundle(
   y = y_tail,
   kernel = "lognormal",
@@ -251,6 +268,7 @@ fit_bulk_only <- load_or_fit("v08-unconditional-DPmixGPD-CRP-fit_bulk_only", run
 ```
 
 ``` r
+
 bulk_quantiles <- predict(fit_bulk_only, type = "quantile", index = quantile_probs)
 tail_quantiles <- predict(fit_gpd, type = "quantile", index = quantile_probs)
 
@@ -275,15 +293,19 @@ compare_tbl %>%
 | Bulk + GPD | 0.95  |   6.41   | 4.79  | 8.00e+00 |
 | Bulk + GPD | 0.99  |  11.10   | 8.35  | 1.55e+01 |
 
-Posterior-Mean Quantiles for Bulk-Only vs GPD Models
+Posterior-Mean Quantiles for Bulk-Only vs GPD Models {.table .table
+.table-striped .table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ``` r
+
 plot(bulk_quantiles)
 ```
 
 ![](v08-unconditional-DPmixGPD-CRP_files/figure-html/quantile-plot-1.png)
 
 ``` r
+
 plot(tail_quantiles)
 ```
 
@@ -294,6 +316,7 @@ plot(tail_quantiles)
 ### Extreme Value Diagnostics & Residuals
 
 ``` r
+
 probs <- c(0.995, 0.99, 0.975)
 return_levels <- predict(fit_gpd, type = "quantile", index = probs)
 
@@ -310,8 +333,11 @@ return_levels$fit %>%
 |   8.27   | 0.975 | 6.36  | 11.1  |
 
 Extreme Quantile Estimates (Posterior Mean and Credible Intervals)
+{.table .table .table-striped .table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ``` r
+
 fit_vals <- fitted(fit_gpd)
 plot(fit_vals)
 ```
@@ -323,6 +349,7 @@ plot(fit_vals)
 ### Threshold Sensitivity
 
 ``` r
+
 sensitivity_fits <- lapply(thresholds, function(u) {
   bundle <- build_nimble_bundle(
     y = y_tail,
@@ -383,7 +410,9 @@ sensitivity_tbl %>%
 |   3.94    | 11.3 |   4.74   |   17.4   |
 |   4.60    | 11.3 |   4.74   |   17.4   |
 
-Threshold Sensitivity: 99th Quantile
+Threshold Sensitivity: 99th Quantile {.table .table .table-striped
+.table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ------------------------------------------------------------------------
 

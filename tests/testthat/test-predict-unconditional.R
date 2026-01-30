@@ -166,39 +166,6 @@ test_that("Sample prediction returns vector of samples", {
 })
 
 
-test_that("Fitted values return model-based estimates", {
-  skip_if_not_test_level("ci")  # Requires MCMC
-  
-  fit <- .get_fit()
-  set.seed(42)  # recreate y for comparison
-  y <- abs(rnorm(60)) + 0.2
-  fit_vals <- fitted(fit, level = 0.95)
-
-  expect_s3_class(fit_vals, "mixgpd_fitted")
-  expect_s3_class(fit_vals, "data.frame")
-  expect_true(all(c("fit", "lower", "upper", "residuals") %in% names(fit_vals)))
-  expect_equal(nrow(fit_vals), length(y))
-  expect_equal(fit_vals$residuals, y - fit_vals$fit, tolerance = 1e-10)
-  expect_true(all(fit_vals$lower <= fit_vals$fit))
-  expect_true(all(fit_vals$fit <= fit_vals$upper))
-  expect_true(length(unique(fit_vals$fit)) == 1)
-  expect_silent(p <- plot(fit_vals))
-})
-
-
-test_that("Fitted values with different credible levels", {
-  skip_if_not_test_level("ci")  # Requires MCMC
-  
-  fit <- .get_fit()
-  fit_90 <- fitted(fit, level = 0.90)
-  fit_99 <- fitted(fit, level = 0.99)
-
-  width_90 <- mean(fit_90$upper - fit_90$lower)
-  width_99 <- mean(fit_99$upper - fit_99$lower)
-  expect_true(width_99 > width_90)
-})
-
-
 test_that("All prediction types have consistent class structure", {
   skip_if_not_test_level("ci")  # Requires MCMC
   

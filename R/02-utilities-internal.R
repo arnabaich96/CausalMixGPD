@@ -1987,6 +1987,59 @@ stick_breaking <- nimble::nimbleFunction(
   }
 
   # -----------------------------
+  # fit (per-observation posterior predictive samples summarized)
+  # Produce one estimate (dot) per observation with CI from posterior predictive samples
+  if (type == "fit") {
+    # number of prediction rows
+    if (!has_X) {
+      n_obs <- length(ytrain)
+    } else {
+      n_obs <- n_pred
+    }
+
+    if (!is.numeric(n_obs) || n_obs < 1) stop("Could not determine number of observations for 'fit' prediction.", call. = FALSE)
+
+    # For each posterior draw s, draw n_obs predictive samples
+    samples_mat <- matrix(NA_real_, nrow = S, ncol = n_obs)
+    for (s in seq_len(S)) {
+      if (!has_X) {
+        # unconditional: draw n_obs samples from marginal predictive at draw s
+        samples_mat[s, ] <- .draw_samples_uncond(s, nsim_inner = n_obs)
+      } else {
+        # conditional: draw one sample per observation for draw s
+        samp_mat <- .draw_samples_cond(s, nsim_inner = 1L) # n_pred x 1
+        samples_mat[s, ] <- as.numeric(samp_mat[, 1])
+      }
+    }
+
+    # Summarize per-observation across draws
+    prob_lower <- probs[1]
+    prob_upper <- probs[length(probs)]
+    estimate <- as.numeric(colMeans(samples_mat, na.rm = TRUE))
+    if (compute_interval) {
+      lower <- apply(samples_mat, 2, stats::quantile, probs = prob_lower, na.rm = TRUE)
+      upper <- apply(samples_mat, 2, stats::quantile, probs = prob_upper, na.rm = TRUE)
+    } else {
+      lower <- rep(NA_real_, n_obs)
+      upper <- rep(NA_real_, n_obs)
+    }
+
+    fit_df <- data.frame(
+      id = seq_len(n_obs),
+      estimate = estimate,
+      lower = as.numeric(if (!is.null(lower)) lower else rep(NA_real_, n_obs)),
+      upper = as.numeric(if (!is.null(upper)) upper else rep(NA_real_, n_obs)),
+      row.names = NULL
+    )
+
+    draws_out <- if (isTRUE(store_draws)) samples_mat else NULL
+
+    out <- list(fit = fit_df, type = type, draws = draws_out)
+    class(out) <- "mixgpd_predict"
+    return(out)
+  }
+
+  # -----------------------------
   # mean (via posterior samples from quantile inversion)
   # Generate posterior samples via quantile inversion, compute mean and CI
   if (type == "mean") {

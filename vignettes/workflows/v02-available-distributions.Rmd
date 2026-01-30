@@ -1,7 +1,8 @@
-﻿---
+---
 title: "2. Available Distributions and Related Functions"
-output: 
+output:
   rmarkdown::html_vignette:
+    highlight: null
     code_folding: show
 vignette: >
   %\VignetteIndexEntry{2. Available Distributions and Related Functions}
@@ -32,7 +33,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
-devtools::load_all()
+pkgload::load_all()
 library(DPmixGPD)
 library(ggplot2)
 # Precomputed results for fast website builds
@@ -1128,7 +1129,7 @@ ggplot(df_cauchy, aes(x = x, y = density, color = label)) +
 ## Summary: Distribution & Backend Reference
 
 This section provides a compact reference for the distributions supported by **DPmixGPD** and the corresponding user-facing function families.  
-The **CRP backend** uses base (single-kernel) functions, while the **SB backend** uses mixture (multi-component) functions. The â€œTypeâ€ column indicates whether each backend expects **scalar** parameters (single value per parameter) or **vectors** indexed by mixture component.
+The **CRP backend** uses base (single-kernel) functions, while the **SB backend** uses mixture (multi-component) functions. The “Type” column indicates whether each backend expects **scalar** parameters (single value per parameter) or **vectors** indexed by mixture component.
 
 
 ```{r dist-backend-summary, echo=FALSE, message=FALSE, warning=FALSE}
@@ -1236,6 +1237,8 @@ knitr::kable(
 - **SB Backend** uses mixture/spliced mixture functions; component-specific parameters are typically vectors indexed by component \(j\); mixture weights `w` are required as vector.
 
 - For **GPD-only**, SB entries are **NA** because there is no mixture-only GPD wrapper in the SB family.
+
+
 
 
 

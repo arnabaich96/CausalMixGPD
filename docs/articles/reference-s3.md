@@ -15,6 +15,7 @@ specification unchanged.
 ## Model Fitting
 
 ``` r
+
 library(DPmixGPD)
 
 data("faithful", package = "datasets")
@@ -215,10 +216,11 @@ Summary table
 </table>
 ```
 
-## plot()
+## if (interactive()) plot()
 
 ``` r
-try(plot(fit, family = "trace"), silent = TRUE)
+
+if (interactive()) plot(fit, family = "traceplot")
 ```
 
 ## predict()
@@ -344,6 +346,7 @@ functions return objects with their own S3 methods.
 ### Causal Model Fitting
 
 ``` r
+
 data("mtcars", package = "datasets")
 df <- mtcars
 X <- df[, c("wt", "hp", "qsec", "cyl")]
@@ -366,6 +369,7 @@ causal_bundle <- build_causal_bundle(
 ```
 
 ``` r
+
 causal_fit <- run_mcmc_causal(causal_bundle, show_progress = FALSE)
 ```
 
@@ -458,17 +462,16 @@ Credible interval width:
 ```
 
 ``` r
-ate_plots <- plot(ate_result)
-ate_plots$treatment_effect
-```
 
-![](reference-s3_files/figure-html/unnamed-chunk-12-1.png)
+ate_plots <- if (interactive()) plot(ate_result)
+ate_plots$treatment_effect
+NULL
+```
 
 ``` r
-plot(ate_result, type = "effect")
-```
 
-![](reference-s3_files/figure-html/unnamed-chunk-13-1.png)
+if (interactive()) plot(ate_result, type = "effect")
+```
 
 ### QTE S3 Methods
 
@@ -600,14 +603,13 @@ Credible interval width:
 ```
 
 ``` r
-qte_plots <- plot(qte_result)
-qte_plots$treatment_effect
-```
 
-![](reference-s3_files/figure-html/unnamed-chunk-16-1.png)
+qte_plots <- if (interactive()) plot(qte_result)
+qte_plots$treatment_effect
+NULL
+```
 
 ``` r
-plot(qte_result, type = "effect")
-```
 
-![](reference-s3_files/figure-html/unnamed-chunk-17-1.png)
+if (interactive()) plot(qte_result, type = "effect")
+```

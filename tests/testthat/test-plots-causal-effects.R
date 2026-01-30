@@ -33,7 +33,7 @@
     mcmc_outcome = mcmc_out,
     mcmc_ps = mcmc_ps,
     PS = "logit",
-    design = "observational"
+    
   )
 
   cf <- DPmixGPD::run_mcmc_causal(cb, show_progress = FALSE)

@@ -27,6 +27,7 @@ tails in the bulk can change the fit even without a GPD tail.
 ### Data Setup
 
 ``` r
+
 # Load benchmark dataset
 data("nc_pos200_k3")
 y_mixed <- nc_pos200_k3$y
@@ -57,7 +58,8 @@ print(p_raw)
 |    Min    |  0.04  |
 |    Max    | 19.60  |
 
-Summary of the SB Dataset
+Summary of the SB Dataset {.table .table .table-striped .table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ------------------------------------------------------------------------
 
@@ -69,6 +71,7 @@ manageable for a vignette. We then refit the same SB model with a
 **Cauchy** kernel for comparison.
 
 ``` r
+
 # --- Gamma kernel ---
 bundle_sb_gamma <- build_nimble_bundle(
   y = y_mixed,
@@ -95,11 +98,13 @@ bundle_sb_cauchy <- build_nimble_bundle(
 ### Running MCMC & Summary
 
 ``` r
+
 fit_sb_gamma <- load_or_fit("v07-unconditional-DPmix-SB-fit_sb_gamma", run_mcmc_bundle_manual(bundle_sb_gamma))
 fit_sb_cauchy <- load_or_fit("v07-unconditional-DPmix-SB-fit_sb_cauchy", run_mcmc_bundle_manual(bundle_sb_cauchy))
 ```
 
 ``` r
+
 summary(fit_sb_gamma)
 ```
 
@@ -122,6 +127,7 @@ summary(fit_sb_gamma)
        scale[2] 1.114 0.705  0.212  1.054  3.166 27.342
 
 ``` r
+
 summary(fit_sb_cauchy)
 ```
 
@@ -150,6 +156,7 @@ summary(fit_sb_cauchy)
         scale[4]  0.41 0.403  0.132  0.293  1.688 33.944
 
 ``` r
+
 params_gamma <- params(fit_sb_gamma)
 params_gamma
 ```
@@ -173,32 +180,40 @@ params_gamma
 ### MCMC Diagnostics (S3 Plot Methods)
 
 ``` r
+
 plot(fit_sb_gamma, params = "shape", family = "traceplot")
 ```
+
 
     === traceplot ===
 
 ![](v07-unconditional-DPmix-SB_files/figure-html/diag-plots-1.png)
 
 ``` r
+
 plot(fit_sb_gamma, params = "scale", family = "caterpillar")
 ```
+
 
     === caterpillar ===
 
 ![](v07-unconditional-DPmix-SB_files/figure-html/diag-plots-2.png)
 
 ``` r
+
 plot(fit_sb_cauchy, params = "location", family = "traceplot")
 ```
+
 
     === traceplot ===
 
 ![](v07-unconditional-DPmix-SB_files/figure-html/diag-plots-3.png)
 
 ``` r
+
 plot(fit_sb_cauchy, params = "scale", family = "caterpillar")
 ```
+
 
     === caterpillar ===
 
@@ -225,6 +240,7 @@ output) for posterior summaries of each component weight.
 ### Posterior Predictions
 
 ``` r
+
 y_grid <- seq(min(y_mixed), max(y_mixed) * 1.3, length.out = 250)
 
 pred_density_gamma <- predict(fit_sb_gamma, y = y_grid, type = "density")
@@ -236,12 +252,14 @@ plot(pred_density_gamma)
 ![](v07-unconditional-DPmix-SB_files/figure-html/density-predict-1.png)
 
 ``` r
+
 plot(pred_density_cauchy)
 ```
 
 ![](v07-unconditional-DPmix-SB_files/figure-html/density-predict-2.png)
 
 ``` r
+
 quant_probs <- c(0.05, 0.25, 0.5, 0.75, 0.95)
 
 pred_q_gamma <- predict(fit_sb_gamma, type = "quantile", index = quant_probs, interval = "credible")
@@ -253,12 +271,14 @@ plot(pred_q_gamma)
 ![](v07-unconditional-DPmix-SB_files/figure-html/quantile-predict-1.png)
 
 ``` r
+
 plot(pred_q_cauchy)
 ```
 
 ![](v07-unconditional-DPmix-SB_files/figure-html/quantile-predict-2.png)
 
 ``` r
+
 pred_mean_gamma <- predict(fit_sb_gamma, type = "mean")
 pred_mean_cauchy <- predict(fit_sb_cauchy, type = "mean")
 
@@ -268,6 +288,7 @@ plot(pred_mean_gamma)
 ![](v07-unconditional-DPmix-SB_files/figure-html/mean-predict-1.png)
 
 ``` r
+
 plot(pred_mean_cauchy)
 ```
 
@@ -278,6 +299,7 @@ plot(pred_mean_cauchy)
 ### Bulk-only vs CRP Backends
 
 ``` r
+
 bundle_crp_small <- build_nimble_bundle(
   y = y_mixed,
   kernel = "gamma",
@@ -314,15 +336,19 @@ bind_rows(
 |  SB   | 0.75  |  1.112   | 0.426 | 4.154 |
 |  SB   | 0.95  |  3.268   | 1.224 | 8.578 |
 
-Quantile Comparison: CRP vs SB
+Quantile Comparison: CRP vs SB {.table .table .table-striped
+.table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ``` r
+
 plot(crp_quant)
 ```
 
 ![](v07-unconditional-DPmix-SB_files/figure-html/compare-plots-1.png)
 
 ``` r
+
 plot(sb_quant)
 ```
 
@@ -333,6 +359,7 @@ plot(sb_quant)
 ### Residuals & Fitted Values
 
 ``` r
+
 fit_vals <- fitted(fit_sb_gamma)
 plot(fit_vals)
 ```

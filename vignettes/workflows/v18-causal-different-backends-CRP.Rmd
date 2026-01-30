@@ -1,7 +1,8 @@
-﻿---
+---
 title: "18. Causal Inference: Mixed Backends (Bulk-only) - Cauchy Kernel"
 output:
   rmarkdown::html_vignette:
+    highlight: null
     code_folding: show
 vignette: >
   %\VignetteIndexEntry{18. Causal Inference: Mixed Backends (Bulk-only) - Cauchy Kernel}
@@ -32,7 +33,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
-devtools::load_all()
+pkgload::load_all()
 library(DPmixGPD)
 
 # Precomputed results for fast website builds
@@ -118,43 +119,43 @@ params(fit_sb_crp)
 ```
 
 ```{r plot-fit-sb-crp}
-plot(fit_sb_crp, family = c("traceplot", "autocorrelation", "running"))
+if (interactive()) plot(fit_sb_crp, family = c("traceplot", "autocorrelation", "running"))
 ```
 
 ```{r predict-mean-sb-crp}
 pred_mean_sb_crp <- predict(fit_sb_crp, x = x_eval, type = "mean",
                             interval = "credible", nsim_mean = 100)
-plot(pred_mean_sb_crp)
+if (interactive()) plot(pred_mean_sb_crp)
 ```
 
 ```{r predict-quantile-sb-crp}
 pred_q_sb_crp <- predict(fit_sb_crp, x = x_eval, type = "quantile",
                          p = 0.5, interval = "credible")
-plot(pred_q_sb_crp)
+if (interactive()) plot(pred_q_sb_crp)
 ```
 
 ```{r predict-density-sb-crp}
 pred_d_sb_crp <- predict(fit_sb_crp, x = x_eval, y = y_eval,
                          type = "density", interval = "credible")
-plot(pred_d_sb_crp)
+if (interactive()) plot(pred_d_sb_crp)
 ```
 
 ```{r predict-survival-sb-crp}
 pred_surv_sb_crp <- predict(fit_sb_crp, x = x_eval, y = y_eval,
                             type = "survival", interval = "credible")
-plot(pred_surv_sb_crp)
+if (interactive()) plot(pred_surv_sb_crp)
 ```
 
 ```{r ate-sb-crp}
 ate_sb_crp <- ate(fit_sb_crp, newdata = x_eval,
                   interval = "credible", nsim_mean = 100)
-plot(ate_sb_crp)
+if (interactive()) plot(ate_sb_crp)
 ```
 
 ```{r qte-sb-crp}
 qte_sb_crp <- qte(fit_sb_crp, probs = c(0.25, 0.5, 0.75),
                   newdata = x_eval, interval = "credible")
-plot(qte_sb_crp)
+if (interactive()) plot(qte_sb_crp)
 ```
 
 ---
@@ -186,44 +187,46 @@ params(fit_crp_sb)
 ```
 
 ```{r plot-fit-crp-sb}
-plot(fit_crp_sb, family = c("density", "geweke", "caterpillar"))
+if (interactive()) plot(fit_crp_sb, family = c("density", "geweke", "caterpillar"))
 ```
 
 ```{r predict-mean-crp-sb}
 pred_mean_crp_sb <- predict(fit_crp_sb, x = x_eval, type = "mean",
                             interval = "credible", nsim_mean = 100)
-plot(pred_mean_crp_sb)
+if (interactive()) plot(pred_mean_crp_sb)
 ```
 
 ```{r predict-quantile-crp-sb}
 pred_q_crp_sb <- predict(fit_crp_sb, x = x_eval, type = "quantile",
                          p = 0.5, interval = "credible")
-plot(pred_q_crp_sb)
+if (interactive()) plot(pred_q_crp_sb)
 ```
 
 ```{r predict-density-crp-sb}
 pred_d_crp_sb <- predict(fit_crp_sb, x = x_eval, y = y_eval,
                          type = "density", interval = "credible")
-plot(pred_d_crp_sb)
+if (interactive()) plot(pred_d_crp_sb)
 ```
 
 ```{r predict-survival-crp-sb}
 pred_surv_crp_sb <- predict(fit_crp_sb, x = x_eval, y = y_eval,
                             type = "survival", interval = "credible")
-plot(pred_surv_crp_sb)
+if (interactive()) plot(pred_surv_crp_sb)
 ```
 
 ```{r ate-crp-sb}
 ate_crp_sb <- ate(fit_crp_sb, newdata = x_eval,
                   interval = "credible", nsim_mean = 100)
-plot(ate_crp_sb)
+if (interactive()) plot(ate_crp_sb)
 ```
 
 ```{r qte-crp-sb}
 qte_crp_sb <- qte(fit_crp_sb, probs = c(0.25, 0.5, 0.75),
                   newdata = x_eval, interval = "credible")
-plot(qte_crp_sb)
+if (interactive()) plot(qte_crp_sb)
 ```
+
+
 
 
 

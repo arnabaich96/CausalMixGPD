@@ -37,4 +37,15 @@
 ^vignettes/customization/$
 ^tmp-.*\.R$
 ^\.Rhistory$
+# CRAN/package-build exclusions (top-level repo artifacts)
+^\.lintr$
+^\.renvignore$
+^codecov\.exe$
+^codecov\.asc$
+^codecov\.exe\.SHA256SUM$
+^codecov\.exe\.SHA256SUM\.sig$
+^DPmixGpd\.tex$
+^REPO_BLUEPRINT\.md$
+^fix_exports\.R$
+^temp$
 # Ignore renv folder and all subfolders

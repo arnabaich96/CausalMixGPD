@@ -1,14 +1,14 @@
 # Kernels Overview
 
-## Mixture Kernels
+## Ingredients (mixture kernels)
 
 DPmixGPD supports multiple mixture kernel families for flexible density
 estimation. Each kernel has different properties suited to various data
 types and modeling scenarios.
 
-### Available Kernels
+### What’s in the pantry
 
-#### Location-Scale Families
+#### Location-scale families
 
 These kernels have location and scale parameters, making them suitable
 for real-valued data:
@@ -25,7 +25,7 @@ for real-valued data:
   Double exponential kernel with `location` and `scale` parameters. Has
   heavier tails than Normal.
 
-#### Positive-Support Families
+#### Positive-support families
 
 These kernels are defined for positive values only, ideal for positive
 data like durations, sizes, or amounts:
@@ -43,14 +43,14 @@ data like durations, sizes, or amounts:
   Alternative positive kernel with `mean` and `shape` parameters. Often
   used for waiting times.
 
-#### Generalized Families
+#### Generalized families
 
 - [**Amoroso**](https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-amoroso.md) -
   Four-parameter generalization with `loc`, `scale`, `shape1`, and
   `shape2`. Includes Gamma, Weibull, and other distributions as special
   cases.
 
-### Kernel Selection Guide
+### Ingredient picker
 
 | Data Type                 | Recommended Kernels |
 |---------------------------|---------------------|
@@ -74,11 +74,12 @@ Most kernels support GPD tail modeling (`GPD = TRUE`):
 | Amoroso          | Yes         |
 | Cauchy           | No          |
 
-### How to Use Kernels
+### Using ingredients in your recipe
 
 Specify the kernel when building your model:
 
 ``` r
+
 bundle <- build_nimble_bundle(
   y = your_data,
   backend = "sb",

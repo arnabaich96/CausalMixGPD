@@ -24,7 +24,9 @@
 Numeric vector of residuals with length equal to the training sample size.
 }
 \description{
-Returns residuals aligned with the training data. For \code{type = "raw"},
-this uses fitted means. For \code{type = "pit"}, this returns approximate PIT
-values via the predictive survival function.
+Returns residuals aligned with the training data for \strong{conditional
+(covariate) models only}. Not supported for unconditional models (no
+covariates); use \code{predict()} for predictions in that case. For
+\code{type = "raw"}, this uses fitted means. For \code{type = "pit"}, this
+returns approximate PIT values via the predictive survival function.
 }

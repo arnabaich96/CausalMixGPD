@@ -1,6 +1,8 @@
 ---
 title: "Customization: Build NIMBLE Models from Scratch"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    highlight: null
 vignette: >
   %\VignetteIndexEntry{Customization: Build NIMBLE Models from Scratch}
   %\VignetteEngine{knitr::rmarkdown}
@@ -8,7 +10,7 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-devtools::load_all()
+pkgload::load_all()
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = NA,
@@ -18,6 +20,7 @@ knitr::opts_chunk$set(
   fig.height = 4.5,
   fig.align = "center",
   cache = TRUE,
+  cache.path = "legacy-cache/",
   cache.lazy = FALSE
 )
 
@@ -183,18 +186,18 @@ bundle_sb <- build_nimble_bundle(
 fit_sb <- run_mcmc_bundle_manual(bundle_sb, show_progress = FALSE)
 ```
 
-```{r}
+```{r, results='asis'}
 print(bundle_sb)
 summary(bundle_sb)
 ```
 
-```{r}
+```{r, results='asis'}
 print(fit_sb)
 summary(fit_sb)
 ```
 
 ```{r}
-try(plot(fit_sb, family = "trace"), silent = TRUE)
+if (interactive()) plot(fit_sb, family = "traceplot")
 ```
 
 ```{r}
@@ -202,9 +205,9 @@ pred_sb <- predict(fit_sb, type = "mean", interval = "credible")
 head(pred_sb$fit)
 ```
 
-# CRP + GPD Case: Manual Pipeline with Codegen
+# SB + GPD Case: Manual Pipeline with Codegen
 
-This example uses **CRP + Amoroso + GPD**, but we still walk through the
+This example uses **SB + Amoroso + GPD**, but we still walk through the
 manual NIMBLE steps (constants, inits, code, compile, run). The generated
 NIMBLE code calls DPmixGPD's GPD kernels under the hood.
 
@@ -214,26 +217,27 @@ NIMBLE code calls DPmixGPD's GPD kernels under the hood.
 param_specs_crp <- list(
   bulk = list(
     loc = list(
-      mode = "link",
-      link = "identity",
-      beta_prior = list(dist = "normal", args = list(mean = 0, sd = 2))
+      mode = "dist",
+      dist = "normal",
+      args = list(mean = 0, sd = 2)
     ),
     scale = list(
-      mode = "link",
-      link = "identity",
-      beta_prior = list(dist = "normal", args = list(mean = 0, sd = 2))
+      mode = "dist",
+      dist = "gamma",
+      args = list(shape = 2, rate = 1)
     ),
     shape1 = list(mode = "fixed", value = 1)
   ),
   gpd = list(
     threshold = list(
-      mode = "link",
-      link = "exp",
-      beta_prior = list(dist = "normal", args = list(mean = 0, sd = 0.2))
+      mode = "dist",
+      dist = "gamma",
+      args = list(shape = 2, rate = 1)
     ),
     tail_scale = list(
-      mode = "link",
-      link = "exp"
+      mode = "dist",
+      dist = "gamma",
+      args = list(shape = 2, rate = 1)
     )
   )
 )
@@ -242,10 +246,11 @@ param_specs_crp <- list(
 ## Build bundle and extract pieces
 
 ```{r}
+X_crp <- NULL
 bundle_crp <- build_nimble_bundle(
   y = y,
-  X = X,
-  backend = "crp",
+  X = X_crp,
+  backend = "sb",
   kernel = "amoroso",
   GPD = TRUE,
   components = 5,
@@ -262,93 +267,67 @@ inits_crp <- if (is.function(bundle_crp$inits_fun)) bundle_crp$inits_fun else bu
 ## Compile and run (manual)
 
 ```{r, cache=TRUE, results='hide'}
-samples_crp <- NULL
-crp_err <- NULL
+Rmodel_crp <- nimble::nimbleModel(
+  code = code_crp,
+  constants = constants_crp,
+  data = data_crp,
+  inits = if (is.function(inits_crp)) inits_crp() else inits_crp
+)
 
-tryCatch({
-  Rmodel_crp <- nimble::nimbleModel(
-    code = code_crp,
-    constants = constants_crp,
-    data = data_crp,
-    inits = if (is.function(inits_crp)) inits_crp() else inits_crp
-  )
+conf_crp <- nimble::configureMCMC(
+  Rmodel_crp,
+  monitors = bundle_crp$monitors
+)
 
-  conf_crp <- nimble::configureMCMC(
-    Rmodel_crp,
-    monitors = bundle_crp$monitors
-  )
-
-  if (!is.null(conf_crp$samplerConfs) && length(conf_crp$samplerConfs) > 0) {
-    for (i in seq_along(conf_crp$samplerConfs)) {
-      ctl <- conf_crp$samplerConfs[[i]]$control
-      if (is.null(ctl)) ctl <- list()
-      if (is.null(ctl$checkConjugacy)) ctl$checkConjugacy <- FALSE
-      conf_crp$samplerConfs[[i]]$control <- ctl
-    }
+if (!is.null(conf_crp$samplerConfs) && length(conf_crp$samplerConfs) > 0) {
+  for (i in seq_along(conf_crp$samplerConfs)) {
+    ctl <- conf_crp$samplerConfs[[i]]$control
+    if (is.null(ctl)) ctl <- list()
+    if (is.null(ctl$checkConjugacy)) ctl$checkConjugacy <- FALSE
+    conf_crp$samplerConfs[[i]]$control <- ctl
   }
+}
 
-  Rmcmc_crp <- nimble::buildMCMC(conf_crp)
-  Cmodel_crp <- nimble::compileNimble(Rmodel_crp, showCompilerOutput = FALSE)
-  Cmcmc_crp <- nimble::compileNimble(Rmcmc_crp, project = Rmodel_crp, showCompilerOutput = FALSE)
+Rmcmc_crp <- nimble::buildMCMC(conf_crp)
+Cmodel_crp <- nimble::compileNimble(Rmodel_crp, showCompilerOutput = FALSE)
+Cmcmc_crp <- nimble::compileNimble(Rmcmc_crp, project = Rmodel_crp, showCompilerOutput = FALSE)
 
-  samples_crp <- nimble::runMCMC(
-    Cmcmc_crp,
-    niter = mcmc$niter,
-    nburnin = mcmc$nburnin,
-    thin = mcmc$thin,
-    nchains = mcmc$nchains,
-    setSeed = mcmc$seed
-  )
-}, error = function(e) {
-  crp_err <<- conditionMessage(e)
-})
+samples_crp <- nimble::runMCMC(
+  Cmcmc_crp,
+  niter = mcmc$niter,
+  nburnin = mcmc$nburnin,
+  thin = mcmc$thin,
+  nchains = mcmc$nchains,
+  setSeed = mcmc$seed
+)
 ```
 
 ## Sample extraction
 
 ```{r}
-if (is.null(samples_crp)) {
-  message("Manual CRP MCMC build failed in this session: ", crp_err)
-} else {
-  head(samples_crp[, 1:min(6, ncol(samples_crp))])
-}
+head(samples_crp[, 1:min(6, ncol(samples_crp))])
 ```
 
 ## S3 methods for posterior inference
 
 ```{r, cache=TRUE, results='hide'}
-fit_crp <- NULL
-crp_fit_err <- NULL
+fit_crp <- run_mcmc_bundle_manual(bundle_crp, show_progress = FALSE)
+```
 
-tryCatch({
-  fit_crp <- run_mcmc_bundle_manual(bundle_crp, show_progress = FALSE)
-}, error = function(e) {
-  crp_fit_err <<- conditionMessage(e)
-})
+```{r, results='asis'}
+print(fit_crp)
+summary(fit_crp)
 ```
 
 ```{r}
-if (is.null(fit_crp)) {
-  message("CRP bundle MCMC failed in this session: ", crp_fit_err)
-} else {
-  print(fit_crp)
-  summary(fit_crp)
-}
+if (interactive()) plot(fit_crp, family = "traceplot")
 ```
 
 ```{r}
-if (!is.null(fit_crp)) {
-  try(plot(fit_crp, family = "trace"), silent = TRUE)
-}
-```
-
-```{r}
-if (!is.null(fit_crp)) {
-  pred_crp_mean <- predict(fit_crp, x = X, type = "mean", interval = "credible")
-  pred_crp_q90 <- predict(fit_crp, x = X, type = "quantile", index = 0.90, interval = "credible")
-  head(pred_crp_mean$fit)
-  head(pred_crp_q90$fit)
-}
+pred_crp_mean <- predict(fit_crp, type = "mean", interval = "credible")
+pred_crp_q90 <- predict(fit_crp, type = "quantile", index = 0.90, interval = "credible")
+head(pred_crp_mean$fit)
+head(pred_crp_q90$fit)
 ```
 
 # Causal Model: From Bundle to S3 Inference
@@ -411,18 +390,18 @@ causal_bundle <- build_causal_bundle(
 causal_fit <- run_mcmc_causal(causal_bundle, show_progress = FALSE)
 ```
 
-```{r}
+```{r, results='asis'}
 print(causal_bundle)
 summary(causal_bundle)
 ```
 
-```{r}
+```{r, results='asis'}
 print(causal_fit)
 summary(causal_fit)
 ```
 
 ```{r}
-try(plot(causal_fit, family = "trace"), silent = TRUE)
+if (interactive()) plot(causal_fit, family = "traceplot")
 ```
 
 ```{r}
@@ -430,20 +409,19 @@ pred_causal_mean <- predict(causal_fit, x = X_causal, type = "mean", interval = 
 head(pred_causal_mean)
 ```
 
-```{r}
+```{r, results='asis'}
 ate_result <- ate(causal_fit, interval = "credible", nsim_mean = 50)
 qte_result <- qte(causal_fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
 
 print(ate_result)
 summary(ate_result)
 
-try({
-  plot(ate_result, type = "effect")
-  plot(qte_result, type = "effect")
-}, silent = TRUE)
+if (interactive()) plot(ate_result, type = "effect")
+if (interactive()) plot(qte_result, type = "effect")
 ```
 
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+
 

@@ -310,16 +310,3 @@ test_that("quantile estimates average q_fun draws and median matches quantile(0.
   expect_equal(pred_med$fit$estimate, pred_q50$fit$estimate, tolerance = 1e-8)
 })
 
-test_that("fitted(type='location') returns mean and median columns", {
-  skip_if_not_test_level("ci")
-
-  fit <- .get_cached_fit("uncond_fit_predict_contracts", .build_uncond_fit)
-
-  loc <- fitted(fit, type = "location")
-  m1 <- fitted(fit, type = "mean")
-  m2 <- fitted(fit, type = "median")
-
-  expect_true(all(c("mean", "median") %in% names(loc)))
-  expect_equal(loc$mean[1], m1$fit[1], tolerance = 1e-8)
-  expect_equal(loc$median[1], m2$fit[1], tolerance = 1e-8)
-})

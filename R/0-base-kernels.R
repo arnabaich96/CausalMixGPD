@@ -639,7 +639,7 @@ qCauchy <- function(p, location, scale,
 #' @param q Numeric vector of quantiles.
 #' @param p Numeric vector of probabilities.
 #' @param n Integer number of observations to generate.
-#' @param threshold,scale,shape,mean,loc,scale,shape1,shape2,location
+#' @param threshold,scale,shape,mean,loc,shape1,shape2,location
 #'   Distribution parameters (scalars).
 #' @param log Logical; if \code{TRUE}, return log-density.
 #' @param lower.tail Logical; if \code{TRUE} (default), probabilities are

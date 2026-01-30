@@ -23,6 +23,7 @@ plus **S3 methods** (`print`, `summary`, `plot`, `predict`, `fitted`,
 ## Data
 
 ``` r
+
 library(DPmixGPD)
 
 data("mtcars", package = "datasets")
@@ -50,6 +51,7 @@ X <- as.data.frame(X)
   - `tail_scale`: exp link (default prior)
 
 ``` r
+
 param_specs_amoroso <- list(
   bulk = list(
     loc = list(
@@ -79,6 +81,7 @@ param_specs_amoroso <- list(
 ```
 
 ``` r
+
 # Requested variant (not runnable): link-mode beta priors must be normal
 param_specs_amoroso_requested <- list(
   bulk = list(
@@ -118,6 +121,7 @@ model that supports the same customization and lets this vignette
 compile end-to-end.
 
 ``` r
+
 # Requested CRP specification (not runnable due to CRP link-mode restriction)
 bundle_amoroso_crp <- build_nimble_bundle(
   y = y,
@@ -132,6 +136,7 @@ bundle_amoroso_crp <- build_nimble_bundle(
 ```
 
 ``` r
+
 # Runnable SB equivalent (supports link-mode parameters)
 bundle_amoroso <- build_nimble_bundle(
   y = y,
@@ -150,529 +155,124 @@ fit_amoroso <- run_mcmc_bundle_manual(bundle_amoroso, show_progress = FALSE)
 ### User-Level Functions
 
 ``` r
+
 print(bundle_amoroso)
-DPmixGPD bundle
-<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
- <thead>
-  <tr>
-   <th style="text-align:center;"> Field </th>
-   <th style="text-align:center;"> Value </th>
-  </tr>
- </thead>
-<tbody>
-  <tr>
-   <td style="text-align:center;"> Backend </td>
-   <td style="text-align:center;"> Stick-Breaking Process </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> Kernel </td>
-   <td style="text-align:center;"> Amoroso Distribution </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> Components </td>
-   <td style="text-align:center;"> 5 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> N </td>
-   <td style="text-align:center;"> 32 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> X </td>
-   <td style="text-align:center;"> YES (P=2) </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> GPD </td>
-   <td style="text-align:center;"> TRUE </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> Epsilon </td>
-   <td style="text-align:center;"> 0.025 </td>
-  </tr>
-</tbody>
-</table>
-  contains  : code, constants, data, dimensions, inits, monitors
-summary(bundle_amoroso)
-DPmixGPD bundle summary
-<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
- <thead>
-  <tr>
-   <th style="text-align:center;"> Field </th>
-   <th style="text-align:center;"> Value </th>
-  </tr>
- </thead>
-<tbody>
-  <tr>
-   <td style="text-align:center;"> Backend </td>
-   <td style="text-align:center;"> Stick-Breaking Process </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> Kernel </td>
-   <td style="text-align:center;"> Amoroso Distribution </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> Components </td>
-   <td style="text-align:center;"> 5 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> N </td>
-   <td style="text-align:center;"> 32 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> X </td>
-   <td style="text-align:center;"> YES (P=2) </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> GPD </td>
-   <td style="text-align:center;"> TRUE </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> Epsilon </td>
-   <td style="text-align:center;"> 0.025 </td>
-  </tr>
-</tbody>
-</table>
-Parameter specification
-<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
- <thead>
-  <tr>
-   <th style="text-align:center;"> block </th>
-   <th style="text-align:center;"> parameter </th>
-   <th style="text-align:center;"> mode </th>
-   <th style="text-align:center;"> level </th>
-   <th style="text-align:center;"> prior </th>
-   <th style="text-align:center;"> link </th>
-   <th style="text-align:center;"> notes </th>
-  </tr>
- </thead>
-<tbody>
-  <tr>
-   <td style="text-align:center;"> meta </td>
-   <td style="text-align:center;"> backend </td>
-   <td style="text-align:center;"> info </td>
-   <td style="text-align:center;"> model </td>
-   <td style="text-align:center;"> sb </td>
-   <td style="text-align:center;">  </td>
-   <td style="text-align:center;">  </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> meta </td>
-   <td style="text-align:center;"> kernel </td>
-   <td style="text-align:center;"> info </td>
-   <td style="text-align:center;"> model </td>
-   <td style="text-align:center;"> amoroso </td>
-   <td style="text-align:center;">  </td>
-   <td style="text-align:center;">  </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> meta </td>
-   <td style="text-align:center;"> components </td>
-   <td style="text-align:center;"> info </td>
-   <td style="text-align:center;"> model </td>
-   <td style="text-align:center;"> 5 </td>
-   <td style="text-align:center;">  </td>
-   <td style="text-align:center;">  </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> meta </td>
-   <td style="text-align:center;"> N </td>
-   <td style="text-align:center;"> info </td>
-   <td style="text-align:center;"> model </td>
-   <td style="text-align:center;"> 32 </td>
-   <td style="text-align:center;">  </td>
-   <td style="text-align:center;">  </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> meta </td>
-   <td style="text-align:center;"> P </td>
-   <td style="text-align:center;"> info </td>
-   <td style="text-align:center;"> model </td>
-   <td style="text-align:center;"> 2 </td>
-   <td style="text-align:center;">  </td>
-   <td style="text-align:center;">  </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> concentration </td>
-   <td style="text-align:center;"> alpha </td>
-   <td style="text-align:center;"> dist </td>
-   <td style="text-align:center;"> scalar </td>
-   <td style="text-align:center;"> gamma(shape=1, rate=1) </td>
-   <td style="text-align:center;">  </td>
-   <td style="text-align:center;"> stochastic concentration </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> bulk </td>
-   <td style="text-align:center;"> loc </td>
-   <td style="text-align:center;"> link </td>
-   <td style="text-align:center;"> regression </td>
-   <td style="text-align:center;"> beta_loc ~ normal(mean=0, sd=2) </td>
-   <td style="text-align:center;"> identity </td>
-   <td style="text-align:center;"> beta_loc is 5 x 2 (components x P) </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> bulk </td>
-   <td style="text-align:center;"> scale </td>
-   <td style="text-align:center;"> link </td>
-   <td style="text-align:center;"> regression </td>
-   <td style="text-align:center;"> beta_scale ~ normal(mean=0, sd=2) </td>
-   <td style="text-align:center;"> identity </td>
-   <td style="text-align:center;"> beta_scale is 5 x 2 (components x P) </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> bulk </td>
-   <td style="text-align:center;"> shape1 </td>
-   <td style="text-align:center;"> fixed </td>
-   <td style="text-align:center;"> component (1:5) </td>
-   <td style="text-align:center;"> 1 </td>
-   <td style="text-align:center;">  </td>
-   <td style="text-align:center;">  </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> bulk </td>
-   <td style="text-align:center;"> shape2 </td>
-   <td style="text-align:center;"> dist </td>
-   <td style="text-align:center;"> component (1:5) </td>
-   <td style="text-align:center;"> gamma(shape=2, rate=1) </td>
-   <td style="text-align:center;">  </td>
-   <td style="text-align:center;"> iid across components </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> gpd </td>
-   <td style="text-align:center;"> threshold </td>
-   <td style="text-align:center;"> link </td>
-   <td style="text-align:center;"> observation (1:N) </td>
-   <td style="text-align:center;"> beta_threshold ~ normal(mean=0, sd=0.2) </td>
-   <td style="text-align:center;"> exp </td>
-   <td style="text-align:center;"> beta_threshold is length P=2 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> gpd </td>
-   <td style="text-align:center;"> tail_scale </td>
-   <td style="text-align:center;"> link </td>
-   <td style="text-align:center;"> observation (1:N) </td>
-   <td style="text-align:center;"> beta_tail_scale ~ normal(mean=0, sd=0.5) </td>
-   <td style="text-align:center;"> exp </td>
-   <td style="text-align:center;"> beta_tail_scale is length P=2; tail_scale[i] deterministic </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> gpd </td>
-   <td style="text-align:center;"> tail_shape </td>
-   <td style="text-align:center;"> dist </td>
-   <td style="text-align:center;"> scalar </td>
-   <td style="text-align:center;"> normal(mean=0, sd=0.2) </td>
-   <td style="text-align:center;">  </td>
-   <td style="text-align:center;">  </td>
-  </tr>
-</tbody>
-</table>
-Monitors
-  n = 11 
-  alpha, w[1:5], z[1:32], beta_loc[1:5,1:2], beta_scale[1:5,1:2], shape1[1:5], shape2[1:5], threshold[1:32], beta_threshold[1:2], beta_tail_scale[1:2], tail_shape
 ```
+
+DPmixGPD bundle
+
+|   Field    |         Value          |
+|:----------:|:----------------------:|
+|  Backend   | Stick-Breaking Process |
+|   Kernel   |  Amoroso Distribution  |
+| Components |           5            |
+|     N      |           32           |
+|     X      |       YES (P=2)        |
+|    GPD     |          TRUE          |
+|  Epsilon   |         0.025          |
+
+contains : code, constants, data, dimensions, inits, monitors
 
 ``` r
-print(fit_amoroso)
-MixGPD fit | backend: Stick-Breaking Process | kernel: Amoroso Distribution | GPD tail: TRUE
-n = 32 | components = 5 | epsilon = 0.025
-MCMC: niter=600, nburnin=150, thin=2, nchains=1 
-Fit
-Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
-summary(fit_amoroso)
-MixGPD summary | backend: Stick-Breaking Process | kernel: Amoroso Distribution | GPD tail: TRUE | epsilon: 0.025
-n = 32 | components = 5
-Summary
-Initial components: 5 | Components after truncation: 1
 
-WAIC: 289.883
-lppd: -143.126 | pWAIC: 1.816
+summary(bundle_amoroso)
+```
+
+DPmixGPD bundle summary
+
+|   Field    |         Value          |
+|:----------:|:----------------------:|
+|  Backend   | Stick-Breaking Process |
+|   Kernel   |  Amoroso Distribution  |
+| Components |           5            |
+|     N      |           32           |
+|     X      |       YES (P=2)        |
+|    GPD     |          TRUE          |
+|  Epsilon   |         0.025          |
+
+Parameter specification
+
+| block | parameter | mode | level | prior | link | notes |
+|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| meta | backend | info | model | sb |  |  |
+| meta | kernel | info | model | amoroso |  |  |
+| meta | components | info | model | 5 |  |  |
+| meta | N | info | model | 32 |  |  |
+| meta | P | info | model | 2 |  |  |
+| concentration | alpha | dist | scalar | gamma(shape=1, rate=1) |  | stochastic concentration |
+| bulk | loc | link | regression | beta_loc ~ normal(mean=0, sd=2) | identity | beta_loc is 5 x 2 (components x P) |
+| bulk | scale | link | regression | beta_scale ~ normal(mean=0, sd=2) | identity | beta_scale is 5 x 2 (components x P) |
+| bulk | shape1 | fixed | component (1:5) | 1 |  |  |
+| bulk | shape2 | dist | component (1:5) | gamma(shape=2, rate=1) |  | iid across components |
+| gpd | threshold | link | observation (1:N) | beta_threshold ~ normal(mean=0, sd=0.2) | exp | beta_threshold is length P=2 |
+| gpd | tail_scale | link | observation (1:N) | beta_tail_scale ~ normal(mean=0, sd=0.5) | exp | beta_tail_scale is length P=2; tail_scale\[i\] deterministic |
+| gpd | tail_shape | dist | scalar | normal(mean=0, sd=0.2) |  |  |
+
+Monitors n = 11 alpha, w\[1:5\], z\[1:32\], beta_loc\[1:5,1:2\],
+beta_scale\[1:5,1:2\], shape1\[1:5\], shape2\[1:5\], threshold\[1:32\],
+beta_threshold\[1:2\], beta_tail_scale\[1:2\], tail_shape
+
+``` r
+
+print(fit_amoroso)
+```
+
+MixGPD fit \| backend: Stick-Breaking Process \| kernel: Amoroso
+Distribution \| GPD tail: TRUE n = 32 \| components = 5 \| epsilon =
+0.025 MCMC: niter=600, nburnin=150, thin=2, nchains=1 Fit Use summary()
+for posterior summaries; plot() for diagnostics; predict() for
+predictions.
+
+``` r
+
+summary(fit_amoroso)
+```
+
+MixGPD summary \| backend: Stick-Breaking Process \| kernel: Amoroso
+Distribution \| GPD tail: TRUE \| epsilon: 0.025 n = 32 \| components =
+5 Summary Initial components: 5 \| Components after truncation: 1
+
+WAIC: 289.883 lppd: -143.126 \| pWAIC: 1.816
 
 Summary table
-<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
- <thead>
-  <tr>
-   <th style="text-align:center;"> parameter </th>
-   <th style="text-align:center;"> mean </th>
-   <th style="text-align:center;"> sd </th>
-   <th style="text-align:center;"> q0.025 </th>
-   <th style="text-align:center;"> q0.500 </th>
-   <th style="text-align:center;"> q0.975 </th>
-   <th style="text-align:center;"> ess </th>
-  </tr>
- </thead>
-<tbody>
-  <tr>
-   <td style="text-align:center;"> weights[1] </td>
-   <td style="text-align:center;"> 0.887 </td>
-   <td style="text-align:center;"> 0.162 </td>
-   <td style="text-align:center;"> 0.5 </td>
-   <td style="text-align:center;"> 1 </td>
-   <td style="text-align:center;"> 1 </td>
-   <td style="text-align:center;"> 8.127 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> alpha </td>
-   <td style="text-align:center;"> 0.571 </td>
-   <td style="text-align:center;"> 0.398 </td>
-   <td style="text-align:center;"> 0.083 </td>
-   <td style="text-align:center;"> 0.479 </td>
-   <td style="text-align:center;"> 1.405 </td>
-   <td style="text-align:center;"> 5.822 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> beta_loc[1, 1] </td>
-   <td style="text-align:center;"> 0.233 </td>
-   <td style="text-align:center;"> 2.174 </td>
-   <td style="text-align:center;"> -3.944 </td>
-   <td style="text-align:center;"> 0.256 </td>
-   <td style="text-align:center;"> 4.638 </td>
-   <td style="text-align:center;"> 93.618 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> beta_loc[2, 1] </td>
-   <td style="text-align:center;"> -0.014 </td>
-   <td style="text-align:center;"> 1.928 </td>
-   <td style="text-align:center;"> -3.591 </td>
-   <td style="text-align:center;"> -0.05 </td>
-   <td style="text-align:center;"> 3.526 </td>
-   <td style="text-align:center;"> 87.763 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> beta_loc[3, 1] </td>
-   <td style="text-align:center;"> -0.348 </td>
-   <td style="text-align:center;"> 2.164 </td>
-   <td style="text-align:center;"> -4.435 </td>
-   <td style="text-align:center;"> -0.446 </td>
-   <td style="text-align:center;"> 3.641 </td>
-   <td style="text-align:center;"> 80.98 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> beta_loc[4, 1] </td>
-   <td style="text-align:center;"> 0.405 </td>
-   <td style="text-align:center;"> 2.072 </td>
-   <td style="text-align:center;"> -3.342 </td>
-   <td style="text-align:center;"> 0.292 </td>
-   <td style="text-align:center;"> 3.974 </td>
-   <td style="text-align:center;"> 111.196 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> beta_loc[5, 1] </td>
-   <td style="text-align:center;"> -0.134 </td>
-   <td style="text-align:center;"> 1.923 </td>
-   <td style="text-align:center;"> -3.755 </td>
-   <td style="text-align:center;"> -0.215 </td>
-   <td style="text-align:center;"> 3.335 </td>
-   <td style="text-align:center;"> 185.091 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> beta_loc[1, 2] </td>
-   <td style="text-align:center;"> 1.05 </td>
-   <td style="text-align:center;"> 1.191 </td>
-   <td style="text-align:center;"> -1.062 </td>
-   <td style="text-align:center;"> 0.903 </td>
-   <td style="text-align:center;"> 3.649 </td>
-   <td style="text-align:center;"> 34.465 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> beta_loc[2, 2] </td>
-   <td style="text-align:center;"> 0.622 </td>
-   <td style="text-align:center;"> 1.659 </td>
-   <td style="text-align:center;"> -2.142 </td>
-   <td style="text-align:center;"> 0.507 </td>
-   <td style="text-align:center;"> 4.138 </td>
-   <td style="text-align:center;"> 76.334 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> beta_loc[3, 2] </td>
-   <td style="text-align:center;"> 0.451 </td>
-   <td style="text-align:center;"> 1.844 </td>
-   <td style="text-align:center;"> -3.082 </td>
-   <td style="text-align:center;"> 0.677 </td>
-   <td style="text-align:center;"> 3.426 </td>
-   <td style="text-align:center;"> 63.533 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> beta_loc[4, 2] </td>
-   <td style="text-align:center;"> -0.063 </td>
-   <td style="text-align:center;"> 1.904 </td>
-   <td style="text-align:center;"> -3.762 </td>
-   <td style="text-align:center;"> 0.133 </td>
-   <td style="text-align:center;"> 3.416 </td>
-   <td style="text-align:center;"> 93.672 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> beta_loc[5, 2] </td>
-   <td style="text-align:center;"> 0.601 </td>
-   <td style="text-align:center;"> 1.904 </td>
-   <td style="text-align:center;"> -3.487 </td>
-   <td style="text-align:center;"> 0.612 </td>
-   <td style="text-align:center;"> 4.384 </td>
-   <td style="text-align:center;"> 136.447 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> beta_scale[1, 1] </td>
-   <td style="text-align:center;"> 0.216 </td>
-   <td style="text-align:center;"> 1.842 </td>
-   <td style="text-align:center;"> -3.195 </td>
-   <td style="text-align:center;"> -0.029 </td>
-   <td style="text-align:center;"> 4.315 </td>
-   <td style="text-align:center;"> 118.789 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> beta_scale[2, 1] </td>
-   <td style="text-align:center;"> -0.236 </td>
-   <td style="text-align:center;"> 2.016 </td>
-   <td style="text-align:center;"> -4.741 </td>
-   <td style="text-align:center;"> -0.147 </td>
-   <td style="text-align:center;"> 3.515 </td>
-   <td style="text-align:center;"> 99.498 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> beta_scale[3, 1] </td>
-   <td style="text-align:center;"> -0.263 </td>
-   <td style="text-align:center;"> 2.004 </td>
-   <td style="text-align:center;"> -4.147 </td>
-   <td style="text-align:center;"> -0.399 </td>
-   <td style="text-align:center;"> 4.233 </td>
-   <td style="text-align:center;"> 72.565 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> beta_scale[4, 1] </td>
-   <td style="text-align:center;"> -0.384 </td>
-   <td style="text-align:center;"> 2.089 </td>
-   <td style="text-align:center;"> -4.604 </td>
-   <td style="text-align:center;"> -0.269 </td>
-   <td style="text-align:center;"> 3.131 </td>
-   <td style="text-align:center;"> 90.501 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> beta_scale[5, 1] </td>
-   <td style="text-align:center;"> 0.137 </td>
-   <td style="text-align:center;"> 1.913 </td>
-   <td style="text-align:center;"> -3.345 </td>
-   <td style="text-align:center;"> 0.196 </td>
-   <td style="text-align:center;"> 4.024 </td>
-   <td style="text-align:center;"> 71.448 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> beta_scale[1, 2] </td>
-   <td style="text-align:center;"> 1.287 </td>
-   <td style="text-align:center;"> 1.703 </td>
-   <td style="text-align:center;"> -2.587 </td>
-   <td style="text-align:center;"> 1.228 </td>
-   <td style="text-align:center;"> 5.205 </td>
-   <td style="text-align:center;"> 62.151 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> beta_scale[2, 2] </td>
-   <td style="text-align:center;"> 0.766 </td>
-   <td style="text-align:center;"> 1.756 </td>
-   <td style="text-align:center;"> -2.976 </td>
-   <td style="text-align:center;"> 0.833 </td>
-   <td style="text-align:center;"> 3.866 </td>
-   <td style="text-align:center;"> 48.742 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> beta_scale[3, 2] </td>
-   <td style="text-align:center;"> 0.328 </td>
-   <td style="text-align:center;"> 2.243 </td>
-   <td style="text-align:center;"> -4.384 </td>
-   <td style="text-align:center;"> 0.703 </td>
-   <td style="text-align:center;"> 4.556 </td>
-   <td style="text-align:center;"> 58.72 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> beta_scale[4, 2] </td>
-   <td style="text-align:center;"> 0.033 </td>
-   <td style="text-align:center;"> 1.864 </td>
-   <td style="text-align:center;"> -3.245 </td>
-   <td style="text-align:center;"> 0.111 </td>
-   <td style="text-align:center;"> 3.689 </td>
-   <td style="text-align:center;"> 98.23 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> beta_scale[5, 2] </td>
-   <td style="text-align:center;"> -0.185 </td>
-   <td style="text-align:center;"> 1.938 </td>
-   <td style="text-align:center;"> -3.569 </td>
-   <td style="text-align:center;"> -0.354 </td>
-   <td style="text-align:center;"> 3.827 </td>
-   <td style="text-align:center;"> 108.64 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> beta_tail_scale[1] </td>
-   <td style="text-align:center;"> 0.874 </td>
-   <td style="text-align:center;"> 0.093 </td>
-   <td style="text-align:center;"> 0.683 </td>
-   <td style="text-align:center;"> 0.87 </td>
-   <td style="text-align:center;"> 1.037 </td>
-   <td style="text-align:center;"> 15.682 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> beta_tail_scale[2] </td>
-   <td style="text-align:center;"> -0 </td>
-   <td style="text-align:center;"> 0.001 </td>
-   <td style="text-align:center;"> -0.002 </td>
-   <td style="text-align:center;"> 0 </td>
-   <td style="text-align:center;"> 0.002 </td>
-   <td style="text-align:center;"> 2.349 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> beta_threshold[1] </td>
-   <td style="text-align:center;"> 0.098 </td>
-   <td style="text-align:center;"> 0.222 </td>
-   <td style="text-align:center;"> -0.269 </td>
-   <td style="text-align:center;"> 0.068 </td>
-   <td style="text-align:center;"> 0.431 </td>
-   <td style="text-align:center;"> 10.477 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> beta_threshold[2] </td>
-   <td style="text-align:center;"> -0.076 </td>
-   <td style="text-align:center;"> 0.125 </td>
-   <td style="text-align:center;"> -0.388 </td>
-   <td style="text-align:center;"> 0 </td>
-   <td style="text-align:center;"> 0.008 </td>
-   <td style="text-align:center;"> 11.704 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> tail_shape </td>
-   <td style="text-align:center;"> 0.313 </td>
-   <td style="text-align:center;"> 0.131 </td>
-   <td style="text-align:center;"> 0.071 </td>
-   <td style="text-align:center;"> 0.318 </td>
-   <td style="text-align:center;"> 0.566 </td>
-   <td style="text-align:center;"> 67.33 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> shape1[1] </td>
-   <td style="text-align:center;"> 1 </td>
-   <td style="text-align:center;"> 0 </td>
-   <td style="text-align:center;"> 1 </td>
-   <td style="text-align:center;"> 1 </td>
-   <td style="text-align:center;"> 1 </td>
-   <td style="text-align:center;"> 0 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> shape2[1] </td>
-   <td style="text-align:center;"> 2.73 </td>
-   <td style="text-align:center;"> 1.891 </td>
-   <td style="text-align:center;"> 0.162 </td>
-   <td style="text-align:center;"> 2.226 </td>
-   <td style="text-align:center;"> 7.515 </td>
-   <td style="text-align:center;"> 24.347 </td>
-  </tr>
-</tbody>
-</table>
-```
+
+|      parameter       |  mean  |  sd   | q0.025 | q0.500 | q0.975 |   ess   |
+|:--------------------:|:------:|:-----:|:------:|:------:|:------:|:-------:|
+|     weights\[1\]     | 0.887  | 0.162 |  0.5   |   1    |   1    |  8.127  |
+|        alpha         | 0.571  | 0.398 | 0.083  | 0.479  | 1.405  |  5.822  |
+|   beta_loc\[1, 1\]   | 0.233  | 2.174 | -3.944 | 0.256  | 4.638  | 93.618  |
+|   beta_loc\[2, 1\]   | -0.014 | 1.928 | -3.591 | -0.05  | 3.526  | 87.763  |
+|   beta_loc\[3, 1\]   | -0.348 | 2.164 | -4.435 | -0.446 | 3.641  |  80.98  |
+|   beta_loc\[4, 1\]   | 0.405  | 2.072 | -3.342 | 0.292  | 3.974  | 111.196 |
+|   beta_loc\[5, 1\]   | -0.134 | 1.923 | -3.755 | -0.215 | 3.335  | 185.091 |
+|   beta_loc\[1, 2\]   |  1.05  | 1.191 | -1.062 | 0.903  | 3.649  | 34.465  |
+|   beta_loc\[2, 2\]   | 0.622  | 1.659 | -2.142 | 0.507  | 4.138  | 76.334  |
+|   beta_loc\[3, 2\]   | 0.451  | 1.844 | -3.082 | 0.677  | 3.426  | 63.533  |
+|   beta_loc\[4, 2\]   | -0.063 | 1.904 | -3.762 | 0.133  | 3.416  | 93.672  |
+|   beta_loc\[5, 2\]   | 0.601  | 1.904 | -3.487 | 0.612  | 4.384  | 136.447 |
+|  beta_scale\[1, 1\]  | 0.216  | 1.842 | -3.195 | -0.029 | 4.315  | 118.789 |
+|  beta_scale\[2, 1\]  | -0.236 | 2.016 | -4.741 | -0.147 | 3.515  | 99.498  |
+|  beta_scale\[3, 1\]  | -0.263 | 2.004 | -4.147 | -0.399 | 4.233  | 72.565  |
+|  beta_scale\[4, 1\]  | -0.384 | 2.089 | -4.604 | -0.269 | 3.131  | 90.501  |
+|  beta_scale\[5, 1\]  | 0.137  | 1.913 | -3.345 | 0.196  | 4.024  | 71.448  |
+|  beta_scale\[1, 2\]  | 1.287  | 1.703 | -2.587 | 1.228  | 5.205  | 62.151  |
+|  beta_scale\[2, 2\]  | 0.766  | 1.756 | -2.976 | 0.833  | 3.866  | 48.742  |
+|  beta_scale\[3, 2\]  | 0.328  | 2.243 | -4.384 | 0.703  | 4.556  |  58.72  |
+|  beta_scale\[4, 2\]  | 0.033  | 1.864 | -3.245 | 0.111  | 3.689  |  98.23  |
+|  beta_scale\[5, 2\]  | -0.185 | 1.938 | -3.569 | -0.354 | 3.827  | 108.64  |
+| beta_tail_scale\[1\] | 0.874  | 0.093 | 0.683  |  0.87  | 1.037  | 15.682  |
+| beta_tail_scale\[2\] |   -0   | 0.001 | -0.002 |   0    | 0.002  |  2.349  |
+| beta_threshold\[1\]  | 0.098  | 0.222 | -0.269 | 0.068  | 0.431  | 10.477  |
+| beta_threshold\[2\]  | -0.076 | 0.125 | -0.388 |   0    | 0.008  | 11.704  |
+|      tail_shape      | 0.313  | 0.131 | 0.071  | 0.318  | 0.566  |  67.33  |
+|     shape1\[1\]      |   1    |   0   |   1    |   1    |   1    |    0    |
+|     shape2\[1\]      |  2.73  | 1.891 | 0.162  | 2.226  | 7.515  | 24.347  |
 
 ### S3 Methods (Fit)
 
 ``` r
-tryCatch(
-  plot(fit_amoroso, family = "trace"),
-  error = function(e) {
-    message("Plotting 'fit_amoroso' with family = 'trace' failed: ", conditionMessage(e))
-  }
-)
+
+if (interactive()) plot(fit_amoroso, family = "traceplot")
 ```
 
 ``` r
@@ -738,6 +338,7 @@ names(p)
   - Scale: Gamma prior
 
 ``` r
+
 X_causal <- df[, c("wt", "hp", "qsec", "cyl")]
 X_causal <- as.data.frame(X_causal)
 T_ind <- df$am
@@ -777,6 +378,7 @@ param_specs_causal <- list(
 ### Build + Run
 
 ``` r
+
 causal_bundle <- build_causal_bundle(
   y = y,
   X = X_causal,
@@ -797,123 +399,73 @@ causal_fit <- run_mcmc_causal(causal_bundle, show_progress = FALSE)
 ### User-Level Functions
 
 ``` r
+
 print(causal_bundle)
-DPmixGPD causal bundle
-PS model: Bayesian logit (T | X) 
-<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
- <thead>
-  <tr>
-   <th style="text-align:center;"> Field </th>
-   <th style="text-align:center;"> Treated </th>
-   <th style="text-align:center;"> Control </th>
-  </tr>
- </thead>
-<tbody>
-  <tr>
-   <td style="text-align:center;"> Backend </td>
-   <td style="text-align:center;"> Stick-Breaking Process </td>
-   <td style="text-align:center;"> Stick-Breaking Process </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> Kernel </td>
-   <td style="text-align:center;"> normal </td>
-   <td style="text-align:center;"> laplace </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> Components </td>
-   <td style="text-align:center;"> 5 </td>
-   <td style="text-align:center;"> 5 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> GPD tail </td>
-   <td style="text-align:center;"> FALSE </td>
-   <td style="text-align:center;"> FALSE </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> Epsilon </td>
-   <td style="text-align:center;"> 0.025 </td>
-   <td style="text-align:center;"> 0.025 </td>
-  </tr>
-</tbody>
-</table>
-Outcome PS included: TRUE 
-n (control) = 19 | n (treated) = 13 
-summary(causal_bundle)
-DPmixGPD causal bundle summary
-DPmixGPD causal bundle
-PS model: Bayesian logit (T | X) 
-<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
- <thead>
-  <tr>
-   <th style="text-align:center;"> Field </th>
-   <th style="text-align:center;"> Treated </th>
-   <th style="text-align:center;"> Control </th>
-  </tr>
- </thead>
-<tbody>
-  <tr>
-   <td style="text-align:center;"> Backend </td>
-   <td style="text-align:center;"> Stick-Breaking Process </td>
-   <td style="text-align:center;"> Stick-Breaking Process </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> Kernel </td>
-   <td style="text-align:center;"> normal </td>
-   <td style="text-align:center;"> laplace </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> Components </td>
-   <td style="text-align:center;"> 5 </td>
-   <td style="text-align:center;"> 5 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> GPD tail </td>
-   <td style="text-align:center;"> FALSE </td>
-   <td style="text-align:center;"> FALSE </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> Epsilon </td>
-   <td style="text-align:center;"> 0.025 </td>
-   <td style="text-align:center;"> 0.025 </td>
-  </tr>
-</tbody>
-</table>
-Outcome PS included: TRUE 
-n (control) = 19 | n (treated) = 13 
 ```
+
+DPmixGPD causal bundle PS model: Bayesian logit (T \| X)
+
+|   Field    |        Treated         |        Control         |
+|:----------:|:----------------------:|:----------------------:|
+|  Backend   | Stick-Breaking Process | Stick-Breaking Process |
+|   Kernel   |         normal         |        laplace         |
+| Components |           5            |           5            |
+|  GPD tail  |         FALSE          |         FALSE          |
+|  Epsilon   |         0.025          |         0.025          |
+
+Outcome PS included: TRUE n (control) = 19 \| n (treated) = 13
 
 ``` r
-print(causal_fit)
-DPmixGPD causal fit
-PS model: Bayesian logit (T | X) 
-Outcome (treated): backend = sb | kernel = normal 
-Outcome (control): backend = sb | kernel = laplace 
-GPD tail (treated/control): FALSE / FALSE 
-summary(causal_fit)
--- PS fit --
-DPmixGPD PS fit
-model: logit 
 
--- Outcome fits --
-[control]
-MixGPD fit | backend: Stick-Breaking Process | kernel: Laplace Distribution | GPD tail: FALSE
-n = 19 | components = 5 | epsilon = 0.025
-MCMC: niter=600, nburnin=150, thin=2, nchains=1 
-Fit
-Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
-
-[treated]
-MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: FALSE
-n = 13 | components = 5 | epsilon = 0.025
-MCMC: niter=600, nburnin=150, thin=2, nchains=1 
-Fit
-Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
+summary(causal_bundle)
 ```
+
+DPmixGPD causal bundle summary DPmixGPD causal bundle PS model: Bayesian
+logit (T \| X)
+
+|   Field    |        Treated         |        Control         |
+|:----------:|:----------------------:|:----------------------:|
+|  Backend   | Stick-Breaking Process | Stick-Breaking Process |
+|   Kernel   |         normal         |        laplace         |
+| Components |           5            |           5            |
+|  GPD tail  |         FALSE          |         FALSE          |
+|  Epsilon   |         0.025          |         0.025          |
+
+Outcome PS included: TRUE n (control) = 19 \| n (treated) = 13
+
+``` r
+
+print(causal_fit)
+```
+
+DPmixGPD causal fit PS model: Bayesian logit (T \| X) Outcome (treated):
+backend = sb \| kernel = normal Outcome (control): backend = sb \|
+kernel = laplace GPD tail (treated/control): FALSE / FALSE
+
+``` r
+
+summary(causal_fit)
+```
+
+– PS fit – DPmixGPD PS fit model: logit
+
+– Outcome fits – \[control\] MixGPD fit \| backend: Stick-Breaking
+Process \| kernel: Laplace Distribution \| GPD tail: FALSE n = 19 \|
+components = 5 \| epsilon = 0.025 MCMC: niter=600, nburnin=150, thin=2,
+nchains=1 Fit Use summary() for posterior summaries; plot() for
+diagnostics; predict() for predictions.
+
+\[treated\] MixGPD fit \| backend: Stick-Breaking Process \| kernel:
+Normal Distribution \| GPD tail: FALSE n = 13 \| components = 5 \|
+epsilon = 0.025 MCMC: niter=600, nburnin=150, thin=2, nchains=1 Fit Use
+summary() for posterior summaries; plot() for diagnostics; predict() for
+predictions.
 
 ### S3 Methods (Causal)
 
 ``` r
-try(plot(causal_fit, family = "trace"), silent = TRUE)
+
+if (interactive()) plot(causal_fit, family = "traceplot")
 ```
 
 ``` r
@@ -929,96 +481,50 @@ Valiant           0.162     5.47  -411   430
 ```
 
 ``` r
+
 ate_result <- ate(causal_fit, interval = "credible", nsim_mean = 50)
 print(ate_result)
-ATE (Average Treatment Effect)
-  Prediction points: 32
-  Conditional (covariates): YES
-  Propensity score used: YES
-  PS scale: logit
-  Posterior mean draws: 50
-  Credible interval: credible (95%)
+```
+
+ATE (Average Treatment Effect) Prediction points: 32 Conditional
+(covariates): YES Propensity score used: YES PS scale: logit Posterior
+mean draws: 50 Credible interval: credible (95%)
 
 ATE estimates (treated - control):
-<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
- <thead>
-  <tr>
-   <th style="text-align:center;"> id </th>
-   <th style="text-align:center;"> estimate </th>
-   <th style="text-align:center;"> lower </th>
-   <th style="text-align:center;"> upper </th>
-  </tr>
- </thead>
-<tbody>
-  <tr>
-   <td style="text-align:center;"> 1 </td>
-   <td style="text-align:center;"> 10.281 </td>
-   <td style="text-align:center;"> -422.106 </td>
-   <td style="text-align:center;"> 455.518 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> 2 </td>
-   <td style="text-align:center;"> 10.103 </td>
-   <td style="text-align:center;"> -423.415 </td>
-   <td style="text-align:center;"> 455.855 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> 3 </td>
-   <td style="text-align:center;"> 1.352 </td>
-   <td style="text-align:center;"> -368.406 </td>
-   <td style="text-align:center;"> 378.089 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> 4 </td>
-   <td style="text-align:center;"> 7.376 </td>
-   <td style="text-align:center;"> -429.805 </td>
-   <td style="text-align:center;"> 453.906 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> 5 </td>
-   <td style="text-align:center;"> 29.573 </td>
-   <td style="text-align:center;"> -645.528 </td>
-   <td style="text-align:center;"> 737.107 </td>
-  </tr>
-  <tr>
-   <td style="text-align:center;"> 6 </td>
-   <td style="text-align:center;"> 5.461 </td>
-   <td style="text-align:center;"> -414.346 </td>
-   <td style="text-align:center;"> 432.494 </td>
-  </tr>
-</tbody>
-</table>... (26 more rows)
-summary(ate_result)
-ATE Summary
-================================================== 
-Prediction points: 32
-Conditional: YES | PS used: YES
-Posterior mean draws: 50
-Interval: credible (95%)
 
-Model specification:
-  Backend (trt/con): sb / sb
-  Kernel (trt/con): normal / laplace
-  GPD tail (trt/con): NO / NO
+| id  | estimate |  lower   |  upper  |
+|:---:|:--------:|:--------:|:-------:|
+|  1  |  10.281  | -422.106 | 455.518 |
+|  2  |  10.103  | -423.415 | 455.855 |
+|  3  |  1.352   | -368.406 | 378.089 |
+|  4  |  7.376   | -429.805 | 453.906 |
+|  5  |  29.573  | -645.528 | 737.107 |
+|  6  |  5.461   | -414.346 | 432.494 |
 
-ATE statistics:
-  Mean: 19.688 | Median: 12.723
-  Range: [-11.387, 77.007]
-  SD: 22.425
-
-Credible interval width:
-  Mean: 1164.747 | Median: 983.302
-  Range: [441.91, 2619.232]
-```
+… (26 more rows)
 
 ``` r
-qte_result <- qte(causal_fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
-# Plotting may fail on some graphics devices (e.g., non-interactive or CI environments),
-# so errors are intentionally suppressed to ensure the vignette renders successfully.
-try({
-  plot(ate_result, type = "effect")
-  plot(qte_result, type = "effect")
-}, silent = TRUE)
+
+summary(ate_result)
 ```
 
-![](umbrella_files/figure-html/unnamed-chunk-20-1.png)
+## ATE Summary
+
+Prediction points: 32 Conditional: YES \| PS used: YES Posterior mean
+draws: 50 Interval: credible (95%)
+
+Model specification: Backend (trt/con): sb / sb Kernel (trt/con): normal
+/ laplace GPD tail (trt/con): NO / NO
+
+ATE statistics: Mean: 19.688 \| Median: 12.723 Range: \[-11.387,
+77.007\] SD: 22.425
+
+Credible interval width: Mean: 1164.747 \| Median: 983.302 Range:
+\[441.91, 2619.232\]
+
+``` r
+
+qte_result <- qte(causal_fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
+if (interactive()) plot(ate_result, type = "effect")
+if (interactive()) plot(qte_result, type = "effect")
+```

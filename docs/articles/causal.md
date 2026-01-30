@@ -25,6 +25,7 @@ X\]\$ and quantile contrasts.
 ## Data Setup
 
 ``` r
+
 library(DPmixGPD)
 
 data("mtcars", package = "datasets")
@@ -105,6 +106,7 @@ n (control) = 19 | n (treated) = 13
 ## MCMC Sampling
 
 ``` r
+
 fit <- run_mcmc_causal(bundle, show_progress = FALSE)
 ```
 
@@ -262,8 +264,8 @@ Credible interval width:
 
 ### ATE Visualization
 
-The [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method for
-ATE objects supports multiple visualization types:
+The `if (interactive()) plot()` method for ATE objects supports multiple
+visualization types:
 
 - `type = "both"` (default): Returns a list with `trt_control` and
   `treatment_effect` plots
@@ -271,17 +273,17 @@ ATE objects supports multiple visualization types:
 - `type = "arms"`: Treated vs control mean outcomes
 
 ``` r
-ate_plots <- plot(ate_grid)
-ate_plots$treatment_effect
-```
 
-![](causal_files/figure-html/unnamed-chunk-5-1.png)
+ate_plots <- if (interactive()) plot(ate_grid)
+ate_plots$treatment_effect
+NULL
+```
 
 ``` r
-ate_plots$trt_control
-```
 
-![](causal_files/figure-html/unnamed-chunk-6-1.png)
+ate_plots$trt_control
+NULL
+```
 
 ## Quantile Treatment Effect (QTE)
 
@@ -479,8 +481,8 @@ Credible interval width:
 
 ### QTE Visualization
 
-The [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method for
-QTE objects supports multiple visualization types:
+The `if (interactive()) plot()` method for QTE objects supports multiple
+visualization types:
 
 - `type = "both"` (default): Returns a list with `trt_control` and
   `treatment_effect` plots
@@ -489,17 +491,17 @@ QTE objects supports multiple visualization types:
 - `type = "arms"`: Treated vs control quantile curves
 
 ``` r
-qte_plots <- plot(qte_grid)
-qte_plots$treatment_effect
-```
 
-![](causal_files/figure-html/unnamed-chunk-8-1.png)
+qte_plots <- if (interactive()) plot(qte_grid)
+qte_plots$treatment_effect
+NULL
+```
 
 ``` r
-qte_plots$trt_control
-```
 
-![](causal_files/figure-html/unnamed-chunk-9-1.png)
+qte_plots$trt_control
+NULL
+```
 
 ## Model Summary
 

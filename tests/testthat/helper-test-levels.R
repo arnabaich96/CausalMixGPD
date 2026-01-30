@@ -106,7 +106,6 @@ representative_causal_combos <- function() {
       backend = c("sb", "sb"),
       GPD = c(FALSE, FALSE),
       PS = "logit",
-      design = "observational",
       label = "normal_sb_logit"
     ),
     # RCT without PS
@@ -115,7 +114,6 @@ representative_causal_combos <- function() {
       backend = c("crp", "crp"),
       GPD = c(TRUE, TRUE),
       PS = FALSE,
-      design = "rct",
       label = "gamma_crp_gpd_rct"
     ),
     # Mixed backends
@@ -124,7 +122,6 @@ representative_causal_combos <- function() {
       backend = c("sb", "crp"),
       GPD = c(FALSE, FALSE),
       PS = "probit",
-      design = "observational",
       label = "mixed_probit"
     )
   )

@@ -25,6 +25,7 @@ extends the unconditional GPD (v06) and conditional DP (v08).
 ### Data Setup
 
 ``` r
+
 data("nc_posX100_p5_k4")
 y <- nc_posX100_p5_k4$y
 X <- as.matrix(nc_posX100_p5_k4$X)
@@ -54,13 +55,16 @@ ggplot(data.frame(y = y, x1 = X[, 1]), aes(x = x1, y = y)) +
 |    Min    |  0.488  |
 |    Max    |  5.278  |
 
-Conditional Tail Dataset Summary
+Conditional Tail Dataset Summary {.table .table .table-striped
+.table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ------------------------------------------------------------------------
 
 ### Threshold Selection
 
 ``` r
+
 u_threshold <- quantile(y, 0.85)
 
 ggplot(data.frame(y = y), aes(x = y)) +
@@ -77,6 +81,7 @@ ggplot(data.frame(y = y), aes(x = y)) +
 ### Model Specification & Bundle
 
 ``` r
+
 bundle_cond_gpd_lognormal <- build_nimble_bundle(
   y = y,
   X = X,
@@ -113,6 +118,7 @@ bundle_cond_gpd_normal <- build_nimble_bundle(
 ### Running MCMC
 
 ``` r
+
 fit_cond_gpd_lognormal <- load_or_fit("v12-conditional-DPmixGPD-CRP-fit_cond_gpd_lognormal", run_mcmc_bundle_manual(bundle_cond_gpd_lognormal))
 fit_cond_gpd_normal <- load_or_fit("v12-conditional-DPmixGPD-CRP-fit_cond_gpd_normal", run_mcmc_bundle_manual(bundle_cond_gpd_normal))
 summary(fit_cond_gpd_lognormal)
@@ -145,6 +151,7 @@ summary(fit_cond_gpd_lognormal)
                sdlog[1]  0.594 0.205  0.418  0.554  0.931  68.361
 
 ``` r
+
 summary(fit_cond_gpd_normal)
 ```
 
@@ -178,6 +185,7 @@ summary(fit_cond_gpd_normal)
                   sd[2]  0.434 0.631  0.169  0.225  1.795 24.062
 
 ``` r
+
 params_cond_gpd <- params(fit_cond_gpd_lognormal)
 params_cond_gpd
 ```
@@ -210,6 +218,7 @@ params_cond_gpd
 ### Conditional Tail-aware Predictions
 
 ``` r
+
 X_new <- rbind(
   c(-1, 0, 0, 0, 0),
   c(0, 0, 0, 0, 0),
@@ -254,6 +263,7 @@ bind_rows(df_pred_lognormal, df_pred_normal) %>%
 ### Tail Quantiles vs Covariates
 
 ``` r
+
 X_grid <- cbind(x1 = seq(-1, 1, length.out = 5), x2 = 0, x3 = 0, x4 = 0, x5 = 0)
 colnames(X_grid) <- colnames(X)
 quant_probs <- c(0.90, 0.95)
@@ -285,22 +295,27 @@ bind_rows(quant_df_lognormal, quant_df_normal) %>%
 ### Residuals & Diagnostics
 
 ``` r
+
 plot(fitted(fit_cond_gpd_lognormal))
 ```
 
 ![](v12-conditional-DPmixGPD-CRP_files/figure-html/residuals-1.png)![](v12-conditional-DPmixGPD-CRP_files/figure-html/residuals-2.png)
 
 ``` r
+
 plot(fit_cond_gpd_lognormal, family = "traceplot")
 ```
+
 
     === traceplot ===
 
 ![](v12-conditional-DPmixGPD-CRP_files/figure-html/diagnostics-1.png)
 
 ``` r
+
 plot(fit_cond_gpd_normal, family = "caterpillar")
 ```
+
 
     === caterpillar ===
 

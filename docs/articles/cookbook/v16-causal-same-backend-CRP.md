@@ -31,6 +31,7 @@ predict, plot, ATE, and QTE.
 ### Data Setup
 
 ``` r
+
 data("causal_alt_real500_p4_k2")
 y <- causal_alt_real500_p4_k2$y
 T <- causal_alt_real500_p4_k2$T
@@ -55,15 +56,18 @@ summary_tbl %>%
 |    Min    | -8.089  |
 |    Max    |  5.275  |
 
-Causal Dataset Summary
+Causal Dataset Summary {.table .table .table-striped .table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ``` r
+
 x_eval <- X[1:40, , drop = FALSE]
 y_eval <- y[1:40]
 u_threshold <- as.numeric(stats::quantile(y, 0.8, names = FALSE))
 ```
 
 ``` r
+
 df_causal <- data.frame(y = y, T = as.factor(T), x1 = X[, 1], x2 = X[, 2])
 
 p_scatter <- ggplot(df_causal, aes(x = x1, y = y, color = T)) +
@@ -81,6 +85,7 @@ p_scatter
 ### Model A: CRP Bulk-only (Cauchy)
 
 ``` r
+
 bundle_crp_bulk <- build_causal_bundle(
   y = y,
   T = T,
@@ -108,6 +113,7 @@ bundle_crp_bulk
     n (control) = 232 | n (treated) = 268 
 
 ``` r
+
 summary(bundle_crp_bulk)
 ```
 
@@ -123,9 +129,11 @@ summary(bundle_crp_bulk)
     n (control) = 232 | n (treated) = 268 
 
 ``` r
+
 fit_crp_bulk <- quiet_mcmc(run_mcmc_causal(bundle_crp_bulk))
 summary(fit_crp_bulk)
 ```
+
 
     -- Outcome fits --
     [control]
@@ -143,6 +151,7 @@ summary(fit_crp_bulk)
     Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 
 ``` r
+
 params(fit_crp_bulk)
 ```
 
@@ -179,14 +188,17 @@ params(fit_crp_bulk)
     [1] "0.524" "0.523" "0.418"
 
 ``` r
+
 plot(fit_crp_bulk, params = "location", family = "traceplot")
 ```
+
 
     === treated ===
 
     === traceplot ===
 
 ![](v16-causal-same-backend-CRP_files/figure-html/plot-fit-crp-bulk-1.png)
+
 
     === control ===
 
@@ -195,14 +207,17 @@ plot(fit_crp_bulk, params = "location", family = "traceplot")
 ![](v16-causal-same-backend-CRP_files/figure-html/plot-fit-crp-bulk-2.png)
 
 ``` r
+
 plot(fit_crp_bulk, params = "scale", family = "caterpillar")
 ```
+
 
     === treated ===
 
     === caterpillar ===
 
 ![](v16-causal-same-backend-CRP_files/figure-html/plot-fit-crp-bulk-3.png)
+
 
     === control ===
 
@@ -211,6 +226,7 @@ plot(fit_crp_bulk, params = "scale", family = "caterpillar")
 ![](v16-causal-same-backend-CRP_files/figure-html/plot-fit-crp-bulk-4.png)
 
 ``` r
+
 pred_mean_bulk <- predict(fit_crp_bulk, x = x_eval, type = "mean",
                           interval = "hpd", nsim_mean = 100)
 head(pred_mean_bulk)
@@ -225,12 +241,14 @@ head(pred_mean_bulk)
     [6,] NA   0.9312 -0.5459  3.226
 
 ``` r
+
 plot(pred_mean_bulk)
 ```
 
 ![](v16-causal-same-backend-CRP_files/figure-html/predict-mean-crp-bulk-1.png)![](v16-causal-same-backend-CRP_files/figure-html/predict-mean-crp-bulk-2.png)
 
 ``` r
+
 pred_q_bulk <- predict(fit_crp_bulk, x = x_eval, type = "quantile",
                        p = 0.5, interval = "hpd")
 head(pred_q_bulk)
@@ -245,12 +263,14 @@ head(pred_q_bulk)
     [6,] NA    0.444 0.341  0.56
 
 ``` r
+
 plot(pred_q_bulk)
 ```
 
 ![](v16-causal-same-backend-CRP_files/figure-html/predict-quantile-crp-bulk-1.png)![](v16-causal-same-backend-CRP_files/figure-html/predict-quantile-crp-bulk-2.png)
 
 ``` r
+
 pred_d_bulk <- predict(fit_crp_bulk, x = x_eval, y = y_eval,
                        type = "density", interval = "hpd")
 head(pred_d_bulk)
@@ -265,12 +285,14 @@ head(pred_d_bulk)
     6  0.939 NA            1    0.1488    0.2767            1    0.0572    0.1584
 
 ``` r
+
 plot(pred_d_bulk)
 ```
 
 ![](v16-causal-same-backend-CRP_files/figure-html/predict-density-crp-bulk-1.png)
 
 ``` r
+
 pred_surv_bulk <- predict(fit_crp_bulk, x = x_eval, y = y_eval,
                           type = "survival", interval = "hpd")
 head(pred_surv_bulk)
@@ -285,12 +307,14 @@ head(pred_surv_bulk)
     6  0.939 NA            1     0.350     0.454            1     0.219     0.394
 
 ``` r
+
 plot(pred_surv_bulk)
 ```
 
 ![](v16-causal-same-backend-CRP_files/figure-html/predict-survival-crp-bulk-1.png)
 
 ``` r
+
 ate_bulk <- ate(fit_crp_bulk, newdata = x_eval,
                 interval = "hpd", nsim_mean = 100)
 print(ate_bulk)
@@ -314,6 +338,7 @@ print(ate_bulk)
     ... (34 more rows)
 
 ``` r
+
 summary(ate_bulk)
 ```
 
@@ -339,6 +364,7 @@ summary(ate_bulk)
       Range: [21.872, 33.46]
 
 ``` r
+
 ate_plots_bulk <- plot(ate_bulk)
 ate_plots_bulk$treatment_effect
 ```
@@ -346,6 +372,7 @@ ate_plots_bulk$treatment_effect
 ![](v16-causal-same-backend-CRP_files/figure-html/unnamed-chunk-1-1.png)
 
 ``` r
+
 qte_bulk <- qte(fit_crp_bulk, probs = c(0.25, 0.5, 0.75),
                 newdata = x_eval, interval = "hpd")
 print(qte_bulk)
@@ -369,6 +396,7 @@ print(qte_bulk)
     ... (114 more rows)
 
 ``` r
+
 summary(qte_bulk)
 ```
 
@@ -395,6 +423,7 @@ summary(qte_bulk)
       Range: [0.624, 1.373]
 
 ``` r
+
 qte_plots_bulk <- plot(qte_bulk)
 qte_plots_bulk$treatment_effect
 ```
@@ -406,6 +435,7 @@ qte_plots_bulk$treatment_effect
 ### Model B: SB with GPD Tail (Laplace)
 
 ``` r
+
 param_specs_gpd <- list(
   gpd = list(
     threshold = list(
@@ -444,6 +474,7 @@ bundle_sb_gpd
     n (control) = 232 | n (treated) = 268 
 
 ``` r
+
 summary(bundle_sb_gpd)
 ```
 
@@ -459,9 +490,11 @@ summary(bundle_sb_gpd)
     n (control) = 232 | n (treated) = 268 
 
 ``` r
+
 fit_sb_gpd <- quiet_mcmc(run_mcmc_causal(bundle_sb_gpd))
 summary(fit_sb_gpd)
 ```
+
 
     -- Outcome fits --
     [control]
@@ -479,6 +512,7 @@ summary(fit_sb_gpd)
     Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 
 ``` r
+
 params(fit_sb_gpd)
 ```
 
@@ -537,14 +571,17 @@ params(fit_sb_gpd)
     [1] "-0.043"
 
 ``` r
+
 plot(fit_sb_gpd, family = "traceplot")
 ```
+
 
     === treated ===
 
     === traceplot ===
 
 ![](v16-causal-same-backend-CRP_files/figure-html/plot-fit-sb-gpd-1.png)
+
 
     === control ===
 
@@ -553,6 +590,7 @@ plot(fit_sb_gpd, family = "traceplot")
 ![](v16-causal-same-backend-CRP_files/figure-html/plot-fit-sb-gpd-2.png)
 
 ``` r
+
 pred_mean_gpd <- predict(fit_sb_gpd, x = x_eval, type = "mean",
                          interval = "credible", nsim_mean = 100)
 head(pred_mean_gpd)
@@ -567,12 +605,14 @@ head(pred_mean_gpd)
     [6,] NA    0.607  2.95 -0.416
 
 ``` r
+
 plot(pred_mean_gpd)
 ```
 
 ![](v16-causal-same-backend-CRP_files/figure-html/predict-mean-sb-gpd-1.png)![](v16-causal-same-backend-CRP_files/figure-html/predict-mean-sb-gpd-2.png)
 
 ``` r
+
 pred_q_gpd <- predict(fit_sb_gpd, x = x_eval, type = "quantile",
                       p = 0.5, interval = "credible")
 head(pred_q_gpd)
@@ -587,12 +627,14 @@ head(pred_q_gpd)
     [6,] NA    0.425  3.21 -0.684
 
 ``` r
+
 plot(pred_q_gpd)
 ```
 
 ![](v16-causal-same-backend-CRP_files/figure-html/predict-quantile-sb-gpd-1.png)![](v16-causal-same-backend-CRP_files/figure-html/predict-quantile-sb-gpd-2.png)
 
 ``` r
+
 pred_d_gpd <- predict(fit_sb_gpd, x = x_eval, y = y_eval,
                       type = "density", interval = "credible")
 head(pred_d_gpd)
@@ -607,12 +649,14 @@ head(pred_d_gpd)
     6  0.939 NA            1   0.10860     0.359            1   0.03993     0.368
 
 ``` r
+
 plot(pred_d_gpd)
 ```
 
 ![](v16-causal-same-backend-CRP_files/figure-html/predict-density-sb-gpd-1.png)
 
 ``` r
+
 pred_surv_gpd <- predict(fit_sb_gpd, x = x_eval, y = y_eval,
                          type = "survival", interval = "credible")
 head(pred_surv_gpd)
@@ -627,12 +671,14 @@ head(pred_surv_gpd)
     6  0.939 NA            1     0.225     0.744            1    0.0377     0.709
 
 ``` r
+
 plot(pred_surv_gpd)
 ```
 
 ![](v16-causal-same-backend-CRP_files/figure-html/predict-survival-sb-gpd-1.png)
 
 ``` r
+
 ate_gpd <- ate(fit_sb_gpd, newdata = x_eval,
                interval = "credible", nsim_mean = 100)
 print(ate_gpd)
@@ -656,6 +702,7 @@ print(ate_gpd)
     ... (34 more rows)
 
 ``` r
+
 summary(ate_gpd)
 ```
 
@@ -681,6 +728,7 @@ summary(ate_gpd)
       Range: [1.933, 13.29]
 
 ``` r
+
 ate_plots_gpd <- plot(ate_gpd)
 ate_plots_gpd$treatment_effect
 ```
@@ -688,6 +736,7 @@ ate_plots_gpd$treatment_effect
 ![](v16-causal-same-backend-CRP_files/figure-html/unnamed-chunk-3-1.png)
 
 ``` r
+
 qte_gpd <- qte(fit_sb_gpd, probs = c(0.25, 0.5, 0.75),
                newdata = x_eval, interval = "credible")
 print(qte_gpd)
@@ -711,6 +760,7 @@ print(qte_gpd)
     ... (114 more rows)
 
 ``` r
+
 summary(qte_gpd)
 ```
 
@@ -737,6 +787,7 @@ summary(qte_gpd)
       Range: [1.415, 13.635]
 
 ``` r
+
 qte_plots_gpd <- plot(qte_gpd)
 qte_plots_gpd$treatment_effect
 ```

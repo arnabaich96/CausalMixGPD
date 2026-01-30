@@ -65,6 +65,7 @@ DPmixGPD uses a consistent build -\> run -\> summarize loop:
     [`fitted()`](https://rdrr.io/r/stats/fitted.values.html)).
 
 ``` r
+
 # Build
 bundle <- build_nimble_bundle(
   y = rnorm(50),
@@ -89,6 +90,7 @@ print(fit)
     Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 
 ``` r
+
 summary(fit)
 ```
 
@@ -108,40 +110,50 @@ summary(fit)
           sd[1] 1.539 0.422  0.967  1.483  2.602 80.825
 
 ``` r
+
 plot(fit)
 ```
+
 
     === histogram ===
 
 ![](v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-1.png)
 
+
     === density ===
 
 ![](v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-2.png)
+
 
     === traceplot ===
 
 ![](v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-3.png)
 
+
     === running ===
 
 ![](v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-4.png)
+
 
     === compare_partial ===
 
 ![](v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-5.png)
 
+
     === autocorrelation ===
 
 ![](v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-6.png)
+
 
     === geweke ===
 
 ![](v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-7.png)
 
+
     === caterpillar ===
 
 ![](v04-backends-and-workflow_files/figure-html/unnamed-chunk-1-8.png)
+
 
     === pairs ===
 
@@ -154,6 +166,7 @@ Use
 and the kernel registry helpers to confirm what is available.
 
 ``` r
+
 kernel_support_table()
 ```
 

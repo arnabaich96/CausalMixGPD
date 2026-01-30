@@ -1,19 +1,21 @@
 ---
 title: "Kernels Overview"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    highlight: null
 vignette: >
   %\VignetteIndexEntry{Kernels Overview}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-# Mixture Kernels
+# Ingredients (mixture kernels)
 
 DPmixGPD supports multiple mixture kernel families for flexible density estimation. Each kernel has different properties suited to various data types and modeling scenarios.
 
-## Available Kernels
+## What's in the pantry
 
-### Location-Scale Families
+### Location-scale families
 
 These kernels have location and scale parameters, making them suitable for real-valued data:
 
@@ -23,7 +25,7 @@ These kernels have location and scale parameters, making them suitable for real-
 
 - [**Laplace**](kernels/kernel-laplace.html) - Double exponential kernel with `location` and `scale` parameters. Has heavier tails than Normal.
 
-### Positive-Support Families
+### Positive-support families
 
 These kernels are defined for positive values only, ideal for positive data like durations, sizes, or amounts:
 
@@ -33,11 +35,11 @@ These kernels are defined for positive values only, ideal for positive data like
 
 - [**Inverse Gaussian**](kernels/kernel-invgauss.html) - Alternative positive kernel with `mean` and `shape` parameters. Often used for waiting times.
 
-### Generalized Families
+### Generalized families
 
 - [**Amoroso**](kernels/kernel-amoroso.html) - Four-parameter generalization with `loc`, `scale`, `shape1`, and `shape2`. Includes Gamma, Weibull, and other distributions as special cases.
 
-## Kernel Selection Guide
+## Ingredient picker
 
 | Data Type | Recommended Kernels |
 |-----------|---------------------|
@@ -61,7 +63,7 @@ Most kernels support GPD tail modeling (`GPD = TRUE`):
 | Amoroso | Yes |
 | Cauchy | No |
 
-## How to Use Kernels
+## Using ingredients in your recipe
 
 Specify the kernel when building your model:
 ```r
@@ -75,3 +77,4 @@ bundle <- build_nimble_bundle(
 ```
 
 See the individual kernel pages for detailed examples and parameter descriptions.
+

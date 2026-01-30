@@ -1,11 +1,12 @@
-# Workflow 1: Introduction to DPmixGPD
+# 1. Introduction to DPmixGPD
 
-### Theory (brief)
-
-DP mixtures represent densities as \$f(y)=\\int
-K(y;\\theta)\\,dG(\\theta)\$ with \$G \\sim \\mathrm{DP}(\\alpha,
-G_0)\$. Optional GPD splicing replaces the tail beyond a threshold,
-providing principled extreme-value behavior.
+> **Legacy vignette (for the website / historical notes).** These files
+> may not match the current exported API one-to-one. Last verified:
+> **2026-01-18**.
+>
+> For the up-to-date workflow, see the main package vignettes
+> (Introduction, Model Spec, MCMC Workflow,
+> Unconditional/Conditional/Causal, Backends, S3 Reference).
 
 ## DPmixGPD: Bayesian Nonparametric Mixture Models with GPD Tails
 
@@ -90,6 +91,7 @@ for confounding adjustment.
 #### Direct Model Building
 
 ``` r
+
 bundle <- build_nimble_bundle(
   y = y,
   kernel = "gamma",
@@ -106,6 +108,7 @@ fit <- run_mcmc_bundle_manual(bundle)
 ### Quick Start
 
 ``` r
+
 # Load packaged dataset
 data("nc_pos200_k3")
 y <- nc_pos200_k3$y
@@ -191,18 +194,21 @@ print(bundle)
 ### Dependencies
 
 ``` r
+
 packageVersion("DPmixGPD")
 ```
 
     [1] '0.0.9'
 
 ``` r
+
 packageVersion("nimble")
 ```
 
     [1] '1.4.0'
 
 ``` r
+
 packageVersion("ggplot2")
 ```
 

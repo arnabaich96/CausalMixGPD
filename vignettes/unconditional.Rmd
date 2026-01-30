@@ -1,6 +1,8 @@
 ---
 title: "Unconditional Models"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    highlight: null
 vignette: >
   %\VignetteIndexEntry{Unconditional Models}
   %\VignetteEngine{knitr::rmarkdown}
@@ -63,16 +65,6 @@ bundle <- build_nimble_bundle(
 fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
 ```
 
-## Fitted Summaries
-
-```{r}
-f_mean <- fitted(fit, type = "mean", level = 0.90)
-head(f_mean)
-
-f_med <- fitted(fit, type = "median", level = 0.90)
-head(f_med)
-```
-
 ## Posterior Predictive Summaries
 
 ```{r}
@@ -83,18 +75,15 @@ pred_mean$fit
 pred_q95$fit
 ```
 
-## Residual Analysis
+## Note
 
-```{r}
-res <- f_mean$residuals
-summary(res)
-```
+For unconditional models, use \code{predict()} only; \code{fitted()} and \code{residuals()} are not supported (they are for conditional, covariate models).
 
 ## Diagnostic Plots
 
 ```{r}
 if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quietly = TRUE)) {
-  plot(fit)
+  if (interactive()) plot(fit)
 } else {
   message("Plotting requires 'ggmcmc' and 'coda' packages.")
 }
@@ -103,4 +92,5 @@ if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quiet
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+
 

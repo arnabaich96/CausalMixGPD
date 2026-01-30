@@ -27,6 +27,7 @@ components.
 ### Data Setup
 
 ``` r
+
 # Tail-heavy data
 data("nc_pos_tail200_k4")
 y_tail <- nc_pos_tail200_k4$y
@@ -57,13 +58,15 @@ print(p_raw)
 |    Min    |  0.328  |
 |    Max    | 19.870  |
 
-Tail Dataset Summaries
+Tail Dataset Summaries {.table .table .table-striped .table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ------------------------------------------------------------------------
 
 ### Threshold Selection
 
 ``` r
+
 thresholds <- quantile(y_tail, c(0.70, 0.75, 0.80, 0.85))
 u_threshold <- thresholds["80%"]
 
@@ -91,6 +94,7 @@ backend and use a **Gamma** bulk kernel with a lognormal threshold
 prior, then contrast it with a bulk-only **Laplace** fit.
 
 ``` r
+
 bundle_sb_gpd <- build_nimble_bundle(
   y = y_tail,
   kernel = "gamma",
@@ -115,6 +119,7 @@ bundle_sb_gpd <- build_nimble_bundle(
 ### Running MCMC
 
 ``` r
+
 fit_sb_gpd <- load_or_fit("v09-unconditional-DPmixGPD-SB-fit_sb_gpd", run_mcmc_bundle_manual(bundle_sb_gpd))
 summary(fit_sb_gpd)
 ```
@@ -147,6 +152,7 @@ summary(fit_sb_gpd)
        scale[4]  1.42 1.054  0.239  1.166  3.851 34.189
 
 ``` r
+
 params_sb_gpd <- params(fit_sb_gpd)
 params_sb_gpd
 ```
@@ -176,6 +182,7 @@ params_sb_gpd
 ### Posterior Predictions
 
 ``` r
+
 y_grid <- seq(0, max(y_tail) * 1.3, length.out = 300)
 pred_density <- predict(fit_sb_gpd, y = y_grid, type = "density")
 plot(pred_density)
@@ -184,6 +191,7 @@ plot(pred_density)
 ![](v09-unconditional-DPmixGPD-SB_files/figure-html/density-predict-1.png)
 
 ``` r
+
 y_surv <- seq(u_threshold, max(y_tail) * 1.1, length.out = 60)
 pred_surv <- predict(fit_sb_gpd, y = y_surv, type = "survival")
 plot(pred_surv)
@@ -192,6 +200,7 @@ plot(pred_surv)
 ![](v09-unconditional-DPmixGPD-SB_files/figure-html/survival-predict-1.png)
 
 ``` r
+
 quant_probs <- c(0.90, 0.95, 0.99)
 pred_quant <- predict(fit_sb_gpd, type = "quantile", index = quant_probs, interval = "credible")
 plot(pred_quant)
@@ -204,6 +213,7 @@ plot(pred_quant)
 ### Tail vs Bulk Comparison
 
 ``` r
+
 bundle_sb_bulk <- build_nimble_bundle(
   y = y_tail,
   kernel = "laplace",
@@ -236,15 +246,19 @@ bind_rows(
 | Bulk + GPD | 0.95  |   6.58   | 5.53  | 7.69  |
 | Bulk + GPD | 0.99  |  12.14   | 8.92  | 15.90 |
 
-Quantiles: Bulk-only vs GPD-augmented
+Quantiles: Bulk-only vs GPD-augmented {.table .table .table-striped
+.table-hover
+style="width: auto !important; margin-left: auto; margin-right: auto;"}
 
 ``` r
+
 plot(bulk_quant)
 ```
 
 ![](v09-unconditional-DPmixGPD-SB_files/figure-html/comparison-plots-1.png)
 
 ``` r
+
 plot(t_quant)
 ```
 
@@ -255,6 +269,7 @@ plot(t_quant)
 ### Residuals & Diagnostics
 
 ``` r
+
 fit_vals <- fitted(fit_sb_gpd)
 plot(fit_vals)
 ```
@@ -262,24 +277,30 @@ plot(fit_vals)
 ![](v09-unconditional-DPmixGPD-SB_files/figure-html/residuals-1.png)![](v09-unconditional-DPmixGPD-SB_files/figure-html/residuals-2.png)
 
 ``` r
+
 plot(fit_sb_gpd, family = "traceplot")
 ```
+
 
     === traceplot ===
 
 ![](v09-unconditional-DPmixGPD-SB_files/figure-html/diagnostics-1.png)
 
 ``` r
+
 plot(fit_sb_gpd, params = "shape", family = "traceplot")
 ```
+
 
     === traceplot ===
 
 ![](v09-unconditional-DPmixGPD-SB_files/figure-html/diagnostics-2.png)
 
 ``` r
+
 plot(fit_sb_gpd, params = "scale", family = "caterpillar")
 ```
+
 
     === caterpillar ===
 

@@ -1,6 +1,8 @@
 ---
 title: "Umbrella: Custom Models (All-in-One)"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    highlight: null
 vignette: >
   %\VignetteIndexEntry{Umbrella: Custom Models (All-in-One)}
   %\VignetteEngine{knitr::rmarkdown}
@@ -8,7 +10,7 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-devtools::load_all()
+pkgload::load_all()
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = NA,
@@ -16,7 +18,9 @@ knitr::opts_chunk$set(
   warning = FALSE,
   fig.width = 7,
   fig.height = 4.5,
-  fig.align = "center"
+  fig.align = "center",
+  cache = TRUE,
+  cache.path = "legacy-cache/"
 )
 library(ggplot2)
 library(kableExtra)
@@ -171,12 +175,12 @@ fit_amoroso <- run_mcmc_bundle_manual(bundle_amoroso, show_progress = FALSE)
 
 ## User-Level Functions
 
-```{r}
+```{r, results='asis'}
 print(bundle_amoroso)
 summary(bundle_amoroso)
 ```
 
-```{r}
+```{r, results='asis'}
 print(fit_amoroso)
 summary(fit_amoroso)
 ```
@@ -184,12 +188,7 @@ summary(fit_amoroso)
 ## S3 Methods (Fit)
 
 ```{r}
-tryCatch(
-  plot(fit_amoroso, family = "trace"),
-  error = function(e) {
-    message("Plotting 'fit_amoroso' with family = 'trace' failed: ", conditionMessage(e))
-  }
-)
+if (interactive()) plot(fit_amoroso, family = "traceplot")
 ```
 
 ```{r}
@@ -286,12 +285,12 @@ causal_fit <- run_mcmc_causal(causal_bundle, show_progress = FALSE)
 
 ## User-Level Functions
 
-```{r}
+```{r, results='asis'}
 print(causal_bundle)
 summary(causal_bundle)
 ```
 
-```{r}
+```{r, results='asis'}
 print(causal_fit)
 summary(causal_fit)
 ```
@@ -299,7 +298,7 @@ summary(causal_fit)
 ## S3 Methods (Causal)
 
 ```{r}
-try(plot(causal_fit, family = "trace"), silent = TRUE)
+if (interactive()) plot(causal_fit, family = "traceplot")
 ```
 
 ```{r}
@@ -307,7 +306,7 @@ pred_causal_mean <- predict(causal_fit, x = X_causal, type = "mean", interval = 
 head(pred_causal_mean)
 ```
 
-```{r}
+```{r, results='asis'}
 ate_result <- ate(causal_fit, interval = "credible", nsim_mean = 50)
 print(ate_result)
 summary(ate_result)
@@ -315,16 +314,13 @@ summary(ate_result)
 
 ```{r}
 qte_result <- qte(causal_fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
-# Plotting may fail on some graphics devices (e.g., non-interactive or CI environments),
-# so errors are intentionally suppressed to ensure the vignette renders successfully.
-try({
-  plot(ate_result, type = "effect")
-  plot(qte_result, type = "effect")
-}, silent = TRUE)
+if (interactive()) plot(ate_result, type = "effect")
+if (interactive()) plot(qte_result, type = "effect")
 ```
 
 
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+
 

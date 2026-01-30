@@ -1,6 +1,8 @@
 ---
 title: "Model Specification"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    highlight: null
 vignette: >
   %\VignetteIndexEntry{Model Specification}
   %\VignetteEngine{knitr::rmarkdown}
@@ -138,5 +140,6 @@ kable(args_df, align = "c", caption = "Model Specification Arguments") %>%
 # Rename reserved keywords
 names(X)[names(X) == "if"] <- "x_if"
 ```
+
 
 

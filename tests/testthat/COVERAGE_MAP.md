@@ -64,7 +64,7 @@ This document maps test coverage by feature area to help identify gaps and guide
 | type="sample" | `helper-predict-distribution.R` | ✅ |
 | type="density" | `helper-predict-distribution.R` | ✅ |
 | type="survival" | `helper-predict-distribution.R` | ✅ |
-| type="location" | `test-predict-contracts.R` | ⚠️ Basic |
+| type="location" | `predict.mixgpd_fit` (predict only) | ✅ |
 | Conditional x/newdata contracts | `test-predict-contracts.R` | ✅ |
 | Parallel ncores determinism | `test-predict-contracts.R` | ✅ |
 | Credible intervals | `test-predict-contracts.R` | ✅ |
@@ -75,14 +75,16 @@ This document maps test coverage by feature area to help identify gaps and guide
 
 ## 5. S3 Methods & UX
 
+fitted.mixgpd_fit and residuals.mixgpd_fit are **conditional (covariate) models only**; not supported for unconditional (use predict() instead).
+
 | Feature | Test File | Status |
 |---------|-----------|--------|
 | print.mixgpd_fit | `helper-predict-distribution.R` | ✅ |
 | summary.mixgpd_fit | `helper-predict-distribution.R` | ✅ |
 | plot.mixgpd_fit | `helper-predict-distribution.R` | ✅ |
-| fitted.mixgpd_fit | `test-fitted.R` | ✅ |
-| residuals.mixgpd_fit (raw) | `test-fitted.R` | ✅ |
-| residuals.mixgpd_fit (PIT) | `helper-predict-distribution.R` | ✅ |
+| fitted.mixgpd_fit (conditional only) | `test-fitted.R`, `test-hpd-intervals.R` | ✅ |
+| residuals.mixgpd_fit (raw, conditional only) | `test-fitted.R` | ✅ |
+| residuals.mixgpd_fit (PIT, conditional only) | `helper-predict-distribution.R` when has_X | ✅ |
 | plot.mixgpd_predict | `test-predict-unconditional.R` | ✅ |
 | plot.mixgpd_fitted | `test-fitted.R` | ✅ |
 | params() extractor | `test-fitted.R`, `test-causal-predict.R` | ✅ |
@@ -103,9 +105,6 @@ This document maps test coverage by feature area to help identify gaps and guide
 | PS models: probit | `test-causal.R` | ✅ |
 | PS models: naive | `test-causal.R` | ✅ |
 | PS models: FALSE (disabled) | `test-causal.R` | ✅ |
-| design="observational" | `test-causal.R` | ✅ |
-| design="rct" | `test-causal.R` | ✅ |
-| design enforcement errors | `test-causal.R` | ✅ |
 | Mixed backends (trt/con) | `test-causal.R` | ✅ |
 
 **Tier:** A (design tests), B (workflow tests)
@@ -201,7 +200,7 @@ The following gaps were identified and have been addressed with tests:
 - `test-vectorization.R`
 - `test-vectorization-contract.R`
 - `test-smoke-core-workflows.R`
-- `test-causal.R` (PS parameter tests, design enforcement only)
+- `test-causal.R` (PS parameter tests)
 
 ### Tier B (ci) - Integration, requires MCMC
 - `test-normal.R`, `test-gamma.R`, `test-lognormal.R`, `test-laplace.R`, `test-invgauss.R`, `test-amoroso.R`, `test-cauchy.R`
