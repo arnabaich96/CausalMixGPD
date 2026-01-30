@@ -1,4 +1,4 @@
-
+﻿
 
 # ============================================================
 # Utilities (internal)
@@ -12,6 +12,118 @@
 #' @rdname null_coalescing
 #' @name null_coalescing
 `%||%` <- function(a, b) if (!is.null(a)) a else b
+
+#' Extract indexed parameter blocks from a draws matrix
+#' @keywords internal
+#' @noRd
+.indexed_block <- function(mat0, base, K = NULL, allow_missing = FALSE) {
+  cn0 <- colnames(mat0)
+  pat <- paste0("^", base, "\\[([0-9]+)\\]$")
+  hit <- grepl(pat, cn0)
+  if (!any(hit)) {
+    if (isTRUE(allow_missing)) return(NULL)
+    stop(sprintf("No indexed columns found for '%s[i]'.", base), call. = FALSE)
+  }
+
+  idx <- as.integer(sub(pat, "\\1", cn0[hit]))
+  ord <- order(idx)
+  idx <- idx[ord]
+  cols <- cn0[hit][ord]
+
+  if (is.null(K)) K <- max(idx, na.rm = TRUE)
+  K <- as.integer(K)
+
+  out <- matrix(0.0, nrow = nrow(mat0), ncol = K)
+  for (j in seq_along(cols)) {
+    k <- idx[j]
+    if (!is.na(k) && k >= 1 && k <= K) out[, k] <- mat0[, cols[j]]
+  }
+  out
+}
+
+#' Extract mixture weights from draws matrix
+#' @keywords internal
+#' @noRd
+.extract_weights <- function(draw_mat, backend = c("sb", "crp")) {
+  if (is.null(draw_mat) || !is.matrix(draw_mat)) {
+    stop("draw_mat must be a numeric matrix.", call. = FALSE)
+  }
+  backend <- match.arg(backend)
+  cn <- colnames(draw_mat)
+
+  if (identical(backend, "sb")) {
+    if (any(grepl("^w\\[[0-9]+\\]$", cn))) {
+      return(.indexed_block(draw_mat, "w"))
+    }
+    if (any(grepl("^weights\\[[0-9]+\\]$", cn))) {
+      return(.indexed_block(draw_mat, "weights"))
+    }
+    stop("Could not find component weights in posterior draws.", call. = FALSE)
+  }
+
+  if (!any(grepl("^z\\[[0-9]+\\]$", cn))) {
+    stop("Backend requires z[i] in samples to derive weights.", call. = FALSE)
+  }
+
+  Z <- .indexed_block(draw_mat, "z")
+  K <- max(Z, na.rm = TRUE)
+  if (!is.finite(K) || K < 1L) stop("Could not infer K for CRP weights.", call. = FALSE)
+  K <- as.integer(K)
+
+  S <- nrow(draw_mat)
+  W <- matrix(0.0, nrow = S, ncol = K)
+  for (s in seq_len(S)) {
+    z_s <- Z[s, ]
+    z_s <- z_s[is.finite(z_s)]
+    z_s <- z_s[z_s >= 1 & z_s <= K]
+    if (length(z_s)) W[s, ] <- tabulate(z_s, nbins = K) / length(z_s)
+  }
+  W
+}
+
+#' Extract bulk parameter blocks from draws matrix
+#' @keywords internal
+#' @noRd
+.extract_bulk_params <- function(draw_mat, bulk_params) {
+  if (is.null(draw_mat) || !is.matrix(draw_mat)) {
+    stop("draw_mat must be a numeric matrix.", call. = FALSE)
+  }
+  bulk_params <- as.character(bulk_params %||% character(0))
+  if (!length(bulk_params)) return(list())
+
+  cn <- colnames(draw_mat)
+
+  infer_K_from_params <- function() {
+    k_vals <- integer(0)
+    for (nm in bulk_params) {
+      idx <- as.integer(sub(paste0("^", nm, "\\[([0-9]+)\\]$"), "\\1",
+                            cn[grepl(paste0("^", nm, "\\[[0-9]+\\]$"), cn)]))
+      if (length(idx)) k_vals <- c(k_vals, idx)
+    }
+    if (!length(k_vals)) return(NA_integer_)
+    as.integer(max(k_vals, na.rm = TRUE))
+  }
+
+  infer_K_from_weights <- function() {
+    idx <- as.integer(sub("^w\\[([0-9]+)\\]$", "\\1", cn[grepl("^w\\[[0-9]+\\]$", cn)]))
+    if (length(idx)) return(as.integer(max(idx, na.rm = TRUE)))
+    idx <- as.integer(sub("^weights\\[([0-9]+)\\]$", "\\1",
+                          cn[grepl("^weights\\[[0-9]+\\]$", cn)]))
+    if (length(idx)) return(as.integer(max(idx, na.rm = TRUE)))
+    NA_integer_
+  }
+
+  K <- infer_K_from_params()
+  if (!is.finite(K) || K < 1L) K <- infer_K_from_weights()
+  if (!is.finite(K) || K < 1L) stop("Could not infer K for bulk parameter draws.", call. = FALSE)
+
+  out <- list()
+  for (nm in bulk_params) {
+    blk <- .indexed_block(draw_mat, nm, K = K, allow_missing = TRUE)
+    if (!is.null(blk)) out[[nm]] <- blk
+  }
+  out
+}
 
 #' Reserved-name validation for NIMBLE
 #' @param names Character vector of names to validate.
@@ -830,6 +942,7 @@ stick_breaking <- nimble::nimbleFunction(
   ns_nimble <- asNamespace("nimble")
 
   .resolve_fun <- function(fname, kernel) {
+    # Try PascalCase NIMBLE function first (for NIMBLE model code)
     if (exists(fname, envir = ns_pkg, inherits = FALSE)) {
       return(get(fname, envir = ns_pkg))
     }
@@ -838,6 +951,13 @@ stick_breaking <- nimble::nimbleFunction(
     }
     if (exists(fname, envir = ns_nimble, inherits = FALSE)) {
       return(get(fname, envir = ns_nimble))
+    }
+    # Fallback for predictions: use lowercase R wrappers if PascalCase NIMBLE function
+    # not found (e.g., in some build contexts). Lowercase wrappers are vectorized
+    # and work for predictions but should not be used in NIMBLE model code.
+    fname_lower <- tolower(fname)
+    if (exists(fname_lower, envir = ns_pkg, inherits = FALSE)) {
+      return(get(fname_lower, envir = ns_pkg))
     }
     stop(sprintf("Missing function '%s' for kernel '%s'.", fname, kernel), call. = FALSE)
   }
@@ -1372,6 +1492,19 @@ stick_breaking <- nimble::nimbleFunction(
   # Link-mode parameter handling (conditional)
   # -----------------------------
   link_plan <- spec$dispatch$link_params %||% meta$link_params %||% list()
+  if (!length(link_plan)) {
+    bulk_plan <- spec$plan$bulk %||% list()
+    for (nm in names(bulk_plan)) {
+      ent <- bulk_plan[[nm]] %||% list()
+      if (identical(ent$mode %||% "constant", "link")) {
+        link_plan[[nm]] <- list(
+          mode = "link",
+          link = ent$link %||% "identity",
+          link_power = ent$link_power %||% NULL
+        )
+      }
+    }
+  }
   link_params <- names(link_plan)
   P <- if (!is.null(Xpred)) ncol(Xpred) else 0L
 
@@ -1383,15 +1516,49 @@ stick_breaking <- nimble::nimbleFunction(
       mode <- plan$mode %||% "constant"
       if (identical(mode, "link")) {
         if (!has_X) stop("link-mode requires X.", call. = FALSE)
-        beta_nm <- .indexed_block(draw_mat, paste0("beta_", nm), K = P) # S x P
-        eta <- as.numeric(Xpred %*% beta_nm[s, ])
         link <- plan$link %||% "identity"
         pw   <- plan$link_power %||% NULL
-        out[[nm]] <- matrix(as.numeric(.apply_link(eta, link, pw)), nrow = 1L)
+
+        beta_cols <- grep(paste0("^beta_", nm, "\\[[0-9]+,\\s*[0-9]+\\]$"), colnames(draw_mat), value = TRUE)
+        if (length(beta_cols)) {
+          idx1 <- as.integer(sub(paste0("^beta_", nm, "\\[([0-9]+),\\s*([0-9]+)\\]$"), "\\1", beta_cols))
+          idx2 <- as.integer(sub(paste0("^beta_", nm, "\\[([0-9]+),\\s*([0-9]+)\\]$"), "\\2", beta_cols))
+          Kb <- max(idx1, na.rm = TRUE)
+          Pb <- max(idx2, na.rm = TRUE)
+          beta_mat <- matrix(NA_real_, nrow = Kb, ncol = Pb)
+          for (j in seq_along(beta_cols)) {
+            beta_mat[idx1[j], idx2[j]] <- draw_mat[s, beta_cols[j]]
+          }
+          eta_mat <- Xpred %*% t(beta_mat)
+          out[[nm]] <- .apply_link(eta_mat, link, pw)
+        } else {
+          beta_cols_1d <- grep(paste0("^beta_", nm, "\\[[0-9]+\\]$"), colnames(draw_mat), value = TRUE)
+          if (length(beta_cols_1d)) {
+            idx <- as.integer(sub(paste0("^beta_", nm, "\\[([0-9]+)\\]$"), "\\1", beta_cols_1d))
+            ord <- order(idx)
+            beta_cols_1d <- beta_cols_1d[ord]
+            Kb <- ncol(W_draws)
+            Pb <- P
+            if (length(beta_cols_1d) == Kb * Pb) {
+              beta_vec <- as.numeric(draw_mat[s, beta_cols_1d])
+              beta_mat <- matrix(beta_vec, nrow = Kb, ncol = Pb)
+              eta_mat <- Xpred %*% t(beta_mat)
+              out[[nm]] <- .apply_link(eta_mat, link, pw)
+            } else {
+              beta_nm <- .indexed_block(draw_mat, paste0("beta_", nm), K = P) # S x P
+              eta <- as.numeric(Xpred %*% beta_nm[s, ])
+              out[[nm]] <- matrix(as.numeric(.apply_link(eta, link, pw)), nrow = n_pred)
+            }
+          } else {
+            beta_nm <- .indexed_block(draw_mat, paste0("beta_", nm), K = P) # S x P
+            eta <- as.numeric(Xpred %*% beta_nm[s, ])
+            out[[nm]] <- matrix(as.numeric(.apply_link(eta, link, pw)), nrow = n_pred)
+          }
+        }
       } else {
         # constant (scalar per draw)
         if (!(nm %in% colnames(draw_mat))) stop(sprintf("'%s' not found in posterior draws.", nm), call. = FALSE)
-        out[[nm]] <- matrix(as.numeric(draw_mat[s, nm]), nrow = 1L)
+        out[[nm]] <- matrix(rep(as.numeric(draw_mat[s, nm]), n_pred), nrow = n_pred)
       }
     }
     out
@@ -1436,7 +1603,8 @@ stick_breaking <- nimble::nimbleFunction(
     }
 
     # tail scale
-    ts_mode <- gpd_plan$tail_scale$mode %||% "constant"
+    has_beta_ts <- any(grepl("^beta_tail_scale\\[", colnames(draw_mat)))
+    ts_mode <- gpd_plan$tail_scale$mode %||% if (has_beta_ts) "link" else "constant"
     if (identical(ts_mode, "link")) {
       if (!has_X) stop("tail_scale link-mode requires X.", call. = FALSE)
       beta_ts <- .indexed_block(draw_mat, "beta_tail_scale", K = P)  # S x P
@@ -1448,8 +1616,13 @@ stick_breaking <- nimble::nimbleFunction(
         tail_scale[s, ] <- as.numeric(.apply_link(eta, ts_link, ts_power))
       }
     } else {
-      if (!("tail_scale" %in% colnames(draw_mat))) stop("tail_scale not found in posterior draws.", call. = FALSE)
-      tail_scale <- as.numeric(draw_mat[, "tail_scale"])
+      if ("tail_scale" %in% colnames(draw_mat)) {
+        tail_scale <- as.numeric(draw_mat[, "tail_scale"])
+      } else if (!is.null(gpd_plan$tail_scale$value)) {
+        tail_scale <- rep(as.numeric(gpd_plan$tail_scale$value), S)
+      } else {
+        stop("tail_scale not found in posterior draws.", call. = FALSE)
+      }
     }
   }
 
@@ -1568,7 +1741,7 @@ stick_breaking <- nimble::nimbleFunction(
         }
         if (length(link_params)) {
           for (nm in link_params) {
-            vv <- as.numeric(link_eta[[nm]][, i])
+            vv <- as.numeric(link_eta[[nm]][i, ])
             if (!all(is.finite(vv))) { out[i, ] <- NA_real_; next }
             args[[nm]] <- vv
           }
@@ -1715,7 +1888,7 @@ stick_breaking <- nimble::nimbleFunction(
         }
         if (length(link_params)) {
           for (nm in link_params) {
-            vv <- as.numeric(link_eta[[nm]][, i])
+            vv <- as.numeric(link_eta[[nm]][i, ])
             if (!all(is.finite(vv))) { draws_arr[i, , s] <- NA_real_; next }
             args[[nm]] <- vv
           }
@@ -1819,7 +1992,7 @@ stick_breaking <- nimble::nimbleFunction(
         }
         if (length(link_params)) {
           for (nm in link_params) {
-            vv <- as.numeric(link_eta[[nm]][, i])
+            vv <- as.numeric(link_eta[[nm]][i, ])
             if (!all(is.finite(vv))) { outm[i, t] <- NA_real_; next }
             args[[nm]] <- vv
           }
@@ -1871,7 +2044,7 @@ stick_breaking <- nimble::nimbleFunction(
           }
           if (length(link_params)) {
             for (nm in link_params) {
-              vv <- as.numeric(link_eta[[nm]][, i])
+              vv <- as.numeric(link_eta[[nm]][i, ])
               if (!all(is.finite(vv))) { samples_mat[s, i] <- NA_real_; next }
               args[[nm]] <- vv
             }
@@ -2021,7 +2194,7 @@ stick_breaking <- nimble::nimbleFunction(
         }
         if (length(link_params)) {
           for (nm in link_params) {
-            vv <- as.numeric(link_eta[[nm]][, i])
+            vv <- as.numeric(link_eta[[nm]][i, ])
             if (!all(is.finite(vv))) { draw_means_mat[s, i] <- NA_real_; next }
             args[[nm]] <- vv
           }
@@ -2145,7 +2318,7 @@ stick_breaking <- nimble::nimbleFunction(
         }
         if (length(link_params)) {
           for (nm in link_params) {
-            vv <- as.numeric(link_eta[[nm]][, i])
+            vv <- as.numeric(link_eta[[nm]][i, ])
             if (!all(is.finite(vv))) { draw_rmeans_mat[s, i] <- NA_real_; next }
             args[[nm]] <- vv
           }

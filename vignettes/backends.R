@@ -10,6 +10,7 @@ knitr::opts_chunk$set(
 )
 library(ggplot2)
 library(kableExtra)
+source("_load_pkg.R")
 set.seed(1)
 FAST <- TRUE
 mcmc <- if (FAST) {
@@ -19,8 +20,6 @@ mcmc <- if (FAST) {
 }
 
 ## -----------------------------------------------------------------------------
-library(DPmixGPD)
-
 data("faithful", package = "datasets")
 y <- faithful$eruptions
 

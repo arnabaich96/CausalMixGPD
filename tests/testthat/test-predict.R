@@ -371,6 +371,36 @@ test_that("quantile estimates average q_fun draws and median matches quantile(0.
   expect_equal(pred_med$fit$estimate, pred_q50$fit$estimate, tolerance = 1e-8)
 })
 
+# -----------------------------------------------------------------------------
+# Mean vs restricted mean when GPD tail_shape (xi) >= 1
+# -----------------------------------------------------------------------------
+test_that("predict(type='mean') returns Inf when posterior has tail_shape >= 1", {
+  skip_if_not_test_level("ci")
+
+  fit <- .get_cached_fit("uncond_fit_predict_contracts", .build_uncond_fit)
+  smp_orig <- fit$mcmc$samples %||% fit$samples
+  if (is.null(smp_orig) || !("tail_shape" %in% colnames(as.matrix(smp_orig[[1]])))) {
+    skip("Fit has no tail_shape (non-GPD or unexpected structure)")
+  }
+  # Copy samples so we do not mutate the cached fit
+  smp <- lapply(smp_orig, function(ch) {
+    m <- as.matrix(ch)
+    coda::as.mcmc(m)
+  })
+  ch <- as.matrix(smp[[1]])
+  ch[1L, "tail_shape"] <- 1.5
+  smp[[1]] <- coda::as.mcmc(ch)
+  fit_patched <- fit
+  if (!is.null(fit_patched$mcmc$samples)) fit_patched$mcmc$samples <- smp
+  if (!is.null(fit_patched$samples)) fit_patched$samples <- smp
+
+  expect_warning(
+    pred_mean <- predict(fit_patched, type = "mean", interval = "none", store_draws = FALSE),
+    "infinite"
+  )
+  expect_equal(pred_mean$fit$estimate, Inf)
+})
+
 test_that("predict(type='rmean', cutoff=...) returns finite estimates", {
   skip_if_not_test_level("ci")
 
@@ -380,11 +410,30 @@ test_that("predict(type='rmean', cutoff=...) returns finite estimates", {
   expect_true(is.numeric(pred_rmean$fit$estimate))
 })
 
+# -----------------------------------------------------------------------------
+# PIT residuals: [0,1], length, pit_type (plugin, bayes_mean, bayes_draw)
+# -----------------------------------------------------------------------------
+# (PIT tests above already cover all modes and conditional length.)
+
 test_that("check_glue_validity passes for known-good fit", {
   skip_if_not_test_level("ci")
 
   fit <- .get_cached_fit("uncond_fit_predict_contracts", .build_uncond_fit)
   out <- check_glue_validity(fit, n_draws = 20L, check_continuity = TRUE)
+  expect_true(is.list(out))
+  expect_true(is.list(out$pass))
+  expect_true(isTRUE(out$pass$cdf_range))
+  expect_true(isTRUE(out$pass$cdf_monotone))
+  expect_true(isTRUE(out$pass$density_nonneg))
+})
+
+test_that("check_glue_validity CI-safe smoke test (n_draws=5, short grid)", {
+  testthat::skip_on_cran()
+  skip_if_not_test_level("ci")
+
+  fit <- .get_cached_fit("uncond_fit_predict_contracts", .build_uncond_fit)
+  small_grid <- seq(0.1, 5, length.out = 20)
+  out <- check_glue_validity(fit, n_draws = 5L, grid = small_grid, check_continuity = FALSE)
   expect_true(is.list(out))
   expect_true(is.list(out$pass))
   expect_true(isTRUE(out$pass$cdf_range))

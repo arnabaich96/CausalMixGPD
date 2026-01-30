@@ -971,6 +971,7 @@ plot.mixgpd_fit <- function(x,
 #' - \code{type="quantile"} using \code{p}
 #' - \code{type="sample"} (posterior predictive draws)
 #' - \code{type="mean"} (posterior predictive mean)
+#' - \code{type="rmean"} (restricted mean with finite cutoff)
 #'
 #' If your object stores dedicated predictive machinery, you can keep this signature
 #' and swap the internals without breaking user code.
@@ -997,6 +998,7 @@ plot.mixgpd_fit <- function(x,
 #'     \item \code{"quantile"}: Posterior predictive quantiles Q(p | x, data)
 #'     \item \code{"sample"}: Posterior predictive samples Y^rep ~ f(y | x, data)
 #'     \item \code{"mean"}: Posterior predictive mean E(Y | x, data) (averaged over posterior parameter uncertainty)
+#'     \item \code{"rmean"}: Posterior predictive restricted mean \eqn{E[\min(Y, cutoff) \mid x, data]}
 #'     \item \code{"median"}: Posterior predictive median (quantile at p=0.5)
 #'     \item \code{"location"}: Alias for "mean"
 #'     \item \code{"fit"}: Per-observation posterior predictive draws
@@ -1014,6 +1016,7 @@ plot.mixgpd_fit <- function(x,
 #' @param nsim Number of posterior predictive samples (for \code{type="sample"}).
 #' @param store_draws Logical; whether to store all posterior draws (for \code{type="sample"}).
 #' @param nsim_mean Number of posterior predictive samples to use for posterior mean estimation (for \code{type="mean"}).
+#' @param cutoff Finite numeric cutoff for \code{type="rmean"} (restricted mean).
 #' @param ncores Number of CPU cores to use for parallel prediction (if supported).
 #' @param ... Unused.
 #' @return A list with elements:
@@ -1037,6 +1040,8 @@ plot.mixgpd_fit <- function(x,
 #' pr_hpd <- predict(fit, type = "quantile", p = c(0.5, 0.9), interval = "hpd")
 #' # No intervals
 #' pr_none <- predict(fit, type = "quantile", p = c(0.5, 0.9), interval = NULL)
+#' # Restricted mean (finite under heavy tails)
+#' pr_rmean <- predict(fit, type = "rmean", cutoff = 10, interval = "credible")
 #' }
 #' @export
 predict.mixgpd_fit <- function(object,
@@ -1313,12 +1318,36 @@ fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median", "qu
 #' (covariate) models only}. Not supported for unconditional models (no
 #' covariates); use \code{predict()} for predictions in that case. For
 #' \code{type = "raw"}, this uses fitted means. For \code{type = "pit"}, this
-#' returns approximate PIT values via the predictive survival function.
+#' returns approximate PIT values via the predictive survival function. The
+#' plug-in PIT uses the posterior mean CDF, while the Bayesian PIT modes use
+#' draw-wise CDFs (averaged or sampled).
 #'
 #' @param object A fitted object of class \code{"mixgpd_fit"} (must have covariates).
 #' @param type Residual type: \code{"raw"} or \code{"pit"}.
 #' @param fitted_type For \code{type = "raw"}, use fitted means or medians.
+#' @param pit PIT mode for \code{type = "pit"}:
+#'   \itemize{
+#'     \item \code{"plugin"}: plug-in PIT using the posterior mean CDF.
+#'     \item \code{"bayes_mean"}: Bayesian PIT using draw-wise CDFs averaged over draws.
+#'     \item \code{"bayes_draw"}: Bayesian PIT using a single draw-wise CDF per observation.
+#'   }
+#'   Bayesian PIT modes drop invalid posterior draws using the same validation
+#'   rules as prediction and attach diagnostics via \code{attr(res, "pit_diagnostics")}.
+#' @param pit_seed Optional integer seed for reproducible \code{bayes_draw} sampling.
 #' @param ... Unused.
+#' @examples
+#' \dontrun{
+#' y <- abs(stats::rnorm(50)) + 0.1
+#' X <- data.frame(x1 = stats::rnorm(50), x2 = stats::runif(50))
+#' bundle <- build_nimble_bundle(y = y, X = X, backend = "sb", kernel = "lognormal",
+#'                              GPD = FALSE, components = 4,
+#'                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+#' fit <- run_mcmc_bundle_manual(bundle)
+#' pit_plugin <- residuals(fit, type = "pit", pit = "plugin")
+#' pit_bayes_mean <- residuals(fit, type = "pit", pit = "bayes_mean", pit_seed = 1L)
+#' pit_bayes_draw <- residuals(fit, type = "pit", pit = "bayes_draw", pit_seed = 1L)
+#' attr(pit_bayes_draw, "pit_diagnostics")
+#' }
 #' @return Numeric vector of residuals with length equal to the training sample size.
 #' @export
 residuals.mixgpd_fit <- function(object,
@@ -1400,6 +1429,8 @@ residuals.mixgpd_fit <- function(object,
   fns <- .get_dispatch(object, backend_override = pred_backend)
   p_fun <- fns$p
   bulk_params <- fns$bulk_params
+  kdef <- get_kernel_registry()[[kernel]] %||% list()
+  bulk_support <- kdef$bulk_support %||% list()
 
   draw_mat <- .extract_draws_matrix(object)
   if (is.null(draw_mat) || !is.matrix(draw_mat) || nrow(draw_mat) < 2L) {
@@ -1461,7 +1492,8 @@ residuals.mixgpd_fit <- function(object,
       else threshold_scalar <- rowMeans(draw_mat[, thr_cols, drop = FALSE], na.rm = TRUE)
     }
 
-    ts_mode <- gpd_plan$tail_scale$mode %||% "constant"
+    has_beta_ts <- any(grepl("^beta_tail_scale\\[", colnames(draw_mat)))
+    ts_mode <- gpd_plan$tail_scale$mode %||% if (has_beta_ts) "link" else "constant"
     if (identical(ts_mode, "link")) {
       beta_ts <- .indexed_block(draw_mat, "beta_tail_scale", K = P)
       tail_scale <- matrix(NA_real_, nrow = S, ncol = n)
@@ -1472,8 +1504,13 @@ residuals.mixgpd_fit <- function(object,
         tail_scale[s, ] <- as.numeric(.apply_link(eta, ts_link, ts_power))
       }
     } else {
-      if (!("tail_scale" %in% colnames(draw_mat))) stop("tail_scale not found in posterior draws.", call. = FALSE)
-      tail_scale <- as.numeric(draw_mat[, "tail_scale"])
+      if ("tail_scale" %in% colnames(draw_mat)) {
+        tail_scale <- as.numeric(draw_mat[, "tail_scale"])
+      } else if (!is.null(gpd_plan$tail_scale$value)) {
+        tail_scale <- rep(as.numeric(gpd_plan$tail_scale$value), S)
+      } else {
+        stop("tail_scale not found in posterior draws.", call. = FALSE)
+      }
     }
   }
 
@@ -1486,10 +1523,6 @@ residuals.mixgpd_fit <- function(object,
     if (is.matrix(tail_scale)) return(tail_scale[s, i])
     tail_scale[s]
   }
-
-  # Draw validation (mirror .predict_mixgpd): bulk_support + GPD threshold/tail_scale
-  kdef <- get_kernel_registry()[[kernel]] %||% list()
-  bulk_support <- kdef$bulk_support %||% list()
 
   .support_ok <- function(nm, v) {
     sup <- as.character(bulk_support[[nm]] %||% "")
@@ -1539,9 +1572,6 @@ residuals.mixgpd_fit <- function(object,
     .draw_valid[s] <- ok
   }
 
-  n_valid <- sum(.draw_valid)
-  if (n_valid == 0L) stop("All posterior draws are invalid for PIT (non-finite or out-of-support parameters).", call. = FALSE)
-
   # compute draw-wise CDF matrix: S x n
   cdf_draws <- matrix(NA_real_, nrow = S, ncol = n)
 
@@ -1564,10 +1594,18 @@ residuals.mixgpd_fit <- function(object,
 
   cdf_draws <- pmin(pmax(cdf_draws, 0), 1)
 
+  n_used <- colSums(is.finite(cdf_draws))
+
   if (pit == "bayes_mean") {
     u <- colMeans(cdf_draws, na.rm = TRUE)
     u <- pmin(pmax(u, 0), 1)
     attr(u, "pit_type") <- "bayes_mean"
+    attr(u, "pit_diagnostics") <- list(
+      n_draws_total = S,
+      n_draws_valid = sum(.draw_valid),
+      n_draws_dropped = S - sum(.draw_valid),
+      n_draws_used = n_used
+    )
     return(u)
   }
 
@@ -1581,6 +1619,12 @@ residuals.mixgpd_fit <- function(object,
   }
   u <- pmin(pmax(u, 0), 1)
   attr(u, "pit_type") <- "bayes_draw"
+  attr(u, "pit_diagnostics") <- list(
+    n_draws_total = S,
+    n_draws_valid = sum(.draw_valid),
+    n_draws_dropped = S - sum(.draw_valid),
+    n_draws_used = n_used
+  )
   u
 }
 

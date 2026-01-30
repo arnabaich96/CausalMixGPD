@@ -19,7 +19,115 @@ mcmc <- if (FAST) {
 }
 
 ## ----results='hide'-----------------------------------------------------------
-library(DPmixGPD)
+source("_load_pkg.R")
+
+data("faithful", package = "datasets")
+y <- faithful$eruptions
+bundle <- build_nimble_bundle(
+  y = y,
+  backend = "sb",
+  kernel = "normal",
+  GPD = TRUE,
+  components = 6,
+  mcmc = mcmc
+)
+
+fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+
+## -----------------------------------------------------------------------------
+print(fit)
+summary(fit)
+
+## -----------------------------------------------------------------------------
+if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quietly = TRUE)) {
+  smp <- fit$mcmc$samples
+  params <- if (!is.null(smp)) {
+    cn <- colnames(as.matrix(smp))
+    cn[1:min(6, length(cn))]
+  } else {
+    NULL
+  }
+  if (interactive()) plot(fit, family = "geweke", params = params)
+} else {
+  message("Plotting requires 'ggmcmc' and 'coda' packages.")
+}
+
+## -----------------------------------------------------------------------------
+if (!is.null(fit$mcmc$samples)) {
+  s <- fit$mcmc$samples
+  if (requireNamespace("coda", quietly = TRUE)) {
+    mat <- as.matrix(s)
+    dim(mat)
+    colnames(mat)[1:min(20, ncol(mat))]
+  } else {
+    message("Sample extraction requires 'coda' package.")
+  }
+}
+
+## ----eval=FALSE---------------------------------------------------------------
+# # Rebuild with modified MCMC settings
+# # bundle2 <- update_mcmc(bundle, niter = 8000, nburnin = 2000)
+# # fit2 <- run_mcmc_bundle_manual(bundle2)
+
+## ----sessioninfo, include=FALSE-----------------------------------------------
+sessionInfo()
+
+## ----results='hide'-----------------------------------------------------------
+source("_load_pkg.R")
+
+data("faithful", package = "datasets")
+y <- faithful$eruptions
+bundle <- build_nimble_bundle(
+  y = y,
+  backend = "sb",
+  kernel = "normal",
+  GPD = TRUE,
+  components = 6,
+  mcmc = mcmc
+)
+
+fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+
+## -----------------------------------------------------------------------------
+print(fit)
+summary(fit)
+
+## -----------------------------------------------------------------------------
+if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quietly = TRUE)) {
+  smp <- fit$mcmc$samples
+  params <- if (!is.null(smp)) {
+    cn <- colnames(as.matrix(smp))
+    cn[1:min(6, length(cn))]
+  } else {
+    NULL
+  }
+  if (interactive()) plot(fit, family = "geweke", params = params)
+} else {
+  message("Plotting requires 'ggmcmc' and 'coda' packages.")
+}
+
+## -----------------------------------------------------------------------------
+if (!is.null(fit$mcmc$samples)) {
+  s <- fit$mcmc$samples
+  if (requireNamespace("coda", quietly = TRUE)) {
+    mat <- as.matrix(s)
+    dim(mat)
+    colnames(mat)[1:min(20, ncol(mat))]
+  } else {
+    message("Sample extraction requires 'coda' package.")
+  }
+}
+
+## ----eval=FALSE---------------------------------------------------------------
+# # Rebuild with modified MCMC settings
+# # bundle2 <- update_mcmc(bundle, niter = 8000, nburnin = 2000)
+# # fit2 <- run_mcmc_bundle_manual(bundle2)
+
+## ----sessioninfo, include=FALSE-----------------------------------------------
+sessionInfo()
+
+## ----results='hide'-----------------------------------------------------------
+source("_load_pkg.R")
 
 data("faithful", package = "datasets")
 y <- faithful$eruptions

@@ -1,4 +1,4 @@
----
+﻿---
 title: "Conditional Models"
 output:
   rmarkdown::html_vignette:
@@ -48,7 +48,7 @@ local distributions across covariate space.
 ## Data Setup
 
 ```{r}
-library(DPmixGPD)
+source("_load_pkg.R")
 
 data("mtcars", package = "datasets")
 df <- mtcars

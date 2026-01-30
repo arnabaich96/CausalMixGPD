@@ -1,4 +1,4 @@
----
+﻿---
 title: "15. Causal Inference: X Without PS (CRP+SB) - InvGauss/Amoroso"
 output:
   rmarkdown::html_vignette:
@@ -34,7 +34,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
 pkgload::load_all()
-library(DPmixGPD)
+source("_load_pkg.R")
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")

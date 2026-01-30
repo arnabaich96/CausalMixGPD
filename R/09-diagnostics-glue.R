@@ -131,7 +131,8 @@ check_glue_validity <- function(fit,
       else threshold_scalar <- rowMeans(draw_mat[, thr_cols, drop = FALSE], na.rm = TRUE)
     }
 
-    ts_mode <- gpd_plan$tail_scale$mode %||% "constant"
+    has_beta_ts <- any(grepl("^beta_tail_scale\\[", colnames(draw_mat)))
+    ts_mode <- gpd_plan$tail_scale$mode %||% if (has_beta_ts) "link" else "constant"
     if (identical(ts_mode, "link")) {
       if (is.null(X)) stop("tail_scale link-mode requires X.", call. = FALSE)
       beta_ts <- .indexed_block(draw_mat, "beta_tail_scale", K = P)
@@ -143,8 +144,13 @@ check_glue_validity <- function(fit,
         tail_scale[s, ] <- as.numeric(.apply_link(eta, ts_link, ts_power))
       }
     } else {
-      if (!("tail_scale" %in% colnames(draw_mat))) stop("tail_scale not found in posterior draws.", call. = FALSE)
-      tail_scale <- as.numeric(draw_mat[, "tail_scale"])
+      if ("tail_scale" %in% colnames(draw_mat)) {
+        tail_scale <- as.numeric(draw_mat[, "tail_scale"])
+      } else if (!is.null(gpd_plan$tail_scale$value)) {
+        tail_scale <- rep(as.numeric(gpd_plan$tail_scale$value), S)
+      } else {
+        stop("tail_scale not found in posterior draws.", call. = FALSE)
+      }
     }
   }
 

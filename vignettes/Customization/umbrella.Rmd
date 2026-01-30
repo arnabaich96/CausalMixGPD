@@ -1,4 +1,4 @@
----
+﻿---
 title: "Umbrella: Custom Models (All-in-One)"
 output:
   rmarkdown::html_vignette:
@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
 )
 library(ggplot2)
 library(kableExtra)
-library(DPmixGPD)
+source("_load_pkg.R")
 set.seed(1)
 
 use_fast_mcmc <- TRUE
@@ -51,7 +51,7 @@ Both examples use `mtcars` and show the main **user-level functions** plus **S3 
 # Data
 
 ```{r}
-library(DPmixGPD)
+source("_load_pkg.R")
 
 data("mtcars", package = "datasets")
 df <- mtcars

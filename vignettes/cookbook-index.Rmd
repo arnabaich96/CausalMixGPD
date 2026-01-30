@@ -1,4 +1,4 @@
----
+﻿---
 title: "Recipe Book"
 output:
   rmarkdown::html_vignette:

@@ -1,4 +1,4 @@
----
+﻿---
 title: "6. Unconditional DPmix with CRP Backend"
 output:
   rmarkdown::html_vignette:
@@ -41,7 +41,7 @@ mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
 
 pkgload::load_all()
-library(DPmixGPD)
+source("_load_pkg.R")
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
 ```

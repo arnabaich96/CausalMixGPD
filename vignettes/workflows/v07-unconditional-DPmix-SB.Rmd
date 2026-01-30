@@ -1,4 +1,4 @@
----
+﻿---
 title: "7. Unconditional DPmix with Stick-Breaking Backend"
 output:
   rmarkdown::html_vignette:
@@ -39,7 +39,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
 pkgload::load_all()
-library(DPmixGPD)
+source("_load_pkg.R")
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
@@ -243,7 +243,7 @@ For unconditional models, use `predict()` only; `fitted()` and `residuals()` are
 
 - **SB Backend**: Fixed `components` keeps label-switching manageable, and the diagnostic plots via the S3 `if (interactive()) plot()` method show weight dynamics.
 - **Kernels matter**: Gamma vs Cauchy can behave very differently in the shoulders/tails, even without a GPD tail.
-- **Predictions**: Posterior density, posterior-mean quantiles, and mean (via predictive sampling) are accessible via `predict()` with credible bands.
+- **Predictions**: Posterior density, posterior-mean quantiles, and mean (via predictive sampling) are accessible via `predict()` with pointwise 95% credible intervals.
 - **Backend comparison**: The CRP fit (`v04`) and the SB-gamma fit deliver similar central quantiles while SB offers more control over truncation.
 - **Next**: Explore tail augmentation (`GPD = TRUE`) with the CRP backend in `v06` or SB backend in `v07`.
 

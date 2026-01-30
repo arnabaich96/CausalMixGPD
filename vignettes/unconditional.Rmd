@@ -1,4 +1,4 @@
----
+﻿---
 title: "Unconditional Models"
 output:
   rmarkdown::html_vignette:
@@ -48,7 +48,7 @@ threshold $u$ to stabilize tail behavior.
 ## Model Fitting
 
 ```{r, results='hide'}
-library(DPmixGPD)
+source("_load_pkg.R")
 
 data("faithful", package = "datasets")
 y <- faithful$eruptions

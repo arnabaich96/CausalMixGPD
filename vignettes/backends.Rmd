@@ -1,4 +1,4 @@
----
+﻿---
 title: "Backends: SB vs CRP"
 output:
   rmarkdown::html_vignette:
@@ -21,6 +21,7 @@ knitr::opts_chunk$set(
 )
 library(ggplot2)
 library(kableExtra)
+source("_load_pkg.R")
 set.seed(1)
 FAST <- TRUE
 mcmc <- if (FAST) {
@@ -48,8 +49,6 @@ the number of clusters through the allocation process.
 ## Data
 
 ```{r}
-library(DPmixGPD)
-
 data("faithful", package = "datasets")
 y <- faithful$eruptions
 ```

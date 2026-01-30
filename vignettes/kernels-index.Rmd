@@ -1,4 +1,4 @@
----
+﻿---
 title: "Kernels Overview"
 output:
   rmarkdown::html_vignette:

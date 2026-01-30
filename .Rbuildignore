@@ -37,6 +37,8 @@
 ^vignettes/customization/$
 ^tmp-.*\.R$
 ^\.Rhistory$
+# Exclude generated .R files from vignettes (knitr artifacts)
+^vignettes/.*\.R$
 # CRAN/package-build exclusions (top-level repo artifacts)
 ^\.lintr$
 ^\.renvignore$

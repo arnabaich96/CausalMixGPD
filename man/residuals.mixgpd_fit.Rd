@@ -20,6 +20,17 @@
 
 \item{fitted_type}{For \code{type = "raw"}, use fitted means or medians.}
 
+\item{pit}{PIT mode for \code{type = "pit"}:
+\itemize{
+\item \code{"plugin"}: plug-in PIT using the posterior mean CDF.
+\item \code{"bayes_mean"}: Bayesian PIT using draw-wise CDFs averaged over draws.
+\item \code{"bayes_draw"}: Bayesian PIT using a single draw-wise CDF per observation.
+}
+Bayesian PIT modes drop invalid posterior draws using the same validation
+rules as prediction and attach diagnostics via \code{attr(res, "pit_diagnostics")}.}
+
+\item{pit_seed}{Optional integer seed for reproducible \code{bayes_draw} sampling.}
+
 \item{...}{Unused.}
 }
 \value{
@@ -30,5 +41,21 @@ Returns residuals aligned with the training data for \strong{conditional
 (covariate) models only}. Not supported for unconditional models (no
 covariates); use \code{predict()} for predictions in that case. For
 \code{type = "raw"}, this uses fitted means. For \code{type = "pit"}, this
-returns approximate PIT values via the predictive survival function.
+returns approximate PIT values via the predictive survival function. The
+plug-in PIT uses the posterior mean CDF, while the Bayesian PIT modes use
+draw-wise CDFs (averaged or sampled).
+}
+\examples{
+\dontrun{
+y <- abs(stats::rnorm(50)) + 0.1
+X <- data.frame(x1 = stats::rnorm(50), x2 = stats::runif(50))
+bundle <- build_nimble_bundle(y = y, X = X, backend = "sb", kernel = "lognormal",
+                             GPD = FALSE, components = 4,
+                             mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
+fit <- run_mcmc_bundle_manual(bundle)
+pit_plugin <- residuals(fit, type = "pit", pit = "plugin")
+pit_bayes_mean <- residuals(fit, type = "pit", pit = "bayes_mean", pit_seed = 1L)
+pit_bayes_draw <- residuals(fit, type = "pit", pit = "bayes_draw", pit_seed = 1L)
+attr(pit_bayes_draw, "pit_diagnostics")
+}
 }

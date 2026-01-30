@@ -11,7 +11,7 @@ library(kableExtra)
 set.seed(1)
 
 ## -----------------------------------------------------------------------------
-library(DPmixGPD)
+source("_load_pkg.R")
 
 data("faithful", package = "datasets")
 y <- faithful$eruptions

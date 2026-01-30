@@ -1,4 +1,4 @@
----
+﻿---
 title: "Manual Overview"
 output:
   rmarkdown::html_vignette:

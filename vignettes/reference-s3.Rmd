@@ -1,4 +1,4 @@
----
+﻿---
 title: "Reference: S3 Methods"
 output:
   rmarkdown::html_vignette:
@@ -44,7 +44,7 @@ unchanged.
 ## Model Fitting
 
 ```{r, results='hide'}
-library(DPmixGPD)
+source("_load_pkg.R")
 
 data("faithful", package = "datasets")
 y <- faithful$eruptions

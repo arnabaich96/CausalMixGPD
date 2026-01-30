@@ -8,7 +8,7 @@ knitr::opts_chunk$set(
   fig.height = 4.5,
   fig.align = "center"
 )
-library(DPmixGPD)
+source("_load_pkg.R")
 # Ensure kernel registry is available (may not be initialized in pkgdown environment)
 if (!exists("kernel_registry", envir = asNamespace("DPmixGPD"), inherits = FALSE)) {
   init_kernel_registry()
@@ -24,7 +24,7 @@ mcmc <- if (FAST) {
 }
 
 ## ----minimal-run, results='hide'----------------------------------------------
-library(DPmixGPD)
+source("_load_pkg.R")
 
 data("faithful", package = "datasets")
 y <- faithful$eruptions
@@ -39,8 +39,6 @@ bundle <- build_nimble_bundle(
 )
 
 fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
-
-## For unconditional models use predict() only; fitted() and residuals() are for conditional models.
 
 ## ----predict------------------------------------------------------------------
 pred_mean <- predict(fit, type = "mean", cred.level = 0.90, interval = "credible")

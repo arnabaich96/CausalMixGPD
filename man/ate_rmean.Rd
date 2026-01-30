@@ -33,3 +33,11 @@ Computes an average treatment effect on the restricted mean scale,
 \eqn{E[min(Y, cutoff)]}, which is finite even when the ordinary mean does not exist
 under heavy-tailed GPD regimes.
 }
+\examples{
+\dontrun{
+cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal",
+                         GPD = TRUE, components = 6)
+fit <- run_mcmc_causal(cb)
+ate_rm <- ate_rmean(fit, cutoff = 10, interval = "credible")
+}
+}

@@ -65,3 +65,6 @@ tools/.codecov_token
 # renv
 renv/
 renv
+
+/.quarto/
+**/*.quarto_ipynb

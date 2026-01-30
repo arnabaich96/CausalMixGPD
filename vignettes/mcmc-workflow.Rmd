@@ -1,4 +1,4 @@
----
+﻿---
 title: "MCMC Workflow"
 output:
   rmarkdown::html_vignette:
@@ -44,7 +44,7 @@ ensure that posterior summaries are reliable.
 ## Model Building and Sampling
 
 ```{r, results='hide'}
-library(DPmixGPD)
+source("_load_pkg.R")
 
 data("faithful", package = "datasets")
 y <- faithful$eruptions

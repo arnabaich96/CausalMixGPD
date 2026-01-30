@@ -444,8 +444,6 @@ qte <- function(fit,
                 level = 0.95) {
   stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
 
-  type <- match.arg(type)
-
   # Handle interval: NULL means no interval, otherwise match to credible/hpd
   compute_interval <- TRUE
   if (is.null(interval)) {
@@ -764,6 +762,13 @@ ate <- function(fit,
 #'
 #' @inheritParams ate
 #' @param cutoff Finite numeric cutoff for the restricted mean.
+#' @examples
+#' \dontrun{
+#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal",
+#'                          GPD = TRUE, components = 6)
+#' fit <- run_mcmc_causal(cb)
+#' ate_rm <- ate_rmean(fit, cutoff = 10, interval = "credible")
+#' }
 #' @export
 ate_rmean <- function(fit,
                       newdata = NULL,

@@ -1,4 +1,4 @@
----
+﻿---
 title: "Causal Workflow"
 output:
   rmarkdown::html_vignette:
@@ -32,10 +32,10 @@ mcmc <- if (FAST) {
 
 ## Overview
 
-This vignette demonstrates the causal inference workflow using `build_causal_bundle()` and `run_mcmc_causal()`. The package computes distributional treatment effects:
+This vignette demonstrates the causal inference workflow using `build_causal_bundle()` and `run_mcmc_causal()`. The package computes distributional treatment effects that are **conditional on covariates**:
 
-- **Average Treatment Effect (ATE)**: \(E[Y(1) - Y(0) \mid X]\)
-- **Quantile Treatment Effect (QTE)**: \(Q_{Y(1)}(\tau) - Q_{Y(0)}(\tau)\)
+- **Conditional ATE (CATE)**: \(E[Y(1) - Y(0) \mid X]\)
+- **Conditional QTE (CQTE)**: \(Q_{Y(1)}(\tau \mid X=x) - Q_{Y(0)}(\tau \mid X=x)\)
 
 ## Theory (brief)
 
@@ -74,7 +74,7 @@ The causal functions in this package compute **conditional** treatment effects:
   $$\\text{QTE}(p) = Q_{Y(1)}(p) - Q_{Y(0)}(p)$$
   where $Q_{Y(t)}(p)$ is the $p$-th quantile of the marginal distribution of $Y(t)$.
 
-### Important: Averaging Conditional Quantiles ≠ Marginal Quantile
+### Important: Averaging Conditional Quantiles â‰  Marginal Quantile
 
 A common mistake is to average conditional quantiles to get marginal quantiles:
 $$\\mathbb{E}_X[Q_{Y(t)}(p \\mid X)] \\neq Q_{Y(t)}(p)$$
@@ -125,13 +125,13 @@ To compute marginal estimands from this package:
 
 - Firpo, S. (2007). "Efficient semiparametric estimation of quantile treatment effects." 
   *Econometrica*, 75(1), 259-276.
-- Frölich, M., & Melly, B. (2013). "Unconditional quantile treatment effects under 
+- FrÃ¶lich, M., & Melly, B. (2013). "Unconditional quantile treatment effects under 
   endogeneity." *Journal of Business & Economic Statistics*, 31(3), 346-357.
 
 ## Data Setup
 
 ```{r}
-library(DPmixGPD)
+source("_load_pkg.R")
 
 data("mtcars", package = "datasets")
 df <- mtcars

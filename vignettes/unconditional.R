@@ -18,39 +18,3 @@ mcmc <- if (FAST) {
   list(niter = 8000, nburnin = 2000, thin = 5, nchains = 2, seed = c(1, 2))
 }
 
-## ----results='hide'-----------------------------------------------------------
-library(DPmixGPD)
-
-data("faithful", package = "datasets")
-y <- faithful$eruptions
-
-bundle <- build_nimble_bundle(
-  y = y,
-  backend = "sb",
-  kernel = "normal",
-  GPD = TRUE,
-  components = 6,
-  mcmc = mcmc
-)
-
-fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
-
-## -----------------------------------------------------------------------------
-pred_mean <- predict(fit, type = "mean", cred.level = 0.90, interval = "credible")
-pred_q95  <- predict(fit, type = "quantile", index = 0.95, cred.level = 0.90, interval = "credible")
-
-pred_mean$fit
-pred_q95$fit
-
-## Note: fitted() and residuals() are not supported for unconditional models; use predict() only.
-
-## -----------------------------------------------------------------------------
-if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quietly = TRUE)) {
-  if (interactive()) plot(fit)
-} else {
-  message("Plotting requires 'ggmcmc' and 'coda' packages.")
-}
-
-## ----sessioninfo, include=FALSE-----------------------------------------------
-sessionInfo()
-

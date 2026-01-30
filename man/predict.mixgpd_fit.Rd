@@ -44,6 +44,7 @@ Used when the model was fit with propensity score augmentation.}
 \item \code{"quantile"}: Posterior predictive quantiles Q(p | x, data)
 \item \code{"sample"}: Posterior predictive samples Y^rep ~ f(y | x, data)
 \item \code{"mean"}: Posterior predictive mean E(Y | x, data) (averaged over posterior parameter uncertainty)
+\item \code{"rmean"}: Posterior predictive restricted mean \eqn{E[\min(Y, cutoff) \mid x, data]}
 \item \code{"median"}: Posterior predictive median (quantile at p=0.5)
 \item \code{"location"}: Alias for "mean"
 \item \code{"fit"}: Per-observation posterior predictive draws
@@ -69,6 +70,8 @@ highest posterior density intervals.}
 
 \item{nsim_mean}{Number of posterior predictive samples to use for posterior mean estimation (for \code{type="mean"}).}
 
+\item{cutoff}{Finite numeric cutoff for \code{type="rmean"} (restricted mean).}
+
 \item{ncores}{Number of CPU cores to use for parallel prediction (if supported).}
 
 \item{...}{Unused.}
@@ -91,6 +94,7 @@ The default implementation supports:
 \item \code{type="quantile"} using \code{p}
 \item \code{type="sample"} (posterior predictive draws)
 \item \code{type="mean"} (posterior predictive mean)
+\item \code{type="rmean"} (restricted mean with finite cutoff)
 }
 }
 \details{
@@ -120,5 +124,7 @@ pr_cdf <- list(fit = 1 - pr_surv$fit)
 pr_hpd <- predict(fit, type = "quantile", p = c(0.5, 0.9), interval = "hpd")
 # No intervals
 pr_none <- predict(fit, type = "quantile", p = c(0.5, 0.9), interval = NULL)
+# Restricted mean (finite under heavy tails)
+pr_rmean <- predict(fit, type = "rmean", cutoff = 10, interval = "credible")
 }
 }

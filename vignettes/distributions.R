@@ -11,7 +11,7 @@ knitr::opts_chunk$set(
 
 library(ggplot2)
 library(kableExtra)
-library(DPmixGPD)
+source("_load_pkg.R")
 set.seed(1)
 
 options(digits = 3)

@@ -1811,7 +1811,6 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = TRUE) {
   compiled <- TRUE
   Cmodel <- NULL
   Cmcmc  <- NULL
-  Rmcmc_inst <- NULL
 
   # Attempt to compile; on failure, fall back to running uncompiled MCMC
   log_msg("[MCMC] Attempting NIMBLE compilation (this may take a minute)...\n")
@@ -1829,13 +1828,6 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = TRUE) {
 
   if (inherits(compile_err, "error")) {
     compiled <- FALSE
-    log_msg("[MCMC] Creating uncompiled MCMC instance...\n")
-    Rmcmc_inst <- tryCatch({
-      Rmcmc()
-    }, error = function(e) {
-      log_msg("[ERROR] Failed to create uncompiled MCMC instance:\n")
-      stop(e)
-    })
     warning(
       paste0(
         "nimble model compilation failed; running uncompiled MCMC for portability: ",
@@ -1874,7 +1866,7 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = TRUE) {
     inits_list <- inits_fun()
   }
 
-  engine_mcmc <- if (compiled) Cmcmc else Rmcmc_inst
+  engine_mcmc <- if (compiled) Cmcmc else Rmcmc
 
   # Run MCMC (try WAIC; fall back if nimble version doesn’t support it)
   res <- tryCatch(
@@ -1922,7 +1914,7 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = TRUE) {
       if (compiled) {
         nimble::calculateWAIC(Cmcmc)
       } else {
-        nimble::calculateWAIC(Rmcmc_inst)
+        nimble::calculateWAIC(Rmcmc)
       }
     }, error = function(e) {
       log_msg("[Note] WAIC calculation not available or failed.\n")

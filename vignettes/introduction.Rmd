@@ -1,4 +1,4 @@
----
+﻿---
 title: "DPmixGPD: Quick Start"
 output:
   rmarkdown::html_vignette:
@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
   fig.height = 4.5,
   fig.align = "center"
 )
-library(DPmixGPD)
+source("_load_pkg.R")
 # Ensure kernel registry is available (may not be initialized in pkgdown environment)
 if (!exists("kernel_registry", envir = asNamespace("DPmixGPD"), inherits = FALSE)) {
   init_kernel_registry()
@@ -64,7 +64,7 @@ DPmixGPD fits flexible mixture models for the bulk of the distribution and can s
 ## Minimal Example
 
 ```{r minimal-run, results='hide'}
-library(DPmixGPD)
+source("_load_pkg.R")
 
 data("faithful", package = "datasets")
 y <- faithful$eruptions

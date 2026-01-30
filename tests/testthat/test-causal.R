@@ -359,6 +359,91 @@ test_that("ate_rmean returns finite estimates with same structure as ate", {
   expect_true(all(c("fit", "lower", "upper", "trt", "con", "meta", "grid") %in% names(ares)))
 })
 
+# -----------------------------------------------------------------------------
+# ate(type="mean") Inf vs ate_rmean finite when GPD tail_shape >= 1
+# -----------------------------------------------------------------------------
+test_that("ate(type='mean') returns Inf when outcome GPD has tail_shape >= 1", {
+  skip_if_not_test_level("ci")
+
+  set.seed(44)
+  n <- 20
+  X <- cbind(x1 = stats::rnorm(n), x2 = stats::runif(n, -1, 1))
+  T <- stats::rbinom(n, 1, stats::plogis(0.2 + 0.4 * X[, 1]))
+  y <- abs(stats::rnorm(n)) + 0.1
+
+  mcmc_out <- list(niter = 20, nburnin = 5, thin = 1, nchains = 1, seed = 1)
+  mcmc_ps  <- list(niter = 20, nburnin = 5, thin = 1, nchains = 1, seed = 1)
+
+  cb <- DPmixGPD::build_causal_bundle(
+    y = y,
+    X = X,
+    T = T,
+    backend = c("sb", "sb"),
+    kernel = c("gamma", "gamma"),
+    GPD = c(TRUE, TRUE),
+    components = c(4, 4),
+    mcmc_outcome = mcmc_out,
+    mcmc_ps = mcmc_ps
+  )
+
+  cf <- DPmixGPD::run_mcmc_causal(cb, show_progress = FALSE)
+  newx <- head(X, 3)
+
+  # Patch treated outcome so one draw has tail_shape >= 1 -> posterior mean infinite
+  trt_fit <- cf$outcome_fit$trt
+  smp <- trt_fit$mcmc$samples %||% trt_fit$samples
+  if (is.null(smp) || !("tail_shape" %in% colnames(as.matrix(smp[[1]])))) {
+    skip("Outcome fit has no tail_shape (unexpected structure)")
+  }
+  ch <- as.matrix(smp[[1]])
+  orig_xi <- ch[1L, "tail_shape"]
+  ch[1L, "tail_shape"] <- 1.5
+  smp[[1]] <- coda::as.mcmc(ch)
+  if (!is.null(trt_fit$mcmc$samples)) trt_fit$mcmc$samples <- smp
+  if (!is.null(trt_fit$samples)) trt_fit$samples <- smp
+  cf$outcome_fit$trt <- trt_fit
+
+  expect_warning(
+    ares <- DPmixGPD::ate(cf, newdata = newx, type = "mean", interval = NULL, nsim_mean = 20L),
+    "infinite"
+  )
+  expect_true(all(!is.finite(ares$fit)) | any(ares$fit == Inf))
+})
+
+test_that("ate_rmean returns finite estimates when outcome has GPD (same structure as ate)", {
+  skip_if_not_test_level("ci")
+
+  set.seed(45)
+  n <- 20
+  X <- cbind(x1 = stats::rnorm(n), x2 = stats::runif(n, -1, 1))
+  T <- stats::rbinom(n, 1, stats::plogis(0.2 + 0.4 * X[, 1]))
+  y <- abs(stats::rnorm(n)) + 0.1
+
+  mcmc_out <- list(niter = 20, nburnin = 5, thin = 1, nchains = 1, seed = 1)
+  mcmc_ps  <- list(niter = 20, nburnin = 5, thin = 1, nchains = 1, seed = 1)
+
+  cb <- DPmixGPD::build_causal_bundle(
+    y = y,
+    X = X,
+    T = T,
+    backend = c("sb", "sb"),
+    kernel = c("gamma", "gamma"),
+    GPD = c(TRUE, TRUE),
+    components = c(4, 4),
+    mcmc_outcome = mcmc_out,
+    mcmc_ps = mcmc_ps
+  )
+
+  cf <- DPmixGPD::run_mcmc_causal(cb, show_progress = FALSE)
+  newx <- head(X, 3)
+
+  ares <- DPmixGPD::ate_rmean(cf, newdata = newx, cutoff = 10, interval = "credible", nsim_mean = 20L)
+  expect_true(length(ares$fit) == nrow(newx))
+  expect_true(all(is.finite(ares$fit)))
+  expect_true(is.null(ares$grid))
+  expect_true(all(c("fit", "lower", "upper", "trt", "con", "meta", "grid") %in% names(ares)))
+})
+
 
 # =============================================================================
 # build_causal_bundle validation (from test-causal-validation.R)

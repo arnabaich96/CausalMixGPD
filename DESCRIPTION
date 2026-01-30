@@ -1,7 +1,7 @@
 Package: DPmixGPD
 Type: Package
 Title: Dirichlet Process Mixtures with Generalized Pareto Tail
-Version: 0.0.9
+Version: 0.1.0
 Author: Arnab Aich [aut, cre]
 Maintainer: Arnab Aich <arnab.aich99@gmail.com>
 Authors@R: person("Arnab", "Aich", role = c("aut", "cre"), email = "arnab.aich99@gmail.com")

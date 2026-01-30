@@ -12,6 +12,8 @@ remotes::install_github("arnabaich96/DPmixGPD")
 
 ## Kitchen map
 
+- [**Package roadmap**](ROADMAP.md) — Levels of the analysis process and key functions
+
 ### Pantry (Manual)
 
 Recipes and guides for using DPmixGPD:
