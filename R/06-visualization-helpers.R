@@ -29,7 +29,7 @@
       ggplot2::scale_color_manual(values = pal) +
       .plot_theme() +
       ggplot2::labs(
-        title = "Quantile Predictions with Credible Intervals",
+        title = "Quantile Predictions with Pointwise Credible Intervals",
         x = "Quantile Index",
         y = "Estimate"
       )
@@ -41,7 +41,7 @@
                              width = 0.2, linewidth = 1, color = pal[1]) +
       .plot_theme() +
       ggplot2::labs(
-        title = "Quantile Predictions with Credible Intervals",
+        title = "Quantile Predictions with Pointwise Credible Intervals",
         x = "Quantile Index",
         y = "Estimate"
       )
@@ -171,7 +171,7 @@
     ggplot2::scale_color_manual(values = pal) +
     .plot_theme() +
     ggplot2::labs(
-      title = "Per-observation Fit Estimates with Credible Intervals",
+      title = "Per-observation Fit Estimates with Pointwise Credible Intervals",
       x = "Observation (id)",
       y = "Estimate"
     )

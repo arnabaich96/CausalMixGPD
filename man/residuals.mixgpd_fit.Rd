@@ -8,11 +8,13 @@
   object,
   type = c("raw", "pit"),
   fitted_type = c("mean", "median"),
+  pit = c("plugin", "bayes_mean", "bayes_draw"),
+  pit_seed = NULL,
   ...
 )
 }
 \arguments{
-\item{object}{A fitted object of class \code{"mixgpd_fit"}.}
+\item{object}{A fitted object of class \code{"mixgpd_fit"} (must have covariates).}
 
 \item{type}{Residual type: \code{"raw"} or \code{"pit"}.}
 

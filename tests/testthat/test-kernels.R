@@ -1,7 +1,165 @@
 # test-kernels.R
-# Kernel distribution tests (Tier A - pure math, no MCMC)
-# These are fast unit tests that verify d/p/q/r functions work correctly
+# Consolidated kernel tests: registry, support table, distribution roundtrips (Tier A/B)
+# Merged from: test-kernel-registry.R, test-kernel-support.R, test-kernels.R
 
+# =============================================================================
+# Kernel registry (from test-kernel-registry.R)
+# =============================================================================
+test_that("init_kernel_registry() returns TRUE", {
+  result <- init_kernel_registry()
+  expect_true(result)
+  result2 <- init_kernel_registry()
+  expect_true(result2)
+})
+
+test_that("get_kernel_registry() returns a complete registry", {
+  registry <- get_kernel_registry()
+  expect_true(is.list(registry))
+  expected_kernels <- c("normal", "lognormal", "invgauss", "gamma", "laplace", "amoroso", "cauchy")
+  expect_true(all(expected_kernels %in% names(registry)))
+  expect_equal(length(registry), 7L)
+})
+
+test_that("Each kernel has required fields", {
+  registry <- get_kernel_registry()
+  for (kernel_name in names(registry)) {
+    kernel <- registry[[kernel_name]]
+    expect_true("key" %in% names(kernel), info = paste0("kernel '", kernel_name, "' missing 'key'"))
+    expect_true("bulk_params" %in% names(kernel), info = paste0("kernel '", kernel_name, "' missing 'bulk_params'"))
+    expect_true("bulk_support" %in% names(kernel), info = paste0("kernel '", kernel_name, "' missing 'bulk_support'"))
+    expect_true("param_types" %in% names(kernel), info = paste0("kernel '", kernel_name, "' missing 'param_types'"))
+    expect_true("allow_gpd" %in% names(kernel), info = paste0("kernel '", kernel_name, "' missing 'allow_gpd'"))
+    expect_true("defaults_X" %in% names(kernel), info = paste0("kernel '", kernel_name, "' missing 'defaults_X'"))
+    expect_true("sb" %in% names(kernel), info = paste0("kernel '", kernel_name, "' missing 'sb'"))
+    expect_true("crp" %in% names(kernel), info = paste0("kernel '", kernel_name, "' missing 'crp'"))
+    expect_true("signatures" %in% names(kernel), info = paste0("kernel '", kernel_name, "' missing 'signatures'"))
+    expect_equal(kernel$key, kernel_name, info = paste0("kernel '", kernel_name, "' key mismatch"))
+  }
+})
+
+test_that("Kernel bulk_params are character vectors", {
+  registry <- get_kernel_registry()
+  for (kernel_name in names(registry)) {
+    kernel <- registry[[kernel_name]]
+    expect_true(is.character(kernel$bulk_params), info = paste0("kernel '", kernel_name, "' bulk_params not character"))
+    expect_true(length(kernel$bulk_params) >= 2L, info = paste0("kernel '", kernel_name, "' should have at least 2 bulk params"))
+  }
+})
+
+test_that("Kernel SB signatures are properly structured", {
+  registry <- get_kernel_registry()
+  for (kernel_name in names(registry)) {
+    kernel <- registry[[kernel_name]]
+    sb <- kernel$sb
+    expect_true(is.list(sb), info = paste0("kernel '", kernel_name, "' sb not a list"))
+    expect_true("d" %in% names(sb), info = paste0("kernel '", kernel_name, "' sb missing 'd'"))
+    expect_true("args" %in% names(sb), info = paste0("kernel '", kernel_name, "' sb missing 'args'"))
+  }
+})
+
+test_that("Kernel CRP signatures are properly structured", {
+  registry <- get_kernel_registry()
+  for (kernel_name in names(registry)) {
+    kernel <- registry[[kernel_name]]
+    crp <- kernel$crp
+    expect_true(is.list(crp), info = paste0("kernel '", kernel_name, "' crp not a list"))
+    expect_true("d_base" %in% names(crp), info = paste0("kernel '", kernel_name, "' crp missing 'd_base'"))
+  }
+})
+
+test_that("get_tail_registry() returns tail metadata", {
+  tail_reg <- get_tail_registry()
+  expect_true(is.list(tail_reg))
+  expect_true("params" %in% names(tail_reg))
+  expect_true("support" %in% names(tail_reg))
+  expect_true("indexed_by_cluster_in_crp" %in% names(tail_reg))
+  expect_equal(tail_reg$params, c("threshold", "tail_scale", "tail_shape"))
+  expect_true(is.character(tail_reg$support))
+  expect_equal(names(tail_reg$support), c("threshold", "tail_scale", "tail_shape"))
+  expect_true(is.logical(tail_reg$indexed_by_cluster_in_crp))
+})
+
+test_that("Cauchy kernel does not allow GPD", {
+  registry <- get_kernel_registry()
+  expect_false(registry$cauchy$allow_gpd)
+})
+
+test_that("Most kernels allow GPD", {
+  registry <- get_kernel_registry()
+  gpd_kernels <- c("normal", "lognormal", "invgauss", "gamma", "laplace", "amoroso")
+  for (k in gpd_kernels) {
+    expect_true(registry[[k]]$allow_gpd, info = paste0("kernel '", k, "' should allow GPD"))
+  }
+})
+
+# =============================================================================
+# Kernel support table (from test-kernel-support.R)
+# =============================================================================
+test_that("kernel_support_table() returns a data frame", {
+  result <- kernel_support_table()
+  expect_true(is.data.frame(result))
+})
+
+test_that("kernel_support_table() has correct columns", {
+  result <- kernel_support_table()
+  expected_cols <- c("kernel", "gpd", "covariates", "sb", "crp")
+  expect_equal(names(result), expected_cols)
+})
+
+test_that("kernel_support_table() includes all 7 kernels", {
+  result <- kernel_support_table()
+  expected_kernels <- c("normal", "lognormal", "invgauss", "gamma", "laplace", "amoroso", "cauchy")
+  expect_equal(nrow(result), 7L)
+  expect_true(all(expected_kernels %in% result$kernel))
+})
+
+test_that("kernel_support_table(round=TRUE) produces checkmark/cross symbols", {
+  result <- kernel_support_table(round = TRUE)
+  checkmark <- "\u2714"
+  cross <- "\u274C"
+  for (col in c("gpd", "covariates", "sb", "crp")) {
+    expect_true(all(result[[col]] %in% c(checkmark, cross)), info = paste0("column '", col, "' should contain only checkmark/cross"))
+  }
+})
+
+test_that("kernel_support_table(round=FALSE) produces logical values", {
+  result <- kernel_support_table(round = FALSE)
+  for (col in c("gpd", "covariates", "sb", "crp")) {
+    expect_true(is.logical(result[[col]]), info = paste0("column '", col, "' should be logical"))
+  }
+})
+
+test_that("Cauchy kernel does not support GPD in support table", {
+  result <- kernel_support_table(round = FALSE)
+  cauchy_row <- result[result$kernel == "cauchy", ]
+  expect_false(cauchy_row$gpd)
+})
+
+test_that("All kernels support both sb and crp backends in support table", {
+  result <- kernel_support_table(round = FALSE)
+  expect_true(all(result$sb))
+  expect_true(all(result$crp))
+})
+
+test_that("All kernels support covariates in support table", {
+  result <- kernel_support_table(round = FALSE)
+  expect_true(all(result$covariates))
+})
+
+test_that("Most kernels support GPD in support table (except Cauchy)", {
+  result <- kernel_support_table(round = FALSE)
+  gpd_kernels <- result[result$kernel != "cauchy", ]
+  expect_true(all(gpd_kernels$gpd))
+})
+
+test_that("kernel_support_table() kernel column is character", {
+  result <- kernel_support_table()
+  expect_true(is.character(result$kernel))
+})
+
+# =============================================================================
+# Kernel distribution roundtrips (from test-kernels.R)
+# =============================================================================
 test_that(
   "Kernels: mixture families (mix / mix+GPD / scalar+GPD) semantic + roundtrip checks",
   {

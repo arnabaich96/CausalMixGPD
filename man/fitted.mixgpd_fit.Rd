@@ -15,7 +15,7 @@
 )
 }
 \arguments{
-\item{object}{A fitted object of class \code{"mixgpd_fit"}.}
+\item{object}{A fitted object of class \code{"mixgpd_fit"} (must have covariates).}
 
 \item{type}{Which fitted location to return: mean, median, quantile, or both (\code{"location"}).}
 

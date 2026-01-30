@@ -10,8 +10,8 @@
   y = NULL,
   ps = NULL,
   newdata = NULL,
-  type = c("density", "survival", "quantile", "sample", "mean", "median", "location",
-    "fit"),
+  type = c("density", "survival", "quantile", "sample", "mean", "rmean", "median",
+    "location", "fit"),
   p = NULL,
   index = NULL,
   nsim = NULL,
@@ -20,6 +20,7 @@
   probs = c(0.025, 0.5, 0.975),
   store_draws = TRUE,
   nsim_mean = 200L,
+  cutoff = NULL,
   ncores = 1L,
   ...
 )
@@ -36,8 +37,19 @@ Used when the model was fit with propensity score augmentation.}
 
 \item{newdata}{Optional new data. If \code{NULL}, uses training design (if stored).}
 
-\item{type}{Prediction type: \code{"density"}, \code{"survival"}, \code{"quantile"},
-\code{"sample"}, \code{"mean"}, \code{"median"}, \code{"location"}.}
+\item{type}{Prediction type:
+\itemize{
+\item \code{"density"}: Posterior predictive density f(y | x, data)
+\item \code{"survival"}: Posterior predictive survival S(y | x, data) = 1 - F(y | x, data)
+\item \code{"quantile"}: Posterior predictive quantiles Q(p | x, data)
+\item \code{"sample"}: Posterior predictive samples Y^rep ~ f(y | x, data)
+\item \code{"mean"}: Posterior predictive mean E(Y | x, data) (averaged over posterior parameter uncertainty)
+\item \code{"median"}: Posterior predictive median (quantile at p=0.5)
+\item \code{"location"}: Alias for "mean"
+\item \code{"fit"}: Per-observation posterior predictive draws
+}
+Note: \code{type="mean"} returns the posterior predictive mean, which integrates over
+parameter uncertainty. This differs from the mean of a single model distribution.}
 
 \item{p}{Numeric vector of probabilities for quantiles (required for \code{type="quantile"}).}
 
@@ -84,6 +96,15 @@ The default implementation supports:
 \details{
 If your object stores dedicated predictive machinery, you can keep this signature
 and swap the internals without breaking user code.
+
+The \code{type="mean"} option computes the posterior predictive mean by:
+\enumerate{
+\item For each posterior draw s, computing E(Y | x, theta_s) via Monte Carlo simulation
+\item Averaging these conditional means over the posterior: E(Y | x, data) = mean_s(E(Y | x, theta_s))
+}
+This accounts for parameter uncertainty and is the Bayesian predictive mean. When the tail
+shape parameter xi >= 1 (heavy tail), the mean is undefined and the function returns Inf
+with a warning suggesting alternatives like median or restricted mean.
 }
 \examples{
 \dontrun{

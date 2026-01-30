@@ -149,7 +149,7 @@ test_that("Smoke test: Causal bundle setup (build_causal_bundle API)", {
       GPD = FALSE,
       components = 3,
       PS = "logit",
-      
+
     )
   })
   expect_true(inherits(causal_bundle, "dpmixgpd_causal_bundle"))
@@ -167,7 +167,7 @@ test_that("Smoke test: Causal bundle setup (build_causal_bundle API)", {
       GPD = FALSE,
       components = 3,
       PS = FALSE,
-      
+
     )
   })
   expect_true(inherits(causal_bundle_rct, "dpmixgpd_causal_bundle"))

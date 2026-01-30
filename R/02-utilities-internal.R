@@ -1180,24 +1180,24 @@ stick_breaking <- nimble::nimbleFunction(
 #' @keywords internal
 .predict_mixgpd <- function(object,
                             x = NULL, y = NULL, ps = NULL,
-                            type = c("density", "survival", "quantile", "sample", "mean", "median"),
+                            type = c("density", "survival", "quantile", "sample", "mean", "rmean", "median", "fit"),
                             p = NULL, index = NULL, nsim = NULL,
                             cred.level = 0.95,
                             interval = "credible",
                             probs = c(0.025, 0.5, 0.975),
                             store_draws = TRUE,
                             nsim_mean = 200L,
+                            cutoff = NULL,
                             ncores = 1L) {
-
 
   .validate_fit(object)
   type <- match.arg(type)
 
-  # Handle interval: NULL means no interval, otherwise match to credible/hpd
+  # Handle interval: NULL means no interval
   compute_interval <- TRUE
   if (is.null(interval)) {
     compute_interval <- FALSE
-    interval <- "credible"  # placeholder for downstream code
+    interval <- "credible"
   } else {
     interval <- match.arg(interval, choices = c("credible", "hpd"))
   }
@@ -1205,9 +1205,7 @@ stick_breaking <- nimble::nimbleFunction(
   ncores <- as.integer(ncores)
   if (is.na(ncores) || ncores < 1L) stop("'ncores' must be an integer >= 1.", call. = FALSE)
 
-  # -----------------------------
   # Spec / meta
-  # -----------------------------
   spec <- object$spec %||% list()
   meta <- spec$meta %||% list()
 
@@ -1218,18 +1216,14 @@ stick_breaking <- nimble::nimbleFunction(
   # Use mixture dispatch for prediction even when backend is CRP
   pred_backend <- if (identical(backend, "crp")) "sb" else backend
 
-  # training data
+  # Training data
   Xtrain <- object$data$X %||% object$X %||% NULL
   ytrain <- object$data$y %||% object$y %||% NULL
   ps_train <- object$data$ps %||% NULL
 
-  # whether model uses X
-  # (if you already store meta$has_X, it will be used; otherwise infer from stored Xtrain)
   has_X <- isTRUE(meta$has_X %||% (!is.null(Xtrain)))
 
-  # -----------------------------
-  # helper: validate X
-  # -----------------------------
+  # Validate X helper
   .validate_X_pred <- function(Xpred, Xtrain) {
     Xpred <- as.matrix(Xpred)
     storage.mode(Xpred) <- "double"
@@ -1249,22 +1243,21 @@ stick_breaking <- nimble::nimbleFunction(
         }
       }
     }
-
     Xpred
   }
 
-  # -----------------------------
   # Resolve MIX functions for kernel
-  # -----------------------------
   fns <- .get_dispatch(object, backend_override = pred_backend)
   bulk_params <- fns$bulk_params
   d_fun <- fns$d
   p_fun <- fns$p
   q_fun <- fns$q
   r_fun <- fns$r
+
   kdef <- get_kernel_registry()[[kernel]] %||% list()
   bulk_support <- kdef$bulk_support %||% list()
 
+  # Link helper
   .apply_link <- function(eta, link, link_power = NULL) {
     link <- as.character(link %||% "identity")
     if (link == "identity") return(eta)
@@ -1281,16 +1274,8 @@ stick_breaking <- nimble::nimbleFunction(
     stop(sprintf("Unsupported link '%s'.", link), call. = FALSE)
   }
 
-  .fill_param_na <- function(nm, vec) {
-    if (!any(!is.finite(vec))) return(vec)
-    sup <- bulk_support[[nm]] %||% ""
-    def <- if (sup %in% c("positive_sd", "positive_scale", "positive_shape", "positive_location")) 1 else 0
-    vec[!is.finite(vec)] <- def
-    vec
-  }
-
   # -----------------------------
-  # Resolve inputs by type (YOUR CONTRACT)
+  # Resolve inputs by type (contract)
   # -----------------------------
   Xpred <- NULL
   ygrid <- NULL
@@ -1298,7 +1283,6 @@ stick_breaking <- nimble::nimbleFunction(
 
   if (type %in% c("density", "survival")) {
     if (has_X) {
-      # with X: either BOTH (x,y) provided or NEITHER (defaults to training X and training y)
       if (is.null(x) && is.null(y)) {
         if (is.null(Xtrain)) stop("Training X not found in fit object.", call. = FALSE)
         if (is.null(ytrain)) stop("Training y not found in fit object.", call. = FALSE)
@@ -1312,298 +1296,149 @@ stick_breaking <- nimble::nimbleFunction(
              call. = FALSE)
       }
     } else {
-      # UNCONDITIONAL: y can be provided or defaults to training y, no x allowed
-      if (!is.null(x)) stop("For unconditional model, 'x' is not allowed.", call. = FALSE)
-      if (is.null(y)) {
-        if (is.null(ytrain)) stop("Training y not found in fit object.", call. = FALSE)
-        ygrid <- ytrain
-      } else {
-        ygrid <- as.numeric(y)
-        if (anyNA(ygrid) || !all(is.finite(ygrid))) stop("y must be finite and contain no NA.", call. = FALSE)
-      }
-      Xpred <- NULL
+      if (!is.null(x)) stop("Unconditional model: 'x' is not allowed.", call. = FALSE)
+      ygrid <- y %||% ytrain
+      if (is.null(ygrid)) stop("No 'y' provided and training y not found.", call. = FALSE)
     }
 
-    if (is.null(ygrid) || length(ygrid) == 0) stop("y grid is empty.", call. = FALSE)
-    if (!is.numeric(ygrid)) ygrid <- as.numeric(ygrid)
-    if (anyNA(ygrid) || !all(is.finite(ygrid))) stop("y must be finite and contain no NA.", call. = FALSE)
-
-  } else if (type %in% c("quantile", "median")) {
-    # UNCONDITIONAL: quantile must use training y, no y or x allowed
-    if (!has_X) {
-      if (!is.null(x)) stop("For unconditional model and type='quantile', 'x' is not allowed.", call. = FALSE)
-      if (!is.null(y)) stop("For unconditional model and type='quantile', 'y' is not allowed.", call. = FALSE)
-      if (type == "median") {
-        if (!is.null(index) && !isTRUE(all.equal(as.numeric(index), 0.5))) {
-          stop("index must be 0.5 for type='median'.", call. = FALSE)
-        }
-        pgrid <- 0.5
-      } else {
-        if (is.null(index) || length(index) == 0) stop("For type='quantile', provide non-empty 'index'.", call. = FALSE)
-        pgrid <- as.numeric(index)
-        if (anyNA(pgrid) || !all(is.finite(pgrid)) || any(pgrid <= 0 | pgrid >= 1)) {
-          stop("index must be in (0,1), finite, no NA.", call. = FALSE)
-        }
-      }
-    } else {
-      # CONDITIONAL: original logic
-      if (!is.null(y)) stop("For type='quantile', y must be NULL.", call. = FALSE)
-      if (type == "median") {
-        if (!is.null(index) && !isTRUE(all.equal(as.numeric(index), 0.5))) {
-          stop("index must be 0.5 for type='median'.", call. = FALSE)
-        }
-        pgrid <- 0.5
-      } else {
-        if (is.null(index) || length(index) == 0) stop("For type='quantile', provide non-empty 'index'.", call. = FALSE)
-        pgrid <- as.numeric(index)
-        if (anyNA(pgrid) || !all(is.finite(pgrid)) || any(pgrid <= 0 | pgrid >= 1)) {
-          stop("index must be in (0,1), finite, no NA.", call. = FALSE)
-        }
-      }
-      Xpred <- if (has_X) (x %||% Xtrain) else NULL
-    }
-
-  } else if (type == "sample") {
-    # UNCONDITIONAL: sample must use training y, default nsim = length(ytrain), no y or x allowed
-    if (!has_X) {
-      if (!is.null(x)) stop("For unconditional model and type='sample', 'x' is not allowed.", call. = FALSE)
-      if (!is.null(y)) stop("For unconditional model and type='sample', 'y' is not allowed.", call. = FALSE)
-      if (is.null(ytrain)) stop("Training y not found in fit object.", call. = FALSE)
-      nsim <- nsim %||% length(ytrain)
-      if (!is.numeric(nsim) || length(nsim) != 1 || is.na(nsim) || nsim < 1) {
-        stop("'num' must be a positive integer.", call. = FALSE)
-      }
-      nsim <- as.integer(nsim)
-    } else {
-      # CONDITIONAL: original logic
-      if (!is.null(y)) stop("For type='sample', y must be NULL.", call. = FALSE)
-      nsim <- nsim %||% NA_integer_
-      if (!is.numeric(nsim) || length(nsim) != 1 || is.na(nsim) || nsim < 1) {
-        stop("For type='sample', provide a positive integer 'nsim'.", call. = FALSE)
-      }
-      nsim <- as.integer(nsim)
-      Xpred <- if (has_X) (x %||% Xtrain) else NULL
-    }
-
-  } else if (type == "mean") {
-    # UNCONDITIONAL: mean must use training y, no y or x allowed
-    if (!has_X) {
-      if (!is.null(x)) stop("For unconditional model and type='mean', 'x' is not allowed.", call. = FALSE)
-      if (!is.null(y)) stop("For unconditional model and type='mean', 'y' is not allowed.", call. = FALSE)
-      # Will use ytrain implicitly
-    } else {
-      # CONDITIONAL: original logic
-      if (!is.null(y)) stop("For type='mean', y must be NULL.", call. = FALSE)
-      Xpred <- if (has_X) (x %||% Xtrain) else NULL
-    }
-
-  } else {
-    stop("Unsupported prediction type.", call. = FALSE)
+    if (!is.null(Xpred)) Xpred <- .validate_X_pred(Xpred, Xtrain)
+    ygrid <- as.numeric(ygrid)
+    if (anyNA(ygrid)) stop("Missing values (NA) found in 'y'.", call. = FALSE)
   }
 
-  if (!has_X && !is.null(x)) stop("This model was fit without X; 'x' is not allowed for prediction.", call. = FALSE)
+  if (type %in% c("quantile", "median")) {
+    if (!is.null(p)) index <- p
+    if (type == "median" && is.null(index)) index <- 0.5
+    if (is.null(index)) stop("For type='quantile'/'median', provide 'index' (or 'p').", call. = FALSE)
+    pgrid <- as.numeric(index)
+    if (anyNA(pgrid) || any(pgrid <= 0 | pgrid >= 1)) stop("'index' must be in (0,1).", call. = FALSE)
 
-  if (has_X) {
-    if (is.null(Xpred)) stop("Could not resolve X for prediction.", call. = FALSE)
-    Xpred <- .validate_X_pred(Xpred, Xtrain)
+    if (has_X) {
+      if (is.null(x)) {
+        if (is.null(Xtrain)) stop("Training X not found in fit object.", call. = FALSE)
+        Xpred <- Xtrain
+      } else {
+        Xpred <- .validate_X_pred(x, Xtrain)
+      }
+    } else {
+      if (!is.null(x)) stop("Unconditional model: 'x' is not allowed for quantiles.", call. = FALSE)
+    }
   }
 
-  n_pred <- if (has_X) nrow(Xpred) else 1L
-  P <- if (has_X) ncol(Xpred) else 0L
-  if (is.na(n_pred) || n_pred < 1L) stop("Could not determine number of prediction rows.", call. = FALSE)
-
-  # PS handling: always compute fresh PS from the attached PS model when available
-  ps_pred <- NULL
-  if (has_X) {
-    ps_model <- object$ps_model %||% NULL
-    if (!is.null(ps_model)) {
-      pm_fit <- ps_model$fit %||% ps_model
-      pm_bundle <- ps_model$bundle %||% ps_model$design %||% NULL
-      if (inherits(pm_fit, "dpmixgpd_ps_fit") && inherits(pm_bundle, "dpmixgpd_ps_bundle")) {
-        ps_summary <- ps_model$summary %||% "mean"
-        ps_scale <- ps_model$scale %||% "logit"
-        ps_clamp <- ps_model$clamp %||% 1e-6
-        ps_pred <- .compute_ps_from_fit(
-          ps_fit = pm_fit,
-          ps_bundle = pm_bundle,
-          X_new = Xpred,
-          summary = ps_summary,
-          clamp = ps_clamp
-        )
-        ps_pred <- .apply_ps_scale(ps_pred, scale = ps_scale, clamp = ps_clamp)
+  if (type %in% c("sample", "fit", "mean")) {
+    if (has_X) {
+      if (is.null(x)) {
+        if (is.null(Xtrain)) stop("Training X not found in fit object.", call. = FALSE)
+        Xpred <- Xtrain
       } else {
-        stop("Attached PS model is incomplete; cannot compute propensity scores for new data.", call. = FALSE)
+        Xpred <- .validate_X_pred(x, Xtrain)
       }
+    } else {
+      if (!is.null(x)) stop("Unconditional model: 'x' is not allowed.", call. = FALSE)
     }
   }
 
   # -----------------------------
-  # Extract posterior draws
+  # Posterior draws extraction
   # -----------------------------
-  draw_mat <- .extract_draws_matrix(object, drop_v = TRUE)
+  draw_mat <- .extract_draws_matrix(object)
+  if (is.null(draw_mat) || !is.matrix(draw_mat) || nrow(draw_mat) < 2L) {
+    stop("Posterior draws not found or malformed in fitted object.", call. = FALSE)
+  }
   S <- nrow(draw_mat)
-  tr_info <- attr(draw_mat, "truncation") %||% list()
 
-  # helper: indexed block
-  .indexed_block <- function(mat, base, K = NULL) {
-    cn <- colnames(mat)
-    pat <- paste0("^", base, "\\[([0-9]+)\\]$")
-    hit <- grepl(pat, cn)
-    if (!any(hit)) stop(sprintf("No columns for '%s[i]' in posterior draws.", base), call. = FALSE)
+  # mixture weights + bulk parameter blocks
+  # - W_draws: S x K
+  # - bulk_draws: list(param -> S x K or S x 1 or S x ?)
+  # - base_params: names of bulk params required by kernel
+  W_draws <- .extract_weights(draw_mat, backend = pred_backend)
+  bulk_draws <- .extract_bulk_params(draw_mat, bulk_params = bulk_params)
+  base_params <- names(bulk_draws)
 
-    idx <- as.integer(sub(pat, "\\1", cn[hit]))
-    ord <- order(idx)
-    idx <- idx[ord]
-    cols <- cn[hit][ord]
+  # Prediction dimensions
+  n_pred <- if (!is.null(Xpred)) nrow(Xpred) else 1L
 
-    if (is.null(K)) K <- max(idx, na.rm = TRUE)
-    K <- as.integer(K)
-
-    out <- matrix(0.0, nrow = nrow(mat), ncol = K)
-    for (j in seq_along(cols)) {
-      k <- idx[j]
-      if (!is.na(k) && k >= 1 && k <= K) out[, k] <- mat[, cols[j]]
-    }
-    out
+  # -----------------------------
+  # Optional PS covariate (used only if model expects it)
+  # -----------------------------
+  if (!is.null(ps)) {
+    ps <- as.numeric(ps)
+    if (anyNA(ps)) stop("Missing values (NA) found in 'ps'.", call. = FALSE)
+    if (has_X && length(ps) != n_pred) stop("Length of 'ps' must equal nrow(x).", call. = FALSE)
+    if (!has_X && length(ps) != 1L) stop("Unconditional model: 'ps' must be scalar if provided.", call. = FALSE)
   }
 
-  # Determine K and weights per draw (truncated/reordered weights)
-  cn <- colnames(draw_mat)
-  widx <- as.integer(sub("^w\\[([0-9]+)\\]$", "\\1", cn[grepl("^w\\[[0-9]+\\]$", cn)]))
-  K <- tr_info$Kt %||% max(widx, na.rm = TRUE)
-  if (!is.finite(K) || K < 1) stop("Could not infer K from w[] in posterior draws.", call. = FALSE)
-  K <- as.integer(K)
-  W_draws <- .indexed_block(draw_mat, "w", K = K)
-
-  # Component parameter matrices (S x K) and link-mode betas (S x K x P)
-  plan <- spec$plan %||% list()
-  bulk_plan <- plan$bulk %||% list()
-  bulk_modes <- vapply(bulk_params, function(nm) {
-    ent <- bulk_plan[[nm]] %||% list()
-    ent$mode %||% NA_character_
-  }, character(1))
-
-  link_params <- bulk_params[bulk_modes == "link"]
-  base_params <- bulk_params[bulk_modes != "link"]
-
-  bulk_draws <- list()
-  for (nm in base_params) bulk_draws[[nm]] <- .indexed_block(draw_mat, nm, K = K)
-
-  .indexed_block2 <- function(mat, base, K, P) {
-    cn <- colnames(mat)
-    pat <- paste0("^", base, "\\[([0-9]+),\\s*([0-9]+)\\]$")
-    hit <- grepl(pat, cn)
-    if (!any(hit)) return(NULL)
-
-    idx1 <- as.integer(sub(pat, "\\1", cn[hit]))
-    idx2 <- as.integer(sub(pat, "\\2", cn[hit]))
-    cols <- cn[hit]
-
-    out <- array(0.0, dim = c(nrow(mat), K, P))
-    for (j in seq_along(cols)) {
-      k <- idx1[j]
-      p <- idx2[j]
-      if (!is.na(k) && !is.na(p) && k >= 1 && k <= K && p >= 1 && p <= P) {
-        out[, k, p] <- mat[, cols[j]]
-      }
-    }
-    out
-  }
-
-  .indexed_block_beta <- function(mat, base, K, P) {
-    out2 <- .indexed_block2(mat, base, K = K, P = P)
-    if (!is.null(out2)) return(out2)
-
-    # Fallback for single-column P=1 stored as base[i]
-    out1 <- .indexed_block(mat, base, K = K)
-    array(out1, dim = c(nrow(mat), K, 1L))
-  }
-
-  link_betas <- list()
-  link_specs <- list()
-  if (length(link_params)) {
-    if (!has_X) stop("Link-mode bulk parameters require X.", call. = FALSE)
-    P <- ncol(Xpred)
-    for (nm in link_params) {
-      link_betas[[nm]] <- .indexed_block_beta(draw_mat, paste0("beta_", nm), K = K, P = P)
-      ent <- bulk_plan[[nm]] %||% list()
-      link_specs[[nm]] <- list(link = ent$link %||% "identity", link_power = ent$link_power %||% NULL)
-    }
-  }
-
-  link_beta_ps <- list()
-  # Extract link-mode PS coefficients (mandatory if PS was used in fitting)
-  link_beta_ps <- list()
-  for (nm in link_params) {
-    ps_col <- paste0("beta_ps_", nm)
-    # Check if PS coefficients exist in posterior draws
-    if (any(grepl(paste0("^", ps_col, "\\["), colnames(draw_mat)))) {
-      link_beta_ps[[nm]] <- .indexed_block(draw_mat, ps_col, K = K)
-    }
-  }
+  # -----------------------------
+  # Link-mode parameter handling (conditional)
+  # -----------------------------
+  link_plan <- spec$dispatch$link_params %||% meta$link_params %||% list()
+  link_params <- names(link_plan)
+  P <- if (!is.null(Xpred)) ncol(Xpred) else 0L
 
   .compute_link_eta <- function(s) {
     if (!length(link_params)) return(list())
-    if (is.null(Xpred)) stop("Link-mode prediction requires X.", call. = FALSE)
-    P <- ncol(Xpred)
-    link_eta <- list()
+    out <- list()
     for (nm in link_params) {
-      beta_mat <- link_betas[[nm]][s, , , drop = FALSE]
-      dim(beta_mat) <- c(K, P)
-      eta <- beta_mat %*% t(Xpred)
-      # Add PS contribution if ps_pred is available and ps coefficients exist
-      if (!is.null(ps_pred)) {
-        ps_mat <- link_beta_ps[[nm]]
-        if (!is.null(ps_mat)) {
-          ps_vec <- as.numeric(ps_mat[s, ])
-          if (length(ps_vec) != K) stop("Unexpected dimension for beta_ps.", call. = FALSE)
-          eta <- eta + outer(ps_vec, ps_pred)
-        }
+      plan <- link_plan[[nm]] %||% list()
+      mode <- plan$mode %||% "constant"
+      if (identical(mode, "link")) {
+        if (!has_X) stop("link-mode requires X.", call. = FALSE)
+        beta_nm <- .indexed_block(draw_mat, paste0("beta_", nm), K = P) # S x P
+        eta <- as.numeric(Xpred %*% beta_nm[s, ])
+        link <- plan$link %||% "identity"
+        pw   <- plan$link_power %||% NULL
+        out[[nm]] <- matrix(as.numeric(.apply_link(eta, link, pw)), nrow = 1L)
+      } else {
+        # constant (scalar per draw)
+        if (!(nm %in% colnames(draw_mat))) stop(sprintf("'%s' not found in posterior draws.", nm), call. = FALSE)
+        out[[nm]] <- matrix(as.numeric(draw_mat[s, nm]), nrow = 1L)
       }
-      spec <- link_specs[[nm]] %||% list()
-      link_eta[[nm]] <- .apply_link(eta, spec$link %||% "identity", spec$link_power %||% NULL)
     }
-    link_eta
+    out
   }
 
-  # Tail / threshold draws
-  tail_scale <- tail_shape <- NULL
-  threshold_scalar <- NULL
+  # -----------------------------
+  # GPD tail plan extraction (if enabled)
+  # -----------------------------
+  tail_shape <- NULL
   threshold_mat <- NULL
+  threshold_scalar <- NULL
+  tail_scale <- NULL
 
   if (GPD) {
-    gpd_plan <- plan$gpd %||% list()
-    ts_mode <- gpd_plan$tail_scale$mode %||% NA_character_
-
     if (!("tail_shape" %in% colnames(draw_mat))) stop("tail_shape not found in posterior draws.", call. = FALSE)
     tail_shape <- as.numeric(draw_mat[, "tail_shape"])
 
-    thr_mode <- gpd_plan$threshold$mode %||% NA_character_
+    gpd_plan <- spec$dispatch$gpd %||% meta$gpd %||% list()
+
+    # threshold
+    thr_mode <- gpd_plan$threshold$mode %||% "constant"
     if (identical(thr_mode, "link")) {
-      if (!has_X) stop("threshold is link-mode but X is missing.", call. = FALSE)
-      P <- ncol(Xpred)
-      beta_mat <- .indexed_block(draw_mat, "beta_threshold", K = P)  # S x P
+      if (!has_X) stop("threshold link-mode requires X.", call. = FALSE)
+      beta_thr <- .indexed_block(draw_mat, "beta_threshold", K = P)  # S x P
       threshold_mat <- matrix(NA_real_, nrow = S, ncol = n_pred)
-      thr_link <- gpd_plan$threshold$link %||% "identity"
+      thr_link <- gpd_plan$threshold$link %||% "exp"
       thr_power <- gpd_plan$threshold$link_power %||% NULL
       for (s in 1:S) {
-        eta <- as.numeric(Xpred %*% beta_mat[s, ])
+        eta <- as.numeric(Xpred %*% beta_thr[s, ])
         threshold_mat[s, ] <- as.numeric(.apply_link(eta, thr_link, thr_power))
       }
     } else {
-      if ("threshold" %in% colnames(draw_mat)) {
-        threshold_scalar <- as.numeric(draw_mat[, "threshold"])
+      # constant threshold
+      thr_cols <- grep("^threshold(\\b|_)", colnames(draw_mat), value = TRUE)
+      if (length(thr_cols) == 0L && "threshold" %in% colnames(draw_mat)) thr_cols <- "threshold"
+      if (length(thr_cols) == 0L) stop("threshold not found in posterior draws.", call. = FALSE)
+      if (length(thr_cols) == 1L) {
+        threshold_scalar <- as.numeric(draw_mat[, thr_cols])
       } else {
-        thr_cols <- grep("^threshold\\[[0-9]+\\]$", colnames(draw_mat), value = TRUE)
-        if (!length(thr_cols)) {
-          stop("threshold not found in posterior draws.", call. = FALSE)
-        }
         threshold_scalar <- rowMeans(draw_mat[, thr_cols, drop = FALSE], na.rm = TRUE)
       }
     }
 
+    # tail scale
+    ts_mode <- gpd_plan$tail_scale$mode %||% "constant"
     if (identical(ts_mode, "link")) {
-      if (!has_X) stop("tail_scale is link-mode but X is missing.", call. = FALSE)
+      if (!has_X) stop("tail_scale link-mode requires X.", call. = FALSE)
       beta_ts <- .indexed_block(draw_mat, "beta_tail_scale", K = P)  # S x P
       tail_scale <- matrix(NA_real_, nrow = S, ncol = n_pred)
       ts_link <- gpd_plan$tail_scale$link %||% "exp"
@@ -1629,11 +1464,62 @@ stick_breaking <- nimble::nimbleFunction(
   }
 
   # -----------------------------
-  # Parallel helper
+  # Draw validation (NO silent repair)
   # -----------------------------
-#' @keywords internal
-#' @importFrom future plan
-#' @importFrom future.apply future_lapply
+  .support_ok <- function(nm, v) {
+    sup <- as.character(bulk_support[[nm]] %||% "")
+    if (sup %in% c("positive_sd", "positive_scale", "positive_shape", "positive_location")) {
+      return(all(is.finite(v) & (v > 0)))
+    }
+    all(is.finite(v))
+  }
+
+  .build_args0_or_null <- function(s) {
+    w_s <- as.numeric(W_draws[s, ])
+    if (!all(is.finite(w_s))) return(NULL)
+
+    args0 <- if (pred_backend == "sb") list(w = w_s) else list()
+
+    for (nm in base_params) {
+      v <- as.numeric(bulk_draws[[nm]][s, ])
+      if (!.support_ok(nm, v)) return(NULL)
+      args0[[nm]] <- v
+    }
+
+    if (GPD) {
+      xi <- as.numeric(tail_shape[s])
+      if (!is.finite(xi)) return(NULL)
+      args0$tail_shape <- xi
+    }
+
+    args0
+  }
+
+  .draw_valid <- logical(S)
+  for (s in seq_len(S)) {
+    ok <- !is.null(.build_args0_or_null(s))
+    if (ok && GPD) {
+      # validate threshold + scale (support)
+      if (!is.null(threshold_mat)) {
+        if (!all(is.finite(threshold_mat[s, ]))) ok <- FALSE
+      } else {
+        if (!is.finite(threshold_scalar[s])) ok <- FALSE
+      }
+      if (ok) {
+        if (is.matrix(tail_scale)) {
+          ok <- all(is.finite(tail_scale[s, ]) & (tail_scale[s, ] > 0))
+        } else {
+          ok <- is.finite(tail_scale[s]) && (tail_scale[s] > 0)
+        }
+      }
+    }
+    .draw_valid[s] <- ok
+  }
+
+  n_valid <- sum(.draw_valid)
+  if (n_valid == 0L) stop("All posterior draws are invalid for prediction (non-finite or out-of-support parameters).", call. = FALSE)
+
+  # Parallel helper
   .lapply_draws <- function(FUN) {
     idx <- seq_len(S)
     if (ncores == 1L) return(lapply(idx, FUN))
@@ -1641,16 +1527,6 @@ stick_breaking <- nimble::nimbleFunction(
     if (!requireNamespace("future.apply", quietly = TRUE) ||
         !requireNamespace("future", quietly = TRUE)) {
       stop("Packages 'future' and 'future.apply' are required for ncores > 1.", call. = FALSE)
-    }
-
-    # Export function objects explicitly to keep closures stable across workers.
-    d_fun <- fns$d
-    p_fun <- fns$p
-    q_fun <- fns$q
-    r_fun <- fns$r
-
-    if (!is.function(d_fun) || !is.function(p_fun) || !is.function(q_fun) || !is.function(r_fun)) {
-      stop("Internal error: kernel dispatch functions not resolved.", call. = FALSE)
     }
 
     old_plan <- future::plan()
@@ -1664,120 +1540,87 @@ stick_breaking <- nimble::nimbleFunction(
     future.apply::future_lapply(idx, FUN)
   }
 
-
   # -----------------------------
-  # Posterior predictive simulation helpers
-  # -----------------------------
-  .draw_samples_uncond <- function(s, nsim_inner) {
-    w_s <- as.numeric(W_draws[s, ])
-    args0 <- if (pred_backend == "sb") list(w = w_s) else list()
-    for (nm in base_params) {
-      args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
-    }
-    if (GPD) { args0$tail_shape <- tail_shape[s] }
-
-    if (GPD) {
-      args0$threshold <- threshold_scalar[s]
-      args0$tail_scale <- tail_scale[s]
-    }
-
-    as.numeric(do.call(r_fun, c(list(n = nsim_inner), args0)))
-  }
-
-  .draw_samples_cond <- function(s, nsim_inner) {
-    w_s <- as.numeric(W_draws[s, ])
-    args0 <- if (pred_backend == "sb") list(w = w_s) else list()
-    for (nm in base_params) {
-      args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
-    }
-    if (GPD) { args0$tail_shape <- tail_shape[s] }
-
-    link_eta <- .compute_link_eta(s)
-    out <- matrix(NA_real_, nrow = n_pred, ncol = nsim_inner)
-    for (i in seq_len(n_pred)) {
-      args_i <- args0
-      if (GPD) {
-        args_i$threshold <- .threshold_at(s, i)
-        args_i$tail_scale <- .tail_scale_at(s, i)
-      }
-      if (length(link_params)) {
-        for (nm in link_params) args_i[[nm]] <- as.numeric(link_eta[[nm]][, i])
-      }
-      out[i, ] <- as.numeric(do.call(r_fun, c(list(n = nsim_inner), args_i)))
-    }
-    out
-  }
-
-  # -----------------------------
-
   # density / survival
-  # Returns data frame with columns: y, density/survival, lower, upper
+  # -----------------------------
   if (type %in% c("density", "survival")) {
     G <- length(ygrid)
+    ygrid_num <- as.numeric(ygrid)
 
     .one_draw <- function(s) {
-      w_s <- as.numeric(W_draws[s, ])
-      args0 <- if (pred_backend == "sb") list(w = w_s) else list()
-      for (nm in base_params) {
-        args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
-      }
-      if (GPD) { args0$tail_shape <- tail_shape[s] }
+      if (!.draw_valid[s]) return(list(valid = FALSE, out = matrix(NA_real_, nrow = n_pred, ncol = G)))
+
+      args0 <- .build_args0_or_null(s)
+      if (is.null(args0)) return(list(valid = FALSE, out = matrix(NA_real_, nrow = n_pred, ncol = G)))
 
       link_eta <- .compute_link_eta(s)
 
       out <- matrix(NA_real_, nrow = n_pred, ncol = G)
-      for (i in 1:n_pred) {
+      for (i in seq_len(n_pred)) {
         args <- args0
         if (GPD) {
           args$threshold <- .threshold_at(s, i)
           args$tail_scale <- .tail_scale_at(s, i)
+          if (!is.finite(args$threshold) || !is.finite(args$tail_scale) || args$tail_scale <= 0) {
+            out[i, ] <- NA_real_
+            next
+          }
         }
         if (length(link_params)) {
-          for (nm in link_params) args[[nm]] <- as.numeric(link_eta[[nm]][, i])
+          for (nm in link_params) {
+            vv <- as.numeric(link_eta[[nm]][, i])
+            if (!all(is.finite(vv))) { out[i, ] <- NA_real_; next }
+            args[[nm]] <- vv
+          }
         }
 
-      if (type == "density") {
-        out[i, ] <- as.numeric(do.call(d_fun, c(list(x = ygrid, log = 0L), args)))
-      } else {
-        cdfv <- as.numeric(do.call(p_fun, c(list(q = ygrid, lower.tail = 1L, log.p = 0L), args)))
-        if (type == "survival") cdfv <- 1 - cdfv
-        out[i, ] <- cdfv
+        if (type == "density") {
+          v <- as.numeric(do.call(d_fun, c(list(x = ygrid_num, log = 0L), args)))
+          out[i, ] <- v
+        } else {
+          cdfv <- as.numeric(do.call(p_fun, c(list(q = ygrid_num, lower.tail = 1L, log.p = 0L), args)))
+          # Clamp to [0,1] before survival transform
+          cdfv <- pmin(pmax(cdfv, 0), 1)
+          surv <- 1 - cdfv
+          surv <- pmin(pmax(surv, 0), 1)
+          out[i, ] <- surv
+        }
       }
-      }
-      out
+      list(valid = TRUE, out = out)
     }
 
-    mats <- .lapply_draws(.one_draw)
+    res_list <- .lapply_draws(.one_draw)
 
     draws_arr <- array(NA_real_, dim = c(S, n_pred, G))
-    for (s in 1:S) draws_arr[s, , ] <- mats[[s]]
+    valid_vec <- logical(S)
+    for (s in seq_len(S)) {
+      valid_vec[s] <- isTRUE(res_list[[s]]$valid)
+      draws_arr[s, , ] <- res_list[[s]]$out
+    }
 
     fit <- apply(draws_arr, c(2, 3), mean, na.rm = TRUE)
 
-     lower <- upper <- NULL
-     if (compute_interval) {
-       # Apply interval computation along dimension 1 (posterior draws) for each (i,j) combination
-       lower <- matrix(NA_real_, nrow = n_pred, ncol = G)
-       upper <- matrix(NA_real_, nrow = n_pred, ncol = G)
-       level <- probs[length(probs)] - probs[1]
-       if (!is.finite(level) || level <= 0 || level >= 1) level <- 0.95
-       for (i in 1:n_pred) {
-         for (j in 1:G) {
-           iv <- .compute_interval(draws_arr[, i, j], level = level, type = interval)
-           lower[i, j] <- iv["lower"]
-           upper[i, j] <- iv["upper"]
-         }
-       }
-     }
+    lower <- upper <- NULL
+    if (compute_interval) {
+      lower <- matrix(NA_real_, nrow = n_pred, ncol = G)
+      upper <- matrix(NA_real_, nrow = n_pred, ncol = G)
+      for (i in seq_len(n_pred)) {
+        for (j in seq_len(G)) {
+          iv <- .compute_interval(draws_arr[, i, j], level = cred.level, type = interval)
+          lower[i, j] <- iv["lower"]
+          upper[i, j] <- iv["upper"]
+        }
+      }
+    }
 
-    # Convert to data frame format with columns: id, y, density/survival, lower, upper
+    # Build DF
     result_list <- vector("list", n_pred * G)
     k <- 1L
-    for (i in 1:n_pred) {
-      for (j in 1:G) {
+    for (i in seq_len(n_pred)) {
+      for (j in seq_len(G)) {
         result_list[[k]] <- list(
           id = i,
-          y = ygrid[j],
+          y = ygrid_num[j],
           estimate = fit[i, j],
           lower = if (!is.null(lower)) lower[i, j] else NA_real_,
           upper = if (!is.null(upper)) upper[i, j] else NA_real_
@@ -1788,237 +1631,269 @@ stick_breaking <- nimble::nimbleFunction(
     fit_df <- do.call(rbind, lapply(result_list, as.data.frame))
     colnames(fit_df) <- c("id", "y", ifelse(type == "density", "density", "survival"), "lower", "upper")
 
-    if (isTRUE(store_draws) && is.environment(object$cache)) {
-      if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
-      key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
-                    "_n", n_pred, "_g", length(ygrid), "_S", S)
-      object$cache$predict[[key]] <- list(type = type, grid = ygrid, draws = draws_arr, fit = fit,
-                                          backend = backend, kernel = kernel, GPD = GPD)
-    }
-
-    out <- list(fit = fit_df, lower = NULL, upper = NULL, type = type, grid = ygrid)
+    out <- list(
+      fit = fit_df,
+      type = type,
+      grid = ygrid_num,
+      diagnostics = list(
+        n_draws_total = S,
+        n_draws_valid = sum(valid_vec),
+        n_draws_dropped = S - sum(valid_vec)
+      )
+    )
     class(out) <- "mixgpd_predict"
     return(out)
   }
 
   # -----------------------------
-  # quantile / median (q_fun per draw, then summarize)
-  # Returns data frame: index, estimate, lower, upper
+  # quantile / median
+  # -----------------------------
   if (type %in% c("quantile", "median")) {
     M <- length(pgrid)
 
     if (!has_X) {
       draws_mat <- matrix(NA_real_, nrow = M, ncol = S)
+
       for (s in seq_len(S)) {
-        w_s <- as.numeric(W_draws[s, ])
-        args0 <- if (pred_backend == "sb") list(w = w_s) else list()
-        for (nm in base_params) {
-          args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
-        }
-        if (GPD) { args0$tail_shape <- tail_shape[s] }
+        if (!.draw_valid[s]) next
+        args0 <- .build_args0_or_null(s)
+        if (is.null(args0)) next
+
         if (GPD) {
           args0$threshold <- threshold_scalar[s]
           args0$tail_scale <- tail_scale[s]
+          if (!is.finite(args0$threshold) || !is.finite(args0$tail_scale) || args0$tail_scale <= 0) next
         }
+
         draws_mat[, s] <- as.numeric(do.call(q_fun, c(list(p = pgrid), args0)))
       }
 
       summ <- .posterior_summarize(draws_mat, probs = probs, interval = if (compute_interval) interval else NULL)
-      estimate_vec <- as.numeric(summ$estimate)
-      lower_vec <- as.numeric(summ$lower)
-      upper_vec <- as.numeric(summ$upper)
 
       fit_df <- data.frame(
-        estimate = estimate_vec,
+        estimate = as.numeric(summ$estimate),
         index    = pgrid,
-        lower    = if (compute_interval) lower_vec else NA_real_,
-        upper    = if (compute_interval) upper_vec else NA_real_,
+        lower    = if (compute_interval) as.numeric(summ$lower) else NA_real_,
+        upper    = if (compute_interval) as.numeric(summ$upper) else NA_real_,
         row.names = NULL
       )
-      fit <- fit_df
 
-      draws_out <- if (isTRUE(store_draws)) draws_mat else NULL
-
-      if (isTRUE(store_draws) && is.environment(object$cache)) {
-        if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
-        key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
-                      "_m", M, "_S", S)
-        object$cache$predict[[key]] <- list(type = type, grid = pgrid, draws = draws_mat, fit = fit,
-                                            backend = backend, kernel = kernel, GPD = GPD)
-      }
-
-      out <- list(fit = fit_df, lower = NULL, upper = NULL, type = type, grid = pgrid, draws = draws_out)
-      class(out) <- "mixgpd_predict"
-      return(out)
-    } else {
-      draws_arr <- array(NA_real_, dim = c(n_pred, M, S))
-      for (s in seq_len(S)) {
-        w_s <- as.numeric(W_draws[s, ])
-        args0 <- if (pred_backend == "sb") list(w = w_s) else list()
-        for (nm in base_params) {
-          args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
-        }
-        if (GPD) { args0$tail_shape <- tail_shape[s] }
-
-        link_eta <- .compute_link_eta(s)
-        for (i in seq_len(n_pred)) {
-          args <- args0
-          if (GPD) {
-            args$threshold <- .threshold_at(s, i)
-            args$tail_scale <- .tail_scale_at(s, i)
-          }
-          if (length(link_params)) {
-            for (nm in link_params) args[[nm]] <- as.numeric(link_eta[[nm]][, i])
-          }
-          draws_arr[i, , s] <- as.numeric(do.call(q_fun, c(list(p = pgrid), args)))
-        }
-      }
-
-      summ <- .posterior_summarize(draws_arr, probs = probs, interval = if (compute_interval) interval else NULL)
-      estimate <- summ$estimate
-      lower <- summ$lower
-      upper <- summ$upper
-
-      fit_df <- data.frame(
-        estimate = as.vector(estimate),
-        index    = rep(pgrid, each = n_pred),
-        id       = rep(seq_len(n_pred), times = M),
-        lower    = if (compute_interval) as.vector(lower) else NA_real_,
-        upper    = if (compute_interval) as.vector(upper) else NA_real_,
-        row.names = NULL
+      out <- list(
+        fit = fit_df,
+        type = type,
+        grid = pgrid,
+        draws = if (isTRUE(store_draws)) draws_mat else NULL,
+        diagnostics = list(
+          n_draws_total = S,
+          n_draws_valid = sum(.draw_valid),
+          n_draws_dropped = S - sum(.draw_valid)
+        )
       )
-      fit <- fit_df
-
-      draws_out <- if (isTRUE(store_draws)) aperm(draws_arr, c(3, 1, 2)) else NULL
-
-      if (isTRUE(store_draws) && is.environment(object$cache)) {
-        if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
-        key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
-                      "_n", n_pred, "_m", length(pgrid), "_S", S)
-        object$cache$predict[[key]] <- list(type = type, grid = pgrid, draws = draws_out, fit = fit,
-                                            backend = backend, kernel = kernel, GPD = GPD)
-      }
-
-      out <- list(fit = fit_df, lower = NULL, upper = NULL, type = type, grid = pgrid, draws = draws_out)
       class(out) <- "mixgpd_predict"
       return(out)
     }
+
+    # Conditional quantiles
+    draws_arr <- array(NA_real_, dim = c(n_pred, M, S))
+
+    for (s in seq_len(S)) {
+      if (!.draw_valid[s]) next
+      args0 <- .build_args0_or_null(s)
+      if (is.null(args0)) next
+
+      link_eta <- .compute_link_eta(s)
+
+      for (i in seq_len(n_pred)) {
+        args <- args0
+        if (GPD) {
+          args$threshold <- .threshold_at(s, i)
+          args$tail_scale <- .tail_scale_at(s, i)
+          if (!is.finite(args$threshold) || !is.finite(args$tail_scale) || args$tail_scale <= 0) {
+            draws_arr[i, , s] <- NA_real_
+            next
+          }
+        }
+        if (length(link_params)) {
+          for (nm in link_params) {
+            vv <- as.numeric(link_eta[[nm]][, i])
+            if (!all(is.finite(vv))) { draws_arr[i, , s] <- NA_real_; next }
+            args[[nm]] <- vv
+          }
+        }
+        draws_arr[i, , s] <- as.numeric(do.call(q_fun, c(list(p = pgrid), args)))
+      }
+    }
+
+    summ <- .posterior_summarize(draws_arr, probs = probs, interval = if (compute_interval) interval else NULL)
+    estimate <- summ$estimate
+    lower <- summ$lower
+    upper <- summ$upper
+
+    fit_df <- data.frame(
+      estimate = as.vector(estimate),
+      index    = rep(pgrid, each = n_pred),
+      id       = rep(seq_len(n_pred), times = M),
+      lower    = if (compute_interval) as.vector(lower) else NA_real_,
+      upper    = if (compute_interval) as.vector(upper) else NA_real_,
+      row.names = NULL
+    )
+
+    out <- list(
+      fit = fit_df,
+      type = type,
+      grid = pgrid,
+      draws = if (isTRUE(store_draws)) aperm(draws_arr, c(3, 1, 2)) else NULL, # S x n_pred x M
+      diagnostics = list(
+        n_draws_total = S,
+        n_draws_valid = sum(.draw_valid),
+        n_draws_dropped = S - sum(.draw_valid)
+      )
+    )
+    class(out) <- "mixgpd_predict"
+    return(out)
   }
 
   # -----------------------------
-  # sample (posterior predictive via quantile inversion)
-  # Draw uniform samples and convert via quantile function
+  # sample (posterior predictive)
+  # -----------------------------
   if (type == "sample") {
     if (!has_X) {
-      # UNCONDITIONAL: Draw uniform samples and convert via quantile
       if (is.na(nsim) || nsim < 1L) nsim <- length(ytrain)
       idx <- sample.int(S, size = nsim, replace = TRUE)
       u_samples <- runif(nsim)
-      out <- numeric(nsim)
+      outv <- numeric(nsim)
 
-      for (t in 1:nsim) {
+      for (t in seq_len(nsim)) {
         s <- idx[t]
-        w_s <- as.numeric(W_draws[s, ])
-        args0 <- if (pred_backend == "sb") list(w = w_s) else list()
-        for (nm in base_params) {
-          args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
-        }
-        if (GPD) { args0$tail_shape <- tail_shape[s] }
-        args <- args0
+        if (!.draw_valid[s]) { outv[t] <- NA_real_; next }
+        args0 <- .build_args0_or_null(s)
+        if (is.null(args0)) { outv[t] <- NA_real_; next }
+
         if (GPD) {
-          args$threshold <- threshold_scalar[s]
-          args$tail_scale <- tail_scale[s]
+          args0$threshold <- threshold_scalar[s]
+          args0$tail_scale <- tail_scale[s]
+          if (!is.finite(args0$threshold) || !is.finite(args0$tail_scale) || args0$tail_scale <= 0) {
+            outv[t] <- NA_real_
+            next
+          }
         }
-        out[t] <- as.numeric(do.call(q_fun, c(list(p = u_samples[t]), args)))
+        outv[t] <- as.numeric(do.call(q_fun, c(list(p = u_samples[t]), args0)))
       }
 
-      if (is.environment(object$cache)) {
-        if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
-        key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
-                      "_nsim", nsim)
-        object$cache$predict[[key]] <- list(type = type, draws = out, posterior_index = idx,
-                                            backend = backend, kernel = kernel, GPD = GPD)
-      }
-
-      res <- list(fit = out, lower = NULL, upper = NULL, type = type, grid = NULL)
+      res <- list(
+        fit = outv,
+        type = type,
+        grid = NULL,
+        diagnostics = list(
+          n_draws_total = S,
+          n_draws_valid = sum(.draw_valid),
+          n_draws_dropped = S - sum(.draw_valid)
+        )
+      )
       class(res) <- "mixgpd_predict"
       return(res)
-    } else {
-      # CONDITIONAL: Draw uniform samples and convert via quantile
-      if (is.na(nsim) || nsim < 1L) nsim <- n_pred
-      idx <- sample.int(S, size = nsim, replace = TRUE)
-      u_samples <- runif(nsim)
-      out <- matrix(NA_real_, nrow = n_pred, ncol = nsim)
+    }
 
-      for (t in 1:nsim) {
-        s <- idx[t]
-        w_s <- as.numeric(W_draws[s, ])
-        args0 <- if (pred_backend == "sb") list(w = w_s) else list()
-        for (nm in base_params) {
-          args0[[nm]] <- .fill_param_na(nm, as.numeric(bulk_draws[[nm]][s, ]))
+    if (is.na(nsim) || nsim < 1L) nsim <- n_pred
+    idx <- sample.int(S, size = nsim, replace = TRUE)
+    u_samples <- runif(nsim)
+    outm <- matrix(NA_real_, nrow = n_pred, ncol = nsim)
+
+    for (t in seq_len(nsim)) {
+      s <- idx[t]
+      if (!.draw_valid[s]) next
+      args0 <- .build_args0_or_null(s)
+      if (is.null(args0)) next
+
+      link_eta <- .compute_link_eta(s)
+
+      for (i in seq_len(n_pred)) {
+        args <- args0
+        if (GPD) {
+          args$threshold <- .threshold_at(s, i)
+          args$tail_scale <- .tail_scale_at(s, i)
+          if (!is.finite(args$threshold) || !is.finite(args$tail_scale) || args$tail_scale <= 0) {
+            outm[i, t] <- NA_real_
+            next
+          }
         }
-        if (GPD) { args0$tail_shape <- tail_shape[s] }
+        if (length(link_params)) {
+          for (nm in link_params) {
+            vv <- as.numeric(link_eta[[nm]][, i])
+            if (!all(is.finite(vv))) { outm[i, t] <- NA_real_; next }
+            args[[nm]] <- vv
+          }
+        }
+        outm[i, t] <- as.numeric(do.call(q_fun, c(list(p = u_samples[t]), args)))
+      }
+    }
+
+    res <- list(
+      fit = outm,
+      type = type,
+      grid = NULL,
+      diagnostics = list(
+        n_draws_total = S,
+        n_draws_valid = sum(.draw_valid),
+        n_draws_dropped = S - sum(.draw_valid)
+      )
+    )
+    class(res) <- "mixgpd_predict"
+    return(res)
+  }
+
+  # -----------------------------
+  # fit (one posterior predictive draw per observation per posterior draw)
+  # -----------------------------
+  if (type == "fit") {
+    n_obs <- if (!has_X) length(ytrain) else n_pred
+    if (!is.numeric(n_obs) || n_obs < 1L) stop("Could not determine n_obs for type='fit'.", call. = FALSE)
+
+    samples_mat <- matrix(NA_real_, nrow = S, ncol = n_obs)
+
+    for (s in seq_len(S)) {
+      if (!.draw_valid[s]) next
+      args0 <- .build_args0_or_null(s)
+      if (is.null(args0)) next
+
+      # Conditional: one sample per observation
+      if (has_X) {
         link_eta <- .compute_link_eta(s)
-        for (i in 1:n_pred) {
+        for (i in seq_len(n_obs)) {
           args <- args0
           if (GPD) {
             args$threshold <- .threshold_at(s, i)
             args$tail_scale <- .tail_scale_at(s, i)
+            if (!is.finite(args$threshold) || !is.finite(args$tail_scale) || args$tail_scale <= 0) {
+              samples_mat[s, i] <- NA_real_
+              next
+            }
           }
           if (length(link_params)) {
-            for (nm in link_params) args[[nm]] <- as.numeric(link_eta[[nm]][, i])
+            for (nm in link_params) {
+              vv <- as.numeric(link_eta[[nm]][, i])
+              if (!all(is.finite(vv))) { samples_mat[s, i] <- NA_real_; next }
+              args[[nm]] <- vv
+            }
           }
-          out[i, t] <- as.numeric(do.call(q_fun, c(list(p = u_samples[t]), args)))
+          samples_mat[s, i] <- as.numeric(do.call(r_fun, c(list(n = 1L), args)))[1]
         }
-      }
-
-      if (is.environment(object$cache)) {
-        if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
-        key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
-                      "_n", n_pred, "_nsim", nsim)
-        object$cache$predict[[key]] <- list(type = type, draws = out, posterior_index = idx,
-                                            backend = backend, kernel = kernel, GPD = GPD)
-      }
-
-      res <- list(fit = out, lower = NULL, upper = NULL, type = type, grid = NULL)
-      class(res) <- "mixgpd_predict"
-      return(res)
-    }
-  }
-
-  # -----------------------------
-  # fit (per-observation posterior predictive samples summarized)
-  # Produce one estimate (dot) per observation with CI from posterior predictive samples
-  if (type == "fit") {
-    # number of prediction rows
-    if (!has_X) {
-      n_obs <- length(ytrain)
-    } else {
-      n_obs <- n_pred
-    }
-
-    if (!is.numeric(n_obs) || n_obs < 1) stop("Could not determine number of observations for 'fit' prediction.", call. = FALSE)
-
-    # For each posterior draw s, draw n_obs predictive samples
-    samples_mat <- matrix(NA_real_, nrow = S, ncol = n_obs)
-    for (s in seq_len(S)) {
-      if (!has_X) {
-        # unconditional: draw n_obs samples from marginal predictive at draw s
-        samples_mat[s, ] <- .draw_samples_uncond(s, nsim_inner = n_obs)
       } else {
-        # conditional: draw one sample per observation for draw s
-        samp_mat <- .draw_samples_cond(s, nsim_inner = 1L) # n_pred x 1
-        samples_mat[s, ] <- as.numeric(samp_mat[, 1])
+        # Unconditional: draw n_obs from marginal predictive for draw s
+        if (GPD) {
+          args0$threshold <- threshold_scalar[s]
+          args0$tail_scale <- tail_scale[s]
+          if (!is.finite(args0$threshold) || !is.finite(args0$tail_scale) || args0$tail_scale <= 0) next
+        }
+        samples_mat[s, ] <- as.numeric(do.call(r_fun, c(list(n = n_obs), args0)))
       }
     }
 
-    # Summarize per-observation across draws
-    prob_lower <- probs[1]
-    prob_upper <- probs[length(probs)]
     estimate <- as.numeric(colMeans(samples_mat, na.rm = TRUE))
+
     if (compute_interval) {
-      lower <- apply(samples_mat, 2, stats::quantile, probs = prob_lower, na.rm = TRUE)
-      upper <- apply(samples_mat, 2, stats::quantile, probs = prob_upper, na.rm = TRUE)
+      lower <- apply(samples_mat, 2, stats::quantile, probs = probs[1], na.rm = TRUE)
+      upper <- apply(samples_mat, 2, stats::quantile, probs = probs[length(probs)], na.rm = TRUE)
     } else {
       lower <- rep(NA_real_, n_obs)
       upper <- rep(NA_real_, n_obs)
@@ -2027,137 +1902,304 @@ stick_breaking <- nimble::nimbleFunction(
     fit_df <- data.frame(
       id = seq_len(n_obs),
       estimate = estimate,
-      lower = as.numeric(if (!is.null(lower)) lower else rep(NA_real_, n_obs)),
-      upper = as.numeric(if (!is.null(upper)) upper else rep(NA_real_, n_obs)),
+      lower = as.numeric(lower),
+      upper = as.numeric(upper),
       row.names = NULL
     )
 
-    draws_out <- if (isTRUE(store_draws)) samples_mat else NULL
-
-    out <- list(fit = fit_df, type = type, draws = draws_out)
+    out <- list(
+      fit = fit_df,
+      type = type,
+      draws = if (isTRUE(store_draws)) samples_mat else NULL,
+      diagnostics = list(
+        n_draws_total = S,
+        n_draws_valid = sum(.draw_valid),
+        n_draws_dropped = S - sum(.draw_valid)
+      )
+    )
     class(out) <- "mixgpd_predict"
     return(out)
   }
 
   # -----------------------------
-  # mean (via posterior samples from quantile inversion)
-  # Generate posterior samples via quantile inversion, compute mean and CI
+  # mean (posterior mean of predictive distribution)
+  # -----------------------------
   if (type == "mean") {
     nsim_inner <- as.integer(nsim_mean)
     if (is.na(nsim_inner) || nsim_inner < 10L) nsim_inner <- 200L
 
-    if (!has_X) {
-      if (isTRUE(store_draws) && is.environment(object$cache) &&
-          !is.null(object$cache$predict)) {
-        key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
-                      "_S", S, "_nsim", nsim_inner)
-        cached <- object$cache$predict[[key]] %||% NULL
-        if (!is.null(cached) && !is.null(cached$draws)) {
-          draws_mean <- cached$draws
-          summ <- .posterior_summarize(draws_mean, probs = probs, interval = if (compute_interval) interval else NULL)
-          estimate <- as.numeric(summ$estimate[1])
-          lower <- if (compute_interval) as.numeric(summ$lower[1]) else NULL
-          upper <- if (compute_interval) as.numeric(summ$upper[1]) else NULL
-          fit_df <- data.frame(
-            estimate = estimate,
-            lower = if (!is.null(lower)) lower else NA_real_,
-            upper = if (!is.null(upper)) upper else NA_real_
+    # If GPD and any valid draw has xi >= 1, posterior mean is infinite
+    if (GPD) {
+      xi_valid <- tail_shape[.draw_valid]
+      if (any(is.finite(xi_valid) & xi_valid >= 1)) {
+        warning("Posterior mean is infinite because there is posterior mass with tail_shape (xi) >= 1. Use type='median'/'quantile' or a restricted-mean target.", call. = FALSE)
+        inf_df <- data.frame(
+          id = if (has_X) seq_len(n_pred) else 1L,
+          estimate = Inf,
+          lower = if (compute_interval) Inf else NA_real_,
+          upper = if (compute_interval) Inf else NA_real_,
+          row.names = NULL
+        )
+        out <- list(
+          fit = inf_df,
+          type = type,
+          grid = NULL,
+          draws = if (isTRUE(store_draws)) rep(Inf, sum(.draw_valid)) else NULL,
+          diagnostics = list(
+            n_draws_total = S,
+            n_draws_valid = sum(.draw_valid),
+            n_draws_dropped = S - sum(.draw_valid),
+            mean_infinite = TRUE
           )
-          res <- list(fit = fit_df, type = type, draws = draws_mean)
-          class(res) <- "mixgpd_predict"
-          return(res)
-        }
+        )
+        class(out) <- "mixgpd_predict"
+        return(out)
       }
-
-      draws_mean <- numeric(S)
-      for (s in seq_len(S)) {
-        samples <- .draw_samples_uncond(s, nsim_inner)
-        draws_mean[s] <- mean(samples, na.rm = TRUE)
-      }
-
-      summ <- .posterior_summarize(draws_mean, probs = probs, interval = if (compute_interval) interval else NULL)
-      estimate <- as.numeric(summ$estimate[1])
-      lower <- if (compute_interval) as.numeric(summ$lower[1]) else NULL
-      upper <- if (compute_interval) as.numeric(summ$upper[1]) else NULL
-
-      fit_df <- data.frame(
-        estimate = estimate,
-        lower = if (!is.null(lower)) lower else NA_real_,
-        upper = if (!is.null(upper)) upper else NA_real_
-      )
-
-      if (isTRUE(store_draws) && is.environment(object$cache)) {
-        if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
-        key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
-                      "_S", S, "_nsim", nsim_inner)
-        object$cache$predict[[key]] <- list(type = type, draws = draws_mean, fit = fit_df,
-                                            backend = backend, kernel = kernel, GPD = GPD)
-      }
-      res <- list(fit = fit_df, type = type, draws = draws_mean)
-      class(res) <- "mixgpd_predict"
-      return(res)
-    } else {
-      if (isTRUE(store_draws) && is.environment(object$cache) &&
-          !is.null(object$cache$predict)) {
-        key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
-                      "_n", n_pred, "_S", S, "_nsim", nsim_inner)
-        cached <- object$cache$predict[[key]] %||% NULL
-        if (!is.null(cached) && !is.null(cached$draws)) {
-          draws_mean <- cached$draws
-          summ <- .posterior_summarize(draws_mean, probs = probs, interval = if (compute_interval) interval else NULL)
-          fit <- as.numeric(summ$estimate)
-          lower <- if (compute_interval) as.numeric(summ$lower) else NULL
-          upper <- if (compute_interval) as.numeric(summ$upper) else NULL
-          fit_df <- data.frame(
-            estimate = fit,
-            lower = if (!is.null(lower)) lower else rep(NA_real_, n_pred),
-            upper = if (!is.null(upper)) upper else rep(NA_real_, n_pred)
-          )
-          draws_out <- if (isTRUE(store_draws)) t(draws_mean) else NULL
-          res <- list(fit = fit_df, type = type, draws = draws_out)
-          class(res) <- "mixgpd_predict"
-          return(res)
-        }
-      }
-
-      draws_mean <- matrix(NA_real_, nrow = n_pred, ncol = S)
-      for (s in seq_len(S)) {
-        samples_mat <- .draw_samples_cond(s, nsim_inner)
-        draws_mean[, s] <- rowMeans(samples_mat, na.rm = TRUE)
-      }
-
-      summ <- .posterior_summarize(draws_mean, probs = probs, interval = if (compute_interval) interval else NULL)
-      fit <- as.numeric(summ$estimate)
-      lower <- if (compute_interval) as.numeric(summ$lower) else NULL
-      upper <- if (compute_interval) as.numeric(summ$upper) else NULL
-
-      # Return data frame format with one row per observation
-      fit_df <- data.frame(
-        estimate = fit,
-        lower = if (!is.null(lower)) lower else rep(NA_real_, n_pred),
-        upper = if (!is.null(upper)) upper else rep(NA_real_, n_pred)
-      )
-
-      # Flatten samples for histogram (all observations combined)
-      all_samples <- as.numeric(draws_mean)
-
-      if (isTRUE(store_draws) && is.environment(object$cache)) {
-        if (is.null(object$cache$predict)) object$cache$predict <- new.env(parent = emptyenv())
-        key <- paste0(type, "_", backend, "_", kernel, "_", ifelse(GPD, "gpd", "nogpd"),
-                      "_n", n_pred, "_S", S, "_nsim", nsim_inner)
-        object$cache$predict[[key]] <- list(type = type, draws = draws_mean, fit = fit_df,
-                                            backend = backend, kernel = kernel, GPD = GPD)
-      }
-
-      draws_out <- if (isTRUE(store_draws)) t(draws_mean) else NULL
-      res <- list(fit = fit_df, type = type, draws = draws_out)
-      class(res) <- "mixgpd_predict"
-      return(res)
     }
+
+    # Monte Carlo approximation to E[Y | params] per draw, then summarize over posterior draws
+    if (!has_X) {
+      draw_means <- rep(NA_real_, S)
+      for (s in seq_len(S)) {
+        if (!.draw_valid[s]) next
+        args0 <- .build_args0_or_null(s)
+        if (is.null(args0)) next
+        if (GPD) {
+          args0$threshold <- threshold_scalar[s]
+          args0$tail_scale <- tail_scale[s]
+          if (!is.finite(args0$threshold) || !is.finite(args0$tail_scale) || args0$tail_scale <= 0) next
+        }
+        yy <- as.numeric(do.call(r_fun, c(list(n = nsim_inner), args0)))
+        draw_means[s] <- mean(yy, na.rm = TRUE)
+      }
+
+      summ <- .posterior_summarize(draw_means, probs = probs, interval = if (compute_interval) interval else NULL)
+
+      fit_df <- data.frame(
+        id = 1L,
+        estimate = as.numeric(summ$estimate)[1],
+        lower = if (compute_interval) as.numeric(summ$lower)[1] else NA_real_,
+        upper = if (compute_interval) as.numeric(summ$upper)[1] else NA_real_,
+        row.names = NULL
+      )
+
+      out <- list(
+        fit = fit_df,
+        type = type,
+        grid = NULL,
+        draws = if (isTRUE(store_draws)) draw_means else NULL,
+        diagnostics = list(
+          n_draws_total = S,
+          n_draws_valid = sum(.draw_valid),
+          n_draws_dropped = S - sum(.draw_valid),
+          nsim_mean = nsim_inner
+        )
+      )
+      class(out) <- "mixgpd_predict"
+      return(out)
+    }
+
+    # Conditional mean: compute mean per x-row per posterior draw by simulation
+    draw_means_mat <- matrix(NA_real_, nrow = S, ncol = n_pred)
+
+    for (s in seq_len(S)) {
+      if (!.draw_valid[s]) next
+      args0 <- .build_args0_or_null(s)
+      if (is.null(args0)) next
+
+      link_eta <- .compute_link_eta(s)
+
+      for (i in seq_len(n_pred)) {
+        args <- args0
+        if (GPD) {
+          args$threshold <- .threshold_at(s, i)
+          args$tail_scale <- .tail_scale_at(s, i)
+          if (!is.finite(args$threshold) || !is.finite(args$tail_scale) || args$tail_scale <= 0) {
+            draw_means_mat[s, i] <- NA_real_
+            next
+          }
+        }
+        if (length(link_params)) {
+          for (nm in link_params) {
+            vv <- as.numeric(link_eta[[nm]][, i])
+            if (!all(is.finite(vv))) { draw_means_mat[s, i] <- NA_real_; next }
+            args[[nm]] <- vv
+          }
+        }
+
+        yy <- as.numeric(do.call(r_fun, c(list(n = nsim_inner), args)))
+        draw_means_mat[s, i] <- mean(yy, na.rm = TRUE)
+      }
+    }
+
+    # Summarize across draws for each i
+    estimate <- apply(draw_means_mat, 2, mean, na.rm = TRUE)
+
+    lower <- upper <- NULL
+    if (compute_interval) {
+      lower <- upper <- rep(NA_real_, n_pred)
+      for (i in seq_len(n_pred)) {
+        iv <- .compute_interval(draw_means_mat[, i], level = cred.level, type = interval)
+        lower[i] <- iv["lower"]
+        upper[i] <- iv["upper"]
+      }
+    }
+
+    fit_df <- data.frame(
+      id = seq_len(n_pred),
+      estimate = as.numeric(estimate),
+      lower = if (compute_interval) as.numeric(lower) else NA_real_,
+      upper = if (compute_interval) as.numeric(upper) else NA_real_,
+      row.names = NULL
+    )
+
+    out <- list(
+      fit = fit_df,
+      type = type,
+      grid = NULL,
+      draws = if (isTRUE(store_draws)) draw_means_mat else NULL,
+      diagnostics = list(
+        n_draws_total = S,
+        n_draws_valid = sum(.draw_valid),
+        n_draws_dropped = S - sum(.draw_valid),
+        nsim_mean = nsim_inner
+      )
+    )
+    class(out) <- "mixgpd_predict"
+    return(out)
   }
 
-  stop("Unsupported prediction type.", call. = FALSE)
+  
+  # -----------------------------
+  # rmean (restricted mean E[min(Y, cutoff)])
+  # -----------------------------
+  if (type == "rmean") {
+    if (is.null(cutoff) || length(cutoff) != 1L || !is.finite(as.numeric(cutoff))) {
+      stop("For type='rmean', provide a finite numeric 'cutoff'.", call. = FALSE)
+    }
+    cutoff <- as.numeric(cutoff)
+
+    nsim_inner <- as.integer(nsim_mean)
+    if (is.na(nsim_inner) || nsim_inner < 10L) nsim_inner <- 200L
+
+    if (!has_X) {
+      draw_rmeans <- rep(NA_real_, S)
+      for (s in seq_len(S)) {
+        if (!.draw_valid[s]) next
+        args0 <- .build_args0_or_null(s)
+        if (is.null(args0)) next
+        if (GPD) {
+          args0$threshold <- threshold_scalar[s]
+          args0$tail_scale <- tail_scale[s]
+          if (!is.finite(args0$threshold) || !is.finite(args0$tail_scale) || args0$tail_scale <= 0) next
+        }
+        yy <- as.numeric(do.call(r_fun, c(list(n = nsim_inner), args0)))
+        draw_rmeans[s] <- mean(pmin(yy, cutoff), na.rm = TRUE)
+      }
+
+      summ <- .posterior_summarize(draw_rmeans, probs = probs, interval = if (compute_interval) interval else NULL)
+
+      fit_df <- data.frame(
+        id = 1L,
+        estimate = as.numeric(summ$estimate)[1],
+        lower = if (compute_interval) as.numeric(summ$lower)[1] else NA_real_,
+        upper = if (compute_interval) as.numeric(summ$upper)[1] else NA_real_,
+        row.names = NULL
+      )
+
+      out <- list(
+        fit = fit_df,
+        type = type,
+        grid = NULL,
+        cutoff = cutoff,
+        draws = if (isTRUE(store_draws)) draw_rmeans else NULL,
+        diagnostics = list(
+          n_draws_total = S,
+          n_draws_valid = sum(.draw_valid),
+          n_draws_dropped = S - sum(.draw_valid),
+          nsim_mean = nsim_inner
+        )
+      )
+      class(out) <- "mixgpd_predict"
+      return(out)
+    }
+
+    draw_rmeans_mat <- matrix(NA_real_, nrow = S, ncol = n_pred)
+
+    for (s in seq_len(S)) {
+      if (!.draw_valid[s]) next
+      args0 <- .build_args0_or_null(s)
+      if (is.null(args0)) next
+
+      link_eta <- .compute_link_eta(s)
+
+      for (i in seq_len(n_pred)) {
+        args <- args0
+        if (GPD) {
+          args$threshold <- .threshold_at(s, i)
+          args$tail_scale <- .tail_scale_at(s, i)
+          if (!is.finite(args$threshold) || !is.finite(args$tail_scale) || args$tail_scale <= 0) {
+            draw_rmeans_mat[s, i] <- NA_real_
+            next
+          }
+        }
+        if (length(link_params)) {
+          for (nm in link_params) {
+            vv <- as.numeric(link_eta[[nm]][, i])
+            if (!all(is.finite(vv))) { draw_rmeans_mat[s, i] <- NA_real_; next }
+            args[[nm]] <- vv
+          }
+        }
+
+        yy <- as.numeric(do.call(r_fun, c(list(n = nsim_inner), args)))
+        draw_rmeans_mat[s, i] <- mean(pmin(yy, cutoff), na.rm = TRUE)
+      }
+    }
+
+    estimate <- apply(draw_rmeans_mat, 2, mean, na.rm = TRUE)
+
+    lower <- upper <- NULL
+    if (compute_interval) {
+      lower <- upper <- rep(NA_real_, n_pred)
+      for (i in seq_len(n_pred)) {
+        iv <- .compute_interval(draw_rmeans_mat[, i], level = cred.level, type = interval)
+        lower[i] <- iv["lower"]
+        upper[i] <- iv["upper"]
+      }
+    }
+
+    fit_df <- data.frame(
+      id = seq_len(n_pred),
+      estimate = as.numeric(estimate),
+      lower = if (compute_interval) as.numeric(lower) else NA_real_,
+      upper = if (compute_interval) as.numeric(upper) else NA_real_,
+      row.names = NULL
+    )
+
+    out <- list(
+      fit = fit_df,
+      type = type,
+      grid = NULL,
+      cutoff = cutoff,
+      draws = if (isTRUE(store_draws)) draw_rmeans_mat else NULL,
+      diagnostics = list(
+        n_draws_total = S,
+        n_draws_valid = sum(.draw_valid),
+        n_draws_dropped = S - sum(.draw_valid),
+        nsim_mean = nsim_inner
+      )
+    )
+    class(out) <- "mixgpd_predict"
+    return(out)
+  }
+
+stop(sprintf("Unsupported prediction type '%s'.", type), call. = FALSE)
 }
+
+
+
+
+
 .wrap_density_fun <- function(fun) {
   function(x, ...) {
     if (length(x) == 0) return(numeric(0))

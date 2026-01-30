@@ -444,6 +444,8 @@ qte <- function(fit,
                 level = 0.95) {
   stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
 
+  type <- match.arg(type)
+
   # Handle interval: NULL means no interval, otherwise match to credible/hpd
   compute_interval <- TRUE
   if (is.null(interval)) {
@@ -614,10 +616,14 @@ qte <- function(fit,
 #' @export
 ate <- function(fit,
                 newdata = NULL,
+                type = c("mean", "rmean"),
+                cutoff = NULL,
                 interval = "credible",
                 level = 0.95,
                 nsim_mean = 200L) {
   stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
+
+  type <- match.arg(type)
 
   # Handle interval: NULL means no interval, otherwise match to credible/hpd
   compute_interval <- TRUE
@@ -672,10 +678,12 @@ ate <- function(fit,
     }
   }
 
-  pr_trt <- predict(fit$outcome_fit$trt, x = x_pred, type = "mean",
+  pr_trt <- predict(fit$outcome_fit$trt, x = x_pred, type = type,
+                    cutoff = cutoff,
                     ps = ps_cov, interval = if (compute_interval) interval else NULL,
                     cred.level = level, nsim_mean = nsim_mean, store_draws = TRUE)
-  pr_con <- predict(fit$outcome_fit$con, x = x_pred, type = "mean",
+  pr_con <- predict(fit$outcome_fit$con, x = x_pred, type = type,
+                    cutoff = cutoff,
                     ps = ps_cov, interval = if (compute_interval) interval else NULL,
                     cred.level = level, nsim_mean = nsim_mean, store_draws = TRUE)
 
@@ -745,6 +753,31 @@ ate <- function(fit,
   )
   class(out) <- "dpmixgpd_ate"
   out
+}
+
+
+#' Restricted-mean ATE (finite under heavy tails)
+#'
+#' Computes an average treatment effect on the restricted mean scale,
+#' \eqn{E[min(Y, cutoff)]}, which is finite even when the ordinary mean does not exist
+#' under heavy-tailed GPD regimes.
+#'
+#' @inheritParams ate
+#' @param cutoff Finite numeric cutoff for the restricted mean.
+#' @export
+ate_rmean <- function(fit,
+                      newdata = NULL,
+                      cutoff,
+                      interval = "credible",
+                      level = 0.95,
+                      nsim_mean = 200L) {
+  ate(fit = fit,
+      newdata = newdata,
+      type = "rmean",
+      cutoff = cutoff,
+      interval = interval,
+      level = level,
+      nsim_mean = nsim_mean)
 }
 
 

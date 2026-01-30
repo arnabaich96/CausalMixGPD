@@ -12,6 +12,7 @@
 		},
 		"terminal.integrated.defaultProfile.windows": "R",
 		"chatgpt.openOnStartup": false,
-		"files.autoSave": "onFocusChange"
+		"files.autoSave": "onFocusChange",
+		"r.lsp.promptToInstall": false
 	}
 }

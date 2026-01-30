@@ -975,13 +975,34 @@ plot.mixgpd_fit <- function(x,
 #' If your object stores dedicated predictive machinery, you can keep this signature
 #' and swap the internals without breaking user code.
 #'
+#' @details
+#' The \code{type="mean"} option computes the posterior predictive mean by:
+#' \enumerate{
+#'   \item For each posterior draw s, computing E(Y | x, theta_s) via Monte Carlo simulation
+#'   \item Averaging these conditional means over the posterior: E(Y | x, data) = mean_s(E(Y | x, theta_s))
+#' }
+#' This accounts for parameter uncertainty and is the Bayesian predictive mean. When the tail
+#' shape parameter xi >= 1 (heavy tail), the mean is undefined and the function returns Inf
+#' with a warning suggesting alternatives like median or restricted mean.
+#'
 #' @param object A fitted object of class \code{"mixgpd_fit"}.
 #' @param x Optional new data. Alias for \code{newdata}.
 #' @param newdata Optional new data. If \code{NULL}, uses training design (if stored).
 #' @param ps Optional numeric vector of propensity scores for conditional prediction.
 #'   Used when the model was fit with propensity score augmentation.
-#' @param type Prediction type: \code{"density"}, \code{"survival"}, \code{"quantile"},
-#'   \code{"sample"}, \code{"mean"}, \code{"median"}, \code{"location"}.
+#' @param type Prediction type:
+#'   \itemize{
+#'     \item \code{"density"}: Posterior predictive density f(y | x, data)
+#'     \item \code{"survival"}: Posterior predictive survival S(y | x, data) = 1 - F(y | x, data)
+#'     \item \code{"quantile"}: Posterior predictive quantiles Q(p | x, data)
+#'     \item \code{"sample"}: Posterior predictive samples Y^rep ~ f(y | x, data)
+#'     \item \code{"mean"}: Posterior predictive mean E(Y | x, data) (averaged over posterior parameter uncertainty)
+#'     \item \code{"median"}: Posterior predictive median (quantile at p=0.5)
+#'     \item \code{"location"}: Alias for "mean"
+#'     \item \code{"fit"}: Per-observation posterior predictive draws
+#'   }
+#'   Note: \code{type="mean"} returns the posterior predictive mean, which integrates over
+#'   parameter uncertainty. This differs from the mean of a single model distribution.
 #' @param p Numeric vector of probabilities for quantiles (required for \code{type="quantile"}).
 #' @param index Alias for \code{p}; numeric vector of quantile levels.
 #' @param y Numeric vector of evaluation points (required for \code{type="density"} or \code{"survival"}).
@@ -1024,7 +1045,7 @@ predict.mixgpd_fit <- function(object,
                                ps = NULL,
                                newdata = NULL,
                                type = c("density", "survival",
-                                        "quantile", "sample", "mean", "median", "location", "fit"),
+                                        "quantile", "sample", "mean", "rmean", "median", "location", "fit"),
                                p = NULL,
                                index = NULL,
                                nsim = NULL,
@@ -1033,6 +1054,7 @@ predict.mixgpd_fit <- function(object,
                                probs = c(0.025, 0.5, 0.975),
                                store_draws = TRUE,
                                nsim_mean = 200L,
+                               cutoff = NULL,
                                ncores = 1L,
                                ...) {
   .validate_fit(object)
@@ -1148,6 +1170,7 @@ predict.mixgpd_fit <- function(object,
                   probs = probs,
                   store_draws = store_draws,
                   nsim_mean = nsim_mean,
+                  cutoff = cutoff,
                   ncores = ncores)
 }
 
@@ -1298,8 +1321,12 @@ fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median", "qu
 #' @param ... Unused.
 #' @return Numeric vector of residuals with length equal to the training sample size.
 #' @export
-residuals.mixgpd_fit <- function(object, type = c("raw", "pit"),
-                                 fitted_type = c("mean", "median"), ...) {
+residuals.mixgpd_fit <- function(object,
+                                 type = c("raw", "pit"),
+                                 fitted_type = c("mean", "median"),
+                                 pit = c("plugin", "bayes_mean", "bayes_draw"),
+                                 pit_seed = NULL,
+                                 ...) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   type <- match.arg(type)
@@ -1308,35 +1335,255 @@ residuals.mixgpd_fit <- function(object, type = c("raw", "pit"),
   if (is.null(y)) stop("Could not extract y from fitted object.", call. = FALSE)
   if (is.null(X)) stop("residuals() is not supported for unconditional models (no covariates). Use predict() for predictions.", call. = FALSE)
 
+  y <- as.numeric(y)
+  X <- as.matrix(X)
+
   if (type == "raw") {
     fitted_type <- match.arg(fitted_type)
     fit_vals <- fitted(object, type = fitted_type)
     return(as.numeric(fit_vals$residuals))
   }
 
-  pr_surv <- predict(object,
-                     x = X,
-                     y = y,
-                     type = "survival",
-                     interval = "none",
-                     store_draws = FALSE,
-                     ncores = 1L)
-  fit_df <- pr_surv$fit
-  surv_col <- if ("survival" %in% names(fit_df)) "survival" else "estimate"
+  pit <- match.arg(pit)
 
-  if (!("id" %in% names(fit_df))) {
-    return(as.numeric(1 - fit_df[[surv_col]]))
+  # -----------------------------
+  # plugin PIT: posterior-mean CDF evaluated at y_i (exact, no nearest-grid)
+  # -----------------------------
+  if (pit == "plugin") {
+    pr_surv <- predict(object,
+                       x = X,
+                       y = y,
+                       type = "survival",
+                       interval = NULL,
+                       store_draws = FALSE,
+                       ncores = 1L)
+
+    fit_df <- pr_surv$fit
+    surv_col <- if ("survival" %in% names(fit_df)) "survival" else "estimate"
+
+    if (!("id" %in% names(fit_df))) {
+      cdfv <- 1 - as.numeric(fit_df[[surv_col]])
+      cdfv <- pmin(pmax(cdfv, 0), 1)
+      attr(cdfv, "pit_type") <- "plugin"
+      return(cdfv)
+    }
+
+    n <- length(y)
+    ord <- order(fit_df$id)
+    surv_vec <- as.numeric(fit_df[[surv_col]][ord])
+    surv_mat <- matrix(surv_vec, nrow = n, byrow = TRUE)
+    surv_diag <- diag(surv_mat)
+
+    cdfv <- 1 - surv_diag
+    cdfv <- pmin(pmax(cdfv, 0), 1)
+    attr(cdfv, "pit_type") <- "plugin"
+    return(cdfv)
   }
 
-  pit <- numeric(length(y))
-  for (i in seq_along(y)) {
-    rows <- fit_df[fit_df$id == i, , drop = FALSE]
-    if (!nrow(rows)) next
-    idx <- which.min(abs(rows$y - y[i]))
-    pit[i] <- 1 - rows[[surv_col]][idx]
+  # -----------------------------
+  # Bayesian PIT: use draw-wise CDF F_s(y_i | x_i)
+  # - bayes_mean: average over draws
+  # - bayes_draw: randomly select one draw per i
+  # -----------------------------
+  if (!is.null(pit_seed)) set.seed(as.integer(pit_seed))
+
+  spec <- object$spec %||% list()
+  meta <- spec$meta %||% list()
+
+  backend <- meta$backend %||% spec$dispatch$backend %||% "<unknown>"
+  kernel  <- meta$kernel  %||% spec$kernel$key %||% "<unknown>"
+  GPD     <- isTRUE(meta$GPD %||% spec$dispatch$GPD)
+
+  pred_backend <- if (identical(backend, "crp")) "sb" else backend
+
+  # dispatch functions
+  fns <- .get_dispatch(object, backend_override = pred_backend)
+  p_fun <- fns$p
+  bulk_params <- fns$bulk_params
+
+  draw_mat <- .extract_draws_matrix(object)
+  if (is.null(draw_mat) || !is.matrix(draw_mat) || nrow(draw_mat) < 2L) {
+    stop("Posterior draws not found or malformed in fitted object.", call. = FALSE)
   }
-  pit
+  S <- nrow(draw_mat)
+  n <- length(y)
+
+  # weights + bulk params
+  W_draws <- .extract_weights(draw_mat, backend = pred_backend)
+  bulk_draws <- .extract_bulk_params(draw_mat, bulk_params = bulk_params)
+  base_params <- names(bulk_draws)
+
+  # gpd pieces
+  tail_shape <- NULL
+  threshold_mat <- NULL
+  threshold_scalar <- NULL
+  tail_scale <- NULL
+
+  P <- ncol(X)
+
+  .apply_link <- function(eta, link, link_power = NULL) {
+    link <- as.character(link %||% "identity")
+    if (link == "identity") return(eta)
+    if (link == "exp") return(exp(eta))
+    if (link == "log") return(log(eta))
+    if (link == "softplus") return(log1p(exp(eta)))
+    if (link == "power") {
+      if (is.null(link_power) || length(link_power) != 1L || !is.finite(as.numeric(link_power))) {
+        stop("power link requires numeric link_power.", call. = FALSE)
+      }
+      pw <- as.numeric(link_power)
+      return(eta ^ pw)
+    }
+    stop(sprintf("Unsupported link '%s'.", link), call. = FALSE)
+  }
+
+  if (GPD) {
+    if (!("tail_shape" %in% colnames(draw_mat))) stop("tail_shape not found in posterior draws.", call. = FALSE)
+    tail_shape <- as.numeric(draw_mat[, "tail_shape"])
+
+    gpd_plan <- spec$dispatch$gpd %||% meta$gpd %||% list()
+
+    thr_mode <- gpd_plan$threshold$mode %||% "constant"
+    if (identical(thr_mode, "link")) {
+      beta_thr <- .indexed_block(draw_mat, "beta_threshold", K = P)
+      threshold_mat <- matrix(NA_real_, nrow = S, ncol = n)
+      thr_link <- gpd_plan$threshold$link %||% "exp"
+      thr_power <- gpd_plan$threshold$link_power %||% NULL
+      for (s in seq_len(S)) {
+        eta <- as.numeric(X %*% beta_thr[s, ])
+        threshold_mat[s, ] <- as.numeric(.apply_link(eta, thr_link, thr_power))
+      }
+    } else {
+      thr_cols <- grep("^threshold(\\b|_)", colnames(draw_mat), value = TRUE)
+      if (length(thr_cols) == 0L && "threshold" %in% colnames(draw_mat)) thr_cols <- "threshold"
+      if (length(thr_cols) == 0L) stop("threshold not found in posterior draws.", call. = FALSE)
+      if (length(thr_cols) == 1L) threshold_scalar <- as.numeric(draw_mat[, thr_cols])
+      else threshold_scalar <- rowMeans(draw_mat[, thr_cols, drop = FALSE], na.rm = TRUE)
+    }
+
+    ts_mode <- gpd_plan$tail_scale$mode %||% "constant"
+    if (identical(ts_mode, "link")) {
+      beta_ts <- .indexed_block(draw_mat, "beta_tail_scale", K = P)
+      tail_scale <- matrix(NA_real_, nrow = S, ncol = n)
+      ts_link <- gpd_plan$tail_scale$link %||% "exp"
+      ts_power <- gpd_plan$tail_scale$link_power %||% NULL
+      for (s in seq_len(S)) {
+        eta <- as.numeric(X %*% beta_ts[s, ])
+        tail_scale[s, ] <- as.numeric(.apply_link(eta, ts_link, ts_power))
+      }
+    } else {
+      if (!("tail_scale" %in% colnames(draw_mat))) stop("tail_scale not found in posterior draws.", call. = FALSE)
+      tail_scale <- as.numeric(draw_mat[, "tail_scale"])
+    }
+  }
+
+  .threshold_at <- function(s, i) {
+    if (!is.null(threshold_mat)) return(threshold_mat[s, i])
+    threshold_scalar[s]
+  }
+
+  .tail_scale_at <- function(s, i) {
+    if (is.matrix(tail_scale)) return(tail_scale[s, i])
+    tail_scale[s]
+  }
+
+  # Draw validation (mirror .predict_mixgpd): bulk_support + GPD threshold/tail_scale
+  kdef <- get_kernel_registry()[[kernel]] %||% list()
+  bulk_support <- kdef$bulk_support %||% list()
+
+  .support_ok <- function(nm, v) {
+    sup <- as.character(bulk_support[[nm]] %||% "")
+    if (sup %in% c("positive_sd", "positive_scale", "positive_shape", "positive_location")) {
+      return(all(is.finite(v) & (v > 0)))
+    }
+    all(is.finite(v))
+  }
+
+  .build_args0_or_null <- function(s) {
+    w_s <- as.numeric(W_draws[s, ])
+    if (!all(is.finite(w_s))) return(NULL)
+
+    args0 <- if (pred_backend == "sb") list(w = w_s) else list()
+
+    for (nm in base_params) {
+      v <- as.numeric(bulk_draws[[nm]][s, ])
+      if (!.support_ok(nm, v)) return(NULL)
+      args0[[nm]] <- v
+    }
+
+    if (GPD) {
+      xi <- as.numeric(tail_shape[s])
+      if (!is.finite(xi)) return(NULL)
+      args0$tail_shape <- xi
+    }
+    args0
+  }
+
+  .draw_valid <- logical(S)
+  for (s in seq_len(S)) {
+    ok <- !is.null(.build_args0_or_null(s))
+    if (ok && GPD) {
+      if (!is.null(threshold_mat)) {
+        if (!all(is.finite(threshold_mat[s, ]))) ok <- FALSE
+      } else {
+        if (!is.finite(threshold_scalar[s])) ok <- FALSE
+      }
+      if (ok) {
+        if (is.matrix(tail_scale)) {
+          ok <- all(is.finite(tail_scale[s, ]) & (tail_scale[s, ] > 0))
+        } else {
+          ok <- is.finite(tail_scale[s]) && (tail_scale[s] > 0)
+        }
+      }
+    }
+    .draw_valid[s] <- ok
+  }
+
+  n_valid <- sum(.draw_valid)
+  if (n_valid == 0L) stop("All posterior draws are invalid for PIT (non-finite or out-of-support parameters).", call. = FALSE)
+
+  # compute draw-wise CDF matrix: S x n
+  cdf_draws <- matrix(NA_real_, nrow = S, ncol = n)
+
+  for (s in seq_len(S)) {
+    if (!.draw_valid[s]) next
+    args0 <- .build_args0_or_null(s)
+    if (is.null(args0)) next
+
+    for (i in seq_len(n)) {
+      args <- args0
+      if (GPD) {
+        args$threshold <- .threshold_at(s, i)
+        args$tail_scale <- .tail_scale_at(s, i)
+        if (!is.finite(args$threshold) || !is.finite(args$tail_scale) || args$tail_scale <= 0) next
+      }
+      cdfv <- as.numeric(do.call(p_fun, c(list(q = y[i], lower.tail = 1L, log.p = 0L), args)))
+      cdf_draws[s, i] <- cdfv
+    }
+  }
+
+  cdf_draws <- pmin(pmax(cdf_draws, 0), 1)
+
+  if (pit == "bayes_mean") {
+    u <- colMeans(cdf_draws, na.rm = TRUE)
+    u <- pmin(pmax(u, 0), 1)
+    attr(u, "pit_type") <- "bayes_mean"
+    return(u)
+  }
+
+  # bayes_draw
+  u <- rep(NA_real_, n)
+  for (i in seq_len(n)) {
+    ok <- which(is.finite(cdf_draws[, i]))
+    if (!length(ok)) next
+    s_pick <- sample(ok, size = 1L)
+    u[i] <- cdf_draws[s_pick, i]
+  }
+  u <- pmin(pmax(u, 0), 1)
+  attr(u, "pit_type") <- "bayes_draw"
+  u
 }
+
 
 
 #' Plot prediction results

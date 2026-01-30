@@ -48,6 +48,86 @@ $$
 and causal estimands are derived from differences in the fitted distributions,
 such as $\\mathbb{E}[Y(1) - Y(0) \\mid X]$ and quantile contrasts.
 
+## Conditional vs Marginal Causal Estimands
+
+### Conditional Estimands (What This Package Computes)
+
+The causal functions in this package compute **conditional** treatment effects:
+
+- **Conditional ATE (CATE)**: 
+  $$\\text{CATE}(x) = \\mathbb{E}[Y(1) - Y(0) \\mid X=x]$$
+  This is the average treatment effect for individuals with covariate values $x$.
+
+- **Conditional QTE (CQTE)**:
+  $$\\text{CQTE}(p, x) = Q_{Y(1)}(p \\mid X=x) - Q_{Y(0)}(p \\mid X=x)$$
+  This is the quantile treatment effect at probability $p$ for individuals with covariates $x$.
+
+### Marginal Estimands (Population-Level)
+
+**Marginal** treatment effects integrate over the covariate distribution:
+
+- **Marginal ATE**:
+  $$\\text{ATE} = \\mathbb{E}_X[\\mathbb{E}[Y(1) - Y(0) \\mid X]]$$
+  This is the population average treatment effect.
+
+- **Marginal QTE**:
+  $$\\text{QTE}(p) = Q_{Y(1)}(p) - Q_{Y(0)}(p)$$
+  where $Q_{Y(t)}(p)$ is the $p$-th quantile of the marginal distribution of $Y(t)$.
+
+### Important: Averaging Conditional Quantiles ≠ Marginal Quantile
+
+A common mistake is to average conditional quantiles to get marginal quantiles:
+$$\\mathbb{E}_X[Q_{Y(t)}(p \\mid X)] \\neq Q_{Y(t)}(p)$$
+
+**Example**: If treatment shifts the distribution differently for different $X$ values, 
+the average of conditional medians is generally not equal to the marginal median.
+
+### When to Use Each
+
+- **Use conditional estimands** (default in this package) when:
+  - You want to understand heterogeneous treatment effects across covariates
+  - You're interested in personalized treatment rules
+  - You want to identify subgroups with large/small effects
+
+- **Use marginal estimands** when:
+  - You want a single population-level summary
+  - You're reporting overall policy effects
+  - You need to compute marginal quantiles (requires integrating over $X$)
+
+### Computing Marginal Estimands
+
+To compute marginal estimands from this package:
+
+1. **Marginal ATE**: Average the conditional ATE over your sample or population distribution of $X$:
+   ```r
+   ate_cond <- ate(fit, newdata = X_population)
+   ate_marginal <- mean(ate_cond$estimate)
+   ```
+
+2. **Marginal QTE**: This requires more care:
+   - Draw samples from the marginal predictive distribution for each arm
+   - Compute quantiles of these samples
+   - Difference the quantiles
+   
+   ```r
+   # Sample from marginal predictive for each arm (integrate over X)
+   X_sample <- X_population[sample(nrow(X_population), 1000, replace=TRUE), ]
+   Y1_samples <- predict(fit$outcome_fit$trt, newdata=X_sample, type="sample", nsim=1000)
+   Y0_samples <- predict(fit$outcome_fit$con, newdata=X_sample, type="sample", nsim=1000)
+   
+   # Compute marginal quantiles
+   Q1 <- quantile(Y1_samples$fit, probs=c(0.1, 0.5, 0.9))
+   Q0 <- quantile(Y0_samples$fit, probs=c(0.1, 0.5, 0.9))
+   QTE_marginal <- Q1 - Q0
+   ```
+
+### References
+
+- Firpo, S. (2007). "Efficient semiparametric estimation of quantile treatment effects." 
+  *Econometrica*, 75(1), 259-276.
+- Frölich, M., & Melly, B. (2013). "Unconditional quantile treatment effects under 
+  endogeneity." *Journal of Business & Economic Statistics*, 31(3), 346-357.
+
 ## Data Setup
 
 ```{r}
