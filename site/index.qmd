@@ -1,0 +1,32 @@
+﻿---
+title: "DPmixGPD"
+---
+
+# DPmixGPD Landing
+
+DPmixGPD bundles the Dirichlet Process mixture of generalized Pareto distributions, the NIMBLE kernels that support it, and a cookbook of curated workflows. Use this landing page to jump to the section you need.
+
+## Quick links
+
+- [Package manual](articles/manual.html) — the pantry-style overview of the core API.
+- [Cookbook workflows](cookbook/index.html) — curated vignettes that walk through common modeling scenarios.
+- [Kernels reference](kernels/index.html) — kernel-specific introductions and definitions.
+- [Reference docs](reference/index.html) — auto-generated help pages for every exported function.
+- [Roadmap](roadmap.html) — planned enhancements and research directions.
+
+## Highlights
+
+### Pantry
+- [Introduction](articles/introduction.html)
+- [Distributions overview](articles/distributions.html)
+- [Model specification](articles/model-spec.html)
+- [MCMC workflow](articles/mcmc-workflow.html)
+- [Unconditional, conditional, and causal guides](articles/unconditional.html)
+
+### Chef Specials
+- [Umbrella customization](articles/Customization/umbrella.html)
+- [Build NIMBLE from scratch](articles/Customization/customization.html)
+
+### Coverage and Reference
+- [Coverage report](coverage/index.html)
+- [S3 methods guide](articles/reference-s3.html)

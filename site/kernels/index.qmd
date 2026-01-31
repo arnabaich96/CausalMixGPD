@@ -1,0 +1,21 @@
+﻿---
+title: "Kernel Reference"
+---
+
+# Kernel Reference
+
+DPmixGPD exposes a variety of kernels. Each kernel page covers its mathematical definition, conventions, and how it behaves in the mixture model.
+
+- [Kernel index](articles/kernels-index.html)
+- [Amoroso](articles/kernels/kernel-amoroso.html)
+- [Cauchy](articles/kernels/kernel-cauchy.html)
+- [Gamma](articles/kernels/kernel-gamma.html)
+- [Inverse Gaussian](articles/kernels/kernel-invgauss.html)
+- [Laplace](articles/kernels/kernel-laplace.html)
+- [Lognormal](articles/kernels/kernel-lognormal.html)
+- [Normal](articles/kernels/kernel-normal.html)
+- [Mathematical definitions](articles/kernels/mathematical-definitions-and-conventions.html)
+- [Intro with GPD kernel](articles/kernels/introduction-with-gpd-kernel.html)
+- [Inverse Gaussian mixture](articles/kernels/kernel-inverse-gaussian-mixture.html)
+- [Inverse Gaussian base](articles/kernels/kernel-inverse-gaussian-base.html)
+- [Summary distribution backend reference](articles/kernels/summary-distribution-backend-reference.html)
