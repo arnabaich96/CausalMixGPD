@@ -1,21 +1,26 @@
 url: https://arnabaich96.github.io/DPmixGPD/
+destination: docs/reference
+
 template:
   bootstrap: 5
   assets: pkgdown/assets
+
 build:
   lazy: true
+
 navbar:
   structure:
     left: [home, manual, allin1, kernels, cookbook, coverage, reference]
   right:
     - text: "GitHub"
       href: https://github.com/arnabaich96/DPmixGPD
+
   components:
     manual:
       text: "Pantry"
       menu:
         - text: "Pantry Overview"
-          href: articles/manual.html
+          href: articles/manual-index.html
         - text: "---"
         - text: "Starters"
         - text: "Starter: Introduction"
@@ -38,6 +43,7 @@ navbar:
           href: articles/backends.html
         - text: "Utensil Guide (S3 Methods)"
           href: articles/reference-s3.html
+
     allin1:
       text: "Chef Specials"
       menu:
@@ -45,6 +51,7 @@ navbar:
           href: articles/Customization/umbrella.html
         - text: "Custom Order: Build NIMBLE from Scratch"
           href: articles/Customization/customization.html
+
     kernels:
       text: "Ingredients"
       menu:
@@ -57,79 +64,80 @@ navbar:
           href: articles/kernels/kernel-cauchy.html
         - text: "Gamma"
           href: articles/kernels/kernel-gamma.html
-        - text: "Inverse Gaussian"
-          href: articles/kernels/kernel-invgauss.html
+        - text: "Inverse Gaussian (Base)"
+          href: articles/kernels/kernel-inverse-gaussian-base.html
+        - text: "Inverse Gaussian (Mixture)"
+          href: articles/kernels/kernel-inverse-gaussian-mixture.html
         - text: "Laplace"
           href: articles/kernels/kernel-laplace.html
         - text: "Lognormal"
           href: articles/kernels/kernel-lognormal.html
         - text: "Normal"
           href: articles/kernels/kernel-normal.html
+        - text: "---"
+        - text: "Math conventions"
+          href: articles/kernels/mathematical-definitions-and-conventions.html
+        - text: "Kernel + GPD intro"
+          href: articles/kernels/introduction-with-gpd-kernel.html
+        - text: "Backend reference summary"
+          href: articles/kernels/summary-distribution-backend-reference.html
+
     cookbook:
       text: "Cookbook"
       menu:
         - text: "Recipe Book"
-          href: articles/cookbook-index.html
+          href: articles/website/workflows/v00-start-here.html
         - text: "---"
         - text: "Starters"
         - text: "Starter Broth (Start Here)"
-          href: articles/cookbook/v00-start-here.html
+          href: articles/website/workflows/v00-start-here.html
         - text: "Chef's Notes (Introduction)"
-          href: articles/cookbook/v01-introduction.html
-        - text: "Spice Rack Sampler (Distribution Kernels)"
-          href: articles/kernels/mathematical-definitions-and-conventions.html
-        - text: "---"
-        - text: "Entrees"
+          href: articles/website/workflows/v01-introduction.html
         - text: "Mainline Sear (Compile & Run)"
-          href: articles/cookbook/v03-basic-model-compile-run.html
+          href: articles/website/workflows/v03-basic-model-compile-run.html
         - text: "Two-Oven Roast (Backends)"
-          href: articles/cookbook/v04-backends-and-workflow.html
-        - text: "---"
-        - text: "Chef Specials (All-in-One)"
-        - text: "House Platter (Umbrella)"
-          href: articles/Customization/umbrella.html
-        - text: "Chef's Tasting Menu (NIMBLE)"
-          href: articles/Customization/customization.html
+          href: articles/website/workflows/v04-backends-and-workflow.html
         - text: "---"
         - text: "Mains (Unconditional)"
         - text: "Classic Stew (CRP)"
-          href: articles/cookbook/v05-unconditional-DPmix-CRP.html
+          href: articles/website/workflows/v05-unconditional-DPmix-CRP.html
         - text: "Extended Braise (CRP Extended)"
-          href: articles/cookbook/v06-unconditional-DPmix-CRP.html
+          href: articles/website/workflows/v06-unconditional-DPmix-CRP.html
         - text: "Layered Lasagna (SB)"
-          href: articles/cookbook/v07-unconditional-DPmix-SB.html
+          href: articles/website/workflows/v07-unconditional-DPmix-SB.html
         - text: "Tail-Spice Chili (GPD CRP)"
-          href: articles/cookbook/v08-unconditional-DPmixGPD-CRP.html
+          href: articles/website/workflows/v08-unconditional-DPmixGPD-CRP.html
         - text: "Tail-Spice Bake (GPD SB)"
-          href: articles/cookbook/v09-unconditional-DPmixGPD-SB.html
+          href: articles/website/workflows/v09-unconditional-DPmixGPD-SB.html
         - text: "---"
         - text: "Sides (Conditional)"
         - text: "Seasoned Sides (CRP)"
-          href: articles/cookbook/v10-conditional-DPmix-CRP.html
+          href: articles/website/workflows/v10-conditional-DPmix-CRP.html
         - text: "Stirred Layers (SB)"
-          href: articles/cookbook/v11-conditional-DPmix-SB.html
+          href: articles/website/workflows/v11-conditional-DPmix-SB.html
         - text: "Citrus Tart (GPD CRP)"
-          href: articles/cookbook/v12-conditional-DPmixGPD-CRP.html
+          href: articles/website/workflows/v12-conditional-DPmixGPD-CRP.html
         - text: "Glazed Side (GPD SB)"
-          href: articles/cookbook/v13-conditional-DPmixGPD-SB.html
+          href: articles/website/workflows/v13-conditional-DPmixGPD-SB.html
         - text: "---"
         - text: "Desserts (Causal)"
         - text: "Simple Sweet (No Covariates)"
-          href: articles/cookbook/v14-causal-no-x-CRP.html
+          href: articles/website/workflows/v14-causal-no-x-CRP.html
         - text: "Layer Cake (With Covariates)"
-          href: articles/cookbook/v15-causal-x-no-ps-SB.html
+          href: articles/website/workflows/v15-causal-x-no-ps-SB.html
         - text: "Twin Scoops (Same Backend CRP)"
-          href: articles/cookbook/v16-causal-same-backend-CRP.html
+          href: articles/website/workflows/v16-causal-same-backend-CRP.html
         - text: "Twin Parfaits (Same Backend SB)"
-          href: articles/cookbook/v17-causal-same-backend-SB.html
+          href: articles/website/workflows/v17-causal-same-backend-SB.html
         - text: "Two-Style Tasting (Different CRP)"
-          href: articles/cookbook/v18-causal-different-backends-CRP.html
+          href: articles/website/workflows/v18-causal-different-backends-CRP.html
         - text: "Split Plating (Different SB)"
-          href: articles/cookbook/v19-causal-different-backends-SB.html
+          href: articles/website/workflows/v19-causal-different-backends-SB.html
         - text: "---"
         - text: "Kitchen Notes"
         - text: "Fix-It Fry (Troubleshooting)"
-          href: articles/cookbook/v20-troubleshooting.html
+          href: articles/website/workflows/v20-troubleshooting.html
+
     coverage:
       text: "Coverage"
       href: coverage/index.html
@@ -138,9 +146,10 @@ articles:
   - title: "Get Started"
     contents:
       - "introduction"
+      - "manual-index"
+
   - title: "Vignettes"
     contents:
-      - "manual"
       - "distributions"
       - "model-spec"
       - "mcmc-workflow"
@@ -149,24 +158,27 @@ articles:
       - "causal"
       - "backends"
       - "reference-s3"
+
   - title: "All-in-One"
     contents:
-      - "website/Customization/umbrella"
-      - "website/Customization/customization"
+      - "Customization/umbrella"
+      - "Customization/customization"
+
   - title: "Kernels"
     contents:
       - "website/kernels/kernels-index"
       - "website/kernels/mathematical-definitions-and-conventions"
       - "website/kernels/introduction-with-gpd-kernel"
-      - "website/kernels/kernel-normal"
-      - "website/kernels/kernel-gamma"
-      - "website/kernels/kernel-lognormal"
-      - "website/kernels/kernel-laplace"
-      - "website/kernels/kernel-inverse-gaussian-mixture"
-      - "website/kernels/kernel-amoroso"
-      - "website/kernels/kernel-inverse-gaussian-base"
-      - "website/kernels/kernel-cauchy"
       - "website/kernels/summary-distribution-backend-reference"
+      - "website/kernels/kernel-amoroso"
+      - "website/kernels/kernel-cauchy"
+      - "website/kernels/kernel-gamma"
+      - "website/kernels/kernel-inverse-gaussian-base"
+      - "website/kernels/kernel-inverse-gaussian-mixture"
+      - "website/kernels/kernel-laplace"
+      - "website/kernels/kernel-lognormal"
+      - "website/kernels/kernel-normal"
+
   - title: "Cookbook Workflows"
     contents:
       - "website/workflows/v00-start-here"

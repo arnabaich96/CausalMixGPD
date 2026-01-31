@@ -61,4 +61,7 @@
 ^tests/testthat/tests/$
 ^tools/
 ^tools/$
+# Website build artifacts (GitHub Pages)
+^docs$
+^site$
 
