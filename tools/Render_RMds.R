@@ -3,8 +3,8 @@
 # rebuilt cache and figures for fast site builds.
 
 args <- commandArgs(trailingOnly = TRUE)
-workflow_dir <- "vignettes/workflows"
-customization_dir <- "vignettes/Customization"
+workflow_dir <- "vignettes/website/workflows"
+customization_dir <- "vignettes/website/Customization"
 workflow_files <- if (length(args) == 0) {
   wf <- list.files(workflow_dir, pattern = "^v.*\\.Rmd$", full.names = TRUE)
   custom <- list.files(customization_dir, pattern = "\\.Rmd$", full.names = TRUE)
@@ -108,8 +108,8 @@ patch_safe_execution()
 # Rebuild cache every time: remove existing cache and figure dirs so all chunks
 # re-run with current package code. pkgdown (run after this script) will use
 # the freshly built cache and figures.
-cache_dir <- file.path("vignettes", "workflows", "legacy-cache")
-custom_cache_dir <- file.path("vignettes", "Customization", "legacy-cache")
+cache_dir <- file.path("vignettes", "website", "workflows", "legacy-cache")
+custom_cache_dir <- file.path("vignettes", "website", "Customization", "legacy-cache")
 if (dir.exists(cache_dir)) {
   unlink(cache_dir, recursive = TRUE)
   message("Cleared workflow cache: ", cache_dir)

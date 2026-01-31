@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Causal Workflow"
 output:
   rmarkdown::html_vignette:
@@ -21,6 +21,7 @@ knitr::opts_chunk$set(
 )
 library(ggplot2)
 library(kableExtra)
+library(DPmixGPD)
 set.seed(1)
 FAST <- TRUE
 mcmc <- if (FAST) {
@@ -131,7 +132,7 @@ To compute marginal estimands from this package:
 ## Data Setup
 
 ```{r}
-source("_load_pkg.R")
+library(DPmixGPD)
 
 data("mtcars", package = "datasets")
 df <- mtcars

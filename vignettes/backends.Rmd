@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Backends: SB vs CRP"
 output:
   rmarkdown::html_vignette:
@@ -21,7 +21,8 @@ knitr::opts_chunk$set(
 )
 library(ggplot2)
 library(kableExtra)
-source("_load_pkg.R")
+library(DPmixGPD)
+
 set.seed(1)
 FAST <- TRUE
 mcmc <- if (FAST) {

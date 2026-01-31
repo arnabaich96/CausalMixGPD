@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Unconditional Models"
 output:
   rmarkdown::html_vignette:
@@ -21,6 +21,7 @@ knitr::opts_chunk$set(
 )
 library(ggplot2)
 library(kableExtra)
+library(DPmixGPD)
 set.seed(1)
 FAST <- TRUE
 mcmc <- if (FAST) {
@@ -48,7 +49,7 @@ threshold $u$ to stabilize tail behavior.
 ## Model Fitting
 
 ```{r, results='hide'}
-source("_load_pkg.R")
+library(DPmixGPD)
 
 data("faithful", package = "datasets")
 y <- faithful$eruptions

@@ -1,2 +1,6 @@
 /.quarto/
 **/*.quarto_ipynb
+*.RData
+*.Rdata
+*.rdata
+*.rdx

@@ -31,11 +31,16 @@
 ^tools/\.codecov_token$
 ^vignettes/manuscript/
 ^vignettes/manuscript/$
-^vignettes/workflows/
-^vignettes/workflows/$
-^vignettes/customization/
-^vignettes/customization/$
+^vignettes/website/workflows/
+^vignettes/website/workflows/$
+^vignettes/website/Customization/
+^vignettes/website/Customization/$
+^vignettes/website/
+^vignettes/website/$
 ^tmp-.*\.R$
+^.*\.RData$
+^.*\.rda$
+^.*\.rdx$
 ^\.Rhistory$
 # Exclude generated .R files from vignettes (knitr artifacts)
 ^vignettes/.*\.R$

@@ -47,7 +47,7 @@ test_that("causal workflow: representative combos (Tier B)", {
       mcmc_outcome = mcmc_out,
       mcmc_ps = mcmc_ps,
       PS = cfg$PS,
-      
+
     )
 
     cf <- DPmixGPD::run_mcmc_causal(cb, show_progress = FALSE)
@@ -1036,7 +1036,7 @@ test_that("build_causal_bundle applies arm-specific param_specs", {
     mcmc_outcome = mcmc_out,
     mcmc_ps = mcmc_ps,
     PS = ps_opt,
-    
+
   )
 
   cf <- DPmixGPD::run_mcmc_causal(cb, show_progress = FALSE)
@@ -1368,7 +1368,7 @@ test_that("print.dpmixgpd_causal_bundle works", {
     GPD = FALSE,
     components = 4,
     PS = "logit",
-    
+
   )
 
   expect_output(print(cb), "DPmixGPD causal bundle")
@@ -1400,7 +1400,7 @@ test_that("print.dpmixgpd_causal_bundle works", {
     mcmc_outcome = mcmc_out,
     mcmc_ps = mcmc_ps,
     PS = "logit",
-    
+
     ps_scale = ps_scale,
     ps_summary = ps_summary,
     ps_clamp = ps_clamp
@@ -1536,7 +1536,7 @@ test_that("params() works for causal fits", {
     mcmc_outcome = mcmc_out,
     mcmc_ps = mcmc_ps,
     PS = "logit",
-    
+
   )
 
   cf <- DPmixGPD::run_mcmc_causal(cb, show_progress = FALSE)

@@ -46,6 +46,15 @@ docs/**/cache/**
 !docs/**/*.md
 
 .Rproj.user
+.RData
+.Rdata
+.Rapp.history
+.Ruserdata
+*.rda
+*.rdata
+*.RData
+*.Rda
+*.rdx
 
 # Ignore R history and legacy vignette cache/logs
 .Rhistory
