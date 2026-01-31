@@ -40,17 +40,6 @@
 <url><loc>https://arnabaich96.github.io/DPmixGPD/articles/distributions.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/articles/index.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/articles/introduction.html</loc></url>
-<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/kernels/introduction-with-gpd-kernel.html</loc></url>
-<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-amoroso.html</loc></url>
-<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-cauchy.html</loc></url>
-<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-gamma.html</loc></url>
-<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-inverse-gaussian-base.html</loc></url>
-<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-inverse-gaussian-mixture.html</loc></url>
-<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-laplace.html</loc></url>
-<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-lognormal.html</loc></url>
-<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/kernels/kernel-normal.html</loc></url>
-<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/kernels/mathematical-definitions-and-conventions.html</loc></url>
-<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/kernels/summary-distribution-backend-reference.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/articles/kernels-index.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/articles/manual-index.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/articles/manual.html</loc></url>
@@ -69,6 +58,7 @@
 <url><loc>https://arnabaich96.github.io/DPmixGPD/articles/website/kernels/kernel-laplace.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/articles/website/kernels/kernel-lognormal.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/articles/website/kernels/kernel-normal.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/articles/website/kernels/kernels-index.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/articles/website/kernels/mathematical-definitions-and-conventions.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/articles/website/kernels/summary-distribution-backend-reference.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/articles/website/workflows/v00-start-here.html</loc></url>

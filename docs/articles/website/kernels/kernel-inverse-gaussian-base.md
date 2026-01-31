@@ -2,7 +2,7 @@
 
 ## Inverse Gaussian (base kernel)
 
-### Inverse Gaussian base kernel
+### Inverse Gaussian base kernel (single component)
 
 This section documents the same inverse Gaussian density as above, but
 for a **single** component rather than a mixture:

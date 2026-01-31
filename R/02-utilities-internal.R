@@ -1443,7 +1443,7 @@ stick_breaking <- nimble::nimbleFunction(
     }
   }
 
-  if (type %in% c("sample", "fit", "mean")) {
+  if (type %in% c("sample", "fit", "mean", "rmean")) {
     if (has_X) {
       if (is.null(x)) {
         if (is.null(Xtrain)) stop("Training X not found in fit object.", call. = FALSE)

@@ -155,7 +155,7 @@ articles:
       - "website/Customization/customization"
   - title: "Kernels"
     contents:
-      - '"kernels-index"'
+      - "website/kernels/kernels-index"
       - "website/kernels/mathematical-definitions-and-conventions"
       - "website/kernels/introduction-with-gpd-kernel"
       - "website/kernels/kernel-normal"

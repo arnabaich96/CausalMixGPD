@@ -2319,6 +2319,9 @@ print.summary.dpmixgpd_ate <- function(x, digits = 3, ...) {
 #' @param type Character; plot type: \code{"both"} (default), \code{"effect"}, or \code{"arms"}.
 #' @param facet_by Character; faceting strategy when multiple prediction points exist.
 #'   \code{"tau"} (default) facets by quantile level, \code{"id"} facets by prediction point.
+#' @param plotly Logical; if \code{TRUE}, convert the \code{ggplot2} output to a
+#'   \code{plotly} / \code{htmlwidget} representation via \code{.wrap_plotly()}. Defaults
+#'   to \code{getOption("DPmixGPD.plotly", FALSE)}.
 #' @param ... Additional arguments passed to ggplot2 functions.
 #' @return A list of ggplot objects with elements \code{trt_control} and \code{treatment_effect}
 #'   (if \code{type="both"}), or a single ggplot object (if \code{type} is \code{"effect"} or
@@ -2332,12 +2335,14 @@ print.summary.dpmixgpd_ate <- function(x, digits = 3, ...) {
 #' }
 #' @export
 plot.dpmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"),
-                              facet_by = c("tau", "id"), ...) {
+                              facet_by = c("tau", "id"),
+                              plotly = getOption("DPmixGPD.plotly", FALSE), ...) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("Package 'ggplot2' is required for plotting. Install it first.", call. = FALSE)
   }
 
+  use_plotly <- isTRUE(plotly)
   type <- match.arg(type)
   facet_by <- match.arg(facet_by)
 
@@ -2478,13 +2483,15 @@ plot.dpmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"),
   if (type == "effect") {
     result <- .build_effect_plot()
     class(result) <- c("dpmixgpd_qte_plot", class(result))
-    return(.wrap_plotly(result))
+    if (use_plotly) return(.wrap_plotly(result))
+    return(result)
   }
 
   if (type == "arms") {
     result <- .build_arms_plot()
     class(result) <- c("dpmixgpd_qte_plot", class(result))
-    return(.wrap_plotly(result))
+    if (use_plotly) return(.wrap_plotly(result))
+    return(result)
   }
 
   # type == "both" (default) - maintain backward compatible naming
@@ -2493,7 +2500,10 @@ plot.dpmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"),
     treatment_effect = .build_effect_plot()
   )
   class(result) <- c("dpmixgpd_causal_predict_plots", "list")
-  .wrap_plotly(result)
+  if (use_plotly) {
+    return(.wrap_plotly(result))
+  }
+  result
 }
 
 #' Plot ATE results
@@ -2510,6 +2520,9 @@ plot.dpmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"),
 #' @param x Object of class \code{dpmixgpd_ate}.
 #' @param y Ignored.
 #' @param type Character; plot type: \code{"both"} (default), \code{"effect"}, or \code{"arms"}.
+#' @param plotly Logical; if \code{TRUE}, convert the \code{ggplot2} output to a
+#'   \code{plotly} / \code{htmlwidget} representation via \code{.wrap_plotly()}. Defaults
+#'   to \code{getOption("DPmixGPD.plotly", FALSE)}.
 #' @param ... Additional arguments passed to ggplot2 functions.
 #' @return A list of ggplot objects with elements \code{trt_control} and \code{treatment_effect}
 #'   (if \code{type="both"}), or a single ggplot object (if \code{type} is \code{"effect"} or
@@ -2522,12 +2535,14 @@ plot.dpmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"),
 #' plot(ate_result, type = "arms")    # single arms plot
 #' }
 #' @export
-plot.dpmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"), ...) {
+plot.dpmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"),
+                             plotly = getOption("DPmixGPD.plotly", FALSE), ...) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("Package 'ggplot2' is required for plotting. Install it first.", call. = FALSE)
   }
 
+  use_plotly <- isTRUE(plotly)
   type <- match.arg(type)
 
   if (!is.list(x) || is.null(x$trt) || is.null(x$con)) {
@@ -2629,13 +2644,15 @@ plot.dpmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"), .
   if (type == "effect") {
     result <- .build_effect_plot()
     class(result) <- c("dpmixgpd_ate_plot", class(result))
-    return(.wrap_plotly(result))
+    if (use_plotly) return(.wrap_plotly(result))
+    return(result)
   }
 
   if (type == "arms") {
     result <- .build_arms_plot()
     class(result) <- c("dpmixgpd_ate_plot", class(result))
-    return(.wrap_plotly(result))
+    if (use_plotly) return(.wrap_plotly(result))
+    return(result)
   }
 
   # type == "both" (default) - maintain backward compatible naming

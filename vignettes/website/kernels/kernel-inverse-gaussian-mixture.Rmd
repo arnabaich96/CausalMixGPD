@@ -18,7 +18,7 @@ source("_load_pkg.R")
 ## Inverse Gaussian (mixture kernel) {#v02-inverse-gaussian-mixture-kernel}
 
 
-### Inverse Gaussian mixture kernel
+### Inverse Gaussian mixture kernel (finite components) {#inverse-gaussian-mixture-kernel-finite}
 
 An inverse Gaussian component with mean \(\mu>0\) and shape \(\lambda>0\) has density
 \[

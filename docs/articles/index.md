@@ -36,7 +36,7 @@
 ### Kernels
 
 - [Kernels
-  Overview](https://arnabaich96.github.io/DPmixGPD/articles/kernels-index.md):
+  Overview](https://arnabaich96.github.io/DPmixGPD/articles/website/kernels/kernels-index.md):
 - [Mathematical definitions and
   conventions](https://arnabaich96.github.io/DPmixGPD/articles/website/kernels/mathematical-definitions-and-conventions.md):
 - [Introduction with GPD

@@ -9,6 +9,7 @@
   y = NULL,
   type = c("both", "effect", "arms"),
   facet_by = c("tau", "id"),
+  plotly = getOption("DPmixGPD.plotly", FALSE),
   ...
 )
 }
@@ -21,6 +22,10 @@
 
 \item{facet_by}{Character; faceting strategy when multiple prediction points exist.
 \code{"tau"} (default) facets by quantile level, \code{"id"} facets by prediction point.}
+
+\item{plotly}{Logical; if \code{TRUE}, convert the \code{ggplot2} output to a
+\code{plotly} / \code{htmlwidget} representation via \code{.wrap_plotly()}. Defaults
+to \code{getOption("DPmixGPD.plotly", FALSE)}.}
 
 \item{...}{Additional arguments passed to ggplot2 functions.}
 }

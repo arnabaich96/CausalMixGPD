@@ -4,7 +4,13 @@
 \alias{plot.dpmixgpd_ate}
 \title{Plot ATE results}
 \usage{
-\method{plot}{dpmixgpd_ate}(x, y = NULL, type = c("both", "effect", "arms"), ...)
+\method{plot}{dpmixgpd_ate}(
+  x,
+  y = NULL,
+  type = c("both", "effect", "arms"),
+  plotly = getOption("DPmixGPD.plotly", FALSE),
+  ...
+)
 }
 \arguments{
 \item{x}{Object of class \code{dpmixgpd_ate}.}
@@ -12,6 +18,10 @@
 \item{y}{Ignored.}
 
 \item{type}{Character; plot type: \code{"both"} (default), \code{"effect"}, or \code{"arms"}.}
+
+\item{plotly}{Logical; if \code{TRUE}, convert the \code{ggplot2} output to a
+\code{plotly} / \code{htmlwidget} representation via \code{.wrap_plotly()}. Defaults
+to \code{getOption("DPmixGPD.plotly", FALSE)}.}
 
 \item{...}{Additional arguments passed to ggplot2 functions.}
 }

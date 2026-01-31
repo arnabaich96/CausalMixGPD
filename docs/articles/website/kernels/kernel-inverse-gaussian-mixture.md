@@ -2,7 +2,7 @@
 
 ## Inverse Gaussian (mixture kernel)
 
-### Inverse Gaussian mixture kernel
+### Inverse Gaussian mixture kernel (finite components)
 
 An inverse Gaussian component with mean $`\mu>0`$ and shape
 $`\lambda>0`$ has density
