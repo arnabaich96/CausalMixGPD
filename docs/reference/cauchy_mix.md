@@ -112,5 +112,5 @@ qCauchyMix(0.50, w = w, location = location, scale = scale)
 qCauchyMix(0.95, w = w, location = location, scale = scale)
 #> [1] 7
 replicate(10, rCauchyMix(1, w = w, location = location, scale = scale))
-#>  [1]  5.345 -0.846 -0.862 -2.580 -0.690  1.779  5.349  3.392 45.684 -0.874
+#>  [1] -0.846 -0.862 -2.580 -0.690  1.779  5.349  3.392 45.684 -0.874 -1.163
 ```

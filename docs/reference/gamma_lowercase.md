@@ -180,7 +180,7 @@ scl <- c(1, 2.5, 5)
 dgammamix(c(1, 2, 3), w = w, shape = shp, scale = scl)
 #> [1] 0.2032 0.1535 0.0926
 rgammamix(5, w = w, shape = shp, scale = scl)
-#> [1]  5.249 13.925  0.463 10.743 34.572
+#> [1] 12.35  7.80 10.00  5.05 58.09
 
 # Gamma mixture + GPD
 dgammamixgpd(c(2, 3, 4), w = w, shape = shp, scale = scl,

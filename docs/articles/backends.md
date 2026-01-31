@@ -20,8 +20,6 @@ the allocation process.
 
 ``` r
 
-library(DPmixGPD)
-
 data("faithful", package = "datasets")
 y <- faithful$eruptions
 ```

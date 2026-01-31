@@ -1,0 +1,179 @@
+# Inverse Gaussian (mixture kernel)
+
+## Inverse Gaussian (mixture kernel)
+
+### Inverse Gaussian mixture kernel
+
+An inverse Gaussian component with mean $`\mu>0`$ and shape
+$`\lambda>0`$ has density
+``` math
+f(y\mid \mu,\lambda)
+=
+\left(\frac{\lambda}{2\pi y^3}\right)^{1/2}
+\exp\!\left(-\frac{\lambda (y-\mu)^2}{2\mu^2 y}\right),
+\quad y>0.
+```
+
+A finite inverse Gaussian mixture is
+``` math
+f(y)=\sum_{j=1}^J w_j\,\text{IG}(y\mid \mu_j,\lambda_j),\quad y>0.
+```
+
+**Parameter mapping (math $`\rightarrow`$ code):**
+$`\mu_j\to`$`mean[j]`, $`\lambda_j\to`$`shape[j]`, $`w_j\to`$`w[j]`.
+
+### Inverse Gaussian mixture with GPD tail
+
+The spliced variant attaches a GPD tail above $`u`$.
+
+**Tail mapping (math $`\rightarrow`$ code):** $`u\to`$`threshold`,
+$`\sigma\to`$`tail_scale`, $`\xi\to`$`tail_shape`.
+
+### Without GPD
+
+``` r
+
+grid <- seq(0.1, 6, length.out = 400)
+ig_sets <- list(
+  list(label = "Mix A", w = c(0.6, 0.3, 0.1), mean = c(1.0, 1.5, 2.0), shape = c(2.0, 3.0, 4.0)),
+  list(label = "Mix B", w = c(0.5, 0.3, 0.2), mean = c(1.1, 1.6, 2.2), shape = c(2.2, 3.2, 4.2)),
+  list(label = "Mix C", w = c(0.4, 0.35, 0.25), mean = c(0.9, 1.4, 2.1), shape = c(1.8, 2.8, 3.8))
+)
+
+example <- ig_sets[[1]]
+```
+
+``` r
+
+dInvGaussMix(1, w = example$w, mean = example$mean, shape = example$shape)
+```
+
+    [1] 0.562
+
+``` r
+
+dInvGaussMix(1.5, w = example$w, mean = example$mean, shape = example$shape, log = TRUE)
+```
+
+    [1] -1.18
+
+``` r
+
+pInvGaussMix(1.5, w = example$w, mean = example$mean, shape = example$shape)
+```
+
+    [1] 0.729
+
+``` r
+
+pInvGaussMix(1.5, w = example$w, mean = example$mean, shape = example$shape, lower.tail = FALSE)
+```
+
+    [1] 0.271
+
+``` r
+
+pInvGaussMix(1.5, w = example$w, mean = example$mean, shape = example$shape, log.p = TRUE)
+```
+
+    [1] -0.316
+
+``` r
+
+q_vec(qInvGaussMix, c(0.25, 0.5, 0.75), w = example$w, mean = example$mean,
+      shape = example$shape)
+```
+
+    [1] 0.608 0.971 1.572
+
+``` r
+
+q_vec(qInvGaussMix, c(0.25, 0.5, 0.75), w = example$w, mean = example$mean,
+      shape = example$shape, lower.tail = FALSE)
+```
+
+    [1] 1.572 0.971 0.608
+
+``` r
+
+q_vec(qInvGaussMix, c(log(0.25), log(0.5), log(0.75)), w = example$w,
+      mean = example$mean, shape = example$shape, log.p = TRUE)
+```
+
+    [1] 0.608 0.971 1.572
+
+``` r
+
+draw_many(rInvGaussMix, list(w = example$w, mean = example$mean, shape = example$shape))
+```
+
+    [1] 1.259 0.418 0.530 1.218 0.321
+
+``` r
+
+df_ig <- do.call(rbind, lapply(ig_sets, function(ps) {
+  data.frame(x = grid, density = density_curve(grid, dInvGaussMix, list(w = ps$w, mean = ps$mean, shape = ps$shape)), label = ps$label)
+}))
+
+ggplot(df_ig, aes(x = x, y = density, color = label)) +
+  geom_line(linewidth = 1) +
+  labs(title = "Inverse Gaussian mixtures (bulk)", x = "x", y = "density") +
+  theme_minimal() + theme(legend.position = "top")
+```
+
+![](kernel-inverse-gaussian-mixture_files/figure-html/invgauss-mix-plot-1.png)
+
+### With GPD tail
+
+``` r
+
+ig_gpd_sets <- list(
+  list(label = "Mix A", w = c(0.6, 0.4), mean = c(1, 2.5), shape = c(2, 3), threshold = 2.5, tail_scale = 0.5, tail_shape = 0.25),
+  list(label = "Mix B", w = c(0.5, 0.5), mean = c(1.5, 2), shape = c(2.5, 2.5), threshold = 2.0, tail_scale = 0.4, tail_shape = 0.2),
+  list(label = "Mix C", w = c(0.7, 0.3), mean = c(1.2, 3), shape = c(3, 2), threshold = 3.0, tail_scale = 0.6, tail_shape = 0.18)
+)
+
+example <- ig_gpd_sets[[1]]
+```
+
+``` r
+
+dInvGaussMixGpd(2.5, w = example$w, mean = example$mean, shape = example$shape, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
+```
+
+    [1] 0.325
+
+``` r
+
+pInvGaussMixGpd(2.5, w = example$w, mean = example$mean, shape = example$shape, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
+```
+
+    [1] 0.837
+
+``` r
+
+q_vec(qInvGaussMixGpd, c(0.5, 0.9), w = example$w, mean = example$mean, shape = example$shape, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
+```
+
+    [1] 1.06 2.76
+
+``` r
+
+draw_many(rInvGaussMixGpd, example)
+```
+
+    [1] 2.623 0.647 3.632 1.926 3.067
+
+``` r
+
+df_ig_gpd <- do.call(rbind, lapply(ig_gpd_sets, function(ps) {
+  data.frame(x = grid, density = density_curve(grid, dInvGaussMixGpd, list(w = ps$w, mean = ps$mean, shape = ps$shape, threshold = ps$threshold, tail_scale = ps$tail_scale, tail_shape = ps$tail_shape)), label = ps$label)
+}))
+
+ggplot(df_ig_gpd, aes(x = x, y = density, color = label)) +
+  geom_line(linewidth = 1) +
+  labs(title = "Inverse Gaussian mixtures with GPD tail", x = "x", y = "density") +
+  theme_minimal() + theme(legend.position = "top")
+```
+
+![](kernel-inverse-gaussian-mixture_files/figure-html/invgauss-gpd-plot-1.png)

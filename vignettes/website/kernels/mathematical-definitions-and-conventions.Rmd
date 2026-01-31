@@ -1,0 +1,67 @@
+---
+title: "Mathematical definitions and conventions"
+pkgdown:
+  slug: "kernels/mathematical-definitions-and-conventions"
+output:
+  rmarkdown::html_vignette:
+    highlight: null
+vignette: >
+  %\\VignetteIndexEntry{Mathematical definitions and conventions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+source("_load_pkg.R")
+```
+
+## Mathematical definitions and conventions {#v02-mathematical-definitions-and-conventions}
+
+This vignette documents the probability distributions exported by **DPmixGPD** and the corresponding `d/p/q/r` functions used throughout the package. For a continuous random variable \(Y\) with parameter scalars \(\boldsymbol{\theta}\), we use the standard quartet:
+
+- **Density (PDF)**: \(f(y\mid\boldsymbol{\theta})\), implemented by `d*()`.
+- **Distribution (CDF)**: \(F(y\mid\boldsymbol{\theta})=\Pr(Y\le y)\), implemented by `p*()`.
+- **Quantile**: \(Q(p\mid\boldsymbol{\theta}) = \inf\{y: F(y\mid\boldsymbol{\theta})\ge p\}\), implemented by `q*()`.
+- **Random generation**: \(Y = Q(U\mid\boldsymbol{\theta})\) with \(U\sim \text{Unif}(0,1)\), implemented by `r*()`.
+
+All `d*()` functions optionally return log-densities via `log = TRUE`, i.e., \(\log f(y\mid\boldsymbol{\theta})\). This is numerically convenient because likelihoods multiply densities but add log-densities:
+\[
+\log\Big\{\prod_{i=1}^n f(y_i\mid\boldsymbol{\theta})\Big\}=\sum_{i=1}^n \log f(y_i\mid\boldsymbol{\theta}).
+\]
+
+All `p*()` functions support `lower.tail` and `log.p`:
+\[
+\Pr(Y>y)=1-F(y),\qquad \log F(y)\ \text{or}\ \log\{1-F(y)\}.
+\]
+
+The `d*()`, `p*()`, and `q*()` functions accept vector inputs for their first argument and evaluate elementwise; `r*()` supports `n > 1` (including `n = 0`).
+
+```{r vectorized-dqrp}
+w <- c(0.60, 0.40)
+shape <- c(2.0, 5.0)
+scale <- c(1.0, 2.0)
+
+dGammaMix(seq(0.5, 2.0, length.out = 5), w = w, shape = shape, scale = scale)
+qGammaMix(c(0.1, 0.5, 0.9), w = w, shape = shape, scale = scale)
+rGammaMix(5, w = w, shape = shape, scale = scale)
+```
+
+### Finite mixtures
+
+Several kernels are available as **finite mixtures**. Let \(f_j(\cdot\mid\boldsymbol{\theta}_j)\) denote the \(j\)th component density and let \(\boldsymbol{w}=(w_1,\ldots,w_J)\) be mixture weights with \(w_j\ge 0\) and \(\sum_{j=1}^J w_j=1\). The mixture density and CDF are
+
+\[
+f(y)=\sum_{j=1}^J w_j f_j(y\mid\boldsymbol{\theta}_j),
+\qquad
+F(y)=\sum_{j=1}^J w_j F_j(y\mid\boldsymbol{\theta}_j).
+\]
+
+Random generation proceeds by sampling a latent component index \(Z\sim\text{Categorical}(\boldsymbol{w})\), then sampling \(Y\mid Z=j\sim f_j(\cdot\mid\boldsymbol{\theta}_j)\). Mixture quantiles typically require numerical inversion of the mixture CDF.
+
+### GPD tails and splicing
+
+The **Generalized Pareto Distribution (GPD)** is used for tail modeling relative to a threshold \(u\). In the spliced kernels (the `*Gpd` functions), a bulk kernel is used below \(u\) and a GPD tail is attached above \(u\), with parameters \((u,\sigma,\xi)\). In code, these are represented by `threshold = u`, `tail_scale = \sigma`, and `tail_shape = \xi` (the standalone GPD functions use `scale` and `shape` for \(\sigma\) and \(\xi\)).
+
+
+
+

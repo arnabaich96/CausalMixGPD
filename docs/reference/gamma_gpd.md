@@ -144,5 +144,5 @@ replicate(10, rGammaGpd(1, scale = scale, shape = shape,
                        threshold = threshold,
                        tail_scale = tail_scale,
                        tail_shape = tail_shape))
-#>  [1]  5.47  3.10  4.55 20.63  6.61  3.03  5.12  3.22  6.53  4.60
+#>  [1]  3.10  4.55 20.63  6.61  3.03  5.12  3.22  6.53  4.60  5.32
 ```

@@ -1,4 +1,4 @@
-# Cookbook: Troubleshooting {#cookbook-troubleshooting}
+# 20. Troubleshooting
 
 > **Cookbook vignette (for the website / historical notes).** These
 > files may not match the current exported API one-to-one. Last

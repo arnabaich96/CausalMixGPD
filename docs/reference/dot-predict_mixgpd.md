@@ -21,7 +21,7 @@ Project rules:
   x = NULL,
   y = NULL,
   ps = NULL,
-  type = c("density", "survival", "quantile", "sample", "mean", "median"),
+  type = c("density", "survival", "quantile", "sample", "mean", "rmean", "median", "fit"),
   p = NULL,
   index = NULL,
   nsim = NULL,
@@ -30,6 +30,7 @@ Project rules:
   probs = c(0.025, 0.5, 0.975),
   store_draws = TRUE,
   nsim_mean = 200L,
+  cutoff = NULL,
   ncores = 1L
 )
 ```

@@ -76,8 +76,8 @@ navbar:
           href: articles/cookbook/v00-start-here.html
         - text: "Chef's Notes (Introduction)"
           href: articles/cookbook/v01-introduction.html
-        - text: "Spice Rack Sampler (Distributions)"
-          href: articles/cookbook/v02-available-distributions.html
+        - text: "Spice Rack Sampler (Distribution Kernels)"
+          href: articles/kernels/mathematical-definitions-and-conventions.html
         - text: "---"
         - text: "Entrees"
         - text: "Mainline Sear (Compile & Run)"
@@ -151,39 +151,41 @@ articles:
       - "reference-s3"
   - title: "All-in-One"
     contents:
-      - '"website/Customization/umbrella"'
-      - '"website/Customization/customization"'
+      - "website/Customization/umbrella"
+      - "website/Customization/customization"
   - title: "Kernels"
     contents:
-      - "kernels-index"
-      # Kernel files are not yet available - uncomment when created
-      # - "kernels/kernel-amoroso"
-      # - "kernels/kernel-cauchy"
-      # - "kernels/kernel-gamma"
-      # - "kernels/kernel-invgauss"
-      # - "kernels/kernel-laplace"
-      # - "kernels/kernel-lognormal"
-      # - "kernels/kernel-normal"
+      - '"kernels-index"'
+      - "website/kernels/mathematical-definitions-and-conventions"
+      - "website/kernels/introduction-with-gpd-kernel"
+      - "website/kernels/kernel-normal"
+      - "website/kernels/kernel-gamma"
+      - "website/kernels/kernel-lognormal"
+      - "website/kernels/kernel-laplace"
+      - "website/kernels/kernel-inverse-gaussian-mixture"
+      - "website/kernels/kernel-amoroso"
+      - "website/kernels/kernel-inverse-gaussian-base"
+      - "website/kernels/kernel-cauchy"
+      - "website/kernels/summary-distribution-backend-reference"
   - title: "Cookbook Workflows"
     contents:
-      - '"website/workflows/v00-start-here"'
-      - '"website/workflows/v01-introduction"'
-      - '"website/workflows/v02-available-distributions"'
-      - '"website/workflows/v03-basic-model-compile-run"'
-      - '"website/workflows/v04-backends-and-workflow"'
-      - '"website/workflows/v05-unconditional-DPmix-CRP"'
-      - '"website/workflows/v06-unconditional-DPmix-CRP"'
-      - '"website/workflows/v07-unconditional-DPmix-SB"'
-      - '"website/workflows/v08-unconditional-DPmixGPD-CRP"'
-      - '"website/workflows/v09-unconditional-DPmixGPD-SB"'
-      - '"website/workflows/v10-conditional-DPmix-CRP"'
-      - '"website/workflows/v11-conditional-DPmix-SB"'
-      - '"website/workflows/v12-conditional-DPmixGPD-CRP"'
-      - '"website/workflows/v13-conditional-DPmixGPD-SB"'
-      - '"website/workflows/v14-causal-no-x-CRP"'
-      - '"website/workflows/v15-causal-x-no-ps-SB"'
-      - '"website/workflows/v16-causal-same-backend-CRP"'
-      - '"website/workflows/v17-causal-same-backend-SB"'
-      - '"website/workflows/v18-causal-different-backends-CRP"'
-      - '"website/workflows/v19-causal-different-backends-SB"'
-      - '"website/workflows/v20-troubleshooting"'
+      - "website/workflows/v00-start-here"
+      - "website/workflows/v01-introduction"
+      - "website/workflows/v03-basic-model-compile-run"
+      - "website/workflows/v04-backends-and-workflow"
+      - "website/workflows/v05-unconditional-DPmix-CRP"
+      - "website/workflows/v06-unconditional-DPmix-CRP"
+      - "website/workflows/v07-unconditional-DPmix-SB"
+      - "website/workflows/v08-unconditional-DPmixGPD-CRP"
+      - "website/workflows/v09-unconditional-DPmixGPD-SB"
+      - "website/workflows/v10-conditional-DPmix-CRP"
+      - "website/workflows/v11-conditional-DPmix-SB"
+      - "website/workflows/v12-conditional-DPmixGPD-CRP"
+      - "website/workflows/v13-conditional-DPmixGPD-SB"
+      - "website/workflows/v14-causal-no-x-CRP"
+      - "website/workflows/v15-causal-x-no-ps-SB"
+      - "website/workflows/v16-causal-same-backend-CRP"
+      - "website/workflows/v17-causal-same-backend-SB"
+      - "website/workflows/v18-causal-different-backends-CRP"
+      - "website/workflows/v19-causal-different-backends-SB"
+      - "website/workflows/v20-troubleshooting"

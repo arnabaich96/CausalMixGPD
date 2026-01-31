@@ -5,7 +5,15 @@ Computes treated-minus-control posterior means from a causal fit.
 ## Usage
 
 ``` r
-ate(fit, newdata = NULL, interval = "credible", level = 0.95, nsim_mean = 200L)
+ate(
+  fit,
+  newdata = NULL,
+  type = c("mean", "rmean"),
+  cutoff = NULL,
+  interval = "credible",
+  level = 0.95,
+  nsim_mean = 200L
+)
 ```
 
 ## Arguments

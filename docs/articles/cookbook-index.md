@@ -1,8 +1,6 @@
 # Recipe Book
 
-## Recipe Book
-
-### Menu Notes
+## Menu Notes
 
 This section contains documentation from previous versions of DPmixGPD.
 These vignettes are preserved for reference and may not reflect the
@@ -12,7 +10,7 @@ current API exactly.
 > [Pantry](https://arnabaich96.github.io/DPmixGPD/articles/manual-index.md)
 > section.
 
-### Starters
+## Starters
 
 - [**Starter Broth (Start
   Here)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v00-start-here.md) -
@@ -24,7 +22,7 @@ current API exactly.
   (Distributions)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v02-available-distributions.md) -
   Distribution catalog with visualizations
 
-### Entrees
+## Entrees
 
 - [**Mainline Sear (Compile &
   Run)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v03-basic-model-compile-run.md) -
@@ -33,7 +31,7 @@ current API exactly.
   (Backends)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v04-backends-and-workflow.md) -
   CRP vs SB backend comparison
 
-### Mains (Unconditional)
+## Mains (Unconditional)
 
 - [**Classic Stew
   (CRP)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v05-unconditional-DPmix-CRP.md) -
@@ -51,7 +49,7 @@ current API exactly.
   SB)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v09-unconditional-DPmixGPD-SB.md) -
   Stick-Breaking with GPD tail
 
-### Sides (Conditional)
+## Sides (Conditional)
 
 - [**Seasoned Sides
   (CRP)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v10-conditional-DPmix-CRP.md) -
@@ -66,7 +64,7 @@ current API exactly.
   SB)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v13-conditional-DPmixGPD-SB.md) -
   Conditional Stick-Breaking with GPD tail
 
-### Desserts (Causal)
+## Desserts (Causal)
 
 - [**Simple Sweet (No
   Covariates)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v14-causal-no-x-CRP.md) -
@@ -87,13 +85,13 @@ current API exactly.
   SB)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v19-causal-different-backends-SB.md) -
   Mixed backend causal analysis
 
-### Kitchen Notes
+## Kitchen Notes
 
 - [**Fix-It Fry
   (Troubleshooting)**](https://arnabaich96.github.io/DPmixGPD/articles/cookbook/v20-troubleshooting.md) -
   Common issues and solutions
 
-### Why This Recipe Book?
+## Why This Recipe Book?
 
 These vignettes were created during earlier development phases and
 contain valuable detailed examples. While the core concepts remain

@@ -93,5 +93,5 @@ scl <- c(1, 1.2, 2)
 dcauchymix(c(-2, 0, 2), w = w, location = loc, scale = scl)
 #> [1] 0.1215 0.1878 0.0529
 rcauchymix(5, w = w, location = loc, scale = scl)
-#> [1] -1.2904  4.5762  0.0038 -0.3569 -0.0722
+#> [1]  4.5762  0.0038 -0.3569 -0.0722 -4.3743
 ```

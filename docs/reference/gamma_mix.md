@@ -111,5 +111,5 @@ qGammaMix(0.50, w = w, scale = scale, shape = shape)
 qGammaMix(0.95, w = w, scale = scale, shape = shape)
 #> [1] 33.8
 replicate(10, rGammaMix(1, w = w, scale = scale, shape = shape))
-#>  [1]  7.487  7.683 58.538  0.758 10.475 21.654  0.425  9.136  1.173 17.900
+#>  [1]  1.886  3.102 58.538  0.758 10.475 21.654  0.425  9.136  1.173 17.900
 ```

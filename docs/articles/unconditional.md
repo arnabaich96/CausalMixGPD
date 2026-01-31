@@ -35,30 +35,6 @@ bundle <- build_nimble_bundle(
 fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
 ```
 
-## Fitted Summaries
-
-``` r
-f_mean <- fitted(fit, type = "mean", level = 0.90)
-head(f_mean)
-  fit lower upper residuals
-1 3.2  3.06  3.36     0.400
-2 3.2  3.06  3.36    -1.400
-3 3.2  3.06  3.36     0.133
-4 3.2  3.06  3.36    -0.917
-5 3.2  3.06  3.36     1.333
-6 3.2  3.06  3.36    -0.317
-
-f_med <- fitted(fit, type = "median", level = 0.90)
-head(f_med)
-   fit lower upper residuals
-1 3.08     3  3.16     0.524
-2 3.08     3  3.16    -1.276
-3 3.08     3  3.16     0.257
-4 3.08     3  3.16    -0.793
-5 3.08     3  3.16     1.457
-6 3.08     3  3.16    -0.193
-```
-
 ## Posterior Predictive Summaries
 
 ``` r
@@ -66,21 +42,17 @@ pred_mean <- predict(fit, type = "mean", cred.level = 0.90, interval = "credible
 pred_q95  <- predict(fit, type = "quantile", index = 0.95, cred.level = 0.90, interval = "credible")
 
 pred_mean$fit
-  estimate lower upper
-1     3.19  3.05  3.32
+  id estimate lower upper
+1  1     3.19  3.05  3.32
 pred_q95$fit
   estimate index lower upper
 1     4.81  0.95  4.72  4.93
 ```
 
-## Residual Analysis
+## Note
 
-``` r
-res <- f_mean$residuals
-summary(res)
-   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
- -1.600  -1.038   0.800   0.287   1.254   1.900 
-```
+For unconditional models, use only; and are not supported (they are for
+conditional, covariate models).
 
 ## Diagnostic Plots
 

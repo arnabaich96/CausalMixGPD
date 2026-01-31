@@ -1,5 +1,7 @@
 # Kernels Overview
 
+## Setup chunk keeps DPmixGPD loaded while describing kernels.
+
 ## Ingredients (mixture kernels)
 
 DPmixGPD supports multiple mixture kernel families for flexible density

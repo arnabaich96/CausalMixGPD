@@ -37,6 +37,8 @@
 ^vignettes/website/Customization/$
 ^vignettes/website/
 ^vignettes/website/$
+^vignettes/kernels/
+^vignettes/kernels/$
 ^tmp-.*\.R$
 ^.*\.RData$
 ^.*\.rda$
@@ -55,4 +57,5 @@
 ^REPO_BLUEPRINT\.md$
 ^fix_exports\.R$
 ^temp$
-# Ignore renv folder and all subfolders
+^tests/testthat/ests/
+^tests/testthat/tests/$

@@ -143,23 +143,23 @@ pgpd(c(1.5, 2.0), threshold = 1, scale = 0.8, shape = 0.2)
 qgpd(c(0.5, 0.9), threshold = 1, scale = 0.8, shape = 0.2)
 #> [1] 1.59 3.34
 rgpd(5, threshold = 1, scale = 0.8, shape = 0.2)
-#> [1] 2.55 2.60 1.44 1.20 1.46
+#> [1] 1.44 1.20 1.46 1.99 1.61
 
 # Inverse Gaussian
 dinvgauss(c(1, 2, 3), mean = 2, shape = 5)
 #> [1] 0.477 0.315 0.139
 rinvgauss(5, mean = 2, shape = 5)
-#> [1] 2.634 2.038 4.068 0.429 3.210
+#> [1] 2.596 1.415 0.943 2.512 2.483
 
 # Amoroso
 damoroso(c(1, 2), loc = 0, scale = 1.5, shape1 = 2, shape2 = 1.2)
 #> [1] 0.245 0.292
 ramoroso(5, loc = 0, scale = 1.5, shape1 = 2, shape2 = 1.2)
-#> [1] 4.21 2.56 1.46 4.91 4.29
+#> [1] 1.46 4.91 4.29 1.45 1.97
 
 # Cauchy
 dcauchy_vec(c(-1, 0, 1), location = 0, scale = 1)
 #> [1] 0.159 0.318 0.159
 rcauchy_vec(5, location = 0, scale = 1)
-#> [1] -1.009 -0.315  1.132 -2.538 -1.426
+#> [1]  1.132 -2.538 -1.426 -1.759  0.563
 ```

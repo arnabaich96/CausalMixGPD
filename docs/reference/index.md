@@ -37,6 +37,8 @@
   : Amoroso mixture with a GPD tail
 - [`ate()`](https://arnabaich96.github.io/DPmixGPD/reference/ate.md) :
   Average treatment effects (ATE)
+- [`ate_rmean()`](https://arnabaich96.github.io/DPmixGPD/reference/ate_rmean.md)
+  : Restricted-mean ATE (finite under heavy tails)
 - [`dgpd()`](https://arnabaich96.github.io/DPmixGPD/reference/base_lowercase.md)
   [`pgpd()`](https://arnabaich96.github.io/DPmixGPD/reference/base_lowercase.md)
   [`qgpd()`](https://arnabaich96.github.io/DPmixGPD/reference/base_lowercase.md)
@@ -81,6 +83,8 @@
   : causal_alt_real500_p4_k2 dataset
 - [`causal_pos500_p3_k2`](https://arnabaich96.github.io/DPmixGPD/reference/causal_pos500_p3_k2.md)
   : causal_pos500_p3_k2 dataset
+- [`check_glue_validity()`](https://arnabaich96.github.io/DPmixGPD/reference/check_glue_validity.md)
+  : Validate bulk+tail glue for MixGPD predictive distribution
 - [`coverage_status()`](https://arnabaich96.github.io/DPmixGPD/reference/coverage_status.md)
   : Test coverage status helper
 - [`fitted(`*`<mixgpd_fit>`*`)`](https://arnabaich96.github.io/DPmixGPD/reference/fitted.mixgpd_fit.md)

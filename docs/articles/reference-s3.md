@@ -227,8 +227,8 @@ if (interactive()) plot(fit, family = "traceplot")
 
 ``` r
 predict(fit, type = "mean", cred.level = 0.90, interval = "credible")$fit
-  estimate lower upper
-1     3.17  3.04   3.3
+  id estimate lower upper
+1  1     3.17  3.04   3.3
 predict(fit, type = "median", cred.level = 0.90, interval = "credible")$fit
   estimate index lower upper
 1     3.05   0.5  2.99  3.13
@@ -240,19 +240,9 @@ predict(fit, type = "quantile", index = 0.90, interval = NULL)$fit
 1     4.55   0.9    NA    NA
 ```
 
-## fitted()
-
-``` r
-f <- fitted(fit, type = "mean", level = 0.90)
-head(f)
-   fit lower upper residuals
-1 3.18  3.05  3.33     0.416
-2 3.18  3.05  3.33    -1.384
-3 3.18  3.05  3.33     0.149
-4 3.18  3.05  3.33    -0.901
-5 3.18  3.05  3.33     1.349
-6 3.18  3.05  3.33    -0.301
-```
+[`fitted()`](https://rdrr.io/r/stats/fitted.values.html) is supported
+for conditional (covariate) models only; this example is unconditional,
+so use [`predict()`](https://rdrr.io/r/stats/predict.html) above.
 
 ## Object Structure
 
@@ -399,39 +389,39 @@ ATE estimates (treated - control):
 <tbody>
   <tr>
    <td style="text-align:center;"> 1 </td>
-   <td style="text-align:center;"> -68.244 </td>
-   <td style="text-align:center;"> -300.799 </td>
-   <td style="text-align:center;"> 75.211 </td>
+   <td style="text-align:center;"> -66.678 </td>
+   <td style="text-align:center;"> -314.291 </td>
+   <td style="text-align:center;"> 85.459 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 2 </td>
-   <td style="text-align:center;"> -68.875 </td>
-   <td style="text-align:center;"> -302.388 </td>
-   <td style="text-align:center;"> 60.352 </td>
+   <td style="text-align:center;"> -67.971 </td>
+   <td style="text-align:center;"> -317.209 </td>
+   <td style="text-align:center;"> 65.66 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 3 </td>
-   <td style="text-align:center;"> -66.586 </td>
-   <td style="text-align:center;"> -260.851 </td>
-   <td style="text-align:center;"> 14.145 </td>
+   <td style="text-align:center;"> -62.515 </td>
+   <td style="text-align:center;"> -269.941 </td>
+   <td style="text-align:center;"> 29.788 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 4 </td>
-   <td style="text-align:center;"> -69.374 </td>
-   <td style="text-align:center;"> -299.253 </td>
-   <td style="text-align:center;"> 85.439 </td>
+   <td style="text-align:center;"> -71.342 </td>
+   <td style="text-align:center;"> -315.519 </td>
+   <td style="text-align:center;"> 94.947 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 5 </td>
-   <td style="text-align:center;"> -92.065 </td>
-   <td style="text-align:center;"> -579.136 </td>
-   <td style="text-align:center;"> 165.576 </td>
+   <td style="text-align:center;"> -94.766 </td>
+   <td style="text-align:center;"> -473.889 </td>
+   <td style="text-align:center;"> 267.525 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 6 </td>
-   <td style="text-align:center;"> -66.117 </td>
-   <td style="text-align:center;"> -289.57 </td>
-   <td style="text-align:center;"> 102.075 </td>
+   <td style="text-align:center;"> -68.41 </td>
+   <td style="text-align:center;"> -317.484 </td>
+   <td style="text-align:center;"> 112.099 </td>
   </tr>
 </tbody>
 </table>... (26 more rows)
@@ -452,13 +442,13 @@ Model specification:
   GPD tail (trt/con): YES / YES
 
 ATE statistics:
-  Mean: -84.519 | Median: -76.146
-  Range: [-206.516, -40.642]
-  SD: 34.424
+  Mean: -86.338 | Median: -78.809
+  Range: [-207.14, -34.422]
+  SD: 36.146
 
 Credible interval width:
-  Mean: 563.362 | Median: 427.586
-  Range: [177.145, 1145.375]
+  Mean: 573.83 | Median: 443.75
+  Range: [200.124, 1084.589]
 ```
 
 ``` r
@@ -501,44 +491,44 @@ QTE estimates (treated - control):
   <tr>
    <td style="text-align:center;"> 0.1 </td>
    <td style="text-align:center;"> 1 </td>
-   <td style="text-align:center;"> -74.819 </td>
-   <td style="text-align:center;"> -292.18 </td>
-   <td style="text-align:center;"> 12.888 </td>
+   <td style="text-align:center;"> -71.202 </td>
+   <td style="text-align:center;"> -302.741 </td>
+   <td style="text-align:center;"> 31.01 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 0.1 </td>
    <td style="text-align:center;"> 2 </td>
-   <td style="text-align:center;"> -74.829 </td>
-   <td style="text-align:center;"> -291.32 </td>
-   <td style="text-align:center;"> 12.892 </td>
+   <td style="text-align:center;"> -72.318 </td>
+   <td style="text-align:center;"> -304.822 </td>
+   <td style="text-align:center;"> 29.949 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 0.1 </td>
    <td style="text-align:center;"> 3 </td>
-   <td style="text-align:center;"> -65.117 </td>
-   <td style="text-align:center;"> -257.106 </td>
-   <td style="text-align:center;"> 2.552 </td>
+   <td style="text-align:center;"> -61.526 </td>
+   <td style="text-align:center;"> -268.752 </td>
+   <td style="text-align:center;"> 31.542 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 0.1 </td>
    <td style="text-align:center;"> 4 </td>
-   <td style="text-align:center;"> -75.26 </td>
-   <td style="text-align:center;"> -295.072 </td>
-   <td style="text-align:center;"> 12.66 </td>
+   <td style="text-align:center;"> -74.993 </td>
+   <td style="text-align:center;"> -311.689 </td>
+   <td style="text-align:center;"> 27.72 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 0.1 </td>
    <td style="text-align:center;"> 5 </td>
-   <td style="text-align:center;"> -115.349 </td>
-   <td style="text-align:center;"> -458.356 </td>
-   <td style="text-align:center;"> 34.528 </td>
+   <td style="text-align:center;"> -114.572 </td>
+   <td style="text-align:center;"> -472.091 </td>
+   <td style="text-align:center;"> 40.3 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 0.1 </td>
    <td style="text-align:center;"> 6 </td>
-   <td style="text-align:center;"> -72.053 </td>
-   <td style="text-align:center;"> -283.789 </td>
-   <td style="text-align:center;"> 12.802 </td>
+   <td style="text-align:center;"> -72.919 </td>
+   <td style="text-align:center;"> -302.358 </td>
+   <td style="text-align:center;"> 26.615 </td>
   </tr>
 </tbody>
 </table>... (90 more rows)
@@ -573,33 +563,33 @@ QTE by quantile:
 <tbody>
   <tr>
    <td style="text-align:center;"> 0.1 </td>
-   <td style="text-align:center;"> -98.577 </td>
-   <td style="text-align:center;"> -83.433 </td>
-   <td style="text-align:center;"> -223.833 </td>
-   <td style="text-align:center;"> -39.188 </td>
-   <td style="text-align:center;"> 43.712 </td>
+   <td style="text-align:center;"> -97.26 </td>
+   <td style="text-align:center;"> -83.494 </td>
+   <td style="text-align:center;"> -220.994 </td>
+   <td style="text-align:center;"> -33.713 </td>
+   <td style="text-align:center;"> 44.678 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 0.5 </td>
-   <td style="text-align:center;"> -88.933 </td>
-   <td style="text-align:center;"> -78.316 </td>
-   <td style="text-align:center;"> -211.551 </td>
-   <td style="text-align:center;"> -39.763 </td>
-   <td style="text-align:center;"> 36.917 </td>
+   <td style="text-align:center;"> -89.529 </td>
+   <td style="text-align:center;"> -80.024 </td>
+   <td style="text-align:center;"> -212.178 </td>
+   <td style="text-align:center;"> -34.583 </td>
+   <td style="text-align:center;"> 38.648 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 0.9 </td>
-   <td style="text-align:center;"> -65.601 </td>
-   <td style="text-align:center;"> -58.742 </td>
-   <td style="text-align:center;"> -181.964 </td>
-   <td style="text-align:center;"> -12.153 </td>
-   <td style="text-align:center;"> 33.054 </td>
+   <td style="text-align:center;"> -68.114 </td>
+   <td style="text-align:center;"> -61.723 </td>
+   <td style="text-align:center;"> -186.257 </td>
+   <td style="text-align:center;"> -27.032 </td>
+   <td style="text-align:center;"> 32.297 </td>
   </tr>
 </tbody>
 </table>
 Credible interval width:
-  Mean: 548.261 | Median: 451.115
-  Range: [164.373, 1604.476]
+  Mean: 559.613 | Median: 479.421
+  Range: [196.455, 1498.381]
 ```
 
 ``` r

@@ -6,11 +6,12 @@ This vignette demonstrates the causal inference workflow using
 [`build_causal_bundle()`](https://arnabaich96.github.io/DPmixGPD/reference/build_causal_bundle.md)
 and
 [`run_mcmc_causal()`](https://arnabaich96.github.io/DPmixGPD/reference/run_mcmc_causal.md).
-The package computes distributional treatment effects:
+The package computes distributional treatment effects that are
+**conditional on covariates**:
 
-- **Average Treatment Effect (ATE)**: $`E[Y(1) - Y(0) \mid X]`$
-- **Quantile Treatment Effect (QTE)**:
-  $`Q_{Y(1)}(\tau) - Q_{Y(0)}(\tau)`$
+- **Conditional ATE (CATE)**: $`E[Y(1) - Y(0) \mid X]`$
+- **Conditional QTE (CQTE)**:
+  $`Q_{Y(1)}(\tau \mid X=x) - Q_{Y(0)}(\tau \mid X=x)`$
 
 ## Theory (brief)
 
@@ -21,6 +22,98 @@ treated and control groups while adjusting for covariates and
 dG_t(\\theta_t), \$\$ and causal estimands are derived from differences
 in the fitted distributions, such as \$\\mathbb{E}\[Y(1) - Y(0) \\mid
 X\]\$ and quantile contrasts.
+
+## Conditional vs Marginal Causal Estimands
+
+### Conditional Estimands (What This Package Computes)
+
+The causal functions in this package compute **conditional** treatment
+effects:
+
+- **Conditional ATE (CATE)**: \$\$\\text{CATE}(x) = \\mathbb{E}\[Y(1) -
+  Y(0) \\mid X=x\]\$\$ This is the average treatment effect for
+  individuals with covariate values $`x`$.
+
+- **Conditional QTE (CQTE)**: \$\$\\text{CQTE}(p, x) = Q\_{Y(1)}(p \\mid
+  X=x) - Q\_{Y(0)}(p \\mid X=x)\$\$ This is the quantile treatment
+  effect at probability $`p`$ for individuals with covariates $`x`$.
+
+### Marginal Estimands (Population-Level)
+
+**Marginal** treatment effects integrate over the covariate
+distribution:
+
+- **Marginal ATE**: \$\$\\text{ATE} =
+  \\mathbb{E}\_X\[\\mathbb{E}\[Y(1) - Y(0) \\mid X\]\]\$\$ This is the
+  population average treatment effect.
+
+- **Marginal QTE**: \$\$\\text{QTE}(p) = Q\_{Y(1)}(p) - Q\_{Y(0)}(p)\$\$
+  where $`Q_{Y(t)}(p)`$ is the $`p`$-th quantile of the marginal
+  distribution of $`Y(t)`$.
+
+### Important: Averaging Conditional Quantiles â‰  Marginal Quantile
+
+A common mistake is to average conditional quantiles to get marginal
+quantiles: \$\$\\mathbb{E}\_X\[Q\_{Y(t)}(p \\mid X)\] \\neq
+Q\_{Y(t)}(p)\$\$
+
+**Example**: If treatment shifts the distribution differently for
+different $`X`$ values, the average of conditional medians is generally
+not equal to the marginal median.
+
+### When to Use Each
+
+- **Use conditional estimands** (default in this package) when:
+  - You want to understand heterogeneous treatment effects across
+    covariates
+  - You’re interested in personalized treatment rules
+  - You want to identify subgroups with large/small effects
+- **Use marginal estimands** when:
+  - You want a single population-level summary
+  - You’re reporting overall policy effects
+  - You need to compute marginal quantiles (requires integrating over
+    $`X`$)
+
+### Computing Marginal Estimands
+
+To compute marginal estimands from this package:
+
+1.  **Marginal ATE**: Average the conditional ATE over your sample or
+    population distribution of $`X`$:
+
+    ``` r
+
+    ate_cond <- ate(fit, newdata = X_population)
+    ate_marginal <- mean(ate_cond$estimate)
+    ```
+
+2.  **Marginal QTE**: This requires more care:
+
+    - Draw samples from the marginal predictive distribution for each
+      arm
+    - Compute quantiles of these samples
+    - Difference the quantiles
+
+    ``` r
+
+    # Sample from marginal predictive for each arm (integrate over X)
+    X_sample <- X_population[sample(nrow(X_population), 1000, replace=TRUE), ]
+    Y1_samples <- predict(fit$outcome_fit$trt, newdata=X_sample, type="sample", nsim=1000)
+    Y0_samples <- predict(fit$outcome_fit$con, newdata=X_sample, type="sample", nsim=1000)
+
+    # Compute marginal quantiles
+    Q1 <- quantile(Y1_samples$fit, probs=c(0.1, 0.5, 0.9))
+    Q0 <- quantile(Y0_samples$fit, probs=c(0.1, 0.5, 0.9))
+    QTE_marginal <- Q1 - Q0
+    ```
+
+### References
+
+- Firpo, S. (2007). “Efficient semiparametric estimation of quantile
+  treatment effects.” *Econometrica*, 75(1), 259-276.
+- FrÃ¶lich, M., & Melly, B. (2013). “Unconditional quantile treatment
+  effects under endogeneity.” *Journal of Business & Economic
+  Statistics*, 31(3), 346-357.
 
 ## Data Setup
 
@@ -136,39 +229,39 @@ ATE estimates (treated - control):
 <tbody>
   <tr>
    <td style="text-align:center;"> 1 </td>
-   <td style="text-align:center;"> 7.097e+66 </td>
-   <td style="text-align:center;"> -2.748e+27 </td>
-   <td style="text-align:center;"> 7.638e+39 </td>
+   <td style="text-align:center;"> 2.088 </td>
+   <td style="text-align:center;"> -0.678 </td>
+   <td style="text-align:center;"> 5.515 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 2 </td>
-   <td style="text-align:center;"> 1.093e+67 </td>
-   <td style="text-align:center;"> -4.881e+27 </td>
-   <td style="text-align:center;"> 7.560e+39 </td>
+   <td style="text-align:center;"> 1.979 </td>
+   <td style="text-align:center;"> -1.118 </td>
+   <td style="text-align:center;"> 4.931 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 3 </td>
-   <td style="text-align:center;"> 3.148e+57 </td>
-   <td style="text-align:center;"> -7.112e+25 </td>
-   <td style="text-align:center;"> 5.380e+33 </td>
+   <td style="text-align:center;"> 13.789 </td>
+   <td style="text-align:center;"> -1.113 </td>
+   <td style="text-align:center;"> 10.744 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 4 </td>
-   <td style="text-align:center;"> 6.369e+67 </td>
-   <td style="text-align:center;"> -3.864e+28 </td>
-   <td style="text-align:center;"> 7.036e+39 </td>
+   <td style="text-align:center;"> 2810.025 </td>
+   <td style="text-align:center;"> -2.466 </td>
+   <td style="text-align:center;"> 1.915e+04 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 5 </td>
-   <td style="text-align:center;"> 2.952e+104 </td>
-   <td style="text-align:center;"> -1.131e+40 </td>
-   <td style="text-align:center;"> 3.774e+63 </td>
+   <td style="text-align:center;"> 9.068e+08 </td>
+   <td style="text-align:center;"> -4.631 </td>
+   <td style="text-align:center;"> 5.702 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 6 </td>
-   <td style="text-align:center;"> 1.571e+65 </td>
-   <td style="text-align:center;"> -1.173e+28 </td>
-   <td style="text-align:center;"> 1.351e+38 </td>
+   <td style="text-align:center;"> -3.165e+12 </td>
+   <td style="text-align:center;"> -1.344 </td>
+   <td style="text-align:center;"> 1.111e+04 </td>
   </tr>
 </tbody>
 </table>... (26 more rows)
@@ -203,39 +296,39 @@ ATE estimates (treated - control):
 <tbody>
   <tr>
    <td style="text-align:center;"> 1 </td>
-   <td style="text-align:center;"> 3.563e+74 </td>
-   <td style="text-align:center;"> -1.061e+31 </td>
-   <td style="text-align:center;"> 9.152e+29 </td>
+   <td style="text-align:center;"> 5.124 </td>
+   <td style="text-align:center;"> 2.712 </td>
+   <td style="text-align:center;"> 8.3 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 2 </td>
-   <td style="text-align:center;"> 3.155e+74 </td>
-   <td style="text-align:center;"> -1.105e+31 </td>
-   <td style="text-align:center;"> 7.386e+29 </td>
+   <td style="text-align:center;"> 5417.535 </td>
+   <td style="text-align:center;"> 1.988 </td>
+   <td style="text-align:center;"> 8.134 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 3 </td>
-   <td style="text-align:center;"> 4.199e+74 </td>
-   <td style="text-align:center;"> -7.024e+30 </td>
-   <td style="text-align:center;"> 6.078e+29 </td>
+   <td style="text-align:center;"> 3.998 </td>
+   <td style="text-align:center;"> -0.113 </td>
+   <td style="text-align:center;"> 6.41 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 4 </td>
-   <td style="text-align:center;"> 4.387e+74 </td>
-   <td style="text-align:center;"> -7.787e+30 </td>
-   <td style="text-align:center;"> 5.287e+29 </td>
+   <td style="text-align:center;"> 3.483 </td>
+   <td style="text-align:center;"> 0.602 </td>
+   <td style="text-align:center;"> 7.067 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 5 </td>
-   <td style="text-align:center;"> 4.332e+74 </td>
-   <td style="text-align:center;"> -6.408e+30 </td>
-   <td style="text-align:center;"> 4.840e+29 </td>
+   <td style="text-align:center;"> 3.103 </td>
+   <td style="text-align:center;"> -0.143 </td>
+   <td style="text-align:center;"> 6.11 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 6 </td>
-   <td style="text-align:center;"> 4.792e+74 </td>
-   <td style="text-align:center;"> -5.116e+30 </td>
-   <td style="text-align:center;"> 3.809e+29 </td>
+   <td style="text-align:center;"> 2.537e+04 </td>
+   <td style="text-align:center;"> 0.064 </td>
+   <td style="text-align:center;"> 5.817 </td>
   </tr>
 </tbody>
 </table>... (14 more rows)
@@ -253,13 +346,13 @@ Model specification:
   GPD tail (trt/con): YES / YES
 
 ATE statistics:
-  Mean: 5.652e+74 | Median: 5.129e+74
-  Range: [3.155e+74, 9.235e+74]
-  SD: 1.614e+74
+  Mean: -1.189e+16 | Median: 5194.159
+  Range: [-2.359e+17, 1.613e+06]
+  SD: 5.272e+16
 
 Credible interval width:
-  Mean: 4.480e+30 | Median: 3.759e+30
-  Range: [2.087e+26, 1.179e+31]
+  Mean: 3.498e+06 | Median: 6.907
+  Range: [5.111, 2.089e+07]
 ```
 
 ### ATE Visualization
@@ -314,44 +407,44 @@ QTE estimates (treated - control):
   <tr>
    <td style="text-align:center;"> 0.1 </td>
    <td style="text-align:center;"> 1 </td>
-   <td style="text-align:center;"> 6.504e+65 </td>
-   <td style="text-align:center;"> -2.256e+26 </td>
-   <td style="text-align:center;"> 5.320e+38 </td>
+   <td style="text-align:center;"> 2.71 </td>
+   <td style="text-align:center;"> 0.326 </td>
+   <td style="text-align:center;"> 5.719 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 0.1 </td>
    <td style="text-align:center;"> 2 </td>
-   <td style="text-align:center;"> 1.037e+66 </td>
-   <td style="text-align:center;"> -3.514e+26 </td>
-   <td style="text-align:center;"> 5.329e+38 </td>
+   <td style="text-align:center;"> 2.613 </td>
+   <td style="text-align:center;"> -0.462 </td>
+   <td style="text-align:center;"> 5.445 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 0.1 </td>
    <td style="text-align:center;"> 3 </td>
-   <td style="text-align:center;"> 3.981e+56 </td>
-   <td style="text-align:center;"> -5.333e+24 </td>
-   <td style="text-align:center;"> 4.170e+32 </td>
+   <td style="text-align:center;"> 4.101 </td>
+   <td style="text-align:center;"> 0.636 </td>
+   <td style="text-align:center;"> 6.743 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 0.1 </td>
    <td style="text-align:center;"> 4 </td>
-   <td style="text-align:center;"> 6.539e+66 </td>
-   <td style="text-align:center;"> -3.866e+27 </td>
-   <td style="text-align:center;"> 4.826e+38 </td>
+   <td style="text-align:center;"> 3.737 </td>
+   <td style="text-align:center;"> 0.256 </td>
+   <td style="text-align:center;"> 7.343 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 0.1 </td>
    <td style="text-align:center;"> 5 </td>
-   <td style="text-align:center;"> 3.301e+103 </td>
-   <td style="text-align:center;"> -1.027e+39 </td>
-   <td style="text-align:center;"> 3.287e+62 </td>
+   <td style="text-align:center;"> 2.074 </td>
+   <td style="text-align:center;"> -1.049 </td>
+   <td style="text-align:center;"> 5.467 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 0.1 </td>
    <td style="text-align:center;"> 6 </td>
-   <td style="text-align:center;"> 1.636e+64 </td>
-   <td style="text-align:center;"> -7.144e+26 </td>
-   <td style="text-align:center;"> 6.866e+36 </td>
+   <td style="text-align:center;"> 4.105 </td>
+   <td style="text-align:center;"> -0.031 </td>
+   <td style="text-align:center;"> 8.716 </td>
   </tr>
 </tbody>
 </table>... (90 more rows)
@@ -381,44 +474,44 @@ QTE estimates (treated - control):
   <tr>
    <td style="text-align:center;"> 0.1 </td>
    <td style="text-align:center;"> 1 </td>
-   <td style="text-align:center;"> 3.702e+73 </td>
-   <td style="text-align:center;"> -8.451e+29 </td>
-   <td style="text-align:center;"> 2.589e+43 </td>
+   <td style="text-align:center;"> 5.257 </td>
+   <td style="text-align:center;"> 2.193 </td>
+   <td style="text-align:center;"> 7.946 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 0.1 </td>
    <td style="text-align:center;"> 2 </td>
-   <td style="text-align:center;"> 3.881e+73 </td>
-   <td style="text-align:center;"> -7.417e+29 </td>
-   <td style="text-align:center;"> 2.664e+43 </td>
+   <td style="text-align:center;"> 4.886 </td>
+   <td style="text-align:center;"> 2.11 </td>
+   <td style="text-align:center;"> 7.693 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 0.1 </td>
    <td style="text-align:center;"> 3 </td>
-   <td style="text-align:center;"> 4.069e+73 </td>
-   <td style="text-align:center;"> -6.509e+29 </td>
-   <td style="text-align:center;"> 2.742e+43 </td>
+   <td style="text-align:center;"> 4.514 </td>
+   <td style="text-align:center;"> 1.418 </td>
+   <td style="text-align:center;"> 6.963 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 0.1 </td>
    <td style="text-align:center;"> 4 </td>
-   <td style="text-align:center;"> 4.266e+73 </td>
-   <td style="text-align:center;"> -5.712e+29 </td>
-   <td style="text-align:center;"> 2.821e+43 </td>
+   <td style="text-align:center;"> 4.143 </td>
+   <td style="text-align:center;"> 1.063 </td>
+   <td style="text-align:center;"> 6.571 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 0.1 </td>
    <td style="text-align:center;"> 5 </td>
-   <td style="text-align:center;"> 4.472e+73 </td>
-   <td style="text-align:center;"> -5.013e+29 </td>
-   <td style="text-align:center;"> 2.904e+43 </td>
+   <td style="text-align:center;"> 3.777 </td>
+   <td style="text-align:center;"> 0.912 </td>
+   <td style="text-align:center;"> 6.335 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 0.1 </td>
    <td style="text-align:center;"> 6 </td>
-   <td style="text-align:center;"> 4.689e+73 </td>
-   <td style="text-align:center;"> -4.399e+29 </td>
-   <td style="text-align:center;"> 2.988e+43 </td>
+   <td style="text-align:center;"> 3.438 </td>
+   <td style="text-align:center;"> 0.319 </td>
+   <td style="text-align:center;"> 5.932 </td>
   </tr>
 </tbody>
 </table>... (54 more rows)
@@ -450,33 +543,33 @@ QTE by quantile:
 <tbody>
   <tr>
    <td style="text-align:center;"> 0.1 </td>
-   <td style="text-align:center;"> 6.017e+73 </td>
-   <td style="text-align:center;"> 5.802e+73 </td>
-   <td style="text-align:center;"> 3.702e+73 </td>
-   <td style="text-align:center;"> 9.073e+73 </td>
-   <td style="text-align:center;"> 1.668e+73 </td>
+   <td style="text-align:center;"> 2.982 </td>
+   <td style="text-align:center;"> 2.598 </td>
+   <td style="text-align:center;"> 1.942 </td>
+   <td style="text-align:center;"> 5.257 </td>
+   <td style="text-align:center;"> 1.021 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 0.5 </td>
-   <td style="text-align:center;"> 3.940e+74 </td>
-   <td style="text-align:center;"> 3.798e+74 </td>
-   <td style="text-align:center;"> 2.423e+74 </td>
-   <td style="text-align:center;"> 5.949e+74 </td>
-   <td style="text-align:center;"> 1.094e+74 </td>
+   <td style="text-align:center;"> 1.500e+05 </td>
+   <td style="text-align:center;"> 3.691 </td>
+   <td style="text-align:center;"> 2.364 </td>
+   <td style="text-align:center;"> 1.793e+06 </td>
+   <td style="text-align:center;"> 4.410e+05 </td>
   </tr>
   <tr>
    <td style="text-align:center;"> 0.9 </td>
-   <td style="text-align:center;"> 1.291e+75 </td>
-   <td style="text-align:center;"> 1.245e+75 </td>
-   <td style="text-align:center;"> 7.943e+74 </td>
-   <td style="text-align:center;"> 1.950e+75 </td>
-   <td style="text-align:center;"> 3.585e+74 </td>
+   <td style="text-align:center;"> 2.913e+06 </td>
+   <td style="text-align:center;"> 4.697 </td>
+   <td style="text-align:center;"> 0.84 </td>
+   <td style="text-align:center;"> 2.595e+07 </td>
+   <td style="text-align:center;"> 6.527e+06 </td>
   </tr>
 </tbody>
 </table>
 Credible interval width:
-  Mean: 4.543e+44 | Median: 2.193e+44
-  Range: [7.060e+28, 1.538e+45]
+  Mean: 4.959e+06 | Median: 11.545
+  Range: [4.291, 1.379e+08]
 ```
 
 ### QTE Visualization

@@ -2,8 +2,10 @@
 
 Computes fitted values and residuals on the original training data for
 **conditional (covariate) models only**. Returns a data frame with point
-estimates, credible intervals, and residuals. Not supported for unconditional
-models (no covariates); use `predict()` for predictions in that case.
+estimates, credible intervals, and residuals. Not supported for
+unconditional models (no covariates); use
+[`predict()`](https://rdrr.io/r/stats/predict.html) for predictions in
+that case.
 
 ## Usage
 
@@ -24,7 +26,7 @@ fitted(
 
 - object:
 
-  A fitted object of class `"mixgpd_fit"`.
+  A fitted object of class `"mixgpd_fit"` (must have covariates).
 
 - type:
 
@@ -64,8 +66,10 @@ fit).
 
 ``` r
 if (FALSE) { # \dontrun{
+# Conditional model (with covariates X)
 y <- abs(stats::rnorm(50)) + 0.1
-bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
+X <- data.frame(x1 = stats::rnorm(50), x2 = stats::runif(50))
+bundle <- build_nimble_bundle(y = y, X = X, backend = "sb", kernel = "normal",
                              GPD = TRUE, components = 6,
                              mcmc = list(niter = 200, nburnin = 50, thin = 1, nchains = 1))
 fit <- run_mcmc_bundle_manual(bundle)

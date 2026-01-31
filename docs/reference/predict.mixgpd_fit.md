@@ -13,6 +13,8 @@ default implementation supports:
 
 - `type="mean"` (posterior predictive mean)
 
+- `type="rmean"` (restricted mean with finite cutoff)
+
 ## Usage
 
 ``` r
@@ -23,7 +25,8 @@ predict(
   y = NULL,
   ps = NULL,
   newdata = NULL,
-  type = c("density", "survival", "quantile", "sample", "mean", "median", "location", "fit"),
+  type = c("density", "survival", "quantile", "sample", "mean", "rmean", "median",
+    "location", "fit"),
   p = NULL,
   index = NULL,
   nsim = NULL,
@@ -32,6 +35,7 @@ predict(
   probs = c(0.025, 0.5, 0.975),
   store_draws = TRUE,
   nsim_mean = 200L,
+  cutoff = NULL,
   ncores = 1L,
   ...
 )
@@ -64,8 +68,32 @@ predict(
 
 - type:
 
-  Prediction type: `"density"`, `"survival"`, `"quantile"`, `"sample"`,
-  `"mean"`, `"median"`, `"location"`.
+  Prediction type:
+
+  - `"density"`: Posterior predictive density f(y \| x, data)
+
+  - `"survival"`: Posterior predictive survival S(y \| x, data) = 1 -
+    F(y \| x, data)
+
+  - `"quantile"`: Posterior predictive quantiles Q(p \| x, data)
+
+  - `"sample"`: Posterior predictive samples Y^rep ~ f(y \| x, data)
+
+  - `"mean"`: Posterior predictive mean E(Y \| x, data) (averaged over
+    posterior parameter uncertainty)
+
+  - `"rmean"`: Posterior predictive restricted mean \\E\[\min(Y, cutoff)
+    \mid x, data\]\\
+
+  - `"median"`: Posterior predictive median (quantile at p=0.5)
+
+  - `"location"`: Alias for "mean"
+
+  - `"fit"`: Per-observation posterior predictive draws
+
+  Note: `type="mean"` returns the posterior predictive mean, which
+  integrates over parameter uncertainty. This differs from the mean of a
+  single model distribution.
 
 - p:
 
@@ -104,6 +132,10 @@ predict(
   Number of posterior predictive samples to use for posterior mean
   estimation (for `type="mean"`).
 
+- cutoff:
+
+  Finite numeric cutoff for `type="rmean"` (restricted mean).
+
 - ncores:
 
   Number of CPU cores to use for parallel prediction (if supported).
@@ -129,6 +161,19 @@ A list with elements:
 If your object stores dedicated predictive machinery, you can keep this
 signature and swap the internals without breaking user code.
 
+The `type="mean"` option computes the posterior predictive mean by:
+
+1.  For each posterior draw s, computing E(Y \| x, theta_s) via Monte
+    Carlo simulation
+
+2.  Averaging these conditional means over the posterior: E(Y \| x,
+    data) = mean_s(E(Y \| x, theta_s))
+
+This accounts for parameter uncertainty and is the Bayesian predictive
+mean. When the tail shape parameter xi \>= 1 (heavy tail), the mean is
+undefined and the function returns Inf with a warning suggesting
+alternatives like median or restricted mean.
+
 ## Examples
 
 ``` r
@@ -145,5 +190,7 @@ pr_cdf <- list(fit = 1 - pr_surv$fit)
 pr_hpd <- predict(fit, type = "quantile", p = c(0.5, 0.9), interval = "hpd")
 # No intervals
 pr_none <- predict(fit, type = "quantile", p = c(0.5, 0.9), interval = NULL)
+# Restricted mean (finite under heavy tails)
+pr_rmean <- predict(fit, type = "rmean", cutoff = 10, interval = "credible")
 } # }
 ```

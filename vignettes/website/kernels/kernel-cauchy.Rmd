@@ -1,0 +1,96 @@
+---
+title: "Cauchy"
+pkgdown:
+  slug: "kernels/kernel-cauchy"
+output:
+  rmarkdown::html_vignette:
+    highlight: null
+vignette: >
+  %\\VignetteIndexEntry{Cauchy}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+source("_load_pkg.R")
+```
+
+## Cauchy {#v02-cauchy}
+
+
+### Cauchy base and mixtures
+
+A Cauchy distribution with location \(x_0\in\mathbb{R}\) and scale \(\gamma>0\) has density
+\[
+f(y\mid x_0,\gamma)=\frac{1}{\pi\gamma\left[1+\left(\frac{y-x_0}{\gamma}\right)^2\right]},
+\quad y\in\mathbb{R}.
+\]
+
+A finite Cauchy mixture is
+\[
+f(y)=\sum_{j=1}^J w_j\,\text{Cauchy}(y\mid x_{0j},\gamma_j).
+\]
+
+**Parameter mapping (math \(\rightarrow\) code):** \(x_0\to\) `location`, \(\gamma\to\) `scale`; in mixtures \(x_{0j}\to\) `location[j]`, \(\gamma_j\to\) `scale[j]`, \(w_j\to\) `w[j]`.
+
+
+### Without GPD (base and mixture)
+
+```{r cauchy-base}
+grid <- seq(-8, 8, length.out = 400)
+cauchy_sets <- list(
+  list(label = "Base", location = 0, scale = 1),
+  list(label = "Mix A", w = c(0.6, 0.3, 0.1), location = c(-1, 0, 1), scale = c(1.0, 1.2, 2)),
+  list(label = "Mix B", w = c(0.5, 0.3, 0.2), location = c(-1.5, 0.5, 1.5), scale = c(1.1, 1.0, 0.9))
+)
+
+base_par <- cauchy_sets[[1]]
+mix_par1 <- cauchy_sets[[2]]
+```
+
+```{r cauchy-d}
+dCauchy(0, location = base_par$location, scale = base_par$scale)
+dCauchy(0, location = base_par$location, scale = base_par$scale, log = TRUE)
+```
+
+```{r cauchy-p}
+pCauchy(0, location = base_par$location, scale = base_par$scale)
+pCauchy(0, location = base_par$location, scale = base_par$scale, lower.tail = FALSE)
+pCauchy(0, location = base_par$location, scale = base_par$scale, log.p = TRUE)
+```
+
+```{r cauchy-q}
+q_vec(qCauchy, c(0.25, 0.5, 0.75), location = base_par$location,
+      scale = base_par$scale)
+q_vec(qCauchy, c(0.25, 0.5, 0.75), location = base_par$location,
+      scale = base_par$scale, lower.tail = FALSE)
+q_vec(qCauchy, c(log(0.25), log(0.5), log(0.75)), location = base_par$location,
+      scale = base_par$scale, log.p = TRUE)
+```
+
+```{r cauchy-r}
+draw_many(rCauchy, list(location = base_par$location, scale = base_par$scale))
+```
+
+```{r cauchy-mix-d}
+dCauchyMix(0, w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale)
+dCauchyMix(0, w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale, log = TRUE)
+```
+
+```{r cauchy-mix-r}
+draw_many(rCauchyMix, list(w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale))
+```
+
+```{r cauchy-plot}
+df_cauchy <- rbind(
+  data.frame(x = grid, density = density_curve(grid, dCauchy, list(location = base_par$location, scale = base_par$scale)), label = "Base"),
+  data.frame(x = grid, density = density_curve(grid, dCauchyMix, list(w = mix_par1$w, location = mix_par1$location, scale = mix_par1$scale)), label = "Mix A"),
+  data.frame(x = grid, density = density_curve(grid, dCauchyMix, list(w = cauchy_sets[[3]]$w, location = cauchy_sets[[3]]$location, scale = cauchy_sets[[3]]$scale)), label = "Mix B")
+)
+
+ggplot(df_cauchy, aes(x = x, y = density, color = label)) +
+  geom_line(linewidth = 1) +
+  labs(title = "Cauchy base and mixtures", x = "x", y = "density") +
+  theme_minimal() + theme(legend.position = "top")
+```
+
