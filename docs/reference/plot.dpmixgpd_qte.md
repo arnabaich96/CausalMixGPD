@@ -20,6 +20,7 @@ plot(
   y = NULL,
   type = c("both", "effect", "arms"),
   facet_by = c("tau", "id"),
+  plotly = getOption("DPmixGPD.plotly", FALSE),
   ...
 )
 ```
@@ -43,6 +44,12 @@ plot(
   Character; faceting strategy when multiple prediction points exist.
   `"tau"` (default) facets by quantile level, `"id"` facets by
   prediction point.
+
+- plotly:
+
+  Logical; if `TRUE`, convert the `ggplot2` output to a `plotly` /
+  `htmlwidget` representation via `.wrap_plotly()`. Defaults to
+  `getOption("DPmixGPD.plotly", FALSE)`.
 
 - ...:
 

@@ -14,7 +14,13 @@ parameter controls the plot style:
 
 ``` r
 # S3 method for class 'dpmixgpd_ate'
-plot(x, y = NULL, type = c("both", "effect", "arms"), ...)
+plot(
+  x,
+  y = NULL,
+  type = c("both", "effect", "arms"),
+  plotly = getOption("DPmixGPD.plotly", FALSE),
+  ...
+)
 ```
 
 ## Arguments
@@ -30,6 +36,12 @@ plot(x, y = NULL, type = c("both", "effect", "arms"), ...)
 - type:
 
   Character; plot type: `"both"` (default), `"effect"`, or `"arms"`.
+
+- plotly:
+
+  Logical; if `TRUE`, convert the `ggplot2` output to a `plotly` /
+  `htmlwidget` representation via `.wrap_plotly()`. Defaults to
+  `getOption("DPmixGPD.plotly", FALSE)`.
 
 - ...:
 

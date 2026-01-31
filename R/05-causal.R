@@ -444,9 +444,12 @@ qte <- function(fit,
                 level = 0.95) {
   stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
 
-  # Handle interval: NULL means no interval, otherwise match to credible/hpd
+  # Handle interval: NULL or "none" mean no interval; otherwise match to credible/hpd
   compute_interval <- TRUE
-  if (is.null(interval)) {
+  if (is.character(interval) && length(interval) == 1L && identical(tolower(interval), "none")) {
+    compute_interval <- FALSE
+    interval <- "credible"  # placeholder for downstream
+  } else if (is.null(interval)) {
     compute_interval <- FALSE
     interval <- "credible"  # placeholder for downstream
   } else {
@@ -623,9 +626,12 @@ ate <- function(fit,
 
   type <- match.arg(type)
 
-  # Handle interval: NULL means no interval, otherwise match to credible/hpd
+  # Handle interval: NULL or "none" means no interval, otherwise match to credible/hpd
   compute_interval <- TRUE
-  if (is.null(interval)) {
+  if (is.character(interval) && length(interval) == 1L && identical(tolower(interval), "none")) {
+    compute_interval <- FALSE
+    interval <- "credible"  # placeholder for downstream
+  } else if (is.null(interval)) {
     compute_interval <- FALSE
     interval <- "credible"  # placeholder for downstream
   } else {

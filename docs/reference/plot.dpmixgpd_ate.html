@@ -31,7 +31,7 @@ control means) and treatment_effect (ATE curve) plots
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-pantry" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Pantry</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-pantry"><li><a class="dropdown-item" href="../articles/manual-index.html">Pantry Overview</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-pantry"><li><a class="dropdown-item" href="../articles/manual.html">Pantry Overview</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Starters</h6></li>
     <li><a class="dropdown-item" href="../articles/introduction.html">Starter: Introduction</a></li>
@@ -70,7 +70,7 @@ control means) and treatment_effect (ATE curve) plots
     <li><h6 class="dropdown-header" data-toc-skip>Starters</h6></li>
     <li><a class="dropdown-item" href="../articles/cookbook/v00-start-here.html">Starter Broth (Start Here)</a></li>
     <li><a class="dropdown-item" href="../articles/cookbook/v01-introduction.html">Chef's Notes (Introduction)</a></li>
-    <li><a class="dropdown-item" href="../articles/cookbook/v02-available-distributions.html">Spice Rack Sampler (Distributions)</a></li>
+    <li><a class="dropdown-item" href="../articles/kernels/mathematical-definitions-and-conventions.html">Spice Rack Sampler (Distribution Kernels)</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><h6 class="dropdown-header" data-toc-skip>Entrees</h6></li>
     <li><a class="dropdown-item" href="../articles/cookbook/v03-basic-model-compile-run.html">Mainline Sear (Compile &amp; Run)</a></li>
@@ -131,7 +131,13 @@ control means) and <code>treatment_effect</code> (ATE curve) plots</p></li>
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'dpmixgpd_ate'</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x</span>, y <span class="op">=</span> <span class="cn">NULL</span>, type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"both"</span>, <span class="st">"effect"</span>, <span class="st">"arms"</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  y <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"both"</span>, <span class="st">"effect"</span>, <span class="st">"arms"</span><span class="op">)</span>,</span>
+<span>  plotly <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">getOption</a></span><span class="op">(</span><span class="st">"DPmixGPD.plotly"</span>, <span class="cn">FALSE</span><span class="op">)</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -148,6 +154,12 @@ control means) and <code>treatment_effect</code> (ATE curve) plots</p></li>
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><p>Character; plot type: <code>"both"</code> (default), <code>"effect"</code>, or <code>"arms"</code>.</p></dd>
+
+
+<dt id="arg-plotly">plotly<a class="anchor" aria-label="anchor" href="#arg-plotly"></a></dt>
+<dd><p>Logical; if <code>TRUE</code>, convert the <code>ggplot2</code> output to a
+<code>plotly</code> / <code>htmlwidget</code> representation via <code>.wrap_plotly()</code>. Defaults
+to <code>getOption("DPmixGPD.plotly", FALSE)</code>.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
