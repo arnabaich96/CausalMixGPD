@@ -10,7 +10,7 @@ flag_val <- function(prefix) {
   sub(paste0("^", prefix, "="), "", hit[1])
 }
 
-do_pkgdown <- !has_flag("--no-pkgdown") && has_flag("--build-pkgdown")  # Disabled by default; use --build-pkgdown to enable
+do_pkgdown <- !has_flag("--no-pkgdown")
 do_quarto  <- !has_flag("--no-quarto")
 
 # pkgdown modes:
@@ -32,7 +32,7 @@ clean_docs <- has_flag("--clean-docs")
 quarto_target <- flag_val("--quarto")
 
 cat("\n=== DPmixGPD website build ===\n")
-cat("pkgdown:", if (do_pkgdown) (if (pkgdown_full) "FULL" else "FAST (home+reference)") else "SKIP (use --build-pkgdown to enable)", "\n")
+cat("pkgdown:", if (do_pkgdown) (if (pkgdown_full) "FULL" else "FAST (home+reference)") else "SKIP", "\n")
 cat("quarto :", if (do_quarto) (if (!is.null(quarto_target)) paste0("ONE PAGE (", quarto_target, ")") else "PROJECT") else "SKIP", "\n")
 cat("clean  :", paste(
   c(if (clean_docs) "docs" else NULL,
@@ -51,8 +51,6 @@ if (clean_docs && dir.exists("docs")) {
 }
 
 # 1) Build pkgdown first (so Quarto wrapper doesn't overwrite it)
-# NOTE: Disabled by default. Use --build-pkgdown to regenerate pkgdown output.
-#       Otherwise, existing docs/reference and docs/articles are preserved and wrapped by Quarto.
 if (do_pkgdown) {
   if (!requireNamespace("pkgdown", quietly = TRUE)) {
     stop("pkgdown is not installed. Install it: install.packages('pkgdown')")
