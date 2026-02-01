@@ -10,6 +10,13 @@ data-raw
 docs
 pkgdown
 Meta
+_build
+_freeze
+site
+site_libs
+Misc
+build_log.txt
+website
 
 # Ignore rendered / cached vignette artifacts (keep vignettes/*.Rmd)
 vignettes/**/cache

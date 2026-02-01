@@ -1,5 +1,7 @@
 # Ignore temp, hidden, and system folders
 ^\.tmp/
+^\.cursor/
+^\.cursor$
 ^\.vscode/
 ^\.Rproj.user/
 ^renv$
@@ -31,24 +33,26 @@
 ^tools/\.codecov_token$
 ^vignettes/manuscript/
 ^vignettes/manuscript/$
-^vignettes/website/workflows/
-^vignettes/website/workflows/$
-^vignettes/website/Customization/
-^vignettes/website/Customization/$
-^vignettes/website/
-^vignettes/website/$
-^vignettes/kernels/
-^vignettes/kernels/$
+^website/
+^website/$
 ^tmp-.*\.R$
 ^.*\.RData$
-^.*\.rda$
 ^.*\.rdx$
 ^\.Rhistory$
 # Exclude generated .R files from vignettes (knitr artifacts)
 ^vignettes/.*\.R$
+# Exclude .qmd copies of vignettes
+^vignettes/.*\.qmd$
+# Exclude markdown, qmd, and html files in vignettes folder
+^vignettes/.*\.md$
+^vignettes/.*\.html$
 # CRAN/package-build exclusions (top-level repo artifacts)
 ^\.lintr$
 ^\.renvignore$
+^\.quartoignore$
+^.*\.yml$
+^.*\.md$
+^LICENSE$
 ^codecov\.exe$
 ^codecov\.asc$
 ^codecov\.exe\.SHA256SUM$
@@ -57,11 +61,21 @@
 ^REPO_BLUEPRINT\.md$
 ^fix_exports\.R$
 ^temp$
+^tests/testthat/_snaps/
+^tests/testthat/_snaps$
 ^tests/testthat/tests/
 ^tests/testthat/tests/$
+^tests/testthat/(?!.*\.R$).*
+^build$
+^build/
 ^tools/
-^tools/$
-# Website build artifacts (GitHub Pages)
 ^docs$
 ^site$
-
+^site_libs/$
+^site_libs/
+^.quarto/
+^.quarto/$
+^_build/
+^_build$
+^_freeze/
+^_freeze$

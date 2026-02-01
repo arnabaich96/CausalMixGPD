@@ -78,7 +78,9 @@ vignettes/website/kernels/articles/legacy-precomputed
 
 # Codecov token (secret - do not commit)
 tools/.codecov_token
-# Codecov artifacts
+# Codecov config and artifacts (contain sensitive tokens)
+codecov.yml
+_codecov.yml
 codecov.*
 !_codecov.yml
 # renv

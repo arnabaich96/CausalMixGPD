@@ -1,40 +1,45 @@
 project:
   type: website
-  output-dir: quarto
+  output-dir: _build/quarto_output
   render:
-    - site/index.html
-    - site/kernels/index.html
-    - site/cookbook/index.html
-    - site/reference/index.html
-    - site/coverage/index.html
-    - site/roadmap/index.html
-  resources:
-    - site/assets/**
-
+    - site/**/*.qmd
+    - website/**/*.qmd
+    - "!vignettes/**/*.Rmd"
+    - "!vignettes/**/*_files"
+  resources: []
+execute:
+  cache: true
+  freeze: auto
 website:
   title: "DPmixGPD"
   navbar:
     left:
       - text: Home
         href: index.html
+      - text: Start Here
+        href: start/index.html
       - text: Roadmap
         href: roadmap/index.html
-      - text: Kernels
-        href: kernels/index.html
       - text: Cookbook
         href: cookbook/index.html
-      - text: Reference
-        href: reference/index.html
+      - text: Kernels
+        href: kernels/index.html
+      - text: API
+        href: api/index.html
       - text: Coverage
         href: coverage/index.html
     right:
-      - text: Bug Report
+      - text: Issues
         href: https://github.com/arnabaich96/DPmixGPD/issues
+      - text: Discussions
+        href: https://github.com/arnabaich96/DPmixGPD/discussions
       - text: GitHub
         href: https://github.com/arnabaich96/DPmixGPD
 
 format:
   html:
     theme: cosmo
-    css: site/assets/theme.css
+    css:
+      - site/styles.css
+      - site/theme.css
     toc: false

@@ -1,0 +1,146 @@
+---
+title: "Model Specification"
+output:
+  rmarkdown::html_vignette:
+    highlight: null
+vignette: >
+  %\VignetteIndexEntry{Model Specification}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = NA,
+  message = FALSE,
+  warning = FALSE,
+  fig.align = "center"
+)
+library(ggplot2)
+library(DPmixGPD)
+library(kableExtra)
+set.seed(1)
+```
+
+## Overview
+
+This vignette describes the probabilistic model behind DPmixGPD and how user
+inputs map to a compiled NIMBLE bundle.
+
+## Theory (core model)
+
+### Bulk mixture
+
+For outcomes $y_i$ and kernel $K$, the bulk distribution is modeled as a DP
+mixture:
+$$
+f(y_i) = \\int K(y_i; \\theta)\\, dG(\\theta), \\quad G \\sim \\mathrm{DP}(\\alpha, G_0).
+$$
+The DP prior on $G$ induces clustering of component parameters and allows the
+mixture to adapt to unknown distributional shapes.
+
+### Tail augmentation (optional)
+
+When $\\mathrm{GPD} = \\mathrm{TRUE}$, a Generalized Pareto tail replaces the
+bulk kernel beyond a threshold $u$:
+$$
+f(y) =
+\\begin{cases}
+f_{\\text{bulk}}(y), & y \\le u \\\\
+f_{\\text{GPD}}(y; u, \\sigma, \\xi), & y > u
+\\end{cases}
+$$
+with continuity enforced at the threshold.
+
+### Conditional extension
+
+Conditional models allow kernel parameters to depend on covariates $x_i$:
+$$
+f(y_i \\mid x_i) = \\int K(y_i; \\theta(x_i))\\, dG(\\theta).
+$$
+The linking structure is kernel-specific and implemented in the model builder.
+
+## Core constructor
+
+Most workflows begin with `build_nimble_bundle()`. The bundle includes compiled
+NIMBLE code and MCMC settings.
+
+```{r}
+library(DPmixGPD)
+
+data("faithful", package = "datasets")
+y <- faithful$eruptions
+
+bundle_uncond <- build_nimble_bundle(
+  y = y,
+  backend = "sb",
+  kernel  = "normal",
+  GPD     = TRUE,
+  components = 6,
+  mcmc = list(niter = 200, nburnin = 50, thin = 2, nchains = 1, seed = 1)
+)
+```
+
+## Conditional example
+
+```{r}
+data("mtcars", package = "datasets")
+df <- mtcars
+X <- df[, c("wt", "hp")]
+X <- as.data.frame(X)
+y <- df$mpg
+
+bundle_cond <- build_nimble_bundle(
+  y = y,
+  X = X,
+  backend = "sb",
+  kernel  = "normal",
+  GPD     = TRUE,
+  components = 6,
+  mcmc = list(niter = 200, nburnin = 50, thin = 2, nchains = 1, seed = 1)
+)
+```
+
+## Key arguments
+
+```{r, echo=FALSE}
+args_df <- data.frame(
+  Argument = c("backend", "backend", "kernel", "GPD", "GPD", "components", "alpha_random"),
+  Value = c("sb", "crp", "(various)", "TRUE", "FALSE", "K", "TRUE/FALSE"),
+  Description = c(
+    "Stick-breaking mixture (finite truncation)",
+    "Chinese Restaurant Process mixture",
+    "Bulk component family (normal, gamma, lognormal, ...)",
+    "Splice GPD tail beyond threshold",
+    "Bulk-only model",
+    "Truncation level for SB (maximum components)",
+    "Learn concentration parameter (DP strength)"
+  )
+)
+
+kable(args_df, align = "c", caption = "Model Specification Arguments") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = FALSE, position = "center")
+```
+
+## Model types
+
+| Type | Specification | Prediction Behavior |
+|------|---------------|---------------------|
+| **Unconditional** | Omit `X` or pass `X = NULL` | Population-level, replicated across observations |
+| **Conditional** | Provide `X` | Computed per-row of `X` |
+
+## Input requirements
+
+- For conditional models, `length(y)` must equal `nrow(X)`
+- Covariates must be numeric for regression-style links
+- Covariate names must not use NIMBLE reserved keywords (`if`, `for`, `while`, etc.)
+
+```{r, eval=FALSE}
+# Rename reserved keywords
+names(X)[names(X) == "if"] <- "x_if"
+```
+
+
+

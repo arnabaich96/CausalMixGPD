@@ -1,0 +1,97 @@
+---
+title: "Unconditional Models"
+output:
+  rmarkdown::html_vignette:
+    highlight: null
+vignette: >
+  %\VignetteIndexEntry{Unconditional Models}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = NA,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 7,
+  fig.height = 4.5,
+  fig.align = "center"
+)
+library(ggplot2)
+library(kableExtra)
+library(DPmixGPD)
+set.seed(1)
+FAST <- TRUE
+mcmc <- if (FAST) {
+  list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
+} else {
+  list(niter = 8000, nburnin = 2000, thin = 5, nchains = 2, seed = c(1, 2))
+}
+```
+
+## Overview
+
+This vignette demonstrates fitting an unconditional DP mixture model with optional GPD tail augmentation.
+
+## Theory (brief)
+
+Unconditional models treat observations as exchangeable draws from a mixture
+distribution. The DP prior on the mixing measure $G$ yields flexible density
+estimation:
+$$
+y_i \\mid G \\sim \\int K(y_i; \\theta)\\, dG(\\theta), \\quad G \\sim \\mathrm{DP}(\\alpha, G_0).
+$$
+When $\\mathrm{GPD} = \\mathrm{TRUE}$, a GPD tail replaces the bulk kernel beyond a
+threshold $u$ to stabilize tail behavior.
+
+## Model Fitting
+
+```{r, results='hide'}
+library(DPmixGPD)
+
+data("faithful", package = "datasets")
+y <- faithful$eruptions
+
+bundle <- build_nimble_bundle(
+  y = y,
+  backend = "sb",
+  kernel = "normal",
+  GPD = TRUE,
+  components = 6,
+  mcmc = mcmc
+)
+
+fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+```
+
+## Posterior Predictive Summaries
+
+```{r}
+pred_mean <- predict(fit, type = "mean", cred.level = 0.90, interval = "credible")
+pred_q95  <- predict(fit, type = "quantile", index = 0.95, cred.level = 0.90, interval = "credible")
+
+pred_mean$fit
+pred_q95$fit
+```
+
+## Note
+
+For unconditional models, use \code{predict()} only; \code{fitted()} and \code{residuals()} are not supported (they are for conditional, covariate models).
+
+## Diagnostic Plots
+
+```{r}
+if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quietly = TRUE)) {
+  if (interactive()) plot(fit)
+} else {
+  message("Plotting requires 'ggmcmc' and 'coda' packages.")
+}
+```
+
+```{r sessioninfo, include=FALSE}
+sessionInfo()
+```
+
+

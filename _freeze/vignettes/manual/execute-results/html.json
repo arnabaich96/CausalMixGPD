@@ -1,0 +1,15 @@
+{
+  "hash": "4dd260b550aa6b3374b61439e098bd34",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Manual Overview\"\noutput:\n  rmarkdown::html_vignette:\n    highlight: null\nvignette: >\n  %\\VignetteIndexEntry{Manual Overview}\n  %\\VignetteEngine{knitr::rmarkdown}\n  %\\VignetteEncoding{UTF-8}\n---\n\n# Setup chunk ensures the package is loaded for links and references.\n\n\n# Pantry overview (DPmixGPD manual)\n\nWelcome to the pantry: recipes and guides for using DPmixGPD.\n\n## First steps in the kitchen\n\nStart here if you're new:\n\n- [**Introduction**](introduction.html) - Quick start with basic examples\n\n## Recipes by topic\n\n### Core concepts\n\n- [**Available Distributions**](distributions.html) - Overview of supported mixture kernels (Normal, Lognormal, Gamma, etc.) and their properties\n\n- [**Model Specification**](model-spec.html) - How to specify models, set priors, and configure parameters\n\n- [**MCMC Workflow**](mcmc-workflow.html) - Running MCMC chains, convergence diagnostics, and best practices\n\n### Model types\n\n- [**Unconditional Models**](unconditional.html) - Density estimation without covariates for univariate data\n\n- [**Conditional Models**](conditional.html) - Covariate-dependent density estimation using parameter linking\n\n- [**Causal Inference**](causal.html) - Treatment effect estimation with propensity score adjustment\n\n- [**Umbrella: Custom Models (All-in-One)**](website/Customization/umbrella.html) - Consolidated custom model recipes for CRP/SB, GPD, and causal workflows\n- [**Customization: Build NIMBLE Models from Scratch**](website/Customization/customization.html) - Manual SB/CRP workflows using exported nimbleFunctions with full NIMBLE pipelines\n\n### Advanced topics\n\n- [**Backends (CRP vs SB)**](backends.html) - Comparing Chinese Restaurant Process and Stick-Breaking inference approaches\n\n- [**S3 Methods Reference**](reference-s3.html) - Complete guide to using `print()`, `summary()`, `if (interactive()) plot()`, `predict()`, and other S3 methods\n\n## How to use this pantry\n\n1. **New to the kitchen**: Start with the [Introduction](introduction.html)\n2. **Building recipes**: Read [Model Specification](model-spec.html) and [MCMC Workflow](mcmc-workflow.html)\n3. **What to cook**: Jump to [Unconditional](unconditional.html), [Conditional](conditional.html), or [Causal](causal.html) as needed\n4. **Utensils**: See [S3 Methods Reference](reference-s3.html) for method details\n\n## NIMBLE Version Notes\n\nDPmixGPD is developed and tested with **nimble 1.4.0** (see `renv.lock`). Other\nrecent nimble releases should work, but if you encounter compilation or sampler\nissues, please match the tested version first.\n\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
