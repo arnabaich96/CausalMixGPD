@@ -1,0 +1,179 @@
+# Laplace
+
+## Laplace
+
+### Laplace mixture kernel
+
+A Laplace (double-exponential) component with location
+$`\ell\in\mathbb{R}`$ and scale $`b>0`$ has density
+``` math
+f(y\mid \ell,b)=\frac{1}{2b}\exp\!\left(-\frac{|y-\ell|}{b}\right),\quad y\in\mathbb{R}.
+```
+
+A finite Laplace mixture is
+``` math
+f(y)=\sum_{j=1}^J w_j\,\text{Laplace}(y\mid \ell_j,b_j).
+```
+
+**Parameter mapping (math $`\rightarrow`$ code):**
+$`\ell_j\to`$`location[j]`, $`b_j\to`$`scale[j]`, $`w_j\to`$`w[j]`.
+
+### Laplace mixture with GPD tail
+
+The spliced kernel uses the Laplace mixture below $`u`$ and a GPD tail
+above $`u`$.
+
+**Tail mapping (math $`\rightarrow`$ code):** $`u\to`$`threshold`,
+$`\sigma\to`$`tail_scale`, $`\xi\to`$`tail_shape`.
+
+### Without GPD (mixture kernel)
+
+Laplace mixture density
+$`f(x)=\sum_j w_j\,\text{Laplace}(x\mid \ell_j, b_j)`$.
+
+``` r
+
+grid <- seq(-4, 4, length.out = 400)
+lap_sets <- list(
+  list(label = "Mix A", w = c(0.6, 0.3, 0.1), location = c(0.0, 1.0, -2), scale = c(1.0, 0.9, 1.1)),
+  list(label = "Mix B", w = c(0.5, 0.3, 0.2), location = c(0.2, 1.2, -0.5), scale = c(0.9, 2, 1.0)),
+  list(label = "Mix C", w = c(0.4, 0.35, 0.25), location = c(-0.2, 2, -1.0), scale = c(1.1, 0.95, 1.05))
+)
+
+example <- lap_sets[[1]]
+```
+
+``` r
+
+dLaplaceMix(0, w = example$w, location = example$location, scale = example$scale)
+```
+
+    [1] 0.362
+
+``` r
+
+dLaplaceMix(0, w = example$w, location = example$location, scale = example$scale, log = TRUE)
+```
+
+    [1] -1.02
+
+``` r
+
+pLaplaceMix(0, w = example$w, location = example$location, scale = example$scale)
+```
+
+    [1] 0.441
+
+``` r
+
+pLaplaceMix(0, w = example$w, location = example$location, scale = example$scale, lower.tail = FALSE)
+```
+
+    [1] 0.559
+
+``` r
+
+pLaplaceMix(0, w = example$w, location = example$location, scale = example$scale, log.p = TRUE)
+```
+
+    [1] -0.818
+
+``` r
+
+q_vec(qLaplaceMix, c(0.25, 0.5, 0.75), w = example$w,
+      location = example$location, scale = example$scale)
+```
+
+    [1] -0.734  0.171  1.050
+
+``` r
+
+q_vec(qLaplaceMix, c(0.25, 0.5, 0.75), w = example$w,
+      location = example$location, scale = example$scale, lower.tail = FALSE)
+```
+
+    [1]  1.050  0.171 -0.734
+
+``` r
+
+q_vec(qLaplaceMix, c(log(0.25), log(0.5), log(0.75)), w = example$w,
+      location = example$location, scale = example$scale, log.p = TRUE)
+```
+
+    [1] -0.734  0.171  1.050
+
+``` r
+
+draw_many(rLaplaceMix, list(w = example$w, location = example$location, scale = example$scale))
+```
+
+    [1] -0.146 -2.504 -0.831  1.230  0.608
+
+``` r
+
+df_lap <- do.call(rbind, lapply(lap_sets, function(ps) {
+  data.frame(x = grid, density = density_curve(grid, dLaplaceMix, list(w = ps$w, location = ps$location, scale = ps$scale)), label = ps$label)
+}))
+
+ggplot(df_lap, aes(x = x, y = density, color = label)) +
+  geom_line(linewidth = 1) +
+  labs(title = "Laplace mixtures (bulk)", x = "x", y = "density") +
+  theme_minimal() + theme(legend.position = "top")
+```
+
+![](kernel-laplace_files/figure-html/laplace-mix-plot-1.png)
+
+### With GPD tail
+
+``` r
+
+lap_gpd_sets <- list(
+  list(label = "Mix A", w = c(0.6, 0.4), location = c(-0.5, 1), scale = c(0.4, 0.6), threshold = 1.5, tail_scale = 0.35, tail_shape = 0.3),
+  list(label = "Mix B", w = c(0.5, 0.5), location = c(0, 0.8), scale = c(0.5, 0.5), threshold = 1.2, tail_scale = 0.3, tail_shape = 0.25),
+  list(label = "Mix C", w = c(0.7, 0.3), location = c(0.2, 1.5), scale = c(0.35, 0.7), threshold = 1.8, tail_scale = 0.4, tail_shape = 0.22)
+)
+
+example <- lap_gpd_sets[[1]]
+```
+
+``` r
+
+dLaplaceMixGpd(1, w = example$w, location = example$location, scale = example$scale, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
+```
+
+    [1] 0.351
+
+``` r
+
+pLaplaceMixGpd(1, w = example$w, location = example$location, scale = example$scale, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
+```
+
+    [1] 0.793
+
+``` r
+
+q_vec(qLaplaceMixGpd, c(0.5, 0.9), w = example$w, location = example$location, scale = example$scale, threshold = example$threshold, tail_scale = example$tail_scale, tail_shape = example$tail_shape)
+```
+
+    [1] -0.162  1.430
+
+``` r
+
+draw_many(rLaplaceMixGpd, example)
+```
+
+    [1]  1.6799  0.8180 -2.2696 -0.1711  0.0353
+
+``` r
+
+df_lap_gpd <- do.call(rbind, lapply(lap_gpd_sets, function(ps) {
+  data.frame(x = grid, density = density_curve(grid, dLaplaceMixGpd, list(w = ps$w, location = ps$location, scale = ps$scale, threshold = ps$threshold, tail_scale = ps$tail_scale, tail_shape = ps$tail_shape)), label = ps$label)
+}))
+
+ggplot(df_lap_gpd, aes(x = x, y = density, color = label)) +
+  geom_line(linewidth = 1) +
+  labs(title = "Laplace mixtures with GPD tail (different thresholds)", x = "x", y = "density") +
+  theme_minimal() + theme(legend.position = "top")
+```
+
+![](kernel-laplace_files/figure-html/laplace-gpd-plot-1.png)

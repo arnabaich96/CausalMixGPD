@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>7. Unconditional DPmix with Stick-Breaking Backend</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+<style type="text/css">detaiks.chunk-details > summary.chunk-summary {
+text-align: right;
+}
+details.chunk-details[open] > summary.chunk-summary::after {
+content: "Hide";
+}
+details.chunk-details[open] > summary.chunk-summary > span.chunk-summary-text {
+display: none;
+}
+</style>
+<script>$(document).ready(function(){
+    if (typeof $('[data-toggle="tooltip"]').tooltip === 'function') {
+        $('[data-toggle="tooltip"]').tooltip();
+    }
+    if ($('[data-toggle="popover"]').popover === 'function') {
+        $('[data-toggle="popover"]').popover();
+    }
+});
+</script>
+<style type="text/css">
+.lightable-minimal {
+border-collapse: separate;
+border-spacing: 16px 1px;
+width: 100%;
+margin-bottom: 10px;
+}
+.lightable-minimal td {
+margin-left: 5px;
+margin-right: 5px;
+}
+.lightable-minimal th {
+margin-left: 5px;
+margin-right: 5px;
+}
+.lightable-minimal thead tr:last-child th {
+border-bottom: 2px solid #00000050;
+empty-cells: hide;
+}
+.lightable-minimal tbody tr:first-child td {
+padding-top: 0.5em;
+}
+.lightable-minimal.lightable-hover tbody tr:hover {
+background-color: #f5f5f5;
+}
+.lightable-minimal.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-classic {
+border-top: 0.16em solid #111111;
+border-bottom: 0.16em solid #111111;
+width: 100%;
+margin-bottom: 10px;
+margin: 10px 5px;
+}
+.lightable-classic tfoot tr td {
+border: 0;
+}
+.lightable-classic tfoot tr:first-child td {
+border-top: 0.14em solid #111111;
+}
+.lightable-classic caption {
+color: #222222;
+}
+.lightable-classic td {
+padding-left: 5px;
+padding-right: 5px;
+color: #222222;
+}
+.lightable-classic th {
+padding-left: 5px;
+padding-right: 5px;
+font-weight: normal;
+color: #222222;
+}
+.lightable-classic thead tr:last-child th {
+border-bottom: 0.10em solid #111111;
+}
+.lightable-classic.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-classic.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-classic-2 {
+border-top: 3px double #111111;
+border-bottom: 3px double #111111;
+width: 100%;
+margin-bottom: 10px;
+}
+.lightable-classic-2 tfoot tr td {
+border: 0;
+}
+.lightable-classic-2 tfoot tr:first-child td {
+border-top: 3px double #111111;
+}
+.lightable-classic-2 caption {
+color: #222222;
+}
+.lightable-classic-2 td {
+padding-left: 5px;
+padding-right: 5px;
+color: #222222;
+}
+.lightable-classic-2 th {
+padding-left: 5px;
+padding-right: 5px;
+font-weight: normal;
+color: #222222;
+}
+.lightable-classic-2 tbody tr:last-child td {
+border-bottom: 3px double #111111;
+}
+.lightable-classic-2 thead tr:last-child th {
+border-bottom: 1px solid #111111;
+}
+.lightable-classic-2.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-classic-2.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-material {
+min-width: 100%;
+white-space: nowrap;
+table-layout: fixed;
+font-family: Roboto, sans-serif;
+border: 1px solid #EEE;
+border-collapse: collapse;
+margin-bottom: 10px;
+}
+.lightable-material tfoot tr td {
+border: 0;
+}
+.lightable-material tfoot tr:first-child td {
+border-top: 1px solid #EEE;
+}
+.lightable-material th {
+height: 56px;
+padding-left: 16px;
+padding-right: 16px;
+}
+.lightable-material td {
+height: 52px;
+padding-left: 16px;
+padding-right: 16px;
+border-top: 1px solid #eeeeee;
+}
+.lightable-material.lightable-hover tbody tr:hover {
+background-color: #f5f5f5;
+}
+.lightable-material.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-material.lightable-striped tbody td {
+border: 0;
+}
+.lightable-material.lightable-striped thead tr:last-child th {
+border-bottom: 1px solid #ddd;
+}
+.lightable-material-dark {
+min-width: 100%;
+white-space: nowrap;
+table-layout: fixed;
+font-family: Roboto, sans-serif;
+border: 1px solid #FFFFFF12;
+border-collapse: collapse;
+margin-bottom: 10px;
+background-color: #363640;
+}
+.lightable-material-dark tfoot tr td {
+border: 0;
+}
+.lightable-material-dark tfoot tr:first-child td {
+border-top: 1px solid #FFFFFF12;
+}
+.lightable-material-dark th {
+height: 56px;
+padding-left: 16px;
+padding-right: 16px;
+color: #FFFFFF60;
+}
+.lightable-material-dark td {
+height: 52px;
+padding-left: 16px;
+padding-right: 16px;
+color: #FFFFFF;
+border-top: 1px solid #FFFFFF12;
+}
+.lightable-material-dark.lightable-hover tbody tr:hover {
+background-color: #FFFFFF12;
+}
+.lightable-material-dark.lightable-striped tbody tr:nth-child(even) {
+background-color: #FFFFFF12;
+}
+.lightable-material-dark.lightable-striped tbody td {
+border: 0;
+}
+.lightable-material-dark.lightable-striped thead tr:last-child th {
+border-bottom: 1px solid #FFFFFF12;
+}
+.lightable-paper {
+width: 100%;
+margin-bottom: 10px;
+color: #444;
+}
+.lightable-paper tfoot tr td {
+border: 0;
+}
+.lightable-paper tfoot tr:first-child td {
+border-top: 1px solid #00000020;
+}
+.lightable-paper thead tr:last-child th {
+color: #666;
+vertical-align: bottom;
+border-bottom: 1px solid #00000020;
+line-height: 1.15em;
+padding: 10px 5px;
+}
+.lightable-paper td {
+vertical-align: middle;
+border-bottom: 1px solid #00000010;
+line-height: 1.15em;
+padding: 7px 5px;
+}
+.lightable-paper.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-paper.lightable-striped tbody tr:nth-child(even) {
+background-color: #00000008;
+}
+.lightable-paper.lightable-striped tbody td {
+border: 0;
+}
+</style>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">7. Unconditional DPmix with Stick-Breaking
+Backend</h1>
+
+
+
+<blockquote>
+<p><strong>Legacy vignette (for the website / historical
+notes).</strong> These files may not match the current exported API
+one-to-one. Last verified: <strong>2026-01-18</strong>.</p>
+<p>For the up-to-date workflow, see the main package vignettes
+(Introduction, Model Spec, MCMC Workflow,
+Unconditional/Conditional/Causal, Backends, S3 Reference).</p>
+</blockquote>
+<div id="unconditional-dpmix-stick-breaking-sb-backend" class="section level1">
+<h1>Unconditional DPmix: Stick-Breaking (SB) Backend</h1>
+<p><strong>Purpose</strong>: Showcase the stick-breaking backend that
+uses a fixed number of mixture components (<code>components = J</code>)
+and contrast it with the CRP backend from <code>v04</code>. In this
+vignette we fit <strong>two</strong> bulk kernels
+(<strong>Gamma</strong> and <strong>Cauchy</strong>) on the same dataset
+to highlight how heavier tails in the bulk can change the fit even
+without a GPD tail.</p>
+<hr />
+<div id="data-setup" class="section level2">
+<h2>Data Setup</h2>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code># Generate a reproducible mock dataset instead of relying on saved cache files.
+set.seed(10102)
+n &lt;- 200
+weights &lt;- c(0.4, 0.35, 0.25)
+params &lt;- list(
+  list(shape = 2.0, rate = 1.5),
+  list(shape = 4.0, rate = 1.0),
+  list(shape = 7.0, rate = 0.7)
+)
+component &lt;- sample(seq_along(weights), size = n, replace = TRUE, prob = weights)
+y_mixed &lt;- numeric(n)
+for (k in seq_along(params)) {
+  idx &lt;- which(component == k)
+  if (length(idx) &gt; 0) {
+    y_mixed[idx] &lt;- rgamma(length(idx), shape = params[[k]]$shape, rate = params[[k]]$rate)
+  }
+}
+
+df_data &lt;- data.frame(y = y_mixed)
+
+summary_tbl &lt;- tibble(
+  statistic = c(&quot;N&quot;, &quot;Mean&quot;, &quot;SD&quot;, &quot;Min&quot;, &quot;Max&quot;),
+  value = c(length(y_mixed), mean(y_mixed), sd(y_mixed), min(y_mixed), max(y_mixed))
+)
+
+p_raw &lt;- ggplot(df_data, aes(x = y)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 30, fill = &quot;darkorange&quot;, alpha = 0.7, color = &quot;black&quot;) +
+  geom_density(color = &quot;darkred&quot;, linewidth = 1.2) +
+  labs(title = &quot;Raw Data: Mixed Gamma Distribution&quot;, x = &quot;y&quot;, y = &quot;Density&quot;) +
+  theme_minimal()
+
+grid.arrange(p_raw, ncol = 1)</code></pre>
+</details>
+<p><img role="img" src="data:image/png;base64,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icYhADjROAQAJxqHAOBE4xAAnGgcAoATjUMAcKJxCABONA4BwInGIQA40TgEACcahwDgROMQAJxoHAKAE41DAHCicQgATjQOAcCJxiEAONG4cQXwOkSHZ7l54OThRhZgrYpyLQKAGwOHAOBE4xAAnGgcAoATjUMAcKJxCABONA4BwInGIQA40TgEACcahwDgROMQAJxoHAKAE41DAHCicQgATjQOAcCJxiEAONE4BAAnGocA4ETjEACcaBwCgBONQwBwonEIAE40DgHAicYhADjROAQAJxqHAOBE4xAAnGhcgwCXj3bvvY6WLj7d3d3PrzBtBwKAmxmuXoDrJ/v+qw/Dpcsvn/oXnz3NVhi3AwHAzQxXL8DlV0f+xedHwdKbsOqf72crjNuBAOBmhqsX4OKL19F7f5xgqbjixCTeqSrKtZ7RDgjRS7sAb+7l6v36ycPiCv0wAoCbMU5vBLh89LA8JBi1AwHAzQyncw7gX3y6X1xh2g4EADczXNNVoIfJRZ+4/nMrjNuBAOBmhmu9DxC857/aDbPPfQBw7uG4EwxONA4BwInGIQA40TgEACcahwDgROMQAJxoHAKAE41DAHCicQgATjQOAcCJxiEAONE4BAAnGocA4ETjEACcaBwCgBONQwBwonEIAE40DgHAicYhADjROAQAJxqHAOBE4xAAnGgcAoATjUMAcKJxCABONA4BwInGIQA40TgEACcahwDgROMQAJxoHAKAE41DAHCicQgATjQOAcCJxiEAONE4BAAnGocA4ETjEACcaBwCgBONQwBwonEIAE40DgHAicYhADjROAQAJxqHAOBE4xAAnGgcAoATjTMW4MQk3qkqyrWe0Q4I0UtvAfRNyS0zAoCbGQ4BwInGIQA40TgEACcahwDgROMQAJxoHAKAE41DAHCicQgATjQOAcCJxiEAONE4BAAnGocA4ETjEACcaBwCgBONQwBwonEIAE40DgHAicYhADjROAQAJxqHAOBE4xAAnGgcAoATjUMAcKJxCABONA4BwInGIQA40TgEACcahwDgROMQAJxoHAKAE41DAHCicQgATjQOAcCJxiEAONE4BAAnGocA4ETj5ibAKgkCgBsFNysBVrkgALgxcHMSYFWMBs9y88DJw81IgGTuk1v2KvHdOOrgZoObjwBZ9ZdtyG3pu3HUwc0GNxsByvXuqQxAAHCW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" /><!-- --></p>
+<table class="table table-striped table-hover" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the SB Dataset
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+statistic
+</th>
+<th style="text-align:center;">
+value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+200.00
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Mean
+</td>
+<td style="text-align:center;">
+4.21
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+SD
+</td>
+<td style="text-align:center;">
+4.11
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Min
+</td>
+<td style="text-align:center;">
+0.04
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Max
+</td>
+<td style="text-align:center;">
+19.60
+</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</div>
+<div id="model-specification-bundle" class="section level2">
+<h2>Model Specification &amp; Bundle</h2>
+<p>We build the stick-breaking mixture explicitly with
+<code>components = 5</code> so that there is room for weight decay while
+keeping the MCMC runtime manageable for a vignette. We then refit the
+same SB model with a <strong>Cauchy</strong> kernel for comparison.</p>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code># --- Gamma kernel ---
+bundle_sb_gamma &lt;- build_nimble_bundle(
+  y = y_mixed,
+  kernel = &quot;gamma&quot;,
+  backend = &quot;sb&quot;,
+  components = 5,            # fixed truncation level for SB
+  GPD = FALSE,               # bulk-only scenario
+  mcmc = mcmc
+)
+
+# --- Cauchy kernel ---
+bundle_sb_cauchy &lt;- build_nimble_bundle(
+  y = y_mixed,
+  kernel = &quot;cauchy&quot;,
+  backend = &quot;sb&quot;,
+  components = 5,
+  GPD = FALSE,
+  mcmc = mcmc
+)</code></pre>
+</details>
+<hr />
+</div>
+<div id="running-mcmc-summary" class="section level2">
+<h2>Running MCMC &amp; Summary</h2>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>fit_sb_gamma &lt;- load_or_fit(&quot;v07-unconditional-DPmix-SB-fit_sb_gamma&quot;, run_mcmc_bundle_manual(bundle_sb_gamma))
+fit_sb_cauchy &lt;- load_or_fit(&quot;v07-unconditional-DPmix-SB-fit_sb_cauchy&quot;, run_mcmc_bundle_manual(bundle_sb_cauchy))</code></pre>
+</details>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>summary(fit_sb_gamma)</code></pre>
+</details>
+<pre><code>MixGPD summary | backend: Stick-Breaking Process | kernel: Gamma Distribution | GPD tail: FALSE | epsilon: 0.025
+n = 200 | components = 5
+Summary
+Initial components: 5 | Components after truncation: 1
+
+WAIC: 894.655
+lppd: -373.085 | pWAIC: 74.243
+
+Summary table
+&lt;table class=&quot;table&quot; style=&quot;width: auto !important; margin-left: auto; margin-right: auto;&quot;&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; parameter &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; mean &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; sd &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.025 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.500 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.975 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; ess &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; weights[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.515 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.157 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.31 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.475 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.91 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 16.884 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; alpha &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.486 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.044 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.237 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.229 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 4.066 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 25.619 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; shape[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.153 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.906 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.976 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.031 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 4.073 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 54.399 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; scale[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.455 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.266 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.207 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.371 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.275 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 44.692 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>summary(fit_sb_cauchy)</code></pre>
+</details>
+<pre><code>MixGPD summary | backend: Stick-Breaking Process | kernel: Cauchy Distribution | GPD tail: FALSE | epsilon: 0.025
+n = 200 | components = 5
+Summary
+Initial components: 5 | Components after truncation: 3
+
+WAIC: 1010.117
+lppd: -330.564 | pWAIC: 174.495
+
+Summary table
+&lt;table class=&quot;table&quot; style=&quot;width: auto !important; margin-left: auto; margin-right: auto;&quot;&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; parameter &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; mean &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; sd &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.025 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.500 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.975 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; ess &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; weights[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.357 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.054 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.26 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.355 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.47 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 130.126 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; weights[2] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.265 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.04 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.19 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.265 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.34 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 119.492 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; weights[3] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.2 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.037 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.13 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.2 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.28 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 189.551 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; alpha &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.17 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.139 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.574 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.993 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 4.716 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 250.571 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; location[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.01 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.605 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.76 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.266 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 7.086 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 51.249 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; location[2] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 3.261 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.379 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.636 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.551 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 8.197 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 249.563 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; location[3] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 4.988 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.762 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.616 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 5.911 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 9.798 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 151.879 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; scale[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.711 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.418 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.341 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.584 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.089 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 81.904 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; scale[2] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.894 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.581 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.286 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.667 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.3 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 216.249 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; scale[3] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.082 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.593 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.264 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.038 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.359 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 302.185 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>params_gamma &lt;- params(fit_sb_gamma)
+params_gamma</code></pre>
+</details>
+<pre><code>Posterior mean parameters
+
+$alpha
+[1] &quot;1.486&quot;
+
+$w
+[1] &quot;0.515&quot;
+
+$shape
+[1] &quot;2.153&quot;
+
+$scale
+[1] &quot;0.455&quot;</code></pre>
+<hr />
+</div>
+<div id="mcmc-diagnostics-s3-plot-methods" class="section level2">
+<h2>MCMC Diagnostics (S3 Plot Methods)</h2>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code># Default diagnostics for each fit
+if (interactive()) plot(fit_sb_gamma, family = c(&quot;traceplot&quot;, &quot;autocorrelation&quot;, &quot;running&quot;))
+if (interactive()) plot(fit_sb_cauchy, family = c(&quot;density&quot;, &quot;geweke&quot;, &quot;caterpillar&quot;))</code></pre>
+</details>
+<p>Use <code>summary(fit_sb_gamma)</code> and
+<code>summary(fit_sb_cauchy)</code> to inspect effective sample size,
+R-hat, and other convergence diagnostics; the
+<code>if (interactive()) plot()</code> calls above show the
+trace/density pairs for both global and stick-breaking weight
+parameters.</p>
+<hr />
+</div>
+<div id="stick-breaking-weights-component-activity" class="section level2">
+<h2>Stick-Breaking Weights &amp; Component Activity</h2>
+<p>The stick-breaking weights are exposed via the
+<code>if (interactive()) plot()</code> diagnostics above, and you can
+refer to the raw <code>fit_sb_gamma</code> / <code>fit_sb_cauchy</code>
+objects (or their <code>summary()</code> output) for posterior summaries
+of each component weight.</p>
+<hr />
+</div>
+<div id="posterior-predictions" class="section level2">
+<h2>Posterior Predictions</h2>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>y_grid &lt;- seq(min(y_mixed), max(y_mixed) * 1.3, length.out = 250)
+
+pred_density_gamma &lt;- predict(fit_sb_gamma, y = y_grid, type = &quot;density&quot;)
+pred_density_cauchy &lt;- predict(fit_sb_cauchy, y = y_grid, type = &quot;density&quot;)
+
+if (interactive()) plot(pred_density_gamma)
+if (interactive()) plot(pred_density_cauchy)</code></pre>
+</details>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>quant_probs &lt;- c(0.05, 0.25, 0.5, 0.75, 0.95)
+
+pred_q_gamma &lt;- predict(fit_sb_gamma, type = &quot;quantile&quot;, index = quant_probs, interval = &quot;credible&quot;)
+pred_q_cauchy &lt;- predict(fit_sb_cauchy, type = &quot;quantile&quot;, index = quant_probs, interval = &quot;credible&quot;)
+
+if (interactive()) plot(pred_q_gamma)
+if (interactive()) plot(pred_q_cauchy)</code></pre>
+</details>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>pred_mean_gamma &lt;- predict(fit_sb_gamma, type = &quot;mean&quot;)
+pred_mean_cauchy &lt;- predict(fit_sb_cauchy, type = &quot;mean&quot;)
+
+if (interactive()) plot(pred_mean_gamma)
+if (interactive()) plot(pred_mean_cauchy)</code></pre>
+</details>
+<hr />
+</div>
+<div id="bulk-only-vs-crp-backends" class="section level2">
+<h2>Bulk-only vs CRP Backends</h2>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>bundle_crp_small &lt;- build_nimble_bundle(
+  y = y_mixed,
+  kernel = &quot;gamma&quot;,
+  backend = &quot;crp&quot;,
+  components = 5,
+  GPD = FALSE,
+  mcmc = mcmc
+)
+fit_crp_small &lt;- load_or_fit(&quot;v07-unconditional-DPmix-SB-fit_crp_small&quot;, run_mcmc_bundle_manual(bundle_crp_small))
+
+crp_quant &lt;- predict(fit_crp_small, type = &quot;quantile&quot;, index = quant_probs, interval = &quot;credible&quot;)
+sb_quant &lt;- predict(fit_sb_gamma, type = &quot;quantile&quot;, index = quant_probs, interval = &quot;credible&quot;)
+
+bind_rows(
+  crp_quant$fit %&gt;% mutate(model = &quot;CRP&quot;),
+  sb_quant$fit %&gt;% mutate(model = &quot;SB&quot;)
+) %&gt;%
+  select(any_of(c(&quot;model&quot;, &quot;index&quot;, &quot;estimate&quot;, &quot;lower&quot;, &quot;upper&quot;))) %&gt;%
+  mutate(across(where(is.numeric), ~ round(.x, 3))) %&gt;%
+  kable(caption = &quot;Quantile Comparison: CRP vs SB&quot;, align = &quot;c&quot;) %&gt;%
+  kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;), full_width = FALSE, position = &quot;center&quot;)</code></pre>
+</details>
+<table class="table table-striped table-hover" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Quantile Comparison: CRP vs SB
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+model
+</th>
+<th style="text-align:center;">
+index
+</th>
+<th style="text-align:center;">
+estimate
+</th>
+<th style="text-align:center;">
+lower
+</th>
+<th style="text-align:center;">
+upper
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+CRP
+</td>
+<td style="text-align:center;">
+0.05
+</td>
+<td style="text-align:center;">
+0.110
+</td>
+<td style="text-align:center;">
+0.009
+</td>
+<td style="text-align:center;">
+0.639
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+CRP
+</td>
+<td style="text-align:center;">
+0.25
+</td>
+<td style="text-align:center;">
+0.296
+</td>
+<td style="text-align:center;">
+0.054
+</td>
+<td style="text-align:center;">
+1.374
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+CRP
+</td>
+<td style="text-align:center;">
+0.50
+</td>
+<td style="text-align:center;">
+0.531
+</td>
+<td style="text-align:center;">
+0.136
+</td>
+<td style="text-align:center;">
+2.134
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+CRP
+</td>
+<td style="text-align:center;">
+0.75
+</td>
+<td style="text-align:center;">
+0.877
+</td>
+<td style="text-align:center;">
+0.273
+</td>
+<td style="text-align:center;">
+3.364
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+CRP
+</td>
+<td style="text-align:center;">
+0.95
+</td>
+<td style="text-align:center;">
+1.602
+</td>
+<td style="text-align:center;">
+0.603
+</td>
+<td style="text-align:center;">
+5.913
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+SB
+</td>
+<td style="text-align:center;">
+0.05
+</td>
+<td style="text-align:center;">
+0.231
+</td>
+<td style="text-align:center;">
+0.011
+</td>
+<td style="text-align:center;">
+0.848
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+SB
+</td>
+<td style="text-align:center;">
+0.25
+</td>
+<td style="text-align:center;">
+0.533
+</td>
+<td style="text-align:center;">
+0.062
+</td>
+<td style="text-align:center;">
+1.687
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+SB
+</td>
+<td style="text-align:center;">
+0.50
+</td>
+<td style="text-align:center;">
+0.876
+</td>
+<td style="text-align:center;">
+0.149
+</td>
+<td style="text-align:center;">
+2.662
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+SB
+</td>
+<td style="text-align:center;">
+0.75
+</td>
+<td style="text-align:center;">
+1.354
+</td>
+<td style="text-align:center;">
+0.298
+</td>
+<td style="text-align:center;">
+3.985
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+SB
+</td>
+<td style="text-align:center;">
+0.95
+</td>
+<td style="text-align:center;">
+2.312
+</td>
+<td style="text-align:center;">
+0.646
+</td>
+<td style="text-align:center;">
+6.483
+</td>
+</tr>
+</tbody>
+</table>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>if (interactive()) plot(crp_quant)
+if (interactive()) plot(sb_quant)</code></pre>
+</details>
+<hr />
+<p>For unconditional models, use <code>predict()</code> only;
+<code>fitted()</code> and <code>residuals()</code> are not
+supported.</p>
+<hr />
+</div>
+<div id="takeaways" class="section level2">
+<h2>Takeaways</h2>
+<ul>
+<li><strong>SB Backend</strong>: Fixed <code>components</code> keeps
+label-switching manageable, and the diagnostic plots via the S3
+<code>if (interactive()) plot()</code> method show weight dynamics.</li>
+<li><strong>Kernels matter</strong>: Gamma vs Cauchy can behave very
+differently in the shoulders/tails, even without a GPD tail.</li>
+<li><strong>Predictions</strong>: Posterior density, posterior-mean
+quantiles, and mean (via predictive sampling) are accessible via
+<code>predict()</code> with pointwise 95% credible intervals.</li>
+<li><strong>Backend comparison</strong>: The CRP fit (<code>v04</code>)
+and the SB-gamma fit deliver similar central quantiles while SB offers
+more control over truncation.</li>
+<li><strong>Next</strong>: Explore tail augmentation
+(<code>GPD = TRUE</code>) with the CRP backend in <code>v06</code> or SB
+backend in <code>v07</code>.</li>
+</ul>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

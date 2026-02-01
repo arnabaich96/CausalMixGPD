@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>0. Start Here</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+<style type="text/css">detaiks.chunk-details > summary.chunk-summary {
+text-align: right;
+}
+details.chunk-details[open] > summary.chunk-summary::after {
+content: "Hide";
+}
+details.chunk-details[open] > summary.chunk-summary > span.chunk-summary-text {
+display: none;
+}
+</style>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">0. Start Here</h1>
+
+
+
+<blockquote>
+<p><strong>Legacy vignette (for the website / historical
+notes).</strong> These files may not match the current exported API
+one-to-one. Last verified: <strong>2026-01-18</strong>.</p>
+<p>For the up-to-date workflow, see the main package vignettes
+(Introduction, Model Spec, MCMC Workflow,
+Unconditional/Conditional/Causal, Backends, S3 Reference).</p>
+</blockquote>
+<div id="quick-start" class="section level2">
+<h2>Quick start</h2>
+<p>This vignette gives a minimal, fully working workflow for an
+<strong>unconditional</strong> model and a <strong>conditional</strong>
+model. Everything uses short MCMC runs so the vignette renders
+quickly.</p>
+<hr />
+</div>
+<div id="unconditional-model-crp-bulk-only" class="section level2">
+<h2>Unconditional Model (CRP, bulk-only)</h2>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>data(&quot;nc_pos200_k3&quot;)
+y &lt;- nc_pos200_k3$y</code></pre>
+</details>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>bundle_uncond &lt;- build_nimble_bundle(
+  y = y,
+  backend = &quot;crp&quot;,
+  kernel = &quot;gamma&quot;,
+  GPD = FALSE,
+  components = 5,
+  mcmc = mcmc
+)</code></pre>
+</details>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>fit_uncond &lt;- load_or_fit(&quot;v00-start-here-fit_uncond&quot;, quiet_mcmc(run_mcmc_bundle_manual(bundle_uncond, show_progress = FALSE)))
+summary(fit_uncond)</code></pre>
+</details>
+<pre><code>MixGPD summary | backend: Chinese Restaurant Process | kernel: Gamma Distribution | GPD tail: FALSE | epsilon: 0.025
+n = 200 | components = 5
+Summary
+Initial components: 5 | Components after truncation: 1
+
+WAIC: 929.279
+lppd: -399.887 | pWAIC: 64.752
+
+Summary table
+&lt;table class=&quot;table&quot; style=&quot;width: auto !important; margin-left: auto; margin-right: auto;&quot;&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; parameter &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; mean &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; sd &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.025 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.500 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.975 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; ess &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; weights[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.684 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.216 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.36 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.63 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 25.041 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; alpha &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.559 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.388 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.028 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.498 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.526 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 204.872 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; shape[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.784 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.847 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.943 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.483 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 3.912 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 27.633 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; scale[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.494 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.343 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.212 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.35 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.402 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 59.82 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>pred_q &lt;- predict(fit_uncond, type = &quot;quantile&quot;, p = c(0.5, 0.9), interval = &quot;credible&quot;)
+head(pred_q$fit)</code></pre>
+</details>
+<pre><code>  estimate index lower upper
+1    0.841   0.5 0.139  3.50
+2    1.913   0.9 0.476  7.16</code></pre>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>if (interactive()) plot(pred_q)</code></pre>
+</details>
+<hr />
+</div>
+<div id="conditional-model-sb-bulk-only" class="section level2">
+<h2>Conditional Model (SB, bulk-only)</h2>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>data(&quot;nc_posX100_p3_k2&quot;)
+yc &lt;- nc_posX100_p3_k2$y
+X &lt;- as.matrix(nc_posX100_p3_k2$X)</code></pre>
+</details>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>bundle_cond &lt;- build_nimble_bundle(
+  y = yc,
+  X = X,
+  backend = &quot;sb&quot;,
+  kernel = &quot;lognormal&quot;,
+  GPD = FALSE,
+  components = 5,
+  mcmc = mcmc
+)</code></pre>
+</details>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>fit_cond &lt;- load_or_fit(&quot;v00-start-here-fit_cond&quot;, quiet_mcmc(run_mcmc_bundle_manual(bundle_cond, show_progress = FALSE)))
+summary(fit_cond)</code></pre>
+</details>
+<pre><code>MixGPD summary | backend: Stick-Breaking Process | kernel: Lognormal Distribution | GPD tail: FALSE | epsilon: 0.025
+n = 100 | components = 5
+Summary
+Initial components: 5 | Components after truncation: 1
+
+WAIC: 526.697
+lppd: -255.693 | pWAIC: 7.655
+
+Summary table
+&lt;table class=&quot;table&quot; style=&quot;width: auto !important; margin-left: auto; margin-right: auto;&quot;&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; parameter &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; mean &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; sd &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.025 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.500 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.975 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; ess &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; weights[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.973 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.056 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.8 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 60.977 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; alpha &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.465 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.272 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.111 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.402 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.128 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 243.504 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; beta_meanlog[1, 1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.119 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.133 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -0.138 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.114 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.37 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 937.946 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; beta_meanlog[2, 1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.151 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.717 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -3.398 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.203 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 3.557 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 737.604 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; beta_meanlog[3, 1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -0.03 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.944 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -3.97 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.066 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 3.631 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 846.559 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; beta_meanlog[4, 1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.07 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.074 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -4.033 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.029 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 4.109 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1246.061 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; beta_meanlog[5, 1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.091 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.977 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -3.802 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.085 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 3.816 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1124.342 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; beta_meanlog[1, 2] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -0.17 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.246 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -0.643 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -0.168 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.314 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 431.197 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; beta_meanlog[2, 2] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.193 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.881 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -3.543 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.208 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 3.649 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 365.618 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; beta_meanlog[3, 2] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.006 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.938 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -3.896 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -0.013 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 3.772 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1050.905 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; beta_meanlog[4, 2] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.046 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.004 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -3.936 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.081 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 3.885 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1056.479 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; beta_meanlog[5, 2] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -0.03 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.999 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -3.979 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -0.023 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 3.947 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1236.055 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; beta_meanlog[1, 3] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.063 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.128 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -0.187 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.064 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.316 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 804.499 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; beta_meanlog[2, 3] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -0.049 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.71 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -3.555 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -0.002 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 3.222 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 495.136 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; beta_meanlog[3, 3] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.074 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.944 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -3.677 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.078 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 3.963 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 982.923 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; beta_meanlog[4, 3] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.017 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.03 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -3.895 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.052 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 3.882 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1032.749 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; beta_meanlog[5, 3] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -0.003 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.952 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -3.996 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -0.044 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 3.945 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1051.657 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; sdlog[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.673 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.099 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.5 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.663 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.897 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1200 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>x_new &lt;- X[1:20, , drop = FALSE]
+pred_mean &lt;- predict(fit_cond, x = x_new, type = &quot;mean&quot;, interval = &quot;credible&quot;, nsim_mean = 200)
+head(pred_mean$fit)</code></pre>
+</details>
+<pre><code>  id estimate lower upper
+1  1    1.519 0.830  2.58
+2  2    1.099 0.688  1.71
+3  3    0.955 0.556  1.54
+4  4    1.272 0.857  1.79
+5  5    1.362 0.891  1.99
+6  6    1.040 0.663  1.60</code></pre>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>if (interactive()) plot(pred_mean)</code></pre>
+</details>
+<hr />
+</div>
+<div id="useful-s3-methods" class="section level2">
+<h2>Useful S3 Methods</h2>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>params(fit_uncond)</code></pre>
+</details>
+<pre><code>Posterior mean parameters
+
+$alpha
+[1] &quot;0.559&quot;
+
+$w
+[1] &quot;0.684&quot;
+
+$shape
+[1] &quot;1.784&quot;
+
+$scale
+[1] &quot;0.494&quot;</code></pre>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>if (interactive()) plot(fit_uncond, family = c(&quot;traceplot&quot;, &quot;running&quot;))</code></pre>
+</details>
+<hr />
+</div>
+<div id="next-steps" class="section level2">
+<h2>Next Steps</h2>
+<ul>
+<li><code>vignette 1</code>: package overview and terminology</li>
+<li><code>vignette 5</code>: full three-phase workflow (spec ? bundle ?
+MCMC)</li>
+<li><code>vignette 6-13</code>: unconditional/conditional models with
+and without GPD</li>
+<li><code>vignette 14-19</code>: causal workflows</li>
+</ul>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

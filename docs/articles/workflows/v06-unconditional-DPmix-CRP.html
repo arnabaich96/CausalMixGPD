@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>6. Unconditional DPmix with CRP Backend</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+<style type="text/css">detaiks.chunk-details > summary.chunk-summary {
+text-align: right;
+}
+details.chunk-details[open] > summary.chunk-summary::after {
+content: "Hide";
+}
+details.chunk-details[open] > summary.chunk-summary > span.chunk-summary-text {
+display: none;
+}
+</style>
+<script>$(document).ready(function(){
+    if (typeof $('[data-toggle="tooltip"]').tooltip === 'function') {
+        $('[data-toggle="tooltip"]').tooltip();
+    }
+    if ($('[data-toggle="popover"]').popover === 'function') {
+        $('[data-toggle="popover"]').popover();
+    }
+});
+</script>
+<style type="text/css">
+.lightable-minimal {
+border-collapse: separate;
+border-spacing: 16px 1px;
+width: 100%;
+margin-bottom: 10px;
+}
+.lightable-minimal td {
+margin-left: 5px;
+margin-right: 5px;
+}
+.lightable-minimal th {
+margin-left: 5px;
+margin-right: 5px;
+}
+.lightable-minimal thead tr:last-child th {
+border-bottom: 2px solid #00000050;
+empty-cells: hide;
+}
+.lightable-minimal tbody tr:first-child td {
+padding-top: 0.5em;
+}
+.lightable-minimal.lightable-hover tbody tr:hover {
+background-color: #f5f5f5;
+}
+.lightable-minimal.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-classic {
+border-top: 0.16em solid #111111;
+border-bottom: 0.16em solid #111111;
+width: 100%;
+margin-bottom: 10px;
+margin: 10px 5px;
+}
+.lightable-classic tfoot tr td {
+border: 0;
+}
+.lightable-classic tfoot tr:first-child td {
+border-top: 0.14em solid #111111;
+}
+.lightable-classic caption {
+color: #222222;
+}
+.lightable-classic td {
+padding-left: 5px;
+padding-right: 5px;
+color: #222222;
+}
+.lightable-classic th {
+padding-left: 5px;
+padding-right: 5px;
+font-weight: normal;
+color: #222222;
+}
+.lightable-classic thead tr:last-child th {
+border-bottom: 0.10em solid #111111;
+}
+.lightable-classic.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-classic.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-classic-2 {
+border-top: 3px double #111111;
+border-bottom: 3px double #111111;
+width: 100%;
+margin-bottom: 10px;
+}
+.lightable-classic-2 tfoot tr td {
+border: 0;
+}
+.lightable-classic-2 tfoot tr:first-child td {
+border-top: 3px double #111111;
+}
+.lightable-classic-2 caption {
+color: #222222;
+}
+.lightable-classic-2 td {
+padding-left: 5px;
+padding-right: 5px;
+color: #222222;
+}
+.lightable-classic-2 th {
+padding-left: 5px;
+padding-right: 5px;
+font-weight: normal;
+color: #222222;
+}
+.lightable-classic-2 tbody tr:last-child td {
+border-bottom: 3px double #111111;
+}
+.lightable-classic-2 thead tr:last-child th {
+border-bottom: 1px solid #111111;
+}
+.lightable-classic-2.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-classic-2.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-material {
+min-width: 100%;
+white-space: nowrap;
+table-layout: fixed;
+font-family: Roboto, sans-serif;
+border: 1px solid #EEE;
+border-collapse: collapse;
+margin-bottom: 10px;
+}
+.lightable-material tfoot tr td {
+border: 0;
+}
+.lightable-material tfoot tr:first-child td {
+border-top: 1px solid #EEE;
+}
+.lightable-material th {
+height: 56px;
+padding-left: 16px;
+padding-right: 16px;
+}
+.lightable-material td {
+height: 52px;
+padding-left: 16px;
+padding-right: 16px;
+border-top: 1px solid #eeeeee;
+}
+.lightable-material.lightable-hover tbody tr:hover {
+background-color: #f5f5f5;
+}
+.lightable-material.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-material.lightable-striped tbody td {
+border: 0;
+}
+.lightable-material.lightable-striped thead tr:last-child th {
+border-bottom: 1px solid #ddd;
+}
+.lightable-material-dark {
+min-width: 100%;
+white-space: nowrap;
+table-layout: fixed;
+font-family: Roboto, sans-serif;
+border: 1px solid #FFFFFF12;
+border-collapse: collapse;
+margin-bottom: 10px;
+background-color: #363640;
+}
+.lightable-material-dark tfoot tr td {
+border: 0;
+}
+.lightable-material-dark tfoot tr:first-child td {
+border-top: 1px solid #FFFFFF12;
+}
+.lightable-material-dark th {
+height: 56px;
+padding-left: 16px;
+padding-right: 16px;
+color: #FFFFFF60;
+}
+.lightable-material-dark td {
+height: 52px;
+padding-left: 16px;
+padding-right: 16px;
+color: #FFFFFF;
+border-top: 1px solid #FFFFFF12;
+}
+.lightable-material-dark.lightable-hover tbody tr:hover {
+background-color: #FFFFFF12;
+}
+.lightable-material-dark.lightable-striped tbody tr:nth-child(even) {
+background-color: #FFFFFF12;
+}
+.lightable-material-dark.lightable-striped tbody td {
+border: 0;
+}
+.lightable-material-dark.lightable-striped thead tr:last-child th {
+border-bottom: 1px solid #FFFFFF12;
+}
+.lightable-paper {
+width: 100%;
+margin-bottom: 10px;
+color: #444;
+}
+.lightable-paper tfoot tr td {
+border: 0;
+}
+.lightable-paper tfoot tr:first-child td {
+border-top: 1px solid #00000020;
+}
+.lightable-paper thead tr:last-child th {
+color: #666;
+vertical-align: bottom;
+border-bottom: 1px solid #00000020;
+line-height: 1.15em;
+padding: 10px 5px;
+}
+.lightable-paper td {
+vertical-align: middle;
+border-bottom: 1px solid #00000010;
+line-height: 1.15em;
+padding: 7px 5px;
+}
+.lightable-paper.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-paper.lightable-striped tbody tr:nth-child(even) {
+background-color: #00000008;
+}
+.lightable-paper.lightable-striped tbody td {
+border: 0;
+}
+</style>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">6. Unconditional DPmix with CRP
+Backend</h1>
+
+
+
+<blockquote>
+<p><strong>Legacy vignette (for the website / historical
+notes).</strong> These files may not match the current exported API
+one-to-one. Last verified: <strong>2026-01-18</strong>.</p>
+<p>For the up-to-date workflow, see the main package vignettes
+(Introduction, Model Spec, MCMC Workflow,
+Unconditional/Conditional/Causal, Backends, S3 Reference).</p>
+</blockquote>
+<div id="unconditional-dpmix-chinese-restaurant-process-crp" class="section level1">
+<h1>Unconditional DPmix: Chinese Restaurant Process (CRP)</h1>
+<p><strong>Goal</strong>: Estimate density of univariate outcome <span class="math inline">\(y\)</span> using <strong>nonparametric Dirichlet
+Process mixture</strong> with <strong>Chinese Restaurant
+Process</strong> backend.</p>
+<p><strong>Model</strong>: <span class="math inline">\(y_i | G \sim \int
+K(y_i; \theta) dG(\theta)\)</span> where <span class="math inline">\(G
+\sim \text{DP}(\alpha, G_0)\)</span></p>
+<p><strong>Backend</strong>: CRP with <strong>truncation at max
+components</strong></p>
+<hr />
+<div id="data-setup" class="section level2">
+<h2>Data Setup</h2>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code># Load pre-generated dataset: 200 observations from mixture of 3 gamma components
+data(nc_pos200_k3)
+y_mixed &lt;- nc_pos200_k3$y
+
+paste(&quot;Sample size:&quot;, length(y_mixed))</code></pre>
+</details>
+<pre><code>[1] &quot;Sample size: 200&quot;</code></pre>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>paste(&quot;Mean:&quot;, mean(y_mixed))</code></pre>
+</details>
+<pre><code>[1] &quot;Mean: 4.21476750434594&quot;</code></pre>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>paste(&quot;SD:&quot;, sd(y_mixed))</code></pre>
+</details>
+<pre><code>[1] &quot;SD: 4.10835046697183&quot;</code></pre>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>paste(&quot;Range:&quot;, paste(range(y_mixed), collapse = &quot; to &quot;))</code></pre>
+</details>
+<pre><code>[1] &quot;Range: 0.0403111680208858 to 19.6013451514889&quot;</code></pre>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code># Visualization
+df_data &lt;- data.frame(y = y_mixed)
+p_raw &lt;- ggplot(df_data, aes(x = y)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 30, alpha = 0.6, fill = &quot;steelblue&quot;,color = &quot;black&quot;) +
+  geom_density(color = &quot;red&quot;, linewidth = 1) +
+  labs(title = &quot;Raw Data: Mixed Gamma Distribution&quot;, x = &quot;y&quot;, y = &quot;Density&quot;) +
+  theme_minimal()
+
+print(p_raw)</code></pre>
+</details>
+<p><img role="img" src="data:image/png;base64,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ROMQAJxoHAKAE41DAHCicQgATjQOAcCJxiEAONE4BAAnGocA4ETjEACcaBwCgBONQwBwonHTCuD0iArPcPXAycNNLMC6LrWlCABuChwCgBONQwBwonEIAE40DgHAicYhADjROAQAJxqHAOBE4xAAnGgcAoATjUMAcKJxCABONA4BwInGIQA40TgEACcahwDgROMQAJxoHAKAE41DAHCicQgATjQOAcCJxiEAONG4FgGuHq8evA6XLj5erY7yBbr1QABwM8M1C3Dz5Mh79X6wdPX5U+/ik6dZgXY9EADczHDNAlx9cepdfHrqL70Jev3zo6xAux4IAG5muGYBLj57HR77o/hLxQKt59M7h3WpLXW0NkCIWroFePMg199vnjwqFqiHEQDcjHFqI8DV40flIUGrHggAbmY4lXMA7+Ljo2KBbj0QANzMcG1XgR7FF32i/p8r0K4HAoCbGa7zPoB/zH+1CnLEfQBw9uG4EwxONA4BwInGIQA40TgEACcahwDgROMQAJxoHAKAE41DAHCicQgATjQOAcCJxiEAONE4BAAnGocA4ETjEACcaBwCgBONQwBwonEIAE40DgHAicYhADjROAQAJxqHAOBE4xAAnGgcAoATjUMAcKJxCABONA4BwInGIQA40TgEACcahwDgROMQAJxoHAKAE41DAHCicQgATjQOAcCJxiEAONE4BAAnGocA4ETjtAXQej69c1iX2lJHawOEqGWwAOqm5JYZAcDNDIcA4ETjEACcaBwCgBONQwBwonEIAE40DgHAicYhADjROAQAJxqHAOBE4xAAnGgcAoATjUMAcKJxCABONA4BwInGIQA40TgEACcahwDgROMQAJxoHAKAE41DAHCicQgATjQOAcCJxiEAONE4BAAnGocA4ETjEACcaBwCgBONQwBwonGzE8CNggDgJsHNSwA3FxWe4eqBk4eblQDRsT9Zcmri2bHXwc0GNx8Bst5f9zI7MbBhr4ObDW5eAuQL6wxAAHCGcbMRoNzZncgJBAA3Km4uAlQP9rVWeHbsdXCzwc1EgJrZzrrGAAQAZxg3GwHqhoWKAQgAzjCuRYCrx6sHr+Pli09PPe/VarV673RIPZoEqPb/TID8vyEAOMO4ZgFunhx5r96Plt+EHf/50dB61AtQc70zuzmAAODGxDULcPXFaXTg93v+/W/9hZuvnw6th4YA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" /><!-- --></p>
+<hr />
+</div>
+<div id="model-specification-bundle" class="section level2">
+<h2>Model Specification &amp; Bundle</h2>
+<p>We’ll use the <code>build_nimble_bundle</code> function directly
+which handles both specification and bundle creation.</p>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>bundle_crp &lt;- build_nimble_bundle(
+  y = y_mixed,
+  kernel = &quot;laplace&quot;,         # Use laplace kernel
+  backend = &quot;crp&quot;,            # CRP backend
+  GPD = FALSE,                # No tail augmentation
+  components = 3,             # Minimal for testing
+  alpha_random = TRUE,        # Random DP concentration
+  mcmc = mcmc
+)</code></pre>
+</details>
+<hr />
+<div id="building-mcmc-bundle" class="section level3">
+<h3>Building MCMC bundle</h3>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>bundle_crp &lt;- build_nimble_bundle(
+  y_mixed,
+  kernel = &quot;laplace&quot;,
+  backend = &quot;crp&quot;,
+  GPD = FALSE,
+  components = 3,
+  alpha_random = TRUE,
+  mcmc = mcmc
+)</code></pre>
+</details>
+</div>
+<div id="summary-of-mcmc-bundle" class="section level3">
+<h3>Summary of MCMC Bundle</h3>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>summary(bundle_crp)</code></pre>
+</details>
+<pre><code>DPmixGPD bundle summary
+&lt;table class=&quot;table&quot; style=&quot;width: auto !important; margin-left: auto; margin-right: auto;&quot;&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; Field &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; Value &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; Backend &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; Chinese Restaurant Process &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; Kernel &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; Laplace Distribution &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; Components &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; N &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 200 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; X &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; NO &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; GPD &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; FALSE &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; Epsilon &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.025 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+Parameter specification
+&lt;table class=&quot;table&quot; style=&quot;width: auto !important; margin-left: auto; margin-right: auto;&quot;&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; block &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; parameter &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; mode &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; level &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; prior &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; link &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; notes &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; meta &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; backend &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; info &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; model &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; crp &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt;  &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; meta &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; kernel &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; info &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; model &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; laplace &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt;  &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; meta &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; components &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; info &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; model &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 3 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt;  &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; meta &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; N &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; info &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; model &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 200 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt;  &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; meta &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; P &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; info &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; model &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt;  &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; concentration &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; alpha &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; dist &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; scalar &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; gamma(shape=1, rate=1) &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt;  &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; stochastic concentration &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; bulk &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; location &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; dist &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; component (1:3) &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; normal(mean=0, sd=5) &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt;  &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; iid across components &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; bulk &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; scale &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; dist &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; component (1:3) &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; gamma(shape=2, rate=1) &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt;  &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; iid across components &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+Monitors
+  n = 4 
+  alpha, z[1:200], location[1:3], scale[1:3]</code></pre>
+</div>
+<div id="running-mcmc" class="section level3">
+<h3>Running MCMC</h3>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>fit_crp &lt;- load_or_fit(&quot;v06-unconditional-DPmix-CRP-fit_crp&quot;, run_mcmc_bundle_manual(bundle_crp))</code></pre>
+</details>
+</div>
+<div id="summary-of-fitted-mcmc-model" class="section level3">
+<h3>Summary of Fitted MCMC model</h3>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>summary(fit_crp)</code></pre>
+</details>
+<pre><code>MixGPD summary | backend: Chinese Restaurant Process | kernel: Laplace Distribution | GPD tail: FALSE | epsilon: 0.025
+n = 200 | components = 3
+Summary
+Initial components: 3 | Components after truncation: 2
+
+WAIC: 914.162
+lppd: -346.856 | pWAIC: 110.226
+
+Summary table
+&lt;table class=&quot;table&quot; style=&quot;width: auto !important; margin-left: auto; margin-right: auto;&quot;&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; parameter &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; mean &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; sd &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.025 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.500 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.975 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; ess &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; weights[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.42 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.036 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.36 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.415 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.5 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 372.213 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; weights[2] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.348 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.036 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.28 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.345 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.415 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 386.238 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; alpha &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.482 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.296 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.098 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.42 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.197 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1200 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; location[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 5.585 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.267 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.052 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 6.739 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 7.715 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 415.444 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; location[2] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 3.17 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.504 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.808 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.257 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 7.968 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 424.174 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; scale[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.555 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.42 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.261 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.339 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.708 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 397.138 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; scale[2] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.202 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.641 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.28 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.202 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.419 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 480.74 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>params_crp &lt;- params(fit_crp)
+params_crp</code></pre>
+</details>
+<pre><code>Posterior mean parameters
+
+$alpha
+[1] &quot;0.482&quot;
+
+$w
+[1] &quot;0.42&quot;  &quot;0.348&quot;
+
+$location
+[1] &quot;5.585&quot; &quot;3.17&quot; 
+
+$scale
+[1] &quot;0.555&quot; &quot;1.202&quot;</code></pre>
+<hr />
+</div>
+</div>
+<div id="mcmc-diagnostics-plots" class="section level2">
+<h2>MCMC Diagnostics Plots</h2>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code># Trace plots for key parameters
+if (interactive()) plot(fit_crp, params = &quot;alpha&quot;, family = c(&quot;traceplot&quot;, &quot;density&quot;, &quot;geweke&quot;))</code></pre>
+</details>
+<hr />
+</div>
+<div id="posterior-predictions" class="section level2">
+<h2>Posterior Predictions</h2>
+<div id="predictive-density" class="section level3">
+<h3>Predictive Density</h3>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code># Generate prediction grid
+y_grid &lt;- seq(0, max(y_mixed) * 1.2, length.out = 200)
+
+# Posterior predictive density
+pred_density &lt;- predict(fit_crp, y = y_grid, type = &quot;density&quot;)
+
+# Use S3 plot method
+if (interactive()) plot(pred_density)</code></pre>
+</details>
+</div>
+<div id="quantile-predictions" class="section level3">
+<h3>Quantile Predictions</h3>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code># Posterior predictive quantiles with credible intervals
+quantiles_pred &lt;- predict(fit_crp, type = &quot;quantile&quot;, 
+                          index = c(0.05, 0.25, 0.5, 0.75, 0.95),
+                          interval = &quot;credible&quot;)
+
+# Display table
+quantiles_pred$fit %&gt;%
+ kbl(caption = &quot;Posterior Predictive Quantiles with Credible Intervals&quot;,
+   align = &quot;c&quot;,
+                  digits = 3) %&gt;%
+ kable_styling(bootstrap_options = &quot;striped&quot;, full_width = FALSE, position = &quot;center&quot;)</code></pre>
+</details>
+<table class="table table-striped" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Posterior Predictive Quantiles with Credible Intervals
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+estimate
+</th>
+<th style="text-align:center;">
+index
+</th>
+<th style="text-align:center;">
+lower
+</th>
+<th style="text-align:center;">
+upper
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+-0.39
+</td>
+<td style="text-align:center;">
+0.05
+</td>
+<td style="text-align:center;">
+-2.57
+</td>
+<td style="text-align:center;">
+1.16
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+1.93
+</td>
+<td style="text-align:center;">
+0.25
+</td>
+<td style="text-align:center;">
+0.94
+</td>
+<td style="text-align:center;">
+2.84
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+5.90
+</td>
+<td style="text-align:center;">
+0.50
+</td>
+<td style="text-align:center;">
+3.05
+</td>
+<td style="text-align:center;">
+7.14
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+7.00
+</td>
+<td style="text-align:center;">
+0.75
+</td>
+<td style="text-align:center;">
+5.87
+</td>
+<td style="text-align:center;">
+8.02
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+7.56
+</td>
+<td style="text-align:center;">
+0.95
+</td>
+<td style="text-align:center;">
+6.44
+</td>
+<td style="text-align:center;">
+8.55
+</td>
+</tr>
+</tbody>
+</table>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code># Use S3 plot method
+if (interactive()) plot(quantiles_pred)</code></pre>
+</details>
+<hr />
+</div>
+</div>
+<div id="varying-truncation-level-components" class="section level2">
+<h2>Varying Truncation Level (components)</h2>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code># Demonstrate with one value
+bundle_components &lt;- build_nimble_bundle(
+  y = y_mixed,
+  kernel = &quot;laplace&quot;,
+  backend = &quot;crp&quot;,
+  components = 5,
+  mcmc = mcmc
+)
+fit_components &lt;- load_or_fit(&quot;v06-unconditional-DPmix-CRP-fit_components&quot;, run_mcmc_bundle_manual(bundle_components))</code></pre>
+</details>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>summary(fit_components)</code></pre>
+</details>
+<pre><code>MixGPD summary | backend: Chinese Restaurant Process | kernel: Laplace Distribution | GPD tail: FALSE | epsilon: 0.025
+n = 200 | components = 5
+Summary
+Initial components: 5 | Components after truncation: 3
+
+WAIC: 891.092
+lppd: -295.218 | pWAIC: 150.327
+
+Summary table
+&lt;table class=&quot;table&quot; style=&quot;width: auto !important; margin-left: auto; margin-right: auto;&quot;&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; parameter &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; mean &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; sd &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.025 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.500 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.975 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; ess &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; weights[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.39 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.05 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.28 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.395 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.48 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 124.026 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; weights[2] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.296 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.05 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.2 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.295 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.39 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 166.462 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; weights[3] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.213 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.046 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.125 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.21 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.295 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 204.79 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; alpha &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.752 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.404 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.187 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.678 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.733 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 541.565 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; location[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 5.06 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.48 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.923 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 6.499 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 7.902 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 68.982 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; location[2] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 3.143 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.637 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.709 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.287 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 9.177 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 248.114 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; location[3] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.572 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.573 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.444 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.502 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 9.801 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 104.292 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; scale[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.705 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.558 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.263 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.363 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.13 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 63.482 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; scale[2] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.344 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.73 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.284 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.315 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.798 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 630.231 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; scale[3] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.853 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.941 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.291 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.833 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 3.784 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 218.337 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+<hr />
+<p>For unconditional models, use <code>predict()</code> for posterior
+summaries; <code>fitted()</code> and <code>residuals()</code> are not
+supported.</p>
+<hr />
+</div>
+<div id="model-comparison-different-kernels" class="section level2">
+<h2>Model Comparison: Different Kernels</h2>
+<div id="laplace-kernel-current" class="section level3">
+<h3>Laplace Kernel (Current)</h3>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>bundle_laplace &lt;- build_nimble_bundle(
+  y = y_mixed,
+  kernel = &quot;laplace&quot;,
+  backend = &quot;crp&quot;,
+  components = 5,
+  mcmc = mcmc
+)
+fit_laplace &lt;- load_or_fit(&quot;v06-unconditional-DPmix-CRP-fit_laplace&quot;, run_mcmc_bundle_manual(bundle_laplace))</code></pre>
+</details>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>summary(fit_laplace)</code></pre>
+</details>
+<pre><code>MixGPD summary | backend: Chinese Restaurant Process | kernel: Laplace Distribution | GPD tail: FALSE | epsilon: 0.025
+n = 200 | components = 5
+Summary
+Initial components: 5 | Components after truncation: 2
+
+WAIC: 889.569
+lppd: -307.083 | pWAIC: 137.701
+
+Summary table
+&lt;table class=&quot;table&quot; style=&quot;width: auto !important; margin-left: auto; margin-right: auto;&quot;&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; parameter &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; mean &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; sd &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.025 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.500 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.975 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; ess &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; weights[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.392 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.053 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.275 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.395 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.48 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 151.984 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; weights[2] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.305 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.055 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.205 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.305 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.41 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 138.525 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; alpha &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.737 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.381 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.154 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.677 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.63 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 903.061 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; location[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 4.736 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.615 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.909 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 6.299 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 7.888 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 119.679 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; location[2] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 3.459 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.822 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.718 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.326 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 9.378 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 413.229 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; scale[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.789 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.586 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.263 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.392 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.135 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 103.007 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; scale[2] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.265 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.739 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.267 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.262 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.669 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 415.897 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+</div>
+<div id="amoroso-kernel-alternative" class="section level3">
+<h3>Amoroso Kernel (Alternative)</h3>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>bundle_amoroso &lt;- build_nimble_bundle(
+  y = y_mixed,
+  kernel = &quot;amoroso&quot;,
+  backend = &quot;crp&quot;,
+  components = 5,
+  mcmc = mcmc
+)
+fit_amoroso &lt;- load_or_fit(&quot;v06-unconditional-DPmix-CRP-fit_amoroso&quot;, run_mcmc_bundle_manual(bundle_amoroso))</code></pre>
+</details>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>summary(fit_amoroso)</code></pre>
+</details>
+<pre><code>MixGPD summary | backend: Chinese Restaurant Process | kernel: Amoroso Distribution | GPD tail: FALSE | epsilon: 0.025
+n = 200 | components = 5
+Summary
+Initial components: 5 | Components after truncation: 1
+
+WAIC: 921.494
+lppd: -418.642 | pWAIC: 42.105
+
+Summary table
+&lt;table class=&quot;table&quot; style=&quot;width: auto !important; margin-left: auto; margin-right: auto;&quot;&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; parameter &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; mean &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; sd &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.025 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.500 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.975 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; ess &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; weights[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.901 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.175 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.495 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 4.591 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; alpha &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.292 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.29 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.007 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.201 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.101 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 140.654 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; loc[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.017 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.32 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -0.385 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.01 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.264 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 257.023 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; scale[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.333 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.18 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.543 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.213 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 4.932 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 14.698 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; shape1[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.624 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.617 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.532 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.524 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.98 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 19.586 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; shape2[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.91 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.326 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.566 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.834 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.943 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 10.792 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+</div>
+<div id="model-comparison-via-predictions" class="section level3">
+<h3>Model Comparison via Predictions</h3>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code># Compare models using predict() (fitted/residuals not supported for unconditional)
+pred_laplace &lt;- predict(fit_laplace, type = &quot;mean&quot;, cred.level = 0.9, interval = &quot;credible&quot;)
+pred_amoroso &lt;- predict(fit_amoroso, type = &quot;mean&quot;, cred.level = 0.9, interval = &quot;credible&quot;)</code></pre>
+</details>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code># For unconditional models, fitted() is not supported; use predict() for comparisons (see pred_laplace, pred_amoroso above).</code></pre>
+</details>
+</div>
+</div>
+<div id="key-takeaways" class="section level2">
+<h2>Key Takeaways</h2>
+<ul>
+<li><strong>CRP Backend</strong>: Flexible component allocation, ideal
+for unknown mixture complexity</li>
+<li><strong>components Parameter</strong>: Higher components allows more
+components but increases computation</li>
+<li><strong>Kernel Choice</strong>: Gamma suitable for positive, skewed
+data</li>
+<li><strong>Diagnostics</strong>: Check convergence (Rhat, ESS) and
+posterior predictive fit</li>
+<li><strong>Next</strong>: Compare with <strong>Stick-Breaking
+(SB)</strong> backend in vignette 5</li>
+</ul>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

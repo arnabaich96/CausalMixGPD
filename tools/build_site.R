@@ -29,8 +29,8 @@ flag_val <- function(prefix) {
   sub(paste0("^", prefix, "="), "", hit[1])
 }
 
-do_pkgdown <- !has_flag("--no-pkgdown") && has_flag("--build-pkgdown")  # Disabled by default; use --build-pkgdown to enable
-do_quarto  <- !has_flag("--no-quarto")
+do_pkgdown <- !has_flag("--no-pkgdown")  # Enabled by default; use --no-pkgdown to disable
+do_quarto  <- FALSE  # Disabled; Quarto pages are static in site/ folder
 
 # pkgdown modes:
 # default: fast (home + reference only)
@@ -213,5 +213,33 @@ if (do_quarto) {
 
 # 3) Restore pkgdown output after site sync
 restore_cached_pkgdown()
+
+# 4) Overlay Quarto homepage and assets (so Quarto is the main entry point)
+if (dir.exists("site")) {
+  cat("\n--- Overlaying Quarto homepage and assets ---\n")
+  
+  # Copy Quarto homepage
+  if (file.exists("site/index.html")) {
+    file.copy("site/index.html", "docs/index.html", overwrite = TRUE)
+  }
+  
+  # Copy Quarto assets (cookbook, kernels, roadmap, styles.css)
+  quarto_assets <- c("cookbook", "kernels", "roadmap")
+  for (asset in quarto_assets) {
+    src <- file.path("site", asset)
+    dst <- file.path("docs", asset)
+    if (dir.exists(src)) {
+      if (dir.exists(dst)) unlink(dst, recursive = TRUE, force = TRUE)
+      file.copy(src, dst, recursive = TRUE, copy.mode = TRUE, copy.date = TRUE)
+    }
+  }
+  
+  # Copy Quarto styles
+  if (file.exists("site/styles.css")) {
+    file.copy("site/styles.css", "docs/styles.css", overwrite = TRUE)
+  }
+  
+  cat("Quarto homepage and assets overlayed.\n")
+}
 
 cat("\n✅ Done.\n")

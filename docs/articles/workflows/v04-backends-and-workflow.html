@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>4. Backends, Kernels, and Workflow Map</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+<style type="text/css">detaiks.chunk-details > summary.chunk-summary {
+text-align: right;
+}
+details.chunk-details[open] > summary.chunk-summary::after {
+content: "Hide";
+}
+details.chunk-details[open] > summary.chunk-summary > span.chunk-summary-text {
+display: none;
+}
+</style>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">4. Backends, Kernels, and Workflow Map</h1>
+
+
+
+<blockquote>
+<p><strong>Legacy vignette (for the website / historical
+notes).</strong> These files may not match the current exported API
+one-to-one. Last verified: <strong>2026-01-18</strong>.</p>
+<p>For the up-to-date workflow, see the main package vignettes
+(Introduction, Model Spec, MCMC Workflow,
+Unconditional/Conditional/Causal, Backends, S3 Reference).</p>
+</blockquote>
+<div id="big-picture" class="section level1">
+<h1>Big picture</h1>
+<p>DPmixGPD has two orthogonal dials you turn when building models:</p>
+<ul>
+<li><strong>Backend</strong> (how the mixture weights / clustering are
+represented)
+<ul>
+<li><strong>CRP</strong>: Chinese Restaurant Process
+representation.</li>
+<li><strong>SB</strong>: stick-breaking truncation with a fixed number
+of components.</li>
+</ul></li>
+<li><strong>Kernel / family</strong> (what distribution models the bulk
+of the data)
+<ul>
+<li>Examples: normal, lognormal, gamma, inverse-Gaussian, Laplace,
+Cauchy, Amoroso, etc.</li>
+</ul></li>
+</ul>
+<p>Optionally, you can also turn on:</p>
+<ul>
+<li><strong>GPD = TRUE/FALSE</strong> to splice a Generalized Pareto
+tail beyond a threshold.</li>
+</ul>
+</div>
+<div id="what-changes-between-crp-and-sb" class="section level1">
+<h1>What changes between CRP and SB?</h1>
+<p>Both backends target the same posterior over densities. The
+difference is representation:</p>
+<ul>
+<li><strong>CRP</strong> learns a random number of occupied clusters
+within a finite <code>components</code> cap.</li>
+<li><strong>SB</strong> uses the same finite <code>components</code> cap
+and learns stick-breaking weights.</li>
+</ul>
+<p>Practical rule of thumb:</p>
+<ul>
+<li><strong>CRP</strong> is convenient when you want adaptive complexity
+while still using a finite <code>components</code> cap.</li>
+<li><strong>SB</strong> is convenient when you want predictable
+memory/time and easy vectorization.</li>
+</ul>
+</div>
+<div id="what-does-the-workflow-look-like" class="section level1">
+<h1>What does the workflow look like?</h1>
+<p>DPmixGPD uses a consistent build -&gt; run -&gt; summarize loop:</p>
+<ol style="list-style-type: decimal">
+<li><strong>Build a bundle</strong> using
+<code>build_nimble_bundle()</code> (or causal builders if you are doing
+TE work).</li>
+<li><strong>Run MCMC</strong> using
+<code>run_mcmc_bundle_manual()</code>.</li>
+<li><strong>Inspect and summarize</strong> using <code>print()</code>,
+<code>summary()</code>, <code>if (interactive()) plot()</code>.</li>
+<li><strong>Predict</strong> using <code>predict()</code>. For
+conditional (covariate) models, <code>fitted()</code> is also
+available.</li>
+</ol>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code># Build
+bundle &lt;- build_nimble_bundle(
+  y = rnorm(50),
+  backend = &quot;crp&quot;,
+  kernel = &quot;normal&quot;,
+  GPD = FALSE,
+  components = 5,
+  mcmc = mcmc
+)
+
+# Run
+fit &lt;- load_or_fit(&quot;v04-backends-and-workflow-fit&quot;, run_mcmc_bundle_manual(bundle))
+
+# Summarize
+print(fit)</code></pre>
+</details>
+<pre><code>MixGPD fit | backend: Chinese Restaurant Process | kernel: Normal Distribution | GPD tail: FALSE
+n = 50 | components = 5 | epsilon = 0.025
+MCMC: niter=4000, nburnin=1000, thin=5, nchains=2 
+Fit
+Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</code></pre>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>summary(fit)</code></pre>
+</details>
+<pre><code>MixGPD summary | backend: Chinese Restaurant Process | kernel: Normal Distribution | GPD tail: FALSE | epsilon: 0.025
+n = 50 | components = 5
+Summary
+Initial components: 5 | Components after truncation: 1
+
+WAIC: 126.256
+lppd: -55.18 | pWAIC: 7.948
+
+Summary table
+&lt;table class=&quot;table&quot; style=&quot;width: auto !important; margin-left: auto; margin-right: auto;&quot;&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; parameter &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; mean &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; sd &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.025 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.500 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.975 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; ess &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; weights[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.933 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.122 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.56 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 224.34 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; alpha &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.337 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.349 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.006 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.233 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.291 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 801.989 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; mean[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.152 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.156 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -0.13 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.146 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.489 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 595.413 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; sd[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.71 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.577 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.989 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.582 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 3.286 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 376.985 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>if (interactive()) plot(fit)</code></pre>
+</details>
+</div>
+<div id="kernel-support-quick-check" class="section level1">
+<h1>Kernel support quick check</h1>
+<p>Use <code>kernel_support_table()</code> and the kernel registry
+helpers to confirm what is available.</p>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>kernel_support_table()</code></pre>
+</details>
+<pre><code>             kernel gpd covariates sb crp
+normal       normal   ✔          ✔  ✔   ✔
+lognormal lognormal   ✔          ✔  ✔   ✔
+invgauss   invgauss   ✔          ✔  ✔   ✔
+gamma         gamma   ✔          ✔  ✔   ✔
+laplace     laplace   ✔          ✔  ✔   ✔
+amoroso     amoroso   ✔          ✔  ✔   ✔
+cauchy       cauchy  ❌          ✔  ✔   ✔</code></pre>
+</div>
+<div id="where-to-go-next" class="section level1">
+<h1>Where to go next</h1>
+<ul>
+<li><strong>Available distributions</strong>: see <strong>v02</strong>
+for the <code>d/p/q/r</code> functions and examples.</li>
+<li><strong>Basic build/compile/run</strong>: see
+<strong>v03</strong>.</li>
+<li><strong>Unconditional / Conditional / Causal</strong>: continue
+through v06+.</li>
+</ul>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

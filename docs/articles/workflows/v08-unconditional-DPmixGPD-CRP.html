@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>8. Unconditional DPmixGPD with CRP Backend</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+<style type="text/css">detaiks.chunk-details > summary.chunk-summary {
+text-align: right;
+}
+details.chunk-details[open] > summary.chunk-summary::after {
+content: "Hide";
+}
+details.chunk-details[open] > summary.chunk-summary > span.chunk-summary-text {
+display: none;
+}
+</style>
+<script>$(document).ready(function(){
+    if (typeof $('[data-toggle="tooltip"]').tooltip === 'function') {
+        $('[data-toggle="tooltip"]').tooltip();
+    }
+    if ($('[data-toggle="popover"]').popover === 'function') {
+        $('[data-toggle="popover"]').popover();
+    }
+});
+</script>
+<style type="text/css">
+.lightable-minimal {
+border-collapse: separate;
+border-spacing: 16px 1px;
+width: 100%;
+margin-bottom: 10px;
+}
+.lightable-minimal td {
+margin-left: 5px;
+margin-right: 5px;
+}
+.lightable-minimal th {
+margin-left: 5px;
+margin-right: 5px;
+}
+.lightable-minimal thead tr:last-child th {
+border-bottom: 2px solid #00000050;
+empty-cells: hide;
+}
+.lightable-minimal tbody tr:first-child td {
+padding-top: 0.5em;
+}
+.lightable-minimal.lightable-hover tbody tr:hover {
+background-color: #f5f5f5;
+}
+.lightable-minimal.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-classic {
+border-top: 0.16em solid #111111;
+border-bottom: 0.16em solid #111111;
+width: 100%;
+margin-bottom: 10px;
+margin: 10px 5px;
+}
+.lightable-classic tfoot tr td {
+border: 0;
+}
+.lightable-classic tfoot tr:first-child td {
+border-top: 0.14em solid #111111;
+}
+.lightable-classic caption {
+color: #222222;
+}
+.lightable-classic td {
+padding-left: 5px;
+padding-right: 5px;
+color: #222222;
+}
+.lightable-classic th {
+padding-left: 5px;
+padding-right: 5px;
+font-weight: normal;
+color: #222222;
+}
+.lightable-classic thead tr:last-child th {
+border-bottom: 0.10em solid #111111;
+}
+.lightable-classic.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-classic.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-classic-2 {
+border-top: 3px double #111111;
+border-bottom: 3px double #111111;
+width: 100%;
+margin-bottom: 10px;
+}
+.lightable-classic-2 tfoot tr td {
+border: 0;
+}
+.lightable-classic-2 tfoot tr:first-child td {
+border-top: 3px double #111111;
+}
+.lightable-classic-2 caption {
+color: #222222;
+}
+.lightable-classic-2 td {
+padding-left: 5px;
+padding-right: 5px;
+color: #222222;
+}
+.lightable-classic-2 th {
+padding-left: 5px;
+padding-right: 5px;
+font-weight: normal;
+color: #222222;
+}
+.lightable-classic-2 tbody tr:last-child td {
+border-bottom: 3px double #111111;
+}
+.lightable-classic-2 thead tr:last-child th {
+border-bottom: 1px solid #111111;
+}
+.lightable-classic-2.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-classic-2.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-material {
+min-width: 100%;
+white-space: nowrap;
+table-layout: fixed;
+font-family: Roboto, sans-serif;
+border: 1px solid #EEE;
+border-collapse: collapse;
+margin-bottom: 10px;
+}
+.lightable-material tfoot tr td {
+border: 0;
+}
+.lightable-material tfoot tr:first-child td {
+border-top: 1px solid #EEE;
+}
+.lightable-material th {
+height: 56px;
+padding-left: 16px;
+padding-right: 16px;
+}
+.lightable-material td {
+height: 52px;
+padding-left: 16px;
+padding-right: 16px;
+border-top: 1px solid #eeeeee;
+}
+.lightable-material.lightable-hover tbody tr:hover {
+background-color: #f5f5f5;
+}
+.lightable-material.lightable-striped tbody tr:nth-child(even) {
+background-color: #f5f5f5;
+}
+.lightable-material.lightable-striped tbody td {
+border: 0;
+}
+.lightable-material.lightable-striped thead tr:last-child th {
+border-bottom: 1px solid #ddd;
+}
+.lightable-material-dark {
+min-width: 100%;
+white-space: nowrap;
+table-layout: fixed;
+font-family: Roboto, sans-serif;
+border: 1px solid #FFFFFF12;
+border-collapse: collapse;
+margin-bottom: 10px;
+background-color: #363640;
+}
+.lightable-material-dark tfoot tr td {
+border: 0;
+}
+.lightable-material-dark tfoot tr:first-child td {
+border-top: 1px solid #FFFFFF12;
+}
+.lightable-material-dark th {
+height: 56px;
+padding-left: 16px;
+padding-right: 16px;
+color: #FFFFFF60;
+}
+.lightable-material-dark td {
+height: 52px;
+padding-left: 16px;
+padding-right: 16px;
+color: #FFFFFF;
+border-top: 1px solid #FFFFFF12;
+}
+.lightable-material-dark.lightable-hover tbody tr:hover {
+background-color: #FFFFFF12;
+}
+.lightable-material-dark.lightable-striped tbody tr:nth-child(even) {
+background-color: #FFFFFF12;
+}
+.lightable-material-dark.lightable-striped tbody td {
+border: 0;
+}
+.lightable-material-dark.lightable-striped thead tr:last-child th {
+border-bottom: 1px solid #FFFFFF12;
+}
+.lightable-paper {
+width: 100%;
+margin-bottom: 10px;
+color: #444;
+}
+.lightable-paper tfoot tr td {
+border: 0;
+}
+.lightable-paper tfoot tr:first-child td {
+border-top: 1px solid #00000020;
+}
+.lightable-paper thead tr:last-child th {
+color: #666;
+vertical-align: bottom;
+border-bottom: 1px solid #00000020;
+line-height: 1.15em;
+padding: 10px 5px;
+}
+.lightable-paper td {
+vertical-align: middle;
+border-bottom: 1px solid #00000010;
+line-height: 1.15em;
+padding: 7px 5px;
+}
+.lightable-paper.lightable-hover tbody tr:hover {
+background-color: #F9EEC1;
+}
+.lightable-paper.lightable-striped tbody tr:nth-child(even) {
+background-color: #00000008;
+}
+.lightable-paper.lightable-striped tbody td {
+border: 0;
+}
+</style>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">8. Unconditional DPmixGPD with CRP
+Backend</h1>
+
+
+
+<blockquote>
+<p><strong>Legacy vignette (for the website / historical
+notes).</strong> These files may not match the current exported API
+one-to-one. Last verified: <strong>2026-01-18</strong>.</p>
+<p>For the up-to-date workflow, see the main package vignettes
+(Introduction, Model Spec, MCMC Workflow,
+Unconditional/Conditional/Causal, Backends, S3 Reference).</p>
+</blockquote>
+<div id="unconditional-dpmixgpd-crp-backend-with-tail-augmentation" class="section level1">
+<h1>Unconditional DPmixGPD: CRP Backend with Tail Augmentation</h1>
+<p><strong>Purpose</strong>: Model the <strong>bulk</strong> of the
+distribution with a DP mixture (the “kernel” or bulk family) and let a
+<strong>GPD tail</strong> capture extreme values beyond a threshold. The
+CRP backend handles partitioning and we toggle <code>GPD = TRUE</code>
+to augment the tail.</p>
+<hr />
+<div id="data-setup" class="section level2">
+<h2>Data Setup</h2>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code># Load data with an obvious tail
+data(&quot;nc_pos_tail200_k4&quot;)
+y_tail &lt;- nc_pos_tail200_k4$y
+y_tail &lt;- y_tail[is.finite(y_tail) &amp; y_tail &gt; 0]
+
+# Summaries and table
+summary_tbl &lt;- tibble(
+  statistic = c(&quot;N&quot;, &quot;Mean&quot;, &quot;SD&quot;, &quot;Min&quot;, &quot;Max&quot;),
+  value = c(length(y_tail), mean(y_tail), sd(y_tail), min(y_tail), max(y_tail))
+)
+
+df_data &lt;- data.frame(y = y_tail)
+
+ggplot(df_data, aes(x = y)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 40, fill = &quot;steelblue&quot;, color = &quot;black&quot;, alpha = 0.6) +
+  geom_density(color = &quot;red&quot;, linewidth = 1) +
+  labs(title = &quot;Raw Data: Mix of Bulk and Tail&quot;, x = &quot;y&quot;, y = &quot;Density&quot;) +
+  theme_minimal()</code></pre>
+</details>
+<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
+<table class="table table-striped table-hover" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Summary of the Tail Dataset
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+statistic
+</th>
+<th style="text-align:center;">
+value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+200.000
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Mean
+</td>
+<td style="text-align:center;">
+2.334
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+SD
+</td>
+<td style="text-align:center;">
+2.300
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Min
+</td>
+<td style="text-align:center;">
+0.328
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Max
+</td>
+<td style="text-align:center;">
+19.870
+</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</div>
+<div id="threshold-tail-partition" class="section level2">
+<h2>Threshold &amp; Tail Partition</h2>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>thresholds &lt;- quantile(y_tail, c(0.70, 0.75, 0.80, 0.85, 0.90))
+u_threshold &lt;- thresholds[&quot;80%&quot;]
+
+df_tail &lt;- tibble(
+  y = y_tail,
+  region = ifelse(y_tail &gt; u_threshold, &quot;Tail&quot;, &quot;Bulk&quot;)
+)
+
+ggplot(df_tail, aes(x = y, fill = region)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 40, alpha = 0.7, color = &quot;black&quot;) +
+  geom_vline(xintercept = u_threshold, linetype = &quot;dashed&quot;, color = &quot;black&quot;) +
+  scale_fill_manual(values = c(&quot;Bulk&quot; = &quot;steelblue&quot;, &quot;Tail&quot; = &quot;red&quot;)) +
+  labs(title = &quot;Threshold Partition&quot;, x = &quot;y&quot;, y = &quot;Density&quot;) +
+  theme_minimal()</code></pre>
+</details>
+<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
+<hr />
+</div>
+<div id="model-specification-bundle" class="section level2">
+<h2>Model Specification &amp; Bundle</h2>
+<p>This mirrors the direct <code>build_nimble_bundle()</code> workflow
+in <code>v04</code>, but with <strong>tail augmentation</strong> turned
+on (<code>GPD = TRUE</code>). Here we use an <strong>Inverse
+Gaussian</strong> bulk kernel and estimate the GPD threshold with a
+lognormal prior centered at the empirical 80th percentile.</p>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>bundle_gpd &lt;- build_nimble_bundle(
+  y = y_tail,
+  kernel = &quot;invgauss&quot;,
+  backend = &quot;crp&quot;,
+  GPD = TRUE,
+  components = 5,
+  alpha_random = TRUE,
+  param_specs = list(
+    gpd = list(
+      threshold = list(
+        mode = &quot;dist&quot;,
+        dist = &quot;lognormal&quot;,
+        args = list(meanlog = log(max(u_threshold, .Machine$double.eps)), sdlog = 0.25)
+      )
+    )
+  ),
+  mcmc = mcmc
+)</code></pre>
+</details>
+<hr />
+</div>
+<div id="running-mcmc-diagnostics" class="section level2">
+<h2>Running MCMC &amp; Diagnostics</h2>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>fit_gpd &lt;- load_or_fit(&quot;v08-unconditional-DPmixGPD-CRP-fit_gpd&quot;, run_mcmc_bundle_manual(bundle_gpd))</code></pre>
+</details>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>summary(fit_gpd)</code></pre>
+</details>
+<pre><code>MixGPD summary | backend: Chinese Restaurant Process | kernel: Inverse Gaussian Distribution | GPD tail: TRUE | epsilon: 0.025
+n = 200 | components = 5
+Summary
+Initial components: 5 | Components after truncation: 1
+
+WAIC: 661.827
+lppd: -313.537 | pWAIC: 17.377
+
+Summary table
+&lt;table class=&quot;table&quot; style=&quot;width: auto !important; margin-left: auto; margin-right: auto;&quot;&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; parameter &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; mean &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; sd &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.025 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.500 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; q0.975 &lt;/th&gt;
+   &lt;th style=&quot;text-align:center;&quot;&gt; ess &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; weights[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.871 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.177 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.475 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 48.788 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; alpha &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.367 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.332 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.01 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.27 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.187 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 448.767 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; tail_scale &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.218 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.009 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.168 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.944 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 5.145 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 123.022 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; tail_shape &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.184 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.15 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; -0.129 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.18 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.468 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 312.526 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; threshold &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 3.706 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.126 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.782 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 3.548 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 6.036 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 164.736 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; mean[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.409 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.602 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 1.365 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.305 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 4.067 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 199.902 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; shape[1] &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 3.358 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 0.74 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 2.468 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 3.234 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 5.301 &lt;/td&gt;
+   &lt;td style=&quot;text-align:center;&quot;&gt; 346.964 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>params_gpd &lt;- params(fit_gpd)
+params_gpd</code></pre>
+</details>
+<pre><code>Posterior mean parameters
+
+$alpha
+[1] &quot;0.367&quot;
+
+$w
+[1] &quot;0.871&quot;
+
+$mean
+[1] &quot;2.409&quot;
+
+$shape
+[1] &quot;3.358&quot;
+
+$tail_scale
+[1] &quot;2.218&quot;
+
+$tail_shape
+[1] &quot;0.184&quot;</code></pre>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code># S3 plot methods highlight trace + density diagnostics
+if (interactive()) plot(fit_gpd, family = c(&quot;traceplot&quot;, &quot;density&quot;, &quot;running&quot;))
+if (interactive()) plot(fit_gpd, params = &quot;alpha&quot;, family = c(&quot;traceplot&quot;, &quot;autocorrelation&quot;, &quot;geweke&quot;))</code></pre>
+</details>
+<hr />
+</div>
+<div id="posterior-predictions-bulk-and-tail" class="section level2">
+<h2>Posterior Predictions: Bulk and Tail</h2>
+<p>We use the <strong>S3 <code>predict()</code> objects</strong> and
+their dedicated <code>if (interactive()) plot()</code> methods to
+visualize densities, survival curves, and posterior-mean quantiles
+(i.e., averages of q(p | θ) over draws).</p>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>y_min &lt;- max(min(y_tail), .Machine$double.eps)
+y_grid &lt;- seq(y_min, max(y_tail) * 1.3, length.out = 300)
+pred_density &lt;- predict(fit_gpd, y = y_grid, type = &quot;density&quot;)
+if (interactive()) plot(pred_density)</code></pre>
+</details>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>y_surv &lt;- seq(max(u_threshold, y_min), max(y_tail) * 1.1, length.out = 60)
+pred_surv &lt;- predict(fit_gpd, y = y_surv, type = &quot;survival&quot;)
+if (interactive()) plot(pred_surv)</code></pre>
+</details>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>quantile_probs &lt;- c(0.90, 0.95, 0.99)
+pred_quantiles &lt;- predict(fit_gpd, type = &quot;quantile&quot;, index = quantile_probs, interval = &quot;credible&quot;)
+if (interactive()) plot(pred_quantiles)</code></pre>
+</details>
+<hr />
+</div>
+<div id="bulk-only-baseline-comparison" class="section level2">
+<h2>Bulk-Only Baseline Comparison</h2>
+<p>To demonstrate the value of tail augmentation, we fit a bulk-only
+lognormal DP mixture and compare posterior summaries against the
+InvGauss+GPD fit.</p>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>bundle_bulk_only &lt;- build_nimble_bundle(
+  y = y_tail,
+  kernel = &quot;lognormal&quot;,
+  backend = &quot;crp&quot;,
+  GPD = FALSE,
+  components = 5,
+  mcmc = mcmc
+)
+fit_bulk_only &lt;- load_or_fit(&quot;v08-unconditional-DPmixGPD-CRP-fit_bulk_only&quot;, run_mcmc_bundle_manual(bundle_bulk_only))</code></pre>
+</details>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>bulk_quantiles &lt;- predict(fit_bulk_only, type = &quot;quantile&quot;, index = quantile_probs)
+tail_quantiles &lt;- predict(fit_gpd, type = &quot;quantile&quot;, index = quantile_probs)
+
+compare_tbl &lt;- bind_rows(
+  bulk_quantiles$fit %&gt;% mutate(model = &quot;Bulk only&quot;),
+  tail_quantiles$fit %&gt;% mutate(model = &quot;Bulk + GPD&quot;)
+) %&gt;%
+  select(any_of(c(&quot;model&quot;, &quot;index&quot;, &quot;estimate&quot;, &quot;lwr&quot;, &quot;upr&quot;, &quot;lower&quot;, &quot;upper&quot;)))
+
+compare_tbl %&gt;%
+  mutate(across(where(is.numeric), ~ round(.x, 3))) %&gt;%
+  kable(caption = &quot;Posterior-Mean Quantiles for Bulk-Only vs GPD Models&quot;, align = &quot;c&quot;) %&gt;%
+  kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;), full_width = FALSE, position = &quot;center&quot;)</code></pre>
+</details>
+<table class="table table-striped table-hover" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Posterior-Mean Quantiles for Bulk-Only vs GPD Models
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+model
+</th>
+<th style="text-align:center;">
+index
+</th>
+<th style="text-align:center;">
+estimate
+</th>
+<th style="text-align:center;">
+lower
+</th>
+<th style="text-align:center;">
+upper
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+Bulk only
+</td>
+<td style="text-align:center;">
+0.90
+</td>
+<td style="text-align:center;">
+7.14e+02
+</td>
+<td style="text-align:center;">
+11.73
+</td>
+<td style="text-align:center;">
+1.78e+03
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Bulk only
+</td>
+<td style="text-align:center;">
+0.95
+</td>
+<td style="text-align:center;">
+2.10e+04
+</td>
+<td style="text-align:center;">
+20.35
+</td>
+<td style="text-align:center;">
+1.44e+04
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Bulk only
+</td>
+<td style="text-align:center;">
+0.99
+</td>
+<td style="text-align:center;">
+1.97e+07
+</td>
+<td style="text-align:center;">
+55.76
+</td>
+<td style="text-align:center;">
+7.47e+05
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Bulk + GPD
+</td>
+<td style="text-align:center;">
+0.90
+</td>
+<td style="text-align:center;">
+4.73e+00
+</td>
+<td style="text-align:center;">
+2.30
+</td>
+<td style="text-align:center;">
+6.23e+00
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Bulk + GPD
+</td>
+<td style="text-align:center;">
+0.95
+</td>
+<td style="text-align:center;">
+6.32e+00
+</td>
+<td style="text-align:center;">
+2.78
+</td>
+<td style="text-align:center;">
+8.45e+00
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Bulk + GPD
+</td>
+<td style="text-align:center;">
+0.99
+</td>
+<td style="text-align:center;">
+1.14e+01
+</td>
+<td style="text-align:center;">
+5.20
+</td>
+<td style="text-align:center;">
+1.71e+01
+</td>
+</tr>
+</tbody>
+</table>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>if (interactive()) plot(bulk_quantiles)
+if (interactive()) plot(tail_quantiles)</code></pre>
+</details>
+<hr />
+</div>
+<div id="extreme-value-diagnostics-residuals" class="section level2">
+<h2>Extreme Value Diagnostics &amp; Residuals</h2>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>probs &lt;- c(0.995, 0.99, 0.975)
+return_levels &lt;- predict(fit_gpd, type = &quot;quantile&quot;, index = probs)
+
+return_levels$fit %&gt;%
+  mutate(across(where(is.numeric), ~ round(.x, 3))) %&gt;%
+  kable(caption = &quot;Extreme Quantile Estimates (Posterior Mean and Credible Intervals)&quot;, align = &quot;c&quot;) %&gt;%
+  kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;), full_width = FALSE, position = &quot;center&quot;)</code></pre>
+</details>
+<table class="table table-striped table-hover" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Extreme Quantile Estimates (Posterior Mean and Credible Intervals)
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+estimate
+</th>
+<th style="text-align:center;">
+index
+</th>
+<th style="text-align:center;">
+lower
+</th>
+<th style="text-align:center;">
+upper
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+14.11
+</td>
+<td style="text-align:center;">
+0.995
+</td>
+<td style="text-align:center;">
+6.96
+</td>
+<td style="text-align:center;">
+22.3
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+11.35
+</td>
+<td style="text-align:center;">
+0.990
+</td>
+<td style="text-align:center;">
+5.20
+</td>
+<td style="text-align:center;">
+17.1
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+8.29
+</td>
+<td style="text-align:center;">
+0.975
+</td>
+<td style="text-align:center;">
+3.50
+</td>
+<td style="text-align:center;">
+11.7
+</td>
+</tr>
+</tbody>
+</table>
+<p>For unconditional models, use <code>predict()</code> only;
+<code>fitted()</code> and <code>residuals()</code> are not
+supported.</p>
+<hr />
+</div>
+<div id="threshold-sensitivity" class="section level2">
+<h2>Threshold Sensitivity</h2>
+<details class="chunk-details" open><summary class="chunk-summary"><span class="chunk-summary-text">Code</span></summary>
+<pre class="r"><code>sensitivity_fits &lt;- lapply(thresholds, function(u) {
+  bundle &lt;- build_nimble_bundle(
+    y = y_tail,
+    kernel = &quot;invgauss&quot;,
+    backend = &quot;crp&quot;,
+    GPD = TRUE,
+    param_specs = list(
+      gpd = list(
+        threshold = list(mode = &quot;fixed&quot;, value = u)
+      )
+    ),
+    components = 5,
+    mcmc = mcmc
+  )
+  fit &lt;- load_or_fit(&quot;v08-unconditional-DPmixGPD-CRP-fit&quot;, run_mcmc_bundle_manual(bundle))
+  list(threshold = u, fit = fit)
+})
+
+sensitivity_tbl &lt;- bind_rows(lapply(sensitivity_fits, function(entry) {
+  quant &lt;- predict(entry$fit, type = &quot;quantile&quot;, index = 0.99, interval = &quot;credible&quot;)
+  qfit &lt;- as.data.frame(quant$fit)
+  qfit$threshold &lt;- entry$threshold
+
+  # Keep the usual columns if present
+  keep &lt;- intersect(names(qfit), c(&quot;threshold&quot;, &quot;index&quot;, &quot;estimate&quot;, &quot;lower&quot;, &quot;upper&quot;, &quot;lwr&quot;, &quot;upr&quot;))
+  qfit &lt;- qfit[, keep, drop = FALSE]
+
+  # Standardize to one set of CI column names
+  if (!&quot;lower&quot; %in% names(qfit) &amp;&amp; &quot;lwr&quot; %in% names(qfit)) qfit$lower &lt;- qfit$lwr
+  if (!&quot;upper&quot; %in% names(qfit) &amp;&amp; &quot;upr&quot; %in% names(qfit)) qfit$upper &lt;- qfit$upr
+
+  # If estimate isn&#39;t present for some reason, fall back to the first numeric column
+  if (!&quot;estimate&quot; %in% names(qfit)) {
+    num_cols &lt;- names(qfit)[vapply(qfit, is.numeric, logical(1))]
+    if (length(num_cols) &gt; 0) qfit$estimate &lt;- qfit[[num_cols[1]]]
+  }
+
+  out &lt;- data.frame(
+    threshold = qfit$threshold[1],
+    q_99 = qfit$estimate[1],
+    q_99_lwr = if (&quot;lower&quot; %in% names(qfit)) qfit$lower[1] else NA_real_,
+    q_99_upr = if (&quot;upper&quot; %in% names(qfit)) qfit$upper[1] else NA_real_
+  )
+  tibble::as_tibble(out)
+}))
+
+sensitivity_tbl %&gt;%
+  mutate(across(where(is.numeric), ~ round(.x, 3))) %&gt;%
+  kable(caption = &quot;Threshold Sensitivity: 99th Quantile&quot;, align = &quot;c&quot;) %&gt;%
+  kable_styling(bootstrap_options = c(&quot;striped&quot;, &quot;hover&quot;), full_width = FALSE, position = &quot;center&quot;)</code></pre>
+</details>
+<table class="table table-striped table-hover" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Threshold Sensitivity: 99th Quantile
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+threshold
+</th>
+<th style="text-align:center;">
+q_99
+</th>
+<th style="text-align:center;">
+q_99_lwr
+</th>
+<th style="text-align:center;">
+q_99_upr
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+2.65
+</td>
+<td style="text-align:center;">
+11.3
+</td>
+<td style="text-align:center;">
+7.07
+</td>
+<td style="text-align:center;">
+16.4
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+3.04
+</td>
+<td style="text-align:center;">
+11.3
+</td>
+<td style="text-align:center;">
+7.07
+</td>
+<td style="text-align:center;">
+16.4
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+3.51
+</td>
+<td style="text-align:center;">
+11.3
+</td>
+<td style="text-align:center;">
+7.07
+</td>
+<td style="text-align:center;">
+16.4
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+3.94
+</td>
+<td style="text-align:center;">
+11.3
+</td>
+<td style="text-align:center;">
+7.07
+</td>
+<td style="text-align:center;">
+16.4
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+4.60
+</td>
+<td style="text-align:center;">
+11.3
+</td>
+<td style="text-align:center;">
+7.07
+</td>
+<td style="text-align:center;">
+16.4
+</td>
+</tr>
+</tbody>
+</table>
+<hr />
+</div>
+<div id="key-takeaways" class="section level2">
+<h2>Key Takeaways</h2>
+<ul>
+<li><strong>Bulk + Tail</strong>: DPmix explains the bulk, and GPD
+captures the extremes.</li>
+<li><strong>Threshold</strong>: 0.8 quantile is our running default, but
+sensitivity checks guide the choice.</li>
+<li><strong>S3 workflows</strong>: <code>predict()</code> and its
+<code>if (interactive()) plot()</code> method make it easy to compare
+density, survival, and quantiles.</li>
+<li><strong>Comparison</strong>: Bulk-only fits under-estimate extreme
+quantiles without a GPD component.</li>
+<li><strong>Next</strong>: Explore Stick-Breaking (<code>v07</code>) for
+another backend with tail augmentation.</li>
+</ul>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
