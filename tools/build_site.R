@@ -113,6 +113,91 @@ restore_cached_pkgdown <- function() {
   }
 }
 
+generate_article_index <- function() {
+  if (!dir.exists("docs/articles")) return(invisible(FALSE))
+  
+  cat("\n--- Generating article index ---\n")
+  
+  articles <- list.files("docs/articles", pattern = "\\.html$", full.names = FALSE)
+  articles <- articles[articles != "index.html"]  # Exclude pkgdown's own index
+  
+  if (length(articles) == 0) {
+    cat("No articles found to index.\n")
+    return(invisible(FALSE))
+  }
+  
+  # Extract titles from HTML files
+  article_info <- lapply(articles, function(art) {
+    html_path <- file.path("docs/articles", art)
+    lines <- readLines(html_path, warn = FALSE)
+    
+    # Try to extract title from <title> tag or <h1>
+    title_line <- grep("<title>", lines, value = TRUE, ignore.case = TRUE)
+    if (length(title_line) > 0) {
+      title <- sub(".*<title>\\s*([^<]+)\\s*</title>.*", "\\1", title_line[1], ignore.case = TRUE)
+      title <- sub("\\s*•.*$", "", title)  # Remove package name suffix
+    } else {
+      h1_line <- grep("<h1[^>]*>", lines, value = TRUE, ignore.case = TRUE)
+      if (length(h1_line) > 0) {
+        title <- sub(".*<h1[^>]*>\\s*([^<]+)\\s*</h1>.*", "\\1", h1_line[1], ignore.case = TRUE)
+      } else {
+        title <- sub("\\.html$", "", art)
+      }
+    }
+    
+    list(file = art, title = title)
+  })
+  
+  # Generate styled HTML page
+  html_content <- c(
+    '<!DOCTYPE html>',
+    '<html lang="en">',
+    '<head>',
+    '    <meta charset="UTF-8">',
+    '    <meta name="viewport" content="width=device-width, initial-scale=1.0">',
+    '    <title>Articles - DPmixGPD</title>',
+    '    <link rel="stylesheet" href="styles.css">',
+    '    <style>',
+    '        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 900px; margin: 0 auto; padding: 2rem; background: #f5f5f5; }',
+    '        h1 { color: #667eea; margin-bottom: 2rem; }',
+    '        .article-list { background: white; border-radius: 8px; padding: 2rem; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }',
+    '        .article-item { padding: 1rem 0; border-bottom: 1px solid #eee; }',
+    '        .article-item:last-child { border-bottom: none; }',
+    '        .article-link { color: #667eea; text-decoration: none; font-size: 1.1rem; font-weight: 500; }',
+    '        .article-link:hover { text-decoration: underline; }',
+    '        .back-link { display: inline-block; margin-bottom: 2rem; color: #667eea; text-decoration: none; }',
+    '        .back-link:hover { text-decoration: underline; }',
+    '    </style>',
+    '</head>',
+    '<body>',
+    '    <a href="index.html" class="back-link">← Back to Home</a>',
+    '    <h1>Package Articles</h1>',
+    '    <div class="article-list">'
+  )
+  
+  for (info in article_info) {
+    html_content <- c(
+      html_content,
+      '        <div class="article-item">',
+      sprintf('            <a href="articles/%s" class="article-link">%s</a>', info$file, info$title),
+      '        </div>'
+    )
+  }
+  
+  html_content <- c(
+    html_content,
+    '    </div>',
+    '</body>',
+    '</html>'
+  )
+  
+  # Write to docs/articles.html (direct HTML, not qmd)
+  writeLines(html_content, "docs/articles.html")
+  cat("Article index generated at docs/articles.html\n")
+  
+  invisible(TRUE)
+}
+
 cat("\n=== DPmixGPD website build ===\n")
 cat("pkgdown:", if (do_pkgdown) (if (pkgdown_full) "FULL" else "FAST (home+reference)") else "SKIP (use --build-pkgdown to enable)", "\n")
 cat("quarto :", if (do_quarto) (if (!is.null(quarto_target)) paste0("ONE PAGE (", quarto_target, ")") else "PROJECT") else "SKIP", "\n")
@@ -176,6 +261,9 @@ if (do_pkgdown) {
   if (file.exists("docs/index.html")) {
     file.copy("docs/index.html", "docs/pkgdown.html", overwrite = TRUE)
   }
+  
+  # Generate article index after pkgdown merge
+  generate_article_index()
 }
 
 # 2) Build Quarto into quarto/, then merge into docs/
@@ -230,7 +318,9 @@ if (dir.exists("site")) {
     src <- file.path("site", asset)
     dst <- file.path("docs", asset)
     if (dir.exists(src)) {
-      file.copy(src, dst, recursive = TRUE, copy.mode = TRUE, copy.date = TRUE)
+      if (dir.exists(dst)) unlink(dst, recursive = TRUE, force = TRUE)
+      dir.create(dirname(dst), recursive = TRUE, showWarnings = FALSE)
+      file.copy(src, dirname(dst), recursive = TRUE, copy.mode = TRUE, copy.date = TRUE)
     }
   }
   
