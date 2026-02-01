@@ -132,9 +132,9 @@ if (clean_docs && dir.exists("docs")) {
   unlink("docs", recursive = TRUE, force = TRUE)
 }
 
-# 1) Build pkgdown first (outputs to docs/)
+# 1) Build pkgdown first (outputs to pkgdown/)
 # NOTE: Disabled by default. Use --build-pkgdown to regenerate pkgdown output.
-#       Pkgdown outputs to docs/, then Quarto output merges with it.
+#       Pkgdown outputs to pkgdown/, then pkgdown output merges into docs/.
 if (do_pkgdown) {
   if (!requireNamespace("pkgdown", quietly = TRUE)) {
     stop("pkgdown is not installed. Install it: install.packages('pkgdown')")
@@ -146,7 +146,7 @@ if (do_pkgdown) {
   }
 
   cat("\n--- Building pkgdown ---\n")
-  pkgdown_output <- "_pkgdown_output"
+  pkgdown_output <- "pkgdown"
   if (dir.exists(pkgdown_output)) unlink(pkgdown_output, recursive = TRUE, force = TRUE)
   if (pkgdown_full) {
     # Slow: rebuild reference + articles
@@ -170,11 +170,15 @@ if (do_pkgdown) {
   if (dir.exists(pkgdown_output)) {
     cat("Merging pkgdown output into docs/ ...\n")
     copy_tree(pkgdown_output, "docs")
-    unlink(pkgdown_output, recursive = TRUE, force = TRUE)
+  }
+
+  # Preserve pkgdown index alongside Quarto index
+  if (file.exists("docs/index.html")) {
+    file.copy("docs/index.html", "docs/pkgdown.html", overwrite = TRUE)
   }
 }
 
-# 2) Build Quarto into _quarto_output, then merge into docs/
+# 2) Build Quarto into quarto/, then merge into docs/
 if (do_quarto) {
   cat("\n--- Building Quarto ---\n")
 
@@ -184,8 +188,8 @@ if (do_quarto) {
   }
 
   # Clean output dir before rendering
-  if (dir.exists("_quarto_output")) {
-    unlink("_quarto_output", recursive = TRUE, force = TRUE)
+  if (dir.exists("quarto")) {
+    unlink("quarto", recursive = TRUE, force = TRUE)
   }
 
   cmd <- if (!is.null(quarto_target)) {
@@ -196,19 +200,16 @@ if (do_quarto) {
 
   status <- system(cmd, intern = FALSE, ignore.stdout = FALSE, ignore.stderr = FALSE)
 
-  if (!identical(status, 0L) || !dir.exists("_quarto_output")) {
+  if (!identical(status, 0L) || !dir.exists("quarto")) {
     cat("Quarto render failed or produced no output; falling back to copying site/ HTML.\n")
     if (!dir.exists("site")) stop("Missing site/ folder with HTML pages.")
-    copy_tree("site", "docs", skip_prefixes = c("reference/", "articles/", "deps/"))
+    copy_tree("site", "docs")
   } else {
     if (!dir.exists("docs")) dir.create("docs", showWarnings = FALSE)
 
-    # Copy Quarto output into docs/ (overwrite) while preserving pkgdown folders
-    copy_tree("_quarto_output", "docs", skip_prefixes = c("reference/", "articles/", "deps/"))
+    # Copy Quarto output into docs/ (overwrite)
+    copy_tree("quarto", "docs")
   }
-
-  # Remove Quarto output folder after merge
-  if (dir.exists("_quarto_output")) unlink("_quarto_output", recursive = TRUE, force = TRUE)
 }
 
 # 3) Restore pkgdown output after site sync
@@ -229,7 +230,6 @@ if (dir.exists("site")) {
     src <- file.path("site", asset)
     dst <- file.path("docs", asset)
     if (dir.exists(src)) {
-      if (dir.exists(dst)) unlink(dst, recursive = TRUE, force = TRUE)
       file.copy(src, dst, recursive = TRUE, copy.mode = TRUE, copy.date = TRUE)
     }
   }

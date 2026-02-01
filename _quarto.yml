@@ -1,6 +1,6 @@
 project:
   type: website
-  output-dir: _quarto_output
+  output-dir: quarto
   render:
     - site/index.html
     - site/kernels/index.html
