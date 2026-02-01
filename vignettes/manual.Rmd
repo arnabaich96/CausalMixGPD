@@ -48,8 +48,8 @@ Start here if you're new:
 
 - [**Causal Inference**](causal.html) - Treatment effect estimation with propensity score adjustment
 
-- [**Umbrella: Custom Models (All-in-One)**](allin1/umbrella.html) - Consolidated custom model recipes for CRP/SB, GPD, and causal workflows
-- **Customization: Build NIMBLE Models from Scratch** - Manual SB/CRP workflows using exported nimbleFunctions with full NIMBLE pipelines
+- [**Umbrella: Custom Models (All-in-One)**](website/Customization/umbrella.html) - Consolidated custom model recipes for CRP/SB, GPD, and causal workflows
+- [**Customization: Build NIMBLE Models from Scratch**](website/Customization/customization.html) - Manual SB/CRP workflows using exported nimbleFunctions with full NIMBLE pipelines
 
 ### Advanced topics
 

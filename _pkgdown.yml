@@ -24,7 +24,7 @@ navbar:
       text: "Guides"
       menu:
         - text: "Overview"
-          href: articles/manual-index.html
+          href: articles/manual.html
         - text: "---"
         - text: "Introduction"
           href: articles/introduction.html
@@ -49,51 +49,51 @@ navbar:
       text: "Customization"
       menu:
         - text: "Umbrella Custom Models"
-          href: articles/Customization/umbrella.html
+          href: articles/website/Customization/umbrella.html
         - text: "Build NIMBLE from Scratch"
-          href: articles/Customization/customization.html
+          href: articles/website/Customization/customization.html
 
     kernels:
       text: "Kernels"
       menu:
         - text: "Overview"
-          href: articles/kernels-index.html
+          href: articles/website/kernels/kernels-index.html
         - text: "---"
         - text: "Amoroso"
-          href: articles/kernels/kernel-amoroso.html
+          href: articles/website/kernels/kernel-amoroso.html
         - text: "Cauchy"
-          href: articles/kernels/kernel-cauchy.html
+          href: articles/website/kernels/kernel-cauchy.html
         - text: "Gamma"
-          href: articles/kernels/kernel-gamma.html
+          href: articles/website/kernels/kernel-gamma.html
         - text: "Inverse Gaussian (Base)"
-          href: articles/kernels/kernel-inverse-gaussian-base.html
+          href: articles/website/kernels/kernel-inverse-gaussian-base.html
         - text: "Inverse Gaussian (Mixture)"
-          href: articles/kernels/kernel-inverse-gaussian-mixture.html
+          href: articles/website/kernels/kernel-inverse-gaussian-mixture.html
         - text: "Laplace"
-          href: articles/kernels/kernel-laplace.html
+          href: articles/website/kernels/kernel-laplace.html
         - text: "Lognormal"
-          href: articles/kernels/kernel-lognormal.html
+          href: articles/website/kernels/kernel-lognormal.html
         - text: "Normal"
-          href: articles/kernels/kernel-normal.html
+          href: articles/website/kernels/kernel-normal.html
         - text: "---"
         - text: "Mathematical Conventions"
-          href: articles/kernels/mathematical-definitions-and-conventions.html
+          href: articles/website/kernels/mathematical-definitions-and-conventions.html
         - text: "Kernel + GPD Introduction"
-          href: articles/kernels/introduction-with-gpd-kernel.html
+          href: articles/website/kernels/introduction-with-gpd-kernel.html
         - text: "Backend Support Matrix"
-          href: articles/kernels/summary-distribution-backend-reference.html
+          href: articles/website/kernels/summary-distribution-backend-reference.html
 
     cookbook:
       text: "Workflows"
       menu:
         - text: "Workflows Index"
-          href: articles/website/workflows/v01-start-here.html
+          href: articles/website/workflows/v00-start-here.html
         - text: "---"
         - text: "Getting Started"
         - text: "Start Here"
-          href: articles/website/workflows/v01-start-here.html
+          href: articles/website/workflows/v00-start-here.html
         - text: "Introduction"
-          href: articles/website/workflows/v02-introduction.html
+          href: articles/website/workflows/v01-introduction.html
         - text: "Basic Workflow"
           href: articles/website/workflows/v03-basic-model-compile-run.html
         - text: "Backends Overview"

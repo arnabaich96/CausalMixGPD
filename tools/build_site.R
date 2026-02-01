@@ -98,17 +98,20 @@ copy_tree <- function(src_dir, dest_dir, skip_prefixes = character(0)) {
 restore_cached_pkgdown <- function() {
   if (dir.exists("_build_cache_reference")) {
     cat("Restoring pkgdown reference/ ...\n")
-    file.copy("_build_cache_reference", "docs/reference", recursive = TRUE, overwrite = TRUE)
+    if (!dir.exists("docs/reference")) dir.create("docs/reference", recursive = TRUE)
+    file.copy(list.files("_build_cache_reference", full.names = TRUE), "docs/reference", recursive = TRUE, overwrite = TRUE)
     unlink("_build_cache_reference", recursive = TRUE, force = TRUE)
   }
   if (dir.exists("_build_cache_articles")) {
     cat("Restoring pkgdown articles/ ...\n")
-    file.copy("_build_cache_articles", "docs/articles", recursive = TRUE, overwrite = TRUE)
+    if (!dir.exists("docs/articles")) dir.create("docs/articles", recursive = TRUE)
+    file.copy(list.files("_build_cache_articles", full.names = TRUE), "docs/articles", recursive = TRUE, overwrite = TRUE)
     unlink("_build_cache_articles", recursive = TRUE, force = TRUE)
   }
   if (dir.exists("_build_cache_deps")) {
     cat("Restoring pkgdown deps/ ...\n")
-    file.copy("_build_cache_deps", "docs/deps", recursive = TRUE, overwrite = TRUE)
+    if (!dir.exists("docs/deps")) dir.create("docs/deps", recursive = TRUE)
+    file.copy(list.files("_build_cache_deps", full.names = TRUE), "docs/deps", recursive = TRUE, overwrite = TRUE)
     unlink("_build_cache_deps", recursive = TRUE, force = TRUE)
   }
 }
