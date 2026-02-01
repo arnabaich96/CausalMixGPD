@@ -1,11 +1,11 @@
 ﻿---
-title: "0. Start Here"
+title: "1. Start Here"
 output:
   rmarkdown::html_vignette:
     highlight: null
     code_folding: show
 vignette: >
-  %\VignetteIndexEntry{0. Start Here}
+  %\VignetteIndexEntry{1. Start Here}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -72,7 +72,7 @@ bundle_uncond <- build_nimble_bundle(
 ```
 
 ```{r start-uncond-fit, cache=FALSE}
-fit_uncond <- load_or_fit("v00-start-here-fit_uncond", quiet_mcmc(run_mcmc_bundle_manual(bundle_uncond, show_progress = FALSE)))
+fit_uncond <- load_or_fit("v01-start-here-fit_uncond", quiet_mcmc(run_mcmc_bundle_manual(bundle_uncond, show_progress = FALSE)))
 summary(fit_uncond)
 ```
 
@@ -105,7 +105,7 @@ bundle_cond <- build_nimble_bundle(
 ```
 
 ```{r start-cond-fit, cache=FALSE}
-fit_cond <- load_or_fit("v00-start-here-fit_cond", quiet_mcmc(run_mcmc_bundle_manual(bundle_cond, show_progress = FALSE)))
+fit_cond <- load_or_fit("v01-start-here-fit_cond", quiet_mcmc(run_mcmc_bundle_manual(bundle_cond, show_progress = FALSE)))
 summary(fit_cond)
 ```
 

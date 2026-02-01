@@ -26,8 +26,8 @@ articles:
   website/kernels/summary-distribution-backend-reference: website/kernels/summary-distribution-backend-reference.html
   website/Customization/umbrella: website/Customization/umbrella.html
   unconditional: unconditional.html
-  website/workflows/v00-start-here: website/workflows/v00-start-here.html
-  website/workflows/v01-introduction: website/workflows/v01-introduction.html
+  website/workflows/v01-start-here: website/workflows/v01-start-here.html
+  website/workflows/v02-introduction: website/workflows/v02-introduction.html
   website/workflows/v03-basic-model-compile-run: website/workflows/v03-basic-model-compile-run.html
   website/workflows/v04-backends-and-workflow: website/workflows/v04-backends-and-workflow.html
   website/workflows/v05-unconditional-DPmix-CRP: website/workflows/v05-unconditional-DPmix-CRP.html
@@ -46,7 +46,7 @@ articles:
   website/workflows/v18-causal-different-backends-CRP: website/workflows/v18-causal-different-backends-CRP.html
   website/workflows/v19-causal-different-backends-SB: website/workflows/v19-causal-different-backends-SB.html
   website/workflows/v20-troubleshooting: website/workflows/v20-troubleshooting.html
-last_built: 2026-02-01T03:06Z
+last_built: 2026-02-01T04:46Z
 urls:
   reference: https://arnabaich96.github.io/DPmixGPD/reference
   article: https://arnabaich96.github.io/DPmixGPD/articles

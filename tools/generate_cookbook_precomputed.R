@@ -53,11 +53,11 @@ mcmc_default <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1
 # v00: Start Here - Basic unconditional and conditional
 # ============================================================================
 
-generate_v00_precomputed <- function(force = FALSE) {
-  cat("\n=== Generating v00: Start Here ===\n")
+generate_v01_precomputed <- function(force = FALSE) {
+  cat("\n=== Generating v01: Start Here ===\n")
   
   # Unconditional fit
-  tag <- "v00-start-here-fit_uncond"
+  tag <- "v01-start-here-fit_uncond"
   if (force || !precomp_exists(tag)) {
     cat("Generating:", tag, "\n")
     data("nc_pos200_k3", package = "DPmixGPD")
@@ -78,7 +78,7 @@ generate_v00_precomputed <- function(force = FALSE) {
   }
   
   # Conditional fit
-  tag <- "v00-start-here-fit_cond"
+  tag <- "v01-start-here-fit_cond"
   if (force || !precomp_exists(tag)) {
     cat("Generating:", tag, "\n")
     data("nc_posX100_p3_k2", package = "DPmixGPD")
@@ -391,7 +391,7 @@ generate_all_precomputed <- function(force = FALSE) {
   library(DPmixGPD)
   
   # Generate all sections
-  generate_v00_precomputed(force = force)
+  generate_v01_precomputed(force = force)
   generate_unconditional_precomputed(force = force)
   generate_conditional_precomputed(force = force)
   generate_causal_precomputed(force = force)
@@ -417,7 +417,7 @@ cat("Cookbook Vignette Precomputation Script loaded.\n\n")
 cat("Usage:\n")
 cat("  generate_all_precomputed()           # Generate all precomputed files\n")
 cat("  generate_all_precomputed(force=TRUE) # Force regenerate all\n")
-cat("  generate_v00_precomputed()           # Just v00 (start here)\n")
+cat("  generate_v01_precomputed()           # Just v01 (start here)\n")
 cat("  generate_unconditional_precomputed() # Just unconditional models\n")
 cat("  generate_conditional_precomputed()   # Just conditional models\n")
 cat("  generate_causal_precomputed()        # Just causal models\n")

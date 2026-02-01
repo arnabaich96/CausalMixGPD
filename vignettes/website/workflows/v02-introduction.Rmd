@@ -1,11 +1,11 @@
 ﻿---
-title: "1. Introduction to DPmixGPD"
+title: "2. Introduction to DPmixGPD"
 output:
   rmarkdown::html_vignette:
     highlight: null
     code_folding: show
 vignette: >
-  %\VignetteIndexEntry{1. Introduction to DPmixGPD}
+  %\VignetteIndexEntry{2. Introduction to DPmixGPD}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

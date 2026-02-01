@@ -2,38 +2,110 @@
 title: "Kernels"
 ---
 
-<div class="hero">
-  <div class="container">
-    <div class="kicker">Ingredients</div>
-    <h1>Kernels</h1>
-    <p class="lead">Browse supported kernels, tail options, parameter conventions, and the kernel support matrix.</p>
-    <div style="margin-top:1.2rem;">
-      <a class="btnx btnx-primary" href="../reference/index.html">Reference landing</a>
-      <a class="btnx btnx-ghost" href="../articles/website/kernels/kernels-index.html">Kernel articles</a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kernels - DPmixGPD</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Georgia', serif; line-height: 1.6; background: #fef9f0; color: #3a3a3a; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+        
+        .hero {
+            background: linear-gradient(135deg, #2D5016 0%, #6BA92B 100%);
+            color: white;
+            padding: 4rem 2rem;
+            border-radius: 12px;
+            margin-bottom: 3rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(45, 80, 22, 0.3);
+        }
+        .hero h1 { font-size: 3rem; margin-bottom: 0.5rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .hero p { font-size: 1.2rem; opacity: 0.95; }
+        
+        .section { margin: 3rem 0; }
+        .section-title { font-size: 2rem; color: #2D5016; margin-bottom: 2rem; border-bottom: 3px solid #6BA92B; padding-bottom: 0.5rem; }
+        
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
+        .card {
+            background: white;
+            border-left: 5px solid #6BA92B;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(45, 80, 22, 0.2); }
+        .card h3 { color: #2D5016; margin-bottom: 0.5rem; }
+        .card p { color: #666; font-size: 0.95rem; }
+        
+        .tag { display: inline-block; background: #E8F4D1; color: #2D5016; padding: 0.3rem 0.7rem; border-radius: 20px; font-size: 0.85rem; margin-top: 0.5rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>🌿 Kernels</h1>
+            <p>Kernel distribution documentation and mathematical foundations</p>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Kernel Distributions</h2>
+            <div class="card-grid">
+                <a href="../../pkgdown.html" class="card">
+                    <h3>Overview</h3>
+                    <p>Available kernels and their properties.</p>
+                    <span class="tag">Reference</span>
+                </a>
+                <a href="../../pkgdown.html" class="card">
+                    <h3>Amoroso</h3>
+                    <p>The Amoroso flexible family.</p>
+                </a>
+                <a href="../../pkgdown.html" class="card">
+                    <h3>Beta</h3>
+                    <p>Beta distribution on [0,1].</p>
+                </a>
+                <a href="../../pkgdown.html" class="card">
+                    <h3>Gamma</h3>
+                    <p>Classical gamma family.</p>
+                </a>
+                <a href="../../pkgdown.html" class="card">
+                    <h3>Normal</h3>
+                    <p>Normal/Gaussian distribution.</p>
+                </a>
+                <a href="../../pkgdown.html" class="card">
+                    <h3>Student-t</h3>
+                    <p>Student-t with heavy tails.</p>
+                </a>
+                <a href="../../pkgdown.html" class="card">
+                    <h3>Uniform</h3>
+                    <p>Uniform on bounded domain.</p>
+                </a>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Mathematics</h2>
+            <div class="card-grid">
+                <a href="../../pkgdown.html" class="card">
+                    <h3>Math Conventions</h3>
+                    <p>Notational conventions used throughout.</p>
+                </a>
+                <a href="../../pkgdown.html" class="card">
+                    <h3>Kernel + GPD</h3>
+                    <p>Mathematical foundation combining kernels with extreme value tail.</p>
+                </a>
+                <a href="../../pkgdown.html" class="card">
+                    <h3>Backend Support Matrix</h3>
+                    <p>Which kernels work with which backends.</p>
+                </a>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
-
-<div class="section">
-  <div class="container">
-    <div class="grid-3">
-      <div class="cardx">
-        <h3>Kernel overview</h3>
-        <p>High-level kernel index and how kernels map into the DPM + GPD workflow.</p>
-        <a href="../articles/website/kernels/kernels-index.html">Open kernel index →</a>
-      </div>
-
-      <div class="cardx">
-        <h3>Math conventions</h3>
-        <p>Parameter definitions, conventions, and link/transform notes used across kernels.</p>
-        <a href="../articles/website/kernels/mathematical-definitions-and-conventions.html">Open conventions →</a>
-      </div>
-
-      <div class="cardx">
-        <h3>Support matrix</h3>
-        <p>Kernel + backend + GPD compatibility summary.</p>
-        <a href="../articles/website/kernels/summary-distribution-backend-reference.html">Open support summary →</a>
-      </div>
-    </div>
-  </div>
-</div>
+</body>
+</html>

@@ -21,45 +21,42 @@ navbar:
 
   components:
     manual:
-      text: "Pantry"
+      text: "Guides"
       menu:
-        - text: "Pantry Overview"
+        - text: "Overview"
           href: articles/manual-index.html
         - text: "---"
-        - text: "Starters"
-        - text: "Starter: Introduction"
+        - text: "Introduction"
           href: articles/introduction.html
-        - text: "---"
-        - text: "Main Course"
-        - text: "Ingredient List (Distributions)"
+        - text: "Distributions"
           href: articles/distributions.html
-        - text: "Recipe Spec (Model)"
+        - text: "Model Specification"
           href: articles/model-spec.html
-        - text: "Prep and Cook (MCMC)"
+        - text: "MCMC Workflow"
           href: articles/mcmc-workflow.html
-        - text: "Mains: Unconditional"
+        - text: "Unconditional Models"
           href: articles/unconditional.html
-        - text: "Sides: Conditional"
+        - text: "Conditional Models"
           href: articles/conditional.html
-        - text: "Dessert: Causal"
+        - text: "Causal Inference"
           href: articles/causal.html
-        - text: "Oven Choice (CRP vs SB)"
+        - text: "Backends (CRP vs SB)"
           href: articles/backends.html
-        - text: "Utensil Guide (S3 Methods)"
+        - text: "S3 Methods Reference"
           href: articles/reference-s3.html
 
     allin1:
-      text: "Chef Specials"
+      text: "Customization"
       menu:
-        - text: "Chef Special: Umbrella Custom Models"
+        - text: "Umbrella Custom Models"
           href: articles/Customization/umbrella.html
-        - text: "Custom Order: Build NIMBLE from Scratch"
+        - text: "Build NIMBLE from Scratch"
           href: articles/Customization/customization.html
 
     kernels:
-      text: "Ingredients"
+      text: "Kernels"
       menu:
-        - text: "Ingredient Overview"
+        - text: "Overview"
           href: articles/kernels-index.html
         - text: "---"
         - text: "Amoroso"
@@ -79,67 +76,67 @@ navbar:
         - text: "Normal"
           href: articles/kernels/kernel-normal.html
         - text: "---"
-        - text: "Math conventions"
+        - text: "Mathematical Conventions"
           href: articles/kernels/mathematical-definitions-and-conventions.html
-        - text: "Kernel + GPD intro"
+        - text: "Kernel + GPD Introduction"
           href: articles/kernels/introduction-with-gpd-kernel.html
-        - text: "Backend reference summary"
+        - text: "Backend Support Matrix"
           href: articles/kernels/summary-distribution-backend-reference.html
 
     cookbook:
-      text: "Cookbook"
+      text: "Workflows"
       menu:
-        - text: "Recipe Book"
-          href: articles/website/workflows/v00-start-here.html
+        - text: "Workflows Index"
+          href: articles/website/workflows/v01-start-here.html
         - text: "---"
-        - text: "Starters"
-        - text: "Starter Broth (Start Here)"
-          href: articles/website/workflows/v00-start-here.html
-        - text: "Chef's Notes (Introduction)"
-          href: articles/website/workflows/v01-introduction.html
-        - text: "Mainline Sear (Compile & Run)"
+        - text: "Getting Started"
+        - text: "Start Here"
+          href: articles/website/workflows/v01-start-here.html
+        - text: "Introduction"
+          href: articles/website/workflows/v02-introduction.html
+        - text: "Basic Workflow"
           href: articles/website/workflows/v03-basic-model-compile-run.html
-        - text: "Two-Oven Roast (Backends)"
+        - text: "Backends Overview"
           href: articles/website/workflows/v04-backends-and-workflow.html
         - text: "---"
-        - text: "Mains (Unconditional)"
-        - text: "Classic Stew (CRP)"
+        - text: "Unconditional Models"
+        - text: "DPmix with CRP"
           href: articles/website/workflows/v05-unconditional-DPmix-CRP.html
-        - text: "Extended Braise (CRP Extended)"
+        - text: "DPmix with CRP (Extended)"
           href: articles/website/workflows/v06-unconditional-DPmix-CRP.html
-        - text: "Layered Lasagna (SB)"
+        - text: "DPmix with SB"
           href: articles/website/workflows/v07-unconditional-DPmix-SB.html
-        - text: "Tail-Spice Chili (GPD CRP)"
+        - text: "DPmixGPD with CRP"
           href: articles/website/workflows/v08-unconditional-DPmixGPD-CRP.html
-        - text: "Tail-Spice Bake (GPD SB)"
+        - text: "DPmixGPD with SB"
           href: articles/website/workflows/v09-unconditional-DPmixGPD-SB.html
         - text: "---"
-        - text: "Sides (Conditional)"
-        - text: "Seasoned Sides (CRP)"
+        - text: "Conditional Models"
+        - text: "Conditional DPmix CRP"
           href: articles/website/workflows/v10-conditional-DPmix-CRP.html
-        - text: "Stirred Layers (SB)"
+        - text: "Conditional DPmix SB"
           href: articles/website/workflows/v11-conditional-DPmix-SB.html
-        - text: "Citrus Tart (GPD CRP)"
+        - text: "Conditional DPmixGPD CRP"
           href: articles/website/workflows/v12-conditional-DPmixGPD-CRP.html
-        - text: "Glazed Side (GPD SB)"
+        - text: "Conditional DPmixGPD SB"
           href: articles/website/workflows/v13-conditional-DPmixGPD-SB.html
         - text: "---"
-        - text: "Desserts (Causal)"
-        - text: "Simple Sweet (No Covariates)"
+        - text: "Causal Inference"
+        - text: "No Covariates (CRP)"
           href: articles/website/workflows/v14-causal-no-x-CRP.html
-        - text: "Layer Cake (With Covariates)"
+        - text: "With Covariates (SB)"
           href: articles/website/workflows/v15-causal-x-no-ps-SB.html
-        - text: "Twin Scoops (Same Backend CRP)"
+        - text: "Same Backend (CRP)"
           href: articles/website/workflows/v16-causal-same-backend-CRP.html
-        - text: "Twin Parfaits (Same Backend SB)"
+        - text: "Same Backend (SB)"
           href: articles/website/workflows/v17-causal-same-backend-SB.html
-        - text: "Two-Style Tasting (Different CRP)"
+        - text: "Different Backends (CRP)"
           href: articles/website/workflows/v18-causal-different-backends-CRP.html
-        - text: "Split Plating (Different SB)"
+        - text: "Different Backends (SB)"
           href: articles/website/workflows/v19-causal-different-backends-SB.html
         - text: "---"
-        - text: "Kitchen Notes"
-        - text: "Fix-It Fry (Troubleshooting)"
+        - text: "Support"
+        - text: "Troubleshooting"
           href: articles/website/workflows/v20-troubleshooting.html
 
     coverage:
@@ -184,8 +181,8 @@ articles:
 
   - title: "Cookbook Workflows"
     contents:
-      - "website/workflows/v00-start-here"
-      - "website/workflows/v01-introduction"
+      - "website/workflows/v01-start-here"
+      - "website/workflows/v02-introduction"
       - "website/workflows/v03-basic-model-compile-run"
       - "website/workflows/v04-backends-and-workflow"
       - "website/workflows/v05-unconditional-DPmix-CRP"

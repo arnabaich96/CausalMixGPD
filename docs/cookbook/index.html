@@ -2,39 +2,144 @@
 title: "Cookbook"
 ---
 
-<div class="hero">
-  <div class="container">
-    <div class="kicker">All-in-one workflows</div>
-    <h1>Cookbook</h1>
-    <p class="lead">End-to-end recipes: build models, run MCMC, diagnose, extract, and predict. This is the recommended starting point.</p>
-    <div style="margin-top:1.2rem;">
-      <a class="btnx btnx-primary" href="../articles/website/workflows/v00-start-here.html">Start here</a>
-      <a class="btnx btnx-ghost" href="../roadmap/index.html">Roadmap</a>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cookbook - DPmixGPD</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Georgia', serif; line-height: 1.6; background: #faf8f3; color: #2c2416; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+        
+        .hero {
+            background: linear-gradient(135deg, #8B4513 0%, #D2691E 100%);
+            color: white;
+            padding: 4rem 2rem;
+            border-radius: 12px;
+            margin-bottom: 3rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(139, 69, 19, 0.3);
+        }
+        .hero h1 { font-size: 3rem; margin-bottom: 0.5rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .hero p { font-size: 1.2rem; opacity: 0.95; }
+        
+        .section { margin: 3rem 0; }
+        .section-title { font-size: 2rem; color: #8B4513; margin-bottom: 2rem; border-bottom: 3px solid #D2691E; padding-bottom: 0.5rem; }
+        
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
+        .card {
+            background: white;
+            border-left: 5px solid #D2691E;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(139, 69, 19, 0.2); }
+        .card h3 { color: #8B4513; margin-bottom: 0.5rem; }
+        .card p { color: #666; font-size: 0.95rem; }
+        
+        .tag { display: inline-block; background: #FFE4B5; color: #8B4513; padding: 0.3rem 0.7rem; border-radius: 20px; font-size: 0.85rem; margin-top: 0.5rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>🍳 Cookbook</h1>
+            <p>Step-by-step workflows for modeling extreme values with DPmixGPD</p>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Getting Started</h2>
+            <div class="card-grid">
+                <a href="../../pkgdown.html" class="card">
+                    <h3>Start Here</h3>
+                    <p>Minimum setup for your first model run in 5 minutes.</p>
+                    <span class="tag">Starter</span>
+                </a>
+                <a href="../../pkgdown.html" class="card">
+                    <h3>Introduction</h3>
+                    <p>Learn key concepts, backends, and workflow structure.</p>
+                    <span class="tag">Starter</span>
+                </a>
+                <a href="../../pkgdown.html" class="card">
+                    <h3>Basic Workflow</h3>
+                    <p>Full pipeline: compile, bundle, and MCMC execution.</p>
+                    <span class="tag">Core</span>
+                </a>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Unconditional Models</h2>
+            <div class="card-grid">
+                <a href="../../pkgdown.html" class="card">
+                    <h3>DPmix with CRP</h3>
+                    <p>Bulk-only model using Chinese Restaurant Process.</p>
+                </a>
+                <a href="../../pkgdown.html" class="card">
+                    <h3>DPmix with SB</h3>
+                    <p>Bulk-only model using Stick-Breaking.</p>
+                </a>
+                <a href="../../pkgdown.html" class="card">
+                    <h3>DPmixGPD with CRP</h3>
+                    <p>Add tail modeling with GPD using CRP backend.</p>
+                </a>
+                <a href="../../pkgdown.html" class="card">
+                    <h3>DPmixGPD with SB</h3>
+                    <p>Add tail modeling with GPD using SB backend.</p>
+                </a>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Conditional Models</h2>
+            <div class="card-grid">
+                <a href="../../pkgdown.html" class="card">
+                    <h3>Conditional DPmix (CRP)</h3>
+                    <p>Regression model with covariates using CRP.</p>
+                </a>
+                <a href="../../pkgdown.html" class="card">
+                    <h3>Conditional DPmix (SB)</h3>
+                    <p>Regression model with covariates using SB.</p>
+                </a>
+                <a href="../../pkgdown.html" class="card">
+                    <h3>Conditional with Tail (CRP)</h3>
+                    <p>Regression with GPD tail using CRP.</p>
+                </a>
+                <a href="../../pkgdown.html" class="card">
+                    <h3>Conditional with Tail (SB)</h3>
+                    <p>Regression with GPD tail using SB.</p>
+                </a>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Causal Inference</h2>
+            <div class="card-grid">
+                <a href="../../pkgdown.html" class="card">
+                    <h3>No Covariates (CRP)</h3>
+                    <p>Simple treatment effect estimation without covariates.</p>
+                </a>
+                <a href="../../pkgdown.html" class="card">
+                    <h3>Same Backend (CRP)</h3>
+                    <p>Both arms use identical CRP backend.</p>
+                </a>
+                <a href="../../pkgdown.html" class="card">
+                    <h3>Same Backend (SB)</h3>
+                    <p>Both arms use identical SB backend.</p>
+                </a>
+                <a href="../../pkgdown.html" class="card">
+                    <h3>Different Backends (CRP)</h3>
+                    <p>Each arm has its own backend specification.</p>
+                </a>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
-
-<div class="section">
-  <div class="container">
-    <div class="grid-3">
-      <div class="cardx">
-        <h3>Starter workflow</h3>
-        <p>Minimal end-to-end run: setup → build → MCMC → diagnostics → extraction.</p>
-        <a href="../articles/website/workflows/v00-start-here.html">Open v00-start-here →</a>
-      </div>
-
-      <div class="cardx">
-        <h3>Main workflows</h3>
-        <p>Unconditional and conditional DPM and DPM+GPD workflows across CRP/SB.</p>
-        <a href="../articles/website/workflows/v04-backends-and-workflow.html">Backends &amp; workflow →</a>
-      </div>
-
-      <div class="cardx">
-        <h3>Chef specials (Customization)</h3>
-        <p>All-in-one customization and “from scratch” NIMBLE builds.</p>
-        <a href="../articles/Customization/umbrella.html">Umbrella custom models →</a><br>
-        <a href="../articles/Customization/customization.html">Build NIMBLE from scratch →</a>
-      </div>
-    </div>
-  </div>
-</div>
+</body>
+</html>
