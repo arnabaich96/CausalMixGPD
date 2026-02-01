@@ -1,6 +1,6 @@
 project:
   type: website
-  output-dir: docs
+  output-dir: _quarto_output
   render:
     - site/index.html
     - site/kernels/index.html
@@ -8,6 +8,8 @@ project:
     - site/reference/index.html
     - site/coverage/index.html
     - site/roadmap/index.html
+  resources:
+    - site/assets/**
 
 website:
   title: "DPmixGPD"

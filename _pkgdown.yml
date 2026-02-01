@@ -1,5 +1,5 @@
 url: https://arnabaich96.github.io/DPmixGPD/
-destination: docs/reference
+destination: docs
 
 template:
   bootstrap: 5
@@ -146,7 +146,6 @@ articles:
   - title: "Get Started"
     contents:
       - "introduction"
-      - "manual-index"
 
   - title: "Vignettes"
     contents:
