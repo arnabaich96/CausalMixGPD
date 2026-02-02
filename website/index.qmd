@@ -1,55 +1,126 @@
+---
+title: "DPmixGPD"
+---
+
+::: {.section}
+::: {.container}
+
+# DPmixGPD
+
+Bayesian semiparametric modeling for heavy-tailed outcomes using Dirichlet-process mixtures with optional GPD tails, with conditional and causal extensions.
+
+[Getting Started](getting-started.html){.btn .btn-primary} [Decision Guide](decision-guide.html){.btn .btn-outline-primary} [Reference (pkgdown)](pkgdown/reference/index.html){.btn .btn-outline-primary}
+
+<div style="margin-top:.75rem;font-size:.95rem;color:rgba(0,0,0,.7)">
+Explore the curated documentation in <a href="reference.html">Docs</a> or jump to <a href="faq.html">FAQ</a>.
+</div>
+
+:::
+:::
+
+
+::: {.section}
+::: {.container}
+
+## Choose your path
+
+::: {.grid-3}
+
+::: {.cardx}
+### New users
+Start with a minimal workflow, then use the Decision Guide to select a backend + kernel.
+
+[Getting Started](getting-started.html){.btn .btn-primary} [Decision Guide](decision-guide.html){.btn .btn-outline-primary}
+:::
+
+::: {.cardx}
+### Applied users
+Go straight to the Docs hub, pick kernels, and use the Cookbook for templates. For exact arguments, use pkgdown.
+
+[Docs](reference.html){.btn .btn-primary} [Kernels](kernels.html){.btn .btn-outline-primary} [Cookbook](cookbook.html){.btn .btn-outline-primary}
+:::
+
+::: {.cardx}
+### Developers
+Prefer the vanilla docs and function reference, or dig into build and contribution notes.
+
+[Developers](developers.html){.btn .btn-primary} [Vanilla site](pkgdown/index.html){.btn .btn-outline-primary}
+:::
+
+:::
+
+:::
+:::
+
+
+::: {.section}
+::: {.container}
+
+## Docs at a glance
+
+::: {.grid-3}
+
+::: {.cardx}
+### Docs hub
+Curated entry point to everything Quarto-side.
+
+[Open Docs](reference.html){.btn .btn-outline-primary}
+:::
+
+::: {.cardx}
+### Kernels
+Distribution families, conventions, and practical guidance.
+
+[Browse Kernels](kernels.html){.btn .btn-outline-primary}
+:::
+
+::: {.cardx}
+### Cookbook
+Workflow templates and common analysis patterns.
+
+[Open Cookbook](cookbook.html){.btn .btn-outline-primary}
+:::
+
+::: {.cardx}
+### Start here
+Minimal setup and your first end-to-end run.
+
+[Getting Started](getting-started.html){.btn .btn-outline-primary}
+:::
+
+::: {.cardx}
+### FAQs
+Short answers to common questions and gotchas.
+
+[Open FAQ](faq.html){.btn .btn-outline-primary}
+:::
+
+::: {.cardx}
+### Citation
+How to cite the package and related work.
+
+[How to cite](cite.html){.btn .btn-outline-primary}
+:::
+
+:::
+
+:::
+:::
+
+
 ::: {.section}
 ::: {.container}
 
 ## Latest update
 
 ::: {.cardx}
-**Documentation refresh and site stabilization**  
-The Quarto landing site has been finalized as the primary navigation layer, with pkgdown retained as the authoritative API reference. Decision guides, FAQs, and developer notes are now first-class pages.
+Documentation is now split cleanly: Quarto provides the curated front door, while pkgdown remains the authoritative vanilla API reference for developers.
 
-[Read the full update](news.html){.btn .btn-outline-primary}
+[Read the update](news.html){.btn .btn-outline-primary}
 :::
 
 :::
 :::
-
-::: {.section}
-::: {.container}
-
-## Where to start (recommended path)
-
-::: {.grid-3}
-
-::: {.cardx}
-### New users
-If this is your first time here:
-1. Read Getting Started  
-2. Use the Decision Guide  
-3. Follow the first Cookbook workflow
-
-[Getting Started](getting-started.html){.btn .btn-primary}
-:::
-
-::: {.cardx}
-### Applied users
-If you already know what you want to model:
-- Browse Kernels
-- Jump straight to Cookbook examples
-- Use pkgdown for API details
-
-[Cookbook](cookbook.html){.btn .btn-outline-primary}
-:::
-
-::: {.cardx}
-### Developers & contributors
-If you want to understand internals or contribute:
-- Developers page
-- Discussions for design
-- Issues for bugs
-
-[Developers](developers.html){.btn .btn-outline-primary}
-:::
-
 
 
 ::: {.section}
@@ -64,12 +135,11 @@ If you want to understand internals or contribute:
 </div>
 
 <div>
-<a href="cite.html">How to cite</a> ·
-<a href="pkgdown/index.html">API reference</a> ·
+<a href="cite.html">Cite</a> ·
+<a href="pkgdown/index.html">Vanilla docs</a> ·
+<a href="pkgdown/reference/index.html">Reference</a> ·
 <a href="https://github.com/arnabaich96/DPmixGPD">GitHub</a>
 </div>
 
 </div>
 
-:::
-:::

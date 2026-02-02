@@ -1,0 +1,58 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "DPmixGPD",
+    "section": "",
+    "text": "Bayesian semiparametric modeling for heavy-tailed outcomes using Dirichlet-process mixtures with optional GPD tails, with conditional and causal extensions.\nGetting Started Decision Guide Reference (pkgdown)\n\nExplore the curated documentation in Docs or jump to FAQ."
+  },
+  {
+    "objectID": "index.html#latest-update",
+    "href": "index.html#latest-update",
+    "title": "DPmixGPD",
+    "section": "Latest update",
+    "text": "Latest update\n\nDocumentation is now split cleanly: Quarto provides the curated front door, while pkgdown remains the authoritative vanilla API reference for developers.\nRead the update"
+  },
+  {
+    "objectID": "index.html#where-to-start",
+    "href": "index.html#where-to-start",
+    "title": "DPmixGPD",
+    "section": "Where to start",
+    "text": "Where to start\n\n\nNew users\nIf this is your first time here: 1. Start with the minimal workflow\n2. Use the Decision Guide to pick a backend + kernel\n3. Run your first Cookbook example\nGetting Started Decision Guide\n\n\nApplied users\nIf you already know what you want to model: - Choose a kernel family and tail strategy - Jump to a workflow template - Use pkgdown when you need exact arguments / return types\nKernels Cookbook pkgdown\n\n\nDevelopers & contributors\nIf you want internals, build notes, or to contribute: - Developer workflow and repo structure - Coverage + diagnostics pages - Issues/Discussions for feedback\nDevelopers Coverage"
+  },
+  {
+    "objectID": "index.html#core-pages",
+    "href": "index.html#core-pages",
+    "title": "DPmixGPD",
+    "section": "Core pages",
+    "text": "Core pages\n\n\nHelp & guidance\n\nCommon questions and clarifications\nConceptual pitfalls and defaults\nModeling and workflow FAQs\n\nFAQ\n\n\nDevelopers\n\nInternal architecture\nBuild and release workflow\nTesting, coverage, and CI notes\n\nDevelopers\n\n\nProject status\n\nPlanned features and milestones\nDesign decisions and constraints\nBreaking changes and deprecations\n\nRoadmap"
+  },
+  {
+    "objectID": "index.html#quick-links",
+    "href": "index.html#quick-links",
+    "title": "DPmixGPD",
+    "section": "Quick links",
+    "text": "Quick links\n\n\nChoose a path\n\nDecision Guide\nKernels\nFAQ\n\nOpen the guide\n\n\nRun workflows\n\nCookbook\nReference hub\nRoadmap\n\nOpen Cookbook\n\n\nPrefer vanilla docs?\n\npkgdown home\npkgdown reference\nHow to cite\n\nOpen pkgdown"
+  },
+  {
+    "objectID": "index.html#choose-your-path",
+    "href": "index.html#choose-your-path",
+    "title": "DPmixGPD",
+    "section": "Choose your path",
+    "text": "Choose your path\n\n\nNew users\nStart with a minimal workflow, then use the Decision Guide to select a backend + kernel.\nGetting Started Decision Guide\n\n\nApplied users\nGo straight to the Docs hub, pick kernels, and use the Cookbook for templates. For exact arguments, use pkgdown.\nDocs Kernels Cookbook\n\n\nDevelopers\nPrefer the vanilla docs and function reference, or dig into build and contribution notes.\nDevelopers Vanilla site"
+  },
+  {
+    "objectID": "index.html#docs-at-a-glance",
+    "href": "index.html#docs-at-a-glance",
+    "title": "DPmixGPD",
+    "section": "Docs at a glance",
+    "text": "Docs at a glance\n\n\nDocs hub\nCurated entry point to everything Quarto-side.\nOpen Docs\n\n\nKernels\nDistribution families, conventions, and practical guidance.\nBrowse Kernels\n\n\nCookbook\nWorkflow templates and common analysis patterns.\nOpen Cookbook\n\n\nStart here\nMinimal setup and your first end-to-end run.\nGetting Started\n\n\nFAQs\nShort answers to common questions and gotchas.\nOpen FAQ\n\n\nCitation\nHow to cite the package and related work.\nHow to cite"
+  },
+  {
+    "objectID": "index.html#where-to-start-recommended-path",
+    "href": "index.html#where-to-start-recommended-path",
+    "title": "DPmixGPD",
+    "section": "Where to start (recommended path)",
+    "text": "Where to start (recommended path)\n\n\nNew users\nIf this is your first time here: 1. Read Getting Started\n2. Use the Decision Guide\n3. Follow the first Cookbook workflow\nGetting Started\n\n\nApplied users\nIf you already know what you want to model: - Browse Kernels - Jump straight to Cookbook examples - Use pkgdown for API details\nCookbook\n\n\nDevelopers & contributors\nIf you want to understand internals or contribute: - Developers page - Discussions for design - Issues for bugs\nDevelopers\n\n\n\n\n\n\n© DPmixGPD · Bayesian semiparametric modeling for heavy-tailed data\n\n\nHow to cite · API reference · GitHub\n\n\n:::\n:::"
+  }
+]

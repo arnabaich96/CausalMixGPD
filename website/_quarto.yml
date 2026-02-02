@@ -8,35 +8,37 @@ website:
     left:
       - text: Home
         href: index.qmd
-      - text: Getting Started
-        href: getting-started.qmd
-      - text: FAQ
-        href: faq.qmd
-      - text: Roadmap
-        href: roadmap.qmd
-      - text: Kernels
-        href: kernels.qmd
-      - text: Cookbook
-        href: cookbook.qmd
-      - text: Reference
-        href: reference.qmd
-      - text: Cite
-        href: cite.qmd
-      - text: Coverage
-        href: coverage.qmd
-      - text: News
-        href: news.qmd
+
+      - text: Start
+        menu:
+          - text: Getting Started
+            href: getting-started.qmd
+          - text: Decision Guide
+            href: decision-guide.qmd
+          - text: FAQ
+            href: faq.qmd
+
+      - text: Docs
+        menu:
+          - text: Docs overview
+            href: reference.qmd
+          - text: Kernels
+            href: kernels.qmd
+          - text: Cookbook
+            href: cookbook.qmd
+
       - text: Developers
         href: developers.qmd
+
+      - text: Reference
+        href: pkgdown/reference/index.html
+
     right:
-      - text: Discussions
-        href: "https://github.com/arnabaich96/DPmixGPD/discussions"
-      - text: Bugs
-        href: "https://github.com/arnabaich96/DPmixGPD/issues"
       - text: Pkgdown
-        href: "pkgdown/index.html"
+        href: pkgdown/index.html
       - icon: github
         href: "https://github.com/arnabaich96/DPmixGPD"
+
 
 format:
   html:
