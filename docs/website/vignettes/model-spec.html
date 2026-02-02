@@ -138,8 +138,6 @@ window.Quarto = {
 };
 </script>
 
-<link rel="stylesheet" href="../../site/styles.css">
-<link rel="stylesheet" href="../../site/theme.css">
 </head>
 
 <body class="nav-fixed fullcontent quarto-light">
@@ -249,25 +247,25 @@ f(y_i) = \\int K(y_i; \\theta)\\, dG(\\theta), \\quad G \\sim \\mathrm{DP}(\\alp
 </section>
 <section id="tail-augmentation-optional" class="level3">
 <h3 class="anchored" data-anchor-id="tail-augmentation-optional">Tail augmentation (optional)</h3>
-<p>When <span class="math inline">\(\\mathrm{GPD} = \\mathrm{TRUE}\)</span>, a Generalized Pareto tail replaces the bulk kernel beyond a threshold <span class="math inline">\(u\)</span>: <span class="math display">\[
+<p>When <span class="math inline">\(\mathrm{GPD} = \mathrm{TRUE}\)</span>, a Generalized Pareto tail replaces the bulk kernel beyond a threshold <span class="math inline">\(u\)</span>: <span class="math display">\[
 f(y) =
-\\begin{cases}
-f_{\\text{bulk}}(y), &amp; y \\le u \\\\
-f_{\\text{GPD}}(y; u, \\sigma, \\xi), &amp; y &gt; u
-\\end{cases}
+\begin{cases}
+f_{\text{bulk}}(y), &amp; y \le u \\
+f_{\text{GPD}}(y; u, \sigma, \xi), &amp; y &gt; u
+\end{cases}
 \]</span> with continuity enforced at the threshold.</p>
 </section>
 <section id="conditional-extension" class="level3">
 <h3 class="anchored" data-anchor-id="conditional-extension">Conditional extension</h3>
 <p>Conditional models allow kernel parameters to depend on covariates <span class="math inline">\(x_i\)</span>: <span class="math display">\[
-f(y_i \\mid x_i) = \\int K(y_i; \\theta(x_i))\\, dG(\\theta).
+f(y_i \mid x_i) = \int K(y_i; \theta(x_i))\, dG(\theta).
 \]</span> The linking structure is kernel-specific and implemented in the model builder.</p>
 </section>
 </section>
 <section id="core-constructor" class="level2">
 <h2 class="anchored" data-anchor-id="core-constructor">Core constructor</h2>
 <p>Most workflows begin with <code>build_nimble_bundle()</code>. The bundle includes compiled NIMBLE code and MCMC settings.</p>
-<div class="cell" data-layout-align="center">
+<div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DPmixGPD)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"faithful"</span>, <span class="at">package =</span> <span class="st">"datasets"</span>)</span>
@@ -285,7 +283,7 @@ f(y_i \\mid x_i) = \\int K(y_i; \\theta(x_i))\\, dG(\\theta).
 </section>
 <section id="conditional-example" class="level2">
 <h2 class="anchored" data-anchor-id="conditional-example">Conditional example</h2>
-<div class="cell" data-layout-align="center">
+<div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"mtcars"</span>, <span class="at">package =</span> <span class="st">"datasets"</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> mtcars</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> df[, <span class="fu">c</span>(<span class="st">"wt"</span>, <span class="st">"hp"</span>)]</span>
@@ -305,7 +303,7 @@ f(y_i \\mid x_i) = \\int K(y_i; \\theta(x_i))\\, dG(\\theta).
 </section>
 <section id="key-arguments" class="level2">
 <h2 class="anchored" data-anchor-id="key-arguments">Key arguments</h2>
-<div class="cell" data-layout-align="center">
+<div class="cell">
 <div class="cell-output-display">
 <table class="table table-striped table-hover caption-top table-sm small">
 <caption>Model Specification Arguments</caption>
@@ -393,7 +391,7 @@ f(y_i \\mid x_i) = \\int K(y_i; \\theta(x_i))\\, dG(\\theta).
 <li>Covariates must be numeric for regression-style links</li>
 <li>Covariate names must not use NIMBLE reserved keywords (<code>if</code>, <code>for</code>, <code>while</code>, etc.)</li>
 </ul>
-<div class="cell" data-layout-align="center">
+<div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Rename reserved keywords</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(X)[<span class="fu">names</span>(X) <span class="sc">==</span> <span class="st">"if"</span>] <span class="ot">&lt;-</span> <span class="st">"x_if"</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>

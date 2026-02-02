@@ -12,8 +12,8 @@ build_docs <- function(
     build_pkgdown = TRUE,
     pkgdown_lazy = TRUE,
     docs_dir = "docs",
-    pkgdown_subdir = file.path("docs", "pkgdown"),
-    build_root = "_build",
+    pkgdown_dir = "pkgdown",
+    quarto_dir = "quarto",
     keep_stage = FALSE,
     verbose = TRUE
 ) {
@@ -55,15 +55,32 @@ build_docs <- function(
     rel <- substring(entries, nchar(src) + 2L)
     rel_norm <- gsub("\\\\", "/", rel)
 
+    # Exclude cache folders and RDB/RDX files
+    cache_patterns <- c(".quarto", "project-cache", "xref", "__pycache__")
+    file_patterns <- c("\\.rdb$", "\\.Rdb$", "\\.RDB$", "\\.rdx$", "\\.Rdx$", "\\.RDX$")
+    
+    keep <- rep(TRUE, length(rel_norm))
+    
+    # Exclude cache folders
+    for (pfx in cache_patterns) {
+      keep <- keep & !(rel_norm == pfx | startsWith(rel_norm, paste0(pfx, "/")))
+    }
+    
+    # Exclude cache prefixes passed as arguments
     if (length(exclude_prefix)) {
-      keep <- rep(TRUE, length(rel_norm))
       for (pfx in exclude_prefix) {
         pfx <- sub("/+$", "", gsub("\\\\", "/", pfx))
         keep <- keep & !(rel_norm == pfx | startsWith(rel_norm, paste0(pfx, "/")))
       }
-      entries <- entries[keep]
-      rel <- rel[keep]
     }
+    
+    # Exclude RDB/RDX files
+    for (pat in file_patterns) {
+      keep <- keep & !grepl(pat, rel_norm)
+    }
+    
+    entries <- entries[keep]
+    rel <- rel[keep]
 
     is_dir <- vapply(entries, dir.exists, logical(1))
     if (any(is_dir)) {
@@ -108,42 +125,45 @@ build_docs <- function(
   # 4) Paths
   # ---------------------------------------------------------------------------
   docs_abs <- file.path(root, docs_dir)
-  pkgdown_abs <- file.path(root, pkgdown_subdir)
-  build_abs <- file.path(root, build_root)
+  pkgdown_abs <- file.path(root, pkgdown_dir)
+  pkgdown_docs_abs <- file.path(root, docs_dir, "pkgdown")
+  quarto_abs <- file.path(root, quarto_dir)
 
   dir.create(docs_abs, recursive = TRUE, showWarnings = FALSE)
-  dir.create(build_abs, recursive = TRUE, showWarnings = FALSE)
+  dir.create(pkgdown_abs, recursive = TRUE, showWarnings = FALSE)
+  dir.create(quarto_abs, recursive = TRUE, showWarnings = FALSE)
 
-  stamp <- format(Sys.time(), "%Y%m%d_%H%M%S")
-
-  # Quarto staging OUTSIDE repo, SAME DRIVE
-  drive_prefix <- substring(root, 1, 3) # "D:/"
-  quarto_stage_abs <- file.path(drive_prefix, "_quarto_stage", paste0("dp_", stamp))
-  quarto_stage_abs <- normalizePath(quarto_stage_abs, winslash = "/", mustWork = FALSE)
-
-  ensure_clean_dir(quarto_stage_abs)
-
-  on.exit({
-    if (!isTRUE(keep_stage)) {
-      suppressWarnings(unlink(quarto_stage_abs, recursive = TRUE, force = TRUE))
-    } else if (isTRUE(verbose)) {
-      message("Keeping stage dir: ", quarto_stage_abs)
-    }
-  }, add = TRUE)
+  # Quarto: render to quarto/ in root
+  ensure_clean_dir(quarto_abs)
 
   # ---------------------------------------------------------------------------
-  # 5) Quarto: PROJECT render -> stage
+  # 5) Quarto: PROJECT render -> quarto/ in root
   # ---------------------------------------------------------------------------
-  msg("[1/3] Quarto: rendering project -> stage (outside repo, same drive)")
+  msg("[1/3] Quarto: rendering project -> quarto/ in root")
   run_cmd(quarto_exe, c(
     "render",
     root,
-    "--output-dir", quarto_stage_abs
+    "--output-dir", quarto_abs
   ))
 
-  # Sync Quarto -> docs (exclude pkgdown)
-  msg("[2/3] Sync: Quarto output -> docs/ (excluding pkgdown/)")
-  sync_tree(quarto_stage_abs, docs_abs, exclude_prefix = "pkgdown")
+  # Copy CSS files manually to bypass permission issues
+  website_dir <- file.path(root, "website")
+  quarto_website_dir <- file.path(quarto_abs, "website")
+  if (!dir.exists(quarto_website_dir)) {
+    dir.create(quarto_website_dir, recursive = TRUE, showWarnings = FALSE)
+  }
+  for (css_file in c("styles.css", "theme.css")) {
+    src_file <- file.path(website_dir, css_file)
+    dst_file <- file.path(quarto_website_dir, css_file)
+    if (file.exists(src_file)) {
+      file.copy(src_file, dst_file, overwrite = TRUE, copy.mode = FALSE)
+      msg("Copied CSS file: ", css_file)
+    }
+  }
+
+  # Sync Quarto -> docs (excluding pkgdown)
+  msg("[2/3] Sync: Quarto output (quarto/) -> docs/ (excluding pkgdown/)")
+  sync_tree(quarto_abs, docs_abs, exclude_prefix = "pkgdown")
 
   # ---------------------------------------------------------------------------
   # 6) Optional legacy vignette hook
@@ -155,24 +175,41 @@ build_docs <- function(
     msg("[3/3] Skipping legacy vignette hook.")
   }
 
-  # Pkgdown: build directly to docs/pkgdown to preserve cache across builds
+  # Pkgdown: build to pkgdown/ in root, then copy to docs/pkgdown/
   # Lazy rendering requires the cache to persist in the output directory
   if (isTRUE(build_pkgdown)) {
-    msg("Pkgdown: building directly to docs/pkgdown (lazy = ", pkgdown_lazy, ")")
+    msg("[4/4] Pkgdown: building to pkgdown/ (lazy = ", pkgdown_lazy, ")")
 
     if (!requireNamespace("pkgdown", quietly = TRUE)) {
       stop("Package 'pkgdown' is required but not installed.")
     }
 
-    # Build directly to docs/pkgdown - this preserves cache for lazy builds
+    # Initialize site if needed
+    cwd <- getwd()
+    on.exit(setwd(cwd), add = TRUE)
+    setwd(root)
+    
+    msg("Initializing pkgdown site...")
+    tryCatch({
+      pkgdown::init_site(pkg = root)
+    }, error = function(e) {
+      msg("Note: init_site returned: ", conditionMessage(e))
+    })
+
+    # Build to pkgdown/ in root - this preserves cache for lazy builds
     pkgdown::build_site(
       pkg = root,
       override = list(destination = pkgdown_abs),
-      lazy = isTRUE(pkgdown_lazy),
+      lazy = TRUE,
       devel = FALSE,
       preview = FALSE,
       quiet = !isTRUE(verbose)
     )
+
+    # Copy pkgdown/ to docs/pkgdown/ (overwrite)
+    msg("[4/4] Sync: pkgdown/ -> docs/pkgdown/")
+    pkgdown_docs_abs <- file.path(root, docs_dir, "pkgdown")
+    sync_tree(pkgdown_abs, pkgdown_docs_abs)
   } else {
     msg("Skipping pkgdown build.")
   }

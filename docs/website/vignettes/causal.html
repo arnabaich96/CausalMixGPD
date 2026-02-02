@@ -134,8 +134,6 @@ window.Quarto = {
 };
 </script>
 
-<link rel="stylesheet" href="../../site/styles.css">
-<link rel="stylesheet" href="../../site/theme.css">
 </head>
 
 <body class="nav-fixed fullcontent quarto-light">
@@ -241,9 +239,9 @@ window.Quarto = {
 </section>
 <section id="theory-brief" class="level2">
 <h2 class="anchored" data-anchor-id="theory-brief">Theory (brief)</h2>
-<p>The causal workflow models the potential outcome distributions for treated and control groups while adjusting for covariates and (optionally) propensity scores. For each treatment arm <span class="math inline">\(t \\in \\{0,1\\}\)</span>, <span class="math display">\[
-f_t(y \\mid x) = \\int K(y; \\theta_t(x))\\, dG_t(\\theta_t),
-\]</span> and causal estimands are derived from differences in the fitted distributions, such as <span class="math inline">\(\\mathbb{E}[Y(1) - Y(0) \\mid X]\)</span> and quantile contrasts.</p>
+<p>The causal workflow models the potential outcome distributions for treated and control groups while adjusting for covariates and (optionally) propensity scores. For each treatment arm <span class="math inline">\(t \in \{0,1\}\)</span>, <span class="math display">\[
+f_t(y \mid x) = \int K(y; \theta_t(x))\, dG_t(\theta_t),
+\]</span> and causal estimands are derived from differences in the fitted distributions, such as <span class="math inline">\(\mathbb{E}[Y(1) - Y(0) \mid X]\)</span> and quantile contrasts.</p>
 </section>
 <section id="conditional-vs-marginal-causal-estimands" class="level2">
 <h2 class="anchored" data-anchor-id="conditional-vs-marginal-causal-estimands">Conditional vs Marginal Causal Estimands</h2>
@@ -251,21 +249,21 @@ f_t(y \\mid x) = \\int K(y; \\theta_t(x))\\, dG_t(\\theta_t),
 <h3 class="anchored" data-anchor-id="conditional-estimands-what-this-package-computes">Conditional Estimands (What This Package Computes)</h3>
 <p>The causal functions in this package compute <strong>conditional</strong> treatment effects:</p>
 <ul>
-<li><p><strong>Conditional ATE (CATE)</strong>: <span class="math display">\[\\text{CATE}(x) = \\mathbb{E}[Y(1) - Y(0) \\mid X=x]\]</span> This is the average treatment effect for individuals with covariate values <span class="math inline">\(x\)</span>.</p></li>
-<li><p><strong>Conditional QTE (CQTE)</strong>: <span class="math display">\[\\text{CQTE}(p, x) = Q_{Y(1)}(p \\mid X=x) - Q_{Y(0)}(p \\mid X=x)\]</span> This is the quantile treatment effect at probability <span class="math inline">\(p\)</span> for individuals with covariates <span class="math inline">\(x\)</span>.</p></li>
+<li><p><strong>Conditional ATE (CATE)</strong>: <span class="math display">\[\text{CATE}(x) = \mathbb{E}[Y(1) - Y(0) \mid X=x]\]</span> This is the average treatment effect for individuals with covariate values <span class="math inline">\(x\)</span>.</p></li>
+<li><p><strong>Conditional QTE (CQTE)</strong>: <span class="math display">\[\text{CQTE}(p, x) = Q_{Y(1)}(p \mid X=x) - Q_{Y(0)}(p \mid X=x)\]</span> This is the quantile treatment effect at probability <span class="math inline">\(p\)</span> for individuals with covariates <span class="math inline">\(x\)</span>.</p></li>
 </ul>
 </section>
 <section id="marginal-estimands-population-level" class="level3">
 <h3 class="anchored" data-anchor-id="marginal-estimands-population-level">Marginal Estimands (Population-Level)</h3>
 <p><strong>Marginal</strong> treatment effects integrate over the covariate distribution:</p>
 <ul>
-<li><p><strong>Marginal ATE</strong>: <span class="math display">\[\\text{ATE} = \\mathbb{E}_X[\\mathbb{E}[Y(1) - Y(0) \\mid X]]\]</span> This is the population average treatment effect.</p></li>
-<li><p><strong>Marginal QTE</strong>: <span class="math display">\[\\text{QTE}(p) = Q_{Y(1)}(p) - Q_{Y(0)}(p)\]</span> where <span class="math inline">\(Q_{Y(t)}(p)\)</span> is the <span class="math inline">\(p\)</span>-th quantile of the marginal distribution of <span class="math inline">\(Y(t)\)</span>.</p></li>
+<li><p><strong>Marginal ATE</strong>: <span class="math display">\[\text{ATE} = \mathbb{E}_X[\mathbb{E}[Y(1) - Y(0) \mid X]]\]</span> This is the population average treatment effect.</p></li>
+<li><p><strong>Marginal QTE</strong>: <span class="math display">\[\text{QTE}(p) = Q_{Y(1)}(p) - Q_{Y(0)}(p)\]</span> where <span class="math inline">\(Q_{Y(t)}(p)\)</span> is the <span class="math inline">\(p\)</span>-th quantile of the marginal distribution of <span class="math inline">\(Y(t)\)</span>.</p></li>
 </ul>
 </section>
-<section id="important-averaging-conditional-quantiles-â-marginal-quantile" class="level3">
-<h3 class="anchored" data-anchor-id="important-averaging-conditional-quantiles-â-marginal-quantile">Important: Averaging Conditional Quantiles â‰&nbsp; Marginal Quantile</h3>
-<p>A common mistake is to average conditional quantiles to get marginal quantiles: <span class="math display">\[\\mathbb{E}_X[Q_{Y(t)}(p \\mid X)] \\neq Q_{Y(t)}(p)\]</span></p>
+<section id="important-averaging-conditional-quantiles-marginal-quantile" class="level3">
+<h3 class="anchored" data-anchor-id="important-averaging-conditional-quantiles-marginal-quantile">Important: Averaging Conditional Quantiles ≠ Marginal Quantile</h3>
+<p>A common mistake is to average conditional quantiles to get marginal quantiles: <span class="math display">\[\mathbb{E}_X[Q_{Y(t)}(p \mid X)] \neq Q_{Y(t)}(p)\]</span></p>
 <p><strong>Example</strong>: If treatment shifts the distribution differently for different <span class="math inline">\(X\)</span> values, the average of conditional medians is generally not equal to the marginal median.</p>
 </section>
 <section id="when-to-use-each" class="level3">

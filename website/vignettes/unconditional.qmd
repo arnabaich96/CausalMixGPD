@@ -41,9 +41,9 @@ Unconditional models treat observations as exchangeable draws from a mixture
 distribution. The DP prior on the mixing measure $G$ yields flexible density
 estimation:
 $$
-y_i \\mid G \\sim \\int K(y_i; \\theta)\\, dG(\\theta), \\quad G \\sim \\mathrm{DP}(\\alpha, G_0).
+y_i \mid G \sim \int K(y_i; \theta)\, dG(\theta), \quad G \sim \mathrm{DP}(\alpha, G_0).
 $$
-When $\\mathrm{GPD} = \\mathrm{TRUE}$, a GPD tail replaces the bulk kernel beyond a
+When $\mathrm{GPD} = \mathrm{TRUE}$, a GPD tail replaces the bulk kernel beyond a
 threshold $u$ to stabilize tail behavior.
 
 ## Model Fitting

@@ -1,6 +1,6 @@
 project:
   type: website
-  output-dir: _build/quarto_output
+  output-dir: quarto
   render:
     - website/**/*.qmd
     - "!vignettes/**/*.Rmd"
@@ -38,7 +38,5 @@ website:
 format:
   html:
     theme: cosmo
-    css:
-      - website/styles.css
-      - website/theme.css
+    css: []
     toc: false

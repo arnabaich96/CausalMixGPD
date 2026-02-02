@@ -42,14 +42,14 @@ mixture to adapt to unknown distributional shapes.
 
 ### Tail augmentation (optional)
 
-When $\\mathrm{GPD} = \\mathrm{TRUE}$, a Generalized Pareto tail replaces the
+When $\mathrm{GPD} = \mathrm{TRUE}$, a Generalized Pareto tail replaces the
 bulk kernel beyond a threshold $u$:
 $$
 f(y) =
-\\begin{cases}
-f_{\\text{bulk}}(y), & y \\le u \\\\
-f_{\\text{GPD}}(y; u, \\sigma, \\xi), & y > u
-\\end{cases}
+\begin{cases}
+f_{\text{bulk}}(y), & y \le u \\
+f_{\text{GPD}}(y; u, \sigma, \xi), & y > u
+\end{cases}
 $$
 with continuity enforced at the threshold.
 
@@ -57,7 +57,7 @@ with continuity enforced at the threshold.
 
 Conditional models allow kernel parameters to depend on covariates $x_i$:
 $$
-f(y_i \\mid x_i) = \\int K(y_i; \\theta(x_i))\\, dG(\\theta).
+f(y_i \mid x_i) = \int K(y_i; \theta(x_i))\, dG(\theta).
 $$
 The linking structure is kernel-specific and implemented in the model builder.
 

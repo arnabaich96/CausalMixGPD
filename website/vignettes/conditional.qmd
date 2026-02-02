@@ -40,9 +40,9 @@ This vignette demonstrates fitting a conditional model with covariates and gener
 Conditional models allow the bulk mixture parameters to vary with covariates.
 We write the conditional density as
 $$
-f(y_i \\mid x_i) = \\int K(y_i; \\theta(x_i))\\, dG(\\theta),
+f(y_i \mid x_i) = \int K(y_i; \theta(x_i))\, dG(\theta),
 $$
-where the link between $\\theta$ and $x_i$ is encoded through the kernel-specific
+where the link between $\theta$ and $x_i$ is encoded through the kernel-specific
 regression structure. The DP prior provides flexible, data-driven clustering of
 local distributions across covariate space.
 

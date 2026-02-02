@@ -3,10 +3,14 @@ url: https://arnabaich96.github.io/DPmixGPD/pkgdown
 destination: docs/pkgdown
 
 build:
-  lazy: true
+  lazy: false
 
 template:
   bootstrap: 5
+  includes:
+    in_header: null
+  params:
+    ganalytics: null
 
 navbar:
   structure:
