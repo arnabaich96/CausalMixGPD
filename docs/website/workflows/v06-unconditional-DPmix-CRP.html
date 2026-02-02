@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>v06-unconditional-dpmix-crp – DPmixGPD</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-e31584831b205ffbb2d98406f31c2a5b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="../../site_libs/kePrint-0.0.1/kePrint.js"></script>
+
+<link href="../../site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="../../site/styles.css">
+<link rel="stylesheet" href="../../site/theme.css">
+</head>
+
+<body class="nav-fixed fullcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">DPmixGPD</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../start/index.html"> 
+<span class="menu-text">Start Here</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../roadmap/index.html"> 
+<span class="menu-text">Roadmap</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../cookbook/index.html"> 
+<span class="menu-text">Cookbook</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../kernels/index.html"> 
+<span class="menu-text">Kernels</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../api/index.html"> 
+<span class="menu-text">API</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../../coverage/index.html"> 
+<span class="menu-text">Coverage</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD/issues"> 
+<span class="menu-text">Issues</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD/discussions"> 
+<span class="menu-text">Discussions</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD"> 
+<span class="menu-text">GitHub</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">6. Unconditional DPmix with CRP Backend</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<blockquote class="blockquote">
+<p><strong>Legacy vignette (for the website / historical notes).</strong> These files may not match the current exported API one-to-one. Last verified: <strong>2026-01-18</strong>.</p>
+<p>For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).</p>
+</blockquote>
+<section id="unconditional-dpmix-chinese-restaurant-process-crp" class="level1">
+<h1>Unconditional DPmix: Chinese Restaurant Process (CRP)</h1>
+<p><strong>Goal</strong>: Estimate density of univariate outcome <span class="math inline">\(y\)</span> using <strong>nonparametric Dirichlet Process mixture</strong> with <strong>Chinese Restaurant Process</strong> backend.</p>
+<p><strong>Model</strong>: <span class="math inline">\(y_i | G \sim \int K(y_i; \theta) dG(\theta)\)</span> where <span class="math inline">\(G \sim \text{DP}(\alpha, G_0)\)</span></p>
+<p><strong>Backend</strong>: CRP with <strong>truncation at max components</strong></p>
+<hr>
+<section id="data-setup" class="level2">
+<h2 class="anchored" data-anchor-id="data-setup">Data Setup</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load pre-generated dataset: 200 observations from mixture of 3 gamma components</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(nc_pos200_k3)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>y_mixed <span class="ot">&lt;-</span> nc_pos200_k3<span class="sc">$</span>y</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="fu">paste</span>(<span class="st">"Sample size:"</span>, <span class="fu">length</span>(y_mixed))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Sample size: 200"</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">paste</span>(<span class="st">"Mean:"</span>, <span class="fu">mean</span>(y_mixed))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Mean: 4.21476750434594"</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">paste</span>(<span class="st">"SD:"</span>, <span class="fu">sd</span>(y_mixed))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "SD: 4.10835046697183"</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">paste</span>(<span class="st">"Range:"</span>, <span class="fu">paste</span>(<span class="fu">range</span>(y_mixed), <span class="at">collapse =</span> <span class="st">" to "</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Range: 0.0403111680208858 to 19.6013451514889"</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualization</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>df_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">y =</span> y_mixed)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>p_raw <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(df_data, <span class="fu">aes</span>(<span class="at">x =</span> y)) <span class="sc">+</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="fu">aes</span>(<span class="at">y =</span> <span class="fu">after_stat</span>(density)), <span class="at">bins =</span> <span class="dv">30</span>, <span class="at">alpha =</span> <span class="fl">0.6</span>, <span class="at">fill =</span> <span class="st">"steelblue"</span>,<span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Raw Data: Mixed Gamma Distribution"</span>, <span class="at">x =</span> <span class="st">"y"</span>, <span class="at">y =</span> <span class="st">"Density"</span>) <span class="sc">+</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(p_raw)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="v06-unconditional-DPmix-CRP_files/figure-html/data-setup-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="model-specification-bundle" class="level2">
+<h2 class="anchored" data-anchor-id="model-specification-bundle">Model Specification &amp; Bundle</h2>
+<p>We’ll use the <code>build_nimble_bundle</code> function directly which handles both specification and bundle creation.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>bundle_crp <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y_mixed,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"laplace"</span>,         <span class="co"># Use laplace kernel</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"crp"</span>,            <span class="co"># CRP backend</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,                <span class="co"># No tail augmentation</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">3</span>,             <span class="co"># Minimal for testing</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">alpha_random =</span> <span class="cn">TRUE</span>,        <span class="co"># Random DP concentration</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc =</span> mcmc</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+<section id="building-mcmc-bundle" class="level3">
+<h3 class="anchored" data-anchor-id="building-mcmc-bundle">Building MCMC bundle</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>bundle_crp <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  y_mixed,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"laplace"</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">3</span>,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">alpha_random =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc =</span> mcmc</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="summary-of-mcmc-bundle" class="level3">
+<h3 class="anchored" data-anchor-id="summary-of-mcmc-bundle">Summary of MCMC Bundle</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bundle_crp)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>DPmixGPD bundle summary
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; Field &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Value &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; Backend &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Chinese Restaurant Process &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; Kernel &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Laplace Distribution &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; Components &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; N &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 200 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; X &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; NO &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; GPD &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; FALSE &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; Epsilon &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.025 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+Parameter specification
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; block &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; parameter &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; mode &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; level &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; prior &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; link &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; notes &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; meta &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; backend &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; info &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; model &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; crp &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; meta &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; kernel &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; info &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; model &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; laplace &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; meta &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; components &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; info &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; model &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; meta &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; N &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; info &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; model &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 200 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; meta &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; P &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; info &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; model &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; concentration &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; alpha &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; dist &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; scalar &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; gamma(shape=1, rate=1) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; stochastic concentration &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; bulk &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; location &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; dist &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; component (1:3) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; normal(mean=0, sd=5) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; iid across components &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; bulk &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; scale &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; dist &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; component (1:3) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; gamma(shape=2, rate=1) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; iid across components &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+Monitors
+  n = 4 
+  alpha, z[1:200], location[1:3], scale[1:3]</code></pre>
+</div>
+</div>
+</section>
+<section id="running-mcmc" class="level3">
+<h3 class="anchored" data-anchor-id="running-mcmc">Running MCMC</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>fit_crp <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"v06-unconditional-DPmix-CRP-fit_crp"</span>, <span class="fu">run_mcmc_bundle_manual</span>(bundle_crp))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="summary-of-fitted-mcmc-model" class="level3">
+<h3 class="anchored" data-anchor-id="summary-of-fitted-mcmc-model">Summary of Fitted MCMC model</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_crp)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>MixGPD summary | backend: Chinese Restaurant Process | kernel: Laplace Distribution | GPD tail: FALSE | epsilon: 0.025
+n = 200 | components = 3
+Summary
+Initial components: 3 | Components after truncation: 2
+
+WAIC: 914.162
+lppd: -346.856 | pWAIC: 110.226
+
+Summary table
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; parameter &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; mean &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; sd &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.025 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.500 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.975 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; ess &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; weights[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.42 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.036 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.36 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.415 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 372.213 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; weights[2] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.348 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.036 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.28 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.345 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.415 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 386.238 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; alpha &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.482 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.296 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.098 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.42 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.197 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1200 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; location[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5.585 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.267 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.052 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6.739 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7.715 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 415.444 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; location[2] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.17 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.504 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.808 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.257 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7.968 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 424.174 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; scale[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.555 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.42 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.261 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.339 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.708 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 397.138 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; scale[2] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.202 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.641 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.28 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.202 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.419 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 480.74 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>params_crp <span class="ot">&lt;-</span> <span class="fu">params</span>(fit_crp)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>params_crp</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Posterior mean parameters
+
+$alpha
+[1] "0.482"
+
+$w
+[1] "0.42"  "0.348"
+
+$location
+[1] "5.585" "3.17" 
+
+$scale
+[1] "0.555" "1.202"</code></pre>
+</div>
+</div>
+<hr>
+</section>
+</section>
+<section id="mcmc-diagnostics-plots" class="level2">
+<h2 class="anchored" data-anchor-id="mcmc-diagnostics-plots">MCMC Diagnostics Plots</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Trace plots for key parameters</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) <span class="fu">plot</span>(fit_crp, <span class="at">params =</span> <span class="st">"alpha"</span>, <span class="at">family =</span> <span class="fu">c</span>(<span class="st">"traceplot"</span>, <span class="st">"density"</span>, <span class="st">"geweke"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+<section id="posterior-predictions" class="level2">
+<h2 class="anchored" data-anchor-id="posterior-predictions">Posterior Predictions</h2>
+<section id="predictive-density" class="level3">
+<h3 class="anchored" data-anchor-id="predictive-density">Predictive Density</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate prediction grid</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>y_grid <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="fu">max</span>(y_mixed) <span class="sc">*</span> <span class="fl">1.2</span>, <span class="at">length.out =</span> <span class="dv">200</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Posterior predictive density</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>pred_density <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_crp, <span class="at">y =</span> y_grid, <span class="at">type =</span> <span class="st">"density"</span>)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Use S3 plot method</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) <span class="fu">plot</span>(pred_density)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="quantile-predictions" class="level3">
+<h3 class="anchored" data-anchor-id="quantile-predictions">Quantile Predictions</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Posterior predictive quantiles with credible intervals</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>quantiles_pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_crp, <span class="at">type =</span> <span class="st">"quantile"</span>, </span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>                          <span class="at">index =</span> <span class="fu">c</span>(<span class="fl">0.05</span>, <span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>, <span class="fl">0.95</span>),</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>                          <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Display table</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>quantiles_pred<span class="sc">$</span>fit <span class="sc">%&gt;%</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a> <span class="fu">kbl</span>(<span class="at">caption =</span> <span class="st">"Posterior Predictive Quantiles with Credible Intervals"</span>,</span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>   <span class="at">align =</span> <span class="st">"c"</span>,</span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>                  <span class="at">digits =</span> <span class="dv">3</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a> <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="st">"striped"</span>, <span class="at">full_width =</span> <span class="cn">FALSE</span>, <span class="at">position =</span> <span class="st">"center"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<table class="table table-striped caption-top table-sm small">
+<caption>Posterior Predictive Quantiles with Credible Intervals</caption>
+<thead>
+<tr class="header">
+<th style="text-align: center;" data-quarto-table-cell-role="th">estimate</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">index</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">lower</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">upper</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">-0.39</td>
+<td style="text-align: center;">0.05</td>
+<td style="text-align: center;">-2.57</td>
+<td style="text-align: center;">1.16</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">1.93</td>
+<td style="text-align: center;">0.25</td>
+<td style="text-align: center;">0.94</td>
+<td style="text-align: center;">2.84</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">5.90</td>
+<td style="text-align: center;">0.50</td>
+<td style="text-align: center;">3.05</td>
+<td style="text-align: center;">7.14</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">7.00</td>
+<td style="text-align: center;">0.75</td>
+<td style="text-align: center;">5.87</td>
+<td style="text-align: center;">8.02</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">7.56</td>
+<td style="text-align: center;">0.95</td>
+<td style="text-align: center;">6.44</td>
+<td style="text-align: center;">8.55</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Use S3 plot method</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) <span class="fu">plot</span>(quantiles_pred)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<hr>
+</section>
+</section>
+<section id="varying-truncation-level-components" class="level2">
+<h2 class="anchored" data-anchor-id="varying-truncation-level-components">Varying Truncation Level (components)</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Demonstrate with one value</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>bundle_components <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y_mixed,</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"laplace"</span>,</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">5</span>,</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc =</span> mcmc</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>fit_components <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"v06-unconditional-DPmix-CRP-fit_components"</span>, <span class="fu">run_mcmc_bundle_manual</span>(bundle_components))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_components)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>MixGPD summary | backend: Chinese Restaurant Process | kernel: Laplace Distribution | GPD tail: FALSE | epsilon: 0.025
+n = 200 | components = 5
+Summary
+Initial components: 5 | Components after truncation: 3
+
+WAIC: 891.092
+lppd: -295.218 | pWAIC: 150.327
+
+Summary table
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; parameter &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; mean &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; sd &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.025 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.500 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.975 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; ess &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; weights[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.39 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.05 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.28 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.395 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.48 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 124.026 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; weights[2] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.296 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.05 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.2 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.295 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.39 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 166.462 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; weights[3] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.213 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.046 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.125 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.21 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.295 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 204.79 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; alpha &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.752 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.404 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.187 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.678 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.733 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 541.565 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; location[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5.06 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.48 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.923 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6.499 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7.902 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 68.982 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; location[2] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.143 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.637 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.709 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.287 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9.177 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 248.114 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; location[3] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.572 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.573 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.444 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.502 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9.801 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 104.292 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; scale[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.705 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.558 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.263 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.363 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.13 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 63.482 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; scale[2] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.344 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.73 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.284 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.315 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.798 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 630.231 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; scale[3] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.853 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.941 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.291 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.833 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.784 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 218.337 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+</div>
+</div>
+<hr>
+<p>For unconditional models, use <code>predict()</code> for posterior summaries; <code>fitted()</code> and <code>residuals()</code> are not supported.</p>
+<hr>
+</section>
+<section id="model-comparison-different-kernels" class="level2">
+<h2 class="anchored" data-anchor-id="model-comparison-different-kernels">Model Comparison: Different Kernels</h2>
+<section id="laplace-kernel-current" class="level3">
+<h3 class="anchored" data-anchor-id="laplace-kernel-current">Laplace Kernel (Current)</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>bundle_laplace <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y_mixed,</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"laplace"</span>,</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">5</span>,</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc =</span> mcmc</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>fit_laplace <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"v06-unconditional-DPmix-CRP-fit_laplace"</span>, <span class="fu">run_mcmc_bundle_manual</span>(bundle_laplace))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_laplace)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>MixGPD summary | backend: Chinese Restaurant Process | kernel: Laplace Distribution | GPD tail: FALSE | epsilon: 0.025
+n = 200 | components = 5
+Summary
+Initial components: 5 | Components after truncation: 2
+
+WAIC: 889.569
+lppd: -307.083 | pWAIC: 137.701
+
+Summary table
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; parameter &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; mean &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; sd &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.025 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.500 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.975 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; ess &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; weights[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.392 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.053 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.275 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.395 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.48 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 151.984 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; weights[2] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.305 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.055 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.205 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.305 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.41 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 138.525 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; alpha &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.737 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.381 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.154 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.677 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.63 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 903.061 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; location[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4.736 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.615 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.909 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6.299 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7.888 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 119.679 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; location[2] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.459 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.822 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.718 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.326 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9.378 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 413.229 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; scale[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.789 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.586 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.263 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.392 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.135 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 103.007 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; scale[2] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.265 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.739 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.267 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.262 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.669 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 415.897 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+</div>
+</div>
+</section>
+<section id="amoroso-kernel-alternative" class="level3">
+<h3 class="anchored" data-anchor-id="amoroso-kernel-alternative">Amoroso Kernel (Alternative)</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>bundle_amoroso <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y_mixed,</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"amoroso"</span>,</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">5</span>,</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc =</span> mcmc</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>fit_amoroso <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"v06-unconditional-DPmix-CRP-fit_amoroso"</span>, <span class="fu">run_mcmc_bundle_manual</span>(bundle_amoroso))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_amoroso)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>MixGPD summary | backend: Chinese Restaurant Process | kernel: Amoroso Distribution | GPD tail: FALSE | epsilon: 0.025
+n = 200 | components = 5
+Summary
+Initial components: 5 | Components after truncation: 1
+
+WAIC: 921.494
+lppd: -418.642 | pWAIC: 42.105
+
+Summary table
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; parameter &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; mean &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; sd &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.025 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.500 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.975 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; ess &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; weights[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.901 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.175 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.495 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4.591 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; alpha &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.292 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.29 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.007 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.201 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.101 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 140.654 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; loc[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.017 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.32 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.385 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.01 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.264 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 257.023 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; scale[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.333 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.18 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.543 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.213 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4.932 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 14.698 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; shape1[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.624 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.617 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.532 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.524 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.98 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 19.586 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; shape2[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.91 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.326 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.566 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.834 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.943 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 10.792 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+</div>
+</div>
+</section>
+<section id="model-comparison-via-predictions" class="level3">
+<h3 class="anchored" data-anchor-id="model-comparison-via-predictions">Model Comparison via Predictions</h3>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare models using predict() (fitted/residuals not supported for unconditional)</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>pred_laplace <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_laplace, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">cred.level =</span> <span class="fl">0.9</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>pred_amoroso <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_amoroso, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">cred.level =</span> <span class="fl">0.9</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># For unconditional models, fitted() is not supported; use predict() for comparisons (see pred_laplace, pred_amoroso above).</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="key-takeaways" class="level2">
+<h2 class="anchored" data-anchor-id="key-takeaways">Key Takeaways</h2>
+<ul>
+<li><strong>CRP Backend</strong>: Flexible component allocation, ideal for unknown mixture complexity</li>
+<li><strong>components Parameter</strong>: Higher components allows more components but increases computation</li>
+<li><strong>Kernel Choice</strong>: Gamma suitable for positive, skewed data</li>
+<li><strong>Diagnostics</strong>: Check convergence (Rhat, ESS) and posterior predictive fit</li>
+<li><strong>Next</strong>: Compare with <strong>Stick-Breaking (SB)</strong> backend in vignette 5</li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
