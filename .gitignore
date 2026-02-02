@@ -42,6 +42,13 @@ vignettes/**/cache/**
 test_*.html
 !docs/**/*.html
 
+# Quarto cache and build artifacts
+.quarto/
+docs/.quarto/
+**/.quarto/
+**/project-cache/
+**/xref/
+
 .Rproj.user
 .RData
 .Rdata

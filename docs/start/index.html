@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Start Here | DPmixGPD Kitchen</title>
+  <link rel="stylesheet" href="../theme.css" />
+</head>
+<body>
+  <div class="hero">
+    <div style="max-width:1100px;margin:0 auto;padding:0 1.25rem;">
+      <h1>🍽️ Start Here</h1>
+      <p class="lead" style="color:rgba(255,255,255,.78);max-width:70ch;">
+        These are the core package vignettes rendered twice: a kitchen-themed version (Quarto) and a plain canonical version (pkgdown).
+      </p>
+      <div style="margin-top:1.25rem;">
+        <a class="btnx btnx-primary" href="../roadmap/index.html">Next: Roadmap</a>
+        <a class="btnx btnx-ghost" href="../cookbook/index.html">Go to Cookbook</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div style="max-width:1100px;margin:0 auto;padding:0 1.25rem;">
+      <div class="cardx">
+        <h3>Core vignettes</h3>
+        <p style="color:#6c757d;">Open the kitchen version by default. Use the plain link if you want the untouched pkgdown render.</p>
+        <ul>
+          <li><strong>Introduction</strong> — <a href="introduction/index.html">kitchen</a> | <a href="../pkgdown/articles/introduction.html" target="_blank" rel="noopener">plain</a></li>
+          <li><strong>Manual</strong> — <a href="manual/index.html">kitchen</a> | <a href="../pkgdown/articles/manual.html" target="_blank" rel="noopener">plain</a></li>
+          <li><strong>Distributions</strong> — <a href="distributions/index.html">kitchen</a> | <a href="../pkgdown/articles/distributions.html" target="_blank" rel="noopener">plain</a></li>
+          <li><strong>Model specification</strong> — <a href="model-spec/index.html">kitchen</a> | <a href="../pkgdown/articles/model-spec.html" target="_blank" rel="noopener">plain</a></li>
+          <li><strong>MCMC workflow</strong> — <a href="mcmc-workflow/index.html">kitchen</a> | <a href="../pkgdown/articles/mcmc-workflow.html" target="_blank" rel="noopener">plain</a></li>
+          <li><strong>Unconditional</strong> — <a href="unconditional/index.html">kitchen</a> | <a href="../pkgdown/articles/unconditional.html" target="_blank" rel="noopener">plain</a></li>
+          <li><strong>Conditional</strong> — <a href="conditional/index.html">kitchen</a> | <a href="../pkgdown/articles/conditional.html" target="_blank" rel="noopener">plain</a></li>
+          <li><strong>Causal</strong> — <a href="causal/index.html">kitchen</a> | <a href="../pkgdown/articles/causal.html" target="_blank" rel="noopener">plain</a></li>
+          <li><strong>Backends</strong> — <a href="backends/index.html">kitchen</a> | <a href="../pkgdown/articles/backends.html" target="_blank" rel="noopener">plain</a></li>
+          <li><strong>S3 methods reference</strong> — <a href="reference-s3/index.html">kitchen</a> | <a href="../pkgdown/articles/reference-s3.html" target="_blank" rel="noopener">plain</a></li>
+        </ul>
+      </div>
+
+      <div class="cardx" style="margin-top:1rem;">
+        <h3>How the kitchen versions are built</h3>
+        <p style="color:#6c757d;">
+          The kitchen pages above are rendered from <code>vignettes/*.Rmd</code> using Quarto into <code>docs/start/&lt;slug&gt;/index.html</code>.
+          Run the helper script in <code>tools/</code> to rebuild the full site.
+        </p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

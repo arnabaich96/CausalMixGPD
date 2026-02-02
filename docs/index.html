@@ -1,9 +1,171 @@
-<html xmlns="http://www.w3.org/1999/xhtml">    
-  <head>      
-    <title>DPmixGPD - Redirecting to Package Documentation</title>      
-    <meta http-equiv="refresh" content="0;URL='pkgdown/index.html'" />    
-  </head>    
-  <body> 
-    <p>Redirecting to <a href="pkgdown/index.html">DPmixGPD Documentation</a>...</p>
-  </body>  
-</html>     
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DPmixGPD - Dirichlet Process Mixture of Generalized Pareto Distributions</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            padding: 3rem 0;
+        }
+        
+        header h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+        
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .card p {
+            color: #666;
+            line-height: 1.8;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            margin-top: 1rem;
+        }
+        
+        footer {
+            text-align: center;
+            color: white;
+            padding: 2rem 0;
+            margin-top: 3rem;
+            opacity: 0.8;
+        }
+        
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .card-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>DPmixGPD</h1>
+            <p>Dirichlet Process Mixture of Generalized Pareto Distributions</p>
+        </header>
+        
+        <div class="card-grid">
+            <a href="pkgdown/pkgdown/pkgdown.html" class="card" target="_blank">
+                <div class="card-icon">📦</div>
+                <h2>Pkgdown Site</h2>
+                <p>Complete package documentation with function references and examples.</p>
+                <span class="badge">Package Docs</span>
+            </a>
+            
+            <a href="start/index.html" class="card">
+                <div class="card-icon">📚</div>
+                <h2>Articles</h2>
+                <p>In-depth guides and tutorials on using DPmixGPD for extreme value analysis.</p>
+                <span class="badge">Tutorials</span>
+            </a>
+            
+            <a href="api/index.html" class="card">
+                <div class="card-icon">🔍</div>
+                <h2>Reference</h2>
+                <p>Browse all available functions and their detailed documentation.</p>
+                <span class="badge">API Reference</span>
+            </a>
+            
+            <a href="cookbook/index.html" class="card">
+                <div class="card-icon">👨‍🍳</div>
+                <h2>Cookbook</h2>
+                <p>Practical recipes and code snippets for common use cases.</p>
+                <span class="badge">Examples</span>
+            </a>
+            
+            <a href="kernels/index.html" class="card">
+                <div class="card-icon">🧮</div>
+                <h2>Kernels</h2>
+                <p>Explore kernel functions and their applications in DP mixtures.</p>
+                <span class="badge">Advanced</span>
+            </a>
+            
+            <a href="roadmap/index.html" class="card">
+                <div class="card-icon">🗺️</div>
+                <h2>Roadmap</h2>
+                <p>Future development plans and feature requests.</p>
+                <span class="badge">Development</span>
+            </a>
+        </div>
+        
+        <footer>
+            <p>DPmixGPD R Package | MIT License</p>
+        </footer>
+    </div>
+</body>
+</html>

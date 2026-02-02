@@ -1,0 +1,121 @@
+﻿---
+title: "Kernels"
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kernels - DPmixGPD</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Georgia', serif; line-height: 1.6; background: #fef9f0; color: #3a3a3a; }
+        .container { max-width: 1100px; margin: 0 auto; padding: 2rem; }
+        
+        .hero {
+            background: linear-gradient(135deg, #2D5016 0%, #6BA92B 100%);
+            color: white;
+            padding: 4rem 2rem;
+            border-radius: 12px;
+            margin-bottom: 3rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(45, 80, 22, 0.3);
+        }
+        .hero h1 { font-size: 3rem; margin-bottom: 0.5rem; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .hero p { font-size: 1.2rem; opacity: 0.95; }
+        
+        .section { margin: 3rem 0; }
+        .section-title { font-size: 2rem; color: #2D5016; margin-bottom: 2rem; border-bottom: 3px solid #6BA92B; padding-bottom: 0.5rem; }
+        
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
+        .card {
+            background: white;
+            border-left: 5px solid #6BA92B;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(45, 80, 22, 0.2); }
+        .card h3 { color: #2D5016; margin-bottom: 0.5rem; }
+        .card p { color: #666; font-size: 0.95rem; }
+        
+        .tag { display: inline-block; background: #E8F4D1; color: #2D5016; padding: 0.3rem 0.7rem; border-radius: 20px; font-size: 0.85rem; margin-top: 0.5rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <h1>ðŸŒ¿ Kernels</h1>
+            <p>Kernel distribution documentation and mathematical foundations</p>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Kernel Distributions</h2>
+            <div class="card-grid">
+                <a href="../articles/website/kernels/kernels-index.html" class="card">
+                    <h3>Overview</h3>
+                    <p>Available kernels and their properties.</p>
+                    <span class="tag">Reference</span>
+                </a>
+                <a href="../articles/website/kernels/kernel-amoroso.html" class="card">
+                    <h3>Amoroso</h3>
+                    <p>Flexible four-parameter distribution family.</p>
+                </a>
+                <a href="../articles/website/kernels/kernel-cauchy.html" class="card">
+                    <h3>Cauchy</h3>
+                    <p>Heavy-tailed symmetric distribution.</p>
+                </a>
+                <a href="../articles/website/kernels/kernel-gamma.html" class="card">
+                    <h3>Gamma</h3>
+                    <p>Classical gamma distribution.</p>
+                </a>
+                <a href="../articles/website/kernels/kernel-inverse-gaussian-base.html" class="card">
+                    <h3>Inverse Gaussian (Base)</h3>
+                    <p>Single component inverse Gaussian kernel.</p>
+                </a>
+                <a href="../articles/website/kernels/kernel-inverse-gaussian-mixture.html" class="card">
+                    <h3>Inverse Gaussian (Mixture)</h3>
+                    <p>Mixture of inverse Gaussian components.</p>
+                </a>
+                <a href="../articles/website/kernels/kernel-laplace.html" class="card">
+                    <h3>Laplace</h3>
+                    <p>Double exponential distribution.</p>
+                </a>
+                <a href="../articles/website/kernels/kernel-lognormal.html" class="card">
+                    <h3>Lognormal</h3>
+                    <p>Log-transformed normal distribution.</p>
+                </a>
+                <a href="../articles/website/kernels/kernel-normal.html" class="card">
+                    <h3>Normal</h3>
+                    <p>Gaussian distribution.</p>
+                </a>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2 class="section-title">Mathematics</h2>
+            <div class="card-grid">
+                <a href="../articles/website/kernels/mathematical-definitions-and-conventions.html" class="card">
+                    <h3>Math Conventions</h3>
+                    <p>Notational conventions used throughout.</p>
+                </a>
+                <a href="../articles/website/kernels/introduction-with-gpd-kernel.html" class="card">
+                    <h3>Kernel + GPD</h3>
+                    <p>Mathematical foundation combining kernels with extreme value tail.</p>
+                </a>
+                <a href="../articles/website/kernels/summary-distribution-backend-reference.html" class="card">
+                    <h3>Backend Support Matrix</h3>
+                    <p>Which kernels work with which backends.</p>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
