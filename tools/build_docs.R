@@ -121,18 +121,13 @@ build_docs <- function(
   quarto_stage_abs <- file.path(drive_prefix, "_quarto_stage", paste0("dp_", stamp))
   quarto_stage_abs <- normalizePath(quarto_stage_abs, winslash = "/", mustWork = FALSE)
 
-  # Pkgdown staging inside repo
-  pkgdown_stage_abs <- file.path(build_abs, paste0("pkgdown_stage_", stamp))
-
   ensure_clean_dir(quarto_stage_abs)
-  ensure_clean_dir(pkgdown_stage_abs)
 
   on.exit({
     if (!isTRUE(keep_stage)) {
       suppressWarnings(unlink(quarto_stage_abs, recursive = TRUE, force = TRUE))
-      suppressWarnings(unlink(pkgdown_stage_abs, recursive = TRUE, force = TRUE))
     } else if (isTRUE(verbose)) {
-      message("Keeping stage dirs:\n  ", quarto_stage_abs, "\n  ", pkgdown_stage_abs)
+      message("Keeping stage dir: ", quarto_stage_abs)
     }
   }, add = TRUE)
 
@@ -160,29 +155,24 @@ build_docs <- function(
     msg("[3/3] Skipping legacy vignette hook.")
   }
 
-  # ---------------------------------------------------------------------------
-  # 7) Pkgdown: stage -> docs/pkgdown
-  # ---------------------------------------------------------------------------
+  # Pkgdown: build directly to docs/pkgdown to preserve cache across builds
+  # Lazy rendering requires the cache to persist in the output directory
   if (isTRUE(build_pkgdown)) {
-    msg("Pkgdown: building -> stage (lazy = ", pkgdown_lazy, ")")
+    msg("Pkgdown: building directly to docs/pkgdown (lazy = ", pkgdown_lazy, ")")
 
     if (!requireNamespace("pkgdown", quietly = TRUE)) {
       stop("Package 'pkgdown' is required but not installed.")
     }
 
-    # Older pkgdown versions don't support dest_dir=.
-    # Use override(destination=...) which is widely supported.
+    # Build directly to docs/pkgdown - this preserves cache for lazy builds
     pkgdown::build_site(
       pkg = root,
-      override = list(destination = pkgdown_stage_abs),
+      override = list(destination = pkgdown_abs),
       lazy = isTRUE(pkgdown_lazy),
+      devel = FALSE,
       preview = FALSE,
       quiet = !isTRUE(verbose)
     )
-
-    dir.create(pkgdown_abs, recursive = TRUE, showWarnings = FALSE)
-    msg("Sync: pkgdown output -> docs/pkgdown/")
-    sync_tree(pkgdown_stage_abs, pkgdown_abs)
   } else {
     msg("Skipping pkgdown build.")
   }
