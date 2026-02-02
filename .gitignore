@@ -34,6 +34,9 @@ vignettes/**/cache/**
 # Cache files (knitr/rmarkdown)
 *_cache/
 **/*_cache/*
+**/cache/
+**/cache/**
+**/*_cache/
 # Ignore HTML files except in docs/ directory
 *.html
 test_*.html
@@ -56,6 +59,12 @@ docs/**/cache/**
 *.RData
 *.Rda
 *.rdx
+*.rdb
+*.Rdb
+*.RDB
+*.rds
+*.Rds
+*.RDS
 
 # Ignore R history and legacy vignette cache/logs
 .Rhistory
