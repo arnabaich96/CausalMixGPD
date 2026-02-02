@@ -1,0 +1,42 @@
+---
+title: "Kernels"
+page-layout: full
+---
+
+::: {.hero}
+::: {.container}
+# Kernels
+
+DPmixGPD supports multiple bulk kernels and tail configurations. This page is the catalog entry point: what kernels exist, how they are organized, and where to find details.
+
+[Articles index (pkgdown)](pkgdown/articles/index.html){.btn .btn-primary}
+[Kernel support table](pkgdown/reference/kernel_support_table.html){.btn .btn-outline-light}
+:::
+:::
+
+::: {.section}
+::: {.container}
+
+::: {.grid-3}
+
+::: {.cardx}
+### Bulk kernels
+The bulk model is intended to flexibly represent the “typical” range of the outcome distribution (skewness, multimodality, heterogeneity). Kernel choice mainly affects interpretability and computational behavior.
+:::
+
+::: {.cardx}
+### Tail modeling (GPD)
+Tail modeling targets rare, high-impact outcomes beyond a threshold. The threshold strategy and tail parameterization determine extrapolation behavior and uncertainty.
+:::
+
+::: {.cardx}
+### Registry and introspection
+Programmatic access to what’s supported (useful for automated workflows and checks).
+- [get_kernel_registry](pkgdown/reference/get_kernel_registry.html)
+- [get_tail_registry](pkgdown/reference/get_tail_registry.html)
+:::
+
+:::
+
+:::
+:::

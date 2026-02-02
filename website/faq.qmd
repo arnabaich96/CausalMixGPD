@@ -1,0 +1,147 @@
+---
+title: "FAQ"
+page-layout: full
+---
+
+::: {.hero}
+::: {.container}
+# Frequently Asked Questions
+
+Short, direct answers to common questions about DPmixGPD. If you don’t see your question here, open a Discussion rather than guessing.
+
+[Open Discussions](https://github.com/arnabaich96/DPmixGPD/discussions){.btn .btn-primary}
+[Report a Bug](https://github.com/arnabaich96/DPmixGPD/issues){.btn .btn-outline-light}
+:::
+:::
+
+::: {.section}
+::: {.container}
+
+## General
+
+::: {.cardx}
+### What problem does DPmixGPD solve?
+DPmixGPD is designed for outcomes where **the bulk and the extremes behave differently**. Standard parametric models often fit the center well but fail in the tails. DPmixGPD combines a flexible bulk model (Dirichlet-process mixtures) with an extreme-value tail model (GPD) so inference and prediction remain stable where it matters most.
+:::
+
+::: {.cardx}
+### Is DPmixGPD only for extreme value analysis?
+No. You can use it as a **bulk-only semiparametric model** or as a **bulk + tail model**. Tail modeling is optional and should be enabled only when extremes are substantively important or diagnostics indicate underfit.
+:::
+
+::: {.cardx}
+### Do I need Bayesian expertise to use this package?
+You should be comfortable with Bayesian workflows conceptually (priors, posterior summaries), but the Cookbook provides guided workflows so you don’t need to design models from scratch.
+:::
+
+## Modeling choices
+
+::: {.cardx}
+### How do I choose a bulk kernel?
+Choose the kernel based on the **typical support and shape** of your outcome:
+- Positive, right-skewed outcomes → positive-support kernels
+- Real-valued outcomes → real-valued kernels
+If multiple kernels are plausible, prioritize **stability and interpretability**, then refine using diagnostics.
+:::
+
+::: {.cardx}
+### When should I turn on the GPD tail?
+Use a tail model when:
+- high quantiles (e.g., 0.95–0.995) matter,
+- bulk-only predictive checks underfit extremes,
+- or domain knowledge indicates rare events drive decisions.
+If your analysis focuses on central behavior, bulk-only is often sufficient.
+:::
+
+::: {.cardx}
+### What is the difference between SB and CRP backends?
+They represent different ways of constructing the mixture:
+- **Stick-breaking (SB)**: explicit truncated representation; easier to control component count.
+- **Chinese Restaurant Process (CRP)**: clustering-based representation with flexible growth.
+From a user perspective, both target similar inferential goals; choose the backend that fits your workflow and diagnostics.
+:::
+
+## Conditional, causal, and survival workflows
+
+::: {.cardx}
+### Can I include covariates?
+Yes. DPmixGPD supports covariate-dependent models. If covariates materially affect the outcome distribution, start with a conditional model rather than adding covariates later.
+:::
+
+::: {.cardx}
+### How are treatment effects handled?
+Causal workflows fit models for treatment and control arms and derive treatment effects as posterior quantities. This allows uncertainty in the full outcome distribution—including tails—to propagate into effect estimates.
+:::
+
+::: {.cardx}
+### Is DPmixGPD suitable for survival analysis?
+Yes. Survival workflows are supported, including tail behavior for time-to-event outcomes. Use these workflows when censoring and extreme event times are relevant.
+:::
+
+## Documentation and website
+
+::: {.cardx}
+### Where is the “real” documentation?
+There are two layers:
+- **This Quarto site**: conceptual navigation, decision guides, and workflow orientation.
+- **Pkgdown site**: complete function-level documentation and articles.
+Use Quarto pages to decide *what* to read; use pkgdown to see *how* functions behave.
+:::
+
+::: {.cardx}
+### Why are there two websites?
+Separation of concerns:
+- Quarto = curated, human-readable structure.
+- pkgdown = automatically generated, authoritative API reference.
+This keeps the site readable without sacrificing completeness.
+:::
+
+::: {.cardx}
+### Why does rebuilding documentation take time?
+pkgdown rebuilds reference pages and may reprocess vignettes. The build system is designed to avoid unnecessary rebuilds, but structural changes (new functions, new pages) require regeneration.
+:::
+
+## Installation and troubleshooting
+
+::: {.cardx}
+### The package installs but examples or vignettes fail — what should I do?
+First, check:
+- R version and platform
+- required system libraries
+- whether you are using a clean environment (e.g., via renv)
+
+If the problem persists, open an Issue with:
+- a minimal reproducible example
+- session information
+- exact error messages
+:::
+
+::: {.cardx}
+### Something looks wrong in the documentation
+If it’s a typo or broken link, open an Issue.  
+If it’s a design question or ambiguity, start a Discussion instead.
+:::
+
+## Citation and use
+
+::: {.cardx}
+### How should I cite DPmixGPD?
+A dedicated citation page is provided. Until then, cite the associated methodology paper (if applicable) and the software repository. See the Cite page once available.
+:::
+
+::: {.cardx}
+### Can I use DPmixGPD in applied or industry work?
+Yes. The package is designed for applied modeling of heavy-tailed data. Always validate assumptions and diagnostics, especially when interpreting tail behavior.
+:::
+
+## Getting help
+
+::: {.cardx}
+### Where should I ask questions?
+- **Design / “how should I do this?”** → Discussions
+- **Bugs / errors** → Issues
+- **Documentation clarity** → Issues or Discussions (either is fine)
+:::
+
+:::
+:::

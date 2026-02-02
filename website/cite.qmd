@@ -1,0 +1,78 @@
+---
+title: "Cite"
+page-layout: full
+---
+
+::: {.hero}
+::: {.container}
+# How to Cite DPmixGPD
+
+If you use DPmixGPD in academic work, reports, or software, please cite it appropriately. Clear citation helps track usage, justify maintenance, and support continued development.
+
+[GitHub Repository](https://github.com/arnabaich96/DPmixGPD){.btn .btn-primary}
+[Open Discussions](https://github.com/arnabaich96/DPmixGPD/discussions){.btn .btn-outline-light}
+:::
+:::
+
+::: {.section}
+::: {.container}
+
+## Software citation (current)
+
+Until a formal software DOI is assigned, please cite the software repository directly. A standard citation format is:
+
+::: {.cardx}
+**DPmixGPD: Bayesian Semiparametric Modeling for Heavy-Tailed Data**  
+Arnab Aich.  
+GitHub repository: https://github.com/arnabaich96/DPmixGPD
+:::
+
+For BibTeX users:
+
+::: {.cardx}
+@software{DPmixGPD,
+author = {Aich, Arnab},
+title = {DPmixGPD: Bayesian Semiparametric Modeling for Heavy-Tailed Data},
+year = {2025},
+url = {https://github.com/arnabaich96/DPmixGPD}
+,
+note = {R package}
+} 
+
+:::
+
+## Methodological citation
+
+If your work relies on the methodological ideas implemented in DPmixGPD (Dirichlet-process mixtures, extreme-value tail modeling, causal or survival extensions), please also cite the relevant methodological references described in the accompanying papers or documentation.
+
+When a peer-reviewed article becomes available, this page will be updated with the preferred citation.
+
+## Versioning and reproducibility
+
+For reproducibility:
+- Report the package version you used.
+- Record your R version and platform.
+- If possible, include session information in supplementary materials.
+
+This helps others reproduce results and interpret differences across versions.
+
+## Industrial and applied use
+
+For applied or industry-facing work where formal academic citation is not standard, we recommend referencing:
+- the package name (DPmixGPD),
+- the GitHub repository URL,
+- and the version used.
+
+## Updates to citation information
+
+Citation guidance will evolve as:
+- a formal software DOI is registered,
+- associated papers are published,
+- or long-term archival releases are created.
+
+If you are unsure how to cite DPmixGPD for a specific venue, start a Discussion and ask.
+
+[Ask a citation question](https://github.com/arnabaich96/DPmixGPD/discussions){.btn .btn-outline-primary}
+
+:::
+:::

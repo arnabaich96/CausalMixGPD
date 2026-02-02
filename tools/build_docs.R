@@ -26,9 +26,15 @@ build_docs <- function(
     stop("Package 'rprojroot' is required but not installed.")
   }
 
-  root <- rprojroot::find_root(rprojroot::has_file("_quarto.yml"))
+  root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
   root <- normalizePath(root, winslash = "/", mustWork = TRUE)
   msg("Project root: ", root)
+
+  quarto_project <- file.path(root, "website")
+  if (!file.exists(file.path(quarto_project, "_quarto.yml"))) {
+    stop("Quarto project not found at ", quarto_project)
+  }
+
 
   # ---------------------------------------------------------------------------
   # 2) Locate Quarto CLI early
@@ -58,14 +64,14 @@ build_docs <- function(
     # Exclude cache folders and RDB/RDX files
     cache_patterns <- c(".quarto", "project-cache", "xref", "__pycache__")
     file_patterns <- c("\\.rdb$", "\\.Rdb$", "\\.RDB$", "\\.rdx$", "\\.Rdx$", "\\.RDX$")
-    
+
     keep <- rep(TRUE, length(rel_norm))
-    
+
     # Exclude cache folders
     for (pfx in cache_patterns) {
       keep <- keep & !(rel_norm == pfx | startsWith(rel_norm, paste0(pfx, "/")))
     }
-    
+
     # Exclude cache prefixes passed as arguments
     if (length(exclude_prefix)) {
       for (pfx in exclude_prefix) {
@@ -73,12 +79,12 @@ build_docs <- function(
         keep <- keep & !(rel_norm == pfx | startsWith(rel_norm, paste0(pfx, "/")))
       }
     }
-    
+
     # Exclude RDB/RDX files
     for (pat in file_patterns) {
       keep <- keep & !grepl(pat, rel_norm)
     }
-    
+
     entries <- entries[keep]
     rel <- rel[keep]
 
@@ -140,11 +146,18 @@ build_docs <- function(
   # 5) Quarto: PROJECT render -> quarto/ in root
   # ---------------------------------------------------------------------------
   msg("[1/3] Quarto: rendering project -> quarto/ in root")
+  pkg_version <- read.dcf(file.path(root, "DESCRIPTION"), "Version")[1]
+  build_date  <- format(Sys.Date(), "%Y-%m-%d")
+
   run_cmd(quarto_exe, c(
     "render",
-    root,
-    "--output-dir", quarto_abs
+    quarto_project,
+    "--output-dir", quarto_abs,
+    "--metadata", paste0("version:", pkg_version),
+    "--metadata", paste0("updated:", build_date)
   ))
+
+  msg("Quarto render complete.")
 
   # Copy CSS files manually to bypass permission issues
   website_dir <- file.path(root, "website")
@@ -188,7 +201,7 @@ build_docs <- function(
     cwd <- getwd()
     on.exit(setwd(cwd), add = TRUE)
     setwd(root)
-    
+
     msg("Initializing pkgdown site...")
     tryCatch({
       pkgdown::init_site(pkg = root)

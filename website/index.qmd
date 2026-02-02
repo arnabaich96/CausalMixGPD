@@ -1,0 +1,75 @@
+::: {.section}
+::: {.container}
+
+## Latest update
+
+::: {.cardx}
+**Documentation refresh and site stabilization**  
+The Quarto landing site has been finalized as the primary navigation layer, with pkgdown retained as the authoritative API reference. Decision guides, FAQs, and developer notes are now first-class pages.
+
+[Read the full update](news.html){.btn .btn-outline-primary}
+:::
+
+:::
+:::
+
+::: {.section}
+::: {.container}
+
+## Where to start (recommended path)
+
+::: {.grid-3}
+
+::: {.cardx}
+### New users
+If this is your first time here:
+1. Read Getting Started  
+2. Use the Decision Guide  
+3. Follow the first Cookbook workflow
+
+[Getting Started](getting-started.html){.btn .btn-primary}
+:::
+
+::: {.cardx}
+### Applied users
+If you already know what you want to model:
+- Browse Kernels
+- Jump straight to Cookbook examples
+- Use pkgdown for API details
+
+[Cookbook](cookbook.html){.btn .btn-outline-primary}
+:::
+
+::: {.cardx}
+### Developers & contributors
+If you want to understand internals or contribute:
+- Developers page
+- Discussions for design
+- Issues for bugs
+
+[Developers](developers.html){.btn .btn-outline-primary}
+:::
+
+
+
+::: {.section}
+::: {.container}
+
+<hr>
+
+<div style="display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between;align-items:center;font-size:.9rem;color:rgba(0,0,0,.65)">
+
+<div>
+© DPmixGPD · Bayesian semiparametric modeling for heavy-tailed data
+</div>
+
+<div>
+<a href="cite.html">How to cite</a> ·
+<a href="pkgdown/index.html">API reference</a> ·
+<a href="https://github.com/arnabaich96/DPmixGPD">GitHub</a>
+</div>
+
+</div>
+
+:::
+:::
