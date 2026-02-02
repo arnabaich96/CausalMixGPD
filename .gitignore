@@ -84,6 +84,11 @@ vignettes/website/kernels/articles/legacy-precomputed
 # Local site build outputs (not tracked)
 /pkgdown/
 /quarto/
+# Build outputs and caches (not tracked)
+/_build/
+/_freeze/
+/docs/
+/website/
 
 # Codecov token (secret - do not commit)
 tools/.codecov_token
