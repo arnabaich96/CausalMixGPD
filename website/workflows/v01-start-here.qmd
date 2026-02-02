@@ -1,0 +1,148 @@
+﻿---
+title: "1. Start Here"
+output:
+  rmarkdown::html_vignette:
+    highlight: null
+    code_folding: show
+vignette: >
+  %\VignetteIndexEntry{1. Start Here}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = NA,
+  fig.width = 8,
+  fig.height = 5,
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE,
+  cache.path = 'legacy-cache/'
+)
+
+# Reproducibility
+set.seed(1)
+
+# Fast-by-default rendering. Flip to FALSE for a fuller run.
+FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
+
+# Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
+mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
+
+# Load package (with all_quiet to suppress startup messages)
+library(DPmixGPD)
+
+# Ensure package is fully loaded for data access
+if (!require("devtools", quietly = TRUE)) {
+  library(devtools)
+}
+if (!(any(search() == "package:DPmixGPD"))) {
+  devtools::load_all(quiet = TRUE)
+}
+
+# Precomputed results for fast website builds
+source("_legacy-setup.R")
+```
+
+
+> **Legacy vignette (for the website / historical notes).**
+> These files may not match the current exported API one-to-one.
+> Last verified: **2026-01-18**.
+>
+> For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
+
+
+## Quick start
+
+This vignette gives a minimal, fully working workflow for an **unconditional** model and a **conditional** model. Everything uses short MCMC runs so the vignette renders quickly.
+
+---
+
+## Unconditional Model (CRP, bulk-only)
+
+```{r start-uncond-data}
+data("nc_pos200_k3")
+y <- nc_pos200_k3$y
+```
+
+```{r start-uncond-bundle, cache=FALSE}
+bundle_uncond <- build_nimble_bundle(
+  y = y,
+  backend = "crp",
+  kernel = "gamma",
+  GPD = FALSE,
+  components = 5,
+  mcmc = mcmc
+)
+```
+
+```{r start-uncond-fit, cache=FALSE}
+fit_uncond <- load_or_fit("v01-start-here-fit_uncond", quiet_mcmc(run_mcmc_bundle_manual(bundle_uncond, show_progress = FALSE)))
+summary(fit_uncond)
+```
+
+```{r start-uncond-predict, cache=FALSE}
+pred_q <- predict(fit_uncond, type = "quantile", p = c(0.5, 0.9), interval = "credible")
+head(pred_q$fit)
+if (interactive()) plot(pred_q)
+```
+
+---
+
+## Conditional Model (SB, bulk-only)
+
+```{r start-cond-data}
+data("nc_posX100_p3_k2")
+yc <- nc_posX100_p3_k2$y
+X <- as.matrix(nc_posX100_p3_k2$X)
+```
+
+```{r start-cond-bundle, cache=FALSE}
+bundle_cond <- build_nimble_bundle(
+  y = yc,
+  X = X,
+  backend = "sb",
+  kernel = "lognormal",
+  GPD = FALSE,
+  components = 5,
+  mcmc = mcmc
+)
+```
+
+```{r start-cond-fit, cache=FALSE}
+fit_cond <- load_or_fit("v01-start-here-fit_cond", quiet_mcmc(run_mcmc_bundle_manual(bundle_cond, show_progress = FALSE)))
+summary(fit_cond)
+```
+
+```{r start-cond-predict, cache=FALSE}
+x_new <- X[1:20, , drop = FALSE]
+pred_mean <- predict(fit_cond, x = x_new, type = "mean", interval = "credible", nsim_mean = 200)
+head(pred_mean$fit)
+if (interactive()) plot(pred_mean)
+```
+
+---
+
+## Useful S3 Methods
+
+```{r start-s3}
+params(fit_uncond)
+if (interactive()) plot(fit_uncond, family = c("traceplot", "running"))
+```
+
+---
+
+## Next Steps
+
+- `vignette 1`: package overview and terminology
+- `vignette 5`: full three-phase workflow (spec ? bundle ? MCMC)
+- `vignette 6-13`: unconditional/conditional models with and without GPD
+- `vignette 14-19`: causal workflows
+
+
+
+

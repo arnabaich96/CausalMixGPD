@@ -1,0 +1,149 @@
+---
+title: "Inverse Gaussian (base kernel)"
+pkgdown:
+  slug: "kernels/kernel-inverse-gaussian-base"
+output:
+  rmarkdown::html_vignette:
+    highlight: null
+vignette: >
+  %\\VignetteIndexEntry{Inverse Gaussian (base kernel)}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+source("_load_pkg.R")
+```
+
+## Inverse Gaussian (base kernel) {#v02-inverse-gaussian-base-kernel}
+
+
+### Inverse Gaussian base kernel (single component) {#inverse-gaussian-base-kernel-single}
+
+This section documents the same inverse Gaussian density as above, but for a **single** component rather than a mixture:
+\[
+f(y\mid \mu,\lambda)
+=
+\left(\frac{\lambda}{2\pi y^3}\right)^{1/2}
+\exp\!\left(-\frac{\lambda (y-\mu)^2}{2\mu^2 y}\right),
+\quad y>0.
+\]
+
+**Parameter mapping (math \(\rightarrow\) code):** \(\mu\to\) `mean`, \(\lambda\to\) `shape`.
+
+### Inverse Gaussian base with GPD tail
+
+The `dInvGaussGpd`, `pInvGaussGpd`, `qInvGaussGpd`, and `rInvGaussGpd` functions splice the base inverse Gaussian below \(u\) with a GPD tail above \(u\).
+
+**Tail mapping (math \(\rightarrow\) code):** \(u\to\) `threshold`, \(\sigma\to\) `tail_scale`, \(\xi\to\) `tail_shape`.
+
+
+### Without GPD
+
+```{r invgauss-base}
+grid <- seq(0.1, 6, length.out = 400)
+ig_base_sets <- list(
+  list(label = "Base A", mean = 1.2, shape = 3.0),
+  list(label = "Base B", mean = 1.5, shape = 4.0),
+  list(label = "Base C", mean = 1.0, shape = 2.5)
+)
+
+example <- ig_base_sets[[1]]
+```
+
+```{r invgauss-base-d}
+dInvGauss(1, mean = example$mean, shape = example$shape)
+dInvGauss(1, mean = example$mean, shape = example$shape, log = TRUE)
+```
+
+```{r invgauss-base-p}
+pInvGauss(1, mean = example$mean, shape = example$shape)
+pInvGauss(1, mean = example$mean, shape = example$shape, lower.tail = FALSE)
+pInvGauss(1, mean = example$mean, shape = example$shape, log.p = TRUE)
+```
+
+```{r invgauss-base-q}
+q_vec(qInvGauss, c(0.25, 0.5, 0.75), mean = example$mean,
+      shape = example$shape)
+q_vec(qInvGauss, c(0.25, 0.5, 0.75), mean = example$mean,
+      shape = example$shape, lower.tail = FALSE)
+q_vec(qInvGauss, c(log(0.25), log(0.5), log(0.75)), mean = example$mean,
+      shape = example$shape, log.p = TRUE)
+```
+
+```{r invgauss-base-r}
+draw_many(rInvGauss, list(mean = example$mean, shape = example$shape))
+```
+
+```{r invgauss-base-plot}
+df_ig_base <- do.call(rbind, lapply(ig_base_sets, function(ps) {
+  data.frame(x = grid, density = density_curve(grid, dInvGauss, list(mean = ps$mean, shape = ps$shape)), label = ps$label)
+}))
+
+ggplot(df_ig_base, aes(x = x, y = density, color = label)) +
+  geom_line(linewidth = 1) +
+  labs(title = "Inverse Gaussian base kernels", x = "x", y = "density") +
+  theme_minimal() + theme(legend.position = "top")
+```
+
+### With GPD tail
+
+```{r invgauss-base-gpd}
+ig_base_gpd_sets <- list(
+  list(label = "Base A", mean = 1.5, shape = 2, threshold = 2.0, tail_scale = 0.4, tail_shape = 0.2),
+  list(label = "Base B", mean = 1.2, shape = 2.5, threshold = 1.8, tail_scale = 0.35, tail_shape = 0.18),
+  list(label = "Base C", mean = 1.8, shape = 3, threshold = 2.5, tail_scale = 0.5, tail_shape = 0.22)
+)
+example <- ig_base_gpd_sets[[1]]
+```
+
+```{r invgauss-base-gpd-d}
+dInvGaussGpd(2, mean = example$mean, shape = example$shape,
+             threshold = example$threshold, tail_scale = example$tail_scale,
+             tail_shape = example$tail_shape)
+dInvGaussGpd(2, mean = example$mean, shape = example$shape,
+             threshold = example$threshold, tail_scale = example$tail_scale,
+             tail_shape = example$tail_shape, log = TRUE)
+```
+
+```{r invgauss-base-gpd-p}
+pInvGaussGpd(2, mean = example$mean, shape = example$shape,
+             threshold = example$threshold, tail_scale = example$tail_scale,
+             tail_shape = example$tail_shape)
+pInvGaussGpd(2, mean = example$mean, shape = example$shape,
+             threshold = example$threshold, tail_scale = example$tail_scale,
+             tail_shape = example$tail_shape, lower.tail = FALSE)
+pInvGaussGpd(2, mean = example$mean, shape = example$shape,
+             threshold = example$threshold, tail_scale = example$tail_scale,
+             tail_shape = example$tail_shape, log.p = TRUE)
+```
+
+```{r invgauss-base-gpd-q}
+q_vec(qInvGaussGpd, c(0.25, 0.5, 0.75), mean = example$mean,
+      shape = example$shape, threshold = example$threshold,
+      tail_scale = example$tail_scale, tail_shape = example$tail_shape)
+q_vec(qInvGaussGpd, c(0.25, 0.5, 0.75), mean = example$mean,
+      shape = example$shape, threshold = example$threshold,
+      tail_scale = example$tail_scale, tail_shape = example$tail_shape,
+      lower.tail = FALSE)
+q_vec(qInvGaussGpd, c(log(0.25), log(0.5), log(0.75)), mean = example$mean,
+      shape = example$shape, threshold = example$threshold,
+      tail_scale = example$tail_scale, tail_shape = example$tail_shape,
+      log.p = TRUE)
+```
+
+```{r invgauss-base-gpd-r}
+draw_many(rInvGaussGpd, example)
+```
+
+```{r invgauss-base-gpd-plot}
+df_ig_base_gpd <- do.call(rbind, lapply(ig_base_gpd_sets, function(ps) {
+  data.frame(x = grid, density = density_curve(grid, dInvGaussGpd, list(mean = ps$mean, shape = ps$shape, threshold = ps$threshold, tail_scale = ps$tail_scale, tail_shape = ps$tail_shape)), label = ps$label)
+}))
+
+ggplot(df_ig_base_gpd, aes(x = x, y = density, color = label)) +
+  geom_line(linewidth = 1) +
+  labs(title = "Inverse Gaussian base with GPD tail", x = "x", y = "density") +
+  theme_minimal() + theme(legend.position = "top")
+```
+

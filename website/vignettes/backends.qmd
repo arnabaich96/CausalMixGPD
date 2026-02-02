@@ -1,0 +1,117 @@
+---
+title: "Backends: SB vs CRP"
+output:
+  rmarkdown::html_vignette:
+    highlight: null
+vignette: >
+  %\VignetteIndexEntry{Backends: SB vs CRP}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = NA,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 7,
+  fig.height = 4.5,
+  fig.align = "center"
+)
+library(ggplot2)
+library(kableExtra)
+library(DPmixGPD)
+
+set.seed(1)
+FAST <- TRUE
+mcmc <- if (FAST) {
+  list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
+} else {
+  list(niter = 9000, nburnin = 2500, thin = 5, nchains = 2, seed = c(1, 2))
+}
+```
+
+## Overview
+
+This vignette compares the two mixture backends:
+
+- **SB**: Stick-breaking (finite truncation), controlled by `components`
+- **CRP**: Chinese Restaurant Process (cluster allocations)
+
+## Theory (brief)
+
+Both backends represent a DP mixture, but they differ in how the random measure
+$G$ is constructed. The stick-breaking backend uses a truncated stick-breaking
+representation, while the CRP backend uses an allocation-based partitioning
+scheme. In practice, SB offers explicit control over truncation, while CRP adapts
+the number of clusters through the allocation process.
+
+## Data
+
+```{r}
+data("faithful", package = "datasets")
+y <- faithful$eruptions
+```
+
+## Stick-Breaking Backend
+
+```{r, results='hide'}
+bundle_sb <- build_nimble_bundle(
+  y = y,
+  backend = "sb",
+  kernel = "normal",
+  GPD = TRUE,
+  components = 6,
+  mcmc = mcmc
+)
+
+fit_sb <- run_mcmc_bundle_manual(bundle_sb, show_progress = FALSE)
+```
+
+## CRP Backend
+
+```{r, results='hide'}
+bundle_crp <- build_nimble_bundle(
+  y = y,
+  backend = "crp",
+  kernel = "normal",
+  GPD = TRUE,
+  components = 6,
+  mcmc = mcmc
+)
+
+fit_crp <- run_mcmc_bundle_manual(bundle_crp, show_progress = FALSE)
+```
+
+## Comparison of Fitted Summaries
+
+```{r}
+mean_sb <- predict(fit_sb, type = "mean", cred.level = 0.90, interval = "credible")$fit
+mean_crp <- predict(fit_crp, type = "mean", cred.level = 0.90, interval = "credible")$fit
+
+comparison_df <- data.frame(
+  Backend = c("SB", "CRP"),
+  Estimate = c(mean_sb$estimate[1], mean_crp$estimate[1]),
+  Lower = c(mean_sb$lower[1], mean_crp$lower[1]),
+  Upper = c(mean_sb$upper[1], mean_crp$upper[1])
+)
+
+kable(comparison_df, digits = 3, align = "c",
+      caption = "Posterior Mean Comparison: SB vs CRP") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"),
+                full_width = FALSE, position = "center")
+```
+
+## Backend Selection Guidelines
+
+| Backend | Use Case |
+|---------|----------|
+| **SB** | Explicit control over truncation level; stable computation |
+| **CRP** | Adaptive cluster number; more label/cluster dynamics |
+
+```{r sessioninfo, include=FALSE}
+sessionInfo()
+```
+
+

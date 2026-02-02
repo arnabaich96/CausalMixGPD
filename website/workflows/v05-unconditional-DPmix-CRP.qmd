@@ -1,0 +1,156 @@
+﻿---
+title: "5. Unconditional DPmix (CRP Backend)"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    theme: flatly
+    highlight: null
+vignette: >
+  %\VignetteIndexEntry{5. Unconditional DPmix (CRP Backend)}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = NA,
+  fig.width = 8,
+  fig.height = 5,
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE,
+  cache.path = 'legacy-cache/'
+)
+
+# Reproducibility
+set.seed(1)
+
+# Fast-by-default rendering. Flip to FALSE for a fuller run.
+FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
+
+# Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
+mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
+
+# Load package (with all_quiet to suppress startup messages)
+library(DPmixGPD)
+
+# Ensure package is fully loaded for data access
+if (!require("devtools", quietly = TRUE)) {
+  library(devtools)
+}
+if (!(any(search() == "package:DPmixGPD"))) {
+  devtools::load_all(quiet = TRUE)
+}
+
+# Precomputed results for fast website builds
+source("_legacy-setup.R")
+```
+
+
+> **Legacy vignette (for the website / historical notes).**
+> These files may not match the current exported API one-to-one.
+> Last verified: **2026-01-18**.
+>
+> For the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).
+
+
+# Overview
+
+This vignette demonstrates an **unconditional DPmix model** using the **CRP backend** on a positive dataset.
+We use a Laplace kernel for the bulk distribution and no GPD tail augmentation.
+
+# Data Setup
+
+```{r data-setup}
+# Load pre-generated dataset: 200 observations from mixture of 3 gamma components
+data(nc_pos200_k3)
+y_mixed <- nc_pos200_k3$y
+
+paste("Sample size:", length(y_mixed))
+paste("Mean:", mean(y_mixed))
+paste("SD:", sd(y_mixed))
+paste("Range:", paste(range(y_mixed), collapse = " to "))
+
+# Visualization
+df_data <- data.frame(y = y_mixed)
+p_raw <- ggplot(df_data, aes(x = y)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 30, alpha = 0.6,
+                 fill = "steelblue", color = "black") +
+  geom_density(color = "red", linewidth = 1) +
+  labs(title = "Raw Data: Mixed Gamma Distribution", x = "y", y = "Density") +
+  theme_minimal()
+
+print(p_raw)
+```
+
+# Build Bundle (CRP)
+
+```{r bundle-mcmc-crp, cache=FALSE}
+bundle_crp <- build_nimble_bundle(
+  y = y_mixed,
+  kernel = "laplace",         # Use laplace kernel
+  backend = "crp",            # CRP backend
+  GPD = FALSE,                # No tail augmentation
+  components = 3,             # Minimal for testing
+  alpha_random = TRUE,        # Random DP concentration
+  mcmc = mcmc
+)
+```
+
+# Run MCMC (Longer Run)
+
+```{r mcmc-crp, cache=FALSE}
+bundle_crp <- build_nimble_bundle(
+  y_mixed,
+  kernel = "laplace",
+  backend = "crp",
+  GPD = FALSE,
+  components = 3,
+  alpha_random = TRUE,
+  mcmc = mcmc
+)
+```
+
+```{r}
+summary(bundle_crp)
+```
+
+```{r mcmc-crp-fit, results = "hide", cache=FALSE}
+fit_crp <- load_or_fit("v05-unconditional-DPmix-CRP-fit_crp", run_mcmc_bundle_manual(bundle_crp))
+```
+
+```{r}
+summary(fit_crp)
+```
+
+# Posterior Parameters
+
+```{r params-crp}
+params_crp <- params(fit_crp)
+params_crp
+```
+
+# Diagnostics
+
+```{r diag-trace}
+# Trace plots for key parameters
+if (interactive()) plot(fit_crp, params = "alpha", family = c("traceplot", "density", "geweke"))
+```
+
+# Posterior Predictive Density
+
+```{r pred-density}
+# Generate prediction grid
+y_grid <- seq(0, max(y_mixed) * 1.2, length.out = 200)
+
+# Posterior predictive density
+pred_density <- predict(fit_crp, y = y_grid, type = "density")
+
+# Use S3 plot method
+if (interactive()) plot(pred_density)
+```
+
