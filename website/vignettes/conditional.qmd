@@ -1,4 +1,4 @@
----
+﻿---
 title: "Conditional Models"
 output:
   rmarkdown::html_vignette:
@@ -125,5 +125,9 @@ ggplot(q_df, aes(x = wt, y = estimate, color = factor(tau))) +
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+
+
+
+
 
 

@@ -9,3 +9,4 @@ gridExtra
 dplyr
 usethis
 devtools
+testthat

@@ -1,4 +1,4 @@
-﻿---
+---
 title: "6. Unconditional DPmix with CRP Backend"
 output:
   rmarkdown::html_vignette:
@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   cache = TRUE,
-  cache.path = 'legacy-cache/'
+  cache.path = 'legacy-cache-v2/'
 )
 
 # Reproducibility
@@ -45,9 +45,8 @@ library(DPmixGPD)
 if (!require("devtools", quietly = TRUE)) {
   library(devtools)
 }
-if (!(any(search() == "package:DPmixGPD"))) {
-  devtools::load_all(quiet = TRUE)
-}
+pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
+  devtools::load_all(path = pkg_root, quiet = TRUE)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
@@ -75,7 +74,7 @@ source("_legacy-setup.R")
 
 ```{r data-setup}
 # Load pre-generated dataset: 200 observations from mixture of 3 gamma components
-data(nc_pos200_k3)
+data("nc_pos200_k3", package = "DPmixGPD")
 y_mixed <- nc_pos200_k3$y
 
 paste("Sample size:", length(y_mixed))
@@ -101,7 +100,7 @@ print(p_raw)
 We'll use the `build_nimble_bundle` function directly which handles both specification and bundle creation.
 
 ```{r bundle-mcmc-crp, cache=FALSE}
-bundle_crp <- build_nimble_bundle(
+bundle_crp <- DPmixGPD::build_nimble_bundle(
   y = y_mixed,
   kernel = "laplace",         # Use laplace kernel
   backend = "crp",            # CRP backend
@@ -118,7 +117,7 @@ bundle_crp <- build_nimble_bundle(
 ### Building MCMC bundle
 
 ```{r mcmc-crp, cache=FALSE}
-bundle_crp <- build_nimble_bundle(
+bundle_crp <- DPmixGPD::build_nimble_bundle(
   y_mixed,
   kernel = "laplace",
   backend = "crp",
@@ -157,7 +156,7 @@ params_crp
 
 ```{r diag-trace}
 # Trace plots for key parameters
-if (interactive()) plot(fit_crp, params = "alpha", family = c("traceplot", "density", "geweke"))
+safe_plot(fit_crp, params = "alpha", family = c("traceplot", "density", "geweke"))
 ```
 
 
@@ -175,7 +174,7 @@ y_grid <- seq(0, max(y_mixed) * 1.2, length.out = 200)
 pred_density <- predict(fit_crp, y = y_grid, type = "density")
 
 # Use S3 plot method
-if (interactive()) plot(pred_density)
+safe_plot(pred_density)
 ```
 
 ### Quantile Predictions
@@ -194,7 +193,7 @@ quantiles_pred$fit %>%
  kable_styling(bootstrap_options = "striped", full_width = FALSE, position = "center")
 
 # Use S3 plot method
-if (interactive()) plot(quantiles_pred)
+safe_plot(quantiles_pred)
 ```
 
 ---
@@ -203,7 +202,7 @@ if (interactive()) plot(quantiles_pred)
 
 ```{r components-sensitivity, cache=FALSE}
 # Demonstrate with one value
-bundle_components <- build_nimble_bundle(
+bundle_components <- DPmixGPD::build_nimble_bundle(
   y = y_mixed,
   kernel = "laplace",
   backend = "crp",
@@ -229,7 +228,7 @@ For unconditional models, use `predict()` for posterior summaries; `fitted()` an
 ### Laplace Kernel (Current)
 
 ```{r comp-laplace, cache=FALSE}
-bundle_laplace <- build_nimble_bundle(
+bundle_laplace <- DPmixGPD::build_nimble_bundle(
   y = y_mixed,
   kernel = "laplace",
   backend = "crp",
@@ -247,7 +246,7 @@ summary(fit_laplace)
 ### Amoroso Kernel (Alternative)
 
 ```{r comp-amoroso, cache=FALSE}
-bundle_amoroso <- build_nimble_bundle(
+bundle_amoroso <- DPmixGPD::build_nimble_bundle(
   y = y_mixed,
   kernel = "amoroso",
   backend = "crp",
@@ -283,6 +282,19 @@ pred_amoroso <- predict(fit_amoroso, type = "mean", cred.level = 0.9, interval =
 - **Kernel Choice**: Gamma suitable for positive, skewed data
 - **Diagnostics**: Check convergence (Rhat, ESS) and posterior predictive fit
 - **Next**: Compare with **Stick-Breaking (SB)** backend in vignette 5
+
+---
+
+<!-- workflow-nav:start -->
+## Workflow Navigation
+
+- Previous: [v05-unconditional-DPmix-CRP](v05-unconditional-DPmix-CRP.html)
+- Next: [v07-unconditional-DPmix-SB](v07-unconditional-DPmix-SB.html)
+- Workflow index: [Roadmap](../roadmap.html)
+- Practical entry: [Cookbook](../cookbook.html)
+<!-- workflow-nav:end -->
+
+
 
 
 

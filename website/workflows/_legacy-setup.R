@@ -12,6 +12,33 @@ if (!requireNamespace("ggplot2", quietly = TRUE)) {
 }
 library(ggplot2)
 
+if (!requireNamespace("tibble", quietly = TRUE)) {
+  stop("Please install 'tibble' using install.packages('tibble') so the legacy workflows can render.")
+}
+library(tibble)
+
+if (!requireNamespace("dplyr", quietly = TRUE)) {
+  stop("Please install 'dplyr' using install.packages('dplyr') so the legacy workflows can render.")
+}
+library(dplyr)
+
+if (!requireNamespace("gridExtra", quietly = TRUE)) {
+  stop("Please install 'gridExtra' using install.packages('gridExtra') so the legacy workflows can render.")
+}
+library(gridExtra)
+
+# Force static plotting for website renders (no htmlwidget conversion).
+options(DPmixGPD.plotly = FALSE)
+
+# Defensive override: some knit/devtools sessions can still resolve an older
+# plot wrapper path that returns htmlwidgets. Force static passthrough.
+dp_ns <- asNamespace("DPmixGPD")
+if (exists(".wrap_plotly", envir = dp_ns, inherits = FALSE)) {
+  unlockBinding(".wrap_plotly", dp_ns)
+  assign(".wrap_plotly", function(p) p, envir = dp_ns)
+  lockBinding(".wrap_plotly", dp_ns)
+}
+
 # Use a per-vignette figure directory so pkgdown can find images (must be under vignettes/).
 # Shared legacy-cache/figure-html is gitignored, so pkgdown on CI would miss images.
 CACHE_DIR <- file.path("vignettes", "workflows", "legacy-cache")
@@ -218,4 +245,35 @@ quiet_mcmc <- function(expr) {
     )
   }
   out
+}
+
+# Render plot outputs defensively in knitr:
+# - avoid auto-printing htmlwidgets that fail in website render sessions
+# - print ggplot outputs (single or list) explicitly
+safe_plot <- function(x, ...) {
+  obj <- tryCatch(plot(x, ...), error = function(e) e)
+
+  if (inherits(obj, "error")) {
+    warning("safe_plot failed: ", conditionMessage(obj))
+    return(invisible(NULL))
+  }
+
+  if (inherits(obj, "ggplot")) {
+    print(obj)
+    return(invisible(obj))
+  }
+
+  if (is.list(obj)) {
+    plotted <- FALSE
+    for (elt in obj) {
+      if (inherits(elt, "ggplot")) {
+        print(elt)
+        plotted <- TRUE
+      }
+    }
+    if (plotted) return(invisible(obj))
+  }
+
+  # If this is an htmlwidget (or any non-ggplot object), keep the chunk stable.
+  invisible(obj)
 }

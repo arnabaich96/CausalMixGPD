@@ -1,4 +1,4 @@
----
+﻿---
 title: "Amoroso (bulk kernel and mixture)"
 pkgdown:
   slug: "kernels/kernel-amoroso"
@@ -168,4 +168,8 @@ ggplot(df_amor_gpd, aes(x = x, y = density, color = label)) +
   labs(title = "Amoroso mixtures with GPD tail", x = "x", y = "density") +
   theme_minimal() + theme(legend.position = "top")
 ```
+
+
+
+
 

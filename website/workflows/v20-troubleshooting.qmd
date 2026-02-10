@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   cache = TRUE,
-  cache.path = 'legacy-cache/'
+  cache.path = 'legacy-cache-v2/'
 )
 
 # Reproducibility
@@ -40,9 +40,8 @@ library(DPmixGPD)
 if (!require("devtools", quietly = TRUE)) {
   library(devtools)
 }
-if (!(any(search() == "package:DPmixGPD"))) {
-  devtools::load_all(quiet = TRUE)
-}
+pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
+  devtools::load_all(path = pkg_root, quiet = TRUE)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
@@ -85,7 +84,7 @@ predict(fit, x = X_new, type = "mean")
 **Fix**: Use a different kernel or disable GPD.
 
 ```r
-bundle <- build_nimble_bundle(
+bundle <- DPmixGPD::build_nimble_bundle(
   y = y,
   kernel = "cauchy",
   backend = "sb",
@@ -102,7 +101,7 @@ bundle <- build_nimble_bundle(
 **Fix**: Increase iterations or relax tail priors.
 
 ```r
-bundle <- build_nimble_bundle(
+bundle <- DPmixGPD::build_nimble_bundle(
   y = y,
   kernel = "gamma",
   backend = "crp",
@@ -135,7 +134,7 @@ pred <- predict(fit, x = X_new, y = y_grid, type = "density", ncores = 2)
 **Fix**: Use smaller `components`/`J`, shorter `niter`, or start with CRP.
 
 ```r
-bundle <- build_nimble_bundle(
+bundle <- DPmixGPD::build_nimble_bundle(
   y = y,
   backend = "crp",
   kernel = "normal",
@@ -195,6 +194,26 @@ cb <- build_causal_bundle(
 **Cause**: The project or package lives in OneDrive (or another synced/network path). Windows cannot map file-owner SIDs to account names when R uses `file.info()` on those paths.
 
 **Fix**: The warnings are harmless; DPmixGPD and nimble load and run normally. If you **keep the project in OneDrive** (e.g. as a backup to GitHub), the project `.Rprofile` suppresses these warnings automatically when using R >= 4.0. Otherwise, move the project to a local non-synced path or take ownership of the OneDrive folder (right-click -> Properties -> Security -> Advanced -> Take ownership).
+
+---
+
+<!-- workflow-nav:start -->
+## Workflow Navigation
+
+- Previous: [v19-causal-different-backends-SB](v19-causal-different-backends-SB.html)
+- Next: none (end of workflow series)
+- Workflow index: [Roadmap](../roadmap.html)
+- Practical entry: [Cookbook](../cookbook.html)
+<!-- workflow-nav:end -->
+
+
+
+
+
+
+
+
+
 
 
 

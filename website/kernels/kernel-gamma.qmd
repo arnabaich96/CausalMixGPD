@@ -1,4 +1,4 @@
----
+﻿---
 title: "Gamma"
 pkgdown:
   slug: "kernels/kernel-gamma"
@@ -133,3 +133,7 @@ ggplot(df_gamma_gpd, aes(x = x, y = density, color = label)) +
   labs(title = "Gamma mixtures with GPD tail (different thresholds)", x = "x", y = "density") +
   theme_minimal() + theme(legend.position = "top")
 ```
+
+
+
+

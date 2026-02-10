@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   cache = TRUE,
-  cache.path = 'legacy-cache/'
+  cache.path = 'legacy-cache-v2/'
 )
 
 # Reproducibility
@@ -40,9 +40,8 @@ library(DPmixGPD)
 if (!require("devtools", quietly = TRUE)) {
   library(devtools)
 }
-if (!(any(search() == "package:DPmixGPD"))) {
-  devtools::load_all(quiet = TRUE)
-}
+pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
+  devtools::load_all(path = pkg_root, quiet = TRUE)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
@@ -125,7 +124,7 @@ When PS is estimated, scores are injected into outcome model covariates for conf
 ### Direct Model Building
 
 ```r
-bundle <- build_nimble_bundle(
+bundle <- DPmixGPD::build_nimble_bundle(
   y = y,
   kernel = "gamma",
   backend = "crp",
@@ -142,11 +141,11 @@ fit <- run_mcmc_bundle_manual(bundle)
 
 ```{r intro-quickstart, cache=FALSE}
 # Load packaged dataset
-data("nc_pos200_k3")
+data("nc_pos200_k3", package = "DPmixGPD")
 y <- nc_pos200_k3$y
 
 # Build unconditional model: bulk-only, SB backend
-bundle <- build_nimble_bundle(
+bundle <- DPmixGPD::build_nimble_bundle(
   y = y,
   backend = "sb",
   kernel = "gamma",
@@ -165,7 +164,7 @@ print(bundle)
 
 1. **Introduction** (this vignette)
 2. **Available Distributions**: dqrp functions, 10k samples, visualizations
-3. **Basic Model Workflow**: compile â†’ bundle â†’ MCMC
+3. **Basic Model Workflow**: compile -> bundle -> MCMC
 4. **Unconditional DPmix (CRP)**: bulk-only, no covariates
 5. **Unconditional DPmix (SB)**: bulk-only, no covariates
 6. **Unconditional DPmixGPD (CRP)**: bulk+tail, no covariates
@@ -190,6 +189,22 @@ packageVersion("ggplot2")
 ```
 
 Each vignette demonstrates complete workflows with reproducible examples.
+
+---
+
+<!-- workflow-nav:start -->
+## Workflow Navigation
+
+- Previous: [v01-start-here](v01-start-here.html)
+- Next: [v03-basic-model-compile-run](v03-basic-model-compile-run.html)
+- Workflow index: [Roadmap](../roadmap.html)
+- Practical entry: [Cookbook](../cookbook.html)
+<!-- workflow-nav:end -->
+
+
+
+
+
 
 
 

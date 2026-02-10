@@ -129,56 +129,54 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="../index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../getting-started.html"> 
-<span class="menu-text">Getting Started</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-start" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Start</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-start">    
+        <li>
+    <a class="dropdown-item" href="../getting-started.html">
+ <span class="dropdown-text">Getting Started</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../faq.html"> 
-<span class="menu-text">FAQ</span></a>
+        <li>
+    <a class="dropdown-item" href="../decision-guide.html">
+ <span class="dropdown-text">Decision Guide</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../roadmap.html"> 
-<span class="menu-text">Roadmap</span></a>
+        <li>
+    <a class="dropdown-item" href="../faq.html">
+ <span class="dropdown-text">FAQ</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../kernels.html"> 
-<span class="menu-text">Kernels</span></a>
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-docs" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Docs</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-docs">    
+        <li>
+    <a class="dropdown-item" href="../reference.html">
+ <span class="dropdown-text">Docs overview</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../cookbook.html"> 
-<span class="menu-text">Cookbook</span></a>
+        <li>
+    <a class="dropdown-item" href="../kernels.html">
+ <span class="dropdown-text">Kernels</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../reference.html"> 
-<span class="menu-text">Reference</span></a>
+        <li>
+    <a class="dropdown-item" href="../cookbook.html">
+ <span class="dropdown-text">Cookbook</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../cite.html"> 
-<span class="menu-text">Cite</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../coverage.html"> 
-<span class="menu-text">Coverage</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../news.html"> 
-<span class="menu-text">News</span></a>
-  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../developers.html"> 
 <span class="menu-text">Developers</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../pkgdown/reference/index.html"> 
+<span class="menu-text">Reference</span></a>
+  </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD/discussions"> 
-<span class="menu-text">Discussions</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD/issues"> 
-<span class="menu-text">Bugs</span></a>
-  </li>  
   <li class="nav-item">
     <a class="nav-link" href="../pkgdown/index.html"> 
 <span class="menu-text">Pkgdown</span></a>
@@ -234,24 +232,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="location-scale-families">Location-scale families</h3>
 <p>These kernels have location and scale parameters, making them suitable for real-valued data:</p>
 <ul>
-<li><p><a href="kernels/kernel-normal.html"><strong>Normal</strong></a> - Gaussian kernel with <code>mean</code> and <code>sd</code> parameters. Best for symmetric, bell-shaped distributions.</p></li>
-<li><p><a href="kernels/kernel-cauchy.html"><strong>Cauchy</strong></a> - Heavy-tailed kernel with <code>location</code> and <code>scale</code> parameters. Robust to outliers but does not support GPD tail.</p></li>
-<li><p><a href="kernels/kernel-laplace.html"><strong>Laplace</strong></a> - Double exponential kernel with <code>location</code> and <code>scale</code> parameters. Has heavier tails than Normal.</p></li>
+<li><p><a href="kernel-normal.html"><strong>Normal</strong></a> - Gaussian kernel with <code>mean</code> and <code>sd</code> parameters. Best for symmetric, bell-shaped distributions.</p></li>
+<li><p><a href="kernel-cauchy.html"><strong>Cauchy</strong></a> - Heavy-tailed kernel with <code>location</code> and <code>scale</code> parameters. Robust to outliers but does not support GPD tail.</p></li>
+<li><p><a href="kernel-laplace.html"><strong>Laplace</strong></a> - Double exponential kernel with <code>location</code> and <code>scale</code> parameters. Has heavier tails than Normal.</p></li>
 </ul>
 </section>
 <section id="positive-support-families" class="level3">
 <h3 class="anchored" data-anchor-id="positive-support-families">Positive-support families</h3>
 <p>These kernels are defined for positive values only, ideal for positive data like durations, sizes, or amounts:</p>
 <ul>
-<li><p><a href="kernels/kernel-lognormal.html"><strong>Lognormal</strong></a> - Log-transformed Normal with <code>meanlog</code> and <code>sdlog</code> parameters. Good for right-skewed positive data.</p></li>
-<li><p><a href="kernels/kernel-gamma.html"><strong>Gamma</strong></a> - Flexible positive kernel with <code>shape</code> and <code>scale</code> parameters. Can model various skewness levels.</p></li>
-<li><p><a href="kernels/kernel-invgauss.html"><strong>Inverse Gaussian</strong></a> - Alternative positive kernel with <code>mean</code> and <code>shape</code> parameters. Often used for waiting times.</p></li>
+<li><p><a href="kernel-lognormal.html"><strong>Lognormal</strong></a> - Log-transformed Normal with <code>meanlog</code> and <code>sdlog</code> parameters. Good for right-skewed positive data.</p></li>
+<li><p><a href="kernel-gamma.html"><strong>Gamma</strong></a> - Flexible positive kernel with <code>shape</code> and <code>scale</code> parameters. Can model various skewness levels.</p></li>
+<li><p><a href="kernel-inverse-gaussian-mixture.html"><strong>Inverse Gaussian</strong></a> - Alternative positive kernel with <code>mean</code> and <code>shape</code> parameters. Often used for waiting times.</p></li>
 </ul>
 </section>
 <section id="generalized-families" class="level3">
 <h3 class="anchored" data-anchor-id="generalized-families">Generalized families</h3>
 <ul>
-<li><a href="kernels/kernel-amoroso.html"><strong>Amoroso</strong></a> - Four-parameter generalization with <code>loc</code>, <code>scale</code>, <code>shape1</code>, and <code>shape2</code>. Includes Gamma, Weibull, and other distributions as special cases.</li>
+<li><a href="kernel-amoroso.html"><strong>Amoroso</strong></a> - Four-parameter generalization with <code>loc</code>, <code>scale</code>, <code>shape1</code>, and <code>shape2</code>. Includes Gamma, Weibull, and other distributions as special cases.</li>
 </ul>
 </section>
 </section>
@@ -347,82 +345,44 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 
 </main> <!-- /main -->
-<div style="
-
+﻿<div style="
   display:flex;
-
   flex-wrap:wrap;
-
   gap:1rem;
-
   justify-content:space-between;
-
   align-items:center;
-
   font-size:0.9rem;
-
   color:rgba(0,0,0,.65);
-
   margin-top:2.5rem;
-
   padding-top:1.2rem;
-
   border-top:1px solid rgba(0,0,0,.1);
-
 ">
 
-
-
   <div>
-
-    © DPmixGPD · Bayesian semiparametric modeling for heavy-tailed data
-
+    (c) DPmixGPD - Bayesian semiparametric modeling for heavy-tailed data
   </div>
 
-
-
   <div>
-
-    <span id="site-version"></span> ·
-
-    <span id="site-updated"></span> ·
-
-    <a href="cite.html">Cite</a> ·
-
-    <a href="pkgdown/index.html">API</a> ·
-
+    <span id="site-version"></span> -
+    <span id="site-updated"></span> -
+    <a href="cite.html">Cite</a> -
+    <a href="pkgdown/index.html">API</a> -
     <a href="https://github.com/arnabaich96/DPmixGPD">GitHub</a>
-
   </div>
-
-
 
 </div>
 
-
-
 <script>
-
   // These values are replaced at build time if present
-
   const version = document.documentElement.getAttribute("data-version");
-
   const updated = document.documentElement.getAttribute("data-updated");
 
-
-
   if (version) {
-
     document.getElementById("site-version").textContent = "Version " + version;
-
   }
-
   if (updated) {
-
     document.getElementById("site-updated").textContent = "Updated " + updated;
-
   }
-
 </script>
 
 <script id="quarto-html-after-body" type="application/javascript">

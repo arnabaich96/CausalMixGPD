@@ -1,0 +1,82 @@
+﻿---
+title: "Cookbook"
+page-layout: full
+---
+
+::: {.hero}
+::: {.container}
+# Cookbook
+
+This page is a practical launch pad for common DPmixGPD tasks. Use it to pick a workflow path, then open the full walk-through pages.
+
+[Start workflow series](workflows/v01-start-here.html){.btn .btn-primary}
+[Workflow roadmap](roadmap.html){.btn .btn-outline-light}
+[Open pkgdown articles](pkgdown/articles/index.html){.btn .btn-outline-light}
+:::
+:::
+
+::: {.section}
+::: {.container}
+
+::: {.grid-3}
+
+::: {.cardx}
+### First model in minutes
+- Start at [Getting Started](getting-started.html)
+- Then run [Introduction article](pkgdown/articles/introduction.html)
+- Then follow [Workflow 1: Start Here](workflows/v01-start-here.html)
+:::
+
+::: {.cardx}
+### Unconditional modeling
+- Bulk only: [Unconditional article](pkgdown/articles/unconditional.html)
+- Bulk + tail: [Distributions article](pkgdown/articles/distributions.html)
+- Workflow sequence: [v05-v09](workflows/v05-unconditional-DPmix-CRP.html)
+:::
+
+::: {.cardx}
+### Conditional modeling
+- Covariate-driven density modeling: [Conditional article](pkgdown/articles/conditional.html)
+- Model setup details: [Model specification](pkgdown/articles/model-spec.html)
+- Workflow sequence: [v10-v13](workflows/v10-conditional-DPmix-CRP.html)
+:::
+
+::: {.cardx}
+### Causal modeling
+- End-to-end causal workflow: [Causal article](pkgdown/articles/causal.html)
+- S3 outputs and plotting: [S3 methods reference](pkgdown/articles/reference-s3.html)
+- Workflow sequence: [v14-v19](workflows/v14-causal-no-x-CRP.html)
+:::
+
+::: {.cardx}
+### Backend decisions
+- Compare CRP vs stick-breaking: [Backends article](pkgdown/articles/backends.html)
+- Structured choice support: [Decision Guide](decision-guide.html)
+:::
+
+::: {.cardx}
+### Diagnostics and checks
+- MCMC process and diagnostics: [MCMC workflow](pkgdown/articles/mcmc-workflow.html)
+- Frequently asked issues: [FAQ](faq.html)
+:::
+
+:::
+
+:::
+:::
+
+::: {.section}
+::: {.container}
+
+## Where to go next
+
+1. Use [Kernels](kernels.html) if you are uncertain about distribution family selection.
+2. Use [Reference](reference.html) to jump directly to function docs.
+3. Use [Workflow troubleshooting](workflows/v20-troubleshooting.html) if you are blocked.
+
+:::
+:::
+
+
+
+

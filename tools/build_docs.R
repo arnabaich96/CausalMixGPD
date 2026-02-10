@@ -50,6 +50,23 @@ build_docs <- function(
     dir.create(path, recursive = TRUE, showWarnings = FALSE)
   }
 
+  clean_docs_root <- function(path, preserve_top = character()) {
+    if (!dir.exists(path)) {
+      dir.create(path, recursive = TRUE, showWarnings = FALSE)
+      return(invisible(TRUE))
+    }
+
+    preserve_top <- unique(c(preserve_top, ".git", ".gitignore"))
+    entries <- list.files(path, all.files = TRUE, full.names = TRUE, no.. = TRUE)
+    if (!length(entries)) return(invisible(TRUE))
+
+    for (entry in entries) {
+      if (basename(entry) %in% preserve_top) next
+      unlink(entry, recursive = TRUE, force = TRUE)
+    }
+    invisible(TRUE)
+  }
+
   sync_tree <- function(src, dst, exclude_prefix = character()) {
     src <- normalizePath(src, winslash = "/", mustWork = TRUE)
     if (!dir.exists(dst)) dir.create(dst, recursive = TRUE, showWarnings = FALSE)
@@ -161,13 +178,9 @@ build_docs <- function(
 
   # Copy CSS files manually to bypass permission issues
   website_dir <- file.path(root, "website")
-  quarto_website_dir <- file.path(quarto_abs, "website")
-  if (!dir.exists(quarto_website_dir)) {
-    dir.create(quarto_website_dir, recursive = TRUE, showWarnings = FALSE)
-  }
   for (css_file in c("styles.css", "theme.css")) {
     src_file <- file.path(website_dir, css_file)
-    dst_file <- file.path(quarto_website_dir, css_file)
+    dst_file <- file.path(quarto_abs, css_file)
     if (file.exists(src_file)) {
       file.copy(src_file, dst_file, overwrite = TRUE, copy.mode = FALSE)
       msg("Copied CSS file: ", css_file)
@@ -176,6 +189,7 @@ build_docs <- function(
 
   # Sync Quarto -> docs (excluding pkgdown)
   msg("[2/3] Sync: Quarto output (quarto/) -> docs/ (excluding pkgdown/)")
+  clean_docs_root(docs_abs, preserve_top = "pkgdown")
   sync_tree(quarto_abs, docs_abs, exclude_prefix = "pkgdown")
 
   # ---------------------------------------------------------------------------
@@ -213,15 +227,15 @@ build_docs <- function(
     pkgdown::build_site(
       pkg = root,
       override = list(destination = pkgdown_abs),
-      lazy = TRUE,
+      lazy = isTRUE(pkgdown_lazy),
       devel = FALSE,
-      preview = FALSE,
-      quiet = !isTRUE(verbose)
+      preview = FALSE
     )
 
     # Copy pkgdown/ to docs/pkgdown/ (overwrite)
     msg("[4/4] Sync: pkgdown/ -> docs/pkgdown/")
     pkgdown_docs_abs <- file.path(root, docs_dir, "pkgdown")
+    ensure_clean_dir(pkgdown_docs_abs)
     sync_tree(pkgdown_abs, pkgdown_docs_abs)
   } else {
     msg("Skipping pkgdown build.")

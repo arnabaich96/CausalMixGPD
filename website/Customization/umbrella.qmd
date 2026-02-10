@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Umbrella: Custom Models (All-in-One)"
 pkgdown:
   slug: "Customization/umbrella"
@@ -32,6 +32,19 @@ use_fast_mcmc <- TRUE
 mcmc_long <- list(niter = 2000, nburnin = 500, thin = 3, nchains = 3, seed = 1:3)
 mcmc_fast <- list(niter = 600, nburnin = 150, thin = 2, nchains = 1, seed = 1)
 mcmc <- if (use_fast_mcmc) mcmc_fast else mcmc_long
+
+safe_plot <- function(x, ...) {
+  obj <- tryCatch(plot(x, ...), error = function(e) e)
+  if (inherits(obj, "error")) return(invisible(NULL))
+  if (inherits(obj, "ggplot")) {
+    print(obj)
+    return(invisible(obj))
+  }
+  if (is.list(obj)) {
+    for (elt in obj) if (inherits(elt, "ggplot")) print(elt)
+  }
+  invisible(obj)
+}
 ```
 
 # Overview
@@ -188,7 +201,7 @@ summary(fit_amoroso)
 ## S3 Methods (Fit)
 
 ```{r}
-if (interactive()) plot(fit_amoroso, family = "traceplot")
+safe_plot(fit_amoroso, family = "traceplot")
 ```
 
 ```{r}
@@ -298,7 +311,7 @@ summary(causal_fit)
 ## S3 Methods (Causal)
 
 ```{r}
-if (interactive()) plot(causal_fit, family = "traceplot")
+safe_plot(causal_fit, family = "traceplot")
 ```
 
 ```{r}
@@ -314,13 +327,17 @@ summary(ate_result)
 
 ```{r}
 qte_result <- qte(causal_fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
-if (interactive()) plot(ate_result, type = "effect")
-if (interactive()) plot(qte_result, type = "effect")
+safe_plot(ate_result, type = "effect")
+safe_plot(qte_result, type = "effect")
 ```
 
 
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+
+
+
+
 
 

@@ -1,4 +1,4 @@
----
+﻿---
 title: "Model Specification"
 output:
   rmarkdown::html_vignette:
@@ -35,7 +35,7 @@ inputs map to a compiled NIMBLE bundle.
 For outcomes $y_i$ and kernel $K$, the bulk distribution is modeled as a DP
 mixture:
 $$
-f(y_i) = \\int K(y_i; \\theta)\\, dG(\\theta), \\quad G \\sim \\mathrm{DP}(\\alpha, G_0).
+f(y_i) = \int K(y_i; \theta)\, dG(\theta), \quad G \sim \mathrm{DP}(\alpha, G_0).
 $$
 The DP prior on $G$ induces clustering of component parameters and allows the
 mixture to adapt to unknown distributional shapes.
@@ -141,6 +141,9 @@ kable(args_df, align = "c", caption = "Model Specification Arguments") %>%
 # Rename reserved keywords
 names(X)[names(X) == "if"] <- "x_if"
 ```
+
+
+
 
 
 

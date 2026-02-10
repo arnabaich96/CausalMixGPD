@@ -1,4 +1,4 @@
----
+﻿---
 title: "Reference: S3 Methods"
 output:
   rmarkdown::html_vignette:
@@ -72,10 +72,10 @@ print(fit)
 summary(fit)
 ```
 
-## if (interactive()) plot()
+## plot()
 
 ```{r}
-if (interactive()) plot(fit, family = "traceplot")
+plot(fit, family = "traceplot")
 ```
 
 ## predict()
@@ -139,12 +139,12 @@ summary(ate_result)
 ```
 
 ```{r fig.width=7, fig.height=5}
-ate_plots <- if (interactive()) plot(ate_result)
+ate_plots <- plot(ate_result)
 ate_plots$treatment_effect
 ```
 
 ```{r fig.width=7, fig.height=5}
-if (interactive()) plot(ate_result, type = "effect")
+plot(ate_result, type = "effect")
 ```
 
 ### QTE S3 Methods
@@ -159,16 +159,20 @@ summary(qte_result)
 ```
 
 ```{r fig.width=7, fig.height=5}
-qte_plots <- if (interactive()) plot(qte_result)
+qte_plots <- plot(qte_result)
 qte_plots$treatment_effect
 ```
 
 ```{r fig.width=7, fig.height=5}
-if (interactive()) plot(qte_result, type = "effect")
+plot(qte_result, type = "effect")
 ```
 
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+
+
+
+
 
 

@@ -1,4 +1,4 @@
----
+﻿---
 title: "Laplace"
 pkgdown:
   slug: "kernels/kernel-laplace"
@@ -127,4 +127,8 @@ ggplot(df_lap_gpd, aes(x = x, y = density, color = label)) +
   labs(title = "Laplace mixtures with GPD tail (different thresholds)", x = "x", y = "density") +
   theme_minimal() + theme(legend.position = "top")
 ```
+
+
+
+
 

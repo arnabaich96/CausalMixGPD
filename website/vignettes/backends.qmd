@@ -1,4 +1,4 @@
----
+﻿---
 title: "Backends: SB vs CRP"
 output:
   rmarkdown::html_vignette:
@@ -113,5 +113,9 @@ kable(comparison_df, digits = 3, align = "c",
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+
+
+
+
 
 

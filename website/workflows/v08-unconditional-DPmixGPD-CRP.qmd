@@ -1,4 +1,4 @@
-﻿---
+---
 title: "8. Unconditional DPmixGPD with CRP Backend"
 output:
   rmarkdown::html_vignette:
@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   cache = TRUE,
-  cache.path = 'legacy-cache/'
+  cache.path = 'legacy-cache-v2/'
 )
 
 # Reproducibility
@@ -44,9 +44,8 @@ library(DPmixGPD)
 if (!require("devtools", quietly = TRUE)) {
   library(devtools)
 }
-if (!(any(search() == "package:DPmixGPD"))) {
-  devtools::load_all(quiet = TRUE)
-}
+pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
+  devtools::load_all(path = pkg_root, quiet = TRUE)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
@@ -70,7 +69,7 @@ source("_legacy-setup.R")
 
 ```{r data-setup}
 # Load data with an obvious tail
-data("nc_pos_tail200_k4")
+data("nc_pos_tail200_k4", package = "DPmixGPD")
 y_tail <- nc_pos_tail200_k4$y
 y_tail <- y_tail[is.finite(y_tail) & y_tail > 0]
 
@@ -121,10 +120,10 @@ ggplot(df_tail, aes(x = y, fill = region)) +
 
 ## Model Specification & Bundle
 
-This mirrors the direct `build_nimble_bundle()` workflow in `v04`, but with **tail augmentation** turned on (`GPD = TRUE`). Here we use an **Inverse Gaussian** bulk kernel and estimate the GPD threshold with a lognormal prior centered at the empirical 80th percentile.
+This mirrors the direct `DPmixGPD::build_nimble_bundle()` workflow in `v04`, but with **tail augmentation** turned on (`GPD = TRUE`). Here we use an **Inverse Gaussian** bulk kernel and estimate the GPD threshold with a lognormal prior centered at the empirical 80th percentile.
 
 ```{r bundle-mcmc-crp-gpd, cache=FALSE}
-bundle_gpd <- build_nimble_bundle(
+bundle_gpd <- DPmixGPD::build_nimble_bundle(
   y = y_tail,
   kernel = "invgauss",
   backend = "crp",
@@ -163,33 +162,33 @@ params_gpd
 
 ```{r fit-plots}
 # S3 plot methods highlight trace + density diagnostics
-if (interactive()) plot(fit_gpd, family = c("traceplot", "density", "running"))
-if (interactive()) plot(fit_gpd, params = "alpha", family = c("traceplot", "autocorrelation", "geweke"))
+safe_plot(fit_gpd, family = c("traceplot", "density", "running"))
+safe_plot(fit_gpd, params = "alpha", family = c("traceplot", "autocorrelation", "geweke"))
 ```
 
 ---
 
 ## Posterior Predictions: Bulk and Tail
 
-We use the **S3 `predict()` objects** and their dedicated `if (interactive()) plot()` methods to visualize densities, survival curves, and posterior-mean quantiles (i.e., averages of q(p | Î¸) over draws).
+We use the **S3 `predict()` objects** and their dedicated `plot()` methods to visualize densities, survival curves, and posterior-mean quantiles (i.e., averages of q(p | θ) over draws).
 
 ```{r density-predict, cache=FALSE}
 y_min <- max(min(y_tail), .Machine$double.eps)
 y_grid <- seq(y_min, max(y_tail) * 1.3, length.out = 300)
 pred_density <- predict(fit_gpd, y = y_grid, type = "density")
-if (interactive()) plot(pred_density)
+safe_plot(pred_density)
 ```
 
 ```{r survival-predict, cache=FALSE}
 y_surv <- seq(max(u_threshold, y_min), max(y_tail) * 1.1, length.out = 60)
 pred_surv <- predict(fit_gpd, y = y_surv, type = "survival")
-if (interactive()) plot(pred_surv)
+safe_plot(pred_surv)
 ```
 
 ```{r quantile-predict, cache=FALSE}
 quantile_probs <- c(0.90, 0.95, 0.99)
 pred_quantiles <- predict(fit_gpd, type = "quantile", index = quantile_probs, interval = "credible")
-if (interactive()) plot(pred_quantiles)
+safe_plot(pred_quantiles)
 ```
 
 ---
@@ -199,7 +198,7 @@ if (interactive()) plot(pred_quantiles)
 To demonstrate the value of tail augmentation, we fit a bulk-only lognormal DP mixture and compare posterior summaries against the InvGauss+GPD fit.
 
 ```{r bulk-only-fit, cache=FALSE}
-bundle_bulk_only <- build_nimble_bundle(
+bundle_bulk_only <- DPmixGPD::build_nimble_bundle(
   y = y_tail,
   kernel = "lognormal",
   backend = "crp",
@@ -227,8 +226,8 @@ compare_tbl %>%
 ```
 
 ```{r quantile-plot}
-if (interactive()) plot(bulk_quantiles)
-if (interactive()) plot(tail_quantiles)
+safe_plot(bulk_quantiles)
+safe_plot(tail_quantiles)
 ```
 
 ---
@@ -253,7 +252,7 @@ For unconditional models, use `predict()` only; `fitted()` and `residuals()` are
 
 ```{r threshold-sensitivity, cache=FALSE}
 sensitivity_fits <- lapply(thresholds, function(u) {
-  bundle <- build_nimble_bundle(
+  bundle <- DPmixGPD::build_nimble_bundle(
     y = y_tail,
     kernel = "invgauss",
     backend = "crp",
@@ -310,9 +309,26 @@ sensitivity_tbl %>%
 
 - **Bulk + Tail**: DPmix explains the bulk, and GPD captures the extremes.
 - **Threshold**: 0.8 quantile is our running default, but sensitivity checks guide the choice.
-- **S3 workflows**: `predict()` and its `if (interactive()) plot()` method make it easy to compare density, survival, and quantiles.
+- **S3 workflows**: `predict()` and its `plot()` method make it easy to compare density, survival, and quantiles.
 - **Comparison**: Bulk-only fits under-estimate extreme quantiles without a GPD component.
 - **Next**: Explore Stick-Breaking (`v07`) for another backend with tail augmentation.
+
+---
+
+<!-- workflow-nav:start -->
+## Workflow Navigation
+
+- Previous: [v07-unconditional-DPmix-SB](v07-unconditional-DPmix-SB.html)
+- Next: [v09-unconditional-DPmixGPD-SB](v09-unconditional-DPmixGPD-SB.html)
+- Workflow index: [Roadmap](../roadmap.html)
+- Practical entry: [Cookbook](../cookbook.html)
+<!-- workflow-nav:end -->
+
+
+
+
+
+
 
 
 

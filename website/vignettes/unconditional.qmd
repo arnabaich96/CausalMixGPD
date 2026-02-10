@@ -1,4 +1,4 @@
----
+﻿---
 title: "Unconditional Models"
 output:
   rmarkdown::html_vignette:
@@ -84,7 +84,7 @@ For unconditional models, use \code{predict()} only; \code{fitted()} and \code{r
 
 ```{r}
 if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quietly = TRUE)) {
-  if (interactive()) plot(fit)
+  plot(fit)
 } else {
   message("Plotting requires 'ggmcmc' and 'coda' packages.")
 }
@@ -93,5 +93,9 @@ if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quiet
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+
+
+
+
 
 

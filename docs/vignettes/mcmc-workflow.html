@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>MCMC Workflow – DPmixGPD</title>
+<title>mcmc-workflow – DPmixGPD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -129,56 +129,54 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="../index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../getting-started.html"> 
-<span class="menu-text">Getting Started</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-start" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Start</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-start">    
+        <li>
+    <a class="dropdown-item" href="../getting-started.html">
+ <span class="dropdown-text">Getting Started</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../faq.html"> 
-<span class="menu-text">FAQ</span></a>
+        <li>
+    <a class="dropdown-item" href="../decision-guide.html">
+ <span class="dropdown-text">Decision Guide</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../roadmap.html"> 
-<span class="menu-text">Roadmap</span></a>
+        <li>
+    <a class="dropdown-item" href="../faq.html">
+ <span class="dropdown-text">FAQ</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../kernels.html"> 
-<span class="menu-text">Kernels</span></a>
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-docs" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Docs</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-docs">    
+        <li>
+    <a class="dropdown-item" href="../reference.html">
+ <span class="dropdown-text">Docs overview</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../cookbook.html"> 
-<span class="menu-text">Cookbook</span></a>
+        <li>
+    <a class="dropdown-item" href="../kernels.html">
+ <span class="dropdown-text">Kernels</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../reference.html"> 
-<span class="menu-text">Reference</span></a>
+        <li>
+    <a class="dropdown-item" href="../cookbook.html">
+ <span class="dropdown-text">Cookbook</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../cite.html"> 
-<span class="menu-text">Cite</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../coverage.html"> 
-<span class="menu-text">Coverage</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../news.html"> 
-<span class="menu-text">News</span></a>
-  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../developers.html"> 
 <span class="menu-text">Developers</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../pkgdown/reference/index.html"> 
+<span class="menu-text">Reference</span></a>
+  </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD/discussions"> 
-<span class="menu-text">Discussions</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD/issues"> 
-<span class="menu-text">Bugs</span></a>
-  </li>  
   <li class="nav-item">
     <a class="nav-link" href="../pkgdown/index.html"> 
 <span class="menu-text">Pkgdown</span></a>
@@ -247,135 +245,301 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle, <span class="at">show_progress =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Defining model</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>  [Note] 'P' is provided in 'constants' but not used in the model code and is being ignored.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>  [Note] Registering 'dNormGpd' as a distribution based on its use in BUGS code. If you make changes to the nimbleFunctions for the distribution, you must call 'deregisterDistributions' before using the distribution in BUGS code for those changes to take effect.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Building model</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Setting data and initial values</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Checking model sizes and dimensions</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>  [Note] This model is not fully initialized. This is not an error.
+         To see which variables are not initialized, use model$initializeInfo().
+         For more information on model initialization, see help(modelInitialization).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Checking model calculations</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>  [Warning] To calculate WAIC, set 'WAIC = TRUE', in addition to having enabled WAIC in building the MCMC.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>running chain 1...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Calculating WAIC.</code></pre>
+</div>
 </div>
 </section>
 <section id="model-summary" class="level2">
 <h2 class="anchored" data-anchor-id="model-summary">Model Summary</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(fit)</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: TRUE
+n = 272 | components = 6 | epsilon = 0.025
+MCMC: niter=400, nburnin=100, thin=2, nchains=1 
+Fit
+Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>MixGPD summary | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: TRUE | epsilon: 0.025
+n = 272 | components = 6
+Summary
+Initial components: 6 | Components after truncation: 3
+
+WAIC: 733.039
+lppd: -359.414 | pWAIC: 7.106
+
+Summary table
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; parameter &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; mean &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; sd &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.025 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.500 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.975 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; ess &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; weights[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.433 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.081 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.323 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.417 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.597 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.046 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; weights[2] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.276 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.056 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.162 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.285 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.371 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7.301 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; weights[3] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.192 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.051 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.107 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.197 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.282 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4.688 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; alpha &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.281 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.659 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.38 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.273 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.92 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 16.212 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; tail_scale &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.57 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.086 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.423 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.561 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.689 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5.752 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; tail_shape &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.729 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.038 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.769 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.749 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.618 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.31 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; threshold &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.687 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.027 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.664 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.664 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.728 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.389 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; mean[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7.592 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.263 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.042 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7.262 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 14.606 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 23.106 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; mean[2] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7.402 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.658 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.605 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7.203 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 12.746 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 63.863 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; mean[3] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6.89 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.362 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.702 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6.396 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 12.253 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 25.889 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; sd[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.782 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.234 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.134 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.418 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4.977 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 5.532 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; sd[2] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.378 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.783 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.353 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.17 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.432 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 28.357 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; sd[3] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.379 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.842 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.199 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.251 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.217 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 26.071 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+</div>
 </div>
 </section>
 <section id="diagnostic-plots" class="level2">
 <h2 class="anchored" data-anchor-id="diagnostic-plots">Diagnostic Plots</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">requireNamespace</span>(<span class="st">"ggmcmc"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>) <span class="sc">&amp;&amp;</span> <span class="fu">requireNamespace</span>(<span class="st">"coda"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  smp <span class="ot">&lt;-</span> fit<span class="sc">$</span>mcmc<span class="sc">$</span>samples</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  params <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(smp)) {</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    cn <span class="ot">&lt;-</span> <span class="fu">colnames</span>(<span class="fu">as.matrix</span>(smp))</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    cn[<span class="dv">1</span><span class="sc">:</span><span class="fu">min</span>(<span class="dv">6</span>, <span class="fu">length</span>(cn))]</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="cn">NULL</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">interactive</span>()) <span class="fu">plot</span>(fit, <span class="at">family =</span> <span class="st">"geweke"</span>, <span class="at">params =</span> params)</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">message</span>(<span class="st">"Plotting requires 'ggmcmc' and 'coda' packages."</span>)</span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">requireNamespace</span>(<span class="st">"ggmcmc"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>) <span class="sc">&amp;&amp;</span> <span class="fu">requireNamespace</span>(<span class="st">"coda"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  smp <span class="ot">&lt;-</span> fit<span class="sc">$</span>mcmc<span class="sc">$</span>samples</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  params <span class="ot">&lt;-</span> <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(smp)) {</span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>    cn <span class="ot">&lt;-</span> <span class="fu">colnames</span>(<span class="fu">as.matrix</span>(smp))</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>    cn[<span class="dv">1</span><span class="sc">:</span><span class="fu">min</span>(<span class="dv">6</span>, <span class="fu">length</span>(cn))]</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>    <span class="cn">NULL</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">interactive</span>()) <span class="fu">plot</span>(fit, <span class="at">family =</span> <span class="st">"geweke"</span>, <span class="at">params =</span> params)</span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">message</span>(<span class="st">"Plotting requires 'ggmcmc' and 'coda' packages."</span>)</span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="posterior-sample-extraction" class="level2">
 <h2 class="anchored" data-anchor-id="posterior-sample-extraction">Posterior Sample Extraction</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(fit<span class="sc">$</span>mcmc<span class="sc">$</span>samples)) {</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  s <span class="ot">&lt;-</span> fit<span class="sc">$</span>mcmc<span class="sc">$</span>samples</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">requireNamespace</span>(<span class="st">"coda"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    mat <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(s)</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">dim</span>(mat)</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colnames</span>(mat)[<span class="dv">1</span><span class="sc">:</span><span class="fu">min</span>(<span class="dv">20</span>, <span class="fu">ncol</span>(mat))]</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">message</span>(<span class="st">"Sample extraction requires 'coda' package."</span>)</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(fit<span class="sc">$</span>mcmc<span class="sc">$</span>samples)) {</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  s <span class="ot">&lt;-</span> fit<span class="sc">$</span>mcmc<span class="sc">$</span>samples</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">requireNamespace</span>(<span class="st">"coda"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    mat <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(s)</span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">dim</span>(mat)</span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">colnames</span>(mat)[<span class="dv">1</span><span class="sc">:</span><span class="fu">min</span>(<span class="dv">20</span>, <span class="fu">ncol</span>(mat))]</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">message</span>(<span class="st">"Sample extraction requires 'coda' package."</span>)</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "alpha"      "mean[1]"    "mean[2]"    "mean[3]"    "mean[4]"   
+ [6] "mean[5]"    "mean[6]"    "sd[1]"      "sd[2]"      "sd[3]"     
+[11] "sd[4]"      "sd[5]"      "sd[6]"      "tail_scale" "tail_shape"
+[16] "threshold"  "w[1]"       "w[2]"       "w[3]"       "w[4]"      </code></pre>
+</div>
 </div>
 </section>
 <section id="re-running-with-different-settings" class="level2">
 <h2 class="anchored" data-anchor-id="re-running-with-different-settings">Re-running with Different Settings</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Rebuild with modified MCMC settings</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="co"># bundle2 &lt;- update_mcmc(bundle, niter = 8000, nburnin = 2000)</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># fit2 &lt;- run_mcmc_bundle_manual(bundle2)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Rebuild with modified MCMC settings</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="co"># bundle2 &lt;- update_mcmc(bundle, niter = 8000, nburnin = 2000)</span></span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="co"># fit2 &lt;- run_mcmc_bundle_manual(bundle2)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 
 
 </section>
 
 </main> <!-- /main -->
-<div style="
-
+﻿<div style="
   display:flex;
-
   flex-wrap:wrap;
-
   gap:1rem;
-
   justify-content:space-between;
-
   align-items:center;
-
   font-size:0.9rem;
-
   color:rgba(0,0,0,.65);
-
   margin-top:2.5rem;
-
   padding-top:1.2rem;
-
   border-top:1px solid rgba(0,0,0,.1);
-
 ">
 
-
-
   <div>
-
-    © DPmixGPD · Bayesian semiparametric modeling for heavy-tailed data
-
+    (c) DPmixGPD - Bayesian semiparametric modeling for heavy-tailed data
   </div>
 
-
-
   <div>
-
-    <span id="site-version"></span> ·
-
-    <span id="site-updated"></span> ·
-
-    <a href="cite.html">Cite</a> ·
-
-    <a href="pkgdown/index.html">API</a> ·
-
+    <span id="site-version"></span> -
+    <span id="site-updated"></span> -
+    <a href="cite.html">Cite</a> -
+    <a href="pkgdown/index.html">API</a> -
     <a href="https://github.com/arnabaich96/DPmixGPD">GitHub</a>
-
   </div>
-
-
 
 </div>
 
-
-
 <script>
-
   // These values are replaced at build time if present
-
   const version = document.documentElement.getAttribute("data-version");
-
   const updated = document.documentElement.getAttribute("data-updated");
 
-
-
   if (version) {
-
     document.getElementById("site-version").textContent = "Version " + version;
-
   }
-
   if (updated) {
-
     document.getElementById("site-updated").textContent = "Updated " + updated;
-
   }
-
 </script>
 
 <script id="quarto-html-after-body" type="application/javascript">

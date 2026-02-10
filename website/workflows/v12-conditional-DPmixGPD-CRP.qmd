@@ -1,4 +1,4 @@
-﻿---
+---
 title: "12. Conditional DPmixGPD with CRP Backend"
 output:
   rmarkdown::html_vignette:
@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   cache = TRUE,
-  cache.path = 'legacy-cache/'
+  cache.path = 'legacy-cache-v2/'
 )
 
 # Reproducibility
@@ -40,9 +40,8 @@ library(DPmixGPD)
 if (!require("devtools", quietly = TRUE)) {
   library(devtools)
 }
-if (!(any(search() == "package:DPmixGPD"))) {
-  devtools::load_all(quiet = TRUE)
-}
+pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
+  devtools::load_all(path = pkg_root, quiet = TRUE)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
@@ -65,7 +64,7 @@ source("_legacy-setup.R")
 ## Data Setup
 
 ```{r data-setup}
-data("nc_posX100_p5_k4")
+data("nc_posX100_p5_k4", package = "DPmixGPD")
 y <- nc_posX100_p5_k4$y
 X <- as.matrix(nc_posX100_p5_k4$X)
 if (is.null(colnames(X))) {
@@ -110,7 +109,7 @@ ggplot(data.frame(y = y), aes(x = y)) +
 ## Model Specification & Bundle
 
 ```{r bundle, cache=FALSE}
-bundle_cond_gpd_lognormal <- build_nimble_bundle(
+bundle_cond_gpd_lognormal <- DPmixGPD::build_nimble_bundle(
   y = y,
   X = X,
   kernel = "lognormal",
@@ -125,7 +124,7 @@ bundle_cond_gpd_lognormal <- build_nimble_bundle(
   mcmc = mcmc
 )
 
-bundle_cond_gpd_normal <- build_nimble_bundle(
+bundle_cond_gpd_normal <- DPmixGPD::build_nimble_bundle(
   y = y,
   X = X,
   kernel = "normal",
@@ -233,12 +232,12 @@ bind_rows(quant_df_lognormal, quant_df_normal) %>%
 ## Residuals & Diagnostics
 
 ```{r residuals, cache=FALSE}
-if (interactive()) plot(fitted(fit_cond_gpd_lognormal))
+safe_plot(fitted(fit_cond_gpd_lognormal))
 ```
 
 ```{r diagnostics}
-if (interactive()) plot(fit_cond_gpd_lognormal, family = c("traceplot", "density", "autocorrelation"))
-if (interactive()) plot(fit_cond_gpd_normal, family = c("running", "geweke", "caterpillar"))
+safe_plot(fit_cond_gpd_lognormal, family = c("traceplot", "density", "autocorrelation"))
+safe_plot(fit_cond_gpd_normal, family = c("running", "geweke", "caterpillar"))
 ```
 
 ---
@@ -247,8 +246,24 @@ if (interactive()) plot(fit_cond_gpd_normal, family = c("running", "geweke", "ca
 
 - Conditional DPmix with a GPD tail lets posterior-mean extreme quantiles vary with covariates.
 - The CRP backend samples the bulk and tail jointly while thresholding at the 85th percentile.
-- `predict()` + `if (interactive()) plot()` remain the main tools for densities, survival curves, and quantiles; residual diagnostics check fit quality.
+- `predict()` + `plot()` remain the main tools for densities, survival curves, and quantiles; residual diagnostics check fit quality.
 - Next: Mirror this workflow with the SB backend in `v11`.
+
+---
+
+<!-- workflow-nav:start -->
+## Workflow Navigation
+
+- Previous: [v11-conditional-DPmix-SB](v11-conditional-DPmix-SB.html)
+- Next: [v13-conditional-DPmixGPD-SB](v13-conditional-DPmixGPD-SB.html)
+- Workflow index: [Roadmap](../roadmap.html)
+- Practical entry: [Cookbook](../cookbook.html)
+<!-- workflow-nav:end -->
+
+
+
+
+
 
 
 

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>v01-start-here – DPmixGPD</title>
+<title>1. Start Here – DPmixGPD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -129,56 +129,54 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="../index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../getting-started.html"> 
-<span class="menu-text">Getting Started</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-start" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Start</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-start">    
+        <li>
+    <a class="dropdown-item" href="../getting-started.html">
+ <span class="dropdown-text">Getting Started</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../faq.html"> 
-<span class="menu-text">FAQ</span></a>
+        <li>
+    <a class="dropdown-item" href="../decision-guide.html">
+ <span class="dropdown-text">Decision Guide</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../roadmap.html"> 
-<span class="menu-text">Roadmap</span></a>
+        <li>
+    <a class="dropdown-item" href="../faq.html">
+ <span class="dropdown-text">FAQ</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../kernels.html"> 
-<span class="menu-text">Kernels</span></a>
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-docs" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Docs</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-docs">    
+        <li>
+    <a class="dropdown-item" href="../reference.html">
+ <span class="dropdown-text">Docs overview</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../cookbook.html"> 
-<span class="menu-text">Cookbook</span></a>
+        <li>
+    <a class="dropdown-item" href="../kernels.html">
+ <span class="dropdown-text">Kernels</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../reference.html"> 
-<span class="menu-text">Reference</span></a>
+        <li>
+    <a class="dropdown-item" href="../cookbook.html">
+ <span class="dropdown-text">Cookbook</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../cite.html"> 
-<span class="menu-text">Cite</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../coverage.html"> 
-<span class="menu-text">Coverage</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../news.html"> 
-<span class="menu-text">News</span></a>
-  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../developers.html"> 
 <span class="menu-text">Developers</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../pkgdown/reference/index.html"> 
+<span class="menu-text">Reference</span></a>
+  </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD/discussions"> 
-<span class="menu-text">Discussions</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD/issues"> 
-<span class="menu-text">Bugs</span></a>
-  </li>  
   <li class="nav-item">
     <a class="nav-link" href="../pkgdown/index.html"> 
 <span class="menu-text">Pkgdown</span></a>
@@ -234,11 +232,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="unconditional-model-crp-bulk-only" class="level2">
 <h2 class="anchored" data-anchor-id="unconditional-model-crp-bulk-only">Unconditional Model (CRP, bulk-only)</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"nc_pos200_k3"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"nc_pos200_k3"</span>, <span class="at">package =</span> <span class="st">"DPmixGPD"</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> nc_pos200_k3<span class="sc">$</span>y</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>bundle_uncond <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>bundle_uncond <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">build_nimble_bundle</span>(</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"gamma"</span>,</span>
@@ -250,49 +248,392 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fit_uncond <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"v01-start-here-fit_uncond"</span>, <span class="fu">quiet_mcmc</span>(<span class="fu">run_mcmc_bundle_manual</span>(bundle_uncond, <span class="at">show_progress =</span> <span class="cn">FALSE</span>)))</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_uncond)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>MixGPD summary | backend: Chinese Restaurant Process | kernel: Gamma Distribution | GPD tail: FALSE | epsilon: 0.025
+n = 200 | components = 5
+Summary
+Initial components: 5 | Components after truncation: 1
+
+WAIC: 963.248
+lppd: -456.908 | pWAIC: 24.716
+
+Summary table
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; parameter &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; mean &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; sd &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.025 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.500 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.975 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; ess &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; weights[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.883 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.138 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.474 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.917 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 8.469 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; alpha &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.457 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.398 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.022 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.354 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.503 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 42.38 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; shape[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.161 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.151 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.915 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.159 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.483 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 14.106 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; scale[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.265 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.037 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.204 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.266 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.338 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 25.996 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+</div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>pred_q <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_uncond, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">p =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.9</span>), <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_q<span class="sc">$</span>fit)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) <span class="fu">plot</span>(pred_q)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>pred_q <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_uncond, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">p =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.9</span>), <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_q<span class="sc">$</span>fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  estimate index lower upper
+1    0.228   0.5 0.135 0.342
+2    0.687   0.9 0.467 0.915</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(pred_q)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="v01-start-here_files/figure-html/start-uncond-predict-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
 </div>
 <hr>
 </section>
 <section id="conditional-model-sb-bulk-only" class="level2">
 <h2 class="anchored" data-anchor-id="conditional-model-sb-bulk-only">Conditional Model (SB, bulk-only)</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"nc_posX100_p3_k2"</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>yc <span class="ot">&lt;-</span> nc_posX100_p3_k2<span class="sc">$</span>y</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(nc_posX100_p3_k2<span class="sc">$</span>X)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"nc_posX100_p3_k2"</span>, <span class="at">package =</span> <span class="st">"DPmixGPD"</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>yc <span class="ot">&lt;-</span> nc_posX100_p3_k2<span class="sc">$</span>y</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(nc_posX100_p3_k2<span class="sc">$</span>X)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>bundle_cond <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> yc,</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> X,</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"lognormal"</span>,</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">5</span>,</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc =</span> mcmc</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>bundle_cond <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> yc,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> X,</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"lognormal"</span>,</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">5</span>,</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc =</span> mcmc</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fit_cond <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"v01-start-here-fit_cond"</span>, <span class="fu">quiet_mcmc</span>(<span class="fu">run_mcmc_bundle_manual</span>(bundle_cond, <span class="at">show_progress =</span> <span class="cn">FALSE</span>)))</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_cond)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>fit_cond <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"v01-start-here-fit_cond"</span>, <span class="fu">quiet_mcmc</span>(<span class="fu">run_mcmc_bundle_manual</span>(bundle_cond, <span class="at">show_progress =</span> <span class="cn">FALSE</span>)))</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_cond)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>MixGPD summary | backend: Stick-Breaking Process | kernel: Lognormal Distribution | GPD tail: FALSE | epsilon: 0.025
+n = 100 | components = 5
+Summary
+Initial components: 5 | Components after truncation: 3
+
+WAIC: 509.609
+lppd: -220.586 | pWAIC: 34.218
+
+Summary table
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; parameter &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; mean &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; sd &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.025 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.500 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.975 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; ess &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; weights[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.432 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.073 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.297 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.43 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.563 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 20.008 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; weights[2] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.298 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.064 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.177 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.31 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.4 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 12.128 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; weights[3] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.159 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.054 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.06 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.16 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.263 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 19.977 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; alpha &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.609 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.883 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.552 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.409 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 3.673 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 23.402 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; beta_meanlog[1, 1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.089 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.261 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.641 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.13 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.493 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 24.612 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; beta_meanlog[2, 1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.15 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.271 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.404 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.153 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.554 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 14.485 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; beta_meanlog[3, 1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.302 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.288 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -3.537 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.193 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.91 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 7.21 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; beta_meanlog[4, 1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.149 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.197 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -2.431 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.514 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.794 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 14.772 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; beta_meanlog[5, 1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.5 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.617 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.809 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.611 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.458 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 10.102 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; beta_meanlog[1, 2] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.698 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.775 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.752 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.533 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.26 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 9.533 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; beta_meanlog[2, 2] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -1.014 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.373 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -1.782 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -1.023 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.337 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 12.472 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; beta_meanlog[3, 2] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.531 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.862 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -2.809 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.718 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4.688 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 17.038 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; beta_meanlog[4, 2] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.536 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.666 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -3.483 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.785 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.86 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6.288 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; beta_meanlog[5, 2] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.878 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.02 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -1.31 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.159 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.59 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4.981 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; beta_meanlog[1, 3] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.12 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.377 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.73 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.209 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.737 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 21.374 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; beta_meanlog[2, 3] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.139 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.324 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.683 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.184 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.444 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 11.118 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; beta_meanlog[3, 3] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.171 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.98 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -1.645 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.257 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.249 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 24.319 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; beta_meanlog[4, 3] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.108 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.353 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -3.217 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.042 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.262 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 13.235 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; beta_meanlog[5, 3] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.322 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.458 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.736 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.316 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.343 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 12.508 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; sdlog[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.076 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.44 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.511 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.002 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.048 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 50.89 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; sdlog[2] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.246 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.567 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.459 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.147 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.495 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 26.925 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; sdlog[3] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.757 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.185 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.464 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.432 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4.916 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 106.303 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+</div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>x_new <span class="ot">&lt;-</span> X[<span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>pred_mean <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_cond, <span class="at">x =</span> x_new, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> <span class="dv">200</span>)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_mean<span class="sc">$</span>fit)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) <span class="fu">plot</span>(pred_mean)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>x_new <span class="ot">&lt;-</span> X[<span class="dv">1</span><span class="sc">:</span><span class="dv">20</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>pred_mean <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_cond, <span class="at">x =</span> x_new, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> <span class="dv">200</span>)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_mean<span class="sc">$</span>fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  id estimate lower  upper
+1  1     23.6 1.038   79.6
+2  2    860.6 1.212  292.6
+3  3    418.0 1.012  905.9
+4  4     51.0 0.972  313.9
+5  5     22.6 1.000  160.9
+6  6    173.7 1.105 1067.2</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(pred_mean)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="v01-start-here_files/figure-html/start-cond-predict-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
 </div>
 <hr>
 </section>
 <section id="useful-s3-methods" class="level2">
 <h2 class="anchored" data-anchor-id="useful-s3-methods">Useful S3 Methods</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">params</span>(fit_uncond)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) <span class="fu">plot</span>(fit_uncond, <span class="at">family =</span> <span class="fu">c</span>(<span class="st">"traceplot"</span>, <span class="st">"running"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">params</span>(fit_uncond)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Posterior mean parameters
+
+$alpha
+[1] "0.457"
+
+$w
+[1] "0.883"
+
+$shape
+[1] "1.161"
+
+$scale
+[1] "0.265"</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(fit_uncond, <span class="at">family =</span> <span class="fu">c</span>(<span class="st">"traceplot"</span>, <span class="st">"running"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="v01-start-here_files/figure-html/start-s3-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="v01-start-here_files/figure-html/start-s3-2.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
 </div>
 <hr>
 </section>
@@ -304,87 +645,60 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>vignette 6-13</code>: unconditional/conditional models with and without GPD</li>
 <li><code>vignette 14-19</code>: causal workflows</li>
 </ul>
+<hr>
+<!-- workflow-nav:start -->
+</section>
+<section id="workflow-navigation" class="level2">
+<h2 class="anchored" data-anchor-id="workflow-navigation">Workflow Navigation</h2>
+<ul>
+<li>Previous: none (start of workflow series)</li>
+<li>Next: <a href="v02-introduction.html">v02-introduction</a></li>
+<li>Workflow index: <a href="../roadmap.html">Roadmap</a></li>
+<li>Practical entry: <a href="../cookbook.html">Cookbook</a> <!-- workflow-nav:end --></li>
+</ul>
 
 
 </section>
 
 </main> <!-- /main -->
-<div style="
-
+﻿<div style="
   display:flex;
-
   flex-wrap:wrap;
-
   gap:1rem;
-
   justify-content:space-between;
-
   align-items:center;
-
   font-size:0.9rem;
-
   color:rgba(0,0,0,.65);
-
   margin-top:2.5rem;
-
   padding-top:1.2rem;
-
   border-top:1px solid rgba(0,0,0,.1);
-
 ">
 
-
-
   <div>
-
-    © DPmixGPD · Bayesian semiparametric modeling for heavy-tailed data
-
+    (c) DPmixGPD - Bayesian semiparametric modeling for heavy-tailed data
   </div>
 
-
-
   <div>
-
-    <span id="site-version"></span> ·
-
-    <span id="site-updated"></span> ·
-
-    <a href="cite.html">Cite</a> ·
-
-    <a href="pkgdown/index.html">API</a> ·
-
+    <span id="site-version"></span> -
+    <span id="site-updated"></span> -
+    <a href="cite.html">Cite</a> -
+    <a href="pkgdown/index.html">API</a> -
     <a href="https://github.com/arnabaich96/DPmixGPD">GitHub</a>
-
   </div>
-
-
 
 </div>
 
-
-
 <script>
-
   // These values are replaced at build time if present
-
   const version = document.documentElement.getAttribute("data-version");
-
   const updated = document.documentElement.getAttribute("data-updated");
 
-
-
   if (version) {
-
     document.getElementById("site-version").textContent = "Version " + version;
-
   }
-
   if (updated) {
-
     document.getElementById("site-updated").textContent = "Updated " + updated;
-
   }
-
 </script>
 
 <script id="quarto-html-after-body" type="application/javascript">

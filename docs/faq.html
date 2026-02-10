@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>FAQ – DPmixGPD</title>
+<title>faq – DPmixGPD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -73,7 +73,7 @@ ul.task-list li input[type="checkbox"] {
 
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-fixed fullcontent quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -94,56 +94,54 @@ ul.task-list li input[type="checkbox"] {
     <a class="nav-link" href="./index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./getting-started.html"> 
-<span class="menu-text">Getting Started</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-start" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Start</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-start">    
+        <li>
+    <a class="dropdown-item" href="./getting-started.html">
+ <span class="dropdown-text">Getting Started</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link active" href="./faq.html" aria-current="page"> 
-<span class="menu-text">FAQ</span></a>
+        <li>
+    <a class="dropdown-item" href="./decision-guide.html">
+ <span class="dropdown-text">Decision Guide</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./roadmap.html"> 
-<span class="menu-text">Roadmap</span></a>
+        <li>
+    <a class="dropdown-item" href="./faq.html">
+ <span class="dropdown-text">FAQ</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./kernels.html"> 
-<span class="menu-text">Kernels</span></a>
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-docs" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Docs</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-docs">    
+        <li>
+    <a class="dropdown-item" href="./reference.html">
+ <span class="dropdown-text">Docs overview</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./cookbook.html"> 
-<span class="menu-text">Cookbook</span></a>
+        <li>
+    <a class="dropdown-item" href="./kernels.html">
+ <span class="dropdown-text">Kernels</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./reference.html"> 
-<span class="menu-text">Reference</span></a>
+        <li>
+    <a class="dropdown-item" href="./cookbook.html">
+ <span class="dropdown-text">Cookbook</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./cite.html"> 
-<span class="menu-text">Cite</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./coverage.html"> 
-<span class="menu-text">Coverage</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./news.html"> 
-<span class="menu-text">News</span></a>
-  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="./developers.html"> 
 <span class="menu-text">Developers</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./pkgdown/reference/index.html"> 
+<span class="menu-text">Reference</span></a>
+  </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD/discussions"> 
-<span class="menu-text">Discussions</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD/issues"> 
-<span class="menu-text">Bugs</span></a>
-  </li>  
   <li class="nav-item">
     <a class="nav-link" href="./pkgdown/index.html"> 
 <span class="menu-text">Pkgdown</span></a>
@@ -161,12 +159,12 @@ ul.task-list li input[type="checkbox"] {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content column-page" id="quarto-document-content">
+<main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -175,7 +173,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<div class="quarto-title-meta column-page">
+<div class="quarto-title-meta">
 
     
   
@@ -215,11 +213,11 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="modeling-choices">Modeling choices</h2>
 <section id="how-do-i-choose-a-bulk-kernel" class="level3 cardx">
 <h3 class="anchored" data-anchor-id="how-do-i-choose-a-bulk-kernel">How do I choose a bulk kernel?</h3>
-<p>Choose the kernel based on the <strong>typical support and shape</strong> of your outcome: - Positive, right-skewed outcomes → positive-support kernels - Real-valued outcomes → real-valued kernels If multiple kernels are plausible, prioritize <strong>stability and interpretability</strong>, then refine using diagnostics.</p>
+<p>Choose the kernel based on the <strong>typical support and shape</strong> of your outcome: - Positive, right-skewed outcomes -&gt; positive-support kernels - Real-valued outcomes -&gt; real-valued kernels If multiple kernels are plausible, prioritize <strong>stability and interpretability</strong>, then refine using diagnostics.</p>
 </section>
 <section id="when-should-i-turn-on-the-gpd-tail" class="level3 cardx">
 <h3 class="anchored" data-anchor-id="when-should-i-turn-on-the-gpd-tail">When should I turn on the GPD tail?</h3>
-<p>Use a tail model when: - high quantiles (e.g., 0.95–0.995) matter, - bulk-only predictive checks underfit extremes, - or domain knowledge indicates rare events drive decisions. If your analysis focuses on central behavior, bulk-only is often sufficient.</p>
+<p>Use a tail model when: - high quantiles (e.g., 0.95-0.995) matter, - bulk-only predictive checks underfit extremes, - or domain knowledge indicates rare events drive decisions. If your analysis focuses on central behavior, bulk-only is often sufficient.</p>
 </section>
 <section id="what-is-the-difference-between-sb-and-crp-backends" class="level3 cardx">
 <h3 class="anchored" data-anchor-id="what-is-the-difference-between-sb-and-crp-backends">What is the difference between SB and CRP backends?</h3>
@@ -234,7 +232,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="how-are-treatment-effects-handled" class="level3 cardx">
 <h3 class="anchored" data-anchor-id="how-are-treatment-effects-handled">How are treatment effects handled?</h3>
-<p>Causal workflows fit models for treatment and control arms and derive treatment effects as posterior quantities. This allows uncertainty in the full outcome distribution—including tails—to propagate into effect estimates.</p>
+<p>Causal workflows fit models for treatment and control arms and derive treatment effects as posterior quantities. This allows uncertainty in the full outcome distribution-including tails-to propagate into effect estimates.</p>
 </section>
 <section id="is-dpmixgpd-suitable-for-survival-analysis" class="level3 cardx">
 <h3 class="anchored" data-anchor-id="is-dpmixgpd-suitable-for-survival-analysis">Is DPmixGPD suitable for survival analysis?</h3>
@@ -258,8 +256,8 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="installation-and-troubleshooting" class="level2">
 <h2 class="anchored" data-anchor-id="installation-and-troubleshooting">Installation and troubleshooting</h2>
-<section id="the-package-installs-but-examples-or-vignettes-fail-what-should-i-do" class="level3 cardx">
-<h3 class="anchored" data-anchor-id="the-package-installs-but-examples-or-vignettes-fail-what-should-i-do">The package installs but examples or vignettes fail — what should I do?</h3>
+<section id="the-package-installs-but-examples-or-vignettes-fail---what-should-i-do" class="level3 cardx">
+<h3 class="anchored" data-anchor-id="the-package-installs-but-examples-or-vignettes-fail---what-should-i-do">The package installs but examples or vignettes fail - what should I do?</h3>
 <p>First, check: - R version and platform - required system libraries - whether you are using a clean environment (e.g., via renv)</p>
 <p>If the problem persists, open an Issue with: - a minimal reproducible example - session information - exact error messages</p>
 </section>
@@ -285,9 +283,9 @@ If it’s a design question or ambiguity, start a Discussion instead.</p>
 <section id="where-should-i-ask-questions" class="level3 cardx">
 <h3 class="anchored" data-anchor-id="where-should-i-ask-questions">Where should I ask questions?</h3>
 <ul>
-<li><strong>Design / “how should I do this?”</strong> → Discussions</li>
-<li><strong>Bugs / errors</strong> → Issues</li>
-<li><strong>Documentation clarity</strong> → Issues or Discussions (either is fine)</li>
+<li><strong>Design / “how should I do this?”</strong> -&gt; Discussions</li>
+<li><strong>Bugs / errors</strong> -&gt; Issues</li>
+<li><strong>Documentation clarity</strong> -&gt; Issues or Discussions (either is fine)</li>
 </ul>
 </section>
 </section>
@@ -297,82 +295,44 @@ If it’s a design question or ambiguity, start a Discussion instead.</p>
 
 
 </main> <!-- /main -->
-<div style="
-
+﻿<div style="
   display:flex;
-
   flex-wrap:wrap;
-
   gap:1rem;
-
   justify-content:space-between;
-
   align-items:center;
-
   font-size:0.9rem;
-
   color:rgba(0,0,0,.65);
-
   margin-top:2.5rem;
-
   padding-top:1.2rem;
-
   border-top:1px solid rgba(0,0,0,.1);
-
 ">
 
-
-
   <div>
-
-    © DPmixGPD · Bayesian semiparametric modeling for heavy-tailed data
-
+    (c) DPmixGPD - Bayesian semiparametric modeling for heavy-tailed data
   </div>
 
-
-
   <div>
-
-    <span id="site-version"></span> ·
-
-    <span id="site-updated"></span> ·
-
-    <a href="cite.html">Cite</a> ·
-
-    <a href="pkgdown/index.html">API</a> ·
-
+    <span id="site-version"></span> -
+    <span id="site-updated"></span> -
+    <a href="cite.html">Cite</a> -
+    <a href="pkgdown/index.html">API</a> -
     <a href="https://github.com/arnabaich96/DPmixGPD">GitHub</a>
-
   </div>
-
-
 
 </div>
 
-
-
 <script>
-
   // These values are replaced at build time if present
-
   const version = document.documentElement.getAttribute("data-version");
-
   const updated = document.documentElement.getAttribute("data-updated");
 
-
-
   if (version) {
-
     document.getElementById("site-version").textContent = "Version " + version;
-
   }
-
   if (updated) {
-
     document.getElementById("site-updated").textContent = "Updated " + updated;
-
   }
-
 </script>
 
 <script id="quarto-html-after-body" type="application/javascript">

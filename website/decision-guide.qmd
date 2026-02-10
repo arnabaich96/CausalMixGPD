@@ -1,4 +1,4 @@
----
+﻿---
 title: "Decision Guide"
 page-layout: full
 ---
@@ -7,7 +7,7 @@ page-layout: full
 ::: {.container}
 # Decision Guide
 
-A practical guide for choosing the right DPmixGPD configuration. This is not a theory chapter; it’s a “pick the next step” tool. When in doubt, start with a simple bulk model and add complexity only when diagnostics justify it.
+A practical guide for choosing the right DPmixGPD configuration. This is not a theory chapter; it is a "pick the next step" tool. When in doubt, start with a simple bulk model and add complexity only when diagnostics justify it.
 
 [Go to Cookbook](cookbook.html){.btn .btn-primary}
 [Open Kernels](kernels.html){.btn .btn-outline-light}
@@ -20,15 +20,15 @@ A practical guide for choosing the right DPmixGPD configuration. This is not a t
 ::: {.grid-3}
 
 ::: {.cardx}
-### Step 1 — What is your outcome type?
-Choose the modeling family based on the outcome’s basic support.
+### Step 1 - What is your outcome type?
+Choose the modeling family based on the outcome's basic support.
 - Positive and right-skewed (typical for costs, concentrations)
 - Real-valued (can be negative)
 - Time-to-event / survival (with censoring)
 :::
 
 ::: {.cardx}
-### Step 2 — Do you need a tail model?
+### Step 2 - Do you need a tail model?
 Tail modeling is for rare extremes beyond a threshold.
 Use a tail component if:
 - the upper tail is scientifically important, and
@@ -38,7 +38,7 @@ Otherwise, start bulk-only and revisit later.
 :::
 
 ::: {.cardx}
-### Step 3 — Do covariates or treatment effects matter?
+### Step 3 - Do covariates or treatment effects matter?
 - Unconditional: outcome-only modeling, simplest entry.
 - Conditional: outcome depends on covariates.
 - Causal: treatment vs control arms; treatment effects are derived quantities.
@@ -91,7 +91,7 @@ Use conditional/causal workflows from the start. Fit per-arm models (causal) or 
 
 ::: {.cardx}
 ### Bulk kernel choice
-Pick the bulk kernel to match the “typical” range of the data:
+Pick the bulk kernel to match the "typical" range of the data:
 - Strong right-skew and positive support: choose a positive-support kernel family.
 - Symmetric real-valued outcomes: choose a real-valued kernel family.
 If unsure, prioritize stability and interpretability first, then refine.
@@ -100,10 +100,10 @@ If unsure, prioritize stability and interpretability first, then refine.
 ::: {.cardx}
 ### Tail on/off decision
 Turn on tail modeling when:
-- high quantiles matter (e.g., 0.95–0.995),
+- high quantiles matter (e.g., 0.95-0.995),
 - bulk-only predictive checks underfit extremes,
 - or domain knowledge says extremes drive decisions.
-If you’re only doing central tendency inference, bulk-only is often enough.
+If you are only doing central tendency inference, bulk-only is often enough.
 :::
 
 ::: {.cardx}
@@ -130,3 +130,7 @@ When in doubt, start with the backend your existing workflow already supports mo
 
 :::
 :::
+
+
+
+

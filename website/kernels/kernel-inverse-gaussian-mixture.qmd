@@ -1,4 +1,4 @@
----
+﻿---
 title: "Inverse Gaussian (mixture kernel)"
 pkgdown:
   slug: "kernels/kernel-inverse-gaussian-mixture"
@@ -129,4 +129,8 @@ ggplot(df_ig_gpd, aes(x = x, y = density, color = label)) +
   labs(title = "Inverse Gaussian mixtures with GPD tail", x = "x", y = "density") +
   theme_minimal() + theme(legend.position = "top")
 ```
+
+
+
+
 

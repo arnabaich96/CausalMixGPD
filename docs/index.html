@@ -94,56 +94,54 @@ ul.task-list li input[type="checkbox"] {
     <a class="nav-link active" href="./index.html" aria-current="page"> 
 <span class="menu-text">Home</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./getting-started.html"> 
-<span class="menu-text">Getting Started</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-start" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Start</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-start">    
+        <li>
+    <a class="dropdown-item" href="./getting-started.html">
+ <span class="dropdown-text">Getting Started</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./faq.html"> 
-<span class="menu-text">FAQ</span></a>
+        <li>
+    <a class="dropdown-item" href="./decision-guide.html">
+ <span class="dropdown-text">Decision Guide</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./roadmap.html"> 
-<span class="menu-text">Roadmap</span></a>
+        <li>
+    <a class="dropdown-item" href="./faq.html">
+ <span class="dropdown-text">FAQ</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./kernels.html"> 
-<span class="menu-text">Kernels</span></a>
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-docs" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Docs</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-docs">    
+        <li>
+    <a class="dropdown-item" href="./reference.html">
+ <span class="dropdown-text">Docs overview</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./cookbook.html"> 
-<span class="menu-text">Cookbook</span></a>
+        <li>
+    <a class="dropdown-item" href="./kernels.html">
+ <span class="dropdown-text">Kernels</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./reference.html"> 
-<span class="menu-text">Reference</span></a>
+        <li>
+    <a class="dropdown-item" href="./cookbook.html">
+ <span class="dropdown-text">Cookbook</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./cite.html"> 
-<span class="menu-text">Cite</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./coverage.html"> 
-<span class="menu-text">Coverage</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./news.html"> 
-<span class="menu-text">News</span></a>
-  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="./developers.html"> 
 <span class="menu-text">Developers</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./pkgdown/reference/index.html"> 
+<span class="menu-text">Reference</span></a>
+  </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD/discussions"> 
-<span class="menu-text">Discussions</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD/issues"> 
-<span class="menu-text">Bugs</span></a>
-  </li>  
   <li class="nav-item">
     <a class="nav-link" href="./pkgdown/index.html"> 
 <span class="menu-text">Pkgdown</span></a>
@@ -166,140 +164,147 @@ ul.task-list li input[type="checkbox"] {
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">DPmixGPD</h1>
+</div>
 
 
 
+<div class="quarto-title-meta">
 
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section>
+<section id="dpmixgpd" class="level1 container">
+<h1>DPmixGPD</h1>
+<p>Bayesian semiparametric modeling for heavy-tailed outcomes using Dirichlet-process mixtures with optional GPD tails, with conditional and causal extensions.</p>
+<p><a href="getting-started.html" class="btn btn-primary">Getting Started</a> <a href="decision-guide.html" class="btn btn-outline-primary">Decision Guide</a> <a href="pkgdown/reference/index.html" class="btn btn-outline-primary">Reference (pkgdown)</a></p>
+<div style="margin-top:.75rem;font-size:.95rem;color:rgba(0,0,0,.7)">
+<p>Explore the curated documentation in <a href="reference.html">Docs</a> or jump to <a href="faq.html">FAQ</a>.</p>
+</div>
+</section>
+</section>
+<section>
+<section id="choose-your-path" class="level2 container">
+<h2 class="anchored" data-anchor-id="choose-your-path">Choose your path</h2>
+<div class="grid-3">
+<section id="new-users" class="level3 cardx">
+<h3 class="anchored" data-anchor-id="new-users">New users</h3>
+<p>Start with a minimal workflow, then use the Decision Guide to select a backend + kernel.</p>
+<p><a href="getting-started.html" class="btn btn-primary">Getting Started</a> <a href="decision-guide.html" class="btn btn-outline-primary">Decision Guide</a></p>
+</section>
+<section id="applied-users" class="level3 cardx">
+<h3 class="anchored" data-anchor-id="applied-users">Applied users</h3>
+<p>Go straight to the Docs hub, pick kernels, and use the Cookbook for templates. For exact arguments, use pkgdown.</p>
+<p><a href="reference.html" class="btn btn-primary">Docs</a> <a href="kernels.html" class="btn btn-outline-primary">Kernels</a> <a href="cookbook.html" class="btn btn-outline-primary">Cookbook</a></p>
+</section>
+<section id="developers" class="level3 cardx">
+<h3 class="anchored" data-anchor-id="developers">Developers</h3>
+<p>Prefer the vanilla docs and function reference, or dig into build and contribution notes.</p>
+<p><a href="developers.html" class="btn btn-primary">Developers</a> <a href="pkgdown/index.html" class="btn btn-outline-primary">Vanilla site</a></p>
+</section>
+</div>
+</section>
+</section>
+<section>
+<section id="docs-at-a-glance" class="level2 container">
+<h2 class="anchored" data-anchor-id="docs-at-a-glance">Docs at a glance</h2>
+<div class="grid-3">
+<section id="docs-hub" class="level3 cardx">
+<h3 class="anchored" data-anchor-id="docs-hub">Docs hub</h3>
+<p>Curated entry point to everything Quarto-side.</p>
+<p><a href="reference.html" class="btn btn-outline-primary">Open Docs</a></p>
+</section>
+<section id="kernels" class="level3 cardx">
+<h3 class="anchored" data-anchor-id="kernels">Kernels</h3>
+<p>Distribution families, conventions, and practical guidance.</p>
+<p><a href="kernels.html" class="btn btn-outline-primary">Browse Kernels</a></p>
+</section>
+<section id="cookbook" class="level3 cardx">
+<h3 class="anchored" data-anchor-id="cookbook">Cookbook</h3>
+<p>Workflow templates and common analysis patterns.</p>
+<p><a href="cookbook.html" class="btn btn-outline-primary">Open Cookbook</a></p>
+</section>
+<section id="start-here" class="level3 cardx">
+<h3 class="anchored" data-anchor-id="start-here">Start here</h3>
+<p>Minimal setup and your first end-to-end run.</p>
+<p><a href="getting-started.html" class="btn btn-outline-primary">Getting Started</a></p>
+</section>
+<section id="faqs" class="level3 cardx">
+<h3 class="anchored" data-anchor-id="faqs">FAQs</h3>
+<p>Short answers to common questions and gotchas.</p>
+<p><a href="faq.html" class="btn btn-outline-primary">Open FAQ</a></p>
+</section>
+<section id="citation" class="level3 cardx">
+<h3 class="anchored" data-anchor-id="citation">Citation</h3>
+<p>How to cite the package and related work.</p>
+<p><a href="cite.html" class="btn btn-outline-primary">How to cite</a></p>
+</section>
+</div>
+</section>
+</section>
 <section>
 <section id="latest-update" class="level2 container">
 <h2 class="anchored" data-anchor-id="latest-update">Latest update</h2>
 <div class="cardx">
-<p><strong>Documentation refresh and site stabilization</strong><br>
-The Quarto landing site has been finalized as the primary navigation layer, with pkgdown retained as the authoritative API reference. Decision guides, FAQs, and developer notes are now first-class pages.</p>
-<p><a href="news.html" class="btn btn-outline-primary">Read the full update</a></p>
+<p>Documentation is now split cleanly: Quarto provides the curated front door, while pkgdown remains the authoritative vanilla API reference for developers.</p>
+<p><a href="news.html" class="btn btn-outline-primary">Read the update</a></p>
 </div>
 </section>
 </section>
-<section>
-<section id="where-to-start-recommended-path" class="level2 container">
-<h2 class="anchored" data-anchor-id="where-to-start-recommended-path">Where to start (recommended path)</h2>
-<div class="grid-3">
-<section id="new-users" class="level3 cardx">
-<h3 class="anchored" data-anchor-id="new-users">New users</h3>
-<p>If this is your first time here: 1. Read Getting Started<br>
-2. Use the Decision Guide<br>
-3. Follow the first Cookbook workflow</p>
-<p><a href="getting-started.html" class="btn btn-primary">Getting Started</a></p>
-</section>
-<section id="applied-users" class="level3 cardx">
-<h3 class="anchored" data-anchor-id="applied-users">Applied users</h3>
-<p>If you already know what you want to model: - Browse Kernels - Jump straight to Cookbook examples - Use pkgdown for API details</p>
-<p><a href="cookbook.html" class="btn btn-outline-primary">Cookbook</a></p>
-</section>
-<section id="developers-contributors" class="level3 cardx">
-<h3 class="anchored" data-anchor-id="developers-contributors">Developers &amp; contributors</h3>
-<p>If you want to understand internals or contribute: - Developers page - Discussions for design - Issues for bugs</p>
-<p><a href="developers.html" class="btn btn-outline-primary">Developers</a></p>
-</section>
-<section>
-<div class="container">
-<hr>
-<div style="display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between;align-items:center;font-size:.9rem;color:rgba(0,0,0,.65)">
-<div>
-<p>© DPmixGPD · Bayesian semiparametric modeling for heavy-tailed data</p>
-</div>
-<div>
-<p><a href="cite.html">How to cite</a> · <a href="pkgdown/index.html">API reference</a> · <a href="https://github.com/arnabaich96/DPmixGPD">GitHub</a></p>
-</div>
-</div>
-<p>:::</p>
-<p>:::</p>
 
 
-</div>
-</section>
-</div>
-</section>
-</section>
 
 </main> <!-- /main -->
-<div style="
-
+﻿<div style="
   display:flex;
-
   flex-wrap:wrap;
-
   gap:1rem;
-
   justify-content:space-between;
-
   align-items:center;
-
   font-size:0.9rem;
-
   color:rgba(0,0,0,.65);
-
   margin-top:2.5rem;
-
   padding-top:1.2rem;
-
   border-top:1px solid rgba(0,0,0,.1);
-
 ">
 
-
-
   <div>
-
-    © DPmixGPD · Bayesian semiparametric modeling for heavy-tailed data
-
+    (c) DPmixGPD - Bayesian semiparametric modeling for heavy-tailed data
   </div>
 
-
-
   <div>
-
-    <span id="site-version"></span> ·
-
-    <span id="site-updated"></span> ·
-
-    <a href="cite.html">Cite</a> ·
-
-    <a href="pkgdown/index.html">API</a> ·
-
+    <span id="site-version"></span> -
+    <span id="site-updated"></span> -
+    <a href="cite.html">Cite</a> -
+    <a href="pkgdown/index.html">API</a> -
     <a href="https://github.com/arnabaich96/DPmixGPD">GitHub</a>
-
   </div>
-
-
 
 </div>
 
-
-
 <script>
-
   // These values are replaced at build time if present
-
   const version = document.documentElement.getAttribute("data-version");
-
   const updated = document.documentElement.getAttribute("data-updated");
 
-
-
   if (version) {
-
     document.getElementById("site-version").textContent = "Version " + version;
-
   }
-
   if (updated) {
-
     document.getElementById("site-updated").textContent = "Updated " + updated;
-
   }
-
 </script>
 
 <script id="quarto-html-after-body" type="application/javascript">

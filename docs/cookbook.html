@@ -94,56 +94,54 @@ ul.task-list li input[type="checkbox"] {
     <a class="nav-link" href="./index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./getting-started.html"> 
-<span class="menu-text">Getting Started</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-start" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Start</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-start">    
+        <li>
+    <a class="dropdown-item" href="./getting-started.html">
+ <span class="dropdown-text">Getting Started</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./faq.html"> 
-<span class="menu-text">FAQ</span></a>
+        <li>
+    <a class="dropdown-item" href="./decision-guide.html">
+ <span class="dropdown-text">Decision Guide</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./roadmap.html"> 
-<span class="menu-text">Roadmap</span></a>
+        <li>
+    <a class="dropdown-item" href="./faq.html">
+ <span class="dropdown-text">FAQ</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./kernels.html"> 
-<span class="menu-text">Kernels</span></a>
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-docs" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Docs</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-docs">    
+        <li>
+    <a class="dropdown-item" href="./reference.html">
+ <span class="dropdown-text">Docs overview</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link active" href="./cookbook.html" aria-current="page"> 
-<span class="menu-text">Cookbook</span></a>
+        <li>
+    <a class="dropdown-item" href="./kernels.html">
+ <span class="dropdown-text">Kernels</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./reference.html"> 
-<span class="menu-text">Reference</span></a>
+        <li>
+    <a class="dropdown-item" href="./cookbook.html">
+ <span class="dropdown-text">Cookbook</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./cite.html"> 
-<span class="menu-text">Cite</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./coverage.html"> 
-<span class="menu-text">Coverage</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./news.html"> 
-<span class="menu-text">News</span></a>
-  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="./developers.html"> 
 <span class="menu-text">Developers</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./pkgdown/reference/index.html"> 
+<span class="menu-text">Reference</span></a>
+  </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD/discussions"> 
-<span class="menu-text">Discussions</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD/issues"> 
-<span class="menu-text">Bugs</span></a>
-  </li>  
   <li class="nav-item">
     <a class="nav-link" href="./pkgdown/index.html"> 
 <span class="menu-text">Pkgdown</span></a>
@@ -166,91 +164,138 @@ ul.task-list li input[type="checkbox"] {
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content">
 
-
-
-
-
-
-
-</main> <!-- /main -->
-<div style="
-
-  display:flex;
-
-  flex-wrap:wrap;
-
-  gap:1rem;
-
-  justify-content:space-between;
-
-  align-items:center;
-
-  font-size:0.9rem;
-
-  color:rgba(0,0,0,.65);
-
-  margin-top:2.5rem;
-
-  padding-top:1.2rem;
-
-  border-top:1px solid rgba(0,0,0,.1);
-
-">
-
-
-
-  <div>
-
-    © DPmixGPD · Bayesian semiparametric modeling for heavy-tailed data
-
-  </div>
-
-
-
-  <div>
-
-    <span id="site-version"></span> ·
-
-    <span id="site-updated"></span> ·
-
-    <a href="cite.html">Cite</a> ·
-
-    <a href="pkgdown/index.html">API</a> ·
-
-    <a href="https://github.com/arnabaich96/DPmixGPD">GitHub</a>
-
-  </div>
-
-
-
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Cookbook</h1>
 </div>
 
 
 
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="hero">
+<section id="cookbook" class="level1 container">
+<h1>Cookbook</h1>
+<p>This page is a practical launch pad for common DPmixGPD tasks. Use it to pick a workflow path, then open the full walk-through pages.</p>
+<p><a href="workflows/v01-start-here.html" class="btn btn-primary">Start workflow series</a> <a href="roadmap.html" class="btn btn-outline-light">Workflow roadmap</a> <a href="pkgdown/articles/index.html" class="btn btn-outline-light">Open pkgdown articles</a></p>
+</section>
+</div>
+<section>
+<div class="container">
+<div class="grid-3">
+<section id="first-model-in-minutes" class="level3 cardx">
+<h3 class="anchored" data-anchor-id="first-model-in-minutes">First model in minutes</h3>
+<ul>
+<li>Start at <a href="getting-started.html">Getting Started</a></li>
+<li>Then run <a href="pkgdown/articles/introduction.html">Introduction article</a></li>
+<li>Then follow <a href="workflows/v01-start-here.html">Workflow 1: Start Here</a></li>
+</ul>
+</section>
+<section id="unconditional-modeling" class="level3 cardx">
+<h3 class="anchored" data-anchor-id="unconditional-modeling">Unconditional modeling</h3>
+<ul>
+<li>Bulk only: <a href="pkgdown/articles/unconditional.html">Unconditional article</a></li>
+<li>Bulk + tail: <a href="pkgdown/articles/distributions.html">Distributions article</a></li>
+<li>Workflow sequence: <a href="workflows/v05-unconditional-DPmix-CRP.html">v05-v09</a></li>
+</ul>
+</section>
+<section id="conditional-modeling" class="level3 cardx">
+<h3 class="anchored" data-anchor-id="conditional-modeling">Conditional modeling</h3>
+<ul>
+<li>Covariate-driven density modeling: <a href="pkgdown/articles/conditional.html">Conditional article</a></li>
+<li>Model setup details: <a href="pkgdown/articles/model-spec.html">Model specification</a></li>
+<li>Workflow sequence: <a href="workflows/v10-conditional-DPmix-CRP.html">v10-v13</a></li>
+</ul>
+</section>
+<section id="causal-modeling" class="level3 cardx">
+<h3 class="anchored" data-anchor-id="causal-modeling">Causal modeling</h3>
+<ul>
+<li>End-to-end causal workflow: <a href="pkgdown/articles/causal.html">Causal article</a></li>
+<li>S3 outputs and plotting: <a href="pkgdown/articles/reference-s3.html">S3 methods reference</a></li>
+<li>Workflow sequence: <a href="workflows/v14-causal-no-x-CRP.html">v14-v19</a></li>
+</ul>
+</section>
+<section id="backend-decisions" class="level3 cardx">
+<h3 class="anchored" data-anchor-id="backend-decisions">Backend decisions</h3>
+<ul>
+<li>Compare CRP vs stick-breaking: <a href="pkgdown/articles/backends.html">Backends article</a></li>
+<li>Structured choice support: <a href="decision-guide.html">Decision Guide</a></li>
+</ul>
+</section>
+<section id="diagnostics-and-checks" class="level3 cardx">
+<h3 class="anchored" data-anchor-id="diagnostics-and-checks">Diagnostics and checks</h3>
+<ul>
+<li>MCMC process and diagnostics: <a href="pkgdown/articles/mcmc-workflow.html">MCMC workflow</a></li>
+<li>Frequently asked issues: <a href="faq.html">FAQ</a></li>
+</ul>
+</section>
+</div>
+</div>
+</section>
+<section>
+<section id="where-to-go-next" class="level2 container">
+<h2 class="anchored" data-anchor-id="where-to-go-next">Where to go next</h2>
+<ol type="1">
+<li>Use <a href="kernels.html">Kernels</a> if you are uncertain about distribution family selection.</li>
+<li>Use <a href="reference.html">Reference</a> to jump directly to function docs.</li>
+<li>Use <a href="workflows/v20-troubleshooting.html">Workflow troubleshooting</a> if you are blocked.</li>
+</ol>
+</section>
+</section>
+
+
+
+</main> <!-- /main -->
+﻿<div style="
+  display:flex;
+  flex-wrap:wrap;
+  gap:1rem;
+  justify-content:space-between;
+  align-items:center;
+  font-size:0.9rem;
+  color:rgba(0,0,0,.65);
+  margin-top:2.5rem;
+  padding-top:1.2rem;
+  border-top:1px solid rgba(0,0,0,.1);
+">
+
+  <div>
+    (c) DPmixGPD - Bayesian semiparametric modeling for heavy-tailed data
+  </div>
+
+  <div>
+    <span id="site-version"></span> -
+    <span id="site-updated"></span> -
+    <a href="cite.html">Cite</a> -
+    <a href="pkgdown/index.html">API</a> -
+    <a href="https://github.com/arnabaich96/DPmixGPD">GitHub</a>
+  </div>
+
+</div>
+
 <script>
-
   // These values are replaced at build time if present
-
   const version = document.documentElement.getAttribute("data-version");
-
   const updated = document.documentElement.getAttribute("data-updated");
 
-
-
   if (version) {
-
     document.getElementById("site-version").textContent = "Version " + version;
-
   }
-
   if (updated) {
-
     document.getElementById("site-updated").textContent = "Updated " + updated;
-
   }
-
 </script>
 
 <script id="quarto-html-after-body" type="application/javascript">

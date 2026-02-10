@@ -48,14 +48,14 @@ Start here if you're new:
 
 - [**Causal Inference**](causal.html) - Treatment effect estimation with propensity score adjustment
 
-- [**Umbrella: Custom Models (All-in-One)**](website/Customization/umbrella.html) - Consolidated custom model recipes for CRP/SB, GPD, and causal workflows
-- [**Customization: Build NIMBLE Models from Scratch**](website/Customization/customization.html) - Manual SB/CRP workflows using exported nimbleFunctions with full NIMBLE pipelines
+- [**Umbrella: Custom Models (All-in-One)**](../Customization/umbrella.html) - Consolidated custom model recipes for CRP/SB, GPD, and causal workflows
+- [**Customization: Build NIMBLE Models from Scratch**](../Customization/customization.html) - Manual SB/CRP workflows using exported nimbleFunctions with full NIMBLE pipelines
 
 ### Advanced topics
 
 - [**Backends (CRP vs SB)**](backends.html) - Comparing Chinese Restaurant Process and Stick-Breaking inference approaches
 
-- [**S3 Methods Reference**](reference-s3.html) - Complete guide to using `print()`, `summary()`, `if (interactive()) plot()`, `predict()`, and other S3 methods
+- [**S3 Methods Reference**](reference-s3.html) - Complete guide to using `print()`, `summary()`, `plot()`, `predict()`, and other S3 methods
 
 ## How to use this pantry
 
@@ -69,4 +69,7 @@ Start here if you're new:
 DPmixGPD is developed and tested with **nimble 1.4.0** (see `renv.lock`). Other
 recent nimble releases should work, but if you encounter compilation or sampler
 issues, please match the tested version first.
+
+
+
 

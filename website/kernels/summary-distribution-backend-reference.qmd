@@ -1,4 +1,4 @@
----
+﻿---
 title: "Summary: Distribution & Backend Reference"
 pkgdown:
   slug: "kernels/summary-distribution-backend-reference"
@@ -6,118 +6,32 @@ output:
   rmarkdown::html_vignette:
     highlight: null
 vignette: >
-  %\\VignetteIndexEntry{Summary: Distribution & Backend Reference}
+  %\VignetteIndexEntry{Summary: Distribution & Backend Reference}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, include=FALSE}
-source("_load_pkg.R")
-```
-
 ## Summary: Distribution & Backend Reference {#v02-summary-distribution-backend-reference}
 
 This section provides a compact reference for the distributions supported by **DPmixGPD** and the corresponding user-facing function families.  
-The **CRP backend** uses base (single-kernel) functions, while the **SB backend** uses mixture (multi-component) functions. The “Type” column indicates whether each backend expects **scalar** parameters (single value per parameter) or **vectors** indexed by mixture component.
+The **CRP backend** uses base (single-kernel) functions, while the **SB backend** uses mixture (multi-component) functions. The "Type" column indicates whether each backend expects **scalar** parameters (single value per parameter) or **vectors** indexed by mixture component.
 
-
-```{r dist-backend-summary, echo=FALSE, message=FALSE, warning=FALSE}
-df <- data.frame(
-  Distribution = c(
-    "Normal","Gamma","Lognormal","Laplace","Inverse Gaussian","Amoroso","Cauchy",
-    "GPD",
-    "Normal + GPD","Gamma + GPD","Lognormal + GPD","Laplace + GPD","InvGauss + GPD","Amoroso + GPD"
-  ),
-  Parameters = c(
-    "$\\mu,\\,\\sigma$",
-    "$\\alpha,\\,\\beta$",
-    "$\\mu,\\,\\sigma$",
-    "$\\ell,\\,b$",
-    "$\\mu,\\,\\lambda$",
-    "$a,\\,\\theta,\\,\\alpha,\\,\\beta$",
-    "$x_0,\\,\\gamma$",
-    "$u,\\,\\sigma,\\,\\xi$",
-    "$\\mu,\\,\\sigma,\\,u,\\,\\sigma,\\,\\xi$",
-    "$\\alpha,\\,\\beta,\\,u,\\,\\sigma,\\,\\xi$",
-    "$\\mu,\\,\\sigma,\\,u,\\,\\sigma,\\,\\xi$",
-    "$\\ell,\\,b,\\,u,\\,\\sigma,\\,\\xi$",
-    "$\\mu,\\,\\lambda,\\,u,\\,\\sigma,\\,\\xi$",
-    "$a,\\,\\theta,\\,\\alpha,\\,\\beta,\\,u,\\,\\sigma,\\,\\xi$"
-  ),
-  `Arguments` = c(
-    "`mean`, `sd`",
-    "`shape`, `scale`",
-    "`meanlog`, `sdlog`",
-    "`location`, `scale`",
-    "`mean`, `shape`",
-    "`loc`, `scale`, `shape1`, `shape2`",
-    "`location`, `scale`",
-    "`threshold`, `scale`, `shape`",
-    "`mean`, `sd`, `threshold`, `tail_scale`, `tail_shape`",
-    "`shape`, `scale`, `threshold`, `tail_scale`, `tail_shape`",
-    "`meanlog`, `sdlog`, `threshold`, `tail_scale`, `tail_shape`",
-    "`location`, `scale`, `threshold`, `tail_scale`, `tail_shape`",
-    "`mean`, `shape`, `threshold`, `tail_scale`, `tail_shape`",
-    "`loc`, `scale`, `shape1`, `shape2`, `threshold`, `tail_scale`, `tail_shape`"
-  ),
-  `Type` = c(
-    "scalars","scalars","scalars","scalars","scalars","scalars","scalars",
-    "scalars",
-    "scalars","scalars","scalars","scalars","scalars","scalars"
-  ),
-  `Function` = c(
-    "`dnorm()`, `pnorm()`, `qnorm()`, `rnorm()`",
-    "`dgamma()`, `pgamma()`, `qgamma()`, `rgamma()`",
-    "`dlnorm()`, `plnorm()`, `qlnorm()`, `rlnorm()`",
-    "`ddexp()`, `pdexp()`, `qdexp()`, `rdexp()`",
-    "`dinvgauss()`, `pinvgauss()`, `qinvgauss()`, `rinvgauss()`",
-    "`damoroso()`, `pamoroso()`, `qamoroso()`, `ramoroso()`",
-    "`dcauchy()`, `pcauchy()`, `qcauchy()`, `rcauchy()`",
-    "`dGpd()`, `pGpd()`, `qGpd()`, `rGpd()`",
-    "`dNormGpd()`, `pNormGpd()`, `qNormGpd()`, `rNormGpd()`",
-    "`dGammaGpd()`, `pGammaGpd()`, `qGammaGpd()`, `rGammaGpd()`",
-    "`dLognormalGpd()`, `pLognormalGpd()`, `qLognormalGpd()`, `rLognormalGpd()`",
-    "`dLaplaceGpd()`, `pLaplaceGpd()`, `qLaplaceGpd()`, `rLaplaceGpd()`",
-    "`dInvGaussGpd()`, `pInvGaussGpd()`, `qInvGaussGpd()`, `rInvGaussGpd()`",
-    "`dAmorosoGpd()`, `pAmorosoGpd()`, `qAmorosoGpd()`, `rAmorosoGpd()`"
-  ),
-  `Type.` = c(
-    "vectors","vectors","vectors","vectors","vectors","vectors","vectors",
-    "NA",
-    "vectors","vectors + scalars","vectors + scalars","vectors + scalars","vectors + scalars","vectors + scalars"
-  ),
-  `Function.` = c(
-    "`dNormMix()`, `pNormMix()`, `qNormMix()`, `rNormMix()`",
-    "`dGammaMix()`, `pGammaMix()`, `qGammaMix()`, `rGammaMix()`",
-    "`dLognormalMix()`, `pLognormalMix()`, `qLognormalMix()`, `rLognormalMix()`",
-    "`dLaplaceMix()`, `pLaplaceMix()`, `qLaplaceMix()`, `rLaplaceMix()`",
-    "`dInvGaussMix()`, `pInvGaussMix()`, `qInvGaussMix()`, `rInvGaussMix()`",
-    "`dAmorosoMix()`, `pAmorosoMix()`, `qAmorosoMix()`, `rAmorosoMix()`",
-    "`dCauchyMix()`, `pCauchyMix()`, `qCauchyMix()`, `rCauchyMix()`",
-    "NA",
-    "`dNormMixGpd()`, `pNormMixGpd()`, `qNormMixGpd()`, `rNormMixGpd()`",
-    "`dGammaMixGpd()`, `pGammaMixGpd()`, `qGammaMixGpd()`, `rGammaMixGpd()`",
-    "`dLognormalMixGpd()`, `pLognormalMixGpd()`, `qLognormalMixGpd()`, `rLognormalMixGpd()`",
-    "`dLaplaceMixGpd()`, `pLaplaceMixGpd()`, `qLaplaceMixGpd()`, `rLaplaceMixGpd()`",
-    "`dInvGaussMixGpd()`, `pInvGaussMixGpd()`, `qInvGaussMixGpd()`, `rInvGaussMixGpd()`",
-    "`dAmorosoMixGpd()`, `pAmorosoMixGpd()`, `qAmorosoMixGpd()`, `rAmorosoMixGpd()`"
-  ),
-  check.names = FALSE
-)
-
-# Rename SB columns to match header labels cleanly
-names(df)[4:7] <- c("Type", "Function", "Type", "Function")
-
-knitr::kable(
-  df,
-  format = "html",
-  escape = FALSE,
-  align = rep("c", 7)
-) |>
-  kableExtra::kable_styling(full_width = FALSE, position = "center") |>
-  kableExtra::add_header_above(c(" " = 3, "CRP" = 2, "SB" = 2)) |>
-  kableExtra::row_spec(0, bold = TRUE)
-```
+| Distribution | Parameters | Arguments | CRP Type | CRP Function | SB Type | SB Function |
+|---|---|---|---|---|---|---|
+| Normal | $\mu, \sigma$ | `mean`, `sd` | scalars | `dnorm()`, `pnorm()`, `qnorm()`, `rnorm()` | vectors | `dNormMix()`, `pNormMix()`, `qNormMix()`, `rNormMix()` |
+| Gamma | $\alpha, \beta$ | `shape`, `scale` | scalars | `dgamma()`, `pgamma()`, `qgamma()`, `rgamma()` | vectors | `dGammaMix()`, `pGammaMix()`, `qGammaMix()`, `rGammaMix()` |
+| Lognormal | $\mu, \sigma$ | `meanlog`, `sdlog` | scalars | `dlnorm()`, `plnorm()`, `qlnorm()`, `rlnorm()` | vectors | `dLognormalMix()`, `pLognormalMix()`, `qLognormalMix()`, `rLognormalMix()` |
+| Laplace | $\ell, b$ | `location`, `scale` | scalars | `ddexp()`, `pdexp()`, `qdexp()`, `rdexp()` | vectors | `dLaplaceMix()`, `pLaplaceMix()`, `qLaplaceMix()`, `rLaplaceMix()` |
+| Inverse Gaussian | $\mu, \lambda$ | `mean`, `shape` | scalars | `dinvgauss()`, `pinvgauss()`, `qinvgauss()`, `rinvgauss()` | vectors | `dInvGaussMix()`, `pInvGaussMix()`, `qInvGaussMix()`, `rInvGaussMix()` |
+| Amoroso | $a, \theta, \alpha, \beta$ | `loc`, `scale`, `shape1`, `shape2` | scalars | `damoroso()`, `pamoroso()`, `qamoroso()`, `ramoroso()` | vectors | `dAmorosoMix()`, `pAmorosoMix()`, `qAmorosoMix()`, `rAmorosoMix()` |
+| Cauchy | $x_0, \gamma$ | `location`, `scale` | scalars | `dcauchy()`, `pcauchy()`, `qcauchy()`, `rcauchy()` | vectors | `dCauchyMix()`, `pCauchyMix()`, `qCauchyMix()`, `rCauchyMix()` |
+| GPD | $u, \sigma, \xi$ | `threshold`, `scale`, `shape` | scalars | `dGpd()`, `pGpd()`, `qGpd()`, `rGpd()` | NA | NA |
+| Normal + GPD | $\mu, \sigma, u, \sigma, \xi$ | `mean`, `sd`, `threshold`, `tail_scale`, `tail_shape` | scalars | `dNormGpd()`, `pNormGpd()`, `qNormGpd()`, `rNormGpd()` | vectors + scalars | `dNormMixGpd()`, `pNormMixGpd()`, `qNormMixGpd()`, `rNormMixGpd()` |
+| Gamma + GPD | $\alpha, \beta, u, \sigma, \xi$ | `shape`, `scale`, `threshold`, `tail_scale`, `tail_shape` | scalars | `dGammaGpd()`, `pGammaGpd()`, `qGammaGpd()`, `rGammaGpd()` | vectors + scalars | `dGammaMixGpd()`, `pGammaMixGpd()`, `qGammaMixGpd()`, `rGammaMixGpd()` |
+| Lognormal + GPD | $\mu, \sigma, u, \sigma, \xi$ | `meanlog`, `sdlog`, `threshold`, `tail_scale`, `tail_shape` | scalars | `dLognormalGpd()`, `pLognormalGpd()`, `qLognormalGpd()`, `rLognormalGpd()` | vectors + scalars | `dLognormalMixGpd()`, `pLognormalMixGpd()`, `qLognormalMixGpd()`, `rLognormalMixGpd()` |
+| Laplace + GPD | $\ell, b, u, \sigma, \xi$ | `location`, `scale`, `threshold`, `tail_scale`, `tail_shape` | scalars | `dLaplaceGpd()`, `pLaplaceGpd()`, `qLaplaceGpd()`, `rLaplaceGpd()` | vectors + scalars | `dLaplaceMixGpd()`, `pLaplaceMixGpd()`, `qLaplaceMixGpd()`, `rLaplaceMixGpd()` |
+| InvGauss + GPD | $\mu, \lambda, u, \sigma, \xi$ | `mean`, `shape`, `threshold`, `tail_scale`, `tail_shape` | scalars | `dInvGaussGpd()`, `pInvGaussGpd()`, `qInvGaussGpd()`, `rInvGaussGpd()` | vectors + scalars | `dInvGaussMixGpd()`, `pInvGaussMixGpd()`, `qInvGaussMixGpd()`, `rInvGaussMixGpd()` |
+| Amoroso + GPD | $a, \theta, \alpha, \beta, u, \sigma, \xi$ | `loc`, `scale`, `shape1`, `shape2`, `threshold`, `tail_scale`, `tail_shape` | scalars | `dAmorosoGpd()`, `pAmorosoGpd()`, `qAmorosoGpd()`, `rAmorosoGpd()` | vectors + scalars | `dAmorosoMixGpd()`, `pAmorosoMixGpd()`, `qAmorosoMixGpd()`, `rAmorosoMixGpd()` |
 
 ### Notes 
 
@@ -126,9 +40,6 @@ knitr::kable(
 - **SB Backend** uses mixture/spliced mixture functions; component-specific parameters are typically vectors indexed by component \(j\); mixture weights `w` are required as vector.
 
 - For **GPD-only**, SB entries are **NA** because there is no mixture-only GPD wrapper in the SB family.
-
-
-
 
 
 

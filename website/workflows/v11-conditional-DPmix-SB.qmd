@@ -1,4 +1,4 @@
-﻿---
+---
 title: "11. Conditional DPmix with Stick-Breaking Backend"
 output:
   rmarkdown::html_vignette:
@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   cache = TRUE,
-  cache.path = 'legacy-cache/'
+  cache.path = 'legacy-cache-v2/'
 )
 
 # Reproducibility
@@ -40,9 +40,8 @@ library(DPmixGPD)
 if (!require("devtools", quietly = TRUE)) {
   library(devtools)
 }
-if (!(any(search() == "package:DPmixGPD"))) {
-  devtools::load_all(quiet = TRUE)
-}
+pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
+  devtools::load_all(path = pkg_root, quiet = TRUE)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
@@ -65,7 +64,7 @@ source("_legacy-setup.R")
 ## Data Setup
 
 ```{r data-setup}
-data("nc_posX100_p3_k2")
+data("nc_posX100_p3_k2", package = "DPmixGPD")
 y <- nc_posX100_p3_k2$y
 X <- as.matrix(nc_posX100_p3_k2$X)
 if (is.null(colnames(X))) {
@@ -96,7 +95,7 @@ summary_tbl %>%
 ## Model Specification
 
 ```{r spec, cache=FALSE}
-bundle_sb_normal <- build_nimble_bundle(
+bundle_sb_normal <- DPmixGPD::build_nimble_bundle(
   y = y,
   X = X,
   kernel = "normal",
@@ -106,7 +105,7 @@ bundle_sb_normal <- build_nimble_bundle(
   mcmc = mcmc
 )
 
-bundle_sb_cauchy <- build_nimble_bundle(
+bundle_sb_cauchy <- DPmixGPD::build_nimble_bundle(
   y = y,
   X = X,
   kernel = "cauchy",
@@ -207,12 +206,12 @@ bind_rows(quant_df_normal, quant_df_cauchy) %>%
 ## Residuals & Diagnostics
 
 ```{r residuals, cache=FALSE}
-if (interactive()) plot(fitted(fit_sb_cauchy))
+safe_plot(fitted(fit_sb_cauchy))
 ```
 
 ```{r diagnostics}
-if (interactive()) plot(fit_sb_normal, family = c("traceplot", "autocorrelation", "geweke"))
-if (interactive()) plot(fit_sb_cauchy, family = c("density", "running", "caterpillar"))
+safe_plot(fit_sb_normal, family = c("traceplot", "autocorrelation", "geweke"))
+safe_plot(fit_sb_cauchy, family = c("density", "running", "caterpillar"))
 ```
 
 ---
@@ -222,7 +221,22 @@ if (interactive()) plot(fit_sb_cauchy, family = c("density", "running", "caterpi
 - Stick-breaking component count is fixed but still supports covariate-dependent mixtures.
 - `predict(..., type = "density")` returns group-specific densities for each `X`.
 - `predict(..., type = "quantile")` reports posterior-mean quantiles; the median is the 0.5 quantile and shifts with `x1`.
-- Diagnoses rely on the same S3 `if (interactive()) plot()`/`fitted()` pipeline available in other vignettes.
+- Diagnoses rely on the same S3 `plot()`/`fitted()` pipeline available in other vignettes.
+
+---
+
+<!-- workflow-nav:start -->
+## Workflow Navigation
+
+- Previous: [v10-conditional-DPmix-CRP](v10-conditional-DPmix-CRP.html)
+- Next: [v12-conditional-DPmixGPD-CRP](v12-conditional-DPmixGPD-CRP.html)
+- Workflow index: [Roadmap](../roadmap.html)
+- Practical entry: [Cookbook](../cookbook.html)
+<!-- workflow-nav:end -->
+
+
+
+
 
 
 

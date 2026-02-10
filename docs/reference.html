@@ -94,56 +94,54 @@ ul.task-list li input[type="checkbox"] {
     <a class="nav-link" href="./index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./getting-started.html"> 
-<span class="menu-text">Getting Started</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-start" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Start</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-start">    
+        <li>
+    <a class="dropdown-item" href="./getting-started.html">
+ <span class="dropdown-text">Getting Started</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./faq.html"> 
-<span class="menu-text">FAQ</span></a>
+        <li>
+    <a class="dropdown-item" href="./decision-guide.html">
+ <span class="dropdown-text">Decision Guide</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./roadmap.html"> 
-<span class="menu-text">Roadmap</span></a>
+        <li>
+    <a class="dropdown-item" href="./faq.html">
+ <span class="dropdown-text">FAQ</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./kernels.html"> 
-<span class="menu-text">Kernels</span></a>
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-docs" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Docs</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-docs">    
+        <li>
+    <a class="dropdown-item" href="./reference.html">
+ <span class="dropdown-text">Docs overview</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./cookbook.html"> 
-<span class="menu-text">Cookbook</span></a>
+        <li>
+    <a class="dropdown-item" href="./kernels.html">
+ <span class="dropdown-text">Kernels</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link active" href="./reference.html" aria-current="page"> 
-<span class="menu-text">Reference</span></a>
+        <li>
+    <a class="dropdown-item" href="./cookbook.html">
+ <span class="dropdown-text">Cookbook</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./cite.html"> 
-<span class="menu-text">Cite</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./coverage.html"> 
-<span class="menu-text">Coverage</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="./news.html"> 
-<span class="menu-text">News</span></a>
-  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="./developers.html"> 
 <span class="menu-text">Developers</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./pkgdown/reference/index.html"> 
+<span class="menu-text">Reference</span></a>
+  </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD/discussions"> 
-<span class="menu-text">Discussions</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD/issues"> 
-<span class="menu-text">Bugs</span></a>
-  </li>  
   <li class="nav-item">
     <a class="nav-link" href="./pkgdown/index.html"> 
 <span class="menu-text">Pkgdown</span></a>
@@ -166,91 +164,104 @@ ul.task-list li input[type="checkbox"] {
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content" id="quarto-document-content"><header id="title-block-header" class="quarto-title-block"></header>
+<main class="content" id="quarto-document-content">
 
-
-
-
-
-
-
-</main> <!-- /main -->
-<div style="
-
-  display:flex;
-
-  flex-wrap:wrap;
-
-  gap:1rem;
-
-  justify-content:space-between;
-
-  align-items:center;
-
-  font-size:0.9rem;
-
-  color:rgba(0,0,0,.65);
-
-  margin-top:2.5rem;
-
-  padding-top:1.2rem;
-
-  border-top:1px solid rgba(0,0,0,.1);
-
-">
-
-
-
-  <div>
-
-    © DPmixGPD · Bayesian semiparametric modeling for heavy-tailed data
-
-  </div>
-
-
-
-  <div>
-
-    <span id="site-version"></span> ·
-
-    <span id="site-updated"></span> ·
-
-    <a href="cite.html">Cite</a> ·
-
-    <a href="pkgdown/index.html">API</a> ·
-
-    <a href="https://github.com/arnabaich96/DPmixGPD">GitHub</a>
-
-  </div>
-
-
-
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Reference</h1>
 </div>
 
 
 
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="hero">
+<section id="reference" class="level1 container">
+<h1>Reference</h1>
+<p>Use this page to navigate function-level documentation quickly. Conceptual guidance stays in Quarto; full API details remain in pkgdown.</p>
+<p><a href="pkgdown/reference/index.html" class="btn btn-primary">Open API index</a> <a href="pkgdown/articles/index.html" class="btn btn-outline-light">Open articles index</a></p>
+</section>
+</div>
+<section>
+<div class="container">
+<div class="grid-3">
+<section id="core-workflows" class="level3 cardx">
+<h3 class="anchored" data-anchor-id="core-workflows">Core workflows</h3>
+<p>Jump to build/run and prediction-oriented APIs. - <a href="pkgdown/reference/run_mcmc_bundle_manual.html">run_mcmc_bundle_manual</a> - <a href="pkgdown/reference/predict.mixgpd_fit.html">predict.mixgpd_fit</a> - <a href="pkgdown/reference/plot.mixgpd_fit.html">plot.mixgpd_fit</a></p>
+</section>
+<section id="causal-workflows" class="level3 cardx">
+<h3 class="anchored" data-anchor-id="causal-workflows">Causal workflows</h3>
+<p>Entry points for causal bundles, fitting, and effect summaries. - <a href="pkgdown/reference/build_causal_bundle.html">build_causal_bundle</a> - <a href="pkgdown/reference/run_mcmc_causal.html">run_mcmc_causal</a> - <a href="pkgdown/reference/ate.html">ate</a> - <a href="pkgdown/reference/qte.html">qte</a></p>
+</section>
+<section id="registries-and-support" class="level3 cardx">
+<h3 class="anchored" data-anchor-id="registries-and-support">Registries and support</h3>
+<p>Discover supported kernels and tail combinations. - <a href="pkgdown/reference/get_kernel_registry.html">get_kernel_registry</a> - <a href="pkgdown/reference/get_tail_registry.html">get_tail_registry</a> - <a href="pkgdown/reference/kernel_support_table.html">kernel_support_table</a></p>
+</section>
+</div>
+</div>
+</section>
+<section>
+<section id="where-to-go-next" class="level2 container">
+<h2 class="anchored" data-anchor-id="where-to-go-next">Where to go next</h2>
+<ol type="1">
+<li>If you are still choosing a model setup, start at <a href="decision-guide.html">Decision Guide</a>.</li>
+<li>If you need worked examples, go to <a href="cookbook.html">Cookbook</a>.</li>
+<li>If you need exact arguments and return values, stay in <a href="pkgdown/reference/index.html">pkgdown reference</a>.</li>
+</ol>
+</section>
+</section>
+
+
+
+</main> <!-- /main -->
+﻿<div style="
+  display:flex;
+  flex-wrap:wrap;
+  gap:1rem;
+  justify-content:space-between;
+  align-items:center;
+  font-size:0.9rem;
+  color:rgba(0,0,0,.65);
+  margin-top:2.5rem;
+  padding-top:1.2rem;
+  border-top:1px solid rgba(0,0,0,.1);
+">
+
+  <div>
+    (c) DPmixGPD - Bayesian semiparametric modeling for heavy-tailed data
+  </div>
+
+  <div>
+    <span id="site-version"></span> -
+    <span id="site-updated"></span> -
+    <a href="cite.html">Cite</a> -
+    <a href="pkgdown/index.html">API</a> -
+    <a href="https://github.com/arnabaich96/DPmixGPD">GitHub</a>
+  </div>
+
+</div>
+
 <script>
-
   // These values are replaced at build time if present
-
   const version = document.documentElement.getAttribute("data-version");
-
   const updated = document.documentElement.getAttribute("data-updated");
 
-
-
   if (version) {
-
     document.getElementById("site-version").textContent = "Version " + version;
-
   }
-
   if (updated) {
-
     document.getElementById("site-updated").textContent = "Updated " + updated;
-
   }
-
 </script>
 
 <script id="quarto-html-after-body" type="application/javascript">

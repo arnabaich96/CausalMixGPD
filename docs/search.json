@@ -77,6 +77,13 @@
     "text": "9. “Cannot resolve owner of file” / “No mapping between account names and security IDs” (Windows)\nCause: The project or package lives in OneDrive (or another synced/network path). Windows cannot map file-owner SIDs to account names when R uses file.info() on those paths.\nFix: The warnings are harmless; DPmixGPD and nimble load and run normally. If you keep the project in OneDrive (e.g. as a backup to GitHub), the project .Rprofile suppresses these warnings automatically when using R &gt;= 4.0. Otherwise, move the project to a local non-synced path or take ownership of the OneDrive folder (right-click -&gt; Properties -&gt; Security -&gt; Advanced -&gt; Take ownership)."
   },
   {
+    "objectID": "workflows/v20-troubleshooting.html#workflow-navigation",
+    "href": "workflows/v20-troubleshooting.html#workflow-navigation",
+    "title": "Workflow: Troubleshooting",
+    "section": "Workflow Navigation",
+    "text": "Workflow Navigation\n\nPrevious: v19-causal-different-backends-SB\nNext: none (end of workflow series)\nWorkflow index: Roadmap\nPractical entry: Cookbook"
+  },
+  {
     "objectID": "workflows/v18-causal-different-backends-CRP.html",
     "href": "workflows/v18-causal-different-backends-CRP.html",
     "title": "18. Causal Inference: Mixed Backends (Bulk-only) - Cauchy Kernel",
@@ -103,6 +110,13 @@
     "title": "18. Causal Inference: Mixed Backends (Bulk-only) - Cauchy Kernel",
     "section": "Model B: Treated CRP, Control SB (Cauchy)",
     "text": "Model B: Treated CRP, Control SB (Cauchy)\n\nbundle_crp_sb &lt;- build_causal_bundle(\n  y = y,\n  T = T,\n  X = X,\n  kernel = c(\"cauchy\", \"cauchy\"),\n  backend = c(\"crp\", \"sb\"),\n  PS = \"logit\",\n  GPD = c(FALSE, FALSE),\n  components = c(5, 5),\n  mcmc_outcome = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 2),\n  mcmc_ps = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 2)\n)\n\nbundle_crp_sb\nsummary(bundle_crp_sb)\n\n\nfit_crp_sb &lt;- run_mcmc_causal(bundle_crp_sb)\nsummary(fit_crp_sb)\nparams(fit_crp_sb)\n\n\nif (interactive()) plot(fit_crp_sb, family = c(\"density\", \"geweke\", \"caterpillar\"))\n\n\npred_mean_crp_sb &lt;- predict(fit_crp_sb, x = x_eval, type = \"mean\",\n                            interval = \"credible\", nsim_mean = 100)\nif (interactive()) plot(pred_mean_crp_sb)\n\n\npred_q_crp_sb &lt;- predict(fit_crp_sb, x = x_eval, type = \"quantile\",\n                         p = 0.5, interval = \"credible\")\nif (interactive()) plot(pred_q_crp_sb)\n\n\npred_d_crp_sb &lt;- predict(fit_crp_sb, x = x_eval, y = y_eval,\n                         type = \"density\", interval = \"credible\")\nif (interactive()) plot(pred_d_crp_sb)\n\n\npred_surv_crp_sb &lt;- predict(fit_crp_sb, x = x_eval, y = y_eval,\n                            type = \"survival\", interval = \"credible\")\nif (interactive()) plot(pred_surv_crp_sb)\n\n\nate_crp_sb &lt;- ate(fit_crp_sb, newdata = x_eval,\n                  interval = \"credible\", nsim_mean = 100)\nif (interactive()) plot(ate_crp_sb)\n\n\nqte_crp_sb &lt;- qte(fit_crp_sb, probs = c(0.25, 0.5, 0.75),\n                  newdata = x_eval, interval = \"credible\")\nif (interactive()) plot(qte_crp_sb)"
+  },
+  {
+    "objectID": "workflows/v18-causal-different-backends-CRP.html#workflow-navigation",
+    "href": "workflows/v18-causal-different-backends-CRP.html#workflow-navigation",
+    "title": "18. Causal Inference: Mixed Backends (Bulk-only) - Cauchy Kernel",
+    "section": "Workflow Navigation",
+    "text": "Workflow Navigation\n\nPrevious: v17-causal-same-backend-SB\nNext: v19-causal-different-backends-SB\nWorkflow index: Roadmap\nPractical entry: Cookbook"
   },
   {
     "objectID": "workflows/v16-causal-same-backend-CRP.html",
@@ -133,6 +147,13 @@
     "text": "Model B: SB with GPD Tail (Laplace)\n\nparam_specs_gpd &lt;- list(\n  gpd = list(\n    threshold = list(\n      mode = \"dist\",\n      dist = \"lognormal\",\n      args = list(meanlog = log(max(u_threshold, .Machine$double.eps)), sdlog = 0.25)\n    )\n  )\n)\n\nbundle_sb_gpd &lt;- build_causal_bundle(\n  y = y,\n  T = T,\n  X = X,\n  kernel = \"laplace\",\n  backend = \"sb\",\n  PS = \"logit\",\n  GPD = TRUE,\n  components = 5,\n  param_specs = param_specs_gpd,\n  mcmc_outcome = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 2),\n  mcmc_ps = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 2)\n)\n\nbundle_sb_gpd\nsummary(bundle_sb_gpd)\n\n\nfit_sb_gpd &lt;- quiet_mcmc(run_mcmc_causal(bundle_sb_gpd))\nsummary(fit_sb_gpd)\nparams(fit_sb_gpd)\n\n\nif (interactive()) plot(fit_sb_gpd, family = c(\"density\", \"geweke\", \"caterpillar\"))\n\n\npred_mean_gpd &lt;- predict(fit_sb_gpd, x = x_eval, type = \"mean\",\n                         interval = \"credible\", nsim_mean = 100)\nhead(pred_mean_gpd)\nif (interactive()) plot(pred_mean_gpd)\n\n\npred_q_gpd &lt;- predict(fit_sb_gpd, x = x_eval, type = \"quantile\",\n                      p = 0.5, interval = \"credible\")\nhead(pred_q_gpd)\nif (interactive()) plot(pred_q_gpd)\n\n\npred_d_gpd &lt;- predict(fit_sb_gpd, x = x_eval, y = y_eval,\n                      type = \"density\", interval = \"credible\")\nhead(pred_d_gpd)\nif (interactive()) plot(pred_d_gpd)\n\n\npred_surv_gpd &lt;- predict(fit_sb_gpd, x = x_eval, y = y_eval,\n                         type = \"survival\", interval = \"credible\")\nhead(pred_surv_gpd)\nif (interactive()) plot(pred_surv_gpd)\n\n\nate_gpd &lt;- ate(fit_sb_gpd, newdata = x_eval,\n               interval = \"credible\", nsim_mean = 100)\nhead(ate_gpd)\nif (interactive()) plot(ate_gpd)\n\n\nqte_gpd &lt;- qte(fit_sb_gpd, probs = c(0.25, 0.5, 0.75),\n               newdata = x_eval, interval = \"credible\")\nhead(qte_gpd)\nif (interactive()) plot(qte_gpd)"
   },
   {
+    "objectID": "workflows/v16-causal-same-backend-CRP.html#workflow-navigation",
+    "href": "workflows/v16-causal-same-backend-CRP.html#workflow-navigation",
+    "title": "16. Causal Inference: Mixed Backends (CRP+SB) - Cauchy/Laplace",
+    "section": "Workflow Navigation",
+    "text": "Workflow Navigation\n\nPrevious: v15-causal-x-no-ps-SB\nNext: v17-causal-same-backend-SB\nWorkflow index: Roadmap\nPractical entry: Cookbook"
+  },
+  {
     "objectID": "workflows/v14-causal-no-x-CRP.html",
     "href": "workflows/v14-causal-no-x-CRP.html",
     "title": "14. Causal Inference: No X (CRP) - Gamma Kernel",
@@ -159,6 +180,13 @@
     "title": "14. Causal Inference: No X (CRP) - Gamma Kernel",
     "section": "Model B: CRP with GPD Tail (Gamma)",
     "text": "Model B: CRP with GPD Tail (Gamma)\n\nparam_specs_gpd &lt;- list(\n  gpd = list(\n    threshold = list(\n      mode = \"dist\",\n      dist = \"lognormal\",\n      args = list(meanlog = log(max(u_threshold, .Machine$double.eps)), sdlog = 0.25)\n    )\n  )\n)\n\nbundle_crp_gpd &lt;- build_causal_bundle(\n  y = y,\n  T = T,\n  X = NULL,\n  kernel = \"gamma\",\n  backend = \"crp\",\n  PS = FALSE,\n  GPD = TRUE,\n  components = 6,\n  param_specs = param_specs_gpd,\n  mcmc_outcome = list(niter = 300, nburnin = 80, nchains = 1, thin = 1, seed = 2)\n)\n\nbundle_crp_gpd\n\n\nfit_crp_gpd &lt;- quiet_mcmc(run_mcmc_causal(bundle_crp_gpd))\nsummary(fit_crp_gpd)\n\n\npred_mean_gpd &lt;- predict(fit_crp_gpd, type = \"mean\", interval = \"credible\", nsim_mean = 150)\nhead(pred_mean_gpd)\nif (interactive()) plot(pred_mean_gpd)\n\n\npred_q_gpd &lt;- predict(fit_crp_gpd, type = \"quantile\", p = 0.5, interval = \"credible\")\nhead(pred_q_gpd)\nif (interactive()) plot(pred_q_gpd)\n\n\npred_d_gpd &lt;- predict(fit_crp_gpd, y = y_eval, type = \"density\", interval = \"credible\")\nhead(pred_d_gpd)\nif (interactive()) plot(pred_d_gpd)\n\n\npred_surv_gpd &lt;- predict(fit_crp_gpd, y = y_eval, type = \"survival\", interval = \"credible\")\nhead(pred_surv_gpd)\nif (interactive()) plot(pred_surv_gpd)\n\n\nate_gpd &lt;- ate(fit_crp_gpd, interval = \"credible\", nsim_mean = 150)\nhead(ate_gpd)\nif (interactive()) plot(ate_gpd)\n\n\nqte_gpd &lt;- qte(fit_crp_gpd, probs = c(0.25, 0.5, 0.75), interval = \"credible\")\nhead(qte_gpd)\nif (interactive()) plot(qte_gpd)"
+  },
+  {
+    "objectID": "workflows/v14-causal-no-x-CRP.html#workflow-navigation",
+    "href": "workflows/v14-causal-no-x-CRP.html#workflow-navigation",
+    "title": "14. Causal Inference: No X (CRP) - Gamma Kernel",
+    "section": "Workflow Navigation",
+    "text": "Workflow Navigation\n\nPrevious: v13-conditional-DPmixGPD-SB\nNext: v15-causal-x-no-ps-SB\nWorkflow index: Roadmap\nPractical entry: Cookbook"
   },
   {
     "objectID": "workflows/v12-conditional-DPmixGPD-CRP.html",
@@ -224,6 +252,13 @@
     "text": "Takeaways\n\nConditional DPmix with a GPD tail lets posterior-mean extreme quantiles vary with covariates.\nThe CRP backend samples the bulk and tail jointly while thresholding at the 85th percentile.\npredict() + if (interactive()) plot() remain the main tools for densities, survival curves, and quantiles; residual diagnostics check fit quality.\nNext: Mirror this workflow with the SB backend in v11."
   },
   {
+    "objectID": "workflows/v12-conditional-DPmixGPD-CRP.html#workflow-navigation",
+    "href": "workflows/v12-conditional-DPmixGPD-CRP.html#workflow-navigation",
+    "title": "12. Conditional DPmixGPD with CRP Backend",
+    "section": "Workflow Navigation",
+    "text": "Workflow Navigation\n\nPrevious: v11-conditional-DPmix-SB\nNext: v13-conditional-DPmixGPD-SB\nWorkflow index: Roadmap\nPractical entry: Cookbook"
+  },
+  {
     "objectID": "workflows/v10-conditional-DPmix-CRP.html",
     "href": "workflows/v10-conditional-DPmix-CRP.html",
     "title": "10. Conditional DPmix with CRP Backend",
@@ -278,6 +313,13 @@
     "title": "10. Conditional DPmix with CRP Backend",
     "section": "Takeaways",
     "text": "Takeaways\n\nCovariate-informed DP mixtures predict outcome distributions that shift with x1 (and other covariates).\nUse predict(..., type = \"density\") to visualize conditional densities and type = \"quantile\" for posterior-mean location shifts.\nDiagnostics (if (interactive()) plot(fit_cond_normal), fitted(fit_cond_normal)) ensure the chains mix before relying on predictions.\nNext vignette extends the same idea to the SB backend before adding tails."
+  },
+  {
+    "objectID": "workflows/v10-conditional-DPmix-CRP.html#workflow-navigation",
+    "href": "workflows/v10-conditional-DPmix-CRP.html#workflow-navigation",
+    "title": "10. Conditional DPmix with CRP Backend",
+    "section": "Workflow Navigation",
+    "text": "Workflow Navigation\n\nPrevious: v09-unconditional-DPmixGPD-SB\nNext: v11-conditional-DPmix-SB\nWorkflow index: Roadmap\nPractical entry: Cookbook"
   },
   {
     "objectID": "workflows/v08-unconditional-DPmixGPD-CRP.html",
@@ -350,6 +392,13 @@
     "text": "Key Takeaways\n\nBulk + Tail: DPmix explains the bulk, and GPD captures the extremes.\nThreshold: 0.8 quantile is our running default, but sensitivity checks guide the choice.\nS3 workflows: predict() and its if (interactive()) plot() method make it easy to compare density, survival, and quantiles.\nComparison: Bulk-only fits under-estimate extreme quantiles without a GPD component.\nNext: Explore Stick-Breaking (v07) for another backend with tail augmentation."
   },
   {
+    "objectID": "workflows/v08-unconditional-DPmixGPD-CRP.html#workflow-navigation",
+    "href": "workflows/v08-unconditional-DPmixGPD-CRP.html#workflow-navigation",
+    "title": "8. Unconditional DPmixGPD with CRP Backend",
+    "section": "Workflow Navigation",
+    "text": "Workflow Navigation\n\nPrevious: v07-unconditional-DPmix-SB\nNext: v09-unconditional-DPmixGPD-SB\nWorkflow index: Roadmap\nPractical entry: Cookbook"
+  },
+  {
     "objectID": "workflows/v06-unconditional-DPmix-CRP.html",
     "href": "workflows/v06-unconditional-DPmix-CRP.html",
     "title": "6. Unconditional DPmix with CRP Backend",
@@ -406,11 +455,25 @@
     "text": "Key Takeaways\n\nCRP Backend: Flexible component allocation, ideal for unknown mixture complexity\ncomponents Parameter: Higher components allows more components but increases computation\nKernel Choice: Gamma suitable for positive, skewed data\nDiagnostics: Check convergence (Rhat, ESS) and posterior predictive fit\nNext: Compare with Stick-Breaking (SB) backend in vignette 5"
   },
   {
+    "objectID": "workflows/v06-unconditional-DPmix-CRP.html#workflow-navigation",
+    "href": "workflows/v06-unconditional-DPmix-CRP.html#workflow-navigation",
+    "title": "6. Unconditional DPmix with CRP Backend",
+    "section": "Workflow Navigation",
+    "text": "Workflow Navigation\n\nPrevious: v05-unconditional-DPmix-CRP\nNext: v07-unconditional-DPmix-SB\nWorkflow index: Roadmap\nPractical entry: Cookbook"
+  },
+  {
     "objectID": "workflows/v04-backends-and-workflow.html",
     "href": "workflows/v04-backends-and-workflow.html",
     "title": "4. Backends, Kernels, and Workflow Map",
     "section": "",
-    "text": "Legacy vignette (for the website / historical notes). These files may not match the current exported API one-to-one. Last verified: 2026-01-18.\nFor the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).\n\n\nBig picture\nDPmixGPD has two orthogonal dials you turn when building models:\n\nBackend (how the mixture weights / clustering are represented)\n\nCRP: Chinese Restaurant Process representation.\nSB: stick-breaking truncation with a fixed number of components.\n\nKernel / family (what distribution models the bulk of the data)\n\nExamples: normal, lognormal, gamma, inverse-Gaussian, Laplace, Cauchy, Amoroso, etc.\n\n\nOptionally, you can also turn on:\n\nGPD = TRUE/FALSE to splice a Generalized Pareto tail beyond a threshold.\n\n\n\nWhat changes between CRP and SB?\nBoth backends target the same posterior over densities. The difference is representation:\n\nCRP learns a random number of occupied clusters within a finite components cap.\nSB uses the same finite components cap and learns stick-breaking weights.\n\nPractical rule of thumb:\n\nCRP is convenient when you want adaptive complexity while still using a finite components cap.\nSB is convenient when you want predictable memory/time and easy vectorization.\n\n\n\nWhat does the workflow look like?\nDPmixGPD uses a consistent build -&gt; run -&gt; summarize loop:\n\nBuild a bundle using build_nimble_bundle() (or causal builders if you are doing TE work).\nRun MCMC using run_mcmc_bundle_manual().\nInspect and summarize using print(), summary(), if (interactive()) plot().\nPredict using predict(). For conditional (covariate) models, fitted() is also available.\n\n\n# Build\nbundle &lt;- build_nimble_bundle(\n  y = rnorm(50),\n  backend = \"crp\",\n  kernel = \"normal\",\n  GPD = FALSE,\n  components = 5,\n  mcmc = mcmc\n)\n\n# Run\nfit &lt;- load_or_fit(\"v04-backends-and-workflow-fit\", run_mcmc_bundle_manual(bundle))\n\n# Summarize\nprint(fit)\nsummary(fit)\nif (interactive()) plot(fit)\n\n\n\nKernel support quick check\nUse kernel_support_table() and the kernel registry helpers to confirm what is available.\n\nkernel_support_table()\n\n\n\nWhere to go next\n\nAvailable distributions: see v02 for the d/p/q/r functions and examples.\nBasic build/compile/run: see v03.\nUnconditional / Conditional / Causal: continue through v06+."
+    "text": "Legacy vignette (for the website / historical notes). These files may not match the current exported API one-to-one. Last verified: 2026-01-18.\nFor the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference)."
+  },
+  {
+    "objectID": "workflows/v04-backends-and-workflow.html#workflow-navigation",
+    "href": "workflows/v04-backends-and-workflow.html#workflow-navigation",
+    "title": "4. Backends, Kernels, and Workflow Map",
+    "section": "Workflow Navigation",
+    "text": "Workflow Navigation\n\nPrevious: v03-basic-model-compile-run\nNext: v05-unconditional-DPmix-CRP\nWorkflow index: Roadmap\nPractical entry: Cookbook"
   },
   {
     "objectID": "workflows/v02-introduction.html",
@@ -466,7 +529,7 @@
     "href": "workflows/v02-introduction.html#outline-of-this-vignette-series",
     "title": "2. Introduction to DPmixGPD",
     "section": "Outline of This Vignette Series",
-    "text": "Outline of This Vignette Series\n\nIntroduction (this vignette)\nAvailable Distributions: dqrp functions, 10k samples, visualizations\nBasic Model Workflow: compile â†’ bundle â†’ MCMC\nUnconditional DPmix (CRP): bulk-only, no covariates\nUnconditional DPmix (SB): bulk-only, no covariates\nUnconditional DPmixGPD (CRP): bulk+tail, no covariates\nUnconditional DPmixGPD (SB): bulk+tail, no covariates\nConditional DPmix (CRP): bulk-only, with covariates\nConditional DPmix (SB): bulk-only, with covariates\nConditional DPmixGPD (CRP): bulk+tail, with covariates\nConditional DPmixGPD (SB): bulk+tail, with covariates\nCausal (Same Backend CRP): PS + treatment effects, CRP\nCausal (Same Backend SB): PS + treatment effects, SB\nCausal (Different Backends CRP): Per-arm backends, CRP\nCausal (Different Backends SB): Per-arm backends, SB"
+    "text": "Outline of This Vignette Series\n\nIntroduction (this vignette)\nAvailable Distributions: dqrp functions, 10k samples, visualizations\nBasic Model Workflow: compile -&gt; bundle -&gt; MCMC\nUnconditional DPmix (CRP): bulk-only, no covariates\nUnconditional DPmix (SB): bulk-only, no covariates\nUnconditional DPmixGPD (CRP): bulk+tail, no covariates\nUnconditional DPmixGPD (SB): bulk+tail, no covariates\nConditional DPmix (CRP): bulk-only, with covariates\nConditional DPmix (SB): bulk-only, with covariates\nConditional DPmixGPD (CRP): bulk+tail, with covariates\nConditional DPmixGPD (SB): bulk+tail, with covariates\nCausal (Same Backend CRP): PS + treatment effects, CRP\nCausal (Same Backend SB): PS + treatment effects, SB\nCausal (Different Backends CRP): Per-arm backends, CRP\nCausal (Different Backends SB): Per-arm backends, SB"
   },
   {
     "objectID": "workflows/v02-introduction.html#dependencies",
@@ -474,6 +537,13 @@
     "title": "2. Introduction to DPmixGPD",
     "section": "Dependencies",
     "text": "Dependencies\n\npackageVersion(\"DPmixGPD\")\npackageVersion(\"nimble\")\npackageVersion(\"ggplot2\")\n\nEach vignette demonstrates complete workflows with reproducible examples."
+  },
+  {
+    "objectID": "workflows/v02-introduction.html#workflow-navigation",
+    "href": "workflows/v02-introduction.html#workflow-navigation",
+    "title": "2. Introduction to DPmixGPD",
+    "section": "Workflow Navigation",
+    "text": "Workflow Navigation\n\nPrevious: v01-start-here\nNext: v03-basic-model-compile-run\nWorkflow index: Roadmap\nPractical entry: Cookbook"
   },
   {
     "objectID": "vignettes/unconditional.html",
@@ -543,7 +613,7 @@
     "href": "vignettes/model-spec.html#theory-core-model",
     "title": "Model Specification",
     "section": "Theory (core model)",
-    "text": "Theory (core model)\n\nBulk mixture\nFor outcomes \\(y_i\\) and kernel \\(K\\), the bulk distribution is modeled as a DP mixture: \\[\nf(y_i) = \\\\int K(y_i; \\\\theta)\\\\, dG(\\\\theta), \\\\quad G \\\\sim \\\\mathrm{DP}(\\\\alpha, G_0).\n\\] The DP prior on \\(G\\) induces clustering of component parameters and allows the mixture to adapt to unknown distributional shapes.\n\n\nTail augmentation (optional)\nWhen \\(\\mathrm{GPD} = \\mathrm{TRUE}\\), a Generalized Pareto tail replaces the bulk kernel beyond a threshold \\(u\\): \\[\nf(y) =\n\\begin{cases}\nf_{\\text{bulk}}(y), & y \\le u \\\\\nf_{\\text{GPD}}(y; u, \\sigma, \\xi), & y &gt; u\n\\end{cases}\n\\] with continuity enforced at the threshold.\n\n\nConditional extension\nConditional models allow kernel parameters to depend on covariates \\(x_i\\): \\[\nf(y_i \\mid x_i) = \\int K(y_i; \\theta(x_i))\\, dG(\\theta).\n\\] The linking structure is kernel-specific and implemented in the model builder."
+    "text": "Theory (core model)\n\nBulk mixture\nFor outcomes \\(y_i\\) and kernel \\(K\\), the bulk distribution is modeled as a DP mixture: \\[\nf(y_i) = \\int K(y_i; \\theta)\\, dG(\\theta), \\quad G \\sim \\mathrm{DP}(\\alpha, G_0).\n\\] The DP prior on \\(G\\) induces clustering of component parameters and allows the mixture to adapt to unknown distributional shapes.\n\n\nTail augmentation (optional)\nWhen \\(\\mathrm{GPD} = \\mathrm{TRUE}\\), a Generalized Pareto tail replaces the bulk kernel beyond a threshold \\(u\\): \\[\nf(y) =\n\\begin{cases}\nf_{\\text{bulk}}(y), & y \\le u \\\\\nf_{\\text{GPD}}(y; u, \\sigma, \\xi), & y &gt; u\n\\end{cases}\n\\] with continuity enforced at the threshold.\n\n\nConditional extension\nConditional models allow kernel parameters to depend on covariates \\(x_i\\): \\[\nf(y_i \\mid x_i) = \\int K(y_i; \\theta(x_i))\\, dG(\\theta).\n\\] The linking structure is kernel-specific and implemented in the model builder."
   },
   {
     "objectID": "vignettes/model-spec.html#core-constructor",
@@ -767,7 +837,7 @@
     "href": "roadmap.html",
     "title": "Roadmap",
     "section": "",
-    "text": "Roadmap\nA structured view of the project: how the model components fit together and how users typically move from basic fits to advanced workflows. Use this page as the “map,” and the Cookbook as the “hands-on guide.”\nGo to Cookbook Browse Kernels\n\n\n\n\n\n\n1) Start small\nConfirm the basic build and run cycle on a small dataset before scaling up. - Entry: Getting Started\n\n\n2) Choose a kernel and tail strategy\nPick a bulk kernel that matches the typical data regime, then decide whether tail modeling is needed. - Overview: Kernels - API: Kernel support table\n\n\n3) Fit, diagnose, iterate\nRun MCMC, inspect mixing and stability, and validate predictive behavior before you interpret tail risk. - Practical: Cookbook\n\n\n4) Prediction and summaries\nGenerate predictive quantities (densities, cdfs, quantiles, tail summaries) and extract results for reporting. - Curated entry: Reference\n\n\n5) Conditional, causal, and survival workflows\nWhen covariates or treatment effects matter, move to the conditional/causal toolchain. - Start here: Cookbook\n\n\n6) Community + contribution\n\nIdeas and design: Discussions\nBugs: Issues\nDev notes: Developers"
+    "text": "Roadmap\nA structured view of the project: how the model components fit together and how users typically move from basic fits to advanced workflows. Use this page as the “map,” and the Cookbook as the “hands-on guide.”\nStart workflow series Go to Cookbook Browse Kernels\n\n\n\n\n\n\n1) Start small\nConfirm the basic build and run cycle on a small dataset before scaling up. - Entry: Getting Started - Workflow: v01 Start Here\n\n\n2) Choose a kernel and tail strategy\nPick a bulk kernel that matches the typical data regime, then decide whether tail modeling is needed. - Overview: Kernels - API: Kernel support table\n\n\n3) Fit, diagnose, iterate\nRun MCMC, inspect mixing and stability, and validate predictive behavior before you interpret tail risk. - Practical workflow: v03 Basic Workflow\n\n\n4) Prediction and summaries\nGenerate predictive quantities (densities, cdfs, quantiles, tail summaries) and extract results for reporting. - Curated entry: Reference\n\n\n5) Conditional, causal, and survival workflows\nWhen covariates or treatment effects matter, move to the conditional/causal toolchain. - Conditional start: v10 Conditional DPmix CRP - Causal start: v14 Causal no X CRP\n\n\n6) Community + contribution\n\nIdeas and design: Discussions\nBugs: Issues\nDev notes: Developers"
   },
   {
     "objectID": "news.html",
@@ -802,21 +872,21 @@
     "href": "news.html#where-to-follow-development",
     "title": "News",
     "section": "Where to follow development",
-    "text": "Where to follow development\n\nFeature ideas and design discussions:\nhttps://github.com/arnabaich96/DPmixGPD/discussions\nBug reports and actionable issues:\nhttps://github.com/arnabaich96/DPmixGPD/issues\nCode changes and history:\nhttps://github.com/arnabaich96/DPmixGPD/commits/main\n\nThis page will be updated periodically to reflect major changes or milestones."
+    "text": "Where to follow development\n\nFeature ideas and design discussions:\nhttps://github.com/arnabaich96/DPmixGPD/discussions\nBug reports and actionable issues:\nhttps://github.com/arnabaich96/DPmixGPD/issues\nCode changes and history:\nhttps://github.com/arnabaich96/DPmixGPD/commits\n\nThis page will be updated periodically to reflect major changes or milestones."
   },
   {
     "objectID": "kernels/summary-distribution-backend-reference.html",
     "href": "kernels/summary-distribution-backend-reference.html",
     "title": "Summary: Distribution & Backend Reference",
     "section": "",
-    "text": "This section provides a compact reference for the distributions supported by DPmixGPD and the corresponding user-facing function families.\nThe CRP backend uses base (single-kernel) functions, while the SB backend uses mixture (multi-component) functions. The “Type” column indicates whether each backend expects scalar parameters (single value per parameter) or vectors indexed by mixture component.\n\n\n\nCRP Backend uses base (single-kernel) functions; parameters are scalar.\nSB Backend uses mixture/spliced mixture functions; component-specific parameters are typically vectors indexed by component (j); mixture weights w are required as vector.\nFor GPD-only, SB entries are NA because there is no mixture-only GPD wrapper in the SB family."
+    "text": "This section provides a compact reference for the distributions supported by DPmixGPD and the corresponding user-facing function families.\nThe CRP backend uses base (single-kernel) functions, while the SB backend uses mixture (multi-component) functions. The “Type” column indicates whether each backend expects scalar parameters (single value per parameter) or vectors indexed by mixture component.\n\n\n\n\n\n\n\n\n\n\n\n\nDistribution\nParameters\nArguments\nCRP Type\nCRP Function\nSB Type\nSB Function\n\n\n\n\nNormal\n\\(\\mu, \\sigma\\)\nmean, sd\nscalars\ndnorm(), pnorm(), qnorm(), rnorm()\nvectors\ndNormMix(), pNormMix(), qNormMix(), rNormMix()\n\n\nGamma\n\\(\\alpha, \\beta\\)\nshape, scale\nscalars\ndgamma(), pgamma(), qgamma(), rgamma()\nvectors\ndGammaMix(), pGammaMix(), qGammaMix(), rGammaMix()\n\n\nLognormal\n\\(\\mu, \\sigma\\)\nmeanlog, sdlog\nscalars\ndlnorm(), plnorm(), qlnorm(), rlnorm()\nvectors\ndLognormalMix(), pLognormalMix(), qLognormalMix(), rLognormalMix()\n\n\nLaplace\n\\(\\ell, b\\)\nlocation, scale\nscalars\nddexp(), pdexp(), qdexp(), rdexp()\nvectors\ndLaplaceMix(), pLaplaceMix(), qLaplaceMix(), rLaplaceMix()\n\n\nInverse Gaussian\n\\(\\mu, \\lambda\\)\nmean, shape\nscalars\ndinvgauss(), pinvgauss(), qinvgauss(), rinvgauss()\nvectors\ndInvGaussMix(), pInvGaussMix(), qInvGaussMix(), rInvGaussMix()\n\n\nAmoroso\n\\(a, \\theta, \\alpha, \\beta\\)\nloc, scale, shape1, shape2\nscalars\ndamoroso(), pamoroso(), qamoroso(), ramoroso()\nvectors\ndAmorosoMix(), pAmorosoMix(), qAmorosoMix(), rAmorosoMix()\n\n\nCauchy\n\\(x_0, \\gamma\\)\nlocation, scale\nscalars\ndcauchy(), pcauchy(), qcauchy(), rcauchy()\nvectors\ndCauchyMix(), pCauchyMix(), qCauchyMix(), rCauchyMix()\n\n\nGPD\n\\(u, \\sigma, \\xi\\)\nthreshold, scale, shape\nscalars\ndGpd(), pGpd(), qGpd(), rGpd()\nNA\nNA\n\n\nNormal + GPD\n\\(\\mu, \\sigma, u, \\sigma, \\xi\\)\nmean, sd, threshold, tail_scale, tail_shape\nscalars\ndNormGpd(), pNormGpd(), qNormGpd(), rNormGpd()\nvectors + scalars\ndNormMixGpd(), pNormMixGpd(), qNormMixGpd(), rNormMixGpd()\n\n\nGamma + GPD\n\\(\\alpha, \\beta, u, \\sigma, \\xi\\)\nshape, scale, threshold, tail_scale, tail_shape\nscalars\ndGammaGpd(), pGammaGpd(), qGammaGpd(), rGammaGpd()\nvectors + scalars\ndGammaMixGpd(), pGammaMixGpd(), qGammaMixGpd(), rGammaMixGpd()\n\n\nLognormal + GPD\n\\(\\mu, \\sigma, u, \\sigma, \\xi\\)\nmeanlog, sdlog, threshold, tail_scale, tail_shape\nscalars\ndLognormalGpd(), pLognormalGpd(), qLognormalGpd(), rLognormalGpd()\nvectors + scalars\ndLognormalMixGpd(), pLognormalMixGpd(), qLognormalMixGpd(), rLognormalMixGpd()\n\n\nLaplace + GPD\n\\(\\ell, b, u, \\sigma, \\xi\\)\nlocation, scale, threshold, tail_scale, tail_shape\nscalars\ndLaplaceGpd(), pLaplaceGpd(), qLaplaceGpd(), rLaplaceGpd()\nvectors + scalars\ndLaplaceMixGpd(), pLaplaceMixGpd(), qLaplaceMixGpd(), rLaplaceMixGpd()\n\n\nInvGauss + GPD\n\\(\\mu, \\lambda, u, \\sigma, \\xi\\)\nmean, shape, threshold, tail_scale, tail_shape\nscalars\ndInvGaussGpd(), pInvGaussGpd(), qInvGaussGpd(), rInvGaussGpd()\nvectors + scalars\ndInvGaussMixGpd(), pInvGaussMixGpd(), qInvGaussMixGpd(), rInvGaussMixGpd()\n\n\nAmoroso + GPD\n\\(a, \\theta, \\alpha, \\beta, u, \\sigma, \\xi\\)\nloc, scale, shape1, shape2, threshold, tail_scale, tail_shape\nscalars\ndAmorosoGpd(), pAmorosoGpd(), qAmorosoGpd(), rAmorosoGpd()\nvectors + scalars\ndAmorosoMixGpd(), pAmorosoMixGpd(), qAmorosoMixGpd(), rAmorosoMixGpd()\n\n\n\n\n\n\nCRP Backend uses base (single-kernel) functions; parameters are scalar.\nSB Backend uses mixture/spliced mixture functions; component-specific parameters are typically vectors indexed by component (j); mixture weights w are required as vector.\nFor GPD-only, SB entries are NA because there is no mixture-only GPD wrapper in the SB family."
   },
   {
     "objectID": "kernels/summary-distribution-backend-reference.html#v02-summary-distribution-backend-reference",
     "href": "kernels/summary-distribution-backend-reference.html#v02-summary-distribution-backend-reference",
     "title": "Summary: Distribution & Backend Reference",
     "section": "",
-    "text": "This section provides a compact reference for the distributions supported by DPmixGPD and the corresponding user-facing function families.\nThe CRP backend uses base (single-kernel) functions, while the SB backend uses mixture (multi-component) functions. The “Type” column indicates whether each backend expects scalar parameters (single value per parameter) or vectors indexed by mixture component.\n\n\n\nCRP Backend uses base (single-kernel) functions; parameters are scalar.\nSB Backend uses mixture/spliced mixture functions; component-specific parameters are typically vectors indexed by component (j); mixture weights w are required as vector.\nFor GPD-only, SB entries are NA because there is no mixture-only GPD wrapper in the SB family."
+    "text": "This section provides a compact reference for the distributions supported by DPmixGPD and the corresponding user-facing function families.\nThe CRP backend uses base (single-kernel) functions, while the SB backend uses mixture (multi-component) functions. The “Type” column indicates whether each backend expects scalar parameters (single value per parameter) or vectors indexed by mixture component.\n\n\n\n\n\n\n\n\n\n\n\n\nDistribution\nParameters\nArguments\nCRP Type\nCRP Function\nSB Type\nSB Function\n\n\n\n\nNormal\n\\(\\mu, \\sigma\\)\nmean, sd\nscalars\ndnorm(), pnorm(), qnorm(), rnorm()\nvectors\ndNormMix(), pNormMix(), qNormMix(), rNormMix()\n\n\nGamma\n\\(\\alpha, \\beta\\)\nshape, scale\nscalars\ndgamma(), pgamma(), qgamma(), rgamma()\nvectors\ndGammaMix(), pGammaMix(), qGammaMix(), rGammaMix()\n\n\nLognormal\n\\(\\mu, \\sigma\\)\nmeanlog, sdlog\nscalars\ndlnorm(), plnorm(), qlnorm(), rlnorm()\nvectors\ndLognormalMix(), pLognormalMix(), qLognormalMix(), rLognormalMix()\n\n\nLaplace\n\\(\\ell, b\\)\nlocation, scale\nscalars\nddexp(), pdexp(), qdexp(), rdexp()\nvectors\ndLaplaceMix(), pLaplaceMix(), qLaplaceMix(), rLaplaceMix()\n\n\nInverse Gaussian\n\\(\\mu, \\lambda\\)\nmean, shape\nscalars\ndinvgauss(), pinvgauss(), qinvgauss(), rinvgauss()\nvectors\ndInvGaussMix(), pInvGaussMix(), qInvGaussMix(), rInvGaussMix()\n\n\nAmoroso\n\\(a, \\theta, \\alpha, \\beta\\)\nloc, scale, shape1, shape2\nscalars\ndamoroso(), pamoroso(), qamoroso(), ramoroso()\nvectors\ndAmorosoMix(), pAmorosoMix(), qAmorosoMix(), rAmorosoMix()\n\n\nCauchy\n\\(x_0, \\gamma\\)\nlocation, scale\nscalars\ndcauchy(), pcauchy(), qcauchy(), rcauchy()\nvectors\ndCauchyMix(), pCauchyMix(), qCauchyMix(), rCauchyMix()\n\n\nGPD\n\\(u, \\sigma, \\xi\\)\nthreshold, scale, shape\nscalars\ndGpd(), pGpd(), qGpd(), rGpd()\nNA\nNA\n\n\nNormal + GPD\n\\(\\mu, \\sigma, u, \\sigma, \\xi\\)\nmean, sd, threshold, tail_scale, tail_shape\nscalars\ndNormGpd(), pNormGpd(), qNormGpd(), rNormGpd()\nvectors + scalars\ndNormMixGpd(), pNormMixGpd(), qNormMixGpd(), rNormMixGpd()\n\n\nGamma + GPD\n\\(\\alpha, \\beta, u, \\sigma, \\xi\\)\nshape, scale, threshold, tail_scale, tail_shape\nscalars\ndGammaGpd(), pGammaGpd(), qGammaGpd(), rGammaGpd()\nvectors + scalars\ndGammaMixGpd(), pGammaMixGpd(), qGammaMixGpd(), rGammaMixGpd()\n\n\nLognormal + GPD\n\\(\\mu, \\sigma, u, \\sigma, \\xi\\)\nmeanlog, sdlog, threshold, tail_scale, tail_shape\nscalars\ndLognormalGpd(), pLognormalGpd(), qLognormalGpd(), rLognormalGpd()\nvectors + scalars\ndLognormalMixGpd(), pLognormalMixGpd(), qLognormalMixGpd(), rLognormalMixGpd()\n\n\nLaplace + GPD\n\\(\\ell, b, u, \\sigma, \\xi\\)\nlocation, scale, threshold, tail_scale, tail_shape\nscalars\ndLaplaceGpd(), pLaplaceGpd(), qLaplaceGpd(), rLaplaceGpd()\nvectors + scalars\ndLaplaceMixGpd(), pLaplaceMixGpd(), qLaplaceMixGpd(), rLaplaceMixGpd()\n\n\nInvGauss + GPD\n\\(\\mu, \\lambda, u, \\sigma, \\xi\\)\nmean, shape, threshold, tail_scale, tail_shape\nscalars\ndInvGaussGpd(), pInvGaussGpd(), qInvGaussGpd(), rInvGaussGpd()\nvectors + scalars\ndInvGaussMixGpd(), pInvGaussMixGpd(), qInvGaussMixGpd(), rInvGaussMixGpd()\n\n\nAmoroso + GPD\n\\(a, \\theta, \\alpha, \\beta, u, \\sigma, \\xi\\)\nloc, scale, shape1, shape2, threshold, tail_scale, tail_shape\nscalars\ndAmorosoGpd(), pAmorosoGpd(), qAmorosoGpd(), rAmorosoGpd()\nvectors + scalars\ndAmorosoMixGpd(), pAmorosoMixGpd(), qAmorosoMixGpd(), rAmorosoMixGpd()\n\n\n\n\n\n\nCRP Backend uses base (single-kernel) functions; parameters are scalar.\nSB Backend uses mixture/spliced mixture functions; component-specific parameters are typically vectors indexed by component (j); mixture weights w are required as vector.\nFor GPD-only, SB entries are NA because there is no mixture-only GPD wrapper in the SB family."
   },
   {
     "objectID": "kernels/kernels-index.html#whats-in-the-pantry",
@@ -907,21 +977,28 @@
     "href": "index.html",
     "title": "DPmixGPD",
     "section": "",
-    "text": "Documentation refresh and site stabilization\nThe Quarto landing site has been finalized as the primary navigation layer, with pkgdown retained as the authoritative API reference. Decision guides, FAQs, and developer notes are now first-class pages.\nRead the full update"
+    "text": "Bayesian semiparametric modeling for heavy-tailed outcomes using Dirichlet-process mixtures with optional GPD tails, with conditional and causal extensions.\nGetting Started Decision Guide Reference (pkgdown)\n\nExplore the curated documentation in Docs or jump to FAQ."
+  },
+  {
+    "objectID": "index.html#choose-your-path",
+    "href": "index.html#choose-your-path",
+    "title": "DPmixGPD",
+    "section": "Choose your path",
+    "text": "Choose your path\n\n\nNew users\nStart with a minimal workflow, then use the Decision Guide to select a backend + kernel.\nGetting Started Decision Guide\n\n\nApplied users\nGo straight to the Docs hub, pick kernels, and use the Cookbook for templates. For exact arguments, use pkgdown.\nDocs Kernels Cookbook\n\n\nDevelopers\nPrefer the vanilla docs and function reference, or dig into build and contribution notes.\nDevelopers Vanilla site"
+  },
+  {
+    "objectID": "index.html#docs-at-a-glance",
+    "href": "index.html#docs-at-a-glance",
+    "title": "DPmixGPD",
+    "section": "Docs at a glance",
+    "text": "Docs at a glance\n\n\nDocs hub\nCurated entry point to everything Quarto-side.\nOpen Docs\n\n\nKernels\nDistribution families, conventions, and practical guidance.\nBrowse Kernels\n\n\nCookbook\nWorkflow templates and common analysis patterns.\nOpen Cookbook\n\n\nStart here\nMinimal setup and your first end-to-end run.\nGetting Started\n\n\nFAQs\nShort answers to common questions and gotchas.\nOpen FAQ\n\n\nCitation\nHow to cite the package and related work.\nHow to cite"
   },
   {
     "objectID": "index.html#latest-update",
     "href": "index.html#latest-update",
     "title": "DPmixGPD",
-    "section": "",
-    "text": "Documentation refresh and site stabilization\nThe Quarto landing site has been finalized as the primary navigation layer, with pkgdown retained as the authoritative API reference. Decision guides, FAQs, and developer notes are now first-class pages.\nRead the full update"
-  },
-  {
-    "objectID": "index.html#where-to-start-recommended-path",
-    "href": "index.html#where-to-start-recommended-path",
-    "title": "DPmixGPD",
-    "section": "Where to start (recommended path)",
-    "text": "Where to start (recommended path)\n\n\nNew users\nIf this is your first time here: 1. Read Getting Started\n2. Use the Decision Guide\n3. Follow the first Cookbook workflow\nGetting Started\n\n\nApplied users\nIf you already know what you want to model: - Browse Kernels - Jump straight to Cookbook examples - Use pkgdown for API details\nCookbook\n\n\nDevelopers & contributors\nIf you want to understand internals or contribute: - Developers page - Discussions for design - Issues for bugs\nDevelopers\n\n\n\n\n\n\n© DPmixGPD · Bayesian semiparametric modeling for heavy-tailed data\n\n\nHow to cite · API reference · GitHub\n\n\n:::\n:::"
+    "section": "Latest update",
+    "text": "Latest update\n\nDocumentation is now split cleanly: Quarto provides the curated front door, while pkgdown remains the authoritative vanilla API reference for developers.\nRead the update"
   },
   {
     "objectID": "faq.html",
@@ -942,14 +1019,14 @@
     "href": "faq.html#modeling-choices",
     "title": "FAQ",
     "section": "Modeling choices",
-    "text": "Modeling choices\n\nHow do I choose a bulk kernel?\nChoose the kernel based on the typical support and shape of your outcome: - Positive, right-skewed outcomes → positive-support kernels - Real-valued outcomes → real-valued kernels If multiple kernels are plausible, prioritize stability and interpretability, then refine using diagnostics.\n\n\nWhen should I turn on the GPD tail?\nUse a tail model when: - high quantiles (e.g., 0.95–0.995) matter, - bulk-only predictive checks underfit extremes, - or domain knowledge indicates rare events drive decisions. If your analysis focuses on central behavior, bulk-only is often sufficient.\n\n\nWhat is the difference between SB and CRP backends?\nThey represent different ways of constructing the mixture: - Stick-breaking (SB): explicit truncated representation; easier to control component count. - Chinese Restaurant Process (CRP): clustering-based representation with flexible growth. From a user perspective, both target similar inferential goals; choose the backend that fits your workflow and diagnostics."
+    "text": "Modeling choices\n\nHow do I choose a bulk kernel?\nChoose the kernel based on the typical support and shape of your outcome: - Positive, right-skewed outcomes -&gt; positive-support kernels - Real-valued outcomes -&gt; real-valued kernels If multiple kernels are plausible, prioritize stability and interpretability, then refine using diagnostics.\n\n\nWhen should I turn on the GPD tail?\nUse a tail model when: - high quantiles (e.g., 0.95-0.995) matter, - bulk-only predictive checks underfit extremes, - or domain knowledge indicates rare events drive decisions. If your analysis focuses on central behavior, bulk-only is often sufficient.\n\n\nWhat is the difference between SB and CRP backends?\nThey represent different ways of constructing the mixture: - Stick-breaking (SB): explicit truncated representation; easier to control component count. - Chinese Restaurant Process (CRP): clustering-based representation with flexible growth. From a user perspective, both target similar inferential goals; choose the backend that fits your workflow and diagnostics."
   },
   {
     "objectID": "faq.html#conditional-causal-and-survival-workflows",
     "href": "faq.html#conditional-causal-and-survival-workflows",
     "title": "FAQ",
     "section": "Conditional, causal, and survival workflows",
-    "text": "Conditional, causal, and survival workflows\n\nCan I include covariates?\nYes. DPmixGPD supports covariate-dependent models. If covariates materially affect the outcome distribution, start with a conditional model rather than adding covariates later.\n\n\nHow are treatment effects handled?\nCausal workflows fit models for treatment and control arms and derive treatment effects as posterior quantities. This allows uncertainty in the full outcome distribution—including tails—to propagate into effect estimates.\n\n\nIs DPmixGPD suitable for survival analysis?\nYes. Survival workflows are supported, including tail behavior for time-to-event outcomes. Use these workflows when censoring and extreme event times are relevant."
+    "text": "Conditional, causal, and survival workflows\n\nCan I include covariates?\nYes. DPmixGPD supports covariate-dependent models. If covariates materially affect the outcome distribution, start with a conditional model rather than adding covariates later.\n\n\nHow are treatment effects handled?\nCausal workflows fit models for treatment and control arms and derive treatment effects as posterior quantities. This allows uncertainty in the full outcome distribution-including tails-to propagate into effect estimates.\n\n\nIs DPmixGPD suitable for survival analysis?\nYes. Survival workflows are supported, including tail behavior for time-to-event outcomes. Use these workflows when censoring and extreme event times are relevant."
   },
   {
     "objectID": "faq.html#documentation-and-website",
@@ -963,7 +1040,7 @@
     "href": "faq.html#installation-and-troubleshooting",
     "title": "FAQ",
     "section": "Installation and troubleshooting",
-    "text": "Installation and troubleshooting\n\nThe package installs but examples or vignettes fail — what should I do?\nFirst, check: - R version and platform - required system libraries - whether you are using a clean environment (e.g., via renv)\nIf the problem persists, open an Issue with: - a minimal reproducible example - session information - exact error messages\n\n\nSomething looks wrong in the documentation\nIf it’s a typo or broken link, open an Issue.\nIf it’s a design question or ambiguity, start a Discussion instead."
+    "text": "Installation and troubleshooting\n\nThe package installs but examples or vignettes fail - what should I do?\nFirst, check: - R version and platform - required system libraries - whether you are using a clean environment (e.g., via renv)\nIf the problem persists, open an Issue with: - a minimal reproducible example - session information - exact error messages\n\n\nSomething looks wrong in the documentation\nIf it’s a typo or broken link, open an Issue.\nIf it’s a design question or ambiguity, start a Discussion instead."
   },
   {
     "objectID": "faq.html#citation-and-use",
@@ -977,14 +1054,14 @@
     "href": "faq.html#getting-help",
     "title": "FAQ",
     "section": "Getting help",
-    "text": "Getting help\n\nWhere should I ask questions?\n\nDesign / “how should I do this?” → Discussions\nBugs / errors → Issues\nDocumentation clarity → Issues or Discussions (either is fine)"
+    "text": "Getting help\n\nWhere should I ask questions?\n\nDesign / “how should I do this?” -&gt; Discussions\nBugs / errors -&gt; Issues\nDocumentation clarity -&gt; Issues or Discussions (either is fine)"
   },
   {
     "objectID": "decision-guide.html",
     "href": "decision-guide.html",
     "title": "Decision Guide",
     "section": "",
-    "text": "A practical guide for choosing the right DPmixGPD configuration. This is not a theory chapter; it’s a “pick the next step” tool. When in doubt, start with a simple bulk model and add complexity only when diagnostics justify it.\nGo to Cookbook Open Kernels"
+    "text": "A practical guide for choosing the right DPmixGPD configuration. This is not a theory chapter; it is a “pick the next step” tool. When in doubt, start with a simple bulk model and add complexity only when diagnostics justify it.\nGo to Cookbook Open Kernels"
   },
   {
     "objectID": "decision-guide.html#a-simple-selection-flow",
@@ -998,7 +1075,7 @@
     "href": "decision-guide.html#practical-heuristics-what-usually-works",
     "title": "Decision Guide",
     "section": "Practical heuristics (what usually works)",
-    "text": "Practical heuristics (what usually works)\n\n\nBulk kernel choice\nPick the bulk kernel to match the “typical” range of the data: - Strong right-skew and positive support: choose a positive-support kernel family. - Symmetric real-valued outcomes: choose a real-valued kernel family. If unsure, prioritize stability and interpretability first, then refine.\n\n\nTail on/off decision\nTurn on tail modeling when: - high quantiles matter (e.g., 0.95–0.995), - bulk-only predictive checks underfit extremes, - or domain knowledge says extremes drive decisions. If you’re only doing central tendency inference, bulk-only is often enough.\n\n\nBackend choice (SB vs CRP)\nChoose the backend based on your workflow preference: - If you want a controlled truncation representation, stick-breaking is a natural fit. - If you prefer a clustering metaphor and flexible component growth, CRP is intuitive. When in doubt, start with the backend your existing workflow already supports most smoothly."
+    "text": "Practical heuristics (what usually works)\n\n\nBulk kernel choice\nPick the bulk kernel to match the “typical” range of the data: - Strong right-skew and positive support: choose a positive-support kernel family. - Symmetric real-valued outcomes: choose a real-valued kernel family. If unsure, prioritize stability and interpretability first, then refine.\n\n\nTail on/off decision\nTurn on tail modeling when: - high quantiles matter (e.g., 0.95-0.995), - bulk-only predictive checks underfit extremes, - or domain knowledge says extremes drive decisions. If you are only doing central tendency inference, bulk-only is often enough.\n\n\nBackend choice (SB vs CRP)\nChoose the backend based on your workflow preference: - If you want a controlled truncation representation, stick-breaking is a natural fit. - If you prefer a clustering metaphor and flexible component growth, CRP is intuitive. When in doubt, start with the backend your existing workflow already supports most smoothly."
   },
   {
     "objectID": "decision-guide.html#where-to-go-for-details",
@@ -1092,6 +1169,20 @@
     "text": "S3 methods for posterior inference\n\nfit_crp &lt;- run_mcmc_bundle_manual(bundle_crp, show_progress = FALSE)\n\nprint(fit_crp)\nsummary(fit_crp)\n\nif (interactive()) plot(fit_crp, family = \"traceplot\")\n\n\npred_crp_mean &lt;- predict(fit_crp, type = \"mean\", interval = \"credible\")\npred_crp_q90 &lt;- predict(fit_crp, type = \"quantile\", index = 0.90, interval = \"credible\")\nhead(pred_crp_mean$fit)\nhead(pred_crp_q90$fit)"
   },
   {
+    "objectID": "cookbook.html",
+    "href": "cookbook.html",
+    "title": "Cookbook",
+    "section": "",
+    "text": "This page is a practical launch pad for common DPmixGPD tasks. Use it to pick a workflow path, then open the full walk-through pages.\nStart workflow series Workflow roadmap Open pkgdown articles"
+  },
+  {
+    "objectID": "cookbook.html#where-to-go-next",
+    "href": "cookbook.html#where-to-go-next",
+    "title": "Cookbook",
+    "section": "Where to go next",
+    "text": "Where to go next\n\nUse Kernels if you are uncertain about distribution family selection.\nUse Reference to jump directly to function docs.\nUse Workflow troubleshooting if you are blocked."
+  },
+  {
     "objectID": "cite.html",
     "href": "cite.html",
     "title": "Cite",
@@ -1132,6 +1223,20 @@
     "title": "Cite",
     "section": "Updates to citation information",
     "text": "Updates to citation information\nCitation guidance will evolve as: - a formal software DOI is registered, - associated papers are published, - or long-term archival releases are created.\nIf you are unsure how to cite DPmixGPD for a specific venue, start a Discussion and ask.\nAsk a citation question"
+  },
+  {
+    "objectID": "coverage.html",
+    "href": "coverage.html",
+    "title": "Coverage",
+    "section": "",
+    "text": "Coverage and validation resources for DPmixGPD. This page points to test maps, status artifacts, and reproducible coverage commands.\nCoverage map in tests Codecov project"
+  },
+  {
+    "objectID": "coverage.html#where-to-go-next",
+    "href": "coverage.html#where-to-go-next",
+    "title": "Coverage",
+    "section": "Where to go next",
+    "text": "Where to go next\n\nDevelopers for build/check workflows.\nReference for status/helper function details.\nNews for release and docs updates."
   },
   {
     "objectID": "Customization/umbrella.html",
@@ -1195,6 +1300,27 @@
     "title": "Umbrella: Custom Models (All-in-One)",
     "section": "S3 Methods (Causal)",
     "text": "S3 Methods (Causal)\n\nif (interactive()) plot(causal_fit, family = \"traceplot\")\n\n\npred_causal_mean &lt;- predict(causal_fit, x = X_causal, type = \"mean\", interval = \"credible\")\nhead(pred_causal_mean)\n\nate_result &lt;- ate(causal_fit, interval = \"credible\", nsim_mean = 50)\nprint(ate_result)\nsummary(ate_result)\n\nqte_result &lt;- qte(causal_fit, probs = c(0.25, 0.5, 0.75), interval = \"credible\")\nif (interactive()) plot(ate_result, type = \"effect\")\nif (interactive()) plot(qte_result, type = \"effect\")"
+  },
+  {
+    "objectID": "developers.html",
+    "href": "developers.html",
+    "title": "Developers",
+    "section": "",
+    "text": "Developer-facing notes for building docs, validating package state, and keeping Quarto/pkgdown outputs consistent.\nOpen pkgdown Open API reference"
+  },
+  {
+    "objectID": "developers.html#documentation-maintenance",
+    "href": "developers.html#documentation-maintenance",
+    "title": "Developers",
+    "section": "Documentation maintenance",
+    "text": "Documentation maintenance\n\nKeep Quarto map pages concise and conceptual.\nKeep full function and article details in pkgdown.\nIf exported R APIs change, regenerate roxygen docs and refresh relevant articles.\nKeep links branch-aware (master currently) until repository default branch changes."
+  },
+  {
+    "objectID": "developers.html#where-to-go-next",
+    "href": "developers.html#where-to-go-next",
+    "title": "Developers",
+    "section": "Where to go next",
+    "text": "Where to go next\n\nCoverage for test/coverage entry points.\nNews for documentation-level updates.\nRoadmap for workflow progression."
   },
   {
     "objectID": "getting-started.html",
@@ -1306,7 +1432,21 @@
     "href": "kernels.html",
     "title": "Kernels",
     "section": "",
-    "text": "Kernels\nDPmixGPD supports multiple bulk kernels and tail configurations. This page is the catalog entry point: what kernels exist, how they are organized, and where to find details.\nArticles index (pkgdown) Kernel support table\n\n\n\n\n\n\nBulk kernels\nThe bulk model is intended to flexibly represent the “typical” range of the outcome distribution (skewness, multimodality, heterogeneity). Kernel choice mainly affects interpretability and computational behavior.\n\n\nTail modeling (GPD)\nTail modeling targets rare, high-impact outcomes beyond a threshold. The threshold strategy and tail parameterization determine extrapolation behavior and uncertainty.\n\n\nRegistry and introspection\nProgrammatic access to what’s supported (useful for automated workflows and checks). - get_kernel_registry - get_tail_registry"
+    "text": "Kernels\nDPmixGPD supports multiple bulk kernels and tail configurations. This page is the catalog entry point: what kernels exist, how they are organized, and where to find details.\nArticles index (pkgdown) Kernel support table\n\n\n\n\n\n\nBulk kernels\nThe bulk model is intended to flexibly represent the “typical” range of the outcome distribution (skewness, multimodality, heterogeneity). Kernel choice mainly affects interpretability and computational behavior.\n\n\nTail modeling (GPD)\nTail modeling targets rare, high-impact outcomes beyond a threshold. The threshold strategy and tail parameterization determine extrapolation behavior and uncertainty.\n\n\nRegistry and introspection\nProgrammatic access to what is supported (useful for automated workflows and checks). - get_kernel_registry - get_tail_registry"
+  },
+  {
+    "objectID": "reference.html",
+    "href": "reference.html",
+    "title": "Reference",
+    "section": "",
+    "text": "Use this page to navigate function-level documentation quickly. Conceptual guidance stays in Quarto; full API details remain in pkgdown.\nOpen API index Open articles index"
+  },
+  {
+    "objectID": "reference.html#where-to-go-next",
+    "href": "reference.html#where-to-go-next",
+    "title": "Reference",
+    "section": "Where to go next",
+    "text": "Where to go next\n\nIf you are still choosing a model setup, start at Decision Guide.\nIf you need worked examples, go to Cookbook.\nIf you need exact arguments and return values, stay in pkgdown reference."
   },
   {
     "objectID": "vignettes/backends.html",
@@ -1439,7 +1579,7 @@
     "href": "vignettes/introduction.html#theory-brief",
     "title": "DPmixGPD: Quick Start",
     "section": "Theory (brief)",
-    "text": "Theory (brief)\nDPmixGPD models the bulk of a distribution with a Dirichlet process (DP) mixture, then optionally splices a Generalized Pareto Distribution (GPD) tail beyond a threshold \\(u\\). For outcomes \\(y_i\\) and kernel \\(K\\), the bulk model is \\[\nf(y_i) = \\\\int K(y_i; \\\\theta)\\\\, dG(\\\\theta), \\\\quad G \\\\sim \\\\mathrm{DP}(\\\\alpha, G_0).\n\\] When a tail is included, the density is replaced for \\(y &gt; u\\) by a GPD tail with scale and shape parameters, preserving continuity at \\(u\\)."
+    "text": "Theory (brief)\nDPmixGPD models the bulk of a distribution with a Dirichlet process (DP) mixture, then optionally splices a Generalized Pareto Distribution (GPD) tail beyond a threshold \\(u\\). For outcomes \\(y_i\\) and kernel \\(K\\), the bulk model is \\[\nf(y_i) = \\int K(y_i; \\theta)\\, dG(\\theta), \\quad G \\sim \\mathrm{DP}(\\alpha, G_0).\n\\] When a tail is included, the density is replaced for \\(y &gt; u\\) by a GPD tail with scale and shape parameters, preserving continuity at \\(u\\)."
   },
   {
     "objectID": "vignettes/introduction.html#model-description",
@@ -1652,6 +1792,13 @@
     "text": "Next Steps\n\nvignette 1: package overview and terminology\nvignette 5: full three-phase workflow (spec ? bundle ? MCMC)\nvignette 6-13: unconditional/conditional models with and without GPD\nvignette 14-19: causal workflows"
   },
   {
+    "objectID": "workflows/v01-start-here.html#workflow-navigation",
+    "href": "workflows/v01-start-here.html#workflow-navigation",
+    "title": "1. Start Here",
+    "section": "Workflow Navigation",
+    "text": "Workflow Navigation\n\nPrevious: none (start of workflow series)\nNext: v02-introduction\nWorkflow index: Roadmap\nPractical entry: Cookbook"
+  },
+  {
     "objectID": "workflows/v03-basic-model-compile-run.html",
     "href": "workflows/v03-basic-model-compile-run.html",
     "title": "3. Basic Workflow: Model Specification, Bundle, & MCMC",
@@ -1722,11 +1869,25 @@
     "text": "Next Steps\n\nMove to vignette 6-7 for unconditional models (CRP vs SB backends)\nMove to vignette 8-9 for tail modeling with GPD\nMove to vignette 10-13 for conditional models with covariates\nMove to vignette 14-19 for causal inference workflows"
   },
   {
+    "objectID": "workflows/v03-basic-model-compile-run.html#workflow-navigation",
+    "href": "workflows/v03-basic-model-compile-run.html#workflow-navigation",
+    "title": "3. Basic Workflow: Model Specification, Bundle, & MCMC",
+    "section": "Workflow Navigation",
+    "text": "Workflow Navigation\n\nPrevious: v02-introduction\nNext: v04-backends-and-workflow\nWorkflow index: Roadmap\nPractical entry: Cookbook"
+  },
+  {
     "objectID": "workflows/v05-unconditional-DPmix-CRP.html",
     "href": "workflows/v05-unconditional-DPmix-CRP.html",
     "title": "5. Unconditional DPmix (CRP Backend)",
     "section": "",
-    "text": "Legacy vignette (for the website / historical notes). These files may not match the current exported API one-to-one. Last verified: 2026-01-18.\nFor the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference).\n\n\nOverview\nThis vignette demonstrates an unconditional DPmix model using the CRP backend on a positive dataset. We use a Laplace kernel for the bulk distribution and no GPD tail augmentation.\n\n\nData Setup\n\n# Load pre-generated dataset: 200 observations from mixture of 3 gamma components\ndata(nc_pos200_k3)\ny_mixed &lt;- nc_pos200_k3$y\n\npaste(\"Sample size:\", length(y_mixed))\npaste(\"Mean:\", mean(y_mixed))\npaste(\"SD:\", sd(y_mixed))\npaste(\"Range:\", paste(range(y_mixed), collapse = \" to \"))\n\n# Visualization\ndf_data &lt;- data.frame(y = y_mixed)\np_raw &lt;- ggplot(df_data, aes(x = y)) +\n  geom_histogram(aes(y = after_stat(density)), bins = 30, alpha = 0.6,\n                 fill = \"steelblue\", color = \"black\") +\n  geom_density(color = \"red\", linewidth = 1) +\n  labs(title = \"Raw Data: Mixed Gamma Distribution\", x = \"y\", y = \"Density\") +\n  theme_minimal()\n\nprint(p_raw)\n\n\n\nBuild Bundle (CRP)\n\nbundle_crp &lt;- build_nimble_bundle(\n  y = y_mixed,\n  kernel = \"laplace\",         # Use laplace kernel\n  backend = \"crp\",            # CRP backend\n  GPD = FALSE,                # No tail augmentation\n  components = 3,             # Minimal for testing\n  alpha_random = TRUE,        # Random DP concentration\n  mcmc = mcmc\n)\n\n\n\nRun MCMC (Longer Run)\n\nbundle_crp &lt;- build_nimble_bundle(\n  y_mixed,\n  kernel = \"laplace\",\n  backend = \"crp\",\n  GPD = FALSE,\n  components = 3,\n  alpha_random = TRUE,\n  mcmc = mcmc\n)\n\n\nsummary(bundle_crp)\n\n\nfit_crp &lt;- load_or_fit(\"v05-unconditional-DPmix-CRP-fit_crp\", run_mcmc_bundle_manual(bundle_crp))\n\n\nsummary(fit_crp)\n\n\n\nPosterior Parameters\n\nparams_crp &lt;- params(fit_crp)\nparams_crp\n\n\n\nDiagnostics\n\n# Trace plots for key parameters\nif (interactive()) plot(fit_crp, params = \"alpha\", family = c(\"traceplot\", \"density\", \"geweke\"))\n\n\n\nPosterior Predictive Density\n\n# Generate prediction grid\ny_grid &lt;- seq(0, max(y_mixed) * 1.2, length.out = 200)\n\n# Posterior predictive density\npred_density &lt;- predict(fit_crp, y = y_grid, type = \"density\")\n\n# Use S3 plot method\nif (interactive()) plot(pred_density)"
+    "text": "Legacy vignette (for the website / historical notes). These files may not match the current exported API one-to-one. Last verified: 2026-01-18.\nFor the up-to-date workflow, see the main package vignettes (Introduction, Model Spec, MCMC Workflow, Unconditional/Conditional/Causal, Backends, S3 Reference)."
+  },
+  {
+    "objectID": "workflows/v05-unconditional-DPmix-CRP.html#workflow-navigation",
+    "href": "workflows/v05-unconditional-DPmix-CRP.html#workflow-navigation",
+    "title": "5. Unconditional DPmix (CRP Backend)",
+    "section": "Workflow Navigation",
+    "text": "Workflow Navigation\n\nPrevious: v04-backends-and-workflow\nNext: v06-unconditional-DPmix-CRP\nWorkflow index: Roadmap\nPractical entry: Cookbook"
   },
   {
     "objectID": "workflows/v07-unconditional-DPmix-SB.html",
@@ -1792,6 +1953,13 @@
     "text": "Takeaways\n\nSB Backend: Fixed components keeps label-switching manageable, and the diagnostic plots via the S3 if (interactive()) plot() method show weight dynamics.\nKernels matter: Gamma vs Cauchy can behave very differently in the shoulders/tails, even without a GPD tail.\nPredictions: Posterior density, posterior-mean quantiles, and mean (via predictive sampling) are accessible via predict() with pointwise 95% credible intervals.\nBackend comparison: The CRP fit (v04) and the SB-gamma fit deliver similar central quantiles while SB offers more control over truncation.\nNext: Explore tail augmentation (GPD = TRUE) with the CRP backend in v06 or SB backend in v07."
   },
   {
+    "objectID": "workflows/v07-unconditional-DPmix-SB.html#workflow-navigation",
+    "href": "workflows/v07-unconditional-DPmix-SB.html#workflow-navigation",
+    "title": "7. Unconditional DPmix with Stick-Breaking Backend",
+    "section": "Workflow Navigation",
+    "text": "Workflow Navigation\n\nPrevious: v06-unconditional-DPmix-CRP\nNext: v08-unconditional-DPmixGPD-CRP\nWorkflow index: Roadmap\nPractical entry: Cookbook"
+  },
+  {
     "objectID": "workflows/v09-unconditional-DPmixGPD-SB.html",
     "href": "workflows/v09-unconditional-DPmixGPD-SB.html",
     "title": "9. Unconditional DPmixGPD with Stick-Breaking Backend",
@@ -1852,7 +2020,14 @@
     "href": "workflows/v09-unconditional-DPmixGPD-SB.html#key-takeaways",
     "title": "9. Unconditional DPmixGPD with Stick-Breaking Backend",
     "section": "Key Takeaways",
-    "text": "Key Takeaways\n\nStick-breaking truncation fixes the number of bulk components but still flexibly models the tail via GPD.\nPosterior predict() + if (interactive()) plot() workflows visualize densities, survival probabilities, and posterior-mean extreme quantiles.\nComparing bulk-only vs GPD-augmented quantiles reveals how tail augmentation shifts the 95â€“99% levels.\nNext: conditional DPmix (v08â€“v11) to explore covariate effects before moving to causal regimes."
+    "text": "Key Takeaways\n\nStick-breaking truncation fixes the number of bulk components but still flexibly models the tail via GPD.\nPosterior predict() + if (interactive()) plot() workflows visualize densities, survival probabilities, and posterior-mean extreme quantiles.\nComparing bulk-only vs GPD-augmented quantiles reveals how tail augmentation shifts the 95-99% levels.\nNext: conditional DPmix (v08-v11) to explore covariate effects before moving to causal regimes."
+  },
+  {
+    "objectID": "workflows/v09-unconditional-DPmixGPD-SB.html#workflow-navigation",
+    "href": "workflows/v09-unconditional-DPmixGPD-SB.html#workflow-navigation",
+    "title": "9. Unconditional DPmixGPD with Stick-Breaking Backend",
+    "section": "Workflow Navigation",
+    "text": "Workflow Navigation\n\nPrevious: v08-unconditional-DPmixGPD-CRP\nNext: v10-conditional-DPmix-CRP\nWorkflow index: Roadmap\nPractical entry: Cookbook"
   },
   {
     "objectID": "workflows/v11-conditional-DPmix-SB.html",
@@ -1909,6 +2084,13 @@
     "title": "11. Conditional DPmix with Stick-Breaking Backend",
     "section": "Takeaways",
     "text": "Takeaways\n\nStick-breaking component count is fixed but still supports covariate-dependent mixtures.\npredict(..., type = \"density\") returns group-specific densities for each X.\npredict(..., type = \"quantile\") reports posterior-mean quantiles; the median is the 0.5 quantile and shifts with x1.\nDiagnoses rely on the same S3 if (interactive()) plot()/fitted() pipeline available in other vignettes."
+  },
+  {
+    "objectID": "workflows/v11-conditional-DPmix-SB.html#workflow-navigation",
+    "href": "workflows/v11-conditional-DPmix-SB.html#workflow-navigation",
+    "title": "11. Conditional DPmix with Stick-Breaking Backend",
+    "section": "Workflow Navigation",
+    "text": "Workflow Navigation\n\nPrevious: v10-conditional-DPmix-CRP\nNext: v12-conditional-DPmixGPD-CRP\nWorkflow index: Roadmap\nPractical entry: Cookbook"
   },
   {
     "objectID": "workflows/v13-conditional-DPmixGPD-SB.html",
@@ -1974,6 +2156,13 @@
     "text": "Takeaways\n\nConditional stick-breaking mixtures capture covariate-dependent bulk structure while the GPD handles extremes.\npredict() and if (interactive()) plot() remain consistent for densities, posterior-mean quantiles, and residuals.\nExpect threshold-selected posterior-mean tail quantiles to shift with x1 even when components is fixed.\nNext: move into causal models starting with same-backend CRP (v12)."
   },
   {
+    "objectID": "workflows/v13-conditional-DPmixGPD-SB.html#workflow-navigation",
+    "href": "workflows/v13-conditional-DPmixGPD-SB.html#workflow-navigation",
+    "title": "13. Conditional DPmixGPD with Stick-Breaking Backend",
+    "section": "Workflow Navigation",
+    "text": "Workflow Navigation\n\nPrevious: v12-conditional-DPmixGPD-CRP\nNext: v14-causal-no-x-CRP\nWorkflow index: Roadmap\nPractical entry: Cookbook"
+  },
+  {
     "objectID": "workflows/v15-causal-x-no-ps-SB.html",
     "href": "workflows/v15-causal-x-no-ps-SB.html",
     "title": "15. Causal Inference: X Without PS (CRP+SB) - InvGauss/Amoroso",
@@ -2000,6 +2189,13 @@
     "title": "15. Causal Inference: X Without PS (CRP+SB) - InvGauss/Amoroso",
     "section": "Model B: SB Bulk-only (Amoroso)",
     "text": "Model B: SB Bulk-only (Amoroso)\n\nbundle_sb_bulk &lt;- build_causal_bundle(\n  y = y,\n  T = T,\n  X = X,\n  kernel = \"amoroso\",\n  backend = \"sb\",\n  PS = FALSE,\n  GPD = FALSE,\n  components = 6,\n  mcmc_outcome = list(niter = 300, nburnin = 80, nchains = 1, thin = 1, seed = 4)\n)\n\nbundle_sb_bulk\n\n\nfit_sb_bulk &lt;- quiet_mcmc(run_mcmc_causal(bundle_sb_bulk))\nsummary(fit_sb_bulk)\n\n\npred_mean_bulk &lt;- predict(fit_sb_bulk, x = x_eval, type = \"mean\", interval = \"credible\", nsim_mean = 150)\nhead(pred_mean_bulk)\nif (interactive()) plot(pred_mean_bulk)\n\n\npred_q_bulk &lt;- predict(fit_sb_bulk, x = x_eval, type = \"quantile\", p = 0.5, interval = \"credible\")\nhead(pred_q_bulk)\nif (interactive()) plot(pred_q_bulk)\n\n\npred_d_bulk &lt;- predict(fit_sb_bulk, x = x_eval, y = y_eval, type = \"density\", interval = \"credible\")\nhead(pred_d_bulk)\nif (interactive()) plot(pred_d_bulk)\n\n\npred_surv_bulk &lt;- predict(fit_sb_bulk, x = x_eval, y = y_eval, type = \"survival\", interval = \"credible\")\nhead(pred_surv_bulk)\nif (interactive()) plot(pred_surv_bulk)\n\n\nate_bulk &lt;- ate(fit_sb_bulk, newdata = x_eval, interval = \"credible\", nsim_mean = 150)\nhead(ate_bulk)\nif (interactive()) plot(ate_bulk)\n\n\nqte_bulk &lt;- qte(fit_sb_bulk, probs = c(0.25, 0.5, 0.75), newdata = x_eval, interval = \"credible\")\nhead(qte_bulk)\nif (interactive()) plot(qte_bulk)"
+  },
+  {
+    "objectID": "workflows/v15-causal-x-no-ps-SB.html#workflow-navigation",
+    "href": "workflows/v15-causal-x-no-ps-SB.html#workflow-navigation",
+    "title": "15. Causal Inference: X Without PS (CRP+SB) - InvGauss/Amoroso",
+    "section": "Workflow Navigation",
+    "text": "Workflow Navigation\n\nPrevious: v14-causal-no-x-CRP\nNext: v16-causal-same-backend-CRP\nWorkflow index: Roadmap\nPractical entry: Cookbook"
   },
   {
     "objectID": "workflows/v17-causal-same-backend-SB.html",
@@ -2030,6 +2226,13 @@
     "text": "Model B: SB with GPD Tail (Laplace)\n\nparam_specs_gpd &lt;- list(\n  gpd = list(\n    threshold = list(\n      mode = \"dist\",\n      dist = \"lognormal\",\n      args = list(meanlog = log(max(u_threshold, .Machine$double.eps)), sdlog = 0.25)\n    )\n  )\n)\n\nbundle_sb_gpd &lt;- build_causal_bundle(\n  y = y,\n  T = T,\n  X = X,\n  kernel = \"laplace\",\n  backend = \"sb\",\n  PS = \"logit\",\n  GPD = TRUE,\n  components = 5,\n  param_specs = param_specs_gpd,\n  mcmc_outcome = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 2),\n  mcmc_ps = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 2)\n)\n\nbundle_sb_gpd\nsummary(bundle_sb_gpd)\n\n\nfit_sb_gpd &lt;- run_mcmc_causal(bundle_sb_gpd)\nsummary(fit_sb_gpd)\nparams(fit_sb_gpd)\n\n\nif (interactive()) plot(fit_sb_gpd, family = c(\"density\", \"geweke\", \"caterpillar\"))\n\n\npred_mean_gpd &lt;- predict(fit_sb_gpd, x = x_eval, type = \"mean\",\n                         interval = \"credible\", nsim_mean = 100)\nif (interactive()) plot(pred_mean_gpd)\n\n\npred_q_gpd &lt;- predict(fit_sb_gpd, x = x_eval, type = \"quantile\",\n                      p = 0.5, interval = \"credible\")\nif (interactive()) plot(pred_q_gpd)\n\n\npred_d_gpd &lt;- predict(fit_sb_gpd, x = x_eval, y = y_eval,\n                      type = \"density\", interval = \"credible\")\nif (interactive()) plot(pred_d_gpd)\n\n\npred_surv_gpd &lt;- predict(fit_sb_gpd, x = x_eval, y = y_eval,\n                         type = \"survival\", interval = \"credible\")\nif (interactive()) plot(pred_surv_gpd)\n\n\nate_gpd &lt;- ate(fit_sb_gpd, newdata = x_eval,\n               interval = \"credible\", nsim_mean = 100)\nif (interactive()) plot(ate_gpd)\n\n\nqte_gpd &lt;- qte(fit_sb_gpd, probs = c(0.25, 0.5, 0.75),\n               newdata = x_eval, interval = \"credible\")\nif (interactive()) plot(qte_gpd)"
   },
   {
+    "objectID": "workflows/v17-causal-same-backend-SB.html#workflow-navigation",
+    "href": "workflows/v17-causal-same-backend-SB.html#workflow-navigation",
+    "title": "17. Causal Inference: Same Backend (SB) - Laplace Kernel",
+    "section": "Workflow Navigation",
+    "text": "Workflow Navigation\n\nPrevious: v16-causal-same-backend-CRP\nNext: v18-causal-different-backends-CRP\nWorkflow index: Roadmap\nPractical entry: Cookbook"
+  },
+  {
     "objectID": "workflows/v19-causal-different-backends-SB.html",
     "href": "workflows/v19-causal-different-backends-SB.html",
     "title": "19. Causal Inference: Mixed Backends with GPD - Amoroso Kernel",
@@ -2056,5 +2259,12 @@
     "title": "19. Causal Inference: Mixed Backends with GPD - Amoroso Kernel",
     "section": "Model B: Treated CRP, Control SB (Amoroso + GPD)",
     "text": "Model B: Treated CRP, Control SB (Amoroso + GPD)\n\nbundle_crp_sb &lt;- build_causal_bundle(\n  y = y,\n  T = T,\n  X = X,\n  kernel = c(\"amoroso\", \"amoroso\"),\n  backend = c(\"crp\", \"sb\"),\n  PS = \"logit\",\n  GPD = c(TRUE, TRUE),\n  components = c(5, 5),\n  param_specs = param_specs_gpd,\n  mcmc_outcome = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 2),\n  mcmc_ps = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 2)\n)\n\nbundle_crp_sb\nsummary(bundle_crp_sb)\n\n\nfit_crp_sb &lt;- run_mcmc_causal(bundle_crp_sb)\nsummary(fit_crp_sb)\nparams(fit_crp_sb)\n\n\nif (interactive()) plot(fit_crp_sb, family = c(\"density\", \"geweke\", \"caterpillar\"))\n\n\npred_mean_crp_sb &lt;- predict(fit_crp_sb, x = x_eval, type = \"mean\",\n                            interval = \"credible\", nsim_mean = 100)\nif (interactive()) plot(pred_mean_crp_sb)\n\n\npred_q_crp_sb &lt;- predict(fit_crp_sb, x = x_eval, type = \"quantile\",\n                         p = 0.5, interval = \"credible\")\nif (interactive()) plot(pred_q_crp_sb)\n\n\npred_d_crp_sb &lt;- predict(fit_crp_sb, x = x_eval, y = y_eval,\n                         type = \"density\", interval = \"credible\")\nif (interactive()) plot(pred_d_crp_sb)\n\n\npred_surv_crp_sb &lt;- predict(fit_crp_sb, x = x_eval, y = y_eval,\n                            type = \"survival\", interval = \"credible\")\nif (interactive()) plot(pred_surv_crp_sb)\n\n\nate_crp_sb &lt;- ate(fit_crp_sb, newdata = x_eval,\n                  interval = \"credible\", nsim_mean = 100)\nif (interactive()) plot(ate_crp_sb)\n\n\nqte_crp_sb &lt;- qte(fit_crp_sb, probs = c(0.25, 0.5, 0.75),\n                  newdata = x_eval, interval = \"credible\")\nif (interactive()) plot(qte_crp_sb)"
+  },
+  {
+    "objectID": "workflows/v19-causal-different-backends-SB.html#workflow-navigation",
+    "href": "workflows/v19-causal-different-backends-SB.html#workflow-navigation",
+    "title": "19. Causal Inference: Mixed Backends with GPD - Amoroso Kernel",
+    "section": "Workflow Navigation",
+    "text": "Workflow Navigation\n\nPrevious: v18-causal-different-backends-CRP\nNext: v20-troubleshooting\nWorkflow index: Roadmap\nPractical entry: Cookbook"
   }
 ]

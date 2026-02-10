@@ -1,4 +1,4 @@
----
+﻿---
 title: "Lognormal"
 pkgdown:
   slug: "kernels/kernel-lognormal"
@@ -125,4 +125,8 @@ ggplot(df_logn_gpd, aes(x = x, y = density, color = label)) +
   labs(title = "Lognormal mixtures with GPD tail (different thresholds)", x = "x", y = "density") +
   theme_minimal() + theme(legend.position = "top")
 ```
+
+
+
+
 

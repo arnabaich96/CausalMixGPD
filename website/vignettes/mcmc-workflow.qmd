@@ -1,4 +1,4 @@
----
+﻿---
 title: "MCMC Workflow"
 output:
   rmarkdown::html_vignette:
@@ -79,7 +79,7 @@ if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quiet
   } else {
     NULL
   }
-  if (interactive()) plot(fit, family = "geweke", params = params)
+  plot(fit, family = "geweke", params = params)
 } else {
   message("Plotting requires 'ggmcmc' and 'coda' packages.")
 }
@@ -111,5 +111,9 @@ if (!is.null(fit$mcmc$samples)) {
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+
+
+
+
 
 

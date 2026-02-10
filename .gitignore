@@ -101,6 +101,8 @@ docs/**/legacy-cache/**/*.RDS
 # Local site build outputs (not tracked)
 /pkgdown/
 /quarto/
+/website/_site/
+/docs/website/
 # Build outputs and caches (not tracked)
 /_build/
 /_freeze/

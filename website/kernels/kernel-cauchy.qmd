@@ -1,4 +1,4 @@
----
+﻿---
 title: "Cauchy"
 pkgdown:
   slug: "kernels/kernel-cauchy"
@@ -93,4 +93,8 @@ ggplot(df_cauchy, aes(x = x, y = density, color = label)) +
   labs(title = "Cauchy base and mixtures", x = "x", y = "density") +
   theme_minimal() + theme(legend.position = "top")
 ```
+
+
+
+
 

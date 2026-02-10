@@ -129,56 +129,54 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="../index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../getting-started.html"> 
-<span class="menu-text">Getting Started</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-start" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Start</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-start">    
+        <li>
+    <a class="dropdown-item" href="../getting-started.html">
+ <span class="dropdown-text">Getting Started</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../faq.html"> 
-<span class="menu-text">FAQ</span></a>
+        <li>
+    <a class="dropdown-item" href="../decision-guide.html">
+ <span class="dropdown-text">Decision Guide</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../roadmap.html"> 
-<span class="menu-text">Roadmap</span></a>
+        <li>
+    <a class="dropdown-item" href="../faq.html">
+ <span class="dropdown-text">FAQ</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../kernels.html"> 
-<span class="menu-text">Kernels</span></a>
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-docs" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Docs</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-docs">    
+        <li>
+    <a class="dropdown-item" href="../reference.html">
+ <span class="dropdown-text">Docs overview</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../cookbook.html"> 
-<span class="menu-text">Cookbook</span></a>
+        <li>
+    <a class="dropdown-item" href="../kernels.html">
+ <span class="dropdown-text">Kernels</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../reference.html"> 
-<span class="menu-text">Reference</span></a>
+        <li>
+    <a class="dropdown-item" href="../cookbook.html">
+ <span class="dropdown-text">Cookbook</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../cite.html"> 
-<span class="menu-text">Cite</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../coverage.html"> 
-<span class="menu-text">Coverage</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../news.html"> 
-<span class="menu-text">News</span></a>
-  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../developers.html"> 
 <span class="menu-text">Developers</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../pkgdown/reference/index.html"> 
+<span class="menu-text">Reference</span></a>
+  </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD/discussions"> 
-<span class="menu-text">Discussions</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD/issues"> 
-<span class="menu-text">Bugs</span></a>
-  </li>  
   <li class="nav-item">
     <a class="nav-link" href="../pkgdown/index.html"> 
 <span class="menu-text">Pkgdown</span></a>
@@ -357,38 +355,1279 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>fit_amoroso <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle_amoroso, <span class="at">show_progress =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Defining model</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>  [Note] Registering 'dAmorosoGpd' as a distribution based on its use in BUGS code. If you make changes to the nimbleFunctions for the distribution, you must call 'deregisterDistributions' before using the distribution in BUGS code for those changes to take effect.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Building model</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Setting data and initial values</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Checking model sizes and dimensions</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>  [Note] This model is not fully initialized. This is not an error.
+         To see which variables are not initialized, use model$initializeInfo().
+         For more information on model initialization, see help(modelInitialization).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Checking model calculations</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>  [Warning] To calculate WAIC, set 'WAIC = TRUE', in addition to having enabled WAIC in building the MCMC.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>running chain 1...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Calculating WAIC.</code></pre>
+</div>
 </div>
 </section>
 <section id="user-level-functions" class="level2">
 <h2 class="anchored" data-anchor-id="user-level-functions">User-Level Functions</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(bundle_amoroso)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bundle_amoroso)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(fit_amoroso)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_amoroso)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(bundle_amoroso)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+DPmixGPD bundle
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:center;">
+Field
+</th>
+<th style="text-align:center;">
+Value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+Backend
+</td>
+<td style="text-align:center;">
+Stick-Breaking Process
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Kernel
+</td>
+<td style="text-align:center;">
+Amoroso Distribution
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Components
+</td>
+<td style="text-align:center;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+32
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+X
+</td>
+<td style="text-align:center;">
+YES (P=2)
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+GPD
+</td>
+<td style="text-align:center;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Epsilon
+</td>
+<td style="text-align:center;">
+0.025
+</td>
+</tr>
+</tbody>
+</table>
+<p>contains : code, constants, data, dimensions, inits, monitors</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bundle_amoroso)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+DPmixGPD bundle summary
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:center;">
+Field
+</th>
+<th style="text-align:center;">
+Value
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+Backend
+</td>
+<td style="text-align:center;">
+Stick-Breaking Process
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Kernel
+</td>
+<td style="text-align:center;">
+Amoroso Distribution
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Components
+</td>
+<td style="text-align:center;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+32
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+X
+</td>
+<td style="text-align:center;">
+YES (P=2)
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+GPD
+</td>
+<td style="text-align:center;">
+TRUE
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Epsilon
+</td>
+<td style="text-align:center;">
+0.025
+</td>
+</tr>
+</tbody>
+</table>
+Parameter specification
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:center;">
+block
+</th>
+<th style="text-align:center;">
+parameter
+</th>
+<th style="text-align:center;">
+mode
+</th>
+<th style="text-align:center;">
+level
+</th>
+<th style="text-align:center;">
+prior
+</th>
+<th style="text-align:center;">
+link
+</th>
+<th style="text-align:center;">
+notes
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+meta
+</td>
+<td style="text-align:center;">
+backend
+</td>
+<td style="text-align:center;">
+info
+</td>
+<td style="text-align:center;">
+model
+</td>
+<td style="text-align:center;">
+sb
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+meta
+</td>
+<td style="text-align:center;">
+kernel
+</td>
+<td style="text-align:center;">
+info
+</td>
+<td style="text-align:center;">
+model
+</td>
+<td style="text-align:center;">
+amoroso
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+meta
+</td>
+<td style="text-align:center;">
+components
+</td>
+<td style="text-align:center;">
+info
+</td>
+<td style="text-align:center;">
+model
+</td>
+<td style="text-align:center;">
+5
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+meta
+</td>
+<td style="text-align:center;">
+N
+</td>
+<td style="text-align:center;">
+info
+</td>
+<td style="text-align:center;">
+model
+</td>
+<td style="text-align:center;">
+32
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+meta
+</td>
+<td style="text-align:center;">
+P
+</td>
+<td style="text-align:center;">
+info
+</td>
+<td style="text-align:center;">
+model
+</td>
+<td style="text-align:center;">
+2
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+concentration
+</td>
+<td style="text-align:center;">
+alpha
+</td>
+<td style="text-align:center;">
+dist
+</td>
+<td style="text-align:center;">
+scalar
+</td>
+<td style="text-align:center;">
+gamma(shape=1, rate=1)
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+stochastic concentration
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+bulk
+</td>
+<td style="text-align:center;">
+loc
+</td>
+<td style="text-align:center;">
+link
+</td>
+<td style="text-align:center;">
+regression
+</td>
+<td style="text-align:center;">
+beta_loc ~ normal(mean=0, sd=2)
+</td>
+<td style="text-align:center;">
+identity
+</td>
+<td style="text-align:center;">
+beta_loc is 5 x 2 (components x P)
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+bulk
+</td>
+<td style="text-align:center;">
+scale
+</td>
+<td style="text-align:center;">
+link
+</td>
+<td style="text-align:center;">
+regression
+</td>
+<td style="text-align:center;">
+beta_scale ~ normal(mean=0, sd=2)
+</td>
+<td style="text-align:center;">
+identity
+</td>
+<td style="text-align:center;">
+beta_scale is 5 x 2 (components x P)
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+bulk
+</td>
+<td style="text-align:center;">
+shape1
+</td>
+<td style="text-align:center;">
+fixed
+</td>
+<td style="text-align:center;">
+component (1:5)
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+bulk
+</td>
+<td style="text-align:center;">
+shape2
+</td>
+<td style="text-align:center;">
+dist
+</td>
+<td style="text-align:center;">
+component (1:5)
+</td>
+<td style="text-align:center;">
+gamma(shape=2, rate=1)
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+iid across components
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+gpd
+</td>
+<td style="text-align:center;">
+threshold
+</td>
+<td style="text-align:center;">
+link
+</td>
+<td style="text-align:center;">
+observation (1:N)
+</td>
+<td style="text-align:center;">
+beta_threshold ~ normal(mean=0, sd=0.2)
+</td>
+<td style="text-align:center;">
+exp
+</td>
+<td style="text-align:center;">
+beta_threshold is length P=2
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+gpd
+</td>
+<td style="text-align:center;">
+tail_scale
+</td>
+<td style="text-align:center;">
+link
+</td>
+<td style="text-align:center;">
+observation (1:N)
+</td>
+<td style="text-align:center;">
+beta_tail_scale ~ normal(mean=0, sd=0.5)
+</td>
+<td style="text-align:center;">
+exp
+</td>
+<td style="text-align:center;">
+beta_tail_scale is length P=2; tail_scale[i] deterministic
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+gpd
+</td>
+<td style="text-align:center;">
+tail_shape
+</td>
+<td style="text-align:center;">
+dist
+</td>
+<td style="text-align:center;">
+scalar
+</td>
+<td style="text-align:center;">
+normal(mean=0, sd=0.2)
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+</tbody>
+</table>
+<p>Monitors n = 11 alpha, w[1:5], z[1:32], beta_loc[1:5,1:2], beta_scale[1:5,1:2], shape1[1:5], shape2[1:5], threshold[1:32], beta_threshold[1:2], beta_tail_scale[1:2], tail_shape</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(fit_amoroso)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>MixGPD fit | backend: Stick-Breaking Process | kernel: Amoroso Distribution | GPD tail: TRUE n = 32 | components = 5 | epsilon = 0.025 MCMC: niter=600, nburnin=150, thin=2, nchains=1 Fit Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_amoroso)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>MixGPD summary | backend: Stick-Breaking Process | kernel: Amoroso Distribution | GPD tail: TRUE | epsilon: 0.025 n = 32 | components = 5 Summary Initial components: 5 | Components after truncation: 1</p>
+<p>WAIC: 289.883 lppd: -143.126 | pWAIC: 1.816</p>
+Summary table
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:center;">
+parameter
+</th>
+<th style="text-align:center;">
+mean
+</th>
+<th style="text-align:center;">
+sd
+</th>
+<th style="text-align:center;">
+q0.025
+</th>
+<th style="text-align:center;">
+q0.500
+</th>
+<th style="text-align:center;">
+q0.975
+</th>
+<th style="text-align:center;">
+ess
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+weights[1]
+</td>
+<td style="text-align:center;">
+0.887
+</td>
+<td style="text-align:center;">
+0.162
+</td>
+<td style="text-align:center;">
+0.5
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+8.127
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+alpha
+</td>
+<td style="text-align:center;">
+0.571
+</td>
+<td style="text-align:center;">
+0.398
+</td>
+<td style="text-align:center;">
+0.083
+</td>
+<td style="text-align:center;">
+0.479
+</td>
+<td style="text-align:center;">
+1.405
+</td>
+<td style="text-align:center;">
+5.822
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+beta_loc[1, 1]
+</td>
+<td style="text-align:center;">
+0.233
+</td>
+<td style="text-align:center;">
+2.174
+</td>
+<td style="text-align:center;">
+-3.944
+</td>
+<td style="text-align:center;">
+0.256
+</td>
+<td style="text-align:center;">
+4.638
+</td>
+<td style="text-align:center;">
+93.618
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+beta_loc[2, 1]
+</td>
+<td style="text-align:center;">
+-0.014
+</td>
+<td style="text-align:center;">
+1.928
+</td>
+<td style="text-align:center;">
+-3.591
+</td>
+<td style="text-align:center;">
+-0.05
+</td>
+<td style="text-align:center;">
+3.526
+</td>
+<td style="text-align:center;">
+87.763
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+beta_loc[3, 1]
+</td>
+<td style="text-align:center;">
+-0.348
+</td>
+<td style="text-align:center;">
+2.164
+</td>
+<td style="text-align:center;">
+-4.435
+</td>
+<td style="text-align:center;">
+-0.446
+</td>
+<td style="text-align:center;">
+3.641
+</td>
+<td style="text-align:center;">
+80.98
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+beta_loc[4, 1]
+</td>
+<td style="text-align:center;">
+0.405
+</td>
+<td style="text-align:center;">
+2.072
+</td>
+<td style="text-align:center;">
+-3.342
+</td>
+<td style="text-align:center;">
+0.292
+</td>
+<td style="text-align:center;">
+3.974
+</td>
+<td style="text-align:center;">
+111.196
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+beta_loc[5, 1]
+</td>
+<td style="text-align:center;">
+-0.134
+</td>
+<td style="text-align:center;">
+1.923
+</td>
+<td style="text-align:center;">
+-3.755
+</td>
+<td style="text-align:center;">
+-0.215
+</td>
+<td style="text-align:center;">
+3.335
+</td>
+<td style="text-align:center;">
+185.091
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+beta_loc[1, 2]
+</td>
+<td style="text-align:center;">
+1.05
+</td>
+<td style="text-align:center;">
+1.191
+</td>
+<td style="text-align:center;">
+-1.062
+</td>
+<td style="text-align:center;">
+0.903
+</td>
+<td style="text-align:center;">
+3.649
+</td>
+<td style="text-align:center;">
+34.465
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+beta_loc[2, 2]
+</td>
+<td style="text-align:center;">
+0.622
+</td>
+<td style="text-align:center;">
+1.659
+</td>
+<td style="text-align:center;">
+-2.142
+</td>
+<td style="text-align:center;">
+0.507
+</td>
+<td style="text-align:center;">
+4.138
+</td>
+<td style="text-align:center;">
+76.334
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+beta_loc[3, 2]
+</td>
+<td style="text-align:center;">
+0.451
+</td>
+<td style="text-align:center;">
+1.844
+</td>
+<td style="text-align:center;">
+-3.082
+</td>
+<td style="text-align:center;">
+0.677
+</td>
+<td style="text-align:center;">
+3.426
+</td>
+<td style="text-align:center;">
+63.533
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+beta_loc[4, 2]
+</td>
+<td style="text-align:center;">
+-0.063
+</td>
+<td style="text-align:center;">
+1.904
+</td>
+<td style="text-align:center;">
+-3.762
+</td>
+<td style="text-align:center;">
+0.133
+</td>
+<td style="text-align:center;">
+3.416
+</td>
+<td style="text-align:center;">
+93.672
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+beta_loc[5, 2]
+</td>
+<td style="text-align:center;">
+0.601
+</td>
+<td style="text-align:center;">
+1.904
+</td>
+<td style="text-align:center;">
+-3.487
+</td>
+<td style="text-align:center;">
+0.612
+</td>
+<td style="text-align:center;">
+4.384
+</td>
+<td style="text-align:center;">
+136.447
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+beta_scale[1, 1]
+</td>
+<td style="text-align:center;">
+0.216
+</td>
+<td style="text-align:center;">
+1.842
+</td>
+<td style="text-align:center;">
+-3.195
+</td>
+<td style="text-align:center;">
+-0.029
+</td>
+<td style="text-align:center;">
+4.315
+</td>
+<td style="text-align:center;">
+118.789
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+beta_scale[2, 1]
+</td>
+<td style="text-align:center;">
+-0.236
+</td>
+<td style="text-align:center;">
+2.016
+</td>
+<td style="text-align:center;">
+-4.741
+</td>
+<td style="text-align:center;">
+-0.147
+</td>
+<td style="text-align:center;">
+3.515
+</td>
+<td style="text-align:center;">
+99.498
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+beta_scale[3, 1]
+</td>
+<td style="text-align:center;">
+-0.263
+</td>
+<td style="text-align:center;">
+2.004
+</td>
+<td style="text-align:center;">
+-4.147
+</td>
+<td style="text-align:center;">
+-0.399
+</td>
+<td style="text-align:center;">
+4.233
+</td>
+<td style="text-align:center;">
+72.565
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+beta_scale[4, 1]
+</td>
+<td style="text-align:center;">
+-0.384
+</td>
+<td style="text-align:center;">
+2.089
+</td>
+<td style="text-align:center;">
+-4.604
+</td>
+<td style="text-align:center;">
+-0.269
+</td>
+<td style="text-align:center;">
+3.131
+</td>
+<td style="text-align:center;">
+90.501
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+beta_scale[5, 1]
+</td>
+<td style="text-align:center;">
+0.137
+</td>
+<td style="text-align:center;">
+1.913
+</td>
+<td style="text-align:center;">
+-3.345
+</td>
+<td style="text-align:center;">
+0.196
+</td>
+<td style="text-align:center;">
+4.024
+</td>
+<td style="text-align:center;">
+71.448
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+beta_scale[1, 2]
+</td>
+<td style="text-align:center;">
+1.287
+</td>
+<td style="text-align:center;">
+1.703
+</td>
+<td style="text-align:center;">
+-2.587
+</td>
+<td style="text-align:center;">
+1.228
+</td>
+<td style="text-align:center;">
+5.205
+</td>
+<td style="text-align:center;">
+62.151
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+beta_scale[2, 2]
+</td>
+<td style="text-align:center;">
+0.766
+</td>
+<td style="text-align:center;">
+1.756
+</td>
+<td style="text-align:center;">
+-2.976
+</td>
+<td style="text-align:center;">
+0.833
+</td>
+<td style="text-align:center;">
+3.866
+</td>
+<td style="text-align:center;">
+48.742
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+beta_scale[3, 2]
+</td>
+<td style="text-align:center;">
+0.328
+</td>
+<td style="text-align:center;">
+2.243
+</td>
+<td style="text-align:center;">
+-4.384
+</td>
+<td style="text-align:center;">
+0.703
+</td>
+<td style="text-align:center;">
+4.556
+</td>
+<td style="text-align:center;">
+58.72
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+beta_scale[4, 2]
+</td>
+<td style="text-align:center;">
+0.033
+</td>
+<td style="text-align:center;">
+1.864
+</td>
+<td style="text-align:center;">
+-3.245
+</td>
+<td style="text-align:center;">
+0.111
+</td>
+<td style="text-align:center;">
+3.689
+</td>
+<td style="text-align:center;">
+98.23
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+beta_scale[5, 2]
+</td>
+<td style="text-align:center;">
+-0.185
+</td>
+<td style="text-align:center;">
+1.938
+</td>
+<td style="text-align:center;">
+-3.569
+</td>
+<td style="text-align:center;">
+-0.354
+</td>
+<td style="text-align:center;">
+3.827
+</td>
+<td style="text-align:center;">
+108.64
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+beta_tail_scale[1]
+</td>
+<td style="text-align:center;">
+0.874
+</td>
+<td style="text-align:center;">
+0.093
+</td>
+<td style="text-align:center;">
+0.683
+</td>
+<td style="text-align:center;">
+0.87
+</td>
+<td style="text-align:center;">
+1.037
+</td>
+<td style="text-align:center;">
+15.682
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+beta_tail_scale[2]
+</td>
+<td style="text-align:center;">
+-0
+</td>
+<td style="text-align:center;">
+0.001
+</td>
+<td style="text-align:center;">
+-0.002
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0.002
+</td>
+<td style="text-align:center;">
+2.349
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+beta_threshold[1]
+</td>
+<td style="text-align:center;">
+0.098
+</td>
+<td style="text-align:center;">
+0.222
+</td>
+<td style="text-align:center;">
+-0.269
+</td>
+<td style="text-align:center;">
+0.068
+</td>
+<td style="text-align:center;">
+0.431
+</td>
+<td style="text-align:center;">
+10.477
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+beta_threshold[2]
+</td>
+<td style="text-align:center;">
+-0.076
+</td>
+<td style="text-align:center;">
+0.125
+</td>
+<td style="text-align:center;">
+-0.388
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+0.008
+</td>
+<td style="text-align:center;">
+11.704
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+tail_shape
+</td>
+<td style="text-align:center;">
+0.313
+</td>
+<td style="text-align:center;">
+0.131
+</td>
+<td style="text-align:center;">
+0.071
+</td>
+<td style="text-align:center;">
+0.318
+</td>
+<td style="text-align:center;">
+0.566
+</td>
+<td style="text-align:center;">
+67.33
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+shape1[1]
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+shape2[1]
+</td>
+<td style="text-align:center;">
+2.73
+</td>
+<td style="text-align:center;">
+1.891
+</td>
+<td style="text-align:center;">
+0.162
+</td>
+<td style="text-align:center;">
+2.226
+</td>
+<td style="text-align:center;">
+7.515
+</td>
+<td style="text-align:center;">
+24.347
+</td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="s3-methods-fit" class="level2">
 <h2 class="anchored" data-anchor-id="s3-methods-fit">S3 Methods (Fit)</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) <span class="fu">plot</span>(fit_amoroso, <span class="at">family =</span> <span class="st">"traceplot"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) <span class="fu">plot</span>(fit_amoroso, <span class="at">family =</span> <span class="st">"traceplot"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>pred_mean <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_amoroso, <span class="at">x =</span> X, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">cred.level =</span> <span class="fl">0.90</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>pred_q90 <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_amoroso, <span class="at">x =</span> X, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> <span class="fl">0.90</span>, <span class="at">cred.level =</span> <span class="fl">0.90</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_mean<span class="sc">$</span>fit)</span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_q90<span class="sc">$</span>fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>pred_mean <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_amoroso, <span class="at">x =</span> X, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">cred.level =</span> <span class="fl">0.90</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>pred_q90 <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_amoroso, <span class="at">x =</span> X, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> <span class="fl">0.90</span>, <span class="at">cred.level =</span> <span class="fl">0.90</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_mean<span class="sc">$</span>fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  id estimate lower upper
+1  1    10.79  3.07  30.4
+2  2    13.79  4.30  36.3
+3  3     7.84  2.33  26.3
+4  4    19.90 10.36  47.5
+5  5    21.56 -1.74  57.9
+6  6    26.23  7.56  53.0</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_q90<span class="sc">$</span>fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  estimate index id lower upper
+1     30.9   0.9  1  24.9  48.6
+2     39.3   0.9  2  30.0  61.0
+3     23.9   0.9  3  19.8  37.7
+4     54.0   0.9  4  37.1  84.0
+5     63.7   0.9  5  43.4 104.6
+6     68.0   0.9  6  43.0 107.6</code></pre>
+</div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>fvals <span class="ot">&lt;-</span> <span class="fu">fitted</span>(fit_amoroso, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">level =</span> <span class="fl">0.90</span>)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(fvals)</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fvals<span class="sc">$</span>residuals)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>fvals <span class="ot">&lt;-</span> <span class="fu">fitted</span>(fit_amoroso, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">level =</span> <span class="fl">0.90</span>)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(fvals)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    fit lower upper residuals
+1 10.22 2.260  31.0     10.78
+2 13.89 1.739  38.4      7.11
+3  7.74 0.824  25.6     15.06
+4 19.91 7.919  43.5      1.49
+5 21.43 5.082  58.6     -2.73
+6 25.64 6.697  58.1     -7.54</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fvals<span class="sc">$</span>residuals)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+-152.23  -10.41   -0.62  -10.51   10.88   29.28 </code></pre>
+</div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>raw_resid <span class="ot">&lt;-</span> <span class="fu">residuals</span>(fit_amoroso, <span class="at">type =</span> <span class="st">"raw"</span>)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(raw_resid)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>raw_resid <span class="ot">&lt;-</span> <span class="fu">residuals</span>(fit_amoroso, <span class="at">type =</span> <span class="st">"raw"</span>)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(raw_resid)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 10.78  7.11 15.06  1.49 -2.73 -7.54</code></pre>
+</div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">params</span>(fit_amoroso)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(p)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>p <span class="ot">&lt;-</span> <span class="fu">params</span>(fit_amoroso)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(p)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "alpha"           "w"               "beta_loc"        "beta_scale"     
+[5] "shape1"          "shape2"          "beta_threshold"  "beta_tail_scale"
+[9] "tail_shape"     </code></pre>
+</div>
 </div>
 </section>
 </section>
@@ -414,168 +1653,520 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul></li>
 </ul>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>X_causal <span class="ot">&lt;-</span> df[, <span class="fu">c</span>(<span class="st">"wt"</span>, <span class="st">"hp"</span>, <span class="st">"qsec"</span>, <span class="st">"cyl"</span>)]</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>X_causal <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(X_causal)</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>T_ind <span class="ot">&lt;-</span> df<span class="sc">$</span>am</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>param_specs_causal <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">trt =</span> <span class="fu">list</span>(</span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">bulk =</span> <span class="fu">list</span>(</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">mean =</span> <span class="fu">list</span>(</span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">mode =</span> <span class="st">"link"</span>,</span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">link =</span> <span class="st">"identity"</span>,</span>
-<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">beta_prior =</span> <span class="fu">list</span>(<span class="at">dist =</span> <span class="st">"normal"</span>, <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">2</span>))</span>
-<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>      ),</span>
-<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">sd =</span> <span class="fu">list</span>(</span>
-<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">mode =</span> <span class="st">"dist"</span>,</span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">dist =</span> <span class="st">"invgamma"</span>,</span>
-<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">args =</span> <span class="fu">list</span>(<span class="at">shape =</span> <span class="dv">2</span>, <span class="at">scale =</span> <span class="dv">1</span>)</span>
-<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">con =</span> <span class="fu">list</span>(</span>
-<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">bulk =</span> <span class="fu">list</span>(</span>
-<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">location =</span> <span class="fu">list</span>(</span>
-<span id="cb13-23"><a href="#cb13-23" aria-hidden="true" tabindex="-1"></a>        <span class="at">mode =</span> <span class="st">"link"</span>,</span>
-<span id="cb13-24"><a href="#cb13-24" aria-hidden="true" tabindex="-1"></a>        <span class="at">link =</span> <span class="st">"identity"</span>,</span>
-<span id="cb13-25"><a href="#cb13-25" aria-hidden="true" tabindex="-1"></a>        <span class="at">beta_prior =</span> <span class="fu">list</span>(<span class="at">dist =</span> <span class="st">"normal"</span>, <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">2</span>))</span>
-<span id="cb13-26"><a href="#cb13-26" aria-hidden="true" tabindex="-1"></a>      ),</span>
-<span id="cb13-27"><a href="#cb13-27" aria-hidden="true" tabindex="-1"></a>      <span class="at">scale =</span> <span class="fu">list</span>(</span>
-<span id="cb13-28"><a href="#cb13-28" aria-hidden="true" tabindex="-1"></a>        <span class="at">mode =</span> <span class="st">"dist"</span>,</span>
-<span id="cb13-29"><a href="#cb13-29" aria-hidden="true" tabindex="-1"></a>        <span class="at">dist =</span> <span class="st">"gamma"</span>,</span>
-<span id="cb13-30"><a href="#cb13-30" aria-hidden="true" tabindex="-1"></a>        <span class="at">args =</span> <span class="fu">list</span>(<span class="at">shape =</span> <span class="dv">2</span>, <span class="at">rate =</span> <span class="dv">1</span>)</span>
-<span id="cb13-31"><a href="#cb13-31" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb13-32"><a href="#cb13-32" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb13-33"><a href="#cb13-33" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb13-34"><a href="#cb13-34" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>X_causal <span class="ot">&lt;-</span> df[, <span class="fu">c</span>(<span class="st">"wt"</span>, <span class="st">"hp"</span>, <span class="st">"qsec"</span>, <span class="st">"cyl"</span>)]</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>X_causal <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(X_causal)</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>T_ind <span class="ot">&lt;-</span> df<span class="sc">$</span>am</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>param_specs_causal <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">trt =</span> <span class="fu">list</span>(</span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">bulk =</span> <span class="fu">list</span>(</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">mean =</span> <span class="fu">list</span>(</span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">mode =</span> <span class="st">"link"</span>,</span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">link =</span> <span class="st">"identity"</span>,</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">beta_prior =</span> <span class="fu">list</span>(<span class="at">dist =</span> <span class="st">"normal"</span>, <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">2</span>))</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>      <span class="at">sd =</span> <span class="fu">list</span>(</span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">mode =</span> <span class="st">"dist"</span>,</span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>        <span class="at">dist =</span> <span class="st">"invgamma"</span>,</span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>        <span class="at">args =</span> <span class="fu">list</span>(<span class="at">shape =</span> <span class="dv">2</span>, <span class="at">scale =</span> <span class="dv">1</span>)</span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">con =</span> <span class="fu">list</span>(</span>
+<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">bulk =</span> <span class="fu">list</span>(</span>
+<span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">location =</span> <span class="fu">list</span>(</span>
+<span id="cb35-23"><a href="#cb35-23" aria-hidden="true" tabindex="-1"></a>        <span class="at">mode =</span> <span class="st">"link"</span>,</span>
+<span id="cb35-24"><a href="#cb35-24" aria-hidden="true" tabindex="-1"></a>        <span class="at">link =</span> <span class="st">"identity"</span>,</span>
+<span id="cb35-25"><a href="#cb35-25" aria-hidden="true" tabindex="-1"></a>        <span class="at">beta_prior =</span> <span class="fu">list</span>(<span class="at">dist =</span> <span class="st">"normal"</span>, <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">2</span>))</span>
+<span id="cb35-26"><a href="#cb35-26" aria-hidden="true" tabindex="-1"></a>      ),</span>
+<span id="cb35-27"><a href="#cb35-27" aria-hidden="true" tabindex="-1"></a>      <span class="at">scale =</span> <span class="fu">list</span>(</span>
+<span id="cb35-28"><a href="#cb35-28" aria-hidden="true" tabindex="-1"></a>        <span class="at">mode =</span> <span class="st">"dist"</span>,</span>
+<span id="cb35-29"><a href="#cb35-29" aria-hidden="true" tabindex="-1"></a>        <span class="at">dist =</span> <span class="st">"gamma"</span>,</span>
+<span id="cb35-30"><a href="#cb35-30" aria-hidden="true" tabindex="-1"></a>        <span class="at">args =</span> <span class="fu">list</span>(<span class="at">shape =</span> <span class="dv">2</span>, <span class="at">rate =</span> <span class="dv">1</span>)</span>
+<span id="cb35-31"><a href="#cb35-31" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb35-32"><a href="#cb35-32" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb35-33"><a href="#cb35-33" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb35-34"><a href="#cb35-34" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="build-run" class="level2">
 <h2 class="anchored" data-anchor-id="build-run">Build + Run</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>causal_bundle <span class="ot">&lt;-</span> <span class="fu">build_causal_bundle</span>(</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> X_causal,</span>
-<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">T =</span> T_ind,</span>
-<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
-<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="fu">c</span>(<span class="st">"normal"</span>, <span class="st">"laplace"</span>),</span>
-<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">5</span>,</span>
-<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">param_specs =</span> param_specs_causal,</span>
-<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">PS =</span> <span class="st">"logit"</span>,</span>
-<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_outcome =</span> mcmc,</span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_ps =</span> mcmc</span>
-<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>causal_fit <span class="ot">&lt;-</span> <span class="fu">run_mcmc_causal</span>(causal_bundle, <span class="at">show_progress =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>causal_bundle <span class="ot">&lt;-</span> <span class="fu">build_causal_bundle</span>(</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> X_causal,</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">T =</span> T_ind,</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="fu">c</span>(<span class="st">"normal"</span>, <span class="st">"laplace"</span>),</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">5</span>,</span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">param_specs =</span> param_specs_causal,</span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">PS =</span> <span class="st">"logit"</span>,</span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_outcome =</span> mcmc,</span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_ps =</span> mcmc</span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>causal_fit <span class="ot">&lt;-</span> <span class="fu">run_mcmc_causal</span>(causal_bundle, <span class="at">show_progress =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Defining model</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Building model</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Setting data and initial values</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Checking model sizes and dimensions</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>  [Note] This model is not fully initialized. This is not an error.
+         To see which variables are not initialized, use model$initializeInfo().
+         For more information on model initialization, see help(modelInitialization).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Checking model calculations</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>running chain 1...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Defining model</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Building model</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Setting data and initial values</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Checking model sizes and dimensions</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>  [Note] This model is not fully initialized. This is not an error.
+         To see which variables are not initialized, use model$initializeInfo().
+         For more information on model initialization, see help(modelInitialization).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Checking model calculations</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>  [Warning] To calculate WAIC, set 'WAIC = TRUE', in addition to having enabled WAIC in building the MCMC.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>running chain 1...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Calculating WAIC.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Defining model</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Building model</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Setting data and initial values</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Checking model sizes and dimensions</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>  [Note] This model is not fully initialized. This is not an error.
+         To see which variables are not initialized, use model$initializeInfo().
+         For more information on model initialization, see help(modelInitialization).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Checking model calculations</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>  [Warning] To calculate WAIC, set 'WAIC = TRUE', in addition to having enabled WAIC in building the MCMC.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>running chain 1...</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Calculating WAIC.</code></pre>
+</div>
 </div>
 </section>
 <section id="user-level-functions-1" class="level2">
 <h2 class="anchored" data-anchor-id="user-level-functions-1">User-Level Functions</h2>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(causal_bundle)</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(causal_bundle)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(causal_fit)</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(causal_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb67"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(causal_bundle)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+DPmixGPD causal bundle PS model: Bayesian logit (T | X)
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:center;">
+Field
+</th>
+<th style="text-align:center;">
+Treated
+</th>
+<th style="text-align:center;">
+Control
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+Backend
+</td>
+<td style="text-align:center;">
+Stick-Breaking Process
+</td>
+<td style="text-align:center;">
+Stick-Breaking Process
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Kernel
+</td>
+<td style="text-align:center;">
+normal
+</td>
+<td style="text-align:center;">
+laplace
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Components
+</td>
+<td style="text-align:center;">
+5
+</td>
+<td style="text-align:center;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+GPD tail
+</td>
+<td style="text-align:center;">
+FALSE
+</td>
+<td style="text-align:center;">
+FALSE
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Epsilon
+</td>
+<td style="text-align:center;">
+0.025
+</td>
+<td style="text-align:center;">
+0.025
+</td>
+</tr>
+</tbody>
+</table>
+<p>Outcome PS included: TRUE n (control) = 19 | n (treated) = 13</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(causal_bundle)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+DPmixGPD causal bundle summary DPmixGPD causal bundle PS model: Bayesian logit (T | X)
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:center;">
+Field
+</th>
+<th style="text-align:center;">
+Treated
+</th>
+<th style="text-align:center;">
+Control
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+Backend
+</td>
+<td style="text-align:center;">
+Stick-Breaking Process
+</td>
+<td style="text-align:center;">
+Stick-Breaking Process
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Kernel
+</td>
+<td style="text-align:center;">
+normal
+</td>
+<td style="text-align:center;">
+laplace
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Components
+</td>
+<td style="text-align:center;">
+5
+</td>
+<td style="text-align:center;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+GPD tail
+</td>
+<td style="text-align:center;">
+FALSE
+</td>
+<td style="text-align:center;">
+FALSE
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Epsilon
+</td>
+<td style="text-align:center;">
+0.025
+</td>
+<td style="text-align:center;">
+0.025
+</td>
+</tr>
+</tbody>
+</table>
+<p>Outcome PS included: TRUE n (control) = 19 | n (treated) = 13</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(causal_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>DPmixGPD causal fit PS model: Bayesian logit (T | X) Outcome (treated): backend = sb | kernel = normal Outcome (control): backend = sb | kernel = laplace GPD tail (treated/control): FALSE / FALSE</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(causal_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>– PS fit – DPmixGPD PS fit model: logit</p>
+<p>– Outcome fits – [control] MixGPD fit | backend: Stick-Breaking Process | kernel: Laplace Distribution | GPD tail: FALSE n = 19 | components = 5 | epsilon = 0.025 MCMC: niter=600, nburnin=150, thin=2, nchains=1 Fit Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</p>
+<p>[treated] MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: FALSE n = 13 | components = 5 | epsilon = 0.025 MCMC: niter=600, nburnin=150, thin=2, nchains=1 Fit Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</p>
 </section>
 <section id="s3-methods-causal" class="level2">
 <h2 class="anchored" data-anchor-id="s3-methods-causal">S3 Methods (Causal)</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) <span class="fu">plot</span>(causal_fit, <span class="at">family =</span> <span class="st">"traceplot"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) <span class="fu">plot</span>(causal_fit, <span class="at">family =</span> <span class="st">"traceplot"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>pred_causal_mean <span class="ot">&lt;-</span> <span class="fu">predict</span>(causal_fit, <span class="at">x =</span> X_causal, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_causal_mean)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>pred_causal_mean <span class="ot">&lt;-</span> <span class="fu">predict</span>(causal_fit, <span class="at">x =</span> X_causal, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_causal_mean)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                     ps estimate   lower upper
+Mazda RX4         0.510    0.856 -13.420  17.8
+Mazda RX4 Wag     0.367    2.057 -22.109  23.9
+Datsun 710        0.667    3.818 -10.417  16.0
+Hornet 4 Drive    0.253    3.560  -0.642  17.9
+Hornet Sportabout 0.270   -5.668 -24.992  32.3
+Valiant           0.162    3.824 -12.026  27.8</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>ate_result <span class="ot">&lt;-</span> <span class="fu">ate</span>(causal_fit, <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> <span class="dv">50</span>)</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(ate_result)</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(ate_result)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>qte_result <span class="ot">&lt;-</span> <span class="fu">qte</span>(causal_fit, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>), <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) <span class="fu">plot</span>(ate_result, <span class="at">type =</span> <span class="st">"effect"</span>)</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) <span class="fu">plot</span>(qte_result, <span class="at">type =</span> <span class="st">"effect"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-
-
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>ate_result <span class="ot">&lt;-</span> <span class="fu">ate</span>(causal_fit, <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> <span class="dv">50</span>)</span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(ate_result)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>ATE (Average Treatment Effect) Prediction points: 32 Conditional (covariates): YES Propensity score used: YES PS scale: logit Posterior mean draws: 50 Credible interval: credible (95%)</p>
+ATE estimates (treated - control):
+<table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr>
+<th style="text-align:center;">
+id
+</th>
+<th style="text-align:center;">
+estimate
+</th>
+<th style="text-align:center;">
+lower
+</th>
+<th style="text-align:center;">
+upper
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+1
+</td>
+<td style="text-align:center;">
+3.025
+</td>
+<td style="text-align:center;">
+-214.666
+</td>
+<td style="text-align:center;">
+277.54
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+2
+</td>
+<td style="text-align:center;">
+2.837
+</td>
+<td style="text-align:center;">
+-226.896
+</td>
+<td style="text-align:center;">
+271.073
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+3
+</td>
+<td style="text-align:center;">
+2.65
+</td>
+<td style="text-align:center;">
+-178.65
+</td>
+<td style="text-align:center;">
+227.58
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+4
+</td>
+<td style="text-align:center;">
+4.576
+</td>
+<td style="text-align:center;">
+-202.892
+</td>
+<td style="text-align:center;">
+262.122
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+5
+</td>
+<td style="text-align:center;">
+-3.944
+</td>
+<td style="text-align:center;">
+-317.567
+</td>
+<td style="text-align:center;">
+407.054
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+6
+</td>
+<td style="text-align:center;">
+4.34
+</td>
+<td style="text-align:center;">
+-199.598
+</td>
+<td style="text-align:center;">
+241.31
+</td>
+</tr>
+</tbody>
+</table>
+<p>… (26 more rows)</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(ate_result)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </section>
+</section>
+<section id="ate-summary" class="level1">
+<h1>ATE Summary</h1>
+<p>Prediction points: 32 Conditional: YES | PS used: YES Posterior mean draws: 50 Interval: credible (95%)</p>
+<p>Model specification: Backend (trt/con): sb / sb Kernel (trt/con): normal / laplace GPD tail (trt/con): NO / NO</p>
+<p>ATE statistics: Mean: -2.351 | Median: -0.867 Range: [-29.153, 9.448] SD: 9.802</p>
+<p>Credible interval width: Mean: 640.457 | Median: 558.11 Range: [242.755, 1413.862]</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>qte_result <span class="ot">&lt;-</span> <span class="fu">qte</span>(causal_fit, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>), <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) <span class="fu">plot</span>(ate_result, <span class="at">type =</span> <span class="st">"effect"</span>)</span>
+<span id="cb76-3"><a href="#cb76-3" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">interactive</span>()) <span class="fu">plot</span>(qte_result, <span class="at">type =</span> <span class="st">"effect"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+
+
 </section>
 
 </main> <!-- /main -->
-<div style="
-
+﻿<div style="
   display:flex;
-
   flex-wrap:wrap;
-
   gap:1rem;
-
   justify-content:space-between;
-
   align-items:center;
-
   font-size:0.9rem;
-
   color:rgba(0,0,0,.65);
-
   margin-top:2.5rem;
-
   padding-top:1.2rem;
-
   border-top:1px solid rgba(0,0,0,.1);
-
 ">
 
-
-
   <div>
-
-    © DPmixGPD · Bayesian semiparametric modeling for heavy-tailed data
-
+    (c) DPmixGPD - Bayesian semiparametric modeling for heavy-tailed data
   </div>
 
-
-
   <div>
-
-    <span id="site-version"></span> ·
-
-    <span id="site-updated"></span> ·
-
-    <a href="cite.html">Cite</a> ·
-
-    <a href="pkgdown/index.html">API</a> ·
-
+    <span id="site-version"></span> -
+    <span id="site-updated"></span> -
+    <a href="cite.html">Cite</a> -
+    <a href="pkgdown/index.html">API</a> -
     <a href="https://github.com/arnabaich96/DPmixGPD">GitHub</a>
-
   </div>
-
-
 
 </div>
 
-
-
 <script>
-
   // These values are replaced at build time if present
-
   const version = document.documentElement.getAttribute("data-version");
-
   const updated = document.documentElement.getAttribute("data-updated");
 
-
-
   if (version) {
-
     document.getElementById("site-version").textContent = "Version " + version;
-
   }
-
   if (updated) {
-
     document.getElementById("site-updated").textContent = "Updated " + updated;
-
   }
-
 </script>
 
 <script id="quarto-html-after-body" type="application/javascript">

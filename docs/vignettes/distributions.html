@@ -104,6 +104,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
+<script src="../site_libs/kePrint-0.0.1/kePrint.js"></script>
+
+<link href="../site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
 
 
 </head>
@@ -129,56 +133,54 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="../index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../getting-started.html"> 
-<span class="menu-text">Getting Started</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-start" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Start</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-start">    
+        <li>
+    <a class="dropdown-item" href="../getting-started.html">
+ <span class="dropdown-text">Getting Started</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../faq.html"> 
-<span class="menu-text">FAQ</span></a>
+        <li>
+    <a class="dropdown-item" href="../decision-guide.html">
+ <span class="dropdown-text">Decision Guide</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../roadmap.html"> 
-<span class="menu-text">Roadmap</span></a>
+        <li>
+    <a class="dropdown-item" href="../faq.html">
+ <span class="dropdown-text">FAQ</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../kernels.html"> 
-<span class="menu-text">Kernels</span></a>
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-docs" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Docs</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-docs">    
+        <li>
+    <a class="dropdown-item" href="../reference.html">
+ <span class="dropdown-text">Docs overview</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../cookbook.html"> 
-<span class="menu-text">Cookbook</span></a>
+        <li>
+    <a class="dropdown-item" href="../kernels.html">
+ <span class="dropdown-text">Kernels</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../reference.html"> 
-<span class="menu-text">Reference</span></a>
+        <li>
+    <a class="dropdown-item" href="../cookbook.html">
+ <span class="dropdown-text">Cookbook</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../cite.html"> 
-<span class="menu-text">Cite</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../coverage.html"> 
-<span class="menu-text">Coverage</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../news.html"> 
-<span class="menu-text">News</span></a>
-  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../developers.html"> 
 <span class="menu-text">Developers</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../pkgdown/reference/index.html"> 
+<span class="menu-text">Reference</span></a>
+  </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD/discussions"> 
-<span class="menu-text">Discussions</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD/issues"> 
-<span class="menu-text">Bugs</span></a>
-  </li>  
   <li class="nav-item">
     <a class="nav-link" href="../pkgdown/index.html"> 
 <span class="menu-text">Pkgdown</span></a>
@@ -249,6 +251,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">param_table</span>(<span class="st">"GPD parameter sets"</span>, sets)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="table table-striped table-hover caption-top">
+<caption>GPD parameter sets</caption>
+<thead>
+<tr class="header">
+<th style="text-align: center;" data-quarto-table-cell-role="th">Label</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">GPD A</td>
+<td style="text-align: center;">threshold = 1, scale = 0.6, shape = 0.15</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">GPD B</td>
+<td style="text-align: center;">threshold = 1.5, scale = 0.5, shape = 0.25</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">GPD C</td>
+<td style="text-align: center;">threshold = 2, scale = 0.7, shape = 0.1</td>
+</tr>
+</tbody>
+</table>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>variants <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">label =</span> <span class="st">"GPD A"</span>, <span class="at">d =</span> dgpd, <span class="at">p =</span> pgpd, <span class="at">q =</span> qgpd, <span class="at">r =</span> rgpd,</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">params =</span> <span class="fu">list</span>(<span class="at">threshold =</span> <span class="fl">1.0</span>, <span class="at">scale =</span> <span class="fl">0.6</span>, <span class="at">shape =</span> <span class="fl">0.15</span>)),</span>
@@ -259,6 +284,50 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="fu">demo_table</span>(<span class="st">"GPD function demo (x = 2.0, p = 0.8, n = 3)"</span>, variants, <span class="at">x =</span> <span class="fl">2.0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="table table-striped table-hover caption-top">
+<caption>GPD function demo (x = 2.0, p = 0.8, n = 3)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: center;" data-quarto-table-cell-role="th">Variant</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">d(x)</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">p(x)</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">q(p)</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">r(n)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">GPD A</td>
+<td style="text-align: center;">0.301</td>
+<td style="text-align: center;">0.774</td>
+<td style="text-align: center;">2.09</td>
+<td style="text-align: center;">1.189, 1.289, 1.544</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">GPD B</td>
+<td style="text-align: center;">0.655</td>
+<td style="text-align: center;">0.590</td>
+<td style="text-align: center;">2.49</td>
+<td style="text-align: center;">3.134, 1.616, 3.042</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">GPD C</td>
+<td style="text-align: center;">1.429</td>
+<td style="text-align: center;">0.000</td>
+<td style="text-align: center;">3.22</td>
+<td style="text-align: center;">4.35, 2.799, 2.73</td>
+</tr>
+</tbody>
+</table>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="distributions_files/figure-html/gpd-plot-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="dist-normal" class="level2">
 <h2 class="anchored" data-anchor-id="dist-normal">Normal</h2>
@@ -281,6 +350,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="fu">param_table</span>(<span class="st">"Normal parameter sets"</span>, sets)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="table table-striped table-hover caption-top">
+<caption>Normal parameter sets</caption>
+<thead>
+<tr class="header">
+<th style="text-align: center;" data-quarto-table-cell-role="th">Label</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">Base</td>
+<td style="text-align: center;">mean = 0, sd = 1</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Base + GPD</td>
+<td style="text-align: center;">mean = 0, sd = 1, threshold = 1.5, tail_scale = 0.5, tail_shape = 0.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Mixture</td>
+<td style="text-align: center;">w = (0.7, 0.3), mean = (-1, 1.5), sd = (1, 0.7)</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Mixture + GPD</td>
+<td style="text-align: center;">w = (0.7, 0.3), mean = (-1, 1), sd = (1, 0.7), threshold = 1.5, tail_scale = 0.5, tail_shape = 0.2</td>
+</tr>
+</tbody>
+</table>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>variants <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">label =</span> <span class="st">"Base"</span>, <span class="at">d =</span> dnorm, <span class="at">p =</span> pnorm, <span class="at">q =</span> qnorm, <span class="at">r =</span> rnorm,</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">params =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">1</span>)),</span>
@@ -294,6 +390,57 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a><span class="fu">demo_table</span>(<span class="st">"Normal function demo (x = 0.5, p = 0.8, n = 3)"</span>, variants, <span class="at">x =</span> <span class="fl">0.5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="table table-striped table-hover caption-top">
+<caption>Normal function demo (x = 0.5, p = 0.8, n = 3)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: center;" data-quarto-table-cell-role="th">Variant</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">d(x)</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">p(x)</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">q(p)</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">r(n)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">Base</td>
+<td style="text-align: center;">0.352</td>
+<td style="text-align: center;">0.691</td>
+<td style="text-align: center;">0.842</td>
+<td style="text-align: center;">-1.54, -0.929, -0.295</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Base + GPD</td>
+<td style="text-align: center;">0.352</td>
+<td style="text-align: center;">0.691</td>
+<td style="text-align: center;">0.842</td>
+<td style="text-align: center;">0.576, 0.764, 0.39</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Mixture</td>
+<td style="text-align: center;">0.152</td>
+<td style="text-align: center;">0.676</td>
+<td style="text-align: center;">1.252</td>
+<td style="text-align: center;">-1.289, 0.125, -0.748</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Mixture + GPD</td>
+<td style="text-align: center;">0.223</td>
+<td style="text-align: center;">0.724</td>
+<td style="text-align: center;">0.841</td>
+<td style="text-align: center;">1.305, 0.843, 1.093</td>
+</tr>
+</tbody>
+</table>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="distributions_files/figure-html/norm-plot-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="dist-gamma" class="level2">
 <h2 class="anchored" data-anchor-id="dist-gamma">Gamma</h2>
@@ -316,6 +463,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a><span class="fu">param_table</span>(<span class="st">"Gamma parameter sets"</span>, sets)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="table table-striped table-hover caption-top">
+<caption>Gamma parameter sets</caption>
+<thead>
+<tr class="header">
+<th style="text-align: center;" data-quarto-table-cell-role="th">Label</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">Base</td>
+<td style="text-align: center;">shape = 2.5, scale = 1</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Base + GPD</td>
+<td style="text-align: center;">shape = 3, scale = 1, threshold = 5, tail_scale = 1, tail_shape = 0.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Mixture</td>
+<td style="text-align: center;">w = (0.6, 0.4), shape = (2, 5), scale = (1, 0.7)</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Mixture + GPD</td>
+<td style="text-align: center;">w = (0.6, 0.4), shape = (2, 5), scale = (1, 0.7), threshold = 5, tail_scale = 1, tail_shape = 0.2</td>
+</tr>
+</tbody>
+</table>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>variants <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">label =</span> <span class="st">"Base"</span>, <span class="at">d =</span> dgamma, <span class="at">p =</span> pgamma, <span class="at">q =</span> qgamma, <span class="at">r =</span> rgamma,</span>
 <span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">params =</span> <span class="fu">list</span>(<span class="at">shape =</span> <span class="fl">2.5</span>, <span class="at">scale =</span> <span class="fl">1.0</span>)),</span>
@@ -329,6 +503,57 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="fu">demo_table</span>(<span class="st">"Gamma function demo (x = 3.0, p = 0.8, n = 3)"</span>, variants, <span class="at">x =</span> <span class="fl">3.0</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="table table-striped table-hover caption-top">
+<caption>Gamma function demo (x = 3.0, p = 0.8, n = 3)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: center;" data-quarto-table-cell-role="th">Variant</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">d(x)</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">p(x)</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">q(p)</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">r(n)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">Base</td>
+<td style="text-align: center;">0.195</td>
+<td style="text-align: center;">0.694</td>
+<td style="text-align: center;">3.64</td>
+<td style="text-align: center;">3.299, 1.92, 1.921</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Base + GPD</td>
+<td style="text-align: center;">0.224</td>
+<td style="text-align: center;">0.577</td>
+<td style="text-align: center;">4.28</td>
+<td style="text-align: center;">0.715, 3.204, 5.36</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Mixture</td>
+<td style="text-align: center;">0.200</td>
+<td style="text-align: center;">0.651</td>
+<td style="text-align: center;">3.89</td>
+<td style="text-align: center;">1.016, 2.522, 2.564</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Mixture + GPD</td>
+<td style="text-align: center;">0.200</td>
+<td style="text-align: center;">0.651</td>
+<td style="text-align: center;">3.89</td>
+<td style="text-align: center;">3.4, 6.301, 0.997</td>
+</tr>
+</tbody>
+</table>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="distributions_files/figure-html/gamma-plot-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="dist-lognormal" class="level2">
 <h2 class="anchored" data-anchor-id="dist-lognormal">Lognormal</h2>
@@ -351,6 +576,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a><span class="fu">param_table</span>(<span class="st">"Lognormal parameter sets"</span>, sets)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="table table-striped table-hover caption-top">
+<caption>Lognormal parameter sets</caption>
+<thead>
+<tr class="header">
+<th style="text-align: center;" data-quarto-table-cell-role="th">Label</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">Base</td>
+<td style="text-align: center;">meanlog = 0.2, sdlog = 0.5</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Base + GPD</td>
+<td style="text-align: center;">meanlog = 0.2, sdlog = 0.5, threshold = 3, tail_scale = 0.8, tail_shape = 0.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Mixture</td>
+<td style="text-align: center;">w = (0.6, 0.4), meanlog = (0, 0.6), sdlog = (0.4, 0.5)</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Mixture + GPD</td>
+<td style="text-align: center;">w = (0.6, 0.4), meanlog = (0, 0.6), sdlog = (0.4, 0.5), threshold = 3, tail_scale = 0.8, tail_shape = 0.2</td>
+</tr>
+</tbody>
+</table>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>variants <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">label =</span> <span class="st">"Base"</span>, <span class="at">d =</span> dlnorm, <span class="at">p =</span> plnorm, <span class="at">q =</span> qlnorm, <span class="at">r =</span> rlnorm,</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">params =</span> <span class="fu">list</span>(<span class="at">meanlog =</span> <span class="fl">0.2</span>, <span class="at">sdlog =</span> <span class="fl">0.5</span>)),</span>
@@ -365,6 +617,57 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a><span class="fu">demo_table</span>(<span class="st">"Lognormal function demo (x = 1.2, p = 0.8, n = 3)"</span>, variants, <span class="at">x =</span> <span class="fl">1.2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="table table-striped table-hover caption-top">
+<caption>Lognormal function demo (x = 1.2, p = 0.8, n = 3)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: center;" data-quarto-table-cell-role="th">Variant</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">d(x)</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">p(x)</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">q(p)</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">r(n)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">Base</td>
+<td style="text-align: center;">0.664</td>
+<td style="text-align: center;">0.486</td>
+<td style="text-align: center;">1.86</td>
+<td style="text-align: center;">1.613, 0.866, 0.857</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Base + GPD</td>
+<td style="text-align: center;">0.664</td>
+<td style="text-align: center;">0.486</td>
+<td style="text-align: center;">1.86</td>
+<td style="text-align: center;">2.178, 1.155, 1.395</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Mixture</td>
+<td style="text-align: center;">0.637</td>
+<td style="text-align: center;">0.486</td>
+<td style="text-align: center;">1.98</td>
+<td style="text-align: center;">0.783, 1.224, 1.774</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Mixture + GPD</td>
+<td style="text-align: center;">0.637</td>
+<td style="text-align: center;">0.486</td>
+<td style="text-align: center;">1.98</td>
+<td style="text-align: center;">4.204, 0.659, 0.947</td>
+</tr>
+</tbody>
+</table>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="distributions_files/figure-html/logn-plot-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="dist-laplace" class="level2">
 <h2 class="anchored" data-anchor-id="dist-laplace">Laplace</h2>
@@ -387,6 +690,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="fu">param_table</span>(<span class="st">"Laplace parameter sets"</span>, sets)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="table table-striped table-hover caption-top">
+<caption>Laplace parameter sets</caption>
+<thead>
+<tr class="header">
+<th style="text-align: center;" data-quarto-table-cell-role="th">Label</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">Base</td>
+<td style="text-align: center;">location = 0, scale = 0.8</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Base + GPD</td>
+<td style="text-align: center;">location = 0, scale = 0.8, threshold = 2, tail_scale = 0.5, tail_shape = 0.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Mixture</td>
+<td style="text-align: center;">w = (0.7, 0.3), location = (0, 0.8), scale = (0.5, 0.8)</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Mixture + GPD</td>
+<td style="text-align: center;">w = (0.7, 0.3), location = (0, 0.8), scale = (0.5, 0.8), threshold = 2, tail_scale = 0.5, tail_shape = 0.2</td>
+</tr>
+</tbody>
+</table>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>variants <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">label =</span> <span class="st">"Base"</span>, <span class="at">d =</span> nimble<span class="sc">::</span>ddexp, <span class="at">p =</span> nimble<span class="sc">::</span>pdexp, <span class="at">q =</span> nimble<span class="sc">::</span>qdexp, <span class="at">r =</span> nimble<span class="sc">::</span>rdexp,</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">params =</span> <span class="fu">list</span>(<span class="at">location =</span> <span class="dv">0</span>, <span class="at">scale =</span> <span class="fl">0.8</span>)),</span>
@@ -401,6 +731,57 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="fu">demo_table</span>(<span class="st">"Laplace function demo (x = 0.5, p = 0.8, n = 3)"</span>, variants, <span class="at">x =</span> <span class="fl">0.5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="table table-striped table-hover caption-top">
+<caption>Laplace function demo (x = 0.5, p = 0.8, n = 3)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: center;" data-quarto-table-cell-role="th">Variant</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">d(x)</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">p(x)</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">q(p)</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">r(n)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">Base</td>
+<td style="text-align: center;">0.335</td>
+<td style="text-align: center;">0.732</td>
+<td style="text-align: center;">0.733</td>
+<td style="text-align: center;">0.651, -0.018, -1.428</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Base + GPD</td>
+<td style="text-align: center;">0.335</td>
+<td style="text-align: center;">0.732</td>
+<td style="text-align: center;">0.733</td>
+<td style="text-align: center;">-0.228, 0.097, 0.012</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Mixture</td>
+<td style="text-align: center;">0.386</td>
+<td style="text-align: center;">0.674</td>
+<td style="text-align: center;">0.866</td>
+<td style="text-align: center;">0.783, -0.247, 0.115</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Mixture + GPD</td>
+<td style="text-align: center;">0.386</td>
+<td style="text-align: center;">0.674</td>
+<td style="text-align: center;">0.866</td>
+<td style="text-align: center;">-0, -0.402, 0.617</td>
+</tr>
+</tbody>
+</table>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="distributions_files/figure-html/laplace-plot-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="dist-inverse-gaussian" class="level2">
 <h2 class="anchored" data-anchor-id="dist-inverse-gaussian">Inverse Gaussian</h2>
@@ -423,6 +804,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a><span class="fu">param_table</span>(<span class="st">"Inverse Gaussian parameter sets"</span>, sets)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="table table-striped table-hover caption-top">
+<caption>Inverse Gaussian parameter sets</caption>
+<thead>
+<tr class="header">
+<th style="text-align: center;" data-quarto-table-cell-role="th">Label</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">Base</td>
+<td style="text-align: center;">mean = 1.2, shape = 3</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Base + GPD</td>
+<td style="text-align: center;">mean = 1.2, shape = 3, threshold = 2, tail_scale = 0.5, tail_shape = 0.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Mixture</td>
+<td style="text-align: center;">w = (0.6, 0.4), mean = (1, 2), shape = (2, 4)</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Mixture + GPD</td>
+<td style="text-align: center;">w = (0.6, 0.4), mean = (1, 2), shape = (2, 4), threshold = 2, tail_scale = 0.5, tail_shape = 0.2</td>
+</tr>
+</tbody>
+</table>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>variants <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">label =</span> <span class="st">"Base"</span>, <span class="at">d =</span> dinvgauss, <span class="at">p =</span> pinvgauss, <span class="at">q =</span> qinvgauss, <span class="at">r =</span> rinvgauss,</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">params =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="fl">1.2</span>, <span class="at">shape =</span> <span class="fl">3.0</span>)),</span>
@@ -437,6 +845,57 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="fu">demo_table</span>(<span class="st">"Inverse Gaussian function demo (x = 1.5, p = 0.8, n = 3)"</span>, variants, <span class="at">x =</span> <span class="fl">1.5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="table table-striped table-hover caption-top">
+<caption>Inverse Gaussian function demo (x = 1.5, p = 0.8, n = 3)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: center;" data-quarto-table-cell-role="th">Variant</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">d(x)</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">p(x)</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">q(p)</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">r(n)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">Base</td>
+<td style="text-align: center;">0.353</td>
+<td style="text-align: center;">0.747</td>
+<td style="text-align: center;">1.67</td>
+<td style="text-align: center;">1.045, 1.743, 0.645</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Base + GPD</td>
+<td style="text-align: center;">0.353</td>
+<td style="text-align: center;">0.747</td>
+<td style="text-align: center;">1.67</td>
+<td style="text-align: center;">2.604, 0.539, 2.376</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Mixture</td>
+<td style="text-align: center;">0.316</td>
+<td style="text-align: center;">0.678</td>
+<td style="text-align: center;">2.00</td>
+<td style="text-align: center;">3.693, 1.838, 0.372</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Mixture + GPD</td>
+<td style="text-align: center;">0.316</td>
+<td style="text-align: center;">0.678</td>
+<td style="text-align: center;">2.00</td>
+<td style="text-align: center;">1.433, 0.649, 1.582</td>
+</tr>
+</tbody>
+</table>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="distributions_files/figure-html/ig-plot-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="dist-amoroso" class="level2">
 <h2 class="anchored" data-anchor-id="dist-amoroso">Amoroso</h2>
@@ -463,6 +922,33 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a><span class="fu">param_table</span>(<span class="st">"Amoroso parameter sets"</span>, sets)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="table table-striped table-hover caption-top">
+<caption>Amoroso parameter sets</caption>
+<thead>
+<tr class="header">
+<th style="text-align: center;" data-quarto-table-cell-role="th">Label</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">Base</td>
+<td style="text-align: center;">loc = 0, scale = 1.2, shape1 = 2.5, shape2 = 1.2</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Base + GPD</td>
+<td style="text-align: center;">loc = 0, scale = 1.2, shape1 = 2.5, shape2 = 1.2, threshold = 2.5, tail_scale = 0.4, tail_shape = 0.2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Mixture</td>
+<td style="text-align: center;">w = (0.6, 0.4), loc = (0, 0), scale = (1, 1.5), shape1 = (2, 3), shape2 = (1.2, 1.2)</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Mixture + GPD</td>
+<td style="text-align: center;">w = (0.6, 0.4), loc = (0, 0), scale = (1, 1.5), shape1 = (2, 3), shape2 = (1.2, 1.2), threshold = 2.5, tail_scale = 0.4, tail_shape = 0.2</td>
+</tr>
+</tbody>
+</table>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>variants <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">label =</span> <span class="st">"Base"</span>, <span class="at">d =</span> damoroso, <span class="at">p =</span> pamoroso, <span class="at">q =</span> qamoroso, <span class="at">r =</span> ramoroso,</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">params =</span> <span class="fu">list</span>(<span class="at">loc =</span> <span class="dv">0</span>, <span class="at">scale =</span> <span class="fl">1.2</span>, <span class="at">shape1 =</span> <span class="fl">2.5</span>, <span class="at">shape2 =</span> <span class="fl">1.2</span>)),</span>
@@ -480,6 +966,57 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a><span class="fu">demo_table</span>(<span class="st">"Amoroso function demo (x = 1.8, p = 0.8, n = 3)"</span>, variants, <span class="at">x =</span> <span class="fl">1.8</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="table table-striped table-hover caption-top">
+<caption>Amoroso function demo (x = 1.8, p = 0.8, n = 3)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: center;" data-quarto-table-cell-role="th">Variant</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">d(x)</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">p(x)</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">q(p)</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">r(n)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">Base</td>
+<td style="text-align: center;">0.333</td>
+<td style="text-align: center;">0.339</td>
+<td style="text-align: center;">3.53</td>
+<td style="text-align: center;">1.002, 3.323, 4.955</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Base + GPD</td>
+<td style="text-align: center;">0.333</td>
+<td style="text-align: center;">0.339</td>
+<td style="text-align: center;">2.84</td>
+<td style="text-align: center;">2.653, 4.192, 2.673</td>
+</tr>
+<tr class="odd">
+<td style="text-align: center;">Mixture</td>
+<td style="text-align: center;">0.291</td>
+<td style="text-align: center;">0.412</td>
+<td style="text-align: center;">3.71</td>
+<td style="text-align: center;">0.767, 1.564, 3.452</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Mixture + GPD</td>
+<td style="text-align: center;">0.291</td>
+<td style="text-align: center;">0.412</td>
+<td style="text-align: center;">2.81</td>
+<td style="text-align: center;">1.346, 2.678, 1.888</td>
+</tr>
+</tbody>
+</table>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="distributions_files/figure-html/amor-plot-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="dist-cauchy" class="level2">
 <h2 class="anchored" data-anchor-id="dist-cauchy">Cauchy</h2>
@@ -495,6 +1032,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a><span class="fu">param_table</span>(<span class="st">"Cauchy parameter sets"</span>, sets)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="table table-striped table-hover caption-top">
+<caption>Cauchy parameter sets</caption>
+<thead>
+<tr class="header">
+<th style="text-align: center;" data-quarto-table-cell-role="th">Label</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">Parameters</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">Base</td>
+<td style="text-align: center;">location = 0, scale = 1</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Mixture</td>
+<td style="text-align: center;">w = (0.6, 0.4), location = (-1, 1), scale = (1, 1.5)</td>
+</tr>
+</tbody>
+</table>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>variants <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">label =</span> <span class="st">"Base"</span>, <span class="at">d =</span> dcauchy_vec, <span class="at">p =</span> pcauchy_vec, <span class="at">q =</span> qcauchy_vec, <span class="at">r =</span> rcauchy_vec,</span>
 <span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">params =</span> <span class="fu">list</span>(<span class="at">location =</span> <span class="dv">0</span>, <span class="at">scale =</span> <span class="fl">1.0</span>)),</span>
@@ -503,9 +1059,621 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a><span class="fu">demo_table</span>(<span class="st">"Cauchy function demo (x = 0.5, p = 0.8, n = 3)"</span>, variants, <span class="at">x =</span> <span class="fl">0.5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<table class="table table-striped table-hover caption-top">
+<caption>Cauchy function demo (x = 0.5, p = 0.8, n = 3)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: center;" data-quarto-table-cell-role="th">Variant</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">d(x)</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">p(x)</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">q(p)</th>
+<th style="text-align: center;" data-quarto-table-cell-role="th">r(n)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;">Base</td>
+<td style="text-align: center;">0.255</td>
+<td style="text-align: center;">0.648</td>
+<td style="text-align: center;">1.38</td>
+<td style="text-align: center;">-0.36, 0.678, 0.677</td>
+</tr>
+<tr class="even">
+<td style="text-align: center;">Mixture</td>
+<td style="text-align: center;">0.135</td>
+<td style="text-align: center;">0.647</td>
+<td style="text-align: center;">1.84</td>
+<td style="text-align: center;">-1.225, -1.696, 2.457</td>
+</tr>
+</tbody>
+</table>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="distributions_files/figure-html/cauchy-plot-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
 </section>
 <section id="complete-function-reference" class="level2">
 <h2 class="anchored" data-anchor-id="complete-function-reference">Complete Function Reference</h2>
+<table class="table table-striped table-hover" style="width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>
+Complete distribution reference
+</caption>
+<thead>
+<tr>
+<th style="text-align:center;">
+Distribution
+</th>
+<th style="text-align:center;">
+Variant
+</th>
+<th style="text-align:center;">
+Rd page
+</th>
+<th style="text-align:center;">
+NIMBLE call
+</th>
+<th style="text-align:center;">
+R call
+</th>
+<th style="text-align:center;">
+Vector params
+</th>
+<th style="text-align:center;">
+Scalar params
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center;">
+GPD
+</td>
+<td style="text-align:center;">
+Standalone
+</td>
+<td style="text-align:center;">
+<a href="../reference/gpd.html">gpd</a>
+</td>
+<td style="text-align:center;">
+dGpd / pGpd / qGpd / rGpd
+</td>
+<td style="text-align:center;">
+dgpd / pgpd / qgpd / rgpd
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+threshold, scale, shape
+</td>
+</tr>
+<tr>
+<td style="text-align:center;vertical-align: top !important;" rowspan="4">
+Normal
+</td>
+<td style="text-align:center;">
+Base
+</td>
+<td style="text-align:center;">
+stats::Normal
+</td>
+<td style="text-align:center;">
+dnorm / pnorm / qnorm / rnorm
+</td>
+<td style="text-align:center;">
+dnorm / pnorm / qnorm / rnorm
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+mean, sd
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Base + GPD
+</td>
+<td style="text-align:center;">
+<a href="../reference/normal_gpd.html">normal_gpd</a>
+</td>
+<td style="text-align:center;">
+dNormGpd / pNormGpd / qNormGpd / rNormGpd
+</td>
+<td style="text-align:center;">
+dnormgpd / pnormgpd / qnormgpd / rnormgpd
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+mean, sd, threshold, tail_scale, tail_shape
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Mixture
+</td>
+<td style="text-align:center;">
+<a href="../reference/normal_mix.html">normal_mix</a>
+</td>
+<td style="text-align:center;">
+dNormMix / pNormMix / qNormMix / rNormMix
+</td>
+<td style="text-align:center;">
+dnormmix / pnormmix / qnormmix / rnormmix
+</td>
+<td style="text-align:center;">
+w, mean, sd
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Mixture + GPD
+</td>
+<td style="text-align:center;">
+<a href="../reference/normal_mixgpd.html">normal_mixgpd</a>
+</td>
+<td style="text-align:center;">
+dNormMixGpd / pNormMixGpd / qNormMixGpd / rNormMixGpd
+</td>
+<td style="text-align:center;">
+dnormmixgpd / pnormmixgpd / qnormmixgpd / rnormmixgpd
+</td>
+<td style="text-align:center;">
+w, mean, sd
+</td>
+<td style="text-align:center;">
+threshold, tail_scale, tail_shape
+</td>
+</tr>
+<tr>
+<td style="text-align:center;vertical-align: top !important;" rowspan="4">
+Gamma
+</td>
+<td style="text-align:center;">
+Base
+</td>
+<td style="text-align:center;">
+stats::GammaDist
+</td>
+<td style="text-align:center;">
+dgamma / pgamma / qgamma / rgamma
+</td>
+<td style="text-align:center;">
+dgamma / pgamma / qgamma / rgamma
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+shape, scale
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Base + GPD
+</td>
+<td style="text-align:center;">
+<a href="../reference/gamma_gpd.html">gamma_gpd</a>
+</td>
+<td style="text-align:center;">
+dGammaGpd / pGammaGpd / qGammaGpd / rGammaGpd
+</td>
+<td style="text-align:center;">
+dgammagpd / pgammagpd / qgammagpd / rgammagpd
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+shape, scale, threshold, tail_scale, tail_shape
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Mixture
+</td>
+<td style="text-align:center;">
+<a href="../reference/gamma_mix.html">gamma_mix</a>
+</td>
+<td style="text-align:center;">
+dGammaMix / pGammaMix / qGammaMix / rGammaMix
+</td>
+<td style="text-align:center;">
+dgammamix / pgammamix / qgammamix / rgammamix
+</td>
+<td style="text-align:center;">
+w, shape, scale
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Mixture + GPD
+</td>
+<td style="text-align:center;">
+<a href="../reference/gamma_mixgpd.html">gamma_mixgpd</a>
+</td>
+<td style="text-align:center;">
+dGammaMixGpd / pGammaMixGpd / qGammaMixGpd / rGammaMixGpd
+</td>
+<td style="text-align:center;">
+dgammamixgpd / pgammamixgpd / qgammamixgpd / rgammamixgpd
+</td>
+<td style="text-align:center;">
+w, shape, scale
+</td>
+<td style="text-align:center;">
+threshold, tail_scale, tail_shape
+</td>
+</tr>
+<tr>
+<td style="text-align:center;vertical-align: top !important;" rowspan="4">
+Lognormal
+</td>
+<td style="text-align:center;">
+Base
+</td>
+<td style="text-align:center;">
+stats::Lognormal
+</td>
+<td style="text-align:center;">
+dlnorm / plnorm / qlnorm / rlnorm
+</td>
+<td style="text-align:center;">
+dlnorm / plnorm / qlnorm / rlnorm
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+meanlog, sdlog
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Base + GPD
+</td>
+<td style="text-align:center;">
+<a href="../reference/lognormal_gpd.html">lognormal_gpd</a>
+</td>
+<td style="text-align:center;">
+dLognormalGpd / pLognormalGpd / qLognormalGpd / rLognormalGpd
+</td>
+<td style="text-align:center;">
+dlognormalgpd / plognormalgpd / qlognormalgpd / rlognormalgpd
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+meanlog, sdlog, threshold, tail_scale, tail_shape
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Mixture
+</td>
+<td style="text-align:center;">
+<a href="../reference/lognormal_mix.html">lognormal_mix</a>
+</td>
+<td style="text-align:center;">
+dLognormalMix / pLognormalMix / qLognormalMix / rLognormalMix
+</td>
+<td style="text-align:center;">
+dlognormalmix / plognormalmix / qlognormalmix / rlognormalmix
+</td>
+<td style="text-align:center;">
+w, meanlog, sdlog
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Mixture + GPD
+</td>
+<td style="text-align:center;">
+<a href="../reference/lognormal_mixgpd.html">lognormal_mixgpd</a>
+</td>
+<td style="text-align:center;">
+dLognormalMixGpd / pLognormalMixGpd / qLognormalMixGpd / rLognormalMixGpd
+</td>
+<td style="text-align:center;">
+dlognormalmixgpd / plognormalmixgpd / qlognormalmixgpd / rlognormalmixgpd
+</td>
+<td style="text-align:center;">
+w, meanlog, sdlog
+</td>
+<td style="text-align:center;">
+threshold, tail_scale, tail_shape
+</td>
+</tr>
+<tr>
+<td style="text-align:center;vertical-align: top !important;" rowspan="4">
+Laplace
+</td>
+<td style="text-align:center;">
+Base
+</td>
+<td style="text-align:center;">
+nimble::ddexp
+</td>
+<td style="text-align:center;">
+ddexp / pdexp / qdexp / rdexp
+</td>
+<td style="text-align:center;">
+ddexp / pdexp / qdexp / rdexp
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+location, scale
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Base + GPD
+</td>
+<td style="text-align:center;">
+<a href="../reference/laplace_gpd.html">laplace_gpd</a>
+</td>
+<td style="text-align:center;">
+dLaplaceGpd / pLaplaceGpd / qLaplaceGpd / rLaplaceGpd
+</td>
+<td style="text-align:center;">
+dlaplacegpd / plaplacegpd / qlaplacegpd / rlaplacegpd
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+location, scale, threshold, tail_scale, tail_shape
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Mixture
+</td>
+<td style="text-align:center;">
+<a href="../reference/laplace_mix.html">laplace_mix</a>
+</td>
+<td style="text-align:center;">
+dLaplaceMix / pLaplaceMix / qLaplaceMix / rLaplaceMix
+</td>
+<td style="text-align:center;">
+dlaplacemix / plaplacemix / qlaplacemix / rlaplacemix
+</td>
+<td style="text-align:center;">
+w, location, scale
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Mixture + GPD
+</td>
+<td style="text-align:center;">
+<a href="../reference/laplace_MixGpd.html">laplace_MixGpd</a>
+</td>
+<td style="text-align:center;">
+dLaplaceMixGpd / pLaplaceMixGpd / qLaplaceMixGpd / rLaplaceMixGpd
+</td>
+<td style="text-align:center;">
+dlaplacemixgpd / plaplacemixgpd / qlaplacemixgpd / rlaplacemixgpd
+</td>
+<td style="text-align:center;">
+w, location, scale
+</td>
+<td style="text-align:center;">
+threshold, tail_scale, tail_shape
+</td>
+</tr>
+<tr>
+<td style="text-align:center;vertical-align: top !important;" rowspan="4">
+Inverse Gaussian
+</td>
+<td style="text-align:center;">
+Base
+</td>
+<td style="text-align:center;">
+<a href="../reference/InvGauss.html">InvGauss</a>
+</td>
+<td style="text-align:center;">
+dInvGauss / pInvGauss / qInvGauss / rInvGauss
+</td>
+<td style="text-align:center;">
+dinvgauss / pinvgauss / qinvgauss / rinvgauss
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+mean, shape
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Base + GPD
+</td>
+<td style="text-align:center;">
+<a href="../reference/InvGauss_gpd.html">InvGauss_gpd</a>
+</td>
+<td style="text-align:center;">
+dInvGaussGpd / pInvGaussGpd / qInvGaussGpd / rInvGaussGpd
+</td>
+<td style="text-align:center;">
+dinvgaussgpd / pinvgaussgpd / qinvgaussgpd / rinvgaussgpd
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+mean, shape, threshold, tail_scale, tail_shape
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Mixture
+</td>
+<td style="text-align:center;">
+<a href="../reference/InvGauss_mix.html">InvGauss_mix</a>
+</td>
+<td style="text-align:center;">
+dInvGaussMix / pInvGaussMix / qInvGaussMix / rInvGaussMix
+</td>
+<td style="text-align:center;">
+dinvgaussmix / pinvgaussmix / qinvgaussmix / rinvgaussmix
+</td>
+<td style="text-align:center;">
+w, mean, shape
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Mixture + GPD
+</td>
+<td style="text-align:center;">
+<a href="../reference/InvGauss_mixgpd.html">InvGauss_mixgpd</a>
+</td>
+<td style="text-align:center;">
+dInvGaussMixGpd / pInvGaussMixGpd / qInvGaussMixGpd / rInvGaussMixGpd
+</td>
+<td style="text-align:center;">
+dinvgaussmixgpd / pinvgaussmixgpd / qinvgaussmixgpd / rinvgaussmixgpd
+</td>
+<td style="text-align:center;">
+w, mean, shape
+</td>
+<td style="text-align:center;">
+threshold, tail_scale, tail_shape
+</td>
+</tr>
+<tr>
+<td style="text-align:center;vertical-align: top !important;" rowspan="4">
+Amoroso
+</td>
+<td style="text-align:center;">
+Base
+</td>
+<td style="text-align:center;">
+<a href="../reference/amoroso.html">amoroso</a>
+</td>
+<td style="text-align:center;">
+dAmoroso / pAmoroso / qAmoroso / rAmoroso
+</td>
+<td style="text-align:center;">
+damoroso / pamoroso / qamoroso / ramoroso
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+loc, scale, shape1, shape2
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Base + GPD
+</td>
+<td style="text-align:center;">
+<a href="../reference/amoroso_gpd.html">amoroso_gpd</a>
+</td>
+<td style="text-align:center;">
+dAmorosoGpd / pAmorosoGpd / qAmorosoGpd / rAmorosoGpd
+</td>
+<td style="text-align:center;">
+damorosogpd / pamorosogpd / qamorosogpd / ramorosogpd
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+loc, scale, shape1, shape2, threshold, tail_scale, tail_shape
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Mixture
+</td>
+<td style="text-align:center;">
+<a href="../reference/amoroso_mix.html">amoroso_mix</a>
+</td>
+<td style="text-align:center;">
+dAmorosoMix / pAmorosoMix / qAmorosoMix / rAmorosoMix
+</td>
+<td style="text-align:center;">
+damorosomix / pamorosomix / qamorosomix / ramorosomix
+</td>
+<td style="text-align:center;">
+w, loc, scale, shape1, shape2
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Mixture + GPD
+</td>
+<td style="text-align:center;">
+<a href="../reference/amoroso_mixgpd.html">amoroso_mixgpd</a>
+</td>
+<td style="text-align:center;">
+dAmorosoMixGpd / pAmorosoMixGpd / qAmorosoMixGpd / rAmorosoMixGpd
+</td>
+<td style="text-align:center;">
+damorosomixgpd / pamorosomixgpd / qamorosomixgpd / ramorosomixgpd
+</td>
+<td style="text-align:center;">
+w, loc, scale, shape1, shape2
+</td>
+<td style="text-align:center;">
+threshold, tail_scale, tail_shape
+</td>
+</tr>
+<tr>
+<td style="text-align:center;vertical-align: top !important;" rowspan="2">
+Cauchy
+</td>
+<td style="text-align:center;">
+Base
+</td>
+<td style="text-align:center;">
+<a href="../reference/cauchy.html">cauchy</a>
+</td>
+<td style="text-align:center;">
+dCauchy / pCauchy / qCauchy / rCauchy
+</td>
+<td style="text-align:center;">
+dcauchy_vec / pcauchy_vec / qcauchy_vec / rcauchy_vec
+</td>
+<td style="text-align:center;">
+</td>
+<td style="text-align:center;">
+location, scale
+</td>
+</tr>
+<tr>
+<td style="text-align:center;">
+Mixture
+</td>
+<td style="text-align:center;">
+<a href="../reference/cauchy_mix.html">cauchy_mix</a>
+</td>
+<td style="text-align:center;">
+dCauchyMix / pCauchyMix / qCauchyMix / rCauchyMix
+</td>
+<td style="text-align:center;">
+dcauchymix / pcauchymix / qcauchymix / rcauchymix
+</td>
+<td style="text-align:center;">
+w, location, scale
+</td>
+<td style="text-align:center;">
+</td>
+</tr>
+</tbody>
+</table>
 </section>
 <section id="nimble-vs-r-functions" class="level2">
 <h2 class="anchored" data-anchor-id="nimble-vs-r-functions">NIMBLE vs R functions</h2>
@@ -519,82 +1687,44 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 
 </main> <!-- /main -->
-<div style="
-
+﻿<div style="
   display:flex;
-
   flex-wrap:wrap;
-
   gap:1rem;
-
   justify-content:space-between;
-
   align-items:center;
-
   font-size:0.9rem;
-
   color:rgba(0,0,0,.65);
-
   margin-top:2.5rem;
-
   padding-top:1.2rem;
-
   border-top:1px solid rgba(0,0,0,.1);
-
 ">
 
-
-
   <div>
-
-    © DPmixGPD · Bayesian semiparametric modeling for heavy-tailed data
-
+    (c) DPmixGPD - Bayesian semiparametric modeling for heavy-tailed data
   </div>
 
-
-
   <div>
-
-    <span id="site-version"></span> ·
-
-    <span id="site-updated"></span> ·
-
-    <a href="cite.html">Cite</a> ·
-
-    <a href="pkgdown/index.html">API</a> ·
-
+    <span id="site-version"></span> -
+    <span id="site-updated"></span> -
+    <a href="cite.html">Cite</a> -
+    <a href="pkgdown/index.html">API</a> -
     <a href="https://github.com/arnabaich96/DPmixGPD">GitHub</a>
-
   </div>
-
-
 
 </div>
 
-
-
 <script>
-
   // These values are replaced at build time if present
-
   const version = document.documentElement.getAttribute("data-version");
-
   const updated = document.documentElement.getAttribute("data-updated");
 
-
-
   if (version) {
-
     document.getElementById("site-version").textContent = "Version " + version;
-
   }
-
   if (updated) {
-
     document.getElementById("site-updated").textContent = "Updated " + updated;
-
   }
-
 </script>
 
 <script id="quarto-html-after-body" type="application/javascript">

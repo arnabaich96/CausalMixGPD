@@ -1,4 +1,4 @@
----
+﻿---
 title: "Causal Workflow"
 output:
   rmarkdown::html_vignette:
@@ -75,7 +75,7 @@ The causal functions in this package compute **conditional** treatment effects:
   $$\text{QTE}(p) = Q_{Y(1)}(p) - Q_{Y(0)}(p)$$
   where $Q_{Y(t)}(p)$ is the $p$-th quantile of the marginal distribution of $Y(t)$.
 
-### Important: Averaging Conditional Quantiles ≠ Marginal Quantile
+### Important: Averaging Conditional Quantiles â‰  Marginal Quantile
 
 A common mistake is to average conditional quantiles to get marginal quantiles:
 $$\mathbb{E}_X[Q_{Y(t)}(p \mid X)] \neq Q_{Y(t)}(p)$$
@@ -126,7 +126,7 @@ To compute marginal estimands from this package:
 
 - Firpo, S. (2007). "Efficient semiparametric estimation of quantile treatment effects." 
   *Econometrica*, 75(1), 259-276.
-- FrÃ¶lich, M., & Melly, B. (2013). "Unconditional quantile treatment effects under 
+- FrÃƒÂ¶lich, M., & Melly, B. (2013). "Unconditional quantile treatment effects under 
   endogeneity." *Journal of Business & Economic Statistics*, 31(3), 346-357.
 
 ## Data Setup
@@ -193,14 +193,14 @@ summary(ate_grid)
 
 ### ATE Visualization
 
-The `if (interactive()) plot()` method for ATE objects supports multiple visualization types:
+The `plot()` method for ATE objects supports multiple visualization types:
 
 - `type = "both"` (default): Returns a list with `trt_control` and `treatment_effect` plots
 - `type = "effect"`: Treatment effect curve with credible intervals
 - `type = "arms"`: Treated vs control mean outcomes
 
 ```{r fig.width=7, fig.height=5}
-ate_plots <- if (interactive()) plot(ate_grid)
+ate_plots <- plot(ate_grid)
 ate_plots$treatment_effect
 ```
 
@@ -222,14 +222,14 @@ summary(qte_grid)
 
 ### QTE Visualization
 
-The `if (interactive()) plot()` method for QTE objects supports multiple visualization types:
+The `plot()` method for QTE objects supports multiple visualization types:
 
 - `type = "both"` (default): Returns a list with `trt_control` and `treatment_effect` plots
 - `type = "effect"`: Quantile treatment effect curves faceted by quantile level
 - `type = "arms"`: Treated vs control quantile curves
 
 ```{r fig.width=7, fig.height=5}
-qte_plots <- if (interactive()) plot(qte_grid)
+qte_plots <- plot(qte_grid)
 qte_plots$treatment_effect
 ```
 
@@ -246,5 +246,9 @@ summary(fit)
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+
+
+
+
 
 

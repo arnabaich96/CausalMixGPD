@@ -52,6 +52,13 @@
             "request": "attach",
             "name": "Attach to R process",
             "splitOverwrittenOutput": true
+        },
+        {
+            "name": "HTML Preview (docs/index)",
+            "type": "pwa-chrome",
+            "request": "launch",
+            "url": "http://localhost:8000/index.html",
+            "webRoot": "${workspaceFolder}/docs"
         }
     ]
 }

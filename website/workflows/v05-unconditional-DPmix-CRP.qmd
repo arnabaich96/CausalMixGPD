@@ -1,4 +1,4 @@
-﻿---
+---
 title: "5. Unconditional DPmix (CRP Backend)"
 output:
   html_document:
@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   cache = TRUE,
-  cache.path = 'legacy-cache/'
+  cache.path = 'legacy-cache-v2/'
 )
 
 # Reproducibility
@@ -42,9 +42,8 @@ library(DPmixGPD)
 if (!require("devtools", quietly = TRUE)) {
   library(devtools)
 }
-if (!(any(search() == "package:DPmixGPD"))) {
-  devtools::load_all(quiet = TRUE)
-}
+pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
+  devtools::load_all(path = pkg_root, quiet = TRUE)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
@@ -67,7 +66,7 @@ We use a Laplace kernel for the bulk distribution and no GPD tail augmentation.
 
 ```{r data-setup}
 # Load pre-generated dataset: 200 observations from mixture of 3 gamma components
-data(nc_pos200_k3)
+data("nc_pos200_k3", package = "DPmixGPD")
 y_mixed <- nc_pos200_k3$y
 
 paste("Sample size:", length(y_mixed))
@@ -90,7 +89,7 @@ print(p_raw)
 # Build Bundle (CRP)
 
 ```{r bundle-mcmc-crp, cache=FALSE}
-bundle_crp <- build_nimble_bundle(
+bundle_crp <- DPmixGPD::build_nimble_bundle(
   y = y_mixed,
   kernel = "laplace",         # Use laplace kernel
   backend = "crp",            # CRP backend
@@ -104,7 +103,7 @@ bundle_crp <- build_nimble_bundle(
 # Run MCMC (Longer Run)
 
 ```{r mcmc-crp, cache=FALSE}
-bundle_crp <- build_nimble_bundle(
+bundle_crp <- DPmixGPD::build_nimble_bundle(
   y_mixed,
   kernel = "laplace",
   backend = "crp",
@@ -138,7 +137,7 @@ params_crp
 
 ```{r diag-trace}
 # Trace plots for key parameters
-if (interactive()) plot(fit_crp, params = "alpha", family = c("traceplot", "density", "geweke"))
+safe_plot(fit_crp, params = "alpha", family = c("traceplot", "density", "geweke"))
 ```
 
 # Posterior Predictive Density
@@ -151,6 +150,31 @@ y_grid <- seq(0, max(y_mixed) * 1.2, length.out = 200)
 pred_density <- predict(fit_crp, y = y_grid, type = "density")
 
 # Use S3 plot method
-if (interactive()) plot(pred_density)
+safe_plot(pred_density)
 ```
+
+---
+
+<!-- workflow-nav:start -->
+## Workflow Navigation
+
+- Previous: [v04-backends-and-workflow](v04-backends-and-workflow.html)
+- Next: [v06-unconditional-DPmix-CRP](v06-unconditional-DPmix-CRP.html)
+- Workflow index: [Roadmap](../roadmap.html)
+- Practical entry: [Cookbook](../cookbook.html)
+<!-- workflow-nav:end -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

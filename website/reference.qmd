@@ -1,0 +1,66 @@
+﻿---
+title: "Reference"
+page-layout: full
+---
+
+::: {.hero}
+::: {.container}
+# Reference
+
+Use this page to navigate function-level documentation quickly. Conceptual guidance stays in Quarto; full API details remain in pkgdown.
+
+[Open API index](pkgdown/reference/index.html){.btn .btn-primary}
+[Open articles index](pkgdown/articles/index.html){.btn .btn-outline-light}
+:::
+:::
+
+::: {.section}
+::: {.container}
+
+::: {.grid-3}
+
+::: {.cardx}
+### Core workflows
+Jump to build/run and prediction-oriented APIs.
+- [run_mcmc_bundle_manual](pkgdown/reference/run_mcmc_bundle_manual.html)
+- [predict.mixgpd_fit](pkgdown/reference/predict.mixgpd_fit.html)
+- [plot.mixgpd_fit](pkgdown/reference/plot.mixgpd_fit.html)
+:::
+
+::: {.cardx}
+### Causal workflows
+Entry points for causal bundles, fitting, and effect summaries.
+- [build_causal_bundle](pkgdown/reference/build_causal_bundle.html)
+- [run_mcmc_causal](pkgdown/reference/run_mcmc_causal.html)
+- [ate](pkgdown/reference/ate.html)
+- [qte](pkgdown/reference/qte.html)
+:::
+
+::: {.cardx}
+### Registries and support
+Discover supported kernels and tail combinations.
+- [get_kernel_registry](pkgdown/reference/get_kernel_registry.html)
+- [get_tail_registry](pkgdown/reference/get_tail_registry.html)
+- [kernel_support_table](pkgdown/reference/kernel_support_table.html)
+:::
+
+:::
+
+:::
+:::
+
+::: {.section}
+::: {.container}
+
+## Where to go next
+
+1. If you are still choosing a model setup, start at [Decision Guide](decision-guide.html).
+2. If you need worked examples, go to [Cookbook](cookbook.html).
+3. If you need exact arguments and return values, stay in [pkgdown reference](pkgdown/reference/index.html).
+
+:::
+:::
+
+
+
+

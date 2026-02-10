@@ -1,4 +1,4 @@
----
+﻿---
 title: "Introduction with GPD kernel"
 pkgdown:
   slug: "kernels/introduction-with-gpd-kernel"
@@ -91,4 +91,8 @@ ggplot(df_gpd, aes(x = x, y = density, color = label)) +
 ```
 
 Each subsection below defines the available $d/p/q/r$ functions, prints example outputs for fixed parameters, and overlays density curves for **three parameter sets** with clear legends. The same parameter sets are reused within the bulk and GPD variants of a section.
+
+
+
+
 

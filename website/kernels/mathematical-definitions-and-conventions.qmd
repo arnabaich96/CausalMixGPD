@@ -1,4 +1,4 @@
----
+﻿---
 title: "Mathematical definitions and conventions"
 pkgdown:
   slug: "kernels/mathematical-definitions-and-conventions"
@@ -61,6 +61,10 @@ Random generation proceeds by sampling a latent component index \(Z\sim\text{Cat
 ### GPD tails and splicing
 
 The **Generalized Pareto Distribution (GPD)** is used for tail modeling relative to a threshold \(u\). In the spliced kernels (the `*Gpd` functions), a bulk kernel is used below \(u\) and a GPD tail is attached above \(u\), with parameters \((u,\sigma,\xi)\). In code, these are represented by `threshold = u`, `tail_scale = \sigma`, and `tail_shape = \xi` (the standalone GPD functions use `scale` and `shape` for \(\sigma\) and \(\xi\)).
+
+
+
+
 
 
 

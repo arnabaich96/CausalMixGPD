@@ -1,4 +1,4 @@
-project:
+﻿project:
   type: website
 
 website:
@@ -49,6 +49,7 @@ format:
     include-after-body: _footer.html
 
 execute:
-  enabled: false
+  enabled: true
   cache: true
-  freeze: auto
+  freeze: false
+

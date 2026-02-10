@@ -1,0 +1,81 @@
+﻿---
+title: "Developers"
+page-layout: full
+---
+
+::: {.hero}
+::: {.container}
+# Developers
+
+Developer-facing notes for building docs, validating package state, and keeping Quarto/pkgdown outputs consistent.
+
+[Open pkgdown](pkgdown/index.html){.btn .btn-primary}
+[Open API reference](pkgdown/reference/index.html){.btn .btn-outline-light}
+:::
+:::
+
+::: {.section}
+::: {.container}
+
+::: {.grid-3}
+
+::: {.cardx}
+### Build docs
+Use the project build script to render Quarto and pkgdown into `docs/`.
+
+```r
+source("tools/build_docs.R")
+build_docs()
+```
+:::
+
+::: {.cardx}
+### Package checks
+Run standard package checks before publishing docs.
+
+```r
+devtools::check()
+```
+
+or
+
+```sh
+R CMD check .
+```
+:::
+
+::: {.cardx}
+### Test focus
+Use targeted tests under `tests/testthat` for fast iteration, then full checks for release readiness.
+
+- `tests/testthat/test-vignette-coverage.R`
+- `tests/testthat/test-smoke-core-workflows.R`
+:::
+
+:::
+
+:::
+:::
+
+::: {.section}
+::: {.container}
+
+## Documentation maintenance
+
+- Keep Quarto map pages concise and conceptual.
+- Keep full function and article details in pkgdown.
+- If exported R APIs change, regenerate roxygen docs and refresh relevant articles.
+- Keep links branch-aware (`master` currently) until repository default branch changes.
+
+## Where to go next
+
+1. [Coverage](coverage.html) for test/coverage entry points.
+2. [News](news.html) for documentation-level updates.
+3. [Roadmap](roadmap.html) for workflow progression.
+
+:::
+:::
+
+
+
+

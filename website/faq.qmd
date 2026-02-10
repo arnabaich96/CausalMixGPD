@@ -1,4 +1,4 @@
----
+﻿---
 title: "FAQ"
 page-layout: full
 ---
@@ -7,7 +7,7 @@ page-layout: full
 ::: {.container}
 # Frequently Asked Questions
 
-Short, direct answers to common questions about DPmixGPD. If you don’t see your question here, open a Discussion rather than guessing.
+Short, direct answers to common questions about DPmixGPD. If you don't see your question here, open a Discussion rather than guessing.
 
 [Open Discussions](https://github.com/arnabaich96/DPmixGPD/discussions){.btn .btn-primary}
 [Report a Bug](https://github.com/arnabaich96/DPmixGPD/issues){.btn .btn-outline-light}
@@ -31,7 +31,7 @@ No. You can use it as a **bulk-only semiparametric model** or as a **bulk + tail
 
 ::: {.cardx}
 ### Do I need Bayesian expertise to use this package?
-You should be comfortable with Bayesian workflows conceptually (priors, posterior summaries), but the Cookbook provides guided workflows so you don’t need to design models from scratch.
+You should be comfortable with Bayesian workflows conceptually (priors, posterior summaries), but the Cookbook provides guided workflows so you don't need to design models from scratch.
 :::
 
 ## Modeling choices
@@ -39,15 +39,15 @@ You should be comfortable with Bayesian workflows conceptually (priors, posterio
 ::: {.cardx}
 ### How do I choose a bulk kernel?
 Choose the kernel based on the **typical support and shape** of your outcome:
-- Positive, right-skewed outcomes → positive-support kernels
-- Real-valued outcomes → real-valued kernels
+- Positive, right-skewed outcomes -> positive-support kernels
+- Real-valued outcomes -> real-valued kernels
 If multiple kernels are plausible, prioritize **stability and interpretability**, then refine using diagnostics.
 :::
 
 ::: {.cardx}
 ### When should I turn on the GPD tail?
 Use a tail model when:
-- high quantiles (e.g., 0.95–0.995) matter,
+- high quantiles (e.g., 0.95-0.995) matter,
 - bulk-only predictive checks underfit extremes,
 - or domain knowledge indicates rare events drive decisions.
 If your analysis focuses on central behavior, bulk-only is often sufficient.
@@ -70,7 +70,7 @@ Yes. DPmixGPD supports covariate-dependent models. If covariates materially affe
 
 ::: {.cardx}
 ### How are treatment effects handled?
-Causal workflows fit models for treatment and control arms and derive treatment effects as posterior quantities. This allows uncertainty in the full outcome distribution—including tails—to propagate into effect estimates.
+Causal workflows fit models for treatment and control arms and derive treatment effects as posterior quantities. This allows uncertainty in the full outcome distribution-including tails-to propagate into effect estimates.
 :::
 
 ::: {.cardx}
@@ -81,7 +81,7 @@ Yes. Survival workflows are supported, including tail behavior for time-to-event
 ## Documentation and website
 
 ::: {.cardx}
-### Where is the “real” documentation?
+### Where is the "real" documentation?
 There are two layers:
 - **This Quarto site**: conceptual navigation, decision guides, and workflow orientation.
 - **Pkgdown site**: complete function-level documentation and articles.
@@ -104,7 +104,7 @@ pkgdown rebuilds reference pages and may reprocess vignettes. The build system i
 ## Installation and troubleshooting
 
 ::: {.cardx}
-### The package installs but examples or vignettes fail — what should I do?
+### The package installs but examples or vignettes fail - what should I do?
 First, check:
 - R version and platform
 - required system libraries
@@ -118,8 +118,8 @@ If the problem persists, open an Issue with:
 
 ::: {.cardx}
 ### Something looks wrong in the documentation
-If it’s a typo or broken link, open an Issue.  
-If it’s a design question or ambiguity, start a Discussion instead.
+If it's a typo or broken link, open an Issue.  
+If it's a design question or ambiguity, start a Discussion instead.
 :::
 
 ## Citation and use
@@ -138,10 +138,16 @@ Yes. The package is designed for applied modeling of heavy-tailed data. Always v
 
 ::: {.cardx}
 ### Where should I ask questions?
-- **Design / “how should I do this?”** → Discussions
-- **Bugs / errors** → Issues
-- **Documentation clarity** → Issues or Discussions (either is fine)
+- **Design / "how should I do this?"** -> Discussions
+- **Bugs / errors** -> Issues
+- **Documentation clarity** -> Issues or Discussions (either is fine)
 :::
 
 :::
 :::
+
+
+
+
+
+

@@ -218,7 +218,10 @@
 }
 
 .wrap_plotly <- function(p) {
-  if (requireNamespace("plotly", quietly = TRUE)) {
+  # Keep static ggplot output by default for reproducible knitted docs.
+  # Interactive conversion is opt-in via options(DPmixGPD.plotly = TRUE).
+  if (isTRUE(getOption("DPmixGPD.plotly", FALSE)) &&
+      requireNamespace("plotly", quietly = TRUE)) {
     if (is.list(p) && !inherits(p, "ggplot")) {
       # List of plots - wrap each, preserve class
       result <- lapply(p, function(plt) {

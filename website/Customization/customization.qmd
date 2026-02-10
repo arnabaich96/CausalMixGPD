@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Customization: Build NIMBLE Models from Scratch"
 pkgdown:
   slug: "Customization/customization"
@@ -45,6 +45,19 @@ is_pkgdown <- any(grepl("pkgdown|callr", Sys.getenv(), ignore.case = TRUE)) ||
   nzchar(Sys.getenv("PKGDOWN", ""))
 if (is_pkgdown) {
   knitr::opts_chunk$set(eval = FALSE)
+}
+
+safe_plot <- function(x, ...) {
+  obj <- tryCatch(plot(x, ...), error = function(e) e)
+  if (inherits(obj, "error")) return(invisible(NULL))
+  if (inherits(obj, "ggplot")) {
+    print(obj)
+    return(invisible(obj))
+  }
+  if (is.list(obj)) {
+    for (elt in obj) if (inherits(elt, "ggplot")) print(elt)
+  }
+  invisible(obj)
 }
 ```
 
@@ -200,7 +213,7 @@ summary(fit_sb)
 ```
 
 ```{r}
-if (interactive()) plot(fit_sb, family = "traceplot")
+safe_plot(fit_sb, family = "traceplot")
 ```
 
 ```{r}
@@ -323,7 +336,7 @@ summary(fit_crp)
 ```
 
 ```{r}
-if (interactive()) plot(fit_crp, family = "traceplot")
+safe_plot(fit_crp, family = "traceplot")
 ```
 
 ```{r}
@@ -404,7 +417,7 @@ summary(causal_fit)
 ```
 
 ```{r}
-if (interactive()) plot(causal_fit, family = "traceplot")
+safe_plot(causal_fit, family = "traceplot")
 ```
 
 ```{r}
@@ -419,12 +432,16 @@ qte_result <- qte(causal_fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
 print(ate_result)
 summary(ate_result)
 
-if (interactive()) plot(ate_result, type = "effect")
-if (interactive()) plot(qte_result, type = "effect")
+safe_plot(ate_result, type = "effect")
+safe_plot(qte_result, type = "effect")
 ```
 
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+
+
+
+
 
 

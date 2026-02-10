@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Summary: Distribution &amp; Backend Reference – DPmixGPD</title>
+<title>summary-distribution-backend-reference – DPmixGPD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -70,6 +70,35 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -94,56 +123,54 @@ ul.task-list li input[type="checkbox"] {
     <a class="nav-link" href="../index.html"> 
 <span class="menu-text">Home</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../getting-started.html"> 
-<span class="menu-text">Getting Started</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-start" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Start</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-start">    
+        <li>
+    <a class="dropdown-item" href="../getting-started.html">
+ <span class="dropdown-text">Getting Started</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../faq.html"> 
-<span class="menu-text">FAQ</span></a>
+        <li>
+    <a class="dropdown-item" href="../decision-guide.html">
+ <span class="dropdown-text">Decision Guide</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../roadmap.html"> 
-<span class="menu-text">Roadmap</span></a>
+        <li>
+    <a class="dropdown-item" href="../faq.html">
+ <span class="dropdown-text">FAQ</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../kernels.html"> 
-<span class="menu-text">Kernels</span></a>
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-docs" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Docs</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-docs">    
+        <li>
+    <a class="dropdown-item" href="../reference.html">
+ <span class="dropdown-text">Docs overview</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../cookbook.html"> 
-<span class="menu-text">Cookbook</span></a>
+        <li>
+    <a class="dropdown-item" href="../kernels.html">
+ <span class="dropdown-text">Kernels</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../reference.html"> 
-<span class="menu-text">Reference</span></a>
+        <li>
+    <a class="dropdown-item" href="../cookbook.html">
+ <span class="dropdown-text">Cookbook</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../cite.html"> 
-<span class="menu-text">Cite</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../coverage.html"> 
-<span class="menu-text">Coverage</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../news.html"> 
-<span class="menu-text">News</span></a>
-  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../developers.html"> 
 <span class="menu-text">Developers</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../pkgdown/reference/index.html"> 
+<span class="menu-text">Reference</span></a>
+  </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
-  <li class="nav-item">
-    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD/discussions"> 
-<span class="menu-text">Discussions</span></a>
-  </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD/issues"> 
-<span class="menu-text">Bugs</span></a>
-  </li>  
   <li class="nav-item">
     <a class="nav-link" href="../pkgdown/index.html"> 
 <span class="menu-text">Pkgdown</span></a>
@@ -191,6 +218,156 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="v02-summary-distribution-backend-reference">Summary: Distribution &amp; Backend Reference</h2>
 <p>This section provides a compact reference for the distributions supported by <strong>DPmixGPD</strong> and the corresponding user-facing function families.<br>
 The <strong>CRP backend</strong> uses base (single-kernel) functions, while the <strong>SB backend</strong> uses mixture (multi-component) functions. The “Type” column indicates whether each backend expects <strong>scalar</strong> parameters (single value per parameter) or <strong>vectors</strong> indexed by mixture component.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Distribution</th>
+<th>Parameters</th>
+<th>Arguments</th>
+<th>CRP Type</th>
+<th>CRP Function</th>
+<th>SB Type</th>
+<th>SB Function</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Normal</td>
+<td><span class="math inline">\(\mu, \sigma\)</span></td>
+<td><code>mean</code>, <code>sd</code></td>
+<td>scalars</td>
+<td><code>dnorm()</code>, <code>pnorm()</code>, <code>qnorm()</code>, <code>rnorm()</code></td>
+<td>vectors</td>
+<td><code>dNormMix()</code>, <code>pNormMix()</code>, <code>qNormMix()</code>, <code>rNormMix()</code></td>
+</tr>
+<tr class="even">
+<td>Gamma</td>
+<td><span class="math inline">\(\alpha, \beta\)</span></td>
+<td><code>shape</code>, <code>scale</code></td>
+<td>scalars</td>
+<td><code>dgamma()</code>, <code>pgamma()</code>, <code>qgamma()</code>, <code>rgamma()</code></td>
+<td>vectors</td>
+<td><code>dGammaMix()</code>, <code>pGammaMix()</code>, <code>qGammaMix()</code>, <code>rGammaMix()</code></td>
+</tr>
+<tr class="odd">
+<td>Lognormal</td>
+<td><span class="math inline">\(\mu, \sigma\)</span></td>
+<td><code>meanlog</code>, <code>sdlog</code></td>
+<td>scalars</td>
+<td><code>dlnorm()</code>, <code>plnorm()</code>, <code>qlnorm()</code>, <code>rlnorm()</code></td>
+<td>vectors</td>
+<td><code>dLognormalMix()</code>, <code>pLognormalMix()</code>, <code>qLognormalMix()</code>, <code>rLognormalMix()</code></td>
+</tr>
+<tr class="even">
+<td>Laplace</td>
+<td><span class="math inline">\(\ell, b\)</span></td>
+<td><code>location</code>, <code>scale</code></td>
+<td>scalars</td>
+<td><code>ddexp()</code>, <code>pdexp()</code>, <code>qdexp()</code>, <code>rdexp()</code></td>
+<td>vectors</td>
+<td><code>dLaplaceMix()</code>, <code>pLaplaceMix()</code>, <code>qLaplaceMix()</code>, <code>rLaplaceMix()</code></td>
+</tr>
+<tr class="odd">
+<td>Inverse Gaussian</td>
+<td><span class="math inline">\(\mu, \lambda\)</span></td>
+<td><code>mean</code>, <code>shape</code></td>
+<td>scalars</td>
+<td><code>dinvgauss()</code>, <code>pinvgauss()</code>, <code>qinvgauss()</code>, <code>rinvgauss()</code></td>
+<td>vectors</td>
+<td><code>dInvGaussMix()</code>, <code>pInvGaussMix()</code>, <code>qInvGaussMix()</code>, <code>rInvGaussMix()</code></td>
+</tr>
+<tr class="even">
+<td>Amoroso</td>
+<td><span class="math inline">\(a, \theta, \alpha, \beta\)</span></td>
+<td><code>loc</code>, <code>scale</code>, <code>shape1</code>, <code>shape2</code></td>
+<td>scalars</td>
+<td><code>damoroso()</code>, <code>pamoroso()</code>, <code>qamoroso()</code>, <code>ramoroso()</code></td>
+<td>vectors</td>
+<td><code>dAmorosoMix()</code>, <code>pAmorosoMix()</code>, <code>qAmorosoMix()</code>, <code>rAmorosoMix()</code></td>
+</tr>
+<tr class="odd">
+<td>Cauchy</td>
+<td><span class="math inline">\(x_0, \gamma\)</span></td>
+<td><code>location</code>, <code>scale</code></td>
+<td>scalars</td>
+<td><code>dcauchy()</code>, <code>pcauchy()</code>, <code>qcauchy()</code>, <code>rcauchy()</code></td>
+<td>vectors</td>
+<td><code>dCauchyMix()</code>, <code>pCauchyMix()</code>, <code>qCauchyMix()</code>, <code>rCauchyMix()</code></td>
+</tr>
+<tr class="even">
+<td>GPD</td>
+<td><span class="math inline">\(u, \sigma, \xi\)</span></td>
+<td><code>threshold</code>, <code>scale</code>, <code>shape</code></td>
+<td>scalars</td>
+<td><code>dGpd()</code>, <code>pGpd()</code>, <code>qGpd()</code>, <code>rGpd()</code></td>
+<td>NA</td>
+<td>NA</td>
+</tr>
+<tr class="odd">
+<td>Normal + GPD</td>
+<td><span class="math inline">\(\mu, \sigma, u, \sigma, \xi\)</span></td>
+<td><code>mean</code>, <code>sd</code>, <code>threshold</code>, <code>tail_scale</code>, <code>tail_shape</code></td>
+<td>scalars</td>
+<td><code>dNormGpd()</code>, <code>pNormGpd()</code>, <code>qNormGpd()</code>, <code>rNormGpd()</code></td>
+<td>vectors + scalars</td>
+<td><code>dNormMixGpd()</code>, <code>pNormMixGpd()</code>, <code>qNormMixGpd()</code>, <code>rNormMixGpd()</code></td>
+</tr>
+<tr class="even">
+<td>Gamma + GPD</td>
+<td><span class="math inline">\(\alpha, \beta, u, \sigma, \xi\)</span></td>
+<td><code>shape</code>, <code>scale</code>, <code>threshold</code>, <code>tail_scale</code>, <code>tail_shape</code></td>
+<td>scalars</td>
+<td><code>dGammaGpd()</code>, <code>pGammaGpd()</code>, <code>qGammaGpd()</code>, <code>rGammaGpd()</code></td>
+<td>vectors + scalars</td>
+<td><code>dGammaMixGpd()</code>, <code>pGammaMixGpd()</code>, <code>qGammaMixGpd()</code>, <code>rGammaMixGpd()</code></td>
+</tr>
+<tr class="odd">
+<td>Lognormal + GPD</td>
+<td><span class="math inline">\(\mu, \sigma, u, \sigma, \xi\)</span></td>
+<td><code>meanlog</code>, <code>sdlog</code>, <code>threshold</code>, <code>tail_scale</code>, <code>tail_shape</code></td>
+<td>scalars</td>
+<td><code>dLognormalGpd()</code>, <code>pLognormalGpd()</code>, <code>qLognormalGpd()</code>, <code>rLognormalGpd()</code></td>
+<td>vectors + scalars</td>
+<td><code>dLognormalMixGpd()</code>, <code>pLognormalMixGpd()</code>, <code>qLognormalMixGpd()</code>, <code>rLognormalMixGpd()</code></td>
+</tr>
+<tr class="even">
+<td>Laplace + GPD</td>
+<td><span class="math inline">\(\ell, b, u, \sigma, \xi\)</span></td>
+<td><code>location</code>, <code>scale</code>, <code>threshold</code>, <code>tail_scale</code>, <code>tail_shape</code></td>
+<td>scalars</td>
+<td><code>dLaplaceGpd()</code>, <code>pLaplaceGpd()</code>, <code>qLaplaceGpd()</code>, <code>rLaplaceGpd()</code></td>
+<td>vectors + scalars</td>
+<td><code>dLaplaceMixGpd()</code>, <code>pLaplaceMixGpd()</code>, <code>qLaplaceMixGpd()</code>, <code>rLaplaceMixGpd()</code></td>
+</tr>
+<tr class="odd">
+<td>InvGauss + GPD</td>
+<td><span class="math inline">\(\mu, \lambda, u, \sigma, \xi\)</span></td>
+<td><code>mean</code>, <code>shape</code>, <code>threshold</code>, <code>tail_scale</code>, <code>tail_shape</code></td>
+<td>scalars</td>
+<td><code>dInvGaussGpd()</code>, <code>pInvGaussGpd()</code>, <code>qInvGaussGpd()</code>, <code>rInvGaussGpd()</code></td>
+<td>vectors + scalars</td>
+<td><code>dInvGaussMixGpd()</code>, <code>pInvGaussMixGpd()</code>, <code>qInvGaussMixGpd()</code>, <code>rInvGaussMixGpd()</code></td>
+</tr>
+<tr class="even">
+<td>Amoroso + GPD</td>
+<td><span class="math inline">\(a, \theta, \alpha, \beta, u, \sigma, \xi\)</span></td>
+<td><code>loc</code>, <code>scale</code>, <code>shape1</code>, <code>shape2</code>, <code>threshold</code>, <code>tail_scale</code>, <code>tail_shape</code></td>
+<td>scalars</td>
+<td><code>dAmorosoGpd()</code>, <code>pAmorosoGpd()</code>, <code>qAmorosoGpd()</code>, <code>rAmorosoGpd()</code></td>
+<td>vectors + scalars</td>
+<td><code>dAmorosoMixGpd()</code>, <code>pAmorosoMixGpd()</code>, <code>qAmorosoMixGpd()</code>, <code>rAmorosoMixGpd()</code></td>
+</tr>
+</tbody>
+</table>
 <section id="notes" class="level3">
 <h3 class="anchored" data-anchor-id="notes">Notes</h3>
 <ul>
@@ -204,82 +381,44 @@ The <strong>CRP backend</strong> uses base (single-kernel) functions, while the 
 </section>
 
 </main> <!-- /main -->
-<div style="
-
+﻿<div style="
   display:flex;
-
   flex-wrap:wrap;
-
   gap:1rem;
-
   justify-content:space-between;
-
   align-items:center;
-
   font-size:0.9rem;
-
   color:rgba(0,0,0,.65);
-
   margin-top:2.5rem;
-
   padding-top:1.2rem;
-
   border-top:1px solid rgba(0,0,0,.1);
-
 ">
 
-
-
   <div>
-
-    © DPmixGPD · Bayesian semiparametric modeling for heavy-tailed data
-
+    (c) DPmixGPD - Bayesian semiparametric modeling for heavy-tailed data
   </div>
 
-
-
   <div>
-
-    <span id="site-version"></span> ·
-
-    <span id="site-updated"></span> ·
-
-    <a href="cite.html">Cite</a> ·
-
-    <a href="pkgdown/index.html">API</a> ·
-
+    <span id="site-version"></span> -
+    <span id="site-updated"></span> -
+    <a href="cite.html">Cite</a> -
+    <a href="pkgdown/index.html">API</a> -
     <a href="https://github.com/arnabaich96/DPmixGPD">GitHub</a>
-
   </div>
-
-
 
 </div>
 
-
-
 <script>
-
   // These values are replaced at build time if present
-
   const version = document.documentElement.getAttribute("data-version");
-
   const updated = document.documentElement.getAttribute("data-updated");
 
-
-
   if (version) {
-
     document.getElementById("site-version").textContent = "Version " + version;
-
   }
-
   if (updated) {
-
     document.getElementById("site-updated").textContent = "Updated " + updated;
-
   }
-
 </script>
 
 <script id="quarto-html-after-body" type="application/javascript">

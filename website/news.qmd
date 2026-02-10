@@ -1,4 +1,4 @@
----
+﻿---
 title: "News"
 page-layout: full
 ---
@@ -10,7 +10,7 @@ page-layout: full
 This page highlights notable changes, milestones, and documentation updates for DPmixGPD. It is intentionally concise. Detailed technical changes live in commit history and pkgdown documentation.
 
 [View GitHub Releases](https://github.com/arnabaich96/DPmixGPD/releases){.btn .btn-primary}
-[Repository Activity](https://github.com/arnabaich96/DPmixGPD/commits/main){.btn .btn-outline-light}
+[Repository Activity](https://github.com/arnabaich96/DPmixGPD/commits){.btn .btn-outline-light}
 :::
 :::
 
@@ -109,9 +109,14 @@ For reproducibility, always record the package version and build date used in an
 - Bug reports and actionable issues:  
   https://github.com/arnabaich96/DPmixGPD/issues
 - Code changes and history:  
-  https://github.com/arnabaich96/DPmixGPD/commits/main
+  https://github.com/arnabaich96/DPmixGPD/commits
 
 This page will be updated periodically to reflect major changes or milestones.
 
 :::
 :::
+
+
+
+
+

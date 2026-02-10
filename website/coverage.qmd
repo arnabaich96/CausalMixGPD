@@ -1,0 +1,71 @@
+﻿---
+title: "Coverage"
+page-layout: full
+---
+
+::: {.hero}
+::: {.container}
+# Coverage
+
+Coverage and validation resources for DPmixGPD. This page points to test maps, status artifacts, and reproducible coverage commands.
+
+[Coverage map in tests](https://github.com/arnabaich96/DPmixGPD/blob/master/tests/testthat/COVERAGE_MAP.md){.btn .btn-primary}
+[Codecov project](https://codecov.io/gh/arnabaich96/DPmixGPD){.btn .btn-outline-light}
+:::
+:::
+
+::: {.section}
+::: {.container}
+
+::: {.grid-3}
+
+::: {.cardx}
+### Local coverage run
+Use project tooling to generate coverage artifacts.
+
+```r
+source("tools/coverage.R")
+```
+
+or
+
+```r
+source("tools/run_covr_progress.R")
+```
+:::
+
+::: {.cardx}
+### Status helpers
+Coverage utilities exposed in pkgdown reference:
+- [coverage_status](pkgdown/reference/coverage_status.html)
+- [read_coverage_status](pkgdown/reference/read_coverage_status.html)
+:::
+
+::: {.cardx}
+### High-value tests
+Start with these for fast confidence:
+- `tests/testthat/test-smoke-core-workflows.R`
+- `tests/testthat/test-vignette-coverage.R`
+- `tests/testthat/test-kernels.R`
+:::
+
+:::
+
+:::
+:::
+
+::: {.section}
+::: {.container}
+
+## Where to go next
+
+1. [Developers](developers.html) for build/check workflows.
+2. [Reference](reference.html) for status/helper function details.
+3. [News](news.html) for release and docs updates.
+
+:::
+:::
+
+
+
+

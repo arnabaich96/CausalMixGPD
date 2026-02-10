@@ -1,4 +1,4 @@
-﻿---
+---
 title: "10. Conditional DPmix with CRP Backend"
 output:
   rmarkdown::html_vignette:
@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
   message = FALSE,
   warning = FALSE,
   cache = TRUE,
-  cache.path = 'legacy-cache/'
+  cache.path = 'legacy-cache-v2/'
 )
 
 # Reproducibility
@@ -40,9 +40,8 @@ library(DPmixGPD)
 if (!require("devtools", quietly = TRUE)) {
   library(devtools)
 }
-if (!(any(search() == "package:DPmixGPD"))) {
-  devtools::load_all(quiet = TRUE)
-}
+pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
+  devtools::load_all(path = pkg_root, quiet = TRUE)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
@@ -65,7 +64,7 @@ source("_legacy-setup.R")
 ## Data Setup
 
 ```{r data-setup}
-data("nc_posX100_p3_k2")
+data("nc_posX100_p3_k2", package = "DPmixGPD")
 y <- nc_posX100_p3_k2$y
 X <- as.matrix(nc_posX100_p3_k2$X)
 if (is.null(colnames(X))) {
@@ -85,7 +84,7 @@ p_cov <- ggplot(df_cov, aes(x = x1, y = y)) +
   labs(title = "y vs X1 (loess smoother)", x = "X1", y = "y") +
   theme_minimal()
 
-grid.arrange(p_cov, ncol = 1)
+gridExtra::grid.arrange(p_cov, ncol = 1)
 ```
 
 ```{r data-table, echo=FALSE}
@@ -100,7 +99,7 @@ summary_tbl %>%
 ## Model Specification & Bundle
 
 ```{r spec-bundle, cache=FALSE}
-bundle_cond_normal <- build_nimble_bundle(
+bundle_cond_normal <- DPmixGPD::build_nimble_bundle(
   y = y,
   X = X,
   kernel = "normal",
@@ -110,7 +109,7 @@ bundle_cond_normal <- build_nimble_bundle(
   mcmc = mcmc
 )
 
-bundle_cond_amoroso <- build_nimble_bundle(
+bundle_cond_amoroso <- DPmixGPD::build_nimble_bundle(
   y = y,
   X = X,
   kernel = "amoroso",
@@ -219,12 +218,12 @@ bind_rows(quant_df_normal, quant_df_amoroso) %>%
 
 ```{r residuals, cache=FALSE}
 fit_vals <- fitted(fit_cond_normal)
-if (interactive()) plot(fit_vals)
+safe_plot(fit_vals)
 ```
 
 ```{r diagnostics}
-if (interactive()) plot(fit_cond_normal, family = c("traceplot", "autocorrelation", "geweke"))
-if (interactive()) plot(fit_cond_amoroso, family = c("density", "running", "caterpillar"))
+safe_plot(fit_cond_normal, family = c("traceplot", "autocorrelation", "geweke"))
+safe_plot(fit_cond_amoroso, family = c("density", "running", "caterpillar"))
 ```
 
 ---
@@ -233,8 +232,23 @@ if (interactive()) plot(fit_cond_amoroso, family = c("density", "running", "cate
 
 - Covariate-informed DP mixtures predict outcome distributions that shift with `x1` (and other covariates).
 - Use `predict(..., type = "density")` to visualize conditional densities and `type = "quantile"` for posterior-mean location shifts.
-- Diagnostics (`if (interactive()) plot(fit_cond_normal)`, `fitted(fit_cond_normal)`) ensure the chains mix before relying on predictions.
+- Diagnostics (`plot(fit_cond_normal)`, `fitted(fit_cond_normal)`) ensure the chains mix before relying on predictions.
 - Next vignette extends the same idea to the SB backend before adding tails.
+
+---
+
+<!-- workflow-nav:start -->
+## Workflow Navigation
+
+- Previous: [v09-unconditional-DPmixGPD-SB](v09-unconditional-DPmixGPD-SB.html)
+- Next: [v11-conditional-DPmix-SB](v11-conditional-DPmix-SB.html)
+- Workflow index: [Roadmap](../roadmap.html)
+- Practical entry: [Cookbook](../cookbook.html)
+<!-- workflow-nav:end -->
+
+
+
+
 
 
 
