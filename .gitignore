@@ -97,6 +97,7 @@ docs/**/legacy-cache/**/*.RDS
 *.RDS
 # Ignore local temporary folder
 .tmp/
+temp/
 
 # Local site build outputs (not tracked)
 /pkgdown/
