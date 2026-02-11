@@ -1,0 +1,33 @@
+---
+title: "Tools guide"
+toc: true
+format:
+  html:
+    code-fold: true
+---
+
+This page is about contributing efficiently and reproducibly.
+
+## Local workflow
+
+- Load code quickly: `devtools::load_all()`
+- Run tests: `devtools::test()` or `testthat::test_dir("tests/testthat")`
+- Full check: `devtools::check()`
+
+## Common tasks
+
+- Rebuild documentation: `devtools::document()`
+- Rebuild vignettes (if needed): `devtools::build_vignettes()`
+
+## Debugging tips
+
+- Start from minimal reproducible data (small `n`) for backend and kernel debugging.
+- Prefer deterministic seeds in tests and vignettes.
+- When modifying the registry or contracts, add at least one test that fails prior to the change.
+
+## Link checking (website)
+
+Use the generated link graph (edges + nodes) to detect:
+- orphan pages
+- broken internal links
+- workflow chain breaks

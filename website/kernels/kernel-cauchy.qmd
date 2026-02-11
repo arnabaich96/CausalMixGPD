@@ -1,14 +1,7 @@
-﻿---
+---
 title: "Cauchy"
 pkgdown:
   slug: "kernels/kernel-cauchy"
-output:
-  rmarkdown::html_vignette:
-    highlight: null
-vignette: >
-  %\\VignetteIndexEntry{Cauchy}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}

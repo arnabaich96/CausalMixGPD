@@ -1,12 +1,14 @@
 ---
-title: "Unconditional Models"
+title: "DPmixGPD: Unconditional workflow (bulk + optional GPD tail)"
 output:
   rmarkdown::html_vignette:
     highlight: null
 vignette: >
-  %\VignetteIndexEntry{Unconditional Models}
+  %\VignetteIndexEntry{DPmixGPD: Unconditional workflow (bulk + optional GPD tail)}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+bibliography: dpmixgpd.bib
+link-citations: true
 ---
 
 ```{r setup, include=FALSE}
@@ -15,83 +17,76 @@ knitr::opts_chunk$set(
   comment = NA,
   message = FALSE,
   warning = FALSE,
-  fig.width = 7,
-  fig.height = 4.5,
-  fig.align = "center"
+  echo = FALSE
 )
-library(ggplot2)
-library(kableExtra)
-library(DPmixGPD)
-set.seed(1)
-FAST <- TRUE
-mcmc <- if (FAST) {
-  list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
-} else {
-  list(niter = 8000, nburnin = 2000, thin = 5, nchains = 2, seed = c(1, 2))
+
+.extdata <- function(fname) {
+  path <- system.file("extdata", fname, package = "DPmixGPD")
+  if (identical(path, "")) {
+    stop(
+      "Missing precomputed vignette artifact '", fname, "'.\n",
+      "Run tools/make_vignette_artifacts.R from the package root to generate inst/extdata/*.\n",
+      "Then rebuild vignettes and run R CMD check.",
+      call. = FALSE
+    )
+  }
+  path
 }
 ```
 
-## Overview
+This vignette shows the end-to-end workflow for an unconditional model: build a bundle, run posterior sampling, and compute distributional predictions. The mathematical specification of the DPM bulk model and the spliced GPD tail is defined once in **“Model specification and posterior computation”** (the `basic` vignette). Here we focus on usage.
 
-This vignette demonstrates fitting an unconditional DP mixture model with optional GPD tail augmentation.
+DPmixGPD ships small example datasets; we use `nc_pos_tail200_k4`, which is a positive-support dataset with an injected upper tail (so `GPD=TRUE` is meaningful).
 
-## Theory (brief)
-
-Unconditional models treat observations as exchangeable draws from a mixture
-distribution. The DP prior on the mixing measure $G$ yields flexible density
-estimation:
-$$
-y_i \\mid G \\sim \\int K(y_i; \\theta)\\, dG(\\theta), \\quad G \\sim \\mathrm{DP}(\\alpha, G_0).
-$$
-When $\\mathrm{GPD} = \\mathrm{TRUE}$, a GPD tail replaces the bulk kernel beyond a
-threshold $u$ to stabilize tail behavior.
-
-## Model Fitting
-
-```{r, results='hide'}
+```{r}
 library(DPmixGPD)
+data("nc_pos_tail200_k4")
+y <- nc_pos_tail200_k4$y
+```
 
-data("faithful", package = "datasets")
-y <- faithful$eruptions
+Model fit (code shown for reproducibility, but not executed during CRAN checks)
 
+```r
 bundle <- build_nimble_bundle(
   y = y,
-  backend = "sb",
-  kernel = "normal",
+  X = NULL,
+  backend = "sb",         # "sb" or "crp"
+  kernel = "lognormal",  # choose a positive-support kernel
   GPD = TRUE,
-  components = 6,
-  mcmc = mcmc
+  components = 4,
+  mcmc = list(niter = 2000, nburnin = 500, thin = 5, nchains = 1, seed = 101)
 )
 
-fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+fit <- run_mcmc_bundle_manual(bundle, show_progress = TRUE)
 ```
 
-## Posterior Predictive Summaries
+Predictions
+
+```r
+grid <- seq(min(y), max(y) * 1.5, length.out = 200)
+
+dhat <- predict(fit, y = grid, type = "density")
+shat <- predict(fit, y = grid, type = "survival")
+qs   <- predict(fit, type = "quantile", p = c(0.5, 0.9, 0.95, 0.99), cred.level = 0.90)
+```
+
+Results (precomputed)
+
+The table and figure below are precomputed from the shipped dataset to keep CRAN checks fast and deterministic. To reproduce them locally, run `tools/make_vignette_artifacts.R` and rebuild the vignettes.
 
 ```{r}
-pred_mean <- predict(fit, type = "mean", cred.level = 0.90, interval = "credible")
-pred_q95  <- predict(fit, type = "quantile", index = 0.95, cred.level = 0.90, interval = "credible")
-
-pred_mean$fit
-pred_q95$fit
+tbl <- utils::read.csv(.extdata("unconditional_quantiles.csv"))
+knitr::kable(tbl, digits = 3)
 ```
 
-## Note
-
-For unconditional models, use \code{predict()} only; \code{fitted()} and \code{residuals()} are not supported (they are for conditional, covariate models).
-
-## Diagnostic Plots
-
-```{r}
-if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quietly = TRUE)) {
-  if (interactive()) plot(fit)
-} else {
-  message("Plotting requires 'ggmcmc' and 'coda' packages.")
-}
+```{r, fig.cap="Posterior predictive density for the unconditional fit (precomputed)."}
+knitr::include_graphics(.extdata("unconditional_density.png"))
 ```
 
-```{r sessioninfo, include=FALSE}
-sessionInfo()
-```
+Notes on customization
 
+1. Kernel choice: use `kernel_support_table()` to see which kernels match your support (real line vs positive support) and which parameters are available.
 
+2. Tail control: setting `GPD=TRUE` activates the spliced tail module (see the `basic` vignette for the exact spliced density). Tail priors and threshold control are provided via `param_specs`.
+
+3. Backend choice: stick-breaking (`backend="sb"`) is often the most stable default; the CRP backend is available when you prefer partition-based updates.

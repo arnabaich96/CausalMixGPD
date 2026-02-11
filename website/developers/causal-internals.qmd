@@ -1,0 +1,27 @@
+---
+title: "Causal internals"
+toc: true
+format:
+  html:
+    code-fold: true
+---
+
+This page documents the causal pipeline for contributors.
+
+## Objects
+
+A causal fit typically contains:
+- treatment-arm fit
+- control-arm fit
+- (optional) propensity score model output
+- derived estimands (`qte()`, `ate()` objects) and their summaries
+
+## Computation outline
+
+1. Build a causal bundle (`build_causal_bundle()`), optionally including a PS sub-bundle.
+2. Run MCMC (`run_mcmc_causal()`), producing a causal fit object.
+3. Compute estimands (`qte()`, `ate()`), optionally for new covariates.
+
+## Important constraint
+
+{{< include _includes/golden-rules.md >}}

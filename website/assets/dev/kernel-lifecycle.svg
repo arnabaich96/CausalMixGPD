@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="260" viewBox="0 0 980 260">
+  <style>
+    .box { fill: #ffffff; stroke: #111827; stroke-width: 2; rx: 14; ry: 14; }
+    .txt { font-family: -apple-system, Segoe UI, Arial, sans-serif; font-size: 16px; fill: #111827; }
+    .small { font-size: 13px; fill: #374151; }
+    .arrow { stroke: #111827; stroke-width: 2.5; marker-end: url(#m); }
+  </style>
+  <defs>
+    <marker id="m" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L10,3 L0,6 Z" fill="#111827"/>
+    </marker>
+  </defs>
+
+  <rect class="box" x="30" y="40" width="180" height="80"/>
+  <text class="txt" x="120" y="78" text-anchor="middle">Implement d/p/q/r</text>
+  <text class="small" x="120" y="102" text-anchor="middle">+ MixGPD wrappers</text>
+
+  <rect class="box" x="250" y="40" width="180" height="80"/>
+  <text class="txt" x="340" y="78" text-anchor="middle">Register kernel</text>
+  <text class="small" x="340" y="102" text-anchor="middle">metadata + routing</text>
+
+  <rect class="box" x="470" y="40" width="180" height="80"/>
+  <text class="txt" x="560" y="78" text-anchor="middle">Add tests</text>
+  <text class="small" x="560" y="102" text-anchor="middle">unit + integration</text>
+
+  <rect class="box" x="690" y="40" width="240" height="80"/>
+  <text class="txt" x="810" y="70" text-anchor="middle">Add documentation</text>
+  <text class="small" x="810" y="94" text-anchor="middle">kernel page + index link</text>
+
+  <line class="arrow" x1="210" y1="80" x2="250" y2="80"/>
+  <line class="arrow" x1="430" y1="80" x2="470" y2="80"/>
+  <line class="arrow" x1="650" y1="80" x2="690" y2="80"/>
+
+  <rect class="box" x="250" y="150" width="430" height="80"/>
+  <text class="txt" x="465" y="186" text-anchor="middle">End-to-end smoke: build bundle + tiny MCMC</text>
+  <text class="small" x="465" y="210" text-anchor="middle">ensures SB/CRP and S3 surface remain consistent</text>
+
+  <line class="arrow" x1="810" y1="120" x2="680" y2="150"/>
+</svg>

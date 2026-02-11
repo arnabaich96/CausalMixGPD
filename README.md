@@ -14,25 +14,19 @@ remotes::install_github("arnabaich96/DPmixGPD")
 
 - [**Package roadmap**](ROADMAP.md) - Levels of the analysis process and key functions
 
-### Pantry (Manual)
+### Vignettes
 
 Recipes and guides for using DPmixGPD:
 
-- [**Pantry Overview**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/manual.html) - Complete guide to using DPmixGPD
-- [**Introduction**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/introduction.html) - Quick start with basic examples
-- [**Ingredient list (Distributions)**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/distributions.html) - Supported mixture kernels
-- [**Recipe spec (Model)**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/model-spec.html) - Specifying models and priors
-- [**Prep and cook (MCMC)**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/mcmc-workflow.html) - Running and diagnosing MCMC
+- [**Model specification and posterior computation**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/basic.html) - Core model and sampling details
 - [**Unconditional**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/unconditional.html) - Density estimation without covariates
 - [**Conditional**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/conditional.html) - Covariate-dependent density estimation
 - [**Causal**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/causal.html) - Treatment effects with propensity scores
-- [**Oven choice (CRP vs SB)**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/backends.html) - Comparing inference approaches
-- [**Utensil guide (S3 methods)**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/reference-s3.html) - print, summary, plot, predict, etc.
 
 ### Ingredients (Kernels)
 
 - [**Ingredient overview**](https://arnabaich96.github.io/DPmixGPD/kernels.html) - Available mixture kernels
-- [Amoroso](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/distributions.html#amoroso) | [Cauchy](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/distributions.html#cauchy) | [Gamma](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/distributions.html#gamma) | [Inverse Gaussian](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/distributions.html#inverse-gaussian) | [Laplace](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/distributions.html#laplace) | [Lognormal](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/distributions.html#lognormal) | [Normal](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/distributions.html#normal)
+- [Kernel docs](https://arnabaich96.github.io/DPmixGPD/kernels/kernels-index.html)
 
 ### Cookbook
 

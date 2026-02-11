@@ -1,13 +1,14 @@
-﻿---
-title: "Unconditional Models"
-output:
-  rmarkdown::html_vignette:
-    highlight: null
-vignette: >
-  %\VignetteIndexEntry{Unconditional Models}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
+title: "DPmixGPD: Unconditional bulk–tail density estimation"
+bibliography: dpmixgpd.bib
+link-citations: true
+format:
+  html:
+    toc: true
+execute:
+  cache: true
+---
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
@@ -19,83 +20,243 @@ knitr::opts_chunk$set(
   fig.height = 4.5,
   fig.align = "center"
 )
-library(ggplot2)
-library(kableExtra)
-library(DPmixGPD)
-set.seed(1)
-FAST <- TRUE
-mcmc <- if (FAST) {
-  list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
-} else {
-  list(niter = 8000, nburnin = 2000, thin = 5, nchains = 2, seed = c(1, 2))
-}
 ```
 
-## Overview
-
-This vignette demonstrates fitting an unconditional DP mixture model with optional GPD tail augmentation.
-
-## Theory (brief)
-
-Unconditional models treat observations as exchangeable draws from a mixture
-distribution. The DP prior on the mixing measure $G$ yields flexible density
-estimation:
-$$
-y_i \mid G \sim \int K(y_i; \theta)\, dG(\theta), \quad G \sim \mathrm{DP}(\alpha, G_0).
-$$
-When $\mathrm{GPD} = \mathrm{TRUE}$, a GPD tail replaces the bulk kernel beyond a
-threshold $u$ to stabilize tail behavior.
-
-## Model Fitting
-
-```{r, results='hide'}
+```{r}
 library(DPmixGPD)
+set.seed(1)
+```
 
-data("faithful", package = "datasets")
-y <- faithful$eruptions
+This vignette shows how to fit the *unconditional* DPmixGPD model, i.e. without covariates (\(X=\mathrm{NULL}\)). The unconditional case is the simplest entry point for two reasons:
+
+1. It isolates the central design choice: which kernel family is an appropriate *bulk* model for your outcome support and shape.
+2. It makes clear how the bulk (DPM) and tail (GPD) are estimated *jointly* rather than via a two-stage procedure.
+
+All mathematical definitions of the Dirichlet process mixture prior, the GPD tail density/CDF, and the spliced bulk–tail density are developed in the vignette **“DPmixGPD: Model specification and posterior computation”**. This vignette treats those definitions as *fixed* and focuses on: model configuration, prior control, and posterior summaries in the unconditional setting.
+
+# What “unconditional” means in DPmixGPD
+
+With no covariates, the bulk model is an ordinary Dirichlet process mixture:
+\[
+f_{\mathrm{DPM}}(y) \;=\; \sum_{j=1}^{\infty} w_j \, k(y\mid \Theta_j),
+\]
+with DP stick-breaking weights \(w_j\) [@sethuraman1994] and blocked Gibbs truncation at \(J=\texttt{components}\) [@ishwaran2001]. In practice, DPmixGPD uses a finite representation for both SB and CRP backends, controlled by the single argument `components`.
+
+If `GPD=TRUE`, DPmixGPD fits the (upper) tail using a generalized Pareto exceedance model and couples it to the bulk via a proper bulk–tail splice (see the “Model specification…” vignette for the full density/CDF). This joint construction is in the same spirit as Bayesian semiparametric bulk–tail models that avoid fixing a hard threshold and instead estimate bulk and tail together [@frigessi2002; @doNascimento2012; @behrens2004].
+
+# Choosing a kernel (bulk family)
+
+A good kernel choice is driven by *support* first and *shape* second:
+
+- If your outcome is supported on \(\mathbb{R}\): Normal / Laplace / Cauchy kernels are natural.
+- If your outcome is supported on \(\mathbb{R}_+\): Gamma / Lognormal / Inverse-Gaussian / Amoroso kernels are typically appropriate.
+- If your data are heavy-tailed already in the bulk, a more flexible positive-support kernel (e.g., Lognormal, Amoroso) may absorb structure that a lighter kernel would push into the tail, which can affect tail stability.
+
+DPmixGPD ships a registry describing which kernels support which features.
+
+```{r}
+kernel_support_table()
+```
+
+# SB vs CRP backends
+
+DPmixGPD supports `backend="sb"` (stick-breaking) and `backend="crp"` (Chinese restaurant process). Both correspond to the same DP prior but expose different computational representations [@neal2000].
+
+Practical guidance in the unconditional case:
+
+- Start with `backend="sb"` if you want a stable finite representation with an explicit truncation level \(J\).
+- Use `backend="crp"` if you prefer a partition-driven representation (often convenient conceptually for clustering), noting that the finite NIMBLE model still uses `components` as a maximum representable number of clusters.
+
+# Enabling/disabling the GPD tail
+
+The decision `GPD=TRUE/FALSE` is not cosmetic; it changes the likelihood and the posterior targets.
+
+- `GPD=FALSE` fits a pure DPM density on the full support. This is appropriate if you mainly want flexible density estimation without explicit extreme extrapolation.
+- `GPD=TRUE` fits the joint bulk–tail model where exceedances beyond a threshold are modeled by a GPD and the total density remains proper by splicing. This is appropriate if you want stable *extreme quantiles* or *tail probabilities* beyond the observed bulk.
+
+Even in the unconditional case, the tail inference is coupled to the bulk via the survival mass at the threshold \(S_{\mathrm{DPM}}(u)=1-F_{\mathrm{DPM}}(u)\). This is exactly why the model tends to be more stable than “fit the bulk, then fit a tail” pipelines when the exceedance sample size is small.
+
+# Model building in code
+
+## Minimal build: bulk only
+
+```{r, eval=TRUE}
+y <- abs(rnorm(120)) + 0.1
 
 bundle <- build_nimble_bundle(
   y = y,
+  X = NULL,
   backend = "sb",
-  kernel = "normal",
-  GPD = TRUE,
+  kernel = "lognormal",
+  GPD = FALSE,
   components = 6,
-  mcmc = mcmc
+  mcmc = list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
 )
 
-fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+bundle
+summary(bundle)
 ```
 
-## Posterior Predictive Summaries
+## Minimal build: bulk + GPD tail
 
-```{r}
-pred_mean <- predict(fit, type = "mean", cred.level = 0.90, interval = "credible")
-pred_q95  <- predict(fit, type = "quantile", index = 0.95, cred.level = 0.90, interval = "credible")
-
-pred_mean$fit
-pred_q95$fit
+```{r, eval=TRUE}
+bundle_gpd <- build_nimble_bundle(
+  y = y,
+  X = NULL,
+  backend = "sb",
+  kernel = "lognormal",
+  GPD = TRUE,
+  components = 6,
+  mcmc = list(niter = 500, nburnin = 150, thin = 2, nchains = 1, seed = 1)
+)
 ```
 
-## Note
+## Run posterior sampling
 
-For unconditional models, use \code{predict()} only; \code{fitted()} and \code{residuals()} are not supported (they are for conditional, covariate models).
-
-## Diagnostic Plots
-
-```{r}
-if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quietly = TRUE)) {
-  plot(fit)
-} else {
-  message("Plotting requires 'ggmcmc' and 'coda' packages.")
-}
+```{r, eval=TRUE}
+fit <- run_mcmc_bundle_manual(bundle_gpd, show_progress = FALSE)
+fit
+summary(fit)
 ```
 
-```{r sessioninfo, include=FALSE}
-sessionInfo()
+The returned object is a `mixgpd_fit`, which stores posterior draws, the compiled spec, and the settings needed for downstream summaries and plotting.
+
+# Prior control via `param_specs`
+
+DPmixGPD uses a single structured object `param_specs` to control whether each parameter is:
+
+- `mode="fixed"`: treated as constant,
+- `mode="dist"`: assigned a prior and sampled,
+- `mode="link"`: made covariate-dependent via a link function (only relevant when `X` is provided; see the conditional vignette).
+
+The expected structure is:
+
+```{r, eval=TRUE}
+param_specs <- list(
+  bulk = list(
+    # kernel-specific parameters go here
+  ),
+  gpd = list(
+    threshold  = list(mode = "fixed", value = 1.0),
+    tail_scale = list(mode = "dist", dist = "gamma", args = list(shape = 2, rate = 1)),
+    tail_shape = list(mode = "dist", dist = "normal", args = list(mean = 0, sd = 0.25))
+  ),
+  concentration = list(mode = "dist", dist = "gamma", args = list(shape = 2, rate = 1))
+)
 ```
 
+## Example: treat tail parameters as random, but fix the threshold
 
+Fixing \(u\) can be useful for sensitivity analysis. A common pragmatic choice is to set \(u\) to a high empirical quantile and let \((\sigma,\xi)\) be learned from exceedances. (When \(u\) is random, DPmixGPD will propagate threshold uncertainty automatically.)
 
+```{r, eval=TRUE}
+u0 <- as.numeric(stats::quantile(y, 0.90))
+
+param_specs <- list(
+  gpd = list(
+    threshold  = list(mode = "fixed", value = u0),
+    tail_scale = list(mode = "dist",  dist = "gamma",  args = list(shape = 2, rate = 1)),
+    tail_shape = list(mode = "dist",  dist = "normal", args = list(mean = 0, sd = 0.25))
+  ),
+  concentration = list(
+    mode = "dist", dist = "gamma", args = list(shape = 2, rate = 1)
+  )
+)
+
+bundle_gpd <- build_nimble_bundle(
+  y = y,
+  X = NULL,
+  backend = "sb",
+  kernel = "lognormal",
+  GPD = TRUE,
+  components = 6,
+  param_specs = param_specs
+)
+```
+
+## Example: fully stochastic threshold, with a weakly informative prior
+
+DPmixGPD supports stochastic thresholds under `gpd$threshold` when `GPD=TRUE`. In the conditional model the threshold can be linked to covariates; in the unconditional model it is scalar.
+
+```{r, eval=TRUE}
+param_specs2 <- list(
+  gpd = list(
+    threshold  = list(mode = "dist", dist = "lognormal", args = list(meanlog = log(median(y)), sdlog = 0.4)),
+    tail_scale = list(mode = "dist", dist = "gamma",     args = list(shape = 2, rate = 1)),
+    tail_shape = list(mode = "dist", dist = "normal",    args = list(mean = 0, sd = 0.25))
+  )
+)
+```
+
+# Posterior summaries: density, CDF, and quantiles
+
+The core inferential objects are functionals of the full spliced distribution \(F(y)\) (defined in the “Model specification…” vignette). Given posterior draws \(\{\Theta^{(s)},\Phi^{(s)}\}_{s=1}^S\), DPmixGPD computes summaries by:
+
+1. evaluating the functional under each draw, and
+2. aggregating across draws (posterior mean, median, and credible intervals).
+
+## Quantiles under the splice (conceptual formula)
+
+Let \(u^{(s)}\) be the threshold in draw \(s\), and let \(p_u^{(s)} = F_{\mathrm{DPM}}^{(s)}(u^{(s)})\). For a target level \(\tau\):
+
+- If \(\tau \le p_u^{(s)}\), then the quantile is in the bulk: \(Q^{(s)}(\tau)=Q_{\mathrm{DPM}}^{(s)}(\tau)\).
+- If \(\tau > p_u^{(s)}\), then it is in the tail. Writing \(q = (\tau - p_u^{(s)})/(1-p_u^{(s)})\), the tail quantile is
+\[
+Q^{(s)}(\tau) = u^{(s)} + Q_{\mathrm{GPD}}^{(s)}(q),
+\]
+where \(Q_{\mathrm{GPD}}^{(s)}(\cdot)\) is the GPD quantile function for exceedances.
+
+DPmixGPD implements these calculations using the posterior samples, so you do not need to code them manually unless you are building custom functionals.
+
+## Practical API
+
+```{r, eval=TRUE}
+# Posterior predictive density/survival at a grid:
+grid <- seq(min(y), max(y) * 1.5, length.out = 200)
+
+dhat <- predict(fit, y = grid, type = "density")
+shat <- predict(fit, y = grid, type = "survival")
+
+# Posterior quantiles:
+qs <- predict(fit, type = "quantile", p = c(0.90, 0.95, 0.99))
+
+# Posterior predictive mean:
+mhat <- predict(fit, type = "mean", cred.level = 0.90)
+```
+
+The exact `type` names and available options are documented in the function reference for `predict.mixgpd_fit`. Use `?predict.mixgpd_fit` after installation.
+
+# Diagnostics (what to check)
+
+Posterior computation for mixture models is sensitive to:
+
+- truncation level `components` (SB) or maximum clusters (CRP),
+- mixing of allocations \(\{z_i\}\),
+- tail identifiability when the exceedance sample is small.
+
+In practice, you should:
+
+1. run multiple chains if feasible,
+2. inspect trace plots for key tail parameters \((u,\sigma,\xi)\) when `GPD=TRUE`,
+3. check stability of extreme quantiles (e.g., 0.95/0.99) across chains and across small perturbations of priors.
+
+DPmixGPD prints a compact summary and supports standard MCMC diagnostics tooling.
+
+```{r, eval=TRUE}
+summary(fit)
+plot(fit)
+```
+
+# Low-level density utilities (optional)
+
+DPmixGPD exports both CamelCase and lower-case density/CDF/quantile/random-generation helpers for kernels and their mix/splice variants. As a practical rule:
+
+- the CamelCase forms (e.g., `dNormMixGpd`) are intended for NIMBLE model code and internal use,
+- the lower-case forms (e.g., `dnormmixgpd`) are convenient for direct use in R scripts.
+
+This separation makes it easier to validate pieces of the model outside MCMC (e.g., checking a GPD tail density shape) without rebuilding a full bundle.
+
+# References
 
 
 

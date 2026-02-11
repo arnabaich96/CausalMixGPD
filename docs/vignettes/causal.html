@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>causal – DPmixGPD</title>
+<title>DPmixGPD: Causal treatment effects (ATE/QTE) via two-arm outcome models – DPmixGPD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -55,7 +55,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -104,58 +124,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
-<link href="../site_libs/htmltools-fill-0.5.9/fill.css" rel="stylesheet">
 
-<script src="../site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
-
-<script src="../site_libs/plotly-binding-4.12.0/plotly.js"></script>
-
-<script src="../site_libs/typedarray-0.1/typedarray.min.js"></script>
-
-<script src="../site_libs/jquery-3.5.1/jquery.min.js"></script>
-
-<link href="../site_libs/crosstalk-1.2.2/css/crosstalk.min.css" rel="stylesheet">
-
-<script src="../site_libs/crosstalk-1.2.2/js/crosstalk.min.js"></script>
-
-<link href="../site_libs/plotly-htmlwidgets-css-2.25.2/plotly-htmlwidgets.css" rel="stylesheet">
-
-<script src="../site_libs/plotly-main-2.25.2/plotly-latest.min.js"></script>
-
-
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 </head>
 
-<body class="nav-fixed fullcontent quarto-light">
+<body class="nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -214,10 +187,61 @@ window.Quarto = {
   </li>  
     </ul>
   </li>
-  <li class="nav-item">
-    <a class="nav-link" href="../developers.html"> 
-<span class="menu-text">Developers</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-developers" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Developers</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-developers">    
+        <li>
+    <a class="dropdown-item" href="../developers.html">
+ <span class="dropdown-text">Overview</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/architecture.html">
+ <span class="dropdown-text">Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/tools.html">
+ <span class="dropdown-text">Tools</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/site-build.html">
+ <span class="dropdown-text">Website build</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/spec-and-contracts.html">
+ <span class="dropdown-text">Spec and contracts</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/registry.html">
+ <span class="dropdown-text">Kernel registry</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/add-kernel.html">
+ <span class="dropdown-text">Add a kernel</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/add-tail-option.html">
+ <span class="dropdown-text">Tail options</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/causal-internals.html">
+ <span class="dropdown-text">Causal internals</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/testing.html">
+ <span class="dropdown-text">Testing</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/conventions.html">
+ <span class="dropdown-text">Conventions</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/releasing.html">
+ <span class="dropdown-text">Releasing</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../pkgdown/reference/index.html"> 
 <span class="menu-text">Reference</span></a>
@@ -244,13 +268,52 @@ window.Quarto = {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#causal-setup-and-identification" id="toc-causal-setup-and-identification" class="nav-link active" data-scroll-target="#causal-setup-and-identification">Causal setup and identification</a>
+  <ul class="collapse">
+  <li><a href="#potential-outcomes-and-estimands" id="toc-potential-outcomes-and-estimands" class="nav-link" data-scroll-target="#potential-outcomes-and-estimands">Potential outcomes and estimands</a></li>
+  <li><a href="#assumptions" id="toc-assumptions" class="nav-link" data-scroll-target="#assumptions">Assumptions</a></li>
+  </ul></li>
+  <li><a href="#dpmixgpd-causal-strategy-two-arm-outcome-models" id="toc-dpmixgpd-causal-strategy-two-arm-outcome-models" class="nav-link" data-scroll-target="#dpmixgpd-causal-strategy-two-arm-outcome-models">DPmixGPD causal strategy: two-arm outcome models</a>
+  <ul class="collapse">
+  <li><a href="#why-include-a-propensity-score-module" id="toc-why-include-a-propensity-score-module" class="nav-link" data-scroll-target="#why-include-a-propensity-score-module">Why include a propensity score module?</a></li>
+  </ul></li>
+  <li><a href="#building-and-fitting-a-causal-model-in-code" id="toc-building-and-fitting-a-causal-model-in-code" class="nav-link" data-scroll-target="#building-and-fitting-a-causal-model-in-code">Building and fitting a causal model in code</a>
+  <ul class="collapse">
+  <li><a href="#simulate-data-with-confounding-for-demonstration" id="toc-simulate-data-with-confounding-for-demonstration" class="nav-link" data-scroll-target="#simulate-data-with-confounding-for-demonstration">Simulate data with confounding (for demonstration)</a></li>
+  <li><a href="#build-a-causal-bundle" id="toc-build-a-causal-bundle" class="nav-link" data-scroll-target="#build-a-causal-bundle">Build a causal bundle</a>
+  <ul class="collapse">
+  <li><a href="#arm-specific-configuration-optional-but-supported" id="toc-arm-specific-configuration-optional-but-supported" class="nav-link" data-scroll-target="#arm-specific-configuration-optional-but-supported">Arm-specific configuration (optional but supported)</a></li>
+  <li><a href="#arm-specific-priors-and-link-specifications-via-param_specs" id="toc-arm-specific-priors-and-link-specifications-via-param_specs" class="nav-link" data-scroll-target="#arm-specific-priors-and-link-specifications-via-param_specs">Arm-specific priors and link specifications via <code>param_specs</code></a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#run-mcmc" id="toc-run-mcmc" class="nav-link" data-scroll-target="#run-mcmc">Run MCMC</a></li>
+  <li><a href="#estimating-qte-and-ate" id="toc-estimating-qte-and-ate" class="nav-link" data-scroll-target="#estimating-qte-and-ate">Estimating QTE and ATE</a>
+  <ul class="collapse">
+  <li><a href="#quantile-treatment-effects-qte" id="toc-quantile-treatment-effects-qte" class="nav-link" data-scroll-target="#quantile-treatment-effects-qte">Quantile treatment effects (QTE)</a>
+  <ul class="collapse">
+  <li><a href="#conditional-qte-at-selected-covariate-profiles" id="toc-conditional-qte-at-selected-covariate-profiles" class="nav-link" data-scroll-target="#conditional-qte-at-selected-covariate-profiles">Conditional QTE at selected covariate profiles</a></li>
+  </ul></li>
+  <li><a href="#average-treatment-effects-ate" id="toc-average-treatment-effects-ate" class="nav-link" data-scroll-target="#average-treatment-effects-ate">Average treatment effects (ATE)</a>
+  <ul class="collapse">
+  <li><a href="#restricted-mean-difference" id="toc-restricted-mean-difference" class="nav-link" data-scroll-target="#restricted-mean-difference">Restricted mean difference</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#diagnostics-and-practical-guidance" id="toc-diagnostics-and-practical-guidance" class="nav-link" data-scroll-target="#diagnostics-and-practical-guidance">Diagnostics and practical guidance</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Causal Workflow</h1>
+<h1 class="title">DPmixGPD: Causal treatment effects (ATE/QTE) via two-arm outcome models</h1>
 </div>
 
 
@@ -267,128 +330,104 @@ window.Quarto = {
 </header>
 
 
-<section id="overview" class="level2">
-<h2 class="anchored" data-anchor-id="overview">Overview</h2>
-<p>This vignette demonstrates the causal inference workflow using <code>build_causal_bundle()</code> and <code>run_mcmc_causal()</code>. The package computes distributional treatment effects that are <strong>conditional on covariates</strong>:</p>
-<ul>
-<li><strong>Conditional ATE (CATE)</strong>: (E[Y(1) - Y(0) X])</li>
-<li><strong>Conditional QTE (CQTE)</strong>: (Q_{Y(1)}(X=x) - Q_{Y(0)}(X=x))</li>
-</ul>
-</section>
-<section id="theory-brief" class="level2">
-<h2 class="anchored" data-anchor-id="theory-brief">Theory (brief)</h2>
-<p>The causal workflow models the potential outcome distributions for treated and control groups while adjusting for covariates and (optionally) propensity scores. For each treatment arm <span class="math inline">\(t \in \{0,1\}\)</span>, <span class="math display">\[
-f_t(y \mid x) = \int K(y; \theta_t(x))\, dG_t(\theta_t),
-\]</span> and causal estimands are derived from differences in the fitted distributions, such as <span class="math inline">\(\mathbb{E}[Y(1) - Y(0) \mid X]\)</span> and quantile contrasts.</p>
-</section>
-<section id="conditional-vs-marginal-causal-estimands" class="level2">
-<h2 class="anchored" data-anchor-id="conditional-vs-marginal-causal-estimands">Conditional vs Marginal Causal Estimands</h2>
-<section id="conditional-estimands-what-this-package-computes" class="level3">
-<h3 class="anchored" data-anchor-id="conditional-estimands-what-this-package-computes">Conditional Estimands (What This Package Computes)</h3>
-<p>The causal functions in this package compute <strong>conditional</strong> treatment effects:</p>
-<ul>
-<li><p><strong>Conditional ATE (CATE)</strong>: <span class="math display">\[\text{CATE}(x) = \mathbb{E}[Y(1) - Y(0) \mid X=x]\]</span> This is the average treatment effect for individuals with covariate values <span class="math inline">\(x\)</span>.</p></li>
-<li><p><strong>Conditional QTE (CQTE)</strong>: <span class="math display">\[\text{CQTE}(p, x) = Q_{Y(1)}(p \mid X=x) - Q_{Y(0)}(p \mid X=x)\]</span> This is the quantile treatment effect at probability <span class="math inline">\(p\)</span> for individuals with covariates <span class="math inline">\(x\)</span>.</p></li>
-</ul>
-</section>
-<section id="marginal-estimands-population-level" class="level3">
-<h3 class="anchored" data-anchor-id="marginal-estimands-population-level">Marginal Estimands (Population-Level)</h3>
-<p><strong>Marginal</strong> treatment effects integrate over the covariate distribution:</p>
-<ul>
-<li><p><strong>Marginal ATE</strong>: <span class="math display">\[\text{ATE} = \mathbb{E}_X[\mathbb{E}[Y(1) - Y(0) \mid X]]\]</span> This is the population average treatment effect.</p></li>
-<li><p><strong>Marginal QTE</strong>: <span class="math display">\[\text{QTE}(p) = Q_{Y(1)}(p) - Q_{Y(0)}(p)\]</span> where <span class="math inline">\(Q_{Y(t)}(p)\)</span> is the <span class="math inline">\(p\)</span>-th quantile of the marginal distribution of <span class="math inline">\(Y(t)\)</span>.</p></li>
-</ul>
-</section>
-<section id="important-averaging-conditional-quantiles-â-marginal-quantile" class="level3">
-<h3 class="anchored" data-anchor-id="important-averaging-conditional-quantiles-â-marginal-quantile">Important: Averaging Conditional Quantiles â‰&nbsp; Marginal Quantile</h3>
-<p>A common mistake is to average conditional quantiles to get marginal quantiles: <span class="math display">\[\mathbb{E}_X[Q_{Y(t)}(p \mid X)] \neq Q_{Y(t)}(p)\]</span></p>
-<p><strong>Example</strong>: If treatment shifts the distribution differently for different <span class="math inline">\(X\)</span> values, the average of conditional medians is generally not equal to the marginal median.</p>
-</section>
-<section id="when-to-use-each" class="level3">
-<h3 class="anchored" data-anchor-id="when-to-use-each">When to Use Each</h3>
-<ul>
-<li><strong>Use conditional estimands</strong> (default in this package) when:
-<ul>
-<li>You want to understand heterogeneous treatment effects across covariates</li>
-<li>You’re interested in personalized treatment rules</li>
-<li>You want to identify subgroups with large/small effects</li>
-</ul></li>
-<li><strong>Use marginal estimands</strong> when:
-<ul>
-<li>You want a single population-level summary</li>
-<li>You’re reporting overall policy effects</li>
-<li>You need to compute marginal quantiles (requires integrating over <span class="math inline">\(X\)</span>)</li>
-</ul></li>
-</ul>
-</section>
-<section id="computing-marginal-estimands" class="level3">
-<h3 class="anchored" data-anchor-id="computing-marginal-estimands">Computing Marginal Estimands</h3>
-<p>To compute marginal estimands from this package:</p>
-<ol type="1">
-<li><p><strong>Marginal ATE</strong>: Average the conditional ATE over your sample or population distribution of <span class="math inline">\(X\)</span>:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>ate_cond <span class="ot">&lt;-</span> <span class="fu">ate</span>(fit, <span class="at">newdata =</span> X_population)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>ate_marginal <span class="ot">&lt;-</span> <span class="fu">mean</span>(ate_cond<span class="sc">$</span>estimate)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div></li>
-<li><p><strong>Marginal QTE</strong>: This requires more care:</p>
-<ul>
-<li>Draw samples from the marginal predictive distribution for each arm</li>
-<li>Compute quantiles of these samples</li>
-<li>Difference the quantiles</li>
-</ul>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample from marginal predictive for each arm (integrate over X)</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>X_sample <span class="ot">&lt;-</span> X_population[<span class="fu">sample</span>(<span class="fu">nrow</span>(X_population), <span class="dv">1000</span>, <span class="at">replace=</span><span class="cn">TRUE</span>), ]</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>Y1_samples <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit<span class="sc">$</span>outcome_fit<span class="sc">$</span>trt, <span class="at">newdata=</span>X_sample, <span class="at">type=</span><span class="st">"sample"</span>, <span class="at">nsim=</span><span class="dv">1000</span>)</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>Y0_samples <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit<span class="sc">$</span>outcome_fit<span class="sc">$</span>con, <span class="at">newdata=</span>X_sample, <span class="at">type=</span><span class="st">"sample"</span>, <span class="at">nsim=</span><span class="dv">1000</span>)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Compute marginal quantiles</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>Q1 <span class="ot">&lt;-</span> <span class="fu">quantile</span>(Y1_samples<span class="sc">$</span>fit, <span class="at">probs=</span><span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span>))</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>Q0 <span class="ot">&lt;-</span> <span class="fu">quantile</span>(Y0_samples<span class="sc">$</span>fit, <span class="at">probs=</span><span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span>))</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>QTE_marginal <span class="ot">&lt;-</span> Q1 <span class="sc">-</span> Q0</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div></li>
-</ol>
-</section>
-<section id="references" class="level3">
-<h3 class="anchored" data-anchor-id="references">References</h3>
-<ul>
-<li>Firpo, S. (2007). “Efficient semiparametric estimation of quantile treatment effects.” <em>Econometrica</em>, 75(1), 259-276.</li>
-<li>FrÃƒÂ¶lich, M., &amp; Melly, B. (2013). “Unconditional quantile treatment effects under endogeneity.” <em>Journal of Business &amp; Economic Statistics</em>, 31(3), 346-357.</li>
-</ul>
-</section>
-</section>
-<section id="data-setup" class="level2">
-<h2 class="anchored" data-anchor-id="data-setup">Data Setup</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DPmixGPD)</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"mtcars"</span>, <span class="at">package =</span> <span class="st">"datasets"</span>)</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> mtcars</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> df[, <span class="fu">c</span>(<span class="st">"wt"</span>, <span class="st">"hp"</span>, <span class="st">"qsec"</span>, <span class="st">"cyl"</span>)]</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(X)</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>T_ind <span class="ot">&lt;-</span> df<span class="sc">$</span>am</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> df<span class="sc">$</span>mpg</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DPmixGPD)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>DPmixGPD includes a causal workflow for estimating treatment effects on the <em>entire</em> outcome distribution. Rather than restricting attention to a mean difference, the causal module targets:</p>
+<ul>
+<li>mean-scale effects (ATE),</li>
+<li>quantile-scale effects (QTE), and</li>
+<li>truncated/restricted mean effects (available through <code>ate(..., type="rmean")</code>).</li>
+</ul>
+<p>The causal workflow reuses the same outcome modeling machinery as the unconditional and conditional vignettes: a Dirichlet process mixture (bulk) optionally spliced with a generalized Pareto tail (GPD). The mathematical model for the DPM prior, the GPD density/CDF, and the bulk–tail splice is developed once in the vignette <strong>“DPmixGPD: Model specification and posterior computation”</strong>. This vignette focuses on causal identification, how DPmixGPD builds a two-arm model, and how to compute ATE/QTE from posterior draws.</p>
+<section id="causal-setup-and-identification" class="level1">
+<h1>Causal setup and identification</h1>
+<section id="potential-outcomes-and-estimands" class="level2">
+<h2 class="anchored" data-anchor-id="potential-outcomes-and-estimands">Potential outcomes and estimands</h2>
+<p>Let (T{0,1}) denote a binary treatment indicator and (Y(0), Y(1)) the potential outcomes. The observed outcome is [ Y = T,Y(1) + (1-T),Y(0). ] For a covariate vector (), define the conditional CDFs and quantiles [ F_a(y) = {Y(a)y =}, Q_a() = F_a^{-1}(), (0,1), ] and the conditional quantile treatment effect [ () = Q_1() - Q_0(). ] The conditional mean effect (ATE at ()) is [ () = {Y(1)} - {Y(0)}. ]</p>
+<p>DPmixGPD’s <code>qte()</code> and <code>ate()</code> functions compute these treated-minus-control functionals from a fitted causal object. If you supply <code>newdata</code>, you obtain effects evaluated at those covariate profiles; otherwise DPmixGPD defaults to the training design (X) when present.</p>
+</section>
+<section id="assumptions" class="level2">
+<h2 class="anchored" data-anchor-id="assumptions">Assumptions</h2>
+<p>DPmixGPD follows the standard “selection on observables” identification strategy (Rubin causal model) <span class="citation" data-cites="rubin1974">(<a href="#ref-rubin1974" role="doc-biblioref">Rubin 1974</a>)</span>. The identifying assumptions are:</p>
+<ol type="1">
+<li><strong>Consistency / SUTVA</strong>: the observed outcome equals the potential outcome under the received treatment; no interference between units.</li>
+<li><strong>Unconfoundedness</strong>: [ {Y(0),Y(1)} T . ]</li>
+<li><strong>Overlap</strong> (positivity): [ 0 &lt; e() &lt; 1 ] where (e()=(T=1=)) is the propensity score.</li>
+</ol>
+<p>Under these assumptions, [ F_a(y) = (Yy T=a,=), ] so causal effects can be estimated by modeling the <em>observed</em> conditional outcome distribution within each treatment arm.</p>
+</section>
+</section>
+<section id="dpmixgpd-causal-strategy-two-arm-outcome-models" class="level1">
+<h1>DPmixGPD causal strategy: two-arm outcome models</h1>
+<p>DPmixGPD builds:</p>
+<ul>
+<li>a control-arm outcome model for (YT=0),</li>
+<li>a treated-arm outcome model for (YT=1),</li>
+<li>and (optionally) a propensity score (PS) model for (T).</li>
+</ul>
+<p>Each outcome arm is a full DPmixGPD model (bulk DPM with optional GPD tail). You can choose different kernels/backends/tail settings per arm by passing length-2 vectors for <code>kernel</code>, <code>backend</code>, <code>GPD</code>, and <code>components</code>.</p>
+<section id="why-include-a-propensity-score-module" class="level2">
+<h2 class="anchored" data-anchor-id="why-include-a-propensity-score-module">Why include a propensity score module?</h2>
+<p>Rosenbaum and Rubin showed the propensity score is a balancing score: adjusting for (e()) is sufficient to remove bias due to observed covariates <span class="citation" data-cites="rosenbaum1983">(<a href="#ref-rosenbaum1983" role="doc-biblioref">Rosenbaum and Rubin 1983</a>)</span>. DPmixGPD offers a lightweight PS model and can pass a PS-derived covariate into both outcome arms as an additional predictor. This is optional:</p>
+<ul>
+<li>set <code>PS = FALSE</code> to skip propensity score estimation and use only (X) in the outcome models;</li>
+<li>set <code>PS = "logit"</code> / <code>"probit"</code> / <code>"naive"</code> to estimate PS and include it in the outcome arms.</li>
+</ul>
+<p>Important details:</p>
+<ul>
+<li><code>ps_scale = "prob"</code> uses the posterior summary ( e() ) directly.</li>
+<li><code>ps_scale = "logit"</code> uses ((e())) (often numerically friendlier as a covariate).</li>
+<li><code>ps_summary = "mean"</code> or <code>"median"</code> chooses how the posterior for (e()) is summarized before being passed into the outcome arms.</li>
+<li><code>ps_clamp</code> clamps (e()) to ((, 1-)) to avoid infinities under the logit transform.</li>
+</ul>
+</section>
+</section>
+<section id="building-and-fitting-a-causal-model-in-code" class="level1">
+<h1>Building and fitting a causal model in code</h1>
+<p>We illustrate a typical workflow on a small synthetic example. For real analyses, increase MCMC iterations and check diagnostics as in any Bayesian mixture model.</p>
+<section id="simulate-data-with-confounding-for-demonstration" class="level2">
+<h2 class="anchored" data-anchor-id="simulate-data-with-confounding-for-demonstration">Simulate data with confounding (for demonstration)</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="dv">250</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="at">x1 =</span> <span class="fu">rnorm</span>(N), <span class="at">x2 =</span> <span class="fu">rbinom</span>(N, <span class="dv">1</span>, <span class="fl">0.5</span>))</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Treatment assignment via a propensity score</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>ps_true <span class="ot">&lt;-</span> <span class="fu">plogis</span>(<span class="sc">-</span><span class="fl">0.2</span> <span class="sc">+</span> <span class="fl">0.9</span> <span class="sc">*</span> X[, <span class="dv">1</span>] <span class="sc">-</span> <span class="fl">0.6</span> <span class="sc">*</span> X[, <span class="dv">2</span>])</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>T <span class="ot">&lt;-</span> <span class="fu">rbinom</span>(N, <span class="dv">1</span>, ps_true)</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Heavy-tailed positive outcome: treatment shifts the bulk and changes tail risk</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>base <span class="ot">&lt;-</span> <span class="fu">exp</span>(<span class="fl">0.2</span> <span class="sc">+</span> <span class="fl">0.4</span> <span class="sc">*</span> X[, <span class="dv">1</span>] <span class="sc">+</span> <span class="fl">0.2</span> <span class="sc">*</span> X[, <span class="dv">2</span>] <span class="sc">+</span> <span class="fu">rt</span>(N, <span class="at">df =</span> <span class="dv">3</span>) <span class="sc">/</span> <span class="dv">3</span>)</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> base <span class="sc">*</span> <span class="fu">exp</span>(<span class="fl">0.25</span> <span class="sc">*</span> T)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="causal-bundle-construction" class="level2">
-<h2 class="anchored" data-anchor-id="causal-bundle-construction">Causal Bundle Construction</h2>
-<p>The <code>build_causal_bundle()</code> function creates a unified structure containing:</p>
+<section id="build-a-causal-bundle" class="level2">
+<h2 class="anchored" data-anchor-id="build-a-causal-bundle">Build a causal bundle</h2>
+<p>The causal bundle constructor is <code>build_causal_bundle()</code>. It creates:</p>
 <ul>
-<li>Propensity score (PS) model (optional)</li>
-<li>Control arm outcome model</li>
-<li>Treated arm outcome model</li>
+<li>a propensity score bundle (if <code>PS</code> is not <code>FALSE</code> and (X) is present),</li>
+<li>a control outcome bundle,</li>
+<li>a treated outcome bundle.</li>
 </ul>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> <span class="fu">build_causal_bundle</span>(</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> X,</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">T =</span> T_ind,</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"normal"</span>,</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">6</span>,</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">PS =</span> <span class="st">"logit"</span>,</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_outcome =</span> mcmc,</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_ps =</span> mcmc</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>bundle</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>cb <span class="ot">&lt;-</span> <span class="fu">build_causal_bundle</span>(</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> X,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">T =</span> T,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"lognormal"</span>,</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">6</span>,</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">PS =</span> <span class="st">"logit"</span>,            <span class="co"># "logit", "probit", "naive", or FALSE</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">ps_scale =</span> <span class="st">"logit"</span>,      <span class="co"># "logit" or "prob"</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">ps_summary =</span> <span class="st">"mean"</span>,     <span class="co"># "mean" or "median"</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_outcome =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">500</span>, <span class="at">nburnin =</span> <span class="dv">150</span>, <span class="at">thin =</span> <span class="dv">2</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">seed =</span> <span class="dv">1</span>),</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_ps      =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">400</span>, <span class="at">nburnin =</span> <span class="dv">120</span>, <span class="at">thin =</span> <span class="dv">2</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">seed =</span> <span class="dv">2</span>)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>cb</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>DPmixGPD causal bundle
 PS model: Bayesian logit (T | X) 
@@ -408,8 +447,8 @@ PS model: Bayesian logit (T | X)
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:center;"&gt; Kernel &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; normal &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; normal &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; lognormal &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; lognormal &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
    &lt;td style="text-align:center;"&gt; Components &lt;/td&gt;
@@ -429,14 +468,76 @@ PS model: Bayesian logit (T | X)
 &lt;/tbody&gt;
 &lt;/table&gt;
 Outcome PS included: TRUE 
-n (control) = 19 | n (treated) = 13 </code></pre>
+n (control) = 161 | n (treated) = 89 </code></pre>
 </div>
+</div>
+<section id="arm-specific-configuration-optional-but-supported" class="level3">
+<h3 class="anchored" data-anchor-id="arm-specific-configuration-optional-but-supported">Arm-specific configuration (optional but supported)</h3>
+<p>You can use different kernels/backends/tail settings across arms:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>cb2 <span class="ot">&lt;-</span> <span class="fu">build_causal_bundle</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y, <span class="at">X =</span> X, <span class="at">T =</span> T,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="fu">c</span>(<span class="st">"lognormal"</span>, <span class="st">"gamma"</span>),      <span class="co"># treated, control</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="fu">c</span>(<span class="st">"sb"</span>, <span class="st">"sb"</span>),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">TRUE</span>),</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="fu">c</span>(<span class="dv">6</span>, <span class="dv">6</span>),</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">PS =</span> <span class="st">"probit"</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="mcmc-sampling" class="level2">
-<h2 class="anchored" data-anchor-id="mcmc-sampling">MCMC Sampling</h2>
+<section id="arm-specific-priors-and-link-specifications-via-param_specs" class="level3">
+<h3 class="anchored" data-anchor-id="arm-specific-priors-and-link-specifications-via-param_specs">Arm-specific priors and link specifications via <code>param_specs</code></h3>
+<p><code>param_specs</code> works the same way as in <code>build_nimble_bundle()</code>, but you may pass either:</p>
+<ul>
+<li>one list (used for both arms), or</li>
+<li>a list with <code>con</code> and <code>trt</code> entries to override each arm separately.</li>
+</ul>
+<p>For example, to let the bulk location depend on (X) in both arms (conditional outcome distributions), you can use link mode (see the conditional vignette for full details):</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">run_mcmc_causal</span>(bundle, <span class="at">show_progress =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>param_specs <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">bulk =</span> <span class="fu">list</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">meanlog =</span> <span class="fu">list</span>(</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">mode =</span> <span class="st">"link"</span>,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">link =</span> <span class="st">"identity"</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">beta_prior =</span> <span class="fu">list</span>(<span class="at">dist =</span> <span class="st">"normal"</span>, <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="dv">2</span>))</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">sdlog =</span> <span class="fu">list</span>(</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">mode =</span> <span class="st">"dist"</span>,</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">dist =</span> <span class="st">"invgamma"</span>,</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>      <span class="at">args =</span> <span class="fu">list</span>(<span class="at">shape =</span> <span class="dv">2</span>, <span class="at">scale =</span> <span class="dv">1</span>)</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">gpd =</span> <span class="fu">list</span>(</span>
+<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">tail_scale =</span> <span class="fu">list</span>(</span>
+<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>      <span class="at">mode =</span> <span class="st">"dist"</span>,</span>
+<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>      <span class="at">dist =</span> <span class="st">"gamma"</span>,</span>
+<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">args =</span> <span class="fu">list</span>(<span class="at">shape =</span> <span class="dv">2</span>, <span class="at">rate =</span> <span class="dv">1</span>)</span>
+<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">tail_shape =</span> <span class="fu">list</span>(</span>
+<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">mode =</span> <span class="st">"dist"</span>,</span>
+<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>      <span class="at">dist =</span> <span class="st">"normal"</span>,</span>
+<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>      <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="fl">0.25</span>)</span>
+<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>cb3 <span class="ot">&lt;-</span> <span class="fu">build_causal_bundle</span>(</span>
+<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y, <span class="at">X =</span> X, <span class="at">T =</span> T,</span>
+<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
+<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"lognormal"</span>,</span>
+<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">6</span>,</span>
+<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>  <span class="at">PS =</span> <span class="st">"logit"</span>,</span>
+<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>  <span class="at">param_specs =</span> param_specs</span>
+<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+</section>
+<section id="run-mcmc" class="level1">
+<h1>Run MCMC</h1>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">run_mcmc_causal</span>(cb, <span class="at">show_progress =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Defining model</code></pre>
 </div>
@@ -457,11 +558,20 @@ n (control) = 19 | n (treated) = 13 </code></pre>
 <div class="cell-output cell-output-stderr">
 <pre><code>Checking model calculations</code></pre>
 </div>
+<div class="cell-output cell-output-stdout">
+<pre><code>===== Monitors =====
+thin = 1: beta
+===== Samplers =====
+RW sampler (3)
+  - beta[]  (3 elements)</code></pre>
+</div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Compiling
   [Note] This may take a minute.
-  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
-Compiling
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling
   [Note] This may take a minute.
   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</code></pre>
 </div>
@@ -472,7 +582,7 @@ Compiling
 <pre><code>Defining model</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>  [Note] Registering 'dNormGpd' as a distribution based on its use in BUGS code. If you make changes to the nimbleFunctions for the distribution, you must call 'deregisterDistributions' before using the distribution in BUGS code for those changes to take effect.</code></pre>
+<pre><code>  [Note] Registering 'dLognormalGpd' as a distribution based on its use in BUGS code. If you make changes to the nimbleFunctions for the distribution, you must call 'deregisterDistributions' before using the distribution in BUGS code for those changes to take effect.</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Building model</code></pre>
@@ -491,11 +601,32 @@ Compiling
 <div class="cell-output cell-output-stderr">
 <pre><code>Checking model calculations</code></pre>
 </div>
+<div class="cell-output cell-output-stdout">
+<pre><code>===== Monitors =====
+thin = 1: alpha, beta_meanlog, beta_ps_meanlog, beta_tail_scale, beta_threshold, sdlog, sdlog_u, tail_shape, threshold, w, z
+===== Samplers =====
+RW sampler (195)
+  - alpha
+  - sdlog[]  (6 elements)
+  - beta_meanlog[]  (12 elements)
+  - beta_ps_meanlog[]  (6 elements)
+  - sdlog_u
+  - beta_tail_scale[]  (2 elements)
+  - tail_shape
+  - v[]  (5 elements)
+  - threshold[]  (161 elements)
+conjugate sampler (2)
+  - beta_threshold[]  (2 elements)
+categorical sampler (161)
+  - z[]  (161 elements)</code></pre>
+</div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Compiling
   [Note] This may take a minute.
-  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
-Compiling
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling
   [Note] This may take a minute.
   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</code></pre>
 </div>
@@ -533,11 +664,32 @@ Compiling
 <div class="cell-output cell-output-stderr">
 <pre><code>Checking model calculations</code></pre>
 </div>
+<div class="cell-output cell-output-stdout">
+<pre><code>===== Monitors =====
+thin = 1: alpha, beta_meanlog, beta_ps_meanlog, beta_tail_scale, beta_threshold, sdlog, sdlog_u, tail_shape, threshold, w, z
+===== Samplers =====
+RW sampler (123)
+  - alpha
+  - sdlog[]  (6 elements)
+  - beta_meanlog[]  (12 elements)
+  - beta_ps_meanlog[]  (6 elements)
+  - sdlog_u
+  - beta_tail_scale[]  (2 elements)
+  - tail_shape
+  - v[]  (5 elements)
+  - threshold[]  (89 elements)
+conjugate sampler (2)
+  - beta_threshold[]  (2 elements)
+categorical sampler (89)
+  - z[]  (89 elements)</code></pre>
+</div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Compiling
   [Note] This may take a minute.
-  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
-Compiling
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling
   [Note] This may take a minute.
   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</code></pre>
 </div>
@@ -555,448 +707,1035 @@ Compiling
 <div class="cell-output cell-output-stderr">
 <pre><code>Calculating WAIC.</code></pre>
 </div>
-</div>
-</section>
-<section id="average-treatment-effect-ate" class="level2">
-<h2 class="anchored" data-anchor-id="average-treatment-effect-ate">Average Treatment Effect (ATE)</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>ate_result <span class="ot">&lt;-</span> <span class="fu">ate</span>(fit, <span class="at">interval =</span> <span class="st">"hpd"</span>, <span class="at">nsim_mean =</span> <span class="dv">100</span>)</span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(ate_result)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>fit</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>ATE (Average Treatment Effect)
-  Prediction points: 32
-  Conditional (covariates): YES
-  Propensity score used: YES
-  PS scale: logit
-  Posterior mean draws: 100
-  Credible interval: hpd
-
-ATE estimates (treated - control):
-&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
- &lt;thead&gt;
-  &lt;tr&gt;
-   &lt;th style="text-align:center;"&gt; id &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; estimate &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; lower &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; upper &lt;/th&gt;
-  &lt;/tr&gt;
- &lt;/thead&gt;
-&lt;tbody&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2.088 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; -0.678 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 5.515 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 1.979 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; -1.118 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 4.931 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 13.789 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; -1.113 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 10.744 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2810.025 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; -2.466 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 1.915e+04 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 5 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 9.068e+08 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; -4.631 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 5.702 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 6 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; -3.165e+12 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; -1.344 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 1.111e+04 &lt;/td&gt;
-  &lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;... (26 more rows)</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>X_new <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">wt =</span> <span class="fu">seq</span>(<span class="fu">min</span>(X<span class="sc">$</span>wt), <span class="fu">max</span>(X<span class="sc">$</span>wt), <span class="at">length.out =</span> <span class="dv">20</span>),</span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">hp =</span> stats<span class="sc">::</span><span class="fu">median</span>(X<span class="sc">$</span>hp),</span>
-<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">qsec =</span> stats<span class="sc">::</span><span class="fu">median</span>(X<span class="sc">$</span>qsec),</span>
-<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">cyl =</span> stats<span class="sc">::</span><span class="fu">median</span>(X<span class="sc">$</span>cyl)</span>
-<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>ate_grid <span class="ot">&lt;-</span> <span class="fu">ate</span>(fit, <span class="at">newdata =</span> X_new, <span class="at">interval =</span> <span class="st">"hpd"</span>, <span class="at">nsim_mean =</span> <span class="dv">100</span>, <span class="at">level =</span> <span class="fl">0.90</span>)</span>
-<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(ate_grid)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>ATE (Average Treatment Effect)
-  Prediction points: 20
-  Conditional (covariates): YES
-  Propensity score used: YES
-  PS scale: logit
-  Posterior mean draws: 100
-  Credible interval: hpd
-
-ATE estimates (treated - control):
-&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
- &lt;thead&gt;
-  &lt;tr&gt;
-   &lt;th style="text-align:center;"&gt; id &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; estimate &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; lower &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; upper &lt;/th&gt;
-  &lt;/tr&gt;
- &lt;/thead&gt;
-&lt;tbody&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 5.124 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2.712 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 8.3 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 5417.535 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 1.988 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 8.134 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 3.998 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; -0.113 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 6.41 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 3.483 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.602 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 7.067 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 5 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 3.103 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; -0.143 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 6.11 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 6 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2.537e+04 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.064 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 5.817 &lt;/td&gt;
-  &lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;... (14 more rows)</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(ate_grid)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>ATE Summary
-================================================== 
-Prediction points: 20
-Conditional: YES | PS used: YES
-Posterior mean draws: 100
-Interval: hpd
-
-Model specification:
-  Backend (trt/con): sb / sb
-  Kernel (trt/con): normal / normal
-  GPD tail (trt/con): YES / YES
-
-ATE statistics:
-  Mean: -1.189e+16 | Median: 5194.159
-  Range: [-2.359e+17, 1.613e+06]
-  SD: 5.272e+16
-
-Credible interval width:
-  Mean: 3.498e+06 | Median: 6.907
-  Range: [5.111, 2.089e+07]</code></pre>
+<pre><code>DPmixGPD causal fit
+PS model: Bayesian logit (T | X) 
+Outcome (treated): backend = sb | kernel = lognormal 
+Outcome (control): backend = sb | kernel = lognormal 
+GPD tail (treated/control): TRUE / TRUE </code></pre>
 </div>
 </div>
-<section id="ate-visualization" class="level3">
-<h3 class="anchored" data-anchor-id="ate-visualization">ATE Visualization</h3>
-<p>The <code>plot()</code> method for ATE objects supports multiple visualization types:</p>
+<p>The result is a <code>dpmixgpd_causal_fit</code> containing:</p>
 <ul>
-<li><code>type = "both"</code> (default): Returns a list with <code>trt_control</code> and <code>treatment_effect</code> plots</li>
-<li><code>type = "effect"</code>: Treatment effect curve with credible intervals</li>
-<li><code>type = "arms"</code>: Treated vs control mean outcomes</li>
+<li><code>ps_fit</code> (if enabled),</li>
+<li><code>outcome_fit$con</code> and <code>outcome_fit$trt</code> (two <code>mixgpd_fit</code> objects),</li>
+<li>and metadata needed for downstream ATE/QTE computations.</li>
 </ul>
+</section>
+<section id="estimating-qte-and-ate" class="level1">
+<h1>Estimating QTE and ATE</h1>
+<section id="quantile-treatment-effects-qte" class="level2">
+<h2 class="anchored" data-anchor-id="quantile-treatment-effects-qte">Quantile treatment effects (QTE)</h2>
+<p>DPmixGPD computes QTE by:</p>
+<ol type="1">
+<li>predicting (Q_1()) from the treated outcome model,</li>
+<li>predicting (Q_0()) from the control outcome model,</li>
+<li>subtracting draw-by-draw across posterior samples to obtain a posterior for the difference.</li>
+</ol>
+<p>This is aligned with classical quantile treatment effect definitions <span class="citation" data-cites="firpo2007">(<a href="#ref-firpo2007" role="doc-biblioref">Firpo 2007</a>)</span> and the broader quantile regression literature <span class="citation" data-cites="koenker1978">(<a href="#ref-koenker1978" role="doc-biblioref">Koenker and Bassett 1978</a>)</span>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>ate_plots <span class="ot">&lt;-</span> <span class="fu">plot</span>(ate_grid)</span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>ate_plots<span class="sc">$</span>treatment_effect</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div class="plotly html-widget html-fill-item" id="htmlwidget-9e608866e90cffdb1018" style="width:100%;height:464px;"></div>
-<script type="application/json" data-for="htmlwidget-9e608866e90cffdb1018">{"x":{"data":[{"x":[0.0051791428283115351,0.0074228417246358213,0.010672937909719203,0.015396804774363648,0.02228407916551407,0.032350172763582284,0.047078630279825423,0.068596728860894435,0.099832613686658647,0.1444814564207996,0.2063951482350449,0.28791695023308367,0.38735415638742443,0.49739374749423682,0.60677609317873049,0.7048545487257154,0.78547629905491856,0.84754886500293602,0.89322648923070369,0.92586594975922176],"y":[-2.3587293467779718e+17,-1466387841953106.5,-215273475813083,-276799707022072.41,1613100.54765448,844621.50656027149,609647.94954499172,246685.49666266673,96403.494206922318,85088.563241198659,64167.601602811832,4970.7825227709172,6590.5160560936629,1810.3492039157018,25369.820674628685,3.1026287271330717,3.4833505870513726,3.9982849245971384,5417.5347012835146,5.1241505829181282],"text":["x: 0.00518<br />estimate: -2.36e+17","x: 0.00742<br />estimate: -1.47e+15","x: 0.01067<br />estimate: -2.15e+14","x: 0.01540<br />estimate: -2.77e+14","x: 0.02228<br />estimate:  1.61e+06","x: 0.03235<br />estimate:  8.45e+05","x: 0.04708<br />estimate:  6.10e+05","x: 0.06860<br />estimate:  2.47e+05","x: 0.09983<br />estimate:  9.64e+04","x: 0.14448<br />estimate:  8.51e+04","x: 0.20640<br />estimate:  6.42e+04","x: 0.28792<br />estimate:  4.97e+03","x: 0.38735<br />estimate:  6.59e+03","x: 0.49739<br />estimate:  1.81e+03","x: 0.60678<br />estimate:  2.54e+04","x: 0.70485<br />estimate:  3.10e+00","x: 0.78548<br />estimate:  3.48e+00","x: 0.84755<br />estimate:  4.00e+00","x: 0.89323<br />estimate:  5.42e+03","x: 0.92587<br />estimate:  5.12e+00"],"type":"scatter","mode":"lines","line":{"width":3.0236220472440949,"color":"rgba(0,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.92586594975922176,0.89322648923070369,0.84754886500293602,0.78547629905491856,0.7048545487257154,0.60677609317873049,0.49739374749423682,0.38735415638742443,0.28791695023308367,0.2063951482350449,0.1444814564207996,0.099832613686658647,0.068596728860894435,0.047078630279825423,0.032350172763582284,0.02228407916551407,0.015396804774363648,0.010672937909719203,0.0074228417246358213,0.0051791428283115351],"y":[5.1241505829181282,5417.5347012835146,3.9982849245971384,3.4833505870513726,3.1026287271330717,25369.820674628685,1810.3492039157018,6590.5160560936629,4970.7825227709172,64167.601602811832,85088.563241198659,96403.494206922318,246685.49666266673,609647.94954499172,844621.50656027149,1613100.54765448,-276799707022072.41,-215273475813083,-1466387841953106.5,-2.3587293467779718e+17],"text":["x: 0.92587<br />estimate:  5.12e+00","x: 0.89323<br />estimate:  5.42e+03","x: 0.84755<br />estimate:  4.00e+00","x: 0.78548<br />estimate:  3.48e+00","x: 0.70485<br />estimate:  3.10e+00","x: 0.60678<br />estimate:  2.54e+04","x: 0.49739<br />estimate:  1.81e+03","x: 0.38735<br />estimate:  6.59e+03","x: 0.28792<br />estimate:  4.97e+03","x: 0.20640<br />estimate:  6.42e+04","x: 0.14448<br />estimate:  8.51e+04","x: 0.09983<br />estimate:  9.64e+04","x: 0.06860<br />estimate:  2.47e+05","x: 0.04708<br />estimate:  6.10e+05","x: 0.03235<br />estimate:  8.45e+05","x: 0.02228<br />estimate:  1.61e+06","x: 0.01540<br />estimate: -2.77e+14","x: 0.01067<br />estimate: -2.15e+14","x: 0.00742<br />estimate: -1.47e+15","x: 0.00518<br />estimate: -2.36e+17"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,0,0,1)","opacity":1,"size":7.559055118110237,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(0,0,0,1)"}},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[-0.040855197518233979,0.97190029010576728],"y":[0,0],"text":"yintercept: 0","type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"rgba(127,127,127,1)","dash":"dash"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.0051791428283115351,0.0074228417246358213,0.010672937909719203,0.015396804774363648,0.02228407916551407,0.032350172763582284,0.047078630279825423,0.068596728860894435,0.099832613686658647,0.1444814564207996,0.2063951482350449,0.28791695023308367,0.38735415638742443,0.49739374749423682,0.60677609317873049,0.7048545487257154,0.78547629905491856,0.84754886500293602,0.89322648923070369,0.92586594975922176,0.92586594975922176,0.92586594975922176,0.89322648923070369,0.84754886500293602,0.78547629905491856,0.7048545487257154,0.60677609317873049,0.49739374749423682,0.38735415638742443,0.28791695023308367,0.2063951482350449,0.1444814564207996,0.099832613686658647,0.068596728860894435,0.047078630279825423,0.032350172763582284,0.02228407916551407,0.015396804774363648,0.010672937909719203,0.0074228417246358213,0.0051791428283115351,0.0051791428283115351],"y":[-44068.017976383569,-8.0023725712191656,-7.2986292384116922,-6.3154482990541041,-5.8259387796385482,-5.8107733179803027,-3.9795730547299719,-3.0558442309032792,-2.0810088079743387,-1.9723629192261853,-0.92300343347140412,-0.15571967225059069,0.24700199730092365,-0.32803159372820545,0.064442814226708833,-0.14319403170689782,0.60161495579502855,-0.11322181787943464,1.987802095324124,2.7124318021466607,2.7124318021466607,8.2997014254934083,8.1336069157934556,6.4095262383499954,7.0670034450886341,6.109915452931137,5.8174931853452456,5.70750755395688,5.3581061921303466,5.6907143109156202,4.9530616221702886,5.3181299968465829,6.2656232917716501,535798.96357466164,2052677.3850838142,2001658.1989651246,4213091.4369353224,6445470.0957659949,13911989.134918991,19911631.00203165,20847776.748387717,-44068.017976383569],"text":["x: 0.00518<br />estimate: -2.36e+17<br />lower: -4.41e+04<br />upper: 2.08e+07","x: 0.00742<br />estimate: -1.47e+15<br />lower: -8.00e+00<br />upper: 1.99e+07","x: 0.01067<br />estimate: -2.15e+14<br />lower: -7.30e+00<br />upper: 1.39e+07","x: 0.01540<br />estimate: -2.77e+14<br />lower: -6.32e+00<br />upper: 6.45e+06","x: 0.02228<br />estimate:  1.61e+06<br />lower: -5.83e+00<br />upper: 4.21e+06","x: 0.03235<br />estimate:  8.45e+05<br />lower: -5.81e+00<br />upper: 2.00e+06","x: 0.04708<br />estimate:  6.10e+05<br />lower: -3.98e+00<br />upper: 2.05e+06","x: 0.06860<br />estimate:  2.47e+05<br />lower: -3.06e+00<br />upper: 5.36e+05","x: 0.09983<br />estimate:  9.64e+04<br />lower: -2.08e+00<br />upper: 6.27e+00","x: 0.14448<br />estimate:  8.51e+04<br />lower: -1.97e+00<br />upper: 5.32e+00","x: 0.20640<br />estimate:  6.42e+04<br />lower: -9.23e-01<br />upper: 4.95e+00","x: 0.28792<br />estimate:  4.97e+03<br />lower: -1.56e-01<br />upper: 5.69e+00","x: 0.38735<br />estimate:  6.59e+03<br />lower:  2.47e-01<br />upper: 5.36e+00","x: 0.49739<br />estimate:  1.81e+03<br />lower: -3.28e-01<br />upper: 5.71e+00","x: 0.60678<br />estimate:  2.54e+04<br />lower:  6.44e-02<br />upper: 5.82e+00","x: 0.70485<br />estimate:  3.10e+00<br />lower: -1.43e-01<br />upper: 6.11e+00","x: 0.78548<br />estimate:  3.48e+00<br />lower:  6.02e-01<br />upper: 7.07e+00","x: 0.84755<br />estimate:  4.00e+00<br />lower: -1.13e-01<br />upper: 6.41e+00","x: 0.89323<br />estimate:  5.42e+03<br />lower:  1.99e+00<br />upper: 8.13e+00","x: 0.92587<br />estimate:  5.12e+00<br />lower:  2.71e+00<br />upper: 8.30e+00","x: 0.92587<br />estimate:  5.12e+00<br />lower:  2.71e+00<br />upper: 8.30e+00","x: 0.92587<br />estimate:  5.12e+00<br />lower:  2.71e+00<br />upper: 8.30e+00","x: 0.89323<br />estimate:  5.42e+03<br />lower:  1.99e+00<br />upper: 8.13e+00","x: 0.84755<br />estimate:  4.00e+00<br />lower: -1.13e-01<br />upper: 6.41e+00","x: 0.78548<br />estimate:  3.48e+00<br />lower:  6.02e-01<br />upper: 7.07e+00","x: 0.70485<br />estimate:  3.10e+00<br />lower: -1.43e-01<br />upper: 6.11e+00","x: 0.60678<br />estimate:  2.54e+04<br />lower:  6.44e-02<br />upper: 5.82e+00","x: 0.49739<br />estimate:  1.81e+03<br />lower: -3.28e-01<br />upper: 5.71e+00","x: 0.38735<br />estimate:  6.59e+03<br />lower:  2.47e-01<br />upper: 5.36e+00","x: 0.28792<br />estimate:  4.97e+03<br />lower: -1.56e-01<br />upper: 5.69e+00","x: 0.20640<br />estimate:  6.42e+04<br />lower: -9.23e-01<br />upper: 4.95e+00","x: 0.14448<br />estimate:  8.51e+04<br />lower: -1.97e+00<br />upper: 5.32e+00","x: 0.09983<br />estimate:  9.64e+04<br />lower: -2.08e+00<br />upper: 6.27e+00","x: 0.06860<br />estimate:  2.47e+05<br />lower: -3.06e+00<br />upper: 5.36e+05","x: 0.04708<br />estimate:  6.10e+05<br />lower: -3.98e+00<br />upper: 2.05e+06","x: 0.03235<br />estimate:  8.45e+05<br />lower: -5.81e+00<br />upper: 2.00e+06","x: 0.02228<br />estimate:  1.61e+06<br />lower: -5.83e+00<br />upper: 4.21e+06","x: 0.01540<br />estimate: -2.77e+14<br />lower: -6.32e+00<br />upper: 6.45e+06","x: 0.01067<br />estimate: -2.15e+14<br />lower: -7.30e+00<br />upper: 1.39e+07","x: 0.00742<br />estimate: -1.47e+15<br />lower: -8.00e+00<br />upper: 1.99e+07","x: 0.00518<br />estimate: -2.36e+17<br />lower: -4.41e+04<br />upper: 2.08e+07","x: 0.00518<br />estimate: -2.36e+17<br />lower: -4.41e+04<br />upper: 2.08e+07"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"transparent","dash":"solid"},"fill":"toself","fillcolor":"rgba(86,180,233,0.2)","hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":43.098381070983812,"r":7.9701120797011216,"b":40.647571606475722,"l":78.904109589041127},"paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":15.940224159402243},"title":{"text":"<b> ATE <\/b>","font":{"color":"rgba(0,0,0,1)","family":"","size":19.128268991282692},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.040855197518233979,0.97190029010576728],"tickmode":"array","ticktext":["0.00","0.25","0.50","0.75"],"tickvals":[0,0.25,0.5,0.75],"categoryorder":"array","categoryarray":["0.00","0.25","0.50","0.75"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.9850560398505608,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":12.7521793275218},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.72455564360919278,"zeroline":false,"anchor":"y","title":{"text":"Estimated PS","font":{"color":"rgba(0,0,0,1)","family":"","size":15.940224159402243}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-2.4766658141272944e+17,11793646755780024],"tickmode":"array","ticktext":["-2.0e+17","-1.5e+17","-1.0e+17","-5.0e+16","0.0e+00"],"tickvals":[-2e+17,-1.5e+17,-1e+17,-50000000000000000,0],"categoryorder":"array","categoryarray":["-2.0e+17","-1.5e+17","-1.0e+17","-5.0e+16","0.0e+00"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.9850560398505608,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":12.7521793275218},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.72455564360919278,"zeroline":false,"anchor":"x","title":{"text":"Average Treatment Effect","font":{"color":"rgba(0,0,0,1)","family":"","size":15.940224159402243}},"hoverformat":".2f"},"shapes":[],"showlegend":false,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":12.7521793275218},"orientation":"h","x":0.5,"y":1.02,"xanchor":"center","yanchor":"bottom"},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"b810448559ea":{"x":{},"y":{},"type":"scatter"},"b8107a902190":{"x":{},"y":{}},"b8104f64645a":{"yintercept":{}},"b81075571139":{"x":{},"y":{},"ymin":{},"ymax":{}}},"cur_data":"b810448559ea","visdat":{"b810448559ea":["function (y) ","x"],"b8107a902190":["function (y) ","x"],"b8104f64645a":["function (y) ","x"],"b81075571139":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>q <span class="ot">&lt;-</span> <span class="fu">qte</span>(</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>  fit,</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>, <span class="fl">0.9</span>, <span class="fl">0.95</span>),</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">interval =</span> <span class="st">"credible"</span>,</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">level =</span> <span class="fl">0.95</span></span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>q<span class="sc">$</span>fit           <span class="co"># posterior mean QTE at each prob</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>          [,1]      [,2]     [,3]     [,4]     [,5]
+  [1,]  0.3283  0.195545  0.09624  0.01654 -0.01894
+  [2,]  0.7988  0.712463  0.71775  0.79991  0.94192
+  [3,]  1.1885  1.262287  1.34740  1.43419  1.62783
+  [4,] -0.3259 -0.478465 -0.70665 -1.08053 -1.30114
+  [5,] -0.0281 -0.076875 -0.14234 -0.39439 -0.69461
+  [6,]  0.7901  0.701205  0.70214  0.76691  0.89296
+  [7,]  1.0889  1.306153  1.61332  1.86571  2.06265
+  [8,] -0.1276 -0.201814 -0.30071 -0.55950 -0.83452
+  [9,]  0.6658  0.563578  0.57744  0.80944  1.11722
+ [10,]  0.7134  0.610882  0.58488  0.60387  0.66826
+ [11,]  0.8279  0.762064  0.81293  0.94280  1.12101
+ [12,]  1.2027  1.370790  1.64031  1.83041  2.02856
+ [13,] -0.1952 -0.293398 -0.42510 -0.70465 -0.97256
+ [14,] -0.3206 -0.471041 -0.69288 -1.05887 -1.28462
+ [15,]  1.1728  1.206575  1.21391  1.26698  1.45157
+ [16,] -0.1745 -0.335210 -0.58138 -0.88539 -1.00036
+ [17,]  0.8142  0.801904  0.90330  1.15520  1.43722
+ [18,]  0.7693  0.678849  0.66868  0.71940  0.81537
+ [19,]  1.2070  1.369163  1.63387  1.81704  2.01479
+ [20,]  0.8294  0.765412  0.81609  0.94795  1.12708
+ [21,]  0.6558  0.538966  0.53682  0.75695  1.06127
+ [22,] -0.3287 -0.482279 -0.71515 -1.09407 -1.31094
+ [23,]  1.1884  1.261847  1.34630  1.43273  1.62632
+ [24,]  0.6688  0.570376  0.58835  0.82329  1.13179
+ [25,]  0.0410  0.005077 -0.04817 -0.31628 -0.60925
+ [26,] -0.2845 -0.412114 -0.68674 -1.10248 -1.27041
+ [27,]  0.7313  0.887946  1.17760  1.45380  1.62995
+ [28,]  0.4898  0.360700  0.29562  0.23673  0.22173
+ [29,]  1.1425  1.347739  1.64389  1.87862  2.07649
+ [30,]  0.8138  0.730518  0.75770  0.87670  1.04167
+ [31,]  1.1114  1.325428  1.62794  1.87480  2.07186
+ [32,]  0.8175  0.736084  0.77255  0.89646  1.06341
+ [33,]  0.7924  0.770933  0.86097  1.12029  1.41326
+ [34,] -0.1497 -0.231018 -0.33959 -0.60328 -0.87582
+ [35,]  0.3924  0.261050  0.17611  0.10798  0.07435
+ [36,]  0.4903  0.361214  0.29628  0.23737  0.22258
+ [37,] -0.0319 -0.198094 -0.40532 -0.63312 -0.72421
+ [38,] -0.3084 -0.453687 -0.66285 -1.01602 -1.24984
+ [39,] -0.2473 -0.366736 -0.52976 -0.83721 -1.09662
+ [40,]  0.6681  0.558985  0.52414  0.51908  0.56487
+ [41,] -0.1918 -0.288629 -0.41843 -0.69656 -0.96469
+ [42,] -0.0999 -0.264981 -0.48998 -0.74934 -0.85050
+ [43,] -0.3011 -0.443255 -0.64607 -0.99245 -1.23020
+ [44,]  0.6741  0.581967  0.60662  0.84620  1.15572
+ [45,]  0.8298  0.781731  0.84097  1.01423  1.23635
+ [46,]  1.1557  1.120274  1.05232  1.06465  1.23182
+ [47,] -0.1595 -0.244252 -0.35740 -0.62391 -0.89522
+ [48,]  0.7311  0.631271  0.61150  0.63868  0.71611
+ [49,]  0.6953  0.589692  0.55996  0.57010  0.62543
+ [50,]  0.1705  0.021067 -0.11389 -0.24430 -0.28732
+ [51,]  0.3594  0.227754  0.13491  0.06157  0.02850
+ [52,]  1.1497  1.087427  0.99065  0.98486  1.14349
+ [53,] -0.2481 -0.367905 -0.53146 -0.83942 -1.09862
+ [54,]  0.7576  0.724233  0.80279  1.06545  1.36712
+ [55,]  0.2489  0.108317 -0.00556 -0.10727 -0.14028
+ [56,] -0.1016 -0.266756 -0.49222 -0.75258 -0.85402
+ [57,] -0.1672 -0.254741 -0.37162 -0.64072 -0.91090
+ [58,]  0.8123  0.799200  0.89759  1.15192  1.43726
+ [59,]  0.7813  0.755842  0.84217  1.10306  1.39906
+ [60,]  0.7012  0.634706  0.68423  0.93912  1.24975
+ [61,] -0.0512 -0.216222 -0.42861 -0.66469 -0.75840
+ [62,]  1.1525  1.102805  1.01955  1.02245  1.18521
+ [63,]  0.4331  0.301119  0.22497  0.15844  0.12955
+ [64,]  0.2013  0.185429  0.11635 -0.14694 -0.34671
+ [65,]  0.8344  0.775761  0.82762  0.96827  1.16361
+ [66,] -0.2982 -0.439083 -0.63951 -0.98308 -1.22257
+ [67,] -0.3125 -0.454465 -0.72107 -1.13012 -1.31309
+ [68,]  0.5498  0.430212  0.37596  0.33028  0.33061
+ [69,]  0.7806  0.690800  0.68728  0.74248  0.85009
+ [70,] -0.3076 -0.452563 -0.66101 -1.01343 -1.24769
+ [71,]  0.3154  0.181856  0.08009 -0.00303 -0.03771
+ [72,]  0.8189  0.738686  0.77792  0.90332  1.07104
+ [73,]  0.7123  0.609558  0.58308  0.60182  0.66540
+ [74,]  0.8296  0.765976  0.81659  0.94878  1.12808
+ [75,]  0.7436  0.647032  0.62938  0.66567  0.74962
+ [76,]  0.3229  0.189813  0.08939  0.00835 -0.02673
+ [77,]  0.7532  0.717952  0.79487  1.05763  1.36029
+ [78,]  1.1315  1.340506  1.63927  1.87861  2.07612
+ [79,]  1.2101  1.366186  1.62242  1.79806  1.99528
+ [80,] -0.3317 -0.485686 -0.73101 -1.12207 -1.32817
+ [81,]  1.2048  1.370154  1.63759  1.82439  2.02256
+ [82,] -0.3261 -0.475975 -0.73313 -1.13555 -1.32919
+ [83,]  0.5220  0.398022  0.33964  0.28669  0.28049
+ [84,]  0.0928 -0.065654 -0.22521 -0.38450 -0.45214
+ [85,] -0.1551 -0.318426 -0.55966 -0.85168 -0.96335
+ [86,]  0.6832  0.600382  0.63476  0.88075  1.19129
+ [87,] -0.2694 -0.398101 -0.57603 -0.89779 -1.15080
+ [88,] -0.1499 -0.231349 -0.34003 -0.60378 -0.87630
+ [89,]  0.5977  0.483882  0.43706  0.40260  0.42312
+ [90,]  0.8249  0.754250  0.80390  0.92993  1.10550
+ [91,]  1.1876  1.259200  1.33972  1.42395  1.61720
+ [92,]  1.1812  1.238592  1.28575  1.35626  1.54635
+ [93,]  0.1780  0.029452 -0.10312 -0.23008 -0.27138
+ [94,] -0.3316 -0.485842 -0.72818 -1.11676 -1.32559
+ [95,] -0.3308 -0.483769 -0.73431 -1.12972 -1.33086
+ [96,]  0.1446 -0.007764 -0.15042 -0.29214 -0.34274
+ [97,]  1.1583  1.133976  1.07764  1.09695  1.26732
+ [98,]  0.0434  0.007879 -0.04511 -0.31382 -0.60643
+ [99,] -0.3012 -0.443424 -0.64634 -0.99283 -1.23051
+[100,] -0.2577 -0.381550 -0.55145 -0.86540 -1.12198
+[101,]  1.2107  1.364179  1.61481  1.78659  1.98387
+[102,]  0.3391  0.332629  0.28798  0.16686  0.15972
+[103,] -0.1634 -0.249564 -0.36459 -0.63237 -0.90310
+[104,] -0.2875 -0.423801 -0.61524 -0.95015 -1.19551
+[105,]  0.3467  0.214988  0.11895  0.04406  0.00906
+[106,]  1.1512  1.095435  1.00575  1.00454  1.16536
+[107,]  1.1948  1.371332  1.64669  1.84591  2.04479
+[108,]  1.1543  1.112560  1.03794  1.04619  1.21146
+[109,]  0.5796  0.464001  0.41497  0.37541  0.38701
+[110,]  0.6172  0.504206  0.46000  0.43439  0.45969
+[111,]  0.2595  0.120175  0.00843 -0.09024 -0.12303
+[112,] -0.1332 -0.209127 -0.31041 -0.57023 -0.84460
+[113,]  0.8328  0.772351  0.82335  0.95859  1.14493
+[114,]  1.2037  1.315387  1.47909  1.60873  1.80558
+[115,]  0.8333  0.779779  0.83223  0.99194  1.20276
+[116,]  0.6843  0.819433  1.09404  1.36066  1.53475
+[117,]  0.7649  0.734271  0.81555  1.07787  1.37782
+[118,]  0.7798  0.753942  0.83984  1.10088  1.39725
+[119,]  0.1415  0.119484  0.06284 -0.22607 -0.46811
+[120,]  0.3888  0.257395  0.17173  0.10317  0.06970
+[121,]  0.7632  0.731963  0.81262  1.07504  1.37539
+[122,]  0.7912  0.702693  0.70405  0.76986  0.89929
+[123,]  1.1788  1.230326  1.26501  1.33077  1.51943
+[124,] -0.2088 -0.312381 -0.45183 -0.73773 -1.00418
+[125,] -0.3209 -0.471486 -0.69366 -1.06008 -1.28557
+[126,]  0.8593  1.053451  1.37614  1.65084  1.83543
+[127,] -0.2728 -0.402845 -0.58315 -0.90730 -1.15908
+[128,]  0.8284  0.782312  0.84371  1.01956  1.25006
+[129,] -0.3251 -0.474362 -0.73253 -1.13573 -1.32830
+[130,] -0.3244 -0.473257 -0.73208 -1.13576 -1.32764
+[131,]  0.8239  0.784153  0.84890  1.04984  1.30815
+[132,]  0.4494  0.460789  0.50014  0.61441  0.72392
+[133,]  0.8143  0.801456  0.90324  1.15482  1.43640
+[134,] -0.1135 -0.278988 -0.50808 -0.77597 -0.87935
+[135,]  0.7680  0.738463  0.82081  1.08292  1.38213
+[136,]  0.7701  0.741260  0.82429  1.08624  1.38494
+[137,]  0.7998  0.781165  0.87395  1.13192  1.42261
+[138,]  1.1395  1.345817  1.64273  1.87880  2.07654
+[139,]  1.1461  1.068373  0.95392  0.93671  1.08978
+[140,] -0.3315 -0.485116 -0.73294 -1.12586 -1.32970
+[141,] -0.2534 -0.375363 -0.54236 -0.85357 -1.11139
+[142,]  0.8271  0.760096  0.81095  0.93968  1.11740
+[143,]  0.3761  0.244589  0.15624  0.08516  0.05261
+[144,]  0.1189  0.094173  0.04166 -0.24726 -0.50612
+[145,]  0.8197  0.785823  0.86364  1.10148  1.37633
+[146,]  0.4600  0.328030  0.25693  0.19426  0.17229
+[147,]  0.8267  0.783148  0.84586  1.02854  1.26993
+[148,]  0.8339  0.779063  0.83134  0.98473  1.19435
+[149,]  0.3763  0.244726  0.15640  0.08535  0.05280
+[150,] -0.3174 -0.466528 -0.68498 -1.04704 -1.27524
+[151,]  0.8084  0.792906  0.88908  1.14502  1.43264
+[152,] -0.0880 -0.150899 -0.23443 -0.48747 -0.77154
+[153,]  0.8216  0.785166  0.85676  1.07820  1.35080
+[154,] -0.3015 -0.443759 -0.64687 -0.99360 -1.23112
+[155,]  0.7574  0.723879  0.80234  1.06501  1.36673
+[156,] -0.3315 -0.485774 -0.72722 -1.11499 -1.32465
+[157,]  0.8181  0.787453  0.87148  1.11697  1.39274
+[158,]  0.8323  0.771271  0.82200  0.95675  1.14177
+[159,]  0.3501  0.344813  0.30507  0.20518  0.21522
+[160,]  1.0515  1.272585  1.58569  1.84400  2.03993
+[161,]  0.8261  0.757325  0.80773  0.93483  1.11185
+[162,]  0.4687  0.336924  0.26701  0.20587  0.18491
+[163,] -0.1418 -0.220474 -0.32551 -0.58722 -0.86071
+[164,]  0.8223  0.746465  0.79298  0.91867  1.08887
+[165,] -0.3312 -0.485477 -0.72519 -1.11124 -1.32247
+[166,] -0.3063 -0.450689 -0.65796 -1.00917 -1.24411
+[167,]  0.6570  0.542184  0.54222  0.76401  1.06886
+[168,] -0.3069 -0.445788 -0.71459 -1.12545 -1.30520
+[169,]  0.1514 -0.000211 -0.14081 -0.27918 -0.32859
+[170,]  1.2040  1.370419  1.63872  1.82676  2.02493
+[171,]  1.2110  1.362704  1.60957  1.77899  1.97626
+[172,]  1.1641  1.360597  1.64983  1.87298  2.07211
+[173,]  0.7744  0.684739  0.67727  0.72954  0.83073
+[174,]  0.4377  0.446319  0.47250  0.56499  0.66849
+[175,] -0.3086 -0.454013 -0.66339 -1.01677 -1.25047
+[176,]  0.4608  0.328872  0.25789  0.19537  0.17351
+[177,]  0.6608  0.551055  0.51486  0.50571  0.54992
+[178,]  0.3084  0.174219  0.07129 -0.01404 -0.04841
+[179,]  0.8153  0.793583  0.89605  1.14556  1.42430
+[180,] -0.3283 -0.479604 -0.73420 -1.13429 -1.33074
+[181,]  0.2579  0.118395  0.00631 -0.09276 -0.12561
+[182,] -0.3304 -0.484461 -0.72128 -1.10417 -1.31791
+[183,]  0.8255  0.755728  0.80574  0.93192  1.10853
+[184,] -0.3259 -0.478535 -0.70680 -1.08076 -1.30130
+[185,]  0.8721  1.069079  1.39332  1.66741  1.85242
+[186,]  1.2109  1.350736  1.57245  1.72884  1.92578
+[187,]  0.7666  0.675573  0.66438  0.71400  0.80770
+[188,]  0.8345  0.776322  0.82829  0.97086  1.17032
+[189,]  0.4598  0.327783  0.25665  0.19393  0.17193
+[190,]  0.8343  0.775578  0.82739  0.96766  1.16212
+[191,] -0.3306 -0.484718 -0.72212 -1.10567 -1.31890
+[192,] -0.0255 -0.073752 -0.13856 -0.39115 -0.69125
+[193,] -0.3315 -0.485787 -0.72736 -1.11525 -1.32479
+[194,] -0.1411 -0.219566 -0.32430 -0.58585 -0.85941
+[195,]  0.7904  0.768204  0.85756  1.11720  1.41074
+[196,]  1.0828  1.300843  1.60914  1.86266  2.05955
+[197,]  0.5685  0.451609  0.40080  0.35914  0.36545
+[198,]  0.3860  0.254582  0.16837  0.09929  0.06600
+[199,]  0.3496  0.217894  0.12242  0.04810  0.01350
+[200,]  0.4090  0.277660  0.19582  0.12922  0.09635
+[201,]  0.8148  0.732117  0.76188  0.88265  1.04819
+[202,]  0.2636  0.124769  0.01391 -0.08360 -0.11642
+[203,]  0.5875  0.313885  0.11238  0.15613  0.37846
+[204,]  0.8040  0.718266  0.72770  0.82289  0.97559
+[205,] -0.3148 -0.462780 -0.67825 -1.03766 -1.26771
+[206,]  0.5419  0.584567  0.76072  0.96269  1.11110
+[207,]  0.7199  0.618343  0.59499  0.61563  0.68542
+[208,] -0.1788 -0.270627 -0.39339 -0.66660 -0.93553
+[209,]  0.8313  0.781108  0.83730  1.00643  1.22221
+[210,]  0.2970  0.287425  0.22730  0.04428 -0.03940
+[211,]  0.8008  0.782465  0.87562  1.13339  1.42377
+[212,] -0.2379 -0.353500 -0.51059 -0.81254 -1.07392
+[213,]  1.1717  1.201565  1.20351  1.25422  1.43790
+[214,] -0.3316 -0.485419 -0.73216 -1.12424 -1.32909
+[215,]  0.7912  0.702653  0.70400  0.76977  0.89913
+[216,]  0.6747  0.804127  1.07531  1.33904  1.51281
+[217,]  0.7677  0.737959  0.82018  1.08232  1.38161
+[218,]  0.1131 -0.043515 -0.19604 -0.34815 -0.41317
+[219,]  0.2004  0.054242 -0.07216 -0.18903 -0.22665
+[220,]  1.1816  1.240032  1.28961  1.36098  1.55131
+[221,]  0.8260  0.757246  0.80763  0.93468  1.11168
+[222,]  0.8221  0.785086  0.85503  1.07148  1.34268
+[223,]  0.3835  0.252054  0.16533  0.09576  0.06266
+[224,]  1.1612  1.149382  1.10578  1.13252  1.30624
+[225,]  0.1032  0.076546  0.02536 -0.26029 -0.52959
+[226,]  0.8327  0.772000  0.82291  0.95787  1.14389
+[227,] -0.0351 -0.085394 -0.15267 -0.40372 -0.70366
+[228,]  0.8138  0.802164  0.90276  1.15532  1.43824
+[229,] -0.1880 -0.283364 -0.41109 -0.68773 -0.95607
+[230,]  1.1348  0.997779  0.82194  0.76292  0.89365
+[231,]  1.1896  1.265873  1.35640  1.44613  1.64021
+[232,] -0.0987 -0.263719 -0.48833 -0.74706 -0.84799
+[233,] -0.2620 -0.387527 -0.56026 -0.87694 -1.13232
+[234,]  0.7510  0.656213  0.64097  0.68166  0.76888
+[235,] -0.0306 -0.196818 -0.40368 -0.63091 -0.72186
+[236,] -0.3215 -0.472363 -0.69521 -1.06248 -1.28746
+[237,] -0.2503 -0.370955 -0.53591 -0.84520 -1.10385
+[238,]  0.8335  0.773682  0.82500  0.96203  1.14998
+[239,]  0.7832  0.693270  0.69114  0.74860  0.85901
+[240,] -0.2545 -0.377010 -0.54477 -0.85671 -1.11421
+[241,] -0.0292 -0.078241 -0.14399 -0.39581 -0.69608
+[242,]  1.0834  0.625402  0.12570 -0.22333 -0.26658
+[243,]  0.7750  0.747794  0.83231  1.09383  1.39135
+[244,]  0.8339  0.779047  0.83132  0.98459  1.19418
+[245,]  1.1356  1.343263  1.64109  1.87880  2.07643
+[246,] -0.2489 -0.368957 -0.53299 -0.84141 -1.10043
+[247,]  0.7846  0.694808  0.69332  0.75214  0.86467
+[248,]  0.8128  0.728943  0.75395  0.87065  1.03507
+[249,] -0.2231 -0.332570 -0.48051 -0.77447 -1.03834
+[250,] -0.2179 -0.325207 -0.47002 -0.76111 -1.02585</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>q<span class="sc">$</span>lower; q<span class="sc">$</span>upper</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           [,1]      [,2]      [,3]      [,4]     [,5]
+  [1,] -0.87273 -1.164213 -1.504818  -2.01359  -2.3554
+  [2,] -0.61355 -0.912790 -1.516934  -2.32365  -2.6592
+  [3,]  0.48271  0.256072 -0.109493  -1.75856  -2.9023
+  [4,] -0.45112 -0.645942 -1.349605  -1.99049  -2.3555
+  [5,] -0.18894 -0.114961 -0.319610  -0.93518  -1.3800
+  [6,] -0.64392 -0.946950 -1.520794  -2.33349  -2.6651
+  [7,]  0.26059  0.685748  0.813807   0.92128   0.9096
+  [8,] -0.27142 -0.296341 -0.489903  -1.09351  -1.5642
+  [9,]  0.00483 -0.591085 -1.791274  -3.24767  -3.9922
+ [10,] -0.76103 -1.076284 -1.506949  -2.30838  -2.6485
+ [11,] -0.43716 -0.715069 -1.466316  -2.22589  -2.5691
+ [12,]  0.80531  0.798931  0.715235   0.56155   0.2006
+ [13,] -0.32544 -0.411787 -0.677697  -1.36349  -1.8039
+ [14,] -0.44316 -0.636740 -1.309491  -1.95836  -2.3309
+ [15,]  0.34957  0.115450 -0.743522  -3.07821  -4.2441
+ [16,] -0.76107 -1.044185 -1.607636  -2.04243  -2.2287
+ [17,]  0.21033  0.267045 -0.000778  -0.30604  -0.3249
+ [18,] -0.69269 -1.001515 -1.521846  -2.32928  -2.6675
+ [19,]  0.81735  0.770755  0.682131   0.53249   0.1051
+ [20,] -0.42340 -0.699779 -1.461056  -2.21673  -2.5614
+ [21,] -0.05004 -0.712105 -2.005559  -3.86768  -4.7623
+ [22,] -0.45598 -0.650595 -1.379308  -2.00988  -2.3704
+ [23,]  0.48109  0.254244 -0.111639  -1.77152  -2.9139
+ [24,]  0.02530 -0.555808 -1.733214  -3.08380  -3.7889
+ [25,] -0.18644 -0.000593 -0.266665  -0.90090  -1.3546
+ [26,] -0.43690 -0.605824 -1.637000  -2.12044  -2.4113
+ [27,] -0.01311  0.209902  0.174222   0.22148   0.3334
+ [28,] -0.84323 -1.165664 -1.501683  -2.15370  -2.5008
+ [29,]  0.41610  0.782835  0.904925   0.83284   0.6773
+ [30,] -0.54332 -0.833767 -1.501390  -2.28885  -2.6267
+ [31,]  0.31413  0.715369  0.859901   0.94010   0.8317
+ [32,] -0.52114 -0.808863 -1.495010  -2.27701  -2.6162
+ [33,]  0.28260  0.251859 -0.195248  -0.60211  -0.6595
+ [34,] -0.28468 -0.334903 -0.543560  -1.16761  -1.6327
+ [35,] -0.86930 -1.168349 -1.505055  -2.06820  -2.4169
+ [36,] -0.84321 -1.165608 -1.501624  -2.15411  -2.5012
+ [37,] -0.82935 -1.123406 -1.579287  -2.01882  -2.2310
+ [38,] -0.42732 -0.614622 -1.225664  -1.89041  -2.2780
+ [39,] -0.38071 -0.506669 -0.895417  -1.61879  -2.0203
+ [40,] -0.79361 -1.109590 -1.489116  -2.28547  -2.6246
+ [41,] -0.32144 -0.405742 -0.667532  -1.34762  -1.7903
+ [42,] -0.80347 -1.096020 -1.598220  -2.04880  -2.2370
+ [43,] -0.42221 -0.600936 -1.196044  -1.85239  -2.2446
+ [44,]  0.06061 -0.480077 -1.585037  -2.81258  -3.4526
+ [45,] -0.21081 -0.462238 -1.262298  -2.01918  -2.3995
+ [46,]  0.27439 -0.175796 -1.890646  -4.43108  -6.1432
+ [47,] -0.29115 -0.351702 -0.570021  -1.20771  -1.6667
+ [48,] -0.74445 -1.058504 -1.512930  -2.31623  -2.6564
+ [49,] -0.77566 -1.091384 -1.500136  -2.29957  -2.6395
+ [50,] -0.86752 -1.170887 -1.500735  -1.94733  -2.2732
+ [51,] -0.87153 -1.166657 -1.500412  -2.04029  -2.3859
+ [52,]  0.24888 -0.350086 -2.327537  -5.03851  -7.2446
+ [53,] -0.38138 -0.508278 -0.899830  -1.62218  -2.0236
+ [54,]  0.22831  0.122302 -0.492806  -0.92899  -1.1502
+ [55,] -0.87227 -1.172667 -1.511620  -1.99980  -2.3313
+ [56,] -0.80276 -1.095124 -1.599177  -2.04894  -2.2370
+ [57,] -0.29840 -0.364580 -0.590707  -1.23979  -1.6952
+ [58,]  0.31195  0.314594 -0.038210  -0.39770  -0.4332
+ [59,]  0.26469  0.210178 -0.297702  -0.70303  -0.7682
+ [60,]  0.14625 -0.239952 -1.031886  -1.97913  -2.4269
+ [61,] -0.82082 -1.116817 -1.580267  -2.02594  -2.2345
+ [62,]  0.26108 -0.261591 -2.120963  -4.75151  -6.7220
+ [63,] -0.86107 -1.169058 -1.506192  -2.10342  -2.4525
+ [64,] -0.15032 -0.016224 -0.285628  -0.86649  -1.2913
+ [65,] -0.34825 -0.616312 -1.430025  -2.16338  -2.5175
+ [66,] -0.42008 -0.596268 -1.183916  -1.83795  -2.2302
+ [67,] -0.46335 -0.631842 -1.604581  -2.10714  -2.4411
+ [68,] -0.83778 -1.155423 -1.491238  -2.20708  -2.5488
+ [69,] -0.66938 -0.975493 -1.522252  -2.33243  -2.6676
+ [70,] -0.42679 -0.613162 -1.222012  -1.88605  -2.2754
+ [71,] -0.87299 -1.163614 -1.504255  -2.00632  -2.3424
+ [72,] -0.51212 -0.798751 -1.492253  -2.27197  -2.6117
+ [73,] -0.76200 -1.077289 -1.506550  -2.30786  -2.6480
+ [74,] -0.42093 -0.697038 -1.460098  -2.21507  -2.5601
+ [75,] -0.73057 -1.043367 -1.516631  -2.32119  -2.6612
+ [76,] -0.87286 -1.163953 -1.504161  -2.00894  -2.3500
+ [77,]  0.22093  0.100465 -0.527386  -0.97641  -1.2150
+ [78,]  0.37553  0.758135  0.901105   0.88541   0.7273
+ [79,]  0.80796  0.740936  0.633679   0.48131   0.0648
+ [80,] -0.46407 -0.654796 -1.464846  -2.04851  -2.4027
+ [81,]  0.82250  0.784625  0.700946   0.54834   0.1668
+ [82,] -0.46866 -0.645010 -1.580586  -2.08154  -2.4368
+ [83,] -0.84091 -1.161859 -1.496561  -2.18276  -2.5274
+ [84,] -0.85793 -1.147147 -1.528189  -1.95099  -2.1815
+ [85,] -0.77489 -1.060327 -1.611665  -2.05030  -2.2321
+ [86,]  0.10825 -0.390198 -1.378149  -2.50749  -3.0314
+ [87,] -0.39837 -0.548363 -1.023926  -1.71181  -2.0999
+ [88,] -0.28480 -0.335330 -0.544240  -1.16852  -1.6335
+ [89,] -0.82581 -1.141019 -1.478886  -2.24657  -2.5823
+ [90,] -0.46514 -0.746223 -1.476569  -2.24389  -2.5861
+ [91,]  0.47145  0.243293 -0.124513  -1.84965  -2.9835
+ [92,]  0.40521  0.183530 -0.363755  -2.45780  -3.5237
+ [93,] -0.86816 -1.172752 -1.498918  -1.95488  -2.2817
+ [94,] -0.46275 -0.654923 -1.445167  -2.04075  -2.3970
+ [95,] -0.46713 -0.652765 -1.530837  -2.06065  -2.4132
+ [96,] -0.86494 -1.165238 -1.491111  -1.93994  -2.2425
+ [97,]  0.28485 -0.139548 -1.715629  -4.19002  -5.7062
+ [98,] -0.18649 -0.000922 -0.264895  -0.89966  -1.3536
+ [99,] -0.42229 -0.601161 -1.196500  -1.85299  -2.2452
+[100,] -0.38917 -0.526775 -0.953934  -1.66215  -2.0604
+[101,]  0.79764  0.720269  0.607133   0.42249   0.0453
+[102,] -0.12631 -0.039436 -0.347933  -0.79939  -1.1963
+[103,] -0.29483 -0.358274 -0.580485  -1.22393  -1.6808
+[104,] -0.41203 -0.579443 -1.124720  -1.78963  -2.1779
+[105,] -0.87212 -1.165754 -1.505133  -2.02941  -2.3736
+[106,]  0.25522 -0.302684 -2.219194  -4.88803  -6.9701
+[107,]  0.80183  0.838875  0.782348   0.64287   0.2597
+[108,]  0.26862 -0.216795 -1.991185  -4.57102  -6.3954
+[109,] -0.83214 -1.146921 -1.484072  -2.23243  -2.5703
+[110,] -0.81854 -1.134104 -1.476967  -2.25742  -2.5943
+[111,] -0.87260 -1.165206 -1.508298  -2.01015  -2.3358
+[112,] -0.27626 -0.306163 -0.503812  -1.11184  -1.5818
+[113,] -0.38423 -0.656399 -1.445390  -2.18966  -2.5393
+[114,]  0.62008  0.477259  0.242605  -0.24489  -1.1582
+[115,] -0.28330 -0.543285 -1.393300  -2.07230  -2.4747
+[116,] -0.02919  0.175821  0.097415   0.03357   0.1483
+[117,]  0.24021  0.159744 -0.436972  -0.85366  -1.0480
+[118,]  0.26258  0.205738 -0.310995  -0.71583  -0.7825
+[119,] -0.16616 -0.012143 -0.230591  -0.87329  -1.3252
+[120,] -0.86959 -1.168213 -1.504498  -2.06520  -2.4137
+[121,]  0.23749  0.151800 -0.450363  -0.87080  -1.0712
+[122,] -0.64035 -0.942936 -1.520452  -2.33346  -2.6646
+[123,]  0.38379  0.163785 -0.485470  -2.66492  -3.7285
+[124,] -0.33983 -0.437357 -0.712354  -1.42692  -1.8601
+[125,] -0.44365 -0.637297 -1.311378  -1.96018  -2.3324
+[126,]  0.04057  0.324834  0.432845   0.50552   0.6116
+[127,] -0.40095 -0.554342 -1.042635  -1.72629  -2.1127
+[128,] -0.18915 -0.438118 -1.153470  -2.00276  -2.3863
+[129,] -0.46857 -0.644257 -1.584880  -2.08479  -2.4399
+[130,] -0.46864 -0.643706 -1.586525  -2.08681  -2.4418
+[131,] -0.16141 -0.367022 -1.108792  -1.71460  -1.6382
+[132,] -0.10155  0.016739 -0.244126  -0.66493  -0.8440
+[133,]  0.19633  0.241520 -0.040601  -0.29403  -0.3109
+[134,] -0.79770 -1.088313 -1.606771  -2.05055  -2.2359
+[135,]  0.24511  0.169036 -0.412459  -0.82310  -1.0068
+[136,]  0.24833  0.174690 -0.396446  -0.80311  -0.9661
+[137,]  0.29717  0.278542 -0.140474  -0.53454  -0.5934
+[138,]  0.40440  0.775968  0.908398   0.84782   0.6874
+[139,]  0.23384 -0.413992 -2.586186  -5.48720  -7.9230
+[140,] -0.46551 -0.654199 -1.505016  -2.05419  -2.4066
+[141,] -0.38566 -0.518456 -0.928762  -1.64393  -2.0442
+[142,] -0.44447 -0.723204 -1.469055  -2.23068  -2.5738
+[143,] -0.87052 -1.167635 -1.502438  -2.05449  -2.4018
+[144,] -0.17154 -0.010157 -0.239182  -0.87672  -1.3215
+[145,] -0.08004 -0.210847 -0.841790  -0.88603  -0.5909
+[146,] -0.84425 -1.168624 -1.504705  -2.12692  -2.4754
+[147,] -0.18071 -0.410260 -1.132957  -1.85466  -2.1371
+[148,] -0.29991 -0.561923 -1.406281  -2.10964  -2.4859
+[149,] -0.87051 -1.167642 -1.502461  -2.05461  -2.4019
+[150,] -0.43822 -0.631066 -1.290852  -1.94153  -2.3169
+[151,]  0.31109  0.298005 -0.080495  -0.45458  -0.5100
+[152,] -0.23675 -0.224614 -0.400095  -1.02850  -1.4566
+[153,] -0.12068 -0.323043 -0.867774  -1.28989  -0.9770
+[154,] -0.42246 -0.601604 -1.197402  -1.85415  -2.2464
+[155,]  0.22789  0.120939 -0.494746  -0.93167  -1.1539
+[156,] -0.46228 -0.654830 -1.438977  -2.03820  -2.3950
+[157,] -0.04651 -0.176406 -0.666131  -0.56334  -0.5232
+[158,] -0.39203 -0.665017 -1.448585  -2.19516  -2.5438
+[159,] -0.12430 -0.035440 -0.339917  -0.77768  -1.1902
+[160,]  0.19637  0.631340  0.756357   0.85952   0.9542
+[161,] -0.45468 -0.734569 -1.472810  -2.23727  -2.5799
+[162,] -0.84407 -1.167931 -1.504023  -2.13428  -2.4824
+[163,] -0.28066 -0.321120 -0.522054  -1.13789  -1.6084
+[164,] -0.48813 -0.771904 -1.484507  -2.25800  -2.5990
+[165,] -0.46122 -0.654460 -1.426310  -2.03336  -2.3908
+[166,] -0.42589 -0.610719 -1.216318  -1.87883  -2.2709
+[167,] -0.04310 -0.694410 -1.977250  -3.78441  -4.6588
+[168,] -0.45992 -0.625454 -1.615087  -2.11048  -2.4347
+[169,] -0.86567 -1.166746 -1.493120  -1.94049  -2.2508
+[170,]  0.81937  0.790186  0.706511   0.55351   0.1801
+[171,]  0.79122  0.706554  0.590027   0.36765   0.0291
+[172,]  0.52721  0.815206  0.877451   0.76798   0.5930
+[173,] -0.68281 -0.990499 -1.522244  -2.33090  -2.6679
+[174,] -0.10461  0.011056 -0.250635  -0.67230  -0.8847
+[175,] -0.42748 -0.615044 -1.226724  -1.89168  -2.2788
+[176,] -0.84424 -1.168561 -1.504644  -2.12762  -2.4761
+[177,] -0.79782 -1.113800 -1.486014  -2.28153  -2.6204
+[178,] -0.87308 -1.163248 -1.505996  -2.00931  -2.3387
+[179,]  0.09035 -0.041593 -0.081264  -0.42290  -0.3335
+[180,] -0.46842 -0.648332 -1.563083  -2.07340  -2.4275
+[181,] -0.87256 -1.165924 -1.508810  -2.00861  -2.3343
+[182,] -0.45921 -0.653231 -1.404754  -2.02388  -2.3826
+[183,] -0.46029 -0.740818 -1.474837  -2.24084  -2.5832
+[184,] -0.45120 -0.646028 -1.350050  -1.99082  -2.3557
+[185,]  0.04708  0.339006  0.450006   0.51709   0.6362
+[186,]  0.72726  0.643531  0.483770   0.21142  -0.2102
+[187,] -0.69751 -1.006875 -1.521522  -2.32832  -2.6672
+[188,] -0.33870 -0.605552 -1.425766  -2.15593  -2.5114
+[189,] -0.84426 -1.168642 -1.504723  -2.12671  -2.4752
+[190,] -0.35100 -0.619418 -1.431243  -2.16546  -2.5192
+[191,] -0.45966 -0.653541 -1.408683  -2.02592  -2.3844
+[192,] -0.18627 -0.110284 -0.316882  -0.93394  -1.3791
+[193,] -0.46235 -0.654848 -1.439878  -2.03857  -2.3953
+[194,] -0.28031 -0.319917 -0.520590  -1.13516  -1.6064
+[195,]  0.27852  0.243857 -0.213318  -0.62021  -0.6766
+[196,]  0.24845  0.677068  0.803715   0.91508   0.9219
+[197,] -0.83500 -1.150263 -1.486939  -2.22316  -2.5626
+[198,] -0.86981 -1.168098 -1.504055  -2.06285  -2.4111
+[199,] -0.87200 -1.165970 -1.503773  -2.03188  -2.3764
+[200,] -0.86782 -1.168823 -1.506697  -2.08267  -2.4318
+[201,] -0.53713 -0.826809 -1.499669  -2.28563  -2.6238
+[202,] -0.87271 -1.163714 -1.506949  -2.01414  -2.3400
+[203,] -0.54893 -2.069555 -4.699528  -9.09417 -13.2462
+[204,] -0.59232 -0.888883 -1.513098  -2.31360  -2.6503
+[205,] -0.43422 -0.626313 -1.267307  -1.92844  -2.3064
+[206,] -0.07508  0.074157 -0.105064  -0.40440  -0.7057
+[207,] -0.75530 -1.070240 -1.509205  -2.31133  -2.6515
+[208,] -0.30927 -0.383289 -0.622176  -1.28876  -1.7394
+[209,] -0.24034 -0.495189 -1.359333  -2.04117  -2.4446
+[210,] -0.13293 -0.032762 -0.365461  -0.83181  -1.2263
+[211,]  0.29897  0.281868 -0.134221  -0.52624  -0.5847
+[212,] -0.37296 -0.488584 -0.847129  -1.57574  -1.9808
+[213,]  0.34401  0.101048 -0.794659  -3.16121  -4.3478
+[214,] -0.46482 -0.654519 -1.483239  -2.05174  -2.4050
+[215,] -0.64045 -0.943044 -1.520461  -2.33346  -2.6646
+[216,] -0.03239  0.168818  0.085844   0.00478   0.0970
+[217,]  0.24452  0.168006 -0.415377  -0.82674  -1.0117
+[218,] -0.86095 -1.156513 -1.518198  -1.93727  -2.2021
+[219,] -0.86983 -1.175212 -1.493913  -1.97525  -2.2960
+[220,]  0.40920  0.187246 -0.346314  -2.41513  -3.4859
+[221,] -0.45497 -0.734890 -1.472915  -2.23745  -2.5801
+[222,] -0.13165 -0.334477 -0.874691  -1.37364  -1.1391
+[223,] -0.87000 -1.167989 -1.503653  -2.06073  -2.4087
+[224,]  0.29694 -0.058529 -1.524127  -3.95634  -5.3441
+[225,] -0.17504 -0.008555 -0.242447  -0.87808  -1.3284
+[226,] -0.38687 -0.659315 -1.446475  -2.19153  -2.5408
+[227,] -0.19390 -0.127710 -0.327047  -0.94342  -1.3823
+[228,]  0.24442  0.308177 -0.017495  -0.33094  -0.3540
+[229,] -0.31790 -0.399010 -0.655687  -1.33012  -1.7753
+[230,]  0.18367 -0.685459 -3.514376  -7.39552 -10.4477
+[231,]  0.49448  0.271134 -0.091848  -1.60991  -2.8078
+[232,] -0.80397 -1.096649 -1.597536  -2.04870  -2.2371
+[233,] -0.39253 -0.534692 -0.979485  -1.67993  -2.0753
+[234,] -0.72114 -1.033010 -1.518545  -2.32382  -2.6636
+[235,] -0.82973 -1.123841 -1.578762  -2.01829  -2.2307
+[236,] -0.44463 -0.638391 -1.315125  -1.96379  -2.3351
+[237,] -0.38314 -0.512459 -0.911493  -1.63104  -2.0322
+[238,] -0.37300 -0.643991 -1.440720  -2.18165  -2.5327
+[239,] -0.66339 -0.968789 -1.522074  -2.33289  -2.6673
+[240,] -0.38660 -0.520682 -0.935348  -1.64876  -2.0486
+[241,] -0.19010 -0.117005 -0.320803  -0.93572  -1.3804
+[242,] -0.22464 -3.185159 -9.522622 -16.86627 -24.0039
+[243,]  0.25571  0.191168 -0.355588  -0.75765  -0.8581
+[244,] -0.30022 -0.562267 -1.406519  -2.11208  -2.4861
+[245,]  0.38985  0.767148  0.909063   0.86665   0.7037
+[246,] -0.38199 -0.509722 -0.903826  -1.62523  -2.0266
+[247,] -0.65974 -0.964701 -1.521914  -2.33310  -2.6670
+[248,] -0.54926 -0.840434 -1.502992  -2.29188  -2.6293
+[249,] -0.36035 -0.466600 -0.764609  -1.50591  -1.9193
+[250,] -0.35376 -0.455713 -0.738011  -1.48052  -1.8969</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>           [,1]      [,2]     [,3]    [,4]     [,5]
+  [1,]  1.73670  1.733098  1.99481  2.5329  3.01014
+  [2,]  2.37178  1.797213  1.98342  2.4657  3.08276
+  [3,]  2.50069  2.323743  3.02027  3.8788  4.85814
+  [4,]  0.09580 -0.122177 -0.19191 -0.1637 -0.13781
+  [5,]  0.05351  0.007625  0.29570  0.6872  0.75802
+  [6,]  2.38755  1.873881  2.04124  2.5036  3.09971
+  [7,]  1.49549  1.723165  2.36972  3.2215  4.05551
+  [8,] -0.00267  0.004637  0.13569  0.5539  0.72161
+  [9,]  2.25822  2.001258  2.46480  3.2961  4.02984
+ [10,]  2.36231  1.891921  2.09427  2.6092  3.11305
+ [11,]  2.30327  1.733181  1.91359  2.4030  3.07807
+ [12,]  1.88808  2.159043  2.58969  3.3854  4.04694
+ [13,]  0.04370 -0.014670  0.05080  0.3191  0.61760
+ [14,]  0.09941 -0.114114 -0.17637 -0.1411 -0.09485
+ [15,]  2.60304  2.294788  3.17655  4.2904  5.37267
+ [16,]  1.33821  1.312243  1.43682  1.7069  1.88750
+ [17,]  2.35079  1.620009  1.81930  2.4827  3.22905
+ [18,]  2.38661  1.880623  2.09785  2.5540  3.12878
+ [19,]  1.92632  2.186631  2.61708  3.3962  4.07992
+ [20,]  2.29801  1.735425  1.88764  2.4118  3.12233
+ [21,]  2.28190  2.064325  2.61599  3.5590  4.35322
+ [22,]  0.09230 -0.127004 -0.20026 -0.1800 -0.15614
+ [23,]  2.50176  2.323486  3.02238  3.8823  4.86162
+ [24,]  2.25160  1.984600  2.42552  3.2515  3.98770
+ [25,]  0.14084  0.007549  0.37503  0.5715  0.71673
+ [26,]  0.02494 -0.111273 -0.17424 -0.2097 -0.22923
+ [27,]  1.02542  1.245858  1.86645  2.8568  3.56283
+ [28,]  2.29092  1.861259  2.03584  2.7130  3.04802
+ [29,]  1.62391  1.872167  2.44917  3.2626  3.94874
+ [30,]  2.33976  1.743935  1.96617  2.3658  3.02538
+ [31,]  1.54363  1.780186  2.40659  3.2420  4.05812
+ [32,]  2.33282  1.750795  1.95677  2.3771  2.99495
+ [33,]  2.34631  1.601144  1.81869  2.5224  3.23157
+ [34,]  0.01101  0.002389  0.10775  0.4793  0.69381
+ [35,]  1.91153  1.725882  2.02184  2.6090  3.01584
+ [36,]  2.29183  1.861110  2.03598  2.7129  3.04850
+ [37,]  1.33643  1.363301  1.56520  1.8672  2.15335
+ [38,]  0.10177 -0.097500 -0.14713 -0.1004 -0.01005
+ [39,]  0.08042 -0.035114 -0.03265  0.1269  0.34350
+ [40,]  2.38014  1.893359  2.08590  2.6348  3.11779
+ [41,]  0.04111 -0.012380  0.05553  0.3314  0.63510
+ [42,]  1.35609  1.359147  1.41359  1.7323  2.06537
+ [43,]  0.10195 -0.088193 -0.13248 -0.0781  0.03631
+ [44,]  2.24026  1.957636  2.34577  3.1341  3.95493
+ [45,]  2.30714  1.664587  1.78864  2.5296  3.25658
+ [46,]  2.69266  2.274105  3.40421  4.7602  6.04050
+ [47,]  0.01762 -0.000106  0.09666  0.4454  0.68160
+ [48,]  2.34283  1.888444  2.09545  2.5975  3.10962
+ [49,]  2.35839  1.893619  2.09343  2.6201  3.11566
+ [50,]  1.54012  1.554297  1.87188  2.3358  2.74496
+ [51,]  1.81762  1.719429  2.01447  2.5832  3.01351
+ [52,]  2.72232  2.293641  3.47860  4.9495  6.29476
+ [53,]  0.08091 -0.035614 -0.03412  0.1238  0.33903
+ [54,]  2.35325  1.613633  1.87838  2.6692  3.41854
+ [55,]  1.50491  1.677920  1.86859  2.4244  2.83821
+ [56,]  1.35545  1.358558  1.41421  1.7305  2.06543
+ [57,]  0.02302 -0.001695  0.08746  0.4186  0.67142
+ [58,]  2.35034  1.635685  1.82117  2.4565  3.23722
+ [59,]  2.34302  1.605050  1.83355  2.5589  3.25158
+ [60,]  2.21047  1.828659  2.10076  2.8930  3.69095
+ [61,]  1.34487  1.350339  1.43636  1.8210  2.14122
+ [62,]  2.70865  2.282970  3.44358  4.8600  6.17110
+ [63,]  2.07677  1.792770  2.02739  2.6646  3.01923
+ [64,]  0.33792  0.267513  0.51936  0.7735  0.96180
+ [65,]  2.28487  1.746708  1.86106  2.4307  3.13031
+ [66,]  0.10217 -0.084574 -0.12674 -0.0694  0.05431
+ [67,]  0.04473 -0.130976 -0.20313 -0.2383 -0.25047
+ [68,]  2.35424  1.836070  2.04964  2.6875  3.09468
+ [69,]  2.39735  1.878246  2.09107  2.5287  3.11458
+ [70,]  0.10182 -0.096479 -0.14553 -0.0979 -0.00494
+ [71,]  1.67761  1.737914  1.98040  2.5120  3.00657
+ [72,]  2.32988  1.753031  1.95298  2.3830  2.98868
+ [73,]  2.36255  1.892075  2.09421  2.6099  3.11324
+ [74,]  2.29705  1.735824  1.88544  2.4148  3.12405
+ [75,]  2.35452  1.884588  2.09658  2.5884  3.11291
+ [76,]  1.71174  1.735180  1.98932  2.5248  3.00939
+ [77,]  2.34596  1.622641  1.88996  2.6953  3.47540
+ [78,]  1.60286  1.839361  2.43507  3.2587  3.98708
+ [79,]  1.98711  2.217271  2.64969  3.4170  4.12812
+ [80,]  0.07970 -0.135731 -0.21477 -0.2152 -0.19997
+ [81,]  1.90412  2.172104  2.60861  3.3887  4.06185
+ [82,]  0.06278 -0.137294 -0.21584 -0.2409 -0.23773
+ [83,]  2.33820  1.849061  2.04567  2.6993  3.07713
+ [84,]  1.35661  1.547110  1.85960  2.2353  2.65054
+ [85,]  1.33206  1.320145  1.43290  1.7154  1.94993
+ [86,]  2.22222  1.917485  2.25057  2.9943  3.82894
+ [87,]  0.09216 -0.052486 -0.07251  0.0426  0.22177
+ [88,]  0.01117  0.002369  0.10748  0.4785  0.69350
+ [89,]  2.37425  1.835348  2.03449  2.6669  3.11203
+ [90,]  2.31362  1.752584  1.93370  2.4123  2.98452
+ [91,]  2.50813  2.321941  3.03514  3.9037  4.88261
+ [92,]  2.55299  2.310109  3.13582  4.0486  5.05237
+ [93,]  1.53715  1.567867  1.86881  2.3473  2.75707
+ [94,]  0.08295 -0.134304 -0.21250 -0.2073 -0.18956
+ [95,]  0.07362 -0.137416 -0.21726 -0.2297 -0.21651
+ [96,]  1.45698  1.531137  1.86528  2.3223  2.69941
+ [97,]  2.67992  2.271759  3.37405  4.6844  5.94688
+ [98,]  0.14381  0.011712  0.37726  0.5680  0.71201
+ [99,]  0.10194 -0.088342 -0.13271 -0.0784  0.03558
+[100,]  0.08624 -0.041835 -0.05134  0.0873  0.28648
+[101,]  2.01662  2.232287  2.67325  3.4250  4.10557
+[102,]  0.52384  0.472969  0.82815  1.0889  1.30094
+[103,]  0.02034 -0.000872  0.09205  0.4318  0.67678
+[104,]  0.10026 -0.071814 -0.10613 -0.0282  0.11838
+[105,]  1.79161  1.725333  2.00834  2.5643  3.01230
+[106,]  2.71523  2.287922  3.46026  4.9025  6.22996
+[107,]  1.83563  2.100672  2.55020  3.3763  4.00494
+[108,]  2.69975  2.276411  3.42144  4.8037  6.09415
+[109,]  2.36786  1.819793  2.03968  2.6746  3.10717
+[110,]  2.38267  1.870407  2.05730  2.6588  3.11541
+[111,]  1.51979  1.712368  1.86780  2.4326  2.84473
+[112,]  0.00063  0.003992  0.12600  0.5353  0.71459
+[113,]  2.28251  1.741587  1.87108  2.4324  3.12229
+[114,]  2.33450  2.335628  2.78641  3.5174  4.56099
+[115,]  2.29599  1.693661  1.83535  2.4707  3.22272
+[116,]  0.96627  1.170117  1.75706  2.7077  3.39084
+[117,]  2.34855  1.614211  1.86008  2.6208  3.33748
+[118,]  2.34254  1.606220  1.83546  2.5636  3.25642
+[119,]  0.26265  0.174616  0.43739  0.7132  0.87910
+[120,]  1.89789  1.720473  2.02173  2.6069  3.01563
+[121,]  2.34965  1.614442  1.86423  2.6331  3.35285
+[122,]  2.38588  1.871291  2.03488  2.5003  3.09767
+[123,]  2.56820  2.305699  3.15574  4.1167  5.14183
+[124,]  0.05393 -0.020564  0.03138  0.2698  0.54764
+[125,]  0.09926 -0.114571 -0.17729 -0.1422 -0.09725
+[126,]  1.20973  1.422591  2.08486  3.0408  3.83224
+[127,]  0.09393 -0.055816 -0.07864  0.0296  0.20299
+[128,]  2.31025  1.657714  1.78518  2.5421  3.25511
+[129,]  0.06089 -0.136982 -0.21505 -0.2414 -0.24084
+[130,]  0.05967 -0.136743 -0.21448 -0.2417 -0.24268
+[131,]  2.31998  1.626402  1.79663  2.5696  3.22346
+[132,]  0.66931  0.697881  1.11789  1.6244  2.20043
+[133,]  2.35080  1.618497  1.81841  2.4890  3.22245
+[134,]  1.34859  1.341369  1.41865  1.7158  2.06484
+[135,]  2.34653  1.613322  1.85268  2.6096  3.31396
+[136,]  2.34517  1.612433  1.84858  2.6038  3.29976
+[137,]  2.34805  1.631497  1.80868  2.5010  3.23908
+[138,]  1.61796  1.863140  2.44538  3.2615  3.95978
+[139,]  2.73915  2.320757  3.51846  5.0650  6.45354
+[140,]  0.07706 -0.136627 -0.21614 -0.2220 -0.20767
+[141,]  0.08391 -0.038259 -0.04351  0.1039  0.31038
+[142,]  2.30602  1.731982  1.92554  2.4079  3.05147
+[143,]  1.86080  1.715833  2.02018  2.5987  3.01482
+[144,]  0.23387  0.138242  0.40800  0.6881  0.82407
+[145,]  2.33077  1.616317  1.81051  2.5505  3.19340
+[146,]  2.20931  1.852256  2.03139  2.7012  3.02887
+[147,]  2.31374  1.647240  1.78720  2.5537  3.24411
+[148,]  2.29326  1.714734  1.84172  2.4556  3.19719
+[149,]  1.86117  1.715819  2.02021  2.5988  3.01482
+[150,]  0.10058 -0.109594 -0.16721 -0.1298 -0.07134
+[151,]  2.34963  1.615260  1.80590  2.4752  3.24626
+[152,] -0.01712  0.009404  0.20212  0.6437  0.76870
+[153,]  2.32617  1.612027  1.80528  2.5637  3.20172
+[154,]  0.10191 -0.088635 -0.13318 -0.0791  0.03412
+[155,]  2.35341  1.613641  1.87903  2.6706  3.42168
+[156,]  0.08391 -0.133797 -0.21168 -0.2052 -0.18612
+[157,]  2.33443  1.612565  1.81422  2.5394  3.18839
+[158,]  2.28565  1.740399  1.86964  2.4321  3.12272
+[159,]  0.53888  0.488447  0.84813  1.1101  1.36958
+[160,]  1.44131  1.651915  2.32111  3.2059  4.08607
+[161,]  2.30980  1.738454  1.92955  2.4146  3.01056
+[162,]  2.23099  1.867262  2.03260  2.7184  3.03177
+[163,]  0.00592  0.002960  0.11616  0.5063  0.70373
+[164,]  2.32177  1.757742  1.94302  2.3982  2.98075
+[165,]  0.08577 -0.132680 -0.20984 -0.2008 -0.18005
+[166,]  0.10186 -0.094786 -0.14287 -0.0938  0.00351
+[167,]  2.27883  2.055283  2.59544  3.5182  4.30751
+[168,]  0.03954 -0.127775 -0.19738 -0.2332 -0.24858
+[169,]  1.49057  1.529087  1.87983  2.3225  2.71142
+[170,]  1.89796  2.167098  2.60140  3.3874  4.05600
+[171,]  2.03517  2.242583  2.68828  3.4293  4.10362
+[172,]  1.68770  1.900561  2.47636  3.3064  3.91409
+[173,]  2.39525  1.879832  2.09509  2.5430  3.12269
+[174,]  0.65418  0.679224  1.08002  1.5558  2.11674
+[175,]  0.10175 -0.097797 -0.14760 -0.1011 -0.01154
+[176,]  2.21112  1.853780  2.03151  2.7029  3.02915
+[177,]  2.38645  1.892801  2.08387  2.6385  3.11799
+[178,]  1.64593  1.740320  1.97048  2.4982  2.98218
+[179,]  2.34514  1.610239  1.81792  2.4958  3.21338
+[180,]  0.06709 -0.137758 -0.21735 -0.2384 -0.22907
+[181,]  1.51627  1.707499  1.86792  2.4314  2.84378
+[182,]  0.08881 -0.130428 -0.20608 -0.1922 -0.17010
+[183,]  2.31186  1.745084  1.93177  2.4156  2.99696
+[184,]  0.09575 -0.122259 -0.19206 -0.1640 -0.13814
+[185,]  1.22836  1.433026  2.09947  3.0534  3.85532
+[186,]  2.14501  2.292879  2.75747  3.4467  4.28060
+[187,]  2.38201  1.880879  2.09914  2.5596  3.12715
+[188,]  2.28658  1.746529  1.85715  2.4292  3.14316
+[189,]  2.20879  1.851806  2.03136  2.7007  3.02879
+[190,]  2.28437  1.746342  1.86220  2.4311  3.12636
+[191,]  0.08821 -0.130917 -0.20690 -0.1941 -0.17220
+[192,]  0.05685  0.007406  0.29957  0.6886  0.75328
+[193,]  0.08377 -0.133872 -0.21180 -0.2055 -0.18666
+[194,]  0.00549  0.003003  0.11686  0.5086  0.70460
+[195,]  2.34579  1.596401  1.82133  2.5289  3.23161
+[196,]  1.48373  1.710648  2.36033  3.2211  4.05947
+[197,]  2.36326  1.826077  2.04349  2.6794  3.10324
+[198,]  1.88692  1.717324  2.02156  2.6052  3.01546
+[199,]  1.79750  1.724032  2.00981  2.5690  3.01259
+[200,]  1.97022  1.749775  2.02093  2.6181  3.01668
+[201,]  2.33787  1.746067  1.96354  2.3666  3.01510
+[202,]  1.52896  1.724518  1.87077  2.4355  2.84713
+[203,]  2.73351  2.712164  3.78230  5.7500  7.73568
+[204,]  2.35917  1.768339  1.98674  2.4284  3.08443
+[205,]  0.10119 -0.105969 -0.16040 -0.1209 -0.05277
+[206,]  0.78803  0.887234  1.44057  2.0877  2.75753
+[207,]  2.35501  1.890891  2.09465  2.6051  3.11191
+[208,]  0.03141 -0.003525  0.07285  0.3778  0.65455
+[209,]  2.30274  1.670876  1.80506  2.5077  3.25173
+[210,]  0.46688  0.408043  0.71576  0.9930  1.12994
+[211,]  2.34825  1.629840  1.80738  2.4983  3.24057
+[212,]  0.07460 -0.030052 -0.01616  0.1620  0.39387
+[213,]  2.60953  2.292625  3.19424  4.3281  5.41920
+[214,]  0.07819 -0.136260 -0.21559 -0.2191 -0.20434
+[215,]  2.38592  1.871505  2.03506  2.5004  3.09773
+[216,]  0.95400  1.150087  1.73065  2.6696  3.35084
+[217,]  2.34677  1.613458  1.85356  2.6107  3.31666
+[218,]  1.37499  1.540862  1.85944  2.3208  2.67029
+[219,]  1.52734  1.599527  1.87331  2.3769  2.79013
+[220,]  2.55008  2.310928  3.12868  4.0351  5.03791
+[221,]  2.30991  1.738796  1.92966  2.4148  3.00988
+[222,]  2.32490  1.610627  1.80368  2.5672  3.20631
+[223,]  1.87845  1.716210  2.02132  2.6037  3.01531
+[224,]  2.66531  2.272372  3.34077  4.6017  5.84414
+[225,]  0.21499  0.112693  0.37143  0.6365  0.78359
+[226,]  2.28357  1.741188  1.87059  2.4323  3.12244
+[227,]  0.04439  0.008157  0.28509  0.6849  0.76356
+[228,]  2.35073  1.623189  1.82114  2.4712  3.24250
+[229,]  0.03826 -0.009915  0.06067  0.3450  0.64413
+[230,]  2.79470  2.421059  3.77769  5.4875  7.02838
+[231,]  2.49176  2.325849  3.00305  3.8499  4.82972
+[232,]  1.35645  1.359480  1.41316  1.7336  2.06531
+[233,]  0.08836 -0.045502 -0.05895  0.0712  0.26325
+[234,]  2.36274  1.881594  2.09741  2.5824  3.11722
+[235,]  1.33648  1.362714  1.57269  1.8687  2.15728
+[236,]  0.09894 -0.115479 -0.17912 -0.1445 -0.10204
+[237,]  0.08216 -0.036861 -0.03795  0.1157  0.32733
+[238,]  2.28032  1.743252  1.87132  2.4325  3.12163
+[239,]  2.39544  1.877369  2.08753  2.5226  3.11102
+[240,]  0.08454 -0.039189 -0.04559  0.0995  0.30403
+[241,]  0.05205  0.007716  0.29400  0.6866  0.76007
+[242,]  2.95199  3.223295  5.34553  7.8998 10.06708
+[243,]  2.34198  1.609623  1.84172  2.5810  3.27454
+[244,]  2.29321  1.715118  1.84184  2.4553  3.19667
+[245,]  1.61044  1.851441  2.44037  3.2601  3.97353
+[246,]  0.08134 -0.036068 -0.03544  0.1210  0.33500
+[247,]  2.39414  1.876788  2.07854  2.5189  3.10887
+[248,]  2.34154  1.745272  1.96869  2.3686  3.03734
+[249,]  0.06446 -0.024639  0.00973  0.2171  0.47258
+[250,]  0.06068 -0.023039  0.01773  0.2364  0.50004</code></pre>
 </div>
 </div>
+<section id="conditional-qte-at-selected-covariate-profiles" class="level3">
+<h3 class="anchored" data-anchor-id="conditional-qte-at-selected-covariate-profiles">Conditional QTE at selected covariate profiles</h3>
+<p>Pass a covariate matrix in <code>newdata</code>. The output is then per-row of <code>newdata</code>.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>ate_plots<span class="sc">$</span>trt_control</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div class="plotly html-widget html-fill-item" id="htmlwidget-9e608866e90cffdb1018" style="width:100%;height:464px;"></div>
-<script type="application/json" data-for="htmlwidget-9e608866e90cffdb1018">{"x":{"data":[{"x":[0.0051791428283115351,0.0074228417246358213,0.010672937909719203,0.015396804774363648,0.02228407916551407,0.032350172763582284,0.047078630279825423,0.068596728860894435,0.099832613686658647,0.1444814564207996,0.2063951482350449,0.28791695023308367,0.38735415638742443,0.49739374749423682,0.60677609317873049,0.7048545487257154,0.78547629905491856,0.84754886500293602,0.89322648923070369,0.92586594975922176],"y":[2.3587293468686653e+17,1466387847947763.2,215273480641389.84,276799709333189.16,22.575505785604875,22.194288632365641,21.858703123190899,21.483437368783736,21.153164068492273,20.861443012965058,20.527297064053002,20.125751230658445,19.752698297587223,19.280328685682051,18.744039007385989,18.180037043736291,17.537288345962999,16.810449972582877,15.932827191907231,15.149429828871089],"text":["x: 0.00518<br />estimate: 2.36e+17<br />group: Control<br />group: Control","x: 0.00742<br />estimate: 1.47e+15<br />group: Control<br />group: Control","x: 0.01067<br />estimate: 2.15e+14<br />group: Control<br />group: Control","x: 0.01540<br />estimate: 2.77e+14<br />group: Control<br />group: Control","x: 0.02228<br />estimate: 2.26e+01<br />group: Control<br />group: Control","x: 0.03235<br />estimate: 2.22e+01<br />group: Control<br />group: Control","x: 0.04708<br />estimate: 2.19e+01<br />group: Control<br />group: Control","x: 0.06860<br />estimate: 2.15e+01<br />group: Control<br />group: Control","x: 0.09983<br />estimate: 2.12e+01<br />group: Control<br />group: Control","x: 0.14448<br />estimate: 2.09e+01<br />group: Control<br />group: Control","x: 0.20640<br />estimate: 2.05e+01<br />group: Control<br />group: Control","x: 0.28792<br />estimate: 2.01e+01<br />group: Control<br />group: Control","x: 0.38735<br />estimate: 1.98e+01<br />group: Control<br />group: Control","x: 0.49739<br />estimate: 1.93e+01<br />group: Control<br />group: Control","x: 0.60678<br />estimate: 1.87e+01<br />group: Control<br />group: Control","x: 0.70485<br />estimate: 1.82e+01<br />group: Control<br />group: Control","x: 0.78548<br />estimate: 1.75e+01<br />group: Control<br />group: Control","x: 0.84755<br />estimate: 1.68e+01<br />group: Control<br />group: Control","x: 0.89323<br />estimate: 1.59e+01<br />group: Control<br />group: Control","x: 0.92587<br />estimate: 1.51e+01<br />group: Control<br />group: Control"],"type":"scatter","mode":"lines","line":{"width":3.0236220472440949,"color":"rgba(0,114,178,1)","dash":"solid"},"hoveron":"points","name":"Control","legendgroup":"Control","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.0051791428283115351,0.0074228417246358213,0.010672937909719203,0.015396804774363648,0.02228407916551407,0.032350172763582284,0.047078630279825423,0.068596728860894435,0.099832613686658647,0.1444814564207996,0.2063951482350449,0.28791695023308367,0.38735415638742443,0.49739374749423682,0.60677609317873049,0.7048545487257154,0.78547629905491856,0.84754886500293602,0.89322648923070369,0.92586594975922176],"y":[9069342.0844811033,5994656.7522556949,4828306.8277863758,2311116.744893983,1613123.1231602656,844643.70084890386,609669.80824811489,246706.98010003552,96424.647370990817,85109.424684211626,64188.128899875883,4990.9082740015756,6610.2687543912498,1829.6295326013837,25388.564713636068,21.282665770869365,21.020638933014371,20.808734897180017,5433.4675284754221,20.273580411789215],"text":["x: 0.00518<br />estimate: 9.07e+06<br />group: Treated<br />group: Treated","x: 0.00742<br />estimate: 5.99e+06<br />group: Treated<br />group: Treated","x: 0.01067<br />estimate: 4.83e+06<br />group: Treated<br />group: Treated","x: 0.01540<br />estimate: 2.31e+06<br />group: Treated<br />group: Treated","x: 0.02228<br />estimate: 1.61e+06<br />group: Treated<br />group: Treated","x: 0.03235<br />estimate: 8.45e+05<br />group: Treated<br />group: Treated","x: 0.04708<br />estimate: 6.10e+05<br />group: Treated<br />group: Treated","x: 0.06860<br />estimate: 2.47e+05<br />group: Treated<br />group: Treated","x: 0.09983<br />estimate: 9.64e+04<br />group: Treated<br />group: Treated","x: 0.14448<br />estimate: 8.51e+04<br />group: Treated<br />group: Treated","x: 0.20640<br />estimate: 6.42e+04<br />group: Treated<br />group: Treated","x: 0.28792<br />estimate: 4.99e+03<br />group: Treated<br />group: Treated","x: 0.38735<br />estimate: 6.61e+03<br />group: Treated<br />group: Treated","x: 0.49739<br />estimate: 1.83e+03<br />group: Treated<br />group: Treated","x: 0.60678<br />estimate: 2.54e+04<br />group: Treated<br />group: Treated","x: 0.70485<br />estimate: 2.13e+01<br />group: Treated<br />group: Treated","x: 0.78548<br />estimate: 2.10e+01<br />group: Treated<br />group: Treated","x: 0.84755<br />estimate: 2.08e+01<br />group: Treated<br />group: Treated","x: 0.89323<br />estimate: 5.43e+03<br />group: Treated<br />group: Treated","x: 0.92587<br />estimate: 2.03e+01<br />group: Treated<br />group: Treated"],"type":"scatter","mode":"lines","line":{"width":3.0236220472440949,"color":"rgba(213,94,0,1)","dash":"solid"},"hoveron":"points","name":"Treated","legendgroup":"Treated","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.92586594975922176,0.89322648923070369,0.84754886500293602,0.78547629905491856,0.7048545487257154,0.60677609317873049,0.49739374749423682,0.38735415638742443,0.28791695023308367,0.2063951482350449,0.1444814564207996,0.099832613686658647,0.068596728860894435,0.047078630279825423,0.032350172763582284,0.02228407916551407,0.015396804774363648,0.010672937909719203,0.0074228417246358213,0.0051791428283115351],"y":[15.149429828871089,15.932827191907231,16.810449972582877,17.537288345962999,18.180037043736291,18.744039007385989,19.280328685682051,19.752698297587223,20.125751230658445,20.527297064053002,20.861443012965058,21.153164068492273,21.483437368783736,21.858703123190899,22.194288632365641,22.575505785604875,276799709333189.16,215273480641389.84,1466387847947763.2,2.3587293468686653e+17],"text":["x: 0.92587<br />estimate: 1.51e+01<br />group: Control<br />group: Control","x: 0.89323<br />estimate: 1.59e+01<br />group: Control<br />group: Control","x: 0.84755<br />estimate: 1.68e+01<br />group: Control<br />group: Control","x: 0.78548<br />estimate: 1.75e+01<br />group: Control<br />group: Control","x: 0.70485<br />estimate: 1.82e+01<br />group: Control<br />group: Control","x: 0.60678<br />estimate: 1.87e+01<br />group: Control<br />group: Control","x: 0.49739<br />estimate: 1.93e+01<br />group: Control<br />group: Control","x: 0.38735<br />estimate: 1.98e+01<br />group: Control<br />group: Control","x: 0.28792<br />estimate: 2.01e+01<br />group: Control<br />group: Control","x: 0.20640<br />estimate: 2.05e+01<br />group: Control<br />group: Control","x: 0.14448<br />estimate: 2.09e+01<br />group: Control<br />group: Control","x: 0.09983<br />estimate: 2.12e+01<br />group: Control<br />group: Control","x: 0.06860<br />estimate: 2.15e+01<br />group: Control<br />group: Control","x: 0.04708<br />estimate: 2.19e+01<br />group: Control<br />group: Control","x: 0.03235<br />estimate: 2.22e+01<br />group: Control<br />group: Control","x: 0.02228<br />estimate: 2.26e+01<br />group: Control<br />group: Control","x: 0.01540<br />estimate: 2.77e+14<br />group: Control<br />group: Control","x: 0.01067<br />estimate: 2.15e+14<br />group: Control<br />group: Control","x: 0.00742<br />estimate: 1.47e+15<br />group: Control<br />group: Control","x: 0.00518<br />estimate: 2.36e+17<br />group: Control<br />group: Control"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,114,178,1)","opacity":1,"size":7.559055118110237,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(0,114,178,1)"}},"hoveron":"points","name":"Control","legendgroup":"Control","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.92586594975922176,0.89322648923070369,0.84754886500293602,0.78547629905491856,0.7048545487257154,0.60677609317873049,0.49739374749423682,0.38735415638742443,0.28791695023308367,0.2063951482350449,0.1444814564207996,0.099832613686658647,0.068596728860894435,0.047078630279825423,0.032350172763582284,0.02228407916551407,0.015396804774363648,0.010672937909719203,0.0074228417246358213,0.0051791428283115351],"y":[20.273580411789215,5433.4675284754221,20.808734897180017,21.020638933014371,21.282665770869365,25388.564713636068,1829.6295326013837,6610.2687543912498,4990.9082740015756,64188.128899875883,85109.424684211626,96424.647370990817,246706.98010003552,609669.80824811489,844643.70084890386,1613123.1231602656,2311116.744893983,4828306.8277863758,5994656.7522556949,9069342.0844811033],"text":["x: 0.92587<br />estimate: 2.03e+01<br />group: Treated<br />group: Treated","x: 0.89323<br />estimate: 5.43e+03<br />group: Treated<br />group: Treated","x: 0.84755<br />estimate: 2.08e+01<br />group: Treated<br />group: Treated","x: 0.78548<br />estimate: 2.10e+01<br />group: Treated<br />group: Treated","x: 0.70485<br />estimate: 2.13e+01<br />group: Treated<br />group: Treated","x: 0.60678<br />estimate: 2.54e+04<br />group: Treated<br />group: Treated","x: 0.49739<br />estimate: 1.83e+03<br />group: Treated<br />group: Treated","x: 0.38735<br />estimate: 6.61e+03<br />group: Treated<br />group: Treated","x: 0.28792<br />estimate: 4.99e+03<br />group: Treated<br />group: Treated","x: 0.20640<br />estimate: 6.42e+04<br />group: Treated<br />group: Treated","x: 0.14448<br />estimate: 8.51e+04<br />group: Treated<br />group: Treated","x: 0.09983<br />estimate: 9.64e+04<br />group: Treated<br />group: Treated","x: 0.06860<br />estimate: 2.47e+05<br />group: Treated<br />group: Treated","x: 0.04708<br />estimate: 6.10e+05<br />group: Treated<br />group: Treated","x: 0.03235<br />estimate: 8.45e+05<br />group: Treated<br />group: Treated","x: 0.02228<br />estimate: 1.61e+06<br />group: Treated<br />group: Treated","x: 0.01540<br />estimate: 2.31e+06<br />group: Treated<br />group: Treated","x: 0.01067<br />estimate: 4.83e+06<br />group: Treated<br />group: Treated","x: 0.00742<br />estimate: 5.99e+06<br />group: Treated<br />group: Treated","x: 0.00518<br />estimate: 9.07e+06<br />group: Treated<br />group: Treated"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(213,94,0,1)","opacity":1,"size":7.559055118110237,"symbol":"circle","line":{"width":1.8897637795275593,"color":"rgba(213,94,0,1)"}},"hoveron":"points","name":"Treated","legendgroup":"Treated","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.0051791428283115351,0.0074228417246358213,0.010672937909719203,0.015396804774363648,0.02228407916551407,0.032350172763582284,0.047078630279825423,0.068596728860894435,0.099832613686658647,0.1444814564207996,0.2063951482350449,0.28791695023308367,0.38735415638742443,0.49739374749423682,0.60677609317873049,0.7048545487257154,0.78547629905491856,0.84754886500293602,0.89322648923070369,0.92586594975922176,0.92586594975922176,0.89322648923070369,0.84754886500293602,0.78547629905491856,0.7048545487257154,0.60677609317873049,0.49739374749423682,0.38735415638742443,0.28791695023308367,0.2063951482350449,0.1444814564207996,0.099832613686658647,0.068596728860894435,0.047078630279825423,0.032350172763582284,0.02228407916551407,0.015396804774363648,0.010672937909719203,0.0074228417246358213,0.0051791428283115351,0.0051791428283115351],"y":[18.747840064743158,18.694190800889444,19.049897977722249,19.223057192355391,19.179008251997626,19.184135098918116,19.100109359205586,18.847279890789451,18.405871497598529,18.49419188258311,18.298972636124372,17.916021755759829,17.351682498193675,17.068122230419533,16.367904472439502,16.339867528867039,15.728114549647184,14.525370661253699,13.827007106143203,12.434161627808797,17.488339072984651,18.388289978900481,18.841611904074409,19.908269973235459,20.306116796130599,20.386673083666714,21.349256410254959,21.47215373283791,22.087261818750612,22.394966895376768,22.514094798217961,22.902941302220238,23.31906200667569,24.387186853338239,24.61799094611132,25.179511122171522,25.510839974237928,26.505428430905354,26.774521753169697,27.505167293431938,18.747840064743158],"text":["x: 0.00518<br />estimate: 2.36e+17<br />group: NA<br />group: Control<br />lower: 18.7<br />upper: 2.75e+01","x: 0.00742<br />estimate: 1.47e+15<br />group: NA<br />group: Control<br />lower: 18.7<br />upper: 2.68e+01","x: 0.01067<br />estimate: 2.15e+14<br />group: NA<br />group: Control<br />lower: 19.0<br />upper: 2.65e+01","x: 0.01540<br />estimate: 2.77e+14<br />group: NA<br />group: Control<br />lower: 19.2<br />upper: 2.55e+01","x: 0.02228<br />estimate: 2.26e+01<br />group: NA<br />group: Control<br />lower: 19.2<br />upper: 2.52e+01","x: 0.03235<br />estimate: 2.22e+01<br />group: NA<br />group: Control<br />lower: 19.2<br />upper: 2.46e+01","x: 0.04708<br />estimate: 2.19e+01<br />group: NA<br />group: Control<br />lower: 19.1<br />upper: 2.44e+01","x: 0.06860<br />estimate: 2.15e+01<br />group: NA<br />group: Control<br />lower: 18.8<br />upper: 2.33e+01","x: 0.09983<br />estimate: 2.12e+01<br />group: NA<br />group: Control<br />lower: 18.4<br />upper: 2.29e+01","x: 0.14448<br />estimate: 2.09e+01<br />group: NA<br />group: Control<br />lower: 18.5<br />upper: 2.25e+01","x: 0.20640<br />estimate: 2.05e+01<br />group: NA<br />group: Control<br />lower: 18.3<br />upper: 2.24e+01","x: 0.28792<br />estimate: 2.01e+01<br />group: NA<br />group: Control<br />lower: 17.9<br />upper: 2.21e+01","x: 0.38735<br />estimate: 1.98e+01<br />group: NA<br />group: Control<br />lower: 17.4<br />upper: 2.15e+01","x: 0.49739<br />estimate: 1.93e+01<br />group: NA<br />group: Control<br />lower: 17.1<br />upper: 2.13e+01","x: 0.60678<br />estimate: 1.87e+01<br />group: NA<br />group: Control<br />lower: 16.4<br />upper: 2.04e+01","x: 0.70485<br />estimate: 1.82e+01<br />group: NA<br />group: Control<br />lower: 16.3<br />upper: 2.03e+01","x: 0.78548<br />estimate: 1.75e+01<br />group: NA<br />group: Control<br />lower: 15.7<br />upper: 1.99e+01","x: 0.84755<br />estimate: 1.68e+01<br />group: NA<br />group: Control<br />lower: 14.5<br />upper: 1.88e+01","x: 0.89323<br />estimate: 1.59e+01<br />group: NA<br />group: Control<br />lower: 13.8<br />upper: 1.84e+01","x: 0.92587<br />estimate: 1.51e+01<br />group: NA<br />group: Control<br />lower: 12.4<br />upper: 1.75e+01","x: 0.92587<br />estimate: 1.51e+01<br />group: NA<br />group: Control<br />lower: 12.4<br />upper: 1.75e+01","x: 0.89323<br />estimate: 1.59e+01<br />group: NA<br />group: Control<br />lower: 13.8<br />upper: 1.84e+01","x: 0.84755<br />estimate: 1.68e+01<br />group: NA<br />group: Control<br />lower: 14.5<br />upper: 1.88e+01","x: 0.78548<br />estimate: 1.75e+01<br />group: NA<br />group: Control<br />lower: 15.7<br />upper: 1.99e+01","x: 0.70485<br />estimate: 1.82e+01<br />group: NA<br />group: Control<br />lower: 16.3<br />upper: 2.03e+01","x: 0.60678<br />estimate: 1.87e+01<br />group: NA<br />group: Control<br />lower: 16.4<br />upper: 2.04e+01","x: 0.49739<br />estimate: 1.93e+01<br />group: NA<br />group: Control<br />lower: 17.1<br />upper: 2.13e+01","x: 0.38735<br />estimate: 1.98e+01<br />group: NA<br />group: Control<br />lower: 17.4<br />upper: 2.15e+01","x: 0.28792<br />estimate: 2.01e+01<br />group: NA<br />group: Control<br />lower: 17.9<br />upper: 2.21e+01","x: 0.20640<br />estimate: 2.05e+01<br />group: NA<br />group: Control<br />lower: 18.3<br />upper: 2.24e+01","x: 0.14448<br />estimate: 2.09e+01<br />group: NA<br />group: Control<br />lower: 18.5<br />upper: 2.25e+01","x: 0.09983<br />estimate: 2.12e+01<br />group: NA<br />group: Control<br />lower: 18.4<br />upper: 2.29e+01","x: 0.06860<br />estimate: 2.15e+01<br />group: NA<br />group: Control<br />lower: 18.8<br />upper: 2.33e+01","x: 0.04708<br />estimate: 2.19e+01<br />group: NA<br />group: Control<br />lower: 19.1<br />upper: 2.44e+01","x: 0.03235<br />estimate: 2.22e+01<br />group: NA<br />group: Control<br />lower: 19.2<br />upper: 2.46e+01","x: 0.02228<br />estimate: 2.26e+01<br />group: NA<br />group: Control<br />lower: 19.2<br />upper: 2.52e+01","x: 0.01540<br />estimate: 2.77e+14<br />group: NA<br />group: Control<br />lower: 19.2<br />upper: 2.55e+01","x: 0.01067<br />estimate: 2.15e+14<br />group: NA<br />group: Control<br />lower: 19.0<br />upper: 2.65e+01","x: 0.00742<br />estimate: 1.47e+15<br />group: NA<br />group: Control<br />lower: 18.7<br />upper: 2.68e+01","x: 0.00518<br />estimate: 2.36e+17<br />group: NA<br />group: Control<br />lower: 18.7<br />upper: 2.75e+01","x: 0.00518<br />estimate: 2.36e+17<br />group: NA<br />group: Control<br />lower: 18.7<br />upper: 2.75e+01"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"transparent","dash":"solid"},"fill":"toself","fillcolor":"rgba(0,114,178,0.2)","hoveron":"points","name":"(Control,1)","legendgroup":"(Control,1)","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.0051791428283115351,0.0074228417246358213,0.010672937909719203,0.015396804774363648,0.02228407916551407,0.032350172763582284,0.047078630279825423,0.068596728860894435,0.099832613686658647,0.1444814564207996,0.2063951482350449,0.28791695023308367,0.38735415638742443,0.49739374749423682,0.60677609317873049,0.7048545487257154,0.78547629905491856,0.84754886500293602,0.89322648923070369,0.92586594975922176,0.92586594975922176,0.92586594975922176,0.89322648923070369,0.84754886500293602,0.78547629905491856,0.7048545487257154,0.60677609317873049,0.49739374749423682,0.38735415638742443,0.28791695023308367,0.2063951482350449,0.1444814564207996,0.099832613686658647,0.068596728860894435,0.047078630279825423,0.032350172763582284,0.02228407916551407,0.015396804774363648,0.010672937909719203,0.0074228417246358213,0.0051791428283115351,0.0051791428283115351],"y":[16.445272700988575,16.956779314093392,17.327691158394302,17.457841326164189,17.564557184062274,17.730061144023942,18.566729404166701,18.849228850260726,19.664018746056477,20.285739539524208,20.24365837122615,20.224803313368355,20.419942534824784,20.205093932745648,19.78404689910526,19.174670652737102,18.439570849782097,17.754763145110864,16.935585298085748,16.567115942180269,16.567115942180269,22.687329121478523,22.74348261000971,22.863650773690466,22.980522021464001,23.074949106941776,23.449433684436894,23.701385596328066,23.565770865732386,24.045371420432193,24.238369250509599,26.254261351233644,27.066546642089399,535822.81297540572,2052702.8755349722,2001677.6447076756,4213112.8925077692,6047157.1332428977,11553841.425459212,17021607.492280658,19339599.175580714,16.445272700988575],"text":["x: 0.00518<br />estimate: 9.07e+06<br />group: NA<br />group: Treated<br />lower: 16.4<br />upper: 1.93e+07","x: 0.00742<br />estimate: 5.99e+06<br />group: NA<br />group: Treated<br />lower: 17.0<br />upper: 1.70e+07","x: 0.01067<br />estimate: 4.83e+06<br />group: NA<br />group: Treated<br />lower: 17.3<br />upper: 1.16e+07","x: 0.01540<br />estimate: 2.31e+06<br />group: NA<br />group: Treated<br />lower: 17.5<br />upper: 6.05e+06","x: 0.02228<br />estimate: 1.61e+06<br />group: NA<br />group: Treated<br />lower: 17.6<br />upper: 4.21e+06","x: 0.03235<br />estimate: 8.45e+05<br />group: NA<br />group: Treated<br />lower: 17.7<br />upper: 2.00e+06","x: 0.04708<br />estimate: 6.10e+05<br />group: NA<br />group: Treated<br />lower: 18.6<br />upper: 2.05e+06","x: 0.06860<br />estimate: 2.47e+05<br />group: NA<br />group: Treated<br />lower: 18.8<br />upper: 5.36e+05","x: 0.09983<br />estimate: 9.64e+04<br />group: NA<br />group: Treated<br />lower: 19.7<br />upper: 2.71e+01","x: 0.14448<br />estimate: 8.51e+04<br />group: NA<br />group: Treated<br />lower: 20.3<br />upper: 2.63e+01","x: 0.20640<br />estimate: 6.42e+04<br />group: NA<br />group: Treated<br />lower: 20.2<br />upper: 2.42e+01","x: 0.28792<br />estimate: 4.99e+03<br />group: NA<br />group: Treated<br />lower: 20.2<br />upper: 2.40e+01","x: 0.38735<br />estimate: 6.61e+03<br />group: NA<br />group: Treated<br />lower: 20.4<br />upper: 2.36e+01","x: 0.49739<br />estimate: 1.83e+03<br />group: NA<br />group: Treated<br />lower: 20.2<br />upper: 2.37e+01","x: 0.60678<br />estimate: 2.54e+04<br />group: NA<br />group: Treated<br />lower: 19.8<br />upper: 2.34e+01","x: 0.70485<br />estimate: 2.13e+01<br />group: NA<br />group: Treated<br />lower: 19.2<br />upper: 2.31e+01","x: 0.78548<br />estimate: 2.10e+01<br />group: NA<br />group: Treated<br />lower: 18.4<br />upper: 2.30e+01","x: 0.84755<br />estimate: 2.08e+01<br />group: NA<br />group: Treated<br />lower: 17.8<br />upper: 2.29e+01","x: 0.89323<br />estimate: 5.43e+03<br />group: NA<br />group: Treated<br />lower: 16.9<br />upper: 2.27e+01","x: 0.92587<br />estimate: 2.03e+01<br />group: NA<br />group: Treated<br />lower: 16.6<br />upper: 2.27e+01","x: 0.92587<br />estimate: 2.03e+01<br />group: NA<br />group: Treated<br />lower: 16.6<br />upper: 2.27e+01","x: 0.92587<br />estimate: 2.03e+01<br />group: NA<br />group: Treated<br />lower: 16.6<br />upper: 2.27e+01","x: 0.89323<br />estimate: 5.43e+03<br />group: NA<br />group: Treated<br />lower: 16.9<br />upper: 2.27e+01","x: 0.84755<br />estimate: 2.08e+01<br />group: NA<br />group: Treated<br />lower: 17.8<br />upper: 2.29e+01","x: 0.78548<br />estimate: 2.10e+01<br />group: NA<br />group: Treated<br />lower: 18.4<br />upper: 2.30e+01","x: 0.70485<br />estimate: 2.13e+01<br />group: NA<br />group: Treated<br />lower: 19.2<br />upper: 2.31e+01","x: 0.60678<br />estimate: 2.54e+04<br />group: NA<br />group: Treated<br />lower: 19.8<br />upper: 2.34e+01","x: 0.49739<br />estimate: 1.83e+03<br />group: NA<br />group: Treated<br />lower: 20.2<br />upper: 2.37e+01","x: 0.38735<br />estimate: 6.61e+03<br />group: NA<br />group: Treated<br />lower: 20.4<br />upper: 2.36e+01","x: 0.28792<br />estimate: 4.99e+03<br />group: NA<br />group: Treated<br />lower: 20.2<br />upper: 2.40e+01","x: 0.20640<br />estimate: 6.42e+04<br />group: NA<br />group: Treated<br />lower: 20.2<br />upper: 2.42e+01","x: 0.14448<br />estimate: 8.51e+04<br />group: NA<br />group: Treated<br />lower: 20.3<br />upper: 2.63e+01","x: 0.09983<br />estimate: 9.64e+04<br />group: NA<br />group: Treated<br />lower: 19.7<br />upper: 2.71e+01","x: 0.06860<br />estimate: 2.47e+05<br />group: NA<br />group: Treated<br />lower: 18.8<br />upper: 5.36e+05","x: 0.04708<br />estimate: 6.10e+05<br />group: NA<br />group: Treated<br />lower: 18.6<br />upper: 2.05e+06","x: 0.03235<br />estimate: 8.45e+05<br />group: NA<br />group: Treated<br />lower: 17.7<br />upper: 2.00e+06","x: 0.02228<br />estimate: 1.61e+06<br />group: NA<br />group: Treated<br />lower: 17.6<br />upper: 4.21e+06","x: 0.01540<br />estimate: 2.31e+06<br />group: NA<br />group: Treated<br />lower: 17.5<br />upper: 6.05e+06","x: 0.01067<br />estimate: 4.83e+06<br />group: NA<br />group: Treated<br />lower: 17.3<br />upper: 1.16e+07","x: 0.00742<br />estimate: 5.99e+06<br />group: NA<br />group: Treated<br />lower: 17.0<br />upper: 1.70e+07","x: 0.00518<br />estimate: 9.07e+06<br />group: NA<br />group: Treated<br />lower: 16.4<br />upper: 1.93e+07","x: 0.00518<br />estimate: 9.07e+06<br />group: NA<br />group: Treated<br />lower: 16.4<br />upper: 1.93e+07"],"type":"scatter","mode":"lines","line":{"width":1.8897637795275593,"color":"transparent","dash":"solid"},"fill":"toself","fillcolor":"rgba(213,94,0,0.2)","hoveron":"points","name":"(Treated,1)","legendgroup":"(Treated,1)","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":43.098381070983812,"r":7.9701120797011216,"b":40.647571606475722,"l":72.528019925280233},"paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":15.940224159402243},"title":{"text":"<b> Treated vs Control Means <\/b>","font":{"color":"rgba(0,0,0,1)","family":"","size":19.128268991282692},"x":0,"xref":"paper"},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.040855197518233979,0.97190029010576728],"tickmode":"array","ticktext":["0.00","0.25","0.50","0.75"],"tickvals":[0,0.25,0.5,0.75],"categoryorder":"array","categoryarray":["0.00","0.25","0.50","0.75"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.9850560398505608,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":12.7521793275218},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.72455564360919278,"zeroline":false,"anchor":"y","title":{"text":"Estimated PS","font":{"color":"rgba(0,0,0,1)","family":"","size":15.940224159402243}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-11793646734343316,2.4766658142120986e+17],"tickmode":"array","ticktext":["0.0e+00","5.0e+16","1.0e+17","1.5e+17","2.0e+17"],"tickvals":[0,50000000000000000,1e+17,1.5e+17,2e+17],"categoryorder":"array","categoryarray":["0.0e+00","5.0e+16","1.0e+17","1.5e+17","2.0e+17"],"nticks":null,"ticks":"","tickcolor":null,"ticklen":3.9850560398505608,"tickwidth":0,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":12.7521793275218},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(235,235,235,1)","gridwidth":0.72455564360919278,"zeroline":false,"anchor":"x","title":{"text":"Mean Outcome","font":{"color":"rgba(0,0,0,1)","family":"","size":15.940224159402243}},"hoverformat":".2f"},"shapes":[],"showlegend":true,"legend":{"bgcolor":null,"bordercolor":null,"borderwidth":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":12.7521793275218},"orientation":"h","x":0.5,"y":1.02,"xanchor":"center","yanchor":"bottom","title":{"text":"Arm","font":{"color":"rgba(0,0,0,1)","family":"","size":15.940224159402243}}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"source":"A","attrs":{"b8107bc87dd2":{"x":{},"y":{},"colour":{},"fill":{},"type":"scatter"},"b8106cbd51":{"x":{},"y":{},"colour":{},"fill":{}},"b81026474d41":{"x":{},"y":{},"colour":{},"fill":{},"ymin":{},"ymax":{}}},"cur_data":"b8107bc87dd2","visdat":{"b8107bc87dd2":["function (y) ","x"],"b8106cbd51":["function (y) ","x"],"b81026474d41":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>Xnew <span class="ot">&lt;-</span> <span class="fu">rbind</span>(</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">0</span>),</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>),</span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>)</span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a>q_new <span class="ot">&lt;-</span> <span class="fu">qte</span>(</span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a>  fit,</span>
+<span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.9</span>, <span class="fl">0.95</span>),</span>
+<span id="cb52-10"><a href="#cb52-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">newdata =</span> Xnew,</span>
+<span id="cb52-11"><a href="#cb52-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">interval =</span> <span class="st">"credible"</span>,</span>
+<span id="cb52-12"><a href="#cb52-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">level =</span> <span class="fl">0.90</span></span>
+<span id="cb52-13"><a href="#cb52-13" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb52-14"><a href="#cb52-14" aria-hidden="true" tabindex="-1"></a>q_new<span class="sc">$</span>fit</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         [,1]   [,2]   [,3]
+[1,] 3.46e-14 -0.321 -0.615
+[2,] 1.37e+00  1.823  2.021
+[3,] 6.67e-01  0.700  0.790</code></pre>
 </div>
 </div>
 </section>
 </section>
-<section id="quantile-treatment-effect-qte" class="level2">
-<h2 class="anchored" data-anchor-id="quantile-treatment-effect-qte">Quantile Treatment Effect (QTE)</h2>
+<section id="average-treatment-effects-ate" class="level2">
+<h2 class="anchored" data-anchor-id="average-treatment-effects-ate">Average treatment effects (ATE)</h2>
+<p><code>ate()</code> computes treated-minus-control differences in posterior means. Because posterior means for mixtures with tails are usually computed via posterior predictive simulation, <code>ate()</code> uses <code>nsim_mean</code> posterior predictive draws per posterior iteration.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>probs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span>)</span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>qte_result <span class="ot">&lt;-</span> <span class="fu">qte</span>(fit, <span class="at">probs =</span> probs, <span class="at">interval =</span> <span class="st">"hpd"</span>)</span>
-<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(qte_result)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a>a <span class="ot">&lt;-</span> <span class="fu">ate</span>(</span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a>  fit,</span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">interval =</span> <span class="st">"credible"</span>,</span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">level =</span> <span class="fl">0.95</span>,</span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">nsim_mean =</span> <span class="dv">80</span></span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb54-7"><a href="#cb54-7" aria-hidden="true" tabindex="-1"></a>a<span class="sc">$</span>fit</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>QTE (Quantile Treatment Effect)
-  Prediction points: 32
-  Quantile grid: 0.1, 0.5, 0.9
-  Conditional (covariates): YES
-  Propensity score used: YES
-  PS scale: logit
-  Credible interval: hpd
-
-QTE estimates (treated - control):
-&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
- &lt;thead&gt;
-  &lt;tr&gt;
-   &lt;th style="text-align:center;"&gt; index &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; id &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; estimate &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; lower &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; upper &lt;/th&gt;
-  &lt;/tr&gt;
- &lt;/thead&gt;
-&lt;tbody&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 0.1 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2.71 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.326 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 5.719 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 0.1 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2.613 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; -0.462 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 5.445 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 0.1 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 4.101 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.636 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 6.743 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 0.1 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 3.737 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.256 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 7.343 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 0.1 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 5 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2.074 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; -1.049 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 5.467 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 0.1 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 6 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 4.105 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; -0.031 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 8.716 &lt;/td&gt;
-  &lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;... (90 more rows)</code></pre>
+<pre><code>  [1]  -47.8620  -11.9135   -7.8153   -4.6674   -1.4717  -16.1527    0.1793
+  [8]   -2.7536   -0.3875  -20.5098  -41.1723   -3.4209   -1.4658   -1.9781
+ [15]   -3.8540 -460.2113   -2.6525  -16.1119  -15.6648  -19.6472    0.0584
+ [22]   -1.4545  -24.9177   -0.2415   -1.0382   -6.1847   -5.7052  -41.0914
+ [29]   -0.4200  -12.8685   -0.6557  -10.1409  -20.7959   -1.5716  -46.6698
+ [36]  -65.6571 -183.9399   -1.9494  -15.7795  -17.9425   -3.2543 -298.5776
+ [43]   -0.9448 -241.3655  -27.5780  -33.6314  -16.2653  -17.9968  -19.7056
+ [50]  -68.6104  -70.8493   -1.9381   -1.1235  -14.0263  -58.4725 -227.3240
+ [57]   -2.2970  -21.1293   -2.3505   -0.8754 -233.3162  -96.4277  -37.7767
+ [64]   -9.5664  -10.7627   -1.4229   -2.1763  -55.4603  -29.8460   -1.2901
+ [71]  -65.2691   -9.2127  -23.8619  -35.4870  -13.6117  -75.2212 -160.6363
+ [78]  -53.0076   -2.9064   -6.3379  -11.3022   -2.0625  -32.1955 -152.3667
+ [85] -467.6356   -0.2082   -5.1720   -0.8293  -27.2006  -39.3265  -11.8473
+ [92]   -8.1812  -59.2184   -7.1436   -2.0719  -72.4124   -5.2107   -9.6114
+ [99]   -2.0065   -1.4760  -12.9295   -1.0629   -0.9476   -1.0947  -31.9128
+[106]   -2.2301   -0.3713   -3.1483  -47.4454  -29.0475  -67.5181   -2.9546
+[113]  -12.5543    0.0478  -19.0362   -0.1460   -9.8819   -0.6808   -0.8608
+[120]  -36.7386   -3.1496  -12.7029  -47.2932   -1.2951   -4.1145 -135.8458
+[127]   -3.5084  -14.1381   -9.2786   -2.3629   -5.2107 -101.7503  -10.8943
+[134] -615.0746   -6.5351   -1.3115   -2.6597   -0.2831   -4.9270   -4.9856
+[141]   -2.0344   -9.9959  -47.2293   -1.6595   -4.4092  -41.7554   -7.9657
+[148]  -88.9676  -44.5031   -1.4570   -4.4486   -5.4006   -7.0264   -1.4961
+[155]   -9.7222   -1.9038   -4.4870  -10.1994   -0.6505   -2.7324  -10.6965
+[162]  -82.8974   -1.5573  -12.7798   -6.3930   -3.4051    0.1984   -2.6460
+[169] -103.6663  -14.7585   -3.1401   -2.6799  -37.5295   -1.4026   -2.6692
+[176]  -32.1038  -24.9338  -49.8886   -6.0227   -2.1871  -55.4440   -1.4579
+[183]  -27.3860   -1.4265  -39.2670 -583.2599  -40.7845  -33.8786 -194.6105
+[190]  -14.7035   -1.5308   -0.7158   -1.7184   -1.9987   -1.5984   -2.1168
+[197]  -22.8132  -39.2012  -33.5253  -60.6805   -8.2982  -75.5745   -1.6906
+[204]  -19.3886   -1.3278  -51.6755 -102.9424   -2.1186  -29.6012 -191.9040
+[211]   -9.3777   -1.1527  -11.1938   -3.3906  -35.5294   -0.3893   -6.0325
+[218]  -80.7566  -91.4331   -1.4377   -8.4669 -171.8018  -54.8837  -22.4108
+[225]   -1.0252  -20.0278   -1.0026 -108.9656   -1.0453  -38.7069   -5.6859
+[232] -233.2671   -1.3044  -32.1641 -218.9381   -1.1248   -0.9684   -7.0520
+[239]  -25.7820   -1.9947   -1.2208   -7.6288   -0.9864  -13.2507 -170.7944
+[246]   -1.3886  -15.8798  -28.1582   -1.5953   -1.2481</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>qte_grid <span class="ot">&lt;-</span> <span class="fu">qte</span>(fit, <span class="at">probs =</span> probs, <span class="at">newdata =</span> X_new, <span class="at">interval =</span> <span class="st">"hpd"</span>)</span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(qte_grid)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a>a<span class="sc">$</span>lower; a<span class="sc">$</span>upper</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>QTE (Quantile Treatment Effect)
-  Prediction points: 20
-  Quantile grid: 0.1, 0.5, 0.9
-  Conditional (covariates): YES
-  Propensity score used: YES
-  PS scale: logit
-  Credible interval: hpd
-
-QTE estimates (treated - control):
-&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
- &lt;thead&gt;
-  &lt;tr&gt;
-   &lt;th style="text-align:center;"&gt; index &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; id &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; estimate &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; lower &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; upper &lt;/th&gt;
-  &lt;/tr&gt;
- &lt;/thead&gt;
-&lt;tbody&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 0.1 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 5.257 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2.193 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 7.946 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 0.1 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 4.886 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2.11 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 7.693 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 0.1 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 3 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 4.514 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 1.418 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 6.963 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 0.1 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 4 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 4.143 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 1.063 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 6.571 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 0.1 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 5 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 3.777 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.912 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 6.335 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 0.1 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 6 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 3.438 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.319 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 5.932 &lt;/td&gt;
-  &lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;... (54 more rows)</code></pre>
+<pre><code>  [1]  -650.18  -116.16   -75.71    -8.54    -5.63  -148.85   -11.16   -16.73
+  [9]    -7.46  -184.60  -340.55    -9.98    -4.48    -7.70   -37.80 -3583.70
+ [17]   -13.57  -117.92    -9.37   -84.96    -6.51    -6.15   -34.66    -8.00
+ [25]    -4.84   -61.04   -30.05  -333.83    -5.80  -143.52    -7.88   -74.67
+ [33]   -52.40   -18.22  -272.15  -486.74 -1535.10   -16.40    -4.60  -144.23
+ [41]    -9.12 -1633.63    -3.48   -48.27   -89.04   -66.28    -7.56  -142.63
+ [49]  -142.70  -636.17  -228.84   -12.05    -8.01   -15.88  -855.43 -2036.99
+ [57]   -14.82   -45.77   -16.03    -9.64 -2959.66   -54.98  -254.33    -8.39
+ [65]  -112.38    -3.73   -11.37  -469.47  -120.37    -3.87  -349.61   -74.87
+ [73]  -247.57  -259.31  -125.30  -351.42   -24.74   -23.42   -10.05   -10.44
+ [81]   -53.30   -12.85  -282.05  -692.30 -6957.83    -5.46    -5.71    -3.51
+ [89]  -256.12  -173.51   -26.91   -81.42  -529.44    -7.65   -13.55  -923.70
+ [97]   -32.82   -25.12    -4.53    -4.89   -23.23   -10.05    -3.55    -6.61
+[105]  -164.50   -22.29   -13.12   -24.42  -582.92  -229.27  -621.13    -6.99
+[113]  -136.64    -8.75  -125.08    -9.13   -61.82   -11.63    -7.45  -461.21
+[121]   -18.61  -104.00   -37.00    -6.16    -7.69   -10.10    -6.68   -67.44
+[129]    -9.82    -9.65   -60.80   -22.60   -75.70 -4205.26   -27.69   -18.62
+[137]   -30.47   -12.36   -37.74   -11.63   -20.39   -88.96  -547.74   -13.26
+[145]   -71.58  -528.74   -89.81  -142.04  -498.45    -4.40   -44.07    -3.21
+[153]   -45.56    -8.74   -24.67    -8.20   -33.46   -67.01    -7.47   -35.28
+[161]   -71.91  -621.84   -12.97  -181.17    -6.86   -10.04    -2.81   -21.42
+[169]  -476.13   -16.21   -20.12    -8.82  -194.51    -3.65    -4.64  -306.79
+[177]  -241.28  -479.92   -29.28   -10.28  -551.42    -6.38  -217.54    -7.04
+[185]   -10.07   -20.89  -149.62  -109.66  -478.97  -246.58    -5.46    -5.29
+[193]   -10.93    -6.69   -14.68   -20.94  -161.64  -398.58  -462.62  -346.86
+[201]   -45.18  -196.05   -18.03  -219.31    -5.84    -5.05  -783.68   -12.78
+[209]  -123.56    -6.28   -21.49    -6.19   -17.71   -23.22  -185.12    -5.19
+[217]   -87.30  -457.70  -424.67   -28.16   -40.46   -55.75  -499.20   -31.77
+[225]    -4.59  -103.31    -5.70   -69.92    -6.28   -18.13   -25.76 -2242.87
+[233]    -3.72  -522.67 -1509.68    -4.04    -3.22   -67.13  -181.96    -6.56
+[241]    -4.61   -35.13   -16.88  -100.63   -15.11    -7.19  -108.13  -266.16
+[249]    -7.01    -4.79</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(qte_grid)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>QTE Summary
-================================================== 
-Prediction points: 20 | Quantiles: 3
-Quantile grid: 0.1, 0.5, 0.9
-Conditional: YES | PS used: YES
-Interval: hpd
-
-Model specification:
-  Backend (trt/con): sb / sb
-  Kernel (trt/con): normal / normal
-  GPD tail (trt/con): YES / YES
-
-QTE by quantile:
-&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
- &lt;thead&gt;
-  &lt;tr&gt;
-   &lt;th style="text-align:center;"&gt; quantile &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; mean_qte &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; median_qte &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; min_qte &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; max_qte &lt;/th&gt;
-   &lt;th style="text-align:center;"&gt; sd_qte &lt;/th&gt;
-  &lt;/tr&gt;
- &lt;/thead&gt;
-&lt;tbody&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 0.1 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2.982 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2.598 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 1.942 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 5.257 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 1.021 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 0.5 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 1.500e+05 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 3.691 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2.364 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 1.793e+06 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 4.410e+05 &lt;/td&gt;
-  &lt;/tr&gt;
-  &lt;tr&gt;
-   &lt;td style="text-align:center;"&gt; 0.9 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2.913e+06 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 4.697 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 0.84 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 2.595e+07 &lt;/td&gt;
-   &lt;td style="text-align:center;"&gt; 6.527e+06 &lt;/td&gt;
-  &lt;/tr&gt;
-&lt;/tbody&gt;
-&lt;/table&gt;
-Credible interval width:
-  Mean: 4.959e+06 | Median: 11.545
-  Range: [4.291, 1.379e+08]</code></pre>
+<pre><code>  [1]  1.96102  1.75865  2.37681 -0.09515  0.23747  1.85907  2.09472  0.10653
+  [9]  2.15464  2.11566  1.64097  2.26629  0.04559 -0.05724  2.82767  1.44452
+ [17]  1.61058  1.97550  2.38611  1.76680  2.12844 -0.09568  2.62909  1.99185
+ [25]  0.28680 -0.09087  1.61853  2.14101  2.07498  1.67504  2.04716  1.71978
+ [33]  1.64877  0.06920  2.15597  2.09993  1.52515 -0.06239 -0.01399  2.05787
+ [41]  0.06293  1.42669 -0.02793  1.88892  1.73896  2.90520  0.08527  1.82149
+ [49]  1.96659  1.77752  2.10208  3.13557  0.04028  1.55015  1.88670  1.48211
+ [57]  0.09189  1.69680  1.58334  1.85135  1.48559  2.89114  2.12888  0.54019
+ [65]  1.65124 -0.04342 -0.11811  2.13740  1.82107 -0.07437  2.03857  1.77428
+ [73]  2.01016  1.61352  1.85252  2.06620  1.70153  2.15311  2.44410 -0.11044
+ [81]  2.60960 -0.11012  2.20003  1.53708  1.55120  1.99541 -0.03365  0.06624
+ [89]  2.08934  1.71167  2.53242  2.70411  1.75872 -0.09689 -0.09531  1.62671
+ [97]  2.83910  0.22156 -0.02339 -0.00642  2.49166  0.84009  0.00743 -0.02722
+[105]  2.00889  3.13191  2.29825  3.01663  2.11682  2.07880  2.03375  0.11095
+[113]  1.65781  2.60353  1.59860  1.64274  1.72690  1.54787  0.47389  2.11769
+[121]  1.71239  1.88186  2.58113 -0.02215 -0.07281  1.85653 -0.01194  1.55747
+[129] -0.09830 -0.09066  1.67494  1.02783  1.58704  1.37284  1.68945  1.73073
+[137]  1.67191  2.02668  3.02846 -0.11618  0.01345  1.77841  2.10765  0.42452
+[145]  1.62974  2.06715  1.58973  1.70584  1.92125 -0.07818  1.66845  0.08865
+[153]  1.49373 -0.06145  1.67079 -0.05919  1.59570  1.68595  0.82990  2.09742
+[161]  1.62261  2.13444  0.08651  1.77933 -0.11131 -0.04412  2.10547 -0.09243
+[169]  1.56353  2.37439  2.44927  2.39738  1.92650  1.06587 -0.06564  2.22889
+[177]  2.05443  2.06345  1.68177 -0.09392  1.99561 -0.08968  1.64068 -0.05662
+[185]  1.86157  2.53097  1.99956  1.59069  2.11394  1.65953 -0.08488  0.18231
+[193] -0.09603  0.03030  1.64078  2.10844  2.12266  2.15378  2.15488  2.15904
+[201]  1.80204  1.93458  3.10398  1.71422 -0.07470  1.28878  2.04703  0.03046
+[209]  1.68886  0.69854  1.64808  0.02373  2.85830 -0.08328  1.76899  1.54122
+[217]  1.63996  1.53335  1.76893  2.90415  1.70428  1.62045  2.03741  2.67984
+[225]  0.43778  1.73481  0.23093  1.58624  0.02395  2.73909  2.41825  1.42748
+[233] -0.01810  2.06949  1.48942 -0.11049  0.02677  1.56306  1.80940  0.01254
+[241]  0.22434  3.93063  1.75232  1.61216  2.19146 -0.01902  1.75123  1.76675
+[249]  0.02754  0.05240</code></pre>
 </div>
 </div>
-<section id="qte-visualization" class="level3">
-<h3 class="anchored" data-anchor-id="qte-visualization">QTE Visualization</h3>
-<p>The <code>plot()</code> method for QTE objects supports multiple visualization types:</p>
+<section id="restricted-mean-difference" class="level3">
+<h3 class="anchored" data-anchor-id="restricted-mean-difference">Restricted mean difference</h3>
+<p>DPmixGPD also supports a truncated/restricted mean target through <code>ate(..., type="rmean", cutoff = ...)</code>, which computes the mean of ((Y, c)) under each arm and then differences them. This can be a robust alternative when extreme tails dominate the mean.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>a_r <span class="ot">&lt;-</span> <span class="fu">ate</span>(</span>
+<span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>  fit,</span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">"rmean"</span>,</span>
+<span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">cutoff =</span> <span class="fu">as.numeric</span>(stats<span class="sc">::</span><span class="fu">quantile</span>(y, <span class="fl">0.90</span>)),</span>
+<span id="cb59-5"><a href="#cb59-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">interval =</span> <span class="st">"credible"</span>,</span>
+<span id="cb59-6"><a href="#cb59-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">level =</span> <span class="fl">0.95</span>,</span>
+<span id="cb59-7"><a href="#cb59-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">nsim_mean =</span> <span class="dv">80</span></span>
+<span id="cb59-8"><a href="#cb59-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb59-9"><a href="#cb59-9" aria-hidden="true" tabindex="-1"></a>a_r<span class="sc">$</span>fit</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  [1]  0.00142  0.42225  0.66072 -0.70755 -0.22875  0.41437  0.97508 -0.36410
+  [9]  0.26287  0.36819  0.46625  0.91196 -0.47594 -0.68999  0.57175 -0.61870
+ [17]  0.46840  0.39781  0.88733  0.45681  0.25819 -0.72048  0.64878  0.27919
+ [25] -0.14627 -0.72876  0.83384  0.13685  0.96829  0.45125  0.99166  0.44035
+ [33]  0.43764 -0.39677  0.06491  0.14797 -0.44414 -0.66814 -0.54944  0.32477
+ [41] -0.45716 -0.51715 -0.64451  0.27786  0.45040  0.52065 -0.40767  0.37370
+ [49]  0.34375 -0.19599  0.01203  0.47495 -0.54610  0.36784 -0.09414 -0.52805
+ [57] -0.42532  0.46258  0.42189  0.30797 -0.46008  0.49926  0.08510  0.04753
+ [65]  0.46845 -0.65062 -0.75092  0.22718  0.41372 -0.66464 -0.01570  0.44011
+ [73]  0.36394  0.45570  0.38202 -0.01659  0.36895  0.97327  0.85726 -0.73245
+ [81]  0.89385 -0.74763  0.18349 -0.27975 -0.57784  0.28589 -0.59111 -0.39998
+ [89]  0.25944  0.45223  0.64514  0.62208 -0.17842 -0.72452 -0.73816 -0.21803
+ [97]  0.50865 -0.13252 -0.64727 -0.56615  0.86835  0.24563 -0.42383 -0.62199
+[105]  0.00363  0.49402  0.91279  0.49921  0.24574  0.27291 -0.09763 -0.36489
+[113]  0.44602  0.74861  0.45414  0.78845  0.37566  0.40469 -0.01985  0.05732
+[121]  0.39803  0.41354  0.60122 -0.49398 -0.69458  0.91780 -0.58663  0.45104
+[129] -0.74530 -0.73826  0.44951  0.42796  0.47121 -0.54539  0.38524  0.40882
+[137]  0.43844  0.98141  0.46488 -0.72855 -0.56245  0.46730  0.03651 -0.04636
+[145]  0.45616  0.11112  0.45637  0.45222  0.03355 -0.68815  0.43800 -0.30861
+[153]  0.45027 -0.65047  0.37815 -0.72749  0.45930  0.43965  0.26580  0.98825
+[161]  0.45551  0.13539 -0.38157  0.45262 -0.71755 -0.65302  0.25534 -0.73074
+[169] -0.20970  0.89645  0.85333  0.96214  0.40872  0.41330 -0.66845  0.09759
+[177]  0.30643 -0.03235  0.45740 -0.75609 -0.08937 -0.72201  0.44619 -0.70602
+[185]  0.91117  0.82145  0.40602  0.44916  0.11962  0.45607 -0.72359 -0.22982
+[193] -0.73655 -0.37806  0.40958  0.98485  0.22921  0.04852 -0.00527  0.06912
+[201]  0.44123 -0.07701  0.19629  0.43231 -0.68436  0.59455  0.35978 -0.44347
+[209]  0.46687  0.17445  0.43509 -0.54539  0.57193 -0.73565  0.41656  0.76734
+[217]  0.38859 -0.25026 -0.16339  0.62965  0.45277  0.45437  0.04754  0.53055
+[225] -0.07873  0.46489 -0.24159  0.45606 -0.45599  0.41868  0.65299 -0.52601
+[233] -0.58338  0.39307 -0.43154 -0.69034 -0.55894  0.45168  0.42075 -0.57026
+[241] -0.23275  0.30848  0.41239  0.44946  0.96694 -0.54928  0.40929  0.44330
+[249] -0.51880 -0.50155</code></pre>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="diagnostics-and-practical-guidance" class="level1">
+<h1>Diagnostics and practical guidance</h1>
+<ol type="1">
+<li><p><strong>Check overlap</strong>. If treated and control units have little overlap in propensity score, causal estimands at covariate values outside overlap become extrapolation problems regardless of outcome model flexibility. Rosenbaum–Rubin diagnostics (PS histograms by group) remain useful here <span class="citation" data-cites="rosenbaum1983">(<a href="#ref-rosenbaum1983" role="doc-biblioref">Rosenbaum and Rubin 1983</a>)</span>.</p></li>
+<li><p><strong>Tail identifiability matters</strong>. If you enable <code>GPD=TRUE</code> but only a small number of exceedances are effectively informed by the splice, the tail parameters can be weakly identified and extreme QTEs (e.g., ()) may have wide intervals.</p></li>
+<li><p><strong>Start simpler</strong>. If this is your first causal DPmixGPD run, consider:</p>
 <ul>
-<li><code>type = "both"</code> (default): Returns a list with <code>trt_control</code> and <code>treatment_effect</code> plots</li>
-<li><code>type = "effect"</code>: Quantile treatment effect curves faceted by quantile level</li>
-<li><code>type = "arms"</code>: Treated vs control quantile curves</li>
-</ul>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>qte_plots <span class="ot">&lt;-</span> <span class="fu">plot</span>(qte_grid)</span>
-<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>qte_plots<span class="sc">$</span>treatment_effect</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="causal_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a>qte_plots<span class="sc">$</span>trt_control</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="causal_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
-</figure>
-</div>
-</div>
-</div>
+<li>bulk-only (<code>GPD=FALSE</code>),</li>
+<li>linking only one bulk location parameter to (X),</li>
+<li>then incrementally adding tail modeling and more link-mode parameters.</li>
+</ul></li>
+<li><p><strong>Backend choice</strong>. For causal models that use link-mode parameters (conditional outcome distributions), <code>backend="sb"</code> is the recommended starting point.</p></li>
+</ol>
 </section>
-</section>
-<section id="model-summary" class="level2">
-<h2 class="anchored" data-anchor-id="model-summary">Model Summary</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>-- PS fit --
-DPmixGPD PS fit
-model: logit 
+<section id="references" class="level1">
 
--- Outcome fits --
-[control]
-MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: TRUE
-n = 19 | components = 6 | epsilon = 0.025
-MCMC: niter=400, nburnin=100, thin=2, nchains=1 
-Fit
-Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 
-[treated]
-MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: TRUE
-n = 13 | components = 6 | epsilon = 0.025
-MCMC: niter=400, nburnin=100, thin=2, nchains=1 
-Fit
-Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</code></pre>
-</div>
-</div>
 
 
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-firpo2007" class="csl-entry" role="listitem">
+Firpo, Sergio. 2007. <span>“Efficient Semiparametric Estimation of Quantile Treatment Effects.”</span> <em>Econometrica</em> 75 (1): 259–76. <a href="https://doi.org/10.1111/j.1468-0262.2007.00738.x">https://doi.org/10.1111/j.1468-0262.2007.00738.x</a>.
+</div>
+<div id="ref-koenker1978" class="csl-entry" role="listitem">
+Koenker, Roger, and Gilbert Bassett. 1978. <span>“Regression Quantiles.”</span> <em>Econometrica</em> 46 (1): 33–50. <a href="https://doi.org/10.2307/1913643">https://doi.org/10.2307/1913643</a>.
+</div>
+<div id="ref-rosenbaum1983" class="csl-entry" role="listitem">
+Rosenbaum, Paul R., and Donald B. Rubin. 1983. <span>“The Central Role of the Propensity Score in Observational Studies for Causal Effects.”</span> <em>Biometrika</em> 70 (1): 41–55. <a href="https://doi.org/10.1093/biomet/70.1.41">https://doi.org/10.1093/biomet/70.1.41</a>.
+</div>
+<div id="ref-rubin1974" class="csl-entry" role="listitem">
+Rubin, Donald B. 1974. <span>“Estimating Causal Effects of Treatments in Randomized and Nonrandomized Studies.”</span> <em>Journal of Educational Psychology</em> 66 (5): 688–701. <a href="https://doi.org/10.1037/h0037350">https://doi.org/10.1037/h0037350</a>.
+</div>
+</div></section></div></main> <!-- /main -->
 ﻿<div style="
   display:flex;
   flex-wrap:wrap;
@@ -1017,8 +1756,8 @@ Use summary() for posterior summaries; plot() for diagnostics; predict() for pre
   <div>
     <span id="site-version"></span> -
     <span id="site-updated"></span> -
-    <a href="cite.html">Cite</a> -
-    <a href="pkgdown/index.html">API</a> -
+    <a href="../cite.html">Cite</a> -
+    <a href="../pkgdown/index.html">API</a> -
     <a href="https://github.com/arnabaich96/DPmixGPD">GitHub</a>
   </div>
 

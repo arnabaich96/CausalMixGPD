@@ -1,14 +1,7 @@
-﻿---
+---
 title: "Gamma"
 pkgdown:
   slug: "kernels/kernel-gamma"
-output:
-  rmarkdown::html_vignette:
-    highlight: null
-vignette: >
-  %\\VignetteIndexEntry{Gamma}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}

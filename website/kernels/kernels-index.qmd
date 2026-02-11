@@ -1,15 +1,8 @@
-﻿---
+---
 title: "Kernels Overview"
 pkgdown:
   slug: kernels-index
 alias: kernels-index
-output:
-  rmarkdown::html_vignette:
-    highlight: null
-vignette: >
-  %\VignetteIndexEntry{Kernels Overview}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 # Setup chunk keeps DPmixGPD loaded while describing kernels.

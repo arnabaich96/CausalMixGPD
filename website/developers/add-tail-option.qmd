@@ -1,0 +1,26 @@
+---
+title: "How to add or modify a tail option"
+toc: true
+format:
+  html:
+    code-fold: true
+---
+
+This page covers modifications to the GPD splice (or alternative tail designs, if added later).
+
+## What must hold
+
+- **Support consistency**: tail piece must respect the same support as the bulk.
+- **Continuity at splice**: densities and CDFs should match at the splice point.
+- **Numerical stability**: log-density computations must be stable for extreme values.
+
+## Where to implement
+
+- Base tail utilities usually live in `R/0-base-kernels.R`.
+- Legality checks live in `R/00-global-contracts.R`.
+- Kernel-specific splice wrappers live in each `R/*-mixgpd.R`.
+
+## What to test
+
+- continuity at splice for multiple parameter draws
+- predictive quantiles for extreme τ behave sensibly

@@ -1,81 +1,38 @@
-﻿---
+---
 title: "Developers"
-page-layout: full
+toc: true
+format:
+  html:
+    code-fold: true
 ---
 
-::: {.hero}
-::: {.container}
-# Developers
+Welcome. This section documents the internal architecture of **DPmixGPD** and provides contributor recipes for extending kernels, tails, and workflows.
 
-Developer-facing notes for building docs, validating package state, and keeping Quarto/pkgdown outputs consistent.
+{{< include developers/_includes/golden-rules.md >}}
 
-[Open pkgdown](pkgdown/index.html){.btn .btn-primary}
-[Open API reference](pkgdown/reference/index.html){.btn .btn-outline-light}
-:::
-:::
+{{< include developers/_includes/where-to-change-what.md >}}
 
-::: {.section}
-::: {.container}
+{{< include developers/_includes/common-pitfalls.md >}}
 
-::: {.grid-3}
+## How the system fits together
 
-::: {.cardx}
-### Build docs
-Use the project build script to render Quarto and pkgdown into `docs/`.
-
-```r
-source("tools/build_docs.R")
-build_docs()
-```
-:::
-
-::: {.cardx}
-### Package checks
-Run standard package checks before publishing docs.
-
-```r
-devtools::check()
+```mermaid
+flowchart LR
+  A[User inputs] --> B[Spec compilation]
+  B --> C[Contracts + validation]
+  C --> D[Kernel registry]
+  D --> E[Bundle builder + codegen]
+  E --> F[MCMC run]
+  F --> G[Fit objects]
+  G --> H[S3: print/summary/plot/predict]
 ```
 
-or
+## Start here
 
-```sh
-R CMD check .
-```
-:::
-
-::: {.cardx}
-### Test focus
-Use targeted tests under `tests/testthat` for fast iteration, then full checks for release readiness.
-
-- `tests/testthat/test-vignette-coverage.R`
-- `tests/testthat/test-smoke-core-workflows.R`
-:::
-
-:::
-
-:::
-:::
-
-::: {.section}
-::: {.container}
-
-## Documentation maintenance
-
-- Keep Quarto map pages concise and conceptual.
-- Keep full function and article details in pkgdown.
-- If exported R APIs change, regenerate roxygen docs and refresh relevant articles.
-- Keep links branch-aware (`master` currently) until repository default branch changes.
-
-## Where to go next
-
-1. [Coverage](coverage.html) for test/coverage entry points.
-2. [News](news.html) for documentation-level updates.
-3. [Roadmap](roadmap.html) for workflow progression.
-
-:::
-:::
-
-
-
-
+- Architecture overview: [developers/architecture.qmd](developers/architecture.qmd)
+- Tools and builds: [developers/tools.qmd](developers/tools.qmd) and [developers/site-build.qmd](developers/site-build.qmd)
+- Add a kernel: [developers/add-kernel.qmd](developers/add-kernel.qmd)
+- Causal internals: [developers/causal-internals.qmd](developers/causal-internals.qmd)
+- Testing strategy: [developers/testing.qmd](developers/testing.qmd)
+- Conventions: [developers/conventions.qmd](developers/conventions.qmd)
+- Releasing: [developers/releasing.qmd](developers/releasing.qmd)

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>cookbook – DPmixGPD</title>
+<title>Cookbook – DPmixGPD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -73,7 +73,7 @@ ul.task-list li input[type="checkbox"] {
 
 </head>
 
-<body class="nav-fixed fullcontent quarto-light">
+<body class="nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -132,10 +132,61 @@ ul.task-list li input[type="checkbox"] {
   </li>  
     </ul>
   </li>
-  <li class="nav-item">
-    <a class="nav-link" href="./developers.html"> 
-<span class="menu-text">Developers</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-developers" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Developers</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-developers">    
+        <li>
+    <a class="dropdown-item" href="./developers.html">
+ <span class="dropdown-text">Overview</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="./developers/architecture.html">
+ <span class="dropdown-text">Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./developers/tools.html">
+ <span class="dropdown-text">Tools</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./developers/site-build.html">
+ <span class="dropdown-text">Website build</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./developers/spec-and-contracts.html">
+ <span class="dropdown-text">Spec and contracts</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./developers/registry.html">
+ <span class="dropdown-text">Kernel registry</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./developers/add-kernel.html">
+ <span class="dropdown-text">Add a kernel</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./developers/add-tail-option.html">
+ <span class="dropdown-text">Tail options</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./developers/causal-internals.html">
+ <span class="dropdown-text">Causal internals</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./developers/testing.html">
+ <span class="dropdown-text">Testing</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./developers/conventions.html">
+ <span class="dropdown-text">Conventions</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./developers/releasing.html">
+ <span class="dropdown-text">Releasing</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="./pkgdown/reference/index.html"> 
 <span class="menu-text">Reference</span></a>
@@ -159,12 +210,12 @@ ul.task-list li input[type="checkbox"] {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content column-page" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -173,7 +224,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<div class="quarto-title-meta">
+<div class="quarto-title-meta column-page">
 
     
   
@@ -189,7 +240,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="cookbook" class="level1 container">
 <h1>Cookbook</h1>
 <p>This page is a practical launch pad for common DPmixGPD tasks. Use it to pick a workflow path, then open the full walk-through pages.</p>
-<p><a href="workflows/v01-start-here.html" class="btn btn-primary">Start workflow series</a> <a href="roadmap.html" class="btn btn-outline-light">Workflow roadmap</a> <a href="pkgdown/articles/index.html" class="btn btn-outline-light">Open pkgdown articles</a></p>
+<p><a href="QuickStart/start-here.html" class="btn btn-primary">Start workflow series</a> <a href="roadmap.html" class="btn btn-outline-light">Workflow roadmap</a> <a href="pkgdown/articles/index.html" class="btn btn-outline-light">Open pkgdown articles</a></p>
 </section>
 </div>
 <section>
@@ -199,45 +250,45 @@ ul.task-list li input[type="checkbox"] {
 <h3 class="anchored" data-anchor-id="first-model-in-minutes">First model in minutes</h3>
 <ul>
 <li>Start at <a href="getting-started.html">Getting Started</a></li>
-<li>Then run <a href="pkgdown/articles/introduction.html">Introduction article</a></li>
-<li>Then follow <a href="workflows/v01-start-here.html">Workflow 1: Start Here</a></li>
+<li>Then run <a href=".\vignettes/basic.html">Model specification article</a></li>
+<li>Then follow <a href="QuickStart/start-here.html">QuickStart: Start Here</a></li>
 </ul>
 </section>
 <section id="unconditional-modeling" class="level3 cardx">
 <h3 class="anchored" data-anchor-id="unconditional-modeling">Unconditional modeling</h3>
 <ul>
 <li>Bulk only: <a href="pkgdown/articles/unconditional.html">Unconditional article</a></li>
-<li>Bulk + tail: <a href="pkgdown/articles/distributions.html">Distributions article</a></li>
-<li>Workflow sequence: <a href="workflows/v05-unconditional-DPmix-CRP.html">v05-v09</a></li>
+<li>Bulk + tail details: <a href=".\vignettes/basic.html">Model specification article</a></li>
+<li>Example sequence: <a href="Examples/ex05-unconditional-DPmix-CRP.html">ex05-ex09</a></li>
 </ul>
 </section>
 <section id="conditional-modeling" class="level3 cardx">
 <h3 class="anchored" data-anchor-id="conditional-modeling">Conditional modeling</h3>
 <ul>
 <li>Covariate-driven density modeling: <a href="pkgdown/articles/conditional.html">Conditional article</a></li>
-<li>Model setup details: <a href="pkgdown/articles/model-spec.html">Model specification</a></li>
-<li>Workflow sequence: <a href="workflows/v10-conditional-DPmix-CRP.html">v10-v13</a></li>
+<li>Model setup details: <a href=".\vignettes/basic.html">Model specification</a></li>
+<li>Example sequence: <a href="Examples/ex10-conditional-DPmix-CRP.html">ex10-ex13</a></li>
 </ul>
 </section>
 <section id="causal-modeling" class="level3 cardx">
 <h3 class="anchored" data-anchor-id="causal-modeling">Causal modeling</h3>
 <ul>
 <li>End-to-end causal workflow: <a href="pkgdown/articles/causal.html">Causal article</a></li>
-<li>S3 outputs and plotting: <a href="pkgdown/articles/reference-s3.html">S3 methods reference</a></li>
-<li>Workflow sequence: <a href="workflows/v14-causal-no-x-CRP.html">v14-v19</a></li>
+<li>Model and posterior details: <a href=".\vignettes/basic.html">Model specification</a></li>
+<li>Example sequence: <a href="Examples/ex14-causal-no-x-CRP.html">ex14-ex19</a></li>
 </ul>
 </section>
 <section id="backend-decisions" class="level3 cardx">
 <h3 class="anchored" data-anchor-id="backend-decisions">Backend decisions</h3>
 <ul>
-<li>Compare CRP vs stick-breaking: <a href="pkgdown/articles/backends.html">Backends article</a></li>
+<li>Compare CRP vs stick-breaking: <a href=".\vignettes/basic.html">Model specification</a></li>
 <li>Structured choice support: <a href="decision-guide.html">Decision Guide</a></li>
 </ul>
 </section>
 <section id="diagnostics-and-checks" class="level3 cardx">
 <h3 class="anchored" data-anchor-id="diagnostics-and-checks">Diagnostics and checks</h3>
 <ul>
-<li>MCMC process and diagnostics: <a href="pkgdown/articles/mcmc-workflow.html">MCMC workflow</a></li>
+<li>MCMC process and diagnostics: <a href=".\vignettes/basic.html">Model specification</a></li>
 <li>Frequently asked issues: <a href="faq.html">FAQ</a></li>
 </ul>
 </section>
@@ -245,12 +296,64 @@ ul.task-list li input[type="checkbox"] {
 </div>
 </section>
 <section>
+<section id="workflow-segments" class="level2 container">
+<h2 class="anchored" data-anchor-id="workflow-segments">Workflow Segments</h2>
+<p>Use these segment hubs to stay in-sequence without guessing where to go next.</p>
+<div class="grid-2">
+<section id="quickstart-troubleshooting" class="level3 cardx">
+<h3 class="anchored" data-anchor-id="quickstart-troubleshooting">QuickStart + Troubleshooting</h3>
+<p><a href="QuickStart/start-here.html" class="btn btn-primary">Start Basic sequence</a> <a href="Examples/ex20-troubleshooting.html" class="btn btn-outline-light">Jump to troubleshooting</a></p>
+<ol type="1">
+<li><a href="QuickStart/start-here.html">Start Here</a></li>
+<li><a href="QuickStart/introduction.html">Introduction</a></li>
+<li><a href="QuickStart/basic-model-compile-run.html">Basic model compile and run</a></li>
+<li><a href="QuickStart/backends-and-workflow.html">Backends and workflow</a></li>
+<li><a href="Examples/ex20-troubleshooting.html">ex20 Troubleshooting</a></li>
+</ol>
+</section>
+<section id="unconditional-examples-ex05-ex09" class="level3 cardx">
+<h3 class="anchored" data-anchor-id="unconditional-examples-ex05-ex09">Unconditional examples (ex05-ex09)</h3>
+<p><a href="Examples/ex05-unconditional-DPmix-CRP.html" class="btn btn-primary">Start Unconditional sequence</a></p>
+<ol type="1">
+<li><a href="Examples/ex05-unconditional-DPmix-CRP.html">ex05 Unconditional DPmix CRP</a></li>
+<li><a href="Examples/ex06-unconditional-DPmix-CRP.html">ex06 Unconditional DPmix CRP</a></li>
+<li><a href="Examples/ex07-unconditional-DPmix-SB.html">ex07 Unconditional DPmix SB</a></li>
+<li><a href="Examples/ex08-unconditional-DPmixGPD-CRP.html">ex08 Unconditional DPmixGPD CRP</a></li>
+<li><a href="Examples/ex09-unconditional-DPmixGPD-SB.html">ex09 Unconditional DPmixGPD SB</a></li>
+</ol>
+</section>
+<section id="conditional-examples-ex10-ex13" class="level3 cardx">
+<h3 class="anchored" data-anchor-id="conditional-examples-ex10-ex13">Conditional examples (ex10-ex13)</h3>
+<p><a href="Examples/ex10-conditional-DPmix-CRP.html" class="btn btn-primary">Start Conditional sequence</a></p>
+<ol type="1">
+<li><a href="Examples/ex10-conditional-DPmix-CRP.html">ex10 Conditional DPmix CRP</a></li>
+<li><a href="Examples/ex11-conditional-DPmix-SB.html">ex11 Conditional DPmix SB</a></li>
+<li><a href="Examples/ex12-conditional-DPmixGPD-CRP.html">ex12 Conditional DPmixGPD CRP</a></li>
+<li><a href="Examples/ex13-conditional-DPmixGPD-SB.html">ex13 Conditional DPmixGPD SB</a></li>
+</ol>
+</section>
+<section id="causal-examples-ex14-ex19" class="level3 cardx">
+<h3 class="anchored" data-anchor-id="causal-examples-ex14-ex19">Causal examples (ex14-ex19)</h3>
+<p><a href="Examples/ex14-causal-no-x-CRP.html" class="btn btn-primary">Start Causal sequence</a></p>
+<ol type="1">
+<li><a href="Examples/ex14-causal-no-x-CRP.html">ex14 Causal no X CRP</a></li>
+<li><a href="Examples/ex15-causal-x-no-ps-SB.html">ex15 Causal X no propensity score SB</a></li>
+<li><a href="Examples/ex16-causal-same-backend-CRP.html">ex16 Causal same backend CRP</a></li>
+<li><a href="Examples/ex17-causal-same-backend-SB.html">ex17 Causal same backend SB</a></li>
+<li><a href="Examples/ex18-causal-different-backends-CRP.html">ex18 Causal different backends CRP</a></li>
+<li><a href="Examples/ex19-causal-different-backends-SB.html">ex19 Causal different backends SB</a></li>
+</ol>
+</section>
+</div>
+</section>
+</section>
+<section>
 <section id="where-to-go-next" class="level2 container">
 <h2 class="anchored" data-anchor-id="where-to-go-next">Where to go next</h2>
 <ol type="1">
 <li>Use <a href="kernels.html">Kernels</a> if you are uncertain about distribution family selection.</li>
 <li>Use <a href="reference.html">Reference</a> to jump directly to function docs.</li>
-<li>Use <a href="workflows/v20-troubleshooting.html">Workflow troubleshooting</a> if you are blocked.</li>
+<li>Use <a href="Examples/ex20-troubleshooting.html">Workflow troubleshooting</a> if you are blocked.</li>
 </ol>
 </section>
 </section>
@@ -278,8 +381,8 @@ ul.task-list li input[type="checkbox"] {
   <div>
     <span id="site-version"></span> -
     <span id="site-updated"></span> -
-    <a href="cite.html">Cite</a> -
-    <a href="pkgdown/index.html">API</a> -
+    <a href="./cite.html">Cite</a> -
+    <a href="./pkgdown/index.html">API</a> -
     <a href="https://github.com/arnabaich96/DPmixGPD">GitHub</a>
   </div>
 

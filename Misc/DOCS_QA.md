@@ -110,3 +110,47 @@ ls -la docs/reference/ | grep "\.html$"
 - This checklist should be run **before each release** to ensure quality
 - Keep this file for easy reference
 - Update this checklist if new issues are discovered
+
+---
+
+## Site-Map Preflight (repo-local)
+
+Use the site-map toolkit to catch broken links, quantify reachability, and validate workflow chain integrity before deploy.
+
+### Command entrypoint
+
+```bash
+Rscript tools/site-map/run_site_map_checks.R
+```
+
+### Optional modes
+
+```bash
+# Extract nodes/edges only
+Rscript tools/site-map/run_site_map_checks.R --extract-only
+
+# Analyze existing outputs only (and apply gate policy)
+Rscript tools/site-map/run_site_map_checks.R --report-only
+
+# Custom paths
+Rscript tools/site-map/run_site_map_checks.R --site-root=docs --output-dir=tools/site-map/outputs
+```
+
+### Gate policy
+
+- CI-style gate fails only when:
+- `broken internal links > 0`
+- workflow chain breaks (`v01 -> ... -> v20`)
+- Reachability and orphan metrics are always reported but currently do not fail the gate.
+
+### Output artifacts
+
+All artifacts are written to `tools/site-map/outputs/`:
+
+- `website_link_nodes.csv`
+- `website_link_edges.csv`
+- `broken_links.csv`
+- `reachability_report.csv`
+- `workflow_chain_report.csv`
+- `site_map_summary.json`
+- `site_map_summary.md`

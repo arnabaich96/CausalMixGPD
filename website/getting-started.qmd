@@ -54,7 +54,7 @@ If you want guided selection, use the Decision Guide.
 
 ## Where the detailed documentation lives
 This Quarto wrapper keeps the "map" pages readable. The automatically generated documentation lives under pkgdown:
-- [Pkgdown home](pkgdown/index.html)
+- [Pkgdown home](/pkgdown/index.html)
 - [API index](pkgdown/reference/index.html)
 - [Articles index](pkgdown/articles/index.html)
 

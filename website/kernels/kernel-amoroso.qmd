@@ -1,14 +1,7 @@
-﻿---
+---
 title: "Amoroso (bulk kernel and mixture)"
 pkgdown:
   slug: "kernels/kernel-amoroso"
-output:
-  rmarkdown::html_vignette:
-    highlight: null
-vignette: >
-  %\\VignetteIndexEntry{Amoroso (bulk kernel and mixture)}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}

@@ -1,6 +1,12 @@
-/.quarto/
+﻿/.quarto/
 **/*.quarto_ipynb
 *.RData
 *.Rdata
 *.rdata
 *.rdx
+*.R
+*.html
+*.knit.md
+renv/
+*_cache/
+*_files/

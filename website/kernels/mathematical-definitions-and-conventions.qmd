@@ -1,14 +1,7 @@
-﻿---
+---
 title: "Mathematical definitions and conventions"
 pkgdown:
   slug: "kernels/mathematical-definitions-and-conventions"
-output:
-  rmarkdown::html_vignette:
-    highlight: null
-vignette: >
-  %\\VignetteIndexEntry{Mathematical definitions and conventions}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}

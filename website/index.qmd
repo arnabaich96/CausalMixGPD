@@ -43,7 +43,7 @@ Go straight to the Docs hub, pick kernels, and use the Cookbook for templates. F
 ### Developers
 Prefer the vanilla docs and function reference, or dig into build and contribution notes.
 
-[Developers](developers.html){.btn .btn-primary} [Vanilla site](pkgdown/index.html){.btn .btn-outline-primary}
+[Developers](developers.html){.btn .btn-primary} [Vanilla site](/pkgdown/index.html){.btn .btn-outline-primary}
 :::
 
 :::
@@ -98,7 +98,7 @@ Short answers to common questions and gotchas.
 ### Citation
 How to cite the package and related work.
 
-[How to cite](cite.html){.btn .btn-outline-primary}
+[How to cite](/cite.html){.btn .btn-outline-primary}
 :::
 
 :::

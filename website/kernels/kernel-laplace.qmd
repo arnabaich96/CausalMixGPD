@@ -1,14 +1,7 @@
-﻿---
+---
 title: "Laplace"
 pkgdown:
   slug: "kernels/kernel-laplace"
-output:
-  rmarkdown::html_vignette:
-    highlight: null
-vignette: >
-  %\\VignetteIndexEntry{Laplace}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}

@@ -33,6 +33,8 @@
 ^tools/\.codecov_token$
 ^vignettes/manuscript/
 ^vignettes/manuscript/$
+^vignettes/renv/
+^vignettes/renv$
 ^website/
 ^website/$
 ^tmp-.*\.R$

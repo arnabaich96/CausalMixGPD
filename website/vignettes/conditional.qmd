@@ -1,66 +1,180 @@
-﻿---
-title: "Conditional Models"
-output:
-  rmarkdown::html_vignette:
-    highlight: null
-vignette: >
-  %\VignetteIndexEntry{Conditional Models}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
+---
+title: "Conditional DP Mixture Models"
+bibliography: dpmixgpd.bib
+format:
+  html:
+    toc: true
+execute:
+  cache: true
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = NA,
-  message = FALSE,
-  warning = FALSE,
-  fig.width = 7,
-  fig.height = 4.5,
-  fig.align = "center"
-)
-library(ggplot2)
-library(kableExtra)
-library(DPmixGPD)
-set.seed(1)
-FAST <- TRUE
-mcmc <- if (FAST) {
-  list(niter = 600, nburnin = 150, thin = 2, nchains = 1, seed = 1)
-} else {
-  list(niter = 9000, nburnin = 2500, thin = 5, nchains = 2, seed = c(1, 2))
-}
-```
 
-## Overview
+DPmixGPD supports conditional (covariate-dependent) density estimation by allowing one or more *kernel parameters*—and, optionally, selected *tail parameters*—to vary with a design matrix \(X\). The goal is to estimate an entire conditional distribution \(F(y \mid \boldsymbol{x})\), not just a mean curve.
 
-This vignette demonstrates fitting a conditional model with covariates and generating predictions on a grid of new covariate values.
+This vignette focuses on how covariates enter the model, how to control that behavior via `param_specs`, and how to generate conditional predictions. For the bulk–tail spliced likelihood, GPD density/CDF definitions, and the overall “bulk + GPD tail” construction, see the *Model fundamentals* vignette in this package (we will refer to it rather than repeating the full splice derivation here).
 
-## Theory (brief)
+### Conditional mixture model
 
-Conditional models allow the bulk mixture parameters to vary with covariates.
-We write the conditional density as
-$$
-f(y_i \mid x_i) = \int K(y_i; \theta(x_i))\, dG(\theta),
-$$
-where the link between $\theta$ and $x_i$ is encoded through the kernel-specific
-regression structure. The DP prior provides flexible, data-driven clustering of
-local distributions across covariate space.
+Let \(y_i \in \mathbb{R}\) be an outcome and \(\boldsymbol{x}_i \in \mathbb{R}^p\) a covariate vector. Under a truncated stick-breaking (SB) Dirichlet process mixture, DPmixGPD uses
+\[
+  y_i \mid z_i=j,\boldsymbol{x}_i \sim k\!\left(y_i \mid \boldsymbol{\theta}_j(\boldsymbol{x}_i)\right), \qquad
+  z_i \sim \mathrm{Categorical}(w_1,\dots,w_J),
+\]
+with stick-breaking weights
+\[
+  v_j \sim \mathrm{Beta}(1,\alpha),\quad
+  w_1=v_1,\quad
+  w_j=v_j\prod_{\ell<j}(1-v_\ell)\ (j\ge 2),\quad
+  \alpha \sim \text{(prior)}.
+\]
+This is the same DPM idea as in classic DP mixtures, but applied to conditional distributions; see, e.g., [@escobar1995; @muller1996]. The key difference from the unconditional vignette is that \(\boldsymbol{\theta}_j(\boldsymbol{x})\) may depend on \(\boldsymbol{x}\).
 
-## Data Setup
+DPmixGPD implements covariate dependence through *per-parameter modes*:
+
+- `mode = "dist"`: parameter is random (drawn from a prior) but does **not** depend on \(X\).
+- `mode = "fixed"`: parameter is fixed at a constant value.
+- `mode = "link"`: parameter depends on \(X\) through a GLM-style link, with component-specific regression coefficients.
+
+This is set separately for each bulk parameter (kernel parameter), and for selected tail parameters when `GPD = TRUE`.
+
+### A practical note about the design matrix \(X\)
+
+DPmixGPD treats the matrix you pass as `X` as the design matrix used in linear predictors. It does **not** automatically add an intercept column. In practice you will almost always want `model.matrix()` so an intercept is included and factor coding is handled correctly.
+
+A recommended workflow is:
+
+1. Build \(X\) using `model.matrix()` (includes intercept by default).
+2. Standardize/center continuous covariates (especially if you do not include an intercept).
+3. Keep the same column names and ordering for prediction. `predict()` will validate them.
 
 ```{r}
 library(DPmixGPD)
 
-data("mtcars", package = "datasets")
-df <- mtcars
-y <- df$mpg
-X <- df[, c("wt", "hp")]
-X <- as.data.frame(X)
+# Example covariates
+set.seed(1)
+N <- 200
+dat <- data.frame(
+  x1 = rnorm(N),
+  x2 = rbinom(N, 1, 0.5)
+)
+
+# Recommended: model.matrix() gives an intercept and consistent column names
+X <- model.matrix(~ x1 + x2, dat)
+
+# (Optional) scale continuous columns but keep intercept untouched
+X[, "x1"] <- scale(X[, "x1"])
 ```
 
-## Model Fitting
+### Which parameters can depend on \(X\)?
+
+Kernel-specific parameter names are stored in the kernel registry. You can inspect them:
+
+```{r}
+init_kernel_registry()
+reg <- get_kernel_registry()
+
+# Names of available kernels
+names(reg)
+
+# Bulk parameters for a specific kernel
+reg$normal$bulk_params
+reg$gamma$bulk_params
+
+# Defaults for covariate behavior (when X is present)
+reg$normal$defaults_X
+reg$gamma$defaults_X
+```
+
+The registry is the authoritative source for (i) valid kernel names, (ii) bulk parameter names, and (iii) each kernel’s default covariate behavior.
+
+### Link-mode parameters: general form
+
+If a bulk parameter \(\vartheta\) is assigned `mode = "link"`, DPmixGPD uses a linear predictor and link function:
+\[
+  \eta_{\vartheta,ij} = \boldsymbol{x}_i^\top \boldsymbol{\beta}_{\vartheta,j},\qquad
+  \vartheta_{ij} = g_\vartheta(\eta_{\vartheta,ij}).
+\]
+Here \(\boldsymbol{\beta}_{\vartheta,j}\) is component-specific (indexed by mixture component \(j\)), so different mixture components can represent different conditional regimes.
+
+Supported link functions include:
+
+- `"identity"`: \(\vartheta = \eta\)
+- `"exp"`: \(\vartheta = \exp(\eta)\) (useful for positive parameters)
+- `"softplus"`: \(\vartheta = \log(1+\exp(\eta))\) (also enforces positivity)
+- `"power"`: \(\vartheta = \eta^{\kappa}\) (requires `link_power = kappa`; use with care if \(\eta\) can be negative)
+
+The best default for strictly-positive parameters is typically `"exp"` or `"softplus"`.
+
+### Tail parameters under GPD
+
+When `GPD = TRUE`, DPmixGPD uses a GPD tail above a threshold (see the *Model fundamentals* vignette for the splice and GPD density). For conditional variants, the following tail parameters can depend on \(X\):
+
+- `gpd$threshold`: `fixed`, `dist`, or `link`
+- `gpd$tail_scale`: `fixed`, `dist`, or `link`
+- `gpd$tail_shape`: `fixed` or `dist` (no `link` mode)
+
+Two distinct “link” behaviors exist for the threshold:
+
+- Deterministic link: \(u_i = g(\boldsymbol{x}_i^\top \beta_u)\)
+- Stochastic link via `link_dist = list(dist="lognormal", ...)`: \(u_i \sim \mathrm{LogNormal}(\mu_i,\sigma_u)\) with \(\mu_i=\boldsymbol{x}_i^\top\beta_u\)
+
+This mirrors common nonstationary threshold modeling ideas in extremes [@davison1990; @chavezdemoulin2005], but placed inside the full Bayesian mixture framework [@behrens2004; @donascimento2012].
+
+### Controlling covariate dependence with `param_specs`
+
+`build_nimble_bundle()` accepts `param_specs` to override defaults. The structure is:
+
+```r
+param_specs <- list(
+  bulk = list(
+    <bulk_param_1> = list(mode = "dist"/"fixed"/"link", ...),
+    <bulk_param_2> = list(mode = "dist"/"fixed"/"link", ...),
+    ...
+  ),
+  gpd = list(
+    threshold  = list(mode = "dist"/"fixed"/"link", ...),
+    tail_scale = list(mode = "dist"/"fixed"/"link", ...),
+    tail_shape = list(mode = "dist"/"fixed", ...),
+    # optionally: sdlog_u if using lognormal threshold link_dist
+    sdlog_u    = list(mode = "dist", dist = "invgamma", args = list(shape = 2, scale = 1))
+  )
+)
+```
+
+In `mode = "link"` you may specify:
+
+- `link`: one of `"identity"`, `"exp"`, `"softplus"`, `"power"`
+- `link_power`: numeric, only for `"power"`
+- `beta_prior`: a list describing priors for regression coefficients, e.g.
+  `list(dist="normal", args=list(mean=0, sd=2))`
+
+In `mode = "dist"` you specify:
+
+- `dist`: e.g., `"normal"`, `"gamma"`, `"invgamma"`, etc. (used internally in NIMBLE code generation)
+- `args`: named list of distribution parameters
+
+### Backend note: SB vs CRP with covariates
+
+DPmixGPD supports two backends:
+
+- `backend = "sb"`: truncated stick-breaking mixture (default for covariate-dependent parameters)
+- `backend = "crp"`: finite CRP representation
+
+For conditional models, the SB backend is recommended. Internally, the CRP backend avoids default link-mode bulk parameters because deterministic, cluster-indexed covariate nodes can interfere with NIMBLE’s CRP samplers. If you want covariate links on bulk parameters, you should generally use `backend = "sb"`.
+
+### Worked example: conditional normal kernel with a GPD tail
+
+We simulate data where the conditional mean depends on \(X\), fit a conditional model, then generate conditional predictions.
 
 ```{r, results='hide'}
+# Simulate a simple signal + heavy-tailed noise
+set.seed(2)
+beta <- c(-0.3, 0.8, -0.6)   # coefficients for (Intercept, x1, x2)
+mu <- drop(X %*% beta)
+y <- mu + rt(N, df = 3)     # heavy-tailed noise
+
+mcmc <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
+
 bundle <- build_nimble_bundle(
   y = y,
   X = X,
@@ -71,62 +185,58 @@ bundle <- build_nimble_bundle(
   mcmc = mcmc
 )
 
-fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE, quiet = TRUE)
 ```
 
-## Fitted Values
+A quick summary of the fitted object:
 
 ```{r}
-f <- fitted(fit, type = "mean", level = 0.90)
-head(f)
-summary(f$residuals)
+print(fit)
 ```
 
-## Predictions on New Data
+### Conditional prediction
+
+For conditional models, `predict()` uses `x` for the prediction design matrix \(X_{\text{pred}}\). For `type = "density"` or `"survival"`, you must also provide `y` as the grid of outcome values where the function is evaluated.
 
 ```{r}
-new_X <- data.frame(
-  wt = seq(min(X$wt), max(X$wt), length.out = 25),
-  hp = stats::median(X$hp)
-)
+# Prediction points: two covariate profiles
+newdat <- data.frame(x1 = c(-1, 1), x2 = c(0, 1))
+Xpred <- model.matrix(~ x1 + x2, newdat)
+Xpred[, "x1"] <- scale(Xpred[, "x1"])  # apply same scaling convention
 
-pred_mean <- predict(fit, x = new_X, type = "mean", cred.level = 0.90, interval = "credible")
-pred_med  <- predict(fit, x = new_X, type = "median", cred.level = 0.90, interval = "credible")
+ygrid <- seq(quantile(y, 0.01), quantile(y, 0.99), length.out = 120)
 
-head(pred_mean$fit)
-head(pred_med$fit)
+dens_pred <- predict(fit, x = Xpred, y = ygrid, type = "density", cred.level = 0.95)
+q_pred <- predict(fit, x = Xpred, type = "quantile", index = c(0.5, 0.9, 0.95), cred.level = 0.95)
 ```
 
-## Quantile Curves
+The returned objects contain point estimates and uncertainty summaries. For example:
 
 ```{r}
-q_levels <- c(0.1, 0.5, 0.9)
-q_fits <- lapply(q_levels, function(tau) {
-  predict(fit, x = new_X, type = "quantile", index = tau, cred.level = 0.90, interval = "credible")$fit
-})
-
-q_df <- do.call(rbind, Map(function(tau, df) {
-  data.frame(wt = new_X$wt, tau = tau, estimate = df$estimate, lower = df$lower, upper = df$upper)
-}, q_levels, q_fits))
-
-head(q_df)
+# Quantile predictions for each covariate profile
+q_pred$fit
 ```
 
-```{r}
-ggplot(q_df, aes(x = wt, y = estimate, color = factor(tau))) +
-  geom_line(linewidth = 1) +
-  geom_ribbon(aes(ymin = lower, ymax = upper, fill = factor(tau)), alpha = 0.2, color = NA) +
-  labs(x = "Weight (wt)", y = "Predicted Quantile", color = "Quantile", fill = "Quantile",
-       title = "Conditional Quantile Curves at Median Horsepower") +
-  theme_minimal() +
-  theme(legend.position = "bottom")
+You can also plot prediction objects directly:
+
+```{r, eval=TRUE}
+plot(dens_pred)
+plot(q_pred)
 ```
 
-```{r sessioninfo, include=FALSE}
-sessionInfo()
-```
+(Plots are enabled in this vignette build; for faster local iteration you can temporarily set this chunk to `eval=FALSE`.)
 
+### What to tune in practice
 
+1. Decide which parameters should depend on \(X\). A good start is to link a location parameter (e.g., `mean` or `meanlog`) and keep scale/shape parameters in `dist` mode, then add complexity if diagnostics warrant it.
+
+2. Use links consistent with support: `"exp"`/`"softplus"` for strictly positive parameters.
+
+3. Prefer `backend = "sb"` for covariate links. Use `backend = "crp"` mainly for unconditional models or when you intentionally keep bulk parameters in `dist` mode.
+
+4. Increase `components`, `niter`, and `nburnin` for real analyses. The small values in this vignette are chosen only to keep examples quick.
+
+### References
 
 
 

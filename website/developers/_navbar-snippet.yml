@@ -1,0 +1,27 @@
+# Paste this into website/_quarto.yml under navbar: left:
+
+- text: "Developers"
+  href: developers.qmd
+  menu:
+    - text: "Architecture"
+      href: developers/architecture.qmd
+    - text: "Tools"
+      href: developers/tools.qmd
+    - text: "Website build"
+      href: developers/site-build.qmd
+    - text: "Spec & contracts"
+      href: developers/spec-and-contracts.qmd
+    - text: "Kernel registry"
+      href: developers/registry.qmd
+    - text: "Add a kernel"
+      href: developers/add-kernel.qmd
+    - text: "Tail options"
+      href: developers/add-tail-option.qmd
+    - text: "Causal internals"
+      href: developers/causal-internals.qmd
+    - text: "Testing"
+      href: developers/testing.qmd
+    - text: "Conventions"
+      href: developers/conventions.qmd
+    - text: "Releasing"
+      href: developers/releasing.qmd

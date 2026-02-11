@@ -1,0 +1,27 @@
+---
+title: "Testing strategy"
+toc: true
+format:
+  html:
+    code-fold: true
+---
+
+Keep tests cheap, deterministic, and layered.
+
+## Layers
+
+1. **Unit tests**: distribution functions, registry helpers, contracts.
+2. **Integration tests**: bundle builds for each backend; tiny MCMC smoke tests.
+3. **API tests**: S3 methods run without error and return expected shapes.
+
+## Kernel tests (minimum)
+
+- d/p/q/r coherence for a small grid
+- CDF monotonicity
+- quantile inversion: `p(q(u)) ≈ u` on a grid
+- support constraints
+
+## Website tests (optional but valuable)
+
+- internal link graph has no broken links
+- workflows chain remains intact

@@ -1,0 +1,12 @@
+nimble
+kableExtra
+ggplot2
+usethis
+devtools
+testthat
+DPmixGPD
+tibble
+dplyr
+gridExtra
+magrittr
+patchwork

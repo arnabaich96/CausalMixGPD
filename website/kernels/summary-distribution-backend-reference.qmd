@@ -1,14 +1,7 @@
-﻿---
+---
 title: "Summary: Distribution & Backend Reference"
 pkgdown:
   slug: "kernels/summary-distribution-backend-reference"
-output:
-  rmarkdown::html_vignette:
-    highlight: null
-vignette: >
-  %\VignetteIndexEntry{Summary: Distribution & Backend Reference}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ## Summary: Distribution & Backend Reference {#v02-summary-distribution-backend-reference}

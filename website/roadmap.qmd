@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Roadmap"
 page-layout: full
 ---
@@ -9,7 +9,7 @@ page-layout: full
 
 A structured view of the project: how the model components fit together and how users typically move from basic fits to advanced workflows. Use this page as the "map," and the Cookbook as the "hands-on guide."
 
-[Start workflow series](workflows/v01-start-here.html){.btn .btn-primary}
+[Start workflow series](QuickStart/start-here.html){.btn .btn-primary}
 [Go to Cookbook](cookbook.html){.btn .btn-outline-light}
 [Browse Kernels](kernels.html){.btn .btn-outline-light}
 :::
@@ -24,7 +24,7 @@ A structured view of the project: how the model components fit together and how 
 ### 1) Start small
 Confirm the basic build and run cycle on a small dataset before scaling up.
 - Entry: [Getting Started](getting-started.html)
-- Workflow: [v01 Start Here](workflows/v01-start-here.html)
+- Workflow: [QuickStart Start Here](QuickStart/start-here.html)
 :::
 
 ::: {.cardx}
@@ -37,7 +37,7 @@ Pick a bulk kernel that matches the typical data regime, then decide whether tai
 ::: {.cardx}
 ### 3) Fit, diagnose, iterate
 Run MCMC, inspect mixing and stability, and validate predictive behavior before you interpret tail risk.
-- Practical workflow: [v03 Basic Workflow](workflows/v03-basic-model-compile-run.html)
+- Practical workflow: [QuickStart Basic Workflow](QuickStart/basic-model-compile-run.html)
 :::
 
 ::: {.cardx}
@@ -49,8 +49,8 @@ Generate predictive quantities (densities, cdfs, quantiles, tail summaries) and 
 ::: {.cardx}
 ### 5) Conditional, causal, and survival workflows
 When covariates or treatment effects matter, move to the conditional/causal toolchain.
-- Conditional start: [v10 Conditional DPmix CRP](workflows/v10-conditional-DPmix-CRP.html)
-- Causal start: [v14 Causal no X CRP](workflows/v14-causal-no-x-CRP.html)
+- Conditional start: [ex10 Conditional DPmix CRP](Examples/ex10-conditional-DPmix-CRP.html)
+- Causal start: [ex14 Causal no X CRP](Examples/ex14-causal-no-x-CRP.html)
 :::
 
 ::: {.cardx}

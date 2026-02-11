@@ -30,7 +30,7 @@ source("tools/coverage.R")
 or
 
 ```r
-source("tools/run_covr_progress.R")
+coverage_progress()
 ```
 :::
 

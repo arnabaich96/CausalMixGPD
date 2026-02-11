@@ -1,4 +1,4 @@
-﻿project:
+project:
   type: website
 
 website:
@@ -28,14 +28,38 @@ website:
             href: cookbook.qmd
 
       - text: Developers
-        href: developers.qmd
+        menu:
+          - text: Overview
+            href: developers.qmd
+          - text: Architecture
+            href: developers/architecture.qmd
+          - text: Tools
+            href: developers/tools.qmd
+          - text: Website build
+            href: developers/site-build.qmd
+          - text: Spec and contracts
+            href: developers/spec-and-contracts.qmd
+          - text: Kernel registry
+            href: developers/registry.qmd
+          - text: Add a kernel
+            href: developers/add-kernel.qmd
+          - text: Tail options
+            href: developers/add-tail-option.qmd
+          - text: Causal internals
+            href: developers/causal-internals.qmd
+          - text: Testing
+            href: developers/testing.qmd
+          - text: Conventions
+            href: developers/conventions.qmd
+          - text: Releasing
+            href: developers/releasing.qmd
 
       - text: Reference
-        href: pkgdown/reference/index.html
+        href: /pkgdown/reference/index.html
 
     right:
       - text: Pkgdown
-        href: pkgdown/index.html
+        href: /pkgdown/index.html
       - icon: github
         href: "https://github.com/arnabaich96/DPmixGPD"
 
@@ -51,5 +75,6 @@ format:
 execute:
   enabled: true
   cache: true
-  freeze: false
+  freeze: auto
+
 

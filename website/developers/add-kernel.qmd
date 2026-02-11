@@ -1,0 +1,42 @@
+---
+title: "How to add a kernel"
+toc: true
+format:
+  html:
+    code-fold: true
+---
+
+This is the extension recipe contributors should follow.
+
+## Checklist
+
+### Step 0 — Decide scope
+- Support: positive-only vs real line
+- Tail option: bulk-only vs bulk+GPD
+- Backend compatibility: CRP, SB, or both
+
+### Step 1 — Implement kernel functions
+Implement the kernel’s `d/p/q/r` surface (and any internal helpers). Keep vectorization and support checks consistent.
+
+### Step 2 — Implement Mix / MixGPD wrappers
+If the kernel is used inside mixture components or spliced tails, implement the corresponding MixGPD functions.
+
+### Step 3 — Register it
+Add an entry to the kernel registry so `compile_model_spec()` can discover it.
+
+### Step 4 — Tests
+Add at least:
+- support checks (values outside support return 0 density, etc.)
+- monotonic CDF / quantile inversion checks
+- a tiny end-to-end bundle build test
+
+### Step 5 — Docs
+- Add `website/kernels/kernel-<name>.qmd`
+- Add link from `website/kernels/kernels-index.qmd`
+- Mention the kernel in `kernel_support_table()` documentation
+
+## Templates
+
+- R code skeleton: `developers/templates/kernel-skeleton.R`
+- Registry entry skeleton: `developers/templates/registry-entry-skeleton.R`
+- Test skeleton: `developers/templates/test-kernel-skeleton.R`

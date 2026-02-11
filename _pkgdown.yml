@@ -21,26 +21,14 @@ navbar:
     articles:
       text: "Articles"
       menu:
-        - text: "Manual"
-          href: articles/manual.html
-        - text: "Introduction"
-          href: articles/introduction.html
-        - text: "Distributions"
-          href: articles/distributions.html
         - text: "Model specification"
-          href: articles/model-spec.html
-        - text: "MCMC workflow"
-          href: articles/mcmc-workflow.html
+          href: articles/basic.html
         - text: "Unconditional"
           href: articles/unconditional.html
         - text: "Conditional"
           href: articles/conditional.html
         - text: "Causal"
           href: articles/causal.html
-        - text: "Backends"
-          href: articles/backends.html
-        - text: "S3 methods reference"
-          href: articles/reference-s3.html
 
     github:
       text: "GitHub"

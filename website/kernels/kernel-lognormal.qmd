@@ -1,14 +1,7 @@
-﻿---
+---
 title: "Lognormal"
 pkgdown:
   slug: "kernels/kernel-lognormal"
-output:
-  rmarkdown::html_vignette:
-    highlight: null
-vignette: >
-  %\\VignetteIndexEntry{Lognormal}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}

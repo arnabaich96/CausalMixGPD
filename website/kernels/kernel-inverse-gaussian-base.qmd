@@ -1,14 +1,7 @@
-﻿---
+---
 title: "Inverse Gaussian (base kernel)"
 pkgdown:
   slug: "kernels/kernel-inverse-gaussian-base"
-output:
-  rmarkdown::html_vignette:
-    highlight: null
-vignette: >
-  %\\VignetteIndexEntry{Inverse Gaussian (base kernel)}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}

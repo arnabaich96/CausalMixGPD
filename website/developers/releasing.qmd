@@ -1,0 +1,18 @@
+---
+title: "Releasing"
+toc: true
+format:
+  html:
+    code-fold: true
+---
+
+This page is the contributor checklist for a tagged release.
+
+## Checklist
+
+1. Run `devtools::check()` with a clean session.
+2. Ensure documentation builds (`devtools::document()`).
+3. Rebuild Quarto + pkgdown outputs to `docs/`.
+4. Verify no broken internal links (link graph).
+5. Update NEWS and version.
+6. Tag and push.

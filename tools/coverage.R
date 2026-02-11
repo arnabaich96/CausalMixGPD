@@ -249,6 +249,27 @@ if (is.null(cov) && "tests" %in% sources) {
   }
 }
 
+# Run test coverage with progress reporter (replacement for tools/run_covr_progress.R).
+coverage_progress <- function(test_level = "ci", quiet = FALSE) {
+  .check_coverage_deps()
+  .set_covr_install_opts()
+
+  Sys.setenv(DPMIXGPD_TEST_LEVEL = tolower(test_level))
+  Sys.setenv(COVERAGE = "1")
+
+  cov <- covr::package_coverage(
+    type = "none",
+    code = 'testthat::test_dir("tests/testthat", stop_on_failure = FALSE, reporter = "progress")',
+    quiet = quiet,
+    pre_clean = TRUE,
+    line_exclusions = .coverage_line_exclusions()
+  )
+
+  pct <- covr::percent_coverage(cov)
+  cat("PERCENT=", pct, "\n")
+  invisible(cov)
+}
+
 # ============================================================================
 # coverage_report: Generate local HTML coverage report
 # ============================================================================
@@ -788,12 +809,14 @@ coverage_upload <- function(
 cat("DPmixGPD Coverage Tools loaded.\n\n")
 cat("Available functions:\n")
 cat("  calculate_coverage(sources, test_level)  - Calculate coverage\n")
+cat("  coverage_progress(test_level)            - Test coverage with progress\n")
 cat("  coverage_report(sources, output_dir)     - Generate local HTML report\n")
 cat("  coverage_upload(sources, token)          - Upload to Codecov\n")
 cat("\nDefault sources: tests + examples\n")
 cat("Valid sources: 'tests', 'examples', 'vignettes', 'all'\n\n")
 cat("Examples:\n")
 cat("  coverage_report()                        # Default report\n")
+cat("  coverage_progress()                      # Progress reporter run\n")
 cat("  coverage_report(sources = 'tests')       # Tests only (fastest)\n")
 cat("  coverage_report(sources = 'all')         # All sources\n")
 cat("  coverage_upload()                        # Upload to Codecov (skips if no token)\n")

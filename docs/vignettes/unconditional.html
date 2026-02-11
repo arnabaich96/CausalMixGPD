@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>unconditional – DPmixGPD</title>
+<title>DPmixGPD: Unconditional bulk–tail density estimation – DPmixGPD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -55,7 +55,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -105,39 +125,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 </head>
 
-<body class="nav-fixed fullcontent quarto-light">
+<body class="nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -196,10 +187,61 @@ window.Quarto = {
   </li>  
     </ul>
   </li>
-  <li class="nav-item">
-    <a class="nav-link" href="../developers.html"> 
-<span class="menu-text">Developers</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-developers" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Developers</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-developers">    
+        <li>
+    <a class="dropdown-item" href="../developers.html">
+ <span class="dropdown-text">Overview</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/architecture.html">
+ <span class="dropdown-text">Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/tools.html">
+ <span class="dropdown-text">Tools</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/site-build.html">
+ <span class="dropdown-text">Website build</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/spec-and-contracts.html">
+ <span class="dropdown-text">Spec and contracts</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/registry.html">
+ <span class="dropdown-text">Kernel registry</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/add-kernel.html">
+ <span class="dropdown-text">Add a kernel</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/add-tail-option.html">
+ <span class="dropdown-text">Tail options</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/causal-internals.html">
+ <span class="dropdown-text">Causal internals</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/testing.html">
+ <span class="dropdown-text">Testing</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/conventions.html">
+ <span class="dropdown-text">Conventions</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/releasing.html">
+ <span class="dropdown-text">Releasing</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../pkgdown/reference/index.html"> 
 <span class="menu-text">Reference</span></a>
@@ -226,13 +268,43 @@ window.Quarto = {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#what-unconditional-means-in-dpmixgpd" id="toc-what-unconditional-means-in-dpmixgpd" class="nav-link active" data-scroll-target="#what-unconditional-means-in-dpmixgpd">What “unconditional” means in DPmixGPD</a></li>
+  <li><a href="#choosing-a-kernel-bulk-family" id="toc-choosing-a-kernel-bulk-family" class="nav-link" data-scroll-target="#choosing-a-kernel-bulk-family">Choosing a kernel (bulk family)</a></li>
+  <li><a href="#sb-vs-crp-backends" id="toc-sb-vs-crp-backends" class="nav-link" data-scroll-target="#sb-vs-crp-backends">SB vs CRP backends</a></li>
+  <li><a href="#enablingdisabling-the-gpd-tail" id="toc-enablingdisabling-the-gpd-tail" class="nav-link" data-scroll-target="#enablingdisabling-the-gpd-tail">Enabling/disabling the GPD tail</a></li>
+  <li><a href="#model-building-in-code" id="toc-model-building-in-code" class="nav-link" data-scroll-target="#model-building-in-code">Model building in code</a>
+  <ul class="collapse">
+  <li><a href="#minimal-build-bulk-only" id="toc-minimal-build-bulk-only" class="nav-link" data-scroll-target="#minimal-build-bulk-only">Minimal build: bulk only</a></li>
+  <li><a href="#minimal-build-bulk-gpd-tail" id="toc-minimal-build-bulk-gpd-tail" class="nav-link" data-scroll-target="#minimal-build-bulk-gpd-tail">Minimal build: bulk + GPD tail</a></li>
+  <li><a href="#run-posterior-sampling" id="toc-run-posterior-sampling" class="nav-link" data-scroll-target="#run-posterior-sampling">Run posterior sampling</a></li>
+  </ul></li>
+  <li><a href="#prior-control-via-param_specs" id="toc-prior-control-via-param_specs" class="nav-link" data-scroll-target="#prior-control-via-param_specs">Prior control via <code>param_specs</code></a>
+  <ul class="collapse">
+  <li><a href="#example-treat-tail-parameters-as-random-but-fix-the-threshold" id="toc-example-treat-tail-parameters-as-random-but-fix-the-threshold" class="nav-link" data-scroll-target="#example-treat-tail-parameters-as-random-but-fix-the-threshold">Example: treat tail parameters as random, but fix the threshold</a></li>
+  <li><a href="#example-fully-stochastic-threshold-with-a-weakly-informative-prior" id="toc-example-fully-stochastic-threshold-with-a-weakly-informative-prior" class="nav-link" data-scroll-target="#example-fully-stochastic-threshold-with-a-weakly-informative-prior">Example: fully stochastic threshold, with a weakly informative prior</a></li>
+  </ul></li>
+  <li><a href="#posterior-summaries-density-cdf-and-quantiles" id="toc-posterior-summaries-density-cdf-and-quantiles" class="nav-link" data-scroll-target="#posterior-summaries-density-cdf-and-quantiles">Posterior summaries: density, CDF, and quantiles</a>
+  <ul class="collapse">
+  <li><a href="#quantiles-under-the-splice-conceptual-formula" id="toc-quantiles-under-the-splice-conceptual-formula" class="nav-link" data-scroll-target="#quantiles-under-the-splice-conceptual-formula">Quantiles under the splice (conceptual formula)</a></li>
+  <li><a href="#practical-api" id="toc-practical-api" class="nav-link" data-scroll-target="#practical-api">Practical API</a></li>
+  </ul></li>
+  <li><a href="#diagnostics-what-to-check" id="toc-diagnostics-what-to-check" class="nav-link" data-scroll-target="#diagnostics-what-to-check">Diagnostics (what to check)</a></li>
+  <li><a href="#low-level-density-utilities-optional" id="toc-low-level-density-utilities-optional" class="nav-link" data-scroll-target="#low-level-density-utilities-optional">Low-level density utilities (optional)</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Unconditional Models</h1>
+<h1 class="title">DPmixGPD: Unconditional bulk–tail density estimation</h1>
 </div>
 
 
@@ -249,34 +321,275 @@ window.Quarto = {
 </header>
 
 
-<section id="overview" class="level2">
-<h2 class="anchored" data-anchor-id="overview">Overview</h2>
-<p>This vignette demonstrates fitting an unconditional DP mixture model with optional GPD tail augmentation.</p>
-</section>
-<section id="theory-brief" class="level2">
-<h2 class="anchored" data-anchor-id="theory-brief">Theory (brief)</h2>
-<p>Unconditional models treat observations as exchangeable draws from a mixture distribution. The DP prior on the mixing measure <span class="math inline">\(G\)</span> yields flexible density estimation: <span class="math display">\[
-y_i \mid G \sim \int K(y_i; \theta)\, dG(\theta), \quad G \sim \mathrm{DP}(\alpha, G_0).
-\]</span> When <span class="math inline">\(\mathrm{GPD} = \mathrm{TRUE}\)</span>, a GPD tail replaces the bulk kernel beyond a threshold <span class="math inline">\(u\)</span> to stabilize tail behavior.</p>
-</section>
-<section id="model-fitting" class="level2">
-<h2 class="anchored" data-anchor-id="model-fitting">Model Fitting</h2>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DPmixGPD)</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"faithful"</span>, <span class="at">package =</span> <span class="st">"datasets"</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> faithful<span class="sc">$</span>eruptions</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"normal"</span>,</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">6</span>,</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc =</span> mcmc</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle, <span class="at">show_progress =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>This vignette shows how to fit the <em>unconditional</em> DPmixGPD model, i.e.&nbsp;without covariates ((X=)). The unconditional case is the simplest entry point for two reasons:</p>
+<ol type="1">
+<li>It isolates the central design choice: which kernel family is an appropriate <em>bulk</em> model for your outcome support and shape.</li>
+<li>It makes clear how the bulk (DPM) and tail (GPD) are estimated <em>jointly</em> rather than via a two-stage procedure.</li>
+</ol>
+<p>All mathematical definitions of the Dirichlet process mixture prior, the GPD tail density/CDF, and the spliced bulk–tail density are developed in the vignette <strong>“DPmixGPD: Model specification and posterior computation”</strong>. This vignette treats those definitions as <em>fixed</em> and focuses on: model configuration, prior control, and posterior summaries in the unconditional setting.</p>
+<section id="what-unconditional-means-in-dpmixgpd" class="level1">
+<h1>What “unconditional” means in DPmixGPD</h1>
+<p>With no covariates, the bulk model is an ordinary Dirichlet process mixture: [ f_{}(y) ;=; _{j=1}^{} w_j , k(y_j), ] with DP stick-breaking weights (w_j) <span class="citation" data-cites="sethuraman1994">(<a href="#ref-sethuraman1994" role="doc-biblioref">Sethuraman 1994</a>)</span> and blocked Gibbs truncation at (J=) <span class="citation" data-cites="ishwaran2001">(<a href="#ref-ishwaran2001" role="doc-biblioref">Ishwaran and James 2001</a>)</span>. In practice, DPmixGPD uses a finite representation for both SB and CRP backends, controlled by the single argument <code>components</code>.</p>
+<p>If <code>GPD=TRUE</code>, DPmixGPD fits the (upper) tail using a generalized Pareto exceedance model and couples it to the bulk via a proper bulk–tail splice (see the “Model specification…” vignette for the full density/CDF). This joint construction is in the same spirit as Bayesian semiparametric bulk–tail models that avoid fixing a hard threshold and instead estimate bulk and tail together <span class="citation" data-cites="frigessi2002 doNascimento2012 behrens2004">(<a href="#ref-frigessi2002" role="doc-biblioref">Frigessi, Haug, and Rue 2002</a>; <a href="#ref-doNascimento2012" role="doc-biblioref">Nascimento, Gamerman, and Lopes 2012</a>; <a href="#ref-behrens2004" role="doc-biblioref">Behrens, Lopes, and Gamerman 2004</a>)</span>.</p>
+</section>
+<section id="choosing-a-kernel-bulk-family" class="level1">
+<h1>Choosing a kernel (bulk family)</h1>
+<p>A good kernel choice is driven by <em>support</em> first and <em>shape</em> second:</p>
+<ul>
+<li>If your outcome is supported on (): Normal / Laplace / Cauchy kernels are natural.</li>
+<li>If your outcome is supported on (_+): Gamma / Lognormal / Inverse-Gaussian / Amoroso kernels are typically appropriate.</li>
+<li>If your data are heavy-tailed already in the bulk, a more flexible positive-support kernel (e.g., Lognormal, Amoroso) may absorb structure that a lighter kernel would push into the tail, which can affect tail stability.</li>
+</ul>
+<p>DPmixGPD ships a registry describing which kernels support which features.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">kernel_support_table</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>             kernel gpd covariates sb crp
+normal       normal   ✔          ✔  ✔   ✔
+lognormal lognormal   ✔          ✔  ✔   ✔
+invgauss   invgauss   ✔          ✔  ✔   ✔
+gamma         gamma   ✔          ✔  ✔   ✔
+laplace     laplace   ✔          ✔  ✔   ✔
+amoroso     amoroso   ✔          ✔  ✔   ✔
+cauchy       cauchy  ❌          ✔  ✔   ✔</code></pre>
+</div>
+</div>
+</section>
+<section id="sb-vs-crp-backends" class="level1">
+<h1>SB vs CRP backends</h1>
+<p>DPmixGPD supports <code>backend="sb"</code> (stick-breaking) and <code>backend="crp"</code> (Chinese restaurant process). Both correspond to the same DP prior but expose different computational representations <span class="citation" data-cites="neal2000">(<a href="#ref-neal2000" role="doc-biblioref">Neal 2000</a>)</span>.</p>
+<p>Practical guidance in the unconditional case:</p>
+<ul>
+<li>Start with <code>backend="sb"</code> if you want a stable finite representation with an explicit truncation level (J).</li>
+<li>Use <code>backend="crp"</code> if you prefer a partition-driven representation (often convenient conceptually for clustering), noting that the finite NIMBLE model still uses <code>components</code> as a maximum representable number of clusters.</li>
+</ul>
+</section>
+<section id="enablingdisabling-the-gpd-tail" class="level1">
+<h1>Enabling/disabling the GPD tail</h1>
+<p>The decision <code>GPD=TRUE/FALSE</code> is not cosmetic; it changes the likelihood and the posterior targets.</p>
+<ul>
+<li><code>GPD=FALSE</code> fits a pure DPM density on the full support. This is appropriate if you mainly want flexible density estimation without explicit extreme extrapolation.</li>
+<li><code>GPD=TRUE</code> fits the joint bulk–tail model where exceedances beyond a threshold are modeled by a GPD and the total density remains proper by splicing. This is appropriate if you want stable <em>extreme quantiles</em> or <em>tail probabilities</em> beyond the observed bulk.</li>
+</ul>
+<p>Even in the unconditional case, the tail inference is coupled to the bulk via the survival mass at the threshold (S_{}(u)=1-F_{}(u)). This is exactly why the model tends to be more stable than “fit the bulk, then fit a tail” pipelines when the exceedance sample size is small.</p>
+</section>
+<section id="model-building-in-code" class="level1">
+<h1>Model building in code</h1>
+<section id="minimal-build-bulk-only" class="level2">
+<h2 class="anchored" data-anchor-id="minimal-build-bulk-only">Minimal build: bulk only</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">abs</span>(<span class="fu">rnorm</span>(<span class="dv">120</span>)) <span class="sc">+</span> <span class="fl">0.1</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> <span class="cn">NULL</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"lognormal"</span>,</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">6</span>,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">400</span>, <span class="at">nburnin =</span> <span class="dv">100</span>, <span class="at">thin =</span> <span class="dv">2</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">seed =</span> <span class="dv">1</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>bundle</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>DPmixGPD bundle
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; Field &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Value &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; Backend &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Stick-Breaking Process &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; Kernel &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Lognormal Distribution &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; Components &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; N &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 120 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; X &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; NO &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; GPD &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; FALSE &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; Epsilon &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.025 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+  contains  : code, constants, data, dimensions, inits, monitors</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(bundle)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>DPmixGPD bundle summary
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; Field &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; Value &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; Backend &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Stick-Breaking Process &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; Kernel &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; Lognormal Distribution &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; Components &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; N &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 120 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; X &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; NO &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; GPD &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; FALSE &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; Epsilon &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.025 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+Parameter specification
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; block &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; parameter &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; mode &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; level &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; prior &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; link &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; notes &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; meta &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; backend &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; info &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; model &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; sb &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; meta &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; kernel &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; info &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; model &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; lognormal &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; meta &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; components &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; info &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; model &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 6 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; meta &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; N &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; info &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; model &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 120 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; meta &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; P &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; info &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; model &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; concentration &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; alpha &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; dist &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; scalar &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; gamma(shape=1, rate=1) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; stochastic concentration &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; bulk &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; meanlog &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; dist &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; component (1:6) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; normal(mean=0, sd=5) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; iid across components &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; bulk &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; sdlog &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; dist &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; component (1:6) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; gamma(shape=2, rate=1) &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt;  &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; iid across components &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+Monitors
+  n = 5 
+  alpha, w[1:6], z[1:120], meanlog[1:6], sdlog[1:6]</code></pre>
+</div>
+</div>
+</section>
+<section id="minimal-build-bulk-gpd-tail" class="level2">
+<h2 class="anchored" data-anchor-id="minimal-build-bulk-gpd-tail">Minimal build: bulk + GPD tail</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>bundle_gpd <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> <span class="cn">NULL</span>,</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"lognormal"</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">6</span>,</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">500</span>, <span class="at">nburnin =</span> <span class="dv">150</span>, <span class="at">thin =</span> <span class="dv">2</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">seed =</span> <span class="dv">1</span>)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="run-posterior-sampling" class="level2">
+<h2 class="anchored" data-anchor-id="run-posterior-sampling">Run posterior sampling</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle_gpd, <span class="at">show_progress =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Defining model</code></pre>
 </div>
@@ -284,7 +597,7 @@ y_i \mid G \sim \int K(y_i; \theta)\, dG(\theta), \quad G \sim \mathrm{DP}(\alph
 <pre><code>  [Note] 'P' is provided in 'constants' but not used in the model code and is being ignored.</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>  [Note] Registering 'dNormGpd' as a distribution based on its use in BUGS code. If you make changes to the nimbleFunctions for the distribution, you must call 'deregisterDistributions' before using the distribution in BUGS code for those changes to take effect.</code></pre>
+<pre><code>  [Note] Registering 'dLognormalGpd' as a distribution based on its use in BUGS code. If you make changes to the nimbleFunctions for the distribution, you must call 'deregisterDistributions' before using the distribution in BUGS code for those changes to take effect.</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Building model</code></pre>
@@ -303,11 +616,28 @@ y_i \mid G \sim \int K(y_i; \theta)\, dG(\theta), \quad G \sim \mathrm{DP}(\alph
 <div class="cell-output cell-output-stderr">
 <pre><code>Checking model calculations</code></pre>
 </div>
+<div class="cell-output cell-output-stdout">
+<pre><code>===== Monitors =====
+thin = 1: alpha, meanlog, sdlog, tail_scale, tail_shape, threshold, w, z
+===== Samplers =====
+RW sampler (21)
+  - alpha
+  - meanlog[]  (6 elements)
+  - sdlog[]  (6 elements)
+  - threshold
+  - tail_scale
+  - tail_shape
+  - v[]  (5 elements)
+categorical sampler (120)
+  - z[]  (120 elements)</code></pre>
+</div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Compiling
   [Note] This may take a minute.
-  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
-Compiling
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Compiling
   [Note] This may take a minute.
   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</code></pre>
 </div>
@@ -325,44 +655,476 @@ Compiling
 <div class="cell-output cell-output-stderr">
 <pre><code>Calculating WAIC.</code></pre>
 </div>
-</div>
-</section>
-<section id="posterior-predictive-summaries" class="level2">
-<h2 class="anchored" data-anchor-id="posterior-predictive-summaries">Posterior Predictive Summaries</h2>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>pred_mean <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">cred.level =</span> <span class="fl">0.90</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>pred_q95  <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> <span class="fl">0.95</span>, <span class="at">cred.level =</span> <span class="fl">0.90</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>pred_mean<span class="sc">$</span>fit</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>fit</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  id estimate lower upper
-1  1     3.19  3.05  3.32</code></pre>
+<pre><code>MixGPD fit | backend: Stick-Breaking Process | kernel: Lognormal Distribution | GPD tail: TRUE
+n = 120 | components = 6 | epsilon = 0.025
+MCMC: niter=500, nburnin=150, thin=2, nchains=1 
+Fit
+Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>pred_q95<span class="sc">$</span>fit</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  estimate index lower upper
-1     4.81  0.95  4.72  4.93</code></pre>
+<pre><code>MixGPD summary | backend: Stick-Breaking Process | kernel: Lognormal Distribution | GPD tail: TRUE | epsilon: 0.025
+n = 120 | components = 6
+Summary
+Initial components: 6 | Components after truncation: 1
+
+WAIC: 139.624
+lppd: -51.237 | pWAIC: 18.575
+
+Summary table
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; parameter &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; mean &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; sd &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.025 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.500 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.975 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; ess &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; weights[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.733 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.159 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.481 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.75 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.976 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; alpha &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.707 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.358 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.203 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.632 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.587 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 23.067 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; tail_scale &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.764 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.135 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.504 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.767 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.99 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 11.59 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; tail_shape &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.217 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.102 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.352 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.237 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.003 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 14.968 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; threshold &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.372 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.261 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.086 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.605 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.654 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.606 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; meanlog[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.335 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.884 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -1.055 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.678 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4.954 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.927 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; sdlog[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.902 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.517 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.468 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.77 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.819 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 41.323 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
 </div>
 </div>
+<p>The returned object is a <code>mixgpd_fit</code>, which stores posterior draws, the compiled spec, and the settings needed for downstream summaries and plotting.</p>
 </section>
-<section id="note" class="level2">
-<h2 class="anchored" data-anchor-id="note">Note</h2>
-<p>For unconditional models, use only; and are not supported (they are for conditional, covariate models).</p>
 </section>
-<section id="diagnostic-plots" class="level2">
-<h2 class="anchored" data-anchor-id="diagnostic-plots">Diagnostic Plots</h2>
+<section id="prior-control-via-param_specs" class="level1">
+<h1>Prior control via <code>param_specs</code></h1>
+<p>DPmixGPD uses a single structured object <code>param_specs</code> to control whether each parameter is:</p>
+<ul>
+<li><code>mode="fixed"</code>: treated as constant,</li>
+<li><code>mode="dist"</code>: assigned a prior and sampled,</li>
+<li><code>mode="link"</code>: made covariate-dependent via a link function (only relevant when <code>X</code> is provided; see the conditional vignette).</li>
+</ul>
+<p>The expected structure is:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">requireNamespace</span>(<span class="st">"ggmcmc"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>) <span class="sc">&amp;&amp;</span> <span class="fu">requireNamespace</span>(<span class="st">"coda"</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">interactive</span>()) <span class="fu">plot</span>(fit)</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>} <span class="cf">else</span> {</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">message</span>(<span class="st">"Plotting requires 'ggmcmc' and 'coda' packages."</span>)</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>param_specs <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">bulk =</span> <span class="fu">list</span>(</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># kernel-specific parameters go here</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">gpd =</span> <span class="fu">list</span>(</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">threshold  =</span> <span class="fu">list</span>(<span class="at">mode =</span> <span class="st">"fixed"</span>, <span class="at">value =</span> <span class="fl">1.0</span>),</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">tail_scale =</span> <span class="fu">list</span>(<span class="at">mode =</span> <span class="st">"dist"</span>, <span class="at">dist =</span> <span class="st">"gamma"</span>, <span class="at">args =</span> <span class="fu">list</span>(<span class="at">shape =</span> <span class="dv">2</span>, <span class="at">rate =</span> <span class="dv">1</span>)),</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">tail_shape =</span> <span class="fu">list</span>(<span class="at">mode =</span> <span class="st">"dist"</span>, <span class="at">dist =</span> <span class="st">"normal"</span>, <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="fl">0.25</span>))</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">concentration =</span> <span class="fu">list</span>(<span class="at">mode =</span> <span class="st">"dist"</span>, <span class="at">dist =</span> <span class="st">"gamma"</span>, <span class="at">args =</span> <span class="fu">list</span>(<span class="at">shape =</span> <span class="dv">2</span>, <span class="at">rate =</span> <span class="dv">1</span>))</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
+<section id="example-treat-tail-parameters-as-random-but-fix-the-threshold" class="level2">
+<h2 class="anchored" data-anchor-id="example-treat-tail-parameters-as-random-but-fix-the-threshold">Example: treat tail parameters as random, but fix the threshold</h2>
+<p>Fixing (u) can be useful for sensitivity analysis. A common pragmatic choice is to set (u) to a high empirical quantile and let ((,)) be learned from exceedances. (When (u) is random, DPmixGPD will propagate threshold uncertainty automatically.)</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>u0 <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(stats<span class="sc">::</span><span class="fu">quantile</span>(y, <span class="fl">0.90</span>))</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>param_specs <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">gpd =</span> <span class="fu">list</span>(</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">threshold  =</span> <span class="fu">list</span>(<span class="at">mode =</span> <span class="st">"fixed"</span>, <span class="at">value =</span> u0),</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">tail_scale =</span> <span class="fu">list</span>(<span class="at">mode =</span> <span class="st">"dist"</span>,  <span class="at">dist =</span> <span class="st">"gamma"</span>,  <span class="at">args =</span> <span class="fu">list</span>(<span class="at">shape =</span> <span class="dv">2</span>, <span class="at">rate =</span> <span class="dv">1</span>)),</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">tail_shape =</span> <span class="fu">list</span>(<span class="at">mode =</span> <span class="st">"dist"</span>,  <span class="at">dist =</span> <span class="st">"normal"</span>, <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="fl">0.25</span>))</span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">concentration =</span> <span class="fu">list</span>(</span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">mode =</span> <span class="st">"dist"</span>, <span class="at">dist =</span> <span class="st">"gamma"</span>, <span class="at">args =</span> <span class="fu">list</span>(<span class="at">shape =</span> <span class="dv">2</span>, <span class="at">rate =</span> <span class="dv">1</span>)</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>bundle_gpd <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
+<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> <span class="cn">NULL</span>,</span>
+<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
+<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"lognormal"</span>,</span>
+<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">6</span>,</span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">param_specs =</span> param_specs</span>
+<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="example-fully-stochastic-threshold-with-a-weakly-informative-prior" class="level2">
+<h2 class="anchored" data-anchor-id="example-fully-stochastic-threshold-with-a-weakly-informative-prior">Example: fully stochastic threshold, with a weakly informative prior</h2>
+<p>DPmixGPD supports stochastic thresholds under <code>gpd$threshold</code> when <code>GPD=TRUE</code>. In the conditional model the threshold can be linked to covariates; in the unconditional model it is scalar.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>param_specs2 <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">gpd =</span> <span class="fu">list</span>(</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">threshold  =</span> <span class="fu">list</span>(<span class="at">mode =</span> <span class="st">"dist"</span>, <span class="at">dist =</span> <span class="st">"lognormal"</span>, <span class="at">args =</span> <span class="fu">list</span>(<span class="at">meanlog =</span> <span class="fu">log</span>(<span class="fu">median</span>(y)), <span class="at">sdlog =</span> <span class="fl">0.4</span>)),</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">tail_scale =</span> <span class="fu">list</span>(<span class="at">mode =</span> <span class="st">"dist"</span>, <span class="at">dist =</span> <span class="st">"gamma"</span>,     <span class="at">args =</span> <span class="fu">list</span>(<span class="at">shape =</span> <span class="dv">2</span>, <span class="at">rate =</span> <span class="dv">1</span>)),</span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">tail_shape =</span> <span class="fu">list</span>(<span class="at">mode =</span> <span class="st">"dist"</span>, <span class="at">dist =</span> <span class="st">"normal"</span>,    <span class="at">args =</span> <span class="fu">list</span>(<span class="at">mean =</span> <span class="dv">0</span>, <span class="at">sd =</span> <span class="fl">0.25</span>))</span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+</section>
+<section id="posterior-summaries-density-cdf-and-quantiles" class="level1">
+<h1>Posterior summaries: density, CDF, and quantiles</h1>
+<p>The core inferential objects are functionals of the full spliced distribution (F(y)) (defined in the “Model specification…” vignette). Given posterior draws ({<sup>{(s)},</sup>{(s)}}_{s=1}^S), DPmixGPD computes summaries by:</p>
+<ol type="1">
+<li>evaluating the functional under each draw, and</li>
+<li>aggregating across draws (posterior mean, median, and credible intervals).</li>
+</ol>
+<section id="quantiles-under-the-splice-conceptual-formula" class="level2">
+<h2 class="anchored" data-anchor-id="quantiles-under-the-splice-conceptual-formula">Quantiles under the splice (conceptual formula)</h2>
+<p>Let (u^{(s)}) be the threshold in draw (s), and let (p_u^{(s)} = F_{}<sup>{(s)}(u</sup>{(s)})). For a target level ():</p>
+<ul>
+<li>If (p_u^{(s)}), then the quantile is in the bulk: (Q<sup>{(s)}()=Q_{}</sup>{(s)}()).</li>
+<li>If (&gt; p_u^{(s)}), then it is in the tail. Writing (q = (- p_u<sup>{(s)})/(1-p_u</sup>{(s)})), the tail quantile is [ Q^{(s)}() = u^{(s)} + Q_{}^{(s)}(q), ] where (Q_{}^{(s)}()) is the GPD quantile function for exceedances.</li>
+</ul>
+<p>DPmixGPD implements these calculations using the posterior samples, so you do not need to code them manually unless you are building custom functionals.</p>
+</section>
+<section id="practical-api" class="level2">
+<h2 class="anchored" data-anchor-id="practical-api">Practical API</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Posterior predictive density/survival at a grid:</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>grid <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fu">min</span>(y), <span class="fu">max</span>(y) <span class="sc">*</span> <span class="fl">1.5</span>, <span class="at">length.out =</span> <span class="dv">200</span>)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>dhat <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">y =</span> grid, <span class="at">type =</span> <span class="st">"density"</span>)</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>shat <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">y =</span> grid, <span class="at">type =</span> <span class="st">"survival"</span>)</span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Posterior quantiles:</span></span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>qs <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">p =</span> <span class="fu">c</span>(<span class="fl">0.90</span>, <span class="fl">0.95</span>, <span class="fl">0.99</span>))</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Posterior predictive mean:</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>mhat <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">cred.level =</span> <span class="fl">0.90</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The exact <code>type</code> names and available options are documented in the function reference for <code>predict.mixgpd_fit</code>. Use <code>?predict.mixgpd_fit</code> after installation.</p>
+</section>
+</section>
+<section id="diagnostics-what-to-check" class="level1">
+<h1>Diagnostics (what to check)</h1>
+<p>Posterior computation for mixture models is sensitive to:</p>
+<ul>
+<li>truncation level <code>components</code> (SB) or maximum clusters (CRP),</li>
+<li>mixing of allocations ({z_i}),</li>
+<li>tail identifiability when the exceedance sample is small.</li>
+</ul>
+<p>In practice, you should:</p>
+<ol type="1">
+<li>run multiple chains if feasible,</li>
+<li>inspect trace plots for key tail parameters ((u,,)) when <code>GPD=TRUE</code>,</li>
+<li>check stability of extreme quantiles (e.g., 0.95/0.99) across chains and across small perturbations of priors.</li>
+</ol>
+<p>DPmixGPD prints a compact summary and supports standard MCMC diagnostics tooling.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>MixGPD summary | backend: Stick-Breaking Process | kernel: Lognormal Distribution | GPD tail: TRUE | epsilon: 0.025
+n = 120 | components = 6
+Summary
+Initial components: 6 | Components after truncation: 1
+
+WAIC: 139.624
+lppd: -51.237 | pWAIC: 18.575
+
+Summary table
+&lt;table class="table" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:center;"&gt; parameter &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; mean &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; sd &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.025 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.500 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; q0.975 &lt;/th&gt;
+   &lt;th style="text-align:center;"&gt; ess &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; weights[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.733 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.159 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.481 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.75 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.976 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; alpha &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.707 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.358 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.203 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.632 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.587 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 23.067 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; tail_scale &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.764 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.135 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.504 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.767 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.99 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 11.59 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; tail_shape &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.217 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.102 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.352 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.237 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.003 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 14.968 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; threshold &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.372 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.261 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.086 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.605 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.654 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.606 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; meanlog[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.335 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.884 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -1.055 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; -0.678 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 4.954 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 2.927 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:center;"&gt; sdlog[1] &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.902 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.517 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.468 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 0.77 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 1.819 &lt;/td&gt;
+   &lt;td style="text-align:center;"&gt; 41.323 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in fortify(data, ...): Arguments in `...` must be used.
+✖ Problematic argument:
+• group = Chain
+ℹ Did you misspell an argument name?</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for fill is already present.
+Adding another scale for fill, which will replace the existing scale.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+ℹ Please use `linewidth` instead.
+ℹ The deprecated feature was likely used in the ggmcmc package.
+  Please report the issue at &lt;https://github.com/xfim/ggmcmc/issues/&gt;.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+=== histogram ===</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="unconditional_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+=== density ===</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="unconditional_files/figure-html/unnamed-chunk-10-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+=== traceplot ===</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="unconditional_files/figure-html/unnamed-chunk-10-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+=== running ===</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="unconditional_files/figure-html/unnamed-chunk-10-4.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+=== compare_partial ===</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="unconditional_files/figure-html/unnamed-chunk-10-5.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+=== autocorrelation ===</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="unconditional_files/figure-html/unnamed-chunk-10-6.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+=== geweke ===</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="unconditional_files/figure-html/unnamed-chunk-10-7.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+=== caterpillar ===</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="unconditional_files/figure-html/unnamed-chunk-10-8.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+=== pairs ===</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="unconditional_files/figure-html/unnamed-chunk-10-9.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="low-level-density-utilities-optional" class="level1">
+<h1>Low-level density utilities (optional)</h1>
+<p>DPmixGPD exports both CamelCase and lower-case density/CDF/quantile/random-generation helpers for kernels and their mix/splice variants. As a practical rule:</p>
+<ul>
+<li>the CamelCase forms (e.g., <code>dNormMixGpd</code>) are intended for NIMBLE model code and internal use,</li>
+<li>the lower-case forms (e.g., <code>dnormmixgpd</code>) are convenient for direct use in R scripts.</li>
+</ul>
+<p>This separation makes it easier to validate pieces of the model outside MCMC (e.g., checking a GPD tail density shape) without rebuilding a full bundle.</p>
+</section>
+<section id="references" class="level1">
+
+
 
 
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-behrens2004" class="csl-entry" role="listitem">
+Behrens, Cibele N., Hedibert F. Lopes, and Dani Gamerman. 2004. <span>“Bayesian Analysis of Extreme Events with Threshold Estimation.”</span> <em>Statistical Modelling</em> 4 (3): 227–44. <a href="https://doi.org/10.1191/1471082x04st075oa">https://doi.org/10.1191/1471082x04st075oa</a>.
+</div>
+<div id="ref-frigessi2002" class="csl-entry" role="listitem">
+Frigessi, Arnoldo, Ola Haug, and Håvard Rue. 2002. <span>“A Dynamic Mixture Model for Unsupervised Tail Estimation Without Threshold Selection.”</span> <em>Extremes</em> 5 (3): 219–35. <a href="https://doi.org/10.1023/A:1024072610684">https://doi.org/10.1023/A:1024072610684</a>.
+</div>
+<div id="ref-ishwaran2001" class="csl-entry" role="listitem">
+Ishwaran, Hemant, and Lancelot F. James. 2001. <span>“Gibbs Sampling Methods for Stick-Breaking Priors.”</span> <em>Journal of the American Statistical Association</em> 96 (453): 161–73. <a href="https://doi.org/10.1198/016214501750332758">https://doi.org/10.1198/016214501750332758</a>.
+</div>
+<div id="ref-doNascimento2012" class="csl-entry" role="listitem">
+Nascimento, Fernando Ferraz do, Dani Gamerman, and Hedibert Freitas Lopes. 2012. <span>“A Semiparametric <span>B</span>ayesian Approach to Extreme Value Estimation.”</span> <em>Statistics and Computing</em> 22 (2): 661–75. <a href="https://doi.org/10.1007/s11222-011-9270-z">https://doi.org/10.1007/s11222-011-9270-z</a>.
+</div>
+<div id="ref-neal2000" class="csl-entry" role="listitem">
+Neal, Radford M. 2000. <span>“Markov Chain Sampling Methods for <span>D</span>irichlet Process Mixture Models.”</span> <em>Journal of Computational and Graphical Statistics</em> 9 (2): 249–65. <a href="https://doi.org/10.1080/10618600.2000.10474879">https://doi.org/10.1080/10618600.2000.10474879</a>.
+</div>
+<div id="ref-sethuraman1994" class="csl-entry" role="listitem">
+Sethuraman, Jayaram. 1994. <span>“A Constructive Definition of <span>D</span>irichlet Priors.”</span> <em>Statistica Sinica</em> 4 (2): 639–50.
+</div>
+</div></section></div></main> <!-- /main -->
 ﻿<div style="
   display:flex;
   flex-wrap:wrap;
@@ -383,8 +1145,8 @@ Compiling
   <div>
     <span id="site-version"></span> -
     <span id="site-updated"></span> -
-    <a href="cite.html">Cite</a> -
-    <a href="pkgdown/index.html">API</a> -
+    <a href="../cite.html">Cite</a> -
+    <a href="../pkgdown/index.html">API</a> -
     <a href="https://github.com/arnabaich96/DPmixGPD">GitHub</a>
   </div>
 

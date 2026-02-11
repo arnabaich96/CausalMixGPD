@@ -1,0 +1,51 @@
+---
+title: "Architecture overview"
+toc: true
+format:
+  html:
+    code-fold: true
+---
+
+This page is the contributor mental model: what depends on what, and where to make changes safely.
+
+## Layers
+
+1. **Spec layer**: compiles user inputs into a normalized internal specification.
+2. **Contracts**: enforce legal configurations and guard invariants early.
+3. **Registry**: routes kernel/tail choices to concrete implementations.
+4. **Bundle + codegen**: builds Nimble model code, constants/data, monitors, inits.
+5. **MCMC**: runs the sampler, returning fit objects with standardized slots.
+6. **S3 surface**: predict/plot/summary that should never need to know implementation details.
+
+## Call flow (non-causal)
+
+```mermaid
+sequenceDiagram
+  participant U as User
+  participant S as compile_model_spec()
+  participant R as kernel registry
+  participant B as build_nimble_bundle()
+  participant M as run_mcmc_bundle_manual()
+  participant F as mixgpd_fit
+  U->>B: build_nimble_bundle(...)
+  B->>S: compile spec
+  S->>R: validate + route kernel/tail
+  B->>M: bundle (code/data/constants)
+  M->>F: fit object
+  U->>F: summary/plot/predict
+```
+
+## Call flow (causal)
+
+```mermaid
+sequenceDiagram
+  participant U as User
+  participant C as build_causal_bundle()
+  participant P as PS sub-bundle
+  participant M as run_mcmc_causal()
+  participant Q as qte()/ate()
+  U->>C: build_causal_bundle(...)
+  C->>P: build + run PS (optional)
+  U->>M: run_mcmc_causal(...)
+  M->>Q: derive estimands
+```

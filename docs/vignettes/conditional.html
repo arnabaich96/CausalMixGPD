@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>conditional – DPmixGPD</title>
+<title>Conditional DP Mixture Models – DPmixGPD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -55,7 +55,27 @@ div.sourceCode
 @media screen {
 pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
-</style>
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
 
 
 <script src="../site_libs/quarto-nav/quarto-nav.js"></script>
@@ -105,39 +125,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
 
-  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-const typesetMath = (el) => {
-  if (window.MathJax) {
-    // MathJax Typeset
-    window.MathJax.typeset([el]);
-  } else if (window.katex) {
-    // KaTeX Render
-    var mathElements = el.getElementsByClassName("math");
-    var macros = [];
-    for (var i = 0; i < mathElements.length; i++) {
-      var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
-        window.katex.render(texText.data, mathElements[i], {
-          displayMode: mathElements[i].classList.contains('display'),
-          throwOnError: false,
-          macros: macros,
-          fleqn: false
-        });
-      }
-    }
-  }
-}
-window.Quarto = {
-  typesetMath
-};
-</script>
 
 </head>
 
-<body class="nav-fixed fullcontent quarto-light">
+<body class="nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -196,10 +187,61 @@ window.Quarto = {
   </li>  
     </ul>
   </li>
-  <li class="nav-item">
-    <a class="nav-link" href="../developers.html"> 
-<span class="menu-text">Developers</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-developers" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Developers</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-developers">    
+        <li>
+    <a class="dropdown-item" href="../developers.html">
+ <span class="dropdown-text">Overview</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/architecture.html">
+ <span class="dropdown-text">Architecture</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/tools.html">
+ <span class="dropdown-text">Tools</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/site-build.html">
+ <span class="dropdown-text">Website build</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/spec-and-contracts.html">
+ <span class="dropdown-text">Spec and contracts</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/registry.html">
+ <span class="dropdown-text">Kernel registry</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/add-kernel.html">
+ <span class="dropdown-text">Add a kernel</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/add-tail-option.html">
+ <span class="dropdown-text">Tail options</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/causal-internals.html">
+ <span class="dropdown-text">Causal internals</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/testing.html">
+ <span class="dropdown-text">Testing</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/conventions.html">
+ <span class="dropdown-text">Conventions</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../developers/releasing.html">
+ <span class="dropdown-text">Releasing</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../pkgdown/reference/index.html"> 
 <span class="menu-text">Reference</span></a>
@@ -226,13 +268,31 @@ window.Quarto = {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#conditional-mixture-model" id="toc-conditional-mixture-model" class="nav-link active" data-scroll-target="#conditional-mixture-model">Conditional mixture model</a></li>
+  <li><a href="#a-practical-note-about-the-design-matrix-x" id="toc-a-practical-note-about-the-design-matrix-x" class="nav-link" data-scroll-target="#a-practical-note-about-the-design-matrix-x">A practical note about the design matrix (X)</a></li>
+  <li><a href="#which-parameters-can-depend-on-x" id="toc-which-parameters-can-depend-on-x" class="nav-link" data-scroll-target="#which-parameters-can-depend-on-x">Which parameters can depend on (X)?</a></li>
+  <li><a href="#link-mode-parameters-general-form" id="toc-link-mode-parameters-general-form" class="nav-link" data-scroll-target="#link-mode-parameters-general-form">Link-mode parameters: general form</a></li>
+  <li><a href="#tail-parameters-under-gpd" id="toc-tail-parameters-under-gpd" class="nav-link" data-scroll-target="#tail-parameters-under-gpd">Tail parameters under GPD</a></li>
+  <li><a href="#controlling-covariate-dependence-with-param_specs" id="toc-controlling-covariate-dependence-with-param_specs" class="nav-link" data-scroll-target="#controlling-covariate-dependence-with-param_specs">Controlling covariate dependence with <code>param_specs</code></a></li>
+  <li><a href="#backend-note-sb-vs-crp-with-covariates" id="toc-backend-note-sb-vs-crp-with-covariates" class="nav-link" data-scroll-target="#backend-note-sb-vs-crp-with-covariates">Backend note: SB vs CRP with covariates</a></li>
+  <li><a href="#worked-example-conditional-normal-kernel-with-a-gpd-tail" id="toc-worked-example-conditional-normal-kernel-with-a-gpd-tail" class="nav-link" data-scroll-target="#worked-example-conditional-normal-kernel-with-a-gpd-tail">Worked example: conditional normal kernel with a GPD tail</a></li>
+  <li><a href="#conditional-prediction" id="toc-conditional-prediction" class="nav-link" data-scroll-target="#conditional-prediction">Conditional prediction</a></li>
+  <li><a href="#what-to-tune-in-practice" id="toc-what-to-tune-in-practice" class="nav-link" data-scroll-target="#what-to-tune-in-practice">What to tune in practice</a></li>
+  <li><a href="#references" id="toc-references" class="nav-link" data-scroll-target="#references">References</a></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Conditional Models</h1>
+<h1 class="title">Conditional DP Mixture Models</h1>
 </div>
 
 
@@ -249,42 +309,188 @@ window.Quarto = {
 </header>
 
 
-<section id="overview" class="level2">
-<h2 class="anchored" data-anchor-id="overview">Overview</h2>
-<p>This vignette demonstrates fitting a conditional model with covariates and generating predictions on a grid of new covariate values.</p>
+<p>DPmixGPD supports conditional (covariate-dependent) density estimation by allowing one or more <em>kernel parameters</em>—and, optionally, selected <em>tail parameters</em>—to vary with a design matrix (X). The goal is to estimate an entire conditional distribution (F(y )), not just a mean curve.</p>
+<p>This vignette focuses on how covariates enter the model, how to control that behavior via <code>param_specs</code>, and how to generate conditional predictions. For the bulk–tail spliced likelihood, GPD density/CDF definitions, and the overall “bulk + GPD tail” construction, see the <em>Model fundamentals</em> vignette in this package (we will refer to it rather than repeating the full splice derivation here).</p>
+<section id="conditional-mixture-model" class="level3">
+<h3 class="anchored" data-anchor-id="conditional-mixture-model">Conditional mixture model</h3>
+<p>Let (y_i ) be an outcome and (_i ^p) a covariate vector. Under a truncated stick-breaking (SB) Dirichlet process mixture, DPmixGPD uses [ y_i z_i=j,_i k!(y_i <em>j(<em>i)), z_i (w_1,,w_J), ] with stick-breaking weights [ v_j (1,), w_1=v_1, w_j=v_j</em>{&lt;j}(1-v</em>)&nbsp;(j), . ] This is the same DPM idea as in classic DP mixtures, but applied to conditional distributions; see, e.g., <span class="citation" data-cites="escobar1995 muller1996">(<a href="#ref-escobar1995" role="doc-biblioref"><strong>escobar1995?</strong></a>; <a href="#ref-muller1996" role="doc-biblioref"><strong>muller1996?</strong></a>)</span>. The key difference from the unconditional vignette is that (_j()) may depend on ().</p>
+<p>DPmixGPD implements covariate dependence through <em>per-parameter modes</em>:</p>
+<ul>
+<li><code>mode = "dist"</code>: parameter is random (drawn from a prior) but does <strong>not</strong> depend on (X).</li>
+<li><code>mode = "fixed"</code>: parameter is fixed at a constant value.</li>
+<li><code>mode = "link"</code>: parameter depends on (X) through a GLM-style link, with component-specific regression coefficients.</li>
+</ul>
+<p>This is set separately for each bulk parameter (kernel parameter), and for selected tail parameters when <code>GPD = TRUE</code>.</p>
 </section>
-<section id="theory-brief" class="level2">
-<h2 class="anchored" data-anchor-id="theory-brief">Theory (brief)</h2>
-<p>Conditional models allow the bulk mixture parameters to vary with covariates. We write the conditional density as <span class="math display">\[
-f(y_i \mid x_i) = \int K(y_i; \theta(x_i))\, dG(\theta),
-\]</span> where the link between <span class="math inline">\(\theta\)</span> and <span class="math inline">\(x_i\)</span> is encoded through the kernel-specific regression structure. The DP prior provides flexible, data-driven clustering of local distributions across covariate space.</p>
-</section>
-<section id="data-setup" class="level2">
-<h2 class="anchored" data-anchor-id="data-setup">Data Setup</h2>
+<section id="a-practical-note-about-the-design-matrix-x" class="level3">
+<h3 class="anchored" data-anchor-id="a-practical-note-about-the-design-matrix-x">A practical note about the design matrix (X)</h3>
+<p>DPmixGPD treats the matrix you pass as <code>X</code> as the design matrix used in linear predictors. It does <strong>not</strong> automatically add an intercept column. In practice you will almost always want <code>model.matrix()</code> so an intercept is included and factor coding is handled correctly.</p>
+<p>A recommended workflow is:</p>
+<ol type="1">
+<li>Build (X) using <code>model.matrix()</code> (includes intercept by default).</li>
+<li>Standardize/center continuous covariates (especially if you do not include an intercept).</li>
+<li>Keep the same column names and ordering for prediction. <code>predict()</code> will validate them.</li>
+</ol>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(DPmixGPD)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"mtcars"</span>, <span class="at">package =</span> <span class="st">"datasets"</span>)</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>df <span class="ot">&lt;-</span> mtcars</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> df<span class="sc">$</span>mpg</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> df[, <span class="fu">c</span>(<span class="st">"wt"</span>, <span class="st">"hp"</span>)]</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(X)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Example covariates</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="dv">200</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>dat <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">x1 =</span> <span class="fu">rnorm</span>(N),</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">x2 =</span> <span class="fu">rbinom</span>(N, <span class="dv">1</span>, <span class="fl">0.5</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Recommended: model.matrix() gives an intercept and consistent column names</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span> x1 <span class="sc">+</span> x2, dat)</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># (Optional) scale continuous columns but keep intercept untouched</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>X[, <span class="st">"x1"</span>] <span class="ot">&lt;-</span> <span class="fu">scale</span>(X[, <span class="st">"x1"</span>])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="model-fitting" class="level2">
-<h2 class="anchored" data-anchor-id="model-fitting">Model Fitting</h2>
+<section id="which-parameters-can-depend-on-x" class="level3">
+<h3 class="anchored" data-anchor-id="which-parameters-can-depend-on-x">Which parameters can depend on (X)?</h3>
+<p>Kernel-specific parameter names are stored in the kernel registry. You can inspect them:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> X,</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"normal"</span>,</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">6</span>,</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc =</span> mcmc</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle, <span class="at">show_progress =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">init_kernel_registry</span>()</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>reg <span class="ot">&lt;-</span> <span class="fu">get_kernel_registry</span>()</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Names of available kernels</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(reg)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "normal"    "lognormal" "invgauss"  "gamma"     "laplace"   "amoroso"  
+[7] "cauchy"   </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Bulk parameters for a specific kernel</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>reg<span class="sc">$</span>normal<span class="sc">$</span>bulk_params</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "mean" "sd"  </code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>reg<span class="sc">$</span>gamma<span class="sc">$</span>bulk_params</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "shape" "scale"</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Defaults for covariate behavior (when X is present)</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>reg<span class="sc">$</span>normal<span class="sc">$</span>defaults_X</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$mean
+$mean$mode
+[1] "link"
+
+$mean$link
+[1] "identity"
+
+
+$sd
+$sd$mode
+[1] "dist"</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>reg<span class="sc">$</span>gamma<span class="sc">$</span>defaults_X</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$shape
+$shape$mode
+[1] "dist"
+
+
+$scale
+$scale$mode
+[1] "link"
+
+$scale$link
+[1] "exp"</code></pre>
+</div>
+</div>
+<p>The registry is the authoritative source for (i) valid kernel names, (ii) bulk parameter names, and (iii) each kernel’s default covariate behavior.</p>
+</section>
+<section id="link-mode-parameters-general-form" class="level3">
+<h3 class="anchored" data-anchor-id="link-mode-parameters-general-form">Link-mode parameters: general form</h3>
+<p>If a bulk parameter () is assigned <code>mode = "link"</code>, DPmixGPD uses a linear predictor and link function: [ <em>{,ij} = <em>i^</em>{,j}, </em>{ij} = g_(<em>{,ij}). ] Here (</em>{,j}) is component-specific (indexed by mixture component (j)), so different mixture components can represent different conditional regimes.</p>
+<p>Supported link functions include:</p>
+<ul>
+<li><code>"identity"</code>: (= )</li>
+<li><code>"exp"</code>: (= ()) (useful for positive parameters)</li>
+<li><code>"softplus"</code>: (= (1+())) (also enforces positivity)</li>
+<li><code>"power"</code>: (= ^{}) (requires <code>link_power = kappa</code>; use with care if () can be negative)</li>
+</ul>
+<p>The best default for strictly-positive parameters is typically <code>"exp"</code> or <code>"softplus"</code>.</p>
+</section>
+<section id="tail-parameters-under-gpd" class="level3">
+<h3 class="anchored" data-anchor-id="tail-parameters-under-gpd">Tail parameters under GPD</h3>
+<p>When <code>GPD = TRUE</code>, DPmixGPD uses a GPD tail above a threshold (see the <em>Model fundamentals</em> vignette for the splice and GPD density). For conditional variants, the following tail parameters can depend on (X):</p>
+<ul>
+<li><code>gpd$threshold</code>: <code>fixed</code>, <code>dist</code>, or <code>link</code></li>
+<li><code>gpd$tail_scale</code>: <code>fixed</code>, <code>dist</code>, or <code>link</code></li>
+<li><code>gpd$tail_shape</code>: <code>fixed</code> or <code>dist</code> (no <code>link</code> mode)</li>
+</ul>
+<p>Two distinct “link” behaviors exist for the threshold:</p>
+<ul>
+<li>Deterministic link: (u_i = g(_i^_u))</li>
+<li>Stochastic link via <code>link_dist = list(dist="lognormal", ...)</code>: (u_i (_i,_u)) with (_i=_i^_u)</li>
+</ul>
+<p>This mirrors common nonstationary threshold modeling ideas in extremes <span class="citation" data-cites="davison1990 chavezdemoulin2005">(<a href="#ref-davison1990" role="doc-biblioref"><strong>davison1990?</strong></a>; <a href="#ref-chavezdemoulin2005" role="doc-biblioref"><strong>chavezdemoulin2005?</strong></a>)</span>, but placed inside the full Bayesian mixture framework <span class="citation" data-cites="behrens2004 donascimento2012">(<a href="#ref-behrens2004" role="doc-biblioref">Behrens, Lopes, and Gamerman 2004</a>; <a href="#ref-donascimento2012" role="doc-biblioref"><strong>donascimento2012?</strong></a>)</span>.</p>
+</section>
+<section id="controlling-covariate-dependence-with-param_specs" class="level3">
+<h3 class="anchored" data-anchor-id="controlling-covariate-dependence-with-param_specs">Controlling covariate dependence with <code>param_specs</code></h3>
+<p><code>build_nimble_bundle()</code> accepts <code>param_specs</code> to override defaults. The structure is:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>param_specs <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">bulk =</span> <span class="fu">list</span>(</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="sc">&lt;</span>bulk_param_1<span class="sc">&gt;</span> <span class="er">=</span> <span class="fu">list</span>(<span class="at">mode =</span> <span class="st">"dist"</span><span class="sc">/</span><span class="st">"fixed"</span><span class="sc">/</span><span class="st">"link"</span>, ...),</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="sc">&lt;</span>bulk_param_2<span class="sc">&gt;</span> <span class="er">=</span> <span class="fu">list</span>(<span class="at">mode =</span> <span class="st">"dist"</span><span class="sc">/</span><span class="st">"fixed"</span><span class="sc">/</span><span class="st">"link"</span>, ...),</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    ...</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  ),</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">gpd =</span> <span class="fu">list</span>(</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">threshold  =</span> <span class="fu">list</span>(<span class="at">mode =</span> <span class="st">"dist"</span><span class="sc">/</span><span class="st">"fixed"</span><span class="sc">/</span><span class="st">"link"</span>, ...),</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">tail_scale =</span> <span class="fu">list</span>(<span class="at">mode =</span> <span class="st">"dist"</span><span class="sc">/</span><span class="st">"fixed"</span><span class="sc">/</span><span class="st">"link"</span>, ...),</span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">tail_shape =</span> <span class="fu">list</span>(<span class="at">mode =</span> <span class="st">"dist"</span><span class="sc">/</span><span class="st">"fixed"</span>, ...),</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    <span class="co"># optionally: sdlog_u if using lognormal threshold link_dist</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">sdlog_u    =</span> <span class="fu">list</span>(<span class="at">mode =</span> <span class="st">"dist"</span>, <span class="at">dist =</span> <span class="st">"invgamma"</span>, <span class="at">args =</span> <span class="fu">list</span>(<span class="at">shape =</span> <span class="dv">2</span>, <span class="at">scale =</span> <span class="dv">1</span>))</span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>In <code>mode = "link"</code> you may specify:</p>
+<ul>
+<li><code>link</code>: one of <code>"identity"</code>, <code>"exp"</code>, <code>"softplus"</code>, <code>"power"</code></li>
+<li><code>link_power</code>: numeric, only for <code>"power"</code></li>
+<li><code>beta_prior</code>: a list describing priors for regression coefficients, e.g. <code>list(dist="normal", args=list(mean=0, sd=2))</code></li>
+</ul>
+<p>In <code>mode = "dist"</code> you specify:</p>
+<ul>
+<li><code>dist</code>: e.g., <code>"normal"</code>, <code>"gamma"</code>, <code>"invgamma"</code>, etc. (used internally in NIMBLE code generation)</li>
+<li><code>args</code>: named list of distribution parameters</li>
+</ul>
+</section>
+<section id="backend-note-sb-vs-crp-with-covariates" class="level3">
+<h3 class="anchored" data-anchor-id="backend-note-sb-vs-crp-with-covariates">Backend note: SB vs CRP with covariates</h3>
+<p>DPmixGPD supports two backends:</p>
+<ul>
+<li><code>backend = "sb"</code>: truncated stick-breaking mixture (default for covariate-dependent parameters)</li>
+<li><code>backend = "crp"</code>: finite CRP representation</li>
+</ul>
+<p>For conditional models, the SB backend is recommended. Internally, the CRP backend avoids default link-mode bulk parameters because deterministic, cluster-indexed covariate nodes can interfere with NIMBLE’s CRP samplers. If you want covariate links on bulk parameters, you should generally use <code>backend = "sb"</code>.</p>
+</section>
+<section id="worked-example-conditional-normal-kernel-with-a-gpd-tail" class="level3">
+<h3 class="anchored" data-anchor-id="worked-example-conditional-normal-kernel-with-a-gpd-tail">Worked example: conditional normal kernel with a GPD tail</h3>
+<p>We simulate data where the conditional mean depends on (X), fit a conditional model, then generate conditional predictions.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Simulate a simple signal + heavy-tailed noise</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">2</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>beta <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="sc">-</span><span class="fl">0.3</span>, <span class="fl">0.8</span>, <span class="sc">-</span><span class="fl">0.6</span>)   <span class="co"># coefficients for (Intercept, x1, x2)</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">&lt;-</span> <span class="fu">drop</span>(X <span class="sc">%*%</span> beta)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> mu <span class="sc">+</span> <span class="fu">rt</span>(N, <span class="at">df =</span> <span class="dv">3</span>)     <span class="co"># heavy-tailed noise</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>mcmc <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">400</span>, <span class="at">nburnin =</span> <span class="dv">100</span>, <span class="at">thin =</span> <span class="dv">2</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">seed =</span> <span class="dv">1</span>)</span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> X,</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"normal"</span>,</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">6</span>,</span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc =</span> mcmc</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">run_mcmc_bundle_manual</span>(bundle, <span class="at">show_progress =</span> <span class="cn">FALSE</span>, <span class="at">quiet =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Defining model</code></pre>
 </div>
@@ -331,105 +537,88 @@ Compiling
 <pre><code>Calculating WAIC.</code></pre>
 </div>
 </div>
-</section>
-<section id="fitted-values" class="level2">
-<h2 class="anchored" data-anchor-id="fitted-values">Fitted Values</h2>
+<p>A quick summary of the fitted object:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>f <span class="ot">&lt;-</span> <span class="fu">fitted</span>(fit, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">level =</span> <span class="fl">0.90</span>)</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(f)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>    fit lower upper residuals
-1 10.10  6.73  13.7     10.90
-2 11.06  6.99  15.8      9.94
-3  8.75  5.76  11.8     14.05
-4 12.77  7.05  19.8      8.63
-5 14.31  9.89  21.5      4.39
-6 14.09  7.15  24.0      4.01</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(f<span class="sc">$</span>residuals)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
--57.624   0.345   4.742   3.038  12.092  27.073 </code></pre>
+<pre><code>MixGPD fit | backend: Stick-Breaking Process | kernel: Normal Distribution | GPD tail: TRUE
+n = 200 | components = 6 | epsilon = 0.025
+MCMC: niter=400, nburnin=100, thin=2, nchains=1 
+Fit
+Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</code></pre>
 </div>
 </div>
 </section>
-<section id="predictions-on-new-data" class="level2">
-<h2 class="anchored" data-anchor-id="predictions-on-new-data">Predictions on New Data</h2>
+<section id="conditional-prediction" class="level3">
+<h3 class="anchored" data-anchor-id="conditional-prediction">Conditional prediction</h3>
+<p>For conditional models, <code>predict()</code> uses <code>x</code> for the prediction design matrix (X_{}). For <code>type = "density"</code> or <code>"survival"</code>, you must also provide <code>y</code> as the grid of outcome values where the function is evaluated.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>new_X <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">wt =</span> <span class="fu">seq</span>(<span class="fu">min</span>(X<span class="sc">$</span>wt), <span class="fu">max</span>(X<span class="sc">$</span>wt), <span class="at">length.out =</span> <span class="dv">25</span>),</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">hp =</span> stats<span class="sc">::</span><span class="fu">median</span>(X<span class="sc">$</span>hp)</span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>pred_mean <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">x =</span> new_X, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">cred.level =</span> <span class="fl">0.90</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>pred_med  <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">x =</span> new_X, <span class="at">type =</span> <span class="st">"median"</span>, <span class="at">cred.level =</span> <span class="fl">0.90</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_mean<span class="sc">$</span>fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  id estimate lower upper
-1  1     6.10  4.43  7.55
-2  2     6.72  5.21  8.30
-3  3     7.26  5.44  9.01
-4  4     7.84  6.13  9.76
-5  5     8.44  6.49 10.76
-6  6     9.02  6.84 11.68</code></pre>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Prediction points: two covariate profiles</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>newdat <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x1 =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">1</span>, <span class="dv">1</span>), <span class="at">x2 =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">1</span>))</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>Xpred <span class="ot">&lt;-</span> <span class="fu">model.matrix</span>(<span class="sc">~</span> x1 <span class="sc">+</span> x2, newdat)</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>Xpred[, <span class="st">"x1"</span>] <span class="ot">&lt;-</span> <span class="fu">scale</span>(Xpred[, <span class="st">"x1"</span>])  <span class="co"># apply same scaling convention</span></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>ygrid <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fu">quantile</span>(y, <span class="fl">0.01</span>), <span class="fu">quantile</span>(y, <span class="fl">0.99</span>), <span class="at">length.out =</span> <span class="dv">120</span>)</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>dens_pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">x =</span> Xpred, <span class="at">y =</span> ygrid, <span class="at">type =</span> <span class="st">"density"</span>, <span class="at">cred.level =</span> <span class="fl">0.95</span>)</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>q_pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">x =</span> Xpred, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.9</span>, <span class="fl">0.95</span>), <span class="at">cred.level =</span> <span class="fl">0.95</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_med<span class="sc">$</span>fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  estimate index id lower upper
-1     6.05   0.5  1  4.42  7.45
-2     6.61   0.5  2  4.98  7.81
-3     7.16   0.5  3  5.64  8.53
-4     7.72   0.5  4  6.14  9.28
-5     8.27   0.5  5  6.61 10.06
-6     8.83   0.5  6  6.82 10.82</code></pre>
-</div>
-</div>
-</section>
-<section id="quantile-curves" class="level2">
-<h2 class="anchored" data-anchor-id="quantile-curves">Quantile Curves</h2>
+<p>The returned objects contain point estimates and uncertainty summaries. For example:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>q_levels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.1</span>, <span class="fl">0.5</span>, <span class="fl">0.9</span>)</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>q_fits <span class="ot">&lt;-</span> <span class="fu">lapply</span>(q_levels, <span class="cf">function</span>(tau) {</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict</span>(fit, <span class="at">x =</span> new_X, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> tau, <span class="at">cred.level =</span> <span class="fl">0.90</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)<span class="sc">$</span>fit</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>q_df <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, <span class="fu">Map</span>(<span class="cf">function</span>(tau, df) {</span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">wt =</span> new_X<span class="sc">$</span>wt, <span class="at">tau =</span> tau, <span class="at">estimate =</span> df<span class="sc">$</span>estimate, <span class="at">lower =</span> df<span class="sc">$</span>lower, <span class="at">upper =</span> df<span class="sc">$</span>upper)</span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>}, q_levels, q_fits))</span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(q_df)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Quantile predictions for each covariate profile</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>q_pred<span class="sc">$</span>fit</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>    wt tau estimate  lower upper
-1 1.51 0.1    0.263 -3.666  5.58
-2 1.68 0.1    0.818 -3.025  5.70
-3 1.84 0.1    1.373 -2.296  5.90
-4 2.00 0.1    1.929 -1.513  6.12
-5 2.16 0.1    2.484 -0.964  6.37
-6 2.33 0.1    3.039 -0.402  6.67</code></pre>
+<pre><code>  estimate index id  lower  upper
+1 -0.67096  0.50  1 -0.956 -0.403
+2  0.00531  0.50  2 -0.299  0.315
+3  0.97010  0.90  1  0.507  1.598
+4  2.00828  0.90  2  1.315  2.720
+5  1.64707  0.95  1  0.899  2.620
+6  2.85975  0.95  2  1.995  4.021</code></pre>
 </div>
 </div>
+<p>You can also plot prediction objects directly:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(q_df, <span class="fu">aes</span>(<span class="at">x =</span> wt, <span class="at">y =</span> estimate, <span class="at">color =</span> <span class="fu">factor</span>(tau))) <span class="sc">+</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_ribbon</span>(<span class="fu">aes</span>(<span class="at">ymin =</span> lower, <span class="at">ymax =</span> upper, <span class="at">fill =</span> <span class="fu">factor</span>(tau)), <span class="at">alpha =</span> <span class="fl">0.2</span>, <span class="at">color =</span> <span class="cn">NA</span>) <span class="sc">+</span></span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Weight (wt)"</span>, <span class="at">y =</span> <span class="st">"Predicted Quantile"</span>, <span class="at">color =</span> <span class="st">"Quantile"</span>, <span class="at">fill =</span> <span class="st">"Quantile"</span>,</span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Conditional Quantile Curves at Median Horsepower"</span>) <span class="sc">+</span></span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"bottom"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(dens_pred)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="conditional_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid figure-img" width="672"></p>
+<p><img src="conditional_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(q_pred)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="conditional_files/figure-html/unnamed-chunk-7-2.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 </div>
+<p>(Plots are enabled in this vignette build; for faster local iteration you can temporarily set this chunk to <code>eval=FALSE</code>.)</p>
+</section>
+<section id="what-to-tune-in-practice" class="level3">
+<h3 class="anchored" data-anchor-id="what-to-tune-in-practice">What to tune in practice</h3>
+<ol type="1">
+<li><p>Decide which parameters should depend on (X). A good start is to link a location parameter (e.g., <code>mean</code> or <code>meanlog</code>) and keep scale/shape parameters in <code>dist</code> mode, then add complexity if diagnostics warrant it.</p></li>
+<li><p>Use links consistent with support: <code>"exp"</code>/<code>"softplus"</code> for strictly positive parameters.</p></li>
+<li><p>Prefer <code>backend = "sb"</code> for covariate links. Use <code>backend = "crp"</code> mainly for unconditional models or when you intentionally keep bulk parameters in <code>dist</code> mode.</p></li>
+<li><p>Increase <code>components</code>, <code>niter</code>, and <code>nburnin</code> for real analyses. The small values in this vignette are chosen only to keep examples quick.</p></li>
+</ol>
+</section>
+<section id="references" class="level3">
+
+
 
 
 </section>
 
-</main> <!-- /main -->
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="ref-behrens2004" class="csl-entry" role="listitem">
+Behrens, Cibele N., Hedibert F. Lopes, and Dani Gamerman. 2004. <span>“Bayesian Analysis of Extreme Events with Threshold Estimation.”</span> <em>Statistical Modelling</em> 4 (3): 227–44. <a href="https://doi.org/10.1191/1471082x04st075oa">https://doi.org/10.1191/1471082x04st075oa</a>.
+</div>
+</div></section></div></main> <!-- /main -->
 ﻿<div style="
   display:flex;
   flex-wrap:wrap;
@@ -450,8 +639,8 @@ Compiling
   <div>
     <span id="site-version"></span> -
     <span id="site-updated"></span> -
-    <a href="cite.html">Cite</a> -
-    <a href="pkgdown/index.html">API</a> -
+    <a href="../cite.html">Cite</a> -
+    <a href="../pkgdown/index.html">API</a> -
     <a href="https://github.com/arnabaich96/DPmixGPD">GitHub</a>
   </div>
 

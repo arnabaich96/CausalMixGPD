@@ -1,14 +1,7 @@
-﻿---
+---
 title: "Inverse Gaussian (mixture kernel)"
 pkgdown:
   slug: "kernels/kernel-inverse-gaussian-mixture"
-output:
-  rmarkdown::html_vignette:
-    highlight: null
-vignette: >
-  %\\VignetteIndexEntry{Inverse Gaussian (mixture kernel)}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}

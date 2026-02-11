@@ -1,0 +1,25 @@
+---
+title: "Spec and contracts"
+toc: true
+format:
+  html:
+    code-fold: true
+---
+
+This page explains what the package guarantees once a spec is compiled.
+
+## What the spec should guarantee
+
+- Kernel/tail selection is legal under the chosen backend.
+- Dimensions are internally consistent (data/model/latent allocations).
+- All required pieces (functions, parameters) exist for downstream codegen.
+
+## Where contracts live
+
+- Primary validation and legality checks are implemented in `R/00-global-contracts.R`.
+- Kernel discovery and metadata live in `R/00-kernel-registry.R`.
+
+## Practical guidance
+
+- If you add a kernel: update the registry + add at least one contract test.
+- If you change an invariant (notation, flags): update both the code and docs pages that mention it.

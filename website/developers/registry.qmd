@@ -1,0 +1,25 @@
+---
+title: "Kernel registry"
+toc: true
+format:
+  html:
+    code-fold: true
+---
+
+The kernel registry is the routing layer: it maps a user-facing kernel name to concrete implementations and metadata (support, parameterization, tail allowances).
+
+## What to document for each kernel
+
+- Support: positive or real line.
+- Parameters and constraints.
+- Which backends are supported (SB/CRP).
+- Whether bulk-only and bulk+GPD are supported.
+
+## Developer checklist
+
+1. Implement the distribution functions (and MixGPD wrappers if needed).
+2. Add the registry entry.
+3. Update `kernel_support_table()` expectations (docs + tests).
+4. Add a kernel documentation page under `website/kernels/`.
+
+See `developers/add-kernel.qmd` for the end-to-end recipe.

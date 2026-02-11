@@ -1,21 +1,14 @@
-﻿---
+---
 title: "Introduction with GPD kernel"
 pkgdown:
   slug: "kernels/introduction-with-gpd-kernel"
-output:
-  rmarkdown::html_vignette:
-    highlight: null
-vignette: >
-  %\\VignetteIndexEntry{Introduction with GPD kernel}
-  %\VignetteEngine{knitr::rmarkdown}
-  %\VignetteEncoding{UTF-8}
 ---
 
 ```{r setup, include=FALSE}
 source("_load_pkg.R")
 ```
 
-## Introduction with GPD kernel {#v02-introduction-with-gpd-kernel}
+## Introduction with GPD kernel {#introduction-with-gpd-kernel}
 
 
 ### Generalized Pareto distribution (standalone tail)
