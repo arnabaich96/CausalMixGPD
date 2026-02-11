@@ -1,66 +1,73 @@
-# Unconditional Models
+# DPmixGPD: Unconditional workflow (bulk + optional GPD tail)
 
-## Overview
+This vignette shows the end-to-end workflow for an unconditional model:
+build a bundle, run posterior sampling, and compute distributional
+predictions. The mathematical specification of the DPM bulk model and
+the spliced GPD tail is defined once in **“Model specification and
+posterior computation”** (the `basic` vignette). Here we focus on usage.
 
-This vignette demonstrates fitting an unconditional DP mixture model
-with optional GPD tail augmentation.
+DPmixGPD ships small example datasets; we use `nc_pos_tail200_k4`, which
+is a positive-support dataset with an injected upper tail (so `GPD=TRUE`
+is meaningful).
 
-## Theory (brief)
-
-Unconditional models treat observations as exchangeable draws from a
-mixture distribution. The DP prior on the mixing measure $`G`$ yields
-flexible density estimation: \$\$ y_i \\mid G \\sim \\int K(y_i;
-\\theta)\\, dG(\\theta), \\quad G \\sim \\mathrm{DP}(\\alpha, G_0). \$\$
-When \$\\mathrm{GPD} = \\mathrm{TRUE}\$, a GPD tail replaces the bulk
-kernel beyond a threshold $`u`$ to stabilize tail behavior.
-
-## Model Fitting
+Model fit (code shown for reproducibility, but not executed during CRAN
+checks)
 
 ``` r
-
-library(DPmixGPD)
-
-data("faithful", package = "datasets")
-y <- faithful$eruptions
 
 bundle <- build_nimble_bundle(
   y = y,
-  backend = "sb",
-  kernel = "normal",
+  X = NULL,
+  backend = "sb",         # "sb" or "crp"
+  kernel = "lognormal",  # choose a positive-support kernel
   GPD = TRUE,
-  components = 6,
-  mcmc = mcmc
+  components = 4,
+  mcmc = list(niter = 2000, nburnin = 500, thin = 5, nchains = 1, seed = 101)
 )
 
-fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+fit <- run_mcmc_bundle_manual(bundle, show_progress = TRUE)
 ```
 
-## Posterior Predictive Summaries
-
-``` r
-pred_mean <- predict(fit, type = "mean", cred.level = 0.90, interval = "credible")
-pred_q95  <- predict(fit, type = "quantile", index = 0.95, cred.level = 0.90, interval = "credible")
-
-pred_mean$fit
-  id estimate lower upper
-1  1     3.19  3.05  3.32
-pred_q95$fit
-  estimate index lower upper
-1     4.81  0.95  4.72  4.93
-```
-
-## Note
-
-For unconditional models, use only; and are not supported (they are for
-conditional, covariate models).
-
-## Diagnostic Plots
+Predictions
 
 ``` r
 
-if (requireNamespace("ggmcmc", quietly = TRUE) && requireNamespace("coda", quietly = TRUE)) {
-  if (interactive()) plot(fit)
-} else {
-  message("Plotting requires 'ggmcmc' and 'coda' packages.")
-}
+grid <- seq(min(y), max(y) * 1.5, length.out = 200)
+
+dhat <- predict(fit, y = grid, type = "density")
+shat <- predict(fit, y = grid, type = "survival")
+qs   <- predict(fit, type = "quantile", p = c(0.5, 0.9, 0.95, 0.99), cred.level = 0.90)
 ```
+
+Results (precomputed)
+
+The table and figure below are precomputed from the shipped dataset to
+keep CRAN checks fast and deterministic. To reproduce them locally, run
+`tools/make_vignette_artifacts.R` and rebuild the vignettes.
+
+| estimate | index | lower | upper |
+|---------:|------:|------:|------:|
+|     1.45 |  0.50 |  1.20 |  1.66 |
+|     4.63 |  0.90 |  3.56 |  5.56 |
+|     6.34 |  0.95 |  5.04 |  7.64 |
+|    10.99 |  0.99 |  8.71 | 13.98 |
+
+![Posterior predictive density for the unconditional fit
+(precomputed).](../inst/extdata/unconditional_density.png)
+
+Posterior predictive density for the unconditional fit (precomputed).
+
+Notes on customization
+
+1.  Kernel choice: use
+    [`kernel_support_table()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/kernel_support_table.md)
+    to see which kernels match your support (real line vs positive
+    support) and which parameters are available.
+
+2.  Tail control: setting `GPD=TRUE` activates the spliced tail module
+    (see the `basic` vignette for the exact spliced density). Tail
+    priors and threshold control are provided via `param_specs`.
+
+3.  Backend choice: stick-breaking (`backend="sb"`) is often the most
+    stable default; the CRP backend is available when you prefer
+    partition-based updates.

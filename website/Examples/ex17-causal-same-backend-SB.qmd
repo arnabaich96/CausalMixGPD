@@ -256,8 +256,9 @@ safe_plot(qte_gpd)
 - Previous: [ex16-causal-same-backend-CRP](ex16-causal-same-backend-CRP.html)
 - Next: [ex18-causal-different-backends-CRP](ex18-causal-different-backends-CRP.html)
 - Workflow index: [Roadmap](../roadmap.html)
-- Practical entry: [Cookbook](../cookbook.html)
+- Practical entry: [Examples](../Examples/index.html)
 <!-- workflow-nav:end -->
+
 
 
 

@@ -136,8 +136,9 @@ kernel_support_table()
 - Previous: [basic-model-compile-run](basic-model-compile-run.html)
 - Next: [ex05-unconditional-DPmix-CRP](../Examples/ex05-unconditional-DPmix-CRP.html)
 - Workflow index: [Roadmap](../roadmap.html)
-- Practical entry: [Cookbook](../cookbook.html)
+- Practical entry: [Examples](../Examples/index.html)
 <!-- workflow-nav:end -->
+
 
 
 

@@ -162,8 +162,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="dropdown-text">Kernels</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../cookbook.html">
- <span class="dropdown-text">Cookbook</span></a>
+    <a class="dropdown-item" href="../Examples/index.html">
+ <span class="dropdown-text">Examples</span></a>
   </li>  
     </ul>
   </li>
@@ -315,7 +315,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="ex05-unconditional-DPmix-CRP_files/figure-html/data-setup-1.png" class="img-fluid figure-img" width="768"></p>
+<p><img src="ex05-unconditional-DPmix-CRP_files/figure-html/data-setup-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -606,24 +606,30 @@ $scale
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Trace plots for key parameters</span></span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(fit_crp, <span class="at">params =</span> <span class="st">"alpha"</span>, <span class="at">family =</span> <span class="fu">c</span>(<span class="st">"traceplot"</span>, <span class="st">"density"</span>, <span class="st">"geweke"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.</code></pre>
+</div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="ex05-unconditional-DPmix-CRP_files/figure-html/diag-trace-1.png" class="img-fluid figure-img" width="768"></p>
+<p><img src="ex05-unconditional-DPmix-CRP_files/figure-html/diag-trace-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="ex05-unconditional-DPmix-CRP_files/figure-html/diag-trace-2.png" class="img-fluid figure-img" width="768"></p>
+<p><img src="ex05-unconditional-DPmix-CRP_files/figure-html/diag-trace-2.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="ex05-unconditional-DPmix-CRP_files/figure-html/diag-trace-3.png" class="img-fluid figure-img" width="768"></p>
+<p><img src="ex05-unconditional-DPmix-CRP_files/figure-html/diag-trace-3.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -632,18 +638,18 @@ $scale
 <section id="posterior-predictive-density" class="level1">
 <h1>Posterior Predictive Density</h1>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate prediction grid</span></span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>y_grid <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="fu">max</span>(y_mixed) <span class="sc">*</span> <span class="fl">1.2</span>, <span class="at">length.out =</span> <span class="dv">200</span>)</span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Posterior predictive density</span></span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>pred_density <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_crp, <span class="at">y =</span> y_grid, <span class="at">type =</span> <span class="st">"density"</span>)</span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Use S3 plot method</span></span>
-<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(pred_density)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Generate prediction grid</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>y_grid <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="fu">max</span>(y_mixed) <span class="sc">*</span> <span class="fl">1.2</span>, <span class="at">length.out =</span> <span class="dv">200</span>)</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Posterior predictive density</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>pred_density <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_crp, <span class="at">y =</span> y_grid, <span class="at">type =</span> <span class="st">"density"</span>)</span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Use S3 plot method</span></span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(pred_density)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="ex05-unconditional-DPmix-CRP_files/figure-html/pred-density-1.png" class="img-fluid figure-img" width="768"></p>
+<p><img src="ex05-unconditional-DPmix-CRP_files/figure-html/pred-density-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -656,7 +662,7 @@ $scale
 <li>Previous: <a href="../QuickStart/backends-and-workflow.html">backends-and-workflow</a></li>
 <li>Next: <a href="ex06-unconditional-DPmix-CRP.html">ex06-unconditional-DPmix-CRP</a></li>
 <li>Workflow index: <a href="../roadmap.html">Roadmap</a></li>
-<li>Practical entry: <a href="../cookbook.html">Cookbook</a> <!-- workflow-nav:end --></li>
+<li>Practical entry: <a href="../Examples/index.html">Examples</a> <!-- workflow-nav:end --></li>
 </ul>
 
 

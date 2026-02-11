@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Getting Started"
 page-layout: full
 ---
@@ -9,7 +9,7 @@ page-layout: full
 
 This page is the fastest path from "I installed the package" to "I know where everything is." DPmixGPD has a lot of surface area; the goal here is to make the first 10 minutes frictionless.
 
-[Open the Cookbook](cookbook.html){.btn .btn-primary}
+[Open the Examples](Examples/index.html){.btn .btn-primary}
 [Decision Guide (next)](decision-guide.html){.btn .btn-outline-light}
 :::
 :::
@@ -27,10 +27,10 @@ Once the package installs cleanly, most problems become modeling decisions rathe
 
 ::: {.cardx}
 ### 2) Pick the right entry point
-- **Cookbook**: end-to-end workflows and recommended sequence.
+- **Examples**: end-to-end workflows and recommended sequence.
 - **Kernels**: supported likelihood families and tail combinations.
 - **Reference**: curated door into the full API.
-- [Cookbook](cookbook.html)
+- [Examples](Examples/index.html)
 - [Kernels](kernels.html)
 - [Reference](reference.html)
 :::
@@ -59,12 +59,13 @@ This Quarto wrapper keeps the "map" pages readable. The automatically generated 
 - [Articles index](pkgdown/articles/index.html)
 
 ## Recommended next steps
-1. Open the Cookbook and follow the first workflow end-to-end.
+1. Open the Examples and follow the first workflow end-to-end.
 2. Use Kernels to confirm the distributional family you want for the bulk.
 3. Use Reference to jump to function details once you recognize the relevant function name.
 
 :::
 :::
+
 
 
 

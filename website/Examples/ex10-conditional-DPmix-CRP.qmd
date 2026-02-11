@@ -246,8 +246,9 @@ safe_plot(fit_cond_amoroso, family = c("density", "running", "caterpillar"))
 - Previous: [ex09-unconditional-DPmixGPD-SB](ex09-unconditional-DPmixGPD-SB.html)
 - Next: [ex11-conditional-DPmix-SB](ex11-conditional-DPmix-SB.html)
 - Workflow index: [Roadmap](../roadmap.html)
-- Practical entry: [Cookbook](../cookbook.html)
+- Practical entry: [Examples](../Examples/index.html)
 <!-- workflow-nav:end -->
+
 
 
 

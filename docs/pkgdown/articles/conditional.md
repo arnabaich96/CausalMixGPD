@@ -1,33 +1,27 @@
-# Conditional Models
+# DPmixGPD: Conditional workflow (covariate-dependent mixtures)
 
-## Overview
+This vignette demonstrates conditional (regression) modeling, where the
+outcome distribution varies with covariates. The core spliced bulk–tail
+model and posterior computation are defined in the `basic` vignette;
+here we focus on how to supply covariates and how to use the general
+link mechanism.
 
-This vignette demonstrates fitting a conditional model with covariates
-and generating predictions on a grid of new covariate values.
+We use a shipped positive-support dataset with covariates,
+`nc_posX100_p4_k3`, which contains:
 
-## Theory (brief)
+- `y`: numeric outcome,
+- `X`: a `data.frame` with columns `x1`–`x4`,
+- `meta`: metadata,
+- `truth`: generation truth.
 
-Conditional models allow the bulk mixture parameters to vary with
-covariates. We write the conditional density as \$\$ f(y_i \\mid x_i) =
-\\int K(y_i; \\theta(x_i))\\, dG(\\theta), \$\$ where the link between
-\$\\theta\$ and $`x_i`$ is encoded through the kernel-specific
-regression structure. The DP prior provides flexible, data-driven
-clustering of local distributions across covariate space.
+Design matrix
 
-## Data Setup
+DPmixGPD expects a design matrix (typically including an intercept). A
+robust default is to use
+[`model.matrix()`](https://rdrr.io/r/stats/model.matrix.html).
 
-``` r
-
-library(DPmixGPD)
-
-data("mtcars", package = "datasets")
-df <- mtcars
-y <- df$mpg
-X <- df[, c("wt", "hp")]
-X <- as.data.frame(X)
-```
-
-## Model Fitting
+Model fit (code shown for reproducibility, but not executed during CRAN
+checks)
 
 ``` r
 
@@ -35,92 +29,76 @@ bundle <- build_nimble_bundle(
   y = y,
   X = X,
   backend = "sb",
-  kernel = "normal",
-  GPD = TRUE,
-  components = 6,
-  mcmc = mcmc
+  kernel = "lognormal",   # choose a kernel compatible with support
+  GPD = FALSE,             # can be TRUE; see basic vignette for splice definition
+  components = 4,
+  mcmc = list(niter = 2500, nburnin = 600, thin = 5, nchains = 1, seed = 202)
 )
 
-fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
+fit <- run_mcmc_bundle_manual(bundle, show_progress = TRUE)
 ```
 
-## Fitted Values
+General link mode (what “special cases” are really doing)
 
-``` r
-f <- fitted(fit, type = "mean", level = 0.90)
-head(f)
-    fit lower upper residuals
-1 10.10  6.73  13.7     10.90
-2 11.06  6.99  15.8      9.94
-3  8.75  5.76  11.8     14.05
-4 12.77  7.05  19.8      8.63
-5 14.31  9.89  21.5      4.39
-6 14.09  7.15  24.0      4.01
-summary(f$residuals)
-   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
--57.624   0.345   4.742   3.038  12.092  27.073 
+When you pass `param_specs`, you are not locked into a single model
+form. Any parameter that the kernel registry marks as linkable can be
+placed into `mode="link"`, meaning it becomes a function of covariates.
+Conceptually, for a chosen parameter $`\theta_j(\boldsymbol{x})`$,
+``` math
+  g\{\theta_j(\boldsymbol{x})\} = \boldsymbol{x}^\top \boldsymbol{\beta}_j,
 ```
+with a chosen link function $`g(\cdot)`$ and component-specific
+coefficients $`\boldsymbol{\beta}_j`$.
 
-## Predictions on New Data
+In other words, the conditional examples in this vignette are concrete
+instances of a general feature: link mode can be applied to any
+supported parameter, not just the one shown.
+
+Predictions
 
 ``` r
-new_X <- data.frame(
-  wt = seq(min(X$wt), max(X$wt), length.out = 25),
-  hp = stats::median(X$hp)
+
+# Two covariate profiles (rows of a design matrix)
+newdf <- rbind(
+  as.list(stats::apply(Xdf, 2, stats::median)),
+  as.list(stats::apply(Xdf, 2, function(v) stats::median(v) + stats::sd(v)))
 )
+newdf <- as.data.frame(newdf)
+Xnew <- stats::model.matrix(~ ., data = newdf)
 
-pred_mean <- predict(fit, x = new_X, type = "mean", cred.level = 0.90, interval = "credible")
-pred_med  <- predict(fit, x = new_X, type = "median", cred.level = 0.90, interval = "credible")
+ygrid <- seq(stats::quantile(y, 0.01), stats::quantile(y, 0.99), length.out = 160)
 
-head(pred_mean$fit)
-  id estimate lower upper
-1  1     6.10  4.43  7.55
-2  2     6.72  5.21  8.30
-3  3     7.26  5.44  9.01
-4  4     7.84  6.13  9.76
-5  5     8.44  6.49 10.76
-6  6     9.02  6.84 11.68
-head(pred_med$fit)
-  estimate index id lower upper
-1     6.05   0.5  1  4.42  7.45
-2     6.61   0.5  2  4.98  7.81
-3     7.16   0.5  3  5.64  8.53
-4     7.72   0.5  4  6.14  9.28
-5     8.27   0.5  5  6.61 10.06
-6     8.83   0.5  6  6.82 10.82
+dens_pred <- predict(fit, x = Xnew, y = ygrid, type = "density", cred.level = 0.90)
+q_pred    <- predict(fit, x = Xnew, type = "quantile", p = c(0.5, 0.9, 0.95), cred.level = 0.90)
 ```
 
-## Quantile Curves
+Results (precomputed)
 
-``` r
-q_levels <- c(0.1, 0.5, 0.9)
-q_fits <- lapply(q_levels, function(tau) {
-  predict(fit, x = new_X, type = "quantile", index = tau, cred.level = 0.90, interval = "credible")$fit
-})
+| estimate | index |  id | lower |  upper |
+|---------:|------:|----:|------:|-------:|
+|     1.46 |  0.50 |   1 |  1.25 |   1.65 |
+|     1.97 |  0.50 |   2 |  1.49 |   2.55 |
+|    28.35 |  0.90 |   1 | 11.99 |  59.47 |
+|    38.52 |  0.90 |   2 | 15.03 |  84.27 |
+|    71.04 |  0.95 |   1 | 22.13 | 169.68 |
+|    96.84 |  0.95 |   2 | 27.97 | 247.82 |
 
-q_df <- do.call(rbind, Map(function(tau, df) {
-  data.frame(wt = new_X$wt, tau = tau, estimate = df$estimate, lower = df$lower, upper = df$upper)
-}, q_levels, q_fits))
+![Posterior predictive density for two covariate profiles
+(precomputed).](../inst/extdata/conditional_density.png)
 
-head(q_df)
-    wt tau estimate  lower upper
-1 1.51 0.1    0.263 -3.666  5.58
-2 1.68 0.1    0.818 -3.025  5.70
-3 1.84 0.1    1.373 -2.296  5.90
-4 2.00 0.1    1.929 -1.513  6.12
-5 2.16 0.1    2.484 -0.964  6.37
-6 2.33 0.1    3.039 -0.402  6.67
-```
+Posterior predictive density for two covariate profiles (precomputed).
 
-``` r
+Notes on customization
 
-ggplot(q_df, aes(x = wt, y = estimate, color = factor(tau))) +
-  geom_line(linewidth = 1) +
-  geom_ribbon(aes(ymin = lower, ymax = upper, fill = factor(tau)), alpha = 0.2, color = NA) +
-  labs(x = "Weight (wt)", y = "Predicted Quantile", color = "Quantile", fill = "Quantile",
-       title = "Conditional Quantile Curves at Median Horsepower") +
-  theme_minimal() +
-  theme(legend.position = "bottom")
-```
+1.  Link any supported parameter: use the kernel registry to see which
+    parameters are eligible for link mode, then specify `param_specs`
+    accordingly.
 
-![](conditional_files/figure-html/unnamed-chunk-6-1.png)
+2.  Tail module in regression: if you set `GPD=TRUE` in a conditional
+    model, the splice definition remains the same (see `basic`), but
+    $`u(\boldsymbol{x})`$ and/or tail parameters may also be specified
+    as fixed, random, or link-based depending on support.
+
+3.  Prediction targets: use `predict(..., type="density")`,
+    `"survival"`, `"quantile"`, and `"rmean"` to obtain distributional
+    summaries that are coherent under the spliced model.

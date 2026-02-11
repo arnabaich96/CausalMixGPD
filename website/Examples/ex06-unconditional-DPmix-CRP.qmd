@@ -292,8 +292,9 @@ pred_amoroso <- predict(fit_amoroso, type = "mean", cred.level = 0.9, interval =
 - Previous: [ex05-unconditional-DPmix-CRP](ex05-unconditional-DPmix-CRP.html)
 - Next: [ex07-unconditional-DPmix-SB](ex07-unconditional-DPmix-SB.html)
 - Workflow index: [Roadmap](../roadmap.html)
-- Practical entry: [Cookbook](../cookbook.html)
+- Practical entry: [Examples](../Examples/index.html)
 <!-- workflow-nav:end -->
+
 
 
 

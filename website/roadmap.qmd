@@ -7,10 +7,10 @@ page-layout: full
 ::: {.container}
 # Roadmap
 
-A structured view of the project: how the model components fit together and how users typically move from basic fits to advanced workflows. Use this page as the "map," and the Cookbook as the "hands-on guide."
+A structured view of the project: how the model components fit together and how users typically move from basic fits to advanced workflows. Use this page as the "map," and the Examples as the "hands-on guide."
 
 [Start workflow series](QuickStart/start-here.html){.btn .btn-primary}
-[Go to Cookbook](cookbook.html){.btn .btn-outline-light}
+[Go to Examples](Examples/index.html){.btn .btn-outline-light}
 [Browse Kernels](kernels.html){.btn .btn-outline-light}
 :::
 :::
@@ -64,6 +64,7 @@ When covariates or treatment effects matter, move to the conditional/causal tool
 
 :::
 :::
+
 
 
 

@@ -198,8 +198,9 @@ Each vignette demonstrates complete workflows with reproducible examples.
 - Previous: [start-here](start-here.html)
 - Next: [basic-model-compile-run](basic-model-compile-run.html)
 - Workflow index: [Roadmap](../roadmap.html)
-- Practical entry: [Cookbook](../cookbook.html)
+- Practical entry: [Examples](../Examples/index.html)
 <!-- workflow-nav:end -->
+
 
 
 

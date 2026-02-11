@@ -165,8 +165,9 @@ safe_plot(pred_density)
 - Previous: [backends-and-workflow](../QuickStart/backends-and-workflow.html)
 - Next: [ex06-unconditional-DPmix-CRP](ex06-unconditional-DPmix-CRP.html)
 - Workflow index: [Roadmap](../roadmap.html)
-- Practical entry: [Cookbook](../cookbook.html)
+- Practical entry: [Examples](../Examples/index.html)
 <!-- workflow-nav:end -->
+
 
 
 

@@ -206,8 +206,9 @@ cb <- build_causal_bundle(
 - Previous: [ex19-causal-different-backends-SB](ex19-causal-different-backends-SB.html)
 - Next: none (end of workflow series)
 - Workflow index: [Roadmap](../roadmap.html)
-- Practical entry: [Cookbook](../cookbook.html)
+- Practical entry: [Examples](../Examples/index.html)
 <!-- workflow-nav:end -->
+
 
 
 

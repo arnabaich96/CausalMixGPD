@@ -260,8 +260,9 @@ safe_plot(fit_cond_gpd_normal, family = c("running", "geweke", "caterpillar"))
 - Previous: [ex11-conditional-DPmix-SB](ex11-conditional-DPmix-SB.html)
 - Next: [ex13-conditional-DPmixGPD-SB](ex13-conditional-DPmixGPD-SB.html)
 - Workflow index: [Roadmap](../roadmap.html)
-- Practical entry: [Cookbook](../cookbook.html)
+- Practical entry: [Examples](../Examples/index.html)
 <!-- workflow-nav:end -->
+
 
 
 

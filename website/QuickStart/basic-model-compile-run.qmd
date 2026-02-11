@@ -293,8 +293,9 @@ print("Extreme outliers:  cauchy\n")
 - Previous: [introduction](introduction.html)
 - Next: [backends-and-workflow](backends-and-workflow.html)
 - Workflow index: [Roadmap](../roadmap.html)
-- Practical entry: [Cookbook](../cookbook.html)
+- Practical entry: [Examples](../Examples/index.html)
 <!-- workflow-nav:end -->
+
 
 
 

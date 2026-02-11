@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Kernels"
 page-layout: full
 ---

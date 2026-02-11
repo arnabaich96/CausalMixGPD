@@ -262,8 +262,9 @@ For unconditional models, use `predict()` only; `fitted()` and `residuals()` are
 - Previous: [ex06-unconditional-DPmix-CRP](ex06-unconditional-DPmix-CRP.html)
 - Next: [ex08-unconditional-DPmixGPD-CRP](ex08-unconditional-DPmixGPD-CRP.html)
 - Workflow index: [Roadmap](../roadmap.html)
-- Practical entry: [Cookbook](../cookbook.html)
+- Practical entry: [Examples](../Examples/index.html)
 <!-- workflow-nav:end -->
+
 
 
 

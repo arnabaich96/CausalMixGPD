@@ -260,8 +260,9 @@ safe_plot(fit_sb_cond_gpd_laplace, family = c("density", "running", "caterpillar
 - Previous: [ex12-conditional-DPmixGPD-CRP](ex12-conditional-DPmixGPD-CRP.html)
 - Next: [ex14-causal-no-x-CRP](ex14-causal-no-x-CRP.html)
 - Workflow index: [Roadmap](../roadmap.html)
-- Practical entry: [Cookbook](../cookbook.html)
+- Practical entry: [Examples](../Examples/index.html)
 <!-- workflow-nav:end -->
+
 
 
 

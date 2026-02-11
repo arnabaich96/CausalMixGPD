@@ -243,8 +243,9 @@ safe_plot(qte_bulk)
 - Previous: [ex14-causal-no-x-CRP](ex14-causal-no-x-CRP.html)
 - Next: [ex16-causal-same-backend-CRP](ex16-causal-same-backend-CRP.html)
 - Workflow index: [Roadmap](../roadmap.html)
-- Practical entry: [Cookbook](../cookbook.html)
+- Practical entry: [Examples](../Examples/index.html)
 <!-- workflow-nav:end -->
+
 
 
 

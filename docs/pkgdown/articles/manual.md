@@ -8,7 +8,7 @@ Welcome to the pantry: recipes and guides for using DPmixGPD.
 
 ### First steps in the kitchen
 
-Start here if you’re new:
+Start here if youâ€™re new:
 
 - [**Introduction**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/introduction.md) -
   Quick start with basic examples
@@ -45,12 +45,12 @@ Start here if you’re new:
   Treatment effect estimation with propensity score adjustment
 
 - [**Umbrella: Custom Models
-  (All-in-One)**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/website/Customization/umbrella.md) -
+  (All-in-One)**](https://arnabaich96.github.io/Advanced/umbrella.md) -
   Consolidated custom model recipes for CRP/SB, GPD, and causal
   workflows
 
 - [**Customization: Build NIMBLE Models from
-  Scratch**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/website/Customization/customization.md) -
+  Scratch**](https://arnabaich96.github.io/Advanced/customization.md) -
   Manual SB/CRP workflows using exported nimbleFunctions with full
   NIMBLE pipelines
 

@@ -1,4 +1,4 @@
-﻿---
+---
 title: "FAQ"
 page-layout: full
 ---
@@ -31,7 +31,7 @@ No. You can use it as a **bulk-only semiparametric model** or as a **bulk + tail
 
 ::: {.cardx}
 ### Do I need Bayesian expertise to use this package?
-You should be comfortable with Bayesian workflows conceptually (priors, posterior summaries), but the Cookbook provides guided workflows so you don't need to design models from scratch.
+You should be comfortable with Bayesian workflows conceptually (priors, posterior summaries), but the Examples provides guided workflows so you don't need to design models from scratch.
 :::
 
 ## Modeling choices
@@ -145,6 +145,7 @@ Yes. The package is designed for applied modeling of heavy-tailed data. Always v
 
 :::
 :::
+
 
 
 

@@ -719,7 +719,7 @@ coverage_upload <- function(
           <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
           <li class="nav-item"><a class="nav-link" href="../articles/manual-index.html">Manual</a></li>
           <li class="nav-item"><a class="nav-link" href="../articles/kernels-index.html">Kernels</a></li>
-          <li class="nav-item"><a class="nav-link" href="../articles/cookbook-index.html">Cookbook</a></li>
+          <li class="nav-item"><a class="nav-link" href="../articles/examples-index.html">Examples</a></li>
           <li class="nav-item"><a class="nav-link active" href="index.html">Coverage</a></li>
           <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
         </ul>

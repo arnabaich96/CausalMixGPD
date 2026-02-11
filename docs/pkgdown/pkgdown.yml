@@ -2,17 +2,12 @@ pandoc: 3.8.3
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
-  backends: backends.html
+  basic: basic.html
   causal: causal.html
   conditional: conditional.html
-  distributions: distributions.html
-  introduction: introduction.html
-  manual: manual.html
-  mcmc-workflow: mcmc-workflow.html
   model-spec: model-spec.html
-  reference-s3: reference-s3.html
   unconditional: unconditional.html
-last_built: 2026-02-02T08:21Z
+last_built: 2026-02-11T21:44Z
 urls:
   reference: https://arnabaich96.github.io/DPmixGPD/pkgdown/reference
   article: https://arnabaich96.github.io/DPmixGPD/pkgdown/articles

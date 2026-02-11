@@ -24,8 +24,8 @@ website:
             href: reference.qmd
           - text: Kernels
             href: kernels.qmd
-          - text: Cookbook
-            href: cookbook.qmd
+          - text: Examples
+            href: Examples/index.qmd
 
       - text: Developers
         menu:
@@ -76,5 +76,6 @@ execute:
   enabled: true
   cache: true
   freeze: auto
+
 
 

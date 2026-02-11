@@ -12,6 +12,7 @@ extreme values, with clean prediction APIs.
 
 
 
+
 # install.packages("remotes")
 remotes::install_github("arnabaich96/DPmixGPD")
 ```

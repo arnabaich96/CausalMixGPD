@@ -151,8 +151,9 @@ safe_plot(fit_uncond, family = c("traceplot", "running"))
 - Previous: none (start of workflow series)
 - Next: [introduction](introduction.html)
 - Workflow index: [Roadmap](../roadmap.html)
-- Practical entry: [Cookbook](../cookbook.html)
+- Practical entry: [Examples](../Examples/index.html)
 <!-- workflow-nav:end -->
+
 
 
 

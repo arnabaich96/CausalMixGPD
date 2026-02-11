@@ -234,8 +234,9 @@ safe_plot(fit_sb_cauchy, family = c("density", "running", "caterpillar"))
 - Previous: [ex10-conditional-DPmix-CRP](ex10-conditional-DPmix-CRP.html)
 - Next: [ex12-conditional-DPmixGPD-CRP](ex12-conditional-DPmixGPD-CRP.html)
 - Workflow index: [Roadmap](../roadmap.html)
-- Practical entry: [Cookbook](../cookbook.html)
+- Practical entry: [Examples](../Examples/index.html)
 <!-- workflow-nav:end -->
+
 
 
 

@@ -1,4 +1,4 @@
-﻿---
+---
 title: "DPmixGPD"
 ---
 
@@ -34,9 +34,9 @@ Start with a minimal workflow, then use the Decision Guide to select a backend +
 
 ::: {.cardx}
 ### Applied users
-Go straight to the Docs hub, pick kernels, and use the Cookbook for templates. For exact arguments, use pkgdown.
+Go straight to the Docs hub, pick kernels, and use the Examples for templates. For exact arguments, use pkgdown.
 
-[Docs](reference.html){.btn .btn-primary} [Kernels](kernels.html){.btn .btn-outline-primary} [Cookbook](cookbook.html){.btn .btn-outline-primary}
+[Docs](reference.html){.btn .btn-primary} [Kernels](kernels.html){.btn .btn-outline-primary} [Examples](Examples/index.html){.btn .btn-outline-primary}
 :::
 
 ::: {.cardx}
@@ -74,10 +74,10 @@ Distribution families, conventions, and practical guidance.
 :::
 
 ::: {.cardx}
-### Cookbook
+### Examples
 Workflow templates and common analysis patterns.
 
-[Open Cookbook](cookbook.html){.btn .btn-outline-primary}
+[Open Examples](Examples/index.html){.btn .btn-outline-primary}
 :::
 
 ::: {.cardx}
@@ -120,6 +120,7 @@ Documentation is now split cleanly: Quarto provides the curated front door, whil
 
 :::
 :::
+
 
 
 

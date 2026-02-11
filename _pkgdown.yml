@@ -23,6 +23,8 @@ navbar:
       menu:
         - text: "Model specification"
           href: articles/basic.html
+        - text: "Model fundamentals"
+          href: articles/model-spec.html
         - text: "Unconditional"
           href: articles/unconditional.html
         - text: "Conditional"

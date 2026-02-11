@@ -228,8 +228,9 @@ safe_plot(qte_gpd)
 - Previous: [ex13-conditional-DPmixGPD-SB](ex13-conditional-DPmixGPD-SB.html)
 - Next: [ex15-causal-x-no-ps-SB](ex15-causal-x-no-ps-SB.html)
 - Workflow index: [Roadmap](../roadmap.html)
-- Practical entry: [Cookbook](../cookbook.html)
+- Practical entry: [Examples](../Examples/index.html)
 <!-- workflow-nav:end -->
+
 
 
 

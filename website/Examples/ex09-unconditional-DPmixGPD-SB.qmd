@@ -229,8 +229,9 @@ safe_plot(fit_sb_gpd, family = c("histogram", "autocorrelation", "running"))
 - Previous: [ex08-unconditional-DPmixGPD-CRP](ex08-unconditional-DPmixGPD-CRP.html)
 - Next: [ex10-conditional-DPmix-CRP](ex10-conditional-DPmix-CRP.html)
 - Workflow index: [Roadmap](../roadmap.html)
-- Practical entry: [Cookbook](../cookbook.html)
+- Practical entry: [Examples](../Examples/index.html)
 <!-- workflow-nav:end -->
+
 
 
 

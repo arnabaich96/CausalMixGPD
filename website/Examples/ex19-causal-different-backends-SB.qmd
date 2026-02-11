@@ -263,8 +263,9 @@ safe_plot(qte_crp_sb)
 - Previous: [ex18-causal-different-backends-CRP](ex18-causal-different-backends-CRP.html)
 - Next: [ex20-troubleshooting](ex20-troubleshooting.html)
 - Workflow index: [Roadmap](../roadmap.html)
-- Practical entry: [Cookbook](../cookbook.html)
+- Practical entry: [Examples](../Examples/index.html)
 <!-- workflow-nav:end -->
+
 
 
 

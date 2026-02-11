@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>decision-guide – DPmixGPD</title>
+<title>Decision Guide – DPmixGPD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -73,7 +73,7 @@ ul.task-list li input[type="checkbox"] {
 
 </head>
 
-<body class="nav-fixed fullcontent quarto-light">
+<body class="nav-fixed quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -127,8 +127,8 @@ ul.task-list li input[type="checkbox"] {
  <span class="dropdown-text">Kernels</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./cookbook.html">
- <span class="dropdown-text">Cookbook</span></a>
+    <a class="dropdown-item" href="./Examples/index.html">
+ <span class="dropdown-text">Examples</span></a>
   </li>  
     </ul>
   </li>
@@ -210,12 +210,12 @@ ul.task-list li input[type="checkbox"] {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content column-page" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -224,7 +224,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<div class="quarto-title-meta">
+<div class="quarto-title-meta column-page">
 
     
   
@@ -240,7 +240,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="decision-guide" class="level1 container">
 <h1>Decision Guide</h1>
 <p>A practical guide for choosing the right DPmixGPD configuration. This is not a theory chapter; it is a “pick the next step” tool. When in doubt, start with a simple bulk model and add complexity only when diagnostics justify it.</p>
-<p><a href="cookbook.html" class="btn btn-primary">Go to Cookbook</a> <a href="kernels.html" class="btn btn-outline-light">Open Kernels</a></p>
+<p><a href="Examples/index.html" class="btn btn-primary">Go to Examples</a> <a href="kernels.html" class="btn btn-outline-light">Open Kernels</a></p>
 </section>
 </div>
 <section>
@@ -271,7 +271,7 @@ ul.task-list li input[type="checkbox"] {
 <div class="grid-3">
 <section id="a-i-want-a-fast-first-fit" class="level3 cardx">
 <h3 class="anchored" data-anchor-id="a-i-want-a-fast-first-fit">A) I want a fast first fit</h3>
-<p>Start with an unconditional bulk model (no tail), run diagnostics, then expand. - Next: <a href="cookbook.html">Cookbook</a></p>
+<p>Start with an unconditional bulk model (no tail), run diagnostics, then expand. - Next: <a href="Examples/index.html">Examples</a></p>
 </section>
 <section id="b-i-care-about-extremes" class="level3 cardx">
 <h3 class="anchored" data-anchor-id="b-i-care-about-extremes">B) I care about extremes</h3>
@@ -279,7 +279,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="c-i-need-covariate-effects-or-treatment-effects" class="level3 cardx">
 <h3 class="anchored" data-anchor-id="c-i-need-covariate-effects-or-treatment-effects">C) I need covariate effects or treatment effects</h3>
-<p>Use conditional/causal workflows from the start. Fit per-arm models (causal) or covariate-dependent models (conditional), then summarize effects. - Next: <a href="roadmap.html">Roadmap</a> - Then: <a href="cookbook.html">Cookbook</a></p>
+<p>Use conditional/causal workflows from the start. Fit per-arm models (causal) or covariate-dependent models (conditional), then summarize effects. - Next: <a href="roadmap.html">Roadmap</a> - Then: <a href="Examples/index.html">Examples</a></p>
 </section>
 </div>
 </section>
@@ -308,7 +308,7 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="where-to-go-for-details">Where to go for details</h2>
 <ul>
 <li>Kernel availability and combinations: <a href="kernels.html">Kernels</a></li>
-<li>End-to-end workflows: <a href="cookbook.html">Cookbook</a></li>
+<li>End-to-end workflows: <a href="Examples/index.html">Examples</a></li>
 <li>Full API (functions, arguments, return objects): <a href="reference.html">Reference landing</a> or <a href="pkgdown/reference/index.html">API index</a></li>
 <li>Design questions and future directions: <a href="https://github.com/arnabaich96/DPmixGPD/discussions">Discussions</a></li>
 </ul>

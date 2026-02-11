@@ -173,7 +173,7 @@ safe_plot(fit_gpd, params = "alpha", family = c("traceplot", "autocorrelation", 
 
 ## Posterior Predictions: Bulk and Tail
 
-We use the **S3 `predict()` objects** and their dedicated `plot()` methods to visualize densities, survival curves, and posterior-mean quantiles (i.e., averages of q(p | θ) over draws).
+We use the **S3 `predict()` objects** and their dedicated `plot()` methods to visualize densities, survival curves, and posterior-mean quantiles (i.e., averages of q(p | Î¸) over draws).
 
 ```{r density-predict, cache=FALSE}
 y_min <- max(min(y_tail), .Machine$double.eps)
@@ -324,8 +324,9 @@ sensitivity_tbl %>%
 - Previous: [ex07-unconditional-DPmix-SB](ex07-unconditional-DPmix-SB.html)
 - Next: [ex09-unconditional-DPmixGPD-SB](ex09-unconditional-DPmixGPD-SB.html)
 - Workflow index: [Roadmap](../roadmap.html)
-- Practical entry: [Cookbook](../cookbook.html)
+- Practical entry: [Examples](../Examples/index.html)
 <!-- workflow-nav:end -->
+
 
 
 

@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Model Specification • DPmixGPD</title>
+<title>DPmixGPD: Model fundamentals (bulk DPM + GPD tail) • DPmixGPD</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Model Specification">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="DPmixGPD: Model fundamentals (bulk DPM + GPD tail)">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -32,16 +32,11 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/manual.html">Manual</a></li>
-    <li><a class="dropdown-item" href="../articles/introduction.html">Introduction</a></li>
-    <li><a class="dropdown-item" href="../articles/distributions.html">Distributions</a></li>
-    <li><a class="dropdown-item" href="../articles/model-spec.html">Model specification</a></li>
-    <li><a class="dropdown-item" href="../articles/mcmc-workflow.html">MCMC workflow</a></li>
+<li><a class="dropdown-item" href="../articles/basic.html">Model specification</a></li>
+    <li><a class="dropdown-item" href="../articles/model-spec.html">Model fundamentals</a></li>
     <li><a class="dropdown-item" href="../articles/unconditional.html">Unconditional</a></li>
     <li><a class="dropdown-item" href="../articles/conditional.html">Conditional</a></li>
     <li><a class="dropdown-item" href="../articles/causal.html">Causal</a></li>
-    <li><a class="dropdown-item" href="../articles/backends.html">Backends</a></li>
-    <li><a class="dropdown-item" href="../articles/reference-s3.html">S3 methods reference</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
@@ -57,11 +52,11 @@
 
 
 
-<script src="model-spec_files/kePrint-0.0.1/kePrint.js"></script><link href="model-spec_files/lightable-0.0.1/lightable.css" rel="stylesheet">
+
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Model Specification</h1>
+      <h1>DPmixGPD: Model fundamentals (bulk DPM + GPD tail)</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/arnabaich96/DPmixGPD/blob/HEAD/vignettes/model-spec.Rmd" class="external-link"><code>vignettes/model-spec.Rmd</code></a></small>
@@ -70,240 +65,211 @@
 
     
     
-<div class="section level2">
-<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
-</h2>
-<p>This vignette describes the probabilistic model behind DPmixGPD and
-how user inputs map to a compiled NIMBLE bundle.</p>
-</div>
-<div class="section level2">
-<h2 id="theory-core-model">Theory (core model)<a class="anchor" aria-label="anchor" href="#theory-core-model"></a>
-</h2>
-<div class="section level3">
-<h3 id="bulk-mixture">Bulk mixture<a class="anchor" aria-label="anchor" href="#bulk-mixture"></a>
-</h3>
-<p>For outcomes
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>y</mi><mi>i</mi></msub><annotation encoding="application/x-tex">y_i</annotation></semantics></math>
-and kernel
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>K</mi><annotation encoding="application/x-tex">K</annotation></semantics></math>,
-the bulk distribution is modeled as a DP mixture: <span class="math display">$$
-f(y_i) = \\int K(y_i; \\theta)\\, dG(\\theta), \\quad G \\sim
-\\mathrm{DP}(\\alpha, G_0).
-$$</span> The DP prior on
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>G</mi><annotation encoding="application/x-tex">G</annotation></semantics></math>
-induces clustering of component parameters and allows the mixture to
-adapt to unknown distributional shapes.</p>
-</div>
-<div class="section level3">
-<h3 id="tail-augmentation-optional">Tail augmentation (optional)<a class="anchor" aria-label="anchor" href="#tail-augmentation-optional"></a>
-</h3>
-<p>When <span class="math inline">$\\mathrm{GPD} =
-\\mathrm{TRUE}$</span>, a Generalized Pareto tail replaces the bulk
-kernel beyond a threshold
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>:
-<span class="math display">$$
-f(y) =
-\\begin{cases}
-f_{\\text{bulk}}(y), &amp; y \\le u \\\\
-f_{\\text{GPD}}(y; u, \\sigma, \\xi), &amp; y &gt; u
-\\end{cases}
-$$</span> with continuity enforced at the threshold.</p>
-</div>
-<div class="section level3">
-<h3 id="conditional-extension">Conditional extension<a class="anchor" aria-label="anchor" href="#conditional-extension"></a>
-</h3>
-<p>Conditional models allow kernel parameters to depend on covariates
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>x</mi><mi>i</mi></msub><annotation encoding="application/x-tex">x_i</annotation></semantics></math>:
-<span class="math display">$$
-f(y_i \\mid x_i) = \\int K(y_i; \\theta(x_i))\\, dG(\\theta).
-$$</span> The linking structure is kernel-specific and implemented in
-the model builder.</p>
-</div>
-</div>
-<div class="section level2">
-<h2 id="core-constructor">Core constructor<a class="anchor" aria-label="anchor" href="#core-constructor"></a>
-</h2>
-<p>Most workflows begin with <code><a href="../reference/build_nimble_bundle.html">build_nimble_bundle()</a></code>. The
-bundle includes compiled NIMBLE code and MCMC settings.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://arnabaich96.github.io/DPmixGPD/" class="external-link">DPmixGPD</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"faithful"</span>, package <span class="op">=</span> <span class="st">"datasets"</span><span class="op">)</span></span>
-<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">faithful</span><span class="op">$</span><span class="va">eruptions</span></span>
-<span></span>
-<span><span class="va">bundle_uncond</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_nimble_bundle.html">build_nimble_bundle</a></span><span class="op">(</span></span>
-<span>  y <span class="op">=</span> <span class="va">y</span>,</span>
-<span>  backend <span class="op">=</span> <span class="st">"sb"</span>,</span>
-<span>  kernel  <span class="op">=</span> <span class="st">"normal"</span>,</span>
-<span>  GPD     <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  components <span class="op">=</span> <span class="fl">6</span>,</span>
-<span>  mcmc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">200</span>, nburnin <span class="op">=</span> <span class="fl">50</span>, thin <span class="op">=</span> <span class="fl">2</span>, nchains <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://arnabaich96.github.io/DPmixGPD/" class="external-link">DPmixGPD</a></span><span class="op">)</span></span></code></pre></div>
+<p>This vignette defines the statistical model underlying DPmixGPD. The
+three ingredients are:</p>
+<ol style="list-style-type: decimal">
+<li>a Dirichlet process mixture (DPM) for the <em>bulk</em> (central)
+part of the distribution,</li>
+<li>a generalized Pareto distribution (GPD) model for the <em>tail</em>
+(extremes), and</li>
+<li>a <em>proper</em> splicing construction that yields a valid
+density/CDF on the full support.</li>
+</ol>
+<p>Other vignettes (unconditional, conditional, causal) refer back here
+rather than repeating these definitions.</p>
 <div class="section level2">
-<h2 id="conditional-example">Conditional example<a class="anchor" aria-label="anchor" href="#conditional-example"></a>
+<h2 id="bulk-model-dirichlet-process-mixture">Bulk model: Dirichlet process mixture<a class="anchor" aria-label="anchor" href="#bulk-model-dirichlet-process-mixture"></a>
 </h2>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"mtcars"</span>, package <span class="op">=</span> <span class="st">"datasets"</span><span class="op">)</span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">mtcars</span></span>
-<span><span class="va">X</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"wt"</span>, <span class="st">"hp"</span><span class="op">)</span><span class="op">]</span></span>
-<span><span class="va">X</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span></span>
-<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">df</span><span class="op">$</span><span class="va">mpg</span></span>
-<span></span>
-<span><span class="va">bundle_cond</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_nimble_bundle.html">build_nimble_bundle</a></span><span class="op">(</span></span>
-<span>  y <span class="op">=</span> <span class="va">y</span>,</span>
-<span>  X <span class="op">=</span> <span class="va">X</span>,</span>
-<span>  backend <span class="op">=</span> <span class="st">"sb"</span>,</span>
-<span>  kernel  <span class="op">=</span> <span class="st">"normal"</span>,</span>
-<span>  GPD     <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  components <span class="op">=</span> <span class="fl">6</span>,</span>
-<span>  mcmc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">200</span>, nburnin <span class="op">=</span> <span class="fl">50</span>, thin <span class="op">=</span> <span class="fl">2</span>, nchains <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="key-arguments">Key arguments<a class="anchor" aria-label="anchor" href="#key-arguments"></a>
-</h2>
-<table class="table table table-striped table-hover" style="width: auto !important; margin-left: auto; margin-right: auto;">
-<caption>
-Model Specification Arguments
-</caption>
-<thead><tr>
-<th style="text-align:center;">
-Argument
-</th>
-<th style="text-align:center;">
-Value
-</th>
-<th style="text-align:center;">
-Description
-</th>
-</tr></thead>
-<tbody>
-<tr>
-<td style="text-align:center;">
-backend
-</td>
-<td style="text-align:center;">
-sb
-</td>
-<td style="text-align:center;">
-Stick-breaking mixture (finite truncation)
-</td>
-</tr>
-<tr>
-<td style="text-align:center;">
-backend
-</td>
-<td style="text-align:center;">
-crp
-</td>
-<td style="text-align:center;">
-Chinese Restaurant Process mixture
-</td>
-</tr>
-<tr>
-<td style="text-align:center;">
-kernel
-</td>
-<td style="text-align:center;">
-(various)
-</td>
-<td style="text-align:center;">
-Bulk component family (normal, gamma, lognormal, …)
-</td>
-</tr>
-<tr>
-<td style="text-align:center;">
-GPD
-</td>
-<td style="text-align:center;">
-TRUE
-</td>
-<td style="text-align:center;">
-Splice GPD tail beyond threshold
-</td>
-</tr>
-<tr>
-<td style="text-align:center;">
-GPD
-</td>
-<td style="text-align:center;">
-FALSE
-</td>
-<td style="text-align:center;">
-Bulk-only model
-</td>
-</tr>
-<tr>
-<td style="text-align:center;">
-components
-</td>
-<td style="text-align:center;">
-K
-</td>
-<td style="text-align:center;">
-Truncation level for SB (maximum components)
-</td>
-</tr>
-<tr>
-<td style="text-align:center;">
-alpha_random
-</td>
-<td style="text-align:center;">
-TRUE/FALSE
-</td>
-<td style="text-align:center;">
-Learn concentration parameter (DP strength)
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section level2">
-<h2 id="model-types">Model types<a class="anchor" aria-label="anchor" href="#model-types"></a>
-</h2>
-<table class="table">
-<colgroup>
-<col width="14%">
-<col width="35%">
-<col width="50%">
-</colgroup>
-<thead><tr class="header">
-<th>Type</th>
-<th>Specification</th>
-<th>Prediction Behavior</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td><strong>Unconditional</strong></td>
-<td>Omit <code>X</code> or pass <code>X = NULL</code>
-</td>
-<td>Population-level, replicated across observations</td>
-</tr>
-<tr class="even">
-<td><strong>Conditional</strong></td>
-<td>Provide <code>X</code>
-</td>
-<td>Computed per-row of <code>X</code>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="section level2">
-<h2 id="input-requirements">Input requirements<a class="anchor" aria-label="anchor" href="#input-requirements"></a>
-</h2>
+<p>Let
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>y</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">y_1,\dots,y_n</annotation></semantics></math>
+denote outcomes. DPmixGPD uses a mixture representation
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>i</mi></msub><mo>∣</mo><msub><mi>z</mi><mi>i</mi></msub><mo>=</mo><mi>j</mi><mo>∼</mo><mi>k</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>∣</mo><msub><mi mathvariant="normal">Θ</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>z</mi><mi>i</mi></msub><mo>∼</mo><mrow><mi mathvariant="normal">C</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">l</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>w</mi><mn>1</mn></msub><mo>,</mo><msub><mi>w</mi><mn>2</mn></msub><mo>,</mo><mi>…</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
+  y_i \mid z_i=j \sim k(y_i \mid \Theta_j), \qquad
+  z_i \sim \mathrm{Categorical}(w_1,w_2,\dots),
+</annotation></semantics></math> so the bulk density is
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>f</mi><mrow><mi mathvariant="normal">D</mi><mi mathvariant="normal">P</mi><mi mathvariant="normal">M</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mo accent="false">∞</mo></munderover><msub><mi>w</mi><mi>j</mi></msub><mspace width="0.167em"></mspace><mi>k</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>∣</mo><msub><mi mathvariant="normal">Θ</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+  f_{\mathrm{DPM}}(y)
+  =
+  \sum_{j=1}^\infty w_j \, k(y \mid \Theta_j).
+</annotation></semantics></math></p>
+<p>A Dirichlet process prior is imposed on the random mixing measure
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>G</mi><annotation encoding="application/x-tex">G</annotation></semantics></math>
+underlying the parameters
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="normal">Θ</mi><mi>j</mi></msub><annotation encoding="application/x-tex">\Theta_j</annotation></semantics></math>:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo>∼</mo><mrow><mi mathvariant="normal">D</mi><mi mathvariant="normal">P</mi></mrow><mo stretchy="false" form="prefix">(</mo><mi>α</mi><mo>,</mo><msub><mi>G</mi><mn>0</mn></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="2.0em"></mspace><msub><mi mathvariant="normal">Θ</mi><mi>j</mi></msub><mover><mo>∼</mo><mrow><mi>i</mi><mi>i</mi><mi>d</mi></mrow></mover><mi>G</mi><mi>.</mi></mrow><annotation encoding="application/x-tex">
+  G \sim \mathrm{DP}(\alpha, G_0), \qquad \Theta_j \overset{iid}{\sim} G.
+</annotation></semantics></math> Here
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>α</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\alpha&gt;0</annotation></semantics></math>
+is the concentration parameter controlling expected clustering, and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>G</mi><mn>0</mn></msub><annotation encoding="application/x-tex">G_0</annotation></semantics></math>
+is the base measure encoding prior beliefs about kernel parameters <span class="citation">(<a href="#ref-ferguson1973">Ferguson
+1973</a>)</span>.</p>
+<p>DPmixGPD supports two equivalent DP representations:</p>
 <ul>
-<li>For conditional models, <code>length(y)</code> must equal
-<code>nrow(X)</code>
-</li>
-<li>Covariates must be numeric for regression-style links</li>
-<li>Covariate names must not use NIMBLE reserved keywords
-(<code>if</code>, <code>for</code>, <code>while</code>, etc.)</li>
+<li>stick-breaking (“SB”) <span class="citation">(<a href="#ref-sethuraman1994">Sethuraman 1994</a>)</span>, implemented with
+a finite truncation at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>J</mi><annotation encoding="application/x-tex">J</annotation></semantics></math>
+components <span class="citation">(<a href="#ref-ishwaran2001">Ishwaran
+and James 2001</a>)</span>;</li>
+<li>Chinese restaurant process (“CRP”), a partition-based formulation
+<span class="citation">(<a href="#ref-blackwell1973"><strong>blackwell1973?</strong></a>; <a href="#ref-neal2000">Neal 2000</a>)</span>.</li>
 </ul>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Rename reserved keywords</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">X</span><span class="op">)</span> <span class="op">==</span> <span class="st">"if"</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="st">"x_if"</span></span></code></pre></div>
+<p>In SB form (truncated at
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>J</mi><annotation encoding="application/x-tex">J</annotation></semantics></math>),
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>v</mi><mi>j</mi></msub><mo>∼</mo><mrow><mi mathvariant="normal">B</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">a</mi></mrow><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>,</mo><mi>α</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>w</mi><mn>1</mn></msub><mo>=</mo><msub><mi>v</mi><mn>1</mn></msub><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>w</mi><mi>j</mi></msub><mo>=</mo><msub><mi>v</mi><mi>j</mi></msub><munder><mo>∏</mo><mrow><mi>ℓ</mi><mo>&lt;</mo><mi>j</mi></mrow></munder><mo stretchy="false" form="prefix">(</mo><mn>1</mn><mo>−</mo><msub><mi>v</mi><mi>ℓ</mi></msub><mo stretchy="false" form="postfix">)</mo><mspace width="0.222em"></mspace><mo stretchy="false" form="prefix">(</mo><mi>j</mi><mo>≥</mo><mn>2</mn><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="1.0em"></mspace><msub><mi>w</mi><mi>J</mi></msub><mo>=</mo><mn>1</mn><mo>−</mo><munderover><mo>∑</mo><mrow><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>J</mi><mo>−</mo><mn>1</mn></mrow></munderover><msub><mi>w</mi><mi>j</mi></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">
+  v_j \sim \mathrm{Beta}(1,\alpha),\quad
+  w_1=v_1,\quad
+  w_j=v_j\prod_{\ell&lt;j}(1-v_\ell)\ (j\ge 2),\quad
+  w_J = 1-\sum_{j=1}^{J-1} w_j.
+</annotation></semantics></math></p>
+</div>
+<div class="section level2">
+<h2 id="tail-model-generalized-pareto-distribution">Tail model: generalized Pareto distribution<a class="anchor" aria-label="anchor" href="#tail-model-generalized-pareto-distribution"></a>
+</h2>
+<p>For upper-tail modeling, fix a threshold
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+and define exceedances
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi><mo>=</mo><mi>y</mi><mo>−</mo><mi>u</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">x=y-u&gt;0</annotation></semantics></math>
+for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi><mo>&gt;</mo><mi>u</mi></mrow><annotation encoding="application/x-tex">y&gt;u</annotation></semantics></math>.
+The GPD density for exceedances is
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>∣</mo><mi>σ</mi><mo>,</mo><mi>ξ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mfrac><mn>1</mn><mi>σ</mi></mfrac><msup><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>ξ</mi><mfrac><mi>x</mi><mi>σ</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi>−</mi><mn>1</mn><mi>/</mi><mi>ξ</mi><mo>−</mo><mn>1</mn></mrow></msup><mo>,</mo><mspace width="2.0em"></mspace><mi>x</mi><mo>&gt;</mo><mn>0</mn><mo>,</mo><mspace width="0.222em"></mspace><mi>σ</mi><mo>&gt;</mo><mn>0</mn><mo>,</mo></mrow><annotation encoding="application/x-tex">
+  g(x\mid \sigma,\xi)
+  =
+  \frac{1}{\sigma}
+  \left(1+\xi\frac{x}{\sigma}\right)^{-1/\xi - 1},
+  \qquad x&gt;0,\ \sigma&gt;0,
+</annotation></semantics></math> with support constraint
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>1</mn><mo>+</mo><mi>ξ</mi><mi>x</mi><mi>/</mi><mi>σ</mi><mo>&gt;</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">1+\xi x/\sigma&gt;0</annotation></semantics></math>.
+The corresponding CDF is
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>∣</mo><mi>σ</mi><mo>,</mo><mi>ξ</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn><mo>−</mo><msup><mrow><mo stretchy="true" form="prefix">(</mo><mn>1</mn><mo>+</mo><mi>ξ</mi><mfrac><mi>x</mi><mi>σ</mi></mfrac><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mi>−</mi><mn>1</mn><mi>/</mi><mi>ξ</mi></mrow></msup><mspace width="1.0em"></mspace><mo stretchy="false" form="prefix">(</mo><mi>ξ</mi><mo>≠</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
+  G(x\mid\sigma,\xi)
+  =
+  1-\left(1+\xi\frac{x}{\sigma}\right)^{-1/\xi}
+  \quad (\xi\ne 0),
+</annotation></semantics></math> and in the limit
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ξ</mi><mo>→</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\xi\to 0</annotation></semantics></math>,
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>G</mi><mo stretchy="false" form="prefix">(</mo><mi>x</mi><mo>∣</mo><mi>σ</mi><mo>,</mo><mn>0</mn><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn><mo>−</mo><mrow><mi mathvariant="normal">exp</mi><mo>⁡</mo></mrow><mo stretchy="false" form="prefix">(</mo><mi>−</mi><mi>x</mi><mi>/</mi><mi>σ</mi><mo stretchy="false" form="postfix">)</mo><mi>.</mi></mrow><annotation encoding="application/x-tex">
+  G(x\mid\sigma,0)=1-\exp(-x/\sigma).
+</annotation></semantics></math> This GPD limit result for threshold
+exceedances is central in extreme value theory <span class="citation">(<a href="#ref-balkema1974">Balkema and Haan 1974</a>;
+<a href="#ref-pickands1975">Pickands 1975</a>; <a href="#ref-coles2001">Coles 2001</a>)</span>.</p>
+</div>
+<div class="section level2">
+<h2 id="splicing-a-proper-bulktail-distribution">Splicing: a proper bulk–tail distribution<a class="anchor" aria-label="anchor" href="#splicing-a-proper-bulktail-distribution"></a>
+</h2>
+<p>DPmixGPD combines a bulk model
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>F</mi><mrow><mi mathvariant="normal">D</mi><mi mathvariant="normal">P</mi><mi mathvariant="normal">M</mi></mrow></msub><annotation encoding="application/x-tex">F_{\mathrm{DPM}}</annotation></semantics></math>
+with a GPD exceedance model while ensuring the resulting full
+distribution integrates to 1.</p>
+<p>Let
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
+denote the tail threshold. Define:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>p</mi><mi>u</mi></msub><mo>=</mo><msub><mi>F</mi><mrow><mi mathvariant="normal">D</mi><mi mathvariant="normal">P</mi><mi mathvariant="normal">M</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="2.0em"></mspace><msub><mover><mi>p</mi><mo accent="true">‾</mo></mover><mi>u</mi></msub><mo>=</mo><mn>1</mn><mo>−</mo><msub><mi>p</mi><mi>u</mi></msub><mi>.</mi></mrow><annotation encoding="application/x-tex">
+  p_u = F_{\mathrm{DPM}}(u), \qquad \bar p_u = 1 - p_u.
+</annotation></semantics></math> The spliced CDF is defined by:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>F</mi><mrow><mi mathvariant="normal">D</mi><mi mathvariant="normal">P</mi><mi mathvariant="normal">M</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><mi>y</mi><mo>≤</mo><mi>u</mi><mo>,</mo></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>p</mi><mi>u</mi></msub><mo>+</mo><msub><mover><mi>p</mi><mo accent="true">‾</mo></mover><mi>u</mi></msub><mspace width="0.167em"></mspace><mi>G</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>−</mo><mi>u</mi><mo>∣</mo><mi>σ</mi><mo>,</mo><mi>ξ</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><mi>y</mi><mo>&gt;</mo><mi>u</mi><mi>.</mi></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">
+F(y) =
+\begin{cases}
+F_{\mathrm{DPM}}(y), &amp; y \le u,\\[6pt]
+p_u + \bar p_u \, G(y-u\mid\sigma,\xi), &amp; y&gt;u.
+\end{cases}
+</annotation></semantics></math> By construction,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>F</mi><annotation encoding="application/x-tex">F</annotation></semantics></math>
+is nondecreasing, right-continuous, and satisfies
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">lim</mi><mo>⁡</mo></mrow><mrow><mi>y</mi><mo>→</mo><mi>−</mi><mi>∞</mi></mrow></msub><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>0</mn></mrow><annotation encoding="application/x-tex">\lim_{y\to-\infty}F(y)=0</annotation></semantics></math>,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mrow><mi mathvariant="normal">lim</mi><mo>⁡</mo></mrow><mrow><mi>y</mi><mo>→</mo><mi>∞</mi></mrow></msub><mi>F</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\lim_{y\to\infty}F(y)=1</annotation></semantics></math>.
+The corresponding density is:
+<math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>f</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>=</mo><mrow><mo stretchy="true" form="prefix">{</mo><mtable><mtr><mtd columnalign="left" style="text-align: left"><msub><mi>f</mi><mrow><mi mathvariant="normal">D</mi><mi mathvariant="normal">P</mi><mi mathvariant="normal">M</mi></mrow></msub><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><mi>y</mi><mo>≤</mo><mi>u</mi><mo>,</mo></mtd></mtr><mtr><mtd columnalign="left" style="text-align: left"><msub><mover><mi>p</mi><mo accent="true">‾</mo></mover><mi>u</mi></msub><mspace width="0.167em"></mspace><mi>g</mi><mo stretchy="false" form="prefix">(</mo><mi>y</mi><mo>−</mo><mi>u</mi><mo>∣</mo><mi>σ</mi><mo>,</mo><mi>ξ</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mtd><mtd columnalign="left" style="text-align: left"><mi>y</mi><mo>&gt;</mo><mi>u</mi><mi>.</mi></mtd></mtr></mtable></mrow></mrow><annotation encoding="application/x-tex">
+f(y) =
+\begin{cases}
+f_{\mathrm{DPM}}(y), &amp; y \le u,\\[6pt]
+\bar p_u \, g(y-u\mid\sigma,\xi), &amp; y&gt;u.
+\end{cases}
+</annotation></semantics></math> This “bulk + tail using all
+observations” Bayesian philosophy matches earlier semiparametric
+bulk–tail constructions <span class="citation">(<a href="#ref-frigessi2002">Frigessi et al. 2002</a>; <a href="#ref-behrens2004">Behrens et al. 2004</a>; <a href="#ref-doNascimento2012">Nascimento et al. 2012</a>)</span>.</p>
+</div>
+<div class="section level2">
+<h2 id="posterior-computation-in-dpmixgpd">Posterior computation in DPmixGPD<a class="anchor" aria-label="anchor" href="#posterior-computation-in-dpmixgpd"></a>
+</h2>
+<p>DPmixGPD implements these models through NIMBLE-backed MCMC. At a
+high level, posterior inference alternates between:</p>
+<ol style="list-style-type: decimal">
+<li>allocation updates
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>z</mi><mi>i</mi></msub><annotation encoding="application/x-tex">z_i</annotation></semantics></math>
+(component membership),</li>
+<li>component parameter updates
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi mathvariant="normal">Θ</mi><mi>j</mi></msub><annotation encoding="application/x-tex">\Theta_j</annotation></semantics></math>,</li>
+<li>mixture weight updates (SB/CRP),</li>
+<li>tail updates
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo stretchy="false" form="prefix">(</mo><mi>u</mi><mo>,</mo><mi>σ</mi><mo>,</mo><mi>ξ</mi><mo stretchy="false" form="postfix">)</mo></mrow><annotation encoding="application/x-tex">(u,\sigma,\xi)</annotation></semantics></math>
+if <code>GPD = TRUE</code>,</li>
+<li>hyperparameter updates (e.g.,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>α</mi><annotation encoding="application/x-tex">\alpha</annotation></semantics></math>)
+where stochastic.</li>
+</ol>
+<p>All user-facing workflows produce a <code>mixgpd_fit</code> object
+(or a causal fit object wrapping two <code>mixgpd_fit</code>s), which
+then supports <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code>, <code><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted()</a></code>, and related
+S3 methods.</p>
+</div>
+<div class="section level2">
+<h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
+</h2>
+<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="ref-balkema1974" class="csl-entry">
+Balkema, August A., and Laurens de Haan. 1974. <span>“Residual Life Time
+at Great Age.”</span> <em>The Annals of Probability</em> 2 (5): 792–804.
+<a href="https://doi.org/10.1214/aop/1176996548" class="external-link">https://doi.org/10.1214/aop/1176996548</a>.
+</div>
+<div id="ref-behrens2004" class="csl-entry">
+Behrens, Cibele N., Hedibert F. Lopes, and Dani Gamerman. 2004.
+<span>“Bayesian Analysis of Extreme Events with Threshold
+Estimation.”</span> <em>Statistical Modelling</em> 4 (3): 227–44. <a href="https://doi.org/10.1191/1471082x04st075oa" class="external-link">https://doi.org/10.1191/1471082x04st075oa</a>.
+</div>
+<div id="ref-coles2001" class="csl-entry">
+Coles, Stuart. 2001. <em>An Introduction to Statistical Modeling of
+Extreme Values</em>. Springer. <a href="https://doi.org/10.1007/978-1-4471-3675-0" class="external-link">https://doi.org/10.1007/978-1-4471-3675-0</a>.
+</div>
+<div id="ref-ferguson1973" class="csl-entry">
+Ferguson, Thomas S. 1973. <span>“A Bayesian Analysis of Some
+Nonparametric Problems.”</span> <em>The Annals of Statistics</em> 1 (2):
+209–30. <a href="https://doi.org/10.1214/aos/1176342360" class="external-link">https://doi.org/10.1214/aos/1176342360</a>.
+</div>
+<div id="ref-frigessi2002" class="csl-entry">
+Frigessi, Arnoldo, Ola Haug, and Håvard Rue. 2002. <span>“A Dynamic
+Mixture Model for Unsupervised Tail Estimation Without Threshold
+Selection.”</span> <em>Extremes</em> 5 (3): 219–35. <a href="https://doi.org/10.1023/A:1024072610684" class="external-link">https://doi.org/10.1023/A:1024072610684</a>.
+</div>
+<div id="ref-ishwaran2001" class="csl-entry">
+Ishwaran, Hemant, and Lancelot F. James. 2001. <span>“Gibbs Sampling
+Methods for Stick-Breaking Priors.”</span> <em>Journal of the American
+Statistical Association</em> 96 (453): 161–73. <a href="https://doi.org/10.1198/016214501750332758" class="external-link">https://doi.org/10.1198/016214501750332758</a>.
+</div>
+<div id="ref-doNascimento2012" class="csl-entry">
+Nascimento, Fernando Ferraz do, Dani Gamerman, and Hedibert Freitas
+Lopes. 2012. <span>“A Semiparametric <span>B</span>ayesian Approach to
+Extreme Value Estimation.”</span> <em>Statistics and Computing</em> 22
+(2): 661–75. <a href="https://doi.org/10.1007/s11222-011-9270-z" class="external-link">https://doi.org/10.1007/s11222-011-9270-z</a>.
+</div>
+<div id="ref-neal2000" class="csl-entry">
+Neal, Radford M. 2000. <span>“Markov Chain Sampling Methods for
+<span>D</span>irichlet Process Mixture Models.”</span> <em>Journal of
+Computational and Graphical Statistics</em> 9 (2): 249–65. <a href="https://doi.org/10.1080/10618600.2000.10474879" class="external-link">https://doi.org/10.1080/10618600.2000.10474879</a>.
+</div>
+<div id="ref-pickands1975" class="csl-entry">
+Pickands, James. 1975. <span>“Statistical Inference Using Extreme Order
+Statistics.”</span> <em>The Annals of Statistics</em> 3 (1): 119–31. <a href="https://doi.org/10.1214/aos/1176343003" class="external-link">https://doi.org/10.1214/aos/1176343003</a>.
+</div>
+<div id="ref-sethuraman1994" class="csl-entry">
+Sethuraman, Jayaram. 1994. <span>“A Constructive Definition of
+<span>D</span>irichlet Priors.”</span> <em>Statistica Sinica</em> 4 (2):
+639–50.
+</div>
+</div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Unconditional Models • DPmixGPD</title>
+<title>DPmixGPD: Unconditional workflow (bulk + optional GPD tail) • DPmixGPD</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Unconditional Models">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="DPmixGPD: Unconditional workflow (bulk + optional GPD tail)">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -32,16 +32,11 @@
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/manual.html">Manual</a></li>
-    <li><a class="dropdown-item" href="../articles/introduction.html">Introduction</a></li>
-    <li><a class="dropdown-item" href="../articles/distributions.html">Distributions</a></li>
-    <li><a class="dropdown-item" href="../articles/model-spec.html">Model specification</a></li>
-    <li><a class="dropdown-item" href="../articles/mcmc-workflow.html">MCMC workflow</a></li>
+<li><a class="dropdown-item" href="../articles/basic.html">Model specification</a></li>
+    <li><a class="dropdown-item" href="../articles/model-spec.html">Model fundamentals</a></li>
     <li><a class="dropdown-item" href="../articles/unconditional.html">Unconditional</a></li>
     <li><a class="dropdown-item" href="../articles/conditional.html">Conditional</a></li>
     <li><a class="dropdown-item" href="../articles/causal.html">Causal</a></li>
-    <li><a class="dropdown-item" href="../articles/backends.html">Backends</a></li>
-    <li><a class="dropdown-item" href="../articles/reference-s3.html">S3 methods reference</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
@@ -61,7 +56,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>Unconditional Models</h1>
+      <h1>DPmixGPD: Unconditional workflow (bulk + optional GPD tail)</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/arnabaich96/DPmixGPD/blob/HEAD/vignettes/unconditional.Rmd" class="external-link"><code>vignettes/unconditional.Rmd</code></a></small>
@@ -70,78 +65,92 @@
 
     
     
-<div class="section level2">
-<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
-</h2>
-<p>This vignette demonstrates fitting an unconditional DP mixture model
-with optional GPD tail augmentation.</p>
-</div>
-<div class="section level2">
-<h2 id="theory-brief">Theory (brief)<a class="anchor" aria-label="anchor" href="#theory-brief"></a>
-</h2>
-<p>Unconditional models treat observations as exchangeable draws from a
-mixture distribution. The DP prior on the mixing measure
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>G</mi><annotation encoding="application/x-tex">G</annotation></semantics></math>
-yields flexible density estimation: <span class="math display">$$
-y_i \\mid G \\sim \\int K(y_i; \\theta)\\, dG(\\theta), \\quad G \\sim
-\\mathrm{DP}(\\alpha, G_0).
-$$</span> When <span class="math inline">$\\mathrm{GPD} =
-\\mathrm{TRUE}$</span>, a GPD tail replaces the bulk kernel beyond a
-threshold
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>u</mi><annotation encoding="application/x-tex">u</annotation></semantics></math>
-to stabilize tail behavior.</p>
-</div>
-<div class="section level2">
-<h2 id="model-fitting">Model Fitting<a class="anchor" aria-label="anchor" href="#model-fitting"></a>
-</h2>
+<p>This vignette shows the end-to-end workflow for an unconditional
+model: build a bundle, run posterior sampling, and compute
+distributional predictions. The mathematical specification of the DPM
+bulk model and the spliced GPD tail is defined once in <strong>“Model
+specification and posterior computation”</strong> (the
+<code>basic</code> vignette). Here we focus on usage.</p>
+<p>DPmixGPD ships small example datasets; we use
+<code>nc_pos_tail200_k4</code>, which is a positive-support dataset with
+an injected upper tail (so <code>GPD=TRUE</code> is meaningful).</p>
+<p>Model fit (code shown for reproducibility, but not executed during
+CRAN checks)</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://arnabaich96.github.io/DPmixGPD/" class="external-link">DPmixGPD</a></span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"faithful"</span>, package <span class="op">=</span> <span class="st">"datasets"</span><span class="op">)</span></span>
-<span><span class="va">y</span> <span class="op">&lt;-</span> <span class="va">faithful</span><span class="op">$</span><span class="va">eruptions</span></span>
-<span></span>
-<span><span class="va">bundle</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_nimble_bundle.html">build_nimble_bundle</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">bundle</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_nimble_bundle.html">build_nimble_bundle</a></span><span class="op">(</span></span>
 <span>  y <span class="op">=</span> <span class="va">y</span>,</span>
-<span>  backend <span class="op">=</span> <span class="st">"sb"</span>,</span>
-<span>  kernel <span class="op">=</span> <span class="st">"normal"</span>,</span>
+<span>  X <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  backend <span class="op">=</span> <span class="st">"sb"</span>,         <span class="co"># "sb" or "crp"</span></span>
+<span>  kernel <span class="op">=</span> <span class="st">"lognormal"</span>,  <span class="co"># choose a positive-support kernel</span></span>
 <span>  GPD <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  components <span class="op">=</span> <span class="fl">6</span>,</span>
-<span>  mcmc <span class="op">=</span> <span class="va">mcmc</span></span>
+<span>  components <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>  mcmc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">2000</span>, nburnin <span class="op">=</span> <span class="fl">500</span>, thin <span class="op">=</span> <span class="fl">5</span>, nchains <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">101</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mcmc_bundle_manual.html">run_mcmc_bundle_manual</a></span><span class="op">(</span><span class="va">bundle</span>, show_progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mcmc_bundle_manual.html">run_mcmc_bundle_manual</a></span><span class="op">(</span><span class="va">bundle</span>, show_progress <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p>Predictions</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1.5</span>, length.out <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">dhat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, y <span class="op">=</span> <span class="va">grid</span>, type <span class="op">=</span> <span class="st">"density"</span><span class="op">)</span></span>
+<span><span class="va">shat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, y <span class="op">=</span> <span class="va">grid</span>, type <span class="op">=</span> <span class="st">"survival"</span><span class="op">)</span></span>
+<span><span class="va">qs</span>   <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.9</span>, <span class="fl">0.95</span>, <span class="fl">0.99</span><span class="op">)</span>, cred.level <span class="op">=</span> <span class="fl">0.90</span><span class="op">)</span></span></code></pre></div>
+<p>Results (precomputed)</p>
+<p>The table and figure below are precomputed from the shipped dataset
+to keep CRAN checks fast and deterministic. To reproduce them locally,
+run <code>tools/make_vignette_artifacts.R</code> and rebuild the
+vignettes.</p>
+<table class="table">
+<thead><tr class="header">
+<th align="right">estimate</th>
+<th align="right">index</th>
+<th align="right">lower</th>
+<th align="right">upper</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td align="right">1.45</td>
+<td align="right">0.50</td>
+<td align="right">1.20</td>
+<td align="right">1.66</td>
+</tr>
+<tr class="even">
+<td align="right">4.63</td>
+<td align="right">0.90</td>
+<td align="right">3.56</td>
+<td align="right">5.56</td>
+</tr>
+<tr class="odd">
+<td align="right">6.34</td>
+<td align="right">0.95</td>
+<td align="right">5.04</td>
+<td align="right">7.64</td>
+</tr>
+<tr class="even">
+<td align="right">10.99</td>
+<td align="right">0.99</td>
+<td align="right">8.71</td>
+<td align="right">13.98</td>
+</tr>
+</tbody>
+</table>
+<div class="float">
+<img src="../inst/extdata/unconditional_density.png" alt="Posterior predictive density for the unconditional fit (precomputed)."><div class="figcaption">Posterior predictive density for the
+unconditional fit (precomputed).</div>
 </div>
-<div class="section level2">
-<h2 id="posterior-predictive-summaries">Posterior Predictive Summaries<a class="anchor" aria-label="anchor" href="#posterior-predictive-summaries"></a>
-</h2>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>pred_mean <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">cred.level =</span> <span class="fl">0.90</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>pred_q95  <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> <span class="fl">0.95</span>, <span class="at">cred.level =</span> <span class="fl">0.90</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>pred_mean<span class="sc">$</span>fit</span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>  id estimate lower upper</span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="dv">1</span>  <span class="dv">1</span>     <span class="fl">3.19</span>  <span class="fl">3.05</span>  <span class="fl">3.32</span></span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a>pred_q95<span class="sc">$</span>fit</span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  estimate index lower upper</span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="dv">1</span>     <span class="fl">4.81</span>  <span class="fl">0.95</span>  <span class="fl">4.72</span>  <span class="fl">4.93</span></span></code></pre></div>
-</div>
-<div class="section level2">
-<h2 id="note">Note<a class="anchor" aria-label="anchor" href="#note"></a>
-</h2>
-<p>For unconditional models, use only; and are not supported (they are
-for conditional, covariate models).</p>
-</div>
-<div class="section level2">
-<h2 id="diagnostic-plots">Diagnostic Plots<a class="anchor" aria-label="anchor" href="#diagnostic-plots"></a>
-</h2>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"ggmcmc"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/ns-load.html" class="external-link">requireNamespace</a></span><span class="op">(</span><span class="st">"coda"</span>, quietly <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
-<span>  <span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/message.html" class="external-link">message</a></span><span class="op">(</span><span class="st">"Plotting requires 'ggmcmc' and 'coda' packages."</span><span class="op">)</span></span>
-<span><span class="op">}</span></span></code></pre></div>
-</div>
-  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
-    </nav></aside>
+<p>Notes on customization</p>
+<ol style="list-style-type: decimal">
+<li><p>Kernel choice: use <code><a href="../reference/kernel_support_table.html">kernel_support_table()</a></code> to see
+which kernels match your support (real line vs positive support) and
+which parameters are available.</p></li>
+<li><p>Tail control: setting <code>GPD=TRUE</code> activates the spliced
+tail module (see the <code>basic</code> vignette for the exact spliced
+density). Tail priors and threshold control are provided via
+<code>param_specs</code>.</p></li>
+<li><p>Backend choice: stick-breaking (<code>backend="sb"</code>) is
+often the most stable default; the CRP backend is available when you
+prefer partition-based updates.</p></li>
+</ol></main>
 </div>
 
 

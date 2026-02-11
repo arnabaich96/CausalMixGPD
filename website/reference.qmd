@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Reference"
 page-layout: full
 ---
@@ -55,11 +55,12 @@ Discover supported kernels and tail combinations.
 ## Where to go next
 
 1. If you are still choosing a model setup, start at [Decision Guide](decision-guide.html).
-2. If you need worked examples, go to [Cookbook](cookbook.html).
+2. If you need worked examples, go to [Examples](Examples/index.html).
 3. If you need exact arguments and return values, stay in [pkgdown reference](pkgdown/reference/index.html).
 
 :::
 :::
+
 
 
 

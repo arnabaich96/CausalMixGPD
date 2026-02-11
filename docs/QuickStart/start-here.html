@@ -162,8 +162,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="dropdown-text">Kernels</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../cookbook.html">
- <span class="dropdown-text">Cookbook</span></a>
+    <a class="dropdown-item" href="../Examples/index.html">
+ <span class="dropdown-text">Examples</span></a>
   </li>  
     </ul>
   </li>
@@ -374,7 +374,7 @@ Summary table
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="start-here_files/figure-html/start-uncond-predict-1.png" class="img-fluid figure-img" width="768"></p>
+<p><img src="start-here_files/figure-html/start-uncond-predict-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -632,19 +632,19 @@ Summary table
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>pred_mean <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_cond, <span class="at">x =</span> x_new, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> <span class="dv">200</span>)</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_mean<span class="sc">$</span>fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>  id estimate lower upper
-1  1      105  1.10  79.8
-2  2     7223  1.19 430.8
-3  3      184  1.07 482.5
-4  4       52  0.97 341.5
-5  5      115  1.11 267.8
-6  6      497  1.13 405.8</code></pre>
+<pre><code>  id estimate lower  upper
+1  1     23.6 1.038   79.6
+2  2    860.6 1.212  292.6
+3  3    418.0 1.012  905.9
+4  4     51.0 0.972  313.9
+5  5     22.6 1.000  160.9
+6  6    173.7 1.105 1067.2</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(pred_mean)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="start-here_files/figure-html/start-cond-predict-1.png" class="img-fluid figure-img" width="768"></p>
+<p><img src="start-here_files/figure-html/start-cond-predict-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -671,17 +671,23 @@ $scale
 [1] "0.265"</code></pre>
 </div>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(fit_uncond, <span class="at">family =</span> <span class="fu">c</span>(<span class="st">"traceplot"</span>, <span class="st">"running"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.</code></pre>
+</div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="start-here_files/figure-html/start-s3-1.png" class="img-fluid figure-img" width="768"></p>
+<p><img src="start-here_files/figure-html/start-s3-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
-<p><img src="start-here_files/figure-html/start-s3-2.png" class="img-fluid figure-img" width="768"></p>
+<p><img src="start-here_files/figure-html/start-s3-2.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>
@@ -705,7 +711,7 @@ $scale
 <li>Previous: none (start of workflow series)</li>
 <li>Next: <a href="introduction.html">introduction</a></li>
 <li>Workflow index: <a href="../roadmap.html">Roadmap</a></li>
-<li>Practical entry: <a href="../cookbook.html">Cookbook</a> <!-- workflow-nav:end --></li>
+<li>Practical entry: <a href="../Examples/index.html">Examples</a> <!-- workflow-nav:end --></li>
 </ul>
 
 

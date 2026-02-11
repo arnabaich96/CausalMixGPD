@@ -270,8 +270,9 @@ safe_plot(qte_gpd)
 - Previous: [ex15-causal-x-no-ps-SB](ex15-causal-x-no-ps-SB.html)
 - Next: [ex17-causal-same-backend-SB](ex17-causal-same-backend-SB.html)
 - Workflow index: [Roadmap](../roadmap.html)
-- Practical entry: [Cookbook](../cookbook.html)
+- Practical entry: [Examples](../Examples/index.html)
 <!-- workflow-nav:end -->
+
 
 
 
