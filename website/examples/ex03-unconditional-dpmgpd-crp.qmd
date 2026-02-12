@@ -1,0 +1,350 @@
+﻿---
+title: "ex03. Unconditional DPMGPD (CRP Backend)"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = NA,
+  fig.width = 8,
+  fig.height = 5,
+  message = FALSE,
+  warning = FALSE,
+  cache=TRUE,
+  cache.path = 'legacy-cache-v2/'
+)
+
+# Reproducibility
+set.seed(1)
+
+# Fast-by-default rendering. Flip to FALSE for a fuller run.
+FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
+library(magrittr)
+library(dplyr)
+library(tibble)
+library(kableExtra)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
+
+# Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
+mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
+
+# Load package (with all_quiet to suppress startup messages)
+library(DPmixGPD)
+
+# Ensure package is fully loaded for data access
+if (!require("devtools", quietly = TRUE)) {
+  library(devtools)
+}
+pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
+  devtools::load_all(path = pkg_root, quiet = TRUE)
+
+# Precomputed results for fast website builds
+source("_legacy-setup.R")
+if (!exists("safe_plot", mode = "function")) {
+  safe_plot <- function(x, ...) {
+    obj <- tryCatch(plot(x, ...), error = function(e) e)
+    if (inherits(obj, "ggplot")) {
+      try(print(obj), silent = TRUE)
+    } else if (is.list(obj)) {
+      for (elt in obj) if (inherits(elt, "ggplot")) try(print(elt), silent = TRUE)
+    }
+    invisible(obj)
+  }
+}
+```
+
+
+> **Legacy vignette (for the website / historical notes).**
+> These files may not match the current exported API one-to-one.
+> Last verified: **2026-01-18**.
+>
+> For the up-to-date workflow, see the main package vignettes (basic, unconditional, conditional, and causal)..
+
+
+# Unconditional DPmixGPD: CRP Backend with Tail Augmentation
+
+**Purpose**: Model the **bulk** of the distribution with a DP mixture (the "kernel" or bulk family) and let a **GPD tail** capture extreme values beyond a threshold. The CRP backend handles partitioning and we toggle `GPD = TRUE` to augment the tail.
+
+---
+
+## Data Setup
+
+```{r data-setup}
+# Load data with an obvious tail
+data("nc_pos_tail200_k4", package = "DPmixGPD")
+y_tail <- nc_pos_tail200_k4$y
+y_tail <- y_tail[is.finite(y_tail) & y_tail > 0]
+
+# Summaries and table
+summary_tbl <- tibble(
+  statistic = c("N", "Mean", "SD", "Min", "Max"),
+  value = c(length(y_tail), mean(y_tail), sd(y_tail), min(y_tail), max(y_tail))
+)
+
+df_data <- data.frame(y = y_tail)
+
+ggplot(df_data, aes(x = y)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 40, fill = "steelblue", color = "black", alpha = 0.6) +
+  geom_density(color = "red", linewidth = 1) +
+  labs(title = "Raw Data: Mix of Bulk and Tail", x = "y", y = "Density") +
+  theme_minimal()
+```
+
+```{r data-table, echo=FALSE}
+summary_tbl %>%
+  mutate(value = signif(value, 4)) %>%
+  kable(caption = "Summary of the Tail Dataset", align = "c") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
+```
+
+---
+
+## Threshold & Tail Partition
+
+```{r threshold-selection}
+thresholds <- quantile(y_tail, c(0.70, 0.75, 0.80, 0.85, 0.90))
+u_threshold <- thresholds["80%"]
+
+df_tail <- tibble(
+  y = y_tail,
+  region = ifelse(y_tail > u_threshold, "Tail", "Bulk")
+)
+
+ggplot(df_tail, aes(x = y, fill = region)) +
+  geom_histogram(aes(y = after_stat(density)), bins = 40, alpha = 0.7, color = "black") +
+  geom_vline(xintercept = u_threshold, linetype = "dashed", color = "black") +
+  scale_fill_manual(values = c("Bulk" = "steelblue", "Tail" = "red")) +
+  labs(title = "Threshold Partition", x = "y", y = "Density") +
+  theme_minimal()
+```
+
+---
+
+## Model Specification & Bundle
+
+This mirrors the direct `DPmixGPD::build_nimble_bundle()` workflow in `start/backends-and-workflow`, but with **tail augmentation** turned on (`GPD = TRUE`). Here we use an **Inverse Gaussian** bulk kernel and estimate the GPD threshold with a lognormal prior centered at the empirical 80th percentile.
+
+```{r bundle-mcmc-crp-gpd, cache=TRUE}
+bundle_gpd <- DPmixGPD::build_nimble_bundle(
+  y = y_tail,
+  kernel = "invgauss",
+  backend = "crp",
+  GPD = TRUE,
+  components = 5,
+  alpha_random = TRUE,
+  param_specs = list(
+    gpd = list(
+      threshold = list(
+        mode = "dist",
+        dist = "lognormal",
+        args = list(meanlog = log(max(u_threshold, .Machine$double.eps)), sdlog = 0.25)
+      )
+    )
+  ),
+  mcmc = mcmc
+)
+```
+
+---
+
+## Running MCMC & Diagnostics
+
+```{r mcmc-run, cache=TRUE}
+fit_gpd <- load_or_fit("ex03-unconditional-dpmgpd-crp-fit_gpd", run_mcmc_bundle_manual(bundle_gpd))
+```
+
+```{r fit-summary}
+summary(fit_gpd)
+```
+
+```{r params-gpd-crp}
+params_gpd <- params(fit_gpd)
+params_gpd
+```
+
+```{r fit-plots}
+# S3 plot methods highlight trace + density diagnostics
+safe_plot(fit_gpd, family = c("traceplot", "density", "running"))
+safe_plot(fit_gpd, params = "alpha", family = c("traceplot", "autocorrelation", "geweke"))
+```
+
+---
+
+## Posterior Predictions: Bulk and Tail
+
+We use the **S3 `predict()` objects** and their dedicated `plot()` methods to visualize densities, survival curves, and posterior-mean quantiles (i.e., averages of q(p | $\\theta$) over draws).
+
+```{r density-predict, cache=TRUE}
+y_min <- max(min(y_tail), .Machine$double.eps)
+y_grid <- seq(y_min, max(y_tail) * 1.3, length.out = 300)
+pred_density <- predict(fit_gpd, y = y_grid, type = "density")
+safe_plot(pred_density)
+```
+
+```{r survival-predict, cache=TRUE}
+y_surv <- seq(max(u_threshold, y_min), max(y_tail) * 1.1, length.out = 60)
+pred_surv <- predict(fit_gpd, y = y_surv, type = "survival")
+safe_plot(pred_surv)
+```
+
+```{r quantile-predict, cache=TRUE}
+quantile_probs <- c(0.90, 0.95, 0.99)
+pred_quantiles <- predict(fit_gpd, type = "quantile", index = quantile_probs, interval = "credible")
+safe_plot(pred_quantiles)
+```
+
+---
+
+## Bulk-Only Baseline Comparison
+
+To demonstrate the value of tail augmentation, we fit a bulk-only lognormal DP mixture and compare posterior summaries against the InvGauss+GPD fit.
+
+```{r bulk-only-fit, cache=TRUE}
+bundle_bulk_only <- DPmixGPD::build_nimble_bundle(
+  y = y_tail,
+  kernel = "lognormal",
+  backend = "crp",
+  GPD = FALSE,
+  components = 5,
+  mcmc = mcmc
+)
+fit_bulk_only <- load_or_fit("ex03-unconditional-dpmgpd-crp-fit_bulk_only", run_mcmc_bundle_manual(bundle_bulk_only))
+```
+
+```{r compare-quantiles}
+bulk_quantiles <- predict(fit_bulk_only, type = "quantile", index = quantile_probs)
+tail_quantiles <- predict(fit_gpd, type = "quantile", index = quantile_probs)
+
+compare_tbl <- bind_rows(
+  bulk_quantiles$fit %>% mutate(model = "Bulk only"),
+  tail_quantiles$fit %>% mutate(model = "Bulk + GPD")
+) %>%
+  select(any_of(c("model", "index", "estimate", "lwr", "upr", "lower", "upper")))
+
+compare_tbl %>%
+  mutate(across(where(is.numeric), ~ round(.x, 3))) %>%
+  kable(caption = "Posterior-Mean Quantiles for Bulk-Only vs GPD Models", align = "c") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
+```
+
+```{r quantile-plot}
+safe_plot(bulk_quantiles)
+safe_plot(tail_quantiles)
+```
+
+---
+
+## Extreme Value Diagnostics & Residuals
+
+```{r return-levels}
+probs <- c(0.995, 0.99, 0.975)
+return_levels <- predict(fit_gpd, type = "quantile", index = probs)
+
+return_levels$fit %>%
+  mutate(across(where(is.numeric), ~ round(.x, 3))) %>%
+  kable(caption = "Extreme Quantile Estimates (Posterior Mean and Credible Intervals)", align = "c") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
+```
+
+For unconditional models, use `predict()` only; `fitted()` and `residuals()` are not supported.
+
+---
+
+## Threshold Sensitivity
+
+```{r threshold-sensitivity, cache=TRUE}
+sensitivity_fits <- lapply(thresholds, function(u) {
+  bundle <- DPmixGPD::build_nimble_bundle(
+    y = y_tail,
+    kernel = "invgauss",
+    backend = "crp",
+    GPD = TRUE,
+    param_specs = list(
+      gpd = list(
+        threshold = list(mode = "fixed", value = u)
+      )
+    ),
+    components = 5,
+    mcmc = mcmc
+  )
+  fit <- load_or_fit("ex03-unconditional-dpmgpd-crp-fit", run_mcmc_bundle_manual(bundle))
+  list(threshold = u, fit = fit)
+})
+
+sensitivity_tbl <- bind_rows(lapply(sensitivity_fits, function(entry) {
+  quant <- predict(entry$fit, type = "quantile", index = 0.99, interval = "credible")
+  qfit <- as.data.frame(quant$fit)
+  qfit$threshold <- entry$threshold
+
+  # Keep the usual columns if present
+  keep <- intersect(names(qfit), c("threshold", "index", "estimate", "lower", "upper", "lwr", "upr"))
+  qfit <- qfit[, keep, drop = FALSE]
+
+  # Standardize to one set of CI column names
+  if (!"lower" %in% names(qfit) && "lwr" %in% names(qfit)) qfit$lower <- qfit$lwr
+  if (!"upper" %in% names(qfit) && "upr" %in% names(qfit)) qfit$upper <- qfit$upr
+
+  # If estimate isn't present for some reason, fall back to the first numeric column
+  if (!"estimate" %in% names(qfit)) {
+    num_cols <- names(qfit)[vapply(qfit, is.numeric, logical(1))]
+    if (length(num_cols) > 0) qfit$estimate <- qfit[[num_cols[1]]]
+  }
+
+  out <- data.frame(
+    threshold = qfit$threshold[1],
+    q_99 = qfit$estimate[1],
+    q_99_lwr = if ("lower" %in% names(qfit)) qfit$lower[1] else NA_real_,
+    q_99_upr = if ("upper" %in% names(qfit)) qfit$upper[1] else NA_real_
+  )
+  tibble::as_tibble(out)
+}))
+
+sensitivity_tbl %>%
+  mutate(across(where(is.numeric), ~ round(.x, 3))) %>%
+  kable(caption = "Threshold Sensitivity: 99th Quantile", align = "c") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
+```
+
+---
+
+## Key Takeaways
+
+- **Bulk + Tail**: DPmix explains the bulk, and GPD captures the extremes.
+- **Threshold**: 0.8 quantile is our running default, but sensitivity checks guide the choice.
+- **S3 workflows**: `predict()` and its `plot()` method make it easy to compare density, survival, and quantiles.
+- **Comparison**: Bulk-only fits under-estimate extreme quantiles without a GPD component.
+- **Next**: Explore Stick-Breaking (`ex04`) for another backend with tail augmentation.
+
+---
+
+<!-- workflow-nav:start -->
+## Workflow Navigation
+
+- Previous: [ex02-unconditional-dpm-sb](ex02-unconditional-dpm-sb.html)
+- Next: [ex04-unconditional-dpmgpd-sb](ex04-unconditional-dpmgpd-sb.html)
+- Workflow index: [Roadmap](../start/roadmap.html)
+- Practical entry: [Examples](../examples/index.html)
+<!-- workflow-nav:end -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

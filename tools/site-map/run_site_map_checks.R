@@ -74,6 +74,8 @@ if (!extract_only) {
   cat("  Unreachable pages:", summary$unreachable_count, "\n")
   cat("  Orphan pages:", summary$orphan_count, "\n")
   cat("  Example chain breaks:", summary$workflow_chain_break_count, "\n")
+  cat("  Missing required pages:", summary$missing_required_page_count, "\n")
+  cat("  Forbidden legacy pages present:", summary$legacy_page_present_count, "\n")
   cat("  Gate pass:", ifelse(isTRUE(summary$gate_pass), "YES", "NO"), "\n")
 
   if (summary$broken_link_count > 0) {

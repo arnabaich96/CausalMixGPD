@@ -1,19 +1,51 @@
----
+﻿---
 title: "DPmixGPD"
 ---
 
 ::: {.section}
 ::: {.container}
 
-# DPmixGPD
+# DPmixGPD Documentation
 
-Bayesian semiparametric modeling for heavy-tailed outcomes using Dirichlet-process mixtures with optional GPD tails, with conditional and causal extensions.
+Bayesian semiparametric modeling for heavy-tailed outcomes with Dirichlet-process mixtures and optional GPD tails.
 
-[Start here](start/index.html){.btn .btn-primary} [Decision Guide](decision-guide.html){.btn .btn-outline-primary} [Pkgdown site](pkgdown/index.html){.btn .btn-outline-primary}
+[Start](start/index.qmd){.btn .btn-primary}
+[Examples](examples/index.qmd){.btn .btn-outline-primary}
+[Kernels](kernels.qmd){.btn .btn-outline-primary}
+[API Reference](pkgdown/reference/index.html){.btn .btn-outline-primary}
 
-<div style="margin-top:.75rem;font-size:.95rem;color:rgba(0,0,0,.7)">
-Explore the curated documentation in <a href="reference.html">Docs</a> or jump to <a href="faq.html">FAQ</a>.
-</div>
+:::
+:::
+
+::: {.section}
+::: {.container}
+
+## Model / Workflows / Implementation
+
+::: {.grid-3}
+
+::: {.cardx}
+### Model
+Understand bulk vs tail architecture and kernel families.
+
+[Model architecture](advanced/model-umbrella.qmd){.btn .btn-outline-primary}
+:::
+
+::: {.cardx}
+### Workflows
+Follow ordered paths from first run to causal analysis.
+
+[Start roadmap](start/roadmap.qmd){.btn .btn-outline-primary}
+:::
+
+::: {.cardx}
+### Implementation
+Use developer pages and API docs for extension work.
+
+[Developers hub](developers/index.qmd){.btn .btn-outline-primary}
+:::
+
+:::
 
 :::
 :::
@@ -26,103 +58,52 @@ Explore the curated documentation in <a href="reference.html">Docs</a> or jump t
 ::: {.grid-3}
 
 ::: {.cardx}
-### New users
-Start with a minimal workflow, then use the Decision Guide to select a backend + kernel.
+### Applied
+Start from minimal run and move to example templates.
 
-[Start overview](start/index.html){.btn .btn-primary} [Decision Guide](decision-guide.html){.btn .btn-outline-primary}
+[Start here](start/start-here.qmd){.btn .btn-primary}
+[Examples hub](examples/index.qmd){.btn .btn-outline-primary}
 :::
 
 ::: {.cardx}
-### Applied users
-Go straight to the Docs hub, pick kernels, and use the Examples for templates. For exact arguments, use pkgdown.
+### Method
+Focus on model choices, kernels, and advanced architecture.
 
-[Docs](reference.html){.btn .btn-primary} [Kernels](kernels.html){.btn .btn-outline-primary} [Examples](examples/index.html){.btn .btn-outline-primary}
+[Kernels hub](kernels.qmd){.btn .btn-primary}
+[Advanced hub](advanced/index.qmd){.btn .btn-outline-primary}
 :::
 
 ::: {.cardx}
-### Developers
-Prefer the vanilla docs and function reference, or dig into build and contribution notes.
+### Developer
+Work from architecture, tools, and contracts.
 
-[Developers](developers.html){.btn .btn-primary} [Vanilla site](/pkgdown/index.html){.btn .btn-outline-primary}
+[Developers hub](developers/index.qmd){.btn .btn-primary}
+[API reference](pkgdown/reference/index.html){.btn .btn-outline-primary}
 :::
 
 :::
 
 :::
 :::
-
 
 ::: {.section}
 ::: {.container}
 
-## Docs at a glance
+## Docs live in two places
 
-::: {.grid-3}
+- Quarto (`docs/`): curated navigation, workflows, kernel catalog, and architecture pages.
+- pkgdown (`docs/pkgdown/`): authoritative function reference and vignette articles.
 
-::: {.cardx}
-### Docs hub
-Curated entry point to everything Quarto-side.
-
-[Open Docs](reference.html){.btn .btn-outline-primary}
-:::
-
-::: {.cardx}
-### Kernels
-Distribution families, conventions, and practical guidance.
-
-[Browse Kernels](kernels.html){.btn .btn-outline-primary}
-:::
-
-::: {.cardx}
-### Examples
-Workflow templates and common analysis patterns.
-
-[Open Examples](examples/index.html){.btn .btn-outline-primary}
-:::
-
-::: {.cardx}
-### Start here
-Minimal setup and your first end-to-end run.
-
-[Start overview](start/index.html){.btn .btn-outline-primary}
-:::
-
-::: {.cardx}
-### FAQs
-Short answers to common questions and gotchas.
-
-[Open FAQ](faq.html){.btn .btn-outline-primary}
-:::
-
-::: {.cardx}
-### Citation
-How to cite the package and related work.
-
-[How to cite](/cite.html){.btn .btn-outline-primary}
-:::
-
-:::
+[Quarto reference hub](reference.qmd){.btn .btn-outline-primary}
+[pkgdown articles](pkgdown/articles/index.html){.btn .btn-outline-primary}
 
 :::
 :::
-
 
 ::: {.section}
 ::: {.container}
 
-## Latest update
-
-::: {.cardx}
-Documentation is now split cleanly: Quarto provides the curated front door, while pkgdown remains the authoritative vanilla API reference for developers.
-
-[Read the update](news.html){.btn .btn-outline-primary}
-:::
+Small links: [Cite](cite.qmd) | [GitHub](https://github.com/arnabaich96/DPmixGPD)
 
 :::
 :::
-
-
-
-
-
-

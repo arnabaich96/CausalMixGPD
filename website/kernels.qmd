@@ -1,46 +1,51 @@
----
+﻿---
 title: "Kernels"
 page-layout: full
 ---
 
 ::: {.hero}
 ::: {.container}
-# Kernels
+# Kernel Selection Hub
 
-DPmixGPD supports multiple bulk kernels and tail configurations. This page is the catalog entry point: what kernels exist, how they are organized, and where to find details.
+Choose a bulk kernel based on support, shape, and tail behavior. Then move into the catalog pages.
 
-[Articles index (pkgdown)](pkgdown/articles/index.html){.btn .btn-primary}
-[Kernel support table](pkgdown/reference/kernel_support_table.html){.btn .btn-outline-light}
+[Kernel catalog index](kernels/kernels-index.qmd){.btn .btn-primary}
+[Summary backend table](kernels/summary-distribution-backend-reference.qmd){.btn .btn-outline-light}
 :::
 :::
 
 ::: {.section}
 ::: {.container}
 
-::: {.grid-3}
+## How to choose
 
-::: {.cardx}
-### Bulk kernels
-The bulk model is intended to flexibly represent the "typical" range of the outcome distribution (skewness, multimodality, heterogeneity). Kernel choice mainly affects interpretability and computational behavior.
+1. Confirm support: real-line vs positive-support.
+2. Match bulk behavior: symmetry, skew, heavy tails, multimodality tolerance.
+3. Decide backend workflow with [Start backends and workflow](start/backends-and-workflow.qmd).
+4. Validate with examples and diagnostics.
+
+## Key kernel pages
+
+- [Normal](kernels/kernel-normal.qmd)
+- [Laplace](kernels/kernel-laplace.qmd)
+- [Cauchy](kernels/kernel-cauchy.qmd)
+- [Lognormal](kernels/kernel-lognormal.qmd)
+- [Gamma](kernels/kernel-gamma.qmd)
+- [Amoroso](kernels/kernel-amoroso.qmd)
+- [Inverse Gaussian (base)](kernels/kernel-inverse-gaussian-base.qmd)
+- [Inverse Gaussian (mixture)](kernels/kernel-inverse-gaussian-mixture.qmd)
+
+## Supporting pages
+
+- [Mathematical definitions and conventions](kernels/mathematical-definitions-and-conventions.qmd)
+- [Introduction with GPD kernel](kernels/introduction-with-gpd-kernel.qmd)
+- [Summary distribution-backend reference](kernels/summary-distribution-backend-reference.qmd)
+
+## API and registries
+
+- [Kernel support table](pkgdown/reference/kernel_support_table.html)
+- [Kernel registry](pkgdown/reference/get_kernel_registry.html)
+- [Tail registry](pkgdown/reference/get_tail_registry.html)
+
 :::
-
-::: {.cardx}
-### Tail modeling (GPD)
-Tail modeling targets rare, high-impact outcomes beyond a threshold. The threshold strategy and tail parameterization determine extrapolation behavior and uncertainty.
 :::
-
-::: {.cardx}
-### Registry and introspection
-Programmatic access to what is supported (useful for automated workflows and checks).
-- [get_kernel_registry](pkgdown/reference/get_kernel_registry.html)
-- [get_tail_registry](pkgdown/reference/get_tail_registry.html)
-:::
-
-:::
-
-:::
-:::
-
-
-
-

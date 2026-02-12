@@ -69,6 +69,21 @@ build_docs <- function(
     invisible(TRUE)
   }
 
+  clean_forbidden_website_outputs <- function(project_dir) {
+    forbidden <- c("docs", "_site", "quarto")
+    for (name in forbidden) {
+      candidate <- file.path(project_dir, name)
+      if (dir.exists(candidate)) {
+        msg("Removing forbidden in-source output: ", candidate)
+        unlink(candidate, recursive = TRUE, force = TRUE)
+      }
+      if (dir.exists(candidate)) {
+        stop("Forbidden in-source output still exists: ", candidate)
+      }
+    }
+    invisible(TRUE)
+  }
+
   sync_tree <- function(src, dst, exclude_prefix = character()) {
     src <- normalizePath(src, winslash = "/", mustWork = TRUE)
     if (!dir.exists(dst)) dir.create(dst, recursive = TRUE, showWarnings = FALSE)
@@ -179,6 +194,7 @@ build_docs <- function(
   dir.create(docs_abs, recursive = TRUE, showWarnings = FALSE)
   dir.create(pkgdown_abs, recursive = TRUE, showWarnings = FALSE)
   dir.create(quarto_abs, recursive = TRUE, showWarnings = FALSE)
+  clean_forbidden_website_outputs(quarto_project)
 
   # ---------------------------------------------------------------------------
   # 5) Quarto render (project render only; avoid per-file output-dir)

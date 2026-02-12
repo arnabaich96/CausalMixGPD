@@ -57,7 +57,7 @@ if (!exists("safe_plot", mode = "function")) {
 >
 > For the up-to-date workflow, see the main package vignettes (basic, unconditional, conditional, and causal)..
 
-[Workflow roadmap](../roadmap.html){.btn .btn-outline-light}
+[Workflow roadmap](roadmap.html){.btn .btn-outline-light}
 
 
 # Workflow Overview
@@ -292,9 +292,9 @@ print("Extreme outliers:  cauchy\n")
 <!-- workflow-nav:start -->
 ## Workflow Navigation
 
-- Previous: [introduction](introduction.html)
+- Previous: [start-here](start-here.html)
 - Next: [backends-and-workflow](backends-and-workflow.html)
-- Workflow index: [Roadmap](../roadmap.html)
+- Workflow index: [Roadmap](roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
 

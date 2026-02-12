@@ -1,0 +1,29 @@
+﻿---
+title: "Developers"
+toc: true
+format:
+  html:
+    code-fold: true
+---
+
+Developer hub for architecture, tooling, tests, contracts, and release process.
+
+{{< include _includes/golden-rules.md >}}
+
+## Core pages
+
+- [Architecture](architecture.qmd)
+- [Tools](tools.qmd)
+- [Testing](testing.qmd)
+- [Site build](site-build.qmd)
+- [Conventions](conventions.qmd)
+- [Spec and contracts](spec-and-contracts.qmd)
+- [Registry](registry.qmd)
+- [Add kernel](add-kernel.qmd)
+- [Add tail option](add-tail-option.qmd)
+- [Causal internals](causal-internals.qmd)
+- [Releasing](releasing.qmd)
+
+{{< include _includes/where-to-change-what.md >}}
+
+{{< include _includes/common-pitfalls.md >}}

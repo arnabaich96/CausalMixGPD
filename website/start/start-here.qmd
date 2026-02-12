@@ -55,7 +55,7 @@ if (!exists("safe_plot", mode = "function")) {
 >
 > For the up-to-date workflow, see the main package vignettes (basic, unconditional, conditional, and causal)..
 
-[Workflow roadmap](../roadmap.html){.btn .btn-outline-light}
+[Workflow roadmap](roadmap.html){.btn .btn-outline-light}
 
 
 ## Quick start
@@ -140,7 +140,7 @@ safe_plot(fit_uncond, family = c("traceplot", "running"))
 
 ## Next Steps
 
-- `start/introduction`: package overview and terminology
+- `start/roadmap`: workflow map and routing
 - `examples/ex01`: full three-phase workflow (spec -> bundle -> MCMC)
 - `examples/ex01-ex08`: unconditional/conditional models with and without GPD
 - `examples/ex09-ex14`: causal workflows
@@ -151,8 +151,8 @@ safe_plot(fit_uncond, family = c("traceplot", "running"))
 ## Workflow Navigation
 
 - Previous: none (start of workflow series)
-- Next: [introduction](introduction.html)
-- Workflow index: [Roadmap](../roadmap.html)
+- Next: [basic-model-compile-run](basic-model-compile-run.html)
+- Workflow index: [Roadmap](roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
 

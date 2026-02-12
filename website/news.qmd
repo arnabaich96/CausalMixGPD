@@ -1,122 +1,16 @@
----
+﻿---
 title: "News"
 page-layout: full
 ---
 
-::: {.hero}
-::: {.container}
-# News & Updates
+## Updates
 
-This page highlights notable changes, milestones, and documentation updates for DPmixGPD. It is intentionally concise. Detailed technical changes live in commit history and pkgdown documentation.
+This page tracks concise documentation and release updates.
 
-[View GitHub Releases](https://github.com/arnabaich96/DPmixGPD/releases){.btn .btn-primary}
-[Repository Activity](https://github.com/arnabaich96/DPmixGPD/commits){.btn .btn-outline-light}
-:::
-:::
+- [GitHub releases](https://github.com/arnabaich96/DPmixGPD/releases)
+- [GitHub commits](https://github.com/arnabaich96/DPmixGPD/commits)
 
-::: {.section}
-::: {.container}
+## Current doc structure
 
-## Recent highlights
-
-::: {.grid-3}
-
-::: {.cardx}
-### Website restructuring
-A new Quarto-based landing site now serves as the curated front door for DPmixGPD. It provides:
-- conceptual navigation,
-- decision guides,
-- workflow orientation,
-while the full API reference remains in the vanilla pkgdown site.
-
-This separation improves readability without sacrificing completeness.
-:::
-
-::: {.cardx}
-### Documentation consolidation
-Vignettes, reference pages, and workflow explanations have been reorganized for clarity:
-- Quarto pages focus on *what to do and why*,
-- pkgdown pages focus on *functions and arguments*.
-This reduces duplication and broken links across documentation layers.
-:::
-
-::: {.cardx}
-### Infrastructure stabilization
-The documentation build pipeline has been stabilized to:
-- render Quarto pages deterministically,
-- isolate pkgdown output,
-- avoid unnecessary rebuilds for small content changes.
-This improves local development speed and GitHub Pages reliability.
-:::
-
-:::
-
-:::
-:::
-
-::: {.section}
-::: {.container}
-
-## Ongoing work
-
-::: {.grid-3}
-
-::: {.cardx}
-### Expanded decision guides
-Clearer guidance for:
-- kernel selection,
-- tail modeling decisions,
-- unconditional vs conditional vs causal workflows.
-:::
-
-::: {.cardx}
-### Coverage and diagnostics
-Work is ongoing to improve:
-- test coverage for core workflows,
-- clarity around diagnostic outputs,
-- visibility of coverage signals on the website.
-:::
-
-::: {.cardx}
-### Causal and survival extensions
-Continued refinement of:
-- treatment effect summaries,
-- survival-tail workflows,
-- consistency across predictive interfaces.
-:::
-
-:::
-
-:::
-:::
-
-::: {.section}
-::: {.container}
-
-## Versioning policy
-
-DPmixGPD follows a pragmatic development model:
-- breaking changes are avoided unless necessary,
-- documentation is updated alongside behavioral changes,
-- version numbers reflect user-facing impact rather than internal refactors.
-
-For reproducibility, always record the package version and build date used in analysis.
-
-## Where to follow development
-
-- Feature ideas and design discussions:  
-  https://github.com/arnabaich96/DPmixGPD/discussions
-- Bug reports and actionable issues:  
-  https://github.com/arnabaich96/DPmixGPD/issues
-- Code changes and history:  
-  https://github.com/arnabaich96/DPmixGPD/commits
-
-This page will be updated periodically to reflect major changes or milestones.
-
-:::
-:::
-
-
-
-
-
+- Quarto is the curated front door for workflows and architecture.
+- pkgdown is the authoritative API and article reference.

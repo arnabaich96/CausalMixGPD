@@ -104,10 +104,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 <style>html{ scroll-behavior: smooth; }</style>
-<script src="../site_libs/kePrint-0.0.1/kePrint.js"></script>
-
-<link href="../site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
-
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
@@ -169,19 +165,23 @@ window.Quarto = {
     <ul class="dropdown-menu" aria-labelledby="nav-menu-start">    
         <li>
     <a class="dropdown-item" href="../start/index.html">
- <span class="dropdown-text">Start overview</span></a>
+ <span class="dropdown-text">Start Hub</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../start/roadmap.html">
+ <span class="dropdown-text">Roadmap</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="../start/start-here.html">
- <span class="dropdown-text">Start here</span></a>
+ <span class="dropdown-text">Start Here</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="../start/basic-model-compile-run.html">
- <span class="dropdown-text">Basic model compile and run</span></a>
+ <span class="dropdown-text">Basic Compile and Run</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="../start/backends-and-workflow.html">
- <span class="dropdown-text">Backends and workflow</span></a>
+ <span class="dropdown-text">Backends and Workflow</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="../start/troubleshooting.html">
@@ -193,128 +193,43 @@ window.Quarto = {
     <a class="nav-link" href="../examples/index.html"> 
 <span class="menu-text">Examples</span></a>
   </li>  
-  <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-advanced" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Advanced</span>
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-advanced">    
-        <li>
-    <a class="dropdown-item" href="../advanced/index.html">
- <span class="dropdown-text">Advanced overview</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../advanced/model-umbrella.html">
- <span class="dropdown-text">Model umbrella</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../advanced/customization-and-tuning.html">
- <span class="dropdown-text">Customization and tuning</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../advanced/gpd-in-dpm-architecture.html">
- <span class="dropdown-text">GPD-in-DPM architecture</span></a>
-  </li>  
-    </ul>
-  </li>
-  <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-docs" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Docs</span>
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-docs">    
-        <li>
-    <a class="dropdown-item" href="../reference.html">
- <span class="dropdown-text">Docs overview</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../kernels.html">
- <span class="dropdown-text">Kernels</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../decision-guide.html">
- <span class="dropdown-text">Decision guide</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../faq.html">
- <span class="dropdown-text">FAQ</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../news.html">
- <span class="dropdown-text">News</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../cite.html">
- <span class="dropdown-text">Cite</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../coverage.html">
- <span class="dropdown-text">Coverage</span></a>
-  </li>  
-    </ul>
-  </li>
-  <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-developers" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Developers</span>
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-developers">    
-        <li>
-    <a class="dropdown-item" href="../developers.html">
- <span class="dropdown-text">Overview</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../developers/architecture.html">
- <span class="dropdown-text">Architecture</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../developers/tools.html">
- <span class="dropdown-text">Tools</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../developers/site-build.html">
- <span class="dropdown-text">Website build</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../developers/spec-and-contracts.html">
- <span class="dropdown-text">Spec and contracts</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../developers/registry.html">
- <span class="dropdown-text">Kernel registry</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../developers/add-kernel.html">
- <span class="dropdown-text">Add a kernel</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../developers/add-tail-option.html">
- <span class="dropdown-text">Tail options</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../developers/causal-internals.html">
- <span class="dropdown-text">Causal internals</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../developers/testing.html">
- <span class="dropdown-text">Testing</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../developers/conventions.html">
- <span class="dropdown-text">Conventions</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="../developers/releasing.html">
- <span class="dropdown-text">Releasing</span></a>
-  </li>  
-    </ul>
-  </li>
   <li class="nav-item">
-    <a class="nav-link" href="../pkgdown/reference/index.html"> 
+    <a class="nav-link" href="../kernels.html"> 
+<span class="menu-text">Kernels</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../advanced/index.html"> 
+<span class="menu-text">Advanced</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../developers/index.html"> 
+<span class="menu-text">Developers</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../reference.html"> 
 <span class="menu-text">Reference</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../news.html"> 
+<span class="menu-text">News</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../cite.html"> 
+<span class="menu-text">Cite</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../coverage.html"> 
+<span class="menu-text">Coverage</span></a>
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../pkgdown/index.html"> 
-<span class="menu-text">Pkgdown</span></a>
+    <a class="nav-link" href="../pkgdown/reference/index.html"> 
+<span class="menu-text">API Reference</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../pkgdown/articles/index.html"> 
+<span class="menu-text">Articles</span></a>
   </li>  
   <li class="nav-item compact">
     <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD"> <i class="bi bi-github" role="img">
@@ -384,48 +299,6 @@ window.Quarto = {
 <span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_density</span>(<span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
 <span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Raw Data: Mix of Bulk and Tail"</span>, <span class="at">x =</span> <span class="st">"y"</span>, <span class="at">y =</span> <span class="st">"Density"</span>) <span class="sc">+</span></span>
 <span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="ex03-unconditional-dpmgpd-crp_files/figure-html/data-setup-1.png" class="img-fluid figure-img" width="768"></p>
-</figure>
-</div>
-</div>
-</div>
-<div class="cell">
-<div class="cell-output-display">
-<table class="table table-striped table-hover caption-top table-sm small">
-<caption>Summary of the Tail Dataset</caption>
-<thead>
-<tr class="header">
-<th style="text-align: center;" data-quarto-table-cell-role="th">statistic</th>
-<th style="text-align: center;" data-quarto-table-cell-role="th">value</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: center;">N</td>
-<td style="text-align: center;">200.000</td>
-</tr>
-<tr class="even">
-<td style="text-align: center;">Mean</td>
-<td style="text-align: center;">2.334</td>
-</tr>
-<tr class="odd">
-<td style="text-align: center;">SD</td>
-<td style="text-align: center;">2.300</td>
-</tr>
-<tr class="even">
-<td style="text-align: center;">Min</td>
-<td style="text-align: center;">0.328</td>
-</tr>
-<tr class="odd">
-<td style="text-align: center;">Max</td>
-<td style="text-align: center;">19.870</td>
-</tr>
-</tbody>
-</table>
-</div>
 </div>
 <hr>
 </section>
@@ -446,13 +319,6 @@ window.Quarto = {
 <span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Bulk"</span> <span class="ot">=</span> <span class="st">"steelblue"</span>, <span class="st">"Tail"</span> <span class="ot">=</span> <span class="st">"red"</span>)) <span class="sc">+</span></span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Threshold Partition"</span>, <span class="at">x =</span> <span class="st">"y"</span>, <span class="at">y =</span> <span class="st">"Density"</span>) <span class="sc">+</span></span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="ex03-unconditional-dpmgpd-crp_files/figure-html/threshold-selection-1.png" class="img-fluid figure-img" width="768"></p>
-</figure>
-</div>
-</div>
 </div>
 <hr>
 </section>
@@ -485,122 +351,18 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="running-mcmc-diagnostics">Running MCMC &amp; Diagnostics</h2>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fit_gpd <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex03-unconditional-dpmgpd-crp-fit_gpd"</span>, <span class="fu">run_mcmc_bundle_manual</span>(bundle_gpd))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>===== Monitors =====
-thin = 1: alpha, mean, shape, tail_scale, tail_shape, threshold, z
-===== Samplers =====
-RW sampler (3)
-  - threshold
-  - tail_scale
-  - tail_shape
-CRP_concentration sampler (1)
-  - alpha
-CRP_cluster_wrapper sampler (10)
-  - mean[]  (5 elements)
-  - shape[]  (5 elements)
-CRP sampler (1)
-  - z[1:200] </code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.</code></pre>
-</div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>MixGPD summary | backend: Chinese Restaurant Process | kernel: Inverse Gaussian Distribution | GPD tail: TRUE | epsilon: 0.025
-n = 200 | components = 5
-Summary
-Initial components: 5 | Components after truncation: 2
-
-WAIC: 656.824
-lppd: -283.017 | pWAIC: 45.395
-
-Summary table
-  parameter  mean    sd q0.025 q0.500 q0.975    ess
- weights[1] 0.548 0.068  0.445   0.54  0.693 32.721
- weights[2] 0.376 0.078  0.224   0.39  0.491 20.487
-      alpha 0.547 0.334  0.105  0.461  1.333    150
- tail_scale 2.091 0.788  1.284  1.845  4.208 22.592
- tail_shape 0.151  0.13 -0.038  0.153  0.495 28.026
-  threshold 3.361 0.878  2.161  3.145  5.485 14.433
-    mean[1] 3.038  1.64  1.211  2.881  6.659 15.294
-    mean[2] 2.846 2.192  1.211  1.565  8.351   22.6
-   shape[1] 3.572  0.98  2.003  3.528  5.537 42.923
-   shape[2] 4.458  1.23  2.229  4.302  6.853 37.979</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>params_gpd <span class="ot">&lt;-</span> <span class="fu">params</span>(fit_gpd)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>params_gpd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>Posterior mean parameters
-
-$alpha
-[1] "0.547"
-
-$w
-[1] "0.548" "0.376"
-
-$mean
-[1] "3.038" "2.846"
-
-$shape
-[1] "3.572" "4.458"
-
-$tail_scale
-[1] "2.091"
-
-$tail_shape
-[1] "0.151"</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>params_gpd <span class="ot">&lt;-</span> <span class="fu">params</span>(fit_gpd)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>params_gpd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># S3 plot methods highlight trace + density diagnostics</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(fit_gpd, <span class="at">family =</span> <span class="fu">c</span>(<span class="st">"traceplot"</span>, <span class="st">"density"</span>, <span class="st">"running"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="ex03-unconditional-dpmgpd-crp_files/figure-html/fit-plots-1.png" class="img-fluid figure-img" width="768"></p>
-</figure>
-</div>
-</div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="ex03-unconditional-dpmgpd-crp_files/figure-html/fit-plots-2.png" class="img-fluid figure-img" width="768"></p>
-</figure>
-</div>
-</div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="ex03-unconditional-dpmgpd-crp_files/figure-html/fit-plots-3.png" class="img-fluid figure-img" width="768"></p>
-</figure>
-</div>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(fit_gpd, <span class="at">params =</span> <span class="st">"alpha"</span>, <span class="at">family =</span> <span class="fu">c</span>(<span class="st">"traceplot"</span>, <span class="st">"autocorrelation"</span>, <span class="st">"geweke"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="ex03-unconditional-dpmgpd-crp_files/figure-html/fit-plots-4.png" class="img-fluid figure-img" width="768"></p>
-</figure>
-</div>
-</div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="ex03-unconditional-dpmgpd-crp_files/figure-html/fit-plots-5.png" class="img-fluid figure-img" width="768"></p>
-</figure>
-</div>
-</div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="ex03-unconditional-dpmgpd-crp_files/figure-html/fit-plots-6.png" class="img-fluid figure-img" width="768"></p>
-</figure>
-</div>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># S3 plot methods highlight trace + density diagnostics</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(fit_gpd, <span class="at">family =</span> <span class="fu">c</span>(<span class="st">"traceplot"</span>, <span class="st">"density"</span>, <span class="st">"running"</span>))</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(fit_gpd, <span class="at">params =</span> <span class="st">"alpha"</span>, <span class="at">family =</span> <span class="fu">c</span>(<span class="st">"traceplot"</span>, <span class="st">"autocorrelation"</span>, <span class="st">"geweke"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <hr>
 </section>
@@ -608,41 +370,20 @@ $tail_shape
 <h2 class="anchored" data-anchor-id="posterior-predictions-bulk-and-tail">Posterior Predictions: Bulk and Tail</h2>
 <p>We use the <strong>S3 <code>predict()</code> objects</strong> and their dedicated <code>plot()</code> methods to visualize densities, survival curves, and posterior-mean quantiles (i.e., averages of q(p | <span class="math inline">\(\\theta\)</span>) over draws).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>y_min <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">min</span>(y_tail), .Machine<span class="sc">$</span>double.eps)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>y_grid <span class="ot">&lt;-</span> <span class="fu">seq</span>(y_min, <span class="fu">max</span>(y_tail) <span class="sc">*</span> <span class="fl">1.3</span>, <span class="at">length.out =</span> <span class="dv">300</span>)</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>pred_density <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_gpd, <span class="at">y =</span> y_grid, <span class="at">type =</span> <span class="st">"density"</span>)</span>
-<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(pred_density)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="ex03-unconditional-dpmgpd-crp_files/figure-html/density-predict-1.png" class="img-fluid figure-img" width="768"></p>
-</figure>
-</div>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>y_min <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">min</span>(y_tail), .Machine<span class="sc">$</span>double.eps)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>y_grid <span class="ot">&lt;-</span> <span class="fu">seq</span>(y_min, <span class="fu">max</span>(y_tail) <span class="sc">*</span> <span class="fl">1.3</span>, <span class="at">length.out =</span> <span class="dv">300</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>pred_density <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_gpd, <span class="at">y =</span> y_grid, <span class="at">type =</span> <span class="st">"density"</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(pred_density)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>y_surv <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fu">max</span>(u_threshold, y_min), <span class="fu">max</span>(y_tail) <span class="sc">*</span> <span class="fl">1.1</span>, <span class="at">length.out =</span> <span class="dv">60</span>)</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>pred_surv <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_gpd, <span class="at">y =</span> y_surv, <span class="at">type =</span> <span class="st">"survival"</span>)</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(pred_surv)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="ex03-unconditional-dpmgpd-crp_files/figure-html/survival-predict-1.png" class="img-fluid figure-img" width="768"></p>
-</figure>
-</div>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>y_surv <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="fu">max</span>(u_threshold, y_min), <span class="fu">max</span>(y_tail) <span class="sc">*</span> <span class="fl">1.1</span>, <span class="at">length.out =</span> <span class="dv">60</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>pred_surv <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_gpd, <span class="at">y =</span> y_surv, <span class="at">type =</span> <span class="st">"survival"</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(pred_surv)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>quantile_probs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.90</span>, <span class="fl">0.95</span>, <span class="fl">0.99</span>)</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>pred_quantiles <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_gpd, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> quantile_probs, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(pred_quantiles)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="ex03-unconditional-dpmgpd-crp_files/figure-html/quantile-predict-1.png" class="img-fluid figure-img" width="768"></p>
-</figure>
-</div>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>quantile_probs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.90</span>, <span class="fl">0.95</span>, <span class="fl">0.99</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>pred_quantiles <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_gpd, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> quantile_probs, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(pred_quantiles)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <hr>
 </section>
@@ -650,167 +391,47 @@ $tail_shape
 <h2 class="anchored" data-anchor-id="bulk-only-baseline-comparison">Bulk-Only Baseline Comparison</h2>
 <p>To demonstrate the value of tail augmentation, we fit a bulk-only lognormal DP mixture and compare posterior summaries against the InvGauss+GPD fit.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>bundle_bulk_only <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">build_nimble_bundle</span>(</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y_tail,</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"lognormal"</span>,</span>
-<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
-<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">5</span>,</span>
-<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc =</span> mcmc</span>
-<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>fit_bulk_only <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex03-unconditional-dpmgpd-crp-fit_bulk_only"</span>, <span class="fu">run_mcmc_bundle_manual</span>(bundle_bulk_only))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>===== Monitors =====
-thin = 1: alpha, meanlog, sdlog, z
-===== Samplers =====
-CRP_concentration sampler (1)
-  - alpha
-CRP_cluster_wrapper sampler (10)
-  - sdlog[]  (5 elements)
-  - meanlog[]  (5 elements)
-CRP sampler (1)
-  - z[1:200] </code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.</code></pre>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>bundle_bulk_only <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y_tail,</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"lognormal"</span>,</span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">5</span>,</span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc =</span> mcmc</span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>fit_bulk_only <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex03-unconditional-dpmgpd-crp-fit_bulk_only"</span>, <span class="fu">run_mcmc_bundle_manual</span>(bundle_bulk_only))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>bulk_quantiles <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_bulk_only, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> quantile_probs)</span>
-<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>tail_quantiles <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_gpd, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> quantile_probs)</span>
-<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>compare_tbl <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
-<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  bulk_quantiles<span class="sc">$</span>fit <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Bulk only"</span>),</span>
-<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>  tail_quantiles<span class="sc">$</span>fit <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Bulk + GPD"</span>)</span>
-<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
-<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">any_of</span>(<span class="fu">c</span>(<span class="st">"model"</span>, <span class="st">"index"</span>, <span class="st">"estimate"</span>, <span class="st">"lwr"</span>, <span class="st">"upr"</span>, <span class="st">"lower"</span>, <span class="st">"upper"</span>)))</span>
-<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>compare_tbl <span class="sc">%&gt;%</span></span>
-<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), <span class="sc">~</span> <span class="fu">round</span>(.x, <span class="dv">3</span>))) <span class="sc">%&gt;%</span></span>
-<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">caption =</span> <span class="st">"Posterior-Mean Quantiles for Bulk-Only vs GPD Models"</span>, <span class="at">align =</span> <span class="st">"c"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>), <span class="at">full_width =</span> <span class="cn">FALSE</span>, <span class="at">position =</span> <span class="st">"center"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<table class="table table-striped table-hover caption-top table-sm small">
-<caption>Posterior-Mean Quantiles for Bulk-Only vs GPD Models</caption>
-<thead>
-<tr class="header">
-<th style="text-align: center;" data-quarto-table-cell-role="th">model</th>
-<th style="text-align: center;" data-quarto-table-cell-role="th">index</th>
-<th style="text-align: center;" data-quarto-table-cell-role="th">estimate</th>
-<th style="text-align: center;" data-quarto-table-cell-role="th">lower</th>
-<th style="text-align: center;" data-quarto-table-cell-role="th">upper</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: center;">Bulk only</td>
-<td style="text-align: center;">0.90</td>
-<td style="text-align: center;">268.64</td>
-<td style="text-align: center;">13.26</td>
-<td style="text-align: center;">1.80e+03</td>
-</tr>
-<tr class="even">
-<td style="text-align: center;">Bulk only</td>
-<td style="text-align: center;">0.95</td>
-<td style="text-align: center;">1837.35</td>
-<td style="text-align: center;">23.04</td>
-<td style="text-align: center;">1.50e+04</td>
-</tr>
-<tr class="odd">
-<td style="text-align: center;">Bulk only</td>
-<td style="text-align: center;">0.99</td>
-<td style="text-align: center;">87339.49</td>
-<td style="text-align: center;">64.93</td>
-<td style="text-align: center;">8.01e+05</td>
-</tr>
-<tr class="even">
-<td style="text-align: center;">Bulk + GPD</td>
-<td style="text-align: center;">0.90</td>
-<td style="text-align: center;">4.79</td>
-<td style="text-align: center;">3.61</td>
-<td style="text-align: center;">5.72e+00</td>
-</tr>
-<tr class="odd">
-<td style="text-align: center;">Bulk + GPD</td>
-<td style="text-align: center;">0.95</td>
-<td style="text-align: center;">6.41</td>
-<td style="text-align: center;">4.79</td>
-<td style="text-align: center;">8.00e+00</td>
-</tr>
-<tr class="even">
-<td style="text-align: center;">Bulk + GPD</td>
-<td style="text-align: center;">0.99</td>
-<td style="text-align: center;">11.10</td>
-<td style="text-align: center;">8.35</td>
-<td style="text-align: center;">1.55e+01</td>
-</tr>
-</tbody>
-</table>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>bulk_quantiles <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_bulk_only, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> quantile_probs)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>tail_quantiles <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_gpd, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> quantile_probs)</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>compare_tbl <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  bulk_quantiles<span class="sc">$</span>fit <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Bulk only"</span>),</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  tail_quantiles<span class="sc">$</span>fit <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Bulk + GPD"</span>)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>) <span class="sc">%&gt;%</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">any_of</span>(<span class="fu">c</span>(<span class="st">"model"</span>, <span class="st">"index"</span>, <span class="st">"estimate"</span>, <span class="st">"lwr"</span>, <span class="st">"upr"</span>, <span class="st">"lower"</span>, <span class="st">"upper"</span>)))</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>compare_tbl <span class="sc">%&gt;%</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), <span class="sc">~</span> <span class="fu">round</span>(.x, <span class="dv">3</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">caption =</span> <span class="st">"Posterior-Mean Quantiles for Bulk-Only vs GPD Models"</span>, <span class="at">align =</span> <span class="st">"c"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>), <span class="at">full_width =</span> <span class="cn">FALSE</span>, <span class="at">position =</span> <span class="st">"center"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(bulk_quantiles)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="ex03-unconditional-dpmgpd-crp_files/figure-html/quantile-plot-1.png" class="img-fluid figure-img" width="768"></p>
-</figure>
-</div>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(tail_quantiles)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div>
-<figure class="figure">
-<p><img src="ex03-unconditional-dpmgpd-crp_files/figure-html/quantile-plot-2.png" class="img-fluid figure-img" width="768"></p>
-</figure>
-</div>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(bulk_quantiles)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(tail_quantiles)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <hr>
 </section>
 <section id="extreme-value-diagnostics-residuals" class="level2">
 <h2 class="anchored" data-anchor-id="extreme-value-diagnostics-residuals">Extreme Value Diagnostics &amp; Residuals</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>probs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.995</span>, <span class="fl">0.99</span>, <span class="fl">0.975</span>)</span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>return_levels <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_gpd, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> probs)</span>
-<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>return_levels<span class="sc">$</span>fit <span class="sc">%&gt;%</span></span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), <span class="sc">~</span> <span class="fu">round</span>(.x, <span class="dv">3</span>))) <span class="sc">%&gt;%</span></span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">caption =</span> <span class="st">"Extreme Quantile Estimates (Posterior Mean and Credible Intervals)"</span>, <span class="at">align =</span> <span class="st">"c"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>), <span class="at">full_width =</span> <span class="cn">FALSE</span>, <span class="at">position =</span> <span class="st">"center"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<table class="table table-striped table-hover caption-top table-sm small">
-<caption>Extreme Quantile Estimates (Posterior Mean and Credible Intervals)</caption>
-<thead>
-<tr class="header">
-<th style="text-align: center;" data-quarto-table-cell-role="th">estimate</th>
-<th style="text-align: center;" data-quarto-table-cell-role="th">index</th>
-<th style="text-align: center;" data-quarto-table-cell-role="th">lower</th>
-<th style="text-align: center;" data-quarto-table-cell-role="th">upper</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: center;">13.58</td>
-<td style="text-align: center;">0.995</td>
-<td style="text-align: center;">10.09</td>
-<td style="text-align: center;">20.4</td>
-</tr>
-<tr class="even">
-<td style="text-align: center;">11.10</td>
-<td style="text-align: center;">0.990</td>
-<td style="text-align: center;">8.35</td>
-<td style="text-align: center;">15.5</td>
-</tr>
-<tr class="odd">
-<td style="text-align: center;">8.27</td>
-<td style="text-align: center;">0.975</td>
-<td style="text-align: center;">6.36</td>
-<td style="text-align: center;">11.1</td>
-</tr>
-</tbody>
-</table>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>probs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.995</span>, <span class="fl">0.99</span>, <span class="fl">0.975</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>return_levels <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_gpd, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> probs)</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>return_levels<span class="sc">$</span>fit <span class="sc">%&gt;%</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), <span class="sc">~</span> <span class="fu">round</span>(.x, <span class="dv">3</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">caption =</span> <span class="st">"Extreme Quantile Estimates (Posterior Mean and Credible Intervals)"</span>, <span class="at">align =</span> <span class="st">"c"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>), <span class="at">full_width =</span> <span class="cn">FALSE</span>, <span class="at">position =</span> <span class="st">"center"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>For unconditional models, use <code>predict()</code> only; <code>fitted()</code> and <code>residuals()</code> are not supported.</p>
 <hr>
@@ -818,118 +439,56 @@ CRP sampler (1)
 <section id="threshold-sensitivity" class="level2">
 <h2 class="anchored" data-anchor-id="threshold-sensitivity">Threshold Sensitivity</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>sensitivity_fits <span class="ot">&lt;-</span> <span class="fu">lapply</span>(thresholds, <span class="cf">function</span>(u) {</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  bundle <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">build_nimble_bundle</span>(</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> y_tail,</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">kernel =</span> <span class="st">"invgauss"</span>,</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">GPD =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">param_specs =</span> <span class="fu">list</span>(</span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">gpd =</span> <span class="fu">list</span>(</span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">threshold =</span> <span class="fu">list</span>(<span class="at">mode =</span> <span class="st">"fixed"</span>, <span class="at">value =</span> u)</span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>      )</span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">components =</span> <span class="dv">5</span>,</span>
-<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">mcmc =</span> mcmc</span>
-<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex03-unconditional-dpmgpd-crp-fit"</span>, <span class="fu">run_mcmc_bundle_manual</span>(bundle))</span>
-<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">threshold =</span> u, <span class="at">fit =</span> fit)</span>
-<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>})</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>===== Monitors =====
-thin = 1: alpha, mean, shape, tail_scale, tail_shape, threshold, z
-===== Samplers =====
-RW sampler (2)
-  - tail_scale
-  - tail_shape
-CRP_concentration sampler (1)
-  - alpha
-CRP_cluster_wrapper sampler (10)
-  - mean[]  (5 elements)
-  - shape[]  (5 elements)
-CRP sampler (1)
-  - z[1:200] </code></pre>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>  [Warning] CRP_sampler: This MCMC is not for a proper model. The MCMC attempted to use more components than the number of cluster parameters. Please increase the number of cluster parameters.</code></pre>
-</div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>sensitivity_tbl <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(<span class="fu">lapply</span>(sensitivity_fits, <span class="cf">function</span>(entry) {</span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  quant <span class="ot">&lt;-</span> <span class="fu">predict</span>(entry<span class="sc">$</span>fit, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> <span class="fl">0.99</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  qfit <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(quant<span class="sc">$</span>fit)</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  qfit<span class="sc">$</span>threshold <span class="ot">&lt;-</span> entry<span class="sc">$</span>threshold</span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Keep the usual columns if present</span></span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  keep <span class="ot">&lt;-</span> <span class="fu">intersect</span>(<span class="fu">names</span>(qfit), <span class="fu">c</span>(<span class="st">"threshold"</span>, <span class="st">"index"</span>, <span class="st">"estimate"</span>, <span class="st">"lower"</span>, <span class="st">"upper"</span>, <span class="st">"lwr"</span>, <span class="st">"upr"</span>))</span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  qfit <span class="ot">&lt;-</span> qfit[, keep, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Standardize to one set of CI column names</span></span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="st">"lower"</span> <span class="sc">%in%</span> <span class="fu">names</span>(qfit) <span class="sc">&amp;&amp;</span> <span class="st">"lwr"</span> <span class="sc">%in%</span> <span class="fu">names</span>(qfit)) qfit<span class="sc">$</span>lower <span class="ot">&lt;-</span> qfit<span class="sc">$</span>lwr</span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="st">"upper"</span> <span class="sc">%in%</span> <span class="fu">names</span>(qfit) <span class="sc">&amp;&amp;</span> <span class="st">"upr"</span> <span class="sc">%in%</span> <span class="fu">names</span>(qfit)) qfit<span class="sc">$</span>upper <span class="ot">&lt;-</span> qfit<span class="sc">$</span>upr</span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># If estimate isn't present for some reason, fall back to the first numeric column</span></span>
-<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="st">"estimate"</span> <span class="sc">%in%</span> <span class="fu">names</span>(qfit)) {</span>
-<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>    num_cols <span class="ot">&lt;-</span> <span class="fu">names</span>(qfit)[<span class="fu">vapply</span>(qfit, is.numeric, <span class="fu">logical</span>(<span class="dv">1</span>))]</span>
-<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">length</span>(num_cols) <span class="sc">&gt;</span> <span class="dv">0</span>) qfit<span class="sc">$</span>estimate <span class="ot">&lt;-</span> qfit[[num_cols[<span class="dv">1</span>]]]</span>
-<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">threshold =</span> qfit<span class="sc">$</span>threshold[<span class="dv">1</span>],</span>
-<span id="cb26-22"><a href="#cb26-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">q_99 =</span> qfit<span class="sc">$</span>estimate[<span class="dv">1</span>],</span>
-<span id="cb26-23"><a href="#cb26-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">q_99_lwr =</span> <span class="cf">if</span> (<span class="st">"lower"</span> <span class="sc">%in%</span> <span class="fu">names</span>(qfit)) qfit<span class="sc">$</span>lower[<span class="dv">1</span>] <span class="cf">else</span> <span class="cn">NA_real_</span>,</span>
-<span id="cb26-24"><a href="#cb26-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">q_99_upr =</span> <span class="cf">if</span> (<span class="st">"upper"</span> <span class="sc">%in%</span> <span class="fu">names</span>(qfit)) qfit<span class="sc">$</span>upper[<span class="dv">1</span>] <span class="cf">else</span> <span class="cn">NA_real_</span></span>
-<span id="cb26-25"><a href="#cb26-25" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb26-26"><a href="#cb26-26" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">as_tibble</span>(out)</span>
-<span id="cb26-27"><a href="#cb26-27" aria-hidden="true" tabindex="-1"></a>}))</span>
-<span id="cb26-28"><a href="#cb26-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-29"><a href="#cb26-29" aria-hidden="true" tabindex="-1"></a>sensitivity_tbl <span class="sc">%&gt;%</span></span>
-<span id="cb26-30"><a href="#cb26-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), <span class="sc">~</span> <span class="fu">round</span>(.x, <span class="dv">3</span>))) <span class="sc">%&gt;%</span></span>
-<span id="cb26-31"><a href="#cb26-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">caption =</span> <span class="st">"Threshold Sensitivity: 99th Quantile"</span>, <span class="at">align =</span> <span class="st">"c"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb26-32"><a href="#cb26-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>), <span class="at">full_width =</span> <span class="cn">FALSE</span>, <span class="at">position =</span> <span class="st">"center"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<table class="table table-striped table-hover caption-top table-sm small">
-<caption>Threshold Sensitivity: 99th Quantile</caption>
-<thead>
-<tr class="header">
-<th style="text-align: center;" data-quarto-table-cell-role="th">threshold</th>
-<th style="text-align: center;" data-quarto-table-cell-role="th">q_99</th>
-<th style="text-align: center;" data-quarto-table-cell-role="th">q_99_lwr</th>
-<th style="text-align: center;" data-quarto-table-cell-role="th">q_99_upr</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: center;">2.65</td>
-<td style="text-align: center;">11.6</td>
-<td style="text-align: center;">9.37</td>
-<td style="text-align: center;">15.4</td>
-</tr>
-<tr class="even">
-<td style="text-align: center;">3.04</td>
-<td style="text-align: center;">11.6</td>
-<td style="text-align: center;">9.37</td>
-<td style="text-align: center;">15.4</td>
-</tr>
-<tr class="odd">
-<td style="text-align: center;">3.51</td>
-<td style="text-align: center;">11.6</td>
-<td style="text-align: center;">9.37</td>
-<td style="text-align: center;">15.4</td>
-</tr>
-<tr class="even">
-<td style="text-align: center;">3.94</td>
-<td style="text-align: center;">11.6</td>
-<td style="text-align: center;">9.37</td>
-<td style="text-align: center;">15.4</td>
-</tr>
-<tr class="odd">
-<td style="text-align: center;">4.60</td>
-<td style="text-align: center;">11.6</td>
-<td style="text-align: center;">9.37</td>
-<td style="text-align: center;">15.4</td>
-</tr>
-</tbody>
-</table>
-</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>sensitivity_fits <span class="ot">&lt;-</span> <span class="fu">lapply</span>(thresholds, <span class="cf">function</span>(u) {</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  bundle <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> y_tail,</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">kernel =</span> <span class="st">"invgauss"</span>,</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">GPD =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">param_specs =</span> <span class="fu">list</span>(</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>      <span class="at">gpd =</span> <span class="fu">list</span>(</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">threshold =</span> <span class="fu">list</span>(<span class="at">mode =</span> <span class="st">"fixed"</span>, <span class="at">value =</span> u)</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>      )</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">components =</span> <span class="dv">5</span>,</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">mcmc =</span> mcmc</span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex03-unconditional-dpmgpd-crp-fit"</span>, <span class="fu">run_mcmc_bundle_manual</span>(bundle))</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">threshold =</span> u, <span class="at">fit =</span> fit)</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>sensitivity_tbl <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(<span class="fu">lapply</span>(sensitivity_fits, <span class="cf">function</span>(entry) {</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>  quant <span class="ot">&lt;-</span> <span class="fu">predict</span>(entry<span class="sc">$</span>fit, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> <span class="fl">0.99</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>  qfit <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(quant<span class="sc">$</span>fit)</span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>  qfit<span class="sc">$</span>threshold <span class="ot">&lt;-</span> entry<span class="sc">$</span>threshold</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Keep the usual columns if present</span></span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>  keep <span class="ot">&lt;-</span> <span class="fu">intersect</span>(<span class="fu">names</span>(qfit), <span class="fu">c</span>(<span class="st">"threshold"</span>, <span class="st">"index"</span>, <span class="st">"estimate"</span>, <span class="st">"lower"</span>, <span class="st">"upper"</span>, <span class="st">"lwr"</span>, <span class="st">"upr"</span>))</span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>  qfit <span class="ot">&lt;-</span> qfit[, keep, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Standardize to one set of CI column names</span></span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="st">"lower"</span> <span class="sc">%in%</span> <span class="fu">names</span>(qfit) <span class="sc">&amp;&amp;</span> <span class="st">"lwr"</span> <span class="sc">%in%</span> <span class="fu">names</span>(qfit)) qfit<span class="sc">$</span>lower <span class="ot">&lt;-</span> qfit<span class="sc">$</span>lwr</span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="st">"upper"</span> <span class="sc">%in%</span> <span class="fu">names</span>(qfit) <span class="sc">&amp;&amp;</span> <span class="st">"upr"</span> <span class="sc">%in%</span> <span class="fu">names</span>(qfit)) qfit<span class="sc">$</span>upper <span class="ot">&lt;-</span> qfit<span class="sc">$</span>upr</span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>  <span class="co"># If estimate isn't present for some reason, fall back to the first numeric column</span></span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (<span class="sc">!</span><span class="st">"estimate"</span> <span class="sc">%in%</span> <span class="fu">names</span>(qfit)) {</span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>    num_cols <span class="ot">&lt;-</span> <span class="fu">names</span>(qfit)[<span class="fu">vapply</span>(qfit, is.numeric, <span class="fu">logical</span>(<span class="dv">1</span>))]</span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (<span class="fu">length</span>(num_cols) <span class="sc">&gt;</span> <span class="dv">0</span>) qfit<span class="sc">$</span>estimate <span class="ot">&lt;-</span> qfit[[num_cols[<span class="dv">1</span>]]]</span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">threshold =</span> qfit<span class="sc">$</span>threshold[<span class="dv">1</span>],</span>
+<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">q_99 =</span> qfit<span class="sc">$</span>estimate[<span class="dv">1</span>],</span>
+<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">q_99_lwr =</span> <span class="cf">if</span> (<span class="st">"lower"</span> <span class="sc">%in%</span> <span class="fu">names</span>(qfit)) qfit<span class="sc">$</span>lower[<span class="dv">1</span>] <span class="cf">else</span> <span class="cn">NA_real_</span>,</span>
+<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a>    <span class="at">q_99_upr =</span> <span class="cf">if</span> (<span class="st">"upper"</span> <span class="sc">%in%</span> <span class="fu">names</span>(qfit)) qfit<span class="sc">$</span>upper[<span class="dv">1</span>] <span class="cf">else</span> <span class="cn">NA_real_</span></span>
+<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb15-44"><a href="#cb15-44" aria-hidden="true" tabindex="-1"></a>  tibble<span class="sc">::</span><span class="fu">as_tibble</span>(out)</span>
+<span id="cb15-45"><a href="#cb15-45" aria-hidden="true" tabindex="-1"></a>}))</span>
+<span id="cb15-46"><a href="#cb15-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-47"><a href="#cb15-47" aria-hidden="true" tabindex="-1"></a>sensitivity_tbl <span class="sc">%&gt;%</span></span>
+<span id="cb15-48"><a href="#cb15-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), <span class="sc">~</span> <span class="fu">round</span>(.x, <span class="dv">3</span>))) <span class="sc">%&gt;%</span></span>
+<span id="cb15-49"><a href="#cb15-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="at">caption =</span> <span class="st">"Threshold Sensitivity: 99th Quantile"</span>, <span class="at">align =</span> <span class="st">"c"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb15-50"><a href="#cb15-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>), <span class="at">full_width =</span> <span class="cn">FALSE</span>, <span class="at">position =</span> <span class="st">"center"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <hr>
 </section>
@@ -950,7 +509,7 @@ CRP sampler (1)
 <ul>
 <li>Previous: <a href="ex02-unconditional-dpm-sb.html">ex02-unconditional-dpm-sb</a></li>
 <li>Next: <a href="ex04-unconditional-dpmgpd-sb.html">ex04-unconditional-dpmgpd-sb</a></li>
-<li>Workflow index: <a href="../roadmap.html">Roadmap</a></li>
+<li>Workflow index: <a href="../start/roadmap.html">Roadmap</a></li>
 <li>Practical entry: <a href="../examples/index.html">Examples</a> <!-- workflow-nav:end --></li>
 </ul>
 

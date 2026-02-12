@@ -57,7 +57,7 @@ if (!exists("safe_plot", mode = "function")) {
 >
 > For the up-to-date workflow, see the main package vignettes (basic, unconditional, conditional, and causal).
 
-[Workflow roadmap](../roadmap.html){.btn .btn-outline-light}
+[Workflow roadmap](roadmap.html){.btn .btn-outline-light}
 
 
 ## Common issues and solutions
@@ -207,7 +207,7 @@ cb <- build_causal_bundle(
 
 - Previous: [ex14-causal-different-backends-sb](../examples/ex14-causal-different-backends-sb.html)
 - Next: none (end of workflow series)
-- Workflow index: [Roadmap](../roadmap.html)
+- Workflow index: [Roadmap](roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
 

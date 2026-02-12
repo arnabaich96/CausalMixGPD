@@ -1,0 +1,281 @@
+﻿---
+title: "ex12. Causal (Same backend, SB Backend) - Laplace Kernel"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = NA,
+  fig.width = 8,
+  fig.height = 5,
+  message = FALSE,
+  warning = FALSE,
+  cache=TRUE,
+  cache.path = 'legacy-cache-v2/'
+)
+
+# Reproducibility
+set.seed(1)
+
+# Fast-by-default rendering. Flip to FALSE for a fuller run.
+FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
+
+# Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
+mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
+
+# Load package (with all_quiet to suppress startup messages)
+library(DPmixGPD)
+
+# Ensure package is fully loaded for data access
+if (!require("devtools", quietly = TRUE)) {
+  library(devtools)
+}
+pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
+  devtools::load_all(path = pkg_root, quiet = TRUE)
+
+# Precomputed results for fast website builds
+source("_legacy-setup.R")
+if (!exists("safe_plot", mode = "function")) {
+  safe_plot <- function(x, ...) {
+    obj <- tryCatch(plot(x, ...), error = function(e) e)
+    if (inherits(obj, "ggplot")) {
+      try(print(obj), silent = TRUE)
+    } else if (is.list(obj)) {
+      for (elt in obj) if (inherits(elt, "ggplot")) try(print(elt), silent = TRUE)
+    }
+    invisible(obj)
+  }
+}
+```
+
+
+> **Legacy vignette (for the website / historical notes).**
+> These files may not match the current exported API one-to-one.
+> Last verified: **2026-01-18**.
+>
+> For the up-to-date workflow, see the main package vignettes (basic, unconditional, conditional, and causal)..
+
+
+# Causal Inference: Same Backend (SB) - Laplace Kernel {#causal-sb-same-backend}
+
+This vignette fits two SB-based causal models using the same kernel (Laplace):
+
+- Model A: bulk-only outcome models (GPD = FALSE)
+- Model B: GPD-augmented outcome models (GPD = TRUE)
+
+---
+
+## Data Setup
+
+```{r data-setup}
+data("causal_alt_real500_p4_k2", package = "DPmixGPD")
+y <- causal_alt_real500_p4_k2$y
+T <- causal_alt_real500_p4_k2$T
+X <- as.matrix(causal_alt_real500_p4_k2$X)
+
+summary_tbl <- tibble(
+  statistic = c("N", "Mean", "SD", "Min", "Max"),
+  value = c(length(y), mean(y), sd(y), min(y), max(y))
+)
+
+summary_tbl %>%
+  mutate(value = signif(value, 4)) %>%
+  kable(caption = "Causal Dataset Summary", align = "c") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
+
+x_eval <- X[1:40, , drop = FALSE]
+y_eval <- y[1:40]
+u_threshold <- as.numeric(stats::quantile(y, 0.8, names = FALSE))
+```
+
+```{r data-scatter}
+df_causal <- data.frame(y = y, T = as.factor(T), x1 = X[, 1], x2 = X[, 2])
+
+p_scatter <- ggplot(df_causal, aes(x = x1, y = y, color = T)) +
+  geom_point(alpha = 0.5) +
+  labs(title = "Outcome vs X1 by Treatment", x = "X1", y = "y", color = "Treatment") +
+  theme_minimal()
+
+p_scatter
+```
+
+---
+
+## Model A: SB Bulk-only (Laplace)
+
+```{r bundle-sb-bulk, cache=TRUE}
+bundle_sb_bulk <- build_causal_bundle(
+  y = y,
+  T = T,
+  X = X,
+  kernel = "laplace",
+  backend = "sb",
+  PS = "logit",
+  GPD = FALSE,
+  components = 5,
+  mcmc_outcome = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 1),
+  mcmc_ps = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 1)
+)
+
+bundle_sb_bulk
+summary(bundle_sb_bulk)
+```
+
+```{r fit-sb-bulk, cache=TRUE}
+fit_sb_bulk <- run_mcmc_causal(bundle_sb_bulk)
+summary(fit_sb_bulk)
+params(fit_sb_bulk)
+```
+
+```{r plot-fit-sb-bulk}
+safe_plot(fit_sb_bulk, family = c("traceplot", "autocorrelation", "running"))
+```
+
+```{r predict-mean-sb-bulk}
+pred_mean_bulk <- predict(fit_sb_bulk, x = x_eval, type = "mean",
+                          interval = "credible", nsim_mean = 100)
+safe_plot(pred_mean_bulk)
+```
+
+```{r predict-quantile-sb-bulk}
+pred_q_bulk <- predict(fit_sb_bulk, x = x_eval, type = "quantile",
+                       p = 0.5, interval = "credible")
+safe_plot(pred_q_bulk)
+```
+
+```{r predict-density-sb-bulk}
+pred_d_bulk <- predict(fit_sb_bulk, x = x_eval, y = y_eval,
+                       type = "density", interval = "credible")
+safe_plot(pred_d_bulk)
+```
+
+```{r predict-survival-sb-bulk}
+pred_surv_bulk <- predict(fit_sb_bulk, x = x_eval, y = y_eval,
+                          type = "survival", interval = "credible")
+safe_plot(pred_surv_bulk)
+```
+
+```{r ate-sb-bulk}
+ate_bulk <- ate(fit_sb_bulk, newdata = x_eval,
+                interval = "credible", nsim_mean = 100)
+safe_plot(ate_bulk)
+```
+
+```{r qte-sb-bulk}
+qte_bulk <- qte(fit_sb_bulk, probs = c(0.25, 0.5, 0.75),
+                newdata = x_eval, interval = "credible")
+safe_plot(qte_bulk)
+```
+
+---
+
+## Model B: SB with GPD Tail (Laplace)
+
+```{r bundle-sb-gpd, cache=TRUE}
+param_specs_gpd <- list(
+  gpd = list(
+    threshold = list(
+      mode = "dist",
+      dist = "lognormal",
+      args = list(meanlog = log(max(u_threshold, .Machine$double.eps)), sdlog = 0.25)
+    )
+  )
+)
+
+bundle_sb_gpd <- build_causal_bundle(
+  y = y,
+  T = T,
+  X = X,
+  kernel = "laplace",
+  backend = "sb",
+  PS = "logit",
+  GPD = TRUE,
+  components = 5,
+  param_specs = param_specs_gpd,
+  mcmc_outcome = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 2),
+  mcmc_ps = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 2)
+)
+
+bundle_sb_gpd
+summary(bundle_sb_gpd)
+```
+
+```{r fit-sb-gpd, cache=TRUE}
+fit_sb_gpd <- run_mcmc_causal(bundle_sb_gpd)
+summary(fit_sb_gpd)
+params(fit_sb_gpd)
+```
+
+```{r plot-fit-sb-gpd}
+safe_plot(fit_sb_gpd, family = c("density", "geweke", "caterpillar"))
+```
+
+```{r predict-mean-sb-gpd}
+pred_mean_gpd <- predict(fit_sb_gpd, x = x_eval, type = "mean",
+                         interval = "credible", nsim_mean = 100)
+safe_plot(pred_mean_gpd)
+```
+
+```{r predict-quantile-sb-gpd}
+pred_q_gpd <- predict(fit_sb_gpd, x = x_eval, type = "quantile",
+                      p = 0.5, interval = "credible")
+safe_plot(pred_q_gpd)
+```
+
+```{r predict-density-sb-gpd}
+pred_d_gpd <- predict(fit_sb_gpd, x = x_eval, y = y_eval,
+                      type = "density", interval = "credible")
+safe_plot(pred_d_gpd)
+```
+
+```{r predict-survival-sb-gpd}
+pred_surv_gpd <- predict(fit_sb_gpd, x = x_eval, y = y_eval,
+                         type = "survival", interval = "credible")
+safe_plot(pred_surv_gpd)
+```
+
+```{r ate-sb-gpd}
+ate_gpd <- ate(fit_sb_gpd, newdata = x_eval,
+               interval = "credible", nsim_mean = 100)
+safe_plot(ate_gpd)
+```
+
+```{r qte-sb-gpd}
+qte_gpd <- qte(fit_sb_gpd, probs = c(0.25, 0.5, 0.75),
+               newdata = x_eval, interval = "credible")
+safe_plot(qte_gpd)
+```
+
+---
+
+<!-- workflow-nav:start -->
+## Workflow Navigation
+
+- Previous: [ex11-causal-same-backend-crp](ex11-causal-same-backend-crp.html)
+- Next: [ex13-causal-different-backends-crp](ex13-causal-different-backends-crp.html)
+- Workflow index: [Roadmap](../start/roadmap.html)
+- Practical entry: [Examples](../examples/index.html)
+<!-- workflow-nav:end -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Coverage – DPmixGPD</title>
+<title>coverage – DPmixGPD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,41 +19,6 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-html { -webkit-text-size-adjust: 100%; }
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -108,7 +73,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-fixed fullcontent quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -136,19 +101,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <ul class="dropdown-menu" aria-labelledby="nav-menu-start">    
         <li>
     <a class="dropdown-item" href="./start/index.html">
- <span class="dropdown-text">Start overview</span></a>
+ <span class="dropdown-text">Start Hub</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./start/roadmap.html">
+ <span class="dropdown-text">Roadmap</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./start/start-here.html">
- <span class="dropdown-text">Start here</span></a>
+ <span class="dropdown-text">Start Here</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./start/basic-model-compile-run.html">
- <span class="dropdown-text">Basic model compile and run</span></a>
+ <span class="dropdown-text">Basic Compile and Run</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./start/backends-and-workflow.html">
- <span class="dropdown-text">Backends and workflow</span></a>
+ <span class="dropdown-text">Backends and Workflow</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./start/troubleshooting.html">
@@ -160,128 +129,43 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="./examples/index.html"> 
 <span class="menu-text">Examples</span></a>
   </li>  
-  <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-advanced" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Advanced</span>
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-advanced">    
-        <li>
-    <a class="dropdown-item" href="./advanced/index.html">
- <span class="dropdown-text">Advanced overview</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./advanced/model-umbrella.html">
- <span class="dropdown-text">Model umbrella</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./advanced/customization-and-tuning.html">
- <span class="dropdown-text">Customization and tuning</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./advanced/gpd-in-dpm-architecture.html">
- <span class="dropdown-text">GPD-in-DPM architecture</span></a>
-  </li>  
-    </ul>
-  </li>
-  <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-docs" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Docs</span>
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-docs">    
-        <li>
-    <a class="dropdown-item" href="./reference.html">
- <span class="dropdown-text">Docs overview</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./kernels.html">
- <span class="dropdown-text">Kernels</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./decision-guide.html">
- <span class="dropdown-text">Decision guide</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./faq.html">
- <span class="dropdown-text">FAQ</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./news.html">
- <span class="dropdown-text">News</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./cite.html">
- <span class="dropdown-text">Cite</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./coverage.html">
- <span class="dropdown-text">Coverage</span></a>
-  </li>  
-    </ul>
-  </li>
-  <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-developers" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Developers</span>
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-developers">    
-        <li>
-    <a class="dropdown-item" href="./developers.html">
- <span class="dropdown-text">Overview</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./developers/architecture.html">
- <span class="dropdown-text">Architecture</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./developers/tools.html">
- <span class="dropdown-text">Tools</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./developers/site-build.html">
- <span class="dropdown-text">Website build</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./developers/spec-and-contracts.html">
- <span class="dropdown-text">Spec and contracts</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./developers/registry.html">
- <span class="dropdown-text">Kernel registry</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./developers/add-kernel.html">
- <span class="dropdown-text">Add a kernel</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./developers/add-tail-option.html">
- <span class="dropdown-text">Tail options</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./developers/causal-internals.html">
- <span class="dropdown-text">Causal internals</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./developers/testing.html">
- <span class="dropdown-text">Testing</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./developers/conventions.html">
- <span class="dropdown-text">Conventions</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./developers/releasing.html">
- <span class="dropdown-text">Releasing</span></a>
-  </li>  
-    </ul>
-  </li>
   <li class="nav-item">
-    <a class="nav-link" href="./pkgdown/reference/index.html"> 
+    <a class="nav-link" href="./kernels.html"> 
+<span class="menu-text">Kernels</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./advanced/index.html"> 
+<span class="menu-text">Advanced</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./developers/index.html"> 
+<span class="menu-text">Developers</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./reference.html"> 
 <span class="menu-text">Reference</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./news.html"> 
+<span class="menu-text">News</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./cite.html"> 
+<span class="menu-text">Cite</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link active" href="./coverage.html" aria-current="page"> 
+<span class="menu-text">Coverage</span></a>
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./pkgdown/index.html"> 
-<span class="menu-text">Pkgdown</span></a>
+    <a class="nav-link" href="./pkgdown/reference/index.html"> 
+<span class="menu-text">API Reference</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./pkgdown/articles/index.html"> 
+<span class="menu-text">Articles</span></a>
   </li>  
   <li class="nav-item compact">
     <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD"> <i class="bi bi-github" role="img">
@@ -296,12 +180,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content column-page" id="quarto-document-content">
+<main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -310,7 +194,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<div class="quarto-title-meta column-page">
+<div class="quarto-title-meta">
 
     
   
@@ -322,46 +206,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<div class="hero">
-<section id="coverage" class="level1 container">
-<h1>Coverage</h1>
-<p>Coverage and validation resources for DPmixGPD. This page points to test maps, status artifacts, and reproducible coverage commands.</p>
-<p><a href="https://github.com/arnabaich96/DPmixGPD/blob/master/tests/testthat/COVERAGE_MAP.md" class="btn btn-primary">Coverage map in tests</a> <a href="https://codecov.io/gh/arnabaich96/DPmixGPD" class="btn btn-outline-light">Codecov project</a></p>
+<section id="coverage-resources" class="level2">
+<h2 class="anchored" data-anchor-id="coverage-resources">Coverage resources</h2>
+<ul>
+<li><a href="https://codecov.io/gh/arnabaich96/DPmixGPD">Codecov project</a></li>
+<li><a href="https://github.com/arnabaich96/DPmixGPD/blob/master/tests/testthat/COVERAGE_MAP.md">Coverage map</a></li>
+<li><a href="pkgdown/reference/coverage_status.html">coverage_status() docs</a></li>
+<li><a href="pkgdown/reference/read_coverage_status.html">read_coverage_status() docs</a></li>
+</ul>
 </section>
-</div>
-<section>
-<div class="container">
-<div class="grid-3">
-<section id="local-coverage-run" class="level3 cardx">
-<h3 class="anchored" data-anchor-id="local-coverage-run">Local coverage run</h3>
-<p>Use project tooling to generate coverage artifacts.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"tools/coverage.R"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<p>or</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coverage_progress</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-</section>
-<section id="status-helpers" class="level3 cardx">
-<h3 class="anchored" data-anchor-id="status-helpers">Status helpers</h3>
-<p>Coverage utilities exposed in pkgdown reference: - <a href="pkgdown/reference/coverage_status.html">coverage_status</a> - <a href="pkgdown/reference/read_coverage_status.html">read_coverage_status</a></p>
-</section>
-<section id="high-value-tests" class="level3 cardx">
-<h3 class="anchored" data-anchor-id="high-value-tests">High-value tests</h3>
-<p>Start with these for fast confidence: - <code>tests/testthat/test-smoke-core-workflows.R</code> - <code>tests/testthat/test-vignette-coverage.R</code> - <code>tests/testthat/test-kernels.R</code></p>
-</section>
-</div>
-</div>
-</section>
-<section>
-<section id="where-to-go-next" class="level2 container">
-<h2 class="anchored" data-anchor-id="where-to-go-next">Where to go next</h2>
-<ol type="1">
-<li><a href="developers.html">Developers</a> for build/check workflows.</li>
-<li><a href="reference.html">Reference</a> for status/helper function details.</li>
-<li><a href="news.html">News</a> for release and docs updates.</li>
-</ol>
-</section>
-</section>
+<section id="related-developer-pages" class="level2">
+<h2 class="anchored" data-anchor-id="related-developer-pages">Related developer pages</h2>
+<ul>
+<li><a href="./developers/index.html">Developers hub</a></li>
+<li><a href="./developers/testing.html">Testing</a></li>
+<li><a href="./developers/tools.html">Tools</a></li>
+</ul>
 
 
+</section>
 
 </main> <!-- /main -->
 ﻿<div style="

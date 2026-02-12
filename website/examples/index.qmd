@@ -1,0 +1,49 @@
+﻿---
+title: "Examples"
+page-layout: full
+---
+
+::: {.hero}
+::: {.container}
+# Examples Hub
+
+Use this hub for the full canonical sequence `ex01` to `ex14`.
+
+[Start hub](../start/index.qmd){.btn .btn-primary}
+[Reference hub](../reference.qmd){.btn .btn-outline-light}
+[pkgdown articles](../pkgdown/articles/index.html){.btn .btn-outline-light}
+:::
+:::
+
+## Recommended sequence
+
+### Unconditional
+
+1. [ex01 unconditional dpm crp](ex01-unconditional-dpm-crp.qmd)
+2. [ex02 unconditional dpm sb](ex02-unconditional-dpm-sb.qmd)
+3. [ex03 unconditional dpmgpd crp](ex03-unconditional-dpmgpd-crp.qmd)
+4. [ex04 unconditional dpmgpd sb](ex04-unconditional-dpmgpd-sb.qmd)
+
+### Conditional
+
+1. [ex05 conditional dpm crp](ex05-conditional-dpm-crp.qmd)
+2. [ex06 conditional dpm sb](ex06-conditional-dpm-sb.qmd)
+3. [ex07 conditional dpmgpd crp](ex07-conditional-dpmgpd-crp.qmd)
+4. [ex08 conditional dpmgpd sb](ex08-conditional-dpmgpd-sb.qmd)
+
+### Causal
+
+1. [ex09 causal no x crp](ex09-causal-no-x-crp.qmd)
+2. [ex10 causal x no ps sb](ex10-causal-x-no-ps-sb.qmd)
+3. [ex11 causal same backend crp](ex11-causal-same-backend-crp.qmd)
+4. [ex12 causal same backend sb](ex12-causal-same-backend-sb.qmd)
+5. [ex13 causal different backends crp](ex13-causal-different-backends-crp.qmd)
+6. [ex14 causal different backends sb](ex14-causal-different-backends-sb.qmd)
+
+## Related articles
+
+- [01-basic](../pkgdown/articles/01-basic.html)
+- [02-model-spec](../pkgdown/articles/02-model-spec.html)
+- [03-unconditional](../pkgdown/articles/03-unconditional.html)
+- [04-conditional](../pkgdown/articles/04-conditional.html)
+- [05-causal](../pkgdown/articles/05-causal.html)

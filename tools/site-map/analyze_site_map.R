@@ -76,30 +76,107 @@ bfs_reachable <- function(start_node, adjacency, node_set) {
 
 expected_example_chain <- function() {
   c(
-    "QuickStart/start-here.html",
-    "QuickStart/introduction.html",
-    "QuickStart/basic-model-compile-run.html",
-    "QuickStart/backends-and-workflow.html",
-    "Examples/ex05-unconditional-DPmix-CRP.html",
-    "Examples/ex06-unconditional-DPmix-CRP.html",
-    "Examples/ex07-unconditional-DPmix-SB.html",
-    "Examples/ex08-unconditional-DPmixGPD-CRP.html",
-    "Examples/ex09-unconditional-DPmixGPD-SB.html",
-    "Examples/ex10-conditional-DPmix-CRP.html",
-    "Examples/ex11-conditional-DPmix-SB.html",
-    "Examples/ex12-conditional-DPmixGPD-CRP.html",
-    "Examples/ex13-conditional-DPmixGPD-SB.html",
-    "Examples/ex14-causal-no-x-CRP.html",
-    "Examples/ex15-causal-x-no-ps-SB.html",
-    "Examples/ex16-causal-same-backend-CRP.html",
-    "Examples/ex17-causal-same-backend-SB.html",
-    "Examples/ex18-causal-different-backends-CRP.html",
-    "Examples/ex19-causal-different-backends-SB.html",
-    "Examples/ex20-troubleshooting.html"
+    "start/start-here.html",
+    "start/basic-model-compile-run.html",
+    "start/backends-and-workflow.html",
+    "examples/ex01-unconditional-dpm-crp.html",
+    "examples/ex02-unconditional-dpm-sb.html",
+    "examples/ex03-unconditional-dpmgpd-crp.html",
+    "examples/ex04-unconditional-dpmgpd-sb.html",
+    "examples/ex05-conditional-dpm-crp.html",
+    "examples/ex06-conditional-dpm-sb.html",
+    "examples/ex07-conditional-dpmgpd-crp.html",
+    "examples/ex08-conditional-dpmgpd-sb.html",
+    "examples/ex09-causal-no-x-crp.html",
+    "examples/ex10-causal-x-no-ps-sb.html",
+    "examples/ex11-causal-same-backend-crp.html",
+    "examples/ex12-causal-same-backend-sb.html",
+    "examples/ex13-causal-different-backends-crp.html",
+    "examples/ex14-causal-different-backends-sb.html",
+    "start/troubleshooting.html"
   )
 }
 
-write_summary_markdown <- function(summary, broken_links, workflow_chain, path) {
+required_contract_pages <- function() {
+  c(
+    "index.html",
+    "reference.html",
+    "kernels.html",
+    "news.html",
+    "cite.html",
+    "coverage.html",
+    "start/index.html",
+    "start/roadmap.html",
+    "start/start-here.html",
+    "start/basic-model-compile-run.html",
+    "start/backends-and-workflow.html",
+    "start/troubleshooting.html",
+    "examples/index.html",
+    "examples/ex01-unconditional-dpm-crp.html",
+    "examples/ex02-unconditional-dpm-sb.html",
+    "examples/ex03-unconditional-dpmgpd-crp.html",
+    "examples/ex04-unconditional-dpmgpd-sb.html",
+    "examples/ex05-conditional-dpm-crp.html",
+    "examples/ex06-conditional-dpm-sb.html",
+    "examples/ex07-conditional-dpmgpd-crp.html",
+    "examples/ex08-conditional-dpmgpd-sb.html",
+    "examples/ex09-causal-no-x-crp.html",
+    "examples/ex10-causal-x-no-ps-sb.html",
+    "examples/ex11-causal-same-backend-crp.html",
+    "examples/ex12-causal-same-backend-sb.html",
+    "examples/ex13-causal-different-backends-crp.html",
+    "examples/ex14-causal-different-backends-sb.html",
+    "advanced/index.html",
+    "advanced/model-umbrella.html",
+    "advanced/customization-and-tuning.html",
+    "advanced/gpd-in-dpm-architecture.html",
+    "kernels/kernels-index.html",
+    "kernels/mathematical-definitions-and-conventions.html",
+    "kernels/summary-distribution-backend-reference.html",
+    "kernels/introduction-with-gpd-kernel.html",
+    "kernels/kernel-normal.html",
+    "kernels/kernel-laplace.html",
+    "kernels/kernel-cauchy.html",
+    "kernels/kernel-lognormal.html",
+    "kernels/kernel-gamma.html",
+    "kernels/kernel-amoroso.html",
+    "kernels/kernel-inverse-gaussian-base.html",
+    "kernels/kernel-inverse-gaussian-mixture.html",
+    "developers/index.html",
+    "developers/architecture.html",
+    "developers/tools.html",
+    "developers/testing.html",
+    "developers/site-build.html",
+    "developers/conventions.html",
+    "developers/spec-and-contracts.html",
+    "developers/registry.html",
+    "developers/add-kernel.html",
+    "developers/add-tail-option.html",
+    "developers/causal-internals.html",
+    "developers/releasing.html",
+    "pkgdown/reference/index.html",
+    "pkgdown/articles/index.html"
+  )
+}
+
+forbidden_legacy_pages <- function() {
+  c(
+    "decision-guide.html",
+    "faq.html",
+    "roadmap.html",
+    "developers.html",
+    "start/introduction.html"
+  )
+}
+
+write_summary_markdown <- function(
+    summary,
+    broken_links,
+    workflow_chain,
+    missing_required_pages,
+    legacy_pages_present,
+    path
+) {
   lines <- c(
     "# Site Map Summary",
     "",
@@ -114,6 +191,8 @@ write_summary_markdown <- function(summary, broken_links, workflow_chain, path) 
     paste0("- Unreachable pages: ", summary$unreachable_count),
     paste0("- Orphan pages: ", summary$orphan_count),
     paste0("- Example chain breaks: ", summary$workflow_chain_break_count),
+    paste0("- Missing required pages: ", summary$missing_required_page_count),
+    paste0("- Forbidden legacy pages present: ", summary$legacy_page_present_count),
     paste0("- Gate pass: ", ifelse(isTRUE(summary$gate_pass), "YES", "NO")),
     ""
   )
@@ -123,9 +202,27 @@ write_summary_markdown <- function(summary, broken_links, workflow_chain, path) 
     "## Gate Conditions",
     "",
     "- Fail if broken internal links > 0",
-    "- Fail if any example chain edge is missing (QuickStart/start-here -> ... -> Examples/ex20)",
+    "- Fail if any required contract page is missing",
+    "- Fail if any forbidden legacy page is present",
+    "- Fail if any example chain edge is missing (start/start-here -> ... -> examples/ex14 -> start/troubleshooting)",
     ""
   )
+
+  if (length(missing_required_pages) > 0) {
+    lines <- c(lines, "## Missing Required Pages", "")
+    for (page in missing_required_pages) {
+      lines <- c(lines, paste0("- `", page, "`"))
+    }
+    lines <- c(lines, "")
+  }
+
+  if (length(legacy_pages_present) > 0) {
+    lines <- c(lines, "## Forbidden Legacy Pages Present", "")
+    for (page in legacy_pages_present) {
+      lines <- c(lines, paste0("- `", page, "`"))
+    }
+    lines <- c(lines, "")
+  }
 
   if (nrow(broken_links) > 0) {
     lines <- c(lines, "## Broken Internal Links (First 20)", "")
@@ -232,7 +329,13 @@ analyze_site_map <- function(site_root = "docs", output_dir = file.path("tools",
   reachability_report <- reachability_report[order(reachability_report$path), , drop = FALSE]
   rownames(reachability_report) <- NULL
 
-  broken_links <- edges[edges$link_type == "internal_page" & !edges$target_exists, , drop = FALSE]
+  broken_links <- edges[
+    edges$link_type == "internal_page" &
+      !edges$target_exists &
+      !startsWith(edges$source, "pkgdown/"),
+    ,
+    drop = FALSE
+  ]
   if (nrow(broken_links) > 0) {
     broken_links <- data.frame(
       source = broken_links$source,
@@ -282,14 +385,31 @@ analyze_site_map <- function(site_root = "docs", output_dir = file.path("tools",
   }
   workflow_chain <- do.call(rbind, chain_rows)
 
+  required_pages <- required_contract_pages()
+  missing_required_pages <- setdiff(required_pages, node_set)
+
+  legacy_pages <- forbidden_legacy_pages()
+  legacy_pages_present <- intersect(legacy_pages, node_set)
+
   workflow_breaks <- workflow_chain[workflow_chain$status != "ok", , drop = FALSE]
-  gate_pass <- nrow(broken_links) == 0L && nrow(workflow_breaks) == 0L
+  gate_pass <- (
+    nrow(broken_links) == 0L &&
+      nrow(workflow_breaks) == 0L &&
+      length(missing_required_pages) == 0L &&
+      length(legacy_pages_present) == 0L
+  )
   fail_reasons <- character()
   if (nrow(broken_links) > 0L) {
     fail_reasons <- c(fail_reasons, paste0("broken_links=", nrow(broken_links)))
   }
   if (nrow(workflow_breaks) > 0L) {
     fail_reasons <- c(fail_reasons, paste0("workflow_chain_breaks=", nrow(workflow_breaks)))
+  }
+  if (length(missing_required_pages) > 0L) {
+    fail_reasons <- c(fail_reasons, paste0("missing_required_pages=", length(missing_required_pages)))
+  }
+  if (length(legacy_pages_present) > 0L) {
+    fail_reasons <- c(fail_reasons, paste0("legacy_pages_present=", length(legacy_pages_present)))
   }
   if (!length(fail_reasons)) {
     fail_reasons <- "none"
@@ -307,6 +427,8 @@ analyze_site_map <- function(site_root = "docs", output_dir = file.path("tools",
     unreachable_count = sum(!reachability_report$reachable_from_index),
     orphan_count = sum(reachability_report$is_orphan),
     workflow_chain_break_count = nrow(workflow_breaks),
+    missing_required_page_count = length(missing_required_pages),
+    legacy_page_present_count = length(legacy_pages_present),
     gate_pass = gate_pass,
     gate_fail_reasons = fail_reasons
   )
@@ -321,7 +443,14 @@ analyze_site_map <- function(site_root = "docs", output_dir = file.path("tools",
   write.csv(reachability_report, reachability_file, row.names = FALSE, na = "")
   write.csv(workflow_chain, workflow_file, row.names = FALSE, na = "")
   write_json_with_fallback(summary, summary_json_file)
-  write_summary_markdown(summary, broken_links, workflow_chain, summary_md_file)
+  write_summary_markdown(
+    summary = summary,
+    broken_links = broken_links,
+    workflow_chain = workflow_chain,
+    missing_required_pages = missing_required_pages,
+    legacy_pages_present = legacy_pages_present,
+    path = summary_md_file
+  )
 
   msg("Wrote broken links: ", broken_file)
   msg("Wrote reachability report: ", reachability_file)
@@ -334,6 +463,8 @@ analyze_site_map <- function(site_root = "docs", output_dir = file.path("tools",
     broken_links = broken_links,
     reachability_report = reachability_report,
     workflow_chain = workflow_chain,
+    missing_required_pages = missing_required_pages,
+    legacy_pages_present = legacy_pages_present,
     broken_file = broken_file,
     reachability_file = reachability_file,
     workflow_file = workflow_file,

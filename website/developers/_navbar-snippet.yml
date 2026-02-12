@@ -1,15 +1,17 @@
-# Paste this into website/_quarto.yml under navbar: left:
+﻿# Paste this into website/_quarto.yml under website.navbar.left
 
 - text: "Developers"
-  href: developers.qmd
+  href: developers/index.qmd
   menu:
+    - text: "Overview"
+      href: developers/index.qmd
     - text: "Architecture"
       href: developers/architecture.qmd
     - text: "Tools"
       href: developers/tools.qmd
     - text: "Website build"
       href: developers/site-build.qmd
-    - text: "Spec & contracts"
+    - text: "Spec and contracts"
       href: developers/spec-and-contracts.qmd
     - text: "Kernel registry"
       href: developers/registry.qmd

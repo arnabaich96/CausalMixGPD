@@ -98,6 +98,8 @@ temp/
 /pkgdown/
 /quarto/
 /website/_site/
+/website/docs/
+/website/quarto/
 /docs/website/
 # Build outputs and caches (not tracked)
 /_build/

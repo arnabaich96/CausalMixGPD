@@ -1,0 +1,46 @@
+﻿---
+title: "Roadmap"
+page-layout: full
+---
+
+::: {.hero}
+::: {.container}
+# Analysis Roadmap
+
+Map from setup to model specification, execution, diagnostics, and extraction/prediction.
+
+[Start here](start-here.qmd){.btn .btn-primary}
+[Basic compile and run](basic-model-compile-run.qmd){.btn .btn-outline-light}
+[Reference hub](../reference.qmd){.btn .btn-outline-light}
+:::
+:::
+
+## Levels
+
+1. Setup and first run
+- [Start here](start-here.qmd)
+
+2. Model assembly and execution
+- [Basic model compile and run](basic-model-compile-run.qmd)
+
+3. Backend choice and workflow ordering
+- [Backends and workflow](backends-and-workflow.qmd)
+
+4. Diagnose and stabilize
+- [Troubleshooting](troubleshooting.qmd)
+
+5. Extract, predict, and compare
+- [Examples hub](../examples/index.qmd)
+
+## Quarto vs pkgdown split
+
+- Quarto: curated routes and workflow context.
+- pkgdown: exact function interfaces and vignette articles.
+
+- [pkgdown reference](../pkgdown/reference/index.html)
+- [pkgdown articles](../pkgdown/articles/index.html)
+- [01-basic](../pkgdown/articles/01-basic.html)
+- [02-model-spec](../pkgdown/articles/02-model-spec.html)
+- [03-unconditional](../pkgdown/articles/03-unconditional.html)
+- [04-conditional](../pkgdown/articles/04-conditional.html)
+- [05-causal](../pkgdown/articles/05-causal.html)

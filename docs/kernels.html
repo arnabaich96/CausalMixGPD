@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Kernels – DPmixGPD</title>
+<title>kernels – DPmixGPD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -73,7 +73,7 @@ ul.task-list li input[type="checkbox"] {
 
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-fixed fullcontent quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -101,19 +101,23 @@ ul.task-list li input[type="checkbox"] {
     <ul class="dropdown-menu" aria-labelledby="nav-menu-start">    
         <li>
     <a class="dropdown-item" href="./start/index.html">
- <span class="dropdown-text">Start overview</span></a>
+ <span class="dropdown-text">Start Hub</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./start/roadmap.html">
+ <span class="dropdown-text">Roadmap</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./start/start-here.html">
- <span class="dropdown-text">Start here</span></a>
+ <span class="dropdown-text">Start Here</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./start/basic-model-compile-run.html">
- <span class="dropdown-text">Basic model compile and run</span></a>
+ <span class="dropdown-text">Basic Compile and Run</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./start/backends-and-workflow.html">
- <span class="dropdown-text">Backends and workflow</span></a>
+ <span class="dropdown-text">Backends and Workflow</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./start/troubleshooting.html">
@@ -125,128 +129,43 @@ ul.task-list li input[type="checkbox"] {
     <a class="nav-link" href="./examples/index.html"> 
 <span class="menu-text">Examples</span></a>
   </li>  
-  <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-advanced" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Advanced</span>
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-advanced">    
-        <li>
-    <a class="dropdown-item" href="./advanced/index.html">
- <span class="dropdown-text">Advanced overview</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./advanced/model-umbrella.html">
- <span class="dropdown-text">Model umbrella</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./advanced/customization-and-tuning.html">
- <span class="dropdown-text">Customization and tuning</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./advanced/gpd-in-dpm-architecture.html">
- <span class="dropdown-text">GPD-in-DPM architecture</span></a>
-  </li>  
-    </ul>
-  </li>
-  <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-docs" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Docs</span>
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-docs">    
-        <li>
-    <a class="dropdown-item" href="./reference.html">
- <span class="dropdown-text">Docs overview</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./kernels.html">
- <span class="dropdown-text">Kernels</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./decision-guide.html">
- <span class="dropdown-text">Decision guide</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./faq.html">
- <span class="dropdown-text">FAQ</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./news.html">
- <span class="dropdown-text">News</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./cite.html">
- <span class="dropdown-text">Cite</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./coverage.html">
- <span class="dropdown-text">Coverage</span></a>
-  </li>  
-    </ul>
-  </li>
-  <li class="nav-item dropdown ">
-    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-developers" role="link" data-bs-toggle="dropdown" aria-expanded="false">
- <span class="menu-text">Developers</span>
-    </a>
-    <ul class="dropdown-menu" aria-labelledby="nav-menu-developers">    
-        <li>
-    <a class="dropdown-item" href="./developers.html">
- <span class="dropdown-text">Overview</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./developers/architecture.html">
- <span class="dropdown-text">Architecture</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./developers/tools.html">
- <span class="dropdown-text">Tools</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./developers/site-build.html">
- <span class="dropdown-text">Website build</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./developers/spec-and-contracts.html">
- <span class="dropdown-text">Spec and contracts</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./developers/registry.html">
- <span class="dropdown-text">Kernel registry</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./developers/add-kernel.html">
- <span class="dropdown-text">Add a kernel</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./developers/add-tail-option.html">
- <span class="dropdown-text">Tail options</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./developers/causal-internals.html">
- <span class="dropdown-text">Causal internals</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./developers/testing.html">
- <span class="dropdown-text">Testing</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./developers/conventions.html">
- <span class="dropdown-text">Conventions</span></a>
-  </li>  
-        <li>
-    <a class="dropdown-item" href="./developers/releasing.html">
- <span class="dropdown-text">Releasing</span></a>
-  </li>  
-    </ul>
-  </li>
   <li class="nav-item">
-    <a class="nav-link" href="./pkgdown/reference/index.html"> 
+    <a class="nav-link active" href="./kernels.html" aria-current="page"> 
+<span class="menu-text">Kernels</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./advanced/index.html"> 
+<span class="menu-text">Advanced</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./developers/index.html"> 
+<span class="menu-text">Developers</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./reference.html"> 
 <span class="menu-text">Reference</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./news.html"> 
+<span class="menu-text">News</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./cite.html"> 
+<span class="menu-text">Cite</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./coverage.html"> 
+<span class="menu-text">Coverage</span></a>
   </li>  
 </ul>
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="./pkgdown/index.html"> 
-<span class="menu-text">Pkgdown</span></a>
+    <a class="nav-link" href="./pkgdown/reference/index.html"> 
+<span class="menu-text">API Reference</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./pkgdown/articles/index.html"> 
+<span class="menu-text">Articles</span></a>
   </li>  
   <li class="nav-item compact">
     <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD"> <i class="bi bi-github" role="img">
@@ -261,12 +180,12 @@ ul.task-list li input[type="checkbox"] {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content column-page" id="quarto-document-content">
+<main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -275,7 +194,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<div class="quarto-title-meta column-page">
+<div class="quarto-title-meta">
 
     
   
@@ -288,28 +207,52 @@ ul.task-list li input[type="checkbox"] {
 
 
 <div class="hero">
-<section id="kernels" class="level1 container">
-<h1>Kernels</h1>
-<p>DPmixGPD supports multiple bulk kernels and tail configurations. This page is the catalog entry point: what kernels exist, how they are organized, and where to find details.</p>
-<p><a href="pkgdown/articles/index.html" class="btn btn-primary">Articles index (pkgdown)</a> <a href="pkgdown/reference/kernel_support_table.html" class="btn btn-outline-light">Kernel support table</a></p>
+<section id="kernel-selection-hub" class="level1 container">
+<h1>Kernel Selection Hub</h1>
+<p>Choose a bulk kernel based on support, shape, and tail behavior. Then move into the catalog pages.</p>
+<p><a href="./kernels/kernels-index.html" class="btn btn-primary">Kernel catalog index</a> <a href="./kernels/summary-distribution-backend-reference.html" class="btn btn-outline-light">Summary backend table</a></p>
 </section>
 </div>
 <section>
 <div class="container">
-<div class="grid-3">
-<section id="bulk-kernels" class="level3 cardx">
-<h3 class="anchored" data-anchor-id="bulk-kernels">Bulk kernels</h3>
-<p>The bulk model is intended to flexibly represent the “typical” range of the outcome distribution (skewness, multimodality, heterogeneity). Kernel choice mainly affects interpretability and computational behavior.</p>
+<section id="how-to-choose" class="level2">
+<h2 class="anchored" data-anchor-id="how-to-choose">How to choose</h2>
+<ol type="1">
+<li>Confirm support: real-line vs positive-support.</li>
+<li>Match bulk behavior: symmetry, skew, heavy tails, multimodality tolerance.</li>
+<li>Decide backend workflow with <a href="./start/backends-and-workflow.html">Start backends and workflow</a>.</li>
+<li>Validate with examples and diagnostics.</li>
+</ol>
 </section>
-<section id="tail-modeling-gpd" class="level3 cardx">
-<h3 class="anchored" data-anchor-id="tail-modeling-gpd">Tail modeling (GPD)</h3>
-<p>Tail modeling targets rare, high-impact outcomes beyond a threshold. The threshold strategy and tail parameterization determine extrapolation behavior and uncertainty.</p>
+<section id="key-kernel-pages" class="level2">
+<h2 class="anchored" data-anchor-id="key-kernel-pages">Key kernel pages</h2>
+<ul>
+<li><a href="./kernels/kernel-normal.html">Normal</a></li>
+<li><a href="./kernels/kernel-laplace.html">Laplace</a></li>
+<li><a href="./kernels/kernel-cauchy.html">Cauchy</a></li>
+<li><a href="./kernels/kernel-lognormal.html">Lognormal</a></li>
+<li><a href="./kernels/kernel-gamma.html">Gamma</a></li>
+<li><a href="./kernels/kernel-amoroso.html">Amoroso</a></li>
+<li><a href="./kernels/kernel-inverse-gaussian-base.html">Inverse Gaussian (base)</a></li>
+<li><a href="./kernels/kernel-inverse-gaussian-mixture.html">Inverse Gaussian (mixture)</a></li>
+</ul>
 </section>
-<section id="registry-and-introspection" class="level3 cardx">
-<h3 class="anchored" data-anchor-id="registry-and-introspection">Registry and introspection</h3>
-<p>Programmatic access to what is supported (useful for automated workflows and checks). - <a href="pkgdown/reference/get_kernel_registry.html">get_kernel_registry</a> - <a href="pkgdown/reference/get_tail_registry.html">get_tail_registry</a></p>
+<section id="supporting-pages" class="level2">
+<h2 class="anchored" data-anchor-id="supporting-pages">Supporting pages</h2>
+<ul>
+<li><a href="./kernels/mathematical-definitions-and-conventions.html">Mathematical definitions and conventions</a></li>
+<li><a href="./kernels/introduction-with-gpd-kernel.html">Introduction with GPD kernel</a></li>
+<li><a href="./kernels/summary-distribution-backend-reference.html">Summary distribution-backend reference</a></li>
+</ul>
 </section>
-</div>
+<section id="api-and-registries" class="level2">
+<h2 class="anchored" data-anchor-id="api-and-registries">API and registries</h2>
+<ul>
+<li><a href="pkgdown/reference/kernel_support_table.html">Kernel support table</a></li>
+<li><a href="pkgdown/reference/get_kernel_registry.html">Kernel registry</a></li>
+<li><a href="pkgdown/reference/get_tail_registry.html">Tail registry</a></li>
+</ul>
+</section>
 </div>
 </section>
 

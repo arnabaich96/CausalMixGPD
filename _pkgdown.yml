@@ -5,6 +5,15 @@ destination: docs/pkgdown
 build:
   lazy: false
 
+articles:
+  - title: "Articles"
+    contents:
+      - "01-basic"
+      - "02-model-spec"
+      - "03-unconditional"
+      - "04-conditional"
+      - "05-causal"
+
 template:
   bootstrap: 5
   includes:

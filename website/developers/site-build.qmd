@@ -6,21 +6,23 @@ format:
     code-fold: true
 ---
 
-The project has a "Quarto face" and a "pkgdown reference behind it".
+## Single build contract
 
-## Outputs
+- `website/` is the only Quarto project.
+- Quarto output publishes to `docs/`.
+- pkgdown output publishes to `docs/pkgdown/`.
+- Forbidden in-source outputs: `website/docs/` and `website/_site/`.
 
-- Quarto renders into `docs/` (root pages, kernels, workflows, vignettes).
-- pkgdown renders into `docs/pkgdown/`.
+## Build script behavior
 
-## Navigation
+`tools/build_docs.R` renders Quarto and pkgdown, then syncs to published targets:
 
-- Quarto navbar is controlled by `website/_quarto.yml`.
-- The Quarto "Reference" item should link into `pkgdown/reference/index.html`.
+- Quarto -> `docs/`
+- pkgdown -> `docs/pkgdown/`
 
 ## Recommended checks before pushing
 
-1. Quarto render succeeds and `docs/index.html` loads.
-2. pkgdown builds without missing topics.
-3. Internal link graph has no broken links and no unexpected new orphans.
-
+1. Run `Rscript tools/build_docs.R`.
+2. Confirm `docs/index.html` and `docs/pkgdown/index.html` exist.
+3. Run `Rscript tools/site-map/run_site_map_checks.R --site-root=docs`.
+4. Ensure there are zero broken internal links and no legacy-page violations.

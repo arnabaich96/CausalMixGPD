@@ -8,7 +8,6 @@ consistent prediction API.
 
 ``` r
 
-
 # install.packages("remotes")
 remotes::install_github(
   "arnabaich96/DPmixGPD",
@@ -20,17 +19,22 @@ remotes::install_github(
 ## Vignettes
 
 - [**Model specification and posterior
-  computation**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/01-basic.md)
+  computation**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/01-basic.html)
 - [**Model fundamentals (bulk DPM + GPD
-  tail)**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/02-model-spec.md)
+  tail)**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/02-model-spec.html)
 - [**Unconditional
-  workflow**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/03-unconditional.md)
+  workflow**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/03-unconditional.html)
 - [**Conditional
-  workflow**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/04-conditional.md)
+  workflow**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/04-conditional.html)
 - [**Causal
-  workflow**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/05-causal.md)
+  workflow**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/05-causal.html)
 
 ## Reference
 
 - [**Function
-  reference**](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/index.md)
+  reference**](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/index.html)
+
+## Additional docs
+
+- [**Package
+  roadmap**](https://arnabaich96.github.io/DPmixGPD/pkgdown/ROADMAP.md)

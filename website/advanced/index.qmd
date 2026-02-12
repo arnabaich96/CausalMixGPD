@@ -1,0 +1,18 @@
+﻿---
+title: "Advanced"
+page-layout: full
+---
+
+## Advanced Hub
+
+Route into advanced model architecture and tuning pages.
+
+- [Model umbrella](model-umbrella.qmd)
+- [Customization and tuning](customization-and-tuning.qmd)
+- [GPD-in-DPM architecture](gpd-in-dpm-architecture.qmd)
+
+## Related links
+
+- [Kernels hub](../kernels.qmd)
+- [Start backends and workflow](../start/backends-and-workflow.qmd)
+- [pkgdown reference](../pkgdown/reference/index.html)

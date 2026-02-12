@@ -1,5 +1,6 @@
-project:
+﻿project:
   type: website
+  output-dir: ../docs
   render:
     - "**/*.qmd"
     - "!**/*.knit.md"
@@ -12,87 +13,43 @@ website:
     left:
       - text: Home
         href: index.qmd
-
       - text: Start
         menu:
-          - text: Start overview
+          - text: Start Hub
             href: start/index.qmd
-          - text: Start here
+          - text: Roadmap
+            href: start/roadmap.qmd
+          - text: Start Here
             href: start/start-here.qmd
-          - text: Basic model compile and run
+          - text: Basic Compile and Run
             href: start/basic-model-compile-run.qmd
-          - text: Backends and workflow
+          - text: Backends and Workflow
             href: start/backends-and-workflow.qmd
           - text: Troubleshooting
             href: start/troubleshooting.qmd
-
       - text: Examples
         href: examples/index.qmd
-
+      - text: Kernels
+        href: kernels.qmd
       - text: Advanced
-        menu:
-          - text: Advanced overview
-            href: advanced/index.qmd
-          - text: Model umbrella
-            href: advanced/model-umbrella.qmd
-          - text: Customization and tuning
-            href: advanced/customization-and-tuning.qmd
-          - text: GPD-in-DPM architecture
-            href: advanced/gpd-in-dpm-architecture.qmd
-
-      - text: Docs
-        menu:
-          - text: Docs overview
-            href: reference.qmd
-          - text: Kernels
-            href: kernels.qmd
-          - text: Decision guide
-            href: decision-guide.qmd
-          - text: FAQ
-            href: faq.qmd
-          - text: News
-            href: news.qmd
-          - text: Cite
-            href: cite.qmd
-          - text: Coverage
-            href: coverage.qmd
-
+        href: advanced/index.qmd
       - text: Developers
-        menu:
-          - text: Overview
-            href: developers.qmd
-          - text: Architecture
-            href: developers/architecture.qmd
-          - text: Tools
-            href: developers/tools.qmd
-          - text: Website build
-            href: developers/site-build.qmd
-          - text: Spec and contracts
-            href: developers/spec-and-contracts.qmd
-          - text: Kernel registry
-            href: developers/registry.qmd
-          - text: Add a kernel
-            href: developers/add-kernel.qmd
-          - text: Tail options
-            href: developers/add-tail-option.qmd
-          - text: Causal internals
-            href: developers/causal-internals.qmd
-          - text: Testing
-            href: developers/testing.qmd
-          - text: Conventions
-            href: developers/conventions.qmd
-          - text: Releasing
-            href: developers/releasing.qmd
-
+        href: developers/index.qmd
       - text: Reference
-        href: pkgdown/reference/index.html
-
+        href: reference.qmd
+      - text: News
+        href: news.qmd
+      - text: Cite
+        href: cite.qmd
+      - text: Coverage
+        href: coverage.qmd
     right:
-      - text: Pkgdown
-        href: pkgdown/index.html
+      - text: API Reference
+        href: pkgdown/reference/index.html
+      - text: Articles
+        href: pkgdown/articles/index.html
       - icon: github
         href: "https://github.com/arnabaich96/DPmixGPD"
-
 
 format:
   html:
@@ -103,9 +60,6 @@ format:
     include-after-body: _footer.html
 
 execute:
-  enabled: true
+  enabled: false
   cache: true
   freeze: auto
-
-
-

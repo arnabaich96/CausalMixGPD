@@ -32,7 +32,7 @@ infer_section <- function(path) {
   }
 
   first_segment <- strsplit(path, "/", fixed = TRUE)[[1]][1]
-  known_sections <- c("Examples", "QuickStart", "Advanced", "kernels", "vignettes", "pkgdown")
+  known_sections <- c("start", "examples", "advanced", "kernels", "developers", "pkgdown")
   if (first_segment %in% known_sections) {
     return(first_segment)
   }
@@ -40,29 +40,34 @@ infer_section <- function(path) {
 }
 
 infer_workflow_segment <- function(path) {
-  if (grepl("^QuickStart/", path)) {
-    return("quickstart")
+  if (path %in% c(
+    "start/start-here.html",
+    "start/basic-model-compile-run.html",
+    "start/backends-and-workflow.html"
+  )) {
+    return("start")
   }
 
-  if (!grepl("^Examples/ex\\d{2}-", path)) {
+  if (identical(path, "start/troubleshooting.html")) {
+    return("troubleshooting")
+  }
+
+  if (!grepl("^examples/ex\\d{2}-", path)) {
     return(NA_character_)
   }
 
-  idx <- suppressWarnings(as.integer(sub("^Examples/ex(\\d{2})-.*$", "\\1", path)))
+  idx <- suppressWarnings(as.integer(sub("^examples/ex(\\d{2})-.*$", "\\1", path)))
   if (is.na(idx)) {
     return(NA_character_)
   }
 
-  if (idx == 20) {
-    return("troubleshooting")
-  }
-  if (idx >= 5 && idx <= 9) {
+  if (idx >= 1 && idx <= 4) {
     return("unconditional")
   }
-  if (idx >= 10 && idx <= 13) {
+  if (idx >= 5 && idx <= 8) {
     return("conditional")
   }
-  if (idx >= 14 && idx <= 19) {
+  if (idx >= 9 && idx <= 14) {
     return("causal")
   }
 

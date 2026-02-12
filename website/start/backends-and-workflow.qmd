@@ -57,7 +57,7 @@ if (!exists("safe_plot", mode = "function")) {
 >
 > For the up-to-date workflow, see the main package vignettes (basic, unconditional, conditional, and causal)..
 
-[Workflow roadmap](../roadmap.html){.btn .btn-outline-light}
+[Workflow roadmap](roadmap.html){.btn .btn-outline-light}
 
 
 # Big picture
@@ -126,7 +126,7 @@ kernel_support_table()
 
 # Where to go next
 
-- **Available distributions**: see **Start introduction** for the `d/p/q/r` functions and examples.
+- **Available distributions**: see the [Kernels hub](../kernels.html) and kernel catalog pages.
 - **Basic build/compile/run**: see **Start basic-model-compile-run**.
 - **Unconditional / Conditional / Causal**: continue through ex01+.
 
@@ -137,7 +137,7 @@ kernel_support_table()
 
 - Previous: [basic-model-compile-run](basic-model-compile-run.html)
 - Next: [ex01-unconditional-dpm-crp](../examples/ex01-unconditional-dpm-crp.html)
-- Workflow index: [Roadmap](../roadmap.html)
+- Workflow index: [Roadmap](roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
 

@@ -1,6 +1,6 @@
 # Articles
 
-### All vignettes
+### Articles
 
 - [DPmixGPD: Model specification and posterior
   computation](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/01-basic.md):
