@@ -181,7 +181,7 @@ build_docs <- function(
   dir.create(quarto_abs, recursive = TRUE, showWarnings = FALSE)
 
   # ---------------------------------------------------------------------------
-  # 5) Quarto render (full project or incremental targets)
+  # 5) Quarto render (project render only; avoid per-file output-dir)
   # ---------------------------------------------------------------------------
   pkg_version <- read.dcf(file.path(root, "DESCRIPTION"), "Version")[1]
   build_date  <- format(Sys.Date(), "%Y-%m-%d")
@@ -193,35 +193,21 @@ build_docs <- function(
     character(0)
   }
   render_targets <- unique(c(explicit_targets, auto_targets))
-  incremental_mode <- length(render_targets) > 0
-
-  if (incremental_mode) {
-    msg("[1/3] Quarto: incremental render of ", length(render_targets), " target(s)")
-    for (tgt in render_targets) {
-      src <- file.path(quarto_project, tgt)
-      if (!file.exists(src)) {
-        msg("Skipping missing target: ", tgt)
-        next
-      }
-      run_cmd(quarto_exe, c(
-        "render",
-        src,
-        "--output-dir", docs_abs,
-        "--metadata", paste0("version:", pkg_version),
-        "--metadata", paste0("updated:", build_date)
-      ))
-    }
+  has_targets <- length(render_targets) > 0
+  if (has_targets) {
+    msg("[1/3] Quarto: targets detected (", length(render_targets), "), rendering full project")
   } else {
     msg("[1/3] Quarto: full project render -> quarto/ in root")
-    ensure_clean_dir(quarto_abs)
-    run_cmd(quarto_exe, c(
-      "render",
-      quarto_project,
-      "--output-dir", quarto_abs,
-      "--metadata", paste0("version:", pkg_version),
-      "--metadata", paste0("updated:", build_date)
-    ))
   }
+
+  ensure_clean_dir(quarto_abs)
+  run_cmd(quarto_exe, c(
+    "render",
+    quarto_project,
+    "--output-dir", quarto_abs,
+    "--metadata", paste0("version:", pkg_version),
+    "--metadata", paste0("updated:", build_date)
+  ))
 
   msg("Quarto render complete.")
 
@@ -229,21 +215,17 @@ build_docs <- function(
   website_dir <- file.path(root, "website")
   for (css_file in c("styles.css", "theme.css")) {
     src_file <- file.path(website_dir, css_file)
-    dst_file <- if (incremental_mode) file.path(docs_abs, css_file) else file.path(quarto_abs, css_file)
+    dst_file <- file.path(quarto_abs, css_file)
     if (file.exists(src_file)) {
       file.copy(src_file, dst_file, overwrite = TRUE, copy.mode = FALSE)
       msg("Copied CSS file: ", css_file)
     }
   }
 
-  if (!incremental_mode) {
-    # Sync Quarto -> docs (excluding pkgdown)
-    msg("[2/3] Sync: Quarto output (quarto/) -> docs/ (excluding pkgdown/)")
-    clean_docs_root(docs_abs, preserve_top = "pkgdown")
-    sync_tree(quarto_abs, docs_abs, exclude_prefix = "pkgdown")
-  } else {
-    msg("[2/3] Sync: skipped (incremental render writes directly to docs/)")
-  }
+  # Sync Quarto -> docs (excluding pkgdown)
+  msg("[2/3] Sync: Quarto output (quarto/) -> docs/ (excluding pkgdown/)")
+  clean_docs_root(docs_abs, preserve_top = "pkgdown")
+  sync_tree(quarto_abs, docs_abs, exclude_prefix = "pkgdown")
 
   # ---------------------------------------------------------------------------
   # 6) Optional legacy vignette hook

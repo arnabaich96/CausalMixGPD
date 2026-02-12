@@ -1,0 +1,176 @@
+﻿---
+title: "Start Here"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = NA,
+  fig.width = 8,
+  fig.height = 5,
+  message = FALSE,
+  warning = FALSE,
+  cache=TRUE,
+  cache.path = '../examples/legacy-cache-v2/'
+)
+
+# Reproducibility
+set.seed(1)
+
+# Fast-by-default rendering. Flip to FALSE for a fuller run.
+FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
+
+# Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
+mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
+
+
+# Ensure package is fully loaded for data access
+if (!require("devtools", quietly = TRUE)) {
+  library(devtools)
+}
+pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
+  devtools::load_all(path = pkg_root, quiet = TRUE)
+
+# Precomputed results for fast website builds
+source("_legacy-setup.R")
+if (!exists("safe_plot", mode = "function")) {
+  safe_plot <- function(x, ...) {
+    obj <- tryCatch(plot(x, ...), error = function(e) e)
+    if (inherits(obj, "ggplot")) {
+      try(print(obj), silent = TRUE)
+    } else if (is.list(obj)) {
+      for (elt in obj) if (inherits(elt, "ggplot")) try(print(elt), silent = TRUE)
+    }
+    invisible(obj)
+  }
+}
+```
+
+
+> **Legacy vignette (for the website / historical notes).**
+> These files may not match the current exported API one-to-one.
+> Last verified: **2026-01-18**.
+>
+> For the up-to-date workflow, see the main package vignettes (basic, unconditional, conditional, and causal)..
+
+[Workflow roadmap](../roadmap.html){.btn .btn-outline-light}
+
+
+## Quick start
+
+This vignette gives a minimal, fully working workflow for an **unconditional** model and a **conditional** model. Everything uses short MCMC runs so the vignette renders quickly.
+
+---
+
+## Unconditional Model (CRP, bulk-only)
+
+```{r start-uncond-data}
+data("nc_pos200_k3", package = "DPmixGPD")
+y <- nc_pos200_k3$y
+```
+
+```{r start-uncond-bundle, cache=TRUE}
+bundle_uncond <- DPmixGPD::build_nimble_bundle(
+  y = y,
+  backend = "crp",
+  kernel = "gamma",
+  GPD = FALSE,
+  components = 5,
+  mcmc = mcmc
+)
+```
+
+```{r start-uncond-fit, cache=TRUE}
+fit_uncond <- load_or_fit("quickstart-start-here-fit_uncond", quiet_mcmc(run_mcmc_bundle_manual(bundle_uncond, show_progress = FALSE)))
+summary(fit_uncond)
+```
+
+```{r start-uncond-predict, cache=TRUE}
+pred_q <- predict(fit_uncond, type = "quantile", p = c(0.5, 0.9), interval = "credible")
+head(pred_q$fit)
+safe_plot(pred_q)
+```
+
+---
+
+## Conditional Model (SB, bulk-only)
+
+```{r start-cond-data}
+data("nc_posX100_p3_k2", package = "DPmixGPD")
+yc <- nc_posX100_p3_k2$y
+X <- as.matrix(nc_posX100_p3_k2$X)
+```
+
+```{r start-cond-bundle, cache=TRUE}
+bundle_cond <- DPmixGPD::build_nimble_bundle(
+  y = yc,
+  X = X,
+  backend = "sb",
+  kernel = "lognormal",
+  GPD = FALSE,
+  components = 5,
+  mcmc = mcmc
+)
+```
+
+```{r start-cond-fit, cache=TRUE}
+fit_cond <- load_or_fit("quickstart-start-here-fit_cond", quiet_mcmc(run_mcmc_bundle_manual(bundle_cond, show_progress = FALSE)))
+summary(fit_cond)
+```
+
+```{r start-cond-predict, cache=TRUE}
+x_new <- X[1:20, , drop = FALSE]
+pred_mean <- predict(fit_cond, x = x_new, type = "mean", interval = "credible", nsim_mean = 200)
+head(pred_mean$fit)
+safe_plot(pred_mean)
+```
+
+---
+
+## Useful S3 Methods
+
+```{r start-s3}
+params(fit_uncond)
+safe_plot(fit_uncond, family = c("traceplot", "running"))
+```
+
+---
+
+## Next Steps
+
+- `start/introduction`: package overview and terminology
+- `examples/ex01`: full three-phase workflow (spec -> bundle -> MCMC)
+- `examples/ex01-ex08`: unconditional/conditional models with and without GPD
+- `examples/ex09-ex14`: causal workflows
+
+---
+
+<!-- workflow-nav:start -->
+## Workflow Navigation
+
+- Previous: none (start of workflow series)
+- Next: [introduction](introduction.html)
+- Workflow index: [Roadmap](../roadmap.html)
+- Practical entry: [Examples](../examples/index.html)
+<!-- workflow-nav:end -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -12,6 +12,7 @@ link-citations: true
 ---
 
 ```{r setup, include=FALSE}
+options(dpmixgpd.knitr.kable = TRUE)
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = NA,
@@ -21,8 +22,52 @@ knitr::opts_chunk$set(
 )
 
 .extdata <- function(fname) {
+  find_root <- function(start) {
+    cur <- normalizePath(start, winslash = "/", mustWork = FALSE)
+    for (i in 0:6) {
+      if (file.exists(file.path(cur, "DESCRIPTION"))) {
+        return(cur)
+      }
+      parent <- dirname(cur)
+      if (identical(parent, cur)) {
+        break
+      }
+      cur <- parent
+    }
+    ""
+  }
+
+  candidates <- character()
   path <- system.file("extdata", fname, package = "DPmixGPD")
-  if (identical(path, "")) {
+  if (nzchar(path)) {
+    candidates <- c(candidates, path)
+  }
+  pkg_dir <- suppressWarnings(find.package("DPmixGPD", quiet = TRUE))
+  if (nzchar(pkg_dir)) {
+    candidates <- c(candidates, file.path(pkg_dir, "extdata", fname))
+  }
+  input <- tryCatch(knitr::current_input(), error = function(e) "")
+  if (nzchar(input)) {
+    input_dir <- dirname(normalizePath(input, winslash = "/", mustWork = FALSE))
+    root <- normalizePath(file.path(input_dir, ".."), winslash = "/", mustWork = FALSE)
+    if (file.exists(file.path(root, "DESCRIPTION"))) {
+      candidates <- c(candidates, file.path(root, "inst", "extdata", fname))
+    }
+  }
+  root <- find_root(getwd())
+  if (nzchar(root)) {
+    candidates <- c(candidates, file.path(root, "inst", "extdata", fname))
+  }
+  candidates <- c(
+    candidates,
+    file.path("..", "extdata", fname),
+    file.path("extdata", fname),
+    file.path(getwd(), "..", "extdata", fname),
+    file.path(getwd(), "extdata", fname)
+  )
+  candidates <- unique(candidates)
+  hit <- candidates[file.exists(candidates)][1]
+  if (!length(hit)) {
     stop(
       "Missing precomputed vignette artifact '", fname, "'.\n",
       "Run tools/make_vignette_artifacts.R from the package root to generate inst/extdata/*.\n",
@@ -30,7 +75,7 @@ knitr::opts_chunk$set(
       call. = FALSE
     )
   }
-  path
+  normalizePath(hit, winslash = "/", mustWork = TRUE)
 }
 ```
 

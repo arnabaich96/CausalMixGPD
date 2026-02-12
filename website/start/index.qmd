@@ -1,0 +1,64 @@
+---
+title: "Start"
+page-layout: full
+---
+
+::: {.hero}
+::: {.container}
+# Start
+
+The fastest path from install to a working model. Follow the core workflow, then expand into conditional or causal examples.
+
+[Start here](start-here.html){.btn .btn-primary}
+[Workflow roadmap](../roadmap.html){.btn .btn-outline-light}
+[Examples hub](../examples/index.html){.btn .btn-outline-light}
+:::
+:::
+
+::: {.section}
+::: {.container}
+
+::: {.grid-3}
+
+::: {.cardx}
+### 1) Minimal end-to-end run
+Prove the pipeline works with a small dataset and short MCMC run.
+- [Start here](start-here.html)
+- [Basic model compile and run](basic-model-compile-run.html)
+:::
+
+::: {.cardx}
+### 2) Understand backends and workflow
+Decide whether CRP or stick-breaking fits your workflow.
+- [Backends and workflow](backends-and-workflow.html)
+- [Decision Guide](../decision-guide.html)
+:::
+
+::: {.cardx}
+### 3) If anything breaks
+Common setup and runtime issues live here.
+- [Troubleshooting](troubleshooting.html)
+- [FAQ](../faq.html)
+:::
+
+:::
+
+:::
+:::
+
+::: {.section}
+::: {.container}
+
+## Where the detailed documentation lives
+This Quarto site focuses on navigation and workflow. The authoritative API reference and articles live in pkgdown:
+- [Pkgdown home](../pkgdown/index.html)
+- [API index](../pkgdown/reference/index.html)
+- [Articles index](../pkgdown/articles/index.html)
+
+## Recommended next steps
+1. Follow the Start workflow end-to-end once.
+2. Use Examples for full unconditional, conditional, and causal sequences.
+3. Use Kernels to confirm the distribution family that matches your data.
+
+:::
+:::

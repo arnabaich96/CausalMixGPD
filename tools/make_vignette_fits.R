@@ -145,14 +145,20 @@ cb <- build_causal_bundle(
 
 fit_a <- run_mcmc_causal(cb, show_progress = TRUE)
 
-q <- qte(fit_a, probs = c(0.5, 0.9, 0.95), interval = "credible", level = 0.90)
+q <- qte(
+  fit_a,
+  probs = c(0.5, 0.9, 0.95),
+  interval = "credible",
+  level = 0.90,
+  newdata = X_a[1, , drop = FALSE]
+)
 a <- ate(fit_a, interval = "credible", level = 0.90, nsim_mean = 100)
 
 q_df <- data.frame(
   prob = q$grid,
-  estimate = q$fit,
-  lower = q$lower,
-  upper = q$upper
+  estimate = as.numeric(q$fit),
+  lower = as.numeric(q$lower),
+  upper = as.numeric(q$upper)
 )
 
 a_df <- data.frame(

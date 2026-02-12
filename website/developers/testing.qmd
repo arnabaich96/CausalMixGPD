@@ -1,4 +1,4 @@
----
+﻿---
 title: "Testing strategy"
 toc: true
 format:
@@ -18,10 +18,12 @@ Keep tests cheap, deterministic, and layered.
 
 - d/p/q/r coherence for a small grid
 - CDF monotonicity
-- quantile inversion: `p(q(u)) ≈ u` on a grid
+- quantile inversion: `p(q(u)) $\\approx$ u` on a grid
 - support constraints
 
 ## Website tests (optional but valuable)
 
 - internal link graph has no broken links
 - workflows chain remains intact
+
+

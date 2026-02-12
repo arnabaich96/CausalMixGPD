@@ -11,12 +11,30 @@ website:
 
       - text: Start
         menu:
-          - text: Getting Started
-            href: getting-started.qmd
-          - text: Decision Guide
-            href: decision-guide.qmd
-          - text: FAQ
-            href: faq.qmd
+          - text: Start overview
+            href: start/index.qmd
+          - text: Start here
+            href: start/start-here.qmd
+          - text: Basic model compile and run
+            href: start/basic-model-compile-run.qmd
+          - text: Backends and workflow
+            href: start/backends-and-workflow.qmd
+          - text: Troubleshooting
+            href: start/troubleshooting.qmd
+
+      - text: Examples
+        href: examples/index.qmd
+
+      - text: Advanced
+        menu:
+          - text: Advanced overview
+            href: advanced/index.qmd
+          - text: Model umbrella
+            href: advanced/model-umbrella.qmd
+          - text: Customization and tuning
+            href: advanced/customization-and-tuning.qmd
+          - text: GPD-in-DPM architecture
+            href: advanced/gpd-in-dpm-architecture.qmd
 
       - text: Docs
         menu:
@@ -24,8 +42,16 @@ website:
             href: reference.qmd
           - text: Kernels
             href: kernels.qmd
-          - text: Examples
-            href: Examples/index.qmd
+          - text: Decision guide
+            href: decision-guide.qmd
+          - text: FAQ
+            href: faq.qmd
+          - text: News
+            href: news.qmd
+          - text: Cite
+            href: cite.qmd
+          - text: Coverage
+            href: coverage.qmd
 
       - text: Developers
         menu:
@@ -55,11 +81,11 @@ website:
             href: developers/releasing.qmd
 
       - text: Reference
-        href: /pkgdown/reference/index.html
+        href: pkgdown/reference/index.html
 
     right:
       - text: Pkgdown
-        href: /pkgdown/index.html
+        href: pkgdown/index.html
       - icon: github
         href: "https://github.com/arnabaich96/DPmixGPD"
 

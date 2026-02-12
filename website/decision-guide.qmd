@@ -9,7 +9,7 @@ page-layout: full
 
 A practical guide for choosing the right DPmixGPD configuration. This is not a theory chapter; it is a "pick the next step" tool. When in doubt, start with a simple bulk model and add complexity only when diagnostics justify it.
 
-[Go to Examples](Examples/index.html){.btn .btn-primary}
+[Go to Examples](examples/index.html){.btn .btn-primary}
 [Open Kernels](kernels.html){.btn .btn-outline-light}
 :::
 :::
@@ -60,7 +60,7 @@ Use this decision early because it changes the workflow.
 ::: {.cardx}
 ### A) I want a fast first fit
 Start with an unconditional bulk model (no tail), run diagnostics, then expand.
-- Next: [Examples](Examples/index.html)
+- Next: [Examples](examples/index.html)
 :::
 
 ::: {.cardx}
@@ -74,7 +74,7 @@ Start with a bulk model plus tail model. Treat threshold and tail uncertainty as
 ### C) I need covariate effects or treatment effects
 Use conditional/causal workflows from the start. Fit per-arm models (causal) or covariate-dependent models (conditional), then summarize effects.
 - Next: [Roadmap](roadmap.html)
-- Then: [Examples](Examples/index.html)
+- Then: [Examples](examples/index.html)
 :::
 
 :::
@@ -124,7 +124,7 @@ When in doubt, start with the backend your existing workflow already supports mo
 
 ## Where to go for details
 - Kernel availability and combinations: [Kernels](kernels.html)
-- End-to-end workflows: [Examples](Examples/index.html)
+- End-to-end workflows: [Examples](examples/index.html)
 - Full API (functions, arguments, return objects): [Reference landing](reference.html) or [API index](pkgdown/reference/index.html)
 - Design questions and future directions: [Discussions](https://github.com/arnabaich96/DPmixGPD/discussions)
 

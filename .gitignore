@@ -71,13 +71,7 @@ docs/.quarto/
 tmp-*.R
 vignettes/legacy/legacy-cache/
 inst/extdata/legacy-precomputed/
-# Legacy precomputed results (generated locally, not tracked in git)
-vignettes/legacy/articles/legacy-precomputed/
-**/legacy-precomputed/
-vignettes/workflows/legacy-cache
-vignettes/Customization/legacy-cache
-vignettes/website/kernels/legacy-cache
-vignettes/website/kernels/articles/legacy-precomputed
+
 
 # Exclude cache files larger than 10MB (prevent GitHub large file errors)
 website/**/legacy-cache/**/*.rdb

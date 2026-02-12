@@ -1,4 +1,4 @@
----
+﻿---
 title: "Website build and deployment"
 toc: true
 format:
@@ -6,7 +6,7 @@ format:
     code-fold: true
 ---
 
-The project has a “Quarto face” and a “pkgdown reference behind it”.
+The project has a "Quarto face" and a "pkgdown reference behind it".
 
 ## Outputs
 
@@ -16,10 +16,11 @@ The project has a “Quarto face” and a “pkgdown reference behind it”.
 ## Navigation
 
 - Quarto navbar is controlled by `website/_quarto.yml`.
-- The Quarto “Reference” item should link into `pkgdown/reference/index.html`.
+- The Quarto "Reference" item should link into `pkgdown/reference/index.html`.
 
 ## Recommended checks before pushing
 
 1. Quarto render succeeds and `docs/index.html` loads.
 2. pkgdown builds without missing topics.
 3. Internal link graph has no broken links and no unexpected new orphans.
+

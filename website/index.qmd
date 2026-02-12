@@ -9,7 +9,7 @@ title: "DPmixGPD"
 
 Bayesian semiparametric modeling for heavy-tailed outcomes using Dirichlet-process mixtures with optional GPD tails, with conditional and causal extensions.
 
-[Getting Started](getting-started.html){.btn .btn-primary} [Decision Guide](decision-guide.html){.btn .btn-outline-primary} [Reference (pkgdown)](pkgdown/reference/index.html){.btn .btn-outline-primary}
+[Start here](start/index.html){.btn .btn-primary} [Decision Guide](decision-guide.html){.btn .btn-outline-primary} [Pkgdown site](pkgdown/index.html){.btn .btn-outline-primary}
 
 <div style="margin-top:.75rem;font-size:.95rem;color:rgba(0,0,0,.7)">
 Explore the curated documentation in <a href="reference.html">Docs</a> or jump to <a href="faq.html">FAQ</a>.
@@ -29,14 +29,14 @@ Explore the curated documentation in <a href="reference.html">Docs</a> or jump t
 ### New users
 Start with a minimal workflow, then use the Decision Guide to select a backend + kernel.
 
-[Getting Started](getting-started.html){.btn .btn-primary} [Decision Guide](decision-guide.html){.btn .btn-outline-primary}
+[Start overview](start/index.html){.btn .btn-primary} [Decision Guide](decision-guide.html){.btn .btn-outline-primary}
 :::
 
 ::: {.cardx}
 ### Applied users
 Go straight to the Docs hub, pick kernels, and use the Examples for templates. For exact arguments, use pkgdown.
 
-[Docs](reference.html){.btn .btn-primary} [Kernels](kernels.html){.btn .btn-outline-primary} [Examples](Examples/index.html){.btn .btn-outline-primary}
+[Docs](reference.html){.btn .btn-primary} [Kernels](kernels.html){.btn .btn-outline-primary} [Examples](examples/index.html){.btn .btn-outline-primary}
 :::
 
 ::: {.cardx}
@@ -77,14 +77,14 @@ Distribution families, conventions, and practical guidance.
 ### Examples
 Workflow templates and common analysis patterns.
 
-[Open Examples](Examples/index.html){.btn .btn-outline-primary}
+[Open Examples](examples/index.html){.btn .btn-outline-primary}
 :::
 
 ::: {.cardx}
 ### Start here
 Minimal setup and your first end-to-end run.
 
-[Getting Started](getting-started.html){.btn .btn-outline-primary}
+[Start overview](start/index.html){.btn .btn-outline-primary}
 :::
 
 ::: {.cardx}

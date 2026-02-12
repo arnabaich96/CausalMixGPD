@@ -1,0 +1,319 @@
+﻿---
+title: "Basic Workflow: Model Specification, Bundle, & MCMC"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = NA,
+  fig.width = 8,
+  fig.height = 5,
+  message = FALSE,
+  warning = FALSE,
+  cache=TRUE,
+  cache.path = '../examples/legacy-cache-v2/'
+)
+
+# Reproducibility
+set.seed(1)
+
+# Fast-by-default rendering. Flip to FALSE for a fuller run.
+FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
+
+# Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
+mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
+
+# Load package (with all_quiet to suppress startup messages)
+library(DPmixGPD)
+
+# Ensure package is fully loaded for data access
+if (!require("devtools", quietly = TRUE)) {
+  library(devtools)
+}
+pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
+  devtools::load_all(path = pkg_root, quiet = TRUE)
+
+# Precomputed results for fast website builds
+source("_legacy-setup.R")
+if (!exists("safe_plot", mode = "function")) {
+  safe_plot <- function(x, ...) {
+    obj <- tryCatch(plot(x, ...), error = function(e) e)
+    if (inherits(obj, "ggplot")) {
+      try(print(obj), silent = TRUE)
+    } else if (is.list(obj)) {
+      for (elt in obj) if (inherits(elt, "ggplot")) try(print(elt), silent = TRUE)
+    }
+    invisible(obj)
+  }
+}
+```
+
+
+> **Legacy vignette (for the website / historical notes).**
+> These files may not match the current exported API one-to-one.
+> Last verified: **2026-01-18**.
+>
+> For the up-to-date workflow, see the main package vignettes (basic, unconditional, conditional, and causal)..
+
+[Workflow roadmap](../roadmap.html){.btn .btn-outline-light}
+
+
+# Workflow Overview
+
+DPmixGPD uses a direct two-step workflow:
+
+1. **Bundle** (`build_nimble_bundle`): Generate NIMBLE code and compile the sampler.
+2. **MCMC** (`run_mcmc_bundle_manual`): Execute posterior sampling.
+
+---
+
+## Phase 1: Bundle (NIMBLE Code Generation & Compilation)
+
+**Purpose**: Generate NIMBLE model code, compile sampler, prepare for MCMC execution.
+
+### Building Directly
+
+```{r bundle-direct, cache=TRUE}
+# Load packaged data
+data("nc_pos200_k3", package = "DPmixGPD")
+y <- nc_pos200_k3$y
+
+# Direct call
+bundle_direct <- DPmixGPD::build_nimble_bundle(
+  y = y,
+  kernel = "gamma",
+  backend = "crp",
+  GPD = FALSE,
+  components = 5,
+  mcmc = mcmc
+)
+
+print("Direct bundle creation successful.\n")
+```
+
+### Inspecting Bundle Contents
+
+```{r bundle-inspect}
+# Bundle is an S3 object with structure
+cat("Bundle class:", class(bundle_direct), "\n")
+cat("Bundle contains:\n")
+print(names(bundle_direct))
+
+# Access key components
+cat("\nMCMC settings:\n")
+print(bundle_direct$mcmc_settings)
+```
+
+---
+
+## Phase 3: MCMC Execution
+
+**Purpose**: Run posterior sampling from the compiled bundle.
+
+### Basic MCMC Run
+
+```{r mcmc-basic, cache=TRUE}
+# Run MCMC
+fit <- load_or_fit("quickstart-basic-model-compile-run-fit", run_mcmc_bundle_manual(bundle_direct, show_progress = FALSE))
+
+cat("Fit object class:", class(fit), "\n")
+cat("MCMC execution complete. Posterior samples collected.\n")
+```
+
+### Accessing Posterior Samples
+
+```{r mcmc-posterior}
+# Posterior summary
+print("\n--- POSTERIOR SUMMARY ---\n")
+summary(fit)
+
+# Posterior mean parameters in original form
+params_fit <- params(fit)
+params_fit
+```
+
+### Diagnostic Plots
+
+```{r mcmc-diagnostics}
+# Trace plots
+safe_plot(fit, params = "alpha|beta", family = c("traceplot", "running", "autocorrelation"))
+```
+
+---
+
+## Complete Workflow: End-to-End Example
+
+```{r workflow-complete, cache=TRUE}
+# Load packaged data
+data("nc_pos200_k3", package = "DPmixGPD")
+y_data <- nc_pos200_k3$y
+
+# PHASE 1: Bundle
+bundle_final <- DPmixGPD::build_nimble_bundle(
+  y = y_data,
+  kernel = "gamma",
+  backend = "crp",
+  GPD = FALSE,
+  components = 5,
+  mcmc = mcmc
+)
+
+# PHASE 2: MCMC
+fit_final <- load_or_fit("quickstart-basic-model-compile-run-fit_final", run_mcmc_bundle_manual(bundle_final, show_progress = FALSE))
+
+print("\n=== THREE-PHASE WORKFLOW COMPLETE ===\n")
+summary(fit_final)
+```
+
+---
+
+## Backend Comparison: CRP vs Stick-Breaking
+
+### CRP Backend
+
+```{r backend-crp, cache=TRUE}
+# Chinese Restaurant Process
+bundle_crp <- DPmixGPD::build_nimble_bundle(
+  y = y_data,
+  kernel = "gamma",
+  backend = "crp",
+  components = 5,
+  mcmc = mcmc
+)
+
+fit_crp <- load_or_fit("quickstart-basic-model-compile-run-fit_crp", run_mcmc_bundle_manual(bundle_crp, show_progress = FALSE))
+print("CRP execution complete.\n")
+```
+
+### Stick-Breaking Backend
+
+```{r backend-sb, cache=TRUE}
+# Stick-Breaking Process
+bundle_sb <- DPmixGPD::build_nimble_bundle(
+  y = y_data,
+  kernel = "gamma",
+  backend = "sb",
+  components = 5,
+  mcmc = mcmc
+)
+
+fit_sb <- load_or_fit("quickstart-basic-model-compile-run-fit_sb", run_mcmc_bundle_manual(bundle_sb, show_progress = FALSE))
+print("SB execution complete.\n")
+```
+
+---
+
+## Kernel Selection Guide
+
+```{r kernel-guide}
+kernels_available <- c("gamma", "lognormal", "normal", "laplace", "invgauss", "amoroso", "cauchy")
+
+cat("Available kernels:\n")
+for (k in kernels_available) {
+  cat("  -", k, "\n")
+}
+
+print("\nChoose kernel based on:\n")
+print("  gamma:     Right-skewed, positive support\n")
+print("  lognormal: Log-transformed normality\n")
+print("  normal:    Symmetric, unbounded\n")
+print("  laplace:   Sharp peak, exponential tails\n")
+print("  invgauss:  Positive, near-normal shape\n")
+print("  amoroso:   Generalized, maximum flexibility\n")
+print("  cauchy:    Heavy-tailed, rare cases\n")
+```
+
+---
+
+## GPD Tail Augmentation
+
+### Unconditional with GPD
+
+```{r gpd-example, eval=TRUE, cache=TRUE}
+# Data with tail behavior
+data("nc_pos_tail200_k4", package = "DPmixGPD")
+y_tail <- nc_pos_tail200_k4$y
+
+# Build with GPD
+bundle_gpd <- DPmixGPD::build_nimble_bundle(
+  y = y_tail,
+  kernel = "gamma",
+  backend = "sb",
+  GPD = TRUE,
+  components = 6,
+  mcmc = mcmc
+)
+
+fit_gpd <- load_or_fit("quickstart-basic-model-compile-run-fit_gpd", run_mcmc_bundle_manual(bundle_gpd, show_progress = FALSE))
+print("\nGPD augmentation applied to tail region.\n")
+summary(fit_gpd)
+```
+
+---
+
+## Summary of Key Functions
+
+| Phase | Function | Input | Output |
+|-------|----------|-------|--------|
+| **1. Bundle** | `DPmixGPD::build_nimble_bundle()` | y, X (optional), kernel, backend, GPD, components | `dpmixgpd_bundle` |
+| **2. MCMC** | `run_mcmc_bundle_manual()` | bundle | `mixgpd_fit` |
+
+---
+
+## Common Parameter Settings
+
+```{r param-reference}
+print("=== Recommended MCMC Parameters ===\n")
+print("Quick test:     niter=500,  nburnin=100, nchains=1\n")
+print("Standard:       niter=1000, nburnin=250, nchains=2\n")
+print("Production:     niter=1000, nburnin=250, nchains=3\n")
+print("\n=== Backend Parameters ===\n")
+print("Use components=3-5 for both backends in this implementation.\n")
+print("\n=== Kernel Selection ===\n")
+print("Positive data:     gamma, lognormal, invgauss\n")
+print("Any real data:     normal\n")
+print("Symmetric tails:   laplace\n")
+print("Extreme outliers:  cauchy\n")
+```
+
+---
+
+## Next Steps
+
+- Move to **ex01-ex02** for unconditional models (CRP vs SB backends)
+- Move to **ex03-ex04** for tail modeling with GPD
+- Move to **ex05-ex08** for conditional models with covariates
+- Move to **ex09-ex14** for causal inference workflows
+
+---
+
+<!-- workflow-nav:start -->
+## Workflow Navigation
+
+- Previous: [introduction](introduction.html)
+- Next: [backends-and-workflow](backends-and-workflow.html)
+- Workflow index: [Roadmap](../roadmap.html)
+- Practical entry: [Examples](../examples/index.html)
+<!-- workflow-nav:end -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

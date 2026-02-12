@@ -1,6 +1,0 @@
-﻿# website vignette build artifacts
-*_cache/
-*_files/
-*.html
-*.knit.md
-.Rproj.user/
