@@ -72,6 +72,19 @@ format_mat3_sci <- function(mat, digits = 3, big = 1e4) {
 }
 
 #' @noRd
+.knitr_asis <- function(...) {
+  if (!requireNamespace("knitr", quietly = TRUE)) return(NULL)
+  pieces <- list(...)
+  flat <- unlist(lapply(pieces, function(x) {
+    if (is.null(x)) return(character(0))
+    if (inherits(x, "knitr_kable")) return(as.character(x))
+    if (is.character(x)) return(x)
+    as.character(x)
+  }), use.names = FALSE)
+  knitr::asis_output(paste(flat, collapse = "\n"))
+}
+
+#' @noRd
 .kable_fmt <- function() {
   if (!requireNamespace("knitr", quietly = TRUE)) return("markdown")
   if (knitr::is_latex_output()) return("latex")
@@ -137,7 +150,7 @@ print_fmt3 <- function(x, ...) {
   if (is.data.frame(x)) {
     df_raw <- x
     df <- format_df3(x)
-    if (.is_knitr_output()) {
+    if (.is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))) {
       kbl <- .kable_table(df, row.names = row_names)
       if (!is.null(kbl)) return(print(kbl))
     }
@@ -147,7 +160,7 @@ print_fmt3 <- function(x, ...) {
   if (is.matrix(x)) {
     mat_raw <- x
     mat <- format_mat3(x)
-    if (.is_knitr_output()) {
+    if (.is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))) {
       kbl <- .kable_table(as.data.frame(mat), row.names = row_names)
       if (!is.null(kbl)) return(print(kbl))
     }
@@ -167,7 +180,7 @@ print_fmt3_sci <- function(x, digits = 3, big = 1e4, ...) {
   if (is.data.frame(x)) {
     df_raw <- x
     df <- format_df3_sci(x, digits = digits, big = big)
-    if (.is_knitr_output()) {
+    if (.is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))) {
       kbl <- .kable_table(df, row.names = row_names)
       if (!is.null(kbl)) return(print(kbl))
     }
@@ -177,7 +190,7 @@ print_fmt3_sci <- function(x, digits = 3, big = 1e4, ...) {
   if (is.matrix(x)) {
     mat_raw <- x
     mat <- format_mat3_sci(x, digits = digits, big = big)
-    if (.is_knitr_output()) {
+    if (.is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))) {
       kbl <- .kable_table(as.data.frame(mat), row.names = row_names)
       if (!is.null(kbl)) return(print(kbl))
     }

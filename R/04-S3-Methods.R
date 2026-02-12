@@ -36,8 +36,11 @@ print.dpmixgpd_bundle <- function(x, code = FALSE, max_code_lines = 200L, ...) {
   P       <- meta$P %||% 0L
   has_X   <- isTRUE(meta$has_X)
   GPD     <- isTRUE(meta$GPD)
+  knitr_kable <- .is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))
 
-  cat("DPmixGPD bundle\n")
+  if (!knitr_kable) {
+    cat("DPmixGPD bundle\n")
+  }
   tbl <- data.frame(
     Field = c("Backend", "Kernel", "Components", "N", "X", "GPD", "Epsilon"),
     Value = c(.backend_label(backend),
@@ -49,6 +52,38 @@ print.dpmixgpd_bundle <- function(x, code = FALSE, max_code_lines = 200L, ...) {
               fmt3(x$epsilon %||% 0.025)),
     stringsAsFactors = FALSE
   )
+  if (knitr_kable) {
+    kbl <- .kable_table(tbl, row.names = FALSE)
+    pieces <- list(
+      "DPmixGPD bundle",
+      kbl,
+      "  contains  : code, constants, data, dimensions, inits, monitors"
+    )
+    if (isTRUE(code)) {
+      code_lines <- NULL
+      code_obj <- .extract_nimble_code(x$code)
+      if (is.null(code_obj)) {
+        code_lines <- "  <no code available>"
+      } else {
+        out <- paste(deparse(code_obj), collapse = "\n")
+        out <- strsplit(out, "\n", fixed = TRUE)[[1]]
+        if (!is.finite(max_code_lines) || max_code_lines <= 0L) {
+          code_lines <- out
+        } else {
+          max_code_lines <- as.integer(max_code_lines)
+          show_n <- min(length(out), max_code_lines)
+          if (show_n > 0L) {
+            code_lines <- out[seq_len(show_n)]
+          }
+          if (length(out) > show_n) {
+            code_lines <- c(code_lines, sprintf("... (%d more lines)", length(out) - show_n))
+          }
+        }
+      }
+      pieces <- c(pieces, list("", "Model code", c("```", code_lines, "```")))
+    }
+    return(do.call(.knitr_asis, pieces))
+  }
   print_fmt3(tbl, row.names = FALSE)
   cat("\n  contains  : code, constants, data, dimensions, inits, monitors\n")
 
@@ -97,7 +132,10 @@ print.dpmixgpd_causal_bundle <- function(x, code = FALSE, max_code_lines = 200L,
   stopifnot(inherits(x, "dpmixgpd_causal_bundle"))
 
   meta <- x$meta %||% list()
-  cat("DPmixGPD causal bundle\n")
+  knitr_kable <- .is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))
+  if (!knitr_kable) {
+    cat("DPmixGPD causal bundle\n")
+  }
   ps_meta <- meta$ps %||% list()
   ps_model <- ps_meta$model_type %||% FALSE
   ps_label <- if (!isTRUE(ps_meta$enabled) || isFALSE(ps_model)) {
@@ -139,6 +177,30 @@ print.dpmixgpd_causal_bundle <- function(x, code = FALSE, max_code_lines = 200L,
     ),
     stringsAsFactors = FALSE
   )
+  if (knitr_kable) {
+    kbl <- .kable_table(tbl, row.names = FALSE)
+    pieces <- list(
+      "DPmixGPD causal bundle",
+      ps_label,
+      kbl,
+      "",
+      paste("Outcome PS included:", ifelse(isTRUE(meta$ps$enabled), "TRUE", "FALSE")),
+      paste("n (control) =", length(x$index$con %||% integer(0)),
+            "| n (treated) =", length(x$index$trt %||% integer(0)))
+    )
+    if (isTRUE(code)) {
+      code_lines <- capture.output({
+        cat("-- PS code --\n")
+        print(x$design, code = TRUE, max_code_lines = max_code_lines)
+        cat("\n-- Outcome code (control) --\n")
+        print(x$outcome$con, code = TRUE, max_code_lines = max_code_lines)
+        cat("\n-- Outcome code (treated) --\n")
+        print(x$outcome$trt, code = TRUE, max_code_lines = max_code_lines)
+      })
+      pieces <- c(pieces, list("", "Model code", c("```", code_lines, "```")))
+    }
+    return(do.call(.knitr_asis, pieces))
+  }
   print_fmt3(tbl, row.names = FALSE)
   cat("\n")
   cat("Outcome PS included:", ifelse(isTRUE(meta$ps$enabled), "TRUE", "FALSE"), "\n")
@@ -175,6 +237,11 @@ print.dpmixgpd_causal_bundle <- function(x, code = FALSE, max_code_lines = 200L,
 summary.dpmixgpd_causal_bundle <- function(object, code = FALSE, max_code_lines = 200L, ...) {
   stopifnot(inherits(object, "dpmixgpd_causal_bundle"))
 
+  knitr_kable <- .is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))
+  if (knitr_kable) {
+    base_out <- print.dpmixgpd_causal_bundle(object, code = code, max_code_lines = max_code_lines)
+    return(do.call(.knitr_asis, list("DPmixGPD causal bundle summary", base_out)))
+  }
   cat("DPmixGPD causal bundle summary\n")
   print.dpmixgpd_causal_bundle(object, code = FALSE, max_code_lines = max_code_lines)
   if (isTRUE(code)) {
@@ -395,8 +462,8 @@ summary.dpmixgpd_bundle <- function(object, ...) {
   P       <- meta$P %||% 0L
   has_X   <- isTRUE(meta$has_X)
   GPD     <- isTRUE(meta$GPD)
+  knitr_kable <- .is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))
 
-  cat("DPmixGPD bundle summary\n")
   meta_tbl <- data.frame(
     Field = c("Backend", "Kernel", "Components", "N", "X", "GPD", "Epsilon"),
     Value = c(.backend_label(backend),
@@ -408,17 +475,38 @@ summary.dpmixgpd_bundle <- function(object, ...) {
               fmt3(object$epsilon %||% 0.025)),
     stringsAsFactors = FALSE
   )
+  pri <- build_prior_table_from_spec(spec)
+  mons <- object$monitors %||% character()
+  if (knitr_kable) {
+    meta_kbl <- .kable_table(meta_tbl, row.names = FALSE)
+    pri_kbl <- .kable_table(format_df3(pri), row.names = FALSE)
+    pieces <- list(
+      "DPmixGPD bundle summary",
+      meta_kbl,
+      "",
+      "Parameter specification",
+      pri_kbl,
+      "",
+      "Monitors",
+      paste("  n =", length(mons))
+    )
+    if (length(mons)) {
+      show_n <- min(12L, length(mons))
+      pieces <- c(pieces, list(paste0("  ", paste(mons[seq_len(show_n)], collapse = ", "),
+                                      if (length(mons) > show_n) ", ..." else "")))
+    }
+    return(do.call(.knitr_asis, pieces))
+  }
+  cat("DPmixGPD bundle summary\n")
   print_fmt3(meta_tbl, row.names = FALSE)
   cat("\n")
 
   # Prior/parameter table
-  pri <- build_prior_table_from_spec(spec)
   cat("Parameter specification\n")
   print_fmt3(pri, row.names = FALSE)
   cat("\n")
 
   # Monitor overview (compact)
-  mons <- object$monitors %||% character()
   cat("Monitors\n")
   cat("  n =", length(mons), "\n")
   if (length(mons)) {
@@ -715,10 +803,51 @@ print.mixgpd_summary <- function(x, digits = 3, max_rows = 60, ...) {
   model <- x$model %||% list()
   waic <- x$waic
   trunc <- model$truncation %||% list()
+  knitr_kable <- .is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))
 
   gpd_txt <- if (isTRUE(model$gpd)) "TRUE" else if (identical(model$gpd, FALSE)) "FALSE" else "<unknown>"
   eps <- model$epsilon %||% NA_real_
 
+  if (knitr_kable) {
+    pieces <- list(
+      sprintf("MixGPD summary | backend: %s | kernel: %s | GPD tail: %s | epsilon: %s",
+              .backend_label(model$backend %||% "<unknown>"),
+              .kernel_label(model$kernel  %||% "<unknown>"),
+              gpd_txt,
+              ifelse(is.na(eps), "<unknown>", fmt3(eps))),
+      sprintf("n = %s | components = %s",
+              ifelse(is.na(model$n), "<unknown>", model$n),
+              ifelse(is.na(model$components), "<unknown>", model$components)),
+      "Summary"
+    )
+    if (!is.na(eps) && eps > 0) {
+      pieces <- c(pieces, list(sprintf("Initial components: %s | Components after truncation: %s",
+                                       ifelse(is.na(model$components), "<unknown>", model$components),
+                                       trunc$Kt %||% "<unknown>")))
+    }
+    if (!is.null(waic)) {
+      wa <- waic$WAIC %||% waic$waic %||% waic[["WAIC"]] %||% NA_real_
+      lp <- waic$lppd %||% waic[["lppd"]] %||% NA_real_
+      pw <- waic$pWAIC %||% waic[["pWAIC"]] %||% NA_real_
+      pieces <- c(pieces, list(sprintf("WAIC: %s", ifelse(is.na(wa), "<unknown>", fmt3(wa)))))
+      if (is.finite(lp) || is.finite(pw)) {
+        pieces <- c(pieces, list(sprintf("lppd: %s | pWAIC: %s",
+                                         ifelse(is.finite(lp), fmt3(lp), "<unknown>"),
+                                         ifelse(is.finite(pw), fmt3(pw), "<unknown>"))))
+      }
+    }
+    pieces <- c(pieces, list("", "Summary table"))
+
+    tab_print <- x$table
+    num_cols <- vapply(tab_print, is.numeric, logical(1))
+    tab_print[num_cols] <- lapply(tab_print[num_cols], function(v) round(v, digits))
+    if (nrow(tab_print) > max_rows) {
+      pieces <- c(pieces, list(sprintf("Showing first %d of %d parameters.", max_rows, nrow(tab_print)), ""))
+      tab_print <- tab_print[seq_len(max_rows), , drop = FALSE]
+    }
+    pieces <- c(pieces, list(.kable_table(tab_print, row.names = FALSE)))
+    return(do.call(.knitr_asis, pieces))
+  }
   cat(sprintf("MixGPD summary | backend: %s | kernel: %s | GPD tail: %s | epsilon: %s\n",
               .backend_label(model$backend %||% "<unknown>"),
               .kernel_label(model$kernel  %||% "<unknown>"),
@@ -1872,7 +2001,51 @@ print.dpmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
   level <- x$level %||% 0.95
   interval <- x$interval %||% "none"
   meta <- x$meta %||% list()
+  knitr_kable <- .is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))
 
+  if (knitr_kable) {
+    pieces <- list(
+      "QTE (Quantile Treatment Effect)",
+      sprintf("  Prediction points: %d", n_pred),
+      sprintf("  Quantile grid: %s", fmt3_vec(probs))
+    )
+    has_x <- !is.null(x$x)
+    ps_used <- !is.null(x$ps) && any(is.finite(x$ps))
+    pieces <- c(pieces, list(
+      sprintf("  Conditional (covariates): %s", if (has_x) "YES" else "NO"),
+      sprintf("  Propensity score used: %s", if (ps_used) "YES" else "NO")
+    ))
+    if (ps_used && !is.null(meta$ps_scale)) {
+      pieces <- c(pieces, list(sprintf("  PS scale: %s", meta$ps_scale)))
+    }
+    if (interval == "credible") {
+      pieces <- c(pieces, list(sprintf("  Credible interval: %s (%.0f%%)", interval, level * 100)))
+    } else {
+      pieces <- c(pieces, list(sprintf("  Credible interval: %s", interval)))
+    }
+    pieces <- c(pieces, list("", "QTE estimates (treated - control):"))
+
+    qte_fit <- x$qte$fit %||% NULL
+    if (!is.null(qte_fit) && is.data.frame(qte_fit)) {
+      show_df <- qte_fit
+      if (nrow(show_df) > max_rows) {
+        pieces <- c(pieces, list(.kable_table(format_df3_sci(utils::head(show_df, max_rows), digits = digits), row.names = FALSE)))
+        pieces <- c(pieces, list(sprintf("... (%d more rows)", nrow(show_df) - max_rows)))
+      } else {
+        pieces <- c(pieces, list(.kable_table(format_df3_sci(show_df, digits = digits), row.names = FALSE)))
+      }
+    } else if (!is.null(x$fit)) {
+      fit_mat <- x$fit
+      show_n <- min(nrow(fit_mat), max_rows)
+      pieces <- c(pieces, list(sprintf("  (matrix: %d x %d)", nrow(fit_mat), ncol(fit_mat))))
+      show_df <- as.data.frame(fit_mat[seq_len(show_n), , drop = FALSE])
+      pieces <- c(pieces, list(.kable_table(format_df3_sci(show_df, digits = digits), row.names = TRUE)))
+      if (nrow(fit_mat) > show_n) {
+        pieces <- c(pieces, list(sprintf("... (%d more rows)", nrow(fit_mat) - show_n)))
+      }
+    }
+    return(do.call(.knitr_asis, pieces))
+  }
   cat("QTE (Quantile Treatment Effect)\n")
   cat(sprintf("  Prediction points: %d\n", n_pred))
   cat(sprintf("  Quantile grid: %s\n", fmt3_vec(probs)))
@@ -1943,7 +2116,53 @@ print.dpmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
   interval <- x$interval %||% "none"
   nsim_mean <- x$nsim_mean %||% NA
   meta <- x$meta %||% list()
+  knitr_kable <- .is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))
 
+  if (knitr_kable) {
+    pieces <- list(
+      "ATE (Average Treatment Effect)",
+      sprintf("  Prediction points: %d", n_pred)
+    )
+    has_x <- !is.null(x$x)
+    ps_used <- !is.null(x$ps) && any(is.finite(x$ps))
+    pieces <- c(pieces, list(
+      sprintf("  Conditional (covariates): %s", if (has_x) "YES" else "NO"),
+      sprintf("  Propensity score used: %s", if (ps_used) "YES" else "NO")
+    ))
+    if (ps_used && !is.null(meta$ps_scale)) {
+      pieces <- c(pieces, list(sprintf("  PS scale: %s", meta$ps_scale)))
+    }
+    if (!is.na(nsim_mean)) {
+      pieces <- c(pieces, list(sprintf("  Posterior mean draws: %d", nsim_mean)))
+    }
+    if (interval == "credible") {
+      pieces <- c(pieces, list(sprintf("  Credible interval: %s (%.0f%%)", interval, level * 100)))
+    } else {
+      pieces <- c(pieces, list(sprintf("  Credible interval: %s", interval)))
+    }
+    pieces <- c(pieces, list("", "ATE estimates (treated - control):"))
+
+    ate_fit <- x$ate$fit %||% NULL
+    if (!is.null(ate_fit) && is.data.frame(ate_fit)) {
+      show_df <- ate_fit
+      if (nrow(show_df) > max_rows) {
+        pieces <- c(pieces, list(.kable_table(format_df3_sci(utils::head(show_df, max_rows), digits = digits), row.names = FALSE)))
+        pieces <- c(pieces, list(sprintf("... (%d more rows)", nrow(show_df) - max_rows)))
+      } else {
+        pieces <- c(pieces, list(.kable_table(format_df3_sci(show_df, digits = digits), row.names = FALSE)))
+      }
+    } else if (!is.null(x$fit)) {
+      fit_vec <- x$fit
+      show_n <- min(length(fit_vec), max_rows)
+      pieces <- c(pieces, list(sprintf("  (vector: %d)", length(fit_vec))))
+      show_df <- data.frame(estimate = fit_vec[seq_len(show_n)])
+      pieces <- c(pieces, list(.kable_table(format_df3_sci(show_df, digits = digits), row.names = FALSE)))
+      if (length(fit_vec) > show_n) {
+        pieces <- c(pieces, list(sprintf("... (%d more)", length(fit_vec) - show_n)))
+      }
+    }
+    return(do.call(.knitr_asis, pieces))
+  }
   cat("ATE (Average Treatment Effect)\n")
   cat(sprintf("  Prediction points: %d\n", n_pred))
 
@@ -2092,6 +2311,62 @@ print.summary.dpmixgpd_qte <- function(x, digits = 3, ...) {
 
   ov <- x$overall
   meta <- x$meta %||% list()
+  knitr_kable <- .is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))
+
+  if (knitr_kable) {
+    pieces <- list(
+      "QTE Summary",
+      paste(rep("=", 50), collapse = ""),
+      sprintf("Prediction points: %d | Quantiles: %d", ov$n_pred, ov$n_quantiles),
+      sprintf("Quantile grid: %s", fmt3_vec(ov$quantiles)),
+      sprintf("Conditional: %s | PS used: %s",
+              if (ov$has_covariates) "YES" else "NO",
+              if (ov$ps_used) "YES" else "NO")
+    )
+    if (ov$interval == "credible") {
+      pieces <- c(pieces, list(sprintf("Interval: %s (%.0f%%)", ov$interval, ov$level * 100)))
+    } else {
+      pieces <- c(pieces, list(sprintf("Interval: %s", ov$interval)))
+    }
+    pieces <- c(pieces, list(""))
+
+    if (!is.null(meta$backend) || !is.null(meta$kernel)) {
+      pieces <- c(pieces, list("Model specification:"))
+      if (!is.null(meta$backend)) {
+        pieces <- c(pieces, list(sprintf("  Backend (trt/con): %s / %s",
+                                         meta$backend$trt %||% "?", meta$backend$con %||% "?")))
+      }
+      if (!is.null(meta$kernel)) {
+        pieces <- c(pieces, list(sprintf("  Kernel (trt/con): %s / %s",
+                                         meta$kernel$trt %||% "?", meta$kernel$con %||% "?")))
+      }
+      if (!is.null(meta$GPD)) {
+        pieces <- c(pieces, list(sprintf("  GPD tail (trt/con): %s / %s",
+                                         if (isTRUE(meta$GPD$trt)) "YES" else "NO",
+                                         if (isTRUE(meta$GPD$con)) "YES" else "NO")))
+      }
+      pieces <- c(pieces, list(""))
+    }
+
+    qs <- x$quantile_summary
+    if (!is.null(qs) && nrow(qs) > 0) {
+      pieces <- c(pieces, list("QTE by quantile:"))
+      pieces <- c(pieces, list(.kable_table(format_df3_sci(qs, digits = digits), row.names = FALSE)))
+      pieces <- c(pieces, list(""))
+    }
+
+    ci <- x$ci_summary
+    if (!is.null(ci)) {
+      pieces <- c(pieces, list(
+        "Credible interval width:",
+        sprintf("  Mean: %s | Median: %s",
+                fmt3_sci(ci$mean_width, digits = digits), fmt3_sci(ci$median_width, digits = digits)),
+        sprintf("  Range: [%s, %s]",
+                fmt3_sci(ci$min_width, digits = digits), fmt3_sci(ci$max_width, digits = digits))
+      ))
+    }
+    return(do.call(.knitr_asis, pieces))
+  }
 
   cat("QTE Summary\n")
   cat(paste(rep("=", 50), collapse = ""), "\n")
@@ -2241,6 +2516,72 @@ print.summary.dpmixgpd_ate <- function(x, digits = 3, ...) {
 
   ov <- x$overall
   meta <- x$meta %||% list()
+  knitr_kable <- .is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))
+
+  if (knitr_kable) {
+    pieces <- list(
+      "ATE Summary",
+      paste(rep("=", 50), collapse = ""),
+      sprintf("Prediction points: %d", ov$n_pred),
+      sprintf("Conditional: %s | PS used: %s",
+              if (ov$has_covariates) "YES" else "NO",
+              if (ov$ps_used) "YES" else "NO")
+    )
+    if (!is.na(ov$nsim_mean)) {
+      pieces <- c(pieces, list(sprintf("Posterior mean draws: %d", ov$nsim_mean)))
+    }
+    if (ov$interval == "credible") {
+      pieces <- c(pieces, list(sprintf("Interval: %s (%.0f%%)", ov$interval, ov$level * 100)))
+    } else {
+      pieces <- c(pieces, list(sprintf("Interval: %s", ov$interval)))
+    }
+    pieces <- c(pieces, list(""))
+
+    if (!is.null(meta$backend) || !is.null(meta$kernel)) {
+      pieces <- c(pieces, list("Model specification:"))
+      if (!is.null(meta$backend)) {
+        pieces <- c(pieces, list(sprintf("  Backend (trt/con): %s / %s",
+                                         meta$backend$trt %||% "?", meta$backend$con %||% "?")))
+      }
+      if (!is.null(meta$kernel)) {
+        pieces <- c(pieces, list(sprintf("  Kernel (trt/con): %s / %s",
+                                         meta$kernel$trt %||% "?", meta$kernel$con %||% "?")))
+      }
+      if (!is.null(meta$GPD)) {
+        pieces <- c(pieces, list(sprintf("  GPD tail (trt/con): %s / %s",
+                                         if (isTRUE(meta$GPD$trt)) "YES" else "NO",
+                                         if (isTRUE(meta$GPD$con)) "YES" else "NO")))
+      }
+      pieces <- c(pieces, list(""))
+    }
+
+    as <- x$ate_stats
+    if (!is.null(as)) {
+      pieces <- c(pieces, list(
+        "ATE statistics:",
+        sprintf("  Mean: %s | Median: %s",
+                fmt3_sci(as$mean_ate, digits = digits), fmt3_sci(as$median_ate, digits = digits)),
+        sprintf("  Range: [%s, %s]",
+                fmt3_sci(as$min_ate, digits = digits), fmt3_sci(as$max_ate, digits = digits))
+      ))
+      if (!is.na(as$sd_ate)) {
+        pieces <- c(pieces, list(sprintf("  SD: %s", fmt3_sci(as$sd_ate, digits = digits))))
+      }
+      pieces <- c(pieces, list(""))
+    }
+
+    ci <- x$ci_summary
+    if (!is.null(ci)) {
+      pieces <- c(pieces, list(
+        "Credible interval width:",
+        sprintf("  Mean: %s | Median: %s",
+                fmt3_sci(ci$mean_width, digits = digits), fmt3_sci(ci$median_width, digits = digits)),
+        sprintf("  Range: [%s, %s]",
+                fmt3_sci(ci$min_width, digits = digits), fmt3_sci(ci$max_width, digits = digits))
+      ))
+    }
+    return(do.call(.knitr_asis, pieces))
+  }
 
   cat("ATE Summary\n")
   cat(paste(rep("=", 50), collapse = ""), "\n")
