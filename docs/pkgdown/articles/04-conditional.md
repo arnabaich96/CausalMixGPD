@@ -1,0 +1,104 @@
+# DPmixGPD: Conditional workflow (covariate-dependent mixtures)
+
+This vignette demonstrates conditional (regression) modeling, where the
+outcome distribution varies with covariates. The core spliced bulk–tail
+model and posterior computation are defined in the `basic` vignette;
+here we focus on how to supply covariates and how to use the general
+link mechanism.
+
+We use a shipped positive-support dataset with covariates,
+`nc_posX100_p4_k3`, which contains:
+
+- `y`: numeric outcome,
+- `X`: a `data.frame` with columns `x1`–`x4`,
+- `meta`: metadata,
+- `truth`: generation truth.
+
+Design matrix
+
+DPmixGPD expects a design matrix (typically including an intercept). A
+robust default is to use
+[`model.matrix()`](https://rdrr.io/r/stats/model.matrix.html).
+
+Model fit (code shown for reproducibility, but not executed during CRAN
+checks)
+
+``` r
+
+bundle <- build_nimble_bundle(
+  y = y,
+  X = X,
+  backend = "sb",
+  kernel = "lognormal",   # choose a kernel compatible with support
+  GPD = FALSE,             # can be TRUE; see basic vignette for splice definition
+  components = 4,
+  mcmc = list(niter = 2500, nburnin = 600, thin = 5, nchains = 1, seed = 202)
+)
+
+fit <- run_mcmc_bundle_manual(bundle, show_progress = TRUE)
+```
+
+General link mode (what “special cases” are really doing)
+
+When you pass `param_specs`, you are not locked into a single model
+form. Any parameter that the kernel registry marks as linkable can be
+placed into `mode="link"`, meaning it becomes a function of covariates.
+Conceptually, for a chosen parameter $`\theta_j(\boldsymbol{x})`$,
+``` math
+  g\{\theta_j(\boldsymbol{x})\} = \boldsymbol{x}^\top \boldsymbol{\beta}_j,
+```
+with a chosen link function $`g(\cdot)`$ and component-specific
+coefficients $`\boldsymbol{\beta}_j`$.
+
+In other words, the conditional examples in this vignette are concrete
+instances of a general feature: link mode can be applied to any
+supported parameter, not just the one shown.
+
+Predictions
+
+``` r
+
+# Two covariate profiles (rows of a design matrix)
+newdf <- rbind(
+  as.list(stats::apply(Xdf, 2, stats::median)),
+  as.list(stats::apply(Xdf, 2, function(v) stats::median(v) + stats::sd(v)))
+)
+newdf <- as.data.frame(newdf)
+Xnew <- stats::model.matrix(~ ., data = newdf)
+
+ygrid <- seq(stats::quantile(y, 0.01), stats::quantile(y, 0.99), length.out = 160)
+
+dens_pred <- predict(fit, x = Xnew, y = ygrid, type = "density", cred.level = 0.90)
+q_pred    <- predict(fit, x = Xnew, type = "quantile", p = c(0.5, 0.9, 0.95), cred.level = 0.90)
+```
+
+Results (precomputed)
+
+| estimate | index |  id | lower |  upper |
+|---------:|------:|----:|------:|-------:|
+|     1.48 |  0.50 |   1 |  1.30 |   1.68 |
+|     1.93 |  0.50 |   2 |  1.53 |   2.42 |
+|    28.64 |  0.90 |   1 | 12.02 |  55.28 |
+|    37.74 |  0.90 |   2 | 15.12 |  75.18 |
+|    74.78 |  0.95 |   1 | 22.07 | 161.89 |
+|    99.44 |  0.95 |   2 | 27.52 | 213.10 |
+
+![Posterior predictive density for two covariate profiles
+(precomputed).](data:image/png;base64,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)
+
+Posterior predictive density for two covariate profiles (precomputed).
+
+Notes on customization
+
+1.  Link any supported parameter: use the kernel registry to see which
+    parameters are eligible for link mode, then specify `param_specs`
+    accordingly.
+
+2.  Tail module in regression: if you set `GPD=TRUE` in a conditional
+    model, the splice definition remains the same (see `basic`), but
+    $`u(\boldsymbol{x})`$ and/or tail parameters may also be specified
+    as fixed, random, or link-based depending on support.
+
+3.  Prediction targets: use `predict(..., type="density")`,
+    `"survival"`, `"quantile"`, and `"rmean"` to obtain distributional
+    summaries that are coherent under the spliced model.

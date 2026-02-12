@@ -12,12 +12,25 @@ if (!requireNamespace("ggplot2", quietly = TRUE)) {
 }
 library(ggplot2)
 
+# Disable knitr chunk caching for legacy website examples.
+if (requireNamespace("knitr", quietly = TRUE)) {
+  knitr::opts_hooks$set(cache = function(options) {
+    options$cache <- FALSE
+    options
+  })
+  knitr::opts_chunk$set(cache = FALSE, autodep = FALSE)
+}
+
 # Use a per-vignette figure directory so pkgdown can find images (must be under vignettes/).
 # Shared legacy-cache/figure-html is gitignored, so pkgdown on CI would miss images.
 CACHE_DIR <- file.path("vignettes", "kernels", "legacy-cache")
 if (!dir.exists(CACHE_DIR)) dir.create(CACHE_DIR, recursive = TRUE, showWarnings = FALSE)
 CACHE_DIR_ABS <- normalizePath(CACHE_DIR, winslash = "/", mustWork = FALSE)
 input_name <- tryCatch(knitr::current_input(), error = function(e) NULL)
+input_file <- tryCatch(knitr::current_input(dir = TRUE), error = function(e) NULL)
+if (!is.null(input_file) && nzchar(input_file)) {
+  knitr::opts_knit$set(root.dir = dirname(input_file))
+}
 if (!is.null(input_name) && nzchar(input_name)) {
   base_name <- tools::file_path_sans_ext(basename(input_name))
   fig_path <- paste0(base_name, "_files/figure-html/")

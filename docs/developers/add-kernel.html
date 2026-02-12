@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>How to add a kernel – DPmixGPD</title>
+<title>add-kernel – DPmixGPD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -73,7 +73,7 @@ ul.task-list li input[type="checkbox"] {
 
 </head>
 
-<body class="nav-fixed quarto-light">
+<body class="nav-fixed fullcontent quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -100,16 +100,51 @@ ul.task-list li input[type="checkbox"] {
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-start">    
         <li>
-    <a class="dropdown-item" href="../getting-started.html">
- <span class="dropdown-text">Getting Started</span></a>
+    <a class="dropdown-item" href="../start/index.html">
+ <span class="dropdown-text">Start overview</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../decision-guide.html">
- <span class="dropdown-text">Decision Guide</span></a>
+    <a class="dropdown-item" href="../start/start-here.html">
+ <span class="dropdown-text">Start here</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../faq.html">
- <span class="dropdown-text">FAQ</span></a>
+    <a class="dropdown-item" href="../start/basic-model-compile-run.html">
+ <span class="dropdown-text">Basic model compile and run</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../start/backends-and-workflow.html">
+ <span class="dropdown-text">Backends and workflow</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../start/troubleshooting.html">
+ <span class="dropdown-text">Troubleshooting</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="../examples/index.html"> 
+<span class="menu-text">Examples</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-advanced" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Advanced</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-advanced">    
+        <li>
+    <a class="dropdown-item" href="../advanced/index.html">
+ <span class="dropdown-text">Advanced overview</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../advanced/model-umbrella.html">
+ <span class="dropdown-text">Model umbrella</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../advanced/customization-and-tuning.html">
+ <span class="dropdown-text">Customization and tuning</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../advanced/gpd-in-dpm-architecture.html">
+ <span class="dropdown-text">GPD-in-DPM architecture</span></a>
   </li>  
     </ul>
   </li>
@@ -127,8 +162,24 @@ ul.task-list li input[type="checkbox"] {
  <span class="dropdown-text">Kernels</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="../Examples/index.html">
- <span class="dropdown-text">Examples</span></a>
+    <a class="dropdown-item" href="../decision-guide.html">
+ <span class="dropdown-text">Decision guide</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../faq.html">
+ <span class="dropdown-text">FAQ</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../news.html">
+ <span class="dropdown-text">News</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../cite.html">
+ <span class="dropdown-text">Cite</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../coverage.html">
+ <span class="dropdown-text">Coverage</span></a>
   </li>  
     </ul>
   </li>
@@ -213,24 +264,7 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#checklist" id="toc-checklist" class="nav-link active" data-scroll-target="#checklist">Checklist</a>
-  <ul class="collapse">
-  <li><a href="#step-0-decide-scope" id="toc-step-0-decide-scope" class="nav-link" data-scroll-target="#step-0-decide-scope">Step 0 — Decide scope</a></li>
-  <li><a href="#step-1-implement-kernel-functions" id="toc-step-1-implement-kernel-functions" class="nav-link" data-scroll-target="#step-1-implement-kernel-functions">Step 1 — Implement kernel functions</a></li>
-  <li><a href="#step-2-implement-mix-mixgpd-wrappers" id="toc-step-2-implement-mix-mixgpd-wrappers" class="nav-link" data-scroll-target="#step-2-implement-mix-mixgpd-wrappers">Step 2 — Implement Mix / MixGPD wrappers</a></li>
-  <li><a href="#step-3-register-it" id="toc-step-3-register-it" class="nav-link" data-scroll-target="#step-3-register-it">Step 3 — Register it</a></li>
-  <li><a href="#step-4-tests" id="toc-step-4-tests" class="nav-link" data-scroll-target="#step-4-tests">Step 4 — Tests</a></li>
-  <li><a href="#step-5-docs" id="toc-step-5-docs" class="nav-link" data-scroll-target="#step-5-docs">Step 5 — Docs</a></li>
-  </ul></li>
-  <li><a href="#templates" id="toc-templates" class="nav-link" data-scroll-target="#templates">Templates</a></li>
-  </ul>
-</nav>
-    </div>
+    
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
@@ -257,7 +291,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="checklist" class="level2">
 <h2 class="anchored" data-anchor-id="checklist">Checklist</h2>
 <section id="step-0-decide-scope" class="level3">
-<h3 class="anchored" data-anchor-id="step-0-decide-scope">Step 0 — Decide scope</h3>
+<h3 class="anchored" data-anchor-id="step-0-decide-scope">Step 0 – Decide scope</h3>
 <ul>
 <li>Support: positive-only vs real line</li>
 <li>Tail option: bulk-only vs bulk+GPD</li>
@@ -265,23 +299,23 @@ ul.task-list li input[type="checkbox"] {
 </ul>
 </section>
 <section id="step-1-implement-kernel-functions" class="level3">
-<h3 class="anchored" data-anchor-id="step-1-implement-kernel-functions">Step 1 — Implement kernel functions</h3>
+<h3 class="anchored" data-anchor-id="step-1-implement-kernel-functions">Step 1 – Implement kernel functions</h3>
 <p>Implement the kernel’s <code>d/p/q/r</code> surface (and any internal helpers). Keep vectorization and support checks consistent.</p>
 </section>
 <section id="step-2-implement-mix-mixgpd-wrappers" class="level3">
-<h3 class="anchored" data-anchor-id="step-2-implement-mix-mixgpd-wrappers">Step 2 — Implement Mix / MixGPD wrappers</h3>
+<h3 class="anchored" data-anchor-id="step-2-implement-mix-mixgpd-wrappers">Step 2 – Implement Mix / MixGPD wrappers</h3>
 <p>If the kernel is used inside mixture components or spliced tails, implement the corresponding MixGPD functions.</p>
 </section>
 <section id="step-3-register-it" class="level3">
-<h3 class="anchored" data-anchor-id="step-3-register-it">Step 3 — Register it</h3>
+<h3 class="anchored" data-anchor-id="step-3-register-it">Step 3 – Register it</h3>
 <p>Add an entry to the kernel registry so <code>compile_model_spec()</code> can discover it.</p>
 </section>
 <section id="step-4-tests" class="level3">
-<h3 class="anchored" data-anchor-id="step-4-tests">Step 4 — Tests</h3>
+<h3 class="anchored" data-anchor-id="step-4-tests">Step 4 – Tests</h3>
 <p>Add at least: - support checks (values outside support return 0 density, etc.) - monotonic CDF / quantile inversion checks - a tiny end-to-end bundle build test</p>
 </section>
 <section id="step-5-docs" class="level3">
-<h3 class="anchored" data-anchor-id="step-5-docs">Step 5 — Docs</h3>
+<h3 class="anchored" data-anchor-id="step-5-docs">Step 5 – Docs</h3>
 <ul>
 <li>Add <code>website/kernels/kernel-&lt;name&gt;.qmd</code></li>
 <li>Add link from <code>website/kernels/kernels-index.qmd</code></li>

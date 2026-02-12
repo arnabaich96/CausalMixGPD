@@ -1,5 +1,9 @@
 project:
   type: website
+  render:
+    - "**/*.qmd"
+    - "!**/*.knit.md"
+    - "!**/*.rmarkdown"
 
 website:
   title: "DPmixGPD"

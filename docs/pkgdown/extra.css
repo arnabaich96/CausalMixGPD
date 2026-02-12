@@ -1,0 +1,9 @@
+.row > aside.col-md-3 {
+  display: none !important;
+}
+
+.row > main.col-md-9 {
+  flex: 0 0 100% !important;
+  max-width: 100% !important;
+  width: 100% !important;
+}

@@ -38,6 +38,7 @@ if (requireNamespace("knitr", quietly = TRUE)) {
     options$cache <- FALSE
     options
   })
+  knitr::opts_chunk$set(cache = FALSE, autodep = FALSE)
 }
 
 # Defensive override: some knit/devtools sessions can still resolve an older
@@ -55,6 +56,10 @@ CACHE_DIR <- file.path("vignettes", "Examples", "legacy-cache")
 if (!dir.exists(CACHE_DIR)) dir.create(CACHE_DIR, recursive = TRUE, showWarnings = FALSE)
 CACHE_DIR_ABS <- normalizePath(CACHE_DIR, winslash = "/", mustWork = FALSE)
 input_name <- tryCatch(knitr::current_input(), error = function(e) NULL)
+input_file <- tryCatch(knitr::current_input(dir = TRUE), error = function(e) NULL)
+if (!is.null(input_file) && nzchar(input_file)) {
+  knitr::opts_knit$set(root.dir = dirname(input_file))
+}
 if (!is.null(input_name) && nzchar(input_name)) {
   base_name <- tools::file_path_sans_ext(basename(input_name))
   fig_path <- paste0(base_name, "_files/figure-html/")

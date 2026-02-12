@@ -100,16 +100,51 @@ ul.task-list li input[type="checkbox"] {
     </a>
     <ul class="dropdown-menu" aria-labelledby="nav-menu-start">    
         <li>
-    <a class="dropdown-item" href="./getting-started.html">
- <span class="dropdown-text">Getting Started</span></a>
+    <a class="dropdown-item" href="./start/index.html">
+ <span class="dropdown-text">Start overview</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./decision-guide.html">
- <span class="dropdown-text">Decision Guide</span></a>
+    <a class="dropdown-item" href="./start/start-here.html">
+ <span class="dropdown-text">Start here</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./faq.html">
- <span class="dropdown-text">FAQ</span></a>
+    <a class="dropdown-item" href="./start/basic-model-compile-run.html">
+ <span class="dropdown-text">Basic model compile and run</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./start/backends-and-workflow.html">
+ <span class="dropdown-text">Backends and workflow</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./start/troubleshooting.html">
+ <span class="dropdown-text">Troubleshooting</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="./examples/index.html"> 
+<span class="menu-text">Examples</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-advanced" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Advanced</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-advanced">    
+        <li>
+    <a class="dropdown-item" href="./advanced/index.html">
+ <span class="dropdown-text">Advanced overview</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./advanced/model-umbrella.html">
+ <span class="dropdown-text">Model umbrella</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./advanced/customization-and-tuning.html">
+ <span class="dropdown-text">Customization and tuning</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./advanced/gpd-in-dpm-architecture.html">
+ <span class="dropdown-text">GPD-in-DPM architecture</span></a>
   </li>  
     </ul>
   </li>
@@ -127,8 +162,24 @@ ul.task-list li input[type="checkbox"] {
  <span class="dropdown-text">Kernels</span></a>
   </li>  
         <li>
-    <a class="dropdown-item" href="./Examples/index.html">
- <span class="dropdown-text">Examples</span></a>
+    <a class="dropdown-item" href="./decision-guide.html">
+ <span class="dropdown-text">Decision guide</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./faq.html">
+ <span class="dropdown-text">FAQ</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./news.html">
+ <span class="dropdown-text">News</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./cite.html">
+ <span class="dropdown-text">Cite</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./coverage.html">
+ <span class="dropdown-text">Coverage</span></a>
   </li>  
     </ul>
   </li>
@@ -240,7 +291,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="decision-guide" class="level1 container">
 <h1>Decision Guide</h1>
 <p>A practical guide for choosing the right DPmixGPD configuration. This is not a theory chapter; it is a “pick the next step” tool. When in doubt, start with a simple bulk model and add complexity only when diagnostics justify it.</p>
-<p><a href="Examples/index.html" class="btn btn-primary">Go to Examples</a> <a href="kernels.html" class="btn btn-outline-light">Open Kernels</a></p>
+<p><a href="examples/index.html" class="btn btn-primary">Go to Examples</a> <a href="kernels.html" class="btn btn-outline-light">Open Kernels</a></p>
 </section>
 </div>
 <section>
@@ -271,7 +322,7 @@ ul.task-list li input[type="checkbox"] {
 <div class="grid-3">
 <section id="a-i-want-a-fast-first-fit" class="level3 cardx">
 <h3 class="anchored" data-anchor-id="a-i-want-a-fast-first-fit">A) I want a fast first fit</h3>
-<p>Start with an unconditional bulk model (no tail), run diagnostics, then expand. - Next: <a href="Examples/index.html">Examples</a></p>
+<p>Start with an unconditional bulk model (no tail), run diagnostics, then expand. - Next: <a href="examples/index.html">Examples</a></p>
 </section>
 <section id="b-i-care-about-extremes" class="level3 cardx">
 <h3 class="anchored" data-anchor-id="b-i-care-about-extremes">B) I care about extremes</h3>
@@ -279,7 +330,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="c-i-need-covariate-effects-or-treatment-effects" class="level3 cardx">
 <h3 class="anchored" data-anchor-id="c-i-need-covariate-effects-or-treatment-effects">C) I need covariate effects or treatment effects</h3>
-<p>Use conditional/causal workflows from the start. Fit per-arm models (causal) or covariate-dependent models (conditional), then summarize effects. - Next: <a href="roadmap.html">Roadmap</a> - Then: <a href="Examples/index.html">Examples</a></p>
+<p>Use conditional/causal workflows from the start. Fit per-arm models (causal) or covariate-dependent models (conditional), then summarize effects. - Next: <a href="roadmap.html">Roadmap</a> - Then: <a href="examples/index.html">Examples</a></p>
 </section>
 </div>
 </section>
@@ -308,7 +359,7 @@ ul.task-list li input[type="checkbox"] {
 <h2 class="anchored" data-anchor-id="where-to-go-for-details">Where to go for details</h2>
 <ul>
 <li>Kernel availability and combinations: <a href="kernels.html">Kernels</a></li>
-<li>End-to-end workflows: <a href="Examples/index.html">Examples</a></li>
+<li>End-to-end workflows: <a href="examples/index.html">Examples</a></li>
 <li>Full API (functions, arguments, return objects): <a href="reference.html">Reference landing</a> or <a href="pkgdown/reference/index.html">API index</a></li>
 <li>Design questions and future directions: <a href="https://github.com/arnabaich96/DPmixGPD/discussions">Discussions</a></li>
 </ul>

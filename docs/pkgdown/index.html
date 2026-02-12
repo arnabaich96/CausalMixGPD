@@ -10,7 +10,8 @@
 <link href="deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Dirichlet Process Mixtures with Generalized Pareto Tail">
+<script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><link href="extra.css" rel="stylesheet">
+<meta property="og:title" content="Dirichlet Process Mixtures with Generalized Pareto Tail">
 <meta name="description" content="Experimental framework for Dirichlet process mixture regression and unconditional models with flexible kernels (gamma, lognormal, normal, Laplace, inverse Gaussian, Amoroso) and optional generalized Pareto (GPD) tail extension.">
 <meta property="og:description" content="Experimental framework for Dirichlet process mixture regression and unconditional models with flexible kernels (gamma, lognormal, normal, Laplace, inverse Gaussian, Amoroso) and optional generalized Pareto (GPD) tail extension.">
 </head>
@@ -22,7 +23,7 @@
 
     <a class="navbar-brand me-2" href="index.html">DPmixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,11 +35,11 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/basic.html">Model specification</a></li>
-    <li><a class="dropdown-item" href="articles/model-spec.html">Model fundamentals</a></li>
-    <li><a class="dropdown-item" href="articles/unconditional.html">Unconditional</a></li>
-    <li><a class="dropdown-item" href="articles/conditional.html">Conditional</a></li>
-    <li><a class="dropdown-item" href="articles/causal.html">Causal</a></li>
+<li><a class="dropdown-item" href="articles/01-basic.html">Model specification</a></li>
+    <li><a class="dropdown-item" href="articles/02-model-spec.html">Model fundamentals</a></li>
+    <li><a class="dropdown-item" href="articles/03-unconditional.html">Unconditional</a></li>
+    <li><a class="dropdown-item" href="articles/04-conditional.html">Conditional</a></li>
+    <li><a class="dropdown-item" href="articles/05-causal.html">Causal</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
@@ -55,87 +56,36 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="dpmixgpd">DPmixGPD<a class="anchor" aria-label="anchor" href="#dpmixgpd"></a>
 </h1></div>
-<p><a href="https://codecov.io/gh/arnabaich96/DPmixGPD" class="external-link"><img src="https://codecov.io/gh/arnabaich96/DPmixGPD/branch/master/graph/badge.svg?token=80IYA0FANW" alt="codecov"></a></p>
-<p><strong>DPmixGPD</strong> — Dirichlet process mixture models (CRP or stick-breaking) with an optional GPD tail: one kitchen for bulk distributions and extreme values, with clean prediction APIs.</p>
+<p><strong>DPmixGPD</strong> implements Dirichlet process mixture models (CRP or stick-breaking) with an optional generalized Pareto tail and a consistent prediction API.</p>
 <div class="section level2">
-<h2 id="get-it-in-the-kitchen">Get it in the kitchen<a class="anchor" aria-label="anchor" href="#get-it-in-the-kitchen"></a>
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span></span>
-<span></span>
 <span><span class="co"># install.packages("remotes")</span></span>
-<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"arnabaich96/DPmixGPD"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span></span>
+<span>  <span class="st">"arnabaich96/DPmixGPD"</span>,</span>
+<span>  build_vignettes <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  INSTALL_opts <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"--html"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="kitchen-map">Kitchen map<a class="anchor" aria-label="anchor" href="#kitchen-map"></a>
+<h2 id="vignettes">Vignettes<a class="anchor" aria-label="anchor" href="#vignettes"></a>
 </h2>
 <ul>
-<li>
-<a href="https://arnabaich96.github.io/DPmixGPD/pkgdown/ROADMAP.md"><strong>Package roadmap</strong></a> — Levels of the analysis process and key functions</li>
-</ul>
-<div class="section level3">
-<h3 id="pantry-manual">Pantry (Manual)<a class="anchor" aria-label="anchor" href="#pantry-manual"></a>
-</h3>
-<p>Recipes and guides for using DPmixGPD:</p>
-<ul>
-<li>
-<a href="https://arnabaich96.github.io/DPmixGPD/articles/manual-index.html" class="external-link"><strong>Pantry Overview</strong></a> - Complete guide to using DPmixGPD</li>
-<li>
-<a href="https://arnabaich96.github.io/DPmixGPD/articles/introduction.html" class="external-link"><strong>Introduction</strong></a> - Quick start with basic examples</li>
-<li>
-<a href="https://arnabaich96.github.io/DPmixGPD/articles/distributions.html" class="external-link"><strong>Ingredient list (Distributions)</strong></a> - Supported mixture kernels</li>
-<li>
-<a href="https://arnabaich96.github.io/DPmixGPD/articles/model-spec.html" class="external-link"><strong>Recipe spec (Model)</strong></a> - Specifying models and priors</li>
-<li>
-<a href="https://arnabaich96.github.io/DPmixGPD/articles/mcmc-workflow.html" class="external-link"><strong>Prep and cook (MCMC)</strong></a> - Running and diagnosing MCMC</li>
-<li>
-<a href="https://arnabaich96.github.io/DPmixGPD/articles/unconditional.html" class="external-link"><strong>Unconditional</strong></a> - Density estimation without covariates</li>
-<li>
-<a href="https://arnabaich96.github.io/DPmixGPD/articles/conditional.html" class="external-link"><strong>Conditional</strong></a> - Covariate-dependent density estimation</li>
-<li>
-<a href="https://arnabaich96.github.io/DPmixGPD/articles/causal.html" class="external-link"><strong>Causal</strong></a> - Treatment effects with propensity scores</li>
-<li>
-<a href="https://arnabaich96.github.io/DPmixGPD/articles/backends.html" class="external-link"><strong>Oven choice (CRP vs SB)</strong></a> - Comparing inference approaches</li>
-<li>
-<a href="https://arnabaich96.github.io/DPmixGPD/articles/reference-s3.html" class="external-link"><strong>Utensil guide (S3 methods)</strong></a> - print, summary, plot, predict, etc.</li>
+<li><a href="articles/01-basic.html"><strong>Model specification and posterior computation</strong></a></li>
+<li><a href="articles/02-model-spec.html"><strong>Model fundamentals (bulk DPM + GPD tail)</strong></a></li>
+<li><a href="articles/03-unconditional.html"><strong>Unconditional workflow</strong></a></li>
+<li><a href="articles/04-conditional.html"><strong>Conditional workflow</strong></a></li>
+<li><a href="articles/05-causal.html"><strong>Causal workflow</strong></a></li>
 </ul>
 </div>
-<div class="section level3">
-<h3 id="ingredients-kernels">Ingredients (Kernels)<a class="anchor" aria-label="anchor" href="#ingredients-kernels"></a>
-</h3>
+<div class="section level2">
+<h2 id="reference">Reference<a class="anchor" aria-label="anchor" href="#reference"></a>
+</h2>
 <ul>
-<li>
-<a href="https://arnabaich96.github.io/DPmixGPD/articles/kernels-index.html" class="external-link"><strong>Ingredient overview</strong></a> - Available mixture kernels</li>
-<li>
-<a href="https://arnabaich96.github.io/DPmixGPD/articles/distributions.html#amoroso" class="external-link">Amoroso</a> | <a href="https://arnabaich96.github.io/DPmixGPD/articles/distributions.html#cauchy" class="external-link">Cauchy</a> | <a href="https://arnabaich96.github.io/DPmixGPD/articles/distributions.html#gamma" class="external-link">Gamma</a> | <a href="https://arnabaich96.github.io/DPmixGPD/articles/distributions.html#inverse-gaussian" class="external-link">Inverse Gaussian</a> | <a href="https://arnabaich96.github.io/DPmixGPD/articles/distributions.html#laplace" class="external-link">Laplace</a> | <a href="https://arnabaich96.github.io/DPmixGPD/articles/distributions.html#lognormal" class="external-link">Lognormal</a> | <a href="https://arnabaich96.github.io/DPmixGPD/articles/distributions.html#normal" class="external-link">Normal</a>
-</li>
+<li><a href="reference/index.html"><strong>Function reference</strong></a></li>
 </ul>
-</div>
-<div class="section level3">
-<h3 id="cookbook">Cookbook<a class="anchor" aria-label="anchor" href="#cookbook"></a>
-</h3>
-<ul>
-<li>
-<a href="https://arnabaich96.github.io/DPmixGPD/articles/cookbook-index.html" class="external-link"><strong>Recipe Book</strong></a> - Step-by-step tutorials and case studies</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="reference">Reference<a class="anchor" aria-label="anchor" href="#reference"></a>
-</h3>
-<ul>
-<li>
-<a href="https://arnabaich96.github.io/DPmixGPD/reference/index.html" class="external-link"><strong>Function reference</strong></a> - Full API documentation</li>
-</ul>
-</div>
-<div class="section level3">
-<h3 id="coverage">Coverage<a class="anchor" aria-label="anchor" href="#coverage"></a>
-</h3>
-<ul>
-<li>
-<img src="https://codecov.io/gh/arnabaich96/DPmixGPD/graphs/sunburst.svg?token=80IYA0FANW" alt="Coverage sunburst"> Coverage sunburst</li>
-</ul>
-</div>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">

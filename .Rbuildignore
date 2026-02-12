@@ -1,5 +1,7 @@
 # Ignore temp, hidden, and system folders
 ^\.tmp/
+^\.venv$
+^\.venv/
 ^\.cursor/
 ^\.cursor$
 ^\.vscode/
@@ -83,3 +85,4 @@
 ^_build$
 ^_freeze/
 ^_freeze$
+^\.RDataTmp

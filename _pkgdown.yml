@@ -22,15 +22,15 @@ navbar:
       text: "Articles"
       menu:
         - text: "Model specification"
-          href: articles/basic.html
+          href: articles/01-basic.html
         - text: "Model fundamentals"
-          href: articles/model-spec.html
+          href: articles/02-model-spec.html
         - text: "Unconditional"
-          href: articles/unconditional.html
+          href: articles/03-unconditional.html
         - text: "Conditional"
-          href: articles/conditional.html
+          href: articles/04-conditional.html
         - text: "Causal"
-          href: articles/causal.html
+          href: articles/05-causal.html
 
     github:
       text: "GitHub"

@@ -87,6 +87,15 @@
   : Validate bulk+tail glue for MixGPD predictive distribution
 - [`coverage_status()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/coverage_status.md)
   : Test coverage status helper
+- [`DPmixGPD-vignettes`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/DPmixGPD-vignettes.md)
+  [`basic-vignette`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/DPmixGPD-vignettes.md)
+  [`unconditional-vignette`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/DPmixGPD-vignettes.md)
+  [`conditional-vignette`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/DPmixGPD-vignettes.md)
+  [`causal-vignette`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/DPmixGPD-vignettes.md)
+  : Vignettes for DPmixGPD
+- [`DPmixGPD`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/DPmixGPD.md)
+  [`DPmixGPD-package`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/DPmixGPD.md)
+  : DPmixGPD: Dirichlet Process Mixtures with Generalized Pareto Tail
 - [`fitted(`*`<mixgpd_fit>`*`)`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/fitted.mixgpd_fit.md)
   : Fitted values and residuals for a MixGPD fit
 - [`dGammaGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/gamma_gpd.md)

@@ -6,7 +6,11 @@ DPmixGPD fits **Dirichlet process mixture models** (CRP or stick-breaking backen
 
 ```r
 # install.packages("remotes")
-remotes::install_github("arnabaich96/DPmixGPD")
+remotes::install_github(
+  "arnabaich96/DPmixGPD",
+  build_vignettes = TRUE,
+  INSTALL_opts = c("--html")
+)
 ```
 
 ## Quickstart

@@ -1,6 +1,11 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/404.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/AGENTS.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/01-basic.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/02-model-spec.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/03-unconditional.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/04-conditional.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/05-causal.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/backends.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/basic.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/causal.html</loc></url>
@@ -57,6 +62,8 @@
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/dot-wrap_scalar_first_arg.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/dot-wrap_scalar_p.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/dot-wrap_scalar_r.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/DPmixGPD-vignettes.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/DPmixGPD.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/fitted.mixgpd_fit.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/gamma_gpd.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/gamma_lowercase.html</loc></url>
@@ -133,5 +140,6 @@
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/summary.dpmixgpd_causal_fit.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/summary.dpmixgpd_qte.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/summary.mixgpd_fit.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/_header.html</loc></url>
 </urlset>
 

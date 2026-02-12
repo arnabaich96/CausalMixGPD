@@ -6,6 +6,7 @@ vignettes/**/figure-html/
 vignettes/**/figure-markdown_html/
 *.zip
 .vscode/
+.venv/
 DPmixGPD.Rcheck/
 DPmixGPD_*.tar.gz
 vignettes/cache/

@@ -14,6 +14,12 @@ knitr::opts_chunk$set(
   cache.path = 'legacy-cache-v2/'
 )
 
+# Ensure knitr resolves input-relative paths consistently under Quarto.
+this_input <- tryCatch(knitr::current_input(dir = TRUE), error = function(e) "")
+if (nzchar(this_input)) {
+  knitr::opts_knit$set(root.dir = dirname(this_input))
+}
+
 # Reproducibility
 set.seed(1)
 

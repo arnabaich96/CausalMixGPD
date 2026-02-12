@@ -16,6 +16,11 @@
 
 .dpmixgpd_root <- .dpmixgpd_find_root()
 
+# Keep full install artifacts (help index + vignette metadata/files) in renv.
+if (!nzchar(Sys.getenv("RENV_CONFIG_INSTALL_BUILD", unset = ""))) {
+  Sys.setenv(RENV_CONFIG_INSTALL_BUILD = "TRUE")
+}
+
 # Suppress Windows OneDrive owner-resolution warnings (harmless file.info messages)
 # when project lives in OneDrive. Safe to keep repo in OneDrive as a backup to GitHub.
 if (nzchar(.dpmixgpd_root) &&
@@ -43,7 +48,8 @@ if (nzchar(.dpmixgpd_root)) {
   )
 
   # Keep the development package available in knit/dev sessions without install().
-  if (isTRUE(getOption("dpmixgpd.autoload", TRUE)) &&
+  # Opt-in because load_all() can interfere with help rendering for package topics.
+  if (isTRUE(getOption("dpmixgpd.autoload", FALSE)) &&
       requireNamespace("pkgload", quietly = TRUE)) {
       tryCatch(
         pkgload::load_all(
