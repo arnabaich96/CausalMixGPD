@@ -8,7 +8,7 @@
 # Usage:
 #   source("tools/coverage.R")
 #
-#   # Generate local HTML report (default: tests + examples)
+#   # Generate local HTML report (default: CI-level tests)
 #   coverage_report()
 #
 #   # Upload to Codecov
@@ -64,34 +64,10 @@
   stats::setNames(as.list(rep(Inf, length(all_paths))), all_paths)
 }
 
-# Get Codecov token from codecov.yml
+# Get Codecov token from environment.
 .get_codecov_token <- function() {
-  yaml_file <- "codecov.yml"
-  if (file.exists(yaml_file)) {
-    lines <- readLines(yaml_file, warn = FALSE)
-    lines <- sub("\\s+#.*$", "", lines)
-
-    codecov_idx <- grep("^\\s*codecov\\s*:", lines)
-    if (length(codecov_idx) > 0) {
-      base_indent <- attr(regexpr("^\\s*", lines[codecov_idx[1]]), "match.length")
-      for (i in seq.int(codecov_idx[1] + 1L, length(lines))) {
-        line <- lines[i]
-        if (!nzchar(trimws(line))) next
-        indent <- attr(regexpr("^\\s*", line), "match.length")
-        if (indent <= base_indent) break
-        if (grepl("^\\s*token\\s*:", line)) {
-          token <- trimws(sub("^\\s*token\\s*:\\s*", "", line))
-          if (nzchar(token)) return(token)
-        }
-      }
-    }
-
-    token_line <- grep("^\\s*token\\s*:", lines, value = TRUE)
-    if (length(token_line) > 0) {
-      token <- trimws(sub("^\\s*token\\s*:\\s*", "", token_line[1]))
-      if (nzchar(token)) return(token)
-    }
-  }
+  env_token <- Sys.getenv("CODECOV_TOKEN", "")
+  if (nzchar(env_token)) return(env_token)
 
   return("")
 }
@@ -104,7 +80,7 @@
 #'
 #' @param sources Character vector specifying coverage sources.
 #'   Options: "tests", "examples", "vignettes", or "all".
-#'   Default: c("tests", "examples")
+#'   Default: "tests"
 #' @param test_level Test tier for testthat: "cran", "ci", or "full".
 #'   Default: "ci"
 #' @param quiet Logical; suppress covr output? Default: FALSE
@@ -117,7 +93,7 @@
 #' cov <- calculate_coverage(sources = "all", test_level = "full")
 #' }
 calculate_coverage <- function(
-    sources = c("tests", "examples"),
+    sources = "tests",
     test_level = "ci",
     quiet = FALSE
 ) {
@@ -280,7 +256,7 @@ coverage_progress <- function(test_level = "ci", quiet = FALSE) {
 #' pkgdown website.
 #'
 #' @param sources Character vector specifying coverage sources.
-#'   Default: c("tests", "examples")
+#'   Default: "tests"
 #' @param test_level Test tier: "cran", "ci", or "full". Default: "ci"
 #' @param output_dir Output directory. Default: "docs/coverage"
 #' @param browse Logical; open report in browser? Default: FALSE
@@ -288,7 +264,7 @@ coverage_progress <- function(test_level = "ci", quiet = FALSE) {
 #'
 #' @examples
 #' \dontrun{
-#' # Default: tests + examples
+#' # Default: CI-level tests
 #' coverage_report()
 #'
 #' # Tests only (fastest)
@@ -301,7 +277,7 @@ coverage_progress <- function(test_level = "ci", quiet = FALSE) {
 #' coverage_report(output_dir = "my_coverage")
 #' }
 coverage_report <- function(
-    sources = c("tests", "examples"),
+    sources = "tests",
     test_level = "ci",
     output_dir = "docs/coverage",
     browse = FALSE
@@ -415,14 +391,15 @@ coverage_report <- function(
 #' The token is loaded from (in order of priority):
 #' 1. The `token` argument if provided
 #' 2. The `CODECOV_TOKEN` environment variable
-#' 3. The local file `tools/.codecov_token` (git-ignored)
 #'
 #' @param sources Character vector specifying coverage sources.
-#'   Default: c("tests", "examples")
+#'   Default: "tests"
 #' @param test_level Test tier: "cran", "ci", or "full". Default: "ci"
 #' @param token Codecov token. Default: auto-detected from env var or token file
 #' @param require_token Logical; if TRUE, throw an error when token is missing.
 #'   If FALSE, skip upload gracefully. Default: FALSE
+#' @param coverage Optional precomputed coverage object from `calculate_coverage()`.
+#'   If provided, upload uses this object and skips recalculation.
 #' @param quiet Logical; suppress output? Default: FALSE
 #' @return TRUE on success, FALSE if upload was skipped or failed
 #'
@@ -438,10 +415,11 @@ coverage_report <- function(
 #' coverage_upload(require_token = TRUE)
 #' }
 coverage_upload <- function(
-    sources = c("tests", "examples"),
+    sources = "tests",
     test_level = "ci",
     token = .get_codecov_token(),
     require_token = FALSE,
+    coverage = NULL,
     quiet = FALSE
 ) {
   .check_coverage_deps()
@@ -476,8 +454,13 @@ coverage_upload <- function(
   }
 
   result <- tryCatch({
-    if (!quiet) cat("Step 1: Calculating package coverage...\n")
-    cov <- calculate_coverage(sources = sources, test_level = test_level, quiet = quiet)
+    if (is.null(coverage)) {
+      if (!quiet) cat("Step 1: Calculating package coverage...\n")
+      cov <- calculate_coverage(sources = sources, test_level = test_level, quiet = quiet)
+    } else {
+      if (!quiet) cat("Step 1: Using precomputed coverage object...\n")
+      cov <- coverage
+    }
 
     if (is.null(cov)) {
       if (!quiet) cat("Coverage calculation failed.\n")
@@ -754,11 +737,15 @@ coverage_upload <- function(
 
     <hr>
 
-    <h2>Detailed Report</h2>
+    <h2>Coverage Artifacts</h2>
     <p>
       <a href="report.html" class="btn btn-primary btn-report">View Full Interactive Report</a>
     </p>
     <p>The interactive report provides line-by-line coverage details for each file.</p>
+    <ul>
+      <li><a href="coverage_status.json"><code>coverage_status.json</code></a> - machine-readable summary</li>
+      <li><a href="unused_functions.md"><code>unused_functions.md</code></a> - functions with 0%%%% coverage</li>
+    </ul>
 
     <hr>
 
@@ -812,12 +799,40 @@ cat("  calculate_coverage(sources, test_level)  - Calculate coverage\n")
 cat("  coverage_progress(test_level)            - Test coverage with progress\n")
 cat("  coverage_report(sources, output_dir)     - Generate local HTML report\n")
 cat("  coverage_upload(sources, token)          - Upload to Codecov\n")
-cat("\nDefault sources: tests + examples\n")
+cat("\nDefault sources: tests (CI-level)\n")
 cat("Valid sources: 'tests', 'examples', 'vignettes', 'all'\n\n")
 cat("Examples:\n")
-cat("  coverage_report()                        # Default report\n")
+cat("  coverage_report()                        # CI-level tests report to docs/coverage\n")
 cat("  coverage_progress()                      # Progress reporter run\n")
 cat("  coverage_report(sources = 'tests')       # Tests only (fastest)\n")
 cat("  coverage_report(sources = 'all')         # All sources\n")
-cat("  coverage_upload()                        # Upload to Codecov (skips if no token)\n")
+cat("  coverage_upload()                        # Upload CI-level tests coverage to Codecov\n")
 cat("  coverage_upload(require_token = TRUE)    # Upload (fail if no token)\n")
+
+# If executed via Rscript (for example through tools/coverage.bat), run the
+# default CI-level tests coverage pipeline automatically.
+args <- commandArgs(trailingOnly = FALSE)
+is_rscript <- any(grepl("--file=", args, fixed = TRUE))
+if (is_rscript) {
+  cat("\nRunning default coverage pipeline (sources='tests', test_level='ci').\n")
+  cov <- coverage_report(
+    sources = "tests",
+    test_level = "ci",
+    output_dir = "docs/coverage",
+    browse = FALSE
+  )
+
+  upload_enabled <- tolower(Sys.getenv("DPMIXGPD_CODECOV_UPLOAD", "1")) %in% c("1", "true", "yes")
+  if (upload_enabled) {
+    cat("\nAttempting automatic Codecov upload (if token is available)...\n")
+    coverage_upload(
+      sources = "tests",
+      test_level = "ci",
+      coverage = cov,
+      require_token = FALSE,
+      quiet = FALSE
+    )
+  } else {
+    cat("\nAutomatic Codecov upload disabled via DPMIXGPD_CODECOV_UPLOAD.\n")
+  }
+}

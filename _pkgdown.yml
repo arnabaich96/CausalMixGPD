@@ -8,11 +8,11 @@ build:
 articles:
   - title: "Articles"
     contents:
-      - "01-basic"
-      - "02-model-spec"
-      - "03-unconditional"
-      - "04-conditional"
-      - "05-causal"
+      - "basic-01"
+      - "model-spec-02"
+      - "unconditional-03"
+      - "conditional-04"
+      - "causal-05"
 
 template:
   bootstrap: 5
@@ -31,16 +31,17 @@ navbar:
       text: "Articles"
       menu:
         - text: "Model specification"
-          href: articles/01-basic.html
+          href: articles/basic-01.html
         - text: "Model fundamentals"
-          href: articles/02-model-spec.html
+          href: articles/model-spec-02.html
         - text: "Unconditional"
-          href: articles/03-unconditional.html
+          href: articles/unconditional-03.html
         - text: "Conditional"
-          href: articles/04-conditional.html
+          href: articles/conditional-04.html
         - text: "Causal"
-          href: articles/05-causal.html
+          href: articles/causal-05.html
 
     github:
       text: "GitHub"
       href: https://github.com/arnabaich96/DPmixGPD
+

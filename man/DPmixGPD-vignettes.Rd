@@ -15,10 +15,10 @@ You can list all vignettes with \code{browseVignettes("DPmixGPD")}.
 
 Open from R:
 \itemize{
-\item \code{vignette("01-basic", package = "DPmixGPD")}
-\item \code{vignette("03-unconditional", package = "DPmixGPD")}
-\item \code{vignette("04-conditional", package = "DPmixGPD")}
-\item \code{vignette("05-causal", package = "DPmixGPD")}
+\item \code{vignette("basic-01", package = "DPmixGPD")}
+\item \code{vignette("unconditional-03", package = "DPmixGPD")}
+\item \code{vignette("conditional-04", package = "DPmixGPD")}
+\item \code{vignette("causal-05", package = "DPmixGPD")}
 }
 
 Website articles index:

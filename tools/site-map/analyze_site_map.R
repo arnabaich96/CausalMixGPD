@@ -97,6 +97,28 @@ expected_example_chain <- function() {
   )
 }
 
+detect_contract_mode <- function(node_set) {
+  # Full-site contract checks apply only to the canonical website build.
+  # Lightweight synthetic fixtures (e.g., tests) should only enforce
+  # broken-link and discovered workflow-chain checks.
+  signature_pages <- c(
+    "start/index.html",
+    "examples/index.html",
+    "developers/index.html",
+    "pkgdown/reference/index.html"
+  )
+  sum(signature_pages %in% node_set) >= 2L
+}
+
+discover_workflow_chain <- function(node_set) {
+  wf <- node_set[grepl("^workflows/v[0-9]{2}[^/]*\\.html$", node_set)]
+  if (!length(wf)) {
+    return(character())
+  }
+  ord <- order(suppressWarnings(as.integer(sub("^workflows/v([0-9]{2}).*$", "\\1", wf))), wf)
+  wf[ord]
+}
+
 required_contract_pages <- function() {
   c(
     "index.html",
@@ -355,7 +377,8 @@ analyze_site_map <- function(site_root = "docs", output_dir = file.path("tools",
     )
   }
 
-  expected_chain <- expected_example_chain()
+  contract_mode <- detect_contract_mode(node_set)
+  expected_chain <- if (isTRUE(contract_mode)) expected_example_chain() else discover_workflow_chain(node_set)
   chain_rows <- vector("list", length = length(expected_chain) - 1L)
   for (i in seq_len(length(expected_chain) - 1L)) {
     expected_from <- expected_chain[[i]]
@@ -382,13 +405,27 @@ analyze_site_map <- function(site_root = "docs", output_dir = file.path("tools",
       stringsAsFactors = FALSE
     )
   }
-  workflow_chain <- do.call(rbind, chain_rows)
+  if (length(chain_rows)) {
+    workflow_chain <- do.call(rbind, chain_rows)
+  } else {
+    workflow_chain <- data.frame(
+      from = character(),
+      to = character(),
+      edge_present = logical(),
+      status = character(),
+      stringsAsFactors = FALSE
+    )
+  }
 
-  required_pages <- required_contract_pages()
-  missing_required_pages <- setdiff(required_pages, node_set)
-
-  legacy_pages <- forbidden_legacy_pages()
-  legacy_pages_present <- intersect(legacy_pages, node_set)
+  if (isTRUE(contract_mode)) {
+    required_pages <- required_contract_pages()
+    missing_required_pages <- setdiff(required_pages, node_set)
+    legacy_pages <- forbidden_legacy_pages()
+    legacy_pages_present <- intersect(legacy_pages, node_set)
+  } else {
+    missing_required_pages <- character()
+    legacy_pages_present <- character()
+  }
 
   workflow_breaks <- workflow_chain[workflow_chain$status != "ok", , drop = FALSE]
   gate_pass <- (

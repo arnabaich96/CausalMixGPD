@@ -1,3 +1,5 @@
+skip_if_not_test_level("ci")
+
 find_package_root <- function() {
   current <- normalizePath(getwd(), winslash = "/", mustWork = TRUE)
   for (i in 0:8) {

@@ -7,9 +7,14 @@
 ^\.vscode/
 ^\.Rproj.user/
 ^renv$
+^renv/
+^renv/staging$
+^renv/staging/
+^renv/staging/.*
 ^renv\.lock$
 ^\.githooks$
 ^\.git$
+^\.git/
 ^\.github$
 ^\.cache$
 ^\.cache/
@@ -37,8 +42,8 @@
 ^vignettes/manuscript/$
 ^vignettes/renv/
 ^vignettes/renv$
+^website$
 ^website/
-^website/$
 ^tmp-.*\.R$
 ^.*\.RData$
 ^.*\.rdx$
@@ -85,4 +90,8 @@
 ^_build$
 ^_freeze/
 ^_freeze$
-^\.RDataTmp
+^\.Renviron$
+^\.Rprofile$
+^vignettes/\.Rprofile$
+^vignettes/\.gitignore$
+^\.RDataTmp$

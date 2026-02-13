@@ -18,6 +18,11 @@ if not exist "%SCRIPT%" (
 )
 
 set "RSCRIPT_EXE="
+if exist "C:\Program Files\R\R-4.5.2\bin\Rscript.exe" (
+  set "RSCRIPT_EXE=C:\Program Files\R\R-4.5.2\bin\Rscript.exe"
+  goto :run
+)
+
 where /Q Rscript.exe
 if %ERRORLEVEL%==0 (
   for /f "delims=" %%I in ('where Rscript.exe') do (

@@ -15,11 +15,11 @@ remotes::install_github(
 
 ## Vignettes
 
-- [**Model specification and posterior computation**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/01-basic.html)
-- [**Model fundamentals (bulk DPM + GPD tail)**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/02-model-spec.html)
-- [**Unconditional workflow**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/03-unconditional.html)
-- [**Conditional workflow**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/04-conditional.html)
-- [**Causal workflow**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/05-causal.html)
+- [**Model specification and posterior computation**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/basic-01.html)
+- [**Model fundamentals (bulk DPM + GPD tail)**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/model-spec-02.html)
+- [**Unconditional workflow**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/unconditional-03.html)
+- [**Conditional workflow**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/conditional-04.html)
+- [**Causal workflow**](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/causal-05.html)
 
 ## Reference
 
@@ -28,4 +28,5 @@ remotes::install_github(
 ## Additional docs
 
 - [**Package roadmap**](https://arnabaich96.github.io/DPmixGPD/start/roadmap.html)
+
 

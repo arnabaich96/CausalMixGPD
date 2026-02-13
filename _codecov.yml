@@ -29,5 +29,3 @@ flags:
     carryforward: false
   windows-latest-Rrelease:
     carryforward: false
-codecov:
- token: 527215a4-d374-43a0-acf9-1cc42bbfaa75

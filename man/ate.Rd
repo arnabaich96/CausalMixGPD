@@ -19,6 +19,12 @@ ate(
 
 \item{newdata}{Optional data.frame or matrix of covariates for prediction.}
 
+\item{type}{Character; \code{"mean"} (default) for ordinary mean ATE or
+\code{"rmean"} for restricted-mean ATE.}
+
+\item{cutoff}{Finite numeric cutoff for restricted mean; required for
+\code{type = "rmean"}, ignored otherwise.}
+
 \item{interval}{Character or NULL; type of credible interval: \code{NULL} for no interval,
 \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
 highest posterior density intervals.}

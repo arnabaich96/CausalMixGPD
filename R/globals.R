@@ -67,10 +67,6 @@ utils::globalVariables(c(
 #'
 #' @keywords internal
 .onLoad <- function(libname, pkgname) {
-  options(digits = 3)
   init_kernel_registry()
-  if (requireNamespace("knitr", quietly = TRUE)) {
-    knitr::opts_chunk$set(digits = 3)
-  }
   invisible()
 }

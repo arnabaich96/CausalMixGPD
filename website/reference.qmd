@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Reference"
 page-layout: full
 ---
@@ -39,11 +39,12 @@ Use this page to route into workflows and concepts. Function-level details remai
 
 ### Core vignette articles (authoritative in pkgdown)
 
-- [01-basic](pkgdown/articles/01-basic.html)
-- [02-model-spec](pkgdown/articles/02-model-spec.html)
-- [03-unconditional](pkgdown/articles/03-unconditional.html)
-- [04-conditional](pkgdown/articles/04-conditional.html)
-- [05-causal](pkgdown/articles/05-causal.html)
+- [basic-01](pkgdown/articles/basic-01.html)
+- [model-spec-02](pkgdown/articles/model-spec-02.html)
+- [unconditional-03](pkgdown/articles/unconditional-03.html)
+- [conditional-04](pkgdown/articles/conditional-04.html)
+- [causal-05](pkgdown/articles/causal-05.html)
 
 :::
 :::
+

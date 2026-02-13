@@ -119,3 +119,10 @@ renv
 
 /.quarto/
 **/*.quarto_ipynb
+
+# Local dev-only project config (must not ship)
+.Renviron
+.Rprofile
+.RDataTmp
+vignettes/.Rprofile
+vignettes/.gitignore

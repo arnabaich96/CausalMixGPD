@@ -75,7 +75,7 @@ test_that(".compute_interval handles edge cases", {
 # ==============================================================================
 
 test_that("predict.mixgpd_fit supports unified interval parameter", {
-  skip_on_cran()
+  skip_if_not_test_level("ci")
 
   set.seed(42)
   y <- abs(rnorm(40)) + 0.2
@@ -125,7 +125,7 @@ test_that("predict.mixgpd_fit supports unified interval parameter", {
 
 
 test_that("predict.mixgpd_fit mean prediction works with HPD", {
-  skip_on_cran()
+  skip_if_not_test_level("ci")
 
   set.seed(42)
   y <- abs(rnorm(40)) + 0.2
@@ -162,7 +162,7 @@ test_that("predict.mixgpd_fit mean prediction works with HPD", {
 # ==============================================================================
 
 test_that("fitted.mixgpd_fit supports unified interval parameter", {
-  skip_on_cran()
+  skip_if_not_test_level("ci")
 
   set.seed(42)
   n <- 30

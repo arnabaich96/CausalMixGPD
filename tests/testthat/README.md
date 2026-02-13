@@ -265,14 +265,14 @@ multiple coverage sources and output formats.
 | `vignettes` | Code chunks from R Markdown vignettes | Slow |
 | `all` | All three sources combined | Slowest |
 
-**Default:** `c("tests", "examples")` - good balance of coverage and speed.
+**Default:** `"tests"` at `DPMIXGPD_TEST_LEVEL = "ci"` - CI-level test coverage.
 
 ### Generate Local HTML Coverage Report
 
 ```r
 source("tools/coverage.R")
 
-# Default: tests + examples
+# Default: CI-level tests
 coverage_report()
 
 # Tests only (fastest)
@@ -290,6 +290,9 @@ This creates:
 - `docs/coverage/report.html` - Full interactive covr report
 - `docs/coverage/coverage_status.json` - JSON data for CI
 - Copies in `pkgdown/assets/coverage/` for site integration
+- When run via `Rscript tools/coverage.R` (or `tools/coverage.bat`), it also
+  attempts automatic Codecov upload using `CODECOV_TOKEN`.
+- Set `DPMIXGPD_CODECOV_UPLOAD=0` to skip the automatic upload step.
 
 ### Upload to Codecov
 

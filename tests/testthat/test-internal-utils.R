@@ -78,6 +78,10 @@ test_that(".wrap_plotly returns plotly when available, otherwise passthrough", {
 
   out <- .wrap_plotly(p)
   if (requireNamespace("plotly", quietly = TRUE)) {
+    old_opt <- getOption("DPmixGPD.plotly")
+    options(DPmixGPD.plotly = TRUE)
+    on.exit(options(DPmixGPD.plotly = old_opt), add = TRUE)
+    out <- .wrap_plotly(p)
     expect_true(is.list(out))
     expect_true(inherits(out, "plotly") || inherits(out, "htmlwidget"))
   } else {

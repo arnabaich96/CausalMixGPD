@@ -6,10 +6,10 @@
 #'
 #' @details
 #' Open from R:
-#' - `vignette("01-basic", package = "DPmixGPD")`
-#' - `vignette("03-unconditional", package = "DPmixGPD")`
-#' - `vignette("04-conditional", package = "DPmixGPD")`
-#' - `vignette("05-causal", package = "DPmixGPD")`
+#' - `vignette("basic-01", package = "DPmixGPD")`
+#' - `vignette("unconditional-03", package = "DPmixGPD")`
+#' - `vignette("conditional-04", package = "DPmixGPD")`
+#' - `vignette("causal-05", package = "DPmixGPD")`
 #'
 #' Website articles index:
 #' - \url{https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/index.html}
@@ -21,3 +21,4 @@
 #' @aliases conditional-vignette
 #' @aliases causal-vignette
 NULL
+

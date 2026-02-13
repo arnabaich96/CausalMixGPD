@@ -121,6 +121,7 @@ print.dpmixgpd_bundle <- function(x, code = FALSE, max_code_lines = 200L, ...) {
 #' @param code Logical; if TRUE, print generated NIMBLE code for each block.
 #' @param max_code_lines Integer; maximum number of code lines to print when \code{code=TRUE}.
 #' @param ... Unused.
+#' @importFrom utils capture.output
 #' @return The input object (invisibly).
 #' @examples
 #' \dontrun{
