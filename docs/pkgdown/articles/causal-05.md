@@ -1,0 +1,123 @@
+# DPmixGPD: Causal workflow (ATE/QTE from two-arm models)
+
+This vignette illustrates the causal interface: fitting two outcome
+models (treated vs control) and extracting treatment effects on
+distributional functionals. The spliced bulk–tail model and posterior
+sampling steps are defined in the `basic` vignette; here we focus on the
+causal layer.
+
+DPmixGPD’s causal tools are designed for observational studies with
+standard identification conditions (SUTVA, ignorability/unconfoundedness
+given measured covariates, and positivity). Propensity score (PS)
+augmentation is available to stabilize conditional outcome modeling; see
+([Rosenbaum and Rubin 1983](#ref-rosenbaum1983); [Hirano et al.
+2003](#ref-hirano2003)) for background.
+
+We use a shipped causal dataset with a positive-support outcome and an
+injected tail: `causal_alt_pos500_p5_k4_tail`. The object contains `y`,
+`T`, `X` (a `data.frame` with `x1`–`x5`), plus metadata and simulation
+truth.
+
+Build and fit (code shown for reproducibility, but not executed during
+CRAN checks)
+
+``` r
+
+cb <- build_causal_bundle(
+  y = y,
+  X = X,
+  T = T,
+  backend = "sb",
+  kernel = c("lognormal", "lognormal"),  # treated, control (can differ)
+  GPD = c(TRUE, TRUE),
+  components = c(4, 4),
+  PS = "logit",            # "logit", "probit", "naive", or FALSE
+  ps_scale = "logit",      # "logit" or "prob"
+  ps_summary = "mean",     # "mean" or "median"
+  mcmc_outcome = list(niter = 2500, nburnin = 600, thin = 5, nchains = 1, seed = 303),
+  mcmc_ps      = list(niter = 1800, nburnin = 500, thin = 5, nchains = 1, seed = 304)
+)
+
+fit <- run_mcmc_causal(cb, show_progress = TRUE)
+```
+
+Treatment effects
+
+The causal interface supports both marginal and conditional estimands:
+
+1.  Quantile treatment effects (QTE), defined as
+    ``` math
+      q_Y(\tau\mid\boldsymbol{x}) = Q_Y^{(1)}(\tau\mid\boldsymbol{x}) - Q_Y^{(0)}(\tau\mid\boldsymbol{x}),
+    ```
+    where $`Q_Y^{(a)}(\tau\mid\boldsymbol{x})`$ is the conditional
+    $`\tau`$-quantile under arm $`a\in\{0,1\}`$. See ([Koenker and
+    Bassett 1978](#ref-koenker1978); [Firpo 2007](#ref-firpo2007)).
+
+2.  Average treatment effects (ATE), typically on the posterior
+    predictive mean. Under heavy tails the mean may be unstable, so
+    DPmixGPD also supports restricted means.
+
+``` r
+
+q <- qte(fit, probs = c(0.5, 0.9, 0.95), interval = "credible", level = 0.90)
+a <- ate(fit, interval = "credible", level = 0.90, nsim_mean = 100)
+q_tt <- qtt(fit, probs = c(0.5, 0.9, 0.95), interval = "credible", level = 0.90)
+a_tt <- att(fit, interval = "credible", level = 0.90, nsim_mean = 100)
+```
+
+Results (precomputed)
+
+      prob   estimate     lower    upper
+    1 0.50 -0.3537594 -1.587673 1.371685
+    2 0.90 -0.1018119 -3.132776 3.286619
+    3 0.95  0.1939280 -3.629758 4.347958
+
+      estimand    estimate       lower    upper
+    1      ATE -49.9656365  -44.489705 2.125836
+    2      ATE   0.2215280   -3.725951 2.954408
+    3      ATE  -0.3118022   -4.241197 2.913504
+    4      ATE -63.1585590  -24.367425 2.009825
+    5      ATE -38.5837685 -110.776225 2.305720
+    6      ATE   0.3506825   -1.974303 2.361613
+
+![QTE curve as a function of quantile level
+(precomputed).](data:image/png;base64,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)
+
+QTE curve as a function of quantile level (precomputed).
+
+Notes on customization
+
+1.  Asymmetric arms: `kernel`, `backend`, `GPD`, and `components` can be
+    vectors of length 2, allowing treated and control models to differ.
+
+2.  PS augmentation: set `PS` to `"logit"`/`"probit"` to jointly model
+    PS and outcome; set `PS=FALSE` to fit outcome models without PS
+    augmentation.
+
+3.  Conditional effects: pass `newdata` to
+    [`cqte()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/cqte.md)
+    and
+    [`cate()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/cate.md)
+    to obtain subgroup-specific treatment effects.
+
+``` r
+
+q_cond <- cqte(fit, probs = c(0.5, 0.9), newdata = X[1:5, ], interval = "credible")
+a_cond <- cate(fit, newdata = X[1:5, ], interval = "credible", nsim_mean = 100)
+```
+
+Firpo, Sergio. 2007. “Efficient Semiparametric Estimation of Quantile
+Treatment Effects.” *Econometrica* 75 (1): 259–76.
+<https://doi.org/10.1111/j.1468-0262.2007.00738.x>.
+
+Hirano, Keisuke, Guido W. Imbens, and Geert Ridder. 2003. “Efficient
+Estimation of Average Treatment Effects Using the Estimated Propensity
+Score.” *Econometrica* 71 (4): 1161–89.
+<https://doi.org/10.1111/1468-0262.00442>.
+
+Koenker, Roger, and Gilbert Bassett. 1978. “Regression Quantiles.”
+*Econometrica* 46 (1): 33–50. <https://doi.org/10.2307/1913643>.
+
+Rosenbaum, Paul R., and Donald B. Rubin. 1983. “The Central Role of the
+Propensity Score in Observational Studies for Causal Effects.”
+*Biometrika* 70 (1): 41–55. <https://doi.org/10.1093/biomet/70.1.41>.

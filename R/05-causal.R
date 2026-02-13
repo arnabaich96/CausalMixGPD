@@ -413,7 +413,7 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
   out
 }
 
-#' Quantile treatment effects (QTE)
+#' Conditional quantile treatment effects (CQTE)
 #'
 #' Computes treated-minus-control quantiles from a causal fit.
 #'
@@ -425,19 +425,19 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
 #'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
 #'   highest posterior density intervals.
 #' @param level Numeric credible level for intervals (default 0.95 for 95 percent CI).
-#' @return A list with elements \code{fit} (QTE), \code{grid} (probabilities),
+#' @return A list with elements \code{fit} (CQTE), \code{grid} (probabilities),
 #'   and the treated/control prediction objects.
 #' @examples
 #' \dontrun{
 #' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
-#' qte(fit, probs = c(0.5, 0.9), newdata = X[1:5, ])
-#' qte(fit, probs = c(0.5, 0.9), interval = "credible", level = 0.90)  # 90% CI
-#' qte(fit, probs = c(0.5, 0.9), interval = "hpd")  # HPD intervals
-#' qte(fit, probs = c(0.5, 0.9), interval = NULL)   # No intervals
+#' cqte(fit, probs = c(0.5, 0.9), newdata = X[1:5, ])
+#' cqte(fit, probs = c(0.5, 0.9), interval = "credible", level = 0.90)  # 90% CI
+#' cqte(fit, probs = c(0.5, 0.9), interval = "hpd")  # HPD intervals
+#' cqte(fit, probs = c(0.5, 0.9), interval = NULL)   # No intervals
 #' }
 #' @export
-qte <- function(fit,
+cqte <- function(fit,
                 probs = c(0.1, 0.5, 0.9),
                 newdata = NULL,
                 interval = "credible",
@@ -509,7 +509,7 @@ qte <- function(fit,
                     store_draws = TRUE)
 
   if (is.null(pr_trt$draws) || is.null(pr_con$draws)) {
-    stop("QTE requires stored posterior quantile draws; set store_draws=TRUE in predict().", call. = FALSE)
+    stop("CQTE requires stored posterior quantile draws; set store_draws=TRUE in predict().", call. = FALSE)
   }
   # Coerce unconditional quantile draws (M x S) into array (S x 1 x M)
   if (is.matrix(pr_trt$draws) && length(dim(pr_trt$draws)) == 2L) {
@@ -529,7 +529,7 @@ qte <- function(fit,
   if (is.null(dim(pr_trt$draws))) pr_trt$draws <- array(pr_trt$draws, dim = c(length(pr_trt$draws), 1L, 1L))
   if (is.null(dim(pr_con$draws))) pr_con$draws <- array(pr_con$draws, dim = c(length(pr_con$draws), 1L, 1L))
   if (!identical(dim(pr_trt$draws), dim(pr_con$draws))) {
-    stop("Treated and control posterior draws must have matching dimensions for QTE.", call. = FALSE)
+    stop("Treated and control posterior draws must have matching dimensions for CQTE.", call. = FALSE)
   }
 
   diff_draws <- pr_trt$draws - pr_con$draws  # dims: S x n_pred x length(probs)
@@ -551,7 +551,7 @@ qte <- function(fit,
     }
   }
 
-  # Create QTE fit data frame for convenience
+  # Create CQTE fit data frame for convenience
   qte_fit <- data.frame(
     index = rep(probs, each = n_pred),
     id = if (n_pred > 1L) rep(seq_len(n_pred), times = n_prob) else rep(1L, n_prob),
@@ -577,7 +577,7 @@ qte <- function(fit,
     n_pred = n_pred,
     level = level,
     interval = if (compute_interval) interval else "none",
-    type = "qte",
+    type = "cqte",
     meta = list(
       ps_enabled = ps_enabled,
       ps_scale = ps_scale,
@@ -592,14 +592,14 @@ qte <- function(fit,
 }
 
 
-#' Average treatment effects (ATE)
+#' Conditional average treatment effects (CATE)
 #'
 #' Computes treated-minus-control posterior means from a causal fit.
 #'
 #' @param fit A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.
 #' @param newdata Optional data.frame or matrix of covariates for prediction.
-#' @param type Character; \code{"mean"} (default) for ordinary mean ATE or
-#'   \code{"rmean"} for restricted-mean ATE.
+#' @param type Character; \code{"mean"} (default) for ordinary mean CATE or
+#'   \code{"rmean"} for restricted-mean CATE.
 #' @param cutoff Finite numeric cutoff for restricted mean; required for
 #'   \code{type = "rmean"}, ignored otherwise.
 #' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
@@ -607,19 +607,19 @@ qte <- function(fit,
 #'   highest posterior density intervals.
 #' @param level Numeric credible level for intervals (default 0.95 for 95 percent CI).
 #' @param nsim_mean Number of posterior predictive draws to approximate the mean.
-#' @return A list with elements \code{fit} (ATE), optional \code{lower}/\code{upper},
+#' @return A list with elements \code{fit} (CATE), optional \code{lower}/\code{upper},
 #'   and the treated/control prediction objects.
 #' @examples
 #' \dontrun{
 #' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
-#' ate(fit, newdata = X[1:5, ])
-#' ate(fit, interval = "credible", level = 0.90)  # 90% CI
-#' ate(fit, interval = "hpd")  # HPD intervals
-#' ate(fit, interval = NULL)   # No intervals
+#' cate(fit, newdata = X[1:5, ])
+#' cate(fit, interval = "credible", level = 0.90)  # 90% CI
+#' cate(fit, interval = "hpd")  # HPD intervals
+#' cate(fit, interval = NULL)   # No intervals
 #' }
 #' @export
-ate <- function(fit,
+cate <- function(fit,
                 newdata = NULL,
                 type = c("mean", "rmean"),
                 cutoff = NULL,
@@ -696,7 +696,7 @@ ate <- function(fit,
                     cred.level = level, nsim_mean = nsim_mean, store_draws = TRUE)
 
   if (is.null(pr_trt$draws) || is.null(pr_con$draws)) {
-    stop("ATE requires stored posterior mean draws; set store_draws=TRUE in predict().", call. = FALSE)
+    stop("CATE requires stored posterior mean draws; set store_draws=TRUE in predict().", call. = FALSE)
   }
   if (is.null(dim(pr_trt$draws))) {
     pr_trt$draws <- matrix(pr_trt$draws, ncol = 1L)
@@ -705,7 +705,7 @@ ate <- function(fit,
     pr_con$draws <- matrix(pr_con$draws, ncol = 1L)
   }
   if (!identical(dim(pr_trt$draws), dim(pr_con$draws))) {
-    stop("Treated and control posterior draws must have matching dimensions for ATE.", call. = FALSE)
+    stop("Treated and control posterior draws must have matching dimensions for CATE.", call. = FALSE)
   }
 
   diff_draws <- pr_trt$draws - pr_con$draws  # dims: S x n_pred
@@ -723,7 +723,7 @@ ate <- function(fit,
     }
   }
 
-  # Create ATE fit data frame for convenience
+  # Create CATE fit data frame for convenience
   ate_fit <- data.frame(
     id = seq_len(n_pred),
     estimate = fit_vec,
@@ -749,7 +749,7 @@ ate <- function(fit,
     nsim_mean = nsim_mean,
     level = level,
     interval = if (compute_interval) interval else "none",
-    type = "ate",
+    type = "cate",
     meta = list(
       ps_enabled = ps_enabled,
       ps_scale = ps_scale,
@@ -763,6 +763,408 @@ ate <- function(fit,
   out
 }
 
+.causal_qte_draws_array <- function(draws) {
+  if (is.null(draws)) return(NULL)
+  if (is.null(dim(draws))) return(array(as.numeric(draws), dim = c(length(draws), 1L, 1L)))
+  d <- dim(draws)
+  if (length(d) == 2L) {
+    M <- d[1]
+    S <- d[2]
+    arr <- array(NA_real_, dim = c(S, 1L, M))
+    for (s in seq_len(S)) arr[s, 1L, ] <- draws[, s]
+    return(arr)
+  }
+  if (length(d) == 3L) return(draws)
+  stop("Unexpected quantile draw dimensions in causal treatment effects.", call. = FALSE)
+}
+
+.causal_ate_draws_matrix <- function(draws) {
+  if (is.null(draws)) return(NULL)
+  if (is.null(dim(draws))) return(matrix(as.numeric(draws), ncol = 1L))
+  if (length(dim(draws)) == 2L) return(draws)
+  stop("Unexpected mean draw dimensions in causal treatment effects.", call. = FALSE)
+}
+
+.causal_effect_subset_index <- function(fit, n_pred, subset = c("all", "treated")) {
+  subset <- match.arg(subset)
+  if (n_pred <= 1L) return(1L)
+  if (subset == "all") return(seq_len(n_pred))
+  idx <- as.integer(fit$bundle$index$trt %||% integer(0))
+  idx <- idx[is.finite(idx) & idx >= 1L & idx <= n_pred]
+  idx <- unique(idx)
+  if (!length(idx)) {
+    stop("No treated rows available for treated-only treatment effect aggregation.", call. = FALSE)
+  }
+  idx
+}
+
+.causal_summarize_draw_cols <- function(draw_mat, compute_interval, interval, level) {
+  draw_mat <- as.matrix(draw_mat)
+  estimate <- colMeans(draw_mat, na.rm = TRUE)
+  lower <- upper <- rep(NA_real_, ncol(draw_mat))
+  if (compute_interval) {
+    for (j in seq_len(ncol(draw_mat))) {
+      iv <- .compute_interval(draw_mat[, j], level = level, type = interval)
+      lower[j] <- iv["lower"]
+      upper[j] <- iv["upper"]
+    }
+  }
+  list(estimate = estimate, lower = lower, upper = upper)
+}
+
+.causal_aggregate_qte <- function(obj, idx, effect_type = c("qte", "qtt")) {
+  effect_type <- match.arg(effect_type)
+  probs <- obj$probs %||% obj$grid %||% numeric(0)
+  level <- obj$level %||% 0.95
+  interval <- obj$interval %||% "none"
+  compute_interval <- interval %in% c("credible", "hpd")
+
+  trt_draws <- .causal_qte_draws_array(obj$trt$draws %||% NULL)
+  con_draws <- .causal_qte_draws_array(obj$con$draws %||% NULL)
+  if (is.null(trt_draws) || is.null(con_draws)) {
+    stop("QTE aggregation requires treated/control quantile draws.", call. = FALSE)
+  }
+  if (!identical(dim(trt_draws), dim(con_draws))) {
+    stop("Treated and control quantile draws must match for aggregation.", call. = FALSE)
+  }
+
+  idx <- unique(as.integer(idx))
+  idx <- idx[idx >= 1L & idx <= dim(trt_draws)[2]]
+  if (!length(idx)) stop("No valid rows selected for QTE aggregation.", call. = FALSE)
+
+  S <- dim(trt_draws)[1]
+  M <- dim(trt_draws)[3]
+  trt_avg <- matrix(apply(trt_draws[, idx, , drop = FALSE], c(1, 3), mean, na.rm = TRUE), nrow = S, ncol = M)
+  con_avg <- matrix(apply(con_draws[, idx, , drop = FALSE], c(1, 3), mean, na.rm = TRUE), nrow = S, ncol = M)
+  diff_avg <- trt_avg - con_avg
+
+  diff_summ <- .causal_summarize_draw_cols(diff_avg, compute_interval = compute_interval, interval = interval, level = level)
+  trt_summ <- .causal_summarize_draw_cols(trt_avg, compute_interval = compute_interval, interval = interval, level = level)
+  con_summ <- .causal_summarize_draw_cols(con_avg, compute_interval = compute_interval, interval = interval, level = level)
+
+  fit_mat <- matrix(diff_summ$estimate, nrow = 1L, ncol = M)
+  lower <- upper <- NULL
+  if (compute_interval) {
+    lower <- matrix(diff_summ$lower, nrow = 1L, ncol = M)
+    upper <- matrix(diff_summ$upper, nrow = 1L, ncol = M)
+  }
+
+  qte_fit <- data.frame(
+    index = probs,
+    id = rep(1L, length(probs)),
+    estimate = as.vector(fit_mat),
+    lower = if (!is.null(lower)) as.vector(lower) else NA_real_,
+    upper = if (!is.null(upper)) as.vector(upper) else NA_real_
+  )
+
+  trt_fit <- data.frame(
+    estimate = as.numeric(trt_summ$estimate),
+    index = probs,
+    id = rep(1L, length(probs)),
+    lower = as.numeric(trt_summ$lower),
+    upper = as.numeric(trt_summ$upper)
+  )
+  con_fit <- data.frame(
+    estimate = as.numeric(con_summ$estimate),
+    index = probs,
+    id = rep(1L, length(probs)),
+    lower = as.numeric(con_summ$lower),
+    upper = as.numeric(con_summ$upper)
+  )
+
+  trt_draws_out <- array(NA_real_, dim = c(S, 1L, M))
+  con_draws_out <- array(NA_real_, dim = c(S, 1L, M))
+  diff_draws_out <- array(NA_real_, dim = c(S, 1L, M))
+  for (j in seq_len(M)) {
+    trt_draws_out[, 1L, j] <- trt_avg[, j]
+    con_draws_out[, 1L, j] <- con_avg[, j]
+    diff_draws_out[, 1L, j] <- diff_avg[, j]
+  }
+
+  pr_trt <- obj$trt
+  pr_con <- obj$con
+  pr_trt$fit <- trt_fit
+  pr_con$fit <- con_fit
+  pr_trt$draws <- trt_draws_out
+  pr_con$draws <- con_draws_out
+
+  out <- list(
+    fit = fit_mat,
+    lower = lower,
+    upper = upper,
+    qte = list(fit = qte_fit, draws = diff_draws_out),
+    probs = probs,
+    grid = probs,
+    trt = pr_trt,
+    con = pr_con,
+    x = NULL,
+    ps = NULL,
+    n_pred = 1L,
+    level = level,
+    interval = interval,
+    type = effect_type,
+    meta = obj$meta %||% list()
+  )
+  class(out) <- "dpmixgpd_qte"
+  out
+}
+
+.causal_aggregate_ate <- function(obj, idx, effect_type = c("ate", "att")) {
+  effect_type <- match.arg(effect_type)
+  level <- obj$level %||% 0.95
+  interval <- obj$interval %||% "none"
+  compute_interval <- interval %in% c("credible", "hpd")
+
+  trt_draws <- .causal_ate_draws_matrix(obj$trt$draws %||% NULL)
+  con_draws <- .causal_ate_draws_matrix(obj$con$draws %||% NULL)
+  if (is.null(trt_draws) || is.null(con_draws)) {
+    stop("ATE aggregation requires treated/control mean draws.", call. = FALSE)
+  }
+  if (!identical(dim(trt_draws), dim(con_draws))) {
+    stop("Treated and control mean draws must match for aggregation.", call. = FALSE)
+  }
+
+  idx <- unique(as.integer(idx))
+  idx <- idx[idx >= 1L & idx <= ncol(trt_draws)]
+  if (!length(idx)) stop("No valid rows selected for ATE aggregation.", call. = FALSE)
+
+  trt_avg <- rowMeans(trt_draws[, idx, drop = FALSE], na.rm = TRUE)
+  con_avg <- rowMeans(con_draws[, idx, drop = FALSE], na.rm = TRUE)
+  diff_avg <- trt_avg - con_avg
+
+  diff_summ <- .causal_summarize_draw_cols(matrix(diff_avg, ncol = 1L), compute_interval = compute_interval, interval = interval, level = level)
+  trt_summ <- .causal_summarize_draw_cols(matrix(trt_avg, ncol = 1L), compute_interval = compute_interval, interval = interval, level = level)
+  con_summ <- .causal_summarize_draw_cols(matrix(con_avg, ncol = 1L), compute_interval = compute_interval, interval = interval, level = level)
+
+  fit_vec <- as.numeric(diff_summ$estimate)
+  lower <- upper <- NULL
+  if (compute_interval) {
+    lower <- as.numeric(diff_summ$lower)
+    upper <- as.numeric(diff_summ$upper)
+  }
+
+  ate_fit <- data.frame(
+    id = 1L,
+    estimate = fit_vec,
+    lower = if (!is.null(lower)) lower else NA_real_,
+    upper = if (!is.null(upper)) upper else NA_real_
+  )
+  trt_fit <- data.frame(
+    id = 1L,
+    estimate = as.numeric(trt_summ$estimate),
+    lower = as.numeric(trt_summ$lower),
+    upper = as.numeric(trt_summ$upper)
+  )
+  con_fit <- data.frame(
+    id = 1L,
+    estimate = as.numeric(con_summ$estimate),
+    lower = as.numeric(con_summ$lower),
+    upper = as.numeric(con_summ$upper)
+  )
+
+  pr_trt <- obj$trt
+  pr_con <- obj$con
+  pr_trt$fit <- trt_fit
+  pr_con$fit <- con_fit
+  pr_trt$draws <- matrix(trt_avg, ncol = 1L)
+  pr_con$draws <- matrix(con_avg, ncol = 1L)
+
+  out <- list(
+    fit = fit_vec,
+    lower = lower,
+    upper = upper,
+    ate = list(fit = ate_fit, draws = matrix(diff_avg, ncol = 1L)),
+    grid = NULL,
+    trt = pr_trt,
+    con = pr_con,
+    x = NULL,
+    ps = NULL,
+    n_pred = 1L,
+    nsim_mean = obj$nsim_mean %||% NA_integer_,
+    level = level,
+    interval = interval,
+    type = effect_type,
+    meta = obj$meta %||% list()
+  )
+  class(out) <- "dpmixgpd_ate"
+  out
+}
+
+#' Quantile treatment effects (QTE), marginal over training covariates
+#'
+#' Computes a marginal quantile treatment effect by averaging conditional
+#' quantile effects over the training covariate rows.
+#'
+#' @param fit A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.
+#' @param probs Numeric vector of probabilities in (0, 1) specifying the quantile levels
+#'   of the outcome distribution to estimate treatment effects at.
+#' @param newdata Deprecated placeholder for marginal estimands; must be \code{NULL}.
+#' @param y Deprecated placeholder for marginal estimands; must be \code{NULL}.
+#' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
+#'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
+#'   highest posterior density intervals.
+#' @param level Numeric credible level for intervals (default 0.95 for 95 percent CI).
+#' @return A list with elements \code{fit} (QTE), \code{grid} (probabilities),
+#'   and aggregated treated/control prediction objects.
+#' @examples
+#' \dontrun{
+#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
+#' fit <- run_mcmc_causal(cb, show_progress = FALSE)
+#' qte(fit, probs = c(0.5, 0.9))
+#' }
+#' @export
+qte <- function(fit,
+                probs = c(0.1, 0.5, 0.9),
+                newdata = NULL,
+                y = NULL,
+                interval = "credible",
+                level = 0.95) {
+  stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
+  if (!is.null(newdata) || !is.null(y)) {
+    stop("qte() computes a marginal estimand on training data only. Use cqte() for conditional effects with 'newdata'.", call. = FALSE)
+  }
+
+  cq <- cqte(
+    fit = fit,
+    probs = probs,
+    newdata = fit$bundle$data$X %||% NULL,
+    interval = interval,
+    level = level
+  )
+  idx <- .causal_effect_subset_index(fit = fit, n_pred = cq$n_pred %||% 1L, subset = "all")
+  .causal_aggregate_qte(cq, idx = idx, effect_type = "qte")
+}
+
+#' Quantile treatment effect on the treated (QTT)
+#'
+#' Computes a treated-only marginal quantile treatment effect by averaging
+#' conditional quantile effects over rows with assigned treatment \code{T=1}.
+#'
+#' @inheritParams qte
+#' @return A list with elements \code{fit} (QTT), \code{grid} (probabilities),
+#'   and aggregated treated/control prediction objects.
+#' @examples
+#' \dontrun{
+#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
+#' fit <- run_mcmc_causal(cb, show_progress = FALSE)
+#' qtt(fit, probs = c(0.5, 0.9))
+#' }
+#' @export
+qtt <- function(fit,
+                probs = c(0.1, 0.5, 0.9),
+                newdata = NULL,
+                y = NULL,
+                interval = "credible",
+                level = 0.95) {
+  stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
+  if (!is.null(newdata) || !is.null(y)) {
+    stop("qtt() computes a treated-only marginal estimand on training data only. Use cqte() for conditional effects with 'newdata'.", call. = FALSE)
+  }
+
+  cq <- cqte(
+    fit = fit,
+    probs = probs,
+    newdata = fit$bundle$data$X %||% NULL,
+    interval = interval,
+    level = level
+  )
+  idx <- .causal_effect_subset_index(fit = fit, n_pred = cq$n_pred %||% 1L, subset = "treated")
+  .causal_aggregate_qte(cq, idx = idx, effect_type = "qtt")
+}
+
+#' Average treatment effects (ATE), marginal over training covariates
+#'
+#' Computes a marginal average treatment effect by averaging conditional
+#' treatment effects over the training covariate rows.
+#'
+#' @param fit A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.
+#' @param newdata Deprecated placeholder for marginal estimands; must be \code{NULL}.
+#' @param y Deprecated placeholder for marginal estimands; must be \code{NULL}.
+#' @param type Character; \code{"mean"} (default) for ordinary mean ATE or
+#'   \code{"rmean"} for restricted-mean ATE.
+#' @param cutoff Finite numeric cutoff for restricted mean; required for
+#'   \code{type = "rmean"}, ignored otherwise.
+#' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
+#'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
+#'   highest posterior density intervals.
+#' @param level Numeric credible level for intervals (default 0.95 for 95 percent CI).
+#' @param nsim_mean Number of posterior predictive draws to approximate the mean.
+#' @return A list with elements \code{fit} (ATE), optional \code{lower}/\code{upper},
+#'   and aggregated treated/control prediction objects.
+#' @examples
+#' \dontrun{
+#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
+#' fit <- run_mcmc_causal(cb, show_progress = FALSE)
+#' ate(fit, interval = "credible", level = 0.90, nsim_mean = 100)
+#' }
+#' @export
+ate <- function(fit,
+                newdata = NULL,
+                y = NULL,
+                type = c("mean", "rmean"),
+                cutoff = NULL,
+                interval = "credible",
+                level = 0.95,
+                nsim_mean = 200L) {
+  stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
+  if (!is.null(newdata) || !is.null(y)) {
+    stop("ate() computes a marginal estimand on training data only. Use cate() for conditional effects with 'newdata'.", call. = FALSE)
+  }
+
+  ca <- cate(
+    fit = fit,
+    newdata = fit$bundle$data$X %||% NULL,
+    type = type,
+    cutoff = cutoff,
+    interval = interval,
+    level = level,
+    nsim_mean = nsim_mean
+  )
+  idx <- .causal_effect_subset_index(fit = fit, n_pred = ca$n_pred %||% 1L, subset = "all")
+  .causal_aggregate_ate(ca, idx = idx, effect_type = "ate")
+}
+
+#' Average treatment effect on the treated (ATT)
+#'
+#' Computes a treated-only marginal average treatment effect by averaging
+#' conditional treatment effects over rows with assigned treatment \code{T=1}.
+#'
+#' @inheritParams ate
+#' @return A list with elements \code{fit} (ATT), optional \code{lower}/\code{upper},
+#'   and aggregated treated/control prediction objects.
+#' @examples
+#' \dontrun{
+#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
+#' fit <- run_mcmc_causal(cb, show_progress = FALSE)
+#' att(fit, interval = "credible", nsim_mean = 100)
+#' }
+#' @export
+att <- function(fit,
+                newdata = NULL,
+                y = NULL,
+                type = c("mean", "rmean"),
+                cutoff = NULL,
+                interval = "credible",
+                level = 0.95,
+                nsim_mean = 200L) {
+  stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
+  if (!is.null(newdata) || !is.null(y)) {
+    stop("att() computes a treated-only marginal estimand on training data only. Use cate() for conditional effects with 'newdata'.", call. = FALSE)
+  }
+
+  ca <- cate(
+    fit = fit,
+    newdata = fit$bundle$data$X %||% NULL,
+    type = type,
+    cutoff = cutoff,
+    interval = interval,
+    level = level,
+    nsim_mean = nsim_mean
+  )
+  idx <- .causal_effect_subset_index(fit = fit, n_pred = ca$n_pred %||% 1L, subset = "treated")
+  .causal_aggregate_ate(ca, idx = idx, effect_type = "att")
+}
+
 
 #' Restricted-mean ATE (finite under heavy tails)
 #'
@@ -770,7 +1172,7 @@ ate <- function(fit,
 #' \eqn{E[min(Y, cutoff)]}, which is finite even when the ordinary mean does not exist
 #' under heavy-tailed GPD regimes.
 #'
-#' @inheritParams ate
+#' @inheritParams cate
 #' @param cutoff Finite numeric cutoff for the restricted mean.
 #' @examples
 #' \dontrun{
@@ -786,13 +1188,13 @@ ate_rmean <- function(fit,
                       interval = "credible",
                       level = 0.95,
                       nsim_mean = 200L) {
-  ate(fit = fit,
-      newdata = newdata,
-      type = "rmean",
-      cutoff = cutoff,
-      interval = interval,
-      level = level,
-      nsim_mean = nsim_mean)
+  cate(fit = fit,
+       newdata = newdata,
+       type = "rmean",
+       cutoff = cutoff,
+       interval = interval,
+       level = level,
+       nsim_mean = nsim_mean)
 }
 
 

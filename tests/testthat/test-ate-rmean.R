@@ -41,7 +41,7 @@ test_that("ate(type='mean') is Inf when xi >= 1 and ate_rmean stays finite", {
   cf$outcome_fit$trt <- trt_fit
 
   expect_warning(
-    a_mean <- DPmixGPD::ate(cf, newdata = newx, type = "mean", interval = NULL, nsim_mean = 20L),
+    a_mean <- DPmixGPD::cate(cf, newdata = newx, type = "mean", interval = NULL, nsim_mean = 20L),
     "infinite"
   )
   expect_true(all(!is.finite(a_mean$fit)) | any(a_mean$fit == Inf))

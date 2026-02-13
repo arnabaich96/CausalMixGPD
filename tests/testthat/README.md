@@ -253,7 +253,7 @@ test_that("all kernel combinations work", {
 
 ## Coverage Reports
 
-Coverage is managed through a unified script at `tools/coverage.R` that supports
+Coverage is managed through a unified script at `tools/.Rscripts/coverage.R` that supports
 multiple coverage sources and output formats.
 
 ### Coverage Sources
@@ -270,7 +270,7 @@ multiple coverage sources and output formats.
 ### Generate Local HTML Coverage Report
 
 ```r
-source("tools/coverage.R")
+source("tools/.Rscripts/coverage.R")
 
 # Default: CI-level tests
 coverage_report()
@@ -290,14 +290,14 @@ This creates:
 - `docs/coverage/report.html` - Full interactive covr report
 - `docs/coverage/coverage_status.json` - JSON data for CI
 - Copies in `pkgdown/assets/coverage/` for site integration
-- When run via `Rscript tools/coverage.R` (or `tools/coverage.bat`), it also
-  attempts automatic Codecov upload using `CODECOV_TOKEN`.
-- Set `DPMIXGPD_CODECOV_UPLOAD=0` to skip the automatic upload step.
+- When run via `Rscript tools/.Rscripts/coverage.R` (or `tools/coverage.bat`), it
+  generates local coverage artifacts only (no automatic Codecov upload).
+- To upload to Codecov manually, call `coverage_upload()`.
 
 ### Upload to Codecov
 
 ```r
-source("tools/coverage.R")
+source("tools/.Rscripts/coverage.R")
 
 # Upload with default sources (requires CODECOV_TOKEN)
 coverage_upload()
@@ -309,7 +309,7 @@ coverage_upload(sources = "all")
 ### Calculate Coverage Only
 
 ```r
-source("tools/coverage.R")
+source("tools/.Rscripts/coverage.R")
 
 # Get coverage object without generating report
 cov <- calculate_coverage()

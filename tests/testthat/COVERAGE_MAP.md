@@ -109,14 +109,15 @@ fitted.mixgpd_fit and residuals.mixgpd_fit are **conditional (covariate) models 
 
 **Tier:** A (design tests), B (workflow tests)
 
-### 6b. Causal Estimands (ATE/QTE)
+### 6b. Causal Estimands (CATE/CQTE/ATE/QTE/ATT/QTT)
 
 | Feature | Test File | Status |
 |---------|-----------|--------|
-| ate() basic | `test-causal-ate.R` | ✅ |
-| qte() basic | `test-causal-ate.R` | ✅ |
-| Draw alignment across arms | `test-causal-ate.R` | ✅ |
-| Credible intervals | `test-causal-ate.R` | ✅ |
+| cate()/cqte() conditional basics | `test-causal.R` | ✅ |
+| ate()/qte() marginal aggregation | `test-causal.R` | ✅ |
+| att()/qtt() treated-only aggregation | `test-causal.R` | ✅ |
+| Draw alignment across arms | `test-causal.R` | ✅ |
+| Credible intervals | `test-causal.R` | ✅ |
 
 **Tier:** B (ci)
 

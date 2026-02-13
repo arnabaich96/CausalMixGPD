@@ -2,11 +2,12 @@
 % Please edit documentation in R/05-causal.R
 \name{ate}
 \alias{ate}
-\title{Average treatment effects (ATE)}
+\title{Average treatment effects (ATE), marginal over training covariates}
 \usage{
 ate(
   fit,
   newdata = NULL,
+  y = NULL,
   type = c("mean", "rmean"),
   cutoff = NULL,
   interval = "credible",
@@ -17,7 +18,9 @@ ate(
 \arguments{
 \item{fit}{A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.}
 
-\item{newdata}{Optional data.frame or matrix of covariates for prediction.}
+\item{newdata}{Deprecated placeholder for marginal estimands; must be \code{NULL}.}
+
+\item{y}{Deprecated placeholder for marginal estimands; must be \code{NULL}.}
 
 \item{type}{Character; \code{"mean"} (default) for ordinary mean ATE or
 \code{"rmean"} for restricted-mean ATE.}
@@ -35,18 +38,16 @@ highest posterior density intervals.}
 }
 \value{
 A list with elements \code{fit} (ATE), optional \code{lower}/\code{upper},
-and the treated/control prediction objects.
+and aggregated treated/control prediction objects.
 }
 \description{
-Computes treated-minus-control posterior means from a causal fit.
+Computes a marginal average treatment effect by averaging conditional
+treatment effects over the training covariate rows.
 }
 \examples{
 \dontrun{
 cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
 fit <- run_mcmc_causal(cb, show_progress = FALSE)
-ate(fit, newdata = X[1:5, ])
-ate(fit, interval = "credible", level = 0.90)  # 90\% CI
-ate(fit, interval = "hpd")  # HPD intervals
-ate(fit, interval = NULL)   # No intervals
+ate(fit, interval = "credible", level = 0.90, nsim_mean = 100)
 }
 }

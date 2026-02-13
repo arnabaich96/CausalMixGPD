@@ -6,7 +6,7 @@
 # reports. It supports multiple coverage sources: tests, examples, and vignettes.
 #
 # Usage:
-#   source("tools/coverage.R")
+#   source("tools/.Rscripts/coverage.R")
 #
 #   # Generate local HTML report (default: CI-level tests)
 #   coverage_report()
@@ -636,7 +636,7 @@ coverage_upload <- function(
     "Please run the coverage script locally to generate the full report.",
     "",
     "```r",
-    "source('tools/coverage.R')",
+    "source('tools/.Rscripts/coverage.R')",
     "coverage_report()",
     "```"
   )
@@ -846,24 +846,12 @@ args <- commandArgs(trailingOnly = FALSE)
 is_rscript <- any(grepl("--file=", args, fixed = TRUE))
 if (is_rscript) {
   cat("\nRunning default coverage pipeline (sources='tests', test_level='ci').\n")
-  cov <- coverage_report(
+  coverage_report(
     sources = "tests",
     test_level = "ci",
     output_dir = "docs/coverage",
     browse = FALSE
   )
-
-  upload_enabled <- tolower(Sys.getenv("DPMIXGPD_CODECOV_UPLOAD", "1")) %in% c("1", "true", "yes")
-  if (upload_enabled) {
-    cat("\nAttempting automatic Codecov upload (if token is available)...\n")
-    coverage_upload(
-      sources = "tests",
-      test_level = "ci",
-      coverage = cov,
-      require_token = FALSE,
-      quiet = FALSE
-    )
-  } else {
-    cat("\nAutomatic Codecov upload disabled via DPMIXGPD_CODECOV_UPLOAD.\n")
-  }
+  cat("\nCoverage report generation finished (local artifacts only).\n")
+  cat("Use coverage_upload() explicitly if you want to push to Codecov.\n")
 }

@@ -2,12 +2,13 @@
 % Please edit documentation in R/05-causal.R
 \name{qte}
 \alias{qte}
-\title{Quantile treatment effects (QTE)}
+\title{Quantile treatment effects (QTE), marginal over training covariates}
 \usage{
 qte(
   fit,
   probs = c(0.1, 0.5, 0.9),
   newdata = NULL,
+  y = NULL,
   interval = "credible",
   level = 0.95
 )
@@ -18,7 +19,9 @@ qte(
 \item{probs}{Numeric vector of probabilities in (0, 1) specifying the quantile levels
 of the outcome distribution to estimate treatment effects at.}
 
-\item{newdata}{Optional data.frame or matrix of covariates for prediction.}
+\item{newdata}{Deprecated placeholder for marginal estimands; must be \code{NULL}.}
+
+\item{y}{Deprecated placeholder for marginal estimands; must be \code{NULL}.}
 
 \item{interval}{Character or NULL; type of credible interval: \code{NULL} for no interval,
 \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
@@ -28,18 +31,16 @@ highest posterior density intervals.}
 }
 \value{
 A list with elements \code{fit} (QTE), \code{grid} (probabilities),
-and the treated/control prediction objects.
+and aggregated treated/control prediction objects.
 }
 \description{
-Computes treated-minus-control quantiles from a causal fit.
+Computes a marginal quantile treatment effect by averaging conditional
+quantile effects over the training covariate rows.
 }
 \examples{
 \dontrun{
 cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
 fit <- run_mcmc_causal(cb, show_progress = FALSE)
-qte(fit, probs = c(0.5, 0.9), newdata = X[1:5, ])
-qte(fit, probs = c(0.5, 0.9), interval = "credible", level = 0.90)  # 90\% CI
-qte(fit, probs = c(0.5, 0.9), interval = "hpd")  # HPD intervals
-qte(fit, probs = c(0.5, 0.9), interval = NULL)   # No intervals
+qte(fit, probs = c(0.5, 0.9))
 }
 }

@@ -1,6 +1,7 @@
-# Quantile treatment effects (QTE)
+# Quantile treatment effects (QTE), marginal over training covariates
 
-Computes treated-minus-control quantiles from a causal fit.
+Computes a marginal quantile treatment effect by averaging conditional
+quantile effects over the training covariate rows.
 
 ## Usage
 
@@ -9,6 +10,7 @@ qte(
   fit,
   probs = c(0.1, 0.5, 0.9),
   newdata = NULL,
+  y = NULL,
   interval = "credible",
   level = 0.95
 )
@@ -28,7 +30,11 @@ qte(
 
 - newdata:
 
-  Optional data.frame or matrix of covariates for prediction.
+  Deprecated placeholder for marginal estimands; must be `NULL`.
+
+- y:
+
+  Deprecated placeholder for marginal estimands; must be `NULL`.
 
 - interval:
 
@@ -42,7 +48,7 @@ qte(
 
 ## Value
 
-A list with elements `fit` (QTE), `grid` (probabilities), and the
+A list with elements `fit` (QTE), `grid` (probabilities), and aggregated
 treated/control prediction objects.
 
 ## Examples
@@ -51,9 +57,6 @@ treated/control prediction objects.
 if (FALSE) { # \dontrun{
 cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
 fit <- run_mcmc_causal(cb, show_progress = FALSE)
-qte(fit, probs = c(0.5, 0.9), newdata = X[1:5, ])
-qte(fit, probs = c(0.5, 0.9), interval = "credible", level = 0.90)  # 90% CI
-qte(fit, probs = c(0.5, 0.9), interval = "hpd")  # HPD intervals
-qte(fit, probs = c(0.5, 0.9), interval = NULL)   # No intervals
+qte(fit, probs = c(0.5, 0.9))
 } # }
 ```

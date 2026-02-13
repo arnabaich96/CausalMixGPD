@@ -1,18 +1,55 @@
-# tools/make_vignette_artifacts.R
+# tools/make_vignette_fits.R
 #
 # Generate small, precomputed tables and figures for CRAN vignettes.
 #
 # Run this LOCALLY from the package root (do NOT run on CRAN):
-#   source("tools/make_vignette_artifacts.R")
+#   source("tools/.Rscripts/make_vignette_fits.R")
 #
 # The vignettes read these artifacts from inst/extdata/ so that vignette builds
 # on CRAN remain fast and deterministic.
 
-stopifnot(file.exists("DESCRIPTION"))
+# Find and switch to package root so the script works from IDE runners too.
+.find_pkg_root <- function(start = getwd()) {
+  cur <- normalizePath(start, winslash = "/", mustWork = TRUE)
+  repeat {
+    if (file.exists(file.path(cur, "DESCRIPTION"))) return(cur)
+    parent <- dirname(cur)
+    if (identical(parent, cur)) break
+    cur <- parent
+  }
+  NULL
+}
 
-stopifnot(requireNamespace("DPmixGPD", quietly = TRUE))
+.script_dir <- function() {
+  args <- commandArgs(trailingOnly = FALSE)
+  file_arg <- grep("^--file=", args, value = TRUE)
+  if (length(file_arg)) {
+    return(dirname(normalizePath(sub("^--file=", "", file_arg[[1L]]), winslash = "/", mustWork = TRUE)))
+  }
+  normalizePath(getwd(), winslash = "/", mustWork = TRUE)
+}
 
-suppressPackageStartupMessages(library(DPmixGPD))
+pkg_root <- .find_pkg_root(getwd())
+if (is.null(pkg_root)) {
+  pkg_root <- .find_pkg_root(.script_dir())
+}
+if (is.null(pkg_root)) {
+  stop("Could not locate package root (DESCRIPTION). Run from inside the DPmixGPD repo.", call. = FALSE)
+}
+
+setwd(pkg_root)
+message("[DPmixGPD] Package root: ", pkg_root)
+
+if (!requireNamespace("pkgload", quietly = TRUE)) {
+  stop("Package 'pkgload' is required. Install it via install.packages('pkgload').", call. = FALSE)
+}
+
+# Always use the local source tree API, not any stale installed version.
+pkgload::load_all(path = pkg_root, export_all = FALSE, helpers = FALSE, quiet = TRUE)
+
+if (!("cqte" %in% getNamespaceExports("DPmixGPD"))) {
+  stop("Current source package does not export 'cqte'. Regenerate docs and NAMESPACE first.", call. = FALSE)
+}
 
 dir.create(file.path("inst", "extdata"), recursive = TRUE, showWarnings = FALSE)
 dir.create(file.path("inst", "doc"), recursive = TRUE, showWarnings = FALSE)
@@ -168,8 +205,8 @@ cb <- build_causal_bundle(
 
 fit_a <- run_mcmc_causal(cb, show_progress = TRUE)
 
-q <- qte(
-  fit_a,
+q <- DPmixGPD::cqte(
+  fit = fit_a,
   probs = c(0.5, 0.9, 0.95),
   interval = "credible",
   level = 0.90,

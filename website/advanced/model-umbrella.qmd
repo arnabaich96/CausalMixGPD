@@ -55,7 +55,7 @@ This vignette collects two end-to-end examples with customized priors and links:
    with covariate-linked locations and custom priors.
 
 Both examples use `mtcars` and show the main **user-level functions** plus **S3 methods**
-(`print`, `summary`, `plot`, `predict`, `fitted`, `residuals`, `params`, `ate`, `qte`).
+(`print`, `summary`, `plot`, `predict`, `fitted`, `residuals`, `params`, `ate`, `qte`, `att`, `qtt`, `cate`, `cqte`).
 
 > Note on link priors: both SB and CRP backends currently require **normal** priors for
 > link-mode regression coefficients. The requested **lognormal** prior for the scale
@@ -320,12 +320,16 @@ head(pred_causal_mean)
 
 ```{r, results='asis'}
 ate_result <- ate(causal_fit, interval = "credible", nsim_mean = 50)
+att_result <- att(causal_fit, interval = "credible", nsim_mean = 50)
 print(ate_result)
 summary(ate_result)
 ```
 
 ```{r}
 qte_result <- qte(causal_fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
+qtt_result <- qtt(causal_fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
+cqte_result <- cqte(causal_fit, probs = c(0.25, 0.5, 0.75), newdata = X_causal[1:5, ], interval = "credible")
+cate_result <- cate(causal_fit, newdata = X_causal[1:5, ], interval = "credible", nsim_mean = 50)
 safe_plot(ate_result, type = "effect")
 safe_plot(qte_result, type = "effect")
 ```

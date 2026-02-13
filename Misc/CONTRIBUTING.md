@@ -90,7 +90,7 @@ devtools::test()
 ### Coverage
 
 ```r
-source("tools/coverage.R")
+source("tools/.Rscripts/coverage.R")
 
 # Generate local coverage report (default: tests + examples)
 coverage_report()

@@ -175,14 +175,12 @@ safe_plot(pred_surv_sb_crp)
 ```
 
 ```{r ate-sb-crp}
-ate_sb_crp <- ate(fit_sb_crp, newdata = x_eval,
-                  interval = "credible", nsim_mean = 100)
+ate_sb_crp <- ate(fit_sb_crp, interval = "credible", nsim_mean = 100)
 safe_plot(ate_sb_crp)
 ```
 
 ```{r qte-sb-crp}
-qte_sb_crp <- qte(fit_sb_crp, probs = c(0.25, 0.5, 0.75),
-                  newdata = x_eval, interval = "credible")
+qte_sb_crp <- qte(fit_sb_crp, probs = c(0.25, 0.5, 0.75), interval = "credible")
 safe_plot(qte_sb_crp)
 ```
 
@@ -244,13 +242,13 @@ safe_plot(pred_surv_crp_sb)
 ```
 
 ```{r ate-crp-sb}
-ate_crp_sb <- ate(fit_crp_sb, newdata = x_eval,
+ate_crp_sb <- cate(fit_crp_sb, newdata = x_eval,
                   interval = "credible", nsim_mean = 100)
 safe_plot(ate_crp_sb)
 ```
 
 ```{r qte-crp-sb}
-qte_crp_sb <- qte(fit_crp_sb, probs = c(0.25, 0.5, 0.75),
+qte_crp_sb <- cqte(fit_crp_sb, probs = c(0.25, 0.5, 0.75),
                   newdata = x_eval, interval = "credible")
 safe_plot(qte_crp_sb)
 ```

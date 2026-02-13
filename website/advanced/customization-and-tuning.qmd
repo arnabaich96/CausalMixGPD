@@ -72,7 +72,7 @@ The vignette covers:
 
 2) A spliced bulk-tail model (SB + Amoroso + GPD) in which DPmixGPD generates the model code, while the compilation and sampling steps are carried out explicitly to facilitate inspection.
 
-3) A causal (two-arm) model built via `build_causal_bundle()`, followed by downstream summaries via S3 methods such as `predict()`, `ate()`, and `qte()`.
+3) A causal (two-arm) model built via `build_causal_bundle()`, followed by downstream summaries via S3 methods such as `predict()`, `ate()/qte()` (marginal), `att()/qtt()` (treated-only), and `cate()/cqte()` (conditional).
 
 Throughout, the focus is on reproducible model construction and on using the exported NIMBLE distributions directly in the likelihood. In this setting, a ones/zeros trick is not required.
 
@@ -355,7 +355,7 @@ DPmixGPD's causal bundle wraps (i) an outcome model for the treated arm, (ii) an
 model for the control arm, and (iii) a propensity-score model (optional, but often useful).
 Once the sampler has run, the fitted object exposes high-level S3 methods so you can move
 from posterior samples to causal estimands with minimal friction--e.g., average treatment
-effects via `ate()` and quantile treatment effects via `qte()`.
+effects via `ate()` and quantile treatment effects via `qte()`, with treated-only counterparts `att()` / `qtt()` and conditional counterparts `cate()` / `cqte()`.
 
 ```{r}
 X_causal <- df[, c("wt", "hp", "qsec", "cyl")]
@@ -434,6 +434,10 @@ head(pred_causal_mean)
 ```{r, results='asis'}
 ate_result <- ate(causal_fit, interval = "credible", nsim_mean = 50)
 qte_result <- qte(causal_fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
+att_result <- att(causal_fit, interval = "credible", nsim_mean = 50)
+qtt_result <- qtt(causal_fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
+cate_result <- cate(causal_fit, newdata = X_causal[1:5, ], interval = "credible", nsim_mean = 50)
+cqte_result <- cqte(causal_fit, probs = c(0.25, 0.5, 0.75), newdata = X_causal[1:5, ], interval = "credible")
 
 print(ate_result)
 summary(ate_result)

@@ -36,9 +36,11 @@
   [`qAmorosoMixGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/amoroso_mixgpd.md)
   : Amoroso mixture with a GPD tail
 - [`ate()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/ate.md)
-  : Average treatment effects (ATE)
+  : Average treatment effects (ATE), marginal over training covariates
 - [`ate_rmean()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/ate_rmean.md)
   : Restricted-mean ATE (finite under heavy tails)
+- [`att()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/att.md)
+  : Average treatment effect on the treated (ATT)
 - [`dgpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/base_lowercase.md)
   [`pgpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/base_lowercase.md)
   [`qgpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/base_lowercase.md)
@@ -60,6 +62,8 @@
   : Build a causal bundle (design + two outcome arms)
 - [`build_nimble_bundle()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/build_nimble_bundle.md)
   : Build a NIMBLE bundle
+- [`cate()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/cate.md)
+  : Conditional average treatment effects (CATE)
 - [`dCauchy()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/cauchy.md)
   [`pCauchy()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/cauchy.md)
   [`rCauchy()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/cauchy.md)
@@ -85,17 +89,8 @@
   : causal_pos500_p3_k2 dataset
 - [`check_glue_validity()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/check_glue_validity.md)
   : Validate bulk+tail glue for MixGPD predictive distribution
-- [`coverage_status()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/coverage_status.md)
-  : Test coverage status helper
-- [`DPmixGPD-vignettes`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/DPmixGPD-vignettes.md)
-  [`basic-vignette`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/DPmixGPD-vignettes.md)
-  [`unconditional-vignette`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/DPmixGPD-vignettes.md)
-  [`conditional-vignette`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/DPmixGPD-vignettes.md)
-  [`causal-vignette`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/DPmixGPD-vignettes.md)
-  : Vignettes for DPmixGPD
-- [`DPmixGPD`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/DPmixGPD.md)
-  [`DPmixGPD-package`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/DPmixGPD.md)
-  : DPmixGPD: Dirichlet Process Mixtures with Generalized Pareto Tail
+- [`cqte()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/cqte.md)
+  : Conditional quantile treatment effects (CQTE)
 - [`fitted(`*`<mixgpd_fit>`*`)`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/fitted.mixgpd_fit.md)
   : Fitted values and residuals for a MixGPD fit
 - [`dGammaGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/gamma_gpd.md)
@@ -324,9 +319,9 @@
 - [`print(`*`<summary.dpmixgpd_qte>`*`)`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/print.summary.dpmixgpd_qte.md)
   : Print a QTE summary
 - [`qte()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/qte.md)
-  : Quantile treatment effects (QTE)
-- [`read_coverage_status()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/read_coverage_status.md)
-  : Read stored coverage status
+  : Quantile treatment effects (QTE), marginal over training covariates
+- [`qtt()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/qtt.md)
+  : Quantile treatment effect on the treated (QTT)
 - [`residuals(`*`<mixgpd_fit>`*`)`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/residuals.mixgpd_fit.md)
   : Residuals for a MixGPD fit
 - [`run_mcmc_bundle_manual()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/run_mcmc_bundle_manual.md)

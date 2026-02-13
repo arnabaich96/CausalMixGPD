@@ -372,6 +372,14 @@ test_that("print.dpmixgpd_qte respects max_rows", {
   expect_output(print_dpmixgpd_qte(qte, max_rows = 2), "more rows")
 })
 
+test_that("print.dpmixgpd_qte uses estimand-specific labels", {
+  qte <- make_mock_qte()
+  qte$type <- "cqte"
+  expect_output(print_dpmixgpd_qte(qte), "CQTE")
+  qte$type <- "qtt"
+  expect_output(print_dpmixgpd_qte(qte), "QTT")
+})
+
 # ======================================================================
 # print.dpmixgpd_ate tests
 # ======================================================================
@@ -385,6 +393,14 @@ test_that("print.dpmixgpd_ate works", {
 test_that("print.dpmixgpd_ate respects max_rows", {
   ate <- make_mock_ate()
   expect_output(print_dpmixgpd_ate(ate, max_rows = 2), "more rows")
+})
+
+test_that("print.dpmixgpd_ate uses estimand-specific labels", {
+  ate <- make_mock_ate()
+  ate$type <- "cate"
+  expect_output(print_dpmixgpd_ate(ate), "CATE")
+  ate$type <- "att"
+  expect_output(print_dpmixgpd_ate(ate), "ATT")
 })
 
 # ======================================================================
@@ -428,6 +444,12 @@ test_that("print.summary.dpmixgpd_qte respects digits", {
   expect_output(print_summary_dpmixgpd_qte(summ, digits = 2), "QTE Summary")
 })
 
+test_that("print.summary.dpmixgpd_qte uses estimand-specific labels", {
+  summ <- make_mock_summary_qte()
+  summ$object$type <- "cqte"
+  expect_output(print_summary_dpmixgpd_qte(summ), "CQTE Summary")
+})
+
 # ======================================================================
 # print.summary.dpmixgpd_ate tests
 # ======================================================================
@@ -442,6 +464,12 @@ test_that("print.summary.dpmixgpd_ate works", {
 test_that("print.summary.dpmixgpd_ate respects digits", {
   summ <- make_mock_summary_ate()
   expect_output(print_summary_dpmixgpd_ate(summ, digits = 2), "ATE Summary")
+})
+
+test_that("print.summary.dpmixgpd_ate uses estimand-specific labels", {
+  summ <- make_mock_summary_ate()
+  summ$object$type <- "att"
+  expect_output(print_summary_dpmixgpd_ate(summ), "ATT Summary")
 })
 
 # ======================================================================

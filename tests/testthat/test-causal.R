@@ -309,20 +309,124 @@ test_that("ATE/QTE use matching posterior draws and shapes", {
   cf <- DPmixGPD::run_mcmc_causal(cb, show_progress = FALSE)
   newx <- head(X, 3)
 
-  qres <- DPmixGPD::qte(cf, probs = c(0.25, 0.5), newdata = newx, interval = "credible")
+  qres <- DPmixGPD::cqte(cf, probs = c(0.25, 0.5), newdata = newx, interval = "credible")
   expect_true(is.matrix(qres$fit) && all(dim(qres$fit) == c(nrow(newx), 2)))
   expect_true(identical(dim(qres$trt$draws), dim(qres$con$draws)))
   diff_q <- qres$trt$draws - qres$con$draws
   expect_equal(apply(diff_q, c(2, 3), mean), qres$fit, tolerance = 1e-8)
   expect_true(all(qres$lower <= qres$upper, na.rm = TRUE))
 
-  ares <- DPmixGPD::ate(cf, newdata = newx, interval = "credible", nsim_mean = 20L)
+  ares <- DPmixGPD::cate(cf, newdata = newx, interval = "credible", nsim_mean = 20L)
   expect_true(length(ares$fit) == nrow(newx))
   expect_true(identical(dim(ares$trt$draws), dim(ares$con$draws)))
   expect_true(is.null(ares$grid))
   diff_a <- ares$trt$draws - ares$con$draws
   expect_equal(colMeans(diff_a), ares$fit, tolerance = 1e-8)
   expect_true(all(ares$lower <= ares$upper, na.rm = TRUE))
+})
+
+test_that("marginal ate/qte aggregate conditional cate/cqte draws over training rows", {
+  skip_if_not_test_level("ci")
+
+  data <- .make_causal_fit()
+  cf <- data$fit
+  X <- data$X
+  probs <- c(0.25, 0.5)
+
+  set.seed(101)
+  ca <- DPmixGPD::cate(cf, newdata = X, interval = "credible", nsim_mean = 20L)
+  set.seed(101)
+  a <- DPmixGPD::ate(cf, interval = "credible", nsim_mean = 20L)
+  a_exp_draws <- rowMeans(ca$ate$draws, na.rm = TRUE)
+  expect_equal(as.numeric(a$ate$draws[, 1]), a_exp_draws, tolerance = 1e-8)
+  expect_equal(as.numeric(a$fit), mean(a_exp_draws), tolerance = 1e-8)
+
+  set.seed(202)
+  cq <- DPmixGPD::cqte(cf, probs = probs, newdata = X, interval = "credible")
+  set.seed(202)
+  q <- DPmixGPD::qte(cf, probs = probs, interval = "credible")
+  q_exp_draws <- apply(cq$qte$draws, c(1, 3), mean, na.rm = TRUE)
+  q_exp_draws <- matrix(q_exp_draws, ncol = length(probs))
+  expect_equal(matrix(q$qte$draws[, 1, ], ncol = length(probs)), q_exp_draws, tolerance = 1e-8)
+  expect_equal(as.numeric(q$fit[1, ]), colMeans(q_exp_draws, na.rm = TRUE), tolerance = 1e-8)
+})
+
+test_that("att/qtt aggregate over treated-assigned rows only", {
+  skip_if_not_test_level("ci")
+
+  data <- .make_causal_fit()
+  cf <- data$fit
+  X <- data$X
+  idx_trt <- cf$bundle$index$trt
+  probs <- c(0.25, 0.5)
+
+  set.seed(303)
+  ca <- DPmixGPD::cate(cf, newdata = X, interval = "credible", nsim_mean = 20L)
+  set.seed(303)
+  a_tt <- DPmixGPD::att(cf, interval = "credible", nsim_mean = 20L)
+  att_exp_draws <- rowMeans(ca$ate$draws[, idx_trt, drop = FALSE], na.rm = TRUE)
+  expect_equal(as.numeric(a_tt$ate$draws[, 1]), att_exp_draws, tolerance = 1e-8)
+  expect_equal(as.numeric(a_tt$fit), mean(att_exp_draws), tolerance = 1e-8)
+
+  set.seed(404)
+  cq <- DPmixGPD::cqte(cf, probs = probs, newdata = X, interval = "credible")
+  set.seed(404)
+  q_tt <- DPmixGPD::qtt(cf, probs = probs, interval = "credible")
+  qtt_exp_draws <- apply(cq$qte$draws[, idx_trt, , drop = FALSE], c(1, 3), mean, na.rm = TRUE)
+  qtt_exp_draws <- matrix(qtt_exp_draws, ncol = length(probs))
+  expect_equal(matrix(q_tt$qte$draws[, 1, ], ncol = length(probs)), qtt_exp_draws, tolerance = 1e-8)
+  expect_equal(as.numeric(q_tt$fit[1, ]), colMeans(qtt_exp_draws, na.rm = TRUE), tolerance = 1e-8)
+})
+
+test_that("marginal effect functions reject newdata/y arguments", {
+  skip_if_not_test_level("ci")
+
+  data <- .make_causal_fit()
+  cf <- data$fit
+  X <- data$X
+
+  expect_error(DPmixGPD::ate(cf, newdata = X[1:2, ]), "Use cate")
+  expect_error(DPmixGPD::qte(cf, newdata = X[1:2, ]), "Use cqte")
+  expect_error(DPmixGPD::att(cf, newdata = X[1:2, ]), "Use cate")
+  expect_error(DPmixGPD::qtt(cf, newdata = X[1:2, ]), "Use cqte")
+
+  expect_error(DPmixGPD::ate(cf, y = 1), "training data only")
+  expect_error(DPmixGPD::qte(cf, y = 1), "training data only")
+  expect_error(DPmixGPD::att(cf, y = 1), "training data only")
+  expect_error(DPmixGPD::qtt(cf, y = 1), "training data only")
+})
+
+test_that("marginal estimands degrade to single-point summaries without covariates", {
+  skip_if_not_test_level("ci")
+
+  set.seed(404)
+  n <- 24
+  T <- c(rep(0L, n / 2), rep(1L, n / 2))
+  y <- abs(stats::rnorm(n)) + 0.1
+
+  cb <- DPmixGPD::build_causal_bundle(
+    y = y,
+    X = NULL,
+    T = T,
+    backend = c("sb", "sb"),
+    kernel = c("normal", "normal"),
+    GPD = c(FALSE, FALSE),
+    components = c(4, 4),
+    mcmc_outcome = list(niter = 20, nburnin = 5, thin = 1, nchains = 1, seed = 11),
+    mcmc_ps = list(niter = 20, nburnin = 5, thin = 1, nchains = 1, seed = 12),
+    PS = FALSE
+  )
+  cf <- DPmixGPD::run_mcmc_causal(cb, show_progress = FALSE)
+
+  a <- DPmixGPD::ate(cf, interval = "credible", nsim_mean = 20L)
+  a_tt <- DPmixGPD::att(cf, interval = "credible", nsim_mean = 20L)
+  q <- DPmixGPD::qte(cf, probs = c(0.25, 0.5), interval = "credible")
+  q_tt <- DPmixGPD::qtt(cf, probs = c(0.25, 0.5), interval = "credible")
+
+  expect_equal(a$n_pred, 1L)
+  expect_equal(a_tt$n_pred, 1L)
+  expect_equal(q$n_pred, 1L)
+  expect_equal(q_tt$n_pred, 1L)
 })
 
 test_that("ate_rmean returns finite estimates with same structure as ate", {
@@ -404,7 +508,7 @@ test_that("ate(type='mean') returns Inf when outcome GPD has tail_shape >= 1", {
   cf$outcome_fit$trt <- trt_fit
 
   expect_warning(
-    ares <- DPmixGPD::ate(cf, newdata = newx, type = "mean", interval = NULL, nsim_mean = 20L),
+    ares <- DPmixGPD::cate(cf, newdata = newx, type = "mean", interval = NULL, nsim_mean = 20L),
     "infinite"
   )
   expect_true(all(!is.finite(ares$fit)) | any(ares$fit == Inf))
@@ -1275,7 +1379,7 @@ test_that("plot.dpmixgpd_qte works", {
   cf <- data$fit
   X <- data$X
 
-  qte_res <- DPmixGPD::qte(cf, probs = c(0.25, 0.5), newdata = X[1:3, ], interval = "credible")
+  qte_res <- DPmixGPD::cqte(cf, probs = c(0.25, 0.5), newdata = X[1:3, ], interval = "credible")
 
   # Should not error
   expect_no_error({
@@ -1294,7 +1398,7 @@ test_that("plot.dpmixgpd_ate works", {
   cf <- data$fit
   X <- data$X
 
-  ate_res <- DPmixGPD::ate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
+  ate_res <- DPmixGPD::cate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
 
   # Should not error
   expect_no_error({
@@ -1553,7 +1657,7 @@ test_that("print.dpmixgpd_qte works", {
   cf <- data$fit
   X <- data$X
 
-  qte_res <- DPmixGPD::qte(cf, probs = c(0.25, 0.5), newdata = X[1:3, ], interval = "credible")
+  qte_res <- DPmixGPD::cqte(cf, probs = c(0.25, 0.5), newdata = X[1:3, ], interval = "credible")
 
   expect_output(print(qte_res), "QTE")
   expect_output(print(qte_res), "probs|quantile", ignore.case = TRUE)
@@ -1566,7 +1670,7 @@ test_that("summary.dpmixgpd_qte works", {
   cf <- data$fit
   X <- data$X
 
-  qte_res <- DPmixGPD::qte(cf, probs = c(0.25, 0.5), newdata = X[1:3, ], interval = "credible")
+  qte_res <- DPmixGPD::cqte(cf, probs = c(0.25, 0.5), newdata = X[1:3, ], interval = "credible")
 
   s <- summary(qte_res)
   expect_s3_class(s, "summary.dpmixgpd_qte")
@@ -1585,7 +1689,7 @@ test_that("print.dpmixgpd_ate works", {
   cf <- data$fit
   X <- data$X
 
-  ate_res <- DPmixGPD::ate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
+  ate_res <- DPmixGPD::cate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
 
   expect_output(print(ate_res), "ATE")
 })
@@ -1597,7 +1701,7 @@ test_that("summary.dpmixgpd_ate works", {
   cf <- data$fit
   X <- data$X
 
-  ate_res <- DPmixGPD::ate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
+  ate_res <- DPmixGPD::cate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
 
   s <- summary(ate_res)
   expect_s3_class(s, "summary.dpmixgpd_ate")
@@ -1617,7 +1721,7 @@ test_that("plot.dpmixgpd_qte type='effect' works", {
   cf <- data$fit
   X <- data$X
 
-  qte_res <- DPmixGPD::qte(cf, probs = c(0.25, 0.5), newdata = X[1:3, ], interval = "credible")
+  qte_res <- DPmixGPD::cqte(cf, probs = c(0.25, 0.5), newdata = X[1:3, ], interval = "credible")
 
   p <- plot(qte_res, type = "effect")
 
@@ -1637,7 +1741,7 @@ test_that("plot.dpmixgpd_qte type='arms' works", {
   cf <- data$fit
   X <- data$X
 
-  qte_res <- DPmixGPD::qte(cf, probs = c(0.25, 0.5), newdata = X[1:3, ], interval = "credible")
+  qte_res <- DPmixGPD::cqte(cf, probs = c(0.25, 0.5), newdata = X[1:3, ], interval = "credible")
 
   p <- plot(qte_res, type = "arms")
 
@@ -1658,7 +1762,7 @@ test_that("plot.dpmixgpd_qte type='both' returns list", {
   cf <- data$fit
   X <- data$X
 
-  qte_res <- DPmixGPD::qte(cf, probs = c(0.25, 0.5), newdata = X[1:3, ], interval = "credible")
+  qte_res <- DPmixGPD::cqte(cf, probs = c(0.25, 0.5), newdata = X[1:3, ], interval = "credible")
 
   plots <- plot(qte_res, type = "both")
 
@@ -1676,7 +1780,7 @@ test_that("plot.dpmixgpd_qte default type is 'effect'", {
   cf <- data$fit
   X <- data$X
 
-  qte_res <- DPmixGPD::qte(cf, probs = c(0.5), newdata = X[1:3, ], interval = "credible")
+  qte_res <- DPmixGPD::cqte(cf, probs = c(0.5), newdata = X[1:3, ], interval = "credible")
 
   # Default should be effect
   p_default <- plot(qte_res)
@@ -1698,7 +1802,7 @@ test_that("plot.dpmixgpd_ate type='effect' works", {
   cf <- data$fit
   X <- data$X
 
-  ate_res <- DPmixGPD::ate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
+  ate_res <- DPmixGPD::cate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
 
   p <- plot(ate_res, type = "effect")
 
@@ -1718,7 +1822,7 @@ test_that("plot.dpmixgpd_ate type='arms' works", {
   cf <- data$fit
   X <- data$X
 
-  ate_res <- DPmixGPD::ate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
+  ate_res <- DPmixGPD::cate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
 
   p <- plot(ate_res, type = "arms")
 
@@ -1738,7 +1842,7 @@ test_that("plot.dpmixgpd_ate type='both' returns list", {
   cf <- data$fit
   X <- data$X
 
-  ate_res <- DPmixGPD::ate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
+  ate_res <- DPmixGPD::cate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
 
   plots <- plot(ate_res, type = "both")
 
@@ -1756,7 +1860,7 @@ test_that("plot.dpmixgpd_ate default type is 'effect'", {
   cf <- data$fit
   X <- data$X
 
-  ate_res <- DPmixGPD::ate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
+  ate_res <- DPmixGPD::cate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
 
   # Default should be effect
   p_default <- plot(ate_res)
@@ -1778,7 +1882,7 @@ test_that("QTE plot effect type has no NA in estimate data", {
   cf <- data$fit
   X <- data$X
 
-  qte_res <- DPmixGPD::qte(cf, probs = c(0.5), newdata = X[1:5, ], interval = "credible")
+  qte_res <- DPmixGPD::cqte(cf, probs = c(0.5), newdata = X[1:5, ], interval = "credible")
 
   p <- plot(qte_res, type = "effect")
   built <- ggplot2::ggplot_build(p)
@@ -1796,7 +1900,7 @@ test_that("ATE plot effect type has no NA in estimate data", {
   cf <- data$fit
   X <- data$X
 
-  ate_res <- DPmixGPD::ate(cf, newdata = X[1:5, ], interval = "credible", nsim_mean = 20L)
+  ate_res <- DPmixGPD::cate(cf, newdata = X[1:5, ], interval = "credible", nsim_mean = 20L)
 
   p <- plot(ate_res, type = "effect")
   built <- ggplot2::ggplot_build(p)

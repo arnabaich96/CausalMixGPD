@@ -158,13 +158,13 @@ safe_plot(pred_surv_bulk)
 ```
 
 ```{r ate-sb-bulk}
-ate_bulk <- ate(fit_sb_bulk, newdata = x_eval,
+ate_bulk <- cate(fit_sb_bulk, newdata = x_eval,
                 interval = "credible", nsim_mean = 100)
 safe_plot(ate_bulk)
 ```
 
 ```{r qte-sb-bulk}
-qte_bulk <- qte(fit_sb_bulk, probs = c(0.25, 0.5, 0.75),
+qte_bulk <- cqte(fit_sb_bulk, probs = c(0.25, 0.5, 0.75),
                 newdata = x_eval, interval = "credible")
 safe_plot(qte_bulk)
 ```
@@ -237,14 +237,12 @@ safe_plot(pred_surv_gpd)
 ```
 
 ```{r ate-sb-gpd}
-ate_gpd <- ate(fit_sb_gpd, newdata = x_eval,
-               interval = "credible", nsim_mean = 100)
+ate_gpd <- ate(fit_sb_gpd, interval = "credible", nsim_mean = 100)
 safe_plot(ate_gpd)
 ```
 
 ```{r qte-sb-gpd}
-qte_gpd <- qte(fit_sb_gpd, probs = c(0.25, 0.5, 0.75),
-               newdata = x_eval, interval = "credible")
+qte_gpd <- qte(fit_sb_gpd, probs = c(0.25, 0.5, 0.75), interval = "credible")
 safe_plot(qte_gpd)
 ```
 

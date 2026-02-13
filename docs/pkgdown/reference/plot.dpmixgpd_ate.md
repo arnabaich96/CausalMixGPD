@@ -57,7 +57,7 @@ A list of ggplot objects with elements `trt_control` and
 
 ``` r
 if (FALSE) { # \dontrun{
-ate_result <- ate(fit, newdata = X_new, interval = "credible")
+ate_result <- cate(fit, newdata = X_new, interval = "credible")
 plot(ate_result)  # default: returns list with both plots
 plot(ate_result, type = "effect")  # single ATE plot
 plot(ate_result, type = "arms")    # single arms plot

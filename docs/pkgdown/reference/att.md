@@ -1,0 +1,73 @@
+# Average treatment effect on the treated (ATT)
+
+Computes a treated-only marginal average treatment effect by averaging
+conditional treatment effects over rows with assigned treatment `T=1`.
+
+## Usage
+
+``` r
+att(
+  fit,
+  newdata = NULL,
+  y = NULL,
+  type = c("mean", "rmean"),
+  cutoff = NULL,
+  interval = "credible",
+  level = 0.95,
+  nsim_mean = 200L
+)
+```
+
+## Arguments
+
+- fit:
+
+  A `"dpmixgpd_causal_fit"` object from
+  [`run_mcmc_causal()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/run_mcmc_causal.md).
+
+- newdata:
+
+  Deprecated placeholder for marginal estimands; must be `NULL`.
+
+- y:
+
+  Deprecated placeholder for marginal estimands; must be `NULL`.
+
+- type:
+
+  Character; `"mean"` (default) for ordinary mean ATE or `"rmean"` for
+  restricted-mean ATE.
+
+- cutoff:
+
+  Finite numeric cutoff for restricted mean; required for
+  `type = "rmean"`, ignored otherwise.
+
+- interval:
+
+  Character or NULL; type of credible interval: `NULL` for no interval,
+  `"credible"` for equal-tailed quantile intervals (default), or `"hpd"`
+  for highest posterior density intervals.
+
+- level:
+
+  Numeric credible level for intervals (default 0.95 for 95 percent CI).
+
+- nsim_mean:
+
+  Number of posterior predictive draws to approximate the mean.
+
+## Value
+
+A list with elements `fit` (ATT), optional `lower`/`upper`, and
+aggregated treated/control prediction objects.
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
+fit <- run_mcmc_causal(cb, show_progress = FALSE)
+att(fit, interval = "credible", nsim_mean = 100)
+} # }
+```

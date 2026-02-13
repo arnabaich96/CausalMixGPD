@@ -13,7 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      DPMIXGPD_CODECOV_UPLOAD: "1"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -32,7 +31,9 @@ jobs:
           extra-packages: any::covr, any::jsonlite
           needs: coverage
 
-      - name: Run coverage script
+      - name: Run coverage report (upload on push)
         shell: bash
+        env:
+          GITHUB_EVENT_NAME: ${{ github.event_name }}
         run: |
-          Rscript tools/coverage.R
+          Rscript -e "source('tools/.Rscripts/coverage.R'); cov <- coverage_report(sources = 'tests', test_level = 'ci', output_dir = 'docs/coverage', browse = FALSE); if (Sys.getenv('GITHUB_EVENT_NAME') == 'push') { ok <- coverage_upload(sources = 'tests', test_level = 'ci', coverage = cov, require_token = TRUE, quiet = FALSE); if (!isTRUE(ok)) quit(status = 1) } else { cat('Skipping Codecov upload for non-push event.\n') }"

@@ -46,7 +46,7 @@ control quantile curves) and \code{treatment_effect} (QTE curve) plots
 }
 \examples{
 \dontrun{
-qte_result <- qte(fit, probs = c(0.1, 0.5, 0.9), newdata = X_new)
+qte_result <- cqte(fit, probs = c(0.1, 0.5, 0.9), newdata = X_new)
 plot(qte_result)  # default: returns list with both plots
 plot(qte_result, type = "effect")  # single QTE plot
 plot(qte_result, type = "arms")    # single arms plot

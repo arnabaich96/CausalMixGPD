@@ -169,15 +169,15 @@ safe_plot(pred_surv_gpd)
 ```
 
 ```{r ate-crp-gpd}
-ate_gpd <- ate(fit_crp_gpd, newdata = x_eval, interval = "credible", nsim_mean = 150)
-head(ate_gpd)
-safe_plot(ate_gpd)
+att_gpd <- att(fit_crp_gpd, interval = "credible", nsim_mean = 150)
+head(att_gpd)
+safe_plot(att_gpd)
 ```
 
 ```{r qte-crp-gpd}
-qte_gpd <- qte(fit_crp_gpd, probs = c(0.25, 0.5, 0.75), newdata = x_eval, interval = "credible")
-head(qte_gpd)
-safe_plot(qte_gpd)
+qtt_gpd <- qtt(fit_crp_gpd, probs = c(0.25, 0.5, 0.75), interval = "credible")
+head(qtt_gpd)
+safe_plot(qtt_gpd)
 ```
 
 ---
@@ -230,13 +230,13 @@ safe_plot(pred_surv_bulk)
 ```
 
 ```{r ate-sb-bulk}
-ate_bulk <- ate(fit_sb_bulk, newdata = x_eval, interval = "credible", nsim_mean = 150)
+ate_bulk <- cate(fit_sb_bulk, newdata = x_eval, interval = "credible", nsim_mean = 150)
 head(ate_bulk)
 safe_plot(ate_bulk)
 ```
 
 ```{r qte-sb-bulk}
-qte_bulk <- qte(fit_sb_bulk, probs = c(0.25, 0.5, 0.75), newdata = x_eval, interval = "credible")
+qte_bulk <- cqte(fit_sb_bulk, probs = c(0.25, 0.5, 0.75), newdata = x_eval, interval = "credible")
 head(qte_bulk)
 safe_plot(qte_bulk)
 ```

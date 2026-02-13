@@ -1974,6 +1974,28 @@ plot.dpmixgpd_causal_predict <- function(x, y = NULL, ...) {
 
 # S3 methods for QTE/ATE objects -------------------------------------------
 
+.effect_label_qte <- function(type) {
+  type_chr <- if (is.null(type) || !length(type)) "qte" else tolower(as.character(type[[1]]))
+  if (type_chr == "cqte") {
+    return(list(short = "CQTE", long = "Conditional Quantile Treatment Effect"))
+  }
+  if (type_chr == "qtt") {
+    return(list(short = "QTT", long = "Quantile Treatment Effect on the Treated"))
+  }
+  list(short = "QTE", long = "Quantile Treatment Effect")
+}
+
+.effect_label_ate <- function(type) {
+  type_chr <- if (is.null(type) || !length(type)) "ate" else tolower(as.character(type[[1]]))
+  if (type_chr == "cate") {
+    return(list(short = "CATE", long = "Conditional Average Treatment Effect"))
+  }
+  if (type_chr == "att") {
+    return(list(short = "ATT", long = "Average Treatment Effect on the Treated"))
+  }
+  list(short = "ATE", long = "Average Treatment Effect")
+}
+
 #' Print a QTE object
 #'
 #' User-facing print method for \code{"dpmixgpd_qte"} objects produced by \code{qte()}.
@@ -1997,6 +2019,7 @@ print.dpmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
   stopifnot(inherits(x, "dpmixgpd_qte"))
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
+  lbl <- .effect_label_qte(x$type %||% "qte")
   probs <- x$probs %||% x$grid %||% numeric(0)
   n_pred <- x$n_pred %||% 1L
   level <- x$level %||% 0.95
@@ -2006,7 +2029,7 @@ print.dpmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
 
   if (knitr_kable) {
     pieces <- list(
-      "QTE (Quantile Treatment Effect)",
+      sprintf("%s (%s)", lbl$short, lbl$long),
       sprintf("  Prediction points: %d", n_pred),
       sprintf("  Quantile grid: %s", fmt3_vec(probs))
     )
@@ -2024,7 +2047,7 @@ print.dpmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
     } else {
       pieces <- c(pieces, list(sprintf("  Credible interval: %s", interval)))
     }
-    pieces <- c(pieces, list("", "QTE estimates (treated - control):"))
+    pieces <- c(pieces, list("", sprintf("%s estimates (treated - control):", lbl$short)))
 
     qte_fit <- x$qte$fit %||% NULL
     if (!is.null(qte_fit) && is.data.frame(qte_fit)) {
@@ -2047,7 +2070,7 @@ print.dpmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
     }
     return(do.call(.knitr_asis, pieces))
   }
-  cat("QTE (Quantile Treatment Effect)\n")
+  cat(sprintf("%s (%s)\n", lbl$short, lbl$long))
   cat(sprintf("  Prediction points: %d\n", n_pred))
   cat(sprintf("  Quantile grid: %s\n", fmt3_vec(probs)))
 
@@ -2065,7 +2088,7 @@ print.dpmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
     cat("\n")
   }
 
-  cat("\nQTE estimates (treated - control):\n")
+  cat(sprintf("\n%s estimates (treated - control):\n", lbl$short))
   qte_fit <- x$qte$fit %||% NULL
   if (!is.null(qte_fit) && is.data.frame(qte_fit)) {
     show_df <- qte_fit
@@ -2112,6 +2135,7 @@ print.dpmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
   stopifnot(inherits(x, "dpmixgpd_ate"))
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
+  lbl <- .effect_label_ate(x$type %||% "ate")
   n_pred <- x$n_pred %||% length(x$fit)
   level <- x$level %||% 0.95
   interval <- x$interval %||% "none"
@@ -2121,7 +2145,7 @@ print.dpmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
 
   if (knitr_kable) {
     pieces <- list(
-      "ATE (Average Treatment Effect)",
+      sprintf("%s (%s)", lbl$short, lbl$long),
       sprintf("  Prediction points: %d", n_pred)
     )
     has_x <- !is.null(x$x)
@@ -2141,7 +2165,7 @@ print.dpmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
     } else {
       pieces <- c(pieces, list(sprintf("  Credible interval: %s", interval)))
     }
-    pieces <- c(pieces, list("", "ATE estimates (treated - control):"))
+    pieces <- c(pieces, list("", sprintf("%s estimates (treated - control):", lbl$short)))
 
     ate_fit <- x$ate$fit %||% NULL
     if (!is.null(ate_fit) && is.data.frame(ate_fit)) {
@@ -2164,7 +2188,7 @@ print.dpmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
     }
     return(do.call(.knitr_asis, pieces))
   }
-  cat("ATE (Average Treatment Effect)\n")
+  cat(sprintf("%s (%s)\n", lbl$short, lbl$long))
   cat(sprintf("  Prediction points: %d\n", n_pred))
 
   has_x <- !is.null(x$x)
@@ -2184,7 +2208,7 @@ print.dpmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
     cat("\n")
   }
 
-  cat("\nATE estimates (treated - control):\n")
+  cat(sprintf("\n%s estimates (treated - control):\n", lbl$short))
   ate_fit <- x$ate$fit %||% NULL
   if (!is.null(ate_fit) && is.data.frame(ate_fit)) {
     show_df <- ate_fit
@@ -2310,13 +2334,14 @@ summary.dpmixgpd_qte <- function(object, ...) {
 print.summary.dpmixgpd_qte <- function(x, digits = 3, ...) {
   stopifnot(inherits(x, "summary.dpmixgpd_qte"))
 
+  lbl <- .effect_label_qte(((x$object %||% list())$type %||% "qte"))
   ov <- x$overall
   meta <- x$meta %||% list()
   knitr_kable <- .is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))
 
   if (knitr_kable) {
     pieces <- list(
-      "QTE Summary",
+      sprintf("%s Summary", lbl$short),
       paste(rep("=", 50), collapse = ""),
       sprintf("Prediction points: %d | Quantiles: %d", ov$n_pred, ov$n_quantiles),
       sprintf("Quantile grid: %s", fmt3_vec(ov$quantiles)),
@@ -2351,7 +2376,7 @@ print.summary.dpmixgpd_qte <- function(x, digits = 3, ...) {
 
     qs <- x$quantile_summary
     if (!is.null(qs) && nrow(qs) > 0) {
-      pieces <- c(pieces, list("QTE by quantile:"))
+      pieces <- c(pieces, list(sprintf("%s by quantile:", lbl$short)))
       pieces <- c(pieces, list(.kable_table(format_df3_sci(qs, digits = digits), row.names = FALSE)))
       pieces <- c(pieces, list(""))
     }
@@ -2369,7 +2394,7 @@ print.summary.dpmixgpd_qte <- function(x, digits = 3, ...) {
     return(do.call(.knitr_asis, pieces))
   }
 
-  cat("QTE Summary\n")
+  cat(sprintf("%s Summary\n", lbl$short))
   cat(paste(rep("=", 50), collapse = ""), "\n")
   cat(sprintf("Prediction points: %d | Quantiles: %d\n", ov$n_pred, ov$n_quantiles))
   cat(sprintf("Quantile grid: %s\n", fmt3_vec(ov$quantiles)))
@@ -2404,7 +2429,7 @@ print.summary.dpmixgpd_qte <- function(x, digits = 3, ...) {
   # Quantile summary table
   qs <- x$quantile_summary
   if (!is.null(qs) && nrow(qs) > 0) {
-    cat("QTE by quantile:\n")
+    cat(sprintf("%s by quantile:\n", lbl$short))
     qs_print <- qs
     print_fmt3_sci(qs_print, row.names = FALSE, digits = digits)
     cat("\n")
@@ -2515,13 +2540,14 @@ summary.dpmixgpd_ate <- function(object, ...) {
 print.summary.dpmixgpd_ate <- function(x, digits = 3, ...) {
   stopifnot(inherits(x, "summary.dpmixgpd_ate"))
 
+  lbl <- .effect_label_ate(((x$object %||% list())$type %||% "ate"))
   ov <- x$overall
   meta <- x$meta %||% list()
   knitr_kable <- .is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))
 
   if (knitr_kable) {
     pieces <- list(
-      "ATE Summary",
+      sprintf("%s Summary", lbl$short),
       paste(rep("=", 50), collapse = ""),
       sprintf("Prediction points: %d", ov$n_pred),
       sprintf("Conditional: %s | PS used: %s",
@@ -2559,7 +2585,7 @@ print.summary.dpmixgpd_ate <- function(x, digits = 3, ...) {
     as <- x$ate_stats
     if (!is.null(as)) {
       pieces <- c(pieces, list(
-        "ATE statistics:",
+        sprintf("%s statistics:", lbl$short),
         sprintf("  Mean: %s | Median: %s",
                 fmt3_sci(as$mean_ate, digits = digits), fmt3_sci(as$median_ate, digits = digits)),
         sprintf("  Range: [%s, %s]",
@@ -2584,7 +2610,7 @@ print.summary.dpmixgpd_ate <- function(x, digits = 3, ...) {
     return(do.call(.knitr_asis, pieces))
   }
 
-  cat("ATE Summary\n")
+  cat(sprintf("%s Summary\n", lbl$short))
   cat(paste(rep("=", 50), collapse = ""), "\n")
   cat(sprintf("Prediction points: %d\n", ov$n_pred))
   cat(sprintf("Conditional: %s | PS used: %s\n",
@@ -2621,7 +2647,7 @@ print.summary.dpmixgpd_ate <- function(x, digits = 3, ...) {
   # ATE statistics
   as <- x$ate_stats
   if (!is.null(as)) {
-    cat("ATE statistics:\n")
+    cat(sprintf("%s statistics:\n", lbl$short))
     cat(sprintf("  Mean: %s | Median: %s\n",
                 fmt3_sci(as$mean_ate, digits = digits), fmt3_sci(as$median_ate, digits = digits)))
     cat(sprintf("  Range: [%s, %s]\n",
@@ -2670,7 +2696,7 @@ print.summary.dpmixgpd_ate <- function(x, digits = 3, ...) {
 #'   \code{"arms"}).
 #' @examples
 #' \dontrun{
-#' qte_result <- qte(fit, probs = c(0.1, 0.5, 0.9), newdata = X_new)
+#' qte_result <- cqte(fit, probs = c(0.1, 0.5, 0.9), newdata = X_new)
 #' plot(qte_result)  # default: returns list with both plots
 #' plot(qte_result, type = "effect")  # single QTE plot
 #' plot(qte_result, type = "arms")    # single arms plot
@@ -2687,6 +2713,7 @@ plot.dpmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"),
   use_plotly <- isTRUE(plotly)
   type <- match.arg(type)
   facet_by <- match.arg(facet_by)
+  lbl <- .effect_label_qte(x$type %||% "qte")
 
   if (!is.list(x) || is.null(x$trt) || is.null(x$con)) {
     stop("Invalid QTE object for plotting.", call. = FALSE)
@@ -2808,7 +2835,7 @@ plot.dpmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"),
       ggplot2::geom_line(color = pal[7], linewidth = 0.8) +
       ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray50", linewidth = 0.5) +
       .plot_theme() +
-      ggplot2::labs(x = ax$label, y = "Quantile Treatment Effect", title = "QTE")
+      ggplot2::labs(x = ax$label, y = lbl$long, title = lbl$short)
 
     if (!is.null(facet_formula)) {
       p <- p + ggplot2::facet_wrap(facet_formula, scales = "free_y")
@@ -2871,14 +2898,14 @@ plot.dpmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"),
 #'   \code{"arms"}).
 #' @examples
 #' \dontrun{
-#' ate_result <- ate(fit, newdata = X_new, interval = "credible")
+#' ate_result <- cate(fit, newdata = X_new, interval = "credible")
 #' plot(ate_result)  # default: returns list with both plots
 #' plot(ate_result, type = "effect")  # single ATE plot
 #' plot(ate_result, type = "arms")    # single arms plot
 #' }
 #' @export
 plot.dpmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"),
-                             plotly = getOption("DPmixGPD.plotly", FALSE), ...) {
+                              plotly = getOption("DPmixGPD.plotly", FALSE), ...) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("Package 'ggplot2' is required for plotting. Install it first.", call. = FALSE)
@@ -2886,6 +2913,7 @@ plot.dpmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"),
 
   use_plotly <- isTRUE(plotly)
   type <- match.arg(type)
+  lbl <- .effect_label_ate(x$type %||% "ate")
 
   if (!is.list(x) || is.null(x$trt) || is.null(x$con)) {
     stop("Invalid ATE object for plotting.", call. = FALSE)
@@ -2973,7 +3001,7 @@ plot.dpmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"),
       ggplot2::geom_point(color = pal[7], size = 2) +
       ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray50", linewidth = 0.5) +
       .plot_theme() +
-      ggplot2::labs(x = ax$label, y = "Average Treatment Effect", title = "ATE")
+      ggplot2::labs(x = ax$label, y = lbl$long, title = lbl$short)
 
     if (any(is.finite(df_te$lower)) && any(is.finite(df_te$upper))) {
       p <- p + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),

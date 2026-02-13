@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">DPmixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -17,11 +17,11 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/01-basic.html">Model specification</a></li>
-    <li><a class="dropdown-item" href="../articles/02-model-spec.html">Model fundamentals</a></li>
-    <li><a class="dropdown-item" href="../articles/03-unconditional.html">Unconditional</a></li>
-    <li><a class="dropdown-item" href="../articles/04-conditional.html">Conditional</a></li>
-    <li><a class="dropdown-item" href="../articles/05-causal.html">Causal</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/basic-01.html">Model specification</a></li>
+    <li><a class="dropdown-item" href="../articles/model-spec-02.html">Model fundamentals</a></li>
+    <li><a class="dropdown-item" href="../articles/unconditional-03.html">Unconditional</a></li>
+    <li><a class="dropdown-item" href="../articles/conditional-04.html">Conditional</a></li>
+    <li><a class="dropdown-item" href="../articles/causal-05.html">Causal</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/arnabaich96/DPmixGPD">GitHub</a></li>
@@ -86,7 +86,7 @@
           <code><a href="ate.html">ate()</a></code>
 
         </dt>
-        <dd>Average treatment effects (ATE)</dd>
+        <dd>Average treatment effects (ATE), marginal over training covariates</dd>
 
         <dt>
 
@@ -94,6 +94,13 @@
 
         </dt>
         <dd>Restricted-mean ATE (finite under heavy tails)</dd>
+
+        <dt>
+
+          <code><a href="att.html">att()</a></code>
+
+        </dt>
+        <dd>Average treatment effect on the treated (ATT)</dd>
 
         <dt>
 
@@ -115,6 +122,13 @@
 
         </dt>
         <dd>Build a NIMBLE bundle</dd>
+
+        <dt>
+
+          <code><a href="cate.html">cate()</a></code>
+
+        </dt>
+        <dd>Conditional average treatment effects (CATE)</dd>
 
         <dt>
 
@@ -174,24 +188,10 @@
 
         <dt>
 
-          <code><a href="coverage_status.html">coverage_status()</a></code>
+          <code><a href="cqte.html">cqte()</a></code>
 
         </dt>
-        <dd>Test coverage status helper</dd>
-
-        <dt>
-
-          <code><a href="DPmixGPD-vignettes.html">DPmixGPD-vignettes</a></code> <code><a href="DPmixGPD-vignettes.html">basic-vignette</a></code> <code><a href="DPmixGPD-vignettes.html">unconditional-vignette</a></code> <code><a href="DPmixGPD-vignettes.html">conditional-vignette</a></code> <code><a href="DPmixGPD-vignettes.html">causal-vignette</a></code>
-
-        </dt>
-        <dd>Vignettes for DPmixGPD</dd>
-
-        <dt>
-
-          <code><a href="DPmixGPD.html">DPmixGPD</a></code> <code><a href="DPmixGPD.html">DPmixGPD-package</a></code>
-
-        </dt>
-        <dd>DPmixGPD: Dirichlet Process Mixtures with Generalized Pareto Tail</dd>
+        <dd>Conditional quantile treatment effects (CQTE)</dd>
 
         <dt>
 
@@ -618,14 +618,14 @@
           <code><a href="qte.html">qte()</a></code>
 
         </dt>
-        <dd>Quantile treatment effects (QTE)</dd>
+        <dd>Quantile treatment effects (QTE), marginal over training covariates</dd>
 
         <dt>
 
-          <code><a href="read_coverage_status.html">read_coverage_status()</a></code>
+          <code><a href="qtt.html">qtt()</a></code>
 
         </dt>
-        <dd>Read stored coverage status</dd>
+        <dd>Quantile treatment effect on the treated (QTT)</dd>
 
         <dt>
 

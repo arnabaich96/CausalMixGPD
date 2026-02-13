@@ -1,6 +1,7 @@
-# Average treatment effects (ATE)
+# Average treatment effects (ATE), marginal over training covariates
 
-Computes treated-minus-control posterior means from a causal fit.
+Computes a marginal average treatment effect by averaging conditional
+treatment effects over the training covariate rows.
 
 ## Usage
 
@@ -8,6 +9,7 @@ Computes treated-minus-control posterior means from a causal fit.
 ate(
   fit,
   newdata = NULL,
+  y = NULL,
   type = c("mean", "rmean"),
   cutoff = NULL,
   interval = "credible",
@@ -25,7 +27,21 @@ ate(
 
 - newdata:
 
-  Optional data.frame or matrix of covariates for prediction.
+  Deprecated placeholder for marginal estimands; must be `NULL`.
+
+- y:
+
+  Deprecated placeholder for marginal estimands; must be `NULL`.
+
+- type:
+
+  Character; `"mean"` (default) for ordinary mean ATE or `"rmean"` for
+  restricted-mean ATE.
+
+- cutoff:
+
+  Finite numeric cutoff for restricted mean; required for
+  `type = "rmean"`, ignored otherwise.
 
 - interval:
 
@@ -43,8 +59,8 @@ ate(
 
 ## Value
 
-A list with elements `fit` (ATE), optional `lower`/`upper`, and the
-treated/control prediction objects.
+A list with elements `fit` (ATE), optional `lower`/`upper`, and
+aggregated treated/control prediction objects.
 
 ## Examples
 
@@ -52,9 +68,6 @@ treated/control prediction objects.
 if (FALSE) { # \dontrun{
 cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
 fit <- run_mcmc_causal(cb, show_progress = FALSE)
-ate(fit, newdata = X[1:5, ])
-ate(fit, interval = "credible", level = 0.90)  # 90% CI
-ate(fit, interval = "hpd")  # HPD intervals
-ate(fit, interval = NULL)   # No intervals
+ate(fit, interval = "credible", level = 0.90, nsim_mean = 100)
 } # }
 ```
