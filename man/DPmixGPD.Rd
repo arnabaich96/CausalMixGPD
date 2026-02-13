@@ -7,24 +7,20 @@
 \title{DPmixGPD: Dirichlet Process Mixtures with Generalized Pareto Tail}
 \description{
 \code{DPmixGPD} provides Bayesian Dirichlet process mixture models for
-unconditional, conditional, and causal workflows, with optional generalized
+unconditional, conditional, and causal models, with optional generalized
 Pareto tail modeling.
-}
-\details{
-Core entry points include \code{\link[=build_nimble_bundle]{build_nimble_bundle()}}, \code{\link[=run_mcmc_bundle_manual]{run_mcmc_bundle_manual()}},
-\code{\link[=build_causal_bundle]{build_causal_bundle()}}, and \code{\link[=run_mcmc_causal]{run_mcmc_causal()}}.
-
 Learn more via:
 \itemize{
 \item package index: \code{help(package = "DPmixGPD")}
 \item vignettes: \code{browseVignettes("DPmixGPD")}
-\item website articles index: \url{https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/index.html}
-\item vignette pages:
+\item pkgdown_site: \url{https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/index.html}
+\item vignettes:
 \itemize{
-\item \code{vignette("basic-01", package = "DPmixGPD")}
-\item \code{vignette("unconditional-03", package = "DPmixGPD")}
-\item \code{vignette("conditional-04", package = "DPmixGPD")}
-\item \code{vignette("causal-05", package = "DPmixGPD")}
+\item \href{../doc/basic.html}{Model specification and posterior computation}
+\item \href{../doc/model-spec.html}{Spliced Model fundamentals}
+\item \href{../doc/unconditional.html}{Unconditional model}
+\item \href{../doc/conditional.html}{Conditional model}
+\item \href{../doc/causal.html}{Causal model}
 }
 \item website: \url{https://arnabaich96.github.io/DPmixGPD/}
 }

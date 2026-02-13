@@ -19,3 +19,5 @@ BuildType: Package
 PackageUseDevtools: Yes
 PackageCheckArgs: --as-cran
 PackageRoxygenize: rd,collate,namespace
+
+PackageBuildVignettes: Yes

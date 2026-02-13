@@ -15,6 +15,7 @@ stopifnot(requireNamespace("DPmixGPD", quietly = TRUE))
 suppressPackageStartupMessages(library(DPmixGPD))
 
 dir.create(file.path("inst", "extdata"), recursive = TRUE, showWarnings = FALSE)
+dir.create(file.path("inst", "doc"), recursive = TRUE, showWarnings = FALSE)
 
 .save_png <- function(file, expr, width = 900, height = 550, res = 120) {
   grDevices::png(filename = file, width = width, height = height, res = res)
@@ -25,6 +26,28 @@ dir.create(file.path("inst", "extdata"), recursive = TRUE, showWarnings = FALSE)
 .write_csv <- function(x, file) {
   utils::write.csv(x, file = file, row.names = FALSE)
 }
+
+.render_html_vignette <- function(input, output_file) {
+  if (!requireNamespace("rmarkdown", quietly = TRUE)) {
+    stop("Package 'rmarkdown' is required to build HTML vignettes.")
+  }
+  rmarkdown::render(
+    input = input,
+    output_format = rmarkdown::html_document(),
+    output_file = output_file,
+    output_dir = file.path("inst", "doc"),
+    quiet = TRUE,
+    envir = new.env(parent = globalenv())
+  )
+}
+
+message("[DPmixGPD] Rendering prebuilt HTML vignettes into inst/doc/ ...")
+
+.render_html_vignette(file.path("vignettes", "basic-01.Rmd"), "basic.html")
+.render_html_vignette(file.path("vignettes", "model-spec-02.Rmd"), "model-spec.html")
+.render_html_vignette(file.path("vignettes", "unconditional-03.Rmd"), "unconditional.html")
+.render_html_vignette(file.path("vignettes", "conditional-04.Rmd"), "conditional.html")
+.render_html_vignette(file.path("vignettes", "causal-05.Rmd"), "causal.html")
 
 message("[DPmixGPD] Precomputing vignette artifacts into inst/extdata/ ...")
 
@@ -183,6 +206,11 @@ a_df <- data.frame(
 
 message(
   "[DPmixGPD] Done. Generated:\n",
+  "  inst/doc/basic.html\n",
+  "  inst/doc/model-spec.html\n",
+  "  inst/doc/unconditional.html\n",
+  "  inst/doc/conditional.html\n",
+  "  inst/doc/causal.html\n",
   "  inst/extdata/unconditional_quantiles.csv\n",
   "  inst/extdata/unconditional_density.png\n",
   "  inst/extdata/conditional_quantiles.csv\n",

@@ -49,8 +49,7 @@ knitr::opts_chunk$set(
     }
   }, error = function(e) {})
 
-  stop("Cannot find artifact '", fname, "' in any expected location.\n",
-       "Please run tools/make_vignette_fits.R to generate precomputed artifacts.")
+  stop("Cannot find artifact '", fname, "' in package extdata.")
 }
 ```
 
@@ -92,7 +91,7 @@ qs   <- predict(fit, type = "quantile", p = c(0.5, 0.9, 0.95, 0.99), cred.level 
 
 Results (precomputed)
 
-The table and figure below are precomputed from the shipped dataset to keep CRAN checks fast and deterministic. To reproduce them locally, run `tools/make_vignette_artifacts.R` and rebuild the vignettes.
+The table and figure below are precomputed from the shipped dataset to keep CRAN checks fast and deterministic.
 
 ```{r}
 tbl <- utils::read.csv(.extdata("unconditional_quantiles.csv"))

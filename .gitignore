@@ -43,6 +43,8 @@ vignettes/**/cache/**
 test_*.html
 !docs/**/*.html
 !website/_footer.html
+!inst/doc/
+!inst/doc/*.html
 
 # Quarto cache and build artifacts
 .quarto/

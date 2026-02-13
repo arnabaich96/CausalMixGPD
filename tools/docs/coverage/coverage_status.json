@@ -1,0 +1,106 @@
+{
+  "percent": 0,
+  "timestamp": "2026-02-13T09:02:29Z",
+  "sources": "tests",
+  "total_lines": 6796,
+  "covered_lines": 0,
+  "files": 16,
+  "file_coverage": [
+    {
+      "file": "R/0-base-kernels.R",
+      "lines": 140,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/01-compile-spec.R",
+      "lines": 220,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/02-utilities-internal.R",
+      "lines": 1553,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/03-build-and-run.R",
+      "lines": 697,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/04-S3-Methods.R",
+      "lines": 1872,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/05-causal.R",
+      "lines": 955,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/06-visualization-helpers.R",
+      "lines": 256,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/09-diagnostics-glue.R",
+      "lines": 178,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/1-cauchy-mix.R",
+      "lines": 60,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/2-gamma-mixgpd.R",
+      "lines": 122,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/3-laplace-mixgpd.R",
+      "lines": 133,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/4-amoroso-mixgpd.R",
+      "lines": 186,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/5-invgauss-mixgpd.R",
+      "lines": 135,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/6-lognormal-mixgpd.R",
+      "lines": 125,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/7-normal-mixgpd.R",
+      "lines": 133,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/99-simulated-data.R",
+      "lines": 31,
+      "covered": 0,
+      "percent": 0
+    }
+  ]
+}

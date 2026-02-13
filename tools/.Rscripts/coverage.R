@@ -55,6 +55,7 @@
 # Files to exclude entirely from coverage
 .coverage_line_exclusions <- function(path = ".") {
   files <- c(
+    "R/01-formatting.R",
     "R/Utility.R",
     "R/00-kernel-registry.R",
     "R/globals.R"

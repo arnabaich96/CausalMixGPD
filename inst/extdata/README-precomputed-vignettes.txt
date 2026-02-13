@@ -1,6 +1,10 @@
 This folder contains small, precomputed artifacts (tables and figures) that the
 CRAN vignettes display.
 
+Prebuilt vignette HTML pages are shipped separately under `inst/doc/` so source
+installs still provide readable vignette content even when local vignette
+building is skipped.
+
 Rationale
 ---------
 The DPmixGPD vignettes demonstrate full model workflows, but running MCMC during
@@ -9,12 +13,8 @@ precompute lightweight outputs locally and ship them as static files.
 
 How to regenerate
 -----------------
-From the package root, run:
-
-  source("tools/make_vignette_artifacts.R")
-
-This script writes the files listed below into inst/extdata/. Rebuild vignettes
-and run R CMD check before release.
+These files are generated during package development and are shipped with the
+package for vignette rendering. End users do not need to regenerate them.
 
 Files written by the script
 ---------------------------

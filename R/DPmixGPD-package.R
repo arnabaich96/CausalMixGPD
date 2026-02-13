@@ -1,25 +1,21 @@
 #' DPmixGPD: Dirichlet Process Mixtures with Generalized Pareto Tail
 #'
 #' `DPmixGPD` provides Bayesian Dirichlet process mixture models for
-#' unconditional, conditional, and causal workflows, with optional generalized
+#' unconditional, conditional, and causal models, with optional generalized
 #' Pareto tail modeling.
-#'
-#' Core entry points include [build_nimble_bundle()], [run_mcmc_bundle_manual()],
-#' [build_causal_bundle()], and [run_mcmc_causal()].
-#'
 #' Learn more via:
 #' - package index: `help(package = "DPmixGPD")`
 #' - vignettes: `browseVignettes("DPmixGPD")`
-#' - website articles index: <https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/index.html>
-#' - vignette pages:
-#'   - `vignette("basic-01", package = "DPmixGPD")`
-#'   - `vignette("unconditional-03", package = "DPmixGPD")`
-#'   - `vignette("conditional-04", package = "DPmixGPD")`
-#'   - `vignette("causal-05", package = "DPmixGPD")`
+#' - pkgdown_site: <https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/index.html>
+#' - vignettes:
+#'   - \href{../doc/basic.html}{Model specification and posterior computation}
+#'   - \href{../doc/model-spec.html}{Spliced Model fundamentals}
+#'   - \href{../doc/unconditional.html}{Unconditional model}
+#'   - \href{../doc/conditional.html}{Conditional model}
+#'   - \href{../doc/causal.html}{Causal model}
 #' - website: <https://arnabaich96.github.io/DPmixGPD/>
 #'
 #' @docType package
 #' @name DPmixGPD
 #' @aliases DPmixGPD-package
 "_PACKAGE"
-

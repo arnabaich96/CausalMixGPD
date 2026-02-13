@@ -38,8 +38,7 @@ knitr::opts_chunk$set(
     }
   }
   
-  stop("Cannot find artifact '", fname, "' in any expected location.\n",
-       "Please run tools/make_vignette_fits.R to generate precomputed artifacts.")
+  stop("Cannot find artifact '", fname, "' in package extdata.")
 }
 
 ## -----------------------------------------------------------------------------
