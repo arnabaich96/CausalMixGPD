@@ -102,7 +102,7 @@
     "href": "start/roadmap.html#quarto-vs-pkgdown-split",
     "title": "Roadmap",
     "section": "Quarto vs pkgdown split",
-    "text": "Quarto vs pkgdown split\n\nQuarto: curated routes and workflow context.\npkgdown: exact function interfaces and vignette articles.\npkgdown reference\npkgdown articles\n01-basic\n02-model-spec\n03-unconditional\n04-conditional\n05-causal"
+    "text": "Quarto vs pkgdown split\n\nQuarto: curated routes and workflow context.\npkgdown: exact function interfaces and vignette articles.\npkgdown reference\npkgdown articles\nbasic-01\nmodel-spec-02\nunconditional-03\nconditional-04\ncausal-05"
   },
   {
     "objectID": "start/basic-model-compile-run.html",
@@ -207,7 +207,7 @@
     "href": "reference.html#pkgdown-authoritative-docs",
     "title": "Reference",
     "section": "pkgdown authoritative docs",
-    "text": "pkgdown authoritative docs\n\nFunction reference\nArticles index\n\n\nCore vignette articles (authoritative in pkgdown)\n\n01-basic\n02-model-spec\n03-unconditional\n04-conditional\n05-causal"
+    "text": "pkgdown authoritative docs\n\nFunction reference\nArticles index\n\n\nCore vignette articles (authoritative in pkgdown)\n\nbasic-01\nmodel-spec-02\nunconditional-03\nconditional-04\ncausal-05"
   },
   {
     "objectID": "kernels/summary-distribution-backend-reference.html",

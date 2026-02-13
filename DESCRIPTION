@@ -10,10 +10,10 @@ Description: Experimental framework for Dirichlet process mixture regression and
     and optional generalized Pareto (GPD) tail extension. Implements Dirichlet process
     mixture models with optional GPD tail splicing for unconditional, conditional, and
     causal analyses. Inference uses stick-breaking/CRP representations and NIMBLE-backed
-    MCMC. Methodological foundations include Ferguson (1973) <doi:10.1214/aos/1176342360>,
-    Ishwaran and James (2001) <doi:10.1198/016214501750332758>, and peaks-over-threshold
-    tail theory from Balkema and de Haan (1974) <doi:10.1214/aop/1176996548> and
-    Pickands (1975) <doi:10.1214/aos/1176343003>.
+    MCMC. Methodological foundations include Ferguson (1973) ,
+    Ishwaran and James (2001), and peaks-over-threshold
+    tail theory from Balkema and de Haan (1974) and
+    Pickands (1975).
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

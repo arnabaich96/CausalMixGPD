@@ -52,6 +52,36 @@
   invisible(TRUE)
 }
 
+# Test snippets for covr::package_coverage(type = "none").
+# Attach package explicitly so batch runs (e.g., via .bat) execute tests with
+# the same symbol resolution as interactive sessions.
+.coverage_test_code_minimal <- function() {
+  paste(
+    "library(DPmixGPD)",
+    'testthat::test_package("DPmixGPD", stop_on_failure = FALSE, reporter = "minimal")',
+    sep = "\n"
+  )
+}
+
+.coverage_test_code_progress <- function() {
+  paste(
+    "library(DPmixGPD)",
+    'testthat::test_package("DPmixGPD", stop_on_failure = FALSE, reporter = "progress")',
+    sep = "\n"
+  )
+}
+
+.coverage_test_code_fallback <- function() {
+  paste(
+    "library(DPmixGPD)",
+    'pkg_tests <- system.file("tests", "testthat", package = "DPmixGPD")',
+    'if (nzchar(pkg_tests)) {',
+    '  for (f in list.files(pkg_tests, pattern = "^test.*\\\\.R$", full.names = TRUE)) try(source(f), silent = TRUE)',
+    '}',
+    sep = "\n"
+  )
+}
+
 # Files to exclude entirely from coverage
 .coverage_line_exclusions <- function(path = ".") {
   files <- c(
@@ -162,7 +192,7 @@ if (is.null(cov) && "tests" %in% sources) {
     cov <- tryCatch({
       covr::package_coverage(
         type = "none",
-        code = 'for(f in list.files("tests/testthat", pattern = "^test.*\\\\.R$", full.names = TRUE)) try(source(f), silent = TRUE)',
+        code = .coverage_test_code_fallback(),
         quiet = quiet,
         pre_clean = TRUE,
         line_exclusions = .coverage_line_exclusions()
@@ -185,7 +215,7 @@ if (is.null(cov) && "tests" %in% sources) {
 .calculate_tests_coverage <- function(quiet = FALSE) {
   covr::package_coverage(
     type = "none",
-    code = 'testthat::test_dir("tests/testthat", stop_on_failure = FALSE, reporter = "minimal")',
+    code = .coverage_test_code_minimal(),
     quiet = quiet,
     pre_clean = TRUE,
     line_exclusions = .coverage_line_exclusions()
@@ -204,7 +234,7 @@ if (is.null(cov) && "tests" %in% sources) {
     tryCatch({
       covr::package_coverage(
         type = non_test_sources,
-        code = 'testthat::test_dir("tests/testthat", stop_on_failure = FALSE, reporter = "minimal")',
+        code = .coverage_test_code_minimal(),
         quiet = quiet,
         pre_clean = TRUE,
         line_exclusions = .coverage_line_exclusions()
@@ -236,7 +266,7 @@ coverage_progress <- function(test_level = "ci", quiet = FALSE) {
 
   cov <- covr::package_coverage(
     type = "none",
-    code = 'testthat::test_dir("tests/testthat", stop_on_failure = FALSE, reporter = "progress")',
+    code = .coverage_test_code_progress(),
     quiet = quiet,
     pre_clean = TRUE,
     line_exclusions = .coverage_line_exclusions()
