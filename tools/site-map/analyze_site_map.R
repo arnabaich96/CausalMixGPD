@@ -331,8 +331,7 @@ analyze_site_map <- function(site_root = "docs", output_dir = file.path("tools",
 
   broken_links <- edges[
     edges$link_type == "internal_page" &
-      !edges$target_exists &
-      !startsWith(edges$source, "pkgdown/"),
+      !edges$target_exists,
     ,
     drop = FALSE
   ]

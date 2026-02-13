@@ -16,12 +16,6 @@ Open from R:
 
 - [`vignette("05-causal", package = "DPmixGPD")`](https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/05-causal.md)
 
-Installed vignette pages:
+Website articles index:
 
-- [01-basic.html](https://arnabaich96.github.io/DPmixGPD/pkgdown/doc/01-basic.md)
-
-- [03-unconditional.html](https://arnabaich96.github.io/DPmixGPD/pkgdown/doc/03-unconditional.md)
-
-- [04-conditional.html](https://arnabaich96.github.io/DPmixGPD/pkgdown/doc/04-conditional.md)
-
-- [05-causal.html](https://arnabaich96.github.io/DPmixGPD/pkgdown/doc/05-causal.md)
+- <https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/index.html>

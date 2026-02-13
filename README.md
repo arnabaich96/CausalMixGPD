@@ -27,5 +27,5 @@ remotes::install_github(
 
 ## Additional docs
 
-- [**Package roadmap**](ROADMAP.md)
+- [**Package roadmap**](https://arnabaich96.github.io/DPmixGPD/start/roadmap.html)
 

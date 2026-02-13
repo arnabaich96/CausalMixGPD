@@ -10,15 +10,12 @@
 #' Learn more via:
 #' - package index: `help(package = "DPmixGPD")`
 #' - vignettes: `browseVignettes("DPmixGPD")`
+#' - website articles index: <https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/index.html>
 #' - vignette pages:
 #'   - `vignette("01-basic", package = "DPmixGPD")`
 #'   - `vignette("03-unconditional", package = "DPmixGPD")`
 #'   - `vignette("04-conditional", package = "DPmixGPD")`
 #'   - `vignette("05-causal", package = "DPmixGPD")`
-#' - installed HTML pages: [01-basic.html](../doc/01-basic.html),
-#'   [03-unconditional.html](../doc/03-unconditional.html),
-#'   [04-conditional.html](../doc/04-conditional.html),
-#'   [05-causal.html](../doc/05-causal.html)
 #' - website: <https://arnabaich96.github.io/DPmixGPD/>
 #'
 #' @docType package

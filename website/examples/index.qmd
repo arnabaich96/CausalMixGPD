@@ -1,49 +1,49 @@
 ﻿---
 title: "Examples"
-page-layout: full
+subtitle: "Task-oriented templates organized by analysis type"
+toc: true
+toc-depth: 2
 ---
 
-::: {.hero}
-::: {.container}
-# Examples Hub
+This page indexes the example templates only. Each link below points to a single runnable example file.
 
-Use this hub for the full canonical sequence `ex01` to `ex14`.
-
-[Start hub](../start/index.qmd){.btn .btn-primary}
-[Reference hub](../reference.qmd){.btn .btn-outline-light}
-[pkgdown articles](../pkgdown/articles/index.html){.btn .btn-outline-light}
-:::
+::: {.callout-note}
+If you are new, start with the Start hub and then return here. The full API documentation lives in pkgdown.
 :::
 
-## Recommended sequence
+## Unconditional (bulk-only)
 
-### Unconditional
+- [ex01 — Unconditional DPM (CRP)](ex01-unconditional-dpm-crp.html)
+- [ex02 — Unconditional DPM (SB)](ex02-unconditional-dpm-sb.html)
 
-1. [ex01 unconditional dpm crp](ex01-unconditional-dpm-crp.qmd)
-2. [ex02 unconditional dpm sb](ex02-unconditional-dpm-sb.qmd)
-3. [ex03 unconditional dpmgpd crp](ex03-unconditional-dpmgpd-crp.qmd)
-4. [ex04 unconditional dpmgpd sb](ex04-unconditional-dpmgpd-sb.qmd)
+## Unconditional (bulk + GPD tail)
 
-### Conditional
+- [ex03 — Unconditional DPM+GPD (CRP)](ex03-unconditional-dpmgpd-crp.html)
+- [ex04 — Unconditional DPM+GPD (SB)](ex04-unconditional-dpmgpd-sb.html)
 
-1. [ex05 conditional dpm crp](ex05-conditional-dpm-crp.qmd)
-2. [ex06 conditional dpm sb](ex06-conditional-dpm-sb.qmd)
-3. [ex07 conditional dpmgpd crp](ex07-conditional-dpmgpd-crp.qmd)
-4. [ex08 conditional dpmgpd sb](ex08-conditional-dpmgpd-sb.qmd)
+## Conditional (bulk-only)
 
-### Causal
+- [ex05 — Conditional DPM (CRP)](ex05-conditional-dpm-crp.html)
+- [ex06 — Conditional DPM (SB)](ex06-conditional-dpm-sb.html)
 
-1. [ex09 causal no x crp](ex09-causal-no-x-crp.qmd)
-2. [ex10 causal x no ps sb](ex10-causal-x-no-ps-sb.qmd)
-3. [ex11 causal same backend crp](ex11-causal-same-backend-crp.qmd)
-4. [ex12 causal same backend sb](ex12-causal-same-backend-sb.qmd)
-5. [ex13 causal different backends crp](ex13-causal-different-backends-crp.qmd)
-6. [ex14 causal different backends sb](ex14-causal-different-backends-sb.qmd)
+## Conditional (bulk + GPD tail)
 
-## Related articles
+- [ex07 — Conditional DPM+GPD (CRP)](ex07-conditional-dpmgpd-crp.html)
+- [ex08 — Conditional DPM+GPD (SB)](ex08-conditional-dpmgpd-sb.html)
 
-- [01-basic](../pkgdown/articles/01-basic.html)
-- [02-model-spec](../pkgdown/articles/02-model-spec.html)
-- [03-unconditional](../pkgdown/articles/03-unconditional.html)
-- [04-conditional](../pkgdown/articles/04-conditional.html)
-- [05-causal](../pkgdown/articles/05-causal.html)
+## Causal
+
+- [ex09 — Causal, no X (CRP)](ex09-causal-no-x-crp.html)
+- [ex10 — Causal, X no PS (SB)](ex10-causal-x-no-ps-sb.html)
+- [ex11 — Causal, same backend (CRP)](ex11-causal-same-backend-crp.html)
+- [ex12 — Causal, same backend (SB)](ex12-causal-same-backend-sb.html)
+- [ex13 — Causal, different backends (CRP)](ex13-causal-different-backends-crp.html)
+- [ex14 — Causal, different backends (SB)](ex14-causal-different-backends-sb.html)
+
+## Other resources
+
+- Start hub: [Start](../start/index.html)
+- Advanced hub: [Advanced](../advanced/index.html)
+- Kernels hub: [Kernels](../kernels/kernels-index.html)
+- API reference (pkgdown): [Reference](../pkgdown/reference/index.html)
+- Articles (pkgdown): [Articles](../pkgdown/articles/index.html)

@@ -18,6 +18,7 @@ Learn more via:
 \itemize{
 \item package index: \code{help(package = "DPmixGPD")}
 \item vignettes: \code{browseVignettes("DPmixGPD")}
+\item website articles index: \url{https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/index.html}
 \item vignette pages:
 \itemize{
 \item \code{vignette("01-basic", package = "DPmixGPD")}
@@ -25,10 +26,6 @@ Learn more via:
 \item \code{vignette("04-conditional", package = "DPmixGPD")}
 \item \code{vignette("05-causal", package = "DPmixGPD")}
 }
-\item installed HTML pages: \href{../doc/01-basic.html}{01-basic.html},
-\href{../doc/03-unconditional.html}{03-unconditional.html},
-\href{../doc/04-conditional.html}{04-conditional.html},
-\href{../doc/05-causal.html}{05-causal.html}
 \item website: \url{https://arnabaich96.github.io/DPmixGPD/}
 }
 }

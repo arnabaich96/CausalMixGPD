@@ -347,21 +347,49 @@
     "href": "examples/index.html",
     "title": "Examples",
     "section": "",
-    "text": "Use this hub for the full canonical sequence ex01 to ex14.\nStart hub Reference hub pkgdown articles"
+    "text": "This page indexes the example templates only. Each link below points to a single runnable example file."
   },
   {
-    "objectID": "examples/index.html#recommended-sequence",
-    "href": "examples/index.html#recommended-sequence",
+    "objectID": "examples/index.html#unconditional-bulk-only",
+    "href": "examples/index.html#unconditional-bulk-only",
     "title": "Examples",
-    "section": "Recommended sequence",
-    "text": "Recommended sequence\n\nUnconditional\n\nex01 unconditional dpm crp\nex02 unconditional dpm sb\nex03 unconditional dpmgpd crp\nex04 unconditional dpmgpd sb\n\n\n\nConditional\n\nex05 conditional dpm crp\nex06 conditional dpm sb\nex07 conditional dpmgpd crp\nex08 conditional dpmgpd sb\n\n\n\nCausal\n\nex09 causal no x crp\nex10 causal x no ps sb\nex11 causal same backend crp\nex12 causal same backend sb\nex13 causal different backends crp\nex14 causal different backends sb"
+    "section": "Unconditional (bulk-only)",
+    "text": "Unconditional (bulk-only)\n\nex01 — Unconditional DPM (CRP)\nex02 — Unconditional DPM (SB)"
   },
   {
-    "objectID": "examples/index.html#related-articles",
-    "href": "examples/index.html#related-articles",
+    "objectID": "examples/index.html#unconditional-bulk-gpd-tail",
+    "href": "examples/index.html#unconditional-bulk-gpd-tail",
     "title": "Examples",
-    "section": "Related articles",
-    "text": "Related articles\n\n01-basic\n02-model-spec\n03-unconditional\n04-conditional\n05-causal"
+    "section": "Unconditional (bulk + GPD tail)",
+    "text": "Unconditional (bulk + GPD tail)\n\nex03 — Unconditional DPM+GPD (CRP)\nex04 — Unconditional DPM+GPD (SB)"
+  },
+  {
+    "objectID": "examples/index.html#conditional-bulk-only",
+    "href": "examples/index.html#conditional-bulk-only",
+    "title": "Examples",
+    "section": "Conditional (bulk-only)",
+    "text": "Conditional (bulk-only)\n\nex05 — Conditional DPM (CRP)\nex06 — Conditional DPM (SB)"
+  },
+  {
+    "objectID": "examples/index.html#conditional-bulk-gpd-tail",
+    "href": "examples/index.html#conditional-bulk-gpd-tail",
+    "title": "Examples",
+    "section": "Conditional (bulk + GPD tail)",
+    "text": "Conditional (bulk + GPD tail)\n\nex07 — Conditional DPM+GPD (CRP)\nex08 — Conditional DPM+GPD (SB)"
+  },
+  {
+    "objectID": "examples/index.html#causal",
+    "href": "examples/index.html#causal",
+    "title": "Examples",
+    "section": "Causal",
+    "text": "Causal\n\nex09 — Causal, no X (CRP)\nex10 — Causal, X no PS (SB)\nex11 — Causal, same backend (CRP)\nex12 — Causal, same backend (SB)\nex13 — Causal, different backends (CRP)\nex14 — Causal, different backends (SB)"
+  },
+  {
+    "objectID": "examples/index.html#other-resources",
+    "href": "examples/index.html#other-resources",
+    "title": "Examples",
+    "section": "Other resources",
+    "text": "Other resources\n\nStart hub: Start\nAdvanced hub: Advanced\nKernels hub: Kernels\nAPI reference (pkgdown): Reference\nArticles (pkgdown): Articles"
   },
   {
     "objectID": "examples/ex13-causal-different-backends-crp.html",

@@ -21,11 +21,8 @@ Open from R:
 \item \code{vignette("05-causal", package = "DPmixGPD")}
 }
 
-Installed vignette pages:
+Website articles index:
 \itemize{
-\item \ifelse{html}{\href{../doc/01-basic.html}{01-basic.html}}{\code{01-basic.html}}
-\item \ifelse{html}{\href{../doc/03-unconditional.html}{03-unconditional.html}}{\code{03-unconditional.html}}
-\item \ifelse{html}{\href{../doc/04-conditional.html}{04-conditional.html}}{\code{04-conditional.html}}
-\item \ifelse{html}{\href{../doc/05-causal.html}{05-causal.html}}{\code{05-causal.html}}
+\item \url{https://arnabaich96.github.io/DPmixGPD/pkgdown/articles/index.html}
 }
 }
