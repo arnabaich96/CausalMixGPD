@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Advanced: Customization and tuning"
 pkgdown:
   slug: "advanced/customization-and-tuning"
@@ -45,19 +45,6 @@ is_pkgdown <- any(grepl("pkgdown|callr", Sys.getenv(), ignore.case = TRUE)) ||
 if (is_pkgdown) {
   knitr::opts_chunk$set(eval=TRUE)
 }
-
-safe_plot <- function(x, ...) {
-  obj <- tryCatch(plot(x, ...), error = function(e) e)
-  if (inherits(obj, "error")) return(invisible(NULL))
-  if (inherits(obj, "ggplot")) {
-    try(print(obj), silent = TRUE)
-    return(invisible(obj))
-  }
-  if (is.list(obj)) {
-    for (elt in obj) if (inherits(elt, "ggplot")) try(print(elt), silent = TRUE)
-  }
-  invisible(obj)
-}
 ```
 
 # Overview
@@ -72,7 +59,7 @@ The vignette covers:
 
 2) A spliced bulk-tail model (SB + Amoroso + GPD) in which DPmixGPD generates the model code, while the compilation and sampling steps are carried out explicitly to facilitate inspection.
 
-3) A causal (two-arm) model built via `build_causal_bundle()`, followed by downstream summaries via S3 methods such as `predict()`, `ate()/qte()` (marginal), `att()/qtt()` (treated-only), and `cate()/cqte()` (conditional).
+3) A causal (two-arm) model built via `bundle()`, followed by downstream summaries via S3 methods such as `predict()`, `ate()/qte()` (marginal), `att()/qtt()` (treated-only), and `cate()/cqte()` (conditional; requires `X`).
 
 Throughout, the focus is on reproducible model construction and on using the exported NIMBLE distributions directly in the likelihood. In this setting, a ones/zeros trick is not required.
 
@@ -188,7 +175,7 @@ For comparison, we build a **bundle** for the same SB Normal mixture and use
 DPmixGPD's S3 methods for posterior inference.
 
 ```{r, cache=TRUE, results='hide'}
-bundle_sb <- build_nimble_bundle(
+bundle_sb <- bundle(
   y = y,
   X = NULL,
   backend = "sb",
@@ -198,7 +185,7 @@ bundle_sb <- build_nimble_bundle(
   mcmc = mcmc
 )
 
-fit_sb <- run_mcmc_bundle_manual(bundle_sb, show_progress = FALSE)
+fit_sb <- mcmc(bundle_sb, show_progress = FALSE)
 ```
 
 ```{r, results='asis'}
@@ -212,7 +199,7 @@ summary(fit_sb)
 ```
 
 ```{r}
-safe_plot(fit_sb, family = "traceplot")
+plot(fit_sb, family = "traceplot")
 ```
 
 ```{r}
@@ -223,7 +210,7 @@ head(pred_sb$fit)
 # SB + GPD Case: Manual Pipeline with Codegen
 
 The second example adds a GPD tail. Rather than writing the full spliced model by hand,
-we let `build_nimble_bundle()` generate the NIMBLE code and the supporting objects
+we let `bundle()` generate the NIMBLE code and the supporting objects
 (constants, data, inits, monitors). The "customization" part is that we then treat those
 outputs as if you had written them yourself: we construct the `nimbleModel`, configure and
 compile the MCMC, run it, and inspect the samples. This is a good pattern when you want a
@@ -265,7 +252,7 @@ param_specs_crp <- list(
 
 ```{r}
 X_crp <- NULL
-bundle_crp <- build_nimble_bundle(
+bundle_crp <- bundle(
   y = y,
   X = X_crp,
   backend = "sb",
@@ -329,7 +316,7 @@ head(samples_crp[, 1:min(6, ncol(samples_crp))])
 ## S3 methods for posterior inference
 
 ```{r, cache=TRUE, results='hide'}
-fit_crp <- run_mcmc_bundle_manual(bundle_crp, show_progress = FALSE)
+fit_crp <- mcmc(bundle_crp, show_progress = FALSE)
 ```
 
 ```{r, results='asis'}
@@ -338,7 +325,7 @@ summary(fit_crp)
 ```
 
 ```{r}
-safe_plot(fit_crp, family = "traceplot")
+plot(fit_crp, family = "traceplot")
 ```
 
 ```{r}
@@ -356,6 +343,7 @@ model for the control arm, and (iii) a propensity-score model (optional, but oft
 Once the sampler has run, the fitted object exposes high-level S3 methods so you can move
 from posterior samples to causal estimands with minimal friction--e.g., average treatment
 effects via `ate()` and quantile treatment effects via `qte()`, with treated-only counterparts `att()` / `qtt()` and conditional counterparts `cate()` / `cqte()`.
+For no-`X` fits, `cate()` / `cqte()` are unavailable. Marginal estimands (`ate()`, `att()`, `qte()`, `qtt()`) always use training data and ignore supplied `newdata`/`y`, while conditional estimands use `newdata` if provided and otherwise training `X`. R-mean is available via `type = "rmean"` for `cate()` / `ate()` / `att()` and via `ate_rmean()`.
 
 ```{r}
 X_causal <- df[, c("wt", "hp", "qsec", "cyl")]
@@ -395,10 +383,10 @@ param_specs_causal <- list(
 ```
 
 ```{r, cache=TRUE, results='hide'}
-causal_bundle <- build_causal_bundle(
+causal_bundle <- bundle(
   y = y,
   X = X_causal,
-  T = T_ind,
+  A = T_ind,
   backend = "sb",
   kernel = c("normal", "laplace"),
   GPD = FALSE,
@@ -409,7 +397,7 @@ causal_bundle <- build_causal_bundle(
   mcmc_ps = mcmc
 )
 
-causal_fit <- run_mcmc_causal(causal_bundle, show_progress = FALSE)
+causal_fit <- mcmc(causal_bundle, show_progress = FALSE)
 ```
 
 ```{r, results='asis'}
@@ -423,7 +411,7 @@ summary(causal_fit)
 ```
 
 ```{r}
-safe_plot(causal_fit, family = "traceplot")
+plot(causal_fit, family = "traceplot")
 ```
 
 ```{r}
@@ -436,18 +424,27 @@ ate_result <- ate(causal_fit, interval = "credible", nsim_mean = 50)
 qte_result <- qte(causal_fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
 att_result <- att(causal_fit, interval = "credible", nsim_mean = 50)
 qtt_result <- qtt(causal_fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
+ate_rmean_result <- ate_rmean(causal_fit, interval = "credible", nsim_mean = 50)
 cate_result <- cate(causal_fit, newdata = X_causal[1:5, ], interval = "credible", nsim_mean = 50)
 cqte_result <- cqte(causal_fit, probs = c(0.25, 0.5, 0.75), newdata = X_causal[1:5, ], interval = "credible")
+att_rmean_result <- att(causal_fit, type = "rmean", interval = "credible", nsim_mean = 50)
+cate_rmean_result <- cate(causal_fit, type = "rmean", newdata = X_causal[1:5, ], interval = "credible", nsim_mean = 50)
 
 print(ate_result)
 summary(ate_result)
+print(ate_rmean_result)
+summary(ate_rmean_result)
+print(att_rmean_result)
+print(cate_rmean_result)
 
-safe_plot(ate_result, type = "effect")
-safe_plot(qte_result, type = "effect")
+plot(ate_result, type = "effect")
+plot(qte_result, type = "effect")
 ```
 
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+
+
 
 

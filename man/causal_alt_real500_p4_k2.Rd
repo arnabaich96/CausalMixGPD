@@ -8,7 +8,7 @@
 A list with:
 \describe{
 \item{y}{Numeric outcome vector.}
-\item{T}{Binary treatment indicator (0/1).}
+\item{A}{Binary treatment indicator (0/1).}
 \item{X}{data.frame with x1-x4.}
 \item{meta}{List with N, support, p, K0, K1, tail, exceed_frac.}
 \item{truth}{List with kernel0, kernel1, params0, params1, tail_params.}

@@ -27,6 +27,8 @@ if (!requireNamespace("gridExtra", quietly = TRUE)) {
 }
 library(gridExtra)
 
+`%||%` <- function(a, b) if (!is.null(a)) a else b
+
 # Force static plotting for website renders (no htmlwidget conversion).
 options(DPmixGPD.plotly = FALSE)
 
@@ -262,33 +264,61 @@ quiet_mcmc <- function(expr) {
   out
 }
 
+.resolve_effect_ids <- function(obj, n_id) {
+  id <- obj$id %||% NULL
+  if (is.null(id) && !is.null(obj$fit)) {
+    rn <- rownames(as.matrix(obj$fit))
+    if (!is.null(rn) && length(rn) == n_id && any(nzchar(rn))) id <- rn
+  }
+  if (is.null(id)) id <- seq_len(n_id)
+  as.vector(id)
+}
+
+# Format CATE output as: id, index, estimate, lower, upper
+format_cate_table <- function(obj) {
+  fit <- obj$fit %||% numeric(0)
+  fit <- as.numeric(fit)
+  n_id <- length(fit)
+  if (!n_id) return(data.frame(id = numeric(0), index = integer(0), estimate = numeric(0), lower = numeric(0), upper = numeric(0)))
+
+  lower <- obj$lower %||% rep(NA_real_, n_id)
+  upper <- obj$upper %||% rep(NA_real_, n_id)
+  ids <- .resolve_effect_ids(obj, n_id = n_id)
+
+  data.frame(
+    id = ids,
+    index = rep.int(1L, n_id),
+    estimate = fit,
+    lower = as.numeric(lower),
+    upper = as.numeric(upper),
+    row.names = NULL
+  )
+}
+
+# Format CQTE output as: id, index, estimate, lower, upper
+format_cqte_table <- function(obj) {
+  fit <- obj$fit %||% matrix(numeric(0), nrow = 0L, ncol = 0L)
+  fit <- as.matrix(fit)
+  n_id <- nrow(fit)
+  n_idx <- ncol(fit)
+  if (!n_id || !n_idx) {
+    return(data.frame(id = numeric(0), index = integer(0), estimate = numeric(0), lower = numeric(0), upper = numeric(0)))
+  }
+
+  lower <- as.matrix(obj$lower %||% matrix(NA_real_, nrow = n_id, ncol = n_idx))
+  upper <- as.matrix(obj$upper %||% matrix(NA_real_, nrow = n_id, ncol = n_idx))
+  ids <- .resolve_effect_ids(obj, n_id = n_id)
+
+  data.frame(
+    id = rep(ids, each = n_idx),
+    index = rep(seq_len(n_idx), times = n_id),
+    estimate = as.vector(t(fit)),
+    lower = as.vector(t(lower)),
+    upper = as.vector(t(upper)),
+    row.names = NULL
+  )
+}
+
 # Render plot outputs defensively in knitr:
 # - avoid auto-printing htmlwidgets that fail in website render sessions
 # - print ggplot outputs (single or list) explicitly
-safe_plot <- function(x, ...) {
-  obj <- tryCatch(plot(x, ...), error = function(e) e)
-
-  if (inherits(obj, "error")) {
-    warning("safe_plot failed: ", conditionMessage(obj))
-    return(invisible(NULL))
-  }
-
-  if (inherits(obj, "ggplot")) {
-    try(print(obj), silent = TRUE)
-    return(invisible(obj))
-  }
-
-  if (is.list(obj)) {
-    plotted <- FALSE
-    for (elt in obj) {
-      if (inherits(elt, "ggplot")) {
-        try(print(elt), silent = TRUE)
-        plotted <- TRUE
-      }
-    }
-    if (plotted) return(invisible(obj))
-  }
-
-  # If this is an htmlwidget (or any non-ggplot object), keep the chunk stable.
-  invisible(obj)
-}

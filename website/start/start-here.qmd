@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Start Here"
 ---
 
@@ -35,17 +35,6 @@ pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
-if (!exists("safe_plot", mode = "function")) {
-  safe_plot <- function(x, ...) {
-    obj <- tryCatch(plot(x, ...), error = function(e) e)
-    if (inherits(obj, "ggplot")) {
-      try(print(obj), silent = TRUE)
-    } else if (is.list(obj)) {
-      for (elt in obj) if (inherits(elt, "ggplot")) try(print(elt), silent = TRUE)
-    }
-    invisible(obj)
-  }
-}
 ```
 
 
@@ -72,7 +61,7 @@ y <- nc_pos200_k3$y
 ```
 
 ```{r start-uncond-bundle, cache=TRUE}
-bundle_uncond <- DPmixGPD::build_nimble_bundle(
+bundle_uncond <- bundle(
   y = y,
   backend = "crp",
   kernel = "gamma",
@@ -83,14 +72,14 @@ bundle_uncond <- DPmixGPD::build_nimble_bundle(
 ```
 
 ```{r start-uncond-fit, cache=TRUE}
-fit_uncond <- load_or_fit("quickstart-start-here-fit_uncond", quiet_mcmc(run_mcmc_bundle_manual(bundle_uncond, show_progress = FALSE)))
+fit_uncond <- load_or_fit("quickstart-start-here-fit_uncond", quiet_mcmc(mcmc(bundle_uncond, show_progress = FALSE)))
 summary(fit_uncond)
 ```
 
 ```{r start-uncond-predict, cache=TRUE}
 pred_q <- predict(fit_uncond, type = "quantile", p = c(0.5, 0.9), interval = "credible")
 head(pred_q$fit)
-safe_plot(pred_q)
+plot(pred_q)
 ```
 
 ---
@@ -104,7 +93,7 @@ X <- as.matrix(nc_posX100_p3_k2$X)
 ```
 
 ```{r start-cond-bundle, cache=TRUE}
-bundle_cond <- DPmixGPD::build_nimble_bundle(
+bundle_cond <- bundle(
   y = yc,
   X = X,
   backend = "sb",
@@ -116,7 +105,7 @@ bundle_cond <- DPmixGPD::build_nimble_bundle(
 ```
 
 ```{r start-cond-fit, cache=TRUE}
-fit_cond <- load_or_fit("quickstart-start-here-fit_cond", quiet_mcmc(run_mcmc_bundle_manual(bundle_cond, show_progress = FALSE)))
+fit_cond <- load_or_fit("quickstart-start-here-fit_cond", quiet_mcmc(mcmc(bundle_cond, show_progress = FALSE)))
 summary(fit_cond)
 ```
 
@@ -124,7 +113,7 @@ summary(fit_cond)
 x_new <- X[1:20, , drop = FALSE]
 pred_mean <- predict(fit_cond, x = x_new, type = "mean", interval = "credible", nsim_mean = 200)
 head(pred_mean$fit)
-safe_plot(pred_mean)
+plot(pred_mean)
 ```
 
 ---
@@ -133,7 +122,7 @@ safe_plot(pred_mean)
 
 ```{r start-s3}
 params(fit_uncond)
-safe_plot(fit_uncond, family = c("traceplot", "running"))
+plot(fit_uncond, family = c("traceplot", "running"))
 ```
 
 ---
@@ -155,6 +144,10 @@ safe_plot(fit_uncond, family = c("traceplot", "running"))
 - Workflow index: [Roadmap](roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
+
+
+
+
 
 
 

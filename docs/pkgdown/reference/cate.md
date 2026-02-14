@@ -25,7 +25,8 @@ cate(
 
 - newdata:
 
-  Optional data.frame or matrix of covariates for prediction.
+  Optional data.frame or matrix of covariates for prediction. If `NULL`,
+  uses the training covariates stored in `fit`.
 
 - type:
 
@@ -56,11 +57,20 @@ cate(
 A list with elements `fit` (CATE), optional `lower`/`upper`, and the
 treated/control prediction objects.
 
+## Details
+
+This estimand is available only for **conditional** causal models with
+covariates (`X` not `NULL`). For unconditional causal models
+(`X = NULL`), use
+[`ate()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/ate.md)
+or
+[`att()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/att.md).
+
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
+cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
 fit <- run_mcmc_causal(cb, show_progress = FALSE)
 cate(fit, newdata = X[1:5, ])
 cate(fit, interval = "credible", level = 0.90)  # 90% CI

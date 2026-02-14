@@ -745,10 +745,10 @@ test_that("print.dpmixgpd_causal_bundle works", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
-  T <- c(rep(0, 10), rep(1, 10))
+  A <- c(rep(0, 10), rep(1, 10))
 
   bundle <- build_causal_bundle(
-    y = y, X = X, T = T,
+    y = y, X = X, A = A,
     backend = "sb", kernel = "normal",
     GPD = FALSE, components = 4
   )
@@ -761,10 +761,10 @@ test_that("print.dpmixgpd_causal_bundle shows PS info for observational", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
-  T <- c(rep(0, 10), rep(1, 10))
+  A <- c(rep(0, 10), rep(1, 10))
 
   bundle <- build_causal_bundle(
-    y = y, X = X, T = T,
+    y = y, X = X, A = A,
     backend = "sb", kernel = "normal",
     GPD = FALSE, components = 4, PS = "logit"
   )
@@ -775,10 +775,10 @@ test_that("summary.dpmixgpd_causal_bundle works", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
-  T <- c(rep(0, 10), rep(1, 10))
+  A <- c(rep(0, 10), rep(1, 10))
 
   bundle <- build_causal_bundle(
-    y = y, X = X, T = T,
+    y = y, X = X, A = A,
     backend = "sb", kernel = "normal",
     GPD = FALSE, components = 4
   )

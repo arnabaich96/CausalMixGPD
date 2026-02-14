@@ -6,7 +6,7 @@
 \alias{pLognormalGpd}
 \alias{rLognormalGpd}
 \alias{qLognormalGpd}
-\title{Lognormal with a Gpd tail}
+\title{Lognormal with a GPD tail}
 \usage{
 dLognormalGpd(x, meanlog, sdlog, threshold, tail_scale, tail_shape, log = 0)
 
@@ -41,11 +41,11 @@ qLognormalGpd(
 
 \item{sdlog}{Numeric scalar log-standard deviation for the Lognormal bulk.}
 
-\item{threshold}{Numeric scalar threshold at which the Gpd tail is attached.}
+\item{threshold}{Numeric scalar threshold at which the GPD tail is attached.}
 
-\item{tail_scale}{Numeric scalar Gpd scale parameter; must be positive.}
+\item{tail_scale}{Numeric scalar GPD scale parameter; must be positive.}
 
-\item{tail_shape}{Numeric scalar Gpd shape parameter.}
+\item{tail_shape}{Numeric scalar GPD shape parameter.}
 
 \item{log}{Integer flag \code{0/1}; if \code{1}, return the log-density.}
 
@@ -64,18 +64,18 @@ Spliced density/CDF/RNG functions return numeric scalars. \code{qLognormalGpd} r
 with the same length as \code{p}.
 }
 \description{
-Splices a generalized Pareto distribution (Gpd) above \code{threshold} onto a single Lognormal bulk with
+Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a single Lognormal bulk with
 parameters \code{meanlog} and \code{sdlog}. Base Lognormal functions are taken from \pkg{stats}.
 }
 \section{Functions}{
 \itemize{
-\item \code{dLognormalGpd()}: Lognormal + Gpd tail density
+\item \code{dLognormalGpd()}: Lognormal + GPD tail density
 
-\item \code{pLognormalGpd()}: Lognormal + Gpd tail distribution function
+\item \code{pLognormalGpd()}: Lognormal + GPD tail distribution function
 
-\item \code{rLognormalGpd()}: Lognormal + Gpd tail random generation
+\item \code{rLognormalGpd()}: Lognormal + GPD tail random generation
 
-\item \code{qLognormalGpd()}: Lognormal + Gpd tail quantile function
+\item \code{qLognormalGpd()}: Lognormal + GPD tail quantile function
 
 }}
 \examples{

@@ -1,4 +1,4 @@
-﻿---
+---
 title: "ex10. Causal (X, no PS, SB Backend) - InvGauss/Amoroso"
 ---
 
@@ -44,29 +44,7 @@ pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
-if (!exists("safe_plot", mode = "function")) {
-  safe_plot <- function(x, ...) {
-    obj <- tryCatch(plot(x, ...), error = function(e) e)
-    if (inherits(obj, "ggplot")) {
-      try(print(obj), silent = TRUE)
-    } else if (is.list(obj)) {
-      for (elt in obj) if (inherits(elt, "ggplot")) try(print(elt), silent = TRUE)
-    }
-    invisible(obj)
-  }
-}
 source("_legacy-setup.R")
-if (!exists("safe_plot", mode = "function")) {
-  safe_plot <- function(x, ...) {
-    obj <- tryCatch(plot(x, ...), error = function(e) e)
-    if (inherits(obj, "ggplot")) {
-      try(print(obj), silent = TRUE)
-    } else if (is.list(obj)) {
-      for (elt in obj) if (inherits(elt, "ggplot")) try(print(elt), silent = TRUE)
-    }
-    invisible(obj)
-  }
-}
 ```
 
 
@@ -91,7 +69,7 @@ This vignette uses **covariates X** but disables PS estimation. Outcome models a
 ```{r data-setup}
 data("causal_alt_real500_p4_k2", package = "DPmixGPD")
 y <- abs(causal_alt_real500_p4_k2$y) + 0.01
-T <- causal_alt_real500_p4_k2$T
+A <- causal_alt_real500_p4_k2$A
 X <- as.matrix(causal_alt_real500_p4_k2$X)
 
 summary_tbl <- tibble(
@@ -123,9 +101,9 @@ param_specs_gpd <- list(
   )
 )
 
-bundle_crp_gpd <- build_causal_bundle(
+bundle_crp_gpd <- bundle(
   y = y,
-  T = T,
+  treat = A,
   X = X,
   kernel = "invgauss",
   backend = "crp",
@@ -140,44 +118,44 @@ bundle_crp_gpd
 ```
 
 ```{r fit-crp-gpd, cache=TRUE}
-fit_crp_gpd <- quiet_mcmc(run_mcmc_causal(bundle_crp_gpd))
+fit_crp_gpd <- quiet_mcmc(mcmc(bundle_crp_gpd))
 summary(fit_crp_gpd)
 ```
 
 ```{r predict-mean-crp-gpd}
 pred_mean_gpd <- predict(fit_crp_gpd, x = x_eval, type = "mean", interval = "credible", nsim_mean = 150)
 head(pred_mean_gpd)
-safe_plot(pred_mean_gpd)
+plot(pred_mean_gpd)
 ```
 
 ```{r predict-quantile-crp-gpd}
 pred_q_gpd <- predict(fit_crp_gpd, x = x_eval, type = "quantile", p = 0.5, interval = "credible")
 head(pred_q_gpd)
-safe_plot(pred_q_gpd)
+plot(pred_q_gpd)
 ```
 
 ```{r predict-density-crp-gpd}
 pred_d_gpd <- predict(fit_crp_gpd, x = x_eval, y = y_eval, type = "density", interval = "credible")
 head(pred_d_gpd)
-safe_plot(pred_d_gpd)
+plot(pred_d_gpd)
 ```
 
 ```{r predict-survival-crp-gpd}
 pred_surv_gpd <- predict(fit_crp_gpd, x = x_eval, y = y_eval, type = "survival", interval = "credible")
 head(pred_surv_gpd)
-safe_plot(pred_surv_gpd)
+plot(pred_surv_gpd)
 ```
 
 ```{r ate-crp-gpd}
 att_gpd <- att(fit_crp_gpd, interval = "credible", nsim_mean = 150)
 head(att_gpd)
-safe_plot(att_gpd)
+plot(att_gpd)
 ```
 
 ```{r qte-crp-gpd}
 qtt_gpd <- qtt(fit_crp_gpd, probs = c(0.25, 0.5, 0.75), interval = "credible")
 head(qtt_gpd)
-safe_plot(qtt_gpd)
+plot(qtt_gpd)
 ```
 
 ---
@@ -185,9 +163,9 @@ safe_plot(qtt_gpd)
 ## Model B: SB Bulk-only (Amoroso)
 
 ```{r bundle-sb-bulk, cache=TRUE}
-bundle_sb_bulk <- build_causal_bundle(
+bundle_sb_bulk <- bundle(
   y = y,
-  T = T,
+  treat = A,
   X = X,
   kernel = "amoroso",
   backend = "sb",
@@ -201,44 +179,44 @@ bundle_sb_bulk
 ```
 
 ```{r fit-sb-bulk, cache=TRUE}
-fit_sb_bulk <- quiet_mcmc(run_mcmc_causal(bundle_sb_bulk))
+fit_sb_bulk <- quiet_mcmc(mcmc(bundle_sb_bulk))
 summary(fit_sb_bulk)
 ```
 
 ```{r predict-mean-sb-bulk}
 pred_mean_bulk <- predict(fit_sb_bulk, x = x_eval, type = "mean", interval = "credible", nsim_mean = 150)
 head(pred_mean_bulk)
-safe_plot(pred_mean_bulk)
+plot(pred_mean_bulk)
 ```
 
 ```{r predict-quantile-sb-bulk}
 pred_q_bulk <- predict(fit_sb_bulk, x = x_eval, type = "quantile", p = 0.5, interval = "credible")
 head(pred_q_bulk)
-safe_plot(pred_q_bulk)
+plot(pred_q_bulk)
 ```
 
 ```{r predict-density-sb-bulk}
 pred_d_bulk <- predict(fit_sb_bulk, x = x_eval, y = y_eval, type = "density", interval = "credible")
 head(pred_d_bulk)
-safe_plot(pred_d_bulk)
+plot(pred_d_bulk)
 ```
 
 ```{r predict-survival-sb-bulk}
 pred_surv_bulk <- predict(fit_sb_bulk, x = x_eval, y = y_eval, type = "survival", interval = "credible")
 head(pred_surv_bulk)
-safe_plot(pred_surv_bulk)
+plot(pred_surv_bulk)
 ```
 
-```{r ate-sb-bulk}
-ate_bulk <- cate(fit_sb_bulk, newdata = x_eval, interval = "credible", nsim_mean = 150)
-head(ate_bulk)
-safe_plot(ate_bulk)
+```{r cate-sb-bulk}
+cate_bulk <- cate(fit_sb_bulk, newdata = x_eval, interval = "credible", nsim_mean = 150)
+head(format_cate_table(cate_bulk))
+plot(cate_bulk)
 ```
 
-```{r qte-sb-bulk}
-qte_bulk <- cqte(fit_sb_bulk, probs = c(0.25, 0.5, 0.75), newdata = x_eval, interval = "credible")
-head(qte_bulk)
-safe_plot(qte_bulk)
+```{r cqte-sb-bulk}
+cqte_bulk <- cqte(fit_sb_bulk, probs = c(0.25, 0.5, 0.75), newdata = x_eval, interval = "credible")
+head(format_cqte_table(cqte_bulk))
+plot(cqte_bulk)
 ```
 
 ---
@@ -251,6 +229,11 @@ safe_plot(qte_bulk)
 - Workflow index: [Roadmap](../start/roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
+
+
+
+
+
 
 
 

@@ -11,7 +11,7 @@ X <- data.frame(
   x5 = rnorm(N, 0.4, 1.1)
 )
 lin_ps <- 0.2 + 0.35 * X$x1 - 0.2 * X$x2 + 0.15 * X$x5
-T <- rbinom(N, 1, stats::plogis(lin_ps))
+A <- rbinom(N, 1, stats::plogis(lin_ps))
 
 weights0 <- c(0.3, 0.25, 0.25, 0.2)
 params0 <- list(
@@ -29,8 +29,8 @@ params1 <- list(
 )
 
 y <- numeric(N)
-idx0 <- which(T == 0L)
-idx1 <- which(T == 1L)
+idx0 <- which(A == 0L)
+idx1 <- which(A == 1L)
 
 bulk0 <- mix_sample(length(idx0), weights0, rInvGauss, params0)$y
 bulk1 <- mix_sample(length(idx1), weights1, rAmoroso, params1)$y
@@ -47,7 +47,7 @@ exceed_frac <- (tail_out0$exceed_frac * length(idx0) + tail_out1$exceed_frac * l
 
 causal_alt_pos500_p5_k4_tail <- list(
   y = y,
-  T = T,
+  A = A,
   X = X,
   meta = list(
     N = N,

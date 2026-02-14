@@ -67,7 +67,8 @@ of the outcome distribution to estimate treatment effects at.</p></dd>
 
 
 <dt id="arg-newdata">newdata<a class="anchor" aria-label="anchor" href="#arg-newdata"></a></dt>
-<dd><p>Optional data.frame or matrix of covariates for prediction.</p></dd>
+<dd><p>Optional data.frame or matrix of covariates for prediction.
+If <code>NULL</code>, uses the training covariates stored in <code>fit</code>.</p></dd>
 
 
 <dt id="arg-interval">interval<a class="anchor" aria-label="anchor" href="#arg-interval"></a></dt>
@@ -85,11 +86,17 @@ highest posterior density intervals.</p></dd>
     <p>A list with elements <code>fit</code> (CQTE), <code>grid</code> (probabilities),
 and the treated/control prediction objects.</p>
     </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>This estimand is available only for <strong>conditional</strong> causal models
+with covariates (<code>X</code> not <code>NULL</code>). For unconditional causal models
+(<code>X = NULL</code>), use <code><a href="qte.html">qte()</a></code> or <code><a href="qtt.html">qtt()</a></code>.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="va">cb</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_causal_bundle.html">build_causal_bundle</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, X <span class="op">=</span> <span class="va">X</span>, T <span class="op">=</span> <span class="cn">T</span>, backend <span class="op">=</span> <span class="st">"sb"</span>, kernel <span class="op">=</span> <span class="st">"normal"</span>, components <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">cb</span> <span class="op">&lt;-</span> <span class="fu"><a href="build_causal_bundle.html">build_causal_bundle</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">y</span>, X <span class="op">=</span> <span class="va">X</span>, A <span class="op">=</span> <span class="va">A</span>, backend <span class="op">=</span> <span class="st">"sb"</span>, kernel <span class="op">=</span> <span class="st">"normal"</span>, components <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="run_mcmc_causal.html">run_mcmc_causal</a></span><span class="op">(</span><span class="va">cb</span>, show_progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">cqte</span><span class="op">(</span><span class="va">fit</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span>, newdata <span class="op">=</span> <span class="va">X</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">cqte</span><span class="op">(</span><span class="va">fit</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span>, interval <span class="op">=</span> <span class="st">"credible"</span>, level <span class="op">=</span> <span class="fl">0.90</span><span class="op">)</span>  <span class="co"># 90% CI</span></span></span>
@@ -107,7 +114,7 @@ and the treated/control prediction objects.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

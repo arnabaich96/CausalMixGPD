@@ -6,7 +6,7 @@
 \alias{pLaplaceGpd}
 \alias{rLaplaceGpd}
 \alias{qLaplaceGpd}
-\title{Laplace with a Gpd tail}
+\title{Laplace with a GPD tail}
 \usage{
 dLaplaceGpd(x, location, scale, threshold, tail_scale, tail_shape, log = 0)
 
@@ -41,11 +41,11 @@ qLaplaceGpd(
 
 \item{scale}{Numeric scalar scale parameter for the Laplace bulk.}
 
-\item{threshold}{Numeric scalar threshold at which the Gpd tail is attached.}
+\item{threshold}{Numeric scalar threshold at which the GPD tail is attached.}
 
-\item{tail_scale}{Numeric scalar Gpd scale parameter; must be positive.}
+\item{tail_scale}{Numeric scalar GPD scale parameter; must be positive.}
 
-\item{tail_shape}{Numeric scalar Gpd shape parameter.}
+\item{tail_shape}{Numeric scalar GPD shape parameter.}
 
 \item{log}{Logical; if \code{TRUE}, return the log-density.}
 
@@ -64,18 +64,18 @@ Spliced density/CDF/RNG functions return numeric scalars. \code{qLaplaceGpd} ret
 with the same length as \code{p}.
 }
 \description{
-Splices a generalized Pareto distribution (Gpd) above \code{threshold} onto a single Laplace bulk with
+Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a single Laplace bulk with
 parameters \code{location} and \code{scale}. Base Laplace functions are taken from \pkg{nimble}.
 }
 \section{Functions}{
 \itemize{
-\item \code{dLaplaceGpd()}: Laplace + Gpd tail density
+\item \code{dLaplaceGpd()}: Laplace + GPD tail density
 
-\item \code{pLaplaceGpd()}: Laplace + Gpd tail distribution function
+\item \code{pLaplaceGpd()}: Laplace + GPD tail distribution function
 
-\item \code{rLaplaceGpd()}: Laplace + Gpd tail random generation
+\item \code{rLaplaceGpd()}: Laplace + GPD tail random generation
 
-\item \code{qLaplaceGpd()}: Laplace + Gpd tail quantile function
+\item \code{qLaplaceGpd()}: Laplace + GPD tail quantile function
 
 }}
 \examples{

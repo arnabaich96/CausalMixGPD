@@ -365,7 +365,7 @@ specification and posterior computation”</strong> (the
 an injected upper tail (so <code>GPD=TRUE</code> is meaningful).</p>
 <p>Model fit (code shown for reproducibility, but not executed during
 CRAN checks)</p>
-<pre class="r"><code>bundle &lt;- build_nimble_bundle(
+<pre class="r"><code>bundle &lt;- DPmixGPD::bundle(
   y = y,
   X = NULL,
   backend = &quot;sb&quot;,         # &quot;sb&quot; or &quot;crp&quot;
@@ -375,7 +375,7 @@ CRAN checks)</p>
   mcmc = list(niter = 2000, nburnin = 500, thin = 5, nchains = 1, seed = 101)
 )
 
-fit &lt;- run_mcmc_bundle_manual(bundle, show_progress = TRUE)</code></pre>
+fit &lt;- DPmixGPD::mcmc(bundle, show_progress = TRUE)</code></pre>
 <p>Predictions</p>
 <pre class="r"><code>grid &lt;- seq(min(y), max(y) * 1.5, length.out = 200)
 
@@ -396,28 +396,28 @@ to keep CRAN checks fast and deterministic.</p>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="right">1.608</td>
+<td align="right">1.594</td>
 <td align="right">0.50</td>
-<td align="right">1.438</td>
-<td align="right">1.804</td>
+<td align="right">1.410</td>
+<td align="right">1.777</td>
 </tr>
 <tr class="even">
-<td align="right">4.725</td>
+<td align="right">4.756</td>
 <td align="right">0.90</td>
-<td align="right">4.130</td>
-<td align="right">5.442</td>
+<td align="right">4.092</td>
+<td align="right">5.434</td>
 </tr>
 <tr class="odd">
-<td align="right">6.471</td>
+<td align="right">6.540</td>
 <td align="right">0.95</td>
-<td align="right">5.530</td>
-<td align="right">7.630</td>
+<td align="right">5.545</td>
+<td align="right">7.820</td>
 </tr>
 <tr class="even">
-<td align="right">11.856</td>
+<td align="right">12.106</td>
 <td align="right">0.99</td>
-<td align="right">9.254</td>
-<td align="right">15.170</td>
+<td align="right">9.213</td>
+<td align="right">16.446</td>
 </tr>
 </tbody>
 </table>

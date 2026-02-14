@@ -9,7 +9,7 @@ Intended for covariate and prediction vignettes (GPD=FALSE)."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">DPmixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,11 +19,11 @@ Intended for covariate and prediction vignettes (GPD=FALSE)."></head><body>
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/01-basic.html">Model specification</a></li>
-    <li><a class="dropdown-item" href="../articles/02-model-spec.html">Model fundamentals</a></li>
-    <li><a class="dropdown-item" href="../articles/03-unconditional.html">Unconditional</a></li>
-    <li><a class="dropdown-item" href="../articles/04-conditional.html">Conditional</a></li>
-    <li><a class="dropdown-item" href="../articles/05-causal.html">Causal</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/basic-01.html">Model specification</a></li>
+    <li><a class="dropdown-item" href="../articles/model-spec-02.html">Model fundamentals</a></li>
+    <li><a class="dropdown-item" href="../articles/unconditional-03.html">Unconditional</a></li>
+    <li><a class="dropdown-item" href="../articles/conditional-04.html">Conditional</a></li>
+    <li><a class="dropdown-item" href="../articles/causal-05.html">Causal</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/arnabaich96/DPmixGPD">GitHub</a></li>
@@ -71,13 +71,13 @@ Intended for covariate and prediction vignettes (GPD=FALSE).</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"nc_posX100_p4_k3"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">nc_posX100_p4_k3</span><span class="op">$</span><span class="va">X</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>       x1     x2     x3    x4</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.862  0.518 -0.666 0.161</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -0.145 -0.432 -0.106 0.893</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.567 -0.122 -1.104 0.583</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4 -0.950  0.136 -0.595 0.367</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5  0.363 -0.183  0.716 0.142</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6  0.701 -0.539  0.974 0.930</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           x1         x2         x3        x4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  0.8619272  0.5179205 -0.6660152 0.1608057</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 -0.1445059 -0.4322996 -0.1059911 0.8932175</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 -0.5665718 -0.1223736 -1.1039574 0.5830409</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 -0.9501948  0.1356688 -0.5949445 0.3672704</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  0.3625201 -0.1830098  0.7159558 0.1416564</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  0.7009523 -0.5394179  0.9738608 0.9295270</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

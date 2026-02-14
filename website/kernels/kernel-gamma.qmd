@@ -130,3 +130,5 @@ ggplot(df_gamma_gpd, aes(x = x, y = density, color = label)) +
 
 
 
+
+

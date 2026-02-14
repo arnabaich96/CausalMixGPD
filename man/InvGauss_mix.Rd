@@ -62,8 +62,8 @@ with right skewness. Each component is parameterized by its mean \code{mean[j]} 
 \details{
 The density, CDF, and RNG are implemented as \code{nimbleFunction}s for use inside NIMBLE models.
 The quantile function is an R function computed by numerical inversion of the mixture CDF.
-The \code{d*}, \code{p*}, and \code{q*} functions accept vector inputs for their first argument
-and evaluate elementwise; \code{r*} supports \code{n > 1}.
+These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
+For vectorized R usage (including \code{n > 1}), use \code{\link{invgauss_lowercase}}.
 }
 \section{Functions}{
 \itemize{

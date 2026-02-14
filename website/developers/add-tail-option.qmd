@@ -1,4 +1,4 @@
-﻿---
+---
 title: "How to add or modify a tail option"
 toc: true
 format:
@@ -24,5 +24,7 @@ This page covers modifications to the GPD splice (or alternative tail designs, i
 
 - continuity at splice for multiple parameter draws
 - predictive quantiles for extreme $\\tau$ behave sensibly
+
+
 
 

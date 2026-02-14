@@ -41,3 +41,11 @@ Repository guidance for coding agents working in `DPmixGPD`.
 
 - Keep responses concise.
 - Reference file paths using inline code formatting.
+
+## Local policy (from maintainer)
+
+- No local plotting/error-handling wrappers in website or vignette
+  sources (e.g., `safe_plot` in `website/*.qmd` or `vignettes/*`).
+- Use package APIs directly (e.g., plot(…)). If rendering surfaces an
+  error, investigate and fix the underlying issue in package/docs rather
+  than adding wrapper helpers outside the package.

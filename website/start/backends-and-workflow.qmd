@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Backends, Kernels, and Workflow Map"
 ---
 
@@ -37,17 +37,6 @@ pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
-if (!exists("safe_plot", mode = "function")) {
-  safe_plot <- function(x, ...) {
-    obj <- tryCatch(plot(x, ...), error = function(e) e)
-    if (inherits(obj, "ggplot")) {
-      try(print(obj), silent = TRUE)
-    } else if (is.list(obj)) {
-      for (elt in obj) if (inherits(elt, "ggplot")) try(print(elt), silent = TRUE)
-    }
-    invisible(obj)
-  }
-}
 ```
 
 
@@ -91,14 +80,14 @@ Practical rule of thumb:
 
 DPmixGPD uses a consistent build -> run -> summarize loop:
 
-1. **Build a bundle** using `DPmixGPD::build_nimble_bundle()` (or causal builders if you are doing TE work).
-2. **Run MCMC** using `run_mcmc_bundle_manual()`.
+1. **Build a bundle** using `bundle()` (or causal builders if you are doing TE work).
+2. **Run MCMC** using `mcmc()`.
 3. **Inspect and summarize** using `print()`, `summary()`, `plot()`.
 4. **Predict** using `predict()`. For conditional (covariate) models, `fitted()` is also available.
 
 ```{r, cache=TRUE}
 # Build
-bundle <- DPmixGPD::build_nimble_bundle(
+bundle <- bundle(
   y = rnorm(50),
   backend = "crp",
   kernel = "normal",
@@ -108,12 +97,12 @@ bundle <- DPmixGPD::build_nimble_bundle(
 )
 
 # Run
-fit <- load_or_fit("quickstart-backends-and-workflow-fit", run_mcmc_bundle_manual(bundle))
+fit <- load_or_fit("quickstart-backends-and-workflow-fit", mcmc(bundle))
 
 # Summarize
 print(fit)
 summary(fit)
-safe_plot(fit)
+plot(fit)
 ```
 
 # Kernel support quick check
@@ -140,6 +129,10 @@ kernel_support_table()
 - Workflow index: [Roadmap](roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
+
+
+
+
 
 
 

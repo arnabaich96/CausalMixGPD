@@ -13,7 +13,7 @@ n &amp;gt; 1 and return a numeric vector of length n."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">DPmixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,11 +23,11 @@ n &amp;gt; 1 and return a numeric vector of length n."></head><body>
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/01-basic.html">Model specification</a></li>
-    <li><a class="dropdown-item" href="../articles/02-model-spec.html">Model fundamentals</a></li>
-    <li><a class="dropdown-item" href="../articles/03-unconditional.html">Unconditional</a></li>
-    <li><a class="dropdown-item" href="../articles/04-conditional.html">Conditional</a></li>
-    <li><a class="dropdown-item" href="../articles/05-causal.html">Causal</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/basic-01.html">Model specification</a></li>
+    <li><a class="dropdown-item" href="../articles/model-spec-02.html">Model fundamentals</a></li>
+    <li><a class="dropdown-item" href="../articles/unconditional-03.html">Unconditional</a></li>
+    <li><a class="dropdown-item" href="../articles/conditional-04.html">Conditional</a></li>
+    <li><a class="dropdown-item" href="../articles/causal-05.html">Causal</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/arnabaich96/DPmixGPD">GitHub</a></li>
@@ -171,31 +171,31 @@ use inside NIMBLE models.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># GPD</span></span></span>
 <span class="r-in"><span><span class="fu">dgpd</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.5</span>, <span class="fl">2.0</span>, <span class="fl">2.5</span><span class="op">)</span>, threshold <span class="op">=</span> <span class="fl">1</span>, scale <span class="op">=</span> <span class="fl">0.8</span>, shape <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.617 0.328 0.185</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.6165877 0.3276800 0.1849668</span>
 <span class="r-in"><span><span class="fu">pgpd</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.5</span>, <span class="fl">2.0</span><span class="op">)</span>, threshold <span class="op">=</span> <span class="fl">1</span>, scale <span class="op">=</span> <span class="fl">0.8</span>, shape <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.445 0.672</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.445071 0.672320</span>
 <span class="r-in"><span><span class="fu">qgpd</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.5</span>, <span class="fl">0.9</span><span class="op">)</span>, threshold <span class="op">=</span> <span class="fl">1</span>, scale <span class="op">=</span> <span class="fl">0.8</span>, shape <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.59 3.34</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.594793 3.339573</span>
 <span class="r-in"><span><span class="fu">rgpd</span><span class="op">(</span><span class="fl">5</span>, threshold <span class="op">=</span> <span class="fl">1</span>, scale <span class="op">=</span> <span class="fl">0.8</span>, shape <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.44 1.20 1.46 1.99 1.61</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.457890 1.989540 1.608985 1.964277 1.616777</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Inverse Gaussian</span></span></span>
 <span class="r-in"><span><span class="fu">dinvgauss</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, mean <span class="op">=</span> <span class="fl">2</span>, shape <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.477 0.315 0.139</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.4774864 0.3153916 0.1393911</span>
 <span class="r-in"><span><span class="fu">rinvgauss</span><span class="op">(</span><span class="fl">5</span>, mean <span class="op">=</span> <span class="fl">2</span>, shape <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2.596 1.415 0.943 2.512 2.483</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.673805 7.611777 2.000607 2.288698 2.224759</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Amoroso</span></span></span>
 <span class="r-in"><span><span class="fu">damoroso</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, loc <span class="op">=</span> <span class="fl">0</span>, scale <span class="op">=</span> <span class="fl">1.5</span>, shape1 <span class="op">=</span> <span class="fl">2</span>, shape2 <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.245 0.292</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2452362 0.2915082</span>
 <span class="r-in"><span><span class="fu">ramoroso</span><span class="op">(</span><span class="fl">5</span>, loc <span class="op">=</span> <span class="fl">0</span>, scale <span class="op">=</span> <span class="fl">1.5</span>, shape1 <span class="op">=</span> <span class="fl">2</span>, shape2 <span class="op">=</span> <span class="fl">1.2</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.46 4.91 4.29 1.45 1.97</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4.2921093 1.4464358 1.9674029 3.5421019 0.9699588</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Cauchy</span></span></span>
 <span class="r-in"><span><span class="fu">dcauchy_vec</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">1</span>, <span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>, location <span class="op">=</span> <span class="fl">0</span>, scale <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.159 0.318 0.159</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1591549 0.3183099 0.1591549</span>
 <span class="r-in"><span><span class="fu">rcauchy_vec</span><span class="op">(</span><span class="fl">5</span>, location <span class="op">=</span> <span class="fl">0</span>, scale <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  1.132 -2.538 -1.426 -1.759  0.563</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -1.4257585 -1.7587124  0.5629465  2.0670801  4.2562905</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

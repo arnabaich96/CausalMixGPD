@@ -2,12 +2,12 @@
 
 Creates a causal bundle with:
 
-- a propensity score (PS) design model (logit/probit regression of `T`
+- a propensity score (PS) design model (logit/probit regression of `A`
   on `X` or a naive Bayes classifier)
 
-- an outcome bundle for the control arm (`T = 0`)
+- an outcome bundle for the control arm (`A = 0`)
 
-- an outcome bundle for the treated arm (`T = 1`)
+- an outcome bundle for the treated arm (`A = 1`)
 
 ## Usage
 
@@ -15,7 +15,7 @@ Creates a causal bundle with:
 build_causal_bundle(
   y,
   X,
-  T,
+  A,
   backend = c("sb", "crp"),
   kernel,
   GPD = FALSE,
@@ -44,31 +44,31 @@ build_causal_bundle(
 
   Design matrix or data.frame of covariates (N x P).
 
-- T:
+- A:
 
   Binary treatment indicator (length N, values 0/1).
 
 - backend:
 
   Character; `"sb"` or `"crp"` for outcome models. If length 2, the
-  first entry is used for treated (`T=1`) and the second for control
-  (`T=0`).
+  first entry is used for treated (`A=1`) and the second for control
+  (`A=0`).
 
 - kernel:
 
   Character kernel name for outcome models. If length 2, the first entry
-  is used for treated (`T=1`) and the second for control (`T=0`).
+  is used for treated (`A=1`) and the second for control (`A=0`).
 
 - GPD:
 
   Logical; include GPD tail for outcomes if TRUE. If length 2, the first
-  entry is used for treated (`T=1`) and the second for control (`T=0`).
+  entry is used for treated (`A=1`) and the second for control (`A=0`).
 
 - components:
 
   Integer \>= 2; truncation parameter for outcome mixtures. If length 2,
-  the first entry is used for treated (`T=1`) and the second for control
-  (`T=0`).
+  the first entry is used for treated (`A=1`) and the second for control
+  (`A=0`).
 
 - param_specs:
 
@@ -88,8 +88,8 @@ build_causal_bundle(
 - epsilon:
 
   Numeric in \[0,1) used by outcome bundles for posterior truncation
-  summaries. If length 2, the first entry is used for treated (`T=1`)
-  and the second for control (`T=0`).
+  summaries. If length 2, the first entry is used for treated (`A=1`)
+  and the second for control (`A=0`).
 
 - alpha_random:
 
@@ -149,13 +149,13 @@ if (FALSE) { # \dontrun{
 set.seed(1)
 N <- 100
 X <- cbind(x1 = rnorm(N), x2 = runif(N))
-T <- rbinom(N, 1, plogis(0.3 + 0.5 * X[, 1]))
+A <- rbinom(N, 1, plogis(0.3 + 0.5 * X[, 1]))
 y <- rexp(N) + 0.1
 
 cb <- build_causal_bundle(
   y = y,
   X = X,
-  T = T,
+  A = A,
   backend = "sb",
   kernel = "gamma",
   GPD = TRUE,

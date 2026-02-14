@@ -1,4 +1,4 @@
-﻿---
+---
 title: "ex01. Unconditional DPM (CRP Backend)"
 ---
 
@@ -40,17 +40,6 @@ library(DPmixGPD)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
-if (!exists("safe_plot", mode = "function")) {
-  safe_plot <- function(x, ...) {
-    obj <- tryCatch(plot(x, ...), error = function(e) e)
-    if (inherits(obj, "ggplot")) {
-      try(print(obj), silent = TRUE)
-    } else if (is.list(obj)) {
-      for (elt in obj) if (inherits(elt, "ggplot")) try(print(elt), silent = TRUE)
-    }
-    invisible(obj)
-  }
-}
 ```
 
 
@@ -98,10 +87,10 @@ print(p_raw)
 
 ## Model Specification & Bundle
 
-We'll use the `build_nimble_bundle` function directly which handles both specification and bundle creation.
+We'll use the `bundle` function directly which handles both specification and bundle creation.
 
 ```{r bundle-mcmc-crp, cache=TRUE}
-bundle_crp <- DPmixGPD::build_nimble_bundle(
+bundle_crp <- bundle(
   y = y_mixed,
   kernel = "laplace",         # Use laplace kernel
   backend = "crp",            # CRP backend
@@ -118,7 +107,7 @@ bundle_crp <- DPmixGPD::build_nimble_bundle(
 ### Building MCMC bundle
 
 ```{r mcmc-crp, cache=TRUE}
-bundle_crp <- DPmixGPD::build_nimble_bundle(
+bundle_crp <- bundle(
   y_mixed,
   kernel = "laplace",
   backend = "crp",
@@ -136,7 +125,7 @@ summary(bundle_crp)
 
 ### Running MCMC
 ```{r mcmc-crp-fit, results = "hide", cache=TRUE}
-fit_crp <- load_or_fit("ex01-unconditional-dpm-crp-fit_crp", run_mcmc_bundle_manual(bundle_crp))
+fit_crp <- load_or_fit("ex01-unconditional-dpm-crp-fit_crp", mcmc(bundle_crp))
 ```
 
 ### Summary of Fitted MCMC model
@@ -157,7 +146,7 @@ params_crp
 
 ```{r diag-trace}
 # Trace plots for key parameters
-safe_plot(fit_crp, params = "alpha", family = c("traceplot", "density", "geweke"))
+plot(fit_crp, params = "alpha", family = c("traceplot", "density", "geweke"))
 ```
 
 
@@ -175,7 +164,7 @@ y_grid <- seq(0, max(y_mixed) * 1.2, length.out = 200)
 pred_density <- predict(fit_crp, y = y_grid, type = "density")
 
 # Use S3 plot method
-safe_plot(pred_density)
+plot(pred_density)
 ```
 
 ### Quantile Predictions
@@ -194,7 +183,7 @@ quantiles_pred$fit %>%
  kable_styling(bootstrap_options = "striped", full_width = FALSE, position = "center")
 
 # Use S3 plot method
-safe_plot(quantiles_pred)
+plot(quantiles_pred)
 ```
 
 ---
@@ -203,14 +192,14 @@ safe_plot(quantiles_pred)
 
 ```{r components-sensitivity, cache=TRUE}
 # Demonstrate with one value
-bundle_components <- DPmixGPD::build_nimble_bundle(
+bundle_components <- bundle(
   y = y_mixed,
   kernel = "laplace",
   backend = "crp",
   components = 5,
   mcmc = mcmc
 )
-fit_components <- load_or_fit("ex01-unconditional-dpm-crp-fit_components", run_mcmc_bundle_manual(bundle_components))
+fit_components <- load_or_fit("ex01-unconditional-dpm-crp-fit_components", mcmc(bundle_components))
 ```
 
 
@@ -229,14 +218,14 @@ For unconditional models, use `predict()` for posterior summaries; `fitted()` an
 ### Laplace Kernel (Current)
 
 ```{r comp-laplace, cache=TRUE}
-bundle_laplace <- DPmixGPD::build_nimble_bundle(
+bundle_laplace <- bundle(
   y = y_mixed,
   kernel = "laplace",
   backend = "crp",
   components = 5,
   mcmc = mcmc
 )
-fit_laplace <- load_or_fit("ex01-unconditional-dpm-crp-fit_laplace", run_mcmc_bundle_manual(bundle_laplace))
+fit_laplace <- load_or_fit("ex01-unconditional-dpm-crp-fit_laplace", mcmc(bundle_laplace))
 ```
 
 
@@ -247,14 +236,14 @@ summary(fit_laplace)
 ### Amoroso Kernel (Alternative)
 
 ```{r comp-amoroso, cache=TRUE}
-bundle_amoroso <- DPmixGPD::build_nimble_bundle(
+bundle_amoroso <- bundle(
   y = y_mixed,
   kernel = "amoroso",
   backend = "crp",
   components = 5,
   mcmc = mcmc
 )
-fit_amoroso <- load_or_fit("ex01-unconditional-dpm-crp-fit_amoroso", run_mcmc_bundle_manual(bundle_amoroso))
+fit_amoroso <- load_or_fit("ex01-unconditional-dpm-crp-fit_amoroso", mcmc(bundle_amoroso))
 ```
 
 
@@ -294,6 +283,10 @@ pred_amoroso <- predict(fit_amoroso, type = "mean", cred.level = 0.9, interval =
 - Workflow index: [Roadmap](../start/roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
+
+
+
+
 
 
 

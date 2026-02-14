@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Testing strategy"
 toc: true
 format:
@@ -25,5 +25,7 @@ Keep tests cheap, deterministic, and layered.
 
 - internal link graph has no broken links
 - workflows chain remains intact
+
+
 
 

@@ -106,8 +106,9 @@ returns a numeric vector with the same length as `p`.
 The density, CDF, and RNG are implemented as `nimbleFunction`s so they
 can be called from NIMBLE models. The quantile function is provided as
 an R function and is computed by numerical inversion of the mixture CDF.
-The `d*`, `p*`, and `q*` functions accept vector inputs for their first
-argument and evaluate elementwise; `r*` supports `n > 1`.
+These uppercase NIMBLE-compatible functions are scalar (`x`/`q` and
+`n = 1`). For vectorized R usage (including `n > 1`), use
+[`amoroso_lowercase`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/amoroso_lowercase.md).
 
 ## Functions
 
@@ -130,13 +131,14 @@ shape1 <- c(2, 4, 6)
 shape2 <- c(1.0, 1.2, 1.5)
 
 dAmorosoMix(2.0, w, loc, scale, shape1, shape2, log = 0)
-#> [1] 0.172
+#> [1] 0.1717337
 pAmorosoMix(2.0, w, loc, scale, shape1, shape2, lower.tail = 1, log.p = 0)
-#> [1] 0.359
+#> [1] 0.3587001
 qAmorosoMix(0.50, w, loc, scale, shape1, shape2)
-#> [1] 2.93
+#> [1] 2.929829
 qAmorosoMix(0.95, w, loc, scale, shape1, shape2)
-#> [1] 8.02
+#> [1] 8.017293
 replicate(10, rAmorosoMix(1, w, loc, scale, shape1, shape2))
-#>  [1] 6.697 1.139 1.781 2.862 2.503 1.247 3.699 1.195 0.801 7.240
+#>  [1] 0.8123941 0.4078220 5.5977679 2.3405091 3.3820720 8.0473890 1.7767592
+#>  [8] 5.3491280 0.8946553 2.1635883
 ```

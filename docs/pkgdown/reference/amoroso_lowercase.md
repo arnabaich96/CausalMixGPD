@@ -216,7 +216,7 @@ s2 <- c(1.2, 1.2, 1.2)
 
 # Amoroso mixture
 damorosomix(c(1, 2, 3), w = w, loc = locs, scale = scls, shape1 = s1, shape2 = s2)
-#> [1] 0.0961 0.3047 0.2651
+#> [1] 0.0961392 0.3047048 0.2651003
 ramorosomix(5, w = w, loc = locs, scale = scls, shape1 = s1, shape2 = s2)
-#> [1] 6.49 1.69 3.45 4.10 3.28
+#> [1] 6.492420 1.686693 3.446359 4.104590 3.279362
 ```

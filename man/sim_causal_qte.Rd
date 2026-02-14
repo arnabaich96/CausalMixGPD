@@ -12,7 +12,8 @@ sim_causal_qte(n = 300, seed = NULL)
 \item{seed}{Optional RNG seed.}
 }
 \value{
-A list with y, t, X.
+A list with \code{y}, \code{t}, and \code{X}; \code{A} is also
+included as a backward-compatible alias for \code{t}.
 }
 \description{
 Simulate causal QTE data

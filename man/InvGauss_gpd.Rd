@@ -6,7 +6,7 @@
 \alias{pInvGaussGpd}
 \alias{rInvGaussGpd}
 \alias{qInvGaussGpd}
-\title{Inverse Gaussian with a Gpd tail}
+\title{Inverse Gaussian with a GPD tail}
 \usage{
 dInvGaussGpd(x, mean, shape, threshold, tail_scale, tail_shape, log = 0)
 
@@ -43,11 +43,11 @@ qInvGaussGpd(
 
 \item{shape}{Numeric scalar shape parameter \eqn{\lambda>0}.}
 
-\item{threshold}{Numeric scalar threshold at which the Gpd tail is attached.}
+\item{threshold}{Numeric scalar threshold at which the GPD tail is attached.}
 
-\item{tail_scale}{Numeric scalar Gpd scale parameter; must be positive.}
+\item{tail_scale}{Numeric scalar GPD scale parameter; must be positive.}
 
-\item{tail_shape}{Numeric scalar Gpd shape parameter.}
+\item{tail_shape}{Numeric scalar GPD shape parameter.}
 
 \item{log}{Integer flag \code{0/1}; if \code{1}, return the log-density.}
 
@@ -71,18 +71,18 @@ Spliced density/CDF/RNG functions return numeric scalars.
 \code{qInvGaussGpd} returns a numeric vector with the same length as \code{p}.
 }
 \description{
-Splices a generalized Pareto distribution (Gpd) above \code{threshold} onto a
+Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a
 single inverse Gaussian bulk with parameters \code{mean} and \code{shape}.
 }
 \section{Functions}{
 \itemize{
-\item \code{dInvGaussGpd()}: Inverse Gaussian + Gpd tail density
+\item \code{dInvGaussGpd()}: Inverse Gaussian + GPD tail density
 
-\item \code{pInvGaussGpd()}: Inverse Gaussian + Gpd tail distribution function
+\item \code{pInvGaussGpd()}: Inverse Gaussian + GPD tail distribution function
 
-\item \code{rInvGaussGpd()}: Inverse Gaussian + Gpd tail random generation
+\item \code{rInvGaussGpd()}: Inverse Gaussian + GPD tail random generation
 
-\item \code{qInvGaussGpd()}: Inverse Gaussian + Gpd tail quantile function
+\item \code{qInvGaussGpd()}: Inverse Gaussian + GPD tail quantile function
 
 }}
 \examples{

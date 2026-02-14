@@ -189,12 +189,12 @@ sl <- c(0.4, 0.5, 0.6)
 
 # Lognormal mixture
 dlognormalmix(c(1, 2, 3), w = w, meanlog = ml, sdlog = sl)
-#> [1] 0.8387 0.1874 0.0426
+#> [1] 0.8386766 0.1873719 0.0425651
 rlognormalmix(5, w = w, meanlog = ml, sdlog = sl)
-#> [1] 0.636 0.756 1.583 1.456 0.573
+#> [1] 2.1749765 1.9499446 0.6360860 0.7556021 1.5831195
 
 # Lognormal mixture + GPD
 dlognormalmixgpd(c(2, 3, 4), w = w, meanlog = ml, sdlog = sl,
                  threshold = 2.5, tail_scale = 0.5, tail_shape = 0.2)
-#> [1] 0.18737 0.04632 0.00824
+#> [1] 0.187371921 0.046321740 0.008244275
 ```

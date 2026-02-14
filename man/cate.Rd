@@ -17,7 +17,8 @@ cate(
 \arguments{
 \item{fit}{A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.}
 
-\item{newdata}{Optional data.frame or matrix of covariates for prediction.}
+\item{newdata}{Optional data.frame or matrix of covariates for prediction.
+If \code{NULL}, uses the training covariates stored in \code{fit}.}
 
 \item{type}{Character; \code{"mean"} (default) for ordinary mean CATE or
 \code{"rmean"} for restricted-mean CATE.}
@@ -40,9 +41,14 @@ and the treated/control prediction objects.
 \description{
 Computes treated-minus-control posterior means from a causal fit.
 }
+\details{
+This estimand is available only for \strong{conditional} causal models
+with covariates (\code{X} not \code{NULL}). For unconditional causal models
+(\code{X = NULL}), use \code{ate()} or \code{att()}.
+}
 \examples{
 \dontrun{
-cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
+cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
 fit <- run_mcmc_causal(cb, show_progress = FALSE)
 cate(fit, newdata = X[1:5, ])
 cate(fit, interval = "credible", level = 0.90)  # 90\% CI

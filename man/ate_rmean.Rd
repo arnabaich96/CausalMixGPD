@@ -16,7 +16,8 @@ ate_rmean(
 \arguments{
 \item{fit}{A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.}
 
-\item{newdata}{Optional data.frame or matrix of covariates for prediction.}
+\item{newdata}{Optional data.frame or matrix of covariates for prediction.
+If \code{NULL}, uses the training covariates stored in \code{fit}.}
 
 \item{cutoff}{Finite numeric cutoff for the restricted mean.}
 
@@ -35,7 +36,7 @@ under heavy-tailed GPD regimes.
 }
 \examples{
 \dontrun{
-cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal",
+cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal",
                          GPD = TRUE, components = 6)
 fit <- run_mcmc_causal(cb)
 ate_rm <- ate_rmean(fit, cutoff = 10, interval = "credible")

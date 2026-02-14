@@ -265,30 +265,3 @@ quiet_mcmc <- function(expr) {
 # Render plot outputs defensively in knitr:
 # - avoid auto-printing htmlwidgets that fail in website render sessions
 # - print ggplot outputs (single or list) explicitly
-safe_plot <- function(x, ...) {
-  obj <- tryCatch(plot(x, ...), error = function(e) e)
-
-  if (inherits(obj, "error")) {
-    warning("safe_plot failed: ", conditionMessage(obj))
-    return(invisible(NULL))
-  }
-
-  if (inherits(obj, "ggplot")) {
-    try(print(obj), silent = TRUE)
-    return(invisible(obj))
-  }
-
-  if (is.list(obj)) {
-    plotted <- FALSE
-    for (elt in obj) {
-      if (inherits(elt, "ggplot")) {
-        try(print(elt), silent = TRUE)
-        plotted <- TRUE
-      }
-    }
-    if (plotted) return(invisible(obj))
-  }
-
-  # If this is an htmlwidget (or any non-ggplot object), keep the chunk stable.
-  invisible(obj)
-}

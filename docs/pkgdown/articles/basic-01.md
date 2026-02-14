@@ -258,7 +258,7 @@ with `data("<name>")`. All of them are lists with a standard structure:
 - `y`: numeric outcome,
 - `X`: covariates (either `NULL` for unconditional or a `data.frame` for
   conditional),
-- `T`: treatment indicator (only for causal datasets),
+- `A`: treatment indicator (only for causal datasets),
 - `meta`: metadata (sample size, support, number of true components,
   whether a tail was injected),
 - `truth`: simulation truth (kernel family and parameters used to

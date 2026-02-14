@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Troubleshooting"
 ---
 
@@ -37,17 +37,6 @@ pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
-if (!exists("safe_plot", mode = "function")) {
-  safe_plot <- function(x, ...) {
-    obj <- tryCatch(plot(x, ...), error = function(e) e)
-    if (inherits(obj, "ggplot")) {
-      try(print(obj), silent = TRUE)
-    } else if (is.list(obj)) {
-      for (elt in obj) if (inherits(elt, "ggplot")) try(print(elt), silent = TRUE)
-    }
-    invisible(obj)
-  }
-}
 ```
 
 
@@ -89,7 +78,7 @@ predict(fit, x = X_new, type = "mean")
 **Fix**: Use a different kernel or disable GPD.
 
 ```r
-bundle <- DPmixGPD::build_nimble_bundle(
+bundle <- bundle(
   y = y,
   kernel = "cauchy",
   backend = "sb",
@@ -106,7 +95,7 @@ bundle <- DPmixGPD::build_nimble_bundle(
 **Fix**: Increase iterations or relax tail priors.
 
 ```r
-bundle <- DPmixGPD::build_nimble_bundle(
+bundle <- bundle(
   y = y,
   kernel = "gamma",
   backend = "crp",
@@ -139,7 +128,7 @@ pred <- predict(fit, x = X_new, y = y_grid, type = "density", ncores = 2)
 **Fix**: Use smaller `components`/`J`, shorter `niter`, or start with CRP.
 
 ```r
-bundle <- DPmixGPD::build_nimble_bundle(
+bundle <- bundle(
   y = y,
   backend = "crp",
   kernel = "normal",
@@ -165,13 +154,13 @@ bundle <- DPmixGPD::build_nimble_bundle(
 **Fix**: Provide `X` and enable PS.
 
 ```r
-cb <- build_causal_bundle(
+cb <- bundle(
   y = y,
-  T = T,
+  treat = A,
   X = X,
   PS = "logit"
 )
-fit <- run_mcmc_causal(cb)
+fit <- mcmc(cb)
 ```
 
 ---
@@ -183,9 +172,9 @@ fit <- run_mcmc_causal(cb)
 **Fix**: Ensure both arms use kernels on the same support (e.g., both positive-support or both real-line).
 
 ```r
-cb <- build_causal_bundle(
+cb <- bundle(
   y = y,
-  T = T,
+  treat = A,
   X = X,
   kernel = c("gamma", "lognormal"),
   backend = c("sb", "crp")
@@ -210,6 +199,11 @@ cb <- build_causal_bundle(
 - Workflow index: [Roadmap](roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
+
+
+
+
+
 
 
 

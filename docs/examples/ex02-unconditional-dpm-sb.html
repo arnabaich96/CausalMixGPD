@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>ex02-unconditional-dpm-sb – DPmixGPD</title>
+<title>ex02. Unconditional DPM (SB Backend) – DPmixGPD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -292,7 +292,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>We build the stick-breaking mixture explicitly with <code>components = 5</code> so that there is room for weight decay while keeping the MCMC runtime manageable for a vignette. We then refit the same SB model with a <strong>Cauchy</strong> kernel for comparison.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Gamma kernel ---</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>bundle_sb_gamma <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>bundle_sb_gamma <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y_mixed,</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"gamma"</span>,</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
@@ -302,7 +302,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Cauchy kernel ---</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>bundle_sb_cauchy <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>bundle_sb_cauchy <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y_mixed,</span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"cauchy"</span>,</span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
@@ -316,8 +316,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="running-mcmc-summary" class="level2">
 <h2 class="anchored" data-anchor-id="running-mcmc-summary">Running MCMC &amp; Summary</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fit_sb_gamma <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex02-unconditional-dpm-sb-fit_sb_gamma"</span>, <span class="fu">run_mcmc_bundle_manual</span>(bundle_sb_gamma))</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>fit_sb_cauchy <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex02-unconditional-dpm-sb-fit_sb_cauchy"</span>, <span class="fu">run_mcmc_bundle_manual</span>(bundle_sb_cauchy))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fit_sb_gamma <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex02-unconditional-dpm-sb-fit_sb_gamma"</span>, DPmixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle_sb_gamma))</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>fit_sb_cauchy <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex02-unconditional-dpm-sb-fit_sb_cauchy"</span>, DPmixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle_sb_cauchy))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_sb_gamma)</span>
@@ -333,8 +333,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="mcmc-diagnostics-s3-plot-methods">MCMC Diagnostics (S3 Plot Methods)</h2>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Default diagnostics for each fit</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(fit_sb_gamma, <span class="at">family =</span> <span class="fu">c</span>(<span class="st">"traceplot"</span>, <span class="st">"autocorrelation"</span>, <span class="st">"running"</span>))</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(fit_sb_cauchy, <span class="at">family =</span> <span class="fu">c</span>(<span class="st">"density"</span>, <span class="st">"geweke"</span>, <span class="st">"caterpillar"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_sb_gamma, <span class="at">family =</span> <span class="fu">c</span>(<span class="st">"traceplot"</span>, <span class="st">"autocorrelation"</span>, <span class="st">"running"</span>))</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_sb_cauchy, <span class="at">family =</span> <span class="fu">c</span>(<span class="st">"density"</span>, <span class="st">"geweke"</span>, <span class="st">"caterpillar"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <p>Use <code>summary(fit_sb_gamma)</code> and <code>summary(fit_sb_cauchy)</code> to inspect effective sample size, R-hat, and other convergence diagnostics; the <code>plot()</code> calls above show the trace/density pairs for both global and stick-breaking weight parameters.</p>
 <hr>
@@ -352,8 +352,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>pred_density_gamma <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_gamma, <span class="at">y =</span> y_grid, <span class="at">type =</span> <span class="st">"density"</span>)</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>pred_density_cauchy <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_cauchy, <span class="at">y =</span> y_grid, <span class="at">type =</span> <span class="st">"density"</span>)</span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(pred_density_gamma)</span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(pred_density_cauchy)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_density_gamma)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_density_cauchy)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>quant_probs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.05</span>, <span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>, <span class="fl">0.95</span>)</span>
@@ -361,22 +361,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>pred_q_gamma <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_gamma, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> quant_probs, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>pred_q_cauchy <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_cauchy, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> quant_probs, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(pred_q_gamma)</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(pred_q_cauchy)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_q_gamma)</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_q_cauchy)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>pred_mean_gamma <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_gamma, <span class="at">type =</span> <span class="st">"mean"</span>)</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>pred_mean_cauchy <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_cauchy, <span class="at">type =</span> <span class="st">"mean"</span>)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(pred_mean_gamma)</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(pred_mean_cauchy)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_mean_gamma)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_mean_cauchy)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <hr>
 </section>
 <section id="bulk-only-vs-crp-backends" class="level2">
 <h2 class="anchored" data-anchor-id="bulk-only-vs-crp-backends">Bulk-only vs CRP Backends</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>bundle_crp_small <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">build_nimble_bundle</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>bundle_crp_small <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y_mixed,</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"gamma"</span>,</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
@@ -384,7 +384,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,</span>
 <span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc =</span> mcmc</span>
 <span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>fit_crp_small <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex02-unconditional-dpm-sb-fit_crp_small"</span>, <span class="fu">run_mcmc_bundle_manual</span>(bundle_crp_small))</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>fit_crp_small <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex02-unconditional-dpm-sb-fit_crp_small"</span>, DPmixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle_crp_small))</span>
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>crp_quant <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_crp_small, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> quant_probs, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>sb_quant <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_gamma, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> quant_probs, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
@@ -399,8 +399,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>), <span class="at">full_width =</span> <span class="cn">FALSE</span>, <span class="at">position =</span> <span class="st">"center"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(crp_quant)</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(sb_quant)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(crp_quant)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(sb_quant)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <hr>
 <p>For unconditional models, use <code>predict()</code> only; <code>fitted()</code> and <code>residuals()</code> are not supported.</p>

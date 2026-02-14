@@ -1,4 +1,4 @@
-﻿---
+---
 title: "ex08. Conditional DPMGPD (SB Backend)"
 ---
 
@@ -37,17 +37,6 @@ pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
-if (!exists("safe_plot", mode = "function")) {
-  safe_plot <- function(x, ...) {
-    obj <- tryCatch(plot(x, ...), error = function(e) e)
-    if (inherits(obj, "ggplot")) {
-      try(print(obj), silent = TRUE)
-    } else if (is.list(obj)) {
-      for (elt in obj) if (inherits(elt, "ggplot")) try(print(elt), silent = TRUE)
-    }
-    invisible(obj)
-  }
-}
 ```
 
 
@@ -112,7 +101,7 @@ ggplot(data.frame(y = y), aes(x = y)) +
 ## Model Specification
 
 ```{r bundle, cache=TRUE}
-bundle_sb_cond_gpd_gamma <- DPmixGPD::build_nimble_bundle(
+bundle_sb_cond_gpd_gamma <- bundle(
   y = y,
   X = X,
   kernel = "gamma",
@@ -127,7 +116,7 @@ bundle_sb_cond_gpd_gamma <- DPmixGPD::build_nimble_bundle(
   mcmc = mcmc
 )
 
-bundle_sb_cond_gpd_laplace <- DPmixGPD::build_nimble_bundle(
+bundle_sb_cond_gpd_laplace <- bundle(
   y = y,
   X = X,
   kernel = "laplace",
@@ -148,8 +137,8 @@ bundle_sb_cond_gpd_laplace <- DPmixGPD::build_nimble_bundle(
 ## MCMC Execution
 
 ```{r mcmc, cache=TRUE}
-fit_sb_cond_gpd_gamma <- load_or_fit("ex08-conditional-dpmgpd-sb-fit_sb_cond_gpd_gamma", run_mcmc_bundle_manual(bundle_sb_cond_gpd_gamma))
-fit_sb_cond_gpd_laplace <- load_or_fit("ex08-conditional-dpmgpd-sb-fit_sb_cond_gpd_laplace", run_mcmc_bundle_manual(bundle_sb_cond_gpd_laplace))
+fit_sb_cond_gpd_gamma <- load_or_fit("ex08-conditional-dpmgpd-sb-fit_sb_cond_gpd_gamma", mcmc(bundle_sb_cond_gpd_gamma))
+fit_sb_cond_gpd_laplace <- load_or_fit("ex08-conditional-dpmgpd-sb-fit_sb_cond_gpd_laplace", mcmc(bundle_sb_cond_gpd_laplace))
 summary(fit_sb_cond_gpd_gamma)
 summary(fit_sb_cond_gpd_laplace)
 ```
@@ -235,12 +224,12 @@ bind_rows(quant_df_gamma, quant_df_laplace) %>%
 ## Residuals & Diagnostics
 
 ```{r residuals, cache=TRUE}
-safe_plot(fitted(fit_sb_cond_gpd_gamma))
+plot(fitted(fit_sb_cond_gpd_gamma))
 ```
 
 ```{r diagnostics}
-safe_plot(fit_sb_cond_gpd_gamma, family = c("traceplot", "autocorrelation", "geweke"))
-safe_plot(fit_sb_cond_gpd_laplace, family = c("density", "running", "caterpillar"))
+plot(fit_sb_cond_gpd_gamma, family = c("traceplot", "autocorrelation", "geweke"))
+plot(fit_sb_cond_gpd_laplace, family = c("density", "running", "caterpillar"))
 ```
 
 ---
@@ -262,6 +251,10 @@ safe_plot(fit_sb_cond_gpd_laplace, family = c("density", "running", "caterpillar
 - Workflow index: [Roadmap](../start/roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
+
+
+
+
 
 
 

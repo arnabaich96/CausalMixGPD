@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>troubleshooting – DPmixGPD</title>
+<title>Troubleshooting – DPmixGPD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -266,7 +266,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="cauchy-kernels-are-never-paired-with-gpd-tails">2. “Cauchy kernels are never paired with GPD tails”</h2>
 <p><strong>Cause</strong>: The Cauchy kernel is not allowed with GPD tails.</p>
 <p><strong>Fix</strong>: Use a different kernel or disable GPD.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">build_nimble_bundle</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"cauchy"</span>,</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
@@ -278,7 +278,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="gpd-tail-not-moving-thresholdshape-stuck">3. “GPD tail not moving” (threshold/shape stuck)</h2>
 <p><strong>Cause</strong>: Very short chains or overly restrictive priors.</p>
 <p><strong>Fix</strong>: Increase iterations or relax tail priors.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">build_nimble_bundle</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"gamma"</span>,</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
@@ -301,7 +301,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="mcmc-is-slow">5. MCMC is slow</h2>
 <p><strong>Cause</strong>: Large datasets, many components, or heavy kernels.</p>
 <p><strong>Fix</strong>: Use smaller <code>components</code>/<code>J</code>, shorter <code>niter</code>, or start with CRP.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">build_nimble_bundle</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
 <span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"normal"</span>,</span>
@@ -320,22 +320,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="ps-not-used-in-causal-model">7. PS not used in causal model</h2>
 <p><strong>Cause</strong>: <code>PS=FALSE</code> or <code>X</code> missing.</p>
 <p><strong>Fix</strong>: Provide <code>X</code> and enable PS.</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>cb <span class="ot">&lt;-</span> <span class="fu">build_causal_bundle</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>cb <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">T =</span> T,</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> A,</span>
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> X,</span>
 <span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">PS =</span> <span class="st">"logit"</span></span>
 <span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">run_mcmc_causal</span>(cb)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">mcmc</span>(cb)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <hr>
 </section>
 <section id="kernel-mismatch-when-mixing-arms" class="level2">
 <h2 class="anchored" data-anchor-id="kernel-mismatch-when-mixing-arms">8. Kernel mismatch when mixing arms</h2>
 <p><strong>Cause</strong>: Using kernels with different supports across arms.</p>
 <p><strong>Fix</strong>: Ensure both arms use kernels on the same support (e.g., both positive-support or both real-line).</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>cb <span class="ot">&lt;-</span> <span class="fu">build_causal_bundle</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>cb <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">T =</span> T,</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> A,</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> X,</span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="fu">c</span>(<span class="st">"gamma"</span>, <span class="st">"lognormal"</span>),</span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="fu">c</span>(<span class="st">"sb"</span>, <span class="st">"crp"</span>)</span>

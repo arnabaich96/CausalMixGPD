@@ -2,9 +2,10 @@
 
 Base generalized Pareto distribution (GPD) for threshold exceedances
 above `threshold`. Parameterization uses threshold `threshold`, scale
-`scale > 0`, and shape `shape`. The `d*`, `p*`, and `q*` functions
-accept vector inputs for their first argument and evaluate elementwise;
-`r*` supports `n > 1`.
+`scale > 0`, and shape `shape`. These uppercase NIMBLE-compatible
+functions are scalar (`x`/`q` and `n = 1`). For vectorized R usage
+(including `n > 1`), use
+[`base_lowercase`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/base_lowercase.md).
 
 ## Usage
 
@@ -86,13 +87,14 @@ tail_scale <- 0.8
 tail_shape <- 0.2
 
 dGpd(1.5, threshold, tail_scale, tail_shape, log = 0)
-#> [1] 0.617
+#> [1] 0.6165877
 pGpd(1.5, threshold, tail_scale, tail_shape, lower.tail = 1, log.p = 0)
-#> [1] 0.445
+#> [1] 0.445071
 qGpd(0.50, threshold, tail_scale, tail_shape)
-#> [1] 1.59
+#> [1] 1.594793
 qGpd(0.95, threshold, tail_scale, tail_shape)
-#> [1] 4.28
+#> [1] 4.282257
 replicate(10, rGpd(1, threshold, tail_scale, tail_shape))
-#>  [1] 2.28 2.16 1.62 5.35 1.37 1.15 2.43 1.03 2.46 1.15
+#>  [1] 9.289328 1.595145 1.372038 2.390014 1.768048 1.890555 2.915763 1.728694
+#>  [9] 1.240290 3.609251
 ```

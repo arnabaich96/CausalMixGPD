@@ -9,7 +9,7 @@ X <- data.frame(
   x3 = rnorm(N)
 )
 lin_ps <- 0.3 + 0.4 * X$x1 - 0.3 * X$x2
-T <- rbinom(N, 1, stats::plogis(lin_ps))
+A <- rbinom(N, 1, stats::plogis(lin_ps))
 
 weights0 <- c(0.6, 0.4)
 params0 <- list(
@@ -23,14 +23,14 @@ params1 <- list(
 )
 
 y <- numeric(N)
-idx0 <- which(T == 0L)
-idx1 <- which(T == 1L)
+idx0 <- which(A == 0L)
+idx1 <- which(A == 1L)
 y[idx0] <- mix_sample(length(idx0), weights0, rgamma, params0)$y
 y[idx1] <- mix_sample(length(idx1), weights1, rgamma, params1)$y
 
 causal_pos500_p3_k2 <- list(
   y = y,
-  T = T,
+  A = A,
   X = X,
   meta = list(
     N = N,

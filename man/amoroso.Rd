@@ -46,8 +46,8 @@ Density/CDF/RNG functions return numeric scalars. The quantile function returns 
 \description{
 Base Amoroso distribution functions as implemented in this package.
 Function names and parameterization follow your existing Amoroso implementation.
-The \code{d*}, \code{p*}, and \code{q*} functions accept vector inputs for their first argument
-and evaluate elementwise; \code{r*} supports \code{n > 1}.
+These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
+For vectorized R usage (including \code{n > 1}), use \code{\link{base_lowercase}}.
 }
 \section{Functions}{
 \itemize{

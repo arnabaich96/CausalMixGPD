@@ -2,9 +2,9 @@
 #'
 #' Creates a causal bundle with:
 #' \itemize{
-#'   \item a propensity score (PS) design model (logit/probit regression of \code{T} on \code{X} or a naive Bayes classifier)
-#'   \item an outcome bundle for the control arm (\code{T = 0})
-#'   \item an outcome bundle for the treated arm (\code{T = 1})
+#'   \item a propensity score (PS) design model (logit/probit regression of \code{A} on \code{X} or a naive Bayes classifier)
+#'   \item an outcome bundle for the control arm (\code{A = 0})
+#'   \item an outcome bundle for the treated arm (\code{A = 1})
 #' }
 #'
 #' The outcome bundles reuse the existing DPM + optional GPD tail machinery. The PS model is a
@@ -13,21 +13,21 @@
 #'
 #' @param y Numeric outcome vector.
 #' @param X Design matrix or data.frame of covariates (N x P).
-#' @param T Binary treatment indicator (length N, values 0/1).
+#' @param A Binary treatment indicator (length N, values 0/1).
 #' @param backend Character; \code{"sb"} or \code{"crp"} for outcome models. If length 2,
-#'   the first entry is used for treated (\code{T=1}) and the second for control (\code{T=0}).
+#'   the first entry is used for treated (\code{A=1}) and the second for control (\code{A=0}).
 #' @param kernel Character kernel name for outcome models. If length 2,
-#'   the first entry is used for treated (\code{T=1}) and the second for control (\code{T=0}).
+#'   the first entry is used for treated (\code{A=1}) and the second for control (\code{A=0}).
 #' @param GPD Logical; include GPD tail for outcomes if TRUE. If length 2,
-#'   the first entry is used for treated (\code{T=1}) and the second for control (\code{T=0}).
+#'   the first entry is used for treated (\code{A=1}) and the second for control (\code{A=0}).
 #' @param components Integer >= 2; truncation parameter for outcome mixtures. If length 2,
-#'   the first entry is used for treated (\code{T=1}) and the second for control (\code{T=0}).
+#'   the first entry is used for treated (\code{A=1}) and the second for control (\code{A=0}).
 #' @param param_specs Outcome parameter overrides (same structure as \code{build_nimble_bundle()}).
 #'   You can pass a single list used for both arms or a list with \code{con} and \code{trt} entries.
 #' @param mcmc_outcome MCMC settings list for the outcome bundles.
 #' @param mcmc_ps MCMC settings list for the PS model.
 #' @param epsilon Numeric in [0,1) used by outcome bundles for posterior truncation summaries.
-#'   If length 2, the first entry is used for treated (\code{T=1}) and the second for control (\code{T=0}).
+#'   If length 2, the first entry is used for treated (\code{A=1}) and the second for control (\code{A=0}).
 #' @param alpha_random Logical; whether outcome concentration \code{alpha} is stochastic.
 #' @param ps_prior Normal prior for PS coefficients. List with \code{mean} and \code{sd}.
 #' @param include_intercept Logical; if TRUE, an intercept column is prepended to \code{X}
@@ -50,13 +50,13 @@
 #' set.seed(1)
 #' N <- 100
 #' X <- cbind(x1 = rnorm(N), x2 = runif(N))
-#' T <- rbinom(N, 1, plogis(0.3 + 0.5 * X[, 1]))
+#' A <- rbinom(N, 1, plogis(0.3 + 0.5 * X[, 1]))
 #' y <- rexp(N) + 0.1
 #'
 #' cb <- build_causal_bundle(
 #'   y = y,
 #'   X = X,
-#'   T = T,
+#'   A = A,
 #'   backend = "sb",
 #'   kernel = "gamma",
 #'   GPD = TRUE,
@@ -68,7 +68,7 @@
 build_causal_bundle <- function(
     y,
     X,
-    T,
+    A,
     backend = c("sb", "crp"),
     kernel,
     GPD = FALSE,
@@ -114,9 +114,9 @@ build_causal_bundle <- function(
     stop("X must have the same number of rows as length(y).", call. = FALSE)
   }
 
-  T <- as.integer(T)
-  if (length(T) != length(y)) stop("T must have the same length as y.", call. = FALSE)
-  if (anyNA(T) || !all(T %in% c(0L, 1L))) stop("T must be binary (0/1) with no NA.", call. = FALSE)
+  A <- as.integer(A)
+  if (length(A) != length(y)) stop("A must have the same length as y.", call. = FALSE)
+  if (anyNA(A) || !all(A %in% c(0L, 1L))) stop("A must be binary (0/1) with no NA.", call. = FALSE)
 
   if (is.null(components)) components <- length(y)
   components <- .arm_value(components, "components")
@@ -142,8 +142,8 @@ build_causal_bundle <- function(
     ps_model_type <- match.arg(as.character(PS), choices = ps_choices)
   }
 
-  idx_con <- which(T == 0L)
-  idx_trt <- which(T == 1L)
+  idx_con <- which(A == 0L)
+  idx_trt <- which(A == 1L)
   if (!length(idx_con) || !length(idx_trt)) {
     stop("Both treatment arms must have at least one observation.", call. = FALSE)
   }
@@ -160,7 +160,7 @@ build_causal_bundle <- function(
       ),
       include_intercept = isTRUE(include_intercept)
     )
-    ps_bundle <- .build_ps_bundle(T = T, X = X, spec = ps_spec, mcmc = mcmc_ps)
+    ps_bundle <- .build_ps_bundle(A = A, X = X, spec = ps_spec, mcmc = mcmc_ps)
     ps_placeholder <- rep(0, length(y))
   }
 
@@ -217,7 +217,7 @@ build_causal_bundle <- function(
   out <- list(
     design = ps_bundle,
     outcome = list(con = bundle_con, trt = bundle_trt),
-    data = list(y = y, X = X, T = T),
+    data = list(y = y, X = X, A = A),
     index = list(con = idx_con, trt = idx_trt),
     meta = list(
       backend = backend,
@@ -331,7 +331,7 @@ build_causal_bundle <- function(
 #' @return A list of class \code{"dpmixgpd_causal_fit"}.
 #' @examples
 #' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal")
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
 #' fit <- run_mcmc_causal(cb)
 #' }
 #' @export
@@ -413,14 +413,86 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
   out
 }
 
+.causal_is_conditional_model <- function(fit) {
+  meta <- fit$bundle$meta %||% list()
+  has_x <- meta$has_x %||% NULL
+  if (is.logical(has_x) && length(has_x) == 1L && !is.na(has_x)) {
+    return(isTRUE(has_x))
+  }
+  X <- fit$bundle$data$X %||% NULL
+  !is.null(X)
+}
+
+.causal_require_conditional <- function(fit, fn = c("cate", "cqte")) {
+  fn <- match.arg(fn)
+  if (.causal_is_conditional_model(fit)) return(invisible(TRUE))
+  if (identical(fn, "cate")) {
+    stop("cate() is available only for conditional causal models with covariates (X). For unconditional models, use ate()/att().", call. = FALSE)
+  }
+  stop("cqte() is available only for conditional causal models with covariates (X). For unconditional models, use qte()/qtt().", call. = FALSE)
+}
+
+.causal_validate_interval <- function(interval = "credible", level = 0.95) {
+  compute_interval <- TRUE
+  interval_use <- interval
+  if (is.character(interval_use) && length(interval_use) == 1L && identical(tolower(interval_use), "none")) {
+    compute_interval <- FALSE
+    interval_use <- "credible"
+  } else if (is.null(interval_use)) {
+    compute_interval <- FALSE
+    interval_use <- "credible"
+  } else {
+    interval_use <- match.arg(interval_use, choices = c("credible", "hpd"))
+  }
+  if (!is.numeric(level) || length(level) != 1L || !is.finite(level) || level <= 0 || level >= 1) {
+    stop("'level' must be a numeric value between 0 and 1.", call. = FALSE)
+  }
+  list(compute_interval = compute_interval, interval = interval_use, level = as.numeric(level))
+}
+
+.causal_warn_ignored_marginal_inputs <- function(fn, newdata = NULL, y = NULL, conditional_fn) {
+  ignored <- character(0)
+  if (!is.null(newdata)) ignored <- c(ignored, "'newdata'")
+  if (!is.null(y)) ignored <- c(ignored, "'y'")
+  if (!length(ignored)) return(invisible(FALSE))
+  verb <- if (length(ignored) == 1L) "is" else "are"
+  warning(
+    sprintf(
+      "%s() computes a marginal estimand over the training covariate distribution, so %s %s ignored. Use %s() for conditional effects at specified covariate values.",
+      fn,
+      paste(ignored, collapse = " and "),
+      verb,
+      conditional_fn
+    ),
+    call. = FALSE
+  )
+  invisible(TRUE)
+}
+
+.causal_resolve_conditional_x <- function(fit, newdata = NULL, fn = c("cate", "cqte")) {
+  fn <- match.arg(fn)
+  x_train <- fit$bundle$data$X %||% NULL
+  x_pred <- newdata %||% x_train
+  if (is.null(x_pred)) {
+    stop(sprintf("%s() requires covariates in 'newdata' or training X in the fitted model.", fn), call. = FALSE)
+  }
+  x_pred
+}
+
 #' Conditional quantile treatment effects (CQTE)
 #'
 #' Computes treated-minus-control quantiles from a causal fit.
+#'
+#' @details
+#' This estimand is available only for \strong{conditional} causal models
+#' with covariates (\code{X} not \code{NULL}). For unconditional causal models
+#' (\code{X = NULL}), use \code{qte()} or \code{qtt()}.
 #'
 #' @param fit A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.
 #' @param probs Numeric vector of probabilities in (0, 1) specifying the quantile levels
 #'   of the outcome distribution to estimate treatment effects at.
 #' @param newdata Optional data.frame or matrix of covariates for prediction.
+#'   If \code{NULL}, uses the training covariates stored in \code{fit}.
 #' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
 #'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
 #'   highest posterior density intervals.
@@ -429,7 +501,7 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
 #'   and the treated/control prediction objects.
 #' @examples
 #' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' cqte(fit, probs = c(0.5, 0.9), newdata = X[1:5, ])
 #' cqte(fit, probs = c(0.5, 0.9), interval = "credible", level = 0.90)  # 90% CI
@@ -443,24 +515,12 @@ cqte <- function(fit,
                 interval = "credible",
                 level = 0.95) {
   stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
-
-  # Handle interval: NULL or "none" mean no interval; otherwise match to credible/hpd
-  compute_interval <- TRUE
-  if (is.character(interval) && length(interval) == 1L && identical(tolower(interval), "none")) {
-    compute_interval <- FALSE
-    interval <- "credible"  # placeholder for downstream
-  } else if (is.null(interval)) {
-    compute_interval <- FALSE
-    interval <- "credible"  # placeholder for downstream
-  } else {
-    interval <- match.arg(interval, choices = c("credible", "hpd"))
-  }
-
-  # Validate level parameter
-  if (!is.numeric(level) || length(level) != 1 || level <= 0 || level >= 1) {
-    stop("'level' must be a numeric value between 0 and 1.", call. = FALSE)
-  }
-  x_pred <- newdata %||% (fit$bundle$data$X %||% NULL)
+  .causal_require_conditional(fit, fn = "cqte")
+  iv <- .causal_validate_interval(interval = interval, level = level)
+  compute_interval <- iv$compute_interval
+  interval <- iv$interval
+  level <- iv$level
+  x_pred <- .causal_resolve_conditional_x(fit = fit, newdata = newdata, fn = "cqte")
 
   ps_meta <- fit$bundle$meta$ps %||% list()
   ps_enabled <- isTRUE(ps_meta$enabled) && isTRUE(fit$bundle$meta$has_x)
@@ -596,8 +656,14 @@ cqte <- function(fit,
 #'
 #' Computes treated-minus-control posterior means from a causal fit.
 #'
+#' @details
+#' This estimand is available only for \strong{conditional} causal models
+#' with covariates (\code{X} not \code{NULL}). For unconditional causal models
+#' (\code{X = NULL}), use \code{ate()} or \code{att()}.
+#'
 #' @param fit A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.
 #' @param newdata Optional data.frame or matrix of covariates for prediction.
+#'   If \code{NULL}, uses the training covariates stored in \code{fit}.
 #' @param type Character; \code{"mean"} (default) for ordinary mean CATE or
 #'   \code{"rmean"} for restricted-mean CATE.
 #' @param cutoff Finite numeric cutoff for restricted mean; required for
@@ -611,7 +677,7 @@ cqte <- function(fit,
 #'   and the treated/control prediction objects.
 #' @examples
 #' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' cate(fit, newdata = X[1:5, ])
 #' cate(fit, interval = "credible", level = 0.90)  # 90% CI
@@ -627,27 +693,14 @@ cate <- function(fit,
                 level = 0.95,
                 nsim_mean = 200L) {
   stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
+  .causal_require_conditional(fit, fn = "cate")
 
   type <- match.arg(type)
-
-  # Handle interval: NULL or "none" means no interval, otherwise match to credible/hpd
-  compute_interval <- TRUE
-  if (is.character(interval) && length(interval) == 1L && identical(tolower(interval), "none")) {
-    compute_interval <- FALSE
-    interval <- "credible"  # placeholder for downstream
-  } else if (is.null(interval)) {
-    compute_interval <- FALSE
-    interval <- "credible"  # placeholder for downstream
-  } else {
-    interval <- match.arg(interval, choices = c("credible", "hpd"))
-  }
-
-  # Validate level parameter
-  if (!is.numeric(level) || length(level) != 1 || level <= 0 || level >= 1) {
-    stop("'level' must be a numeric value between 0 and 1.", call. = FALSE)
-  }
-
-  x_pred <- newdata %||% (fit$bundle$data$X %||% NULL)
+  iv <- .causal_validate_interval(interval = interval, level = level)
+  compute_interval <- iv$compute_interval
+  interval <- iv$interval
+  level <- iv$level
+  x_pred <- .causal_resolve_conditional_x(fit = fit, newdata = newdata, fn = "cate")
 
   ps_meta <- fit$bundle$meta$ps %||% list()
   ps_enabled <- isTRUE(ps_meta$enabled) && isTRUE(fit$bundle$meta$has_x)
@@ -842,20 +895,20 @@ cate <- function(fit,
   trt_summ <- .causal_summarize_draw_cols(trt_avg, compute_interval = compute_interval, interval = interval, level = level)
   con_summ <- .causal_summarize_draw_cols(con_avg, compute_interval = compute_interval, interval = interval, level = level)
 
-  fit_mat <- matrix(diff_summ$estimate, nrow = 1L, ncol = M)
   lower <- upper <- NULL
   if (compute_interval) {
-    lower <- matrix(diff_summ$lower, nrow = 1L, ncol = M)
-    upper <- matrix(diff_summ$upper, nrow = 1L, ncol = M)
+    lower <- as.numeric(diff_summ$lower)
+    upper <- as.numeric(diff_summ$upper)
   }
 
   qte_fit <- data.frame(
     index = probs,
     id = rep(1L, length(probs)),
-    estimate = as.vector(fit_mat),
-    lower = if (!is.null(lower)) as.vector(lower) else NA_real_,
-    upper = if (!is.null(upper)) as.vector(upper) else NA_real_
+    estimate = as.numeric(diff_summ$estimate),
+    lower = if (!is.null(lower)) as.numeric(lower) else NA_real_,
+    upper = if (!is.null(upper)) as.numeric(upper) else NA_real_
   )
+  fit_tbl <- qte_fit[, c("index", "estimate", "lower", "upper"), drop = FALSE]
 
   trt_fit <- data.frame(
     estimate = as.numeric(trt_summ$estimate),
@@ -889,7 +942,7 @@ cate <- function(fit,
   pr_con$draws <- con_draws_out
 
   out <- list(
-    fit = fit_mat,
+    fit = fit_tbl,
     lower = lower,
     upper = upper,
     qte = list(fit = qte_fit, draws = diff_draws_out),
@@ -995,20 +1048,27 @@ cate <- function(fit,
 #' Computes a marginal quantile treatment effect by averaging conditional
 #' quantile effects over the training covariate rows.
 #'
+#' For unconditional causal models (\code{X = NULL}), this is computed directly
+#' from unconditional treated/control outcome predictions.
+#'
 #' @param fit A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.
 #' @param probs Numeric vector of probabilities in (0, 1) specifying the quantile levels
 #'   of the outcome distribution to estimate treatment effects at.
-#' @param newdata Deprecated placeholder for marginal estimands; must be \code{NULL}.
-#' @param y Deprecated placeholder for marginal estimands; must be \code{NULL}.
+#' @param newdata Ignored for marginal estimands. If supplied, a warning is issued
+#'   and training data are used.
+#' @param y Ignored for marginal estimands. If supplied, a warning is issued
+#'   and training data are used.
 #' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
 #'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
 #'   highest posterior density intervals.
 #' @param level Numeric credible level for intervals (default 0.95 for 95 percent CI).
-#' @return A list with elements \code{fit} (QTE), \code{grid} (probabilities),
-#'   and aggregated treated/control prediction objects.
+#' @return A list with elements \code{fit}, \code{grid} (probabilities), and
+#'   aggregated treated/control prediction objects. \code{fit} is a data frame
+#'   with columns \code{index}, \code{estimate}, \code{lower}, \code{upper}
+#'   and one row per requested quantile index.
 #' @examples
 #' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' qte(fit, probs = c(0.5, 0.9))
 #' }
@@ -1020,16 +1080,86 @@ qte <- function(fit,
                 interval = "credible",
                 level = 0.95) {
   stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
-  if (!is.null(newdata) || !is.null(y)) {
-    stop("qte() computes a marginal estimand on training data only. Use cqte() for conditional effects with 'newdata'.", call. = FALSE)
+  .causal_warn_ignored_marginal_inputs(fn = "qte", newdata = newdata, y = y, conditional_fn = "cqte")
+  iv <- .causal_validate_interval(interval = interval, level = level)
+  compute_interval <- iv$compute_interval
+  interval <- iv$interval
+  level <- iv$level
+
+  x_pred <- fit$bundle$data$X %||% NULL
+  n_pred <- if (!is.null(x_pred)) nrow(as.matrix(x_pred)) else 1L
+
+  ps_meta <- fit$bundle$meta$ps %||% list()
+  ps_enabled <- isTRUE(ps_meta$enabled) && .causal_is_conditional_model(fit) && !is.null(x_pred)
+  ps_scale <- fit$bundle$meta$ps_scale %||% "logit"
+  ps_summary <- fit$bundle$meta$ps_summary %||% "mean"
+  ps_clamp <- fit$bundle$meta$ps_clamp %||% 1e-6
+
+  ps_prob <- NULL
+  ps_cov <- NULL
+  if (ps_enabled) {
+    ps_fit_use <- fit$ps_fit
+    ps_bundle_use <- fit$bundle$design
+    if (is.null(ps_fit_use)) {
+      ps_model_try <- (fit$outcome_fit$trt$ps_model %||% fit$outcome_fit$con$ps_model %||% NULL)
+      if (!is.null(ps_model_try)) {
+        ps_fit_use <- ps_model_try$fit
+        ps_bundle_use <- ps_model_try$bundle
+      }
+    }
+    if (is.null(ps_fit_use) || is.null(ps_bundle_use)) {
+      warning("Causal fit missing PS model; proceeding without PS adjustment.", call. = FALSE)
+      ps_prob <- NULL
+    } else {
+      ps_prob <- .compute_ps_from_fit(
+        ps_fit = ps_fit_use,
+        ps_bundle = ps_bundle_use,
+        X_new = x_pred,
+        summary = ps_summary,
+        clamp = ps_clamp
+      )
+      ps_cov <- .apply_ps_scale(ps_prob, scale = ps_scale, clamp = ps_clamp)
+    }
   }
 
-  cq <- cqte(
-    fit = fit,
+  pr_trt <- predict(
+    fit$outcome_fit$trt,
+    x = x_pred,
+    type = "quantile",
+    index = probs,
+    ps = ps_cov,
+    interval = if (compute_interval) interval else NULL,
+    store_draws = TRUE
+  )
+  pr_con <- predict(
+    fit$outcome_fit$con,
+    x = x_pred,
+    type = "quantile",
+    index = probs,
+    ps = ps_cov,
+    interval = if (compute_interval) interval else NULL,
+    store_draws = TRUE
+  )
+
+  meta <- fit$bundle$meta %||% list()
+  cq <- list(
+    trt = pr_trt,
+    con = pr_con,
     probs = probs,
-    newdata = fit$bundle$data$X %||% NULL,
-    interval = interval,
-    level = level
+    grid = probs,
+    level = level,
+    interval = if (compute_interval) interval else "none",
+    n_pred = n_pred,
+    x = NULL,
+    ps = NULL,
+    meta = list(
+      ps_enabled = ps_enabled,
+      ps_scale = ps_scale,
+      ps_summary = ps_summary,
+      backend = meta$backend,
+      kernel = meta$kernel,
+      GPD = meta$GPD
+    )
   )
   idx <- .causal_effect_subset_index(fit = fit, n_pred = cq$n_pred %||% 1L, subset = "all")
   .causal_aggregate_qte(cq, idx = idx, effect_type = "qte")
@@ -1038,14 +1168,16 @@ qte <- function(fit,
 #' Quantile treatment effect on the treated (QTT)
 #'
 #' Computes a treated-only marginal quantile treatment effect by averaging
-#' conditional quantile effects over rows with assigned treatment \code{T=1}.
+#' conditional quantile effects over rows with assigned treatment \code{A=1}.
 #'
 #' @inheritParams qte
-#' @return A list with elements \code{fit} (QTT), \code{grid} (probabilities),
-#'   and aggregated treated/control prediction objects.
+#' @return A list with elements \code{fit}, \code{grid} (probabilities), and
+#'   aggregated treated/control prediction objects. \code{fit} is a data frame
+#'   with columns \code{index}, \code{estimate}, \code{lower}, \code{upper}
+#'   and one row per requested quantile index.
 #' @examples
 #' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' qtt(fit, probs = c(0.5, 0.9))
 #' }
@@ -1057,16 +1189,86 @@ qtt <- function(fit,
                 interval = "credible",
                 level = 0.95) {
   stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
-  if (!is.null(newdata) || !is.null(y)) {
-    stop("qtt() computes a treated-only marginal estimand on training data only. Use cqte() for conditional effects with 'newdata'.", call. = FALSE)
+  .causal_warn_ignored_marginal_inputs(fn = "qtt", newdata = newdata, y = y, conditional_fn = "cqte")
+  iv <- .causal_validate_interval(interval = interval, level = level)
+  compute_interval <- iv$compute_interval
+  interval <- iv$interval
+  level <- iv$level
+
+  x_pred <- fit$bundle$data$X %||% NULL
+  n_pred <- if (!is.null(x_pred)) nrow(as.matrix(x_pred)) else 1L
+
+  ps_meta <- fit$bundle$meta$ps %||% list()
+  ps_enabled <- isTRUE(ps_meta$enabled) && .causal_is_conditional_model(fit) && !is.null(x_pred)
+  ps_scale <- fit$bundle$meta$ps_scale %||% "logit"
+  ps_summary <- fit$bundle$meta$ps_summary %||% "mean"
+  ps_clamp <- fit$bundle$meta$ps_clamp %||% 1e-6
+
+  ps_prob <- NULL
+  ps_cov <- NULL
+  if (ps_enabled) {
+    ps_fit_use <- fit$ps_fit
+    ps_bundle_use <- fit$bundle$design
+    if (is.null(ps_fit_use)) {
+      ps_model_try <- (fit$outcome_fit$trt$ps_model %||% fit$outcome_fit$con$ps_model %||% NULL)
+      if (!is.null(ps_model_try)) {
+        ps_fit_use <- ps_model_try$fit
+        ps_bundle_use <- ps_model_try$bundle
+      }
+    }
+    if (is.null(ps_fit_use) || is.null(ps_bundle_use)) {
+      warning("Causal fit missing PS model; proceeding without PS adjustment.", call. = FALSE)
+      ps_prob <- NULL
+    } else {
+      ps_prob <- .compute_ps_from_fit(
+        ps_fit = ps_fit_use,
+        ps_bundle = ps_bundle_use,
+        X_new = x_pred,
+        summary = ps_summary,
+        clamp = ps_clamp
+      )
+      ps_cov <- .apply_ps_scale(ps_prob, scale = ps_scale, clamp = ps_clamp)
+    }
   }
 
-  cq <- cqte(
-    fit = fit,
+  pr_trt <- predict(
+    fit$outcome_fit$trt,
+    x = x_pred,
+    type = "quantile",
+    index = probs,
+    ps = ps_cov,
+    interval = if (compute_interval) interval else NULL,
+    store_draws = TRUE
+  )
+  pr_con <- predict(
+    fit$outcome_fit$con,
+    x = x_pred,
+    type = "quantile",
+    index = probs,
+    ps = ps_cov,
+    interval = if (compute_interval) interval else NULL,
+    store_draws = TRUE
+  )
+
+  meta <- fit$bundle$meta %||% list()
+  cq <- list(
+    trt = pr_trt,
+    con = pr_con,
     probs = probs,
-    newdata = fit$bundle$data$X %||% NULL,
-    interval = interval,
-    level = level
+    grid = probs,
+    level = level,
+    interval = if (compute_interval) interval else "none",
+    n_pred = n_pred,
+    x = NULL,
+    ps = NULL,
+    meta = list(
+      ps_enabled = ps_enabled,
+      ps_scale = ps_scale,
+      ps_summary = ps_summary,
+      backend = meta$backend,
+      kernel = meta$kernel,
+      GPD = meta$GPD
+    )
   )
   idx <- .causal_effect_subset_index(fit = fit, n_pred = cq$n_pred %||% 1L, subset = "treated")
   .causal_aggregate_qte(cq, idx = idx, effect_type = "qtt")
@@ -1077,9 +1279,14 @@ qtt <- function(fit,
 #' Computes a marginal average treatment effect by averaging conditional
 #' treatment effects over the training covariate rows.
 #'
+#' For unconditional causal models (\code{X = NULL}), this is computed directly
+#' from unconditional treated/control outcome predictions.
+#'
 #' @param fit A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.
-#' @param newdata Deprecated placeholder for marginal estimands; must be \code{NULL}.
-#' @param y Deprecated placeholder for marginal estimands; must be \code{NULL}.
+#' @param newdata Ignored for marginal estimands. If supplied, a warning is issued
+#'   and training data are used.
+#' @param y Ignored for marginal estimands. If supplied, a warning is issued
+#'   and training data are used.
 #' @param type Character; \code{"mean"} (default) for ordinary mean ATE or
 #'   \code{"rmean"} for restricted-mean ATE.
 #' @param cutoff Finite numeric cutoff for restricted mean; required for
@@ -1089,11 +1296,12 @@ qtt <- function(fit,
 #'   highest posterior density intervals.
 #' @param level Numeric credible level for intervals (default 0.95 for 95 percent CI).
 #' @param nsim_mean Number of posterior predictive draws to approximate the mean.
-#' @return A list with elements \code{fit} (ATE), optional \code{lower}/\code{upper},
-#'   and aggregated treated/control prediction objects.
+#' @return A list with elements \code{fit}, optional \code{lower}/\code{upper},
+#'   and aggregated treated/control prediction objects. \code{fit} is a single-value
+#'   marginal effect estimate, and intervals are computed from posterior draws.
 #' @examples
 #' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' ate(fit, interval = "credible", level = 0.90, nsim_mean = 100)
 #' }
@@ -1107,18 +1315,90 @@ ate <- function(fit,
                 level = 0.95,
                 nsim_mean = 200L) {
   stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
-  if (!is.null(newdata) || !is.null(y)) {
-    stop("ate() computes a marginal estimand on training data only. Use cate() for conditional effects with 'newdata'.", call. = FALSE)
+  .causal_warn_ignored_marginal_inputs(fn = "ate", newdata = newdata, y = y, conditional_fn = "cate")
+  type <- match.arg(type)
+  iv <- .causal_validate_interval(interval = interval, level = level)
+  compute_interval <- iv$compute_interval
+  interval <- iv$interval
+  level <- iv$level
+
+  x_pred <- fit$bundle$data$X %||% NULL
+  n_pred <- if (!is.null(x_pred)) nrow(as.matrix(x_pred)) else 1L
+
+  ps_meta <- fit$bundle$meta$ps %||% list()
+  ps_enabled <- isTRUE(ps_meta$enabled) && .causal_is_conditional_model(fit) && !is.null(x_pred)
+  ps_scale <- fit$bundle$meta$ps_scale %||% "logit"
+  ps_summary <- fit$bundle$meta$ps_summary %||% "mean"
+  ps_clamp <- fit$bundle$meta$ps_clamp %||% 1e-6
+
+  ps_prob <- NULL
+  ps_cov <- NULL
+  if (ps_enabled) {
+    ps_fit_use <- fit$ps_fit
+    ps_bundle_use <- fit$bundle$design
+    if (is.null(ps_fit_use)) {
+      ps_model_try <- (fit$outcome_fit$trt$ps_model %||% fit$outcome_fit$con$ps_model %||% NULL)
+      if (!is.null(ps_model_try)) {
+        ps_fit_use <- ps_model_try$fit
+        ps_bundle_use <- ps_model_try$bundle
+      }
+    }
+    if (is.null(ps_fit_use) || is.null(ps_bundle_use)) {
+      warning("Causal fit missing PS model; proceeding without PS adjustment.", call. = FALSE)
+      ps_prob <- NULL
+    } else {
+      ps_prob <- .compute_ps_from_fit(
+        ps_fit = ps_fit_use,
+        ps_bundle = ps_bundle_use,
+        X_new = x_pred,
+        summary = ps_summary,
+        clamp = ps_clamp
+      )
+      ps_cov <- .apply_ps_scale(ps_prob, scale = ps_scale, clamp = ps_clamp)
+    }
   }
 
-  ca <- cate(
-    fit = fit,
-    newdata = fit$bundle$data$X %||% NULL,
+  pr_trt <- predict(
+    fit$outcome_fit$trt,
+    x = x_pred,
     type = type,
     cutoff = cutoff,
-    interval = interval,
+    ps = ps_cov,
+    interval = if (compute_interval) interval else NULL,
+    cred.level = level,
+    nsim_mean = nsim_mean,
+    store_draws = TRUE
+  )
+  pr_con <- predict(
+    fit$outcome_fit$con,
+    x = x_pred,
+    type = type,
+    cutoff = cutoff,
+    ps = ps_cov,
+    interval = if (compute_interval) interval else NULL,
+    cred.level = level,
+    nsim_mean = nsim_mean,
+    store_draws = TRUE
+  )
+
+  meta <- fit$bundle$meta %||% list()
+  ca <- list(
+    trt = pr_trt,
+    con = pr_con,
     level = level,
-    nsim_mean = nsim_mean
+    interval = if (compute_interval) interval else "none",
+    n_pred = n_pred,
+    nsim_mean = nsim_mean,
+    x = NULL,
+    ps = NULL,
+    meta = list(
+      ps_enabled = ps_enabled,
+      ps_scale = ps_scale,
+      ps_summary = ps_summary,
+      backend = meta$backend,
+      kernel = meta$kernel,
+      GPD = meta$GPD
+    )
   )
   idx <- .causal_effect_subset_index(fit = fit, n_pred = ca$n_pred %||% 1L, subset = "all")
   .causal_aggregate_ate(ca, idx = idx, effect_type = "ate")
@@ -1127,14 +1407,14 @@ ate <- function(fit,
 #' Average treatment effect on the treated (ATT)
 #'
 #' Computes a treated-only marginal average treatment effect by averaging
-#' conditional treatment effects over rows with assigned treatment \code{T=1}.
+#' conditional treatment effects over rows with assigned treatment \code{A=1}.
 #'
 #' @inheritParams ate
 #' @return A list with elements \code{fit} (ATT), optional \code{lower}/\code{upper},
 #'   and aggregated treated/control prediction objects.
 #' @examples
 #' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' att(fit, interval = "credible", nsim_mean = 100)
 #' }
@@ -1148,18 +1428,90 @@ att <- function(fit,
                 level = 0.95,
                 nsim_mean = 200L) {
   stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
-  if (!is.null(newdata) || !is.null(y)) {
-    stop("att() computes a treated-only marginal estimand on training data only. Use cate() for conditional effects with 'newdata'.", call. = FALSE)
+  .causal_warn_ignored_marginal_inputs(fn = "att", newdata = newdata, y = y, conditional_fn = "cate")
+  type <- match.arg(type)
+  iv <- .causal_validate_interval(interval = interval, level = level)
+  compute_interval <- iv$compute_interval
+  interval <- iv$interval
+  level <- iv$level
+
+  x_pred <- fit$bundle$data$X %||% NULL
+  n_pred <- if (!is.null(x_pred)) nrow(as.matrix(x_pred)) else 1L
+
+  ps_meta <- fit$bundle$meta$ps %||% list()
+  ps_enabled <- isTRUE(ps_meta$enabled) && .causal_is_conditional_model(fit) && !is.null(x_pred)
+  ps_scale <- fit$bundle$meta$ps_scale %||% "logit"
+  ps_summary <- fit$bundle$meta$ps_summary %||% "mean"
+  ps_clamp <- fit$bundle$meta$ps_clamp %||% 1e-6
+
+  ps_prob <- NULL
+  ps_cov <- NULL
+  if (ps_enabled) {
+    ps_fit_use <- fit$ps_fit
+    ps_bundle_use <- fit$bundle$design
+    if (is.null(ps_fit_use)) {
+      ps_model_try <- (fit$outcome_fit$trt$ps_model %||% fit$outcome_fit$con$ps_model %||% NULL)
+      if (!is.null(ps_model_try)) {
+        ps_fit_use <- ps_model_try$fit
+        ps_bundle_use <- ps_model_try$bundle
+      }
+    }
+    if (is.null(ps_fit_use) || is.null(ps_bundle_use)) {
+      warning("Causal fit missing PS model; proceeding without PS adjustment.", call. = FALSE)
+      ps_prob <- NULL
+    } else {
+      ps_prob <- .compute_ps_from_fit(
+        ps_fit = ps_fit_use,
+        ps_bundle = ps_bundle_use,
+        X_new = x_pred,
+        summary = ps_summary,
+        clamp = ps_clamp
+      )
+      ps_cov <- .apply_ps_scale(ps_prob, scale = ps_scale, clamp = ps_clamp)
+    }
   }
 
-  ca <- cate(
-    fit = fit,
-    newdata = fit$bundle$data$X %||% NULL,
+  pr_trt <- predict(
+    fit$outcome_fit$trt,
+    x = x_pred,
     type = type,
     cutoff = cutoff,
-    interval = interval,
+    ps = ps_cov,
+    interval = if (compute_interval) interval else NULL,
+    cred.level = level,
+    nsim_mean = nsim_mean,
+    store_draws = TRUE
+  )
+  pr_con <- predict(
+    fit$outcome_fit$con,
+    x = x_pred,
+    type = type,
+    cutoff = cutoff,
+    ps = ps_cov,
+    interval = if (compute_interval) interval else NULL,
+    cred.level = level,
+    nsim_mean = nsim_mean,
+    store_draws = TRUE
+  )
+
+  meta <- fit$bundle$meta %||% list()
+  ca <- list(
+    trt = pr_trt,
+    con = pr_con,
     level = level,
-    nsim_mean = nsim_mean
+    interval = if (compute_interval) interval else "none",
+    n_pred = n_pred,
+    nsim_mean = nsim_mean,
+    x = NULL,
+    ps = NULL,
+    meta = list(
+      ps_enabled = ps_enabled,
+      ps_scale = ps_scale,
+      ps_summary = ps_summary,
+      backend = meta$backend,
+      kernel = meta$kernel,
+      GPD = meta$GPD
+    )
   )
   idx <- .causal_effect_subset_index(fit = fit, n_pred = ca$n_pred %||% 1L, subset = "treated")
   .causal_aggregate_ate(ca, idx = idx, effect_type = "att")
@@ -1176,7 +1528,7 @@ att <- function(fit,
 #' @param cutoff Finite numeric cutoff for the restricted mean.
 #' @examples
 #' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal",
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal",
 #'                          GPD = TRUE, components = 6)
 #' fit <- run_mcmc_causal(cb)
 #' ate_rm <- ate_rmean(fit, cutoff = 10, interval = "credible")
@@ -1188,13 +1540,24 @@ ate_rmean <- function(fit,
                       interval = "credible",
                       level = 0.95,
                       nsim_mean = 200L) {
-  cate(fit = fit,
-       newdata = newdata,
-       type = "rmean",
-       cutoff = cutoff,
-       interval = interval,
-       level = level,
-       nsim_mean = nsim_mean)
+  if (.causal_is_conditional_model(fit)) {
+    cate(fit = fit,
+         newdata = newdata,
+         type = "rmean",
+         cutoff = cutoff,
+         interval = interval,
+         level = level,
+         nsim_mean = nsim_mean)
+  } else {
+    ate(fit = fit,
+        newdata = newdata,
+        y = NULL,
+        type = "rmean",
+        cutoff = cutoff,
+        interval = interval,
+        level = level,
+        nsim_mean = nsim_mean)
+  }
 }
 
 
@@ -1227,7 +1590,7 @@ ate_rmean <- function(fit,
 #'   \code{trt_upper}, \code{con_estimate}, \code{con_lower}, \code{con_upper}.
 #' @examples
 #' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal")
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
 #' fit <- run_mcmc_causal(cb)
 #' predict(fit, x = X[1:10, ], type = "quantile", p = c(0.25, 0.5, 0.75))
 #' predict(fit, x = X[1:10, ], type = "mean", interval = "hpd")  # HPD intervals
@@ -1607,7 +1970,7 @@ predict.dpmixgpd_causal_fit <- function(object,
 }
 
 
-.build_ps_bundle <- function(T, X, spec, mcmc) {
+.build_ps_bundle <- function(A, X, spec, mcmc) {
   if (!is.matrix(X)) X <- as.matrix(X)
   N <- nrow(X)
   P <- ncol(X)
@@ -1626,7 +1989,7 @@ predict.dpmixgpd_causal_fit <- function(object,
   if (model == "logit") {
     code <- nimble::nimbleCode({
       for (i in 1:N) {
-        T[i] ~ dbern(pi[i])
+        A[i] ~ dbern(pi[i])
         logit(pi[i]) <- inprod(X[i, 1:P], beta[1:P])
       }
       for (j in 1:P) {
@@ -1636,7 +1999,7 @@ predict.dpmixgpd_causal_fit <- function(object,
   } else if (model == "probit") {
     code <- nimble::nimbleCode({
       for (i in 1:N) {
-        T[i] ~ dbern(pi[i])
+        A[i] ~ dbern(pi[i])
         probit(pi[i]) <- inprod(X[i, 1:P], beta[1:P])
       }
       for (j in 1:P) {
@@ -1647,9 +2010,9 @@ predict.dpmixgpd_causal_fit <- function(object,
     # Naive Bayes: model feature distributions given treatment status
     code <- nimble::nimbleCode({
       for (i in 1:N) {
-        T[i] ~ dbern(pi_prior)
+        A[i] ~ dbern(pi_prior)
         for (j in 1:P) {
-          X[i, j] ~ dnorm(mu[T[i] + 1, j], sd = sigma[T[i] + 1, j])
+          X[i, j] ~ dnorm(mu[A[i] + 1, j], sd = sigma[A[i] + 1, j])
         }
       }
       pi_prior ~ dbeta(1, 1)
@@ -1668,7 +2031,7 @@ predict.dpmixgpd_causal_fit <- function(object,
   if (model %in% c("logit", "probit")) {
     constants$beta_mean <- as.numeric(spec$prior$mean %||% 0)
     constants$beta_sd <- as.numeric(spec$prior$sd %||% 2)
-    data <- list(T = as.integer(T), X = X)
+    data <- list(A = as.integer(A), X = X)
     inits <- list(beta = rep(0, P))
     monitors <- c("beta")
   } else if (model == "naive") {
@@ -1680,12 +2043,12 @@ predict.dpmixgpd_causal_fit <- function(object,
     constants$mu_sd <- mean(X_sd, na.rm = TRUE)
     constants$sigma_min <- 0.05
     constants$sigma_max <- 5 * mean(X_sd, na.rm = TRUE)
-    data <- list(T = as.integer(T), X = X)
+    data <- list(A = as.integer(A), X = X)
     # Initialize with sample means/sds by treatment group
     init_mu <- matrix(0, nrow = 2, ncol = P)
     init_sigma <- matrix(1, nrow = 2, ncol = P)
     for (k in 0:1) {
-      X_k <- X[T == k, , drop = FALSE]
+      X_k <- X[A == k, , drop = FALSE]
       if (nrow(X_k) > 0) {
         init_mu[k + 1, ] <- colMeans(X_k, na.rm = TRUE)
         init_sigma[k + 1, ] <- pmax(apply(X_k, 2, sd, na.rm = TRUE), 0.1)
@@ -1857,9 +2220,9 @@ predict.dpmixgpd_causal_fit <- function(object,
     # Initialize PS matrix
     ps_draws <- matrix(0, nrow = S, ncol = n_pred)
 
-    # For each posterior sample, compute P(T=1|X) using Bayes rule
+    # For each posterior sample, compute P(A=1|X) using Bayes rule
     for (s in 1:S) {
-      pi_prior <- pi_samples[s, 1]  # P(T=1)
+      pi_prior <- pi_samples[s, 1]  # P(A=1)
 
       # Reshape mu and sigma from samples to (K=2, P) matrices
       # mu and sigma are stored as mu[1,1], mu[1,2], ..., mu[2,1], mu[2,2], ...
@@ -1867,8 +2230,8 @@ predict.dpmixgpd_causal_fit <- function(object,
       mu_mat <- matrix(mu_samples[s, ], nrow = 2, ncol = P, byrow = FALSE)
       sigma_mat <- matrix(sigma_samples[s, ], nrow = 2, ncol = P, byrow = FALSE)
 
-      # Compute likelihood P(X|T=k) for each treatment group
-      # Using independence: P(X|T) = prod_j P(X_j|T)
+      # Compute likelihood P(X|A=k) for each treatment group
+      # Using independence: P(X|A) = prod_j P(X_j|A)
       log_lik_t0 <- matrix(0, nrow = n_pred, ncol = P)
       log_lik_t1 <- matrix(0, nrow = n_pred, ncol = P)
 
@@ -1881,7 +2244,7 @@ predict.dpmixgpd_causal_fit <- function(object,
       log_lik_t0_sum <- rowSums(log_lik_t0)
       log_lik_t1_sum <- rowSums(log_lik_t1)
 
-      # Apply Bayes rule: P(T=1|X) = P(X|T=1)P(T=1) / [P(X|T=1)P(T=1) + P(X|T=0)P(T=0)]
+      # Apply Bayes rule: P(A=1|X) = P(X|A=1)P(A=1) / [P(X|A=1)P(A=1) + P(X|A=0)P(A=0)]
       # Using log-sum-exp trick for numerical stability
       log_post_t0 <- log(1 - pi_prior) + log_lik_t0_sum
       log_post_t1 <- log(pi_prior) + log_lik_t1_sum

@@ -13,7 +13,7 @@ so the overall CDF is proper."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">DPmixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,11 +23,11 @@ so the overall CDF is proper."></head><body>
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/01-basic.html">Model specification</a></li>
-    <li><a class="dropdown-item" href="../articles/02-model-spec.html">Model fundamentals</a></li>
-    <li><a class="dropdown-item" href="../articles/03-unconditional.html">Unconditional</a></li>
-    <li><a class="dropdown-item" href="../articles/04-conditional.html">Conditional</a></li>
-    <li><a class="dropdown-item" href="../articles/05-causal.html">Causal</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/basic-01.html">Model specification</a></li>
+    <li><a class="dropdown-item" href="../articles/model-spec-02.html">Model fundamentals</a></li>
+    <li><a class="dropdown-item" href="../articles/unconditional-03.html">Unconditional</a></li>
+    <li><a class="dropdown-item" href="../articles/conditional-04.html">Conditional</a></li>
+    <li><a class="dropdown-item" href="../articles/causal-05.html">Causal</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/arnabaich96/DPmixGPD">GitHub</a></li>
@@ -168,24 +168,25 @@ so the overall CDF is proper.</p>
 <span class="r-in"><span><span class="fu">dGammaGpd</span><span class="op">(</span><span class="fl">4.0</span>, scale <span class="op">=</span> <span class="va">scale</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span></span>
 <span class="r-in"><span>         threshold <span class="op">=</span> <span class="va">threshold</span>, tail_scale <span class="op">=</span> <span class="va">tail_scale</span>,</span></span>
 <span class="r-in"><span>         tail_shape <span class="op">=</span> <span class="va">tail_shape</span>, log <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.322</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.3220605</span>
 <span class="r-in"><span><span class="fu">pGammaGpd</span><span class="op">(</span><span class="fl">4.0</span>, scale <span class="op">=</span> <span class="va">scale</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span></span>
 <span class="r-in"><span>         threshold <span class="op">=</span> <span class="va">threshold</span>, tail_scale <span class="op">=</span> <span class="va">tail_scale</span>,</span></span>
 <span class="r-in"><span>         tail_shape <span class="op">=</span> <span class="va">tail_shape</span>, lower.tail <span class="op">=</span> <span class="fl">1</span>, log.p <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.646</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.6457335</span>
 <span class="r-in"><span><span class="fu">qGammaGpd</span><span class="op">(</span><span class="fl">0.50</span>, scale <span class="op">=</span> <span class="va">scale</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span></span>
 <span class="r-in"><span>         threshold <span class="op">=</span> <span class="va">threshold</span>, tail_scale <span class="op">=</span> <span class="va">tail_scale</span>,</span></span>
 <span class="r-in"><span>         tail_shape <span class="op">=</span> <span class="va">tail_shape</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.63</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.63375</span>
 <span class="r-in"><span><span class="fu">qGammaGpd</span><span class="op">(</span><span class="fl">0.95</span>, scale <span class="op">=</span> <span class="va">scale</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span></span>
 <span class="r-in"><span>         threshold <span class="op">=</span> <span class="va">threshold</span>, tail_scale <span class="op">=</span> <span class="va">tail_scale</span>,</span></span>
 <span class="r-in"><span>         tail_shape <span class="op">=</span> <span class="va">tail_shape</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 6.64</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 6.636445</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rGammaGpd</span><span class="op">(</span><span class="fl">1</span>, scale <span class="op">=</span> <span class="va">scale</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span></span>
 <span class="r-in"><span>                       threshold <span class="op">=</span> <span class="va">threshold</span>,</span></span>
 <span class="r-in"><span>                       tail_scale <span class="op">=</span> <span class="va">tail_scale</span>,</span></span>
 <span class="r-in"><span>                       tail_shape <span class="op">=</span> <span class="va">tail_shape</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  3.10  4.55 20.63  6.61  3.03  5.12  3.22  6.53  4.60  5.32</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 6.607379 3.029453 5.115621 3.217602 6.531285 4.597788 5.324637 8.729386</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] 4.482273 4.500628</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

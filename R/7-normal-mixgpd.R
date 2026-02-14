@@ -4,8 +4,8 @@
 #' Mixture density and CDF are computed by weighted sums. Random generation samples a component
 #' index according to weights and draws from the corresponding component. Quantiles are computed
 #' by numerical inversion of the mixture CDF.
-#' The \code{d*}, \code{p*}, and \code{q*} functions accept vector inputs for their first argument
-#' and evaluate elementwise; \code{r*} supports \code{n > 1}.
+#' These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
+#' For vectorized R usage (including \code{n > 1}), use \code{\link{normal_lowercase}}.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -192,9 +192,9 @@ qNormMix <- function(p, w, mean, sd,
 # Normal mixture + GPD tail
 # -------------------------------
 
-#' Normal mixture with a Gpd tail
+#' Normal mixture with a GPD tail
 #'
-#' Splices a generalized Pareto distribution (Gpd) above \code{threshold} onto a Normal mixture bulk.
+#' Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a Normal mixture bulk.
 #' The bulk probability at the threshold is used to scale the tail so that the overall CDF is proper.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
@@ -203,9 +203,9 @@ qNormMix <- function(p, w, mean, sd,
 #' @param n Integer giving the number of draws. The RNG implementation supports \code{n = 1}.
 #' @param w Numeric vector of mixture weights of length \eqn{K}.
 #' @param mean,sd Numeric vectors of length \eqn{K} giving component means and standard deviations.
-#' @param threshold Numeric scalar threshold at which the Gpd tail is attached.
-#' @param tail_scale Numeric scalar Gpd scale parameter; must be positive.
-#' @param tail_shape Numeric scalar Gpd shape parameter.
+#' @param threshold Numeric scalar threshold at which the GPD tail is attached.
+#' @param tail_scale Numeric scalar GPD scale parameter; must be positive.
+#' @param tail_shape Numeric scalar GPD shape parameter.
 #' @param log Integer flag \code{0/1}; if \code{1}, return the log-density.
 #' @param lower.tail Integer flag \code{0/1}; if \code{1} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Integer flag \code{0/1}; if \code{1}, probabilities are returned on the log scale.
@@ -234,7 +234,7 @@ qNormMix <- function(p, w, mean, sd,
 #' @importFrom stats uniroot pnorm dnorm runif qnorm rnorm
 NULL
 
-#' @describeIn normal_mixgpd Normal mixture + Gpd tail density
+#' @describeIn normal_mixgpd Normal mixture + GPD tail density
 #' @export
 dNormMixGpd <- nimble::nimbleFunction(
   run = function(x = double(0),
@@ -260,7 +260,7 @@ dNormMixGpd <- nimble::nimbleFunction(
   }
 )
 
-#' @describeIn normal_mixgpd Normal mixture + Gpd tail distribution function
+#' @describeIn normal_mixgpd Normal mixture + GPD tail distribution function
 #' @export
 pNormMixGpd <- nimble::nimbleFunction(
   run = function(q = double(0),
@@ -291,7 +291,7 @@ pNormMixGpd <- nimble::nimbleFunction(
   }
 )
 
-#' @describeIn normal_mixgpd Normal mixture + Gpd tail random generation
+#' @describeIn normal_mixgpd Normal mixture + GPD tail random generation
 #' @export
 rNormMixGpd <- nimble::nimbleFunction(
   run = function(n = integer(0),
@@ -315,7 +315,7 @@ rNormMixGpd <- nimble::nimbleFunction(
   }
 )
 
-#' @describeIn normal_mixgpd Normal mixture + Gpd tail quantile function
+#' @describeIn normal_mixgpd Normal mixture + GPD tail quantile function
 #' @export
 qNormMixGpd <- function(p, w, mean, sd, threshold, tail_scale, tail_shape,
                         lower.tail = TRUE, log.p = FALSE,
@@ -343,9 +343,9 @@ qNormMixGpd <- function(p, w, mean, sd, threshold, tail_scale, tail_shape,
 # Single Normal + GPD tail
 # -------------------------------
 
-#' Normal with a Gpd tail
+#' Normal with a GPD tail
 #'
-#' Splices a generalized Pareto distribution (Gpd) above \code{threshold} onto a single Normal bulk.
+#' Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a single Normal bulk.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -353,9 +353,9 @@ qNormMixGpd <- function(p, w, mean, sd, threshold, tail_scale, tail_shape,
 #' @param n Integer giving the number of draws. The RNG implementation supports \code{n = 1}.
 #' @param mean Numeric scalar mean parameter for the Normal bulk.
 #' @param sd Numeric scalar standard deviation for the Normal bulk.
-#' @param threshold Numeric scalar threshold at which the Gpd tail is attached.
-#' @param tail_scale Numeric scalar Gpd scale parameter; must be positive.
-#' @param tail_shape Numeric scalar Gpd shape parameter.
+#' @param threshold Numeric scalar threshold at which the GPD tail is attached.
+#' @param tail_scale Numeric scalar GPD scale parameter; must be positive.
+#' @param tail_shape Numeric scalar GPD shape parameter.
 #' @param log Integer flag \code{0/1}; if \code{1}, return the log-density.
 #' @param lower.tail Integer flag \code{0/1}; if \code{1} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Integer flag \code{0/1}; if \code{1}, probabilities are returned on the log scale.
@@ -381,7 +381,7 @@ qNormMixGpd <- function(p, w, mean, sd, threshold, tail_scale, tail_shape,
 #' @importFrom stats uniroot pnorm dnorm runif qnorm rnorm
 NULL
 
-#' @describeIn normal_gpd Normal + Gpd tail density
+#' @describeIn normal_gpd Normal + GPD tail density
 #' @export
 dNormGpd <- nimble::nimbleFunction(
   run = function(x = double(0),
@@ -410,7 +410,7 @@ dNormGpd <- nimble::nimbleFunction(
   }
 )
 
-#' @describeIn normal_gpd Normal + Gpd tail distribution function
+#' @describeIn normal_gpd Normal + GPD tail distribution function
 #' @export
 pNormGpd <- nimble::nimbleFunction(
   run = function(q = double(0),
@@ -443,7 +443,7 @@ pNormGpd <- nimble::nimbleFunction(
   }
 )
 
-#' @describeIn normal_gpd Normal + Gpd tail random generation
+#' @describeIn normal_gpd Normal + GPD tail random generation
 #' @export
 rNormGpd <- nimble::nimbleFunction(
   run = function(n = integer(0),
@@ -466,7 +466,7 @@ rNormGpd <- nimble::nimbleFunction(
   }
 )
 
-#' @describeIn normal_gpd Normal + Gpd tail quantile function
+#' @describeIn normal_gpd Normal + GPD tail quantile function
 #' @export
 qNormGpd <- function(p, mean, sd, threshold, tail_scale, tail_shape,
                      lower.tail = TRUE, log.p = FALSE) {

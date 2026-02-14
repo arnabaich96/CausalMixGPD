@@ -1,6 +1,6 @@
-# Inverse Gaussian mixture with a Gpd tail
+# Inverse Gaussian mixture with a GPD tail
 
-This family splices a generalized Pareto distribution (Gpd) above a
+This family splices a generalized Pareto distribution (GPD) above a
 threshold `threshold` onto an inverse Gaussian mixture bulk. The bulk
 probability at the threshold, \\F\_{mix}(threshold)\\, is used to scale
 the tail so that the overall CDF remains proper.
@@ -55,15 +55,15 @@ qInvGaussMixGpd(
 
 - threshold:
 
-  Numeric scalar threshold at which the Gpd tail is attached.
+  Numeric scalar threshold at which the GPD tail is attached.
 
 - tail_scale:
 
-  Numeric scalar Gpd scale parameter; must be positive.
+  Numeric scalar GPD scale parameter; must be positive.
 
 - tail_shape:
 
-  Numeric scalar Gpd shape parameter.
+  Numeric scalar GPD shape parameter.
 
 - log:
 
@@ -111,15 +111,15 @@ Spliced density/CDF/RNG functions return numeric scalars.
 
 ## Functions
 
-- `dInvGaussMixGpd()`: Inverse Gaussian mixture + Gpd tail density
+- `dInvGaussMixGpd()`: Inverse Gaussian mixture + GPD tail density
 
-- `pInvGaussMixGpd()`: Inverse Gaussian mixture + Gpd tail distribution
+- `pInvGaussMixGpd()`: Inverse Gaussian mixture + GPD tail distribution
   function
 
-- `rInvGaussMixGpd()`: Inverse Gaussian mixture + Gpd tail random
+- `rInvGaussMixGpd()`: Inverse Gaussian mixture + GPD tail random
   generation
 
-- `qInvGaussMixGpd()`: Inverse Gaussian mixture + Gpd tail quantile
+- `qInvGaussMixGpd()`: Inverse Gaussian mixture + GPD tail quantile
   function
 
 ## Examples
@@ -135,22 +135,23 @@ tail_shape <- 0.2
 dInvGaussMixGpd(4.0, w = w, mean = mean, shape = shape,
                threshold = threshold, tail_scale = tail_scale,
                tail_shape = tail_shape, log = 0)
-#> [1] 0.0629
+#> [1] 0.06286562
 pInvGaussMixGpd(4.0, w = w, mean = mean, shape = shape,
                threshold = threshold, tail_scale = tail_scale,
                tail_shape = tail_shape, lower.tail = 1, log.p = 0)
-#> [1] 0.931
+#> [1] 0.9308478
 qInvGaussMixGpd(0.50, w = w, mean = mean, shape = shape,
                threshold = threshold, tail_scale = tail_scale,
                tail_shape = tail_shape)
-#> [1] 1.25
+#> [1] 1.251694
 qInvGaussMixGpd(0.95, w = w, mean = mean, shape = shape,
                threshold = threshold, tail_scale = tail_scale,
                tail_shape = tail_shape)
-#> [1] 4.37
+#> [1] 4.368537
 replicate(10, rInvGaussMixGpd(1, w = w, mean = mean, shape = shape,
                              threshold = threshold,
                              tail_scale = tail_scale,
                              tail_shape = tail_shape))
-#>  [1] 0.355 0.608 2.363 0.769 5.092 1.874 1.027 0.879 0.436 0.560
+#>  [1] 3.0439078 1.0892400 4.1446294 2.2962187 3.2999245 0.8730470 4.7167309
+#>  [8] 0.9202346 1.7489324 3.4628833
 ```

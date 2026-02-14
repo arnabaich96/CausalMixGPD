@@ -1,4 +1,4 @@
-﻿---
+---
 title: "ex09. Causal (No X, CRP Backend) - Gamma Kernel"
 ---
 
@@ -37,17 +37,6 @@ pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
-if (!exists("safe_plot", mode = "function")) {
-  safe_plot <- function(x, ...) {
-    obj <- tryCatch(plot(x, ...), error = function(e) e)
-    if (inherits(obj, "ggplot")) {
-      try(print(obj), silent = TRUE)
-    } else if (is.list(obj)) {
-      for (elt in obj) if (inherits(elt, "ggplot")) try(print(elt), silent = TRUE)
-    }
-    invisible(obj)
-  }
-}
 ```
 
 
@@ -61,6 +50,7 @@ if (!exists("safe_plot", mode = "function")) {
 # Causal Inference: No Covariates (CRP)
 
 This vignette fits **two no-X causal models** where the treatment arms are modeled independently using **unconditional** outcome models.
+Because `X = NULL`, conditional estimands `cate()` and `cqte()` are unavailable; use marginal estimands (`ate()`, `att()`, `qte()`, `qtt()`).
 
 - Model A: CRP bulk-only (GPD = FALSE)
 - Model B: CRP with GPD tail (GPD = TRUE)
@@ -72,7 +62,7 @@ This vignette fits **two no-X causal models** where the treatment arms are model
 ```{r data-setup}
 data("causal_alt_real500_p4_k2", package = "DPmixGPD")
 y <- abs(causal_alt_real500_p4_k2$y) + 0.01
-T <- causal_alt_real500_p4_k2$T
+A <- causal_alt_real500_p4_k2$A
 
 summary_tbl <- tibble(
   statistic = c("N", "Mean", "SD", "Min", "Max"),
@@ -92,9 +82,9 @@ y_eval <- y[1:40]
 ## Model A: CRP Bulk-only (Gamma)
 
 ```{r bundle-crp-bulk, cache=TRUE}
-bundle_crp_bulk <- build_causal_bundle(
+bundle_crp_bulk <- bundle(
   y = y,
-  T = T,
+  treat = A,
   X = NULL,
   kernel = "gamma",
   backend = "crp",
@@ -108,44 +98,44 @@ bundle_crp_bulk
 ```
 
 ```{r fit-crp-bulk, cache=TRUE}
-fit_crp_bulk <- quiet_mcmc(run_mcmc_causal(bundle_crp_bulk))
+fit_crp_bulk <- quiet_mcmc(mcmc(bundle_crp_bulk))
 summary(fit_crp_bulk)
 ```
 
 ```{r predict-mean-crp-bulk}
 pred_mean_bulk <- predict(fit_crp_bulk, type = "mean", interval = "credible", nsim_mean = 150)
 head(pred_mean_bulk)
-safe_plot(pred_mean_bulk)
+plot(pred_mean_bulk)
 ```
 
 ```{r predict-quantile-crp-bulk}
 pred_q_bulk <- predict(fit_crp_bulk, type = "quantile", p = 0.5, interval = "credible")
 head(pred_q_bulk)
-safe_plot(pred_q_bulk)
+plot(pred_q_bulk)
 ```
 
 ```{r predict-density-crp-bulk}
 pred_d_bulk <- predict(fit_crp_bulk, y = y_eval, type = "density", interval = "credible")
 head(pred_d_bulk)
-safe_plot(pred_d_bulk)
+plot(pred_d_bulk)
 ```
 
 ```{r predict-survival-crp-bulk}
 pred_surv_bulk <- predict(fit_crp_bulk, y = y_eval, type = "survival", interval = "credible")
 head(pred_surv_bulk)
-safe_plot(pred_surv_bulk)
+plot(pred_surv_bulk)
 ```
 
 ```{r ate-crp-bulk}
 ate_bulk <- ate(fit_crp_bulk, interval = "credible", nsim_mean = 150)
 head(ate_bulk)
-safe_plot(ate_bulk)
+plot(ate_bulk)
 ```
 
 ```{r qte-crp-bulk}
 qte_bulk <- qte(fit_crp_bulk, probs = c(0.25, 0.5, 0.75), interval = "credible")
 head(qte_bulk)
-safe_plot(qte_bulk)
+plot(qte_bulk)
 ```
 
 ---
@@ -163,9 +153,9 @@ param_specs_gpd <- list(
   )
 )
 
-bundle_crp_gpd <- build_causal_bundle(
+bundle_crp_gpd <- bundle(
   y = y,
-  T = T,
+  treat = A,
   X = NULL,
   kernel = "gamma",
   backend = "crp",
@@ -180,44 +170,44 @@ bundle_crp_gpd
 ```
 
 ```{r fit-crp-gpd, cache=TRUE}
-fit_crp_gpd <- quiet_mcmc(run_mcmc_causal(bundle_crp_gpd))
+fit_crp_gpd <- quiet_mcmc(mcmc(bundle_crp_gpd))
 summary(fit_crp_gpd)
 ```
 
 ```{r predict-mean-crp-gpd}
 pred_mean_gpd <- predict(fit_crp_gpd, type = "mean", interval = "credible", nsim_mean = 150)
 head(pred_mean_gpd)
-safe_plot(pred_mean_gpd)
+plot(pred_mean_gpd)
 ```
 
 ```{r predict-quantile-crp-gpd}
 pred_q_gpd <- predict(fit_crp_gpd, type = "quantile", p = 0.5, interval = "credible")
 head(pred_q_gpd)
-safe_plot(pred_q_gpd)
+plot(pred_q_gpd)
 ```
 
 ```{r predict-density-crp-gpd}
 pred_d_gpd <- predict(fit_crp_gpd, y = y_eval, type = "density", interval = "credible")
 head(pred_d_gpd)
-safe_plot(pred_d_gpd)
+plot(pred_d_gpd)
 ```
 
 ```{r predict-survival-crp-gpd}
 pred_surv_gpd <- predict(fit_crp_gpd, y = y_eval, type = "survival", interval = "credible")
 head(pred_surv_gpd)
-safe_plot(pred_surv_gpd)
+plot(pred_surv_gpd)
 ```
 
 ```{r ate-crp-gpd}
 ate_gpd <- ate(fit_crp_gpd, interval = "credible", nsim_mean = 150)
 head(ate_gpd)
-safe_plot(ate_gpd)
+plot(ate_gpd)
 ```
 
 ```{r qte-crp-gpd}
 qte_gpd <- qte(fit_crp_gpd, probs = c(0.25, 0.5, 0.75), interval = "credible")
 head(qte_gpd)
-safe_plot(qte_gpd)
+plot(qte_gpd)
 ```
 
 ---
@@ -230,6 +220,11 @@ safe_plot(qte_gpd)
 - Workflow index: [Roadmap](../start/roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
+
+
+
+
+
 
 
 

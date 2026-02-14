@@ -77,7 +77,7 @@ an injected upper tail (so <code>GPD=TRUE</code> is meaningful).</p>
 <p>Model fit (code shown for reproducibility, but not executed during
 CRAN checks)</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">bundle</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_nimble_bundle.html">build_nimble_bundle</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">bundle</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bundle.html">bundle</a></span><span class="op">(</span></span>
 <span>  y <span class="op">=</span> <span class="va">y</span>,</span>
 <span>  X <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  backend <span class="op">=</span> <span class="st">"sb"</span>,         <span class="co"># "sb" or "crp"</span></span>
@@ -87,7 +87,7 @@ CRAN checks)</p>
 <span>  mcmc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">2000</span>, nburnin <span class="op">=</span> <span class="fl">500</span>, thin <span class="op">=</span> <span class="fl">5</span>, nchains <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">101</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mcmc_bundle_manual.html">run_mcmc_bundle_manual</a></span><span class="op">(</span><span class="va">bundle</span>, show_progress <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mcmc.html">mcmc</a></span><span class="op">(</span><span class="va">bundle</span>, show_progress <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>Predictions</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">*</span> <span class="fl">1.5</span>, length.out <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
@@ -107,28 +107,28 @@ to keep CRAN checks fast and deterministic.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="right">1.449</td>
+<td align="right">1.485</td>
 <td align="right">0.50</td>
-<td align="right">1.280</td>
-<td align="right">1.631</td>
+<td align="right">0.868</td>
+<td align="right">2.027</td>
 </tr>
 <tr class="even">
-<td align="right">4.500</td>
+<td align="right">4.533</td>
 <td align="right">0.90</td>
-<td align="right">3.819</td>
-<td align="right">5.240</td>
+<td align="right">3.573</td>
+<td align="right">5.507</td>
 </tr>
 <tr class="odd">
-<td align="right">6.082</td>
+<td align="right">6.206</td>
 <td align="right">0.95</td>
-<td align="right">5.031</td>
-<td align="right">7.249</td>
+<td align="right">4.974</td>
+<td align="right">7.660</td>
 </tr>
 <tr class="even">
-<td align="right">10.611</td>
+<td align="right">11.241</td>
 <td align="right">0.99</td>
-<td align="right">8.559</td>
-<td align="right">13.610</td>
+<td align="right">8.739</td>
+<td align="right">14.808</td>
 </tr>
 </tbody>
 </table>
@@ -158,7 +158,7 @@ prefer partition-based updates.</p></li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

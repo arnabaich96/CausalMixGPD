@@ -1,6 +1,6 @@
-# Laplace mixture with a Gpd tail
+# Laplace mixture with a GPD tail
 
-Splices a generalized Pareto distribution (Gpd) above `threshold` onto a
+Splices a generalized Pareto distribution (GPD) above `threshold` onto a
 Laplace mixture bulk. The bulk probability at the threshold is used to
 scale the tail so that the overall CDF is proper.
 
@@ -67,15 +67,15 @@ qLaplaceMixGpd(
 
 - threshold:
 
-  Numeric scalar threshold at which the Gpd tail is attached.
+  Numeric scalar threshold at which the GPD tail is attached.
 
 - tail_scale:
 
-  Numeric scalar Gpd scale parameter; must be positive.
+  Numeric scalar GPD scale parameter; must be positive.
 
 - tail_shape:
 
-  Numeric scalar Gpd shape parameter.
+  Numeric scalar GPD shape parameter.
 
 - log:
 
@@ -120,13 +120,13 @@ Spliced density/CDF/RNG functions return numeric scalars.
 
 ## Functions
 
-- `dLaplaceMixGpd()`: Laplace mixture + Gpd tail density
+- `dLaplaceMixGpd()`: Laplace mixture + GPD tail density
 
-- `pLaplaceMixGpd()`: Laplace mixture + Gpd tail distribution function
+- `pLaplaceMixGpd()`: Laplace mixture + GPD tail distribution function
 
-- `rLaplaceMixGpd()`: Laplace mixture + Gpd tail random generation
+- `rLaplaceMixGpd()`: Laplace mixture + GPD tail random generation
 
-- `qLaplaceMixGpd()`: Laplace mixture + Gpd tail quantile function
+- `qLaplaceMixGpd()`: Laplace mixture + GPD tail quantile function
 
 ## Examples
 
@@ -141,22 +141,23 @@ tail_shape <- 0.2
 dLaplaceMixGpd(2.0, w = w, location = location, scale = scale,
               threshold = threshold, tail_scale = tail_scale,
               tail_shape = tail_shape, log = FALSE)
-#> [1] 0.0865
+#> [1] 0.0865078
 pLaplaceMixGpd(2.0, w = w, location = location, scale = scale,
               threshold = threshold, tail_scale = tail_scale,
               tail_shape = tail_shape, lower.tail = TRUE, log.p = FALSE)
-#> [1] 0.896
+#> [1] 0.8961906
 qLaplaceMixGpd(0.50, w = w, location = location, scale = scale,
               threshold = threshold, tail_scale = tail_scale,
               tail_shape = tail_shape)
-#> [1] -0.0255
+#> [1] -0.02546085
 qLaplaceMixGpd(0.95, w = w, location = location, scale = scale,
               threshold = threshold, tail_scale = tail_scale,
               tail_shape = tail_shape)
-#> [1] 2.94
+#> [1] 2.943917
 replicate(10, rLaplaceMixGpd(1, w = w, location = location, scale = scale,
                             threshold = threshold,
                             tail_scale = tail_scale,
                             tail_shape = tail_shape))
-#>  [1]  0.535  2.231  1.441  2.502  6.526  6.168 -0.576 -0.694  0.693 -1.158
+#>  [1] -0.5879432  0.3458072  0.2129341  4.2071786  2.2745092  2.5887673
+#>  [7]  6.6207417 -0.7818925  3.5062319 -0.1815188
 ```

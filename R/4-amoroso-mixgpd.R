@@ -7,8 +7,8 @@
 #' The density, CDF, and RNG are implemented as \code{nimbleFunction}s so they can be called from
 #' NIMBLE models. The quantile function is provided as an R function and is computed by numerical
 #' inversion of the mixture CDF.
-#' The \code{d*}, \code{p*}, and \code{q*} functions accept vector inputs for their first argument
-#' and evaluate elementwise; \code{r*} supports \code{n > 1}.
+#' These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
+#' For vectorized R usage (including \code{n > 1}), use \code{\link{amoroso_lowercase}}.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.

@@ -6,7 +6,7 @@
 \alias{pNormMixGpd}
 \alias{rNormMixGpd}
 \alias{qNormMixGpd}
-\title{Normal mixture with a Gpd tail}
+\title{Normal mixture with a GPD tail}
 \usage{
 dNormMixGpd(x, w, mean, sd, threshold, tail_scale, tail_shape, log = 0)
 
@@ -45,11 +45,11 @@ qNormMixGpd(
 
 \item{mean, sd}{Numeric vectors of length \eqn{K} giving component means and standard deviations.}
 
-\item{threshold}{Numeric scalar threshold at which the Gpd tail is attached.}
+\item{threshold}{Numeric scalar threshold at which the GPD tail is attached.}
 
-\item{tail_scale}{Numeric scalar Gpd scale parameter; must be positive.}
+\item{tail_scale}{Numeric scalar GPD scale parameter; must be positive.}
 
-\item{tail_shape}{Numeric scalar Gpd shape parameter.}
+\item{tail_shape}{Numeric scalar GPD shape parameter.}
 
 \item{log}{Integer flag \code{0/1}; if \code{1}, return the log-density.}
 
@@ -72,18 +72,18 @@ Spliced density/CDF/RNG functions return numeric scalars. \code{qNormMixGpd} ret
 with the same length as \code{p}.
 }
 \description{
-Splices a generalized Pareto distribution (Gpd) above \code{threshold} onto a Normal mixture bulk.
+Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a Normal mixture bulk.
 The bulk probability at the threshold is used to scale the tail so that the overall CDF is proper.
 }
 \section{Functions}{
 \itemize{
-\item \code{dNormMixGpd()}: Normal mixture + Gpd tail density
+\item \code{dNormMixGpd()}: Normal mixture + GPD tail density
 
-\item \code{pNormMixGpd()}: Normal mixture + Gpd tail distribution function
+\item \code{pNormMixGpd()}: Normal mixture + GPD tail distribution function
 
-\item \code{rNormMixGpd()}: Normal mixture + Gpd tail random generation
+\item \code{rNormMixGpd()}: Normal mixture + GPD tail random generation
 
-\item \code{qNormMixGpd()}: Normal mixture + Gpd tail quantile function
+\item \code{qNormMixGpd()}: Normal mixture + GPD tail quantile function
 
 }}
 \examples{

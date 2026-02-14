@@ -166,3 +166,5 @@ ggplot(df_amor_gpd, aes(x = x, y = density, color = label)) +
 
 
 
+
+

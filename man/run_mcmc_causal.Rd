@@ -20,7 +20,7 @@ When \code{PS=FALSE} in the bundle, the PS model is skipped entirely.
 }
 \examples{
 \dontrun{
-cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal")
+cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
 fit <- run_mcmc_causal(cb)
 }
 }

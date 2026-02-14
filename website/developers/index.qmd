@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Developers"
 toc: true
 format:
@@ -27,3 +27,5 @@ Developer hub for architecture, tooling, tests, contracts, and release process.
 {{< include _includes/where-to-change-what.md >}}
 
 {{< include _includes/common-pitfalls.md >}}
+
+

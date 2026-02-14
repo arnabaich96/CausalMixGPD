@@ -6,7 +6,7 @@
 \alias{pInvGaussMixGpd}
 \alias{rInvGaussMixGpd}
 \alias{qInvGaussMixGpd}
-\title{Inverse Gaussian mixture with a Gpd tail}
+\title{Inverse Gaussian mixture with a GPD tail}
 \usage{
 dInvGaussMixGpd(x, w, mean, shape, threshold, tail_scale, tail_shape, log = 0)
 
@@ -45,11 +45,11 @@ qInvGaussMixGpd(
 
 \item{mean, shape}{Numeric vectors of length \eqn{K} giving component means and shapes.}
 
-\item{threshold}{Numeric scalar threshold at which the Gpd tail is attached.}
+\item{threshold}{Numeric scalar threshold at which the GPD tail is attached.}
 
-\item{tail_scale}{Numeric scalar Gpd scale parameter; must be positive.}
+\item{tail_scale}{Numeric scalar GPD scale parameter; must be positive.}
 
-\item{tail_shape}{Numeric scalar Gpd shape parameter.}
+\item{tail_shape}{Numeric scalar GPD shape parameter.}
 
 \item{log}{Integer flag \code{0/1}; if \code{1}, return the log-density.}
 
@@ -73,20 +73,20 @@ Spliced density/CDF/RNG functions return numeric scalars.
 \code{qInvGaussMixGpd} returns a numeric vector with the same length as \code{p}.
 }
 \description{
-This family splices a generalized Pareto distribution (Gpd) above a threshold
+This family splices a generalized Pareto distribution (GPD) above a threshold
 \code{threshold} onto an inverse Gaussian mixture bulk. The bulk probability at the
 threshold, \eqn{F_{mix}(threshold)}, is used to scale the tail so that the overall
 CDF remains proper.
 }
 \section{Functions}{
 \itemize{
-\item \code{dInvGaussMixGpd()}: Inverse Gaussian mixture + Gpd tail density
+\item \code{dInvGaussMixGpd()}: Inverse Gaussian mixture + GPD tail density
 
-\item \code{pInvGaussMixGpd()}: Inverse Gaussian mixture + Gpd tail distribution function
+\item \code{pInvGaussMixGpd()}: Inverse Gaussian mixture + GPD tail distribution function
 
-\item \code{rInvGaussMixGpd()}: Inverse Gaussian mixture + Gpd tail random generation
+\item \code{rInvGaussMixGpd()}: Inverse Gaussian mixture + GPD tail random generation
 
-\item \code{qInvGaussMixGpd()}: Inverse Gaussian mixture + Gpd tail quantile function
+\item \code{qInvGaussMixGpd()}: Inverse Gaussian mixture + GPD tail quantile function
 
 }}
 \examples{

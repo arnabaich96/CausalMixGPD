@@ -1,6 +1,6 @@
-# Inverse Gaussian with a Gpd tail
+# Inverse Gaussian with a GPD tail
 
-Splices a generalized Pareto distribution (Gpd) above `threshold` onto a
+Splices a generalized Pareto distribution (GPD) above `threshold` onto a
 single inverse Gaussian bulk with parameters `mean` and `shape`.
 
 ## Usage
@@ -51,15 +51,15 @@ qInvGaussGpd(
 
 - threshold:
 
-  Numeric scalar threshold at which the Gpd tail is attached.
+  Numeric scalar threshold at which the GPD tail is attached.
 
 - tail_scale:
 
-  Numeric scalar Gpd scale parameter; must be positive.
+  Numeric scalar GPD scale parameter; must be positive.
 
 - tail_shape:
 
-  Numeric scalar Gpd shape parameter.
+  Numeric scalar GPD shape parameter.
 
 - log:
 
@@ -104,13 +104,13 @@ returns a numeric vector with the same length as `p`.
 
 ## Functions
 
-- `dInvGaussGpd()`: Inverse Gaussian + Gpd tail density
+- `dInvGaussGpd()`: Inverse Gaussian + GPD tail density
 
-- `pInvGaussGpd()`: Inverse Gaussian + Gpd tail distribution function
+- `pInvGaussGpd()`: Inverse Gaussian + GPD tail distribution function
 
-- `rInvGaussGpd()`: Inverse Gaussian + Gpd tail random generation
+- `rInvGaussGpd()`: Inverse Gaussian + GPD tail random generation
 
-- `qInvGaussGpd()`: Inverse Gaussian + Gpd tail quantile function
+- `qInvGaussGpd()`: Inverse Gaussian + GPD tail quantile function
 
 ## Examples
 
@@ -124,22 +124,23 @@ tail_shape <- 0.2
 dInvGaussGpd(4.0, mean = mean, shape = shape,
             threshold = threshold, tail_scale = tail_scale,
             tail_shape = tail_shape, log = 0)
-#> [1] 0.0918
+#> [1] 0.09181898
 pInvGaussGpd(4.0, mean = mean, shape = shape,
             threshold = threshold, tail_scale = tail_scale,
             tail_shape = tail_shape, lower.tail = 1, log.p = 0)
-#> [1] 0.899
+#> [1] 0.8989991
 qInvGaussGpd(0.50, mean = mean, shape = shape,
             threshold = threshold, tail_scale = tail_scale,
             tail_shape = tail_shape)
-#> [1] 2.08
+#> [1] 2.077493
 qInvGaussGpd(0.95, mean = mean, shape = shape,
             threshold = threshold, tail_scale = tail_scale,
             tail_shape = tail_shape)
-#> [1] 4.83
+#> [1] 4.830437
 replicate(10, rInvGaussGpd(1, mean = mean, shape = shape,
                           threshold = threshold,
                           tail_scale = tail_scale,
                           tail_shape = tail_shape))
-#>  [1]  0.917  2.662  4.684  1.173  1.969  3.757  3.702  5.135 19.008  1.188
+#>  [1]  5.963053  3.856062 11.549156  4.139112  3.251964  6.681467  2.904894
+#>  [8]  1.059770  3.102340  1.614044
 ```

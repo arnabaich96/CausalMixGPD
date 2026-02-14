@@ -7,8 +7,8 @@
 #' Mixture density and CDF are computed by weighted sums. Random generation samples a component
 #' index according to weights and draws from the corresponding component. Quantiles are computed
 #' by numerical inversion of the mixture CDF.
-#' The \code{d*}, \code{p*}, and \code{q*} functions accept vector inputs for their first argument
-#' and evaluate elementwise; \code{r*} supports \code{n > 1}.
+#' These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
+#' For vectorized R usage (including \code{n > 1}), use \code{\link{laplace_lowercase}}.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -190,9 +190,9 @@ qLaplaceMix <- function(p, w, location, scale,
 }
 
 
-#' Laplace mixture with a Gpd tail
+#' Laplace mixture with a GPD tail
 #'
-#' Splices a generalized Pareto distribution (Gpd) above \code{threshold} onto a Laplace mixture bulk.
+#' Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a Laplace mixture bulk.
 #' The bulk probability at the threshold is used to scale the tail so that the overall CDF is proper.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
@@ -202,9 +202,9 @@ qLaplaceMix <- function(p, w, location, scale,
 #' @param w Numeric vector of mixture weights of length \eqn{K}.
 #' @param location Numeric vector of length \eqn{K} giving component locations.
 #' @param scale Numeric vector of length \eqn{K} giving component scales.
-#' @param threshold Numeric scalar threshold at which the Gpd tail is attached.
-#' @param tail_scale Numeric scalar Gpd scale parameter; must be positive.
-#' @param tail_shape Numeric scalar Gpd shape parameter.
+#' @param threshold Numeric scalar threshold at which the GPD tail is attached.
+#' @param tail_scale Numeric scalar GPD scale parameter; must be positive.
+#' @param tail_shape Numeric scalar GPD shape parameter.
 #' @param log Logical; if \code{TRUE}, return the log-density.
 #' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Logical; if \code{TRUE}, probabilities are returned on the log scale.
@@ -241,7 +241,7 @@ qLaplaceMix <- function(p, w, location, scale,
 #' @aliases dLaplaceMixGpd pLaplaceMixGpd rLaplaceMixGpd qLaplaceMixGpd
 NULL
 
-#' @describeIn laplace_MixGpd Laplace mixture + Gpd tail density
+#' @describeIn laplace_MixGpd Laplace mixture + GPD tail density
 #' @export
 dLaplaceMixGpd <- nimble::nimbleFunction(
   run = function(x = double(0),
@@ -264,7 +264,7 @@ dLaplaceMixGpd <- nimble::nimbleFunction(
   }
 )
 
-#' @describeIn laplace_MixGpd Laplace mixture + Gpd tail distribution function
+#' @describeIn laplace_MixGpd Laplace mixture + GPD tail distribution function
 #' @export
 pLaplaceMixGpd <- nimble::nimbleFunction(
   run = function(q = double(0),
@@ -295,7 +295,7 @@ pLaplaceMixGpd <- nimble::nimbleFunction(
   }
 )
 
-#' @describeIn laplace_MixGpd Laplace mixture + Gpd tail random generation
+#' @describeIn laplace_MixGpd Laplace mixture + GPD tail random generation
 #' @export
 rLaplaceMixGpd <- nimble::nimbleFunction(
   run = function(n = integer(0),
@@ -319,7 +319,7 @@ rLaplaceMixGpd <- nimble::nimbleFunction(
 
 
 
-#' @describeIn laplace_MixGpd Laplace mixture + Gpd tail quantile function
+#' @describeIn laplace_MixGpd Laplace mixture + GPD tail quantile function
 #' @export
 #' @param tol Numeric scalar tolerance passed to \code{stats::uniroot}.
 #' @param maxiter Integer maximum iterations for \code{stats::uniroot}.
@@ -347,9 +347,9 @@ qLaplaceMixGpd <- function(p, w, location, scale, threshold, tail_scale, tail_sh
 }
 
 
-#' Laplace with a Gpd tail
+#' Laplace with a GPD tail
 #'
-#' Splices a generalized Pareto distribution (Gpd) above \code{threshold} onto a single Laplace bulk with
+#' Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a single Laplace bulk with
 #' parameters \code{location} and \code{scale}. Base Laplace functions are taken from \pkg{nimble}.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
@@ -358,9 +358,9 @@ qLaplaceMixGpd <- function(p, w, location, scale, threshold, tail_scale, tail_sh
 #' @param n Integer giving the number of draws. The RNG implementation supports \code{n = 1}.
 #' @param location Numeric scalar location parameter for the Laplace bulk.
 #' @param scale Numeric scalar scale parameter for the Laplace bulk.
-#' @param threshold Numeric scalar threshold at which the Gpd tail is attached.
-#' @param tail_scale Numeric scalar Gpd scale parameter; must be positive.
-#' @param tail_shape Numeric scalar Gpd shape parameter.
+#' @param threshold Numeric scalar threshold at which the GPD tail is attached.
+#' @param tail_scale Numeric scalar GPD scale parameter; must be positive.
+#' @param tail_shape Numeric scalar GPD shape parameter.
 #' @param log Logical; if \code{TRUE}, return the log-density.
 #' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Logical; if \code{TRUE}, probabilities are returned on the log scale.
@@ -386,7 +386,7 @@ qLaplaceMixGpd <- function(p, w, location, scale, threshold, tail_scale, tail_sh
 #' @aliases dLaplaceGpd pLaplaceGpd rLaplaceGpd qLaplaceGpd
 NULL
 
-#' @describeIn laplace_gpd Laplace + Gpd tail density
+#' @describeIn laplace_gpd Laplace + GPD tail density
 #' @export
 dLaplaceGpd <- nimble::nimbleFunction(
   run = function(x = double(0),
@@ -408,7 +408,7 @@ dLaplaceGpd <- nimble::nimbleFunction(
   }
 )
 
-#' @describeIn laplace_gpd Laplace + Gpd tail distribution function
+#' @describeIn laplace_gpd Laplace + GPD tail distribution function
 #' @export
 pLaplaceGpd <- nimble::nimbleFunction(
   run = function(q = double(0),
@@ -437,7 +437,7 @@ pLaplaceGpd <- nimble::nimbleFunction(
   }
 )
 
-#' @describeIn laplace_gpd Laplace + Gpd tail random generation
+#' @describeIn laplace_gpd Laplace + GPD tail random generation
 #' @export
 rLaplaceGpd <- nimble::nimbleFunction(
   run = function(n = integer(0),
@@ -460,7 +460,7 @@ rLaplaceGpd <- nimble::nimbleFunction(
 
 
 
-#' @describeIn laplace_gpd Laplace + Gpd tail quantile function
+#' @describeIn laplace_gpd Laplace + GPD tail quantile function
 #' @export
 qLaplaceGpd <- function(p, location, scale, threshold, tail_scale, tail_shape, lower.tail = TRUE, log.p = FALSE) {
   if (log.p) p <- exp(p)

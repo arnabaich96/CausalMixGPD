@@ -4,9 +4,10 @@ A finite mixture of Lognormal components. Base Lognormal functions are
 taken from stats. Mixture density and CDF are computed by weighted sums.
 Random generation samples a component index according to weights and
 draws from the corresponding component. Quantiles are computed by
-numerical inversion of the mixture CDF. The `d*`, `p*`, and `q*`
-functions accept vector inputs for their first argument and evaluate
-elementwise; `r*` supports `n > 1`.
+numerical inversion of the mixture CDF. These uppercase
+NIMBLE-compatible functions are scalar (`x`/`q` and `n = 1`). For
+vectorized R usage (including `n > 1`), use
+[`lognormal_lowercase`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/lognormal_lowercase.md).
 
 ## Usage
 
@@ -106,14 +107,15 @@ meanlog <- c(-0.2, 0.6, 1.2)
 sdlog <- c(0.4, 0.3, 0.5)
 
 dLognormalMix(2.0, w = w, meanlog = meanlog, sdlog = sdlog, log = FALSE)
-#> [1] 0.219
+#> [1] 0.2189383
 pLognormalMix(2.0, w = w, meanlog = meanlog, sdlog = sdlog,
              lower.tail = TRUE, log.p = FALSE)
-#> [1] 0.771
+#> [1] 0.7711135
 qLognormalMix(0.50, w = w, meanlog = meanlog, sdlog = sdlog)
-#> [1] 1.15
+#> [1] 1.151134
 qLognormalMix(0.95, w = w, meanlog = meanlog, sdlog = sdlog)
-#> [1] 4.15
+#> [1] 4.147585
 replicate(10, rLognormalMix(1, w = w, meanlog = meanlog, sdlog = sdlog))
-#>  [1] 4.129 0.687 1.332 0.649 0.985 1.638 3.332 0.702 2.544 2.154
+#>  [1] 0.7144408 1.8090011 4.3538947 0.6317372 4.0865586 1.3226193 1.6459525
+#>  [8] 0.4887494 0.8604674 0.6590314
 ```

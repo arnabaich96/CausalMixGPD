@@ -1,4 +1,4 @@
-﻿---
+---
 title: "ex07. Conditional DPMGPD (CRP Backend)"
 ---
 
@@ -37,17 +37,6 @@ pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
-if (!exists("safe_plot", mode = "function")) {
-  safe_plot <- function(x, ...) {
-    obj <- tryCatch(plot(x, ...), error = function(e) e)
-    if (inherits(obj, "ggplot")) {
-      try(print(obj), silent = TRUE)
-    } else if (is.list(obj)) {
-      for (elt in obj) if (inherits(elt, "ggplot")) try(print(elt), silent = TRUE)
-    }
-    invisible(obj)
-  }
-}
 ```
 
 
@@ -112,7 +101,7 @@ ggplot(data.frame(y = y), aes(x = y)) +
 ## Model Specification & Bundle
 
 ```{r bundle, cache=TRUE}
-bundle_cond_gpd_lognormal <- DPmixGPD::build_nimble_bundle(
+bundle_cond_gpd_lognormal <- bundle(
   y = y,
   X = X,
   kernel = "lognormal",
@@ -127,7 +116,7 @@ bundle_cond_gpd_lognormal <- DPmixGPD::build_nimble_bundle(
   mcmc = mcmc
 )
 
-bundle_cond_gpd_normal <- DPmixGPD::build_nimble_bundle(
+bundle_cond_gpd_normal <- bundle(
   y = y,
   X = X,
   kernel = "normal",
@@ -148,8 +137,8 @@ bundle_cond_gpd_normal <- DPmixGPD::build_nimble_bundle(
 ## Running MCMC
 
 ```{r mcmc-run, cache=TRUE}
-fit_cond_gpd_lognormal <- load_or_fit("ex07-conditional-dpmgpd-crp-fit_cond_gpd_lognormal", run_mcmc_bundle_manual(bundle_cond_gpd_lognormal))
-fit_cond_gpd_normal <- load_or_fit("ex07-conditional-dpmgpd-crp-fit_cond_gpd_normal", run_mcmc_bundle_manual(bundle_cond_gpd_normal))
+fit_cond_gpd_lognormal <- load_or_fit("ex07-conditional-dpmgpd-crp-fit_cond_gpd_lognormal", mcmc(bundle_cond_gpd_lognormal))
+fit_cond_gpd_normal <- load_or_fit("ex07-conditional-dpmgpd-crp-fit_cond_gpd_normal", mcmc(bundle_cond_gpd_normal))
 summary(fit_cond_gpd_lognormal)
 summary(fit_cond_gpd_normal)
 ```
@@ -235,12 +224,12 @@ bind_rows(quant_df_lognormal, quant_df_normal) %>%
 ## Residuals & Diagnostics
 
 ```{r residuals, cache=TRUE}
-safe_plot(fitted(fit_cond_gpd_lognormal))
+plot(fitted(fit_cond_gpd_lognormal))
 ```
 
 ```{r diagnostics}
-safe_plot(fit_cond_gpd_lognormal, family = c("traceplot", "density", "autocorrelation"))
-safe_plot(fit_cond_gpd_normal, family = c("running", "geweke", "caterpillar"))
+plot(fit_cond_gpd_lognormal, family = c("traceplot", "density", "autocorrelation"))
+plot(fit_cond_gpd_normal, family = c("running", "geweke", "caterpillar"))
 ```
 
 ---
@@ -262,6 +251,10 @@ safe_plot(fit_cond_gpd_normal, family = c("running", "geweke", "caterpillar"))
 - Workflow index: [Roadmap](../start/roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
+
+
+
+
 
 
 

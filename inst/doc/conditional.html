@@ -373,7 +373,7 @@ and how to use the general link mechanism.</p>
 A robust default is to use <code>model.matrix()</code>.</p>
 <p>Model fit (code shown for reproducibility, but not executed during
 CRAN checks)</p>
-<pre class="r"><code>bundle &lt;- build_nimble_bundle(
+<pre class="r"><code>bundle &lt;- DPmixGPD::bundle(
   y = y,
   X = X,
   backend = &quot;sb&quot;,
@@ -383,7 +383,7 @@ CRAN checks)</p>
   mcmc = list(niter = 2500, nburnin = 600, thin = 5, nchains = 1, seed = 202)
 )
 
-fit &lt;- run_mcmc_bundle_manual(bundle, show_progress = TRUE)</code></pre>
+fit &lt;- DPmixGPD::mcmc(bundle, show_progress = TRUE)</code></pre>
 <p>General link mode (what “special cases” are really doing)</p>
 <p>When you pass <code>param_specs</code>, you are not locked into a
 single model form. Any parameter that the kernel registry marks as
@@ -422,46 +422,46 @@ q_pred    &lt;- predict(fit, x = Xnew, type = &quot;quantile&quot;, p = c(0.5, 0
 </thead>
 <tbody>
 <tr class="odd">
-<td align="right">1.488</td>
+<td align="right">1.476</td>
 <td align="right">0.50</td>
 <td align="right">1</td>
-<td align="right">1.328</td>
-<td align="right">1.656</td>
+<td align="right">1.290</td>
+<td align="right">1.676</td>
 </tr>
 <tr class="even">
-<td align="right">1.959</td>
+<td align="right">1.942</td>
 <td align="right">0.50</td>
 <td align="right">2</td>
 <td align="right">1.545</td>
-<td align="right">2.530</td>
+<td align="right">2.391</td>
 </tr>
 <tr class="odd">
-<td align="right">25.033</td>
+<td align="right">23.491</td>
 <td align="right">0.90</td>
 <td align="right">1</td>
-<td align="right">11.901</td>
-<td align="right">46.013</td>
+<td align="right">11.407</td>
+<td align="right">42.887</td>
 </tr>
 <tr class="even">
-<td align="right">32.823</td>
+<td align="right">30.905</td>
 <td align="right">0.90</td>
 <td align="right">2</td>
-<td align="right">14.753</td>
-<td align="right">60.213</td>
+<td align="right">14.443</td>
+<td align="right">57.762</td>
 </tr>
 <tr class="odd">
-<td align="right">57.805</td>
+<td align="right">53.108</td>
 <td align="right">0.95</td>
 <td align="right">1</td>
-<td align="right">21.299</td>
-<td align="right">124.344</td>
+<td align="right">21.170</td>
+<td align="right">110.325</td>
 </tr>
 <tr class="even">
-<td align="right">75.686</td>
+<td align="right">69.899</td>
 <td align="right">0.95</td>
 <td align="right">2</td>
-<td align="right">26.545</td>
-<td align="right">160.629</td>
+<td align="right">25.990</td>
+<td align="right">147.187</td>
 </tr>
 </tbody>
 </table>

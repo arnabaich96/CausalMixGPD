@@ -24,3 +24,5 @@ This page defines the contributor style guide.
 - Keep internal helpers in `R/02-utilities-internal.R`.
 - Keep plot helpers in `R/06-visualization-helpers.R`.
 - Export only stable user-facing functions.
+
+

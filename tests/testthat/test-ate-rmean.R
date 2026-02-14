@@ -7,7 +7,7 @@ test_that("ate(type='mean') is Inf when xi >= 1 and ate_rmean stays finite", {
   set.seed(77)
   n <- 20
   X <- cbind(x1 = stats::rnorm(n), x2 = stats::runif(n, -1, 1))
-  T <- stats::rbinom(n, 1, stats::plogis(0.2 + 0.4 * X[, 1]))
+  A <- stats::rbinom(n, 1, stats::plogis(0.2 + 0.4 * X[, 1]))
   y <- abs(stats::rnorm(n)) + 0.1
 
   mcmc_out <- list(niter = 20, nburnin = 5, thin = 1, nchains = 1, seed = 1)
@@ -16,7 +16,7 @@ test_that("ate(type='mean') is Inf when xi >= 1 and ate_rmean stays finite", {
   cb <- DPmixGPD::build_causal_bundle(
     y = y,
     X = X,
-    T = T,
+    A = A,
     backend = c("sb", "sb"),
     kernel = c("gamma", "gamma"),
     GPD = c(TRUE, TRUE),

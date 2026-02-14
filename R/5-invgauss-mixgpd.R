@@ -6,8 +6,8 @@
 #'
 #' The density, CDF, and RNG are implemented as \code{nimbleFunction}s for use inside NIMBLE models.
 #' The quantile function is an R function computed by numerical inversion of the mixture CDF.
-#' The \code{d*}, \code{p*}, and \code{q*} functions accept vector inputs for their first argument
-#' and evaluate elementwise; \code{r*} supports \code{n > 1}.
+#' These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
+#' For vectorized R usage (including \code{n > 1}), use \code{\link{invgauss_lowercase}}.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -211,9 +211,9 @@ qInvGaussMix <- function(p, w, mean, shape,
 }
 
 
-#' Inverse Gaussian mixture with a Gpd tail
+#' Inverse Gaussian mixture with a GPD tail
 #'
-#' This family splices a generalized Pareto distribution (Gpd) above a threshold
+#' This family splices a generalized Pareto distribution (GPD) above a threshold
 #' \code{threshold} onto an inverse Gaussian mixture bulk. The bulk probability at the
 #' threshold, \eqn{F_{mix}(threshold)}, is used to scale the tail so that the overall
 #' CDF remains proper.
@@ -225,9 +225,9 @@ qInvGaussMix <- function(p, w, mean, shape,
 #'   the RNG implementation supports \code{n = 1}.
 #' @param w Numeric vector of mixture weights of length \eqn{K}.
 #' @param mean,shape Numeric vectors of length \eqn{K} giving component means and shapes.
-#' @param threshold Numeric scalar threshold at which the Gpd tail is attached.
-#' @param tail_scale Numeric scalar Gpd scale parameter; must be positive.
-#' @param tail_shape Numeric scalar Gpd shape parameter.
+#' @param threshold Numeric scalar threshold at which the GPD tail is attached.
+#' @param tail_scale Numeric scalar GPD scale parameter; must be positive.
+#' @param tail_shape Numeric scalar GPD shape parameter.
 #' @param log Integer flag \code{0/1}; if \code{1}, return the log-density.
 #' @param lower.tail Integer flag \code{0/1}; if \code{1} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Integer flag \code{0/1}; if \code{1}, probabilities are returned on the log scale.
@@ -271,7 +271,7 @@ qInvGaussMix <- function(p, w, mean, shape,
 NULL
 
 
-#' @describeIn InvGauss_mixgpd Inverse Gaussian mixture + Gpd tail density
+#' @describeIn InvGauss_mixgpd Inverse Gaussian mixture + GPD tail density
 #' @export
 dInvGaussMixGpd <- nimble::nimbleFunction(
   run = function(x = double(0),
@@ -297,7 +297,7 @@ dInvGaussMixGpd <- nimble::nimbleFunction(
 )
 
 
-#' @describeIn InvGauss_mixgpd Inverse Gaussian mixture + Gpd tail distribution function
+#' @describeIn InvGauss_mixgpd Inverse Gaussian mixture + GPD tail distribution function
 #' @export
 pInvGaussMixGpd <- nimble::nimbleFunction(
   run = function(q = double(0),
@@ -328,7 +328,7 @@ pInvGaussMixGpd <- nimble::nimbleFunction(
 )
 
 
-#' @describeIn InvGauss_mixgpd Inverse Gaussian mixture + Gpd tail random generation
+#' @describeIn InvGauss_mixgpd Inverse Gaussian mixture + GPD tail random generation
 #' @export
 rInvGaussMixGpd <- nimble::nimbleFunction(
   run = function(n = integer(0),
@@ -352,7 +352,7 @@ rInvGaussMixGpd <- nimble::nimbleFunction(
 )
 
 
-#' @describeIn InvGauss_mixgpd Inverse Gaussian mixture + Gpd tail quantile function
+#' @describeIn InvGauss_mixgpd Inverse Gaussian mixture + GPD tail quantile function
 #' @export
 qInvGaussMixGpd <- function(p, w, mean, shape, threshold, tail_scale, tail_shape,
                             lower.tail = TRUE, log.p = FALSE,
@@ -382,9 +382,9 @@ qInvGaussMixGpd <- function(p, w, mean, shape, threshold, tail_scale, tail_shape
 
 
 
-#' Inverse Gaussian with a Gpd tail
+#' Inverse Gaussian with a GPD tail
 #'
-#' Splices a generalized Pareto distribution (Gpd) above \code{threshold} onto a
+#' Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a
 #' single inverse Gaussian bulk with parameters \code{mean} and \code{shape}.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
@@ -394,9 +394,9 @@ qInvGaussMixGpd <- function(p, w, mean, shape, threshold, tail_scale, tail_shape
 #'   the RNG implementation supports \code{n = 1}.
 #' @param mean Numeric scalar mean parameter \eqn{\mu>0}.
 #' @param shape Numeric scalar shape parameter \eqn{\lambda>0}.
-#' @param threshold Numeric scalar threshold at which the Gpd tail is attached.
-#' @param tail_scale Numeric scalar Gpd scale parameter; must be positive.
-#' @param tail_shape Numeric scalar Gpd shape parameter.
+#' @param threshold Numeric scalar threshold at which the GPD tail is attached.
+#' @param tail_scale Numeric scalar GPD scale parameter; must be positive.
+#' @param tail_shape Numeric scalar GPD shape parameter.
 #' @param log Integer flag \code{0/1}; if \code{1}, return the log-density.
 #' @param lower.tail Integer flag \code{0/1}; if \code{1} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Integer flag \code{0/1}; if \code{1}, probabilities are returned on the log scale.
@@ -433,7 +433,7 @@ qInvGaussMixGpd <- function(p, w, mean, shape, threshold, tail_scale, tail_shape
 NULL
 
 
-#' @describeIn InvGauss_gpd Inverse Gaussian + Gpd tail density
+#' @describeIn InvGauss_gpd Inverse Gaussian + GPD tail density
 #' @export
 dInvGaussGpd <- nimble::nimbleFunction(
   run = function(x = double(0),
@@ -458,7 +458,7 @@ dInvGaussGpd <- nimble::nimbleFunction(
 )
 
 
-#' @describeIn InvGauss_gpd Inverse Gaussian + Gpd tail distribution function
+#' @describeIn InvGauss_gpd Inverse Gaussian + GPD tail distribution function
 #' @export
 pInvGaussGpd <- nimble::nimbleFunction(
   run = function(q = double(0),
@@ -488,7 +488,7 @@ pInvGaussGpd <- nimble::nimbleFunction(
 )
 
 
-#' @describeIn InvGauss_gpd Inverse Gaussian + Gpd tail random generation
+#' @describeIn InvGauss_gpd Inverse Gaussian + GPD tail random generation
 #' @export
 rInvGaussGpd <- nimble::nimbleFunction(
   run = function(n = integer(0),
@@ -511,7 +511,7 @@ rInvGaussGpd <- nimble::nimbleFunction(
 )
 
 
-#' @describeIn InvGauss_gpd Inverse Gaussian + Gpd tail quantile function
+#' @describeIn InvGauss_gpd Inverse Gaussian + GPD tail quantile function
 #' @export
 #' @param tol Numeric tolerance for numerical inversion in \code{qInvGaussGpd}.
 #' @param maxiter Maximum iterations for numerical inversion in \code{qInvGaussGpd}.

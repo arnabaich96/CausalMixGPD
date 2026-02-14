@@ -90,9 +90,10 @@ a numeric vector with the same length as `p`.
 Mixture density and CDF are computed by weighted sums. Random generation
 samples a component index according to weights and draws from the
 corresponding component. Quantiles are computed by numerical inversion
-of the mixture CDF. The `d*`, `p*`, and `q*` functions accept vector
-inputs for their first argument and evaluate elementwise; `r*` supports
-`n > 1`.
+of the mixture CDF. These uppercase NIMBLE-compatible functions are
+scalar (`x`/`q` and `n = 1`). For vectorized R usage (including
+`n > 1`), use
+[`laplace_lowercase`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/laplace_lowercase.md).
 
 ## Functions
 
@@ -112,14 +113,15 @@ location <- c(-1, 0.5, 2.0)
 scale <- c(1.0, 0.7, 1.4)
 
 dLaplaceMix(0.8, w = w, location = location, scale = scale, log = FALSE)
-#> [1] 0.211
+#> [1] 0.2112312
 pLaplaceMix(0.8, w = w, location = location, scale = scale,
            lower.tail = TRUE, log.p = FALSE)
-#> [1] 0.703
+#> [1] 0.7033967
 qLaplaceMix(0.50, w = w, location = location, scale = scale)
-#> [1] -0.0255
+#> [1] -0.02546085
 qLaplaceMix(0.95, w = w, location = location, scale = scale)
-#> [1] 3.18
+#> [1] 3.18341
 replicate(10, rLaplaceMix(1, w = w, location = location, scale = scale))
-#>  [1] -0.183  0.323  2.584 -0.481 -0.532 -1.979 -1.704  0.531 -0.518  2.654
+#>  [1] -5.4458792  0.5214974 -0.4492418  0.0948115 -1.5719023  3.6907967
+#>  [7] -0.3890725  0.3973869  1.2017509 -0.6046891
 ```

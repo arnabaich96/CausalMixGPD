@@ -1,4 +1,4 @@
-﻿---
+---
 title: "ex02. Unconditional DPM (SB Backend)"
 ---
 
@@ -39,17 +39,6 @@ pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
-if (!exists("safe_plot", mode = "function")) {
-  safe_plot <- function(x, ...) {
-    obj <- tryCatch(plot(x, ...), error = function(e) e)
-    if (inherits(obj, "ggplot")) {
-      try(print(obj), silent = TRUE)
-    } else if (is.list(obj)) {
-      for (elt in obj) if (inherits(elt, "ggplot")) try(print(elt), silent = TRUE)
-    }
-    invisible(obj)
-  }
-}
 ```
 
 
@@ -118,7 +107,7 @@ We build the stick-breaking mixture explicitly with `components = 5` so that the
 
 ```{r bundle-mcmc-sb, cache=TRUE}
 # --- Gamma kernel ---
-bundle_sb_gamma <- DPmixGPD::build_nimble_bundle(
+bundle_sb_gamma <- bundle(
   y = y_mixed,
   kernel = "gamma",
   backend = "sb",
@@ -128,7 +117,7 @@ bundle_sb_gamma <- DPmixGPD::build_nimble_bundle(
 )
 
 # --- Cauchy kernel ---
-bundle_sb_cauchy <- DPmixGPD::build_nimble_bundle(
+bundle_sb_cauchy <- bundle(
   y = y_mixed,
   kernel = "cauchy",
   backend = "sb",
@@ -143,8 +132,8 @@ bundle_sb_cauchy <- DPmixGPD::build_nimble_bundle(
 ## Running MCMC & Summary
 
 ```{r mcmc-run, cache=TRUE}
-fit_sb_gamma <- load_or_fit("ex02-unconditional-dpm-sb-fit_sb_gamma", run_mcmc_bundle_manual(bundle_sb_gamma))
-fit_sb_cauchy <- load_or_fit("ex02-unconditional-dpm-sb-fit_sb_cauchy", run_mcmc_bundle_manual(bundle_sb_cauchy))
+fit_sb_gamma <- load_or_fit("ex02-unconditional-dpm-sb-fit_sb_gamma", mcmc(bundle_sb_gamma))
+fit_sb_cauchy <- load_or_fit("ex02-unconditional-dpm-sb-fit_sb_cauchy", mcmc(bundle_sb_cauchy))
 ```
 
 ```{r fit-summary}
@@ -163,8 +152,8 @@ params_gamma
 
 ```{r diag-plots}
 # Default diagnostics for each fit
-safe_plot(fit_sb_gamma, family = c("traceplot", "autocorrelation", "running"))
-safe_plot(fit_sb_cauchy, family = c("density", "geweke", "caterpillar"))
+plot(fit_sb_gamma, family = c("traceplot", "autocorrelation", "running"))
+plot(fit_sb_cauchy, family = c("density", "geweke", "caterpillar"))
 ``` 
 
 Use `summary(fit_sb_gamma)` and `summary(fit_sb_cauchy)` to inspect effective sample size, R-hat, and other convergence diagnostics; the `plot()` calls above show the trace/density pairs for both global and stick-breaking weight parameters.
@@ -185,8 +174,8 @@ y_grid <- seq(min(y_mixed), max(y_mixed) * 1.3, length.out = 250)
 pred_density_gamma <- predict(fit_sb_gamma, y = y_grid, type = "density")
 pred_density_cauchy <- predict(fit_sb_cauchy, y = y_grid, type = "density")
 
-safe_plot(pred_density_gamma)
-safe_plot(pred_density_cauchy)
+plot(pred_density_gamma)
+plot(pred_density_cauchy)
 ```
 
 ```{r quantile-predict}
@@ -195,16 +184,16 @@ quant_probs <- c(0.05, 0.25, 0.5, 0.75, 0.95)
 pred_q_gamma <- predict(fit_sb_gamma, type = "quantile", index = quant_probs, interval = "credible")
 pred_q_cauchy <- predict(fit_sb_cauchy, type = "quantile", index = quant_probs, interval = "credible")
 
-safe_plot(pred_q_gamma)
-safe_plot(pred_q_cauchy)
+plot(pred_q_gamma)
+plot(pred_q_cauchy)
 ```
 
 ```{r mean-predict}
 pred_mean_gamma <- predict(fit_sb_gamma, type = "mean")
 pred_mean_cauchy <- predict(fit_sb_cauchy, type = "mean")
 
-safe_plot(pred_mean_gamma)
-safe_plot(pred_mean_cauchy)
+plot(pred_mean_gamma)
+plot(pred_mean_cauchy)
 ```
 
 ---
@@ -212,7 +201,7 @@ safe_plot(pred_mean_cauchy)
 ## Bulk-only vs CRP Backends
 
 ```{r compare-backend, cache=TRUE}
-bundle_crp_small <- DPmixGPD::build_nimble_bundle(
+bundle_crp_small <- bundle(
   y = y_mixed,
   kernel = "gamma",
   backend = "crp",
@@ -220,7 +209,7 @@ bundle_crp_small <- DPmixGPD::build_nimble_bundle(
   GPD = FALSE,
   mcmc = mcmc
 )
-fit_crp_small <- load_or_fit("ex02-unconditional-dpm-sb-fit_crp_small", run_mcmc_bundle_manual(bundle_crp_small))
+fit_crp_small <- load_or_fit("ex02-unconditional-dpm-sb-fit_crp_small", mcmc(bundle_crp_small))
 
 crp_quant <- predict(fit_crp_small, type = "quantile", index = quant_probs, interval = "credible")
 sb_quant <- predict(fit_sb_gamma, type = "quantile", index = quant_probs, interval = "credible")
@@ -236,8 +225,8 @@ bind_rows(
 ```
 
 ```{r compare-plots}
-safe_plot(crp_quant)
-safe_plot(sb_quant)
+plot(crp_quant)
+plot(sb_quant)
 ```
 
 ---
@@ -264,6 +253,10 @@ For unconditional models, use `predict()` only; `fitted()` and `residuals()` are
 - Workflow index: [Roadmap](../start/roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
+
+
+
+
 
 
 

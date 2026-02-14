@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Basic Workflow: Model Specification, Bundle, & MCMC"
 ---
 
@@ -37,17 +37,6 @@ pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
-if (!exists("safe_plot", mode = "function")) {
-  safe_plot <- function(x, ...) {
-    obj <- tryCatch(plot(x, ...), error = function(e) e)
-    if (inherits(obj, "ggplot")) {
-      try(print(obj), silent = TRUE)
-    } else if (is.list(obj)) {
-      for (elt in obj) if (inherits(elt, "ggplot")) try(print(elt), silent = TRUE)
-    }
-    invisible(obj)
-  }
-}
 ```
 
 
@@ -64,8 +53,8 @@ if (!exists("safe_plot", mode = "function")) {
 
 DPmixGPD uses a direct two-step workflow:
 
-1. **Bundle** (`build_nimble_bundle`): Generate NIMBLE code and compile the sampler.
-2. **MCMC** (`run_mcmc_bundle_manual`): Execute posterior sampling.
+1. **Bundle** (`bundle`): Generate NIMBLE code and compile the sampler.
+2. **MCMC** (`mcmc`): Execute posterior sampling.
 
 ---
 
@@ -81,7 +70,7 @@ data("nc_pos200_k3", package = "DPmixGPD")
 y <- nc_pos200_k3$y
 
 # Direct call
-bundle_direct <- DPmixGPD::build_nimble_bundle(
+bundle_direct <- bundle(
   y = y,
   kernel = "gamma",
   backend = "crp",
@@ -116,7 +105,7 @@ print(bundle_direct$mcmc_settings)
 
 ```{r mcmc-basic, cache=TRUE}
 # Run MCMC
-fit <- load_or_fit("quickstart-basic-model-compile-run-fit", run_mcmc_bundle_manual(bundle_direct, show_progress = FALSE))
+fit <- load_or_fit("quickstart-basic-model-compile-run-fit", mcmc(bundle_direct, show_progress = FALSE))
 
 cat("Fit object class:", class(fit), "\n")
 cat("MCMC execution complete. Posterior samples collected.\n")
@@ -138,7 +127,7 @@ params_fit
 
 ```{r mcmc-diagnostics}
 # Trace plots
-safe_plot(fit, params = "alpha|beta", family = c("traceplot", "running", "autocorrelation"))
+plot(fit, params = "alpha|beta", family = c("traceplot", "running", "autocorrelation"))
 ```
 
 ---
@@ -151,7 +140,7 @@ data("nc_pos200_k3", package = "DPmixGPD")
 y_data <- nc_pos200_k3$y
 
 # PHASE 1: Bundle
-bundle_final <- DPmixGPD::build_nimble_bundle(
+bundle_final <- bundle(
   y = y_data,
   kernel = "gamma",
   backend = "crp",
@@ -161,7 +150,7 @@ bundle_final <- DPmixGPD::build_nimble_bundle(
 )
 
 # PHASE 2: MCMC
-fit_final <- load_or_fit("quickstart-basic-model-compile-run-fit_final", run_mcmc_bundle_manual(bundle_final, show_progress = FALSE))
+fit_final <- load_or_fit("quickstart-basic-model-compile-run-fit_final", mcmc(bundle_final, show_progress = FALSE))
 
 print("\n=== THREE-PHASE WORKFLOW COMPLETE ===\n")
 summary(fit_final)
@@ -175,7 +164,7 @@ summary(fit_final)
 
 ```{r backend-crp, cache=TRUE}
 # Chinese Restaurant Process
-bundle_crp <- DPmixGPD::build_nimble_bundle(
+bundle_crp <- bundle(
   y = y_data,
   kernel = "gamma",
   backend = "crp",
@@ -183,7 +172,7 @@ bundle_crp <- DPmixGPD::build_nimble_bundle(
   mcmc = mcmc
 )
 
-fit_crp <- load_or_fit("quickstart-basic-model-compile-run-fit_crp", run_mcmc_bundle_manual(bundle_crp, show_progress = FALSE))
+fit_crp <- load_or_fit("quickstart-basic-model-compile-run-fit_crp", mcmc(bundle_crp, show_progress = FALSE))
 print("CRP execution complete.\n")
 ```
 
@@ -191,7 +180,7 @@ print("CRP execution complete.\n")
 
 ```{r backend-sb, cache=TRUE}
 # Stick-Breaking Process
-bundle_sb <- DPmixGPD::build_nimble_bundle(
+bundle_sb <- bundle(
   y = y_data,
   kernel = "gamma",
   backend = "sb",
@@ -199,7 +188,7 @@ bundle_sb <- DPmixGPD::build_nimble_bundle(
   mcmc = mcmc
 )
 
-fit_sb <- load_or_fit("quickstart-basic-model-compile-run-fit_sb", run_mcmc_bundle_manual(bundle_sb, show_progress = FALSE))
+fit_sb <- load_or_fit("quickstart-basic-model-compile-run-fit_sb", mcmc(bundle_sb, show_progress = FALSE))
 print("SB execution complete.\n")
 ```
 
@@ -237,7 +226,7 @@ data("nc_pos_tail200_k4", package = "DPmixGPD")
 y_tail <- nc_pos_tail200_k4$y
 
 # Build with GPD
-bundle_gpd <- DPmixGPD::build_nimble_bundle(
+bundle_gpd <- bundle(
   y = y_tail,
   kernel = "gamma",
   backend = "sb",
@@ -246,7 +235,7 @@ bundle_gpd <- DPmixGPD::build_nimble_bundle(
   mcmc = mcmc
 )
 
-fit_gpd <- load_or_fit("quickstart-basic-model-compile-run-fit_gpd", run_mcmc_bundle_manual(bundle_gpd, show_progress = FALSE))
+fit_gpd <- load_or_fit("quickstart-basic-model-compile-run-fit_gpd", mcmc(bundle_gpd, show_progress = FALSE))
 print("\nGPD augmentation applied to tail region.\n")
 summary(fit_gpd)
 ```
@@ -257,8 +246,8 @@ summary(fit_gpd)
 
 | Phase | Function | Input | Output |
 |-------|----------|-------|--------|
-| **1. Bundle** | `DPmixGPD::build_nimble_bundle()` | y, X (optional), kernel, backend, GPD, components | `dpmixgpd_bundle` |
-| **2. MCMC** | `run_mcmc_bundle_manual()` | bundle | `mixgpd_fit` |
+| **1. Bundle** | `bundle()` | y, X (optional), kernel, backend, GPD, components | `dpmixgpd_bundle` |
+| **2. MCMC** | `mcmc()` | bundle | `mixgpd_fit` |
 
 ---
 
@@ -297,6 +286,10 @@ print("Extreme outliers:  cauchy\n")
 - Workflow index: [Roadmap](roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
+
+
+
+
 
 
 

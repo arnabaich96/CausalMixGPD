@@ -20,4 +20,5 @@ sim_causal_qte(n = 300, seed = NULL)
 
 ## Value
 
-A list with y, t, X.
+A list with `y`, `t`, and `X`; `A` is also included as a
+backward-compatible alias for `t`.

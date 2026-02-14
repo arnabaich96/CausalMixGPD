@@ -6,8 +6,8 @@
 #'
 #' Base generalized Pareto distribution (GPD) for threshold exceedances above \code{threshold}.
 #' Parameterization uses threshold \code{threshold}, scale \code{scale > 0}, and shape \code{shape}.
-#' The \code{d*}, \code{p*}, and \code{q*} functions accept vector inputs for their first argument
-#' and evaluate elementwise; \code{r*} supports \code{n > 1}.
+#' These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
+#' For vectorized R usage (including \code{n > 1}), use \code{\link{base_lowercase}}.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -183,9 +183,9 @@ qGpd <- function(p, threshold, scale, shape,
 #' right-skewed and often used for waiting times. This package provides NIMBLE-compatible density,
 #' CDF, and RNG functions under the \code{mean}/\code{shape} parameterization
 #' (mean \eqn{\mu>0}, shape \eqn{\lambda>0}). A standalone mixture quantile function is computed by
-#' numerical inversion elsewhere; \code{qinvGauss} inverts the base CDF.
-#' The \code{d*}, \code{p*}, and \code{q*} functions accept vector inputs for their first argument
-#' and evaluate elementwise; \code{r*} supports \code{n > 1}.
+#' numerical inversion elsewhere; \code{qInvGauss} inverts the base CDF.
+#' These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
+#' For vectorized R usage (including \code{n > 1}), use \code{\link{base_lowercase}}.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -201,7 +201,7 @@ qGpd <- function(p, threshold, scale, shape,
 #' @param maxiter Integer maximum number of iterations for \code{stats::uniroot}.
 #'
 #' @return \code{dInvGauss} returns a numeric scalar density; \code{pInvGauss} returns a numeric scalar CDF;
-#'   \code{rInvGauss} returns one random draw; \code{qinvGauss} returns a numeric quantile.
+#'   \code{rInvGauss} returns one random draw; \code{qInvGauss} returns a numeric quantile.
 #'
 #' @examples
 #' mean <- 2
@@ -216,7 +216,7 @@ qGpd <- function(p, threshold, scale, shape,
 #'
 #' @rdname InvGauss
 #' @name InvGauss
-#' @aliases dInvGauss pInvGauss rInvGauss qinvGauss
+#' @aliases dInvGauss pInvGauss rInvGauss qInvGauss
 #' @importFrom stats pnorm rnorm runif uniroot
 NULL
 
@@ -349,8 +349,8 @@ qInvGauss <- function(p, mean, shape,
 #'
 #' Base Amoroso distribution functions as implemented in this package.
 #' Function names and parameterization follow your existing Amoroso implementation.
-#' The \code{d*}, \code{p*}, and \code{q*} functions accept vector inputs for their first argument
-#' and evaluate elementwise; \code{r*} supports \code{n > 1}.
+#' These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
+#' For vectorized R usage (including \code{n > 1}), use \code{\link{base_lowercase}}.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -516,8 +516,8 @@ rAmoroso <- nimble::nimbleFunction(
 #'
 #' Base Cauchy distribution functions implemented as nimbleFunctions so they can be used
 #' in NIMBLE models. Parameterization uses location and scale (scale > 0).
-#' The \code{d*}, \code{p*}, and \code{q*} functions accept vector inputs for their first argument
-#' and evaluate elementwise; \code{r*} supports \code{n > 1}.
+#' These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
+#' For vectorized R usage (including \code{n > 1}), use \code{\link{base_lowercase}}.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.

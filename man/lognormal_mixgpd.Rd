@@ -6,7 +6,7 @@
 \alias{pLognormalMixGpd}
 \alias{rLognormalMixGpd}
 \alias{qLognormalMixGpd}
-\title{Lognormal mixture with a Gpd tail}
+\title{Lognormal mixture with a GPD tail}
 \usage{
 dLognormalMixGpd(
   x,
@@ -54,11 +54,11 @@ qLognormalMixGpd(
 
 \item{meanlog, sdlog}{Numeric vectors of length \eqn{K} giving component log-means and log-standard deviations.}
 
-\item{threshold}{Numeric scalar threshold at which the Gpd tail is attached.}
+\item{threshold}{Numeric scalar threshold at which the GPD tail is attached.}
 
-\item{tail_scale}{Numeric scalar Gpd scale parameter; must be positive.}
+\item{tail_scale}{Numeric scalar GPD scale parameter; must be positive.}
 
-\item{tail_shape}{Numeric scalar Gpd shape parameter.}
+\item{tail_shape}{Numeric scalar GPD shape parameter.}
 
 \item{log}{Integer flag \code{0/1}; if \code{1}, return the log-density.}
 
@@ -81,25 +81,25 @@ Spliced density/CDF/RNG functions return numeric scalars.
 \code{qLognormalMixGpd} returns a numeric vector with the same length as \code{p}.
 }
 \description{
-Splices a generalized Pareto distribution (Gpd) above \code{threshold} onto a Lognormal mixture bulk.
+Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a Lognormal mixture bulk.
 Let \eqn{F_{mix}} be the Lognormal mixture CDF. The spliced CDF is
 \eqn{F(x)=F_{mix}(x)} for \eqn{x<threshold} and
 \eqn{F(x)=F_{mix}(threshold) + \{1-F_{mix}(threshold)\}G(x)} for \eqn{x\ge threshold}, where \eqn{G}
-is the Gpd CDF for exceedances above \code{threshold}.
+is the GPD CDF for exceedances above \code{threshold}.
 }
 \details{
 The density, CDF, and RNG are implemented as \code{nimbleFunction}s. The quantile is an R function:
-it uses numerical inversion in the bulk region and the closed-form Gpd quantile in the tail.
+it uses numerical inversion in the bulk region and the closed-form GPD quantile in the tail.
 }
 \section{Functions}{
 \itemize{
-\item \code{dLognormalMixGpd()}: Lognormal mixture + Gpd tail density
+\item \code{dLognormalMixGpd()}: Lognormal mixture + GPD tail density
 
-\item \code{pLognormalMixGpd()}: Lognormal mixture + Gpd tail distribution function
+\item \code{pLognormalMixGpd()}: Lognormal mixture + GPD tail distribution function
 
-\item \code{rLognormalMixGpd()}: Lognormal mixture + Gpd tail random generation
+\item \code{rLognormalMixGpd()}: Lognormal mixture + GPD tail random generation
 
-\item \code{qLognormalMixGpd()}: Lognormal mixture + Gpd tail quantile function
+\item \code{qLognormalMixGpd()}: Lognormal mixture + GPD tail quantile function
 
 }}
 \examples{

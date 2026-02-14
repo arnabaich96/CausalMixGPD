@@ -36,7 +36,7 @@ The input object (invisibly).
 
 ``` r
 if (FALSE) { # \dontrun{
-cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal")
+cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
 summary(cb)
 } # }
 ```

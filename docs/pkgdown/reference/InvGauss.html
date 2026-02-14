@@ -3,15 +3,15 @@
 right-skewed and often used for waiting times. This package provides NIMBLE-compatible density,
 CDF, and RNG functions under the mean/shape parameterization
 (mean \(\mu&amp;gt;0\), shape \(\lambda&amp;gt;0\)). A standalone mixture quantile function is computed by
-numerical inversion elsewhere; qinvGauss inverts the base CDF.
-The d*, p*, and q* functions accept vector inputs for their first argument
-and evaluate elementwise; r* supports n &amp;gt; 1."><meta property="og:description" content="The inverse Gaussian (also called the Wald distribution) is a positive-support model that is
+numerical inversion elsewhere; qInvGauss inverts the base CDF.
+These uppercase NIMBLE-compatible functions are scalar (x/q and n = 1).
+For vectorized R usage (including n &amp;gt; 1), use base_lowercase."><meta property="og:description" content="The inverse Gaussian (also called the Wald distribution) is a positive-support model that is
 right-skewed and often used for waiting times. This package provides NIMBLE-compatible density,
 CDF, and RNG functions under the mean/shape parameterization
 (mean \(\mu&amp;gt;0\), shape \(\lambda&amp;gt;0\)). A standalone mixture quantile function is computed by
-numerical inversion elsewhere; qinvGauss inverts the base CDF.
-The d*, p*, and q* functions accept vector inputs for their first argument
-and evaluate elementwise; r* supports n &amp;gt; 1."></head><body>
+numerical inversion elsewhere; qInvGauss inverts the base CDF.
+These uppercase NIMBLE-compatible functions are scalar (x/q and n = 1).
+For vectorized R usage (including n &amp;gt; 1), use base_lowercase."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -19,7 +19,7 @@ and evaluate elementwise; r* supports n &amp;gt; 1."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">DPmixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -29,11 +29,11 @@ and evaluate elementwise; r* supports n &amp;gt; 1."></head><body>
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/01-basic.html">Model specification</a></li>
-    <li><a class="dropdown-item" href="../articles/02-model-spec.html">Model fundamentals</a></li>
-    <li><a class="dropdown-item" href="../articles/03-unconditional.html">Unconditional</a></li>
-    <li><a class="dropdown-item" href="../articles/04-conditional.html">Conditional</a></li>
-    <li><a class="dropdown-item" href="../articles/05-causal.html">Causal</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/basic-01.html">Model specification</a></li>
+    <li><a class="dropdown-item" href="../articles/model-spec-02.html">Model fundamentals</a></li>
+    <li><a class="dropdown-item" href="../articles/unconditional-03.html">Unconditional</a></li>
+    <li><a class="dropdown-item" href="../articles/conditional-04.html">Conditional</a></li>
+    <li><a class="dropdown-item" href="../articles/causal-05.html">Causal</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/arnabaich96/DPmixGPD">GitHub</a></li>
@@ -55,9 +55,9 @@ and evaluate elementwise; r* supports n &amp;gt; 1."></head><body>
 right-skewed and often used for waiting times. This package provides NIMBLE-compatible density,
 CDF, and RNG functions under the <code>mean</code>/<code>shape</code> parameterization
 (mean \(\mu&gt;0\), shape \(\lambda&gt;0\)). A standalone mixture quantile function is computed by
-numerical inversion elsewhere; <code>qinvGauss</code> inverts the base CDF.
-The <code>d*</code>, <code>p*</code>, and <code>q*</code> functions accept vector inputs for their first argument
-and evaluate elementwise; <code>r*</code> supports <code>n &gt; 1</code>.</p>
+numerical inversion elsewhere; <code>qInvGauss</code> inverts the base CDF.
+These uppercase NIMBLE-compatible functions are scalar (<code>x</code>/<code>q</code> and <code>n = 1</code>).
+For vectorized R usage (including <code>n &gt; 1</code>), use <code><a href="base_lowercase.html">base_lowercase</a></code>.</p>
     </div>
 
     <div class="section level2">
@@ -131,7 +131,7 @@ the RNG implementation supports <code>n = 1</code>.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p><code>dInvGauss</code> returns a numeric scalar density; <code>pInvGauss</code> returns a numeric scalar CDF;
-<code>rInvGauss</code> returns one random draw; <code>qinvGauss</code> returns a numeric quantile.</p>
+<code>rInvGauss</code> returns one random draw; <code>qInvGauss</code> returns a numeric quantile.</p>
     </div>
     <div class="section level2">
     <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a></h2>
@@ -148,15 +148,16 @@ the RNG implementation supports <code>n = 1</code>.</p></dd>
 <span class="r-in"><span><span class="va">shape</span> <span class="op">&lt;-</span> <span class="fl">5</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">dInvGauss</span><span class="op">(</span><span class="fl">2.0</span>, <span class="va">mean</span>, <span class="va">shape</span>, log <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.315</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.3153916</span>
 <span class="r-in"><span><span class="fu">pInvGauss</span><span class="op">(</span><span class="fl">2.0</span>, <span class="va">mean</span>, <span class="va">shape</span>, lower.tail <span class="op">=</span> <span class="fl">1</span>, log.p <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.616</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.6161631</span>
 <span class="r-in"><span><span class="fu">qInvGauss</span><span class="op">(</span><span class="fl">0.50</span>, <span class="va">mean</span>, <span class="va">shape</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.67</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.673117</span>
 <span class="r-in"><span><span class="fu">qInvGauss</span><span class="op">(</span><span class="fl">0.95</span>, <span class="va">mean</span>, <span class="va">shape</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4.46</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 4.458125</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rInvGauss</span><span class="op">(</span><span class="fl">1</span>, <span class="va">mean</span>, <span class="va">shape</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 2.431 3.426 1.221 1.474 2.396 0.826 3.669 2.326 3.237 1.330</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 1.7122100 3.4246871 1.0321783 1.7687621 0.7148388 0.4179245 0.8787332</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 3.1337770 2.7815252 1.2255947</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

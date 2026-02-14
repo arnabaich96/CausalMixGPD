@@ -5,9 +5,10 @@ positive-support model that is right-skewed and often used for waiting
 times. This package provides NIMBLE-compatible density, CDF, and RNG
 functions under the `mean`/`shape` parameterization (mean \\\mu\>0\\,
 shape \\\lambda\>0\\). A standalone mixture quantile function is
-computed by numerical inversion elsewhere; `qinvGauss` inverts the base
-CDF. The `d*`, `p*`, and `q*` functions accept vector inputs for their
-first argument and evaluate elementwise; `r*` supports `n > 1`.
+computed by numerical inversion elsewhere; `qInvGauss` inverts the base
+CDF. These uppercase NIMBLE-compatible functions are scalar (`x`/`q` and
+`n = 1`). For vectorized R usage (including `n > 1`), use
+[`base_lowercase`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/base_lowercase.md).
 
 ## Usage
 
@@ -83,7 +84,7 @@ qInvGauss(
 ## Value
 
 `dInvGauss` returns a numeric scalar density; `pInvGauss` returns a
-numeric scalar CDF; `rInvGauss` returns one random draw; `qinvGauss`
+numeric scalar CDF; `rInvGauss` returns one random draw; `qInvGauss`
 returns a numeric quantile.
 
 ## Functions
@@ -103,13 +104,14 @@ mean <- 2
 shape <- 5
 
 dInvGauss(2.0, mean, shape, log = 0)
-#> [1] 0.315
+#> [1] 0.3153916
 pInvGauss(2.0, mean, shape, lower.tail = 1, log.p = 0)
-#> [1] 0.616
+#> [1] 0.6161631
 qInvGauss(0.50, mean, shape)
-#> [1] 1.67
+#> [1] 1.673117
 qInvGauss(0.95, mean, shape)
-#> [1] 4.46
+#> [1] 4.458125
 replicate(10, rInvGauss(1, mean, shape))
-#>  [1] 2.431 3.426 1.221 1.474 2.396 0.826 3.669 2.326 3.237 1.330
+#>  [1] 1.7122100 3.4246871 1.0321783 1.7687621 0.7148388 0.4179245 0.8787332
+#>  [8] 3.1337770 2.7815252 1.2255947
 ```

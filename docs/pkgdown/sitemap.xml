@@ -15,6 +15,8 @@
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/assets/coverage/index.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/assets/coverage/report.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/authors.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/coverage/index.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/coverage/report.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/index.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/LICENSE-text.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/amoroso.html</loc></url>
@@ -29,6 +31,7 @@
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/basic-vignette.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/build_causal_bundle.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/build_nimble_bundle.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/bundle.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/cate.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/cauchy.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/cauchy_mix.html</loc></url>
@@ -64,6 +67,8 @@
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/dot-wrap_scalar_first_arg.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/dot-wrap_scalar_p.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/dot-wrap_scalar_r.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/dpmgpd.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/dpmix.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/DPmixGPD-package.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/DPmixGPD-vignettes.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/DPmixGPD.html</loc></url>
@@ -92,6 +97,7 @@
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/lognormal_lowercase.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/lognormal_mix.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/lognormal_mixgpd.html</loc></url>
+<url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/mcmc.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/nc_pos200_k3.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/nc_posX100_p3_k2.html</loc></url>
 <url><loc>https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/nc_posX100_p4_k3.html</loc></url>

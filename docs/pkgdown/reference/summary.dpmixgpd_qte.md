@@ -31,7 +31,7 @@ statistics.
 
 ``` r
 if (FALSE) { # \dontrun{
-cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
+cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
 fit <- run_mcmc_causal(cb, show_progress = FALSE)
 q <- qte(fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
 summary(q)

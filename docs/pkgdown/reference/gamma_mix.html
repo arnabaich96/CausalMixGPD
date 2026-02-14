@@ -3,13 +3,13 @@
 Mixture density and CDF are computed by weighted sums. Random generation samples a component
 according to weights and draws from the corresponding component. Quantiles are computed by
 numerical inversion of the mixture CDF.
-The d*, p*, and q* functions accept vector inputs for their first argument
-and evaluate elementwise; r* supports n &amp;gt; 1."><meta property="og:description" content="A finite mixture of Gamma components. Base Gamma functions are taken from stats.
+These uppercase NIMBLE-compatible functions are scalar (x/q and n = 1).
+For vectorized R usage (including n &amp;gt; 1), use gamma_lowercase."><meta property="og:description" content="A finite mixture of Gamma components. Base Gamma functions are taken from stats.
 Mixture density and CDF are computed by weighted sums. Random generation samples a component
 according to weights and draws from the corresponding component. Quantiles are computed by
 numerical inversion of the mixture CDF.
-The d*, p*, and q* functions accept vector inputs for their first argument
-and evaluate elementwise; r* supports n &amp;gt; 1."></head><body>
+These uppercase NIMBLE-compatible functions are scalar (x/q and n = 1).
+For vectorized R usage (including n &amp;gt; 1), use gamma_lowercase."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -17,7 +17,7 @@ and evaluate elementwise; r* supports n &amp;gt; 1."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">DPmixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,11 +27,11 @@ and evaluate elementwise; r* supports n &amp;gt; 1."></head><body>
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/01-basic.html">Model specification</a></li>
-    <li><a class="dropdown-item" href="../articles/02-model-spec.html">Model fundamentals</a></li>
-    <li><a class="dropdown-item" href="../articles/03-unconditional.html">Unconditional</a></li>
-    <li><a class="dropdown-item" href="../articles/04-conditional.html">Conditional</a></li>
-    <li><a class="dropdown-item" href="../articles/05-causal.html">Causal</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/basic-01.html">Model specification</a></li>
+    <li><a class="dropdown-item" href="../articles/model-spec-02.html">Model fundamentals</a></li>
+    <li><a class="dropdown-item" href="../articles/unconditional-03.html">Unconditional</a></li>
+    <li><a class="dropdown-item" href="../articles/conditional-04.html">Conditional</a></li>
+    <li><a class="dropdown-item" href="../articles/causal-05.html">Causal</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/arnabaich96/DPmixGPD">GitHub</a></li>
@@ -53,8 +53,8 @@ and evaluate elementwise; r* supports n &amp;gt; 1."></head><body>
 Mixture density and CDF are computed by weighted sums. Random generation samples a component
 according to weights and draws from the corresponding component. Quantiles are computed by
 numerical inversion of the mixture CDF.
-The <code>d*</code>, <code>p*</code>, and <code>q*</code> functions accept vector inputs for their first argument
-and evaluate elementwise; <code>r*</code> supports <code>n &gt; 1</code>.</p>
+These uppercase NIMBLE-compatible functions are scalar (<code>x</code>/<code>q</code> and <code>n = 1</code>).
+For vectorized R usage (including <code>n &gt; 1</code>), use <code><a href="gamma_lowercase.html">gamma_lowercase</a></code>.</p>
     </div>
 
     <div class="section level2">
@@ -147,15 +147,16 @@ with the same length as <code>p</code>.</p>
 <span class="r-in"><span><span class="va">shape</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">6</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">dGammaMix</span><span class="op">(</span><span class="fl">2.0</span>, w <span class="op">=</span> <span class="va">w</span>, scale <span class="op">=</span> <span class="va">scale</span>, shape <span class="op">=</span> <span class="va">shape</span>, log <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.153</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1534717</span>
 <span class="r-in"><span><span class="fu">pGammaMix</span><span class="op">(</span><span class="fl">2.0</span>, w <span class="op">=</span> <span class="va">w</span>, scale <span class="op">=</span> <span class="va">scale</span>, shape <span class="op">=</span> <span class="va">shape</span>, lower.tail <span class="op">=</span> <span class="fl">1</span>, log.p <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.329</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.3294213</span>
 <span class="r-in"><span><span class="fu">qGammaMix</span><span class="op">(</span><span class="fl">0.50</span>, w <span class="op">=</span> <span class="va">w</span>, scale <span class="op">=</span> <span class="va">scale</span>, shape <span class="op">=</span> <span class="va">shape</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.62</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 3.623739</span>
 <span class="r-in"><span><span class="fu">qGammaMix</span><span class="op">(</span><span class="fl">0.95</span>, w <span class="op">=</span> <span class="va">w</span>, scale <span class="op">=</span> <span class="va">scale</span>, shape <span class="op">=</span> <span class="va">shape</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 33.8</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 33.81667</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rGammaMix</span><span class="op">(</span><span class="fl">1</span>, w <span class="op">=</span> <span class="va">w</span>, scale <span class="op">=</span> <span class="va">scale</span>, shape <span class="op">=</span> <span class="va">shape</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  1.886  3.102 58.538  0.758 10.475 21.654  0.425  9.136  1.173 17.900</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  1.1253350  5.6018508  0.8989425  0.6839528 16.6516345  5.7743867</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  1.4073932  0.6988848  2.0490973 11.5105268</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -1,4 +1,4 @@
-﻿---
+---
 title: "How to add a kernel"
 toc: true
 format:
@@ -40,4 +40,6 @@ Add at least:
 - R code skeleton: `developers/templates/kernel-skeleton.R`
 - Registry entry skeleton: `developers/templates/registry-entry-skeleton.R`
 - Test skeleton: `developers/templates/test-kernel-skeleton.R`
+
+
 

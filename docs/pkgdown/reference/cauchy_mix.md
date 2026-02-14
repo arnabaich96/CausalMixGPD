@@ -4,9 +4,10 @@ A finite mixture of Cauchy components. Base Cauchy functions are taken
 from stats. The mixture density and distribution function are computed
 by weighted sums. Random generation samples a component index according
 to the weights and draws from the corresponding component. Quantiles are
-computed by numerical inversion of the mixture CDF. The `d*`, `p*`, and
-`q*` functions accept vector inputs for their first argument and
-evaluate elementwise; `r*` supports `n > 1`.
+computed by numerical inversion of the mixture CDF. These uppercase
+NIMBLE-compatible functions are scalar (`x`/`q` and `n = 1`). For
+vectorized R usage (including `n > 1`), use
+[`cauchy_mix_lowercase`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/cauchy_mix_lowercase.md).
 
 ## Usage
 
@@ -103,14 +104,15 @@ location <- c(-2, 0, 3)
 scale <- c(1.0, 0.7, 1.5)
 
 dCauchyMix(0.5, w = w, location = location, scale = scale, log = FALSE)
-#> [1] 0.124
+#> [1] 0.1235181
 pCauchyMix(0.5, w = w, location = location, scale = scale,
            lower.tail = TRUE, log.p = FALSE)
-#> [1] 0.683
+#> [1] 0.6830742
 qCauchyMix(0.50, w = w, location = location, scale = scale)
-#> [1] -0.664
+#> [1] -0.6639507
 qCauchyMix(0.95, w = w, location = location, scale = scale)
-#> [1] 7
+#> [1] 6.996407
 replicate(10, rCauchyMix(1, w = w, location = location, scale = scale))
-#>  [1] -0.846 -0.862 -2.580 -0.690  1.779  5.349  3.392 45.684 -0.874 -1.163
+#>  [1]  2.4556124 -2.6557906 -1.9004822 -0.7965394 -1.2070826 -2.4929887
+#>  [7]  1.7092172 -0.3971798 -1.0195259  3.2013812
 ```

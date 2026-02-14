@@ -125,7 +125,7 @@ print.dpmixgpd_bundle <- function(x, code = FALSE, max_code_lines = 200L, ...) {
 #' @return The input object (invisibly).
 #' @examples
 #' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal")
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
 #' print(cb)
 #' }
 #' @export
@@ -143,8 +143,8 @@ print.dpmixgpd_causal_bundle <- function(x, code = FALSE, max_code_lines = 200L,
     "PS model: disabled"
   } else {
     switch(ps_model,
-           logit = "PS model: Bayesian logit (T | X)",
-           probit = "PS model: Bayesian probit (T | X)",
+           logit = "PS model: Bayesian logit (A | X)",
+           probit = "PS model: Bayesian probit (A | X)",
            naive = "PS model: Gaussian naive Bayes",
            sprintf("PS model: %s", ps_model))
   }
@@ -231,7 +231,7 @@ print.dpmixgpd_causal_bundle <- function(x, code = FALSE, max_code_lines = 200L,
 #' @return The input object (invisibly).
 #' @examples
 #' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal")
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
 #' summary(cb)
 #' }
 #' @export
@@ -315,8 +315,8 @@ print.dpmixgpd_causal_fit <- function(x, ...) {
     "PS model: disabled"
   } else {
     switch(ps_model,
-           logit = "PS model: Bayesian logit (T | X)",
-           probit = "PS model: Bayesian probit (T | X)",
+           logit = "PS model: Bayesian logit (A | X)",
+           probit = "PS model: Bayesian probit (A | X)",
            naive = "PS model: Gaussian naive Bayes",
            sprintf("PS model: %s", ps_model))
   }
@@ -2009,7 +2009,7 @@ plot.dpmixgpd_causal_predict <- function(x, y = NULL, ...) {
 #' @return The object \code{x}, invisibly.
 #' @examples
 #' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' q <- qte(fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
 #' print(q)
@@ -2125,7 +2125,7 @@ print.dpmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
 #' @return The object \code{x}, invisibly.
 #' @examples
 #' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' a <- ate(fit, interval = "credible")
 #' print(a)
@@ -2242,7 +2242,7 @@ print.dpmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
 #' @return An object of class \code{"summary.dpmixgpd_qte"} containing summary statistics.
 #' @examples
 #' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' q <- qte(fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
 #' summary(q)
@@ -2458,7 +2458,7 @@ print.summary.dpmixgpd_qte <- function(x, digits = 3, ...) {
 #' @return An object of class \code{"summary.dpmixgpd_ate"} containing summary statistics.
 #' @examples
 #' \dontrun{
-#' cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
+#' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
 #' fit <- run_mcmc_causal(cb, show_progress = FALSE)
 #' a <- ate(fit, interval = "credible")
 #' summary(a)

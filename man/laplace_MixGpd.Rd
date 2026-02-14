@@ -6,7 +6,7 @@
 \alias{pLaplaceMixGpd}
 \alias{rLaplaceMixGpd}
 \alias{qLaplaceMixGpd}
-\title{Laplace mixture with a Gpd tail}
+\title{Laplace mixture with a GPD tail}
 \usage{
 dLaplaceMixGpd(
   x,
@@ -56,11 +56,11 @@ qLaplaceMixGpd(
 
 \item{scale}{Numeric vector of length \eqn{K} giving component scales.}
 
-\item{threshold}{Numeric scalar threshold at which the Gpd tail is attached.}
+\item{threshold}{Numeric scalar threshold at which the GPD tail is attached.}
 
-\item{tail_scale}{Numeric scalar Gpd scale parameter; must be positive.}
+\item{tail_scale}{Numeric scalar GPD scale parameter; must be positive.}
 
-\item{tail_shape}{Numeric scalar Gpd shape parameter.}
+\item{tail_shape}{Numeric scalar GPD shape parameter.}
 
 \item{log}{Logical; if \code{TRUE}, return the log-density.}
 
@@ -83,18 +83,18 @@ Spliced density/CDF/RNG functions return numeric scalars. \code{qLaplaceMixGpd} 
 with the same length as \code{p}.
 }
 \description{
-Splices a generalized Pareto distribution (Gpd) above \code{threshold} onto a Laplace mixture bulk.
+Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a Laplace mixture bulk.
 The bulk probability at the threshold is used to scale the tail so that the overall CDF is proper.
 }
 \section{Functions}{
 \itemize{
-\item \code{dLaplaceMixGpd()}: Laplace mixture + Gpd tail density
+\item \code{dLaplaceMixGpd()}: Laplace mixture + GPD tail density
 
-\item \code{pLaplaceMixGpd()}: Laplace mixture + Gpd tail distribution function
+\item \code{pLaplaceMixGpd()}: Laplace mixture + GPD tail distribution function
 
-\item \code{rLaplaceMixGpd()}: Laplace mixture + Gpd tail random generation
+\item \code{rLaplaceMixGpd()}: Laplace mixture + GPD tail random generation
 
-\item \code{qLaplaceMixGpd()}: Laplace mixture + Gpd tail quantile function
+\item \code{qLaplaceMixGpd()}: Laplace mixture + GPD tail quantile function
 
 }}
 \examples{

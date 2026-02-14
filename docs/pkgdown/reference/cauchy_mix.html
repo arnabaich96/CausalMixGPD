@@ -3,13 +3,13 @@
 The mixture density and distribution function are computed by weighted sums. Random generation
 samples a component index according to the weights and draws from the corresponding component.
 Quantiles are computed by numerical inversion of the mixture CDF.
-The d*, p*, and q* functions accept vector inputs for their first argument
-and evaluate elementwise; r* supports n &amp;gt; 1."><meta property="og:description" content="A finite mixture of Cauchy components. Base Cauchy functions are taken from stats.
+These uppercase NIMBLE-compatible functions are scalar (x/q and n = 1).
+For vectorized R usage (including n &amp;gt; 1), use cauchy_mix_lowercase."><meta property="og:description" content="A finite mixture of Cauchy components. Base Cauchy functions are taken from stats.
 The mixture density and distribution function are computed by weighted sums. Random generation
 samples a component index according to the weights and draws from the corresponding component.
 Quantiles are computed by numerical inversion of the mixture CDF.
-The d*, p*, and q* functions accept vector inputs for their first argument
-and evaluate elementwise; r* supports n &amp;gt; 1."></head><body>
+These uppercase NIMBLE-compatible functions are scalar (x/q and n = 1).
+For vectorized R usage (including n &amp;gt; 1), use cauchy_mix_lowercase."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -17,7 +17,7 @@ and evaluate elementwise; r* supports n &amp;gt; 1."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">DPmixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,11 +27,11 @@ and evaluate elementwise; r* supports n &amp;gt; 1."></head><body>
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/01-basic.html">Model specification</a></li>
-    <li><a class="dropdown-item" href="../articles/02-model-spec.html">Model fundamentals</a></li>
-    <li><a class="dropdown-item" href="../articles/03-unconditional.html">Unconditional</a></li>
-    <li><a class="dropdown-item" href="../articles/04-conditional.html">Conditional</a></li>
-    <li><a class="dropdown-item" href="../articles/05-causal.html">Causal</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/basic-01.html">Model specification</a></li>
+    <li><a class="dropdown-item" href="../articles/model-spec-02.html">Model fundamentals</a></li>
+    <li><a class="dropdown-item" href="../articles/unconditional-03.html">Unconditional</a></li>
+    <li><a class="dropdown-item" href="../articles/conditional-04.html">Conditional</a></li>
+    <li><a class="dropdown-item" href="../articles/causal-05.html">Causal</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/arnabaich96/DPmixGPD">GitHub</a></li>
@@ -53,8 +53,8 @@ and evaluate elementwise; r* supports n &amp;gt; 1."></head><body>
 The mixture density and distribution function are computed by weighted sums. Random generation
 samples a component index according to the weights and draws from the corresponding component.
 Quantiles are computed by numerical inversion of the mixture CDF.
-The <code>d*</code>, <code>p*</code>, and <code>q*</code> functions accept vector inputs for their first argument
-and evaluate elementwise; <code>r*</code> supports <code>n &gt; 1</code>.</p>
+These uppercase NIMBLE-compatible functions are scalar (<code>x</code>/<code>q</code> and <code>n = 1</code>).
+For vectorized R usage (including <code>n &gt; 1</code>), use <code><a href="cauchy_mix_lowercase.html">cauchy_mix_lowercase</a></code>.</p>
     </div>
 
     <div class="section level2">
@@ -147,16 +147,17 @@ with the same length as <code>p</code>.</p>
 <span class="r-in"><span><span class="va">scale</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.0</span>, <span class="fl">0.7</span>, <span class="fl">1.5</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">dCauchyMix</span><span class="op">(</span><span class="fl">0.5</span>, w <span class="op">=</span> <span class="va">w</span>, location <span class="op">=</span> <span class="va">location</span>, scale <span class="op">=</span> <span class="va">scale</span>, log <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.124</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1235181</span>
 <span class="r-in"><span><span class="fu">pCauchyMix</span><span class="op">(</span><span class="fl">0.5</span>, w <span class="op">=</span> <span class="va">w</span>, location <span class="op">=</span> <span class="va">location</span>, scale <span class="op">=</span> <span class="va">scale</span>,</span></span>
 <span class="r-in"><span>           lower.tail <span class="op">=</span> <span class="cn">TRUE</span>, log.p <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.683</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.6830742</span>
 <span class="r-in"><span><span class="fu">qCauchyMix</span><span class="op">(</span><span class="fl">0.50</span>, w <span class="op">=</span> <span class="va">w</span>, location <span class="op">=</span> <span class="va">location</span>, scale <span class="op">=</span> <span class="va">scale</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.664</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -0.6639507</span>
 <span class="r-in"><span><span class="fu">qCauchyMix</span><span class="op">(</span><span class="fl">0.95</span>, w <span class="op">=</span> <span class="va">w</span>, location <span class="op">=</span> <span class="va">location</span>, scale <span class="op">=</span> <span class="va">scale</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 6.996407</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rCauchyMix</span><span class="op">(</span><span class="fl">1</span>, w <span class="op">=</span> <span class="va">w</span>, location <span class="op">=</span> <span class="va">location</span>, scale <span class="op">=</span> <span class="va">scale</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] -0.846 -0.862 -2.580 -0.690  1.779  5.349  3.392 45.684 -0.874 -1.163</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  2.4556124 -2.6557906 -1.9004822 -0.7965394 -1.2070826 -2.4929887</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7]  1.7092172 -0.3971798 -1.0195259  3.2013812</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

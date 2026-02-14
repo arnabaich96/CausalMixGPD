@@ -1,6 +1,6 @@
-# Normal mixture with a Gpd tail
+# Normal mixture with a GPD tail
 
-Splices a generalized Pareto distribution (Gpd) above `threshold` onto a
+Splices a generalized Pareto distribution (GPD) above `threshold` onto a
 Normal mixture bulk. The bulk probability at the threshold is used to
 scale the tail so that the overall CDF is proper.
 
@@ -55,15 +55,15 @@ qNormMixGpd(
 
 - threshold:
 
-  Numeric scalar threshold at which the Gpd tail is attached.
+  Numeric scalar threshold at which the GPD tail is attached.
 
 - tail_scale:
 
-  Numeric scalar Gpd scale parameter; must be positive.
+  Numeric scalar GPD scale parameter; must be positive.
 
 - tail_shape:
 
-  Numeric scalar Gpd shape parameter.
+  Numeric scalar GPD shape parameter.
 
 - log:
 
@@ -110,13 +110,13 @@ returns a numeric vector with the same length as `p`.
 
 ## Functions
 
-- `dNormMixGpd()`: Normal mixture + Gpd tail density
+- `dNormMixGpd()`: Normal mixture + GPD tail density
 
-- `pNormMixGpd()`: Normal mixture + Gpd tail distribution function
+- `pNormMixGpd()`: Normal mixture + GPD tail distribution function
 
-- `rNormMixGpd()`: Normal mixture + Gpd tail random generation
+- `rNormMixGpd()`: Normal mixture + GPD tail random generation
 
-- `qNormMixGpd()`: Normal mixture + Gpd tail quantile function
+- `qNormMixGpd()`: Normal mixture + GPD tail quantile function
 
 ## Examples
 
@@ -129,14 +129,15 @@ tail_scale <- 1.0
 tail_shape <- 0.2
 
 dNormMixGpd(3.0, w, mean, sd, threshold, tail_scale, tail_shape, log = FALSE)
-#> [1] 0.0267
+#> [1] 0.0267334
 pNormMixGpd(3.0, w, mean, sd, threshold, tail_scale, tail_shape,
            lower.tail = TRUE, log.p = FALSE)
-#> [1] 0.968
+#> [1] 0.9679199
 qNormMixGpd(0.50, w, mean, sd, threshold, tail_scale, tail_shape)
-#> [1] -0.271
+#> [1] -0.2713211
 qNormMixGpd(0.95, w, mean, sd, threshold, tail_scale, tail_shape)
-#> [1] 2.49
+#> [1] 2.490405
 replicate(10, rNormMixGpd(1, w, mean, sd, threshold, tail_scale, tail_shape))
-#>  [1]  2.590 -0.434 -1.756 -2.166  0.581 -0.485 -2.241 -0.538 -2.287  0.514
+#>  [1] -1.35971357  0.82778651  1.16218796  1.24929508  0.03953209 -3.37992517
+#>  [7] -0.87215951  0.52527669 -0.28689078  0.60458399
 ```

@@ -1,4 +1,4 @@
-﻿---
+---
 title: "ex03. Unconditional DPMGPD (CRP Backend)"
 ---
 
@@ -41,17 +41,6 @@ pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
-if (!exists("safe_plot", mode = "function")) {
-  safe_plot <- function(x, ...) {
-    obj <- tryCatch(plot(x, ...), error = function(e) e)
-    if (inherits(obj, "ggplot")) {
-      try(print(obj), silent = TRUE)
-    } else if (is.list(obj)) {
-      for (elt in obj) if (inherits(elt, "ggplot")) try(print(elt), silent = TRUE)
-    }
-    invisible(obj)
-  }
-}
 ```
 
 
@@ -123,10 +112,10 @@ ggplot(df_tail, aes(x = y, fill = region)) +
 
 ## Model Specification & Bundle
 
-This mirrors the direct `DPmixGPD::build_nimble_bundle()` workflow in `start/backends-and-workflow`, but with **tail augmentation** turned on (`GPD = TRUE`). Here we use an **Inverse Gaussian** bulk kernel and estimate the GPD threshold with a lognormal prior centered at the empirical 80th percentile.
+This mirrors the direct `bundle()` workflow in `start/backends-and-workflow`, but with **tail augmentation** turned on (`GPD = TRUE`). Here we use an **Inverse Gaussian** bulk kernel and estimate the GPD threshold with a lognormal prior centered at the empirical 80th percentile.
 
 ```{r bundle-mcmc-crp-gpd, cache=TRUE}
-bundle_gpd <- DPmixGPD::build_nimble_bundle(
+bundle_gpd <- bundle(
   y = y_tail,
   kernel = "invgauss",
   backend = "crp",
@@ -151,7 +140,7 @@ bundle_gpd <- DPmixGPD::build_nimble_bundle(
 ## Running MCMC & Diagnostics
 
 ```{r mcmc-run, cache=TRUE}
-fit_gpd <- load_or_fit("ex03-unconditional-dpmgpd-crp-fit_gpd", run_mcmc_bundle_manual(bundle_gpd))
+fit_gpd <- load_or_fit("ex03-unconditional-dpmgpd-crp-fit_gpd", mcmc(bundle_gpd))
 ```
 
 ```{r fit-summary}
@@ -165,8 +154,8 @@ params_gpd
 
 ```{r fit-plots}
 # S3 plot methods highlight trace + density diagnostics
-safe_plot(fit_gpd, family = c("traceplot", "density", "running"))
-safe_plot(fit_gpd, params = "alpha", family = c("traceplot", "autocorrelation", "geweke"))
+plot(fit_gpd, family = c("traceplot", "density", "running"))
+plot(fit_gpd, params = "alpha", family = c("traceplot", "autocorrelation", "geweke"))
 ```
 
 ---
@@ -179,19 +168,19 @@ We use the **S3 `predict()` objects** and their dedicated `plot()` methods to vi
 y_min <- max(min(y_tail), .Machine$double.eps)
 y_grid <- seq(y_min, max(y_tail) * 1.3, length.out = 300)
 pred_density <- predict(fit_gpd, y = y_grid, type = "density")
-safe_plot(pred_density)
+plot(pred_density)
 ```
 
 ```{r survival-predict, cache=TRUE}
 y_surv <- seq(max(u_threshold, y_min), max(y_tail) * 1.1, length.out = 60)
 pred_surv <- predict(fit_gpd, y = y_surv, type = "survival")
-safe_plot(pred_surv)
+plot(pred_surv)
 ```
 
 ```{r quantile-predict, cache=TRUE}
 quantile_probs <- c(0.90, 0.95, 0.99)
 pred_quantiles <- predict(fit_gpd, type = "quantile", index = quantile_probs, interval = "credible")
-safe_plot(pred_quantiles)
+plot(pred_quantiles)
 ```
 
 ---
@@ -201,7 +190,7 @@ safe_plot(pred_quantiles)
 To demonstrate the value of tail augmentation, we fit a bulk-only lognormal DP mixture and compare posterior summaries against the InvGauss+GPD fit.
 
 ```{r bulk-only-fit, cache=TRUE}
-bundle_bulk_only <- DPmixGPD::build_nimble_bundle(
+bundle_bulk_only <- bundle(
   y = y_tail,
   kernel = "lognormal",
   backend = "crp",
@@ -209,7 +198,7 @@ bundle_bulk_only <- DPmixGPD::build_nimble_bundle(
   components = 5,
   mcmc = mcmc
 )
-fit_bulk_only <- load_or_fit("ex03-unconditional-dpmgpd-crp-fit_bulk_only", run_mcmc_bundle_manual(bundle_bulk_only))
+fit_bulk_only <- load_or_fit("ex03-unconditional-dpmgpd-crp-fit_bulk_only", mcmc(bundle_bulk_only))
 ```
 
 ```{r compare-quantiles}
@@ -229,8 +218,8 @@ compare_tbl %>%
 ```
 
 ```{r quantile-plot}
-safe_plot(bulk_quantiles)
-safe_plot(tail_quantiles)
+plot(bulk_quantiles)
+plot(tail_quantiles)
 ```
 
 ---
@@ -255,7 +244,7 @@ For unconditional models, use `predict()` only; `fitted()` and `residuals()` are
 
 ```{r threshold-sensitivity, cache=TRUE}
 sensitivity_fits <- lapply(thresholds, function(u) {
-  bundle <- DPmixGPD::build_nimble_bundle(
+  bundle <- bundle(
     y = y_tail,
     kernel = "invgauss",
     backend = "crp",
@@ -268,7 +257,7 @@ sensitivity_fits <- lapply(thresholds, function(u) {
     components = 5,
     mcmc = mcmc
   )
-  fit <- load_or_fit("ex03-unconditional-dpmgpd-crp-fit", run_mcmc_bundle_manual(bundle))
+  fit <- load_or_fit("ex03-unconditional-dpmgpd-crp-fit", mcmc(bundle))
   list(threshold = u, fit = fit)
 })
 
@@ -326,6 +315,10 @@ sensitivity_tbl %>%
 - Workflow index: [Roadmap](../start/roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
+
+
+
+
 
 
 

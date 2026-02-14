@@ -183,11 +183,11 @@ test_that("causal no-X CRP model works (v14 coverage)", {
 
   data("causal_alt_real500_p4_k2", package = "DPmixGPD")
   y <- abs(causal_alt_real500_p4_k2$y[1:80]) + 0.01
-  T_vec <- causal_alt_real500_p4_k2$T[1:80]
+  T_vec <- causal_alt_real500_p4_k2$A[1:80]
 
   bundle <- build_causal_bundle(
     y = y,
-    T = T_vec,
+    A = T_vec,
     X = NULL,
     kernel = "gamma",
     backend = "crp",
@@ -238,12 +238,12 @@ test_that("causal X no-PS SB model works (v15 coverage)", {
 
   data("causal_alt_real500_p4_k2", package = "DPmixGPD")
   y <- abs(causal_alt_real500_p4_k2$y[1:80]) + 0.01
-  T_vec <- causal_alt_real500_p4_k2$T[1:80]
+  T_vec <- causal_alt_real500_p4_k2$A[1:80]
   X <- as.matrix(causal_alt_real500_p4_k2$X[1:80, 1:2])
 
   bundle <- build_causal_bundle(
     y = y,
-    T = T_vec,
+    A = T_vec,
     X = X,
     kernel = "lognormal",
     backend = "sb",
@@ -275,11 +275,11 @@ test_that("causal no-X SB model works (v16 coverage)", {
 
   data("causal_alt_real500_p4_k2", package = "DPmixGPD")
   y <- abs(causal_alt_real500_p4_k2$y[1:80]) + 0.01
-  T_vec <- causal_alt_real500_p4_k2$T[1:80]
+  T_vec <- causal_alt_real500_p4_k2$A[1:80]
 
   bundle <- build_causal_bundle(
     y = y,
-    T = T_vec,
+    A = T_vec,
     X = NULL,
     kernel = "lognormal",
     backend = "sb",
@@ -317,11 +317,11 @@ test_that("causal with GPD tails works (v17 coverage)", {
 
   data("causal_alt_real500_p4_k2", package = "DPmixGPD")
   y <- abs(causal_alt_real500_p4_k2$y[1:60]) + 0.01
-  T_vec <- causal_alt_real500_p4_k2$T[1:60]
+  T_vec <- causal_alt_real500_p4_k2$A[1:60]
 
   bundle <- build_causal_bundle(
     y = y,
-    T = T_vec,
+    A = T_vec,
     X = NULL,
     kernel = "gamma",
     backend = "sb",
@@ -347,11 +347,11 @@ test_that("causal fit plot method works", {
 
   data("causal_alt_real500_p4_k2", package = "DPmixGPD")
   y <- abs(causal_alt_real500_p4_k2$y[1:60]) + 0.01
-  T_vec <- causal_alt_real500_p4_k2$T[1:60]
+  T_vec <- causal_alt_real500_p4_k2$A[1:60]
 
   bundle <- build_causal_bundle(
     y = y,
-    T = T_vec,
+    A = T_vec,
     X = NULL,
     kernel = "gamma",
     backend = "crp",
@@ -382,11 +382,11 @@ test_that("causal predict plot method works", {
 
   data("causal_alt_real500_p4_k2", package = "DPmixGPD")
   y <- abs(causal_alt_real500_p4_k2$y[1:60]) + 0.01
-  T_vec <- causal_alt_real500_p4_k2$T[1:60]
+  T_vec <- causal_alt_real500_p4_k2$A[1:60]
 
   bundle <- build_causal_bundle(
     y = y,
-    T = T_vec,
+    A = T_vec,
     X = NULL,
     kernel = "gamma",
     backend = "crp",

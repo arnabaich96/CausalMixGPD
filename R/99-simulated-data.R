@@ -24,7 +24,8 @@ sim_bulk_tail <- function(n = 200, tail_prob = 0.12, seed = NULL) {
 #'
 #' @param n Sample size.
 #' @param seed Optional RNG seed.
-#' @return A list with y, t, X.
+#' @return A list with \code{y}, \code{t}, and \code{X}; \code{A} is also
+#'   included as a backward-compatible alias for \code{t}.
 #' @export
 sim_causal_qte <- function(n = 300, seed = NULL) {
   if (!is.null(seed)) set.seed(seed)
@@ -34,11 +35,11 @@ sim_causal_qte <- function(n = 300, seed = NULL) {
     x3 = rnorm(n)
   )
   lin_ps <- 0.2 + 0.6 * X$x1 - 0.4 * X$x2
-  T <- rbinom(n, 1, stats::plogis(lin_ps))
+  A <- rbinom(n, 1, stats::plogis(lin_ps))
   y_base <- 2 + 0.5 * X$x1 + 0.8 * X$x3 + rnorm(n)
-  tail_effect <- 1.5 * X$x2 * (T == 1)
-  y <- y_base + tail_effect + 2 * T + rexp(n, rate = 0.5)
-  list(y = y, t = T, X = X)
+  tail_effect <- 1.5 * X$x2 * (A == 1)
+  y <- y_base + tail_effect + 2 * A + rexp(n, rate = 0.5)
+  list(y = y, t = A, X = X, A = A)
 }
 
 #' Simulate survival tail data

@@ -18,9 +18,11 @@ att(
 \arguments{
 \item{fit}{A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.}
 
-\item{newdata}{Deprecated placeholder for marginal estimands; must be \code{NULL}.}
+\item{newdata}{Ignored for marginal estimands. If supplied, a warning is issued
+and training data are used.}
 
-\item{y}{Deprecated placeholder for marginal estimands; must be \code{NULL}.}
+\item{y}{Ignored for marginal estimands. If supplied, a warning is issued
+and training data are used.}
 
 \item{type}{Character; \code{"mean"} (default) for ordinary mean ATE or
 \code{"rmean"} for restricted-mean ATE.}
@@ -42,11 +44,11 @@ and aggregated treated/control prediction objects.
 }
 \description{
 Computes a treated-only marginal average treatment effect by averaging
-conditional treatment effects over rows with assigned treatment \code{T=1}.
+conditional treatment effects over rows with assigned treatment \code{A=1}.
 }
 \examples{
 \dontrun{
-cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
+cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
 fit <- run_mcmc_causal(cb, show_progress = FALSE)
 att(fit, interval = "credible", nsim_mean = 100)
 }

@@ -1,6 +1,6 @@
-# Lognormal with a Gpd tail
+# Lognormal with a GPD tail
 
-Splices a generalized Pareto distribution (Gpd) above `threshold` onto a
+Splices a generalized Pareto distribution (GPD) above `threshold` onto a
 single Lognormal bulk with parameters `meanlog` and `sdlog`. Base
 Lognormal functions are taken from stats.
 
@@ -50,15 +50,15 @@ qLognormalGpd(
 
 - threshold:
 
-  Numeric scalar threshold at which the Gpd tail is attached.
+  Numeric scalar threshold at which the GPD tail is attached.
 
 - tail_scale:
 
-  Numeric scalar Gpd scale parameter; must be positive.
+  Numeric scalar GPD scale parameter; must be positive.
 
 - tail_shape:
 
-  Numeric scalar Gpd shape parameter.
+  Numeric scalar GPD shape parameter.
 
 - log:
 
@@ -95,13 +95,13 @@ Spliced density/CDF/RNG functions return numeric scalars.
 
 ## Functions
 
-- `dLognormalGpd()`: Lognormal + Gpd tail density
+- `dLognormalGpd()`: Lognormal + GPD tail density
 
-- `pLognormalGpd()`: Lognormal + Gpd tail distribution function
+- `pLognormalGpd()`: Lognormal + GPD tail distribution function
 
-- `rLognormalGpd()`: Lognormal + Gpd tail random generation
+- `rLognormalGpd()`: Lognormal + GPD tail random generation
 
-- `qLognormalGpd()`: Lognormal + Gpd tail quantile function
+- `qLognormalGpd()`: Lognormal + GPD tail quantile function
 
 ## Examples
 
@@ -113,14 +113,15 @@ tail_scale <- 0.9
 tail_shape <- 0.2
 
 dLognormalGpd(4.0, meanlog, sdlog, threshold, tail_scale, tail_shape, log = FALSE)
-#> [1] 0.00765
+#> [1] 0.007654624
 pLognormalGpd(4.0, meanlog, sdlog, threshold, tail_scale, tail_shape,
              lower.tail = TRUE, log.p = FALSE)
-#> [1] 0.992
+#> [1] 0.9915799
 qLognormalGpd(0.50, meanlog, sdlog, threshold, tail_scale, tail_shape)
-#> [1] 1.49
+#> [1] 1.491825
 qLognormalGpd(0.95, meanlog, sdlog, threshold, tail_scale, tail_shape)
-#> [1] 2.65
+#> [1] 2.65302
 replicate(10, rLognormalGpd(1, meanlog, sdlog, threshold, tail_scale, tail_shape))
-#>  [1] 1.68 1.71 3.14 1.95 2.43 1.11 2.16 1.99 1.41 1.41
+#>  [1] 1.5629065 1.8442215 2.3035285 0.8030935 2.4016631 1.3469414 0.6335996
+#>  [8] 2.1256998 1.1952886 0.9273669
 ```

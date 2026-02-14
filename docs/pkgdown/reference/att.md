@@ -1,7 +1,7 @@
 # Average treatment effect on the treated (ATT)
 
 Computes a treated-only marginal average treatment effect by averaging
-conditional treatment effects over rows with assigned treatment `T=1`.
+conditional treatment effects over rows with assigned treatment `A=1`.
 
 ## Usage
 
@@ -27,11 +27,13 @@ att(
 
 - newdata:
 
-  Deprecated placeholder for marginal estimands; must be `NULL`.
+  Ignored for marginal estimands. If supplied, a warning is issued and
+  training data are used.
 
 - y:
 
-  Deprecated placeholder for marginal estimands; must be `NULL`.
+  Ignored for marginal estimands. If supplied, a warning is issued and
+  training data are used.
 
 - type:
 
@@ -66,7 +68,7 @@ aggregated treated/control prediction objects.
 
 ``` r
 if (FALSE) { # \dontrun{
-cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
+cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
 fit <- run_mcmc_causal(cb, show_progress = FALSE)
 att(fit, interval = "credible", nsim_mean = 100)
 } # }

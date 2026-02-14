@@ -5,7 +5,6 @@
 \alias{dInvGauss}
 \alias{pInvGauss}
 \alias{rInvGauss}
-\alias{qinvGauss}
 \alias{qInvGauss}
 \title{Inverse Gaussian (Wald) distribution}
 \usage{
@@ -51,16 +50,16 @@ the RNG implementation supports \code{n = 1}.}
 }
 \value{
 \code{dInvGauss} returns a numeric scalar density; \code{pInvGauss} returns a numeric scalar CDF;
-\code{rInvGauss} returns one random draw; \code{qinvGauss} returns a numeric quantile.
+\code{rInvGauss} returns one random draw; \code{qInvGauss} returns a numeric quantile.
 }
 \description{
 The inverse Gaussian (also called the Wald distribution) is a positive-support model that is
 right-skewed and often used for waiting times. This package provides NIMBLE-compatible density,
 CDF, and RNG functions under the \code{mean}/\code{shape} parameterization
 (mean \eqn{\mu>0}, shape \eqn{\lambda>0}). A standalone mixture quantile function is computed by
-numerical inversion elsewhere; \code{qinvGauss} inverts the base CDF.
-The \code{d*}, \code{p*}, and \code{q*} functions accept vector inputs for their first argument
-and evaluate elementwise; \code{r*} supports \code{n > 1}.
+numerical inversion elsewhere; \code{qInvGauss} inverts the base CDF.
+These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
+For vectorized R usage (including \code{n > 1}), use \code{\link{base_lowercase}}.
 }
 \section{Functions}{
 \itemize{

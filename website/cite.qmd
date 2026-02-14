@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Cite"
 page-layout: full
 ---
@@ -15,3 +15,5 @@ Use package citation metadata and include version information in analysis output
 - Package: `DPmixGPD`
 - Repository: `https://github.com/arnabaich96/DPmixGPD`
 - Version: report the exact package version used
+
+

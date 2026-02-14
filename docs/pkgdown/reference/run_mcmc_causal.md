@@ -29,7 +29,7 @@ A list of class `"dpmixgpd_causal_fit"`.
 
 ``` r
 if (FALSE) { # \dontrun{
-cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal")
+cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
 fit <- run_mcmc_causal(cb)
 } # }
 ```

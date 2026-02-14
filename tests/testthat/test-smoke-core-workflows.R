@@ -143,7 +143,7 @@ test_that("Smoke test: Causal bundle setup (build_causal_bundle API)", {
     causal_bundle <- build_causal_bundle(
       y = y,
       X = X,
-      T = T_ind,
+      A = T_ind,
       backend = "crp",
       kernel = "normal",
       GPD = FALSE,
@@ -161,7 +161,7 @@ test_that("Smoke test: Causal bundle setup (build_causal_bundle API)", {
     causal_bundle_rct <- build_causal_bundle(
       y = y,
       X = X,
-      T = T_ind,
+      A = T_ind,
       backend = "sb",
       kernel = "gamma",
       GPD = FALSE,

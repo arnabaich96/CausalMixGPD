@@ -23,7 +23,7 @@ User-facing summary for causal bundles produced by \code{build_causal_bundle()}.
 }
 \examples{
 \dontrun{
-cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal")
+cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
 summary(cb)
 }
 }

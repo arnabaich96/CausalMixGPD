@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Model Umbrella: Custom Models (All-in-One)"
 pkgdown:
   slug: "advanced/model-umbrella"
@@ -31,19 +31,6 @@ use_fast_mcmc <- TRUE
 mcmc_long <- list(niter = 2000, nburnin = 500, thin = 3, nchains = 3, seed = 1:3)
 mcmc_fast <- list(niter = 600, nburnin = 150, thin = 2, nchains = 1, seed = 1)
 mcmc <- if (use_fast_mcmc) mcmc_fast else mcmc_long
-
-safe_plot <- function(x, ...) {
-  obj <- tryCatch(plot(x, ...), error = function(e) e)
-  if (inherits(obj, "error")) return(invisible(NULL))
-  if (inherits(obj, "ggplot")) {
-    try(print(obj), silent = TRUE)
-    return(invisible(obj))
-  }
-  if (is.list(obj)) {
-    for (elt in obj) if (inherits(elt, "ggplot")) try(print(elt), silent = TRUE)
-  }
-  invisible(obj)
-}
 ```
 
 # Overview
@@ -55,7 +42,9 @@ This vignette collects two end-to-end examples with customized priors and links:
    with covariate-linked locations and custom priors.
 
 Both examples use `mtcars` and show the main **user-level functions** plus **S3 methods**
-(`print`, `summary`, `plot`, `predict`, `fitted`, `residuals`, `params`, `ate`, `qte`, `att`, `qtt`, `cate`, `cqte`).
+(`print`, `summary`, `plot`, `predict`, `fitted`, `residuals`, `params`, `ate`, `qte`, `att`, `qtt`, `cate`, `cqte`, `ate_rmean`).
+
+For causal estimands: `cate()` / `cqte()` are conditional and require `X`; they use `newdata` when supplied and otherwise training `X`. `ate()` / `att()` / `qte()` / `qtt()` are marginal and always use training data (any supplied `newdata`/`y` is ignored with a warning). Mean-based R-mean estimands are available through `type = "rmean"` and `ate_rmean()`.
 
 > Note on link priors: both SB and CRP backends currently require **normal** priors for
 > link-mode regression coefficients. The requested **lognormal** prior for the scale
@@ -157,7 +146,7 @@ lets this vignette compile end-to-end.
 
 ```{r, eval=TRUE}
 # Requested CRP specification (not runnable due to CRP link-mode restriction)
-bundle_amoroso_crp <- build_nimble_bundle(
+bundle_amoroso_crp <- bundle(
   y = y,
   X = X,
   backend = "crp",
@@ -171,7 +160,7 @@ bundle_amoroso_crp <- build_nimble_bundle(
 
 ```{r, results='hide'}
 # Runnable SB equivalent (supports link-mode parameters)
-bundle_amoroso <- build_nimble_bundle(
+bundle_amoroso <- bundle(
   y = y,
   X = X,
   backend = "sb",
@@ -182,7 +171,7 @@ bundle_amoroso <- build_nimble_bundle(
   mcmc = mcmc
 )
 
-fit_amoroso <- run_mcmc_bundle_manual(bundle_amoroso, show_progress = FALSE)
+fit_amoroso <- mcmc(bundle_amoroso, show_progress = FALSE)
 ```
 
 ## User-Level Functions
@@ -200,7 +189,7 @@ summary(fit_amoroso)
 ## S3 Methods (Fit)
 
 ```{r}
-safe_plot(fit_amoroso, family = "traceplot")
+plot(fit_amoroso, family = "traceplot")
 ```
 
 ```{r}
@@ -231,10 +220,10 @@ names(p)
 ## Specification
 
 - **Backend**: SB (both arms)  
-- **Treated arm (T=1)**: Normal kernel  
+- **Treated arm (A=1)**: Normal kernel  
   - Location: identity link, Gaussian prior  
   - SD: Inverse-Gamma prior  
-- **Control arm (T=0)**: Laplace kernel  
+- **Control arm (A=0)**: Laplace kernel  
   - Location: identity link, Gaussian prior  
   - Scale: Gamma prior  
 
@@ -278,10 +267,10 @@ param_specs_causal <- list(
 ## Build + Run
 
 ```{r, results='hide'}
-causal_bundle <- build_causal_bundle(
+causal_bundle <- bundle(
   y = y,
   X = X_causal,
-  T = T_ind,
+  A = T_ind,
   backend = "sb",
   kernel = c("normal", "laplace"),
   GPD = FALSE,
@@ -292,7 +281,7 @@ causal_bundle <- build_causal_bundle(
   mcmc_ps = mcmc
 )
 
-causal_fit <- run_mcmc_causal(causal_bundle, show_progress = FALSE)
+causal_fit <- mcmc(causal_bundle, show_progress = FALSE)
 ```
 
 ## User-Level Functions
@@ -310,7 +299,7 @@ summary(causal_fit)
 ## S3 Methods (Causal)
 
 ```{r}
-safe_plot(causal_fit, family = "traceplot")
+plot(causal_fit, family = "traceplot")
 ```
 
 ```{r}
@@ -321,8 +310,15 @@ head(pred_causal_mean)
 ```{r, results='asis'}
 ate_result <- ate(causal_fit, interval = "credible", nsim_mean = 50)
 att_result <- att(causal_fit, interval = "credible", nsim_mean = 50)
+ate_rmean_result <- ate_rmean(causal_fit, interval = "credible", nsim_mean = 50)
+att_rmean_result <- att(causal_fit, type = "rmean", interval = "credible", nsim_mean = 50)
+cate_rmean_result <- cate(causal_fit, type = "rmean", newdata = X_causal[1:5, ], interval = "credible", nsim_mean = 50)
 print(ate_result)
 summary(ate_result)
+print(ate_rmean_result)
+summary(ate_rmean_result)
+print(att_rmean_result)
+print(cate_rmean_result)
 ```
 
 ```{r}
@@ -330,14 +326,16 @@ qte_result <- qte(causal_fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
 qtt_result <- qtt(causal_fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
 cqte_result <- cqte(causal_fit, probs = c(0.25, 0.5, 0.75), newdata = X_causal[1:5, ], interval = "credible")
 cate_result <- cate(causal_fit, newdata = X_causal[1:5, ], interval = "credible", nsim_mean = 50)
-safe_plot(ate_result, type = "effect")
-safe_plot(qte_result, type = "effect")
+plot(ate_result, type = "effect")
+plot(qte_result, type = "effect")
 ```
 
 
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+
+
 
 
 

@@ -27,11 +27,13 @@ ate(
 
 - newdata:
 
-  Deprecated placeholder for marginal estimands; must be `NULL`.
+  Ignored for marginal estimands. If supplied, a warning is issued and
+  training data are used.
 
 - y:
 
-  Deprecated placeholder for marginal estimands; must be `NULL`.
+  Ignored for marginal estimands. If supplied, a warning is issued and
+  training data are used.
 
 - type:
 
@@ -59,14 +61,20 @@ ate(
 
 ## Value
 
-A list with elements `fit` (ATE), optional `lower`/`upper`, and
-aggregated treated/control prediction objects.
+A list with elements `fit`, optional `lower`/`upper`, and aggregated
+treated/control prediction objects. `fit` is a single-value marginal
+effect estimate, and intervals are computed from posterior draws.
+
+## Details
+
+For unconditional causal models (`X = NULL`), this is computed directly
+from unconditional treated/control outcome predictions.
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
+cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
 fit <- run_mcmc_causal(cb, show_progress = FALSE)
 ate(fit, interval = "credible", level = 0.90, nsim_mean = 100)
 } # }

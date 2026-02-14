@@ -1,6 +1,6 @@
-# Normal with a Gpd tail
+# Normal with a GPD tail
 
-Splices a generalized Pareto distribution (Gpd) above `threshold` onto a
+Splices a generalized Pareto distribution (GPD) above `threshold` onto a
 single Normal bulk.
 
 ## Usage
@@ -49,15 +49,15 @@ qNormGpd(
 
 - threshold:
 
-  Numeric scalar threshold at which the Gpd tail is attached.
+  Numeric scalar threshold at which the GPD tail is attached.
 
 - tail_scale:
 
-  Numeric scalar Gpd scale parameter; must be positive.
+  Numeric scalar GPD scale parameter; must be positive.
 
 - tail_shape:
 
-  Numeric scalar Gpd shape parameter.
+  Numeric scalar GPD shape parameter.
 
 - log:
 
@@ -94,13 +94,13 @@ returns a numeric vector with the same length as `p`.
 
 ## Functions
 
-- `dNormGpd()`: Normal + Gpd tail density
+- `dNormGpd()`: Normal + GPD tail density
 
-- `pNormGpd()`: Normal + Gpd tail distribution function
+- `pNormGpd()`: Normal + GPD tail distribution function
 
-- `rNormGpd()`: Normal + Gpd tail random generation
+- `rNormGpd()`: Normal + GPD tail random generation
 
-- `qNormGpd()`: Normal + Gpd tail quantile function
+- `qNormGpd()`: Normal + GPD tail quantile function
 
 ## Examples
 
@@ -112,14 +112,15 @@ tail_scale <- 1.0
 tail_shape <- 0.2
 
 dNormGpd(3.0, mean, sd, threshold, tail_scale, tail_shape, log = FALSE)
-#> [1] 0.0224
+#> [1] 0.0223736
 pNormGpd(3.0, mean, sd, threshold, tail_scale, tail_shape,
         lower.tail = TRUE, log.p = FALSE)
-#> [1] 0.973
+#> [1] 0.9731517
 qNormGpd(0.50, mean, sd, threshold, tail_scale, tail_shape)
 #> [1] 0.5
 qNormGpd(0.95, mean, sd, threshold, tail_scale, tail_shape)
-#> [1] 2.3
+#> [1] 2.29835
 replicate(10, rNormGpd(1, mean, sd, threshold, tail_scale, tail_shape))
-#>  [1]  2.131  1.434  2.091  0.855  2.534  0.833  0.297 -0.178 -0.345 -0.250
+#>  [1]  0.4221132  0.2305136 -0.3302143  2.9633691 -0.2517233  1.7487550
+#>  [7]  0.7897745 -0.7741013  1.9601102  1.5545030
 ```

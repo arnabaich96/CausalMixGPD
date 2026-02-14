@@ -190,6 +190,7 @@ ul.task-list li input[type="checkbox"] {
   <ul>
   <li><a href="#objects" id="toc-objects" class="nav-link active" data-scroll-target="#objects">Objects</a></li>
   <li><a href="#computation-outline" id="toc-computation-outline" class="nav-link" data-scroll-target="#computation-outline">Computation outline</a></li>
+  <li><a href="#estimand-contract-notes" id="toc-estimand-contract-notes" class="nav-link" data-scroll-target="#estimand-contract-notes">Estimand contract notes</a></li>
   <li><a href="#important-constraint" id="toc-important-constraint" class="nav-link" data-scroll-target="#important-constraint">Important constraint</a></li>
   </ul>
 </nav>
@@ -219,15 +220,23 @@ ul.task-list li input[type="checkbox"] {
 <p>This page documents the causal pipeline for contributors.</p>
 <section id="objects" class="level2">
 <h2 class="anchored" data-anchor-id="objects">Objects</h2>
-<p>A causal fit typically contains: - treatment-arm fit - control-arm fit - (optional) propensity score model output - derived estimands (<code>qte()</code>, <code>ate()</code> objects) and their summaries</p>
+<p>A causal fit typically contains: - treatment-arm fit - control-arm fit - (optional) propensity score model output - derived estimands (<code>ate()</code>, <code>att()</code>, <code>qte()</code>, <code>qtt()</code>, <code>cate()</code>, <code>cqte()</code>) and their summaries</p>
 </section>
 <section id="computation-outline" class="level2">
 <h2 class="anchored" data-anchor-id="computation-outline">Computation outline</h2>
 <ol type="1">
 <li>Build a causal bundle (<code>build_causal_bundle()</code>), optionally including a PS sub-bundle.</li>
 <li>Run MCMC (<code>run_mcmc_causal()</code>), producing a causal fit object.</li>
-<li>Compute estimands (<code>qte()</code>, <code>ate()</code>), optionally for new covariates.</li>
+<li>Compute marginal estimands (<code>ate()</code>, <code>att()</code>, <code>qte()</code>, <code>qtt()</code>) on training data; compute conditional estimands (<code>cate()</code>, <code>cqte()</code>) on <code>newdata</code> if supplied, otherwise training <code>X</code>.</li>
 </ol>
+</section>
+<section id="estimand-contract-notes" class="level2">
+<h2 class="anchored" data-anchor-id="estimand-contract-notes">Estimand contract notes</h2>
+<ul>
+<li><code>cate()</code> / <code>cqte()</code> are conditional estimands and require a model fitted with <code>X</code> (they are unavailable for no-<code>X</code> causal fits).</li>
+<li><code>ate()</code> / <code>att()</code> / <code>qte()</code> / <code>qtt()</code> are marginal estimands and always use training data; any supplied <code>newdata</code>/<code>y</code> is ignored with a warning.</li>
+<li>R-mean is supported for mean-based estimands via <code>type = "rmean"</code> in <code>cate()</code>, <code>ate()</code>, <code>att()</code>, and through <code>ate_rmean()</code>.</li>
+</ul>
 </section>
 <section id="important-constraint" class="level2">
 <h2 class="anchored" data-anchor-id="important-constraint">Important constraint</h2>

@@ -6,7 +6,7 @@
 \alias{pNormGpd}
 \alias{rNormGpd}
 \alias{qNormGpd}
-\title{Normal with a Gpd tail}
+\title{Normal with a GPD tail}
 \usage{
 dNormGpd(x, mean, sd, threshold, tail_scale, tail_shape, log = 0)
 
@@ -41,11 +41,11 @@ qNormGpd(
 
 \item{sd}{Numeric scalar standard deviation for the Normal bulk.}
 
-\item{threshold}{Numeric scalar threshold at which the Gpd tail is attached.}
+\item{threshold}{Numeric scalar threshold at which the GPD tail is attached.}
 
-\item{tail_scale}{Numeric scalar Gpd scale parameter; must be positive.}
+\item{tail_scale}{Numeric scalar GPD scale parameter; must be positive.}
 
-\item{tail_shape}{Numeric scalar Gpd shape parameter.}
+\item{tail_shape}{Numeric scalar GPD shape parameter.}
 
 \item{log}{Integer flag \code{0/1}; if \code{1}, return the log-density.}
 
@@ -64,17 +64,17 @@ Spliced density/CDF/RNG functions return numeric scalars. \code{qNormGpd} return
 with the same length as \code{p}.
 }
 \description{
-Splices a generalized Pareto distribution (Gpd) above \code{threshold} onto a single Normal bulk.
+Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a single Normal bulk.
 }
 \section{Functions}{
 \itemize{
-\item \code{dNormGpd()}: Normal + Gpd tail density
+\item \code{dNormGpd()}: Normal + GPD tail density
 
-\item \code{pNormGpd()}: Normal + Gpd tail distribution function
+\item \code{pNormGpd()}: Normal + GPD tail distribution function
 
-\item \code{rNormGpd()}: Normal + Gpd tail random generation
+\item \code{rNormGpd()}: Normal + GPD tail random generation
 
-\item \code{qNormGpd()}: Normal + Gpd tail quantile function
+\item \code{qNormGpd()}: Normal + GPD tail quantile function
 
 }}
 \examples{

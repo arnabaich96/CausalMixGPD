@@ -1,10 +1,10 @@
-# Lognormal mixture with a Gpd tail
+# Lognormal mixture with a GPD tail
 
-Splices a generalized Pareto distribution (Gpd) above `threshold` onto a
+Splices a generalized Pareto distribution (GPD) above `threshold` onto a
 Lognormal mixture bulk. Let \\F\_{mix}\\ be the Lognormal mixture CDF.
 The spliced CDF is \\F(x)=F\_{mix}(x)\\ for \\x\<threshold\\ and
 \\F(x)=F\_{mix}(threshold) + \\1-F\_{mix}(threshold)\\G(x)\\ for \\x\ge
-threshold\\, where \\G\\ is the Gpd CDF for exceedances above
+threshold\\, where \\G\\ is the GPD CDF for exceedances above
 `threshold`.
 
 ## Usage
@@ -67,15 +67,15 @@ qLognormalMixGpd(
 
 - threshold:
 
-  Numeric scalar threshold at which the Gpd tail is attached.
+  Numeric scalar threshold at which the GPD tail is attached.
 
 - tail_scale:
 
-  Numeric scalar Gpd scale parameter; must be positive.
+  Numeric scalar GPD scale parameter; must be positive.
 
 - tail_shape:
 
-  Numeric scalar Gpd shape parameter.
+  Numeric scalar GPD shape parameter.
 
 - log:
 
@@ -125,18 +125,18 @@ Spliced density/CDF/RNG functions return numeric scalars.
 
 The density, CDF, and RNG are implemented as `nimbleFunction`s. The
 quantile is an R function: it uses numerical inversion in the bulk
-region and the closed-form Gpd quantile in the tail.
+region and the closed-form GPD quantile in the tail.
 
 ## Functions
 
-- `dLognormalMixGpd()`: Lognormal mixture + Gpd tail density
+- `dLognormalMixGpd()`: Lognormal mixture + GPD tail density
 
-- `pLognormalMixGpd()`: Lognormal mixture + Gpd tail distribution
+- `pLognormalMixGpd()`: Lognormal mixture + GPD tail distribution
   function
 
-- `rLognormalMixGpd()`: Lognormal mixture + Gpd tail random generation
+- `rLognormalMixGpd()`: Lognormal mixture + GPD tail random generation
 
-- `qLognormalMixGpd()`: Lognormal mixture + Gpd tail quantile function
+- `qLognormalMixGpd()`: Lognormal mixture + GPD tail quantile function
 
 ## Examples
 
@@ -151,22 +151,23 @@ tail_shape <- 0.2
 dLognormalMixGpd(4.0, w = w, meanlog = meanlog, sdlog = sdlog,
                 threshold = threshold, tail_scale = tail_scale,
                 tail_shape = tail_shape, log = FALSE)
-#> [1] 0.0332
+#> [1] 0.03315338
 pLognormalMixGpd(4.0, w = w, meanlog = meanlog, sdlog = sdlog,
                 threshold = threshold, tail_scale = tail_scale,
                 tail_shape = tail_shape, lower.tail = TRUE, log.p = FALSE)
-#> [1] 0.964
+#> [1] 0.9635313
 qLognormalMixGpd(0.50, w = w, meanlog = meanlog, sdlog = sdlog,
                 threshold = threshold, tail_scale = tail_scale,
                 tail_shape = tail_shape)
-#> [1] 1.15
+#> [1] 1.151134
 qLognormalMixGpd(0.95, w = w, meanlog = meanlog, sdlog = sdlog,
                 threshold = threshold, tail_scale = tail_scale,
                 tail_shape = tail_shape)
-#> [1] 3.66
+#> [1] 3.663602
 replicate(10, rLognormalMixGpd(1, w = w, meanlog = meanlog, sdlog = sdlog,
                               threshold = threshold,
                               tail_scale = tail_scale,
                               tail_shape = tail_shape))
-#>  [1] 1.133 3.115 1.213 1.420 0.764 1.478 0.554 5.907 0.678 2.633
+#>  [1] 0.6936414 0.6359608 1.0877797 1.0726240 0.8555901 1.5174670 0.7253634
+#>  [8] 5.7237011 1.0951917 0.9518556
 ```

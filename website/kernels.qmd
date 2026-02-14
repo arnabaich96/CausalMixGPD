@@ -1,4 +1,4 @@
-﻿---
+---
 title: "Kernels"
 page-layout: full
 ---
@@ -49,3 +49,5 @@ Choose a bulk kernel based on support, shape, and tail behavior. Then move into 
 
 :::
 :::
+
+

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>customization-and-tuning – DPmixGPD</title>
+<title>Advanced: Customization and tuning – DPmixGPD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -249,7 +249,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <ol type="1">
 <li><p>A manual stick-breaking (SB) Normal mixture using <code>dNormMix</code> as the likelihood.</p></li>
 <li><p>A spliced bulk-tail model (SB + Amoroso + GPD) in which DPmixGPD generates the model code, while the compilation and sampling steps are carried out explicitly to facilitate inspection.</p></li>
-<li><p>A causal (two-arm) model built via <code>build_causal_bundle()</code>, followed by downstream summaries via S3 methods such as <code>predict()</code>, <code>ate()/qte()</code> (marginal), <code>att()/qtt()</code> (treated-only), and <code>cate()/cqte()</code> (conditional).</p></li>
+<li><p>A causal (two-arm) model built via <code>build_causal_bundle()</code>, followed by downstream summaries via S3 methods such as <code>predict()</code>, <code>ate()/qte()</code> (marginal), <code>att()/qtt()</code> (treated-only), and <code>cate()/cqte()</code> (conditional; requires <code>X</code>).</p></li>
 </ol>
 <p>Throughout, the focus is on reproducible model construction and on using the exported NIMBLE distributions directly in the likelihood. In this setting, a ones/zeros trick is not required.</p>
 </section>
@@ -374,7 +374,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(fit_sb)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_sb)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(fit_sb, <span class="at">family =</span> <span class="st">"traceplot"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_sb, <span class="at">family =</span> <span class="st">"traceplot"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>pred_sb <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
@@ -490,7 +490,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(fit_crp)</span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_crp)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(fit_crp, <span class="at">family =</span> <span class="st">"traceplot"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_crp, <span class="at">family =</span> <span class="st">"traceplot"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>pred_crp_mean <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_crp, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
@@ -502,7 +502,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="causal-model-from-bundle-to-s3-inference" class="level1">
 <h1>Causal Model: From Bundle to S3 Inference</h1>
-<p>Finally, we switch from “one distribution for everyone” to a two-arm causal setup. DPmixGPD’s causal bundle wraps (i) an outcome model for the treated arm, (ii) an outcome model for the control arm, and (iii) a propensity-score model (optional, but often useful). Once the sampler has run, the fitted object exposes high-level S3 methods so you can move from posterior samples to causal estimands with minimal friction–e.g., average treatment effects via <code>ate()</code> and quantile treatment effects via <code>qte()</code>, with treated-only counterparts <code>att()</code> / <code>qtt()</code> and conditional counterparts <code>cate()</code> / <code>cqte()</code>.</p>
+<p>Finally, we switch from “one distribution for everyone” to a two-arm causal setup. DPmixGPD’s causal bundle wraps (i) an outcome model for the treated arm, (ii) an outcome model for the control arm, and (iii) a propensity-score model (optional, but often useful). Once the sampler has run, the fitted object exposes high-level S3 methods so you can move from posterior samples to causal estimands with minimal friction–e.g., average treatment effects via <code>ate()</code> and quantile treatment effects via <code>qte()</code>, with treated-only counterparts <code>att()</code> / <code>qtt()</code> and conditional counterparts <code>cate()</code> / <code>cqte()</code>. For no-<code>X</code> fits, <code>cate()</code> / <code>cqte()</code> are unavailable. Marginal estimands (<code>ate()</code>, <code>att()</code>, <code>qte()</code>, <code>qtt()</code>) always use training data and ignore supplied <code>newdata</code>/<code>y</code>, while conditional estimands use <code>newdata</code> if provided and otherwise training <code>X</code>. R-mean is available via <code>type = "rmean"</code> for <code>cate()</code> / <code>ate()</code> / <code>att()</code> and via <code>ate_rmean()</code>.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>X_causal <span class="ot">&lt;-</span> df[, <span class="fu">c</span>(<span class="st">"wt"</span>, <span class="st">"hp"</span>, <span class="st">"qsec"</span>, <span class="st">"cyl"</span>)]</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>X_causal <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(X_causal)</span>
@@ -543,7 +543,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>causal_bundle <span class="ot">&lt;-</span> <span class="fu">build_causal_bundle</span>(</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> X_causal,</span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">T =</span> T_ind,</span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">A =</span> T_ind,</span>
 <span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
 <span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="fu">c</span>(<span class="st">"normal"</span>, <span class="st">"laplace"</span>),</span>
 <span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,</span>
@@ -561,7 +561,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(causal_fit)</span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(causal_fit)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(causal_fit, <span class="at">family =</span> <span class="st">"traceplot"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(causal_fit, <span class="at">family =</span> <span class="st">"traceplot"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>pred_causal_mean <span class="ot">&lt;-</span> <span class="fu">predict</span>(causal_fit, <span class="at">x =</span> X_causal, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
@@ -571,14 +571,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>qte_result <span class="ot">&lt;-</span> <span class="fu">qte</span>(causal_fit, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>), <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
 <span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>att_result <span class="ot">&lt;-</span> <span class="fu">att</span>(causal_fit, <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> <span class="dv">50</span>)</span>
 <span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>qtt_result <span class="ot">&lt;-</span> <span class="fu">qtt</span>(causal_fit, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>), <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>cate_result <span class="ot">&lt;-</span> <span class="fu">cate</span>(causal_fit, <span class="at">newdata =</span> X_causal[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, ], <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> <span class="dv">50</span>)</span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>cqte_result <span class="ot">&lt;-</span> <span class="fu">cqte</span>(causal_fit, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>), <span class="at">newdata =</span> X_causal[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, ], <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(ate_result)</span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(ate_result)</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>ate_rmean_result <span class="ot">&lt;-</span> <span class="fu">ate_rmean</span>(causal_fit, <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> <span class="dv">50</span>)</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>cate_result <span class="ot">&lt;-</span> <span class="fu">cate</span>(causal_fit, <span class="at">newdata =</span> X_causal[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, ], <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> <span class="dv">50</span>)</span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>cqte_result <span class="ot">&lt;-</span> <span class="fu">cqte</span>(causal_fit, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>), <span class="at">newdata =</span> X_causal[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, ], <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>att_rmean_result <span class="ot">&lt;-</span> <span class="fu">att</span>(causal_fit, <span class="at">type =</span> <span class="st">"rmean"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> <span class="dv">50</span>)</span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>cate_rmean_result <span class="ot">&lt;-</span> <span class="fu">cate</span>(causal_fit, <span class="at">type =</span> <span class="st">"rmean"</span>, <span class="at">newdata =</span> X_causal[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, ], <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> <span class="dv">50</span>)</span>
 <span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(ate_result, <span class="at">type =</span> <span class="st">"effect"</span>)</span>
-<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(qte_result, <span class="at">type =</span> <span class="st">"effect"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(ate_result)</span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(ate_result)</span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(ate_rmean_result)</span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(ate_rmean_result)</span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(att_rmean_result)</span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(cate_rmean_result)</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(ate_result, <span class="at">type =</span> <span class="st">"effect"</span>)</span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(qte_result, <span class="at">type =</span> <span class="st">"effect"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 
 
 </section>

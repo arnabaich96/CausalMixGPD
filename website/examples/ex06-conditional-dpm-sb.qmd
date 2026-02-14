@@ -1,4 +1,4 @@
-﻿---
+---
 title: "ex06. Conditional DPM (SB Backend)"
 ---
 
@@ -37,17 +37,6 @@ pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
-if (!exists("safe_plot", mode = "function")) {
-  safe_plot <- function(x, ...) {
-    obj <- tryCatch(plot(x, ...), error = function(e) e)
-    if (inherits(obj, "ggplot")) {
-      try(print(obj), silent = TRUE)
-    } else if (is.list(obj)) {
-      for (elt in obj) if (inherits(elt, "ggplot")) try(print(elt), silent = TRUE)
-    }
-    invisible(obj)
-  }
-}
 ```
 
 
@@ -98,7 +87,7 @@ summary_tbl %>%
 ## Model Specification
 
 ```{r spec, cache=TRUE}
-bundle_sb_normal <- DPmixGPD::build_nimble_bundle(
+bundle_sb_normal <- bundle(
   y = y,
   X = X,
   kernel = "normal",
@@ -108,7 +97,7 @@ bundle_sb_normal <- DPmixGPD::build_nimble_bundle(
   mcmc = mcmc
 )
 
-bundle_sb_cauchy <- DPmixGPD::build_nimble_bundle(
+bundle_sb_cauchy <- bundle(
   y = y,
   X = X,
   kernel = "cauchy",
@@ -124,8 +113,8 @@ bundle_sb_cauchy <- DPmixGPD::build_nimble_bundle(
 ## Running MCMC
 
 ```{r mcmc, cache=TRUE}
-fit_sb_normal <- load_or_fit("ex06-conditional-dpm-sb-fit_sb_normal", run_mcmc_bundle_manual(bundle_sb_normal))
-fit_sb_cauchy <- load_or_fit("ex06-conditional-dpm-sb-fit_sb_cauchy", run_mcmc_bundle_manual(bundle_sb_cauchy))
+fit_sb_normal <- load_or_fit("ex06-conditional-dpm-sb-fit_sb_normal", mcmc(bundle_sb_normal))
+fit_sb_cauchy <- load_or_fit("ex06-conditional-dpm-sb-fit_sb_cauchy", mcmc(bundle_sb_cauchy))
 summary(fit_sb_normal)
 summary(fit_sb_cauchy)
 ```
@@ -209,12 +198,12 @@ bind_rows(quant_df_normal, quant_df_cauchy) %>%
 ## Residuals & Diagnostics
 
 ```{r residuals, cache=TRUE}
-safe_plot(fitted(fit_sb_cauchy))
+plot(fitted(fit_sb_cauchy))
 ```
 
 ```{r diagnostics}
-safe_plot(fit_sb_normal, family = c("traceplot", "autocorrelation", "geweke"))
-safe_plot(fit_sb_cauchy, family = c("density", "running", "caterpillar"))
+plot(fit_sb_normal, family = c("traceplot", "autocorrelation", "geweke"))
+plot(fit_sb_cauchy, family = c("density", "running", "caterpillar"))
 ```
 
 ---
@@ -236,6 +225,10 @@ safe_plot(fit_sb_cauchy, family = c("density", "running", "caterpillar"))
 - Workflow index: [Roadmap](../start/roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
+
+
+
+
 
 
 

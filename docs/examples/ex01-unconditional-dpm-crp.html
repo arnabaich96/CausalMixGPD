@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>ex01-unconditional-dpm-crp – DPmixGPD</title>
+<title>ex01. Unconditional DPM (CRP Backend) – DPmixGPD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -306,9 +306,9 @@ window.Quarto = {
 </section>
 <section id="model-specification-bundle" class="level2">
 <h2 class="anchored" data-anchor-id="model-specification-bundle">Model Specification &amp; Bundle</h2>
-<p>We’ll use the <code>build_nimble_bundle</code> function directly which handles both specification and bundle creation.</p>
+<p>We’ll use the <code>bundle</code> function directly which handles both specification and bundle creation.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>bundle_crp <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">build_nimble_bundle</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>bundle_crp <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y_mixed,</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"laplace"</span>,         <span class="co"># Use laplace kernel</span></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"crp"</span>,            <span class="co"># CRP backend</span></span>
@@ -322,7 +322,7 @@ window.Quarto = {
 <section id="building-mcmc-bundle" class="level3">
 <h3 class="anchored" data-anchor-id="building-mcmc-bundle">Building MCMC bundle</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>bundle_crp <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">build_nimble_bundle</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>bundle_crp <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  y_mixed,</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"laplace"</span>,</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
@@ -342,7 +342,7 @@ window.Quarto = {
 <section id="running-mcmc" class="level3">
 <h3 class="anchored" data-anchor-id="running-mcmc">Running MCMC</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fit_crp <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex01-unconditional-dpm-crp-fit_crp"</span>, <span class="fu">run_mcmc_bundle_manual</span>(bundle_crp))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>fit_crp <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex01-unconditional-dpm-crp-fit_crp"</span>, DPmixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle_crp))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="summary-of-fitted-mcmc-model" class="level3">
@@ -361,7 +361,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="mcmc-diagnostics-plots">MCMC Diagnostics Plots</h2>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Trace plots for key parameters</span></span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(fit_crp, <span class="at">params =</span> <span class="st">"alpha"</span>, <span class="at">family =</span> <span class="fu">c</span>(<span class="st">"traceplot"</span>, <span class="st">"density"</span>, <span class="st">"geweke"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_crp, <span class="at">params =</span> <span class="st">"alpha"</span>, <span class="at">family =</span> <span class="fu">c</span>(<span class="st">"traceplot"</span>, <span class="st">"density"</span>, <span class="st">"geweke"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <hr>
 </section>
@@ -377,7 +377,7 @@ window.Quarto = {
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>pred_density <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_crp, <span class="at">y =</span> y_grid, <span class="at">type =</span> <span class="st">"density"</span>)</span>
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Use S3 plot method</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(pred_density)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_density)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
 <section id="quantile-predictions" class="level3">
@@ -396,7 +396,7 @@ window.Quarto = {
 <span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a> <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="st">"striped"</span>, <span class="at">full_width =</span> <span class="cn">FALSE</span>, <span class="at">position =</span> <span class="st">"center"</span>)</span>
 <span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Use S3 plot method</span></span>
-<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(quantiles_pred)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(quantiles_pred)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <hr>
 </section>
@@ -405,14 +405,14 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="varying-truncation-level-components">Varying Truncation Level (components)</h2>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Demonstrate with one value</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>bundle_components <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>bundle_components <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y_mixed,</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"laplace"</span>,</span>
 <span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
 <span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">5</span>,</span>
 <span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc =</span> mcmc</span>
 <span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>fit_components <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex01-unconditional-dpm-crp-fit_components"</span>, <span class="fu">run_mcmc_bundle_manual</span>(bundle_components))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>fit_components <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex01-unconditional-dpm-crp-fit_components"</span>, DPmixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle_components))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_components)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -426,14 +426,14 @@ window.Quarto = {
 <section id="laplace-kernel-current" class="level3">
 <h3 class="anchored" data-anchor-id="laplace-kernel-current">Laplace Kernel (Current)</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>bundle_laplace <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">build_nimble_bundle</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>bundle_laplace <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y_mixed,</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"laplace"</span>,</span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
 <span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">5</span>,</span>
 <span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc =</span> mcmc</span>
 <span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>fit_laplace <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex01-unconditional-dpm-crp-fit_laplace"</span>, <span class="fu">run_mcmc_bundle_manual</span>(bundle_laplace))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>fit_laplace <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex01-unconditional-dpm-crp-fit_laplace"</span>, DPmixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle_laplace))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_laplace)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -442,14 +442,14 @@ window.Quarto = {
 <section id="amoroso-kernel-alternative" class="level3">
 <h3 class="anchored" data-anchor-id="amoroso-kernel-alternative">Amoroso Kernel (Alternative)</h3>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>bundle_amoroso <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">build_nimble_bundle</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>bundle_amoroso <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
 <span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y_mixed,</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"amoroso"</span>,</span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
 <span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">5</span>,</span>
 <span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc =</span> mcmc</span>
 <span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>fit_amoroso <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex01-unconditional-dpm-crp-fit_amoroso"</span>, <span class="fu">run_mcmc_bundle_manual</span>(bundle_amoroso))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>fit_amoroso <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex01-unconditional-dpm-crp-fit_amoroso"</span>, DPmixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle_amoroso))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_amoroso)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>

@@ -169,17 +169,17 @@ sig <- c(1, 0.7, 1.3)
 
 # Normal mixture
 dnormmix(c(0, 1, 2), w = w, mean = mu, sd = sig)
-#> [1] 0.270 0.177 0.063
+#> [1] 0.26967693 0.17703568 0.06303415
 rnormmix(5, w = w, mean = mu, sd = sig)
-#> [1] -2.18  1.50 -1.61 -3.81 -1.66
+#> [1]  0.2224225 -2.1848187  1.5025599 -1.6137368 -3.8100318
 
 # Normal mixture + GPD
 dnormmixgpd(c(1, 2, 3), w = w, mean = mu, sd = sig,
             threshold = 2, tail_scale = 1, tail_shape = 0.2)
-#> [1] 0.1770 0.0798 0.0267
+#> [1] 0.17703568 0.07982551 0.02673340
 
 # Normal + GPD (single component)
 dnormgpd(c(1, 2, 3), mean = 0.5, sd = 1, threshold = 2,
          tail_scale = 1, tail_shape = 0.2)
-#> [1] 0.3521 0.0668 0.0224
+#> [1] 0.3520653 0.0668072 0.0223736
 ```

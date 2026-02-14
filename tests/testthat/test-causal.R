@@ -39,7 +39,7 @@ test_that("causal workflow: representative combos (Tier B)", {
     cb <- DPmixGPD::build_causal_bundle(
       y = y,
       X = X,
-      T = t_ind,
+      A = t_ind,
       backend = cfg$backend,
       kernel = cfg$kernel,
       GPD = cfg$GPD,
@@ -154,7 +154,7 @@ test_that("causal workflow: exhaustive kernel combos (Tier C)", {
       cb <- DPmixGPD::build_causal_bundle(
         y = y,
         X = cfg$X,
-        T = t_ind,
+        A = t_ind,
         backend = cfg$backend,
         kernel = cfg$kernel,
         GPD = cfg$GPD,
@@ -209,7 +209,7 @@ test_that("PS parameter: logit, probit, naive, FALSE all work", {
   set.seed(99)
   n <- 40
   X <- cbind(x1 = stats::rnorm(n), x2 = stats::runif(n, -1, 1))
-  T <- stats::rbinom(n, 1, stats::plogis(0.3 + 0.4 * X[, 1]))
+  A <- stats::rbinom(n, 1, stats::plogis(0.3 + 0.4 * X[, 1]))
   y <- abs(stats::rnorm(n)) + 0.2
 
   mcmc_out <- list(niter = 20, nburnin = 5, thin = 1, nchains = 1, seed = 1)
@@ -224,7 +224,7 @@ test_that("PS parameter: logit, probit, naive, FALSE all work", {
     cb <- DPmixGPD::build_causal_bundle(
       y = y,
       X = X,
-      T = T,
+      A = A,
       backend = "crp",
       kernel = "gamma",
       GPD = FALSE,
@@ -288,7 +288,7 @@ test_that("ATE/QTE use matching posterior draws and shapes", {
   set.seed(42)
   n <- 20
   X <- cbind(x1 = stats::rnorm(n), x2 = stats::runif(n, -1, 1))
-  T <- stats::rbinom(n, 1, stats::plogis(0.2 + 0.4 * X[, 1]))
+  A <- stats::rbinom(n, 1, stats::plogis(0.2 + 0.4 * X[, 1]))
   y <- abs(stats::rnorm(n)) + 0.1
 
   mcmc_out <- list(niter = 20, nburnin = 5, thin = 1, nchains = 1, seed = 1)
@@ -297,7 +297,7 @@ test_that("ATE/QTE use matching posterior draws and shapes", {
   cb <- DPmixGPD::build_causal_bundle(
     y = y,
     X = X,
-    T = T,
+    A = A,
     backend = c("sb", "sb"),
     kernel = c("normal", "normal"),
     GPD = c(FALSE, FALSE),
@@ -348,7 +348,23 @@ test_that("marginal ate/qte aggregate conditional cate/cqte draws over training 
   q_exp_draws <- apply(cq$qte$draws, c(1, 3), mean, na.rm = TRUE)
   q_exp_draws <- matrix(q_exp_draws, ncol = length(probs))
   expect_equal(matrix(q$qte$draws[, 1, ], ncol = length(probs)), q_exp_draws, tolerance = 1e-8)
-  expect_equal(as.numeric(q$fit[1, ]), colMeans(q_exp_draws, na.rm = TRUE), tolerance = 1e-8)
+  expect_equal(as.numeric(q$fit$estimate), colMeans(q_exp_draws, na.rm = TRUE), tolerance = 1e-8)
+  expect_equal(as.numeric(q$fit$index), probs, tolerance = 0)
+})
+
+test_that("conditional causal models support all six treatment-effect estimands", {
+  skip_if_not_test_level("ci")
+
+  data <- .make_causal_fit()
+  cf <- data$fit
+  X <- data$X
+
+  expect_s3_class(DPmixGPD::cate(cf, newdata = X[1:2, , drop = FALSE], nsim_mean = 20L), "dpmixgpd_ate")
+  expect_s3_class(DPmixGPD::cqte(cf, probs = c(0.25, 0.5), newdata = X[1:2, , drop = FALSE]), "dpmixgpd_qte")
+  expect_s3_class(DPmixGPD::ate(cf, nsim_mean = 20L), "dpmixgpd_ate")
+  expect_s3_class(DPmixGPD::att(cf, nsim_mean = 20L), "dpmixgpd_ate")
+  expect_s3_class(DPmixGPD::qte(cf, probs = c(0.25, 0.5)), "dpmixgpd_qte")
+  expect_s3_class(DPmixGPD::qtt(cf, probs = c(0.25, 0.5)), "dpmixgpd_qte")
 })
 
 test_that("att/qtt aggregate over treated-assigned rows only", {
@@ -375,25 +391,87 @@ test_that("att/qtt aggregate over treated-assigned rows only", {
   qtt_exp_draws <- apply(cq$qte$draws[, idx_trt, , drop = FALSE], c(1, 3), mean, na.rm = TRUE)
   qtt_exp_draws <- matrix(qtt_exp_draws, ncol = length(probs))
   expect_equal(matrix(q_tt$qte$draws[, 1, ], ncol = length(probs)), qtt_exp_draws, tolerance = 1e-8)
-  expect_equal(as.numeric(q_tt$fit[1, ]), colMeans(qtt_exp_draws, na.rm = TRUE), tolerance = 1e-8)
+  expect_equal(as.numeric(q_tt$fit$estimate), colMeans(qtt_exp_draws, na.rm = TRUE), tolerance = 1e-8)
+  expect_equal(as.numeric(q_tt$fit$index), probs, tolerance = 0)
 })
 
-test_that("marginal effect functions reject newdata/y arguments", {
+test_that("marginal effect functions warn and ignore newdata/y arguments", {
   skip_if_not_test_level("ci")
 
   data <- .make_causal_fit()
   cf <- data$fit
   X <- data$X
 
-  expect_error(DPmixGPD::ate(cf, newdata = X[1:2, ]), "Use cate")
-  expect_error(DPmixGPD::qte(cf, newdata = X[1:2, ]), "Use cqte")
-  expect_error(DPmixGPD::att(cf, newdata = X[1:2, ]), "Use cate")
-  expect_error(DPmixGPD::qtt(cf, newdata = X[1:2, ]), "Use cqte")
+  set.seed(510)
+  a0 <- DPmixGPD::ate(cf, nsim_mean = 20L, interval = "credible")
+  set.seed(510)
+  expect_warning(a1 <- DPmixGPD::ate(cf, newdata = X[1:2, ], nsim_mean = 20L, interval = "credible"), "ignored")
+  expect_equal(as.numeric(a1$fit), as.numeric(a0$fit), tolerance = 1e-8)
 
-  expect_error(DPmixGPD::ate(cf, y = 1), "training data only")
-  expect_error(DPmixGPD::qte(cf, y = 1), "training data only")
-  expect_error(DPmixGPD::att(cf, y = 1), "training data only")
-  expect_error(DPmixGPD::qtt(cf, y = 1), "training data only")
+  set.seed(511)
+  q0 <- DPmixGPD::qte(cf, probs = c(0.25, 0.5), interval = "credible")
+  set.seed(511)
+  expect_warning(q1 <- DPmixGPD::qte(cf, newdata = X[1:2, ], probs = c(0.25, 0.5), interval = "credible"), "ignored")
+  expect_equal(as.numeric(q1$fit$estimate), as.numeric(q0$fit$estimate), tolerance = 1e-8)
+
+  set.seed(512)
+  att0 <- DPmixGPD::att(cf, nsim_mean = 20L, interval = "credible")
+  set.seed(512)
+  expect_warning(att1 <- DPmixGPD::att(cf, y = 1, nsim_mean = 20L, interval = "credible"), "ignored")
+  expect_equal(as.numeric(att1$fit), as.numeric(att0$fit), tolerance = 1e-8)
+
+  set.seed(513)
+  qtt0 <- DPmixGPD::qtt(cf, probs = c(0.25, 0.5), interval = "credible")
+  set.seed(513)
+  expect_warning(qtt1 <- DPmixGPD::qtt(cf, y = 1, probs = c(0.25, 0.5), interval = "credible"), "ignored")
+  expect_equal(as.numeric(qtt1$fit$estimate), as.numeric(qtt0$fit$estimate), tolerance = 1e-8)
+})
+
+test_that("cate/cqte default to training X when newdata is missing", {
+  skip_if_not_test_level("ci")
+
+  data <- .make_causal_fit()
+  cf <- data$fit
+  X <- data$X
+  probs <- c(0.25, 0.5)
+
+  set.seed(520)
+  c_ref <- DPmixGPD::cate(cf, newdata = X, interval = "credible", nsim_mean = 20L)
+  set.seed(520)
+  c_def <- DPmixGPD::cate(cf, interval = "credible", nsim_mean = 20L)
+  expect_equal(c_def$fit, c_ref$fit, tolerance = 1e-8)
+
+  set.seed(521)
+  q_ref <- DPmixGPD::cqte(cf, probs = probs, newdata = X, interval = "credible")
+  set.seed(521)
+  q_def <- DPmixGPD::cqte(cf, probs = probs, interval = "credible")
+  expect_equal(q_def$fit, q_ref$fit, tolerance = 1e-8)
+})
+
+test_that("marginal estimands do not call conditional exported estimands", {
+  skip_if_not_test_level("ci")
+
+  data <- .make_causal_fit()
+  cf <- data$fit
+
+  if (!exists("with_mocked_bindings", envir = asNamespace("testthat"), inherits = FALSE)) {
+    skip("testthat::with_mocked_bindings() is not available")
+  }
+
+  expect_error(
+    testthat::with_mocked_bindings(
+      {
+        DPmixGPD::ate(cf, interval = "none", nsim_mean = 20L)
+        DPmixGPD::att(cf, interval = "none", nsim_mean = 20L)
+        DPmixGPD::qte(cf, probs = c(0.25, 0.5), interval = "none")
+        DPmixGPD::qtt(cf, probs = c(0.25, 0.5), interval = "none")
+      },
+      cate = function(...) stop("cate() should not be called by marginal estimands", call. = FALSE),
+      cqte = function(...) stop("cqte() should not be called by marginal estimands", call. = FALSE),
+      .package = "DPmixGPD"
+    ),
+    NA
+  )
 })
 
 test_that("marginal estimands degrade to single-point summaries without covariates", {
@@ -401,13 +479,13 @@ test_that("marginal estimands degrade to single-point summaries without covariat
 
   set.seed(404)
   n <- 24
-  T <- c(rep(0L, n / 2), rep(1L, n / 2))
+  A <- c(rep(0L, n / 2), rep(1L, n / 2))
   y <- abs(stats::rnorm(n)) + 0.1
 
   cb <- DPmixGPD::build_causal_bundle(
     y = y,
     X = NULL,
-    T = T,
+    A = A,
     backend = c("sb", "sb"),
     kernel = c("normal", "normal"),
     GPD = c(FALSE, FALSE),
@@ -423,6 +501,9 @@ test_that("marginal estimands degrade to single-point summaries without covariat
   q <- DPmixGPD::qte(cf, probs = c(0.25, 0.5), interval = "credible")
   q_tt <- DPmixGPD::qtt(cf, probs = c(0.25, 0.5), interval = "credible")
 
+  expect_error(DPmixGPD::cate(cf, interval = "credible", nsim_mean = 20L), "conditional causal models")
+  expect_error(DPmixGPD::cqte(cf, probs = c(0.25, 0.5), interval = "credible"), "conditional causal models")
+
   expect_equal(a$n_pred, 1L)
   expect_equal(a_tt$n_pred, 1L)
   expect_equal(q$n_pred, 1L)
@@ -435,7 +516,7 @@ test_that("ate_rmean returns finite estimates with same structure as ate", {
   set.seed(43)
   n <- 20
   X <- cbind(x1 = stats::rnorm(n), x2 = stats::runif(n, -1, 1))
-  T <- stats::rbinom(n, 1, stats::plogis(0.2 + 0.4 * X[, 1]))
+  A <- stats::rbinom(n, 1, stats::plogis(0.2 + 0.4 * X[, 1]))
   y <- abs(stats::rnorm(n)) + 0.1
 
   mcmc_out <- list(niter = 20, nburnin = 5, thin = 1, nchains = 1, seed = 1)
@@ -444,7 +525,7 @@ test_that("ate_rmean returns finite estimates with same structure as ate", {
   cb <- DPmixGPD::build_causal_bundle(
     y = y,
     X = X,
-    T = T,
+    A = A,
     backend = c("sb", "sb"),
     kernel = c("normal", "normal"),
     GPD = c(FALSE, FALSE),
@@ -472,7 +553,7 @@ test_that("ate(type='mean') returns Inf when outcome GPD has tail_shape >= 1", {
   set.seed(44)
   n <- 20
   X <- cbind(x1 = stats::rnorm(n), x2 = stats::runif(n, -1, 1))
-  T <- stats::rbinom(n, 1, stats::plogis(0.2 + 0.4 * X[, 1]))
+  A <- stats::rbinom(n, 1, stats::plogis(0.2 + 0.4 * X[, 1]))
   y <- abs(stats::rnorm(n)) + 0.1
 
   mcmc_out <- list(niter = 20, nburnin = 5, thin = 1, nchains = 1, seed = 1)
@@ -481,7 +562,7 @@ test_that("ate(type='mean') returns Inf when outcome GPD has tail_shape >= 1", {
   cb <- DPmixGPD::build_causal_bundle(
     y = y,
     X = X,
-    T = T,
+    A = A,
     backend = c("sb", "sb"),
     kernel = c("gamma", "gamma"),
     GPD = c(TRUE, TRUE),
@@ -520,7 +601,7 @@ test_that("ate_rmean returns finite estimates when outcome has GPD (same structu
   set.seed(45)
   n <- 20
   X <- cbind(x1 = stats::rnorm(n), x2 = stats::runif(n, -1, 1))
-  T <- stats::rbinom(n, 1, stats::plogis(0.2 + 0.4 * X[, 1]))
+  A <- stats::rbinom(n, 1, stats::plogis(0.2 + 0.4 * X[, 1]))
   y <- abs(stats::rnorm(n)) + 0.1
 
   mcmc_out <- list(niter = 20, nburnin = 5, thin = 1, nchains = 1, seed = 1)
@@ -529,7 +610,7 @@ test_that("ate_rmean returns finite estimates when outcome has GPD (same structu
   cb <- DPmixGPD::build_causal_bundle(
     y = y,
     X = X,
-    T = T,
+    A = A,
     backend = c("sb", "sb"),
     kernel = c("gamma", "gamma"),
     GPD = c(TRUE, TRUE),
@@ -559,7 +640,7 @@ test_that("build_causal_bundle errors on empty y", {
     build_causal_bundle(
       y = numeric(0),
       X = matrix(1:2, ncol = 1),
-      T = c(0, 1),
+      A = c(0, 1),
       backend = "sb",
       kernel = "normal",
       GPD = FALSE,
@@ -570,17 +651,17 @@ test_that("build_causal_bundle errors on empty y", {
   )
 })
 
-test_that("build_causal_bundle errors on T length mismatch", {
+test_that("build_causal_bundle errors on A length mismatch", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
-  T <- rbinom(10, 1, 0.5)  # wrong length
+  A <- rbinom(10, 1, 0.5)  # wrong length
 
   expect_error(
     build_causal_bundle(
       y = y,
       X = X,
-      T = T,
+      A = A,
       backend = "sb",
       kernel = "normal",
       GPD = FALSE,
@@ -591,17 +672,17 @@ test_that("build_causal_bundle errors on T length mismatch", {
   )
 })
 
-test_that("build_causal_bundle errors on non-binary T", {
+test_that("build_causal_bundle errors on non-binary A", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
-  T <- rep(c(0, 1, 2), length.out = 20)  # not binary
+  A <- rep(c(0, 1, 2), length.out = 20)  # not binary
 
   expect_error(
     build_causal_bundle(
       y = y,
       X = X,
-      T = T,
+      A = A,
       backend = "sb",
       kernel = "normal",
       GPD = FALSE,
@@ -612,17 +693,17 @@ test_that("build_causal_bundle errors on non-binary T", {
   )
 })
 
-test_that("build_causal_bundle errors on T with NA values", {
+test_that("build_causal_bundle errors on A with NA values", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
-  T <- c(rep(0, 9), NA, rep(1, 10))
+  A <- c(rep(0, 9), NA, rep(1, 10))
 
   expect_error(
     build_causal_bundle(
       y = y,
       X = X,
-      T = T,
+      A = A,
       backend = "sb",
       kernel = "normal",
       GPD = FALSE,
@@ -637,13 +718,13 @@ test_that("build_causal_bundle errors when only one treatment arm has data", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
-  T <- rep(1, 20)  # all treated, no control
+  A <- rep(1, 20)  # all treated, no control
 
   expect_error(
     build_causal_bundle(
       y = y,
       X = X,
-      T = T,
+      A = A,
       backend = "sb",
       kernel = "normal",
       GPD = FALSE,
@@ -658,13 +739,13 @@ test_that("build_causal_bundle errors when X row mismatch", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(30), ncol = 3)  # 10 rows instead of 20
-  T <- rbinom(20, 1, 0.5)
+  A <- rbinom(20, 1, 0.5)
 
   expect_error(
     build_causal_bundle(
       y = y,
       X = X,
-      T = T,
+      A = A,
       backend = "sb",
       kernel = "normal",
       GPD = FALSE,
@@ -679,13 +760,13 @@ test_that("build_causal_bundle errors on components < 2", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
-  T <- c(rep(0, 10), rep(1, 10))
+  A <- c(rep(0, 10), rep(1, 10))
 
   expect_error(
     build_causal_bundle(
       y = y,
       X = X,
-      T = T,
+      A = A,
       backend = "sb",
       kernel = "normal",
       GPD = FALSE,
@@ -700,13 +781,13 @@ test_that("build_causal_bundle errors on invalid epsilon", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
-  T <- c(rep(0, 10), rep(1, 10))
+  A <- c(rep(0, 10), rep(1, 10))
 
   expect_error(
     build_causal_bundle(
       y = y,
       X = X,
-      T = T,
+      A = A,
       backend = "sb",
       kernel = "normal",
       GPD = FALSE,
@@ -726,12 +807,12 @@ test_that("build_causal_bundle returns correct class", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
-  T <- c(rep(0, 10), rep(1, 10))
+  A <- c(rep(0, 10), rep(1, 10))
 
   bundle <- build_causal_bundle(
     y = y,
     X = X,
-    T = T,
+    A = A,
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
@@ -746,12 +827,12 @@ test_that("build_causal_bundle has required components", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
-  T <- c(rep(0, 10), rep(1, 10))
+  A <- c(rep(0, 10), rep(1, 10))
 
   bundle <- build_causal_bundle(
     y = y,
     X = X,
-    T = T,
+    A = A,
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
@@ -769,12 +850,12 @@ test_that("build_causal_bundle creates outcome bundles for both arms", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
-  T <- c(rep(0, 10), rep(1, 10))
+  A <- c(rep(0, 10), rep(1, 10))
 
   bundle <- build_causal_bundle(
     y = y,
     X = X,
-    T = T,
+    A = A,
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
@@ -792,12 +873,12 @@ test_that("build_causal_bundle stores correct indices", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
-  T <- c(rep(0, 10), rep(1, 10))
+  A <- c(rep(0, 10), rep(1, 10))
 
   bundle <- build_causal_bundle(
     y = y,
     X = X,
-    T = T,
+    A = A,
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
@@ -817,12 +898,12 @@ test_that("build_causal_bundle allows arm-specific backends", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
-  T <- c(rep(0, 10), rep(1, 10))
+  A <- c(rep(0, 10), rep(1, 10))
 
   bundle <- build_causal_bundle(
     y = y,
     X = X,
-    T = T,
+    A = A,
     backend = c("sb", "crp"),  # trt=sb, con=crp
     kernel = "normal",
     GPD = FALSE,
@@ -838,12 +919,12 @@ test_that("build_causal_bundle allows arm-specific kernels", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
-  T <- c(rep(0, 10), rep(1, 10))
+  A <- c(rep(0, 10), rep(1, 10))
 
   bundle <- build_causal_bundle(
     y = y,
     X = X,
-    T = T,
+    A = A,
     backend = "sb",
     kernel = c("normal", "gamma"),  # trt=normal, con=gamma
     GPD = FALSE,
@@ -859,12 +940,12 @@ test_that("build_causal_bundle allows arm-specific GPD", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
-  T <- c(rep(0, 10), rep(1, 10))
+  A <- c(rep(0, 10), rep(1, 10))
 
   bundle <- build_causal_bundle(
     y = y,
     X = X,
-    T = T,
+    A = A,
     backend = "sb",
     kernel = "normal",
     GPD = c(TRUE, FALSE),  # trt=TRUE, con=FALSE
@@ -880,12 +961,12 @@ test_that("build_causal_bundle allows arm-specific components", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
-  T <- c(rep(0, 10), rep(1, 10))
+  A <- c(rep(0, 10), rep(1, 10))
 
   bundle <- build_causal_bundle(
     y = y,
     X = X,
-    T = T,
+    A = A,
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
@@ -901,12 +982,12 @@ test_that("build_causal_bundle allows arm-specific epsilon", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
-  T <- c(rep(0, 10), rep(1, 10))
+  A <- c(rep(0, 10), rep(1, 10))
 
   bundle <- build_causal_bundle(
     y = y,
     X = X,
-    T = T,
+    A = A,
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
@@ -927,12 +1008,12 @@ test_that("build_causal_bundle supports PS='logit'", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
-  T <- c(rep(0, 10), rep(1, 10))
+  A <- c(rep(0, 10), rep(1, 10))
 
   bundle <- build_causal_bundle(
     y = y,
     X = X,
-    T = T,
+    A = A,
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
@@ -949,12 +1030,12 @@ test_that("build_causal_bundle supports PS='probit'", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
-  T <- c(rep(0, 10), rep(1, 10))
+  A <- c(rep(0, 10), rep(1, 10))
 
   bundle <- build_causal_bundle(
     y = y,
     X = X,
-    T = T,
+    A = A,
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
@@ -970,12 +1051,12 @@ test_that("build_causal_bundle supports PS='naive'", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
-  T <- c(rep(0, 10), rep(1, 10))
+  A <- c(rep(0, 10), rep(1, 10))
 
   bundle <- build_causal_bundle(
     y = y,
     X = X,
-    T = T,
+    A = A,
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
@@ -994,12 +1075,12 @@ test_that("build_causal_bundle supports PS='naive'", {
 test_that("build_causal_bundle handles NULL X for RCT", {
   set.seed(1)
   y <- rnorm(20)
-  T <- c(rep(0, 10), rep(1, 10))
+  A <- c(rep(0, 10), rep(1, 10))
 
   bundle <- build_causal_bundle(
     y = y,
     X = NULL,
-    T = T,
+    A = A,
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
@@ -1014,12 +1095,12 @@ test_that("build_causal_bundle handles empty matrix X", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(nrow = 20, ncol = 0)  # no columns
-  T <- c(rep(0, 10), rep(1, 10))
+  A <- c(rep(0, 10), rep(1, 10))
 
   bundle <- build_causal_bundle(
     y = y,
     X = X,
-    T = T,
+    A = A,
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
@@ -1038,12 +1119,12 @@ test_that("build_causal_bundle stores MCMC settings", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
-  T <- c(rep(0, 10), rep(1, 10))
+  A <- c(rep(0, 10), rep(1, 10))
 
   bundle <- build_causal_bundle(
     y = y,
     X = X,
-    T = T,
+    A = A,
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
@@ -1063,7 +1144,7 @@ test_that("build_causal_bundle applies shared param_specs", {
   set.seed(1)
   y <- abs(rnorm(20)) + 0.1
   X <- matrix(rnorm(40), ncol = 2)
-  T <- c(rep(0, 10), rep(1, 10))
+  A <- c(rep(0, 10), rep(1, 10))
 
   param_specs <- list(
     bulk = list(
@@ -1074,7 +1155,7 @@ test_that("build_causal_bundle applies shared param_specs", {
   bundle <- build_causal_bundle(
     y = y,
     X = X,
-    T = T,
+    A = A,
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
@@ -1090,7 +1171,7 @@ test_that("build_causal_bundle applies arm-specific param_specs", {
   set.seed(1)
   y <- abs(rnorm(20)) + 0.1
   X <- matrix(rnorm(40), ncol = 2)
-  T <- c(rep(0, 10), rep(1, 10))
+  A <- c(rep(0, 10), rep(1, 10))
 
   param_specs <- list(
     trt = list(bulk = list(mean = list(mode = "link", link = "identity"))),
@@ -1100,7 +1181,7 @@ test_that("build_causal_bundle applies arm-specific param_specs", {
   bundle <- build_causal_bundle(
     y = y,
     X = X,
-    T = T,
+    A = A,
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
@@ -1132,7 +1213,7 @@ test_that("build_causal_bundle applies arm-specific param_specs", {
   cb <- DPmixGPD::build_causal_bundle(
     y = y,
     X = X,
-    T = T_ind,
+    A = T_ind,
     backend = c("sb", "sb"),
     kernel = c("normal", "normal"),
     GPD = c(FALSE, FALSE),
@@ -1466,7 +1547,7 @@ test_that("print.dpmixgpd_causal_bundle works", {
   cb <- DPmixGPD::build_causal_bundle(
     y = y,
     X = X,
-    T = T_ind,
+    A = T_ind,
     backend = "sb",
     kernel = "normal",
     GPD = FALSE,
@@ -1496,7 +1577,7 @@ test_that("print.dpmixgpd_causal_bundle works", {
   cb <- DPmixGPD::build_causal_bundle(
     y = y,
     X = X,
-    T = T_ind,
+    A = T_ind,
     backend = c("sb", "sb"),
     kernel = c("normal", "normal"),
     GPD = c(FALSE, FALSE),
@@ -1632,7 +1713,7 @@ test_that("params() works for causal fits", {
   cb <- DPmixGPD::build_causal_bundle(
     y = y,
     X = X,
-    T = T_ind,
+    A = T_ind,
     backend = c("sb", "sb"),
     kernel = c("normal", "normal"),
     GPD = c(FALSE, FALSE),
@@ -1929,8 +2010,8 @@ test_that("plot.dpmixgpd_qte errors gracefully without ggplot2", {
   )
   class(mock_qte) <- "dpmixgpd_qte"
 
-  # We can't easily mock requireNamespace, but we can at least verify the function exists
-  expect_true(is.function(plot.dpmixgpd_qte))
+  # We can't easily mock requireNamespace, but we can at least verify the method exists
+  expect_true(is.function(DPmixGPD:::plot.dpmixgpd_qte))
 })
 
 test_that("plot.dpmixgpd_ate errors gracefully without ggplot2", {
@@ -1947,8 +2028,8 @@ test_that("plot.dpmixgpd_ate errors gracefully without ggplot2", {
   )
   class(mock_ate) <- "dpmixgpd_ate"
 
-  # Verify the function exists
-  expect_true(is.function(plot.dpmixgpd_ate))
+  # Verify the method exists
+  expect_true(is.function(DPmixGPD:::plot.dpmixgpd_ate))
 })
 
 # =============================================================================
@@ -2136,7 +2217,7 @@ get_causal_fit <- function() {
   set.seed(123)
   n <- 30
   X <- cbind(x1 = stats::rnorm(n), x2 = stats::runif(n, -1, 1))
-  T <- stats::rbinom(n, 1, stats::plogis(0.2 + 0.4 * X[, 1]))
+  A <- stats::rbinom(n, 1, stats::plogis(0.2 + 0.4 * X[, 1]))
   y <- abs(stats::rnorm(n)) + 0.1
 
   mcmc_out <- list(niter = 30, nburnin = 10, thin = 1, nchains = 1, seed = 1)
@@ -2145,7 +2226,7 @@ get_causal_fit <- function() {
   cb <- DPmixGPD::build_causal_bundle(
     y = y,
     X = X,
-    T = T,
+    A = A,
     backend = c("sb", "sb"),
     kernel = c("normal", "normal"),
     GPD = c(FALSE, FALSE),
@@ -2183,6 +2264,9 @@ test_that("qte() returns proper dpmixgpd_qte class with expected fields", {
   expect_true("qte" %in% names(q))
   expect_true(is.data.frame(q$qte$fit))
   expect_true(all(c("estimate", "lower", "upper") %in% names(q$qte$fit)))
+  expect_true(is.data.frame(q$fit))
+  expect_true(all(c("index", "estimate", "lower", "upper") %in% names(q$fit)))
+  expect_equal(nrow(q$fit), length(q$probs))
 
   # Metadata present
   expect_true("meta" %in% names(q))

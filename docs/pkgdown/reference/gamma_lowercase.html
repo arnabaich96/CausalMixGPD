@@ -13,7 +13,7 @@ a numeric vector. The r* functions support n &amp;gt; 1."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">DPmixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,11 +23,11 @@ a numeric vector. The r* functions support n &amp;gt; 1."></head><body>
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/01-basic.html">Model specification</a></li>
-    <li><a class="dropdown-item" href="../articles/02-model-spec.html">Model fundamentals</a></li>
-    <li><a class="dropdown-item" href="../articles/03-unconditional.html">Unconditional</a></li>
-    <li><a class="dropdown-item" href="../articles/04-conditional.html">Conditional</a></li>
-    <li><a class="dropdown-item" href="../articles/05-causal.html">Causal</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/basic-01.html">Model specification</a></li>
+    <li><a class="dropdown-item" href="../articles/model-spec-02.html">Model fundamentals</a></li>
+    <li><a class="dropdown-item" href="../articles/unconditional-03.html">Unconditional</a></li>
+    <li><a class="dropdown-item" href="../articles/conditional-04.html">Conditional</a></li>
+    <li><a class="dropdown-item" href="../articles/causal-05.html">Causal</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/arnabaich96/DPmixGPD">GitHub</a></li>
@@ -213,19 +213,19 @@ a numeric vector. The <code>r*</code> functions support <code>n &gt; 1</code>.</
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Gamma mixture</span></span></span>
 <span class="r-in"><span><span class="fu">dgammamix</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, w <span class="op">=</span> <span class="va">w</span>, shape <span class="op">=</span> <span class="va">shp</span>, scale <span class="op">=</span> <span class="va">scl</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2032 0.1535 0.0926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2031918 0.1534717 0.0925686</span>
 <span class="r-in"><span><span class="fu">rgammamix</span><span class="op">(</span><span class="fl">5</span>, w <span class="op">=</span> <span class="va">w</span>, shape <span class="op">=</span> <span class="va">shp</span>, scale <span class="op">=</span> <span class="va">scl</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 12.35  7.80 10.00  5.05 58.09</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  2.032069  6.805664 58.093898  7.487449  7.682572</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Gamma mixture + GPD</span></span></span>
 <span class="r-in"><span><span class="fu">dgammamixgpd</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span><span class="op">)</span>, w <span class="op">=</span> <span class="va">w</span>, shape <span class="op">=</span> <span class="va">shp</span>, scale <span class="op">=</span> <span class="va">scl</span>,</span></span>
 <span class="r-in"><span>             threshold <span class="op">=</span> <span class="fl">3</span>, tail_scale <span class="op">=</span> <span class="fl">0.9</span>, tail_shape <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.153 0.610 0.183</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1534717 0.6104389 0.1831223</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Gamma + GPD (single component)</span></span></span>
 <span class="r-in"><span><span class="fu">dgammagpd</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">3</span>, <span class="fl">4</span><span class="op">)</span>, shape <span class="op">=</span> <span class="fl">4</span>, scale <span class="op">=</span> <span class="fl">2.5</span>, threshold <span class="op">=</span> <span class="fl">3</span>,</span></span>
 <span class="r-in"><span>          tail_scale <span class="op">=</span> <span class="fl">0.9</span>, tail_shape <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.0153 1.0736 0.3221</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.0153371 1.0735900 0.3220605</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

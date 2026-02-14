@@ -1,4 +1,4 @@
-﻿---
+---
 title: "News"
 page-layout: full
 ---
@@ -14,3 +14,5 @@ This page tracks concise documentation and release updates.
 
 - Quarto is the curated front door for workflows and architecture.
 - pkgdown is the authoritative API and article reference.
+
+

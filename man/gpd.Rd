@@ -45,8 +45,8 @@ the RNG implementation supports \code{n = 1}.}
 \description{
 Base generalized Pareto distribution (GPD) for threshold exceedances above \code{threshold}.
 Parameterization uses threshold \code{threshold}, scale \code{scale > 0}, and shape \code{shape}.
-The \code{d*}, \code{p*}, and \code{q*} functions accept vector inputs for their first argument
-and evaluate elementwise; \code{r*} supports \code{n > 1}.
+These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
+For vectorized R usage (including \code{n > 1}), use \code{\link{base_lowercase}}.
 }
 \section{Functions}{
 \itemize{

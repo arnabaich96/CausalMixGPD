@@ -18,7 +18,8 @@ cqte(
 \item{probs}{Numeric vector of probabilities in (0, 1) specifying the quantile levels
 of the outcome distribution to estimate treatment effects at.}
 
-\item{newdata}{Optional data.frame or matrix of covariates for prediction.}
+\item{newdata}{Optional data.frame or matrix of covariates for prediction.
+If \code{NULL}, uses the training covariates stored in \code{fit}.}
 
 \item{interval}{Character or NULL; type of credible interval: \code{NULL} for no interval,
 \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
@@ -33,9 +34,14 @@ and the treated/control prediction objects.
 \description{
 Computes treated-minus-control quantiles from a causal fit.
 }
+\details{
+This estimand is available only for \strong{conditional} causal models
+with covariates (\code{X} not \code{NULL}). For unconditional causal models
+(\code{X = NULL}), use \code{qte()} or \code{qtt()}.
+}
 \examples{
 \dontrun{
-cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
+cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
 fit <- run_mcmc_causal(cb, show_progress = FALSE)
 cqte(fit, probs = c(0.5, 0.9), newdata = X[1:5, ])
 cqte(fit, probs = c(0.5, 0.9), interval = "credible", level = 0.90)  # 90\% CI

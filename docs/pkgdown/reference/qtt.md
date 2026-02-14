@@ -1,7 +1,7 @@
 # Quantile treatment effect on the treated (QTT)
 
 Computes a treated-only marginal quantile treatment effect by averaging
-conditional quantile effects over rows with assigned treatment `T=1`.
+conditional quantile effects over rows with assigned treatment `A=1`.
 
 ## Usage
 
@@ -30,11 +30,13 @@ qtt(
 
 - newdata:
 
-  Deprecated placeholder for marginal estimands; must be `NULL`.
+  Ignored for marginal estimands. If supplied, a warning is issued and
+  training data are used.
 
 - y:
 
-  Deprecated placeholder for marginal estimands; must be `NULL`.
+  Ignored for marginal estimands. If supplied, a warning is issued and
+  training data are used.
 
 - interval:
 
@@ -48,14 +50,16 @@ qtt(
 
 ## Value
 
-A list with elements `fit` (QTT), `grid` (probabilities), and aggregated
-treated/control prediction objects.
+A list with elements `fit`, `grid` (probabilities), and aggregated
+treated/control prediction objects. `fit` is a data frame with columns
+`index`, `estimate`, `lower`, `upper` and one row per requested quantile
+index.
 
 ## Examples
 
 ``` r
 if (FALSE) { # \dontrun{
-cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
+cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
 fit <- run_mcmc_causal(cb, show_progress = FALSE)
 qtt(fit, probs = c(0.5, 0.9))
 } # }

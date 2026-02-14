@@ -11,7 +11,7 @@ shape[j]."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">DPmixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -21,11 +21,11 @@ shape[j]."></head><body>
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/01-basic.html">Model specification</a></li>
-    <li><a class="dropdown-item" href="../articles/02-model-spec.html">Model fundamentals</a></li>
-    <li><a class="dropdown-item" href="../articles/03-unconditional.html">Unconditional</a></li>
-    <li><a class="dropdown-item" href="../articles/04-conditional.html">Conditional</a></li>
-    <li><a class="dropdown-item" href="../articles/05-causal.html">Causal</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/basic-01.html">Model specification</a></li>
+    <li><a class="dropdown-item" href="../articles/model-spec-02.html">Model fundamentals</a></li>
+    <li><a class="dropdown-item" href="../articles/unconditional-03.html">Unconditional</a></li>
+    <li><a class="dropdown-item" href="../articles/conditional-04.html">Conditional</a></li>
+    <li><a class="dropdown-item" href="../articles/causal-05.html">Causal</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/arnabaich96/DPmixGPD">GitHub</a></li>
@@ -127,8 +127,8 @@ with the same length as <code>p</code>.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The density, CDF, and RNG are implemented as <code>nimbleFunction</code>s for use inside NIMBLE models.
 The quantile function is an R function computed by numerical inversion of the mixture CDF.
-The <code>d*</code>, <code>p*</code>, and <code>q*</code> functions accept vector inputs for their first argument
-and evaluate elementwise; <code>r*</code> supports <code>n &gt; 1</code>.</p>
+These uppercase NIMBLE-compatible functions are scalar (<code>x</code>/<code>q</code> and <code>n = 1</code>).
+For vectorized R usage (including <code>n &gt; 1</code>), use <code><a href="invgauss_lowercase.html">invgauss_lowercase</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="functions">Functions<a class="anchor" aria-label="anchor" href="#functions"></a></h2>
@@ -146,16 +146,17 @@ and evaluate elementwise; <code>r*</code> supports <code>n &gt; 1</code>.</p>
 <span class="r-in"><span><span class="va">shape</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">4</span>, <span class="fl">8</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">dInvGaussMix</span><span class="op">(</span><span class="fl">2.0</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mean</span>, shape <span class="op">=</span> <span class="va">shape</span>, log <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.177</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.17698</span>
 <span class="r-in"><span><span class="fu">pInvGaussMix</span><span class="op">(</span><span class="fl">2.0</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mean</span>, shape <span class="op">=</span> <span class="va">shape</span>,</span></span>
 <span class="r-in"><span>            lower.tail <span class="op">=</span> <span class="fl">1</span>, log.p <span class="op">=</span> <span class="fl">0</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.687</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.6866789</span>
 <span class="r-in"><span><span class="fu">qInvGaussMix</span><span class="op">(</span><span class="fl">0.50</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mean</span>, shape <span class="op">=</span> <span class="va">shape</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.251694</span>
 <span class="r-in"><span><span class="fu">qInvGaussMix</span><span class="op">(</span><span class="fl">0.95</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mean</span>, shape <span class="op">=</span> <span class="va">shape</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 6.49</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 6.489781</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rInvGaussMix</span><span class="op">(</span><span class="fl">1</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mean</span>, shape <span class="op">=</span> <span class="va">shape</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 0.996 1.544 0.950 0.343 1.575 4.759 1.562 0.414 0.763 4.194</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 0.4341464 8.9565987 0.3361247 0.4819185 2.9329261 2.2114669 4.3301463</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 0.4713342 3.4368507 1.0448108</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

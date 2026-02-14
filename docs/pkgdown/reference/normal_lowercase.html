@@ -13,7 +13,7 @@ a numeric vector. The r* functions support n &amp;gt; 1."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">DPmixGPD</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,11 +23,11 @@ a numeric vector. The r* functions support n &amp;gt; 1."></head><body>
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/01-basic.html">Model specification</a></li>
-    <li><a class="dropdown-item" href="../articles/02-model-spec.html">Model fundamentals</a></li>
-    <li><a class="dropdown-item" href="../articles/03-unconditional.html">Unconditional</a></li>
-    <li><a class="dropdown-item" href="../articles/04-conditional.html">Conditional</a></li>
-    <li><a class="dropdown-item" href="../articles/05-causal.html">Causal</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/basic-01.html">Model specification</a></li>
+    <li><a class="dropdown-item" href="../articles/model-spec-02.html">Model fundamentals</a></li>
+    <li><a class="dropdown-item" href="../articles/unconditional-03.html">Unconditional</a></li>
+    <li><a class="dropdown-item" href="../articles/conditional-04.html">Conditional</a></li>
+    <li><a class="dropdown-item" href="../articles/causal-05.html">Causal</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/arnabaich96/DPmixGPD">GitHub</a></li>
@@ -204,19 +204,19 @@ a numeric vector. The <code>r*</code> functions support <code>n &gt; 1</code>.</
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Normal mixture</span></span></span>
 <span class="r-in"><span><span class="fu">dnormmix</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mu</span>, sd <span class="op">=</span> <span class="va">sig</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.270 0.177 0.063</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.26967693 0.17703568 0.06303415</span>
 <span class="r-in"><span><span class="fu">rnormmix</span><span class="op">(</span><span class="fl">5</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mu</span>, sd <span class="op">=</span> <span class="va">sig</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] -2.18  1.50 -1.61 -3.81 -1.66</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1]  0.2224225 -2.1848187  1.5025599 -1.6137368 -3.8100318</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Normal mixture + GPD</span></span></span>
 <span class="r-in"><span><span class="fu">dnormmixgpd</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, w <span class="op">=</span> <span class="va">w</span>, mean <span class="op">=</span> <span class="va">mu</span>, sd <span class="op">=</span> <span class="va">sig</span>,</span></span>
 <span class="r-in"><span>            threshold <span class="op">=</span> <span class="fl">2</span>, tail_scale <span class="op">=</span> <span class="fl">1</span>, tail_shape <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.1770 0.0798 0.0267</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.17703568 0.07982551 0.02673340</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Normal + GPD (single component)</span></span></span>
 <span class="r-in"><span><span class="fu">dnormgpd</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span>, <span class="fl">3</span><span class="op">)</span>, mean <span class="op">=</span> <span class="fl">0.5</span>, sd <span class="op">=</span> <span class="fl">1</span>, threshold <span class="op">=</span> <span class="fl">2</span>,</span></span>
 <span class="r-in"><span>         tail_scale <span class="op">=</span> <span class="fl">1</span>, tail_shape <span class="op">=</span> <span class="fl">0.2</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.3521 0.0668 0.0224</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.3520653 0.0668072 0.0223736</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

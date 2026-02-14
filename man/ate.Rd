@@ -18,9 +18,11 @@ ate(
 \arguments{
 \item{fit}{A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.}
 
-\item{newdata}{Deprecated placeholder for marginal estimands; must be \code{NULL}.}
+\item{newdata}{Ignored for marginal estimands. If supplied, a warning is issued
+and training data are used.}
 
-\item{y}{Deprecated placeholder for marginal estimands; must be \code{NULL}.}
+\item{y}{Ignored for marginal estimands. If supplied, a warning is issued
+and training data are used.}
 
 \item{type}{Character; \code{"mean"} (default) for ordinary mean ATE or
 \code{"rmean"} for restricted-mean ATE.}
@@ -37,16 +39,21 @@ highest posterior density intervals.}
 \item{nsim_mean}{Number of posterior predictive draws to approximate the mean.}
 }
 \value{
-A list with elements \code{fit} (ATE), optional \code{lower}/\code{upper},
-and aggregated treated/control prediction objects.
+A list with elements \code{fit}, optional \code{lower}/\code{upper},
+and aggregated treated/control prediction objects. \code{fit} is a single-value
+marginal effect estimate, and intervals are computed from posterior draws.
 }
 \description{
 Computes a marginal average treatment effect by averaging conditional
 treatment effects over the training covariate rows.
 }
+\details{
+For unconditional causal models (\code{X = NULL}), this is computed directly
+from unconditional treated/control outcome predictions.
+}
 \examples{
 \dontrun{
-cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal", components = 6)
+cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
 fit <- run_mcmc_causal(cb, show_progress = FALSE)
 ate(fit, interval = "credible", level = 0.90, nsim_mean = 100)
 }

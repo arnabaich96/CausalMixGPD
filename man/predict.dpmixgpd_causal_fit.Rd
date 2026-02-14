@@ -75,7 +75,7 @@ predictions use only the original covariates \code{X}.
 }
 \examples{
 \dontrun{
-cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal")
+cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
 fit <- run_mcmc_causal(cb)
 predict(fit, x = X[1:10, ], type = "quantile", p = c(0.25, 0.5, 0.75))
 predict(fit, x = X[1:10, ], type = "mean", interval = "hpd")  # HPD intervals

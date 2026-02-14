@@ -89,7 +89,7 @@ A robust default is to use <code><a href="https://rdrr.io/r/stats/model.matrix.h
 <p>Model fit (code shown for reproducibility, but not executed during
 CRAN checks)</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">bundle</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/build_nimble_bundle.html">build_nimble_bundle</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">bundle</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bundle.html">bundle</a></span><span class="op">(</span></span>
 <span>  y <span class="op">=</span> <span class="va">y</span>,</span>
 <span>  X <span class="op">=</span> <span class="va">X</span>,</span>
 <span>  backend <span class="op">=</span> <span class="st">"sb"</span>,</span>
@@ -99,7 +99,7 @@ CRAN checks)</p>
 <span>  mcmc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>niter <span class="op">=</span> <span class="fl">2500</span>, nburnin <span class="op">=</span> <span class="fl">600</span>, thin <span class="op">=</span> <span class="fl">5</span>, nchains <span class="op">=</span> <span class="fl">1</span>, seed <span class="op">=</span> <span class="fl">202</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/run_mcmc_bundle_manual.html">run_mcmc_bundle_manual</a></span><span class="op">(</span><span class="va">bundle</span>, show_progress <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/mcmc.html">mcmc</a></span><span class="op">(</span><span class="va">bundle</span>, show_progress <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
 <p>General link mode (what “special cases” are really doing)</p>
 <p>When you pass <code>param_specs</code>, you are not locked into a
 single model form. Any parameter that the kernel registry marks as
@@ -140,46 +140,46 @@ supported parameter, not just the one shown.</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td align="right">1.488</td>
+<td align="right">1.441</td>
 <td align="right">0.50</td>
 <td align="right">1</td>
-<td align="right">1.320</td>
-<td align="right">1.685</td>
+<td align="right">1.234</td>
+<td align="right">1.633</td>
 </tr>
 <tr class="even">
-<td align="right">1.933</td>
+<td align="right">1.830</td>
 <td align="right">0.50</td>
 <td align="right">2</td>
-<td align="right">1.502</td>
-<td align="right">2.479</td>
+<td align="right">1.235</td>
+<td align="right">2.346</td>
 </tr>
 <tr class="odd">
-<td align="right">24.801</td>
+<td align="right">42.465</td>
 <td align="right">0.90</td>
 <td align="right">1</td>
-<td align="right">12.598</td>
-<td align="right">43.521</td>
+<td align="right">13.189</td>
+<td align="right">129.608</td>
 </tr>
 <tr class="even">
-<td align="right">32.456</td>
+<td align="right">50.577</td>
 <td align="right">0.90</td>
 <td align="right">2</td>
-<td align="right">15.007</td>
-<td align="right">59.228</td>
+<td align="right">14.930</td>
+<td align="right">144.292</td>
 </tr>
 <tr class="odd">
-<td align="right">57.212</td>
+<td align="right">134.785</td>
 <td align="right">0.95</td>
 <td align="right">1</td>
-<td align="right">23.481</td>
-<td align="right">115.016</td>
+<td align="right">25.133</td>
+<td align="right">478.788</td>
 </tr>
 <tr class="even">
-<td align="right">75.194</td>
+<td align="right">156.009</td>
 <td align="right">0.95</td>
 <td align="right">2</td>
-<td align="right">28.071</td>
-<td align="right">155.153</td>
+<td align="right">28.908</td>
+<td align="right">518.216</td>
 </tr>
 </tbody>
 </table>
@@ -213,7 +213,7 @@ model.</p></li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

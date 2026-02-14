@@ -7,7 +7,7 @@
 build_causal_bundle(
   y,
   X,
-  T,
+  A,
   backend = c("sb", "crp"),
   kernel,
   GPD = FALSE,
@@ -30,19 +30,19 @@ build_causal_bundle(
 
 \item{X}{Design matrix or data.frame of covariates (N x P).}
 
-\item{T}{Binary treatment indicator (length N, values 0/1).}
+\item{A}{Binary treatment indicator (length N, values 0/1).}
 
 \item{backend}{Character; \code{"sb"} or \code{"crp"} for outcome models. If length 2,
-the first entry is used for treated (\code{T=1}) and the second for control (\code{T=0}).}
+the first entry is used for treated (\code{A=1}) and the second for control (\code{A=0}).}
 
 \item{kernel}{Character kernel name for outcome models. If length 2,
-the first entry is used for treated (\code{T=1}) and the second for control (\code{T=0}).}
+the first entry is used for treated (\code{A=1}) and the second for control (\code{A=0}).}
 
 \item{GPD}{Logical; include GPD tail for outcomes if TRUE. If length 2,
-the first entry is used for treated (\code{T=1}) and the second for control (\code{T=0}).}
+the first entry is used for treated (\code{A=1}) and the second for control (\code{A=0}).}
 
 \item{components}{Integer >= 2; truncation parameter for outcome mixtures. If length 2,
-the first entry is used for treated (\code{T=1}) and the second for control (\code{T=0}).}
+the first entry is used for treated (\code{A=1}) and the second for control (\code{A=0}).}
 
 \item{param_specs}{Outcome parameter overrides (same structure as \code{build_nimble_bundle()}).
 You can pass a single list used for both arms or a list with \code{con} and \code{trt} entries.}
@@ -52,7 +52,7 @@ You can pass a single list used for both arms or a list with \code{con} and \cod
 \item{mcmc_ps}{MCMC settings list for the PS model.}
 
 \item{epsilon}{Numeric in [0,1) used by outcome bundles for posterior truncation summaries.
-If length 2, the first entry is used for treated (\code{T=1}) and the second for control (\code{T=0}).}
+If length 2, the first entry is used for treated (\code{A=1}) and the second for control (\code{A=0}).}
 
 \item{alpha_random}{Logical; whether outcome concentration \code{alpha} is stochastic.}
 
@@ -83,9 +83,9 @@ A list of class \code{"dpmixgpd_causal_bundle"}.
 \description{
 Creates a causal bundle with:
 \itemize{
-\item a propensity score (PS) design model (logit/probit regression of \code{T} on \code{X} or a naive Bayes classifier)
-\item an outcome bundle for the control arm (\code{T = 0})
-\item an outcome bundle for the treated arm (\code{T = 1})
+\item a propensity score (PS) design model (logit/probit regression of \code{A} on \code{X} or a naive Bayes classifier)
+\item an outcome bundle for the control arm (\code{A = 0})
+\item an outcome bundle for the treated arm (\code{A = 1})
 }
 }
 \details{
@@ -98,13 +98,13 @@ simple priors.
 set.seed(1)
 N <- 100
 X <- cbind(x1 = rnorm(N), x2 = runif(N))
-T <- rbinom(N, 1, plogis(0.3 + 0.5 * X[, 1]))
+A <- rbinom(N, 1, plogis(0.3 + 0.5 * X[, 1]))
 y <- rexp(N) + 0.1
 
 cb <- build_causal_bundle(
   y = y,
   X = X,
-  T = T,
+  A = A,
   backend = "sb",
   kernel = "gamma",
   GPD = TRUE,

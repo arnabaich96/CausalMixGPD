@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>ex08-conditional-dpmgpd-sb – DPmixGPD</title>
+<title>ex08. Conditional DPMGPD (SB Backend) – DPmixGPD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -288,7 +288,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="model-specification" class="level2">
 <h2 class="anchored" data-anchor-id="model-specification">Model Specification</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>bundle_sb_cond_gpd_gamma <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">build_nimble_bundle</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>bundle_sb_cond_gpd_gamma <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> X,</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"gamma"</span>,</span>
@@ -303,7 +303,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc =</span> mcmc</span>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>bundle_sb_cond_gpd_laplace <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">build_nimble_bundle</span>(</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>bundle_sb_cond_gpd_laplace <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
 <span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
 <span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> X,</span>
 <span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"laplace"</span>,</span>
@@ -323,8 +323,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="mcmc-execution" class="level2">
 <h2 class="anchored" data-anchor-id="mcmc-execution">MCMC Execution</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fit_sb_cond_gpd_gamma <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex08-conditional-dpmgpd-sb-fit_sb_cond_gpd_gamma"</span>, <span class="fu">run_mcmc_bundle_manual</span>(bundle_sb_cond_gpd_gamma))</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>fit_sb_cond_gpd_laplace <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex08-conditional-dpmgpd-sb-fit_sb_cond_gpd_laplace"</span>, <span class="fu">run_mcmc_bundle_manual</span>(bundle_sb_cond_gpd_laplace))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fit_sb_cond_gpd_gamma <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex08-conditional-dpmgpd-sb-fit_sb_cond_gpd_gamma"</span>, DPmixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle_sb_cond_gpd_gamma))</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>fit_sb_cond_gpd_laplace <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex08-conditional-dpmgpd-sb-fit_sb_cond_gpd_laplace"</span>, DPmixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle_sb_cond_gpd_laplace))</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_sb_cond_gpd_gamma)</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_sb_cond_gpd_laplace)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -406,11 +406,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="residuals-diagnostics" class="level2">
 <h2 class="anchored" data-anchor-id="residuals-diagnostics">Residuals &amp; Diagnostics</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(<span class="fu">fitted</span>(fit_sb_cond_gpd_gamma))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">fitted</span>(fit_sb_cond_gpd_gamma))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(fit_sb_cond_gpd_gamma, <span class="at">family =</span> <span class="fu">c</span>(<span class="st">"traceplot"</span>, <span class="st">"autocorrelation"</span>, <span class="st">"geweke"</span>))</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(fit_sb_cond_gpd_laplace, <span class="at">family =</span> <span class="fu">c</span>(<span class="st">"density"</span>, <span class="st">"running"</span>, <span class="st">"caterpillar"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_sb_cond_gpd_gamma, <span class="at">family =</span> <span class="fu">c</span>(<span class="st">"traceplot"</span>, <span class="st">"autocorrelation"</span>, <span class="st">"geweke"</span>))</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_sb_cond_gpd_laplace, <span class="at">family =</span> <span class="fu">c</span>(<span class="st">"density"</span>, <span class="st">"running"</span>, <span class="st">"caterpillar"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <hr>
 </section>

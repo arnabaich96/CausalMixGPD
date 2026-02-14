@@ -26,7 +26,8 @@ ate_rmean(
 
 - newdata:
 
-  Optional data.frame or matrix of covariates for prediction.
+  Optional data.frame or matrix of covariates for prediction. If `NULL`,
+  uses the training covariates stored in `fit`.
 
 - cutoff:
 
@@ -50,7 +51,7 @@ ate_rmean(
 
 ``` r
 if (FALSE) { # \dontrun{
-cb <- build_causal_bundle(y = y, X = X, T = T, backend = "sb", kernel = "normal",
+cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal",
                          GPD = TRUE, components = 6)
 fit <- run_mcmc_causal(cb)
 ate_rm <- ate_rmean(fit, cutoff = 10, interval = "credible")

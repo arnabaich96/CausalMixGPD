@@ -1,4 +1,4 @@
-﻿---
+---
 title: "DPmixGPD"
 ---
 
@@ -107,3 +107,5 @@ Small links: [Cite](cite.qmd) | [GitHub](https://github.com/arnabaich96/DPmixGPD
 
 :::
 :::
+
+

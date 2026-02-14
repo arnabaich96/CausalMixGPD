@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>ex04-unconditional-dpmgpd-sb – DPmixGPD</title>
+<title>ex04. Unconditional DPMGPD (SB Backend) – DPmixGPD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -289,9 +289,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="model-specification-bundle" class="level2">
 <h2 class="anchored" data-anchor-id="model-specification-bundle">Model Specification &amp; Bundle</h2>
-<p>This follows the same structure as the SB bulk-only vignette (<code>ex02</code>): build a bundle with <code>DPmixGPD::build_nimble_bundle()</code>, run MCMC, then use the S3 <code>predict()</code> + <code>plot()</code> helpers. Compared with <code>ex03</code> (CRP+GPD), here we keep the <strong>stick-breaking</strong> backend and use a <strong>Gamma</strong> bulk kernel with a lognormal threshold prior, then contrast it with a bulk-only <strong>Laplace</strong> fit.</p>
+<p>This follows the same structure as the SB bulk-only vignette (<code>ex02</code>): build a bundle with <code>DPmixGPD::bundle()</code>, run MCMC, then use the S3 <code>predict()</code> + <code>plot()</code> helpers. Compared with <code>ex03</code> (CRP+GPD), here we keep the <strong>stick-breaking</strong> backend and use a <strong>Gamma</strong> bulk kernel with a lognormal threshold prior, then contrast it with a bulk-only <strong>Laplace</strong> fit.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>bundle_sb_gpd <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">build_nimble_bundle</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>bundle_sb_gpd <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y_tail,</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"gamma"</span>,</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
@@ -314,7 +314,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="running-mcmc" class="level2">
 <h2 class="anchored" data-anchor-id="running-mcmc">Running MCMC</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fit_sb_gpd <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex04-unconditional-dpmgpd-sb-fit_sb_gpd"</span>, <span class="fu">run_mcmc_bundle_manual</span>(bundle_sb_gpd))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fit_sb_gpd <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex04-unconditional-dpmgpd-sb-fit_sb_gpd"</span>, DPmixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle_sb_gpd))</span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_sb_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
@@ -328,24 +328,24 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>y_grid <span class="ot">&lt;-</span> <span class="fu">seq</span>(<span class="dv">0</span>, <span class="fu">max</span>(y_tail) <span class="sc">*</span> <span class="fl">1.3</span>, <span class="at">length.out =</span> <span class="dv">300</span>)</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>pred_density <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_gpd, <span class="at">y =</span> y_grid, <span class="at">type =</span> <span class="st">"density"</span>)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(pred_density)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_density)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>y_surv <span class="ot">&lt;-</span> <span class="fu">seq</span>(u_threshold, <span class="fu">max</span>(y_tail) <span class="sc">*</span> <span class="fl">1.1</span>, <span class="at">length.out =</span> <span class="dv">60</span>)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>pred_surv <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_gpd, <span class="at">y =</span> y_surv, <span class="at">type =</span> <span class="st">"survival"</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(pred_surv)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_surv)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>quant_probs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.90</span>, <span class="fl">0.95</span>, <span class="fl">0.99</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>pred_quant <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_gpd, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> quant_probs, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(pred_quant)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_quant)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <hr>
 </section>
 <section id="tail-vs-bulk-comparison" class="level2">
 <h2 class="anchored" data-anchor-id="tail-vs-bulk-comparison">Tail vs Bulk Comparison</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>bundle_sb_bulk <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">build_nimble_bundle</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>bundle_sb_bulk <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y_tail,</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"laplace"</span>,</span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
@@ -353,7 +353,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">5</span>,</span>
 <span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc =</span> mcmc</span>
 <span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>fit_sb_bulk <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex04-unconditional-dpmgpd-sb-fit_sb_bulk"</span>, <span class="fu">run_mcmc_bundle_manual</span>(bundle_sb_bulk))</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>fit_sb_bulk <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex04-unconditional-dpmgpd-sb-fit_sb_bulk"</span>, DPmixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle_sb_bulk))</span>
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>bulk_quant <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_bulk, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> quant_probs)</span>
 <span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>t_quant <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_gpd, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> quant_probs)</span>
@@ -368,15 +368,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>), <span class="at">full_width =</span> <span class="cn">FALSE</span>, <span class="at">position =</span> <span class="st">"center"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(bulk_quant)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(t_quant)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(bulk_quant)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(t_quant)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <hr>
 </section>
 <section id="diagnostics" class="level2">
 <h2 class="anchored" data-anchor-id="diagnostics">Diagnostics</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">safe_plot</span>(fit_sb_gpd, <span class="at">family =</span> <span class="fu">c</span>(<span class="st">"histogram"</span>, <span class="st">"autocorrelation"</span>, <span class="st">"running"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(fit_sb_gpd, <span class="at">family =</span> <span class="fu">c</span>(<span class="st">"histogram"</span>, <span class="st">"autocorrelation"</span>, <span class="st">"running"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <hr>
 </section>

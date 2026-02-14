@@ -4,9 +4,10 @@ A finite mixture of Normal components. Base Normal functions are taken
 from stats. Mixture density and CDF are computed by weighted sums.
 Random generation samples a component index according to weights and
 draws from the corresponding component. Quantiles are computed by
-numerical inversion of the mixture CDF. The `d*`, `p*`, and `q*`
-functions accept vector inputs for their first argument and evaluate
-elementwise; `r*` supports `n > 1`.
+numerical inversion of the mixture CDF. These uppercase
+NIMBLE-compatible functions are scalar (`x`/`q` and `n = 1`). For
+vectorized R usage (including `n > 1`), use
+[`normal_lowercase`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/normal_lowercase.md).
 
 ## Usage
 
@@ -106,14 +107,15 @@ mean <- c(-1, 0.5, 2.0)
 sd <- c(1.0, 0.7, 1.3)
 
 dNormMix(0.5, w = w, mean = mean, sd = sd, log = FALSE)
-#> [1] 0.244
+#> [1] 0.2438468
 pNormMix(0.5, w = w, mean = mean, sd = sd,
         lower.tail = TRUE, log.p = FALSE)
-#> [1] 0.704
+#> [1] 0.7035579
 qNormMix(0.50, w = w, mean = mean, sd = sd)
-#> [1] -0.271
+#> [1] -0.2713211
 qNormMix(0.95, w = w, mean = mean, sd = sd)
-#> [1] 2.57
+#> [1] 2.571684
 replicate(10, rNormMix(1, w = w, mean = mean, sd = sd))
-#>  [1]  0.436 -0.363  0.869 -0.106  0.177  1.769  0.707 -3.939  1.075 -0.826
+#>  [1] -1.2122360 -2.4164065  1.8253523 -2.5702744  0.6679717 -1.0079580
+#>  [7]  1.8467818 -1.3583455  0.8777439  2.1179059
 ```

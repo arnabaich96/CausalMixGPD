@@ -151,17 +151,18 @@ tail_shape <- 0.2
 
 dAmorosoGpd(4.0, loc, scale, shape1, shape2,
            threshold, tail_scale, tail_shape, log = 0)
-#> [1] 0.111
+#> [1] 0.1110036
 pAmorosoGpd(4.0, loc, scale, shape1, shape2,
            threshold, tail_scale, tail_shape, lower.tail = 1, log.p = 0)
-#> [1] 0.867
+#> [1] 0.8667957
 qAmorosoGpd(0.50, loc, scale, shape1, shape2,
            threshold, tail_scale, tail_shape)
-#> [1] 2.31
+#> [1] 2.309366
 qAmorosoGpd(0.95, loc, scale, shape1, shape2,
            threshold, tail_scale, tail_shape)
-#> [1] 5.3
+#> [1] 5.298959
 replicate(10, rAmorosoGpd(1, loc, scale, shape1, shape2,
                          threshold, tail_scale, tail_shape))
-#>  [1] 1.26 0.71 6.30 3.05 3.22 4.55 2.42 4.31 1.37 2.85
+#>  [1] 1.2615281 0.7103682 6.3013993 3.0468416 3.2229290 4.5536784 2.4216707
+#>  [8] 4.3138464 1.3671128 2.8536680
 ```

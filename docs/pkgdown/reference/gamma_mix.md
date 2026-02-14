@@ -4,9 +4,10 @@ A finite mixture of Gamma components. Base Gamma functions are taken
 from stats. Mixture density and CDF are computed by weighted sums.
 Random generation samples a component according to weights and draws
 from the corresponding component. Quantiles are computed by numerical
-inversion of the mixture CDF. The `d*`, `p*`, and `q*` functions accept
-vector inputs for their first argument and evaluate elementwise; `r*`
-supports `n > 1`.
+inversion of the mixture CDF. These uppercase NIMBLE-compatible
+functions are scalar (`x`/`q` and `n = 1`). For vectorized R usage
+(including `n > 1`), use
+[`gamma_lowercase`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/gamma_lowercase.md).
 
 ## Usage
 
@@ -103,13 +104,14 @@ scale <- c(1.0, 2.5, 5.0)
 shape <- c(2, 4, 6)
 
 dGammaMix(2.0, w = w, scale = scale, shape = shape, log = 0)
-#> [1] 0.153
+#> [1] 0.1534717
 pGammaMix(2.0, w = w, scale = scale, shape = shape, lower.tail = 1, log.p = 0)
-#> [1] 0.329
+#> [1] 0.3294213
 qGammaMix(0.50, w = w, scale = scale, shape = shape)
-#> [1] 3.62
+#> [1] 3.623739
 qGammaMix(0.95, w = w, scale = scale, shape = shape)
-#> [1] 33.8
+#> [1] 33.81667
 replicate(10, rGammaMix(1, w = w, scale = scale, shape = shape))
-#>  [1]  1.886  3.102 58.538  0.758 10.475 21.654  0.425  9.136  1.173 17.900
+#>  [1]  1.1253350  5.6018508  0.8989425  0.6839528 16.6516345  5.7743867
+#>  [7]  1.4073932  0.6988848  2.0490973 11.5105268
 ```

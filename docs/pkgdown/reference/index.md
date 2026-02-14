@@ -62,6 +62,8 @@
   : Build a causal bundle (design + two outcome arms)
 - [`build_nimble_bundle()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/build_nimble_bundle.md)
   : Build a NIMBLE bundle
+- [`bundle()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/bundle.md)
+  : Build a model bundle (short wrapper)
 - [`cate()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/cate.md)
   : Conditional average treatment effects (CATE)
 - [`dCauchy()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/cauchy.md)
@@ -91,6 +93,10 @@
   : Validate bulk+tail glue for MixGPD predictive distribution
 - [`cqte()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/cqte.md)
   : Conditional quantile treatment effects (CQTE)
+- [`dpmgpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/dpmgpd.md)
+  : Fit DP mixture model with GPD tail
+- [`dpmix()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/dpmix.md)
+  : Fit DP mixture model without GPD tail
 - [`fitted(`*`<mixgpd_fit>`*`)`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/fitted.mixgpd_fit.md)
   : Fitted values and residuals for a MixGPD fit
 - [`dGammaGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/gamma_gpd.md)
@@ -141,7 +147,7 @@
   [`pInvGaussGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/InvGauss_gpd.md)
   [`rInvGaussGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/InvGauss_gpd.md)
   [`qInvGaussGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/InvGauss_gpd.md)
-  : Inverse Gaussian with a Gpd tail
+  : Inverse Gaussian with a GPD tail
 - [`dinvgaussmix()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/invgauss_lowercase.md)
   [`pinvgaussmix()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/invgauss_lowercase.md)
   [`qinvgaussmix()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/invgauss_lowercase.md)
@@ -164,7 +170,7 @@
   [`pInvGaussMixGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/InvGauss_mixgpd.md)
   [`rInvGaussMixGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/InvGauss_mixgpd.md)
   [`qInvGaussMixGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/InvGauss_mixgpd.md)
-  : Inverse Gaussian mixture with a Gpd tail
+  : Inverse Gaussian mixture with a GPD tail
 - [`kernel_support_table()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/kernel_support_table.md)
   : Kernel support matrix Returns a data frame summarizing each kernel's
   supported features.
@@ -172,7 +178,7 @@
   [`pLaplaceGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/laplace_gpd.md)
   [`rLaplaceGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/laplace_gpd.md)
   [`qLaplaceGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/laplace_gpd.md)
-  : Laplace with a Gpd tail
+  : Laplace with a GPD tail
 - [`dlaplacemix()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/laplace_lowercase.md)
   [`plaplacemix()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/laplace_lowercase.md)
   [`qlaplacemix()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/laplace_lowercase.md)
@@ -195,12 +201,12 @@
   [`pLaplaceMixGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/laplace_MixGpd.md)
   [`rLaplaceMixGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/laplace_MixGpd.md)
   [`qLaplaceMixGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/laplace_MixGpd.md)
-  : Laplace mixture with a Gpd tail
+  : Laplace mixture with a GPD tail
 - [`dLognormalGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/lognormal_gpd.md)
   [`pLognormalGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/lognormal_gpd.md)
   [`rLognormalGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/lognormal_gpd.md)
   [`qLognormalGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/lognormal_gpd.md)
-  : Lognormal with a Gpd tail
+  : Lognormal with a GPD tail
 - [`dlognormalmix()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/lognormal_lowercase.md)
   [`plognormalmix()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/lognormal_lowercase.md)
   [`qlognormalmix()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/lognormal_lowercase.md)
@@ -223,7 +229,9 @@
   [`pLognormalMixGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/lognormal_mixgpd.md)
   [`rLognormalMixGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/lognormal_mixgpd.md)
   [`qLognormalMixGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/lognormal_mixgpd.md)
-  : Lognormal mixture with a Gpd tail
+  : Lognormal mixture with a GPD tail
+- [`mcmc()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/mcmc.md)
+  : Run MCMC from a bundle (short wrapper)
 - [`nc_pos200_k3`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/nc_pos200_k3.md)
   : nc_pos200_k3 dataset
 - [`nc_posX100_p3_k2`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/nc_posX100_p3_k2.md)
@@ -244,7 +252,7 @@
   [`pNormGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/normal_gpd.md)
   [`rNormGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/normal_gpd.md)
   [`qNormGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/normal_gpd.md)
-  : Normal with a Gpd tail
+  : Normal with a GPD tail
 - [`dnormmix()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/normal_lowercase.md)
   [`pnormmix()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/normal_lowercase.md)
   [`qnormmix()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/normal_lowercase.md)
@@ -267,7 +275,7 @@
   [`pNormMixGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/normal_mixgpd.md)
   [`rNormMixGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/normal_mixgpd.md)
   [`qNormMixGpd()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/normal_mixgpd.md)
-  : Normal mixture with a Gpd tail
+  : Normal mixture with a GPD tail
 - [`params()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/params.md)
   : Extract posterior mean parameters in original form
 - [`plot(`*`<dpmixgpd_ate>`*`)`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/plot.dpmixgpd_ate.md)
