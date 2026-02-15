@@ -13,7 +13,7 @@ cqte(
 )
 }
 \arguments{
-\item{fit}{A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.}
+\item{fit}{A \code{"causalmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.}
 
 \item{probs}{Numeric vector of probabilities in (0, 1) specifying the quantile levels
 of the outcome distribution to estimate treatment effects at.}

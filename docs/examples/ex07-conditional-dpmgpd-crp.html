@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>ex07. Conditional DPMGPD (CRP Backend) – DPmixGPD</title>
+<title>ex07. Conditional DPMGPD (CRP Backend) – CausalMixGPD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -116,7 +116,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../index.html">
-    <span class="navbar-title">DPmixGPD</span>
+    <span class="navbar-title">CausalMixGPD</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -203,7 +203,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Articles</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD"> <i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/arnabaich96/CausalMixGPD"> <i class="bi bi-github" role="img">
 </i> 
 <span class="menu-text"></span></a>
   </li>  
@@ -245,14 +245,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><strong>Legacy vignette (for the website / historical notes).</strong> These files may not match the current exported API one-to-one. Last verified: <strong>2026-01-18</strong>.</p>
 <p>For the up-to-date workflow, see the main package vignettes (basic, unconditional, conditional, and causal)..</p>
 </blockquote>
-<section id="conditional-dpmixgpd-crp-backend-with-tail-augmentation" class="level1">
-<h1>Conditional DPmixGPD: CRP Backend with Tail Augmentation</h1>
+<section id="conditional-causalmixgpd-crp-backend-with-tail-augmentation" class="level1">
+<h1>Conditional CausalMixGPD: CRP Backend with Tail Augmentation</h1>
 <p><strong>Purpose</strong>: Combine conditional modeling with GPD tail augmentation so each covariate slice inherits both mixture bulk and tail behavior. This extends the unconditional GPD (ex03) and conditional DP (ex05).</p>
 <hr>
 <section id="data-setup" class="level2">
 <h2 class="anchored" data-anchor-id="data-setup">Data Setup</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"nc_posX100_p5_k4"</span>, <span class="at">package =</span> <span class="st">"DPmixGPD"</span>)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"nc_posX100_p5_k4"</span>, <span class="at">package =</span> <span class="st">"CausalMixGPD"</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> nc_posX100_p5_k4<span class="sc">$</span>y</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>X <span class="ot">&lt;-</span> <span class="fu">as.matrix</span>(nc_posX100_p5_k4<span class="sc">$</span>X)</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">is.null</span>(<span class="fu">colnames</span>(X))) {</span>
@@ -288,7 +288,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="model-specification-bundle" class="level2">
 <h2 class="anchored" data-anchor-id="model-specification-bundle">Model Specification &amp; Bundle</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>bundle_cond_gpd_lognormal <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>bundle_cond_gpd_lognormal <span class="ot">&lt;-</span> CausalMixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> X,</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"lognormal"</span>,</span>
@@ -303,7 +303,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc =</span> mcmc</span>
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>bundle_cond_gpd_normal <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>bundle_cond_gpd_normal <span class="ot">&lt;-</span> CausalMixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
 <span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
 <span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> X,</span>
 <span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"normal"</span>,</span>
@@ -323,8 +323,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="running-mcmc" class="level2">
 <h2 class="anchored" data-anchor-id="running-mcmc">Running MCMC</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fit_cond_gpd_lognormal <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex07-conditional-dpmgpd-crp-fit_cond_gpd_lognormal"</span>, DPmixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle_cond_gpd_lognormal))</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>fit_cond_gpd_normal <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex07-conditional-dpmgpd-crp-fit_cond_gpd_normal"</span>, DPmixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle_cond_gpd_normal))</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fit_cond_gpd_lognormal <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex07-conditional-dpmgpd-crp-fit_cond_gpd_lognormal"</span>, CausalMixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle_cond_gpd_lognormal))</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>fit_cond_gpd_normal <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex07-conditional-dpmgpd-crp-fit_cond_gpd_normal"</span>, CausalMixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle_cond_gpd_normal))</span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_cond_gpd_lognormal)</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_cond_gpd_normal)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
@@ -453,7 +453,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 ">
 
   <div>
-    (c) DPmixGPD - Bayesian semiparametric modeling for heavy-tailed data
+    (c) CausalMixGPD - Bayesian semiparametric modeling for heavy-tailed data
   </div>
 
   <div>
@@ -461,7 +461,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <span id="site-updated"></span> -
     <a href="../cite.html">Cite</a> -
     <a href="../pkgdown/index.html">API</a> -
-    <a href="https://github.com/arnabaich96/DPmixGPD">GitHub</a>
+    <a href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a>
   </div>
 
 </div>

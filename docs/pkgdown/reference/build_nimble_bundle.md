@@ -55,7 +55,7 @@ build_nimble_bundle(
 - kernel:
 
   Character kernel name (must exist in
-  [`get_kernel_registry()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/get_kernel_registry.md)).
+  [`get_kernel_registry()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/get_kernel_registry.md)).
 
 - GPD:
 
@@ -91,13 +91,13 @@ build_nimble_bundle(
 
 ## Value
 
-A named list (bundle) of class `"dpmixgpd_bundle"`.
+A named list (bundle) of class `"causalmixgpd_bundle"`.
 
 ## Details
 
 This function intentionally stops at the "pre-run" stage
 (spec/code/constants/data/dimensions/inits/monitors). Use
-[`run_mcmc_bundle_manual()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/run_mcmc_bundle_manual.md)
+[`run_mcmc_bundle_manual()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/run_mcmc_bundle_manual.md)
 to execute MCMC with the stored settings.
 
 ## Examples

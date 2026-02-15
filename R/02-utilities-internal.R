@@ -219,8 +219,8 @@
 
 .wrap_plotly <- function(p) {
   # Keep static ggplot output by default for reproducible knitted docs.
-  # Interactive conversion is opt-in via options(DPmixGPD.plotly = TRUE).
-  if (isTRUE(getOption("DPmixGPD.plotly", FALSE)) &&
+  # Interactive conversion is opt-in via options(CausalMixGPD.plotly = TRUE).
+  if (isTRUE(getOption("CausalMixGPD.plotly", FALSE)) &&
       requireNamespace("plotly", quietly = TRUE)) {
     if (is.list(p) && !inherits(p, "ggplot")) {
       # List of plots - wrap each, preserve class
@@ -938,7 +938,7 @@ stick_breaking <- nimble::nimbleFunction(
   q_name <- sub("^d", "q", d_name)
   r_name <- sub("^d", "r", d_name)
 
-  ns_pkg <- asNamespace("DPmixGPD")
+  ns_pkg <- asNamespace("CausalMixGPD")
   ns_stats <- asNamespace("stats")
   ns_nimble <- asNamespace("nimble")
 
@@ -1303,7 +1303,7 @@ stick_breaking <- nimble::nimbleFunction(
                             x = NULL, y = NULL, ps = NULL,
                             type = c("density", "survival", "quantile", "sample", "mean", "rmean", "median", "fit"),
                             p = NULL, index = NULL, nsim = NULL,
-                            cred.level = 0.95,
+                            level = 0.95,
                             interval = "credible",
                             probs = c(0.025, 0.5, 0.975),
                             store_draws = TRUE,
@@ -1780,7 +1780,7 @@ stick_breaking <- nimble::nimbleFunction(
       upper <- matrix(NA_real_, nrow = n_pred, ncol = G)
       for (i in seq_len(n_pred)) {
         for (j in seq_len(G)) {
-          iv <- .compute_interval(draws_arr[, i, j], level = cred.level, type = interval)
+          iv <- .compute_interval(draws_arr[, i, j], level = level, type = interval)
           lower[i, j] <- iv["lower"]
           upper[i, j] <- iv["upper"]
         }
@@ -2213,7 +2213,7 @@ stick_breaking <- nimble::nimbleFunction(
     if (compute_interval) {
       lower <- upper <- rep(NA_real_, n_pred)
       for (i in seq_len(n_pred)) {
-        iv <- .compute_interval(draw_means_mat[, i], level = cred.level, type = interval)
+        iv <- .compute_interval(draw_means_mat[, i], level = level, type = interval)
         lower[i] <- iv["lower"]
         upper[i] <- iv["upper"]
       }
@@ -2336,7 +2336,7 @@ stick_breaking <- nimble::nimbleFunction(
     if (compute_interval) {
       lower <- upper <- rep(NA_real_, n_pred)
       for (i in seq_len(n_pred)) {
-        iv <- .compute_interval(draw_rmeans_mat[, i], level = cred.level, type = interval)
+        iv <- .compute_interval(draw_rmeans_mat[, i], level = level, type = interval)
         lower[i] <- iv["lower"]
         upper[i] <- iv["upper"]
       }

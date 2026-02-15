@@ -45,7 +45,7 @@ dpmix(
 - mcmc:
 
   Named list of run arguments passed to
-  [`mcmc()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/mcmc.md).
+  [`mcmc()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/mcmc.md).
 
 ## Value
 

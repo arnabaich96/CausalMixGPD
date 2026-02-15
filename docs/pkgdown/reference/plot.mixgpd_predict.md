@@ -2,7 +2,7 @@
 
 Generates type-specific visualizations for prediction objects returned
 by
-[`predict.mixgpd_fit()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/predict.mixgpd_fit.md).
+[`predict.mixgpd_fit()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/predict.mixgpd_fit.md).
 Each prediction type produces a tailored plot:
 
 - `quantile`: Quantile indices vs estimates with credible intervals
@@ -28,7 +28,7 @@ plot(x, y = NULL, ...)
 - x:
 
   A prediction object returned by
-  [`predict.mixgpd_fit()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/predict.mixgpd_fit.md).
+  [`predict.mixgpd_fit()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/predict.mixgpd_fit.md).
 
 - y:
 

@@ -15,7 +15,7 @@ cate(
 )
 }
 \arguments{
-\item{fit}{A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.}
+\item{fit}{A \code{"causalmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.}
 
 \item{newdata}{Optional data.frame or matrix of covariates for prediction.
 If \code{NULL}, uses the training covariates stored in \code{fit}.}

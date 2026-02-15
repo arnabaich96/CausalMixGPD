@@ -18,8 +18,8 @@ cqte(
 
 - fit:
 
-  A `"dpmixgpd_causal_fit"` object from
-  [`run_mcmc_causal()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/run_mcmc_causal.md).
+  A `"causalmixgpd_causal_fit"` object from
+  [`run_mcmc_causal()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/run_mcmc_causal.md).
 
 - probs:
 
@@ -51,9 +51,9 @@ treated/control prediction objects.
 This estimand is available only for **conditional** causal models with
 covariates (`X` not `NULL`). For unconditional causal models
 (`X = NULL`), use
-[`qte()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/qte.md)
+[`qte()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/qte.md)
 or
-[`qtt()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/qtt.md).
+[`qtt()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/qtt.md).
 
 ## Examples
 

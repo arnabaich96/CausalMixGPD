@@ -26,7 +26,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
 # Centralize package loading (development vs installed package) in one place
-library(DPmixGPD)
+library(CausalMixGPD)
 
 # Ensure package is fully loaded for data access
 if (!require("devtools", quietly = TRUE)) {
@@ -51,7 +51,7 @@ source("_legacy-setup.R")
 
 ## Common issues and solutions
 
-This vignette collects common errors and fixes encountered when building or running DPmixGPD models.
+This vignette collects common errors and fixes encountered when building or running CausalMixGPD models.
 
 ---
 
@@ -187,7 +187,7 @@ cb <- bundle(
 
 **Cause**: The project or package lives in OneDrive (or another synced/network path). Windows cannot map file-owner SIDs to account names when R uses `file.info()` on those paths.
 
-**Fix**: The warnings are harmless; DPmixGPD and nimble load and run normally. If you **keep the project in OneDrive** (e.g. as a backup to GitHub), the project `.Rprofile` suppresses these warnings automatically when using R >= 4.0. Otherwise, move the project to a local non-synced path or take ownership of the OneDrive folder (right-click -> Properties -> Security -> Advanced -> Take ownership).
+**Fix**: The warnings are harmless; CausalMixGPD and nimble load and run normally. If you **keep the project in OneDrive** (e.g. as a backup to GitHub), the project `.Rprofile` suppresses these warnings automatically when using R >= 4.0. Otherwise, move the project to a local non-synced path or take ownership of the OneDrive folder (right-click -> Properties -> Security -> Advanced -> Take ownership).
 
 ---
 

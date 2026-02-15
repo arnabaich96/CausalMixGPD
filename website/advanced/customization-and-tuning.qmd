@@ -24,7 +24,7 @@ if (!require("devtools", quietly = TRUE)) {
 pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
 devtools::load_all(path = pkg_root, quiet = TRUE)
 
-library(DPmixGPD)
+library(CausalMixGPD)
 library(nimble)
 library(ggplot2)
 library(kableExtra)
@@ -49,7 +49,7 @@ if (is_pkgdown) {
 
 # Overview
 
-This vignette documents how to construct and run NIMBLE models using the low-level building blocks exported by DPmixGPD. The intended audience is advanced users who want full control of the model specification while still reusing the package's NIMBLE-ready distributions (mixture kernels and bulk-tail splices) and the standard NIMBLE compilation and MCMC workflow.
+This vignette documents how to construct and run NIMBLE models using the low-level building blocks exported by CausalMixGPD. The intended audience is advanced users who want full control of the model specification while still reusing the package's NIMBLE-ready distributions (mixture kernels and bulk-tail splices) and the standard NIMBLE compilation and MCMC workflow.
 
 The examples emphasize transparency. Each model is specified in `nimbleCode{}`; constants, data, and initial values are stated explicitly; and the model is compiled and sampled using the canonical NIMBLE sequence.
 
@@ -57,7 +57,7 @@ The vignette covers:
 
 1) A manual stick-breaking (SB) Normal mixture using `dNormMix` as the likelihood.
 
-2) A spliced bulk-tail model (SB + Amoroso + GPD) in which DPmixGPD generates the model code, while the compilation and sampling steps are carried out explicitly to facilitate inspection.
+2) A spliced bulk-tail model (SB + Amoroso + GPD) in which CausalMixGPD generates the model code, while the compilation and sampling steps are carried out explicitly to facilitate inspection.
 
 3) A causal (two-arm) model built via `bundle()`, followed by downstream summaries via S3 methods such as `predict()`, `ate()/qte()` (marginal), `att()/qtt()` (treated-only), and `cate()/cqte()` (conditional; requires `X`).
 
@@ -78,14 +78,14 @@ X <- as.data.frame(X)
 
 In this first example we write an SB mixture model by hand and use the exported
 `dNormMix()` nimbleFunction as the per-observation log-likelihood. The point is to show
-that DPmixGPD kernels are ordinary NIMBLE components: you can call them inside your own
+that CausalMixGPD kernels are ordinary NIMBLE components: you can call them inside your own
 model code, monitor whatever nodes you like, and control the MCMC configuration exactly
 as you would in a standalone NIMBLE workflow.
 
 ## Note on custom likelihoods
 
 NIMBLE can work with user-defined distributions, but for a vignette it is often easier to
-avoid registration and keep everything "plain" model code. DPmixGPD already exposes the mixture and MixGPD building blocks as NIMBLE distributions (e.g., `dNormMix` for a Normal mixture and `dNormMixGpd` for the spliced bulk+GPD version). That means you can write the likelihood directly in `nimbleCode` using `y[i] ~ dNormMix(...)` or `y[i] ~ dNormMixGpd(...)`--no ones/zeros trick is needed here.
+avoid registration and keep everything "plain" model code. CausalMixGPD already exposes the mixture and MixGPD building blocks as NIMBLE distributions (e.g., `dNormMix` for a Normal mixture and `dNormMixGpd` for the spliced bulk+GPD version). That means you can write the likelihood directly in `nimbleCode` using `y[i] ~ dNormMix(...)` or `y[i] ~ dNormMixGpd(...)`--no ones/zeros trick is needed here.
 
 ## Constants, data, and inits
 
@@ -169,10 +169,10 @@ head(samples_sb[, 1:min(6, ncol(samples_sb))])
 summary(samples_sb[, c("alpha", "mu[1]", "mu[2]", "mu[3]")])
 ```
 
-## Optional: S3 methods via the DPmixGPD bundle
+## Optional: S3 methods via the CausalMixGPD bundle
 
 For comparison, we build a **bundle** for the same SB Normal mixture and use
-DPmixGPD's S3 methods for posterior inference.
+CausalMixGPD's S3 methods for posterior inference.
 
 ```{r, cache=TRUE, results='hide'}
 bundle_sb <- bundle(
@@ -338,7 +338,7 @@ head(pred_crp_q90$fit)
 # Causal Model: From Bundle to S3 Inference
 
 Finally, we switch from "one distribution for everyone" to a two-arm causal setup.
-DPmixGPD's causal bundle wraps (i) an outcome model for the treated arm, (ii) an outcome
+CausalMixGPD's causal bundle wraps (i) an outcome model for the treated arm, (ii) an outcome
 model for the control arm, and (iii) a propensity-score model (optional, but often useful).
 Once the sampler has run, the fitted object exposes high-level S3 methods so you can move
 from posterior samples to causal estimands with minimal friction--e.g., average treatment

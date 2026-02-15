@@ -12,8 +12,8 @@ run_mcmc_bundle_manual(bundle, show_progress = TRUE, quiet = TRUE)
 
 - bundle:
 
-  A `dpmixgpd_bundle` from
-  [`build_nimble_bundle()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/build_nimble_bundle.md).
+  A `causalmixgpd_bundle` from
+  [`build_nimble_bundle()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/build_nimble_bundle.md).
 
 - show_progress:
 

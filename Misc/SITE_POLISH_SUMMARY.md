@@ -1,4 +1,4 @@
-# DPmixGPD Site Polish & QA - Completion Summary
+# CausalMixGPD Site Polish & QA - Completion Summary
 
 ## ✅ Tasks Completed
 
@@ -17,8 +17,8 @@
 ### 3. **Verified Article Navigation Flow** ✓
 Current `_pkgdown.yml` structure:
 ```
-Getting Started → Unconditional (DPmix, DPmixGPD) → 
-Conditional (DPmix, DPmixGPD) → Causal → Kernel Reference
+Getting Started → Unconditional (DPmix, CausalMixGPD) → 
+Conditional (DPmix, CausalMixGPD) → Causal → Kernel Reference
 ```
 This matches the ideal learning flow: intro → distributions → build/run → unconditional → GPD → conditional → causal.
 
@@ -35,7 +35,7 @@ This matches the ideal learning flow: intro → distributions → build/run → 
 - **Tests** (6 total):
   1. Basic workflow (v03): bundle → structure verification
   2. Unconditional DPmix (v04–v07): CRP & SB backends
-  3. Unconditional DPmixGPD (v06–v07): GPD + both backends
+  3. Unconditional CausalMixGPD (v06–v07): GPD + both backends
   4. Conditional models (v08–v11): covariate handling
   5. Causal inference (v12–v15): treatment + outcome models
   6. Kernel distribution availability: function imports

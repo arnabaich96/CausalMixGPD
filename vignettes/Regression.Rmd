@@ -1,0 +1,160 @@
+---
+title: "CausalMixGPD: One-arm modeling (unconditional and conditional)"
+output:
+  rmarkdown::html_vignette:
+    highlight: null
+vignette: >
+  %\VignetteIndexEntry{CausalMixGPD: One-arm modeling (unconditional and conditional)}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+bibliography: causalmixgpd.bib
+link-citations: true
+---
+
+This vignette covers “one-arm” usage: you fit *one* outcome model, then compute posterior summaries and predictions from the fitted distribution. The same interface works for both unconditional models (no covariates) and conditional models (covariate-dependent distributions).
+
+Two design principles matter for interpretation.
+
+First, CausalMixGPD is a density-first workflow: once you have a posterior over the full conditional density, everything else (quantiles, survival, exceedance probabilities, restricted means) is derived coherently from that same fitted distribution.
+
+Second, when `GPD = TRUE`, the tail beyond the threshold is *not* an extrapolation of the bulk kernel. It is a dedicated GPD module motivated by peaks-over-threshold theory [@balkema1974; @pickands1975].
+
+# What CausalMixGPD returns
+
+A fitted object (`mixgpd_fit`) represents a posterior over the model parameters, hence a posterior predictive distribution. You typically interact with the fit using:
+
+- `predict(fit, type = "density" | "cdf" | "survival" | "quantile" | "rmean", ...)`
+- `plot(fit)` for diagnostic/summary plots
+- `summary(fit)` for a compact model summary
+- `params(fit)` for posterior mean parameters in natural shapes
+
+Internally, posterior draws are stored in `fit$samples` (and also under `fit$mcmc$samples`). You rarely need to touch these directly unless you are building custom functionals.
+
+# Unconditional model
+
+## Data
+
+We use the shipped example `nc_pos_tail200_k4`, a positive-support dataset with an injected upper tail.
+
+```{r, eval=FALSE, echo=TRUE}
+library(CausalMixGPD)
+data("nc_pos_tail200_k4")
+y <- nc_pos_tail200_k4$y
+```
+
+## Model specification and posterior sampling
+
+The code below is the canonical pattern: build a bundle, run MCMC, then call `predict()` for posterior summaries. (Vignette output is shown from precomputed artifacts so CRAN checks stay deterministic and fast.)
+
+```{r, eval=FALSE, echo=TRUE}
+# Build model + priors + MCMC configuration
+b <- bundle(
+  y = y,
+  X = NULL,
+  backend = "sb",        # stick-breaking (blocked Gibbs)
+  kernel = "lognormal", # positive-support bulk kernel
+  GPD = TRUE,             # splice on a GPD tail
+  components = 4,
+  mcmc = list(niter = 2000, nburnin = 500, thin = 5, nchains = 1, seed = 101)
+)
+
+# Run posterior sampling
+fit <- mcmc(b)
+
+# Posterior predictive summaries
+grid <- seq(min(y), max(y) * 1.5, length.out = 200)
+q <- predict(fit, type = "quantile", p = c(0.5, 0.9, 0.95, 0.99), level = 0.90)
+d <- predict(fit, y = grid, type = "density", level = 0.90)
+S <- predict(fit, y = grid, type = "survival", level = 0.90)
+```
+
+## Posterior summaries (precomputed)
+
+Quantiles are often the most interpretable summaries under heavy tails. The table below reports posterior mean quantiles and 90% credible intervals.
+
+| Quantile (p) | Estimate | 90% CrI |
+| --- | --- | --- |
+| 0.5 | 1.619 | [1.447, 1.840] |
+| 0.9 | 4.745 | [4.170, 5.444] |
+| 0.95 | 6.468 | [5.551, 7.670] |
+| 0.99 | 11.686 | [9.165, 14.715] |
+
+A posterior predictive density overlay (precomputed):
+
+![Posterior predictive density for the unconditional fit (precomputed).](../extdata/unconditional_density.png)
+
+## Estimation versus prediction
+
+- Estimation refers to learning the distribution governing the observed sample (posterior over model parameters).
+- Prediction refers to summaries of *new* outcomes drawn from the posterior predictive distribution.
+
+In CausalMixGPD, `predict()` is explicitly posterior predictive: it integrates uncertainty in parameters by using the MCMC draws. Credible bands therefore widen when the data are weakly informative in the tails.
+
+# Conditional model (regression)
+
+## Data and design matrix
+
+We use `nc_posX100_p4_k3`, which includes covariates in a data frame `X`.
+
+```{r, eval=FALSE, echo=TRUE}
+data("nc_posX100_p4_k3")
+y <- nc_posX100_p4_k3$y
+Xdf <- nc_posX100_p4_k3$X
+
+# Recommended: include an intercept
+X <- model.matrix(~ ., data = Xdf)
+```
+
+## Conditional specification (theoretical point of view)
+
+A conditional model means that at least one kernel parameter is allowed to vary with covariates. Conceptually, for a chosen parameter \(\theta_j(\boldsymbol{x})\),
+\[
+  g\{\theta_j(\boldsymbol{x})\} = \boldsymbol{x}^\top\boldsymbol{\beta}_j,
+\]
+where \(g\) is a link (identity, exp, etc.). CausalMixGPD exposes this through its `param_specs` mechanism; “special cases” are just defaults built on this general link idea.
+
+## Fit and prediction
+
+```{r, eval=FALSE, echo=TRUE}
+# Fit a conditional model (example settings)
+b <- bundle(
+  y = y,
+  X = X,
+  backend = "sb",
+  kernel = "lognormal",
+  GPD = FALSE,
+  components = 4,
+  mcmc = list(niter = 2500, nburnin = 600, thin = 5, nchains = 1, seed = 202)
+)
+fit <- mcmc(b)
+
+# Predict at two covariate profiles (rows of a design matrix)
+Xnew <- X[1:2, , drop = FALSE]
+ygrid <- seq(quantile(y, 0.01), quantile(y, 0.99), length.out = 160)
+
+q_x <- predict(fit, x = Xnew, type = "quantile", p = c(0.5, 0.9, 0.95), level = 0.90)
+d_x <- predict(fit, x = Xnew, y = ygrid, type = "density", level = 0.90)
+```
+
+## Conditional summaries (precomputed)
+
+The table below reports posterior mean conditional quantiles for two example covariate profiles (Profile 1 and 2), with 90% credible intervals.
+
+| Profile | Q(0.5) | Q(0.9) | Q(0.95) |
+| --- | --- | --- | --- |
+| 1 | 1.484 [1.320, 1.662] | 23.314 [11.622, 42.076] | 52.351 [21.168, 107.535] |
+| 2 | 1.987 [1.539, 2.479] | 31.153 [14.835, 56.453] | 69.906 [26.886, 146.645] |
+
+A density comparison for the same two profiles (precomputed):
+
+![Posterior predictive density for two covariate profiles (precomputed).](../extdata/conditional_density.png)
+
+# Practical notes
+
+Kernel choice and `GPD` are doing different jobs.
+
+If your goal is accurate tail extrapolation, enable `GPD = TRUE` (except for `kernel = "cauchy"`, which is intentionally disallowed with GPD). If your goal is a purely nonparametric bulk fit with no parametric tail assumptions, set `GPD = FALSE` and let the DPM kernel mixture carry everything.
+
+For regression, start simple: keep most parameters “distribution-level” (shared across \(\boldsymbol{x}\)) and place one parameter in link mode. Expand only after you have checked basic calibration (e.g., predictive quantiles) across covariate strata.
+
+# References

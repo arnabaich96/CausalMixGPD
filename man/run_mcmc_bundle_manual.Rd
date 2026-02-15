@@ -7,7 +7,7 @@
 run_mcmc_bundle_manual(bundle, show_progress = TRUE, quiet = TRUE)
 }
 \arguments{
-\item{bundle}{A \code{dpmixgpd_bundle} from \code{build_nimble_bundle()}.}
+\item{bundle}{A \code{causalmixgpd_bundle} from \code{build_nimble_bundle()}.}
 
 \item{show_progress}{Logical; passed to nimble.}
 

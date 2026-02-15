@@ -15,7 +15,7 @@
   p = NULL,
   index = NULL,
   nsim = NULL,
-  cred.level = 0.95,
+  level = 0.95,
   interval = "credible",
   probs = c(0.025, 0.5, 0.975),
   store_draws = TRUE,
@@ -58,7 +58,7 @@ parameter uncertainty. This differs from the mean of a single model distribution
 
 \item{nsim}{Number of posterior predictive samples (for \code{type="sample"}).}
 
-\item{cred.level}{Credible level for credible intervals (default 0.95 for 95 percent intervals).}
+\item{level}{Credible level for credible intervals (default 0.95 for 95 percent intervals).}
 
 \item{interval}{Character or NULL; type of credible interval: \code{NULL} for no interval,
 \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for

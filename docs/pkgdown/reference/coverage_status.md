@@ -4,7 +4,7 @@
 [`covr::package_coverage()`](http://covr.r-lib.org/reference/package_coverage.md)
 against the package tests and returns a small summary that can be stored
 for docs or dashboards. Use
-[`read_coverage_status()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/read_coverage_status.md)
+[`read_coverage_status()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/read_coverage_status.md)
 to read previously saved results.
 
 ## Usage

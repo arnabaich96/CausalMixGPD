@@ -34,8 +34,8 @@
 #' @param epsilon Numeric in [0,1). For downstream summaries/plots/prediction we keep the
 #'   smaller k defined by either (i) cumulative mass >= 1 - epsilon or (ii) per-component
 #'   weights >= epsilon, then renormalize.
-#' @param alpha_random Logical; whether concentration \code{alpha} is stochastic.
-#' @return A named list (bundle) of class \code{"dpmixgpd_bundle"}.
+#' @param alpha_random Logical; whether the DP concentration parameter \eqn{\kappa} is stochastic.
+#' @return A named list (bundle) of class \code{"causalmixgpd_bundle"}.
 #' @examples
 #' \dontrun{
 #' y <- abs(rnorm(60)) + 0.1
@@ -117,7 +117,7 @@ build_nimble_bundle <- function(
     mcmc       = mcmc,
     epsilon    = epsilon
   )
-  class(bundle) <- "dpmixgpd_bundle"
+  class(bundle) <- "causalmixgpd_bundle"
   bundle
 }
 
@@ -229,7 +229,7 @@ build_data_from_inputs <- function(y, X = NULL, ps = NULL) {
 #'
 #' Monitoring follows these rules:
 #' \itemize{
-#'   \item Always monitor concentration \code{alpha} (whether fixed or stochastic).
+#'   \item Always monitor concentration \code{kappa} (whether fixed or stochastic).
 #'   \item SB: monitor \code{w[1:components]} and optionally \code{v[1:(components-1)]}.
 #'   \item CRP: monitor \code{z[1:N]}.
 #'   \item Bulk parameters:
@@ -1691,7 +1691,7 @@ build_prior_table_from_spec <- function(spec) {
 
 #' Run MCMC for a prepared bundle
 #'
-#' @param bundle A \code{dpmixgpd_bundle} from \code{build_nimble_bundle()}.
+#' @param bundle A \code{causalmixgpd_bundle} from \code{build_nimble_bundle()}.
 #' @param show_progress Logical; passed to nimble.
 #' @param quiet Logical; if TRUE (default), suppress console status messages.
 #'   Set to FALSE to see progress messages during MCMC setup and execution.
@@ -1715,7 +1715,7 @@ build_prior_table_from_spec <- function(spec) {
 run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = TRUE) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
-  stopifnot(inherits(bundle, "dpmixgpd_bundle"))
+  stopifnot(inherits(bundle, "causalmixgpd_bundle"))
 
   spec <- bundle$spec
   meta <- spec$meta
@@ -1790,10 +1790,48 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = TRUE) {
 
   # If any samplerConf is missing checkConjugacy, set it to FALSE.
   if (!is.null(conf$samplerConfs) && length(conf$samplerConfs) > 0) {
+    stoch_nodes <- tryCatch(
+      Rmodel$getNodeNames(stochOnly = TRUE, includeData = FALSE),
+      error = function(e) character(0)
+    )
+
     for (i in seq_along(conf$samplerConfs)) {
       ctl <- conf$samplerConfs[[i]]$control
       if (is.null(ctl)) ctl <- list()
       if (is.null(ctl$checkConjugacy)) ctl$checkConjugacy <- FALSE
+
+      # NIMBLE's CRP sampler requires clusterNodes to be stochastic.
+      # For link-mode CRP models, configureMCMC may include deterministic
+      # helper nodes (e.g., *_ik), which causes buildMCMC to fail.
+      if (identical(conf$samplerConfs[[i]]$name, "CRP") &&
+          !is.null(ctl$clusterVarInfo) &&
+          length(stoch_nodes) > 0) {
+        cvi <- ctl$clusterVarInfo
+        cn <- cvi$clusterNodes
+        if (is.list(cn) && length(cn) > 0) {
+          cn_filtered <- lapply(cn, function(nodes) nodes[nodes %in% stoch_nodes])
+          keep <- lengths(cn_filtered) > 0
+          if (any(keep)) {
+            cvi$clusterNodes <- cn_filtered[keep]
+            if (any(!keep)) {
+              list_fields <- c("clusterNodes", "clusterIDs", "indexExpr")
+              vec_fields <- c(
+                "clusterVars", "nTilde", "numNodesPerCluster", "loopIndex",
+                "targetIsIndex", "indexPosition", "numIndexes",
+                "targetIndexedByFunction", "multipleStochIndexes", "targetNonIndex",
+                "nodeIDs"
+              )
+              for (nm in list_fields) {
+                if (!is.null(cvi[[nm]])) cvi[[nm]] <- cvi[[nm]][keep]
+              }
+              for (nm in vec_fields) {
+                if (!is.null(cvi[[nm]])) cvi[[nm]] <- cvi[[nm]][keep]
+              }
+            }
+            ctl$clusterVarInfo <- cvi
+          }
+        }
+      }
       conf$samplerConfs[[i]]$control <- ctl
     }
   }

@@ -1,4 +1,4 @@
-# DPmixGPD Test Coverage Map
+# CausalMixGPD Test Coverage Map
 
 This document maps test coverage by feature area to help identify gaps and guide test development.
 
@@ -144,19 +144,19 @@ fitted.mixgpd_fit and residuals.mixgpd_fit are **conditional (covariate) models 
 
 | Feature | Test File | Status |
 |---------|-----------|--------|
-| print.dpmixgpd_causal_fit | `test-causal-predict.R` | ✅ |
-| summary.dpmixgpd_causal_fit | `test-causal-predict.R` | ✅ |
-| print.dpmixgpd_causal_bundle | `test-causal-predict.R` | ✅ |
-| plot.dpmixgpd_causal_fit | `test-causal-predict.R` | ✅ |
-| print.dpmixgpd_qte | `test-s3-causal-effects.R` | ✅ |
-| print.dpmixgpd_ate | `test-s3-causal-effects.R` | ✅ |
-| summary.dpmixgpd_qte | `test-s3-causal-effects.R` | ✅ |
-| summary.dpmixgpd_ate | `test-s3-causal-effects.R` | ✅ |
-| print.summary.dpmixgpd_qte | `test-s3-causal-effects.R` | ✅ |
-| print.summary.dpmixgpd_ate | `test-s3-causal-effects.R` | ✅ |
-| plot.dpmixgpd_qte | `test-causal-predict.R`, `test-s3-causal-effects.R` | ✅ |
-| plot.dpmixgpd_ate | `test-causal-predict.R`, `test-s3-causal-effects.R` | ✅ |
-| plot.dpmixgpd_causal_predict | `test-causal-predict.R` | ✅ |
+| print.causalmixgpd_causal_fit | `test-causal-predict.R` | ✅ |
+| summary.causalmixgpd_causal_fit | `test-causal-predict.R` | ✅ |
+| print.causalmixgpd_causal_bundle | `test-causal-predict.R` | ✅ |
+| plot.causalmixgpd_causal_fit | `test-causal-predict.R` | ✅ |
+| print.causalmixgpd_qte | `test-s3-causal-effects.R` | ✅ |
+| print.causalmixgpd_ate | `test-s3-causal-effects.R` | ✅ |
+| summary.causalmixgpd_qte | `test-s3-causal-effects.R` | ✅ |
+| summary.causalmixgpd_ate | `test-s3-causal-effects.R` | ✅ |
+| print.summary.causalmixgpd_qte | `test-s3-causal-effects.R` | ✅ |
+| print.summary.causalmixgpd_ate | `test-s3-causal-effects.R` | ✅ |
+| plot.causalmixgpd_qte | `test-causal-predict.R`, `test-s3-causal-effects.R` | ✅ |
+| plot.causalmixgpd_ate | `test-causal-predict.R`, `test-s3-causal-effects.R` | ✅ |
+| plot.causalmixgpd_causal_predict | `test-causal-predict.R` | ✅ |
 
 **Tier:** B (ci)
 

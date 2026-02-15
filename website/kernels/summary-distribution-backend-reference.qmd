@@ -6,7 +6,7 @@ pkgdown:
 
 ## Summary: Distribution & Backend Reference {#v02-summary-distribution-backend-reference}
 
-This section provides a compact reference for the distributions supported by **DPmixGPD** and the corresponding user-facing function families.  
+This section provides a compact reference for the distributions supported by **CausalMixGPD** and the corresponding user-facing function families.  
 The **CRP backend** uses base (single-kernel) functions, while the **SB backend** uses mixture (multi-component) functions. The "Type" column indicates whether each backend expects **scalar** parameters (single value per parameter) or **vectors** indexed by mixture component.
 
 | Distribution | Parameters | Arguments | CRP Type | CRP Function | SB Type | SB Function |

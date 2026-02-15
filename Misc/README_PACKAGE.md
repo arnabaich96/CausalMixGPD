@@ -1,10 +1,10 @@
-﻿# DPmixGPD
+# CausalMixGPD
 
-[![Codecov](https://codecov.io/gh/arnabaich96/DPmixGPD_Package/branch/master/graph/badge.svg)](https://codecov.io/gh/arnabaich96/DPmixGPD_Package)
+[![Codecov](https://codecov.io/gh/arnabaich96/CausalMixGPD_Package/branch/master/graph/badge.svg)](https://codecov.io/gh/arnabaich96/CausalMixGPD_Package)
 
 
 
-DPmixGPD provides Dirichlet process mixtures with optional generalized Pareto tail augmentation to keep bulk and extreme modeling in sync. It supports both stick-breaking (SB) and Chinese Restaurant Process (CRP) backends plus a kernel registry so the same mixture weights control `predict()`, `quantile()`, `density()`, and causal CQTE outputs.
+CausalMixGPD provides Dirichlet process mixtures with optional generalized Pareto tail augmentation to keep bulk and extreme modeling in sync. It supports both stick-breaking (SB) and Chinese Restaurant Process (CRP) backends plus a kernel registry so the same mixture weights control `predict()`, `quantile()`, `density()`, and causal CQTE outputs.
 
 ## Site Maintenance & QA
 

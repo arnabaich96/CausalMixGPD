@@ -1,17 +1,11 @@
 {
-  "percent": 72.84,
-  "timestamp": "2026-02-13T07:04:01Z",
+  "percent": 68.8,
+  "timestamp": "2026-02-14T05:23:07Z",
   "sources": "tests",
-  "total_lines": 6917,
-  "covered_lines": 5038,
-  "files": 18,
+  "total_lines": 7545,
+  "covered_lines": 5191,
+  "files": 17,
   "file_coverage": [
-    {
-      "file": "R/00-global-contracts.R",
-      "lines": 4,
-      "covered": 4,
-      "percent": 100
-    },
     {
       "file": "R/99-simulated-data.R",
       "lines": 31,
@@ -20,8 +14,8 @@
     },
     {
       "file": "R/06-visualization-helpers.R",
-      "lines": 256,
-      "covered": 235,
+      "lines": 255,
+      "covered": 234,
       "percent": 91.8
     },
     {
@@ -79,28 +73,22 @@
       "percent": 77.9
     },
     {
-      "file": "R/03-build-and-run.R",
-      "lines": 697,
-      "covered": 529,
-      "percent": 75.9
-    },
-    {
       "file": "R/02-utilities-internal.R",
       "lines": 1553,
       "covered": 1172,
       "percent": 75.5
     },
     {
-      "file": "R/04-S3-Methods.R",
-      "lines": 1872,
-      "covered": 1242,
-      "percent": 66.3
+      "file": "R/03-build-and-run.R",
+      "lines": 697,
+      "covered": 518,
+      "percent": 74.3
     },
     {
-      "file": "R/05-causal.R",
-      "lines": 955,
-      "covered": 629,
-      "percent": 65.9
+      "file": "R/04-S3-Methods.R",
+      "lines": 1890,
+      "covered": 1260,
+      "percent": 66.7
     },
     {
       "file": "R/09-diagnostics-glue.R",
@@ -109,10 +97,16 @@
       "percent": 65.7
     },
     {
-      "file": "R/01-formatting.R",
-      "lines": 117,
-      "covered": 43,
-      "percent": 36.8
+      "file": "R/05-causal.R",
+      "lines": 1483,
+      "covered": 754,
+      "percent": 50.8
+    },
+    {
+      "file": "R/06-wrappers.R",
+      "lines": 204,
+      "covered": 69,
+      "percent": 33.8
     }
   ]
 }

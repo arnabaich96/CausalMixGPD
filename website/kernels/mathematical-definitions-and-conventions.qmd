@@ -10,7 +10,7 @@ source("_load_pkg.R")
 
 ## Mathematical definitions and conventions {#v02-mathematical-definitions-and-conventions}
 
-This vignette documents the probability distributions exported by **DPmixGPD** and the corresponding `d/p/q/r` functions used throughout the package. For a continuous random variable \(Y\) with parameter scalars \(\boldsymbol{\theta}\), we use the standard quartet:
+This vignette documents the probability distributions exported by **CausalMixGPD** and the corresponding `d/p/q/r` functions used throughout the package. For a continuous random variable \(Y\) with parameter scalars \(\boldsymbol{\theta}\), we use the standard quartet:
 
 - **Density (PDF)**: \(f(y\mid\boldsymbol{\theta})\), implemented by `d*()`.
 - **Distribution (CDF)**: \(F(y\mid\boldsymbol{\theta})=\Pr(Y\le y)\), implemented by `p*()`.

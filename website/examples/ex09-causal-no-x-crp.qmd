@@ -26,7 +26,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
 # Load package (with all_quiet to suppress startup messages)
-library(DPmixGPD)
+library(CausalMixGPD)
 
 # Ensure package is fully loaded for data access
 if (!require("devtools", quietly = TRUE)) {
@@ -60,7 +60,7 @@ Because `X = NULL`, conditional estimands `cate()` and `cqte()` are unavailable;
 ## Data Setup (No X)
 
 ```{r data-setup}
-data("causal_alt_real500_p4_k2", package = "DPmixGPD")
+data("causal_alt_real500_p4_k2", package = "CausalMixGPD")
 y <- abs(causal_alt_real500_p4_k2$y) + 0.01
 A <- causal_alt_real500_p4_k2$A
 

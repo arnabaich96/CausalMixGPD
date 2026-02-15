@@ -46,10 +46,10 @@ augments the design matrix for PS-adjusted outcome modeling.}
 smaller k defined by either (i) cumulative mass >= 1 - epsilon or (ii) per-component
 weights >= epsilon, then renormalize.}
 
-\item{alpha_random}{Logical; whether concentration \code{alpha} is stochastic.}
+\item{alpha_random}{Logical; whether the DP concentration parameter \eqn{\kappa} is stochastic.}
 }
 \value{
-A named list (bundle) of class \code{"dpmixgpd_bundle"}.
+A named list (bundle) of class \code{"causalmixgpd_bundle"}.
 }
 \description{
 Creates a runnable "bundle" containing:

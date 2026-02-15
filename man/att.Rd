@@ -16,7 +16,7 @@ att(
 )
 }
 \arguments{
-\item{fit}{A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.}
+\item{fit}{A \code{"causalmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.}
 
 \item{newdata}{Ignored for marginal estimands. If supplied, a warning is issued
 and training data are used.}

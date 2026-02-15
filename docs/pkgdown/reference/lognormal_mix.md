@@ -7,7 +7,7 @@ draws from the corresponding component. Quantiles are computed by
 numerical inversion of the mixture CDF. These uppercase
 NIMBLE-compatible functions are scalar (`x`/`q` and `n = 1`). For
 vectorized R usage (including `n > 1`), use
-[`lognormal_lowercase`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/lognormal_lowercase.md).
+[`lognormal_lowercase`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/lognormal_lowercase.md).
 
 ## Usage
 
@@ -116,6 +116,6 @@ qLognormalMix(0.50, w = w, meanlog = meanlog, sdlog = sdlog)
 qLognormalMix(0.95, w = w, meanlog = meanlog, sdlog = sdlog)
 #> [1] 4.147585
 replicate(10, rLognormalMix(1, w = w, meanlog = meanlog, sdlog = sdlog))
-#>  [1] 0.7144408 1.8090011 4.3538947 0.6317372 4.0865586 1.3226193 1.6459525
-#>  [8] 0.4887494 0.8604674 0.6590314
+#>  [1] 0.6011902 0.5184476 4.1293830 0.6873494 1.3316464 0.6494833 0.9846285
+#>  [8] 1.6379267 3.3315677 0.7021537
 ```

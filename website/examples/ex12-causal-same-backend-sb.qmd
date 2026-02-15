@@ -26,7 +26,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
 # Load package (with all_quiet to suppress startup messages)
-library(DPmixGPD)
+library(CausalMixGPD)
 
 # Ensure package is fully loaded for data access
 if (!require("devtools", quietly = TRUE)) {
@@ -59,7 +59,7 @@ This vignette fits two SB-based causal models using the same kernel (Laplace):
 ## Data Setup
 
 ```{r data-setup}
-data("causal_alt_real500_p4_k2", package = "DPmixGPD")
+data("causal_alt_real500_p4_k2", package = "CausalMixGPD")
 y <- causal_alt_real500_p4_k2$y
 A <- causal_alt_real500_p4_k2$A
 X <- as.matrix(causal_alt_real500_p4_k2$X)

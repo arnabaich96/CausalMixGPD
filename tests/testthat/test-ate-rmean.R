@@ -13,7 +13,7 @@ test_that("ate(type='mean') is Inf when xi >= 1 and ate_rmean stays finite", {
   mcmc_out <- list(niter = 20, nburnin = 5, thin = 1, nchains = 1, seed = 1)
   mcmc_ps  <- list(niter = 20, nburnin = 5, thin = 1, nchains = 1, seed = 1)
 
-  cb <- DPmixGPD::build_causal_bundle(
+  cb <- CausalMixGPD::build_causal_bundle(
     y = y,
     X = X,
     A = A,
@@ -25,7 +25,7 @@ test_that("ate(type='mean') is Inf when xi >= 1 and ate_rmean stays finite", {
     mcmc_ps = mcmc_ps
   )
 
-  cf <- DPmixGPD::run_mcmc_causal(cb, show_progress = FALSE)
+  cf <- CausalMixGPD::run_mcmc_causal(cb, show_progress = FALSE)
   newx <- head(X, 3)
 
   trt_fit <- cf$outcome_fit$trt
@@ -41,12 +41,12 @@ test_that("ate(type='mean') is Inf when xi >= 1 and ate_rmean stays finite", {
   cf$outcome_fit$trt <- trt_fit
 
   expect_warning(
-    a_mean <- DPmixGPD::cate(cf, newdata = newx, type = "mean", interval = NULL, nsim_mean = 20L),
+    a_mean <- CausalMixGPD::cate(cf, newdata = newx, type = "mean", interval = NULL, nsim_mean = 20L),
     "infinite"
   )
   expect_true(all(!is.finite(a_mean$fit)) | any(a_mean$fit == Inf))
 
-  a_rmean <- DPmixGPD::ate_rmean(cf, newdata = newx, cutoff = 10, interval = "credible", nsim_mean = 20L)
+  a_rmean <- CausalMixGPD::ate_rmean(cf, newdata = newx, cutoff = 10, interval = "credible", nsim_mean = 20L)
   expect_true(all(is.finite(a_rmean$fit)))
   expect_true(all(c("fit", "lower", "upper", "trt", "con", "meta", "grid") %in% names(a_rmean)))
 })

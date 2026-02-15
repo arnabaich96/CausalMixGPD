@@ -1,4 +1,4 @@
-# DPmixGPD: Causal workflow (ATE/QTE from two-arm models)
+# CausalMixGPD: Causal workflow (ATE/QTE from two-arm models)
 
 This vignette illustrates the causal interface: fitting two outcome
 models (treated vs control) and extracting treatment effects on
@@ -6,7 +6,7 @@ distributional functionals. The spliced bulk–tail model and posterior
 sampling steps are defined in the `basic` vignette; here we focus on the
 causal layer.
 
-DPmixGPD’s causal tools are designed for observational studies with
+CausalMixGPD’s causal tools are designed for observational studies with
 standard identification conditions (SUTVA, ignorability/unconfoundedness
 given measured covariates, and positivity). Propensity score (PS)
 augmentation is available to stabilize conditional outcome modeling; see
@@ -55,7 +55,7 @@ The causal interface supports both marginal and conditional estimands:
 
 2.  Average treatment effects (ATE), typically on the posterior
     predictive mean. Under heavy tails the mean may be unstable, so
-    DPmixGPD also supports restricted means.
+    CausalMixGPD also supports restricted means.
 
 ``` r
 
@@ -90,9 +90,9 @@ Notes on customization
     augmentation.
 
 3.  Conditional effects: pass `newdata` to
-    [`cqte()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/cqte.md)
+    [`cqte()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/cqte.md)
     and
-    [`cate()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/cate.md)
+    [`cate()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/cate.md)
     to obtain subgroup-specific treatment effects.
 
 ``` r

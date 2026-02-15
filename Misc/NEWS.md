@@ -14,4 +14,4 @@
 
 ## Notes
 
-- DPmixGPD remains experimental; APIs may change.
+- CausalMixGPD remains experimental; APIs may change.

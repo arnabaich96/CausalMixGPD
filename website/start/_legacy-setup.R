@@ -28,7 +28,7 @@ if (!requireNamespace("gridExtra", quietly = TRUE)) {
 library(gridExtra)
 
 # Force static plotting for website renders (no htmlwidget conversion).
-options(DPmixGPD.plotly = FALSE)
+options(CausalMixGPD.plotly = FALSE)
 
 # Disable knitr chunk caching for legacy website examples.
 # NIMBLE fit objects may contain external pointers that cannot be serialized
@@ -43,7 +43,7 @@ if (requireNamespace("knitr", quietly = TRUE)) {
 
 # Defensive override: some knit/devtools sessions can still resolve an older
 # plot wrapper path that returns htmlwidgets. Force static passthrough.
-dp_ns <- asNamespace("DPmixGPD")
+dp_ns <- asNamespace("CausalMixGPD")
 if (exists(".wrap_plotly", envir = dp_ns, inherits = FALSE)) {
   unlockBinding(".wrap_plotly", dp_ns)
   assign(".wrap_plotly", function(p) p, envir = dp_ns)

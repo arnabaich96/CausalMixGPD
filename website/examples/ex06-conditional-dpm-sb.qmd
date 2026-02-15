@@ -26,7 +26,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
 # Load package (with all_quiet to suppress startup messages)
-library(DPmixGPD)
+library(CausalMixGPD)
 
 # Ensure package is fully loaded for data access
 if (!require("devtools", quietly = TRUE)) {
@@ -56,7 +56,7 @@ source("_legacy-setup.R")
 ## Data Setup
 
 ```{r data-setup}
-data("nc_posX100_p3_k2", package = "DPmixGPD")
+data("nc_posX100_p3_k2", package = "CausalMixGPD")
 y <- nc_posX100_p3_k2$y
 X <- as.matrix(nc_posX100_p3_k2$X)
 if (is.null(colnames(X))) {

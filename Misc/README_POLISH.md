@@ -1,8 +1,8 @@
-# 📊 DPmixGPD Site Polish - Final Deliverables
+# 📊 CausalMixGPD Site Polish - Final Deliverables
 
 ## ✅ All Tasks Complete
 
-This document confirms completion of the "polish loop" to make the DPmixGPD documentation site feel like a finished product.
+This document confirms completion of the "polish loop" to make the CausalMixGPD documentation site feel like a finished product.
 
 ---
 
@@ -31,7 +31,7 @@ This document confirms completion of the "polish loop" to make the DPmixGPD docu
 **What it tests:**
 1. **Basic Workflow** — Bundle creation & structure (v03)
 2. **Unconditional DPmix** — CRP & SB backends (v04–v07)
-3. **Unconditional DPmixGPD** — GPD functionality (v06–v07)
+3. **Unconditional CausalMixGPD** — GPD functionality (v06–v07)
 4. **Conditional Models** — Covariate handling (v08–v11)
 5. **Causal Inference** — Treatment + outcome models (v12–v15)
 6. **Kernel Functions** — Distribution availability (kernel-*.Rmd)
@@ -145,11 +145,11 @@ Your `_pkgdown.yml` article order is already optimal:
 
 2. **Unconditional Models**  
    v04, v05 (DPmix CRP/SB)
-   v06, v07 (DPmixGPD CRP/SB)
+   v06, v07 (CausalMixGPD CRP/SB)
 
 3. **Conditional Models**
    v08, v09 (DPmix CRP/SB with covariates)
-   v10, v11 (DPmixGPD CRP/SB with covariates)
+   v10, v11 (CausalMixGPD CRP/SB with covariates)
 
 4. **Causal Inference**
    v12, v13 (same backend: CRP/SB)
@@ -210,7 +210,7 @@ Refer to:
 
 ## ✨ Status: READY TO SHIP
 
-Your DPmixGPD documentation site is now:
+Your CausalMixGPD documentation site is now:
 - ✅ **Polished** — Professional appearance, consistent styling
 - ✅ **Organized** — Logical article flow, clear navigation
 - ✅ **Tested** — Core workflows verified

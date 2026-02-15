@@ -2,15 +2,15 @@
 # Unit tests for internal utility helpers (02-utilities-internal.R)
 
 # Access internal helpers using :::
-.validate_nimble_reserved_names <- DPmixGPD:::.validate_nimble_reserved_names
-.coerce_fit_df <- DPmixGPD:::.coerce_fit_df
-.compute_interval <- DPmixGPD:::.compute_interval
-.posterior_summarize <- DPmixGPD:::.posterior_summarize
-.truncate_components_one_draw <- DPmixGPD:::.truncate_components_one_draw
-.wrap_plotly <- DPmixGPD:::.wrap_plotly
-.plot_palette <- DPmixGPD:::.plot_palette
-.extract_nimble_code <- DPmixGPD:::.extract_nimble_code
-.wrap_nimble_code <- DPmixGPD:::.wrap_nimble_code
+.validate_nimble_reserved_names <- CausalMixGPD:::.validate_nimble_reserved_names
+.coerce_fit_df <- CausalMixGPD:::.coerce_fit_df
+.compute_interval <- CausalMixGPD:::.compute_interval
+.posterior_summarize <- CausalMixGPD:::.posterior_summarize
+.truncate_components_one_draw <- CausalMixGPD:::.truncate_components_one_draw
+.wrap_plotly <- CausalMixGPD:::.wrap_plotly
+.plot_palette <- CausalMixGPD:::.plot_palette
+.extract_nimble_code <- CausalMixGPD:::.extract_nimble_code
+.wrap_nimble_code <- CausalMixGPD:::.wrap_nimble_code
 
 # ======================================================================
 # .validate_nimble_reserved_names
@@ -78,9 +78,9 @@ test_that(".wrap_plotly returns plotly when available, otherwise passthrough", {
 
   out <- .wrap_plotly(p)
   if (requireNamespace("plotly", quietly = TRUE)) {
-    old_opt <- getOption("DPmixGPD.plotly")
-    options(DPmixGPD.plotly = TRUE)
-    on.exit(options(DPmixGPD.plotly = old_opt), add = TRUE)
+    old_opt <- getOption("CausalMixGPD.plotly")
+    options(CausalMixGPD.plotly = TRUE)
+    on.exit(options(CausalMixGPD.plotly = old_opt), add = TRUE)
     out <- .wrap_plotly(p)
     expect_true(is.list(out))
     expect_true(inherits(out, "plotly") || inherits(out, "htmlwidget"))
@@ -292,13 +292,13 @@ test_that(".truncate_components_one_draw adjusts weights to sum to 1", {
 # ======================================================================
 
 # Access more internal helpers
-.extract_nimble_code <- DPmixGPD:::.extract_nimble_code
-.wrap_nimble_code <- DPmixGPD:::.wrap_nimble_code
-.plot_palette <- DPmixGPD:::.plot_palette
-.backend_label <- DPmixGPD:::.backend_label
-.kernel_label <- DPmixGPD:::.kernel_label
-.get_epsilon <- DPmixGPD:::.get_epsilon
-.get_nobs <- DPmixGPD:::.get_nobs
+.extract_nimble_code <- CausalMixGPD:::.extract_nimble_code
+.wrap_nimble_code <- CausalMixGPD:::.wrap_nimble_code
+.plot_palette <- CausalMixGPD:::.plot_palette
+.backend_label <- CausalMixGPD:::.backend_label
+.kernel_label <- CausalMixGPD:::.kernel_label
+.get_epsilon <- CausalMixGPD:::.get_epsilon
+.get_nobs <- CausalMixGPD:::.get_nobs
 
 # ======================================================================
 # .extract_nimble_code tests

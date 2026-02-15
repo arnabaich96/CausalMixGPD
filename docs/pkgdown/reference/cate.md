@@ -20,8 +20,8 @@ cate(
 
 - fit:
 
-  A `"dpmixgpd_causal_fit"` object from
-  [`run_mcmc_causal()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/run_mcmc_causal.md).
+  A `"causalmixgpd_causal_fit"` object from
+  [`run_mcmc_causal()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/run_mcmc_causal.md).
 
 - newdata:
 
@@ -62,9 +62,9 @@ treated/control prediction objects.
 This estimand is available only for **conditional** causal models with
 covariates (`X` not `NULL`). For unconditional causal models
 (`X = NULL`), use
-[`ate()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/ate.md)
+[`ate()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/ate.md)
 or
-[`att()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/att.md).
+[`att()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/att.md).
 
 ## Examples
 

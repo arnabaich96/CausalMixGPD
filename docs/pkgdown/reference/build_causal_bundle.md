@@ -73,7 +73,7 @@ build_causal_bundle(
 - param_specs:
 
   Outcome parameter overrides (same structure as
-  [`build_nimble_bundle()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/build_nimble_bundle.md)).
+  [`build_nimble_bundle()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/build_nimble_bundle.md)).
   You can pass a single list used for both arms or a list with `con` and
   `trt` entries.
 
@@ -134,7 +134,7 @@ build_causal_bundle(
 
 ## Value
 
-A list of class `"dpmixgpd_causal_bundle"`.
+A list of class `"causalmixgpd_causal_bundle"`.
 
 ## Details
 

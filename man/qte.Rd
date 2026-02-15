@@ -14,7 +14,7 @@ qte(
 )
 }
 \arguments{
-\item{fit}{A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.}
+\item{fit}{A \code{"causalmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.}
 
 \item{probs}{Numeric vector of probabilities in (0, 1) specifying the quantile levels
 of the outcome distribution to estimate treatment effects at.}
@@ -38,10 +38,15 @@ with columns \code{index}, \code{estimate}, \code{lower}, \code{upper}
 and one row per requested quantile index.
 }
 \description{
-Computes a marginal quantile treatment effect by averaging conditional
-quantile effects over the training covariate rows.
+Computes a marginal quantile treatment effect as a contrast of arm-specific
+marginal quantiles:
+\eqn{Q_1^{m}(\tau) - Q_0^{m}(\tau)}.
 }
 \details{
+For conditional models, each posterior draw induces arm-specific marginal
+predictive distributions by averaging over the empirical covariate
+distribution, then quantiles are taken from those marginal draws.
+
 For unconditional causal models (\code{X = NULL}), this is computed directly
 from unconditional treated/control outcome predictions.
 }

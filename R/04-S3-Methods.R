@@ -4,13 +4,13 @@
 
 
 
-#' Print a dpmixgpd bundle
+#' Print a causalmixgpd bundle
 #'
 #' User-facing print method for pre-run bundles produced by \code{build_nimble_bundle()}.
 #' This prints a compact description of the model structure (backend/kernel/components),
 #' whether covariates are used, and whether a GPD tail is enabled.
 #'
-#' @param x A \code{"dpmixgpd_bundle"} object.
+#' @param x A \code{"causalmixgpd_bundle"} object.
 #' @param code Logical; if TRUE, print the generated NIMBLE model code.
 #' @param max_code_lines Integer; maximum number of code lines to print when \code{code=TRUE}.
 #' @param ... Unused.
@@ -24,8 +24,8 @@
 #' print(bundle, code = TRUE, max_code_lines = 30)
 #' }
 #' @export
-print.dpmixgpd_bundle <- function(x, code = FALSE, max_code_lines = 200L, ...) {
-  stopifnot(inherits(x, "dpmixgpd_bundle"))
+print.causalmixgpd_bundle <- function(x, code = FALSE, max_code_lines = 200L, ...) {
+  stopifnot(inherits(x, "causalmixgpd_bundle"))
   spec <- x$spec
   meta <- spec$meta
 
@@ -36,10 +36,10 @@ print.dpmixgpd_bundle <- function(x, code = FALSE, max_code_lines = 200L, ...) {
   P       <- meta$P %||% 0L
   has_X   <- isTRUE(meta$has_X)
   GPD     <- isTRUE(meta$GPD)
-  knitr_kable <- .is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))
+  knitr_kable <- .is_knitr_output() && isTRUE(getOption("causalmixgpd.knitr.kable", FALSE))
 
   if (!knitr_kable) {
-    cat("DPmixGPD bundle\n")
+    cat("CausalMixGPD bundle\n")
   }
   tbl <- data.frame(
     Field = c("Backend", "Kernel", "Components", "N", "X", "GPD", "Epsilon"),
@@ -55,7 +55,7 @@ print.dpmixgpd_bundle <- function(x, code = FALSE, max_code_lines = 200L, ...) {
   if (knitr_kable) {
     kbl <- .kable_table(tbl, row.names = FALSE)
     pieces <- list(
-      "DPmixGPD bundle",
+      "CausalMixGPD bundle",
       kbl,
       "  contains  : code, constants, data, dimensions, inits, monitors"
     )
@@ -117,7 +117,7 @@ print.dpmixgpd_bundle <- function(x, code = FALSE, max_code_lines = 200L, ...) {
 #'
 #' User-facing print method for causal bundles produced by \code{build_causal_bundle()}.
 #'
-#' @param x A \code{"dpmixgpd_causal_bundle"} object.
+#' @param x A \code{"causalmixgpd_causal_bundle"} object.
 #' @param code Logical; if TRUE, print generated NIMBLE code for each block.
 #' @param max_code_lines Integer; maximum number of code lines to print when \code{code=TRUE}.
 #' @param ... Unused.
@@ -129,13 +129,13 @@ print.dpmixgpd_bundle <- function(x, code = FALSE, max_code_lines = 200L, ...) {
 #' print(cb)
 #' }
 #' @export
-print.dpmixgpd_causal_bundle <- function(x, code = FALSE, max_code_lines = 200L, ...) {
-  stopifnot(inherits(x, "dpmixgpd_causal_bundle"))
+print.causalmixgpd_causal_bundle <- function(x, code = FALSE, max_code_lines = 200L, ...) {
+  stopifnot(inherits(x, "causalmixgpd_causal_bundle"))
 
   meta <- x$meta %||% list()
-  knitr_kable <- .is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))
+  knitr_kable <- .is_knitr_output() && isTRUE(getOption("causalmixgpd.knitr.kable", FALSE))
   if (!knitr_kable) {
-    cat("DPmixGPD causal bundle\n")
+    cat("CausalMixGPD causal bundle\n")
   }
   ps_meta <- meta$ps %||% list()
   ps_model <- ps_meta$model_type %||% FALSE
@@ -181,7 +181,7 @@ print.dpmixgpd_causal_bundle <- function(x, code = FALSE, max_code_lines = 200L,
   if (knitr_kable) {
     kbl <- .kable_table(tbl, row.names = FALSE)
     pieces <- list(
-      "DPmixGPD causal bundle",
+      "CausalMixGPD causal bundle",
       ps_label,
       kbl,
       "",
@@ -224,7 +224,7 @@ print.dpmixgpd_causal_bundle <- function(x, code = FALSE, max_code_lines = 200L,
 #'
 #' User-facing summary for causal bundles produced by \code{build_causal_bundle()}.
 #'
-#' @param object A \code{"dpmixgpd_causal_bundle"} object.
+#' @param object A \code{"causalmixgpd_causal_bundle"} object.
 #' @param code Logical; if TRUE, print generated NIMBLE code for each block.
 #' @param max_code_lines Integer; maximum number of code lines to print when \code{code=TRUE}.
 #' @param ... Unused.
@@ -235,16 +235,16 @@ print.dpmixgpd_causal_bundle <- function(x, code = FALSE, max_code_lines = 200L,
 #' summary(cb)
 #' }
 #' @export
-summary.dpmixgpd_causal_bundle <- function(object, code = FALSE, max_code_lines = 200L, ...) {
-  stopifnot(inherits(object, "dpmixgpd_causal_bundle"))
+summary.causalmixgpd_causal_bundle <- function(object, code = FALSE, max_code_lines = 200L, ...) {
+  stopifnot(inherits(object, "causalmixgpd_causal_bundle"))
 
-  knitr_kable <- .is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))
+  knitr_kable <- .is_knitr_output() && isTRUE(getOption("causalmixgpd.knitr.kable", FALSE))
   if (knitr_kable) {
-    base_out <- print.dpmixgpd_causal_bundle(object, code = code, max_code_lines = max_code_lines)
-    return(do.call(.knitr_asis, list("DPmixGPD causal bundle summary", base_out)))
+    base_out <- print.causalmixgpd_causal_bundle(object, code = code, max_code_lines = max_code_lines)
+    return(do.call(.knitr_asis, list("CausalMixGPD causal bundle summary", base_out)))
   }
-  cat("DPmixGPD causal bundle summary\n")
-  print.dpmixgpd_causal_bundle(object, code = FALSE, max_code_lines = max_code_lines)
+  cat("CausalMixGPD causal bundle summary\n")
+  print.causalmixgpd_causal_bundle(object, code = FALSE, max_code_lines = max_code_lines)
   if (isTRUE(code)) {
     cat("\n-- PS code --\n")
     print(object$design, code = TRUE, max_code_lines = max_code_lines)
@@ -258,14 +258,14 @@ summary.dpmixgpd_causal_bundle <- function(object, code = FALSE, max_code_lines 
 
 #' Print a propensity score bundle
 #'
-#' @param x A \code{"dpmixgpd_ps_bundle"} object.
+#' @param x A \code{"causalmixgpd_ps_bundle"} object.
 #' @param code Logical; if TRUE, print generated NIMBLE code for the PS model.
 #' @param max_code_lines Integer; maximum number of code lines to print when \code{code=TRUE}.
 #' @param ... Unused.
 #' @return The input object (invisibly).
 #' @export
-print.dpmixgpd_ps_bundle <- function(x, code = FALSE, max_code_lines = 200L, ...) {
-  stopifnot(inherits(x, "dpmixgpd_ps_bundle"))
+print.causalmixgpd_ps_bundle <- function(x, code = FALSE, max_code_lines = 200L, ...) {
+  stopifnot(inherits(x, "causalmixgpd_ps_bundle"))
 
   meta <- x$spec$meta %||% list()
   cat("PS bundle\n")
@@ -293,22 +293,22 @@ print.dpmixgpd_ps_bundle <- function(x, code = FALSE, max_code_lines = 200L, ...
 }
 
 #' @export
-summary.dpmixgpd_ps_bundle <- function(object, code = FALSE, max_code_lines = 200L, ...) {
-  print.dpmixgpd_ps_bundle(object, code = isTRUE(code), max_code_lines = max_code_lines)
+summary.causalmixgpd_ps_bundle <- function(object, code = FALSE, max_code_lines = 200L, ...) {
+  print.causalmixgpd_ps_bundle(object, code = isTRUE(code), max_code_lines = max_code_lines)
   invisible(object)
 }
 
 #' Print a causal fit
 #'
-#' @param x A \code{"dpmixgpd_causal_fit"} object.
+#' @param x A \code{"causalmixgpd_causal_fit"} object.
 #' @param ... Unused.
 #' @return The input object (invisibly).
 #' @export
-print.dpmixgpd_causal_fit <- function(x, ...) {
-  stopifnot(inherits(x, "dpmixgpd_causal_fit"))
+print.causalmixgpd_causal_fit <- function(x, ...) {
+  stopifnot(inherits(x, "causalmixgpd_causal_fit"))
 
   meta <- x$bundle$meta %||% list()
-  cat("DPmixGPD causal fit\n")
+  cat("CausalMixGPD causal fit\n")
   ps_meta <- meta$ps %||% list()
   ps_model <- ps_meta$model_type %||% FALSE
   ps_label <- if (!isTRUE(ps_meta$enabled) || isFALSE(ps_model)) {
@@ -332,12 +332,12 @@ print.dpmixgpd_causal_fit <- function(x, ...) {
 
 #' Summarize a causal fit
 #'
-#' @param object A \code{"dpmixgpd_causal_fit"} object.
+#' @param object A \code{"causalmixgpd_causal_fit"} object.
 #' @param ... Unused.
 #' @return The input object (invisibly).
 #' @export
-summary.dpmixgpd_causal_fit <- function(object, ...) {
-  stopifnot(inherits(object, "dpmixgpd_causal_fit"))
+summary.causalmixgpd_causal_fit <- function(object, ...) {
+  stopifnot(inherits(object, "causalmixgpd_causal_fit"))
   bundle <- object$bundle %||% list()
   has_X <- !is.null(bundle$data$X %||% NULL)
   ps_enabled <- isTRUE(bundle$meta$ps$enabled) && has_X
@@ -355,13 +355,13 @@ summary.dpmixgpd_causal_fit <- function(object, ...) {
 
 #' Print a propensity score fit
 #'
-#' @param x A \code{"dpmixgpd_ps_fit"} object.
+#' @param x A \code{"causalmixgpd_ps_fit"} object.
 #' @param ... Unused.
 #' @return The input object (invisibly).
 #' @export
-print.dpmixgpd_ps_fit <- function(x, ...) {
-  stopifnot(inherits(x, "dpmixgpd_ps_fit"))
-  cat("DPmixGPD PS fit\n")
+print.causalmixgpd_ps_fit <- function(x, ...) {
+  stopifnot(inherits(x, "causalmixgpd_ps_fit"))
+  cat("CausalMixGPD PS fit\n")
   model_type <- x$bundle$spec$meta$type %||% "ps_logit"
   model_label <- switch(model_type,
                         ps_logit = "logit",
@@ -373,21 +373,21 @@ print.dpmixgpd_ps_fit <- function(x, ...) {
 }
 
 #' @export
-summary.dpmixgpd_ps_fit <- function(object, ...) {
-  print.dpmixgpd_ps_fit(object)
+summary.causalmixgpd_ps_fit <- function(object, ...) {
+  print.causalmixgpd_ps_fit(object)
   invisible(object)
 }
 
 #' Plot a causal fit
 #'
-#' @param x A \code{"dpmixgpd_causal_fit"} object.
+#' @param x A \code{"causalmixgpd_causal_fit"} object.
 #' @param arm Integer or character; \code{1} or \code{"treated"} for treatment,
 #'   \code{0} or \code{"control"} for control.
 #' @param ... Additional arguments forwarded to the underlying outcome plot method.
 #' @return The result of the underlying plot call (invisibly).
 #' @export
-plot.dpmixgpd_causal_fit <- function(x, arm = "both", ...) {
-  stopifnot(inherits(x, "dpmixgpd_causal_fit"))
+plot.causalmixgpd_causal_fit <- function(x, arm = "both", ...) {
+  stopifnot(inherits(x, "causalmixgpd_causal_fit"))
   if (is.null(arm)) arm <- "both"
   if (is.character(arm)) {
     arm_chr <- tolower(arm)
@@ -414,7 +414,7 @@ plot.dpmixgpd_causal_fit <- function(x, arm = "both", ...) {
       treated = plot.mixgpd_fit(x$outcome_fit$trt, ...),
       control = plot.mixgpd_fit(x$outcome_fit$con, ...)
     )
-    class(out) <- c("dpmixgpd_causal_fit_plots", "list")
+    class(out) <- c("causalmixgpd_causal_fit_plots", "list")
     return(.wrap_plotly(out))
   }
   if (identical(arm, "treated")) {
@@ -430,7 +430,7 @@ plot.dpmixgpd_causal_fit <- function(x, arm = "both", ...) {
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 
 
-#' Summarize a dpmixgpd bundle
+#' Summarize a causalmixgpd bundle
 #'
 #' User-facing summary for pre-run bundles produced by \code{build_nimble_bundle()}.
 #' This prints:
@@ -440,7 +440,7 @@ plot.dpmixgpd_causal_fit <- function(x, arm = "both", ...) {
 #'   \item monitor set overview
 #' }
 #'
-#' @param object A \code{"dpmixgpd_bundle"} object.
+#' @param object A \code{"causalmixgpd_bundle"} object.
 #' @param ... Unused.
 #' @return An invisible list with elements \code{meta}, \code{priors}, \code{monitors}.
 #' @examples
@@ -451,8 +451,8 @@ plot.dpmixgpd_causal_fit <- function(x, arm = "both", ...) {
 #' summary(bundle)
 #' }
 #' @export
-summary.dpmixgpd_bundle <- function(object, ...) {
-  stopifnot(inherits(object, "dpmixgpd_bundle"))
+summary.causalmixgpd_bundle <- function(object, ...) {
+  stopifnot(inherits(object, "causalmixgpd_bundle"))
   spec <- object$spec
   meta <- spec$meta
 
@@ -463,7 +463,7 @@ summary.dpmixgpd_bundle <- function(object, ...) {
   P       <- meta$P %||% 0L
   has_X   <- isTRUE(meta$has_X)
   GPD     <- isTRUE(meta$GPD)
-  knitr_kable <- .is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))
+  knitr_kable <- .is_knitr_output() && isTRUE(getOption("causalmixgpd.knitr.kable", FALSE))
 
   meta_tbl <- data.frame(
     Field = c("Backend", "Kernel", "Components", "N", "X", "GPD", "Epsilon"),
@@ -482,7 +482,7 @@ summary.dpmixgpd_bundle <- function(object, ...) {
     meta_kbl <- .kable_table(meta_tbl, row.names = FALSE)
     pri_kbl <- .kable_table(format_df3(pri), row.names = FALSE)
     pieces <- list(
-      "DPmixGPD bundle summary",
+      "CausalMixGPD bundle summary",
       meta_kbl,
       "",
       "Parameter specification",
@@ -498,7 +498,7 @@ summary.dpmixgpd_bundle <- function(object, ...) {
     }
     return(do.call(.knitr_asis, pieces))
   }
-  cat("DPmixGPD bundle summary\n")
+  cat("CausalMixGPD bundle summary\n")
   print_fmt3(meta_tbl, row.names = FALSE)
   cat("\n")
 
@@ -688,8 +688,8 @@ params.mixgpd_fit <- function(object, ...) {
 }
 
 #' @export
-params.dpmixgpd_causal_fit <- function(object, ...) {
-  stopifnot(inherits(object, "dpmixgpd_causal_fit"))
+params.causalmixgpd_causal_fit <- function(object, ...) {
+  stopifnot(inherits(object, "causalmixgpd_causal_fit"))
   out <- list(
     treated = params(object$outcome_fit$trt, ...),
     control = params(object$outcome_fit$con, ...)
@@ -804,7 +804,7 @@ print.mixgpd_summary <- function(x, digits = 3, max_rows = 60, ...) {
   model <- x$model %||% list()
   waic <- x$waic
   trunc <- model$truncation %||% list()
-  knitr_kable <- .is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))
+  knitr_kable <- .is_knitr_output() && isTRUE(getOption("causalmixgpd.knitr.kable", FALSE))
 
   gpd_txt <- if (isTRUE(model$gpd)) "TRUE" else if (identical(model$gpd, FALSE)) "FALSE" else "<unknown>"
   eps <- model$epsilon %||% NA_real_
@@ -1138,7 +1138,7 @@ plot.mixgpd_fit <- function(x,
 #' @param p Numeric vector of probabilities for quantiles (required for \code{type="quantile"}).
 #' @param index Alias for \code{p}; numeric vector of quantile levels.
 #' @param y Numeric vector of evaluation points (required for \code{type="density"} or \code{"survival"}).
-#' @param cred.level Credible level for credible intervals (default 0.95 for 95 percent intervals).
+#' @param level Credible level for credible intervals (default 0.95 for 95 percent intervals).
 #' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
 #'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
 #'   highest posterior density intervals.
@@ -1184,7 +1184,7 @@ predict.mixgpd_fit <- function(object,
                                p = NULL,
                                index = NULL,
                                nsim = NULL,
-                               cred.level = 0.95,
+                               level = 0.95,
                                interval = "credible",
                                probs = c(0.025, 0.5, 0.975),
                                store_draws = TRUE,
@@ -1193,6 +1193,7 @@ predict.mixgpd_fit <- function(object,
                                ncores = 1L,
                                ...) {
   .validate_fit(object)
+  dots <- list(...)
 
   type <- match.arg(type)
 
@@ -1230,12 +1231,18 @@ predict.mixgpd_fit <- function(object,
     warning("'p' is only used for type = 'quantile'; ignoring for other types.", call. = FALSE)
   }
 
-  # Construct probs from cred.level for non-sample types
+  # Backward compatibility for legacy argument name passed via ...
+  if ("cred.level" %in% names(dots)) {
+    warning("'cred.level' is deprecated; use 'level' instead.", call. = FALSE)
+    level <- as.numeric(dots[["cred.level"]])[1]
+  }
+
+  # Construct probs from level for non-sample types
   if (type != "sample") {
-    if (!is.numeric(cred.level) || length(cred.level) != 1 || cred.level <= 0 || cred.level >= 1) {
-      stop("'cred.level' must be a numeric value between 0 and 1.", call. = FALSE)
+    if (!is.numeric(level) || length(level) != 1 || !is.finite(level) || level <= 0 || level >= 1) {
+      stop("'level' must be a numeric value between 0 and 1.", call. = FALSE)
     }
-    probs <- c((1 - cred.level) / 2, 0.5, (1 + cred.level) / 2)
+    probs <- c((1 - level) / 2, 0.5, (1 + level) / 2)
   }
 
   ncores <- as.integer(ncores)
@@ -1250,7 +1257,7 @@ predict.mixgpd_fit <- function(object,
                                 p = p,
                                 index = index,
                                 nsim = nsim,
-                                cred.level = cred.level,
+                                level = level,
                                 interval = interval,
                                 probs = probs,
                                 store_draws = store_draws,
@@ -1265,7 +1272,7 @@ predict.mixgpd_fit <- function(object,
                                   p = p,
                                   index = index,
                                   nsim = nsim,
-                                  cred.level = cred.level,
+                                  level = level,
                                   interval = interval,
                                   probs = probs,
                                   store_draws = store_draws,
@@ -1300,7 +1307,7 @@ predict.mixgpd_fit <- function(object,
                   p = p,
                   index = index,
                   nsim = nsim,
-                  cred.level = cred.level,
+                  level = level,
                   interval = interval,
                   probs = probs,
                   store_draws = store_draws,
@@ -1371,9 +1378,9 @@ fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median", "qu
 
   if (type == "location") {
     pred_mean <- predict(object, x = X, type = "mean",
-                        cred.level = level, interval = interval)
+                        level = level, interval = interval)
     pred_median <- predict(object, x = X, type = "median",
-                          cred.level = level, interval = interval)
+                          level = level, interval = interval)
     fit_df <- pred_mean$fit
     if ("id" %in% names(fit_df)) fit_df <- fit_df[order(fit_df$id), , drop = FALSE]
     fit_vals <- fit_df$estimate
@@ -1387,7 +1394,7 @@ fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median", "qu
     med_upper <- med_df$upper
   } else if (type == "quantile") {
     pred <- predict(object, x = X, type = "quantile",
-                    index = p, cred.level = level, interval = interval)
+                    index = p, level = level, interval = interval)
     fit_df <- pred$fit
     if ("id" %in% names(fit_df)) fit_df <- fit_df[order(fit_df$id), , drop = FALSE]
     fit_vals <- fit_df$estimate
@@ -1403,7 +1410,7 @@ fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median", "qu
     }
   } else if (!is.null(X)) {
     pred <- predict(object, x = X, type = type,
-                    cred.level = level, interval = interval)
+                    level = level, interval = interval)
     fit_df <- pred$fit
     if ("id" %in% names(fit_df)) fit_df <- fit_df[order(fit_df$id), , drop = FALSE]
     fit_vals <- fit_df$estimate
@@ -1411,7 +1418,7 @@ fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median", "qu
     upper_vals <- fit_df$upper
   } else {
     pred <- predict(object, type = type,
-                    cred.level = level, interval = interval)
+                    level = level, interval = interval)
     fit_df <- pred$fit
     fit_vals <- rep(fit_df$estimate[1], length(y))
     lower_vals <- rep(fit_df$lower[1], length(y))
@@ -1833,16 +1840,16 @@ plot.mixgpd_predict <- function(x, y = NULL, ...) {
 
 #' Plot causal prediction outputs
 #'
-#' S3 method for visualizing causal predictions from \code{predict.dpmixgpd_causal_fit()}.
+#' S3 method for visualizing causal predictions from \code{predict.causalmixgpd_causal_fit()}.
 #' For mean/quantile, plots treated/control and treatment effect versus PS (or index).
 #' For density/prob, plots treated/control values versus y.
 #'
-#' @param x Object of class \code{dpmixgpd_causal_predict}.
+#' @param x Object of class \code{causalmixgpd_causal_predict}.
 #' @param y Ignored.
 #' @param ... Additional arguments passed to ggplot2 functions.
 #' @return A ggplot object or a list of ggplot objects.
 #' @export
-plot.dpmixgpd_causal_predict <- function(x, y = NULL, ...) {
+plot.causalmixgpd_causal_predict <- function(x, y = NULL, ...) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
@@ -1939,7 +1946,7 @@ plot.dpmixgpd_causal_predict <- function(x, y = NULL, ...) {
     }
 
     result <- list(trt_control = p_tc, treatment_effect = p_te)
-    class(result) <- c("dpmixgpd_causal_predict_plots", "list")
+    class(result) <- c("causalmixgpd_causal_predict_plots", "list")
     return(.wrap_plotly(result))
   }
 
@@ -1998,11 +2005,11 @@ plot.dpmixgpd_causal_predict <- function(x, y = NULL, ...) {
 
 #' Print a QTE object
 #'
-#' User-facing print method for \code{"dpmixgpd_qte"} objects produced by \code{qte()}.
+#' User-facing print method for \code{"causalmixgpd_qte"} objects produced by \code{qte()}.
 #' Displays a compact summary: prediction points, quantile grid, credible level,
 #' and the first few rows of QTE estimates.
 #'
-#' @param x A \code{"dpmixgpd_qte"} object from \code{qte()}.
+#' @param x A \code{"causalmixgpd_qte"} object from \code{qte()}.
 #' @param digits Number of digits to display.
 #' @param max_rows Maximum number of estimate rows to display.
 #' @param ... Unused.
@@ -2015,8 +2022,8 @@ plot.dpmixgpd_causal_predict <- function(x, y = NULL, ...) {
 #' print(q)
 #' }
 #' @export
-print.dpmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
-  stopifnot(inherits(x, "dpmixgpd_qte"))
+print.causalmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
+  stopifnot(inherits(x, "causalmixgpd_qte"))
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   lbl <- .effect_label_qte(x$type %||% "qte")
@@ -2025,7 +2032,7 @@ print.dpmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
   level <- x$level %||% 0.95
   interval <- x$interval %||% "none"
   meta <- x$meta %||% list()
-  knitr_kable <- .is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))
+  knitr_kable <- .is_knitr_output() && isTRUE(getOption("causalmixgpd.knitr.kable", FALSE))
 
   if (knitr_kable) {
     pieces <- list(
@@ -2114,11 +2121,11 @@ print.dpmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
 
 #' Print an ATE object
 #'
-#' User-facing print method for \code{"dpmixgpd_ate"} objects produced by \code{ate()}.
+#' User-facing print method for \code{"causalmixgpd_ate"} objects produced by \code{ate()}.
 #' Displays a compact summary: prediction points, credible level, and the first
 #' few ATE estimates.
 #'
-#' @param x A \code{"dpmixgpd_ate"} object from \code{ate()}.
+#' @param x A \code{"causalmixgpd_ate"} object from \code{ate()}.
 #' @param digits Number of digits to display.
 #' @param max_rows Maximum number of estimate rows to display.
 #' @param ... Unused.
@@ -2131,8 +2138,8 @@ print.dpmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
 #' print(a)
 #' }
 #' @export
-print.dpmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
-  stopifnot(inherits(x, "dpmixgpd_ate"))
+print.causalmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
+  stopifnot(inherits(x, "causalmixgpd_ate"))
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   lbl <- .effect_label_ate(x$type %||% "ate")
@@ -2141,7 +2148,7 @@ print.dpmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
   interval <- x$interval %||% "none"
   nsim_mean <- x$nsim_mean %||% NA
   meta <- x$meta %||% list()
-  knitr_kable <- .is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))
+  knitr_kable <- .is_knitr_output() && isTRUE(getOption("causalmixgpd.knitr.kable", FALSE))
 
   if (knitr_kable) {
     pieces <- list(
@@ -2237,9 +2244,9 @@ print.dpmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
 #' Returns a structured summary of QTE results for further analysis or display.
 #' Includes overall statistics, per-quantile summaries, and metadata.
 #'
-#' @param object A \code{"dpmixgpd_qte"} object from \code{qte()}.
+#' @param object A \code{"causalmixgpd_qte"} object from \code{qte()}.
 #' @param ... Unused.
-#' @return An object of class \code{"summary.dpmixgpd_qte"} containing summary statistics.
+#' @return An object of class \code{"summary.causalmixgpd_qte"} containing summary statistics.
 #' @examples
 #' \dontrun{
 #' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
@@ -2248,8 +2255,8 @@ print.dpmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
 #' summary(q)
 #' }
 #' @export
-summary.dpmixgpd_qte <- function(object, ...) {
-  stopifnot(inherits(object, "dpmixgpd_qte"))
+summary.causalmixgpd_qte <- function(object, ...) {
+  stopifnot(inherits(object, "causalmixgpd_qte"))
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   probs <- object$probs %||% object$grid %||% numeric(0)
@@ -2320,24 +2327,24 @@ summary.dpmixgpd_qte <- function(object, ...) {
     meta = meta,
     object = object
   )
-  class(out) <- "summary.dpmixgpd_qte"
+  class(out) <- "summary.causalmixgpd_qte"
   out
 }
 
 #' Print a QTE summary
 #'
-#' @param x A \code{"summary.dpmixgpd_qte"} object.
+#' @param x A \code{"summary.causalmixgpd_qte"} object.
 #' @param digits Number of digits to display.
 #' @param ... Unused.
 #' @return The object \code{x}, invisibly.
 #' @export
-print.summary.dpmixgpd_qte <- function(x, digits = 3, ...) {
-  stopifnot(inherits(x, "summary.dpmixgpd_qte"))
+print.summary.causalmixgpd_qte <- function(x, digits = 3, ...) {
+  stopifnot(inherits(x, "summary.causalmixgpd_qte"))
 
   lbl <- .effect_label_qte(((x$object %||% list())$type %||% "qte"))
   ov <- x$overall
   meta <- x$meta %||% list()
-  knitr_kable <- .is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))
+  knitr_kable <- .is_knitr_output() && isTRUE(getOption("causalmixgpd.knitr.kable", FALSE))
 
   if (knitr_kable) {
     pieces <- list(
@@ -2453,9 +2460,9 @@ print.summary.dpmixgpd_qte <- function(x, digits = 3, ...) {
 #' Returns a structured summary of ATE results for further analysis or display.
 #' Includes overall statistics and metadata.
 #'
-#' @param object A \code{"dpmixgpd_ate"} object from \code{ate()}.
+#' @param object A \code{"causalmixgpd_ate"} object from \code{ate()}.
 #' @param ... Unused.
-#' @return An object of class \code{"summary.dpmixgpd_ate"} containing summary statistics.
+#' @return An object of class \code{"summary.causalmixgpd_ate"} containing summary statistics.
 #' @examples
 #' \dontrun{
 #' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
@@ -2464,8 +2471,8 @@ print.summary.dpmixgpd_qte <- function(x, digits = 3, ...) {
 #' summary(a)
 #' }
 #' @export
-summary.dpmixgpd_ate <- function(object, ...) {
-  stopifnot(inherits(object, "dpmixgpd_ate"))
+summary.causalmixgpd_ate <- function(object, ...) {
+  stopifnot(inherits(object, "causalmixgpd_ate"))
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   n_pred <- object$n_pred %||% length(object$fit)
@@ -2526,24 +2533,24 @@ summary.dpmixgpd_ate <- function(object, ...) {
     meta = meta,
     object = object
   )
-  class(out) <- "summary.dpmixgpd_ate"
+  class(out) <- "summary.causalmixgpd_ate"
   out
 }
 
 #' Print an ATE summary
 #'
-#' @param x A \code{"summary.dpmixgpd_ate"} object.
+#' @param x A \code{"summary.causalmixgpd_ate"} object.
 #' @param digits Number of digits to display.
 #' @param ... Unused.
 #' @return The object \code{x}, invisibly.
 #' @export
-print.summary.dpmixgpd_ate <- function(x, digits = 3, ...) {
-  stopifnot(inherits(x, "summary.dpmixgpd_ate"))
+print.summary.causalmixgpd_ate <- function(x, digits = 3, ...) {
+  stopifnot(inherits(x, "summary.causalmixgpd_ate"))
 
   lbl <- .effect_label_ate(((x$object %||% list())$type %||% "ate"))
   ov <- x$overall
   meta <- x$meta %||% list()
-  knitr_kable <- .is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))
+  knitr_kable <- .is_knitr_output() && isTRUE(getOption("causalmixgpd.knitr.kable", FALSE))
 
   if (knitr_kable) {
     pieces <- list(
@@ -2682,14 +2689,14 @@ print.summary.dpmixgpd_ate <- function(x, digits = 3, ...) {
 #'   \item \code{"arms"}: Treated and control quantile curves vs \code{probs}, with CI ribbons
 #' }
 #'
-#' @param x Object of class \code{dpmixgpd_qte}.
+#' @param x Object of class \code{causalmixgpd_qte}.
 #' @param y Ignored.
 #' @param type Character; plot type: \code{"both"} (default), \code{"effect"}, or \code{"arms"}.
 #' @param facet_by Character; faceting strategy when multiple prediction points exist.
 #'   \code{"tau"} (default) facets by quantile level, \code{"id"} facets by prediction point.
 #' @param plotly Logical; if \code{TRUE}, convert the \code{ggplot2} output to a
 #'   \code{plotly} / \code{htmlwidget} representation via \code{.wrap_plotly()}. Defaults
-#'   to \code{getOption("DPmixGPD.plotly", FALSE)}.
+#'   to \code{getOption("CausalMixGPD.plotly", FALSE)}.
 #' @param ... Additional arguments passed to ggplot2 functions.
 #' @return A list of ggplot objects with elements \code{trt_control} and \code{treatment_effect}
 #'   (if \code{type="both"}), or a single ggplot object (if \code{type} is \code{"effect"} or
@@ -2702,9 +2709,9 @@ print.summary.dpmixgpd_ate <- function(x, digits = 3, ...) {
 #' plot(qte_result, type = "arms")    # single arms plot
 #' }
 #' @export
-plot.dpmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"),
+plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"),
                               facet_by = c("tau", "id"),
-                              plotly = getOption("DPmixGPD.plotly", FALSE), ...) {
+                              plotly = getOption("CausalMixGPD.plotly", FALSE), ...) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("Package 'ggplot2' is required for plotting. Install it first.", call. = FALSE)
@@ -2851,14 +2858,14 @@ plot.dpmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"),
   # Return based on type
   if (type == "effect") {
     result <- .build_effect_plot()
-    class(result) <- c("dpmixgpd_qte_plot", class(result))
+    class(result) <- c("causalmixgpd_qte_plot", class(result))
     if (use_plotly) return(.wrap_plotly(result))
     return(result)
   }
 
   if (type == "arms") {
     result <- .build_arms_plot()
-    class(result) <- c("dpmixgpd_qte_plot", class(result))
+    class(result) <- c("causalmixgpd_qte_plot", class(result))
     if (use_plotly) return(.wrap_plotly(result))
     return(result)
   }
@@ -2868,7 +2875,7 @@ plot.dpmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"),
     trt_control = .build_arms_plot(),
     treatment_effect = .build_effect_plot()
   )
-  class(result) <- c("dpmixgpd_causal_predict_plots", "list")
+  class(result) <- c("causalmixgpd_causal_predict_plots", "list")
   if (use_plotly) {
     return(.wrap_plotly(result))
   }
@@ -2886,12 +2893,12 @@ plot.dpmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"),
 #'   \item \code{"arms"}: Treated mean vs control mean, with CI ribbons
 #' }
 #'
-#' @param x Object of class \code{dpmixgpd_ate}.
+#' @param x Object of class \code{causalmixgpd_ate}.
 #' @param y Ignored.
 #' @param type Character; plot type: \code{"both"} (default), \code{"effect"}, or \code{"arms"}.
 #' @param plotly Logical; if \code{TRUE}, convert the \code{ggplot2} output to a
 #'   \code{plotly} / \code{htmlwidget} representation via \code{.wrap_plotly()}. Defaults
-#'   to \code{getOption("DPmixGPD.plotly", FALSE)}.
+#'   to \code{getOption("CausalMixGPD.plotly", FALSE)}.
 #' @param ... Additional arguments passed to ggplot2 functions.
 #' @return A list of ggplot objects with elements \code{trt_control} and \code{treatment_effect}
 #'   (if \code{type="both"}), or a single ggplot object (if \code{type} is \code{"effect"} or
@@ -2904,8 +2911,8 @@ plot.dpmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"),
 #' plot(ate_result, type = "arms")    # single arms plot
 #' }
 #' @export
-plot.dpmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"),
-                              plotly = getOption("DPmixGPD.plotly", FALSE), ...) {
+plot.causalmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"),
+                              plotly = getOption("CausalMixGPD.plotly", FALSE), ...) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("Package 'ggplot2' is required for plotting. Install it first.", call. = FALSE)
@@ -3013,14 +3020,14 @@ plot.dpmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"),
   # Return based on type
   if (type == "effect") {
     result <- .build_effect_plot()
-    class(result) <- c("dpmixgpd_ate_plot", class(result))
+    class(result) <- c("causalmixgpd_ate_plot", class(result))
     if (use_plotly) return(.wrap_plotly(result))
     return(result)
   }
 
   if (type == "arms") {
     result <- .build_arms_plot()
-    class(result) <- c("dpmixgpd_ate_plot", class(result))
+    class(result) <- c("causalmixgpd_ate_plot", class(result))
     if (use_plotly) return(.wrap_plotly(result))
     return(result)
   }
@@ -3030,17 +3037,17 @@ plot.dpmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"),
     trt_control = .build_arms_plot(),
     treatment_effect = .build_effect_plot()
   )
-  class(result) <- c("dpmixgpd_causal_predict_plots", "list")
+  class(result) <- c("causalmixgpd_causal_predict_plots", "list")
   .wrap_plotly(result)
 }
 
 #' Print method for causal prediction plots
 #'
-#' @param x Object of class \code{dpmixgpd_causal_predict_plots}.
+#' @param x Object of class \code{causalmixgpd_causal_predict_plots}.
 #' @param ... Additional arguments (ignored).
 #' @return Invisibly returns the input object.
 #' @export
-print.dpmixgpd_causal_predict_plots <- function(x, ...) {
+print.causalmixgpd_causal_predict_plots <- function(x, ...) {
   if (is.list(x)) {
     for (nm in names(x)) {
       print(x[[nm]])
@@ -3167,7 +3174,7 @@ print.mixgpd_fit_plots <- function(x, ...) {
 }
 
 #' @export
-print.dpmixgpd_causal_fit_plots <- function(x, ...) {
+print.causalmixgpd_causal_fit_plots <- function(x, ...) {
   cat("\n=== treated ===\n")
   print(x$treated, ...)
   cat("\n=== control ===\n")

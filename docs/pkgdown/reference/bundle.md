@@ -41,9 +41,9 @@ bundle(
 - ...:
 
   Additional arguments passed to
-  [`build_nimble_bundle()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/build_nimble_bundle.md)
+  [`build_nimble_bundle()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/build_nimble_bundle.md)
   or
-  [`build_causal_bundle()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/build_causal_bundle.md).
+  [`build_causal_bundle()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/build_causal_bundle.md).
 
 - GPD:
 
@@ -51,4 +51,4 @@ bundle(
 
 ## Value
 
-A `"dpmixgpd_bundle"` or `"dpmixgpd_causal_bundle"`.
+A `"causalmixgpd_bundle"` or `"causalmixgpd_causal_bundle"`.

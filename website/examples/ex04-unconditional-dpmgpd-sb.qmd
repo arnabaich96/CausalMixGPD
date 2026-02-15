@@ -25,7 +25,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
-library(DPmixGPD)
+library(CausalMixGPD)
 library(dplyr)
 
 # Ensure package is fully loaded for data access
@@ -47,7 +47,7 @@ source("_legacy-setup.R")
 > For the up-to-date workflow, see the main package vignettes (basic, unconditional, conditional, and causal)..
 
 
-# Unconditional DPmixGPD: Stick-Breaking (SB) Backend with Tail Augmentation
+# Unconditional CausalMixGPD: Stick-Breaking (SB) Backend with Tail Augmentation
 
 **Purpose**: Demonstrate the stick-breaking backend (`components = J`) while augmenting the extreme tail with a GPD. This mirrors the CRP+GPD pipeline (ex03) but highlights the fixed-truncation behavior for bulk components.
 
@@ -57,7 +57,7 @@ source("_legacy-setup.R")
 
 ```{r data-setup}
 # Tail-heavy data
-data("nc_pos_tail200_k4", package = "DPmixGPD")
+data("nc_pos_tail200_k4", package = "CausalMixGPD")
 y_tail <- nc_pos_tail200_k4$y
 
 summary_tbl <- tibble(

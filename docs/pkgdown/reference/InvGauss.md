@@ -8,7 +8,7 @@ shape \\\lambda\>0\\). A standalone mixture quantile function is
 computed by numerical inversion elsewhere; `qInvGauss` inverts the base
 CDF. These uppercase NIMBLE-compatible functions are scalar (`x`/`q` and
 `n = 1`). For vectorized R usage (including `n > 1`), use
-[`base_lowercase`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/base_lowercase.md).
+[`base_lowercase`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/base_lowercase.md).
 
 ## Usage
 
@@ -112,6 +112,6 @@ qInvGauss(0.50, mean, shape)
 qInvGauss(0.95, mean, shape)
 #> [1] 4.458125
 replicate(10, rInvGauss(1, mean, shape))
-#>  [1] 1.7122100 3.4246871 1.0321783 1.7687621 0.7148388 0.4179245 0.8787332
-#>  [8] 3.1337770 2.7815252 1.2255947
+#>  [1] 1.3532062 0.9911095 2.6514150 1.4436713 2.3317355 4.3780345 1.7225800
+#>  [8] 1.0503814 4.2435019 2.4257458
 ```

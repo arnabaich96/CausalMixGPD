@@ -2,14 +2,14 @@
 # Unit tests for internal visualization helper functions (06-visualization-helpers.R)
 
 # Access internal helpers using :::
-.plot_quantile_pred <- DPmixGPD:::.plot_quantile_pred
-.plot_sample_pred <- DPmixGPD:::.plot_sample_pred
-.plot_mean_pred <- DPmixGPD:::.plot_mean_pred
-.plot_density_pred <- DPmixGPD:::.plot_density_pred
-.plot_survival_pred <- DPmixGPD:::.plot_survival_pred
-.plot_location_pred <- DPmixGPD:::.plot_location_pred
-.plot_palette <- DPmixGPD:::.plot_palette
-.plot_theme <- DPmixGPD:::.plot_theme
+.plot_quantile_pred <- CausalMixGPD:::.plot_quantile_pred
+.plot_sample_pred <- CausalMixGPD:::.plot_sample_pred
+.plot_mean_pred <- CausalMixGPD:::.plot_mean_pred
+.plot_density_pred <- CausalMixGPD:::.plot_density_pred
+.plot_survival_pred <- CausalMixGPD:::.plot_survival_pred
+.plot_location_pred <- CausalMixGPD:::.plot_location_pred
+.plot_palette <- CausalMixGPD:::.plot_palette
+.plot_theme <- CausalMixGPD:::.plot_theme
 
 # ======================================================================
 # .plot_palette tests

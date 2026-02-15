@@ -24,7 +24,7 @@ if (!require("devtools", quietly = TRUE)) {
 pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
 devtools::load_all(path = pkg_root, quiet = TRUE)
 
-library(DPmixGPD)
+library(CausalMixGPD)
 set.seed(1)
 
 use_fast_mcmc <- TRUE
@@ -193,8 +193,8 @@ plot(fit_amoroso, family = "traceplot")
 ```
 
 ```{r}
-pred_mean <- predict(fit_amoroso, x = X, type = "mean", cred.level = 0.90, interval = "credible")
-pred_q90 <- predict(fit_amoroso, x = X, type = "quantile", index = 0.90, cred.level = 0.90, interval = "credible")
+pred_mean <- predict(fit_amoroso, x = X, type = "mean", level = 0.90, interval = "credible")
+pred_q90 <- predict(fit_amoroso, x = X, type = "quantile", index = 0.90, level = 0.90, interval = "credible")
 head(pred_mean$fit)
 head(pred_q90$fit)
 ```

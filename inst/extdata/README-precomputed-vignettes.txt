@@ -7,7 +7,7 @@ building is skipped.
 
 Rationale
 ---------
-The DPmixGPD vignettes demonstrate full model workflows, but running MCMC during
+The CausalMixGPD vignettes demonstrate full model workflows, but running MCMC during
 CRAN checks is discouraged (time variability and long runtimes). Instead, we
 precompute lightweight outputs locally and ship them as static files.
 

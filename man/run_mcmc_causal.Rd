@@ -7,12 +7,12 @@
 run_mcmc_causal(bundle, show_progress = TRUE)
 }
 \arguments{
-\item{bundle}{A \code{"dpmixgpd_causal_bundle"} from \code{build_causal_bundle()}.}
+\item{bundle}{A \code{"causalmixgpd_causal_bundle"} from \code{build_causal_bundle()}.}
 
 \item{show_progress}{Logical; passed to nimble for each block.}
 }
 \value{
-A list of class \code{"dpmixgpd_causal_fit"}.
+A list of class \code{"causalmixgpd_causal_fit"}.
 }
 \description{
 Executes the outcome arms (and PS model if enabled), returning a single causal fit.

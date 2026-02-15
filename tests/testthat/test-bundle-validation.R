@@ -6,7 +6,7 @@
 # ======================================================================
 
 # Access build_nimble_bundle
-build_nimble_bundle <- DPmixGPD::build_nimble_bundle
+build_nimble_bundle <- CausalMixGPD::build_nimble_bundle
 
 test_that("build_nimble_bundle errors on empty y", {
   expect_error(
@@ -122,7 +122,7 @@ test_that("build_nimble_bundle returns correct class", {
     GPD = FALSE,
     components = 4
   )
-  expect_s3_class(bundle, "dpmixgpd_bundle")
+  expect_s3_class(bundle, "causalmixgpd_bundle")
 })
 
 test_that("build_nimble_bundle has required components", {
@@ -194,7 +194,7 @@ test_that("build_nimble_bundle works with CRP backend", {
     components = 4
   )
 
-  expect_s3_class(bundle, "dpmixgpd_bundle")
+  expect_s3_class(bundle, "causalmixgpd_bundle")
   expect_equal(bundle$spec$meta$backend, "crp")
 })
 
@@ -209,7 +209,7 @@ test_that("build_nimble_bundle works with GPD tail", {
     components = 4
   )
 
-  expect_s3_class(bundle, "dpmixgpd_bundle")
+  expect_s3_class(bundle, "causalmixgpd_bundle")
   expect_true(bundle$spec$meta$GPD)
 })
 
@@ -230,7 +230,7 @@ test_that("build_nimble_bundle works with all kernels (sb, no GPD)", {
       GPD = FALSE,
       components = 4
     )
-    expect_s3_class(bundle, "dpmixgpd_bundle")
+    expect_s3_class(bundle, "causalmixgpd_bundle")
     expect_equal(bundle$spec$meta$kernel, k)
   }
 })
@@ -250,7 +250,7 @@ test_that("build_nimble_bundle works with X matrix", {
     components = 4
   )
 
-  expect_s3_class(bundle, "dpmixgpd_bundle")
+  expect_s3_class(bundle, "causalmixgpd_bundle")
   expect_true(bundle$spec$meta$has_X)
   expect_equal(bundle$spec$meta$P, 2)
 })
@@ -269,7 +269,7 @@ test_that("build_nimble_bundle converts data.frame X to matrix", {
     components = 4
   )
 
-  expect_s3_class(bundle, "dpmixgpd_bundle")
+  expect_s3_class(bundle, "causalmixgpd_bundle")
   expect_true(bundle$spec$meta$has_X)
 })
 
@@ -290,7 +290,7 @@ test_that("build_nimble_bundle respects alpha_random = FALSE", {
     alpha_random = FALSE
   )
 
-  expect_s3_class(bundle, "dpmixgpd_bundle")
+  expect_s3_class(bundle, "causalmixgpd_bundle")
 })
 
 test_that("build_nimble_bundle respects alpha_random = TRUE", {
@@ -306,7 +306,7 @@ test_that("build_nimble_bundle respects alpha_random = TRUE", {
     alpha_random = TRUE
   )
 
-  expect_s3_class(bundle, "dpmixgpd_bundle")
+  expect_s3_class(bundle, "causalmixgpd_bundle")
 })
 
 # ======================================================================
@@ -336,7 +336,7 @@ test_that("build_nimble_bundle applies param_specs overrides", {
     param_specs = param_specs
   )
 
-  expect_s3_class(bundle, "dpmixgpd_bundle")
+  expect_s3_class(bundle, "causalmixgpd_bundle")
   expect_equal(bundle$spec$plan$bulk$mean$mode, "link")
 })
 
@@ -356,7 +356,7 @@ test_that("build_nimble_bundle uses components parameter correctly", {
     components = 6
   )
 
-  expect_s3_class(bundle, "dpmixgpd_bundle")
+  expect_s3_class(bundle, "causalmixgpd_bundle")
   expect_equal(bundle$spec$meta$components, 6)
 })
 
@@ -378,7 +378,7 @@ test_that("build_nimble_bundle works with propensity score vector", {
     components = 4
   )
 
-  expect_s3_class(bundle, "dpmixgpd_bundle")
+  expect_s3_class(bundle, "causalmixgpd_bundle")
   # PS should be included in data
   expect_true("ps" %in% names(bundle$data))
 })
@@ -399,6 +399,6 @@ test_that("build_nimble_bundle works with X and ps combined", {
     components = 4
   )
 
-  expect_s3_class(bundle, "dpmixgpd_bundle")
+  expect_s3_class(bundle, "causalmixgpd_bundle")
   expect_true(bundle$spec$meta$has_X)
 })

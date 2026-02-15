@@ -2,6 +2,6 @@ usethis
 devtools
 nimble
 testthat
-DPmixGPD
+CausalMixGPD
 ggplot2
 kableExtra

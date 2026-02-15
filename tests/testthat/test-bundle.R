@@ -10,7 +10,7 @@ test_that("Bundle generation: minimal y only", {
     components = 6
   )
 
-  expect_true(inherits(bundle, "dpmixgpd_bundle"), info = "bundle class (y only)")
+  expect_true(inherits(bundle, "causalmixgpd_bundle"), info = "bundle class (y only)")
   expect_true(is.list(bundle$spec$meta), info = "bundle spec meta exists (y only)")
   expect_false(isTRUE(bundle$spec$meta$has_X), info = "has_X is FALSE (y only)")
 })
@@ -29,7 +29,7 @@ test_that("Bundle generation: with X", {
     components = 6
   )
 
-  expect_true(inherits(bundle, "dpmixgpd_bundle"), info = "bundle class (with X)")
+  expect_true(inherits(bundle, "causalmixgpd_bundle"), info = "bundle class (with X)")
   expect_true(isTRUE(bundle$spec$meta$has_X), info = "has_X is TRUE (with X)")
   expect_equal(bundle$spec$meta$P, ncol(X), info = "P matches ncol(X)")
 })

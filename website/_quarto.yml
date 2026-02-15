@@ -1,4 +1,4 @@
-﻿project:
+project:
   type: website
   output-dir: ../docs
   render:
@@ -7,7 +7,7 @@
     - "!**/*.rmarkdown"
 
 website:
-  title: "DPmixGPD"
+  title: "CausalMixGPD"
   search: true
   navbar:
     left:
@@ -49,7 +49,7 @@ website:
       - text: Articles
         href: pkgdown/articles/index.html
       - icon: github
-        href: "https://github.com/arnabaich96/DPmixGPD"
+        href: "https://github.com/arnabaich96/CausalMixGPD"
 
 format:
   html:

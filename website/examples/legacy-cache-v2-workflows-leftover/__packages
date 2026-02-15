@@ -11,7 +11,7 @@ ggplot2
 usethis
 devtools
 testthat
-DPmixGPD
+CausalMixGPD
 tibble
 dplyr
 gridExtra

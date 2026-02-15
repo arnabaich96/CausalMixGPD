@@ -24,14 +24,14 @@
 ## Coverage Artifacts
 
 [View Full Interactive
-Report](https://arnabaich96.github.io/DPmixGPD/pkgdown/assets/coverage/report.md)
+Report](https://arnabaich96.github.io/CausalMixGPD/pkgdown/assets/coverage/report.md)
 
 The interactive report provides line-by-line coverage details for each
 file.
 
-- [`coverage_status.json`](https://arnabaich96.github.io/DPmixGPD/pkgdown/assets/coverage/coverage_status.json) -
+- [`coverage_status.json`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/assets/coverage/coverage_status.json) -
   machine-readable summary
-- [`unused_functions.md`](https://arnabaich96.github.io/DPmixGPD/pkgdown/assets/coverage/unused_functions.md) -
+- [`unused_functions.md`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/assets/coverage/unused_functions.md) -
   functions with 0% coverage
 
 ------------------------------------------------------------------------

@@ -1,11 +1,11 @@
-# DPmixGPD: Model fundamentals (bulk DPM + GPD tail)
+# CausalMixGPD: Model fundamentals (bulk DPM + GPD tail)
 
 ``` r
 
-library(DPmixGPD)
+library(CausalMixGPD)
 ```
 
-This vignette defines the statistical model underlying DPmixGPD. The
+This vignette defines the statistical model underlying CausalMixGPD. The
 three ingredients are:
 
 1.  a Dirichlet process mixture (DPM) for the *bulk* (central) part of
@@ -20,7 +20,7 @@ rather than repeating these definitions.
 
 ## Bulk model: Dirichlet process mixture
 
-Let $`y_1,\dots,y_n`$ denote outcomes. DPmixGPD uses a mixture
+Let $`y_1,\dots,y_n`$ denote outcomes. CausalMixGPD uses a mixture
 representation
 ``` math
   y_i \mid z_i=j \sim k(y_i \mid \Theta_j), \qquad
@@ -42,7 +42,7 @@ Here $`\alpha>0`$ is the concentration parameter controlling expected
 clustering, and $`G_0`$ is the base measure encoding prior beliefs about
 kernel parameters ([Ferguson 1973](#ref-ferguson1973)).
 
-DPmixGPD supports two equivalent DP representations:
+CausalMixGPD supports two equivalent DP representations:
 
 - stick-breaking (“SB”) ([Sethuraman 1994](#ref-sethuraman1994)),
   implemented with a finite truncation at $`J`$ components ([Ishwaran
@@ -87,7 +87,7 @@ value theory ([Balkema and Haan 1974](#ref-balkema1974); [Pickands
 
 ## Splicing: a proper bulk–tail distribution
 
-DPmixGPD combines a bulk model $`F_{\mathrm{DPM}}`$ with a GPD
+CausalMixGPD combines a bulk model $`F_{\mathrm{DPM}}`$ with a GPD
 exceedance model while ensuring the resulting full distribution
 integrates to 1.
 
@@ -118,10 +118,10 @@ earlier semiparametric bulk–tail constructions ([Frigessi et al.
 2002](#ref-frigessi2002); [Behrens et al. 2004](#ref-behrens2004);
 [Nascimento et al. 2012](#ref-doNascimento2012)).
 
-## Posterior computation in DPmixGPD
+## Posterior computation in CausalMixGPD
 
-DPmixGPD implements these models through NIMBLE-backed MCMC. At a high
-level, posterior inference alternates between:
+CausalMixGPD implements these models through NIMBLE-backed MCMC. At a
+high level, posterior inference alternates between:
 
 1.  allocation updates $`z_i`$ (component membership),
 2.  component parameter updates $`\Theta_j`$,

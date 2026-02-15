@@ -27,7 +27,7 @@ test_that("unconditional CRP bulk model works (v05 coverage)", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("nimble")
 
-  data("nc_pos200_k3", package = "DPmixGPD")
+  data("nc_pos200_k3", package = "CausalMixGPD")
   y <- nc_pos200_k3$y[1:50]  # Use subset for speed
 
   bundle <- build_nimble_bundle(
@@ -39,7 +39,7 @@ test_that("unconditional CRP bulk model works (v05 coverage)", {
     mcmc = mcmc_short
   )
 
-  expect_s3_class(bundle, "dpmixgpd_bundle")
+  expect_s3_class(bundle, "causalmixgpd_bundle")
 
   # Test print and summary
   expect_output(print(bundle))
@@ -75,7 +75,7 @@ test_that("unconditional SB bulk model works (v07 coverage)", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("nimble")
 
-  data("nc_pos200_k3", package = "DPmixGPD")
+  data("nc_pos200_k3", package = "CausalMixGPD")
   y <- nc_pos200_k3$y[1:50]
 
   bundle <- build_nimble_bundle(
@@ -87,7 +87,7 @@ test_that("unconditional SB bulk model works (v07 coverage)", {
     mcmc = mcmc_short
   )
 
-  expect_s3_class(bundle, "dpmixgpd_bundle")
+  expect_s3_class(bundle, "causalmixgpd_bundle")
 
   fit <- quiet_run(run_mcmc_bundle_manual(bundle, show_progress = FALSE))
   expect_s3_class(fit, "mixgpd_fit")
@@ -98,7 +98,7 @@ test_that("unconditional SB GPD model works (v09 coverage)", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("nimble")
 
-  data("nc_pos200_k3", package = "DPmixGPD")
+  data("nc_pos200_k3", package = "CausalMixGPD")
   y <- nc_pos200_k3$y[1:50]
 
   bundle <- build_nimble_bundle(
@@ -110,7 +110,7 @@ test_that("unconditional SB GPD model works (v09 coverage)", {
     mcmc = mcmc_short
   )
 
-  expect_s3_class(bundle, "dpmixgpd_bundle")
+  expect_s3_class(bundle, "causalmixgpd_bundle")
 
   fit <- quiet_run(run_mcmc_bundle_manual(bundle, show_progress = FALSE))
   expect_s3_class(fit, "mixgpd_fit")
@@ -124,7 +124,7 @@ test_that("conditional SB bulk model works (v11 coverage)", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("nimble")
 
-  data("nc_posX100_p3_k2", package = "DPmixGPD")
+  data("nc_posX100_p3_k2", package = "CausalMixGPD")
   y <- nc_posX100_p3_k2$y[1:40]
   X <- as.matrix(nc_posX100_p3_k2$X[1:40, ])
 
@@ -138,7 +138,7 @@ test_that("conditional SB bulk model works (v11 coverage)", {
     mcmc = mcmc_short
   )
 
-  expect_s3_class(bundle, "dpmixgpd_bundle")
+  expect_s3_class(bundle, "causalmixgpd_bundle")
 
   fit <- quiet_run(run_mcmc_bundle_manual(bundle, show_progress = FALSE))
   expect_s3_class(fit, "mixgpd_fit")
@@ -153,7 +153,7 @@ test_that("conditional SB GPD model works (v13 coverage)", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("nimble")
 
-  data("nc_posX100_p3_k2", package = "DPmixGPD")
+  data("nc_posX100_p3_k2", package = "CausalMixGPD")
   y <- nc_posX100_p3_k2$y[1:40]
   X <- as.matrix(nc_posX100_p3_k2$X[1:40, ])
 
@@ -167,7 +167,7 @@ test_that("conditional SB GPD model works (v13 coverage)", {
     mcmc = mcmc_short
   )
 
-  expect_s3_class(bundle, "dpmixgpd_bundle")
+  expect_s3_class(bundle, "causalmixgpd_bundle")
 
   fit <- quiet_run(run_mcmc_bundle_manual(bundle, show_progress = FALSE))
   expect_s3_class(fit, "mixgpd_fit")
@@ -181,7 +181,7 @@ test_that("causal no-X CRP model works (v14 coverage)", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("nimble")
 
-  data("causal_alt_real500_p4_k2", package = "DPmixGPD")
+  data("causal_alt_real500_p4_k2", package = "CausalMixGPD")
   y <- abs(causal_alt_real500_p4_k2$y[1:80]) + 0.01
   T_vec <- causal_alt_real500_p4_k2$A[1:80]
 
@@ -197,12 +197,12 @@ test_that("causal no-X CRP model works (v14 coverage)", {
     mcmc_outcome = mcmc_short
   )
 
-  expect_s3_class(bundle, "dpmixgpd_causal_bundle")
+  expect_s3_class(bundle, "causalmixgpd_causal_bundle")
   expect_output(print(bundle))
   expect_output(print(summary(bundle)))
 
   fit <- quiet_run(run_mcmc_causal(bundle, show_progress = FALSE))
-  expect_s3_class(fit, "dpmixgpd_causal_fit")
+  expect_s3_class(fit, "causalmixgpd_causal_fit")
 
   # Test causal S3 methods
   expect_output(print(fit))
@@ -215,18 +215,18 @@ test_that("causal no-X CRP model works (v14 coverage)", {
 
   # Test causal predict
   pred <- predict(fit, type = "mean", nsim_mean = 20)
-  expect_s3_class(pred, "dpmixgpd_causal_predict")
+  expect_s3_class(pred, "causalmixgpd_causal_predict")
 
   # Test QTE
   qte_result <- qte(fit, probs = c(0.5), interval = "credible")
-  expect_s3_class(qte_result, "dpmixgpd_qte")
+  expect_s3_class(qte_result, "causalmixgpd_qte")
   expect_output(print(qte_result))
   summ_qte <- summary(qte_result)
   expect_output(print(summ_qte))
 
   # Test ATE
   ate_result <- ate(fit, interval = "credible", nsim_mean = 20)
-  expect_s3_class(ate_result, "dpmixgpd_ate")
+  expect_s3_class(ate_result, "causalmixgpd_ate")
   expect_output(print(ate_result))
   summ_ate <- summary(ate_result)
   expect_output(print(summ_ate))
@@ -236,7 +236,7 @@ test_that("causal X no-PS SB model works (v15 coverage)", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("nimble")
 
-  data("causal_alt_real500_p4_k2", package = "DPmixGPD")
+  data("causal_alt_real500_p4_k2", package = "CausalMixGPD")
   y <- abs(causal_alt_real500_p4_k2$y[1:80]) + 0.01
   T_vec <- causal_alt_real500_p4_k2$A[1:80]
   X <- as.matrix(causal_alt_real500_p4_k2$X[1:80, 1:2])
@@ -253,27 +253,27 @@ test_that("causal X no-PS SB model works (v15 coverage)", {
     mcmc_outcome = mcmc_short
   )
 
-  expect_s3_class(bundle, "dpmixgpd_causal_bundle")
+  expect_s3_class(bundle, "causalmixgpd_causal_bundle")
 
   fit <- quiet_run(run_mcmc_causal(bundle, show_progress = FALSE))
-  expect_s3_class(fit, "dpmixgpd_causal_fit")
+  expect_s3_class(fit, "causalmixgpd_causal_fit")
 
   # Test causal predict with multiple types
   pred_q <- predict(fit, type = "quantile", p = c(0.25, 0.75))
-  expect_s3_class(pred_q, "dpmixgpd_causal_predict")
+  expect_s3_class(pred_q, "causalmixgpd_causal_predict")
 
   pred_d <- predict(fit, y = y[1:5], type = "density")
-  expect_s3_class(pred_d, "dpmixgpd_causal_predict")
+  expect_s3_class(pred_d, "causalmixgpd_causal_predict")
 
   pred_s <- predict(fit, y = y[1:5], type = "survival")
-  expect_s3_class(pred_s, "dpmixgpd_causal_predict")
+  expect_s3_class(pred_s, "causalmixgpd_causal_predict")
 })
 
 test_that("causal no-X SB model works (v16 coverage)", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("nimble")
 
-  data("causal_alt_real500_p4_k2", package = "DPmixGPD")
+  data("causal_alt_real500_p4_k2", package = "CausalMixGPD")
   y <- abs(causal_alt_real500_p4_k2$y[1:80]) + 0.01
   T_vec <- causal_alt_real500_p4_k2$A[1:80]
 
@@ -289,14 +289,14 @@ test_that("causal no-X SB model works (v16 coverage)", {
     mcmc_outcome = mcmc_short
   )
 
-  expect_s3_class(bundle, "dpmixgpd_causal_bundle")
+  expect_s3_class(bundle, "causalmixgpd_causal_bundle")
 
   fit <- quiet_run(run_mcmc_causal(bundle, show_progress = FALSE))
-  expect_s3_class(fit, "dpmixgpd_causal_fit")
+  expect_s3_class(fit, "causalmixgpd_causal_fit")
 
   # Test QTE with multiple quantiles
   qte_result <- qte(fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
-  expect_s3_class(qte_result, "dpmixgpd_qte")
+  expect_s3_class(qte_result, "causalmixgpd_qte")
 
   # Test plot methods for QTE (returns plot objects)
   qte_plots <- plot(qte_result)
@@ -304,7 +304,7 @@ test_that("causal no-X SB model works (v16 coverage)", {
 
   # Test ATE with HPD interval
   ate_result <- ate(fit, interval = "hpd", nsim_mean = 20)
-  expect_s3_class(ate_result, "dpmixgpd_ate")
+  expect_s3_class(ate_result, "causalmixgpd_ate")
 
   # Test plot methods for ATE
   ate_plots <- plot(ate_result)
@@ -315,7 +315,7 @@ test_that("causal with GPD tails works (v17 coverage)", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("nimble")
 
-  data("causal_alt_real500_p4_k2", package = "DPmixGPD")
+  data("causal_alt_real500_p4_k2", package = "CausalMixGPD")
   y <- abs(causal_alt_real500_p4_k2$y[1:60]) + 0.01
   T_vec <- causal_alt_real500_p4_k2$A[1:60]
 
@@ -331,21 +331,21 @@ test_that("causal with GPD tails works (v17 coverage)", {
     mcmc_outcome = mcmc_short
   )
 
-  expect_s3_class(bundle, "dpmixgpd_causal_bundle")
+  expect_s3_class(bundle, "causalmixgpd_causal_bundle")
 
   fit <- quiet_run(run_mcmc_causal(bundle, show_progress = FALSE))
-  expect_s3_class(fit, "dpmixgpd_causal_fit")
+  expect_s3_class(fit, "causalmixgpd_causal_fit")
 
   # Test predict with location type
   pred_loc <- predict(fit, type = "location")
-  expect_s3_class(pred_loc, "dpmixgpd_causal_predict")
+  expect_s3_class(pred_loc, "causalmixgpd_causal_predict")
 })
 
 test_that("causal fit plot method works", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("nimble")
 
-  data("causal_alt_real500_p4_k2", package = "DPmixGPD")
+  data("causal_alt_real500_p4_k2", package = "CausalMixGPD")
   y <- abs(causal_alt_real500_p4_k2$y[1:60]) + 0.01
   T_vec <- causal_alt_real500_p4_k2$A[1:60]
 
@@ -380,7 +380,7 @@ test_that("causal predict plot method works", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("nimble")
 
-  data("causal_alt_real500_p4_k2", package = "DPmixGPD")
+  data("causal_alt_real500_p4_k2", package = "CausalMixGPD")
   y <- abs(causal_alt_real500_p4_k2$y[1:60]) + 0.01
   T_vec <- causal_alt_real500_p4_k2$A[1:60]
 
@@ -412,7 +412,7 @@ test_that("all kernel types work with SB backend", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("nimble")
 
-  data("nc_pos200_k3", package = "DPmixGPD")
+  data("nc_pos200_k3", package = "CausalMixGPD")
   y_pos <- nc_pos200_k3$y[1:30]
   y_real <- y_pos - mean(y_pos)  # Center for real-support kernels
 
@@ -426,7 +426,7 @@ test_that("all kernel types work with SB backend", {
       components = 2,
       mcmc = list(niter = 30, nburnin = 5, thin = 1, nchains = 1, seed = 1)
     )
-    expect_s3_class(bundle, "dpmixgpd_bundle")
+    expect_s3_class(bundle, "causalmixgpd_bundle")
 
     fit <- quiet_run(run_mcmc_bundle_manual(bundle, show_progress = FALSE))
     expect_s3_class(fit, "mixgpd_fit")
@@ -442,7 +442,7 @@ test_that("all kernel types work with SB backend", {
       components = 2,
       mcmc = list(niter = 30, nburnin = 5, thin = 1, nchains = 1, seed = 1)
     )
-    expect_s3_class(bundle, "dpmixgpd_bundle")
+    expect_s3_class(bundle, "causalmixgpd_bundle")
 
     fit <- quiet_run(run_mcmc_bundle_manual(bundle, show_progress = FALSE))
     expect_s3_class(fit, "mixgpd_fit")
@@ -453,7 +453,7 @@ test_that("amoroso kernel works", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("nimble")
 
-  data("nc_pos200_k3", package = "DPmixGPD")
+  data("nc_pos200_k3", package = "CausalMixGPD")
   y <- nc_pos200_k3$y[1:30]
 
   bundle <- build_nimble_bundle(
@@ -464,7 +464,7 @@ test_that("amoroso kernel works", {
     components = 2,
     mcmc = list(niter = 30, nburnin = 5, thin = 1, nchains = 1, seed = 1)
   )
-  expect_s3_class(bundle, "dpmixgpd_bundle")
+  expect_s3_class(bundle, "causalmixgpd_bundle")
 
   fit <- quiet_run(run_mcmc_bundle_manual(bundle, show_progress = FALSE))
   expect_s3_class(fit, "mixgpd_fit")

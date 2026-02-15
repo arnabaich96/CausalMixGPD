@@ -90,7 +90,7 @@ inside NIMBLE models. The quantile function is an R function computed by
 numerical inversion of the mixture CDF. These uppercase
 NIMBLE-compatible functions are scalar (`x`/`q` and `n = 1`). For
 vectorized R usage (including `n > 1`), use
-[`invgauss_lowercase`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/invgauss_lowercase.md).
+[`invgauss_lowercase`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/invgauss_lowercase.md).
 
 ## Functions
 
@@ -119,6 +119,6 @@ qInvGaussMix(0.50, w = w, mean = mean, shape = shape)
 qInvGaussMix(0.95, w = w, mean = mean, shape = shape)
 #> [1] 6.489781
 replicate(10, rInvGaussMix(1, w = w, mean = mean, shape = shape))
-#>  [1] 0.4341464 8.9565987 0.3361247 0.4819185 2.9329261 2.2114669 4.3301463
-#>  [8] 0.4713342 3.4368507 1.0448108
+#>  [1] 2.0679382 0.5774593 3.2675875 1.4805399 7.4575032 1.9138819 1.0288358
+#>  [8] 5.4002522 1.9116509 0.6089238
 ```

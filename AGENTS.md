@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Repository guidance for coding agents working in `DPmixGPD`.
+Repository guidance for coding agents working in `CausalMixGPD`.
 
 ## Project context
 - This is an R package repo (renv-managed).

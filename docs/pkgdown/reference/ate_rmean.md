@@ -21,8 +21,8 @@ ate_rmean(
 
 - fit:
 
-  A `"dpmixgpd_causal_fit"` object from
-  [`run_mcmc_causal()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/run_mcmc_causal.md).
+  A `"causalmixgpd_causal_fit"` object from
+  [`run_mcmc_causal()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/run_mcmc_causal.md).
 
 - newdata:
 

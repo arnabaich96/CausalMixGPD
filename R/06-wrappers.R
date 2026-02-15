@@ -3,11 +3,11 @@
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 
 .is_bundle <- function(x) {
-  inherits(x, "dpmixgpd_bundle") || inherits(x, "dpmixgpd_causal_bundle")
+  inherits(x, "causalmixgpd_bundle") || inherits(x, "causalmixgpd_causal_bundle")
 }
 
 .is_causal_bundle <- function(x) {
-  inherits(x, "dpmixgpd_causal_bundle")
+  inherits(x, "causalmixgpd_causal_bundle")
 }
 
 .coerce_treat <- function(treat) {
@@ -128,7 +128,7 @@
 }
 
 .strip_gpd_single_bundle <- function(b) {
-  stopifnot(inherits(b, "dpmixgpd_bundle"))
+  stopifnot(inherits(b, "causalmixgpd_bundle"))
 
   b$spec$meta$GPD <- FALSE
   b$spec$plan$GPD <- FALSE
@@ -190,7 +190,7 @@
   if (.is_causal_bundle(b)) {
     b$outcome$con$mcmc <- merge_one(b$outcome$con$mcmc)
     b$outcome$trt$mcmc <- merge_one(b$outcome$trt$mcmc)
-    if (inherits(b$design, "dpmixgpd_ps_bundle")) {
+    if (inherits(b$design, "causalmixgpd_ps_bundle")) {
       b$design$mcmc <- merge_one(b$design$mcmc)
     }
     return(b)
@@ -215,7 +215,7 @@
 #' @param ... Additional arguments passed to \code{build_nimble_bundle()} or
 #'   \code{build_causal_bundle()}.
 #' @param GPD Logical; include GPD tail in build mode.
-#' @return A \code{"dpmixgpd_bundle"} or \code{"dpmixgpd_causal_bundle"}.
+#' @return A \code{"causalmixgpd_bundle"} or \code{"causalmixgpd_causal_bundle"}.
 #' @export
 bundle <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL, ..., GPD = FALSE) {
   if (.is_bundle(x)) return(x)
@@ -266,7 +266,7 @@ bundle <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL
   }
 
   if (!is.null(formula_meta)) {
-    attr(b, "dpmixgpd_formula_meta") <- formula_meta
+    attr(b, "causalmixgpd_formula_meta") <- formula_meta
   }
 
   b
@@ -278,10 +278,10 @@ bundle <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL
 #' @param ... Optional MCMC overrides (\code{niter}, \code{nburnin}, \code{thin},
 #'   \code{nchains}, \code{seed}, \code{waic}) and runner controls
 #'   (\code{show_progress}, \code{quiet}).
-#' @return A fitted object (\code{"mixgpd_fit"} or \code{"dpmixgpd_causal_fit"}).
+#' @return A fitted object (\code{"mixgpd_fit"} or \code{"causalmixgpd_causal_fit"}).
 #' @export
 mcmc <- function(b, ...) {
-  if (!.is_bundle(b)) stop("'b' must be a dpmixgpd bundle object.", call. = FALSE)
+  if (!.is_bundle(b)) stop("'b' must be a causalmixgpd bundle object.", call. = FALSE)
 
   parsed <- .normalize_mcmc_inputs(list(...))
   b <- .apply_mcmc_overrides(b, parsed$overrides)
@@ -318,15 +318,14 @@ dpmix <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL,
     return(.run_bundle_mcmc(b, mcmc_args = mcmc))
   }
 
-  b <- bundle(
-    x = x,
-    data = data,
-    X = X,
-    treat = treat,
-    formula = formula,
-    ...,
-    GPD = FALSE
+  bundle_args <- c(
+    list(x = x, data = data, X = X, formula = formula),
+    list(...),
+    list(GPD = FALSE)
   )
+  if (!is.null(treat)) bundle_args$treat <- treat
+
+  b <- do.call(bundle, bundle_args)
   .run_bundle_mcmc(b, mcmc_args = mcmc)
 }
 
@@ -352,14 +351,13 @@ dpmgpd <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL
     return(.run_bundle_mcmc(x, mcmc_args = mcmc))
   }
 
-  b <- bundle(
-    x = x,
-    data = data,
-    X = X,
-    treat = treat,
-    formula = formula,
-    ...,
-    GPD = TRUE
+  bundle_args <- c(
+    list(x = x, data = data, X = X, formula = formula),
+    list(...),
+    list(GPD = TRUE)
   )
+  if (!is.null(treat)) bundle_args$treat <- treat
+
+  b <- do.call(bundle, bundle_args)
   .run_bundle_mcmc(b, mcmc_args = mcmc)
 }

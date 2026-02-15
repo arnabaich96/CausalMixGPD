@@ -56,7 +56,7 @@ This vignette gives a minimal, fully working workflow for an **unconditional** m
 ## Unconditional Model (CRP, bulk-only)
 
 ```{r start-uncond-data}
-data("nc_pos200_k3", package = "DPmixGPD")
+data("nc_pos200_k3", package = "CausalMixGPD")
 y <- nc_pos200_k3$y
 ```
 
@@ -87,7 +87,7 @@ plot(pred_q)
 ## Conditional Model (SB, bulk-only)
 
 ```{r start-cond-data}
-data("nc_posX100_p3_k2", package = "DPmixGPD")
+data("nc_posX100_p3_k2", package = "CausalMixGPD")
 yc <- nc_posX100_p3_k2$y
 X <- as.matrix(nc_posX100_p3_k2$X)
 ```

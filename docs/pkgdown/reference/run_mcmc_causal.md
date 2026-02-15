@@ -14,8 +14,8 @@ run_mcmc_causal(bundle, show_progress = TRUE)
 
 - bundle:
 
-  A `"dpmixgpd_causal_bundle"` from
-  [`build_causal_bundle()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/build_causal_bundle.md).
+  A `"causalmixgpd_causal_bundle"` from
+  [`build_causal_bundle()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/build_causal_bundle.md).
 
 - show_progress:
 
@@ -23,7 +23,7 @@ run_mcmc_causal(bundle, show_progress = TRUE)
 
 ## Value
 
-A list of class `"dpmixgpd_causal_fit"`.
+A list of class `"causalmixgpd_causal_fit"`.
 
 ## Examples
 

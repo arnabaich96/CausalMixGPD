@@ -1,11 +1,11 @@
 ---
-title: "DPmixGPD"
+title: "CausalMixGPD"
 ---
 
 ::: {.section}
 ::: {.container}
 
-# DPmixGPD Documentation
+# CausalMixGPD Documentation
 
 Bayesian semiparametric modeling for heavy-tailed outcomes with Dirichlet-process mixtures and optional GPD tails.
 
@@ -103,7 +103,7 @@ Work from architecture, tools, and contracts.
 ::: {.section}
 ::: {.container}
 
-Small links: [Cite](cite.qmd) | [GitHub](https://github.com/arnabaich96/DPmixGPD)
+Small links: [Cite](cite.qmd) | [GitHub](https://github.com/arnabaich96/CausalMixGPD)
 
 :::
 :::

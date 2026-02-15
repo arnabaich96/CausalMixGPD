@@ -21,4 +21,4 @@ mcmc(b, ...)
 
 ## Value
 
-A fitted object (`"mixgpd_fit"` or `"dpmixgpd_causal_fit"`).
+A fitted object (`"mixgpd_fit"` or `"causalmixgpd_causal_fit"`).

@@ -14,6 +14,7 @@ consistent prediction API.
 
 
 
+
 # install.packages("remotes")
 remotes::install_github(
   "arnabaich96/DPmixGPD",

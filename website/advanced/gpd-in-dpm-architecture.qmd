@@ -54,11 +54,11 @@ The template below uses:
 You can substitute a different exported spliced distribution by changing the likelihood line (for example, `dLognormalGpd`, `dInvGaussGpd`, `dNormGpd`, etc.).
 
 ```{r}
-library(DPmixGPD)
+library(CausalMixGPD)
 library(nimble)
 
 # Data shipped with the package (positive-support, tail-designed)
-data("nc_pos_tail200_k4", package = "DPmixGPD")
+data("nc_pos_tail200_k4", package = "CausalMixGPD")
 y <- nc_pos_tail200_k4$y
 N <- length(y)
 
