@@ -54,7 +54,7 @@ You can pass a single list used for both arms or a list with \code{con} and \cod
 \item{epsilon}{Numeric in [0,1) used by outcome bundles for posterior truncation summaries.
 If length 2, the first entry is used for treated (\code{A=1}) and the second for control (\code{A=0}).}
 
-\item{alpha_random}{Logical; whether outcome concentration \code{alpha} is stochastic.}
+\item{alpha_random}{Logical; whether the outcome-model DP concentration parameter \eqn{\kappa} is stochastic.}
 
 \item{ps_prior}{Normal prior for PS coefficients. List with \code{mean} and \code{sd}.}
 
@@ -78,7 +78,7 @@ and summaries, enabling seamless integration of future PS estimation methods.}
 \item{ps_clamp}{Numeric epsilon for clamping PS values to \eqn{(\epsilon, 1-\epsilon)}.}
 }
 \value{
-A list of class \code{"dpmixgpd_causal_bundle"}.
+A list of class \code{"causalmixgpd_causal_bundle"}.
 }
 \description{
 Creates a causal bundle with:

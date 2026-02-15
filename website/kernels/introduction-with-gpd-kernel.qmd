@@ -35,7 +35,7 @@ with the exponential-limit case obtained as \(\xi\to 0\).
 **Parameter mapping (math \(\rightarrow\) code):** \(u\to\) `threshold`, \(\sigma\to\) `scale`, \(\xi\to\) `shape`. Log-densities are returned when `log = TRUE`.
 
 
-We show the DPmixGPD kernels in pairs: bulk-only and GPD-augmented. A GPD tail above threshold $u$ uses
+We show the CausalMixGPD kernels in pairs: bulk-only and GPD-augmented. A GPD tail above threshold $u$ uses
 
 $$f_{GPD}(x; u, \sigma, \xi) = \frac{1}{\sigma} \left(1 + \xi \frac{x-u}{\sigma}\right)^{-1/\xi - 1} \ \text{for } x \ge u.$$
 

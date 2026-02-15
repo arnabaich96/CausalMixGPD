@@ -1,6 +1,6 @@
-# DPmixGPD Test Suite Documentation
+# CausalMixGPD Test Suite Documentation
 
-This document describes the testing infrastructure for the DPmixGPD package.
+This document describes the testing infrastructure for the CausalMixGPD package.
 
 ## Test Tier System
 
@@ -26,7 +26,7 @@ MCMC tests require NIMBLE C++ compilation, which is computationally expensive. R
 
 ```r
 # Run tests at default (cran) level - fast unit tests only
-devtools::test()
+testthat::test_local()
 
 # Or equivalently
 testthat::test_local()
@@ -37,11 +37,11 @@ testthat::test_local()
 ```r
 # Run at CI level (includes MCMC integration tests)
 Sys.setenv(DPMIXGPD_TEST_LEVEL = "ci")
-devtools::test()
+testthat::test_local()
 
 # Run exhaustive tests (all kernel/backend combinations)
 Sys.setenv(DPMIXGPD_TEST_LEVEL = "full")
-devtools::test()
+testthat::test_local()
 
 # Reset to default
 Sys.setenv(DPMIXGPD_TEST_LEVEL = "cran")
@@ -53,11 +53,11 @@ Sys.setenv(DPMIXGPD_TEST_LEVEL = "cran")
 testthat::test_file("tests/testthat/test-causal.R")
 
 # Run tests matching a pattern
-devtools::test(filter = "causal")
+testthat::test_local(filter = "causal")
 
 # Run with verbose output
 Sys.setenv(DPMIXGPD_TEST_VERBOSE = "1")
-devtools::test()
+testthat::test_local()
 ```
 
 ### Using the Test Cache
@@ -67,7 +67,7 @@ For expensive tests, a caching system is available to reuse MCMC results:
 ```r
 # Enable caching (speeds up repeated test runs)
 Sys.setenv(DPMIXGPD_USE_CACHE = "1")
-devtools::test()
+testthat::test_local()
 
 # Disable caching
 Sys.setenv(DPMIXGPD_USE_CACHE = "0")
@@ -366,3 +366,4 @@ During coverage calculation:
 
 - [COVERAGE_MAP.md](COVERAGE_MAP.md) - Mapping of tests to source files
 - [CONTRIBUTING.md](../../Misc/CONTRIBUTING.md) - General contribution guidelines
+

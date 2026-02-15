@@ -16,7 +16,7 @@ mcmc_fast <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
 mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
-library(DPmixGPD)
+library(CausalMixGPD)
 library(ggplot2)
 library(kableExtra)
 

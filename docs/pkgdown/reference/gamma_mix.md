@@ -7,7 +7,7 @@ from the corresponding component. Quantiles are computed by numerical
 inversion of the mixture CDF. These uppercase NIMBLE-compatible
 functions are scalar (`x`/`q` and `n = 1`). For vectorized R usage
 (including `n > 1`), use
-[`gamma_lowercase`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/gamma_lowercase.md).
+[`gamma_lowercase`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/gamma_lowercase.md).
 
 ## Usage
 
@@ -112,6 +112,6 @@ qGammaMix(0.50, w = w, scale = scale, shape = shape)
 qGammaMix(0.95, w = w, scale = scale, shape = shape)
 #> [1] 33.81667
 replicate(10, rGammaMix(1, w = w, scale = scale, shape = shape))
-#>  [1]  1.1253350  5.6018508  0.8989425  0.6839528 16.6516345  5.7743867
-#>  [7]  1.4073932  0.6988848  2.0490973 11.5105268
+#>  [1]  7.2810617 12.2948276  1.5274296 10.4751979 21.6543832  0.4246413
+#>  [7]  9.1363824  1.1727450 17.8997664 24.2387414
 ```

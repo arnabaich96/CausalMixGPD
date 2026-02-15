@@ -5,7 +5,7 @@
 # ============================================================================
 
 test_that("is_allowed_kernel() returns TRUE for valid kernels", {
-  is_allowed_kernel <- DPmixGPD:::is_allowed_kernel
+  is_allowed_kernel <- CausalMixGPD:::is_allowed_kernel
 
   expect_true(is_allowed_kernel("normal"))
   expect_true(is_allowed_kernel("gamma"))
@@ -17,7 +17,7 @@ test_that("is_allowed_kernel() returns TRUE for valid kernels", {
 })
 
 test_that("is_allowed_kernel() returns FALSE for invalid kernels", {
-  is_allowed_kernel <- DPmixGPD:::is_allowed_kernel
+  is_allowed_kernel <- CausalMixGPD:::is_allowed_kernel
 
   expect_false(is_allowed_kernel("invalid"))
   expect_false(is_allowed_kernel("weibull"))
@@ -31,7 +31,7 @@ test_that("is_allowed_kernel() returns FALSE for invalid kernels", {
 # ============================================================================
 
 test_that("check_gpd_contract() errors when GPD=TRUE with cauchy kernel", {
-  check_gpd_contract <- DPmixGPD:::check_gpd_contract
+  check_gpd_contract <- CausalMixGPD:::check_gpd_contract
 
   expect_error(
     check_gpd_contract(GPD = TRUE, kernel = "cauchy"),
@@ -40,7 +40,7 @@ test_that("check_gpd_contract() errors when GPD=TRUE with cauchy kernel", {
 })
 
 test_that("check_gpd_contract() returns invisibly for valid combinations", {
-  check_gpd_contract <- DPmixGPD:::check_gpd_contract
+  check_gpd_contract <- CausalMixGPD:::check_gpd_contract
 
   # GPD = TRUE with non-cauchy kernels should work
   expect_invisible(check_gpd_contract(GPD = TRUE, kernel = "normal"))
@@ -56,7 +56,7 @@ test_that("check_gpd_contract() returns invisibly for valid combinations", {
 })
 
 test_that("check_gpd_contract() returns NULL invisibly", {
-  check_gpd_contract <- DPmixGPD:::check_gpd_contract
+  check_gpd_contract <- CausalMixGPD:::check_gpd_contract
 
   result <- check_gpd_contract(GPD = TRUE, kernel = "normal")
   expect_null(result)
@@ -67,20 +67,20 @@ test_that("check_gpd_contract() returns NULL invisibly", {
 # ============================================================================
 
 test_that("allowed_backends constant is correct", {
-  allowed_backends <- DPmixGPD:::allowed_backends
+  allowed_backends <- CausalMixGPD:::allowed_backends
 
   expect_equal(allowed_backends, c("crp", "sb"))
 })
 
 test_that("allowed_kernels constant contains all 7 kernels", {
-  allowed_kernels <- DPmixGPD:::allowed_kernels
+  allowed_kernels <- CausalMixGPD:::allowed_kernels
 
   expected <- c("gamma", "lognormal", "invgauss", "normal", "laplace", "cauchy", "amoroso")
   expect_equal(sort(allowed_kernels), sort(expected))
 })
 
 test_that("positive_support_kernels constant is correct", {
-  positive_support_kernels <- DPmixGPD:::positive_support_kernels
+  positive_support_kernels <- CausalMixGPD:::positive_support_kernels
 
   expect_true("gamma" %in% positive_support_kernels)
   expect_true("lognormal" %in% positive_support_kernels)
@@ -92,7 +92,7 @@ test_that("positive_support_kernels constant is correct", {
 })
 
 test_that("real_support_kernels constant is correct", {
-  real_support_kernels <- DPmixGPD:::real_support_kernels
+  real_support_kernels <- CausalMixGPD:::real_support_kernels
 
   expect_true("normal" %in% real_support_kernels)
   expect_true("laplace" %in% real_support_kernels)

@@ -34,7 +34,7 @@
 #'   )
 #' )
 #' }
-#' @param alpha_random Logical; if TRUE, alpha is stochastic with default Gamma(1,1) prior.
+#' @param alpha_random Logical; if TRUE, the DP concentration parameter (\eqn{\kappa}) is stochastic with default Gamma(1,1) prior.
 #' @param ps Optional numeric vector of propensity scores (length N). When provided, the
 #'   compiled spec will include \code{beta_ps_<param>} coefficients for link-mode parameters.
 #' @param ... Unused; accepted for forward compatibility.
@@ -378,7 +378,6 @@ compile_model_spec <- function(
     plan = plan
   )
 
-  class(spec) <- c("dpmixgpd_spec", "list")
+  class(spec) <- c("causalmixgpd_spec", "list")
   spec
 }
-

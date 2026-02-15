@@ -12,7 +12,7 @@ test_that("PIT residuals include diagnostics and drop invalid draws", {
   }
 
   kernel <- fit$spec$meta$kernel %||% fit$spec$kernel$key
-  kdef <- DPmixGPD::get_kernel_registry()[[kernel]] %||% list()
+  kdef <- CausalMixGPD::get_kernel_registry()[[kernel]] %||% list()
   bulk_support <- kdef$bulk_support %||% list()
   positive_params <- names(bulk_support)[bulk_support %in%
     c("positive_sd", "positive_scale", "positive_shape", "positive_location")]

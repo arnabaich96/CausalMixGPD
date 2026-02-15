@@ -9,7 +9,7 @@ test_that(".compute_interval computes equal-tailed intervals correctly", {
   set.seed(42)
   draws <- rnorm(1000)
 
-  iv <- DPmixGPD:::.compute_interval(draws, level = 0.95, type = "credible")
+  iv <- CausalMixGPD:::.compute_interval(draws, level = 0.95, type = "credible")
 
   expect_named(iv, c("lower", "upper"))
   expect_true(iv["lower"] < iv["upper"])
@@ -27,7 +27,7 @@ test_that(".compute_interval computes HPD intervals correctly", {
   set.seed(42)
   draws <- rnorm(1000)
 
-  iv <- DPmixGPD:::.compute_interval(draws, level = 0.95, type = "hpd")
+  iv <- CausalMixGPD:::.compute_interval(draws, level = 0.95, type = "hpd")
 
   expect_named(iv, c("lower", "upper"))
   expect_true(iv["lower"] < iv["upper"])
@@ -46,8 +46,8 @@ test_that(".compute_interval handles skewed distributions differently", {
   # Skewed distribution - HPD should give shorter interval
   draws <- rexp(1000)
 
-  iv_credible <- DPmixGPD:::.compute_interval(draws, level = 0.95, type = "credible")
-  iv_hpd <- DPmixGPD:::.compute_interval(draws, level = 0.95, type = "hpd")
+  iv_credible <- CausalMixGPD:::.compute_interval(draws, level = 0.95, type = "credible")
+  iv_hpd <- CausalMixGPD:::.compute_interval(draws, level = 0.95, type = "hpd")
 
   width_credible <- iv_credible["upper"] - iv_credible["lower"]
   width_hpd <- iv_hpd["upper"] - iv_hpd["lower"]
@@ -59,12 +59,12 @@ test_that(".compute_interval handles skewed distributions differently", {
 
 test_that(".compute_interval handles edge cases", {
   # Empty or NA draws
-  iv <- DPmixGPD:::.compute_interval(c(NA, NA, NA), level = 0.95, type = "credible")
+  iv <- CausalMixGPD:::.compute_interval(c(NA, NA, NA), level = 0.95, type = "credible")
   expect_true(is.na(iv["lower"]))
   expect_true(is.na(iv["upper"]))
 
   # Single value
-  iv <- DPmixGPD:::.compute_interval(c(1), level = 0.95, type = "credible")
+  iv <- CausalMixGPD:::.compute_interval(c(1), level = 0.95, type = "credible")
   expect_true(is.na(iv["lower"]))
   expect_true(is.na(iv["upper"]))
 })
@@ -213,9 +213,9 @@ test_that(".posterior_summarize uses interval correctly", {
   set.seed(42)
   draws <- matrix(rexp(500), nrow = 5, ncol = 100)
 
-  summ_credible <- DPmixGPD:::.posterior_summarize(draws, interval = "credible")
-  summ_hpd <- DPmixGPD:::.posterior_summarize(draws, interval = "hpd")
-  summ_none <- DPmixGPD:::.posterior_summarize(draws, interval = NULL)
+  summ_credible <- CausalMixGPD:::.posterior_summarize(draws, interval = "credible")
+  summ_hpd <- CausalMixGPD:::.posterior_summarize(draws, interval = "hpd")
+  summ_none <- CausalMixGPD:::.posterior_summarize(draws, interval = NULL)
 
   # Check structure
   expect_named(summ_credible, c("estimate", "lower", "upper", "q"))

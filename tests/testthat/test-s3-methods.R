@@ -3,23 +3,23 @@
 # Uses minimal mock objects to avoid heavy MCMC runs
 
 # Access S3 methods directly using ::: (needed since class dispatch may fail outside pkg)
-print_mixgpd_params <- DPmixGPD:::print.mixgpd_params
-print_mixgpd_params_pair <- DPmixGPD:::print.mixgpd_params_pair
-print_dpmixgpd_qte <- DPmixGPD:::print.dpmixgpd_qte
-print_dpmixgpd_ate <- DPmixGPD:::print.dpmixgpd_ate
-summary_dpmixgpd_qte <- DPmixGPD:::summary.dpmixgpd_qte
-summary_dpmixgpd_ate <- DPmixGPD:::summary.dpmixgpd_ate
-print_summary_dpmixgpd_qte <- DPmixGPD:::print.summary.dpmixgpd_qte
-print_summary_dpmixgpd_ate <- DPmixGPD:::print.summary.dpmixgpd_ate
-plot_mixgpd_predict <- DPmixGPD:::plot.mixgpd_predict
-print_dpmixgpd_causal_predict_plots <- DPmixGPD:::print.dpmixgpd_causal_predict_plots
-print_mixgpd_predict_plots <- DPmixGPD:::print.mixgpd_predict_plots
-print_mixgpd_fit_plots <- DPmixGPD:::print.mixgpd_fit_plots
-print_dpmixgpd_causal_fit_plots <- DPmixGPD:::print.dpmixgpd_causal_fit_plots
-plot_mixgpd_fitted <- DPmixGPD:::plot.mixgpd_fitted
-print_mixgpd_fitted_plots <- DPmixGPD:::print.mixgpd_fitted_plots
-plot_dpmixgpd_qte <- DPmixGPD:::plot.dpmixgpd_qte
-plot_dpmixgpd_ate <- DPmixGPD:::plot.dpmixgpd_ate
+print_mixgpd_params <- CausalMixGPD:::print.mixgpd_params
+print_mixgpd_params_pair <- CausalMixGPD:::print.mixgpd_params_pair
+print_causalmixgpd_qte <- CausalMixGPD:::print.causalmixgpd_qte
+print_causalmixgpd_ate <- CausalMixGPD:::print.causalmixgpd_ate
+summary_causalmixgpd_qte <- CausalMixGPD:::summary.causalmixgpd_qte
+summary_causalmixgpd_ate <- CausalMixGPD:::summary.causalmixgpd_ate
+print_summary_causalmixgpd_qte <- CausalMixGPD:::print.summary.causalmixgpd_qte
+print_summary_causalmixgpd_ate <- CausalMixGPD:::print.summary.causalmixgpd_ate
+plot_mixgpd_predict <- CausalMixGPD:::plot.mixgpd_predict
+print_causalmixgpd_causal_predict_plots <- CausalMixGPD:::print.causalmixgpd_causal_predict_plots
+print_mixgpd_predict_plots <- CausalMixGPD:::print.mixgpd_predict_plots
+print_mixgpd_fit_plots <- CausalMixGPD:::print.mixgpd_fit_plots
+print_causalmixgpd_causal_fit_plots <- CausalMixGPD:::print.causalmixgpd_causal_fit_plots
+plot_mixgpd_fitted <- CausalMixGPD:::plot.mixgpd_fitted
+print_mixgpd_fitted_plots <- CausalMixGPD:::print.mixgpd_fitted_plots
+plot_causalmixgpd_qte <- CausalMixGPD:::plot.causalmixgpd_qte
+plot_causalmixgpd_ate <- CausalMixGPD:::plot.causalmixgpd_ate
 
 # ======================================================================
 # Mock object constructors
@@ -78,7 +78,7 @@ make_mock_qte <- function() {
     trt = list(fit = data.frame(estimate = rnorm(15), id = rep(1:5, 3), index = rep(c(0.25, 0.5, 0.75), each = 5))),
     con = list(fit = data.frame(estimate = rnorm(15), id = rep(1:5, 3), index = rep(c(0.25, 0.5, 0.75), each = 5)))
   )
-  class(out) <- "dpmixgpd_qte"
+  class(out) <- "causalmixgpd_qte"
   out
 }
 
@@ -107,7 +107,7 @@ make_mock_ate <- function() {
     trt = list(fit = data.frame(estimate = rnorm(5), id = 1:5)),
     con = list(fit = data.frame(estimate = rnorm(5), id = 1:5))
   )
-  class(out) <- "dpmixgpd_ate"
+  class(out) <- "causalmixgpd_ate"
   out
 }
 
@@ -182,7 +182,7 @@ make_mock_causal_predict_plots <- function() {
     trt_control = ggplot2::ggplot() + ggplot2::ggtitle("trt_control"),
     treatment_effect = ggplot2::ggplot() + ggplot2::ggtitle("treatment_effect")
   )
-  class(out) <- c("dpmixgpd_causal_predict_plots", "list")
+  class(out) <- c("causalmixgpd_causal_predict_plots", "list")
   out
 }
 
@@ -239,7 +239,7 @@ make_mock_causal_fit_plots <- function() {
   class(control_plots) <- c("mixgpd_fit_plots", "list")
 
   out <- list(treated = treated_plots, control = control_plots)
-  class(out) <- c("dpmixgpd_causal_fit_plots", "list")
+  class(out) <- c("causalmixgpd_causal_fit_plots", "list")
   out
 }
 
@@ -276,7 +276,7 @@ make_mock_summary_qte <- function() {
     ),
     object = qte_obj
   )
-  class(out) <- "summary.dpmixgpd_qte"
+  class(out) <- "summary.causalmixgpd_qte"
   out
 }
 
@@ -311,7 +311,7 @@ make_mock_summary_ate <- function() {
     ),
     object = ate_obj
   )
-  class(out) <- "summary.dpmixgpd_ate"
+  class(out) <- "summary.causalmixgpd_ate"
   out
 }
 
@@ -357,119 +357,119 @@ test_that("print.mixgpd_params_pair works", {
 })
 
 # ======================================================================
-# print.dpmixgpd_qte tests
+# print.causalmixgpd_qte tests
 # ======================================================================
 
-test_that("print.dpmixgpd_qte works", {
+test_that("print.causalmixgpd_qte works", {
   qte <- make_mock_qte()
-  expect_output(print_dpmixgpd_qte(qte), "QTE \\(Quantile Treatment Effect\\)")
-  expect_output(print_dpmixgpd_qte(qte), "Prediction points")
-  expect_output(print_dpmixgpd_qte(qte), "Quantile grid")
+  expect_output(print_causalmixgpd_qte(qte), "QTE \\(Quantile Treatment Effect\\)")
+  expect_output(print_causalmixgpd_qte(qte), "Prediction points")
+  expect_output(print_causalmixgpd_qte(qte), "Quantile grid")
 })
 
-test_that("print.dpmixgpd_qte respects max_rows", {
+test_that("print.causalmixgpd_qte respects max_rows", {
   qte <- make_mock_qte()
-  expect_output(print_dpmixgpd_qte(qte, max_rows = 2), "more rows")
+  expect_output(print_causalmixgpd_qte(qte, max_rows = 2), "more rows")
 })
 
-test_that("print.dpmixgpd_qte uses estimand-specific labels", {
+test_that("print.causalmixgpd_qte uses estimand-specific labels", {
   qte <- make_mock_qte()
   qte$type <- "cqte"
-  expect_output(print_dpmixgpd_qte(qte), "CQTE")
+  expect_output(print_causalmixgpd_qte(qte), "CQTE")
   qte$type <- "qtt"
-  expect_output(print_dpmixgpd_qte(qte), "QTT")
+  expect_output(print_causalmixgpd_qte(qte), "QTT")
 })
 
 # ======================================================================
-# print.dpmixgpd_ate tests
+# print.causalmixgpd_ate tests
 # ======================================================================
 
-test_that("print.dpmixgpd_ate works", {
+test_that("print.causalmixgpd_ate works", {
   ate <- make_mock_ate()
-  expect_output(print_dpmixgpd_ate(ate), "ATE \\(Average Treatment Effect\\)")
-  expect_output(print_dpmixgpd_ate(ate), "Prediction points")
+  expect_output(print_causalmixgpd_ate(ate), "ATE \\(Average Treatment Effect\\)")
+  expect_output(print_causalmixgpd_ate(ate), "Prediction points")
 })
 
-test_that("print.dpmixgpd_ate respects max_rows", {
+test_that("print.causalmixgpd_ate respects max_rows", {
   ate <- make_mock_ate()
-  expect_output(print_dpmixgpd_ate(ate, max_rows = 2), "more rows")
+  expect_output(print_causalmixgpd_ate(ate, max_rows = 2), "more rows")
 })
 
-test_that("print.dpmixgpd_ate uses estimand-specific labels", {
+test_that("print.causalmixgpd_ate uses estimand-specific labels", {
   ate <- make_mock_ate()
   ate$type <- "cate"
-  expect_output(print_dpmixgpd_ate(ate), "CATE")
+  expect_output(print_causalmixgpd_ate(ate), "CATE")
   ate$type <- "att"
-  expect_output(print_dpmixgpd_ate(ate), "ATT")
+  expect_output(print_causalmixgpd_ate(ate), "ATT")
 })
 
 # ======================================================================
-# summary.dpmixgpd_qte tests
+# summary.causalmixgpd_qte tests
 # ======================================================================
 
-test_that("summary.dpmixgpd_qte returns proper structure", {
+test_that("summary.causalmixgpd_qte returns proper structure", {
   qte <- make_mock_qte()
-  summ <- summary_dpmixgpd_qte(qte)
-  expect_s3_class(summ, "summary.dpmixgpd_qte")
+  summ <- summary_causalmixgpd_qte(qte)
+  expect_s3_class(summ, "summary.causalmixgpd_qte")
   expect_true("overall" %in% names(summ))
   expect_true("quantile_summary" %in% names(summ))
 })
 
 # ======================================================================
-# summary.dpmixgpd_ate tests
+# summary.causalmixgpd_ate tests
 # ======================================================================
 
-test_that("summary.dpmixgpd_ate returns proper structure", {
+test_that("summary.causalmixgpd_ate returns proper structure", {
   ate <- make_mock_ate()
-  summ <- summary_dpmixgpd_ate(ate)
-  expect_s3_class(summ, "summary.dpmixgpd_ate")
+  summ <- summary_causalmixgpd_ate(ate)
+  expect_s3_class(summ, "summary.causalmixgpd_ate")
   expect_true("overall" %in% names(summ))
   expect_true("ate_stats" %in% names(summ))
 })
 
 # ======================================================================
-# print.summary.dpmixgpd_qte tests
+# print.summary.causalmixgpd_qte tests
 # ======================================================================
 
-test_that("print.summary.dpmixgpd_qte works", {
+test_that("print.summary.causalmixgpd_qte works", {
   summ <- make_mock_summary_qte()
-  expect_output(print_summary_dpmixgpd_qte(summ), "QTE Summary")
-  expect_output(print_summary_dpmixgpd_qte(summ), "Prediction points")
-  expect_output(print_summary_dpmixgpd_qte(summ), "Quantile grid")
-  expect_output(print_summary_dpmixgpd_qte(summ), "Model specification")
+  expect_output(print_summary_causalmixgpd_qte(summ), "QTE Summary")
+  expect_output(print_summary_causalmixgpd_qte(summ), "Prediction points")
+  expect_output(print_summary_causalmixgpd_qte(summ), "Quantile grid")
+  expect_output(print_summary_causalmixgpd_qte(summ), "Model specification")
 })
 
-test_that("print.summary.dpmixgpd_qte respects digits", {
+test_that("print.summary.causalmixgpd_qte respects digits", {
   summ <- make_mock_summary_qte()
-  expect_output(print_summary_dpmixgpd_qte(summ, digits = 2), "QTE Summary")
+  expect_output(print_summary_causalmixgpd_qte(summ, digits = 2), "QTE Summary")
 })
 
-test_that("print.summary.dpmixgpd_qte uses estimand-specific labels", {
+test_that("print.summary.causalmixgpd_qte uses estimand-specific labels", {
   summ <- make_mock_summary_qte()
   summ$object$type <- "cqte"
-  expect_output(print_summary_dpmixgpd_qte(summ), "CQTE Summary")
+  expect_output(print_summary_causalmixgpd_qte(summ), "CQTE Summary")
 })
 
 # ======================================================================
-# print.summary.dpmixgpd_ate tests
+# print.summary.causalmixgpd_ate tests
 # ======================================================================
 
-test_that("print.summary.dpmixgpd_ate works", {
+test_that("print.summary.causalmixgpd_ate works", {
   summ <- make_mock_summary_ate()
-  expect_output(print_summary_dpmixgpd_ate(summ), "ATE Summary")
-  expect_output(print_summary_dpmixgpd_ate(summ), "Prediction points")
-  expect_output(print_summary_dpmixgpd_ate(summ), "Model specification")
+  expect_output(print_summary_causalmixgpd_ate(summ), "ATE Summary")
+  expect_output(print_summary_causalmixgpd_ate(summ), "Prediction points")
+  expect_output(print_summary_causalmixgpd_ate(summ), "Model specification")
 })
 
-test_that("print.summary.dpmixgpd_ate respects digits", {
+test_that("print.summary.causalmixgpd_ate respects digits", {
   summ <- make_mock_summary_ate()
-  expect_output(print_summary_dpmixgpd_ate(summ, digits = 2), "ATE Summary")
+  expect_output(print_summary_causalmixgpd_ate(summ, digits = 2), "ATE Summary")
 })
 
-test_that("print.summary.dpmixgpd_ate uses estimand-specific labels", {
+test_that("print.summary.causalmixgpd_ate uses estimand-specific labels", {
   summ <- make_mock_summary_ate()
   summ$object$type <- "att"
-  expect_output(print_summary_dpmixgpd_ate(summ), "ATT Summary")
+  expect_output(print_summary_causalmixgpd_ate(summ), "ATT Summary")
 })
 
 # ======================================================================
@@ -529,13 +529,13 @@ test_that("plot.mixgpd_predict errors on missing type", {
 })
 
 # ======================================================================
-# print.dpmixgpd_causal_predict_plots tests
+# print.causalmixgpd_causal_predict_plots tests
 # ======================================================================
 
-test_that("print.dpmixgpd_causal_predict_plots works", {
+test_that("print.causalmixgpd_causal_predict_plots works", {
   skip_if_not_installed("ggplot2")
   plots <- make_mock_causal_predict_plots()
-  expect_output(print_dpmixgpd_causal_predict_plots(plots), regexp = ".")
+  expect_output(print_causalmixgpd_causal_predict_plots(plots), regexp = ".")
 })
 
 # ======================================================================
@@ -561,14 +561,14 @@ test_that("print.mixgpd_fit_plots works", {
 })
 
 # ======================================================================
-# print.dpmixgpd_causal_fit_plots tests
+# print.causalmixgpd_causal_fit_plots tests
 # ======================================================================
 
-test_that("print.dpmixgpd_causal_fit_plots works", {
+test_that("print.causalmixgpd_causal_fit_plots works", {
   skip_if_not_installed("ggplot2")
   plots <- make_mock_causal_fit_plots()
-  expect_output(print_dpmixgpd_causal_fit_plots(plots), "treated")
-  expect_output(print_dpmixgpd_causal_fit_plots(plots), "control")
+  expect_output(print_causalmixgpd_causal_fit_plots(plots), "treated")
+  expect_output(print_causalmixgpd_causal_fit_plots(plots), "control")
 })
 
 # ======================================================================
@@ -596,56 +596,56 @@ test_that("print.mixgpd_fitted_plots works", {
 })
 
 # ======================================================================
-# plot.dpmixgpd_qte tests
+# plot.causalmixgpd_qte tests
 # ======================================================================
 
-test_that("plot.dpmixgpd_qte returns both plots by default", {
+test_that("plot.causalmixgpd_qte returns both plots by default", {
   skip_if_not_installed("ggplot2")
   qte <- make_mock_qte()
-  result <- plot_dpmixgpd_qte(qte)
-  expect_s3_class(result, "dpmixgpd_causal_predict_plots")
+  result <- plot_causalmixgpd_qte(qte)
+  expect_s3_class(result, "causalmixgpd_causal_predict_plots")
   expect_true("trt_control" %in% names(result))
   expect_true("treatment_effect" %in% names(result))
 })
 
-test_that("plot.dpmixgpd_qte effect type works", {
+test_that("plot.causalmixgpd_qte effect type works", {
   skip_if_not_installed("ggplot2")
   qte <- make_mock_qte()
-  result <- plot_dpmixgpd_qte(qte, type = "effect")
+  result <- plot_causalmixgpd_qte(qte, type = "effect")
   expect_true(inherits(result, "gg") || inherits(result, "ggplot"))
 })
 
-test_that("plot.dpmixgpd_qte arms type works", {
+test_that("plot.causalmixgpd_qte arms type works", {
   skip_if_not_installed("ggplot2")
   qte <- make_mock_qte()
-  result <- plot_dpmixgpd_qte(qte, type = "arms")
+  result <- plot_causalmixgpd_qte(qte, type = "arms")
   expect_true(inherits(result, "gg") || inherits(result, "ggplot"))
 })
 
 # ======================================================================
-# plot.dpmixgpd_ate tests
+# plot.causalmixgpd_ate tests
 # ======================================================================
 
-test_that("plot.dpmixgpd_ate returns both plots by default", {
+test_that("plot.causalmixgpd_ate returns both plots by default", {
   skip_if_not_installed("ggplot2")
   ate <- make_mock_ate()
-  result <- plot_dpmixgpd_ate(ate)
-  expect_s3_class(result, "dpmixgpd_causal_predict_plots")
+  result <- plot_causalmixgpd_ate(ate)
+  expect_s3_class(result, "causalmixgpd_causal_predict_plots")
   expect_true("trt_control" %in% names(result))
   expect_true("treatment_effect" %in% names(result))
 })
 
-test_that("plot.dpmixgpd_ate effect type works", {
+test_that("plot.causalmixgpd_ate effect type works", {
   skip_if_not_installed("ggplot2")
   ate <- make_mock_ate()
-  result <- plot_dpmixgpd_ate(ate, type = "effect")
+  result <- plot_causalmixgpd_ate(ate, type = "effect")
   expect_true(inherits(result, "gg") || inherits(result, "ggplot"))
 })
 
-test_that("plot.dpmixgpd_ate arms type works", {
+test_that("plot.causalmixgpd_ate arms type works", {
   skip_if_not_installed("ggplot2")
   ate <- make_mock_ate()
-  result <- plot_dpmixgpd_ate(ate, type = "arms")
+  result <- plot_causalmixgpd_ate(ate, type = "arms")
   expect_true(inherits(result, "gg") || inherits(result, "ggplot"))
 })
 
@@ -653,18 +653,18 @@ test_that("plot.dpmixgpd_ate arms type works", {
 # Error handling
 # ======================================================================
 
-test_that("plot.dpmixgpd_qte errors on invalid object", {
+test_that("plot.causalmixgpd_qte errors on invalid object", {
   skip_if_not_installed("ggplot2")
   invalid <- list(x = 1)
-  class(invalid) <- "dpmixgpd_qte"
-  expect_error(plot_dpmixgpd_qte(invalid), "Invalid QTE object")
+  class(invalid) <- "causalmixgpd_qte"
+  expect_error(plot_causalmixgpd_qte(invalid), "Invalid QTE object")
 })
 
-test_that("plot.dpmixgpd_ate errors on invalid object", {
+test_that("plot.causalmixgpd_ate errors on invalid object", {
   skip_if_not_installed("ggplot2")
   invalid <- list(x = 1)
-  class(invalid) <- "dpmixgpd_ate"
-  expect_error(plot_dpmixgpd_ate(invalid), "Invalid ATE object")
+  class(invalid) <- "causalmixgpd_ate"
+  expect_error(plot_causalmixgpd_ate(invalid), "Invalid ATE object")
 })
 
 # ======================================================================
@@ -672,29 +672,29 @@ test_that("plot.dpmixgpd_ate errors on invalid object", {
 # ======================================================================
 
 # Access more S3 methods
-print_dpmixgpd_bundle <- DPmixGPD:::print.dpmixgpd_bundle
-print_dpmixgpd_causal_bundle <- DPmixGPD:::print.dpmixgpd_causal_bundle
-summary_dpmixgpd_bundle <- DPmixGPD:::summary.dpmixgpd_bundle
-summary_dpmixgpd_causal_bundle <- DPmixGPD:::summary.dpmixgpd_causal_bundle
-print_dpmixgpd_ps_bundle <- DPmixGPD:::print.dpmixgpd_ps_bundle
-summary_dpmixgpd_ps_bundle <- DPmixGPD:::summary.dpmixgpd_ps_bundle
-print_dpmixgpd_causal_fit <- DPmixGPD:::print.dpmixgpd_causal_fit
-summary_dpmixgpd_causal_fit <- DPmixGPD:::summary.dpmixgpd_causal_fit
-print_dpmixgpd_ps_fit <- DPmixGPD:::print.dpmixgpd_ps_fit
-summary_dpmixgpd_ps_fit <- DPmixGPD:::summary.dpmixgpd_ps_fit
-print_mixgpd_fit <- DPmixGPD:::print.mixgpd_fit
-summary_mixgpd_fit <- DPmixGPD:::summary.mixgpd_fit
-print_mixgpd_summary <- DPmixGPD:::print.mixgpd_summary
+print_causalmixgpd_bundle <- CausalMixGPD:::print.causalmixgpd_bundle
+print_causalmixgpd_causal_bundle <- CausalMixGPD:::print.causalmixgpd_causal_bundle
+summary_causalmixgpd_bundle <- CausalMixGPD:::summary.causalmixgpd_bundle
+summary_causalmixgpd_causal_bundle <- CausalMixGPD:::summary.causalmixgpd_causal_bundle
+print_causalmixgpd_ps_bundle <- CausalMixGPD:::print.causalmixgpd_ps_bundle
+summary_causalmixgpd_ps_bundle <- CausalMixGPD:::summary.causalmixgpd_ps_bundle
+print_causalmixgpd_causal_fit <- CausalMixGPD:::print.causalmixgpd_causal_fit
+summary_causalmixgpd_causal_fit <- CausalMixGPD:::summary.causalmixgpd_causal_fit
+print_causalmixgpd_ps_fit <- CausalMixGPD:::print.causalmixgpd_ps_fit
+summary_causalmixgpd_ps_fit <- CausalMixGPD:::summary.causalmixgpd_ps_fit
+print_mixgpd_fit <- CausalMixGPD:::print.mixgpd_fit
+summary_mixgpd_fit <- CausalMixGPD:::summary.mixgpd_fit
+print_mixgpd_summary <- CausalMixGPD:::print.mixgpd_summary
 
 # Access exported functions
-build_nimble_bundle <- DPmixGPD::build_nimble_bundle
-build_causal_bundle <- DPmixGPD::build_causal_bundle
+build_nimble_bundle <- CausalMixGPD::build_nimble_bundle
+build_causal_bundle <- CausalMixGPD::build_causal_bundle
 
 # ======================================================================
-# print/summary.dpmixgpd_bundle tests
+# print/summary.causalmixgpd_bundle tests
 # ======================================================================
 
-test_that("print.dpmixgpd_bundle works with basic bundle", {
+test_that("print.causalmixgpd_bundle works with basic bundle", {
   set.seed(1)
   y <- abs(rnorm(20)) + 0.1
   bundle <- build_nimble_bundle(
@@ -704,12 +704,12 @@ test_that("print.dpmixgpd_bundle works with basic bundle", {
     GPD = FALSE,
     components = 4
   )
-  expect_output(print_dpmixgpd_bundle(bundle), "DPmixGPD bundle")
-  expect_output(print_dpmixgpd_bundle(bundle), "Stick-Breaking")
-  expect_output(print_dpmixgpd_bundle(bundle), "Normal")
+  expect_output(print_causalmixgpd_bundle(bundle), "CausalMixGPD bundle")
+  expect_output(print_causalmixgpd_bundle(bundle), "Stick-Breaking")
+  expect_output(print_causalmixgpd_bundle(bundle), "Normal")
 })
 
-test_that("print.dpmixgpd_bundle shows code when requested", {
+test_that("print.causalmixgpd_bundle shows code when requested", {
   set.seed(1)
   y <- abs(rnorm(20)) + 0.1
   bundle <- build_nimble_bundle(
@@ -719,10 +719,10 @@ test_that("print.dpmixgpd_bundle shows code when requested", {
     GPD = FALSE,
     components = 4
   )
-  expect_output(print_dpmixgpd_bundle(bundle, code = TRUE), "Model code")
+  expect_output(print_causalmixgpd_bundle(bundle, code = TRUE), "Model code")
 })
 
-test_that("summary.dpmixgpd_bundle works", {
+test_that("summary.causalmixgpd_bundle works", {
   set.seed(1)
   y <- abs(rnorm(20)) + 0.1
   bundle <- build_nimble_bundle(
@@ -732,16 +732,16 @@ test_that("summary.dpmixgpd_bundle works", {
     GPD = FALSE,
     components = 4
   )
-  expect_output(summary_dpmixgpd_bundle(bundle), "DPmixGPD bundle summary")
-  expect_output(summary_dpmixgpd_bundle(bundle), "Parameter specification")
-  expect_output(summary_dpmixgpd_bundle(bundle), "Monitors")
+  expect_output(summary_causalmixgpd_bundle(bundle), "CausalMixGPD bundle summary")
+  expect_output(summary_causalmixgpd_bundle(bundle), "Parameter specification")
+  expect_output(summary_causalmixgpd_bundle(bundle), "Monitors")
 })
 
 # ======================================================================
-# print/summary.dpmixgpd_causal_bundle tests
+# print/summary.causalmixgpd_causal_bundle tests
 # ======================================================================
 
-test_that("print.dpmixgpd_causal_bundle works", {
+test_that("print.causalmixgpd_causal_bundle works", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
@@ -752,12 +752,12 @@ test_that("print.dpmixgpd_causal_bundle works", {
     backend = "sb", kernel = "normal",
     GPD = FALSE, components = 4
   )
-  expect_output(print_dpmixgpd_causal_bundle(bundle), "DPmixGPD causal bundle")
-  expect_output(print_dpmixgpd_causal_bundle(bundle), "Outcome.*treated")
-  expect_output(print_dpmixgpd_causal_bundle(bundle), "Outcome.*control")
+  expect_output(print_causalmixgpd_causal_bundle(bundle), "CausalMixGPD causal bundle")
+  expect_output(print_causalmixgpd_causal_bundle(bundle), "Outcome.*treated")
+  expect_output(print_causalmixgpd_causal_bundle(bundle), "Outcome.*control")
 })
 
-test_that("print.dpmixgpd_causal_bundle shows PS info for observational", {
+test_that("print.causalmixgpd_causal_bundle shows PS info for observational", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
@@ -768,10 +768,10 @@ test_that("print.dpmixgpd_causal_bundle shows PS info for observational", {
     backend = "sb", kernel = "normal",
     GPD = FALSE, components = 4, PS = "logit"
   )
-  expect_output(print_dpmixgpd_causal_bundle(bundle), "PS model.*logit")
+  expect_output(print_causalmixgpd_causal_bundle(bundle), "PS model.*logit")
 })
 
-test_that("summary.dpmixgpd_causal_bundle works", {
+test_that("summary.causalmixgpd_causal_bundle works", {
   set.seed(1)
   y <- rnorm(20)
   X <- matrix(rnorm(40), ncol = 2)
@@ -782,7 +782,7 @@ test_that("summary.dpmixgpd_causal_bundle works", {
     backend = "sb", kernel = "normal",
     GPD = FALSE, components = 4
   )
-  expect_output(summary_dpmixgpd_causal_bundle(bundle), "DPmixGPD causal bundle summary")
+  expect_output(summary_causalmixgpd_causal_bundle(bundle), "CausalMixGPD causal bundle summary")
 })
 
 # ======================================================================
@@ -801,24 +801,24 @@ make_mock_ps_bundle <- function() {
       beta[1] ~ dnorm(0, 1)
     })
   )
-  class(out) <- "dpmixgpd_ps_bundle"
+  class(out) <- "causalmixgpd_ps_bundle"
   out
 }
 
-test_that("print.dpmixgpd_ps_bundle works", {
+test_that("print.causalmixgpd_ps_bundle works", {
   bundle <- make_mock_ps_bundle()
-  expect_output(print_dpmixgpd_ps_bundle(bundle), "PS bundle")
-  expect_output(print_dpmixgpd_ps_bundle(bundle), "model: logit")
+  expect_output(print_causalmixgpd_ps_bundle(bundle), "PS bundle")
+  expect_output(print_causalmixgpd_ps_bundle(bundle), "model: logit")
 })
 
-test_that("print.dpmixgpd_ps_bundle shows code when requested", {
+test_that("print.causalmixgpd_ps_bundle shows code when requested", {
   bundle <- make_mock_ps_bundle()
-  expect_output(print_dpmixgpd_ps_bundle(bundle, code = TRUE), "beta")
+  expect_output(print_causalmixgpd_ps_bundle(bundle, code = TRUE), "beta")
 })
 
-test_that("summary.dpmixgpd_ps_bundle works", {
+test_that("summary.causalmixgpd_ps_bundle works", {
   bundle <- make_mock_ps_bundle()
-  expect_output(summary_dpmixgpd_ps_bundle(bundle), "PS bundle")
+  expect_output(summary_causalmixgpd_ps_bundle(bundle), "PS bundle")
 })
 
 # ======================================================================
@@ -829,19 +829,19 @@ make_mock_ps_fit <- function() {
   out <- list(
     bundle = make_mock_ps_bundle()
   )
-  class(out) <- "dpmixgpd_ps_fit"
+  class(out) <- "causalmixgpd_ps_fit"
   out
 }
 
-test_that("print.dpmixgpd_ps_fit works", {
+test_that("print.causalmixgpd_ps_fit works", {
   fit <- make_mock_ps_fit()
-  expect_output(print_dpmixgpd_ps_fit(fit), "DPmixGPD PS fit")
-  expect_output(print_dpmixgpd_ps_fit(fit), "model: logit")
+  expect_output(print_causalmixgpd_ps_fit(fit), "CausalMixGPD PS fit")
+  expect_output(print_causalmixgpd_ps_fit(fit), "model: logit")
 })
 
-test_that("summary.dpmixgpd_ps_fit works", {
+test_that("summary.causalmixgpd_ps_fit works", {
   fit <- make_mock_ps_fit()
-  expect_output(summary_dpmixgpd_ps_fit(fit), "DPmixGPD PS fit")
+  expect_output(summary_causalmixgpd_ps_fit(fit), "CausalMixGPD PS fit")
 })
 
 # ======================================================================
@@ -885,20 +885,20 @@ make_mock_causal_fit <- function() {
     ),
     ps_fit = NULL
   )
-  class(out) <- "dpmixgpd_causal_fit"
+  class(out) <- "causalmixgpd_causal_fit"
   out
 }
 
-test_that("print.dpmixgpd_causal_fit works", {
+test_that("print.causalmixgpd_causal_fit works", {
   fit <- make_mock_causal_fit()
-  expect_output(print_dpmixgpd_causal_fit(fit), "DPmixGPD causal fit")
-  expect_output(print_dpmixgpd_causal_fit(fit), "Outcome.*treated")
-  expect_output(print_dpmixgpd_causal_fit(fit), "Outcome.*control")
+  expect_output(print_causalmixgpd_causal_fit(fit), "CausalMixGPD causal fit")
+  expect_output(print_causalmixgpd_causal_fit(fit), "Outcome.*treated")
+  expect_output(print_causalmixgpd_causal_fit(fit), "Outcome.*control")
 })
 
-test_that("print.dpmixgpd_causal_fit shows PS info", {
+test_that("print.causalmixgpd_causal_fit shows PS info", {
   fit <- make_mock_causal_fit()
-  expect_output(print_dpmixgpd_causal_fit(fit), "PS model")
+  expect_output(print_causalmixgpd_causal_fit(fit), "PS model")
 })
 
 # ======================================================================

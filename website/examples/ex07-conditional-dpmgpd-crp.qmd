@@ -26,7 +26,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
 # Load package (with all_quiet to suppress startup messages)
-library(DPmixGPD)
+library(CausalMixGPD)
 
 # Ensure package is fully loaded for data access
 if (!require("devtools", quietly = TRUE)) {
@@ -47,7 +47,7 @@ source("_legacy-setup.R")
 > For the up-to-date workflow, see the main package vignettes (basic, unconditional, conditional, and causal)..
 
 
-# Conditional DPmixGPD: CRP Backend with Tail Augmentation
+# Conditional CausalMixGPD: CRP Backend with Tail Augmentation
 
 **Purpose**: Combine conditional modeling with GPD tail augmentation so each covariate slice inherits both mixture bulk and tail behavior. This extends the unconditional GPD (ex03) and conditional DP (ex05).
 
@@ -56,7 +56,7 @@ source("_legacy-setup.R")
 ## Data Setup
 
 ```{r data-setup}
-data("nc_posX100_p5_k4", package = "DPmixGPD")
+data("nc_posX100_p5_k4", package = "CausalMixGPD")
 y <- nc_posX100_p5_k4$y
 X <- as.matrix(nc_posX100_p5_k4$X)
 if (is.null(colnames(X))) {

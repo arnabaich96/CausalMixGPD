@@ -7,7 +7,7 @@ to the weights and draws from the corresponding component. Quantiles are
 computed by numerical inversion of the mixture CDF. These uppercase
 NIMBLE-compatible functions are scalar (`x`/`q` and `n = 1`). For
 vectorized R usage (including `n > 1`), use
-[`cauchy_mix_lowercase`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/cauchy_mix_lowercase.md).
+[`cauchy_mix_lowercase`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/cauchy_mix_lowercase.md).
 
 ## Usage
 
@@ -113,6 +113,6 @@ qCauchyMix(0.50, w = w, location = location, scale = scale)
 qCauchyMix(0.95, w = w, location = location, scale = scale)
 #> [1] 6.996407
 replicate(10, rCauchyMix(1, w = w, location = location, scale = scale))
-#>  [1]  2.4556124 -2.6557906 -1.9004822 -0.7965394 -1.2070826 -2.4929887
-#>  [7]  1.7092172 -0.3971798 -1.0195259  3.2013812
+#>  [1] -2.5795875 -0.6903653  1.7792099  5.3486299  3.3920039 45.6839639
+#>  [7] -0.8740658 -1.1633733  1.3870253  3.5761715
 ```

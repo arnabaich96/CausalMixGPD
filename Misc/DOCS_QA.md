@@ -1,4 +1,4 @@
-# DPmixGPD Documentation QA Checklist
+# CausalMixGPD Documentation QA Checklist
 
 ## Purpose
 This document serves as a reusable checklist to ensure the pkgdown site maintains professional quality and consistency across all releases.

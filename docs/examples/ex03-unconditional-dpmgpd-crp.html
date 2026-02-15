@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>ex03. Unconditional DPMGPD (CRP Backend) – DPmixGPD</title>
+<title>ex03. Unconditional DPMGPD (CRP Backend) – CausalMixGPD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -145,7 +145,7 @@ window.Quarto = {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../index.html">
-    <span class="navbar-title">DPmixGPD</span>
+    <span class="navbar-title">CausalMixGPD</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -232,7 +232,7 @@ window.Quarto = {
 <span class="menu-text">Articles</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD"> <i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/arnabaich96/CausalMixGPD"> <i class="bi bi-github" role="img">
 </i> 
 <span class="menu-text"></span></a>
   </li>  
@@ -274,15 +274,15 @@ window.Quarto = {
 <p><strong>Legacy vignette (for the website / historical notes).</strong> These files may not match the current exported API one-to-one. Last verified: <strong>2026-01-18</strong>.</p>
 <p>For the up-to-date workflow, see the main package vignettes (basic, unconditional, conditional, and causal)..</p>
 </blockquote>
-<section id="unconditional-dpmixgpd-crp-backend-with-tail-augmentation" class="level1">
-<h1>Unconditional DPmixGPD: CRP Backend with Tail Augmentation</h1>
+<section id="unconditional-causalmixgpd-crp-backend-with-tail-augmentation" class="level1">
+<h1>Unconditional CausalMixGPD: CRP Backend with Tail Augmentation</h1>
 <p><strong>Purpose</strong>: Model the <strong>bulk</strong> of the distribution with a DP mixture (the “kernel” or bulk family) and let a <strong>GPD tail</strong> capture extreme values beyond a threshold. The CRP backend handles partitioning and we toggle <code>GPD = TRUE</code> to augment the tail.</p>
 <hr>
 <section id="data-setup" class="level2">
 <h2 class="anchored" data-anchor-id="data-setup">Data Setup</h2>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load data with an obvious tail</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"nc_pos_tail200_k4"</span>, <span class="at">package =</span> <span class="st">"DPmixGPD"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"nc_pos_tail200_k4"</span>, <span class="at">package =</span> <span class="st">"CausalMixGPD"</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>y_tail <span class="ot">&lt;-</span> nc_pos_tail200_k4<span class="sc">$</span>y</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>y_tail <span class="ot">&lt;-</span> y_tail[<span class="fu">is.finite</span>(y_tail) <span class="sc">&amp;</span> y_tail <span class="sc">&gt;</span> <span class="dv">0</span>]</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
@@ -324,9 +324,9 @@ window.Quarto = {
 </section>
 <section id="model-specification-bundle" class="level2">
 <h2 class="anchored" data-anchor-id="model-specification-bundle">Model Specification &amp; Bundle</h2>
-<p>This mirrors the direct <code>DPmixGPD::bundle()</code> workflow in <code>start/backends-and-workflow</code>, but with <strong>tail augmentation</strong> turned on (<code>GPD = TRUE</code>). Here we use an <strong>Inverse Gaussian</strong> bulk kernel and estimate the GPD threshold with a lognormal prior centered at the empirical 80th percentile.</p>
+<p>This mirrors the direct <code>CausalMixGPD::bundle()</code> workflow in <code>start/backends-and-workflow</code>, but with <strong>tail augmentation</strong> turned on (<code>GPD = TRUE</code>). Here we use an <strong>Inverse Gaussian</strong> bulk kernel and estimate the GPD threshold with a lognormal prior centered at the empirical 80th percentile.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>bundle_gpd <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>bundle_gpd <span class="ot">&lt;-</span> CausalMixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y_tail,</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"invgauss"</span>,</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
@@ -350,7 +350,7 @@ window.Quarto = {
 <section id="running-mcmc-diagnostics" class="level2">
 <h2 class="anchored" data-anchor-id="running-mcmc-diagnostics">Running MCMC &amp; Diagnostics</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fit_gpd <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex03-unconditional-dpmgpd-crp-fit_gpd"</span>, DPmixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle_gpd))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fit_gpd <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex03-unconditional-dpmgpd-crp-fit_gpd"</span>, CausalMixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle_gpd))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -391,7 +391,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="bulk-only-baseline-comparison">Bulk-Only Baseline Comparison</h2>
 <p>To demonstrate the value of tail augmentation, we fit a bulk-only lognormal DP mixture and compare posterior summaries against the InvGauss+GPD fit.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>bundle_bulk_only <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>bundle_bulk_only <span class="ot">&lt;-</span> CausalMixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y_tail,</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"lognormal"</span>,</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
@@ -399,7 +399,7 @@ window.Quarto = {
 <span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">5</span>,</span>
 <span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc =</span> mcmc</span>
 <span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>fit_bulk_only <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex03-unconditional-dpmgpd-crp-fit_bulk_only"</span>, DPmixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle_bulk_only))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>fit_bulk_only <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex03-unconditional-dpmgpd-crp-fit_bulk_only"</span>, CausalMixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle_bulk_only))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>bulk_quantiles <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_bulk_only, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> quantile_probs)</span>
@@ -440,7 +440,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="threshold-sensitivity">Threshold Sensitivity</h2>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>sensitivity_fits <span class="ot">&lt;-</span> <span class="fu">lapply</span>(thresholds, <span class="cf">function</span>(u) {</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  bundle <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  bundle <span class="ot">&lt;-</span> CausalMixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> y_tail,</span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">kernel =</span> <span class="st">"invgauss"</span>,</span>
 <span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
@@ -453,7 +453,7 @@ window.Quarto = {
 <span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">components =</span> <span class="dv">5</span>,</span>
 <span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">mcmc =</span> mcmc</span>
 <span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex03-unconditional-dpmgpd-crp-fit"</span>, DPmixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle))</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex03-unconditional-dpmgpd-crp-fit"</span>, CausalMixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle))</span>
 <span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">threshold =</span> u, <span class="at">fit =</span> fit)</span>
 <span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>})</span>
 <span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a></span>
@@ -532,7 +532,7 @@ window.Quarto = {
 ">
 
   <div>
-    (c) DPmixGPD - Bayesian semiparametric modeling for heavy-tailed data
+    (c) CausalMixGPD - Bayesian semiparametric modeling for heavy-tailed data
   </div>
 
   <div>
@@ -540,7 +540,7 @@ window.Quarto = {
     <span id="site-updated"></span> -
     <a href="../cite.html">Cite</a> -
     <a href="../pkgdown/index.html">API</a> -
-    <a href="https://github.com/arnabaich96/DPmixGPD">GitHub</a>
+    <a href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a>
   </div>
 
 </div>

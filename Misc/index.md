@@ -1,13 +1,13 @@
-# DPmixGPD
+# CausalMixGPD
 
-DPmixGPD fits **Dirichlet process mixture models** (CRP or stick-breaking backends) with an **optional Generalized Pareto (GPD) tail** so you can model the bulk and extremes *together* and still get clean, user-friendly prediction APIs.
+CausalMixGPD fits **Dirichlet process mixture models** (CRP or stick-breaking backends) with an **optional Generalized Pareto (GPD) tail** so you can model the bulk and extremes *together* and still get clean, user-friendly prediction APIs.
 
 ## Install
 
 ```r
 # install.packages("remotes")
 remotes::install_github(
-  "arnabaich96/DPmixGPD",
+  "arnabaich96/CausalMixGPD",
   build_vignettes = TRUE,
   INSTALL_opts = c("--html")
 )
@@ -16,7 +16,7 @@ remotes::install_github(
 ## Quickstart
 
 ```r
-library(DPmixGPD)
+library(CausalMixGPD)
 
 set.seed(1)
 y <- abs(rnorm(120)) + 0.2
@@ -53,15 +53,15 @@ predict(fit, type = "quantile", p = c(0.1, 0.5, 0.9))
 
 - [DPmix with CRP](articles/v06-unconditional-DPmix-CRP.html)
 - [DPmix with SB](articles/v07-unconditional-DPmix-SB.html)
-- [DPmixGPD with CRP](articles/v08-unconditional-DPmixGPD-CRP.html)
-- [DPmixGPD with SB](articles/v09-unconditional-DPmixGPD-SB.html)
+- [CausalMixGPD with CRP](articles/v08-unconditional-CausalMixGPD-CRP.html)
+- [CausalMixGPD with SB](articles/v09-unconditional-CausalMixGPD-SB.html)
 
 ### Conditional models (y | X)
 
 - [Conditional DPmix CRP](articles/v10-conditional-DPmix-CRP.html)
 - [Conditional DPmix SB](articles/v11-conditional-DPmix-SB.html)
-- [Conditional DPmixGPD CRP](articles/v12-conditional-DPmixGPD-CRP.html)
-- [Conditional DPmixGPD SB](articles/v13-conditional-DPmixGPD-SB.html)
+- [Conditional CausalMixGPD CRP](articles/v12-conditional-CausalMixGPD-CRP.html)
+- [Conditional CausalMixGPD SB](articles/v13-conditional-CausalMixGPD-SB.html)
 
 ### Causal inference (two-arm outcome models)
 
@@ -90,7 +90,7 @@ These pages are quick reminders of parameterizations and the relevant exported h
 
 ## Core S3 methods
 
-Fitted model objects (`mixgpd_fit` and `dpmixgpd_causal_fit`) support:
+Fitted model objects (`mixgpd_fit` and `causalmixgpd_causal_fit`) support:
 
 - `print()`, `summary()`
 - `params()`
@@ -109,5 +109,5 @@ Fitted model objects (`mixgpd_fit` and `dpmixgpd_causal_fit`) support:
 | Metric | Current value | Source |
 | --- | --- | --- |
 | Test coverage (tests) | `0%` | `inst/extdata/coverage_status.json` (run `tools/update_coverage_status.R`) |
-| Coverage helper | `DPmixGPD::coverage_status()` | runs `covr::package_coverage()` and can refresh the JSON file |
-| Status reader | `DPmixGPD::read_coverage_status()` | easy lookup for badges or pkgdown site |
+| Coverage helper | `CausalMixGPD::coverage_status()` | runs `covr::package_coverage()` and can refresh the JSON file |
+| Status reader | `CausalMixGPD::read_coverage_status()` | easy lookup for badges or pkgdown site |

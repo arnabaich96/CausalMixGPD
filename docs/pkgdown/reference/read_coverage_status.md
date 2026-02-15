@@ -6,7 +6,7 @@ Read stored coverage status
 
 ``` r
 read_coverage_status(
-  file = system.file("extdata/coverage_status.json", package = "DPmixGPD")
+  file = system.file("extdata/coverage_status.json", package = "CausalMixGPD")
 )
 ```
 
@@ -21,4 +21,4 @@ read_coverage_status(
 ## Value
 
 Named list as saved by
-[`coverage_status()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/coverage_status.md).
+[`coverage_status()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/coverage_status.md).

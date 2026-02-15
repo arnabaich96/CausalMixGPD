@@ -36,7 +36,7 @@ test_that("causal workflow: representative combos (Tier B)", {
   for (cfg in combos) {
     info <- cfg$label
 
-    cb <- DPmixGPD::build_causal_bundle(
+    cb <- CausalMixGPD::build_causal_bundle(
       y = y,
       X = X,
       A = t_ind,
@@ -50,10 +50,10 @@ test_that("causal workflow: representative combos (Tier B)", {
 
     )
 
-    cf <- DPmixGPD::run_mcmc_causal(cb, show_progress = FALSE)
+    cf <- CausalMixGPD::run_mcmc_causal(cb, show_progress = FALSE)
 
     # Basic structure checks
-    expect_true(inherits(cf, "dpmixgpd_causal_fit"), info = info)
+    expect_true(inherits(cf, "causalmixgpd_causal_fit"), info = info)
     expect_true(inherits(cf$outcome_fit$con, "mixgpd_fit"), info = info)
     expect_true(inherits(cf$outcome_fit$trt, "mixgpd_fit"), info = info)
 
@@ -87,7 +87,7 @@ test_that("causal workflow: representative combos (Tier B)", {
 # Tier C (full): Exhaustive kernel x backend x GPD grid
 # =============================================================================
 test_that("causal workflow: exhaustive kernel combos (Tier C)", {
-  skip_if_not_full()
+  skip_if_not_test_level("ci")
 
   set.seed(1)
   n <- 30
@@ -105,7 +105,7 @@ test_that("causal workflow: exhaustive kernel combos (Tier C)", {
   mcmc_out <- mcmc_fast(seed = 1L)
   mcmc_ps <- mcmc_fast(seed = 2L)
 
-  kernels <- names(DPmixGPD::get_kernel_registry())
+  kernels <- names(CausalMixGPD::get_kernel_registry())
   combos <- list()
   for (k in kernels) {
     combos[[paste0(k, "_bulk")]] <- list(
@@ -148,10 +148,10 @@ test_that("causal workflow: exhaustive kernel combos (Tier C)", {
       cache_key <- .cache_hash(key_str)
     }
     cached <- if (!is.null(cache_key)) .cache_get(cache_key) else NULL
-    if (!is.null(cached) && inherits(cached$cf, "dpmixgpd_causal_fit")) {
+    if (!is.null(cached) && inherits(cached$cf, "causalmixgpd_causal_fit")) {
       cf <- cached$cf
     } else {
-      cb <- DPmixGPD::build_causal_bundle(
+      cb <- CausalMixGPD::build_causal_bundle(
         y = y,
         X = cfg$X,
         A = t_ind,
@@ -163,11 +163,11 @@ test_that("causal workflow: exhaustive kernel combos (Tier C)", {
         mcmc_outcome = mcmc_out,
         mcmc_ps = mcmc_ps
       )
-      cf <- DPmixGPD::run_mcmc_causal(cb, show_progress = FALSE)
+      cf <- CausalMixGPD::run_mcmc_causal(cb, show_progress = FALSE)
       if (!is.null(cache_key)) .cache_set(cache_key, list(cf = cf))
     }
 
-    expect_true(inherits(cf, "dpmixgpd_causal_fit"), info = info)
+    expect_true(inherits(cf, "causalmixgpd_causal_fit"), info = info)
     expect_true(inherits(cf$outcome_fit$con, "mixgpd_fit"), info = info)
     expect_true(inherits(cf$outcome_fit$trt, "mixgpd_fit"), info = info)
 
@@ -221,7 +221,7 @@ test_that("PS parameter: logit, probit, naive, FALSE all work", {
   for (ps_opt in ps_options) {
     label <- if (isFALSE(ps_opt)) "FALSE" else ps_opt
     # Build bundle
-    cb <- DPmixGPD::build_causal_bundle(
+    cb <- CausalMixGPD::build_causal_bundle(
       y = y,
       X = X,
       A = A,
@@ -235,7 +235,7 @@ test_that("PS parameter: logit, probit, naive, FALSE all work", {
     )
 
     # Check metadata
-    expect_true(inherits(cb, "dpmixgpd_causal_bundle"), info = label)
+    expect_true(inherits(cb, "causalmixgpd_causal_bundle"), info = label)
     expect_true(!is.null(cb$meta$ps), info = label)
     if (isFALSE(ps_opt)) {
       expect_false(cb$meta$ps$enabled, info = label)
@@ -246,8 +246,8 @@ test_that("PS parameter: logit, probit, naive, FALSE all work", {
     }
 
     # Run MCMC
-    cf <- DPmixGPD::run_mcmc_causal(cb, show_progress = FALSE)
-    expect_true(inherits(cf, "dpmixgpd_causal_fit"), info = label)
+    cf <- CausalMixGPD::run_mcmc_causal(cb, show_progress = FALSE)
+    expect_true(inherits(cf, "causalmixgpd_causal_fit"), info = label)
 
     if (isFALSE(ps_opt)) {
       # No PS model
@@ -294,7 +294,7 @@ test_that("ATE/QTE use matching posterior draws and shapes", {
   mcmc_out <- list(niter = 20, nburnin = 5, thin = 1, nchains = 1, seed = 1)
   mcmc_ps  <- list(niter = 20, nburnin = 5, thin = 1, nchains = 1, seed = 1)
 
-  cb <- DPmixGPD::build_causal_bundle(
+  cb <- CausalMixGPD::build_causal_bundle(
     y = y,
     X = X,
     A = A,
@@ -306,17 +306,17 @@ test_that("ATE/QTE use matching posterior draws and shapes", {
     mcmc_ps = mcmc_ps
   )
 
-  cf <- DPmixGPD::run_mcmc_causal(cb, show_progress = FALSE)
+  cf <- CausalMixGPD::run_mcmc_causal(cb, show_progress = FALSE)
   newx <- head(X, 3)
 
-  qres <- DPmixGPD::cqte(cf, probs = c(0.25, 0.5), newdata = newx, interval = "credible")
+  qres <- CausalMixGPD::cqte(cf, probs = c(0.25, 0.5), newdata = newx, interval = "credible")
   expect_true(is.matrix(qres$fit) && all(dim(qres$fit) == c(nrow(newx), 2)))
   expect_true(identical(dim(qres$trt$draws), dim(qres$con$draws)))
   diff_q <- qres$trt$draws - qres$con$draws
   expect_equal(apply(diff_q, c(2, 3), mean), qres$fit, tolerance = 1e-8)
   expect_true(all(qres$lower <= qres$upper, na.rm = TRUE))
 
-  ares <- DPmixGPD::cate(cf, newdata = newx, interval = "credible", nsim_mean = 20L)
+  ares <- CausalMixGPD::cate(cf, newdata = newx, interval = "credible", nsim_mean = 20L)
   expect_true(length(ares$fit) == nrow(newx))
   expect_true(identical(dim(ares$trt$draws), dim(ares$con$draws)))
   expect_true(is.null(ares$grid))
@@ -334,19 +334,28 @@ test_that("marginal ate/qte aggregate conditional cate/cqte draws over training 
   probs <- c(0.25, 0.5)
 
   set.seed(101)
-  ca <- DPmixGPD::cate(cf, newdata = X, interval = "credible", nsim_mean = 20L)
+  ca <- CausalMixGPD::cate(cf, newdata = X, interval = "credible", nsim_mean = 20L)
   set.seed(101)
-  a <- DPmixGPD::ate(cf, interval = "credible", nsim_mean = 20L)
+  a <- CausalMixGPD::ate(cf, interval = "credible", nsim_mean = 20L)
   a_exp_draws <- rowMeans(ca$ate$draws, na.rm = TRUE)
   expect_equal(as.numeric(a$ate$draws[, 1]), a_exp_draws, tolerance = 1e-8)
   expect_equal(as.numeric(a$fit), mean(a_exp_draws), tolerance = 1e-8)
 
   set.seed(202)
-  cq <- DPmixGPD::cqte(cf, probs = probs, newdata = X, interval = "credible")
+  ps_cov <- if (!is.null(cf$ps_cov)) cf$ps_cov else NULL
+  pr_trt_fit <- predict(cf$outcome_fit$trt, x = X, type = "fit",
+                        ps = ps_cov, interval = NULL, store_draws = TRUE)
+  pr_con_fit <- predict(cf$outcome_fit$con, x = X, type = "fit",
+                        ps = ps_cov, interval = NULL, store_draws = TRUE)
+  trt_fit_draws <- as.matrix(pr_trt_fit$draws)
+  con_fit_draws <- as.matrix(pr_con_fit$draws)
+  trt_q_draws <- t(apply(trt_fit_draws, 1, stats::quantile,
+                         probs = probs, na.rm = TRUE, names = FALSE, type = 7))
+  con_q_draws <- t(apply(con_fit_draws, 1, stats::quantile,
+                         probs = probs, na.rm = TRUE, names = FALSE, type = 7))
+  q_exp_draws <- trt_q_draws - con_q_draws
   set.seed(202)
-  q <- DPmixGPD::qte(cf, probs = probs, interval = "credible")
-  q_exp_draws <- apply(cq$qte$draws, c(1, 3), mean, na.rm = TRUE)
-  q_exp_draws <- matrix(q_exp_draws, ncol = length(probs))
+  q <- CausalMixGPD::qte(cf, probs = probs, interval = "credible")
   expect_equal(matrix(q$qte$draws[, 1, ], ncol = length(probs)), q_exp_draws, tolerance = 1e-8)
   expect_equal(as.numeric(q$fit$estimate), colMeans(q_exp_draws, na.rm = TRUE), tolerance = 1e-8)
   expect_equal(as.numeric(q$fit$index), probs, tolerance = 0)
@@ -359,12 +368,12 @@ test_that("conditional causal models support all six treatment-effect estimands"
   cf <- data$fit
   X <- data$X
 
-  expect_s3_class(DPmixGPD::cate(cf, newdata = X[1:2, , drop = FALSE], nsim_mean = 20L), "dpmixgpd_ate")
-  expect_s3_class(DPmixGPD::cqte(cf, probs = c(0.25, 0.5), newdata = X[1:2, , drop = FALSE]), "dpmixgpd_qte")
-  expect_s3_class(DPmixGPD::ate(cf, nsim_mean = 20L), "dpmixgpd_ate")
-  expect_s3_class(DPmixGPD::att(cf, nsim_mean = 20L), "dpmixgpd_ate")
-  expect_s3_class(DPmixGPD::qte(cf, probs = c(0.25, 0.5)), "dpmixgpd_qte")
-  expect_s3_class(DPmixGPD::qtt(cf, probs = c(0.25, 0.5)), "dpmixgpd_qte")
+  expect_s3_class(CausalMixGPD::cate(cf, newdata = X[1:2, , drop = FALSE], nsim_mean = 20L), "causalmixgpd_ate")
+  expect_s3_class(CausalMixGPD::cqte(cf, probs = c(0.25, 0.5), newdata = X[1:2, , drop = FALSE]), "causalmixgpd_qte")
+  expect_s3_class(CausalMixGPD::ate(cf, nsim_mean = 20L), "causalmixgpd_ate")
+  expect_s3_class(CausalMixGPD::att(cf, nsim_mean = 20L), "causalmixgpd_ate")
+  expect_s3_class(CausalMixGPD::qte(cf, probs = c(0.25, 0.5)), "causalmixgpd_qte")
+  expect_s3_class(CausalMixGPD::qtt(cf, probs = c(0.25, 0.5)), "causalmixgpd_qte")
 })
 
 test_that("att/qtt aggregate over treated-assigned rows only", {
@@ -377,19 +386,28 @@ test_that("att/qtt aggregate over treated-assigned rows only", {
   probs <- c(0.25, 0.5)
 
   set.seed(303)
-  ca <- DPmixGPD::cate(cf, newdata = X, interval = "credible", nsim_mean = 20L)
+  ca <- CausalMixGPD::cate(cf, newdata = X, interval = "credible", nsim_mean = 20L)
   set.seed(303)
-  a_tt <- DPmixGPD::att(cf, interval = "credible", nsim_mean = 20L)
+  a_tt <- CausalMixGPD::att(cf, interval = "credible", nsim_mean = 20L)
   att_exp_draws <- rowMeans(ca$ate$draws[, idx_trt, drop = FALSE], na.rm = TRUE)
   expect_equal(as.numeric(a_tt$ate$draws[, 1]), att_exp_draws, tolerance = 1e-8)
   expect_equal(as.numeric(a_tt$fit), mean(att_exp_draws), tolerance = 1e-8)
 
   set.seed(404)
-  cq <- DPmixGPD::cqte(cf, probs = probs, newdata = X, interval = "credible")
+  ps_cov <- if (!is.null(cf$ps_cov)) cf$ps_cov else NULL
+  pr_trt_fit <- predict(cf$outcome_fit$trt, x = X, type = "fit",
+                        ps = ps_cov, interval = NULL, store_draws = TRUE)
+  pr_con_fit <- predict(cf$outcome_fit$con, x = X, type = "fit",
+                        ps = ps_cov, interval = NULL, store_draws = TRUE)
+  trt_fit_draws <- as.matrix(pr_trt_fit$draws)[, idx_trt, drop = FALSE]
+  con_fit_draws <- as.matrix(pr_con_fit$draws)[, idx_trt, drop = FALSE]
+  trt_qtt_draws <- t(apply(trt_fit_draws, 1, stats::quantile,
+                           probs = probs, na.rm = TRUE, names = FALSE, type = 7))
+  con_qtt_draws <- t(apply(con_fit_draws, 1, stats::quantile,
+                           probs = probs, na.rm = TRUE, names = FALSE, type = 7))
+  qtt_exp_draws <- trt_qtt_draws - con_qtt_draws
   set.seed(404)
-  q_tt <- DPmixGPD::qtt(cf, probs = probs, interval = "credible")
-  qtt_exp_draws <- apply(cq$qte$draws[, idx_trt, , drop = FALSE], c(1, 3), mean, na.rm = TRUE)
-  qtt_exp_draws <- matrix(qtt_exp_draws, ncol = length(probs))
+  q_tt <- CausalMixGPD::qtt(cf, probs = probs, interval = "credible")
   expect_equal(matrix(q_tt$qte$draws[, 1, ], ncol = length(probs)), qtt_exp_draws, tolerance = 1e-8)
   expect_equal(as.numeric(q_tt$fit$estimate), colMeans(qtt_exp_draws, na.rm = TRUE), tolerance = 1e-8)
   expect_equal(as.numeric(q_tt$fit$index), probs, tolerance = 0)
@@ -403,27 +421,27 @@ test_that("marginal effect functions warn and ignore newdata/y arguments", {
   X <- data$X
 
   set.seed(510)
-  a0 <- DPmixGPD::ate(cf, nsim_mean = 20L, interval = "credible")
+  a0 <- CausalMixGPD::ate(cf, nsim_mean = 20L, interval = "credible")
   set.seed(510)
-  expect_warning(a1 <- DPmixGPD::ate(cf, newdata = X[1:2, ], nsim_mean = 20L, interval = "credible"), "ignored")
+  expect_warning(a1 <- CausalMixGPD::ate(cf, newdata = X[1:2, ], nsim_mean = 20L, interval = "credible"), "ignored")
   expect_equal(as.numeric(a1$fit), as.numeric(a0$fit), tolerance = 1e-8)
 
   set.seed(511)
-  q0 <- DPmixGPD::qte(cf, probs = c(0.25, 0.5), interval = "credible")
+  q0 <- CausalMixGPD::qte(cf, probs = c(0.25, 0.5), interval = "credible")
   set.seed(511)
-  expect_warning(q1 <- DPmixGPD::qte(cf, newdata = X[1:2, ], probs = c(0.25, 0.5), interval = "credible"), "ignored")
+  expect_warning(q1 <- CausalMixGPD::qte(cf, newdata = X[1:2, ], probs = c(0.25, 0.5), interval = "credible"), "ignored")
   expect_equal(as.numeric(q1$fit$estimate), as.numeric(q0$fit$estimate), tolerance = 1e-8)
 
   set.seed(512)
-  att0 <- DPmixGPD::att(cf, nsim_mean = 20L, interval = "credible")
+  att0 <- CausalMixGPD::att(cf, nsim_mean = 20L, interval = "credible")
   set.seed(512)
-  expect_warning(att1 <- DPmixGPD::att(cf, y = 1, nsim_mean = 20L, interval = "credible"), "ignored")
+  expect_warning(att1 <- CausalMixGPD::att(cf, y = 1, nsim_mean = 20L, interval = "credible"), "ignored")
   expect_equal(as.numeric(att1$fit), as.numeric(att0$fit), tolerance = 1e-8)
 
   set.seed(513)
-  qtt0 <- DPmixGPD::qtt(cf, probs = c(0.25, 0.5), interval = "credible")
+  qtt0 <- CausalMixGPD::qtt(cf, probs = c(0.25, 0.5), interval = "credible")
   set.seed(513)
-  expect_warning(qtt1 <- DPmixGPD::qtt(cf, y = 1, probs = c(0.25, 0.5), interval = "credible"), "ignored")
+  expect_warning(qtt1 <- CausalMixGPD::qtt(cf, y = 1, probs = c(0.25, 0.5), interval = "credible"), "ignored")
   expect_equal(as.numeric(qtt1$fit$estimate), as.numeric(qtt0$fit$estimate), tolerance = 1e-8)
 })
 
@@ -436,15 +454,15 @@ test_that("cate/cqte default to training X when newdata is missing", {
   probs <- c(0.25, 0.5)
 
   set.seed(520)
-  c_ref <- DPmixGPD::cate(cf, newdata = X, interval = "credible", nsim_mean = 20L)
+  c_ref <- CausalMixGPD::cate(cf, newdata = X, interval = "credible", nsim_mean = 20L)
   set.seed(520)
-  c_def <- DPmixGPD::cate(cf, interval = "credible", nsim_mean = 20L)
+  c_def <- CausalMixGPD::cate(cf, interval = "credible", nsim_mean = 20L)
   expect_equal(c_def$fit, c_ref$fit, tolerance = 1e-8)
 
   set.seed(521)
-  q_ref <- DPmixGPD::cqte(cf, probs = probs, newdata = X, interval = "credible")
+  q_ref <- CausalMixGPD::cqte(cf, probs = probs, newdata = X, interval = "credible")
   set.seed(521)
-  q_def <- DPmixGPD::cqte(cf, probs = probs, interval = "credible")
+  q_def <- CausalMixGPD::cqte(cf, probs = probs, interval = "credible")
   expect_equal(q_def$fit, q_ref$fit, tolerance = 1e-8)
 })
 
@@ -461,14 +479,14 @@ test_that("marginal estimands do not call conditional exported estimands", {
   expect_error(
     testthat::with_mocked_bindings(
       {
-        DPmixGPD::ate(cf, interval = "none", nsim_mean = 20L)
-        DPmixGPD::att(cf, interval = "none", nsim_mean = 20L)
-        DPmixGPD::qte(cf, probs = c(0.25, 0.5), interval = "none")
-        DPmixGPD::qtt(cf, probs = c(0.25, 0.5), interval = "none")
+        CausalMixGPD::ate(cf, interval = "none", nsim_mean = 20L)
+        CausalMixGPD::att(cf, interval = "none", nsim_mean = 20L)
+        CausalMixGPD::qte(cf, probs = c(0.25, 0.5), interval = "none")
+        CausalMixGPD::qtt(cf, probs = c(0.25, 0.5), interval = "none")
       },
       cate = function(...) stop("cate() should not be called by marginal estimands", call. = FALSE),
       cqte = function(...) stop("cqte() should not be called by marginal estimands", call. = FALSE),
-      .package = "DPmixGPD"
+      .package = "CausalMixGPD"
     ),
     NA
   )
@@ -482,7 +500,7 @@ test_that("marginal estimands degrade to single-point summaries without covariat
   A <- c(rep(0L, n / 2), rep(1L, n / 2))
   y <- abs(stats::rnorm(n)) + 0.1
 
-  cb <- DPmixGPD::build_causal_bundle(
+  cb <- CausalMixGPD::build_causal_bundle(
     y = y,
     X = NULL,
     A = A,
@@ -494,15 +512,15 @@ test_that("marginal estimands degrade to single-point summaries without covariat
     mcmc_ps = list(niter = 20, nburnin = 5, thin = 1, nchains = 1, seed = 12),
     PS = FALSE
   )
-  cf <- DPmixGPD::run_mcmc_causal(cb, show_progress = FALSE)
+  cf <- CausalMixGPD::run_mcmc_causal(cb, show_progress = FALSE)
 
-  a <- DPmixGPD::ate(cf, interval = "credible", nsim_mean = 20L)
-  a_tt <- DPmixGPD::att(cf, interval = "credible", nsim_mean = 20L)
-  q <- DPmixGPD::qte(cf, probs = c(0.25, 0.5), interval = "credible")
-  q_tt <- DPmixGPD::qtt(cf, probs = c(0.25, 0.5), interval = "credible")
+  a <- CausalMixGPD::ate(cf, interval = "credible", nsim_mean = 20L)
+  a_tt <- CausalMixGPD::att(cf, interval = "credible", nsim_mean = 20L)
+  q <- CausalMixGPD::qte(cf, probs = c(0.25, 0.5), interval = "credible")
+  q_tt <- CausalMixGPD::qtt(cf, probs = c(0.25, 0.5), interval = "credible")
 
-  expect_error(DPmixGPD::cate(cf, interval = "credible", nsim_mean = 20L), "conditional causal models")
-  expect_error(DPmixGPD::cqte(cf, probs = c(0.25, 0.5), interval = "credible"), "conditional causal models")
+  expect_error(CausalMixGPD::cate(cf, interval = "credible", nsim_mean = 20L), "conditional causal models")
+  expect_error(CausalMixGPD::cqte(cf, probs = c(0.25, 0.5), interval = "credible"), "conditional causal models")
 
   expect_equal(a$n_pred, 1L)
   expect_equal(a_tt$n_pred, 1L)
@@ -522,7 +540,7 @@ test_that("ate_rmean returns finite estimates with same structure as ate", {
   mcmc_out <- list(niter = 20, nburnin = 5, thin = 1, nchains = 1, seed = 1)
   mcmc_ps  <- list(niter = 20, nburnin = 5, thin = 1, nchains = 1, seed = 1)
 
-  cb <- DPmixGPD::build_causal_bundle(
+  cb <- CausalMixGPD::build_causal_bundle(
     y = y,
     X = X,
     A = A,
@@ -534,10 +552,10 @@ test_that("ate_rmean returns finite estimates with same structure as ate", {
     mcmc_ps = mcmc_ps
   )
 
-  cf <- DPmixGPD::run_mcmc_causal(cb, show_progress = FALSE)
+  cf <- CausalMixGPD::run_mcmc_causal(cb, show_progress = FALSE)
   newx <- head(X, 3)
 
-  ares <- DPmixGPD::ate_rmean(cf, newdata = newx, cutoff = 10, interval = "credible", nsim_mean = 20L)
+  ares <- CausalMixGPD::ate_rmean(cf, newdata = newx, cutoff = 10, interval = "credible", nsim_mean = 20L)
   expect_true(length(ares$fit) == nrow(newx))
   expect_true(all(is.finite(ares$fit)))
   expect_true(is.null(ares$grid))
@@ -559,7 +577,7 @@ test_that("ate(type='mean') returns Inf when outcome GPD has tail_shape >= 1", {
   mcmc_out <- list(niter = 20, nburnin = 5, thin = 1, nchains = 1, seed = 1)
   mcmc_ps  <- list(niter = 20, nburnin = 5, thin = 1, nchains = 1, seed = 1)
 
-  cb <- DPmixGPD::build_causal_bundle(
+  cb <- CausalMixGPD::build_causal_bundle(
     y = y,
     X = X,
     A = A,
@@ -571,7 +589,7 @@ test_that("ate(type='mean') returns Inf when outcome GPD has tail_shape >= 1", {
     mcmc_ps = mcmc_ps
   )
 
-  cf <- DPmixGPD::run_mcmc_causal(cb, show_progress = FALSE)
+  cf <- CausalMixGPD::run_mcmc_causal(cb, show_progress = FALSE)
   newx <- head(X, 3)
 
   # Patch treated outcome so one draw has tail_shape >= 1 -> posterior mean infinite
@@ -589,7 +607,7 @@ test_that("ate(type='mean') returns Inf when outcome GPD has tail_shape >= 1", {
   cf$outcome_fit$trt <- trt_fit
 
   expect_warning(
-    ares <- DPmixGPD::cate(cf, newdata = newx, type = "mean", interval = NULL, nsim_mean = 20L),
+    ares <- CausalMixGPD::cate(cf, newdata = newx, type = "mean", interval = NULL, nsim_mean = 20L),
     "infinite"
   )
   expect_true(all(!is.finite(ares$fit)) | any(ares$fit == Inf))
@@ -607,7 +625,7 @@ test_that("ate_rmean returns finite estimates when outcome has GPD (same structu
   mcmc_out <- list(niter = 20, nburnin = 5, thin = 1, nchains = 1, seed = 1)
   mcmc_ps  <- list(niter = 20, nburnin = 5, thin = 1, nchains = 1, seed = 1)
 
-  cb <- DPmixGPD::build_causal_bundle(
+  cb <- CausalMixGPD::build_causal_bundle(
     y = y,
     X = X,
     A = A,
@@ -619,10 +637,10 @@ test_that("ate_rmean returns finite estimates when outcome has GPD (same structu
     mcmc_ps = mcmc_ps
   )
 
-  cf <- DPmixGPD::run_mcmc_causal(cb, show_progress = FALSE)
+  cf <- CausalMixGPD::run_mcmc_causal(cb, show_progress = FALSE)
   newx <- head(X, 3)
 
-  ares <- DPmixGPD::ate_rmean(cf, newdata = newx, cutoff = 10, interval = "credible", nsim_mean = 20L)
+  ares <- CausalMixGPD::ate_rmean(cf, newdata = newx, cutoff = 10, interval = "credible", nsim_mean = 20L)
   expect_true(length(ares$fit) == nrow(newx))
   expect_true(all(is.finite(ares$fit)))
   expect_true(is.null(ares$grid))
@@ -633,7 +651,7 @@ test_that("ate_rmean returns finite estimates when outcome has GPD (same structu
 # =============================================================================
 # build_causal_bundle validation (from test-causal-validation.R)
 # =============================================================================
-build_causal_bundle <- DPmixGPD::build_causal_bundle
+build_causal_bundle <- CausalMixGPD::build_causal_bundle
 
 test_that("build_causal_bundle errors on empty y", {
   expect_error(
@@ -820,7 +838,7 @@ test_that("build_causal_bundle returns correct class", {
 
   )
 
-  expect_s3_class(bundle, "dpmixgpd_causal_bundle")
+  expect_s3_class(bundle, "causalmixgpd_causal_bundle")
 })
 
 test_that("build_causal_bundle has required components", {
@@ -865,8 +883,8 @@ test_that("build_causal_bundle creates outcome bundles for both arms", {
 
   expect_true("trt" %in% names(bundle$outcome))
   expect_true("con" %in% names(bundle$outcome))
-  expect_s3_class(bundle$outcome$trt, "dpmixgpd_bundle")
-  expect_s3_class(bundle$outcome$con, "dpmixgpd_bundle")
+  expect_s3_class(bundle$outcome$trt, "causalmixgpd_bundle")
+  expect_s3_class(bundle$outcome$con, "causalmixgpd_bundle")
 })
 
 test_that("build_causal_bundle stores correct indices", {
@@ -1022,7 +1040,7 @@ test_that("build_causal_bundle supports PS='logit'", {
     PS = "logit"
   )
 
-  expect_s3_class(bundle, "dpmixgpd_causal_bundle")
+  expect_s3_class(bundle, "causalmixgpd_causal_bundle")
   expect_equal(bundle$meta$ps$model_type, "logit")
 })
 
@@ -1043,7 +1061,7 @@ test_that("build_causal_bundle supports PS='probit'", {
     PS = "probit"
   )
 
-  expect_s3_class(bundle, "dpmixgpd_causal_bundle")
+  expect_s3_class(bundle, "causalmixgpd_causal_bundle")
   expect_equal(bundle$meta$ps$model_type, "probit")
 })
 
@@ -1064,7 +1082,7 @@ test_that("build_causal_bundle supports PS='naive'", {
     PS = "naive"
   )
 
-  expect_s3_class(bundle, "dpmixgpd_causal_bundle")
+  expect_s3_class(bundle, "causalmixgpd_causal_bundle")
   expect_equal(bundle$meta$ps$model_type, "naive")
 })
 
@@ -1087,7 +1105,7 @@ test_that("build_causal_bundle handles NULL X for RCT", {
     components = 4
   )
 
-  expect_s3_class(bundle, "dpmixgpd_causal_bundle")
+  expect_s3_class(bundle, "causalmixgpd_causal_bundle")
   expect_false(bundle$meta$has_x)
 })
 
@@ -1107,7 +1125,7 @@ test_that("build_causal_bundle handles empty matrix X", {
     components = 4
   )
 
-  expect_s3_class(bundle, "dpmixgpd_causal_bundle")
+  expect_s3_class(bundle, "causalmixgpd_causal_bundle")
   expect_false(bundle$meta$has_x)
 })
 
@@ -1210,7 +1228,7 @@ test_that("build_causal_bundle applies arm-specific param_specs", {
   mcmc_out <- mcmc_fast(seed = 1L)
   mcmc_ps <- mcmc_fast(seed = 2L)
 
-  cb <- DPmixGPD::build_causal_bundle(
+  cb <- CausalMixGPD::build_causal_bundle(
     y = y,
     X = X,
     A = T_ind,
@@ -1224,7 +1242,7 @@ test_that("build_causal_bundle applies arm-specific param_specs", {
 
   )
 
-  cf <- DPmixGPD::run_mcmc_causal(cb, show_progress = FALSE)
+  cf <- CausalMixGPD::run_mcmc_causal(cb, show_progress = FALSE)
   list(fit = cf, X = X, y = y, n = n)
 }
 
@@ -1264,9 +1282,9 @@ test_that("causal predict: quantile requires p parameter", {
     "finite prob"
   )
 
-  # Multiple p values are supported: returns dpmixgpd_causal_predict
+  # Multiple p values are supported: returns causalmixgpd_causal_predict
   pred_multi <- predict(cf, x = X[1:3, ], type = "quantile", p = c(0.25, 0.75))
-  expect_s3_class(pred_multi, "dpmixgpd_causal_predict")
+  expect_s3_class(pred_multi, "causalmixgpd_causal_predict")
   expect_true(is.data.frame(pred_multi))
   expect_true("id" %in% names(pred_multi))
   expect_true("index" %in% names(pred_multi))
@@ -1346,7 +1364,7 @@ test_that("causal predict: type='density' returns correct structure", {
 
   pred <- predict(cf, x = X_new, type = "density", y = y_eval, interval = "credible")
 
-  expect_true(inherits(pred, "dpmixgpd_causal_predict"))
+  expect_true(inherits(pred, "causalmixgpd_causal_predict"))
   expect_true(is.data.frame(pred))
   expect_equal(nrow(pred), n_new)
   expect_true(all(c("y", "ps", "trt_estimate", "con_estimate") %in% names(pred)))
@@ -1368,7 +1386,7 @@ test_that("causal predict: type='survival' returns correct structure", {
 
   pred <- predict(cf, x = X_new, type = "survival", y = y_eval, interval = "credible")
 
-  expect_true(inherits(pred, "dpmixgpd_causal_predict"))
+  expect_true(inherits(pred, "causalmixgpd_causal_predict"))
   expect_true(is.data.frame(pred))
   expect_equal(nrow(pred), n_new)
 
@@ -1439,7 +1457,7 @@ test_that("causal predict: PS disabled has NA propensity scores", {
 # =============================================================================
 # Tier B (ci): Plotting tests for causal objects
 # =============================================================================
-test_that("plot.dpmixgpd_causal_fit works", {
+test_that("plot.causalmixgpd_causal_fit works", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("ggplot2")
 
@@ -1452,7 +1470,7 @@ test_that("plot.dpmixgpd_causal_fit works", {
   expect_true("treated" %in% names(plots) || "control" %in% names(plots))
 })
 
-test_that("plot.dpmixgpd_qte works", {
+test_that("plot.causalmixgpd_qte works", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("ggplot2")
 
@@ -1460,7 +1478,7 @@ test_that("plot.dpmixgpd_qte works", {
   cf <- data$fit
   X <- data$X
 
-  qte_res <- DPmixGPD::cqte(cf, probs = c(0.25, 0.5), newdata = X[1:3, ], interval = "credible")
+  qte_res <- CausalMixGPD::cqte(cf, probs = c(0.25, 0.5), newdata = X[1:3, ], interval = "credible")
 
   # Should not error
   expect_no_error({
@@ -1471,7 +1489,7 @@ test_that("plot.dpmixgpd_qte works", {
   expect_true(all(c("trt_control", "treatment_effect") %in% names(plots)))
 })
 
-test_that("plot.dpmixgpd_ate works", {
+test_that("plot.causalmixgpd_ate works", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("ggplot2")
 
@@ -1479,7 +1497,7 @@ test_that("plot.dpmixgpd_ate works", {
   cf <- data$fit
   X <- data$X
 
-  ate_res <- DPmixGPD::cate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
+  ate_res <- CausalMixGPD::cate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
 
   # Should not error
   expect_no_error({
@@ -1490,7 +1508,7 @@ test_that("plot.dpmixgpd_ate works", {
   expect_true(all(c("trt_control", "treatment_effect") %in% names(plots)))
 })
 
-test_that("plot.dpmixgpd_causal_predict works for mean type", {
+test_that("plot.causalmixgpd_causal_predict works for mean type", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("ggplot2")
 
@@ -1501,7 +1519,7 @@ test_that("plot.dpmixgpd_causal_predict works for mean type", {
   pred <- predict(cf, x = X[1:5, ], type = "mean", interval = "credible", store_draws = FALSE)
 
   # Convert to proper class for plotting
-  class(pred) <- c("dpmixgpd_causal_predict", class(pred))
+  class(pred) <- c("causalmixgpd_causal_predict", class(pred))
   attr(pred, "type") <- "mean"
   attr(pred, "trt") <- predict(cf$outcome_fit$trt, x = X[1:5, ], type = "mean")
   attr(pred, "con") <- predict(cf$outcome_fit$con, x = X[1:5, ], type = "mean")
@@ -1516,17 +1534,17 @@ test_that("plot.dpmixgpd_causal_predict works for mean type", {
 # =============================================================================
 # Tier B (ci): Print/summary tests for causal objects
 # =============================================================================
-test_that("print.dpmixgpd_causal_fit works", {
+test_that("print.causalmixgpd_causal_fit works", {
   skip_if_not_test_level("ci")
 
   data <- .make_causal_fit()
   cf <- data$fit
 
-  expect_output(print(cf), "DPmixGPD causal fit")
+  expect_output(print(cf), "CausalMixGPD causal fit")
   expect_output(print(cf), "PS model")
 })
 
-test_that("summary.dpmixgpd_causal_fit works", {
+test_that("summary.causalmixgpd_causal_fit works", {
   skip_if_not_test_level("ci")
 
   data <- .make_causal_fit()
@@ -1535,7 +1553,7 @@ test_that("summary.dpmixgpd_causal_fit works", {
   expect_output(summary(cf), "PS fit|Outcome fits")
 })
 
-test_that("print.dpmixgpd_causal_bundle works", {
+test_that("print.causalmixgpd_causal_bundle works", {
   skip_if_not_test_level("ci")
 
   set.seed(42)
@@ -1544,7 +1562,7 @@ test_that("print.dpmixgpd_causal_bundle works", {
   T_ind <- stats::rbinom(n, 1, 0.5)
   y <- abs(stats::rnorm(n)) + 0.1
 
-  cb <- DPmixGPD::build_causal_bundle(
+  cb <- CausalMixGPD::build_causal_bundle(
     y = y,
     X = X,
     A = T_ind,
@@ -1556,7 +1574,7 @@ test_that("print.dpmixgpd_causal_bundle works", {
 
   )
 
-  expect_output(print(cb), "DPmixGPD causal bundle")
+  expect_output(print(cb), "CausalMixGPD causal bundle")
   expect_output(print(cb), "PS model")
 })
 
@@ -1574,7 +1592,7 @@ test_that("print.dpmixgpd_causal_bundle works", {
   mcmc_out <- mcmc_fast(seed = 1L)
   mcmc_ps <- mcmc_fast(seed = 2L)
 
-  cb <- DPmixGPD::build_causal_bundle(
+  cb <- CausalMixGPD::build_causal_bundle(
     y = y,
     X = X,
     A = T_ind,
@@ -1591,7 +1609,7 @@ test_that("print.dpmixgpd_causal_bundle works", {
     ps_clamp = ps_clamp
   )
 
-  cf <- DPmixGPD::run_mcmc_causal(cb, show_progress = FALSE)
+  cf <- CausalMixGPD::run_mcmc_causal(cb, show_progress = FALSE)
   list(fit = cf, X = X, y = y, n = n)
 }
 
@@ -1676,7 +1694,7 @@ test_that("params() works for causal fits", {
   data <- .make_causal_fit()
   cf <- data$fit
 
-  # params.dpmixgpd_causal_fit returns a list with treated/control
+  # params.causalmixgpd_causal_fit returns a list with treated/control
   p <- params(cf)
 
   expect_s3_class(p, "mixgpd_params_pair")
@@ -1710,7 +1728,7 @@ test_that("params() works for causal fits", {
   mcmc_out <- mcmc_fast(seed = 1L)
   mcmc_ps <- mcmc_fast(seed = 2L)
 
-  cb <- DPmixGPD::build_causal_bundle(
+  cb <- CausalMixGPD::build_causal_bundle(
     y = y,
     X = X,
     A = T_ind,
@@ -1724,37 +1742,37 @@ test_that("params() works for causal fits", {
 
   )
 
-  cf <- DPmixGPD::run_mcmc_causal(cb, show_progress = FALSE)
+  cf <- CausalMixGPD::run_mcmc_causal(cb, show_progress = FALSE)
   list(fit = cf, X = X, y = y, n = n)
 }
 
 # =============================================================================
 # Tier B (ci): print/summary tests for QTE objects
 # =============================================================================
-test_that("print.dpmixgpd_qte works", {
+test_that("print.causalmixgpd_qte works", {
   skip_if_not_test_level("ci")
 
   data <- .make_causal_fit_for_plot()
   cf <- data$fit
   X <- data$X
 
-  qte_res <- DPmixGPD::cqte(cf, probs = c(0.25, 0.5), newdata = X[1:3, ], interval = "credible")
+  qte_res <- CausalMixGPD::cqte(cf, probs = c(0.25, 0.5), newdata = X[1:3, ], interval = "credible")
 
   expect_output(print(qte_res), "QTE")
   expect_output(print(qte_res), "probs|quantile", ignore.case = TRUE)
 })
 
-test_that("summary.dpmixgpd_qte works", {
+test_that("summary.causalmixgpd_qte works", {
   skip_if_not_test_level("ci")
 
   data <- .make_causal_fit_for_plot()
   cf <- data$fit
   X <- data$X
 
-  qte_res <- DPmixGPD::cqte(cf, probs = c(0.25, 0.5), newdata = X[1:3, ], interval = "credible")
+  qte_res <- CausalMixGPD::cqte(cf, probs = c(0.25, 0.5), newdata = X[1:3, ], interval = "credible")
 
   s <- summary(qte_res)
-  expect_s3_class(s, "summary.dpmixgpd_qte")
+  expect_s3_class(s, "summary.causalmixgpd_qte")
 
   # Should print without error
   expect_output(print(s), "QTE")
@@ -1763,38 +1781,38 @@ test_that("summary.dpmixgpd_qte works", {
 # =============================================================================
 # Tier B (ci): print/summary tests for ATE objects
 # =============================================================================
-test_that("print.dpmixgpd_ate works", {
+test_that("print.causalmixgpd_ate works", {
   skip_if_not_test_level("ci")
 
   data <- .make_causal_fit_for_plot()
   cf <- data$fit
   X <- data$X
 
-  ate_res <- DPmixGPD::cate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
+  ate_res <- CausalMixGPD::cate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
 
   expect_output(print(ate_res), "ATE")
 })
 
-test_that("summary.dpmixgpd_ate works", {
+test_that("summary.causalmixgpd_ate works", {
   skip_if_not_test_level("ci")
 
   data <- .make_causal_fit_for_plot()
   cf <- data$fit
   X <- data$X
 
-  ate_res <- DPmixGPD::cate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
+  ate_res <- CausalMixGPD::cate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
 
   s <- summary(ate_res)
-  expect_s3_class(s, "summary.dpmixgpd_ate")
+  expect_s3_class(s, "summary.causalmixgpd_ate")
 
   # Should print without error
   expect_output(print(s), "ATE")
 })
 
 # =============================================================================
-# Tier B (ci): plot.dpmixgpd_qte with type parameter
+# Tier B (ci): plot.causalmixgpd_qte with type parameter
 # =============================================================================
-test_that("plot.dpmixgpd_qte type='effect' works", {
+test_that("plot.causalmixgpd_qte type='effect' works", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("ggplot2")
 
@@ -1802,7 +1820,7 @@ test_that("plot.dpmixgpd_qte type='effect' works", {
   cf <- data$fit
   X <- data$X
 
-  qte_res <- DPmixGPD::cqte(cf, probs = c(0.25, 0.5), newdata = X[1:3, ], interval = "credible")
+  qte_res <- CausalMixGPD::cqte(cf, probs = c(0.25, 0.5), newdata = X[1:3, ], interval = "credible")
 
   p <- plot(qte_res, type = "effect")
 
@@ -1814,7 +1832,7 @@ test_that("plot.dpmixgpd_qte type='effect' works", {
   expect_false(all(is.na(built$data[[1]]$y)))
 })
 
-test_that("plot.dpmixgpd_qte type='arms' works", {
+test_that("plot.causalmixgpd_qte type='arms' works", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("ggplot2")
 
@@ -1822,7 +1840,7 @@ test_that("plot.dpmixgpd_qte type='arms' works", {
   cf <- data$fit
   X <- data$X
 
-  qte_res <- DPmixGPD::cqte(cf, probs = c(0.25, 0.5), newdata = X[1:3, ], interval = "credible")
+  qte_res <- CausalMixGPD::cqte(cf, probs = c(0.25, 0.5), newdata = X[1:3, ], interval = "credible")
 
   p <- plot(qte_res, type = "arms")
 
@@ -1835,7 +1853,7 @@ test_that("plot.dpmixgpd_qte type='arms' works", {
   expect_true(nrow(built$data[[1]]) > 0)
 })
 
-test_that("plot.dpmixgpd_qte type='both' returns list", {
+test_that("plot.causalmixgpd_qte type='both' returns list", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("ggplot2")
 
@@ -1843,7 +1861,7 @@ test_that("plot.dpmixgpd_qte type='both' returns list", {
   cf <- data$fit
   X <- data$X
 
-  qte_res <- DPmixGPD::cqte(cf, probs = c(0.25, 0.5), newdata = X[1:3, ], interval = "credible")
+  qte_res <- CausalMixGPD::cqte(cf, probs = c(0.25, 0.5), newdata = X[1:3, ], interval = "credible")
 
   plots <- plot(qte_res, type = "both")
 
@@ -1853,7 +1871,7 @@ test_that("plot.dpmixgpd_qte type='both' returns list", {
   expect_s3_class(plots$arms, "ggplot")
 })
 
-test_that("plot.dpmixgpd_qte default type is 'effect'", {
+test_that("plot.causalmixgpd_qte default type is 'effect'", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("ggplot2")
 
@@ -1861,7 +1879,7 @@ test_that("plot.dpmixgpd_qte default type is 'effect'", {
   cf <- data$fit
   X <- data$X
 
-  qte_res <- DPmixGPD::cqte(cf, probs = c(0.5), newdata = X[1:3, ], interval = "credible")
+  qte_res <- CausalMixGPD::cqte(cf, probs = c(0.5), newdata = X[1:3, ], interval = "credible")
 
   # Default should be effect
   p_default <- plot(qte_res)
@@ -1873,9 +1891,9 @@ test_that("plot.dpmixgpd_qte default type is 'effect'", {
 })
 
 # =============================================================================
-# Tier B (ci): plot.dpmixgpd_ate with type parameter
+# Tier B (ci): plot.causalmixgpd_ate with type parameter
 # =============================================================================
-test_that("plot.dpmixgpd_ate type='effect' works", {
+test_that("plot.causalmixgpd_ate type='effect' works", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("ggplot2")
 
@@ -1883,7 +1901,7 @@ test_that("plot.dpmixgpd_ate type='effect' works", {
   cf <- data$fit
   X <- data$X
 
-  ate_res <- DPmixGPD::cate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
+  ate_res <- CausalMixGPD::cate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
 
   p <- plot(ate_res, type = "effect")
 
@@ -1895,7 +1913,7 @@ test_that("plot.dpmixgpd_ate type='effect' works", {
   expect_false(all(is.na(built$data[[1]]$y)))
 })
 
-test_that("plot.dpmixgpd_ate type='arms' works", {
+test_that("plot.causalmixgpd_ate type='arms' works", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("ggplot2")
 
@@ -1903,7 +1921,7 @@ test_that("plot.dpmixgpd_ate type='arms' works", {
   cf <- data$fit
   X <- data$X
 
-  ate_res <- DPmixGPD::cate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
+  ate_res <- CausalMixGPD::cate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
 
   p <- plot(ate_res, type = "arms")
 
@@ -1915,7 +1933,7 @@ test_that("plot.dpmixgpd_ate type='arms' works", {
   expect_true(nrow(built$data[[1]]) > 0)
 })
 
-test_that("plot.dpmixgpd_ate type='both' returns list", {
+test_that("plot.causalmixgpd_ate type='both' returns list", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("ggplot2")
 
@@ -1923,7 +1941,7 @@ test_that("plot.dpmixgpd_ate type='both' returns list", {
   cf <- data$fit
   X <- data$X
 
-  ate_res <- DPmixGPD::cate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
+  ate_res <- CausalMixGPD::cate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
 
   plots <- plot(ate_res, type = "both")
 
@@ -1933,7 +1951,7 @@ test_that("plot.dpmixgpd_ate type='both' returns list", {
   expect_s3_class(plots$arms, "ggplot")
 })
 
-test_that("plot.dpmixgpd_ate default type is 'effect'", {
+test_that("plot.causalmixgpd_ate default type is 'effect'", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("ggplot2")
 
@@ -1941,7 +1959,7 @@ test_that("plot.dpmixgpd_ate default type is 'effect'", {
   cf <- data$fit
   X <- data$X
 
-  ate_res <- DPmixGPD::cate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
+  ate_res <- CausalMixGPD::cate(cf, newdata = X[1:3, ], interval = "credible", nsim_mean = 20L)
 
   # Default should be effect
   p_default <- plot(ate_res)
@@ -1963,7 +1981,7 @@ test_that("QTE plot effect type has no NA in estimate data", {
   cf <- data$fit
   X <- data$X
 
-  qte_res <- DPmixGPD::cqte(cf, probs = c(0.5), newdata = X[1:5, ], interval = "credible")
+  qte_res <- CausalMixGPD::cqte(cf, probs = c(0.5), newdata = X[1:5, ], interval = "credible")
 
   p <- plot(qte_res, type = "effect")
   built <- ggplot2::ggplot_build(p)
@@ -1981,7 +1999,7 @@ test_that("ATE plot effect type has no NA in estimate data", {
   cf <- data$fit
   X <- data$X
 
-  ate_res <- DPmixGPD::cate(cf, newdata = X[1:5, ], interval = "credible", nsim_mean = 20L)
+  ate_res <- CausalMixGPD::cate(cf, newdata = X[1:5, ], interval = "credible", nsim_mean = 20L)
 
   p <- plot(ate_res, type = "effect")
   built <- ggplot2::ggplot_build(p)
@@ -1994,7 +2012,7 @@ test_that("ATE plot effect type has no NA in estimate data", {
 # =============================================================================
 # Tier A (cran): Error handling - ggplot2 missing message
 # =============================================================================
-test_that("plot.dpmixgpd_qte errors gracefully without ggplot2", {
+test_that("plot.causalmixgpd_qte errors gracefully without ggplot2", {
   skip_if_not_test_level("cran")
 
 
@@ -2008,13 +2026,13 @@ test_that("plot.dpmixgpd_qte errors gracefully without ggplot2", {
     grid = 0.5,
     ps = c(0.3, 0.5, 0.7)
   )
-  class(mock_qte) <- "dpmixgpd_qte"
+  class(mock_qte) <- "causalmixgpd_qte"
 
   # We can't easily mock requireNamespace, but we can at least verify the method exists
-  expect_true(is.function(DPmixGPD:::plot.dpmixgpd_qte))
+  expect_true(is.function(CausalMixGPD:::plot.causalmixgpd_qte))
 })
 
-test_that("plot.dpmixgpd_ate errors gracefully without ggplot2", {
+test_that("plot.causalmixgpd_ate errors gracefully without ggplot2", {
   skip_if_not_test_level("cran")
 
   # Create a minimal mock ATE object
@@ -2026,10 +2044,10 @@ test_that("plot.dpmixgpd_ate errors gracefully without ggplot2", {
     con = list(fit = data.frame(id = 1:3, estimate = 1:3, lower = 0:2, upper = 2:4)),
     ps = c(0.3, 0.5, 0.7)
   )
-  class(mock_ate) <- "dpmixgpd_ate"
+  class(mock_ate) <- "causalmixgpd_ate"
 
   # Verify the method exists
-  expect_true(is.function(DPmixGPD:::plot.dpmixgpd_ate))
+  expect_true(is.function(CausalMixGPD:::plot.causalmixgpd_ate))
 })
 
 # =============================================================================
@@ -2039,7 +2057,7 @@ test_that(".coerce_fit_df handles vector input", {
   skip_if_not_test_level("cran")
 
   # Access internal function
-  coerce <- DPmixGPD:::.coerce_fit_df
+  coerce <- CausalMixGPD:::.coerce_fit_df
 
   vec <- c(1.5, 2.5, 3.5)
   result <- coerce(vec)
@@ -2055,7 +2073,7 @@ test_that(".coerce_fit_df handles vector input", {
 test_that(".coerce_fit_df handles matrix input", {
   skip_if_not_test_level("cran")
 
-  coerce <- DPmixGPD:::.coerce_fit_df
+  coerce <- CausalMixGPD:::.coerce_fit_df
 
   mat <- matrix(c(1, 2, 3, 0.5, 1.5, 2.5, 1.5, 2.5, 3.5), nrow = 3, ncol = 3)
   result <- coerce(mat)
@@ -2068,7 +2086,7 @@ test_that(".coerce_fit_df handles matrix input", {
 test_that(".coerce_fit_df handles data.frame input", {
   skip_if_not_test_level("cran")
 
-  coerce <- DPmixGPD:::.coerce_fit_df
+  coerce <- CausalMixGPD:::.coerce_fit_df
 
   df <- data.frame(estimate = c(1, 2, 3), lower = c(0, 1, 2), upper = c(2, 3, 4))
   result <- coerce(df)
@@ -2082,7 +2100,7 @@ test_that(".coerce_fit_df handles data.frame input", {
 test_that(".coerce_fit_df adds missing columns", {
   skip_if_not_test_level("cran")
 
-  coerce <- DPmixGPD:::.coerce_fit_df
+  coerce <- CausalMixGPD:::.coerce_fit_df
 
   # Data frame missing lower/upper
   df <- data.frame(fit = c(1, 2, 3))
@@ -2100,15 +2118,15 @@ test_that(".coerce_fit_df adds missing columns", {
 # PS utilities (from test-ps-utils.R)
 # =============================================================================
 test_that("PS utilities: design matrix alignment and scaling", {
-  ps_design_matrix <- DPmixGPD:::.ps_design_matrix
-  apply_ps_scale <- DPmixGPD:::.apply_ps_scale
+  ps_design_matrix <- CausalMixGPD:::.ps_design_matrix
+  apply_ps_scale <- CausalMixGPD:::.apply_ps_scale
 
   X_train <- cbind(`(Intercept)` = 1, x1 = c(0, 1), x2 = c(2, 3))
   ps_bundle <- list(
     spec = list(meta = list(include_intercept = TRUE), model = "logit"),
     data = list(X = X_train)
   )
-  class(ps_bundle) <- "dpmixgpd_ps_bundle"
+  class(ps_bundle) <- "causalmixgpd_ps_bundle"
 
   X_new <- cbind(x2 = c(10, 11), x1 = c(4, 5))
   colnames(X_new) <- c("x2", "x1")
@@ -2128,7 +2146,7 @@ test_that("PS utilities: design matrix alignment and scaling", {
     spec = list(meta = list(include_intercept = TRUE), model = "logit"),
     data = list(X = X_train_int)
   )
-  class(ps_bundle_int) <- "dpmixgpd_ps_bundle"
+  class(ps_bundle_int) <- "causalmixgpd_ps_bundle"
   X0 <- matrix(numeric(0), nrow = 3, ncol = 0)
   dm0 <- ps_design_matrix(ps_bundle_int, X0)
   expect_equal(dim(dm0), c(3L, 1L))
@@ -2141,7 +2159,7 @@ test_that("PS utilities: design matrix alignment and scaling", {
 })
 
 test_that("PS utilities: compute PS from fit (logit/probit/naive + error branches)", {
-  compute_ps_from_fit <- DPmixGPD:::.compute_ps_from_fit
+  compute_ps_from_fit <- CausalMixGPD:::.compute_ps_from_fit
 
   # logit/probit paths
   X_train <- cbind(`(Intercept)` = 1, x1 = c(0, 1), x2 = c(2, 3))
@@ -2149,7 +2167,7 @@ test_that("PS utilities: compute PS from fit (logit/probit/naive + error branche
     spec = list(meta = list(include_intercept = TRUE), model = "logit"),
     data = list(X = X_train)
   )
-  class(ps_bundle_logit) <- "dpmixgpd_ps_bundle"
+  class(ps_bundle_logit) <- "causalmixgpd_ps_bundle"
   ps_bundle_probit <- ps_bundle_logit
   ps_bundle_probit$spec$model <- "probit"
 
@@ -2176,7 +2194,7 @@ test_that("PS utilities: compute PS from fit (logit/probit/naive + error branche
     spec = list(meta = list(include_intercept = FALSE), model = "naive"),
     data = list(X = cbind(x1 = c(0, 1), x2 = c(2, 3)))
   )
-  class(ps_bundle_naive) <- "dpmixgpd_ps_bundle"
+  class(ps_bundle_naive) <- "causalmixgpd_ps_bundle"
 
   S2 <- 5
   samples_naive <- matrix(NA_real_, nrow = S2, ncol = 1 + 4 + 4)
@@ -2223,7 +2241,7 @@ get_causal_fit <- function() {
   mcmc_out <- list(niter = 30, nburnin = 10, thin = 1, nchains = 1, seed = 1)
   mcmc_ps  <- list(niter = 30, nburnin = 10, thin = 1, nchains = 1, seed = 1)
 
-  cb <- DPmixGPD::build_causal_bundle(
+  cb <- CausalMixGPD::build_causal_bundle(
     y = y,
     X = X,
     A = A,
@@ -2235,7 +2253,7 @@ get_causal_fit <- function() {
     mcmc_ps = mcmc_ps
   )
 
-  cf <- DPmixGPD::run_mcmc_causal(cb, show_progress = FALSE)
+  cf <- CausalMixGPD::run_mcmc_causal(cb, show_progress = FALSE)
   assign(cache_key, cf, envir = .GlobalEnv)
   cf
 }
@@ -2244,16 +2262,16 @@ get_causal_fit <- function() {
 # QTE Tests
 # ============================================================
 
-test_that("qte() returns proper dpmixgpd_qte class with expected fields", {
+test_that("qte() returns proper causalmixgpd_qte class with expected fields", {
   skip_if_not_test_level("ci")
 
   cf <- get_causal_fit()
 
-  q <- DPmixGPD::qte(cf, probs = c(0.25, 0.5, 0.75), interval = "credible")
+  q <- CausalMixGPD::qte(cf, probs = c(0.25, 0.5, 0.75), interval = "credible")
 
   # Class check
 
-  expect_s3_class(q, "dpmixgpd_qte")
+  expect_s3_class(q, "causalmixgpd_qte")
 
   # Required fields exist
   expect_true(all(c("fit", "probs", "grid", "trt", "con", "type") %in% names(q)))
@@ -2274,11 +2292,11 @@ test_that("qte() returns proper dpmixgpd_qte class with expected fields", {
   expect_true("interval" %in% names(q))
 })
 
-test_that("print.dpmixgpd_qte produces readable output", {
+test_that("print.causalmixgpd_qte produces readable output", {
   skip_if_not_test_level("ci")
 
   cf <- get_causal_fit()
-  q <- DPmixGPD::qte(cf, probs = c(0.25, 0.5), interval = "credible")
+  q <- CausalMixGPD::qte(cf, probs = c(0.25, 0.5), interval = "credible")
 
   # Capture print output
   out <- capture.output(print(q))
@@ -2295,16 +2313,16 @@ test_that("print.dpmixgpd_qte produces readable output", {
   expect_identical(invisible_result, q)
 })
 
-test_that("summary.dpmixgpd_qte returns structured summary object", {
+test_that("summary.causalmixgpd_qte returns structured summary object", {
   skip_if_not_test_level("ci")
 
   cf <- get_causal_fit()
-  q <- DPmixGPD::qte(cf, probs = c(0.25, 0.5, 0.75), interval = "credible")
+  q <- CausalMixGPD::qte(cf, probs = c(0.25, 0.5, 0.75), interval = "credible")
 
   s <- summary(q)
 
   # Class check
-  expect_s3_class(s, "summary.dpmixgpd_qte")
+  expect_s3_class(s, "summary.causalmixgpd_qte")
 
   # Required summary components
   expect_true(all(c("overall", "quantile_summary", "ci_summary", "meta") %in% names(s)))
@@ -2324,11 +2342,11 @@ test_that("summary.dpmixgpd_qte returns structured summary object", {
   expect_true(all(c("mean_width", "median_width") %in% names(s$ci_summary)))
 })
 
-test_that("print.summary.dpmixgpd_qte produces formatted output", {
+test_that("print.summary.causalmixgpd_qte produces formatted output", {
   skip_if_not_test_level("ci")
 
   cf <- get_causal_fit()
-  q <- DPmixGPD::qte(cf, probs = c(0.25, 0.5), interval = "credible")
+  q <- CausalMixGPD::qte(cf, probs = c(0.25, 0.5), interval = "credible")
   s <- summary(q)
 
   out <- capture.output(print(s))
@@ -2348,15 +2366,15 @@ test_that("print.summary.dpmixgpd_qte produces formatted output", {
 # ATE Tests
 # ============================================================
 
-test_that("ate() returns proper dpmixgpd_ate class with expected fields", {
+test_that("ate() returns proper causalmixgpd_ate class with expected fields", {
   skip_if_not_test_level("ci")
 
   cf <- get_causal_fit()
 
-  a <- DPmixGPD::ate(cf, interval = "credible", nsim_mean = 30L)
+  a <- CausalMixGPD::ate(cf, interval = "credible", nsim_mean = 30L)
 
   # Class check
-  expect_s3_class(a, "dpmixgpd_ate")
+  expect_s3_class(a, "causalmixgpd_ate")
 
   # Required fields exist
   expect_true(all(c("fit", "trt", "con", "type") %in% names(a)))
@@ -2374,11 +2392,11 @@ test_that("ate() returns proper dpmixgpd_ate class with expected fields", {
   expect_true("nsim_mean" %in% names(a))
 })
 
-test_that("print.dpmixgpd_ate produces readable output", {
+test_that("print.causalmixgpd_ate produces readable output", {
   skip_if_not_test_level("ci")
 
   cf <- get_causal_fit()
-  a <- DPmixGPD::ate(cf, interval = "credible")
+  a <- CausalMixGPD::ate(cf, interval = "credible")
 
   # Capture print output
   out <- capture.output(print(a))
@@ -2394,16 +2412,16 @@ test_that("print.dpmixgpd_ate produces readable output", {
   expect_identical(invisible_result, a)
 })
 
-test_that("summary.dpmixgpd_ate returns structured summary object", {
+test_that("summary.causalmixgpd_ate returns structured summary object", {
   skip_if_not_test_level("ci")
 
   cf <- get_causal_fit()
-  a <- DPmixGPD::ate(cf, interval = "credible", nsim_mean = 30L)
+  a <- CausalMixGPD::ate(cf, interval = "credible", nsim_mean = 30L)
 
   s <- summary(a)
 
   # Class check
-  expect_s3_class(s, "summary.dpmixgpd_ate")
+  expect_s3_class(s, "summary.causalmixgpd_ate")
 
   # Required summary components
   expect_true(all(c("overall", "ate_stats", "ci_summary", "meta") %in% names(s)))
@@ -2420,11 +2438,11 @@ test_that("summary.dpmixgpd_ate returns structured summary object", {
   expect_true(all(c("mean_width", "median_width") %in% names(s$ci_summary)))
 })
 
-test_that("print.summary.dpmixgpd_ate produces formatted output", {
+test_that("print.summary.causalmixgpd_ate produces formatted output", {
   skip_if_not_test_level("ci")
 
   cf <- get_causal_fit()
-  a <- DPmixGPD::ate(cf, interval = "credible")
+  a <- CausalMixGPD::ate(cf, interval = "credible")
   s <- summary(a)
 
   out <- capture.output(print(s))
@@ -2444,17 +2462,17 @@ test_that("print.summary.dpmixgpd_ate produces formatted output", {
 # Plot Tests
 # ============================================================
 
-test_that("plot.dpmixgpd_qte builds without error", {
+test_that("plot.causalmixgpd_qte builds without error", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("ggplot2")
 
   cf <- get_causal_fit()
-  q <- DPmixGPD::qte(cf, probs = c(0.25, 0.5), interval = "credible")
+  q <- CausalMixGPD::qte(cf, probs = c(0.25, 0.5), interval = "credible")
 
   # Should return plot list without error
   p <- plot(q)
   expect_true(is.list(p))
-  expect_s3_class(p, "dpmixgpd_causal_predict_plots")
+  expect_s3_class(p, "causalmixgpd_causal_predict_plots")
   expect_true(all(c("trt_control", "treatment_effect") %in% names(p)))
 
   # Each plot should be ggplot
@@ -2466,17 +2484,17 @@ test_that("plot.dpmixgpd_qte builds without error", {
   expect_error(ggplot2::ggplot_build(p$treatment_effect), NA)
 })
 
-test_that("plot.dpmixgpd_ate builds without error", {
+test_that("plot.causalmixgpd_ate builds without error", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("ggplot2")
 
   cf <- get_causal_fit()
-  a <- DPmixGPD::ate(cf, interval = "credible")
+  a <- CausalMixGPD::ate(cf, interval = "credible")
 
   # Should return plot list without error
   p <- plot(a)
   expect_true(is.list(p))
-  expect_s3_class(p, "dpmixgpd_causal_predict_plots")
+  expect_s3_class(p, "causalmixgpd_causal_predict_plots")
   expect_true(all(c("trt_control", "treatment_effect") %in% names(p)))
 
   # Each plot should be ggplot
@@ -2496,9 +2514,9 @@ test_that("QTE with interval='none' omits CI fields gracefully", {
   skip_if_not_test_level("ci")
 
   cf <- get_causal_fit()
-  q <- DPmixGPD::qte(cf, probs = c(0.5), interval = "none")
+  q <- CausalMixGPD::qte(cf, probs = c(0.5), interval = "none")
 
-  expect_s3_class(q, "dpmixgpd_qte")
+  expect_s3_class(q, "causalmixgpd_qte")
   expect_true(is.null(q$lower) || all(is.na(q$lower)))
   expect_true(is.null(q$upper) || all(is.na(q$upper)))
 
@@ -2515,9 +2533,9 @@ test_that("ATE with interval='none' omits CI fields gracefully", {
   skip_if_not_test_level("ci")
 
   cf <- get_causal_fit()
-  a <- DPmixGPD::ate(cf, interval = "none")
+  a <- CausalMixGPD::ate(cf, interval = "none")
 
-  expect_s3_class(a, "dpmixgpd_ate")
+  expect_s3_class(a, "causalmixgpd_ate")
   expect_true(is.null(a$lower) || all(is.na(a$lower)))
   expect_true(is.null(a$upper) || all(is.na(a$upper)))
 

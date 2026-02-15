@@ -1,6 +1,5 @@
 library(testthat)
-library(nimble)
-library(DPmixGPD)
+library(CausalMixGPD)
 library(crayon)
 testthat::set_max_fails(Inf)
 
@@ -23,4 +22,4 @@ if (!is_pkg_check &&
   Sys.setenv(DPMIXGPD_TEST_LEVEL = "ci")
 }
 
-test_check("DPmixGPD")
+test_check("CausalMixGPD")

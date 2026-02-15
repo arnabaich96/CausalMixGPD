@@ -26,7 +26,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
 # Load package (with all_quiet to suppress startup messages)
-library(DPmixGPD)
+library(CausalMixGPD)
 
 # Ensure package is fully loaded for data access
 if (!require("devtools", quietly = TRUE)) {
@@ -51,7 +51,7 @@ source("_legacy-setup.R")
 
 # Workflow Overview
 
-DPmixGPD uses a direct two-step workflow:
+CausalMixGPD uses a direct two-step workflow:
 
 1. **Bundle** (`bundle`): Generate NIMBLE code and compile the sampler.
 2. **MCMC** (`mcmc`): Execute posterior sampling.
@@ -66,7 +66,7 @@ DPmixGPD uses a direct two-step workflow:
 
 ```{r bundle-direct, cache=TRUE}
 # Load packaged data
-data("nc_pos200_k3", package = "DPmixGPD")
+data("nc_pos200_k3", package = "CausalMixGPD")
 y <- nc_pos200_k3$y
 
 # Direct call
@@ -136,7 +136,7 @@ plot(fit, params = "alpha|beta", family = c("traceplot", "running", "autocorrela
 
 ```{r workflow-complete, cache=TRUE}
 # Load packaged data
-data("nc_pos200_k3", package = "DPmixGPD")
+data("nc_pos200_k3", package = "CausalMixGPD")
 y_data <- nc_pos200_k3$y
 
 # PHASE 1: Bundle
@@ -222,7 +222,7 @@ print("  cauchy:    Heavy-tailed, rare cases\n")
 
 ```{r gpd-example, eval=TRUE, cache=TRUE}
 # Data with tail behavior
-data("nc_pos_tail200_k4", package = "DPmixGPD")
+data("nc_pos_tail200_k4", package = "CausalMixGPD")
 y_tail <- nc_pos_tail200_k4$y
 
 # Build with GPD
@@ -246,7 +246,7 @@ summary(fit_gpd)
 
 | Phase | Function | Input | Output |
 |-------|----------|-------|--------|
-| **1. Bundle** | `bundle()` | y, X (optional), kernel, backend, GPD, components | `dpmixgpd_bundle` |
+| **1. Bundle** | `bundle()` | y, X (optional), kernel, backend, GPD, components | `causalmixgpd_bundle` |
 | **2. MCMC** | `mcmc()` | bundle | `mixgpd_fit` |
 
 ---

@@ -13,7 +13,7 @@
   p = NULL,
   index = NULL,
   nsim = NULL,
-  cred.level = 0.95,
+  level = 0.95,
   interval = "credible",
   probs = c(0.025, 0.5, 0.975),
   store_draws = TRUE,

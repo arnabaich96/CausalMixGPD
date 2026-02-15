@@ -30,7 +30,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
 # Load package (with all_quiet to suppress startup messages)
-library(DPmixGPD)
+library(CausalMixGPD)
 
 # Ensure package is fully loaded for data access
 if (!require("devtools", quietly = TRUE)) {
@@ -51,7 +51,7 @@ source("_legacy-setup.R")
 > For the up-to-date workflow, see the main package vignettes (basic, unconditional, conditional, and causal)..
 
 
-# Unconditional DPmixGPD: CRP Backend with Tail Augmentation
+# Unconditional CausalMixGPD: CRP Backend with Tail Augmentation
 
 **Purpose**: Model the **bulk** of the distribution with a DP mixture (the "kernel" or bulk family) and let a **GPD tail** capture extreme values beyond a threshold. The CRP backend handles partitioning and we toggle `GPD = TRUE` to augment the tail.
 
@@ -61,7 +61,7 @@ source("_legacy-setup.R")
 
 ```{r data-setup}
 # Load data with an obvious tail
-data("nc_pos_tail200_k4", package = "DPmixGPD")
+data("nc_pos_tail200_k4", package = "CausalMixGPD")
 y_tail <- nc_pos_tail200_k4$y
 y_tail <- y_tail[is.finite(y_tail) & y_tail > 0]
 

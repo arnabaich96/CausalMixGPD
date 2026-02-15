@@ -14,7 +14,7 @@ mcmc(b, ...)
 (\code{show_progress}, \code{quiet}).}
 }
 \value{
-A fitted object (\code{"mixgpd_fit"} or \code{"dpmixgpd_causal_fit"}).
+A fitted object (\code{"mixgpd_fit"} or \code{"causalmixgpd_causal_fit"}).
 }
 \description{
 Run MCMC from a bundle (short wrapper)

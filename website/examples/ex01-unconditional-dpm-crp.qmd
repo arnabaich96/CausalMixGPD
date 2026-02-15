@@ -36,7 +36,7 @@ if (!require("devtools", quietly = TRUE)) {
 }
 pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
   devtools::load_all(path = pkg_root, quiet = TRUE)
-library(DPmixGPD)
+library(CausalMixGPD)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
@@ -64,7 +64,7 @@ source("_legacy-setup.R")
 
 ```{r data-setup}
 # Load pre-generated dataset: 200 observations from mixture of 3 gamma components
-data("nc_pos200_k3", package = "DPmixGPD")
+data("nc_pos200_k3", package = "CausalMixGPD")
 y_mixed <- nc_pos200_k3$y
 
 paste("Sample size:", length(y_mixed))
@@ -255,8 +255,8 @@ summary(fit_amoroso)
 
 ```{r comp-summary, cache=TRUE}
 # Compare models using predict() (fitted/residuals not supported for unconditional)
-pred_laplace <- predict(fit_laplace, type = "mean", cred.level = 0.9, interval = "credible")
-pred_amoroso <- predict(fit_amoroso, type = "mean", cred.level = 0.9, interval = "credible")
+pred_laplace <- predict(fit_laplace, type = "mean", level = 0.9, interval = "credible")
+pred_amoroso <- predict(fit_amoroso, type = "mean", level = 0.9, interval = "credible")
 ```
 
 ```{r fig.height=6, fig.width=10, cache=TRUE}

@@ -31,7 +31,7 @@ bundle(
 \item{GPD}{Logical; include GPD tail in build mode.}
 }
 \value{
-A \code{"dpmixgpd_bundle"} or \code{"dpmixgpd_causal_bundle"}.
+A \code{"causalmixgpd_bundle"} or \code{"causalmixgpd_causal_bundle"}.
 }
 \description{
 Build a model bundle (short wrapper)

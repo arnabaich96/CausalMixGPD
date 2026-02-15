@@ -7,8 +7,8 @@ vignettes/**/figure-markdown_html/
 *.zip
 .vscode/
 .venv/
-DPmixGPD.Rcheck/
-DPmixGPD_*.tar.gz
+CausalMixGPD.Rcheck/
+CausalMixGPD_*.tar.gz
 vignettes/cache/
 .cache/
 inst/doc/
@@ -75,6 +75,13 @@ docs/.quarto/
 tmp-*.R
 vignettes/legacy/legacy-cache/
 inst/extdata/legacy-precomputed/
+
+# Manuscript cache artifacts (keep source + outputs)
+vignettes/manuscript/CausalMixGPD_*
+!vignettes/manuscript/CausalMixGPD_*.Rnw
+!vignettes/manuscript/CausalMixGPD_*.tex
+!vignettes/manuscript/CausalMixGPD_*.pdf
+!vignettes/manuscript/CausalMixGPD_*.bib
 
 
 # Exclude cache files larger than 10MB (prevent GitHub large file errors)

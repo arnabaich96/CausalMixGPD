@@ -28,7 +28,7 @@
 ^doc$
 ^Meta$
 # Non-standard top-level files
-^DPmixGPD\.code-workspace$
+^CausalMixGPD\.code-workspace$
 ^_pkgdown\.yml$
 ^build_with_tmp\.ps1$
 ^data-raw$
@@ -95,3 +95,9 @@
 ^vignettes/\.Rprofile$
 ^vignettes/\.gitignore$
 ^\.RDataTmp$
+^\.\.?Rcheck$
+^\.\.?Rcheck/
+^CausalMixGPD_.*\.tar\.gz$
+^_tar_list\.txt$
+^tests/testthat/_cache$
+^tests/testthat/_cache/

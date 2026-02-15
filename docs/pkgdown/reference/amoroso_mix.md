@@ -108,7 +108,7 @@ can be called from NIMBLE models. The quantile function is provided as
 an R function and is computed by numerical inversion of the mixture CDF.
 These uppercase NIMBLE-compatible functions are scalar (`x`/`q` and
 `n = 1`). For vectorized R usage (including `n > 1`), use
-[`amoroso_lowercase`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/amoroso_lowercase.md).
+[`amoroso_lowercase`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/amoroso_lowercase.md).
 
 ## Functions
 
@@ -139,6 +139,6 @@ qAmorosoMix(0.50, w, loc, scale, shape1, shape2)
 qAmorosoMix(0.95, w, loc, scale, shape1, shape2)
 #> [1] 8.017293
 replicate(10, rAmorosoMix(1, w, loc, scale, shape1, shape2))
-#>  [1] 0.8123941 0.4078220 5.5977679 2.3405091 3.3820720 8.0473890 1.7767592
-#>  [8] 5.3491280 0.8946553 2.1635883
+#>  [1] 6.6966960 1.1390523 1.7812916 2.8622365 2.5033891 1.2467692 3.6989854
+#>  [8] 1.1954265 0.8008628 7.2399839
 ```

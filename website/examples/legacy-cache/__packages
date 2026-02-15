@@ -1,5 +1,5 @@
 nimble
-DPmixGPD
+CausalMixGPD
 kableExtra
 ggplot2
 magrittr

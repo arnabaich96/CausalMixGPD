@@ -14,7 +14,7 @@ qtt(
 )
 }
 \arguments{
-\item{fit}{A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.}
+\item{fit}{A \code{"causalmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.}
 
 \item{probs}{Numeric vector of probabilities in (0, 1) specifying the quantile levels
 of the outcome distribution to estimate treatment effects at.}
@@ -38,8 +38,9 @@ with columns \code{index}, \code{estimate}, \code{lower}, \code{upper}
 and one row per requested quantile index.
 }
 \description{
-Computes a treated-only marginal quantile treatment effect by averaging
-conditional quantile effects over rows with assigned treatment \code{A=1}.
+Computes a treated-standardized marginal quantile treatment effect:
+\eqn{Q_1^{t}(\tau) - Q_0^{t}(\tau)}, where marginalization is over the
+covariate distribution of treated units.
 }
 \examples{
 \dontrun{

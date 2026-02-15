@@ -28,7 +28,7 @@
 #' @param mcmc_ps MCMC settings list for the PS model.
 #' @param epsilon Numeric in [0,1) used by outcome bundles for posterior truncation summaries.
 #'   If length 2, the first entry is used for treated (\code{A=1}) and the second for control (\code{A=0}).
-#' @param alpha_random Logical; whether outcome concentration \code{alpha} is stochastic.
+#' @param alpha_random Logical; whether the outcome-model DP concentration parameter \eqn{\kappa} is stochastic.
 #' @param ps_prior Normal prior for PS coefficients. List with \code{mean} and \code{sd}.
 #' @param include_intercept Logical; if TRUE, an intercept column is prepended to \code{X}
 #'   in the PS model.
@@ -44,7 +44,7 @@
 #' @param ps_scale Scale used when augmenting outcomes with PS: \code{"logit"} or \code{"prob"}.
 #' @param ps_summary Posterior summary for PS: \code{"mean"} or \code{"median"}.
 #' @param ps_clamp Numeric epsilon for clamping PS values to \eqn{(\epsilon, 1-\epsilon)}.
-#' @return A list of class \code{"dpmixgpd_causal_bundle"}.
+#' @return A list of class \code{"causalmixgpd_causal_bundle"}.
 #' @examples
 #' \dontrun{
 #' set.seed(1)
@@ -238,14 +238,14 @@ build_causal_bundle <- function(
     ),
     call = match.call()
   )
-  class(out) <- "dpmixgpd_causal_bundle"
+  class(out) <- "causalmixgpd_causal_bundle"
   out
 }
 
 .run_ps_mcmc_bundle <- function(bundle, show_progress = TRUE) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
-  stopifnot(inherits(bundle, "dpmixgpd_ps_bundle"))
+  stopifnot(inherits(bundle, "causalmixgpd_ps_bundle"))
   if (!"package:nimble" %in% search()) {
     suppressPackageStartupMessages(base::require("nimble", quietly = TRUE, warn.conflicts = FALSE))
   }
@@ -317,7 +317,7 @@ build_causal_bundle <- function(
     bundle = bundle,
     call = match.call()
   )
-  class(fit) <- "dpmixgpd_ps_fit"
+  class(fit) <- "causalmixgpd_ps_fit"
   fit
 }
 
@@ -326,9 +326,9 @@ build_causal_bundle <- function(
 #' Executes the outcome arms (and PS model if enabled), returning a single causal fit.
 #' When \code{PS=FALSE} in the bundle, the PS model is skipped entirely.
 #'
-#' @param bundle A \code{"dpmixgpd_causal_bundle"} from \code{build_causal_bundle()}.
+#' @param bundle A \code{"causalmixgpd_causal_bundle"} from \code{build_causal_bundle()}.
 #' @param show_progress Logical; passed to nimble for each block.
-#' @return A list of class \code{"dpmixgpd_causal_fit"}.
+#' @return A list of class \code{"causalmixgpd_causal_fit"}.
 #' @examples
 #' \dontrun{
 #' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
@@ -336,7 +336,7 @@ build_causal_bundle <- function(
 #' }
 #' @export
 run_mcmc_causal <- function(bundle, show_progress = TRUE) {
-  stopifnot(inherits(bundle, "dpmixgpd_causal_bundle"))
+  stopifnot(inherits(bundle, "causalmixgpd_causal_bundle"))
 
   # Check if propensity scores are enabled
   ps_meta <- bundle$meta$ps %||% list()
@@ -409,7 +409,7 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
     ps_cov = ps_cov,
     call = match.call()
   )
-  class(out) <- "dpmixgpd_causal_fit"
+  class(out) <- "causalmixgpd_causal_fit"
   out
 }
 
@@ -488,7 +488,7 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
 #' with covariates (\code{X} not \code{NULL}). For unconditional causal models
 #' (\code{X = NULL}), use \code{qte()} or \code{qtt()}.
 #'
-#' @param fit A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.
+#' @param fit A \code{"causalmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.
 #' @param probs Numeric vector of probabilities in (0, 1) specifying the quantile levels
 #'   of the outcome distribution to estimate treatment effects at.
 #' @param newdata Optional data.frame or matrix of covariates for prediction.
@@ -514,7 +514,7 @@ cqte <- function(fit,
                 newdata = NULL,
                 interval = "credible",
                 level = 0.95) {
-  stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
+  stopifnot(inherits(fit, "causalmixgpd_causal_fit"))
   .causal_require_conditional(fit, fn = "cqte")
   iv <- .causal_validate_interval(interval = interval, level = level)
   compute_interval <- iv$compute_interval
@@ -647,7 +647,7 @@ cqte <- function(fit,
       GPD = meta$GPD
     )
   )
-  class(out) <- "dpmixgpd_qte"
+  class(out) <- "causalmixgpd_qte"
   out
 }
 
@@ -661,7 +661,7 @@ cqte <- function(fit,
 #' with covariates (\code{X} not \code{NULL}). For unconditional causal models
 #' (\code{X = NULL}), use \code{ate()} or \code{att()}.
 #'
-#' @param fit A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.
+#' @param fit A \code{"causalmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.
 #' @param newdata Optional data.frame or matrix of covariates for prediction.
 #'   If \code{NULL}, uses the training covariates stored in \code{fit}.
 #' @param type Character; \code{"mean"} (default) for ordinary mean CATE or
@@ -692,7 +692,7 @@ cate <- function(fit,
                 interval = "credible",
                 level = 0.95,
                 nsim_mean = 200L) {
-  stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
+  stopifnot(inherits(fit, "causalmixgpd_causal_fit"))
   .causal_require_conditional(fit, fn = "cate")
 
   type <- match.arg(type)
@@ -742,11 +742,11 @@ cate <- function(fit,
   pr_trt <- predict(fit$outcome_fit$trt, x = x_pred, type = type,
                     cutoff = cutoff,
                     ps = ps_cov, interval = if (compute_interval) interval else NULL,
-                    cred.level = level, nsim_mean = nsim_mean, store_draws = TRUE)
+                    level = level, nsim_mean = nsim_mean, store_draws = TRUE)
   pr_con <- predict(fit$outcome_fit$con, x = x_pred, type = type,
                     cutoff = cutoff,
                     ps = ps_cov, interval = if (compute_interval) interval else NULL,
-                    cred.level = level, nsim_mean = nsim_mean, store_draws = TRUE)
+                    level = level, nsim_mean = nsim_mean, store_draws = TRUE)
 
   if (is.null(pr_trt$draws) || is.null(pr_con$draws)) {
     stop("CATE requires stored posterior mean draws; set store_draws=TRUE in predict().", call. = FALSE)
@@ -812,23 +812,8 @@ cate <- function(fit,
       GPD = meta$GPD
     )
   )
-  class(out) <- "dpmixgpd_ate"
+  class(out) <- "causalmixgpd_ate"
   out
-}
-
-.causal_qte_draws_array <- function(draws) {
-  if (is.null(draws)) return(NULL)
-  if (is.null(dim(draws))) return(array(as.numeric(draws), dim = c(length(draws), 1L, 1L)))
-  d <- dim(draws)
-  if (length(d) == 2L) {
-    M <- d[1]
-    S <- d[2]
-    arr <- array(NA_real_, dim = c(S, 1L, M))
-    for (s in seq_len(S)) arr[s, 1L, ] <- draws[, s]
-    return(arr)
-  }
-  if (length(d) == 3L) return(draws)
-  stop("Unexpected quantile draw dimensions in causal treatment effects.", call. = FALSE)
 }
 
 .causal_ate_draws_matrix <- function(draws) {
@@ -872,28 +857,51 @@ cate <- function(fit,
   interval <- obj$interval %||% "none"
   compute_interval <- interval %in% c("credible", "hpd")
 
-  trt_draws <- .causal_qte_draws_array(obj$trt$draws %||% NULL)
-  con_draws <- .causal_qte_draws_array(obj$con$draws %||% NULL)
-  if (is.null(trt_draws) || is.null(con_draws)) {
-    stop("QTE aggregation requires treated/control quantile draws.", call. = FALSE)
+  trt_fit_draws <- .causal_ate_draws_matrix(obj$trt$draws %||% NULL)
+  con_fit_draws <- .causal_ate_draws_matrix(obj$con$draws %||% NULL)
+  if (is.null(trt_fit_draws) || is.null(con_fit_draws)) {
+    stop("QTE aggregation requires treated/control posterior predictive draws.", call. = FALSE)
   }
-  if (!identical(dim(trt_draws), dim(con_draws))) {
-    stop("Treated and control quantile draws must match for aggregation.", call. = FALSE)
+  if (nrow(trt_fit_draws) != nrow(con_fit_draws)) {
+    stop("Treated and control posterior draws must have the same number of rows.", call. = FALSE)
   }
 
-  idx <- unique(as.integer(idx))
-  idx <- idx[idx >= 1L & idx <= dim(trt_draws)[2]]
-  if (!length(idx)) stop("No valid rows selected for QTE aggregation.", call. = FALSE)
+  n_pred <- as.integer(obj$n_pred %||% 1L)
+  if (n_pred > 1L) {
+    if (ncol(trt_fit_draws) != ncol(con_fit_draws)) {
+      stop("Treated and control posterior predictive draws must align by covariate row.", call. = FALSE)
+    }
+    idx <- unique(as.integer(idx))
+    idx <- idx[idx >= 1L & idx <= ncol(trt_fit_draws)]
+    if (!length(idx)) stop("No valid rows selected for QTE aggregation.", call. = FALSE)
+    trt_pool <- trt_fit_draws[, idx, drop = FALSE]
+    con_pool <- con_fit_draws[, idx, drop = FALSE]
+  } else {
+    # Unconditional case: each row already samples from the arm-level marginal.
+    trt_pool <- trt_fit_draws
+    con_pool <- con_fit_draws
+  }
 
-  S <- dim(trt_draws)[1]
-  M <- dim(trt_draws)[3]
-  trt_avg <- matrix(apply(trt_draws[, idx, , drop = FALSE], c(1, 3), mean, na.rm = TRUE), nrow = S, ncol = M)
-  con_avg <- matrix(apply(con_draws[, idx, , drop = FALSE], c(1, 3), mean, na.rm = TRUE), nrow = S, ncol = M)
-  diff_avg <- trt_avg - con_avg
+  .row_quantiles <- function(draw_mat, probs) {
+    S <- nrow(draw_mat)
+    M <- length(probs)
+    out <- matrix(NA_real_, nrow = S, ncol = M)
+    for (s in seq_len(S)) {
+      xs <- as.numeric(draw_mat[s, ])
+      xs <- xs[is.finite(xs)]
+      if (!length(xs)) next
+      out[s, ] <- as.numeric(stats::quantile(xs, probs = probs, names = FALSE, type = 7))
+    }
+    out
+  }
 
-  diff_summ <- .causal_summarize_draw_cols(diff_avg, compute_interval = compute_interval, interval = interval, level = level)
-  trt_summ <- .causal_summarize_draw_cols(trt_avg, compute_interval = compute_interval, interval = interval, level = level)
-  con_summ <- .causal_summarize_draw_cols(con_avg, compute_interval = compute_interval, interval = interval, level = level)
+  trt_q <- .row_quantiles(trt_pool, probs = probs)
+  con_q <- .row_quantiles(con_pool, probs = probs)
+  diff_q <- trt_q - con_q
+
+  diff_summ <- .causal_summarize_draw_cols(diff_q, compute_interval = compute_interval, interval = interval, level = level)
+  trt_summ <- .causal_summarize_draw_cols(trt_q, compute_interval = compute_interval, interval = interval, level = level)
+  con_summ <- .causal_summarize_draw_cols(con_q, compute_interval = compute_interval, interval = interval, level = level)
 
   lower <- upper <- NULL
   if (compute_interval) {
@@ -925,13 +933,15 @@ cate <- function(fit,
     upper = as.numeric(con_summ$upper)
   )
 
+  S <- nrow(diff_q)
+  M <- ncol(diff_q)
   trt_draws_out <- array(NA_real_, dim = c(S, 1L, M))
   con_draws_out <- array(NA_real_, dim = c(S, 1L, M))
   diff_draws_out <- array(NA_real_, dim = c(S, 1L, M))
   for (j in seq_len(M)) {
-    trt_draws_out[, 1L, j] <- trt_avg[, j]
-    con_draws_out[, 1L, j] <- con_avg[, j]
-    diff_draws_out[, 1L, j] <- diff_avg[, j]
+    trt_draws_out[, 1L, j] <- trt_q[, j]
+    con_draws_out[, 1L, j] <- con_q[, j]
+    diff_draws_out[, 1L, j] <- diff_q[, j]
   }
 
   pr_trt <- obj$trt
@@ -958,7 +968,7 @@ cate <- function(fit,
     type = effect_type,
     meta = obj$meta %||% list()
   )
-  class(out) <- "dpmixgpd_qte"
+  class(out) <- "causalmixgpd_qte"
   out
 }
 
@@ -1039,19 +1049,24 @@ cate <- function(fit,
     type = effect_type,
     meta = obj$meta %||% list()
   )
-  class(out) <- "dpmixgpd_ate"
+  class(out) <- "causalmixgpd_ate"
   out
 }
 
 #' Quantile treatment effects (QTE), marginal over training covariates
 #'
-#' Computes a marginal quantile treatment effect by averaging conditional
-#' quantile effects over the training covariate rows.
+#' Computes a marginal quantile treatment effect as a contrast of arm-specific
+#' marginal quantiles:
+#' \eqn{Q_1^{m}(\tau) - Q_0^{m}(\tau)}.
+#'
+#' For conditional models, each posterior draw induces arm-specific marginal
+#' predictive distributions by averaging over the empirical covariate
+#' distribution, then quantiles are taken from those marginal draws.
 #'
 #' For unconditional causal models (\code{X = NULL}), this is computed directly
 #' from unconditional treated/control outcome predictions.
 #'
-#' @param fit A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.
+#' @param fit A \code{"causalmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.
 #' @param probs Numeric vector of probabilities in (0, 1) specifying the quantile levels
 #'   of the outcome distribution to estimate treatment effects at.
 #' @param newdata Ignored for marginal estimands. If supplied, a warning is issued
@@ -1079,8 +1094,12 @@ qte <- function(fit,
                 y = NULL,
                 interval = "credible",
                 level = 0.95) {
-  stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
+  stopifnot(inherits(fit, "causalmixgpd_causal_fit"))
   .causal_warn_ignored_marginal_inputs(fn = "qte", newdata = newdata, y = y, conditional_fn = "cqte")
+  probs <- as.numeric(probs)
+  if (!length(probs) || anyNA(probs) || any(!is.finite(probs)) || any(probs <= 0 | probs >= 1)) {
+    stop("'probs' must be a numeric vector with values strictly between 0 and 1.", call. = FALSE)
+  }
   iv <- .causal_validate_interval(interval = interval, level = level)
   compute_interval <- iv$compute_interval
   interval <- iv$interval
@@ -1125,19 +1144,17 @@ qte <- function(fit,
   pr_trt <- predict(
     fit$outcome_fit$trt,
     x = x_pred,
-    type = "quantile",
-    index = probs,
+    type = "fit",
     ps = ps_cov,
-    interval = if (compute_interval) interval else NULL,
+    interval = NULL,
     store_draws = TRUE
   )
   pr_con <- predict(
     fit$outcome_fit$con,
     x = x_pred,
-    type = "quantile",
-    index = probs,
+    type = "fit",
     ps = ps_cov,
-    interval = if (compute_interval) interval else NULL,
+    interval = NULL,
     store_draws = TRUE
   )
 
@@ -1167,8 +1184,9 @@ qte <- function(fit,
 
 #' Quantile treatment effect on the treated (QTT)
 #'
-#' Computes a treated-only marginal quantile treatment effect by averaging
-#' conditional quantile effects over rows with assigned treatment \code{A=1}.
+#' Computes a treated-standardized marginal quantile treatment effect:
+#' \eqn{Q_1^{t}(\tau) - Q_0^{t}(\tau)}, where marginalization is over the
+#' covariate distribution of treated units.
 #'
 #' @inheritParams qte
 #' @return A list with elements \code{fit}, \code{grid} (probabilities), and
@@ -1188,8 +1206,12 @@ qtt <- function(fit,
                 y = NULL,
                 interval = "credible",
                 level = 0.95) {
-  stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
+  stopifnot(inherits(fit, "causalmixgpd_causal_fit"))
   .causal_warn_ignored_marginal_inputs(fn = "qtt", newdata = newdata, y = y, conditional_fn = "cqte")
+  probs <- as.numeric(probs)
+  if (!length(probs) || anyNA(probs) || any(!is.finite(probs)) || any(probs <= 0 | probs >= 1)) {
+    stop("'probs' must be a numeric vector with values strictly between 0 and 1.", call. = FALSE)
+  }
   iv <- .causal_validate_interval(interval = interval, level = level)
   compute_interval <- iv$compute_interval
   interval <- iv$interval
@@ -1234,19 +1256,17 @@ qtt <- function(fit,
   pr_trt <- predict(
     fit$outcome_fit$trt,
     x = x_pred,
-    type = "quantile",
-    index = probs,
+    type = "fit",
     ps = ps_cov,
-    interval = if (compute_interval) interval else NULL,
+    interval = NULL,
     store_draws = TRUE
   )
   pr_con <- predict(
     fit$outcome_fit$con,
     x = x_pred,
-    type = "quantile",
-    index = probs,
+    type = "fit",
     ps = ps_cov,
-    interval = if (compute_interval) interval else NULL,
+    interval = NULL,
     store_draws = TRUE
   )
 
@@ -1282,7 +1302,7 @@ qtt <- function(fit,
 #' For unconditional causal models (\code{X = NULL}), this is computed directly
 #' from unconditional treated/control outcome predictions.
 #'
-#' @param fit A \code{"dpmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.
+#' @param fit A \code{"causalmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.
 #' @param newdata Ignored for marginal estimands. If supplied, a warning is issued
 #'   and training data are used.
 #' @param y Ignored for marginal estimands. If supplied, a warning is issued
@@ -1314,7 +1334,7 @@ ate <- function(fit,
                 interval = "credible",
                 level = 0.95,
                 nsim_mean = 200L) {
-  stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
+  stopifnot(inherits(fit, "causalmixgpd_causal_fit"))
   .causal_warn_ignored_marginal_inputs(fn = "ate", newdata = newdata, y = y, conditional_fn = "cate")
   type <- match.arg(type)
   iv <- .causal_validate_interval(interval = interval, level = level)
@@ -1365,7 +1385,7 @@ ate <- function(fit,
     cutoff = cutoff,
     ps = ps_cov,
     interval = if (compute_interval) interval else NULL,
-    cred.level = level,
+    level = level,
     nsim_mean = nsim_mean,
     store_draws = TRUE
   )
@@ -1376,7 +1396,7 @@ ate <- function(fit,
     cutoff = cutoff,
     ps = ps_cov,
     interval = if (compute_interval) interval else NULL,
-    cred.level = level,
+    level = level,
     nsim_mean = nsim_mean,
     store_draws = TRUE
   )
@@ -1427,7 +1447,7 @@ att <- function(fit,
                 interval = "credible",
                 level = 0.95,
                 nsim_mean = 200L) {
-  stopifnot(inherits(fit, "dpmixgpd_causal_fit"))
+  stopifnot(inherits(fit, "causalmixgpd_causal_fit"))
   .causal_warn_ignored_marginal_inputs(fn = "att", newdata = newdata, y = y, conditional_fn = "cate")
   type <- match.arg(type)
   iv <- .causal_validate_interval(interval = interval, level = level)
@@ -1478,7 +1498,7 @@ att <- function(fit,
     cutoff = cutoff,
     ps = ps_cov,
     interval = if (compute_interval) interval else NULL,
-    cred.level = level,
+    level = level,
     nsim_mean = nsim_mean,
     store_draws = TRUE
   )
@@ -1489,7 +1509,7 @@ att <- function(fit,
     cutoff = cutoff,
     ps = ps_cov,
     interval = if (compute_interval) interval else NULL,
-    cred.level = level,
+    level = level,
     nsim_mean = nsim_mean,
     store_draws = TRUE
   )
@@ -1571,7 +1591,7 @@ ate_rmean <- function(fit,
 #' predictions use only the original covariates \code{X}.
 #'
 #' @inheritParams predict.mixgpd_fit
-#' @param object A \code{"dpmixgpd_causal_fit"} object returned by
+#' @param object A \code{"causalmixgpd_causal_fit"} object returned by
 #'   \code{run_mcmc_causal()}.
 #' @param ps Optional numeric vector of propensity scores aligned with \code{x}
 #'   / \code{newdata}. When provided, the supplied scores are used instead of
@@ -1592,18 +1612,19 @@ ate_rmean <- function(fit,
 #' \dontrun{
 #' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
 #' fit <- run_mcmc_causal(cb)
-#' predict(fit, x = X[1:10, ], type = "quantile", p = c(0.25, 0.5, 0.75))
+#' predict(fit, x = X[1:10, ], type = "quantile", index = c(0.25, 0.5, 0.75))
 #' predict(fit, x = X[1:10, ], type = "mean", interval = "hpd")  # HPD intervals
 #' predict(fit, x = X[1:10, ], type = "mean", interval = NULL)   # No intervals
 #' }
 #' @export
-predict.dpmixgpd_causal_fit <- function(object,
+predict.causalmixgpd_causal_fit <- function(object,
                                         x = NULL,
                                         y = NULL,
                                         ps = NULL,
                                         newdata = NULL,
                                         type = c("mean", "quantile", "density", "survival", "prob", "location"),
                                         p = NULL,
+                                        index = NULL,
                                         nsim = NULL,
                                         interval = "credible",
                                         probs = c(0.025, 0.5, 0.975),
@@ -1611,7 +1632,7 @@ predict.dpmixgpd_causal_fit <- function(object,
                                         nsim_mean = 200L,
                                         ncores = 1L,
                                         ...) {
-  stopifnot(inherits(object, "dpmixgpd_causal_fit"))
+  stopifnot(inherits(object, "causalmixgpd_causal_fit"))
 
   if (!is.null(newdata) && !is.null(x)) {
     stop("Provide only one of 'x' or 'newdata' (they are aliases).", call. = FALSE)
@@ -1655,12 +1676,20 @@ predict.dpmixgpd_causal_fit <- function(object,
   ps_clamp <- bundle$meta$ps_clamp %||% 1e-6
 
   if (type == "quantile") {
+    # Alias index <-> p for consistency with predict.mixgpd_fit()
+    if (!is.null(index) && is.null(p)) {
+      p <- index
+    } else if (!is.null(index) && !is.null(p)) {
+      if (!isTRUE(all.equal(as.numeric(index), as.numeric(p)))) {
+        stop("Provide only one of 'p' or 'index' for causal quantile prediction.", call. = FALSE)
+      }
+    }
     if (is.null(p) || length(p) == 0 || any(!is.finite(as.numeric(p)))) {
-      stop("Causal predict for quantile requires one or more finite probabilities in 'p'.", call. = FALSE)
+      stop("Causal predict for quantile requires one or more finite probabilities in 'p' or 'index'.", call. = FALSE)
     }
     p <- as.numeric(p)
     if (any(p <= 0 | p >= 1)) {
-      stop("Probabilities in 'p' must be in (0, 1).", call. = FALSE)
+      stop("Probabilities in 'p'/'index' must be in (0, 1).", call. = FALSE)
     }
   }
 
@@ -1796,7 +1825,7 @@ predict.dpmixgpd_causal_fit <- function(object,
       row.names = NULL
     )
     attr(out, "type") <- type
-    class(out) <- c("dpmixgpd_causal_predict", class(out))
+    class(out) <- c("causalmixgpd_causal_predict", class(out))
     return(out)
   }
 
@@ -1884,7 +1913,7 @@ predict.dpmixgpd_causal_fit <- function(object,
       attr(out_df, "index") <- p
       attr(out_df, "trt") <- pr_trt
       attr(out_df, "con") <- pr_con
-      class(out_df) <- c("dpmixgpd_causal_predict", class(out_df))
+      class(out_df) <- c("causalmixgpd_causal_predict", class(out_df))
       return(out_df)
     }
 
@@ -1896,7 +1925,7 @@ predict.dpmixgpd_causal_fit <- function(object,
     attr(out, "index") <- p
     attr(out, "trt") <- pr_trt
     attr(out, "con") <- pr_con
-    class(out) <- c("dpmixgpd_causal_predict", class(out))
+    class(out) <- c("causalmixgpd_causal_predict", class(out))
     return(out)
   }
   # Special handling for quantile with possibly multiple probabilities
@@ -1948,7 +1977,7 @@ predict.dpmixgpd_causal_fit <- function(object,
     attr(out_df, "index") <- p
     attr(out_df, "trt") <- pr_trt
     attr(out_df, "con") <- pr_con
-    class(out_df) <- c("dpmixgpd_causal_predict", class(out_df))
+    class(out_df) <- c("causalmixgpd_causal_predict", class(out_df))
     return(out_df)
   }
 
@@ -1965,7 +1994,7 @@ predict.dpmixgpd_causal_fit <- function(object,
   if (type == "quantile") attr(out, "index") <- p
   attr(out, "trt") <- pr_trt
   attr(out, "con") <- pr_con
-  class(out) <- c("dpmixgpd_causal_predict", class(out))
+  class(out) <- c("causalmixgpd_causal_predict", class(out))
   out
 }
 
@@ -2078,12 +2107,12 @@ predict.dpmixgpd_causal_fit <- function(object,
     monitors = monitors,
     mcmc = mcmc
   )
-  class(bundle) <- "dpmixgpd_ps_bundle"
+  class(bundle) <- "causalmixgpd_ps_bundle"
   bundle
 }
 
 .ps_design_matrix <- function(ps_bundle, X_new) {
-  stopifnot(inherits(ps_bundle, "dpmixgpd_ps_bundle"))
+  stopifnot(inherits(ps_bundle, "causalmixgpd_ps_bundle"))
   X_train <- ps_bundle$data$X
   if (is.null(X_train)) stop("PS bundle missing design matrix.", call. = FALSE)
 

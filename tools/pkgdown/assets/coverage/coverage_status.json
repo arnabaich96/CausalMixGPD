@@ -1,10 +1,10 @@
 {
-  "percent": 73.49,
-  "timestamp": "2026-02-13T22:05:11Z",
+  "percent": 69.27,
+  "timestamp": "2026-02-15T15:30:49Z",
   "sources": "tests",
-  "total_lines": 7046,
-  "covered_lines": 5178,
-  "files": 16,
+  "total_lines": 7560,
+  "covered_lines": 5237,
+  "files": 17,
   "file_coverage": [
     {
       "file": "R/99-simulated-data.R",
@@ -14,8 +14,8 @@
     },
     {
       "file": "R/06-visualization-helpers.R",
-      "lines": 256,
-      "covered": 235,
+      "lines": 255,
+      "covered": 234,
       "percent": 91.8
     },
     {
@@ -23,6 +23,12 @@
       "lines": 60,
       "covered": 54,
       "percent": 90
+    },
+    {
+      "file": "R/3-laplace-mixgpd.R",
+      "lines": 133,
+      "covered": 117,
+      "percent": 88
     },
     {
       "file": "R/2-gamma-mixgpd.R",
@@ -35,12 +41,6 @@
       "lines": 125,
       "covered": 109,
       "percent": 87.2
-    },
-    {
-      "file": "R/3-laplace-mixgpd.R",
-      "lines": 133,
-      "covered": 113,
-      "percent": 85
     },
     {
       "file": "R/5-invgauss-mixgpd.R",
@@ -63,8 +63,8 @@
     {
       "file": "R/01-compile-spec.R",
       "lines": 220,
-      "covered": 173,
-      "percent": 78.6
+      "covered": 172,
+      "percent": 78.2
     },
     {
       "file": "R/0-base-kernels.R",
@@ -75,8 +75,8 @@
     {
       "file": "R/02-utilities-internal.R",
       "lines": 1553,
-      "covered": 1172,
-      "percent": 75.5
+      "covered": 1203,
+      "percent": 77.5
     },
     {
       "file": "R/03-build-and-run.R",
@@ -85,22 +85,28 @@
       "percent": 74.3
     },
     {
-      "file": "R/05-causal.R",
-      "lines": 1187,
-      "covered": 809,
-      "percent": 68.2
-    },
-    {
       "file": "R/04-S3-Methods.R",
-      "lines": 1890,
-      "covered": 1260,
-      "percent": 66.7
+      "lines": 1894,
+      "covered": 1265,
+      "percent": 66.8
     },
     {
       "file": "R/09-diagnostics-glue.R",
       "lines": 178,
       "covered": 117,
       "percent": 65.7
+    },
+    {
+      "file": "R/05-causal.R",
+      "lines": 1494,
+      "covered": 761,
+      "percent": 50.9
+    },
+    {
+      "file": "R/06-wrappers.R",
+      "lines": 204,
+      "covered": 69,
+      "percent": 33.8
     }
   ]
 }

@@ -1,7 +1,7 @@
 # Plot fitted values diagnostics
 
 S3 method for visualizing fitted values from
-[`fitted.mixgpd_fit()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/fitted.mixgpd_fit.md).
+[`fitted.mixgpd_fit()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/fitted.mixgpd_fit.md).
 Produces a 2-panel figure: Q-Q plot and residuals vs fitted.
 
 ## Usage
@@ -16,7 +16,7 @@ plot(x, y = NULL, ...)
 - x:
 
   Object of class `mixgpd_fitted` from
-  [`fitted.mixgpd_fit()`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/fitted.mixgpd_fit.md).
+  [`fitted.mixgpd_fit()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/fitted.mixgpd_fit.md).
 
 - y:
 

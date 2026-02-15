@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Backends, Kernels, and Workflow Map – DPmixGPD</title>
+<title>Backends, Kernels, and Workflow Map – CausalMixGPD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -116,7 +116,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../index.html">
-    <span class="navbar-title">DPmixGPD</span>
+    <span class="navbar-title">CausalMixGPD</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -203,7 +203,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Articles</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD"> <i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/arnabaich96/CausalMixGPD"> <i class="bi bi-github" role="img">
 </i> 
 <span class="menu-text"></span></a>
   </li>  
@@ -248,7 +248,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p><a href="roadmap.html" class="btn btn-outline-light">Workflow roadmap</a></p>
 <section id="big-picture" class="level1">
 <h1>Big picture</h1>
-<p>DPmixGPD has two orthogonal dials you turn when building models:</p>
+<p>CausalMixGPD has two orthogonal dials you turn when building models:</p>
 <ul>
 <li><strong>Backend</strong> (how the mixture weights / clustering are represented)
 <ul>
@@ -280,16 +280,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="what-does-the-workflow-look-like" class="level1">
 <h1>What does the workflow look like?</h1>
-<p>DPmixGPD uses a consistent build -&gt; run -&gt; summarize loop:</p>
+<p>CausalMixGPD uses a consistent build -&gt; run -&gt; summarize loop:</p>
 <ol type="1">
-<li><strong>Build a bundle</strong> using <code>DPmixGPD::bundle()</code> (or causal builders if you are doing TE work).</li>
-<li><strong>Run MCMC</strong> using <code>DPmixGPD::mcmc()</code>.</li>
+<li><strong>Build a bundle</strong> using <code>CausalMixGPD::bundle()</code> (or causal builders if you are doing TE work).</li>
+<li><strong>Run MCMC</strong> using <code>CausalMixGPD::mcmc()</code>.</li>
 <li><strong>Inspect and summarize</strong> using <code>print()</code>, <code>summary()</code>, <code>plot()</code>.</li>
 <li><strong>Predict</strong> using <code>predict()</code>. For conditional (covariate) models, <code>fitted()</code> is also available.</li>
 </ol>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> DPmixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> CausalMixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> <span class="fu">rnorm</span>(<span class="dv">50</span>),</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"normal"</span>,</span>
@@ -299,7 +299,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Run</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"quickstart-backends-and-workflow-fit"</span>, DPmixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle))</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"quickstart-backends-and-workflow-fit"</span>, CausalMixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle))</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Summarize</span></span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(fit)</span>
@@ -351,7 +351,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 ">
 
   <div>
-    (c) DPmixGPD - Bayesian semiparametric modeling for heavy-tailed data
+    (c) CausalMixGPD - Bayesian semiparametric modeling for heavy-tailed data
   </div>
 
   <div>
@@ -359,7 +359,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <span id="site-updated"></span> -
     <a href="../cite.html">Cite</a> -
     <a href="../pkgdown/index.html">API</a> -
-    <a href="https://github.com/arnabaich96/DPmixGPD">GitHub</a>
+    <a href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a>
   </div>
 
 </div>

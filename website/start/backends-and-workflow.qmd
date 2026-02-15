@@ -26,7 +26,7 @@ mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
 # Load package (with all_quiet to suppress startup messages)
-library(DPmixGPD)
+library(CausalMixGPD)
 
 # Ensure package is fully loaded for data access
 if (!require("devtools", quietly = TRUE)) {
@@ -51,7 +51,7 @@ source("_legacy-setup.R")
 
 # Big picture
 
-DPmixGPD has two orthogonal dials you turn when building models:
+CausalMixGPD has two orthogonal dials you turn when building models:
 
 - **Backend** (how the mixture weights / clustering are represented)
   - **CRP**: Chinese Restaurant Process representation.
@@ -78,7 +78,7 @@ Practical rule of thumb:
 
 # What does the workflow look like?
 
-DPmixGPD uses a consistent build -> run -> summarize loop:
+CausalMixGPD uses a consistent build -> run -> summarize loop:
 
 1. **Build a bundle** using `bundle()` (or causal builders if you are doing TE work).
 2. **Run MCMC** using `mcmc()`.

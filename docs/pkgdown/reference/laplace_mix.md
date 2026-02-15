@@ -93,7 +93,7 @@ corresponding component. Quantiles are computed by numerical inversion
 of the mixture CDF. These uppercase NIMBLE-compatible functions are
 scalar (`x`/`q` and `n = 1`). For vectorized R usage (including
 `n > 1`), use
-[`laplace_lowercase`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/laplace_lowercase.md).
+[`laplace_lowercase`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/laplace_lowercase.md).
 
 ## Functions
 
@@ -122,6 +122,6 @@ qLaplaceMix(0.50, w = w, location = location, scale = scale)
 qLaplaceMix(0.95, w = w, location = location, scale = scale)
 #> [1] 3.18341
 replicate(10, rLaplaceMix(1, w = w, location = location, scale = scale))
-#>  [1] -5.4458792  0.5214974 -0.4492418  0.0948115 -1.5719023  3.6907967
-#>  [7] -0.3890725  0.3973869  1.2017509 -0.6046891
+#>  [1] -0.5459962  7.6818187  0.7002966  1.0742783 -1.1724444  2.4918533
+#>  [7] -1.9789015 -1.7040411  0.5314815 -0.5180490
 ```

@@ -5,7 +5,7 @@ above `threshold`. Parameterization uses threshold `threshold`, scale
 `scale > 0`, and shape `shape`. These uppercase NIMBLE-compatible
 functions are scalar (`x`/`q` and `n = 1`). For vectorized R usage
 (including `n > 1`), use
-[`base_lowercase`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/base_lowercase.md).
+[`base_lowercase`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/base_lowercase.md).
 
 ## Usage
 
@@ -95,6 +95,6 @@ qGpd(0.50, threshold, tail_scale, tail_shape)
 qGpd(0.95, threshold, tail_scale, tail_shape)
 #> [1] 4.282257
 replicate(10, rGpd(1, threshold, tail_scale, tail_shape))
-#>  [1] 9.289328 1.595145 1.372038 2.390014 1.768048 1.890555 2.915763 1.728694
-#>  [9] 1.240290 3.609251
+#>  [1] 1.152272 2.430307 1.025209 2.462315 1.148486 1.023374 2.444493 2.670291
+#>  [9] 4.831502 1.399380
 ```

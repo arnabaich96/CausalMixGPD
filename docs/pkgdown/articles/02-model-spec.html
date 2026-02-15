@@ -5,12 +5,12 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>DPmixGPD: Model fundamentals (bulk DPM + GPD tail) • DPmixGPD</title>
+<title>CausalMixGPD: Model fundamentals (bulk DPM + GPD tail) • CausalMixGPD</title>
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="DPmixGPD: Model fundamentals (bulk DPM + GPD tail)">
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="CausalMixGPD: Model fundamentals (bulk DPM + GPD tail)">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -18,7 +18,7 @@
 
     <nav class="navbar navbar-expand-lg fixed-top bg-light" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
-    <a class="navbar-brand me-2" href="../index.html">DPmixGPD</a>
+    <a class="navbar-brand me-2" href="../index.html">CausalMixGPD</a>
 
     <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
 
@@ -42,7 +42,7 @@
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul>
 <ul class="navbar-nav">
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/arnabaich96/DPmixGPD">GitHub</a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a></li>
       </ul>
 </div>
 
@@ -56,18 +56,18 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
 
-      <h1>DPmixGPD: Model fundamentals (bulk DPM + GPD tail)</h1>
+      <h1>CausalMixGPD: Model fundamentals (bulk DPM + GPD tail)</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/arnabaich96/DPmixGPD/blob/HEAD/vignettes/02-model-spec.Rmd" class="external-link"><code>vignettes/02-model-spec.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/arnabaich96/CausalMixGPD/blob/HEAD/vignettes/02-model-spec.Rmd" class="external-link"><code>vignettes/02-model-spec.Rmd</code></a></small>
       <div class="d-none name"><code>02-model-spec.Rmd</code></div>
     </div>
 
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://arnabaich96.github.io/DPmixGPD/" class="external-link">DPmixGPD</a></span><span class="op">)</span></span></code></pre></div>
-<p>This vignette defines the statistical model underlying DPmixGPD. The
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://arnabaich96.github.io/CausalMixGPD/" class="external-link">CausalMixGPD</a></span><span class="op">)</span></span></code></pre></div>
+<p>This vignette defines the statistical model underlying CausalMixGPD. The
 three ingredients are:</p>
 <ol style="list-style-type: decimal">
 <li>a Dirichlet process mixture (DPM) for the <em>bulk</em> (central)
@@ -84,7 +84,7 @@ rather than repeating these definitions.</p>
 </h2>
 <p>Let
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mn>1</mn></msub><mo>,</mo><mi>…</mi><mo>,</mo><msub><mi>y</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">y_1,\dots,y_n</annotation></semantics></math>
-denote outcomes. DPmixGPD uses a mixture representation
+denote outcomes. CausalMixGPD uses a mixture representation
 <math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>y</mi><mi>i</mi></msub><mo>∣</mo><msub><mi>z</mi><mi>i</mi></msub><mo>=</mo><mi>j</mi><mo>∼</mo><mi>k</mi><mo stretchy="false" form="prefix">(</mo><msub><mi>y</mi><mi>i</mi></msub><mo>∣</mo><msub><mi mathvariant="normal">Θ</mi><mi>j</mi></msub><mo stretchy="false" form="postfix">)</mo><mo>,</mo><mspace width="2.0em"></mspace><msub><mi>z</mi><mi>i</mi></msub><mo>∼</mo><mrow><mi mathvariant="normal">C</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">t</mi><mi mathvariant="normal">e</mi><mi mathvariant="normal">g</mi><mi mathvariant="normal">o</mi><mi mathvariant="normal">r</mi><mi mathvariant="normal">i</mi><mi mathvariant="normal">c</mi><mi mathvariant="normal">a</mi><mi mathvariant="normal">l</mi></mrow><mo stretchy="false" form="prefix">(</mo><msub><mi>w</mi><mn>1</mn></msub><mo>,</mo><msub><mi>w</mi><mn>2</mn></msub><mo>,</mo><mi>…</mi><mo stretchy="false" form="postfix">)</mo><mo>,</mo></mrow><annotation encoding="application/x-tex">
   y_i \mid z_i=j \sim k(y_i \mid \Theta_j), \qquad
   z_i \sim \mathrm{Categorical}(w_1,w_2,\dots),
@@ -106,7 +106,7 @@ is the concentration parameter controlling expected clustering, and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>G</mi><mn>0</mn></msub><annotation encoding="application/x-tex">G_0</annotation></semantics></math>
 is the base measure encoding prior beliefs about kernel parameters <span class="citation">(<a href="#ref-ferguson1973">Ferguson
 1973</a>)</span>.</p>
-<p>DPmixGPD supports two equivalent DP representations:</p>
+<p>CausalMixGPD supports two equivalent DP representations:</p>
 <ul>
 <li>stick-breaking (“SB”) <span class="citation">(<a href="#ref-sethuraman1994">Sethuraman 1994</a>)</span>, implemented with
 a finite truncation at
@@ -160,7 +160,7 @@ exceedances is central in extreme value theory <span class="citation">(<a href="
 <div class="section level2">
 <h2 id="splicing-a-proper-bulktail-distribution">Splicing: a proper bulk–tail distribution<a class="anchor" aria-label="anchor" href="#splicing-a-proper-bulktail-distribution"></a>
 </h2>
-<p>DPmixGPD combines a bulk model
+<p>CausalMixGPD combines a bulk model
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>F</mi><mrow><mi mathvariant="normal">D</mi><mi mathvariant="normal">P</mi><mi mathvariant="normal">M</mi></mrow></msub><annotation encoding="application/x-tex">F_{\mathrm{DPM}}</annotation></semantics></math>
 with a GPD exceedance model while ensuring the resulting full
 distribution integrates to 1.</p>
@@ -193,9 +193,9 @@ observations” Bayesian philosophy matches earlier semiparametric
 bulk–tail constructions <span class="citation">(<a href="#ref-frigessi2002">Frigessi et al. 2002</a>; <a href="#ref-behrens2004">Behrens et al. 2004</a>; <a href="#ref-doNascimento2012">Nascimento et al. 2012</a>)</span>.</p>
 </div>
 <div class="section level2">
-<h2 id="posterior-computation-in-dpmixgpd">Posterior computation in DPmixGPD<a class="anchor" aria-label="anchor" href="#posterior-computation-in-dpmixgpd"></a>
+<h2 id="posterior-computation-in-causalmixgpd">Posterior computation in CausalMixGPD<a class="anchor" aria-label="anchor" href="#posterior-computation-in-causalmixgpd"></a>
 </h2>
-<p>DPmixGPD implements these models through NIMBLE-backed MCMC. At a
+<p>CausalMixGPD implements these models through NIMBLE-backed MCMC. At a
 high level, posterior inference alternates between:</p>
 <ol style="list-style-type: decimal">
 <li>allocation updates

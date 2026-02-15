@@ -5,8 +5,8 @@ page-layout: full
 
 ## Coverage resources
 
-- [Codecov project](https://codecov.io/gh/arnabaich96/DPmixGPD)
-- [Coverage map](https://github.com/arnabaich96/DPmixGPD/blob/master/tests/testthat/COVERAGE_MAP.md)
+- [Codecov project](https://codecov.io/gh/arnabaich96/CausalMixGPD)
+- [Coverage map](https://github.com/arnabaich96/CausalMixGPD/blob/master/tests/testthat/COVERAGE_MAP.md)
 - [coverage_status() docs](pkgdown/reference/coverage_status.html)
 - [read_coverage_status() docs](pkgdown/reference/read_coverage_status.html)
 

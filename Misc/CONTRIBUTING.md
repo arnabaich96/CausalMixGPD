@@ -1,4 +1,4 @@
-# Contributing to DPmixGPD
+# Contributing to CausalMixGPD
 
 Thanks for your interest in contributing! This project is an experimental R package for Dirichlet process mixture models with optional GPD tails. We welcome issues, discussions, and pull requests.
 
@@ -10,7 +10,7 @@ Thanks for your interest in contributing! This project is an experimental R pack
   - Suggested: `renv` for dependency management, `devtools`, `roxygen2`, `testthat`
 - Setup:
   1. Fork and clone the repository.
-  2. Open the RStudio project (`DPmixGPD.Rproj`) or the folder in VS Code.
+  2. Open the RStudio project (`CausalMixGPD.Rproj`) or the folder in VS Code.
   3. Restore deps (if using renv):
      ```r
      install.packages("renv"); renv::restore()
@@ -54,7 +54,7 @@ To skip formatting for a commit, set `DPMIXGPD_SKIP_STYLER=1` in your environmen
 
 ## Testing
 
-DPmixGPD uses a **tiered testing system** to balance thoroughness with speed. For comprehensive documentation, see [tests/testthat/README.md](../tests/testthat/README.md).
+CausalMixGPD uses a **tiered testing system** to balance thoroughness with speed. For comprehensive documentation, see [tests/testthat/README.md](../tests/testthat/README.md).
 
 ### Quick Start
 
@@ -111,7 +111,7 @@ Coverage reports are generated at `docs/coverage/`.
 
 - Search existing issues first.
 - Include reproducible examples (minimal data + code), session info, and expected vs actual behavior.
-- File issues here: https://github.com/arnabaich96/DPmixGPD_Package/issues
+- File issues here: https://github.com/arnabaich96/CausalMixGPD_Package/issues
 
 ## Code of Conduct
 

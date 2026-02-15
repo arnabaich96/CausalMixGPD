@@ -2,7 +2,7 @@ test_that("dpmgpd(non_gpd_bundle) errors with a clear message", {
   set.seed(1001)
   y <- abs(stats::rnorm(20)) + 0.1
 
-  b <- DPmixGPD::build_nimble_bundle(
+  b <- CausalMixGPD::build_nimble_bundle(
     y = y,
     backend = "sb",
     kernel = "normal",
@@ -12,7 +12,7 @@ test_that("dpmgpd(non_gpd_bundle) errors with a clear message", {
   )
 
   expect_error(
-    DPmixGPD::dpmgpd(b, mcmc = list(show_progress = FALSE)),
+    CausalMixGPD::dpmgpd(b, mcmc = list(show_progress = FALSE)),
     "requires a bundle with GPD enabled"
   )
 })
@@ -24,7 +24,7 @@ test_that("dpmgpd(causal bundle with any non-GPD arm) errors", {
   A <- rep(c(0L, 1L), length.out = n)
   y <- abs(stats::rnorm(n)) + 0.1
 
-  cb <- DPmixGPD::build_causal_bundle(
+  cb <- CausalMixGPD::build_causal_bundle(
     y = y,
     X = X,
     A = A,
@@ -37,7 +37,7 @@ test_that("dpmgpd(causal bundle with any non-GPD arm) errors", {
   )
 
   expect_error(
-    DPmixGPD::dpmgpd(cb, mcmc = list(show_progress = FALSE)),
+    CausalMixGPD::dpmgpd(cb, mcmc = list(show_progress = FALSE)),
     "requires a bundle with GPD enabled"
   )
 })
@@ -48,7 +48,7 @@ test_that("dpmix(gpd non-causal bundle) strips GPD then runs", {
   set.seed(1003)
   y <- abs(stats::rnorm(25)) + 0.1
 
-  b <- DPmixGPD::build_nimble_bundle(
+  b <- CausalMixGPD::build_nimble_bundle(
     y = y,
     backend = "sb",
     kernel = "normal",
@@ -57,7 +57,7 @@ test_that("dpmix(gpd non-causal bundle) strips GPD then runs", {
     mcmc = mcmc_fast(seed = 3L)
   )
 
-  fit <- DPmixGPD::dpmix(
+  fit <- CausalMixGPD::dpmix(
     b,
     mcmc = list(
       niter = 20L,
@@ -84,7 +84,7 @@ test_that("dpmix(gpd causal bundle) strips GPD for both arms then runs", {
   A <- rep(c(0L, 1L), length.out = n)
   y <- abs(stats::rnorm(n)) + 0.1
 
-  cb <- DPmixGPD::build_causal_bundle(
+  cb <- CausalMixGPD::build_causal_bundle(
     y = y,
     X = X,
     A = A,
@@ -96,7 +96,7 @@ test_that("dpmix(gpd causal bundle) strips GPD for both arms then runs", {
     mcmc_outcome = mcmc_fast(seed = 4L)
   )
 
-  fit <- DPmixGPD::dpmix(
+  fit <- CausalMixGPD::dpmix(
     cb,
     mcmc = list(
       niter = 20L,
@@ -108,7 +108,7 @@ test_that("dpmix(gpd causal bundle) strips GPD for both arms then runs", {
     )
   )
 
-  expect_s3_class(fit, "dpmixgpd_causal_fit")
+  expect_s3_class(fit, "causalmixgpd_causal_fit")
   expect_false(isTRUE(fit$bundle$outcome$con$spec$meta$GPD))
   expect_false(isTRUE(fit$bundle$outcome$trt$spec$meta$GPD))
   expect_false(isTRUE(fit$bundle$outcome$con$spec$plan$GPD))
@@ -121,7 +121,7 @@ test_that("dpmix(non-GPD bundle) and dpmgpd(all-GPD bundle) both run", {
   set.seed(1005)
   y <- abs(stats::rnorm(22)) + 0.1
 
-  b_mix <- DPmixGPD::build_nimble_bundle(
+  b_mix <- CausalMixGPD::build_nimble_bundle(
     y = y,
     backend = "sb",
     kernel = "normal",
@@ -129,7 +129,7 @@ test_that("dpmix(non-GPD bundle) and dpmgpd(all-GPD bundle) both run", {
     components = 4,
     mcmc = mcmc_fast(seed = 5L)
   )
-  b_gpd <- DPmixGPD::build_nimble_bundle(
+  b_gpd <- CausalMixGPD::build_nimble_bundle(
     y = y,
     backend = "sb",
     kernel = "normal",
@@ -138,7 +138,7 @@ test_that("dpmix(non-GPD bundle) and dpmgpd(all-GPD bundle) both run", {
     mcmc = mcmc_fast(seed = 6L)
   )
 
-  fit_mix <- DPmixGPD::dpmix(
+  fit_mix <- CausalMixGPD::dpmix(
     b_mix,
     mcmc = list(
       niter = 20L,
@@ -150,7 +150,7 @@ test_that("dpmix(non-GPD bundle) and dpmgpd(all-GPD bundle) both run", {
       quiet = TRUE
     )
   )
-  fit_gpd <- DPmixGPD::dpmgpd(
+  fit_gpd <- CausalMixGPD::dpmgpd(
     b_gpd,
     mcmc = list(
       niter = 20L,

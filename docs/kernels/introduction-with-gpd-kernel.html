@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Introduction with GPD kernel – DPmixGPD</title>
+<title>Introduction with GPD kernel – CausalMixGPD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -145,7 +145,7 @@ window.Quarto = {
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../index.html">
-    <span class="navbar-title">DPmixGPD</span>
+    <span class="navbar-title">CausalMixGPD</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -232,7 +232,7 @@ window.Quarto = {
 <span class="menu-text">Articles</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD"> <i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/arnabaich96/CausalMixGPD"> <i class="bi bi-github" role="img">
 </i> 
 <span class="menu-text"></span></a>
   </li>  
@@ -278,7 +278,7 @@ window.Quarto = {
 <p>[ f(x;u,,)=(1+)^{-1/}, &gt;0, +&gt;0. ]</p>
 <p>The CDF is [ F(x)=1-(1+)^{-1/}, xu, ] and the quantile is [ Q(p)=u+,p(0,1),&nbsp;, ] with the exponential-limit case obtained as ().</p>
 <p><strong>Parameter mapping (math () code):</strong> (u) <code>threshold</code>, () <code>scale</code>, () <code>shape</code>. Log-densities are returned when <code>log = TRUE</code>.</p>
-<p>We show the DPmixGPD kernels in pairs: bulk-only and GPD-augmented. A GPD tail above threshold <span class="math inline">\(u\)</span> uses</p>
+<p>We show the CausalMixGPD kernels in pairs: bulk-only and GPD-augmented. A GPD tail above threshold <span class="math inline">\(u\)</span> uses</p>
 <p><span class="math display">\[f_{GPD}(x; u, \sigma, \xi) = \frac{1}{\sigma} \left(1 + \xi \frac{x-u}{\sigma}\right)^{-1/\xi - 1} \ \text{for } x \ge u.\]</span></p>
 <p>The standalone GPD tail distribution is available via <code>dGpd</code>, <code>pGpd</code>, <code>qGpd</code>, and <code>rGpd</code> functions.</p>
 <div class="cell">
@@ -338,7 +338,7 @@ window.Quarto = {
 ">
 
   <div>
-    (c) DPmixGPD - Bayesian semiparametric modeling for heavy-tailed data
+    (c) CausalMixGPD - Bayesian semiparametric modeling for heavy-tailed data
   </div>
 
   <div>
@@ -346,7 +346,7 @@ window.Quarto = {
     <span id="site-updated"></span> -
     <a href="../cite.html">Cite</a> -
     <a href="../pkgdown/index.html">API</a> -
-    <a href="https://github.com/arnabaich96/DPmixGPD">GitHub</a>
+    <a href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a>
   </div>
 
 </div>

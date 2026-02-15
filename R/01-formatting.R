@@ -150,7 +150,7 @@ print_fmt3 <- function(x, ...) {
   if (is.data.frame(x)) {
     df_raw <- x
     df <- format_df3(x)
-    if (.is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))) {
+    if (.is_knitr_output() && isTRUE(getOption("causalmixgpd.knitr.kable", FALSE))) {
       kbl <- .kable_table(df, row.names = row_names)
       if (!is.null(kbl)) return(print(kbl))
     }
@@ -160,7 +160,7 @@ print_fmt3 <- function(x, ...) {
   if (is.matrix(x)) {
     mat_raw <- x
     mat <- format_mat3(x)
-    if (.is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))) {
+    if (.is_knitr_output() && isTRUE(getOption("causalmixgpd.knitr.kable", FALSE))) {
       kbl <- .kable_table(as.data.frame(mat), row.names = row_names)
       if (!is.null(kbl)) return(print(kbl))
     }
@@ -180,7 +180,7 @@ print_fmt3_sci <- function(x, digits = 3, big = 1e4, ...) {
   if (is.data.frame(x)) {
     df_raw <- x
     df <- format_df3_sci(x, digits = digits, big = big)
-    if (.is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))) {
+    if (.is_knitr_output() && isTRUE(getOption("causalmixgpd.knitr.kable", FALSE))) {
       kbl <- .kable_table(df, row.names = row_names)
       if (!is.null(kbl)) return(print(kbl))
     }
@@ -190,7 +190,7 @@ print_fmt3_sci <- function(x, digits = 3, big = 1e4, ...) {
   if (is.matrix(x)) {
     mat_raw <- x
     mat <- format_mat3_sci(x, digits = digits, big = big)
-    if (.is_knitr_output() && isTRUE(getOption("dpmixgpd.knitr.kable", FALSE))) {
+    if (.is_knitr_output() && isTRUE(getOption("causalmixgpd.knitr.kable", FALSE))) {
       kbl <- .kable_table(as.data.frame(mat), row.names = row_names)
       if (!is.null(kbl)) return(print(kbl))
     }

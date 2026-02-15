@@ -1,5 +1,5 @@
 # helper-test-levels.R
-# Tiered testing infrastructure for DPmixGPD
+# Tiered testing infrastructure for CausalMixGPD
 #
 # Test Tiers:
 #   - "cran": Fast unit/contract tests only (~seconds to minutes). Default for R CMD check.
@@ -129,5 +129,5 @@ representative_causal_combos <- function() {
 
 # Message at load time if verbose
 if (Sys.getenv("DPMIXGPD_TEST_VERBOSE", "0") %in% c("1", "true", "TRUE")) {
-  message("[DPmixGPD tests] Test level: ", get_test_level())
+  message("[CausalMixGPD tests] Test level: ", get_test_level())
 }

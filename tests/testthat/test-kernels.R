@@ -500,9 +500,9 @@ test_that("All nimble::nimbleFunction-defined objects in R/ compile", {
   expect_true(nrow(defs) > 0, info = "No nimbleFunction definitions found in R/")
 
   # Use the package namespace so dependencies among nimbleFunctions are resolved.
-  ns <- tryCatch(asNamespace("DPmixGPD"), error = function(e) NULL)
+  ns <- tryCatch(asNamespace("CausalMixGPD"), error = function(e) NULL)
   if (is.null(ns)) {
-    skip("DPmixGPD namespace not available for compile checks.")
+    skip("CausalMixGPD namespace not available for compile checks.")
   }
 
   # Pretty status symbols (colored if crayon is available)

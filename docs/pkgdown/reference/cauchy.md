@@ -5,7 +5,7 @@ they can be used in NIMBLE models. Parameterization uses location and
 scale (scale \> 0). These uppercase NIMBLE-compatible functions are
 scalar (`x`/`q` and `n = 1`). For vectorized R usage (including
 `n > 1`), use
-[`base_lowercase`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/base_lowercase.md).
+[`base_lowercase`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/base_lowercase.md).
 
 ## Usage
 
@@ -91,6 +91,6 @@ qCauchy(0.50, location, scale)
 qCauchy(0.95, location, scale)
 #> [1] 9.470627
 replicate(10, rCauchy(1, location, scale))
-#>  [1]  1.136833615  9.204051106 -2.358070842 -1.849573362  0.953006225
-#>  [6] -0.005439956  0.715536658  0.826377778 -4.820583192  1.654735475
+#>  [1]   0.5499148  -2.4904496   5.1293918 -12.6901149   0.4540105  -1.6280435
+#>  [7]   4.9474819   2.3452264   1.0885857  -1.8131847
 ```

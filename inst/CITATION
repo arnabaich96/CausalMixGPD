@@ -1,10 +1,10 @@
-citHeader("To cite DPmixGPD in publications use:")
+citHeader("To cite CausalMixGPD in publications use:")
 
 bibentry(
   bibtype = "Manual",
-  title   = "DPmixGPD: Dirichlet Process Mixtures with Generalized Pareto Tail",
+  title   = "CausalMixGPD: Dirichlet Process Mixtures with Generalized Pareto Tail",
   author  = person("Arnab", "Aich"),
   year    = "2026",
   note    = "R package version 0.1.3",
-  url     = "https://github.com/arnabaich96/DPmixGPD"
+  url     = "https://github.com/arnabaich96/CausalMixGPD"
 )

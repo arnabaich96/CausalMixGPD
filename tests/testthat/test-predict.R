@@ -506,9 +506,9 @@ test_that("Mean prediction with custom credible level", {
 
   fit <- .get_fit_uncond()
   pred_mean_90 <- predict(fit, type = "mean", interval = "credible",
-                          cred.level = 0.90, nsim_mean = 200)
+                          level = 0.90, nsim_mean = 200)
   pred_mean_99 <- predict(fit, type = "mean", interval = "credible",
-                          cred.level = 0.99, nsim_mean = 200)
+                          level = 0.99, nsim_mean = 200)
 
   width_90 <- pred_mean_90$fit$upper - pred_mean_90$fit$lower
   width_99 <- pred_mean_99$fit$upper - pred_mean_99$fit$lower

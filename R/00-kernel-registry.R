@@ -1,5 +1,5 @@
 #+ filtered ###################################################################
-#' Global contracts for DPmixGPD
+#' Global contracts for CausalMixGPD
 #'
 #' These lists and helpers capture the frozen modeling rules that must hold
 #' everywhere in the package: backends, kernels, GPD usage, and mixture sizes.
@@ -42,7 +42,7 @@ check_gpd_contract <- function(GPD, kernel) {
 #' tail$params
 #' @export
 init_kernel_registry <- function() {
-  ns <- asNamespace("DPmixGPD")
+  ns <- asNamespace("CausalMixGPD")
 
   if (exists("kernel_registry", envir = ns, inherits = FALSE) &&
         exists("tail_registry", envir = ns, inherits = FALSE)) {
@@ -151,8 +151,8 @@ init_kernel_registry <- function() {
       ),
       crp = list(
         d_base = "ddexp",
-        d_gpd = NA_character_,
-        args_gpd = NA_character_
+        d_gpd = "dLaplaceGpd",
+        args_gpd = c("location", "scale", "threshold", "tail_scale", "tail_shape")
       )
     ),
 
@@ -261,7 +261,7 @@ init_kernel_registry <- function() {
 #' reg$normal$bulk_params
 #' @export
 get_kernel_registry <- function() {
-  get("kernel_registry", envir = asNamespace("DPmixGPD"))
+  get("kernel_registry", envir = asNamespace("CausalMixGPD"))
 }
 
 #' Get tail registry
@@ -273,7 +273,7 @@ get_kernel_registry <- function() {
 #' tail$params
 #' @export
 get_tail_registry <- function() {
-  get("tail_registry", envir = asNamespace("DPmixGPD"))
+  get("tail_registry", envir = asNamespace("CausalMixGPD"))
 }
 
 

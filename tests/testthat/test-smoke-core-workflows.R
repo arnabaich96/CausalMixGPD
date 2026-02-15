@@ -19,7 +19,7 @@ test_that("Smoke test: Basic workflow (as per v03)", {
   })
 
   # Step 2: Verify bundle has required structure
-  expect_true(inherits(bundle, "dpmixgpd_bundle"))
+  expect_true(inherits(bundle, "causalmixgpd_bundle"))
   expect_true(is.list(bundle$code))
   expect_true(is.list(bundle$spec))
 
@@ -44,7 +44,7 @@ test_that("Smoke test: Unconditional DPmix structure (as per v04-v07)", {
       components = 3
     )
   })
-  expect_true(inherits(bundle_crp, "dpmixgpd_bundle"))
+  expect_true(inherits(bundle_crp, "causalmixgpd_bundle"))
 
   # Test SB backend
   expect_no_error({
@@ -56,11 +56,11 @@ test_that("Smoke test: Unconditional DPmix structure (as per v04-v07)", {
       components = 3
     )
   })
-  expect_true(inherits(bundle_sb, "dpmixgpd_bundle"))
+  expect_true(inherits(bundle_sb, "causalmixgpd_bundle"))
 })
 
-test_that("Smoke test: Unconditional DPmixGPD structure (as per v06-v07)", {
-  # This test verifies DPmixGPD bundles can be created
+test_that("Smoke test: Unconditional CausalMixGPD structure (as per v06-v07)", {
+  # This test verifies CausalMixGPD bundles can be created
   # See: vignettes/v06-v07-unconditional-GPD.Rmd
 
   set.seed(789)
@@ -76,7 +76,7 @@ test_that("Smoke test: Unconditional DPmixGPD structure (as per v06-v07)", {
       components = 3
     )
   })
-  expect_true(inherits(bundle_crp_gpd, "dpmixgpd_bundle"))
+  expect_true(inherits(bundle_crp_gpd, "causalmixgpd_bundle"))
   expect_true(isTRUE(bundle_crp_gpd$spec$meta$GPD))
 
   # Test SB backend with GPD
@@ -89,7 +89,7 @@ test_that("Smoke test: Unconditional DPmixGPD structure (as per v06-v07)", {
       components = 3
     )
   })
-  expect_true(inherits(bundle_sb_gpd, "dpmixgpd_bundle"))
+  expect_true(inherits(bundle_sb_gpd, "causalmixgpd_bundle"))
   expect_true(isTRUE(bundle_sb_gpd$spec$meta$GPD))
 })
 
@@ -115,7 +115,7 @@ test_that("Smoke test: Conditional model structure (as per v08-v11)", {
       components = 3
     )
   })
-  expect_true(inherits(bundle_cond, "dpmixgpd_bundle"))
+  expect_true(inherits(bundle_cond, "causalmixgpd_bundle"))
   expect_true(isTRUE(bundle_cond$spec$meta$has_X))
 })
 
@@ -152,7 +152,7 @@ test_that("Smoke test: Causal bundle setup (build_causal_bundle API)", {
 
     )
   })
-  expect_true(inherits(causal_bundle, "dpmixgpd_causal_bundle"))
+  expect_true(inherits(causal_bundle, "causalmixgpd_causal_bundle"))
   expect_true(causal_bundle$meta$ps$enabled)
   expect_equal(causal_bundle$meta$ps$model_type, "logit")
 
@@ -170,7 +170,7 @@ test_that("Smoke test: Causal bundle setup (build_causal_bundle API)", {
 
     )
   })
-  expect_true(inherits(causal_bundle_rct, "dpmixgpd_causal_bundle"))
+  expect_true(inherits(causal_bundle_rct, "causalmixgpd_causal_bundle"))
   expect_false(causal_bundle_rct$meta$ps$enabled)
 })
 

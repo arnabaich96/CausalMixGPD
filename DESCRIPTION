@@ -1,7 +1,7 @@
-Package: DPmixGPD
+Package: CausalMixGPD
 Type: Package
 Title: Dirichlet Process Mixtures with Generalized Pareto Tail
-Version: 0.1.4
+Version: 0.2.0
 Author: Arnab Aich [aut, cre]
 Maintainer: Arnab Aich <aaich@fsu.edu>
 Authors@R: person("Arnab", "Aich", role = c("aut", "cre"), email = "aaich@fsu.edu")
@@ -22,28 +22,20 @@ Imports:
     stats,
     coda,
     ggmcmc,
-    future,
-    future.apply,
     utils,
-    ggplot2,
-    kableExtra
+    ggplot2
 Suggests:
     testthat (>= 3.0.0),
-    crayon,
-    dplyr,
-    DT,
-    tibble,
     knitr,
-    magrittr,
-    rmarkdown,
-    pkgdown,
-    covr,
-    jsonlite,
-    patchwork,
+    future,
+    future.apply,
+    crayon,
+    DT,
+    kableExtra,
     plotly
 RoxygenNote: 7.3.3
 Roxygen: list(markdown = TRUE, roclets = c("rd", "collate"))
 Config/testthat/edition: 3
-URL: https://arnabaich96.github.io/DPmixGPD/, https://arnabaich96.github.io/DPmixGPD/pkgdown/
-BugReports: https://github.com/arnabaich96/DPmixGPD/issues
+URL: https://arnabaich96.github.io/CausalMixGPD/, https://arnabaich96.github.io/CausalMixGPD/pkgdown/
+BugReports: https://github.com/arnabaich96/CausalMixGPD/issues
 VignetteBuilder: knitr

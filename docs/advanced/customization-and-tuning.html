@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Advanced: Customization and tuning – DPmixGPD</title>
+<title>Advanced: Customization and tuning – CausalMixGPD</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -116,7 +116,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="../index.html">
-    <span class="navbar-title">DPmixGPD</span>
+    <span class="navbar-title">CausalMixGPD</span>
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
@@ -203,7 +203,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Articles</span></a>
   </li>  
   <li class="nav-item compact">
-    <a class="nav-link" href="https://github.com/arnabaich96/DPmixGPD"> <i class="bi bi-github" role="img">
+    <a class="nav-link" href="https://github.com/arnabaich96/CausalMixGPD"> <i class="bi bi-github" role="img">
 </i> 
 <span class="menu-text"></span></a>
   </li>  
@@ -243,12 +243,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="overview" class="level1">
 <h1>Overview</h1>
-<p>This vignette documents how to construct and run NIMBLE models using the low-level building blocks exported by DPmixGPD. The intended audience is advanced users who want full control of the model specification while still reusing the package’s NIMBLE-ready distributions (mixture kernels and bulk-tail splices) and the standard NIMBLE compilation and MCMC workflow.</p>
+<p>This vignette documents how to construct and run NIMBLE models using the low-level building blocks exported by CausalMixGPD. The intended audience is advanced users who want full control of the model specification while still reusing the package’s NIMBLE-ready distributions (mixture kernels and bulk-tail splices) and the standard NIMBLE compilation and MCMC workflow.</p>
 <p>The examples emphasize transparency. Each model is specified in <code>nimbleCode{}</code>; constants, data, and initial values are stated explicitly; and the model is compiled and sampled using the canonical NIMBLE sequence.</p>
 <p>The vignette covers:</p>
 <ol type="1">
 <li><p>A manual stick-breaking (SB) Normal mixture using <code>dNormMix</code> as the likelihood.</p></li>
-<li><p>A spliced bulk-tail model (SB + Amoroso + GPD) in which DPmixGPD generates the model code, while the compilation and sampling steps are carried out explicitly to facilitate inspection.</p></li>
+<li><p>A spliced bulk-tail model (SB + Amoroso + GPD) in which CausalMixGPD generates the model code, while the compilation and sampling steps are carried out explicitly to facilitate inspection.</p></li>
 <li><p>A causal (two-arm) model built via <code>build_causal_bundle()</code>, followed by downstream summaries via S3 methods such as <code>predict()</code>, <code>ate()/qte()</code> (marginal), <code>att()/qtt()</code> (treated-only), and <code>cate()/cqte()</code> (conditional; requires <code>X</code>).</p></li>
 </ol>
 <p>Throughout, the focus is on reproducible model construction and on using the exported NIMBLE distributions directly in the likelihood. In this setting, a ones/zeros trick is not required.</p>
@@ -266,10 +266,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="sb-case-manual-stick-breaking-model-with-dnormmix" class="level1">
 <h1>SB Case: Manual Stick-Breaking Model with <code>dNormMix</code></h1>
-<p>In this first example we write an SB mixture model by hand and use the exported <code>dNormMix()</code> nimbleFunction as the per-observation log-likelihood. The point is to show that DPmixGPD kernels are ordinary NIMBLE components: you can call them inside your own model code, monitor whatever nodes you like, and control the MCMC configuration exactly as you would in a standalone NIMBLE workflow.</p>
+<p>In this first example we write an SB mixture model by hand and use the exported <code>dNormMix()</code> nimbleFunction as the per-observation log-likelihood. The point is to show that CausalMixGPD kernels are ordinary NIMBLE components: you can call them inside your own model code, monitor whatever nodes you like, and control the MCMC configuration exactly as you would in a standalone NIMBLE workflow.</p>
 <section id="note-on-custom-likelihoods" class="level2">
 <h2 class="anchored" data-anchor-id="note-on-custom-likelihoods">Note on custom likelihoods</h2>
-<p>NIMBLE can work with user-defined distributions, but for a vignette it is often easier to avoid registration and keep everything “plain” model code. DPmixGPD already exposes the mixture and MixGPD building blocks as NIMBLE distributions (e.g., <code>dNormMix</code> for a Normal mixture and <code>dNormMixGpd</code> for the spliced bulk+GPD version). That means you can write the likelihood directly in <code>nimbleCode</code> using <code>y[i] ~ dNormMix(...)</code> or <code>y[i] ~ dNormMixGpd(...)</code>–no ones/zeros trick is needed here.</p>
+<p>NIMBLE can work with user-defined distributions, but for a vignette it is often easier to avoid registration and keep everything “plain” model code. CausalMixGPD already exposes the mixture and MixGPD building blocks as NIMBLE distributions (e.g., <code>dNormMix</code> for a Normal mixture and <code>dNormMixGpd</code> for the spliced bulk+GPD version). That means you can write the likelihood directly in <code>nimbleCode</code> using <code>y[i] ~ dNormMix(...)</code> or <code>y[i] ~ dNormMixGpd(...)</code>–no ones/zeros trick is needed here.</p>
 </section>
 <section id="constants-data-and-inits" class="level2">
 <h2 class="anchored" data-anchor-id="constants-data-and-inits">Constants, data, and inits</h2>
@@ -353,9 +353,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(samples_sb[, <span class="fu">c</span>(<span class="st">"alpha"</span>, <span class="st">"mu[1]"</span>, <span class="st">"mu[2]"</span>, <span class="st">"mu[3]"</span>)])</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 </section>
-<section id="optional-s3-methods-via-the-dpmixgpd-bundle" class="level2">
-<h2 class="anchored" data-anchor-id="optional-s3-methods-via-the-dpmixgpd-bundle">Optional: S3 methods via the DPmixGPD bundle</h2>
-<p>For comparison, we build a <strong>bundle</strong> for the same SB Normal mixture and use DPmixGPD’s S3 methods for posterior inference.</p>
+<section id="optional-s3-methods-via-the-causalmixgpd-bundle" class="level2">
+<h2 class="anchored" data-anchor-id="optional-s3-methods-via-the-causalmixgpd-bundle">Optional: S3 methods via the CausalMixGPD bundle</h2>
+<p>For comparison, we build a <strong>bundle</strong> for the same SB Normal mixture and use CausalMixGPD’s S3 methods for posterior inference.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>bundle_sb <span class="ot">&lt;-</span> <span class="fu">build_nimble_bundle</span>(</span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y,</span>
@@ -502,7 +502,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="causal-model-from-bundle-to-s3-inference" class="level1">
 <h1>Causal Model: From Bundle to S3 Inference</h1>
-<p>Finally, we switch from “one distribution for everyone” to a two-arm causal setup. DPmixGPD’s causal bundle wraps (i) an outcome model for the treated arm, (ii) an outcome model for the control arm, and (iii) a propensity-score model (optional, but often useful). Once the sampler has run, the fitted object exposes high-level S3 methods so you can move from posterior samples to causal estimands with minimal friction–e.g., average treatment effects via <code>ate()</code> and quantile treatment effects via <code>qte()</code>, with treated-only counterparts <code>att()</code> / <code>qtt()</code> and conditional counterparts <code>cate()</code> / <code>cqte()</code>. For no-<code>X</code> fits, <code>cate()</code> / <code>cqte()</code> are unavailable. Marginal estimands (<code>ate()</code>, <code>att()</code>, <code>qte()</code>, <code>qtt()</code>) always use training data and ignore supplied <code>newdata</code>/<code>y</code>, while conditional estimands use <code>newdata</code> if provided and otherwise training <code>X</code>. R-mean is available via <code>type = "rmean"</code> for <code>cate()</code> / <code>ate()</code> / <code>att()</code> and via <code>ate_rmean()</code>.</p>
+<p>Finally, we switch from “one distribution for everyone” to a two-arm causal setup. CausalMixGPD’s causal bundle wraps (i) an outcome model for the treated arm, (ii) an outcome model for the control arm, and (iii) a propensity-score model (optional, but often useful). Once the sampler has run, the fitted object exposes high-level S3 methods so you can move from posterior samples to causal estimands with minimal friction–e.g., average treatment effects via <code>ate()</code> and quantile treatment effects via <code>qte()</code>, with treated-only counterparts <code>att()</code> / <code>qtt()</code> and conditional counterparts <code>cate()</code> / <code>cqte()</code>. For no-<code>X</code> fits, <code>cate()</code> / <code>cqte()</code> are unavailable. Marginal estimands (<code>ate()</code>, <code>att()</code>, <code>qte()</code>, <code>qtt()</code>) always use training data and ignore supplied <code>newdata</code>/<code>y</code>, while conditional estimands use <code>newdata</code> if provided and otherwise training <code>X</code>. R-mean is available via <code>type = "rmean"</code> for <code>cate()</code> / <code>ate()</code> / <code>att()</code> and via <code>ate_rmean()</code>.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>X_causal <span class="ot">&lt;-</span> df[, <span class="fu">c</span>(<span class="st">"wt"</span>, <span class="st">"hp"</span>, <span class="st">"qsec"</span>, <span class="st">"cyl"</span>)]</span>
 <span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>X_causal <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(X_causal)</span>
@@ -605,7 +605,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 ">
 
   <div>
-    (c) DPmixGPD - Bayesian semiparametric modeling for heavy-tailed data
+    (c) CausalMixGPD - Bayesian semiparametric modeling for heavy-tailed data
   </div>
 
   <div>
@@ -613,7 +613,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <span id="site-updated"></span> -
     <a href="../cite.html">Cite</a> -
     <a href="../pkgdown/index.html">API</a> -
-    <a href="https://github.com/arnabaich96/DPmixGPD">GitHub</a>
+    <a href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a>
   </div>
 
 </div>

@@ -7,8 +7,8 @@ page-layout: full
 
 This page tracks concise documentation and release updates.
 
-- [GitHub releases](https://github.com/arnabaich96/DPmixGPD/releases)
-- [GitHub commits](https://github.com/arnabaich96/DPmixGPD/commits)
+- [GitHub releases](https://github.com/arnabaich96/CausalMixGPD/releases)
+- [GitHub commits](https://github.com/arnabaich96/CausalMixGPD/commits)
 
 ## Current doc structure
 

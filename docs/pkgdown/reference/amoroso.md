@@ -4,7 +4,7 @@ Base Amoroso distribution functions as implemented in this package.
 Function names and parameterization follow your existing Amoroso
 implementation. These uppercase NIMBLE-compatible functions are scalar
 (`x`/`q` and `n = 1`). For vectorized R usage (including `n > 1`), use
-[`base_lowercase`](https://arnabaich96.github.io/DPmixGPD/pkgdown/reference/base_lowercase.md).
+[`base_lowercase`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/base_lowercase.md).
 
 ## Usage
 
