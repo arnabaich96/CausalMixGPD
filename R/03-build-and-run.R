@@ -1809,18 +1809,25 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = TRUE) {
         cvi <- ctl$clusterVarInfo
         cn <- cvi$clusterNodes
         if (is.list(cn) && length(cn) > 0) {
+          # Filter out deterministic nodes from each cluster element
           cn_filtered <- lapply(cn, function(nodes) nodes[nodes %in% stoch_nodes])
           keep <- lengths(cn_filtered) > 0
-          if (any(keep)) {
+          
+          if (any(!keep) || any(lengths(cn_filtered) != lengths(cn))) {
+            # Update clusterNodes to stochastic-only
             cvi$clusterNodes <- cn_filtered[keep]
+            
+            # Update metadata to match filtered structure
+            list_fields <- c("clusterIDs", "indexExpr")
+            vec_fields <- c(
+              "clusterVars", "nTilde", "loopIndex",
+              "targetIsIndex", "indexPosition", "numIndexes",
+              "targetIndexedByFunction", "multipleStochIndexes", "targetNonIndex",
+              "nodeIDs"
+            )
+            
+            # Remove empty clusters from list/vec fields
             if (any(!keep)) {
-              list_fields <- c("clusterNodes", "clusterIDs", "indexExpr")
-              vec_fields <- c(
-                "clusterVars", "nTilde", "numNodesPerCluster", "loopIndex",
-                "targetIsIndex", "indexPosition", "numIndexes",
-                "targetIndexedByFunction", "multipleStochIndexes", "targetNonIndex",
-                "nodeIDs"
-              )
               for (nm in list_fields) {
                 if (!is.null(cvi[[nm]])) cvi[[nm]] <- cvi[[nm]][keep]
               }
@@ -1828,6 +1835,12 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = TRUE) {
                 if (!is.null(cvi[[nm]])) cvi[[nm]] <- cvi[[nm]][keep]
               }
             }
+            
+            # Update numNodesPerCluster to actual filtered counts
+            if (!is.null(cvi$numNodesPerCluster)) {
+              cvi$numNodesPerCluster <- lengths(cn_filtered[keep])
+            }
+            
             ctl$clusterVarInfo <- cvi
           }
         }
