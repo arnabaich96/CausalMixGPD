@@ -61,7 +61,7 @@ knitr::opts_chunk$set(
   fig.width = 7.0,
   fig.height = 3.2,
   size = "small",
-  tidy = TRUE,
+  tidy = FALSE,
   eval = TRUE,
   tidy.opts = list(width.cutoff = 70)
 )
@@ -69,17 +69,28 @@ options(width = 70)
 
 library(CausalMixGPD)
 mcmc_fixed <- list(
-  niter = 500,
-  nburnin = 100,
-  thin = 2,
-  nchains = 2,
+  niter = 200,
+  nburnin = 50,
+  thin = 1,
+  nchains = 1,
   seed = 1
 )
 
 # Caching configuration: Set USE_CACHE = FALSE to force recomputation of fits
 USE_CACHE <- TRUE
-CACHE_DIR <- "cache"
-if (!dir.exists(CACHE_DIR)) dir.create(CACHE_DIR)
+
+# Keep cache stable in the manuscript folder regardless of launch directory
+manuscript_dir <- tryCatch({
+  current_in <- knitr::current_input(dir = TRUE)
+  if (is.null(current_in) || !nzchar(current_in)) getwd() else dirname(current_in)
+}, error = function(e) {
+  getwd()
+})
+manuscript_dir <- normalizePath(manuscript_dir, winslash = "/", mustWork = FALSE)
+knitr::opts_knit$set(root.dir = manuscript_dir)
+
+CACHE_DIR <- file.path(manuscript_dir, "cache")
+if (!dir.exists(CACHE_DIR)) dir.create(CACHE_DIR, recursive = TRUE)
 @
 
 
@@ -752,19 +763,42 @@ Using the same fitted model \code{fit} from Section~\ref{subsec:overview-model},
 <<overview-estimation-same-fit, echo=TRUE, eval=TRUE>>=
 # Posterior functionals from the same fitted model and data set
 q_grid <- c(0.50, 0.90, 0.95, 0.99)
-est_quant <- predict(fit, type = "quantile", index = q_grid,
-                     interval = "hpd", level = 0.95)
-est_mean  <- predict(fit, type = "mean",
-                     interval = "credible", level = 0.95)
-est_rmean <- predict(fit, type = "rmean", cutoff = 8,
-                     interval = "credible", level = 0.95)
-# Print a small preview to avoid oversized verbatim output
-print(head(est_quant$fit, 10))
-print(est_quant$diagnostics)
-print(head(est_mean$fit, 10))
-print(est_mean$diagnostics)
-print(head(est_rmean$fit, 10))
-print(est_rmean$diagnostics)
+safe_predict <- function(expr, label) {
+  tryCatch(expr, error = function(e) {
+    message(sprintf("%s failed: %s", label, conditionMessage(e)))
+    NULL
+  })
+}
+
+safe_preview <- function(obj, n = 10) {
+  if (is.null(obj)) {
+    return(invisible(NULL))
+  }
+  if (is.list(obj) && !is.null(obj$fit)) {
+    print(utils::head(as.data.frame(obj$fit), n))
+    if (!is.null(obj$diagnostics)) print(obj$diagnostics)
+  } else {
+    print(utils::head(as.data.frame(obj), n))
+  }
+}
+
+est_quant <- safe_predict(
+  predict(fit, type = "quantile", index = q_grid, interval = "hpd", level = 0.95),
+  "quantile prediction"
+)
+est_mean  <- safe_predict(
+  predict(fit, type = "mean", interval = "credible", level = 0.95),
+  "mean prediction"
+)
+est_rmean <- safe_predict(
+  predict(fit, type = "rmean", cutoff = 8, interval = "credible", level = 0.95),
+  "restricted mean prediction"
+)
+
+# Print small previews to avoid oversized verbatim output
+safe_preview(est_quant, 10)
+safe_preview(est_mean, 10)
+safe_preview(est_rmean, 10)
 @
 
 For a new covariate value \(x^\star\), prediction is based on the posterior predictive distribution
