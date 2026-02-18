@@ -5,7 +5,7 @@
 # Tier B (ci):   Prediction behavior requiring MCMC fits
 
 if (!exists(".cache_enabled")) {
-  helper_path <- file.path("tests", "testthat", "helper-cache.R")
+  helper_path <- file.path("tests", "testthat", "helper-02-cache.R")
   if (file.exists(helper_path)) source(helper_path)
 }
 

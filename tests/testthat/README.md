@@ -49,8 +49,14 @@ Sys.setenv(DPMIXGPD_TEST_LEVEL = "cran")
 ### Running Specific Tests
 
 ```r
-# Run a single test file
-testthat::test_file("tests/testthat/test-causal.R")
+# Run a single test file (note subdirectory path)
+testthat::test_file("tests/testthat/coverage/test-causal.R")
+
+# Run all unit tests (fast)
+testthat::test_dir("tests/testthat/unit")
+
+# Run all coverage tests
+testthat::test_dir("tests/testthat/coverage")
 
 # Run tests matching a pattern
 testthat::test_local(filter = "causal")
@@ -80,64 +86,88 @@ Cache files are stored in `tests/testthat/_cache/` by default.
 
 ## Test File Organization
 
+Tests are organized into subdirectories by tier/purpose, aligning with the `DPMIXGPD_TEST_LEVEL` tier system:
+
+```
+tests/testthat/
+├── helper-00-levels.R           # Tier system functions and skip helpers
+├── helper-01-fixtures.R         # Test fixtures and data utilities
+├── helper-02-cache.R            # MCMC result caching infrastructure
+├── helper-03-predict-helpers.R  # Prediction test utilities
+├── setup.R                      # Global test setup, runs before all tests
+├── unit/                        # Fast, deterministic tests (cran level)
+├── coverage/                    # Minimal coverage paths (ci level, for covr)
+├── integration/                 # Full integration tests (ci level, heavier)
+└── ci/                          # CI-only gates and meta-tests
+```
+
 ### Helper Files
 
-| File                          | Purpose                                    |
-|-------------------------------|--------------------------------------------|
-| `setup.R`                     | Global test setup, runs before all tests   |
-| `helper-test-levels.R`        | Tier system functions and skip helpers     |
-| `helper-cache.R`              | MCMC result caching infrastructure         |
-| `helper-predict-distribution.R` | Prediction test utilities                |
+| File                            | Purpose                                    |
+|---------------------------------|--------------------------------------------|
+| `setup.R`                       | Global test setup, runs before all tests   |
+| `helper-00-levels.R`            | Tier system functions and skip helpers     |
+| `helper-01-fixtures.R`          | Test fixtures and data utilities           |
+| `helper-02-cache.R`             | MCMC result caching infrastructure         |
+| `helper-03-predict-helpers.R`   | Prediction test utilities                  |
 
-### Test Files by Category
+**Note:** Helper files are loaded alphabetically by testthat before any test runs.
 
-#### Core Functionality
-| File                     | What it Tests                              |
-|--------------------------|--------------------------------------------|
-| `test-bundle.R`          | Bundle creation and validation             |
-| `test-fitted.R`          | Fitted values and residuals                |
-| `test-global-contracts.R`| Internal validation functions              |
-| `test-kernel-registry.R` | Kernel registry functions                  |
-| `test-kernel-support.R`  | Kernel support table                       |
-| `test-kernels.R`         | NIMBLE kernel compilation                  |
+### Test Files by Directory
 
-#### Kernel-Specific Tests
-| File                | Kernel Tested    |
-|---------------------|------------------|
-| `test-normal.R`     | Normal kernel    |
-| `test-gamma.R`      | Gamma kernel     |
-| `test-lognormal.R`  | Lognormal kernel |
-| `test-invgauss.R`   | Inverse Gaussian |
-| `test-laplace.R`    | Laplace kernel   |
-| `test-amoroso.R`    | Amoroso kernel   |
-| `test-cauchy.R`     | Cauchy kernel    |
+#### `unit/` - Fast Unit Tests (Tier A / cran level)
 
-#### Prediction Tests
-| File                          | What it Tests                     |
-|-------------------------------|-----------------------------------|
-| `test-predict-unconditional.R`| Unconditional predictions         |
-| `test-predict-contracts.R`    | Prediction interface contracts    |
+Fast, deterministic tests with no MCMC compilation (~1-2 minutes total).
 
-#### Causal Inference Tests
-| File                        | What it Tests                       |
-|-----------------------------|-------------------------------------|
-| `test-causal.R`             | Causal workflow, PS models          |
-| `test-causal-ate.R`         | Average treatment effects           |
-| `test-causal-predict.R`     | Causal predictions                  |
-| `test-s3-causal-effects.R`  | S3 methods for causal objects       |
-| `test-plots-causal-effects.R`| Causal effect plotting             |
+| File                             | What it Tests                              |
+|----------------------------------|--------------------------------------------|
+| `test-distributions.R`           | Distribution functions (merged kernels)    |
+| `test-kernels.R`                 | NIMBLE kernel compilation                  |
+| `test-internal-utils.R`          | Internal utility functions                 |
+| `test-hpd-intervals.R`           | HPD interval calculations                  |
+| `test-vectorization.R`           | Vectorized operations                      |
+| `test-vectorization-contract.R`  | Vectorization contracts                    |
+| `test-theory.R`                  | Statistical theory validation              |
+| `test-glue-validity.R`           | Input validation and glue logic            |
+| `test-dispatch-separation.R`     | Method dispatch logic                      |
+| `test-global-contracts.R`        | Internal validation functions              |
+| `test-s3-methods.R`              | S3 method implementations                  |
+| `test-visualization-helpers.R`   | Plotting helper functions                  |
 
-#### Other Tests
-| File                          | What it Tests                      |
-|-------------------------------|------------------------------------|
-| `test-theory.R`               | Statistical theory validation      |
-| `test-visualization-helpers.R`| Plotting helper functions          |
-| `test-simulated-data.R`       | Data simulation functions          |
-| `test-status.R`               | Coverage status functions          |
-| `test-smoke-core-workflows.R` | End-to-end smoke tests             |
-| `test-hpd-intervals.R`        | HPD interval calculations          |
-| `test-vectorization.R`        | Vectorized operations              |
-| `test-dispatch-separation.R`  | Method dispatch logic              |
+#### `coverage/` - Minimal Coverage Paths (Tier B / ci level)
+
+Minimal test paths to maximize code coverage with reasonable runtime, executed during coverage runs.
+
+| File                               | What it Tests                           |
+|------------------------------------|-----------------------------------------|
+| `test-smoke-core-workflows.R`      | End-to-end smoke tests                  |
+| `test-spliced-backend.R`           | Spliced GP backend implementation       |
+| `test-causal.R`                    | Causal workflow, PS models, ATE (merged)|
+| `test-predict.R`                   | Prediction interface and contracts      |
+| `test-ate-rmean.R`                 | ATE with restricted mean estimation     |
+| `test-wrapper-bundle-gpd-policy.R` | Bundle wrapper and GPD policy logic     |
+
+#### `integration/` - Integration Tests (Tier B / ci level)
+
+Heavier integration tests with MCMC, testing more combinatorial scenarios (~10-20 minutes).
+
+| File                          | What it Tests                          |
+|-------------------------------|----------------------------------------|
+| `test-bundle.R`               | Bundle creation and validation         |
+| `test-bundle-validation.R`    | Bundle validation edge cases           |
+| `test-simulated-data.R`       | Data simulation functions              |
+| `test-pit-residuals.R`        | PIT residual calculations              |
+| `test-fitted.R`               | Fitted values and residuals            |
+| `test-predict-rmean.R`        | Restricted mean predictions            |
+
+#### `ci/` - CI-Only Meta-Tests
+
+Tests that gate CI behavior or validate documentation/site artifacts (not package functionality).
+
+| File                          | What it Tests                          |
+|-------------------------------|----------------------------------------|
+| `test-vignette-coverage.R`    | Vignette code completeness             |
+| `test-site-map-tools.R`       | Site map generation utilities          |
 
 ## Writing New Tests
 

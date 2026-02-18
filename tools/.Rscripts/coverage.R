@@ -55,10 +55,30 @@
 # Test snippets for covr::package_coverage(type = "none").
 # Attach package explicitly so batch runs (e.g., via .bat) execute tests with
 # the same symbol resolution as interactive sessions.
+# Updated to support recursive test discovery in subdirectories.
 .coverage_test_code_minimal <- function() {
   paste(
     "library(CausalMixGPD)",
-    'testthat::test_package("CausalMixGPD", stop_on_failure = FALSE, reporter = "minimal")',
+    'pkg_tests <- system.file("tests", "testthat", package = "CausalMixGPD")',
+    'if (nzchar(pkg_tests)) {',
+    '  # Load all helper files first (testthat convention)',
+    '  helper_files <- list.files(pkg_tests, pattern = "^helper.*\\\\.R$", full.names = TRUE)',
+    '  for (helper in helper_files) {',
+    '    tryCatch(source(helper, local = .GlobalEnv), error = function(e) message("Helper load failed: ", basename(helper)))',
+    '  }',
+    '  # Load setup.R if present',
+    '  setup_file <- file.path(pkg_tests, "setup.R")',
+    '  if (file.exists(setup_file)) tryCatch(source(setup_file, local = .GlobalEnv), error = function(e) message("Setup failed"))',
+    '  # Now run tests with recursive discovery',
+    '  test_files <- list.files(pkg_tests, pattern = "^test.*\\\\.R$", recursive = TRUE, full.names = TRUE)',
+    '  reporter <- testthat::ProgressReporter$new(show_praise = FALSE, update_interval = Inf)',
+    '  for (test_file in test_files) {',
+    '    tryCatch(',
+    '      testthat::test_file(test_file, reporter = reporter, package = "CausalMixGPD", env = .GlobalEnv),',
+    '      error = function(e) message("Test file failed: ", basename(test_file))',
+    '    )',
+    '  }',
+    '}',
     sep = "\n"
   )
 }
@@ -66,7 +86,26 @@
 .coverage_test_code_progress <- function() {
   paste(
     "library(CausalMixGPD)",
-    'testthat::test_package("CausalMixGPD", stop_on_failure = FALSE, reporter = "progress")',
+    'pkg_tests <- system.file("tests", "testthat", package = "CausalMixGPD")',
+    'if (nzchar(pkg_tests)) {',
+    '  # Load all helper files first (testthat convention)',
+    '  helper_files <- list.files(pkg_tests, pattern = "^helper.*\\\\.R$", full.names = TRUE)',
+    '  for (helper in helper_files) {',
+    '    tryCatch(source(helper, local = .GlobalEnv), error = function(e) message("Helper load failed: ", basename(helper)))',
+    '  }',
+    '  # Load setup.R if present',
+    '  setup_file <- file.path(pkg_tests, "setup.R")',
+    '  if (file.exists(setup_file)) tryCatch(source(setup_file, local = .GlobalEnv), error = function(e) message("Setup failed"))',
+    '  # Now run tests with recursive discovery',
+    '  test_files <- list.files(pkg_tests, pattern = "^test.*\\\\.R$", recursive = TRUE, full.names = TRUE)',
+    '  reporter <- testthat::ProgressReporter$new()',
+    '  for (test_file in test_files) {',
+    '    tryCatch(',
+    '      testthat::test_file(test_file, reporter = reporter, package = "CausalMixGPD", env = .GlobalEnv),',
+    '      error = function(e) message("Test file failed: ", basename(test_file))',
+    '    )',
+    '  }',
+    '}',
     sep = "\n"
   )
 }
@@ -76,7 +115,13 @@
     "library(CausalMixGPD)",
     'pkg_tests <- system.file("tests", "testthat", package = "CausalMixGPD")',
     'if (nzchar(pkg_tests)) {',
-    '  for (f in list.files(pkg_tests, pattern = "^test.*\\\\.R$", full.names = TRUE)) try(source(f), silent = TRUE)',
+    '  # Load helpers first',
+    '  helper_files <- list.files(pkg_tests, pattern = "^helper.*\\\\.R$", full.names = TRUE)',
+    '  for (helper in helper_files) try(source(helper, local = .GlobalEnv), silent = TRUE)',
+    '  setup_file <- file.path(pkg_tests, "setup.R")',
+    '  if (file.exists(setup_file)) try(source(setup_file, local = .GlobalEnv), silent = TRUE)',
+    '  # Run tests',
+    '  for (f in list.files(pkg_tests, pattern = "^test.*\\\\.R$", recursive = TRUE, full.names = TRUE)) try(source(f), silent = TRUE)',
     '}',
     sep = "\n"
   )

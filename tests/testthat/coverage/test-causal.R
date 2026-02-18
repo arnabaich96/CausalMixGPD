@@ -9,10 +9,10 @@
 # Tier C (full): Exhaustive kernel x backend x GPD grid
 
 if (!exists(".cache_enabled")) {
-  helper_path <- file.path("tests", "testthat", "helper-cache.R")
+  helper_path <- file.path("tests", "testthat", "helper-02-cache.R")
   if (file.exists(helper_path)) source(helper_path)
 }
-helper_test_levels <- file.path("tests", "testthat", "helper-test-levels.R")
+helper_test_levels <- file.path("tests", "testthat", "helper-00-levels.R")
 if (file.exists(helper_test_levels)) source(helper_test_levels)
 
 # =============================================================================

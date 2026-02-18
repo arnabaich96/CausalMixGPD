@@ -4,7 +4,7 @@
 #             test-laplace.R, test-lognormal.R, test-normal.R
 
 if (!exists(".run_predict_case")) {
-  helper_path <- file.path("tests", "testthat", "helper-predict-distribution.R")
+  helper_path <- file.path("tests", "testthat", "helper-03-predict-helpers.R")
   if (file.exists(helper_path)) source(helper_path)
 }
 

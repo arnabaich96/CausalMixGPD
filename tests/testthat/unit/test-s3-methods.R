@@ -944,3 +944,222 @@ test_that("print.mixgpd_summary works", {
   expect_output(print_mixgpd_summary(summ), "Stick-Breaking")
   expect_output(print_mixgpd_summary(summ), "Normal")
 })
+
+# ======================================================================
+# Cluster allocation tests
+# ======================================================================
+
+make_mock_mixgpd_fit_crp_gpd <- function() {
+  # Create a mock fit object with CRP backend, GPD=TRUE, and z columns in samples
+  n <- 50
+  n_iter <- 100
+
+  # Create mock z matrix (cluster assignments)
+  z_matrix <- matrix(
+    sample(1:3, n * n_iter, replace = TRUE),
+    nrow = n_iter, ncol = n
+  )
+  colnames(z_matrix) <- paste0("z[", 1:n, "]")
+
+  # Create a mock mcmc.list with z columns
+  mcmc_mat <- cbind(
+    alpha = rnorm(n_iter, 1, 0.1),
+    z_matrix,
+    mu_1 = rnorm(n_iter, 0, 1),
+    mu_2 = rnorm(n_iter, 1, 1),
+    mu_3 = rnorm(n_iter, 2, 1)
+  )
+
+  mcmc_obj <- coda::as.mcmc(mcmc_mat)
+  mcmc_list <- coda::as.mcmc.list(list(mcmc_obj))
+
+  out <- list(
+    spec = list(
+      meta = list(
+        backend = "spliced",
+        GPD = TRUE,
+        kernel = "lognormal",
+        components = 3,
+        has_X = FALSE,
+        N = n
+      )
+    ),
+    data = list(
+      y = rlnorm(n, meanlog = 1, sdlog = 0.5)
+    ),
+    mcmc = list(
+      samples = mcmc_list
+    ),
+    samples = mcmc_list
+  )
+  class(out) <- "mixgpd_fit"
+  out
+}
+
+make_mock_mixgpd_fit_sb <- function() {
+  # SB backend for error testing
+  out <- make_mock_mixgpd_fit_crp_gpd()
+  out$spec$meta$backend <- "sb"
+  out
+}
+
+make_mock_mixgpd_fit_crp_no_gpd <- function() {
+  # CRP but no GPD for error testing
+  out <- make_mock_mixgpd_fit_crp_gpd()
+  out$spec$meta$GPD <- FALSE
+  out
+}
+
+make_mock_allocation <- function(has_newdata = FALSE) {
+  n_train <- 50
+  K <- 3
+
+  out <- list(
+    backend = "spliced",
+    GPD = TRUE,
+    kernel = "lognormal",
+    components = K,
+    method = "dahl",
+    response_name = "y",
+    n_train = n_train,
+    labels_train = sample(1:K, n_train, replace = TRUE),
+    probs_train = matrix(runif(n_train * K), nrow = n_train, ncol = K),
+    PSM = matrix(runif(n_train * n_train, 0.3, 0.7), nrow = n_train, ncol = n_train),
+    y_train = rlnorm(n_train),
+    X_train = NULL
+  )
+
+  # Normalize probs_train rows
+  out$probs_train <- out$probs_train / rowSums(out$probs_train)
+
+  if (has_newdata) {
+    n_new <- 20
+    out$n_new <- n_new
+    out$labels_new <- sample(1:K, n_new, replace = TRUE)
+    out$probs_new <- matrix(runif(n_new * K), nrow = n_new, ncol = K)
+    out$probs_new <- out$probs_new / rowSums(out$probs_new)
+    out$y_new <- rlnorm(n_new)
+    out$X_new <- NULL
+  } else {
+    out$n_new <- NULL
+  }
+
+  class(out) <- "mixgpd_allocation"
+  out
+}
+
+test_that("allocation.mixgpd_fit returns correct class", {
+  fit <- make_mock_mixgpd_fit_crp_gpd()
+  alloc <- allocation(fit)
+  expect_s3_class(alloc, "mixgpd_allocation")
+  expect_true(!is.null(alloc$labels_train))
+  expect_true(!is.null(alloc$probs_train))
+  expect_true(!is.null(alloc$PSM))
+  expect_equal(alloc$components, length(unique(alloc$labels_train)))
+})
+
+test_that("allocation.mixgpd_fit errors for SB backend", {
+  fit <- make_mock_mixgpd_fit_sb()
+  expect_error(
+    allocation(fit),
+    "only available for backend.*crp.*spliced"
+  )
+})
+
+test_that("allocation.mixgpd_fit errors for bulk-only models", {
+  fit <- make_mock_mixgpd_fit_crp_no_gpd()
+  expect_error(
+    allocation(fit),
+    "only available.*GPD = TRUE"
+  )
+})
+
+test_that("allocation.mixgpd_fit errors for newdata without y", {
+  fit <- make_mock_mixgpd_fit_crp_gpd()
+  newdata <- data.frame(x1 = rnorm(10), x2 = rnorm(10))
+  expect_error(
+    allocation(fit, newdata = newdata),
+    "newdata must contain.*y.*column"
+  )
+})
+
+test_that("allocation.mixgpd_fit handles newdata correctly", {
+  fit <- make_mock_mixgpd_fit_crp_gpd()
+  newdata <- data.frame(y = rlnorm(10))
+  alloc <- allocation(fit, newdata = newdata)
+  expect_s3_class(alloc, "mixgpd_allocation")
+  expect_equal(alloc$n_new, 10)
+  expect_true(!is.null(alloc$labels_new))
+  expect_true(!is.null(alloc$probs_new))
+  expect_equal(nrow(alloc$probs_new), 10)
+  expect_equal(ncol(alloc$probs_new), alloc$components)
+})
+
+test_that("print.mixgpd_allocation with return='label' works", {
+  alloc <- make_mock_allocation()
+  expect_output(print(alloc, return = "label"), "Cluster Allocation")
+  expect_output(print(alloc, return = "label"), "Training cluster sizes")
+  expect_output(print(alloc, return = "label"), "dahl")
+})
+
+test_that("print.mixgpd_allocation with return='prob' works", {
+  alloc <- make_mock_allocation()
+  expect_output(print(alloc, return = "prob"), "Cluster Allocation")
+  expect_output(print(alloc, return = "prob"), "certainty")
+  expect_output(print(alloc, return = "prob"), "Fraction with prob")
+})
+
+test_that("print.mixgpd_allocation shows newdata when present", {
+  alloc <- make_mock_allocation(has_newdata = TRUE)
+  expect_output(print(alloc, return = "label"), "New data cluster sizes")
+  expect_output(print(alloc, return = "prob"), "New data allocation certainty")
+})
+
+test_that("summary.mixgpd_allocation returns correct structure", {
+  alloc <- make_mock_allocation()
+  summ <- summary(alloc)
+  expect_s3_class(summ, "summary.mixgpd_allocation")
+  expect_true(!is.null(summ$label))
+  expect_true(!is.null(summ$prob))
+  expect_true(!is.null(summ$meta))
+  expect_equal(summ$label$K, alloc$components)
+  expect_true(!is.null(summ$prob$certainty_train))
+})
+
+test_that("summary.mixgpd_allocation handles newdata", {
+  alloc <- make_mock_allocation(has_newdata = TRUE)
+  summ <- summary(alloc)
+  expect_true(!is.null(summ$label$cluster_sizes_new))
+  expect_true(!is.null(summ$prob$certainty_new))
+})
+
+test_that("print.summary.mixgpd_allocation works", {
+  alloc <- make_mock_allocation()
+  summ <- summary(alloc)
+  expect_output(print(summ), "Cluster Allocation Summary")
+  expect_output(print(summ), "Backend")
+  expect_output(print(summ), "Allocation Certainty")
+})
+
+test_that("plot.mixgpd_allocation works without newdata", {
+  alloc <- make_mock_allocation(has_newdata = FALSE)
+  expect_silent(plot(alloc))
+})
+
+test_that("plot.mixgpd_allocation works with newdata and overlay=TRUE", {
+  alloc <- make_mock_allocation(has_newdata = TRUE)
+  expect_silent(plot(alloc, overlay = TRUE))
+})
+
+test_that("plot.mixgpd_allocation works with newdata and overlay=FALSE", {
+  alloc <- make_mock_allocation(has_newdata = TRUE)
+  expect_silent(plot(alloc, overlay = FALSE))
+})
+
+test_that("allocation method argument validation works", {
+  fit <- make_mock_mixgpd_fit_crp_gpd()
+  expect_error(
+    allocation(fit, method = "invalid"),
+    "'arg' should be"
+  )
+})
