@@ -28,6 +28,12 @@
 ^doc$
 ^Meta$
 # Non-standard top-level files
+^cache$
+^cache/
+^figure$
+^figure/
+^temp_meta_check\.txt$
+^texput\.log$
 ^CausalMixGPD\.code-workspace$
 ^_pkgdown\.yml$
 ^build_with_tmp\.ps1$

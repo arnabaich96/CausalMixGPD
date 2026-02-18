@@ -34,7 +34,7 @@ Suggests:
     kableExtra,
     plotly
 RoxygenNote: 7.3.3
-Roxygen: list(markdown = TRUE, roclets = c("rd", "collate"))
+Roxygen: list(markdown = TRUE, roclets = c("rd", "collate", "namespace"))
 Config/testthat/edition: 3
 URL: https://arnabaich96.github.io/CausalMixGPD/, https://arnabaich96.github.io/CausalMixGPD/pkgdown/
 BugReports: https://github.com/arnabaich96/CausalMixGPD/issues
