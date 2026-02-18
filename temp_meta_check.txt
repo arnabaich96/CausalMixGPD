@@ -1,0 +1,5 @@
+Names in fit_cache: call, spec, data, model, mcmc_conf, mcmc, code, constants, dimensions, monitors, cache, epsilon, samples, waic 
+
+Meta is null: TRUE 
+Spec is null: FALSE 
+Spec names: meta, kernel_info, signatures, plan 

@@ -69,7 +69,7 @@ test_that("check_gpd_contract() returns NULL invisibly", {
 test_that("allowed_backends constant is correct", {
   allowed_backends <- CausalMixGPD:::allowed_backends
 
-  expect_equal(allowed_backends, c("crp", "sb"))
+  expect_equal(allowed_backends, c("crp", "sb", "spliced"))
 })
 
 test_that("allowed_kernels constant contains all 7 kernels", {

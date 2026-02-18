@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 # Utilities (internal)
 # ============================================================
 
@@ -10,6 +10,59 @@
 #' @rdname null_coalescing
 #' @name null_coalescing
 `%||%` <- function(a, b) if (!is.null(a)) a else b
+
+.cmgpd_message <- function(...) {
+  msg <- paste0(..., collapse = "")
+  old <- getOption("CausalMixGPD._allow_message", FALSE)
+  options(CausalMixGPD._allow_message = TRUE)
+  on.exit(options(CausalMixGPD._allow_message = old), add = TRUE)
+  message(msg)
+  invisible(msg)
+}
+
+
+.silent_wrapper <- function(fun_name, fun, opt_name) {
+  wrapper <- function(...) {
+    if (isFALSE(getOption(opt_name, TRUE))) {
+      return(fun(...))
+    }
+    call <- match.call(expand.dots = FALSE)
+    args <- as.list(call)[-1]
+    if (length(args) && !is.null(args$...)) {
+      dot_args <- eval(args$..., parent.frame())
+      args$... <- NULL
+      args <- c(args, dot_args)
+    }
+    call_env <- new.env(parent = parent.frame())
+    assign(fun_name, fun, envir = call_env)
+    run <- function() do.call(fun_name, args, envir = call_env)
+    vis <- withCallingHandlers(
+      withVisible(run()),
+      warning = function(w) invokeRestart("muffleWarning"),
+      message = function(m) {
+        if (isTRUE(getOption("CausalMixGPD._allow_message", FALSE))) return()
+        invokeRestart("muffleMessage")
+      }
+    )
+    if (isTRUE(vis$visible)) return(vis$value)
+    invisible(vis$value)
+  }
+  attr(wrapper, "CausalMixGPD.silent_wrapper") <- TRUE
+  wrapper
+}
+
+.wrap_exported_silent <- function(pkgname, opt_name = "CausalMixGPD.silent") {
+  if (isFALSE(getOption(opt_name, TRUE))) return(invisible(FALSE))
+  ns <- asNamespace(pkgname)
+  exports <- getNamespaceExports(pkgname)
+  for (nm in exports) {
+    obj <- get(nm, envir = ns, inherits = FALSE)
+    if (!is.function(obj)) next
+    if (isTRUE(attr(obj, "CausalMixGPD.silent_wrapper"))) next
+    assign(nm, .silent_wrapper(nm, obj, opt_name), envir = ns)
+  }
+  invisible(TRUE)
+}
 
 #' Extract indexed parameter blocks from a draws matrix
 #' @keywords internal
@@ -218,9 +271,8 @@
 }
 
 .wrap_plotly <- function(p) {
-  # Keep static ggplot output by default for reproducible knitted docs.
-  # Interactive conversion is opt-in via options(CausalMixGPD.plotly = TRUE).
-  if (isTRUE(getOption("CausalMixGPD.plotly", FALSE)) &&
+  # Default to interactive output; opt out via options(CausalMixGPD.plotly = FALSE).
+  if (isTRUE(getOption("CausalMixGPD.plotly", TRUE)) &&
       requireNamespace("plotly", quietly = TRUE)) {
     if (is.list(p) && !inherits(p, "ggplot")) {
       # List of plots - wrap each, preserve class
@@ -241,6 +293,68 @@
     # plotly not available - return original
     p
   }
+}
+
+#' Prediction helpers
+#'
+#' @keywords internal
+#' @noRd
+.resolve_predict_id <- function(x, id = NULL) {
+  id_vec <- NULL
+  x_out <- x
+
+  if (is.null(x_out)) {
+    if (!is.null(id)) {
+      stop("'id' requires 'x'/'newdata' to supply prediction rows.", call. = FALSE)
+    }
+    return(list(x = x_out, id = id_vec))
+  }
+
+  if (is.data.frame(x_out)) {
+    if (is.character(id) && length(id) == 1L) {
+      if (!id %in% names(x_out)) {
+        stop(sprintf("Column '%s' not found in 'x'.", id), call. = FALSE)
+      }
+      id_vec <- x_out[[id]]
+      x_out <- x_out[, names(x_out) != id, drop = FALSE]
+    } else {
+      if ("id" %in% names(x_out)) {
+        x_out <- x_out[, names(x_out) != "id", drop = FALSE]
+      }
+    }
+  } else if (is.character(id) && length(id) == 1L) {
+    stop("'id' must reference a column in data.frame 'x'.", call. = FALSE)
+  }
+
+  if (!is.null(id) && !is.character(id)) {
+    n_x <- nrow(as.matrix(x_out))
+    if (length(id) != n_x) {
+      stop("Length of 'id' must match nrow(x).", call. = FALSE)
+    }
+    id_vec <- id
+  }
+
+  list(x = x_out, id = id_vec)
+}
+
+.reorder_predict_cols <- function(df) {
+  if (!is.data.frame(df)) return(df)
+  cols <- names(df)
+  id_col <- if ("id" %in% cols) "id" else NULL
+  idx_col <- if ("index" %in% cols) "index" else if ("y" %in% cols) "y" else NULL
+  est_col <- if ("estimate" %in% cols) {
+    "estimate"
+  } else if ("density" %in% cols) {
+    "density"
+  } else if ("survival" %in% cols) {
+    "survival"
+  } else {
+    NULL
+  }
+  base <- c(id_col, idx_col, est_col, intersect(c("lower", "upper"), cols))
+  base <- base[!is.na(base) & nzchar(base)]
+  rest <- setdiff(cols, base)
+  df[, c(base, rest), drop = FALSE]
 }
 
 #' Coerce fit object to standardized data frame
@@ -265,13 +379,20 @@
     df <- fit
     # Ensure required columns exist
     if (!"estimate" %in% names(df)) {
-      # Try to find a suitable column
       if ("fit" %in% names(df)) {
         df$estimate <- df$fit
-      } else if (ncol(df) >= 1 && is.numeric(df[[1]])) {
-        df$estimate <- df[[1]]
+      } else if ("density" %in% names(df)) {
+        df$estimate <- df$density
+      } else if ("survival" %in% names(df)) {
+        df$estimate <- df$survival
       } else {
-        df$estimate <- NA_real_
+        num_cols <- names(df)[vapply(df, is.numeric, logical(1))]
+        num_cols <- setdiff(num_cols, c("id", "index", "y", "ps", "lower", "upper"))
+        if (length(num_cols)) {
+          df$estimate <- df[[num_cols[1]]]
+        } else {
+          df$estimate <- NA_real_
+        }
       }
     }
     if (!"lower" %in% names(df)) df$lower <- NA_real_
@@ -279,7 +400,7 @@
     if (!"id" %in% names(df)) {
       df$id <- seq_len(nrow(df))
     }
-    return(df)
+    return(.reorder_predict_cols(df))
   }
 
   # Case 2: Matrix (rows = observations, cols = quantiles or estimate/lower/upper)
@@ -292,20 +413,20 @@
     if (!is.null(cn) && all(c("estimate", "lower", "upper") %in% cn)) {
       df <- as.data.frame(fit)
       df$id <- seq_len(nr)
-      return(df)
+      return(.reorder_predict_cols(df))
     }
 
     # If probs provided, assume matrix is n_pred x length(probs) of estimates
     if (!is.null(probs) && nc == length(probs)) {
       # Expand to long format: id x index
       df <- data.frame(
-        id = rep(seq_len(nr), times = nc),
-        index = rep(probs, each = nr),
-        estimate = as.vector(fit),
+        id = rep(seq_len(nr), each = nc),
+        index = rep(probs, times = nr),
+        estimate = as.vector(t(fit)),
         lower = NA_real_,
         upper = NA_real_
       )
-      return(df)
+      return(.reorder_predict_cols(df))
     }
 
     # Default: treat first column as estimate
@@ -315,7 +436,7 @@
       lower = if (nc >= 2) fit[, 2] else NA_real_,
       upper = if (nc >= 3) fit[, 3] else NA_real_
     )
-    return(df)
+    return(.reorder_predict_cols(df))
   }
 
   # Case 3: Numeric vector -> single-row or multi-row df
@@ -327,7 +448,7 @@
       lower = NA_real_,
       upper = NA_real_
     )
-    return(df)
+    return(.reorder_predict_cols(df))
   }
 
   # Fallback: error
@@ -919,7 +1040,7 @@ stick_breaking <- nimble::nimbleFunction(
   if (is.null(kdef)) stop(sprintf("Kernel '%s' not found in registry.", kernel), call. = FALSE)
   if (isTRUE(GPD) && isFALSE(kdef$allow_gpd)) stop(sprintf("Kernel '%s' does not allow GPD.", kernel), call. = FALSE)
 
-  backend_key <- match.arg(backend, choices = c("sb", "crp"))
+  backend_key <- match.arg(backend, choices = allowed_backends)
   dispatch <- kdef[[backend_key]]
   if (is.null(dispatch)) {
     stop(sprintf("Missing %s dispatch in kernel registry.", backend_key), call. = FALSE)
@@ -1300,7 +1421,7 @@ stick_breaking <- nimble::nimbleFunction(
 #'
 #' @keywords internal
 .predict_mixgpd <- function(object,
-                            x = NULL, y = NULL, ps = NULL,
+                            x = NULL, y = NULL, ps = NULL, id = NULL,
                             type = c("density", "survival", "quantile", "sample", "mean", "rmean", "median", "fit"),
                             p = NULL, index = NULL, nsim = NULL,
                             level = 0.95,
@@ -1313,6 +1434,10 @@ stick_breaking <- nimble::nimbleFunction(
 
   .validate_fit(object)
   type <- match.arg(type)
+
+  id_info <- .resolve_predict_id(x, id = id)
+  x <- id_info$x
+  id_vec <- id_info$id
 
   # Handle interval: NULL means no interval
   compute_interval <- TRUE
@@ -1334,8 +1459,11 @@ stick_breaking <- nimble::nimbleFunction(
   kernel  <- meta$kernel  %||% spec$kernel$key %||% "<unknown>"
   GPD     <- isTRUE(meta$GPD %||% spec$dispatch$GPD)
 
-  # Use mixture dispatch for prediction even when backend is CRP
-  pred_backend <- if (identical(backend, "crp")) "sb" else backend
+  # Use mixture dispatch for prediction even when backend is CRP/spliced
+  # For spliced backend with link-mode GPD params, component-level parameters
+  # must be reconstructed from beta coefficients and newdata X values.
+  pred_backend <- if (backend %in% c("crp", "spliced")) "sb" else backend
+  is_spliced <- identical(backend, "spliced")
 
   # Training data
   Xtrain <- object$data$X %||% object$X %||% NULL
@@ -1478,6 +1606,10 @@ stick_breaking <- nimble::nimbleFunction(
 
   # Prediction dimensions
   n_pred <- if (!is.null(Xpred)) nrow(Xpred) else 1L
+  if (!is.null(id_vec) && length(id_vec) != n_pred) {
+    stop("Length of 'id' must match the number of prediction rows.", call. = FALSE)
+  }
+  id_vals <- if (!is.null(id_vec)) id_vec else seq_len(n_pred)
 
   # -----------------------------
   # Optional PS covariate (used only if model expects it)
@@ -1574,10 +1706,26 @@ stick_breaking <- nimble::nimbleFunction(
   tail_scale <- NULL
 
   if (GPD) {
+    gpd_plan <- spec$dispatch$gpd %||% meta$gpd %||% list()
+    
+    # Check for unsupported spliced + GPD + link mode combination
+    if (is_spliced) {
+      thr_mode <- gpd_plan$threshold$mode %||% "dist"
+      ts_mode <- gpd_plan$tail_scale$mode %||% "dist"
+      tsh_mode <- gpd_plan$tail_shape$mode %||% "dist"
+      
+      if (any(c(thr_mode, ts_mode, tsh_mode) == "link")) {
+        stop(
+          "Spliced backend with link-mode GPD parameters is not yet fully implemented in prediction.\n",
+          "For now, use fixed or dist modes for GPD parameters with spliced backend.\n",
+          "Full link-mode support for component-specific tail covariate effects is planned.",
+          call. = FALSE
+        )
+      }
+    }
+    
     if (!("tail_shape" %in% colnames(draw_mat))) stop("tail_shape not found in posterior draws.", call. = FALSE)
     tail_shape <- as.numeric(draw_mat[, "tail_shape"])
-
-    gpd_plan <- spec$dispatch$gpd %||% meta$gpd %||% list()
 
     # threshold
     thr_mode <- gpd_plan$threshold$mode %||% "constant"
@@ -1787,23 +1935,17 @@ stick_breaking <- nimble::nimbleFunction(
       }
     }
 
-    # Build DF
-    result_list <- vector("list", n_pred * G)
-    k <- 1L
-    for (i in seq_len(n_pred)) {
-      for (j in seq_len(G)) {
-        result_list[[k]] <- list(
-          id = i,
-          y = ygrid_num[j],
-          estimate = fit[i, j],
-          lower = if (!is.null(lower)) lower[i, j] else NA_real_,
-          upper = if (!is.null(upper)) upper[i, j] else NA_real_
-        )
-        k <- k + 1L
-      }
-    }
-    fit_df <- do.call(rbind, lapply(result_list, as.data.frame))
-    colnames(fit_df) <- c("id", "y", ifelse(type == "density", "density", "survival"), "lower", "upper")
+    # Build DF (id varies slowest, y varies fastest)
+    fit_df <- data.frame(
+      id = rep(id_vals, each = G),
+      y = rep(ygrid_num, times = n_pred),
+      estimate = as.vector(t(fit)),
+      lower = if (!is.null(lower)) as.vector(t(lower)) else NA_real_,
+      upper = if (!is.null(upper)) as.vector(t(upper)) else NA_real_,
+      row.names = NULL
+    )
+    colnames(fit_df)[colnames(fit_df) == "estimate"] <- ifelse(type == "density", "density", "survival")
+    fit_df <- .reorder_predict_cols(fit_df)
 
     out <- list(
       fit = fit_df,
@@ -1845,12 +1987,14 @@ stick_breaking <- nimble::nimbleFunction(
       summ <- .posterior_summarize(draws_mat, probs = probs, interval = if (compute_interval) interval else NULL)
 
       fit_df <- data.frame(
-        estimate = as.numeric(summ$estimate),
+        id       = rep(id_vals, each = length(pgrid)),
         index    = pgrid,
+        estimate = as.numeric(summ$estimate),
         lower    = if (compute_interval) as.numeric(summ$lower) else NA_real_,
         upper    = if (compute_interval) as.numeric(summ$upper) else NA_real_,
         row.names = NULL
       )
+      fit_df <- .reorder_predict_cols(fit_df)
 
       out <- list(
         fit = fit_df,
@@ -1904,13 +2048,14 @@ stick_breaking <- nimble::nimbleFunction(
     upper <- summ$upper
 
     fit_df <- data.frame(
-      estimate = as.vector(estimate),
-      index    = rep(pgrid, each = n_pred),
-      id       = rep(seq_len(n_pred), times = M),
-      lower    = if (compute_interval) as.vector(lower) else NA_real_,
-      upper    = if (compute_interval) as.vector(upper) else NA_real_,
+      id       = rep(id_vals, each = M),
+      index    = rep(pgrid, times = n_pred),
+      estimate = as.vector(t(estimate)),
+      lower    = if (compute_interval) as.vector(t(lower)) else NA_real_,
+      upper    = if (compute_interval) as.vector(t(upper)) else NA_real_,
       row.names = NULL
     )
+    fit_df <- .reorder_predict_cols(fit_df)
 
     out <- list(
       fit = fit_df,
@@ -2073,13 +2218,15 @@ stick_breaking <- nimble::nimbleFunction(
       upper <- rep(NA_real_, n_obs)
     }
 
+    id_use <- if (length(id_vals) == n_obs) id_vals else seq_len(n_obs)
     fit_df <- data.frame(
-      id = seq_len(n_obs),
+      id = id_use,
       estimate = estimate,
       lower = as.numeric(lower),
       upper = as.numeric(upper),
       row.names = NULL
     )
+    fit_df <- .reorder_predict_cols(fit_df)
 
     out <- list(
       fit = fit_df,
@@ -2108,12 +2255,13 @@ stick_breaking <- nimble::nimbleFunction(
       if (any(is.finite(xi_valid) & xi_valid >= 1)) {
         warning("Posterior mean is infinite because there is posterior mass with tail_shape (xi) >= 1. Use type='median'/'quantile' or a restricted-mean target.", call. = FALSE)
         inf_df <- data.frame(
-          id = if (has_X) seq_len(n_pred) else 1L,
+          id = if (has_X) id_vals else 1L,
           estimate = Inf,
           lower = if (compute_interval) Inf else NA_real_,
           upper = if (compute_interval) Inf else NA_real_,
           row.names = NULL
         )
+        inf_df <- .reorder_predict_cols(inf_df)
         out <- list(
           fit = inf_df,
           type = type,
@@ -2150,12 +2298,13 @@ stick_breaking <- nimble::nimbleFunction(
       summ <- .posterior_summarize(draw_means, probs = probs, interval = if (compute_interval) interval else NULL)
 
       fit_df <- data.frame(
-        id = 1L,
+        id = if (length(id_vals) >= 1L) id_vals[1] else 1L,
         estimate = as.numeric(summ$estimate)[1],
         lower = if (compute_interval) as.numeric(summ$lower)[1] else NA_real_,
         upper = if (compute_interval) as.numeric(summ$upper)[1] else NA_real_,
         row.names = NULL
       )
+      fit_df <- .reorder_predict_cols(fit_df)
 
       out <- list(
         fit = fit_df,
@@ -2220,12 +2369,13 @@ stick_breaking <- nimble::nimbleFunction(
     }
 
     fit_df <- data.frame(
-      id = seq_len(n_pred),
+      id = id_vals,
       estimate = as.numeric(estimate),
       lower = if (compute_interval) as.numeric(lower) else NA_real_,
       upper = if (compute_interval) as.numeric(upper) else NA_real_,
       row.names = NULL
     )
+    fit_df <- .reorder_predict_cols(fit_df)
 
     out <- list(
       fit = fit_df,
@@ -2274,12 +2424,13 @@ stick_breaking <- nimble::nimbleFunction(
       summ <- .posterior_summarize(draw_rmeans, probs = probs, interval = if (compute_interval) interval else NULL)
 
       fit_df <- data.frame(
-        id = 1L,
+        id = if (length(id_vals) >= 1L) id_vals[1] else 1L,
         estimate = as.numeric(summ$estimate)[1],
         lower = if (compute_interval) as.numeric(summ$lower)[1] else NA_real_,
         upper = if (compute_interval) as.numeric(summ$upper)[1] else NA_real_,
         row.names = NULL
       )
+      fit_df <- .reorder_predict_cols(fit_df)
 
       out <- list(
         fit = fit_df,
@@ -2343,12 +2494,13 @@ stick_breaking <- nimble::nimbleFunction(
     }
 
     fit_df <- data.frame(
-      id = seq_len(n_pred),
+      id = id_vals,
       estimate = as.numeric(estimate),
       lower = if (compute_interval) as.numeric(lower) else NA_real_,
       upper = if (compute_interval) as.numeric(upper) else NA_real_,
       row.names = NULL
     )
+    fit_df <- .reorder_predict_cols(fit_df)
 
     out <- list(
       fit = fit_df,
@@ -2404,3 +2556,6 @@ stop(sprintf("Unsupported prediction type '%s'.", type), call. = FALSE)
     vapply(seq_len(n), function(i) as.numeric(fun(1, ...)), numeric(1))
   }
 }
+
+
+

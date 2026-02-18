@@ -16,9 +16,9 @@ available number of chains/parameters. Supported: \code{histogram, density,
   grb, effective, geweke, caterpillar, pairs}.}
 
 \item{params}{Optional parameter selector. Either:
-(i) character vector of exact parameter names (e.g. \code{c("alpha","threshold")}),
+(i) character vector of parameter patterns (exact names or partial matches),
 or (ii) a single regex string (e.g. \code{"alpha|threshold|tail_"}).
-If \code{NULL}, plots a reasonable default.}
+If \code{NULL}, plots all parameters in the samples.}
 
 \item{nLags}{Number of lags for autocorrelation (ggmcmc).}
 

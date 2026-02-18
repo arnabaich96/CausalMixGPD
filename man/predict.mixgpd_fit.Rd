@@ -9,6 +9,7 @@
   x = NULL,
   y = NULL,
   ps = NULL,
+  id = NULL,
   newdata = NULL,
   type = c("density", "survival", "quantile", "sample", "mean", "rmean", "median",
     "location", "fit"),
@@ -34,6 +35,10 @@
 
 \item{ps}{Optional numeric vector of propensity scores for conditional prediction.
 Used when the model was fit with propensity score augmentation.}
+
+\item{id}{Optional identifier for prediction rows. Provide either a column name
+in \code{x}/\code{newdata} or a vector of length \code{nrow(x)}. The id column
+is excluded from analysis.}
 
 \item{newdata}{Optional new data. If \code{NULL}, uses training design (if stored).}
 

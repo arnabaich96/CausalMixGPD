@@ -1,4 +1,4 @@
-#' Build a causal bundle (design + two outcome arms)
+﻿#' Build a causal bundle (design + two outcome arms)
 #'
 #' Creates a causal bundle with:
 #' \itemize{
@@ -613,12 +613,13 @@ cqte <- function(fit,
 
   # Create CQTE fit data frame for convenience
   qte_fit <- data.frame(
-    index = rep(probs, each = n_pred),
-    id = if (n_pred > 1L) rep(seq_len(n_pred), times = n_prob) else rep(1L, n_prob),
-    estimate = as.vector(fit_mat),
-    lower = if (!is.null(lower)) as.vector(lower) else NA_real_,
-    upper = if (!is.null(upper)) as.vector(upper) else NA_real_
+    id = if (n_pred > 1L) rep(seq_len(n_pred), each = n_prob) else rep(1L, n_prob),
+    index = rep(probs, times = n_pred),
+    estimate = as.vector(t(fit_mat)),
+    lower = if (!is.null(lower)) as.vector(t(lower)) else NA_real_,
+    upper = if (!is.null(upper)) as.vector(t(upper)) else NA_real_
   )
+  qte_fit <- .reorder_predict_cols(qte_fit)
 
   # Extract meta from causal fit
   meta <- fit$bundle$meta %||% list()
@@ -910,28 +911,31 @@ cate <- function(fit,
   }
 
   qte_fit <- data.frame(
-    index = probs,
     id = rep(1L, length(probs)),
+    index = probs,
     estimate = as.numeric(diff_summ$estimate),
     lower = if (!is.null(lower)) as.numeric(lower) else NA_real_,
     upper = if (!is.null(upper)) as.numeric(upper) else NA_real_
   )
+  qte_fit <- .reorder_predict_cols(qte_fit)
   fit_tbl <- qte_fit[, c("index", "estimate", "lower", "upper"), drop = FALSE]
 
   trt_fit <- data.frame(
-    estimate = as.numeric(trt_summ$estimate),
-    index = probs,
     id = rep(1L, length(probs)),
+    index = probs,
+    estimate = as.numeric(trt_summ$estimate),
     lower = as.numeric(trt_summ$lower),
     upper = as.numeric(trt_summ$upper)
   )
+  trt_fit <- .reorder_predict_cols(trt_fit)
   con_fit <- data.frame(
-    estimate = as.numeric(con_summ$estimate),
-    index = probs,
     id = rep(1L, length(probs)),
+    index = probs,
+    estimate = as.numeric(con_summ$estimate),
     lower = as.numeric(con_summ$lower),
     upper = as.numeric(con_summ$upper)
   )
+  con_fit <- .reorder_predict_cols(con_fit)
 
   S <- nrow(diff_q)
   M <- ncol(diff_q)
@@ -1596,6 +1600,9 @@ ate_rmean <- function(fit,
 #' @param ps Optional numeric vector of propensity scores aligned with \code{x}
 #'   / \code{newdata}. When provided, the supplied scores are used instead of
 #'   recomputing them from the stored PS model (needed only for custom inputs).
+#' @param id Optional identifier for prediction rows. Provide either a column name
+#'   in \code{x}/\code{newdata} or a vector of length \code{nrow(x)}. The id column
+#'   is excluded from analysis.
 #' @param type Prediction type. Supported: \code{"mean"}, \code{"quantile"},
 #'   \code{"density"}, \code{"survival"}, \code{"prob"}.
 #' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
@@ -1621,6 +1628,7 @@ predict.causalmixgpd_causal_fit <- function(object,
                                         x = NULL,
                                         y = NULL,
                                         ps = NULL,
+                                        id = NULL,
                                         newdata = NULL,
                                         type = c("mean", "quantile", "density", "survival", "prob", "location"),
                                         p = NULL,
@@ -1638,6 +1646,10 @@ predict.causalmixgpd_causal_fit <- function(object,
     stop("Provide only one of 'x' or 'newdata' (they are aliases).", call. = FALSE)
   }
   if (!is.null(newdata)) x <- newdata
+
+  id_info <- .resolve_predict_id(x, id = id)
+  x <- id_info$x
+  id_vec <- id_info$id
 
   type <- match.arg(type)
 
@@ -1666,6 +1678,10 @@ predict.causalmixgpd_causal_fit <- function(object,
     1L
   }
   n_pred <- if (!is.null(x_mat)) nrow(x_mat) else n_pred_default
+  if (!is.null(id_vec) && length(id_vec) != n_pred) {
+    stop("Length of 'id' must match the number of prediction rows.", call. = FALSE)
+  }
+  id_vals <- if (!is.null(id_vec)) id_vec else seq_len(n_pred)
 
   ps_enabled <- isTRUE(bundle$meta$ps$enabled) && has_X
   ps_include_in_outcome <- isTRUE(bundle$meta$ps$include_in_outcome)
@@ -1781,6 +1797,7 @@ predict.causalmixgpd_causal_fit <- function(object,
           x = xi,
           y = y_vec[i],
           ps = psi,
+          id = if (!is.null(xi)) id_vals[i] else NULL,
           type = pred_type,
           interval = if (compute_interval) interval else NULL,
           probs = probs,
@@ -1814,6 +1831,7 @@ predict.causalmixgpd_causal_fit <- function(object,
 
     ps_col <- if (!is.null(ps_full)) ps_full else rep(NA_real_, n_pred)
     out <- data.frame(
+      id = id_vals,
       y = y_vec,
       ps = ps_col,
       trt_estimate = trt_stats$estimate,
@@ -1829,11 +1847,14 @@ predict.causalmixgpd_causal_fit <- function(object,
     return(out)
   }
 
+  id_arg <- if (!is.null(x)) id_vals else NULL
+
   pr_trt <- predict(
     object$outcome_fit$trt,
     x = x,
     y = y,
     ps = ps_trt,
+    id = id_arg,
     type = type,
     index = if (type == "quantile") p else NULL,
     nsim = nsim,
@@ -1850,6 +1871,7 @@ predict.causalmixgpd_causal_fit <- function(object,
     x = x,
     y = y,
     ps = ps_con,
+    id = id_arg,
     type = type,
     index = if (type == "quantile") p else NULL,
     nsim = nsim,
@@ -1901,14 +1923,15 @@ predict.causalmixgpd_causal_fit <- function(object,
 
     if (length(p) > 1L) {
       out_df <- data.frame(
-        id = rep(seq_len(n_pred), times = length(p)),
-        index = rep(p, each = n_pred),
-        ps = rep(ps_col, times = length(p)),
-        estimate = as.vector(est),
-        lower = if (compute_interval) as.vector(lower) else NA_real_,
-        upper = if (compute_interval) as.vector(upper) else NA_real_,
+        id = rep(id_vals, each = length(p)),
+        index = rep(p, times = n_pred),
+        ps = rep(ps_col, each = length(p)),
+        estimate = as.vector(t(est)),
+        lower = if (compute_interval) as.vector(t(lower)) else NA_real_,
+        upper = if (compute_interval) as.vector(t(upper)) else NA_real_,
         row.names = NULL
       )
+      out_df <- .reorder_predict_cols(out_df)
       attr(out_df, "type") <- type
       attr(out_df, "index") <- p
       attr(out_df, "trt") <- pr_trt
@@ -1920,7 +1943,16 @@ predict.causalmixgpd_causal_fit <- function(object,
     est_vec <- as.numeric(est)
     lower_vec <- if (compute_interval) as.numeric(lower) else rep(NA_real_, n_pred)
     upper_vec <- if (compute_interval) as.numeric(upper) else rep(NA_real_, n_pred)
-    out <- cbind(ps = ps_col, estimate = est_vec, lower = lower_vec, upper = upper_vec)
+    out <- data.frame(
+      id = id_vals,
+      index = rep(p, length.out = n_pred),
+      ps = ps_col,
+      estimate = est_vec,
+      lower = lower_vec,
+      upper = upper_vec,
+      row.names = NULL
+    )
+    out <- .reorder_predict_cols(out)
     attr(out, "type") <- type
     attr(out, "index") <- p
     attr(out, "trt") <- pr_trt
@@ -1950,29 +1982,37 @@ predict.causalmixgpd_causal_fit <- function(object,
     con_mat <- matrix(NA_real_, nrow = n_pred, ncol = M)
     con_lower <- matrix(NA_real_, nrow = n_pred, ncol = M)
     con_upper <- matrix(NA_real_, nrow = n_pred, ncol = M)
-    for (j in seq_len(M)) {
-      rows <- ((j - 1L) * n_pred + 1L):(j * n_pred)
-      trt_mat[, j] <- as.numeric(fit_tr$estimate[rows])
-      trt_lower[, j] <- if ("lower" %in% names(fit_tr)) as.numeric(fit_tr$lower[rows]) else NA_real_
-      trt_upper[, j] <- if ("upper" %in% names(fit_tr)) as.numeric(fit_tr$upper[rows]) else NA_real_
-      con_mat[, j] <- as.numeric(fit_co$estimate[rows])
-      con_lower[, j] <- if ("lower" %in% names(fit_co)) as.numeric(fit_co$lower[rows]) else NA_real_
-      con_upper[, j] <- if ("upper" %in% names(fit_co)) as.numeric(fit_co$upper[rows]) else NA_real_
+    key_tr <- paste(fit_tr$id, fit_tr$index, sep = "|")
+    key_co <- paste(fit_co$id, fit_co$index, sep = "|")
+    key_ref <- paste(rep(id_vals, each = M), rep(p, times = n_pred), sep = "|")
+    idx_tr <- match(key_ref, key_tr)
+    idx_co <- match(key_ref, key_co)
+    if (anyNA(idx_tr) || anyNA(idx_co)) {
+      stop("Unexpected prediction ordering in causal predict.", call. = FALSE)
     }
+    fit_tr <- fit_tr[idx_tr, , drop = FALSE]
+    fit_co <- fit_co[idx_co, , drop = FALSE]
+    trt_mat <- matrix(as.numeric(fit_tr$estimate), nrow = n_pred, ncol = M, byrow = TRUE)
+    con_mat <- matrix(as.numeric(fit_co$estimate), nrow = n_pred, ncol = M, byrow = TRUE)
+    trt_lower <- if ("lower" %in% names(fit_tr)) matrix(as.numeric(fit_tr$lower), nrow = n_pred, ncol = M, byrow = TRUE) else matrix(NA_real_, nrow = n_pred, ncol = M)
+    trt_upper <- if ("upper" %in% names(fit_tr)) matrix(as.numeric(fit_tr$upper), nrow = n_pred, ncol = M, byrow = TRUE) else matrix(NA_real_, nrow = n_pred, ncol = M)
+    con_lower <- if ("lower" %in% names(fit_co)) matrix(as.numeric(fit_co$lower), nrow = n_pred, ncol = M, byrow = TRUE) else matrix(NA_real_, nrow = n_pred, ncol = M)
+    con_upper <- if ("upper" %in% names(fit_co)) matrix(as.numeric(fit_co$upper), nrow = n_pred, ncol = M, byrow = TRUE) else matrix(NA_real_, nrow = n_pred, ncol = M)
     diff_mat <- trt_mat - con_mat
     diff_lower <- trt_lower - con_upper
     diff_upper <- trt_upper - con_lower
 
     ps_col <- if (!is.null(ps_full)) ps_full else rep(NA_real_, n_pred)
     out_df <- data.frame(
-      id = rep(seq_len(n_pred), times = M),
-      index = rep(p, each = n_pred),
-      ps = rep(ps_col, times = M),
-      estimate = as.vector(diff_mat),
-      lower = as.vector(diff_lower),
-      upper = as.vector(diff_upper),
+      id = rep(id_vals, each = M),
+      index = rep(p, times = n_pred),
+      ps = rep(ps_col, each = M),
+      estimate = as.vector(t(diff_mat)),
+      lower = as.vector(t(diff_lower)),
+      upper = as.vector(t(diff_upper)),
       row.names = NULL
     )
+    out_df <- .reorder_predict_cols(out_df)
     attr(out_df, "type") <- type
     attr(out_df, "index") <- p
     attr(out_df, "trt") <- pr_trt
@@ -1989,7 +2029,15 @@ predict.causalmixgpd_causal_fit <- function(object,
   diff_upper <- trt_stats$upper - con_stats$upper
 
   ps_col <- if (!is.null(ps_full)) ps_full else rep(NA_real_, n_pred)
-  out <- cbind(ps = ps_col, estimate = diff_est, lower = diff_lower, upper = diff_upper)
+  out <- data.frame(
+    id = id_vals,
+    ps = ps_col,
+    estimate = diff_est,
+    lower = diff_lower,
+    upper = diff_upper,
+    row.names = NULL
+  )
+  out <- .reorder_predict_cols(out)
   attr(out, "type") <- type
   if (type == "quantile") attr(out, "index") <- p
   attr(out, "trt") <- pr_trt
@@ -2295,3 +2343,4 @@ predict.causalmixgpd_causal_fit <- function(object,
     ps_vec
   }
 }
+

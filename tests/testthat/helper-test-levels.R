@@ -92,7 +92,9 @@ representative_combos <- function() {
 
     list(kernel = "gamma",  backend = "sb",  GPD = TRUE,  label = "gamma_sb_gpd"),
     # Lognormal: another positive kernel
-    list(kernel = "lognormal", backend = "crp", GPD = FALSE, label = "lognormal_crp_bulk")
+    list(kernel = "lognormal", backend = "crp", GPD = FALSE, label = "lognormal_crp_bulk"),
+    # Spliced: component-level GPD flexibility
+    list(kernel = "gamma", backend = "spliced", GPD = TRUE, label = "gamma_spliced_gpd")
   )
 }
 

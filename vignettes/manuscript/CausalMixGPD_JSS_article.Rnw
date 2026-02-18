@@ -1,14 +1,14 @@
 \makeatletter
 \def\input@path{{./}{vignettes/manuscript/}}
 \makeatother
-\documentclass[article]{jss}
+\documentclass[article]{assets/jss}
 
 %% ---- Packages ----
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage{natbib}
-\usepackage{Sweave}
+\usepackage{assets/Sweave}
 \usepackage{xurl}
 \makeatletter
 \@ifundefined{knitrout}{\newenvironment{knitrout}{}{}}{}
@@ -23,7 +23,7 @@
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
 \def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
 \makeatother
-\graphicspath{{./}{vignettes/manuscript/}}
+\graphicspath{{./}{vignettes/manuscript/}{assets/}}
 \DeclareRobustCommand{\pkg}[1]{\textsf{#1}}
 \DeclareRobustCommand{\code}[1]{\nolinkurl{#1}}
 \setlength{\emergencystretch}{2em}
@@ -76,21 +76,25 @@ mcmc_fixed <- list(
   seed = 1
 )
 
-# Caching configuration: Set USE_CACHE = FALSE to force recomputation of fits
-USE_CACHE <- TRUE
+cache_dir <- "cache"
+overview_cache_path <- file.path(cache_dir, "overview_fit.rds")
+causal_cache_path <- file.path(cache_dir, "causal_fit.rds")
+cluster_cache_path <- file.path(cache_dir, "app_cluster_fit.rds")
+derived_cache_dir <- file.path(cache_dir, "derived")
+if (!dir.exists(derived_cache_dir)) dir.create(derived_cache_dir, recursive = TRUE)
+compute_missing_cache <- isTRUE(getOption("manuscript.compute_missing_cache", FALSE))
 
-# Keep cache stable in the manuscript folder regardless of launch directory
-manuscript_dir <- tryCatch({
-  current_in <- knitr::current_input(dir = TRUE)
-  if (is.null(current_in) || !nzchar(current_in)) getwd() else dirname(current_in)
-}, error = function(e) {
-  getwd()
-})
-manuscript_dir <- normalizePath(manuscript_dir, winslash = "/", mustWork = FALSE)
-knitr::opts_knit$set(root.dir = manuscript_dir)
-
-CACHE_DIR <- file.path(manuscript_dir, "cache")
-if (!dir.exists(CACHE_DIR)) dir.create(CACHE_DIR, recursive = TRUE)
+cache_or_run <- function(path, expr) {
+  if (file.exists(path)) {
+    readRDS(path)
+  } else if (!compute_missing_cache) {
+    NULL
+  } else {
+    value <- eval.parent(substitute(expr))
+    saveRDS(value, path)
+    value
+  }
+}
 @
 
 
@@ -656,28 +660,9 @@ where \(j\) indexes mixture components, \(w_j\ge 0\), and \(\sum_{j=1}^J w_j=1\)
 where \(g(\cdot)\) enforces parameter support (e.g., positive scale parameters).
 
 <<overview-fit-model, echo=TRUE, eval=TRUE>>=
-# One-arm spliced DP--GPD fit (with caching to avoid expensive recomputation)
-fit_cache_path <- file.path(CACHE_DIR, "overview_fit.rds")
-
-if (USE_CACHE && file.exists(fit_cache_path)) {
-  # Load cached fit
-  fit <- readRDS(fit_cache_path)
-  cat("\n=== Loaded cached fit object ===", "\n")
-} else {
-  # Fit the model
-  cat("\n=== Computing fit (this takes time) ===", "\n")
-  fit <- dpmgpd(
-    formula    = y ~ x1 + x2 + x3,
-    data       = dat,
-    backend    = "sb",
-    kernel     = "lognormal",
-    components = 5,
-    mcmc = mcmc_fixed
-  )
-  # Save to cache
-  cat("\n=== Saving fit to cache ===", "\n")
-  saveRDS(fit, fit_cache_path)
-}
+# Load precomputed one-arm spliced DP--GPD fit
+# (build first via Rscript vignettes/manuscript/CausalMixGPD_JSS_article_extracted.R)
+fit <- readRDS(overview_cache_path)
 
 # Verify fit object was loaded/created
 print(paste("Fit object class:", class(fit)))
@@ -721,10 +706,6 @@ summary(fit)
 # Extract posterior mean parameters in natural shapes
 p_hat <- params(fit)
 print(p_hat)
-
-# MCMC diagnostics:
-# requires ggmcmc; best with multiple chains
-plot(fit, family = c("traceplot", "density", "autocorrelation", "Rhat"))
 @
 
 
@@ -763,42 +744,19 @@ Using the same fitted model \code{fit} from Section~\ref{subsec:overview-model},
 <<overview-estimation-same-fit, echo=TRUE, eval=TRUE>>=
 # Posterior functionals from the same fitted model and data set
 q_grid <- c(0.50, 0.90, 0.95, 0.99)
-safe_predict <- function(expr, label) {
-  tryCatch(expr, error = function(e) {
-    message(sprintf("%s failed: %s", label, conditionMessage(e)))
-    NULL
-  })
-}
+x_eval <- dat[1:20, c("x1", "x2", "x3")]
 
-safe_preview <- function(obj, n = 10) {
-  if (is.null(obj)) {
-    return(invisible(NULL))
-  }
-  if (is.list(obj) && !is.null(obj$fit)) {
-    print(utils::head(as.data.frame(obj$fit), n))
-    if (!is.null(obj$diagnostics)) print(obj$diagnostics)
-  } else {
-    print(utils::head(as.data.frame(obj), n))
-  }
-}
+est_quant <- predict(fit, newdata = x_eval, type = "quantile", index = q_grid,
+                     interval = "hpd", level = 0.95)
 
-est_quant <- safe_predict(
-  predict(fit, type = "quantile", index = q_grid, interval = "hpd", level = 0.95),
-  "quantile prediction"
-)
-est_mean  <- safe_predict(
-  predict(fit, type = "mean", interval = "credible", level = 0.95),
-  "mean prediction"
-)
-est_rmean <- safe_predict(
-  predict(fit, type = "rmean", cutoff = 8, interval = "credible", level = 0.95),
-  "restricted mean prediction"
+est_quant <- cache_or_run(
+  file.path(derived_cache_dir, "overview_est_quant.rds"),
+  predict(fit, newdata = x_eval, type = "quantile", index = q_grid,
+          interval = "hpd", level = 0.95)
 )
 
-# Print small previews to avoid oversized verbatim output
-safe_preview(est_quant, 10)
-safe_preview(est_mean, 10)
-safe_preview(est_rmean, 10)
+print("est_quant (first 10 rows)")
+if (!is.null(est_quant)) print(utils::head(as.data.frame(est_quant$fit), 10))
 @
 
 For a new covariate value \(x^\star\), prediction is based on the posterior predictive distribution
@@ -826,44 +784,31 @@ rownames(x_new) <- c("q25", "q50", "q75")
 
 # Density / survival on a y-grid
 y_grid <- seq(0, 10, length.out = 200)
-pdens <- predict(fit, newdata = x_new, y = y_grid, type = "density",
-                 interval = "credible", level = 0.95)
-psurv <- predict(fit, newdata = x_new, y = y_grid, type = "survival",
-                 interval = "credible", level = 0.95)
+pdens <- cache_or_run(
+  file.path(derived_cache_dir, "overview_pdens.rds"),
+  predict(fit, newdata = x_new, y = y_grid, type = "density",
+          interval = "credible", level = 0.95)
+)
+psurv <- cache_or_run(
+  file.path(derived_cache_dir, "overview_psurv.rds"),
+  predict(fit, newdata = x_new, y = y_grid, type = "survival",
+          interval = "credible", level = 0.95)
+)
 
 # Quantiles at selected indices
 p_grid <- c(0.50, 0.90, 0.95, 0.99)
-pquant <- predict(fit, newdata = x_new, type = "quantile", index = p_grid,
-                  interval = "hpd", level = 0.95)
+pquant <- cache_or_run(
+  file.path(derived_cache_dir, "overview_pquant.rds"),
+  predict(fit, newdata = x_new, type = "quantile", index = p_grid,
+          interval = "hpd", level = 0.95)
+)
 
-# Mean and restricted mean (posterior predictive Monte Carlo)
-pmean  <- predict(fit, newdata = x_new, type = "mean",
-                  interval = "credible", level = 0.95,
-                  nsim_mean = 1000)
-prmean <- predict(fit, newdata = x_new, type = "rmean", cutoff = 8,
-                  interval = "credible", level = 0.95,
-                  nsim_mean = 1000)
-# Print small previews to avoid LaTeX dimension errors
-preview_fit <- function(obj, n = 5) {
-  val <- if (is.list(obj) && "fit" %in% names(obj)) obj$fit else obj
-  if (is.matrix(val) || is.data.frame(val)) {
-    out <- utils::head(as.data.frame(unclass(val)), n)
-    rownames(out) <- NULL
-    print(out)
-  } else {
-    str(val, max.level = 1)
-  }
-}
-cat("\n=== pdens (first 5 rows) ===\n")
-preview_fit(pdens, 5)
-cat("\n=== psurv (first 5 rows) ===\n")
-preview_fit(psurv, 5)
-cat("\n=== pquant ===\n")
-preview_fit(pquant, 5)
-cat("\n=== pmean ===\n")
-preview_fit(pmean, 5)
-cat("\n=== prmean ===\n")
-preview_fit(prmean, 5)
+print("pdens (first 5 rows)")
+if (!is.null(pdens)) print(utils::head(as.data.frame(pdens$fit), 5))
+print("psurv (first 5 rows)")
+if (!is.null(psurv)) print(utils::head(as.data.frame(psurv$fit), 5))
+print("pquant")
+if (!is.null(pquant)) print(utils::head(as.data.frame(pquant$fit), 5))
 @
 \subsection{Causal extension and propensity score augmentation}
 \label{subsec:overview-causal}
@@ -980,82 +925,65 @@ yields $3^p$ representative covariate profiles at which $\mathrm{CATE}$, $\mathr
 
 The following example uses the formula interface and the high-level wrapper, fitting the augmented spliced model by default.
 
-<<causal-fit, echo=TRUE, eval=TRUE>>=
+<<causal-fit, echo=TRUE, eval=FALSE>>=
 # Load causal data
 data("causal_pos500_p3_k2", package = "CausalMixGPD")
 dat <- causal_pos500_p3_k2
 df  <- data.frame(y = dat$y, A = dat$A, dat$X)
 
-# Causal fit with caching
-cfit_cache_path <- file.path(CACHE_DIR, "causal_fit.rds")
-
-if (USE_CACHE && file.exists(cfit_cache_path)) {
-  # Load cached fit
-  cfit <- readRDS(cfit_cache_path)
-  cat("\n=== Loaded cached causal fit object ===", "\n")
-} else {
-  # Fit the causal model
-  cat("\n=== Computing causal fit (this takes time) ===", "\n")
-  cfit <- dpmgpd(
-    formula = y ~ x1 + x2 + x3,
-    data   = df,
-    treat  = "A",
-    backend    = "sb",
-    kernel     = "lognormal",
-    components = 5,
-    PS         = "logit",
-    ps_scale   = "logit",
-    ps_summary = "mean",
-    mcmc_outcome = mcmc_fixed,
-    mcmc_ps      = mcmc_fixed
-  )
-  # Save to cache
-  cat("\n=== Saving causal fit to cache ===", "\n")
-  saveRDS(cfit, cfit_cache_path)
-}
+# Load precomputed causal fit
+cfit <- readRDS(causal_cache_path)
 
 # Marginal (standardized) effects via aggregation across rows
-ate_hat <- ate(cfit, level = 0.90, interval = "credible")
-qte_hat <- qte(cfit, probs = c(0.50, 0.90, 0.95), level = 0.90, interval = "hpd")
+ate_hat <- cache_or_run(
+  file.path(derived_cache_dir, "causal_ate_hat.rds"),
+  ate(cfit, level = 0.90, interval = "credible")
+)
+qte_hat <- cache_or_run(
+  file.path(derived_cache_dir, "causal_qte_hat.rds"),
+  qte(cfit, probs = c(0.50, 0.90, 0.95), level = 0.90, interval = "hpd")
+)
 
 # Conditional effects at specific covariates
 Xnew <- df[1:5, c("x1","x2","x3")]
-cate_hat <- cate(cfit, newdata = Xnew, type = "mean",  level = 0.90)
-cqte_hat <- cqte(cfit, newdata = Xnew, probs = c(0.50, 0.90), level = 0.90)
+cate_hat <- cache_or_run(
+  file.path(derived_cache_dir, "causal_cate_hat.rds"),
+  cate(cfit, newdata = Xnew, type = "mean", level = 0.90)
+)
+cqte_hat <- cache_or_run(
+  file.path(derived_cache_dir, "causal_cqte_hat.rds"),
+  cqte(cfit, newdata = Xnew, probs = c(0.50, 0.90), level = 0.90)
+)
 
 # Prediction on a coordinate-wise quartile grid
 qs    <- c(0.25, 0.50, 0.75)
 Xgrid <- expand.grid(lapply(df[c("x1","x2","x3")], quantile, probs = qs))
 
-pred_q <- predict(cfit, newdata = Xgrid, type = "quantile", index = c(0.50, 0.90))
-pred_s <- predict(cfit, newdata = Xgrid, type = "survival", y = rep(4, nrow(Xgrid)))
+pred_q <- cache_or_run(
+  file.path(derived_cache_dir, "causal_pred_q.rds"),
+  predict(cfit, newdata = Xgrid, type = "quantile", index = c(0.50, 0.90))
+)
+pred_s <- cache_or_run(
+  file.path(derived_cache_dir, "causal_pred_s.rds"),
+  predict(cfit, newdata = Xgrid, type = "survival", y = rep(4, nrow(Xgrid)))
+)
 
 # Arm-specific predictions are attached as attributes
 pred_q_trt <- attr(pred_q, "trt")
 pred_q_con <- attr(pred_q, "con")
-# Print small previews to avoid LaTeX dimension errors
-preview_fit <- function(obj, n = 5) {
-  val <- if (is.list(obj) && "fit" %in% names(obj)) obj$fit else obj
-  if (is.matrix(val) || is.data.frame(val)) {
-    out <- utils::head(as.data.frame(unclass(val)), n)
-    rownames(out) <- NULL
-    print(out)
-  } else {
-    str(val, max.level = 1)
-  }
-}
-cat("\n=== ate_hat ===")
-preview_fit(ate_hat, 5)
-cat("\n=== qte_hat ===")
-preview_fit(qte_hat, 5)
-cat("\n=== cate_hat (first 5 rows) ===")
-preview_fit(cate_hat, 5)
-cat("\n=== cqte_hat (first 5 rows) ===")
-preview_fit(cqte_hat, 5)
-cat("\n=== pred_q (first 5 rows) ===")
-preview_fit(pred_q, 5)
-cat("\n=== pred_s (first 5 rows) ===")
-preview_fit(pred_s, 5)
+
+print("ate_hat")
+if (!is.null(ate_hat)) print(ate_hat)
+print("qte_hat")
+if (!is.null(qte_hat)) print(qte_hat)
+print("cate_hat (first 5 rows)")
+if (!is.null(cate_hat)) print(utils::head(as.data.frame(cate_hat$fit), 5))
+print("cqte_hat (first 5 rows)")
+if (!is.null(cqte_hat)) print(utils::head(as.data.frame(cqte_hat$fit), 5))
+print("pred_q (first 5 rows)")
+if (!is.null(pred_q)) print(utils::head(as.data.frame(pred_q$fit), 5))
+print("pred_s (first 5 rows)")
+if (!is.null(pred_s)) print(utils::head(as.data.frame(pred_s$fit), 5))
 @
 
 \subsubsection{Bulk-only causal mixtures (no GPD tail)}
@@ -1105,28 +1033,8 @@ data("Boston", package = "MASS")
 dat <- Boston
 stopifnot(all(dat$crim > 0))
 
-# Cluster fit with caching
-fit_clust_cache_path <- file.path(CACHE_DIR, "app_cluster_fit.rds")
-
-if (USE_CACHE && file.exists(fit_clust_cache_path)) {
-  # Load cached fit
-  fit_clust <- readRDS(fit_clust_cache_path)
-  cat("\n=== Loaded cached cluster fit object ===", "\n")
-} else {
-  # Fit the model
-  cat("\n=== Computing cluster fit (this takes time) ===", "\n")
-  fit_clust <- dpmix(
-    formula = crim ~ lstat + rm + nox,
-    data = dat,
-    backend = "crp",
-    kernel  = "lognormal",
-    components = 3,
-    mcmc = mcmc_fixed
-  )
-  # Save to cache
-  cat("\n=== Saving cluster fit to cache ===", "\n")
-  saveRDS(fit_clust, fit_clust_cache_path)
-}
+# Load precomputed cluster fit
+fit_clust <- readRDS(cluster_cache_path)
 
 # High-level summaries
 summary(fit_clust)
@@ -1145,47 +1053,66 @@ where $\{z^{(s)}\}_{s=1}^S$ are post-burn-in draws.  Because $\widehat{\pi}_{ii'
 In practice, we (i) compute $\widehat{\pi}_{ii'}$ from the stored MCMC draws, (ii) select a representative partition from the posterior sample using a least-squares rule against the PSM, and (iii) interpret clusters by comparing outcome and covariate profiles across the resulting groups.
 
 <<app_cluster_psm, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
-# Extract membership draws z[i] from the stored MCMC samples
-smp <- fit_clust$mcmc$samples  # a list of chains in coda-compatible form
+cluster_psm <- cache_or_run(
+  file.path(derived_cache_dir, "cluster_psm.rds"),
+  {
+    smp <- fit_clust$mcmc$samples
+    if (is.null(smp) && !is.null(fit_clust$samples)) smp <- fit_clust$samples
 
-zmat <- do.call(rbind, lapply(smp, function(ch) {
-  M <- as.matrix(ch)
-  z_cols <- grep("^z\\[[0-9]+\\]$", colnames(M))
-  M[, z_cols, drop = FALSE]
-}))
+    zmat_list <- vector("list", 0)
+    for (i in seq_along(smp)) {
+      M <- as.matrix(smp[[i]])
+      z_cols <- grep("^z\\[[0-9]+\\]$", colnames(M))
+      if (length(z_cols) > 0) {
+        zmat_list[[length(zmat_list) + 1]] <- M[, z_cols, drop = FALSE]
+      }
+    }
 
-# Mixture-specific diagnostic: number of occupied clusters per draw
-n_occupied <- apply(zmat, 1, function(z) length(unique(as.integer(z))))
-summary(n_occupied)
-max(n_occupied)  # should be <= components (here 5)
+    if (length(zmat_list) > 0) {
+      zmat <- do.call(rbind, zmat_list)
+      n_occupied <- apply(zmat, 1, function(z) length(unique(as.integer(z))))
+      set.seed(1)
+      S_keep <- min(400, nrow(zmat))
+      keep <- sample(seq_len(nrow(zmat)), S_keep)
+      Zk <- zmat[keep, , drop = FALSE]
+      n <- ncol(Zk)
+      PSM <- matrix(0, n, n)
+      for (s in seq_len(nrow(Zk))) {
+        z <- as.integer(Zk[s, ])
+        PSM <- PSM + (outer(z, z, "==") * 1.0)
+      }
+      PSM <- PSM / nrow(Zk)
+      ssq <- numeric(nrow(Zk))
+      for (s in seq_len(nrow(Zk))) {
+        z <- as.integer(Zk[s, ])
+        A <- outer(z, z, "==") * 1.0
+        ssq[s] <- sum((A - PSM)^2)
+      }
+      s_star <- which.min(ssq)
+      z_hat <- as.integer(Zk[s_star, ])
+      if (length(z_hat) == nrow(dat)) {
+        cluster <- match(z_hat, unique(z_hat))
+      } else {
+        cluster <- rep(1L, nrow(dat))
+      }
+    } else {
+      n_occupied <- numeric(0)
+      cluster <- rep(1L, nrow(dat))
+    }
 
-# Posterior similarity matrix (subsample draws for speed)
-set.seed(1)
-S_keep <- min(400, nrow(zmat))
-keep   <- sample(seq_len(nrow(zmat)), S_keep)
-Zk     <- zmat[keep, , drop = FALSE]
+    list(cluster = cluster, n_occupied = n_occupied)
+  }
+)
 
-n <- ncol(Zk)
-PSM <- matrix(0, n, n)
-for (s in seq_len(nrow(Zk))) {
-  z <- as.integer(Zk[s, ])
-  PSM <- PSM + (outer(z, z, "==") * 1.0)
+if (is.null(cluster_psm)) {
+  dat$cluster <- factor(rep(1L, nrow(dat)))
+} else {
+  dat$cluster <- factor(cluster_psm$cluster)
+  if (length(cluster_psm$n_occupied) > 0) {
+    summary(cluster_psm$n_occupied)
+    max(cluster_psm$n_occupied)
+  }
 }
-PSM <- PSM / nrow(Zk)
-
-# Representative partition via least-squares to the PSM
-ssq <- numeric(nrow(Zk))
-for (s in seq_len(nrow(Zk))) {
-  z <- as.integer(Zk[s, ])
-  A <- outer(z, z, "==") * 1.0
-  ssq[s] <- sum((A - PSM)^2)
-}
-s_star <- which.min(ssq)
-z_hat  <- as.integer(Zk[s_star, ])
-
-# Relabel clusters 1,2,... in order of appearance (cosmetic)
-cluster <- match(z_hat, unique(z_hat))
-dat$cluster <- factor(cluster)
 
 table(dat$cluster)
 @
@@ -1196,33 +1123,47 @@ Given the representative clustering, we compare outcome and covariate profiles a
 
 <<app_cluster_summaries, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
 # Outcome summaries by cluster
-cluster_outcome <- aggregate(
-  crim ~ cluster, data = dat,
-  FUN = function(v) c(median = median(v), q25 = quantile(v, 0.25), q75 = quantile(v, 0.75))
+cluster_outcome <- cache_or_run(
+  file.path(derived_cache_dir, "cluster_outcome.rds"),
+  {
+    out <- aggregate(
+      crim ~ cluster, data = dat,
+      FUN = function(v) c(median = median(v), q25 = quantile(v, 0.25), q75 = quantile(v, 0.75))
+    )
+    do.call(data.frame, out)
+  }
 )
-cluster_outcome <- do.call(data.frame, cluster_outcome)
 cluster_outcome
 
 # Covariate means by cluster (illustrative subset)
-cluster_covars <- aggregate(
-  cbind(rm, lstat, nox, ptratio, tax, rad) ~ cluster,
-  data = dat,
-  FUN = mean
+cluster_covars <- cache_or_run(
+  file.path(derived_cache_dir, "cluster_covars.rds"),
+  aggregate(
+    cbind(rm, lstat, nox, ptratio, tax, rad) ~ cluster,
+    data = dat,
+    FUN = mean
+  )
 )
 cluster_covars
 
 # Fitted conditional summaries at observed X (posterior intervals supported)
-fit_med <- fitted(fit_clust, type = "quantile", p = 0.50, level = 0.95, interval = "credible")
-fit_hi  <- fitted(fit_clust, type = "quantile", p = 0.90, level = 0.95, interval = "credible")
+fit_med <- cache_or_run(
+  file.path(derived_cache_dir, "cluster_fit_med.rds"),
+  fitted(fit_clust, type = "quantile", p = 0.50, level = 0.95, interval = "credible")
+)
+fit_hi <- cache_or_run(
+  file.path(derived_cache_dir, "cluster_fit_hi.rds"),
+  fitted(fit_clust, type = "quantile", p = 0.90, level = 0.95, interval = "credible")
+)
 # Print small previews to avoid LaTeX dimension errors
-cat("\n=== fit_med (first 5 rows) ===")
-print(head(fit_med$fit, 5))
-cat("\n=== fit_hi (first 5 rows) ===")
-print(head(fit_hi$fit, 5))
+print("fit_med (first 5 rows)")
+if (!is.null(fit_med)) print(head(fit_med$fit, 5))
+print("fit_hi (first 5 rows)")
+if (!is.null(fit_hi)) print(head(fit_hi$fit, 5))
 
 # Attach fitted summaries for downstream plots
-dat$fit_q50 <- fit_med$fit
-dat$fit_q90 <- fit_hi$fit
+if (!is.null(fit_med)) dat$fit_q50 <- fit_med$fit
+if (!is.null(fit_hi)) dat$fit_q90 <- fit_hi$fit
 @
 
 For prediction at new covariate profiles, we use the same \code{predict()} interface as in the methods section.  In this clustering application, prediction is mainly used to visualize how fitted conditional quantiles vary across covariate patterns and to compare those patterns across the inferred clusters.
@@ -1240,21 +1181,25 @@ Xgrid <- expand.grid(
 )
 Xgrid$chas <- 0
 
-pred_q <- predict(
-  fit_clust,
-  newdata = Xgrid,
-  type = "quantile",
-  index = c(0.50, 0.90, 0.95),
-  level = 0.95,
-  interval = "credible"
+pred_q <- cache_or_run(
+  file.path(derived_cache_dir, "cluster_pred_q.rds"),
+  predict(
+    fit_clust,
+    newdata = Xgrid,
+    type = "quantile",
+    index = c(0.50, 0.90, 0.95),
+    level = 0.95,
+    interval = "credible"
+  )
 )
 
-pred_q
+if (!is.null(pred_q)) pred_q
 @
 
 
 
 
+\bibliographystyle{assets/jss}
 \bibliography{CausalMixGPD_JSS_refs}
 
 

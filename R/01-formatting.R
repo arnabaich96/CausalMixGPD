@@ -1,4 +1,4 @@
-# Formatting helpers for consistent numeric printing
+﻿# Formatting helpers for consistent numeric printing
 # These are internal (not exported).
 
 #' Format numbers to 3 decimals without trailing zeros
@@ -136,7 +136,7 @@ format_mat3_sci <- function(mat, digits = 3, big = 1e4) {
     print(dt),
     warning = function(w) {
       # Log suppressed warnings for debugging without showing them as warnings
-      message("DT view warning (suppressed): ", conditionMessage(w))
+      .cmgpd_message("DT view warning (suppressed): ", conditionMessage(w))
       invokeRestart("muffleWarning")
     }
   )
@@ -155,7 +155,7 @@ print_fmt3 <- function(x, ...) {
       if (!is.null(kbl)) return(print(kbl))
     }
     .dt_view_table(df_raw, row.names = row_names, digits = 3)
-    return(print(df, ...))
+    return(print(df, quote = FALSE, ...))
   }
   if (is.matrix(x)) {
     mat_raw <- x
@@ -165,10 +165,10 @@ print_fmt3 <- function(x, ...) {
       if (!is.null(kbl)) return(print(kbl))
     }
     .dt_view_table(as.data.frame(mat_raw), row.names = row_names, digits = 3)
-    return(print(mat, ...))
+    return(print(noquote(mat), ...))
   }
   if (is.numeric(x)) {
-    return(print(fmt3(x), ...))
+    return(print(noquote(fmt3(x)), ...))
   }
   print(x, ...)
 }
@@ -185,7 +185,7 @@ print_fmt3_sci <- function(x, digits = 3, big = 1e4, ...) {
       if (!is.null(kbl)) return(print(kbl))
     }
     .dt_view_table(df_raw, row.names = row_names, digits = digits)
-    return(print(df, ...))
+    return(print(df, quote = FALSE, ...))
   }
   if (is.matrix(x)) {
     mat_raw <- x
@@ -195,10 +195,11 @@ print_fmt3_sci <- function(x, digits = 3, big = 1e4, ...) {
       if (!is.null(kbl)) return(print(kbl))
     }
     .dt_view_table(as.data.frame(mat_raw), row.names = row_names, digits = digits)
-    return(print(mat, ...))
+    return(print(noquote(mat), ...))
   }
   if (is.numeric(x)) {
-    return(print(fmt3_sci(x, digits = digits, big = big), ...))
+    return(print(noquote(fmt3_sci(x, digits = digits, big = big)), ...))
   }
   print(x, ...)
 }
+

@@ -9,9 +9,11 @@
   x = NULL,
   y = NULL,
   ps = NULL,
+  id = NULL,
   newdata = NULL,
   type = c("mean", "quantile", "density", "survival", "prob", "location"),
   p = NULL,
+  index = NULL,
   nsim = NULL,
   interval = "credible",
   probs = c(0.025, 0.5, 0.975),
@@ -33,12 +35,18 @@
 / \code{newdata}. When provided, the supplied scores are used instead of
 recomputing them from the stored PS model (needed only for custom inputs).}
 
+\item{id}{Optional identifier for prediction rows. Provide either a column name
+in \code{x}/\code{newdata} or a vector of length \code{nrow(x)}. The id column
+is excluded from analysis.}
+
 \item{newdata}{Optional new data. If \code{NULL}, uses training design (if stored).}
 
 \item{type}{Prediction type. Supported: \code{"mean"}, \code{"quantile"},
 \code{"density"}, \code{"survival"}, \code{"prob"}.}
 
 \item{p}{Numeric vector of probabilities for quantiles (required for \code{type="quantile"}).}
+
+\item{index}{Alias for \code{p}; numeric vector of quantile levels.}
 
 \item{nsim}{Number of posterior predictive samples (for \code{type="sample"}).}
 
@@ -77,7 +85,7 @@ predictions use only the original covariates \code{X}.
 \dontrun{
 cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
 fit <- run_mcmc_causal(cb)
-predict(fit, x = X[1:10, ], type = "quantile", p = c(0.25, 0.5, 0.75))
+predict(fit, x = X[1:10, ], type = "quantile", index = c(0.25, 0.5, 0.75))
 predict(fit, x = X[1:10, ], type = "mean", interval = "hpd")  # HPD intervals
 predict(fit, x = X[1:10, ], type = "mean", interval = NULL)   # No intervals
 }

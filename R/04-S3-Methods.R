@@ -604,7 +604,9 @@ params.mixgpd_fit <- function(object, ...) {
     if (!length(cols)) return(NULL)
     idx <- as.integer(sub(paste0("^", prefix, "\\[([0-9]+)\\]$"), "\\1", cols))
     ord <- order(idx, na.last = NA)
-    as.numeric(means[cols][ord])
+    vec <- as.numeric(unname(means[cols][ord]))
+    storage.mode(vec) <- "double"
+    vec
   }
 
   .get_matrix <- function(prefix) {
@@ -616,8 +618,9 @@ params.mixgpd_fit <- function(object, ...) {
     n2 <- max(idx2)
     out <- matrix(NA_real_, nrow = n1, ncol = n2)
     for (i in seq_along(cols)) {
-      out[idx1[i], idx2[i]] <- means[cols[i]]
+      out[idx1[i], idx2[i]] <- as.numeric(unname(means[cols[i]]))
     }
+    storage.mode(out) <- "double"
     if (!is.null(xnames) && length(xnames) == n2) colnames(out) <- xnames
     rownames(out) <- paste0("comp", seq_len(n1))
     out
@@ -625,7 +628,7 @@ params.mixgpd_fit <- function(object, ...) {
 
   out <- list()
 
-  if ("alpha" %in% cn) out$alpha <- unname(means["alpha"])
+  if ("alpha" %in% cn) out$alpha <- as.numeric(unname(means["alpha"]))
 
   w <- .get_vector("w")
   if (!is.null(w)) out$w <- w
@@ -643,6 +646,7 @@ params.mixgpd_fit <- function(object, ...) {
         beta_vec <- .get_vector(paste0("beta_", nm))
         if (!is.null(beta_vec)) {
           beta <- matrix(beta_vec, ncol = 1)
+          storage.mode(beta) <- "double"
           rownames(beta) <- paste0("comp", seq_len(nrow(beta)))
           if (!is.null(xnames) && length(xnames) == 1L) colnames(beta) <- xnames
         }
@@ -657,14 +661,14 @@ params.mixgpd_fit <- function(object, ...) {
     thr_mode <- gpd$threshold$mode %||% NA_character_
     if (thr_mode %in% c("fixed", "dist")) {
       thr <- .get_vector("threshold")
-      if (!is.null(thr)) out$threshold <- mean(thr, na.rm = TRUE)
+      if (!is.null(thr)) out$threshold <- as.numeric(mean(thr, na.rm = TRUE))
     } else if (identical(thr_mode, "link")) {
       beta_thr <- .get_vector("beta_threshold")
       if (!is.null(beta_thr)) out$beta_threshold <- beta_thr
       if (!is.null(gpd$threshold$link_dist) &&
           identical(gpd$threshold$link_dist$dist, "lognormal") &&
           "sdlog_u" %in% cn) {
-        out$sdlog_u <- unname(means["sdlog_u"])
+        out$sdlog_u <- as.numeric(unname(means["sdlog_u"]))
       }
     }
   }
@@ -675,12 +679,12 @@ params.mixgpd_fit <- function(object, ...) {
       beta_ts <- .get_vector("beta_tail_scale")
       if (!is.null(beta_ts)) out$beta_tail_scale <- beta_ts
     } else if (ts_mode %in% c("fixed", "dist")) {
-      if ("tail_scale" %in% cn) out$tail_scale <- unname(means["tail_scale"])
+      if ("tail_scale" %in% cn) out$tail_scale <- as.numeric(unname(means["tail_scale"]))
     }
   }
 
   if (!is.null(gpd$tail_shape) && "tail_shape" %in% cn) {
-    out$tail_shape <- unname(means["tail_shape"])
+    out$tail_shape <- as.numeric(unname(means["tail_shape"]))
   }
 
   class(out) <- "mixgpd_params"
@@ -905,9 +909,9 @@ print.mixgpd_summary <- function(x, digits = 3, max_rows = 60, ...) {
 #'   traceplot, running, compare_partial, autocorrelation, crosscorrelation, Rhat,
 #'   grb, effective, geweke, caterpillar, pairs}.
 #' @param params Optional parameter selector. Either:
-#'   (i) character vector of exact parameter names (e.g. \code{c("alpha","threshold")}),
+#'   (i) character vector of parameter patterns (exact names or partial matches),
 #'   or (ii) a single regex string (e.g. \code{"alpha|threshold|tail_"}).
-#'   If \code{NULL}, plots a reasonable default.
+#'   If \code{NULL}, plots all parameters in the samples.
 #' @param nLags Number of lags for autocorrelation (ggmcmc).
 #' @param ... Passed through to the underlying ggmcmc plotting functions when applicable.
 #' @return Invisibly returns a named list of ggplot objects.
@@ -947,40 +951,42 @@ plot.mixgpd_fit <- function(x,
     if (is.null(smp)) stop("Samples are not coercible to coda::mcmc.list.", call. = FALSE)
   }
 
-  # ---- choose default params ----
+  # ---- choose params ----
   cn <- colnames(as.matrix(smp[[1]]))
   if (is.null(params)) {
-    # Prefer alpha + threshold/tail params + weights if present
-    thr_cols <- grep("^threshold\\[[0-9]+\\]$", cn, value = TRUE)
-    thr_keep <- if ("threshold" %in% cn) {
-      "threshold"
-    } else if (length(thr_cols)) {
-      thr_cols[order(as.integer(sub("^threshold\\[([0-9]+)\\]$", "\\1", thr_cols)))[1]]
-    } else {
-      character(0)
-    }
-    pref <- unique(c(
-      grep("^alpha$", cn, value = TRUE),
-      thr_keep,
-      grep("^tail_", cn, value = TRUE),
-      grep("^weights\\[", cn, value = TRUE)
-    ))
-    params <- if (length(pref) > 0) pref else head(cn, 6)
+    params <- cn
   }
 
-  # params can be vector of names OR single regex
+  # params can be vector of names/patterns OR single regex
+  match_params <- function(p, all_params) {
+    hits <- character(0)
+    for (tok in p) {
+      if (tok %in% all_params) {
+        hits <- c(hits, tok)
+        next
+      }
+      m <- grep(tok, all_params, value = TRUE)
+      if (!length(m)) {
+        m <- agrep(tok, all_params, value = TRUE, ignore.case = TRUE, max.distance = 0.2)
+      }
+      if (!length(m)) {
+        stop("No parameters match: ", tok, call. = FALSE)
+      }
+      hits <- c(hits, m)
+    }
+    unique(hits)
+  }
+
   if (is.character(params) && length(params) > 1) {
-    keep <- params
+    keep <- match_params(params, cn)
   } else if (is.character(params) && length(params) == 1) {
     keep <- grep(params, cn, value = TRUE)
-    if (length(keep) == 0) stop("No parameters match regex: ", params, call. = FALSE)
+    if (!length(keep)) {
+      keep <- agrep(params, cn, value = TRUE, ignore.case = TRUE, max.distance = 0.2)
+    }
+    if (!length(keep)) stop("No parameters match regex: ", params, call. = FALSE)
   } else {
-    stop("'params' must be NULL, a character vector of names, or a single regex string.", call. = FALSE)
-  }
-
-  missing <- setdiff(keep, cn)
-  if (length(missing) > 0) {
-    stop("Unknown params: ", paste(missing, collapse = ", "), call. = FALSE)
+    stop("'params' must be NULL, a character vector of names/patterns, or a single regex string.", call. = FALSE)
   }
 
   # ---- build ggmcmc long format (DO NOT pass family here) ----
@@ -1119,6 +1125,9 @@ plot.mixgpd_fit <- function(x,
 #' @param object A fitted object of class \code{"mixgpd_fit"}.
 #' @param x Optional new data. Alias for \code{newdata}.
 #' @param newdata Optional new data. If \code{NULL}, uses training design (if stored).
+#' @param id Optional identifier for prediction rows. Provide either a column name
+#'   in \code{x}/\code{newdata} or a vector of length \code{nrow(x)}. The id column
+#'   is excluded from analysis.
 #' @param ps Optional numeric vector of propensity scores for conditional prediction.
 #'   Used when the model was fit with propensity score augmentation.
 #' @param type Prediction type:
@@ -1178,6 +1187,7 @@ predict.mixgpd_fit <- function(object,
                                x = NULL,
                                y = NULL,
                                ps = NULL,
+                               id = NULL,
                                newdata = NULL,
                                type = c("density", "survival",
                                         "quantile", "sample", "mean", "rmean", "median", "location", "fit"),
@@ -1250,34 +1260,36 @@ predict.mixgpd_fit <- function(object,
 
   if (type == "location") {
     mean_pred <- .predict_mixgpd(object,
-                                x = x,
-                                y = y,
-                                ps = ps,
-                                type = "mean",
-                                p = p,
-                                index = index,
-                                nsim = nsim,
-                                level = level,
-                                interval = interval,
-                                probs = probs,
-                                store_draws = store_draws,
-                                nsim_mean = nsim_mean,
-                                ncores = ncores)
+                  x = x,
+                  y = y,
+                  ps = ps,
+                  id = id,
+                  type = "mean",
+                  p = p,
+                  index = index,
+                  nsim = nsim,
+                  level = level,
+                  interval = interval,
+                  probs = probs,
+                  store_draws = store_draws,
+                  nsim_mean = nsim_mean,
+                  ncores = ncores)
 
     median_pred <- .predict_mixgpd(object,
-                                  x = x,
-                                  y = y,
-                                  ps = ps,
-                                  type = "median",
-                                  p = p,
-                                  index = index,
-                                  nsim = nsim,
-                                  level = level,
-                                  interval = interval,
-                                  probs = probs,
-                                  store_draws = store_draws,
-                                  nsim_mean = nsim_mean,
-                                  ncores = ncores)
+                    x = x,
+                    y = y,
+                    ps = ps,
+                    id = id,
+                    type = "median",
+                    p = p,
+                    index = index,
+                    nsim = nsim,
+                    level = level,
+                    interval = interval,
+                    probs = probs,
+                    store_draws = store_draws,
+                    nsim_mean = nsim_mean,
+                    ncores = ncores)
 
     fit_mean <- mean_pred$fit
     fit_median <- median_pred$fit
@@ -1303,6 +1315,7 @@ predict.mixgpd_fit <- function(object,
                   x = x,
                   y = y,
                   ps = ps,
+                  id = id,
                   type = type,
                   p = p,
                   index = index,
@@ -2696,7 +2709,7 @@ print.summary.causalmixgpd_ate <- function(x, digits = 3, ...) {
 #'   \code{"tau"} (default) facets by quantile level, \code{"id"} facets by prediction point.
 #' @param plotly Logical; if \code{TRUE}, convert the \code{ggplot2} output to a
 #'   \code{plotly} / \code{htmlwidget} representation via \code{.wrap_plotly()}. Defaults
-#'   to \code{getOption("CausalMixGPD.plotly", FALSE)}.
+#'   to \code{getOption("CausalMixGPD.plotly", TRUE)}.
 #' @param ... Additional arguments passed to ggplot2 functions.
 #' @return A list of ggplot objects with elements \code{trt_control} and \code{treatment_effect}
 #'   (if \code{type="both"}), or a single ggplot object (if \code{type} is \code{"effect"} or
@@ -2711,7 +2724,7 @@ print.summary.causalmixgpd_ate <- function(x, digits = 3, ...) {
 #' @export
 plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"),
                               facet_by = c("tau", "id"),
-                              plotly = getOption("CausalMixGPD.plotly", FALSE), ...) {
+                              plotly = getOption("CausalMixGPD.plotly", TRUE), ...) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("Package 'ggplot2' is required for plotting. Install it first.", call. = FALSE)
@@ -2898,7 +2911,7 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
 #' @param type Character; plot type: \code{"both"} (default), \code{"effect"}, or \code{"arms"}.
 #' @param plotly Logical; if \code{TRUE}, convert the \code{ggplot2} output to a
 #'   \code{plotly} / \code{htmlwidget} representation via \code{.wrap_plotly()}. Defaults
-#'   to \code{getOption("CausalMixGPD.plotly", FALSE)}.
+#'   to \code{getOption("CausalMixGPD.plotly", TRUE)}.
 #' @param ... Additional arguments passed to ggplot2 functions.
 #' @return A list of ggplot objects with elements \code{trt_control} and \code{treatment_effect}
 #'   (if \code{type="both"}), or a single ggplot object (if \code{type} is \code{"effect"} or
@@ -2912,7 +2925,7 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
 #' }
 #' @export
 plot.causalmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"),
-                              plotly = getOption("CausalMixGPD.plotly", FALSE), ...) {
+                              plotly = getOption("CausalMixGPD.plotly", TRUE), ...) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("Package 'ggplot2' is required for plotting. Install it first.", call. = FALSE)

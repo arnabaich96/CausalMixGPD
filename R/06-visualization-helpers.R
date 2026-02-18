@@ -22,6 +22,7 @@
     n_id <- length(unique(plot_data$id))
     pal <- .plot_palette(max(2L, n_id))
     p <- ggplot2::ggplot(plot_data, ggplot2::aes(x = factor(index), y = estimate)) +
+      ggplot2::geom_line(ggplot2::aes(group = id, color = factor(id)), linewidth = 0.7) +
       ggplot2::geom_point(ggplot2::aes(color = factor(id)), size = 3) +
       ggplot2::geom_errorbar(ggplot2::aes(ymin = lower, ymax = upper,
                                           group = id, color = factor(id)),

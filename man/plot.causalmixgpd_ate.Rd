@@ -8,7 +8,7 @@
   x,
   y = NULL,
   type = c("both", "effect", "arms"),
-  plotly = getOption("CausalMixGPD.plotly", FALSE),
+  plotly = getOption("CausalMixGPD.plotly", TRUE),
   ...
 )
 }
@@ -21,7 +21,7 @@
 
 \item{plotly}{Logical; if \code{TRUE}, convert the \code{ggplot2} output to a
 \code{plotly} / \code{htmlwidget} representation via \code{.wrap_plotly()}. Defaults
-to \code{getOption("CausalMixGPD.plotly", FALSE)}.}
+to \code{getOption("CausalMixGPD.plotly", TRUE)}.}
 
 \item{...}{Additional arguments passed to ggplot2 functions.}
 }

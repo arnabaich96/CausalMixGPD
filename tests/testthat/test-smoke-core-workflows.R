@@ -195,3 +195,72 @@ test_that("Smoke test: Kernel registry and distributions available", {
   expect_true(exists("dAmoroso", mode = "function"), info = "dAmoroso available")
   expect_true(exists("dGpd", mode = "function"), info = "dGpd available")
 })
+
+test_that("Smoke test: Spliced backend bundle creation", {
+  # Test that spliced backend bundles can be created for various mode combinations
+  
+  set.seed(456)
+  y <- abs(rnorm(25)) + 0.1
+  X <- matrix(rnorm(25 * 2), ncol = 2)
+  
+  # Test 1: Constant model (X=NULL) with fixed/dist modes
+  expect_no_error({
+    bundle_const <- build_nimble_bundle(
+      y = y,
+      backend = "spliced",
+      kernel = "gamma",
+      GPD = TRUE,
+      components = 3,
+      param_specs = list(
+        gpd = list(
+          threshold = list(mode = "fixed", value = 0.5),
+          tail_scale = list(mode = "dist", dist = "invgamma", args = list(shape = 2, scale = 1)),
+          tail_shape = list(mode = "fixed", value = 0.1)
+        )
+      )
+    )
+  })
+  expect_true(inherits(bundle_const, "causalmixgpd_bundle"))
+  expect_equal(bundle_const$spec$meta$backend, "spliced")
+  
+  # Test 2: Covariate model with link mode
+  expect_no_error({
+    bundle_link <- build_nimble_bundle(
+      y = y,
+      X = X,
+      backend = "spliced",
+      kernel = "normal",
+      GPD = TRUE,
+      components = 3,
+      param_specs = list(
+        gpd = list(
+          threshold = list(mode = "link", link = "exp"),
+          tail_scale = list(mode = "dist", dist = "invgamma", args = list(shape = 3, scale = 1)),
+          tail_shape = list(mode = "link", link = "identity")
+        )
+      )
+    )
+  })
+  expect_true(inherits(bundle_link, "causalmixgpd_bundle"))
+  expect_equal(bundle_link$spec$meta$backend, "spliced")
+  
+  # Test 3: Mixed modes
+  expect_no_error({
+    bundle_mixed <- build_nimble_bundle(
+      y = y,
+      X = X,
+      backend = "spliced",
+      kernel = "lognormal",
+      GPD = TRUE,
+      components = 2,
+      param_specs = list(
+        gpd = list(
+          threshold = list(mode = "link", link = "exp"),
+          tail_scale = list(mode = "fixed", value = 1.0),
+          tail_shape = list(mode = "dist", dist = "normal", args = list(mean = 0.2, sd = 0.1))
+        )
+      )
+    )
+  })
+  expect_true(inherits(bundle_mixed, "causalmixgpd_bundle"))
+})

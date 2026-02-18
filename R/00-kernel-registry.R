@@ -6,9 +6,16 @@
 #' They are intentionally loaded before the rest of the core code so downstream
 #' builders can reuse the same constants.
 #'
+#' Backend summary:
+#' - "sb": Stick-breaking (truncated Dirichlet process) with mixture evaluation
+#' - "crp": Chinese Restaurant Process with component-indexed parameters
+#' - "spliced": CRP variant enforcing component-level GPD parameterization with
+#'              flexible modes (fixed/dist/link) for threshold, tail_scale, tail_shape.
+#'              Uses CRP signatures but allows link mode for tail params.
+#'
 #' @keywords internal
 #' @noRd
-allowed_backends <- c("crp", "sb")
+allowed_backends <- c("crp", "sb", "spliced")
 allowed_kernels <- c("gamma", "lognormal", "invgauss", "normal", "laplace", "cauchy", "amoroso")
 positive_support_kernels <- c("gamma", "lognormal", "invgauss", "amoroso")
 real_support_kernels <- c("normal", "laplace", "cauchy")
@@ -237,9 +244,18 @@ init_kernel_registry <- function() {
       )
     }
 
+    # Spliced signatures (identical to CRP, since spliced is a CRP variant)
+    if (!is.null(ki$crp)) {
+      sigs$spliced <- sigs$crp
+    }
+
     kernel_registry[[k]]$signatures <- sigs
   }
 
+  # Tail registry: GPD parameter metadata
+  # indexed_by_cluster_in_crp=FALSE allows link mode for tail params in CRP/spliced
+  # backends without NIMBLE sampler conflicts (tail params handled separately from
+  # cluster-indexed bulk params that cause deterministic node issues with dCRP).
   tail_registry <- list(
     params = c("threshold", "tail_scale", "tail_shape"),
     support = c(threshold = "real", tail_scale = "positive_scale", tail_shape = "real"),

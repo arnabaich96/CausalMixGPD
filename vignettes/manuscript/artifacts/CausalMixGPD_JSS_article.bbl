@@ -1,0 +1,237 @@
+\begin{thebibliography}{32}
+\newcommand{\enquote}[1]{``#1''}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi:\discretionary{}{}{}#1}\else
+  \providecommand{\doi}{doi:\discretionary{}{}{}\begingroup
+  \urlstyle{rm}\Url}\fi
+\providecommand{\eprint}[2][]{\url{#2}}
+
+\bibitem[{BCE(2023)}]{BCEE_pkg}
+ (2023).
+\newblock \emph{{BCEE}: The Bayesian Causal Effect Estimation Algorithm}.
+\newblock \doi{10.32614/CRAN.package.BCEE}.
+\newblock R package on CRAN,
+  \urlprefix\url{https://cran.r-project.org/package=BCEE}.
+
+\bibitem[{dir(2023)}]{dirichletprocess_pkg}
+ (2023).
+\newblock \emph{{dirichletprocess}: Build Dirichlet Process Objects for
+  Bayesian Modelling}.
+\newblock \doi{10.32614/CRAN.package.dirichletprocess}.
+\newblock R package on CRAN,
+  \urlprefix\url{https://cran.r-project.org/package=dirichletprocess}.
+
+\bibitem[{bcf(2024)}]{bcf_pkg}
+ (2024).
+\newblock \emph{{bcf}: Causal Inference using Bayesian Causal Forests}.
+\newblock \doi{10.32614/CRAN.package.bcf}.
+\newblock R package on CRAN,
+  \urlprefix\url{https://cran.r-project.org/package=bcf}.
+
+\bibitem[{POT(2024)}]{POT_pkg}
+ (2024).
+\newblock \emph{{POT}: Generalized Pareto Distribution and Peaks Over
+  Threshold}.
+\newblock \doi{10.32614/CRAN.package.POT}.
+\newblock R package on CRAN,
+  \urlprefix\url{https://cran.r-project.org/package=POT}.
+
+\bibitem[{bar(2025)}]{bartCause_pkg}
+ (2025).
+\newblock \emph{{bartCause}: Causal Inference using Bayesian Additive
+  Regression Trees}.
+\newblock \doi{10.32614/CRAN.package.bartCause}.
+\newblock R package on CRAN,
+  \urlprefix\url{https://cran.r-project.org/package=bartCause}.
+
+\bibitem[{evd(2025)}]{evdbayes_pkg}
+ (2025).
+\newblock \emph{{evdbayes}: Bayesian Analysis in Extreme Value Theory}.
+\newblock \doi{10.32614/CRAN.package.evdbayes}.
+\newblock R package on CRAN,
+  \urlprefix\url{https://cran.r-project.org/package=evdbayes}.
+
+\bibitem[{ggm(2025)}]{ggmcmc_pkg}
+ (2025).
+\newblock \emph{{ggmcmc}: Analysis of MCMC Samples and Bayesian Inference}.
+\newblock \doi{10.32614/CRAN.package.ggmcmc}.
+\newblock R package on CRAN,
+  \urlprefix\url{https://cran.r-project.org/package=ggmcmc}.
+
+\bibitem[{nim(2025)}]{nimble_pkg}
+ (2025).
+\newblock \emph{{nimble}: MCMC, Particle Filtering, and Programmable
+  Hierarchical Modeling}.
+\newblock \doi{10.32614/CRAN.package.nimble}.
+\newblock R package on CRAN,
+  \urlprefix\url{https://cran.r-project.org/package=nimble}.
+
+\bibitem[{Balkema and de~Haan(1974)}]{BalkemaDeHaan1974}
+Balkema AA, de~Haan L (1974).
+\newblock \enquote{Residual Life Time at Great Age.}
+\newblock \emph{The Annals of Probability}, \textbf{2}(5), 792--804.
+\newblock \doi{10.1214/aop/1176996548}.
+
+\bibitem[{Behrens \emph{et~al.}(2004)Behrens, Lopes, and
+  Gamerman}]{Behrens2004}
+Behrens CN, Lopes HF, Gamerman D (2004).
+\newblock \enquote{Bayesian Analysis of Extreme Events with Threshold
+  Estimation.}
+\newblock \emph{Statistical Modelling}, \textbf{4}(3), 227--244.
+\newblock \doi{10.1191/1471082X04st075oa}.
+
+\bibitem[{Blackwell and MacQueen(1973)}]{BlackwellMacQueen1973}
+Blackwell D, MacQueen JB (1973).
+\newblock \enquote{Ferguson Distributions Via {P}\'olya Urn Schemes.}
+\newblock \emph{The Annals of Statistics}, \textbf{1}(2), 353--355.
+\newblock \doi{10.1214/aos/1176342372}.
+
+\bibitem[{Coles(2001)}]{Coles2001}
+Coles S (2001).
+\newblock \emph{An Introduction to Statistical Modeling of Extreme Values}.
+\newblock Springer, London.
+\newblock \doi{10.1007/978-1-4471-3675-0}.
+
+\bibitem[{Corradin \emph{et~al.}(2021)Corradin, Canale, and
+  Nipoti}]{canale2021BNPmix}
+Corradin R, Canale A, Nipoti B (2021).
+\newblock \enquote{{BNPmix}: An {R} Package for Bayesian Nonparametric Modeling
+  via Pitman--Yor Mixtures.}
+\newblock \emph{Journal of Statistical Software}, \textbf{100}(15), 1--47.
+\newblock \doi{10.18637/jss.v100.i15}.
+
+\bibitem[{de~Valpine \emph{et~al.}(2017)de~Valpine, Turek, Paciorek,
+  Anderson-Bergman, Temple~Lang, and Bodik}]{devalpine2017nimble}
+de~Valpine P, Turek D, Paciorek CJ, Anderson-Bergman C, Temple~Lang D, Bodik R
+  (2017).
+\newblock \enquote{Programming with Models: Writing Statistical Algorithms for
+  General Model Structures with {NIMBLE}.}
+\newblock \emph{Journal of Statistical Software}, \textbf{76}(10), 1--27.
+\newblock \doi{10.18637/jss.v076.i10}.
+
+\bibitem[{Durrieu \emph{et~al.}(2018)Durrieu, Grama, Jaunatre, Pham, and
+  Tricot}]{durrieu2018extremefit}
+Durrieu G, Grama I, Jaunatre K, Pham QK, Tricot JM (2018).
+\newblock \enquote{extremefit: A Package for Extreme Quantiles.}
+\newblock \emph{Journal of Statistical Software}, \textbf{87}(12), 1--20.
+\newblock \doi{10.18637/jss.v087.i12}.
+
+\bibitem[{Escobar and West(1995)}]{EscobarWest1995}
+Escobar MD, West M (1995).
+\newblock \enquote{Bayesian Density Estimation and Inference Using Mixtures.}
+\newblock \emph{Journal of the American Statistical Association},
+  \textbf{90}(430), 577--588.
+\newblock \doi{10.1080/01621459.1995.10476550}.
+
+\bibitem[{Ferguson(1973)}]{Ferguson1973}
+Ferguson TS (1973).
+\newblock \enquote{A {B}ayesian Analysis of Some Nonparametric Problems.}
+\newblock \emph{The Annals of Statistics}, \textbf{1}(2), 209--230.
+\newblock \doi{10.1214/aos/1176342360}.
+
+\bibitem[{Firpo(2007)}]{Firpo2007}
+Firpo S (2007).
+\newblock \enquote{Efficient Semiparametric Estimation of Quantile Treatment
+  Effects.}
+\newblock \emph{Econometrica}, \textbf{75}(1), 259--276.
+\newblock \doi{10.1111/j.1468-0262.2007.00738.x}.
+
+\bibitem[{Frigessi \emph{et~al.}(2002)Frigessi, Haug, and Rue}]{Frigessi2002}
+Frigessi A, Haug O, Rue H (2002).
+\newblock \enquote{A Dynamic Mixture Model for Unsupervised Tail Estimation
+  without Threshold Selection.}
+\newblock \emph{Extremes}, \textbf{5}(3), 219--235.
+\newblock \doi{10.1023/A:1024072610684}.
+
+\bibitem[{Gelman \emph{et~al.}(2013)Gelman, Carlin, Stern, Dunson, Vehtari, and
+  Rubin}]{Gelman2013BDA}
+Gelman A, Carlin JB, Stern HS, Dunson DB, Vehtari A, Rubin DB (2013).
+\newblock \emph{Bayesian Data Analysis}.
+\newblock 3 edition. Chapman and Hall/CRC, Boca Raton, FL.
+\newblock \doi{10.1201/b16018}.
+
+\bibitem[{Hill(2011)}]{hill2011bart}
+Hill JL (2011).
+\newblock \enquote{Bayesian Nonparametric Modeling for Causal Inference.}
+\newblock \emph{Journal of Computational and Graphical Statistics},
+  \textbf{20}(1), 217--240.
+\newblock \doi{10.1198/jcgs.2010.08162}.
+
+\bibitem[{Imbens and Rubin(2015)}]{ImbensRubin2015}
+Imbens GW, Rubin DB (2015).
+\newblock \emph{Causal Inference for Statistics, Social, and Biomedical
+  Sciences: An Introduction}.
+\newblock Cambridge University Press, Cambridge.
+
+\bibitem[{Jara \emph{et~al.}(2011)Jara, Hanson, Quintana, M{\"u}ller, and
+  Rosner}]{jara2011DPpackage}
+Jara A, Hanson T, Quintana F, M{\"u}ller P, Rosner G (2011).
+\newblock \enquote{DPpackage: Bayesian Semi- and Nonparametric Modeling in
+  {R}.}
+\newblock \emph{Journal of Statistical Software}, \textbf{40}(5), 1--30.
+\newblock \doi{10.18637/jss.v040.i05}.
+
+\bibitem[{Lo(1984)}]{Lo1984}
+Lo AY (1984).
+\newblock \enquote{On a Class of {B}ayesian Nonparametric Estimates: {I}.
+  Density Estimates.}
+\newblock \emph{The Annals of Statistics}, \textbf{12}(1), 351--357.
+\newblock \doi{10.1214/aos/1176346412}.
+
+\bibitem[{Neal(2000)}]{Neal2000}
+Neal RM (2000).
+\newblock \enquote{Markov Chain Sampling Methods for {D}irichlet Process
+  Mixture Models.}
+\newblock \emph{Journal of Computational and Graphical Statistics},
+  \textbf{9}(2), 249--265.
+\newblock \doi{10.1080/10618600.2000.10474879}.
+
+\bibitem[{Neyman(1990)}]{Neyman1923}
+Neyman J (1990).
+\newblock \enquote{On the Application of Probability Theory to Agricultural
+  Experiments. {E}ssay on Principles. {S}ection 9.}
+\newblock \emph{Statistical Science}, \textbf{5}(4), 465--480.
+
+\bibitem[{Pickands(1975)}]{Pickands1975}
+Pickands J (1975).
+\newblock \enquote{Statistical Inference Using Extreme Order Statistics.}
+\newblock \emph{The Annals of Statistics}, \textbf{3}(1), 119--131.
+\newblock \doi{10.1214/aos/1176343003}.
+
+\bibitem[{Plummer \emph{et~al.}(2024)Plummer, Best, Cowles, and
+  Vines}]{coda_pkg}
+Plummer M, Best N, Cowles K, Vines K (2024).
+\newblock \emph{{coda}: Output Analysis and Diagnostics for MCMC}.
+\newblock R package version 0.19-4.1,
+  \urlprefix\url{https://cran.r-project.org/package=coda}.
+
+\bibitem[{Rosenbaum and Rubin(1983)}]{RosenbaumRubin1983}
+Rosenbaum PR, Rubin DB (1983).
+\newblock \enquote{The Central Role of the Propensity Score in Observational
+  Studies for Causal Effects.}
+\newblock \emph{Biometrika}, \textbf{70}(1), 41--55.
+\newblock \doi{10.1093/biomet/70.1.41}.
+
+\bibitem[{Rubin(1974)}]{Rubin1974}
+Rubin DB (1974).
+\newblock \enquote{Estimating Causal Effects of Treatments in Randomized and
+  Nonrandomized Studies.}
+\newblock \emph{Journal of Educational Psychology}, \textbf{66}(5), 688--701.
+\newblock \doi{10.1037/h0037350}.
+
+\bibitem[{Sethuraman(1994)}]{Sethuraman1994}
+Sethuraman J (1994).
+\newblock \enquote{A Constructive Definition of {D}irichlet Priors.}
+\newblock \emph{Statistica Sinica}, \textbf{4}(2), 639--650.
+
+\bibitem[{Talbot \emph{et~al.}(2015)Talbot, Lefebvre, Atherton, and
+  Chiu}]{talbot2015bcee}
+Talbot D, Lefebvre G, Atherton J, Chiu Y (2015).
+\newblock \enquote{The Bayesian Causal Effect Estimation Algorithm.}
+\newblock \emph{Journal of Causal Inference}, \textbf{3}(2), 207--236.
+\newblock \doi{10.1515/jci-2014-0035}.
+
+\end{thebibliography}

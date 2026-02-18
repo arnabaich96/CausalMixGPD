@@ -46,7 +46,7 @@
 compile_model_spec <- function(
     y,
     X = NULL,
-    backend = c("sb", "crp"),
+    backend = c("sb", "crp", "spliced"),
     kernel,
     GPD = FALSE,
     components,
@@ -137,12 +137,14 @@ compile_model_spec <- function(
     }
   }
 
-  default_beta_prior <- function(kind = c("bulk", "threshold", "tail_scale")) {
+  default_beta_prior <- function(kind = c("bulk", "threshold", "tail_scale", "tail_shape")) {
     kind <- match.arg(kind)
     if (kind == "threshold") {
       list(dist = "normal", args = list(mean = 0, sd = 0.2))
     } else if (kind == "tail_scale") {
       list(dist = "normal", args = list(mean = 0, sd = 0.5))
+    } else if (kind == "tail_shape") {
+      list(dist = "normal", args = list(mean = 0, sd = 0.3))
     } else {
       list(dist = "normal", args = list(mean = 0, sd = 2))
     }
@@ -330,14 +332,39 @@ compile_model_spec <- function(
     tsh_u <- user_gpd$tail_shape
     if (!is.null(tsh_u)) {
       mode <- tsh_u$mode %||% NA_character_
-      if (!mode %in% c("fixed", "dist")) stop("gpd$tail_shape mode must be fixed/dist.", call. = FALSE)
-      if (mode == "fixed") {
+      if (!mode %in% c("fixed", "dist", "link")) stop("gpd$tail_shape mode must be fixed/dist/link.", call. = FALSE)
+      if (mode == "link" && !has_X) stop("gpd$tail_shape link mode requires X.", call. = FALSE)
+      if (mode == "link") {
+        gpd_plan$tail_shape <- list(
+          mode = "link",
+          link = tsh_u$link %||% "identity",
+          link_power = tsh_u$link_power %||% NULL,
+          beta_prior = tsh_u$beta_prior %||% default_beta_prior("tail_shape")
+        )
+      } else if (mode == "fixed") {
         gpd_plan$tail_shape <- list(mode = "fixed", value = tsh_u$value)
       } else {
         gpd_plan$tail_shape <- list(mode = "dist", dist = tsh_u$dist, args = tsh_u$args)
       }
     } else {
-      gpd_plan$tail_shape <- list(mode = "dist", dist = "normal", args = list(mean = 0, sd = 0.2))
+      if (has_X && backend == "spliced") {
+        gpd_plan$tail_shape <- list(mode = "link", link = "identity", beta_prior = default_beta_prior("tail_shape"))
+      } else {
+        gpd_plan$tail_shape <- list(mode = "dist", dist = "normal", args = list(mean = 0, sd = 0.2))
+      }
+    }
+
+    # ---- Spliced backend validation ----
+    # Spliced backend enforces component-level GPD parameterization with flexible modes
+    if (backend == "spliced") {
+      # Ensure all GPD params support component-level specification (automatically satisfied by structure)
+      # Link mode requires X - already validated above for each parameter
+      # Store level metadata for consistency
+      for (param_name in c("threshold", "tail_scale", "tail_shape")) {
+        if (!is.null(gpd_plan[[param_name]])) {
+          gpd_plan[[param_name]]$level <- "component"
+        }
+      }
     }
   }
 

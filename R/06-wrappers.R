@@ -1,4 +1,4 @@
-# Lightweight user-facing wrappers
+﻿# Lightweight user-facing wrappers
 
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 
@@ -55,6 +55,17 @@
     X <- stats::model.matrix(trm, data = mf)
     if (isTRUE(drop_intercept) && "(Intercept)" %in% colnames(X)) {
       X <- X[, colnames(X) != "(Intercept)", drop = FALSE]
+    }
+    if (ncol(X)) {
+      term_labels <- attr(trm, "term.labels") %||% character(0)
+      if (length(term_labels)) {
+        id_idx <- which(tolower(term_labels) == "id")
+        assign_idx <- attr(X, "assign") %||% integer(0)
+        if (length(id_idx) && length(assign_idx)) {
+          keep <- !(assign_idx %in% id_idx)
+          X <- X[, keep, drop = FALSE]
+        }
+      }
     }
     if (!ncol(X)) {
       X <- NULL
@@ -254,6 +265,11 @@ bundle <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL
     if (treat_supplied) t_vec <- .coerce_treat(treat)
   }
 
+  if (is.data.frame(x_mat) && any(tolower(names(x_mat)) == "id")) {
+    keep <- tolower(names(x_mat)) != "id"
+    x_mat <- x_mat[, keep, drop = FALSE]
+  }
+
   if (!is.null(x_mat) && !is.matrix(x_mat)) x_mat <- as.matrix(x_mat)
   if (length(y) < 1L) stop("'y' must be a non-empty numeric vector.", call. = FALSE)
   if (!is.null(x_mat) && nrow(x_mat) != length(y)) stop("nrow(X) must match length(y).", call. = FALSE)
@@ -361,3 +377,4 @@ dpmgpd <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL
   b <- do.call(bundle, bundle_args)
   .run_bundle_mcmc(b, mcmc_args = mcmc)
 }
+

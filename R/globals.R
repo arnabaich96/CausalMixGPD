@@ -68,5 +68,9 @@ utils::globalVariables(c(
 #' @keywords internal
 .onLoad <- function(libname, pkgname) {
   init_kernel_registry()
+  if (is.null(getOption("CausalMixGPD.plotly"))) {
+    options(CausalMixGPD.plotly = TRUE)
+  }
+  .wrap_exported_silent(pkgname, opt_name = "CausalMixGPD.silent")
   invisible()
 }

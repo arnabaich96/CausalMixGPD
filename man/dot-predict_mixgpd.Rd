@@ -9,6 +9,7 @@
   x = NULL,
   y = NULL,
   ps = NULL,
+  id = NULL,
   type = c("density", "survival", "quantile", "sample", "mean", "rmean", "median", "fit"),
   p = NULL,
   index = NULL,

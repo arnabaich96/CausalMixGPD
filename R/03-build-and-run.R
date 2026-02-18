@@ -65,7 +65,7 @@ build_nimble_bundle <- function(
 ) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
-  backend <- match.arg(backend, choices = c("sb", "crp"))
+  backend <- match.arg(backend, choices = allowed_backends)
 
   y <- as.numeric(y)
   if (!length(y)) stop("y must be a non-empty numeric vector.", call. = FALSE)
@@ -279,7 +279,7 @@ build_monitors_from_spec <- function(spec, monitor_v = FALSE) {
     if (isTRUE(monitor_v)) {
       mons <- c(mons, sprintf("v[1:%d]", K - 1L))
     }
-  } else if (identical(backend, "crp")) {
+  } else if (backend %in% c("crp", "spliced")) {
     mons <- c(mons, sprintf("z[1:%d]", N))
   } else {
     stop("Unknown backend in spec$meta$backend.", call. = FALSE)
@@ -307,42 +307,98 @@ build_monitors_from_spec <- function(spec, monitor_v = FALSE) {
   # GPD
   if (isTRUE(meta$GPD)) {
     gpd <- plan$gpd %||% list()
+    is_spliced <- identical(backend, "spliced")
 
-    if (!is.null(gpd$threshold)) {
-      thr_mode <- gpd$threshold$mode %||% NA_character_
-      if (identical(thr_mode, "link")) {
-        if (P < 1L) stop("GPD threshold is link-mode but P=0.", call. = FALSE)
-        mons <- c(mons, sprintf("threshold[1:%d]", N))
-        mons <- c(mons, sprintf("beta_threshold[1:%d]", P))
-
-        # LN around-link default: monitor sdlog_u if present in plan
-        if (!is.null(gpd$threshold$link_dist) &&
-            identical(gpd$threshold$link_dist$dist, "lognormal")) {
-          mons <- c(mons, "sdlog_u")
+    if (is_spliced) {
+      # ======== SPLICED BACKEND: Component-level GPD parameterization ========
+      
+      # threshold
+      if (!is.null(gpd$threshold)) {
+        thr_mode <- gpd$threshold$mode %||% NA_character_
+        if (identical(thr_mode, "link")) {
+          if (P < 1L) stop("GPD threshold is link-mode but P=0.", call. = FALSE)
+          mons <- c(mons, sprintf("beta_threshold[1:%d,1:%d]", K, P))
+          # Do NOT monitor threshold_i[i] (deterministic, reconstructed in prediction)
+        } else if (thr_mode %in% c("fixed", "dist")) {
+          mons <- c(mons, sprintf("threshold[1:%d]", K))
+        } else {
+          stop("Invalid gpd$threshold mode.", call. = FALSE)
         }
-      } else if (thr_mode %in% c("fixed", "dist")) {
-        mons <- c(mons, "threshold")
-      } else {
-        stop("Invalid gpd$threshold mode.", call. = FALSE)
       }
-    }
 
-    # tail_scale
-    if (!is.null(gpd$tail_scale)) {
-      ts_mode <- gpd$tail_scale$mode %||% NA_character_
-      if (identical(ts_mode, "link")) {
-        if (P < 1L) stop("GPD tail_scale is link-mode but P=0.", call. = FALSE)
-        mons <- c(mons, sprintf("beta_tail_scale[1:%d]", P))
-      } else if (ts_mode %in% c("fixed", "dist")) {
-        mons <- c(mons, "tail_scale")
-      } else {
-        stop("Invalid gpd$tail_scale mode.", call. = FALSE)
+      # tail_scale
+      if (!is.null(gpd$tail_scale)) {
+        ts_mode <- gpd$tail_scale$mode %||% NA_character_
+        if (identical(ts_mode, "link")) {
+          if (P < 1L) stop("GPD tail_scale is link-mode but P=0.", call. = FALSE)
+          mons <- c(mons, sprintf("beta_tail_scale[1:%d,1:%d]", K, P))
+        } else if (ts_mode %in% c("fixed", "dist")) {
+          mons <- c(mons, sprintf("tail_scale[1:%d]", K))
+        } else {
+          stop("Invalid gpd$tail_scale mode.", call. = FALSE)
+        }
       }
-    }
 
-    # tail_shape: scalar (fixed or dist). Monitor for inference.
-    if (!is.null(gpd$tail_shape)) {
-      mons <- c(mons, "tail_shape")
+      # tail_shape
+      if (!is.null(gpd$tail_shape)) {
+        tsh_mode <- gpd$tail_shape$mode %||% NA_character_
+        if (identical(tsh_mode, "link")) {
+          if (P < 1L) stop("GPD tail_shape is link-mode but P=0.", call. = FALSE)
+          mons <- c(mons, sprintf("beta_tail_shape[1:%d,1:%d]", K, P))
+        } else if (tsh_mode %in% c("fixed", "dist")) {
+          mons <- c(mons, sprintf("tail_shape[1:%d]", K))
+        } else {
+          stop("Invalid gpd$tail_shape mode.", call. = FALSE)
+        }
+      }
+
+    } else {
+      # ======== STANDARD CRP/SB BACKEND: Original behavior ========
+      
+      # threshold
+      if (!is.null(gpd$threshold)) {
+        thr_mode <- gpd$threshold$mode %||% NA_character_
+        if (identical(thr_mode, "link")) {
+          if (P < 1L) stop("GPD threshold is link-mode but P=0.", call. = FALSE)
+          mons <- c(mons, sprintf("threshold[1:%d]", N))
+          mons <- c(mons, sprintf("beta_threshold[1:%d]", P))
+
+          # LN around-link default: monitor sdlog_u if present in plan
+          if (!is.null(gpd$threshold$link_dist) &&
+              identical(gpd$threshold$link_dist$dist, "lognormal")) {
+            mons <- c(mons, "sdlog_u")
+          }
+        } else if (thr_mode %in% c("fixed", "dist")) {
+          mons <- c(mons, "threshold")
+        } else {
+          stop("Invalid gpd$threshold mode.", call. = FALSE)
+        }
+      }
+
+      # tail_scale
+      if (!is.null(gpd$tail_scale)) {
+        ts_mode <- gpd$tail_scale$mode %||% NA_character_
+        if (identical(ts_mode, "link")) {
+          if (P < 1L) stop("GPD tail_scale is link-mode but P=0.", call. = FALSE)
+          mons <- c(mons, sprintf("beta_tail_scale[1:%d]", P))
+        } else if (ts_mode %in% c("fixed", "dist")) {
+          mons <- c(mons, "tail_scale")
+        } else {
+          stop("Invalid gpd$tail_scale mode.", call. = FALSE)
+        }
+      }
+
+      # tail_shape
+      if (!is.null(gpd$tail_shape)) {
+        tsh_mode <- gpd$tail_shape$mode %||% NA_character_
+        if (identical(tsh_mode, "link")) {
+          if (P < 1L) stop("GPD tail_shape is link-mode but P=0.", call. = FALSE)
+          mons <- c(mons, sprintf("beta_tail_shape[1:%d]", P))
+        } else {
+          # fixed or dist: monitor scalar
+          mons <- c(mons, "tail_shape")
+        }
+      }
     }
   }
 
@@ -419,7 +475,7 @@ build_inits_from_spec <- function(spec, seed = NULL, y = NULL) {
     # w is deterministic from stick_breaking(v); do not init w
     K_init <- max(2L, min(K, 5L))
     inits$z <- sample.int(K_init, size = N, replace = TRUE)
-  } else if (identical(backend, "crp")) {
+  } else if (backend %in% c("crp", "spliced")) {
     # z[1:N] ~ dCRP(...); init in 1:K, avoid all unique labels for stability
     K_init <- max(2L, min(K, 5L))
     inits$z <- sample.int(K_init, size = N, replace = TRUE)
@@ -473,26 +529,17 @@ build_inits_from_spec <- function(spec, seed = NULL, y = NULL) {
   # ---- GPD parameters ----
   if (isTRUE(meta$GPD)) {
     gpd <- plan$gpd %||% list()
+    is_spliced <- identical(backend, "spliced")
 
-    # tail_shape (stochastic only)
-    if (!is.null(gpd$tail_shape) && identical(gpd$tail_shape$mode, "dist")) {
-      inits$tail_shape <- 0
-    }
+    if (is_spliced) {
+      # ======== SPLICED BACKEND: Component-level GPD parameterization ========
 
-    # threshold
-    if (!is.null(gpd$threshold)) {
-      thr_mode <- gpd$threshold$mode %||% NA_character_
+      # threshold
+      if (!is.null(gpd$threshold)) {
+        thr_mode <- gpd$threshold$mode %||% NA_character_
 
-      if (thr_mode %in% c("fixed", "dist")) {
-        inits$threshold <- 1
-      } else if (identical(thr_mode, "link")) {
-        if (P < 1L) stop("GPD threshold is link-mode but P=0.", call. = FALSE)
-        inits$beta_threshold <- rep(0, P)
-
-        # if LN around-link: threshold[i] is stochastic lognormal and sdlog_u exists
-        if (!is.null(gpd$threshold$link_dist) &&
-            identical(gpd$threshold$link_dist$dist, "lognormal")) {
-          # positive threshold init; 0.8-quantile is usually safe and data-informed
+        if (identical(thr_mode, "dist")) {
+          # Stochastic component-level vector
           q <- if (length(y_obs)) {
             suppressWarnings(stats::quantile(y_obs, probs = 0.8, na.rm = TRUE, names = FALSE))
           } else {
@@ -500,33 +547,119 @@ build_inits_from_spec <- function(spec, seed = NULL, y = NULL) {
           }
           if (!is.finite(q) || length(q) != 1L) q <- 1
           q <- max(as.numeric(q), .Machine$double.eps)
-          inits$threshold <- rep(q, N)
-          inits$sdlog_u <- 0.2
+          inits$threshold <- rep(q, K)
+        } else if (identical(thr_mode, "link")) {
+          # Component-specific beta coefficients
+          if (P < 1L) stop("GPD threshold is link-mode but P=0.", call. = FALSE)
+          inits$beta_threshold <- matrix(0, nrow = K, ncol = P)
+          # threshold_i[i] is deterministic; do not init
+        } else if (identical(thr_mode, "fixed")) {
+          # Deterministic; no init
         } else {
-          # link-mode without link_dist: treat threshold deterministic from link later;
-          # but our code currently represents threshold[i] as stochastic only in LN default.
-          # Still initialize threshold to be safe if node exists.
-          inits$threshold <- rep(1, N)
+          stop("Invalid gpd$threshold mode.", call. = FALSE)
         }
-      } else {
-        stop("Invalid gpd$threshold mode.", call. = FALSE)
       }
-    }
 
-    # tail_scale
-    if (!is.null(gpd$tail_scale)) {
-      ts_mode <- gpd$tail_scale$mode %||% NA_character_
-      if (identical(ts_mode, "link")) {
-        if (P < 1L) stop("GPD tail_scale is link-mode but P=0.", call. = FALSE)
-        inits$beta_tail_scale <- rep(0, P)
-        # tail_scale[i] deterministic from beta_tail_scale; do not init tail_scale
-      } else if (identical(ts_mode, "dist")) {
-        # scalar stochastic tail_scale; init positive if node exists in code
-        inits$tail_scale <- 1
-      } else if (identical(ts_mode, "fixed")) {
-        # deterministic; no init
-      } else {
-        stop("Invalid gpd$tail_scale mode.", call. = FALSE)
+      # tail_scale
+      if (!is.null(gpd$tail_scale)) {
+        ts_mode <- gpd$tail_scale$mode %||% NA_character_
+
+        if (identical(ts_mode, "dist")) {
+          # Stochastic component-level vector
+          inits$tail_scale <- rep(1, K)
+        } else if (identical(ts_mode, "link")) {
+          # Component-specific beta coefficients
+          if (P < 1L) stop("GPD tail_scale is link-mode but P=0.", call. = FALSE)
+          inits$beta_tail_scale <- matrix(0, nrow = K, ncol = P)
+          # tail_scale_i[i] is deterministic; do not init
+        } else if (identical(ts_mode, "fixed")) {
+          # Deterministic; no init
+        } else {
+          stop("Invalid gpd$tail_scale mode.", call. = FALSE)
+        }
+      }
+
+      # tail_shape
+      if (!is.null(gpd$tail_shape)) {
+        tsh_mode <- gpd$tail_shape$mode %||% NA_character_
+
+        if (identical(tsh_mode, "dist")) {
+          # Stochastic component-level vector
+          inits$tail_shape <- rep(0, K)
+        } else if (identical(tsh_mode, "link")) {
+          # Component-specific beta coefficients
+          if (P < 1L) stop("GPD tail_shape is link-mode but P=0.", call. = FALSE)
+          inits$beta_tail_shape <- matrix(0, nrow = K, ncol = P)
+          # tail_shape_i[i] is deterministic; do not init
+        } else if (identical(tsh_mode, "fixed")) {
+          # Deterministic; no init
+        } else {
+          stop("Invalid gpd$tail_shape mode.", call. = FALSE)
+        }
+      }
+
+    } else {
+      # ======== STANDARD CRP/SB BACKEND: Original behavior ========
+
+      # tail_shape (stochastic only)
+      if (!is.null(gpd$tail_shape) && identical(gpd$tail_shape$mode, "dist")) {
+        inits$tail_shape <- 0
+      } else if (!is.null(gpd$tail_shape) && identical(gpd$tail_shape$mode, "link")) {
+        # Standard CRP with link mode for tail_shape (newly supported)
+        if (P < 1L) stop("GPD tail_shape is link-mode but P=0.", call. = FALSE)
+        inits$beta_tail_shape <- rep(0, P)
+        # tail_shape[i] deterministic; do not init
+      }
+
+      # threshold
+      if (!is.null(gpd$threshold)) {
+        thr_mode <- gpd$threshold$mode %||% NA_character_
+
+        if (thr_mode %in% c("fixed", "dist")) {
+          inits$threshold <- 1
+        } else if (identical(thr_mode, "link")) {
+          if (P < 1L) stop("GPD threshold is link-mode but P=0.", call. = FALSE)
+          inits$beta_threshold <- rep(0, P)
+
+          # if LN around-link: threshold[i] is stochastic lognormal and sdlog_u exists
+          if (!is.null(gpd$threshold$link_dist) &&
+              identical(gpd$threshold$link_dist$dist, "lognormal")) {
+            # positive threshold init; 0.8-quantile is usually safe and data-informed
+            q <- if (length(y_obs)) {
+              suppressWarnings(stats::quantile(y_obs, probs = 0.8, na.rm = TRUE, names = FALSE))
+            } else {
+              NA_real_
+            }
+            if (!is.finite(q) || length(q) != 1L) q <- 1
+            q <- max(as.numeric(q), .Machine$double.eps)
+            inits$threshold <- rep(q, N)
+            inits$sdlog_u <- 0.2
+          } else {
+            # link-mode without link_dist: treat threshold deterministic from link later;
+            # but our code currently represents threshold[i] as stochastic only in LN default.
+            # Still initialize threshold to be safe if node exists.
+            inits$threshold <- rep(1, N)
+          }
+        } else {
+          stop("Invalid gpd$threshold mode.", call. = FALSE)
+        }
+      }
+
+      # tail_scale
+      if (!is.null(gpd$tail_scale)) {
+        ts_mode <- gpd$tail_scale$mode %||% NA_character_
+        if (identical(ts_mode, "link")) {
+          if (P < 1L) stop("GPD tail_scale is link-mode but P=0.", call. = FALSE)
+          inits$beta_tail_scale <- rep(0, P)
+          # tail_scale[i] deterministic from beta_tail_scale; do not init tail_scale
+        } else if (identical(ts_mode, "dist")) {
+          # scalar stochastic tail_scale; init positive if node exists in code
+          inits$tail_scale <- 1
+        } else if (identical(ts_mode, "fixed")) {
+          # deterministic; no init
+        } else {
+          stop("Invalid gpd$tail_scale mode.", call. = FALSE)
+        }
       }
     }
   }
@@ -682,6 +815,9 @@ build_constants_from_spec <- function(spec) {
       tsh_mode <- tsh$mode %||% NA_character_
       if (identical(tsh_mode, "dist")) {
         add_prior_constants("gpd_tail_shape", tsh$dist, tsh$args)
+      } else if (identical(tsh_mode, "link")) {
+        bp <- tsh$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.3))
+        add_prior_constants("beta_tail_shape", bp$dist %||% "normal", bp$args %||% list(mean = 0, sd = 0.3))
       } else if (identical(tsh_mode, "fixed")) {
         # no hypers
       } else {
@@ -729,8 +865,8 @@ build_dimensions_from_spec <- function(spec) {
     dims$v <- c(K - 1L)
     dims$w <- c(K)
     dims$z <- c(N)
-  } else if (identical(backend, "crp")) {
-    # CRP memberships z[1:N]
+  } else if (backend %in% c("crp", "spliced")) {
+    # CRP/spliced memberships z[1:N]
     dims$z <- c(N)
   } else {
     stop("Unknown backend in spec$meta$backend.", call. = FALSE)
@@ -764,56 +900,121 @@ build_dimensions_from_spec <- function(spec) {
   # --- GPD dims (if enabled) ---
   if (isTRUE(meta$GPD)) {
     gpd_plan <- plan$gpd %||% list()
+    is_spliced <- identical(backend, "spliced")
 
-    # threshold
-    thr <- gpd_plan$threshold %||% NULL
-    if (!is.null(thr)) {
-      thr_mode <- thr$mode %||% NA_character_
+    if (is_spliced) {
+      # ======== SPLICED BACKEND: Component-level GPD parameterization ========
+      
+      # threshold
+      thr <- gpd_plan$threshold %||% NULL
+      if (!is.null(thr)) {
+        thr_mode <- thr$mode %||% NA_character_
 
-      if (thr_mode %in% c("fixed", "dist")) {
-        # scalar threshold
-      } else if (identical(thr_mode, "link")) {
-        # threshold[i] stochastic LN around X beta
-        dims$threshold <- c(N)
-        if (P < 1L) stop("GPD threshold is link-mode but P=0.", call. = FALSE)
-        if (P > 1L) dims$beta_threshold <- c(P)
-
-        # if link_dist exists and uses sdlog_u, include its scalar node (no dims entry)
-        # but if user chooses to model sdlog_u as a vector later, this would change.
-        # For now: sdlog_u is scalar -> omitted from dims.
-      } else {
-        stop("Invalid gpd$threshold mode in plan.", call. = FALSE)
+        if (thr_mode %in% c("fixed", "dist")) {
+          dims$threshold <- c(K)  # component-level vector
+        } else if (identical(thr_mode, "link")) {
+          if (P < 1L) stop("GPD threshold is link-mode but P=0.", call. = FALSE)
+          dims$beta_threshold <- c(K, P)      # component-specific coefficients
+          dims$eta_threshold <- c(N)          # linear predictor (optional, but harmless)
+          dims$threshold_i <- c(N)            # transformed parameter
+        } else {
+          stop("Invalid gpd$threshold mode in plan.", call. = FALSE)
+        }
       }
-    }
 
-    # tail_scale
-    ts <- gpd_plan$tail_scale %||% NULL
-    if (!is.null(ts)) {
-      ts_mode <- ts$mode %||% NA_character_
+      # tail_scale
+      ts <- gpd_plan$tail_scale %||% NULL
+      if (!is.null(ts)) {
+        ts_mode <- ts$mode %||% NA_character_
 
-      if (ts_mode %in% c("fixed", "dist")) {
-        # scalar tail_scale when not linked (most common non-X default)
-        # (no dims entry for scalar)
-      } else if (identical(ts_mode, "link")) {
-        # tail_scale[i] is deterministic from X beta
-        if (P < 1L) stop("GPD tail_scale is link-mode but P=0.", call. = FALSE)
-        if (P > 1L) dims$beta_tail_scale <- c(P)
-        # tail_scale[i] deterministic -> not dimension-declared
-      } else {
-        stop("Invalid gpd$tail_scale mode in plan.", call. = FALSE)
+        if (ts_mode %in% c("fixed", "dist")) {
+          dims$tail_scale <- c(K)  # component-level vector
+        } else if (identical(ts_mode, "link")) {
+          if (P < 1L) stop("GPD tail_scale is link-mode but P=0.", call. = FALSE)
+          dims$beta_tail_scale <- c(K, P)
+          dims$eta_tail_scale <- c(N)
+          dims$tail_scale_i <- c(N)
+        } else {
+          stop("Invalid gpd$tail_scale mode in plan.", call. = FALSE)
+        }
       }
-    }
 
-    # tail_shape
-    tsh <- gpd_plan$tail_shape %||% NULL
-    if (!is.null(tsh)) {
-      tsh_mode <- tsh$mode %||% NA_character_
-      if (!tsh_mode %in% c("fixed", "dist")) stop("Invalid gpd$tail_shape mode in plan.", call. = FALSE)
-      # tail_shape scalar -> no dims entry
-    }
+      # tail_shape
+      tsh <- gpd_plan$tail_shape %||% NULL
+      if (!is.null(tsh)) {
+        tsh_mode <- tsh$mode %||% NA_character_
 
-    # sdlog_u (scalar by design; omitted from dims)
-    # If you later allow sdlog_u[i], you'd add dims here.
+        if (tsh_mode %in% c("fixed", "dist")) {
+          dims$tail_shape <- c(K)  # component-level vector
+        } else if (identical(tsh_mode, "link")) {
+          if (P < 1L) stop("GPD tail_shape is link-mode but P=0.", call. = FALSE)
+          dims$beta_tail_shape <- c(K, P)
+          dims$eta_tail_shape <- c(N)
+          dims$tail_shape_i <- c(N)
+        } else {
+          stop("Invalid gpd$tail_shape mode in plan.", call. = FALSE)
+        }
+      }
+
+    } else {
+      # ======== STANDARD CRP/SB BACKEND: Original behavior ========
+      
+      # threshold
+      thr <- gpd_plan$threshold %||% NULL
+      if (!is.null(thr)) {
+        thr_mode <- thr$mode %||% NA_character_
+
+        if (thr_mode %in% c("fixed", "dist")) {
+          # scalar threshold
+        } else if (identical(thr_mode, "link")) {
+          # threshold[i] stochastic LN around X beta
+          dims$threshold <- c(N)
+          if (P < 1L) stop("GPD threshold is link-mode but P=0.", call. = FALSE)
+          if (P > 1L) dims$beta_threshold <- c(P)
+
+          # if link_dist exists and uses sdlog_u, include its scalar node (no dims entry)
+          # but if user chooses to model sdlog_u as a vector later, this would change.
+          # For now: sdlog_u is scalar -> omitted from dims.
+        } else {
+          stop("Invalid gpd$threshold mode in plan.", call. = FALSE)
+        }
+      }
+
+      # tail_scale
+      ts <- gpd_plan$tail_scale %||% NULL
+      if (!is.null(ts)) {
+        ts_mode <- ts$mode %||% NA_character_
+
+        if (ts_mode %in% c("fixed", "dist")) {
+          # scalar tail_scale when not linked (most common non-X default)
+          # (no dims entry for scalar)
+        } else if (identical(ts_mode, "link")) {
+          # tail_scale[i] is deterministic from X beta
+          if (P < 1L) stop("GPD tail_scale is link-mode but P=0.", call. = FALSE)
+          if (P > 1L) dims$beta_tail_scale <- c(P)
+          # tail_scale[i] deterministic -> not dimension-declared
+        } else {
+          stop("Invalid gpd$tail_scale mode in plan.", call. = FALSE)
+        }
+      }
+
+      # tail_shape
+      tsh <- gpd_plan$tail_shape %||% NULL
+      if (!is.null(tsh)) {
+        tsh_mode <- tsh$mode %||% NA_character_
+        if (!tsh_mode %in% c("fixed", "dist", "link")) stop("Invalid gpd$tail_shape mode in plan.", call. = FALSE)
+        # For standard CRP: tail_shape scalar for fixed/dist, or observation-level for link
+        if (identical(tsh_mode, "link")) {
+          if (P < 1L) stop("GPD tail_shape is link-mode but P=0.", call. = FALSE)
+          if (P > 1L) dims$beta_tail_shape <- c(P)
+          # tail_shape[i] deterministic -> not dimension-declared
+        }
+        # tail_shape scalar (fixed/dist) -> no dims entry
+      }
+
+      # sdlog_u (scalar by design; omitted from dims)
+      # If you later allow sdlog_u[i], you'd add dims here.
+    }
   }
 
   dims
@@ -824,7 +1025,7 @@ build_dimensions_from_spec <- function(spec) {
 #' Dispatches to the backend-specific code generators:
 #' \itemize{
 #'   \item \code{build_code_sb_from_spec()} for stick-breaking (\code{"sb"})
-#'   \item \code{build_code_crp_from_spec()} for CRP (\code{"crp"})
+#'   \item \code{build_code_crp_from_spec()} for CRP and spliced (\code{"crp"}, \code{"spliced"})
 #' }
 #'
 #' The model size is controlled by \code{spec$meta$components} only.
@@ -840,7 +1041,7 @@ build_code_from_spec <- function(spec) {
   if (identical(backend, "sb")) {
     return(build_code_sb_from_spec(spec))
   }
-  if (identical(backend, "crp")) {
+  if (backend %in% c("crp", "spliced")) {
     return(build_code_crp_from_spec(spec))
   }
 
@@ -1149,6 +1350,19 @@ build_code_sb_from_spec <- function(spec) {
       } else if (tsh$mode == "dist") {
         gpd_lines <- c(gpd_lines, sprintf("tail_shape ~ %s",
                                           .codegen_prior_call(tsh$dist, tsh$args, backend = "SB")))
+      } else if (tsh$mode == "link") {
+        if (!has_X) stop("tail_shape link-mode requires X.", call. = FALSE)
+        bp <- tsh$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.3))
+        m <- bp$args$mean %||% 0
+        s <- bp$args$sd %||% 0.3
+        gpd_lines <- c(gpd_lines, sprintf("for (p in 1:P) beta_tail_shape[p] ~ dnorm(%s, sd = %s)", deparse1(m), deparse1(s)))
+        eta_tsh_line <- if (P == 1L) "  eta_tsh[i] <- X[i, 1] * beta_tail_shape[1]" else
+          "  eta_tsh[i] <- inprod(X[i, 1:P], beta_tail_shape[1:P])"
+        link_expr <- .codegen_link_expr("eta_tsh[i]", tsh$link %||% "identity", tsh$link_power)
+        gpd_lines <- c(gpd_lines, "for (i in 1:N) {",
+                       eta_tsh_line,
+                       sprintf("  tail_shape[i] <- %s", link_expr),
+                       "}")
       } else {
         stop("Invalid gpd tail_shape mode.", call. = FALSE)
       }
@@ -1178,7 +1392,8 @@ build_code_sb_from_spec <- function(spec) {
       ts <- plan$gpd$tail_scale %||% NULL
       if (!is.null(ts) && identical(ts$mode, "link")) args_expr <- c(args_expr, "tail_scale[i]") else args_expr <- c(args_expr, "tail_scale")
     } else if (a == "tail_shape") {
-      args_expr <- c(args_expr, "tail_shape")
+      tsh <- plan$gpd$tail_shape %||% NULL
+      if (!is.null(tsh) && identical(tsh$mode, "link")) args_expr <- c(args_expr, "tail_shape[i]") else args_expr <- c(args_expr, "tail_shape")
     } else {
       stop(sprintf("Unknown argument '%s' in SB signature for kernel '%s'.", a, meta$kernel), call. = FALSE)
     }
@@ -1245,7 +1460,10 @@ build_code_crp_from_spec <- function(spec) {
   kinfo <- spec$kernel_info %||% list()
   sigs <- spec$signatures %||% list()
 
-  if (!identical(meta$backend, "crp")) stop("spec backend is not 'crp'.", call. = FALSE)
+  if (!meta$backend %in% c("crp", "spliced")) {
+    stop("spec backend must be 'crp' or 'spliced'.", call. = FALSE)
+  }
+  is_spliced <- identical(meta$backend, "spliced")
 
   N <- as.integer(meta$N)
   P <- as.integer(meta$P %||% 0L)
@@ -1370,98 +1588,225 @@ build_code_crp_from_spec <- function(spec) {
   if (isTRUE(meta$GPD)) {
     gpd <- plan$gpd %||% list()
 
-    # threshold
-    thr <- gpd$threshold %||% NULL
-    if (!is.null(thr)) {
-      thr_scalar <- thr$mode %in% c("fixed", "dist")
-      if (thr$mode == "fixed") {
-        if (thr_scalar) {
-          add(sprintf("  threshold <- %s", deparse1(thr$value)))
-        } else {
-          add(sprintf("  for (i in 1:N) threshold[i] <- %s", deparse1(thr$value)))
-        }
-      } else if (thr$mode == "dist") {
-        if (thr_scalar) {
-          add(sprintf("  threshold ~ %s",
-                      .codegen_prior_call(thr$dist, thr$args, backend = "CRP")))
-        } else {
-          add(sprintf("  for (i in 1:N) threshold[i] ~ %s",
-                      .codegen_prior_call(thr$dist, thr$args, backend = "CRP")))
-        }
-      } else if (thr$mode == "link") {
-        if (!has_X) stop("threshold link-mode requires X.", call. = FALSE)
-        bp <- thr$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.2))
-        if (!identical(bp$dist, "normal")) stop("beta_threshold prior must be normal.", call. = FALSE)
-        m <- bp$args$mean %||% 0
-        s <- bp$args$sd %||% 0.2
-        add(sprintf("  for (p in 1:P) beta_threshold[p] ~ dnorm(%s, sd = %s)", deparse1(m), deparse1(s)))
+    if (is_spliced) {
+      # ======== SPLICED BACKEND: Component-level GPD parameterization ========
+      # Generate component-level nodes for fixed/dist modes, or component-specific
+      # beta coefficients + observation-level deterministic nodes for link mode.
 
-        if (!is.null(thr$link_dist) && identical(thr$link_dist$dist, "lognormal")) {
-          sdlog_u <- gpd$sdlog_u %||% list(mode = "dist", dist = "invgamma", args = list(shape = 2, scale = 1))
-          if (!identical(sdlog_u$mode, "dist")) stop("sdlog_u must be dist-mode under lognormal threshold.", call. = FALSE)
-          add(sprintf("  sdlog_u ~ %s",
-                      .codegen_prior_call(sdlog_u$dist, sdlog_u$args, backend = "CRP")))
+      # threshold
+      thr <- gpd$threshold %||% NULL
+      if (!is.null(thr)) {
+        if (thr$mode == "fixed") {
+          add("  for (k in 1:components) {")
+          add(sprintf("    threshold[k] <- %s", deparse1(thr$value)))
+          add("  }")
+        } else if (thr$mode == "dist") {
+          add("  for (k in 1:components) {")
+          add(sprintf("    threshold[k] ~ %s",
+                      .codegen_prior_call(thr$dist, thr$args, backend = "CRP")))
+          add("  }")
+        } else if (thr$mode == "link") {
+          if (!has_X) stop("threshold link-mode requires X.", call. = FALSE)
+          bp <- thr$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.2))
+          if (!identical(bp$dist, "normal")) stop("beta_threshold prior must be normal.", call. = FALSE)
+          m <- bp$args$mean %||% 0
+          s <- bp$args$sd %||% 0.2
+          add("  for (k in 1:components) {")
+          add(sprintf("    for (p in 1:P) beta_threshold[k, p] ~ dnorm(%s, sd = %s)", deparse1(m), deparse1(s)))
+          add("  }")
           add("  for (i in 1:N) {")
           if (P == 1L) {
-            add("    eta_u[i] <- X[i, 1] * beta_threshold[1]")
+            add("    eta_threshold[i] <- X[i, 1] * beta_threshold[z[i], 1]")
           } else {
-            add("    eta_u[i] <- inprod(X[i, 1:P], beta_threshold[1:P])")
+            add("    eta_threshold[i] <- inprod(X[i, 1:P], beta_threshold[z[i], 1:P])")
           }
-          add("    threshold[i] ~ dlnorm(meanlog = eta_u[i], sdlog = sdlog_u)")
+          add(sprintf("    threshold_i[i] <- %s", .codegen_link_expr("eta_threshold[i]", thr$link, thr$link_power)))
           add("  }")
         } else {
+          stop("Invalid gpd threshold mode.", call. = FALSE)
+        }
+      }
+
+      # tail_scale
+      ts <- gpd$tail_scale %||% NULL
+      if (!is.null(ts)) {
+        if (ts$mode == "fixed") {
+          add("  for (k in 1:components) {")
+          add(sprintf("    tail_scale[k] <- %s", deparse1(ts$value)))
+          add("  }")
+        } else if (ts$mode == "dist") {
+          add("  for (k in 1:components) {")
+          add(sprintf("    tail_scale[k] ~ %s",
+                      .codegen_prior_call(ts$dist, ts$args, backend = "CRP")))
+          add("  }")
+        } else if (ts$mode == "link") {
+          if (!has_X) stop("tail_scale link-mode requires X.", call. = FALSE)
+          bp <- ts$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.5))
+          if (!identical(bp$dist, "normal")) stop("beta_tail_scale prior must be normal.", call. = FALSE)
+          m <- bp$args$mean %||% 0
+          s <- bp$args$sd %||% 0.5
+          add("  for (k in 1:components) {")
+          add(sprintf("    for (p in 1:P) beta_tail_scale[k, p] ~ dnorm(%s, sd = %s)", deparse1(m), deparse1(s)))
+          add("  }")
           add("  for (i in 1:N) {")
           if (P == 1L) {
-            add("    eta_u[i] <- X[i, 1] * beta_threshold[1]")
+            add("    eta_tail_scale[i] <- X[i, 1] * beta_tail_scale[z[i], 1]")
           } else {
-            add("    eta_u[i] <- inprod(X[i, 1:P], beta_threshold[1:P])")
+            add("    eta_tail_scale[i] <- inprod(X[i, 1:P], beta_tail_scale[z[i], 1:P])")
           }
-          add(sprintf("    threshold[i] <- %s", .codegen_link_expr("eta_u[i]", thr$link, thr$link_power)))
+          add(sprintf("    tail_scale_i[i] <- %s", .codegen_link_expr("eta_tail_scale[i]", ts$link, ts$link_power)))
           add("  }")
-        }
-      } else {
-        stop("Invalid gpd threshold mode.", call. = FALSE)
-      }
-    }
-
-    # tail_scale
-    ts <- gpd$tail_scale %||% NULL
-    if (!is.null(ts)) {
-      if (ts$mode == "fixed") {
-        add(sprintf("  tail_scale <- %s", deparse1(ts$value)))
-      } else if (ts$mode == "dist") {
-        add(sprintf("  tail_scale ~ %s",
-                    .codegen_prior_call(ts$dist, ts$args, backend = "CRP")))
-      } else if (ts$mode == "link") {
-        if (!has_X) stop("tail_scale link-mode requires X.", call. = FALSE)
-        bp <- ts$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.5))
-        if (!identical(bp$dist, "normal")) stop("beta_tail_scale prior must be normal.", call. = FALSE)
-        m <- bp$args$mean %||% 0
-        s <- bp$args$sd %||% 0.5
-        add(sprintf("  for (p in 1:P) beta_tail_scale[p] ~ dnorm(%s, sd = %s)", deparse1(m), deparse1(s)))
-        add("  for (i in 1:N) {")
-        if (P == 1L) {
-          add("    eta_ts[i] <- X[i, 1] * beta_tail_scale[1]")
         } else {
-          add("    eta_ts[i] <- inprod(X[i, 1:P], beta_tail_scale[1:P])")
+          stop("Invalid gpd tail_scale mode.", call. = FALSE)
         }
-        add("    tail_scale[i] <- exp(eta_ts[i])")
-        add("  }")
-      } else {
-        stop("Invalid gpd tail_scale mode.", call. = FALSE)
       }
-    }
 
-    # tail_shape
-    tsh <- gpd$tail_shape %||% NULL
-    if (!is.null(tsh)) {
-      if (tsh$mode == "fixed") {
-        add(sprintf("  tail_shape <- %s", deparse1(tsh$value)))
-      } else if (tsh$mode == "dist") {
-        add(sprintf("  tail_shape ~ %s",
-                    .codegen_prior_call(tsh$dist, tsh$args, backend = "CRP")))
-      } else {
-        stop("Invalid gpd tail_shape mode.", call. = FALSE)
+      # tail_shape
+      tsh <- gpd$tail_shape %||% NULL
+      if (!is.null(tsh)) {
+        if (tsh$mode == "fixed") {
+          add("  for (k in 1:components) {")
+          add(sprintf("    tail_shape[k] <- %s", deparse1(tsh$value)))
+          add("  }")
+        } else if (tsh$mode == "dist") {
+          add("  for (k in 1:components) {")
+          add(sprintf("    tail_shape[k] ~ %s",
+                      .codegen_prior_call(tsh$dist, tsh$args, backend = "CRP")))
+          add("  }")
+        } else if (tsh$mode == "link") {
+          if (!has_X) stop("tail_shape link-mode requires X.", call. = FALSE)
+          bp <- tsh$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.2))
+          if (!identical(bp$dist, "normal")) stop("beta_tail_shape prior must be normal.", call. = FALSE)
+          m <- bp$args$mean %||% 0
+          s <- bp$args$sd %||% 0.2
+          add("  for (k in 1:components) {")
+          add(sprintf("    for (p in 1:P) beta_tail_shape[k, p] ~ dnorm(%s, sd = %s)", deparse1(m), deparse1(s)))
+          add("  }")
+          add("  for (i in 1:N) {")
+          if (P == 1L) {
+            add("    eta_tail_shape[i] <- X[i, 1] * beta_tail_shape[z[i], 1]")
+          } else {
+            add("    eta_tail_shape[i] <- inprod(X[i, 1:P], beta_tail_shape[z[i], 1:P])")
+          }
+          add(sprintf("    tail_shape_i[i] <- %s", .codegen_link_expr("eta_tail_shape[i]", tsh$link, tsh$link_power)))
+          add("  }")
+        } else {
+          stop("Invalid gpd tail_shape mode.", call. = FALSE)
+        }
+      }
+
+    } else {
+      # ======== STANDARD CRP BACKEND: Observation-level GPD parameterization ========
+      # (Original behavior preserved for backward compatibility)
+
+      # threshold
+      thr <- gpd$threshold %||% NULL
+      if (!is.null(thr)) {
+        thr_scalar <- thr$mode %in% c("fixed", "dist")
+        if (thr$mode == "fixed") {
+          if (thr_scalar) {
+            add(sprintf("  threshold <- %s", deparse1(thr$value)))
+          } else {
+            add(sprintf("  for (i in 1:N) threshold[i] <- %s", deparse1(thr$value)))
+          }
+        } else if (thr$mode == "dist") {
+          if (thr_scalar) {
+            add(sprintf("  threshold ~ %s",
+                        .codegen_prior_call(thr$dist, thr$args, backend = "CRP")))
+          } else {
+            add(sprintf("  for (i in 1:N) threshold[i] ~ %s",
+                        .codegen_prior_call(thr$dist, thr$args, backend = "CRP")))
+          }
+        } else if (thr$mode == "link") {
+          if (!has_X) stop("threshold link-mode requires X.", call. = FALSE)
+          bp <- thr$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.2))
+          if (!identical(bp$dist, "normal")) stop("beta_threshold prior must be normal.", call. = FALSE)
+          m <- bp$args$mean %||% 0
+          s <- bp$args$sd %||% 0.2
+          add(sprintf("  for (p in 1:P) beta_threshold[p] ~ dnorm(%s, sd = %s)", deparse1(m), deparse1(s)))
+
+          if (!is.null(thr$link_dist) && identical(thr$link_dist$dist, "lognormal")) {
+            sdlog_u <- gpd$sdlog_u %||% list(mode = "dist", dist = "invgamma", args = list(shape = 2, scale = 1))
+            if (!identical(sdlog_u$mode, "dist")) stop("sdlog_u must be dist-mode under lognormal threshold.", call. = FALSE)
+            add(sprintf("  sdlog_u ~ %s",
+                        .codegen_prior_call(sdlog_u$dist, sdlog_u$args, backend = "CRP")))
+            add("  for (i in 1:N) {")
+            if (P == 1L) {
+              add("    eta_u[i] <- X[i, 1] * beta_threshold[1]")
+            } else {
+              add("    eta_u[i] <- inprod(X[i, 1:P], beta_threshold[1:P])")
+            }
+            add("    threshold[i] ~ dlnorm(meanlog = eta_u[i], sdlog = sdlog_u)")
+            add("  }")
+          } else {
+            add("  for (i in 1:N) {")
+            if (P == 1L) {
+              add("    eta_u[i] <- X[i, 1] * beta_threshold[1]")
+            } else {
+              add("    eta_u[i] <- inprod(X[i, 1:P], beta_threshold[1:P])")
+            }
+            add(sprintf("    threshold[i] <- %s", .codegen_link_expr("eta_u[i]", thr$link, thr$link_power)))
+            add("  }")
+          }
+        } else {
+          stop("Invalid gpd threshold mode.", call. = FALSE)
+        }
+      }
+
+      # tail_scale
+      ts <- gpd$tail_scale %||% NULL
+      if (!is.null(ts)) {
+        if (ts$mode == "fixed") {
+          add(sprintf("  tail_scale <- %s", deparse1(ts$value)))
+        } else if (ts$mode == "dist") {
+          add(sprintf("  tail_scale ~ %s",
+                      .codegen_prior_call(ts$dist, ts$args, backend = "CRP")))
+        } else if (ts$mode == "link") {
+          if (!has_X) stop("tail_scale link-mode requires X.", call. = FALSE)
+          bp <- ts$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.5))
+          if (!identical(bp$dist, "normal")) stop("beta_tail_scale prior must be normal.", call. = FALSE)
+          m <- bp$args$mean %||% 0
+          s <- bp$args$sd %||% 0.5
+          add(sprintf("  for (p in 1:P) beta_tail_scale[p] ~ dnorm(%s, sd = %s)", deparse1(m), deparse1(s)))
+          add("  for (i in 1:N) {")
+          if (P == 1L) {
+            add("    eta_ts[i] <- X[i, 1] * beta_tail_scale[1]")
+          } else {
+            add("    eta_ts[i] <- inprod(X[i, 1:P], beta_tail_scale[1:P])")
+          }
+          add("    tail_scale[i] <- exp(eta_ts[i])")
+          add("  }")
+        } else {
+          stop("Invalid gpd tail_scale mode.", call. = FALSE)
+        }
+      }
+
+      # tail_shape
+      tsh <- gpd$tail_shape %||% NULL
+      if (!is.null(tsh)) {
+        if (tsh$mode == "fixed") {
+          add(sprintf("  tail_shape <- %s", deparse1(tsh$value)))
+        } else if (tsh$mode == "dist") {
+          add(sprintf("  tail_shape ~ %s",
+                      .codegen_prior_call(tsh$dist, tsh$args, backend = "CRP")))
+        } else if (tsh$mode == "link") {
+          if (!has_X) stop("tail_shape link-mode requires X.", call. = FALSE)
+          bp <- tsh$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.2))
+          if (!identical(bp$dist, "normal")) stop("beta_tail_shape prior must be normal.", call. = FALSE)
+          m <- bp$args$mean %||% 0
+          s <- bp$args$sd %||% 0.2
+          add(sprintf("  for (p in 1:P) beta_tail_shape[p] ~ dnorm(%s, sd = %s)", deparse1(m), deparse1(s)))
+          add("  for (i in 1:N) {")
+          if (P == 1L) {
+            add("    eta_ts[i] <- X[i, 1] * beta_tail_shape[1]")
+          } else {
+            add("    eta_ts[i] <- inprod(X[i, 1:P], beta_tail_shape[1:P])")
+          }
+          add(sprintf("    tail_shape[i] <- %s", .codegen_link_expr("eta_ts[i]", tsh$link, tsh$link_power)))
+          add("  }")
+        } else {
+          stop("Invalid gpd tail_shape mode.", call. = FALSE)
+        }
       }
     }
   }
@@ -1472,7 +1817,9 @@ build_code_crp_from_spec <- function(spec) {
   # build arg expressions in signature order
   gpd_for_args <- plan$gpd %||% list()
   thr_for_args <- gpd_for_args$threshold %||% NULL
-  thr_scalar <- !is.null(thr_for_args) && thr_for_args$mode %in% c("fixed", "dist")
+  ts_for_args <- gpd_for_args$tail_scale %||% NULL
+  tsh_for_args <- gpd_for_args$tail_shape %||% NULL
+  
   args_expr <- character()
   for (a in arg_order) {
     if (a %in% bulk_params) {
@@ -1483,16 +1830,46 @@ build_code_crp_from_spec <- function(spec) {
         args_expr <- c(args_expr, sprintf("%s[z[i]]", a))
       }
     } else if (a == "threshold") {
-      args_expr <- c(args_expr, if (thr_scalar) "threshold" else "threshold[i]")
-    } else if (a == "tail_scale") {
-      ts <- plan$gpd$tail_scale %||% NULL
-      if (!is.null(ts) && identical(ts$mode, "link")) {
-        args_expr <- c(args_expr, "tail_scale[i]")
+      if (is_spliced) {
+        # Spliced backend: link mode uses threshold_i[i], others use threshold[z[i]]
+        if (!is.null(thr_for_args) && identical(thr_for_args$mode, "link")) {
+          args_expr <- c(args_expr, "threshold_i[i]")
+        } else {
+          args_expr <- c(args_expr, "threshold[z[i]]")
+        }
       } else {
-        args_expr <- c(args_expr, "tail_scale")
+        # Standard CRP backend: scalar or observation-level
+        thr_scalar <- !is.null(thr_for_args) && thr_for_args$mode %in% c("fixed", "dist")
+        args_expr <- c(args_expr, if (thr_scalar) "threshold" else "threshold[i]")
+      }
+    } else if (a == "tail_scale") {
+      if (is_spliced) {
+        # Spliced backend: link mode uses tail_scale_i[i], others use tail_scale[z[i]]
+        if (!is.null(ts_for_args) && identical(ts_for_args$mode, "link")) {
+          args_expr <- c(args_expr, "tail_scale_i[i]")
+        } else {
+          args_expr <- c(args_expr, "tail_scale[z[i]]")
+        }
+      } else {
+        # Standard CRP backend: scalar or observation-level
+        if (!is.null(ts_for_args) && identical(ts_for_args$mode, "link")) {
+          args_expr <- c(args_expr, "tail_scale[i]")
+        } else {
+          args_expr <- c(args_expr, "tail_scale")
+        }
       }
     } else if (a == "tail_shape") {
-      args_expr <- c(args_expr, "tail_shape")
+      if (is_spliced) {
+        # Spliced backend: link mode uses tail_shape_i[i], others use tail_shape[z[i]]
+        if (!is.null(tsh_for_args) && identical(tsh_for_args$mode, "link")) {
+          args_expr <- c(args_expr, "tail_shape_i[i]")
+        } else {
+          args_expr <- c(args_expr, "tail_shape[z[i]]")
+        }
+      } else {
+        # Standard CRP backend: scalar only (no link mode support in original)
+        args_expr <- c(args_expr, "tail_shape")
+      }
     } else {
       stop(sprintf("Unknown argument '%s' in CRP signature for kernel '%s'.", a, meta$kernel), call. = FALSE)
     }
@@ -1677,6 +2054,14 @@ build_prior_table_from_spec <- function(spec) {
         rows[[length(rows) + 1L]] <- add_row("gpd", "tail_shape", "dist", "scalar",
                                              prior = sprintf("%s(%s)", tsh$dist, fmt_args(tsh$args)),
                                              link = "", notes = "")
+      } else if (tsh$mode == "link") {
+        bp <- tsh$beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 0.3))
+        lk <- tsh$link %||% "identity"
+        note <- sprintf("beta_tail_shape is length P=%d; tail_shape[i] deterministic", P)
+        if (lk == "power") note <- paste0(note, sprintf("; power=%s", deparse1(tsh$link_power)))
+        rows[[length(rows) + 1L]] <- add_row("gpd", "tail_shape", "link", "observation (1:N)",
+                                            prior = sprintf("beta_tail_shape ~ %s(%s)", bp$dist, fmt_args(bp$args)),
+                                             link = lk, notes = note)
       } else {
         stop("Invalid gpd$tail_shape mode.", call. = FALSE)
       }
