@@ -20,6 +20,7 @@
 #   coverage_report(sources = c("tests", "examples", "vignettes"))
 #
 # ============================================================================
+setwd(here::here())
 
 # Check required packages
 .check_coverage_deps <- function() {
@@ -59,25 +60,24 @@
 .coverage_test_code_minimal <- function() {
   paste(
     "library(CausalMixGPD)",
+    'ns <- asNamespace("CausalMixGPD")',
+    'for (nm in ls(ns, all.names = TRUE)) {',
+    '  if (!exists(nm, envir = .GlobalEnv, inherits = FALSE)) {',
+    '    tryCatch(assign(nm, get(nm, envir = ns, inherits = FALSE), envir = .GlobalEnv), error = function(e) NULL)',
+    '  }',
+    '}',
     'pkg_tests <- system.file("tests", "testthat", package = "CausalMixGPD")',
+    'if (!nzchar(pkg_tests) || !dir.exists(pkg_tests)) {',
+    '  local_candidates <- c("tests/testthat", "./tests/testthat")',
+    '  local_hit <- local_candidates[file.exists(local_candidates)]',
+    '  if (length(local_hit) > 0L) pkg_tests <- normalizePath(local_hit[1], winslash = "/", mustWork = FALSE)',
+    '}',
+    'if (!nzchar(pkg_tests) || !dir.exists(pkg_tests)) stop("Coverage could not find test directory: tests/testthat")',
     'if (nzchar(pkg_tests)) {',
-    '  # Load all helper files first (testthat convention)',
-    '  helper_files <- list.files(pkg_tests, pattern = "^helper.*\\\\.R$", full.names = TRUE)',
-    '  for (helper in helper_files) {',
-    '    tryCatch(source(helper, local = .GlobalEnv), error = function(e) message("Helper load failed: ", basename(helper)))',
-    '  }',
-    '  # Load setup.R if present',
-    '  setup_file <- file.path(pkg_tests, "setup.R")',
-    '  if (file.exists(setup_file)) tryCatch(source(setup_file, local = .GlobalEnv), error = function(e) message("Setup failed"))',
-    '  # Now run tests with recursive discovery',
     '  test_files <- list.files(pkg_tests, pattern = "^test.*\\\\.R$", recursive = TRUE, full.names = TRUE)',
+    '  if (length(test_files) == 0L) stop("Coverage found no test files under: ", pkg_tests)',
     '  reporter <- testthat::ProgressReporter$new(show_praise = FALSE, update_interval = Inf)',
-    '  for (test_file in test_files) {',
-    '    tryCatch(',
-    '      testthat::test_file(test_file, reporter = reporter, package = "CausalMixGPD", env = .GlobalEnv),',
-    '      error = function(e) message("Test file failed: ", basename(test_file))',
-    '    )',
-    '  }',
+    '  testthat::test_dir(pkg_tests, reporter = reporter, package = "CausalMixGPD")',
     '}',
     sep = "\n"
   )
@@ -86,25 +86,24 @@
 .coverage_test_code_progress <- function() {
   paste(
     "library(CausalMixGPD)",
+    'ns <- asNamespace("CausalMixGPD")',
+    'for (nm in ls(ns, all.names = TRUE)) {',
+    '  if (!exists(nm, envir = .GlobalEnv, inherits = FALSE)) {',
+    '    tryCatch(assign(nm, get(nm, envir = ns, inherits = FALSE), envir = .GlobalEnv), error = function(e) NULL)',
+    '  }',
+    '}',
     'pkg_tests <- system.file("tests", "testthat", package = "CausalMixGPD")',
+    'if (!nzchar(pkg_tests) || !dir.exists(pkg_tests)) {',
+    '  local_candidates <- c("tests/testthat", "./tests/testthat")',
+    '  local_hit <- local_candidates[file.exists(local_candidates)]',
+    '  if (length(local_hit) > 0L) pkg_tests <- normalizePath(local_hit[1], winslash = "/", mustWork = FALSE)',
+    '}',
+    'if (!nzchar(pkg_tests) || !dir.exists(pkg_tests)) stop("Coverage could not find test directory: tests/testthat")',
     'if (nzchar(pkg_tests)) {',
-    '  # Load all helper files first (testthat convention)',
-    '  helper_files <- list.files(pkg_tests, pattern = "^helper.*\\\\.R$", full.names = TRUE)',
-    '  for (helper in helper_files) {',
-    '    tryCatch(source(helper, local = .GlobalEnv), error = function(e) message("Helper load failed: ", basename(helper)))',
-    '  }',
-    '  # Load setup.R if present',
-    '  setup_file <- file.path(pkg_tests, "setup.R")',
-    '  if (file.exists(setup_file)) tryCatch(source(setup_file, local = .GlobalEnv), error = function(e) message("Setup failed"))',
-    '  # Now run tests with recursive discovery',
     '  test_files <- list.files(pkg_tests, pattern = "^test.*\\\\.R$", recursive = TRUE, full.names = TRUE)',
+    '  if (length(test_files) == 0L) stop("Coverage found no test files under: ", pkg_tests)',
     '  reporter <- testthat::ProgressReporter$new()',
-    '  for (test_file in test_files) {',
-    '    tryCatch(',
-    '      testthat::test_file(test_file, reporter = reporter, package = "CausalMixGPD", env = .GlobalEnv),',
-    '      error = function(e) message("Test file failed: ", basename(test_file))',
-    '    )',
-    '  }',
+    '  testthat::test_dir(pkg_tests, reporter = reporter, package = "CausalMixGPD")',
     '}',
     sep = "\n"
   )
@@ -113,7 +112,19 @@
 .coverage_test_code_fallback <- function() {
   paste(
     "library(CausalMixGPD)",
+    'ns <- asNamespace("CausalMixGPD")',
+    'for (nm in ls(ns, all.names = TRUE)) {',
+    '  if (!exists(nm, envir = .GlobalEnv, inherits = FALSE)) {',
+    '    tryCatch(assign(nm, get(nm, envir = ns, inherits = FALSE), envir = .GlobalEnv), error = function(e) NULL)',
+    '  }',
+    '}',
     'pkg_tests <- system.file("tests", "testthat", package = "CausalMixGPD")',
+    'if (!nzchar(pkg_tests) || !dir.exists(pkg_tests)) {',
+    '  local_candidates <- c("tests/testthat", "./tests/testthat")',
+    '  local_hit <- local_candidates[file.exists(local_candidates)]',
+    '  if (length(local_hit) > 0L) pkg_tests <- normalizePath(local_hit[1], winslash = "/", mustWork = FALSE)',
+    '}',
+    'if (!nzchar(pkg_tests) || !dir.exists(pkg_tests)) stop("Coverage could not find test directory: tests/testthat")',
     'if (nzchar(pkg_tests)) {',
     '  # Load helpers first',
     '  helper_files <- list.files(pkg_tests, pattern = "^helper.*\\\\.R$", full.names = TRUE)',
@@ -121,7 +132,9 @@
     '  setup_file <- file.path(pkg_tests, "setup.R")',
     '  if (file.exists(setup_file)) try(source(setup_file, local = .GlobalEnv), silent = TRUE)',
     '  # Run tests',
-    '  for (f in list.files(pkg_tests, pattern = "^test.*\\\\.R$", recursive = TRUE, full.names = TRUE)) try(source(f), silent = TRUE)',
+    '  test_files <- list.files(pkg_tests, pattern = "^test.*\\\\.R$", recursive = TRUE, full.names = TRUE)',
+    '  if (length(test_files) == 0L) stop("Coverage found no test files under: ", pkg_tests)',
+    '  for (f in test_files) try(source(f), silent = TRUE)',
     '}',
     sep = "\n"
   )
@@ -259,8 +272,7 @@ if (is.null(cov) && "tests" %in% sources) {
 # Internal: Calculate coverage from tests with robust error handling
 .calculate_tests_coverage <- function(quiet = FALSE) {
   covr::package_coverage(
-    type = "none",
-    code = .coverage_test_code_minimal(),
+    type = "tests",
     quiet = quiet,
     pre_clean = TRUE,
     line_exclusions = .coverage_line_exclusions()
@@ -269,26 +281,15 @@ if (is.null(cov) && "tests" %in% sources) {
 
 # Internal: Calculate combined coverage from multiple sources
 .calculate_combined_coverage <- function(sources, quiet = FALSE) {
-  # For combined sources, we need to handle tests specially due to nimble issues
-  # Try using covr's built-in types for non-test sources
-
   non_test_sources <- setdiff(sources, "tests")
 
   if (length(non_test_sources) > 0 && "tests" %in% sources) {
-    # Try combined approach first
-    tryCatch({
-      covr::package_coverage(
-        type = non_test_sources,
-        code = .coverage_test_code_minimal(),
-        quiet = quiet,
-        pre_clean = TRUE,
-        line_exclusions = .coverage_line_exclusions()
-      )
-    }, error = function(e) {
-      # Fall back to tests only if combined fails
-      if (!quiet) cat("Combined coverage failed, falling back to tests only.\n")
-      .calculate_tests_coverage(quiet = quiet)
-    })
+    covr::package_coverage(
+      type = c("tests", non_test_sources),
+      quiet = quiet,
+      pre_clean = TRUE,
+      line_exclusions = .coverage_line_exclusions()
+    )
   } else if (length(non_test_sources) > 0) {
     covr::package_coverage(
       type = non_test_sources,
@@ -310,8 +311,7 @@ coverage_progress <- function(test_level = "ci", quiet = FALSE) {
   Sys.setenv(COVERAGE = "1")
 
   cov <- covr::package_coverage(
-    type = "none",
-    code = .coverage_test_code_progress(),
+    type = "tests",
     quiet = quiet,
     pre_clean = TRUE,
     line_exclusions = .coverage_line_exclusions()
@@ -363,7 +363,7 @@ coverage_report <- function(
   sources <- resolved$sources
   test_level <- resolved$test_level
 
-  assets_dir <- "pkgdown/assets/coverage"
+  assets_dir <- "covr/assets/"
 
   cat("============================================================\n")
   cat("Building Coverage Report\n")
@@ -443,10 +443,6 @@ coverage_report <- function(
   cat("  - ", json_file, " (JSON data)\n", sep = "")
   cat("  - ", unused_file, " (unused functions)\n", sep = "")
   cat("\nOverall coverage: ", round(stats$percent, 1), "%\n", sep = "")
-  cat("\nNext steps:\n")
-  cat("  1. Rebuild pkgdown site: pkgdown::build_site()\n")
-  cat("  2. Commit docs/coverage/ changes\n")
-  cat("  3. Push to deploy\n")
 
   if (browse) {
     utils::browseURL(html_file)

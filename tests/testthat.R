@@ -22,48 +22,17 @@ if (!is_pkg_check &&
   Sys.setenv(DPMIXGPD_TEST_LEVEL = "ci")
 }
 
-# testthat 3.x doesn't support recursive test discovery by default
-# So we manually discover test files in subdirectories
-test_dir_path <- if (basename(getwd()) == "tests") {
-  "testthat"
-} else if (file.exists("tests/testthat")) {
-  "tests/testthat"
-} else {
-  stop("Cannot locate tests/testthat directory")
+
+# Robustly locate the testthat directory relative to this script
+test_dir_path <- NULL
+pkg_root <- here::here()
+this_file <- tryCatch(normalizePath(sys.frame(1)$ofile), error = function(e) NULL)
+  if (basename(pkg_root) == "tests") {
+library(testthat)
+library(CausalMixGPD)
+test_check("CausalMixGPD")
+    test_dir_path <- file.path(pkg_root, "testthat")
 }
-
-# Load all helper files first (testthat convention)
-helper_files <- list.files(test_dir_path, pattern = "^helper.*\\.R$", full.names = TRUE)
-for (helper in helper_files) {
-  tryCatch(
-    source(helper, local = .GlobalEnv),
-    error = function(e) message("Helper load failed: ", basename(helper), " - ", e$message)
-  )
-}
-
-# Load setup.R if present
-setup_file <- file.path(test_dir_path, "setup.R")
-if (file.exists(setup_file)) {
-  tryCatch(
-    source(setup_file, local = .GlobalEnv),
-    error = function(e) message("Setup failed: ", e$message)
-  )
-}
-
-# Discover test files recursively
-test_files <- list.files(
-  test_dir_path,
-  pattern = "^test.*\\.R$",
-  recursive = TRUE,
-  full.names = TRUE
-)
-
-if (length(test_files) == 0) {
-  stop("No test files found in ", test_dir_path, " or subdirectories")
-}
-
-# Run tests for each file
-reporter <- testthat::get_reporter()
-for (test_file in test_files) {
-  testthat::test_file(test_file, reporter = reporter, package = "CausalMixGPD", env = .GlobalEnv)
+if (is.null(test_dir_path) || !dir.exists(test_dir_path)) {
+  test_dir_path <- file.path(pkg_root, "tests", "testthat")
 }

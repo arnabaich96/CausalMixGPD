@@ -90,8 +90,8 @@
 ^site$
 ^site_libs/$
 ^site_libs/
-^.quarto/
-^.quarto/$
+^\.quarto/
+^\.quarto/$
 ^_build/
 ^_build$
 ^_freeze/
@@ -105,5 +105,6 @@
 ^\.\.?Rcheck/
 ^CausalMixGPD_.*\.tar\.gz$
 ^_tar_list\.txt$
+^test_extraction\.R$
 ^tests/testthat/_cache$
 ^tests/testthat/_cache/

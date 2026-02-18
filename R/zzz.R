@@ -69,15 +69,25 @@ utils::globalVariables(c(
 .onLoad <- function(libname, pkgname) {
   # Initialize kernel registry if available
   # (may not be loaded during roxygen documentation generation)
-  if (exists("init_kernel_registry", mode = "function")) {
-    init_kernel_registry()
+  init_kernel_registry_fun <- get0(
+    "init_kernel_registry",
+    mode = "function",
+    inherits = TRUE
+  )
+  if (!is.null(init_kernel_registry_fun)) {
+    init_kernel_registry_fun()
   }
   if (is.null(getOption("CausalMixGPD.plotly"))) {
     options(CausalMixGPD.plotly = FALSE)
   }
   # Wrap exported functions if utility is available
-  if (exists(".wrap_exported_silent", mode = "function")) {
-    .wrap_exported_silent(pkgname, opt_name = "CausalMixGPD.silent")
+  wrap_exported_silent_fun <- get0(
+    ".wrap_exported_silent",
+    mode = "function",
+    inherits = TRUE
+  )
+  if (!is.null(wrap_exported_silent_fun)) {
+    wrap_exported_silent_fun(pkgname, opt_name = "CausalMixGPD.silent")
   }
   invisible()
 }

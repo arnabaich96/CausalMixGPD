@@ -20,13 +20,14 @@ LazyData: true
 Depends: R (>= 4.0.0), nimble
 Imports:
     stats,
-    coda,
-    ggmcmc,
     utils,
     ggplot2
 Suggests:
     testthat (>= 3.0.0),
     knitr,
+    rmarkdown,
+    coda,
+    ggmcmc,
     future,
     future.apply,
     crayon,
@@ -34,8 +35,8 @@ Suggests:
     kableExtra,
     plotly
 RoxygenNote: 7.3.3
-Roxygen: list(markdown = TRUE, roclets = c("rd", "collate", "namespace"))
+Roxygen: list(markdown = TRUE, roclets = c("rd", "namespace"))
 Config/testthat/edition: 3
 URL: https://arnabaich96.github.io/CausalMixGPD/, https://arnabaich96.github.io/CausalMixGPD/pkgdown/
-BugReports: https://github.com/arnabaich96/CausalMixGPD/issues
+BugReports: https://arnabaich96.github.io/CausalMixGPD/
 VignetteBuilder: knitr

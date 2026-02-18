@@ -46,17 +46,18 @@ testthat::test_local()
 # Reset to default
 Sys.setenv(DPMIXGPD_TEST_LEVEL = "cran")
 ```
+
 ### Running Specific Tests
 
 ```r
-# Run a single test file (note subdirectory path)
-testthat::test_file("tests/testthat/coverage/test-causal.R")
+# Run a single merged test file
+testthat::test_file("tests/testthat/test-coverage.R")
 
-# Run all unit tests (fast)
-testthat::test_dir("tests/testthat/unit")
-
-# Run all coverage tests
-testthat::test_dir("tests/testthat/coverage")
+# Run all tests matching a merged tier
+testthat::test_local(filter = "unit")
+testthat::test_local(filter = "integration")
+testthat::test_local(filter = "coverage")
+testthat::test_local(filter = "ci")
 
 # Run tests matching a pattern
 testthat::test_local(filter = "causal")
@@ -86,19 +87,19 @@ Cache files are stored in `tests/testthat/_cache/` by default.
 
 ## Test File Organization
 
-Tests are organized into subdirectories by tier/purpose, aligning with the `DPMIXGPD_TEST_LEVEL` tier system:
+Tests are organized by tier/purpose using one merged script per tier:
 
-```
+```text
 tests/testthat/
 ├── helper-00-levels.R           # Tier system functions and skip helpers
 ├── helper-01-fixtures.R         # Test fixtures and data utilities
 ├── helper-02-cache.R            # MCMC result caching infrastructure
 ├── helper-03-predict-helpers.R  # Prediction test utilities
 ├── setup.R                      # Global test setup, runs before all tests
-├── unit/                        # Fast, deterministic tests (cran level)
-├── coverage/                    # Minimal coverage paths (ci level, for covr)
-├── integration/                 # Full integration tests (ci level, heavier)
-└── ci/                          # CI-only gates and meta-tests
+├── test-unit.R                  # Fast, deterministic tests (cran level)
+├── test-coverage.R              # Minimal coverage paths (ci level, for covr)
+├── test-integration.R           # Full integration tests (ci level, heavier)
+└── test-ci.R                    # CI-only gates and meta-tests
 ```
 
 ### Helper Files
@@ -113,61 +114,31 @@ tests/testthat/
 
 **Note:** Helper files are loaded alphabetically by testthat before any test runs.
 
-### Test Files by Directory
+### Test Files
 
-#### `unit/` - Fast Unit Tests (Tier A / cran level)
+#### `test-unit.R` - Fast Unit Tests (Tier A / cran level)
 
 Fast, deterministic tests with no MCMC compilation (~1-2 minutes total).
 
-| File                             | What it Tests                              |
-|----------------------------------|--------------------------------------------|
-| `test-distributions.R`           | Distribution functions (merged kernels)    |
-| `test-kernels.R`                 | NIMBLE kernel compilation                  |
-| `test-internal-utils.R`          | Internal utility functions                 |
-| `test-hpd-intervals.R`           | HPD interval calculations                  |
-| `test-vectorization.R`           | Vectorized operations                      |
-| `test-vectorization-contract.R`  | Vectorization contracts                    |
-| `test-theory.R`                  | Statistical theory validation              |
-| `test-glue-validity.R`           | Input validation and glue logic            |
-| `test-dispatch-separation.R`     | Method dispatch logic                      |
-| `test-global-contracts.R`        | Internal validation functions              |
-| `test-s3-methods.R`              | S3 method implementations                  |
-| `test-visualization-helpers.R`   | Plotting helper functions                  |
+- `test-unit.R`: Distribution, kernel, utils, S3, plotting, and contract tests.
 
-#### `coverage/` - Minimal Coverage Paths (Tier B / ci level)
+#### `test-coverage.R` - Minimal Coverage Paths (Tier B / ci level)
 
 Minimal test paths to maximize code coverage with reasonable runtime, executed during coverage runs.
 
-| File                               | What it Tests                           |
-|------------------------------------|-----------------------------------------|
-| `test-smoke-core-workflows.R`      | End-to-end smoke tests                  |
-| `test-spliced-backend.R`           | Spliced GP backend implementation       |
-| `test-causal.R`                    | Causal workflow, PS models, ATE (merged)|
-| `test-predict.R`                   | Prediction interface and contracts      |
-| `test-ate-rmean.R`                 | ATE with restricted mean estimation     |
-| `test-wrapper-bundle-gpd-policy.R` | Bundle wrapper and GPD policy logic     |
+- `test-coverage.R`: Smoke workflows, causal/predict paths, spliced backend, and wrapper coverage.
 
-#### `integration/` - Integration Tests (Tier B / ci level)
+#### `test-integration.R` - Integration Tests (Tier B / ci level)
 
 Heavier integration tests with MCMC, testing more combinatorial scenarios (~10-20 minutes).
 
-| File                          | What it Tests                          |
-|-------------------------------|----------------------------------------|
-| `test-bundle.R`               | Bundle creation and validation         |
-| `test-bundle-validation.R`    | Bundle validation edge cases           |
-| `test-simulated-data.R`       | Data simulation functions              |
-| `test-pit-residuals.R`        | PIT residual calculations              |
-| `test-fitted.R`               | Fitted values and residuals            |
-| `test-predict-rmean.R`        | Restricted mean predictions            |
+- `test-integration.R`: Bundle validation, simulation, fitted/predict, and PIT integration tests.
 
-#### `ci/` - CI-Only Meta-Tests
+#### `test-ci.R` - CI-Only Meta-Tests
 
 Tests that gate CI behavior or validate documentation/site artifacts (not package functionality).
 
-| File                          | What it Tests                          |
-|-------------------------------|----------------------------------------|
-| `test-vignette-coverage.R`    | Vignette code completeness             |
-| `test-site-map-tools.R`       | Site map generation utilities          |
+- `test-ci.R`: Vignette code completeness and site map tooling checks.
 
 ## Writing New Tests
 
