@@ -242,8 +242,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <blockquote class="blockquote">
-<p><strong>Legacy vignette (for the website / historical notes).</strong> These files may not match the current exported API one-to-one. Last verified: <strong>2026-01-18</strong>.</p>
-<p>For the up-to-date workflow, see the main package vignettes (basic, unconditional, conditional, and causal)..</p>
+<p><strong>Website workflow note.</strong> This page reflects the current exported API and recommended wrapper-first usage. Last updated: <strong>2026-02-19</strong>.</p>
+<p>For the full package narrative, see the main package vignettes (basic, unconditional, conditional, and causal).</p>
 </blockquote>
 <section id="unconditional-dpmix-stick-breaking-sb-backend" class="level1">
 <h1>Unconditional DPmix: Stick-Breaking (SB) Backend</h1>
@@ -292,7 +292,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>We build the stick-breaking mixture explicitly with <code>components = 5</code> so that there is room for weight decay while keeping the MCMC runtime manageable for a vignette. We then refit the same SB model with a <strong>Cauchy</strong> kernel for comparison.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Gamma kernel ---</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>bundle_sb_gamma <span class="ot">&lt;-</span> CausalMixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>bundle_sb_gamma <span class="ot">&lt;-</span> <span class="fu">bundle</span>(</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y_mixed,</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"gamma"</span>,</span>
 <span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
@@ -302,7 +302,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a><span class="co"># --- Cauchy kernel ---</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>bundle_sb_cauchy <span class="ot">&lt;-</span> CausalMixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>bundle_sb_cauchy <span class="ot">&lt;-</span> <span class="fu">bundle</span>(</span>
 <span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y_mixed,</span>
 <span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"cauchy"</span>,</span>
 <span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
@@ -316,8 +316,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="running-mcmc-summary" class="level2">
 <h2 class="anchored" data-anchor-id="running-mcmc-summary">Running MCMC &amp; Summary</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fit_sb_gamma <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex02-unconditional-dpm-sb-fit_sb_gamma"</span>, CausalMixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle_sb_gamma))</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>fit_sb_cauchy <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex02-unconditional-dpm-sb-fit_sb_cauchy"</span>, CausalMixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle_sb_cauchy))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fit_sb_gamma <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex02-unconditional-dpm-sb-fit_sb_gamma"</span>, <span class="fu">dpmix</span>(bundle_sb_gamma))</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>fit_sb_cauchy <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex02-unconditional-dpm-sb-fit_sb_cauchy"</span>, <span class="fu">dpmix</span>(bundle_sb_cauchy))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_sb_gamma)</span>
@@ -358,8 +358,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>quant_probs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.05</span>, <span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>, <span class="fl">0.95</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>pred_q_gamma <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_gamma, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> quant_probs, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>pred_q_cauchy <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_cauchy, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> quant_probs, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>pred_q_gamma <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_gamma, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">p =</span> quant_probs, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>pred_q_cauchy <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_cauchy, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">p =</span> quant_probs, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_q_gamma)</span>
 <span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_q_cauchy)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -376,7 +376,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="bulk-only-vs-crp-backends" class="level2">
 <h2 class="anchored" data-anchor-id="bulk-only-vs-crp-backends">Bulk-only vs CRP Backends</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>bundle_crp_small <span class="ot">&lt;-</span> CausalMixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>bundle_crp_small <span class="ot">&lt;-</span> <span class="fu">bundle</span>(</span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y_mixed,</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"gamma"</span>,</span>
 <span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
@@ -384,10 +384,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,</span>
 <span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc =</span> mcmc</span>
 <span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>fit_crp_small <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex02-unconditional-dpm-sb-fit_crp_small"</span>, CausalMixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle_crp_small))</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>fit_crp_small <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex02-unconditional-dpm-sb-fit_crp_small"</span>, <span class="fu">dpmix</span>(bundle_crp_small))</span>
 <span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>crp_quant <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_crp_small, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> quant_probs, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>sb_quant <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_gamma, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> quant_probs, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>crp_quant <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_crp_small, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">p =</span> quant_probs, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>sb_quant <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_gamma, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">p =</span> quant_probs, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
 <span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a><span class="fu">bind_rows</span>(</span>
 <span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  crp_quant<span class="sc">$</span>fit <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"CRP"</span>),</span>
@@ -432,44 +432,82 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 
 </main> <!-- /main -->
-﻿<div style="
+<div style="
+
   display:flex;
+
   flex-wrap:wrap;
+
   gap:1rem;
+
   justify-content:space-between;
+
   align-items:center;
+
   font-size:0.9rem;
+
   color:rgba(0,0,0,.65);
+
   margin-top:2.5rem;
+
   padding-top:1.2rem;
+
   border-top:1px solid rgba(0,0,0,.1);
+
 ">
 
-  <div>
-    (c) CausalMixGPD - Bayesian semiparametric modeling for heavy-tailed data
-  </div>
+
 
   <div>
-    <span id="site-version"></span> -
-    <span id="site-updated"></span> -
-    <a href="../cite.html">Cite</a> -
-    <a href="../pkgdown/index.html">API</a> -
-    <a href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a>
+
+    (c) CausalMixGPD - Bayesian semiparametric modeling for heavy-tailed data
+
   </div>
+
+
+
+  <div>
+
+    <span id="site-version"></span> -
+
+    <span id="site-updated"></span> -
+
+    <a href="../cite.html">Cite</a> -
+
+    <a href="../pkgdown/index.html">API</a> -
+
+    <a href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a>
+
+  </div>
+
+
 
 </div>
 
+
+
 <script>
+
   // These values are replaced at build time if present
+
   const version = document.documentElement.getAttribute("data-version");
+
   const updated = document.documentElement.getAttribute("data-updated");
 
+
+
   if (version) {
+
     document.getElementById("site-version").textContent = "Version " + version;
+
   }
+
   if (updated) {
+
     document.getElementById("site-updated").textContent = "Updated " + updated;
+
   }
+
 </script>
 
 <script id="quarto-html-after-body" type="application/javascript">

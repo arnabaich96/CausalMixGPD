@@ -220,6 +220,7 @@ build_docs <- function(
   run_cmd(quarto_exe, c(
     "render",
     quarto_project,
+    "--cache-refresh",
     "--output-dir", quarto_abs,
     "--metadata", paste0("version:", pkg_version),
     "--metadata", paste0("updated:", build_date)

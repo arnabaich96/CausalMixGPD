@@ -25,10 +25,10 @@ plot(x, family = "auto", params = NULL, nLags = 50, ...)
 
 - params:
 
-  Optional parameter selector. Either: (i) character vector of exact
-  parameter names (e.g. `c("alpha","threshold")`), or (ii) a single
-  regex string (e.g. `"alpha|threshold|tail_"`). If `NULL`, plots a
-  reasonable default.
+  Optional parameter selector. Either: (i) character vector of parameter
+  patterns (exact names or partial matches), or (ii) a single regex
+  string (e.g. `"alpha|threshold|tail_"`). If `NULL`, plots all
+  parameters in the samples.
 
 - nLags:
 

@@ -352,7 +352,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="using-ingredients-in-your-recipe" class="level2">
 <h2 class="anchored" data-anchor-id="using-ingredients-in-your-recipe">Using ingredients in your recipe</h2>
 <p>Specify the kernel when building your model:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> CausalMixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> <span class="fu">bundle</span>(</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> your_data,</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"lognormal"</span>,  <span class="co"># Choose your kernel</span></span>
@@ -366,44 +366,82 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 
 </main> <!-- /main -->
-﻿<div style="
+<div style="
+
   display:flex;
+
   flex-wrap:wrap;
+
   gap:1rem;
+
   justify-content:space-between;
+
   align-items:center;
+
   font-size:0.9rem;
+
   color:rgba(0,0,0,.65);
+
   margin-top:2.5rem;
+
   padding-top:1.2rem;
+
   border-top:1px solid rgba(0,0,0,.1);
+
 ">
 
-  <div>
-    (c) CausalMixGPD - Bayesian semiparametric modeling for heavy-tailed data
-  </div>
+
 
   <div>
-    <span id="site-version"></span> -
-    <span id="site-updated"></span> -
-    <a href="../cite.html">Cite</a> -
-    <a href="../pkgdown/index.html">API</a> -
-    <a href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a>
+
+    (c) CausalMixGPD - Bayesian semiparametric modeling for heavy-tailed data
+
   </div>
+
+
+
+  <div>
+
+    <span id="site-version"></span> -
+
+    <span id="site-updated"></span> -
+
+    <a href="../cite.html">Cite</a> -
+
+    <a href="../pkgdown/index.html">API</a> -
+
+    <a href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a>
+
+  </div>
+
+
 
 </div>
 
+
+
 <script>
+
   // These values are replaced at build time if present
+
   const version = document.documentElement.getAttribute("data-version");
+
   const updated = document.documentElement.getAttribute("data-updated");
 
+
+
   if (version) {
+
     document.getElementById("site-version").textContent = "Version " + version;
+
   }
+
   if (updated) {
+
     document.getElementById("site-updated").textContent = "Updated " + updated;
+
   }
+
 </script>
 
 <script id="quarto-html-after-body" type="application/javascript">

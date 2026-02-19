@@ -2,6 +2,10 @@
 
 ## All functions
 
+- [`allocation(`*`<mixgpd_fit>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/allocation.mixgpd_fit.md)
+  : Extract posterior cluster allocation from mixgpd_fit
+- [`allocation()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/allocation.md)
+  : Extract posterior cluster allocation
 - [`dAmoroso()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/amoroso.md)
   [`pAmoroso()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/amoroso.md)
   [`qAmoroso()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/amoroso.md)
@@ -97,6 +101,8 @@
   : Fit DP mixture model with GPD tail
 - [`dpmix()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/dpmix.md)
   : Fit DP mixture model without GPD tail
+- [`ess_summary()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/ess_summary.md)
+  : Effective Sample Size Summary (ESS/sec)
 - [`fitted(`*`<mixgpd_fit>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/fitted.mixgpd_fit.md)
   : Fitted values and residuals for a MixGPD fit
 - [`dGammaGpd()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/gamma_gpd.md)
@@ -286,6 +292,8 @@
   : Plot causal prediction outputs
 - [`plot(`*`<causalmixgpd_qte>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.causalmixgpd_qte.md)
   : Plot QTE results
+- [`plot(`*`<mixgpd_allocation>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.mixgpd_allocation.md)
+  : Plot cluster allocation
 - [`plot(`*`<mixgpd_fit>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.mixgpd_fit.md)
   : Plot MCMC diagnostics for a MixGPD fit (ggmcmc backend)
 - [`plot(`*`<mixgpd_fitted>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.mixgpd_fitted.md)
@@ -312,6 +320,8 @@
   : Print a propensity score fit
 - [`print(`*`<causalmixgpd_qte>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.causalmixgpd_qte.md)
   : Print a QTE object
+- [`print(`*`<mixgpd_allocation>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.mixgpd_allocation.md)
+  : Print cluster allocation summary
 - [`print(`*`<mixgpd_fit>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.mixgpd_fit.md)
   : Print a MixGPD fitted object
 - [`print(`*`<mixgpd_fitted_plots>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.mixgpd_fitted_plots.md)
@@ -326,6 +336,8 @@
   : Print an ATE summary
 - [`print(`*`<summary.causalmixgpd_qte>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.summary.causalmixgpd_qte.md)
   : Print a QTE summary
+- [`print(`*`<summary.mixgpd_allocation>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.summary.mixgpd_allocation.md)
+  : Print summary of cluster allocation
 - [`qte()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/qte.md)
   : Quantile treatment effects (QTE), marginal over training covariates
 - [`qtt()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/qtt.md)
@@ -352,5 +364,7 @@
   : Summarize a causal fit
 - [`summary(`*`<causalmixgpd_qte>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.causalmixgpd_qte.md)
   : Summarize a QTE object
+- [`summary(`*`<mixgpd_allocation>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.mixgpd_allocation.md)
+  : Summarize cluster allocation
 - [`summary(`*`<mixgpd_fit>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.mixgpd_fit.md)
   : Summarize a MixGPD fitted object

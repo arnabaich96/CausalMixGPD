@@ -21,16 +21,19 @@ Project rules:
   x = NULL,
   y = NULL,
   ps = NULL,
+  id = NULL,
   type = c("density", "survival", "quantile", "sample", "mean", "rmean", "median", "fit"),
   p = NULL,
   index = NULL,
   nsim = NULL,
-  cred.level = 0.95,
+  level = 0.95,
   interval = "credible",
   probs = c(0.025, 0.5, 0.975),
   store_draws = TRUE,
   nsim_mean = 200L,
   cutoff = NULL,
+  ndraws_pred = NULL,
+  chunk_size = NULL,
   ncores = 1L
 )
 ```

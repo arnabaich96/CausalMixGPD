@@ -217,6 +217,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 <p>This page is the contributor mental model: what depends on what, and where to make changes safely.</p>
+<p>For user-facing examples and guides, prefer wrapper entry points (<code>dpmix()</code> / <code>dpmgpd()</code>). This page focuses on the internal execution path (<code>bundle()</code> -&gt; <code>mcmc()</code>) used by contributors.</p>
 <section id="layers" class="level2">
 <h2 class="anchored" data-anchor-id="layers">Layers</h2>
 <ol type="1">
@@ -230,14 +231,15 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="call-flow-non-causal" class="level2">
 <h2 class="anchored" data-anchor-id="call-flow-non-causal">Call flow (non-causal)</h2>
+<p>Default user path: <code>dpmix(...)</code> / <code>dpmgpd(...)</code>. Internal path shown below: <code>bundle()</code> then <code>mcmc()</code>.</p>
 <pre class="mermaid"><code>sequenceDiagram
   participant U as User
   participant S as compile_model_spec()
   participant R as kernel registry
-  participant B as build_nimble_bundle()
-  participant M as run_mcmc_bundle_manual()
+  participant B as bundle()
+  participant M as mcmc()
   participant F as mixgpd_fit
-  U-&gt;&gt;B: build_nimble_bundle(...)
+  U-&gt;&gt;B: bundle(...)
   B-&gt;&gt;S: compile spec
   S-&gt;&gt;R: validate + route kernel/tail
   B-&gt;&gt;M: bundle (code/data/constants)
@@ -246,59 +248,98 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="call-flow-causal" class="level2">
 <h2 class="anchored" data-anchor-id="call-flow-causal">Call flow (causal)</h2>
+<p>Default user path: <code>dpmix(..., treat=...)</code> / <code>dpmgpd(..., treat=...)</code>. Internal path shown below: <code>bundle()</code> then <code>mcmc()</code>.</p>
 <pre class="mermaid"><code>sequenceDiagram
   participant U as User
-  participant C as build_causal_bundle()
+  participant C as bundle()
   participant P as PS sub-bundle
-  participant M as run_mcmc_causal()
+  participant M as mcmc()
   participant Q as qte()/ate()
-  U-&gt;&gt;C: build_causal_bundle(...)
+  U-&gt;&gt;C: bundle(...)
   C-&gt;&gt;P: build + run PS (optional)
-  U-&gt;&gt;M: run_mcmc_causal(...)
+  U-&gt;&gt;M: mcmc(...)
   M-&gt;&gt;Q: derive estimands</code></pre>
 
 
 </section>
 
 </main> <!-- /main -->
-﻿<div style="
+<div style="
+
   display:flex;
+
   flex-wrap:wrap;
+
   gap:1rem;
+
   justify-content:space-between;
+
   align-items:center;
+
   font-size:0.9rem;
+
   color:rgba(0,0,0,.65);
+
   margin-top:2.5rem;
+
   padding-top:1.2rem;
+
   border-top:1px solid rgba(0,0,0,.1);
+
 ">
 
-  <div>
-    (c) CausalMixGPD - Bayesian semiparametric modeling for heavy-tailed data
-  </div>
+
 
   <div>
-    <span id="site-version"></span> -
-    <span id="site-updated"></span> -
-    <a href="../cite.html">Cite</a> -
-    <a href="../pkgdown/index.html">API</a> -
-    <a href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a>
+
+    (c) CausalMixGPD - Bayesian semiparametric modeling for heavy-tailed data
+
   </div>
+
+
+
+  <div>
+
+    <span id="site-version"></span> -
+
+    <span id="site-updated"></span> -
+
+    <a href="../cite.html">Cite</a> -
+
+    <a href="../pkgdown/index.html">API</a> -
+
+    <a href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a>
+
+  </div>
+
+
 
 </div>
 
+
+
 <script>
+
   // These values are replaced at build time if present
+
   const version = document.documentElement.getAttribute("data-version");
+
   const updated = document.documentElement.getAttribute("data-updated");
 
+
+
   if (version) {
+
     document.getElementById("site-version").textContent = "Version " + version;
+
   }
+
   if (updated) {
+
     document.getElementById("site-updated").textContent = "Updated " + updated;
+
   }
+
 </script>
 
 <script id="quarto-html-after-body" type="application/javascript">

@@ -242,8 +242,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <blockquote class="blockquote">
-<p><strong>Legacy vignette (for the website / historical notes).</strong> These files may not match the current exported API one-to-one. Last verified: <strong>2026-01-18</strong>.</p>
-<p>For the up-to-date workflow, see the main package vignettes (basic, unconditional, conditional, and causal)..</p>
+<p><strong>Website workflow note.</strong> This page reflects the current exported API and recommended wrapper-first usage. Last updated: <strong>2026-02-19</strong>.</p>
+<p>For the full package narrative, see the main package vignettes (basic, unconditional, conditional, and causal).</p>
 </blockquote>
 <p><a href="roadmap.html" class="btn btn-outline-light">Workflow roadmap</a></p>
 <section id="big-picture" class="level1">
@@ -282,14 +282,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1>What does the workflow look like?</h1>
 <p>CausalMixGPD uses a consistent build -&gt; run -&gt; summarize loop:</p>
 <ol type="1">
-<li><strong>Build a bundle</strong> using <code>CausalMixGPD::bundle()</code> (or causal builders if you are doing TE work).</li>
-<li><strong>Run MCMC</strong> using <code>CausalMixGPD::mcmc()</code>.</li>
+<li><strong>Build a bundle</strong> using <code>bundle()</code> (or causal builders if you are doing TE work).</li>
+<li><strong>Fit directly</strong> using <code>dpmix()</code> (or <code>dpmgpd()</code> when <code>GPD = TRUE</code>).</li>
 <li><strong>Inspect and summarize</strong> using <code>print()</code>, <code>summary()</code>, <code>plot()</code>.</li>
 <li><strong>Predict</strong> using <code>predict()</code>. For conditional (covariate) models, <code>fitted()</code> is also available.</li>
 </ol>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Build</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> CausalMixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>bundle <span class="ot">&lt;-</span> <span class="fu">bundle</span>(</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> <span class="fu">rnorm</span>(<span class="dv">50</span>),</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"normal"</span>,</span>
@@ -299,7 +299,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Run</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"quickstart-backends-and-workflow-fit"</span>, CausalMixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle))</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>fit <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"quickstart-backends-and-workflow-fit"</span>, <span class="fu">dpmix</span>(bundle))</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Summarize</span></span>
 <span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(fit)</span>
@@ -337,44 +337,82 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 
 </main> <!-- /main -->
-﻿<div style="
+<div style="
+
   display:flex;
+
   flex-wrap:wrap;
+
   gap:1rem;
+
   justify-content:space-between;
+
   align-items:center;
+
   font-size:0.9rem;
+
   color:rgba(0,0,0,.65);
+
   margin-top:2.5rem;
+
   padding-top:1.2rem;
+
   border-top:1px solid rgba(0,0,0,.1);
+
 ">
 
-  <div>
-    (c) CausalMixGPD - Bayesian semiparametric modeling for heavy-tailed data
-  </div>
+
 
   <div>
-    <span id="site-version"></span> -
-    <span id="site-updated"></span> -
-    <a href="../cite.html">Cite</a> -
-    <a href="../pkgdown/index.html">API</a> -
-    <a href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a>
+
+    (c) CausalMixGPD - Bayesian semiparametric modeling for heavy-tailed data
+
   </div>
+
+
+
+  <div>
+
+    <span id="site-version"></span> -
+
+    <span id="site-updated"></span> -
+
+    <a href="../cite.html">Cite</a> -
+
+    <a href="../pkgdown/index.html">API</a> -
+
+    <a href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a>
+
+  </div>
+
+
 
 </div>
 
+
+
 <script>
+
   // These values are replaced at build time if present
+
   const version = document.documentElement.getAttribute("data-version");
+
   const updated = document.documentElement.getAttribute("data-updated");
 
+
+
   if (version) {
+
     document.getElementById("site-version").textContent = "Version " + version;
+
   }
+
   if (updated) {
+
     document.getElementById("site-updated").textContent = "Updated " + updated;
+
   }
+
 </script>
 
 <script id="quarto-html-after-body" type="application/javascript">

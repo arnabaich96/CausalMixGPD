@@ -1,7 +1,8 @@
 # Quantile treatment effect on the treated (QTT)
 
-Computes a treated-only marginal quantile treatment effect by averaging
-conditional quantile effects over rows with assigned treatment `A=1`.
+Computes a treated-standardized marginal quantile treatment effect:
+\\Q_1^{t}(\tau) - Q_0^{t}(\tau)\\, where marginalization is over the
+covariate distribution of treated units.
 
 ## Usage
 

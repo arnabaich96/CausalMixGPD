@@ -252,7 +252,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul>
 <p>All <code>d*()</code> functions optionally return log-densities via <code>log = TRUE</code>, i.e., (f(y)). This is numerically convenient because likelihoods multiply densities but add log-densities: [ {<em>{i=1}^n f(y_i)}=</em>{i=1}^n f(y_i). ]</p>
 <p>All <code>p*()</code> functions support <code>lower.tail</code> and <code>log.p</code>: [ (Y&gt;y)=1-F(y),F(y)&nbsp;&nbsp;{1-F(y)}. ]</p>
-<p>The <code>d*()</code>, <code>p*()</code>, and <code>q*()</code> functions accept vector inputs for their first argument and evaluate elementwise; <code>r*()</code> supports <code>n &gt; 1</code> (including <code>n = 0</code>).</p>
+<p>The exported uppercase NIMBLE kernels are scalar in their first argument, and <code>r*()</code> kernels are implemented for <code>n = 1</code>. For vectorized R usage (including <code>n &gt; 1</code>), use the lowercase wrapper families documented in the <code>*_lowercase</code> help topics.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>w <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.60</span>, <span class="fl">0.40</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>shape <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">2.0</span>, <span class="fl">5.0</span>)</span>
@@ -277,44 +277,82 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 
 </main> <!-- /main -->
-﻿<div style="
+<div style="
+
   display:flex;
+
   flex-wrap:wrap;
+
   gap:1rem;
+
   justify-content:space-between;
+
   align-items:center;
+
   font-size:0.9rem;
+
   color:rgba(0,0,0,.65);
+
   margin-top:2.5rem;
+
   padding-top:1.2rem;
+
   border-top:1px solid rgba(0,0,0,.1);
+
 ">
 
-  <div>
-    (c) CausalMixGPD - Bayesian semiparametric modeling for heavy-tailed data
-  </div>
+
 
   <div>
-    <span id="site-version"></span> -
-    <span id="site-updated"></span> -
-    <a href="../cite.html">Cite</a> -
-    <a href="../pkgdown/index.html">API</a> -
-    <a href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a>
+
+    (c) CausalMixGPD - Bayesian semiparametric modeling for heavy-tailed data
+
   </div>
+
+
+
+  <div>
+
+    <span id="site-version"></span> -
+
+    <span id="site-updated"></span> -
+
+    <a href="../cite.html">Cite</a> -
+
+    <a href="../pkgdown/index.html">API</a> -
+
+    <a href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a>
+
+  </div>
+
+
 
 </div>
 
+
+
 <script>
+
   // These values are replaced at build time if present
+
   const version = document.documentElement.getAttribute("data-version");
+
   const updated = document.documentElement.getAttribute("data-updated");
 
+
+
   if (version) {
+
     document.getElementById("site-version").textContent = "Version " + version;
+
   }
+
   if (updated) {
+
     document.getElementById("site-updated").textContent = "Updated " + updated;
+
   }
+
 </script>
 
 <script id="quarto-html-after-body" type="application/javascript">

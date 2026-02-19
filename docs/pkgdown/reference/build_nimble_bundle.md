@@ -28,7 +28,10 @@ build_nimble_bundle(
   param_specs = NULL,
   mcmc = list(niter = 2000, nburnin = 500, thin = 1, nchains = 1, seed = 1),
   epsilon = 0.025,
-  alpha_random = TRUE
+  alpha_random = TRUE,
+  monitor = c("core", "full"),
+  monitor_latent = FALSE,
+  monitor_v = FALSE
 )
 ```
 
@@ -87,7 +90,21 @@ build_nimble_bundle(
 
 - alpha_random:
 
-  Logical; whether concentration `alpha` is stochastic.
+  Logical; whether the DP concentration parameter \\\kappa\\ is
+  stochastic.
+
+- monitor:
+
+  Character monitor profile: `"core"` (default) or `"full"`.
+
+- monitor_latent:
+
+  Logical; if TRUE, include latent allocations (`z`) in monitors.
+
+- monitor_v:
+
+  Logical; if TRUE and backend is SB, include stick breaks (`v`) in
+  monitors.
 
 ## Value
 

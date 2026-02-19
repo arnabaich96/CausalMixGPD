@@ -45,7 +45,9 @@ dpmix(
 - mcmc:
 
   Named list of run arguments passed to
-  [`mcmc()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/mcmc.md).
+  [`mcmc()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/mcmc.md)
+  (including optional performance controls such as `parallel_chains`,
+  `parallel_arms`, `workers`, `timing`, and `z_update_every`).
 
 ## Value
 

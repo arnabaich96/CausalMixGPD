@@ -218,6 +218,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 <p>This page documents the causal pipeline for contributors.</p>
+<p>For user-facing workflows, prefer wrapper entry points (<code>dpmix()</code> / <code>dpmgpd()</code>) over direct <code>mcmc()</code> calls.</p>
 <section id="objects" class="level2">
 <h2 class="anchored" data-anchor-id="objects">Objects</h2>
 <p>A causal fit typically contains: - treatment-arm fit - control-arm fit - (optional) propensity score model output - derived estimands (<code>ate()</code>, <code>att()</code>, <code>qte()</code>, <code>qtt()</code>, <code>cate()</code>, <code>cqte()</code>) and their summaries</p>
@@ -225,8 +226,9 @@ ul.task-list li input[type="checkbox"] {
 <section id="computation-outline" class="level2">
 <h2 class="anchored" data-anchor-id="computation-outline">Computation outline</h2>
 <ol type="1">
-<li>Build a causal bundle (<code>build_causal_bundle()</code>), optionally including a PS sub-bundle.</li>
-<li>Run MCMC (<code>run_mcmc_causal()</code>), producing a causal fit object.</li>
+<li>Preferred user path: fit via <code>dpmix(..., treat=...)</code> or <code>dpmgpd(..., treat=...)</code>.</li>
+<li>Internal contributor path: build a causal bundle (<code>bundle()</code>), optionally including a PS sub-bundle.</li>
+<li>Internal contributor path: run MCMC (<code>mcmc()</code>), producing a causal fit object.</li>
 <li>Compute marginal estimands (<code>ate()</code>, <code>att()</code>, <code>qte()</code>, <code>qtt()</code>) on training data; compute conditional estimands (<code>cate()</code>, <code>cqte()</code>) on <code>newdata</code> if supplied, otherwise training <code>X</code>.</li>
 </ol>
 </section>
@@ -262,44 +264,82 @@ ul.task-list li input[type="checkbox"] {
 </section>
 
 </main> <!-- /main -->
-﻿<div style="
+<div style="
+
   display:flex;
+
   flex-wrap:wrap;
+
   gap:1rem;
+
   justify-content:space-between;
+
   align-items:center;
+
   font-size:0.9rem;
+
   color:rgba(0,0,0,.65);
+
   margin-top:2.5rem;
+
   padding-top:1.2rem;
+
   border-top:1px solid rgba(0,0,0,.1);
+
 ">
 
-  <div>
-    (c) CausalMixGPD - Bayesian semiparametric modeling for heavy-tailed data
-  </div>
+
 
   <div>
-    <span id="site-version"></span> -
-    <span id="site-updated"></span> -
-    <a href="../cite.html">Cite</a> -
-    <a href="../pkgdown/index.html">API</a> -
-    <a href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a>
+
+    (c) CausalMixGPD - Bayesian semiparametric modeling for heavy-tailed data
+
   </div>
+
+
+
+  <div>
+
+    <span id="site-version"></span> -
+
+    <span id="site-updated"></span> -
+
+    <a href="../cite.html">Cite</a> -
+
+    <a href="../pkgdown/index.html">API</a> -
+
+    <a href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a>
+
+  </div>
+
+
 
 </div>
 
+
+
 <script>
+
   // These values are replaced at build time if present
+
   const version = document.documentElement.getAttribute("data-version");
+
   const updated = document.documentElement.getAttribute("data-updated");
 
+
+
   if (version) {
+
     document.getElementById("site-version").textContent = "Version " + version;
+
   }
+
   if (updated) {
+
     document.getElementById("site-updated").textContent = "Updated " + updated;
+
   }
+
 </script>
 
 <script id="quarto-html-after-body" type="application/javascript">

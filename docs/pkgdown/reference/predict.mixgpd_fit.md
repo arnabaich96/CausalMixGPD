@@ -24,19 +24,24 @@ predict(
   x = NULL,
   y = NULL,
   ps = NULL,
+  id = NULL,
   newdata = NULL,
   type = c("density", "survival", "quantile", "sample", "mean", "rmean", "median",
     "location", "fit"),
   p = NULL,
   index = NULL,
   nsim = NULL,
-  cred.level = 0.95,
+  level = 0.95,
   interval = "credible",
   probs = c(0.025, 0.5, 0.975),
   store_draws = TRUE,
   nsim_mean = 200L,
   cutoff = NULL,
   ncores = 1L,
+  ndraws_pred = NULL,
+  chunk_size = NULL,
+  parallel = FALSE,
+  workers = NULL,
   ...
 )
 ```
@@ -61,6 +66,12 @@ predict(
   Optional numeric vector of propensity scores for conditional
   prediction. Used when the model was fit with propensity score
   augmentation.
+
+- id:
+
+  Optional identifier for prediction rows. Provide either a column name
+  in `x`/`newdata` or a vector of length `nrow(x)`. The id column is
+  excluded from analysis.
 
 - newdata:
 
@@ -108,7 +119,7 @@ predict(
 
   Number of posterior predictive samples (for `type="sample"`).
 
-- cred.level:
+- level:
 
   Credible level for credible intervals (default 0.95 for 95 percent
   intervals).
@@ -139,6 +150,25 @@ predict(
 - ncores:
 
   Number of CPU cores to use for parallel prediction (if supported).
+
+- ndraws_pred:
+
+  Optional integer subsample of posterior draws for prediction speed. If
+  NULL and `nrow(newdata) > 20000`, defaults to 200.
+
+- chunk_size:
+
+  Optional row chunk size for large `newdata` prediction. If NULL and
+  `nrow(newdata) > 20000`, defaults to 10000.
+
+- parallel:
+
+  Logical; if TRUE, enable parallel prediction (alias for setting
+  `ncores > 1`).
+
+- workers:
+
+  Optional integer worker count (alias for `ncores`).
 
 - ...:
 

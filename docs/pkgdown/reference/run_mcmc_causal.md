@@ -7,7 +7,14 @@ entirely.
 ## Usage
 
 ``` r
-run_mcmc_causal(bundle, show_progress = TRUE)
+run_mcmc_causal(
+  bundle,
+  show_progress = TRUE,
+  parallel_arms = FALSE,
+  workers = NULL,
+  timing = FALSE,
+  z_update_every = NULL
+)
 ```
 
 ## Arguments
@@ -20,6 +27,22 @@ run_mcmc_causal(bundle, show_progress = TRUE)
 - show_progress:
 
   Logical; passed to nimble for each block.
+
+- parallel_arms:
+
+  Logical; if TRUE, run control and treated outcome arms in parallel.
+
+- workers:
+
+  Optional integer workers for parallel arm execution.
+
+- timing:
+
+  Logical; if TRUE, return arm and total timings in `$timing`.
+
+- z_update_every:
+
+  Integer \>= 1 passed to arm-level outcome MCMC.
 
 ## Value
 

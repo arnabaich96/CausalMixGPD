@@ -30,7 +30,10 @@ build_causal_bundle(
   PS = "logit",
   ps_scale = c("logit", "prob"),
   ps_summary = c("mean", "median"),
-  ps_clamp = 1e-06
+  ps_clamp = 1e-06,
+  monitor = c("core", "full"),
+  monitor_latent = FALSE,
+  monitor_v = FALSE
 )
 ```
 
@@ -93,7 +96,8 @@ build_causal_bundle(
 
 - alpha_random:
 
-  Logical; whether outcome concentration `alpha` is stochastic.
+  Logical; whether the outcome-model DP concentration parameter
+  \\\kappa\\ is stochastic.
 
 - ps_prior:
 
@@ -131,6 +135,18 @@ build_causal_bundle(
 - ps_clamp:
 
   Numeric epsilon for clamping PS values to \\(\epsilon, 1-\epsilon)\\.
+
+- monitor:
+
+  Character monitor profile: `"core"` (default) or `"full"`.
+
+- monitor_latent:
+
+  Logical; whether to monitor latent allocations (`z`) in outcome arms.
+
+- monitor_v:
+
+  Logical; whether to monitor stick-breaking `v` terms for SB outcomes.
 
 ## Value
 

@@ -271,8 +271,8 @@ window.Quarto = {
 
 
 <blockquote class="blockquote">
-<p><strong>Legacy vignette (for the website / historical notes).</strong> These files may not match the current exported API one-to-one. Last verified: <strong>2026-01-18</strong>.</p>
-<p>For the up-to-date workflow, see the main package vignettes (basic, unconditional, conditional, and causal)..</p>
+<p><strong>Website workflow note.</strong> This page reflects the current exported API and recommended wrapper-first usage. Last updated: <strong>2026-02-19</strong>.</p>
+<p>For the full package narrative, see the main package vignettes (basic, unconditional, conditional, and causal).</p>
 </blockquote>
 <section id="unconditional-causalmixgpd-crp-backend-with-tail-augmentation" class="level1">
 <h1>Unconditional CausalMixGPD: CRP Backend with Tail Augmentation</h1>
@@ -282,7 +282,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="data-setup">Data Setup</h2>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load data with an obvious tail</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"nc_pos_tail200_k4"</span>, <span class="at">package =</span> <span class="st">"CausalMixGPD"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"nc_pos_tail200_k4"</span>)</span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>y_tail <span class="ot">&lt;-</span> nc_pos_tail200_k4<span class="sc">$</span>y</span>
 <span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>y_tail <span class="ot">&lt;-</span> y_tail[<span class="fu">is.finite</span>(y_tail) <span class="sc">&amp;</span> y_tail <span class="sc">&gt;</span> <span class="dv">0</span>]</span>
 <span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
@@ -324,9 +324,9 @@ window.Quarto = {
 </section>
 <section id="model-specification-bundle" class="level2">
 <h2 class="anchored" data-anchor-id="model-specification-bundle">Model Specification &amp; Bundle</h2>
-<p>This mirrors the direct <code>CausalMixGPD::bundle()</code> workflow in <code>start/backends-and-workflow</code>, but with <strong>tail augmentation</strong> turned on (<code>GPD = TRUE</code>). Here we use an <strong>Inverse Gaussian</strong> bulk kernel and estimate the GPD threshold with a lognormal prior centered at the empirical 80th percentile.</p>
+<p>This mirrors the direct <code>bundle()</code> workflow in <code>start/backends-and-workflow</code>, but with <strong>tail augmentation</strong> turned on (<code>GPD = TRUE</code>). Here we use an <strong>Inverse Gaussian</strong> bulk kernel and estimate the GPD threshold with a lognormal prior centered at the empirical 80th percentile.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>bundle_gpd <span class="ot">&lt;-</span> CausalMixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>bundle_gpd <span class="ot">&lt;-</span> <span class="fu">bundle</span>(</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y_tail,</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"invgauss"</span>,</span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
@@ -350,7 +350,7 @@ window.Quarto = {
 <section id="running-mcmc-diagnostics" class="level2">
 <h2 class="anchored" data-anchor-id="running-mcmc-diagnostics">Running MCMC &amp; Diagnostics</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fit_gpd <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex03-unconditional-dpmgpd-crp-fit_gpd"</span>, CausalMixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle_gpd))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>fit_gpd <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex03-unconditional-dpmgpd-crp-fit_gpd"</span>, <span class="fu">dpmgpd</span>(bundle_gpd))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -382,7 +382,7 @@ window.Quarto = {
 </div>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>quantile_probs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.90</span>, <span class="fl">0.95</span>, <span class="fl">0.99</span>)</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>pred_quantiles <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_gpd, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> quantile_probs, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>pred_quantiles <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_gpd, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">p =</span> quantile_probs, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_quantiles)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <hr>
@@ -391,7 +391,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="bulk-only-baseline-comparison">Bulk-Only Baseline Comparison</h2>
 <p>To demonstrate the value of tail augmentation, we fit a bulk-only lognormal DP mixture and compare posterior summaries against the InvGauss+GPD fit.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>bundle_bulk_only <span class="ot">&lt;-</span> CausalMixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>bundle_bulk_only <span class="ot">&lt;-</span> <span class="fu">bundle</span>(</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">y =</span> y_tail,</span>
 <span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"lognormal"</span>,</span>
 <span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
@@ -399,11 +399,11 @@ window.Quarto = {
 <span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">5</span>,</span>
 <span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc =</span> mcmc</span>
 <span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>fit_bulk_only <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex03-unconditional-dpmgpd-crp-fit_bulk_only"</span>, CausalMixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle_bulk_only))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>fit_bulk_only <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex03-unconditional-dpmgpd-crp-fit_bulk_only"</span>, <span class="fu">dpmix</span>(bundle_bulk_only))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>bulk_quantiles <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_bulk_only, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> quantile_probs)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>tail_quantiles <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_gpd, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> quantile_probs)</span>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>bulk_quantiles <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_bulk_only, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">p =</span> quantile_probs)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>tail_quantiles <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_gpd, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">p =</span> quantile_probs)</span>
 <span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>compare_tbl <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
 <span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>  bulk_quantiles<span class="sc">$</span>fit <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">model =</span> <span class="st">"Bulk only"</span>),</span>
@@ -426,7 +426,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="extreme-value-diagnostics-residuals">Extreme Value Diagnostics &amp; Residuals</h2>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>probs <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="fl">0.995</span>, <span class="fl">0.99</span>, <span class="fl">0.975</span>)</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>return_levels <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_gpd, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> probs)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>return_levels <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_gpd, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">p =</span> probs)</span>
 <span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>return_levels<span class="sc">$</span>fit <span class="sc">%&gt;%</span></span>
 <span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.numeric), <span class="sc">~</span> <span class="fu">round</span>(.x, <span class="dv">3</span>))) <span class="sc">%&gt;%</span></span>
@@ -440,7 +440,7 @@ window.Quarto = {
 <h2 class="anchored" data-anchor-id="threshold-sensitivity">Threshold Sensitivity</h2>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>sensitivity_fits <span class="ot">&lt;-</span> <span class="fu">lapply</span>(thresholds, <span class="cf">function</span>(u) {</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  bundle <span class="ot">&lt;-</span> CausalMixGPD<span class="sc">::</span><span class="fu">bundle</span>(</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  bundle <span class="ot">&lt;-</span> <span class="fu">bundle</span>(</span>
 <span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> y_tail,</span>
 <span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">kernel =</span> <span class="st">"invgauss"</span>,</span>
 <span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
@@ -453,12 +453,12 @@ window.Quarto = {
 <span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">components =</span> <span class="dv">5</span>,</span>
 <span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">mcmc =</span> mcmc</span>
 <span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex03-unconditional-dpmgpd-crp-fit"</span>, CausalMixGPD<span class="sc">::</span><span class="fu">mcmc</span>(bundle))</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>  fit <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(<span class="st">"ex03-unconditional-dpmgpd-crp-fit"</span>, <span class="fu">dpmix</span>(bundle))</span>
 <span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">threshold =</span> u, <span class="at">fit =</span> fit)</span>
 <span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>})</span>
 <span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>sensitivity_tbl <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(<span class="fu">lapply</span>(sensitivity_fits, <span class="cf">function</span>(entry) {</span>
-<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>  quant <span class="ot">&lt;-</span> <span class="fu">predict</span>(entry<span class="sc">$</span>fit, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">index =</span> <span class="fl">0.99</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>  quant <span class="ot">&lt;-</span> <span class="fu">predict</span>(entry<span class="sc">$</span>fit, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">p =</span> <span class="fl">0.99</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
 <span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>  qfit <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(quant<span class="sc">$</span>fit)</span>
 <span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>  qfit<span class="sc">$</span>threshold <span class="ot">&lt;-</span> entry<span class="sc">$</span>threshold</span>
 <span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a></span>
@@ -518,44 +518,82 @@ window.Quarto = {
 </section>
 
 </main> <!-- /main -->
-﻿<div style="
+<div style="
+
   display:flex;
+
   flex-wrap:wrap;
+
   gap:1rem;
+
   justify-content:space-between;
+
   align-items:center;
+
   font-size:0.9rem;
+
   color:rgba(0,0,0,.65);
+
   margin-top:2.5rem;
+
   padding-top:1.2rem;
+
   border-top:1px solid rgba(0,0,0,.1);
+
 ">
 
-  <div>
-    (c) CausalMixGPD - Bayesian semiparametric modeling for heavy-tailed data
-  </div>
+
 
   <div>
-    <span id="site-version"></span> -
-    <span id="site-updated"></span> -
-    <a href="../cite.html">Cite</a> -
-    <a href="../pkgdown/index.html">API</a> -
-    <a href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a>
+
+    (c) CausalMixGPD - Bayesian semiparametric modeling for heavy-tailed data
+
   </div>
+
+
+
+  <div>
+
+    <span id="site-version"></span> -
+
+    <span id="site-updated"></span> -
+
+    <a href="../cite.html">Cite</a> -
+
+    <a href="../pkgdown/index.html">API</a> -
+
+    <a href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a>
+
+  </div>
+
+
 
 </div>
 
+
+
 <script>
+
   // These values are replaced at build time if present
+
   const version = document.documentElement.getAttribute("data-version");
+
   const updated = document.documentElement.getAttribute("data-updated");
 
+
+
   if (version) {
+
     document.getElementById("site-version").textContent = "Version " + version;
+
   }
+
   if (updated) {
+
     document.getElementById("site-updated").textContent = "Updated " + updated;
+
   }
+
 </script>
 
 <script id="quarto-html-after-body" type="application/javascript">

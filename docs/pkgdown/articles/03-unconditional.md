@@ -1,4 +1,4 @@
-# CausalMixGPD: Unconditional workflow (bulk + optional GPD tail)
+# DPmixGPD: Unconditional workflow (bulk + optional GPD tail)
 
 This vignette shows the end-to-end workflow for an unconditional model:
 build a bundle, run posterior sampling, and compute distributional
@@ -6,9 +6,9 @@ predictions. The mathematical specification of the DPM bulk model and
 the spliced GPD tail is defined once in **“Model specification and
 posterior computation”** (the `basic` vignette). Here we focus on usage.
 
-CausalMixGPD ships small example datasets; we use `nc_pos_tail200_k4`,
-which is a positive-support dataset with an injected upper tail (so
-`GPD=TRUE` is meaningful).
+DPmixGPD ships small example datasets; we use `nc_pos_tail200_k4`, which
+is a positive-support dataset with an injected upper tail (so `GPD=TRUE`
+is meaningful).
 
 Model fit (code shown for reproducibility, but not executed during CRAN
 checks)

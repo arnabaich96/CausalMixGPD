@@ -2,9 +2,6 @@
 
 ### Articles
 
-- [CausalMixGPD: An
-  Introduction](https://arnabaich96.github.io/CausalMixGPD/pkgdown/articles/01-introduction.md):
-- [CausalMixGPD: One-arm modeling (unconditional and
-  conditional)](https://arnabaich96.github.io/CausalMixGPD/pkgdown/articles/02-one-arm.md):
-- [CausalMixGPD: Causal modeling (two-arm outcomes,
-  ATE/QTE)](https://arnabaich96.github.io/CausalMixGPD/pkgdown/articles/03-causal.md):
+- [CausalMixGPD: Bayesian Conditional Dirichlet Process Mixtures with
+  Generalized Pareto Tails and Causal
+  Extensions](https://arnabaich96.github.io/CausalMixGPD/pkgdown/articles/manuscript/CausalMixGPD_JSS_article.md):

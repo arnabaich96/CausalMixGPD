@@ -11,6 +11,7 @@ articles:
       - starts_with("01-introduction")
       - starts_with("02-one-arm")
       - starts_with("03-causal")
+      - manuscript/CausalMixGPD_JSS_article
 
 template:
   bootstrap: 5

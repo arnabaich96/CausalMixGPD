@@ -27,11 +27,9 @@ an outcome bundle for the treated arm (A = 1)
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/01-basic.html">Model specification</a></li>
-    <li><a class="dropdown-item" href="../articles/02-model-spec.html">Model fundamentals</a></li>
-    <li><a class="dropdown-item" href="../articles/03-unconditional.html">Unconditional</a></li>
-    <li><a class="dropdown-item" href="../articles/04-conditional.html">Conditional</a></li>
-    <li><a class="dropdown-item" href="../articles/05-causal.html">Causal</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/01-introduction.html">Introduction</a></li>
+    <li><a class="dropdown-item" href="../articles/02-one-arm.html">One-Arm</a></li>
+    <li><a class="dropdown-item" href="../articles/03-causal.html">Causal</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a></li>
@@ -44,7 +42,7 @@ an outcome bundle for the treated arm (A = 1)
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Build a causal bundle (design + two outcome arms)</h1>
-      <small class="dont-index">Source: <a href="https://github.com/arnabaich96/CausalMixGPD/blob/HEAD/R/05-causal.R" class="external-link"><code>R/05-causal.R</code></a></small>
+
       <div class="d-none name"><code>build_causal_bundle.Rd</code></div>
     </div>
 
@@ -74,7 +72,10 @@ an outcome bundle for the treated arm (A = 1)
 <span>  PS <span class="op">=</span> <span class="st">"logit"</span>,</span>
 <span>  ps_scale <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"logit"</span>, <span class="st">"prob"</span><span class="op">)</span>,</span>
 <span>  ps_summary <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"median"</span><span class="op">)</span>,</span>
-<span>  ps_clamp <span class="op">=</span> <span class="fl">1e-06</span></span>
+<span>  ps_clamp <span class="op">=</span> <span class="fl">1e-06</span>,</span>
+<span>  monitor <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"core"</span>, <span class="st">"full"</span><span class="op">)</span>,</span>
+<span>  monitor_latent <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  monitor_v <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -133,7 +134,7 @@ If length 2, the first entry is used for treated (<code>A=1</code>) and the seco
 
 
 <dt id="arg-alpha-random">alpha_random<a class="anchor" aria-label="anchor" href="#arg-alpha-random"></a></dt>
-<dd><p>Logical; whether outcome concentration <code>alpha</code> is stochastic.</p></dd>
+<dd><p>Logical; whether the outcome-model DP concentration parameter \(\kappa\) is stochastic.</p></dd>
 
 
 <dt id="arg-ps-prior">ps_prior<a class="anchor" aria-label="anchor" href="#arg-ps-prior"></a></dt>
@@ -164,6 +165,18 @@ and summaries, enabling seamless integration of future PS estimation methods.</p
 
 <dt id="arg-ps-clamp">ps_clamp<a class="anchor" aria-label="anchor" href="#arg-ps-clamp"></a></dt>
 <dd><p>Numeric epsilon for clamping PS values to \((\epsilon, 1-\epsilon)\).</p></dd>
+
+
+<dt id="arg-monitor">monitor<a class="anchor" aria-label="anchor" href="#arg-monitor"></a></dt>
+<dd><p>Character monitor profile: <code>"core"</code> (default) or <code>"full"</code>.</p></dd>
+
+
+<dt id="arg-monitor-latent">monitor_latent<a class="anchor" aria-label="anchor" href="#arg-monitor-latent"></a></dt>
+<dd><p>Logical; whether to monitor latent allocations (<code>z</code>) in outcome arms.</p></dd>
+
+
+<dt id="arg-monitor-v">monitor_v<a class="anchor" aria-label="anchor" href="#arg-monitor-v"></a></dt>
+<dd><p>Logical; whether to monitor stick-breaking <code>v</code> terms for SB outcomes.</p></dd>
 
 </dl></div>
     <div class="section level2">

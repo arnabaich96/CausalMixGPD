@@ -1,6 +1,6 @@
-# CausalMixGPD: Model specification and posterior computation
+# DPmixGPD: Model specification and posterior computation
 
-CausalMixGPD is built around a practical modeling principle: the
+DPmixGPD is built around a practical modeling principle: the
 distributional structure that fits the *bulk* (where most observations
 live) is often a poor description of the *tail* (where rare extremes
 live). The package therefore models the bulk using a Dirichlet process
@@ -55,7 +55,7 @@ Marginally this implies an (infinite) mixture representation \[ f\_{}(y)
 
 ### Stick-breaking representation and truncation
 
-CausalMixGPD provides a stick-breaking backend (`backend="sb"`) based on
+DPmixGPD provides a stick-breaking backend (`backend="sb"`) based on
 Sethuraman’s construction ([Sethuraman 1994](#ref-sethuraman1994)). The
 weights are
 ``` math
@@ -88,7 +88,7 @@ and weights are reconstructed as above.
 
 ### CRP backend (partition-based view)
 
-CausalMixGPD also offers a Chinese restaurant process backend
+DPmixGPD also offers a Chinese restaurant process backend
 (`backend="crp"`), which integrates out $`H`$ and updates allocations
 under the induced random partition distribution ([Blackwell and MacQueen
 1973](#ref-blackwell1973); [Neal 2000](#ref-neal2000)). In this view,
@@ -133,8 +133,8 @@ peaks-over-threshold limit theory ([Balkema and Haan
 
 ## The spliced bulk–tail model
 
-CausalMixGPD defines a single proper density by splicing the bulk DPM
-and the GPD tail at $`u(\boldsymbol{x})`$:
+DPmixGPD defines a single proper density by splicing the bulk DPM and
+the GPD tail at $`u(\boldsymbol{x})`$:
 ``` math
 f(y\mid\boldsymbol{x})
 =
@@ -165,9 +165,9 @@ This section is the reference point for all later predictive quantities
 
 ## Covariate dependence: general link mode
 
-In conditional models, CausalMixGPD allows (selected) parameters to
-depend on $`\boldsymbol{x}`$ via a link representation. For a generic
-parameter $`\theta_j(\boldsymbol{x})`$ in link mode,
+In conditional models, DPmixGPD allows (selected) parameters to depend
+on $`\boldsymbol{x}`$ via a link representation. For a generic parameter
+$`\theta_j(\boldsymbol{x})`$ in link mode,
 ``` math
   g\!\left(\theta_j(\boldsymbol{x})\right) = \eta_j(\boldsymbol{x}) = \boldsymbol{x}^\top\boldsymbol{\beta}_j,
 ```
@@ -202,7 +202,7 @@ $`F_{\mathrm{DPM}}(\cdot\mid\boldsymbol{x}_i)`$.
 
 ### Posterior sampling (high-level algorithm)
 
-CausalMixGPD targets the joint posterior of mixture allocations, kernel
+DPmixGPD targets the joint posterior of mixture allocations, kernel
 parameters, weights, and (optionally) tail parameters.
 
 For the stick-breaking backend, a typical blocked-Gibbs iteration

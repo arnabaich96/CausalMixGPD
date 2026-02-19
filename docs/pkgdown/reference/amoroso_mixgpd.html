@@ -25,11 +25,9 @@ is the GPD CDF for exceedances above threshold."></head><body>
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/01-basic.html">Model specification</a></li>
-    <li><a class="dropdown-item" href="../articles/02-model-spec.html">Model fundamentals</a></li>
-    <li><a class="dropdown-item" href="../articles/03-unconditional.html">Unconditional</a></li>
-    <li><a class="dropdown-item" href="../articles/04-conditional.html">Conditional</a></li>
-    <li><a class="dropdown-item" href="../articles/05-causal.html">Causal</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/01-introduction.html">Introduction</a></li>
+    <li><a class="dropdown-item" href="../articles/02-one-arm.html">One-Arm</a></li>
+    <li><a class="dropdown-item" href="../articles/03-causal.html">Causal</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><a class="external-link nav-link" href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a></li>
@@ -42,7 +40,7 @@ is the GPD CDF for exceedances above threshold."></head><body>
   <main id="main" class="col-md-9"><div class="page-header">
 
       <h1>Amoroso mixture with a GPD tail</h1>
-      <small class="dont-index">Source: <a href="https://github.com/arnabaich96/CausalMixGPD/blob/HEAD/R/4-amoroso-mixgpd.R" class="external-link"><code>R/4-amoroso-mixgpd.R</code></a></small>
+
       <div class="d-none name"><code>amoroso_mixgpd.Rd</code></div>
     </div>
 
@@ -231,8 +229,8 @@ the closed-form GPD quantile in the tail region.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 5.893917</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">replicate</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fu">rAmorosoMixGpd</span><span class="op">(</span><span class="fl">1</span>, <span class="va">w</span>, <span class="va">loc</span>, <span class="va">scale</span>, <span class="va">shape1</span>, <span class="va">shape2</span>,</span></span>
 <span class="r-in"><span>                            <span class="va">threshold</span>, <span class="va">tail_scale</span>, <span class="va">tail_shape</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 0.2579286 0.2150753 3.4350296 2.0246966 1.6155426 3.5391621 2.6283016</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 3.1640176 5.2699864 3.2839365</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 1.347846 1.877813 3.510209 4.007538 1.615543 3.539162 2.628302 3.164018</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] 5.269986 3.283937</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

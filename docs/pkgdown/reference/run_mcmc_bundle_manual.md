@@ -5,7 +5,15 @@ Run MCMC for a prepared bundle
 ## Usage
 
 ``` r
-run_mcmc_bundle_manual(bundle, show_progress = TRUE, quiet = TRUE)
+run_mcmc_bundle_manual(
+  bundle,
+  show_progress = TRUE,
+  quiet = TRUE,
+  parallel_chains = FALSE,
+  workers = NULL,
+  timing = FALSE,
+  z_update_every = NULL
+)
 ```
 
 ## Arguments
@@ -23,6 +31,23 @@ run_mcmc_bundle_manual(bundle, show_progress = TRUE, quiet = TRUE)
 
   Logical; if TRUE (default), suppress console status messages. Set to
   FALSE to see progress messages during MCMC setup and execution.
+
+- parallel_chains:
+
+  Logical; run chains concurrently when `nchains > 1`.
+
+- workers:
+
+  Optional integer number of workers for parallel execution.
+
+- timing:
+
+  Logical; if TRUE, include stage timings (`build`, `compile`, `mcmc`)
+  in `fit$timing`.
+
+- z_update_every:
+
+  Integer \>= 1 controlling latent allocation update cadence.
 
 ## Value
 

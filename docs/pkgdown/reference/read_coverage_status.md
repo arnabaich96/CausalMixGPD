@@ -6,7 +6,7 @@ Read stored coverage status
 
 ``` r
 read_coverage_status(
-  file = system.file("extdata/coverage_status.json", package = "CausalMixGPD")
+  file = system.file("extdata/coverage_status.json", package = "DPmixGPD")
 )
 ```
 

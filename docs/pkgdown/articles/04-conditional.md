@@ -1,4 +1,4 @@
-# CausalMixGPD: Conditional workflow (covariate-dependent mixtures)
+# DPmixGPD: Conditional workflow (covariate-dependent mixtures)
 
 This vignette demonstrates conditional (regression) modeling, where the
 outcome distribution varies with covariates. The core spliced bulk–tail
@@ -16,8 +16,8 @@ We use a shipped positive-support dataset with covariates,
 
 Design matrix
 
-CausalMixGPD expects a design matrix (typically including an intercept).
-A robust default is to use
+DPmixGPD expects a design matrix (typically including an intercept). A
+robust default is to use
 [`model.matrix()`](https://rdrr.io/r/stats/model.matrix.html).
 
 Model fit (code shown for reproducibility, but not executed during CRAN

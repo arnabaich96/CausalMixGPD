@@ -1,7 +1,7 @@
 # Quantile treatment effects (QTE), marginal over training covariates
 
-Computes a marginal quantile treatment effect by averaging conditional
-quantile effects over the training covariate rows.
+Computes a marginal quantile treatment effect as a contrast of
+arm-specific marginal quantiles: \\Q_1^{m}(\tau) - Q_0^{m}(\tau)\\.
 
 ## Usage
 
@@ -56,6 +56,11 @@ treated/control prediction objects. `fit` is a data frame with columns
 index.
 
 ## Details
+
+For conditional models, each posterior draw induces arm-specific
+marginal predictive distributions by averaging over the empirical
+covariate distribution, then quantiles are taken from those marginal
+draws.
 
 For unconditional causal models (`X = NULL`), this is computed directly
 from unconditional treated/control outcome predictions.
