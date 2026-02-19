@@ -22,7 +22,10 @@ build_causal_bundle(
   PS = "logit",
   ps_scale = c("logit", "prob"),
   ps_summary = c("mean", "median"),
-  ps_clamp = 1e-06
+  ps_clamp = 1e-06,
+  monitor = c("core", "full"),
+  monitor_latent = FALSE,
+  monitor_v = FALSE
 )
 }
 \arguments{
@@ -76,6 +79,12 @@ and summaries, enabling seamless integration of future PS estimation methods.}
 \item{ps_summary}{Posterior summary for PS: \code{"mean"} or \code{"median"}.}
 
 \item{ps_clamp}{Numeric epsilon for clamping PS values to \eqn{(\epsilon, 1-\epsilon)}.}
+
+\item{monitor}{Character monitor profile: \code{"core"} (default) or \code{"full"}.}
+
+\item{monitor_latent}{Logical; whether to monitor latent allocations (\code{z}) in outcome arms.}
+
+\item{monitor_v}{Logical; whether to monitor stick-breaking \code{v} terms for SB outcomes.}
 }
 \value{
 A list of class \code{"causalmixgpd_causal_bundle"}.

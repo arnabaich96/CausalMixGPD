@@ -4,12 +4,27 @@
 \alias{run_mcmc_causal}
 \title{Run MCMC for a causal bundle}
 \usage{
-run_mcmc_causal(bundle, show_progress = TRUE)
+run_mcmc_causal(
+  bundle,
+  show_progress = TRUE,
+  parallel_arms = FALSE,
+  workers = NULL,
+  timing = FALSE,
+  z_update_every = NULL
+)
 }
 \arguments{
 \item{bundle}{A \code{"causalmixgpd_causal_bundle"} from \code{build_causal_bundle()}.}
 
 \item{show_progress}{Logical; passed to nimble for each block.}
+
+\item{parallel_arms}{Logical; if TRUE, run control and treated outcome arms in parallel.}
+
+\item{workers}{Optional integer workers for parallel arm execution.}
+
+\item{timing}{Logical; if TRUE, return arm and total timings in \code{$timing}.}
+
+\item{z_update_every}{Integer >= 1 passed to arm-level outcome MCMC.}
 }
 \value{
 A list of class \code{"causalmixgpd_causal_fit"}.

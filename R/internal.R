@@ -1430,6 +1430,8 @@ stick_breaking <- nimble::nimbleFunction(
                             store_draws = TRUE,
                             nsim_mean = 200L,
                             cutoff = NULL,
+                            ndraws_pred = NULL,
+                            chunk_size = NULL,
                             ncores = 1L) {
 
   .validate_fit(object)
@@ -1450,6 +1452,18 @@ stick_breaking <- nimble::nimbleFunction(
 
   ncores <- as.integer(ncores)
   if (is.na(ncores) || ncores < 1L) stop("'ncores' must be an integer >= 1.", call. = FALSE)
+  if (!is.null(ndraws_pred)) {
+    ndraws_pred <- as.integer(ndraws_pred)[1L]
+    if (!is.finite(ndraws_pred) || ndraws_pred < 1L) {
+      stop("'ndraws_pred' must be NULL or a positive integer.", call. = FALSE)
+    }
+  }
+  if (!is.null(chunk_size)) {
+    chunk_size <- as.integer(chunk_size)[1L]
+    if (!is.finite(chunk_size) || chunk_size < 1L) {
+      stop("'chunk_size' must be NULL or a positive integer.", call. = FALSE)
+    }
+  }
 
   # Spec / meta
   spec <- object$spec %||% list()
@@ -1594,6 +1608,11 @@ stick_breaking <- nimble::nimbleFunction(
   if (is.null(draw_mat) || !is.matrix(draw_mat) || nrow(draw_mat) < 2L) {
     stop("Posterior draws not found or malformed in fitted object.", call. = FALSE)
   }
+  if (!is.null(ndraws_pred) && ndraws_pred < nrow(draw_mat)) {
+    set.seed(1L)
+    keep_idx <- sort(sample.int(nrow(draw_mat), size = ndraws_pred, replace = FALSE))
+    draw_mat <- draw_mat[keep_idx, , drop = FALSE]
+  }
   S <- nrow(draw_mat)
 
   # mixture weights + bulk parameter blocks
@@ -1610,6 +1629,50 @@ stick_breaking <- nimble::nimbleFunction(
     stop("Length of 'id' must match the number of prediction rows.", call. = FALSE)
   }
   id_vals <- if (!is.null(id_vec)) id_vec else seq_len(n_pred)
+
+  if (!is.null(chunk_size) && !is.null(Xpred) && n_pred > chunk_size) {
+    starts <- seq.int(1L, n_pred, by = chunk_size)
+    parts <- vector("list", length(starts))
+    for (ii in seq_along(starts)) {
+      i0 <- starts[ii]
+      i1 <- min(n_pred, i0 + chunk_size - 1L)
+      idx <- i0:i1
+      x_chunk <- Xpred[idx, , drop = FALSE]
+      y_chunk <- NULL
+      if (type %in% c("density", "survival") && has_X) y_chunk <- ygrid[idx]
+      ps_chunk <- if (!is.null(ps)) ps[idx] else NULL
+      id_chunk <- if (!is.null(id_vals)) id_vals[idx] else NULL
+      parts[[ii]] <- .predict_mixgpd(
+        object = object,
+        x = x_chunk,
+        y = y_chunk,
+        ps = ps_chunk,
+        id = id_chunk,
+        type = type,
+        p = p,
+        index = index,
+        nsim = nsim,
+        level = level,
+        interval = interval,
+        probs = probs,
+        store_draws = store_draws,
+        nsim_mean = nsim_mean,
+        cutoff = cutoff,
+        ndraws_pred = ndraws_pred,
+        chunk_size = NULL,
+        ncores = ncores
+      )
+    }
+    out <- parts[[1L]]
+    if (is.data.frame(out$fit)) {
+      out$fit <- do.call(rbind, lapply(parts, function(z) z$fit))
+      rownames(out$fit) <- NULL
+    }
+    if (!is.null(out$diagnostics)) {
+      out$diagnostics$n_chunks <- length(parts)
+    }
+    return(out)
+  }
 
   # -----------------------------
   # Optional PS covariate (used only if model expects it)
@@ -1848,7 +1911,9 @@ stick_breaking <- nimble::nimbleFunction(
 
     if (!requireNamespace("future.apply", quietly = TRUE) ||
         !requireNamespace("future", quietly = TRUE)) {
-      stop("Packages 'future' and 'future.apply' are required for ncores > 1.", call. = FALSE)
+      warning("ncores > 1 requested but 'future'/'future.apply' are unavailable; running sequentially.",
+              call. = FALSE)
+      return(lapply(idx, FUN))
     }
 
     old_plan <- future::plan()

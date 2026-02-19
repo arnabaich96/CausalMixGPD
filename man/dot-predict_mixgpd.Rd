@@ -20,6 +20,8 @@
   store_draws = TRUE,
   nsim_mean = 200L,
   cutoff = NULL,
+  ndraws_pred = NULL,
+  chunk_size = NULL,
   ncores = 1L
 )
 }

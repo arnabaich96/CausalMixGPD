@@ -149,7 +149,12 @@
   b$constants <- build_constants_from_spec(b$spec)
   b$dimensions <- build_dimensions_from_spec(b$spec)
   b$inits <- build_inits_from_spec(b$spec, y = b$data$y)
-  b$monitors <- build_monitors_from_spec(b$spec)
+  pol <- b$monitor_policy %||% list()
+  b$monitors <- build_monitors_from_spec(
+    b$spec,
+    monitor_v = isTRUE(pol$monitor_v),
+    monitor_latent = isTRUE(pol$monitor_latent)
+  )
 
   b
 }
@@ -170,8 +175,11 @@
   if (is.null(nm)) nm <- rep("", length(args))
   if (any(!nzchar(nm))) stop("All mcmc arguments must be named.", call. = FALSE)
 
-  override_names <- c("niter", "nburn", "nburnin", "thin", "nchains", "seed", "waic")
-  runner_names <- c("show_progress", "quiet")
+  override_names <- c(
+    "niter", "nburn", "nburnin", "thin", "nchains", "seed", "waic",
+    "parallel_chains", "parallel_arms", "workers", "timing", "z_update_every"
+  )
+  runner_names <- c("show_progress", "quiet", "parallel_chains", "parallel_arms", "workers", "timing")
 
   override_idx <- nm %in% override_names
   runner_idx <- nm %in% runner_names
@@ -303,7 +311,7 @@ mcmc <- function(b, ...) {
   b <- .apply_mcmc_overrides(b, parsed$overrides)
 
   if (.is_causal_bundle(b)) {
-    allowed <- c("show_progress")
+    allowed <- c("show_progress", "parallel_arms", "workers", "timing")
     bad <- setdiff(names(parsed$runner), allowed)
     if (length(bad)) {
       stop(sprintf("Unsupported runner argument for causal bundles: %s", paste(bad, collapse = ", ")),
@@ -312,6 +320,12 @@ mcmc <- function(b, ...) {
     return(do.call(run_mcmc_causal, c(list(bundle = b), parsed$runner)))
   }
 
+  allowed <- c("show_progress", "quiet", "parallel_chains", "workers", "timing")
+  bad <- setdiff(names(parsed$runner), allowed)
+  if (length(bad)) {
+    stop(sprintf("Unsupported runner argument for non-causal bundles: %s", paste(bad, collapse = ", ")),
+         call. = FALSE)
+  }
   do.call(run_mcmc_bundle_manual, c(list(bundle = b), parsed$runner))
 }
 
@@ -323,7 +337,10 @@ mcmc <- function(b, ...) {
 #' @param treat Optional binary treatment indicator.
 #' @param formula Optional formula.
 #' @param ... Additional build arguments in build mode.
-#' @param mcmc Named list of run arguments passed to \code{mcmc()}.
+#' @param mcmc Named list of run arguments passed to \code{mcmc()} (including
+#'   optional performance controls such as \code{parallel_chains},
+#'   \code{parallel_arms}, \code{workers}, \code{timing}, and
+#'   \code{z_update_every}).
 #' @return A fitted object.
 #' @export
 dpmix <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL, ..., mcmc = list()) {
@@ -353,7 +370,10 @@ dpmix <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL,
 #' @param treat Optional binary treatment indicator.
 #' @param formula Optional formula.
 #' @param ... Additional build arguments in build mode.
-#' @param mcmc Named list of run arguments passed to \code{mcmc()}.
+#' @param mcmc Named list of run arguments passed to \code{mcmc()} (including
+#'   optional performance controls such as \code{parallel_chains},
+#'   \code{parallel_arms}, \code{workers}, \code{timing}, and
+#'   \code{z_update_every}).
 #' @return A fitted object.
 #' @export
 dpmgpd <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL, ..., mcmc = list()) {
@@ -377,4 +397,3 @@ dpmgpd <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL
   b <- do.call(bundle, bundle_args)
   .run_bundle_mcmc(b, mcmc_args = mcmc)
 }
-

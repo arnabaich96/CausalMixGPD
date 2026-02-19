@@ -15,7 +15,10 @@ build_nimble_bundle(
   param_specs = NULL,
   mcmc = list(niter = 2000, nburnin = 500, thin = 1, nchains = 1, seed = 1),
   epsilon = 0.025,
-  alpha_random = TRUE
+  alpha_random = TRUE,
+  monitor = c("core", "full"),
+  monitor_latent = FALSE,
+  monitor_v = FALSE
 )
 }
 \arguments{
@@ -47,6 +50,12 @@ smaller k defined by either (i) cumulative mass >= 1 - epsilon or (ii) per-compo
 weights >= epsilon, then renormalize.}
 
 \item{alpha_random}{Logical; whether the DP concentration parameter \eqn{\kappa} is stochastic.}
+
+\item{monitor}{Character monitor profile: \code{"core"} (default) or \code{"full"}.}
+
+\item{monitor_latent}{Logical; if TRUE, include latent allocations (\code{z}) in monitors.}
+
+\item{monitor_v}{Logical; if TRUE and backend is SB, include stick breaks (\code{v}) in monitors.}
 }
 \value{
 A named list (bundle) of class \code{"causalmixgpd_bundle"}.

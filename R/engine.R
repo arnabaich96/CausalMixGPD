@@ -47,6 +47,8 @@ NULL
                             store_draws = TRUE,
                             nsim_mean = 200L,
                             cutoff = NULL,
+                            ndraws_pred = NULL,
+                            chunk_size = NULL,
                             ncores = 1L) {
 
   .validate_fit(object)
@@ -67,6 +69,25 @@ NULL
 
   ncores <- as.integer(ncores)
   if (is.na(ncores) || ncores < 1L) stop("'ncores' must be an integer >= 1.", call. = FALSE)
+  if (!is.null(ndraws_pred)) {
+    ndraws_pred <- as.integer(ndraws_pred)[1L]
+    if (!is.finite(ndraws_pred) || ndraws_pred < 1L) {
+      stop("'ndraws_pred' must be NULL or a positive integer.", call. = FALSE)
+    }
+  }
+  if (!is.null(chunk_size)) {
+    chunk_size <- as.integer(chunk_size)[1L]
+    if (!is.finite(chunk_size) || chunk_size < 1L) {
+      stop("'chunk_size' must be NULL or a positive integer.", call. = FALSE)
+    }
+  }
+
+  .vec_sig <- function(v) {
+    v <- as.numeric(v)
+    if (!length(v)) return("0:0:0")
+    take <- v[seq_len(min(16L, length(v)))]
+    paste(length(v), sprintf("%.10f", sum(take, na.rm = TRUE)), sprintf("%.10f", sum(v, na.rm = TRUE)), sep = ":")
+  }
 
   # Spec / meta
   spec <- object$spec %||% list()
@@ -204,12 +225,62 @@ NULL
     }
   }
 
+  # Prediction dimensions
+  n_pred <- if (!is.null(Xpred)) nrow(Xpred) else 1L
+  if (!is.null(id_vec) && length(id_vec) != n_pred) {
+    stop("Length of 'id' must match the number of prediction rows.", call. = FALSE)
+  }
+  id_vals <- if (!is.null(id_vec)) id_vec else seq_len(n_pred)
+
+  # Fast defaults for large prediction jobs.
+  if (n_pred > 20000L) {
+    if (is.null(ndraws_pred)) {
+      ndraws_pred <- 200L
+      message("Large prediction request detected (N > 20000): using ndraws_pred=200 by default.")
+    }
+    if (is.null(chunk_size)) {
+      chunk_size <- 10000L
+      message("Large prediction request detected (N > 20000): using chunk_size=10000 by default.")
+    }
+  }
+
+  pred_cache <- NULL
+  if (is.list(object$cache) && !is.null(object$cache$predict_env) && is.environment(object$cache$predict_env)) {
+    pred_cache <- object$cache$predict_env
+  }
+  cache_key <- NULL
+  if (!is.null(pred_cache) && type %in% c("density", "survival", "quantile", "median") && ncores == 1L) {
+    x_sig <- if (is.null(Xpred)) "x:none" else paste0("x:", nrow(Xpred), "x", ncol(Xpred))
+    y_sig <- if (!is.null(ygrid)) paste0("y:", .vec_sig(ygrid)) else "y:none"
+    p_sig <- if (!is.null(pgrid)) paste0("p:", .vec_sig(pgrid)) else "p:none"
+    cache_key <- paste(type, kernel %||% "", x_sig, y_sig, p_sig, ndraws_pred %||% NA_integer_, sep = "|")
+    if (exists(cache_key, envir = pred_cache, inherits = FALSE)) {
+      cached <- get(cache_key, envir = pred_cache, inherits = FALSE)
+      if (is.list(cached) && inherits(cached, "mixgpd_predict")) {
+        cached$diagnostics <- utils::modifyList(cached$diagnostics %||% list(), list(cache_hit = TRUE))
+        return(cached)
+      }
+    }
+  }
+
+  .cache_store <- function(obj) {
+    if (!is.null(pred_cache) && is.character(cache_key) && nzchar(cache_key)) {
+      assign(cache_key, obj, envir = pred_cache)
+    }
+    obj
+  }
+
   # -----------------------------
   # Posterior draws extraction
   # -----------------------------
   draw_mat <- .extract_draws_matrix(object)
   if (is.null(draw_mat) || !is.matrix(draw_mat) || nrow(draw_mat) < 2L) {
     stop("Posterior draws not found or malformed in fitted object.", call. = FALSE)
+  }
+  if (!is.null(ndraws_pred) && ndraws_pred < nrow(draw_mat)) {
+    set.seed(1L)
+    keep_idx <- sort(sample.int(nrow(draw_mat), size = ndraws_pred, replace = FALSE))
+    draw_mat <- draw_mat[keep_idx, , drop = FALSE]
   }
   S <- nrow(draw_mat)
 
@@ -221,12 +292,33 @@ NULL
   bulk_draws <- .extract_bulk_params(draw_mat, bulk_params = bulk_params)
   base_params <- names(bulk_draws)
 
-  # Prediction dimensions
-  n_pred <- if (!is.null(Xpred)) nrow(Xpred) else 1L
-  if (!is.null(id_vec) && length(id_vec) != n_pred) {
-    stop("Length of 'id' must match the number of prediction rows.", call. = FALSE)
+  if (!is.null(chunk_size) && !is.null(Xpred) && n_pred > chunk_size) {
+    starts <- seq.int(1L, n_pred, by = chunk_size)
+    parts <- vector("list", length(starts))
+    for (ii in seq_along(starts)) {
+      i0 <- starts[ii]
+      i1 <- min(n_pred, i0 + chunk_size - 1L)
+      idx <- i0:i1
+      x_chunk <- Xpred[idx, , drop = FALSE]
+      y_chunk <- NULL
+      if (type %in% c("density", "survival") && has_X) y_chunk <- ygrid[idx]
+      ps_chunk <- if (!is.null(ps)) ps[idx] else NULL
+      id_chunk <- if (!is.null(id_vals)) id_vals[idx] else NULL
+      parts[[ii]] <- .predict_mixgpd(
+        object = object, x = x_chunk, y = y_chunk, ps = ps_chunk, id = id_chunk,
+        type = type, p = p, index = index, nsim = nsim, level = level, interval = interval,
+        probs = probs, store_draws = store_draws, nsim_mean = nsim_mean, cutoff = cutoff,
+        ndraws_pred = ndraws_pred, chunk_size = NULL, ncores = ncores
+      )
+    }
+    out <- parts[[1L]]
+    if (is.data.frame(out$fit)) {
+      out$fit <- do.call(rbind, lapply(parts, function(z) z$fit))
+      rownames(out$fit) <- NULL
+    }
+    if (!is.null(out$diagnostics)) out$diagnostics$n_chunks <- length(parts)
+    return(.cache_store(out))
   }
-  id_vals <- if (!is.null(id_vec)) id_vec else seq_len(n_pred)
 
   # -----------------------------
   # Optional PS covariate (used only if model expects it)
@@ -465,7 +557,9 @@ NULL
 
     if (!requireNamespace("future.apply", quietly = TRUE) ||
         !requireNamespace("future", quietly = TRUE)) {
-      stop("Packages 'future' and 'future.apply' are required for ncores > 1.", call. = FALSE)
+      warning("ncores > 1 requested but 'future'/'future.apply' are unavailable; running sequentially.",
+              call. = FALSE)
+      return(lapply(idx, FUN))
     }
 
     old_plan <- future::plan()
@@ -578,7 +672,7 @@ NULL
       )
     )
     class(out) <- "mixgpd_predict"
-    return(out)
+    return(.cache_store(out))
   }
 
   # quantile / median
@@ -626,7 +720,7 @@ NULL
         )
       )
       class(out) <- "mixgpd_predict"
-      return(out)
+      return(.cache_store(out))
     }
 
     # Conditional quantiles
@@ -687,7 +781,7 @@ NULL
       )
     )
     class(out) <- "mixgpd_predict"
-    return(out)
+    return(.cache_store(out))
   }
 
   # sample (posterior predictive)
@@ -726,7 +820,7 @@ NULL
         )
       )
       class(res) <- "mixgpd_predict"
-      return(res)
+      return(.cache_store(res))
     }
 
     if (is.na(nsim) || nsim < 1L) nsim <- n_pred
@@ -774,7 +868,7 @@ NULL
       )
     )
     class(res) <- "mixgpd_predict"
-    return(res)
+    return(.cache_store(res))
   }
 
   # fit (one posterior predictive draw per observation per posterior draw)
@@ -853,7 +947,7 @@ NULL
       )
     )
     class(out) <- "mixgpd_predict"
-    return(out)
+    return(.cache_store(out))
   }
 
   # mean (posterior mean of predictive distribution)
@@ -887,7 +981,7 @@ NULL
           )
         )
         class(out) <- "mixgpd_predict"
-        return(out)
+        return(.cache_store(out))
       }
     }
 
@@ -931,7 +1025,7 @@ NULL
         )
       )
       class(out) <- "mixgpd_predict"
-      return(out)
+      return(.cache_store(out))
     }
 
     # Conditional mean: compute mean per x-row per posterior draw by simulation
@@ -1002,7 +1096,7 @@ NULL
       )
     )
     class(out) <- "mixgpd_predict"
-    return(out)
+    return(.cache_store(out))
   }
 
 
@@ -1056,7 +1150,7 @@ NULL
         )
       )
       class(out) <- "mixgpd_predict"
-      return(out)
+      return(.cache_store(out))
     }
 
     draw_rmeans_mat <- matrix(NA_real_, nrow = S, ncol = n_pred)
@@ -1126,7 +1220,7 @@ NULL
       )
     )
     class(out) <- "mixgpd_predict"
-    return(out)
+    return(.cache_store(out))
   }
 
   stop(sprintf("Unsupported prediction type '%s'.", type), call. = FALSE)

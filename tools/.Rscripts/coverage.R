@@ -243,24 +243,6 @@ calculate_coverage <- function(
     NULL
   })
 
-  # Fallback if primary method failed
-
-if (is.null(cov) && "tests" %in% sources) {
-    if (!quiet) cat("Attempting fallback coverage method...\n")
-    cov <- tryCatch({
-      covr::package_coverage(
-        type = "none",
-        code = .coverage_test_code_fallback(),
-        quiet = quiet,
-        pre_clean = TRUE,
-        line_exclusions = .coverage_line_exclusions()
-      )
-    }, error = function(e2) {
-      if (!quiet) cat("Fallback also failed:", conditionMessage(e2), "\n")
-      NULL
-    })
-  }
-
   if (!quiet && !is.null(cov)) {
     cat("\nCoverage calculation complete.\n")
     cat("Overall coverage:", round(covr::percent_coverage(cov), 1), "%\n\n")
@@ -387,8 +369,7 @@ coverage_report <- function(
   cov <- calculate_coverage(sources = sources, test_level = test_level, quiet = FALSE)
 
   if (is.null(cov)) {
-    .create_placeholder_report(output_dir, sources)
-    stop("Coverage calculation failed", call. = FALSE)
+    stop("Coverage calculation failed; report generation aborted.", call. = FALSE)
   }
 
   # Step 2: Generate interactive HTML report

@@ -27,7 +27,10 @@ dpmgpd(
 
 \item{...}{Additional build arguments in build mode.}
 
-\item{mcmc}{Named list of run arguments passed to \code{mcmc()}.}
+\item{mcmc}{Named list of run arguments passed to \code{mcmc()} (including
+optional performance controls such as \code{parallel_chains},
+\code{parallel_arms}, \code{workers}, \code{timing}, and
+\code{z_update_every}).}
 }
 \value{
 A fitted object.

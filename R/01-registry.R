@@ -53,10 +53,8 @@ init_kernel_registry <- function() {
 
   has_ns <- exists("kernel_registry", envir = ns, inherits = FALSE) &&
     exists("tail_registry", envir = ns, inherits = FALSE)
-  has_global <- exists("kernel_registry", envir = .GlobalEnv, inherits = FALSE) &&
-    exists("tail_registry", envir = .GlobalEnv, inherits = FALSE)
 
-  if (has_ns || has_global) {
+  if (has_ns) {
     return(invisible(TRUE))
   }
 
@@ -277,8 +275,7 @@ init_kernel_registry <- function() {
   if (!ns_assign_ok ||
       !exists("kernel_registry", envir = ns, inherits = FALSE) ||
       !exists("tail_registry", envir = ns, inherits = FALSE)) {
-    assign("kernel_registry", kernel_registry, envir = .GlobalEnv)
-    assign("tail_registry", tail_registry, envir = .GlobalEnv)
+    stop("Failed to initialize kernel/tail registry in package namespace.", call. = FALSE)
   }
 
   invisible(TRUE)
@@ -297,14 +294,11 @@ get_kernel_registry <- function() {
   if (exists("kernel_registry", envir = ns, inherits = FALSE)) {
     return(get("kernel_registry", envir = ns, inherits = FALSE))
   }
-  if (exists("kernel_registry", envir = .GlobalEnv, inherits = FALSE)) {
-    return(get("kernel_registry", envir = .GlobalEnv, inherits = FALSE))
-  }
   init_kernel_registry()
   if (exists("kernel_registry", envir = ns, inherits = FALSE)) {
     return(get("kernel_registry", envir = ns, inherits = FALSE))
   }
-  get("kernel_registry", envir = .GlobalEnv, inherits = FALSE)
+  stop("kernel_registry is not initialized.", call. = FALSE)
 }
 
 #' Get tail registry
@@ -320,14 +314,11 @@ get_tail_registry <- function() {
   if (exists("tail_registry", envir = ns, inherits = FALSE)) {
     return(get("tail_registry", envir = ns, inherits = FALSE))
   }
-  if (exists("tail_registry", envir = .GlobalEnv, inherits = FALSE)) {
-    return(get("tail_registry", envir = .GlobalEnv, inherits = FALSE))
-  }
   init_kernel_registry()
   if (exists("tail_registry", envir = ns, inherits = FALSE)) {
     return(get("tail_registry", envir = ns, inherits = FALSE))
   }
-  get("tail_registry", envir = .GlobalEnv, inherits = FALSE)
+  stop("tail_registry is not initialized.", call. = FALSE)
 }
 
 

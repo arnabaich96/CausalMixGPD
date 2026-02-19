@@ -1,8 +1,8 @@
 {
   "percent": 0,
-  "timestamp": "2026-02-18T07:43:49Z",
+  "timestamp": "2026-02-19T10:58:14Z",
   "sources": "tests",
-  "total_lines": 8637,
+  "total_lines": 8738,
   "covered_lines": 0,
   "files": 23,
   "file_coverage": [
@@ -26,7 +26,7 @@
     },
     {
       "file": "R/build-run.R",
-      "lines": 844,
+      "lines": 838,
       "covered": 0,
       "percent": 0
     },
@@ -38,7 +38,7 @@
     },
     {
       "file": "R/causal.R",
-      "lines": 1540,
+      "lines": 1578,
       "covered": 0,
       "percent": 0
     },
@@ -74,7 +74,7 @@
     },
     {
       "file": "R/internal.R",
-      "lines": 1470,
+      "lines": 1523,
       "covered": 0,
       "percent": 0
     },
@@ -98,7 +98,7 @@
     },
     {
       "file": "R/methods.R",
-      "lines": 2209,
+      "lines": 2217,
       "covered": 0,
       "percent": 0
     },
@@ -134,7 +134,7 @@
     },
     {
       "file": "R/wrappers.R",
-      "lines": 211,
+      "lines": 219,
       "covered": 0,
       "percent": 0
     },

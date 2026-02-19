@@ -23,6 +23,10 @@
   nsim_mean = 200L,
   cutoff = NULL,
   ncores = 1L,
+  ndraws_pred = NULL,
+  chunk_size = NULL,
+  parallel = FALSE,
+  workers = NULL,
   ...
 )
 }
@@ -78,6 +82,16 @@ highest posterior density intervals.}
 \item{cutoff}{Finite numeric cutoff for \code{type="rmean"} (restricted mean).}
 
 \item{ncores}{Number of CPU cores to use for parallel prediction (if supported).}
+
+\item{ndraws_pred}{Optional integer subsample of posterior draws for prediction speed.
+If NULL and \code{nrow(newdata) > 20000}, defaults to 200.}
+
+\item{chunk_size}{Optional row chunk size for large \code{newdata} prediction.
+If NULL and \code{nrow(newdata) > 20000}, defaults to 10000.}
+
+\item{parallel}{Logical; if TRUE, enable parallel prediction (alias for setting \code{ncores > 1}).}
+
+\item{workers}{Optional integer worker count (alias for \code{ncores}).}
 
 \item{...}{Unused.}
 }

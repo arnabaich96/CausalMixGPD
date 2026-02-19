@@ -108,3 +108,5 @@
 ^test_extraction\.R$
 ^tests/testthat/_cache$
 ^tests/testthat/_cache/
+^covr$
+^covr/

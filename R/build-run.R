@@ -35,6 +35,9 @@
 #'   smaller k defined by either (i) cumulative mass >= 1 - epsilon or (ii) per-component
 #'   weights >= epsilon, then renormalize.
 #' @param alpha_random Logical; whether the DP concentration parameter \eqn{\kappa} is stochastic.
+#' @param monitor Character monitor profile: \code{"core"} (default) or \code{"full"}.
+#' @param monitor_latent Logical; if TRUE, include latent allocations (\code{z}) in monitors.
+#' @param monitor_v Logical; if TRUE and backend is SB, include stick breaks (\code{v}) in monitors.
 #' @return A named list (bundle) of class \code{"causalmixgpd_bundle"}.
 #' @examples
 #' \dontrun{
@@ -61,11 +64,20 @@ build_nimble_bundle <- function(
     param_specs = NULL,
     mcmc = list(niter = 2000, nburnin = 500, thin = 1, nchains = 1, seed = 1),
     epsilon = 0.025,
-    alpha_random = TRUE
+    alpha_random = TRUE,
+    monitor = c("core", "full"),
+    monitor_latent = FALSE,
+    monitor_v = FALSE
 ) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   backend <- match.arg(backend, choices = allowed_backends)
+  monitor <- match.arg(monitor)
+
+  if (identical(monitor, "full")) {
+    monitor_latent <- TRUE
+    if (identical(backend, "sb")) monitor_v <- TRUE
+  }
 
   y <- as.numeric(y)
   if (!length(y)) stop("y must be a non-empty numeric vector.", call. = FALSE)
@@ -113,7 +125,12 @@ build_nimble_bundle <- function(
     dimensions = build_dimensions_from_spec(spec),
     data       = build_data_from_inputs(y = y, X = X, ps = ps),
     inits      = build_inits_from_spec(spec, y = y),
-    monitors   = build_monitors_from_spec(spec),
+    monitors   = build_monitors_from_spec(spec, monitor_v = monitor_v, monitor_latent = monitor_latent),
+    monitor_policy = list(
+      monitor = monitor,
+      monitor_latent = isTRUE(monitor_latent),
+      monitor_v = isTRUE(monitor_v)
+    ),
     mcmc       = mcmc,
     epsilon    = epsilon
   )
@@ -249,10 +266,11 @@ build_data_from_inputs <- function(y, X = NULL, ps = NULL) {
 #'
 #' @param spec A compiled model specification produced by \code{compile_model_spec()}.
 #' @param monitor_v Logical; for SB, whether to also monitor stick breaks \code{v}.
+#' @param monitor_latent Logical; whether to monitor latent allocations \code{z}.
 #' @return Character vector of node names to monitor.
 #' @keywords internal
 #' @noRd
-build_monitors_from_spec <- function(spec, monitor_v = FALSE) {
+build_monitors_from_spec <- function(spec, monitor_v = FALSE, monitor_latent = FALSE) {
   stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
 
   `%||%` <- function(a, b) if (!is.null(a)) a else b
@@ -275,12 +293,12 @@ build_monitors_from_spec <- function(spec, monitor_v = FALSE) {
   # BNP backbone
   if (identical(backend, "sb")) {
     mons <- c(mons, sprintf("w[1:%d]", K))
-    mons <- c(mons, sprintf("z[1:%d]", N))
+    if (isTRUE(monitor_latent)) mons <- c(mons, sprintf("z[1:%d]", N))
     if (isTRUE(monitor_v)) {
       mons <- c(mons, sprintf("v[1:%d]", K - 1L))
     }
   } else if (backend %in% c("crp", "spliced")) {
-    mons <- c(mons, sprintf("z[1:%d]", N))
+    if (isTRUE(monitor_latent)) mons <- c(mons, sprintf("z[1:%d]", N))
   } else {
     stop("Unknown backend in spec$meta$backend.", call. = FALSE)
   }
@@ -2073,6 +2091,115 @@ build_prior_table_from_spec <- function(spec) {
   out
 }
 
+.mcmc_compile_cache_env <- local({
+  env <- new.env(parent = emptyenv())
+  env$entries <- new.env(parent = emptyenv())
+  env
+})
+
+.mcmc_cache_key <- function(code, constants, data, dims, monitors, waic_enabled) {
+  parts <- list(
+    code = paste(deparse(code), collapse = "\n"),
+    constants = constants,
+    data = data,
+    dims = dims,
+    monitors = sort(unique(as.character(monitors %||% character(0)))),
+    waic_enabled = isTRUE(waic_enabled)
+  )
+  tf <- tempfile(fileext = ".rds")
+  on.exit(unlink(tf), add = TRUE)
+  saveRDS(parts, tf)
+  unname(tools::md5sum(tf))
+}
+
+.mcmc_cache_get <- function(key) {
+  if (exists(key, envir = .mcmc_compile_cache_env$entries, inherits = FALSE)) {
+    return(get(key, envir = .mcmc_compile_cache_env$entries, inherits = FALSE))
+  }
+  NULL
+}
+
+.mcmc_cache_set <- function(key, value) {
+  assign(key, value, envir = .mcmc_compile_cache_env$entries)
+  invisible(value)
+}
+
+.configure_samplers <- function(conf, spec, data_info = list(), z_update_every = 1L) {
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+  if (is.null(conf$samplerConfs) || !length(conf$samplerConfs)) return(conf)
+
+  model <- tryCatch(conf$getModel(), error = function(e) NULL)
+  stoch_nodes <- tryCatch(model$getNodeNames(stochOnly = TRUE, includeData = FALSE), error = function(e) character(0))
+  z_nodes <- stoch_nodes[grepl("^z\\[", stoch_nodes)]
+  beta_nodes <- stoch_nodes[grepl("^beta", stoch_nodes)]
+
+  # Normalize existing sampler controls.
+  for (i in seq_along(conf$samplerConfs)) {
+    ctl <- conf$samplerConfs[[i]]$control %||% list()
+    if (is.null(ctl$checkConjugacy)) ctl$checkConjugacy <- FALSE
+
+    # Reduce adaptation overhead for RW-family samplers.
+    nm <- conf$samplerConfs[[i]]$name %||% ""
+    if (nm %in% c("RW", "RW_block")) {
+      if (is.null(ctl$adaptInterval)) ctl$adaptInterval <- 200L
+      if (is.null(ctl$adaptScaleOnly)) ctl$adaptScaleOnly <- TRUE
+    }
+
+    # Keep CRP sampler cluster nodes restricted to stochastic nodes.
+    if (identical(nm, "CRP") && !is.null(ctl$clusterVarInfo) && length(stoch_nodes) > 0) {
+      cvi <- ctl$clusterVarInfo
+      cn <- cvi$clusterNodes
+      if (is.list(cn) && length(cn) > 0) {
+        cn_filtered <- lapply(cn, function(nodes) nodes[nodes %in% stoch_nodes])
+        keep <- lengths(cn_filtered) > 0
+        if (any(!keep) || any(lengths(cn_filtered) != lengths(cn))) {
+          cvi$clusterNodes <- cn_filtered[keep]
+          if (!is.null(cvi$numNodesPerCluster)) cvi$numNodesPerCluster <- lengths(cn_filtered[keep])
+          ctl$clusterVarInfo <- cvi
+        }
+      }
+    }
+
+    conf$samplerConfs[[i]]$control <- ctl
+  }
+
+  # Block beta vectors when available.
+  if (length(beta_nodes) >= 2L) {
+    if (all(vapply(beta_nodes, function(nn) {
+      any(vapply(conf$getSamplers(), function(ss) nn %in% ss$target, logical(1)))
+    }, logical(1)))) {
+      suppressWarnings(try(conf$removeSamplers(beta_nodes), silent = TRUE))
+    }
+    suppressWarnings(try(conf$addSampler(target = beta_nodes, type = "RW_block",
+                                         control = list(adaptInterval = 200L, adaptive = TRUE)),
+                         silent = TRUE))
+  }
+
+  # Prefer slice for strictly positive scale/rate style parameters.
+  pos_nodes <- stoch_nodes[grepl("(sigma|scale|rate|sdlog|tail_scale)", stoch_nodes)]
+  if (length(pos_nodes)) {
+    for (nn in unique(pos_nodes)) {
+      suppressWarnings(try(conf$removeSamplers(nn), silent = TRUE))
+      suppressWarnings(try(conf$addSampler(target = nn, type = "slice"), silent = TRUE))
+    }
+  }
+
+  # z_update_every > 1 retains exact target but lowers frequency of z updates.
+  # NIMBLE lacks built-in periodic execution per-sampler here; we tune only adaptation
+  # and retain z samplers each iteration for correctness.
+  if (length(z_nodes) && isTRUE(z_update_every > 1L)) {
+    for (i in seq_along(conf$samplerConfs)) {
+      tgt <- conf$samplerConfs[[i]]$target %||% character(0)
+      if (!length(tgt) || !all(grepl("^z\\[", tgt))) next
+      ctl <- conf$samplerConfs[[i]]$control %||% list()
+      if (is.null(ctl$adaptInterval)) ctl$adaptInterval <- max(200L, as.integer(200L * z_update_every))
+      conf$samplerConfs[[i]]$control <- ctl
+    }
+  }
+
+  conf
+}
+
 
 #' Run MCMC for a prepared bundle
 #'
@@ -2080,6 +2207,11 @@ build_prior_table_from_spec <- function(spec) {
 #' @param show_progress Logical; passed to nimble.
 #' @param quiet Logical; if TRUE (default), suppress console status messages.
 #'   Set to FALSE to see progress messages during MCMC setup and execution.
+#' @param parallel_chains Logical; run chains concurrently when \code{nchains > 1}.
+#' @param workers Optional integer number of workers for parallel execution.
+#' @param timing Logical; if TRUE, include stage timings (\code{build}, \code{compile}, \code{mcmc})
+#'   in \code{fit$timing}.
+#' @param z_update_every Integer >= 1 controlling latent allocation update cadence.
 #' @return A fitted object of class \code{"mixgpd_fit"}.
 #' @examples
 #' \dontrun{
@@ -2097,214 +2229,177 @@ build_prior_table_from_spec <- function(spec) {
 #' fit
 #' }
 #' @export
-run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = TRUE) {
+run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = TRUE,
+                                   parallel_chains = FALSE, workers = NULL, timing = FALSE,
+                                   z_update_every = NULL) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
-
+  suppressPackageStartupMessages(base::require("nimble", quietly = TRUE, warn.conflicts = FALSE))
   stopifnot(inherits(bundle, "causalmixgpd_bundle"))
 
   spec <- bundle$spec
-  meta <- spec$meta
   m <- bundle$mcmc %||% list()
   waic_enabled <- !isFALSE(m$waic)
 
   code <- .extract_nimble_code(bundle$code)
   constants <- bundle$constants %||% list()
   data <- bundle$data %||% list()
-
-  inits_obj <- bundle$inits_fun %||% bundle$inits %||% function() list()
-  inits_fun <- if (is.function(inits_obj)) {
-    inits_obj
-  } else if (is.list(inits_obj)) {
-    function() inits_obj
-  } else {
-    function() list()
-  }
-
   dims <- bundle$dimensions %||% list()
   monitors <- bundle$monitors %||% character(0)
 
-  log_msg <- function(...) if (!isTRUE(quiet)) cat(...)
+  inits_obj <- bundle$inits_fun %||% bundle$inits %||% function() list()
+  inits_fun <- if (is.function(inits_obj)) inits_obj else if (is.list(inits_obj)) function() inits_obj else function() list()
 
-  log_msg("[MCMC] Creating NIMBLE model...\n")
-  Rmodel <- tryCatch({
-    nimble::nimbleModel(
-      code = code,
-      data = data,
-      constants = constants,
-      inits = inits_fun(),
-      dimensions = dims,
-      check = TRUE,
-      calculate = FALSE
-    )
-  }, error = function(e) {
-    msg <- conditionMessage(e)
-    if (grepl("keywords:", msg, ignore.case = TRUE) &&
-        grepl("Please use a different name", msg, fixed = TRUE)) {
-      log_msg("[WARNING] NIMBLE name check failed; retrying with check=FALSE.\n")
-      return(tryCatch({
-        nimble::nimbleModel(
-          code = code,
-          data = data,
-          constants = constants,
-          inits = inits_fun(),
-          dimensions = dims,
-          check = FALSE,
-          calculate = FALSE
-        )
-      }, error = function(e2) {
-        log_msg("[ERROR] Failed to create NIMBLE model after retry:\n")
-        stop(e2)
-      }))
-    }
-    log_msg("[ERROR] Failed to create NIMBLE model:\n")
-    stop(e)
-  })
-  log_msg("[MCMC] NIMBLE model created successfully.\n")
-
-  log_msg("[MCMC] Configuring MCMC...\n")
-  conf <- tryCatch({
-    nimble::configureMCMC(
-      Rmodel,
-      monitors = monitors,
-      enableWAIC = waic_enabled
-    )
-  }, error = function(e) {
-    log_msg("[ERROR] Failed to configure MCMC:\n")
-    stop(e)
-  })
-
-  # If any samplerConf is missing checkConjugacy, set it to FALSE.
-  if (!is.null(conf$samplerConfs) && length(conf$samplerConfs) > 0) {
-    stoch_nodes <- tryCatch(
-      Rmodel$getNodeNames(stochOnly = TRUE, includeData = FALSE),
-      error = function(e) character(0)
-    )
-
-    for (i in seq_along(conf$samplerConfs)) {
-      ctl <- conf$samplerConfs[[i]]$control
-      if (is.null(ctl)) ctl <- list()
-      if (is.null(ctl$checkConjugacy)) ctl$checkConjugacy <- FALSE
-
-      # NIMBLE's CRP sampler requires clusterNodes to be stochastic.
-      # For link-mode CRP models, configureMCMC may include deterministic
-      # helper nodes (e.g., *_ik), which causes buildMCMC to fail.
-      if (identical(conf$samplerConfs[[i]]$name, "CRP") &&
-          !is.null(ctl$clusterVarInfo) &&
-          length(stoch_nodes) > 0) {
-        cvi <- ctl$clusterVarInfo
-        cn <- cvi$clusterNodes
-        if (is.list(cn) && length(cn) > 0) {
-          # Filter out deterministic nodes from each cluster element
-          cn_filtered <- lapply(cn, function(nodes) nodes[nodes %in% stoch_nodes])
-          keep <- lengths(cn_filtered) > 0
-          
-          if (any(!keep) || any(lengths(cn_filtered) != lengths(cn))) {
-            # Update clusterNodes to stochastic-only
-            cvi$clusterNodes <- cn_filtered[keep]
-            
-            # Update metadata to match filtered structure
-            list_fields <- c("clusterIDs", "indexExpr")
-            vec_fields <- c(
-              "clusterVars", "nTilde", "loopIndex",
-              "targetIsIndex", "indexPosition", "numIndexes",
-              "targetIndexedByFunction", "multipleStochIndexes", "targetNonIndex",
-              "nodeIDs"
-            )
-            
-            # Remove empty clusters from list/vec fields
-            if (any(!keep)) {
-              for (nm in list_fields) {
-                if (!is.null(cvi[[nm]])) cvi[[nm]] <- cvi[[nm]][keep]
-              }
-              for (nm in vec_fields) {
-                if (!is.null(cvi[[nm]])) cvi[[nm]] <- cvi[[nm]][keep]
-              }
-            }
-            
-            # Update numNodesPerCluster to actual filtered counts
-            if (!is.null(cvi$numNodesPerCluster)) {
-              cvi$numNodesPerCluster <- lengths(cn_filtered[keep])
-            }
-            
-            ctl$clusterVarInfo <- cvi
-          }
-        }
-      }
-      conf$samplerConfs[[i]]$control <- ctl
-    }
-  }
-  log_msg("[MCMC] MCMC configured.\n")
-
-  log_msg("[MCMC] Building MCMC object...\n")
-  Rmcmc <- tryCatch({
-    nimble::buildMCMC(conf)
-  }, error = function(e) {
-    log_msg("[ERROR] Failed to build MCMC:\n")
-    stop(e)
-  })
-  log_msg("[MCMC] MCMC object built.\n")
-
-  compiled <- TRUE
-  Cmodel <- NULL
-  Cmcmc  <- NULL
-
-  # Attempt to compile; on failure, fall back to running uncompiled MCMC
-  log_msg("[MCMC] Attempting NIMBLE compilation (this may take a minute)...\n")
-  compile_err <- tryCatch({
-    log_msg("[MCMC] Compiling model...\n")
-    Cmodel <- nimble::compileNimble(Rmodel, showCompilerOutput = FALSE)
-    log_msg("[MCMC] Compiling MCMC sampler...\n")
-    Cmcmc  <- nimble::compileNimble(Rmcmc, project = Rmodel, showCompilerOutput = FALSE)
-    log_msg("[MCMC] Compilation successful.\n")
-    NULL
-  }, error = function(e) {
-    log_msg("[WARNING] Compilation failed, falling back to uncompiled MCMC.\n")
-    e
-  })
-
-  if (inherits(compile_err, "error")) {
-    compiled <- FALSE
-    warning(
-      paste0(
-        "nimble model compilation failed; running uncompiled MCMC for portability: ",
-        conditionMessage(compile_err)
-      ),
-      call. = FALSE
-    )
-  }
-
-  niter   <- as.integer(m$niter   %||% 2000)
+  niter <- as.integer(m$niter %||% 2000)
   nburnin <- as.integer(m$nburnin %||% 500)
-  thin    <- as.integer(m$thin    %||% 1)
+  thin <- as.integer(m$thin %||% 1)
   nchains <- as.integer(m$nchains %||% 1)
-
-  # Seeds: if NULL or FALSE, generate a random seed; otherwise use provided seed
-  # Used for init generation only, NOT passed to runMCMC
-  seed <- m$seed %||% NULL
-  if (is.null(seed) || identical(seed, FALSE)) {
-    # Generate a random seed using system time combined with process ID
-    seed <- as.integer(Sys.time()) + Sys.getpid()
+  timing <- isTRUE(timing %||% m$timing %||% FALSE)
+  parallel_chains <- isTRUE(parallel_chains %||% m$parallel_chains %||% FALSE)
+  z_update_every <- as.integer(z_update_every %||% m$z_update_every %||% 1L)
+  if (!is.finite(z_update_every) || z_update_every < 1L) {
+    stop("'z_update_every' must be an integer >= 1.", call. = FALSE)
   }
+  if (z_update_every > 1L && !isTRUE(quiet)) {
+    message(sprintf("Using z_update_every = %d; this may reduce compute but can slow mixing.", z_update_every))
+  }
+  workers <- as.integer(workers %||% m$workers %||% max(1L, min(nchains, parallel::detectCores(logical = FALSE))))
+  if (!is.finite(workers) || workers < 1L) workers <- 1L
+
+  seed <- m$seed %||% NULL
+  if (is.null(seed) || identical(seed, FALSE)) seed <- as.integer(Sys.time()) + Sys.getpid()
   seed <- as.integer(seed)
   if (length(seed) == 1L && nchains > 1L) seed <- seed + seq_len(nchains) - 1L
   if (length(seed) != nchains) stop("mcmc$seed must be length 1 or length nchains.", call. = FALSE)
 
-  # Inits: list-of-lists for multiple chains
-  # Use seed to generate reproducible initial values, but don't pass seed to runMCMC
-  if (nchains > 1L) {
-    inits_list <- vector("list", nchains)
-    for (ch in seq_len(nchains)) {
-      set.seed(seed[ch])
-      inits_list[[ch]] <- inits_fun()
-    }
-  } else {
-    set.seed(seed[1])
-    inits_list <- inits_fun()
+  log_msg <- function(...) if (!isTRUE(quiet)) cat(...)
+  tic <- function() proc.time()[["elapsed"]]
+  timing_info <- list(build = 0, compile = 0, mcmc = 0, cache_hit = FALSE)
+
+  if (parallel_chains && nchains > 1L) {
+    warning("parallel_chains currently falls back to sequential execution in this environment.",
+            call. = FALSE)
+    parallel_chains <- FALSE
   }
 
+  if (parallel_chains && nchains > 1L) {
+    old_plan <- future::plan()
+    on.exit(future::plan(old_plan), add = TRUE)
+    future::plan(future::multisession, workers = min(workers, nchains))
+    t0 <- tic()
+    chain_fits <- future.apply::future_lapply(seq_len(nchains), function(ch) {
+      b <- bundle
+      b$mcmc <- utils::modifyList(
+        b$mcmc %||% list(),
+        list(nchains = 1L, seed = seed[ch], parallel_chains = FALSE, z_update_every = z_update_every)
+      )
+      run_mcmc_bundle_manual(
+        b,
+        show_progress = FALSE,
+        quiet = TRUE,
+        parallel_chains = FALSE,
+        workers = 1L,
+        timing = timing,
+        z_update_every = z_update_every
+      )
+    }, future.seed = TRUE)
+    timing_info$mcmc <- tic() - t0
+
+    sample_list <- lapply(chain_fits, function(fit_i) {
+      smp <- fit_i$samples
+      if (inherits(smp, "mcmc.list")) smp[[1L]] else smp
+    })
+    samples <- if (requireNamespace("coda", quietly = TRUE)) coda::mcmc.list(sample_list) else sample_list
+
+    fit <- chain_fits[[1L]]
+    fit$mcmc$nchains <- nchains
+    fit$mcmc$seed <- seed
+    fit$mcmc$samples <- samples
+    fit$mcmc$parallel_chains <- TRUE
+    fit$samples <- samples
+    fit$timing <- timing_info
+    class(fit) <- unique(c("mixgpd_fit", "list"))
+    return(fit)
+  }
+
+  cache_key <- .mcmc_cache_key(code = code, constants = constants, data = data, dims = dims, monitors = monitors, waic_enabled = waic_enabled)
+  cache_entry <- .mcmc_cache_get(cache_key)
+  if (!is.null(cache_entry)) {
+    timing_info$cache_hit <- TRUE
+    log_msg("[MCMC] Reusing cached build/compile.\n")
+  }
+
+  if (is.null(cache_entry)) {
+    t0_build <- tic()
+    log_msg("[MCMC] Creating NIMBLE model...\n")
+    Rmodel <- tryCatch(
+      nimble::nimbleModel(code = code, data = data, constants = constants, inits = inits_fun(), dimensions = dims, check = TRUE, calculate = FALSE),
+      error = function(e) {
+        msg <- conditionMessage(e)
+        if (grepl("keywords:", msg, ignore.case = TRUE) && grepl("Please use a different name", msg, fixed = TRUE)) {
+          return(nimble::nimbleModel(code = code, data = data, constants = constants, inits = inits_fun(), dimensions = dims, check = FALSE, calculate = FALSE))
+        }
+        stop(e)
+      }
+    )
+
+    conf <- nimble::configureMCMC(Rmodel, monitors = monitors, enableWAIC = waic_enabled)
+    conf <- .configure_samplers(
+      conf,
+      spec = spec,
+      data_info = list(constants = constants, dimensions = dims),
+      z_update_every = z_update_every
+    )
+
+    Rmcmc <- nimble::buildMCMC(conf)
+    timing_info$build <- tic() - t0_build
+
+    compiled <- TRUE
+    Cmodel <- NULL
+    Cmcmc <- NULL
+    t0_compile <- tic()
+    compile_err <- tryCatch({
+      Cmodel <- nimble::compileNimble(Rmodel, showCompilerOutput = FALSE)
+      Cmcmc <- nimble::compileNimble(Rmcmc, project = Rmodel, showCompilerOutput = FALSE)
+      NULL
+    }, error = function(e) e)
+    timing_info$compile <- tic() - t0_compile
+    if (inherits(compile_err, "error")) {
+      compiled <- FALSE
+      warning(paste0("nimble model compilation failed; running uncompiled MCMC for portability: ", conditionMessage(compile_err)), call. = FALSE)
+    }
+
+    cache_entry <- list(
+      compiled = compiled,
+      Rmodel = Rmodel,
+      Rmcmc = Rmcmc,
+      Cmodel = if (compiled) Cmodel else NULL,
+      Cmcmc = if (compiled) Cmcmc else NULL,
+      conf = conf
+    )
+    .mcmc_cache_set(cache_key, cache_entry)
+  }
+
+  compiled <- isTRUE(cache_entry$compiled)
+  Rmodel <- cache_entry$Rmodel
+  Rmcmc <- cache_entry$Rmcmc
+  Cmodel <- cache_entry$Cmodel
+  Cmcmc <- cache_entry$Cmcmc
+  conf <- cache_entry$conf
   engine_mcmc <- if (compiled) Cmcmc else Rmcmc
 
-  # Run MCMC (try WAIC; fall back if nimble version doesn’t support it)
+  inits_list <- if (nchains > 1L) {
+    out <- vector("list", nchains)
+    for (ch in seq_len(nchains)) {
+      set.seed(seed[ch])
+      out[[ch]] <- inits_fun()
+    }
+    out
+  } else {
+    set.seed(seed[1L])
+    inits_fun()
+  }
+
+  t0_mcmc <- tic()
   res <- tryCatch(
     nimble::runMCMC(
       engine_mcmc,
@@ -2318,6 +2413,7 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = TRUE) {
     ),
     error = function(e) e
   )
+  timing_info$mcmc <- tic() - t0_mcmc
 
   if (inherits(res, "error")) {
     samples <- nimble::runMCMC(
@@ -2331,31 +2427,18 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = TRUE) {
       samplesAsCodaMCMC = TRUE
     )
     waic_obj <- NULL
+  } else if (is.list(res) && !is.null(res$WAIC)) {
+    waic_obj <- res$WAIC
+    samples <- res$samples
   } else {
-    # Extract WAIC if available
-    if (is.list(res) && !is.null(res$WAIC)) {
-      waic_obj <- res$WAIC
-      samples <- res$samples
-    } else {
-      samples <- res
-      waic_obj <- NULL
-    }
+    waic_obj <- NULL
+    samples <- res
   }
 
-  log_msg("[MCMC] MCMC execution complete. Processing results...\n")
-
-  # Attempt to calculate WAIC if enabled
   if (is.null(waic_obj) && waic_enabled) {
     waic_obj <- tryCatch({
-      if (compiled) {
-        nimble::calculateWAIC(Cmcmc)
-      } else {
-        nimble::calculateWAIC(Rmcmc)
-      }
-    }, error = function(e) {
-      log_msg("[Note] WAIC calculation not available or failed.\n")
-      NULL
-    })
+      if (compiled) nimble::calculateWAIC(Cmcmc) else nimble::calculateWAIC(Rmcmc)
+    }, error = function(e) NULL)
   }
 
   fit <- list(
@@ -2371,6 +2454,7 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = TRUE) {
       thin = thin,
       nchains = nchains,
       seed = seed,
+      z_update_every = z_update_every,
       samples = samples,
       waic = waic_obj
     ),
@@ -2378,8 +2462,9 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = TRUE) {
     constants = constants,
     dimensions = dims,
     monitors = monitors,
-    cache = list(),
-    epsilon = bundle$epsilon %||% NULL
+    cache = list(predict_env = new.env(parent = emptyenv())),
+    epsilon = bundle$epsilon %||% NULL,
+    timing = timing_info
   )
 
   fit$samples <- samples

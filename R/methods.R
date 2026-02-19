@@ -898,6 +898,176 @@ print.mixgpd_summary <- function(x, digits = 3, max_rows = 60, ...) {
 
 
 
+#' Effective Sample Size Summary (ESS/sec)
+#'
+#' Computes per-parameter effective sample size (ESS) and ESS-per-second using
+#' posterior draws from a fitted object. For causal fits, summaries are returned
+#' for both outcome arms and tagged by arm.
+#'
+#' @param fit A \code{"mixgpd_fit"} or \code{"causalmixgpd_causal_fit"} object.
+#' @param params Optional character vector of parameter names/patterns. If
+#'   \code{NULL}, a fixed canonical set is auto-resolved.
+#' @param per_chain Logical; if \code{TRUE}, include per-chain ESS rows.
+#' @param wall_time Optional numeric total MCMC time in seconds. If \code{NULL},
+#'   uses \code{fit$timing$mcmc} when available.
+#' @param robust Logical; if \code{TRUE}, skip missing parameters gracefully.
+#' @param ... Unused.
+#' @return Object of class \code{"mixgpd_ess_summary"} with elements
+#'   \code{table}, \code{overall}, and \code{meta}.
+#' @export
+ess_summary <- function(fit, params = NULL, per_chain = TRUE, wall_time = NULL, robust = TRUE, ...) {
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+  if (!requireNamespace("coda", quietly = TRUE)) {
+    stop("Package 'coda' is required for ess_summary().", call. = FALSE)
+  }
+
+  .resolve_core_params <- function(cn) {
+    pick_first <- function(cands, cn) {
+      for (rx in cands) {
+        hit <- grep(rx, cn, value = TRUE)
+        if (length(hit)) return(hit[1L])
+      }
+      NULL
+    }
+    out <- character(0)
+    p1 <- pick_first(c("^alpha$", "^kappa$", "^dp_alpha$"), cn)
+    if (!is.null(p1)) out <- c(out, p1)
+    p2 <- pick_first(c("^tail_shape$", "^tail_shape\\[1\\]$"), cn)
+    if (!is.null(p2)) out <- c(out, p2)
+    p3 <- pick_first(c("^mu\\[1\\]$", "^meanlog\\[1\\]$", "^location\\[1\\]$", "^mu$"), cn)
+    if (!is.null(p3)) out <- c(out, p3)
+    p4 <- pick_first(c("^sigma\\[1\\]$", "^sdlog\\[1\\]$", "^scale\\[1\\]$", "^shape\\[1\\]$", "^sigma$"), cn)
+    if (!is.null(p4)) out <- c(out, p4)
+    p5 <- pick_first(c("^beta\\[1\\]$", "^beta_.*\\[1\\]$"), cn)
+    if (!is.null(p5)) out <- c(out, p5)
+    unique(out)
+  }
+
+  .resolve_params <- function(cn, params, robust = TRUE) {
+    if (is.null(params)) return(.resolve_core_params(cn))
+    hits <- unique(unlist(lapply(params, function(p) {
+      if (p %in% cn) return(p)
+      grep(p, cn, value = TRUE)
+    })))
+    if (!length(hits) && !isTRUE(robust)) {
+      stop("No parameters matched 'params'.", call. = FALSE)
+    }
+    hits
+  }
+
+  .ess_one <- function(obj, arm = NA_character_, wall_time = NULL, params = NULL, per_chain = TRUE, robust = TRUE) {
+    smp <- .get_samples_mcmclist(obj)
+    chain_mats <- lapply(smp, function(ch) as.matrix(ch))
+    cn <- colnames(chain_mats[[1L]])
+    keep <- .resolve_params(cn, params = params, robust = robust)
+    if (!length(keep)) {
+      return(list(
+        table = data.frame(),
+        meta = list(params_used = character(0), nchains = length(chain_mats), seconds = NA_real_, seconds_source = "none")
+      ))
+    }
+    chain_secs <- suppressWarnings(as.numeric(wall_time %||% obj$timing$mcmc %||% NA_real_))
+    seconds_source <- if (!is.null(wall_time)) "wall_time" else if (is.finite(chain_secs)) "fit$timing$mcmc" else "none"
+    if (identical(seconds_source, "none")) {
+      warning("No wall-time available; ESS/sec reported as NA. Provide 'wall_time' or run with timing=TRUE.", call. = FALSE)
+    }
+    if (is.finite(chain_secs) && length(chain_mats) > 0L) chain_secs <- chain_secs / length(chain_mats)
+
+    rows <- list()
+    if (isTRUE(per_chain)) {
+      for (i in seq_along(chain_mats)) {
+        m <- chain_mats[[i]]
+        for (p in keep) {
+          v <- m[, p]
+          v <- v[is.finite(v)]
+          ess <- if (length(v) >= 3L) as.numeric(coda::effectiveSize(coda::mcmc(v))) else NA_real_
+          rows[[length(rows) + 1L]] <- data.frame(
+            arm = arm,
+            param = p,
+            chain = paste0("chain", i),
+            ess = ess,
+            seconds = chain_secs,
+            ess_per_sec = if (is.finite(chain_secs) && chain_secs > 0) ess / chain_secs else NA_real_,
+            stringsAsFactors = FALSE
+          )
+        }
+      }
+    }
+
+    pooled <- as.matrix(do.call(rbind, chain_mats))
+    pooled_secs <- suppressWarnings(as.numeric(wall_time %||% obj$timing$mcmc %||% NA_real_))
+    for (p in keep) {
+      v <- pooled[, p]
+      v <- v[is.finite(v)]
+      ess <- if (length(v) >= 3L) as.numeric(coda::effectiveSize(coda::mcmc(v))) else NA_real_
+      rows[[length(rows) + 1L]] <- data.frame(
+        arm = arm,
+        param = p,
+        chain = "pooled",
+        ess = ess,
+        seconds = pooled_secs,
+        ess_per_sec = if (is.finite(pooled_secs) && pooled_secs > 0) ess / pooled_secs else NA_real_,
+        stringsAsFactors = FALSE
+      )
+    }
+
+    tab <- do.call(rbind, rows)
+    list(
+      table = tab,
+      meta = list(params_used = keep, nchains = length(chain_mats), seconds = pooled_secs, seconds_source = seconds_source)
+    )
+  }
+
+  if (inherits(fit, "causalmixgpd_causal_fit")) {
+    con <- .ess_one(fit$outcome_fit$con, arm = "control", wall_time = wall_time, params = params, per_chain = per_chain, robust = robust)
+    trt <- .ess_one(fit$outcome_fit$trt, arm = "treated", wall_time = wall_time, params = params, per_chain = per_chain, robust = robust)
+    tab <- rbind(con$table, trt$table)
+    meta <- list(
+      nchains = unique(c(con$meta$nchains, trt$meta$nchains)),
+      seconds_source = unique(c(con$meta$seconds_source, trt$meta$seconds_source)),
+      params_used = unique(c(con$meta$params_used, trt$meta$params_used))
+    )
+  } else {
+    if (!inherits(fit, "mixgpd_fit")) stop("'fit' must be mixgpd_fit or causalmixgpd_causal_fit.", call. = FALSE)
+    one <- .ess_one(fit, arm = "single", wall_time = wall_time, params = params, per_chain = per_chain, robust = robust)
+    tab <- one$table
+    meta <- one$meta
+  }
+
+  overall <- if (nrow(tab)) {
+    stats::aggregate(cbind(ess, ess_per_sec) ~ arm + param, data = tab[tab$chain == "pooled", , drop = FALSE], FUN = mean, na.rm = TRUE)
+  } else {
+    data.frame()
+  }
+
+  out <- list(table = tab, overall = overall, meta = meta)
+  class(out) <- "mixgpd_ess_summary"
+  out
+}
+
+#' @export
+print.mixgpd_ess_summary <- function(x, digits = 3L, max_rows = 25L, ...) {
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+  stopifnot(inherits(x, "mixgpd_ess_summary"))
+  tab <- x$table %||% data.frame()
+  cat("ESS summary (ESS/sec)\n")
+  if (!nrow(tab)) {
+    cat("No matched parameters.\n")
+    return(invisible(x))
+  }
+  if (nrow(tab) > max_rows) tab <- tab[seq_len(max_rows), , drop = FALSE]
+  num_cols <- vapply(tab, is.numeric, logical(1))
+  tab[num_cols] <- lapply(tab[num_cols], function(v) round(v, digits = digits))
+  print_fmt3(tab, row.names = FALSE)
+  invisible(x)
+}
+
+#' @export
+summary.mixgpd_ess_summary <- function(object, ...) {
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
+  object$overall %||% data.frame()
+}
+
 #' Plot MCMC diagnostics for a MixGPD fit (ggmcmc backend)
 #'
 #' Uses ggmcmc to produce standard MCMC diagnostic plots. Works with 1+ chains.
@@ -1157,6 +1327,12 @@ plot.mixgpd_fit <- function(x,
 #' @param nsim_mean Number of posterior predictive samples to use for posterior mean estimation (for \code{type="mean"}).
 #' @param cutoff Finite numeric cutoff for \code{type="rmean"} (restricted mean).
 #' @param ncores Number of CPU cores to use for parallel prediction (if supported).
+#' @param ndraws_pred Optional integer subsample of posterior draws for prediction speed.
+#'   If NULL and \code{nrow(newdata) > 20000}, defaults to 200.
+#' @param chunk_size Optional row chunk size for large \code{newdata} prediction.
+#'   If NULL and \code{nrow(newdata) > 20000}, defaults to 10000.
+#' @param parallel Logical; if TRUE, enable parallel prediction (alias for setting \code{ncores > 1}).
+#' @param workers Optional integer worker count (alias for \code{ncores}).
 #' @param ... Unused.
 #' @return A list with elements:
 #'   \itemize{
@@ -1201,6 +1377,10 @@ predict.mixgpd_fit <- function(object,
                                nsim_mean = 200L,
                                cutoff = NULL,
                                ncores = 1L,
+                               ndraws_pred = NULL,
+                               chunk_size = NULL,
+                               parallel = FALSE,
+                               workers = NULL,
                                ...) {
   .validate_fit(object)
   dots <- list(...)
@@ -1255,6 +1435,11 @@ predict.mixgpd_fit <- function(object,
     probs <- c((1 - level) / 2, 0.5, (1 + level) / 2)
   }
 
+  if (!is.null(workers)) {
+    ncores <- workers
+  } else if (isTRUE(parallel) && isTRUE(is.null(workers))) {
+    ncores <- max(2L, as.integer(ncores))
+  }
   ncores <- as.integer(ncores)
   if (is.na(ncores) || ncores < 1L) stop("'ncores' must be an integer >= 1.", call. = FALSE)
 
@@ -1273,6 +1458,8 @@ predict.mixgpd_fit <- function(object,
                   probs = probs,
                   store_draws = store_draws,
                   nsim_mean = nsim_mean,
+                  ndraws_pred = ndraws_pred,
+                  chunk_size = chunk_size,
                   ncores = ncores)
 
     median_pred <- .predict_mixgpd(object,
@@ -1289,6 +1476,8 @@ predict.mixgpd_fit <- function(object,
                     probs = probs,
                     store_draws = store_draws,
                     nsim_mean = nsim_mean,
+                    ndraws_pred = ndraws_pred,
+                    chunk_size = chunk_size,
                     ncores = ncores)
 
     fit_mean <- mean_pred$fit
@@ -1326,6 +1515,8 @@ predict.mixgpd_fit <- function(object,
                   store_draws = store_draws,
                   nsim_mean = nsim_mean,
                   cutoff = cutoff,
+                  ndraws_pred = ndraws_pred,
+                  chunk_size = chunk_size,
                   ncores = ncores)
 }
 

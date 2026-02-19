@@ -4,7 +4,15 @@
 \alias{run_mcmc_bundle_manual}
 \title{Run MCMC for a prepared bundle}
 \usage{
-run_mcmc_bundle_manual(bundle, show_progress = TRUE, quiet = TRUE)
+run_mcmc_bundle_manual(
+  bundle,
+  show_progress = TRUE,
+  quiet = TRUE,
+  parallel_chains = FALSE,
+  workers = NULL,
+  timing = FALSE,
+  z_update_every = NULL
+)
 }
 \arguments{
 \item{bundle}{A \code{causalmixgpd_bundle} from \code{build_nimble_bundle()}.}
@@ -13,6 +21,15 @@ run_mcmc_bundle_manual(bundle, show_progress = TRUE, quiet = TRUE)
 
 \item{quiet}{Logical; if TRUE (default), suppress console status messages.
 Set to FALSE to see progress messages during MCMC setup and execution.}
+
+\item{parallel_chains}{Logical; run chains concurrently when \code{nchains > 1}.}
+
+\item{workers}{Optional integer number of workers for parallel execution.}
+
+\item{timing}{Logical; if TRUE, include stage timings (\code{build}, \code{compile}, \code{mcmc})
+in \code{fit$timing}.}
+
+\item{z_update_every}{Integer >= 1 controlling latent allocation update cadence.}
 }
 \value{
 A fitted object of class \code{"mixgpd_fit"}.

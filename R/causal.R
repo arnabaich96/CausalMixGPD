@@ -44,6 +44,9 @@
 #' @param ps_scale Scale used when augmenting outcomes with PS: \code{"logit"} or \code{"prob"}.
 #' @param ps_summary Posterior summary for PS: \code{"mean"} or \code{"median"}.
 #' @param ps_clamp Numeric epsilon for clamping PS values to \eqn{(\epsilon, 1-\epsilon)}.
+#' @param monitor Character monitor profile: \code{"core"} (default) or \code{"full"}.
+#' @param monitor_latent Logical; whether to monitor latent allocations (\code{z}) in outcome arms.
+#' @param monitor_v Logical; whether to monitor stick-breaking \code{v} terms for SB outcomes.
 #' @return A list of class \code{"causalmixgpd_causal_bundle"}.
 #' @examples
 #' \dontrun{
@@ -83,7 +86,10 @@ build_causal_bundle <- function(
     PS = "logit",
     ps_scale = c("logit", "prob"),
     ps_summary = c("mean", "median"),
-    ps_clamp = 1e-6
+    ps_clamp = 1e-6,
+    monitor = c("core", "full"),
+    monitor_latent = FALSE,
+    monitor_v = FALSE
 ) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
@@ -96,8 +102,14 @@ build_causal_bundle <- function(
   backend <- .arm_value(backend, "backend")
   backend$trt <- match.arg(backend$trt, choices = c("sb", "crp"))
   backend$con <- match.arg(backend$con, choices = c("sb", "crp"))
+  monitor <- match.arg(monitor)
   ps_scale <- match.arg(ps_scale)
   ps_summary <- match.arg(ps_summary)
+
+  if (identical(monitor, "full")) {
+    monitor_latent <- TRUE
+    monitor_v <- TRUE
+  }
 
   y <- as.numeric(y)
   if (!length(y)) stop("y must be a non-empty numeric vector.", call. = FALSE)
@@ -197,7 +209,10 @@ build_causal_bundle <- function(
     param_specs = ps_con,
     mcmc = mcmc_outcome,
     epsilon = epsilon$con,
-    alpha_random = alpha_random
+    alpha_random = alpha_random,
+    monitor = monitor,
+    monitor_latent = monitor_latent,
+    monitor_v = monitor_v
   )
 
   bundle_trt <- build_nimble_bundle(
@@ -211,7 +226,10 @@ build_causal_bundle <- function(
     param_specs = ps_trt,
     mcmc = mcmc_outcome,
     epsilon = epsilon$trt,
-    alpha_random = alpha_random
+    alpha_random = alpha_random,
+    monitor = monitor,
+    monitor_latent = monitor_latent,
+    monitor_v = monitor_v
   )
 
   out <- list(
@@ -234,6 +252,11 @@ build_causal_bundle <- function(
         enabled = !isFALSE(ps_model_type),
         include_in_outcome = !isFALSE(ps_model_type),
         model_type = ps_model_type
+      ),
+      monitor_policy = list(
+        monitor = monitor,
+        monitor_latent = isTRUE(monitor_latent),
+        monitor_v = isTRUE(monitor_v)
       )
     ),
     call = match.call()
@@ -328,6 +351,10 @@ build_causal_bundle <- function(
 #'
 #' @param bundle A \code{"causalmixgpd_causal_bundle"} from \code{build_causal_bundle()}.
 #' @param show_progress Logical; passed to nimble for each block.
+#' @param parallel_arms Logical; if TRUE, run control and treated outcome arms in parallel.
+#' @param workers Optional integer workers for parallel arm execution.
+#' @param timing Logical; if TRUE, return arm and total timings in \code{$timing}.
+#' @param z_update_every Integer >= 1 passed to arm-level outcome MCMC.
 #' @return A list of class \code{"causalmixgpd_causal_fit"}.
 #' @examples
 #' \dontrun{
@@ -335,8 +362,20 @@ build_causal_bundle <- function(
 #' fit <- run_mcmc_causal(cb)
 #' }
 #' @export
-run_mcmc_causal <- function(bundle, show_progress = TRUE) {
+run_mcmc_causal <- function(bundle, show_progress = TRUE,
+                            parallel_arms = FALSE, workers = NULL, timing = FALSE,
+                            z_update_every = NULL) {
+  `%||%` <- function(a, b) if (!is.null(a)) a else b
   stopifnot(inherits(bundle, "causalmixgpd_causal_bundle"))
+  z_update_every <- as.integer(
+    z_update_every %||%
+      bundle$outcome$con$mcmc$z_update_every %||%
+      bundle$outcome$trt$mcmc$z_update_every %||%
+      1L
+  )
+  if (!is.finite(z_update_every) || z_update_every < 1L) {
+    stop("'z_update_every' must be an integer >= 1.", call. = FALSE)
+  }
 
   # Check if propensity scores are enabled
   ps_meta <- bundle$meta$ps %||% list()
@@ -388,12 +427,68 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
     b <- bundle$outcome[[arm]]
     b$code <- build_code_from_spec(b$spec)
     b$constants <- build_constants_from_spec(b$spec)
-    b$monitors <- build_monitors_from_spec(b$spec)
+    pol <- b$monitor_policy %||% bundle$meta$monitor_policy %||% list()
+    b$monitors <- build_monitors_from_spec(
+      b$spec,
+      monitor_v = isTRUE(pol$monitor_v),
+      monitor_latent = isTRUE(pol$monitor_latent)
+    )
     bundle$outcome[[arm]] <- b
   }
+  timing_info <- list(total = NA_real_, con = NA_real_, trt = NA_real_, parallel_arms = FALSE)
+  t0_total <- proc.time()[["elapsed"]]
+  parallel_arms <- isTRUE(parallel_arms)
+  workers <- as.integer(workers %||% 2L)
+  if (!is.finite(workers) || workers < 1L) workers <- 1L
+  if (parallel_arms) {
+    warning("parallel_arms currently falls back to sequential execution in this environment.",
+            call. = FALSE)
+    parallel_arms <- FALSE
+  }
 
-  con_fit <- run_mcmc_bundle_manual(bundle$outcome$con, show_progress = show_progress)
-  trt_fit <- run_mcmc_bundle_manual(bundle$outcome$trt, show_progress = show_progress)
+  if (parallel_arms &&
+      requireNamespace("future", quietly = TRUE) &&
+      requireNamespace("future.apply", quietly = TRUE)) {
+    old_plan <- future::plan()
+    on.exit(future::plan(old_plan), add = TRUE)
+    future::plan(future::multisession, workers = min(workers, 2L))
+    fit_list <- future.apply::future_lapply(c("con", "trt"), function(arm) {
+      run_mcmc_bundle_manual(
+        bundle$outcome[[arm]],
+        show_progress = FALSE,
+        quiet = TRUE,
+        timing = timing,
+        z_update_every = z_update_every
+      )
+    }, future.seed = TRUE)
+    timing_info$parallel_arms <- TRUE
+    timing_info$con <- fit_list[[1]]$timing$mcmc %||% NA_real_
+    timing_info$trt <- fit_list[[2]]$timing$mcmc %||% NA_real_
+    con_fit <- fit_list[[1]]
+    trt_fit <- fit_list[[2]]
+  } else {
+    if (parallel_arms) {
+      warning("parallel_arms=TRUE requested but 'future'/'future.apply' are unavailable; running sequentially.",
+              call. = FALSE)
+    }
+    t_con <- proc.time()[["elapsed"]]
+    con_fit <- run_mcmc_bundle_manual(
+      bundle$outcome$con,
+      show_progress = show_progress,
+      timing = timing,
+      z_update_every = z_update_every
+    )
+    timing_info$con <- proc.time()[["elapsed"]] - t_con
+    t_trt <- proc.time()[["elapsed"]]
+    trt_fit <- run_mcmc_bundle_manual(
+      bundle$outcome$trt,
+      show_progress = show_progress,
+      timing = timing,
+      z_update_every = z_update_every
+    )
+    timing_info$trt <- proc.time()[["elapsed"]] - t_trt
+  }
+  timing_info$total <- proc.time()[["elapsed"]] - t0_total
 
   # Attach PS model if available
   if (!is.null(ps_model)) {
@@ -407,6 +502,7 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE) {
     bundle = bundle,
     ps_hat = ps_hat,
     ps_cov = ps_cov,
+    timing = timing_info,
     call = match.call()
   )
   class(out) <- "causalmixgpd_causal_fit"

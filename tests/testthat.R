@@ -22,17 +22,4 @@ if (!is_pkg_check &&
   Sys.setenv(DPMIXGPD_TEST_LEVEL = "ci")
 }
 
-
-# Robustly locate the testthat directory relative to this script
-test_dir_path <- NULL
-pkg_root <- here::here()
-this_file <- tryCatch(normalizePath(sys.frame(1)$ofile), error = function(e) NULL)
-  if (basename(pkg_root) == "tests") {
-library(testthat)
-library(CausalMixGPD)
 test_check("CausalMixGPD")
-    test_dir_path <- file.path(pkg_root, "testthat")
-}
-if (is.null(test_dir_path) || !dir.exists(test_dir_path)) {
-  test_dir_path <- file.path(pkg_root, "tests", "testthat")
-}

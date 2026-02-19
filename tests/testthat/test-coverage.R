@@ -3801,9 +3801,11 @@ test_that("spliced backend monitors are correct", {
   )
 
   mons <- build_monitors_from_spec(spec)
+  mons_latent <- build_monitors_from_spec(spec, monitor_latent = TRUE)
 
   # Check monitors
-  expect_true(sprintf("z[1:%d]", N) %in% mons)
+  expect_false(sprintf("z[1:%d]", N) %in% mons)
+  expect_true(sprintf("z[1:%d]", N) %in% mons_latent)
   expect_true(sprintf("beta_threshold[1:%d,1:%d]", K, P) %in% mons)
   expect_true(sprintf("tail_scale[1:%d]", K) %in% mons)
   # threshold_i should NOT be monitored (deterministic, reconstructed)
