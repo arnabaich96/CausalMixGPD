@@ -2,7 +2,7 @@
 title: "ex02. Unconditional DPM (SB Backend)"
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, cache=FALSE}
 knitr::opts_chunk$set(
   collapse = FALSE,
   comment = NA,
@@ -10,7 +10,7 @@ knitr::opts_chunk$set(
   fig.height = 5,
   message = FALSE,
   warning = FALSE,
-  cache=TRUE,
+  cache = FALSE,
   cache.path = 'legacy-cache-v2/'
 )
 
@@ -19,34 +19,29 @@ set.seed(1)
 
 # Fast-by-default rendering. Flip to FALSE for a fuller run.
 FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
-mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, workers = 2)
 library(tibble)
 library(gridExtra)
 library(dplyr)
 library(magrittr)
 library(ggplot2)
-mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_chains = TRUE, workers = 2, z_update_every = 2)
 
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
 # Ensure package is fully loaded for data access
-if (!require("devtools", quietly = TRUE)) {
-  library(devtools)
-}
-pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
-  devtools::load_all(path = pkg_root, quiet = TRUE)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
 ```
 
 
-> **Legacy vignette (for the website / historical notes).**
-> These files may not match the current exported API one-to-one.
-> Last verified: **2026-01-18**.
+> **Website workflow note.**
+> This page reflects the current exported API and recommended wrapper-first usage.
+> Last updated: **2026-02-19**.
 >
-> For the up-to-date workflow, see the main package vignettes (basic, unconditional, conditional, and causal)..
+> For the full package narrative, see the main package vignettes (basic, unconditional, conditional, and causal).
 
 
 # Unconditional DPmix: Stick-Breaking (SB) Backend
@@ -105,7 +100,7 @@ summary_tbl %>%
 
 We build the stick-breaking mixture explicitly with `components = 5` so that there is room for weight decay while keeping the MCMC runtime manageable for a vignette. We then refit the same SB model with a **Cauchy** kernel for comparison.
 
-```{r bundle-mcmc-sb, cache=TRUE}
+```{r bundle-mcmc-sb, cache = FALSE}
 # --- Gamma kernel ---
 bundle_sb_gamma <- bundle(
   y = y_mixed,
@@ -131,9 +126,9 @@ bundle_sb_cauchy <- bundle(
 
 ## Running MCMC & Summary
 
-```{r mcmc-run, cache=TRUE}
-fit_sb_gamma <- load_or_fit("ex02-unconditional-dpm-sb-fit_sb_gamma", mcmc(bundle_sb_gamma))
-fit_sb_cauchy <- load_or_fit("ex02-unconditional-dpm-sb-fit_sb_cauchy", mcmc(bundle_sb_cauchy))
+```{r mcmc-run, cache = FALSE}
+fit_sb_gamma <- load_or_fit("ex02-unconditional-dpm-sb-fit_sb_gamma", dpmix(bundle_sb_gamma))
+fit_sb_cauchy <- load_or_fit("ex02-unconditional-dpm-sb-fit_sb_cauchy", dpmix(bundle_sb_cauchy))
 ```
 
 ```{r fit-summary}
@@ -181,8 +176,8 @@ plot(pred_density_cauchy)
 ```{r quantile-predict}
 quant_probs <- c(0.05, 0.25, 0.5, 0.75, 0.95)
 
-pred_q_gamma <- predict(fit_sb_gamma, type = "quantile", index = quant_probs, interval = "credible")
-pred_q_cauchy <- predict(fit_sb_cauchy, type = "quantile", index = quant_probs, interval = "credible")
+pred_q_gamma <- predict(fit_sb_gamma, type = "quantile", p = quant_probs, interval = "credible")
+pred_q_cauchy <- predict(fit_sb_cauchy, type = "quantile", p = quant_probs, interval = "credible")
 
 plot(pred_q_gamma)
 plot(pred_q_cauchy)
@@ -200,7 +195,7 @@ plot(pred_mean_cauchy)
 
 ## Bulk-only vs CRP Backends
 
-```{r compare-backend, cache=TRUE}
+```{r compare-backend, cache = FALSE}
 bundle_crp_small <- bundle(
   y = y_mixed,
   kernel = "gamma",
@@ -209,10 +204,10 @@ bundle_crp_small <- bundle(
   GPD = FALSE,
   mcmc = mcmc
 )
-fit_crp_small <- load_or_fit("ex02-unconditional-dpm-sb-fit_crp_small", mcmc(bundle_crp_small))
+fit_crp_small <- load_or_fit("ex02-unconditional-dpm-sb-fit_crp_small", dpmix(bundle_crp_small))
 
-crp_quant <- predict(fit_crp_small, type = "quantile", index = quant_probs, interval = "credible")
-sb_quant <- predict(fit_sb_gamma, type = "quantile", index = quant_probs, interval = "credible")
+crp_quant <- predict(fit_crp_small, type = "quantile", p = quant_probs, interval = "credible")
+sb_quant <- predict(fit_sb_gamma, type = "quantile", p = quant_probs, interval = "credible")
 
 bind_rows(
   crp_quant$fit %>% mutate(model = "CRP"),
@@ -253,6 +248,10 @@ For unconditional models, use `predict()` only; `fitted()` and `residuals()` are
 - Workflow index: [Roadmap](../start/roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
+
+
+
+
 
 
 

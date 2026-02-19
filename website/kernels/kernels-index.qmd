@@ -6,7 +6,7 @@ alias: kernels-index
 ---
 
 # Setup chunk keeps CausalMixGPD loaded while describing kernels.
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, cache=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = NA,
@@ -84,6 +84,8 @@ bundle <- bundle(
 ```
 
 See the individual kernel pages for detailed examples and parameter descriptions.
+
+
 
 
 

@@ -8,6 +8,9 @@ format:
 
 Developer hub for architecture, tooling, tests, contracts, and release process.
 
+Wrapper-first note: user-facing documentation should default to `dpmix()` / `dpmgpd()`.
+Internal pages in this section can describe `bundle()` + `mcmc()` when implementation detail matters.
+
 {{< include _includes/golden-rules.md >}}
 
 ## Core pages
@@ -27,5 +30,6 @@ Developer hub for architecture, tooling, tests, contracts, and release process.
 {{< include _includes/where-to-change-what.md >}}
 
 {{< include _includes/common-pitfalls.md >}}
+
 
 

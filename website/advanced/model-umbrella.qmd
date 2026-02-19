@@ -4,7 +4,7 @@ pkgdown:
   slug: "advanced/model-umbrella"
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, cache=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = NA,
@@ -13,23 +13,21 @@ knitr::opts_chunk$set(
   fig.width = 7,
   fig.height = 4.5,
   fig.align = "center",
-  cache = TRUE,
+  cache = FALSE,
   cache.path = "legacy-cache/"
 )
 library(ggplot2)
 library(kableExtra)
-if (!require("devtools", quietly = TRUE)) {
-  library(devtools)
-}
-pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
-devtools::load_all(path = pkg_root, quiet = TRUE)
 
 library(CausalMixGPD)
 set.seed(1)
 
 use_fast_mcmc <- TRUE
-mcmc_long <- list(niter = 2000, nburnin = 500, thin = 3, nchains = 3, seed = 1:3)
-mcmc_fast <- list(niter = 600, nburnin = 150, thin = 2, nchains = 1, seed = 1)
+mcmc_long <- list(
+  niter = 2000, nburnin = 500, thin = 3, nchains = 3, seed = 1:3,
+  timing = TRUE, parallel_chains = TRUE, workers = 3, z_update_every = 2
+)
+mcmc_fast <- list(niter = 600, nburnin = 150, thin = 2, nchains = 1, seed = 1, timing = TRUE, workers = 2)
 mcmc <- if (use_fast_mcmc) mcmc_fast else mcmc_long
 ```
 
@@ -171,7 +169,7 @@ bundle_amoroso <- bundle(
   mcmc = mcmc
 )
 
-fit_amoroso <- mcmc(bundle_amoroso, show_progress = FALSE)
+fit_amoroso <- dpmgpd(bundle_amoroso, mcmc = list(show_progress = FALSE))
 ```
 
 ## User-Level Functions
@@ -193,10 +191,24 @@ plot(fit_amoroso, family = "traceplot")
 ```
 
 ```{r}
-pred_mean <- predict(fit_amoroso, x = X, type = "mean", level = 0.90, interval = "credible")
-pred_q90 <- predict(fit_amoroso, x = X, type = "quantile", index = 0.90, level = 0.90, interval = "credible")
+pred_mean <- predict(
+  fit_amoroso,
+  x = X,
+  type = "mean",
+  level = 0.90,
+  interval = "credible",
+  workers = 2,
+  ndraws_pred = 200,
+  chunk_size = 10000
+)
+pred_q90 <- predict(fit_amoroso, x = X, type = "quantile", p = 0.90, level = 0.90, interval = "credible")
 head(pred_mean$fit)
 head(pred_q90$fit)
+```
+
+```{r}
+ess_amoroso <- ess_summary(fit_amoroso)
+print(ess_amoroso)
 ```
 
 ```{r}
@@ -281,7 +293,8 @@ causal_bundle <- bundle(
   mcmc_ps = mcmc
 )
 
-causal_fit <- mcmc(causal_bundle, show_progress = FALSE)
+# Note: arm-level parallel execution can fall back to sequential in some environments.
+causal_fit <- dpmix(causal_bundle, mcmc = list(show_progress = FALSE, timing = TRUE, workers = 2))
 ```
 
 ## User-Level Functions
@@ -305,6 +318,11 @@ plot(causal_fit, family = "traceplot")
 ```{r}
 pred_causal_mean <- predict(causal_fit, x = X_causal, type = "mean", interval = "credible")
 head(pred_causal_mean)
+```
+
+```{r}
+ess_causal <- ess_summary(causal_fit)
+print(ess_causal)
 ```
 
 ```{r, results='asis'}
@@ -334,6 +352,10 @@ plot(qte_result, type = "effect")
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+
+
+
+
 
 
 

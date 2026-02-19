@@ -4,7 +4,7 @@ pkgdown:
   slug: "kernels/kernel-amoroso"
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, cache=FALSE}
 source("_load_pkg.R")
 ```
 
@@ -161,6 +161,8 @@ ggplot(df_amor_gpd, aes(x = x, y = density, color = label)) +
   labs(title = "Amoroso mixtures with GPD tail", x = "x", y = "density") +
   theme_minimal() + theme(legend.position = "top")
 ```
+
+
 
 
 

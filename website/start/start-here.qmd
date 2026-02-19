@@ -1,8 +1,10 @@
 ---
 title: "Start Here"
+execute:
+  eval: false
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, cache=FALSE}
 knitr::opts_chunk$set(
   collapse = FALSE,
   comment = NA,
@@ -10,8 +12,8 @@ knitr::opts_chunk$set(
   fig.height = 5,
   message = FALSE,
   warning = FALSE,
-  cache=TRUE,
-  cache.path = '../examples/legacy-cache-v2/'
+  cache = FALSE,
+  cache.path = '../examples/legacy-cache-v3/'
 )
 
 # Reproducibility
@@ -19,30 +21,25 @@ set.seed(1)
 
 # Fast-by-default rendering. Flip to FALSE for a fuller run.
 FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
-mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
-mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, workers = 2)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_chains = TRUE, workers = 2, z_update_every = 2)
 
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
 
 # Ensure package is fully loaded for data access
-if (!require("devtools", quietly = TRUE)) {
-  library(devtools)
-}
-pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
-  devtools::load_all(path = pkg_root, quiet = TRUE)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
 ```
 
 
-> **Legacy vignette (for the website / historical notes).**
-> These files may not match the current exported API one-to-one.
-> Last verified: **2026-01-18**.
+> **Website workflow note.**
+> This page reflects the current exported API and recommended wrapper-first usage.
+> Last updated: **2026-02-19**.
 >
-> For the up-to-date workflow, see the main package vignettes (basic, unconditional, conditional, and causal)..
+> For the full package narrative, see the main package vignettes (basic, unconditional, conditional, and causal).
 
 [Workflow roadmap](roadmap.html){.btn .btn-outline-light}
 
@@ -56,11 +53,11 @@ This vignette gives a minimal, fully working workflow for an **unconditional** m
 ## Unconditional Model (CRP, bulk-only)
 
 ```{r start-uncond-data}
-data("nc_pos200_k3", package = "CausalMixGPD")
+data("nc_pos200_k3")
 y <- nc_pos200_k3$y
 ```
 
-```{r start-uncond-bundle, cache=TRUE}
+```{r start-uncond-bundle, cache = FALSE}
 bundle_uncond <- bundle(
   y = y,
   backend = "crp",
@@ -71,12 +68,12 @@ bundle_uncond <- bundle(
 )
 ```
 
-```{r start-uncond-fit, cache=TRUE}
-fit_uncond <- load_or_fit("quickstart-start-here-fit_uncond", quiet_mcmc(mcmc(bundle_uncond, show_progress = FALSE)))
+```{r start-uncond-fit, cache = FALSE}
+fit_uncond <- load_or_fit("quickstart-start-here-fit_uncond", quiet_mcmc(dpmix(bundle_uncond, mcmc = list(show_progress = FALSE))))
 summary(fit_uncond)
 ```
 
-```{r start-uncond-predict, cache=TRUE}
+```{r start-uncond-predict, cache = FALSE}
 pred_q <- predict(fit_uncond, type = "quantile", p = c(0.5, 0.9), interval = "credible")
 head(pred_q$fit)
 plot(pred_q)
@@ -87,12 +84,12 @@ plot(pred_q)
 ## Conditional Model (SB, bulk-only)
 
 ```{r start-cond-data}
-data("nc_posX100_p3_k2", package = "CausalMixGPD")
+data("nc_posX100_p3_k2")
 yc <- nc_posX100_p3_k2$y
 X <- as.matrix(nc_posX100_p3_k2$X)
 ```
 
-```{r start-cond-bundle, cache=TRUE}
+```{r start-cond-bundle, cache = FALSE}
 bundle_cond <- bundle(
   y = yc,
   X = X,
@@ -104,12 +101,12 @@ bundle_cond <- bundle(
 )
 ```
 
-```{r start-cond-fit, cache=TRUE}
-fit_cond <- load_or_fit("quickstart-start-here-fit_cond", quiet_mcmc(mcmc(bundle_cond, show_progress = FALSE)))
+```{r start-cond-fit, cache = FALSE}
+fit_cond <- load_or_fit("quickstart-start-here-fit_cond", quiet_mcmc(dpmix(bundle_cond, mcmc = list(show_progress = FALSE))))
 summary(fit_cond)
 ```
 
-```{r start-cond-predict, cache=TRUE}
+```{r start-cond-predict, cache = FALSE}
 x_new <- X[1:20, , drop = FALSE]
 pred_mean <- predict(fit_cond, x = x_new, type = "mean", interval = "credible", nsim_mean = 200)
 head(pred_mean$fit)
@@ -144,6 +141,16 @@ plot(fit_uncond, family = c("traceplot", "running"))
 - Workflow index: [Roadmap](roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
+
+
+
+
+
+
+
+
+
+
 
 
 

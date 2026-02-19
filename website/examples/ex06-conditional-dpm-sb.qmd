@@ -2,7 +2,7 @@
 title: "ex06. Conditional DPM (SB Backend)"
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, cache=FALSE}
 knitr::opts_chunk$set(
   collapse = FALSE,
   comment = NA,
@@ -10,7 +10,7 @@ knitr::opts_chunk$set(
   fig.height = 5,
   message = FALSE,
   warning = FALSE,
-  cache=TRUE,
+  cache = FALSE,
   cache.path = 'legacy-cache-v2/'
 )
 
@@ -19,8 +19,8 @@ set.seed(1)
 
 # Fast-by-default rendering. Flip to FALSE for a fuller run.
 FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
-mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
-mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, workers = 2)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_chains = TRUE, workers = 2, z_update_every = 2)
 
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
@@ -29,22 +29,17 @@ mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 library(CausalMixGPD)
 
 # Ensure package is fully loaded for data access
-if (!require("devtools", quietly = TRUE)) {
-  library(devtools)
-}
-pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
-  devtools::load_all(path = pkg_root, quiet = TRUE)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
 ```
 
 
-> **Legacy vignette (for the website / historical notes).**
-> These files may not match the current exported API one-to-one.
-> Last verified: **2026-01-18**.
+> **Website workflow note.**
+> This page reflects the current exported API and recommended wrapper-first usage.
+> Last updated: **2026-02-19**.
 >
-> For the up-to-date workflow, see the main package vignettes (basic, unconditional, conditional, and causal)..
+> For the full package narrative, see the main package vignettes (basic, unconditional, conditional, and causal).
 
 
 # Conditional DPmix: Stick-Breaking Backend
@@ -56,7 +51,7 @@ source("_legacy-setup.R")
 ## Data Setup
 
 ```{r data-setup}
-data("nc_posX100_p3_k2", package = "CausalMixGPD")
+data("nc_posX100_p3_k2")
 y <- nc_posX100_p3_k2$y
 X <- as.matrix(nc_posX100_p3_k2$X)
 if (is.null(colnames(X))) {
@@ -86,7 +81,7 @@ summary_tbl %>%
 
 ## Model Specification
 
-```{r spec, cache=TRUE}
+```{r spec, cache = FALSE}
 bundle_sb_normal <- bundle(
   y = y,
   X = X,
@@ -112,9 +107,9 @@ bundle_sb_cauchy <- bundle(
 
 ## Running MCMC
 
-```{r mcmc, cache=TRUE}
-fit_sb_normal <- load_or_fit("ex06-conditional-dpm-sb-fit_sb_normal", mcmc(bundle_sb_normal))
-fit_sb_cauchy <- load_or_fit("ex06-conditional-dpm-sb-fit_sb_cauchy", mcmc(bundle_sb_cauchy))
+```{r mcmc, cache = FALSE}
+fit_sb_normal <- load_or_fit("ex06-conditional-dpm-sb-fit_sb_normal", dpmix(bundle_sb_normal))
+fit_sb_cauchy <- load_or_fit("ex06-conditional-dpm-sb-fit_sb_cauchy", dpmix(bundle_sb_cauchy))
 summary(fit_sb_normal)
 summary(fit_sb_cauchy)
 ```
@@ -173,8 +168,8 @@ X_eval <- cbind(x1 = seq(-2, 2, length.out = 5), x2 = 0, x3 = 0)
 colnames(X_eval) <- colnames(X)
 quant_probs <- c(0.25, 0.5, 0.75)
 
-pred_q_normal <- predict(fit_sb_normal, x = as.matrix(X_eval), type = "quantile", index = quant_probs)
-pred_q_cauchy <- predict(fit_sb_cauchy, x = as.matrix(X_eval), type = "quantile", index = quant_probs)
+pred_q_normal <- predict(fit_sb_normal, x = as.matrix(X_eval), type = "quantile", p = quant_probs)
+pred_q_cauchy <- predict(fit_sb_cauchy, x = as.matrix(X_eval), type = "quantile", p = quant_probs)
 
 quant_df_normal <- pred_q_normal$fit
 quant_df_normal$x1 <- X_eval[quant_df_normal$id, "x1"]
@@ -197,7 +192,7 @@ bind_rows(quant_df_normal, quant_df_cauchy) %>%
 
 ## Residuals & Diagnostics
 
-```{r residuals, cache=TRUE}
+```{r residuals, cache = FALSE}
 plot(fitted(fit_sb_cauchy))
 ```
 
@@ -225,6 +220,16 @@ plot(fit_sb_cauchy, family = c("density", "running", "caterpillar"))
 - Workflow index: [Roadmap](../start/roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
+
+
+
+
+
+
+
+
+
+
 
 
 

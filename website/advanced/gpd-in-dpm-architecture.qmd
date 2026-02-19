@@ -58,7 +58,7 @@ library(CausalMixGPD)
 library(nimble)
 
 # Data shipped with the package (positive-support, tail-designed)
-data("nc_pos_tail200_k4", package = "CausalMixGPD")
+data("nc_pos_tail200_k4")
 y <- nc_pos_tail200_k4$y
 N <- length(y)
 
@@ -256,6 +256,12 @@ Before applying the model to real data:
 - Perform simulation recovery under the same kernel and tail settings.
 - Check posterior predictive exceedance rates above `threshold`.
 - Check sensitivity to the chosen `threshold` and priors on `alpha` and tail parameters.
+
+
+
+
+
+
 
 
 

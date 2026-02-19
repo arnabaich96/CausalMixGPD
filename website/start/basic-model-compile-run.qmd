@@ -2,7 +2,7 @@
 title: "Basic Workflow: Model Specification, Bundle, & MCMC"
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, cache=FALSE}
 knitr::opts_chunk$set(
   collapse = FALSE,
   comment = NA,
@@ -10,7 +10,7 @@ knitr::opts_chunk$set(
   fig.height = 5,
   message = FALSE,
   warning = FALSE,
-  cache=TRUE,
+  cache = FALSE,
   cache.path = '../examples/legacy-cache-v2/'
 )
 
@@ -19,8 +19,8 @@ set.seed(1)
 
 # Fast-by-default rendering. Flip to FALSE for a fuller run.
 FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
-mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
-mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, workers = 2)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_chains = TRUE, workers = 2, z_update_every = 2)
 
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
@@ -29,32 +29,29 @@ mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 library(CausalMixGPD)
 
 # Ensure package is fully loaded for data access
-if (!require("devtools", quietly = TRUE)) {
-  library(devtools)
-}
-pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
-  devtools::load_all(path = pkg_root, quiet = TRUE)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
 ```
 
 
-> **Legacy vignette (for the website / historical notes).**
-> These files may not match the current exported API one-to-one.
-> Last verified: **2026-01-18**.
+> **Website workflow note.**
+> This page reflects the current exported API and recommended wrapper-first usage.
+> Last updated: **2026-02-19**.
 >
-> For the up-to-date workflow, see the main package vignettes (basic, unconditional, conditional, and causal)..
+> For the full package narrative, see the main package vignettes (basic, unconditional, conditional, and causal).
 
 [Workflow roadmap](roadmap.html){.btn .btn-outline-light}
 
 
 # Workflow Overview
 
-CausalMixGPD uses a direct two-step workflow:
+CausalMixGPD supports a wrapper-first workflow for most users:
 
-1. **Bundle** (`bundle`): Generate NIMBLE code and compile the sampler.
-2. **MCMC** (`mcmc`): Execute posterior sampling.
+1. **Fit directly** with `dpmix()` or `dpmgpd()`.
+2. **Inspect/predict** with `summary()`, `plot()`, and `predict()`.
+
+The lower-level bundle route (`bundle()` then `mcmc()`) remains available for advanced control.
 
 ---
 
@@ -64,9 +61,9 @@ CausalMixGPD uses a direct two-step workflow:
 
 ### Building Directly
 
-```{r bundle-direct, cache=TRUE}
+```{r bundle-direct, cache = FALSE}
 # Load packaged data
-data("nc_pos200_k3", package = "CausalMixGPD")
+data("nc_pos200_k3")
 y <- nc_pos200_k3$y
 
 # Direct call
@@ -103,9 +100,9 @@ print(bundle_direct$mcmc_settings)
 
 ### Basic MCMC Run
 
-```{r mcmc-basic, cache=TRUE}
+```{r mcmc-basic, cache = FALSE}
 # Run MCMC
-fit <- load_or_fit("quickstart-basic-model-compile-run-fit", mcmc(bundle_direct, show_progress = FALSE))
+fit <- load_or_fit("quickstart-basic-model-compile-run-fit", dpmix(bundle_direct, mcmc = list(show_progress = FALSE)))
 
 cat("Fit object class:", class(fit), "\n")
 cat("MCMC execution complete. Posterior samples collected.\n")
@@ -134,9 +131,9 @@ plot(fit, params = "alpha|beta", family = c("traceplot", "running", "autocorrela
 
 ## Complete Workflow: End-to-End Example
 
-```{r workflow-complete, cache=TRUE}
+```{r workflow-complete, cache = FALSE}
 # Load packaged data
-data("nc_pos200_k3", package = "CausalMixGPD")
+data("nc_pos200_k3")
 y_data <- nc_pos200_k3$y
 
 # PHASE 1: Bundle
@@ -150,7 +147,7 @@ bundle_final <- bundle(
 )
 
 # PHASE 2: MCMC
-fit_final <- load_or_fit("quickstart-basic-model-compile-run-fit_final", mcmc(bundle_final, show_progress = FALSE))
+fit_final <- load_or_fit("quickstart-basic-model-compile-run-fit_final", dpmix(bundle_final, mcmc = list(show_progress = FALSE)))
 
 print("\n=== THREE-PHASE WORKFLOW COMPLETE ===\n")
 summary(fit_final)
@@ -162,7 +159,7 @@ summary(fit_final)
 
 ### CRP Backend
 
-```{r backend-crp, cache=TRUE}
+```{r backend-crp, cache = FALSE}
 # Chinese Restaurant Process
 bundle_crp <- bundle(
   y = y_data,
@@ -172,13 +169,13 @@ bundle_crp <- bundle(
   mcmc = mcmc
 )
 
-fit_crp <- load_or_fit("quickstart-basic-model-compile-run-fit_crp", mcmc(bundle_crp, show_progress = FALSE))
+fit_crp <- load_or_fit("quickstart-basic-model-compile-run-fit_crp", dpmix(bundle_crp, mcmc = list(show_progress = FALSE)))
 print("CRP execution complete.\n")
 ```
 
 ### Stick-Breaking Backend
 
-```{r backend-sb, cache=TRUE}
+```{r backend-sb, cache = FALSE}
 # Stick-Breaking Process
 bundle_sb <- bundle(
   y = y_data,
@@ -188,7 +185,7 @@ bundle_sb <- bundle(
   mcmc = mcmc
 )
 
-fit_sb <- load_or_fit("quickstart-basic-model-compile-run-fit_sb", mcmc(bundle_sb, show_progress = FALSE))
+fit_sb <- load_or_fit("quickstart-basic-model-compile-run-fit_sb", dpmix(bundle_sb, mcmc = list(show_progress = FALSE)))
 print("SB execution complete.\n")
 ```
 
@@ -220,9 +217,9 @@ print("  cauchy:    Heavy-tailed, rare cases\n")
 
 ### Unconditional with GPD
 
-```{r gpd-example, eval=TRUE, cache=TRUE}
+```{r gpd-example, eval=TRUE, cache = FALSE}
 # Data with tail behavior
-data("nc_pos_tail200_k4", package = "CausalMixGPD")
+data("nc_pos200_k3")
 y_tail <- nc_pos_tail200_k4$y
 
 # Build with GPD
@@ -235,7 +232,7 @@ bundle_gpd <- bundle(
   mcmc = mcmc
 )
 
-fit_gpd <- load_or_fit("quickstart-basic-model-compile-run-fit_gpd", mcmc(bundle_gpd, show_progress = FALSE))
+fit_gpd <- load_or_fit("quickstart-basic-model-compile-run-fit_gpd", dpmgpd(bundle_gpd, mcmc = list(show_progress = FALSE)))
 print("\nGPD augmentation applied to tail region.\n")
 summary(fit_gpd)
 ```
@@ -246,8 +243,8 @@ summary(fit_gpd)
 
 | Phase | Function | Input | Output |
 |-------|----------|-------|--------|
-| **1. Bundle** | `bundle()` | y, X (optional), kernel, backend, GPD, components | `causalmixgpd_bundle` |
-| **2. MCMC** | `mcmc()` | bundle | `mixgpd_fit` |
+| **1. Fit (bulk only)** | `dpmix()` | y, X (optional), kernel, backend, components, mcmc | `mixgpd_fit` |
+| **2. Fit (bulk + tail)** | `dpmgpd()` | y, X (optional), kernel, backend, components, mcmc | `mixgpd_fit` |
 
 ---
 
@@ -286,6 +283,16 @@ print("Extreme outliers:  cauchy\n")
 - Workflow index: [Roadmap](roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -2,7 +2,7 @@
 title: "ex10. Causal (X, no PS, SB Backend) - InvGauss/Amoroso"
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, cache=FALSE}
 knitr::opts_chunk$set(
   collapse = FALSE,
   comment = NA,
@@ -10,7 +10,7 @@ knitr::opts_chunk$set(
   fig.height = 5,
   message = FALSE,
   warning = FALSE,
-  cache=TRUE,
+  cache = FALSE,
   cache.path = 'legacy-cache-v2/'
 )
 
@@ -25,8 +25,8 @@ set.seed(1)
 
 # Fast-by-default rendering. Flip to FALSE for a fuller run.
 FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
-mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
-mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, workers = 2)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_chains = TRUE, workers = 2, z_update_every = 2)
 
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
@@ -36,11 +36,6 @@ library(tibble)
 library(dplyr)
 
 # Ensure package is fully loaded for data access
-if (!require("devtools", quietly = TRUE)) {
-  library(devtools)
-}
-pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
-  devtools::load_all(path = pkg_root, quiet = TRUE)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
@@ -48,11 +43,11 @@ source("_legacy-setup.R")
 ```
 
 
-> **Legacy vignette (for the website / historical notes).**
-> These files may not match the current exported API one-to-one.
-> Last verified: **2026-01-18**.
+> **Website workflow note.**
+> This page reflects the current exported API and recommended wrapper-first usage.
+> Last updated: **2026-02-19**.
 >
-> For the up-to-date workflow, see the main package vignettes (basic, unconditional, conditional, and causal)..
+> For the full package narrative, see the main package vignettes (basic, unconditional, conditional, and causal).
 
 
 # Causal Inference: X Without PS (CRP+SB)
@@ -67,7 +62,7 @@ This vignette uses **covariates X** but disables PS estimation. Outcome models a
 ## Data Setup
 
 ```{r data-setup}
-data("causal_alt_real500_p4_k2", package = "CausalMixGPD")
+data("causal_alt_real500_p4_k2")
 y <- abs(causal_alt_real500_p4_k2$y) + 0.01
 A <- causal_alt_real500_p4_k2$A
 X <- as.matrix(causal_alt_real500_p4_k2$X)
@@ -90,7 +85,7 @@ u_threshold <- as.numeric(stats::quantile(y, 0.8, names = FALSE))
 
 ## Model A: CRP with GPD Tail (InvGauss)
 
-```{r bundle-crp-gpd, cache=TRUE}
+```{r bundle-crp-gpd, cache = FALSE}
 param_specs_gpd <- list(
   gpd = list(
     threshold = list(
@@ -117,8 +112,8 @@ bundle_crp_gpd <- bundle(
 bundle_crp_gpd
 ```
 
-```{r fit-crp-gpd, cache=TRUE}
-fit_crp_gpd <- quiet_mcmc(mcmc(bundle_crp_gpd))
+```{r fit-crp-gpd, cache = FALSE}
+fit_crp_gpd <- quiet_mcmc(dpmgpd(bundle_crp_gpd))
 summary(fit_crp_gpd)
 ```
 
@@ -162,7 +157,7 @@ plot(qtt_gpd)
 
 ## Model B: SB Bulk-only (Amoroso)
 
-```{r bundle-sb-bulk, cache=TRUE}
+```{r bundle-sb-bulk, cache = FALSE}
 bundle_sb_bulk <- bundle(
   y = y,
   treat = A,
@@ -178,8 +173,8 @@ bundle_sb_bulk <- bundle(
 bundle_sb_bulk
 ```
 
-```{r fit-sb-bulk, cache=TRUE}
-fit_sb_bulk <- quiet_mcmc(mcmc(bundle_sb_bulk))
+```{r fit-sb-bulk, cache = FALSE}
+fit_sb_bulk <- quiet_mcmc(dpmix(bundle_sb_bulk))
 summary(fit_sb_bulk)
 ```
 
@@ -229,6 +224,16 @@ plot(cqte_bulk)
 - Workflow index: [Roadmap](../start/roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
+
+
+
+
+
+
+
+
+
+
 
 
 

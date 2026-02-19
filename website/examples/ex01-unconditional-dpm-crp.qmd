@@ -2,7 +2,7 @@
 title: "ex01. Unconditional DPM (CRP Backend)"
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, cache=FALSE}
 knitr::opts_chunk$set(
   collapse = FALSE,
   comment = NA,
@@ -10,7 +10,7 @@ knitr::opts_chunk$set(
   fig.height = 5,
   message = FALSE,
   warning = FALSE,
-  cache=TRUE,
+  cache = FALSE,
   cache.path = 'legacy-cache-v2/'
 )
 
@@ -19,35 +19,29 @@ set.seed(1)
 
 # Fast-by-default rendering. Flip to FALSE for a fuller run.
 FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
-mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
-mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, workers = 2)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_chains = TRUE, workers = 2, z_update_every = 2)
 
 # Required for %>% and kable_styling
 library(magrittr)
 library(kableExtra)
 library(patchwork)
-mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_chains = TRUE, workers = 2, z_update_every = 2)
 
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
-# Ensure package is fully loaded for data access
-if (!require("devtools", quietly = TRUE)) {
-  library(devtools)
-}
-pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
-  devtools::load_all(path = pkg_root, quiet = TRUE)
-library(CausalMixGPD)
+# Load package`nlibrary(CausalMixGPD)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
 ```
 
 
-> **Legacy vignette (for the website / historical notes).**
-> These files may not match the current exported API one-to-one.
-> Last verified: **2026-01-18**.
+> **Website workflow note.**
+> This page reflects the current exported API and recommended wrapper-first usage.
+> Last updated: **2026-02-19**.
 >
-> For the up-to-date workflow, see the main package vignettes (basic, unconditional, conditional, and causal)..
+> For the full package narrative, see the main package vignettes (basic, unconditional, conditional, and causal).
 
 
 # Unconditional DPmix: Chinese Restaurant Process (CRP)
@@ -64,7 +58,7 @@ source("_legacy-setup.R")
 
 ```{r data-setup}
 # Load pre-generated dataset: 200 observations from mixture of 3 gamma components
-data("nc_pos200_k3", package = "CausalMixGPD")
+data("nc_pos200_k3")
 y_mixed <- nc_pos200_k3$y
 
 paste("Sample size:", length(y_mixed))
@@ -89,7 +83,7 @@ print(p_raw)
 
 We'll use the `bundle` function directly which handles both specification and bundle creation.
 
-```{r bundle-mcmc-crp, cache=TRUE}
+```{r bundle-mcmc-crp, cache = FALSE}
 bundle_crp <- bundle(
   y = y_mixed,
   kernel = "laplace",         # Use laplace kernel
@@ -106,7 +100,7 @@ bundle_crp <- bundle(
 
 ### Building MCMC bundle
 
-```{r mcmc-crp, cache=TRUE}
+```{r mcmc-crp, cache = FALSE}
 bundle_crp <- bundle(
   y_mixed,
   kernel = "laplace",
@@ -124,8 +118,8 @@ summary(bundle_crp)
 ```
 
 ### Running MCMC
-```{r mcmc-crp-fit, results = "hide", cache=TRUE}
-fit_crp <- load_or_fit("ex01-unconditional-dpm-crp-fit_crp", mcmc(bundle_crp))
+```{r mcmc-crp-fit, results = "hide", cache = FALSE}
+fit_crp <- load_or_fit("ex01-unconditional-dpm-crp-fit_crp", dpmix(bundle_crp))
 ```
 
 ### Summary of Fitted MCMC model
@@ -171,8 +165,7 @@ plot(pred_density)
 
 ```{r pred-quantiles}
 # Posterior predictive quantiles with credible intervals
-quantiles_pred <- predict(fit_crp, type = "quantile", 
-                          index = c(0.05, 0.25, 0.5, 0.75, 0.95),
+quantiles_pred <- predict(fit_crp, type = "quantile", p = c(0.05, 0.25, 0.5, 0.75, 0.95),
                           interval = "credible")
 
 # Display table
@@ -190,7 +183,7 @@ plot(quantiles_pred)
 
 ## Varying Truncation Level (components)
 
-```{r components-sensitivity, cache=TRUE}
+```{r components-sensitivity, cache = FALSE}
 # Demonstrate with one value
 bundle_components <- bundle(
   y = y_mixed,
@@ -199,7 +192,7 @@ bundle_components <- bundle(
   components = 5,
   mcmc = mcmc
 )
-fit_components <- load_or_fit("ex01-unconditional-dpm-crp-fit_components", mcmc(bundle_components))
+fit_components <- load_or_fit("ex01-unconditional-dpm-crp-fit_components", dpmix(bundle_components))
 ```
 
 
@@ -217,7 +210,7 @@ For unconditional models, use `predict()` for posterior summaries; `fitted()` an
 
 ### Laplace Kernel (Current)
 
-```{r comp-laplace, cache=TRUE}
+```{r comp-laplace, cache = FALSE}
 bundle_laplace <- bundle(
   y = y_mixed,
   kernel = "laplace",
@@ -225,7 +218,7 @@ bundle_laplace <- bundle(
   components = 5,
   mcmc = mcmc
 )
-fit_laplace <- load_or_fit("ex01-unconditional-dpm-crp-fit_laplace", mcmc(bundle_laplace))
+fit_laplace <- load_or_fit("ex01-unconditional-dpm-crp-fit_laplace", dpmix(bundle_laplace))
 ```
 
 
@@ -235,7 +228,7 @@ summary(fit_laplace)
 
 ### Amoroso Kernel (Alternative)
 
-```{r comp-amoroso, cache=TRUE}
+```{r comp-amoroso, cache = FALSE}
 bundle_amoroso <- bundle(
   y = y_mixed,
   kernel = "amoroso",
@@ -243,7 +236,7 @@ bundle_amoroso <- bundle(
   components = 5,
   mcmc = mcmc
 )
-fit_amoroso <- load_or_fit("ex01-unconditional-dpm-crp-fit_amoroso", mcmc(bundle_amoroso))
+fit_amoroso <- load_or_fit("ex01-unconditional-dpm-crp-fit_amoroso", dpmix(bundle_amoroso))
 ```
 
 
@@ -253,13 +246,13 @@ summary(fit_amoroso)
 
 ### Model Comparison via Predictions
 
-```{r comp-summary, cache=TRUE}
+```{r comp-summary, cache = FALSE}
 # Compare models using predict() (fitted/residuals not supported for unconditional)
 pred_laplace <- predict(fit_laplace, type = "mean", level = 0.9, interval = "credible")
 pred_amoroso <- predict(fit_amoroso, type = "mean", level = 0.9, interval = "credible")
 ```
 
-```{r fig.height=6, fig.width=10, cache=TRUE}
+```{r fig.height=6, fig.width=10, cache = FALSE}
 # For unconditional models, fitted() is not supported; use predict() for comparisons (see pred_laplace, pred_amoroso above).
 ```
 
@@ -283,6 +276,15 @@ pred_amoroso <- predict(fit_amoroso, type = "mean", level = 0.9, interval = "cre
 - Workflow index: [Roadmap](../start/roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
+
+
+
+
+
+
+
+
+
 
 
 

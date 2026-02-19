@@ -2,7 +2,7 @@
 title: "Backends, Kernels, and Workflow Map"
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, cache=FALSE}
 knitr::opts_chunk$set(
   collapse = FALSE,
   comment = NA,
@@ -10,7 +10,7 @@ knitr::opts_chunk$set(
   fig.height = 5,
   message = FALSE,
   warning = FALSE,
-  cache=TRUE,
+  cache = FALSE,
   cache.path = '../examples/legacy-cache-v2/'
 )
 
@@ -19,8 +19,8 @@ set.seed(1)
 
 # Fast-by-default rendering. Flip to FALSE for a fuller run.
 FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
-mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
-mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, workers = 2)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_chains = TRUE, workers = 2, z_update_every = 2)
 
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
@@ -29,22 +29,17 @@ mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 library(CausalMixGPD)
 
 # Ensure package is fully loaded for data access
-if (!require("devtools", quietly = TRUE)) {
-  library(devtools)
-}
-pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
-  devtools::load_all(path = pkg_root, quiet = TRUE)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
 ```
 
 
-> **Legacy vignette (for the website / historical notes).**
-> These files may not match the current exported API one-to-one.
-> Last verified: **2026-01-18**.
+> **Website workflow note.**
+> This page reflects the current exported API and recommended wrapper-first usage.
+> Last updated: **2026-02-19**.
 >
-> For the up-to-date workflow, see the main package vignettes (basic, unconditional, conditional, and causal)..
+> For the full package narrative, see the main package vignettes (basic, unconditional, conditional, and causal).
 
 [Workflow roadmap](roadmap.html){.btn .btn-outline-light}
 
@@ -81,11 +76,11 @@ Practical rule of thumb:
 CausalMixGPD uses a consistent build -> run -> summarize loop:
 
 1. **Build a bundle** using `bundle()` (or causal builders if you are doing TE work).
-2. **Run MCMC** using `mcmc()`.
+2. **Fit directly** using `dpmix()` (or `dpmgpd()` when `GPD = TRUE`).
 3. **Inspect and summarize** using `print()`, `summary()`, `plot()`.
 4. **Predict** using `predict()`. For conditional (covariate) models, `fitted()` is also available.
 
-```{r, cache=TRUE}
+```{r, cache = FALSE}
 # Build
 bundle <- bundle(
   y = rnorm(50),
@@ -97,7 +92,7 @@ bundle <- bundle(
 )
 
 # Run
-fit <- load_or_fit("quickstart-backends-and-workflow-fit", mcmc(bundle))
+fit <- load_or_fit("quickstart-backends-and-workflow-fit", dpmix(bundle))
 
 # Summarize
 print(fit)
@@ -129,6 +124,10 @@ kernel_support_table()
 - Workflow index: [Roadmap](roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
+
+
+
+
 
 
 
