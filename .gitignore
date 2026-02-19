@@ -135,3 +135,5 @@ renv
 .RDataTmp
 vignettes/.Rprofile
 vignettes/.gitignore
+
+

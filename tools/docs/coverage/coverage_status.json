@@ -1,112 +1,148 @@
 {
-  "percent": 69.27,
-  "timestamp": "2026-02-15T15:30:49Z",
+  "percent": 0,
+  "timestamp": "2026-02-18T07:24:13Z",
   "sources": "tests",
-  "total_lines": 7560,
-  "covered_lines": 5237,
-  "files": 17,
+  "total_lines": 8637,
+  "covered_lines": 0,
+  "files": 23,
   "file_coverage": [
     {
-      "file": "R/99-simulated-data.R",
-      "lines": 31,
-      "covered": 31,
-      "percent": 100
-    },
-    {
-      "file": "R/06-visualization-helpers.R",
-      "lines": 255,
-      "covered": 234,
-      "percent": 91.8
-    },
-    {
-      "file": "R/1-cauchy-mix.R",
-      "lines": 60,
-      "covered": 54,
-      "percent": 90
-    },
-    {
-      "file": "R/3-laplace-mixgpd.R",
-      "lines": 133,
-      "covered": 117,
-      "percent": 88
-    },
-    {
-      "file": "R/2-gamma-mixgpd.R",
-      "lines": 122,
-      "covered": 107,
-      "percent": 87.7
-    },
-    {
-      "file": "R/6-lognormal-mixgpd.R",
-      "lines": 125,
-      "covered": 109,
-      "percent": 87.2
-    },
-    {
-      "file": "R/5-invgauss-mixgpd.R",
-      "lines": 135,
-      "covered": 114,
-      "percent": 84.4
-    },
-    {
-      "file": "R/7-normal-mixgpd.R",
-      "lines": 133,
-      "covered": 108,
-      "percent": 81.2
-    },
-    {
-      "file": "R/4-amoroso-mixgpd.R",
-      "lines": 186,
-      "covered": 149,
-      "percent": 80.1
-    },
-    {
-      "file": "R/01-compile-spec.R",
-      "lines": 220,
-      "covered": 172,
-      "percent": 78.2
-    },
-    {
-      "file": "R/0-base-kernels.R",
+      "file": "R/00-base-distributions.R",
       "lines": 140,
-      "covered": 109,
-      "percent": 77.9
+      "covered": 0,
+      "percent": 0
     },
     {
-      "file": "R/02-utilities-internal.R",
-      "lines": 1553,
-      "covered": 1203,
-      "percent": 77.5
+      "file": "R/01-registry.R",
+      "lines": 246,
+      "covered": 0,
+      "percent": 0
     },
     {
-      "file": "R/03-build-and-run.R",
-      "lines": 697,
-      "covered": 518,
-      "percent": 74.3
+      "file": "R/amoroso.R",
+      "lines": 186,
+      "covered": 0,
+      "percent": 0
     },
     {
-      "file": "R/04-S3-Methods.R",
-      "lines": 1894,
-      "covered": 1265,
-      "percent": 66.8
+      "file": "R/build-run.R",
+      "lines": 844,
+      "covered": 0,
+      "percent": 0
     },
     {
-      "file": "R/09-diagnostics-glue.R",
+      "file": "R/cauchy.R",
+      "lines": 60,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/causal.R",
+      "lines": 1540,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/compile-spec.R",
+      "lines": 236,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/formatting.R",
+      "lines": 117,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/gamma.R",
+      "lines": 122,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/glue.R",
       "lines": 178,
-      "covered": 117,
-      "percent": 65.7
+      "covered": 0,
+      "percent": 0
     },
     {
-      "file": "R/05-causal.R",
-      "lines": 1494,
-      "covered": 761,
-      "percent": 50.9
+      "file": "R/helpers.R",
+      "lines": 256,
+      "covered": 0,
+      "percent": 0
     },
     {
-      "file": "R/06-wrappers.R",
-      "lines": 204,
-      "covered": 69,
-      "percent": 33.8
+      "file": "R/internal.R",
+      "lines": 1470,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/invgauss.R",
+      "lines": 135,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/laplace.R",
+      "lines": 133,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/lognormal.R",
+      "lines": 125,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/methods.R",
+      "lines": 2209,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/normal.R",
+      "lines": 133,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/simulated.R",
+      "lines": 31,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/summary.R",
+      "lines": 178,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/theme.R",
+      "lines": 45,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/validate.R",
+      "lines": 25,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/wrappers.R",
+      "lines": 211,
+      "covered": 0,
+      "percent": 0
+    },
+    {
+      "file": "R/zzz.R",
+      "lines": 17,
+      "covered": 0,
+      "percent": 0
     }
   ]
 }

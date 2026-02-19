@@ -8,6 +8,8 @@ format:
 
 This page documents the causal pipeline for contributors.
 
+For user-facing workflows, prefer wrapper entry points (`dpmix()` / `dpmgpd()`) over direct `mcmc()` calls.
+
 ## Objects
 
 A causal fit typically contains:
@@ -18,9 +20,10 @@ A causal fit typically contains:
 
 ## Computation outline
 
-1. Build a causal bundle (`bundle()`), optionally including a PS sub-bundle.
-2. Run MCMC (`mcmc()`), producing a causal fit object.
-3. Compute marginal estimands (`ate()`, `att()`, `qte()`, `qtt()`) on training data; compute conditional estimands (`cate()`, `cqte()`) on `newdata` if supplied, otherwise training `X`.
+1. Preferred user path: fit via `dpmix(..., treat=...)` or `dpmgpd(..., treat=...)`.
+2. Internal contributor path: build a causal bundle (`bundle()`), optionally including a PS sub-bundle.
+3. Internal contributor path: run MCMC (`mcmc()`), producing a causal fit object.
+4. Compute marginal estimands (`ate()`, `att()`, `qte()`, `qtt()`) on training data; compute conditional estimands (`cate()`, `cqte()`) on `newdata` if supplied, otherwise training `X`.
 
 ## Estimand contract notes
 
@@ -31,5 +34,6 @@ A causal fit typically contains:
 ## Important constraint
 
 {{< include _includes/golden-rules.md >}}
+
 
 

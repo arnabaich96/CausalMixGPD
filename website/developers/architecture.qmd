@@ -8,6 +8,9 @@ format:
 
 This page is the contributor mental model: what depends on what, and where to make changes safely.
 
+For user-facing examples and guides, prefer wrapper entry points (`dpmix()` / `dpmgpd()`).
+This page focuses on the internal execution path (`bundle()` -> `mcmc()`) used by contributors.
+
 ## Layers
 
 1. **Spec layer**: compiles user inputs into a normalized internal specification.
@@ -18,6 +21,9 @@ This page is the contributor mental model: what depends on what, and where to ma
 6. **S3 surface**: predict/plot/summary that should never need to know implementation details.
 
 ## Call flow (non-causal)
+
+Default user path: `dpmix(...)` / `dpmgpd(...)`.
+Internal path shown below: `bundle()` then `mcmc()`.
 
 ```mermaid
 sequenceDiagram
@@ -37,6 +43,9 @@ sequenceDiagram
 
 ## Call flow (causal)
 
+Default user path: `dpmix(..., treat=...)` / `dpmgpd(..., treat=...)`.
+Internal path shown below: `bundle()` then `mcmc()`.
+
 ```mermaid
 sequenceDiagram
   participant U as User
@@ -49,5 +58,6 @@ sequenceDiagram
   U->>M: mcmc(...)
   M->>Q: derive estimands
 ```
+
 
 

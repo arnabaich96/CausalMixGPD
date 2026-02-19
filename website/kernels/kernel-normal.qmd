@@ -4,7 +4,7 @@ pkgdown:
   slug: "kernels/kernel-normal"
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, cache=FALSE}
 source("_load_pkg.R")
 ```
 
@@ -121,6 +121,8 @@ ggplot(df_norm_gpd, aes(x = x, y = density, color = label)) +
   labs(title = "Normal mixtures with GPD tail (different thresholds)", x = "x", y = "density") +
   theme_minimal() + theme(legend.position = "top")
 ```
+
+
 
 
 

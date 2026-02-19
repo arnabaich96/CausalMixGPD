@@ -4,7 +4,7 @@ pkgdown:
   slug: "advanced/customization-and-tuning"
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, cache=FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = NA,
@@ -13,16 +13,11 @@ knitr::opts_chunk$set(
   fig.width = 7,
   fig.height = 4.5,
   fig.align = "center",
-  cache = TRUE,
+  cache = FALSE,
   cache.path = "legacy-cache/",
   cache.lazy = FALSE
 )
 
-if (!require("devtools", quietly = TRUE)) {
-  library(devtools)
-}
-pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
-devtools::load_all(path = pkg_root, quiet = TRUE)
 
 library(CausalMixGPD)
 library(nimble)
@@ -32,8 +27,11 @@ library(kableExtra)
 set.seed(1)
 
 use_fast_mcmc <- TRUE
-mcmc_long <- list(niter = 2000, nburnin = 500, thin = 3, nchains = 3, seed = 1:3)
-mcmc_fast <- list(niter = 600, nburnin = 150, thin = 2, nchains = 1, seed = 1)
+mcmc_long <- list(
+  niter = 2000, nburnin = 500, thin = 3, nchains = 3, seed = 1:3,
+  timing = TRUE, parallel_chains = TRUE, workers = 3, z_update_every = 2
+)
+mcmc_fast <- list(niter = 600, nburnin = 150, thin = 2, nchains = 1, seed = 1, timing = TRUE, workers = 2)
 mcmc <- if (use_fast_mcmc) mcmc_fast else mcmc_long
 
 # Avoid compiling NIMBLE models during pkgdown builds.
@@ -135,7 +133,7 @@ code_sb <- nimble::nimbleCode({
 
 ## Compile and run (manual)
 
-```{r, cache=TRUE, results='hide'}
+```{r, cache = FALSE, results='hide'}
 Rmodel_sb <- nimble::nimbleModel(
   code = code_sb,
   constants = constants_sb,
@@ -174,7 +172,7 @@ summary(samples_sb[, c("alpha", "mu[1]", "mu[2]", "mu[3]")])
 For comparison, we build a **bundle** for the same SB Normal mixture and use
 CausalMixGPD's S3 methods for posterior inference.
 
-```{r, cache=TRUE, results='hide'}
+```{r, cache = FALSE, results='hide'}
 bundle_sb <- bundle(
   y = y,
   X = NULL,
@@ -185,7 +183,7 @@ bundle_sb <- bundle(
   mcmc = mcmc
 )
 
-fit_sb <- mcmc(bundle_sb, show_progress = FALSE)
+fit_sb <- dpmix(bundle_sb, mcmc = list(show_progress = FALSE))
 ```
 
 ```{r, results='asis'}
@@ -271,7 +269,7 @@ inits_crp <- if (is.function(bundle_crp$inits_fun)) bundle_crp$inits_fun else bu
 
 ## Compile and run (manual)
 
-```{r, cache=TRUE, results='hide'}
+```{r, cache = FALSE, results='hide'}
 Rmodel_crp <- nimble::nimbleModel(
   code = code_crp,
   constants = constants_crp,
@@ -315,8 +313,8 @@ head(samples_crp[, 1:min(6, ncol(samples_crp))])
 
 ## S3 methods for posterior inference
 
-```{r, cache=TRUE, results='hide'}
-fit_crp <- mcmc(bundle_crp, show_progress = FALSE)
+```{r, cache = FALSE, results='hide'}
+fit_crp <- dpmgpd(bundle_crp, mcmc = list(show_progress = FALSE))
 ```
 
 ```{r, results='asis'}
@@ -330,9 +328,14 @@ plot(fit_crp, family = "traceplot")
 
 ```{r}
 pred_crp_mean <- predict(fit_crp, type = "mean", interval = "credible")
-pred_crp_q90 <- predict(fit_crp, type = "quantile", index = 0.90, interval = "credible")
+pred_crp_q90 <- predict(fit_crp, type = "quantile", p = 0.90, interval = "credible")
 head(pred_crp_mean$fit)
 head(pred_crp_q90$fit)
+```
+
+```{r}
+ess_crp <- ess_summary(fit_crp)
+print(ess_crp)
 ```
 
 # Causal Model: From Bundle to S3 Inference
@@ -382,7 +385,7 @@ param_specs_causal <- list(
 )
 ```
 
-```{r, cache=TRUE, results='hide'}
+```{r, cache = FALSE, results='hide'}
 causal_bundle <- bundle(
   y = y,
   X = X_causal,
@@ -397,7 +400,8 @@ causal_bundle <- bundle(
   mcmc_ps = mcmc
 )
 
-causal_fit <- mcmc(causal_bundle, show_progress = FALSE)
+# Note: arm-level parallel execution can fall back to sequential in some environments.
+causal_fit <- dpmix(causal_bundle, mcmc = list(show_progress = FALSE, timing = TRUE, workers = 2))
 ```
 
 ```{r, results='asis'}
@@ -415,8 +419,21 @@ plot(causal_fit, family = "traceplot")
 ```
 
 ```{r}
-pred_causal_mean <- predict(causal_fit, x = X_causal, type = "mean", interval = "credible")
+pred_causal_mean <- predict(
+  causal_fit,
+  x = X_causal,
+  type = "mean",
+  interval = "credible",
+  workers = 2,
+  ndraws_pred = 200,
+  chunk_size = 10000
+)
 head(pred_causal_mean)
+```
+
+```{r}
+ess_causal <- ess_summary(causal_fit)
+print(ess_causal)
 ```
 
 ```{r, results='asis'}
@@ -444,6 +461,10 @@ plot(qte_result, type = "effect")
 ```{r sessioninfo, include=FALSE}
 sessionInfo()
 ```
+
+
+
+
 
 
 

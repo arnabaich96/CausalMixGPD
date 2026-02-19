@@ -1,201 +1,274 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+\documentclass[
+]{article}
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb}
+\setcounter{secnumdepth}{5}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
 \makeatletter
-\def\input@path{{./}{vignettes/manuscript/}}
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
 \makeatother
-\documentclass[article]{jss}\usepackage[]{graphicx}\usepackage[]{xcolor}
-% maxwidth is the original width if it is less than linewidth
-% otherwise use linewidth (to make sure the graphics do not exceed the margin)
-\makeatletter
-\def\maxwidth{ %
-  \ifdim\Gin@nat@width>\linewidth
-    \linewidth
-  \else
-    \Gin@nat@width
-  \fi
-}
-\makeatother
-
-\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
-\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
-\newcommand{\hlsng}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
-\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
-\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
-\newcommand{\hldef}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
-\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
-\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
-\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
-\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
-\let\hlipl\hlkwb
-
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
 \usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
 \makeatletter
-\newenvironment{kframe}{%
- \def\at@end@of@kframe{}%
- \ifinner\ifhmode%
-  \def\at@end@of@kframe{\end{minipage}}%
-  \begin{minipage}{\columnwidth}%
- \fi\fi%
- \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
- \colorbox{shadecolor}{##1}\hskip-\fboxsep
-     % There is no \\@totalrightmargin, so:
-     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
- \MakeFramed {\advance\hsize-\width
-   \@totalleftmargin\z@ \linewidth\hsize
-   \@setminipage}}%
- {\par\unskip\endMakeFramed%
- \at@end@of@kframe}
+\newsavebox\pandoc@box
+\newcommand*\pandocbounded[1]{% scales image to fit in text height/width
+  \sbox\pandoc@box{#1}%
+  \Gscale@div\@tempa{\textheight}{\dimexpr\ht\pandoc@box+\dp\pandoc@box\relax}%
+  \Gscale@div\@tempb{\linewidth}{\wd\pandoc@box}%
+  \ifdim\@tempb\p@<\@tempa\p@\let\@tempa\@tempb\fi% select the smaller of both
+  \ifdim\@tempa\p@<\p@\scalebox{\@tempa}{\usebox\pandoc@box}%
+  \else\usebox{\pandoc@box}%
+  \fi%
+}
+% Set default figure placement to htbp
+\def\fps@figure{htbp}
 \makeatother
-
-\definecolor{shadecolor}{rgb}{.97, .97, .97}
-\definecolor{messagecolor}{rgb}{0, 0, 0}
-\definecolor{warningcolor}{rgb}{1, 0, 1}
-\definecolor{errorcolor}{rgb}{1, 0, 0}
-\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
-
-\usepackage{alltt}
-
-%% ---- Packages ----
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\usepackage[]{natbib}
+\bibliographystyle{jss}
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
-\usepackage{graphicx}
-\usepackage{natbib}
-\usepackage{Sweave}
 \usepackage{xurl}
-\makeatletter
-\@ifundefined{knitrout}{\newenvironment{knitrout}{}{}}{}
-\makeatother
-\providecolor{fgcolor}{rgb}{0,0,0}
-\providecolor{bgcolor}{rgb}{1,1,1}
-\providecolor{shadecolor}{rgb}{0.97,0.97,0.97}
-\providecolor{messagecolor}{rgb}{0,0,0}
-\providecolor{warningcolor}{rgb}{1,0,1}
-\providecolor{errorcolor}{rgb}{1,0,0}
-\makeatletter
-\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
-\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
-\makeatother
-\graphicspath{{./}{vignettes/manuscript/}}
-\DeclareRobustCommand{\pkg}[1]{\textsf{#1}}
-\DeclareRobustCommand{\code}[1]{\nolinkurl{#1}}
 \setlength{\emergencystretch}{2em}
-% Override jss.cls default (0.8\textwidth) so manuscript figures span full text width.
-\setkeys{Gin}{width=\textwidth}
+\graphicspath{{./}{vignettes/manuscript/}{assets/}}
+\newcommand{\pkg}[1]{\textsf{#1}}
+\newcommand{\code}[1]{\texttt{#1}}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{wrapfig}
+\usepackage{float}
+\usepackage{colortbl}
+\usepackage{pdflscape}
+\usepackage{tabu}
+\usepackage{threeparttable}
+\usepackage{threeparttablex}
+\usepackage[normalem]{ulem}
+\usepackage{makecell}
+\usepackage{xcolor}
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  pdftitle={CausalMixGPD: Bayesian Conditional Dirichlet Process Mixtures with Generalized Pareto Tails and Causal Extensions},
+  pdfauthor={Arnab Aich, Florida State University},
+  pdfkeywords={Bayesian nonparametrics, Dirichlet process mixture,
+generalized Pareto distribution, extreme value theory, posterior
+prediction, causal inference, quantile treatment effects, R, nimble},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
 
-%% ---- JSS metadata ----
-\author{Arnab Aich\\Florida State University}
-\title{CausalMixGPD: Bayesian Conditional Dirichlet Process Mixtures with Generalized Pareto Tails and Causal Extensions}
+\title{CausalMixGPD: Bayesian Conditional Dirichlet Process Mixtures
+with Generalized Pareto Tails and Causal Extensions}
+\author{Arnab Aich, Florida State University}
+\date{2026-02-17}
 
-%% Optional: JSS typically wants a short title and keywords.
-\Plainauthor{Arnab Aich}
-\Plaintitle{CausalMixGPD: Bayesian Conditional Dirichlet Process Mixtures with Generalized Pareto Tails and Causal Extensions}
-\Shorttitle{CausalMixGPD: Bayesian Causal Inference Specialized for Heavy-tailed Outcomes}
-
-\Abstract{
-Heavy-tailed outcomes arise in many scientific domains where rare events dominate risk, cost, or policy decisions.
-Classical parametric models often fit the center of the distribution at the expense of tail misspecification, while purely nonparametric methods typically lack principled extrapolation in regions with sparse data.
-Extreme value theory (EVT) provides asymptotic justification for generalized Pareto distributions (GPDs) for threshold exceedances, whereas Bayesian nonparametric Dirichlet process mixtures (DPMs) provide flexible modeling for heterogeneous bulk behavior.
-This article introduces \texttt{CausalMixGPD}, an \textsf{R} package implementing a Bayesian semiparametric framework that combines conditional DPMs for the bulk distribution with covariate-dependent GPD tails for exceedances, with posterior predictive inference for densities, distribution functions, quantiles, survival probabilities, and tail risks.
-The framework is conditional by construction; unconditional models arise as a special case when covariates are omitted.
-The package supports both Chinese restaurant process (CRP) and stick-breaking (SB) representations of the Dirichlet process, multiple kernel families for bulk modeling, and an extension to causal inference via treatment-specific conditional distributions that enable inference on distributional and tail-sensitive causal estimands.
-}
-
-\Keywords{Bayesian nonparametrics; Dirichlet Process Mixture; Generalized Pareto Distribution; Extreme Value Theory;Causal Inference;  \textsf{R}; \texttt{nimble} }
-\Plainkeywords{Bayesian nonparametrics, Dirichlet process mixture, generalized Pareto distribution, extreme value theory, posterior prediction, causal inference, quantile treatment effects, R, nimble}
-
-%% ---- Begin document ----
-\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 \maketitle
-\sloppy
-
-
-
-
+\begin{abstract}
+Heavy-tailed outcomes arise in many scientific domains where rare events
+dominate risk, cost, or policy decisions. Classical parametric models
+often fit the center of the distribution at the expense of tail
+misspecification, while purely nonparametric methods typically lack
+principled extrapolation in regions with sparse data. Extreme value
+theory (EVT) provides asymptotic justification for generalized Pareto
+distributions (GPDs) for threshold exceedances, whereas Bayesian
+nonparametric Dirichlet process mixtures (DPMs) provide flexible
+modeling for heterogeneous bulk behavior. This article introduces
+CausalMixGPD, an R package implementing a Bayesian semiparametric
+framework that combines conditional DPMs for the bulk distribution with
+covariate-dependent GPD tails for exceedances, with posterior predictive
+inference for densities, distribution functions, quantiles, survival
+probabilities, and tail risks. The framework is conditional by
+construction; unconditional models arise as a special case when
+covariates are omitted. The package supports both Chinese restaurant
+process (CRP) and stick-breaking (SB) representations of the Dirichlet
+process, multiple kernel families for bulk modeling, and an extension to
+causal inference via treatment-specific conditional distributions that
+enable inference on distributional and tail-sensitive causal estimands.
+\end{abstract}
 
 \section{Introduction}
 \label{sec:intro}
 
-Causal inference is often summarized through average effects, but many applications require
-distributional comparisons between treatment regimes.  In clinical trials, investigators may
-want to understand how a treatment changes outcomes across
-the outcome scale, including effects among individuals in the upper tail where events are rare but
-consequences can be substantial.  This shift from mean-based to distribution-based causal questions
-makes causal analysis tightly linked to how well we can estimate (and predict) outcome distributions
-under competing treatment assignments.
+Causal inference is often summarized through average effects, but many
+applications require distributional comparisons between treatment
+regimes. In clinical trials, investigators may want to understand how a
+treatment changes outcomes across the outcome scale, including effects
+among individuals in the upper tail where events are rare but
+consequences can be substantial. This shift from mean-based to
+distribution-based causal questions makes causal analysis tightly linked
+to how well we can estimate (and predict) outcome distributions under
+competing treatment assignments.
 
-A growing \textsf{R} ecosystem supports Bayesian causal inference through flexible outcome modeling
-and posterior uncertainty quantification.  For example,
-\href{https://cran.r-project.org/package=bcf}{\textsf{bcf}} implements Bayesian Causal Forests for
-binary treatments and continuous outcomes, providing posterior inference for both average and
-heterogeneous treatment effects \citep{bcf_pkg}.  The package
-\href{https://cran.r-project.org/package=bartCause}{\textsf{bartCause}} builds causal estimators around
-Bayesian additive regression trees, using BART as a regression engine for treatment-response modeling
-and causal effect estimation \citep{bartCause_pkg,hill2011bart}.  Complementing tree-based approaches,
-\href{https://cran.r-project.org/package=BCEE}{\textsf{BCEE}} implements a Bayesian model-averaging
- strategy for causal effect estimation with support for binary or continuous exposures and outcomes
- \citep{BCEE_pkg,talbot2015bcee}.
-A recurring practical difficulty in quantile-based causal reporting is quantile crossing issue, i.e., when two quantile curves for different indices cross each other. To avoid that issue this package directly estimates outcome densities and derives quantiles as functionals of the posterior predictive distribution.
+A growing \textsf{R} ecosystem supports Bayesian causal inference
+through flexible outcome modeling and posterior uncertainty
+quantification. For example,
+\href{https://cran.r-project.org/package=bcf}{\textsf{bcf}} implements
+Bayesian Causal Forests for binary treatments and continuous outcomes,
+providing posterior inference for both average and heterogeneous
+treatment effects \citep{bcf_pkg}. The package
+\href{https://cran.r-project.org/package=bartCause}{\textsf{bartCause}}
+builds causal estimators around Bayesian additive regression trees,
+using BART as a regression engine for treatment-response modeling and
+causal effect estimation \citep{bartCause_pkg,hill2011bart}.
+Complementing tree-based approaches,
+\href{https://cran.r-project.org/package=BCEE}{\textsf{BCEE}} implements
+a Bayesian model-averaging strategy for causal effect estimation with
+support for binary or continuous exposures and outcomes
+\citep{BCEE_pkg,talbot2015bcee}. A recurring practical difficulty in
+quantile-based causal reporting is quantile crossing issue, i.e., when
+two quantile curves for different indices cross each other. To avoid
+that issue this package directly estimates outcome densities and derives
+quantiles as functionals of the posterior predictive distribution.
 
-Density estimation and conditional density estimation in \textsf{R} are well supported by Bayesian
-nonparametric mixture modeling software based on Dirichlet process (DP) ideas.  For example,
-\href{https://cran.r-project.org/package=dirichletprocess}{\textsf{dirichletprocess}} provides a flexible
-interface for specifying DP mixture models and fitting them by posterior simulation, yielding posterior
-inference for mixture weights, component allocations, and predictive densities under user-chosen
-kernels \citep{dirichletprocess_pkg}.  The package
-\href{https://cran.r-project.org/package=DPpackage}{\textsf{DPpackage}} offers a broad suite of Bayesian
-semi- and nonparametric models in \textsf{R}, including DP-based formulations for marginal and
-conditional densities, regression functions, and model-based predictive distributions \citep{jara2011DPpackage}.
-More recently, \href{https://cran.r-project.org/package=BNPmix}{\textsf{BNPmix}} emphasizes practical
-Bayesian nonparametric mixture approaches, providing posterior inference for clustering structure and
-density/regression estimation under DP and Pitman--Yor-type mixture specifications \citep{canale2021BNPmix}. However, DP mixture models are suitable for modeling the bulk of the distribution but do not explicitly model tail behavior, which can lead to poor estimation and prediction in the tails when data are sparse or a heavy tail is present.
+Density estimation and conditional density estimation in \textsf{R} are
+well supported by Bayesian nonparametric mixture modeling software based
+on Dirichlet process (DP) ideas. For example,
+\href{https://cran.r-project.org/package=dirichletprocess}{\textsf{dirichletprocess}}
+provides a flexible interface for specifying DP mixture models and
+fitting them by posterior simulation, yielding posterior inference for
+mixture weights, component allocations, and predictive densities under
+user-chosen kernels \citep{dirichletprocess_pkg}. The package
+\href{https://cran.r-project.org/package=DPpackage}{\textsf{DPpackage}}
+offers a broad suite of Bayesian semi- and nonparametric models in
+\textsf{R}, including DP-based formulations for marginal and conditional
+densities, regression functions, and model-based predictive
+distributions \citep{jara2011DPpackage}. More recently,
+\href{https://cran.r-project.org/package=BNPmix}{\textsf{BNPmix}}
+emphasizes practical Bayesian nonparametric mixture approaches,
+providing posterior inference for clustering structure and
+density/regression estimation under DP and Pitman--Yor-type mixture
+specifications \citep{canale2021BNPmix}. However, DP mixture models are
+suitable for modeling the bulk of the distribution but do not explicitly
+model tail behavior, which can lead to poor estimation and prediction in
+the tails when data are sparse or a heavy tail is present.
 
-Bayesian implementations of Extreme Value Theory (EVT) is available in \textsf{R} when posterior uncertainty quantification for tail
-quantitites are required.  For example,
-\href{https://cran.r-project.org/package=evdbayes}{\textsf{evdbayes}} provides Bayesian inference for
-standard extreme-value models via posterior simulation, enabling posterior and posterior-predictive
-summaries for extreme-event quantities \citep{evdbayes_pkg}.
-For peaks-over-threshold (POT) approaches, the package
-\href{https://cran.r-project.org/package=POT}{\textsf{POT}} implements a focused collection of tools for
-GPD modeling and threshold-based tail analysis \citep{POT_pkg}.  Finally, for extreme quantile estimation
-and rare-event tail summaries, \href{https://cran.r-project.org/package=extremefit}{\textsf{extremefit}}
-provides a published software implementation targeted specifically at extreme-quantile estimation
- \citep{durrieu2018extremefit}.
+Bayesian implementations of Extreme Value Theory (EVT) is available in
+\textsf{R} when posterior uncertainty quantification for tail
+quantitites are required. For example,
+\href{https://cran.r-project.org/package=evdbayes}{\textsf{evdbayes}}
+provides Bayesian inference for standard extreme-value models via
+posterior simulation, enabling posterior and posterior-predictive
+summaries for extreme-event quantities \citep{evdbayes_pkg}. For
+peaks-over-threshold (POT) approaches, the package
+\href{https://cran.r-project.org/package=POT}{\textsf{POT}} implements a
+focused collection of tools for GPD modeling and threshold-based tail
+analysis \citep{POT_pkg}. Finally, for extreme quantile estimation and
+rare-event tail summaries,
+\href{https://cran.r-project.org/package=extremefit}{\textsf{extremefit}}
+provides a published software implementation targeted specifically at
+extreme-quantile estimation \citep{durrieu2018extremefit}.
 
+This article introduces \textsf{CausalMixGPD}, an \textsf{R} package
+that connects Bayesian nonparametric bulk modeling with extreme-value
+tail modeling, while also supporting robust causal analyses. The package
+provides two complementary capabilities:
 
- This article introduces \pkg{CausalMixGPD}, an \textsf{R} package that connects Bayesian nonparametric
- bulk modeling with extreme-value tail modeling, while also supporting robust causal analyses.
- The package provides two complementary capabilities:
- \begin{itemize}
+\begin{itemize}
    \item \textbf{Bayesian density estimation and prediction with optional GPD tail:}
-   \pkg{CausalMixGPD} fits Dirichlet process mixture models using a user-chosen kernel family for the bulk,
+   \textsf{CausalMixGPD} fits Dirichlet process mixture models using a user-chosen kernel family for the bulk,
    and can optionally splice a generalized Pareto tail above a threshold to enable tail-aware estimation
    and posterior predictive inference for rare-event summaries.
    \item \textbf{Causal estimation and prediction for RCTs and observational studies:}
    This package also supports causal analyses by modeling treatment-specific potetntial outcome
    densities and reporting contrasts as functionals of the posterior over densities.
  \end{itemize}
- Taken together, \pkg{CausalMixGPD} offers a coherent workflow for density estimation, prediction, and
- distributional causal reporting when tail behavior is scientifically central.
- % According to a document from 2026, and the accompanying CausalMixGPD article draft, this section summarizes the core preliminaries.
 
+Taken together, \textsf{CausalMixGPD} offers a coherent workflow for
+density estimation, prediction, and distributional causal reporting when
+tail behavior is scientifically central. \% According to a document from
+2026, and the accompanying CausalMixGPD article draft, this section
+summarizes the core preliminaries.
 
- \section{Background and Preliminaries}
+\section{Background and Preliminaries}
 \label{sec:prelim}
 
-This chapter treats conditional outcome distributions as the fundamental inferential object.
-All summaries reported later are functionals of estimated conditional distributions, including conditional quantiles,
+This chapter treats conditional outcome distributions as the fundamental
+inferential object. All summaries reported later are functionals of
+estimated conditional distributions, including conditional quantiles,
 tail probabilities, and distributional causal contrasts.
 
-Let the outcome--covariate pair be defined by
-\begin{equation}
+Let the outcome--covariate pair be defined by \begin{equation}
 (Y,X) \in \mathbb{R}\times \mathbb{R}^p .
-\end{equation}
-For a fixed covariate value $x$, the conditional cumulative distribution function (CDF) and density are
-\begin{equation}
+\end{equation} For a fixed covariate value \(x\), the conditional
+cumulative distribution function (CDF) and density are \begin{equation}
 F(y\mid x)=\Pr(Y\le y\mid X=x),
 \qquad
 f(y\mid x)=\frac{\partial}{\partial y}F(y\mid x),
-\end{equation}
-and the conditional quantile function is defined by
+\end{equation} and the conditional quantile function is defined by
 \begin{equation}
 Q(\tau\mid x)=\inf\Bigl\{y\in\mathbb{R}:\,F(y\mid x)\ge \tau\Bigr\},
 \qquad 0<\tau<1.
@@ -204,22 +277,22 @@ Q(\tau\mid x)=\inf\Bigl\{y\in\mathbb{R}:\,F(y\mid x)\ge \tau\Bigr\},
 \subsection{Dirichlet Process Mixture Model for Conditional Densities}
 \label{subsec:dpm}
 
-We model the bulk conditional density of $Y$ given $X=x$ using a Dirichlet process mixture (DPM) regression.
-Let $k(\cdot\mid x;\theta)$ be a user-chosen kernel family indexed by parameter $\theta$.
-The hierarchical specification is
-\begin{equation}
+We model the bulk conditional density of \(Y\) given \(X=x\) using a
+Dirichlet process mixture (DPM) regression. Let
+\(k(\cdot\mid x;\theta)\) be a user-chosen kernel family indexed by
+parameter \(\theta\). The hierarchical specification is \begin{equation}
 Y \mid X=x,\theta \sim k(\cdot\mid x;\theta),
 \qquad
 \theta \mid H \sim H,
 \qquad
 H \mid \kappa,H_0 \sim \mathrm{DP}(\kappa,H_0),
 \label{eq:dpm_hier}
-\end{equation}
-where $H$ is an unknown mixing distribution on the kernel-parameter space, $H_0$ is a base measure,
-and $\kappa>0$ is a concentration parameter \citep{Ferguson1973,Lo1984}.
+\end{equation} where \(H\) is an unknown mixing distribution on the
+kernel-parameter space, \(H_0\) is a base measure, and \(\kappa>0\) is a
+concentration parameter \citep{Ferguson1973,Lo1984}.
 
-Marginalizing $H$ yields an (almost surely) discrete mixing distribution and an infinite mixture representation:
-\begin{equation}
+Marginalizing \(H\) yields an (almost surely) discrete mixing
+distribution and an infinite mixture representation: \begin{equation}
 f_{\mathrm{DP}}(y\mid x)
 =
 \int k(y\mid x;\theta)\,dH(\theta)
@@ -232,8 +305,8 @@ w_j\ge 0,
 \label{eq:dpm_mixture}
 \end{equation}
 
-A constructive representation for the weights is given by Sethuraman's stick-breaking construction \citep{Sethuraman1994}:
-\begin{equation}
+A constructive representation for the weights is given by Sethuraman's
+stick-breaking construction \citep{Sethuraman1994}: \begin{equation}
 w_1=V_1,
 \qquad
 w_j=V_j\prod_{\ell<j}(1-V_\ell),
@@ -242,9 +315,10 @@ V_j \stackrel{\mathrm{iid}}{\sim}\mathrm{Beta}(1,\kappa),
 \qquad
 \theta_j \stackrel{\mathrm{iid}}{\sim} H_0.
 \label{eq:sb}
-\end{equation}
-An alternative marginal representation is obtained by integrating out $H$, which induces the Blackwell--MacQueen
-P\'olya urn predictive scheme (often described via the Chinese restaurant process) \citep{BlackwellMacQueen1973,Neal2000}:
+\end{equation} An alternative marginal representation is obtained by
+integrating out \(H\), which induces the Blackwell--MacQueen
+P\textquotesingle olya urn predictive scheme (often described via the
+Chinese restaurant process) \citep{BlackwellMacQueen1973,Neal2000}:
 \begin{equation}
 \theta_{\text{new}} \mid \theta_{1:n}
 \sim
@@ -252,29 +326,29 @@ P\'olya urn predictive scheme (often described via the Chinese restaurant proces
 +
 \frac{1}{\kappa+n}\sum_{m=1}^{n}\delta_{\theta_m}(\cdot).
 \label{eq:crp}
-\end{equation}
-Both stick-breaking (blocked/truncated) and allocation-based representations are widely used for posterior simulation in DPM models
-\citep{EscobarWest1995,Neal2000}.
+\end{equation} Both stick-breaking (blocked/truncated) and
+allocation-based representations are widely used for posterior
+simulation in DPM models \citep{EscobarWest1995,Neal2000}.
 
 \subsection{Generalized Pareto Distribution for Threshold Exceedances}
 \label{subsec:gpd}
 
-Extreme value theory provides a canonical approximation for exceedances above a high threshold.
-Let $u(x)$ be a (possibly covariate-dependent) high threshold and define the exceedance
-\begin{equation}
+Extreme value theory provides a canonical approximation for exceedances
+above a high threshold. Let \(u(x)\) be a (possibly covariate-dependent)
+high threshold and define the exceedance \begin{equation}
 Z = Y-u(x),
-\end{equation}
-considered conditionally on the event $Y>u(x)$.
-The conditional excess distribution function is
-\begin{equation}
+\end{equation} considered conditionally on the event \(Y>u(x)\). The
+conditional excess distribution function is \begin{equation}
 F_u(z\mid x)=\Pr\!\bigl(Y-u(x) \le z \mid Y>u(x),X=x\bigr),
 \qquad z\ge 0.
 \label{eq:cedf}
-\end{equation}
-Under broad regularity conditions, $F_u(\cdot)$ is well-approximated by a generalized Pareto distribution (GPD) for sufficiently large $u$
+\end{equation} Under broad regularity conditions, \(F_u(\cdot)\) is
+well-approximated by a generalized Pareto distribution (GPD) for
+sufficiently large \(u\)
 \citep{BalkemaDeHaan1974,Pickands1975,Coles2001}.
 
-With scale parameter $\sigma(x)>0$ and shape parameter $\xi\in\mathbb{R}$, the tail CDF for $Y\mid\{Y>u(x),X=x\}$ is
+With scale parameter \(\sigma(x)>0\) and shape parameter
+\(\xi\in\mathbb{R}\), the tail CDF for \(Y\mid\{Y>u(x),X=x\}\) is
 \begin{equation}
 F_{\mathrm{GPD}}(y\mid u(x),\sigma(x),\xi,x)=
 \begin{cases}
@@ -283,19 +357,16 @@ F_{\mathrm{GPD}}(y\mid u(x),\sigma(x),\xi,x)=
 \end{cases}
 \qquad y>u(x),
 \label{eq:gpd_cdf}
-\end{equation}
-with support $y\ge u(x)$ when $\xi\ge 0$, and $u(x)\le y\le u(x)-\sigma(x)/\xi$ when $\xi<0$.
-The corresponding density is
-\begin{equation}
+\end{equation} with support \(y\ge u(x)\) when \(\xi\ge 0\), and
+\(u(x)\le y\le u(x)-\sigma(x)/\xi\) when \(\xi<0\). The corresponding
+density is \begin{equation}
 f_{\mathrm{GPD}}(y\mid u(x),\sigma(x),\xi,x)=
 \begin{cases}
 \dfrac{1}{\sigma(x)}\left(1+\xi\dfrac{y-u(x)}{\sigma(x)}\right)^{-1/\xi-1}, & \xi\neq 0,\\[10pt]
 \dfrac{1}{\sigma(x)}\exp\!\left(-\dfrac{y-u(x)}{\sigma(x)}\right), & \xi=0.
 \end{cases}
 \label{eq:gpd_pdf}
-\end{equation}
-The associated GPD quantile function is
-\begin{equation}
+\end{equation} The associated GPD quantile function is \begin{equation}
 Q_{\mathrm{GPD}}(\tau\mid u(x),\sigma(x),\xi,x)=
 \begin{cases}
 u(x)-\sigma(x)\log(1-\tau), & \xi=0,\\[6pt]
@@ -305,61 +376,59 @@ u(x)+\dfrac{\sigma(x)}{\xi}\Bigl((1-\tau)^{-\xi}-1\Bigr), & \xi\neq 0,
 \label{eq:gpd_quantile}
 \end{equation}
 
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
-\includegraphics[width=\maxwidth]{figure/gpdDensityFigure-1} 
-\end{knitrout}
+\pandocbounded{\includegraphics[keepaspectratio]{CausalMixGPD_JSS_article_files/figure-latex/gpdDensityFigure-1.pdf}}
 
 \subsection{Spliced DPM--GPD Conditional Distribution}
 \label{subsec:splice}
 
-Dirichlet process mixture (DPM) regression models provide a highly flexible representation of the
-\emph{bulk} of the conditional distribution $Y\mid X=x$, accommodating multimodality, skewness,
-and heterogeneous dispersion through mixture components.  However, in the far upper tail—where data
-are intrinsically sparse—pure mixture-based extrapolation can be unstable and may not reflect the
-regular variation behavior typically assumed in extreme value theory (EVT).  Conversely, EVT provides
-an asymptotically justified parametric description of threshold exceedances via the generalized Pareto
-distribution (GPD), but it is not intended to model the full distribution.  We therefore adopt a
-\emph{spliced} (bulk--tail) construction that retains the DPM fit below a high threshold and replaces
-the upper tail by a GPD component \citep{Frigessi2002,Behrens2004,Coles2001}.
+Dirichlet process mixture (DPM) regression models provide a highly
+flexible representation of the \emph{bulk} of the conditional
+distribution \(Y\mid X=x\), accommodating multimodality, skewness, and
+heterogeneous dispersion through mixture components. However, in the far
+upper tail---where data are intrinsically sparse---pure mixture-based
+extrapolation can be unstable and may not reflect the regular variation
+behavior typically assumed in extreme value theory (EVT). Conversely,
+EVT provides an asymptotically justified parametric description of
+threshold exceedances via the generalized Pareto distribution (GPD), but
+it is not intended to model the full distribution. We therefore adopt a
+\emph{spliced} (bulk--tail) construction that retains the DPM fit below
+a high threshold and replaces the upper tail by a GPD component
+\citep{Frigessi2002,Behrens2004,Coles2001}.
 
-
-To make the splicing and downstream functionals explicit, we collect the unknown bulk regression
-parameters into $\Theta$ and the tail parameters into $\Phi$.
-Specifically, the bulk model in \eqref{eq:dpm_mixture} can be written as
-\begin{equation}
+To make the splicing and downstream functionals explicit, we collect the
+unknown bulk regression parameters into \(\Theta\) and the tail
+parameters into \(\Phi\). Specifically, the bulk model in
+\eqref{eq:dpm_mixture} can be written as \begin{equation}
 f_{\mathrm{DP}}(y\mid x;\Theta)
 =
 \sum_{j=1}^{\infty} w_j \, k\!\left(y\mid x;\theta_j(x)\right),
 \qquad
 \Theta=\{\beta_j\}_{j\ge 1},
 \label{eq:bulk_theta}
-\end{equation}
-where $\beta_j$ denotes component-specific regression/shape coefficients and
-$\theta_j(x)$ denotes the kernel parameter vector induced at covariate value $x$
-through the corresponding coefficients in $\Theta$.  Mixture weights $\{w_j\}$ are
-generated by the DP backend (SB or CRP representation) and are suppressed in this
-compact notation.
+\end{equation} where \(\beta_j\) denotes component-specific
+regression/shape coefficients and \(\theta_j(x)\) denotes the kernel
+parameter vector induced at covariate value \(x\) through the
+corresponding coefficients in \(\Theta\). Mixture weights \(\{w_j\}\)
+are generated by the DP backend (SB or CRP representation) and are
+suppressed in this compact notation.
 
-For the tail block, let
-\begin{equation}
+For the tail block, let \begin{equation}
 \Phi=\{\beta_u,\beta_\sigma,\xi\},
 \label{eq:phi_def}
-\end{equation}
-where $u(x)$ and $\sigma(x)$ are induced by covariates and
-tail-regression coefficients, and $\xi$ is the tail shape parameter.  Thus, $\Theta$ and $\Phi$ are global
-parameter collections, while $x$ enters through these mappings. The package allows users to control which kernel
-and tail parameters vary with covariates
-(e.g., via link-based regression for selected parameters) and which are treated as fixed or purely
-a priori parameters (Section~\ref{sec:overview}).
+\end{equation} where \(u(x)\) and \(\sigma(x)\) are induced by
+covariates and tail-regression coefficients, and \(\xi\) is the tail
+shape parameter. Thus, \(\Theta\) and \(\Phi\) are global parameter
+collections, while \(x\) enters through these mappings. The package
+allows users to control which kernel and tail parameters vary with
+covariates (e.g., via link-based regression for selected parameters) and
+which are treated as fixed or purely a priori parameters
+(Section\textasciitilde{}\ref{sec:overview}).
 
-Let
-\begin{equation}
+Let \begin{equation}
 p_u(x;\Theta)=F_{\mathrm{DP}}(u(x)\mid x;\Theta)
 \label{eq:pu_theta}
-\end{equation}
-denote the bulk probability mass below the threshold under the DPM fit.  The spliced conditional CDF is
-\begin{equation}
+\end{equation} denote the bulk probability mass below the threshold
+under the DPM fit. The spliced conditional CDF is \begin{equation}
 F(y\mid x;\Theta,\Phi)=
 \begin{cases}
 F_{\mathrm{DP}}(y\mid x;\Theta), & y \le u(x),\\[6pt]
@@ -370,10 +439,11 @@ F_{\mathrm{GPD}}\!\bigl(y\mid x;\Phi\bigr),
 & y>u(x),
 \end{cases}
 \label{eq:splice_cdf}
-\end{equation}
-where $F_{\mathrm{GPD}}(\cdot)$ is the GPD CDF on the exceedance region (Section~\ref{subsec:gpd}).
-The construction is continuous at $u(x)$ and yields a proper distribution: the bulk contributes mass
-$p_u(x;\Theta)$ and the tail contributes the remaining mass $1-p_u(x;\Theta)$.
+\end{equation} where \(F_{\mathrm{GPD}}(\cdot)\) is the GPD CDF on the
+exceedance region (Section\textasciitilde{}\ref{subsec:gpd}). The
+construction is continuous at \(u(x)\) and yields a proper distribution:
+the bulk contributes mass \(p_u(x;\Theta)\) and the tail contributes the
+remaining mass \(1-p_u(x;\Theta)\).
 
 Differentiating \eqref{eq:splice_cdf} yields the spliced density
 \begin{equation}
@@ -385,107 +455,100 @@ f_{\mathrm{GPD}}\!\bigl(y\mid x;\Phi\bigr),
 & y>u(x),
 \end{cases}
 \label{eq:splice_pdf}
-\end{equation}
-so the tail density is a \emph{scaled} GPD density, with scaling ensuring normalization of
-$f(\cdot\mid x;\Theta,\Phi)$.
+\end{equation} so the tail density is a \emph{scaled} GPD density, with
+scaling ensuring normalization of \(f(\cdot\mid x;\Theta,\Phi)\).
 
-
-For $y>u(x)$, the conditional survival function decomposes as
+For \(y>u(x)\), the conditional survival function decomposes as
 \begin{equation}
 \Pr(Y>y\mid X=x;\Theta,\Phi)
 =
 \bigl\{1-p_u(x;\Theta)\bigr\}
 \Bigl[1-F_{\mathrm{GPD}}\!\bigl(y\mid x;\Phi\bigr)\Bigr].
 \label{eq:splice_tailprob}
-\end{equation}
-Quantiles follow by inversion of \eqref{eq:splice_cdf}.  For $\tau\in(0,1)$,
-\begin{equation}
+\end{equation} Quantiles follow by inversion of \eqref{eq:splice_cdf}.
+For \(\tau\in(0,1)\), \begin{equation}
 Q(\tau\mid x;\Theta,\Phi)=
 \begin{cases}
 Q_{\mathrm{DP}}(\tau\mid x;\Theta), & \tau \le p_u(x;\Theta),\\[8pt]
 Q_{\mathrm{GPD}}\!\bigl(\tilde{\tau}(x;\Theta)\mid x;\Phi\bigr), & \tau>p_u(x;\Theta),
 \end{cases}
 \label{eq:splice_quantile_case}
-\end{equation}
-where the tail-rescaled probability level is
+\end{equation} where the tail-rescaled probability level is
 \begin{equation}
 \tilde{\tau}(x;\Theta)=\dfrac{\tau-p_u(x;\Theta)}{1-p_u(x;\Theta)}\in(0,1),
 \label{eq:tau_tilde}
-\end{equation}
-and $Q_{\mathrm{GPD}}$ is given in \eqref{eq:gpd_quantile}.  Thus, upper quantiles are determined jointly by
-the bulk exceedance probability $1-p_u(x;\Theta)$ and the conditional exceedance distribution governed by
-\(\Phi\).
+\end{equation} and \(Q_{\mathrm{GPD}}\) is given in
+\eqref{eq:gpd_quantile}. Thus, upper quantiles are determined jointly by
+the bulk exceedance probability \(1-p_u(x;\Theta)\) and the conditional
+exceedance distribution governed by \(\Phi\).
 
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
-\includegraphics[width=\maxwidth]{figure/splicedDensityFigure-1} 
-\end{knitrout}
+\pandocbounded{\includegraphics[keepaspectratio]{CausalMixGPD_JSS_article_files/figure-latex/splicedDensityFigure-1.pdf}}
 
-This spliced conditional distribution is the central predictive object used throughout the package.
-In the causal extension (Section~\ref{subsec:causal}), the same construction is applied separately to
-treatment-specific conditional distributions $F_a(\cdot\mid x)$, enabling causal contrasts based on
-densities, quantiles, and tail risks rather than only mean-scale effects.
+This spliced conditional distribution is the central predictive object
+used throughout the package. In the causal extension
+(Section\textasciitilde{}\ref{subsec:causal}), the same construction is
+applied separately to treatment-specific conditional distributions
+\(F_a(\cdot\mid x)\), enabling causal contrasts based on densities,
+quantiles, and tail risks rather than only mean-scale effects.
 
 \subsection{Causal Inference: Notation, Identification, and Reported Estimands}
 \label{subsec:causal}
 
-We use the potential outcomes framework \citep{Neyman1923,Rubin1974,ImbensRubin2015}.
-Let $A$ denote a binary treatment indicator, let $X$ denote observed pre-treatment covariates,
-and let $Y$ denote the observed outcome. Each unit has two potential outcomes, $Y(1)$ and $Y(0)$,
-and the observed outcome satisfies
+We use the potential outcomes framework
+\citep{Neyman1923,Rubin1974,ImbensRubin2015}. Let \(A\) denote a binary
+treatment indicator, let \(X\) denote observed pre-treatment covariates,
+and let \(Y\) denote the observed outcome. Each unit has two potential
+outcomes, \(Y(1)\) and \(Y(0)\), and the observed outcome satisfies
 \begin{equation}
 Y = A\,Y(1) + \bigl(1-A\bigr)\,Y(0).
 \label{eq:po_observed}
 \end{equation}
 
-The treatment-specific conditional distribution functions are the fundamental inferential objects:
-\begin{equation}
+The treatment-specific conditional distribution functions are the
+fundamental inferential objects: \begin{equation}
 F_a(y\mid x)=\Pr\{Y(a)\le y \mid X=x\},\qquad a\in\{0,1\}.
 \label{eq:po_cond_cdf}
-\end{equation}
-In this package, the corresponding conditional densities are
-\begin{equation}
+\end{equation} In this package, the corresponding conditional densities
+are \begin{equation}
 f_a(y\mid x)=\frac{\partial}{\partial y}F_a(y\mid x)
 \label{eq:po_cond_pdf}
-\end{equation}
-where $f_a(y \mid x)$ assumes the spliced DPM structure in~\eqref{eq:splice_pdf}. Conditional quantiles are defined by inversion of the conditional CDF:
-\begin{equation}
+\end{equation} where \(f_a(y \mid x)\) assumes the spliced DPM structure
+in\textasciitilde{}\eqref{eq:splice_pdf}. Conditional quantiles are
+defined by inversion of the conditional CDF: \begin{equation}
 Q_a(\tau\mid x)=\inf\{y:\,F_a(y\mid x)\ge \tau\},\qquad \tau\in(0,1).
 \label{eq:po_cond_quantile}
-\end{equation}
-Conditional means are functionals of the conditional density:
-\begin{equation}
+\end{equation} Conditional means are functionals of the conditional
+density: \begin{equation}
 \mu_a(x)=\mathrm{E}\{Y(a)\mid X=x\}=\int y\, f_a(y\mid x)\,dy.
 \label{eq:po_cond_mean}
 \end{equation}
 
-Marginal (standardized) distributions are obtained by averaging conditional distributions over a covariate
-distribution. The package reports population-standardized and treated-standardized functionals:
+Marginal (standardized) distributions are obtained by averaging
+conditional distributions over a covariate distribution. The package
+reports population-standardized and treated-standardized functionals:
 \begin{equation}
 F_a^{\mathrm{m}}(y)=\mathrm{E}\bigl\{F_a(y\mid X)\bigr\},
 \qquad
 F_a^{\mathrm{t}}(y)=\mathrm{E}\bigl\{F_a(y\mid X)\mid A=1\bigr\}.
 \label{eq:marginal_cdf_defs}
-\end{equation}
-The corresponding marginal quantiles are
-\begin{equation}
+\end{equation} The corresponding marginal quantiles are \begin{equation}
 Q_a^{\mathrm{m}}(\tau)=\inf\{y:\,F_a^{\mathrm{m}}(y)\ge \tau\},
 \qquad
 Q_a^{\mathrm{t}}(\tau)=\inf\{y:\,F_a^{\mathrm{t}}(y)\ge \tau\}.
 \label{eq:marginal_quantile_defs}
-\end{equation}
-Marginal means are
-\begin{equation}
+\end{equation} Marginal means are \begin{equation}
 \mu_a^{\mathrm{m}}=\mathrm{E}\bigl\{\mu_a(X)\bigr\},
 \qquad
 \mu_a^{\mathrm{t}}=\mathrm{E}\bigl\{\mu_a(X)\mid A=1\bigr\}.
 \label{eq:marginal_mean_defs}
 \end{equation}
 
-Identification of these quantities depends on the study design.
-In randomized experiments, randomization together with positivity implies exchangeability between treatment
-assignment and potential outcomes \citep{ImbensRubin2015}.
-In observational studies, we rely on the following conditions \citep{RosenbaumRubin1983,ImbensRubin2015}:
+Identification of these quantities depends on the study design. In
+randomized experiments, randomization together with positivity implies
+exchangeability between treatment assignment and potential outcomes
+\citep{ImbensRubin2015}. In observational studies, we rely on the
+following conditions \citep{RosenbaumRubin1983,ImbensRubin2015}:
+
 \begin{itemize}
 \item \textbf{SUTVA:} no interference between units and no hidden versions of treatment.
 \item \textbf{Consistency:} if $A=a$, then the observed outcome equals the corresponding potential outcome, $Y=Y(a)$.
@@ -501,36 +564,39 @@ In observational studies, we rely on the following conditions \citep{RosenbaumRu
 \end{equation}
 for covariate values of interest.
 \end{itemize}
-Under these conditions, the treatment-specific conditional distributions are identified from the observed data:
-\begin{equation}
+
+Under these conditions, the treatment-specific conditional distributions
+are identified from the observed data: \begin{equation}
 F_a(y\mid x)=\Pr(Y\le y\mid A=a,X=x),\qquad a\in\{0,1\}.
 \label{eq:identification_cdf}
 \end{equation}
 
-In observational settings, we use the propensity score (PS) to support the design stage \citep{RosenbaumRubin1983}.
-The PS is the treatment assignment probability given covariates:
-\begin{equation}
+In observational settings, we use the propensity score (PS) to support
+the design stage \citep{RosenbaumRubin1983}. The PS is the treatment
+assignment probability given covariates: \begin{equation}
 \rho(x)=\Pr(A=1\mid X=x).
 \label{eq:ps_def}
-\end{equation}
-A key property of the true propensity score is that conditioning on it balances covariates across treatment groups:
+\end{equation} A key property of the true propensity score is that
+conditioning on it balances covariates across treatment groups:
 \begin{equation}
 A\ \perp\ X\ \mid\ \rho(X).
 \label{eq:ps_balance}
-\end{equation}
-With estimated scores this balancing property is approximate in finite samples. Following the two-stage strategy described in the thesis, we first estimate $\rho(x)$ using only $(A,X)$ and then
-augment the outcome model covariates with the estimated score \citep{RosenbaumRubin1983}:
-\begin{equation}
+\end{equation} With estimated scores this balancing property is
+approximate in finite samples. Following the two-stage strategy
+described in the thesis, we first estimate \(\rho(x)\) using only
+\((A,X)\) and then augment the outcome model covariates with the
+estimated score \citep{RosenbaumRubin1983}: \begin{equation}
 \widehat{\rho}(x)\approx \rho(x),
 \qquad
 r(x)=\bigl(x^{\mathsf{T}},\widehat{\rho}(x)\bigr)^{\mathsf{T}}.
 \label{eq:augmented_covariate}
-\end{equation}
-The conditional outcome distributions are then modeled separately within each treatment arm as functions of the
-augmented predictor $r(x)$, and causal contrasts are computed as functionals of the estimated treatment-specific
-distributions.
+\end{equation} The conditional outcome distributions are then modeled
+separately within each treatment arm as functions of the augmented
+predictor \(r(x)\), and causal contrasts are computed as functionals of
+the estimated treatment-specific distributions.
 
 The package reports the following causal estimands:
+
 \begin{itemize}
 \item \textbf{Average Treatment Effect (ATE):}
 \begin{equation}
@@ -564,74 +630,92 @@ The package reports the following causal estimands:
 \end{equation}
 \end{itemize}
 
-This section established the main probabilistic and causal building blocks used in the remainder of the work. We first defined conditional distributional targets and introduced a Dirichlet process mixture model to flexibly estimate bulk conditional outcome densities. We then reviewed generalized Pareto modeling for threshold exceedances and constructed a spliced DPM--GPD conditional distribution that preserves the estimated bulk while enabling principled tail extrapolation. Finally, we introduced the potential outcomes framework and the treatment-effect estimands reported in the package, showing how marginal and conditional effects can be obtained as functionals of treatment-specific conditional distributions (with propensity-score augmentation supporting confounding adjustment in observational studies). Subsequent chapters build on these preliminaries to specify the full hierarchical model, posterior computation, and empirical evaluation of tail-aware distributional causal effects.
+This section established the main probabilistic and causal building
+blocks used in the remainder of the work. We first defined conditional
+distributional targets and introduced a Dirichlet process mixture model
+to flexibly estimate bulk conditional outcome densities. We then
+reviewed generalized Pareto modeling for threshold exceedances and
+constructed a spliced DPM--GPD conditional distribution that preserves
+the estimated bulk while enabling principled tail extrapolation.
+Finally, we introduced the potential outcomes framework and the
+treatment-effect estimands reported in the package, showing how marginal
+and conditional effects can be obtained as functionals of
+treatment-specific conditional distributions (with propensity-score
+augmentation supporting confounding adjustment in observational
+studies). Subsequent chapters build on these preliminaries to specify
+the full hierarchical model, posterior computation, and empirical
+evaluation of tail-aware distributional causal effects.
 
 \section{Package Overview: Workflow, Model, and Inference}
 \label{sec:overview}
 
-This section describes the main workflow provided by \pkg{CausalMixGPD} for one-arm conditional modeling and prediction when a generalized Pareto tail is spliced above a covariate-dependent threshold.  The causal extension reuses the same modeling, estimation, and prediction machinery after introducing treatment-specific outcome models and a propensity score component; we defer those additions to the causal section.
+This section describes the main workflow provided by
+\textsf{CausalMixGPD} for one-arm conditional modeling and prediction
+when a generalized Pareto tail is spliced above a covariate-dependent
+threshold. The causal extension reuses the same modeling, estimation,
+and prediction machinery after introducing treatment-specific outcome
+models and a propensity score component; we defer those additions to the
+causal section.
 
 \subsection{Augmented DPM--GPD model, likelihood, and priors}
 \label{subsec:overview-model}
 
-Let the observed data be
-\[
+Let the observed data be \[
   \mathcal{D}=\{(y_i,x_i)\}_{i=1}^n,
 \]
 
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlkwd{library}\hldef{(CausalMixGPD)}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Reload package example data and build a modeling data frame}
+\FunctionTok{data}\NormalTok{(}\StringTok{"nc\_posX100\_p3\_k2"}\NormalTok{, }\AttributeTok{package =} \StringTok{"CausalMixGPD"}\NormalTok{)}
+\NormalTok{dat }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{y =}\NormalTok{ nc\_posX100\_p3\_k2}\SpecialCharTok{$}\NormalTok{y, nc\_posX100\_p3\_k2}\SpecialCharTok{$}\NormalTok{X)}
+\end{Highlighting}
+\end{Shaded}
 
-\hlcom{# Reload package example data and build a modeling data frame}
-\hlkwd{data}\hldef{(}\hlsng{"nc_posX100_p3_k2"}\hldef{,} \hlkwc{package} \hldef{=} \hlsng{"CausalMixGPD"}\hldef{)}
-\hldef{dat} \hlkwb{<-} \hlkwd{data.frame}\hldef{(}\hlkwc{y} \hldef{= nc_posX100_p3_k2}\hlopt{$}\hldef{y, nc_posX100_p3_k2}\hlopt{$}\hldef{X)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-
-
-
-with \(x_i\in\mathbb{R}^p\) denoting the covariate vector (including an intercept if desired).  The target conditional distribution \(F(\cdot\mid x)\) and its spliced DPM--GPD construction are defined in Section~\ref{sec:prelim}, with the spliced CDF and density given in \eqref{eq:splice_cdf}--\eqref{eq:splice_pdf}.  Posterior computation in \pkg{CausalMixGPD} approximates the bulk DPM by a finite truncation with \(J\) mixture components,
-\[
+with \(x_i\in\mathbb{R}^p\) denoting the covariate vector (including an
+intercept if desired). The target conditional distribution
+\(F(\cdot\mid x)\) and its spliced DPM--GPD construction are defined in
+Section\textasciitilde{}\ref{sec:prelim}, with the spliced CDF and
+density given in \eqref{eq:splice_cdf}--\eqref{eq:splice_pdf}. Posterior
+computation in \textsf{CausalMixGPD} approximates the bulk DPM by a
+finite truncation with \(J\) mixture components, \[
   f_{\mathrm{DP}}(y\mid x;\Theta)\;\approx\;\sum_{j=1}^{J} w_j\,k(y\mid x;\theta_j),
   \qquad j=1,\ldots,J,
-\]
-where \(j\) indexes mixture components, \(w_j\ge 0\), and \(\sum_{j=1}^J w_j=1\).  Kernel parameters can be constant or covariate-dependent through link specifications of the form
+\] where \(j\) indexes mixture components, \(w_j\ge 0\), and
+\(\sum_{j=1}^J w_j=1\). Kernel parameters can be constant or
+covariate-dependent through link specifications of the form
 \begin{equation}
   g\!\left(\psi_j(x)\right)=x^\top \beta_{j,\psi},
   \label{eq:overview-link}
-\end{equation}
-where \(g(\cdot)\) enforces parameter support (e.g., positive scale parameters).
+\end{equation} where \(g(\cdot)\) enforces parameter support (e.g.,
+positive scale parameters).
 
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlcom{# One-arm spliced DP--GPD fit}
-\hldef{fit} \hlkwb{<-} \hlkwd{dpmgpd}\hldef{(}
-  \hlkwc{formula}    \hldef{= y} \hlopt{~} \hldef{x1} \hlopt{+} \hldef{x2} \hlopt{+} \hldef{x3,}
-  \hlkwc{data}       \hldef{= dat,}
-  \hlkwc{backend}    \hldef{=} \hlsng{"sb"}\hldef{,}
-  \hlkwc{kernel}     \hldef{=} \hlsng{"lognormal"}\hldef{,}
-  \hlkwc{components} \hldef{=} \hlnum{5}\hldef{,}
-  \hlkwc{mcmc} \hldef{=} \hlkwd{list}\hldef{(}
-    \hlkwc{niter} \hldef{=} \hlnum{6000}\hldef{,} \hlkwc{nburnin} \hldef{=} \hlnum{1000}\hldef{,} \hlkwc{thin} \hldef{=} \hlnum{5}\hldef{,}
-    \hlkwc{nchains} \hldef{=} \hlnum{2}\hldef{,} \hlkwc{seed} \hldef{=} \hlnum{1}
-  \hldef{)}
-\hldef{)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fit }\OtherTok{\textless{}{-}} \FunctionTok{dpmgpd}\NormalTok{(}
+  \AttributeTok{formula =}\NormalTok{ y }\SpecialCharTok{\textasciitilde{}}\NormalTok{ x1 }\SpecialCharTok{+}\NormalTok{ x2 }\SpecialCharTok{+}\NormalTok{ x3,}
+  \AttributeTok{data =}\NormalTok{ dat,}
+  \AttributeTok{backend =} \StringTok{"sb"}\NormalTok{,}
+  \AttributeTok{kernel =} \StringTok{"lognormal"}\NormalTok{,}
+  \AttributeTok{components =} \DecValTok{5}\NormalTok{,}
+  \AttributeTok{mcmc =}\NormalTok{ mcmc\_fixed}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
 
-For the spliced model, let \(u(x)\) be the threshold, \(\sigma(x)>0\) the tail scale, and \(\xi\in\mathbb{R}\) the tail shape (as in Section~\ref{subsec:splice}).  Define \(\delta_i=\mathbf{1}\{y_i>u(x_i)\}\).  Using the spliced density \eqref{eq:splice_pdf} with the truncated bulk mixture, the likelihood is
+For the spliced model, let \(u(x)\) be the threshold, \(\sigma(x)>0\)
+the tail scale, and \(\xi\in\mathbb{R}\) the tail shape (as in
+Section\textasciitilde{}\ref{subsec:splice}). Define
+\(\delta_i=\mathbf{1}\{y_i>u(x_i)\}\). Using the spliced density
+\eqref{eq:splice_pdf} with the truncated bulk mixture, the likelihood is
 \begin{equation}
   L(\Theta,\Phi;\mathcal{D})
   =\prod_{i=1}^n f(y_i\mid x_i;\Theta,\Phi),
   \label{eq:overview-lik}
-\end{equation}
-where \(\Theta\) collects the truncation-level bulk parameters \(\{w_j,\theta_j\}_{j=1}^J\), and \(\Phi\) collects the tail parameters governing \(u(x)\), \(\sigma(x)\), and \(\xi\).  Equivalently, the log-likelihood can be written as
-\begin{align}
+\end{equation} where \(\Theta\) collects the truncation-level bulk
+parameters \(\{w_j,\theta_j\}_{j=1}^J\), and \(\Phi\) collects the tail
+parameters governing \(u(x)\), \(\sigma(x)\), and \(\xi\). Equivalently,
+the log-likelihood can be written as \begin{align}
   \log L(\Theta,\Phi;\mathcal{D})
   \;=&\;\sum_{i=1}^n (1-\delta_i)\,\log f_{\mathrm{DP}}(y_i\mid x_i;\Theta)
   \nonumber\\
@@ -641,141 +725,397 @@ where \(\Theta\) collects the truncation-level bulk parameters \(\{w_j,\theta_j\
     +\log f_{\mathrm{GPD}}\!\bigl(y_i\mid x_i;\Phi\bigr)
   \Bigr],
   \label{eq:overview-loglik}
-\end{align}
-where \(f_{\mathrm{GPD}}\) is given in \eqref{eq:gpd_pdf} and \(F_{\mathrm{DP}}(\cdot\mid x)\) is the bulk mixture CDF induced by the truncated mixture.
+\end{align} where \(f_{\mathrm{GPD}}\) is given in \eqref{eq:gpd_pdf}
+and \(F_{\mathrm{DP}}(\cdot\mid x)\) is the bulk mixture CDF induced by
+the truncated mixture.
 
-Priors follow the decomposition implied by \eqref{eq:sb} and \eqref{eq:crp}.  Under the stick-breaking (SB) backend, the truncation-level weights are generated through Beta stick breaks (Section~\ref{sec:prelim}, \eqref{eq:sb}), which are represented in \pkg{nimble} using the Beta distribution in model code (see \code{dbeta}).  Under the Chinese restaurant process (CRP) backend, the allocation-based representation is implemented using the CRP distribution in \pkg{nimble} (see \code{dCRP}), matching the predictive representation in \eqref{eq:crp}.  Kernel parameters and tail parameters are assigned weakly informative priors, with regression coefficients \(\beta_{j,\psi}\) arising through the link representation \eqref{eq:overview-link}.  The same link construction is used for covariate-dependent \(u(x)\) and \(\sigma(x)\) when those are modeled as functions of \(x\).
+Priors follow the decomposition implied by \eqref{eq:sb} and
+\eqref{eq:crp}. Under the stick-breaking (SB) backend, the
+truncation-level weights are generated through Beta stick breaks
+(Section\textasciitilde{}\ref{sec:prelim}, \eqref{eq:sb}), which are
+represented in \textsf{nimble} using the Beta distribution in model code
+(see \texttt{dbeta}). Under the Chinese restaurant process (CRP)
+backend, the allocation-based representation is implemented using the
+CRP distribution in \textsf{nimble} (see \texttt{dCRP}), matching the
+predictive representation in \eqref{eq:crp}. Kernel parameters and tail
+parameters are assigned weakly informative priors, with regression
+coefficients \(\beta_{j,\psi}\) arising through the link representation
+\eqref{eq:overview-link}. The same link construction is used for
+covariate-dependent \(u(x)\) and \(\sigma(x)\) when those are modeled as
+functions of \(x\).
 
 \subsection{MCMC algorithm, convergence diagnostics, and parameter extraction}
 \label{subsec:overview-mcmc}
 
-Posterior simulation targets \(p(\Theta,\Phi\mid \mathcal{D}) \propto L(\Theta,\Phi;\mathcal{D})\,p(\Theta,\Phi)\) using the likelihood \eqref{eq:overview-lik} and the prior structure implied by the SB or CRP representation (Section~\ref{sec:prelim}, \eqref{eq:sb}--\eqref{eq:crp}).  Given a model specification, \pkg{CausalMixGPD} runs MCMC through \pkg{nimble} \citep{devalpine2017nimble,nimble_pkg} under the chosen backend; SB uses Beta stick breaks in model code (see \code{dbeta}) and CRP uses the CRP distribution for allocations (see \code{dCRP}).  Users control the number of iterations, burn-in, thinning, and number of chains through the \code{mcmc} argument in the wrappers.
+Posterior simulation targets
+\(p(\Theta,\Phi\mid \mathcal{D}) \propto L(\Theta,\Phi;\mathcal{D})\,p(\Theta,\Phi)\)
+using the likelihood \eqref{eq:overview-lik} and the prior structure
+implied by the SB or CRP representation
+(Section\textasciitilde{}\ref{sec:prelim},
+\eqref{eq:sb}--\eqref{eq:crp}). Given a model specification,
+\textsf{CausalMixGPD} runs MCMC through \textsf{nimble}
+\citep{devalpine2017nimble,nimble_pkg} under the chosen backend; SB uses
+Beta stick breaks in model code (see \texttt{dbeta}) and CRP uses the
+CRP distribution for allocations (see \texttt{dCRP}). Users control the
+number of iterations, burn-in, thinning, and number of chains through
+the \texttt{mcmc} argument in the wrappers.
 
-Convergence checking is supported through standard multi-chain diagnostics and trace-based visualizations.  The model object supports \code{summary()} for posterior summaries, \code{plot()} for diagnostic plots (trace, running mean, autocorrelation, and multi-chain diagnostics such as \(\widehat{R}\) when multiple chains are used), and \code{params()} as a lightweight extractor returning posterior mean parameters reshaped to natural dimensions.  Interval summaries used by \code{predict()} can be chosen as equal-tailed credible intervals or HPD intervals as described in Section~\ref{subsec:overview-estimation} \citep{Gelman2013BDA,coda_pkg}.  Diagnostic plotting relies on established MCMC diagnostic tooling \citep{ggmcmc_pkg}.
+Convergence checking is supported through standard multi-chain
+diagnostics and trace-based visualizations. The model object supports
+\texttt{summary()} for posterior summaries, \texttt{plot()} for
+diagnostic plots (trace, running mean, autocorrelation, and multi-chain
+diagnostics such as \(\widehat{R}\) when multiple chains are used), and
+\texttt{params()} as a lightweight extractor returning posterior mean
+parameters reshaped to natural dimensions. Interval summaries used by
+\texttt{predict()} can be chosen as equal-tailed credible intervals or
+HPD intervals as described in
+Section\textasciitilde{}\ref{subsec:overview-estimation}
+\citep{Gelman2013BDA,coda_pkg}. Diagnostic plotting relies on
+established MCMC diagnostic tooling \citep{ggmcmc_pkg}.
 
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlcom{# Posterior summaries (includes selected quantiles)}
-\hlcom{# and may also report ESS where applicable}
-\hlkwd{summary}\hldef{(fit)}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Posterior summaries }
+\FunctionTok{summary}\NormalTok{(fit)}
+\end{Highlighting}
+\end{Shaded}
 
-\hlcom{# Extract posterior mean parameters in natural shapes}
-\hldef{p_hat} \hlkwb{<-} \hlkwd{params}\hldef{(fit)}
+\begin{verbatim}
+MixGPD summary | backend: Stick-Breaking Process | kernel: Lognormal Distribution | GPD tail: TRUE | epsilon: 0.025
+n = 100 | components = 5
+Summary
+Initial components: 5 | Components after truncation: 3
 
-\hlcom{# MCMC diagnostics:}
-\hlcom{# requires ggmcmc; best with multiple chains}
-\hlkwd{plot}\hldef{(fit,} \hlkwc{family} \hldef{=} \hlkwd{c}\hldef{(}\hlsng{"traceplot"}\hldef{,} \hlsng{"density"}\hldef{,} \hlsng{"autocorrelation"}\hldef{,} \hlsng{"Rhat"}\hldef{))}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
+WAIC: 533.418
+lppd: -190.186 | pWAIC: 76.523
 
+Summary table
+          parameter   mean    sd q0.025 q0.500 q0.975     ess
+         weights[1]   0.46 0.117   0.27   0.45   0.72  11.627
+         weights[2]  0.254 0.061   0.12  0.255   0.36  39.269
+         weights[3]  0.165  0.05   0.08   0.16   0.26  38.227
+              alpha   1.86 0.968  0.487  1.698  4.099  12.727
+ beta_meanlog[1, 1]  0.183 1.477 -2.521 -0.054  3.423   20.74
+ beta_meanlog[2, 1] -0.009 1.399 -3.071 -0.023  2.862  33.912
+ beta_meanlog[3, 1]  0.387  1.74 -3.095  0.301  3.709  43.663
+ beta_meanlog[4, 1]  0.197  1.78 -3.591  0.193  3.467  54.846
+ beta_meanlog[5, 1] -0.334 1.201 -3.053 -0.338  2.421  27.182
+ beta_meanlog[1, 2]  0.047 1.695 -3.234 -0.097   3.69  56.754
+ beta_meanlog[2, 2]  0.028 1.595 -3.422  0.066  3.166  51.988
+ beta_meanlog[3, 2] -0.393 2.104 -4.784 -0.322  3.579  25.438
+ beta_meanlog[4, 2] -0.348 2.033 -4.737 -0.348  3.371   44.29
+ beta_meanlog[5, 2] -0.492 1.505 -2.917 -0.715  3.667  48.203
+ beta_meanlog[1, 3]  0.234 1.263 -2.468  0.197  2.785   42.38
+ beta_meanlog[2, 3] -0.474 1.227 -3.486 -0.377  1.918  25.851
+ beta_meanlog[3, 3]  0.092 1.584 -3.081 -0.089  3.495  18.206
+ beta_meanlog[4, 3]  -0.29 1.817 -3.905 -0.475  3.368  60.839
+ beta_meanlog[5, 3] -0.094 1.216 -2.854 -0.111   2.25  59.107
+ beta_tail_scale[1]  0.377 0.204  0.012  0.357  0.738  30.053
+ beta_tail_scale[2]  0.162 0.302 -0.379  0.137  0.734  51.036
+ beta_tail_scale[3]  0.458 0.153  0.185  0.462  0.769   72.09
+  beta_threshold[1] -0.023 0.147 -0.306 -0.017  0.251  26.686
+  beta_threshold[2] -0.178 0.234 -0.717 -0.156  0.222   10.31
+  beta_threshold[3] -0.372 0.184 -0.757 -0.366  -0.04   13.39
+            sdlog_u  0.869 0.185  0.489  0.863  1.257    9.34
+         tail_shape  0.393 0.095  0.209  0.406  0.583  49.001
+           sdlog[1]  1.464 0.785  0.351   1.33  3.499  36.647
+           sdlog[2]   2.05 1.297  0.423  1.587  5.209  35.647
+           sdlog[3]  2.041 1.248   0.48  1.791   5.04 101.774
+\end{verbatim}
 
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Extract posterior mean parameters in natural shapes}
+\FunctionTok{params}\NormalTok{(fit)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Posterior mean parameters
+
+$alpha
+[1] "1.86"
+
+$w
+[1] "0.46"  "0.254" "0.165"
+
+$beta_meanlog
+      x1       x2       x3      
+comp1 "0.183"  "0.047"  "0.234" 
+comp2 "-0.009" "0.028"  "-0.474"
+comp3 "0.387"  "-0.393" "0.092" 
+comp4 "0.197"  "-0.348" "-0.29" 
+comp5 "-0.334" "-0.492" "-0.094"
+
+$sdlog
+[1] "1.464" "2.05"  "2.041"
+
+$beta_threshold
+[1] "-0.023" "-0.178" "-0.372"
+
+$sdlog_u
+[1] "0.869"
+
+$beta_tail_scale
+[1] "0.377" "0.162" "0.458"
+
+$tail_shape
+[1] "0.393"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# MCMC diagnostics: trace, running mean, autocorrelation, and multi{-}chain diagnostics}
+\FunctionTok{plot}\NormalTok{(fit, }\AttributeTok{family =} \StringTok{"traceplot"}\NormalTok{, }\AttributeTok{param =} \StringTok{"threshold"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing
+scale.
+\end{verbatim}
+
+\begin{verbatim}
+
+=== traceplot ===
+\end{verbatim}
+
+\pandocbounded{\includegraphics[keepaspectratio]{CausalMixGPD_JSS_article_files/figure-latex/overview-mcmc-diagnostics-1.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(fit, }\AttributeTok{family =} \StringTok{"caterpillar"}\NormalTok{, }\AttributeTok{param =} \StringTok{"beta"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+i Please use `linewidth` instead.
+i The deprecated feature was likely used in the ggmcmc package.
+  Please report the issue at
+  <https://github.com/xfim/ggmcmc/issues/>.
+This warning is displayed once per session.
+Call `lifecycle::last_lifecycle_warnings()` to see where this warning
+was generated.
+\end{verbatim}
+
+\begin{verbatim}
+
+=== caterpillar ===
+\end{verbatim}
+
+\pandocbounded{\includegraphics[keepaspectratio]{CausalMixGPD_JSS_article_files/figure-latex/overview-mcmc-diagnostics-2.pdf}}
 
 \subsubsection{Bulk-only special case (no GPD tail)}
 \label{subsec:overview-nogpd}
 
-Setting \code{GPD = FALSE} removes the splicing step so that \(f(y\mid x;\Theta)\equiv f_{\mathrm{DP}}(y\mid x;\Theta)\), and \(L(\Theta,\Phi;\mathcal{D})\) reduces to the bulk-mixture likelihood in \(\Theta\).  All estimation and prediction targets described below remain available, with tail-specific terms omitted.  The wrapper \code{dpmix()} fits this bulk-only model, while \code{dpmgpd()} fits the augmented (spliced) model.
-
+Setting \texttt{GPD = FALSE} removes the splicing step so that
+\(f(y\mid x;\Theta)\equiv f_{\mathrm{DP}}(y\mid x;\Theta)\), and
+\(L(\Theta,\Phi;\mathcal{D})\) reduces to the bulk-mixture likelihood in
+\(\Theta\). All estimation and prediction targets described below remain
+available, with tail-specific terms omitted. The wrapper
+\texttt{dpmix()} fits this bulk-only model, while \texttt{dpmgpd()} fits
+the augmented (spliced) model.
 
 \subsection{Posterior functionals, interval summaries and prediction}
 \label{subsec:overview-estimation}
 
-The estimands reported by \pkg{CausalMixGPD} are functionals of the estimated conditional distribution \(F(\cdot\mid x)\) from Section~\ref{sec:prelim}.  In this article we focus on four conditional functionals: density \(f(y\mid x)\), survival \(S(y\mid x)=1-F(y\mid x)\), quantiles \(Q(\tau\mid x)\), and mean-type summaries.
+The estimands reported by \textsf{CausalMixGPD} are functionals of the
+estimated conditional distribution \(F(\cdot\mid x)\) from
+Section\textasciitilde{}\ref{sec:prelim}. In this article we focus on
+four conditional functionals: density \(f(y\mid x)\), survival
+\(S(y\mid x)=1-F(y\mid x)\), quantiles \(Q(\tau\mid x)\), and mean-type
+summaries.
 
-Let \((\Theta^{(s)},\Phi^{(s)})_{s=1}^S\) denote post-burn-in draws from the posterior.  For density, survival, and quantiles, \pkg{CausalMixGPD} evaluates the corresponding draw-wise functional using the spliced formulas \eqref{eq:splice_cdf}--\eqref{eq:splice_quantile_case} (with the truncated bulk mixture), and then summarizes across draws.  Specifically, for a generic scalar functional \(T(\Theta,\Phi;x)\) (e.g., \(f(y_0\mid x)\) or \(Q(\tau\mid x)\)),
-\[
+Let \((\Theta^{(s)},\Phi^{(s)})_{s=1}^S\) denote post-burn-in draws from
+the posterior. For density, survival, and quantiles,
+\textsf{CausalMixGPD} evaluates the corresponding draw-wise functional
+using the spliced formulas
+\eqref{eq:splice_cdf}--\eqref{eq:splice_quantile_case} (with the
+truncated bulk mixture), and then summarizes across draws. Specifically,
+for a generic scalar functional \(T(\Theta,\Phi;x)\) (e.g.,
+\(f(y_0\mid x)\) or \(Q(\tau\mid x)\)), \[
   \widehat{T}(x)=\frac{1}{S}\sum_{s=1}^S T(\Theta^{(s)},\Phi^{(s)};x),
-\]
-and uncertainty is summarized either by equal-tailed credible intervals (posterior quantiles) or by highest posterior density (HPD) intervals (shortest intervals covering the target posterior mass).  Equal-tailed intervals and general Bayesian posterior summaries follow standard practice \citep{Gelman2013BDA}; HPD intervals are computed from the MCMC draws using established implementations \citep{coda_pkg}.
+\] and uncertainty is summarized either by equal-tailed credible
+intervals (posterior quantiles) or by highest posterior density (HPD)
+intervals (shortest intervals covering the target posterior mass).
+Equal-tailed intervals and general Bayesian posterior summaries follow
+standard practice \citep{Gelman2013BDA}; HPD intervals are computed from
+the MCMC draws using established implementations \citep{coda_pkg}.
 
-Mean-type summaries are handled differently in the package.  For \code{type = "mean"} and \code{type = "rmean"}, \pkg{CausalMixGPD} uses posterior predictive Monte Carlo within each posterior draw rather than direct plug-in evaluation.  For a fixed covariate value \(x\), within draw \(s\) the package generates
-\[
+Mean-type summaries are handled differently in the package. For
+\texttt{type = "mean"} and \texttt{type = "rmean"},
+\textsf{CausalMixGPD} uses posterior predictive Monte Carlo within each
+posterior draw rather than direct plug-in evaluation. For a fixed
+covariate value \(x\), within draw \(s\) the package generates \[
   y_{1}^{(s)},\ldots,y_{M}^{(s)} \;\sim\; f(\cdot\mid x;\Theta^{(s)},\Phi^{(s)}),
-\]
-and computes
-\[
+\] and computes \[
   \mu^{(s)}(x)=\frac{1}{M}\sum_{m=1}^M y_{m}^{(s)},
   \qquad
   \mu_{c}^{(s)}(x)=\frac{1}{M}\sum_{m=1}^M \min\{y_{m}^{(s)},c\},
-\]
-corresponding to the conditional mean and the restricted mean at cutoff \(c\), respectively.  Posterior summaries and intervals are then formed from \(\{\mu^{(s)}(x)\}_{s=1}^S\) or \(\{\mu_c^{(s)}(x)\}_{s=1}^S\).  Under the spliced model, the conditional mean is infinite when \(\xi\ge 1\); accordingly, \pkg{CausalMixGPD} flags \code{type = "mean"} as infinite when there is posterior mass with \(\xi\ge 1\), while \code{type = "rmean"} remains finite by construction.
+\] corresponding to the conditional mean and the restricted mean at
+cutoff \(c\), respectively. Posterior summaries and intervals are then
+formed from \(\{\mu^{(s)}(x)\}_{s=1}^S\) or
+\(\{\mu_c^{(s)}(x)\}_{s=1}^S\). Under the spliced model, the conditional
+mean is infinite when \(\xi\ge 1\); accordingly, \textsf{CausalMixGPD}
+flags \texttt{type = "mean"} as infinite when there is posterior mass
+with \(\xi\ge 1\), while \texttt{type = "rmean"} remains finite by
+construction.
 
-Using the same fitted model \code{fit} from Section~\ref{subsec:overview-model}, we now compute posterior summaries on the original training covariates (default behavior of \code{predict()} when \code{newdata} is not supplied).
+Using the same fitted model \texttt{fit} from
+Section\textasciitilde{}\ref{subsec:overview-model}, we now compute
+posterior summaries on the original training covariates (default
+behavior of \texttt{predict()} when \texttt{newdata} is not supplied).
 
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlcom{# Posterior functionals from the same fitted model and data set}
-\hldef{q_grid} \hlkwb{<-} \hlkwd{c}\hldef{(}\hlnum{0.50}\hldef{,} \hlnum{0.90}\hldef{,} \hlnum{0.95}\hldef{,} \hlnum{0.99}\hldef{)}
-\hldef{est_quant} \hlkwb{<-} \hlkwd{predict}\hldef{(fit,} \hlkwc{type} \hldef{=} \hlsng{"quantile"}\hldef{,} \hlkwc{index} \hldef{= q_grid,}
-                     \hlkwc{interval} \hldef{=} \hlsng{"hpd"}\hldef{,} \hlkwc{level} \hldef{=} \hlnum{0.95}\hldef{)}
-\hldef{est_mean}  \hlkwb{<-} \hlkwd{predict}\hldef{(fit,} \hlkwc{type} \hldef{=} \hlsng{"mean"}\hldef{,}
-                     \hlkwc{interval} \hldef{=} \hlsng{"credible"}\hldef{,} \hlkwc{level} \hldef{=} \hlnum{0.95}\hldef{)}
-\hldef{est_rmean} \hlkwb{<-} \hlkwd{predict}\hldef{(fit,} \hlkwc{type} \hldef{=} \hlsng{"rmean"}\hldef{,} \hlkwc{cutoff} \hldef{=} \hlnum{8}\hldef{,}
-                     \hlkwc{interval} \hldef{=} \hlsng{"credible"}\hldef{,} \hlkwc{level} \hldef{=} \hlnum{0.95}\hldef{)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Posterior functionals from the same fitted model and data set}
+\NormalTok{q\_grid }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FloatTok{0.25}\NormalTok{, }\FloatTok{0.50}\NormalTok{, }\FloatTok{0.75}\NormalTok{)}
+\NormalTok{est\_quant }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(fit, }\AttributeTok{type =} \StringTok{"quantile"}\NormalTok{, }\AttributeTok{index =}\NormalTok{ q\_grid,}
+                     \AttributeTok{interval =} \StringTok{"hpd"}\NormalTok{, }\AttributeTok{level =} \FloatTok{0.95}\NormalTok{)}
 
-For a new covariate value \(x^\star\), prediction is based on the posterior predictive distribution
-\[
+
+\FunctionTok{plot}\NormalTok{(est\_quant)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{CausalMixGPD_JSS_article_files/figure-latex/overview-estimation-same-fit-1.pdf}}
+
+For a new covariate value \(x^\star\), prediction is based on the
+posterior predictive distribution \[
   p(y^\star\mid x^\star,\mathcal{D})
   =\int f(y^\star\mid x^\star;\Theta,\Phi)\,p(\Theta,\Phi\mid \mathcal{D})\,d\Theta\,d\Phi.
-\]
-The \code{predict()} method returns posterior summaries for the same functional targets as in Section~\ref{subsec:overview-estimation}.  For \code{type = "density"} and \code{type = "survival"}, the user supplies a grid of \(y\) values and the method returns pointwise posterior means with interval bounds computed draw-by-draw.  For \code{type = "quantile"}, the user supplies quantile indices \(\tau\) and the method returns posterior summaries of \(Q(\tau\mid x^\star)\) computed using the spliced quantile representation in \eqref{eq:splice_quantile_case}.  For \code{type = "mean"} and \code{type = "rmean"}, prediction uses posterior predictive Monte Carlo as described above, with \(x\) replaced by \(x^\star\) and with user-controlled \(M\) through \code{nsim\_mean}.
+\] The \texttt{predict()} method returns posterior summaries for the
+same functional targets as in
+Section\textasciitilde{}\ref{subsec:overview-estimation}. For
+\texttt{type = "density"} and \texttt{type = "survival"}, the user
+supplies a grid of \(y\) values and the method returns pointwise
+posterior means with interval bounds computed draw-by-draw. For
+\texttt{type = "quantile"}, the user supplies quantile indices \(\tau\)
+and the method returns posterior summaries of \(Q(\tau\mid x^\star)\)
+computed using the spliced quantile representation in
+\eqref{eq:splice_quantile_case}. For \texttt{type = "mean"} and
+\texttt{type = "rmean"}, prediction uses posterior predictive Monte
+Carlo as described above, with \(x\) replaced by \(x^\star\) and with
+user-controlled \(M\) through \texttt{nsim\_mean}.
 
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlcom{# New profiles from coordinate-wise quartiles (25%, 50%, 75%) of covariates}
-\hldef{q_levels} \hlkwb{<-} \hlkwd{c}\hldef{(}\hlnum{0.25}\hldef{,} \hlnum{0.50}\hldef{,} \hlnum{0.75}\hldef{)}
-\hldef{x_new} \hlkwb{<-} \hlkwd{as.data.frame}\hldef{(}\hlkwd{lapply}\hldef{(}
-  \hldef{dat[,} \hlkwd{c}\hldef{(}\hlsng{"x1"}\hldef{,} \hlsng{"x2"}\hldef{,} \hlsng{"x3"}\hldef{)],}
-  \hldef{quantile,}
-  \hlkwc{probs} \hldef{= q_levels,}
-  \hlkwc{na.rm} \hldef{=} \hlnum{TRUE}
-\hldef{))}
-\hlkwd{rownames}\hldef{(x_new)} \hlkwb{<-} \hlkwd{c}\hldef{(}\hlsng{"q25"}\hldef{,} \hlsng{"q50"}\hldef{,} \hlsng{"q75"}\hldef{)}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# New profiles from coordinate{-}wise quartiles (25\%, 50\%, 75\%) of covariates}
+\NormalTok{q\_levels }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FloatTok{0.25}\NormalTok{, }\FloatTok{0.50}\NormalTok{, }\FloatTok{0.75}\NormalTok{)}
+\NormalTok{x\_new }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{lapply}\NormalTok{(}
+\NormalTok{  dat[, }\FunctionTok{c}\NormalTok{(}\StringTok{"x1"}\NormalTok{, }\StringTok{"x2"}\NormalTok{, }\StringTok{"x3"}\NormalTok{)],}
+\NormalTok{  quantile,}
+  \AttributeTok{probs =}\NormalTok{ q\_levels,}
+  \AttributeTok{na.rm =} \ConstantTok{TRUE}
+\NormalTok{))}
+\FunctionTok{rownames}\NormalTok{(x\_new) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"q25"}\NormalTok{, }\StringTok{"q50"}\NormalTok{, }\StringTok{"q75"}\NormalTok{)}
 
-\hlcom{# Density / survival on a y-grid}
-\hldef{y_grid} \hlkwb{<-} \hlkwd{seq}\hldef{(}\hlnum{0}\hldef{,} \hlnum{10}\hldef{,} \hlkwc{length.out} \hldef{=} \hlnum{200}\hldef{)}
-\hldef{pdens} \hlkwb{<-} \hlkwd{predict}\hldef{(fit,} \hlkwc{newdata} \hldef{= x_new,} \hlkwc{y} \hldef{= y_grid,} \hlkwc{type} \hldef{=} \hlsng{"density"}\hldef{,}
-                 \hlkwc{interval} \hldef{=} \hlsng{"credible"}\hldef{,} \hlkwc{level} \hldef{=} \hlnum{0.95}\hldef{)}
-\hldef{psurv} \hlkwb{<-} \hlkwd{predict}\hldef{(fit,} \hlkwc{newdata} \hldef{= x_new,} \hlkwc{y} \hldef{= y_grid,} \hlkwc{type} \hldef{=} \hlsng{"survival"}\hldef{,}
-                 \hlkwc{interval} \hldef{=} \hlsng{"credible"}\hldef{,} \hlkwc{level} \hldef{=} \hlnum{0.95}\hldef{)}
+\CommentTok{\# Density / survival on a y{-}grid\textquotesingle{}}
 
-\hlcom{# Quantiles at selected indices}
-\hldef{p_grid} \hlkwb{<-} \hlkwd{c}\hldef{(}\hlnum{0.50}\hldef{,} \hlnum{0.90}\hldef{,} \hlnum{0.95}\hldef{,} \hlnum{0.99}\hldef{)}
-\hldef{pquant} \hlkwb{<-} \hlkwd{predict}\hldef{(fit,} \hlkwc{newdata} \hldef{= x_new,} \hlkwc{type} \hldef{=} \hlsng{"quantile"}\hldef{,} \hlkwc{index} \hldef{= p_grid,}
-                  \hlkwc{interval} \hldef{=} \hlsng{"hpd"}\hldef{,} \hlkwc{level} \hldef{=} \hlnum{0.95}\hldef{)}
+\NormalTok{y\_grid }\OtherTok{\textless{}{-}} \FunctionTok{seq}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{10}\NormalTok{, }\AttributeTok{length.out =} \DecValTok{200}\NormalTok{)}
 
-\hlcom{# Mean and restricted mean (posterior predictive Monte Carlo)}
-\hldef{pmean}  \hlkwb{<-} \hlkwd{predict}\hldef{(fit,} \hlkwc{newdata} \hldef{= x_new,} \hlkwc{type} \hldef{=} \hlsng{"mean"}\hldef{,}
-                  \hlkwc{interval} \hldef{=} \hlsng{"credible"}\hldef{,} \hlkwc{level} \hldef{=} \hlnum{0.95}\hldef{,}
-                  \hlkwc{nsim_mean} \hldef{=} \hlnum{1000}\hldef{)}
-\hldef{prmean} \hlkwb{<-} \hlkwd{predict}\hldef{(fit,} \hlkwc{newdata} \hldef{= x_new,} \hlkwc{type} \hldef{=} \hlsng{"rmean"}\hldef{,} \hlkwc{cutoff} \hldef{=} \hlnum{8}\hldef{,}
-                  \hlkwc{interval} \hldef{=} \hlsng{"credible"}\hldef{,} \hlkwc{level} \hldef{=} \hlnum{0.95}\hldef{,}
-                  \hlkwc{nsim_mean} \hldef{=} \hlnum{1000}\hldef{)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
+\NormalTok{pdens }\OtherTok{\textless{}{-}}  \FunctionTok{predict}\NormalTok{(fit, }\AttributeTok{newdata =}\NormalTok{ x\_new, }\AttributeTok{y =}\NormalTok{ y\_grid, }\AttributeTok{type =} \StringTok{"density"}\NormalTok{,}
+          \AttributeTok{interval =} \StringTok{"credible"}\NormalTok{, }\AttributeTok{level =} \FloatTok{0.95}\NormalTok{)}
+
+\FunctionTok{head}\NormalTok{(}\FunctionTok{as.data.frame}\NormalTok{(pdens}\SpecialCharTok{$}\NormalTok{fit), }\DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+  id        y   density      lower     upper
+1  1 1.000000 0.1737123 0.02990607 0.3616488
+2  1 1.045226 0.1672169 0.03025095 0.3525184
+3  1 1.090452 0.1611403 0.03086577 0.3371248
+4  1 1.135678 0.1554363 0.03165092 0.3206042
+5  1 1.180905 0.1510845 0.03046477 0.3092109
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(pdens)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{CausalMixGPD_JSS_article_files/figure-latex/overview-predict-1.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Survival function on the same y{-}grid}
+\NormalTok{psurv }\OtherTok{\textless{}{-}}  \FunctionTok{predict}\NormalTok{(fit, }\AttributeTok{newdata =}\NormalTok{ x\_new, }\AttributeTok{y =}\NormalTok{ y\_grid, }\AttributeTok{type =} \StringTok{"survival"}\NormalTok{,}
+          \AttributeTok{interval =} \StringTok{"credible"}\NormalTok{, }\AttributeTok{level =} \FloatTok{0.95}\NormalTok{)}
+\FunctionTok{head}\NormalTok{(}\FunctionTok{as.data.frame}\NormalTok{(psurv}\SpecialCharTok{$}\NormalTok{fit), }\DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+  id        y  survival     lower     upper
+1  1 1.000000 0.4972511 0.1784838 0.8072759
+2  1 1.045226 0.4895434 0.1755278 0.8016826
+3  1 1.090452 0.4821197 0.1727356 0.7926217
+4  1 1.135678 0.4749622 0.1700882 0.7875261
+5  1 1.180905 0.4680470 0.1675699 0.7835322
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(psurv)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{CausalMixGPD_JSS_article_files/figure-latex/overview-predict-2.pdf}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Quantiles at selected indices}
+\NormalTok{p\_grid }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FloatTok{0.50}\NormalTok{, }\FloatTok{0.90}\NormalTok{, }\FloatTok{0.95}\NormalTok{, }\FloatTok{0.99}\NormalTok{)}
+\NormalTok{pquant }\OtherTok{\textless{}{-}}  \FunctionTok{predict}\NormalTok{(fit, }\AttributeTok{newdata =}\NormalTok{ x\_new, }\AttributeTok{type =} \StringTok{"quantile"}\NormalTok{, }\AttributeTok{index =}\NormalTok{ p\_grid,}
+          \AttributeTok{interval =} \StringTok{"hpd"}\NormalTok{, }\AttributeTok{level =} \FloatTok{0.95}\NormalTok{)}
+ \FunctionTok{head}\NormalTok{(}\FunctionTok{as.data.frame}\NormalTok{(pquant}\SpecialCharTok{$}\NormalTok{fit), }\DecValTok{5}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+  estimate index id       lower    upper
+1 1.009702   0.5  1 0.007511686 1.949263
+2 1.008598   0.5  2 0.949744433 1.076012
+3 1.231136   0.5  3 0.115947359 2.582029
+4 2.696279   0.9  1 1.846158152 3.588812
+5 3.342304   0.9  2 2.753517503 3.866009
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{plot}\NormalTok{(pquant)}
+\end{Highlighting}
+\end{Shaded}
+
+\pandocbounded{\includegraphics[keepaspectratio]{CausalMixGPD_JSS_article_files/figure-latex/overview-predict-3.pdf}}
+
 \subsection{Causal extension and propensity score augmentation}
 \label{subsec:overview-causal}
 
-This package extends the one-arm conditional mixture regression framework to two-arm causal studies by fitting an outcome model under treatment and under control, optionally augmenting the outcome covariates with a propensity score (PS) summary.  Throughout this section we write the model in its default \emph{augmented spliced} form (bulk mixture + GPD tail), using the same conditional distributional building blocks introduced earlier (so we do not restate the spliced density; see \eqref{eq:splice_pdf} and the corresponding conditional functionals defined in the previous sections).
+This package extends the one-arm conditional mixture regression
+framework to two-arm causal studies by fitting an outcome model under
+treatment and under control, optionally augmenting the outcome
+covariates with a propensity score (PS) summary. Throughout this section
+we write the model in its default \emph{augmented spliced} form (bulk
+mixture + GPD tail), using the same conditional distributional building
+blocks introduced earlier (so we do not restate the spliced density; see
+\eqref{eq:splice_pdf} and the corresponding conditional functionals
+defined in the previous sections).
 
 \subsubsection{Data, model components, and likelihood factorization}
 
-Let
-\[
+Let \[
   \mathcal{D}=\{(y_i,a_i,\boldsymbol{x}_i)\}_{i=1}^n,
   \qquad a_i\in\{0,1\},
-\]
-where $a_i=1$ denotes treatment and $a_i=0$ denotes control.  The causal interface consists of two pieces.
+\] where \(a_i=1\) denotes treatment and \(a_i=0\) denotes control. The
+causal interface consists of two pieces.
 
-First, when PS augmentation is enabled, a binary regression model is used for the treatment mechanism
-\begin{align}
+First, when PS augmentation is enabled, a binary regression model is
+used for the treatment mechanism \begin{align}
   a_i \mid \boldsymbol{x}_i, \boldsymbol{\gamma}
   &\sim \mathrm{Bernoulli}\big(e_{\boldsymbol{\gamma}}(\boldsymbol{x}_i)\big),
   \label{eq:overview_ps_part1}\\
@@ -783,362 +1123,611 @@ First, when PS augmentation is enabled, a binary regression model is used for th
   &= \gamma_0 + \boldsymbol{x}_i^\top\boldsymbol{\gamma},
   \qquad h\in\{\text{logit},\text{probit}\},
   \label{eq:overview_ps_part2}
-\end{align}
-which is consistent with the definition and balancing property in \eqref{eq:ps_def}--\eqref{eq:ps_balance}.  The package also supports a \texttt{"naive"} option, in which $e(\boldsymbol{x})$ is taken to be constant (no covariate dependence).
+\end{align} which is consistent with the definition and balancing
+property in \eqref{eq:ps_def}--\eqref{eq:ps_balance}. The package also
+supports a \texttt{"naive"} option, in which \(e(\boldsymbol{x})\) is
+taken to be constant (no covariate dependence).
 
-Second, the outcome model is fit separately within each arm.  Denote by $F_a(\,\cdot\mid\boldsymbol{r})$ the fitted conditional outcome distribution under arm $a\in\{0,1\}$, where $\boldsymbol{r}$ is the covariate vector used by the outcome model.  With PS augmentation, the package constructs an \emph{augmented} covariate vector
-\begin{equation}
+Second, the outcome model is fit separately within each arm. Denote by
+\(F_a(\,\cdot\mid\boldsymbol{r})\) the fitted conditional outcome
+distribution under arm \(a\in\{0,1\}\), where \(\boldsymbol{r}\) is the
+covariate vector used by the outcome model. With PS augmentation, the
+package constructs an \emph{augmented} covariate vector \begin{equation}
   \boldsymbol{r}(\boldsymbol{x})
   =
   \Big(1,\ \boldsymbol{x}^\top,\ \psi\big(\widehat e(\boldsymbol{x})\big)\Big)^\top,
   \label{eq:overview_augmented_covariate}
-\end{equation}
-where $\widehat e(\boldsymbol{x})$ is a posterior summary of the PS (posterior mean or median, controlled by \texttt{ps\_summary}), and $\psi(\cdot)$ is either $\psi(p)=\text{logit}(p)$ or $\psi(p)=p$ (controlled by \texttt{ps\_scale}).  When PS augmentation is disabled, $\boldsymbol{r}(\boldsymbol{x})=(1,\boldsymbol{x}^\top)^\top$.
+\end{equation} where \(\widehat e(\boldsymbol{x})\) is a posterior
+summary of the PS (posterior mean or median, controlled by
+\texttt{ps\_summary}), and \(\psi(\cdot)\) is either
+\(\psi(p)=\text{logit}(p)\) or \(\psi(p)=p\) (controlled by
+\texttt{ps\_scale}). When PS augmentation is disabled,
+\(\boldsymbol{r}(\boldsymbol{x})=(1,\boldsymbol{x}^\top)^\top\).
 
-Within each arm, the conditional density $f_a(y\mid \boldsymbol{r})$ follows the same mixture regression + optional GPD tail specification described in the one-arm section (kernel choice, link structure $g(\cdot)$ for covariate-dependent parameters, and either \texttt{"sb"} or \texttt{"crp"} backend for the DP mixture).  Let $\boldsymbol{\Theta}_a$ collect the arm-specific mixture and tail parameters.  The arm-wise likelihood contributions are
-\[
+Within each arm, the conditional density \(f_a(y\mid \boldsymbol{r})\)
+follows the same mixture regression + optional GPD tail specification
+described in the one-arm section (kernel choice, link structure
+\(g(\cdot)\) for covariate-dependent parameters, and either
+\texttt{"sb"} or \texttt{"crp"} backend for the DP mixture). Let
+\(\boldsymbol{\Theta}_a\) collect the arm-specific mixture and tail
+parameters. The arm-wise likelihood contributions are \[
   L_a(\boldsymbol{\Theta}_a;\mathcal{D})
   =
   \prod_{i:\,a_i=a} f_a\!\left(y_i \mid \boldsymbol{r}(\boldsymbol{x}_i); \boldsymbol{\Theta}_a\right),
   \qquad a\in\{0,1\},
-\]
-with $f_a(\cdot\mid\cdot)$ given by the spliced construction already defined (bulk mixture below threshold and GPD exceedances above threshold).  Practically, the implementation uses a two-stage workflow: (i) fit the PS model using \eqref{eq:overview_ps_part1}--\eqref{eq:overview_ps_part2}, then (ii) compute $\widehat e(\boldsymbol{x}_i)$ and build $\boldsymbol{r}(\boldsymbol{x}_i)$ in \eqref{eq:overview_augmented_covariate} before fitting the two arm-specific outcome models.
+\] with \(f_a(\cdot\mid\cdot)\) given by the spliced construction
+already defined (bulk mixture below threshold and GPD exceedances above
+threshold). Practically, the implementation uses a two-stage workflow:
+(i) fit the PS model using
+\eqref{eq:overview_ps_part1}--\eqref{eq:overview_ps_part2}, then (ii)
+compute \(\widehat e(\boldsymbol{x}_i)\) and build
+\(\boldsymbol{r}(\boldsymbol{x}_i)\) in
+\eqref{eq:overview_augmented_covariate} before fitting the two
+arm-specific outcome models.
 
 \subsubsection{Prior specification (PS then outcome)}
 
-For the PS regression coefficients, the default prior is independent Normal,
-\[
+For the PS regression coefficients, the default prior is independent
+Normal, \[
   \gamma_0 \sim \mathcal{N}(m_0,s_0^2),
   \qquad
   \gamma_k \sim \mathcal{N}(m_0,s_0^2),
-\]
-with defaults controlled by \texttt{ps\_prior}.
+\] with defaults controlled by \texttt{ps\_prior}.
 
-For each arm’s outcome model, priors follow the same structure as the one-arm case: a DP mixture prior (with either truncated stick-breaking or CRP allocation, implemented in \texttt{nimble} \citep{devalpine2017nimble,nimble_pkg}) and kernel-/tail-specific priors on the bulk and GPD parameters.  Since the causal fit is simply a pair of one-arm fits (treated and control), all customization options for kernels, links, and tail inclusion apply arm-wise.
+For each arm's outcome model, priors follow the same structure as the
+one-arm case: a DP mixture prior (with either truncated stick-breaking
+or CRP allocation, implemented in \texttt{nimble}
+\citep{devalpine2017nimble,nimble_pkg}) and kernel-/tail-specific priors
+on the bulk and GPD parameters. Since the causal fit is simply a pair of
+one-arm fits (treated and control), all customization options for
+kernels, links, and tail inclusion apply arm-wise.
 
 \subsubsection{MCMC algorithm, diagnostics, and parameter extraction}
 
-The causal fit runs MCMC in two stages, each with its own iteration controls.
+The causal fit runs MCMC in two stages, each with its own iteration
+controls.
 
-(i) PS stage: posterior simulation for $\boldsymbol{\gamma}$ in \eqref{eq:overview_ps_part1}--\eqref{eq:overview_ps_part2} using \texttt{mcmc\_ps} settings.  The PS posterior draws are summarized to obtain $\widehat e(\boldsymbol{x}_i)$, which is optionally transformed via \texttt{ps\_scale} and appended to the outcome covariates as in \eqref{eq:overview_augmented_covariate}.
+\begin{enumerate}
+\def\labelenumi{(\roman{enumi})}
+\item
+  PS stage: posterior simulation for \(\boldsymbol{\gamma}\) in
+  \eqref{eq:overview_ps_part1}--\eqref{eq:overview_ps_part2} using
+  \texttt{mcmc\_ps} settings. The PS posterior draws are summarized to
+  obtain \(\widehat e(\boldsymbol{x}_i)\), which is optionally
+  transformed via \texttt{ps\_scale} and appended to the outcome
+  covariates as in \eqref{eq:overview_augmented_covariate}.
+\item
+  Outcome stage: arm-specific posterior simulation for
+  \(\boldsymbol{\Theta}_0\) and \(\boldsymbol{\Theta}_1\) using
+  \texttt{mcmc\_outcome} settings, with either \texttt{"sb"} or
+  \texttt{"crp"} backend.
+\end{enumerate}
 
-(ii) Outcome stage: arm-specific posterior simulation for $\boldsymbol{\Theta}_0$ and $\boldsymbol{\Theta}_1$ using \texttt{mcmc\_outcome} settings, with either \texttt{"sb"} or \texttt{"crp"} backend.
-
-For routine convergence checks, users can inspect trace plots and autocorrelation for monitored parameters and (when running multiple chains) compare between-chain and within-chain mixing.  The package stores MCMC samples in the fitted object, and standard diagnostics can be applied after converting samples to \texttt{coda} objects (e.g., effective sample size, Geweke diagnostics, and HPD intervals via \texttt{coda::HPDinterval}; see the \texttt{coda} reference at the end of this message).  Posterior parameter summaries can be extracted via the exported \texttt{params()} method, which returns arm-specific parameter tables for causal fits.
+For routine convergence checks, users can inspect trace plots and
+autocorrelation for monitored parameters and (when running multiple
+chains) compare between-chain and within-chain mixing. The package
+stores MCMC samples in the fitted object, and standard diagnostics can
+be applied after converting samples to \texttt{coda} objects (e.g.,
+effective sample size, Geweke diagnostics, and HPD intervals via
+\texttt{coda::HPDinterval}; see the \texttt{coda} reference at the end
+of this message). Posterior parameter summaries can be extracted via the
+exported \texttt{params()} method, which returns arm-specific parameter
+tables for causal fits.
 
 \subsubsection{Estimation and interval summaries for causal contrasts}
 
-All reported causal quantities are computed as functionals of the fitted arm-specific conditional distributions.  Let $T_a(\boldsymbol{x})$ denote any conditional functional under arm $a$ (density, survival, quantile, or mean/restricted mean), computed from $F_a(\cdot\mid\boldsymbol{r}(\boldsymbol{x}))$ using the same definitions as in the one-arm case.  The corresponding conditional causal contrast is
-\[
+All reported causal quantities are computed as functionals of the fitted
+arm-specific conditional distributions. Let \(T_a(\boldsymbol{x})\)
+denote any conditional functional under arm \(a\) (density, survival,
+quantile, or mean/restricted mean), computed from
+\(F_a(\cdot\mid\boldsymbol{r}(\boldsymbol{x}))\) using the same
+definitions as in the one-arm case. The corresponding conditional causal
+contrast is \[
   \Delta_T(\boldsymbol{x}) = T_1(\boldsymbol{x}) - T_0(\boldsymbol{x}).
-\]
-The package computes $\Delta_T(\boldsymbol{x})$ \emph{draw-by-draw} from posterior samples, then summarizes $\Delta_T(\boldsymbol{x})$ by a posterior mean/median and uncertainty intervals.  Equal-tailed credible intervals are formed by posterior quantiles, while HPD intervals are computed using \texttt{coda::HPDinterval}.
+\] The package computes \(\Delta_T(\boldsymbol{x})\) \emph{draw-by-draw}
+from posterior samples, then summarizes \(\Delta_T(\boldsymbol{x})\) by
+a posterior mean/median and uncertainty intervals. Equal-tailed credible
+intervals are formed by posterior quantiles, while HPD intervals are
+computed using \texttt{coda::HPDinterval}.
 
 The main causal estimators provided by the package are:
 
-(a) Conditional effects at covariate profiles.
-For a user-supplied set of covariate rows $\{\boldsymbol{x}^\star_m\}_{m=1}^M$,
-\[
-  \mathrm{CATE}(\boldsymbol{x}^\star_m)=\mu_1(\boldsymbol{x}^\star_m)-\mu_0(\boldsymbol{x}^\star_m),
-  \qquad
-  \mathrm{CQTE}(\tau\mid \boldsymbol{x}^\star_m)
-  =
-  Q_1(\tau\mid \boldsymbol{x}^\star_m)-Q_0(\tau\mid \boldsymbol{x}^\star_m),
-\]
-where $\mu_a(\boldsymbol{x})=\mathbb{E}(Y\mid A=a,\boldsymbol{X}=\boldsymbol{x})$ and $Q_a(\tau\mid\boldsymbol{x})$ is the conditional quantile function.  In heavy-tailed settings, $\mu_a(\boldsymbol{x})$ can be unstable when the implied tail shape yields infinite mean; the package therefore supports both \texttt{type="mean"} and \texttt{type="rmean"} for (restricted) mean-based effects, with restricted means computed as $\mathbb{E}[\min\{Y,c\}\mid A=a,\boldsymbol{X}=\boldsymbol{x}]$ at user-specified cutoff $c$.
-
-(b) Marginal (standardized) summaries.
-The package reports marginal ATE and marginal QTE-style summaries by empirical standardization over covariate profiles:
-\begin{align}
-  \mathrm{ATE}
-  &= \frac{1}{n}\sum_{i=1}^n \Big\{\mu_1(\boldsymbol{x}_i)-\mu_0(\boldsymbol{x}_i)\Big\},
-  \label{eq:overview_ate_standardized}\\
-  \mathrm{QTE}(\tau)
-  &= Q_1^{\mathrm{m}}(\tau)-Q_0^{\mathrm{m}}(\tau),\qquad
-  Q_a^{\mathrm{m}}(\tau)=\inf\{y:\,F_a^{\mathrm{m}}(y)\ge \tau\},\quad
-  F_a^{\mathrm{m}}(y)=\frac{1}{n}\sum_{i=1}^n F_a(y\mid \boldsymbol{x}_i).
-  \label{eq:overview_qte_standardized}
-\end{align}
-Treated-standardized analogues (ATT, QTT) are obtained by replacing the full-sample covariate empirical distribution with the treated-subsample empirical distribution $\{i:a_i=1\}$.  In the current implementation, \texttt{ate()} and \texttt{att()} aggregate draw-wise conditional mean contrasts across rows, while \texttt{qte()} and \texttt{qtt()} compute draw-wise arm-specific marginal quantiles and then contrast them.
+\begin{enumerate}
+\def\labelenumi{(\alph{enumi})}
+\item
+  Conditional effects at covariate profiles. For a user-supplied set of
+  covariate rows \(\{\boldsymbol{x}^\star_m\}_{m=1}^M\), \[
+    \mathrm{CATE}(\boldsymbol{x}^\star_m)=\mu_1(\boldsymbol{x}^\star_m)-\mu_0(\boldsymbol{x}^\star_m),
+    \qquad
+    \mathrm{CQTE}(\tau\mid \boldsymbol{x}^\star_m)
+    =
+    Q_1(\tau\mid \boldsymbol{x}^\star_m)-Q_0(\tau\mid \boldsymbol{x}^\star_m),
+  \] where
+  \(\mu_a(\boldsymbol{x})=\mathbb{E}(Y\mid A=a,\boldsymbol{X}=\boldsymbol{x})\)
+  and \(Q_a(\tau\mid\boldsymbol{x})\) is the conditional quantile
+  function. In heavy-tailed settings, \(\mu_a(\boldsymbol{x})\) can be
+  unstable when the implied tail shape yields infinite mean; the package
+  therefore supports both \texttt{type="mean"} and \texttt{type="rmean"}
+  for (restricted) mean-based effects, with restricted means computed as
+  \(\mathbb{E}[\min\{Y,c\}\mid A=a,\boldsymbol{X}=\boldsymbol{x}]\) at
+  user-specified cutoff \(c\).
+\item
+  Marginal (standardized) summaries. The package reports marginal ATE
+  and marginal QTE-style summaries by empirical standardization over
+  covariate profiles: \begin{align}
+    \mathrm{ATE}
+    &= \frac{1}{n}\sum_{i=1}^n \Big\{\mu_1(\boldsymbol{x}_i)-\mu_0(\boldsymbol{x}_i)\Big\},
+    \label{eq:overview_ate_standardized}\\
+    \mathrm{QTE}(\tau)
+    &= Q_1^{\mathrm{m}}(\tau)-Q_0^{\mathrm{m}}(\tau),\qquad
+    Q_a^{\mathrm{m}}(\tau)=\inf\{y:\,F_a^{\mathrm{m}}(y)\ge \tau\},\quad
+    F_a^{\mathrm{m}}(y)=\frac{1}{n}\sum_{i=1}^n F_a(y\mid \boldsymbol{x}_i).
+    \label{eq:overview_qte_standardized}
+  \end{align} Treated-standardized analogues (ATT, QTT) are obtained by
+  replacing the full-sample covariate empirical distribution with the
+  treated-subsample empirical distribution \(\{i:a_i=1\}\). In the
+  current implementation, \texttt{ate()} and \texttt{att()} aggregate
+  draw-wise conditional mean contrasts across rows, while \texttt{qte()}
+  and \texttt{qtt()} compute draw-wise arm-specific marginal quantiles
+  and then contrast them.
+\end{enumerate}
 
 \subsubsection{Posterior prediction at new covariate profiles}
 
-Prediction in the causal setup proceeds by producing arm-specific predictive summaries at new covariates and then differencing when required.  For new covariates $\boldsymbol{x}^\star$, the package first predicts the PS (if enabled), forms $\boldsymbol{r}(\boldsymbol{x}^\star)$ via \eqref{eq:overview_augmented_covariate}, and then evaluates the desired distributional functional under both arms.  For \texttt{type = "mean"} and \texttt{type = "quantile"}, \texttt{predict()} returns treated-minus-control summaries and stores arm-specific predictions as attributes; for \texttt{type = "density"}, \texttt{"survival"}, and \texttt{"prob"}, it returns arm-specific summaries directly.
+Prediction in the causal setup proceeds by producing arm-specific
+predictive summaries at new covariates and then differencing when
+required. For new covariates \(\boldsymbol{x}^\star\), the package first
+predicts the PS (if enabled), forms
+\(\boldsymbol{r}(\boldsymbol{x}^\star)\) via
+\eqref{eq:overview_augmented_covariate}, and then evaluates the desired
+distributional functional under both arms. For \texttt{type = "mean"}
+and \texttt{type = "quantile"}, \texttt{predict()} returns
+treated-minus-control summaries and stores arm-specific predictions as
+attributes; for \texttt{type = "density"}, \texttt{"survival"}, and
+\texttt{"prob"}, it returns arm-specific summaries directly.
 
-A recommended way to build an interpretable prediction grid is to use coordinate-wise empirical quartiles.  Let $q_{k,p}$ be the $p$th sample quantile of covariate $x_k$ for $p\in\{0.25,0.5,0.75\}$.  The grid
-\[
+A recommended way to build an interpretable prediction grid is to use
+coordinate-wise empirical quartiles. Let \(q_{k,p}\) be the \(p\)th
+sample quantile of covariate \(x_k\) for \(p\in\{0.25,0.5,0.75\}\). The
+grid \[
   \mathcal{X}_\star = \prod_{k=1}^p \{q_{k,0.25},q_{k,0.5},q_{k,0.75}\}
-\]
-yields $3^p$ representative covariate profiles at which $\mathrm{CATE}$, $\mathrm{CQTE}$, survival contrasts, and other predictive contrasts can be reported.
+\] yields \(3^p\) representative covariate profiles at which
+\(\mathrm{CATE}\), \(\mathrm{CQTE}\), survival contrasts, and other
+predictive contrasts can be reported.
 
 \subsubsection{User-facing workflow (code)}
 
-The following example uses the formula interface and the high-level wrapper, fitting the augmented spliced model by default.
+The following example uses the formula interface and the high-level
+wrapper, fitting the augmented spliced model by default.
 
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlkwd{library}\hldef{(CausalMixGPD)}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Load causal data}
+\FunctionTok{data}\NormalTok{(}\StringTok{"causal\_pos500\_p3\_k2"}\NormalTok{, }\AttributeTok{package =} \StringTok{"CausalMixGPD"}\NormalTok{)}
+\NormalTok{dat }\OtherTok{\textless{}{-}}\NormalTok{ causal\_pos500\_p3\_k2}
+\NormalTok{df  }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{y =}\NormalTok{ dat}\SpecialCharTok{$}\NormalTok{y, }\AttributeTok{A =}\NormalTok{ dat}\SpecialCharTok{$}\NormalTok{A, dat}\SpecialCharTok{$}\NormalTok{X)}
 
-\hlkwd{data}\hldef{(}\hlsng{"causal_pos500_p3_k2"}\hldef{,} \hlkwc{package} \hldef{=} \hlsng{"CausalMixGPD"}\hldef{)}
-\hldef{dat} \hlkwb{<-} \hldef{causal_pos500_p3_k2}
-\hldef{df}  \hlkwb{<-} \hlkwd{data.frame}\hldef{(}\hlkwc{y} \hldef{= dat}\hlopt{$}\hldef{y,} \hlkwc{A} \hldef{= dat}\hlopt{$}\hldef{A, dat}\hlopt{$}\hldef{X)}
 
-\hldef{cfit} \hlkwb{<-} \hlkwd{dpmgpd}\hldef{(}
-  \hlkwc{formula} \hldef{= y} \hlopt{~} \hldef{x1} \hlopt{+} \hldef{x2} \hlopt{+} \hldef{x3,}
-  \hlkwc{data}   \hldef{= df,}
-  \hlkwc{treat}  \hldef{=} \hlsng{"A"}\hldef{,}
-  \hlkwc{backend}    \hldef{=} \hlsng{"sb"}\hldef{,}
-  \hlkwc{kernel}     \hldef{=} \hlsng{"lognormal"}\hldef{,}
-  \hlkwc{components} \hldef{=} \hlnum{5}\hldef{,}
-  \hlkwc{PS}         \hldef{=} \hlsng{"logit"}\hldef{,}
-  \hlkwc{ps_scale}   \hldef{=} \hlsng{"logit"}\hldef{,}
-  \hlkwc{ps_summary} \hldef{=} \hlsng{"mean"}\hldef{,}
-  \hlkwc{mcmc_outcome} \hldef{=} \hlkwd{list}\hldef{(}\hlkwc{niter} \hldef{=} \hlnum{2500}\hldef{,} \hlkwc{nburnin} \hldef{=} \hlnum{800}\hldef{,} \hlkwc{thin} \hldef{=} \hlnum{5}\hldef{,} \hlkwc{nchains} \hldef{=} \hlnum{1}\hldef{,} \hlkwc{seed} \hldef{=} \hlnum{11}\hldef{),}
-  \hlkwc{mcmc_ps}      \hldef{=} \hlkwd{list}\hldef{(}\hlkwc{niter} \hldef{=} \hlnum{2000}\hldef{,} \hlkwc{nburnin} \hldef{=} \hlnum{600}\hldef{,} \hlkwc{thin} \hldef{=} \hlnum{5}\hldef{,} \hlkwc{nchains} \hldef{=} \hlnum{1}\hldef{,} \hlkwc{seed} \hldef{=} \hlnum{12}\hldef{)}
-\hldef{)}
+\NormalTok{cfit }\OtherTok{\textless{}{-}} \FunctionTok{dpmgpd}\NormalTok{(}
+  \AttributeTok{formula =}\NormalTok{ y }\SpecialCharTok{\textasciitilde{}}\NormalTok{ x1 }\SpecialCharTok{+}\NormalTok{ x2 }\SpecialCharTok{+}\NormalTok{ x3,}
+  \AttributeTok{data =}\NormalTok{ df,}
+  \AttributeTok{treat =}\NormalTok{ df}\SpecialCharTok{$}\NormalTok{A,}
+  \AttributeTok{backend =} \StringTok{"sb"}\NormalTok{,}
+  \AttributeTok{kernel =} \StringTok{"lognormal"}\NormalTok{,}
+  \AttributeTok{components =} \DecValTok{5}\NormalTok{,}
+  \AttributeTok{PS =} \StringTok{"logit"}\NormalTok{,}
+  \AttributeTok{ps\_scale =} \StringTok{"logit"}\NormalTok{,}
+  \AttributeTok{ps\_summary =} \StringTok{"mean"}\NormalTok{,}
+  \AttributeTok{mcmc\_outcome =}\NormalTok{ mcmc\_fixed,}
+  \AttributeTok{mcmc\_ps =}\NormalTok{ mcmc\_fixed}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
 
-\hlcom{# Marginal (standardized) effects via aggregation across rows}
-\hldef{ate_hat} \hlkwb{<-} \hlkwd{ate}\hldef{(cfit,} \hlkwc{level} \hldef{=} \hlnum{0.90}\hldef{,} \hlkwc{interval} \hldef{=} \hlsng{"credible"}\hldef{)}
-\hldef{qte_hat} \hlkwb{<-} \hlkwd{qte}\hldef{(cfit,} \hlkwc{probs} \hldef{=} \hlkwd{c}\hldef{(}\hlnum{0.50}\hldef{,} \hlnum{0.90}\hldef{,} \hlnum{0.95}\hldef{),} \hlkwc{level} \hldef{=} \hlnum{0.90}\hldef{,} \hlkwc{interval} \hldef{=} \hlsng{"hpd"}\hldef{)}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ate\_hat }\OtherTok{\textless{}{-}} \FunctionTok{ate}\NormalTok{(cfit, }\AttributeTok{level =} \FloatTok{0.90}\NormalTok{, }\AttributeTok{interval =} \StringTok{"credible"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
 
-\hlcom{# Conditional effects at specific covariates}
-\hldef{Xnew} \hlkwb{<-} \hldef{df[}\hlnum{1}\hlopt{:}\hlnum{5}\hldef{,} \hlkwd{c}\hldef{(}\hlsng{"x1"}\hldef{,}\hlsng{"x2"}\hldef{,}\hlsng{"x3"}\hldef{)]}
-\hldef{cate_hat} \hlkwb{<-} \hlkwd{cate}\hldef{(cfit,} \hlkwc{newdata} \hldef{= Xnew,} \hlkwc{type} \hldef{=} \hlsng{"mean"}\hldef{,}  \hlkwc{level} \hldef{=} \hlnum{0.90}\hldef{)}
-\hldef{cqte_hat} \hlkwb{<-} \hlkwd{cqte}\hldef{(cfit,} \hlkwc{newdata} \hldef{= Xnew,} \hlkwc{probs} \hldef{=} \hlkwd{c}\hldef{(}\hlnum{0.50}\hldef{,} \hlnum{0.90}\hldef{),} \hlkwc{level} \hldef{=} \hlnum{0.90}\hldef{)}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{ate\_hat}
+\end{Highlighting}
+\end{Shaded}
 
-\hlcom{# Prediction on a coordinate-wise quartile grid}
-\hldef{qs}    \hlkwb{<-} \hlkwd{c}\hldef{(}\hlnum{0.25}\hldef{,} \hlnum{0.50}\hldef{,} \hlnum{0.75}\hldef{)}
-\hldef{Xgrid} \hlkwb{<-} \hlkwd{expand.grid}\hldef{(}\hlkwd{lapply}\hldef{(df[}\hlkwd{c}\hldef{(}\hlsng{"x1"}\hldef{,}\hlsng{"x2"}\hldef{,}\hlsng{"x3"}\hldef{)], quantile,} \hlkwc{probs} \hldef{= qs))}
+\begin{verbatim}
+ATE (Average Treatment Effect)
+  Prediction points: 1
+  Conditional (covariates): NO
+  Propensity score used: NO
+  Posterior mean draws: 200
+  Credible interval: credible (90%)
 
-\hldef{pred_q} \hlkwb{<-} \hlkwd{predict}\hldef{(cfit,} \hlkwc{newdata} \hldef{= Xgrid,} \hlkwc{type} \hldef{=} \hlsng{"quantile"}\hldef{,} \hlkwc{index} \hldef{=} \hlkwd{c}\hldef{(}\hlnum{0.50}\hldef{,} \hlnum{0.90}\hldef{))}
-\hldef{pred_s} \hlkwb{<-} \hlkwd{predict}\hldef{(cfit,} \hlkwc{newdata} \hldef{= Xgrid,} \hlkwc{type} \hldef{=} \hlsng{"survival"}\hldef{,} \hlkwc{y} \hldef{=} \hlkwd{rep}\hldef{(}\hlnum{4}\hldef{,} \hlkwd{nrow}\hldef{(Xgrid)))}
+ATE estimates (treated - control):
+ id estimate    lower upper
+  1  -65.253 -272.621 1.549
+\end{verbatim}
 
-\hlcom{# Arm-specific predictions are attached as attributes}
-\hldef{pred_q_trt} \hlkwb{<-} \hlkwd{attr}\hldef{(pred_q,} \hlsng{"trt"}\hldef{)}
-\hldef{pred_q_con} \hlkwb{<-} \hlkwd{attr}\hldef{(pred_q,} \hlsng{"con"}\hldef{)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{qte\_hat }\OtherTok{\textless{}{-}} \FunctionTok{qte}\NormalTok{(cfit, }\AttributeTok{probs =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.50}\NormalTok{, }\FloatTok{0.90}\NormalTok{, }\FloatTok{0.95}\NormalTok{), }\AttributeTok{level =} \FloatTok{0.90}\NormalTok{, }\AttributeTok{interval =} \StringTok{"hpd"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{qte\_hat}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+QTE (Quantile Treatment Effect)
+  Prediction points: 1
+  Quantile grid: 0.5, 0.9, 0.95
+  Conditional (covariates): NO
+  Propensity score used: NO
+  Credible interval: hpd
+
+QTE estimates (treated - control):
+ id index estimate  lower  upper
+  1   0.5   -0.858 -1.154 -0.566
+  1   0.9   -0.349 -2.487  1.478
+  1  0.95   -3.672 -12.67  2.357
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Ensure data frame is available when model fit is loaded from cache}
+\ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{exists}\NormalTok{(}\StringTok{"df"}\NormalTok{) }\SpecialCharTok{||} \SpecialCharTok{!}\FunctionTok{is.data.frame}\NormalTok{(df)) \{}
+  \FunctionTok{data}\NormalTok{(}\StringTok{"causal\_pos500\_p3\_k2"}\NormalTok{, }\AttributeTok{package =} \StringTok{"CausalMixGPD"}\NormalTok{)}
+\NormalTok{  dat }\OtherTok{\textless{}{-}}\NormalTok{ causal\_pos500\_p3\_k2}
+\NormalTok{  df  }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{y =}\NormalTok{ dat}\SpecialCharTok{$}\NormalTok{y, }\AttributeTok{A =}\NormalTok{ dat}\SpecialCharTok{$}\NormalTok{A, dat}\SpecialCharTok{$}\NormalTok{X)}
+\NormalTok{\}}
+\CommentTok{\# Prediction on a coordinate{-}wise quartile grid}
+\NormalTok{qs    }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FloatTok{0.25}\NormalTok{, }\FloatTok{0.50}\NormalTok{, }\FloatTok{0.75}\NormalTok{)}
+\NormalTok{Xgrid }\OtherTok{\textless{}{-}} \FunctionTok{expand.grid}\NormalTok{(}\FunctionTok{lapply}\NormalTok{(df[}\FunctionTok{c}\NormalTok{(}\StringTok{"x1"}\NormalTok{,}\StringTok{"x2"}\NormalTok{,}\StringTok{"x3"}\NormalTok{)], quantile, }\AttributeTok{probs =}\NormalTok{ qs))}
+
+\NormalTok{pred\_q }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(cfit, }\AttributeTok{newdata =}\NormalTok{ Xgrid, }\AttributeTok{type =} \StringTok{"quantile"}\NormalTok{, }\AttributeTok{index =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.50}\NormalTok{, }\FloatTok{0.90}\NormalTok{))}
+\FunctionTok{plot}\NormalTok{(pred\_q)}
+
+
+\NormalTok{pred\_s }\OtherTok{\textless{}{-}}  \FunctionTok{predict}\NormalTok{(cfit, }\AttributeTok{newdata =}\NormalTok{ Xgrid, }\AttributeTok{type =} \StringTok{"survival"}\NormalTok{, }\AttributeTok{y =} \FunctionTok{sample}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{y, }\FunctionTok{nrow}\NormalTok{(Xgrid)) }\SpecialCharTok{+} \DecValTok{1}\NormalTok{,}
+                   \AttributeTok{interval =} \StringTok{"credible"}\NormalTok{, }\AttributeTok{level =} \FloatTok{0.90}\NormalTok{)}
+\FunctionTok{plot}\NormalTok{(pred\_s)}
+\end{Highlighting}
+\end{Shaded}
 
 \subsubsection{Bulk-only causal mixtures (no GPD tail)}
 
-To run the same two-arm regression without a GPD tail, use the bulk-only wrapper \texttt{dpmix()} (or set \texttt{GPD=FALSE} at bundle construction).  All causal estimand and prediction functions (\texttt{ate}, \texttt{qte}, \texttt{cate}, \texttt{cqte}, and \texttt{predict}) operate the same way, now interpreting $F_a(\cdot\mid\boldsymbol{x})$ as the bulk mixture distribution.
-
+To run the same two-arm regression without a GPD tail, use the bulk-only
+wrapper \texttt{dpmix()} (or set \texttt{GPD=FALSE} at bundle
+construction). All causal estimand and prediction functions
+(\texttt{ate}, \texttt{qte}, \texttt{cate}, \texttt{cqte}, and
+\texttt{predict}) operate the same way, now interpreting
+\(F_a(\cdot\mid\boldsymbol{x})\) as the bulk mixture distribution.
 
 \section{Data analysis I: CRP mixture regression (bulk-only) with model-based clustering}
 \label{sec:app-clustering}
 
-This application demonstrates model-based clustering from a \emph{conditional} Dirichlet process (DP) mixture regression, using the Chinese restaurant process (CRP) backend and the bulk-only likelihood (no GPD tail).  Clusters are inferred from posterior draws of the latent membership indicators and summarized using a posterior similarity matrix (PSM), which is invariant to label switching.
+This application demonstrates model-based clustering from a
+\emph{conditional} Dirichlet process (DP) mixture regression, using the
+Chinese restaurant process (CRP) backend and the bulk-only likelihood
+(no GPD tail). Clusters are inferred from posterior draws of the latent
+membership indicators and summarized using a posterior similarity matrix
+(PSM), which is invariant to label switching.
 
 \subsection{Dataset and objective}
 
-We use the \code{Boston} housing data (\pkg{MASS}), treating each census tract as an observational unit.  Let
-\[
+We use the \texttt{Boston} housing data (\textsf{MASS}), treating each
+census tract as an observational unit. Let \[
   \mathcal{D}=\{(y_i,\boldsymbol{x}_i)\}_{i=1}^n,
-\]
-where $y_i$ is the per-capita crime rate \code{crim} for tract $i$ and $\boldsymbol{x}_i$ is a vector of tract characteristics.  The goal is twofold: (i) flexibly model the conditional distribution of a positive, right-skewed outcome and (ii) identify latent groups of tracts with distinct regression patterns.
+\] where \(y_i\) is the per-capita crime rate \texttt{crim} for tract
+\(i\) and \(\boldsymbol{x}_i\) is a vector of tract characteristics. The
+goal is twofold: (i) flexibly model the conditional distribution of a
+positive, right-skewed outcome and (ii) identify latent groups of tracts
+with distinct regression patterns.
 
 \subsection{CRP mixture regression model (bulk-only)}
 
-We fit a DP mixture of lognormal regressions.  Conditional on a latent membership $z_i\in\{1,2,\ldots\}$, the outcome follows the bulk kernel introduced earlier:
-\begin{align}
+We fit a DP mixture of lognormal regressions. Conditional on a latent
+membership \(z_i\in\{1,2,\ldots\}\), the outcome follows the bulk kernel
+introduced earlier: \begin{align}
   y_i \mid z_i=k,\boldsymbol{x}_i
   &\sim \mathrm{Lognormal}\!\left(\mu_{ik},\sigma_k\right), \label{eq:app_clust_kernel}\\
   \mu_{ik}
   &= g\!\left(\boldsymbol{x}_i^\top \boldsymbol{\beta}_k\right),
   \qquad g(\eta)=\eta, \label{eq:app_clust_link}
-\end{align}
-where $\boldsymbol{\beta}_k$ are component-specific regression coefficients and $\sigma_k>0$ is the component-specific log-scale standard deviation.  The DP prior induces a random partition through the CRP representation,
-\[
+\end{align} where \(\boldsymbol{\beta}_k\) are component-specific
+regression coefficients and \(\sigma_k>0\) is the component-specific
+log-scale standard deviation. The DP prior induces a random partition
+through the CRP representation, \[
   (z_1,\ldots,z_n)\mid \alpha \sim \mathrm{CRP}(\alpha),
-\]
-with $\alpha>0$ controlling the expected number of occupied clusters.  In \pkg{CausalMixGPD}, the CRP backend represents up to \code{components = K} clusters in a finite NIMBLE model; the realized number of occupied clusters is then monitored and checked against this upper bound.
+\] with \(\alpha>0\) controlling the expected number of occupied
+clusters. In \textsf{CausalMixGPD}, the CRP backend represents up to
+\texttt{components = K} clusters in a finite NIMBLE model; the realized
+number of occupied clusters is then monitored and checked against this
+upper bound.
 
 \subsection{Posterior simulation, convergence checks, and parameter extraction}
 
-Posterior simulation is carried out by MCMC.  We run two chains and assess convergence using standard diagnostics (trace plots, autocorrelation, effective sample sizes, and $\widehat{R}$ when applicable), along with a mixture-specific diagnostic: the posterior distribution of the number of occupied clusters.
+Posterior simulation is carried out by MCMC. We run two chains and
+assess convergence using standard diagnostics (trace plots,
+autocorrelation, effective sample sizes, and \(\widehat{R}\) when
+applicable), along with a mixture-specific diagnostic: the posterior
+distribution of the number of occupied clusters.
 
-A key practical point for this analysis is that we explicitly request link-mode for \code{meanlog} so the CRP model is a \emph{mixture regression} rather than a purely unconditional mixture. This is done via \code{param\_specs} in the wrapper call below.
+A key practical point for this analysis is that we explicitly request
+link-mode for \texttt{meanlog} so the CRP model is a
+\emph{mixture regression} rather than a purely unconditional mixture.
+This is done via \texttt{param\_specs} in the wrapper call below.
 
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlkwd{library}\hldef{(CausalMixGPD)}
-\hlkwd{library}\hldef{(MASS)}
-\hlkwd{data}\hldef{(}\hlsng{"Boston"}\hldef{,} \hlkwc{package} \hldef{=} \hlsng{"MASS"}\hldef{)}
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(MASS)}
+\FunctionTok{data}\NormalTok{(}\StringTok{"Boston"}\NormalTok{, }\AttributeTok{package =} \StringTok{"MASS"}\NormalTok{)}
 
-\hldef{dat} \hlkwb{<-} \hldef{Boston}
-\hlkwd{stopifnot}\hldef{(}\hlkwd{all}\hldef{(dat}\hlopt{$}\hldef{crim} \hlopt{>} \hlnum{0}\hldef{))}
+\NormalTok{dat }\OtherTok{\textless{}{-}}\NormalTok{ Boston}
+\FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{all}\NormalTok{(dat}\SpecialCharTok{$}\NormalTok{crim }\SpecialCharTok{\textgreater{}} \DecValTok{0}\NormalTok{))}
 
-\hlcom{# Mixture regression under CRP (bulk-only): meanlog is linked to X via g(eta)=eta}
-\hldef{fit_clust} \hlkwb{<-} \hlkwd{dpmix}\hldef{(}
-  \hlkwc{formula} \hldef{= crim} \hlopt{~} \hldef{lstat} \hlopt{+} \hldef{rm} \hlopt{+} \hldef{nox} \hlopt{+} \hldef{ptratio} \hlopt{+} \hldef{tax} \hlopt{+} \hldef{rad} \hlopt{+} \hldef{chas,}
-  \hlkwc{data} \hldef{= dat,}
-  \hlkwc{backend} \hldef{=} \hlsng{"crp"}\hldef{,}
-  \hlkwc{kernel}  \hldef{=} \hlsng{"lognormal"}\hldef{,}
-  \hlkwc{components} \hldef{=} \hlnum{5}\hldef{,}
-  \hlkwc{param_specs} \hldef{=} \hlkwd{list}\hldef{(}
-    \hlkwc{bulk} \hldef{=} \hlkwd{list}\hldef{(}
-      \hlkwc{meanlog} \hldef{=} \hlkwd{list}\hldef{(}\hlkwc{mode} \hldef{=} \hlsng{"link"}\hldef{,} \hlkwc{link} \hldef{=} \hlsng{"identity"}\hldef{),}
-      \hlkwc{sdlog}   \hldef{=} \hlkwd{list}\hldef{(}\hlkwc{mode} \hldef{=} \hlsng{"dist"}\hldef{)}
-    \hldef{)}
-  \hldef{),}
-  \hlkwc{mcmc} \hldef{=} \hlkwd{list}\hldef{(}
-    \hlkwc{niter}   \hldef{=} \hlnum{12000}\hldef{,}
-    \hlkwc{nburnin} \hldef{=} \hlnum{2000}\hldef{,}
-    \hlkwc{thin}    \hldef{=} \hlnum{5}\hldef{,}
-    \hlkwc{nchains} \hldef{=} \hlnum{2}\hldef{,}
-    \hlkwc{seed}    \hldef{=} \hlnum{2026}
-  \hldef{)}
-\hldef{)}
+\CommentTok{\# High{-}level summaries}
+\FunctionTok{summary}\NormalTok{(fit\_clust)}
+\end{Highlighting}
+\end{Shaded}
 
-\hlcom{# High-level summaries}
-\hlkwd{summary}\hldef{(fit_clust)}
+\begin{verbatim}
+MixGPD summary | backend: Chinese Restaurant Process | kernel: Lognormal Distribution | GPD tail: FALSE | epsilon: 0.025
+n = 506 | components = 3
+Summary
+Initial components: 3 | Components after truncation: 2
 
-\hlcom{# MCMC diagnostic plots (trace, autocorrelation, effective sample size, etc.)}
-\hlkwd{plot}\hldef{(fit_clust,} \hlkwc{family} \hldef{=} \hlkwd{c}\hldef{(}\hlsng{"traceplot"}\hldef{,} \hlsng{"autocorrelation"}\hldef{,} \hlsng{"effective"}\hldef{))}
+WAIC: 779.665
+lppd: -259.673 | pWAIC: 130.16
 
-\hlcom{# Posterior mean parameters in natural shapes (component-wise betas and scales)}
-\hldef{p_hat} \hlkwb{<-} \hlkwd{params}\hldef{(fit_clust)}
-\hldef{p_hat}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
+Summary table
+  parameter   mean    sd q0.025 q0.500 q0.975    ess
+ weights[1]  0.565 0.084  0.381  0.585  0.684 11.394
+ weights[2]  0.286 0.039  0.203  0.294  0.348 16.833
+      alpha  0.411 0.239  0.077  0.362  0.974    400
+ meanlog[1] -2.205 0.296 -2.667 -2.245 -1.383 10.751
+ meanlog[2]  1.556  1.15 -2.635  1.993  2.289 29.365
+   sdlog[1]   0.98 0.231  0.622   0.95  1.496 21.156
+   sdlog[2]  1.229 0.416  0.311  1.274  2.014  62.58
+\end{verbatim}
 
 \subsection{Posterior clustering summaries}
 
-Clustering is driven by posterior draws of the membership vector $z=(z_1,\ldots,z_n)$.  We summarize uncertainty in the partition using the posterior similarity matrix
-\[
+Clustering is driven by posterior draws of the membership vector
+\(z=(z_1,\ldots,z_n)\). We summarize uncertainty in the partition using
+the posterior similarity matrix \[
   \pi_{ii'}=\Pr(z_i=z_{i'}\mid\mathcal{D}),
   \qquad
   \widehat{\pi}_{ii'}=\frac{1}{S}\sum_{s=1}^S \mathbb{I}\{z_i^{(s)}=z_{i'}^{(s)}\},
-\]
-where $\{z^{(s)}\}_{s=1}^S$ are post-burn-in draws.  Because $\widehat{\pi}_{ii'}$ is invariant to label switching, it provides a stable basis for cluster visualization (heatmaps) and for selecting a representative hard partition.
+\] where \(\{z^{(s)}\}_{s=1}^S\) are post-burn-in draws. Because
+\(\widehat{\pi}_{ii'}\) is invariant to label switching, it provides a
+stable basis for cluster visualization (heatmaps) and for selecting a
+representative hard partition.
 
-In practice, we (i) compute $\widehat{\pi}_{ii'}$ from the stored MCMC draws, (ii) select a representative partition from the posterior sample using a least-squares rule against the PSM, and (iii) interpret clusters by comparing outcome and covariate profiles across the resulting groups.
+In practice, we (i) compute \(\widehat{\pi}_{ii'}\) from the stored MCMC
+draws, (ii) select a representative partition from the posterior sample
+using a least-squares rule against the PSM, and (iii) interpret clusters
+by comparing outcome and covariate profiles across the resulting groups.
 
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlcom{# Extract membership draws z[i] from the stored MCMC samples}
-\hldef{smp} \hlkwb{<-} \hldef{fit_clust}\hlopt{$}\hldef{mcmc}\hlopt{$}\hldef{samples}  \hlcom{# a list of chains in coda-compatible form}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cluster\_psm }\OtherTok{\textless{}{-}} \FunctionTok{cache\_or\_run}\NormalTok{(}
+  \FunctionTok{file.path}\NormalTok{(derived\_cache\_dir, }\StringTok{"cluster\_psm.rds"}\NormalTok{),}
+\NormalTok{  \{}
+\NormalTok{    smp }\OtherTok{\textless{}{-}}\NormalTok{ fit\_clust}\SpecialCharTok{$}\NormalTok{mcmc}\SpecialCharTok{$}\NormalTok{samples}
+    \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{is.null}\NormalTok{(smp) }\SpecialCharTok{\&\&} \SpecialCharTok{!}\FunctionTok{is.null}\NormalTok{(fit\_clust}\SpecialCharTok{$}\NormalTok{samples)) smp }\OtherTok{\textless{}{-}}\NormalTok{ fit\_clust}\SpecialCharTok{$}\NormalTok{samples}
 
-\hldef{zmat} \hlkwb{<-} \hlkwd{do.call}\hldef{(rbind,} \hlkwd{lapply}\hldef{(smp,} \hlkwa{function}\hldef{(}\hlkwc{ch}\hldef{) \{}
-  \hldef{M} \hlkwb{<-} \hlkwd{as.matrix}\hldef{(ch)}
-  \hldef{z_cols} \hlkwb{<-} \hlkwd{grep}\hldef{(}\hlsng{"^z\textbackslash{}\textbackslash{}[[0-9]+\textbackslash{}\textbackslash{}]$"}\hldef{,} \hlkwd{colnames}\hldef{(M))}
-  \hldef{M[, z_cols,} \hlkwc{drop} \hldef{=} \hlnum{FALSE}\hldef{]}
-\hldef{\}))}
+\NormalTok{    zmat\_list }\OtherTok{\textless{}{-}} \FunctionTok{vector}\NormalTok{(}\StringTok{"list"}\NormalTok{, }\DecValTok{0}\NormalTok{)}
+    \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \FunctionTok{seq\_along}\NormalTok{(smp)) \{}
+\NormalTok{      M }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(smp[[i]])}
+\NormalTok{      z\_cols }\OtherTok{\textless{}{-}} \FunctionTok{grep}\NormalTok{(}\StringTok{"\^{}z}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{[[0{-}9]+}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{]$"}\NormalTok{, }\FunctionTok{colnames}\NormalTok{(M))}
+      \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{length}\NormalTok{(z\_cols) }\SpecialCharTok{\textgreater{}} \DecValTok{0}\NormalTok{) \{}
+        \CommentTok{\# Sort z columns numerically by extracting the index i in z[i]}
+\NormalTok{        z\_colnames }\OtherTok{\textless{}{-}} \FunctionTok{colnames}\NormalTok{(M)[z\_cols]}
+\NormalTok{        z\_indices }\OtherTok{\textless{}{-}} \FunctionTok{as.integer}\NormalTok{(}\FunctionTok{sub}\NormalTok{(}\StringTok{"\^{}z}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{[([0{-}9]+)}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{]$"}\NormalTok{, }\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{1"}\NormalTok{, z\_colnames))}
+\NormalTok{        z\_cols }\OtherTok{\textless{}{-}}\NormalTok{ z\_cols[}\FunctionTok{order}\NormalTok{(z\_indices)]}
+\NormalTok{        zmat\_list[[}\FunctionTok{length}\NormalTok{(zmat\_list) }\SpecialCharTok{+} \DecValTok{1}\NormalTok{]] }\OtherTok{\textless{}{-}}\NormalTok{ M[, z\_cols, drop }\OtherTok{=} \ConstantTok{FALSE}\NormalTok{]}
+\NormalTok{      \}}
+\NormalTok{    \}}
 
-\hlcom{# Mixture-specific diagnostic: number of occupied clusters per draw}
-\hldef{n_occupied} \hlkwb{<-} \hlkwd{apply}\hldef{(zmat,} \hlnum{1}\hldef{,} \hlkwa{function}\hldef{(}\hlkwc{z}\hldef{)} \hlkwd{length}\hldef{(}\hlkwd{unique}\hldef{(}\hlkwd{as.integer}\hldef{(z))))}
-\hlkwd{summary}\hldef{(n_occupied)}
-\hlkwd{max}\hldef{(n_occupied)}  \hlcom{# should be <= components (here 5)}
+    \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{length}\NormalTok{(zmat\_list) }\SpecialCharTok{\textgreater{}} \DecValTok{0}\NormalTok{) \{}
+\NormalTok{      zmat }\OtherTok{\textless{}{-}} \FunctionTok{do.call}\NormalTok{(rbind, zmat\_list)}
+\NormalTok{      n\_occupied }\OtherTok{\textless{}{-}} \FunctionTok{apply}\NormalTok{(zmat, }\DecValTok{1}\NormalTok{, }\ControlFlowTok{function}\NormalTok{(z) }\FunctionTok{length}\NormalTok{(}\FunctionTok{unique}\NormalTok{(}\FunctionTok{as.integer}\NormalTok{(z))))}
+      
+      \CommentTok{\# Diagnostic: check if n\_occupied piles up at upper bound (K)}
+\NormalTok{      K\_max }\OtherTok{\textless{}{-}} \FunctionTok{max}\NormalTok{(n\_occupied)}
+\NormalTok{      n\_at\_max }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(n\_occupied }\SpecialCharTok{==}\NormalTok{ K\_max)}
+\NormalTok{      prop\_at\_max }\OtherTok{\textless{}{-}}\NormalTok{ n\_at\_max }\SpecialCharTok{/} \FunctionTok{length}\NormalTok{(n\_occupied)}
+      \ControlFlowTok{if}\NormalTok{ (prop\_at\_max }\SpecialCharTok{\textgreater{}} \FloatTok{0.1}\NormalTok{) \{}
+        \FunctionTok{message}\NormalTok{(}\FunctionTok{sprintf}\NormalTok{(}
+          \StringTok{"Warning: \%.1f\%\% of iterations hit K=\%d components. Consider increasing K."}\NormalTok{,}
+          \DecValTok{100} \SpecialCharTok{*}\NormalTok{ prop\_at\_max, K\_max}
+\NormalTok{        ))}
+\NormalTok{      \}}
+      
+      \FunctionTok{set.seed}\NormalTok{(}\DecValTok{1}\NormalTok{)}
+\NormalTok{      S\_keep }\OtherTok{\textless{}{-}} \FunctionTok{min}\NormalTok{(}\DecValTok{400}\NormalTok{, }\FunctionTok{nrow}\NormalTok{(zmat))}
+\NormalTok{      keep }\OtherTok{\textless{}{-}} \FunctionTok{sample}\NormalTok{(}\FunctionTok{seq\_len}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(zmat)), S\_keep)}
+\NormalTok{      Zk }\OtherTok{\textless{}{-}}\NormalTok{ zmat[keep, , drop }\OtherTok{=} \ConstantTok{FALSE}\NormalTok{]}
+\NormalTok{      n }\OtherTok{\textless{}{-}} \FunctionTok{ncol}\NormalTok{(Zk)}
+\NormalTok{      PSM }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\DecValTok{0}\NormalTok{, n, n)}
+      \ControlFlowTok{for}\NormalTok{ (s }\ControlFlowTok{in} \FunctionTok{seq\_len}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(Zk))) \{}
+\NormalTok{        z }\OtherTok{\textless{}{-}} \FunctionTok{as.integer}\NormalTok{(Zk[s, ])}
+\NormalTok{        PSM }\OtherTok{\textless{}{-}}\NormalTok{ PSM }\SpecialCharTok{+}\NormalTok{ (}\FunctionTok{outer}\NormalTok{(z, z, }\StringTok{"=="}\NormalTok{) }\SpecialCharTok{*} \FloatTok{1.0}\NormalTok{)}
+\NormalTok{      \}}
+\NormalTok{      PSM }\OtherTok{\textless{}{-}}\NormalTok{ PSM }\SpecialCharTok{/} \FunctionTok{nrow}\NormalTok{(Zk)}
+\NormalTok{      ssq }\OtherTok{\textless{}{-}} \FunctionTok{numeric}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(Zk))}
+      \ControlFlowTok{for}\NormalTok{ (s }\ControlFlowTok{in} \FunctionTok{seq\_len}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(Zk))) \{}
+\NormalTok{        z }\OtherTok{\textless{}{-}} \FunctionTok{as.integer}\NormalTok{(Zk[s, ])}
+\NormalTok{        A }\OtherTok{\textless{}{-}} \FunctionTok{outer}\NormalTok{(z, z, }\StringTok{"=="}\NormalTok{) }\SpecialCharTok{*} \FloatTok{1.0}
+\NormalTok{        ssq[s] }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{((A }\SpecialCharTok{{-}}\NormalTok{ PSM)}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}
+\NormalTok{      \}}
+\NormalTok{      s\_star }\OtherTok{\textless{}{-}} \FunctionTok{which.min}\NormalTok{(ssq)}
+\NormalTok{      z\_hat }\OtherTok{\textless{}{-}} \FunctionTok{as.integer}\NormalTok{(Zk[s\_star, ])}
+      \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{length}\NormalTok{(z\_hat) }\SpecialCharTok{==} \FunctionTok{nrow}\NormalTok{(dat)) \{}
+\NormalTok{        cluster }\OtherTok{\textless{}{-}} \FunctionTok{match}\NormalTok{(z\_hat, }\FunctionTok{unique}\NormalTok{(z\_hat))}
+\NormalTok{      \} }\ControlFlowTok{else}\NormalTok{ \{}
+\NormalTok{        cluster }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{1}\DataTypeTok{L}\NormalTok{, }\FunctionTok{nrow}\NormalTok{(dat))}
+\NormalTok{      \}}
+\NormalTok{    \} }\ControlFlowTok{else}\NormalTok{ \{}
+\NormalTok{      n\_occupied }\OtherTok{\textless{}{-}} \FunctionTok{numeric}\NormalTok{(}\DecValTok{0}\NormalTok{)}
+\NormalTok{      cluster }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{1}\DataTypeTok{L}\NormalTok{, }\FunctionTok{nrow}\NormalTok{(dat))}
+\NormalTok{    \}}
 
-\hlcom{# Posterior similarity matrix (subsample draws for speed)}
-\hlkwd{set.seed}\hldef{(}\hlnum{1}\hldef{)}
-\hldef{S_keep} \hlkwb{<-} \hlkwd{min}\hldef{(}\hlnum{400}\hldef{,} \hlkwd{nrow}\hldef{(zmat))}
-\hldef{keep}   \hlkwb{<-} \hlkwd{sample}\hldef{(}\hlkwd{seq_len}\hldef{(}\hlkwd{nrow}\hldef{(zmat)), S_keep)}
-\hldef{Zk}     \hlkwb{<-} \hldef{zmat[keep, ,} \hlkwc{drop} \hldef{=} \hlnum{FALSE}\hldef{]}
+    \FunctionTok{list}\NormalTok{(}\AttributeTok{cluster =}\NormalTok{ cluster, }\AttributeTok{n\_occupied =}\NormalTok{ n\_occupied)}
+\NormalTok{  \}}
+\NormalTok{)}
 
-\hldef{n} \hlkwb{<-} \hlkwd{ncol}\hldef{(Zk)}
-\hldef{PSM} \hlkwb{<-} \hlkwd{matrix}\hldef{(}\hlnum{0}\hldef{, n, n)}
-\hlkwa{for} \hldef{(s} \hlkwa{in} \hlkwd{seq_len}\hldef{(}\hlkwd{nrow}\hldef{(Zk))) \{}
-  \hldef{z} \hlkwb{<-} \hlkwd{as.integer}\hldef{(Zk[s, ])}
-  \hldef{PSM} \hlkwb{<-} \hldef{PSM} \hlopt{+} \hldef{(}\hlkwd{outer}\hldef{(z, z,} \hlsng{"=="}\hldef{)} \hlopt{*} \hlnum{1.0}\hldef{)}
-\hldef{\}}
-\hldef{PSM} \hlkwb{<-} \hldef{PSM} \hlopt{/} \hlkwd{nrow}\hldef{(Zk)}
+\ControlFlowTok{if}\NormalTok{ (}\FunctionTok{is.null}\NormalTok{(cluster\_psm)) \{}
+\NormalTok{  dat}\SpecialCharTok{$}\NormalTok{cluster }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(}\FunctionTok{rep}\NormalTok{(}\DecValTok{1}\DataTypeTok{L}\NormalTok{, }\FunctionTok{nrow}\NormalTok{(dat)))}
+\NormalTok{\} }\ControlFlowTok{else}\NormalTok{ \{}
+\NormalTok{  dat}\SpecialCharTok{$}\NormalTok{cluster }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(cluster\_psm}\SpecialCharTok{$}\NormalTok{cluster)}
+  \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{length}\NormalTok{(cluster\_psm}\SpecialCharTok{$}\NormalTok{n\_occupied) }\SpecialCharTok{\textgreater{}} \DecValTok{0}\NormalTok{) \{}
+    \FunctionTok{summary}\NormalTok{(cluster\_psm}\SpecialCharTok{$}\NormalTok{n\_occupied)}
+    \FunctionTok{max}\NormalTok{(cluster\_psm}\SpecialCharTok{$}\NormalTok{n\_occupied)}
+\NormalTok{  \}}
+\NormalTok{\}}
 
-\hlcom{# Representative partition via least-squares to the PSM}
-\hldef{ssq} \hlkwb{<-} \hlkwd{numeric}\hldef{(}\hlkwd{nrow}\hldef{(Zk))}
-\hlkwa{for} \hldef{(s} \hlkwa{in} \hlkwd{seq_len}\hldef{(}\hlkwd{nrow}\hldef{(Zk))) \{}
-  \hldef{z} \hlkwb{<-} \hlkwd{as.integer}\hldef{(Zk[s, ])}
-  \hldef{A} \hlkwb{<-} \hlkwd{outer}\hldef{(z, z,} \hlsng{"=="}\hldef{)} \hlopt{*} \hlnum{1.0}
-  \hldef{ssq[s]} \hlkwb{<-} \hlkwd{sum}\hldef{((A} \hlopt{-} \hldef{PSM)}\hlopt{^}\hlnum{2}\hldef{)}
-\hldef{\}}
-\hldef{s_star} \hlkwb{<-} \hlkwd{which.min}\hldef{(ssq)}
-\hldef{z_hat}  \hlkwb{<-} \hlkwd{as.integer}\hldef{(Zk[s_star, ])}
+\FunctionTok{table}\NormalTok{(dat}\SpecialCharTok{$}\NormalTok{cluster)}
+\end{Highlighting}
+\end{Shaded}
 
-\hlcom{# Relabel clusters 1,2,... in order of appearance (cosmetic)}
-\hldef{cluster} \hlkwb{<-} \hlkwd{match}\hldef{(z_hat,} \hlkwd{unique}\hldef{(z_hat))}
-\hldef{dat}\hlopt{$}\hldef{cluster} \hlkwb{<-} \hlkwd{factor}\hldef{(cluster)}
+\begin{verbatim}
 
-\hlkwd{table}\hldef{(dat}\hlopt{$}\hldef{cluster)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
+  1 
+506 
+\end{verbatim}
 
 \subsection{Cluster interpretation and fitted distributional summaries}
 
-Given the representative clustering, we compare outcome and covariate profiles across clusters.  Because the fitted model is a mixture regression, clusters reflect differences in both the typical outcome level and the component-specific regression behavior.
+Given the representative clustering, we compare outcome and covariate
+profiles across clusters. Because the fitted model is a mixture
+regression, clusters reflect differences in both the typical outcome
+level and the component-specific regression behavior.
 
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlcom{# Outcome summaries by cluster}
-\hldef{cluster_outcome} \hlkwb{<-} \hlkwd{aggregate}\hldef{(}
-  \hldef{crim} \hlopt{~} \hldef{cluster,} \hlkwc{data} \hldef{= dat,}
-  \hlkwc{FUN} \hldef{=} \hlkwa{function}\hldef{(}\hlkwc{v}\hldef{)} \hlkwd{c}\hldef{(}\hlkwc{median} \hldef{=} \hlkwd{median}\hldef{(v),} \hlkwc{q25} \hldef{=} \hlkwd{quantile}\hldef{(v,} \hlnum{0.25}\hldef{),} \hlkwc{q75} \hldef{=} \hlkwd{quantile}\hldef{(v,} \hlnum{0.75}\hldef{))}
-\hldef{)}
-\hldef{cluster_outcome} \hlkwb{<-} \hlkwd{do.call}\hldef{(data.frame, cluster_outcome)}
-\hldef{cluster_outcome}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Outcome summaries by cluster}
+\NormalTok{cluster\_outcome }\OtherTok{\textless{}{-}} \FunctionTok{cache\_or\_run}\NormalTok{(}
+  \FunctionTok{file.path}\NormalTok{(derived\_cache\_dir, }\StringTok{"cluster\_outcome.rds"}\NormalTok{),}
+\NormalTok{  \{}
+\NormalTok{    out }\OtherTok{\textless{}{-}} \FunctionTok{aggregate}\NormalTok{(}
+\NormalTok{      crim }\SpecialCharTok{\textasciitilde{}}\NormalTok{ cluster, }\AttributeTok{data =}\NormalTok{ dat,}
+      \AttributeTok{FUN =} \ControlFlowTok{function}\NormalTok{(v) }\FunctionTok{c}\NormalTok{(}\AttributeTok{median =} \FunctionTok{median}\NormalTok{(v), }\AttributeTok{q25 =} \FunctionTok{quantile}\NormalTok{(v, }\FloatTok{0.25}\NormalTok{), }\AttributeTok{q75 =} \FunctionTok{quantile}\NormalTok{(v, }\FloatTok{0.75}\NormalTok{))}
+\NormalTok{    )}
+    \FunctionTok{do.call}\NormalTok{(data.frame, out)}
+\NormalTok{  \}}
+\NormalTok{)}
+\NormalTok{cluster\_outcome}
+\end{Highlighting}
+\end{Shaded}
 
-\hlcom{# Covariate means by cluster (illustrative subset)}
-\hldef{cluster_covars} \hlkwb{<-} \hlkwd{aggregate}\hldef{(}
-  \hlkwd{cbind}\hldef{(rm, lstat, nox, ptratio, tax, rad)} \hlopt{~} \hldef{cluster,}
-  \hlkwc{data} \hldef{= dat,}
-  \hlkwc{FUN} \hldef{= mean}
-\hldef{)}
-\hldef{cluster_covars}
+\begin{verbatim}
+NULL
+\end{verbatim}
 
-\hlcom{# Fitted conditional summaries at observed X (posterior intervals supported)}
-\hldef{fit_med} \hlkwb{<-} \hlkwd{fitted}\hldef{(fit_clust,} \hlkwc{type} \hldef{=} \hlsng{"quantile"}\hldef{,} \hlkwc{p} \hldef{=} \hlnum{0.50}\hldef{,} \hlkwc{level} \hldef{=} \hlnum{0.95}\hldef{,} \hlkwc{interval} \hldef{=} \hlsng{"credible"}\hldef{)}
-\hldef{fit_hi}  \hlkwb{<-} \hlkwd{fitted}\hldef{(fit_clust,} \hlkwc{type} \hldef{=} \hlsng{"quantile"}\hldef{,} \hlkwc{p} \hldef{=} \hlnum{0.90}\hldef{,} \hlkwc{level} \hldef{=} \hlnum{0.95}\hldef{,} \hlkwc{interval} \hldef{=} \hlsng{"credible"}\hldef{)}
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Covariate means by cluster (illustrative subset)}
+\NormalTok{cluster\_covars }\OtherTok{\textless{}{-}} \FunctionTok{cache\_or\_run}\NormalTok{(}
+  \FunctionTok{file.path}\NormalTok{(derived\_cache\_dir, }\StringTok{"cluster\_covars.rds"}\NormalTok{),}
+  \FunctionTok{aggregate}\NormalTok{(}
+    \FunctionTok{cbind}\NormalTok{(rm, lstat, nox, ptratio, tax, rad) }\SpecialCharTok{\textasciitilde{}}\NormalTok{ cluster,}
+    \AttributeTok{data =}\NormalTok{ dat,}
+    \AttributeTok{FUN =}\NormalTok{ mean}
+\NormalTok{  )}
+\NormalTok{)}
+\NormalTok{cluster\_covars}
+\end{Highlighting}
+\end{Shaded}
 
-\hlcom{# Attach fitted summaries for downstream plots}
-\hldef{dat}\hlopt{$}\hldef{fit_q50} \hlkwb{<-} \hldef{fit_med}\hlopt{$}\hldef{fit}
-\hldef{dat}\hlopt{$}\hldef{fit_q90} \hlkwb{<-} \hldef{fit_hi}\hlopt{$}\hldef{fit}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
+\begin{verbatim}
+NULL
+\end{verbatim}
 
-For prediction at new covariate profiles, we use the same \code{predict()} interface as in the methods section.  In this clustering application, prediction is mainly used to visualize how fitted conditional quantiles vary across covariate patterns and to compare those patterns across the inferred clusters.
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Fitted conditional summaries at observed X (posterior intervals supported)}
+\NormalTok{fit\_med }\OtherTok{\textless{}{-}} \FunctionTok{cache\_or\_run}\NormalTok{(}
+  \FunctionTok{file.path}\NormalTok{(derived\_cache\_dir, }\StringTok{"cluster\_fit\_med.rds"}\NormalTok{),}
+  \FunctionTok{fitted}\NormalTok{(fit\_clust, }\AttributeTok{type =} \StringTok{"quantile"}\NormalTok{, }\AttributeTok{p =} \FloatTok{0.50}\NormalTok{, }\AttributeTok{level =} \FloatTok{0.95}\NormalTok{, }\AttributeTok{interval =} \StringTok{"credible"}\NormalTok{)}
+\NormalTok{)}
+\NormalTok{fit\_hi }\OtherTok{\textless{}{-}} \FunctionTok{cache\_or\_run}\NormalTok{(}
+  \FunctionTok{file.path}\NormalTok{(derived\_cache\_dir, }\StringTok{"cluster\_fit\_hi.rds"}\NormalTok{),}
+  \FunctionTok{fitted}\NormalTok{(fit\_clust, }\AttributeTok{type =} \StringTok{"quantile"}\NormalTok{, }\AttributeTok{p =} \FloatTok{0.90}\NormalTok{, }\AttributeTok{level =} \FloatTok{0.95}\NormalTok{, }\AttributeTok{interval =} \StringTok{"credible"}\NormalTok{)}
+\NormalTok{)}
+\CommentTok{\# Print small previews to avoid LaTeX dimension errors}
+\FunctionTok{print}\NormalTok{(}\StringTok{"fit\_med (first 5 rows)"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
 
-\begin{knitrout}\scriptsize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlcom{# Coordinate-wise quartile grid for continuous covariates; fix binary indicator chas}
-\hldef{qs} \hlkwb{<-} \hlkwd{c}\hldef{(}\hlnum{0.25}\hldef{,} \hlnum{0.50}\hldef{,} \hlnum{0.75}\hldef{)}
-\hldef{Xgrid} \hlkwb{<-} \hlkwd{expand.grid}\hldef{(}
-  \hlkwc{lstat}   \hldef{=} \hlkwd{quantile}\hldef{(dat}\hlopt{$}\hldef{lstat, qs),}
-  \hlkwc{rm}      \hldef{=} \hlkwd{quantile}\hldef{(dat}\hlopt{$}\hldef{rm, qs),}
-  \hlkwc{nox}     \hldef{=} \hlkwd{quantile}\hldef{(dat}\hlopt{$}\hldef{nox, qs),}
-  \hlkwc{ptratio} \hldef{=} \hlkwd{quantile}\hldef{(dat}\hlopt{$}\hldef{ptratio, qs),}
-  \hlkwc{tax}     \hldef{=} \hlkwd{quantile}\hldef{(dat}\hlopt{$}\hldef{tax, qs),}
-  \hlkwc{rad}     \hldef{=} \hlkwd{quantile}\hldef{(dat}\hlopt{$}\hldef{rad, qs)}
-\hldef{)}
-\hldef{Xgrid}\hlopt{$}\hldef{chas} \hlkwb{<-} \hlnum{0}
+\begin{verbatim}
+[1] "fit_med (first 5 rows)"
+\end{verbatim}
 
-\hldef{pred_q} \hlkwb{<-} \hlkwd{predict}\hldef{(}
-  \hldef{fit_clust,}
-  \hlkwc{newdata} \hldef{= Xgrid,}
-  \hlkwc{type} \hldef{=} \hlsng{"quantile"}\hldef{,}
-  \hlkwc{index} \hldef{=} \hlkwd{c}\hldef{(}\hlnum{0.50}\hldef{,} \hlnum{0.90}\hldef{,} \hlnum{0.95}\hldef{),}
-  \hlkwc{level} \hldef{=} \hlnum{0.95}\hldef{,}
-  \hlkwc{interval} \hldef{=} \hlsng{"credible"}
-\hldef{)}
+\begin{Shaded}
+\begin{Highlighting}[]
+\ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{is.null}\NormalTok{(fit\_med)) }\FunctionTok{print}\NormalTok{(}\FunctionTok{head}\NormalTok{(fit\_med}\SpecialCharTok{$}\NormalTok{fit, }\DecValTok{5}\NormalTok{))}
+\FunctionTok{print}\NormalTok{(}\StringTok{"fit\_hi (first 5 rows)"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
 
-\hldef{pred_q}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
+\begin{verbatim}
+[1] "fit_hi (first 5 rows)"
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{is.null}\NormalTok{(fit\_hi)) }\FunctionTok{print}\NormalTok{(}\FunctionTok{head}\NormalTok{(fit\_hi}\SpecialCharTok{$}\NormalTok{fit, }\DecValTok{5}\NormalTok{))}
+
+\CommentTok{\# Attach fitted summaries for downstream plots}
+\ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{is.null}\NormalTok{(fit\_med)) dat}\SpecialCharTok{$}\NormalTok{fit\_q50 }\OtherTok{\textless{}{-}}\NormalTok{ fit\_med}\SpecialCharTok{$}\NormalTok{fit}
+\ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{is.null}\NormalTok{(fit\_hi)) dat}\SpecialCharTok{$}\NormalTok{fit\_q90 }\OtherTok{\textless{}{-}}\NormalTok{ fit\_hi}\SpecialCharTok{$}\NormalTok{fit}
+\end{Highlighting}
+\end{Shaded}
+
+For prediction at new covariate profiles, we use the same
+\texttt{predict()} interface as in the methods section. In this
+clustering application, prediction is mainly used to visualize how
+fitted conditional quantiles vary across covariate patterns and to
+compare those patterns across the inferred clusters.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Coordinate{-}wise quartile grid for continuous covariates; fix binary indicator chas}
+\NormalTok{qs }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FloatTok{0.25}\NormalTok{, }\FloatTok{0.50}\NormalTok{, }\FloatTok{0.75}\NormalTok{)}
+\NormalTok{Xgrid }\OtherTok{\textless{}{-}} \FunctionTok{expand.grid}\NormalTok{(}
+  \AttributeTok{lstat   =} \FunctionTok{quantile}\NormalTok{(dat}\SpecialCharTok{$}\NormalTok{lstat, qs),}
+  \AttributeTok{rm      =} \FunctionTok{quantile}\NormalTok{(dat}\SpecialCharTok{$}\NormalTok{rm, qs),}
+  \AttributeTok{nox     =} \FunctionTok{quantile}\NormalTok{(dat}\SpecialCharTok{$}\NormalTok{nox, qs),}
+  \AttributeTok{ptratio =} \FunctionTok{quantile}\NormalTok{(dat}\SpecialCharTok{$}\NormalTok{ptratio, qs),}
+  \AttributeTok{tax     =} \FunctionTok{quantile}\NormalTok{(dat}\SpecialCharTok{$}\NormalTok{tax, qs),}
+  \AttributeTok{rad     =} \FunctionTok{quantile}\NormalTok{(dat}\SpecialCharTok{$}\NormalTok{rad, qs)}
+\NormalTok{)}
+\NormalTok{Xgrid}\SpecialCharTok{$}\NormalTok{chas }\OtherTok{\textless{}{-}} \DecValTok{0}
+
+\NormalTok{pred\_q }\OtherTok{\textless{}{-}} \FunctionTok{cache\_or\_run}\NormalTok{(}
+  \FunctionTok{file.path}\NormalTok{(derived\_cache\_dir, }\StringTok{"cluster\_pred\_q.rds"}\NormalTok{),}
+  \FunctionTok{predict}\NormalTok{(}
+\NormalTok{    fit\_clust,}
+    \AttributeTok{newdata =}\NormalTok{ Xgrid,}
+    \AttributeTok{type =} \StringTok{"quantile"}\NormalTok{,}
+    \AttributeTok{index =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.50}\NormalTok{, }\FloatTok{0.90}\NormalTok{, }\FloatTok{0.95}\NormalTok{),}
+    \AttributeTok{level =} \FloatTok{0.95}\NormalTok{,}
+    \AttributeTok{interval =} \StringTok{"credible"}
+\NormalTok{  )}
+\NormalTok{)}
+
+\ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{is.null}\NormalTok{(pred\_q)) pred\_q}
+\end{Highlighting}
+\end{Shaded}
 
 
-
-
-\bibliography{CausalMixGPD_JSS_refs}
-
-
+\renewcommand\refname{References}
+\bibliography{CausalMixGPD_JSS_refs.bib}
 
 \end{document}
-

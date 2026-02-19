@@ -2,7 +2,7 @@
 title: "ex03. Unconditional DPMGPD (CRP Backend)"
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, cache=FALSE}
 knitr::opts_chunk$set(
   collapse = FALSE,
   comment = NA,
@@ -10,7 +10,7 @@ knitr::opts_chunk$set(
   fig.height = 5,
   message = FALSE,
   warning = FALSE,
-  cache=TRUE,
+  cache = FALSE,
   cache.path = 'legacy-cache-v2/'
 )
 
@@ -19,12 +19,12 @@ set.seed(1)
 
 # Fast-by-default rendering. Flip to FALSE for a fuller run.
 FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
-mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, workers = 2)
 library(magrittr)
 library(dplyr)
 library(tibble)
 library(kableExtra)
-mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_chains = TRUE, workers = 2, z_update_every = 2)
 
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
@@ -33,22 +33,17 @@ mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 library(CausalMixGPD)
 
 # Ensure package is fully loaded for data access
-if (!require("devtools", quietly = TRUE)) {
-  library(devtools)
-}
-pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
-  devtools::load_all(path = pkg_root, quiet = TRUE)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
 ```
 
 
-> **Legacy vignette (for the website / historical notes).**
-> These files may not match the current exported API one-to-one.
-> Last verified: **2026-01-18**.
+> **Website workflow note.**
+> This page reflects the current exported API and recommended wrapper-first usage.
+> Last updated: **2026-02-19**.
 >
-> For the up-to-date workflow, see the main package vignettes (basic, unconditional, conditional, and causal)..
+> For the full package narrative, see the main package vignettes (basic, unconditional, conditional, and causal).
 
 
 # Unconditional CausalMixGPD: CRP Backend with Tail Augmentation
@@ -61,7 +56,7 @@ source("_legacy-setup.R")
 
 ```{r data-setup}
 # Load data with an obvious tail
-data("nc_pos_tail200_k4", package = "CausalMixGPD")
+data("nc_pos_tail200_k4")
 y_tail <- nc_pos_tail200_k4$y
 y_tail <- y_tail[is.finite(y_tail) & y_tail > 0]
 
@@ -114,7 +109,7 @@ ggplot(df_tail, aes(x = y, fill = region)) +
 
 This mirrors the direct `bundle()` workflow in `start/backends-and-workflow`, but with **tail augmentation** turned on (`GPD = TRUE`). Here we use an **Inverse Gaussian** bulk kernel and estimate the GPD threshold with a lognormal prior centered at the empirical 80th percentile.
 
-```{r bundle-mcmc-crp-gpd, cache=TRUE}
+```{r bundle-mcmc-crp-gpd, cache = FALSE}
 bundle_gpd <- bundle(
   y = y_tail,
   kernel = "invgauss",
@@ -139,8 +134,8 @@ bundle_gpd <- bundle(
 
 ## Running MCMC & Diagnostics
 
-```{r mcmc-run, cache=TRUE}
-fit_gpd <- load_or_fit("ex03-unconditional-dpmgpd-crp-fit_gpd", mcmc(bundle_gpd))
+```{r mcmc-run, cache = FALSE}
+fit_gpd <- load_or_fit("ex03-unconditional-dpmgpd-crp-fit_gpd", dpmgpd(bundle_gpd))
 ```
 
 ```{r fit-summary}
@@ -164,22 +159,22 @@ plot(fit_gpd, params = "alpha", family = c("traceplot", "autocorrelation", "gewe
 
 We use the **S3 `predict()` objects** and their dedicated `plot()` methods to visualize densities, survival curves, and posterior-mean quantiles (i.e., averages of q(p | $\\theta$) over draws).
 
-```{r density-predict, cache=TRUE}
+```{r density-predict, cache = FALSE}
 y_min <- max(min(y_tail), .Machine$double.eps)
 y_grid <- seq(y_min, max(y_tail) * 1.3, length.out = 300)
 pred_density <- predict(fit_gpd, y = y_grid, type = "density")
 plot(pred_density)
 ```
 
-```{r survival-predict, cache=TRUE}
+```{r survival-predict, cache = FALSE}
 y_surv <- seq(max(u_threshold, y_min), max(y_tail) * 1.1, length.out = 60)
 pred_surv <- predict(fit_gpd, y = y_surv, type = "survival")
 plot(pred_surv)
 ```
 
-```{r quantile-predict, cache=TRUE}
+```{r quantile-predict, cache = FALSE}
 quantile_probs <- c(0.90, 0.95, 0.99)
-pred_quantiles <- predict(fit_gpd, type = "quantile", index = quantile_probs, interval = "credible")
+pred_quantiles <- predict(fit_gpd, type = "quantile", p = quantile_probs, interval = "credible")
 plot(pred_quantiles)
 ```
 
@@ -189,7 +184,7 @@ plot(pred_quantiles)
 
 To demonstrate the value of tail augmentation, we fit a bulk-only lognormal DP mixture and compare posterior summaries against the InvGauss+GPD fit.
 
-```{r bulk-only-fit, cache=TRUE}
+```{r bulk-only-fit, cache = FALSE}
 bundle_bulk_only <- bundle(
   y = y_tail,
   kernel = "lognormal",
@@ -198,12 +193,12 @@ bundle_bulk_only <- bundle(
   components = 5,
   mcmc = mcmc
 )
-fit_bulk_only <- load_or_fit("ex03-unconditional-dpmgpd-crp-fit_bulk_only", mcmc(bundle_bulk_only))
+fit_bulk_only <- load_or_fit("ex03-unconditional-dpmgpd-crp-fit_bulk_only", dpmix(bundle_bulk_only))
 ```
 
 ```{r compare-quantiles}
-bulk_quantiles <- predict(fit_bulk_only, type = "quantile", index = quantile_probs)
-tail_quantiles <- predict(fit_gpd, type = "quantile", index = quantile_probs)
+bulk_quantiles <- predict(fit_bulk_only, type = "quantile", p = quantile_probs)
+tail_quantiles <- predict(fit_gpd, type = "quantile", p = quantile_probs)
 
 compare_tbl <- bind_rows(
   bulk_quantiles$fit %>% mutate(model = "Bulk only"),
@@ -228,7 +223,7 @@ plot(tail_quantiles)
 
 ```{r return-levels}
 probs <- c(0.995, 0.99, 0.975)
-return_levels <- predict(fit_gpd, type = "quantile", index = probs)
+return_levels <- predict(fit_gpd, type = "quantile", p = probs)
 
 return_levels$fit %>%
   mutate(across(where(is.numeric), ~ round(.x, 3))) %>%
@@ -242,7 +237,7 @@ For unconditional models, use `predict()` only; `fitted()` and `residuals()` are
 
 ## Threshold Sensitivity
 
-```{r threshold-sensitivity, cache=TRUE}
+```{r threshold-sensitivity, cache = FALSE}
 sensitivity_fits <- lapply(thresholds, function(u) {
   bundle <- bundle(
     y = y_tail,
@@ -257,12 +252,12 @@ sensitivity_fits <- lapply(thresholds, function(u) {
     components = 5,
     mcmc = mcmc
   )
-  fit <- load_or_fit("ex03-unconditional-dpmgpd-crp-fit", mcmc(bundle))
+  fit <- load_or_fit("ex03-unconditional-dpmgpd-crp-fit", dpmix(bundle))
   list(threshold = u, fit = fit)
 })
 
 sensitivity_tbl <- bind_rows(lapply(sensitivity_fits, function(entry) {
-  quant <- predict(entry$fit, type = "quantile", index = 0.99, interval = "credible")
+  quant <- predict(entry$fit, type = "quantile", p = 0.99, interval = "credible")
   qfit <- as.data.frame(quant$fit)
   qfit$threshold <- entry$threshold
 
@@ -315,6 +310,16 @@ sensitivity_tbl %>%
 - Workflow index: [Roadmap](../start/roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
+
+
+
+
+
+
+
+
+
+
 
 
 

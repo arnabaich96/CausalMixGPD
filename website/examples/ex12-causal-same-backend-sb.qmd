@@ -2,7 +2,7 @@
 title: "ex12. Causal (Same backend, SB Backend) - Laplace Kernel"
 ---
 
-```{r setup, include=FALSE}
+```{r setup, include=FALSE, cache=FALSE}
 knitr::opts_chunk$set(
   collapse = FALSE,
   comment = NA,
@@ -10,7 +10,7 @@ knitr::opts_chunk$set(
   fig.height = 5,
   message = FALSE,
   warning = FALSE,
-  cache=TRUE,
+  cache = FALSE,
   cache.path = 'legacy-cache-v2/'
 )
 
@@ -19,8 +19,8 @@ set.seed(1)
 
 # Fast-by-default rendering. Flip to FALSE for a fuller run.
 FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
-mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1)
-mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2))
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, workers = 2)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_chains = TRUE, workers = 2, z_update_every = 2)
 
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
@@ -29,22 +29,17 @@ mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 library(CausalMixGPD)
 
 # Ensure package is fully loaded for data access
-if (!require("devtools", quietly = TRUE)) {
-  library(devtools)
-}
-pkg_root <- rprojroot::find_root(rprojroot::has_file("DESCRIPTION"))
-  devtools::load_all(path = pkg_root, quiet = TRUE)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
 ```
 
 
-> **Legacy vignette (for the website / historical notes).**
-> These files may not match the current exported API one-to-one.
-> Last verified: **2026-01-18**.
+> **Website workflow note.**
+> This page reflects the current exported API and recommended wrapper-first usage.
+> Last updated: **2026-02-19**.
 >
-> For the up-to-date workflow, see the main package vignettes (basic, unconditional, conditional, and causal)..
+> For the full package narrative, see the main package vignettes (basic, unconditional, conditional, and causal).
 
 
 # Causal Inference: Same Backend (SB) - Laplace Kernel {#causal-sb-same-backend}
@@ -59,7 +54,7 @@ This vignette fits two SB-based causal models using the same kernel (Laplace):
 ## Data Setup
 
 ```{r data-setup}
-data("causal_alt_real500_p4_k2", package = "CausalMixGPD")
+data("causal_alt_real500_p4_k2")
 y <- causal_alt_real500_p4_k2$y
 A <- causal_alt_real500_p4_k2$A
 X <- as.matrix(causal_alt_real500_p4_k2$X)
@@ -94,7 +89,7 @@ p_scatter
 
 ## Model A: SB Bulk-only (Laplace)
 
-```{r bundle-sb-bulk, cache=TRUE}
+```{r bundle-sb-bulk, cache = FALSE}
 bundle_sb_bulk <- bundle(
   y = y,
   treat = A,
@@ -112,8 +107,8 @@ bundle_sb_bulk
 summary(bundle_sb_bulk)
 ```
 
-```{r fit-sb-bulk, cache=TRUE}
-fit_sb_bulk <- mcmc(bundle_sb_bulk)
+```{r fit-sb-bulk, cache = FALSE}
+fit_sb_bulk <- dpmix(bundle_sb_bulk)
 summary(fit_sb_bulk)
 params(fit_sb_bulk)
 ```
@@ -164,7 +159,7 @@ plot(cqte_bulk)
 
 ## Model B: SB with GPD Tail (Laplace)
 
-```{r bundle-sb-gpd, cache=TRUE}
+```{r bundle-sb-gpd, cache = FALSE}
 param_specs_gpd <- list(
   gpd = list(
     threshold = list(
@@ -193,8 +188,8 @@ bundle_sb_gpd
 summary(bundle_sb_gpd)
 ```
 
-```{r fit-sb-gpd, cache=TRUE}
-fit_sb_gpd <- mcmc(bundle_sb_gpd)
+```{r fit-sb-gpd, cache = FALSE}
+fit_sb_gpd <- dpmgpd(bundle_sb_gpd)
 summary(fit_sb_gpd)
 params(fit_sb_gpd)
 ```
@@ -247,6 +242,16 @@ plot(qte_gpd)
 - Workflow index: [Roadmap](../start/roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
+
+
+
+
+
+
+
+
+
+
 
 
 

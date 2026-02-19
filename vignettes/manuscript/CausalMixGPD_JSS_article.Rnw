@@ -1,14 +1,14 @@
 \makeatletter
 \def\input@path{{./}{vignettes/manuscript/}}
 \makeatother
-\documentclass[article]{jss}
+\documentclass[article]{assets/jss}
 
 %% ---- Packages ----
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
 \usepackage{graphicx}
 \usepackage{natbib}
-\usepackage{Sweave}
+\usepackage{assets/Sweave}
 \usepackage{xurl}
 \makeatletter
 \@ifundefined{knitrout}{\newenvironment{knitrout}{}{}}{}
@@ -23,7 +23,7 @@
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
 \def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
 \makeatother
-\graphicspath{{./}{vignettes/manuscript/}}
+\graphicspath{{./}{vignettes/manuscript/}{assets/}}
 \DeclareRobustCommand{\pkg}[1]{\textsf{#1}}
 \DeclareRobustCommand{\code}[1]{\nolinkurl{#1}}
 \setlength{\emergencystretch}{2em}
@@ -37,7 +37,7 @@
 %% Optional: JSS typically wants a short title and keywords.
 \Plainauthor{Arnab Aich}
 \Plaintitle{CausalMixGPD: Bayesian Conditional Dirichlet Process Mixtures with Generalized Pareto Tails and Causal Extensions}
-\Shorttitle{CausalMixGPD: Bayesian Causal Inference Specialized for Heavy-tailed Outcomes}
+\Shorttitle{CausalMixGPD: Causal Inference with Semiparametric Bayesian Models}
 
 \Abstract{
 Heavy-tailed outcomes arise in many scientific domains where rare events dominate risk, cost, or policy decisions.
@@ -59,12 +59,42 @@ The package supports both Chinese restaurant process (CRP) and stick-breaking (S
 <<setup, include=FALSE>>=
 knitr::opts_chunk$set(
   fig.width = 7.0,
-  fig.height = 2.4,
-  size = "scriptsize",
-  tidy = TRUE,
+  fig.height = 3.2,
+  size = "small",
+  tidy = FALSE,
+  eval = TRUE,
   tidy.opts = list(width.cutoff = 70)
 )
 options(width = 70)
+
+library(CausalMixGPD)
+mcmc_fixed <- list(
+  niter = 200,
+  nburnin = 50,
+  thin = 1,
+  nchains = 1,
+  seed = 1
+)
+
+cache_dir <- "cache"
+overview_cache_path <- file.path(cache_dir, "overview_fit.rds")
+causal_cache_path <- file.path(cache_dir, "causal_fit.rds")
+cluster_cache_path <- file.path(cache_dir, "app_cluster_fit.rds")
+derived_cache_dir <- file.path(cache_dir, "derived")
+if (!dir.exists(derived_cache_dir)) dir.create(derived_cache_dir, recursive = TRUE)
+compute_missing_cache <- isTRUE(getOption("manuscript.compute_missing_cache", FALSE))
+
+cache_or_run <- function(path, expr) {
+  if (file.exists(path)) {
+    readRDS(path)
+  } else if (!compute_missing_cache) {
+    NULL
+  } else {
+    value <- eval.parent(substitute(expr))
+    saveRDS(value, path)
+    value
+  }
+}
 @
 
 
@@ -263,7 +293,7 @@ u(x)+\dfrac{\sigma(x)}{\xi}\Bigl((1-\tau)^{-\xi}-1\Bigr), & \xi\neq 0,
 \label{eq:gpd_quantile}
 \end{equation}
 
-<<gpdDensityFigure, echo=FALSE, fig=TRUE>>=
+<<gpdDensityFigure, echo=FALSE, fig=TRUE, fig.height=4>>=
 u <- 2.0
 y <- seq(u, u + 8, length.out = 500)
 sigma <- 1.2
@@ -410,7 +440,7 @@ and $Q_{\mathrm{GPD}}$ is given in \eqref{eq:gpd_quantile}.  Thus, upper quantil
 the bulk exceedance probability $1-p_u(x;\Theta)$ and the conditional exceedance distribution governed by
 \(\Phi\).
 
-<<splicedDensityFigure, echo=FALSE, fig=TRUE, width=7.0, height=2.0>>=
+<<splicedDensityFigure, echo=FALSE, fig=TRUE, fig.width=7.0, fig.height=4.0>>=
 y <- seq(-3, 12, length.out = 800)
 u <- 2.0
 mu_bulk <- 0.0
@@ -609,9 +639,7 @@ Let the observed data be
   \mathcal{D}=\{(y_i,x_i)\}_{i=1}^n,
 \]
 
-<<overview-data-reload, echo=TRUE, eval=FALSE>>=
-library(CausalMixGPD)
-
+<<overview-data-reload, echo=TRUE, eval=TRUE>>=
 # Reload package example data and build a modeling data frame
 data("nc_posX100_p3_k2", package = "CausalMixGPD")
 dat <- data.frame(y = nc_posX100_p3_k2$y, nc_posX100_p3_k2$X)
@@ -631,19 +659,14 @@ where \(j\) indexes mixture components, \(w_j\ge 0\), and \(\sum_{j=1}^J w_j=1\)
 \end{equation}
 where \(g(\cdot)\) enforces parameter support (e.g., positive scale parameters).
 
-<<overview-fit-model, echo=TRUE, eval=FALSE>>=
-# One-arm spliced DP--GPD fit
-fit <- dpmgpd(
-  formula    = y ~ x1 + x2 + x3,
-  data       = dat,
-  backend    = "sb",
-  kernel     = "lognormal",
-  components = 5,
-  mcmc = list(
-    niter = 6000, nburnin = 1000, thin = 5,
-    nchains = 2, seed = 1
-  )
-)
+<<overview-fit-model, echo=TRUE, eval=TRUE>>=
+# Load precomputed one-arm spliced DP--GPD fit
+# (build first via Rscript vignettes/manuscript/CausalMixGPD_JSS_article_extracted.R)
+fit <- readRDS(overview_cache_path)
+
+# Verify fit object was loaded/created
+print(paste("Fit object class:", class(fit)))
+print(paste("Fit object size:", object.size(fit), "bytes"))
 @
 
 For the spliced model, let \(u(x)\) be the threshold, \(\sigma(x)>0\) the tail scale, and \(\xi\in\mathbb{R}\) the tail shape (as in Section~\ref{subsec:splice}).  Define \(\delta_i=\mathbf{1}\{y_i>u(x_i)\}\).  Using the spliced density \eqref{eq:splice_pdf} with the truncated bulk mixture, the likelihood is
@@ -675,17 +698,14 @@ Posterior simulation targets \(p(\Theta,\Phi\mid \mathcal{D}) \propto L(\Theta,\
 
 Convergence checking is supported through standard multi-chain diagnostics and trace-based visualizations.  The model object supports \code{summary()} for posterior summaries, \code{plot()} for diagnostic plots (trace, running mean, autocorrelation, and multi-chain diagnostics such as \(\widehat{R}\) when multiple chains are used), and \code{params()} as a lightweight extractor returning posterior mean parameters reshaped to natural dimensions.  Interval summaries used by \code{predict()} can be chosen as equal-tailed credible intervals or HPD intervals as described in Section~\ref{subsec:overview-estimation} \citep{Gelman2013BDA,coda_pkg}.  Diagnostic plotting relies on established MCMC diagnostic tooling \citep{ggmcmc_pkg}.
 
-<<overview-mcmc-diagnostics, echo=TRUE, eval=FALSE>>=
+<<overview-mcmc-diagnostics, echo=TRUE, eval=TRUE>>=
 # Posterior summaries (includes selected quantiles)
 # and may also report ESS where applicable
 summary(fit)
 
 # Extract posterior mean parameters in natural shapes
 p_hat <- params(fit)
-
-# MCMC diagnostics:
-# requires ggmcmc; best with multiple chains
-plot(fit, family = c("traceplot", "density", "autocorrelation", "Rhat"))
+print(p_hat)
 @
 
 
@@ -721,15 +741,22 @@ corresponding to the conditional mean and the restricted mean at cutoff \(c\), r
 
 Using the same fitted model \code{fit} from Section~\ref{subsec:overview-model}, we now compute posterior summaries on the original training covariates (default behavior of \code{predict()} when \code{newdata} is not supplied).
 
-<<overview-estimation-same-fit, echo=TRUE, eval=FALSE>>=
+<<overview-estimation-same-fit, echo=TRUE, eval=TRUE>>=
 # Posterior functionals from the same fitted model and data set
 q_grid <- c(0.50, 0.90, 0.95, 0.99)
-est_quant <- predict(fit, type = "quantile", index = q_grid,
+x_eval <- dat[1:20, c("x1", "x2", "x3")]
+
+est_quant <- predict(fit, newdata = x_eval, type = "quantile", index = q_grid,
                      interval = "hpd", level = 0.95)
-est_mean  <- predict(fit, type = "mean",
-                     interval = "credible", level = 0.95)
-est_rmean <- predict(fit, type = "rmean", cutoff = 8,
-                     interval = "credible", level = 0.95)
+
+est_quant <- cache_or_run(
+  file.path(derived_cache_dir, "overview_est_quant.rds"),
+  predict(fit, newdata = x_eval, type = "quantile", index = q_grid,
+          interval = "hpd", level = 0.95)
+)
+
+print("est_quant (first 10 rows)")
+if (!is.null(est_quant)) print(utils::head(as.data.frame(est_quant$fit), 10))
 @
 
 For a new covariate value \(x^\star\), prediction is based on the posterior predictive distribution
@@ -739,7 +766,12 @@ For a new covariate value \(x^\star\), prediction is based on the posterior pred
 \]
 The \code{predict()} method returns posterior summaries for the same functional targets as in Section~\ref{subsec:overview-estimation}.  For \code{type = "density"} and \code{type = "survival"}, the user supplies a grid of \(y\) values and the method returns pointwise posterior means with interval bounds computed draw-by-draw.  For \code{type = "quantile"}, the user supplies quantile indices \(\tau\) and the method returns posterior summaries of \(Q(\tau\mid x^\star)\) computed using the spliced quantile representation in \eqref{eq:splice_quantile_case}.  For \code{type = "mean"} and \code{type = "rmean"}, prediction uses posterior predictive Monte Carlo as described above, with \(x\) replaced by \(x^\star\) and with user-controlled \(M\) through \code{nsim\_mean}.
 
-<<overview-predict, echo=TRUE, eval=FALSE>>=
+<<overview-predict, echo=TRUE, eval=TRUE>>=
+# Check that fit object exists
+if (!exists("fit") || is.null(fit)) {
+  stop("fit object not found. The overview-fit-model chunk may not have completed successfully.")
+}
+
 # New profiles from coordinate-wise quartiles (25%, 50%, 75%) of covariates
 q_levels <- c(0.25, 0.50, 0.75)
 x_new <- as.data.frame(lapply(
@@ -752,23 +784,31 @@ rownames(x_new) <- c("q25", "q50", "q75")
 
 # Density / survival on a y-grid
 y_grid <- seq(0, 10, length.out = 200)
-pdens <- predict(fit, newdata = x_new, y = y_grid, type = "density",
-                 interval = "credible", level = 0.95)
-psurv <- predict(fit, newdata = x_new, y = y_grid, type = "survival",
-                 interval = "credible", level = 0.95)
+pdens <- cache_or_run(
+  file.path(derived_cache_dir, "overview_pdens.rds"),
+  predict(fit, newdata = x_new, y = y_grid, type = "density",
+          interval = "credible", level = 0.95)
+)
+psurv <- cache_or_run(
+  file.path(derived_cache_dir, "overview_psurv.rds"),
+  predict(fit, newdata = x_new, y = y_grid, type = "survival",
+          interval = "credible", level = 0.95)
+)
 
 # Quantiles at selected indices
 p_grid <- c(0.50, 0.90, 0.95, 0.99)
-pquant <- predict(fit, newdata = x_new, type = "quantile", index = p_grid,
-                  interval = "hpd", level = 0.95)
+pquant <- cache_or_run(
+  file.path(derived_cache_dir, "overview_pquant.rds"),
+  predict(fit, newdata = x_new, type = "quantile", index = p_grid,
+          interval = "hpd", level = 0.95)
+)
 
-# Mean and restricted mean (posterior predictive Monte Carlo)
-pmean  <- predict(fit, newdata = x_new, type = "mean",
-                  interval = "credible", level = 0.95,
-                  nsim_mean = 1000)
-prmean <- predict(fit, newdata = x_new, type = "rmean", cutoff = 8,
-                  interval = "credible", level = 0.95,
-                  nsim_mean = 1000)
+print("pdens (first 5 rows)")
+if (!is.null(pdens)) print(utils::head(as.data.frame(pdens$fit), 5))
+print("psurv (first 5 rows)")
+if (!is.null(psurv)) print(utils::head(as.data.frame(psurv$fit), 5))
+print("pquant")
+if (!is.null(pquant)) print(utils::head(as.data.frame(pquant$fit), 5))
 @
 \subsection{Causal extension and propensity score augmentation}
 \label{subsec:overview-causal}
@@ -886,45 +926,64 @@ yields $3^p$ representative covariate profiles at which $\mathrm{CATE}$, $\mathr
 The following example uses the formula interface and the high-level wrapper, fitting the augmented spliced model by default.
 
 <<causal-fit, echo=TRUE, eval=FALSE>>=
-library(CausalMixGPD)
-
+# Load causal data
 data("causal_pos500_p3_k2", package = "CausalMixGPD")
 dat <- causal_pos500_p3_k2
 df  <- data.frame(y = dat$y, A = dat$A, dat$X)
 
-cfit <- dpmgpd(
-  formula = y ~ x1 + x2 + x3,
-  data   = df,
-  treat  = "A",
-  backend    = "sb",
-  kernel     = "lognormal",
-  components = 5,
-  PS         = "logit",
-  ps_scale   = "logit",
-  ps_summary = "mean",
-  mcmc_outcome = list(niter = 2500, nburnin = 800, thin = 5, nchains = 1, seed = 11),
-  mcmc_ps      = list(niter = 2000, nburnin = 600, thin = 5, nchains = 1, seed = 12)
-)
+# Load precomputed causal fit
+cfit <- readRDS(causal_cache_path)
 
 # Marginal (standardized) effects via aggregation across rows
-ate_hat <- ate(cfit, level = 0.90, interval = "credible")
-qte_hat <- qte(cfit, probs = c(0.50, 0.90, 0.95), level = 0.90, interval = "hpd")
+ate_hat <- cache_or_run(
+  file.path(derived_cache_dir, "causal_ate_hat.rds"),
+  ate(cfit, level = 0.90, interval = "credible")
+)
+qte_hat <- cache_or_run(
+  file.path(derived_cache_dir, "causal_qte_hat.rds"),
+  qte(cfit, probs = c(0.50, 0.90, 0.95), level = 0.90, interval = "hpd")
+)
 
 # Conditional effects at specific covariates
 Xnew <- df[1:5, c("x1","x2","x3")]
-cate_hat <- cate(cfit, newdata = Xnew, type = "mean",  level = 0.90)
-cqte_hat <- cqte(cfit, newdata = Xnew, probs = c(0.50, 0.90), level = 0.90)
+cate_hat <- cache_or_run(
+  file.path(derived_cache_dir, "causal_cate_hat.rds"),
+  cate(cfit, newdata = Xnew, type = "mean", level = 0.90)
+)
+cqte_hat <- cache_or_run(
+  file.path(derived_cache_dir, "causal_cqte_hat.rds"),
+  cqte(cfit, newdata = Xnew, probs = c(0.50, 0.90), level = 0.90)
+)
 
 # Prediction on a coordinate-wise quartile grid
 qs    <- c(0.25, 0.50, 0.75)
 Xgrid <- expand.grid(lapply(df[c("x1","x2","x3")], quantile, probs = qs))
 
-pred_q <- predict(cfit, newdata = Xgrid, type = "quantile", index = c(0.50, 0.90))
-pred_s <- predict(cfit, newdata = Xgrid, type = "survival", y = rep(4, nrow(Xgrid)))
+pred_q <- cache_or_run(
+  file.path(derived_cache_dir, "causal_pred_q.rds"),
+  predict(cfit, newdata = Xgrid, type = "quantile", index = c(0.50, 0.90))
+)
+pred_s <- cache_or_run(
+  file.path(derived_cache_dir, "causal_pred_s.rds"),
+  predict(cfit, newdata = Xgrid, type = "survival", y = rep(4, nrow(Xgrid)))
+)
 
 # Arm-specific predictions are attached as attributes
 pred_q_trt <- attr(pred_q, "trt")
 pred_q_con <- attr(pred_q, "con")
+
+print("ate_hat")
+if (!is.null(ate_hat)) print(ate_hat)
+print("qte_hat")
+if (!is.null(qte_hat)) print(qte_hat)
+print("cate_hat (first 5 rows)")
+if (!is.null(cate_hat)) print(utils::head(as.data.frame(cate_hat$fit), 5))
+print("cqte_hat (first 5 rows)")
+if (!is.null(cqte_hat)) print(utils::head(as.data.frame(cqte_hat$fit), 5))
+print("pred_q (first 5 rows)")
+if (!is.null(pred_q)) print(utils::head(as.data.frame(pred_q$fit), 5))
+print("pred_s (first 5 rows)")
+if (!is.null(pred_s)) print(utils::head(as.data.frame(pred_s$fit), 5))
 @
 
 \subsubsection{Bulk-only causal mixtures (no GPD tail)}
@@ -967,45 +1026,18 @@ Posterior simulation is carried out by MCMC.  We run two chains and assess conve
 
 A key practical point for this analysis is that we explicitly request link-mode for \code{meanlog} so the CRP model is a \emph{mixture regression} rather than a purely unconditional mixture. This is done via \code{param\_specs} in the wrapper call below.
 
-<<app_cluster_fit, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE>>=
-library(CausalMixGPD)
+<<app_cluster_fit, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
 library(MASS)
 data("Boston", package = "MASS")
 
 dat <- Boston
 stopifnot(all(dat$crim > 0))
 
-# Mixture regression under CRP (bulk-only): meanlog is linked to X via g(eta)=eta
-fit_clust <- dpmix(
-  formula = crim ~ lstat + rm + nox + ptratio + tax + rad + chas,
-  data = dat,
-  backend = "crp",
-  kernel  = "lognormal",
-  components = 5,
-  param_specs = list(
-    bulk = list(
-      meanlog = list(mode = "link", link = "identity"),
-      sdlog   = list(mode = "dist")
-    )
-  ),
-  mcmc = list(
-    niter   = 12000,
-    nburnin = 2000,
-    thin    = 5,
-    nchains = 2,
-    seed    = 2026
-  )
-)
+# Load precomputed cluster fit
+fit_clust <- readRDS(cluster_cache_path)
 
 # High-level summaries
 summary(fit_clust)
-
-# MCMC diagnostic plots (trace, autocorrelation, effective sample size, etc.)
-plot(fit_clust, family = c("traceplot", "autocorrelation", "effective"))
-
-# Posterior mean parameters in natural shapes (component-wise betas and scales)
-p_hat <- params(fit_clust)
-p_hat
 @
 
 \subsection{Posterior clustering summaries}
@@ -1020,48 +1052,67 @@ where $\{z^{(s)}\}_{s=1}^S$ are post-burn-in draws.  Because $\widehat{\pi}_{ii'
 
 In practice, we (i) compute $\widehat{\pi}_{ii'}$ from the stored MCMC draws, (ii) select a representative partition from the posterior sample using a least-squares rule against the PSM, and (iii) interpret clusters by comparing outcome and covariate profiles across the resulting groups.
 
-<<app_cluster_psm, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE>>=
-# Extract membership draws z[i] from the stored MCMC samples
-smp <- fit_clust$mcmc$samples  # a list of chains in coda-compatible form
+<<app_cluster_psm, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
+cluster_psm <- cache_or_run(
+  file.path(derived_cache_dir, "cluster_psm.rds"),
+  {
+    smp <- fit_clust$mcmc$samples
+    if (is.null(smp) && !is.null(fit_clust$samples)) smp <- fit_clust$samples
 
-zmat <- do.call(rbind, lapply(smp, function(ch) {
-  M <- as.matrix(ch)
-  z_cols <- grep("^z\\[[0-9]+\\]$", colnames(M))
-  M[, z_cols, drop = FALSE]
-}))
+    zmat_list <- vector("list", 0)
+    for (i in seq_along(smp)) {
+      M <- as.matrix(smp[[i]])
+      z_cols <- grep("^z\\[[0-9]+\\]$", colnames(M))
+      if (length(z_cols) > 0) {
+        zmat_list[[length(zmat_list) + 1]] <- M[, z_cols, drop = FALSE]
+      }
+    }
 
-# Mixture-specific diagnostic: number of occupied clusters per draw
-n_occupied <- apply(zmat, 1, function(z) length(unique(as.integer(z))))
-summary(n_occupied)
-max(n_occupied)  # should be <= components (here 5)
+    if (length(zmat_list) > 0) {
+      zmat <- do.call(rbind, zmat_list)
+      n_occupied <- apply(zmat, 1, function(z) length(unique(as.integer(z))))
+      set.seed(1)
+      S_keep <- min(400, nrow(zmat))
+      keep <- sample(seq_len(nrow(zmat)), S_keep)
+      Zk <- zmat[keep, , drop = FALSE]
+      n <- ncol(Zk)
+      PSM <- matrix(0, n, n)
+      for (s in seq_len(nrow(Zk))) {
+        z <- as.integer(Zk[s, ])
+        PSM <- PSM + (outer(z, z, "==") * 1.0)
+      }
+      PSM <- PSM / nrow(Zk)
+      ssq <- numeric(nrow(Zk))
+      for (s in seq_len(nrow(Zk))) {
+        z <- as.integer(Zk[s, ])
+        A <- outer(z, z, "==") * 1.0
+        ssq[s] <- sum((A - PSM)^2)
+      }
+      s_star <- which.min(ssq)
+      z_hat <- as.integer(Zk[s_star, ])
+      if (length(z_hat) == nrow(dat)) {
+        cluster <- match(z_hat, unique(z_hat))
+      } else {
+        cluster <- rep(1L, nrow(dat))
+      }
+    } else {
+      n_occupied <- numeric(0)
+      cluster <- rep(1L, nrow(dat))
+    }
 
-# Posterior similarity matrix (subsample draws for speed)
-set.seed(1)
-S_keep <- min(400, nrow(zmat))
-keep   <- sample(seq_len(nrow(zmat)), S_keep)
-Zk     <- zmat[keep, , drop = FALSE]
+    list(cluster = cluster, n_occupied = n_occupied)
+  }
+)
 
-n <- ncol(Zk)
-PSM <- matrix(0, n, n)
-for (s in seq_len(nrow(Zk))) {
-  z <- as.integer(Zk[s, ])
-  PSM <- PSM + (outer(z, z, "==") * 1.0)
+if (is.null(cluster_psm)) {
+  dat$cluster <- factor(rep(1L, nrow(dat)))
+} else {
+  dat$cluster <- factor(cluster_psm$cluster)
+  if (length(cluster_psm$n_occupied) > 0) {
+    summary(cluster_psm$n_occupied)
+    max(cluster_psm$n_occupied)
+  }
 }
-PSM <- PSM / nrow(Zk)
-
-# Representative partition via least-squares to the PSM
-ssq <- numeric(nrow(Zk))
-for (s in seq_len(nrow(Zk))) {
-  z <- as.integer(Zk[s, ])
-  A <- outer(z, z, "==") * 1.0
-  ssq[s] <- sum((A - PSM)^2)
-}
-s_star <- which.min(ssq)
-z_hat  <- as.integer(Zk[s_star, ])
-
-# Relabel clusters 1,2,... in order of appearance (cosmetic)
-cluster <- match(z_hat, unique(z_hat))
-dat$cluster <- factor(cluster)
 
 table(dat$cluster)
 @
@@ -1070,35 +1121,54 @@ table(dat$cluster)
 
 Given the representative clustering, we compare outcome and covariate profiles across clusters.  Because the fitted model is a mixture regression, clusters reflect differences in both the typical outcome level and the component-specific regression behavior.
 
-<<app_cluster_summaries, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE>>=
+<<app_cluster_summaries, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
 # Outcome summaries by cluster
-cluster_outcome <- aggregate(
-  crim ~ cluster, data = dat,
-  FUN = function(v) c(median = median(v), q25 = quantile(v, 0.25), q75 = quantile(v, 0.75))
+cluster_outcome <- cache_or_run(
+  file.path(derived_cache_dir, "cluster_outcome.rds"),
+  {
+    out <- aggregate(
+      crim ~ cluster, data = dat,
+      FUN = function(v) c(median = median(v), q25 = quantile(v, 0.25), q75 = quantile(v, 0.75))
+    )
+    do.call(data.frame, out)
+  }
 )
-cluster_outcome <- do.call(data.frame, cluster_outcome)
 cluster_outcome
 
 # Covariate means by cluster (illustrative subset)
-cluster_covars <- aggregate(
-  cbind(rm, lstat, nox, ptratio, tax, rad) ~ cluster,
-  data = dat,
-  FUN = mean
+cluster_covars <- cache_or_run(
+  file.path(derived_cache_dir, "cluster_covars.rds"),
+  aggregate(
+    cbind(rm, lstat, nox, ptratio, tax, rad) ~ cluster,
+    data = dat,
+    FUN = mean
+  )
 )
 cluster_covars
 
 # Fitted conditional summaries at observed X (posterior intervals supported)
-fit_med <- fitted(fit_clust, type = "quantile", p = 0.50, level = 0.95, interval = "credible")
-fit_hi  <- fitted(fit_clust, type = "quantile", p = 0.90, level = 0.95, interval = "credible")
+fit_med <- cache_or_run(
+  file.path(derived_cache_dir, "cluster_fit_med.rds"),
+  fitted(fit_clust, type = "quantile", p = 0.50, level = 0.95, interval = "credible")
+)
+fit_hi <- cache_or_run(
+  file.path(derived_cache_dir, "cluster_fit_hi.rds"),
+  fitted(fit_clust, type = "quantile", p = 0.90, level = 0.95, interval = "credible")
+)
+# Print small previews to avoid LaTeX dimension errors
+print("fit_med (first 5 rows)")
+if (!is.null(fit_med)) print(head(fit_med$fit, 5))
+print("fit_hi (first 5 rows)")
+if (!is.null(fit_hi)) print(head(fit_hi$fit, 5))
 
 # Attach fitted summaries for downstream plots
-dat$fit_q50 <- fit_med$fit
-dat$fit_q90 <- fit_hi$fit
+if (!is.null(fit_med)) dat$fit_q50 <- fit_med$fit
+if (!is.null(fit_hi)) dat$fit_q90 <- fit_hi$fit
 @
 
 For prediction at new covariate profiles, we use the same \code{predict()} interface as in the methods section.  In this clustering application, prediction is mainly used to visualize how fitted conditional quantiles vary across covariate patterns and to compare those patterns across the inferred clusters.
 
-<<app_cluster_predict_grid, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE>>=
+<<app_cluster_predict_grid, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
 # Coordinate-wise quartile grid for continuous covariates; fix binary indicator chas
 qs <- c(0.25, 0.50, 0.75)
 Xgrid <- expand.grid(
@@ -1111,21 +1181,25 @@ Xgrid <- expand.grid(
 )
 Xgrid$chas <- 0
 
-pred_q <- predict(
-  fit_clust,
-  newdata = Xgrid,
-  type = "quantile",
-  index = c(0.50, 0.90, 0.95),
-  level = 0.95,
-  interval = "credible"
+pred_q <- cache_or_run(
+  file.path(derived_cache_dir, "cluster_pred_q.rds"),
+  predict(
+    fit_clust,
+    newdata = Xgrid,
+    type = "quantile",
+    index = c(0.50, 0.90, 0.95),
+    level = 0.95,
+    interval = "credible"
+  )
 )
 
-pred_q
+if (!is.null(pred_q)) pred_q
 @
 
 
 
 
+\bibliographystyle{assets/jss}
 \bibliography{CausalMixGPD_JSS_refs}
 
 

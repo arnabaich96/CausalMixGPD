@@ -29,4 +29,16 @@ remotes::install_github(
 
 - [**Package roadmap**](https://arnabaich96.github.io/CausalMixGPD/start/roadmap.html)
 
+## Performance Acceptance Workflow
+
+- Acceptance gate tests: `tests/testthat/test-performance-acceptance.R`
+- Checklist-to-test mapping: `tests/perf/acceptance_checklist_map.md`
+- Benchmark script: `tests/perf/benchmark_acceptance.R`
+- Required benchmark artifact: `tests/perf/benchmark_acceptance_report.md`
+- Phase 2 benchmark script: `tests/perf/benchmark_phase2.R`
+- Phase 2 benchmark artifact: `tests/perf/benchmark_phase2_report.md`
+
+Use `DPMIXGPD_TEST_LEVEL=ci` for CI-level acceptance checks and
+`DPMIXGPD_TEST_LEVEL=full` for full seeded-equivalence runs.
+
 

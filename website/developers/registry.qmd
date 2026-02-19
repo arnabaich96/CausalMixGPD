@@ -25,3 +25,4 @@ The kernel registry is the routing layer: it maps a user-facing kernel name to c
 See `developers/add-kernel.qmd` for the end-to-end recipe.
 
 
+
