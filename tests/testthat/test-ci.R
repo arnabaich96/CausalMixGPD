@@ -185,6 +185,7 @@ test_that("unconditional CRP bulk model works (v05 coverage)", {
     kernel = "gamma",
     GPD = FALSE,
     components = 3,
+    monitor_latent = TRUE,
     mcmc = mcmc_short
   )
 
@@ -343,6 +344,7 @@ test_that("causal no-X CRP model works (v14 coverage)", {
     PS = FALSE,
     GPD = FALSE,
     components = 3,
+    monitor_latent = TRUE,
     mcmc_outcome = mcmc_short
   )
 
@@ -411,10 +413,10 @@ test_that("causal X no-PS SB model works (v15 coverage)", {
   pred_q <- predict(fit, type = "quantile", p = c(0.25, 0.75))
   expect_s3_class(pred_q, "causalmixgpd_causal_predict")
 
-  pred_d <- predict(fit, y = y[1:5], type = "density")
+  pred_d <- predict(fit, x = X[1:5, , drop = FALSE], y = y[1:5], type = "density")
   expect_s3_class(pred_d, "causalmixgpd_causal_predict")
 
-  pred_s <- predict(fit, y = y[1:5], type = "survival")
+  pred_s <- predict(fit, x = X[1:5, , drop = FALSE], y = y[1:5], type = "survival")
   expect_s3_class(pred_s, "causalmixgpd_causal_predict")
 })
 
@@ -507,6 +509,7 @@ test_that("causal fit plot method works", {
     PS = FALSE,
     GPD = FALSE,
     components = 3,
+    monitor_latent = TRUE,
     mcmc_outcome = mcmc_short
   )
 
@@ -542,6 +545,7 @@ test_that("causal predict plot method works", {
     PS = FALSE,
     GPD = FALSE,
     components = 3,
+    monitor_latent = TRUE,
     mcmc_outcome = mcmc_short
   )
 

@@ -319,6 +319,9 @@ NULL
   bulk_params <- kdef$bulk_params %||% character(0)
 
   cn <- colnames(mat)
+  has_z <- any(grepl("^z\\[[0-9]+\\]$", cn))
+  has_w <- any(grepl("^w\\[[0-9]+\\]$", cn))
+  has_weights <- any(grepl("^weights\\[[0-9]+\\]$", cn))
 
   .indexed_block_local <- function(mat0, base, K = NULL, allow_missing = FALSE) {
     cn0 <- colnames(mat0)
@@ -344,13 +347,6 @@ NULL
     }
     out
   }
-
-  # Extract cluster assignments and weights
-  if (!("z[1]" %in% cn) && !any(grepl("^z\\[[0-9]+\\]$", cn))) {
-    stop("Backend requires z[i] in samples to derive weights.", call. = FALSE)
-  }
-  Z <- .indexed_block_local(mat, "z")
-  storage.mode(Z) <- "integer"
 
   infer_K_from_bulk <- function() {
     if (length(bulk_params) < 1) return(NA_integer_)
@@ -383,11 +379,40 @@ NULL
 
   S <- nrow(mat)
   W <- matrix(0.0, nrow = S, ncol = K)
-  for (s in 1:S) {
-    z_s <- Z[s, ]
-    z_s <- z_s[is.finite(z_s)]
-    z_s <- z_s[z_s >= 1 & z_s <= K]
-    if (length(z_s)) W[s, ] <- tabulate(z_s, nbins = K) / length(z_s)
+  if (identical(backend, "sb")) {
+    if (has_w) {
+      W <- .indexed_block_local(mat, "w", K = K)
+    } else if (has_weights) {
+      W <- .indexed_block_local(mat, "weights", K = K)
+    } else if (has_z) {
+      Z <- .indexed_block_local(mat, "z")
+      storage.mode(Z) <- "integer"
+      for (s in 1:S) {
+        z_s <- Z[s, ]
+        z_s <- z_s[is.finite(z_s)]
+        z_s <- z_s[z_s >= 1 & z_s <= K]
+        if (length(z_s)) W[s, ] <- tabulate(z_s, nbins = K) / length(z_s)
+      }
+    } else {
+      stop("Could not derive SB weights: expected w[i]/weights[i] or z[i] in samples.", call. = FALSE)
+    }
+  } else {
+    if (has_z) {
+      Z <- .indexed_block_local(mat, "z")
+      storage.mode(Z) <- "integer"
+      for (s in 1:S) {
+        z_s <- Z[s, ]
+        z_s <- z_s[is.finite(z_s)]
+        z_s <- z_s[z_s >= 1 & z_s <= K]
+        if (length(z_s)) W[s, ] <- tabulate(z_s, nbins = K) / length(z_s)
+      }
+    } else if (has_w) {
+      W <- .indexed_block_local(mat, "w", K = K)
+    } else if (has_weights) {
+      W <- .indexed_block_local(mat, "weights", K = K)
+    } else {
+      stop("Backend requires z[i] in samples to derive weights.", call. = FALSE)
+    }
   }
 
   bulk_draws <- list()

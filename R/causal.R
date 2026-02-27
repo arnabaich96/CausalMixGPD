@@ -684,8 +684,25 @@ cqte <- function(fit,
   }
   if (is.null(dim(pr_trt$draws))) pr_trt$draws <- array(pr_trt$draws, dim = c(length(pr_trt$draws), 1L, 1L))
   if (is.null(dim(pr_con$draws))) pr_con$draws <- array(pr_con$draws, dim = c(length(pr_con$draws), 1L, 1L))
-  if (!identical(dim(pr_trt$draws), dim(pr_con$draws))) {
-    stop("Treated and control posterior draws must have matching dimensions for CQTE.", call. = FALSE)
+  d_tr <- dim(pr_trt$draws)
+  d_co <- dim(pr_con$draws)
+  if (!identical(d_tr, d_co)) {
+    common <- pmin(d_tr, d_co)
+    if (any(common < 1L)) {
+      stop("Treated and control posterior draws must have matching dimensions for CQTE.", call. = FALSE)
+    }
+    pr_trt$draws <- pr_trt$draws[
+      seq_len(common[1]),
+      seq_len(common[2]),
+      seq_len(common[3]),
+      drop = FALSE
+    ]
+    pr_con$draws <- pr_con$draws[
+      seq_len(common[1]),
+      seq_len(common[2]),
+      seq_len(common[3]),
+      drop = FALSE
+    ]
   }
 
   diff_draws <- pr_trt$draws - pr_con$draws  # dims: S x n_pred x length(probs)
@@ -854,8 +871,15 @@ cate <- function(fit,
   if (is.null(dim(pr_con$draws))) {
     pr_con$draws <- matrix(pr_con$draws, ncol = 1L)
   }
-  if (!identical(dim(pr_trt$draws), dim(pr_con$draws))) {
-    stop("Treated and control posterior draws must have matching dimensions for CATE.", call. = FALSE)
+  d_tr <- dim(pr_trt$draws)
+  d_co <- dim(pr_con$draws)
+  if (!identical(d_tr, d_co)) {
+    common <- pmin(d_tr, d_co)
+    if (any(common < 1L)) {
+      stop("Treated and control posterior draws must have matching dimensions for CATE.", call. = FALSE)
+    }
+    pr_trt$draws <- pr_trt$draws[seq_len(common[1]), seq_len(common[2]), drop = FALSE]
+    pr_con$draws <- pr_con$draws[seq_len(common[1]), seq_len(common[2]), drop = FALSE]
   }
 
   diff_draws <- pr_trt$draws - pr_con$draws  # dims: S x n_pred
@@ -1999,8 +2023,25 @@ predict.causalmixgpd_causal_fit <- function(object,
 
     trt_draws <- normalize_draws(pr_trt$draws)
     con_draws <- normalize_draws(pr_con$draws)
-    if (!identical(dim(trt_draws), dim(con_draws))) {
-      stop("Treated and control posterior draws must have matching dimensions.", call. = FALSE)
+    d_tr <- dim(trt_draws)
+    d_co <- dim(con_draws)
+    if (!identical(d_tr, d_co)) {
+      common <- pmin(d_tr, d_co)
+      if (any(common < 1L)) {
+        stop("Treated and control posterior draws must have matching dimensions.", call. = FALSE)
+      }
+      trt_draws <- trt_draws[
+        seq_len(common[1]),
+        seq_len(common[2]),
+        seq_len(common[3]),
+        drop = FALSE
+      ]
+      con_draws <- con_draws[
+        seq_len(common[1]),
+        seq_len(common[2]),
+        seq_len(common[3]),
+        drop = FALSE
+      ]
     }
 
     diff_draws <- trt_draws - con_draws  # S x n_pred x M
@@ -2015,12 +2056,21 @@ predict.causalmixgpd_causal_fit <- function(object,
     est <- summ$estimate
     lower <- summ$lower
     upper <- summ$upper
-    ps_col <- if (!is.null(ps_full)) ps_full else rep(NA_real_, n_pred)
+    n_pred_eff <- if (is.matrix(est)) nrow(est) else length(est)
+    id_eff <- id_vals[seq_len(min(length(id_vals), n_pred_eff))]
+    if (length(id_eff) < n_pred_eff) {
+      id_eff <- seq_len(n_pred_eff)
+    }
+    ps_col <- if (!is.null(ps_full)) {
+      ps_full[seq_len(min(length(ps_full), n_pred_eff))]
+    } else {
+      rep(NA_real_, n_pred_eff)
+    }
 
     if (length(p) > 1L) {
       out_df <- data.frame(
-        id = rep(id_vals, each = length(p)),
-        index = rep(p, times = n_pred),
+        id = rep(id_eff, each = length(p)),
+        index = rep(p, times = n_pred_eff),
         ps = rep(ps_col, each = length(p)),
         estimate = as.vector(t(est)),
         lower = if (compute_interval) as.vector(t(lower)) else NA_real_,
@@ -2037,11 +2087,11 @@ predict.causalmixgpd_causal_fit <- function(object,
     }
 
     est_vec <- as.numeric(est)
-    lower_vec <- if (compute_interval) as.numeric(lower) else rep(NA_real_, n_pred)
-    upper_vec <- if (compute_interval) as.numeric(upper) else rep(NA_real_, n_pred)
+    lower_vec <- if (compute_interval) as.numeric(lower) else rep(NA_real_, n_pred_eff)
+    upper_vec <- if (compute_interval) as.numeric(upper) else rep(NA_real_, n_pred_eff)
     out <- data.frame(
-      id = id_vals,
-      index = rep(p, length.out = n_pred),
+      id = id_eff,
+      index = rep(p, length.out = n_pred_eff),
       ps = ps_col,
       estimate = est_vec,
       lower = lower_vec,

@@ -78,6 +78,13 @@ build_nimble_bundle <- function(
     monitor_latent <- TRUE
     if (identical(backend, "sb")) monitor_v <- TRUE
   }
+  if (backend %in% c("crp", "spliced") && !isTRUE(monitor_latent)) {
+    warning(
+      "CRP/spliced fits without latent z monitoring may not support downstream summary/predict/params operations ",
+      "that require component weights. Set monitor_latent = TRUE to observe z.",
+      call. = FALSE
+    )
+  }
 
   y <- as.numeric(y)
   if (!length(y)) stop("y must be a non-empty numeric vector.", call. = FALSE)
