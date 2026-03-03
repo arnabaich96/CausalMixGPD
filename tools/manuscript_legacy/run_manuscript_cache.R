@@ -41,7 +41,7 @@ df_causal <- data.frame(y = dat_causal$y, A = dat_causal$A, dat_causal$X)
 cfit <- dpmgpd(
   formula = y ~ x1 + x2 + x3,
   data = df_causal,
-  treat = df_causal$A,
+  treat = "A",
   backend = "sb",
   kernel = "lognormal",
   components = 5,

@@ -22,6 +22,7 @@
   cutoff = NULL,
   ndraws_pred = NULL,
   chunk_size = NULL,
+  show_progress = TRUE,
   ncores = 1L
 )
 }

@@ -4,13 +4,15 @@
 \alias{allocation.mixgpd_fit}
 \title{Extract posterior cluster allocation from mixgpd_fit}
 \usage{
-\method{allocation}{mixgpd_fit}(object, method = c("dahl"), ...)
+\method{allocation}{mixgpd_fit}(object, method = c("dahl"), show_progress = TRUE, ...)
 }
 \arguments{
 \item{object}{A \code{mixgpd_fit} object from \code{\link{dpmgpd}} or related functions.}
 
 \item{method}{Character; clustering summarization method. Currently only \code{"dahl"}
 is supported (Dahl's method for finding representative partition).}
+
+\item{show_progress}{Logical; if TRUE, print step messages and render progress where supported.}
 
 \item{...}{Additional arguments. If \code{newdata} is provided, cluster allocations
 will be predicted for new observations (requires \code{y} column in \code{newdata}).}
@@ -21,7 +23,7 @@ An object of class \code{"mixgpd_allocation"} containing:
 \item{labels_train}{Integer vector of cluster labels for training data (1, 2, ..., K)}
 \item{probs_train}{N x K matrix of cluster membership probabilities for training data}
 \item{PSM}{N x N posterior similarity matrix}
-\item{K}{Number of clusters in representative partition}
+\item{components}{Number of clusters in representative partition}
 \item{method}{Clustering method used}
 \item{backend}{Model backend (crp or spliced)}
 \item{GPD}{Logical; whether GPD tail is included}
@@ -32,6 +34,10 @@ An object of class \code{"mixgpd_allocation"} containing:
 \item{n_new}{(if newdata) Number of new observations}
 \item{y_new}{(if newdata) Response values for new observations}
 }
+
+When \code{newdata} is supplied, predicted allocations are based on a simple
+distance-to-cluster-center heuristic on \code{y} from the representative
+partition.
 }
 \description{
 Extract posterior cluster allocation from mixgpd_fit

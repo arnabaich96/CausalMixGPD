@@ -10,7 +10,8 @@ ate_rmean(
   cutoff,
   interval = "credible",
   level = 0.95,
-  nsim_mean = 200L
+  nsim_mean = 200L,
+  show_progress = TRUE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ highest posterior density intervals.}
 \item{level}{Numeric credible level for intervals (default 0.95 for 95 percent CI).}
 
 \item{nsim_mean}{Number of posterior predictive draws to approximate the mean.}
+
+\item{show_progress}{Logical; if TRUE, print step messages and render progress where supported.}
 }
 \description{
 Computes an average treatment effect on the restricted mean scale,

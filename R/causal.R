@@ -14,7 +14,8 @@
 #' @param y Numeric outcome vector.
 #' @param X Design matrix or data.frame of covariates (N x P).
 #' @param A Binary treatment indicator (length N, values 0/1).
-#' @param backend Character; \code{"sb"} or \code{"crp"} for outcome models. If length 2,
+#' @param backend Character; \code{"sb"}, \code{"crp"}, or \code{"spliced"} for
+#'   outcome models. If length 2,
 #'   the first entry is used for treated (\code{A=1}) and the second for control (\code{A=0}).
 #' @param kernel Character kernel name for outcome models. If length 2,
 #'   the first entry is used for treated (\code{A=1}) and the second for control (\code{A=0}).
@@ -72,7 +73,7 @@ build_causal_bundle <- function(
     y,
     X,
     A,
-    backend = c("sb", "crp"),
+    backend = c("sb", "crp", "spliced"),
     kernel,
     GPD = FALSE,
     components = NULL,
@@ -100,8 +101,8 @@ build_causal_bundle <- function(
   }
 
   backend <- .arm_value(backend, "backend")
-  backend$trt <- match.arg(backend$trt, choices = c("sb", "crp"))
-  backend$con <- match.arg(backend$con, choices = c("sb", "crp"))
+  backend$trt <- match.arg(backend$trt, choices = c("sb", "crp", "spliced"))
+  backend$con <- match.arg(backend$con, choices = c("sb", "crp", "spliced"))
   monitor <- match.arg(monitor)
   ps_scale <- match.arg(ps_scale)
   ps_summary <- match.arg(ps_summary)
@@ -265,10 +266,20 @@ build_causal_bundle <- function(
   out
 }
 
-.run_ps_mcmc_bundle <- function(bundle, show_progress = TRUE) {
+.run_ps_mcmc_bundle <- function(bundle, show_progress = TRUE, quiet = FALSE) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
+  nimble_quiet <- isTRUE(show_progress) || isTRUE(quiet)
 
   stopifnot(inherits(bundle, "causalmixgpd_ps_bundle"))
+  progress_ctx <- .cmgpd_progress_start(
+    total_steps = 5L,
+    enabled = isTRUE(show_progress),
+    quiet = isTRUE(quiet),
+    label = "run_ps_mcmc_bundle"
+  )
+  on.exit(.cmgpd_progress_done(progress_ctx, final_label = NULL), add = TRUE)
+  .cmgpd_progress_step(progress_ctx, "Validating PS MCMC inputs")
+
   if (!"package:nimble" %in% search()) {
     suppressPackageStartupMessages(base::require("nimble", quietly = TRUE, warn.conflicts = FALSE))
   }
@@ -280,25 +291,39 @@ build_causal_bundle <- function(
   m <- bundle$mcmc %||% list()
   monitors <- bundle$monitors %||% "beta"
 
-  Rmodel <- nimble::nimbleModel(
-    code = code,
-    data = data,
-    constants = constants,
-    inits = inits,
-    check = TRUE,
-    calculate = FALSE
+  .cmgpd_progress_step(progress_ctx, "Building PS NIMBLE model")
+  Rmodel <- .cmgpd_capture_nimble(
+    nimble::nimbleModel(
+      code = code,
+      data = data,
+      constants = constants,
+      inits = inits,
+      check = TRUE,
+      calculate = FALSE
+    ),
+    suppress = nimble_quiet
   )
 
-  conf <- nimble::configureMCMC(
-    Rmodel,
-    monitors = monitors,
-    enableWAIC = FALSE
+  conf <- .cmgpd_capture_nimble(
+    nimble::configureMCMC(
+      Rmodel,
+      monitors = monitors,
+      enableWAIC = FALSE
+    ),
+    suppress = nimble_quiet
   )
 
-  Rmcmc <- nimble::buildMCMC(conf)
+  Rmcmc <- .cmgpd_capture_nimble(nimble::buildMCMC(conf), suppress = nimble_quiet)
 
-  Cmodel <- nimble::compileNimble(Rmodel, showCompilerOutput = FALSE)
-  Cmcmc  <- nimble::compileNimble(Rmcmc, project = Rmodel, showCompilerOutput = FALSE)
+  .cmgpd_progress_step(progress_ctx, "Compiling PS model")
+  Cmodel <- .cmgpd_capture_nimble(
+    nimble::compileNimble(Rmodel, showCompilerOutput = FALSE),
+    suppress = nimble_quiet
+  )
+  Cmcmc  <- .cmgpd_capture_nimble(
+    nimble::compileNimble(Rmcmc, project = Rmodel, showCompilerOutput = FALSE),
+    suppress = nimble_quiet
+  )
 
   niter   <- as.integer(m$niter   %||% 2000)
   nburnin <- as.integer(m$nburnin %||% 500)
@@ -323,18 +348,23 @@ build_causal_bundle <- function(
     inits_list <- inits
   }
 
-  res <- nimble::runMCMC(
-    Cmcmc,
-    niter = niter,
-    nburnin = nburnin,
-    thin = thin,
-    nchains = nchains,
-    inits = inits_list,
-    setSeed = seed,
-    progressBar = isTRUE(show_progress),
-    samplesAsCodaMCMC = TRUE
+  .cmgpd_progress_step(progress_ctx, "Running PS MCMC")
+  res <- .cmgpd_capture_nimble(
+    nimble::runMCMC(
+      Cmcmc,
+      niter = niter,
+      nburnin = nburnin,
+      thin = thin,
+      nchains = nchains,
+      inits = inits_list,
+      setSeed = seed,
+      progressBar = FALSE,
+      samplesAsCodaMCMC = TRUE
+    ),
+    suppress = nimble_quiet
   )
 
+  .cmgpd_progress_step(progress_ctx, "Assembling PS fit")
   fit <- list(
     mcmc = list(samples = res),
     bundle = bundle,
@@ -350,7 +380,8 @@ build_causal_bundle <- function(
 #' When \code{PS=FALSE} in the bundle, the PS model is skipped entirely.
 #'
 #' @param bundle A \code{"causalmixgpd_causal_bundle"} from \code{build_causal_bundle()}.
-#' @param show_progress Logical; passed to nimble for each block.
+#' @param show_progress Logical; if TRUE, print step messages and render progress where supported.
+#' @param quiet Logical; if TRUE, suppress step messages and progress display.
 #' @param parallel_arms Logical; if TRUE, run control and treated outcome arms in parallel.
 #' @param workers Optional integer workers for parallel arm execution.
 #' @param timing Logical; if TRUE, return arm and total timings in \code{$timing}.
@@ -362,11 +393,20 @@ build_causal_bundle <- function(
 #' fit <- run_mcmc_causal(cb)
 #' }
 #' @export
-run_mcmc_causal <- function(bundle, show_progress = TRUE,
+run_mcmc_causal <- function(bundle, show_progress = TRUE, quiet = FALSE,
                             parallel_arms = FALSE, workers = NULL, timing = FALSE,
                             z_update_every = NULL) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
   stopifnot(inherits(bundle, "causalmixgpd_causal_bundle"))
+  progress_ctx <- .cmgpd_progress_start(
+    total_steps = 6L,
+    enabled = isTRUE(show_progress),
+    quiet = isTRUE(quiet),
+    label = "run_mcmc_causal"
+  )
+  on.exit(.cmgpd_progress_done(progress_ctx, final_label = NULL), add = TRUE)
+  .cmgpd_progress_step(progress_ctx, "Validating causal MCMC configuration")
+
   z_update_every <- as.integer(
     z_update_every %||%
       bundle$outcome$con$mcmc$z_update_every %||%
@@ -390,7 +430,8 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE,
   ps_model <- NULL
 
   if (ps_enabled) {
-    ps_fit <- .run_ps_mcmc_bundle(bundle$design, show_progress = show_progress)
+    .cmgpd_progress_step(progress_ctx, "Running propensity score block")
+    ps_fit <- .run_ps_mcmc_bundle(bundle$design, show_progress = show_progress, quiet = quiet)
     ps_training_X <- bundle$data$X
     if (is.null(ps_training_X)) {
       stop("Training design matrix 'X' is missing from causal bundle.", call. = FALSE)
@@ -421,7 +462,11 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE,
       clamp = ps_clamp
     )
   }
+  if (!ps_enabled) {
+    .cmgpd_progress_step(progress_ctx, "Skipping propensity score block")
+  }
 
+  .cmgpd_progress_step(progress_ctx, "Rebuilding outcome-arm code/monitors")
   # Regenerate code/constants/monitors (with or without PS)
   for (arm in c("con", "trt")) {
     b <- bundle$outcome[[arm]]
@@ -471,18 +516,22 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE,
       warning("parallel_arms=TRUE requested but 'future'/'future.apply' are unavailable; running sequentially.",
               call. = FALSE)
     }
+    .cmgpd_progress_step(progress_ctx, "Running control-arm outcome MCMC")
     t_con <- proc.time()[["elapsed"]]
     con_fit <- run_mcmc_bundle_manual(
       bundle$outcome$con,
       show_progress = show_progress,
+      quiet = quiet,
       timing = timing,
       z_update_every = z_update_every
     )
     timing_info$con <- proc.time()[["elapsed"]] - t_con
+    .cmgpd_progress_step(progress_ctx, "Running treated-arm outcome MCMC")
     t_trt <- proc.time()[["elapsed"]]
     trt_fit <- run_mcmc_bundle_manual(
       bundle$outcome$trt,
       show_progress = show_progress,
+      quiet = quiet,
       timing = timing,
       z_update_every = z_update_every
     )
@@ -496,6 +545,7 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE,
     trt_fit$ps_model <- ps_model
   }
 
+  .cmgpd_progress_step(progress_ctx, "Assembling causal fit object")
   out <- list(
     ps_fit = ps_fit,
     outcome_fit = list(con = con_fit, trt = trt_fit),
@@ -593,6 +643,7 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE,
 #'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
 #'   highest posterior density intervals.
 #' @param level Numeric credible level for intervals (default 0.95 for 95 percent CI).
+#' @param show_progress Logical; if TRUE, print step messages and render progress where supported.
 #' @return A list with elements \code{fit} (CQTE), \code{grid} (probabilities),
 #'   and the treated/control prediction objects.
 #' @examples
@@ -609,8 +660,18 @@ cqte <- function(fit,
                 probs = c(0.1, 0.5, 0.9),
                 newdata = NULL,
                 interval = "credible",
-                level = 0.95) {
+                level = 0.95,
+                show_progress = TRUE) {
   stopifnot(inherits(fit, "causalmixgpd_causal_fit"))
+  progress_ctx <- .cmgpd_progress_start(
+    total_steps = 5L,
+    enabled = isTRUE(show_progress),
+    quiet = FALSE,
+    label = "cqte"
+  )
+  on.exit(.cmgpd_progress_done(progress_ctx, final_label = NULL), add = TRUE)
+  .cmgpd_progress_step(progress_ctx, "Preparing CQTE inputs")
+
   .causal_require_conditional(fit, fn = "cqte")
   iv <- .causal_validate_interval(interval = interval, level = level)
   compute_interval <- iv$compute_interval
@@ -627,6 +688,7 @@ cqte <- function(fit,
   ps_prob <- NULL
   ps_cov <- NULL
   if (!is.null(x_pred) && ps_enabled) {
+    .cmgpd_progress_step(progress_ctx, "Preparing propensity-score adjustment")
     ps_fit_use <- fit$ps_fit
     ps_bundle_use <- fit$bundle$design
 
@@ -653,16 +715,22 @@ cqte <- function(fit,
       )
       ps_cov <- .apply_ps_scale(ps_prob, scale = ps_scale, clamp = ps_clamp)
     }
+  } else {
+    .cmgpd_progress_step(progress_ctx, "Skipping propensity-score adjustment")
   }
 
+  .cmgpd_progress_step(progress_ctx, "Predicting treated-arm quantiles")
   pr_trt <- predict(fit$outcome_fit$trt, x = x_pred, type = "quantile", index = probs,
                     ps = ps_cov,
                     interval = if (compute_interval) interval else NULL,
-                    store_draws = TRUE)
+                    store_draws = TRUE,
+                    show_progress = FALSE)
+  .cmgpd_progress_step(progress_ctx, "Predicting control-arm quantiles")
   pr_con <- predict(fit$outcome_fit$con, x = x_pred, type = "quantile", index = probs,
                     ps = ps_cov,
                     interval = if (compute_interval) interval else NULL,
-                    store_draws = TRUE)
+                    store_draws = TRUE,
+                    show_progress = FALSE)
 
   if (is.null(pr_trt$draws) || is.null(pr_con$draws)) {
     stop("CQTE requires stored posterior quantile draws; set store_draws=TRUE in predict().", call. = FALSE)
@@ -706,6 +774,7 @@ cqte <- function(fit,
   }
 
   diff_draws <- pr_trt$draws - pr_con$draws  # dims: S x n_pred x length(probs)
+  .cmgpd_progress_step(progress_ctx, "Aggregating CQTE estimates")
   fit_mat <- apply(diff_draws, c(2, 3), mean, na.rm = TRUE)
   n_pred <- if (!is.null(dim(pr_trt$draws))) dim(pr_trt$draws)[2] else length(pr_trt$fit)
   n_prob <- length(probs)
@@ -787,6 +856,7 @@ cqte <- function(fit,
 #'   highest posterior density intervals.
 #' @param level Numeric credible level for intervals (default 0.95 for 95 percent CI).
 #' @param nsim_mean Number of posterior predictive draws to approximate the mean.
+#' @param show_progress Logical; if TRUE, print step messages and render progress where supported.
 #' @return A list with elements \code{fit} (CATE), optional \code{lower}/\code{upper},
 #'   and the treated/control prediction objects.
 #' @examples
@@ -805,8 +875,18 @@ cate <- function(fit,
                 cutoff = NULL,
                 interval = "credible",
                 level = 0.95,
-                nsim_mean = 200L) {
+                nsim_mean = 200L,
+                show_progress = TRUE) {
   stopifnot(inherits(fit, "causalmixgpd_causal_fit"))
+  progress_ctx <- .cmgpd_progress_start(
+    total_steps = 5L,
+    enabled = isTRUE(show_progress),
+    quiet = FALSE,
+    label = "cate"
+  )
+  on.exit(.cmgpd_progress_done(progress_ctx, final_label = NULL), add = TRUE)
+  .cmgpd_progress_step(progress_ctx, "Preparing CATE inputs")
+
   .causal_require_conditional(fit, fn = "cate")
 
   type <- match.arg(type)
@@ -825,6 +905,7 @@ cate <- function(fit,
   ps_prob <- NULL
   ps_cov <- NULL
   if (!is.null(x_pred) && ps_enabled) {
+    .cmgpd_progress_step(progress_ctx, "Preparing propensity-score adjustment")
     ps_fit_use <- fit$ps_fit
     ps_bundle_use <- fit$bundle$design
 
@@ -851,16 +932,22 @@ cate <- function(fit,
       )
       ps_cov <- .apply_ps_scale(ps_prob, scale = ps_scale, clamp = ps_clamp)
     }
+  } else {
+    .cmgpd_progress_step(progress_ctx, "Skipping propensity-score adjustment")
   }
 
+  .cmgpd_progress_step(progress_ctx, "Predicting treated-arm effects")
   pr_trt <- predict(fit$outcome_fit$trt, x = x_pred, type = type,
                     cutoff = cutoff,
                     ps = ps_cov, interval = if (compute_interval) interval else NULL,
-                    level = level, nsim_mean = nsim_mean, store_draws = TRUE)
+                    level = level, nsim_mean = nsim_mean, store_draws = TRUE,
+                    show_progress = FALSE)
+  .cmgpd_progress_step(progress_ctx, "Predicting control-arm effects")
   pr_con <- predict(fit$outcome_fit$con, x = x_pred, type = type,
                     cutoff = cutoff,
                     ps = ps_cov, interval = if (compute_interval) interval else NULL,
-                    level = level, nsim_mean = nsim_mean, store_draws = TRUE)
+                    level = level, nsim_mean = nsim_mean, store_draws = TRUE,
+                    show_progress = FALSE)
 
   if (is.null(pr_trt$draws) || is.null(pr_con$draws)) {
     stop("CATE requires stored posterior mean draws; set store_draws=TRUE in predict().", call. = FALSE)
@@ -883,6 +970,7 @@ cate <- function(fit,
   }
 
   diff_draws <- pr_trt$draws - pr_con$draws  # dims: S x n_pred
+  .cmgpd_progress_step(progress_ctx, "Aggregating CATE estimates")
   fit_vec <- colMeans(diff_draws, na.rm = TRUE)
   n_pred <- length(fit_vec)
   lower <- upper <- NULL
@@ -1201,6 +1289,7 @@ cate <- function(fit,
 #'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
 #'   highest posterior density intervals.
 #' @param level Numeric credible level for intervals (default 0.95 for 95 percent CI).
+#' @param show_progress Logical; if TRUE, print step messages and render progress where supported.
 #' @return A list with elements \code{fit}, \code{grid} (probabilities), and
 #'   aggregated treated/control prediction objects. \code{fit} is a data frame
 #'   with columns \code{index}, \code{estimate}, \code{lower}, \code{upper}
@@ -1217,8 +1306,18 @@ qte <- function(fit,
                 newdata = NULL,
                 y = NULL,
                 interval = "credible",
-                level = 0.95) {
+                level = 0.95,
+                show_progress = TRUE) {
   stopifnot(inherits(fit, "causalmixgpd_causal_fit"))
+  progress_ctx <- .cmgpd_progress_start(
+    total_steps = 5L,
+    enabled = isTRUE(show_progress),
+    quiet = FALSE,
+    label = "qte"
+  )
+  on.exit(.cmgpd_progress_done(progress_ctx, final_label = NULL), add = TRUE)
+  .cmgpd_progress_step(progress_ctx, "Preparing QTE inputs")
+
   .causal_warn_ignored_marginal_inputs(fn = "qte", newdata = newdata, y = y, conditional_fn = "cqte")
   probs <- as.numeric(probs)
   if (!length(probs) || anyNA(probs) || any(!is.finite(probs)) || any(probs <= 0 | probs >= 1)) {
@@ -1241,6 +1340,7 @@ qte <- function(fit,
   ps_prob <- NULL
   ps_cov <- NULL
   if (ps_enabled) {
+    .cmgpd_progress_step(progress_ctx, "Preparing propensity-score adjustment")
     ps_fit_use <- fit$ps_fit
     ps_bundle_use <- fit$bundle$design
     if (is.null(ps_fit_use)) {
@@ -1263,23 +1363,29 @@ qte <- function(fit,
       )
       ps_cov <- .apply_ps_scale(ps_prob, scale = ps_scale, clamp = ps_clamp)
     }
+  } else {
+    .cmgpd_progress_step(progress_ctx, "Skipping propensity-score adjustment")
   }
 
+  .cmgpd_progress_step(progress_ctx, "Predicting treated-arm draws")
   pr_trt <- predict(
     fit$outcome_fit$trt,
     x = x_pred,
     type = "fit",
     ps = ps_cov,
     interval = NULL,
-    store_draws = TRUE
+    store_draws = TRUE,
+    show_progress = FALSE
   )
+  .cmgpd_progress_step(progress_ctx, "Predicting control-arm draws")
   pr_con <- predict(
     fit$outcome_fit$con,
     x = x_pred,
     type = "fit",
     ps = ps_cov,
     interval = NULL,
-    store_draws = TRUE
+    store_draws = TRUE,
+    show_progress = FALSE
   )
 
   meta <- fit$bundle$meta %||% list()
@@ -1303,6 +1409,7 @@ qte <- function(fit,
     )
   )
   idx <- .causal_effect_subset_index(fit = fit, n_pred = cq$n_pred %||% 1L, subset = "all")
+  .cmgpd_progress_step(progress_ctx, "Aggregating QTE estimates")
   .causal_aggregate_qte(cq, idx = idx, effect_type = "qte")
 }
 
@@ -1329,8 +1436,18 @@ qtt <- function(fit,
                 newdata = NULL,
                 y = NULL,
                 interval = "credible",
-                level = 0.95) {
+                level = 0.95,
+                show_progress = TRUE) {
   stopifnot(inherits(fit, "causalmixgpd_causal_fit"))
+  progress_ctx <- .cmgpd_progress_start(
+    total_steps = 5L,
+    enabled = isTRUE(show_progress),
+    quiet = FALSE,
+    label = "qtt"
+  )
+  on.exit(.cmgpd_progress_done(progress_ctx, final_label = NULL), add = TRUE)
+  .cmgpd_progress_step(progress_ctx, "Preparing QTT inputs")
+
   .causal_warn_ignored_marginal_inputs(fn = "qtt", newdata = newdata, y = y, conditional_fn = "cqte")
   probs <- as.numeric(probs)
   if (!length(probs) || anyNA(probs) || any(!is.finite(probs)) || any(probs <= 0 | probs >= 1)) {
@@ -1353,6 +1470,7 @@ qtt <- function(fit,
   ps_prob <- NULL
   ps_cov <- NULL
   if (ps_enabled) {
+    .cmgpd_progress_step(progress_ctx, "Preparing propensity-score adjustment")
     ps_fit_use <- fit$ps_fit
     ps_bundle_use <- fit$bundle$design
     if (is.null(ps_fit_use)) {
@@ -1375,23 +1493,29 @@ qtt <- function(fit,
       )
       ps_cov <- .apply_ps_scale(ps_prob, scale = ps_scale, clamp = ps_clamp)
     }
+  } else {
+    .cmgpd_progress_step(progress_ctx, "Skipping propensity-score adjustment")
   }
 
+  .cmgpd_progress_step(progress_ctx, "Predicting treated-arm draws")
   pr_trt <- predict(
     fit$outcome_fit$trt,
     x = x_pred,
     type = "fit",
     ps = ps_cov,
     interval = NULL,
-    store_draws = TRUE
+    store_draws = TRUE,
+    show_progress = FALSE
   )
+  .cmgpd_progress_step(progress_ctx, "Predicting control-arm draws")
   pr_con <- predict(
     fit$outcome_fit$con,
     x = x_pred,
     type = "fit",
     ps = ps_cov,
     interval = NULL,
-    store_draws = TRUE
+    store_draws = TRUE,
+    show_progress = FALSE
   )
 
   meta <- fit$bundle$meta %||% list()
@@ -1415,6 +1539,7 @@ qtt <- function(fit,
     )
   )
   idx <- .causal_effect_subset_index(fit = fit, n_pred = cq$n_pred %||% 1L, subset = "treated")
+  .cmgpd_progress_step(progress_ctx, "Aggregating QTT estimates")
   .causal_aggregate_qte(cq, idx = idx, effect_type = "qtt")
 }
 
@@ -1440,6 +1565,7 @@ qtt <- function(fit,
 #'   highest posterior density intervals.
 #' @param level Numeric credible level for intervals (default 0.95 for 95 percent CI).
 #' @param nsim_mean Number of posterior predictive draws to approximate the mean.
+#' @param show_progress Logical; if TRUE, print step messages and render progress where supported.
 #' @return A list with elements \code{fit}, optional \code{lower}/\code{upper},
 #'   and aggregated treated/control prediction objects. \code{fit} is a single-value
 #'   marginal effect estimate, and intervals are computed from posterior draws.
@@ -1457,8 +1583,18 @@ ate <- function(fit,
                 cutoff = NULL,
                 interval = "credible",
                 level = 0.95,
-                nsim_mean = 200L) {
+                nsim_mean = 200L,
+                show_progress = TRUE) {
   stopifnot(inherits(fit, "causalmixgpd_causal_fit"))
+  progress_ctx <- .cmgpd_progress_start(
+    total_steps = 5L,
+    enabled = isTRUE(show_progress),
+    quiet = FALSE,
+    label = "ate"
+  )
+  on.exit(.cmgpd_progress_done(progress_ctx, final_label = NULL), add = TRUE)
+  .cmgpd_progress_step(progress_ctx, "Preparing ATE inputs")
+
   .causal_warn_ignored_marginal_inputs(fn = "ate", newdata = newdata, y = y, conditional_fn = "cate")
   type <- match.arg(type)
   iv <- .causal_validate_interval(interval = interval, level = level)
@@ -1478,6 +1614,7 @@ ate <- function(fit,
   ps_prob <- NULL
   ps_cov <- NULL
   if (ps_enabled) {
+    .cmgpd_progress_step(progress_ctx, "Preparing propensity-score adjustment")
     ps_fit_use <- fit$ps_fit
     ps_bundle_use <- fit$bundle$design
     if (is.null(ps_fit_use)) {
@@ -1500,8 +1637,11 @@ ate <- function(fit,
       )
       ps_cov <- .apply_ps_scale(ps_prob, scale = ps_scale, clamp = ps_clamp)
     }
+  } else {
+    .cmgpd_progress_step(progress_ctx, "Skipping propensity-score adjustment")
   }
 
+  .cmgpd_progress_step(progress_ctx, "Predicting treated-arm effects")
   pr_trt <- predict(
     fit$outcome_fit$trt,
     x = x_pred,
@@ -1511,8 +1651,10 @@ ate <- function(fit,
     interval = if (compute_interval) interval else NULL,
     level = level,
     nsim_mean = nsim_mean,
-    store_draws = TRUE
+    store_draws = TRUE,
+    show_progress = FALSE
   )
+  .cmgpd_progress_step(progress_ctx, "Predicting control-arm effects")
   pr_con <- predict(
     fit$outcome_fit$con,
     x = x_pred,
@@ -1522,7 +1664,8 @@ ate <- function(fit,
     interval = if (compute_interval) interval else NULL,
     level = level,
     nsim_mean = nsim_mean,
-    store_draws = TRUE
+    store_draws = TRUE,
+    show_progress = FALSE
   )
 
   meta <- fit$bundle$meta %||% list()
@@ -1545,6 +1688,7 @@ ate <- function(fit,
     )
   )
   idx <- .causal_effect_subset_index(fit = fit, n_pred = ca$n_pred %||% 1L, subset = "all")
+  .cmgpd_progress_step(progress_ctx, "Aggregating ATE estimates")
   .causal_aggregate_ate(ca, idx = idx, effect_type = "ate")
 }
 
@@ -1570,8 +1714,18 @@ att <- function(fit,
                 cutoff = NULL,
                 interval = "credible",
                 level = 0.95,
-                nsim_mean = 200L) {
+                nsim_mean = 200L,
+                show_progress = TRUE) {
   stopifnot(inherits(fit, "causalmixgpd_causal_fit"))
+  progress_ctx <- .cmgpd_progress_start(
+    total_steps = 5L,
+    enabled = isTRUE(show_progress),
+    quiet = FALSE,
+    label = "att"
+  )
+  on.exit(.cmgpd_progress_done(progress_ctx, final_label = NULL), add = TRUE)
+  .cmgpd_progress_step(progress_ctx, "Preparing ATT inputs")
+
   .causal_warn_ignored_marginal_inputs(fn = "att", newdata = newdata, y = y, conditional_fn = "cate")
   type <- match.arg(type)
   iv <- .causal_validate_interval(interval = interval, level = level)
@@ -1591,6 +1745,7 @@ att <- function(fit,
   ps_prob <- NULL
   ps_cov <- NULL
   if (ps_enabled) {
+    .cmgpd_progress_step(progress_ctx, "Preparing propensity-score adjustment")
     ps_fit_use <- fit$ps_fit
     ps_bundle_use <- fit$bundle$design
     if (is.null(ps_fit_use)) {
@@ -1613,8 +1768,11 @@ att <- function(fit,
       )
       ps_cov <- .apply_ps_scale(ps_prob, scale = ps_scale, clamp = ps_clamp)
     }
+  } else {
+    .cmgpd_progress_step(progress_ctx, "Skipping propensity-score adjustment")
   }
 
+  .cmgpd_progress_step(progress_ctx, "Predicting treated-arm effects")
   pr_trt <- predict(
     fit$outcome_fit$trt,
     x = x_pred,
@@ -1624,8 +1782,10 @@ att <- function(fit,
     interval = if (compute_interval) interval else NULL,
     level = level,
     nsim_mean = nsim_mean,
-    store_draws = TRUE
+    store_draws = TRUE,
+    show_progress = FALSE
   )
+  .cmgpd_progress_step(progress_ctx, "Predicting control-arm effects")
   pr_con <- predict(
     fit$outcome_fit$con,
     x = x_pred,
@@ -1635,7 +1795,8 @@ att <- function(fit,
     interval = if (compute_interval) interval else NULL,
     level = level,
     nsim_mean = nsim_mean,
-    store_draws = TRUE
+    store_draws = TRUE,
+    show_progress = FALSE
   )
 
   meta <- fit$bundle$meta %||% list()
@@ -1658,6 +1819,7 @@ att <- function(fit,
     )
   )
   idx <- .causal_effect_subset_index(fit = fit, n_pred = ca$n_pred %||% 1L, subset = "treated")
+  .cmgpd_progress_step(progress_ctx, "Aggregating ATT estimates")
   .causal_aggregate_ate(ca, idx = idx, effect_type = "att")
 }
 
@@ -1683,7 +1845,8 @@ ate_rmean <- function(fit,
                       cutoff,
                       interval = "credible",
                       level = 0.95,
-                      nsim_mean = 200L) {
+                      nsim_mean = 200L,
+                      show_progress = TRUE) {
   if (.causal_is_conditional_model(fit)) {
     cate(fit = fit,
          newdata = newdata,
@@ -1691,7 +1854,8 @@ ate_rmean <- function(fit,
          cutoff = cutoff,
          interval = interval,
          level = level,
-         nsim_mean = nsim_mean)
+         nsim_mean = nsim_mean,
+         show_progress = show_progress)
   } else {
     ate(fit = fit,
         newdata = newdata,
@@ -1700,7 +1864,8 @@ ate_rmean <- function(fit,
         cutoff = cutoff,
         interval = interval,
         level = level,
-        nsim_mean = nsim_mean)
+        nsim_mean = nsim_mean,
+        show_progress = show_progress)
   }
 }
 
@@ -1759,8 +1924,17 @@ predict.causalmixgpd_causal_fit <- function(object,
                                         store_draws = TRUE,
                                         nsim_mean = 200L,
                                         ncores = 1L,
+                                        show_progress = TRUE,
                                         ...) {
   stopifnot(inherits(object, "causalmixgpd_causal_fit"))
+  progress_ctx <- .cmgpd_progress_start(
+    total_steps = 5L,
+    enabled = isTRUE(show_progress),
+    quiet = FALSE,
+    label = "predict.causalmixgpd_causal_fit"
+  )
+  on.exit(.cmgpd_progress_done(progress_ctx, final_label = NULL), add = TRUE)
+  .cmgpd_progress_step(progress_ctx, "Resolving causal prediction inputs")
 
   if (!is.null(newdata) && !is.null(x)) {
     stop("Provide only one of 'x' or 'newdata' (they are aliases).", call. = FALSE)
@@ -1840,6 +2014,7 @@ predict.causalmixgpd_causal_fit <- function(object,
 
   ps_full <- NULL
   ps_cov <- NULL
+  .cmgpd_progress_step(progress_ctx, "Preparing propensity-score inputs")
   if (ps_enabled) {
     if (!is.null(ps)) {
       ps_full <- as.numeric(ps)
@@ -1873,6 +2048,11 @@ predict.causalmixgpd_causal_fit <- function(object,
   ps_trt <- if (ps_enabled && ps_include_in_outcome) ps_cov else NULL
   ps_con <- if (ps_enabled && ps_include_in_outcome) ps_cov else NULL
 
+  .return_out <- function(obj) {
+    .cmgpd_progress_step(progress_ctx, "Assembling causal prediction output")
+    obj
+  }
+
   .extract_stats <- function(pr, n_pred) {
     fit <- pr$fit
     if (is.data.frame(fit)) {
@@ -1903,6 +2083,7 @@ predict.causalmixgpd_causal_fit <- function(object,
   }
 
   if (type %in% c("density", "survival", "prob")) {
+    .cmgpd_progress_step(progress_ctx, "Predicting treated and control arms")
     pred_type <- if (type == "density") "density" else "survival"
     x_pred <- if (!is.null(x_mat)) x_mat else if (has_X) X_train else NULL
     y_vec <- y
@@ -1922,6 +2103,7 @@ predict.causalmixgpd_causal_fit <- function(object,
           interval = if (compute_interval) interval else NULL,
           probs = probs,
           store_draws = FALSE,
+          show_progress = FALSE,
           ncores = 1L,
           ...
         )
@@ -1964,11 +2146,12 @@ predict.causalmixgpd_causal_fit <- function(object,
     )
     attr(out, "type") <- type
     class(out) <- c("causalmixgpd_causal_predict", class(out))
-    return(out)
+    return(.return_out(out))
   }
 
   id_arg <- if (!is.null(x)) id_vals else NULL
 
+  .cmgpd_progress_step(progress_ctx, "Predicting treated arm")
   pr_trt <- predict(
     object$outcome_fit$trt,
     x = x,
@@ -1982,10 +2165,12 @@ predict.causalmixgpd_causal_fit <- function(object,
     probs = probs,
     store_draws = store_draws,
     nsim_mean = nsim_mean,
+    show_progress = FALSE,
     ncores = ncores,
     ...
   )
 
+  .cmgpd_progress_step(progress_ctx, "Predicting control arm")
   pr_con <- predict(
     object$outcome_fit$con,
     x = x,
@@ -1999,6 +2184,7 @@ predict.causalmixgpd_causal_fit <- function(object,
     probs = probs,
     store_draws = store_draws,
     nsim_mean = nsim_mean,
+    show_progress = FALSE,
     ncores = ncores,
     ...
   )
@@ -2083,7 +2269,7 @@ predict.causalmixgpd_causal_fit <- function(object,
       attr(out_df, "trt") <- pr_trt
       attr(out_df, "con") <- pr_con
       class(out_df) <- c("causalmixgpd_causal_predict", class(out_df))
-      return(out_df)
+      return(.return_out(out_df))
     }
 
     est_vec <- as.numeric(est)
@@ -2104,7 +2290,7 @@ predict.causalmixgpd_causal_fit <- function(object,
     attr(out, "trt") <- pr_trt
     attr(out, "con") <- pr_con
     class(out) <- c("causalmixgpd_causal_predict", class(out))
-    return(out)
+    return(.return_out(out))
   }
   # Special handling for quantile with possibly multiple probabilities
   if (type == "quantile" && length(p) > 1L) {
@@ -2164,7 +2350,7 @@ predict.causalmixgpd_causal_fit <- function(object,
     attr(out_df, "trt") <- pr_trt
     attr(out_df, "con") <- pr_con
     class(out_df) <- c("causalmixgpd_causal_predict", class(out_df))
-    return(out_df)
+    return(.return_out(out_df))
   }
 
   trt_stats <- .extract_stats(pr_trt, n_pred)
@@ -2189,7 +2375,7 @@ predict.causalmixgpd_causal_fit <- function(object,
   attr(out, "trt") <- pr_trt
   attr(out, "con") <- pr_con
   class(out) <- c("causalmixgpd_causal_predict", class(out))
-  out
+  .return_out(out)
 }
 
 

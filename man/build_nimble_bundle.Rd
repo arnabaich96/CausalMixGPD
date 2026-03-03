@@ -8,7 +8,7 @@ build_nimble_bundle(
   y,
   X = NULL,
   ps = NULL,
-  backend = c("sb", "crp"),
+  backend = c("sb", "crp", "spliced"),
   kernel,
   GPD = FALSE,
   components = NULL,

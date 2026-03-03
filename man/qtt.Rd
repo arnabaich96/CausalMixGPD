@@ -10,7 +10,8 @@ qtt(
   newdata = NULL,
   y = NULL,
   interval = "credible",
-  level = 0.95
+  level = 0.95,
+  show_progress = TRUE
 )
 }
 \arguments{
@@ -30,6 +31,8 @@ and training data are used.}
 highest posterior density intervals.}
 
 \item{level}{Numeric credible level for intervals (default 0.95 for 95 percent CI).}
+
+\item{show_progress}{Logical; if TRUE, print step messages and render progress where supported.}
 }
 \value{
 A list with elements \code{fit}, \code{grid} (probabilities), and

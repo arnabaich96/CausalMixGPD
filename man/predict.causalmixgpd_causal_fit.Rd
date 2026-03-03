@@ -20,6 +20,7 @@
   store_draws = TRUE,
   nsim_mean = 200L,
   ncores = 1L,
+  show_progress = TRUE,
   ...
 )
 }
@@ -61,6 +62,8 @@ highest posterior density intervals.}
 \item{nsim_mean}{Number of posterior predictive samples to use for posterior mean estimation (for \code{type="mean"}).}
 
 \item{ncores}{Number of CPU cores to use for parallel prediction (if supported).}
+
+\item{show_progress}{Logical; if TRUE, print step messages and render progress where supported.}
 
 \item{...}{Unused.}
 }

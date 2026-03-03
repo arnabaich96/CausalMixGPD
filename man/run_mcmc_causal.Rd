@@ -7,6 +7,7 @@
 run_mcmc_causal(
   bundle,
   show_progress = TRUE,
+  quiet = FALSE,
   parallel_arms = FALSE,
   workers = NULL,
   timing = FALSE,
@@ -16,7 +17,9 @@ run_mcmc_causal(
 \arguments{
 \item{bundle}{A \code{"causalmixgpd_causal_bundle"} from \code{build_causal_bundle()}.}
 
-\item{show_progress}{Logical; passed to nimble for each block.}
+\item{show_progress}{Logical; if TRUE, print step messages and render progress where supported.}
+
+\item{quiet}{Logical; if TRUE, suppress step messages and progress display.}
 
 \item{parallel_arms}{Logical; if TRUE, run control and treated outcome arms in parallel.}
 

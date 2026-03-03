@@ -993,6 +993,28 @@ test_that("build_causal_bundle allows arm-specific backends", {
   expect_equal(bundle$meta$backend$con, "crp")
 })
 
+test_that("build_causal_bundle allows spliced backend in causal arms", {
+  set.seed(1)
+  y <- rnorm(20)
+  X <- matrix(rnorm(40), ncol = 2)
+  A <- c(rep(0, 10), rep(1, 10))
+
+  bundle <- build_causal_bundle(
+    y = y,
+    X = X,
+    A = A,
+    backend = c("spliced", "crp"),  # trt=spliced, con=crp
+    kernel = "normal",
+    GPD = c(TRUE, TRUE),
+    components = 4
+  )
+
+  expect_equal(bundle$meta$backend$trt, "spliced")
+  expect_equal(bundle$meta$backend$con, "crp")
+  expect_equal(bundle$outcome$trt$spec$meta$backend, "spliced")
+  expect_equal(bundle$outcome$con$spec$meta$backend, "crp")
+})
+
 test_that("build_causal_bundle allows arm-specific kernels", {
   set.seed(1)
   y <- rnorm(20)
@@ -2870,7 +2892,7 @@ test_that("predict() with newdata enforces column contracts", {
   )
 
   X_reorder <- X_new[, c("x2", "x1"), drop = FALSE]
-  expect_silent(predict(fit, x = X_reorder, type = "mean"))
+  expect_silent(predict(fit, x = X_reorder, type = "mean", show_progress = FALSE))
 
   X_single <- X_new[1, , drop = FALSE]
   pred_single <- predict(fit, x = X_single, y = c(0.3, 1.2), type = "density")

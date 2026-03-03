@@ -312,6 +312,7 @@ NULL
   spec <- object$spec %||% list()
   meta <- spec$meta %||% list()
   backend <- meta$backend %||% spec$dispatch$backend %||% "<unknown>"
+  if (identical(backend, "spliced")) backend <- "crp"
   kernel  <- meta$kernel  %||% spec$kernel$key %||% "<unknown>"
 
   kdef <- get_kernel_registry()[[kernel]]

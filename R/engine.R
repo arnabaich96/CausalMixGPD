@@ -49,6 +49,7 @@ NULL
                             cutoff = NULL,
                             ndraws_pred = NULL,
                             chunk_size = NULL,
+                            show_progress = TRUE,
                             ncores = 1L) {
 
   .validate_fit(object)
@@ -232,6 +233,20 @@ NULL
   }
   id_vals <- if (!is.null(id_vec)) id_vec else seq_len(n_pred)
 
+  chunk_starts <- NULL
+  if (!is.null(chunk_size) && !is.null(Xpred) && n_pred > chunk_size) {
+    chunk_starts <- seq.int(1L, n_pred, by = chunk_size)
+  }
+  progress_total <- 4L + if (!is.null(chunk_starts)) length(chunk_starts) else 0L
+  progress_ctx <- .cmgpd_progress_start(
+    total_steps = progress_total,
+    enabled = isTRUE(show_progress),
+    quiet = FALSE,
+    label = "predict_mixgpd"
+  )
+  on.exit(.cmgpd_progress_done(progress_ctx, final_label = NULL), add = TRUE)
+  .cmgpd_progress_step(progress_ctx, "Validating prediction inputs")
+
   # Fast defaults for large prediction jobs.
   if (n_pred > 20000L) {
     if (is.null(ndraws_pred)) {
@@ -255,6 +270,7 @@ NULL
     p_sig <- if (!is.null(pgrid)) paste0("p:", .vec_sig(pgrid)) else "p:none"
     cache_key <- paste(type, kernel %||% "", x_sig, y_sig, p_sig, ndraws_pred %||% NA_integer_, sep = "|")
     if (exists(cache_key, envir = pred_cache, inherits = FALSE)) {
+      .cmgpd_progress_step(progress_ctx, "Using cached prediction result")
       cached <- get(cache_key, envir = pred_cache, inherits = FALSE)
       if (is.list(cached) && inherits(cached, "mixgpd_predict")) {
         cached$diagnostics <- utils::modifyList(cached$diagnostics %||% list(), list(cache_hit = TRUE))
@@ -270,9 +286,18 @@ NULL
     obj
   }
 
+  .return_out <- function(obj, cache = TRUE) {
+    .cmgpd_progress_step(progress_ctx, "Assembling prediction output")
+    if (isTRUE(cache)) {
+      return(.cache_store(obj))
+    }
+    obj
+  }
+
   # -----------------------------
   # Posterior draws extraction
   # -----------------------------
+  .cmgpd_progress_step(progress_ctx, "Extracting posterior draws")
   draw_mat <- .extract_draws_matrix(object)
   if (is.null(draw_mat) || !is.matrix(draw_mat) || nrow(draw_mat) < 2L) {
     stop("Posterior draws not found or malformed in fitted object.", call. = FALSE)
@@ -292,11 +317,12 @@ NULL
   bulk_draws <- .extract_bulk_params(draw_mat, bulk_params = bulk_params)
   base_params <- names(bulk_draws)
 
-  if (!is.null(chunk_size) && !is.null(Xpred) && n_pred > chunk_size) {
-    starts <- seq.int(1L, n_pred, by = chunk_size)
-    parts <- vector("list", length(starts))
-    for (ii in seq_along(starts)) {
-      i0 <- starts[ii]
+  if (!is.null(chunk_starts)) {
+    .cmgpd_progress_step(progress_ctx, "Dispatching chunked prediction")
+    parts <- vector("list", length(chunk_starts))
+    for (ii in seq_along(chunk_starts)) {
+      .cmgpd_progress_step(progress_ctx, sprintf("Computing chunk %d/%d", ii, length(chunk_starts)))
+      i0 <- chunk_starts[ii]
       i1 <- min(n_pred, i0 + chunk_size - 1L)
       idx <- i0:i1
       x_chunk <- Xpred[idx, , drop = FALSE]
@@ -308,7 +334,7 @@ NULL
         object = object, x = x_chunk, y = y_chunk, ps = ps_chunk, id = id_chunk,
         type = type, p = p, index = index, nsim = nsim, level = level, interval = interval,
         probs = probs, store_draws = store_draws, nsim_mean = nsim_mean, cutoff = cutoff,
-        ndraws_pred = ndraws_pred, chunk_size = NULL, ncores = ncores
+        ndraws_pred = ndraws_pred, chunk_size = NULL, show_progress = FALSE, ncores = ncores
       )
     }
     out <- parts[[1L]]
@@ -317,8 +343,10 @@ NULL
       rownames(out$fit) <- NULL
     }
     if (!is.null(out$diagnostics)) out$diagnostics$n_chunks <- length(parts)
-    return(.cache_store(out))
+    return(.return_out(out, cache = TRUE))
   }
+
+  .cmgpd_progress_step(progress_ctx, "Computing posterior summaries")
 
   # -----------------------------
   # Optional PS covariate (used only if model expects it)
@@ -672,7 +700,7 @@ NULL
       )
     )
     class(out) <- "mixgpd_predict"
-    return(.cache_store(out))
+    return(.return_out(out, cache = TRUE))
   }
 
   # quantile / median
@@ -720,7 +748,7 @@ NULL
         )
       )
       class(out) <- "mixgpd_predict"
-      return(.cache_store(out))
+      return(.return_out(out, cache = TRUE))
     }
 
     # Conditional quantiles
@@ -781,7 +809,7 @@ NULL
       )
     )
     class(out) <- "mixgpd_predict"
-    return(.cache_store(out))
+    return(.return_out(out, cache = TRUE))
   }
 
   # sample (posterior predictive)
@@ -820,7 +848,7 @@ NULL
         )
       )
       class(res) <- "mixgpd_predict"
-      return(.cache_store(res))
+      return(.return_out(res, cache = TRUE))
     }
 
     if (is.na(nsim) || nsim < 1L) nsim <- n_pred
@@ -868,7 +896,7 @@ NULL
       )
     )
     class(res) <- "mixgpd_predict"
-    return(.cache_store(res))
+    return(.return_out(res, cache = TRUE))
   }
 
   # fit (one posterior predictive draw per observation per posterior draw)
@@ -947,7 +975,7 @@ NULL
       )
     )
     class(out) <- "mixgpd_predict"
-    return(.cache_store(out))
+    return(.return_out(out, cache = TRUE))
   }
 
   # mean (posterior mean of predictive distribution)
@@ -981,7 +1009,7 @@ NULL
           )
         )
         class(out) <- "mixgpd_predict"
-        return(.cache_store(out))
+        return(.return_out(out, cache = TRUE))
       }
     }
 
@@ -1025,7 +1053,7 @@ NULL
         )
       )
       class(out) <- "mixgpd_predict"
-      return(.cache_store(out))
+      return(.return_out(out, cache = TRUE))
     }
 
     # Conditional mean: compute mean per x-row per posterior draw by simulation
@@ -1096,7 +1124,7 @@ NULL
       )
     )
     class(out) <- "mixgpd_predict"
-    return(.cache_store(out))
+    return(.return_out(out, cache = TRUE))
   }
 
 
@@ -1150,7 +1178,7 @@ NULL
         )
       )
       class(out) <- "mixgpd_predict"
-      return(.cache_store(out))
+      return(.return_out(out, cache = TRUE))
     }
 
     draw_rmeans_mat <- matrix(NA_real_, nrow = S, ncol = n_pred)
@@ -1220,7 +1248,7 @@ NULL
       )
     )
     class(out) <- "mixgpd_predict"
-    return(.cache_store(out))
+    return(.return_out(out, cache = TRUE))
   }
 
   stop(sprintf("Unsupported prediction type '%s'.", type), call. = FALSE)

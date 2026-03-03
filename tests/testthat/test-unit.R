@@ -2418,6 +2418,35 @@ test_that("plot.causalmixgpd_qte effect type works", {
   expect_true(inherits(result, "gg") || inherits(result, "ggplot"))
 })
 
+test_that("plot.causalmixgpd_qte marginal effect uses quantile levels on x-axis", {
+  skip_if_not_installed("ggplot2")
+  probs <- c(0.25, 0.5, 0.75)
+  qte <- make_mock_qte()
+  qte$n_pred <- 1L
+  qte$ps <- NULL
+  qte$probs <- probs
+  qte$grid <- probs
+  qte$fit <- matrix(c(0.1, 0.2, 0.3), nrow = 1L)
+  qte$lower <- matrix(c(-0.1, 0.0, 0.1), nrow = 1L)
+  qte$upper <- matrix(c(0.3, 0.4, 0.5), nrow = 1L)
+  qte$qte$fit <- data.frame(
+    id = 1L,
+    index = probs,
+    estimate = c(0.1, 0.2, 0.3),
+    lower = c(-0.1, 0.0, 0.1),
+    upper = c(0.3, 0.4, 0.5)
+  )
+  qte$trt$fit <- data.frame(id = 1L, index = probs, estimate = c(1.0, 1.3, 1.6))
+  qte$con$fit <- data.frame(id = 1L, index = probs, estimate = c(0.9, 1.1, 1.3))
+
+  result <- plot_causalmixgpd_qte(qte, type = "effect")
+  build <- ggplot2::ggplot_build(result)
+  line_data <- build$data[[1]]
+
+  expect_equal(as.numeric(line_data$x), probs, tolerance = 1e-12)
+  expect_equal(length(unique(line_data$PANEL)), 1L)
+})
+
 test_that("plot.causalmixgpd_qte arms type works", {
   skip_if_not_installed("ggplot2")
   qte <- make_mock_qte()
@@ -2443,6 +2472,25 @@ test_that("plot.causalmixgpd_ate effect type works", {
   ate <- make_mock_ate()
   result <- plot_causalmixgpd_ate(ate, type = "effect")
   expect_true(inherits(result, "gg") || inherits(result, "ggplot"))
+})
+
+test_that("plot.causalmixgpd_ate marginal effect returns a single point", {
+  skip_if_not_installed("ggplot2")
+  ate <- make_mock_ate()
+  ate$n_pred <- 1L
+  ate$ps <- NULL
+  ate$fit <- 0.25
+  ate$lower <- -0.10
+  ate$upper <- 0.45
+  ate$ate$fit <- data.frame(id = 1L, estimate = 0.25, lower = -0.10, upper = 0.45)
+  ate$trt$fit <- data.frame(id = 1L, estimate = 1.20, lower = 1.00, upper = 1.35)
+  ate$con$fit <- data.frame(id = 1L, estimate = 0.95, lower = 0.80, upper = 1.10)
+
+  result <- plot_causalmixgpd_ate(ate, type = "effect")
+  build <- ggplot2::ggplot_build(result)
+
+  expect_equal(nrow(build$data[[1]]), 1L)
+  expect_equal(as.numeric(build$data[[1]]$y), 0.25, tolerance = 1e-12)
 })
 
 test_that("plot.causalmixgpd_ate arms type works", {
@@ -2807,7 +2855,7 @@ make_mock_mixgpd_fit_sb <- function() {
 }
 
 make_mock_mixgpd_fit_crp_no_gpd <- function() {
-  # CRP but no GPD for error testing
+  # CRP bulk-only fit (no GPD)
   out <- make_mock_mixgpd_fit_crp_gpd()
   out$spec$meta$GPD <- FALSE
   out
@@ -2869,12 +2917,11 @@ test_that("allocation.mixgpd_fit errors for SB backend", {
   )
 })
 
-test_that("allocation.mixgpd_fit errors for bulk-only models", {
+test_that("allocation.mixgpd_fit works for bulk-only CRP models", {
   fit <- make_mock_mixgpd_fit_crp_no_gpd()
-  expect_error(
-    allocation(fit),
-    "only available.*GPD = TRUE"
-  )
+  alloc <- allocation(fit)
+  expect_s3_class(alloc, "mixgpd_allocation")
+  expect_false(isTRUE(alloc$GPD))
 })
 
 test_that("allocation.mixgpd_fit errors for newdata without y", {

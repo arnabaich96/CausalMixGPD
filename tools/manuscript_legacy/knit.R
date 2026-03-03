@@ -10,6 +10,14 @@
 #
 
 knitr::opts_knit[['set']](concordance = TRUE)
-knitr::knit('CausalMixGPD_JSS_article.Rnw', output = 'CausalMixGPD_JSS_article.tex')
-tinytex::latexmk('CausalMixGPD_JSS_article.tex', engine = 'pdflatex', engine_args = '-synctex=1')
+if (!grepl("vignettes[/\\\\]manuscript$", getwd())) {
+  if (file.exists("vignettes/manuscript")) {
+    setwd("vignettes/manuscript")
+  } else {
+    stop("Please run from package root or manuscript directory.", call. = FALSE)
+  }
+}
+
+utils::Sweave('CausalMixGPD_JSS_article.Rnw')
+tools::texi2pdf('CausalMixGPD_JSS_article.tex', clean = FALSE)
 

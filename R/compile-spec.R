@@ -247,9 +247,10 @@ compile_model_spec <- function(
     }
   }
 
-  # CRP + X: default link-mode bulk parameters create deterministic nodes indexed by z,
-  # which breaks NIMBLE's CRP sampler. Downgrade default link modes to dist unless user overrides.
-  if (identical(backend, "crp") && has_X) {
+  # CRP/spliced + X: default link-mode bulk parameters can create deterministic
+  # nodes indexed by z, which breaks NIMBLE's CRP sampler. Downgrade default
+  # link modes to dist unless user overrides explicitly.
+  if (backend %in% c("crp", "spliced") && has_X) {
     for (nm in bulk_params) {
       if (is.null(user_bulk[[nm]]) && identical(bulk_plan[[nm]]$mode, "link")) {
         pr <- default_prior_by_type(kinfo$param_types[[nm]], kinfo$bulk_support[[nm]])
@@ -285,7 +286,7 @@ compile_model_spec <- function(
       }
     } else {
       # default: threshold[i] ~ Lognormal(meanlog=Xβ, sdlog_u) when X present; else dist
-      if (has_X) {
+      if (has_X && backend != "spliced") {
         gpd_plan$threshold <- list(
           mode = "link",
           link = "identity",
@@ -321,7 +322,7 @@ compile_model_spec <- function(
         gpd_plan$tail_scale <- list(mode = "fixed", value = ts_u$value)
       }
     } else {
-      if (has_X) {
+      if (has_X && backend != "spliced") {
         gpd_plan$tail_scale <- list(mode = "link", link = "exp", beta_prior = default_beta_prior("tail_scale"))
       } else {
         gpd_plan$tail_scale <- list(mode = "dist", dist = "gamma", args = list(shape = 2, rate = 1))
@@ -347,11 +348,7 @@ compile_model_spec <- function(
         gpd_plan$tail_shape <- list(mode = "dist", dist = tsh_u$dist, args = tsh_u$args)
       }
     } else {
-      if (has_X && backend == "spliced") {
-        gpd_plan$tail_shape <- list(mode = "link", link = "identity", beta_prior = default_beta_prior("tail_shape"))
-      } else {
-        gpd_plan$tail_shape <- list(mode = "dist", dist = "normal", args = list(mean = 0, sd = 0.2))
-      }
+      gpd_plan$tail_shape <- list(mode = "dist", dist = "normal", args = list(mean = 0, sd = 0.2))
     }
 
     # ---- Spliced backend validation ----

@@ -8,7 +8,7 @@ build_causal_bundle(
   y,
   X,
   A,
-  backend = c("sb", "crp"),
+  backend = c("sb", "crp", "spliced"),
   kernel,
   GPD = FALSE,
   components = NULL,
@@ -35,7 +35,8 @@ build_causal_bundle(
 
 \item{A}{Binary treatment indicator (length N, values 0/1).}
 
-\item{backend}{Character; \code{"sb"} or \code{"crp"} for outcome models. If length 2,
+\item{backend}{Character; \code{"sb"}, \code{"crp"}, or \code{"spliced"} for
+outcome models. If length 2,
 the first entry is used for treated (\code{A=1}) and the second for control (\code{A=0}).}
 
 \item{kernel}{Character kernel name for outcome models. If length 2,

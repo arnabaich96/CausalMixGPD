@@ -35,6 +35,10 @@ utils::globalVariables(c(
   "S_lower",
   "S_upper",
   "arm",
+  "cluster",
+  "count",
+  "dataset",
+  "max_prob",
   "stick_breaking",
   # ggplot2 NSE variables
   "Chain",

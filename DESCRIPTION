@@ -21,11 +21,13 @@ Depends: R (>= 4.0.0), nimble
 Imports:
     stats,
     utils,
-    ggplot2
+    ggplot2,
+    progress
 Suggests:
     testthat (>= 3.0.0),
     knitr,
     rmarkdown,
+    cli,
     coda,
     ggmcmc,
     future,

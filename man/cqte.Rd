@@ -9,7 +9,8 @@ cqte(
   probs = c(0.1, 0.5, 0.9),
   newdata = NULL,
   interval = "credible",
-  level = 0.95
+  level = 0.95,
+  show_progress = TRUE
 )
 }
 \arguments{
@@ -26,6 +27,8 @@ If \code{NULL}, uses the training covariates stored in \code{fit}.}
 highest posterior density intervals.}
 
 \item{level}{Numeric credible level for intervals (default 0.95 for 95 percent CI).}
+
+\item{show_progress}{Logical; if TRUE, print step messages and render progress where supported.}
 }
 \value{
 A list with elements \code{fit} (CQTE), \code{grid} (probabilities),

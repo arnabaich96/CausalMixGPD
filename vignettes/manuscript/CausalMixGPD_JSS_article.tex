@@ -97,47 +97,36 @@
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \usepackage[]{natbib}
 \bibliographystyle{jss}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{natbib}
 \usepackage{xurl}
-\setlength{\emergencystretch}{2em}
 \graphicspath{{./}{vignettes/manuscript/}{assets/}}
-\newcommand{\pkg}[1]{\textsf{#1}}
-\newcommand{\code}[1]{\texttt{#1}}
-\usepackage{booktabs}
-\usepackage{longtable}
-\usepackage{array}
-\usepackage{multirow}
-\usepackage{wrapfig}
-\usepackage{float}
-\usepackage{colortbl}
-\usepackage{pdflscape}
-\usepackage{tabu}
-\usepackage{threeparttable}
-\usepackage{threeparttablex}
-\usepackage[normalem]{ulem}
-\usepackage{makecell}
-\usepackage{xcolor}
+\DeclareRobustCommand{\pkg}[1]{\textsf{#1}}
+\DeclareRobustCommand{\code}[1]{\nolinkurl{#1}}
+\sloppy
+\setlength{\emergencystretch}{2em}
+\setkeys{Gin}{width=\linewidth,height=0.82\textheight,keepaspectratio}
 \usepackage{bookmark}
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \urlstyle{same}
 \hypersetup{
   pdftitle={CausalMixGPD: Bayesian Conditional Dirichlet Process Mixtures with Generalized Pareto Tails and Causal Extensions},
-  pdfauthor={Arnab Aich, Florida State University},
-  pdfkeywords={Bayesian nonparametrics, Dirichlet process mixture,
-generalized Pareto distribution, extreme value theory, posterior
-prediction, causal inference, quantile treatment effects, R, nimble},
+  pdfauthor={Arnab Aich (Florida State University)},
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
 
 \title{CausalMixGPD: Bayesian Conditional Dirichlet Process Mixtures
 with Generalized Pareto Tails and Causal Extensions}
-\author{Arnab Aich, Florida State University}
-\date{2026-02-17}
+\author{Arnab Aich (Florida State University)}
+\date{}
 
 \begin{document}
 \maketitle
-\begin{abstract}
+
 Heavy-tailed outcomes arise in many scientific domains where rare events
 dominate risk, cost, or policy decisions. Classical parametric models
 often fit the center of the distribution at the expense of tail
@@ -147,18 +136,18 @@ theory (EVT) provides asymptotic justification for generalized Pareto
 distributions (GPDs) for threshold exceedances, whereas Bayesian
 nonparametric Dirichlet process mixtures (DPMs) provide flexible
 modeling for heterogeneous bulk behavior. This article introduces
-CausalMixGPD, an R package implementing a Bayesian semiparametric
-framework that combines conditional DPMs for the bulk distribution with
-covariate-dependent GPD tails for exceedances, with posterior predictive
-inference for densities, distribution functions, quantiles, survival
-probabilities, and tail risks. The framework is conditional by
-construction; unconditional models arise as a special case when
-covariates are omitted. The package supports both Chinese restaurant
-process (CRP) and stick-breaking (SB) representations of the Dirichlet
-process, multiple kernel families for bulk modeling, and an extension to
-causal inference via treatment-specific conditional distributions that
-enable inference on distributional and tail-sensitive causal estimands.
-\end{abstract}
+\texttt{CausalMixGPD}, an \textsf{R} package implementing a Bayesian
+semiparametric framework that combines conditional DPMs for the bulk
+distribution with covariate-dependent GPD tails for exceedances, with
+posterior predictive inference for densities, distribution functions,
+quantiles, survival probabilities, and tail risks. The framework is
+conditional by construction; unconditional models arise as a special
+case when covariates are omitted. The package supports both Chinese
+restaurant process (CRP) and stick-breaking (SB) representations of the
+Dirichlet process, multiple kernel families for bulk modeling, and an
+extension to causal inference via treatment-specific conditional
+distributions that enable inference on distributional and tail-sensitive
+causal estimands.
 
 \section{Introduction}
 \label{sec:intro}
@@ -316,10 +305,9 @@ V_j \stackrel{\mathrm{iid}}{\sim}\mathrm{Beta}(1,\kappa),
 \theta_j \stackrel{\mathrm{iid}}{\sim} H_0.
 \label{eq:sb}
 \end{equation} An alternative marginal representation is obtained by
-integrating out \(H\), which induces the Blackwell--MacQueen
-P\textquotesingle olya urn predictive scheme (often described via the
-Chinese restaurant process) \citep{BlackwellMacQueen1973,Neal2000}:
-\begin{equation}
+integrating out \(H\), which induces the Blackwell--MacQueen P'olya urn
+predictive scheme (often described via the Chinese restaurant process)
+\citep{BlackwellMacQueen1973,Neal2000}: \begin{equation}
 \theta_{\text{new}} \mid \theta_{1:n}
 \sim
 \frac{\kappa}{\kappa+n}H_0(\cdot)
@@ -376,7 +364,7 @@ u(x)+\dfrac{\sigma(x)}{\xi}\Bigl((1-\tau)^{-\xi}-1\Bigr), & \xi\neq 0,
 \label{eq:gpd_quantile}
 \end{equation}
 
-\pandocbounded{\includegraphics[keepaspectratio]{CausalMixGPD_JSS_article_files/figure-latex/gpdDensityFigure-1.pdf}}
+\begin{center}\includegraphics[width=0.94\linewidth]{cache/figs/gpdDensityFigure} \end{center}
 
 \subsection{Spliced DPM--GPD Conditional Distribution}
 \label{subsec:splice}
@@ -385,7 +373,7 @@ Dirichlet process mixture (DPM) regression models provide a highly
 flexible representation of the \emph{bulk} of the conditional
 distribution \(Y\mid X=x\), accommodating multimodality, skewness, and
 heterogeneous dispersion through mixture components. However, in the far
-upper tail---where data are intrinsically sparse---pure mixture-based
+upper tail-where data are intrinsically sparse-pure mixture-based
 extrapolation can be unstable and may not reflect the regular variation
 behavior typically assumed in extreme value theory (EVT). Conversely,
 EVT provides an asymptotically justified parametric description of
@@ -482,7 +470,7 @@ Q_{\mathrm{GPD}}\!\bigl(\tilde{\tau}(x;\Theta)\mid x;\Phi\bigr), & \tau>p_u(x;\T
 the bulk exceedance probability \(1-p_u(x;\Theta)\) and the conditional
 exceedance distribution governed by \(\Phi\).
 
-\pandocbounded{\includegraphics[keepaspectratio]{CausalMixGPD_JSS_article_files/figure-latex/splicedDensityFigure-1.pdf}}
+\begin{center}\includegraphics[width=0.94\linewidth]{cache/figs/splicedDensityFigure} \end{center}
 
 This spliced conditional distribution is the central predictive object
 used throughout the package. In the causal extension
@@ -666,7 +654,6 @@ Let the observed data be \[
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\# Reload package example data and build a modeling data frame}
 \FunctionTok{data}\NormalTok{(}\StringTok{"nc\_posX100\_p3\_k2"}\NormalTok{, }\AttributeTok{package =} \StringTok{"CausalMixGPD"}\NormalTok{)}
 \NormalTok{dat }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{y =}\NormalTok{ nc\_posX100\_p3\_k2}\SpecialCharTok{$}\NormalTok{y, nc\_posX100\_p3\_k2}\SpecialCharTok{$}\NormalTok{X)}
 \end{Highlighting}
@@ -689,6 +676,18 @@ covariate-dependent through link specifications of the form
   \label{eq:overview-link}
 \end{equation} where \(g(\cdot)\) enforces parameter support (e.g.,
 positive scale parameters).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mcmc\_fixed }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+  \AttributeTok{niter =} \DecValTok{200}\NormalTok{,}
+  \AttributeTok{nburnin =} \DecValTok{50}\NormalTok{,}
+  \AttributeTok{thin =} \DecValTok{1}\NormalTok{,}
+  \AttributeTok{nchains =} \DecValTok{1}\NormalTok{,}
+  \AttributeTok{seed =} \DecValTok{1}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
@@ -734,9 +733,9 @@ Priors follow the decomposition implied by \eqref{eq:sb} and
 truncation-level weights are generated through Beta stick breaks
 (Section\textasciitilde{}\ref{sec:prelim}, \eqref{eq:sb}), which are
 represented in \textsf{nimble} using the Beta distribution in model code
-(see \texttt{dbeta}). Under the Chinese restaurant process (CRP)
+(see \nolinkurl{dbeta}). Under the Chinese restaurant process (CRP)
 backend, the allocation-based representation is implemented using the
-CRP distribution in \textsf{nimble} (see \texttt{dCRP}), matching the
+CRP distribution in \textsf{nimble} (see \nolinkurl{dCRP}), matching the
 predictive representation in \eqref{eq:crp}. Kernel parameters and tail
 parameters are assigned weakly informative priors, with regression
 coefficients \(\beta_{j,\psi}\) arising through the link representation
@@ -755,28 +754,29 @@ implied by the SB or CRP representation
 \eqref{eq:sb}--\eqref{eq:crp}). Given a model specification,
 \textsf{CausalMixGPD} runs MCMC through \textsf{nimble}
 \citep{devalpine2017nimble,nimble_pkg} under the chosen backend; SB uses
-Beta stick breaks in model code (see \texttt{dbeta}) and CRP uses the
-CRP distribution for allocations (see \texttt{dCRP}). Users control the
-number of iterations, burn-in, thinning, and number of chains through
-the \texttt{mcmc} argument in the wrappers.
+Beta stick breaks in model code (see \nolinkurl{dbeta}) and CRP uses the
+CRP distribution for allocations (see \nolinkurl{dCRP}). Users control
+the number of iterations, burn-in, thinning, and number of chains
+through the \nolinkurl{mcmc} argument in the wrappers.
 
 Convergence checking is supported through standard multi-chain
 diagnostics and trace-based visualizations. The model object supports
-\texttt{summary()} for posterior summaries, \texttt{plot()} for
+\nolinkurl{summary()} for posterior summaries, \nolinkurl{plot()} for
 diagnostic plots (trace, running mean, autocorrelation, and multi-chain
 diagnostics such as \(\widehat{R}\) when multiple chains are used), and
-\texttt{params()} as a lightweight extractor returning posterior mean
+\nolinkurl{params()} as a lightweight extractor returning posterior mean
 parameters reshaped to natural dimensions. Interval summaries used by
-\texttt{predict()} can be chosen as equal-tailed credible intervals or
-HPD intervals as described in
+\nolinkurl{predict()} can be chosen as equal-tailed credible intervals
+or HPD intervals as described in
 Section\textasciitilde{}\ref{subsec:overview-estimation}
 \citep{Gelman2013BDA,coda_pkg}. Diagnostic plotting relies on
 established MCMC diagnostic tooling \citep{ggmcmc_pkg}.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\# Posterior summaries }
-\FunctionTok{summary}\NormalTok{(fit)}
+\NormalTok{overview\_summary }\OtherTok{\textless{}{-}} \FunctionTok{summary}\NormalTok{(fit)}
+\NormalTok{p\_hat }\OtherTok{\textless{}{-}} \FunctionTok{params}\NormalTok{(fit)}
+\NormalTok{p\_hat}
 \end{Highlighting}
 \end{Shaded}
 
@@ -784,139 +784,54 @@ established MCMC diagnostic tooling \citep{ggmcmc_pkg}.
 MixGPD summary | backend: Stick-Breaking Process | kernel: Lognormal Distribution | GPD tail: TRUE | epsilon: 0.025
 n = 100 | components = 5
 Summary
-Initial components: 5 | Components after truncation: 3
-
-WAIC: 533.418
-lppd: -190.186 | pWAIC: 76.523
+Initial components: 5 | Components after truncation: 4
 
 Summary table
           parameter   mean    sd q0.025 q0.500 q0.975     ess
-         weights[1]   0.46 0.117   0.27   0.45   0.72  11.627
-         weights[2]  0.254 0.061   0.12  0.255   0.36  39.269
-         weights[3]  0.165  0.05   0.08   0.16   0.26  38.227
-              alpha   1.86 0.968  0.487  1.698  4.099  12.727
- beta_meanlog[1, 1]  0.183 1.477 -2.521 -0.054  3.423   20.74
- beta_meanlog[2, 1] -0.009 1.399 -3.071 -0.023  2.862  33.912
- beta_meanlog[3, 1]  0.387  1.74 -3.095  0.301  3.709  43.663
- beta_meanlog[4, 1]  0.197  1.78 -3.591  0.193  3.467  54.846
- beta_meanlog[5, 1] -0.334 1.201 -3.053 -0.338  2.421  27.182
- beta_meanlog[1, 2]  0.047 1.695 -3.234 -0.097   3.69  56.754
- beta_meanlog[2, 2]  0.028 1.595 -3.422  0.066  3.166  51.988
- beta_meanlog[3, 2] -0.393 2.104 -4.784 -0.322  3.579  25.438
- beta_meanlog[4, 2] -0.348 2.033 -4.737 -0.348  3.371   44.29
- beta_meanlog[5, 2] -0.492 1.505 -2.917 -0.715  3.667  48.203
- beta_meanlog[1, 3]  0.234 1.263 -2.468  0.197  2.785   42.38
- beta_meanlog[2, 3] -0.474 1.227 -3.486 -0.377  1.918  25.851
- beta_meanlog[3, 3]  0.092 1.584 -3.081 -0.089  3.495  18.206
- beta_meanlog[4, 3]  -0.29 1.817 -3.905 -0.475  3.368  60.839
- beta_meanlog[5, 3] -0.094 1.216 -2.854 -0.111   2.25  59.107
- beta_tail_scale[1]  0.377 0.204  0.012  0.357  0.738  30.053
- beta_tail_scale[2]  0.162 0.302 -0.379  0.137  0.734  51.036
- beta_tail_scale[3]  0.458 0.153  0.185  0.462  0.769   72.09
-  beta_threshold[1] -0.023 0.147 -0.306 -0.017  0.251  26.686
-  beta_threshold[2] -0.178 0.234 -0.717 -0.156  0.222   10.31
-  beta_threshold[3] -0.372 0.184 -0.757 -0.366  -0.04   13.39
-            sdlog_u  0.869 0.185  0.489  0.863  1.257    9.34
-         tail_shape  0.393 0.095  0.209  0.406  0.583  49.001
-           sdlog[1]  1.464 0.785  0.351   1.33  3.499  36.647
-           sdlog[2]   2.05 1.297  0.423  1.587  5.209  35.647
-           sdlog[3]  2.041 1.248   0.48  1.791   5.04 101.774
+         weights[1]  0.422  0.04  0.358  0.447  0.481   6.248
+         weights[2]  0.306 0.057  0.204  0.307  0.375   1.856
+         weights[3]  0.147 0.022  0.123  0.141  0.188  10.861
+         weights[4]  0.116  0.02  0.077  0.116  0.148   2.611
+              alpha  2.034  0.97  0.562  1.842  4.606  10.407
+ beta_meanlog[1, 1]   0.35 1.172  -1.76  0.456  2.186   9.324
+ beta_meanlog[2, 1] -0.099 0.395  -0.56 -0.243  0.712   2.675
+ beta_meanlog[3, 1]   0.22 1.741  -2.49  -0.32  3.987   2.408
+ beta_meanlog[4, 1]  0.047 2.361 -3.981  0.006  4.989   3.969
+ beta_meanlog[5, 1] -0.388 1.037 -2.729 -0.269  1.192   4.095
+ beta_meanlog[1, 2]  -0.55 1.106 -2.542 -0.542  1.608  15.052
+ beta_meanlog[2, 2] -0.937 0.854 -2.177 -1.011  0.836   7.569
+ beta_meanlog[3, 2]  0.548 2.219   -3.1  0.097  4.346   2.541
+ beta_meanlog[4, 2]  0.358 1.788 -2.327  0.037  3.476   6.222
+ beta_meanlog[5, 2]  0.884 1.979 -2.061   0.43  4.568    5.33
+ beta_meanlog[1, 3] -0.318 1.482 -3.049 -0.165  2.992   7.302
+ beta_meanlog[2, 3]  0.108 0.404 -0.631  0.001  1.095    5.89
+ beta_meanlog[3, 3]  0.704  1.33 -1.893  0.249  2.841    6.22
+ beta_meanlog[4, 3] -0.309 1.469 -2.474 -0.663  3.054  14.179
+ beta_meanlog[5, 3] -0.045 0.983 -1.653 -0.101  2.542  15.034
+ beta_tail_scale[1]   0.28 0.207 -0.022  0.266   0.62   7.198
+ beta_tail_scale[2]  0.046 0.249 -0.356  0.005   0.53  22.088
+ beta_tail_scale[3]  0.071 0.153 -0.192  0.051   0.36    10.1
+  beta_threshold[1] -0.052 0.145 -0.312 -0.067  0.242  45.398
+  beta_threshold[2] -0.105 0.165 -0.417 -0.113  0.228 117.191
+  beta_threshold[3]  0.074  0.15 -0.224  0.095  0.351  12.248
+            sdlog_u  1.356 0.153  0.987  1.342  1.668   5.438
+         tail_shape  0.427 0.105  0.244  0.405  0.588  12.809
+           sdlog[1]  1.517 0.873  0.648  1.345  4.285  20.734
+           sdlog[2]  2.222 1.157  0.836  2.033   4.99  10.333
+           sdlog[3]  1.481 0.794  0.482  1.212   3.22  10.485
+           sdlog[4]  1.482 0.863  0.145  1.464  3.128  22.462
 \end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Extract posterior mean parameters in natural shapes}
-\FunctionTok{params}\NormalTok{(fit)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-Posterior mean parameters
-
-$alpha
-[1] "1.86"
-
-$w
-[1] "0.46"  "0.254" "0.165"
-
-$beta_meanlog
-      x1       x2       x3      
-comp1 "0.183"  "0.047"  "0.234" 
-comp2 "-0.009" "0.028"  "-0.474"
-comp3 "0.387"  "-0.393" "0.092" 
-comp4 "0.197"  "-0.348" "-0.29" 
-comp5 "-0.334" "-0.492" "-0.094"
-
-$sdlog
-[1] "1.464" "2.05"  "2.041"
-
-$beta_threshold
-[1] "-0.023" "-0.178" "-0.372"
-
-$sdlog_u
-[1] "0.869"
-
-$beta_tail_scale
-[1] "0.377" "0.162" "0.458"
-
-$tail_shape
-[1] "0.393"
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# MCMC diagnostics: trace, running mean, autocorrelation, and multi{-}chain diagnostics}
-\FunctionTok{plot}\NormalTok{(fit, }\AttributeTok{family =} \StringTok{"traceplot"}\NormalTok{, }\AttributeTok{param =} \StringTok{"threshold"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-Scale for colour is already present.
-Adding another scale for colour, which will replace the existing
-scale.
-\end{verbatim}
-
-\begin{verbatim}
-
-=== traceplot ===
-\end{verbatim}
-
-\pandocbounded{\includegraphics[keepaspectratio]{CausalMixGPD_JSS_article_files/figure-latex/overview-mcmc-diagnostics-1.pdf}}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{plot}\NormalTok{(fit, }\AttributeTok{family =} \StringTok{"caterpillar"}\NormalTok{, }\AttributeTok{param =} \StringTok{"beta"}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-i Please use `linewidth` instead.
-i The deprecated feature was likely used in the ggmcmc package.
-  Please report the issue at
-  <https://github.com/xfim/ggmcmc/issues/>.
-This warning is displayed once per session.
-Call `lifecycle::last_lifecycle_warnings()` to see where this warning
-was generated.
-\end{verbatim}
-
-\begin{verbatim}
-
-=== caterpillar ===
-\end{verbatim}
-
-\pandocbounded{\includegraphics[keepaspectratio]{CausalMixGPD_JSS_article_files/figure-latex/overview-mcmc-diagnostics-2.pdf}}
 
 \subsubsection{Bulk-only special case (no GPD tail)}
 \label{subsec:overview-nogpd}
 
-Setting \texttt{GPD = FALSE} removes the splicing step so that
+Setting \nolinkurl{GPD = FALSE} removes the splicing step so that
 \(f(y\mid x;\Theta)\equiv f_{\mathrm{DP}}(y\mid x;\Theta)\), and
 \(L(\Theta,\Phi;\mathcal{D})\) reduces to the bulk-mixture likelihood in
 \(\Theta\). All estimation and prediction targets described below remain
 available, with tail-specific terms omitted. The wrapper
-\texttt{dpmix()} fits this bulk-only model, while \texttt{dpmgpd()} fits
-the augmented (spliced) model.
+\nolinkurl{dpmix()} fits this bulk-only model, while
+\nolinkurl{dpmgpd()} fits the augmented (spliced) model.
 
 \subsection{Posterior functionals, interval summaries and prediction}
 \label{subsec:overview-estimation}
@@ -945,7 +860,7 @@ standard practice \citep{Gelman2013BDA}; HPD intervals are computed from
 the MCMC draws using established implementations \citep{coda_pkg}.
 
 Mean-type summaries are handled differently in the package. For
-\texttt{type = "mean"} and \texttt{type = "rmean"},
+\nolinkurl{type = "mean"} and \nolinkurl{type = "rmean"},
 \textsf{CausalMixGPD} uses posterior predictive Monte Carlo within each
 posterior draw rather than direct plug-in evaluation. For a fixed
 covariate value \(x\), within draw \(s\) the package generates \[
@@ -959,50 +874,47 @@ cutoff \(c\), respectively. Posterior summaries and intervals are then
 formed from \(\{\mu^{(s)}(x)\}_{s=1}^S\) or
 \(\{\mu_c^{(s)}(x)\}_{s=1}^S\). Under the spliced model, the conditional
 mean is infinite when \(\xi\ge 1\); accordingly, \textsf{CausalMixGPD}
-flags \texttt{type = "mean"} as infinite when there is posterior mass
-with \(\xi\ge 1\), while \texttt{type = "rmean"} remains finite by
+flags \nolinkurl{type = "mean"} as infinite when there is posterior mass
+with \(\xi\ge 1\), while \nolinkurl{type = "rmean"} remains finite by
 construction.
 
-Using the same fitted model \texttt{fit} from
+Using the same fitted model \nolinkurl{fit} from
 Section\textasciitilde{}\ref{subsec:overview-model}, we now compute
 posterior summaries on the original training covariates (default
-behavior of \texttt{predict()} when \texttt{newdata} is not supplied).
+behavior of \nolinkurl{predict()} when \nolinkurl{newdata} is not
+supplied).
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\# Posterior functionals from the same fitted model and data set}
-\NormalTok{q\_grid }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FloatTok{0.25}\NormalTok{, }\FloatTok{0.50}\NormalTok{, }\FloatTok{0.75}\NormalTok{)}
-\NormalTok{est\_quant }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(fit, }\AttributeTok{type =} \StringTok{"quantile"}\NormalTok{, }\AttributeTok{index =}\NormalTok{ q\_grid,}
+\NormalTok{q\_grid }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FloatTok{0.50}\NormalTok{, }\FloatTok{0.90}\NormalTok{, }\FloatTok{0.95}\NormalTok{, }\FloatTok{0.99}\NormalTok{)}
+\NormalTok{x\_eval }\OtherTok{\textless{}{-}}\NormalTok{ dat[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{20}\NormalTok{, }\FunctionTok{c}\NormalTok{(}\StringTok{"x1"}\NormalTok{, }\StringTok{"x2"}\NormalTok{, }\StringTok{"x3"}\NormalTok{)]}
+
+\NormalTok{est\_quant }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(fit, }\AttributeTok{newdata =}\NormalTok{ x\_eval, }\AttributeTok{type =} \StringTok{"quantile"}\NormalTok{, }\AttributeTok{index =}\NormalTok{ q\_grid,}
                      \AttributeTok{interval =} \StringTok{"hpd"}\NormalTok{, }\AttributeTok{level =} \FloatTok{0.95}\NormalTok{)}
-
-
-\FunctionTok{plot}\NormalTok{(est\_quant)}
 \end{Highlighting}
 \end{Shaded}
-
-\pandocbounded{\includegraphics[keepaspectratio]{CausalMixGPD_JSS_article_files/figure-latex/overview-estimation-same-fit-1.pdf}}
 
 For a new covariate value \(x^\star\), prediction is based on the
 posterior predictive distribution \[
   p(y^\star\mid x^\star,\mathcal{D})
   =\int f(y^\star\mid x^\star;\Theta,\Phi)\,p(\Theta,\Phi\mid \mathcal{D})\,d\Theta\,d\Phi.
-\] The \texttt{predict()} method returns posterior summaries for the
+\] The \nolinkurl{predict()} method returns posterior summaries for the
 same functional targets as in
 Section\textasciitilde{}\ref{subsec:overview-estimation}. For
-\texttt{type = "density"} and \texttt{type = "survival"}, the user
+\nolinkurl{type = "density"} and \nolinkurl{type = "survival"}, the user
 supplies a grid of \(y\) values and the method returns pointwise
 posterior means with interval bounds computed draw-by-draw. For
-\texttt{type = "quantile"}, the user supplies quantile indices \(\tau\)
-and the method returns posterior summaries of \(Q(\tau\mid x^\star)\)
-computed using the spliced quantile representation in
-\eqref{eq:splice_quantile_case}. For \texttt{type = "mean"} and
-\texttt{type = "rmean"}, prediction uses posterior predictive Monte
-Carlo as described above, with \(x\) replaced by \(x^\star\) and with
-user-controlled \(M\) through \texttt{nsim\_mean}.
+\nolinkurl{type = "quantile"}, the user supplies quantile indices
+\(\tau\) and the method returns posterior summaries of
+\(Q(\tau\mid x^\star)\) computed using the spliced quantile
+representation in \eqref{eq:splice_quantile_case}. For
+\nolinkurl{type = "mean"} and \nolinkurl{type = "rmean"}, prediction
+uses posterior predictive Monte Carlo as described above, with \(x\)
+replaced by \(x^\star\) and with user-controlled \(M\) through
+\nolinkurl{nsim\_mean}.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\# New profiles from coordinate{-}wise quartiles (25\%, 50\%, 75\%) of covariates}
 \NormalTok{q\_levels }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FloatTok{0.25}\NormalTok{, }\FloatTok{0.50}\NormalTok{, }\FloatTok{0.75}\NormalTok{)}
 \NormalTok{x\_new }\OtherTok{\textless{}{-}} \FunctionTok{as.data.frame}\NormalTok{(}\FunctionTok{lapply}\NormalTok{(}
 \NormalTok{  dat[, }\FunctionTok{c}\NormalTok{(}\StringTok{"x1"}\NormalTok{, }\StringTok{"x2"}\NormalTok{, }\StringTok{"x3"}\NormalTok{)],}
@@ -1011,87 +923,31 @@ user-controlled \(M\) through \texttt{nsim\_mean}.
   \AttributeTok{na.rm =} \ConstantTok{TRUE}
 \NormalTok{))}
 \FunctionTok{rownames}\NormalTok{(x\_new) }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"q25"}\NormalTok{, }\StringTok{"q50"}\NormalTok{, }\StringTok{"q75"}\NormalTok{)}
-
-\CommentTok{\# Density / survival on a y{-}grid\textquotesingle{}}
-
-\NormalTok{y\_grid }\OtherTok{\textless{}{-}} \FunctionTok{seq}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DecValTok{10}\NormalTok{, }\AttributeTok{length.out =} \DecValTok{200}\NormalTok{)}
-
-\NormalTok{pdens }\OtherTok{\textless{}{-}}  \FunctionTok{predict}\NormalTok{(fit, }\AttributeTok{newdata =}\NormalTok{ x\_new, }\AttributeTok{y =}\NormalTok{ y\_grid, }\AttributeTok{type =} \StringTok{"density"}\NormalTok{,}
-          \AttributeTok{interval =} \StringTok{"credible"}\NormalTok{, }\AttributeTok{level =} \FloatTok{0.95}\NormalTok{)}
-
-\FunctionTok{head}\NormalTok{(}\FunctionTok{as.data.frame}\NormalTok{(pdens}\SpecialCharTok{$}\NormalTok{fit), }\DecValTok{5}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-  id        y   density      lower     upper
-1  1 1.000000 0.1737123 0.02990607 0.3616488
-2  1 1.045226 0.1672169 0.03025095 0.3525184
-3  1 1.090452 0.1611403 0.03086577 0.3371248
-4  1 1.135678 0.1554363 0.03165092 0.3206042
-5  1 1.180905 0.1510845 0.03046477 0.3092109
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{plot}\NormalTok{(pdens)}
-\end{Highlighting}
-\end{Shaded}
-
-\pandocbounded{\includegraphics[keepaspectratio]{CausalMixGPD_JSS_article_files/figure-latex/overview-predict-1.pdf}}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Survival function on the same y{-}grid}
-\NormalTok{psurv }\OtherTok{\textless{}{-}}  \FunctionTok{predict}\NormalTok{(fit, }\AttributeTok{newdata =}\NormalTok{ x\_new, }\AttributeTok{y =}\NormalTok{ y\_grid, }\AttributeTok{type =} \StringTok{"survival"}\NormalTok{,}
-          \AttributeTok{interval =} \StringTok{"credible"}\NormalTok{, }\AttributeTok{level =} \FloatTok{0.95}\NormalTok{)}
-\FunctionTok{head}\NormalTok{(}\FunctionTok{as.data.frame}\NormalTok{(psurv}\SpecialCharTok{$}\NormalTok{fit), }\DecValTok{5}\NormalTok{)}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-  id        y  survival     lower     upper
-1  1 1.000000 0.4972511 0.1784838 0.8072759
-2  1 1.045226 0.4895434 0.1755278 0.8016826
-3  1 1.090452 0.4821197 0.1727356 0.7926217
-4  1 1.135678 0.4749622 0.1700882 0.7875261
-5  1 1.180905 0.4680470 0.1675699 0.7835322
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\FunctionTok{plot}\NormalTok{(psurv)}
-\end{Highlighting}
-\end{Shaded}
-
-\pandocbounded{\includegraphics[keepaspectratio]{CausalMixGPD_JSS_article_files/figure-latex/overview-predict-2.pdf}}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\CommentTok{\# Quantiles at selected indices}
+\NormalTok{y\_grid }\OtherTok{\textless{}{-}} \FunctionTok{seq}\NormalTok{(}\DecValTok{0}\NormalTok{, }\DecValTok{10}\NormalTok{, }\AttributeTok{length.out =} \DecValTok{200}\NormalTok{)}
 \NormalTok{p\_grid }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FloatTok{0.50}\NormalTok{, }\FloatTok{0.90}\NormalTok{, }\FloatTok{0.95}\NormalTok{, }\FloatTok{0.99}\NormalTok{)}
-\NormalTok{pquant }\OtherTok{\textless{}{-}}  \FunctionTok{predict}\NormalTok{(fit, }\AttributeTok{newdata =}\NormalTok{ x\_new, }\AttributeTok{type =} \StringTok{"quantile"}\NormalTok{, }\AttributeTok{index =}\NormalTok{ p\_grid,}
-          \AttributeTok{interval =} \StringTok{"hpd"}\NormalTok{, }\AttributeTok{level =} \FloatTok{0.95}\NormalTok{)}
- \FunctionTok{head}\NormalTok{(}\FunctionTok{as.data.frame}\NormalTok{(pquant}\SpecialCharTok{$}\NormalTok{fit), }\DecValTok{5}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
-
-\begin{verbatim}
-  estimate index id       lower    upper
-1 1.009702   0.5  1 0.007511686 1.949263
-2 1.008598   0.5  2 0.949744433 1.076012
-3 1.231136   0.5  3 0.115947359 2.582029
-4 2.696279   0.9  1 1.846158152 3.588812
-5 3.342304   0.9  2 2.753517503 3.866009
-\end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{plot}\NormalTok{(pquant)}
+\NormalTok{pdens }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(fit, }\AttributeTok{newdata =}\NormalTok{ x\_new, }\AttributeTok{y =}\NormalTok{ y\_grid, }\AttributeTok{type =} \StringTok{"density"}\NormalTok{,}
+                 \AttributeTok{interval =} \StringTok{"credible"}\NormalTok{, }\AttributeTok{level =} \FloatTok{0.95}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
-\pandocbounded{\includegraphics[keepaspectratio]{CausalMixGPD_JSS_article_files/figure-latex/overview-predict-3.pdf}}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{psurv }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(fit, }\AttributeTok{newdata =}\NormalTok{ x\_new, }\AttributeTok{y =}\NormalTok{ y\_grid, }\AttributeTok{type =} \StringTok{"survival"}\NormalTok{,}
+                 \AttributeTok{interval =} \StringTok{"credible"}\NormalTok{, }\AttributeTok{level =} \FloatTok{0.95}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{pquant }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(fit, }\AttributeTok{newdata =}\NormalTok{ x\_new, }\AttributeTok{type =} \StringTok{"quantile"}\NormalTok{, }\AttributeTok{index =}\NormalTok{ p\_grid,}
+                  \AttributeTok{interval =} \StringTok{"hpd"}\NormalTok{, }\AttributeTok{level =} \FloatTok{0.95}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
 
 \subsection{Causal extension and propensity score augmentation}
 \label{subsec:overview-causal}
@@ -1302,16 +1158,30 @@ wrapper, fitting the augmented spliced model by default.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\# Load causal data}
 \FunctionTok{data}\NormalTok{(}\StringTok{"causal\_pos500\_p3\_k2"}\NormalTok{, }\AttributeTok{package =} \StringTok{"CausalMixGPD"}\NormalTok{)}
 \NormalTok{dat }\OtherTok{\textless{}{-}}\NormalTok{ causal\_pos500\_p3\_k2}
 \NormalTok{df  }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{y =}\NormalTok{ dat}\SpecialCharTok{$}\NormalTok{y, }\AttributeTok{A =}\NormalTok{ dat}\SpecialCharTok{$}\NormalTok{A, dat}\SpecialCharTok{$}\NormalTok{X)}
+\end{Highlighting}
+\end{Shaded}
 
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mcmc\_fixed }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+  \AttributeTok{niter =} \DecValTok{200}\NormalTok{,}
+  \AttributeTok{nburnin =} \DecValTok{50}\NormalTok{,}
+  \AttributeTok{thin =} \DecValTok{1}\NormalTok{,}
+  \AttributeTok{nchains =} \DecValTok{1}\NormalTok{,}
+  \AttributeTok{seed =} \DecValTok{1}
+\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
 
+\begin{Shaded}
+\begin{Highlighting}[]
 \NormalTok{cfit }\OtherTok{\textless{}{-}} \FunctionTok{dpmgpd}\NormalTok{(}
   \AttributeTok{formula =}\NormalTok{ y }\SpecialCharTok{\textasciitilde{}}\NormalTok{ x1 }\SpecialCharTok{+}\NormalTok{ x2 }\SpecialCharTok{+}\NormalTok{ x3,}
   \AttributeTok{data =}\NormalTok{ df,}
-  \AttributeTok{treat =}\NormalTok{ df}\SpecialCharTok{$}\NormalTok{A,}
+  \AttributeTok{treat =} \StringTok{"A"}\NormalTok{,}
   \AttributeTok{backend =} \StringTok{"sb"}\NormalTok{,}
   \AttributeTok{kernel =} \StringTok{"lognormal"}\NormalTok{,}
   \AttributeTok{components =} \DecValTok{5}\NormalTok{,}
@@ -1332,69 +1202,51 @@ wrapper, fitting the augmented spliced model by default.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{ate\_hat}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-ATE (Average Treatment Effect)
-  Prediction points: 1
-  Conditional (covariates): NO
-  Propensity score used: NO
-  Posterior mean draws: 200
-  Credible interval: credible (90%)
-
-ATE estimates (treated - control):
- id estimate    lower upper
-  1  -65.253 -272.621 1.549
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
 \NormalTok{qte\_hat }\OtherTok{\textless{}{-}} \FunctionTok{qte}\NormalTok{(cfit, }\AttributeTok{probs =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.50}\NormalTok{, }\FloatTok{0.90}\NormalTok{, }\FloatTok{0.95}\NormalTok{), }\AttributeTok{level =} \FloatTok{0.90}\NormalTok{, }\AttributeTok{interval =} \StringTok{"hpd"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{qte\_hat}
+\NormalTok{Xnew }\OtherTok{\textless{}{-}}\NormalTok{ df[}\DecValTok{1}\SpecialCharTok{:}\DecValTok{5}\NormalTok{, }\FunctionTok{c}\NormalTok{(}\StringTok{"x1"}\NormalTok{,}\StringTok{"x2"}\NormalTok{,}\StringTok{"x3"}\NormalTok{)]}
 \end{Highlighting}
 \end{Shaded}
 
-\begin{verbatim}
-QTE (Quantile Treatment Effect)
-  Prediction points: 1
-  Quantile grid: 0.5, 0.9, 0.95
-  Conditional (covariates): NO
-  Propensity score used: NO
-  Credible interval: hpd
-
-QTE estimates (treated - control):
- id index estimate  lower  upper
-  1   0.5   -0.858 -1.154 -0.566
-  1   0.9   -0.349 -2.487  1.478
-  1  0.95   -3.672 -12.67  2.357
-\end{verbatim}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{cate\_hat }\OtherTok{\textless{}{-}} \FunctionTok{cate}\NormalTok{(cfit, }\AttributeTok{newdata =}\NormalTok{ Xnew, }\AttributeTok{type =} \StringTok{"mean"}\NormalTok{, }\AttributeTok{level =} \FloatTok{0.90}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\# Ensure data frame is available when model fit is loaded from cache}
-\ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{exists}\NormalTok{(}\StringTok{"df"}\NormalTok{) }\SpecialCharTok{||} \SpecialCharTok{!}\FunctionTok{is.data.frame}\NormalTok{(df)) \{}
-  \FunctionTok{data}\NormalTok{(}\StringTok{"causal\_pos500\_p3\_k2"}\NormalTok{, }\AttributeTok{package =} \StringTok{"CausalMixGPD"}\NormalTok{)}
-\NormalTok{  dat }\OtherTok{\textless{}{-}}\NormalTok{ causal\_pos500\_p3\_k2}
-\NormalTok{  df  }\OtherTok{\textless{}{-}} \FunctionTok{data.frame}\NormalTok{(}\AttributeTok{y =}\NormalTok{ dat}\SpecialCharTok{$}\NormalTok{y, }\AttributeTok{A =}\NormalTok{ dat}\SpecialCharTok{$}\NormalTok{A, dat}\SpecialCharTok{$}\NormalTok{X)}
-\NormalTok{\}}
-\CommentTok{\# Prediction on a coordinate{-}wise quartile grid}
+\NormalTok{cqte\_hat }\OtherTok{\textless{}{-}} \FunctionTok{cqte}\NormalTok{(cfit, }\AttributeTok{newdata =}\NormalTok{ Xnew, }\AttributeTok{probs =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.50}\NormalTok{, }\FloatTok{0.90}\NormalTok{), }\AttributeTok{level =} \FloatTok{0.90}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
 \NormalTok{qs    }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FloatTok{0.25}\NormalTok{, }\FloatTok{0.50}\NormalTok{, }\FloatTok{0.75}\NormalTok{)}
 \NormalTok{Xgrid }\OtherTok{\textless{}{-}} \FunctionTok{expand.grid}\NormalTok{(}\FunctionTok{lapply}\NormalTok{(df[}\FunctionTok{c}\NormalTok{(}\StringTok{"x1"}\NormalTok{,}\StringTok{"x2"}\NormalTok{,}\StringTok{"x3"}\NormalTok{)], quantile, }\AttributeTok{probs =}\NormalTok{ qs))}
+\end{Highlighting}
+\end{Shaded}
 
-\NormalTok{pred\_q }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(cfit, }\AttributeTok{newdata =}\NormalTok{ Xgrid, }\AttributeTok{type =} \StringTok{"quantile"}\NormalTok{, }\AttributeTok{index =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.50}\NormalTok{, }\FloatTok{0.90}\NormalTok{))}
-\FunctionTok{plot}\NormalTok{(pred\_q)}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{pred\_q }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(cfit, }\AttributeTok{newdata =}\NormalTok{ Xgrid, }\AttributeTok{type =} \StringTok{"quantile"}\NormalTok{, }\AttributeTok{p =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.50}\NormalTok{, }\FloatTok{0.90}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
 
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{pred\_s }\OtherTok{\textless{}{-}} \FunctionTok{predict}\NormalTok{(cfit, }\AttributeTok{newdata =}\NormalTok{ Xgrid, }\AttributeTok{type =} \StringTok{"survival"}\NormalTok{, }\AttributeTok{y =} \FunctionTok{rep}\NormalTok{(}\DecValTok{4}\NormalTok{, }\FunctionTok{nrow}\NormalTok{(Xgrid)))}
+\end{Highlighting}
+\end{Shaded}
 
-\NormalTok{pred\_s }\OtherTok{\textless{}{-}}  \FunctionTok{predict}\NormalTok{(cfit, }\AttributeTok{newdata =}\NormalTok{ Xgrid, }\AttributeTok{type =} \StringTok{"survival"}\NormalTok{, }\AttributeTok{y =} \FunctionTok{sample}\NormalTok{(df}\SpecialCharTok{$}\NormalTok{y, }\FunctionTok{nrow}\NormalTok{(Xgrid)) }\SpecialCharTok{+} \DecValTok{1}\NormalTok{,}
-                   \AttributeTok{interval =} \StringTok{"credible"}\NormalTok{, }\AttributeTok{level =} \FloatTok{0.90}\NormalTok{)}
-\FunctionTok{plot}\NormalTok{(pred\_s)}
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{pred\_q\_trt }\OtherTok{\textless{}{-}} \FunctionTok{attr}\NormalTok{(pred\_q, }\StringTok{"trt"}\NormalTok{)}
+\NormalTok{pred\_q\_con }\OtherTok{\textless{}{-}} \FunctionTok{attr}\NormalTok{(pred\_q, }\StringTok{"con"}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
@@ -1419,10 +1271,10 @@ membership indicators and summarized using a posterior similarity matrix
 
 \subsection{Dataset and objective}
 
-We use the \texttt{Boston} housing data (\textsf{MASS}), treating each
-census tract as an observational unit. Let \[
+We use the \nolinkurl{Boston} housing data (\textsf{MASS}), treating
+each census tract as an observational unit. Let \[
   \mathcal{D}=\{(y_i,\boldsymbol{x}_i)\}_{i=1}^n,
-\] where \(y_i\) is the per-capita crime rate \texttt{crim} for tract
+\] where \(y_i\) is the per-capita crime rate \nolinkurl{crim} for tract
 \(i\) and \(\boldsymbol{x}_i\) is a vector of tract characteristics. The
 goal is twofold: (i) flexibly model the conditional distribution of a
 positive, right-skewed outcome and (ii) identify latent groups of tracts
@@ -1445,9 +1297,9 @@ through the CRP representation, \[
   (z_1,\ldots,z_n)\mid \alpha \sim \mathrm{CRP}(\alpha),
 \] with \(\alpha>0\) controlling the expected number of occupied
 clusters. In \textsf{CausalMixGPD}, the CRP backend represents up to
-\texttt{components = K} clusters in a finite NIMBLE model; the realized
-number of occupied clusters is then monitored and checked against this
-upper bound.
+\nolinkurl{components = K} clusters in a finite NIMBLE model; the
+realized number of occupied clusters is then monitored and checked
+against this upper bound.
 
 \subsection{Posterior simulation, convergence checks, and parameter extraction}
 
@@ -1458,276 +1310,321 @@ applicable), along with a mixture-specific diagnostic: the posterior
 distribution of the number of occupied clusters.
 
 A key practical point for this analysis is that we explicitly request
-link-mode for \texttt{meanlog} so the CRP model is a
+link-mode for \nolinkurl{meanlog} so the CRP model is a
 \emph{mixture regression} rather than a purely unconditional mixture.
-This is done via \texttt{param\_specs} in the wrapper call below.
+This is done via \nolinkurl{param\_specs} in the wrapper call below.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{library}\NormalTok{(MASS)}
-\FunctionTok{data}\NormalTok{(}\StringTok{"Boston"}\NormalTok{, }\AttributeTok{package =} \StringTok{"MASS"}\NormalTok{)}
-
-\NormalTok{dat }\OtherTok{\textless{}{-}}\NormalTok{ Boston}
-\FunctionTok{stopifnot}\NormalTok{(}\FunctionTok{all}\NormalTok{(dat}\SpecialCharTok{$}\NormalTok{crim }\SpecialCharTok{\textgreater{}} \DecValTok{0}\NormalTok{))}
-
-\CommentTok{\# High{-}level summaries}
-\FunctionTok{summary}\NormalTok{(fit\_clust)}
+\NormalTok{fit\_clust }\OtherTok{\textless{}{-}} \FunctionTok{dpmix}\NormalTok{(}
+  \AttributeTok{formula =}\NormalTok{ crim }\SpecialCharTok{\textasciitilde{}}\NormalTok{ lstat }\SpecialCharTok{+}\NormalTok{ rm }\SpecialCharTok{+}\NormalTok{ nox,}
+  \AttributeTok{data =}\NormalTok{ train\_dat,}
+  \AttributeTok{backend =} \StringTok{"crp"}\NormalTok{,}
+  \AttributeTok{kernel =} \StringTok{"normal"}\NormalTok{,}
+  \AttributeTok{components =} \DecValTok{5}\NormalTok{,}
+  \AttributeTok{mcmc =}\NormalTok{ mcmc\_fixed}
+\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-MixGPD summary | backend: Chinese Restaurant Process | kernel: Lognormal Distribution | GPD tail: FALSE | epsilon: 0.025
-n = 506 | components = 3
-Summary
-Initial components: 3 | Components after truncation: 2
-
-WAIC: 779.665
-lppd: -259.673 | pWAIC: 130.16
-
-Summary table
-  parameter   mean    sd q0.025 q0.500 q0.975    ess
- weights[1]  0.565 0.084  0.381  0.585  0.684 11.394
- weights[2]  0.286 0.039  0.203  0.294  0.348 16.833
-      alpha  0.411 0.239  0.077  0.362  0.974    400
- meanlog[1] -2.205 0.296 -2.667 -2.245 -1.383 10.751
- meanlog[2]  1.556  1.15 -2.635  1.993  2.289 29.365
-   sdlog[1]   0.98 0.231  0.622   0.95  1.496 21.156
-   sdlog[2]  1.229 0.416  0.311  1.274  2.014  62.58
+  sample   n
+1  train 404
+2    new 102
 \end{verbatim}
 
-\subsection{Posterior clustering summaries}
+\subsection{Allocation plot: training vs new data}
 
-Clustering is driven by posterior draws of the membership vector
-\(z=(z_1,\ldots,z_n)\). We summarize uncertainty in the partition using
-the posterior similarity matrix \[
-  \pi_{ii'}=\Pr(z_i=z_{i'}\mid\mathcal{D}),
-  \qquad
-  \widehat{\pi}_{ii'}=\frac{1}{S}\sum_{s=1}^S \mathbb{I}\{z_i^{(s)}=z_{i'}^{(s)}\},
-\] where \(\{z^{(s)}\}_{s=1}^S\) are post-burn-in draws. Because
-\(\widehat{\pi}_{ii'}\) is invariant to label switching, it provides a
-stable basis for cluster visualization (heatmaps) and for selecting a
-representative hard partition.
-
-In practice, we (i) compute \(\widehat{\pi}_{ii'}\) from the stored MCMC
-draws, (ii) select a representative partition from the posterior sample
-using a least-squares rule against the PSM, and (iii) interpret clusters
-by comparing outcome and covariate profiles across the resulting groups.
+For clustering, we report old (training) and new-sample cluster tables
+and a bar chart comparing cluster frequencies.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{cluster\_psm }\OtherTok{\textless{}{-}} \FunctionTok{cache\_or\_run}\NormalTok{(}
-  \FunctionTok{file.path}\NormalTok{(derived\_cache\_dir, }\StringTok{"cluster\_psm.rds"}\NormalTok{),}
-\NormalTok{  \{}
-\NormalTok{    smp }\OtherTok{\textless{}{-}}\NormalTok{ fit\_clust}\SpecialCharTok{$}\NormalTok{mcmc}\SpecialCharTok{$}\NormalTok{samples}
-    \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{is.null}\NormalTok{(smp) }\SpecialCharTok{\&\&} \SpecialCharTok{!}\FunctionTok{is.null}\NormalTok{(fit\_clust}\SpecialCharTok{$}\NormalTok{samples)) smp }\OtherTok{\textless{}{-}}\NormalTok{ fit\_clust}\SpecialCharTok{$}\NormalTok{samples}
-
-\NormalTok{    zmat\_list }\OtherTok{\textless{}{-}} \FunctionTok{vector}\NormalTok{(}\StringTok{"list"}\NormalTok{, }\DecValTok{0}\NormalTok{)}
-    \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \FunctionTok{seq\_along}\NormalTok{(smp)) \{}
-\NormalTok{      M }\OtherTok{\textless{}{-}} \FunctionTok{as.matrix}\NormalTok{(smp[[i]])}
-\NormalTok{      z\_cols }\OtherTok{\textless{}{-}} \FunctionTok{grep}\NormalTok{(}\StringTok{"\^{}z}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{[[0{-}9]+}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{]$"}\NormalTok{, }\FunctionTok{colnames}\NormalTok{(M))}
-      \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{length}\NormalTok{(z\_cols) }\SpecialCharTok{\textgreater{}} \DecValTok{0}\NormalTok{) \{}
-        \CommentTok{\# Sort z columns numerically by extracting the index i in z[i]}
-\NormalTok{        z\_colnames }\OtherTok{\textless{}{-}} \FunctionTok{colnames}\NormalTok{(M)[z\_cols]}
-\NormalTok{        z\_indices }\OtherTok{\textless{}{-}} \FunctionTok{as.integer}\NormalTok{(}\FunctionTok{sub}\NormalTok{(}\StringTok{"\^{}z}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{[([0{-}9]+)}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{]$"}\NormalTok{, }\StringTok{"}\SpecialCharTok{\textbackslash{}\textbackslash{}}\StringTok{1"}\NormalTok{, z\_colnames))}
-\NormalTok{        z\_cols }\OtherTok{\textless{}{-}}\NormalTok{ z\_cols[}\FunctionTok{order}\NormalTok{(z\_indices)]}
-\NormalTok{        zmat\_list[[}\FunctionTok{length}\NormalTok{(zmat\_list) }\SpecialCharTok{+} \DecValTok{1}\NormalTok{]] }\OtherTok{\textless{}{-}}\NormalTok{ M[, z\_cols, drop }\OtherTok{=} \ConstantTok{FALSE}\NormalTok{]}
-\NormalTok{      \}}
-\NormalTok{    \}}
-
-    \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{length}\NormalTok{(zmat\_list) }\SpecialCharTok{\textgreater{}} \DecValTok{0}\NormalTok{) \{}
-\NormalTok{      zmat }\OtherTok{\textless{}{-}} \FunctionTok{do.call}\NormalTok{(rbind, zmat\_list)}
-\NormalTok{      n\_occupied }\OtherTok{\textless{}{-}} \FunctionTok{apply}\NormalTok{(zmat, }\DecValTok{1}\NormalTok{, }\ControlFlowTok{function}\NormalTok{(z) }\FunctionTok{length}\NormalTok{(}\FunctionTok{unique}\NormalTok{(}\FunctionTok{as.integer}\NormalTok{(z))))}
-      
-      \CommentTok{\# Diagnostic: check if n\_occupied piles up at upper bound (K)}
-\NormalTok{      K\_max }\OtherTok{\textless{}{-}} \FunctionTok{max}\NormalTok{(n\_occupied)}
-\NormalTok{      n\_at\_max }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{(n\_occupied }\SpecialCharTok{==}\NormalTok{ K\_max)}
-\NormalTok{      prop\_at\_max }\OtherTok{\textless{}{-}}\NormalTok{ n\_at\_max }\SpecialCharTok{/} \FunctionTok{length}\NormalTok{(n\_occupied)}
-      \ControlFlowTok{if}\NormalTok{ (prop\_at\_max }\SpecialCharTok{\textgreater{}} \FloatTok{0.1}\NormalTok{) \{}
-        \FunctionTok{message}\NormalTok{(}\FunctionTok{sprintf}\NormalTok{(}
-          \StringTok{"Warning: \%.1f\%\% of iterations hit K=\%d components. Consider increasing K."}\NormalTok{,}
-          \DecValTok{100} \SpecialCharTok{*}\NormalTok{ prop\_at\_max, K\_max}
-\NormalTok{        ))}
-\NormalTok{      \}}
-      
-      \FunctionTok{set.seed}\NormalTok{(}\DecValTok{1}\NormalTok{)}
-\NormalTok{      S\_keep }\OtherTok{\textless{}{-}} \FunctionTok{min}\NormalTok{(}\DecValTok{400}\NormalTok{, }\FunctionTok{nrow}\NormalTok{(zmat))}
-\NormalTok{      keep }\OtherTok{\textless{}{-}} \FunctionTok{sample}\NormalTok{(}\FunctionTok{seq\_len}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(zmat)), S\_keep)}
-\NormalTok{      Zk }\OtherTok{\textless{}{-}}\NormalTok{ zmat[keep, , drop }\OtherTok{=} \ConstantTok{FALSE}\NormalTok{]}
-\NormalTok{      n }\OtherTok{\textless{}{-}} \FunctionTok{ncol}\NormalTok{(Zk)}
-\NormalTok{      PSM }\OtherTok{\textless{}{-}} \FunctionTok{matrix}\NormalTok{(}\DecValTok{0}\NormalTok{, n, n)}
-      \ControlFlowTok{for}\NormalTok{ (s }\ControlFlowTok{in} \FunctionTok{seq\_len}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(Zk))) \{}
-\NormalTok{        z }\OtherTok{\textless{}{-}} \FunctionTok{as.integer}\NormalTok{(Zk[s, ])}
-\NormalTok{        PSM }\OtherTok{\textless{}{-}}\NormalTok{ PSM }\SpecialCharTok{+}\NormalTok{ (}\FunctionTok{outer}\NormalTok{(z, z, }\StringTok{"=="}\NormalTok{) }\SpecialCharTok{*} \FloatTok{1.0}\NormalTok{)}
-\NormalTok{      \}}
-\NormalTok{      PSM }\OtherTok{\textless{}{-}}\NormalTok{ PSM }\SpecialCharTok{/} \FunctionTok{nrow}\NormalTok{(Zk)}
-\NormalTok{      ssq }\OtherTok{\textless{}{-}} \FunctionTok{numeric}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(Zk))}
-      \ControlFlowTok{for}\NormalTok{ (s }\ControlFlowTok{in} \FunctionTok{seq\_len}\NormalTok{(}\FunctionTok{nrow}\NormalTok{(Zk))) \{}
-\NormalTok{        z }\OtherTok{\textless{}{-}} \FunctionTok{as.integer}\NormalTok{(Zk[s, ])}
-\NormalTok{        A }\OtherTok{\textless{}{-}} \FunctionTok{outer}\NormalTok{(z, z, }\StringTok{"=="}\NormalTok{) }\SpecialCharTok{*} \FloatTok{1.0}
-\NormalTok{        ssq[s] }\OtherTok{\textless{}{-}} \FunctionTok{sum}\NormalTok{((A }\SpecialCharTok{{-}}\NormalTok{ PSM)}\SpecialCharTok{\^{}}\DecValTok{2}\NormalTok{)}
-\NormalTok{      \}}
-\NormalTok{      s\_star }\OtherTok{\textless{}{-}} \FunctionTok{which.min}\NormalTok{(ssq)}
-\NormalTok{      z\_hat }\OtherTok{\textless{}{-}} \FunctionTok{as.integer}\NormalTok{(Zk[s\_star, ])}
-      \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{length}\NormalTok{(z\_hat) }\SpecialCharTok{==} \FunctionTok{nrow}\NormalTok{(dat)) \{}
-\NormalTok{        cluster }\OtherTok{\textless{}{-}} \FunctionTok{match}\NormalTok{(z\_hat, }\FunctionTok{unique}\NormalTok{(z\_hat))}
-\NormalTok{      \} }\ControlFlowTok{else}\NormalTok{ \{}
-\NormalTok{        cluster }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{1}\DataTypeTok{L}\NormalTok{, }\FunctionTok{nrow}\NormalTok{(dat))}
-\NormalTok{      \}}
-\NormalTok{    \} }\ControlFlowTok{else}\NormalTok{ \{}
-\NormalTok{      n\_occupied }\OtherTok{\textless{}{-}} \FunctionTok{numeric}\NormalTok{(}\DecValTok{0}\NormalTok{)}
-\NormalTok{      cluster }\OtherTok{\textless{}{-}} \FunctionTok{rep}\NormalTok{(}\DecValTok{1}\DataTypeTok{L}\NormalTok{, }\FunctionTok{nrow}\NormalTok{(dat))}
-\NormalTok{    \}}
-
-    \FunctionTok{list}\NormalTok{(}\AttributeTok{cluster =}\NormalTok{ cluster, }\AttributeTok{n\_occupied =}\NormalTok{ n\_occupied)}
-\NormalTok{  \}}
-\NormalTok{)}
-
-\ControlFlowTok{if}\NormalTok{ (}\FunctionTok{is.null}\NormalTok{(cluster\_psm)) \{}
-\NormalTok{  dat}\SpecialCharTok{$}\NormalTok{cluster }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(}\FunctionTok{rep}\NormalTok{(}\DecValTok{1}\DataTypeTok{L}\NormalTok{, }\FunctionTok{nrow}\NormalTok{(dat)))}
-\NormalTok{\} }\ControlFlowTok{else}\NormalTok{ \{}
-\NormalTok{  dat}\SpecialCharTok{$}\NormalTok{cluster }\OtherTok{\textless{}{-}} \FunctionTok{factor}\NormalTok{(cluster\_psm}\SpecialCharTok{$}\NormalTok{cluster)}
-  \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{length}\NormalTok{(cluster\_psm}\SpecialCharTok{$}\NormalTok{n\_occupied) }\SpecialCharTok{\textgreater{}} \DecValTok{0}\NormalTok{) \{}
-    \FunctionTok{summary}\NormalTok{(cluster\_psm}\SpecialCharTok{$}\NormalTok{n\_occupied)}
-    \FunctionTok{max}\NormalTok{(cluster\_psm}\SpecialCharTok{$}\NormalTok{n\_occupied)}
-\NormalTok{  \}}
-\NormalTok{\}}
-
-\FunctionTok{table}\NormalTok{(dat}\SpecialCharTok{$}\NormalTok{cluster)}
+\NormalTok{cluster\_alloc\_new }\OtherTok{\textless{}{-}} \FunctionTok{allocation}\NormalTok{(fit\_clust, }\AttributeTok{newdata =}\NormalTok{ newdata\_cluster)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-
-  1 
-506 
+  cluster n_train
+1       1     238
+2       2      50
+3       3      19
+4       4      82
+5       5      15
 \end{verbatim}
 
-\subsection{Cluster interpretation and fitted distributional summaries}
+\begin{verbatim}
+  cluster n_new
+1       1    55
+2       2    12
+3       3    13
+4       4    18
+5       5     4
+\end{verbatim}
 
-Given the representative clustering, we compare outcome and covariate
-profiles across clusters. Because the fitted model is a mixture
-regression, clusters reflect differences in both the typical outcome
-level and the component-specific regression behavior.
+\begin{verbatim}
+  sample       min       q25    median       q75       max
+1    old 0.3595995 0.5446042 0.8469694 0.8742747 0.8954715
+2    new 0.2732306 0.5608872 0.8181139 0.9030104 0.9934707
+\end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\# Outcome summaries by cluster}
-\NormalTok{cluster\_outcome }\OtherTok{\textless{}{-}} \FunctionTok{cache\_or\_run}\NormalTok{(}
-  \FunctionTok{file.path}\NormalTok{(derived\_cache\_dir, }\StringTok{"cluster\_outcome.rds"}\NormalTok{),}
-\NormalTok{  \{}
-\NormalTok{    out }\OtherTok{\textless{}{-}} \FunctionTok{aggregate}\NormalTok{(}
-\NormalTok{      crim }\SpecialCharTok{\textasciitilde{}}\NormalTok{ cluster, }\AttributeTok{data =}\NormalTok{ dat,}
-      \AttributeTok{FUN =} \ControlFlowTok{function}\NormalTok{(v) }\FunctionTok{c}\NormalTok{(}\AttributeTok{median =} \FunctionTok{median}\NormalTok{(v), }\AttributeTok{q25 =} \FunctionTok{quantile}\NormalTok{(v, }\FloatTok{0.25}\NormalTok{), }\AttributeTok{q75 =} \FunctionTok{quantile}\NormalTok{(v, }\FloatTok{0.75}\NormalTok{))}
-\NormalTok{    )}
-    \FunctionTok{do.call}\NormalTok{(data.frame, out)}
-\NormalTok{  \}}
+\FunctionTok{ggplot}\NormalTok{(cluster\_old\_new\_counts, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ cluster, }\AttributeTok{y =}\NormalTok{ n, }\AttributeTok{fill =}\NormalTok{ sample)) }\SpecialCharTok{+}
+  \FunctionTok{geom\_col}\NormalTok{(}\AttributeTok{position =} \StringTok{"dodge"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}
+    \AttributeTok{title =} \StringTok{"Cluster frequencies: old vs new"}\NormalTok{,}
+    \AttributeTok{x =} \StringTok{"Cluster"}\NormalTok{,}
+    \AttributeTok{y =} \StringTok{"Count"}\NormalTok{,}
+    \AttributeTok{fill =} \StringTok{"Sample"}
+\NormalTok{  ) }\SpecialCharTok{+}
+  \FunctionTok{theme\_minimal}\NormalTok{(}\AttributeTok{base\_size =} \DecValTok{10}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics[width=0.94\linewidth]{cache/figs/app_cluster_old_new_barplot} \end{center}
+
+\section{Data analysis II: Spliced causal mixture regression with ATE, QTE, CATE and CQTE}
+\label{sec:app-causal}
+
+This application demonstrates causal estimands from a two-arm spliced
+Dirichlet process (DP) mixture regression with a generalized Pareto
+(GPD) tail. In contrast to
+Section\textasciitilde{}\ref{sec:app-clustering}, where the focus is
+model-based clustering under a CRP bulk-only regression, here the focus
+is inference on mean and quantile treatment contrasts, including
+conditional (covariate-specific) effects and extreme upper-tail
+behavior.
+
+\subsection{Dataset and objective}
+
+The \textsf{AER} package does not ship the National JTPA experimental
+data as an in-package dataset. Instead, we use a bundled causal
+benchmark data object to provide a clean and reproducible entry point
+for a heavy-tailed earnings-style application.
+
+Let \(Y\) denote post-program earnings (USD), \(A\in\{0,1\}\) denote
+randomized assignment to training, and \(\boldsymbol{x}\) denote
+baseline covariates including previous earnings and demographics. The
+scientific goal is to quantify how training changes (i) average earnings
+and (ii) distributional features of earnings, with special attention to
+the upper tail.
+
+Throughout, we report four causal estimands: \begin{align*}
+  \mathrm{ATE} &= \mathbb{E}\{Y(1)\}-\mathbb{E}\{Y(0)\},\\
+  \mathrm{QTE}(\tau) &= Q_{Y(1)}(\tau)-Q_{Y(0)}(\tau),\\
+  \mathrm{CATE}(\boldsymbol{x}) &= \mathbb{E}\{Y(1)\mid \boldsymbol{X}=\boldsymbol{x}\}-\mathbb{E}\{Y(0)\mid \boldsymbol{X}=\boldsymbol{x}\},\\
+  \mathrm{CQTE}(\tau,\boldsymbol{x}) &= Q_{Y(1)\mid \boldsymbol{X}=\boldsymbol{x}}(\tau)-Q_{Y(0)\mid \boldsymbol{X}=\boldsymbol{x}}(\tau),
+\end{align*} where \(Q(\tau)\) denotes the \(\tau\)-quantile. The
+standardized estimands (ATE, QTE) integrate over the empirical
+distribution of \(\{\boldsymbol{x}_i\}_{i=1}^n\); the conditional
+estimands (CATE, CQTE) are evaluated at user-chosen covariate profiles.
+
+\subsection{Spliced DP mixture regression model}
+
+We model arm-specific conditional outcome distributions
+\(F_a(\cdot\mid \boldsymbol{x})\) via a spliced construction: \[
+  f_a(y\mid \boldsymbol{x})
+  =
+  \sum_j w_{aj}(\boldsymbol{x})\, k(y\mid \Theta_{aj})\,\mathbf{1}(y\le u)
+  +
+  \{1-F_a(u\mid \boldsymbol{x})\}\, g(y\mid u,\sigma_a,\xi_a)\,\mathbf{1}(y>u),
+\] where the bulk kernel \(k(\cdot)\) is a DP mixture regression
+(stick-breaking backend) and the tail density \(g(\cdot)\) is GPD with
+scale \(\sigma_a>0\) and shape \(\xi_a\). The GPD tail index \(\xi_a\)
+controls extremal heaviness (e.g., \(\xi_a>0\) corresponds to heavy
+tails). This model stabilizes inference for extreme quantiles by
+coupling nonparametric bulk flexibility with EVT-consistent tail
+extrapolation.
+
+\subsection{Model fitting}
+
+We fit a two-arm spliced mixture using a lognormal bulk kernel. The MCMC
+settings below are intentionally modest for vignette speed; in
+substantive analysis we recommend longer runs and sensitivity checks
+(e.g., components, threshold priors, and prior scales).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mcmc\_fixed }\OtherTok{\textless{}{-}} \FunctionTok{list}\NormalTok{(}
+  \AttributeTok{niter =} \DecValTok{120}\NormalTok{,}
+  \AttributeTok{nburnin =} \DecValTok{40}\NormalTok{,}
+  \AttributeTok{thin =} \DecValTok{1}\NormalTok{,}
+  \AttributeTok{nchains =} \DecValTok{1}\NormalTok{,}
+  \AttributeTok{seed =} \DecValTok{101}\NormalTok{,}
+  \AttributeTok{show\_progress =} \ConstantTok{FALSE}
 \NormalTok{)}
-\NormalTok{cluster\_outcome}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{fit }\OtherTok{\textless{}{-}} \FunctionTok{dpmgpd}\NormalTok{(}
+  \AttributeTok{x =}\NormalTok{ y,}
+  \AttributeTok{X =}\NormalTok{ X,}
+  \AttributeTok{treat =}\NormalTok{ A,}
+  \AttributeTok{backend =} \StringTok{"sb"}\NormalTok{,}
+  \AttributeTok{kernel =} \StringTok{"normal"}\NormalTok{,}
+  \AttributeTok{components =} \DecValTok{4}\NormalTok{,}
+  \AttributeTok{mcmc =}\NormalTok{ mcmc\_fixed}
+\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-NULL
+     metric value
+1         n   500
+2         p     3
+3 n_treated   309
+4 n_control   191
 \end{verbatim}
+
+\subsection{Standardized estimands: ATE and QTE}
+
+We first summarize the overall average effect using \texttt{ate()},
+which aggregates draw-wise conditional mean contrasts over the empirical
+covariate distribution. We then compute quantile effects at a grid
+including upper-tail levels.
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\# Covariate means by cluster (illustrative subset)}
-\NormalTok{cluster\_covars }\OtherTok{\textless{}{-}} \FunctionTok{cache\_or\_run}\NormalTok{(}
-  \FunctionTok{file.path}\NormalTok{(derived\_cache\_dir, }\StringTok{"cluster\_covars.rds"}\NormalTok{),}
-  \FunctionTok{aggregate}\NormalTok{(}
-    \FunctionTok{cbind}\NormalTok{(rm, lstat, nox, ptratio, tax, rad) }\SpecialCharTok{\textasciitilde{}}\NormalTok{ cluster,}
-    \AttributeTok{data =}\NormalTok{ dat,}
-    \AttributeTok{FUN =}\NormalTok{ mean}
-\NormalTok{  )}
-\NormalTok{)}
-\NormalTok{cluster\_covars}
+\NormalTok{ate\_fit }\OtherTok{\textless{}{-}} \FunctionTok{ate}\NormalTok{(fit, }\AttributeTok{show\_progress =} \ConstantTok{FALSE}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-NULL
+  id   estimate      lower     upper
+1  1 -0.4117924 -0.7535828 0.1149462
 \end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\# Fitted conditional summaries at observed X (posterior intervals supported)}
-\NormalTok{fit\_med }\OtherTok{\textless{}{-}} \FunctionTok{cache\_or\_run}\NormalTok{(}
-  \FunctionTok{file.path}\NormalTok{(derived\_cache\_dir, }\StringTok{"cluster\_fit\_med.rds"}\NormalTok{),}
-  \FunctionTok{fitted}\NormalTok{(fit\_clust, }\AttributeTok{type =} \StringTok{"quantile"}\NormalTok{, }\AttributeTok{p =} \FloatTok{0.50}\NormalTok{, }\AttributeTok{level =} \FloatTok{0.95}\NormalTok{, }\AttributeTok{interval =} \StringTok{"credible"}\NormalTok{)}
-\NormalTok{)}
-\NormalTok{fit\_hi }\OtherTok{\textless{}{-}} \FunctionTok{cache\_or\_run}\NormalTok{(}
-  \FunctionTok{file.path}\NormalTok{(derived\_cache\_dir, }\StringTok{"cluster\_fit\_hi.rds"}\NormalTok{),}
-  \FunctionTok{fitted}\NormalTok{(fit\_clust, }\AttributeTok{type =} \StringTok{"quantile"}\NormalTok{, }\AttributeTok{p =} \FloatTok{0.90}\NormalTok{, }\AttributeTok{level =} \FloatTok{0.95}\NormalTok{, }\AttributeTok{interval =} \StringTok{"credible"}\NormalTok{)}
-\NormalTok{)}
-\CommentTok{\# Print small previews to avoid LaTeX dimension errors}
-\FunctionTok{print}\NormalTok{(}\StringTok{"fit\_med (first 5 rows)"}\NormalTok{)}
+\NormalTok{qte\_fit }\OtherTok{\textless{}{-}} \FunctionTok{qte}\NormalTok{(fit, }\AttributeTok{probs =}\NormalTok{ taus, }\AttributeTok{show\_progress =} \ConstantTok{FALSE}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-[1] "fit_med (first 5 rows)"
+  id index   estimate      lower      upper
+1  1  0.25 -0.8716460 -1.4502066 -0.2372132
+2  1  0.50 -0.6941083 -1.4486938 -0.1739043
+3  1  0.75  0.7638244 -0.1283850  1.3635846
+4  1  0.90  0.8399611 -0.1399917  1.9621082
+5  1  0.95  0.9459238 -0.5559643  2.4020646
+6  1  0.99  2.2808769 -1.9939012 11.8721445
 \end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{is.null}\NormalTok{(fit\_med)) }\FunctionTok{print}\NormalTok{(}\FunctionTok{head}\NormalTok{(fit\_med}\SpecialCharTok{$}\NormalTok{fit, }\DecValTok{5}\NormalTok{))}
-\FunctionTok{print}\NormalTok{(}\StringTok{"fit\_hi (first 5 rows)"}\NormalTok{)}
+\NormalTok{ate\_effect\_plot }\OtherTok{\textless{}{-}} \FunctionTok{plot}\NormalTok{(ate\_fit, }\AttributeTok{type =} \StringTok{"effect"}\NormalTok{)}
+\NormalTok{ate\_effect\_plot}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{qte\_effect\_plot }\OtherTok{\textless{}{-}} \FunctionTok{plot}\NormalTok{(qte\_fit, }\AttributeTok{type =} \StringTok{"effect"}\NormalTok{)}
+\NormalTok{qte\_effect\_plot}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{center}\includegraphics[width=0.94\linewidth]{cache/figs/app2_ate_effect} \end{center}
+
+\begin{center}\includegraphics[width=0.94\linewidth]{cache/figs/app2_qte_effect} \end{center}
+
+\subsection{Conditional estimands: CATE and CQTE at representative profiles}
+
+To illustrate heterogeneity, we evaluate conditional effects at two
+covariate profiles: (i) a
+\texttt{typical\textquotesingle{}\textquotesingle{}\ profile\ at\ sample\ medians\ and\ (ii)\ a}high
+previous earnings'\,' profile at the 80th percentile of previous
+earnings, holding other covariates at medians.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{col\_med }\OtherTok{\textless{}{-}} \FunctionTok{apply}\NormalTok{(X, }\DecValTok{2}\NormalTok{, median, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{)}
+\NormalTok{x\_typical }\OtherTok{\textless{}{-}}\NormalTok{ col\_med}
+\NormalTok{x\_highprev }\OtherTok{\textless{}{-}}\NormalTok{ col\_med}
+\NormalTok{profile\_var }\OtherTok{\textless{}{-}} \ControlFlowTok{if}\NormalTok{ (}\StringTok{"prevearn"} \SpecialCharTok{\%in\%} \FunctionTok{colnames}\NormalTok{(X)) }\StringTok{"prevearn"} \ControlFlowTok{else} \FunctionTok{colnames}\NormalTok{(X)[}\DecValTok{1}\NormalTok{]}
+\NormalTok{x\_highprev[profile\_var] }\OtherTok{\textless{}{-}} \FunctionTok{as.numeric}\NormalTok{(}\FunctionTok{quantile}\NormalTok{(X[, profile\_var], }\FloatTok{0.80}\NormalTok{, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{))}
+\NormalTok{xnew }\OtherTok{\textless{}{-}} \FunctionTok{rbind}\NormalTok{(}\AttributeTok{typical =}\NormalTok{ x\_typical, }\AttributeTok{high\_prev\_earn =}\NormalTok{ x\_highprev)}
 \end{Highlighting}
 \end{Shaded}
 
 \begin{verbatim}
-[1] "fit_hi (first 5 rows)"
+  profile_var
+1          x1
+\end{verbatim}
+
+\begin{verbatim}
+                       x1          x2         x3
+typical        0.07649836 -0.09628321 0.01209002
+high_prev_earn 0.79678466 -0.09628321 0.01209002
 \end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{is.null}\NormalTok{(fit\_hi)) }\FunctionTok{print}\NormalTok{(}\FunctionTok{head}\NormalTok{(fit\_hi}\SpecialCharTok{$}\NormalTok{fit, }\DecValTok{5}\NormalTok{))}
-
-\CommentTok{\# Attach fitted summaries for downstream plots}
-\ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{is.null}\NormalTok{(fit\_med)) dat}\SpecialCharTok{$}\NormalTok{fit\_q50 }\OtherTok{\textless{}{-}}\NormalTok{ fit\_med}\SpecialCharTok{$}\NormalTok{fit}
-\ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{is.null}\NormalTok{(fit\_hi)) dat}\SpecialCharTok{$}\NormalTok{fit\_q90 }\OtherTok{\textless{}{-}}\NormalTok{ fit\_hi}\SpecialCharTok{$}\NormalTok{fit}
+\NormalTok{cate\_fit }\OtherTok{\textless{}{-}} \FunctionTok{cate}\NormalTok{(fit, }\AttributeTok{newdata =}\NormalTok{ xnew, }\AttributeTok{show\_progress =} \ConstantTok{FALSE}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
-For prediction at new covariate profiles, we use the same
-\texttt{predict()} interface as in the methods section. In this
-clustering application, prediction is mainly used to visualize how
-fitted conditional quantiles vary across covariate patterns and to
-compare those patterns across the inferred clusters.
+\begin{verbatim}
+  id   estimate      lower       upper
+1  1 -0.3678887 -0.7546204 -0.07328494
+2  2 -1.4583216 -2.4668451 -0.78228931
+\end{verbatim}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\CommentTok{\# Coordinate{-}wise quartile grid for continuous covariates; fix binary indicator chas}
-\NormalTok{qs }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\FloatTok{0.25}\NormalTok{, }\FloatTok{0.50}\NormalTok{, }\FloatTok{0.75}\NormalTok{)}
-\NormalTok{Xgrid }\OtherTok{\textless{}{-}} \FunctionTok{expand.grid}\NormalTok{(}
-  \AttributeTok{lstat   =} \FunctionTok{quantile}\NormalTok{(dat}\SpecialCharTok{$}\NormalTok{lstat, qs),}
-  \AttributeTok{rm      =} \FunctionTok{quantile}\NormalTok{(dat}\SpecialCharTok{$}\NormalTok{rm, qs),}
-  \AttributeTok{nox     =} \FunctionTok{quantile}\NormalTok{(dat}\SpecialCharTok{$}\NormalTok{nox, qs),}
-  \AttributeTok{ptratio =} \FunctionTok{quantile}\NormalTok{(dat}\SpecialCharTok{$}\NormalTok{ptratio, qs),}
-  \AttributeTok{tax     =} \FunctionTok{quantile}\NormalTok{(dat}\SpecialCharTok{$}\NormalTok{tax, qs),}
-  \AttributeTok{rad     =} \FunctionTok{quantile}\NormalTok{(dat}\SpecialCharTok{$}\NormalTok{rad, qs)}
-\NormalTok{)}
-\NormalTok{Xgrid}\SpecialCharTok{$}\NormalTok{chas }\OtherTok{\textless{}{-}} \DecValTok{0}
-
-\NormalTok{pred\_q }\OtherTok{\textless{}{-}} \FunctionTok{cache\_or\_run}\NormalTok{(}
-  \FunctionTok{file.path}\NormalTok{(derived\_cache\_dir, }\StringTok{"cluster\_pred\_q.rds"}\NormalTok{),}
-  \FunctionTok{predict}\NormalTok{(}
-\NormalTok{    fit\_clust,}
-    \AttributeTok{newdata =}\NormalTok{ Xgrid,}
-    \AttributeTok{type =} \StringTok{"quantile"}\NormalTok{,}
-    \AttributeTok{index =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.50}\NormalTok{, }\FloatTok{0.90}\NormalTok{, }\FloatTok{0.95}\NormalTok{),}
-    \AttributeTok{level =} \FloatTok{0.95}\NormalTok{,}
-    \AttributeTok{interval =} \StringTok{"credible"}
-\NormalTok{  )}
-\NormalTok{)}
-
-\ControlFlowTok{if}\NormalTok{ (}\SpecialCharTok{!}\FunctionTok{is.null}\NormalTok{(pred\_q)) pred\_q}
+\NormalTok{cqte\_fit }\OtherTok{\textless{}{-}} \FunctionTok{cqte}\NormalTok{(fit, }\AttributeTok{probs =}\NormalTok{ taus, }\AttributeTok{newdata =}\NormalTok{ xnew, }\AttributeTok{show\_progress =} \ConstantTok{FALSE}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
 
+\begin{verbatim}
+   id index   estimate      lower       upper
+1   1  0.25 -0.2157592 -0.5805429  0.08519506
+2   1  0.50 -0.2653653 -0.4044642 -0.07230213
+3   1  0.75 -0.2282270 -0.4720426  0.05270702
+4   1  0.90 -0.1783537 -0.8925062  0.33589134
+5   1  0.95 -0.1166213 -1.2130864  0.59538829
+6   1  0.99 -0.6052849 -3.2226522  0.81979673
+7   2  0.25 -1.0029540 -1.4523082 -0.60897787
+8   2  0.50 -0.7302790 -1.2913572 -0.17271939
+9   2  0.75 -1.1369796 -2.1213103 -0.57987170
+10  2  0.90 -2.5609432 -3.9700641 -1.28956486
+11  2  0.95 -2.5888083 -4.2046625 -1.28730194
+12  2  0.99 -2.7664670 -5.7033867 -0.92284556
+\end{verbatim}
 
-\renewcommand\refname{References}
+CATE/CQTE effect plots are omitted in this PDF.
+
+\subsection{Tail behavior}
+
+A key advantage of the spliced model is direct posterior inference on
+the tail index \(\xi_a\) by arm. Larger \(\xi_a\) indicates a heavier
+upper tail and greater propensity for extreme earnings.
+
+\begin{verbatim}
+        arm      mean         sd    q0.025    q0.500    q0.975
+23  treated 0.5830602 0.04488664 0.4780895 0.5805598 0.6883067
+231 control 0.3667860 0.11154470 0.1951404 0.4457394 0.4635703
+\end{verbatim}
+
+\subsection{Interpretation}
+
+The ATE summarizes the average shift in earnings under training, while
+QTE describes how the effect varies across the marginal outcome
+distribution. CATE and CQTE extend these contrasts to covariate-specific
+comparisons, illustrating treatment effect heterogeneity in both central
+and extreme quantiles. Finally, arm-specific tail indices \(\xi_a\)
+provide a parsimonious summary of whether training changes extremal
+behavior beyond what is captured by bulk-only regression.
+
+\section{Discussion}
+\label{sec:discussion}
+
+\section{Supplementary Materials}
+\label{sec:supplementary}
+
 \bibliography{CausalMixGPD_JSS_refs.bib}
 
 \end{document}

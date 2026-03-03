@@ -44,10 +44,15 @@ NULL
 #' @keywords internal
 #' @noRd
 .plot_theme <- function() {
-  ggplot2::theme_minimal(base_size = 12) +
+  ggplot2::theme_minimal(base_size = 16) +
     ggplot2::theme(
       panel.grid.minor = ggplot2::element_blank(),
-      plot.title = ggplot2::element_text(face = "bold"),
+      plot.title = ggplot2::element_text(face = "bold", size = 20),
+      axis.title = ggplot2::element_text(size = 17),
+      axis.text = ggplot2::element_text(size = 14),
+      legend.title = ggplot2::element_text(size = 15),
+      legend.text = ggplot2::element_text(size = 13),
+      strip.text = ggplot2::element_text(size = 15),
       legend.position = "top"
     )
 }

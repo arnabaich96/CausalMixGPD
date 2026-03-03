@@ -57,7 +57,7 @@ build_nimble_bundle <- function(
     y,
     X = NULL,
     ps = NULL,
-    backend = c("sb", "crp"),
+    backend = c("sb", "crp", "spliced"),
     kernel,
     GPD = FALSE,
     components = NULL,
@@ -71,7 +71,8 @@ build_nimble_bundle <- function(
 ) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
 
-  backend <- match.arg(backend, choices = allowed_backends)
+  requested_backend <- match.arg(backend, choices = allowed_backends)
+  backend <- if (identical(requested_backend, "spliced") && !isTRUE(GPD)) "crp" else requested_backend
   monitor <- match.arg(monitor)
 
   if (identical(monitor, "full")) {
@@ -79,11 +80,7 @@ build_nimble_bundle <- function(
     if (identical(backend, "sb")) monitor_v <- TRUE
   }
   if (backend %in% c("crp", "spliced") && !isTRUE(monitor_latent)) {
-    warning(
-      "CRP/spliced fits without latent z monitoring may not support downstream summary/predict/params operations ",
-      "that require component weights. Set monitor_latent = TRUE to observe z.",
-      call. = FALSE
-    )
+    monitor_latent <- TRUE
   }
 
   y <- as.numeric(y)
@@ -122,6 +119,10 @@ build_nimble_bundle <- function(
     param_specs = param_specs,
     alpha_random = alpha_random
   )
+  if (identical(requested_backend, "spliced")) {
+    spec$meta$backend <- "spliced"
+    spec$dispatch$backend <- "spliced"
+  }
 
   code <- .wrap_nimble_code(build_code_from_spec(spec))
 
@@ -2211,8 +2212,8 @@ build_prior_table_from_spec <- function(spec) {
 #' Run MCMC for a prepared bundle
 #'
 #' @param bundle A \code{causalmixgpd_bundle} from \code{build_nimble_bundle()}.
-#' @param show_progress Logical; passed to nimble.
-#' @param quiet Logical; if TRUE (default), suppress console status messages.
+#' @param show_progress Logical; if TRUE, print step messages and render progress where supported.
+#' @param quiet Logical; if TRUE, suppress console status messages.
 #'   Set to FALSE to see progress messages during MCMC setup and execution.
 #' @param parallel_chains Logical; run chains concurrently when \code{nchains > 1}.
 #' @param workers Optional integer number of workers for parallel execution.
@@ -2236,12 +2237,21 @@ build_prior_table_from_spec <- function(spec) {
 #' fit
 #' }
 #' @export
-run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = TRUE,
+run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = FALSE,
                                    parallel_chains = FALSE, workers = NULL, timing = FALSE,
                                    z_update_every = NULL) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
   suppressPackageStartupMessages(base::require("nimble", quietly = TRUE, warn.conflicts = FALSE))
   stopifnot(inherits(bundle, "causalmixgpd_bundle"))
+
+  progress_ctx <- .cmgpd_progress_start(
+    total_steps = 8L,
+    enabled = isTRUE(show_progress),
+    quiet = isTRUE(quiet),
+    label = "run_mcmc_bundle_manual"
+  )
+  on.exit(.cmgpd_progress_done(progress_ctx, final_label = NULL), add = TRUE)
+  .cmgpd_progress_step(progress_ctx, "Validating configuration")
 
   spec <- bundle$spec
   m <- bundle$mcmc %||% list()
@@ -2262,12 +2272,13 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = TRUE,
   nchains <- as.integer(m$nchains %||% 1)
   timing <- isTRUE(timing %||% m$timing %||% FALSE)
   parallel_chains <- isTRUE(parallel_chains %||% m$parallel_chains %||% FALSE)
+  nimble_quiet <- isTRUE(show_progress) || isTRUE(quiet)
   z_update_every <- as.integer(z_update_every %||% m$z_update_every %||% 1L)
   if (!is.finite(z_update_every) || z_update_every < 1L) {
     stop("'z_update_every' must be an integer >= 1.", call. = FALSE)
   }
   if (z_update_every > 1L && !isTRUE(quiet)) {
-    message(sprintf("Using z_update_every = %d; this may reduce compute but can slow mixing.", z_update_every))
+    .cmgpd_message(sprintf("Using z_update_every = %d; this may reduce compute but can slow mixing.", z_update_every))
   }
   workers <- as.integer(workers %||% m$workers %||% max(1L, min(nchains, parallel::detectCores(logical = FALSE))))
   if (!is.finite(workers) || workers < 1L) workers <- 1L
@@ -2278,7 +2289,6 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = TRUE,
   if (length(seed) == 1L && nchains > 1L) seed <- seed + seq_len(nchains) - 1L
   if (length(seed) != nchains) stop("mcmc$seed must be length 1 or length nchains.", call. = FALSE)
 
-  log_msg <- function(...) if (!isTRUE(quiet)) cat(...)
   tic <- function() proc.time()[["elapsed"]]
   timing_info <- list(build = 0, compile = 0, mcmc = 0, cache_hit = FALSE)
 
@@ -2328,28 +2338,46 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = TRUE,
     return(fit)
   }
 
+  .cmgpd_progress_step(progress_ctx, "Checking build/compile cache")
   cache_key <- .mcmc_cache_key(code = code, constants = constants, data = data, dims = dims, monitors = monitors, waic_enabled = waic_enabled)
   cache_entry <- .mcmc_cache_get(cache_key)
   if (!is.null(cache_entry)) {
     timing_info$cache_hit <- TRUE
-    log_msg("[MCMC] Reusing cached build/compile.\n")
+    if (!isTRUE(quiet)) .cmgpd_message("[MCMC] Reusing cached build/compile.")
   }
 
   if (is.null(cache_entry)) {
+    .cmgpd_progress_step(progress_ctx, "Building model and MCMC configuration")
     t0_build <- tic()
-    log_msg("[MCMC] Creating NIMBLE model...\n")
     Rmodel <- tryCatch(
-      nimble::nimbleModel(code = code, data = data, constants = constants, inits = inits_fun(), dimensions = dims, check = TRUE, calculate = FALSE),
+      .cmgpd_capture_nimble(
+        nimble::nimbleModel(
+          code = code, data = data, constants = constants,
+          inits = inits_fun(), dimensions = dims, check = TRUE, calculate = FALSE
+        ),
+        suppress = nimble_quiet
+      ),
       error = function(e) {
         msg <- conditionMessage(e)
         if (grepl("keywords:", msg, ignore.case = TRUE) && grepl("Please use a different name", msg, fixed = TRUE)) {
-          return(nimble::nimbleModel(code = code, data = data, constants = constants, inits = inits_fun(), dimensions = dims, check = FALSE, calculate = FALSE))
+          return(
+            .cmgpd_capture_nimble(
+              nimble::nimbleModel(
+                code = code, data = data, constants = constants,
+                inits = inits_fun(), dimensions = dims, check = FALSE, calculate = FALSE
+              ),
+              suppress = nimble_quiet
+            )
+          )
         }
         stop(e)
       }
     )
 
-    conf <- nimble::configureMCMC(Rmodel, monitors = monitors, enableWAIC = waic_enabled)
+    conf <- .cmgpd_capture_nimble(
+      nimble::configureMCMC(Rmodel, monitors = monitors, enableWAIC = waic_enabled),
+      suppress = nimble_quiet
+    )
     conf <- .configure_samplers(
       conf,
       spec = spec,
@@ -2357,16 +2385,23 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = TRUE,
       z_update_every = z_update_every
     )
 
-    Rmcmc <- nimble::buildMCMC(conf)
+    Rmcmc <- .cmgpd_capture_nimble(nimble::buildMCMC(conf), suppress = nimble_quiet)
     timing_info$build <- tic() - t0_build
 
+    .cmgpd_progress_step(progress_ctx, "Compiling NIMBLE model")
     compiled <- TRUE
     Cmodel <- NULL
     Cmcmc <- NULL
     t0_compile <- tic()
     compile_err <- tryCatch({
-      Cmodel <- nimble::compileNimble(Rmodel, showCompilerOutput = FALSE)
-      Cmcmc <- nimble::compileNimble(Rmcmc, project = Rmodel, showCompilerOutput = FALSE)
+      Cmodel <- .cmgpd_capture_nimble(
+        nimble::compileNimble(Rmodel, showCompilerOutput = FALSE),
+        suppress = nimble_quiet
+      )
+      Cmcmc <- .cmgpd_capture_nimble(
+        nimble::compileNimble(Rmcmc, project = Rmodel, showCompilerOutput = FALSE),
+        suppress = nimble_quiet
+      )
       NULL
     }, error = function(e) e)
     timing_info$compile <- tic() - t0_compile
@@ -2384,6 +2419,9 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = TRUE,
       conf = conf
     )
     .mcmc_cache_set(cache_key, cache_entry)
+  } else {
+    .cmgpd_progress_step(progress_ctx, "Building model and MCMC configuration (cached)")
+    .cmgpd_progress_step(progress_ctx, "Compiling NIMBLE model (cached)")
   }
 
   compiled <- isTRUE(cache_entry$compiled)
@@ -2394,6 +2432,7 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = TRUE,
   conf <- cache_entry$conf
   engine_mcmc <- if (compiled) Cmcmc else Rmcmc
 
+  .cmgpd_progress_step(progress_ctx, "Initializing chains")
   inits_list <- if (nchains > 1L) {
     out <- vector("list", nchains)
     for (ch in seq_len(nchains)) {
@@ -2406,32 +2445,39 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = TRUE,
     inits_fun()
   }
 
+  .cmgpd_progress_step(progress_ctx, "Running MCMC")
   t0_mcmc <- tic()
   res <- tryCatch(
-    nimble::runMCMC(
-      engine_mcmc,
-      niter = niter,
-      nburnin = nburnin,
-      thin = thin,
-      nchains = nchains,
-      inits = inits_list,
-      progressBar = isTRUE(show_progress) && !isTRUE(quiet),
-      samplesAsCodaMCMC = TRUE
+    .cmgpd_capture_nimble(
+      nimble::runMCMC(
+        engine_mcmc,
+        niter = niter,
+        nburnin = nburnin,
+        thin = thin,
+        nchains = nchains,
+        inits = inits_list,
+        progressBar = FALSE,
+        samplesAsCodaMCMC = TRUE
+      ),
+      suppress = nimble_quiet
     ),
     error = function(e) e
   )
   timing_info$mcmc <- tic() - t0_mcmc
 
   if (inherits(res, "error")) {
-    samples <- nimble::runMCMC(
-      engine_mcmc,
-      niter = niter,
-      nburnin = nburnin,
-      thin = thin,
-      nchains = nchains,
-      inits = inits_list,
-      progressBar = isTRUE(show_progress) && !isTRUE(quiet),
-      samplesAsCodaMCMC = TRUE
+    samples <- .cmgpd_capture_nimble(
+      nimble::runMCMC(
+        engine_mcmc,
+        niter = niter,
+        nburnin = nburnin,
+        thin = thin,
+        nchains = nchains,
+        inits = inits_list,
+        progressBar = FALSE,
+        samplesAsCodaMCMC = TRUE
+      ),
+      suppress = nimble_quiet
     )
     waic_obj <- NULL
   } else if (is.list(res) && !is.null(res$WAIC)) {
@@ -2442,12 +2488,18 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = TRUE,
     samples <- res
   }
 
+  .cmgpd_progress_step(progress_ctx, "Finalizing WAIC and diagnostics")
   if (is.null(waic_obj) && waic_enabled) {
-    waic_obj <- tryCatch({
-      if (compiled) nimble::calculateWAIC(Cmcmc) else nimble::calculateWAIC(Rmcmc)
-    }, error = function(e) NULL)
+    waic_obj <- tryCatch(
+      .cmgpd_capture_nimble(
+        if (compiled) nimble::calculateWAIC(Cmcmc) else nimble::calculateWAIC(Rmcmc),
+        suppress = nimble_quiet
+      ),
+      error = function(e) NULL
+    )
   }
 
+  .cmgpd_progress_step(progress_ctx, "Assembling fit object")
   fit <- list(
     call = match.call(),
     spec = spec,

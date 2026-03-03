@@ -687,6 +687,43 @@ params.mixgpd_fit <- function(object, ...) {
     out$tail_shape <- as.numeric(unname(means["tail_shape"]))
   }
 
+  .coerce_numeric_like <- function(v) {
+    if (is.null(v)) return(v)
+    if (is.matrix(v) && !is.numeric(v)) {
+      vv <- suppressWarnings(as.numeric(v))
+      if (!any(is.na(vv) & !is.na(c(v)))) {
+        outm <- matrix(vv, nrow = nrow(v), ncol = ncol(v))
+        dimnames(outm) <- dimnames(v)
+        return(outm)
+      }
+      return(v)
+    }
+    if (is.data.frame(v)) {
+      num_like <- vapply(v, function(col) {
+        if (is.numeric(col)) return(TRUE)
+        if (!is.character(col) && !is.factor(col)) return(FALSE)
+        col_chr <- as.character(col)
+        test <- suppressWarnings(as.numeric(col_chr))
+        !any(is.na(test) & !is.na(col_chr))
+      }, logical(1))
+      if (any(num_like)) {
+        for (j in which(num_like)) {
+          if (!is.numeric(v[[j]])) {
+            v[[j]] <- suppressWarnings(as.numeric(as.character(v[[j]])))
+          }
+        }
+      }
+      return(v)
+    }
+    if (is.character(v) || is.factor(v)) {
+      vv <- suppressWarnings(as.numeric(as.character(v)))
+      if (!any(is.na(vv) & !is.na(v))) return(vv)
+      return(v)
+    }
+    v
+  }
+  out <- lapply(out, .coerce_numeric_like)
+
   class(out) <- "mixgpd_params"
   out
 }
@@ -709,17 +746,40 @@ print.mixgpd_params <- function(x, digits = 4, ...) {
     cat("<empty>\n")
     return(invisible(x))
   }
+  .round_num <- function(v, digits = 4) {
+    if (is.matrix(v) && is.numeric(v)) {
+      out <- matrix(signif(as.numeric(v), digits = digits),
+                    nrow = nrow(v), ncol = ncol(v))
+      dimnames(out) <- dimnames(v)
+      return(out)
+    }
+    if (is.numeric(v)) {
+      return(signif(as.numeric(v), digits = digits))
+    }
+    v
+  }
   for (nm in names(x)) {
     cat("\n$", nm, "\n", sep = "")
     val <- x[[nm]]
     if (is.null(dim(val))) {
       if (is.numeric(val)) {
-        print_fmt3(val)
+        print(.round_num(val, digits = digits), ...)
       } else {
         print(val)
       }
     } else if (is.matrix(val) || is.data.frame(val)) {
-      print_fmt3(val)
+      if (is.matrix(val) && is.numeric(val)) {
+        print(.round_num(val, digits = digits), ...)
+      } else if (is.data.frame(val)) {
+        num_cols <- vapply(val, is.numeric, logical(1))
+        val_out <- val
+        if (any(num_cols)) {
+          val_out[num_cols] <- lapply(val_out[num_cols], .round_num, digits = digits)
+        }
+        print(val_out, quote = FALSE, ...)
+      } else {
+        print(val, ...)
+      }
     } else {
       print(val)
     }
@@ -1327,6 +1387,7 @@ plot.mixgpd_fit <- function(x,
 #' @param nsim_mean Number of posterior predictive samples to use for posterior mean estimation (for \code{type="mean"}).
 #' @param cutoff Finite numeric cutoff for \code{type="rmean"} (restricted mean).
 #' @param ncores Number of CPU cores to use for parallel prediction (if supported).
+#' @param show_progress Logical; if TRUE, print step messages and render progress where supported.
 #' @param ndraws_pred Optional integer subsample of posterior draws for prediction speed.
 #'   If NULL and \code{nrow(newdata) > 20000}, defaults to 200.
 #' @param chunk_size Optional row chunk size for large \code{newdata} prediction.
@@ -1377,6 +1438,7 @@ predict.mixgpd_fit <- function(object,
                                nsim_mean = 200L,
                                cutoff = NULL,
                                ncores = 1L,
+                               show_progress = TRUE,
                                ndraws_pred = NULL,
                                chunk_size = NULL,
                                parallel = FALSE,
@@ -1458,6 +1520,7 @@ predict.mixgpd_fit <- function(object,
                   probs = probs,
                   store_draws = store_draws,
                   nsim_mean = nsim_mean,
+                  show_progress = show_progress,
                   ndraws_pred = ndraws_pred,
                   chunk_size = chunk_size,
                   ncores = ncores)
@@ -1476,6 +1539,7 @@ predict.mixgpd_fit <- function(object,
                     probs = probs,
                     store_draws = store_draws,
                     nsim_mean = nsim_mean,
+                    show_progress = show_progress,
                     ndraws_pred = ndraws_pred,
                     chunk_size = chunk_size,
                     ncores = ncores)
@@ -1515,6 +1579,7 @@ predict.mixgpd_fit <- function(object,
                   store_draws = store_draws,
                   nsim_mean = nsim_mean,
                   cutoff = cutoff,
+                  show_progress = show_progress,
                   ndraws_pred = ndraws_pred,
                   chunk_size = chunk_size,
                   ncores = ncores)
@@ -1764,7 +1829,7 @@ residuals.mixgpd_fit <- function(object,
   kernel  <- meta$kernel  %||% spec$kernel$key %||% "<unknown>"
   GPD     <- isTRUE(meta$GPD %||% spec$dispatch$GPD)
 
-  pred_backend <- if (identical(backend, "crp")) "sb" else backend
+  pred_backend <- if (backend %in% c("crp", "spliced")) "sb" else backend
 
   # dispatch functions
   fns <- .get_dispatch(object, backend_override = pred_backend)
@@ -2245,7 +2310,7 @@ print.causalmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
       sprintf("  Quantile grid: %s", fmt3_vec(probs))
     )
     has_x <- !is.null(x$x)
-    ps_used <- !is.null(x$ps) && any(is.finite(x$ps))
+    ps_used <- isTRUE(meta$ps_enabled) || (!is.null(x$ps) && any(is.finite(x$ps)))
     pieces <- c(pieces, list(
       sprintf("  Conditional (covariates): %s", if (has_x) "YES" else "NO"),
       sprintf("  Propensity score used: %s", if (ps_used) "YES" else "NO")
@@ -2263,6 +2328,7 @@ print.causalmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
     qte_fit <- x$qte$fit %||% NULL
     if (!is.null(qte_fit) && is.data.frame(qte_fit)) {
       show_df <- qte_fit
+      if ("estimate" %in% names(show_df)) names(show_df)[names(show_df) == "estimate"] <- "mean"
       if (nrow(show_df) > max_rows) {
         pieces <- c(pieces, list(.kable_table(format_df3_sci(utils::head(show_df, max_rows), digits = digits), row.names = FALSE)))
         pieces <- c(pieces, list(sprintf("... (%d more rows)", nrow(show_df) - max_rows)))
@@ -2286,7 +2352,7 @@ print.causalmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
   cat(sprintf("  Quantile grid: %s\n", fmt3_vec(probs)))
 
   has_x <- !is.null(x$x)
-  ps_used <- !is.null(x$ps) && any(is.finite(x$ps))
+  ps_used <- isTRUE(meta$ps_enabled) || (!is.null(x$ps) && any(is.finite(x$ps)))
   cat(sprintf("  Conditional (covariates): %s\n", if (has_x) "YES" else "NO"))
   cat(sprintf("  Propensity score used: %s\n", if (ps_used) "YES" else "NO"))
   if (ps_used && !is.null(meta$ps_scale)) {
@@ -2303,6 +2369,7 @@ print.causalmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
   qte_fit <- x$qte$fit %||% NULL
   if (!is.null(qte_fit) && is.data.frame(qte_fit)) {
     show_df <- qte_fit
+    if ("estimate" %in% names(show_df)) names(show_df)[names(show_df) == "estimate"] <- "mean"
     if (nrow(show_df) > max_rows) {
       print_fmt3_sci(utils::head(show_df, max_rows), row.names = FALSE, digits = digits)
       cat(sprintf("... (%d more rows)\n", nrow(show_df) - max_rows))
@@ -2360,7 +2427,7 @@ print.causalmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
       sprintf("  Prediction points: %d", n_pred)
     )
     has_x <- !is.null(x$x)
-    ps_used <- !is.null(x$ps) && any(is.finite(x$ps))
+    ps_used <- isTRUE(meta$ps_enabled) || (!is.null(x$ps) && any(is.finite(x$ps)))
     pieces <- c(pieces, list(
       sprintf("  Conditional (covariates): %s", if (has_x) "YES" else "NO"),
       sprintf("  Propensity score used: %s", if (ps_used) "YES" else "NO")
@@ -2381,6 +2448,7 @@ print.causalmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
     ate_fit <- x$ate$fit %||% NULL
     if (!is.null(ate_fit) && is.data.frame(ate_fit)) {
       show_df <- ate_fit
+      if ("estimate" %in% names(show_df)) names(show_df)[names(show_df) == "estimate"] <- "mean"
       if (nrow(show_df) > max_rows) {
         pieces <- c(pieces, list(.kable_table(format_df3_sci(utils::head(show_df, max_rows), digits = digits), row.names = FALSE)))
         pieces <- c(pieces, list(sprintf("... (%d more rows)", nrow(show_df) - max_rows)))
@@ -2403,7 +2471,7 @@ print.causalmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
   cat(sprintf("  Prediction points: %d\n", n_pred))
 
   has_x <- !is.null(x$x)
-  ps_used <- !is.null(x$ps) && any(is.finite(x$ps))
+  ps_used <- isTRUE(meta$ps_enabled) || (!is.null(x$ps) && any(is.finite(x$ps)))
   cat(sprintf("  Conditional (covariates): %s\n", if (has_x) "YES" else "NO"))
   cat(sprintf("  Propensity score used: %s\n", if (ps_used) "YES" else "NO"))
   if (ps_used && !is.null(meta$ps_scale)) {
@@ -2423,6 +2491,7 @@ print.causalmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
   ate_fit <- x$ate$fit %||% NULL
   if (!is.null(ate_fit) && is.data.frame(ate_fit)) {
     show_df <- ate_fit
+    if ("estimate" %in% names(show_df)) names(show_df)[names(show_df) == "estimate"] <- "mean"
     if (nrow(show_df) > max_rows) {
       print_fmt3_sci(utils::head(show_df, max_rows), row.names = FALSE, digits = digits)
       cat(sprintf("... (%d more rows)\n", nrow(show_df) - max_rows))
@@ -2477,52 +2546,120 @@ summary.causalmixgpd_qte <- function(object, ...) {
     level = level,
     interval = interval,
     has_covariates = !is.null(object$x),
-    ps_used = !is.null(object$ps) && any(is.finite(object$ps))
+    ps_used = isTRUE(meta$ps_enabled) || (!is.null(object$ps) && any(is.finite(object$ps)))
   )
 
   # Per-quantile summary statistics
   qte_fit <- object$qte$fit %||% NULL
   quantile_summary <- NULL
-  if (!is.null(qte_fit) && is.data.frame(qte_fit)) {
-    quantile_summary <- do.call(rbind, lapply(probs, function(tau) {
-      rows <- qte_fit[qte_fit$index == tau, , drop = FALSE]
-      if (nrow(rows) == 0L) return(NULL)
-      est <- rows$estimate
-      data.frame(
-        quantile = tau,
-        mean_qte = mean(est, na.rm = TRUE),
-        median_qte = stats::median(est, na.rm = TRUE),
-        min_qte = min(est, na.rm = TRUE),
-        max_qte = max(est, na.rm = TRUE),
-        sd_qte = if (length(est) > 1) stats::sd(est, na.rm = TRUE) else NA_real_
-      )
-    }))
-  } else if (!is.null(object$fit) && is.matrix(object$fit)) {
-    fit_mat <- object$fit
-    quantile_summary <- do.call(rbind, lapply(seq_along(probs), function(j) {
-      est <- fit_mat[, j]
-      data.frame(
-        quantile = probs[j],
-        mean_qte = mean(est, na.rm = TRUE),
-        median_qte = stats::median(est, na.rm = TRUE),
-        min_qte = min(est, na.rm = TRUE),
-        max_qte = max(est, na.rm = TRUE),
-        sd_qte = if (length(est) > 1) stats::sd(est, na.rm = TRUE) else NA_real_
-      )
-    }))
+  qte_draws <- object$qte$draws %||% NULL
+
+  if (!is.null(qte_draws)) {
+    draw_cols <- NULL
+    if (is.array(qte_draws) && length(dim(qte_draws)) == 3L) {
+      # Expected layout for marginal QTE: S x id x quantile
+      n_q <- dim(qte_draws)[3]
+      draw_cols <- lapply(seq_len(n_q), function(j) as.numeric(qte_draws[, , j]))
+    } else if (is.matrix(qte_draws)) {
+      # Fallback: S x quantile
+      n_q <- ncol(qte_draws)
+      draw_cols <- lapply(seq_len(n_q), function(j) as.numeric(qte_draws[, j]))
+    }
+
+    if (!is.null(draw_cols) && length(draw_cols) > 0L) {
+      n_q <- min(length(probs), length(draw_cols))
+      if (n_q > 0L) {
+        quantile_summary <- do.call(rbind, lapply(seq_len(n_q), function(j) {
+          draws_j <- draw_cols[[j]]
+          draws_j <- draws_j[is.finite(draws_j)]
+          if (!length(draws_j)) {
+            return(data.frame(
+              quantile = probs[j],
+              estimate_qte = NA_real_,
+              mean_qte = NA_real_,
+              median_qte = NA_real_,
+              min_qte = NA_real_,
+              max_qte = NA_real_,
+              sd_qte = NA_real_,
+              ci_lower = NA_real_,
+              ci_upper = NA_real_,
+              ci_width = NA_real_
+            ))
+          }
+
+          fit_row <- NULL
+          if (!is.null(qte_fit) && is.data.frame(qte_fit) && "index" %in% names(qte_fit)) {
+            fit_row <- qte_fit[qte_fit$index == probs[j], , drop = FALSE]
+            if (nrow(fit_row) == 0L) fit_row <- NULL
+          }
+          est_q <- if (!is.null(fit_row) && "estimate" %in% names(fit_row)) {
+            as.numeric(fit_row$estimate[1])
+          } else {
+            mean(draws_j, na.rm = TRUE)
+          }
+          ci_l <- if (!is.null(fit_row) && "lower" %in% names(fit_row)) as.numeric(fit_row$lower[1]) else NA_real_
+          ci_u <- if (!is.null(fit_row) && "upper" %in% names(fit_row)) as.numeric(fit_row$upper[1]) else NA_real_
+          ci_w <- if (is.finite(ci_l) && is.finite(ci_u)) (ci_u - ci_l) else NA_real_
+
+          data.frame(
+            quantile = probs[j],
+            estimate_qte = est_q,
+            mean_qte = mean(draws_j, na.rm = TRUE),
+            median_qte = stats::median(draws_j, na.rm = TRUE),
+            min_qte = min(draws_j, na.rm = TRUE),
+            max_qte = max(draws_j, na.rm = TRUE),
+            sd_qte = if (length(draws_j) > 1L) stats::sd(draws_j, na.rm = TRUE) else NA_real_,
+            ci_lower = ci_l,
+            ci_upper = ci_u,
+            ci_width = ci_w
+          )
+        }))
+      }
+    }
   }
 
-  # CI width summary (for both credible and HPD intervals)
-  ci_summary <- NULL
-  if (interval %in% c("credible", "hpd") && !is.null(object$lower) && !is.null(object$upper)) {
-    widths <- as.vector(object$upper - object$lower)
-    ci_summary <- list(
-      mean_width = mean(widths, na.rm = TRUE),
-      median_width = stats::median(widths, na.rm = TRUE),
-      min_width = min(widths, na.rm = TRUE),
-      max_width = max(widths, na.rm = TRUE)
-    )
+  if (is.null(quantile_summary)) {
+    if (!is.null(qte_fit) && is.data.frame(qte_fit)) {
+      quantile_summary <- do.call(rbind, lapply(probs, function(tau) {
+        rows <- qte_fit[qte_fit$index == tau, , drop = FALSE]
+        if (nrow(rows) == 0L) return(NULL)
+        est <- rows$estimate
+        lo <- if ("lower" %in% names(rows)) rows$lower else NA_real_
+        up <- if ("upper" %in% names(rows)) rows$upper else NA_real_
+        data.frame(
+          quantile = tau,
+          estimate_qte = est[1],
+          mean_qte = mean(est, na.rm = TRUE),
+          median_qte = stats::median(est, na.rm = TRUE),
+          min_qte = min(est, na.rm = TRUE),
+          max_qte = max(est, na.rm = TRUE),
+          sd_qte = if (length(est) > 1) stats::sd(est, na.rm = TRUE) else NA_real_,
+          ci_lower = lo[1],
+          ci_upper = up[1],
+          ci_width = if (is.finite(lo[1]) && is.finite(up[1])) up[1] - lo[1] else NA_real_
+        )
+      }))
+    } else if (!is.null(object$fit) && is.matrix(object$fit)) {
+      fit_mat <- object$fit
+      quantile_summary <- do.call(rbind, lapply(seq_along(probs), function(j) {
+        est <- fit_mat[, j]
+        data.frame(
+          quantile = probs[j],
+          estimate_qte = mean(est, na.rm = TRUE),
+          mean_qte = mean(est, na.rm = TRUE),
+          median_qte = stats::median(est, na.rm = TRUE),
+          min_qte = min(est, na.rm = TRUE),
+          max_qte = max(est, na.rm = TRUE),
+          sd_qte = if (length(est) > 1) stats::sd(est, na.rm = TRUE) else NA_real_,
+          ci_lower = NA_real_,
+          ci_upper = NA_real_,
+          ci_width = NA_real_
+        )
+      }))
+    }
   }
+
+  ci_summary <- NULL
 
   out <- list(
     overall = overall,
@@ -2549,6 +2686,18 @@ print.summary.causalmixgpd_qte <- function(x, digits = 3, ...) {
   ov <- x$overall
   meta <- x$meta %||% list()
   knitr_kable <- .is_knitr_output() && isTRUE(getOption("causalmixgpd.knitr.kable", FALSE))
+  .clean_qte_colnames <- function(df) {
+    if (is.null(df) || !is.data.frame(df)) return(df)
+    drop_cols <- intersect(names(df), c("estimate_qte", "estimate"))
+    if (length(drop_cols)) {
+      df <- df[, setdiff(names(df), drop_cols), drop = FALSE]
+    }
+    nms <- names(df)
+    nms <- sub("^ci_", "", nms)
+    nms <- sub("_qte$", "", nms)
+    names(df) <- nms
+    df
+  }
 
   if (knitr_kable) {
     pieces <- list(
@@ -2587,21 +2736,12 @@ print.summary.causalmixgpd_qte <- function(x, digits = 3, ...) {
 
     qs <- x$quantile_summary
     if (!is.null(qs) && nrow(qs) > 0) {
+      qs <- .clean_qte_colnames(qs)
       pieces <- c(pieces, list(sprintf("%s by quantile:", lbl$short)))
       pieces <- c(pieces, list(.kable_table(format_df3_sci(qs, digits = digits), row.names = FALSE)))
       pieces <- c(pieces, list(""))
     }
 
-    ci <- x$ci_summary
-    if (!is.null(ci)) {
-      pieces <- c(pieces, list(
-        "Credible interval width:",
-        sprintf("  Mean: %s | Median: %s",
-                fmt3_sci(ci$mean_width, digits = digits), fmt3_sci(ci$median_width, digits = digits)),
-        sprintf("  Range: [%s, %s]",
-                fmt3_sci(ci$min_width, digits = digits), fmt3_sci(ci$max_width, digits = digits))
-      ))
-    }
     return(do.call(.knitr_asis, pieces))
   }
 
@@ -2640,20 +2780,11 @@ print.summary.causalmixgpd_qte <- function(x, digits = 3, ...) {
   # Quantile summary table
   qs <- x$quantile_summary
   if (!is.null(qs) && nrow(qs) > 0) {
+    qs <- .clean_qte_colnames(qs)
     cat(sprintf("%s by quantile:\n", lbl$short))
     qs_print <- qs
     print_fmt3_sci(qs_print, row.names = FALSE, digits = digits)
     cat("\n")
-  }
-
-  # CI summary
-  ci <- x$ci_summary
-  if (!is.null(ci)) {
-    cat("Credible interval width:\n")
-    cat(sprintf("  Mean: %s | Median: %s\n",
-                fmt3_sci(ci$mean_width, digits = digits), fmt3_sci(ci$median_width, digits = digits)))
-    cat(sprintf("  Range: [%s, %s]\n",
-                fmt3_sci(ci$min_width, digits = digits), fmt3_sci(ci$max_width, digits = digits)))
   }
 
   invisible(x)
@@ -2692,7 +2823,7 @@ summary.causalmixgpd_ate <- function(object, ...) {
     interval = interval,
     nsim_mean = nsim_mean,
     has_covariates = !is.null(object$x),
-    ps_used = !is.null(object$ps) && any(is.finite(object$ps))
+    ps_used = isTRUE(meta$ps_enabled) || (!is.null(object$ps) && any(is.finite(object$ps)))
   )
 
   # ATE statistics
@@ -2954,6 +3085,7 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
   if (!length(ps_vec)) ps_vec <- rep(NA_real_, n_pred)
   ax <- if (any(is.finite(ps_vec))) list(x = ps_vec, label = "Estimated PS") else
     list(x = seq_len(n_pred), label = "Index")
+  single_profile_curve <- (n_pred == 1L && length(probs) > 1L)
 
   # Helper to coerce prediction fit to data.frame
   .as_df <- function(pr, n_pred, probs) {
@@ -2984,6 +3116,28 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
     df_tc <- rbind(df_trt, df_con)
     df_tc$ps <- ax$x[df_tc$id]
     df_tc$tau <- factor(paste0("\u03C4 = ", df_tc$index), levels = paste0("\u03C4 = ", probs))
+
+    if (single_profile_curve) {
+      df_tc <- df_tc[order(df_tc$index), , drop = FALSE]
+      p <- ggplot2::ggplot(df_tc, ggplot2::aes(x = index, y = estimate, color = group, fill = group)) +
+        ggplot2::geom_line(linewidth = 0.8) +
+        ggplot2::geom_point(size = 3.2) +
+        ggplot2::scale_color_manual(values = pal[1:2]) +
+        ggplot2::scale_fill_manual(values = pal[1:2]) +
+        .plot_theme() +
+        ggplot2::labs(
+          x = "Quantile level (\u03C4)",
+          y = "Quantile",
+          title = "Treated vs Control Quantiles",
+          color = "Arm",
+          fill = "Arm"
+        )
+      if (any(is.finite(df_tc$lower)) && any(is.finite(df_tc$upper))) {
+        p <- p + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
+                                      alpha = 0.2, color = NA)
+      }
+      return(p)
+    }
 
     # Choose faceting
     facet_formula <- if (facet_by == "tau" && length(probs) > 1) {
@@ -3021,15 +3175,57 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
     te_lower <- x$lower
     te_upper <- x$upper
 
-    df_te <- data.frame(
-      id = rep(seq_len(n_pred), times = length(probs)),
-      index = rep(probs, each = n_pred),
-      estimate = as.vector(te_mat),
-      lower = if (!is.null(te_lower)) as.vector(te_lower) else NA_real_,
-      upper = if (!is.null(te_upper)) as.vector(te_upper) else NA_real_,
-      ps = rep(ax$x, times = length(probs))
-    )
+    df_te <- .coerce_fit_df(te_mat, n_pred = n_pred, probs = probs)
+    if (!("id" %in% names(df_te))) df_te$id <- rep(seq_len(n_pred), each = length(probs))
+    if (!("index" %in% names(df_te))) df_te$index <- rep(probs, times = n_pred)
+    if (!("estimate" %in% names(df_te))) df_te$estimate <- NA_real_
+    if (!("lower" %in% names(df_te))) df_te$lower <- NA_real_
+    if (!("upper" %in% names(df_te))) df_te$upper <- NA_real_
+
+    expected_n <- n_pred * length(probs)
+    if (expected_n > 0L && nrow(df_te) != expected_n) {
+      te_est <- rep_len(as.numeric(df_te$estimate), expected_n)
+      lo_src <- if (!is.null(te_lower)) as.numeric(te_lower) else as.numeric(df_te$lower)
+      up_src <- if (!is.null(te_upper)) as.numeric(te_upper) else as.numeric(df_te$upper)
+      lo <- rep_len(if (length(lo_src)) lo_src else NA_real_, expected_n)
+      up <- rep_len(if (length(up_src)) up_src else NA_real_, expected_n)
+      df_te <- data.frame(
+        id = rep(seq_len(n_pred), each = length(probs)),
+        index = rep(probs, times = n_pred),
+        estimate = te_est,
+        lower = lo,
+        upper = up
+      )
+    } else {
+      if (!is.null(te_lower) && all(!is.finite(df_te$lower))) {
+        df_te$lower <- rep_len(as.numeric(te_lower), nrow(df_te))
+      }
+      if (!is.null(te_upper) && all(!is.finite(df_te$upper))) {
+        df_te$upper <- rep_len(as.numeric(te_upper), nrow(df_te))
+      }
+      if (n_pred == 1L) {
+        df_te$id <- 1L
+      }
+    }
+
+    df_te$id <- pmax(1L, pmin(as.integer(df_te$id), length(ax$x)))
+    df_te$ps <- ax$x[df_te$id]
     df_te$tau <- factor(paste0("\u03C4 = ", df_te$index), levels = paste0("\u03C4 = ", probs))
+
+    if (single_profile_curve) {
+      df_te <- df_te[order(df_te$index), , drop = FALSE]
+      p <- ggplot2::ggplot(df_te, ggplot2::aes(x = index, y = estimate)) +
+        ggplot2::geom_line(color = pal[7], linewidth = 0.8) +
+        ggplot2::geom_point(color = pal[7], size = 3.2) +
+        ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray50", linewidth = 0.5) +
+        .plot_theme() +
+        ggplot2::labs(x = "Quantile level (\u03C4)", y = lbl$long, title = lbl$short)
+      if (any(is.finite(df_te$lower)) && any(is.finite(df_te$upper))) {
+        p <- p + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
+                                      alpha = 0.2, fill = pal[5], color = NA)
+      }
+      return(p)
+    }
 
     # Choose faceting
     facet_formula <- if (facet_by == "tau" && length(probs) > 1) {
@@ -3137,6 +3333,7 @@ plot.causalmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"
   if (!length(ps_vec)) ps_vec <- rep(NA_real_, n_pred)
   ax <- if (any(is.finite(ps_vec))) list(x = ps_vec, label = "Estimated PS") else
     list(x = seq_len(n_pred), label = "Index")
+  single_profile <- (n_pred == 1L)
 
   # Helper to extract statistics from prediction objects
   .extract_stats <- function(pr, n_pred) {
@@ -3182,6 +3379,22 @@ plot.causalmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"
                  lower = con_stats$lower, upper = con_stats$upper)
     )
 
+    if (single_profile) {
+      p <- ggplot2::ggplot(df_tc, ggplot2::aes(x = group, y = estimate, color = group, fill = group)) +
+        ggplot2::geom_point(size = 3.2) +
+        ggplot2::scale_color_manual(values = pal[1:2]) +
+        ggplot2::scale_fill_manual(values = pal[1:2]) +
+        .plot_theme() +
+        ggplot2::labs(x = NULL, y = "Mean Outcome", title = "Treated vs Control Means",
+                      color = "Arm", fill = "Arm")
+
+      if (any(is.finite(df_tc$lower)) && any(is.finite(df_tc$upper))) {
+        p <- p + ggplot2::geom_errorbar(ggplot2::aes(ymin = lower, ymax = upper),
+                                        width = 0.15, alpha = 0.8)
+      }
+      return(p)
+    }
+
     p <- ggplot2::ggplot(df_tc, ggplot2::aes(x = x, y = estimate, color = group, fill = group)) +
       ggplot2::geom_line(linewidth = 0.8) +
       ggplot2::geom_point(size = 2) +
@@ -3206,6 +3419,20 @@ plot.causalmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"
       lower = if (!is.null(x$lower)) as.numeric(x$lower) else NA_real_,
       upper = if (!is.null(x$upper)) as.numeric(x$upper) else NA_real_
     )
+
+    if (single_profile) {
+      df_te$label <- "ATE"
+      p <- ggplot2::ggplot(df_te, ggplot2::aes(x = label, y = estimate)) +
+        ggplot2::geom_point(color = pal[7], size = 3.6) +
+        ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray50", linewidth = 0.5) +
+        .plot_theme() +
+        ggplot2::labs(x = NULL, y = lbl$long, title = lbl$short)
+      if (any(is.finite(df_te$lower)) && any(is.finite(df_te$upper))) {
+        p <- p + ggplot2::geom_errorbar(ggplot2::aes(ymin = lower, ymax = upper),
+                                        width = 0.15, color = pal[7], alpha = 0.8)
+      }
+      return(p)
+    }
 
     p <- ggplot2::ggplot(df_te, ggplot2::aes(x = x, y = estimate)) +
       ggplot2::geom_line(color = pal[7], linewidth = 0.8) +
@@ -3242,7 +3469,10 @@ plot.causalmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"
     treatment_effect = .build_effect_plot()
   )
   class(result) <- c("causalmixgpd_causal_predict_plots", "list")
-  .wrap_plotly(result)
+  if (use_plotly) {
+    return(.wrap_plotly(result))
+  }
+  result
 }
 
 #' Print method for causal prediction plots
@@ -3414,8 +3644,7 @@ print.mixgpd_predict_plots <- function(x, ...) {
 #' memberships for new data.
 #'
 #' This function is only available for models fit with \code{backend = "crp"} or
-#' \code{backend = "spliced"} and \code{GPD = TRUE}. Stick-breaking (SB) models
-#' and bulk-only models are not supported.
+#' \code{backend = "spliced"}. Stick-breaking (SB) models are not supported.
 #'
 #' @param object A fitted model object.
 #' @param ... Additional arguments passed to methods.
@@ -3432,6 +3661,7 @@ allocation <- function(object, ...) {
 #' @param object A \code{mixgpd_fit} object from \code{\link{dpmgpd}} or related functions.
 #' @param method Character; clustering summarization method. Currently only \code{"dahl"}
 #'   is supported (Dahl's method for finding representative partition).
+#' @param show_progress Logical; if TRUE, print step messages and render progress where supported.
 #' @param ... Additional arguments. If \code{newdata} is provided, cluster allocations
 #'   will be predicted for new observations (requires \code{y} column in \code{newdata}).
 #' @return An object of class \code{"mixgpd_allocation"} containing:
@@ -3439,7 +3669,7 @@ allocation <- function(object, ...) {
 #'   \item{labels_train}{Integer vector of cluster labels for training data (1, 2, ..., K)}
 #'   \item{probs_train}{N x K matrix of cluster membership probabilities for training data}
 #'   \item{PSM}{N x N posterior similarity matrix}
-#'   \item{K}{Number of clusters in representative partition}
+#'   \item{components}{Number of clusters in representative partition}
 #'   \item{method}{Clustering method used}
 #'   \item{backend}{Model backend (crp or spliced)}
 #'   \item{GPD}{Logical; whether GPD tail is included}
@@ -3450,6 +3680,10 @@ allocation <- function(object, ...) {
 #'   \item{n_new}{(if newdata) Number of new observations}
 #'   \item{y_new}{(if newdata) Response values for new observations}
 #' }
+#'
+#' When \code{newdata} is supplied, predicted allocations are based on a simple
+#' distance-to-cluster-center heuristic on \code{y} from the representative
+#' partition.
 #' @examples
 #' \dontrun{
 #' # Fit a spliced CRP model
@@ -3476,7 +3710,16 @@ allocation <- function(object, ...) {
 #' process mixture model. In M. Vannucci, et al. (Eds.), Bayesian Inference for
 #' Gene Expression and Proteomics (pp. 201-218). Cambridge University Press.
 #' @export
-allocation.mixgpd_fit <- function(object, method = c("dahl"), ...) {
+allocation.mixgpd_fit <- function(object, method = c("dahl"), show_progress = TRUE, ...) {
+  progress_ctx <- .cmgpd_progress_start(
+    total_steps = 7L,
+    enabled = isTRUE(show_progress),
+    quiet = FALSE,
+    label = "allocation"
+  )
+  on.exit(.cmgpd_progress_done(progress_ctx, final_label = NULL), add = TRUE)
+  .cmgpd_progress_step(progress_ctx, "Preparing allocation inputs")
+
   method <- match.arg(method)
   if (method != "dahl") {
     stop("Only method = 'dahl' is currently supported.", call. = FALSE)
@@ -3496,12 +3739,6 @@ allocation.mixgpd_fit <- function(object, method = c("dahl"), ...) {
       "allocation() is only available for backend = 'crp' or 'spliced'. Current backend: '%s'",
       backend
     ), call. = FALSE)
-  }
-
-  # Guard: must have GPD tail (spliced model)
-  if (!GPD) {
-    stop("allocation() is only available for models with GPD = TRUE (spliced models).",
-         call. = FALSE)
   }
 
   # Extract training data
@@ -3548,17 +3785,21 @@ allocation.mixgpd_fit <- function(object, method = c("dahl"), ...) {
   # ============================================================================
 
   # Extract z matrix
+  .cmgpd_progress_step(progress_ctx, "Extracting posterior allocations")
   z_matrix <- .extract_z_matrix(object)
 
   # Compute PSM
+  .cmgpd_progress_step(progress_ctx, "Computing posterior similarity matrix")
   PSM <- .compute_psm(z_matrix)
 
   # Find Dahl representative
+  .cmgpd_progress_step(progress_ctx, "Computing Dahl representative partition")
   dahl_result <- .dahl_representative(z_matrix, PSM)
   labels_train <- dahl_result$labels
   K <- dahl_result$K
 
   # Compute cluster probabilities from PSM
+  .cmgpd_progress_step(progress_ctx, "Computing cluster membership probabilities")
   probs_train <- .compute_cluster_probs(z_matrix, labels_train, PSM)
 
   # ============================================================================
@@ -3569,37 +3810,11 @@ allocation.mixgpd_fit <- function(object, method = c("dahl"), ...) {
   probs_new <- NULL
 
   if (has_newdata) {
-    # Extract representative draw parameters
-    s_star <- dahl_result$draw_index
-    smp <- .get_samples_mcmclist(object)
-    if (is.null(smp)) {
-      stop("Cannot extract representative draw parameters: no MCMC samples.", call. = FALSE)
-    }
-
-    # Get the representative draw as a named vector
-    M <- as.matrix(smp[[1]])
-    if (length(smp) > 1) {
-      # Multi-chain: stack and index
-      for (i in 2:length(smp)) {
-        M <- rbind(M, as.matrix(smp[[i]]))
-      }
-    }
-    params_rep <- M[s_star, ]
-
+    .cmgpd_progress_step(progress_ctx, "Allocating new-data clusters")
     # Predict cluster membership for new data
-    # Strategy: compute likelihood under each component, normalize
     probs_new <- matrix(0, nrow = n_new, ncol = K)
 
-    # We need component-specific parameters from the representative draw
-    # For simplicity, use a likelihood-based approach:
-    # For each new observation, compute likelihood under each cluster's parameters
-
-    # Extract component parameters for the representative draw
-    # This is simplified - in practice would need kernel-specific likelihood
-    # For now, assign based on proximity (placeholder logic)
-
     # Simplified allocation: assign to nearest cluster based on y distance
-    # (This is a placeholder - full implementation would use kernel likelihood)
     for (i in seq_len(n_new)) {
       # Compute distances to cluster centroids
       cluster_means <- tapply(y_train, labels_train, mean)
@@ -3646,6 +3861,7 @@ allocation.mixgpd_fit <- function(object, method = c("dahl"), ...) {
     result$n_new <- NULL
   }
 
+  .cmgpd_progress_step(progress_ctx, "Assembling allocation output")
   class(result) <- "mixgpd_allocation"
   return(result)
 }
@@ -3832,151 +4048,149 @@ print.summary.mixgpd_allocation <- function(x, ...) {
 #'   overlay training and new data in the same plots. If \code{FALSE}, show
 #'   only new data plots when new data is present.
 #' @param ... Additional arguments passed to plotting functions.
-#' @return Invisibly returns a list of plot data.
-#' @importFrom graphics par barplot boxplot hist abline points legend
-#' @importFrom grDevices rgb
+#' @return A named list of \code{ggplot2} objects with class
+#'   \code{"mixgpd_allocation_plots"}.
 #' @export
 plot.mixgpd_allocation <- function(x, overlay = TRUE, ...) {
-  has_newdata <- !is.null(x$n_new)
-
-  # Set up multi-panel layout
-  old_par <- par(no.readonly = TRUE)
-  on.exit(par(old_par))
-
-  if (!has_newdata) {
-    # Case A: Training only - 3 panels
-    par(mfrow = c(2, 2))
-
-    # Panel 1: Cluster sizes
-    cluster_counts <- table(Cluster = x$labels_train)
-    barplot(cluster_counts,
-            main = "Training: Cluster Sizes",
-            xlab = "Cluster",
-            ylab = "Count",
-            col = "#4575b4",
-            border = "white")
-
-    # Panel 2: Response by cluster
-    boxplot(x$y_train ~ x$labels_train,
-            main = "Training: Response by Cluster",
-            xlab = "Cluster",
-            ylab = x$response_name,
-            col = "#91bfdb",
-            border = "#4575b4")
-
-    # Panel 3: Allocation certainty
-    max_prob_train <- apply(x$probs_train, 1, max)
-    hist(max_prob_train,
-         breaks = 20,
-         main = "Training: Allocation Certainty",
-         xlab = "Max Probability",
-         ylab = "Frequency",
-         col = "#fee090",
-         border = "white")
-    abline(v = 0.9, col = "red", lty = 2, lwd = 2)
-    abline(v = 0.8, col = "orange", lty = 2, lwd = 2)
-
-  } else if (overlay) {
-    # Case B: Overlay training and new data
-    par(mfrow = c(2, 2))
-
-    # Panel 1: Cluster sizes (side-by-side)
-    cluster_counts_train <- table(Cluster = x$labels_train)
-    cluster_counts_new <- table(Cluster = x$labels_new)
-
-    # Ensure same cluster levels
-    all_clusters <- sort(unique(c(x$labels_train, x$labels_new)))
-    counts_train <- sapply(all_clusters, function(k) sum(x$labels_train == k))
-    counts_new <- sapply(all_clusters, function(k) sum(x$labels_new == k))
-
-    counts_matrix <- rbind(Train = counts_train, New = counts_new)
-    colnames(counts_matrix) <- all_clusters
-
-    barplot(counts_matrix,
-            beside = TRUE,
-            main = "Cluster Sizes (Train vs New)",
-            xlab = "Cluster",
-            ylab = "Count",
-            col = c("#4575b4", "#d73027"),
-            border = "white",
-            legend.text = TRUE,
-            args.legend = list(x = "topright", bty = "n"))
-
-    # Panel 2: Response by cluster (overlay boxplot + points)
-    boxplot(x$y_train ~ x$labels_train,
-            main = "Response by Cluster (Train + New)",
-            xlab = "Cluster",
-            ylab = x$response_name,
-            col = "#91bfdb",
-            border = "#4575b4",
-            outline = FALSE)
-    # Overlay new data as points
-    set.seed(123)  # For reproducible jitter
-    points(jitter(x$labels_new, amount = 0.1), x$y_new,
-           pch = 19, col = rgb(0.84, 0.19, 0.15, 0.6), cex = 0.8)
-    legend("topright", legend = c("Train", "New"),
-           col = c("#4575b4", "#d73027"),
-           pch = c(15, 19), bty = "n")
-
-    # Panel 3: Allocation certainty (overlay histograms)
-    max_prob_train <- apply(x$probs_train, 1, max)
-    max_prob_new <- apply(x$probs_new, 1, max)
-
-    hist(max_prob_train,
-         breaks = 20,
-         main = "Allocation Certainty (Train vs New)",
-         xlab = "Max Probability",
-         ylab = "Frequency",
-         col = rgb(0.27, 0.46, 0.71, 0.5),
-         border = "white")
-    hist(max_prob_new,
-         breaks = 20,
-         col = rgb(0.84, 0.19, 0.15, 0.5),
-         border = "white",
-         add = TRUE)
-    legend("topleft", legend = c("Train", "New"),
-           fill = c(rgb(0.27, 0.46, 0.71, 0.5), rgb(0.84, 0.19, 0.15, 0.5)),
-           bty = "n")
-
-  } else {
-    # Case C: New data only
-    par(mfrow = c(2, 2))
-
-    # Panel 1: Cluster sizes
-    cluster_counts <- table(Cluster = x$labels_new)
-    barplot(cluster_counts,
-            main = "New Data: Cluster Sizes",
-            xlab = "Cluster",
-            ylab = "Count",
-            col = "#d73027",
-            border = "white")
-
-    # Panel 2: Response by cluster
-    boxplot(x$y_new ~ x$labels_new,
-            main = "New Data: Response by Cluster",
-            xlab = "Cluster",
-            ylab = x$response_name,
-            col = "#fc8d59",
-            border = "#d73027")
-
-    # Panel 3: Allocation certainty
-    max_prob_new <- apply(x$probs_new, 1, max)
-    hist(max_prob_new,
-         breaks = 20,
-         main = "New Data: Allocation Certainty",
-         xlab = "Max Probability",
-         ylab = "Frequency",
-         col = "#fee090",
-         border = "white")
-    abline(v = 0.9, col = "red", lty = 2, lwd = 2)
-    abline(v = 0.8, col = "orange", lty = 2, lwd = 2)
+  stopifnot(inherits(x, "mixgpd_allocation"))
+  if (!requireNamespace("ggplot2", quietly = TRUE)) {
+    stop("Package 'ggplot2' is required for plotting. Install it first.", call. = FALSE)
   }
 
-  # Return plot data invisibly
-  invisible(list(
-    labels_train = x$labels_train,
-    labels_new = x$labels_new,
-    probs_train = x$probs_train,
-    probs_new = x$probs_new
-  ))
+  has_newdata <- !is.null(x$n_new) &&
+    !is.null(x$labels_new) &&
+    !is.null(x$probs_new) &&
+    !is.null(x$y_new)
+  pal <- .plot_palette(8L)
+  y_label <- x$response_name %||% "y"
+
+  .cluster_factor <- function(v, levels = NULL) {
+    if (is.null(levels)) {
+      levels <- sort(unique(as.numeric(v)))
+    }
+    factor(as.numeric(v), levels = levels)
+  }
+
+  if (!has_newdata) {
+    cluster_train <- .cluster_factor(x$labels_train)
+    counts_train <- as.data.frame(table(cluster = cluster_train), stringsAsFactors = FALSE)
+    names(counts_train) <- c("cluster", "count")
+
+    p_sizes <- ggplot2::ggplot(counts_train, ggplot2::aes(x = cluster, y = count)) +
+      ggplot2::geom_col(fill = pal[1], color = "white", linewidth = 0.3) +
+      .plot_theme() +
+      ggplot2::labs(title = "Training: Cluster Sizes", x = "Cluster", y = "Count")
+
+    df_resp <- data.frame(cluster = cluster_train, y = as.numeric(x$y_train))
+    p_resp <- ggplot2::ggplot(df_resp, ggplot2::aes(x = cluster, y = y)) +
+      ggplot2::geom_boxplot(fill = pal[5], color = pal[1], outlier.alpha = 0.5) +
+      .plot_theme() +
+      ggplot2::labs(title = "Training: Response by Cluster", x = "Cluster", y = y_label)
+
+    max_prob_train <- apply(x$probs_train, 1, max)
+    df_cert <- data.frame(max_prob = max_prob_train, dataset = "Train")
+    p_cert <- ggplot2::ggplot(df_cert, ggplot2::aes(x = max_prob)) +
+      ggplot2::geom_histogram(bins = 20, fill = pal[6], color = "white", linewidth = 0.2) +
+      ggplot2::geom_vline(xintercept = c(0.8, 0.9), linetype = "dashed",
+                          color = c("#E69F00", "#D55E00"), linewidth = 0.8) +
+      .plot_theme() +
+      ggplot2::labs(title = "Training: Allocation Certainty", x = "Max Probability", y = "Frequency")
+  } else if (isTRUE(overlay)) {
+    all_clusters <- sort(unique(c(as.numeric(x$labels_train), as.numeric(x$labels_new))))
+    cluster_train <- .cluster_factor(x$labels_train, levels = all_clusters)
+    cluster_new <- .cluster_factor(x$labels_new, levels = all_clusters)
+
+    counts_train <- as.data.frame(table(cluster = cluster_train), stringsAsFactors = FALSE)
+    counts_train$dataset <- "Train"
+    counts_new <- as.data.frame(table(cluster = cluster_new), stringsAsFactors = FALSE)
+    counts_new$dataset <- "New"
+    counts_both <- rbind(counts_train, counts_new)
+    names(counts_both)[2] <- "count"
+
+    p_sizes <- ggplot2::ggplot(
+      counts_both,
+      ggplot2::aes(x = cluster, y = count, fill = dataset)
+    ) +
+      ggplot2::geom_col(position = "dodge", color = "white", linewidth = 0.3) +
+      ggplot2::scale_fill_manual(values = c(Train = pal[1], New = pal[2])) +
+      .plot_theme() +
+      ggplot2::labs(title = "Cluster Sizes (Train vs New)", x = "Cluster", y = "Count", fill = NULL)
+
+    df_resp_train <- data.frame(cluster = cluster_train, y = as.numeric(x$y_train))
+    df_resp_new <- data.frame(cluster = cluster_new, y = as.numeric(x$y_new), dataset = "New")
+    p_resp <- ggplot2::ggplot() +
+      ggplot2::geom_boxplot(
+        data = df_resp_train,
+        ggplot2::aes(x = cluster, y = y),
+        fill = pal[5], color = pal[1], alpha = 0.7, outlier.shape = NA
+      ) +
+      ggplot2::geom_jitter(
+        data = df_resp_new,
+        ggplot2::aes(x = cluster, y = y, color = dataset),
+        width = 0.12, height = 0, alpha = 0.6, size = 1.4
+      ) +
+      ggplot2::scale_color_manual(values = c(New = pal[2])) +
+      .plot_theme() +
+      ggplot2::labs(title = "Response by Cluster (Train + New)", x = "Cluster", y = y_label, color = NULL)
+
+    max_prob_train <- apply(x$probs_train, 1, max)
+    max_prob_new <- apply(x$probs_new, 1, max)
+    df_cert <- rbind(
+      data.frame(max_prob = max_prob_train, dataset = "Train"),
+      data.frame(max_prob = max_prob_new, dataset = "New")
+    )
+    p_cert <- ggplot2::ggplot(df_cert, ggplot2::aes(x = max_prob, fill = dataset)) +
+      ggplot2::geom_histogram(bins = 20, alpha = 0.5, position = "identity",
+                              color = "white", linewidth = 0.2) +
+      ggplot2::scale_fill_manual(values = c(Train = pal[1], New = pal[2])) +
+      .plot_theme() +
+      ggplot2::labs(title = "Allocation Certainty (Train vs New)",
+                    x = "Max Probability", y = "Frequency", fill = NULL)
+  } else {
+    cluster_new <- .cluster_factor(x$labels_new)
+    counts_new <- as.data.frame(table(cluster = cluster_new), stringsAsFactors = FALSE)
+    names(counts_new) <- c("cluster", "count")
+
+    p_sizes <- ggplot2::ggplot(counts_new, ggplot2::aes(x = cluster, y = count)) +
+      ggplot2::geom_col(fill = pal[2], color = "white", linewidth = 0.3) +
+      .plot_theme() +
+      ggplot2::labs(title = "New Data: Cluster Sizes", x = "Cluster", y = "Count")
+
+    df_resp <- data.frame(cluster = cluster_new, y = as.numeric(x$y_new))
+    p_resp <- ggplot2::ggplot(df_resp, ggplot2::aes(x = cluster, y = y)) +
+      ggplot2::geom_boxplot(fill = pal[6], color = pal[2], outlier.alpha = 0.5) +
+      .plot_theme() +
+      ggplot2::labs(title = "New Data: Response by Cluster", x = "Cluster", y = y_label)
+
+    max_prob_new <- apply(x$probs_new, 1, max)
+    df_cert <- data.frame(max_prob = max_prob_new, dataset = "New")
+    p_cert <- ggplot2::ggplot(df_cert, ggplot2::aes(x = max_prob)) +
+      ggplot2::geom_histogram(bins = 20, fill = pal[6], color = "white", linewidth = 0.2) +
+      ggplot2::geom_vline(xintercept = c(0.8, 0.9), linetype = "dashed",
+                          color = c("#E69F00", "#D55E00"), linewidth = 0.8) +
+      .plot_theme() +
+      ggplot2::labs(title = "New Data: Allocation Certainty", x = "Max Probability", y = "Frequency")
+  }
+
+  result <- list(
+    cluster_sizes = p_sizes,
+    response_by_cluster = p_resp,
+    certainty = p_cert
+  )
+  class(result) <- c("mixgpd_allocation_plots", "list")
+  .wrap_plotly(result)
+}
+
+#' Print cluster allocation plots
+#'
+#' @param x An object of class \code{mixgpd_allocation_plots}.
+#' @param ... Additional arguments passed to \code{print()}.
+#' @return Invisibly returns the input object.
+#' @export
+print.mixgpd_allocation_plots <- function(x, ...) {
+  for (plot_name in names(x)) {
+    cat(sprintf("\n=== %s ===\n", plot_name))
+    print(x[[plot_name]], ...)
+  }
+  invisible(x)
 }

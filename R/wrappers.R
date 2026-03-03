@@ -240,7 +240,8 @@ bundle <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL
   if (.is_bundle(x)) return(x)
 
   treat_expr <- substitute(treat)
-  treat_supplied <- !missing(treat) && !identical(treat_expr, quote(NULL))
+  call_args <- as.list(match.call(expand.dots = FALSE))
+  treat_supplied <- ("treat" %in% names(call_args)) && !is.null(treat)
 
   y <- NULL
   x_mat <- X
@@ -311,7 +312,7 @@ mcmc <- function(b, ...) {
   b <- .apply_mcmc_overrides(b, parsed$overrides)
 
   if (.is_causal_bundle(b)) {
-    allowed <- c("show_progress", "parallel_arms", "workers", "timing")
+    allowed <- c("show_progress", "quiet", "parallel_arms", "workers", "timing")
     bad <- setdiff(names(parsed$runner), allowed)
     if (length(bad)) {
       stop(sprintf("Unsupported runner argument for causal bundles: %s", paste(bad, collapse = ", ")),

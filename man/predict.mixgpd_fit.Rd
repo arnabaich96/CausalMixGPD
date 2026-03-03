@@ -23,6 +23,7 @@
   nsim_mean = 200L,
   cutoff = NULL,
   ncores = 1L,
+  show_progress = TRUE,
   ndraws_pred = NULL,
   chunk_size = NULL,
   parallel = FALSE,
@@ -82,6 +83,8 @@ highest posterior density intervals.}
 \item{cutoff}{Finite numeric cutoff for \code{type="rmean"} (restricted mean).}
 
 \item{ncores}{Number of CPU cores to use for parallel prediction (if supported).}
+
+\item{show_progress}{Logical; if TRUE, print step messages and render progress where supported.}
 
 \item{ndraws_pred}{Optional integer subsample of posterior draws for prediction speed.
 If NULL and \code{nrow(newdata) > 20000}, defaults to 200.}

@@ -20,6 +20,160 @@
   invisible(msg)
 }
 
+.cmgpd_progress_inline_bar <- function(current, total, width = 12L) {
+  total <- max(1L, as.integer(total)[1L])
+  current <- as.integer(current)[1L]
+  width <- max(4L, as.integer(width)[1L])
+  ratio <- max(0, min(1, current / total))
+  filled <- min(width, max(0L, as.integer(round(ratio * width))))
+  bar <- paste0("[", strrep("=", filled), strrep("-", width - filled), "]")
+  pct <- sprintf("%3d%%", as.integer(round(ratio * 100)))
+  list(bar = bar, pct = pct)
+}
+
+.cmgpd_progress_colorize <- function(text, step_index, enabled = TRUE) {
+  if (!isTRUE(enabled) || !nzchar(text)) return(text)
+  if (!requireNamespace("cli", quietly = TRUE)) return(text)
+  palette <- c("col_blue", "col_cyan", "col_green", "col_yellow", "col_magenta", "col_red")
+  idx <- ((max(1L, as.integer(step_index)[1L]) - 1L) %% length(palette)) + 1L
+  fn <- get0(palette[[idx]], envir = asNamespace("cli"), mode = "function", inherits = FALSE)
+  if (is.null(fn)) return(text)
+  tryCatch(fn(text), error = function(...) text)
+}
+
+.cmgpd_progress_format <- function(current, total, step_label, width = 12L, color = FALSE) {
+  step_label <- as.character(step_label %||% "")
+  bar_info <- .cmgpd_progress_inline_bar(current = current, total = total, width = width)
+  msg <- sprintf("[%d/%d] %s %s %s", as.integer(current), as.integer(total), step_label, bar_info$bar, bar_info$pct)
+  .cmgpd_progress_colorize(msg, step_index = current, enabled = color)
+}
+
+.cmgpd_progress_start <- function(total_steps, enabled = TRUE, quiet = FALSE, label = NULL) {
+  total_steps <- as.integer(total_steps)[1L]
+  if (!is.finite(total_steps) || total_steps < 1L) total_steps <- 1L
+  enabled <- isTRUE(enabled) && !isTRUE(quiet)
+
+  ctx <- new.env(parent = emptyenv())
+  ctx$enabled <- enabled
+  ctx$total <- total_steps
+  ctx$current <- 0L
+  ctx$label <- as.character(label %||% "")
+  ctx$inline_width <- 12L
+  ctx$live_backend <- "none"
+  ctx$live_id <- NULL
+  ctx$bar <- NULL
+
+  has_cli <- requireNamespace("cli", quietly = TRUE)
+  ctx$has_cli <- has_cli
+  ctx$color_enabled <- FALSE
+  if (has_cli) {
+    ncols <- get0("num_ansi_colors", envir = asNamespace("cli"), mode = "function", inherits = FALSE)
+    if (is.function(ncols)) {
+      cols <- tryCatch(as.integer(ncols()), error = function(...) 0L)
+      ctx$color_enabled <- isTRUE(cols > 1L)
+    }
+  }
+
+  # Live bar only in interactive terminals; step messages still emitted elsewhere.
+  can_bar <- enabled && interactive() && !isTRUE(getOption("knitr.in.progress"))
+  if (can_bar) {
+    if (has_cli) {
+      ctx$live_id <- tryCatch(
+        cli::cli_progress_bar(
+          format = "  Progress {bar} {percent} eta: {eta}",
+          total = total_steps,
+          clear = FALSE,
+          show_after = 0
+        ),
+        error = function(...) NULL
+      )
+      if (!is.null(ctx$live_id)) {
+        ctx$live_backend <- "cli"
+      }
+    }
+    if (!identical(ctx$live_backend, "cli")) {
+      ctx$bar <- progress::progress_bar$new(
+        format = "  Progress [:bar] :percent eta: :eta",
+        total = total_steps,
+        clear = FALSE,
+        show_after = 0
+      )
+      ctx$live_backend <- "progress"
+    }
+  }
+  ctx
+}
+
+.cmgpd_progress_step <- function(ctx, step_label) {
+  if (!is.environment(ctx) || !isTRUE(ctx$enabled)) return(invisible(ctx))
+  prev <- as.integer(ctx$current)
+  ctx$current <- min(prev + 1L, ctx$total)
+  inc <- ctx$current - prev
+
+  .cmgpd_message(
+    .cmgpd_progress_format(
+      current = ctx$current,
+      total = ctx$total,
+      step_label = step_label,
+      width = ctx$inline_width,
+      color = ctx$color_enabled
+    )
+  )
+
+  if (inc > 0L && identical(ctx$live_backend, "cli") && !is.null(ctx$live_id)) {
+    try(cli::cli_progress_update(id = ctx$live_id, inc = inc), silent = TRUE)
+  } else if (inc > 0L && identical(ctx$live_backend, "progress") && !is.null(ctx$bar)) {
+    ctx$bar$tick(inc)
+  }
+  invisible(ctx)
+}
+
+.cmgpd_progress_done <- function(ctx, final_label = NULL) {
+  if (!is.environment(ctx) || !isTRUE(ctx$enabled)) return(invisible(ctx))
+  remain <- max(0L, as.integer(ctx$total) - as.integer(ctx$current))
+  if (remain > 0L && identical(ctx$live_backend, "cli") && !is.null(ctx$live_id)) {
+    try(cli::cli_progress_update(id = ctx$live_id, inc = remain), silent = TRUE)
+  } else if (remain > 0L && identical(ctx$live_backend, "progress") && !is.null(ctx$bar)) {
+    ctx$bar$tick(remain)
+  }
+
+  if (identical(ctx$live_backend, "cli") && !is.null(ctx$live_id)) {
+    try(cli::cli_progress_done(id = ctx$live_id), silent = TRUE)
+  } else if (identical(ctx$live_backend, "progress") && !is.null(ctx$bar)) {
+    ctx$bar$terminate()
+  }
+
+  ctx$current <- as.integer(ctx$total)
+  if (!is.null(final_label)) {
+    .cmgpd_message(
+      .cmgpd_progress_format(
+        current = ctx$total,
+        total = ctx$total,
+        step_label = as.character(final_label),
+        width = ctx$inline_width,
+        color = ctx$color_enabled
+      )
+    )
+  }
+  invisible(ctx)
+}
+
+.cmgpd_capture_nimble <- function(expr, suppress = FALSE) {
+  if (!isTRUE(suppress)) {
+    return(eval.parent(substitute(expr)))
+  }
+  withCallingHandlers(
+    {
+      utils::capture.output(
+        value <- eval.parent(substitute(expr)),
+        type = "output"
+      )
+      value
+    },
+    message = function(m) invokeRestart("muffleMessage")
+  )
+}
+
 
 .silent_wrapper <- function(fun_name, fun, opt_name) {
   wrapper <- function(...) {
@@ -540,6 +694,7 @@ stick_breaking <- nimble::nimbleFunction(
   spec <- object$spec %||% list()
   meta <- spec$meta %||% list()
   backend <- meta$backend %||% spec$dispatch$backend %||% "<unknown>"
+  if (identical(backend, "spliced")) backend <- "crp"
   kernel  <- meta$kernel  %||% spec$kernel$key %||% "<unknown>"
 
   kdef <- get_kernel_registry()[[kernel]]
@@ -1457,6 +1612,7 @@ stick_breaking <- nimble::nimbleFunction(
                             cutoff = NULL,
                             ndraws_pred = NULL,
                             chunk_size = NULL,
+                            show_progress = TRUE,
                             ncores = 1L) {
 
   .validate_fit(object)
@@ -1626,9 +1782,36 @@ stick_breaking <- nimble::nimbleFunction(
     }
   }
 
+  # Prediction dimensions
+  n_pred <- if (!is.null(Xpred)) nrow(Xpred) else 1L
+  if (!is.null(id_vec) && length(id_vec) != n_pred) {
+    stop("Length of 'id' must match the number of prediction rows.", call. = FALSE)
+  }
+  id_vals <- if (!is.null(id_vec)) id_vec else seq_len(n_pred)
+
+  chunk_starts <- NULL
+  if (!is.null(chunk_size) && !is.null(Xpred) && n_pred > chunk_size) {
+    chunk_starts <- seq.int(1L, n_pred, by = chunk_size)
+  }
+  progress_total <- 4L + if (!is.null(chunk_starts)) length(chunk_starts) else 0L
+  progress_ctx <- .cmgpd_progress_start(
+    total_steps = progress_total,
+    enabled = isTRUE(show_progress),
+    quiet = FALSE,
+    label = "predict_mixgpd"
+  )
+  on.exit(.cmgpd_progress_done(progress_ctx, final_label = NULL), add = TRUE)
+  .cmgpd_progress_step(progress_ctx, "Validating prediction inputs")
+
+  .return_out <- function(obj) {
+    .cmgpd_progress_step(progress_ctx, "Assembling prediction output")
+    obj
+  }
+
   # -----------------------------
   # Posterior draws extraction
   # -----------------------------
+  .cmgpd_progress_step(progress_ctx, "Extracting posterior draws")
   draw_mat <- .extract_draws_matrix(object)
   if (is.null(draw_mat) || !is.matrix(draw_mat) || nrow(draw_mat) < 2L) {
     stop("Posterior draws not found or malformed in fitted object.", call. = FALSE)
@@ -1648,18 +1831,12 @@ stick_breaking <- nimble::nimbleFunction(
   bulk_draws <- .extract_bulk_params(draw_mat, bulk_params = bulk_params)
   base_params <- names(bulk_draws)
 
-  # Prediction dimensions
-  n_pred <- if (!is.null(Xpred)) nrow(Xpred) else 1L
-  if (!is.null(id_vec) && length(id_vec) != n_pred) {
-    stop("Length of 'id' must match the number of prediction rows.", call. = FALSE)
-  }
-  id_vals <- if (!is.null(id_vec)) id_vec else seq_len(n_pred)
-
-  if (!is.null(chunk_size) && !is.null(Xpred) && n_pred > chunk_size) {
-    starts <- seq.int(1L, n_pred, by = chunk_size)
-    parts <- vector("list", length(starts))
-    for (ii in seq_along(starts)) {
-      i0 <- starts[ii]
+  if (!is.null(chunk_starts)) {
+    .cmgpd_progress_step(progress_ctx, "Dispatching chunked prediction")
+    parts <- vector("list", length(chunk_starts))
+    for (ii in seq_along(chunk_starts)) {
+      .cmgpd_progress_step(progress_ctx, sprintf("Computing chunk %d/%d", ii, length(chunk_starts)))
+      i0 <- chunk_starts[ii]
       i1 <- min(n_pred, i0 + chunk_size - 1L)
       idx <- i0:i1
       x_chunk <- Xpred[idx, , drop = FALSE]
@@ -1685,6 +1862,7 @@ stick_breaking <- nimble::nimbleFunction(
         cutoff = cutoff,
         ndraws_pred = ndraws_pred,
         chunk_size = NULL,
+        show_progress = FALSE,
         ncores = ncores
       )
     }
@@ -1696,8 +1874,10 @@ stick_breaking <- nimble::nimbleFunction(
     if (!is.null(out$diagnostics)) {
       out$diagnostics$n_chunks <- length(parts)
     }
-    return(out)
+    return(.return_out(out))
   }
+
+  .cmgpd_progress_step(progress_ctx, "Computing posterior summaries")
 
   # -----------------------------
   # Optional PS covariate (used only if model expects it)
@@ -2048,7 +2228,7 @@ stick_breaking <- nimble::nimbleFunction(
       )
     )
     class(out) <- "mixgpd_predict"
-    return(out)
+    return(.return_out(out))
   }
 
   # -----------------------------
@@ -2098,7 +2278,7 @@ stick_breaking <- nimble::nimbleFunction(
         )
       )
       class(out) <- "mixgpd_predict"
-      return(out)
+      return(.return_out(out))
     }
 
     # Conditional quantiles
@@ -2159,7 +2339,7 @@ stick_breaking <- nimble::nimbleFunction(
       )
     )
     class(out) <- "mixgpd_predict"
-    return(out)
+    return(.return_out(out))
   }
 
   # -----------------------------
@@ -2200,7 +2380,7 @@ stick_breaking <- nimble::nimbleFunction(
         )
       )
       class(res) <- "mixgpd_predict"
-      return(res)
+      return(.return_out(res))
     }
 
     if (is.na(nsim) || nsim < 1L) nsim <- n_pred
@@ -2248,7 +2428,7 @@ stick_breaking <- nimble::nimbleFunction(
       )
     )
     class(res) <- "mixgpd_predict"
-    return(res)
+    return(.return_out(res))
   }
 
   # -----------------------------
@@ -2329,7 +2509,7 @@ stick_breaking <- nimble::nimbleFunction(
       )
     )
     class(out) <- "mixgpd_predict"
-    return(out)
+    return(.return_out(out))
   }
 
   # -----------------------------
@@ -2365,7 +2545,7 @@ stick_breaking <- nimble::nimbleFunction(
           )
         )
         class(out) <- "mixgpd_predict"
-        return(out)
+        return(.return_out(out))
       }
     }
 
@@ -2409,7 +2589,7 @@ stick_breaking <- nimble::nimbleFunction(
         )
       )
       class(out) <- "mixgpd_predict"
-      return(out)
+      return(.return_out(out))
     }
 
     # Conditional mean: compute mean per x-row per posterior draw by simulation
@@ -2480,7 +2660,7 @@ stick_breaking <- nimble::nimbleFunction(
       )
     )
     class(out) <- "mixgpd_predict"
-    return(out)
+    return(.return_out(out))
   }
 
 
@@ -2536,7 +2716,7 @@ stick_breaking <- nimble::nimbleFunction(
         )
       )
       class(out) <- "mixgpd_predict"
-      return(out)
+      return(.return_out(out))
     }
 
     draw_rmeans_mat <- matrix(NA_real_, nrow = S, ncol = n_pred)
@@ -2606,7 +2786,7 @@ stick_breaking <- nimble::nimbleFunction(
       )
     )
     class(out) <- "mixgpd_predict"
-    return(out)
+    return(.return_out(out))
   }
 
 stop(sprintf("Unsupported prediction type '%s'.", type), call. = FALSE)

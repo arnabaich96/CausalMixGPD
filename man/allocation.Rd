@@ -23,8 +23,7 @@ memberships for new data.
 }
 \details{
 This function is only available for models fit with \code{backend = "crp"} or
-\code{backend = "spliced"} and \code{GPD = TRUE}. Stick-breaking (SB) models
-and bulk-only models are not supported.
+\code{backend = "spliced"}. Stick-breaking (SB) models are not supported.
 }
 \seealso{
 \code{\link{print.mixgpd_allocation}}, \code{\link{summary.mixgpd_allocation}},

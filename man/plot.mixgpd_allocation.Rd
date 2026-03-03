@@ -16,7 +16,8 @@ only new data plots when new data is present.}
 \item{...}{Additional arguments passed to plotting functions.}
 }
 \value{
-Invisibly returns a list of plot data.
+A named list of \code{ggplot2} objects with class
+\code{"mixgpd_allocation_plots"}.
 }
 \description{
 Creates diagnostic plots for cluster allocations, including cluster sizes,

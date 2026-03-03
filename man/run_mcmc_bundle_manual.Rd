@@ -7,7 +7,7 @@
 run_mcmc_bundle_manual(
   bundle,
   show_progress = TRUE,
-  quiet = TRUE,
+  quiet = FALSE,
   parallel_chains = FALSE,
   workers = NULL,
   timing = FALSE,
@@ -17,9 +17,9 @@ run_mcmc_bundle_manual(
 \arguments{
 \item{bundle}{A \code{causalmixgpd_bundle} from \code{build_nimble_bundle()}.}
 
-\item{show_progress}{Logical; passed to nimble.}
+\item{show_progress}{Logical; if TRUE, print step messages and render progress where supported.}
 
-\item{quiet}{Logical; if TRUE (default), suppress console status messages.
+\item{quiet}{Logical; if TRUE, suppress console status messages.
 Set to FALSE to see progress messages during MCMC setup and execution.}
 
 \item{parallel_chains}{Logical; run chains concurrently when \code{nchains > 1}.}

@@ -78,6 +78,7 @@ inst/extdata/legacy-precomputed/
 
 # Manuscript cache artifacts (keep source + outputs)
 vignettes/manuscript/CausalMixGPD_*
+!vignettes/manuscript/CausalMixGPD_*.Rmd
 !vignettes/manuscript/CausalMixGPD_*.Rnw
 !vignettes/manuscript/CausalMixGPD_*.tex
 !vignettes/manuscript/CausalMixGPD_*.pdf
