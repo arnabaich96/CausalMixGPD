@@ -2,33 +2,18 @@
 
 options(width = 70)
 
-if (!grepl("vignettes[/\\\\]manuscript$", getwd())) {
-  if (file.exists("vignettes/manuscript")) {
-    setwd("vignettes/manuscript")
-  } else {
-    stop("Please run from package root or vignettes/manuscript", call. = FALSE)
-  }
+if (!requireNamespace("here", quietly = TRUE)) {
+  stop("Package 'here' is required. Install with install.packages('here').", call. = FALSE)
+}
+
+pkg_root <- here::here()
+manuscript_dir <- here::here("vignettes", "manuscript")
+if (!dir.exists(manuscript_dir)) {
+  stop("Could not locate 'vignettes/manuscript' from project root.", call. = FALSE)
 }
 
 if (requireNamespace("pkgload", quietly = TRUE)) {
-  find_pkg_root <- function(start = getwd()) {
-    d <- normalizePath(start, winslash = "/", mustWork = TRUE)
-    repeat {
-      desc <- file.path(d, "DESCRIPTION")
-      if (file.exists(desc)) {
-        hdr <- readLines(desc, n = 20L, warn = FALSE)
-        if (any(grepl("^Package\\s*:", hdr))) return(d)
-      }
-      parent <- dirname(d)
-      if (identical(parent, d)) return(NULL)
-      d <- parent
-    }
-  }
-
-  pkg_root <- find_pkg_root()
-  if (!is.null(pkg_root)) {
-    pkgload::load_all(pkg_root, quiet = TRUE, export_all = FALSE)
-  }
+  pkgload::load_all(pkg_root, quiet = TRUE, export_all = FALSE)
 }
 
 if (!"package:CausalMixGPD" %in% search()) {
@@ -41,7 +26,7 @@ if (!"package:ggplot2" %in% search()) {
 
 library(MASS)
 
-CACHE_DIR <- "cache"
+CACHE_DIR <- file.path(manuscript_dir, "cache")
 CACHE_SUBDIRS <- c("fits", "tables", "figs", "meta")
 invisible(lapply(file.path(CACHE_DIR, CACHE_SUBDIRS), dir.create,
                  recursive = TRUE, showWarnings = FALSE))
@@ -237,7 +222,7 @@ track_artifact(write_png(cache_path("figs", "gpdDensityFigure.png"), {
       data.frame(
         y = y,
         density = dgpd(y, threshold = u, scale = sigma, shape = xi),
-        xi = factor(sprintf("xi = %.2f", xi), levels = sprintf("xi = %.2f", xi_vals))
+        xi = factor(sprintf("ξ = %.2f", xi), levels = sprintf("ξ = %.2f", xi_vals))
       )
     })
   )
@@ -284,7 +269,7 @@ track_artifact(write_png(cache_path("figs", "splicedDensityFigure.png"), {
     data.frame(
       y = y[idx_tail],
       density = (1 - p_u) * f_gpd[idx_tail],
-      component = sprintf("Tail density (xi = %.2f)", xi_tail)
+      component = sprintf("Tail density (ξ = %.2f)", xi_tail)
     )
   )
   p <- ggplot(spliced_df, aes(x = y, y = density, color = component, linetype = component)) +

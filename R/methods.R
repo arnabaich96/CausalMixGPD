@@ -3421,8 +3421,7 @@ plot.causalmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"
     )
 
     if (single_profile) {
-      df_te$label <- "ATE"
-      p <- ggplot2::ggplot(df_te, ggplot2::aes(x = label, y = estimate)) +
+      p <- ggplot2::ggplot(df_te, ggplot2::aes(x = "ATE", y = estimate)) +
         ggplot2::geom_point(color = pal[7], size = 3.6) +
         ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray50", linewidth = 0.5) +
         .plot_theme() +
