@@ -401,7 +401,7 @@ causal_bundle <- bundle(
 )
 
 # Note: arm-level parallel execution can fall back to sequential in some environments.
-causal_fit <- dpmix(causal_bundle, mcmc = list(show_progress = FALSE, timing = TRUE, workers = 2))
+causal_fit <- dpmix.causal(causal_bundle, mcmc = list(show_progress = FALSE, timing = TRUE, workers = 2))
 ```
 
 ```{r, results='asis'}

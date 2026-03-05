@@ -155,7 +155,7 @@ cb <- bundle(
   X = X,
   PS = "logit"
 )
-fit <- dpmix(cb)
+fit <- dpmix.causal(cb)
 ```
 
 ---

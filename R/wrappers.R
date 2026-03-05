@@ -335,7 +335,8 @@ mcmc <- function(b, ...) {
 #' @param x Either a response vector or a bundle object.
 #' @param data Optional data.frame used with \code{formula}.
 #' @param X Optional design matrix/data.frame.
-#' @param treat Optional binary treatment indicator.
+#' @param treat Optional binary treatment indicator. If supplied, this wrapper
+#'   errors; use \code{dpmix.causal()} for causal models.
 #' @param formula Optional formula.
 #' @param ... Additional build arguments in build mode.
 #' @param mcmc Named list of run arguments passed to \code{mcmc()} (including
@@ -345,6 +346,13 @@ mcmc <- function(b, ...) {
 #' @return A fitted object.
 #' @export
 dpmix <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL, ..., mcmc = list()) {
+  if (.is_causal_bundle(x) || !is.null(treat)) {
+    stop(
+      "dpmix() is for one-arm models. Use dpmix.causal() for causal models.",
+      call. = FALSE
+    )
+  }
+
   b <- NULL
 
   if (.is_bundle(x)) {
@@ -357,7 +365,6 @@ dpmix <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL,
     list(...),
     list(GPD = FALSE)
   )
-  if (!is.null(treat)) bundle_args$treat <- treat
 
   b <- do.call(bundle, bundle_args)
   .run_bundle_mcmc(b, mcmc_args = mcmc)
@@ -368,7 +375,8 @@ dpmix <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL,
 #' @param x Either a response vector or a bundle object.
 #' @param data Optional data.frame used with \code{formula}.
 #' @param X Optional design matrix/data.frame.
-#' @param treat Optional binary treatment indicator.
+#' @param treat Optional binary treatment indicator. If supplied, this wrapper
+#'   errors; use \code{dpmgpd.causal()} for causal models.
 #' @param formula Optional formula.
 #' @param ... Additional build arguments in build mode.
 #' @param mcmc Named list of run arguments passed to \code{mcmc()} (including
@@ -378,6 +386,13 @@ dpmix <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL,
 #' @return A fitted object.
 #' @export
 dpmgpd <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL, ..., mcmc = list()) {
+  if (.is_causal_bundle(x) || !is.null(treat)) {
+    stop(
+      "dpmgpd() is for one-arm models. Use dpmgpd.causal() for causal models.",
+      call. = FALSE
+    )
+  }
+
   if (.is_bundle(x)) {
     if (!.bundle_all_gpd(x)) {
       stop(
@@ -393,7 +408,87 @@ dpmgpd <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL
     list(...),
     list(GPD = TRUE)
   )
-  if (!is.null(treat)) bundle_args$treat <- treat
+
+  b <- do.call(bundle, bundle_args)
+  .run_bundle_mcmc(b, mcmc_args = mcmc)
+}
+
+#' Fit causal DP mixture model without GPD tail
+#'
+#' @param x Either a response vector or a causal bundle object.
+#' @param data Optional data.frame used with \code{formula}.
+#' @param X Optional design matrix/data.frame.
+#' @param treat Binary treatment indicator.
+#' @param formula Optional formula.
+#' @param ... Additional build arguments in build mode.
+#' @param mcmc Named list of run arguments passed to \code{mcmc()} (including
+#'   optional performance controls such as \code{parallel_chains},
+#'   \code{parallel_arms}, \code{workers}, \code{timing}, and
+#'   \code{z_update_every}).
+#' @return A fitted object.
+#' @export
+dpmix.causal <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL, ..., mcmc = list()) {
+  b <- NULL
+
+  if (.is_bundle(x)) {
+    if (!.is_causal_bundle(x)) {
+      stop("dpmix.causal() requires a causal bundle; use dpmix() for one-arm models.", call. = FALSE)
+    }
+    b <- if (.bundle_has_any_gpd(x)) .bundle_strip_gpd(x) else x
+    return(.run_bundle_mcmc(b, mcmc_args = mcmc))
+  }
+
+  if (is.null(treat)) {
+    stop("dpmix.causal() requires 'treat' when building from raw inputs.", call. = FALSE)
+  }
+
+  bundle_args <- c(
+    list(x = x, data = data, X = X, formula = formula, treat = treat),
+    list(...),
+    list(GPD = FALSE)
+  )
+
+  b <- do.call(bundle, bundle_args)
+  .run_bundle_mcmc(b, mcmc_args = mcmc)
+}
+
+#' Fit causal DP mixture model with GPD tail
+#'
+#' @param x Either a response vector or a causal bundle object.
+#' @param data Optional data.frame used with \code{formula}.
+#' @param X Optional design matrix/data.frame.
+#' @param treat Binary treatment indicator.
+#' @param formula Optional formula.
+#' @param ... Additional build arguments in build mode.
+#' @param mcmc Named list of run arguments passed to \code{mcmc()} (including
+#'   optional performance controls such as \code{parallel_chains},
+#'   \code{parallel_arms}, \code{workers}, \code{timing}, and
+#'   \code{z_update_every}).
+#' @return A fitted object.
+#' @export
+dpmgpd.causal <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL, ..., mcmc = list()) {
+  if (.is_bundle(x)) {
+    if (!.is_causal_bundle(x)) {
+      stop("dpmgpd.causal() requires a causal bundle; use dpmgpd() for one-arm models.", call. = FALSE)
+    }
+    if (!.bundle_all_gpd(x)) {
+      stop(
+        "dpmgpd.causal() requires a causal bundle with GPD enabled for all modeled arms; use dpmix.causal(bundle) for non-GPD runs.",
+        call. = FALSE
+      )
+    }
+    return(.run_bundle_mcmc(x, mcmc_args = mcmc))
+  }
+
+  if (is.null(treat)) {
+    stop("dpmgpd.causal() requires 'treat' when building from raw inputs.", call. = FALSE)
+  }
+
+  bundle_args <- c(
+    list(x = x, data = data, X = X, formula = formula, treat = treat),
+    list(...),
+    list(GPD = TRUE)
+  )
 
   b <- do.call(bundle, bundle_args)
   .run_bundle_mcmc(b, mcmc_args = mcmc)

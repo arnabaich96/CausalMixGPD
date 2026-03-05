@@ -419,7 +419,8 @@ Q_{\mathrm{GPD}}\!\bigl(\tilde{\tau}(x;\Theta)\mid x;\Phi\bigr), & \tau>p_u(x;\T
 \end{equation} and $Q_{\mathrm{GPD}}$ is given in
 \eqref{eq:gpd_quantile}. Thus, upper quantiles are determined jointly by
 the bulk exceedance probability $1-p_u(x;\Theta)$ and the conditional
-exceedance distribution governed by $\Phi$.
+exceedance distribution governed by $\Phi$. The following figure illustrates the spliced density construction,
+ showing the bulk DPM density, the GPD tail density, and the resulting spliced density.
 
 
 
@@ -438,7 +439,7 @@ To make the splicing and downstream functionals explicit, we collect the
 unknown bulk regression parameters into $\Theta$ and the tail parameters
 into $\Phi$. Specifically, the bulk model in \eqref{eq:dpm_mixture} can
 be written as \begin{equation}
-f_{\mathrm{DP}}(y\mid x)
+f_{\mathrm{DP}}(y\mid x ; \theta)
 =
 \sum_{j=1}^{\infty} w_j \, k\!\left(y\mid x;\theta_j(x)\right),
 \qquad
@@ -474,7 +475,8 @@ used throughout the package. In the causal extension
 (Section~\ref{subsec:causal}), the same construction is applied
 separately to treatment-specific conditional distributions
 $F_a(\cdot\mid x)$, enabling causal contrasts based on densities,
-quantiles, and tail risks rather than only mean-scale effects.
+quantiles, and tail risks rather than only mean-scale effects. For datasets with moderate to light tail behavior,
+ users can choose to fit a DPM without splicing by using appropriate settings for the tail (See Section ~\eqref{subsec:overview-nogpd}).
 
 \subsection{Causal Inference: Notation, Identification, and Reported Estimands}
 \label{subsec:causal}
@@ -1291,7 +1293,7 @@ wrapper, fitting the augmented spliced model by default.
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hldef{cfit} \hlkwb{<-} \hlkwd{dpmgpd}\hldef{(}
+\hldef{cfit} \hlkwb{<-} \hlkwd{dpmgpd.causal}\hldef{(}
   \hlkwc{formula} \hldef{= y} \hlopt{~} \hldef{x1} \hlopt{+} \hldef{x2} \hlopt{+} \hldef{x3,}
   \hlkwc{data} \hldef{= df,}
   \hlkwc{treat} \hldef{=} \hlsng{"A"}\hldef{,}
@@ -1495,7 +1497,7 @@ data frame with 0 columns and 0 rows
 \subsubsection{Bulk-only causal mixtures (no GPD tail)}
 
 To run the same two-arm regression without a GPD tail, use the bulk-only
-wrapper \texttt{dpmix()} (or set \texttt{GPD=FALSE} at bundle
+wrapper \texttt{dpmix.causal()} (or set \texttt{GPD=FALSE} at bundle
 construction). All causal estimand and prediction functions
 (\texttt{ate}, \texttt{qte}, \texttt{cate}, \texttt{cqte}, and
 \texttt{predict}) operate the same way, now interpreting
@@ -1726,7 +1728,7 @@ substantive analysis we recommend longer runs and sensitivity checks
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hldef{fit} \hlkwb{<-} \hlkwd{dpmgpd}\hldef{(}
+\hldef{fit} \hlkwb{<-} \hlkwd{dpmgpd.causal}\hldef{(}
   \hlkwc{x} \hldef{= y,}
   \hlkwc{X} \hldef{= X,}
   \hlkwc{treat} \hldef{= A,}

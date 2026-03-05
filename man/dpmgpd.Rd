@@ -21,7 +21,8 @@ dpmgpd(
 
 \item{X}{Optional design matrix/data.frame.}
 
-\item{treat}{Optional binary treatment indicator.}
+\item{treat}{Optional binary treatment indicator. If supplied, this wrapper
+errors; use \code{dpmgpd.causal()} for causal models.}
 
 \item{formula}{Optional formula.}
 

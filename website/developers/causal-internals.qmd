@@ -8,7 +8,7 @@ format:
 
 This page documents the causal pipeline for contributors.
 
-For user-facing workflows, prefer wrapper entry points (`dpmix()` / `dpmgpd()`) over direct `mcmc()` calls.
+For user-facing workflows, prefer causal wrapper entry points (`dpmix.causal()` / `dpmgpd.causal()`) over direct `mcmc()` calls.
 
 ## Objects
 
@@ -20,7 +20,7 @@ A causal fit typically contains:
 
 ## Computation outline
 
-1. Preferred user path: fit via `dpmix(..., treat=...)` or `dpmgpd(..., treat=...)`.
+1. Preferred user path: fit via `dpmix.causal(..., treat=...)` or `dpmgpd.causal(..., treat=...)`.
 2. Internal contributor path: build a causal bundle (`bundle()`), optionally including a PS sub-bundle.
 3. Internal contributor path: run MCMC (`mcmc()`), producing a causal fit object.
 4. Compute marginal estimands (`ate()`, `att()`, `qte()`, `qtt()`) on training data; compute conditional estimands (`cate()`, `cqte()`) on `newdata` if supplied, otherwise training `X`.

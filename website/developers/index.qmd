@@ -8,7 +8,7 @@ format:
 
 Developer hub for architecture, tooling, tests, contracts, and release process.
 
-Wrapper-first note: user-facing documentation should default to `dpmix()` / `dpmgpd()`.
+Wrapper-first note: user-facing documentation should default to `dpmix()` / `dpmgpd()` for one-arm models and `dpmix.causal()` / `dpmgpd.causal()` for causal models.
 Internal pages in this section can describe `bundle()` + `mcmc()` when implementation detail matters.
 
 {{< include _includes/golden-rules.md >}}

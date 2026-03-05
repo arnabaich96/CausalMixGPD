@@ -295,7 +295,7 @@ data("causal_pos500_p3_k2", package = "CausalMixGPD")
 dat_causal <- causal_pos500_p3_k2
 df <- data.frame(y = dat_causal$y, A = dat_causal$A, dat_causal$X)
 
-cfit <- dpmgpd(
+cfit <- dpmgpd.causal(
   formula = y ~ x1 + x2 + x3,
   data = df,
   treat = "A",
@@ -451,7 +451,7 @@ track_artifact(save_cache_rds(
   file.path("tables", "app2_setup.rds")
 ))
 
-fit <- dpmgpd(
+fit <- dpmgpd.causal(
   x = y,
   X = X,
   treat = A,

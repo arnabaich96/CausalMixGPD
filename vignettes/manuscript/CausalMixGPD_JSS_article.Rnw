@@ -612,8 +612,8 @@ used throughout the package. In the causal extension
 separately to treatment-specific conditional distributions
 $F_a(\cdot\mid x)$, enabling causal contrasts based on densities,
 quantiles, and tail risks rather than only mean-scale effects. For datasets with moderate to light tail behavior,
- users can choose to fit a DPM without splicing by using appropriate settings for the tail (See Section ~\eqref{subsec:overview-nogpd}). 
- 
+ users can choose to fit a DPM without splicing by using appropriate settings for the tail (See Section ~\eqref{subsec:overview-nogpd}).
+
 \subsection{Causal Inference: Notation, Identification, and Reported Estimands}
 \label{subsec:causal}
 
@@ -1287,7 +1287,7 @@ mcmc_fixed <- list(
 @
 
 <<causal-fit-model, echo=TRUE, eval=FALSE>>=
-cfit <- dpmgpd(
+cfit <- dpmgpd.causal(
   formula = y ~ x1 + x2 + x3,
   data = df,
   treat = "A",
@@ -1392,7 +1392,7 @@ head(as.data.frame(pred_q_con$fit), 10)
 \subsubsection{Bulk-only causal mixtures (no GPD tail)}
 
 To run the same two-arm regression without a GPD tail, use the bulk-only
-wrapper \texttt{dpmix()} (or set \texttt{GPD=FALSE} at bundle
+wrapper \texttt{dpmix.causal()} (or set \texttt{GPD=FALSE} at bundle
 construction). All causal estimand and prediction functions
 (\texttt{ate}, \texttt{qte}, \texttt{cate}, \texttt{cqte}, and
 \texttt{predict}) operate the same way, now interpreting
@@ -1592,7 +1592,7 @@ mcmc_fixed <- list(
 @
 
 <<app2-fit-code, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE>>=
-fit <- dpmgpd(
+fit <- dpmgpd.causal(
   x = y,
   X = X,
   treat = A,

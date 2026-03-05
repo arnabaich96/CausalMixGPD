@@ -38,7 +38,7 @@ data("causal_pos500_p3_k2", package = "CausalMixGPD")
 dat_causal <- causal_pos500_p3_k2
 df_causal <- data.frame(y = dat_causal$y, A = dat_causal$A, dat_causal$X)
 
-cfit <- dpmgpd(
+cfit <- dpmgpd.causal(
   formula = y ~ x1 + x2 + x3,
   data = df_causal,
   treat = "A",

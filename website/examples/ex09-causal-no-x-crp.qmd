@@ -93,7 +93,7 @@ bundle_crp_bulk
 ```
 
 ```{r fit-crp-bulk, cache = FALSE}
-fit_crp_bulk <- quiet_mcmc(dpmix(bundle_crp_bulk))
+fit_crp_bulk <- quiet_mcmc(dpmix.causal(bundle_crp_bulk))
 summary(fit_crp_bulk)
 ```
 
@@ -165,7 +165,7 @@ bundle_crp_gpd
 ```
 
 ```{r fit-crp-gpd, cache = FALSE}
-fit_crp_gpd <- quiet_mcmc(dpmgpd(bundle_crp_gpd))
+fit_crp_gpd <- quiet_mcmc(dpmgpd.causal(bundle_crp_gpd))
 summary(fit_crp_gpd)
 ```
 

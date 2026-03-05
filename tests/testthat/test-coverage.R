@@ -3996,7 +3996,7 @@ test_that("dpmgpd(non_gpd_bundle) errors with a clear message", {
   )
 })
 
-test_that("dpmgpd(causal bundle with any non-GPD arm) errors", {
+test_that("dpmgpd.causal(causal bundle with any non-GPD arm) errors", {
   set.seed(1002)
   n <- 24
   X <- cbind(x1 = stats::rnorm(n), x2 = stats::runif(n))
@@ -4016,8 +4016,8 @@ test_that("dpmgpd(causal bundle with any non-GPD arm) errors", {
   )
 
   expect_error(
-    dpmgpd(cb, mcmc = list(show_progress = FALSE)),
-    "requires a bundle with GPD enabled"
+    dpmgpd.causal(cb, mcmc = list(show_progress = FALSE)),
+    "requires a causal bundle with GPD enabled"
   )
 })
 
@@ -4054,7 +4054,7 @@ test_that("dpmix(gpd non-causal bundle) strips GPD then runs", {
   expect_false(isTRUE(fit$spec$plan$GPD))
 })
 
-test_that("dpmix(gpd causal bundle) strips GPD for both arms then runs", {
+test_that("dpmix.causal(gpd causal bundle) strips GPD for both arms then runs", {
   skip_if_not_test_level("ci")
 
   set.seed(1004)
@@ -4075,7 +4075,7 @@ test_that("dpmix(gpd causal bundle) strips GPD for both arms then runs", {
     mcmc_outcome = mcmc_fast(seed = 4L)
   )
 
-  fit <- dpmix(
+  fit <- dpmix.causal(
     cb,
     mcmc = list(
       niter = 20L,

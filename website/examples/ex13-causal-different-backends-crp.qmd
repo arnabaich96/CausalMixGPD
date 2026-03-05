@@ -107,7 +107,7 @@ summary(bundle_sb_crp)
 ```
 
 ```{r fit-sb-crp, cache = FALSE}
-fit_sb_crp <- dpmix(bundle_sb_crp)
+fit_sb_crp <- dpmix.causal(bundle_sb_crp)
 summary(fit_sb_crp)
 params(fit_sb_crp)
 ```
@@ -173,7 +173,7 @@ summary(bundle_crp_sb)
 ```
 
 ```{r fit-crp-sb, cache = FALSE}
-fit_crp_sb <- dpmix(bundle_crp_sb)
+fit_crp_sb <- dpmix.causal(bundle_crp_sb)
 summary(fit_crp_sb)
 params(fit_crp_sb)
 ```

@@ -108,7 +108,7 @@ summary(bundle_sb_bulk)
 ```
 
 ```{r fit-sb-bulk, cache = FALSE}
-fit_sb_bulk <- dpmix(bundle_sb_bulk)
+fit_sb_bulk <- dpmix.causal(bundle_sb_bulk)
 summary(fit_sb_bulk)
 params(fit_sb_bulk)
 ```
@@ -189,7 +189,7 @@ summary(bundle_sb_gpd)
 ```
 
 ```{r fit-sb-gpd, cache = FALSE}
-fit_sb_gpd <- dpmgpd(bundle_sb_gpd)
+fit_sb_gpd <- dpmgpd.causal(bundle_sb_gpd)
 summary(fit_sb_gpd)
 params(fit_sb_gpd)
 ```

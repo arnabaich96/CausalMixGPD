@@ -292,6 +292,7 @@ build_monitors_from_spec <- function(spec, monitor_v = FALSE, monitor_latent = F
   # PS is optional: check if it's in the plan
   has_ps <- !is.null(plan$ps)
   K <- as.integer(meta$components)
+  cluster_gating <- isTRUE((spec$cluster %||% list())$gating)
 
   mons <- character()
 
@@ -300,10 +301,17 @@ build_monitors_from_spec <- function(spec, monitor_v = FALSE, monitor_latent = F
 
   # BNP backbone
   if (identical(backend, "sb")) {
-    mons <- c(mons, sprintf("w[1:%d]", K))
-    if (isTRUE(monitor_latent)) mons <- c(mons, sprintf("z[1:%d]", N))
-    if (isTRUE(monitor_v)) {
-      mons <- c(mons, sprintf("v[1:%d]", K - 1L))
+    if (isTRUE(cluster_gating)) {
+      if (P < 1L) stop("Cluster gating requires P > 0.", call. = FALSE)
+      mons <- c(mons, sprintf("eta[1:%d]", K - 1L))
+      mons <- c(mons, sprintf("B[1:%d,1:%d]", K - 1L, P))
+      if (isTRUE(monitor_latent)) mons <- c(mons, sprintf("z[1:%d]", N))
+    } else {
+      mons <- c(mons, sprintf("w[1:%d]", K))
+      if (isTRUE(monitor_latent)) mons <- c(mons, sprintf("z[1:%d]", N))
+      if (isTRUE(monitor_v)) {
+        mons <- c(mons, sprintf("v[1:%d]", K - 1L))
+      }
     }
   } else if (backend %in% c("crp", "spliced")) {
     if (isTRUE(monitor_latent)) mons <- c(mons, sprintf("z[1:%d]", N))
@@ -475,6 +483,7 @@ build_inits_from_spec <- function(spec, seed = NULL, y = NULL) {
   has_ps <- !is.null(plan$ps)
   K <- as.integer(meta$components)
   y_obs <- if (!is.null(y)) as.numeric(y) else numeric()
+  cluster_gating <- isTRUE((spec$cluster %||% list())$gating)
 
   inits <- list()
 
@@ -492,13 +501,23 @@ build_inits_from_spec <- function(spec, seed = NULL, y = NULL) {
 
   # ---- BNP backbone ----
   if (identical(backend, "sb")) {
-    # v[j] ~ dbeta(1, alpha); initialize in (0,1)
-    if (K <= 2L) {
-      inits$v <- runif(1L, 0.2, 0.8)
+    if (isTRUE(cluster_gating)) {
+      if (P < 1L) stop("Cluster gating requires P > 0.", call. = FALSE)
+      inits$eta <- stats::rnorm(K - 1L, mean = 0, sd = 0.1)
+      inits$B <- matrix(
+        stats::rnorm((K - 1L) * P, mean = 0, sd = 0.1),
+        nrow = K - 1L,
+        ncol = P
+      )
     } else {
-      inits$v <- runif(K - 1L, 0.2, 0.8)
+      # v[j] ~ dbeta(1, alpha); initialize in (0,1)
+      if (K <= 2L) {
+        inits$v <- runif(1L, 0.2, 0.8)
+      } else {
+        inits$v <- runif(K - 1L, 0.2, 0.8)
+      }
     }
-    # w is deterministic from stick_breaking(v); do not init w
+    # w/w_x are deterministic from latent gating/stick blocks; do not init
     K_init <- max(2L, min(K, 5L))
     inits$z <- sample.int(K_init, size = N, replace = TRUE)
   } else if (backend %in% c("crp", "spliced")) {
@@ -882,14 +901,26 @@ build_dimensions_from_spec <- function(spec) {
   K <- as.integer(meta$components)
 
   `%||%` <- function(a, b) if (!is.null(a)) a else b
+  cluster_gating <- isTRUE((spec$cluster %||% list())$gating)
 
   dims <- list()
 
   # --- BNP backbone dims ---
   if (identical(backend, "sb")) {
-    # SB breaks v[1:(K-1)] and weights w[1:K]
-    dims$v <- c(K - 1L)
-    dims$w <- c(K)
+    if (isTRUE(cluster_gating)) {
+      if (P < 1L) stop("Cluster gating requires P > 0.", call. = FALSE)
+      dims$eta <- c(K - 1L)
+      dims$B <- c(K - 1L, P)
+      dims$logit_ij <- c(N, K)
+      dims$logit_max <- c(N)
+      dims$logit_denom <- c(N)
+      dims$exp_logit_ij <- c(N, K)
+      dims$w_x <- c(N, K)
+    } else {
+      # SB breaks v[1:(K-1)] and weights w[1:K]
+      dims$v <- c(K - 1L)
+      dims$w <- c(K)
+    }
     dims$z <- c(N)
   } else if (backend %in% c("crp", "spliced")) {
     # CRP/spliced memberships z[1:N]
@@ -1108,8 +1139,15 @@ build_code_sb_from_spec <- function(spec) {
   K <- as.integer(meta$components)
   has_X <- isTRUE(meta$has_X)
   has_ps <- !is.null(plan$ps)
+  cluster_gating <- isTRUE((spec$cluster %||% list())$gating)
   default_ps_prior <- list(dist = "normal", args = list(mean = 0, sd = 2))
   ps_prior <- (plan$ps %||% list(prior = default_ps_prior))$prior
+  if (isTRUE(cluster_gating) && !isTRUE(has_X)) {
+    stop("Cluster gating for SB requires X covariates.", call. = FALSE)
+  }
+  if (isTRUE(cluster_gating) && P < 1L) {
+    stop("Cluster gating for SB requires P > 0.", call. = FALSE)
+  }
 
   # ---- resolve single-component likelihood signature (uses latent z) ----
   dist_name <- NULL
@@ -1151,27 +1189,11 @@ build_code_sb_from_spec <- function(spec) {
     # --- concentration ---
     CONC_PLACEHOLDER()
 
-    # --- stick-breaking ---
-    for (j in 1:(components - 1)) {
-      v[j] ~ dbeta(1, alpha)
-    }
-    stick_mass[1] <- 1
-    for (j in 2:components) {
-      stick_mass[j] <- stick_mass[j - 1] * (1 - v[j - 1])
-    }
-    for (j in 1:(components - 1)) {
-      w[j] <- v[j] * stick_mass[j]
-    }
-    w[components] <- stick_mass[components]
+    # --- mixing weights ---
+    MIXING_BLOCK()
 
     # --- bulk parameters (component-level + betas) ---
-    for (j in 1:components) {
-
-      # dist/fixed bulk params at component level
-      # link-mode params are handled via beta blocks below
-      # (we still loop j here to keep parameter declarations aligned)
-      BULK_DECL_PLACEHOLDER()
-    }
+    BULK_BLOCK()
 
     # --- beta blocks for link-mode bulk params ---
     HASX_BETA_BLOCK()
@@ -1205,7 +1227,55 @@ build_code_sb_from_spec <- function(spec) {
   }
   inject("CONC_PLACEHOLDER\\(\\)", paste0(conc_line, "\n"))
 
-  # (1) Bulk param declarations inside for (j in 1:components)
+  # (0b) SB global weights vs cluster-gating weights
+  mixing_block <- if (isTRUE(cluster_gating)) {
+    gating_eta <- if (P == 1L) {
+      "eta[j] + X[i, 1] * B[j, 1]"
+    } else {
+      "eta[j] + inprod(X[i, 1:P], B[j, 1:P])"
+    }
+    paste0(
+      "for (j in 1:(components - 1)) {\n",
+      "      eta[j] ~ dnorm(0, sd = 2)\n",
+      if (P == 1L) {
+        "      B[j, 1] ~ dnorm(0, sd = 1)\n"
+      } else {
+        "      for (p in 1:P) B[j, p] ~ dnorm(0, sd = 1)\n"
+      },
+      "    }\n",
+      "    for (i in 1:N) {\n",
+      "      for (j in 1:(components - 1)) {\n",
+      "        logit_ij[i, j] <- ", gating_eta, "\n",
+      "      }\n",
+      "      logit_ij[i, components] <- 0\n",
+      "      logit_max[i] <- max(logit_ij[i, 1:components])\n",
+      "      for (j in 1:components) {\n",
+      "        exp_logit_ij[i, j] <- exp(logit_ij[i, j] - logit_max[i])\n",
+      "      }\n",
+      "      logit_denom[i] <- sum(exp_logit_ij[i, 1:components])\n",
+      "      for (j in 1:components) {\n",
+      "        w_x[i, j] <- exp_logit_ij[i, j] / logit_denom[i]\n",
+      "      }\n",
+      "    }\n"
+    )
+  } else {
+    paste0(
+      "for (j in 1:(components - 1)) {\n",
+      "      v[j] ~ dbeta(1, alpha)\n",
+      "    }\n",
+      "    stick_mass[1] <- 1\n",
+      "    for (j in 2:components) {\n",
+      "      stick_mass[j] <- stick_mass[j - 1] * (1 - v[j - 1])\n",
+      "    }\n",
+      "    for (j in 1:(components - 1)) {\n",
+      "      w[j] <- v[j] * stick_mass[j]\n",
+      "    }\n",
+      "    w[components] <- stick_mass[components]\n"
+    )
+  }
+  inject("MIXING_BLOCK\\(\\)", mixing_block)
+
+  # (1) Bulk param declarations (component-level)
   bulk_decl_lines <- character()
   for (nm in bulk_params) {
     ent <- bulk_plan[[nm]]
@@ -1216,13 +1286,21 @@ build_code_sb_from_spec <- function(spec) {
       bulk_decl_lines <- c(bulk_decl_lines, sprintf("%s[j] ~ %s", nm,
                                                     .codegen_prior_call(ent$dist, ent$args, backend = "SB")))
     } else if (mode == "link") {
-      bulk_decl_lines <- c(bulk_decl_lines, sprintf("# %s is link-mode (via beta_%s)", nm, nm))
+      # link-mode params are represented via beta_<param>; no component prior node.
     } else {
       stop(sprintf("Invalid bulk mode for '%s'.", nm), call. = FALSE)
     }
   }
-  inject("BULK_DECL_PLACEHOLDER\\(\\)",
-         paste0(paste(bulk_decl_lines, collapse = "\n      "), "\n"))
+  bulk_block <- if (length(bulk_decl_lines)) {
+    paste0(
+      "for (j in 1:components) {\n",
+      "      ", paste(bulk_decl_lines, collapse = "\n      "), "\n",
+      "    }\n"
+    )
+  } else {
+    ""
+  }
+  inject("BULK_BLOCK\\(\\)", bulk_block)
 
   # (2) Beta priors for link-mode bulk params
   beta_lines <- character()
@@ -1425,8 +1503,9 @@ build_code_sb_from_spec <- function(spec) {
     }
   }
 
+  alloc_prob <- if (isTRUE(cluster_gating)) "w_x[i, 1:components]" else "w[1:components]"
   like_lines <- c(
-    "z[i] ~ dcat(prob = w[1:components])",
+    sprintf("z[i] ~ dcat(prob = %s)", alloc_prob),
     sprintf("y[i] ~ %s(%s)", dist_name, paste(args_expr, collapse = ", "))
   )
   like_block <- paste0("for (i in 1:N) {\n",
@@ -1538,23 +1617,29 @@ build_code_crp_from_spec <- function(spec) {
   add("  z[1:N] ~ dCRP(conc = alpha, size = N)")
 
   # bulk component-level declarations
-  add("  for (k in 1:components) {")
+  bulk_decl_lines <- character()
   for (nm in bulk_params) {
     ent <- bulk_plan[[nm]]
     mode <- ent$mode %||% NA_character_
 
     if (mode == "fixed") {
-      add(sprintf("    %s[k] <- %s", nm, deparse1(ent$value)))
+      bulk_decl_lines <- c(bulk_decl_lines, sprintf("    %s[k] <- %s", nm, deparse1(ent$value)))
     } else if (mode == "dist") {
-      add(sprintf("    %s[k] ~ %s", nm,
-                  .codegen_prior_call(ent$dist, ent$args, backend = "CRP")))
+      bulk_decl_lines <- c(
+        bulk_decl_lines,
+        sprintf("    %s[k] ~ %s", nm, .codegen_prior_call(ent$dist, ent$args, backend = "CRP"))
+      )
     } else if (mode == "link") {
-      add(sprintf("    # %s is link-mode (via beta_%s)", nm, nm))
+      # link-mode params are represented via beta_<param>; no component prior node.
     } else {
       stop(sprintf("Invalid bulk mode for '%s'.", nm), call. = FALSE)
     }
   }
-  add("  }")
+  if (length(bulk_decl_lines)) {
+    add("  for (k in 1:components) {")
+    add(bulk_decl_lines)
+    add("  }")
+  }
 
   # beta priors for link-mode bulk params
   if (has_X) {
@@ -1581,33 +1666,7 @@ build_code_crp_from_spec <- function(spec) {
       }
     }
 
-    # deterministic param_ik for link-mode bulk params
-    if (bulk_link) {
-      add("  for (i in 1:N) {")
-      add("    for (k in 1:components) {")
-      for (nm in bulk_params) {
-        ent <- bulk_plan[[nm]]
-        if (identical(ent$mode, "link")) {
-          eta_terms <- character()
-          if (P == 1L) {
-            eta_terms <- c(eta_terms, sprintf("X[i, 1] * beta_%s[k, 1]", nm))
-          } else {
-            eta_terms <- c(eta_terms, sprintf("inprod(X[i, 1:P], beta_%s[k, 1:P])", nm))
-          }
-          if (has_ps) {
-            eta_terms <- c(eta_terms, sprintf("ps[i] * beta_ps_%s[k]", nm))
-          }
-          if (!length(eta_terms)) {
-            stop(sprintf("Unable to build eta for '%s'.", nm), call. = FALSE)
-          }
-          eta <- paste(eta_terms, collapse = " + ")
-          expr <- .codegen_link_expr(eta, ent$link, ent$link_power)
-          add(sprintf("      %s_ik[i, k] <- %s", nm, expr))
-        }
-      }
-      add("    }")
-      add("  }")
-    }
+    # CRP link-mode parameters are applied directly in the likelihood expression.
   }
 
   # ---- GPD tail blocks ----
@@ -1851,7 +1910,20 @@ build_code_crp_from_spec <- function(spec) {
     if (a %in% bulk_params) {
       ent <- bulk_plan[[a]]
       if (identical(ent$mode, "link")) {
-        args_expr <- c(args_expr, sprintf("%s_ik[i, z[i]]", a))
+        eta_terms <- character()
+        if (P == 1L) {
+          eta_terms <- c(eta_terms, sprintf("X[i, 1] * beta_%s[z[i], 1]", a))
+        } else {
+          eta_terms <- c(eta_terms, sprintf("inprod(X[i, 1:P], beta_%s[z[i], 1:P])", a))
+        }
+        if (has_ps) {
+          eta_terms <- c(eta_terms, sprintf("ps[i] * beta_ps_%s[z[i]]", a))
+        }
+        if (!length(eta_terms)) {
+          stop(sprintf("Unable to build eta for '%s'.", a), call. = FALSE)
+        }
+        eta <- paste(eta_terms, collapse = " + ")
+        args_expr <- c(args_expr, .codegen_link_expr(eta, ent$link, ent$link_power))
       } else {
         args_expr <- c(args_expr, sprintf("%s[z[i]]", a))
       }
@@ -2137,6 +2209,9 @@ build_prior_table_from_spec <- function(spec) {
   if (is.null(conf$samplerConfs) || !length(conf$samplerConfs)) return(conf)
 
   model <- tryCatch(conf$getModel(), error = function(e) NULL)
+  if (is.null(model)) {
+    model <- tryCatch(conf$model, error = function(e) NULL)
+  }
   stoch_nodes <- tryCatch(model$getNodeNames(stochOnly = TRUE, includeData = FALSE), error = function(e) character(0))
   z_nodes <- stoch_nodes[grepl("^z\\[", stoch_nodes)]
   beta_nodes <- stoch_nodes[grepl("^beta", stoch_nodes)]
@@ -2153,16 +2228,16 @@ build_prior_table_from_spec <- function(spec) {
       if (is.null(ctl$adaptScaleOnly)) ctl$adaptScaleOnly <- TRUE
     }
 
-    # Keep CRP sampler cluster nodes restricted to stochastic nodes.
-    if (identical(nm, "CRP") && !is.null(ctl$clusterVarInfo) && length(stoch_nodes) > 0) {
+    # Keep any CRP-related cluster nodes restricted to stochastic nodes.
+    if (!is.null(ctl$clusterVarInfo) && length(stoch_nodes) > 0) {
       cvi <- ctl$clusterVarInfo
       cn <- cvi$clusterNodes
+      if (is.character(cn)) cn <- list(cn)
       if (is.list(cn) && length(cn) > 0) {
         cn_filtered <- lapply(cn, function(nodes) nodes[nodes %in% stoch_nodes])
-        keep <- lengths(cn_filtered) > 0
-        if (any(!keep) || any(lengths(cn_filtered) != lengths(cn))) {
-          cvi$clusterNodes <- cn_filtered[keep]
-          if (!is.null(cvi$numNodesPerCluster)) cvi$numNodesPerCluster <- lengths(cn_filtered[keep])
+        if (any(lengths(cn_filtered) != lengths(cn))) {
+          cvi$clusterNodes <- cn_filtered
+          if (!is.null(cvi$numNodesPerCluster)) cvi$numNodesPerCluster <- lengths(cn_filtered)
           ctl$clusterVarInfo <- cvi
         }
       }

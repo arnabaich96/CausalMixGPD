@@ -8,7 +8,7 @@ format:
 
 This page is the contributor mental model: what depends on what, and where to make changes safely.
 
-For user-facing examples and guides, prefer wrapper entry points (`dpmix()` / `dpmgpd()`).
+For user-facing examples and guides, prefer wrapper entry points (`dpmix()` / `dpmgpd()` for one-arm and `dpmix.causal()` / `dpmgpd.causal()` for causal).
 This page focuses on the internal execution path (`bundle()` -> `mcmc()`) used by contributors.
 
 ## Layers
@@ -43,7 +43,7 @@ sequenceDiagram
 
 ## Call flow (causal)
 
-Default user path: `dpmix(..., treat=...)` / `dpmgpd(..., treat=...)`.
+Default user path: `dpmix.causal(..., treat=...)` / `dpmgpd.causal(..., treat=...)`.
 Internal path shown below: `bundle()` then `mcmc()`.
 
 ```mermaid
