@@ -451,7 +451,6 @@ plot.causalmixgpd_causal_fit <- function(x, arm = "both", ...) {
   .wrap_plotly(out)
 }
 # helper
-`%||%` <- function(a, b) if (!is.null(a)) a else b
 
 
 #' Summarize a one-arm workflow bundle
@@ -558,7 +557,6 @@ summary.causalmixgpd_bundle <- function(object, ...) {
 }
 
 # helper
-`%||%` <- function(a, b) if (!is.null(a)) a else b
 
 
 
@@ -633,7 +631,6 @@ params <- function(object, ...) {
 #' @export
 params.mixgpd_fit <- function(object, ...) {
   stopifnot(inherits(object, "mixgpd_fit"))
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   mat <- .extract_draws_matrix(object, drop_v = TRUE, epsilon = NULL)
   means <- colMeans(mat, na.rm = TRUE)
@@ -880,7 +877,6 @@ print.mixgpd_params_pair <- function(x, digits = 4, ...) {
 #' @export
 summary.mixgpd_fit <- function(object, pars = NULL, probs = c(0.025, 0.5, 0.975), ...) {
   stopifnot(inherits(object, "mixgpd_fit"))
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
   tab <- .summarize_posterior(object, pars = pars, probs = probs)
 
   spec <- object$spec %||% list()
@@ -928,7 +924,6 @@ summary.mixgpd_fit <- function(object, pars = NULL, probs = c(0.025, 0.5, 0.975)
 #' @export
 print.mixgpd_summary <- function(x, digits = 3, max_rows = 60, ...) {
   stopifnot(inherits(x, "mixgpd_summary"))
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
   model <- x$model %||% list()
   waic <- x$waic
   trunc <- model$truncation %||% list()
@@ -1046,7 +1041,6 @@ print.mixgpd_summary <- function(x, digits = 3, max_rows = 60, ...) {
 #'   \code{\link{params}}.
 #' @export
 ess_summary <- function(fit, params = NULL, per_chain = TRUE, wall_time = NULL, robust = TRUE, ...) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
   if (!requireNamespace("coda", quietly = TRUE)) {
     stop("Package 'coda' is required for ess_summary().", call. = FALSE)
   }
@@ -1177,7 +1171,6 @@ ess_summary <- function(fit, params = NULL, per_chain = TRUE, wall_time = NULL, 
 
 #' @export
 print.mixgpd_ess_summary <- function(x, digits = 3L, max_rows = 25L, ...) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
   stopifnot(inherits(x, "mixgpd_ess_summary"))
   tab <- x$table %||% data.frame()
   cat("ESS summary (ESS/sec)\n")
@@ -1194,7 +1187,6 @@ print.mixgpd_ess_summary <- function(x, digits = 3L, max_rows = 25L, ...) {
 
 #' @export
 summary.mixgpd_ess_summary <- function(object, ...) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
   object$overall %||% data.frame()
 }
 
@@ -1562,10 +1554,8 @@ predict.mixgpd_fit <- function(object,
     warning("'p' is only used for type = 'quantile'; ignoring for other types.", call. = FALSE)
   }
 
-  # Backward compatibility for legacy argument name passed via ...
   if ("cred.level" %in% names(dots)) {
-    warning("'cred.level' is deprecated; use 'level' instead.", call. = FALSE)
-    level <- as.numeric(dots[["cred.level"]])[1]
+    stop("'cred.level' is no longer supported; use 'level' instead.", call. = FALSE)
   }
 
   # Construct probs from level for non-sample types
@@ -1710,7 +1700,6 @@ fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median", "qu
                               p = 0.5, level = 0.95,
                               interval = "credible",
                               seed = 1, ...) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   type <- match.arg(type)
   # Handle interval: NULL means no interval, otherwise match to credible/hpd
@@ -1855,7 +1844,6 @@ residuals.mixgpd_fit <- function(object,
                                  pit = c("plugin", "bayes_mean", "bayes_draw"),
                                  pit_seed = NULL,
                                  ...) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   type <- match.arg(type)
   y <- object$data$y %||% object$y
@@ -2167,7 +2155,6 @@ residuals.mixgpd_fit <- function(object,
 #' }
 #' @export
 plot.mixgpd_predict <- function(x, y = NULL, ...) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   if (!is.list(x)) {
     stop("x must be a prediction object from predict.mixgpd_fit().", call. = FALSE)
@@ -2212,7 +2199,6 @@ plot.mixgpd_predict <- function(x, y = NULL, ...) {
 #' @return A ggplot object or a list of ggplot objects.
 #' @export
 plot.causalmixgpd_causal_predict <- function(x, y = NULL, ...) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("Package 'ggplot2' is required for plotting. Install it first.", call. = FALSE)
@@ -2388,7 +2374,6 @@ plot.causalmixgpd_causal_predict <- function(x, y = NULL, ...) {
 #' @export
 print.causalmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
   stopifnot(inherits(x, "causalmixgpd_qte"))
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   lbl <- .effect_label_qte(x$type %||% "qte")
   probs <- x$probs %||% x$grid %||% numeric(0)
@@ -2509,7 +2494,6 @@ print.causalmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
 #' @export
 print.causalmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
   stopifnot(inherits(x, "causalmixgpd_ate"))
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   lbl <- .effect_label_ate(x$type %||% "ate")
   n_pred <- x$n_pred %||% length(x$fit)
@@ -2631,7 +2615,6 @@ print.causalmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
 #' @export
 summary.causalmixgpd_qte <- function(object, ...) {
   stopifnot(inherits(object, "causalmixgpd_qte"))
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   probs <- object$probs %||% object$grid %||% numeric(0)
   n_pred <- object$n_pred %||% 1L
@@ -2912,7 +2895,6 @@ print.summary.causalmixgpd_qte <- function(x, digits = 3, ...) {
 #' @export
 summary.causalmixgpd_ate <- function(object, ...) {
   stopifnot(inherits(object, "causalmixgpd_ate"))
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   n_pred <- object$n_pred %||% length(object$fit)
   level <- object$level %||% 0.95
@@ -3154,7 +3136,6 @@ print.summary.causalmixgpd_ate <- function(x, digits = 3, ...) {
 plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"),
                               facet_by = c("tau", "id"),
                               plotly = getOption("CausalMixGPD.plotly", FALSE), ...) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("Package 'ggplot2' is required for plotting. Install it first.", call. = FALSE)
   }
@@ -3455,7 +3436,6 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
 #' @export
 plot.causalmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"),
                               plotly = getOption("CausalMixGPD.plotly", FALSE), ...) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("Package 'ggplot2' is required for plotting. Install it first.", call. = FALSE)
   }
@@ -3645,7 +3625,6 @@ print.causalmixgpd_causal_predict_plots <- function(x, ...) {
 #' @return Invisibly returns a list with the two plots.
 #' @export
 plot.mixgpd_fitted <- function(x, y = NULL, ...) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   if (!requireNamespace("ggplot2", quietly = TRUE)) {
     stop("Package 'ggplot2' is required for plotting. Install it first.", call. = FALSE)

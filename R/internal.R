@@ -1,4 +1,4 @@
-﻿# ============================================================
+# ============================================================
 # Utilities (internal)
 # ============================================================
 
@@ -18,17 +18,6 @@
   on.exit(options(CausalMixGPD._allow_message = old), add = TRUE)
   message(msg)
   invisible(msg)
-}
-
-.cmgpd_progress_inline_bar <- function(current, total, width = 12L) {
-  total <- max(1L, as.integer(total)[1L])
-  current <- as.integer(current)[1L]
-  width <- max(4L, as.integer(width)[1L])
-  ratio <- max(0, min(1, current / total))
-  filled <- min(width, max(0L, as.integer(round(ratio * width))))
-  bar <- paste0("[", strrep("=", filled), strrep("-", width - filled), "]")
-  pct <- sprintf("%3d%%", as.integer(round(ratio * 100)))
-  list(bar = bar, pct = pct)
 }
 
 .cmgpd_progress_colorize <- function(text, step_index, enabled = TRUE) {
@@ -525,7 +514,6 @@
 #' @keywords internal
 #' @noRd
 .coerce_fit_df <- function(fit, n_pred = NULL, probs = NULL) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   # Case 1: Already a data.frame
 

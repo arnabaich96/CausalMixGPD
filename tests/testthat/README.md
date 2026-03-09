@@ -126,9 +126,9 @@ Fast, deterministic tests with no MCMC compilation (~1-2 minutes total).
 
 #### `test-ci-level-only.R` - Dedicated Coverage Suite
 
-Single-file smoke suite used only by the coverage runner. This file is skipped in ordinary `testthat` runs unless `DPMIXGPD_CI_COVERAGE_ONLY=1`.
+Coverage runs now execute the main CI-safe test files plus this dedicated coverage-only suite. This file is still skipped in ordinary `testthat` runs unless `DPMIXGPD_CI_COVERAGE_ONLY=1`.
 
-- `test-ci-level-only.R`: Distribution wrappers, representative workflows, wrapper entrypoints, and S3 smoke coverage.
+- `test-ci-level-only.R`: Distribution wrappers, representative workflows, wrapper entrypoints, and direct helper/S3 smoke coverage.
 
 #### `test-integration.R` - Integration Tests (Tier B / ci level)
 

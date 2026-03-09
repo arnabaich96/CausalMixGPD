@@ -1,6 +1,5 @@
-﻿# Lightweight user-facing wrappers
+# Lightweight user-facing wrappers
 
-`%||%` <- function(a, b) if (!is.null(a)) a else b
 
 .is_bundle <- function(x) {
   inherits(x, "causalmixgpd_bundle") || inherits(x, "causalmixgpd_causal_bundle")

@@ -25,7 +25,6 @@ check_glue_validity <- function(fit,
                                 eps = 1e-6) {
   stopifnot(inherits(fit, "mixgpd_fit"))
 
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   spec <- fit$spec %||% list()
   meta <- spec$meta %||% list()

@@ -1,10 +1,10 @@
 {
-  "percent": 21.4,
-  "timestamp": "2026-03-09T17:42:36Z",
-  "sources": "tests",
-  "total_lines": 10571,
-  "covered_lines": 2262,
-  "files": 26,
+  "percent": 48.9,
+  "timestamp": "2026-03-09T20:32:09Z",
+  "sources": "all",
+  "total_lines": 10514,
+  "covered_lines": 5141,
+  "files": 25,
   "file_coverage": [
     {
       "file": "R/simulated.R",
@@ -13,122 +13,128 @@
       "percent": 100
     },
     {
-      "file": "R/gamma.R",
-      "lines": 122,
-      "covered": 96,
-      "percent": 78.7
-    },
-    {
-      "file": "R/lognormal.R",
-      "lines": 125,
-      "covered": 96,
-      "percent": 76.8
-    },
-    {
-      "file": "R/invgauss.R",
-      "lines": 135,
-      "covered": 103,
-      "percent": 76.3
-    },
-    {
-      "file": "R/laplace.R",
-      "lines": 133,
-      "covered": 98,
-      "percent": 73.7
-    },
-    {
-      "file": "R/amoroso.R",
-      "lines": 186,
-      "covered": 136,
-      "percent": 73.1
-    },
-    {
-      "file": "R/normal.R",
-      "lines": 133,
-      "covered": 97,
-      "percent": 72.9
-    },
-    {
-      "file": "R/00-base-distributions.R",
-      "lines": 140,
-      "covered": 101,
-      "percent": 72.1
-    },
-    {
-      "file": "R/validate.R",
-      "lines": 25,
-      "covered": 17,
-      "percent": 68
-    },
-    {
-      "file": "R/cauchy.R",
-      "lines": 60,
-      "covered": 39,
-      "percent": 65
-    },
-    {
-      "file": "R/compile-spec.R",
-      "lines": 234,
-      "covered": 141,
-      "percent": 60.3
-    },
-    {
-      "file": "R/theme.R",
-      "lines": 50,
-      "covered": 27,
-      "percent": 54
-    },
-    {
-      "file": "R/wrappers.R",
-      "lines": 266,
-      "covered": 136,
-      "percent": 51.1
-    },
-    {
       "file": "R/helpers.R",
-      "lines": 256,
-      "covered": 124,
-      "percent": 48.4
-    },
-    {
-      "file": "R/cluster.R",
-      "lines": 310,
-      "covered": 140,
-      "percent": 45.2
-    },
-    {
-      "file": "R/build-run.R",
-      "lines": 982,
-      "covered": 414,
-      "percent": 42.2
+      "lines": 254,
+      "covered": 233,
+      "percent": 91.7
     },
     {
       "file": "R/summary.R",
       "lines": 178,
-      "covered": 44,
-      "percent": 24.7
+      "covered": 161,
+      "percent": 90.4
+    },
+    {
+      "file": "R/laplace.R",
+      "lines": 133,
+      "covered": 114,
+      "percent": 85.7
+    },
+    {
+      "file": "R/gamma.R",
+      "lines": 122,
+      "covered": 104,
+      "percent": 85.2
+    },
+    {
+      "file": "R/cauchy.R",
+      "lines": 60,
+      "covered": 51,
+      "percent": 85
+    },
+    {
+      "file": "R/lognormal.R",
+      "lines": 125,
+      "covered": 106,
+      "percent": 84.8
+    },
+    {
+      "file": "R/invgauss.R",
+      "lines": 135,
+      "covered": 110,
+      "percent": 81.5
+    },
+    {
+      "file": "R/normal.R",
+      "lines": 133,
+      "covered": 105,
+      "percent": 78.9
+    },
+    {
+      "file": "R/theme.R",
+      "lines": 50,
+      "covered": 39,
+      "percent": 78
+    },
+    {
+      "file": "R/amoroso.R",
+      "lines": 186,
+      "covered": 141,
+      "percent": 75.8
+    },
+    {
+      "file": "R/00-base-distributions.R",
+      "lines": 140,
+      "covered": 106,
+      "percent": 75.7
+    },
+    {
+      "file": "R/compile-spec.R",
+      "lines": 233,
+      "covered": 172,
+      "percent": 73.8
+    },
+    {
+      "file": "R/internal.R",
+      "lines": 1695,
+      "covered": 1110,
+      "percent": 65.5
+    },
+    {
+      "file": "R/methods.R",
+      "lines": 2581,
+      "covered": 1464,
+      "percent": 56.7
+    },
+    {
+      "file": "R/wrappers.R",
+      "lines": 265,
+      "covered": 144,
+      "percent": 54.3
+    },
+    {
+      "file": "R/build-run.R",
+      "lines": 974,
+      "covered": 485,
+      "percent": 49.8
+    },
+    {
+      "file": "R/cluster.R",
+      "lines": 309,
+      "covered": 140,
+      "percent": 45.3
+    },
+    {
+      "file": "R/formatting.R",
+      "lines": 117,
+      "covered": 31,
+      "percent": 26.5
     },
     {
       "file": "R/01-registry.R",
       "lines": 239,
-      "covered": 36,
-      "percent": 15.1
+      "covered": 42,
+      "percent": 17.6
     },
     {
       "file": "R/causal.R",
-      "lines": 1819,
-      "covered": 253,
-      "percent": 13.9
-    },
-    {
-      "file": "R/internal.R",
-      "lines": 1679,
-      "covered": 131,
-      "percent": 7.8
+      "lines": 1816,
+      "covered": 250,
+      "percent": 13.8
     },
     {
       "file": "R/cluster_run_predict.R",
-      "lines": 411,
+      "lines": 398,
       "covered": 2,
       "percent": 0.5
     },
@@ -139,20 +145,8 @@
       "percent": 0
     },
     {
-      "file": "R/formatting.R",
-      "lines": 117,
-      "covered": 0,
-      "percent": 0
-    },
-    {
       "file": "R/glue.R",
-      "lines": 178,
-      "covered": 0,
-      "percent": 0
-    },
-    {
-      "file": "R/methods.R",
-      "lines": 2599,
+      "lines": 177,
       "covered": 0,
       "percent": 0
     },

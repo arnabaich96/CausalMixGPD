@@ -142,6 +142,17 @@ test_that("predict supports ndraws_pred/chunk_size/parallel aliases", {
   expect_s3_class(p_par, "mixgpd_predict")
   expect_equal(names(p_seq$fit), names(p_par$fit))
   expect_equal(dim(p_seq$fit), dim(p_par$fit))
+
+  expect_error(
+    predict(
+      fit,
+      x = X_new,
+      type = "quantile",
+      index = c(0.5, 0.9),
+      cred.level = 0.9
+    ),
+    "'cred.level' is no longer supported; use 'level' instead."
+  )
 })
 
 test_that("parallel runtime does not leave global future plan modified", {

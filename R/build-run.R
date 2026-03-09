@@ -92,7 +92,6 @@ build_nimble_bundle <- function(
     monitor_latent = FALSE,
     monitor_v = FALSE
 ) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   requested_backend <- match.arg(backend, choices = allowed_backends)
   backend <- if (identical(requested_backend, "spliced") && !isTRUE(GPD)) "crp" else requested_backend
@@ -304,7 +303,6 @@ build_data_from_inputs <- function(y, X = NULL, ps = NULL) {
 build_monitors_from_spec <- function(spec, monitor_v = FALSE, monitor_latent = FALSE) {
   stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
 
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   meta <- spec$meta
   plan <- spec$plan
@@ -488,7 +486,6 @@ build_monitors_from_spec <- function(spec, monitor_v = FALSE, monitor_latent = F
 build_inits_from_spec <- function(spec, seed = NULL, y = NULL) {
   stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
 
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   if (!is.null(seed)) {
     seed <- as.integer(seed)
@@ -751,7 +748,6 @@ build_inits_from_spec <- function(spec, seed = NULL, y = NULL) {
 build_constants_from_spec <- function(spec) {
   stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
 
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   meta <- spec$meta
   plan <- spec$plan
@@ -923,7 +919,6 @@ build_dimensions_from_spec <- function(spec) {
   has_ps <- !is.null(plan$ps)
   K <- as.integer(meta$components)
 
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
   cluster_gating <- isTRUE((spec$cluster %||% list())$gating)
 
   dims <- list()
@@ -1148,7 +1143,6 @@ build_code_from_spec <- function(spec) {
 build_code_sb_from_spec <- function(spec) {
   stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
 
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   meta <- spec$meta
   plan <- spec$plan
@@ -1581,7 +1575,6 @@ build_code_sb_from_spec <- function(spec) {
 build_code_crp_from_spec <- function(spec) {
   stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
 
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   meta <- spec$meta
   plan <- spec$plan
@@ -2023,7 +2016,6 @@ build_code_crp_from_spec <- function(spec) {
 build_prior_table_from_spec <- function(spec) {
   stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
 
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   meta <- spec$meta
   plan <- spec$plan
@@ -2228,7 +2220,6 @@ build_prior_table_from_spec <- function(spec) {
 }
 
 .configure_samplers <- function(conf, spec, data_info = list(), z_update_every = 1L) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
   if (is.null(conf$samplerConfs) || !length(conf$samplerConfs)) return(conf)
 
   model <- tryCatch(conf$getModel(), error = function(e) NULL)
@@ -2357,7 +2348,6 @@ build_prior_table_from_spec <- function(spec) {
 run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = FALSE,
                                    parallel_chains = FALSE, workers = NULL, timing = FALSE,
                                    z_update_every = NULL) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
   suppressPackageStartupMessages(base::require("nimble", quietly = TRUE, warn.conflicts = FALSE))
   stopifnot(inherits(bundle, "causalmixgpd_bundle"))
 

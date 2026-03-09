@@ -53,16 +53,36 @@ setwd(here::here())
   invisible(TRUE)
 }
 
-.coverage_test_file <- function() {
-  Sys.getenv("DPMIXGPD_COVERAGE_TEST_FILE", "test-ci-level-only.R")
+.coverage_test_files <- function() {
+  env_files <- Sys.getenv("DPMIXGPD_COVERAGE_TEST_FILES", "")
+  if (nzchar(env_files)) {
+    return(trimws(strsplit(env_files, "\\s*,\\s*")[[1]]))
+  }
+
+  # Exclude test_cluster_fit_predict.R by default: it passes in testthat but
+  # currently corrupts covr trace merging ("error reading from connection").
+  c(
+    "test-progress.R",
+    "test-unit.R",
+    "test-integration.R",
+    "test-ci.R",
+    "test_cluster_methods.R",
+    "test-performance-acceptance.R",
+    "test-performance-phase2-ess.R",
+    "test-performance-phase2-predict.R",
+    "test-performance-phase2-samplers.R",
+    "test-performance-phase2-zupdate.R",
+    "test-ci-level-only.R"
+  )
 }
 
-.coverage_test_code_single_file <- function(test_file = .coverage_test_file(), progress = FALSE) {
+.coverage_test_code_selected_files <- function(test_files = .coverage_test_files(), progress = FALSE) {
   reporter_expr <- if (isTRUE(progress)) {
     "testthat::ProgressReporter$new(show_praise = FALSE)"
   } else {
     "testthat::ProgressReporter$new(show_praise = FALSE, update_interval = Inf)"
   }
+  test_files_expr <- paste(sprintf('"%s"', test_files), collapse = ", ")
 
   paste(
     "library(CausalMixGPD)",
@@ -73,15 +93,18 @@ setwd(here::here())
     '  if (length(local_hit) > 0L) pkg_tests <- normalizePath(local_hit[1], winslash = "/", mustWork = FALSE)',
     '}',
     'if (!nzchar(pkg_tests) || !dir.exists(pkg_tests)) stop("Coverage could not find test directory: tests/testthat")',
-    sprintf('target <- file.path(pkg_tests, "%s")', test_file),
-    'if (!file.exists(target)) stop("Coverage test file not found: ", target)',
-    'Sys.setenv(COVERAGE = "1", DPMIXGPD_CI_COVERAGE_ONLY = "1", DPMIXGPD_SKIP_COVR_METHODS_BLOCK = "1")',
+    sprintf("test_files <- c(%s)", test_files_expr),
+    'targets <- file.path(pkg_tests, test_files)',
+    'missing_targets <- targets[!file.exists(targets)]',
+    'if (length(missing_targets) > 0L) stop("Coverage test file(s) not found: ", paste(missing_targets, collapse = ", "))',
+    'Sys.setenv(COVERAGE = "1", DPMIXGPD_CI_COVERAGE_ONLY = "1")',
+    'if (!nzchar(Sys.getenv("DPMIXGPD_SKIP_COVR_METHODS_BLOCK"))) Sys.setenv(DPMIXGPD_SKIP_COVR_METHODS_BLOCK = "1")',
     'helper_files <- list.files(pkg_tests, pattern = "^helper.*\\\\.R$", full.names = TRUE)',
     'for (helper in helper_files) try(source(helper, local = .GlobalEnv), silent = TRUE)',
     'setup_file <- file.path(pkg_tests, "setup.R")',
     'if (file.exists(setup_file)) try(source(setup_file, local = .GlobalEnv), silent = TRUE)',
     sprintf('reporter <- %s', reporter_expr),
-    'testthat::test_file(target, reporter = reporter, package = "CausalMixGPD")',
+    'for (target in targets) testthat::test_file(target, reporter = reporter, package = "CausalMixGPD")',
     sep = "\n"
   )
 }
@@ -288,7 +311,7 @@ calculate_coverage <- function(
 .calculate_tests_coverage <- function(quiet = FALSE) {
   covr::package_coverage(
     type = "none",
-    code = .coverage_test_code_single_file(progress = !quiet),
+    code = .coverage_test_code_selected_files(progress = !quiet),
     quiet = quiet,
     pre_clean = TRUE,
     line_exclusions = .coverage_line_exclusions()
@@ -300,12 +323,14 @@ calculate_coverage <- function(
   non_test_sources <- setdiff(sources, "tests")
 
   if (length(non_test_sources) > 0 && "tests" %in% sources) {
-    covr::package_coverage(
-      type = c("tests", non_test_sources),
+    cov_tests <- .calculate_tests_coverage(quiet = quiet)
+    cov_other <- covr::package_coverage(
+      type = non_test_sources,
       quiet = quiet,
       pre_clean = TRUE,
       line_exclusions = .coverage_line_exclusions()
     )
+    getFromNamespace("merge_coverage.list", "covr")(list(cov_tests, cov_other))
   } else if (length(non_test_sources) > 0) {
     covr::package_coverage(
       type = non_test_sources,
@@ -330,7 +355,7 @@ coverage_progress <- function(test_level = "ci", quiet = FALSE) {
 
   cov <- covr::package_coverage(
     type = "none",
-    code = .coverage_test_code_single_file(progress = !quiet),
+    code = .coverage_test_code_selected_files(progress = !quiet),
     quiet = quiet,
     pre_clean = TRUE,
     line_exclusions = .coverage_line_exclusions()

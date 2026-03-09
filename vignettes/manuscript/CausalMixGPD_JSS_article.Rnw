@@ -2111,7 +2111,7 @@ QTE describes how the effect varies across the marginal outcome
 distribution. CATE and CQTE extend these contrasts to covariate-specific
 comparisons, illustrating treatment effect heterogeneity in both central
 and extreme quantiles. Finally, arm-specific tail indices $\xi_a$
-provide a parsimonious summary of whether training changes extremal
+provide a parsimonious summary of whether training changes extreme
 behavior beyond what is captured by bulk-only regression.
 
 

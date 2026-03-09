@@ -3,7 +3,6 @@
 # Helper functions for type-specific prediction visualizations
 # ============================================================
 
-`%||%` <- function(a, b) if (!is.null(a)) a else b
 
 #' Plot quantile predictions with CI
 #' @keywords internal
@@ -82,7 +81,6 @@
 #' @keywords internal
 #' @noRd
 .plot_mean_pred <- function(pred, ...) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   fit_df <- pred$fit
 
@@ -236,7 +234,6 @@
 #' @keywords internal
 #' @noRd
 .plot_survival_pred <- function(pred, ...) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   fit_val <- pred$fit
 

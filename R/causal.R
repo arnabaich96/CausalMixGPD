@@ -1,4 +1,4 @@
-﻿#' Build a causal bundle (design + two outcome arms)
+#' Build a causal bundle (design + two outcome arms)
 #'
 #' \code{build_causal_bundle()} is the detailed constructor behind
 #' \code{\link{bundle}} for causal analyses. It prepares:
@@ -111,7 +111,6 @@ build_causal_bundle <- function(
     monitor_latent = FALSE,
     monitor_v = FALSE
 ) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   .arm_value <- function(val, name) {
     if (length(val) == 1L) return(list(trt = val, con = val))
@@ -286,7 +285,6 @@ build_causal_bundle <- function(
 }
 
 .run_ps_mcmc_bundle <- function(bundle, show_progress = TRUE, quiet = FALSE) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
   nimble_quiet <- isTRUE(show_progress) || isTRUE(quiet)
 
   stopifnot(inherits(bundle, "causalmixgpd_ps_bundle"))
@@ -428,7 +426,6 @@ build_causal_bundle <- function(
 run_mcmc_causal <- function(bundle, show_progress = TRUE, quiet = FALSE,
                             parallel_arms = FALSE, workers = NULL, timing = FALSE,
                             z_update_every = NULL) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
   stopifnot(inherits(bundle, "causalmixgpd_causal_bundle"))
   progress_ctx <- .cmgpd_progress_start(
     total_steps = 6L,

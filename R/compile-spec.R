@@ -55,7 +55,6 @@ compile_model_spec <- function(
     ps = NULL,
     ...
 ) {
-  `%||%` <- function(a, b) if (!is.null(a)) a else b
 
   backend <- match.arg(backend, choices = allowed_backends)
 
