@@ -60,12 +60,12 @@ qLaplaceGpd(
 \item{p}{Numeric scalar probability in \eqn{(0,1)} for the quantile function.}
 }
 \value{
-Spliced density/CDF/RNG functions return numeric scalars. \code{qLaplaceGpd} returns a numeric vector
-with the same length as \code{p}.
+Spliced density/CDF/RNG functions return numeric scalars. \code{qLaplaceGpd()} returns a
+numeric vector with the same length as \code{p}.
 }
 \description{
-Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a single Laplace bulk with
-parameters \code{location} and \code{scale}. Base Laplace functions are taken from \pkg{nimble}.
+Spliced family obtained by attaching a generalized Pareto tail above \code{threshold} to a single
+Laplace bulk.
 }
 \section{Functions}{
 \itemize{
@@ -92,3 +92,11 @@ qLaplaceGpd(0.50, location, scale, threshold, tail_scale, tail_shape)
 qLaplaceGpd(0.95, location, scale, threshold, tail_scale, tail_shape)
 replicate(10, rLaplaceGpd(1, location, scale, threshold, tail_scale, tail_shape))
 }
+\seealso{
+\code{\link[=laplace_mix]{laplace_mix()}}, \code{\link[=laplace_MixGpd]{laplace_MixGpd()}}, \code{\link[=gpd]{gpd()}}, \code{\link[=laplace_lowercase]{laplace_lowercase()}}.
+
+Other laplace kernel families: 
+\code{\link{laplace_MixGpd}},
+\code{\link{laplace_mix}}
+}
+\concept{laplace kernel families}

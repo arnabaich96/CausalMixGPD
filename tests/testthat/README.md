@@ -50,8 +50,9 @@ Sys.setenv(DPMIXGPD_TEST_LEVEL = "cran")
 ### Running Specific Tests
 
 ```r
-# Run a single merged test file
-testthat::test_file("tests/testthat/test-coverage.R")
+# Run the dedicated coverage-only test file
+Sys.setenv(DPMIXGPD_CI_COVERAGE_ONLY = "1")
+testthat::test_file("tests/testthat/test-ci-level-only.R")
 
 # Run all tests matching a merged tier
 testthat::test_local(filter = "unit")
@@ -97,7 +98,8 @@ tests/testthat/
 ├── helper-03-predict-helpers.R  # Prediction test utilities
 ├── setup.R                      # Global test setup, runs before all tests
 ├── test-unit.R                  # Fast, deterministic tests (cran level)
-├── test-coverage.R              # Minimal coverage paths (ci level, for covr)
+├── test-ci-level-only.R         # Dedicated coverage-only CI suite
+├── test-coverage.R              # Legacy stub; coverage now routes to test-ci-level-only.R
 ├── test-integration.R           # Full integration tests (ci level, heavier)
 └── test-ci.R                    # CI-only gates and meta-tests
 ```
@@ -122,11 +124,11 @@ Fast, deterministic tests with no MCMC compilation (~1-2 minutes total).
 
 - `test-unit.R`: Distribution, kernel, utils, S3, plotting, and contract tests.
 
-#### `test-coverage.R` - Minimal Coverage Paths (Tier B / ci level)
+#### `test-ci-level-only.R` - Dedicated Coverage Suite
 
-Minimal test paths to maximize code coverage with reasonable runtime, executed during coverage runs.
+Single-file smoke suite used only by the coverage runner. This file is skipped in ordinary `testthat` runs unless `DPMIXGPD_CI_COVERAGE_ONLY=1`.
 
-- `test-coverage.R`: Smoke workflows, causal/predict paths, spliced backend, and wrapper coverage.
+- `test-ci-level-only.R`: Distribution wrappers, representative workflows, wrapper entrypoints, and S3 smoke coverage.
 
 #### `test-integration.R` - Integration Tests (Tier B / ci level)
 
@@ -326,7 +328,7 @@ covr::report(cov)
 During coverage calculation:
 - `COVERAGE=1` environment variable is set
 - `DPMIXGPD_TEST_LEVEL` is set to "ci" by default
-- Some tests are automatically skipped to avoid covr/nimble conflicts
+- `DPMIXGPD_CI_COVERAGE_ONLY=1` is set so only `test-ci-level-only.R` executes
 
 ## Environment Variables Reference
 
@@ -337,6 +339,7 @@ During coverage calculation:
 | `DPMIXGPD_CACHE_DIR`      | path                | _cache/  | Cache directory location         |
 | `DPMIXGPD_TEST_VERBOSE`   | 0, 1                | 0        | Verbose test output              |
 | `COVERAGE`                | (any non-empty)     | (empty)  | Set during coverage runs         |
+| `DPMIXGPD_CI_COVERAGE_ONLY` | 0, 1              | 0        | Enables the dedicated coverage-only test file |
 
 ## Troubleshooting
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{print.causalmixgpd_qte}
 \alias{print.causalmixgpd_qte}
-\title{Print a QTE object}
+\title{Print a QTE-style effect object}
 \usage{
 \method{print}{causalmixgpd_qte}(x, digits = 3, max_rows = 6, ...)
 }
@@ -19,9 +19,8 @@
 The object \code{x}, invisibly.
 }
 \description{
-User-facing print method for \code{"causalmixgpd_qte"} objects produced by \code{qte()}.
-Displays a compact summary: prediction points, quantile grid, credible level,
-and the first few rows of QTE estimates.
+\code{print.causalmixgpd_qte()} prints a compact summary for objects produced
+by \code{\link{qte}}, \code{\link{qtt}}, or \code{\link{cqte}}.
 }
 \examples{
 \dontrun{
@@ -30,4 +29,9 @@ fit <- run_mcmc_causal(cb, show_progress = FALSE)
 q <- qte(fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
 print(q)
 }
+}
+\seealso{
+\code{\link{summary.causalmixgpd_qte}},
+\code{\link{plot.causalmixgpd_qte}}, \code{\link{qte}},
+\code{\link{cqte}}.
 }

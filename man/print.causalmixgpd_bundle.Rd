@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{print.causalmixgpd_bundle}
 \alias{print.causalmixgpd_bundle}
-\title{Print a causalmixgpd bundle}
+\title{Print a one-arm workflow bundle}
 \usage{
 \method{print}{causalmixgpd_bundle}(x, code = FALSE, max_code_lines = 200L, ...)
 }
@@ -19,9 +19,8 @@
 The object \code{x}, invisibly.
 }
 \description{
-User-facing print method for pre-run bundles produced by \code{build_nimble_bundle()}.
-This prints a compact description of the model structure (backend/kernel/components),
-whether covariates are used, and whether a GPD tail is enabled.
+\code{print.causalmixgpd_bundle()} gives a compact structural summary of the
+pre-run bundle created by \code{\link{build_nimble_bundle}}.
 }
 \examples{
 \dontrun{
@@ -31,4 +30,8 @@ bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
 print(bundle)
 print(bundle, code = TRUE, max_code_lines = 30)
 }
+}
+\seealso{
+\code{\link{summary.causalmixgpd_bundle}}, \code{\link{mcmc}},
+\code{\link{run_mcmc_bundle_manual}}.
 }

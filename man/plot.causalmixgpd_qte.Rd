@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{plot.causalmixgpd_qte}
 \alias{plot.causalmixgpd_qte}
-\title{Plot QTE results}
+\title{Plot QTE-style effect summaries}
 \usage{
 \method{plot}{causalmixgpd_qte}(
   x,
@@ -35,13 +35,14 @@ A list of ggplot objects with elements \code{trt_control} and \code{treatment_ef
 \code{"arms"}).
 }
 \description{
-Generates visualizations for quantile treatment effects. The \code{type} parameter
-controls the plot style:
+\code{plot.causalmixgpd_qte()} visualizes objects returned by
+\code{\link{qte}}, \code{\link{qtt}}, and \code{\link{cqte}}. The
+\code{type} parameter controls the plot style:
 \itemize{
 \item \code{"both"} (default): Returns a list with both \code{trt_control} (treated vs
 control quantile curves) and \code{treatment_effect} (QTE curve) plots
-\item \code{"effect"}: QTE curve vs quantile levels (\code{probs}) with CI ribbon
-\item \code{"arms"}: Treated and control quantile curves vs \code{probs}, with CI ribbons
+\item \code{"effect"}: QTE curve vs quantile levels (\code{probs}) with pointwise CI error bars
+\item \code{"arms"}: Treated and control quantile curves vs \code{probs}, with pointwise CI error bars
 }
 }
 \examples{
@@ -51,4 +52,8 @@ plot(qte_result)  # default: returns list with both plots
 plot(qte_result, type = "effect")  # single QTE plot
 plot(qte_result, type = "arms")    # single arms plot
 }
+}
+\seealso{
+\code{\link{qte}}, \code{\link{cqte}},
+\code{\link{summary.causalmixgpd_qte}}.
 }

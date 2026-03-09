@@ -68,11 +68,11 @@ the RNG implementation supports \code{n = 1}.}
 }
 \value{
 Spliced density/CDF/RNG functions return numeric scalars.
-\code{qInvGaussGpd} returns a numeric vector with the same length as \code{p}.
+\code{qInvGaussGpd()} returns a numeric vector with the same length as \code{p}.
 }
 \description{
-Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a
-single inverse Gaussian bulk with parameters \code{mean} and \code{shape}.
+Spliced family obtained by attaching a generalized Pareto tail above \code{threshold} to a single
+inverse Gaussian bulk.
 }
 \section{Functions}{
 \itemize{
@@ -109,3 +109,11 @@ replicate(10, rInvGaussGpd(1, mean = mean, shape = shape,
                           tail_scale = tail_scale,
                           tail_shape = tail_shape))
 }
+\seealso{
+\code{\link[=InvGauss_mix]{InvGauss_mix()}}, \code{\link[=InvGauss_mixgpd]{InvGauss_mixgpd()}}, \code{\link[=gpd]{gpd()}}, \code{\link[=invgauss_lowercase]{invgauss_lowercase()}}.
+
+Other inverse-gaussian kernel families: 
+\code{\link{InvGauss_mix}},
+\code{\link{InvGauss_mixgpd}}
+}
+\concept{inverse-gaussian kernel families}

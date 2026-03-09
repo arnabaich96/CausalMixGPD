@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{print.causalmixgpd_causal_bundle}
 \alias{print.causalmixgpd_causal_bundle}
-\title{Print a causal bundle}
+\title{Print a causal workflow bundle}
 \usage{
 \method{print}{causalmixgpd_causal_bundle}(x, code = FALSE, max_code_lines = 200L, ...)
 }
@@ -19,11 +19,16 @@
 The input object (invisibly).
 }
 \description{
-User-facing print method for causal bundles produced by \code{build_causal_bundle()}.
+\code{print.causalmixgpd_causal_bundle()} gives a compact structural summary
+of the pre-run causal bundle created by \code{\link{build_causal_bundle}}.
 }
 \examples{
 \dontrun{
 cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
 print(cb)
 }
+}
+\seealso{
+\code{\link{summary.causalmixgpd_causal_bundle}},
+\code{\link{run_mcmc_causal}}, \code{\link{ate}}, \code{\link{qte}}.
 }

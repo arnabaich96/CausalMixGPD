@@ -12,8 +12,34 @@
 \item{...}{Unused.}
 }
 \value{
-A summary list.
+Summary list containing cluster sizes and, when available, assignment-certainty summaries.
 }
 \description{
-Summarize cluster labels
+Summarize a representative clustering for training data or new observations.
 }
+\details{
+If score or probability matrices are attached, certainty is summarized by the rowwise maxima
+\eqn{\max_k p_{ik}}, which quantify how strongly each observation is assigned to its selected
+cluster.
+}
+\seealso{
+\code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}}, \code{\link[=plot.dpmixgpd_cluster_labels]{plot.dpmixgpd_cluster_labels()}},
+\code{\link[=summary.dpmixgpd_cluster_fit]{summary.dpmixgpd_cluster_fit()}}.
+
+Other cluster workflow: 
+\code{\link{dpmgpd.cluster}()},
+\code{\link{dpmix.cluster}()},
+\code{\link{plot.dpmixgpd_cluster_bundle}()},
+\code{\link{plot.dpmixgpd_cluster_fit}()},
+\code{\link{plot.dpmixgpd_cluster_labels}()},
+\code{\link{plot.dpmixgpd_cluster_psm}()},
+\code{\link{predict.dpmixgpd_cluster_fit}()},
+\code{\link{print.dpmixgpd_cluster_bundle}()},
+\code{\link{print.dpmixgpd_cluster_fit}()},
+\code{\link{print.dpmixgpd_cluster_labels}()},
+\code{\link{print.dpmixgpd_cluster_psm}()},
+\code{\link{summary.dpmixgpd_cluster_bundle}()},
+\code{\link{summary.dpmixgpd_cluster_fit}()},
+\code{\link{summary.dpmixgpd_cluster_psm}()}
+}
+\concept{cluster workflow}

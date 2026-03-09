@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{allocation.mixgpd_fit}
 \alias{allocation.mixgpd_fit}
-\title{Extract posterior cluster allocation from mixgpd_fit}
+\title{Extract posterior cluster allocation from a fitted model}
 \usage{
 \method{allocation}{mixgpd_fit}(object, method = c("dahl"), show_progress = TRUE, ...)
 }
@@ -37,10 +37,11 @@ An object of class \code{"mixgpd_allocation"} containing:
 
 When \code{newdata} is supplied, predicted allocations are based on a simple
 distance-to-cluster-center heuristic on \code{y} from the representative
-partition.
+partition. This is a post-processing summary step rather than a new MCMC
+fit.
 }
 \description{
-Extract posterior cluster allocation from mixgpd_fit
+Extract posterior cluster allocation from a fitted model
 }
 \examples{
 \dontrun{
@@ -68,4 +69,9 @@ plot(alloc_new, overlay = TRUE)
 Dahl, D. B. (2006). Model-based clustering for expression data via a Dirichlet
 process mixture model. In M. Vannucci, et al. (Eds.), Bayesian Inference for
 Gene Expression and Proteomics (pp. 201-218). Cambridge University Press.
+}
+\seealso{
+\code{\link{allocation}}, \code{\link{summary.mixgpd_allocation}},
+\code{\link{plot.mixgpd_allocation}}, \code{\link{dpmix}},
+\code{\link{dpmgpd}}.
 }

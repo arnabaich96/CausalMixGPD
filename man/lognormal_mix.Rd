@@ -50,16 +50,20 @@ internally when needed.}
 \item{maxiter}{Integer maximum number of iterations for \code{stats::uniroot}.}
 }
 \value{
-Density/CDF/RNG functions return numeric scalars. \code{qLognormalMix} returns a numeric vector
-with the same length as \code{p}.
+Density/CDF/RNG functions return numeric scalars. \code{qLognormalMix()} returns a numeric
+vector with the same length as \code{p}.
 }
 \description{
-A finite mixture of Lognormal components. Base Lognormal functions are taken from \pkg{stats}.
-Mixture density and CDF are computed by weighted sums. Random generation samples a component
-index according to weights and draws from the corresponding component. Quantiles are computed
-by numerical inversion of the mixture CDF.
-These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
-For vectorized R usage (including \code{n > 1}), use \code{\link{lognormal_lowercase}}.
+Finite mixture of lognormal components for positive-support bulk modeling. The scalar functions
+in this topic are the NIMBLE-compatible building blocks for the lognormal bulk kernel family.
+}
+\details{
+The mixture density is
+\deqn{
+f(x) = \sum_{k = 1}^K \tilde{w}_k f_{LN}(x \mid \mu_k, \sigma_k),
+\qquad x > 0,
+}
+with normalized weights \eqn{\tilde{w}_k}. For vectorized R usage, use \code{\link[=lognormal_lowercase]{lognormal_lowercase()}}.
 }
 \section{Functions}{
 \itemize{
@@ -84,3 +88,12 @@ qLognormalMix(0.50, w = w, meanlog = meanlog, sdlog = sdlog)
 qLognormalMix(0.95, w = w, meanlog = meanlog, sdlog = sdlog)
 replicate(10, rLognormalMix(1, w = w, meanlog = meanlog, sdlog = sdlog))
 }
+\seealso{
+\code{\link[=lognormal_mixgpd]{lognormal_mixgpd()}}, \code{\link[=lognormal_gpd]{lognormal_gpd()}}, \code{\link[=lognormal_lowercase]{lognormal_lowercase()}},
+\code{\link[=build_nimble_bundle]{build_nimble_bundle()}}, \code{\link[=kernel_support_table]{kernel_support_table()}}.
+
+Other lognormal kernel families: 
+\code{\link{lognormal_gpd}},
+\code{\link{lognormal_mixgpd}}
+}
+\concept{lognormal kernel families}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/wrappers.R
 \name{dpmgpd}
 \alias{dpmgpd}
-\title{Fit DP mixture model with GPD tail}
+\title{Fit a one-arm Dirichlet process mixture with a spliced GPD tail}
 \usage{
 dpmgpd(
   x = NULL,
@@ -34,8 +34,25 @@ optional performance controls such as \code{parallel_chains},
 \code{z_update_every}).}
 }
 \value{
-A fitted object.
+A fitted object of class \code{"mixgpd_fit"}.
 }
 \description{
-Fit DP mixture model with GPD tail
+\code{dpmgpd()} is the one-step convenience wrapper for the spliced
+bulk-tail model. It combines \code{\link{bundle}} and \code{\link{mcmc}} for
+one-arm data.
+}
+\details{
+This wrapper targets the posterior predictive distribution obtained by
+combining a flexible bulk DPM with a generalized Pareto exceedance model
+above the threshold \eqn{u(x)}. In the tail region the predictive density is
+proportional to
+\deqn{\{1 - p_u(x)\} f_{\mathrm{GPD}}(y \mid x), \qquad y > u(x),}
+where \eqn{p_u(x)} is the posterior bulk mass below the threshold.
+
+Use this wrapper when upper-tail behavior matters for inference, prediction,
+or extrapolation of extreme quantiles and survival probabilities.
+}
+\seealso{
+\code{\link{bundle}}, \code{\link{dpmix}},
+\code{\link{predict.mixgpd_fit}}, \code{\link{summary.mixgpd_fit}}.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{predict.mixgpd_fit}
 \alias{predict.mixgpd_fit}
-\title{Predict from a MixGPD fit}
+\title{Posterior predictive summaries from a fitted one-arm model}
 \usage{
 \method{predict}{mixgpd_fit}(
   object,
@@ -108,20 +108,24 @@ over draws) plus any index columns (e.g. \code{id}, \code{y}, \code{index}).
 }
 }
 \description{
-This provides a stable interface for distributional predictions.
-The default implementation supports:
-\itemize{
-\item \code{type="density"} using \code{y}
-\item \code{type="survival"} using \code{y}
-\item \code{type="quantile"} using \code{p}
-\item \code{type="sample"} (posterior predictive draws)
-\item \code{type="mean"} (posterior predictive mean)
-\item \code{type="rmean"} (restricted mean with finite cutoff)
-}
+\code{predict.mixgpd_fit()} is the central distributional prediction method
+for fitted one-arm models.
 }
 \details{
-If your object stores dedicated predictive machinery, you can keep this signature
-and swap the internals without breaking user code.
+The method works with posterior predictive functionals rather than raw model
+parameters. Supported output types include:
+\itemize{
+\item \code{"density"} for \eqn{f(y \mid x, \mathcal{D})},
+\item \code{"survival"} for \eqn{S(y \mid x, \mathcal{D}) = 1 - F(y \mid x, \mathcal{D})},
+\item \code{"quantile"} for \eqn{Q(\tau \mid x, \mathcal{D})},
+\item \code{"mean"} for \eqn{E(Y \mid x, \mathcal{D})},
+\item \code{"rmean"} for \eqn{E\{\min(Y, c) \mid x, \mathcal{D}\}},
+\item \code{"sample"} and \code{"fit"} for draw-level predictive output.
+}
+
+For spliced models these predictions integrate over both the DPM bulk and
+the GPD tail. When \code{type = "mean"}, the function averages conditional
+means over posterior draws, so the result is a Bayesian predictive mean.
 
 The \code{type="mean"} option computes the posterior predictive mean by:
 \enumerate{
@@ -149,4 +153,8 @@ pr_none <- predict(fit, type = "quantile", p = c(0.5, 0.9), interval = NULL)
 # Restricted mean (finite under heavy tails)
 pr_rmean <- predict(fit, type = "rmean", cutoff = 10, interval = "credible")
 }
+}
+\seealso{
+\code{\link{summary.mixgpd_fit}}, \code{\link{fitted.mixgpd_fit}},
+\code{\link{residuals.mixgpd_fit}}, \code{\link{predict.causalmixgpd_causal_fit}}.
 }

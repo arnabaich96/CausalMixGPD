@@ -2,7 +2,7 @@
 % Please edit documentation in R/causal.R
 \name{ate}
 \alias{ate}
-\title{Average treatment effects (ATE), marginal over training covariates}
+\title{Average treatment effects, marginal over the empirical covariate distribution}
 \usage{
 ate(
   fit,
@@ -42,17 +42,24 @@ highest posterior density intervals.}
 \item{show_progress}{Logical; if TRUE, print step messages and render progress where supported.}
 }
 \value{
-A list with elements \code{fit}, optional \code{lower}/\code{upper},
-and aggregated treated/control prediction objects. \code{fit} is a single-value
-marginal effect estimate, and intervals are computed from posterior draws.
+An object of class \code{"causalmixgpd_ate"} containing the
+marginal ATE summary, optional intervals, and the arm-specific predictive
+objects used in the aggregation.
 }
 \description{
-Computes a marginal average treatment effect by averaging conditional
-treatment effects over the training covariate rows.
+\code{ate()} computes the posterior predictive average treatment effect.
 }
 \details{
-For unconditional causal models (\code{X = NULL}), this is computed directly
-from unconditional treated/control outcome predictions.
+The default mean-scale estimand is
+\deqn{\mathrm{ATE} = E\{Y(1)\} - E\{Y(0)\},}
+where the expectation is taken with respect to the empirical training
+covariate distribution for conditional models.
+
+When \code{type = "rmean"}, the function instead computes a restricted-mean
+ATE using \eqn{E\{\min(Y(a), c)\}} for each arm.
+
+For unconditional causal models (\code{X = NULL}), the computation reduces to
+a direct contrast of the unconditional treated and control predictive laws.
 }
 \examples{
 \dontrun{
@@ -60,4 +67,8 @@ cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal"
 fit <- run_mcmc_causal(cb, show_progress = FALSE)
 ate(fit, interval = "credible", level = 0.90, nsim_mean = 100)
 }
+}
+\seealso{
+\code{\link{att}}, \code{\link{cate}}, \code{\link{qte}},
+\code{\link{ate_rmean}}, \code{\link{predict.causalmixgpd_causal_fit}}.
 }

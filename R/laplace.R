@@ -1,14 +1,13 @@
 #' Laplace (double exponential) mixture distribution
 #'
-#' A finite mixture of Laplace (double exponential) components for real-valued data.
-#' Base Laplace functions are taken from \pkg{nimble} (\code{ddexp}, \code{pdexp},
-#' \code{rdexp}, \code{qdexp}).
+#' Finite mixture of Laplace components for real-valued bulk modeling. The scalar functions in this
+#' topic are the NIMBLE-compatible building blocks for Laplace-based kernels.
 #'
-#' Mixture density and CDF are computed by weighted sums. Random generation samples a component
-#' index according to weights and draws from the corresponding component. Quantiles are computed
-#' by numerical inversion of the mixture CDF.
-#' These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
-#' For vectorized R usage (including \code{n > 1}), use \code{\link{laplace_lowercase}}.
+#' The mixture density is
+#' \deqn{
+#' f(x) = \sum_{k = 1}^K \tilde{w}_k f_{Lap}(x \mid \mu_k, b_k),
+#' }
+#' with normalized weights \eqn{\tilde{w}_k}. For vectorized R usage, use [laplace_lowercase()].
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -22,8 +21,12 @@
 #' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Logical; if \code{TRUE}, probabilities are returned on the log scale.
 #'
-#' @return Density/CDF/RNG functions return numeric scalars. \code{qLaplaceMix} returns a numeric vector
-#'   with the same length as \code{p}.
+#' @return Density/CDF/RNG functions return numeric scalars. `qLaplaceMix()` returns a numeric
+#'   vector with the same length as `p`.
+#'
+#' @seealso [laplace_MixGpd()], [laplace_gpd()], [laplace_lowercase()],
+#'   [build_nimble_bundle()], [kernel_support_table()].
+#' @family laplace kernel families
 #'
 #' @examples
 #' w <- c(0.50, 0.30, 0.20)
@@ -192,8 +195,8 @@ qLaplaceMix <- function(p, w, location, scale,
 
 #' Laplace mixture with a GPD tail
 #'
-#' Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a Laplace mixture bulk.
-#' The bulk probability at the threshold is used to scale the tail so that the overall CDF is proper.
+#' Spliced bulk-tail family formed by attaching a generalized Pareto tail to a Laplace mixture
+#' bulk.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -209,8 +212,11 @@ qLaplaceMix <- function(p, w, location, scale,
 #' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Logical; if \code{TRUE}, probabilities are returned on the log scale.
 #'
-#' @return Spliced density/CDF/RNG functions return numeric scalars. \code{qLaplaceMixGpd} returns a numeric vector
-#'   with the same length as \code{p}.
+#' @return Spliced density/CDF/RNG functions return numeric scalars. `qLaplaceMixGpd()` returns a
+#'   numeric vector with the same length as `p`.
+#'
+#' @seealso [laplace_mix()], [laplace_gpd()], [gpd()], [laplace_lowercase()], [dpmgpd()].
+#' @family laplace kernel families
 #'
 #' @examples
 #' w <- c(0.50, 0.30, 0.20)
@@ -349,8 +355,8 @@ qLaplaceMixGpd <- function(p, w, location, scale, threshold, tail_scale, tail_sh
 
 #' Laplace with a GPD tail
 #'
-#' Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a single Laplace bulk with
-#' parameters \code{location} and \code{scale}. Base Laplace functions are taken from \pkg{nimble}.
+#' Spliced family obtained by attaching a generalized Pareto tail above `threshold` to a single
+#' Laplace bulk.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -365,8 +371,11 @@ qLaplaceMixGpd <- function(p, w, location, scale, threshold, tail_scale, tail_sh
 #' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Logical; if \code{TRUE}, probabilities are returned on the log scale.
 #'
-#' @return Spliced density/CDF/RNG functions return numeric scalars. \code{qLaplaceGpd} returns a numeric vector
-#'   with the same length as \code{p}.
+#' @return Spliced density/CDF/RNG functions return numeric scalars. `qLaplaceGpd()` returns a
+#'   numeric vector with the same length as `p`.
+#'
+#' @seealso [laplace_mix()], [laplace_MixGpd()], [gpd()], [laplace_lowercase()].
+#' @family laplace kernel families
 #'
 #' @examples
 #' location <- 0.5
@@ -489,10 +498,7 @@ qLaplaceGpd <- function(p, location, scale, threshold, tail_scale, tail_shape, l
 
 #' Lowercase vectorized Laplace distribution functions
 #'
-#' Vectorized R wrappers for Laplace mixture, Laplace mixture + GPD, and
-#' Laplace + GPD distribution functions. These lowercase versions accept vector
-#' inputs for the first argument (\code{x}, \code{q}, or \code{p}) and return
-#' a numeric vector. The \code{r*} functions support \code{n > 1}.
+#' Vectorized R wrappers for the scalar Laplace-kernel topics in this file.
 #'
 #' @param x Numeric vector of quantiles.
 #' @param q Numeric vector of quantiles.
@@ -507,6 +513,10 @@ qLaplaceGpd <- function(p, location, scale, threshold, tail_scale, tail_shape, l
 #' @param tol,maxiter Tolerance and max iterations for numerical inversion.
 #'
 #' @return Numeric vector of densities, probabilities, quantiles, or random variates.
+#'
+#' @seealso [laplace_mix()], [laplace_MixGpd()], [laplace_gpd()], [bundle()],
+#'   [get_kernel_registry()].
+#' @family vectorized kernel helpers
 #'
 #' @examples
 #' w <- c(0.6, 0.3, 0.1)

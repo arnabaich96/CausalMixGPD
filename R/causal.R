@@ -1,15 +1,29 @@
 ﻿#' Build a causal bundle (design + two outcome arms)
 #'
-#' Creates a causal bundle with:
+#' \code{build_causal_bundle()} is the detailed constructor behind
+#' \code{\link{bundle}} for causal analyses. It prepares:
 #' \itemize{
-#'   \item a propensity score (PS) design model (logit/probit regression of \code{A} on \code{X} or a naive Bayes classifier)
-#'   \item an outcome bundle for the control arm (\code{A = 0})
-#'   \item an outcome bundle for the treated arm (\code{A = 1})
+#'   \item a propensity score (PS) design block for \eqn{A \mid X},
+#'   \item a control-arm outcome bundle for \eqn{Y(0)},
+#'   \item a treated-arm outcome bundle for \eqn{Y(1)}.
 #' }
 #'
-#' The outcome bundles reuse the existing DPM + optional GPD tail machinery. The PS model is a
-#' lightweight NIMBLE estimator supporting logit/probit regression or a naive Bayes classifier with
-#' simple priors.
+#' The outcome bundles reuse the one-arm DPM plus optional GPD machinery. The
+#' PS block provides a shared adjustment object used by
+#' \code{\link{run_mcmc_causal}} and
+#' \code{\link{predict.causalmixgpd_causal_fit}}.
+#'
+#' @details
+#' The causal bundle encodes the two arm-specific predictive laws
+#' \eqn{F_0(y \mid x)} and \eqn{F_1(y \mid x)}. Downstream causal estimands are
+#' functionals of these two distributions:
+#' \deqn{\mathrm{ATE} = E\{Y(1)\} - E\{Y(0)\}, \qquad
+#' \mathrm{QTE}(\tau) = Q_1(\tau) - Q_0(\tau).}
+#'
+#' When \code{PS} is enabled, the package estimates a propensity score model
+#' \eqn{e(x) = \Pr(A = 1 \mid X = x)} and uses a posterior summary of that score
+#' as an augmented covariate in the arm-specific outcome models. This mirrors
+#' the workflow described in the manuscript vignette.
 #'
 #' @param y Numeric outcome vector.
 #' @param X Design matrix or data.frame of covariates (N x P).
@@ -48,7 +62,12 @@
 #' @param monitor Character monitor profile: \code{"core"} (default) or \code{"full"}.
 #' @param monitor_latent Logical; whether to monitor latent allocations (\code{z}) in outcome arms.
 #' @param monitor_v Logical; whether to monitor stick-breaking \code{v} terms for SB outcomes.
-#' @return A list of class \code{"causalmixgpd_causal_bundle"}.
+#' @return A list of class \code{"causalmixgpd_causal_bundle"} containing the
+#'   design bundle, two outcome bundles, training data, arm indices, and
+#'   metadata required for posterior prediction and causal effect summaries.
+#' @seealso \code{\link{bundle}}, \code{\link{run_mcmc_causal}},
+#'   \code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
+#'   \code{\link{qte}}, \code{\link{cate}}, \code{\link{cqte}}.
 #' @examples
 #' \dontrun{
 #' set.seed(1)
@@ -374,10 +393,18 @@ build_causal_bundle <- function(
   fit
 }
 
-#' Run MCMC for a causal bundle
+#' Run posterior sampling for a causal bundle
 #'
-#' Executes the outcome arms (and PS model if enabled), returning a single causal fit.
-#' When \code{PS=FALSE} in the bundle, the PS model is skipped entirely.
+#' \code{run_mcmc_causal()} executes the PS block (when enabled) and the two
+#' arm-specific outcome models prepared by \code{\link{build_causal_bundle}},
+#' then returns a single \code{"causalmixgpd_causal_fit"} object.
+#'
+#' @details
+#' The fitted object contains the posterior draws needed to evaluate arm-level
+#' predictive distributions \eqn{F_1(y \mid x, \mathcal{D})} and
+#' \eqn{F_0(y \mid x, \mathcal{D})}, followed by marginal or conditional causal
+#' contrasts. When \code{PS = FALSE} in the bundle, the PS block is skipped and
+#' outcome prediction uses only the original covariates.
 #'
 #' @param bundle A \code{"causalmixgpd_causal_bundle"} from \code{build_causal_bundle()}.
 #' @param show_progress Logical; if TRUE, print step messages and render progress where supported.
@@ -386,7 +413,12 @@ build_causal_bundle <- function(
 #' @param workers Optional integer workers for parallel arm execution.
 #' @param timing Logical; if TRUE, return arm and total timings in \code{$timing}.
 #' @param z_update_every Integer >= 1 passed to arm-level outcome MCMC.
-#' @return A list of class \code{"causalmixgpd_causal_fit"}.
+#' @return A list of class \code{"causalmixgpd_causal_fit"} containing the
+#'   fitted treated/control outcome models, optional PS fit, the original
+#'   bundle, and timing metadata when requested.
+#' @seealso \code{\link{build_causal_bundle}}, \code{\link{mcmc}},
+#'   \code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
+#'   \code{\link{qte}}.
 #' @examples
 #' \dontrun{
 #' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
@@ -625,14 +657,22 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE, quiet = FALSE,
   x_pred
 }
 
-#' Conditional quantile treatment effects (CQTE)
+#' Conditional quantile treatment effects
 #'
-#' Computes treated-minus-control quantiles from a causal fit.
+#' \code{cqte()} evaluates treated-minus-control predictive quantiles at
+#' user-supplied covariate rows.
 #'
 #' @details
-#' This estimand is available only for \strong{conditional} causal models
-#' with covariates (\code{X} not \code{NULL}). For unconditional causal models
-#' (\code{X = NULL}), use \code{qte()} or \code{qtt()}.
+#' For each prediction row \eqn{x}, the conditional quantile treatment effect is
+#' \deqn{\mathrm{CQTE}(\tau, x) = Q_1(\tau \mid x, \mathcal{D}) -
+#' Q_0(\tau \mid x, \mathcal{D}).}
+#'
+#' This estimand is available only for conditional causal models with
+#' covariates. For marginal quantile contrasts over the empirical covariate
+#' distribution, use \code{\link{qte}} or \code{\link{qtt}}.
+#'
+#' If the fit includes a PS block, the same PS adjustment is applied to both arm
+#' predictions before differencing.
 #'
 #' @param fit A \code{"causalmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.
 #' @param probs Numeric vector of probabilities in (0, 1) specifying the quantile levels
@@ -644,8 +684,11 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE, quiet = FALSE,
 #'   highest posterior density intervals.
 #' @param level Numeric credible level for intervals (default 0.95 for 95 percent CI).
 #' @param show_progress Logical; if TRUE, print step messages and render progress where supported.
-#' @return A list with elements \code{fit} (CQTE), \code{grid} (probabilities),
-#'   and the treated/control prediction objects.
+#' @return An object of class \code{"causalmixgpd_qte"} containing the CQTE
+#'   summary, the probability grid, and the treated/control prediction objects
+#'   used to construct the effect.
+#' @seealso \code{\link{qte}}, \code{\link{qtt}}, \code{\link{cate}},
+#'   \code{\link{predict.causalmixgpd_causal_fit}}.
 #' @examples
 #' \dontrun{
 #' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
@@ -835,14 +878,26 @@ cqte <- function(fit,
 }
 
 
-#' Conditional average treatment effects (CATE)
+#' Conditional average treatment effects
 #'
-#' Computes treated-minus-control posterior means from a causal fit.
+#' \code{cate()} evaluates treated-minus-control predictive means, or restricted
+#' means, at user-supplied covariate rows.
 #'
 #' @details
-#' This estimand is available only for \strong{conditional} causal models
-#' with covariates (\code{X} not \code{NULL}). For unconditional causal models
-#' (\code{X = NULL}), use \code{ate()} or \code{att()}.
+#' For each prediction row \eqn{x}, the conditional average treatment effect is
+#' \deqn{\mathrm{CATE}(x) = E\{Y(1) \mid x, \mathcal{D}\} -
+#' E\{Y(0) \mid x, \mathcal{D}\}.}
+#'
+#' With \code{type = "rmean"}, the estimand becomes the conditional restricted
+#' mean contrast
+#' \deqn{E\{\min(Y(1), c) \mid x, \mathcal{D}\} -
+#' E\{\min(Y(0), c) \mid x, \mathcal{D}\},}
+#' which remains finite even when the ordinary mean is unstable under a heavy
+#' GPD tail.
+#'
+#' This estimand is available only for conditional causal models with
+#' covariates. For marginal mean contrasts, use \code{\link{ate}} or
+#' \code{\link{att}}.
 #'
 #' @param fit A \code{"causalmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.
 #' @param newdata Optional data.frame or matrix of covariates for prediction.
@@ -857,8 +912,11 @@ cqte <- function(fit,
 #' @param level Numeric credible level for intervals (default 0.95 for 95 percent CI).
 #' @param nsim_mean Number of posterior predictive draws to approximate the mean.
 #' @param show_progress Logical; if TRUE, print step messages and render progress where supported.
-#' @return A list with elements \code{fit} (CATE), optional \code{lower}/\code{upper},
-#'   and the treated/control prediction objects.
+#' @return An object of class \code{"causalmixgpd_ate"} containing the CATE
+#'   summary, optional intervals, and the treated/control prediction objects used
+#'   to construct the effect.
+#' @seealso \code{\link{ate}}, \code{\link{att}}, \code{\link{cqte}},
+#'   \code{\link{ate_rmean}}, \code{\link{predict.causalmixgpd_causal_fit}}.
 #' @examples
 #' \dontrun{
 #' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
@@ -1265,18 +1323,20 @@ cate <- function(fit,
   out
 }
 
-#' Quantile treatment effects (QTE), marginal over training covariates
+#' Quantile treatment effects, marginal over the empirical covariate distribution
 #'
-#' Computes a marginal quantile treatment effect as a contrast of arm-specific
-#' marginal quantiles:
-#' \eqn{Q_1^{m}(\tau) - Q_0^{m}(\tau)}.
+#' \code{qte()} returns the marginal quantile treatment effect implied by the
+#' causal fit.
 #'
-#' For conditional models, each posterior draw induces arm-specific marginal
-#' predictive distributions by averaging over the empirical covariate
-#' distribution, then quantiles are taken from those marginal draws.
+#' @details
+#' The package computes
+#' \deqn{\mathrm{QTE}(\tau) = Q_1^{m}(\tau) - Q_0^{m}(\tau),}
+#' where \eqn{Q_a^{m}(\tau)} is the arm-\eqn{a} posterior predictive marginal
+#' quantile obtained by averaging over the empirical training covariate
+#' distribution.
 #'
-#' For unconditional causal models (\code{X = NULL}), this is computed directly
-#' from unconditional treated/control outcome predictions.
+#' For unconditional causal models (\code{X = NULL}), this reduces to a direct
+#' contrast of the arm-level unconditional predictive distributions.
 #'
 #' @param fit A \code{"causalmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.
 #' @param probs Numeric vector of probabilities in (0, 1) specifying the quantile levels
@@ -1290,10 +1350,11 @@ cate <- function(fit,
 #'   highest posterior density intervals.
 #' @param level Numeric credible level for intervals (default 0.95 for 95 percent CI).
 #' @param show_progress Logical; if TRUE, print step messages and render progress where supported.
-#' @return A list with elements \code{fit}, \code{grid} (probabilities), and
-#'   aggregated treated/control prediction objects. \code{fit} is a data frame
-#'   with columns \code{index}, \code{estimate}, \code{lower}, \code{upper}
-#'   and one row per requested quantile index.
+#' @return An object of class \code{"causalmixgpd_qte"} containing the
+#'   marginal QTE summary, the probability grid, and the arm-specific predictive
+#'   objects used in the aggregation.
+#' @seealso \code{\link{qtt}}, \code{\link{cqte}}, \code{\link{ate}},
+#'   \code{\link{predict.causalmixgpd_causal_fit}}.
 #' @examples
 #' \dontrun{
 #' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
@@ -1413,17 +1474,21 @@ qte <- function(fit,
   .causal_aggregate_qte(cq, idx = idx, effect_type = "qte")
 }
 
-#' Quantile treatment effect on the treated (QTT)
+#' Quantile treatment effects standardized to treated covariates
 #'
-#' Computes a treated-standardized marginal quantile treatment effect:
-#' \eqn{Q_1^{t}(\tau) - Q_0^{t}(\tau)}, where marginalization is over the
-#' covariate distribution of treated units.
+#' \code{qtt()} computes the quantile treatment effect on the treated.
+#'
+#' @details
+#' The estimand is
+#' \deqn{\mathrm{QTT}(\tau) = Q_1^{t}(\tau) - Q_0^{t}(\tau),}
+#' where marginalization is over the empirical covariate distribution of the
+#' treated units only.
 #'
 #' @inheritParams qte
-#' @return A list with elements \code{fit}, \code{grid} (probabilities), and
-#'   aggregated treated/control prediction objects. \code{fit} is a data frame
-#'   with columns \code{index}, \code{estimate}, \code{lower}, \code{upper}
-#'   and one row per requested quantile index.
+#' @return An object of class \code{"causalmixgpd_qte"} containing the QTT
+#'   summary, the probability grid, and the arm-specific predictive objects used
+#'   in the aggregation.
+#' @seealso \code{\link{qte}}, \code{\link{cqte}}, \code{\link{att}}.
 #' @examples
 #' \dontrun{
 #' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
@@ -1543,13 +1608,21 @@ qtt <- function(fit,
   .causal_aggregate_qte(cq, idx = idx, effect_type = "qtt")
 }
 
-#' Average treatment effects (ATE), marginal over training covariates
+#' Average treatment effects, marginal over the empirical covariate distribution
 #'
-#' Computes a marginal average treatment effect by averaging conditional
-#' treatment effects over the training covariate rows.
+#' \code{ate()} computes the posterior predictive average treatment effect.
 #'
-#' For unconditional causal models (\code{X = NULL}), this is computed directly
-#' from unconditional treated/control outcome predictions.
+#' @details
+#' The default mean-scale estimand is
+#' \deqn{\mathrm{ATE} = E\{Y(1)\} - E\{Y(0)\},}
+#' where the expectation is taken with respect to the empirical training
+#' covariate distribution for conditional models.
+#'
+#' When \code{type = "rmean"}, the function instead computes a restricted-mean
+#' ATE using \eqn{E\{\min(Y(a), c)\}} for each arm.
+#'
+#' For unconditional causal models (\code{X = NULL}), the computation reduces to
+#' a direct contrast of the unconditional treated and control predictive laws.
 #'
 #' @param fit A \code{"causalmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.
 #' @param newdata Ignored for marginal estimands. If supplied, a warning is issued
@@ -1566,9 +1639,11 @@ qtt <- function(fit,
 #' @param level Numeric credible level for intervals (default 0.95 for 95 percent CI).
 #' @param nsim_mean Number of posterior predictive draws to approximate the mean.
 #' @param show_progress Logical; if TRUE, print step messages and render progress where supported.
-#' @return A list with elements \code{fit}, optional \code{lower}/\code{upper},
-#'   and aggregated treated/control prediction objects. \code{fit} is a single-value
-#'   marginal effect estimate, and intervals are computed from posterior draws.
+#' @return An object of class \code{"causalmixgpd_ate"} containing the
+#'   marginal ATE summary, optional intervals, and the arm-specific predictive
+#'   objects used in the aggregation.
+#' @seealso \code{\link{att}}, \code{\link{cate}}, \code{\link{qte}},
+#'   \code{\link{ate_rmean}}, \code{\link{predict.causalmixgpd_causal_fit}}.
 #' @examples
 #' \dontrun{
 #' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
@@ -1692,14 +1767,21 @@ ate <- function(fit,
   .causal_aggregate_ate(ca, idx = idx, effect_type = "ate")
 }
 
-#' Average treatment effect on the treated (ATT)
+#' Average treatment effects standardized to treated covariates
 #'
-#' Computes a treated-only marginal average treatment effect by averaging
-#' conditional treatment effects over rows with assigned treatment \code{A=1}.
+#' \code{att()} computes the average treatment effect on the treated.
+#'
+#' @details
+#' The estimand is
+#' \deqn{\mathrm{ATT} = E\{Y(1) - Y(0) \mid A = 1\},}
+#' approximated by marginalizing over the empirical covariate distribution of
+#' treated units.
 #'
 #' @inheritParams ate
-#' @return A list with elements \code{fit} (ATT), optional \code{lower}/\code{upper},
-#'   and aggregated treated/control prediction objects.
+#' @return An object of class \code{"causalmixgpd_ate"} containing the ATT
+#'   summary, optional intervals, and the arm-specific predictive objects used
+#'   in the aggregation.
+#' @seealso \code{\link{ate}}, \code{\link{qtt}}, \code{\link{cate}}.
 #' @examples
 #' \dontrun{
 #' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
@@ -1824,14 +1906,21 @@ att <- function(fit,
 }
 
 
-#' Restricted-mean ATE (finite under heavy tails)
+#' Restricted-mean ATE helper
 #'
-#' Computes an average treatment effect on the restricted mean scale,
-#' \eqn{E[min(Y, cutoff)]}, which is finite even when the ordinary mean does not exist
-#' under heavy-tailed GPD regimes.
+#' \code{ate_rmean()} is a convenience wrapper for restricted-mean treatment
+#' effects when the ordinary mean is unstable or undefined.
+#'
+#' @details
+#' The restricted-mean estimand replaces \eqn{Y(a)} by
+#' \eqn{\min\{Y(a), c\}}, so the contrast remains finite even when the fitted
+#' GPD tail implies \eqn{\xi \ge 1}.
 #'
 #' @inheritParams cate
 #' @param cutoff Finite numeric cutoff for the restricted mean.
+#' @return A \code{"causalmixgpd_ate"} object computed via \code{\link{ate}}
+#'   for unconditional fits or \code{\link{cate}} for conditional fits.
+#' @seealso \code{\link{ate}}, \code{\link{cate}}, \code{\link{predict.mixgpd_fit}}.
 #' @examples
 #' \dontrun{
 #' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal",
@@ -1870,14 +1959,24 @@ ate_rmean <- function(fit,
 }
 
 
-#' Predict from a causal fit
+#' Predict arm-specific and contrast-scale quantities from a causal fit
 #'
-#' Provides a unified interface to the treated and control outcome models while
-#' guaranteeing that the same propensity scores are used for both arms. For new
-#' covariates, the PS model stored in \code{object$ps_fit} is used to estimate
-#' the required scores unless the user supplies their own via \code{ps}. If the
-#' bundle was built with \code{PS=FALSE}, the PS model does not exist and outcome
-#' predictions use only the original covariates \code{X}.
+#' \code{predict.causalmixgpd_causal_fit()} is the causal counterpart to
+#' \code{\link{predict.mixgpd_fit}}. It coordinates the treated and control arm
+#' predictions so that both sides use the same covariate rows and the same PS
+#' adjustment.
+#'
+#' @details
+#' For each prediction row \eqn{x}, the function evaluates arm-specific
+#' posterior predictive quantities based on
+#' \eqn{F_1(y \mid x, \mathcal{D})} and \eqn{F_0(y \mid x, \mathcal{D})}. Mean
+#' and quantile outputs are returned on the treatment-effect scale, while
+#' density, survival, and probability outputs retain both arm-specific curves.
+#'
+#' If a PS model is stored in the fit, the same estimated score is supplied to
+#' both arms unless the user overrides it with \code{ps}. This is the main
+#' prediction entry point used internally by \code{\link{ate}}, \code{\link{qte}},
+#' \code{\link{cate}}, and \code{\link{cqte}}.
 #'
 #' @inheritParams predict.mixgpd_fit
 #' @param object A \code{"causalmixgpd_causal_fit"} object returned by
@@ -1893,13 +1992,13 @@ ate_rmean <- function(fit,
 #' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
 #'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
 #'   highest posterior density intervals.
-#' @return For \code{"mean"} or \code{"quantile"}, a numeric matrix with columns
-#'   \code{ps}, \code{estimate}, \code{lower}, \code{upper}, representing
-#'   treated-minus-control posterior summaries. When PS is disabled or X is absent,
-#'   \code{ps} is \code{NA} and no PS is used. For \code{"density"}, \code{"survival"},
-#'   and \code{"prob"},
-#'   a data frame with columns \code{y}, \code{ps}, \code{trt_estimate}, \code{trt_lower},
-#'   \code{trt_upper}, \code{con_estimate}, \code{con_lower}, \code{con_upper}.
+#' @return For \code{"mean"} and \code{"quantile"}, a causal prediction object
+#'   whose \code{$fit} component reports treated-minus-control posterior
+#'   summaries. For \code{"density"}, \code{"survival"}, and \code{"prob"},
+#'   the \code{$fit} component contains side-by-side treated and control
+#'   summaries evaluated on the supplied \code{y} grid.
+#' @seealso \code{\link{predict.mixgpd_fit}}, \code{\link{ate}},
+#'   \code{\link{qte}}, \code{\link{cate}}, \code{\link{cqte}}.
 #' @examples
 #' \dontrun{
 #' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")

@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{summary.causalmixgpd_causal_bundle}
 \alias{summary.causalmixgpd_causal_bundle}
-\title{Summarize a causal bundle}
+\title{Summarize a causal workflow bundle}
 \usage{
 \method{summary}{causalmixgpd_causal_bundle}(object, code = FALSE, max_code_lines = 200L, ...)
 }
@@ -19,11 +19,16 @@
 The input object (invisibly).
 }
 \description{
-User-facing summary for causal bundles produced by \code{build_causal_bundle()}.
+\code{summary.causalmixgpd_causal_bundle()} is the bundle-level validation
+checkpoint for the causal workflow.
 }
 \examples{
 \dontrun{
 cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
 summary(cb)
 }
+}
+\seealso{
+\code{\link{print.causalmixgpd_causal_bundle}},
+\code{\link{run_mcmc_causal}}.
 }

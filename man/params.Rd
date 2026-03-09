@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{params}
 \alias{params}
-\title{Extract posterior mean parameters in original form}
+\title{Extract posterior mean parameters in natural shape}
 \usage{
 params(object, ...)
 }
@@ -12,11 +12,21 @@ params(object, ...)
 \item{...}{Unused.}
 }
 \value{
-An object of class \code{"mixgpd_params"} (a named list).
+An object of class \code{"mixgpd_params"} (a named list). For
+causal fits, \code{params()} returns a treated/control pair.
 }
 \description{
-Returns posterior means reshaped to their natural dimensions (scalars, vectors,
-or matrices). Intended as a lightweight extractor for model parameters.
+\code{params()} reshapes posterior mean summaries back into the parameter
+layout implied by the fitted model specification.
+}
+\details{
+This extractor is intended for structural inspection of the fitted model.
+Scalar quantities remain scalar, component-specific parameters are returned as
+vectors, and linked regression blocks are returned as matrices.
+
+For a spliced model, the extractor returns posterior means of the bulk
+mixture parameters together with any threshold, tail-scale, and tail-shape
+terms needed to reconstruct the predictive distribution.
 }
 \examples{
 \dontrun{
@@ -28,4 +38,8 @@ fit <- run_mcmc_bundle_manual(bundle)
 params(fit)
 p <- params(fit)
 }
+}
+\seealso{
+\code{\link{summary.mixgpd_fit}}, \code{\link{predict.mixgpd_fit}},
+\code{\link{ess_summary}}.
 }

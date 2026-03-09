@@ -101,12 +101,12 @@ the RNG implementation supports \code{n = 1}.}
 \item{maxiter}{Integer maximum number of iterations for \code{stats::uniroot}.}
 }
 \value{
-Spliced density/CDF/RNG functions return numeric scalars. \code{qAmorosoMixGpd} returns a numeric
-vector with the same length as \code{p}.
+Spliced density/CDF/RNG functions return numeric scalars. \code{qAmorosoMixGpd()} returns a
+numeric vector with the same length as \code{p}.
 }
 \description{
-This family splices a generalized Pareto distribution (GPD) above a threshold \code{threshold} onto an
-Amoroso mixture bulk. Let \eqn{F_{mix}} denote the Amoroso mixture CDF. The spliced CDF is
+Spliced bulk-tail family formed by attaching a generalized Pareto tail to an Amoroso mixture
+bulk. Let \eqn{F_{mix}} denote the Amoroso mixture CDF. The spliced CDF is
 \eqn{F(x)=F_{mix}(x)} for \eqn{x<threshold} and
 \eqn{F(x)=F_{mix}(threshold) + \left\{1-F_{mix}(threshold)\right\}G(x)} for \eqn{x\ge threshold}, where \eqn{G}
 is the GPD CDF for exceedances above \code{threshold}.
@@ -148,3 +148,11 @@ qAmorosoMixGpd(0.95, w, loc, scale, shape1, shape2,
 replicate(10, rAmorosoMixGpd(1, w, loc, scale, shape1, shape2,
                             threshold, tail_scale, tail_shape))
 }
+\seealso{
+\code{\link[=amoroso_mix]{amoroso_mix()}}, \code{\link[=amoroso_gpd]{amoroso_gpd()}}, \code{\link[=gpd]{gpd()}}, \code{\link[=amoroso_lowercase]{amoroso_lowercase()}}, \code{\link[=dpmgpd]{dpmgpd()}}.
+
+Other amoroso kernel families: 
+\code{\link{amoroso_gpd}},
+\code{\link{amoroso_mix}}
+}
+\concept{amoroso kernel families}

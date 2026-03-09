@@ -49,17 +49,23 @@ the RNG implementation supports \code{n = 1}.}
 \item{maxiter}{Integer maximum number of iterations for \code{stats::uniroot}.}
 }
 \value{
-\code{dInvGauss} returns a numeric scalar density; \code{pInvGauss} returns a numeric scalar CDF;
-\code{rInvGauss} returns one random draw; \code{qInvGauss} returns a numeric quantile.
+\code{dInvGauss()} returns a numeric scalar density, \code{pInvGauss()} returns a numeric scalar
+CDF, \code{rInvGauss()} returns one random draw, and \code{qInvGauss()} returns a numeric quantile.
 }
 \description{
-The inverse Gaussian (also called the Wald distribution) is a positive-support model that is
-right-skewed and often used for waiting times. This package provides NIMBLE-compatible density,
-CDF, and RNG functions under the \code{mean}/\code{shape} parameterization
-(mean \eqn{\mu>0}, shape \eqn{\lambda>0}). A standalone mixture quantile function is computed by
-numerical inversion elsewhere; \code{qInvGauss} inverts the base CDF.
+Scalar inverse Gaussian utilities under the \eqn{(\mu, \lambda)} parameterization, where
+\code{mean = mu > 0} and \code{shape = lambda > 0}. These functions are used directly and as building
+blocks for inverse-Gaussian mixtures and spliced inverse-Gaussian-plus-GPD families.
+}
+\details{
+The density is
+\deqn{
+f(x) = \left(\frac{\lambda}{2 \pi x^3}\right)^{1/2}
+\exp\left\{- \frac{\lambda (x - \mu)^2}{2 \mu^2 x}\right\}, \qquad x > 0.
+}
+
 These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
-For vectorized R usage (including \code{n > 1}), use \code{\link{base_lowercase}}.
+For vectorized R usage, use \code{\link[=base_lowercase]{base_lowercase()}}.
 }
 \section{Functions}{
 \itemize{
@@ -83,3 +89,11 @@ qInvGauss(0.95, mean, shape)
 replicate(10, rInvGauss(1, mean, shape))
 
 }
+\seealso{
+\code{\link[=InvGauss_mix]{InvGauss_mix()}}, \code{\link[=InvGauss_gpd]{InvGauss_gpd()}}, \code{\link[=base_lowercase]{base_lowercase()}}, \code{\link[=build_nimble_bundle]{build_nimble_bundle()}}.
+
+Other base bulk distributions: 
+\code{\link{amoroso}},
+\code{\link{cauchy}}
+}
+\concept{base bulk distributions}

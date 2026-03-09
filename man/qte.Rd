@@ -2,7 +2,7 @@
 % Please edit documentation in R/causal.R
 \name{qte}
 \alias{qte}
-\title{Quantile treatment effects (QTE), marginal over training covariates}
+\title{Quantile treatment effects, marginal over the empirical covariate distribution}
 \usage{
 qte(
   fit,
@@ -35,23 +35,23 @@ highest posterior density intervals.}
 \item{show_progress}{Logical; if TRUE, print step messages and render progress where supported.}
 }
 \value{
-A list with elements \code{fit}, \code{grid} (probabilities), and
-aggregated treated/control prediction objects. \code{fit} is a data frame
-with columns \code{index}, \code{estimate}, \code{lower}, \code{upper}
-and one row per requested quantile index.
+An object of class \code{"causalmixgpd_qte"} containing the
+marginal QTE summary, the probability grid, and the arm-specific predictive
+objects used in the aggregation.
 }
 \description{
-Computes a marginal quantile treatment effect as a contrast of arm-specific
-marginal quantiles:
-\eqn{Q_1^{m}(\tau) - Q_0^{m}(\tau)}.
+\code{qte()} returns the marginal quantile treatment effect implied by the
+causal fit.
 }
 \details{
-For conditional models, each posterior draw induces arm-specific marginal
-predictive distributions by averaging over the empirical covariate
-distribution, then quantiles are taken from those marginal draws.
+The package computes
+\deqn{\mathrm{QTE}(\tau) = Q_1^{m}(\tau) - Q_0^{m}(\tau),}
+where \eqn{Q_a^{m}(\tau)} is the arm-\eqn{a} posterior predictive marginal
+quantile obtained by averaging over the empirical training covariate
+distribution.
 
-For unconditional causal models (\code{X = NULL}), this is computed directly
-from unconditional treated/control outcome predictions.
+For unconditional causal models (\code{X = NULL}), this reduces to a direct
+contrast of the arm-level unconditional predictive distributions.
 }
 \examples{
 \dontrun{
@@ -59,4 +59,8 @@ cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal"
 fit <- run_mcmc_causal(cb, show_progress = FALSE)
 qte(fit, probs = c(0.5, 0.9))
 }
+}
+\seealso{
+\code{\link{qtt}}, \code{\link{cqte}}, \code{\link{ate}},
+\code{\link{predict.causalmixgpd_causal_fit}}.
 }

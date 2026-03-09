@@ -2,7 +2,7 @@
 % Please edit documentation in R/wrappers.R
 \name{mcmc}
 \alias{mcmc}
-\title{Run MCMC from a bundle (short wrapper)}
+\title{Run posterior sampling from a prepared bundle}
 \usage{
 mcmc(b, ...)
 }
@@ -14,8 +14,26 @@ mcmc(b, ...)
 (\code{show_progress}, \code{quiet}).}
 }
 \value{
-A fitted object (\code{"mixgpd_fit"} or \code{"causalmixgpd_causal_fit"}).
+A fitted object of class \code{"mixgpd_fit"} or
+\code{"causalmixgpd_causal_fit"}.
 }
 \description{
-Run MCMC from a bundle (short wrapper)
+\code{mcmc()} is the generic workflow runner. It dispatches to
+\code{\link{run_mcmc_bundle_manual}} for one-arm bundles and to
+\code{\link{run_mcmc_causal}} for causal bundles.
+}
+\details{
+This wrapper is useful when you want a two-stage workflow:
+build first, inspect or modify the bundle, then sample. Named MCMC arguments
+supplied through \code{...} override the settings stored in the bundle before
+execution.
+
+The returned fit represents posterior draws from the finite SB/CRP
+approximation encoded in the bundle. Downstream summaries therefore target
+posterior predictive quantities such as \eqn{f(y \mid x, \mathcal{D})},
+\eqn{F(y \mid x, \mathcal{D})}, and derived treatment-effect functionals.
+}
+\seealso{
+\code{\link{bundle}}, \code{\link{run_mcmc_bundle_manual}},
+\code{\link{run_mcmc_causal}}, \code{\link{predict.mixgpd_fit}}.
 }

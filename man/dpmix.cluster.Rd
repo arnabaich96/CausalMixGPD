@@ -2,7 +2,7 @@
 % Please edit documentation in R/cluster.R
 \name{dpmix.cluster}
 \alias{dpmix.cluster}
-\title{Cluster-only DPM fit (bulk kernel)}
+\title{Fit a clustering-only bulk model}
 \usage{
 dpmix.cluster(
   formula,
@@ -16,19 +16,59 @@ dpmix.cluster(
 \arguments{
 \item{formula}{Model formula. The response must be present in \code{data}.}
 
-\item{data}{Data frame containing response and predictors.}
+\item{data}{Data frame containing the response and optional predictors.}
 
-\item{...}{Additional arguments passed to the internal cluster bundle builder.}
+\item{...}{Additional arguments passed to \code{build_cluster_bundle()}, including kernel settings,
+prior overrides, component counts, and monitoring controls.}
 
-\item{type}{Cluster mode: \code{"weights"}, \code{"param"}, or \code{"both"}.}
+\item{type}{Clustering mode. \code{"weights"} links mixture weights to predictors, \code{"param"} links
+kernel parameters to predictors, and \code{"both"} does both.}
 
-\item{default}{Default mode when \code{type} is omitted.}
+\item{default}{Default mode used when \code{type} is omitted.}
 
-\item{mcmc}{MCMC control list.}
+\item{mcmc}{MCMC control list passed into the cluster bundle.}
 }
 \value{
-A \code{dpmixgpd_cluster_fit} object.
+Object of class \code{dpmixgpd_cluster_fit}.
 }
 \description{
-Fit a clustering-only model from a formula interface.
+Build and fit a Dirichlet-process mixture for clustering without causal estimands or posterior
+prediction for a response surface. This interface focuses on latent partition recovery from a
+formula specification and returns a cluster-fit object that can be summarized, plotted, or
+converted into labels and posterior similarity matrices with \code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}}.
 }
+\details{
+The fitted model targets a latent partition \eqn{z_1, \dots, z_n} with component-specific kernel
+parameters. Depending on \code{type}, predictors can enter through the gating probabilities
+\deqn{
+\Pr(z_i = k \mid x_i) = \pi_k(x_i)
+}
+or through linked kernel parameters for each component. The returned fit stores posterior draws
+of the latent allocations and associated parameters; the representative clustering is extracted
+later by \code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}} using Dahl's least-squares rule.
+
+Use \code{type = "weights"} or \code{type = "both"} only when the formula includes predictors and when an
+explicit number of \code{components} is supplied. Otherwise the builder stops before fitting.
+}
+\seealso{
+\code{\link[=dpmgpd.cluster]{dpmgpd.cluster()}}, \code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}},
+\code{\link[=summary.dpmixgpd_cluster_fit]{summary.dpmixgpd_cluster_fit()}}, \code{\link[=plot.dpmixgpd_cluster_fit]{plot.dpmixgpd_cluster_fit()}},
+\code{\link[=build_nimble_bundle]{build_nimble_bundle()}}, \code{\link[=dpmix]{dpmix()}}.
+
+Other cluster workflow: 
+\code{\link{dpmgpd.cluster}()},
+\code{\link{plot.dpmixgpd_cluster_bundle}()},
+\code{\link{plot.dpmixgpd_cluster_fit}()},
+\code{\link{plot.dpmixgpd_cluster_labels}()},
+\code{\link{plot.dpmixgpd_cluster_psm}()},
+\code{\link{predict.dpmixgpd_cluster_fit}()},
+\code{\link{print.dpmixgpd_cluster_bundle}()},
+\code{\link{print.dpmixgpd_cluster_fit}()},
+\code{\link{print.dpmixgpd_cluster_labels}()},
+\code{\link{print.dpmixgpd_cluster_psm}()},
+\code{\link{summary.dpmixgpd_cluster_bundle}()},
+\code{\link{summary.dpmixgpd_cluster_fit}()},
+\code{\link{summary.dpmixgpd_cluster_labels}()},
+\code{\link{summary.dpmixgpd_cluster_psm}()}
+}
+\concept{cluster workflow}

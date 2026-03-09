@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{print.mixgpd_fit}
 \alias{print.mixgpd_fit}
-\title{Print a MixGPD fitted object}
+\title{Print a one-arm fitted model}
 \usage{
 \method{print}{mixgpd_fit}(x, ...)
 }
@@ -15,7 +15,8 @@
 \code{x} invisibly.
 }
 \description{
-Print a MixGPD fitted object
+\code{print.mixgpd_fit()} gives a compact header for a fitted one-arm model.
+It is meant as a quick identity check rather than a full posterior summary.
 }
 \examples{
 \dontrun{
@@ -26,4 +27,8 @@ bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
 fit <- run_mcmc_bundle_manual(bundle)
 print(fit)
 }
+}
+\seealso{
+\code{\link{summary.mixgpd_fit}}, \code{\link{params}},
+\code{\link{predict.mixgpd_fit}}, \code{\link{allocation}}.
 }

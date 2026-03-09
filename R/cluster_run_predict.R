@@ -83,6 +83,28 @@ dahl_labels <- function(z_draws, psm) {
 
 .cluster_compute_probs <- .cluster_compute_scores
 
+.cluster_check_new_factor_levels <- function(meta, newdata) {
+  xl <- meta$xlevels %||% list()
+  if (!length(xl)) return(invisible(NULL))
+  for (nm in names(xl)) {
+    if (!(nm %in% names(newdata))) next
+    vals <- as.character(newdata[[nm]])
+    vals <- unique(vals[!is.na(vals)])
+    bad <- setdiff(vals, as.character(xl[[nm]]))
+    if (length(bad)) {
+      stop(
+        sprintf(
+          "newdata has unseen factor levels for '%s': %s",
+          nm,
+          paste(bad, collapse = ", ")
+        ),
+        call. = FALSE
+      )
+    }
+  }
+  invisible(NULL)
+}
+
 .cluster_build_design <- function(meta, newdata) {
   if (!is.data.frame(newdata)) newdata <- as.data.frame(newdata)
   response_name <- meta$response %||% "y"
@@ -100,11 +122,17 @@ dahl_labels <- function(z_draws, psm) {
   }
 
   rhs <- stats::delete.response(trm)
-  mf_new <- stats::model.frame(
-    rhs,
-    data = newdata,
-    xlev = meta$xlevels %||% NULL,
-    na.action = stats::na.fail
+  .cluster_check_new_factor_levels(meta = meta, newdata = newdata)
+  mf_new <- tryCatch(
+    stats::model.frame(
+      rhs,
+      data = newdata,
+      xlev = meta$xlevels %||% NULL,
+      na.action = stats::na.fail
+    ),
+    error = function(e) {
+      stop(sprintf("Failed to build model frame for newdata: %s", conditionMessage(e)), call. = FALSE)
+    }
   )
   mm <- stats::model.matrix(rhs, data = mf_new, contrasts.arg = meta$contrasts %||% NULL)
   if ("(Intercept)" %in% colnames(mm)) {
@@ -445,18 +473,47 @@ run_cluster_mcmc <- function(bundle, ...) {
 
 ## S3 -------------------------------------------------------------------------
 
-#' Predict cluster outputs from a cluster fit
+#' Predict labels or similarity matrices from a cluster fit
+#'
+#' Convert posterior draws from a `dpmixgpd_cluster_fit` object into either a representative
+#' clustering or a posterior similarity matrix (PSM). This is the main post-processing step for
+#' the cluster workflow after [dpmix.cluster()] or [dpmgpd.cluster()].
 #'
 #' @param object A fitted cluster object.
-#' @param newdata Optional new data containing response and predictors from the fit formula.
-#' @param type Prediction type: `"label"` or `"psm"`.
+#' @param newdata Optional new data containing the response and predictors required by the original
+#'   formula. New-data prediction is available only for `type = "label"`.
+#' @param type Prediction target: `"label"` for a representative partition or `"psm"` for the
+#'   posterior similarity matrix on the training sample.
 #' @param burnin Number of initial posterior draws to discard.
 #' @param thin Keep every `thin`-th posterior draw.
-#' @param return_scores Logical; if `TRUE` and `type="label"`, include Dahl-cluster
-#'   score matrix in the output.
-#' @param psm_max_n Maximum training sample size allowed for `type="psm"`.
+#' @param return_scores Logical; if `TRUE` and `type = "label"`, include the matrix of Dahl-cluster
+#'   assignment scores.
+#' @param psm_max_n Maximum training sample size allowed for `type = "psm"`.
 #' @param ... Unused.
-#' @return A `dpmixgpd_cluster_labels` or `dpmixgpd_cluster_psm` object.
+#'
+#' @return A `dpmixgpd_cluster_labels` object when `type = "label"` or a
+#'   `dpmixgpd_cluster_psm` object when `type = "psm"`.
+#'
+#' @details
+#' Let \eqn{z_i^{(s)}} denote the latent cluster label for observation \eqn{i} at posterior draw
+#' \eqn{s}. The posterior similarity matrix is
+#' \deqn{
+#' \mathrm{PSM}_{ij} = \Pr(z_i = z_j \mid y) \approx \frac{1}{S} \sum_{s=1}^S I(z_i^{(s)} = z_j^{(s)}).
+#' }
+#' The returned label solution is the Dahl representative partition, obtained by choosing the draw
+#' whose adjacency matrix is closest to the PSM in squared error.
+#'
+#' For `newdata`, the function combines draw-specific component weights and component densities to
+#' produce posterior assignment scores relative to the representative training clusters. A PSM is
+#' not defined for `newdata`, so `type = "psm"` is restricted to the training sample.
+#'
+#' Computing the PSM is \eqn{O(n^2)} in the training sample size, so `psm_max_n` guards against
+#' accidental large matrix allocations.
+#'
+#' @seealso [dpmix.cluster()], [dpmgpd.cluster()], [summary.dpmixgpd_cluster_fit()],
+#'   [plot.dpmixgpd_cluster_fit()], [summary.dpmixgpd_cluster_labels()],
+#'   [summary.dpmixgpd_cluster_psm()].
+#' @family cluster workflow
 #' @export
 predict.dpmixgpd_cluster_fit <- function(object,
                                          newdata = NULL,

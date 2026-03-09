@@ -159,10 +159,7 @@ ramorosogpd(n, loc, scale, shape1, shape2, threshold, tail_scale, tail_shape)
 Numeric vector of densities, probabilities, quantiles, or random variates.
 }
 \description{
-Vectorized R wrappers for Amoroso mixture, Amoroso mixture + GPD, and
-Amoroso + GPD distribution functions. These lowercase versions accept vector
-inputs for the first argument (\code{x}, \code{q}, or \code{p}) and return
-a numeric vector. The \code{r*} functions support \code{n > 1}.
+Vectorized R wrappers for the scalar Amoroso-kernel topics in this file.
 }
 \section{Functions}{
 \itemize{
@@ -203,3 +200,17 @@ damorosomix(c(1, 2, 3), w = w, loc = locs, scale = scls, shape1 = s1, shape2 = s
 ramorosomix(5, w = w, loc = locs, scale = scls, shape1 = s1, shape2 = s2)
 
 }
+\seealso{
+\code{\link[=amoroso_mix]{amoroso_mix()}}, \code{\link[=amoroso_mixgpd]{amoroso_mixgpd()}}, \code{\link[=amoroso_gpd]{amoroso_gpd()}}, \code{\link[=bundle]{bundle()}},
+\code{\link[=get_kernel_registry]{get_kernel_registry()}}.
+
+Other vectorized kernel helpers: 
+\code{\link{base_lowercase}},
+\code{\link{cauchy_mix_lowercase}},
+\code{\link{gamma_lowercase}},
+\code{\link{invgauss_lowercase}},
+\code{\link{laplace_lowercase}},
+\code{\link{lognormal_lowercase}},
+\code{\link{normal_lowercase}}
+}
+\concept{vectorized kernel helpers}

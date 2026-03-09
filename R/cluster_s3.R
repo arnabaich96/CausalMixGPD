@@ -2,9 +2,15 @@
 
 #' Print a cluster bundle
 #'
+#' Compact display for a `dpmixgpd_cluster_bundle` before MCMC is run.
+#'
 #' @param x A cluster bundle.
 #' @param ... Unused.
+#'
 #' @return `x`, invisibly.
+#'
+#' @seealso [dpmix.cluster()], [dpmgpd.cluster()], [summary.dpmixgpd_cluster_bundle()].
+#' @family cluster workflow
 #' @export
 print.dpmixgpd_cluster_bundle <- function(x, ...) {
   stopifnot(inherits(x, "dpmixgpd_cluster_bundle"))
@@ -22,9 +28,17 @@ print.dpmixgpd_cluster_bundle <- function(x, ...) {
 
 #' Summarize a cluster bundle
 #'
+#' Report the modeling choices encoded in a cluster bundle before fitting.
+#'
 #' @param object A cluster bundle.
 #' @param ... Unused.
-#' @return A summary list.
+#'
+#' @return Summary list containing kernel choice, GPD flag, dimensions, component count, and
+#'   monitor configuration.
+#'
+#' @seealso [print.dpmixgpd_cluster_bundle()], [plot.dpmixgpd_cluster_bundle()],
+#'   [predict.dpmixgpd_cluster_fit()].
+#' @family cluster workflow
 #' @export
 summary.dpmixgpd_cluster_bundle <- function(object, ...) {
   stopifnot(inherits(object, "dpmixgpd_cluster_bundle"))
@@ -46,9 +60,15 @@ summary.dpmixgpd_cluster_bundle <- function(object, ...) {
 
 #' Plot a cluster bundle
 #'
+#' Produce a compact graphical summary of the cluster bundle metadata.
+#'
 #' @param x A cluster bundle.
 #' @param ... Unused.
+#'
 #' @return `x`, invisibly.
+#'
+#' @seealso [summary.dpmixgpd_cluster_bundle()], [dpmix.cluster()], [dpmgpd.cluster()].
+#' @family cluster workflow
 #' @export
 plot.dpmixgpd_cluster_bundle <- function(x, ...) {
   stopifnot(inherits(x, "dpmixgpd_cluster_bundle"))
@@ -69,9 +89,16 @@ plot.dpmixgpd_cluster_bundle <- function(x, ...) {
 
 #' Print a cluster fit
 #'
+#' Compact display for a fitted clustering object.
+#'
 #' @param x A cluster fit.
 #' @param ... Unused.
+#'
 #' @return `x`, invisibly.
+#'
+#' @seealso [summary.dpmixgpd_cluster_fit()], [predict.dpmixgpd_cluster_fit()],
+#'   [plot.dpmixgpd_cluster_fit()].
+#' @family cluster workflow
 #' @export
 print.dpmixgpd_cluster_fit <- function(x, ...) {
   stopifnot(inherits(x, "dpmixgpd_cluster_fit"))
@@ -89,11 +116,24 @@ print.dpmixgpd_cluster_fit <- function(x, ...) {
 
 #' Summarize a cluster fit
 #'
+#' Summarize the posterior clustering induced by the Dahl representative partition.
+#'
 #' @param object A cluster fit.
 #' @param burnin Number of initial posterior draws to discard.
 #' @param thin Keep every `thin`-th posterior draw.
 #' @param ... Unused.
-#' @return A summary list.
+#'
+#' @return Summary list with the number of retained clusters, cluster sizes, and the burn-in/thinning
+#'   settings used to construct the summary.
+#'
+#' @details
+#' This summary is based on [predict.dpmixgpd_cluster_fit()] with `type = "label"`. The reported
+#' cluster count \eqn{K^*} is the number of unique labels in the representative partition rather
+#' than the number of components available in the truncated sampler.
+#'
+#' @seealso [predict.dpmixgpd_cluster_fit()], [plot.dpmixgpd_cluster_fit()],
+#'   [summary.dpmixgpd_cluster_labels()].
+#' @family cluster workflow
 #' @export
 summary.dpmixgpd_cluster_fit <- function(object, burnin = NULL, thin = NULL, ...) {
   stopifnot(inherits(object, "dpmixgpd_cluster_fit"))
@@ -112,13 +152,21 @@ summary.dpmixgpd_cluster_fit <- function(object, burnin = NULL, thin = NULL, ...
 
 #' Plot a cluster fit
 #'
+#' Visualize either the posterior similarity matrix, the posterior number of occupied clusters, or
+#' the size distribution of the representative clusters.
+#'
 #' @param x A cluster fit.
 #' @param which Plot type.
 #' @param burnin Number of initial posterior draws to discard.
 #' @param thin Keep every `thin`-th posterior draw.
 #' @param psm_max_n Maximum training sample size allowed for PSM plotting.
 #' @param ... Unused.
+#'
 #' @return Plot output, invisibly.
+#'
+#' @seealso [predict.dpmixgpd_cluster_fit()], [summary.dpmixgpd_cluster_fit()],
+#'   [plot.dpmixgpd_cluster_psm()], [plot.dpmixgpd_cluster_labels()].
+#' @family cluster workflow
 #' @export
 plot.dpmixgpd_cluster_fit <- function(x, which = c("psm", "k", "sizes"), burnin = NULL, thin = NULL, psm_max_n = 2000L, ...) {
   stopifnot(inherits(x, "dpmixgpd_cluster_fit"))
@@ -145,9 +193,16 @@ plot.dpmixgpd_cluster_fit <- function(x, which = c("psm", "k", "sizes"), burnin 
 
 #' Print cluster labels
 #'
+#' Compact display for a representative clustering.
+#'
 #' @param x Cluster labels object.
 #' @param ... Unused.
+#'
 #' @return `x`, invisibly.
+#'
+#' @seealso [predict.dpmixgpd_cluster_fit()], [summary.dpmixgpd_cluster_labels()],
+#'   [plot.dpmixgpd_cluster_labels()].
+#' @family cluster workflow
 #' @export
 print.dpmixgpd_cluster_labels <- function(x, ...) {
   stopifnot(inherits(x, "dpmixgpd_cluster_labels"))
@@ -161,9 +216,21 @@ print.dpmixgpd_cluster_labels <- function(x, ...) {
 
 #' Summarize cluster labels
 #'
+#' Summarize a representative clustering for training data or new observations.
+#'
 #' @param object Cluster labels object.
 #' @param ... Unused.
-#' @return A summary list.
+#'
+#' @return Summary list containing cluster sizes and, when available, assignment-certainty summaries.
+#'
+#' @details
+#' If score or probability matrices are attached, certainty is summarized by the rowwise maxima
+#' \eqn{\max_k p_{ik}}, which quantify how strongly each observation is assigned to its selected
+#' cluster.
+#'
+#' @seealso [predict.dpmixgpd_cluster_fit()], [plot.dpmixgpd_cluster_labels()],
+#'   [summary.dpmixgpd_cluster_fit()].
+#' @family cluster workflow
 #' @export
 summary.dpmixgpd_cluster_labels <- function(object, ...) {
   stopifnot(inherits(object, "dpmixgpd_cluster_labels"))
@@ -183,10 +250,16 @@ summary.dpmixgpd_cluster_labels <- function(object, ...) {
 
 #' Plot cluster labels
 #'
+#' Visualize representative cluster sizes or assignment certainty.
+#'
 #' @param x Cluster labels object.
 #' @param type Plot type.
 #' @param ... Unused.
+#'
 #' @return `x`, invisibly.
+#'
+#' @seealso [summary.dpmixgpd_cluster_labels()], [predict.dpmixgpd_cluster_fit()].
+#' @family cluster workflow
 #' @export
 plot.dpmixgpd_cluster_labels <- function(x, type = c("sizes", "certainty"), ...) {
   stopifnot(inherits(x, "dpmixgpd_cluster_labels"))
@@ -208,9 +281,16 @@ plot.dpmixgpd_cluster_labels <- function(x, type = c("sizes", "certainty"), ...)
 
 #' Print a cluster posterior similarity matrix
 #'
+#' Compact display for a posterior similarity matrix.
+#'
 #' @param x Cluster PSM object.
 #' @param ... Unused.
+#'
 #' @return `x`, invisibly.
+#'
+#' @seealso [predict.dpmixgpd_cluster_fit()], [summary.dpmixgpd_cluster_psm()],
+#'   [plot.dpmixgpd_cluster_psm()].
+#' @family cluster workflow
 #' @export
 print.dpmixgpd_cluster_psm <- function(x, ...) {
   stopifnot(inherits(x, "dpmixgpd_cluster_psm"))
@@ -224,9 +304,20 @@ print.dpmixgpd_cluster_psm <- function(x, ...) {
 
 #' Summarize a cluster posterior similarity matrix
 #'
+#' Summarize pairwise posterior co-clustering probabilities.
+#'
 #' @param object Cluster PSM object.
 #' @param ... Unused.
-#' @return A summary list.
+#'
+#' @return Summary list with matrix size and basic summaries of the similarity entries.
+#'
+#' @details
+#' The diagonal of a posterior similarity matrix is always close to one, while off-diagonal values
+#' near one indicate highly stable co-clustering across retained posterior draws.
+#'
+#' @seealso [predict.dpmixgpd_cluster_fit()], [plot.dpmixgpd_cluster_psm()],
+#'   [summary.dpmixgpd_cluster_fit()].
+#' @family cluster workflow
 #' @export
 summary.dpmixgpd_cluster_psm <- function(object, ...) {
   stopifnot(inherits(object, "dpmixgpd_cluster_psm"))
@@ -245,10 +336,17 @@ summary.dpmixgpd_cluster_psm <- function(object, ...) {
 
 #' Plot a cluster posterior similarity matrix
 #'
+#' Heatmap of pairwise posterior co-clustering probabilities.
+#'
 #' @param x Cluster PSM object.
 #' @param psm_max_n Maximum allowed matrix size for plotting.
 #' @param ... Unused.
+#'
 #' @return `x`, invisibly.
+#'
+#' @seealso [predict.dpmixgpd_cluster_fit()], [summary.dpmixgpd_cluster_psm()],
+#'   [plot.dpmixgpd_cluster_fit()].
+#' @family cluster workflow
 #' @export
 plot.dpmixgpd_cluster_psm <- function(x, psm_max_n = x$psm_max_n %||% 2000L, ...) {
   stopifnot(inherits(x, "dpmixgpd_cluster_psm"))

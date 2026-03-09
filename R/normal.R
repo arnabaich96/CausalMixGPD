@@ -1,11 +1,16 @@
 #' Normal mixture distribution
 #'
-#' A finite mixture of Normal components. Base Normal functions are taken from \pkg{stats}.
-#' Mixture density and CDF are computed by weighted sums. Random generation samples a component
-#' index according to weights and draws from the corresponding component. Quantiles are computed
-#' by numerical inversion of the mixture CDF.
-#' These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
-#' For vectorized R usage (including \code{n > 1}), use \code{\link{normal_lowercase}}.
+#' Finite mixture of normal components for real-valued bulk modeling. This topic provides the
+#' scalar mixture density, CDF, RNG, and quantile functions used by the bulk-only normal kernel in
+#' the package registry.
+#'
+#' With weights \eqn{w_k}, means \eqn{\mu_k}, and standard deviations \eqn{\sigma_k}, the mixture
+#' density is
+#' \deqn{
+#' f(x) = \sum_{k = 1}^K \tilde{w}_k \phi(x \mid \mu_k, \sigma_k^2),
+#' }
+#' where \eqn{\tilde{w}_k = w_k / \sum_j w_j}. These uppercase functions are scalar
+#' NIMBLE-compatible building blocks. For vectorized R usage, use [normal_lowercase()].
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -20,8 +25,12 @@
 #' @param tol Numeric scalar tolerance passed to \code{stats::uniroot}.
 #' @param maxiter Integer maximum number of iterations for \code{stats::uniroot}.
 #'
-#' @return Density/CDF/RNG functions return numeric scalars. \code{qNormMix} returns a numeric vector
-#'   with the same length as \code{p}.
+#' @return Density/CDF/RNG functions return numeric scalars. `qNormMix()` returns a numeric vector
+#'   with the same length as `p`.
+#'
+#' @seealso [normal_mixgpd()], [normal_gpd()], [normal_lowercase()], [build_nimble_bundle()],
+#'   [kernel_support_table()].
+#' @family normal kernel families
 #'
 #' @examples
 #' w <- c(0.60, 0.25, 0.15)
@@ -194,8 +203,20 @@ qNormMix <- function(p, w, mean, sd,
 
 #' Normal mixture with a GPD tail
 #'
-#' Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a Normal mixture bulk.
-#' The bulk probability at the threshold is used to scale the tail so that the overall CDF is proper.
+#' Spliced bulk-tail family formed by attaching a generalized Pareto tail to a normal mixture bulk.
+#' This matches the structure used by the package's normal `mixgpd` kernels.
+#'
+#' If \eqn{F_{mix}} denotes the normal-mixture CDF, the spliced CDF is
+#' \deqn{
+#' F(x) =
+#' \left\{
+#' \begin{array}{ll}
+#' F_{mix}(x), & x < u, \\
+#' F_{mix}(u) + \{1 - F_{mix}(u)\} G(x), & x \ge u,
+#' \end{array}
+#' \right.
+#' }
+#' where `threshold = u` and \eqn{G} is the GPD CDF.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -212,8 +233,11 @@ qNormMix <- function(p, w, mean, sd,
 #' @param tol Numeric scalar tolerance passed to \code{stats::uniroot}.
 #' @param maxiter Integer maximum number of iterations for \code{stats::uniroot}.
 #'
-#' @return Spliced density/CDF/RNG functions return numeric scalars. \code{qNormMixGpd} returns a numeric vector
-#'   with the same length as \code{p}.
+#' @return Spliced density/CDF/RNG functions return numeric scalars. `qNormMixGpd()` returns a
+#'   numeric vector with the same length as `p`.
+#'
+#' @seealso [normal_mix()], [normal_gpd()], [gpd()], [normal_lowercase()], [dpmgpd()].
+#' @family normal kernel families
 #' @examples
 #' w <- c(0.60, 0.25, 0.15)
 #' mean <- c(-1, 0.5, 2.0)
@@ -345,7 +369,8 @@ qNormMixGpd <- function(p, w, mean, sd, threshold, tail_scale, tail_shape,
 
 #' Normal with a GPD tail
 #'
-#' Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a single Normal bulk.
+#' Spliced family obtained by attaching a generalized Pareto tail above `threshold` to a single
+#' normal bulk component.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -360,8 +385,11 @@ qNormMixGpd <- function(p, w, mean, sd, threshold, tail_scale, tail_shape,
 #' @param lower.tail Integer flag \code{0/1}; if \code{1} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Integer flag \code{0/1}; if \code{1}, probabilities are returned on the log scale.
 #'
-#' @return Spliced density/CDF/RNG functions return numeric scalars. \code{qNormGpd} returns a numeric vector
-#'   with the same length as \code{p}.
+#' @return Spliced density/CDF/RNG functions return numeric scalars. `qNormGpd()` returns a numeric
+#'   vector with the same length as `p`.
+#'
+#' @seealso [normal_mix()], [normal_mixgpd()], [gpd()], [normal_lowercase()].
+#' @family normal kernel families
 #' @examples
 #' mean <- 0.5
 #' sd <- 1.0
@@ -494,12 +522,10 @@ qNormGpd <- function(p, mean, sd, threshold, tail_scale, tail_shape,
 # Lowercase vectorized R wrappers for Normal kernels
 # ==========================================================
 
-#' Lowercase vectorized Normal distribution functions
+#' Lowercase vectorized normal distribution functions
 #'
-#' Vectorized R wrappers for Normal mixture, Normal mixture + GPD, and
-#' Normal + GPD distribution functions. These lowercase versions accept vector
-#' inputs for the first argument (\code{x}, \code{q}, or \code{p}) and return
-#' a numeric vector. The \code{r*} functions support \code{n > 1}.
+#' Vectorized R wrappers for the scalar normal-kernel topics in this file. These helpers are meant
+#' for interactive use and examples rather than direct use inside NIMBLE code.
 #'
 #' @param x Numeric vector of quantiles.
 #' @param q Numeric vector of quantiles.
@@ -514,6 +540,9 @@ qNormGpd <- function(p, mean, sd, threshold, tail_scale, tail_shape,
 #' @param tol,maxiter Tolerance and max iterations for numerical inversion.
 #'
 #' @return Numeric vector of densities, probabilities, quantiles, or random variates.
+#'
+#' @seealso [normal_mix()], [normal_mixgpd()], [normal_gpd()], [bundle()], [get_kernel_registry()].
+#' @family vectorized kernel helpers
 #'
 #' @examples
 #' w <- c(0.6, 0.25, 0.15)

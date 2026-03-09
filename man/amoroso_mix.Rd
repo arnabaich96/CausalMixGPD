@@ -60,20 +60,19 @@ the RNG implementation supports \code{n = 1}.}
 \item{maxiter}{Integer maximum number of iterations for \code{stats::uniroot}.}
 }
 \value{
-Mixture density/CDF/RNG functions return numeric scalars. \code{qAmorosoMix} returns a numeric
-vector with the same length as \code{p}.
+Mixture density/CDF/RNG functions return numeric scalars. \code{qAmorosoMix()} returns a
+numeric vector with the same length as \code{p}.
 }
 \description{
-A finite mixture of Amoroso components is often a convenient bulk model when the response is
-positive and right-skewed. These functions evaluate and simulate from
-\eqn{\sum_j w_j f_{Amoroso}(\cdot\mid loc_j, scale_j, shape1_j, shape2_j)}.
+Finite mixture of Amoroso components for flexible positive-support bulk modeling.
 }
 \details{
-The density, CDF, and RNG are implemented as \code{nimbleFunction}s so they can be called from
-NIMBLE models. The quantile function is provided as an R function and is computed by numerical
-inversion of the mixture CDF.
-These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
-For vectorized R usage (including \code{n > 1}), use \code{\link{amoroso_lowercase}}.
+The mixture density is
+\deqn{
+f(x) = \sum_{k = 1}^K \tilde{w}_k f_{Amoroso}(x \mid a_k, \theta_k, \alpha_k, \beta_k),
+}
+with normalized weights \eqn{\tilde{w}_k}. These scalar functions are NIMBLE-compatible; for
+vectorized R usage, use \code{\link[=amoroso_lowercase]{amoroso_lowercase()}}.
 }
 \section{Functions}{
 \itemize{
@@ -99,3 +98,12 @@ qAmorosoMix(0.50, w, loc, scale, shape1, shape2)
 qAmorosoMix(0.95, w, loc, scale, shape1, shape2)
 replicate(10, rAmorosoMix(1, w, loc, scale, shape1, shape2))
 }
+\seealso{
+\code{\link[=amoroso_mixgpd]{amoroso_mixgpd()}}, \code{\link[=amoroso_gpd]{amoroso_gpd()}}, \code{\link[=amoroso_lowercase]{amoroso_lowercase()}},
+\code{\link[=build_nimble_bundle]{build_nimble_bundle()}}, \code{\link[=kernel_support_table]{kernel_support_table()}}.
+
+Other amoroso kernel families: 
+\code{\link{amoroso_gpd}},
+\code{\link{amoroso_mixgpd}}
+}
+\concept{amoroso kernel families}

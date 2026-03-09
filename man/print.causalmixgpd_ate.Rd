@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{print.causalmixgpd_ate}
 \alias{print.causalmixgpd_ate}
-\title{Print an ATE object}
+\title{Print an ATE-style effect object}
 \usage{
 \method{print}{causalmixgpd_ate}(x, digits = 3, max_rows = 6, ...)
 }
@@ -19,9 +19,9 @@
 The object \code{x}, invisibly.
 }
 \description{
-User-facing print method for \code{"causalmixgpd_ate"} objects produced by \code{ate()}.
-Displays a compact summary: prediction points, credible level, and the first
-few ATE estimates.
+\code{print.causalmixgpd_ate()} prints a compact summary for objects
+produced by \code{\link{ate}}, \code{\link{att}}, \code{\link{cate}}, or
+\code{\link{ate_rmean}}.
 }
 \examples{
 \dontrun{
@@ -30,4 +30,9 @@ fit <- run_mcmc_causal(cb, show_progress = FALSE)
 a <- ate(fit, interval = "credible")
 print(a)
 }
+}
+\seealso{
+\code{\link{summary.causalmixgpd_ate}},
+\code{\link{plot.causalmixgpd_ate}}, \code{\link{ate}},
+\code{\link{cate}}.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{fitted.mixgpd_fit}
 \alias{fitted.mixgpd_fit}
-\title{Fitted values and residuals for a MixGPD fit}
+\title{Fitted values on the training design}
 \usage{
 \method{fitted}{mixgpd_fit}(
   object,
@@ -32,15 +32,20 @@ highest posterior density intervals.}
 \item{...}{Unused.}
 }
 \value{
-A data frame with columns:
-\code{fit} (point estimates), \code{lower} (lower credible bound),
-\code{upper} (upper credible bound), and \code{residuals} (y - fit).
+A data frame with columns for fitted values, optional intervals, and
+residuals computed on the training sample.
 }
 \description{
-Computes fitted values and residuals on the original training data for
-\strong{conditional (covariate) models only}. Returns a data frame with point
-estimates, credible intervals, and residuals. Not supported for unconditional
-models (no covariates); use \code{predict()} for predictions in that case.
+\code{fitted.mixgpd_fit()} is a thin training-data wrapper around
+\code{\link{predict.mixgpd_fit}} for conditional models.
+}
+\details{
+The method returns posterior predictive fitted values on the observed design
+matrix. It is available only when the fitted model stored covariates.
+
+Use \code{type = "location"} to retrieve both posterior predictive means and
+medians side by side. For unconditional models, use
+\code{\link{predict.mixgpd_fit}} directly.
 }
 \examples{
 \dontrun{
@@ -56,4 +61,8 @@ fitted(fit, level = 0.90)
 fitted(fit, interval = "hpd")  # HPD intervals
 fitted(fit, interval = NULL)   # No intervals
 }
+}
+\seealso{
+\code{\link{predict.mixgpd_fit}}, \code{\link{residuals.mixgpd_fit}},
+\code{\link{plot.mixgpd_fitted}}.
 }

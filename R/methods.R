@@ -4,17 +4,18 @@
 
 
 
-#' Print a causalmixgpd bundle
+#' Print a one-arm workflow bundle
 #'
-#' User-facing print method for pre-run bundles produced by \code{build_nimble_bundle()}.
-#' This prints a compact description of the model structure (backend/kernel/components),
-#' whether covariates are used, and whether a GPD tail is enabled.
+#' \code{print.causalmixgpd_bundle()} gives a compact structural summary of the
+#' pre-run bundle created by \code{\link{build_nimble_bundle}}.
 #'
 #' @param x A \code{"causalmixgpd_bundle"} object.
 #' @param code Logical; if TRUE, print the generated NIMBLE model code.
 #' @param max_code_lines Integer; maximum number of code lines to print when \code{code=TRUE}.
 #' @param ... Unused.
 #' @return The object \code{x}, invisibly.
+#' @seealso \code{\link{summary.causalmixgpd_bundle}}, \code{\link{mcmc}},
+#'   \code{\link{run_mcmc_bundle_manual}}.
 #' @examples
 #' \dontrun{
 #' y <- abs(stats::rnorm(50)) + 0.1
@@ -113,9 +114,10 @@ print.causalmixgpd_bundle <- function(x, code = FALSE, max_code_lines = 200L, ..
   invisible(x)
 }
 
-#' Print a causal bundle
+#' Print a causal workflow bundle
 #'
-#' User-facing print method for causal bundles produced by \code{build_causal_bundle()}.
+#' \code{print.causalmixgpd_causal_bundle()} gives a compact structural summary
+#' of the pre-run causal bundle created by \code{\link{build_causal_bundle}}.
 #'
 #' @param x A \code{"causalmixgpd_causal_bundle"} object.
 #' @param code Logical; if TRUE, print generated NIMBLE code for each block.
@@ -123,6 +125,8 @@ print.causalmixgpd_bundle <- function(x, code = FALSE, max_code_lines = 200L, ..
 #' @param ... Unused.
 #' @importFrom utils capture.output
 #' @return The input object (invisibly).
+#' @seealso \code{\link{summary.causalmixgpd_causal_bundle}},
+#'   \code{\link{run_mcmc_causal}}, \code{\link{ate}}, \code{\link{qte}}.
 #' @examples
 #' \dontrun{
 #' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
@@ -220,15 +224,18 @@ print.causalmixgpd_causal_bundle <- function(x, code = FALSE, max_code_lines = 2
   invisible(x)
 }
 
-#' Summarize a causal bundle
+#' Summarize a causal workflow bundle
 #'
-#' User-facing summary for causal bundles produced by \code{build_causal_bundle()}.
+#' \code{summary.causalmixgpd_causal_bundle()} is the bundle-level validation
+#' checkpoint for the causal workflow.
 #'
 #' @param object A \code{"causalmixgpd_causal_bundle"} object.
 #' @param code Logical; if TRUE, print generated NIMBLE code for each block.
 #' @param max_code_lines Integer; maximum number of code lines to print when \code{code=TRUE}.
 #' @param ... Unused.
 #' @return The input object (invisibly).
+#' @seealso \code{\link{print.causalmixgpd_causal_bundle}},
+#'   \code{\link{run_mcmc_causal}}.
 #' @examples
 #' \dontrun{
 #' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
@@ -298,11 +305,17 @@ summary.causalmixgpd_ps_bundle <- function(object, code = FALSE, max_code_lines 
   invisible(object)
 }
 
-#' Print a causal fit
+#' Print a fitted causal model
+#'
+#' \code{print.causalmixgpd_causal_fit()} provides a compact overview of the
+#' fitted treated/control outcome blocks and the PS component when present.
 #'
 #' @param x A \code{"causalmixgpd_causal_fit"} object.
 #' @param ... Unused.
 #' @return The input object (invisibly).
+#' @seealso \code{\link{summary.causalmixgpd_causal_fit}},
+#'   \code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
+#'   \code{\link{qte}}.
 #' @export
 print.causalmixgpd_causal_fit <- function(x, ...) {
   stopifnot(inherits(x, "causalmixgpd_causal_fit"))
@@ -330,11 +343,17 @@ print.causalmixgpd_causal_fit <- function(x, ...) {
   invisible(x)
 }
 
-#' Summarize a causal fit
+#' Summarize a fitted causal model
+#'
+#' \code{summary.causalmixgpd_causal_fit()} routes the user to the fitted PS
+#' block, treated/control fits, and downstream prediction/effect methods.
 #'
 #' @param object A \code{"causalmixgpd_causal_fit"} object.
 #' @param ... Unused.
 #' @return The input object (invisibly).
+#' @seealso \code{\link{print.causalmixgpd_causal_fit}},
+#'   \code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
+#'   \code{\link{qte}}, \code{\link{cate}}, \code{\link{cqte}}.
 #' @export
 summary.causalmixgpd_causal_fit <- function(object, ...) {
   stopifnot(inherits(object, "causalmixgpd_causal_fit"))
@@ -378,13 +397,18 @@ summary.causalmixgpd_ps_fit <- function(object, ...) {
   invisible(object)
 }
 
-#' Plot a causal fit
+#' Plot the treated and control outcome fits from a causal model
+#'
+#' \code{plot.causalmixgpd_causal_fit()} is a convenience router to the
+#' underlying one-arm diagnostic plots for the treated and control fits.
 #'
 #' @param x A \code{"causalmixgpd_causal_fit"} object.
 #' @param arm Integer or character; \code{1} or \code{"treated"} for treatment,
 #'   \code{0} or \code{"control"} for control.
 #' @param ... Additional arguments forwarded to the underlying outcome plot method.
 #' @return The result of the underlying plot call (invisibly).
+#' @seealso \code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
+#'   \code{\link{qte}}, \code{\link{plot.mixgpd_fit}}.
 #' @export
 plot.causalmixgpd_causal_fit <- function(x, arm = "both", ...) {
   stopifnot(inherits(x, "causalmixgpd_causal_fit"))
@@ -430,19 +454,28 @@ plot.causalmixgpd_causal_fit <- function(x, arm = "both", ...) {
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 
 
-#' Summarize a causalmixgpd bundle
+#' Summarize a one-arm workflow bundle
 #'
-#' User-facing summary for pre-run bundles produced by \code{build_nimble_bundle()}.
-#' This prints:
+#' \code{summary.causalmixgpd_bundle()} prints the structural contents of a
+#' bundle before MCMC is run.
+#'
+#' @details
+#' The summary is meant for workflow validation rather than inference. It shows:
 #' \itemize{
-#'   \item meta information (backend, kernel, components, N, covariates, GPD flag)
-#'   \item a readable prior/parameter table derived from \code{spec$plan}
-#'   \item monitor set overview
+#'   \item the model metadata (backend, kernel, components, covariates, GPD flag),
+#'   \item the prior/parameter table derived from \code{spec$plan},
+#'   \item the nodes that will be monitored during MCMC.
 #' }
+#'
+#' This is the recommended checkpoint after \code{\link{build_nimble_bundle}}
+#' and before \code{\link{run_mcmc_bundle_manual}}.
 #'
 #' @param object A \code{"causalmixgpd_bundle"} object.
 #' @param ... Unused.
-#' @return An invisible list with elements \code{meta}, \code{priors}, \code{monitors}.
+#' @return An invisible list with elements \code{meta}, \code{priors}, and
+#'   \code{monitors}.
+#' @seealso \code{\link{build_nimble_bundle}}, \code{\link{print.causalmixgpd_bundle}},
+#'   \code{\link{run_mcmc_bundle_manual}}.
 #' @examples
 #' \dontrun{
 #' y <- abs(stats::rnorm(50)) + 0.1
@@ -535,11 +568,16 @@ summary.causalmixgpd_bundle <- function(object, ...) {
 # Public S3 generics (export in your NAMESPACE if packaging)
 # ============================================================
 
-#' Print a MixGPD fitted object
+#' Print a one-arm fitted model
+#'
+#' \code{print.mixgpd_fit()} gives a compact header for a fitted one-arm model.
+#' It is meant as a quick identity check rather than a full posterior summary.
 #'
 #' @param x A fitted object of class \code{"mixgpd_fit"}.
 #' @param ... Unused.
 #' @return \code{x} invisibly.
+#' @seealso \code{\link{summary.mixgpd_fit}}, \code{\link{params}},
+#'   \code{\link{predict.mixgpd_fit}}, \code{\link{allocation}}.
 #' @examples
 #' \dontrun{
 #' y <- abs(stats::rnorm(50)) + 0.1
@@ -557,14 +595,26 @@ print.mixgpd_fit <- function(x, ...) {
   invisible(x)
 }
 
-#' Extract posterior mean parameters in original form
+#' Extract posterior mean parameters in natural shape
 #'
-#' Returns posterior means reshaped to their natural dimensions (scalars, vectors,
-#' or matrices). Intended as a lightweight extractor for model parameters.
+#' \code{params()} reshapes posterior mean summaries back into the parameter
+#' layout implied by the fitted model specification.
+#'
+#' @details
+#' This extractor is intended for structural inspection of the fitted model.
+#' Scalar quantities remain scalar, component-specific parameters are returned as
+#' vectors, and linked regression blocks are returned as matrices.
+#'
+#' For a spliced model, the extractor returns posterior means of the bulk
+#' mixture parameters together with any threshold, tail-scale, and tail-shape
+#' terms needed to reconstruct the predictive distribution.
 #'
 #' @param object A fitted object of class \code{"mixgpd_fit"}.
 #' @param ... Unused.
-#' @return An object of class \code{"mixgpd_params"} (a named list).
+#' @return An object of class \code{"mixgpd_params"} (a named list). For
+#'   causal fits, \code{params()} returns a treated/control pair.
+#' @seealso \code{\link{summary.mixgpd_fit}}, \code{\link{predict.mixgpd_fit}},
+#'   \code{\link{ess_summary}}.
 #' @examples
 #' \dontrun{
 #' y <- abs(stats::rnorm(50)) + 0.1
@@ -797,13 +847,27 @@ print.mixgpd_params_pair <- function(x, digits = 4, ...) {
   invisible(x)
 }
 
-#' Summarize a MixGPD fitted object
+#' Summarize posterior draws from a one-arm fitted model
+#'
+#' \code{summary.mixgpd_fit()} computes posterior summaries for monitored model
+#' parameters.
+#'
+#' @details
+#' The returned table is a parameter-level summary of the posterior draws, not a
+#' predictive summary. Use \code{\link{predict.mixgpd_fit}} for posterior
+#' predictive quantities such as densities, survival probabilities, quantiles,
+#' and means.
+#'
+#' The summary respects the stored truncation metadata and reports WAIC if it
+#' was requested during MCMC.
 #'
 #' @param object A fitted object of class \code{"mixgpd_fit"}.
 #' @param pars Optional character vector of parameters to summarize. If NULL, summarize all (excluding v's).
 #' @param probs Numeric vector of quantiles to report.
 #' @param ... Unused.
 #' @return An object of class \code{"mixgpd_summary"}.
+#' @seealso \code{\link{print.mixgpd_fit}}, \code{\link{params}},
+#'   \code{\link{predict.mixgpd_fit}}, \code{\link{ess_summary}}.
 #' @examples
 #' \dontrun{
 #' y <- abs(stats::rnorm(50)) + 0.1
@@ -958,11 +1022,15 @@ print.mixgpd_summary <- function(x, digits = 3, max_rows = 60, ...) {
 
 
 
-#' Effective Sample Size Summary (ESS/sec)
+#' Effective sample size summaries for fitted models
 #'
-#' Computes per-parameter effective sample size (ESS) and ESS-per-second using
-#' posterior draws from a fitted object. For causal fits, summaries are returned
-#' for both outcome arms and tagged by arm.
+#' \code{ess_summary()} reports effective sample size diagnostics for posterior
+#' draws, optionally scaled by wall-clock time.
+#'
+#' @details
+#' This is a convergence and efficiency diagnostic, not a model summary. For
+#' causal fits the function evaluates each outcome arm separately and tags the
+#' rows accordingly.
 #'
 #' @param fit A \code{"mixgpd_fit"} or \code{"causalmixgpd_causal_fit"} object.
 #' @param params Optional character vector of parameter names/patterns. If
@@ -974,6 +1042,8 @@ print.mixgpd_summary <- function(x, digits = 3, max_rows = 60, ...) {
 #' @param ... Unused.
 #' @return Object of class \code{"mixgpd_ess_summary"} with elements
 #'   \code{table}, \code{overall}, and \code{meta}.
+#' @seealso \code{\link{summary.mixgpd_fit}}, \code{\link{plot.mixgpd_fit}},
+#'   \code{\link{params}}.
 #' @export
 ess_summary <- function(fit, params = NULL, per_chain = TRUE, wall_time = NULL, robust = TRUE, ...) {
   `%||%` <- function(a, b) if (!is.null(a)) a else b
@@ -1328,19 +1398,26 @@ plot.mixgpd_fit <- function(x,
 
 
 
-#' Predict from a MixGPD fit
+#' Posterior predictive summaries from a fitted one-arm model
 #'
-#' This provides a stable interface for distributional predictions.
-#' The default implementation supports:
-#' - \code{type="density"} using \code{y}
-#' - \code{type="survival"} using \code{y}
-#' - \code{type="quantile"} using \code{p}
-#' - \code{type="sample"} (posterior predictive draws)
-#' - \code{type="mean"} (posterior predictive mean)
-#' - \code{type="rmean"} (restricted mean with finite cutoff)
+#' \code{predict.mixgpd_fit()} is the central distributional prediction method
+#' for fitted one-arm models.
 #'
-#' If your object stores dedicated predictive machinery, you can keep this signature
-#' and swap the internals without breaking user code.
+#' @details
+#' The method works with posterior predictive functionals rather than raw model
+#' parameters. Supported output types include:
+#' \itemize{
+#'   \item \code{"density"} for \eqn{f(y \mid x, \mathcal{D})},
+#'   \item \code{"survival"} for \eqn{S(y \mid x, \mathcal{D}) = 1 - F(y \mid x, \mathcal{D})},
+#'   \item \code{"quantile"} for \eqn{Q(\tau \mid x, \mathcal{D})},
+#'   \item \code{"mean"} for \eqn{E(Y \mid x, \mathcal{D})},
+#'   \item \code{"rmean"} for \eqn{E\{\min(Y, c) \mid x, \mathcal{D}\}},
+#'   \item \code{"sample"} and \code{"fit"} for draw-level predictive output.
+#' }
+#'
+#' For spliced models these predictions integrate over both the DPM bulk and
+#' the GPD tail. When \code{type = "mean"}, the function averages conditional
+#' means over posterior draws, so the result is a Bayesian predictive mean.
 #'
 #' @details
 #' The \code{type="mean"} option computes the posterior predictive mean by:
@@ -1402,6 +1479,8 @@ plot.mixgpd_fit <- function(x,
 #'     \item \code{lower}, \code{upper}: reserved for backward compatibility (typically \code{NULL}).
 #'     \item \code{type}, \code{grid}: metadata.
 #'   }
+#' @seealso \code{\link{summary.mixgpd_fit}}, \code{\link{fitted.mixgpd_fit}},
+#'   \code{\link{residuals.mixgpd_fit}}, \code{\link{predict.causalmixgpd_causal_fit}}.
 #' @examples
 #' \dontrun{
 #' y <- abs(stats::rnorm(50)) + 0.1
@@ -1586,12 +1665,18 @@ predict.mixgpd_fit <- function(object,
 }
 
 
-#' Fitted values and residuals for a MixGPD fit
+#' Fitted values on the training design
 #'
-#' Computes fitted values and residuals on the original training data for
-#' \strong{conditional (covariate) models only}. Returns a data frame with point
-#' estimates, credible intervals, and residuals. Not supported for unconditional
-#' models (no covariates); use \code{predict()} for predictions in that case.
+#' \code{fitted.mixgpd_fit()} is a thin training-data wrapper around
+#' \code{\link{predict.mixgpd_fit}} for conditional models.
+#'
+#' @details
+#' The method returns posterior predictive fitted values on the observed design
+#' matrix. It is available only when the fitted model stored covariates.
+#'
+#' Use \code{type = "location"} to retrieve both posterior predictive means and
+#' medians side by side. For unconditional models, use
+#' \code{\link{predict.mixgpd_fit}} directly.
 #'
 #' @param object A fitted object of class \code{"mixgpd_fit"} (must have covariates).
 #' @param type Which fitted location to return: mean, median, quantile, or both (\code{"location"}).
@@ -1602,9 +1687,10 @@ predict.mixgpd_fit <- function(object,
 #'   highest posterior density intervals.
 #' @param seed Random seed used for deterministic fitted values.
 #' @param ... Unused.
-#' @return A data frame with columns:
-#'   \code{fit} (point estimates), \code{lower} (lower credible bound),
-#'   \code{upper} (upper credible bound), and \code{residuals} (y - fit).
+#' @return A data frame with columns for fitted values, optional intervals, and
+#'   residuals computed on the training sample.
+#' @seealso \code{\link{predict.mixgpd_fit}}, \code{\link{residuals.mixgpd_fit}},
+#'   \code{\link{plot.mixgpd_fitted}}.
 #' @examples
 #' \dontrun{
 #' # Conditional model (with covariates X)
@@ -1718,15 +1804,19 @@ fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median", "qu
   return(result)
 }
 
-#' Residuals for a MixGPD fit
+#' Residual diagnostics on the training design
 #'
-#' Returns residuals aligned with the training data for \strong{conditional
-#' (covariate) models only}. Not supported for unconditional models (no
-#' covariates); use \code{predict()} for predictions in that case. For
-#' \code{type = "raw"}, this uses fitted means. For \code{type = "pit"}, this
-#' returns approximate PIT values via the predictive survival function. The
-#' plug-in PIT uses the posterior mean CDF, while the Bayesian PIT modes use
-#' draw-wise CDFs (averaged or sampled).
+#' \code{residuals.mixgpd_fit()} computes residual diagnostics for conditional
+#' fits on the original training data.
+#'
+#' @details
+#' Raw residuals are based on posterior predictive fitted means or medians.
+#' PIT residuals instead assess calibration through the posterior predictive CDF.
+#' The plug-in PIT uses a posterior mean CDF, while the Bayesian PIT variants
+#' work draw by draw.
+#'
+#' This method is not available for unconditional models because no training
+#' design matrix is stored for observation-specific fitted values.
 #'
 #' @param object A fitted object of class \code{"mixgpd_fit"} (must have covariates).
 #' @param type Residual type: \code{"raw"} or \code{"pit"}.
@@ -1754,7 +1844,10 @@ fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median", "qu
 #' pit_bayes_draw <- residuals(fit, type = "pit", pit = "bayes_draw", pit_seed = 1L)
 #' attr(pit_bayes_draw, "pit_diagnostics")
 #' }
-#' @return Numeric vector of residuals with length equal to the training sample size.
+#' @return Numeric vector of residuals with length equal to the training sample
+#'   size. PIT variants attach diagnostic metadata as attributes.
+#' @seealso \code{\link{fitted.mixgpd_fit}}, \code{\link{predict.mixgpd_fit}},
+#'   \code{\link{plot.mixgpd_fitted}}.
 #' @export
 residuals.mixgpd_fit <- function(object,
                                  type = c("raw", "pit"),
@@ -2272,17 +2365,19 @@ plot.causalmixgpd_causal_predict <- function(x, y = NULL, ...) {
   list(short = "ATE", long = "Average Treatment Effect")
 }
 
-#' Print a QTE object
+#' Print a QTE-style effect object
 #'
-#' User-facing print method for \code{"causalmixgpd_qte"} objects produced by \code{qte()}.
-#' Displays a compact summary: prediction points, quantile grid, credible level,
-#' and the first few rows of QTE estimates.
+#' \code{print.causalmixgpd_qte()} prints a compact summary for objects produced
+#' by \code{\link{qte}}, \code{\link{qtt}}, or \code{\link{cqte}}.
 #'
 #' @param x A \code{"causalmixgpd_qte"} object from \code{qte()}.
 #' @param digits Number of digits to display.
 #' @param max_rows Maximum number of estimate rows to display.
 #' @param ... Unused.
 #' @return The object \code{x}, invisibly.
+#' @seealso \code{\link{summary.causalmixgpd_qte}},
+#'   \code{\link{plot.causalmixgpd_qte}}, \code{\link{qte}},
+#'   \code{\link{cqte}}.
 #' @examples
 #' \dontrun{
 #' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
@@ -2390,17 +2485,20 @@ print.causalmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
   invisible(x)
 }
 
-#' Print an ATE object
+#' Print an ATE-style effect object
 #'
-#' User-facing print method for \code{"causalmixgpd_ate"} objects produced by \code{ate()}.
-#' Displays a compact summary: prediction points, credible level, and the first
-#' few ATE estimates.
+#' \code{print.causalmixgpd_ate()} prints a compact summary for objects
+#' produced by \code{\link{ate}}, \code{\link{att}}, \code{\link{cate}}, or
+#' \code{\link{ate_rmean}}.
 #'
 #' @param x A \code{"causalmixgpd_ate"} object from \code{ate()}.
 #' @param digits Number of digits to display.
 #' @param max_rows Maximum number of estimate rows to display.
 #' @param ... Unused.
 #' @return The object \code{x}, invisibly.
+#' @seealso \code{\link{summary.causalmixgpd_ate}},
+#'   \code{\link{plot.causalmixgpd_ate}}, \code{\link{ate}},
+#'   \code{\link{cate}}.
 #' @examples
 #' \dontrun{
 #' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
@@ -2512,14 +2610,17 @@ print.causalmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
   invisible(x)
 }
 
-#' Summarize a QTE object
+#' Summarize a QTE-style effect object
 #'
-#' Returns a structured summary of QTE results for further analysis or display.
-#' Includes overall statistics, per-quantile summaries, and metadata.
+#' \code{summary.causalmixgpd_qte()} converts QTE, QTT, or CQTE output into a
+#' tabular summary suitable for reporting.
 #'
 #' @param object A \code{"causalmixgpd_qte"} object from \code{qte()}.
 #' @param ... Unused.
 #' @return An object of class \code{"summary.causalmixgpd_qte"} containing summary statistics.
+#' @seealso \code{\link{print.causalmixgpd_qte}},
+#'   \code{\link{plot.causalmixgpd_qte}}, \code{\link{qte}},
+#'   \code{\link{cqte}}.
 #' @examples
 #' \dontrun{
 #' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
@@ -2790,14 +2891,17 @@ print.summary.causalmixgpd_qte <- function(x, digits = 3, ...) {
   invisible(x)
 }
 
-#' Summarize an ATE object
+#' Summarize an ATE-style effect object
 #'
-#' Returns a structured summary of ATE results for further analysis or display.
-#' Includes overall statistics and metadata.
+#' \code{summary.causalmixgpd_ate()} converts ATE, ATT, CATE, or restricted-mean
+#' output into a tabular summary suitable for reporting.
 #'
 #' @param object A \code{"causalmixgpd_ate"} object from \code{ate()}.
 #' @param ... Unused.
 #' @return An object of class \code{"summary.causalmixgpd_ate"} containing summary statistics.
+#' @seealso \code{\link{print.causalmixgpd_ate}},
+#'   \code{\link{plot.causalmixgpd_ate}}, \code{\link{ate}},
+#'   \code{\link{cate}}.
 #' @examples
 #' \dontrun{
 #' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal", components = 6)
@@ -3013,15 +3117,16 @@ print.summary.causalmixgpd_ate <- function(x, digits = 3, ...) {
   invisible(x)
 }
 
-#' Plot QTE results
+#' Plot QTE-style effect summaries
 #'
-#' Generates visualizations for quantile treatment effects. The \code{type} parameter
-#' controls the plot style:
+#' \code{plot.causalmixgpd_qte()} visualizes objects returned by
+#' \code{\link{qte}}, \code{\link{qtt}}, and \code{\link{cqte}}. The
+#' \code{type} parameter controls the plot style:
 #' \itemize{
 #'   \item \code{"both"} (default): Returns a list with both \code{trt_control} (treated vs
 #'     control quantile curves) and \code{treatment_effect} (QTE curve) plots
-#'   \item \code{"effect"}: QTE curve vs quantile levels (\code{probs}) with CI ribbon
-#'   \item \code{"arms"}: Treated and control quantile curves vs \code{probs}, with CI ribbons
+#'   \item \code{"effect"}: QTE curve vs quantile levels (\code{probs}) with pointwise CI error bars
+#'   \item \code{"arms"}: Treated and control quantile curves vs \code{probs}, with pointwise CI error bars
 #' }
 #'
 #' @param x Object of class \code{causalmixgpd_qte}.
@@ -3036,6 +3141,8 @@ print.summary.causalmixgpd_ate <- function(x, digits = 3, ...) {
 #' @return A list of ggplot objects with elements \code{trt_control} and \code{treatment_effect}
 #'   (if \code{type="both"}), or a single ggplot object (if \code{type} is \code{"effect"} or
 #'   \code{"arms"}).
+#' @seealso \code{\link{qte}}, \code{\link{cqte}},
+#'   \code{\link{summary.causalmixgpd_qte}}.
 #' @examples
 #' \dontrun{
 #' qte_result <- cqte(fit, probs = c(0.1, 0.5, 0.9), newdata = X_new)
@@ -3105,6 +3212,18 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
   }
 
   pal <- .plot_palette(8L)
+  .errorbar_width <- function(x_vals) {
+    x_vals <- sort(unique(as.numeric(x_vals[is.finite(x_vals)])))
+    if (length(x_vals) <= 1L) {
+      return(0.02)
+    }
+    gaps <- diff(x_vals)
+    gaps <- gaps[is.finite(gaps) & gaps > 0]
+    if (!length(gaps)) {
+      return(0.02)
+    }
+    min(gaps) * 0.2
+  }
 
   # Build arms plot (treated vs control)
   .build_arms_plot <- function() {
@@ -3133,8 +3252,12 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
           fill = "Arm"
         )
       if (any(is.finite(df_tc$lower)) && any(is.finite(df_tc$upper))) {
-        p <- p + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
-                                      alpha = 0.2, color = NA)
+        err_width <- .errorbar_width(df_tc$index)
+        p <- p + ggplot2::geom_errorbar(
+          ggplot2::aes(ymin = lower, ymax = upper),
+          width = err_width,
+          alpha = 0.8
+        )
       }
       return(p)
     }
@@ -3152,6 +3275,7 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
 
     p <- ggplot2::ggplot(df_tc, ggplot2::aes(x = ps, y = estimate, color = group, fill = group)) +
       ggplot2::geom_line(linewidth = 0.8) +
+      ggplot2::geom_point(size = 2) +
       ggplot2::scale_color_manual(values = pal[1:2]) +
       ggplot2::scale_fill_manual(values = pal[1:2]) +
       .plot_theme() +
@@ -3163,8 +3287,12 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
     }
 
     if (any(is.finite(df_tc$lower)) && any(is.finite(df_tc$upper))) {
-      p <- p + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
-                                    alpha = 0.2, color = NA)
+      err_width <- .errorbar_width(df_tc$ps)
+      p <- p + ggplot2::geom_errorbar(
+        ggplot2::aes(ymin = lower, ymax = upper),
+        width = err_width,
+        alpha = 0.8
+      )
     }
     p
   }
@@ -3221,8 +3349,13 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
         .plot_theme() +
         ggplot2::labs(x = "Quantile level (\u03C4)", y = lbl$long, title = lbl$short)
       if (any(is.finite(df_te$lower)) && any(is.finite(df_te$upper))) {
-        p <- p + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
-                                      alpha = 0.2, fill = pal[5], color = NA)
+        err_width <- .errorbar_width(df_te$index)
+        p <- p + ggplot2::geom_errorbar(
+          ggplot2::aes(ymin = lower, ymax = upper),
+          width = err_width,
+          color = pal[7],
+          alpha = 0.8
+        )
       }
       return(p)
     }
@@ -3240,6 +3373,7 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
 
     p <- ggplot2::ggplot(df_te, ggplot2::aes(x = ps, y = estimate)) +
       ggplot2::geom_line(color = pal[7], linewidth = 0.8) +
+      ggplot2::geom_point(color = pal[7], size = 2) +
       ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray50", linewidth = 0.5) +
       .plot_theme() +
       ggplot2::labs(x = ax$label, y = lbl$long, title = lbl$short)
@@ -3249,8 +3383,13 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
     }
 
     if (any(is.finite(df_te$lower)) && any(is.finite(df_te$upper))) {
-      p <- p + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
-                                    alpha = 0.2, fill = pal[5], color = NA)
+      err_width <- .errorbar_width(df_te$ps)
+      p <- p + ggplot2::geom_errorbar(
+        ggplot2::aes(ymin = lower, ymax = upper),
+        width = err_width,
+        color = pal[7],
+        alpha = 0.8
+      )
     }
     p
   }
@@ -3282,10 +3421,11 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
   result
 }
 
-#' Plot ATE results
+#' Plot ATE-style effect summaries
 #'
-#' Generates visualizations for average treatment effects. The \code{type} parameter
-#' controls the plot style:
+#' \code{plot.causalmixgpd_ate()} visualizes objects returned by
+#' \code{\link{ate}}, \code{\link{att}}, \code{\link{cate}}, and
+#' \code{\link{ate_rmean}}. The \code{type} parameter controls the plot style:
 #' \itemize{
 #'   \item \code{"both"} (default): Returns a list with both \code{trt_control} (treated vs
 #'     control means) and \code{treatment_effect} (ATE curve) plots
@@ -3303,6 +3443,8 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
 #' @return A list of ggplot objects with elements \code{trt_control} and \code{treatment_effect}
 #'   (if \code{type="both"}), or a single ggplot object (if \code{type} is \code{"effect"} or
 #'   \code{"arms"}).
+#' @seealso \code{\link{ate}}, \code{\link{cate}},
+#'   \code{\link{summary.causalmixgpd_ate}}.
 #' @examples
 #' \dontrun{
 #' ate_result <- cate(fit, newdata = X_new, interval = "credible")
@@ -3634,28 +3776,30 @@ print.mixgpd_predict_plots <- function(x, ...) {
 # Cluster allocation methods (PSM, Dahl representative partition)
 # ==============================================================================
 
-#' Extract posterior cluster allocation
+#' Extract posterior cluster-allocation summaries
 #'
-#' Computes posterior cluster allocations from a fitted Dirichlet process
-#' mixture model using the Chinese Restaurant Process (CRP) or spliced backend.
-#' The method computes the posterior similarity matrix (PSM), identifies a
-#' representative partition using Dahl's method, and optionally predicts cluster
-#' memberships for new data.
+#' \code{allocation()} summarizes posterior cluster structure for CRP or spliced
+#' fits using the monitored latent allocation draws.
 #'
-#' This function is only available for models fit with \code{backend = "crp"} or
-#' \code{backend = "spliced"}. Stick-breaking (SB) models are not supported.
+#' @details
+#' The method computes the posterior similarity matrix
+#' \deqn{\mathrm{PSM}_{ij} = \Pr\{z_i = z_j \mid \mathcal{D}\},}
+#' then selects a representative partition using Dahl's criterion. It is
+#' available only for models fit with \code{backend = "crp"} or
+#' \code{backend = "spliced"} because the latent cluster labels are directly
+#' monitored there.
 #'
 #' @param object A fitted model object.
 #' @param ... Additional arguments passed to methods.
 #' @return An object of class \code{"mixgpd_allocation"}.
 #' @seealso \code{\link{print.mixgpd_allocation}}, \code{\link{summary.mixgpd_allocation}},
-#'   \code{\link{plot.mixgpd_allocation}}
+#'   \code{\link{plot.mixgpd_allocation}}, \code{\link{predict.mixgpd_fit}}
 #' @export
 allocation <- function(object, ...) {
   UseMethod("allocation")
 }
 
-#' Extract posterior cluster allocation from mixgpd_fit
+#' Extract posterior cluster allocation from a fitted model
 #'
 #' @param object A \code{mixgpd_fit} object from \code{\link{dpmgpd}} or related functions.
 #' @param method Character; clustering summarization method. Currently only \code{"dahl"}
@@ -3682,7 +3826,11 @@ allocation <- function(object, ...) {
 #'
 #' When \code{newdata} is supplied, predicted allocations are based on a simple
 #' distance-to-cluster-center heuristic on \code{y} from the representative
-#' partition.
+#' partition. This is a post-processing summary step rather than a new MCMC
+#' fit.
+#' @seealso \code{\link{allocation}}, \code{\link{summary.mixgpd_allocation}},
+#'   \code{\link{plot.mixgpd_allocation}}, \code{\link{dpmix}},
+#'   \code{\link{dpmgpd}}.
 #' @examples
 #' \dontrun{
 #' # Fit a spliced CRP model

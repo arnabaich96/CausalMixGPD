@@ -53,6 +53,39 @@ setwd(here::here())
   invisible(TRUE)
 }
 
+.coverage_test_file <- function() {
+  Sys.getenv("DPMIXGPD_COVERAGE_TEST_FILE", "test-ci-level-only.R")
+}
+
+.coverage_test_code_single_file <- function(test_file = .coverage_test_file(), progress = FALSE) {
+  reporter_expr <- if (isTRUE(progress)) {
+    "testthat::ProgressReporter$new(show_praise = FALSE)"
+  } else {
+    "testthat::ProgressReporter$new(show_praise = FALSE, update_interval = Inf)"
+  }
+
+  paste(
+    "library(CausalMixGPD)",
+    'pkg_tests <- system.file("tests", "testthat", package = "CausalMixGPD")',
+    'if (!nzchar(pkg_tests) || !dir.exists(pkg_tests)) {',
+    '  local_candidates <- c("tests/testthat", "./tests/testthat")',
+    '  local_hit <- local_candidates[file.exists(local_candidates)]',
+    '  if (length(local_hit) > 0L) pkg_tests <- normalizePath(local_hit[1], winslash = "/", mustWork = FALSE)',
+    '}',
+    'if (!nzchar(pkg_tests) || !dir.exists(pkg_tests)) stop("Coverage could not find test directory: tests/testthat")',
+    sprintf('target <- file.path(pkg_tests, "%s")', test_file),
+    'if (!file.exists(target)) stop("Coverage test file not found: ", target)',
+    'Sys.setenv(COVERAGE = "1", DPMIXGPD_CI_COVERAGE_ONLY = "1", DPMIXGPD_SKIP_COVR_METHODS_BLOCK = "1")',
+    'helper_files <- list.files(pkg_tests, pattern = "^helper.*\\\\.R$", full.names = TRUE)',
+    'for (helper in helper_files) try(source(helper, local = .GlobalEnv), silent = TRUE)',
+    'setup_file <- file.path(pkg_tests, "setup.R")',
+    'if (file.exists(setup_file)) try(source(setup_file, local = .GlobalEnv), silent = TRUE)',
+    sprintf('reporter <- %s', reporter_expr),
+    'testthat::test_file(target, reporter = reporter, package = "CausalMixGPD")',
+    sep = "\n"
+  )
+}
+
 # Test snippets for covr::package_coverage(type = "none").
 # Attach package explicitly so batch runs (e.g., via .bat) execute tests with
 # the same symbol resolution as interactive sessions.
@@ -254,7 +287,8 @@ calculate_coverage <- function(
 # Internal: Calculate coverage from tests with robust error handling
 .calculate_tests_coverage <- function(quiet = FALSE) {
   covr::package_coverage(
-    type = "tests",
+    type = "none",
+    code = .coverage_test_code_single_file(progress = !quiet),
     quiet = quiet,
     pre_clean = TRUE,
     line_exclusions = .coverage_line_exclusions()
@@ -291,9 +325,12 @@ coverage_progress <- function(test_level = "ci", quiet = FALSE) {
 
   Sys.setenv(DPMIXGPD_TEST_LEVEL = tolower(test_level))
   Sys.setenv(COVERAGE = "1")
+  Sys.setenv(DPMIXGPD_CI_COVERAGE_ONLY = "1")
+  Sys.setenv(DPMIXGPD_SKIP_COVR_METHODS_BLOCK = "1")
 
   cov <- covr::package_coverage(
-    type = "tests",
+    type = "none",
+    code = .coverage_test_code_single_file(progress = !quiet),
     quiet = quiet,
     pre_clean = TRUE,
     line_exclusions = .coverage_line_exclusions()

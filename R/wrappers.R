@@ -224,7 +224,38 @@
   do.call(mcmc, c(list(b = b), mcmc_args))
 }
 
-#' Build a model bundle (short wrapper)
+#' Build the workflow bundle used by the package fitters
+#'
+#' \code{bundle()} is the main workflow constructor. It converts raw inputs,
+#' a formula/data pair, or an already prepared bundle into the canonical
+#' object consumed by \code{\link{mcmc}}, \code{\link{dpmix}},
+#' \code{\link{dpmgpd}}, \code{\link{dpmix.causal}}, and
+#' \code{\link{dpmgpd.causal}}.
+#'
+#' For one-arm models the returned object represents a bulk Dirichlet process
+#' mixture, optionally augmented with a spliced generalized Pareto tail. For
+#' causal models the returned object contains two arm-specific outcome bundles
+#' plus an optional propensity score block.
+#'
+#' @details
+#' The workflow is:
+#' \enumerate{
+#'   \item prepare a bundle with \code{bundle()},
+#'   \item run posterior sampling with \code{\link{mcmc}} or one of the
+#'   \code{dpmix*}/\code{dpmgpd*} wrappers,
+#'   \item inspect the fitted object with \code{\link{summary.mixgpd_fit}},
+#'   \code{\link{params}}, \code{\link{predict.mixgpd_fit}}, or the causal
+#'   estimand helpers.
+#' }
+#'
+#' Setting \code{GPD = TRUE} requests the spliced bulk-tail model with
+#' conditional distribution
+#' \deqn{F(y \mid x) = F_{\mathrm{bulk}}(y \mid x)\mathbf{1}\{y \le u(x)\} +
+#' \left[p_u(x) + \{1 - p_u(x)\}F_{\mathrm{GPD}}(y \mid x)\right]\mathbf{1}\{y > u(x)\},}
+#' where \eqn{p_u(x)} is the bulk probability below the threshold \eqn{u(x)}.
+#'
+#' See the manuscript vignette for the DPM hierarchy, SB/CRP representations,
+#' and the spliced bulk-tail construction used throughout the package.
 #'
 #' @param x Either a response vector or an existing bundle.
 #' @param data Optional data.frame used with \code{formula}.
@@ -234,7 +265,12 @@
 #' @param ... Additional arguments passed to \code{build_nimble_bundle()} or
 #'   \code{build_causal_bundle()}.
 #' @param GPD Logical; include GPD tail in build mode.
-#' @return A \code{"causalmixgpd_bundle"} or \code{"causalmixgpd_causal_bundle"}.
+#' @return A \code{"causalmixgpd_bundle"} for one-arm models or a
+#'   \code{"causalmixgpd_causal_bundle"} for causal models. The bundle stores
+#'   code-generation inputs, monitor policy, and default MCMC settings, but it
+#'   does not run MCMC.
+#' @seealso \code{\link{build_nimble_bundle}}, \code{\link{build_causal_bundle}},
+#'   \code{\link{mcmc}}, \code{\link{dpmix}}, \code{\link{dpmgpd}}.
 #' @export
 bundle <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL, ..., GPD = FALSE) {
   if (.is_bundle(x)) return(x)
@@ -297,13 +333,31 @@ bundle <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL
   b
 }
 
-#' Run MCMC from a bundle (short wrapper)
+#' Run posterior sampling from a prepared bundle
+#'
+#' \code{mcmc()} is the generic workflow runner. It dispatches to
+#' \code{\link{run_mcmc_bundle_manual}} for one-arm bundles and to
+#' \code{\link{run_mcmc_causal}} for causal bundles.
+#'
+#' @details
+#' This wrapper is useful when you want a two-stage workflow:
+#' build first, inspect or modify the bundle, then sample. Named MCMC arguments
+#' supplied through \code{...} override the settings stored in the bundle before
+#' execution.
+#'
+#' The returned fit represents posterior draws from the finite SB/CRP
+#' approximation encoded in the bundle. Downstream summaries therefore target
+#' posterior predictive quantities such as \eqn{f(y \mid x, \mathcal{D})},
+#' \eqn{F(y \mid x, \mathcal{D})}, and derived treatment-effect functionals.
 #'
 #' @param b A non-causal or causal bundle.
 #' @param ... Optional MCMC overrides (\code{niter}, \code{nburnin}, \code{thin},
 #'   \code{nchains}, \code{seed}, \code{waic}) and runner controls
 #'   (\code{show_progress}, \code{quiet}).
-#' @return A fitted object (\code{"mixgpd_fit"} or \code{"causalmixgpd_causal_fit"}).
+#' @return A fitted object of class \code{"mixgpd_fit"} or
+#'   \code{"causalmixgpd_causal_fit"}.
+#' @seealso \code{\link{bundle}}, \code{\link{run_mcmc_bundle_manual}},
+#'   \code{\link{run_mcmc_causal}}, \code{\link{predict.mixgpd_fit}}.
 #' @export
 mcmc <- function(b, ...) {
   if (!.is_bundle(b)) stop("'b' must be a causalmixgpd bundle object.", call. = FALSE)
@@ -330,7 +384,19 @@ mcmc <- function(b, ...) {
   do.call(run_mcmc_bundle_manual, c(list(bundle = b), parsed$runner))
 }
 
-#' Fit DP mixture model without GPD tail
+#' Fit a one-arm Dirichlet process mixture without a GPD tail
+#'
+#' \code{dpmix()} is the one-step convenience wrapper for the bulk-only model.
+#' It combines \code{\link{bundle}} and \code{\link{mcmc}} for one-arm data.
+#'
+#' @details
+#' The fitted model targets the posterior predictive bulk distribution
+#' \deqn{f(y \mid x, \mathcal{D}) = \int f(y \mid x, \theta)\,d\Pi(\theta \mid \mathcal{D}),}
+#' without the spliced tail augmentation used by \code{\link{dpmgpd}}.
+#'
+#' Use this wrapper when the outcome support is adequately modeled by the bulk
+#' kernel alone. If you need threshold exceedance modeling or extreme-quantile
+#' extrapolation, use \code{\link{dpmgpd}} instead.
 #'
 #' @param x Either a response vector or a bundle object.
 #' @param data Optional data.frame used with \code{formula}.
@@ -343,7 +409,9 @@ mcmc <- function(b, ...) {
 #'   optional performance controls such as \code{parallel_chains},
 #'   \code{parallel_arms}, \code{workers}, \code{timing}, and
 #'   \code{z_update_every}).
-#' @return A fitted object.
+#' @return A fitted object of class \code{"mixgpd_fit"}.
+#' @seealso \code{\link{bundle}}, \code{\link{dpmgpd}},
+#'   \code{\link{predict.mixgpd_fit}}, \code{\link{summary.mixgpd_fit}}.
 #' @export
 dpmix <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL, ..., mcmc = list()) {
   if (.is_causal_bundle(x) || !is.null(treat)) {
@@ -370,7 +438,22 @@ dpmix <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL,
   .run_bundle_mcmc(b, mcmc_args = mcmc)
 }
 
-#' Fit DP mixture model with GPD tail
+#' Fit a one-arm Dirichlet process mixture with a spliced GPD tail
+#'
+#' \code{dpmgpd()} is the one-step convenience wrapper for the spliced
+#' bulk-tail model. It combines \code{\link{bundle}} and \code{\link{mcmc}} for
+#' one-arm data.
+#'
+#' @details
+#' This wrapper targets the posterior predictive distribution obtained by
+#' combining a flexible bulk DPM with a generalized Pareto exceedance model
+#' above the threshold \eqn{u(x)}. In the tail region the predictive density is
+#' proportional to
+#' \deqn{\{1 - p_u(x)\} f_{\mathrm{GPD}}(y \mid x), \qquad y > u(x),}
+#' where \eqn{p_u(x)} is the posterior bulk mass below the threshold.
+#'
+#' Use this wrapper when upper-tail behavior matters for inference, prediction,
+#' or extrapolation of extreme quantiles and survival probabilities.
 #'
 #' @param x Either a response vector or a bundle object.
 #' @param data Optional data.frame used with \code{formula}.
@@ -383,7 +466,9 @@ dpmix <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL,
 #'   optional performance controls such as \code{parallel_chains},
 #'   \code{parallel_arms}, \code{workers}, \code{timing}, and
 #'   \code{z_update_every}).
-#' @return A fitted object.
+#' @return A fitted object of class \code{"mixgpd_fit"}.
+#' @seealso \code{\link{bundle}}, \code{\link{dpmix}},
+#'   \code{\link{predict.mixgpd_fit}}, \code{\link{summary.mixgpd_fit}}.
 #' @export
 dpmgpd <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL, ..., mcmc = list()) {
   if (.is_causal_bundle(x) || !is.null(treat)) {
@@ -413,7 +498,17 @@ dpmgpd <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL
   .run_bundle_mcmc(b, mcmc_args = mcmc)
 }
 
-#' Fit causal DP mixture model without GPD tail
+#' Fit a causal two-arm Dirichlet process mixture without a GPD tail
+#'
+#' \code{dpmix.causal()} fits a causal model with separate treated and control
+#' outcome mixtures and, when requested, a propensity score block. It is the
+#' bulk-only companion to \code{\link{dpmgpd.causal}}.
+#'
+#' @details
+#' The resulting fit supports conditional outcome prediction
+#' \eqn{F_a(y \mid x, \mathcal{D})} for \eqn{a \in \{0,1\}}, followed by causal
+#' functionals such as \code{\link{ate}}, \code{\link{qte}},
+#' \code{\link{cate}}, and \code{\link{cqte}}.
 #'
 #' @param x Either a response vector or a causal bundle object.
 #' @param data Optional data.frame used with \code{formula}.
@@ -425,7 +520,10 @@ dpmgpd <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL
 #'   optional performance controls such as \code{parallel_chains},
 #'   \code{parallel_arms}, \code{workers}, \code{timing}, and
 #'   \code{z_update_every}).
-#' @return A fitted object.
+#' @return A fitted object of class \code{"causalmixgpd_causal_fit"}.
+#' @seealso \code{\link{bundle}}, \code{\link{dpmgpd.causal}},
+#'   \code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
+#'   \code{\link{qte}}.
 #' @export
 dpmix.causal <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL, ..., mcmc = list()) {
   b <- NULL
@@ -452,7 +550,20 @@ dpmix.causal <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula 
   .run_bundle_mcmc(b, mcmc_args = mcmc)
 }
 
-#' Fit causal DP mixture model with GPD tail
+#' Fit a causal two-arm Dirichlet process mixture with a spliced GPD tail
+#'
+#' \code{dpmgpd.causal()} is the highest-level causal fitting wrapper. It builds
+#' or accepts a causal bundle, runs posterior sampling for the treated and
+#' control arms, and returns a single causal fit ready for prediction and effect
+#' estimation.
+#'
+#' @details
+#' The arm-specific predictive distributions
+#' \eqn{F_1(y \mid x, \mathcal{D})} and \eqn{F_0(y \mid x, \mathcal{D})} inherit
+#' the spliced bulk-tail structure. Downstream causal estimands are computed as
+#' functionals of these two predictive laws, for example
+#' \deqn{\mathrm{QTE}(\tau) = Q_1(\tau) - Q_0(\tau), \qquad
+#' \mathrm{ATE} = E(Y_1) - E(Y_0).}
 #'
 #' @param x Either a response vector or a causal bundle object.
 #' @param data Optional data.frame used with \code{formula}.
@@ -464,7 +575,10 @@ dpmix.causal <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula 
 #'   optional performance controls such as \code{parallel_chains},
 #'   \code{parallel_arms}, \code{workers}, \code{timing}, and
 #'   \code{z_update_every}).
-#' @return A fitted object.
+#' @return A fitted object of class \code{"causalmixgpd_causal_fit"}.
+#' @seealso \code{\link{bundle}}, \code{\link{dpmix.causal}},
+#'   \code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
+#'   \code{\link{qte}}, \code{\link{cate}}, \code{\link{cqte}}.
 #' @export
 dpmgpd.causal <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL, ..., mcmc = list()) {
   if (.is_bundle(x)) {

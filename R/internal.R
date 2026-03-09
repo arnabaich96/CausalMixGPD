@@ -43,8 +43,8 @@
 
 .cmgpd_progress_format <- function(current, total, step_label, width = 12L, color = FALSE) {
   step_label <- as.character(step_label %||% "")
-  bar_info <- .cmgpd_progress_inline_bar(current = current, total = total, width = width)
-  msg <- sprintf("[%d/%d] %s %s %s", as.integer(current), as.integer(total), step_label, bar_info$bar, bar_info$pct)
+  if (!nzchar(step_label)) step_label <- "Working..."
+  msg <- step_label
   .cmgpd_progress_colorize(msg, step_index = current, enabled = color)
 }
 

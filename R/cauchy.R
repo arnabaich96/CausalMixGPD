@@ -1,11 +1,13 @@
 #' Cauchy mixture distribution
 #'
-#' A finite mixture of Cauchy components. Base Cauchy functions are taken from \pkg{stats}.
-#' The mixture density and distribution function are computed by weighted sums. Random generation
-#' samples a component index according to the weights and draws from the corresponding component.
-#' Quantiles are computed by numerical inversion of the mixture CDF.
-#' These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
-#' For vectorized R usage (including \code{n > 1}), use \code{\link{cauchy_mix_lowercase}}.
+#' Finite mixture of Cauchy components for symmetric heavy-tailed bulk modeling on the real line.
+#'
+#' The mixture density is
+#' \deqn{
+#' f(x) = \sum_{k = 1}^K \tilde{w}_k f_C(x \mid \ell_k, s_k),
+#' }
+#' with normalized weights \eqn{\tilde{w}_k}. These scalar functions are NIMBLE-compatible; for
+#' vectorized R usage, use [cauchy_mix_lowercase()].
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -20,8 +22,11 @@
 #' @param tol Numeric scalar tolerance passed to \code{stats::uniroot}.
 #' @param maxiter Integer maximum number of iterations for \code{stats::uniroot}.
 #'
-#' @return Density/CDF/RNG functions return numeric scalars. \code{qCauchyMix} returns a numeric vector
-#'   with the same length as \code{p}.
+#' @return Density/CDF/RNG functions return numeric scalars. `qCauchyMix()` returns a numeric
+#'   vector with the same length as `p`.
+#'
+#' @seealso [cauchy()], [cauchy_mix_lowercase()], [build_nimble_bundle()], [kernel_support_table()].
+#' @family cauchy kernel families
 #'
 #' @examples
 #' w <- c(0.50, 0.30, 0.20)
@@ -213,9 +218,7 @@ qCauchyMix <- function(p, w, location, scale,
 
 #' Lowercase vectorized Cauchy mixture distribution functions
 #'
-#' Vectorized R wrappers for Cauchy mixture distribution functions. These lowercase
-#' versions accept vector inputs for the first argument (\code{x}, \code{q}, or
-#' \code{p}) and return a numeric vector. The \code{r*} functions support \code{n > 1}.
+#' Vectorized R wrappers for the scalar Cauchy mixture functions in this file.
 #'
 #' @param x Numeric vector of quantiles.
 #' @param q Numeric vector of quantiles.
@@ -229,6 +232,9 @@ qCauchyMix <- function(p, w, location, scale,
 #' @param tol,maxiter Tolerance and max iterations for numerical inversion.
 #'
 #' @return Numeric vector of densities, probabilities, quantiles, or random variates.
+#'
+#' @seealso [cauchy_mix()], [cauchy()], [bundle()], [get_kernel_registry()].
+#' @family vectorized kernel helpers
 #'
 #' @examples
 #' w <- c(0.6, 0.3, 0.1)

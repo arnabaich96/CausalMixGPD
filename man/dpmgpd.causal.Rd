@@ -2,7 +2,7 @@
 % Please edit documentation in R/wrappers.R
 \name{dpmgpd.causal}
 \alias{dpmgpd.causal}
-\title{Fit causal DP mixture model with GPD tail}
+\title{Fit a causal two-arm Dirichlet process mixture with a spliced GPD tail}
 \usage{
 dpmgpd.causal(
   x = NULL,
@@ -33,8 +33,24 @@ optional performance controls such as \code{parallel_chains},
 \code{z_update_every}).}
 }
 \value{
-A fitted object.
+A fitted object of class \code{"causalmixgpd_causal_fit"}.
 }
 \description{
-Fit causal DP mixture model with GPD tail
+\code{dpmgpd.causal()} is the highest-level causal fitting wrapper. It builds
+or accepts a causal bundle, runs posterior sampling for the treated and
+control arms, and returns a single causal fit ready for prediction and effect
+estimation.
+}
+\details{
+The arm-specific predictive distributions
+\eqn{F_1(y \mid x, \mathcal{D})} and \eqn{F_0(y \mid x, \mathcal{D})} inherit
+the spliced bulk-tail structure. Downstream causal estimands are computed as
+functionals of these two predictive laws, for example
+\deqn{\mathrm{QTE}(\tau) = Q_1(\tau) - Q_0(\tau), \qquad
+\mathrm{ATE} = E(Y_1) - E(Y_0).}
+}
+\seealso{
+\code{\link{bundle}}, \code{\link{dpmix.causal}},
+\code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
+\code{\link{qte}}, \code{\link{cate}}, \code{\link{cqte}}.
 }

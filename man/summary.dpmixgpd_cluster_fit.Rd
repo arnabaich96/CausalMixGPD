@@ -16,8 +16,35 @@
 \item{...}{Unused.}
 }
 \value{
-A summary list.
+Summary list with the number of retained clusters, cluster sizes, and the burn-in/thinning
+settings used to construct the summary.
 }
 \description{
-Summarize a cluster fit
+Summarize the posterior clustering induced by the Dahl representative partition.
 }
+\details{
+This summary is based on \code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}} with \code{type = "label"}. The reported
+cluster count \eqn{K^*} is the number of unique labels in the representative partition rather
+than the number of components available in the truncated sampler.
+}
+\seealso{
+\code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}}, \code{\link[=plot.dpmixgpd_cluster_fit]{plot.dpmixgpd_cluster_fit()}},
+\code{\link[=summary.dpmixgpd_cluster_labels]{summary.dpmixgpd_cluster_labels()}}.
+
+Other cluster workflow: 
+\code{\link{dpmgpd.cluster}()},
+\code{\link{dpmix.cluster}()},
+\code{\link{plot.dpmixgpd_cluster_bundle}()},
+\code{\link{plot.dpmixgpd_cluster_fit}()},
+\code{\link{plot.dpmixgpd_cluster_labels}()},
+\code{\link{plot.dpmixgpd_cluster_psm}()},
+\code{\link{predict.dpmixgpd_cluster_fit}()},
+\code{\link{print.dpmixgpd_cluster_bundle}()},
+\code{\link{print.dpmixgpd_cluster_fit}()},
+\code{\link{print.dpmixgpd_cluster_labels}()},
+\code{\link{print.dpmixgpd_cluster_psm}()},
+\code{\link{summary.dpmixgpd_cluster_bundle}()},
+\code{\link{summary.dpmixgpd_cluster_labels}()},
+\code{\link{summary.dpmixgpd_cluster_psm}()}
+}
+\concept{cluster workflow}

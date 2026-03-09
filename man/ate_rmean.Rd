@@ -2,7 +2,7 @@
 % Please edit documentation in R/causal.R
 \name{ate_rmean}
 \alias{ate_rmean}
-\title{Restricted-mean ATE (finite under heavy tails)}
+\title{Restricted-mean ATE helper}
 \usage{
 ate_rmean(
   fit,
@@ -32,10 +32,18 @@ highest posterior density intervals.}
 
 \item{show_progress}{Logical; if TRUE, print step messages and render progress where supported.}
 }
+\value{
+A \code{"causalmixgpd_ate"} object computed via \code{\link{ate}}
+for unconditional fits or \code{\link{cate}} for conditional fits.
+}
 \description{
-Computes an average treatment effect on the restricted mean scale,
-\eqn{E[min(Y, cutoff)]}, which is finite even when the ordinary mean does not exist
-under heavy-tailed GPD regimes.
+\code{ate_rmean()} is a convenience wrapper for restricted-mean treatment
+effects when the ordinary mean is unstable or undefined.
+}
+\details{
+The restricted-mean estimand replaces \eqn{Y(a)} by
+\eqn{\min\{Y(a), c\}}, so the contrast remains finite even when the fitted
+GPD tail implies \eqn{\xi \ge 1}.
 }
 \examples{
 \dontrun{
@@ -44,4 +52,7 @@ cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal"
 fit <- run_mcmc_causal(cb)
 ate_rm <- ate_rmean(fit, cutoff = 10, interval = "credible")
 }
+}
+\seealso{
+\code{\link{ate}}, \code{\link{cate}}, \code{\link{predict.mixgpd_fit}}.
 }

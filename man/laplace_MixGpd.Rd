@@ -79,12 +79,12 @@ qLaplaceMixGpd(
 \item{maxiter}{Integer maximum iterations for \code{stats::uniroot}.}
 }
 \value{
-Spliced density/CDF/RNG functions return numeric scalars. \code{qLaplaceMixGpd} returns a numeric vector
-with the same length as \code{p}.
+Spliced density/CDF/RNG functions return numeric scalars. \code{qLaplaceMixGpd()} returns a
+numeric vector with the same length as \code{p}.
 }
 \description{
-Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a Laplace mixture bulk.
-The bulk probability at the threshold is used to scale the tail so that the overall CDF is proper.
+Spliced bulk-tail family formed by attaching a generalized Pareto tail to a Laplace mixture
+bulk.
 }
 \section{Functions}{
 \itemize{
@@ -122,3 +122,11 @@ replicate(10, rLaplaceMixGpd(1, w = w, location = location, scale = scale,
                             tail_scale = tail_scale,
                             tail_shape = tail_shape))
 }
+\seealso{
+\code{\link[=laplace_mix]{laplace_mix()}}, \code{\link[=laplace_gpd]{laplace_gpd()}}, \code{\link[=gpd]{gpd()}}, \code{\link[=laplace_lowercase]{laplace_lowercase()}}, \code{\link[=dpmgpd]{dpmgpd()}}.
+
+Other laplace kernel families: 
+\code{\link{laplace_gpd}},
+\code{\link{laplace_mix}}
+}
+\concept{laplace kernel families}

@@ -78,10 +78,11 @@ qLognormalMixGpd(
 }
 \value{
 Spliced density/CDF/RNG functions return numeric scalars.
-\code{qLognormalMixGpd} returns a numeric vector with the same length as \code{p}.
+\code{qLognormalMixGpd()} returns a numeric vector with the same length as \code{p}.
 }
 \description{
-Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a Lognormal mixture bulk.
+Spliced bulk-tail family formed by attaching a generalized Pareto tail to a lognormal mixture
+bulk.
 Let \eqn{F_{mix}} be the Lognormal mixture CDF. The spliced CDF is
 \eqn{F(x)=F_{mix}(x)} for \eqn{x<threshold} and
 \eqn{F(x)=F_{mix}(threshold) + \{1-F_{mix}(threshold)\}G(x)} for \eqn{x\ge threshold}, where \eqn{G}
@@ -127,3 +128,11 @@ replicate(10, rLognormalMixGpd(1, w = w, meanlog = meanlog, sdlog = sdlog,
                               tail_scale = tail_scale,
                               tail_shape = tail_shape))
 }
+\seealso{
+\code{\link[=lognormal_mix]{lognormal_mix()}}, \code{\link[=lognormal_gpd]{lognormal_gpd()}}, \code{\link[=gpd]{gpd()}}, \code{\link[=lognormal_lowercase]{lognormal_lowercase()}}, \code{\link[=dpmgpd]{dpmgpd()}}.
+
+Other lognormal kernel families: 
+\code{\link{lognormal_gpd}},
+\code{\link{lognormal_mix}}
+}
+\concept{lognormal kernel families}

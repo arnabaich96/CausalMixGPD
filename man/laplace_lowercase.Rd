@@ -125,10 +125,7 @@ rlaplacegpd(n, location, scale, threshold, tail_scale, tail_shape)
 Numeric vector of densities, probabilities, quantiles, or random variates.
 }
 \description{
-Vectorized R wrappers for Laplace mixture, Laplace mixture + GPD, and
-Laplace + GPD distribution functions. These lowercase versions accept vector
-inputs for the first argument (\code{x}, \code{q}, or \code{p}) and return
-a numeric vector. The \code{r*} functions support \code{n > 1}.
+Vectorized R wrappers for the scalar Laplace-kernel topics in this file.
 }
 \section{Functions}{
 \itemize{
@@ -167,3 +164,17 @@ dlaplacemix(c(-1, 0, 1), w = w, location = loc, scale = scl)
 rlaplacemix(5, w = w, location = loc, scale = scl)
 
 }
+\seealso{
+\code{\link[=laplace_mix]{laplace_mix()}}, \code{\link[=laplace_MixGpd]{laplace_MixGpd()}}, \code{\link[=laplace_gpd]{laplace_gpd()}}, \code{\link[=bundle]{bundle()}},
+\code{\link[=get_kernel_registry]{get_kernel_registry()}}.
+
+Other vectorized kernel helpers: 
+\code{\link{amoroso_lowercase}},
+\code{\link{base_lowercase}},
+\code{\link{cauchy_mix_lowercase}},
+\code{\link{gamma_lowercase}},
+\code{\link{invgauss_lowercase}},
+\code{\link{lognormal_lowercase}},
+\code{\link{normal_lowercase}}
+}
+\concept{vectorized kernel helpers}

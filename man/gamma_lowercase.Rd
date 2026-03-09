@@ -14,7 +14,7 @@
 \alias{pgammagpd}
 \alias{qgammagpd}
 \alias{rgammagpd}
-\title{Lowercase vectorized Gamma distribution functions}
+\title{Lowercase vectorized gamma distribution functions}
 \usage{
 dgammamix(x, w, shape, scale, log = FALSE)
 
@@ -125,10 +125,7 @@ rgammagpd(n, shape, scale, threshold, tail_scale, tail_shape)
 Numeric vector of densities, probabilities, quantiles, or random variates.
 }
 \description{
-Vectorized R wrappers for Gamma mixture, Gamma mixture + GPD, and
-Gamma + GPD distribution functions. These lowercase versions accept vector
-inputs for the first argument (\code{x}, \code{q}, or \code{p}) and return
-a numeric vector. The \code{r*} functions support \code{n > 1}.
+Vectorized R wrappers for the scalar gamma-kernel topics in this file.
 }
 \section{Functions}{
 \itemize{
@@ -175,3 +172,16 @@ dgammagpd(c(2, 3, 4), shape = 4, scale = 2.5, threshold = 3,
           tail_scale = 0.9, tail_shape = 0.2)
 
 }
+\seealso{
+\code{\link[=gamma_mix]{gamma_mix()}}, \code{\link[=gamma_mixgpd]{gamma_mixgpd()}}, \code{\link[=gamma_gpd]{gamma_gpd()}}, \code{\link[=bundle]{bundle()}}, \code{\link[=get_kernel_registry]{get_kernel_registry()}}.
+
+Other vectorized kernel helpers: 
+\code{\link{amoroso_lowercase}},
+\code{\link{base_lowercase}},
+\code{\link{cauchy_mix_lowercase}},
+\code{\link{invgauss_lowercase}},
+\code{\link{laplace_lowercase}},
+\code{\link{lognormal_lowercase}},
+\code{\link{normal_lowercase}}
+}
+\concept{vectorized kernel helpers}

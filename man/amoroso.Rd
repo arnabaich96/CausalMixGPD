@@ -41,13 +41,20 @@ rAmoroso(n, loc, scale, shape1, shape2)
 the RNG implementation supports \code{n = 1}.}
 }
 \value{
-Density/CDF/RNG functions return numeric scalars. The quantile function returns a numeric scalar.
+Density/CDF/RNG functions return numeric scalars. The quantile function returns a numeric
+scalar or vector matching the length of \code{p}.
 }
 \description{
-Base Amoroso distribution functions as implemented in this package.
-Function names and parameterization follow your existing Amoroso implementation.
+Scalar Amoroso utilities used as flexible positive-support base kernels and mixture components.
+The package parameterization uses \code{loc}, \code{scale}, \code{shape1}, and \code{shape2}, allowing the family
+to represent a broad range of skewed bulk shapes.
+}
+\details{
+Writing \code{loc = a}, \code{scale = theta}, \code{shape1 = alpha}, and \code{shape2 = beta}, the transformed
+quantity \eqn{((X - a) / \theta)^\beta} follows a gamma law with shape \eqn{\alpha}.
+
 These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
-For vectorized R usage (including \code{n > 1}), use \code{\link{base_lowercase}}.
+For vectorized R usage, use \code{\link[=base_lowercase]{base_lowercase()}}.
 }
 \section{Functions}{
 \itemize{
@@ -72,3 +79,11 @@ qAmoroso(0.50, loc, scale, shape1, shape2)
 qAmoroso(0.95, loc, scale, shape1, shape2)
 replicate(10, rAmoroso(1, loc, scale, shape1, shape2))
 }
+\seealso{
+\code{\link[=amoroso_mix]{amoroso_mix()}}, \code{\link[=amoroso_gpd]{amoroso_gpd()}}, \code{\link[=base_lowercase]{base_lowercase()}}, \code{\link[=kernel_support_table]{kernel_support_table()}}.
+
+Other base bulk distributions: 
+\code{\link{InvGauss}},
+\code{\link{cauchy}}
+}
+\concept{base bulk distributions}

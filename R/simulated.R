@@ -1,11 +1,30 @@
-#' Simulate bulk + tail data
+#' Simulate positive bulk-tail data
 #'
-#' Generates a positive outcome with a DP mixture-like bulk and a GPD tail.
+#' Generate synthetic outcomes with a light-to-moderate bulk and a heavier upper tail.
+#' The sample is assembled from a lognormal-gamma bulk and a shifted tail sample, then sorted.
+#' This is a quick data generator for examples, help pages, and workflow checks rather than a
+#' formal generative model matching the full package hierarchy exactly.
 #'
-#' @param n Sample size.
-#' @param tail_prob Proportion of excesses drawn from the tail (approximated).
-#' @param seed Optional seed for reproducibility.
-#' @return A numeric vector of outcomes.
+#' @param n Integer sample size.
+#' @param tail_prob Approximate tail probability \eqn{\Pr(X > u)} used to split the sample into
+#'   bulk and tail draws.
+#' @param seed Optional random seed for reproducibility.
+#'
+#' @return Numeric vector of length `n` containing positive outcomes sorted in ascending order.
+#'
+#' @details
+#' The generator approximates a spliced sample
+#' \deqn{
+#' X \sim (1 - \pi_u) F_{bulk} + \pi_u F_{tail},
+#' }
+#' where \eqn{\pi_u =} `tail_prob`. The bulk component is itself a simple two-component mixture,
+#' while the tail component is a shifted positive distribution that produces larger values.
+#'
+#' Use this helper when you need a fast toy sample for [bundle()], [dpmix()], or [dpmgpd()].
+#' It should not be interpreted as posterior predictive simulation from a fitted object.
+#'
+#' @seealso [sim_causal_qte()], [sim_survival_tail()], [bundle()], [dpmgpd()].
+#' @family simulation helpers
 #' @importFrom stats rbinom rexp
 #' @export
 sim_bulk_tail <- function(n = 200, tail_prob = 0.12, seed = NULL) {
@@ -20,12 +39,32 @@ sim_bulk_tail <- function(n = 200, tail_prob = 0.12, seed = NULL) {
   sort(c(bulk, tail))
 }
 
-#' Simulate causal QTE data
+#' Simulate causal quantile-treatment-effect data
 #'
-#' @param n Sample size.
-#' @param seed Optional RNG seed.
-#' @return A list with \code{y}, \code{t}, and \code{X}; \code{A} is also
-#'   included as a backward-compatible alias for \code{t}.
+#' Generate a treatment indicator, covariates, and a continuous outcome with both location and
+#' tail heterogeneity. The resulting structure is intended for examples involving
+#' [dpmix.causal()], [dpmgpd.causal()], [qte()], and [cqte()].
+#'
+#' @param n Integer sample size.
+#' @param seed Optional random seed.
+#'
+#' @return List with components `y`, `t`, and `X`; `A` is included as a backward-compatible alias
+#'   for `t`.
+#'
+#' @details
+#' Treatment assignment is generated from a logistic propensity score
+#' \deqn{
+#' \Pr(T = 1 \mid X) = \operatorname{logit}^{-1}(\eta(X)),
+#' }
+#' and the observed outcome combines baseline covariate effects, an average treatment shift, and
+#' a covariate-dependent tail amplification for treated units. This produces data where marginal
+#' and conditional quantile effects differ across the outcome distribution.
+#'
+#' The returned list can be converted directly into the arguments expected by the causal fitting
+#' wrappers after minor formatting.
+#'
+#' @seealso [sim_bulk_tail()], [dpmgpd.causal()], [qte()], [cqte()].
+#' @family simulation helpers
 #' @export
 sim_causal_qte <- function(n = 300, seed = NULL) {
   if (!is.null(seed)) set.seed(seed)
@@ -42,11 +81,28 @@ sim_causal_qte <- function(n = 300, seed = NULL) {
   list(y = y, t = A, X = X, A = A)
 }
 
-#' Simulate survival tail data
+#' Simulate censored survival-style tail data
 #'
-#' @param n Sample size.
-#' @param seed Optional seed.
-#' @return A data.frame with time, status, and covariates.
+#' Generate event times, censoring times, an event indicator, and covariates for examples where
+#' right tail behavior and positive support matter.
+#'
+#' @param n Integer sample size.
+#' @param seed Optional random seed.
+#'
+#' @return Data frame containing observed time `time`, event indicator `status`, and covariates.
+#'
+#' @details
+#' Event times are sampled from an exponential model with covariate-dependent mean, then censored
+#' by an independent uniform censoring time. The observed time is
+#' \deqn{
+#' \tilde{T} = \min(T, C), \qquad \Delta = I(T \le C).
+#' }
+#'
+#' This helper is mainly for experimentation and stress-testing positive-support kernels; it does
+#' not implement a dedicated survival model from the package API.
+#'
+#' @seealso [sim_bulk_tail()], [build_nimble_bundle()], [dpmgpd()].
+#' @family simulation helpers
 #' @export
 sim_survival_tail <- function(n = 250, seed = NULL) {
   if (!is.null(seed)) set.seed(seed)

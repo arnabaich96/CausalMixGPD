@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{allocation}
 \alias{allocation}
-\title{Extract posterior cluster allocation}
+\title{Extract posterior cluster-allocation summaries}
 \usage{
 allocation(object, ...)
 }
@@ -15,17 +15,18 @@ allocation(object, ...)
 An object of class \code{"mixgpd_allocation"}.
 }
 \description{
-Computes posterior cluster allocations from a fitted Dirichlet process
-mixture model using the Chinese Restaurant Process (CRP) or spliced backend.
-The method computes the posterior similarity matrix (PSM), identifies a
-representative partition using Dahl's method, and optionally predicts cluster
-memberships for new data.
+\code{allocation()} summarizes posterior cluster structure for CRP or spliced
+fits using the monitored latent allocation draws.
 }
 \details{
-This function is only available for models fit with \code{backend = "crp"} or
-\code{backend = "spliced"}. Stick-breaking (SB) models are not supported.
+The method computes the posterior similarity matrix
+\deqn{\mathrm{PSM}_{ij} = \Pr\{z_i = z_j \mid \mathcal{D}\},}
+then selects a representative partition using Dahl's criterion. It is
+available only for models fit with \code{backend = "crp"} or
+\code{backend = "spliced"} because the latent cluster labels are directly
+monitored there.
 }
 \seealso{
 \code{\link{print.mixgpd_allocation}}, \code{\link{summary.mixgpd_allocation}},
-\code{\link{plot.mixgpd_allocation}}
+\code{\link{plot.mixgpd_allocation}}, \code{\link{predict.mixgpd_fit}}
 }

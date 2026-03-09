@@ -50,16 +50,22 @@ internally when needed.}
 \item{maxiter}{Integer maximum number of iterations for \code{stats::uniroot}.}
 }
 \value{
-Density/CDF/RNG functions return numeric scalars. \code{qNormMix} returns a numeric vector
+Density/CDF/RNG functions return numeric scalars. \code{qNormMix()} returns a numeric vector
 with the same length as \code{p}.
 }
 \description{
-A finite mixture of Normal components. Base Normal functions are taken from \pkg{stats}.
-Mixture density and CDF are computed by weighted sums. Random generation samples a component
-index according to weights and draws from the corresponding component. Quantiles are computed
-by numerical inversion of the mixture CDF.
-These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
-For vectorized R usage (including \code{n > 1}), use \code{\link{normal_lowercase}}.
+Finite mixture of normal components for real-valued bulk modeling. This topic provides the
+scalar mixture density, CDF, RNG, and quantile functions used by the bulk-only normal kernel in
+the package registry.
+}
+\details{
+With weights \eqn{w_k}, means \eqn{\mu_k}, and standard deviations \eqn{\sigma_k}, the mixture
+density is
+\deqn{
+f(x) = \sum_{k = 1}^K \tilde{w}_k \phi(x \mid \mu_k, \sigma_k^2),
+}
+where \eqn{\tilde{w}_k = w_k / \sum_j w_j}. These uppercase functions are scalar
+NIMBLE-compatible building blocks. For vectorized R usage, use \code{\link[=normal_lowercase]{normal_lowercase()}}.
 }
 \section{Functions}{
 \itemize{
@@ -84,3 +90,12 @@ qNormMix(0.50, w = w, mean = mean, sd = sd)
 qNormMix(0.95, w = w, mean = mean, sd = sd)
 replicate(10, rNormMix(1, w = w, mean = mean, sd = sd))
 }
+\seealso{
+\code{\link[=normal_mixgpd]{normal_mixgpd()}}, \code{\link[=normal_gpd]{normal_gpd()}}, \code{\link[=normal_lowercase]{normal_lowercase()}}, \code{\link[=build_nimble_bundle]{build_nimble_bundle()}},
+\code{\link[=kernel_support_table]{kernel_support_table()}}.
+
+Other normal kernel families: 
+\code{\link{normal_gpd}},
+\code{\link{normal_mixgpd}}
+}
+\concept{normal kernel families}

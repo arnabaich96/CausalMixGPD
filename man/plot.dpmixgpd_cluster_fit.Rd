@@ -30,5 +30,27 @@
 Plot output, invisibly.
 }
 \description{
-Plot a cluster fit
+Visualize either the posterior similarity matrix, the posterior number of occupied clusters, or
+the size distribution of the representative clusters.
 }
+\seealso{
+\code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}}, \code{\link[=summary.dpmixgpd_cluster_fit]{summary.dpmixgpd_cluster_fit()}},
+\code{\link[=plot.dpmixgpd_cluster_psm]{plot.dpmixgpd_cluster_psm()}}, \code{\link[=plot.dpmixgpd_cluster_labels]{plot.dpmixgpd_cluster_labels()}}.
+
+Other cluster workflow: 
+\code{\link{dpmgpd.cluster}()},
+\code{\link{dpmix.cluster}()},
+\code{\link{plot.dpmixgpd_cluster_bundle}()},
+\code{\link{plot.dpmixgpd_cluster_labels}()},
+\code{\link{plot.dpmixgpd_cluster_psm}()},
+\code{\link{predict.dpmixgpd_cluster_fit}()},
+\code{\link{print.dpmixgpd_cluster_bundle}()},
+\code{\link{print.dpmixgpd_cluster_fit}()},
+\code{\link{print.dpmixgpd_cluster_labels}()},
+\code{\link{print.dpmixgpd_cluster_psm}()},
+\code{\link{summary.dpmixgpd_cluster_bundle}()},
+\code{\link{summary.dpmixgpd_cluster_fit}()},
+\code{\link{summary.dpmixgpd_cluster_labels}()},
+\code{\link{summary.dpmixgpd_cluster_psm}()}
+}
+\concept{cluster workflow}

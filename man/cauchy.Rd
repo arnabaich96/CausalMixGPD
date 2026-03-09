@@ -37,14 +37,22 @@ the RNG implementation supports \code{n = 1}.}
 \item{p}{Numeric scalar probability in \eqn{(0,1)} for the quantile function.}
 }
 \value{
-\code{dCauchy} returns a numeric scalar density; \code{pCauchy} returns a numeric scalar CDF;
-\code{rCauchy} returns one random draw; \code{qCauchy} returns a numeric quantile.
+\code{dCauchy()} returns a numeric scalar density, \code{pCauchy()} returns a numeric scalar CDF,
+\code{rCauchy()} returns one random draw, and \code{qCauchy()} returns a numeric quantile.
 }
 \description{
-Base Cauchy distribution functions implemented as nimbleFunctions so they can be used
-in NIMBLE models. Parameterization uses location and scale (scale > 0).
+Scalar Cauchy utilities implemented for NIMBLE compatibility. These functions support symmetric
+heavy-tailed kernels on the real line and feed directly into the finite Cauchy mixture family.
+}
+\details{
+The density is
+\deqn{
+f(x) = \frac{1}{\pi s \{1 + ((x - \ell)/s)^2\}},
+}
+where \code{location = ell} and \code{scale = s > 0}.
+
 These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
-For vectorized R usage (including \code{n > 1}), use \code{\link{base_lowercase}}.
+For vectorized R usage, use \code{\link[=base_lowercase]{base_lowercase()}}.
 }
 \section{Functions}{
 \itemize{
@@ -68,3 +76,11 @@ qCauchy(0.95, location, scale)
 replicate(10, rCauchy(1, location, scale))
 
 }
+\seealso{
+\code{\link[=cauchy_mix]{cauchy_mix()}}, \code{\link[=base_lowercase]{base_lowercase()}}, \code{\link[=kernel_support_table]{kernel_support_table()}}.
+
+Other base bulk distributions: 
+\code{\link{InvGauss}},
+\code{\link{amoroso}}
+}
+\concept{base bulk distributions}

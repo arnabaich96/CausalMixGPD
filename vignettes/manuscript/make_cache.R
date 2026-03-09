@@ -458,14 +458,8 @@ fit <- dpmgpd.causal(
   backend = "sb",
   kernel = "normal",
   components = 4,
-  mcmc = list(
-    niter = 120,
-    nburnin = 40,
-    thin = 1,
-    nchains = 1,
-    seed = 101,
-    show_progress = FALSE
-  )
+  mcmc = mcmc_fixed,
+  show_progress = FALSE
 )
 track_artifact(save_cache_rds(
   list(cache_version = 3L, fit = fit),

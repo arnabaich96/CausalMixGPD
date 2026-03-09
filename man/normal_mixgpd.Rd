@@ -68,12 +68,25 @@ qNormMixGpd(
 \item{maxiter}{Integer maximum number of iterations for \code{stats::uniroot}.}
 }
 \value{
-Spliced density/CDF/RNG functions return numeric scalars. \code{qNormMixGpd} returns a numeric vector
-with the same length as \code{p}.
+Spliced density/CDF/RNG functions return numeric scalars. \code{qNormMixGpd()} returns a
+numeric vector with the same length as \code{p}.
 }
 \description{
-Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a Normal mixture bulk.
-The bulk probability at the threshold is used to scale the tail so that the overall CDF is proper.
+Spliced bulk-tail family formed by attaching a generalized Pareto tail to a normal mixture bulk.
+This matches the structure used by the package's normal \code{mixgpd} kernels.
+}
+\details{
+If \eqn{F_{mix}} denotes the normal-mixture CDF, the spliced CDF is
+\deqn{
+F(x) =
+\left\{
+\begin{array}{ll}
+F_{mix}(x), & x < u, \\
+F_{mix}(u) + \{1 - F_{mix}(u)\} G(x), & x \ge u,
+\end{array}
+\right.
+}
+where \code{threshold = u} and \eqn{G} is the GPD CDF.
 }
 \section{Functions}{
 \itemize{
@@ -101,3 +114,11 @@ qNormMixGpd(0.50, w, mean, sd, threshold, tail_scale, tail_shape)
 qNormMixGpd(0.95, w, mean, sd, threshold, tail_scale, tail_shape)
 replicate(10, rNormMixGpd(1, w, mean, sd, threshold, tail_scale, tail_shape))
 }
+\seealso{
+\code{\link[=normal_mix]{normal_mix()}}, \code{\link[=normal_gpd]{normal_gpd()}}, \code{\link[=gpd]{gpd()}}, \code{\link[=normal_lowercase]{normal_lowercase()}}, \code{\link[=dpmgpd]{dpmgpd()}}.
+
+Other normal kernel families: 
+\code{\link{normal_gpd}},
+\code{\link{normal_mix}}
+}
+\concept{normal kernel families}

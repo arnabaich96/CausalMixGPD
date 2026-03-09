@@ -14,7 +14,7 @@
 \alias{plognormalgpd}
 \alias{qlognormalgpd}
 \alias{rlognormalgpd}
-\title{Lowercase vectorized Lognormal distribution functions}
+\title{Lowercase vectorized lognormal distribution functions}
 \usage{
 dlognormalmix(x, w, meanlog, sdlog, log = FALSE)
 
@@ -133,10 +133,7 @@ rlognormalgpd(n, meanlog, sdlog, threshold, tail_scale, tail_shape)
 Numeric vector of densities, probabilities, quantiles, or random variates.
 }
 \description{
-Vectorized R wrappers for Lognormal mixture, Lognormal mixture + GPD, and
-Lognormal + GPD distribution functions. These lowercase versions accept vector
-inputs for the first argument (\code{x}, \code{q}, or \code{p}) and return
-a numeric vector. The \code{r*} functions support \code{n > 1}.
+Vectorized R wrappers for the scalar lognormal-kernel topics in this file.
 }
 \section{Functions}{
 \itemize{
@@ -179,3 +176,17 @@ dlognormalmixgpd(c(2, 3, 4), w = w, meanlog = ml, sdlog = sl,
                  threshold = 2.5, tail_scale = 0.5, tail_shape = 0.2)
 
 }
+\seealso{
+\code{\link[=lognormal_mix]{lognormal_mix()}}, \code{\link[=lognormal_mixgpd]{lognormal_mixgpd()}}, \code{\link[=lognormal_gpd]{lognormal_gpd()}}, \code{\link[=bundle]{bundle()}},
+\code{\link[=get_kernel_registry]{get_kernel_registry()}}.
+
+Other vectorized kernel helpers: 
+\code{\link{amoroso_lowercase}},
+\code{\link{base_lowercase}},
+\code{\link{cauchy_mix_lowercase}},
+\code{\link{gamma_lowercase}},
+\code{\link{invgauss_lowercase}},
+\code{\link{laplace_lowercase}},
+\code{\link{normal_lowercase}}
+}
+\concept{vectorized kernel helpers}

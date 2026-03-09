@@ -10,6 +10,7 @@
 \usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb}
 \usepackage{booktabs}
+\usepackage{float}
 \usepackage{graphicx}
 \usepackage{natbib}
 \usepackage{xurl}
@@ -40,7 +41,7 @@
 \Shorttitle{CausalMixGPD}
 
 \Abstract{
-Heavy-tailed outcomes arise in many scientific domains where rare events dominate risk, cost, or policy decisions. Classical parametric models often fit the center of the distribution at the expense of tail misspecification, while purely nonparametric methods typically lack principled extrapolation in regions with sparse data. Extreme value theory (EVT) provides asymptotic justification for generalized Pareto distributions (GPDs) for threshold exceedances, whereas Bayesian nonparametric Dirichlet process mixtures (DPMs) provide flexible modeling for heterogeneous bulk behavior. This article introduces \texttt{CausalMixGPD}, an \textsf{R} package implementing a Bayesian semiparametric framework that combines conditional DPMs for the bulk distribution with covariate-dependent GPD tails for exceedances, with posterior predictive inference for densities, distribution functions, quantiles, survival probabilities, and tail risks. The framework is conditional by construction; unconditional models arise as a special case when covariates are omitted. The package supports both Chinese restaurant process (CRP) and stick-breaking (SB) representations of the Dirichlet process, multiple kernel families for bulk modeling, and an extension to causal inference via treatment-specific conditional distributions that enable inference on distributional and tail-sensitive causal estimands.
+Heavy-tailed outcomes arise in many scientific domains where rare events dominate risk, cost, or policy decisions. Classical parametric models often fit the center of the distribution at the expense of tail misspecification, while purely nonparametric methods typically lack principled extrapolation in regions with sparse data. Extreme value theory (EVT) provides asymptotic justification for generalized Pareto distributions (GPDs) for threshold exceedances, whereas Bayesian nonparametric Dirichlet process mixtures (DPMs) provide flexible modeling for heterogeneous bulk behavior. This article introduces \texttt{CausalMixGPD}, an \textsf{R} package implementing a Bayesian semiparametric framework that combines conditional DPMs for the bulk distribution with covariate-dependent GPD tails for exceedances, with posterior predictive inference for densities, distribution functions, quantiles, survival probabilities, and tail risks. The framework is conditional by construction; unconditional models arise as a special case when covariates are omitted. The package supports both Chinese restaurant process (CRP) and stick-breaking (SB) representations of the Dirichlet process, multiple kernel families for bulk modeling, and an extension to causal inference via treatment-specific conditional distributions that enable inference on distributional and tail-sensitive causal estimands. In addition, the package includes a model-based clustering wing (bulk-only and spliced), supporting covariate-dependent mixture weights, covariate-dependent component parameters, or both, with clustering summaries based on posterior co-clustering probabilities.
 }
 
 \Keywords{Bayesian nonparametrics; Dirichlet Process Mixture; Generalized Pareto Distribution; Extreme Value Theory; Causal Inference; \textsf{R}; \texttt{nimble}}
@@ -57,6 +58,7 @@ knitr::opts_chunk$set(
   fig.height = 2.5,
   out.width = "0.82\\linewidth",
   fig.align = "center",
+  fig.pos = "H",
   size = "footnotesize",
   tidy = FALSE,
   echo = TRUE,
@@ -139,14 +141,6 @@ resolve_cache_dir <- function() {
   }
   gsub("\\\\", "/", hit)
 }
-
-mcmc_fixed <- list(
-  niter = 200,
-  nburnin = 50,
-  thin = 1,
-  nchains = 1,
-  seed = 1
-)
 
 CACHE_DIR <- resolve_cache_dir()
 cache_file <- function(...) {
@@ -257,16 +251,18 @@ extreme-quantile estimation \citep{durrieu2018extremefit}.
 This article introduces, an \textsf{R} package (\pkg{CausalMixGPD}) that
 connects Bayesian nonparametric bulk modeling with extreme-value tail
 modeling, while also supporting robust causal analyses in presence of covariates(confounders).
-The package provides two complementary capabilities:
+The package provides three simultaneous capabilities:
 
 \begin{itemize}
    \item \textbf{Bayesian Non-Parametric density modeling and prediction with optional GPD tail:}
    \pkg{CausalMixGPD} fits DPMs using a user-chosen kernel below a certain threshold (bulk part),
    and can optionally splice a generalized Pareto tail above the threshold (tail part) to enable the estimation of tail quantities
    and posterior predictive inference for rare-event summaries.
+   \item \textbf{Model-based clustering:} a dedicated clustering interface that supports three setups where mixture weights, parameters and both depends on           covariates and returns clustering summaries via posterior similarity matrices and Dahl least-squares partitions.
    \item \textbf{Causal estimation and prediction for RCTs and observational studies:}
    This package also supports causal analyses by modeling treatment-specific potetntial outcome
    densities and reporting contrasts as functionals of the posterior over densities.
+
  \end{itemize}
 
 Taken together, \pkg{CausalMixGPD} offers a coherent workflow for
@@ -443,11 +439,15 @@ ggplot(gpd_df, aes(x = y, y = density, color = xi)) +
   theme(legend.position = "top")
 @
 
-<<gpdDensityFigure-results, echo=FALSE, eval=TRUE>>=
+<<gpdDensityFigure-results, echo=FALSE, eval=TRUE, results='asis'>>=
+cat("\\begin{figure}[H]\\centering\n")
 knitr::include_graphics(cache_file("figs", "gpdDensityFigure.png"))
+cat("\\caption{GPD tail density above threshold for multiple shape parameters.\\label{fig:gpd-density}}\n")
+cat("\\end{figure}\n")
 @
 
-The figure above illustrates the GPD density for different shape parameters $\xi$ with a fixed
+Figure~\ref{fig:gpd-density}, captioned ``GPD tail density above threshold for multiple shape parameters,''
+illustrates the GPD density for different shape parameters $\xi$ with a fixed
 scale parameter $\sigma$ and threshold $u$. The shape parameter $\xi$ controls the tail heaviness: $\xi < 0$
 corresponds to a light tail with a finite upper bound, $\xi = 0$ corresponds to an exponential tail, and $\xi > 0$
 corresponds to a heavy tail with infinite support. The GPD provides a flexible family for modeling exceedances
@@ -566,9 +566,15 @@ ggplot(spliced_df, aes(x = y, y = density, color = component, linetype = compone
   theme(legend.position = "top")
 @
 
-<<splicedDensityFigure-results, echo=FALSE, eval=TRUE>>=
+<<splicedDensityFigure-results, echo=FALSE, eval=TRUE, results='asis'>>=
+cat("\\begin{figure}[H]\\centering\n")
 knitr::include_graphics(cache_file("figs", "splicedDensityFigure.png"))
+cat("\\caption{Illustration of the spliced bulk--tail density construction.\\label{fig:spliced-density}}\n")
+cat("\\end{figure}\n")
 @
+
+Figure~\ref{fig:spliced-density}, captioned ``Illustration of the spliced bulk--tail density construction,''
+visualizes the spliced bulk--tail density construction.
 
 
 To make the splicing and downstream functionals explicit, we collect the
@@ -585,7 +591,7 @@ f_{\mathrm{DP}}(y\mid x ; \theta)
 regression coefficients and $$\theta_j(x) = g(x^{\top} \beta_j)$$ denotes the kernel
 parameter vector induced at covariate value $x$ through the
 corresponding coefficients in $\Theta$ by a user chosen link function $g(\cdot)$. Mixture weights $\{w_j\}$ are
-generated by the DP backend (SB or CRP representation) which we will discuss in Section~\eqref{sec:overview}.
+generated by the DP backend (SB or CRP representation) which we will discuss in Section~\ref{sec:overview}.
 It is to be noted that $\Theta$ may contain other kernel
 parameters that may not depend on covariates. As an example if the kernel is a Gaussian density, then $\Theta$ may
  contain regression coefficients for the mean ($\beta^{\mu}_j$) and a variance parameter ($\sigma_j$) that does not depend on covariates.
@@ -598,7 +604,7 @@ For the tail block, let \begin{equation}
 and tail-regression coefficients as
 $$u(x) = g_u(x^{\top} \beta_u), \qquad \sigma(x) = g_\sigma(x^{\top} \beta_\sigma),$$
  with $g_u(\cdot)$ and $g_\sigma(\cdot)$ being user-chosen link functions.
-Lastly, $\xi$ is the tail shape parameter as discussed in Section~\eqref{subsec:gpd}.
+Lastly, $\xi$ is the tail shape parameter as discussed in Section~\ref{subsec:gpd}.
 Thus, $\Theta$ and $\Phi$ are global parameter collections, while $x$
 enters through these mappings. The package allows users to control which
 kernel and tail parameters vary with covariates (e.g., via link-based
@@ -612,7 +618,96 @@ used throughout the package. In the causal extension
 separately to treatment-specific conditional distributions
 $F_a(\cdot\mid x)$, enabling causal contrasts based on densities,
 quantiles, and tail risks rather than only mean-scale effects. For datasets with moderate to light tail behavior,
- users can choose to fit a DPM without splicing by using appropriate settings for the tail (See Section ~\eqref{subsec:overview-nogpd}).
+ users can choose to fit a DPM without splicing by using appropriate settings for the tail (See Section ~\ref{subsec:overview-nogpd}).
+
+\subsection{Clustering under predictor-dependent Bayesian nonparametric mixtures}
+\label{subsec:clustering-theory}
+
+A common Bayesian nonparametric approach to conditional density modeling represents the collection
+$\{f(\,\cdot\mid x): x\in\mathcal{X}\}$ through predictor-indexed random probability measures.
+Within the Dependent Dirichlet Process (DDP) framework of \citet{MacEachern1999,MacEachern2000},
+one specifies a family $\{G_x: x\in\mathcal{X}\}$ of random mixing measures whose dependence across
+$x$ induces flexible borrowing of information in $f(\,\cdot\mid x)$.
+
+A generic mixture representation is
+\begin{equation}
+f(y\mid x) \;=\; \int k\!\left(y\mid x,\theta\right)\, dG_x(\theta),
+\label{eq:clust_mix_int}
+\end{equation}
+where $k(\cdot\mid x,\theta)$ is a kernel and $G_x$ is a predictor-indexed mixing measure.
+When $G_x$ is discrete (as under stick-breaking constructions), latent parameters exhibit ties,
+inducing a random partition of observations. Introduce allocation variables $z_i$ and component
+parameters $\{\theta_j\}_{j\ge1}$ such that
+\begin{equation}
+y_i \mid z_i,\{\theta_j\},x_i \sim k\!\left(\,\cdot \mid x_i,\theta_{z_i}\right).
+\label{eq:clust_latent}
+\end{equation}
+Clustering is then characterized by the posterior distribution of the induced partition
+$\Pi=\{z_1,\ldots,z_n\}$ and summarized in a label-invariant manner using co-clustering
+functionals \citep{Binder1978,Dahl2006}.
+
+In the clustering component considered here, we allow three forms of predictor dependence, each
+corresponding to a particular construction of $G_x$ (equivalently, predictor dependence in the
+weights and/or atoms of a stick-breaking representation). In all cases, the conditional density
+admits the series form
+\begin{equation}
+f(y\mid x) \;=\; \sum_{j=1}^{\infty} w_j(x)\, k\!\left(y\mid x,\theta_j\right),
+\label{eq:clust_series}
+\end{equation}
+with $w_j(x)\ge0$ and $\sum_{j=1}^{\infty} w_j(x)=1$ for all $x$.
+
+\begin{itemize}
+
+\item \textbf{Weight dependence only:} predictors modulate mixture weights while atoms are shared across $x$.
+Predictors may affect only the mixing weights, with atoms shared across $x$:
+\begin{equation}
+f(y\mid x) \;=\; \sum_{j=1}^{\infty} w_j(x)\, k\!\left(y\mid \theta_j\right).
+\label{eq:clust_weights_only}
+\end{equation}
+This specification is appropriate when covariates modulate subpopulation prevalence while
+within-subpopulation distributions remain stable. A common approach uses predictor-dependent
+stick-breaking, where stick lengths are transformed regressions in $x$; the logistic stick-breaking
+process constructs these lengths via logistic regressions and maps them to weights
+\citep{Ren2011}. Such models can be viewed as practical DDP instances in which dependence is
+introduced through smoothly varying weights \citep{MacEachern2000,Quintana2022}.
+
+
+\item \textbf{Atom dependence only:} predictors modulate component-specific kernel parameters while weights are shared across $x$
+Alternatively, predictors may enter through component-specific kernel parameters while the weights
+remain global:
+\begin{equation}
+f(y\mid x) \;=\; \sum_{j=1}^{\infty} w_j\, k\!\left(y\mid x,\theta_j\right).
+\label{eq:clust_param_only}
+\end{equation}
+Here, $\theta_j$ typically indexes cluster-specific regression parameters (with appropriate link
+functions to enforce constraints), so that clusters correspond to distinct regression surfaces while
+$w_j$ retains the interpretation of global prevalence. This structure aligns with DDP
+constructions that share weights while allowing predictor-indexed atoms or atom transformations
+\citep{MacEachern1999,MacEachern2000}, and is closely related to ANOVA-type dependent priors for
+structured collections of random measures \citep{DeIorio2004}.
+
+\item \textbf{Weight and atom dependence:} predictors modulate both mixture weights and component-specific kernel parameters
+The most flexible specification allows predictors to influence both prevalence and within-cluster
+behavior:
+\begin{equation}
+f(y\mid x) \;=\; \sum_{j=1}^{\infty} w_j(x)\, k\!\left(y\mid x,\theta_j\right).
+\label{eq:clust_both}
+\end{equation}
+This corresponds to DDP-type models in which both selection probabilities and component-specific
+conditional structure vary with predictors \citep{Quintana2022}.
+\end{itemize}
+
+Posterior clustering summaries are reported using label-invariant functionals of $\Pi$. The posterior
+similarity matrix (PSM) has entries
+\begin{equation}
+S_{i\ell} \;=\; \Pr(z_i=z_\ell \mid \text{data}), \qquad i,\ell=1,\ldots,n,
+\label{eq:psm}
+\end{equation}
+estimated by Monte Carlo averages over MCMC output. A representative partition may be obtained by
+selecting the sampled partition whose adjacency matrix is closest to the PSM under squared loss
+\citep{Dahl2006}, yielding a stable point estimate while retaining the PSM as the primary uncertainty
+summary.
+
 
 \subsection{Causal Inference: Notation, Identification, and Reported Estimands}
 \label{subsec:causal}
@@ -809,7 +904,7 @@ covariate-dependent through link specifications of the form
 \end{equation} where $g(\cdot)$ enforces parameter support (e.g.,
 positive scale parameters).
 
-<<overview-mcmc-settings, echo=TRUE, eval=FALSE>>=
+<<overview-mcmc-settings, echo=TRUE, eval=TRUE, results='hide'>>=
 mcmc_fixed <- list(
   niter = 200,
   nburnin = 50,
@@ -995,7 +1090,7 @@ est_quant <- overview_est$est_quant
 @
 
 <<overview-estimation-same-fit-results, echo=FALSE, eval=TRUE>>=
-head(as.data.frame(est_quant$fit), 10)
+head(as.data.frame(est_quant$fit), 4)
 @
 
 For a new covariate value $x^\star$, prediction is based on the
@@ -1055,21 +1150,215 @@ pquant <- overview_pred$pquant
 
 <<overview-predict-grid-results, echo=FALSE, eval=TRUE>>=
 x_new
-head(y_grid, 10)
+head(y_grid, 4)
 p_grid
 @
 
 <<overview-predict-density-results, echo=FALSE, eval=TRUE>>=
-head(as.data.frame(pdens$fit), 10)
+head(as.data.frame(pdens$fit), 4)
 @
 
 <<overview-predict-survival-results, echo=FALSE, eval=TRUE>>=
-head(as.data.frame(psurv$fit), 10)
+head(as.data.frame(psurv$fit), 4)
 @
 
 <<overview-predict-quantile-results, echo=FALSE, eval=TRUE>>=
-head(as.data.frame(pquant$fit), 10)
+head(as.data.frame(pquant$fit), 4)
 @
+
+\subsection{Clustering extension}
+\label{subsec:cluster_extension}
+
+The mixture modeling framework introduced earlier induces a latent partition
+of the observations through the allocation variables $z_i$. While the primary
+modeling workflow of the package focuses on estimating conditional densities
+and causal functionals, the clustering extension instead treats this latent
+partition as the main object of interest. The package therefore provides a
+dedicated clustering interface that fits the same mixture models but returns
+clustering summaries derived from the posterior distribution of the allocation
+variables.
+
+The clustering workflow mirrors the design used throughout the package.
+Users specify the response variable, optional covariates, the mixture kernel,
+and whether the model should use the bulk-only or the spliced likelihood.
+The resulting model is then fitted using the same MCMC framework used for the
+conditional and causal models. Consequently, clustering models share the
+same prior specification, kernel choices, and computational infrastructure as
+the rest of the package.
+
+Two clustering wrappers are provided. The first constructs mixture models
+using only the bulk kernel distribution. The second uses the spliced
+bulk--tail likelihood introduced earlier, allowing the clustering structure
+to account for extreme observations through the generalized Pareto tail.
+Both interfaces accept the same model specification arguments as the main
+modeling functions, ensuring that clustering models can be constructed using
+the same syntax and options.
+
+Three forms of covariate dependence are supported in clustering models.
+First, covariates may influence the mixture weights while the component
+distributions remain invariant across observations. In this configuration,
+clusters represent subpopulations whose prevalence varies with predictors.
+Second, the mixture weights may remain global while the component parameters
+depend on covariates through the same link structures used in the conditional
+density models. In this case clusters represent groups with distinct
+covariate-response relationships. Third, both the mixture weights and the
+component parameters may depend on covariates simultaneously, allowing
+clusters to capture both changing prevalence and covariate-dependent
+distributional behavior.
+
+Posterior inference for clustering models uses the same sampling procedure as
+the main mixture models, jointly updating the component parameters and the
+allocation variables. Let
+$z^{(s)}=\bigl(z_1^{(s)},\ldots,z_n^{(s)}\bigr)$, $s=1,\ldots,S$, denote the
+retained MCMC draws of the latent allocation vector after burn-in and thinning.
+Because mixture components are only identified up to label permutation,
+\texttt{CausalMixGPD} reports label-invariant clustering summaries based on
+pairwise co-clustering probabilities and a representative partition
+\citep{Binder1978,Dahl2006}.
+
+The primary uncertainty summary is the posterior similarity matrix (PSM),
+computed entrywise as
+\[
+  \widehat S_{i\ell}
+  =
+  \frac{1}{S}\sum_{s=1}^S \mathbf{1}\!\left\{z_i^{(s)} = z_\ell^{(s)}\right\},
+  \qquad i,\ell=1,\ldots,n.
+\]
+Thus, $\widehat S_{i\ell}$ is the posterior probability that observations $i$
+and $\ell$ belong to the same cluster.
+
+A single representative partition is then extracted by selecting the sampled
+partition whose adjacency matrix is closest to the PSM under squared loss
+\citep{Dahl2006}:
+\[
+  s^\star
+  =
+  \arg\min_{1 \le s \le S}
+  \sum_{i=1}^n \sum_{\ell=1}^n
+  \left(
+    \mathbf{1}\!\left\{z_i^{(s)} = z_\ell^{(s)}\right\}
+    - \widehat S_{i\ell}
+  \right)^2.
+\]
+The representative labels are $\hat z_i = z_i^{(s^\star)}$, relabeled to
+consecutive integers $1,\ldots,K$, and the reported cluster sizes are
+$n_k = \sum_{i=1}^n \mathbf{1}\!\left\{\hat z_i = k\right\}$.
+
+When \texttt{return\_scores = TRUE}, the package also returns a training
+membership score matrix. If $C_k=\{\ell:\hat z_\ell = k\}$ denotes cluster $k$
+in the representative partition, the unnormalized score for observation $i$ and
+cluster $k$ is
+\[
+  q_{ik}
+  =
+  \frac{1}{|C_k|}
+  \sum_{\ell \in C_k} \widehat S_{i\ell},
+\]
+and the normalized training score is
+\[
+  p_{ik}
+  =
+  \frac{q_{ik}}{\sum_{h=1}^K q_{ih}}.
+\]
+The hard representative label is $\arg\max_{1 \le k \le K} p_{ik}$, while a
+simple allocation-certainty summary is $\max_{1 \le k \le K} p_{ik}$.
+
+For a new observation $(y_i^{\mathrm{new}}, x_i^{\mathrm{new}})$, the package
+first forms within-draw component scores
+\[
+  r_{ij}^{(s)}
+  \propto
+  \omega_j^{(s)}\!\left(x_i^{\mathrm{new}}\right)
+  f_j^{(s)}\!\left(y_i^{\mathrm{new}} \mid x_i^{\mathrm{new}}\right),
+  \qquad j=1,\ldots,J,
+\]
+where $\omega_j^{(s)}(x)$ is the draw-specific gating weight when that quantity
+is available; otherwise the implementation falls back to sampled global weights,
+when present, or to the empirical component frequencies in draw $s$. For
+occupied components, these scores are mapped to representative clusters through
+\[
+  m_{jc}^{(s)}
+  =
+  \frac{1}{n_j^{(s)}}
+  \sum_{\ell:\,z_\ell^{(s)}=j}
+  \mathbf{1}\!\left\{\hat z_\ell = c\right\},
+  \qquad c=1,\ldots,K,
+\]
+and then averaged over posterior draws:
+\[
+  p_{ic}^{\mathrm{new}}
+  =
+  \frac{1}{S}
+  \sum_{s=1}^S \sum_{j=1}^J r_{ij}^{(s)} m_{jc}^{(s)}.
+\]
+Empty sampled components are assigned a uniform map over the $K$ representative
+clusters. These are the quantities returned internally by
+\texttt{predict.dpmixgpd\_cluster\_fit()}.
+After row normalization, the predicted cluster label is
+$\arg\max_{1 \le c \le K} p_{ic}^{\mathrm{new}}$.
+
+The clustering workflow is illustrated below using one of the example data
+sets included with the package.
+
+<<cluster_example_fit, eval=TRUE>>=
+library(CausalMixGPD)
+
+data("nc_real200_k2", package = "CausalMixGPD")
+data("nc_realX100_p3_k2", package = "CausalMixGPD")
+
+dat_cl <- data.frame(y = nc_realX100_p3_k2$y, nc_realX100_p3_k2$X)
+
+fit_cluster <- dpmix.cluster(
+  y ~ x1 + x2 + x3,
+  data       = dat_cl,
+  kernel     = "normal",
+  type       = "weights",
+  components = 8,
+  mcmc = mcmc_fixed
+)
+@
+
+Posterior clustering summaries can be obtained directly from the fitted
+object. The following code returns the PSM, the representative training
+partition, the training cluster sizes, and the associated certainty scores.
+
+<<cluster_psm_example, eval=TRUE>>=
+cluster_psm   <- predict(fit_cluster, type = "psm")
+cluster_train <- predict(fit_cluster, type = "label", return_scores = TRUE)
+
+cluster_sizes     <- as.data.frame(table(cluster = cluster_train$labels))
+cluster_certainty <- apply(cluster_train$scores, 1, max)
+@
+
+Cluster assignments for new observations are obtained from the posterior
+predictive score matrix in the same interface.
+
+<<cluster_prediction_example, eval=TRUE>>=
+cluster_new <- predict(
+  fit_cluster,
+  newdata = dat_cl,
+  type    = "label",
+  return_scores = TRUE
+)
+
+cluster_new_certainty <- apply(cluster_new$scores, 1, max)
+@
+
+The same workflow applies to the spliced mixture model, which incorporates
+the generalized Pareto tail component when clustering data with heavy-tailed
+behavior.
+
+<<cluster_spliced_example, eval=TRUE>>=
+fit_cluster_spliced <- dpmgpd.cluster(
+  y ~ x1 + x2 + x3,
+  data       = dat_cl,
+  kernel     = "normal",
+  type       = "both",
+  components = 8,
+  mcmc = mcmc_fixed
+)
+@
+
 
 \subsection{Causal extension and propensity score augmentation}
 \label{subsec:overview-causal}
@@ -1276,16 +1565,6 @@ dat <- causal_pos500_p3_k2
 df  <- data.frame(y = dat$y, A = dat$A, dat$X)
 @
 
-<<causal-mcmc-settings, echo=TRUE, eval=FALSE>>=
-mcmc_fixed <- list(
-  niter = 200,
-  nburnin = 50,
-  thin = 1,
-  nchains = 1,
-  seed = 1
-)
-@
-
 <<causal-fit-model, echo=TRUE, eval=FALSE>>=
 cfit <- dpmgpd.causal(
   formula = y ~ x1 + x2 + x3,
@@ -1327,7 +1606,7 @@ ate_hat <- ate(cfit, level = 0.90, interval = "credible")
 @
 
 <<causal-ate-results, echo=FALSE, eval=TRUE>>=
-ate_hat$ate$fit
+head(as.data.frame(ate_hat$ate$fit), 4)
 @
 
 <<causal-qte-code, echo=TRUE, eval=FALSE>>=
@@ -1335,7 +1614,7 @@ qte_hat <- qte(cfit, probs = c(0.50, 0.90, 0.95), level = 0.90, interval = "hpd"
 @
 
 <<causal-qte-results, echo=FALSE, eval=TRUE>>=
-qte_hat$qte$fit
+head(as.data.frame(qte_hat$qte$fit), 4)
 @
 
 <<causal-covariate-grid, echo=TRUE, eval=FALSE>>=
@@ -1347,7 +1626,7 @@ cate_hat <- cate(cfit, newdata = Xnew, type = "mean", level = 0.90)
 @
 
 <<causal-cate-results, echo=FALSE, eval=TRUE>>=
-cate_hat$ate$fit
+head(as.data.frame(cate_hat$ate$fit), 4)
 @
 
 <<causal-cqte-code, echo=TRUE, eval=FALSE>>=
@@ -1355,7 +1634,7 @@ cqte_hat <- cqte(cfit, newdata = Xnew, probs = c(0.50, 0.90), level = 0.90)
 @
 
 <<causal-cqte-results, echo=FALSE, eval=TRUE>>=
-cqte_hat$qte$fit
+head(as.data.frame(cqte_hat$qte$fit), 4)
 @
 
 <<causal-predict-grid, echo=TRUE, eval=FALSE>>=
@@ -1368,7 +1647,7 @@ pred_q <- predict(cfit, newdata = Xgrid, type = "quantile", p = c(0.50, 0.90))
 @
 
 <<causal-predict-quantile-results, echo=FALSE, eval=TRUE>>=
-head(as.data.frame(pred_q$fit), 10)
+head(as.data.frame(pred_q$fit), 4)
 @
 
 <<causal-predict-survival-code, echo=TRUE, eval=FALSE>>=
@@ -1376,7 +1655,7 @@ pred_s <- predict(cfit, newdata = Xgrid, type = "survival", y = rep(4, nrow(Xgri
 @
 
 <<causal-predict-survival-results, echo=FALSE, eval=TRUE>>=
-head(as.data.frame(pred_s$fit), 10)
+head(as.data.frame(pred_s$fit), 4)
 @
 
 <<causal-predict-arms, echo=TRUE, eval=FALSE>>=
@@ -1385,8 +1664,8 @@ pred_q_con <- attr(pred_q, "con")
 @
 
 <<causal-predict-arms-results, echo=FALSE, eval=TRUE>>=
-head(as.data.frame(pred_q_trt$fit), 10)
-head(as.data.frame(pred_q_con$fit), 10)
+head(as.data.frame(pred_q_trt$fit), 4)
+head(as.data.frame(pred_q_con$fit), 4)
 @
 
 \subsubsection{Bulk-only causal mixtures (no GPD tail)}
@@ -1397,120 +1676,221 @@ construction). All causal estimand and prediction functions
 (\texttt{ate}, \texttt{qte}, \texttt{cate}, \texttt{cqte}, and
 \texttt{predict}) operate the same way, now interpreting
 $F_a(\cdot\mid\boldsymbol{x})$ as the bulk mixture distribution.
-
-\section{Data analysis I: CRP mixture regression (bulk-only) with model-based clustering}
+\section{Data analysis I: clustering under a bulk-only conditional mixture}
 \label{sec:app-clustering}
 
-This application demonstrates model-based clustering from a
-\emph{conditional} DPM regression, using the
-CRP backend and the bulk-only likelihood
-(no GPD tail). Clusters are inferred from posterior draws of the latent
-membership indicators and summarized using a posterior similarity matrix
-(PSM), which is invariant to label switching.
+This application demonstrates the clustering wing for a conditional mixture
+model under a bulk-only likelihood (no GPD tail). The objective is to infer
+latent groups of observational units implied by the fitted mixture model,
+and to summarize posterior clustering uncertainty in a label-invariant way.
+Throughout, clustering is reported via (i) the posterior similarity matrix
+(PSM) and (ii) a single representative partition derived from the posterior
+draws, together with out-of-sample cluster label prediction for new units.
 
 \subsection{Dataset and objective}
 
-I use the \code{Boston} housing data (\pkg{MASS}), treating each census
-tract as an observational unit. Let $$
+We use the \code{Boston} housing data (\pkg{MASS}), treating each census tract
+as an observational unit. Let
+\[
   \mathcal{D}=\{(y_i,\boldsymbol{x}_i)\}_{i=1}^n,
-$$ where $y_i$ is the per-capita crime rate \code{crim} for tract $i$
-and $\boldsymbol{x}_i$ is a vector of tract characteristics. The goal is
-twofold: (i) flexibly model the conditional distribution of a positive,
-right-skewed outcome and (ii) identify latent groups of tracts with
-distinct regression patterns.
+\]
+where $y_i$ is the per-capita crime rate (\code{crim}) for tract $i$, and
+$\boldsymbol{x}_i$ is a vector of tract characteristics. Our aim is twofold:
+(i) to cluster tracts using a flexible conditional mixture model that can
+accommodate skewness and heterogeneity, and (ii) to assign cluster labels
+to new tracts using posterior predictive co-clustering evidence.
 
-\subsection{CRP mixture regression model (bulk-only)}
+\subsection{Preprocessing and train/test split}
 
-I fit a DPM of lognormal regressions. Conditional on a latent
-membership $z_i\in\{1,2,\ldots\}$, the outcome follows the bulk kernel
-introduced earlier: \begin{align}
-  y_i \mid z_i=k,\boldsymbol{x}_i
-  &\sim \mathrm{Lognormal}\!\left(\mu_{ik},\sigma_k\right), \label{eq:app_clust_kernel}\\
-  \mu_{ik}
-  &= g\!\left(\boldsymbol{x}_i^\top \boldsymbol{\beta}_k\right),
-  \qquad g(\eta)=\eta, \label{eq:app_clust_link}
-\end{align} where $\boldsymbol{\beta}_k$ are component-specific
-regression coefficients and $\sigma_k>0$ is the component-specific
-log-scale standard deviation. The DP prior induces a random partition
-through the CRP representation, $$
-  (z_1,\ldots,z_n)\mid \alpha \sim \mathrm{CRP}(\alpha),
-$$ with $\alpha>0$ controlling the expected number of occupied clusters.
-In \pkg{CausalMixGPD}, the CRP backend represents up to
-\code{components = K} clusters in a finite NIMBLE model; the realized
-number of occupied clusters is then monitored and checked against this
-upper bound.
+We split the data into a training set used to fit the clustering model and a
+test set used only for cluster-label prediction. Covariates are standardized
+using training-set moments to avoid leakage.
 
-\subsection{Posterior simulation, convergence checks, and parameter extraction}
+<<app_cluster_data-cache, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
+library(CausalMixGPD)
+library(MASS)
 
-Posterior simulation is carried out by MCMC. I run two chains and
-assess convergence using standard diagnostics (trace plots,
-autocorrelation, effective sample sizes, and $\widehat{R}$ when
-applicable), along with a mixture-specific diagnostic: the posterior
-distribution of the number of occupied clusters.
+set.seed(123)
+data("Boston", package = "MASS")
 
-A key practical point for this analysis is that we explicitly request
-link-mode for \code{meanlog} so the CRP model is a
-\emph{mixture regression} rather than a purely unconditional mixture.
-This is done via \code{param\_specs} in the wrapper call below.
+dat <- Boston
+dat <- subset(dat, select = c(crim, lstat, rm, nox))
 
-<<app_cluster_fit-cache, echo=FALSE, message=FALSE, warning=FALSE, results='hide', eval=TRUE, include=FALSE>>=
-obj <- read_cache_rds("fits", "app_cluster_fit.rds")
-list2env(obj, envir = environment())
+n <- nrow(dat)
+idx_train <- sample(seq_len(n), size = floor(0.75 * n), replace = FALSE)
+train_dat <- dat[idx_train, ]
+test_dat  <- dat[-idx_train, ]
+
+# standardize covariates using training set
+xvars <- c("lstat", "rm", "nox")
+mu_x  <- vapply(train_dat[, xvars], mean, numeric(1))
+sd_x  <- vapply(train_dat[, xvars], sd,   numeric(1))
+
+train_dat[, xvars] <- sweep(sweep(train_dat[, xvars], 2, mu_x, "-"), 2, sd_x, "/")
+test_dat[, xvars]  <- sweep(sweep(test_dat[, xvars],  2, mu_x, "-"), 2, sd_x, "/")
 @
 
-<<app_cluster_fit-code, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE>>=
-fit_clust <- dpmix(
-  formula = crim ~ lstat + rm + nox,
-  data = train_dat,
-  backend = "crp",
-  kernel = "normal",
-  components = 5,
-  mcmc = mcmc_fixed
-)
-@
-
-<<app_cluster_fit-results, echo=FALSE, eval=TRUE>>=
+<<app_cluster_data-results, echo=FALSE, eval=TRUE>>=
 data.frame(
-  sample = c("train", "new"),
+  sample = c("train", "test"),
   n = c(nrow(train_dat), nrow(test_dat))
 )
 @
 
-\subsection{Allocation plot: training vs new data}
+\subsection{Clustering model specification and fit}
 
-For clustering, we report old (training) and new-sample cluster tables
-and a bar chart comparing cluster frequencies.
+We fit a bulk-only conditional mixture model for \code{crim} with three
+covariates. In this illustration, we select \texttt{type="param"}, meaning
+covariates enter through component-specific regression parameters while the
+mixture weights are global. This configuration clusters observations by
+their regression behavior and distributional differences while keeping
+cluster prevalence interpretable as a global mixing proportion.
 
-<<app_cluster_newdata_allocation-cache, echo=FALSE, message=FALSE, warning=FALSE, results='hide', eval=TRUE, include=FALSE>>=
-obj <- read_cache_rds("tables", "app_cluster_newdata_allocation.rds")
-list2env(obj, envir = environment())
+The fitted object is subsequently summarized through posterior co-clustering
+probabilities (PSM) and a representative partition.
+
+<<app_cluster_fit-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
+fit_clust <- dpmix.cluster(
+  formula    = crim ~ lstat + rm + nox,
+  data       = train_dat,
+  kernel     = "lognormal",
+  type       = "weight",
+  components = 20,
+  mcmc       = mcmc_fixed
+)
 @
 
-<<app_cluster_newdata_allocation-code, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE>>=
-cluster_alloc_new <- allocation(fit_clust, newdata = newdata_cluster)
+\subsection{Posterior similarity matrix and representative partition}
+
+Because mixture components are not identifiable up to permutation, clustering
+summaries are reported using label-invariant quantities. The PSM is defined by
+\[
+  S_{i\ell}=\Pr(z_i=z_\ell\mid \text{data}), \qquad i,\ell=1,\ldots,n,
+\]
+and is estimated by averaging co-clustering indicators across posterior draws.
+A single representative partition is then extracted from the posterior draws
+by selecting a sampled partition whose induced adjacency structure is closest
+to the PSM under squared loss, yielding stable cluster labels for the training
+data.
+
+The following commands extract the training PSM and the representative labels.
+
+<<app_cluster_psm_label-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
+PSM_train <- predict(fit_clust, type = "psm")
+z_train   <- predict(fit_clust, type = "label")
 @
 
-<<app_cluster_newdata_allocation-results, echo=FALSE, eval=TRUE>>=
-train_cluster_counts
-new_cluster_counts
-cluster_certainty
+For presentation we report the number of clusters and cluster sizes under the
+representative partition (Table~\ref{tab:cluster-train-alloc}).
+
+<<app_cluster_train_sizes-code, echo=FALSE, message=FALSE, warning=FALSE, results='hide', eval=TRUE, include=FALSE>>=
+train_cluster_counts <- as.data.frame(table(cluster = z_train$labels))
+names(train_cluster_counts) <- c("cluster", "n")
+
+as_horizontal_counts <- function(tbl, sample_name = NULL) {
+  cls <- as.character(tbl$cluster)
+  ord <- suppressWarnings(order(as.numeric(cls)))
+  if (any(!is.finite(suppressWarnings(as.numeric(cls))))) ord <- order(cls)
+  tbl <- tbl[ord, , drop = FALSE]
+  out <- as.list(as.integer(tbl$n))
+  names(out) <- paste0("C", as.character(tbl$cluster))
+  out <- as.data.frame(out, check.names = FALSE)
+  if (!is.null(sample_name)) out <- data.frame(sample = sample_name, out, check.names = FALSE)
+  out
+}
 @
 
-<<app_cluster_newdata_barplot-code, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE, fig.width=7, fig.height=5>>=
+<<app_cluster_train_sizes-results, echo=FALSE, eval=TRUE>>=
+knitr::kable(
+  as_horizontal_counts(train_cluster_counts, "train"),
+  caption = "Training cluster allocation (counts) \\label{tab:cluster-train-alloc}"
+)
+@
+
+A visualization of the PSM provides a global view of co-clustering uncertainty.
+Block structure indicates groups of tracts that are consistently assigned
+together across posterior draws, as shown in Figure~\ref{fig:cluster-psm-train},
+``Posterior similarity matrix for the training sample.''
+
+<<app_cluster_psm_plot-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=6.5, fig.height=5.5, fig.cap='Posterior similarity matrix for the training sample. \\label{fig:cluster-psm-train}'>>=
+image(PSM_train$psm, main = "Posterior similarity matrix (training)")
+@
+
+<<app_cluster_psm_plot-results, echo=FALSE, eval=TRUE>>=
+cat(sprintf("PSM dimension: %d x %d\n", nrow(PSM_train$psm), ncol(PSM_train$psm)))
+@
+
+\subsection{Cluster labels for new observations}
+
+Cluster assignment for new observations is performed through the same prediction
+interface. The output is a label in the space of the representative training
+clusters, obtained by aggregating posterior predictive co-clustering evidence
+at the cluster level.
+
+<<app_cluster_predict_new-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
+z_test <- predict(
+  fit_clust,
+  newdata = test_dat,
+  type    = "label"
+)
+@
+
+To compare training and new-sample clustering structure, we tabulate the
+representative cluster sizes in the training sample and the predicted cluster
+sizes in the test sample (Tables~\ref{tab:app_cluster_old_new_train-results}
+and \ref{tab:app_cluster_old_new_test-results}).
+
+<<app_cluster_old_new_tables-cache, echo=FALSE, message=FALSE, warning=FALSE, results='hide', eval=TRUE, include=FALSE>>=
+test_cluster_counts <- as.data.frame(table(cluster = z_test$labels))
+names(test_cluster_counts) <- c("cluster", "n")
+
+train_cluster_counts$sample <- "train"
+test_cluster_counts$sample <- "test"
+cluster_old_new_counts <- rbind(train_cluster_counts, test_cluster_counts)
+@
+
+<<app_cluster_old_new_train-results, echo=FALSE, eval=TRUE>>=
+knitr::kable(
+  as_horizontal_counts(train_cluster_counts, "train"),
+  caption = "Train allocation (horizontal)"
+)
+@
+
+<<app_cluster_old_new_test-results, echo=FALSE, eval=TRUE>>=
+knitr::kable(
+  as_horizontal_counts(test_cluster_counts, "test"),
+  caption = "Test allocation (horizontal)"
+)
+@
+
+We also visualize the shift in cluster frequencies from training to test to
+assess whether the inferred grouping structure generalizes; see
+Figure~\ref{fig:cluster-old-new-barplot}, captioned ``Cluster frequencies in training and test samples under representative labels.''
+
+<<app_cluster_old_new_barplot-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=7, fig.height=5, fig.cap='Cluster frequencies in training and test samples under representative labels. \\label{fig:cluster-old-new-barplot}'>>=
 ggplot(cluster_old_new_counts, aes(x = cluster, y = n, fill = sample)) +
   geom_col(position = "dodge") +
   labs(
-    title = "Cluster frequencies: old vs new",
-    x = "Cluster",
+    title = "Cluster frequencies: training vs test",
+    x = "Cluster (representative partition)",
     y = "Count",
     fill = "Sample"
   ) +
   theme_minimal(base_size = 10)
 @
 
-<<app_cluster_newdata_barplot-results, echo=FALSE, eval=TRUE>>=
-knitr::include_graphics(cache_file("figs", "app_cluster_old_new_barplot.png"))
+<<app_cluster_old_new_barplot-results, echo=FALSE, eval=TRUE>>=
+cat("Bar plot rendered above.\n")
 @
+
+This analysis illustrates the intended clustering workflow: inference is
+summarized through co-clustering probabilities and a representative training
+partition, and new observations are assigned to those clusters using posterior
+predictive co-clustering evidence. In Section~\ref{sec:app-causal}, we next
+turn to the causal workflow, which targets treatment contrasts rather than
+latent partitions.
+
+
 
 \section{Data analysis II: Spliced causal mixture regression with ATE, QTE, CATE and CQTE}
 \label{sec:app-causal}
@@ -1580,17 +1960,6 @@ obj <- read_cache_rds("fits", "app2_fit.rds")
 list2env(obj, envir = environment())
 @
 
-<<app2-mcmc-settings, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE>>=
-mcmc_fixed <- list(
-  niter = 120,
-  nburnin = 40,
-  thin = 1,
-  nchains = 1,
-  seed = 101,
-  show_progress = FALSE
-)
-@
-
 <<app2-fit-code, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE>>=
 fit <- dpmgpd.causal(
   x = y,
@@ -1599,7 +1968,8 @@ fit <- dpmgpd.causal(
   backend = "sb",
   kernel = "normal",
   components = 4,
-  mcmc = mcmc_fixed
+  mcmc = mcmc_fixed,
+  show_progress = FALSE
 )
 @
 
@@ -1629,7 +1999,7 @@ ate_fit <- ate(fit, show_progress = FALSE)
 @
 
 <<app2-ate-results, echo=FALSE, eval=TRUE>>=
-ate_fit$ate$fit
+head(as.data.frame(ate_fit$ate$fit), 4)
 @
 
 <<app2-qte-call, echo=TRUE, message=FALSE, warning=FALSE, results='hide', eval=FALSE>>=
@@ -1637,7 +2007,7 @@ qte_fit <- qte(fit, probs = taus, show_progress = FALSE)
 @
 
 <<app2-qte-results, echo=FALSE, eval=TRUE>>=
-qte_fit$qte$fit
+head(as.data.frame(qte_fit$qte$fit), 4)
 @
 
 <<app2-ate-plot, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE, fig.width=7, fig.height=5>>=
@@ -1650,13 +2020,23 @@ qte_effect_plot <- plot(qte_fit, type = "effect")
 qte_effect_plot
 @
 
-<<app2-ate-plot-results, echo=FALSE, eval=TRUE>>=
+<<app2-ate-plot-results, echo=FALSE, eval=TRUE, results='asis'>>=
+cat("\\begin{figure}[H]\\centering\n")
 knitr::include_graphics(cache_file("figs", "app2_ate_effect.png"))
+cat("\\caption{Posterior ATE effect summary for the spliced causal model.\\label{fig:app2-ate-effect}}\n")
+cat("\\end{figure}\n")
 @
 
-<<app2-qte-plot-results, echo=FALSE, eval=TRUE>>=
+<<app2-qte-plot-results, echo=FALSE, eval=TRUE, results='asis'>>=
+cat("\\begin{figure}[H]\\centering\n")
 knitr::include_graphics(cache_file("figs", "app2_qte_effect.png"))
+cat("\\caption{Posterior QTE effect summary across quantile levels.\\label{fig:app2-qte-effect}}\n")
+cat("\\end{figure}\n")
 @
+
+The marginal treatment-effect visual summaries are shown in
+Figure~\ref{fig:app2-ate-effect}, captioned ``Posterior ATE effect summary for the spliced causal model,'' for the
+ATE, and Figure~\ref{fig:app2-qte-effect}, captioned ``Posterior QTE effect summary across quantile levels.'' for the QTE.
 
 \subsection{Conditional estimands: CATE and CQTE at representative profiles}
 
@@ -1682,7 +2062,7 @@ xnew <- rbind(typical = x_typical, high_prev_earn = x_highprev)
 
 <<app2-xnew-results, echo=FALSE, eval=TRUE>>=
 data.frame(profile_var = profile_var)
-xnew
+head(as.data.frame(xnew), 4)
 @
 
 <<app2-cate-cache, echo=FALSE, message=FALSE, warning=FALSE, results='hide', eval=TRUE, include=FALSE>>=
@@ -1696,7 +2076,7 @@ cate_fit <- cate(fit, newdata = xnew, show_progress = FALSE)
 @
 
 <<app2-cate-results, echo=FALSE, eval=TRUE>>=
-cate_fit$ate$fit
+head(as.data.frame(cate_fit$ate$fit), 4)
 @
 
 <<app2-cqte-call, echo=TRUE, message=FALSE, warning=FALSE, results='hide', eval=FALSE>>=
@@ -1704,7 +2084,7 @@ cqte_fit <- cqte(fit, probs = taus, newdata = xnew, show_progress = FALSE)
 @
 
 <<app2-cqte-results, echo=FALSE, eval=TRUE>>=
-cqte_fit$qte$fit
+head(as.data.frame(cqte_fit$qte$fit), 4)
 @
 
 CATE/CQTE effect plots are omitted in this PDF.
@@ -1721,7 +2101,7 @@ list2env(obj, envir = environment())
 @
 
 <<app2-tail-results, echo=FALSE, eval=TRUE>>=
-xi_table
+head(as.data.frame(xi_table), 4)
 @
 
 \subsection{Interpretation}

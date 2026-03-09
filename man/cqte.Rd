@@ -2,7 +2,7 @@
 % Please edit documentation in R/causal.R
 \name{cqte}
 \alias{cqte}
-\title{Conditional quantile treatment effects (CQTE)}
+\title{Conditional quantile treatment effects}
 \usage{
 cqte(
   fit,
@@ -31,16 +31,25 @@ highest posterior density intervals.}
 \item{show_progress}{Logical; if TRUE, print step messages and render progress where supported.}
 }
 \value{
-A list with elements \code{fit} (CQTE), \code{grid} (probabilities),
-and the treated/control prediction objects.
+An object of class \code{"causalmixgpd_qte"} containing the CQTE
+summary, the probability grid, and the treated/control prediction objects
+used to construct the effect.
 }
 \description{
-Computes treated-minus-control quantiles from a causal fit.
+\code{cqte()} evaluates treated-minus-control predictive quantiles at
+user-supplied covariate rows.
 }
 \details{
-This estimand is available only for \strong{conditional} causal models
-with covariates (\code{X} not \code{NULL}). For unconditional causal models
-(\code{X = NULL}), use \code{qte()} or \code{qtt()}.
+For each prediction row \eqn{x}, the conditional quantile treatment effect is
+\deqn{\mathrm{CQTE}(\tau, x) = Q_1(\tau \mid x, \mathcal{D}) -
+Q_0(\tau \mid x, \mathcal{D}).}
+
+This estimand is available only for conditional causal models with
+covariates. For marginal quantile contrasts over the empirical covariate
+distribution, use \code{\link{qte}} or \code{\link{qtt}}.
+
+If the fit includes a PS block, the same PS adjustment is applied to both arm
+predictions before differencing.
 }
 \examples{
 \dontrun{
@@ -51,4 +60,8 @@ cqte(fit, probs = c(0.5, 0.9), interval = "credible", level = 0.90)  # 90\% CI
 cqte(fit, probs = c(0.5, 0.9), interval = "hpd")  # HPD intervals
 cqte(fit, probs = c(0.5, 0.9), interval = NULL)   # No intervals
 }
+}
+\seealso{
+\code{\link{qte}}, \code{\link{qtt}}, \code{\link{cate}},
+\code{\link{predict.causalmixgpd_causal_fit}}.
 }

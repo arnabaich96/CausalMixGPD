@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{plot.causalmixgpd_ate}
 \alias{plot.causalmixgpd_ate}
-\title{Plot ATE results}
+\title{Plot ATE-style effect summaries}
 \usage{
 \method{plot}{causalmixgpd_ate}(
   x,
@@ -31,8 +31,9 @@ A list of ggplot objects with elements \code{trt_control} and \code{treatment_ef
 \code{"arms"}).
 }
 \description{
-Generates visualizations for average treatment effects. The \code{type} parameter
-controls the plot style:
+\code{plot.causalmixgpd_ate()} visualizes objects returned by
+\code{\link{ate}}, \code{\link{att}}, \code{\link{cate}}, and
+\code{\link{ate_rmean}}. The \code{type} parameter controls the plot style:
 \itemize{
 \item \code{"both"} (default): Returns a list with both \code{trt_control} (treated vs
 control means) and \code{treatment_effect} (ATE curve) plots
@@ -47,4 +48,8 @@ plot(ate_result)  # default: returns list with both plots
 plot(ate_result, type = "effect")  # single ATE plot
 plot(ate_result, type = "arms")    # single arms plot
 }
+}
+\seealso{
+\code{\link{ate}}, \code{\link{cate}},
+\code{\link{summary.causalmixgpd_ate}}.
 }

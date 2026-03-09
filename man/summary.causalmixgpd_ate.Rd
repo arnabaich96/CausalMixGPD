@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{summary.causalmixgpd_ate}
 \alias{summary.causalmixgpd_ate}
-\title{Summarize an ATE object}
+\title{Summarize an ATE-style effect object}
 \usage{
 \method{summary}{causalmixgpd_ate}(object, ...)
 }
@@ -15,8 +15,8 @@
 An object of class \code{"summary.causalmixgpd_ate"} containing summary statistics.
 }
 \description{
-Returns a structured summary of ATE results for further analysis or display.
-Includes overall statistics and metadata.
+\code{summary.causalmixgpd_ate()} converts ATE, ATT, CATE, or restricted-mean
+output into a tabular summary suitable for reporting.
 }
 \examples{
 \dontrun{
@@ -25,4 +25,9 @@ fit <- run_mcmc_causal(cb, show_progress = FALSE)
 a <- ate(fit, interval = "credible")
 summary(a)
 }
+}
+\seealso{
+\code{\link{print.causalmixgpd_ate}},
+\code{\link{plot.causalmixgpd_ate}}, \code{\link{ate}},
+\code{\link{cate}}.
 }

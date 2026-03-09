@@ -2,7 +2,7 @@
 % Please edit documentation in R/causal.R
 \name{cate}
 \alias{cate}
-\title{Conditional average treatment effects (CATE)}
+\title{Conditional average treatment effects}
 \usage{
 cate(
   fit,
@@ -38,16 +38,29 @@ highest posterior density intervals.}
 \item{show_progress}{Logical; if TRUE, print step messages and render progress where supported.}
 }
 \value{
-A list with elements \code{fit} (CATE), optional \code{lower}/\code{upper},
-and the treated/control prediction objects.
+An object of class \code{"causalmixgpd_ate"} containing the CATE
+summary, optional intervals, and the treated/control prediction objects used
+to construct the effect.
 }
 \description{
-Computes treated-minus-control posterior means from a causal fit.
+\code{cate()} evaluates treated-minus-control predictive means, or restricted
+means, at user-supplied covariate rows.
 }
 \details{
-This estimand is available only for \strong{conditional} causal models
-with covariates (\code{X} not \code{NULL}). For unconditional causal models
-(\code{X = NULL}), use \code{ate()} or \code{att()}.
+For each prediction row \eqn{x}, the conditional average treatment effect is
+\deqn{\mathrm{CATE}(x) = E\{Y(1) \mid x, \mathcal{D}\} -
+E\{Y(0) \mid x, \mathcal{D}\}.}
+
+With \code{type = "rmean"}, the estimand becomes the conditional restricted
+mean contrast
+\deqn{E\{\min(Y(1), c) \mid x, \mathcal{D}\} -
+E\{\min(Y(0), c) \mid x, \mathcal{D}\},}
+which remains finite even when the ordinary mean is unstable under a heavy
+GPD tail.
+
+This estimand is available only for conditional causal models with
+covariates. For marginal mean contrasts, use \code{\link{ate}} or
+\code{\link{att}}.
 }
 \examples{
 \dontrun{
@@ -58,4 +71,8 @@ cate(fit, interval = "credible", level = 0.90)  # 90\% CI
 cate(fit, interval = "hpd")  # HPD intervals
 cate(fit, interval = NULL)   # No intervals
 }
+}
+\seealso{
+\code{\link{ate}}, \code{\link{att}}, \code{\link{cqte}},
+\code{\link{ate_rmean}}, \code{\link{predict.causalmixgpd_causal_fit}}.
 }

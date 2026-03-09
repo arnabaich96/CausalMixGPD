@@ -50,9 +50,7 @@ rcauchymix(n, w, location, scale)
 Numeric vector of densities, probabilities, quantiles, or random variates.
 }
 \description{
-Vectorized R wrappers for Cauchy mixture distribution functions. These lowercase
-versions accept vector inputs for the first argument (\code{x}, \code{q}, or
-\code{p}) and return a numeric vector. The \code{r*} functions support \code{n > 1}.
+Vectorized R wrappers for the scalar Cauchy mixture functions in this file.
 }
 \section{Functions}{
 \itemize{
@@ -74,3 +72,16 @@ dcauchymix(c(-2, 0, 2), w = w, location = loc, scale = scl)
 rcauchymix(5, w = w, location = loc, scale = scl)
 
 }
+\seealso{
+\code{\link[=cauchy_mix]{cauchy_mix()}}, \code{\link[=cauchy]{cauchy()}}, \code{\link[=bundle]{bundle()}}, \code{\link[=get_kernel_registry]{get_kernel_registry()}}.
+
+Other vectorized kernel helpers: 
+\code{\link{amoroso_lowercase}},
+\code{\link{base_lowercase}},
+\code{\link{gamma_lowercase}},
+\code{\link{invgauss_lowercase}},
+\code{\link{laplace_lowercase}},
+\code{\link{lognormal_lowercase}},
+\code{\link{normal_lowercase}}
+}
+\concept{vectorized kernel helpers}

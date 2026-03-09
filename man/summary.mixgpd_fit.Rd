@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{summary.mixgpd_fit}
 \alias{summary.mixgpd_fit}
-\title{Summarize a MixGPD fitted object}
+\title{Summarize posterior draws from a one-arm fitted model}
 \usage{
 \method{summary}{mixgpd_fit}(object, pars = NULL, probs = c(0.025, 0.5, 0.975), ...)
 }
@@ -19,7 +19,17 @@
 An object of class \code{"mixgpd_summary"}.
 }
 \description{
-Summarize a MixGPD fitted object
+\code{summary.mixgpd_fit()} computes posterior summaries for monitored model
+parameters.
+}
+\details{
+The returned table is a parameter-level summary of the posterior draws, not a
+predictive summary. Use \code{\link{predict.mixgpd_fit}} for posterior
+predictive quantities such as densities, survival probabilities, quantiles,
+and means.
+
+The summary respects the stored truncation metadata and reports WAIC if it
+was requested during MCMC.
 }
 \examples{
 \dontrun{
@@ -30,4 +40,8 @@ bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
 fit <- run_mcmc_bundle_manual(bundle)
 summary(fit, pars = c("alpha", "threshold"))
 }
+}
+\seealso{
+\code{\link{print.mixgpd_fit}}, \code{\link{params}},
+\code{\link{predict.mixgpd_fit}}, \code{\link{ess_summary}}.
 }

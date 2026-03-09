@@ -1,14 +1,13 @@
 #' Amoroso mixture distribution
 #'
-#' A finite mixture of Amoroso components is often a convenient bulk model when the response is
-#' positive and right-skewed. These functions evaluate and simulate from
-#' \eqn{\sum_j w_j f_{Amoroso}(\cdot\mid loc_j, scale_j, shape1_j, shape2_j)}.
+#' Finite mixture of Amoroso components for flexible positive-support bulk modeling.
 #'
-#' The density, CDF, and RNG are implemented as \code{nimbleFunction}s so they can be called from
-#' NIMBLE models. The quantile function is provided as an R function and is computed by numerical
-#' inversion of the mixture CDF.
-#' These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
-#' For vectorized R usage (including \code{n > 1}), use \code{\link{amoroso_lowercase}}.
+#' The mixture density is
+#' \deqn{
+#' f(x) = \sum_{k = 1}^K \tilde{w}_k f_{Amoroso}(x \mid a_k, \theta_k, \alpha_k, \beta_k),
+#' }
+#' with normalized weights \eqn{\tilde{w}_k}. These scalar functions are NIMBLE-compatible; for
+#' vectorized R usage, use [amoroso_lowercase()].
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -25,13 +24,15 @@
 #' @param log Logical; if \code{TRUE}, return the log-density (integer flag \code{0/1} in NIMBLE).
 #' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Logical; if \code{TRUE}, probabilities are returned on the log scale.
-#' @param tol Numeric tolerance for numerical inversion in \code{qAmorosoGpd}.
-#' @param maxiter Maximum iterations for numerical inversion in \code{qAmorosoGpd}.
 #' @param tol Numeric scalar tolerance passed to \code{stats::uniroot} in quantile inversion.
 #' @param maxiter Integer maximum number of iterations for \code{stats::uniroot}.
 #'
-#' @return Mixture density/CDF/RNG functions return numeric scalars. \code{qAmorosoMix} returns a numeric
-#'   vector with the same length as \code{p}.
+#' @return Mixture density/CDF/RNG functions return numeric scalars. `qAmorosoMix()` returns a
+#'   numeric vector with the same length as `p`.
+#'
+#' @seealso [amoroso_mixgpd()], [amoroso_gpd()], [amoroso_lowercase()],
+#'   [build_nimble_bundle()], [kernel_support_table()].
+#' @family amoroso kernel families
 #'
 #' @examples
 #' w <- c(0.60, 0.25, 0.15)
@@ -212,8 +213,8 @@ qAmorosoMix <- function(p, w, loc, scale, shape1, shape2,
 
 #' Amoroso mixture with a GPD tail
 #'
-#' This family splices a generalized Pareto distribution (GPD) above a threshold \code{threshold} onto an
-#' Amoroso mixture bulk. Let \eqn{F_{mix}} denote the Amoroso mixture CDF. The spliced CDF is
+#' Spliced bulk-tail family formed by attaching a generalized Pareto tail to an Amoroso mixture
+#' bulk. Let \eqn{F_{mix}} denote the Amoroso mixture CDF. The spliced CDF is
 #' \eqn{F(x)=F_{mix}(x)} for \eqn{x<threshold} and
 #' \eqn{F(x)=F_{mix}(threshold) + \left\{1-F_{mix}(threshold)\right\}G(x)} for \eqn{x\ge threshold}, where \eqn{G}
 #' is the GPD CDF for exceedances above \code{threshold}.
@@ -239,13 +240,14 @@ qAmorosoMix <- function(p, w, loc, scale, shape1, shape2,
 #' @param log Logical; if \code{TRUE}, return the log-density (integer flag \code{0/1} in NIMBLE).
 #' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Logical; if \code{TRUE}, probabilities are returned on the log scale.
-#' @param tol Numeric tolerance for numerical inversion in \code{qAmorosoGpd}.
-#' @param maxiter Maximum iterations for numerical inversion in \code{qAmorosoGpd}.
 #' @param tol Numeric scalar tolerance passed to \code{stats::uniroot} in quantile inversion.
 #' @param maxiter Integer maximum number of iterations for \code{stats::uniroot}.
 #'
-#' @return Spliced density/CDF/RNG functions return numeric scalars. \code{qAmorosoMixGpd} returns a numeric
-#'   vector with the same length as \code{p}.
+#' @return Spliced density/CDF/RNG functions return numeric scalars. `qAmorosoMixGpd()` returns a
+#'   numeric vector with the same length as `p`.
+#'
+#' @seealso [amoroso_mix()], [amoroso_gpd()], [gpd()], [amoroso_lowercase()], [dpmgpd()].
+#' @family amoroso kernel families
 #'
 #' @examples
 #' w <- c(0.60, 0.25, 0.15)
@@ -396,8 +398,8 @@ qAmorosoMixGpd <- function(p, w, loc, scale, shape1, shape2,
 
 #' Amoroso with a GPD tail
 #'
-#' Splices a generalized Pareto distribution (GPD) above a threshold \code{threshold} onto a single Amoroso bulk
-#' with parameters \code{loc}, \code{scale}, \code{shape1}, and \code{shape2}.
+#' Spliced family obtained by attaching a generalized Pareto tail above `threshold` to a single
+#' Amoroso bulk.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -414,8 +416,11 @@ qAmorosoMixGpd <- function(p, w, loc, scale, shape1, shape2,
 #' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Logical; if \code{TRUE}, probabilities are returned on the log scale.
 #'
-#' @return Spliced density/CDF/RNG functions return numeric scalars. \code{qAmorosoGpd} returns a numeric vector
-#'   with the same length as \code{p}.
+#' @return Spliced density/CDF/RNG functions return numeric scalars. `qAmorosoGpd()` returns a
+#'   numeric vector with the same length as `p`.
+#'
+#' @seealso [amoroso_mix()], [amoroso_mixgpd()], [gpd()], [amoroso_lowercase()].
+#' @family amoroso kernel families
 #'
 #' @examples
 #' loc <- 0
@@ -603,10 +608,7 @@ qAmorosoGpd <- function(p, loc, scale, shape1, shape2,
 
 #' Lowercase vectorized Amoroso distribution functions
 #'
-#' Vectorized R wrappers for Amoroso mixture, Amoroso mixture + GPD, and
-#' Amoroso + GPD distribution functions. These lowercase versions accept vector
-#' inputs for the first argument (\code{x}, \code{q}, or \code{p}) and return
-#' a numeric vector. The \code{r*} functions support \code{n > 1}.
+#' Vectorized R wrappers for the scalar Amoroso-kernel topics in this file.
 #'
 #' @param x Numeric vector of quantiles.
 #' @param q Numeric vector of quantiles.
@@ -621,6 +623,10 @@ qAmorosoGpd <- function(p, loc, scale, shape1, shape2,
 #' @param tol,maxiter Tolerance and max iterations for numerical inversion.
 #'
 #' @return Numeric vector of densities, probabilities, quantiles, or random variates.
+#'
+#' @seealso [amoroso_mix()], [amoroso_mixgpd()], [amoroso_gpd()], [bundle()],
+#'   [get_kernel_registry()].
+#' @family vectorized kernel helpers
 #'
 #' @examples
 #' w <- c(0.6, 0.3, 0.1)

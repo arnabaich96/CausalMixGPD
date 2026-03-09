@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{print.causalmixgpd_causal_fit}
 \alias{print.causalmixgpd_causal_fit}
-\title{Print a causal fit}
+\title{Print a fitted causal model}
 \usage{
 \method{print}{causalmixgpd_causal_fit}(x, ...)
 }
@@ -15,5 +15,11 @@
 The input object (invisibly).
 }
 \description{
-Print a causal fit
+\code{print.causalmixgpd_causal_fit()} provides a compact overview of the
+fitted treated/control outcome blocks and the PS component when present.
+}
+\seealso{
+\code{\link{summary.causalmixgpd_causal_fit}},
+\code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
+\code{\link{qte}}.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/wrappers.R
 \name{dpmix.causal}
 \alias{dpmix.causal}
-\title{Fit causal DP mixture model without GPD tail}
+\title{Fit a causal two-arm Dirichlet process mixture without a GPD tail}
 \usage{
 dpmix.causal(
   x = NULL,
@@ -33,8 +33,21 @@ optional performance controls such as \code{parallel_chains},
 \code{z_update_every}).}
 }
 \value{
-A fitted object.
+A fitted object of class \code{"causalmixgpd_causal_fit"}.
 }
 \description{
-Fit causal DP mixture model without GPD tail
+\code{dpmix.causal()} fits a causal model with separate treated and control
+outcome mixtures and, when requested, a propensity score block. It is the
+bulk-only companion to \code{\link{dpmgpd.causal}}.
+}
+\details{
+The resulting fit supports conditional outcome prediction
+\eqn{F_a(y \mid x, \mathcal{D})} for \eqn{a \in \{0,1\}}, followed by causal
+functionals such as \code{\link{ate}}, \code{\link{qte}},
+\code{\link{cate}}, and \code{\link{cqte}}.
+}
+\seealso{
+\code{\link{bundle}}, \code{\link{dpmgpd.causal}},
+\code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
+\code{\link{qte}}.
 }

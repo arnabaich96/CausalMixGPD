@@ -2,7 +2,7 @@
 % Please edit documentation in R/causal.R
 \name{att}
 \alias{att}
-\title{Average treatment effect on the treated (ATT)}
+\title{Average treatment effects standardized to treated covariates}
 \usage{
 att(
   fit,
@@ -42,12 +42,18 @@ highest posterior density intervals.}
 \item{show_progress}{Logical; if TRUE, print step messages and render progress where supported.}
 }
 \value{
-A list with elements \code{fit} (ATT), optional \code{lower}/\code{upper},
-and aggregated treated/control prediction objects.
+An object of class \code{"causalmixgpd_ate"} containing the ATT
+summary, optional intervals, and the arm-specific predictive objects used
+in the aggregation.
 }
 \description{
-Computes a treated-only marginal average treatment effect by averaging
-conditional treatment effects over rows with assigned treatment \code{A=1}.
+\code{att()} computes the average treatment effect on the treated.
+}
+\details{
+The estimand is
+\deqn{\mathrm{ATT} = E\{Y(1) - Y(0) \mid A = 1\},}
+approximated by marginalizing over the empirical covariate distribution of
+treated units.
 }
 \examples{
 \dontrun{
@@ -55,4 +61,7 @@ cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal"
 fit <- run_mcmc_causal(cb, show_progress = FALSE)
 att(fit, interval = "credible", nsim_mean = 100)
 }
+}
+\seealso{
+\code{\link{ate}}, \code{\link{qtt}}, \code{\link{cate}}.
 }

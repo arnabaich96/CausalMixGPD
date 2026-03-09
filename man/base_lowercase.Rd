@@ -81,19 +81,16 @@ rcauchy_vec(n, location, scale)
 \item{tol, maxiter}{Tolerance and max iterations for numerical inversion.}
 }
 \value{
-Numeric vector of densities, probabilities, quantiles, or random
-variates.
+Numeric vector of densities, probabilities, quantiles, or random variates.
 }
 \description{
-Vectorized R wrappers for the base distribution functions. These lowercase
-versions accept vector inputs for the first argument (\code{x}, \code{q}, or
-\code{p}) and return a numeric vector. The \code{r*} functions support
-\code{n > 1} and return a numeric vector of length \code{n}.
+Vectorized R wrappers around the scalar base-kernel functions defined in this file. These
+helpers are intended for interactive R use, examples, testing, and checking numerical behavior
+outside compiled NIMBLE code.
 }
 \details{
-The underlying scalar functions are NIMBLE-compatible nimbleFunctions.
-These wrappers are for convenient R-side usage and are not intended for
-use inside NIMBLE models.
+The wrappers preserve the same parameterizations as the uppercase scalar functions, but accept
+vector inputs for \code{x}, \code{q}, or \code{p} and allow \code{n > 1} for random generation.
 }
 \section{Functions}{
 \itemize{
@@ -150,3 +147,17 @@ dcauchy_vec(c(-1, 0, 1), location = 0, scale = 1)
 rcauchy_vec(5, location = 0, scale = 1)
 
 }
+\seealso{
+\code{\link[=gpd]{gpd()}}, \code{\link[=InvGauss]{InvGauss()}}, \code{\link[=amoroso]{amoroso()}}, \code{\link[=cauchy]{cauchy()}}, \code{\link[=build_nimble_bundle]{build_nimble_bundle()}},
+\code{\link[=kernel_support_table]{kernel_support_table()}}.
+
+Other vectorized kernel helpers: 
+\code{\link{amoroso_lowercase}},
+\code{\link{cauchy_mix_lowercase}},
+\code{\link{gamma_lowercase}},
+\code{\link{invgauss_lowercase}},
+\code{\link{laplace_lowercase}},
+\code{\link{lognormal_lowercase}},
+\code{\link{normal_lowercase}}
+}
+\concept{vectorized kernel helpers}

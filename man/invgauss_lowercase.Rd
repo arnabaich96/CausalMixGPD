@@ -14,7 +14,7 @@
 \alias{pinvgaussgpd}
 \alias{qinvgaussgpd}
 \alias{rinvgaussgpd}
-\title{Lowercase vectorized Inverse Gaussian distribution functions}
+\title{Lowercase vectorized inverse Gaussian distribution functions}
 \usage{
 dinvgaussmix(x, w, mean, shape, log = FALSE)
 
@@ -127,10 +127,7 @@ rinvgaussgpd(n, mean, shape, threshold, tail_scale, tail_shape)
 Numeric vector of densities, probabilities, quantiles, or random variates.
 }
 \description{
-Vectorized R wrappers for Inverse Gaussian mixture, Inverse Gaussian mixture + GPD, and
-Inverse Gaussian + GPD distribution functions. These lowercase versions accept vector
-inputs for the first argument (\code{x}, \code{q}, or \code{p}) and return
-a numeric vector. The \code{r*} functions support \code{n > 1}.
+Vectorized R wrappers for the scalar inverse-Gaussian-kernel topics in this file.
 }
 \section{Functions}{
 \itemize{
@@ -169,3 +166,17 @@ dinvgaussmix(c(1, 2, 3), w = w, mean = mu, shape = lam)
 rinvgaussmix(5, w = w, mean = mu, shape = lam)
 
 }
+\seealso{
+\code{\link[=InvGauss_mix]{InvGauss_mix()}}, \code{\link[=InvGauss_mixgpd]{InvGauss_mixgpd()}}, \code{\link[=InvGauss_gpd]{InvGauss_gpd()}}, \code{\link[=bundle]{bundle()}},
+\code{\link[=get_kernel_registry]{get_kernel_registry()}}.
+
+Other vectorized kernel helpers: 
+\code{\link{amoroso_lowercase}},
+\code{\link{base_lowercase}},
+\code{\link{cauchy_mix_lowercase}},
+\code{\link{gamma_lowercase}},
+\code{\link{laplace_lowercase}},
+\code{\link{lognormal_lowercase}},
+\code{\link{normal_lowercase}}
+}
+\concept{vectorized kernel helpers}

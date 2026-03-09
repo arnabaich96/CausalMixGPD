@@ -2,7 +2,7 @@
 % Please edit documentation in R/causal.R
 \name{predict.causalmixgpd_causal_fit}
 \alias{predict.causalmixgpd_causal_fit}
-\title{Predict from a causal fit}
+\title{Predict arm-specific and contrast-scale quantities from a causal fit}
 \usage{
 \method{predict}{causalmixgpd_causal_fit}(
   object,
@@ -68,21 +68,29 @@ highest posterior density intervals.}
 \item{...}{Unused.}
 }
 \value{
-For \code{"mean"} or \code{"quantile"}, a numeric matrix with columns
-\code{ps}, \code{estimate}, \code{lower}, \code{upper}, representing
-treated-minus-control posterior summaries. When PS is disabled or X is absent,
-\code{ps} is \code{NA} and no PS is used. For \code{"density"}, \code{"survival"},
-and \code{"prob"},
-a data frame with columns \code{y}, \code{ps}, \code{trt_estimate}, \code{trt_lower},
-\code{trt_upper}, \code{con_estimate}, \code{con_lower}, \code{con_upper}.
+For \code{"mean"} and \code{"quantile"}, a causal prediction object
+whose \code{$fit} component reports treated-minus-control posterior
+summaries. For \code{"density"}, \code{"survival"}, and \code{"prob"},
+the \code{$fit} component contains side-by-side treated and control
+summaries evaluated on the supplied \code{y} grid.
 }
 \description{
-Provides a unified interface to the treated and control outcome models while
-guaranteeing that the same propensity scores are used for both arms. For new
-covariates, the PS model stored in \code{object$ps_fit} is used to estimate
-the required scores unless the user supplies their own via \code{ps}. If the
-bundle was built with \code{PS=FALSE}, the PS model does not exist and outcome
-predictions use only the original covariates \code{X}.
+\code{predict.causalmixgpd_causal_fit()} is the causal counterpart to
+\code{\link{predict.mixgpd_fit}}. It coordinates the treated and control arm
+predictions so that both sides use the same covariate rows and the same PS
+adjustment.
+}
+\details{
+For each prediction row \eqn{x}, the function evaluates arm-specific
+posterior predictive quantities based on
+\eqn{F_1(y \mid x, \mathcal{D})} and \eqn{F_0(y \mid x, \mathcal{D})}. Mean
+and quantile outputs are returned on the treatment-effect scale, while
+density, survival, and probability outputs retain both arm-specific curves.
+
+If a PS model is stored in the fit, the same estimated score is supplied to
+both arms unless the user overrides it with \code{ps}. This is the main
+prediction entry point used internally by \code{\link{ate}}, \code{\link{qte}},
+\code{\link{cate}}, and \code{\link{cqte}}.
 }
 \examples{
 \dontrun{
@@ -92,4 +100,8 @@ predict(fit, x = X[1:10, ], type = "quantile", index = c(0.25, 0.5, 0.75))
 predict(fit, x = X[1:10, ], type = "mean", interval = "hpd")  # HPD intervals
 predict(fit, x = X[1:10, ], type = "mean", interval = NULL)   # No intervals
 }
+}
+\seealso{
+\code{\link{predict.mixgpd_fit}}, \code{\link{ate}},
+\code{\link{qte}}, \code{\link{cate}}, \code{\link{cqte}}.
 }

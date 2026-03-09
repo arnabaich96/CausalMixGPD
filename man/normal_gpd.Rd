@@ -60,11 +60,12 @@ qNormGpd(
 \item{p}{Numeric scalar probability in \eqn{(0,1)} for the quantile function.}
 }
 \value{
-Spliced density/CDF/RNG functions return numeric scalars. \code{qNormGpd} returns a numeric vector
-with the same length as \code{p}.
+Spliced density/CDF/RNG functions return numeric scalars. \code{qNormGpd()} returns a numeric
+vector with the same length as \code{p}.
 }
 \description{
-Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a single Normal bulk.
+Spliced family obtained by attaching a generalized Pareto tail above \code{threshold} to a single
+normal bulk component.
 }
 \section{Functions}{
 \itemize{
@@ -91,3 +92,11 @@ qNormGpd(0.50, mean, sd, threshold, tail_scale, tail_shape)
 qNormGpd(0.95, mean, sd, threshold, tail_scale, tail_shape)
 replicate(10, rNormGpd(1, mean, sd, threshold, tail_scale, tail_shape))
 }
+\seealso{
+\code{\link[=normal_mix]{normal_mix()}}, \code{\link[=normal_mixgpd]{normal_mixgpd()}}, \code{\link[=gpd]{gpd()}}, \code{\link[=normal_lowercase]{normal_lowercase()}}.
+
+Other normal kernel families: 
+\code{\link{normal_mix}},
+\code{\link{normal_mixgpd}}
+}
+\concept{normal kernel families}

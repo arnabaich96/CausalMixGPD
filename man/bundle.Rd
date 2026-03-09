@@ -2,7 +2,7 @@
 % Please edit documentation in R/wrappers.R
 \name{bundle}
 \alias{bundle}
-\title{Build a model bundle (short wrapper)}
+\title{Build the workflow bundle used by the package fitters}
 \usage{
 bundle(
   x = NULL,
@@ -31,8 +31,44 @@ bundle(
 \item{GPD}{Logical; include GPD tail in build mode.}
 }
 \value{
-A \code{"causalmixgpd_bundle"} or \code{"causalmixgpd_causal_bundle"}.
+A \code{"causalmixgpd_bundle"} for one-arm models or a
+\code{"causalmixgpd_causal_bundle"} for causal models. The bundle stores
+code-generation inputs, monitor policy, and default MCMC settings, but it
+does not run MCMC.
 }
 \description{
-Build a model bundle (short wrapper)
+\code{bundle()} is the main workflow constructor. It converts raw inputs,
+a formula/data pair, or an already prepared bundle into the canonical
+object consumed by \code{\link{mcmc}}, \code{\link{dpmix}},
+\code{\link{dpmgpd}}, \code{\link{dpmix.causal}}, and
+\code{\link{dpmgpd.causal}}.
+}
+\details{
+For one-arm models the returned object represents a bulk Dirichlet process
+mixture, optionally augmented with a spliced generalized Pareto tail. For
+causal models the returned object contains two arm-specific outcome bundles
+plus an optional propensity score block.
+
+The workflow is:
+\enumerate{
+\item prepare a bundle with \code{bundle()},
+\item run posterior sampling with \code{\link{mcmc}} or one of the
+\code{dpmix*}/\code{dpmgpd*} wrappers,
+\item inspect the fitted object with \code{\link{summary.mixgpd_fit}},
+\code{\link{params}}, \code{\link{predict.mixgpd_fit}}, or the causal
+estimand helpers.
+}
+
+Setting \code{GPD = TRUE} requests the spliced bulk-tail model with
+conditional distribution
+\deqn{F(y \mid x) = F_{\mathrm{bulk}}(y \mid x)\mathbf{1}\{y \le u(x)\} +
+\left[p_u(x) + \{1 - p_u(x)\}F_{\mathrm{GPD}}(y \mid x)\right]\mathbf{1}\{y > u(x)\},}
+where \eqn{p_u(x)} is the bulk probability below the threshold \eqn{u(x)}.
+
+See the manuscript vignette for the DPM hierarchy, SB/CRP representations,
+and the spliced bulk-tail construction used throughout the package.
+}
+\seealso{
+\code{\link{build_nimble_bundle}}, \code{\link{build_causal_bundle}},
+\code{\link{mcmc}}, \code{\link{dpmix}}, \code{\link{dpmgpd}}.
 }

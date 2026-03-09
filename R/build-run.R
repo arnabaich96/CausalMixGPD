@@ -2,9 +2,29 @@
 # 02-build-and-run.R
 # =========================
 
-#' Build a NIMBLE bundle
+#' Build the explicit one-arm NIMBLE bundle
 #'
-#' Creates a runnable "bundle" containing:
+#' \code{build_nimble_bundle()} is the detailed constructor behind
+#' \code{\link{bundle}} for one-arm models. It compiles the modeling plan into a
+#' self-contained object holding code-generation inputs, initialization rules,
+#' monitor policy, and stored MCMC defaults.
+#'
+#' @details
+#' The returned bundle encodes a finite approximation to a Dirichlet process
+#' mixture using either a stick-breaking (\code{"sb"}) or Chinese restaurant
+#' process / spliced (\code{"crp"} / \code{"spliced"}) representation.
+#'
+#' For the bulk-only model, the target likelihood is the DPM predictive law
+#' \deqn{f(y \mid x) = \sum_{k=1}^{K} w_k(x) f_k(y \mid x, \theta_k).}
+#' When \code{GPD = TRUE}, the bundle augments the bulk model with a threshold
+#' \eqn{u(x)} and generalized Pareto tail above that threshold, producing the
+#' spliced predictive distribution described in the manuscript vignette.
+#'
+#' This function intentionally stops before model compilation and sampling.
+#' Use \code{\link{run_mcmc_bundle_manual}} or \code{\link{mcmc}} to execute the
+#' stored model definition.
+#'
+#' The object contains:
 #' \itemize{
 #'   \item compiled model \code{spec}
 #'   \item \code{nimbleCode} model code
@@ -13,9 +33,6 @@
 #'   \item monitor specification
 #'   \item MCMC settings list (stored but not used for code generation)
 #' }
-#'
-#' This function intentionally stops at the "pre-run" stage (spec/code/constants/data/dimensions/inits/monitors).
-#' Use \code{run_mcmc_bundle_manual()} to execute MCMC with the stored settings.
 #'
 #' @param y Numeric outcome vector.
 #' @param X Optional design matrix/data.frame (N x p) for conditional variants.
@@ -38,7 +55,13 @@
 #' @param monitor Character monitor profile: \code{"core"} (default) or \code{"full"}.
 #' @param monitor_latent Logical; if TRUE, include latent allocations (\code{z}) in monitors.
 #' @param monitor_v Logical; if TRUE and backend is SB, include stick breaks (\code{v}) in monitors.
-#' @return A named list (bundle) of class \code{"causalmixgpd_bundle"}.
+#' @return A named list of class \code{"causalmixgpd_bundle"}. Its primary
+#'   components are \code{spec}, \code{code}, \code{constants},
+#'   \code{dimensions}, \code{data}, \code{inits}, \code{monitors}, and stored
+#'   \code{mcmc} settings.
+#' @seealso \code{\link{bundle}}, \code{\link{run_mcmc_bundle_manual}},
+#'   \code{\link{predict.mixgpd_fit}}, \code{\link{kernel_support_table}},
+#'   \code{\link{get_kernel_registry}}.
 #' @examples
 #' \dontrun{
 #' y <- abs(rnorm(60)) + 0.1
@@ -2284,7 +2307,22 @@ build_prior_table_from_spec <- function(spec) {
 }
 
 
-#' Run MCMC for a prepared bundle
+#' Run posterior sampling for a prepared one-arm bundle
+#'
+#' \code{run_mcmc_bundle_manual()} is the explicit runner for objects created by
+#' \code{\link{build_nimble_bundle}}. It compiles the stored NIMBLE code,
+#' executes MCMC, and returns a \code{"mixgpd_fit"} object.
+#'
+#' @details
+#' The resulting fit supports posterior summaries of the model parameters as
+#' well as posterior predictive functionals such as
+#' \eqn{f(y \mid x, \mathcal{D})}, \eqn{S(y \mid x, \mathcal{D})},
+#' \eqn{Q(\tau \mid x, \mathcal{D})}, and restricted means.
+#'
+#' If \code{parallel_chains = TRUE}, chains are run concurrently when the stored
+#' MCMC configuration uses more than one chain. If the bundle was built with
+#' latent allocations monitored, the \code{z_update_every} argument controls how
+#' frequently those latent indicators are refreshed during sampling.
 #'
 #' @param bundle A \code{causalmixgpd_bundle} from \code{build_nimble_bundle()}.
 #' @param show_progress Logical; if TRUE, print step messages and render progress where supported.
@@ -2295,7 +2333,11 @@ build_prior_table_from_spec <- function(spec) {
 #' @param timing Logical; if TRUE, include stage timings (\code{build}, \code{compile}, \code{mcmc})
 #'   in \code{fit$timing}.
 #' @param z_update_every Integer >= 1 controlling latent allocation update cadence.
-#' @return A fitted object of class \code{"mixgpd_fit"}.
+#' @return A fitted object of class \code{"mixgpd_fit"} containing posterior
+#'   draws, model metadata, and cached objects used by downstream S3 methods.
+#' @seealso \code{\link{build_nimble_bundle}}, \code{\link{mcmc}},
+#'   \code{\link{summary.mixgpd_fit}}, \code{\link{predict.mixgpd_fit}},
+#'   \code{\link{allocation}}.
 #' @examples
 #' \dontrun{
 #' library(nimble)

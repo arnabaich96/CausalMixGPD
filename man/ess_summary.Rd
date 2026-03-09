@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{ess_summary}
 \alias{ess_summary}
-\title{Effective Sample Size Summary (ESS/sec)}
+\title{Effective sample size summaries for fitted models}
 \usage{
 ess_summary(
   fit,
@@ -33,7 +33,15 @@ Object of class \code{"mixgpd_ess_summary"} with elements
 \code{table}, \code{overall}, and \code{meta}.
 }
 \description{
-Computes per-parameter effective sample size (ESS) and ESS-per-second using
-posterior draws from a fitted object. For causal fits, summaries are returned
-for both outcome arms and tagged by arm.
+\code{ess_summary()} reports effective sample size diagnostics for posterior
+draws, optionally scaled by wall-clock time.
+}
+\details{
+This is a convergence and efficiency diagnostic, not a model summary. For
+causal fits the function evaluates each outcome arm separately and tags the
+rows accordingly.
+}
+\seealso{
+\code{\link{summary.mixgpd_fit}}, \code{\link{plot.mixgpd_fit}},
+\code{\link{params}}.
 }

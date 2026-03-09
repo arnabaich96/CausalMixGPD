@@ -1,13 +1,10 @@
 #' Inverse Gaussian mixture distribution
 #'
-#' A finite mixture of inverse Gaussian components provides a flexible bulk model for positive data
-#' with right skewness. Each component is parameterized by its mean \code{mean[j]} and shape
-#' \code{shape[j]}.
+#' Finite mixture of inverse Gaussian components for positive-support bulk modeling. Each component
+#' is parameterized by `mean[j]` and `shape[j]`.
 #'
-#' The density, CDF, and RNG are implemented as \code{nimbleFunction}s for use inside NIMBLE models.
-#' The quantile function is an R function computed by numerical inversion of the mixture CDF.
-#' These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
-#' For vectorized R usage (including \code{n > 1}), use \code{\link{invgauss_lowercase}}.
+#' The scalar functions in this topic are the compiled building blocks for inverse-Gaussian bulk
+#' kernels. For vectorized R usage, use [invgauss_lowercase()].
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -23,8 +20,12 @@
 #' @param tol Numeric scalar tolerance passed to \code{stats::uniroot} in quantile inversion.
 #' @param maxiter Integer maximum number of iterations for \code{stats::uniroot}.
 #'
-#' @return Density/CDF/RNG functions return numeric scalars. \code{qInvGaussMix} returns a numeric vector
-#'   with the same length as \code{p}.
+#' @return Density/CDF/RNG functions return numeric scalars. `qInvGaussMix()` returns a numeric
+#'   vector with the same length as `p`.
+#'
+#' @seealso [InvGauss_mixgpd()], [InvGauss_gpd()], [invgauss_lowercase()],
+#'   [build_nimble_bundle()], [kernel_support_table()].
+#' @family inverse-gaussian kernel families
 #'
 #' @examples
 #' w <- c(0.55, 0.30, 0.15)
@@ -213,10 +214,8 @@ qInvGaussMix <- function(p, w, mean, shape,
 
 #' Inverse Gaussian mixture with a GPD tail
 #'
-#' This family splices a generalized Pareto distribution (GPD) above a threshold
-#' \code{threshold} onto an inverse Gaussian mixture bulk. The bulk probability at the
-#' threshold, \eqn{F_{mix}(threshold)}, is used to scale the tail so that the overall
-#' CDF remains proper.
+#' Spliced bulk-tail family formed by attaching a generalized Pareto tail to an inverse Gaussian
+#' mixture bulk.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -231,15 +230,14 @@ qInvGaussMix <- function(p, w, mean, shape,
 #' @param log Integer flag \code{0/1}; if \code{1}, return the log-density.
 #' @param lower.tail Integer flag \code{0/1}; if \code{1} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Integer flag \code{0/1}; if \code{1}, probabilities are returned on the log scale.
-#' @param tol Numeric tolerance for numerical inversion in \code{qInvGaussGpd}.
-#' @param maxiter Maximum iterations for numerical inversion in \code{qInvGaussGpd}.
-#' @param tol Numeric tolerance for numerical inversion in \code{qInvGaussGpd}.
-#' @param maxiter Maximum iterations for numerical inversion in \code{qInvGaussGpd}.
 #' @param tol Numeric scalar tolerance passed to \code{stats::uniroot} in quantile inversion.
 #' @param maxiter Integer maximum number of iterations for \code{stats::uniroot}.
 #'
 #' @return Spliced density/CDF/RNG functions return numeric scalars.
-#'   \code{qInvGaussMixGpd} returns a numeric vector with the same length as \code{p}.
+#'   `qInvGaussMixGpd()` returns a numeric vector with the same length as `p`.
+#'
+#' @seealso [InvGauss_mix()], [InvGauss_gpd()], [gpd()], [invgauss_lowercase()], [dpmgpd()].
+#' @family inverse-gaussian kernel families
 #'
 #' @examples
 #' w <- c(0.55, 0.30, 0.15)
@@ -384,8 +382,8 @@ qInvGaussMixGpd <- function(p, w, mean, shape, threshold, tail_scale, tail_shape
 
 #' Inverse Gaussian with a GPD tail
 #'
-#' Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a
-#' single inverse Gaussian bulk with parameters \code{mean} and \code{shape}.
+#' Spliced family obtained by attaching a generalized Pareto tail above `threshold` to a single
+#' inverse Gaussian bulk.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -402,7 +400,10 @@ qInvGaussMixGpd <- function(p, w, mean, shape, threshold, tail_scale, tail_shape
 #' @param log.p Integer flag \code{0/1}; if \code{1}, probabilities are returned on the log scale.
 #'
 #' @return Spliced density/CDF/RNG functions return numeric scalars.
-#'   \code{qInvGaussGpd} returns a numeric vector with the same length as \code{p}.
+#'   `qInvGaussGpd()` returns a numeric vector with the same length as `p`.
+#'
+#' @seealso [InvGauss_mix()], [InvGauss_mixgpd()], [gpd()], [invgauss_lowercase()].
+#' @family inverse-gaussian kernel families
 #'
 #' @examples
 #' mean <- 2.5
@@ -545,12 +546,9 @@ qInvGaussGpd <- function(p, mean, shape, threshold, tail_scale, tail_shape,
 # Lowercase vectorized R wrappers for Inverse Gaussian kernels
 # ==========================================================
 
-#' Lowercase vectorized Inverse Gaussian distribution functions
+#' Lowercase vectorized inverse Gaussian distribution functions
 #'
-#' Vectorized R wrappers for Inverse Gaussian mixture, Inverse Gaussian mixture + GPD, and
-#' Inverse Gaussian + GPD distribution functions. These lowercase versions accept vector
-#' inputs for the first argument (\code{x}, \code{q}, or \code{p}) and return
-#' a numeric vector. The \code{r*} functions support \code{n > 1}.
+#' Vectorized R wrappers for the scalar inverse-Gaussian-kernel topics in this file.
 #'
 #' @param x Numeric vector of quantiles.
 #' @param q Numeric vector of quantiles.
@@ -565,6 +563,10 @@ qInvGaussGpd <- function(p, mean, shape, threshold, tail_scale, tail_shape,
 #' @param tol,maxiter Tolerance and max iterations for numerical inversion.
 #'
 #' @return Numeric vector of densities, probabilities, quantiles, or random variates.
+#'
+#' @seealso [InvGauss_mix()], [InvGauss_mixgpd()], [InvGauss_gpd()], [bundle()],
+#'   [get_kernel_registry()].
+#' @family vectorized kernel helpers
 #'
 #' @examples
 #' w <- c(0.6, 0.3, 0.1)

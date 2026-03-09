@@ -17,5 +17,26 @@
 \code{x}, invisibly.
 }
 \description{
-Plot a cluster posterior similarity matrix
+Heatmap of pairwise posterior co-clustering probabilities.
 }
+\seealso{
+\code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}}, \code{\link[=summary.dpmixgpd_cluster_psm]{summary.dpmixgpd_cluster_psm()}},
+\code{\link[=plot.dpmixgpd_cluster_fit]{plot.dpmixgpd_cluster_fit()}}.
+
+Other cluster workflow: 
+\code{\link{dpmgpd.cluster}()},
+\code{\link{dpmix.cluster}()},
+\code{\link{plot.dpmixgpd_cluster_bundle}()},
+\code{\link{plot.dpmixgpd_cluster_fit}()},
+\code{\link{plot.dpmixgpd_cluster_labels}()},
+\code{\link{predict.dpmixgpd_cluster_fit}()},
+\code{\link{print.dpmixgpd_cluster_bundle}()},
+\code{\link{print.dpmixgpd_cluster_fit}()},
+\code{\link{print.dpmixgpd_cluster_labels}()},
+\code{\link{print.dpmixgpd_cluster_psm}()},
+\code{\link{summary.dpmixgpd_cluster_bundle}()},
+\code{\link{summary.dpmixgpd_cluster_fit}()},
+\code{\link{summary.dpmixgpd_cluster_labels}()},
+\code{\link{summary.dpmixgpd_cluster_psm}()}
+}
+\concept{cluster workflow}

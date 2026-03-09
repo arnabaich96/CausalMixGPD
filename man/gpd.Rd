@@ -39,14 +39,36 @@ the RNG implementation supports \code{n = 1}.}
 \item{p}{Numeric scalar probability in \eqn{(0,1)} for the quantile function.}
 }
 \value{
-\code{dGpd} returns a numeric scalar density; \code{pGpd} returns a numeric scalar CDF;
-\code{rGpd} returns one random draw; \code{qGpd} returns a numeric quantile.
+\code{dGpd()} returns a numeric scalar density, \code{pGpd()} returns a numeric scalar CDF,
+\code{rGpd()} returns one random draw, and \code{qGpd()} returns a numeric quantile.
 }
 \description{
-Base generalized Pareto distribution (GPD) for threshold exceedances above \code{threshold}.
-Parameterization uses threshold \code{threshold}, scale \code{scale > 0}, and shape \code{shape}.
+Scalar generalized Pareto distribution (GPD) utilities for threshold exceedances above
+\code{threshold}. These NIMBLE-compatible functions provide the tail component used by the spliced
+bulk-tail families elsewhere in the package.
+}
+\details{
+The parameterization is
+\deqn{
+G(x) = 1 - \left(1 + \xi \frac{x - u}{\sigma_u}\right)^{-1 / \xi}, \qquad x \ge u,
+}
+where \code{threshold = u}, \code{scale = sigma_u > 0}, and \code{shape = xi}. When \code{shape} approaches zero,
+the distribution reduces to the exponential tail limit.
+
 These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
-For vectorized R usage (including \code{n > 1}), use \code{\link{base_lowercase}}.
+For vectorized R usage, use \code{\link[=base_lowercase]{base_lowercase()}}.
+
+If a bulk distribution has CDF \eqn{F_{bulk}}, the package's spliced families typically use the
+tail construction
+\deqn{
+F(x) =
+\left\{
+\begin{array}{ll}
+F_{bulk}(x), & x < u, \\
+F_{bulk}(u) + \{1 - F_{bulk}(u)\} G(x), & x \ge u.
+\end{array}
+\right.
+}
 }
 \section{Functions}{
 \itemize{
@@ -70,3 +92,8 @@ qGpd(0.50, threshold, tail_scale, tail_shape)
 qGpd(0.95, threshold, tail_scale, tail_shape)
 replicate(10, rGpd(1, threshold, tail_scale, tail_shape))
 }
+\seealso{
+\code{\link[=base_lowercase]{base_lowercase()}}, \code{\link[=normal_gpd]{normal_gpd()}}, \code{\link[=lognormal_gpd]{lognormal_gpd()}}, \code{\link[=gamma_gpd]{gamma_gpd()}},
+\code{\link[=InvGauss_gpd]{InvGauss_gpd()}}, \code{\link[=laplace_gpd]{laplace_gpd()}}, \code{\link[=amoroso_gpd]{amoroso_gpd()}}.
+}
+\concept{base tail distributions}

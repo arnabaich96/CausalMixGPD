@@ -88,20 +88,35 @@ and summaries, enabling seamless integration of future PS estimation methods.}
 \item{monitor_v}{Logical; whether to monitor stick-breaking \code{v} terms for SB outcomes.}
 }
 \value{
-A list of class \code{"causalmixgpd_causal_bundle"}.
+A list of class \code{"causalmixgpd_causal_bundle"} containing the
+design bundle, two outcome bundles, training data, arm indices, and
+metadata required for posterior prediction and causal effect summaries.
 }
 \description{
-Creates a causal bundle with:
+\code{build_causal_bundle()} is the detailed constructor behind
+\code{\link{bundle}} for causal analyses. It prepares:
 \itemize{
-\item a propensity score (PS) design model (logit/probit regression of \code{A} on \code{X} or a naive Bayes classifier)
-\item an outcome bundle for the control arm (\code{A = 0})
-\item an outcome bundle for the treated arm (\code{A = 1})
+\item a propensity score (PS) design block for \eqn{A \mid X},
+\item a control-arm outcome bundle for \eqn{Y(0)},
+\item a treated-arm outcome bundle for \eqn{Y(1)}.
 }
 }
 \details{
-The outcome bundles reuse the existing DPM + optional GPD tail machinery. The PS model is a
-lightweight NIMBLE estimator supporting logit/probit regression or a naive Bayes classifier with
-simple priors.
+The outcome bundles reuse the one-arm DPM plus optional GPD machinery. The
+PS block provides a shared adjustment object used by
+\code{\link{run_mcmc_causal}} and
+\code{\link{predict.causalmixgpd_causal_fit}}.
+
+The causal bundle encodes the two arm-specific predictive laws
+\eqn{F_0(y \mid x)} and \eqn{F_1(y \mid x)}. Downstream causal estimands are
+functionals of these two distributions:
+\deqn{\mathrm{ATE} = E\{Y(1)\} - E\{Y(0)\}, \qquad
+\mathrm{QTE}(\tau) = Q_1(\tau) - Q_0(\tau).}
+
+When \code{PS} is enabled, the package estimates a propensity score model
+\eqn{e(x) = \Pr(A = 1 \mid X = x)} and uses a posterior summary of that score
+as an augmented covariate in the arm-specific outcome models. This mirrors
+the workflow described in the manuscript vignette.
 }
 \examples{
 \dontrun{
@@ -122,4 +137,9 @@ cb <- build_causal_bundle(
   PS = "probit"
 )
 }
+}
+\seealso{
+\code{\link{bundle}}, \code{\link{run_mcmc_causal}},
+\code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
+\code{\link{qte}}, \code{\link{cate}}, \code{\link{cqte}}.
 }

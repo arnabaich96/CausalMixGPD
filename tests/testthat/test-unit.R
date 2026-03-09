@@ -2447,11 +2447,65 @@ test_that("plot.causalmixgpd_qte marginal effect uses quantile levels on x-axis"
   expect_equal(length(unique(line_data$PANEL)), 1L)
 })
 
+test_that("plot.causalmixgpd_qte effect uses pointwise error bars instead of ribbons", {
+  skip_if_not_installed("ggplot2")
+  probs <- c(0.25, 0.5, 0.75)
+  qte <- make_mock_qte()
+  qte$n_pred <- 1L
+  qte$ps <- NULL
+  qte$probs <- probs
+  qte$grid <- probs
+  qte$fit <- matrix(c(0.1, 0.2, 0.3), nrow = 1L)
+  qte$lower <- matrix(c(-0.1, 0.0, 0.1), nrow = 1L)
+  qte$upper <- matrix(c(0.3, 0.4, 0.5), nrow = 1L)
+  qte$trt$fit <- data.frame(id = 1L, index = probs, estimate = c(1.0, 1.3, 1.6))
+  qte$con$fit <- data.frame(id = 1L, index = probs, estimate = c(0.9, 1.1, 1.3))
+
+  result <- plot_causalmixgpd_qte(qte, type = "effect")
+  geom_classes <- vapply(result[["layers"]], function(layer) class(layer[["geom"]])[1], character(1))
+
+  expect_true("GeomErrorbar" %in% geom_classes)
+  expect_false("GeomRibbon" %in% geom_classes)
+})
+
 test_that("plot.causalmixgpd_qte arms type works", {
   skip_if_not_installed("ggplot2")
   qte <- make_mock_qte()
   result <- plot_causalmixgpd_qte(qte, type = "arms")
   expect_true(inherits(result, "gg") || inherits(result, "ggplot"))
+})
+
+test_that("plot.causalmixgpd_qte arms use pointwise error bars instead of ribbons", {
+  skip_if_not_installed("ggplot2")
+  probs <- c(0.25, 0.5, 0.75)
+  qte <- make_mock_qte()
+  qte$n_pred <- 1L
+  qte$ps <- NULL
+  qte$probs <- probs
+  qte$grid <- probs
+  qte$fit <- matrix(c(0.1, 0.2, 0.3), nrow = 1L)
+  qte$lower <- matrix(c(-0.1, 0.0, 0.1), nrow = 1L)
+  qte$upper <- matrix(c(0.3, 0.4, 0.5), nrow = 1L)
+  qte$trt$fit <- data.frame(
+    id = 1L,
+    index = probs,
+    estimate = c(1.0, 1.3, 1.6),
+    lower = c(0.8, 1.1, 1.4),
+    upper = c(1.2, 1.5, 1.8)
+  )
+  qte$con$fit <- data.frame(
+    id = 1L,
+    index = probs,
+    estimate = c(0.9, 1.1, 1.3),
+    lower = c(0.7, 0.9, 1.1),
+    upper = c(1.1, 1.3, 1.5)
+  )
+
+  result <- plot_causalmixgpd_qte(qte, type = "arms")
+  geom_classes <- vapply(result[["layers"]], function(layer) class(layer[["geom"]])[1], character(1))
+
+  expect_true("GeomErrorbar" %in% geom_classes)
+  expect_false("GeomRibbon" %in% geom_classes)
 })
 
 # ======================================================================

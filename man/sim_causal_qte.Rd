@@ -2,19 +2,41 @@
 % Please edit documentation in R/simulated.R
 \name{sim_causal_qte}
 \alias{sim_causal_qte}
-\title{Simulate causal QTE data}
+\title{Simulate causal quantile-treatment-effect data}
 \usage{
 sim_causal_qte(n = 300, seed = NULL)
 }
 \arguments{
-\item{n}{Sample size.}
+\item{n}{Integer sample size.}
 
-\item{seed}{Optional RNG seed.}
+\item{seed}{Optional random seed.}
 }
 \value{
-A list with \code{y}, \code{t}, and \code{X}; \code{A} is also
-included as a backward-compatible alias for \code{t}.
+List with components \code{y}, \code{t}, and \code{X}; \code{A} is included as a backward-compatible alias
+for \code{t}.
 }
 \description{
-Simulate causal QTE data
+Generate a treatment indicator, covariates, and a continuous outcome with both location and
+tail heterogeneity. The resulting structure is intended for examples involving
+\code{\link[=dpmix.causal]{dpmix.causal()}}, \code{\link[=dpmgpd.causal]{dpmgpd.causal()}}, \code{\link[=qte]{qte()}}, and \code{\link[=cqte]{cqte()}}.
 }
+\details{
+Treatment assignment is generated from a logistic propensity score
+\deqn{
+\Pr(T = 1 \mid X) = \operatorname{logit}^{-1}(\eta(X)),
+}
+and the observed outcome combines baseline covariate effects, an average treatment shift, and
+a covariate-dependent tail amplification for treated units. This produces data where marginal
+and conditional quantile effects differ across the outcome distribution.
+
+The returned list can be converted directly into the arguments expected by the causal fitting
+wrappers after minor formatting.
+}
+\seealso{
+\code{\link[=sim_bulk_tail]{sim_bulk_tail()}}, \code{\link[=dpmgpd.causal]{dpmgpd.causal()}}, \code{\link[=qte]{qte()}}, \code{\link[=cqte]{cqte()}}.
+
+Other simulation helpers: 
+\code{\link{sim_bulk_tail}()},
+\code{\link{sim_survival_tail}()}
+}
+\concept{simulation helpers}

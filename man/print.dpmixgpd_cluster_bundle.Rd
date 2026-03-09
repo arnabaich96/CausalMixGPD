@@ -15,5 +15,25 @@
 \code{x}, invisibly.
 }
 \description{
-Print a cluster bundle
+Compact display for a \code{dpmixgpd_cluster_bundle} before MCMC is run.
 }
+\seealso{
+\code{\link[=dpmix.cluster]{dpmix.cluster()}}, \code{\link[=dpmgpd.cluster]{dpmgpd.cluster()}}, \code{\link[=summary.dpmixgpd_cluster_bundle]{summary.dpmixgpd_cluster_bundle()}}.
+
+Other cluster workflow: 
+\code{\link{dpmgpd.cluster}()},
+\code{\link{dpmix.cluster}()},
+\code{\link{plot.dpmixgpd_cluster_bundle}()},
+\code{\link{plot.dpmixgpd_cluster_fit}()},
+\code{\link{plot.dpmixgpd_cluster_labels}()},
+\code{\link{plot.dpmixgpd_cluster_psm}()},
+\code{\link{predict.dpmixgpd_cluster_fit}()},
+\code{\link{print.dpmixgpd_cluster_fit}()},
+\code{\link{print.dpmixgpd_cluster_labels}()},
+\code{\link{print.dpmixgpd_cluster_psm}()},
+\code{\link{summary.dpmixgpd_cluster_bundle}()},
+\code{\link{summary.dpmixgpd_cluster_fit}()},
+\code{\link{summary.dpmixgpd_cluster_labels}()},
+\code{\link{summary.dpmixgpd_cluster_psm}()}
+}
+\concept{cluster workflow}

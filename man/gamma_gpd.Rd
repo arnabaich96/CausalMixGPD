@@ -68,13 +68,11 @@ qGammaGpd(
 }
 \value{
 Spliced density/CDF/RNG functions return numeric scalars.
-\code{qGammaGpd} returns a numeric vector with the same length as \code{p}.
+\code{qGammaGpd()} returns a numeric vector with the same length as \code{p}.
 }
 \description{
-Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a single
-Gamma bulk distribution parameterized by scale \code{scale} and shape \code{shape}.
-The bulk probability at the threshold, \eqn{F_{bulk}(threshold)}, scales the tail mass
-so the overall CDF is proper.
+Spliced family obtained by attaching a generalized Pareto tail above \code{threshold} to a single
+gamma bulk distribution.
 }
 \section{Functions}{
 \itemize{
@@ -112,3 +110,11 @@ replicate(10, rGammaGpd(1, scale = scale, shape = shape,
                        tail_shape = tail_shape))
 
 }
+\seealso{
+\code{\link[=gamma_mix]{gamma_mix()}}, \code{\link[=gamma_mixgpd]{gamma_mixgpd()}}, \code{\link[=gpd]{gpd()}}, \code{\link[=gamma_lowercase]{gamma_lowercase()}}.
+
+Other gamma kernel families: 
+\code{\link{gamma_mix}},
+\code{\link{gamma_mixgpd}}
+}
+\concept{gamma kernel families}

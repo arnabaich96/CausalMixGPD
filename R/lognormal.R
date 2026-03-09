@@ -1,11 +1,14 @@
 #' Lognormal mixture distribution
 #'
-#' A finite mixture of Lognormal components. Base Lognormal functions are taken from \pkg{stats}.
-#' Mixture density and CDF are computed by weighted sums. Random generation samples a component
-#' index according to weights and draws from the corresponding component. Quantiles are computed
-#' by numerical inversion of the mixture CDF.
-#' These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
-#' For vectorized R usage (including \code{n > 1}), use \code{\link{lognormal_lowercase}}.
+#' Finite mixture of lognormal components for positive-support bulk modeling. The scalar functions
+#' in this topic are the NIMBLE-compatible building blocks for the lognormal bulk kernel family.
+#'
+#' The mixture density is
+#' \deqn{
+#' f(x) = \sum_{k = 1}^K \tilde{w}_k f_{LN}(x \mid \mu_k, \sigma_k),
+#' \qquad x > 0,
+#' }
+#' with normalized weights \eqn{\tilde{w}_k}. For vectorized R usage, use [lognormal_lowercase()].
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -20,8 +23,12 @@
 #' @param tol Numeric scalar tolerance passed to \code{stats::uniroot}.
 #' @param maxiter Integer maximum number of iterations for \code{stats::uniroot}.
 #'
-#' @return Density/CDF/RNG functions return numeric scalars. \code{qLognormalMix} returns a numeric vector
-#'   with the same length as \code{p}.
+#' @return Density/CDF/RNG functions return numeric scalars. `qLognormalMix()` returns a numeric
+#'   vector with the same length as `p`.
+#'
+#' @seealso [lognormal_mixgpd()], [lognormal_gpd()], [lognormal_lowercase()],
+#'   [build_nimble_bundle()], [kernel_support_table()].
+#' @family lognormal kernel families
 #'
 #' @examples
 #' w <- c(0.60, 0.25, 0.15)
@@ -166,7 +173,8 @@ qLognormalMix <- function(p, w, meanlog, sdlog,
 
 #' Lognormal mixture with a GPD tail
 #'
-#' Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a Lognormal mixture bulk.
+#' Spliced bulk-tail family formed by attaching a generalized Pareto tail to a lognormal mixture
+#' bulk.
 #' Let \eqn{F_{mix}} be the Lognormal mixture CDF. The spliced CDF is
 #' \eqn{F(x)=F_{mix}(x)} for \eqn{x<threshold} and
 #' \eqn{F(x)=F_{mix}(threshold) + \{1-F_{mix}(threshold)\}G(x)} for \eqn{x\ge threshold}, where \eqn{G}
@@ -191,7 +199,10 @@ qLognormalMix <- function(p, w, meanlog, sdlog,
 #' @param maxiter Integer maximum number of iterations for \code{stats::uniroot}.
 #'
 #' @return Spliced density/CDF/RNG functions return numeric scalars.
-#'   \code{qLognormalMixGpd} returns a numeric vector with the same length as \code{p}.
+#'   `qLognormalMixGpd()` returns a numeric vector with the same length as `p`.
+#'
+#' @seealso [lognormal_mix()], [lognormal_gpd()], [gpd()], [lognormal_lowercase()], [dpmgpd()].
+#' @family lognormal kernel families
 #'
 #' @examples
 #' w <- c(0.60, 0.25, 0.15)
@@ -332,8 +343,8 @@ qLognormalMixGpd <- function(p, w, meanlog, sdlog, threshold, tail_scale, tail_s
 
 #' Lognormal with a GPD tail
 #'
-#' Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a single Lognormal bulk with
-#' parameters \code{meanlog} and \code{sdlog}. Base Lognormal functions are taken from \pkg{stats}.
+#' Spliced family obtained by attaching a generalized Pareto tail above `threshold` to a single
+#' lognormal bulk.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -348,8 +359,11 @@ qLognormalMixGpd <- function(p, w, meanlog, sdlog, threshold, tail_scale, tail_s
 #' @param lower.tail Integer flag \code{0/1}; if \code{1} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Integer flag \code{0/1}; if \code{1}, probabilities are returned on the log scale.
 #'
-#' @return Spliced density/CDF/RNG functions return numeric scalars. \code{qLognormalGpd} returns a numeric vector
-#'   with the same length as \code{p}.
+#' @return Spliced density/CDF/RNG functions return numeric scalars. `qLognormalGpd()` returns a
+#'   numeric vector with the same length as `p`.
+#'
+#' @seealso [lognormal_mix()], [lognormal_mixgpd()], [gpd()], [lognormal_lowercase()].
+#' @family lognormal kernel families
 #'
 #' @examples
 #' meanlog <- 0.4
@@ -475,12 +489,9 @@ qLognormalGpd <- function(p, meanlog, sdlog, threshold, tail_scale, tail_shape,
 # Lowercase vectorized R wrappers for Lognormal kernels
 # ==========================================================
 
-#' Lowercase vectorized Lognormal distribution functions
+#' Lowercase vectorized lognormal distribution functions
 #'
-#' Vectorized R wrappers for Lognormal mixture, Lognormal mixture + GPD, and
-#' Lognormal + GPD distribution functions. These lowercase versions accept vector
-#' inputs for the first argument (\code{x}, \code{q}, or \code{p}) and return
-#' a numeric vector. The \code{r*} functions support \code{n > 1}.
+#' Vectorized R wrappers for the scalar lognormal-kernel topics in this file.
 #'
 #' @param x Numeric vector of quantiles.
 #' @param q Numeric vector of quantiles.
@@ -495,6 +506,10 @@ qLognormalGpd <- function(p, meanlog, sdlog, threshold, tail_scale, tail_shape,
 #' @param tol,maxiter Tolerance and max iterations for numerical inversion.
 #'
 #' @return Numeric vector of densities, probabilities, quantiles, or random variates.
+#'
+#' @seealso [lognormal_mix()], [lognormal_mixgpd()], [lognormal_gpd()], [bundle()],
+#'   [get_kernel_registry()].
+#' @family vectorized kernel helpers
 #'
 #' @examples
 #' w <- c(0.6, 0.3, 0.1)

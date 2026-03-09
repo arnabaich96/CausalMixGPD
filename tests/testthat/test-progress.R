@@ -12,8 +12,8 @@ test_that("progress helpers emit step messages when enabled", {
     type = "message"
   )
   msgs <- strip_ansi(msgs)
-  expect_true(any(grepl("^\\[1/2\\] step one \\[[=-]+\\]\\s+50%$", msgs)))
-  expect_true(any(grepl("^\\[2/2\\] step two \\[[=-]+\\]\\s+100%$", msgs)))
+  expect_true(any(grepl("^step one$", msgs)))
+  expect_true(any(grepl("^step two$", msgs)))
   expect_silent(.cmgpd_progress_done(ctx))
 })
 
@@ -55,7 +55,7 @@ test_that("run_mcmc_bundle_manual and predict honor progress toggles", {
 
   expect_message(
     fit <- run_mcmc_bundle_manual(bundle, show_progress = TRUE, quiet = FALSE),
-    "\\[1/8\\] Validating configuration \\[[=-]+\\]\\s+[0-9]+%"
+    "Validating configuration"
   )
   active_msg <- utils::capture.output(
     active_out <- utils::capture.output(
@@ -66,7 +66,8 @@ test_that("run_mcmc_bundle_manual and predict honor progress toggles", {
   )
   active_msg <- strip_ansi(active_msg)
   active_lines <- c(active_out, active_msg)
-  expect_true(any(grepl("\\[[0-9]+/[0-9]+\\].*\\[[=-]+\\]\\s+[0-9]+%", active_lines)))
+  expect_true(any(grepl("Validating configuration", active_lines, fixed = TRUE)))
+  expect_false(any(grepl("\\[[0-9]+/[0-9]+\\].*\\[[=-]+\\]\\s+[0-9]+%", active_lines)))
   expect_false(any(grepl("===== Monitors =====|running chain|Defining model", active_lines)))
 
   quiet_msg <- utils::capture.output(

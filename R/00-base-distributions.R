@@ -4,10 +4,19 @@
 
 #' Generalized Pareto distribution
 #'
-#' Base generalized Pareto distribution (GPD) for threshold exceedances above \code{threshold}.
-#' Parameterization uses threshold \code{threshold}, scale \code{scale > 0}, and shape \code{shape}.
-#' These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
-#' For vectorized R usage (including \code{n > 1}), use \code{\link{base_lowercase}}.
+#' Scalar generalized Pareto distribution (GPD) utilities for threshold exceedances above
+#' `threshold`. These NIMBLE-compatible functions provide the tail component used by the spliced
+#' bulk-tail families elsewhere in the package.
+#'
+#' The parameterization is
+#' \deqn{
+#' G(x) = 1 - \left(1 + \xi \frac{x - u}{\sigma_u}\right)^{-1 / \xi}, \qquad x \ge u,
+#' }
+#' where `threshold = u`, `scale = sigma_u > 0`, and `shape = xi`. When `shape` approaches zero,
+#' the distribution reduces to the exponential tail limit.
+#'
+#' These uppercase NIMBLE-compatible functions are scalar (`x`/`q` and `n = 1`).
+#' For vectorized R usage, use [base_lowercase()].
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -21,8 +30,25 @@
 #' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Logical; if \code{TRUE}, probabilities are returned on the log scale.
 #'
-#' @return \code{dGpd} returns a numeric scalar density; \code{pGpd} returns a numeric scalar CDF;
-#'   \code{rGpd} returns one random draw; \code{qGpd} returns a numeric quantile.
+#' @return `dGpd()` returns a numeric scalar density, `pGpd()` returns a numeric scalar CDF,
+#'   `rGpd()` returns one random draw, and `qGpd()` returns a numeric quantile.
+#'
+#' @details
+#' If a bulk distribution has CDF \eqn{F_{bulk}}, the package's spliced families typically use the
+#' tail construction
+#' \deqn{
+#' F(x) =
+#' \left\{
+#' \begin{array}{ll}
+#' F_{bulk}(x), & x < u, \\
+#' F_{bulk}(u) + \{1 - F_{bulk}(u)\} G(x), & x \ge u.
+#' \end{array}
+#' \right.
+#' }
+#'
+#' @seealso [base_lowercase()], [normal_gpd()], [lognormal_gpd()], [gamma_gpd()],
+#'   [InvGauss_gpd()], [laplace_gpd()], [amoroso_gpd()].
+#' @family base tail distributions
 #'
 #' @examples
 #' threshold <- 1
@@ -179,13 +205,18 @@ qGpd <- function(p, threshold, scale, shape,
 
 #' Inverse Gaussian (Wald) distribution
 #'
-#' The inverse Gaussian (also called the Wald distribution) is a positive-support model that is
-#' right-skewed and often used for waiting times. This package provides NIMBLE-compatible density,
-#' CDF, and RNG functions under the \code{mean}/\code{shape} parameterization
-#' (mean \eqn{\mu>0}, shape \eqn{\lambda>0}). A standalone mixture quantile function is computed by
-#' numerical inversion elsewhere; \code{qInvGauss} inverts the base CDF.
-#' These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
-#' For vectorized R usage (including \code{n > 1}), use \code{\link{base_lowercase}}.
+#' Scalar inverse Gaussian utilities under the \eqn{(\mu, \lambda)} parameterization, where
+#' `mean = mu > 0` and `shape = lambda > 0`. These functions are used directly and as building
+#' blocks for inverse-Gaussian mixtures and spliced inverse-Gaussian-plus-GPD families.
+#'
+#' The density is
+#' \deqn{
+#' f(x) = \left(\frac{\lambda}{2 \pi x^3}\right)^{1/2}
+#' \exp\left\{- \frac{\lambda (x - \mu)^2}{2 \mu^2 x}\right\}, \qquad x > 0.
+#' }
+#'
+#' These uppercase NIMBLE-compatible functions are scalar (`x`/`q` and `n = 1`).
+#' For vectorized R usage, use [base_lowercase()].
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -200,8 +231,11 @@ qGpd <- function(p, threshold, scale, shape,
 #' @param tol Numeric scalar tolerance passed to \code{stats::uniroot}.
 #' @param maxiter Integer maximum number of iterations for \code{stats::uniroot}.
 #'
-#' @return \code{dInvGauss} returns a numeric scalar density; \code{pInvGauss} returns a numeric scalar CDF;
-#'   \code{rInvGauss} returns one random draw; \code{qInvGauss} returns a numeric quantile.
+#' @return `dInvGauss()` returns a numeric scalar density, `pInvGauss()` returns a numeric scalar
+#'   CDF, `rInvGauss()` returns one random draw, and `qInvGauss()` returns a numeric quantile.
+#'
+#' @seealso [InvGauss_mix()], [InvGauss_gpd()], [base_lowercase()], [build_nimble_bundle()].
+#' @family base bulk distributions
 #'
 #' @examples
 #' mean <- 2
@@ -347,10 +381,15 @@ qInvGauss <- function(p, mean, shape,
 
 #' Amoroso distribution
 #'
-#' Base Amoroso distribution functions as implemented in this package.
-#' Function names and parameterization follow your existing Amoroso implementation.
-#' These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
-#' For vectorized R usage (including \code{n > 1}), use \code{\link{base_lowercase}}.
+#' Scalar Amoroso utilities used as flexible positive-support base kernels and mixture components.
+#' The package parameterization uses `loc`, `scale`, `shape1`, and `shape2`, allowing the family
+#' to represent a broad range of skewed bulk shapes.
+#'
+#' Writing `loc = a`, `scale = theta`, `shape1 = alpha`, and `shape2 = beta`, the transformed
+#' quantity \eqn{((X - a) / \theta)^\beta} follows a gamma law with shape \eqn{\alpha}.
+#'
+#' These uppercase NIMBLE-compatible functions are scalar (`x`/`q` and `n = 1`).
+#' For vectorized R usage, use [base_lowercase()].
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -365,7 +404,11 @@ qInvGauss <- function(p, mean, shape,
 #' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Logical; if \code{TRUE}, probabilities are returned on the log scale.
 #'
-#' @return Density/CDF/RNG functions return numeric scalars. The quantile function returns a numeric scalar.
+#' @return Density/CDF/RNG functions return numeric scalars. The quantile function returns a numeric
+#'   scalar or vector matching the length of `p`.
+#'
+#' @seealso [amoroso_mix()], [amoroso_gpd()], [base_lowercase()], [kernel_support_table()].
+#' @family base bulk distributions
 #'
 #' @examples
 #' loc <- 0
@@ -514,10 +557,17 @@ rAmoroso <- nimble::nimbleFunction(
 
 #' Cauchy distribution
 #'
-#' Base Cauchy distribution functions implemented as nimbleFunctions so they can be used
-#' in NIMBLE models. Parameterization uses location and scale (scale > 0).
-#' These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
-#' For vectorized R usage (including \code{n > 1}), use \code{\link{base_lowercase}}.
+#' Scalar Cauchy utilities implemented for NIMBLE compatibility. These functions support symmetric
+#' heavy-tailed kernels on the real line and feed directly into the finite Cauchy mixture family.
+#'
+#' The density is
+#' \deqn{
+#' f(x) = \frac{1}{\pi s \{1 + ((x - \ell)/s)^2\}},
+#' }
+#' where `location = ell` and `scale = s > 0`.
+#'
+#' These uppercase NIMBLE-compatible functions are scalar (`x`/`q` and `n = 1`).
+#' For vectorized R usage, use [base_lowercase()].
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -530,8 +580,11 @@ rAmoroso <- nimble::nimbleFunction(
 #' @param lower.tail Logical; if \code{TRUE} (default), probabilities are \eqn{P(X \le q)}.
 #' @param log.p Logical; if \code{TRUE}, probabilities are returned on the log scale.
 #'
-#' @return \code{dCauchy} returns a numeric scalar density; \code{pCauchy} returns a numeric scalar CDF;
-#'   \code{rCauchy} returns one random draw; \code{qCauchy} returns a numeric quantile.
+#' @return `dCauchy()` returns a numeric scalar density, `pCauchy()` returns a numeric scalar CDF,
+#'   `rCauchy()` returns one random draw, and `qCauchy()` returns a numeric quantile.
+#'
+#' @seealso [cauchy_mix()], [base_lowercase()], [kernel_support_table()].
+#' @family base bulk distributions
 #'
 #' @examples
 #' location <- 0
@@ -626,14 +679,12 @@ qCauchy <- function(p, location, scale,
 
 #' Lowercase vectorized distribution functions (base kernels)
 #'
-#' Vectorized R wrappers for the base distribution functions. These lowercase
-#' versions accept vector inputs for the first argument (\code{x}, \code{q}, or
-#' \code{p}) and return a numeric vector. The \code{r*} functions support
-#' \code{n > 1} and return a numeric vector of length \code{n}.
+#' Vectorized R wrappers around the scalar base-kernel functions defined in this file. These
+#' helpers are intended for interactive R use, examples, testing, and checking numerical behavior
+#' outside compiled NIMBLE code.
 #'
-#' The underlying scalar functions are NIMBLE-compatible nimbleFunctions.
-#' These wrappers are for convenient R-side usage and are not intended for
-#' use inside NIMBLE models.
+#' The wrappers preserve the same parameterizations as the uppercase scalar functions, but accept
+#' vector inputs for `x`, `q`, or `p` and allow `n > 1` for random generation.
 #'
 #' @param x Numeric vector of quantiles.
 #' @param q Numeric vector of quantiles.
@@ -647,8 +698,11 @@ qCauchy <- function(p, location, scale,
 #' @param log.p Logical; if \code{TRUE}, probabilities are on log scale.
 #' @param tol,maxiter Tolerance and max iterations for numerical inversion.
 #'
-#' @return Numeric vector of densities, probabilities, quantiles, or random
-#'   variates.
+#' @return Numeric vector of densities, probabilities, quantiles, or random variates.
+#'
+#' @seealso [gpd()], [InvGauss()], [amoroso()], [cauchy()], [build_nimble_bundle()],
+#'   [kernel_support_table()].
+#' @family vectorized kernel helpers
 #'
 #' @examples
 #' # GPD

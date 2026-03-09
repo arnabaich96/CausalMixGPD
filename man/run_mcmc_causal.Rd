@@ -2,7 +2,7 @@
 % Please edit documentation in R/causal.R
 \name{run_mcmc_causal}
 \alias{run_mcmc_causal}
-\title{Run MCMC for a causal bundle}
+\title{Run posterior sampling for a causal bundle}
 \usage{
 run_mcmc_causal(
   bundle,
@@ -30,15 +30,30 @@ run_mcmc_causal(
 \item{z_update_every}{Integer >= 1 passed to arm-level outcome MCMC.}
 }
 \value{
-A list of class \code{"causalmixgpd_causal_fit"}.
+A list of class \code{"causalmixgpd_causal_fit"} containing the
+fitted treated/control outcome models, optional PS fit, the original
+bundle, and timing metadata when requested.
 }
 \description{
-Executes the outcome arms (and PS model if enabled), returning a single causal fit.
-When \code{PS=FALSE} in the bundle, the PS model is skipped entirely.
+\code{run_mcmc_causal()} executes the PS block (when enabled) and the two
+arm-specific outcome models prepared by \code{\link{build_causal_bundle}},
+then returns a single \code{"causalmixgpd_causal_fit"} object.
+}
+\details{
+The fitted object contains the posterior draws needed to evaluate arm-level
+predictive distributions \eqn{F_1(y \mid x, \mathcal{D})} and
+\eqn{F_0(y \mid x, \mathcal{D})}, followed by marginal or conditional causal
+contrasts. When \code{PS = FALSE} in the bundle, the PS block is skipped and
+outcome prediction uses only the original covariates.
 }
 \examples{
 \dontrun{
 cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
 fit <- run_mcmc_causal(cb)
 }
+}
+\seealso{
+\code{\link{build_causal_bundle}}, \code{\link{mcmc}},
+\code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
+\code{\link{qte}}.
 }

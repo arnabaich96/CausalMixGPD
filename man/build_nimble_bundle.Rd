@@ -2,7 +2,7 @@
 % Please edit documentation in R/build-run.R
 \name{build_nimble_bundle}
 \alias{build_nimble_bundle}
-\title{Build a NIMBLE bundle}
+\title{Build the explicit one-arm NIMBLE bundle}
 \usage{
 build_nimble_bundle(
   y,
@@ -58,10 +58,33 @@ weights >= epsilon, then renormalize.}
 \item{monitor_v}{Logical; if TRUE and backend is SB, include stick breaks (\code{v}) in monitors.}
 }
 \value{
-A named list (bundle) of class \code{"causalmixgpd_bundle"}.
+A named list of class \code{"causalmixgpd_bundle"}. Its primary
+components are \code{spec}, \code{code}, \code{constants},
+\code{dimensions}, \code{data}, \code{inits}, \code{monitors}, and stored
+\code{mcmc} settings.
 }
 \description{
-Creates a runnable "bundle" containing:
+\code{build_nimble_bundle()} is the detailed constructor behind
+\code{\link{bundle}} for one-arm models. It compiles the modeling plan into a
+self-contained object holding code-generation inputs, initialization rules,
+monitor policy, and stored MCMC defaults.
+}
+\details{
+The returned bundle encodes a finite approximation to a Dirichlet process
+mixture using either a stick-breaking (\code{"sb"}) or Chinese restaurant
+process / spliced (\code{"crp"} / \code{"spliced"}) representation.
+
+For the bulk-only model, the target likelihood is the DPM predictive law
+\deqn{f(y \mid x) = \sum_{k=1}^{K} w_k(x) f_k(y \mid x, \theta_k).}
+When \code{GPD = TRUE}, the bundle augments the bulk model with a threshold
+\eqn{u(x)} and generalized Pareto tail above that threshold, producing the
+spliced predictive distribution described in the manuscript vignette.
+
+This function intentionally stops before model compilation and sampling.
+Use \code{\link{run_mcmc_bundle_manual}} or \code{\link{mcmc}} to execute the
+stored model definition.
+
+The object contains:
 \itemize{
 \item compiled model \code{spec}
 \item \code{nimbleCode} model code
@@ -70,10 +93,6 @@ Creates a runnable "bundle" containing:
 \item monitor specification
 \item MCMC settings list (stored but not used for code generation)
 }
-}
-\details{
-This function intentionally stops at the "pre-run" stage (spec/code/constants/data/dimensions/inits/monitors).
-Use \code{run_mcmc_bundle_manual()} to execute MCMC with the stored settings.
 }
 \examples{
 \dontrun{
@@ -88,4 +107,9 @@ bundle <- build_nimble_bundle(
 )
 bundle
 }
+}
+\seealso{
+\code{\link{bundle}}, \code{\link{run_mcmc_bundle_manual}},
+\code{\link{predict.mixgpd_fit}}, \code{\link{kernel_support_table}},
+\code{\link{get_kernel_registry}}.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{summary.causalmixgpd_causal_fit}
 \alias{summary.causalmixgpd_causal_fit}
-\title{Summarize a causal fit}
+\title{Summarize a fitted causal model}
 \usage{
 \method{summary}{causalmixgpd_causal_fit}(object, ...)
 }
@@ -15,5 +15,11 @@
 The input object (invisibly).
 }
 \description{
-Summarize a causal fit
+\code{summary.causalmixgpd_causal_fit()} routes the user to the fitted PS
+block, treated/control fits, and downstream prediction/effect methods.
+}
+\seealso{
+\code{\link{print.causalmixgpd_causal_fit}},
+\code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
+\code{\link{qte}}, \code{\link{cate}}, \code{\link{cqte}}.
 }

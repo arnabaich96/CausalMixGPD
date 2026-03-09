@@ -68,12 +68,11 @@ qGammaMixGpd(
 \item{maxiter}{Integer maximum number of iterations for \code{stats::uniroot}.}
 }
 \value{
-Spliced density/CDF/RNG functions return numeric scalars. \code{qGammaMixGpd} returns a numeric vector
-with the same length as \code{p}.
+Spliced density/CDF/RNG functions return numeric scalars. \code{qGammaMixGpd()} returns a
+numeric vector with the same length as \code{p}.
 }
 \description{
-Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a Gamma mixture bulk.
-The bulk probability at the threshold is used to scale the tail so that the overall CDF is proper.
+Spliced bulk-tail family formed by attaching a generalized Pareto tail to a gamma mixture bulk.
 }
 \section{Functions}{
 \itemize{
@@ -111,3 +110,11 @@ replicate(10, rGammaMixGpd(1, w = w, scale = scale, shape = shape,
                           tail_scale = tail_scale,
                           tail_shape = tail_shape))
 }
+\seealso{
+\code{\link[=gamma_mix]{gamma_mix()}}, \code{\link[=gamma_gpd]{gamma_gpd()}}, \code{\link[=gpd]{gpd()}}, \code{\link[=gamma_lowercase]{gamma_lowercase()}}, \code{\link[=dpmgpd]{dpmgpd()}}.
+
+Other gamma kernel families: 
+\code{\link{gamma_gpd}},
+\code{\link{gamma_mix}}
+}
+\concept{gamma kernel families}

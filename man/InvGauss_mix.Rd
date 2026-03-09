@@ -51,19 +51,16 @@ the RNG implementation supports \code{n = 1}.}
 \item{maxiter}{Integer maximum number of iterations for \code{stats::uniroot}.}
 }
 \value{
-Density/CDF/RNG functions return numeric scalars. \code{qInvGaussMix} returns a numeric vector
-with the same length as \code{p}.
+Density/CDF/RNG functions return numeric scalars. \code{qInvGaussMix()} returns a numeric
+vector with the same length as \code{p}.
 }
 \description{
-A finite mixture of inverse Gaussian components provides a flexible bulk model for positive data
-with right skewness. Each component is parameterized by its mean \code{mean[j]} and shape
-\code{shape[j]}.
+Finite mixture of inverse Gaussian components for positive-support bulk modeling. Each component
+is parameterized by \code{mean[j]} and \code{shape[j]}.
 }
 \details{
-The density, CDF, and RNG are implemented as \code{nimbleFunction}s for use inside NIMBLE models.
-The quantile function is an R function computed by numerical inversion of the mixture CDF.
-These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
-For vectorized R usage (including \code{n > 1}), use \code{\link{invgauss_lowercase}}.
+The scalar functions in this topic are the compiled building blocks for inverse-Gaussian bulk
+kernels. For vectorized R usage, use \code{\link[=invgauss_lowercase]{invgauss_lowercase()}}.
 }
 \section{Functions}{
 \itemize{
@@ -88,3 +85,12 @@ qInvGaussMix(0.50, w = w, mean = mean, shape = shape)
 qInvGaussMix(0.95, w = w, mean = mean, shape = shape)
 replicate(10, rInvGaussMix(1, w = w, mean = mean, shape = shape))
 }
+\seealso{
+\code{\link[=InvGauss_mixgpd]{InvGauss_mixgpd()}}, \code{\link[=InvGauss_gpd]{InvGauss_gpd()}}, \code{\link[=invgauss_lowercase]{invgauss_lowercase()}},
+\code{\link[=build_nimble_bundle]{build_nimble_bundle()}}, \code{\link[=kernel_support_table]{kernel_support_table()}}.
+
+Other inverse-gaussian kernel families: 
+\code{\link{InvGauss_gpd}},
+\code{\link{InvGauss_mixgpd}}
+}
+\concept{inverse-gaussian kernel families}

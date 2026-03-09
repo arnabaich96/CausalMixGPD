@@ -2,7 +2,7 @@
 % Please edit documentation in R/cluster.R
 \name{dpmgpd.cluster}
 \alias{dpmgpd.cluster}
-\title{Cluster-only DPM fit (spliced kernel with GPD tail)}
+\title{Fit a clustering-only bulk-tail model}
 \usage{
 dpmgpd.cluster(
   formula,
@@ -16,19 +16,53 @@ dpmgpd.cluster(
 \arguments{
 \item{formula}{Model formula. The response must be present in \code{data}.}
 
-\item{data}{Data frame containing response and predictors.}
+\item{data}{Data frame containing the response and optional predictors.}
 
-\item{...}{Additional arguments passed to the internal cluster bundle builder.}
+\item{...}{Additional arguments passed to \code{build_cluster_bundle()}, including kernel settings,
+prior overrides, component counts, and monitoring controls.}
 
-\item{type}{Cluster mode: \code{"weights"}, \code{"param"}, or \code{"both"}.}
+\item{type}{Clustering mode. \code{"weights"} links mixture weights to predictors, \code{"param"} links
+kernel parameters to predictors, and \code{"both"} does both.}
 
-\item{default}{Default mode when \code{type} is omitted.}
+\item{default}{Default mode used when \code{type} is omitted.}
 
-\item{mcmc}{MCMC control list.}
+\item{mcmc}{MCMC control list passed into the cluster bundle.}
 }
 \value{
-A \code{dpmixgpd_cluster_fit} object.
+Object of class \code{dpmixgpd_cluster_fit}.
 }
 \description{
-Fit a clustering-only GPD-augmented model from a formula interface.
+Variant of \code{\link[=dpmix.cluster]{dpmix.cluster()}} that augments the cluster kernel with a generalized Pareto tail.
+This is the clustering analogue of the spliced bulk-tail workflow used by \code{\link[=dpmgpd]{dpmgpd()}}.
 }
+\details{
+For observations above a component-specific threshold, the component density is spliced as
+\deqn{
+f(y) = (1 - F_{bulk}(u)) g_{GPD}(y \mid u, \sigma_u, \xi_u), \qquad y \ge u,
+}
+so cluster assignment can be informed by both central behavior and tail behavior.
+
+This interface is preferable when cluster separation is driven by upper-tail differences rather
+than bulk-only shape or location differences.
+}
+\seealso{
+\code{\link[=dpmix.cluster]{dpmix.cluster()}}, \code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}}, \code{\link[=dpmgpd]{dpmgpd()}},
+\code{\link[=sim_bulk_tail]{sim_bulk_tail()}}.
+
+Other cluster workflow: 
+\code{\link{dpmix.cluster}()},
+\code{\link{plot.dpmixgpd_cluster_bundle}()},
+\code{\link{plot.dpmixgpd_cluster_fit}()},
+\code{\link{plot.dpmixgpd_cluster_labels}()},
+\code{\link{plot.dpmixgpd_cluster_psm}()},
+\code{\link{predict.dpmixgpd_cluster_fit}()},
+\code{\link{print.dpmixgpd_cluster_bundle}()},
+\code{\link{print.dpmixgpd_cluster_fit}()},
+\code{\link{print.dpmixgpd_cluster_labels}()},
+\code{\link{print.dpmixgpd_cluster_psm}()},
+\code{\link{summary.dpmixgpd_cluster_bundle}()},
+\code{\link{summary.dpmixgpd_cluster_fit}()},
+\code{\link{summary.dpmixgpd_cluster_labels}()},
+\code{\link{summary.dpmixgpd_cluster_psm}()}
+}
+\concept{cluster workflow}

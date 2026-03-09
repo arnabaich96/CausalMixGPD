@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{residuals.mixgpd_fit}
 \alias{residuals.mixgpd_fit}
-\title{Residuals for a MixGPD fit}
+\title{Residual diagnostics on the training design}
 \usage{
 \method{residuals}{mixgpd_fit}(
   object,
@@ -34,16 +34,21 @@ rules as prediction and attach diagnostics via \code{attr(res, "pit_diagnostics"
 \item{...}{Unused.}
 }
 \value{
-Numeric vector of residuals with length equal to the training sample size.
+Numeric vector of residuals with length equal to the training sample
+size. PIT variants attach diagnostic metadata as attributes.
 }
 \description{
-Returns residuals aligned with the training data for \strong{conditional
-(covariate) models only}. Not supported for unconditional models (no
-covariates); use \code{predict()} for predictions in that case. For
-\code{type = "raw"}, this uses fitted means. For \code{type = "pit"}, this
-returns approximate PIT values via the predictive survival function. The
-plug-in PIT uses the posterior mean CDF, while the Bayesian PIT modes use
-draw-wise CDFs (averaged or sampled).
+\code{residuals.mixgpd_fit()} computes residual diagnostics for conditional
+fits on the original training data.
+}
+\details{
+Raw residuals are based on posterior predictive fitted means or medians.
+PIT residuals instead assess calibration through the posterior predictive CDF.
+The plug-in PIT uses a posterior mean CDF, while the Bayesian PIT variants
+work draw by draw.
+
+This method is not available for unconditional models because no training
+design matrix is stored for observation-specific fitted values.
 }
 \examples{
 \dontrun{
@@ -58,4 +63,8 @@ pit_bayes_mean <- residuals(fit, type = "pit", pit = "bayes_mean", pit_seed = 1L
 pit_bayes_draw <- residuals(fit, type = "pit", pit = "bayes_draw", pit_seed = 1L)
 attr(pit_bayes_draw, "pit_diagnostics")
 }
+}
+\seealso{
+\code{\link{fitted.mixgpd_fit}}, \code{\link{predict.mixgpd_fit}},
+\code{\link{plot.mixgpd_fitted}}.
 }

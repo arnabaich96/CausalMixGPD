@@ -12,8 +12,33 @@
 \item{...}{Unused.}
 }
 \value{
-A summary list.
+Summary list with matrix size and basic summaries of the similarity entries.
 }
 \description{
-Summarize a cluster posterior similarity matrix
+Summarize pairwise posterior co-clustering probabilities.
 }
+\details{
+The diagonal of a posterior similarity matrix is always close to one, while off-diagonal values
+near one indicate highly stable co-clustering across retained posterior draws.
+}
+\seealso{
+\code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}}, \code{\link[=plot.dpmixgpd_cluster_psm]{plot.dpmixgpd_cluster_psm()}},
+\code{\link[=summary.dpmixgpd_cluster_fit]{summary.dpmixgpd_cluster_fit()}}.
+
+Other cluster workflow: 
+\code{\link{dpmgpd.cluster}()},
+\code{\link{dpmix.cluster}()},
+\code{\link{plot.dpmixgpd_cluster_bundle}()},
+\code{\link{plot.dpmixgpd_cluster_fit}()},
+\code{\link{plot.dpmixgpd_cluster_labels}()},
+\code{\link{plot.dpmixgpd_cluster_psm}()},
+\code{\link{predict.dpmixgpd_cluster_fit}()},
+\code{\link{print.dpmixgpd_cluster_bundle}()},
+\code{\link{print.dpmixgpd_cluster_fit}()},
+\code{\link{print.dpmixgpd_cluster_labels}()},
+\code{\link{print.dpmixgpd_cluster_psm}()},
+\code{\link{summary.dpmixgpd_cluster_bundle}()},
+\code{\link{summary.dpmixgpd_cluster_fit}()},
+\code{\link{summary.dpmixgpd_cluster_labels}()}
+}
+\concept{cluster workflow}

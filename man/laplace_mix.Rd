@@ -52,20 +52,19 @@ internally when needed.}
 \item{maxiter}{Integer maximum iterations for \code{stats::uniroot}.}
 }
 \value{
-Density/CDF/RNG functions return numeric scalars. \code{qLaplaceMix} returns a numeric vector
-with the same length as \code{p}.
+Density/CDF/RNG functions return numeric scalars. \code{qLaplaceMix()} returns a numeric
+vector with the same length as \code{p}.
 }
 \description{
-A finite mixture of Laplace (double exponential) components for real-valued data.
-Base Laplace functions are taken from \pkg{nimble} (\code{ddexp}, \code{pdexp},
-\code{rdexp}, \code{qdexp}).
+Finite mixture of Laplace components for real-valued bulk modeling. The scalar functions in this
+topic are the NIMBLE-compatible building blocks for Laplace-based kernels.
 }
 \details{
-Mixture density and CDF are computed by weighted sums. Random generation samples a component
-index according to weights and draws from the corresponding component. Quantiles are computed
-by numerical inversion of the mixture CDF.
-These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
-For vectorized R usage (including \code{n > 1}), use \code{\link{laplace_lowercase}}.
+The mixture density is
+\deqn{
+f(x) = \sum_{k = 1}^K \tilde{w}_k f_{Lap}(x \mid \mu_k, b_k),
+}
+with normalized weights \eqn{\tilde{w}_k}. For vectorized R usage, use \code{\link[=laplace_lowercase]{laplace_lowercase()}}.
 }
 \section{Functions}{
 \itemize{
@@ -90,3 +89,12 @@ qLaplaceMix(0.50, w = w, location = location, scale = scale)
 qLaplaceMix(0.95, w = w, location = location, scale = scale)
 replicate(10, rLaplaceMix(1, w = w, location = location, scale = scale))
 }
+\seealso{
+\code{\link[=laplace_MixGpd]{laplace_MixGpd()}}, \code{\link[=laplace_gpd]{laplace_gpd()}}, \code{\link[=laplace_lowercase]{laplace_lowercase()}},
+\code{\link[=build_nimble_bundle]{build_nimble_bundle()}}, \code{\link[=kernel_support_table]{kernel_support_table()}}.
+
+Other laplace kernel families: 
+\code{\link{laplace_MixGpd}},
+\code{\link{laplace_gpd}}
+}
+\concept{laplace kernel families}

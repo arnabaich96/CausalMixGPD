@@ -50,16 +50,19 @@ internally when needed.}
 \item{maxiter}{Integer maximum number of iterations for \code{stats::uniroot}.}
 }
 \value{
-Density/CDF/RNG functions return numeric scalars. \code{qCauchyMix} returns a numeric vector
-with the same length as \code{p}.
+Density/CDF/RNG functions return numeric scalars. \code{qCauchyMix()} returns a numeric
+vector with the same length as \code{p}.
 }
 \description{
-A finite mixture of Cauchy components. Base Cauchy functions are taken from \pkg{stats}.
-The mixture density and distribution function are computed by weighted sums. Random generation
-samples a component index according to the weights and draws from the corresponding component.
-Quantiles are computed by numerical inversion of the mixture CDF.
-These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
-For vectorized R usage (including \code{n > 1}), use \code{\link{cauchy_mix_lowercase}}.
+Finite mixture of Cauchy components for symmetric heavy-tailed bulk modeling on the real line.
+}
+\details{
+The mixture density is
+\deqn{
+f(x) = \sum_{k = 1}^K \tilde{w}_k f_C(x \mid \ell_k, s_k),
+}
+with normalized weights \eqn{\tilde{w}_k}. These scalar functions are NIMBLE-compatible; for
+vectorized R usage, use \code{\link[=cauchy_mix_lowercase]{cauchy_mix_lowercase()}}.
 }
 \section{Functions}{
 \itemize{
@@ -85,3 +88,7 @@ qCauchyMix(0.95, w = w, location = location, scale = scale)
 replicate(10, rCauchyMix(1, w = w, location = location, scale = scale))
 
 }
+\seealso{
+\code{\link[=cauchy]{cauchy()}}, \code{\link[=cauchy_mix_lowercase]{cauchy_mix_lowercase()}}, \code{\link[=build_nimble_bundle]{build_nimble_bundle()}}, \code{\link[=kernel_support_table]{kernel_support_table()}}.
+}
+\concept{cauchy kernel families}

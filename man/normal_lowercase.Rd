@@ -14,7 +14,7 @@
 \alias{pnormgpd}
 \alias{qnormgpd}
 \alias{rnormgpd}
-\title{Lowercase vectorized Normal distribution functions}
+\title{Lowercase vectorized normal distribution functions}
 \usage{
 dnormmix(x, w, mean, sd, log = FALSE)
 
@@ -116,10 +116,8 @@ rnormgpd(n, mean, sd, threshold, tail_scale, tail_shape)
 Numeric vector of densities, probabilities, quantiles, or random variates.
 }
 \description{
-Vectorized R wrappers for Normal mixture, Normal mixture + GPD, and
-Normal + GPD distribution functions. These lowercase versions accept vector
-inputs for the first argument (\code{x}, \code{q}, or \code{p}) and return
-a numeric vector. The \code{r*} functions support \code{n > 1}.
+Vectorized R wrappers for the scalar normal-kernel topics in this file. These helpers are meant
+for interactive use and examples rather than direct use inside NIMBLE code.
 }
 \section{Functions}{
 \itemize{
@@ -166,3 +164,16 @@ dnormgpd(c(1, 2, 3), mean = 0.5, sd = 1, threshold = 2,
          tail_scale = 1, tail_shape = 0.2)
 
 }
+\seealso{
+\code{\link[=normal_mix]{normal_mix()}}, \code{\link[=normal_mixgpd]{normal_mixgpd()}}, \code{\link[=normal_gpd]{normal_gpd()}}, \code{\link[=bundle]{bundle()}}, \code{\link[=get_kernel_registry]{get_kernel_registry()}}.
+
+Other vectorized kernel helpers: 
+\code{\link{amoroso_lowercase}},
+\code{\link{base_lowercase}},
+\code{\link{cauchy_mix_lowercase}},
+\code{\link{gamma_lowercase}},
+\code{\link{invgauss_lowercase}},
+\code{\link{laplace_lowercase}},
+\code{\link{lognormal_lowercase}}
+}
+\concept{vectorized kernel helpers}

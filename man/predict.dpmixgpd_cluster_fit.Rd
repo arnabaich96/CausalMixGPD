@@ -2,7 +2,7 @@
 % Please edit documentation in R/cluster_run_predict.R
 \name{predict.dpmixgpd_cluster_fit}
 \alias{predict.dpmixgpd_cluster_fit}
-\title{Predict cluster outputs from a cluster fit}
+\title{Predict labels or similarity matrices from a cluster fit}
 \usage{
 \method{predict}{dpmixgpd_cluster_fit}(
   object,
@@ -18,24 +18,67 @@
 \arguments{
 \item{object}{A fitted cluster object.}
 
-\item{newdata}{Optional new data containing response and predictors from the fit formula.}
+\item{newdata}{Optional new data containing the response and predictors required by the original
+formula. New-data prediction is available only for \code{type = "label"}.}
 
-\item{type}{Prediction type: \code{"label"} or \code{"psm"}.}
+\item{type}{Prediction target: \code{"label"} for a representative partition or \code{"psm"} for the
+posterior similarity matrix on the training sample.}
 
 \item{burnin}{Number of initial posterior draws to discard.}
 
 \item{thin}{Keep every \code{thin}-th posterior draw.}
 
-\item{return_scores}{Logical; if \code{TRUE} and \code{type="label"}, include Dahl-cluster
-score matrix in the output.}
+\item{return_scores}{Logical; if \code{TRUE} and \code{type = "label"}, include the matrix of Dahl-cluster
+assignment scores.}
 
-\item{psm_max_n}{Maximum training sample size allowed for \code{type="psm"}.}
+\item{psm_max_n}{Maximum training sample size allowed for \code{type = "psm"}.}
 
 \item{...}{Unused.}
 }
 \value{
-A \code{dpmixgpd_cluster_labels} or \code{dpmixgpd_cluster_psm} object.
+A \code{dpmixgpd_cluster_labels} object when \code{type = "label"} or a
+\code{dpmixgpd_cluster_psm} object when \code{type = "psm"}.
 }
 \description{
-Predict cluster outputs from a cluster fit
+Convert posterior draws from a \code{dpmixgpd_cluster_fit} object into either a representative
+clustering or a posterior similarity matrix (PSM). This is the main post-processing step for
+the cluster workflow after \code{\link[=dpmix.cluster]{dpmix.cluster()}} or \code{\link[=dpmgpd.cluster]{dpmgpd.cluster()}}.
 }
+\details{
+Let \eqn{z_i^{(s)}} denote the latent cluster label for observation \eqn{i} at posterior draw
+\eqn{s}. The posterior similarity matrix is
+\deqn{
+\mathrm{PSM}_{ij} = \Pr(z_i = z_j \mid y) \approx \frac{1}{S} \sum_{s=1}^S I(z_i^{(s)} = z_j^{(s)}).
+}
+The returned label solution is the Dahl representative partition, obtained by choosing the draw
+whose adjacency matrix is closest to the PSM in squared error.
+
+For \code{newdata}, the function combines draw-specific component weights and component densities to
+produce posterior assignment scores relative to the representative training clusters. A PSM is
+not defined for \code{newdata}, so \code{type = "psm"} is restricted to the training sample.
+
+Computing the PSM is \eqn{O(n^2)} in the training sample size, so \code{psm_max_n} guards against
+accidental large matrix allocations.
+}
+\seealso{
+\code{\link[=dpmix.cluster]{dpmix.cluster()}}, \code{\link[=dpmgpd.cluster]{dpmgpd.cluster()}}, \code{\link[=summary.dpmixgpd_cluster_fit]{summary.dpmixgpd_cluster_fit()}},
+\code{\link[=plot.dpmixgpd_cluster_fit]{plot.dpmixgpd_cluster_fit()}}, \code{\link[=summary.dpmixgpd_cluster_labels]{summary.dpmixgpd_cluster_labels()}},
+\code{\link[=summary.dpmixgpd_cluster_psm]{summary.dpmixgpd_cluster_psm()}}.
+
+Other cluster workflow: 
+\code{\link{dpmgpd.cluster}()},
+\code{\link{dpmix.cluster}()},
+\code{\link{plot.dpmixgpd_cluster_bundle}()},
+\code{\link{plot.dpmixgpd_cluster_fit}()},
+\code{\link{plot.dpmixgpd_cluster_labels}()},
+\code{\link{plot.dpmixgpd_cluster_psm}()},
+\code{\link{print.dpmixgpd_cluster_bundle}()},
+\code{\link{print.dpmixgpd_cluster_fit}()},
+\code{\link{print.dpmixgpd_cluster_labels}()},
+\code{\link{print.dpmixgpd_cluster_psm}()},
+\code{\link{summary.dpmixgpd_cluster_bundle}()},
+\code{\link{summary.dpmixgpd_cluster_fit}()},
+\code{\link{summary.dpmixgpd_cluster_labels}()},
+\code{\link{summary.dpmixgpd_cluster_psm}()}
+}
+\concept{cluster workflow}

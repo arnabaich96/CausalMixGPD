@@ -2,7 +2,7 @@
 % Please edit documentation in R/build-run.R
 \name{run_mcmc_bundle_manual}
 \alias{run_mcmc_bundle_manual}
-\title{Run MCMC for a prepared bundle}
+\title{Run posterior sampling for a prepared one-arm bundle}
 \usage{
 run_mcmc_bundle_manual(
   bundle,
@@ -32,10 +32,24 @@ in \code{fit$timing}.}
 \item{z_update_every}{Integer >= 1 controlling latent allocation update cadence.}
 }
 \value{
-A fitted object of class \code{"mixgpd_fit"}.
+A fitted object of class \code{"mixgpd_fit"} containing posterior
+draws, model metadata, and cached objects used by downstream S3 methods.
 }
 \description{
-Run MCMC for a prepared bundle
+\code{run_mcmc_bundle_manual()} is the explicit runner for objects created by
+\code{\link{build_nimble_bundle}}. It compiles the stored NIMBLE code,
+executes MCMC, and returns a \code{"mixgpd_fit"} object.
+}
+\details{
+The resulting fit supports posterior summaries of the model parameters as
+well as posterior predictive functionals such as
+\eqn{f(y \mid x, \mathcal{D})}, \eqn{S(y \mid x, \mathcal{D})},
+\eqn{Q(\tau \mid x, \mathcal{D})}, and restricted means.
+
+If \code{parallel_chains = TRUE}, chains are run concurrently when the stored
+MCMC configuration uses more than one chain. If the bundle was built with
+latent allocations monitored, the \code{z_update_every} argument controls how
+frequently those latent indicators are refreshed during sampling.
 }
 \examples{
 \dontrun{
@@ -52,4 +66,9 @@ bundle <- build_nimble_bundle(
 fit <- run_mcmc_bundle_manual(bundle, show_progress = FALSE)
 fit
 }
+}
+\seealso{
+\code{\link{build_nimble_bundle}}, \code{\link{mcmc}},
+\code{\link{summary.mixgpd_fit}}, \code{\link{predict.mixgpd_fit}},
+\code{\link{allocation}}.
 }

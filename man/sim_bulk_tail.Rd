@@ -2,20 +2,43 @@
 % Please edit documentation in R/simulated.R
 \name{sim_bulk_tail}
 \alias{sim_bulk_tail}
-\title{Simulate bulk + tail data}
+\title{Simulate positive bulk-tail data}
 \usage{
 sim_bulk_tail(n = 200, tail_prob = 0.12, seed = NULL)
 }
 \arguments{
-\item{n}{Sample size.}
+\item{n}{Integer sample size.}
 
-\item{tail_prob}{Proportion of excesses drawn from the tail (approximated).}
+\item{tail_prob}{Approximate tail probability \eqn{\Pr(X > u)} used to split the sample into
+bulk and tail draws.}
 
-\item{seed}{Optional seed for reproducibility.}
+\item{seed}{Optional random seed for reproducibility.}
 }
 \value{
-A numeric vector of outcomes.
+Numeric vector of length \code{n} containing positive outcomes sorted in ascending order.
 }
 \description{
-Generates a positive outcome with a DP mixture-like bulk and a GPD tail.
+Generate synthetic outcomes with a light-to-moderate bulk and a heavier upper tail.
+The sample is assembled from a lognormal-gamma bulk and a shifted tail sample, then sorted.
+This is a quick data generator for examples, help pages, and workflow checks rather than a
+formal generative model matching the full package hierarchy exactly.
 }
+\details{
+The generator approximates a spliced sample
+\deqn{
+X \sim (1 - \pi_u) F_{bulk} + \pi_u F_{tail},
+}
+where \eqn{\pi_u =} \code{tail_prob}. The bulk component is itself a simple two-component mixture,
+while the tail component is a shifted positive distribution that produces larger values.
+
+Use this helper when you need a fast toy sample for \code{\link[=bundle]{bundle()}}, \code{\link[=dpmix]{dpmix()}}, or \code{\link[=dpmgpd]{dpmgpd()}}.
+It should not be interpreted as posterior predictive simulation from a fitted object.
+}
+\seealso{
+\code{\link[=sim_causal_qte]{sim_causal_qte()}}, \code{\link[=sim_survival_tail]{sim_survival_tail()}}, \code{\link[=bundle]{bundle()}}, \code{\link[=dpmgpd]{dpmgpd()}}.
+
+Other simulation helpers: 
+\code{\link{sim_causal_qte}()},
+\code{\link{sim_survival_tail}()}
+}
+\concept{simulation helpers}

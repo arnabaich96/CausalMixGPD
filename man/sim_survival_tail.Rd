@@ -2,18 +2,37 @@
 % Please edit documentation in R/simulated.R
 \name{sim_survival_tail}
 \alias{sim_survival_tail}
-\title{Simulate survival tail data}
+\title{Simulate censored survival-style tail data}
 \usage{
 sim_survival_tail(n = 250, seed = NULL)
 }
 \arguments{
-\item{n}{Sample size.}
+\item{n}{Integer sample size.}
 
-\item{seed}{Optional seed.}
+\item{seed}{Optional random seed.}
 }
 \value{
-A data.frame with time, status, and covariates.
+Data frame containing observed time \code{time}, event indicator \code{status}, and covariates.
 }
 \description{
-Simulate survival tail data
+Generate event times, censoring times, an event indicator, and covariates for examples where
+right tail behavior and positive support matter.
 }
+\details{
+Event times are sampled from an exponential model with covariate-dependent mean, then censored
+by an independent uniform censoring time. The observed time is
+\deqn{
+\tilde{T} = \min(T, C), \qquad \Delta = I(T \le C).
+}
+
+This helper is mainly for experimentation and stress-testing positive-support kernels; it does
+not implement a dedicated survival model from the package API.
+}
+\seealso{
+\code{\link[=sim_bulk_tail]{sim_bulk_tail()}}, \code{\link[=build_nimble_bundle]{build_nimble_bundle()}}, \code{\link[=dpmgpd]{dpmgpd()}}.
+
+Other simulation helpers: 
+\code{\link{sim_bulk_tail}()},
+\code{\link{sim_causal_qte}()}
+}
+\concept{simulation helpers}

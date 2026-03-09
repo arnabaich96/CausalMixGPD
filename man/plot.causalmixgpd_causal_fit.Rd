@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{plot.causalmixgpd_causal_fit}
 \alias{plot.causalmixgpd_causal_fit}
-\title{Plot a causal fit}
+\title{Plot the treated and control outcome fits from a causal model}
 \usage{
 \method{plot}{causalmixgpd_causal_fit}(x, arm = "both", ...)
 }
@@ -18,5 +18,10 @@
 The result of the underlying plot call (invisibly).
 }
 \description{
-Plot a causal fit
+\code{plot.causalmixgpd_causal_fit()} is a convenience router to the
+underlying one-arm diagnostic plots for the treated and control fits.
+}
+\seealso{
+\code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
+\code{\link{qte}}, \code{\link{plot.mixgpd_fit}}.
 }

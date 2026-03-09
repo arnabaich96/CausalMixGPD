@@ -2,7 +2,7 @@
 % Please edit documentation in R/wrappers.R
 \name{dpmix}
 \alias{dpmix}
-\title{Fit DP mixture model without GPD tail}
+\title{Fit a one-arm Dirichlet process mixture without a GPD tail}
 \usage{
 dpmix(
   x = NULL,
@@ -34,8 +34,22 @@ optional performance controls such as \code{parallel_chains},
 \code{z_update_every}).}
 }
 \value{
-A fitted object.
+A fitted object of class \code{"mixgpd_fit"}.
 }
 \description{
-Fit DP mixture model without GPD tail
+\code{dpmix()} is the one-step convenience wrapper for the bulk-only model.
+It combines \code{\link{bundle}} and \code{\link{mcmc}} for one-arm data.
+}
+\details{
+The fitted model targets the posterior predictive bulk distribution
+\deqn{f(y \mid x, \mathcal{D}) = \int f(y \mid x, \theta)\,d\Pi(\theta \mid \mathcal{D}),}
+without the spliced tail augmentation used by \code{\link{dpmgpd}}.
+
+Use this wrapper when the outcome support is adequately modeled by the bulk
+kernel alone. If you need threshold exceedance modeling or extreme-quantile
+extrapolation, use \code{\link{dpmgpd}} instead.
+}
+\seealso{
+\code{\link{bundle}}, \code{\link{dpmgpd}},
+\code{\link{predict.mixgpd_fit}}, \code{\link{summary.mixgpd_fit}}.
 }

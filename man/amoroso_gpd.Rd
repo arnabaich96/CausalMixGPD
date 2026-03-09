@@ -84,12 +84,12 @@ qAmorosoGpd(
 \item{maxiter}{Maximum iterations for numerical inversion in \code{qAmorosoGpd}.}
 }
 \value{
-Spliced density/CDF/RNG functions return numeric scalars. \code{qAmorosoGpd} returns a numeric vector
-with the same length as \code{p}.
+Spliced density/CDF/RNG functions return numeric scalars. \code{qAmorosoGpd()} returns a
+numeric vector with the same length as \code{p}.
 }
 \description{
-Splices a generalized Pareto distribution (GPD) above a threshold \code{threshold} onto a single Amoroso bulk
-with parameters \code{loc}, \code{scale}, \code{shape1}, and \code{shape2}.
+Spliced family obtained by attaching a generalized Pareto tail above \code{threshold} to a single
+Amoroso bulk.
 }
 \section{Functions}{
 \itemize{
@@ -122,3 +122,11 @@ qAmorosoGpd(0.95, loc, scale, shape1, shape2,
 replicate(10, rAmorosoGpd(1, loc, scale, shape1, shape2,
                          threshold, tail_scale, tail_shape))
 }
+\seealso{
+\code{\link[=amoroso_mix]{amoroso_mix()}}, \code{\link[=amoroso_mixgpd]{amoroso_mixgpd()}}, \code{\link[=gpd]{gpd()}}, \code{\link[=amoroso_lowercase]{amoroso_lowercase()}}.
+
+Other amoroso kernel families: 
+\code{\link{amoroso_mix}},
+\code{\link{amoroso_mixgpd}}
+}
+\concept{amoroso kernel families}

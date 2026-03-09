@@ -1,11 +1,14 @@
 #' Gamma mixture distribution
 #'
-#' A finite mixture of Gamma components. Base Gamma functions are taken from \pkg{stats}.
-#' Mixture density and CDF are computed by weighted sums. Random generation samples a component
-#' according to weights and draws from the corresponding component. Quantiles are computed by
-#' numerical inversion of the mixture CDF.
-#' These uppercase NIMBLE-compatible functions are scalar (\code{x}/\code{q} and \code{n = 1}).
-#' For vectorized R usage (including \code{n > 1}), use \code{\link{gamma_lowercase}}.
+#' Finite mixture of gamma components for positive-support bulk modeling. The scalar functions in
+#' this topic are the compiled building blocks behind the gamma bulk kernel family.
+#'
+#' The mixture density is
+#' \deqn{
+#' f(x) = \sum_{k = 1}^K \tilde{w}_k f_{\Gamma}(x \mid \alpha_k, \theta_k),
+#' \qquad x > 0,
+#' }
+#' with normalized weights \eqn{\tilde{w}_k}. For vectorized R usage, use [gamma_lowercase()].
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -20,8 +23,12 @@
 #' @param tol Numeric scalar tolerance passed to \code{stats::uniroot}.
 #' @param maxiter Integer maximum number of iterations for \code{stats::uniroot}.
 #'
-#' @return Density/CDF/RNG functions return numeric scalars. \code{qGammaMix} returns a numeric vector
-#'   with the same length as \code{p}.
+#' @return Density/CDF/RNG functions return numeric scalars. `qGammaMix()` returns a numeric vector
+#'   with the same length as `p`.
+#'
+#' @seealso [gamma_mixgpd()], [gamma_gpd()], [gamma_lowercase()], [build_nimble_bundle()],
+#'   [kernel_support_table()].
+#' @family gamma kernel families
 #'
 #' @examples
 #' w <- c(0.55, 0.30, 0.15)
@@ -183,8 +190,7 @@ qGammaMix <- function(p, w, shape, scale,
 
 #' Gamma mixture with a GPD tail
 #'
-#' Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a Gamma mixture bulk.
-#' The bulk probability at the threshold is used to scale the tail so that the overall CDF is proper.
+#' Spliced bulk-tail family formed by attaching a generalized Pareto tail to a gamma mixture bulk.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -201,8 +207,11 @@ qGammaMix <- function(p, w, shape, scale,
 #' @param tol Numeric scalar tolerance passed to \code{stats::uniroot}.
 #' @param maxiter Integer maximum number of iterations for \code{stats::uniroot}.
 #'
-#' @return Spliced density/CDF/RNG functions return numeric scalars. \code{qGammaMixGpd} returns a numeric vector
-#'   with the same length as \code{p}.
+#' @return Spliced density/CDF/RNG functions return numeric scalars. `qGammaMixGpd()` returns a
+#'   numeric vector with the same length as `p`.
+#'
+#' @seealso [gamma_mix()], [gamma_gpd()], [gpd()], [gamma_lowercase()], [dpmgpd()].
+#' @family gamma kernel families
 #' @examples
 #' w <- c(0.55, 0.30, 0.15)
 #' scale <- c(1.0, 2.5, 5.0)
@@ -334,10 +343,8 @@ qGammaMixGpd <- function(p, w, shape, scale, threshold, tail_scale, tail_shape,
 
 #' Gamma with a GPD tail
 #'
-#' Splices a generalized Pareto distribution (GPD) above \code{threshold} onto a single
-#' Gamma bulk distribution parameterized by scale \code{scale} and shape \code{shape}.
-#' The bulk probability at the threshold, \eqn{F_{bulk}(threshold)}, scales the tail mass
-#' so the overall CDF is proper.
+#' Spliced family obtained by attaching a generalized Pareto tail above `threshold` to a single
+#' gamma bulk distribution.
 #'
 #' @param x Numeric scalar giving the point at which the density is evaluated.
 #' @param q Numeric scalar giving the point at which the distribution function is evaluated.
@@ -356,7 +363,10 @@ qGammaMixGpd <- function(p, w, shape, scale, threshold, tail_scale, tail_shape,
 #' @param maxiter Maximum iterations for numerical inversion in \code{qGammaGpd}.
 #'
 #' @return Spliced density/CDF/RNG functions return numeric scalars.
-#'   \code{qGammaGpd} returns a numeric vector with the same length as \code{p}.
+#'   `qGammaGpd()` returns a numeric vector with the same length as `p`.
+#'
+#' @seealso [gamma_mix()], [gamma_mixgpd()], [gpd()], [gamma_lowercase()].
+#' @family gamma kernel families
 #'
 #' @examples
 #' scale <- 2.5
@@ -490,12 +500,9 @@ qGammaGpd <- function(p, shape, scale, threshold, tail_scale, tail_shape,
 # Lowercase vectorized R wrappers for Gamma kernels
 # ==========================================================
 
-#' Lowercase vectorized Gamma distribution functions
+#' Lowercase vectorized gamma distribution functions
 #'
-#' Vectorized R wrappers for Gamma mixture, Gamma mixture + GPD, and
-#' Gamma + GPD distribution functions. These lowercase versions accept vector
-#' inputs for the first argument (\code{x}, \code{q}, or \code{p}) and return
-#' a numeric vector. The \code{r*} functions support \code{n > 1}.
+#' Vectorized R wrappers for the scalar gamma-kernel topics in this file.
 #'
 #' @param x Numeric vector of quantiles.
 #' @param q Numeric vector of quantiles.
@@ -510,6 +517,9 @@ qGammaGpd <- function(p, shape, scale, threshold, tail_scale, tail_shape,
 #' @param tol,maxiter Tolerance and max iterations for numerical inversion.
 #'
 #' @return Numeric vector of densities, probabilities, quantiles, or random variates.
+#'
+#' @seealso [gamma_mix()], [gamma_mixgpd()], [gamma_gpd()], [bundle()], [get_kernel_registry()].
+#' @family vectorized kernel helpers
 #'
 #' @examples
 #' w <- c(0.55, 0.3, 0.15)

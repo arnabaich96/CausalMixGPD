@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{summary.causalmixgpd_bundle}
 \alias{summary.causalmixgpd_bundle}
-\title{Summarize a causalmixgpd bundle}
+\title{Summarize a one-arm workflow bundle}
 \usage{
 \method{summary}{causalmixgpd_bundle}(object, ...)
 }
@@ -12,16 +12,23 @@
 \item{...}{Unused.}
 }
 \value{
-An invisible list with elements \code{meta}, \code{priors}, \code{monitors}.
+An invisible list with elements \code{meta}, \code{priors}, and
+\code{monitors}.
 }
 \description{
-User-facing summary for pre-run bundles produced by \code{build_nimble_bundle()}.
-This prints:
-\itemize{
-\item meta information (backend, kernel, components, N, covariates, GPD flag)
-\item a readable prior/parameter table derived from \code{spec$plan}
-\item monitor set overview
+\code{summary.causalmixgpd_bundle()} prints the structural contents of a
+bundle before MCMC is run.
 }
+\details{
+The summary is meant for workflow validation rather than inference. It shows:
+\itemize{
+\item the model metadata (backend, kernel, components, covariates, GPD flag),
+\item the prior/parameter table derived from \code{spec$plan},
+\item the nodes that will be monitored during MCMC.
+}
+
+This is the recommended checkpoint after \code{\link{build_nimble_bundle}}
+and before \code{\link{run_mcmc_bundle_manual}}.
 }
 \examples{
 \dontrun{
@@ -30,4 +37,8 @@ bundle <- build_nimble_bundle(y = y, backend = "sb", kernel = "normal",
                              GPD = FALSE, components = 6)
 summary(bundle)
 }
+}
+\seealso{
+\code{\link{build_nimble_bundle}}, \code{\link{print.causalmixgpd_bundle}},
+\code{\link{run_mcmc_bundle_manual}}.
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.R
 \name{summary.causalmixgpd_qte}
 \alias{summary.causalmixgpd_qte}
-\title{Summarize a QTE object}
+\title{Summarize a QTE-style effect object}
 \usage{
 \method{summary}{causalmixgpd_qte}(object, ...)
 }
@@ -15,8 +15,8 @@
 An object of class \code{"summary.causalmixgpd_qte"} containing summary statistics.
 }
 \description{
-Returns a structured summary of QTE results for further analysis or display.
-Includes overall statistics, per-quantile summaries, and metadata.
+\code{summary.causalmixgpd_qte()} converts QTE, QTT, or CQTE output into a
+tabular summary suitable for reporting.
 }
 \examples{
 \dontrun{
@@ -25,4 +25,9 @@ fit <- run_mcmc_causal(cb, show_progress = FALSE)
 q <- qte(fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
 summary(q)
 }
+}
+\seealso{
+\code{\link{print.causalmixgpd_qte}},
+\code{\link{plot.causalmixgpd_qte}}, \code{\link{qte}},
+\code{\link{cqte}}.
 }

@@ -84,6 +84,55 @@ test_that("validation and guard behavior for clustering types", {
   )
 })
 
+test_that("cluster link and priors overrides are applied to spec", {
+  skip_if_not_test_level("ci")
+  skip_if_not(exists("build_cluster_bundle", mode = "function"))
+
+  set.seed(111)
+  dat <- data.frame(
+    y = abs(stats::rnorm(20)) + 0.2,
+    x1 = stats::rnorm(20),
+    x2 = stats::runif(20)
+  )
+
+  b <- build_cluster_bundle(
+    y ~ x1 + x2,
+    data = dat,
+    kernel = "normal",
+    GPD = TRUE,
+    type = "both",
+    components = 4,
+    link = list(
+      bulk = list(mean = "identity"),
+      gpd = list(tail_scale = list(link = "exp"))
+    ),
+    priors = list(
+      bulk = list(sd = list(dist = "gamma", args = list(shape = 2, rate = 1))),
+      gpd = list(
+        tail_shape = list(dist = "normal", args = list(mean = 0, sd = 0.25)),
+        tail_scale = list(dist = "normal", args = list(mean = 0, sd = 0.7))
+      ),
+      concentration = list(dist = "gamma", args = list(shape = 3, rate = 2))
+    ),
+    mcmc = mcmc_fast(seed = 7L)
+  )
+
+  expect_equal(b$spec$plan$bulk$mean$mode, "link")
+  expect_equal(b$spec$plan$bulk$mean$link, "identity")
+  expect_equal(b$spec$plan$bulk$sd$mode, "dist")
+  expect_equal(b$spec$plan$bulk$sd$dist, "gamma")
+  expect_equal(b$spec$plan$bulk$sd$args$shape, 2)
+  expect_equal(b$spec$plan$gpd$tail_scale$mode, "link")
+  expect_equal(b$spec$plan$gpd$tail_scale$link, "exp")
+  expect_equal(b$spec$plan$gpd$tail_scale$beta_prior$dist, "normal")
+  expect_equal(b$spec$plan$gpd$tail_scale$beta_prior$args$sd, 0.7)
+  expect_equal(b$spec$plan$gpd$tail_shape$mode, "dist")
+  expect_equal(b$spec$plan$gpd$tail_shape$dist, "normal")
+  expect_equal(b$spec$plan$concentration$mode, "dist")
+  expect_equal(b$spec$plan$concentration$dist, "gamma")
+  expect_equal(b$spec$plan$concentration$args$shape, 3)
+})
+
 test_that("weights and both monitor gating while param does not", {
   skip_if_not_test_level("ci")
   skip_if_not(exists("dpmix.cluster", mode = "function"))
@@ -189,4 +238,33 @@ test_that("dpmgpd.cluster supports label and psm prediction", {
   expect_s3_class(fit, "dpmixgpd_cluster_fit")
   expect_s3_class(predict(fit, type = "psm"), "dpmixgpd_cluster_psm")
   expect_s3_class(predict(fit, type = "label"), "dpmixgpd_cluster_labels")
+})
+
+test_that("newdata unseen factor levels get explicit error", {
+  fn <- getFromNamespace(".cluster_build_design", "CausalMixGPD")
+
+  train <- data.frame(
+    y = c(1, 2, 3),
+    g = factor(c("a", "b", "a"))
+  )
+  trm <- stats::terms(y ~ g, data = train)
+  mf <- stats::model.frame(trm, data = train)
+  mm <- stats::model.matrix(stats::delete.response(trm), data = mf)
+  X_cols <- setdiff(colnames(mm), "(Intercept)")
+  meta <- list(
+    terms = trm,
+    xlevels = stats::.getXlevels(trm, mf),
+    contrasts = attr(mm, "contrasts"),
+    X_cols = X_cols,
+    response = "y"
+  )
+
+  nd <- data.frame(
+    y = 1,
+    g = factor("c", levels = c("a", "b", "c"))
+  )
+  expect_error(
+    fn(meta = meta, newdata = nd),
+    "unseen factor levels"
+  )
 })

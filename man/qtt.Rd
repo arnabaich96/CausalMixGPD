@@ -2,7 +2,7 @@
 % Please edit documentation in R/causal.R
 \name{qtt}
 \alias{qtt}
-\title{Quantile treatment effect on the treated (QTT)}
+\title{Quantile treatment effects standardized to treated covariates}
 \usage{
 qtt(
   fit,
@@ -35,15 +35,18 @@ highest posterior density intervals.}
 \item{show_progress}{Logical; if TRUE, print step messages and render progress where supported.}
 }
 \value{
-A list with elements \code{fit}, \code{grid} (probabilities), and
-aggregated treated/control prediction objects. \code{fit} is a data frame
-with columns \code{index}, \code{estimate}, \code{lower}, \code{upper}
-and one row per requested quantile index.
+An object of class \code{"causalmixgpd_qte"} containing the QTT
+summary, the probability grid, and the arm-specific predictive objects used
+in the aggregation.
 }
 \description{
-Computes a treated-standardized marginal quantile treatment effect:
-\eqn{Q_1^{t}(\tau) - Q_0^{t}(\tau)}, where marginalization is over the
-covariate distribution of treated units.
+\code{qtt()} computes the quantile treatment effect on the treated.
+}
+\details{
+The estimand is
+\deqn{\mathrm{QTT}(\tau) = Q_1^{t}(\tau) - Q_0^{t}(\tau),}
+where marginalization is over the empirical covariate distribution of the
+treated units only.
 }
 \examples{
 \dontrun{
@@ -51,4 +54,7 @@ cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal"
 fit <- run_mcmc_causal(cb, show_progress = FALSE)
 qtt(fit, probs = c(0.5, 0.9))
 }
+}
+\seealso{
+\code{\link{qte}}, \code{\link{cqte}}, \code{\link{att}}.
 }
