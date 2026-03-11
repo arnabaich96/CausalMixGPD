@@ -1332,6 +1332,11 @@ run_cluster_mcmc <- function(bundle, ...) {
     base_fit = base_fit,
     samples = base_fit$samples %||% (base_fit$mcmc %||% list())$samples,
     mcmc = base_fit$mcmc %||% list(),
+    timing = utils::modifyList(
+      base_fit$timing %||% list(),
+      list(total = (base_fit$timing %||% list())$total %||%
+             sum(unlist((base_fit$timing %||% list())[c("build", "compile", "mcmc")]), na.rm = TRUE))
+    ),
     cache_env = new.env(parent = emptyenv()),
     psm = NULL,
     dahl = NULL

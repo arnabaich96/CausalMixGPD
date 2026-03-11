@@ -30,10 +30,15 @@
   tryCatch(fn(text), error = function(...) text)
 }
 
-.cmgpd_progress_format <- function(current, total, step_label, width = 12L, color = FALSE) {
-  step_label <- as.character(step_label %||% "")
+.cmgpd_progress_format <- function(current, total, step_label, label = NULL, width = 12L, color = FALSE) {
+  step_label <- trimws(as.character(step_label %||% ""))
   if (!nzchar(step_label)) step_label <- "Working..."
-  msg <- step_label
+  family_label <- trimws(as.character(label %||% ""))
+  msg <- if (nzchar(family_label)) {
+    paste0("[", family_label, "] ", step_label)
+  } else {
+    step_label
+  }
   .cmgpd_progress_colorize(msg, step_index = current, enabled = color)
 }
 
@@ -104,6 +109,7 @@
       current = ctx$current,
       total = ctx$total,
       step_label = step_label,
+      label = ctx$label,
       width = ctx$inline_width,
       color = ctx$color_enabled
     )
@@ -139,6 +145,7 @@
         current = ctx$total,
         total = ctx$total,
         step_label = as.character(final_label),
+        label = ctx$label,
         width = ctx$inline_width,
         color = ctx$color_enabled
       )

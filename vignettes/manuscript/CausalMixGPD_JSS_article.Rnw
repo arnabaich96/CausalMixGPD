@@ -169,6 +169,14 @@ print_wrapped <- function(x, width = 58) {
   }))
   cat(paste(wrapped, collapse = "\n"), "\n")
 }
+
+mcmc_fixed <- list(
+  niter = 2000,
+  nburnin = 500,
+  thin = 3,
+  nchains = 3,
+  seed = 1
+)
 @
 
 \section{Introduction}
@@ -881,7 +889,7 @@ Let the observed data be $$
   \mathcal{D}=\{(y_i,x_i)\}_{i=1}^n,
 $$
 
-<<overview-data-reload, echo=TRUE, eval=FALSE>>=
+<<overview-data-reload, echo=FALSE, eval=FALSE>>=
 data("nc_posX100_p3_k2", package = "CausalMixGPD")
 dat <- data.frame(y = nc_posX100_p3_k2$y, nc_posX100_p3_k2$X)
 @
@@ -904,17 +912,11 @@ covariate-dependent through link specifications of the form
 \end{equation} where $g(\cdot)$ enforces parameter support (e.g.,
 positive scale parameters).
 
-<<overview-mcmc-settings, echo=TRUE, eval=TRUE, results='hide'>>=
-mcmc_fixed <- list(
-  niter = 200,
-  nburnin = 50,
-  thin = 1,
-  nchains = 1,
-  seed = 1
-)
+<<overview-mcmc-settings, echo=FALSE, eval=FALSE, results='hide'>>=
+mcmc_fixed
 @
 
-<<overview-fit-model, echo=TRUE, eval=FALSE>>=
+<<overview-fit-model, echo=FALSE, eval=FALSE>>=
 fit <- dpmgpd(
   formula = y ~ x1 + x2 + x3,
   data = dat,
@@ -926,11 +928,11 @@ fit <- dpmgpd(
 
 @
 
-<<overview-fit-model-cache, echo=FALSE, eval=TRUE, include=FALSE>>=
+<<overview-fit-model-cache, echo=FALSE, eval=FALSE, include=FALSE>>=
 fit <- read_cache_rds("fits", "overview_fit.rds")
 @
 
-<<overview-fit-model-results, echo=FALSE, eval=TRUE>>=
+<<overview-fit-model-results, echo=FALSE, eval=FALSE, include=FALSE>>=
 print_wrapped(fit)
 @
 
@@ -1002,18 +1004,18 @@ intervals as described in Section~\ref{subsec:overview-estimation}
 \citep{Gelman2013BDA,coda_pkg}. Diagnostic plotting relies on
 established MCMC diagnostic tooling \citep{ggmcmc_pkg}.
 
-<<overview-mcmc-diagnostics, echo=TRUE, eval=FALSE>>=
+<<overview-mcmc-diagnostics, echo=FALSE, eval=FALSE>>=
 print(fit)
 p_hat <- params(fit)
 p_hat
 @
 
-<<overview-mcmc-diagnostics-cache, echo=FALSE, eval=TRUE, include=FALSE>>=
+<<overview-mcmc-diagnostics-cache, echo=FALSE, eval=FALSE, include=FALSE>>=
 overview_mcmc <- read_cache_rds("tables", "overview_mcmc.rds")
 p_hat <- overview_mcmc$p_hat
 @
 
-<<overview-mcmc-diagnostics-results, echo=FALSE, eval=TRUE>>=
+<<overview-mcmc-diagnostics-results, echo=FALSE, eval=FALSE, include=FALSE>>=
 print_wrapped(fit)
 p_hat
 @
@@ -1076,7 +1078,7 @@ Section~\ref{subsec:overview-model}, we now compute posterior summaries
 on the original training covariates (default behavior of
 \code{predict()} when \code{newdata} is not supplied).
 
-<<overview-estimation-same-fit, echo=TRUE, eval=FALSE>>=
+<<overview-estimation-same-fit, echo=FALSE, eval=FALSE>>=
 q_grid <- c(0.50, 0.90, 0.95, 0.99)
 x_eval <- dat[1:20, c("x1", "x2", "x3")]
 
@@ -1084,12 +1086,12 @@ est_quant <- predict(fit, newdata = x_eval, type = "quantile", index = q_grid,
                      interval = "hpd", level = 0.95)
 @
 
-<<overview-estimation-same-fit-cache, echo=FALSE, eval=TRUE, include=FALSE>>=
+<<overview-estimation-same-fit-cache, echo=FALSE, eval=FALSE, include=FALSE>>=
 overview_est <- read_cache_rds("tables", "overview_estimation_same_fit.rds")
 est_quant <- overview_est$est_quant
 @
 
-<<overview-estimation-same-fit-results, echo=FALSE, eval=TRUE>>=
+<<overview-estimation-same-fit-results, echo=FALSE, eval=FALSE, include=FALSE>>=
 head(as.data.frame(est_quant$fit), 4)
 @
 
@@ -1110,7 +1112,7 @@ using the spliced quantile representation in
 as described above, with $x$ replaced by $x^\star$ and with
 user-controlled $M$ through \code{nsim\_mean}.
 
-<<overview-predict-grid, echo=TRUE, eval=FALSE>>=
+<<overview-predict-grid, echo=FALSE, eval=FALSE>>=
 q_levels <- c(0.25, 0.50, 0.75)
 x_new <- as.data.frame(lapply(
   dat[, c("x1", "x2", "x3")],
@@ -1123,22 +1125,22 @@ y_grid <- seq(0, 10, length.out = 200)
 p_grid <- c(0.50, 0.90, 0.95, 0.99)
 @
 
-<<overview-predict-density, echo=TRUE, eval=FALSE>>=
+<<overview-predict-density, echo=FALSE, eval=FALSE>>=
 pdens <- predict(fit, newdata = x_new, y = y_grid, type = "density",
                  interval = "credible", level = 0.95)
 @
 
-<<overview-predict-survival, echo=TRUE, eval=FALSE>>=
+<<overview-predict-survival, echo=FALSE, eval=FALSE>>=
 psurv <- predict(fit, newdata = x_new, y = y_grid, type = "survival",
                  interval = "credible", level = 0.95)
 @
 
-<<overview-predict-quantile, echo=TRUE, eval=FALSE>>=
+<<overview-predict-quantile, echo=FALSE, eval=FALSE>>=
 pquant <- predict(fit, newdata = x_new, type = "quantile", index = p_grid,
                   interval = "hpd", level = 0.95)
 @
 
-<<overview-predict-cache, echo=FALSE, eval=TRUE, include=FALSE>>=
+<<overview-predict-cache, echo=FALSE, eval=FALSE, include=FALSE>>=
 overview_pred <- read_cache_rds("tables", "overview_predict.rds")
 x_new <- overview_pred$x_new
 y_grid <- overview_pred$y_grid
@@ -1148,21 +1150,21 @@ psurv <- overview_pred$psurv
 pquant <- overview_pred$pquant
 @
 
-<<overview-predict-grid-results, echo=FALSE, eval=TRUE>>=
+<<overview-predict-grid-results, echo=FALSE, eval=FALSE, include=FALSE>>=
 x_new
 head(y_grid, 4)
 p_grid
 @
 
-<<overview-predict-density-results, echo=FALSE, eval=TRUE>>=
+<<overview-predict-density-results, echo=FALSE, eval=FALSE, include=FALSE>>=
 head(as.data.frame(pdens$fit), 4)
 @
 
-<<overview-predict-survival-results, echo=FALSE, eval=TRUE>>=
+<<overview-predict-survival-results, echo=FALSE, eval=FALSE, include=FALSE>>=
 head(as.data.frame(psurv$fit), 4)
 @
 
-<<overview-predict-quantile-results, echo=FALSE, eval=TRUE>>=
+<<overview-predict-quantile-results, echo=FALSE, eval=FALSE, include=FALSE>>=
 head(as.data.frame(pquant$fit), 4)
 @
 

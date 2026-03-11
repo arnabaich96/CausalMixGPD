@@ -102,6 +102,9 @@ test_that("causal arms can run in parallel and preserve contract", {
   expect_s3_class(fit_par, "causalmixgpd_causal_fit")
   expect_equal(names(fit_par), names(fit_seq))
   expect_true(is.list(fit_par$timing))
+  expect_true(all(c("total", "ps", "con", "trt", "parallel_arms") %in% names(fit_par$timing)))
+  expect_true(is.list(fit_par$ps_fit$timing))
+  expect_true(all(c("build", "compile", "mcmc", "total") %in% names(fit_par$ps_fit$timing)))
 })
 
 test_that("predict supports ndraws_pred/chunk_size/parallel aliases", {

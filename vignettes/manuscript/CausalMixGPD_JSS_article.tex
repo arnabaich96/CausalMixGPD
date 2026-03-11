@@ -750,14 +750,7 @@ Let the observed data be $$
   \mathcal{D}=\{(y_i,x_i)\}_{i=1}^n,
 $$
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlkwd{data}\hldef{(}\hlsng{"nc_posX100_p3_k2"}\hldef{,} \hlkwc{package} \hldef{=} \hlsng{"CausalMixGPD"}\hldef{)}
-\hldef{dat} \hlkwb{<-} \hlkwd{data.frame}\hldef{(}\hlkwc{y} \hldef{= nc_posX100_p3_k2}\hlopt{$}\hldef{y, nc_posX100_p3_k2}\hlopt{$}\hldef{X)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
+
 
 with $x_i\in\mathbb{R}^p$ denoting the covariate vector (including an
 intercept if desired). The target conditional distribution
@@ -777,50 +770,13 @@ covariate-dependent through link specifications of the form
 \end{equation} where $g(\cdot)$ enforces parameter support (e.g.,
 positive scale parameters).
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{mcmc_fixed} \hlkwb{<-} \hlkwd{list}\hldef{(}
-  \hlkwc{niter} \hldef{=} \hlnum{200}\hldef{,}
-  \hlkwc{nburnin} \hldef{=} \hlnum{50}\hldef{,}
-  \hlkwc{thin} \hldef{=} \hlnum{1}\hldef{,}
-  \hlkwc{nchains} \hldef{=} \hlnum{1}\hldef{,}
-  \hlkwc{seed} \hldef{=} \hlnum{1}
-\hldef{)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{fit} \hlkwb{<-} \hlkwd{dpmgpd}\hldef{(}
-  \hlkwc{formula} \hldef{= y} \hlopt{~} \hldef{x1} \hlopt{+} \hldef{x2} \hlopt{+} \hldef{x3,}
-  \hlkwc{data} \hldef{= dat,}
-  \hlkwc{backend} \hldef{=} \hlsng{"sb"}\hldef{,}
-  \hlkwc{kernel} \hldef{=} \hlsng{"lognormal"}\hldef{,}
-  \hlkwc{components} \hldef{=} \hlnum{5}\hldef{,}
-  \hlkwc{mcmc} \hldef{= mcmc_fixed}
-\hldef{)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
 
 
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-MixGPD fit | backend: Stick-Breaking Process | kernel:
-Lognormal Distribution | GPD tail: TRUE
-n = 100 | components = 5 | epsilon = 0.025
-MCMC: niter=200, nburnin=50, thin=1, nchains=1
-Fit
-Use summary() for posterior summaries; plot() for
-diagnostics; predict() for predictions. 
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
+
+
+
+
 
 For the spliced model, let $u(x)$ be the threshold, $\sigma(x)>0$ the
 tail scale, and $\xi\in\mathbb{R}$ the tail shape (as in
@@ -890,61 +846,11 @@ intervals as described in Section~\ref{subsec:overview-estimation}
 \citep{Gelman2013BDA,coda_pkg}. Diagnostic plotting relies on
 established MCMC diagnostic tooling \citep{ggmcmc_pkg}.
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlkwd{print}\hldef{(fit)}
-\hldef{p_hat} \hlkwb{<-} \hlkwd{params}\hldef{(fit)}
-\hldef{p_hat}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
 
 
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-MixGPD fit | backend: Stick-Breaking Process | kernel:
-Lognormal Distribution | GPD tail: TRUE
-n = 100 | components = 5 | epsilon = 0.025
-MCMC: niter=200, nburnin=50, thin=1, nchains=1
-Fit
-Use summary() for posterior summaries; plot() for
-diagnostics; predict() for predictions. 
-Posterior mean parameters
 
-$alpha
-[1] 2.034
 
-$w
-[1] 0.4224 0.3063 0.1465 0.1158
-
-$beta_meanlog
-            x1      x2       x3
-comp1  0.34970 -0.5504 -0.31760
-comp2 -0.09937 -0.9372  0.10770
-comp3  0.22010  0.5477  0.70350
-comp4  0.04718  0.3581 -0.30940
-comp5 -0.38810  0.8843 -0.04477
-
-$sdlog
-[1] 1.517 2.222 1.481 1.482
-
-$beta_threshold
-[1] -0.05201 -0.10530  0.07445
-
-$sdlog_u
-[1] 1.356
-
-$beta_tail_scale
-[1] 0.28030 0.04619 0.07101
-
-$tail_shape
-[1] 0.4271
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
 
 \subsubsection{Bulk-only special case (no GPD tail)}
 \label{subsec:overview-nogpd}
@@ -1004,31 +910,11 @@ Section~\ref{subsec:overview-model}, we now compute posterior summaries
 on the original training covariates (default behavior of
 \code{predict()} when \code{newdata} is not supplied).
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{q_grid} \hlkwb{<-} \hlkwd{c}\hldef{(}\hlnum{0.50}\hldef{,} \hlnum{0.90}\hldef{,} \hlnum{0.95}\hldef{,} \hlnum{0.99}\hldef{)}
-\hldef{x_eval} \hlkwb{<-} \hldef{dat[}\hlnum{1}\hlopt{:}\hlnum{20}\hldef{,} \hlkwd{c}\hldef{(}\hlsng{"x1"}\hldef{,} \hlsng{"x2"}\hldef{,} \hlsng{"x3"}\hldef{)]}
-
-\hldef{est_quant} \hlkwb{<-} \hlkwd{predict}\hldef{(fit,} \hlkwc{newdata} \hldef{= x_eval,} \hlkwc{type} \hldef{=} \hlsng{"quantile"}\hldef{,} \hlkwc{index} \hldef{= q_grid,}
-                     \hlkwc{interval} \hldef{=} \hlsng{"hpd"}\hldef{,} \hlkwc{level} \hldef{=} \hlnum{0.95}\hldef{)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
 
 
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-  id index  estimate     lower     upper
-1  1  0.50  1.821068 0.5022973  2.909784
-2  1  0.90  4.680770 3.1943038  6.411481
-3  1  0.95  6.296861 4.0336562  9.313934
-4  1  0.99 12.784902 7.2789201 23.359469
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
+
+
 
 For a new covariate value $x^\star$, prediction is based on the
 posterior predictive distribution $$
@@ -1047,100 +933,23 @@ using the spliced quantile representation in
 as described above, with $x$ replaced by $x^\star$ and with
 user-controlled $M$ through \code{nsim\_mean}.
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{q_levels} \hlkwb{<-} \hlkwd{c}\hldef{(}\hlnum{0.25}\hldef{,} \hlnum{0.50}\hldef{,} \hlnum{0.75}\hldef{)}
-\hldef{x_new} \hlkwb{<-} \hlkwd{as.data.frame}\hldef{(}\hlkwd{lapply}\hldef{(}
-  \hldef{dat[,} \hlkwd{c}\hldef{(}\hlsng{"x1"}\hldef{,} \hlsng{"x2"}\hldef{,} \hlsng{"x3"}\hldef{)],}
-  \hldef{quantile,}
-  \hlkwc{probs} \hldef{= q_levels,}
-  \hlkwc{na.rm} \hldef{=} \hlnum{TRUE}
-\hldef{))}
-\hlkwd{rownames}\hldef{(x_new)} \hlkwb{<-} \hlkwd{c}\hldef{(}\hlsng{"q25"}\hldef{,} \hlsng{"q50"}\hldef{,} \hlsng{"q75"}\hldef{)}
-\hldef{y_grid} \hlkwb{<-} \hlkwd{seq}\hldef{(}\hlnum{0}\hldef{,} \hlnum{10}\hldef{,} \hlkwc{length.out} \hldef{=} \hlnum{200}\hldef{)}
-\hldef{p_grid} \hlkwb{<-} \hlkwd{c}\hldef{(}\hlnum{0.50}\hldef{,} \hlnum{0.90}\hldef{,} \hlnum{0.95}\hldef{,} \hlnum{0.99}\hldef{)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{pdens} \hlkwb{<-} \hlkwd{predict}\hldef{(fit,} \hlkwc{newdata} \hldef{= x_new,} \hlkwc{y} \hldef{= y_grid,} \hlkwc{type} \hldef{=} \hlsng{"density"}\hldef{,}
-                 \hlkwc{interval} \hldef{=} \hlsng{"credible"}\hldef{,} \hlkwc{level} \hldef{=} \hlnum{0.95}\hldef{)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{psurv} \hlkwb{<-} \hlkwd{predict}\hldef{(fit,} \hlkwc{newdata} \hldef{= x_new,} \hlkwc{y} \hldef{= y_grid,} \hlkwc{type} \hldef{=} \hlsng{"survival"}\hldef{,}
-                 \hlkwc{interval} \hldef{=} \hlsng{"credible"}\hldef{,} \hlkwc{level} \hldef{=} \hlnum{0.95}\hldef{)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{pquant} \hlkwb{<-} \hlkwd{predict}\hldef{(fit,} \hlkwc{newdata} \hldef{= x_new,} \hlkwc{type} \hldef{=} \hlsng{"quantile"}\hldef{,} \hlkwc{index} \hldef{= p_grid,}
-                  \hlkwc{interval} \hldef{=} \hlsng{"hpd"}\hldef{,} \hlkwc{level} \hldef{=} \hlnum{0.95}\hldef{)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
 
 
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-             x1          x2            x3
-q25 -0.59851252 -0.57151934 -0.7224762264
-q50  0.02874559 -0.01658997  0.0004347721
-q75  0.69727001  0.41546653  0.5516024827
-[1] 0.00000000 0.05025126 0.10050251 0.15075377
-[1] 0.50 0.90 0.95 0.99
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-  id          y       density         lower         upper
-1  1 0.00000000 1.000000e-300 1.000000e-300 1.000000e-300
-2  1 0.05025126  1.050943e+00  4.391043e-01  2.415552e+00
-3  1 0.10050251  7.648774e-01  3.187806e-01  1.422371e+00
-4  1 0.15075377  6.226713e-01  2.719930e-01  1.181847e+00
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-  id          y  survival     lower     upper
-1  1 0.00000000 1.0000000 1.0000000 1.0000000
-2  1 0.05025126 0.9055000 0.8106256 0.9673990
-3  1 0.10050251 0.8613613 0.7228659 0.9408555
-4  1 0.15075377 0.8266686 0.6671500 0.9196784
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-  id index estimate     lower     upper
-1  1  0.50 1.482378 0.4926661  2.711455
-2  1  0.90 3.924552 2.9765853  5.409868
-3  1  0.95 5.090515 3.6744175  7.986932
-4  1  0.99 9.792541 6.0698483 20.129287
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
+
+
+
+
+
+
+
+
+
+
+
 
 \subsection{Clustering extension}
 \label{subsec:cluster_extension}
@@ -1292,7 +1101,7 @@ sets included with the package.
   \hlkwc{kernel}     \hldef{=} \hlsng{"normal"}\hldef{,}
   \hlkwc{type}       \hldef{=} \hlsng{"weights"}\hldef{,}
   \hlkwc{components} \hldef{=} \hlnum{8}\hldef{,}
-  \hlkwc{mcmc} \hldef{=} \hlkwd{list}\hldef{(}\hlkwc{niter} \hldef{=} \hlnum{200}\hldef{,} \hlkwc{nburnin} \hldef{=} \hlnum{50}\hldef{,} \hlkwc{thin} \hldef{=} \hlnum{1}\hldef{,} \hlkwc{nchains} \hldef{=} \hlnum{1}\hldef{,} \hlkwc{seed} \hldef{=} \hlnum{11}\hldef{)}
+  \hlkwc{mcmc} \hldef{= mcmc_fixed}
 \hldef{)}
 \end{alltt}
 \end{kframe}
@@ -1345,7 +1154,7 @@ behavior.
   \hlkwc{kernel}     \hldef{=} \hlsng{"normal"}\hldef{,}
   \hlkwc{type}       \hldef{=} \hlsng{"both"}\hldef{,}
   \hlkwc{components} \hldef{=} \hlnum{8}\hldef{,}
-  \hlkwc{mcmc} \hldef{=} \hlkwd{list}\hldef{(}\hlkwc{niter} \hldef{=} \hlnum{200}\hldef{,} \hlkwc{nburnin} \hldef{=} \hlnum{50}\hldef{,} \hlkwc{thin} \hldef{=} \hlnum{1}\hldef{,} \hlkwc{nchains} \hldef{=} \hlnum{1}\hldef{,} \hlkwc{seed} \hldef{=} \hlnum{12}\hldef{)}
+  \hlkwc{mcmc} \hldef{= mcmc_fixed}
 \hldef{)}
 \end{alltt}
 \end{kframe}
@@ -1557,20 +1366,6 @@ wrapper, fitting the augmented spliced model by default.
 \hlkwd{data}\hldef{(}\hlsng{"causal_pos500_p3_k2"}\hldef{,} \hlkwc{package} \hldef{=} \hlsng{"CausalMixGPD"}\hldef{)}
 \hldef{dat} \hlkwb{<-} \hldef{causal_pos500_p3_k2}
 \hldef{df}  \hlkwb{<-} \hlkwd{data.frame}\hldef{(}\hlkwc{y} \hldef{= dat}\hlopt{$}\hldef{y,} \hlkwc{A} \hldef{= dat}\hlopt{$}\hldef{A, dat}\hlopt{$}\hldef{X)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{mcmc_fixed} \hlkwb{<-} \hlkwd{list}\hldef{(}
-  \hlkwc{niter} \hldef{=} \hlnum{200}\hldef{,}
-  \hlkwc{nburnin} \hldef{=} \hlnum{50}\hldef{,}
-  \hlkwc{thin} \hldef{=} \hlnum{1}\hldef{,}
-  \hlkwc{nchains} \hldef{=} \hlnum{1}\hldef{,}
-  \hlkwc{seed} \hldef{=} \hlnum{1}
-\hldef{)}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
@@ -1851,14 +1646,6 @@ probabilities (PSM) and a representative partition.
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hldef{mcmc_fixed} \hlkwb{<-} \hlkwd{list}\hldef{(}
-  \hlkwc{niter} \hldef{=} \hlnum{2000}\hldef{,}
-  \hlkwc{nburnin} \hldef{=} \hlnum{500}\hldef{,}
-  \hlkwc{thin}  \hldef{=} \hlnum{1}\hldef{,}
-  \hlkwc{nchains} \hldef{=} \hlnum{1}\hldef{,}
-  \hlkwc{seed} \hldef{=} \hlnum{123}
-\hldef{)}
-
 \hldef{fit_clust} \hlkwb{<-} \hlkwd{dpmix.cluster}\hldef{(}
   \hlkwc{formula}    \hldef{= crim} \hlopt{~} \hldef{lstat} \hlopt{+} \hldef{rm} \hlopt{+} \hldef{nox,}
   \hlkwc{data}       \hldef{= train_dat,}
@@ -1905,11 +1692,11 @@ representative partition (Table~\ref{tab:cluster-train-alloc}).
 
 \caption{\label{tab:app_cluster_train_sizes-results}Training cluster allocation (counts) \label{tab:cluster-train-alloc}}
 \centering
-\begin{tabular}[t]{l|r|r|r|r|r|r|r}
+\begin{tabular}[t]{l|r|r|r|r|r|r|r|r|r|r|r|r|r}
 \hline
-sample & C1 & C2 & C3 & C4 & C5 & C6 & C7\\
+sample & C1 & C2 & C3 & C4 & C5 & C6 & C7 & C8 & C9 & C10 & C11 & C12 & C13\\
 \hline
-train & 55 & 62 & 160 & 14 & 76 & 9 & 3\\
+train & 46 & 156 & 122 & 23 & 11 & 4 & 2 & 1 & 2 & 5 & 4 & 2 & 1\\
 \hline
 \end{tabular}
 \end{table}
@@ -1976,11 +1763,11 @@ and \ref{tab:app_cluster_old_new_test-results}).
 
 \caption{\label{tab:app_cluster_old_new_train-results}Train allocation (horizontal)}
 \centering
-\begin{tabular}[t]{l|r|r|r|r|r|r|r}
+\begin{tabular}[t]{l|r|r|r|r|r|r|r|r|r|r|r|r|r}
 \hline
-sample & C1 & C2 & C3 & C4 & C5 & C6 & C7\\
+sample & C1 & C2 & C3 & C4 & C5 & C6 & C7 & C8 & C9 & C10 & C11 & C12 & C13\\
 \hline
-train & 55 & 62 & 160 & 14 & 76 & 9 & 3\\
+train & 46 & 156 & 122 & 23 & 11 & 4 & 2 & 1 & 2 & 5 & 4 & 2 & 1\\
 \hline
 \end{tabular}
 \end{table}
@@ -1992,11 +1779,11 @@ train & 55 & 62 & 160 & 14 & 76 & 9 & 3\\
 
 \caption{\label{tab:app_cluster_old_new_test-results}Test allocation (horizontal)}
 \centering
-\begin{tabular}[t]{l|r|r|r|r|r|r}
+\begin{tabular}[t]{l|r|r|r|r|r}
 \hline
-sample & C1 & C2 & C3 & C4 & C5 & C6\\
+sample & C1 & C2 & C3 & C4 & C5\\
 \hline
-test & 1 & 32 & 63 & 6 & 23 & 2\\
+test & 18 & 61 & 36 & 10 & 2\\
 \hline
 \end{tabular}
 \end{table}
@@ -2113,21 +1900,6 @@ substantive analysis we recommend longer runs and sensitivity checks
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hldef{mcmc_fixed} \hlkwb{<-} \hlkwd{list}\hldef{(}
-  \hlkwc{niter} \hldef{=} \hlnum{120}\hldef{,}
-  \hlkwc{nburnin} \hldef{=} \hlnum{40}\hldef{,}
-  \hlkwc{thin} \hldef{=} \hlnum{1}\hldef{,}
-  \hlkwc{nchains} \hldef{=} \hlnum{1}\hldef{,}
-  \hlkwc{seed} \hldef{=} \hlnum{101}\hldef{,}
-  \hlkwc{show_progress} \hldef{=} \hlnum{FALSE}
-\hldef{)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
 \hldef{fit} \hlkwb{<-} \hlkwd{dpmgpd.causal}\hldef{(}
   \hlkwc{x} \hldef{= y,}
   \hlkwc{X} \hldef{= X,}
@@ -2135,7 +1907,8 @@ substantive analysis we recommend longer runs and sensitivity checks
   \hlkwc{backend} \hldef{=} \hlsng{"sb"}\hldef{,}
   \hlkwc{kernel} \hldef{=} \hlsng{"normal"}\hldef{,}
   \hlkwc{components} \hldef{=} \hlnum{4}\hldef{,}
-  \hlkwc{mcmc} \hldef{= mcmc_fixed}
+  \hlkwc{mcmc} \hldef{= mcmc_fixed,}
+  \hlkwc{show_progress} \hldef{=} \hlnum{FALSE}
 \hldef{)}
 \end{alltt}
 \end{kframe}
@@ -2350,7 +2123,7 @@ QTE describes how the effect varies across the marginal outcome
 distribution. CATE and CQTE extend these contrasts to covariate-specific
 comparisons, illustrating treatment effect heterogeneity in both central
 and extreme quantiles. Finally, arm-specific tail indices $\xi_a$
-provide a parsimonious summary of whether training changes extremal
+provide a parsimonious summary of whether training changes extreme
 behavior beyond what is captured by bulk-only regression.
 
 

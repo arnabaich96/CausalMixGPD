@@ -2350,12 +2350,13 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = FALSE,
                                    z_update_every = NULL) {
   suppressPackageStartupMessages(base::require("nimble", quietly = TRUE, warn.conflicts = FALSE))
   stopifnot(inherits(bundle, "causalmixgpd_bundle"))
+  progress_label <- if (inherits(bundle, "dpmixgpd_cluster_bundle")) "cluster" else "mixgpd"
 
   progress_ctx <- .cmgpd_progress_start(
     total_steps = 8L,
     enabled = isTRUE(show_progress),
     quiet = isTRUE(quiet),
-    label = "run_mcmc_bundle_manual"
+    label = progress_label
   )
   on.exit(.cmgpd_progress_done(progress_ctx, final_label = NULL), add = TRUE)
   .cmgpd_progress_step(progress_ctx, "Validating configuration")

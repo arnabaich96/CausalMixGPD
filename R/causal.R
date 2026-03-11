@@ -284,7 +284,7 @@ build_causal_bundle <- function(
   out
 }
 
-.run_ps_mcmc_bundle <- function(bundle, show_progress = TRUE, quiet = FALSE) {
+.run_ps_mcmc_bundle <- function(bundle, show_progress = TRUE, quiet = FALSE, timing = FALSE) {
   nimble_quiet <- isTRUE(show_progress) || isTRUE(quiet)
 
   stopifnot(inherits(bundle, "causalmixgpd_ps_bundle"))
@@ -292,7 +292,7 @@ build_causal_bundle <- function(
     total_steps = 5L,
     enabled = isTRUE(show_progress),
     quiet = isTRUE(quiet),
-    label = "run_ps_mcmc_bundle"
+    label = "ps"
   )
   on.exit(.cmgpd_progress_done(progress_ctx, final_label = NULL), add = TRUE)
   .cmgpd_progress_step(progress_ctx, "Validating PS MCMC inputs")
@@ -307,8 +307,13 @@ build_causal_bundle <- function(
   inits <- bundle$inits %||% list()
   m <- bundle$mcmc %||% list()
   monitors <- bundle$monitors %||% "beta"
+  timing <- isTRUE(timing %||% m$timing %||% FALSE)
+  tic <- function() proc.time()[["elapsed"]]
+  timing_info <- list(build = 0, compile = 0, mcmc = 0, total = 0)
+  t0_total <- tic()
 
   .cmgpd_progress_step(progress_ctx, "Building PS NIMBLE model")
+  t0_build <- tic()
   Rmodel <- .cmgpd_capture_nimble(
     nimble::nimbleModel(
       code = code,
@@ -331,8 +336,10 @@ build_causal_bundle <- function(
   )
 
   Rmcmc <- .cmgpd_capture_nimble(nimble::buildMCMC(conf), suppress = nimble_quiet)
+  timing_info$build <- tic() - t0_build
 
   .cmgpd_progress_step(progress_ctx, "Compiling PS model")
+  t0_compile <- tic()
   Cmodel <- .cmgpd_capture_nimble(
     nimble::compileNimble(Rmodel, showCompilerOutput = FALSE),
     suppress = nimble_quiet
@@ -341,6 +348,7 @@ build_causal_bundle <- function(
     nimble::compileNimble(Rmcmc, project = Rmodel, showCompilerOutput = FALSE),
     suppress = nimble_quiet
   )
+  timing_info$compile <- tic() - t0_compile
 
   niter   <- as.integer(m$niter   %||% 2000)
   nburnin <- as.integer(m$nburnin %||% 500)
@@ -366,6 +374,7 @@ build_causal_bundle <- function(
   }
 
   .cmgpd_progress_step(progress_ctx, "Running PS MCMC")
+  t0_mcmc <- tic()
   res <- .cmgpd_capture_nimble(
     nimble::runMCMC(
       Cmcmc,
@@ -380,11 +389,14 @@ build_causal_bundle <- function(
     ),
     suppress = nimble_quiet
   )
+  timing_info$mcmc <- tic() - t0_mcmc
+  timing_info$total <- tic() - t0_total
 
   .cmgpd_progress_step(progress_ctx, "Assembling PS fit")
   fit <- list(
     mcmc = list(samples = res),
     bundle = bundle,
+    timing = timing_info,
     call = match.call()
   )
   class(fit) <- "causalmixgpd_ps_fit"
@@ -431,7 +443,7 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE, quiet = FALSE,
     total_steps = 6L,
     enabled = isTRUE(show_progress),
     quiet = isTRUE(quiet),
-    label = "run_mcmc_causal"
+    label = "causal"
   )
   on.exit(.cmgpd_progress_done(progress_ctx, final_label = NULL), add = TRUE)
   .cmgpd_progress_step(progress_ctx, "Validating causal MCMC configuration")
@@ -457,10 +469,13 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE, quiet = FALSE,
   ps_hat <- NULL
   ps_cov <- NULL
   ps_model <- NULL
+  timing_info <- list(total = NA_real_, ps = NA_real_, con = NA_real_, trt = NA_real_, parallel_arms = FALSE)
+  t0_total <- proc.time()[["elapsed"]]
 
   if (ps_enabled) {
     .cmgpd_progress_step(progress_ctx, "Running propensity score block")
-    ps_fit <- .run_ps_mcmc_bundle(bundle$design, show_progress = show_progress, quiet = quiet)
+    ps_fit <- .run_ps_mcmc_bundle(bundle$design, show_progress = show_progress, quiet = quiet, timing = timing)
+    timing_info$ps <- ps_fit$timing$total %||% ps_fit$timing$mcmc %||% NA_real_
     ps_training_X <- bundle$data$X
     if (is.null(ps_training_X)) {
       stop("Training design matrix 'X' is missing from causal bundle.", call. = FALSE)
@@ -509,8 +524,6 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE, quiet = FALSE,
     )
     bundle$outcome[[arm]] <- b
   }
-  timing_info <- list(total = NA_real_, con = NA_real_, trt = NA_real_, parallel_arms = FALSE)
-  t0_total <- proc.time()[["elapsed"]]
   parallel_arms <- isTRUE(parallel_arms)
   workers <- as.integer(workers %||% 2L)
   if (!is.finite(workers) || workers < 1L) workers <- 1L

@@ -4441,4 +4441,1113 @@ test_that(".plot_location_pred errors on non-data.frame fit", {
 
 # ===== END unit/test-visualization-helpers.R =====
 
+# ===== BEGIN unit/test-formatting-and-wrapper-coverage.R =====
+fmt3 <- get("fmt3", mode = "function")
+fmt3_sci <- get("fmt3_sci", mode = "function")
+fmt3_vec <- get("fmt3_vec", mode = "function")
+format_df3 <- get("format_df3", mode = "function")
+format_df3_sci <- get("format_df3_sci", mode = "function")
+format_mat3 <- get("format_mat3", mode = "function")
+format_mat3_sci <- get("format_mat3_sci", mode = "function")
+.is_knitr_output <- get(".is_knitr_output", mode = "function")
+.kable_fmt <- get(".kable_fmt", mode = "function")
+.coerce_treat <- get(".coerce_treat", mode = "function")
+.parse_formula_yX <- get(".parse_formula_yX", mode = "function")
+.extract_treat_from_data <- get(".extract_treat_from_data", mode = "function")
+.normalize_mcmc_inputs <- get(".normalize_mcmc_inputs", mode = "function")
+.apply_mcmc_overrides <- get(".apply_mcmc_overrides", mode = "function")
+build_data_from_inputs <- get("build_data_from_inputs", mode = "function")
+build_monitors_from_spec <- get("build_monitors_from_spec", mode = "function")
+build_dimensions_from_spec <- get("build_dimensions_from_spec", mode = "function")
+
+test_that("formatting helpers handle numeric, matrix, and data.frame inputs", {
+  expect_equal(fmt3(c(1, 1.2345)), c("1", "1.234"))
+  expect_true(grepl("e", fmt3_sci(c(1, 100000), big = 1000)[2], fixed = TRUE))
+  expect_equal(fmt3_vec(numeric(0)), "")
+  expect_match(fmt3_vec(c(1, 2.5)), "1, 2.5")
+
+  df <- data.frame(a = c(1.2345, 2.3456), b = c("x", "y"), stringsAsFactors = FALSE)
+  df_fmt <- format_df3(df)
+  expect_equal(df_fmt$a, c("1.234", "2.346"))
+  expect_equal(df_fmt$b, c("x", "y"))
+
+  df_sci <- format_df3_sci(data.frame(a = c(1, 1e5)))
+  expect_true(grepl("e", df_sci$a[2], fixed = TRUE))
+
+  mat <- matrix(c(1.2345, 200000, 3.4567, 4.5678), nrow = 2, byrow = TRUE)
+  colnames(mat) <- c("x", "y")
+  mat_fmt <- format_mat3(mat)
+  mat_sci <- format_mat3_sci(mat, big = 1000)
+  expect_equal(dim(mat_fmt), dim(mat))
+  expect_equal(dimnames(mat_fmt), dimnames(mat))
+  expect_true(grepl("e", mat_sci[1, 2], fixed = TRUE))
+})
+
+test_that("knitr formatting helpers return stable defaults outside knitr", {
+  old_opt <- getOption("knitr.in.progress")
+  options(knitr.in.progress = FALSE)
+  on.exit(options(knitr.in.progress = old_opt), add = TRUE)
+
+  expect_false(.is_knitr_output())
+  expect_equal(.kable_fmt(), "markdown")
+})
+
+test_that("wrapper helpers normalize treatment and formula inputs", {
+  expect_equal(.coerce_treat(factor(c("control", "treated", "control"))), c(0L, 1L, 0L))
+  expect_equal(.coerce_treat(c(FALSE, TRUE, TRUE)), c(0L, 1L, 1L))
+  expect_equal(.coerce_treat(c("a", "b", "a")), c(0L, 1L, 0L))
+  expect_error(.coerce_treat(c(0, 1, NA)), "cannot contain NA")
+
+  dat <- data.frame(
+    y = c(1, 2, 3),
+    x1 = c(0.1, 0.2, 0.3),
+    id = c("a", "b", "c"),
+    trt = c(0, 1, 0)
+  )
+  parsed <- .parse_formula_yX(y ~ x1 + id, data = dat)
+  expect_equal(parsed$y, c(1, 2, 3))
+  expect_true(is.matrix(parsed$X))
+  expect_equal(colnames(parsed$X), "x1")
+  expect_false(parsed$is_unconditional)
+
+  mf <- stats::model.frame(y ~ x1, data = dat)
+  expect_equal(.extract_treat_from_data(mf, dat, "trt"), c(0L, 1L, 0L))
+  expect_error(.extract_treat_from_data(mf, dat, c(0, 1)), "length does not match")
+})
+
+test_that("mcmc override helpers split runner controls and update bundles", {
+  parsed <- .normalize_mcmc_inputs(list(niter = 50, nburn = 10, show_progress = FALSE, timing = TRUE))
+  expect_equal(parsed$overrides$niter, 50)
+  expect_equal(parsed$overrides$nburnin, 10)
+  expect_false("nburn" %in% names(parsed$overrides))
+  expect_false(parsed$runner$show_progress)
+  expect_true(parsed$runner$timing)
+  expect_error(.normalize_mcmc_inputs(list(10)), "must be named")
+  expect_error(.normalize_mcmc_inputs(list(foo = 1)), "Unknown mcmc argument")
+
+  bundle_obj <- structure(list(mcmc = list(niter = 20, nburnin = 5)), class = "causalmixgpd_bundle")
+  updated <- .apply_mcmc_overrides(bundle_obj, list(niter = 100, seed = 9))
+  expect_equal(updated$mcmc$niter, 100)
+  expect_equal(updated$mcmc$seed, 9)
+})
+
+test_that("build-run helpers validate inputs and expose structural metadata", {
+  y <- c(1, 2, 3)
+  X <- data.frame(x1 = c(0.1, 0.2, 0.3), x2 = c(0.4, 0.5, 0.6))
+  built_data <- build_data_from_inputs(y = y, X = X, ps = c(0.2, 0.4, 0.6))
+  expect_equal(names(built_data), c("y", "X", "ps"))
+  expect_true(is.matrix(built_data$X))
+  expect_error(build_data_from_inputs(y = y, X = X[1:2, ]), "nrow\\(X\\) == length\\(y\\)")
+
+  spec <- compile_model_spec(
+    y = abs(stats::rnorm(10)) + 0.1,
+    X = as.matrix(X[rep(1:3, length.out = 10), ]),
+    backend = "sb",
+    kernel = "normal",
+    GPD = TRUE,
+    components = 4
+  )
+  dims <- build_dimensions_from_spec(spec)
+  mons <- build_monitors_from_spec(spec, monitor_v = TRUE, monitor_latent = TRUE)
+  expect_true(is.list(dims))
+  expect_true("X" %in% names(dims))
+  expect_true(any(grepl("^w\\[", mons)))
+  expect_true(any(grepl("^v\\[", mons)))
+})
+
+test_that("check_glue_validity covers validation and continuity branches", {
+  skip_if_not_test_level("ci")
+
+  fit <- .load_fixture("fit_gpd_small.rds")
+  expect_error(
+    check_glue_validity(fit, grid = c(0.1, NA_real_)),
+    "'grid' must be finite numeric"
+  )
+  expect_error(
+    check_glue_validity(fit, n_draws = 0L),
+    "'n_draws' must be >= 1"
+  )
+
+  out <- check_glue_validity(
+    fit,
+    grid = seq(0.1, 4, length.out = 25),
+    n_draws = 3L,
+    check_continuity = TRUE
+  )
+  expect_true(is.list(out$violations))
+  expect_true("continuity" %in% names(out$pass))
+
+  expect_error(
+    check_glue_validity(fit, x = matrix(1, ncol = 1)),
+    "Unconditional model: 'x' not allowed"
+  )
+})
+
+# ===== END unit/test-formatting-and-wrapper-coverage.R =====
+
+# ===== BEGIN unit/test-causal-and-cluster-helper-coverage.R =====
+.cluster_parse_formula <- get(".cluster_parse_formula", mode = "function")
+.cluster_validate_type <- get(".cluster_validate_type", mode = "function")
+.cluster_validate_type_requirements <- get(".cluster_validate_type_requirements", mode = "function")
+.cluster_split_overrides <- get(".cluster_split_overrides", mode = "function")
+.cluster_normalize_link_entry <- get(".cluster_normalize_link_entry", mode = "function")
+.cluster_apply_link_overrides <- get(".cluster_apply_link_overrides", mode = "function")
+.cluster_normalize_prior_entry <- get(".cluster_normalize_prior_entry", mode = "function")
+.cluster_apply_prior_overrides <- get(".cluster_apply_prior_overrides", mode = "function")
+.cluster_draw_indices <- get(".cluster_draw_indices", mode = "function")
+.cluster_samples_to_matrix <- get(".cluster_samples_to_matrix", mode = "function")
+.cluster_extract_z_from_matrix <- get(".cluster_extract_z_from_matrix", mode = "function")
+.cluster_link_apply <- get(".cluster_link_apply", mode = "function")
+.cluster_softmax <- get(".cluster_softmax", mode = "function")
+.cluster_extract_gating_draw <- get(".cluster_extract_gating_draw", mode = "function")
+.cluster_gating_weights <- get(".cluster_gating_weights", mode = "function")
+.cluster_resolve_density_fun <- get(".cluster_resolve_density_fun", mode = "function")
+.cluster_component_density <- get(".cluster_component_density", mode = "function")
+.causal_ate_draws_matrix <- get(".causal_ate_draws_matrix", mode = "function")
+.causal_effect_subset_index <- get(".causal_effect_subset_index", mode = "function")
+.causal_summarize_draw_cols <- get(".causal_summarize_draw_cols", mode = "function")
+.causal_aggregate_qte <- get(".causal_aggregate_qte", mode = "function")
+.causal_aggregate_ate <- get(".causal_aggregate_ate", mode = "function")
+.causal_is_conditional_model <- get(".causal_is_conditional_model", mode = "function")
+.causal_require_conditional <- get(".causal_require_conditional", mode = "function")
+.causal_validate_interval <- get(".causal_validate_interval", mode = "function")
+.causal_warn_ignored_marginal_inputs <- get(".causal_warn_ignored_marginal_inputs", mode = "function")
+.causal_resolve_conditional_x <- get(".causal_resolve_conditional_x", mode = "function")
+.build_ps_bundle <- get(".build_ps_bundle", mode = "function")
+.ps_design_matrix <- get(".ps_design_matrix", mode = "function")
+.apply_ps_scale <- get(".apply_ps_scale", mode = "function")
+.compute_ps_from_fit <- get(".compute_ps_from_fit", mode = "function")
+
+predict.fake_mixfit <- function(object,
+                                x = NULL,
+                                y = NULL,
+                                ps = NULL,
+                                id = NULL,
+                                type = c("mean", "quantile", "density", "survival", "prob", "fit", "rmean", "location"),
+                                index = NULL,
+                                interval = NULL,
+                                probs = c(0.025, 0.5, 0.975),
+                                store_draws = FALSE,
+                                nsim_mean = 200L,
+                                ...) {
+  type <- match.arg(type)
+  arm_shift <- if (identical(object$arm, "trt")) 1 else 0
+  x_mat <- if (!is.null(x)) as.matrix(x) else NULL
+  n_pred <- if (!is.null(x_mat)) nrow(x_mat) else if (!is.null(y)) length(y) else 1L
+  id_vals <- if (!is.null(id)) id else seq_len(n_pred)
+
+  if (type %in% c("density", "survival")) {
+    est <- arm_shift + ifelse(type == "density", 0.2, 0.8) + seq_len(n_pred) / 100
+    return(list(
+      fit = data.frame(
+        id = id_vals,
+        estimate = est,
+        lower = est - 0.05,
+        upper = est + 0.05
+      )
+    ))
+  }
+
+  if (type %in% c("mean", "rmean")) {
+    est <- arm_shift + seq_len(n_pred)
+    out <- list(
+      fit = data.frame(
+        id = id_vals,
+        estimate = est,
+        lower = est - 0.25,
+        upper = est + 0.25
+      )
+    )
+    if (isTRUE(store_draws)) {
+      out$draws <- cbind(est - 0.2, est + 0.2)
+      out$draws <- t(out$draws)
+    }
+    return(out)
+  }
+
+  if (type == "fit") {
+    vals <- matrix(
+      rep(arm_shift + seq_len(n_pred), each = 4L) + rep(c(-0.2, -0.05, 0.05, 0.2), times = n_pred),
+      nrow = 4L
+    )
+    return(list(
+      fit = data.frame(id = id_vals, estimate = colMeans(vals)),
+      draws = vals
+    ))
+  }
+
+  if (type == "quantile") {
+    p <- as.numeric(index %||% 0.5)
+    m <- length(p)
+    if (isTRUE(object$no_quantile_draws)) {
+      fit <- data.frame(
+        id = rep(id_vals, each = m),
+        index = rep(p, times = n_pred),
+        estimate = rep(arm_shift + seq_len(n_pred), each = m) + rep(p, times = n_pred),
+        lower = rep(arm_shift + seq_len(n_pred), each = m) + rep(p, times = n_pred) - 0.1,
+        upper = rep(arm_shift + seq_len(n_pred), each = m) + rep(p, times = n_pred) + 0.1
+      )
+      return(list(fit = fit))
+    }
+
+    draws <- array(NA_real_, dim = c(3L, n_pred, m))
+    for (j in seq_len(m)) {
+      base <- arm_shift + seq_len(n_pred) + p[j]
+      draws[, , j] <- rbind(base - 0.1, base, base + 0.1)
+    }
+    est <- apply(draws, c(2, 3), mean)
+    lower <- apply(draws, c(2, 3), min)
+    upper <- apply(draws, c(2, 3), max)
+    fit <- data.frame(
+      id = rep(id_vals, each = m),
+      index = rep(p, times = n_pred),
+      estimate = as.vector(t(est)),
+      lower = as.vector(t(lower)),
+      upper = as.vector(t(upper))
+    )
+    out <- list(fit = fit)
+    if (isTRUE(store_draws)) out$draws <- draws
+    out
+  } else {
+    stop("Unsupported fake predict type.", call. = FALSE)
+  }
+}
+
+.make_fake_causal_fit <- function(has_X = TRUE, ps_enabled = FALSE, ps_fit = FALSE, no_quantile_draws = FALSE) {
+  X <- if (isTRUE(has_X)) cbind(x1 = c(-1, 0, 1), x2 = c(0.5, 1.5, -0.5)) else NULL
+  bundle <- list(
+    data = list(X = X),
+    index = list(trt = c(2L, 3L)),
+    meta = list(
+      has_x = isTRUE(has_X),
+      ps = list(enabled = ps_enabled, include_in_outcome = ps_enabled, model_type = if (ps_enabled) "logit" else FALSE),
+      ps_scale = "prob",
+      ps_summary = "mean",
+      ps_clamp = 1e-6,
+      backend = list(trt = "sb", con = "sb"),
+      kernel = list(trt = "normal", con = "normal"),
+      GPD = list(trt = FALSE, con = FALSE)
+    )
+  )
+
+  design <- NULL
+  ps_fit_obj <- NULL
+  if (isTRUE(ps_enabled) && isTRUE(has_X)) {
+    design <- .build_ps_bundle(
+      A = c(0L, 1L, 1L),
+      X = X,
+      spec = list(model = "logit", prior = list(mean = 0, sd = 1), include_intercept = TRUE),
+      mcmc = mcmc_fast(seed = 11L)
+    )
+    bundle$design <- design
+    if (isTRUE(ps_fit)) {
+      ps_fit_obj <- list(mcmc = list(samples = matrix(
+        c(0.1, 0.2, -0.1, -0.2, 0.3, 0.1),
+        nrow = 2,
+        byrow = TRUE,
+        dimnames = list(NULL, c("beta[1]", "beta[2]", "beta[3]"))
+      )))
+    }
+  }
+
+  fit <- list(
+    bundle = bundle,
+    ps_fit = ps_fit_obj,
+    ps_hat = if (isTRUE(ps_enabled) && !isTRUE(ps_fit) && isTRUE(has_X)) c(0.3, 0.6, 0.8) else NULL,
+    outcome_fit = list(
+      trt = structure(list(arm = "trt", no_quantile_draws = no_quantile_draws), class = "fake_mixfit"),
+      con = structure(list(arm = "con", no_quantile_draws = no_quantile_draws), class = "fake_mixfit")
+    )
+  )
+  class(fit) <- "causalmixgpd_causal_fit"
+  fit
+}
+
+test_that("cluster formula parsing and override helpers cover validation branches", {
+  dat <- data.frame(
+    y = c(1, 2, 3),
+    x1 = c(0.1, 0.2, 0.3),
+    g = factor(c("a", "b", "a")),
+    id = c("u1", "u2", "u3")
+  )
+
+  parsed <- .cluster_parse_formula(y ~ x1 + g + id, data = dat)
+  expect_equal(parsed$y, c(1, 2, 3))
+  expect_true(parsed$has_X)
+  expect_true(all(c("x1", "gb") %in% colnames(parsed$X)))
+  expect_false(any(grepl("^id", colnames(parsed$X))))
+  expect_error(.cluster_parse_formula(NULL, dat), "'formula' is required")
+  expect_error(.cluster_parse_formula(y ~ x1, NULL), "'data' is required")
+
+  expect_equal(.cluster_validate_type(NULL, "param"), "param")
+  expect_error(
+    .cluster_validate_type_requirements("weights", has_X = FALSE, components_missing = FALSE),
+    "requires covariates"
+  )
+  expect_error(
+    .cluster_validate_type_requirements("both", has_X = TRUE, components_missing = TRUE),
+    "explicit 'components'"
+  )
+
+  parsed_overrides <- .cluster_split_overrides(
+    list(mean = "identity", tail_scale = "exp", concentration = 2),
+    bulk_names = c("mean", "sd"),
+    gpd_names = c("threshold", "tail_scale", "tail_shape")
+  )
+  expect_equal(parsed_overrides$bulk$mean, "identity")
+  expect_equal(parsed_overrides$gpd$tail_scale, "exp")
+  expect_equal(parsed_overrides$concentration, 2)
+  expect_error(
+    .cluster_split_overrides(list(bad = 1), bulk_names = "mean", gpd_names = "tail_scale"),
+    "Unknown override names"
+  )
+
+  expect_equal(.cluster_normalize_link_entry("softplus")$link, "softplus")
+  expect_error(.cluster_normalize_link_entry(1), "strings or lists")
+
+  spec <- list(
+    plan = list(
+      bulk = list(mean = list(mode = "link", link = "identity")),
+      gpd = list(tail_scale = list(mode = "dist")),
+      concentration = list(mode = "dist", dist = "gamma")
+    )
+  )
+  spec2 <- .cluster_apply_link_overrides(
+    spec,
+    link = list(
+      mean = "softplus",
+      tail_scale = list(mode = "link", link = "exp", beta_prior = list(dist = "normal", args = list(mean = 0, sd = 1)))
+    ),
+    has_X = TRUE
+  )
+  expect_equal(spec2$plan$bulk$mean$link, "softplus")
+  expect_equal(spec2$plan$gpd$tail_scale$link, "exp")
+  expect_error(.cluster_apply_link_overrides(spec, link = list(mean = "identity"), has_X = FALSE), "require covariates")
+
+  expect_equal(.cluster_normalize_prior_entry(2, current_mode = "dist")$mode, "fixed")
+  expect_equal(.cluster_normalize_prior_entry("gamma", current_mode = "dist")$dist, "gamma")
+  expect_equal(
+    .cluster_normalize_prior_entry(list(dist = "normal", args = list(mean = 0, sd = 1)), current_mode = "link", param_name = "mean")$mode,
+    "link"
+  )
+  expect_error(.cluster_normalize_prior_entry(TRUE, current_mode = "dist"), "numeric, character, or list")
+
+  spec3 <- .cluster_apply_prior_overrides(
+    spec2,
+    priors = list(
+      bulk = list(mean = list(value = 1.5)),
+      gpd = list(tail_scale = list(dist = "normal", args = list(mean = 0, sd = 0.5))),
+      concentration = list(value = 3)
+    )
+  )
+  expect_equal(spec3$plan$bulk$mean$value, 1.5)
+  expect_equal(spec3$plan$gpd$tail_scale$mode, "dist")
+  expect_equal(spec3$plan$concentration$value, 3)
+})
+
+test_that("cluster posterior helper utilities cover draw and density logic", {
+  skip_if_not_installed("coda")
+
+  expect_equal(.cluster_draw_indices(5, burnin = 1, thin = 2), c(2L, 4L))
+  expect_error(.cluster_draw_indices(5, burnin = 5), "too large")
+  expect_error(.cluster_draw_indices(5, thin = 0), ">= 1")
+
+  m <- coda::mcmc(matrix(
+    c(1, 1, 2, 2, 2, 1, 1, 2),
+    nrow = 2,
+    byrow = TRUE,
+    dimnames = list(NULL, c("z[1]", "z[2]", "z[3]", "z[4]"))
+  ))
+  ml <- coda::mcmc.list(m)
+  draw_mat <- .cluster_samples_to_matrix(ml)
+  z <- .cluster_extract_z_from_matrix(draw_mat)
+  expect_equal(dim(z), c(2, 4))
+  expect_error(.cluster_samples_to_matrix(matrix(1:4, nrow = 2)), "Expected 'mcmc' or 'mcmc.list'")
+  expect_error(.cluster_extract_z_from_matrix(matrix(1:4, nrow = 2)), "No z\\[i\\] columns found")
+
+  psm <- compute_psm(z)
+  dahl <- dahl_labels(z, psm)
+  scores <- .cluster_compute_scores(z, dahl$labels, psm)
+  expect_equal(dim(psm), c(4, 4))
+  expect_true(all(diag(psm) == 1))
+  expect_equal(length(dahl$labels), 4)
+  expect_equal(nrow(scores), 4)
+  expect_equal(rowSums(scores), rep(1, 4), tolerance = 1e-8)
+
+  expect_equal(.cluster_link_apply(2, "identity"), 2)
+  expect_equal(.cluster_link_apply(0, "exp"), 1)
+  expect_equal(.cluster_link_apply(exp(2), "log"), 2)
+  expect_equal(.cluster_link_apply(2, "power", link_power = 3), 8)
+  expect_error(.cluster_link_apply(2, "power", link_power = NA_real_), "Invalid power link exponent")
+  expect_error(.cluster_link_apply(2, "weird"), "Unsupported link")
+
+  expect_equal(.cluster_softmax(c(0, 0)), c(0.5, 0.5))
+  gd <- .cluster_extract_gating_draw(
+    c("eta[1]" = 0.5, "B[1,1]" = 1.0, "B[1,2]" = -1.0),
+    K = 2,
+    P = 2
+  )
+  expect_true(is.list(gd))
+  gw <- .cluster_gating_weights(gd, x_row = c(1, 0))
+  expect_equal(length(gw), 2)
+  expect_equal(sum(gw), 1, tolerance = 1e-8)
+  expect_null(.cluster_extract_gating_draw(c("foo" = 1), K = 2, P = 1))
+  expect_null(.cluster_gating_weights(NULL, x_row = 1))
+
+  spec <- list(
+    meta = list(kernel = "normal", GPD = FALSE, P = 1, components = 2),
+    plan = list(
+      bulk = list(
+        mean = list(mode = "link", link = "identity"),
+        sd = list(mode = "fixed", value = 1)
+      ),
+      gpd = list()
+    ),
+    signatures = list(bulk = list(args = c("mean", "sd")))
+  )
+  dens_fun <- .cluster_resolve_density_fun(spec)
+  expect_true(is.function(dens_fun))
+  dens <- .cluster_component_density(
+    spec = spec,
+    draw_row = c("beta_mean[1,1]" = 0),
+    k = 1L,
+    x_row = 2,
+    y_val = 0,
+    density_fun = dens_fun
+  )
+  expect_true(is.finite(dens))
+  expect_gt(dens, 0)
+})
+
+test_that("causal aggregation helpers cover conditional and marginal branches", {
+  expect_null(.causal_ate_draws_matrix(NULL))
+  expect_equal(dim(.causal_ate_draws_matrix(c(1, 2, 3))), c(3, 1))
+  mat <- matrix(1:6, nrow = 2)
+  expect_identical(.causal_ate_draws_matrix(mat), mat)
+  expect_error(.causal_ate_draws_matrix(array(1:8, dim = c(2, 2, 2))), "Unexpected mean draw dimensions")
+
+  fit_stub <- list(bundle = list(index = list(trt = c(2L, 4L, 4L))))
+  expect_equal(.causal_effect_subset_index(fit_stub, n_pred = 1L, subset = "all"), 1L)
+  expect_equal(.causal_effect_subset_index(fit_stub, n_pred = 5L, subset = "treated"), c(2L, 4L))
+  expect_error(
+    .causal_effect_subset_index(list(bundle = list(index = list(trt = integer(0)))), n_pred = 3L, subset = "treated"),
+    "No treated rows"
+  )
+
+  summ <- .causal_summarize_draw_cols(matrix(c(1, 2, 3, 2, 3, 4), nrow = 3), compute_interval = TRUE, interval = "credible", level = 0.8)
+  expect_equal(length(summ$estimate), 2)
+  expect_true(all(is.finite(summ$lower)))
+  expect_true(all(is.finite(summ$upper)))
+
+  qobj <- list(
+    trt = list(draws = matrix(c(1, 2, 3, 4, 2, 3, 4, 5), nrow = 4, byrow = TRUE)),
+    con = list(draws = matrix(c(0, 1, 2, 3, 1, 2, 3, 4), nrow = 4, byrow = TRUE)),
+    probs = c(0.25, 0.75),
+    level = 0.9,
+    interval = "credible",
+    n_pred = 2L,
+    meta = list(ps_enabled = FALSE)
+  )
+  qte_out <- .causal_aggregate_qte(qobj, idx = c(1L, 2L), effect_type = "qte")
+  expect_s3_class(qte_out, "causalmixgpd_qte")
+  expect_equal(nrow(qte_out$fit), 2)
+  expect_true(all(c("estimate", "lower", "upper") %in% names(qte_out$fit)))
+
+  qobj_uncond <- list(
+    trt = list(draws = matrix(c(1, 2, 3, 4), nrow = 2)),
+    con = list(draws = matrix(c(0, 1, 1, 2), nrow = 2)),
+    probs = 0.5,
+    level = 0.95,
+    interval = "none",
+    n_pred = 1L,
+    meta = list(ps_enabled = FALSE)
+  )
+  qtt_out <- .causal_aggregate_qte(qobj_uncond, idx = 1L, effect_type = "qtt")
+  expect_s3_class(qtt_out, "causalmixgpd_qte")
+  expect_equal(qtt_out$type, "qtt")
+
+  aobj <- list(
+    trt = list(draws = matrix(c(2, 4, 6, 8), nrow = 2)),
+    con = list(draws = matrix(c(1, 2, 3, 4), nrow = 2)),
+    level = 0.9,
+    interval = "credible",
+    nsim_mean = 20L,
+    meta = list(ps_enabled = FALSE)
+  )
+  ate_out <- .causal_aggregate_ate(aobj, idx = c(1L, 2L), effect_type = "ate")
+  expect_s3_class(ate_out, "causalmixgpd_ate")
+  expect_length(ate_out$fit, 1)
+  expect_true(is.finite(ate_out$fit))
+  expect_error(.causal_aggregate_ate(list(trt = list(draws = NULL), con = list(draws = NULL)), idx = 1L), "requires treated/control mean draws")
+})
+
+test_that("causal validation and bundle helpers cover conditional and input branches", {
+  fit_cond <- .make_fake_causal_fit(has_X = TRUE, ps_enabled = FALSE)
+  fit_uncond <- .make_fake_causal_fit(has_X = FALSE, ps_enabled = FALSE)
+
+  expect_true(.causal_is_conditional_model(fit_cond))
+  expect_false(.causal_is_conditional_model(fit_uncond))
+  expect_silent(.causal_require_conditional(fit_cond, fn = "cate"))
+  expect_error(.causal_require_conditional(fit_uncond, fn = "cate"), "cate\\(\\) is available only")
+  expect_error(.causal_require_conditional(fit_uncond, fn = "cqte"), "cqte\\(\\) is available only")
+
+  iv_none <- .causal_validate_interval(interval = "none", level = 0.9)
+  expect_false(iv_none$compute_interval)
+  expect_equal(iv_none$interval, "credible")
+  expect_error(.causal_validate_interval(interval = "credible", level = 1), "'level' must be a numeric value between 0 and 1")
+
+  expect_warning(.causal_warn_ignored_marginal_inputs("ate", newdata = matrix(1, ncol = 1), y = 1, conditional_fn = "cate"), "ignored")
+  expect_false(.causal_warn_ignored_marginal_inputs("ate", conditional_fn = "cate"))
+
+  expect_equal(.causal_resolve_conditional_x(fit_cond, fn = "cate"), fit_cond$bundle$data$X)
+  expect_error(.causal_resolve_conditional_x(fit_uncond, fn = "cate"), "requires covariates")
+
+  x <- cbind(x1 = c(-1, 0, 1, 2), x2 = c(0.5, 1.5, -0.5, 2.5))
+  y <- abs(c(1.2, 0.8, 1.5, 2.2))
+  A <- c(0L, 1L, 0L, 1L)
+  cb <- build_causal_bundle(
+    y = y,
+    X = x,
+    A = A,
+    backend = c("sb", "crp"),
+    kernel = c("normal", "gamma"),
+    GPD = c(FALSE, TRUE),
+    components = c(3, 4),
+    PS = FALSE,
+    monitor = "full",
+    mcmc_outcome = mcmc_fast(seed = 5L)
+  )
+  expect_s3_class(cb, "causalmixgpd_causal_bundle")
+  expect_true(cb$meta$monitor_policy$monitor_latent)
+  expect_true(cb$meta$monitor_policy$monitor_v)
+  expect_false(cb$meta$ps$enabled)
+
+  cb_no_x <- build_causal_bundle(
+    y = y,
+    X = NULL,
+    A = A,
+    backend = "sb",
+    kernel = "normal",
+    components = 3,
+    PS = TRUE,
+    mcmc_outcome = mcmc_fast(seed = 6L)
+  )
+  expect_false(cb_no_x$meta$ps$enabled)
+
+  expect_error(build_causal_bundle(y = numeric(0), X = x, A = A, backend = "sb", kernel = "normal", components = 3), "non-empty numeric vector")
+  expect_error(build_causal_bundle(y = y, X = x[1:3, , drop = FALSE], A = A, backend = "sb", kernel = "normal", components = 3), "same number of rows")
+  expect_error(build_causal_bundle(y = y, X = x, A = c(0L, 1L, 2L, 1L), backend = "sb", kernel = "normal", components = 3), "binary")
+  expect_error(build_causal_bundle(y = y, X = x, A = rep(1L, 4), backend = "sb", kernel = "normal", components = 3), "Both treatment arms")
+  expect_error(build_causal_bundle(y = y, X = x, A = A, backend = "sb", kernel = "normal", components = c(1, 3)), "treated")
+  expect_error(build_causal_bundle(y = y, X = x, A = A, backend = "sb", kernel = "normal", components = c(3, 1)), "control")
+  expect_error(build_causal_bundle(y = y, X = x, A = A, backend = "sb", kernel = "normal", components = 3, epsilon = c(1, 0.2)), "treated")
+})
+
+test_that("propensity score helper utilities cover bundle construction and prediction", {
+  skip_if_not_installed("nimble")
+
+  A <- c(0L, 1L, 0L, 1L)
+  X <- cbind(x1 = c(-1, 0, 1, 2), x2 = c(0.5, 1.5, -0.5, 2.5))
+
+  ps_logit <- .build_ps_bundle(
+    A = A,
+    X = X,
+    spec = list(model = "logit", prior = list(mean = 0, sd = 1), include_intercept = TRUE),
+    mcmc = mcmc_fast(seed = 1L)
+  )
+  expect_s3_class(ps_logit, "causalmixgpd_ps_bundle")
+  expect_equal(ps_logit$spec$meta$type, "ps_logit")
+  design <- .ps_design_matrix(ps_logit, X)
+  expect_equal(dim(design), c(4, 3))
+  expect_error(.ps_design_matrix(ps_logit, X[, "x1", drop = FALSE]), "do not match PS design")
+
+  ps_probit <- .build_ps_bundle(
+    A = A,
+    X = X,
+    spec = list(model = "probit", prior = list(mean = 0, sd = 1), include_intercept = FALSE),
+    mcmc = mcmc_fast(seed = 2L)
+  )
+  expect_equal(ps_probit$spec$meta$type, "ps_probit")
+
+  ps_naive <- .build_ps_bundle(
+    A = A,
+    X = X,
+    spec = list(model = "naive", prior = list(mean = 0, sd = 1), include_intercept = FALSE),
+    mcmc = mcmc_fast(seed = 3L)
+  )
+  expect_equal(ps_naive$spec$meta$type, "ps_naive")
+  expect_error(
+    .build_ps_bundle(A = A, X = X, spec = list(model = "bad", prior = list(mean = 0, sd = 1)), mcmc = mcmc_fast(seed = 4L)),
+    "Unsupported PS model"
+  )
+
+  expect_equal(.apply_ps_scale(c(0.2, 0.8), scale = "prob"), c(0.2, 0.8))
+  expect_equal(round(.apply_ps_scale(0.5, scale = "logit"), 6), 0)
+
+  logit_fit <- list(mcmc = list(samples = coda::mcmc(matrix(
+    c(0, 1, -1, 0.5, 0.5, -0.5),
+    nrow = 2,
+    byrow = TRUE,
+    dimnames = list(NULL, c("beta[1]", "beta[2]", "beta[3]"))
+  ))))
+  ps_hat <- .compute_ps_from_fit(logit_fit, ps_logit, X, summary = "mean", clamp = 1e-6)
+  expect_equal(length(ps_hat), nrow(X))
+  expect_true(all(ps_hat > 0 & ps_hat < 1))
+
+  probit_fit <- list(mcmc = list(samples = coda::mcmc(matrix(
+    c(0, 0.5, -0.5, 0.25, 0.25, -0.25),
+    nrow = 3,
+    byrow = TRUE,
+    dimnames = list(NULL, c("beta[1]", "beta[2]"))
+  ))))
+  probit_hat <- .compute_ps_from_fit(probit_fit, ps_probit, X, summary = "median", clamp = 1e-6)
+  expect_equal(length(probit_hat), nrow(X))
+
+  naive_fit <- list(mcmc = list(samples = coda::mcmc(matrix(
+    c(
+      0.5,
+      -0.5, 0.5, 0.0, 1.0,
+      1.0, 1.0, 1.0, 1.0
+    ),
+    nrow = 1,
+    dimnames = list(NULL, c(
+      "pi_prior",
+      "mu[1,1]", "mu[2,1]", "mu[1,2]", "mu[2,2]",
+      "sigma[1,1]", "sigma[2,1]", "sigma[1,2]", "sigma[2,2]"
+    ))
+  ))))
+  naive_hat <- .compute_ps_from_fit(naive_fit, ps_naive, X, summary = "mean", clamp = 1e-6)
+  expect_equal(length(naive_hat), nrow(X))
+  expect_true(all(naive_hat > 0 & naive_hat < 1))
+})
+
+test_that("cluster label and psm S3 helpers cover summary and plotting branches", {
+  lbl <- structure(
+    list(
+      labels = c(1L, 1L, 2L),
+      components = 2L,
+      source = "newdata",
+      scores = matrix(c(0.9, 0.1, 0.8, 0.2, 0.25, 0.75), nrow = 3, byrow = TRUE)
+    ),
+    class = c("dpmixgpd_cluster_labels", "list")
+  )
+  lbl_sum <- summary(lbl)
+  expect_s3_class(lbl_sum, "summary.dpmixgpd_cluster_labels")
+  expect_equal(lbl_sum$n, 3)
+  expect_silent(plot(lbl, type = "sizes"))
+  expect_silent(plot(lbl, type = "certainty"))
+
+  lbl_no_scores <- structure(list(labels = c(1L, 2L), components = 2L), class = c("dpmixgpd_cluster_labels", "list"))
+  expect_warning(plot(lbl_no_scores, type = "certainty"), "No score matrix")
+
+  psm_obj <- structure(
+    list(psm = matrix(c(1, 0.2, 0.2, 1), 2), components = 2L, draw_index = 1L, psm_max_n = 2L),
+    class = c("dpmixgpd_cluster_psm", "list")
+  )
+  psm_sum <- summary(psm_obj)
+  expect_s3_class(psm_sum, "summary.dpmixgpd_cluster_psm")
+  expect_equal(psm_sum$diagonal_mean, 1)
+  expect_silent(plot(psm_obj, psm_max_n = 2L))
+  expect_error(plot(psm_obj, psm_max_n = 1L), "PSM plot blocked")
+  expect_error(plot(psm_obj, psm_max_n = 0L), "must be an integer >= 1")
+})
+
+test_that("cluster handcrafted fit covers newdata label prediction helpers", {
+  skip_if_not_installed("coda")
+
+  train <- data.frame(y = c(0.2, 2.8), x1 = c(0, 2))
+  trm <- stats::terms(y ~ x1, data = train)
+  mf <- stats::model.frame(trm, data = train)
+  mm <- stats::model.matrix(stats::delete.response(trm), data = mf)
+  formula_meta <- list(
+    terms = trm,
+    xlevels = stats::.getXlevels(trm, mf),
+    contrasts = attr(mm, "contrasts"),
+    X_cols = setdiff(colnames(mm), "(Intercept)"),
+    response = "y"
+  )
+
+  samp <- coda::mcmc(matrix(
+    c(
+      1, 2, 0.5, 2.0, 0.0, 3.0,
+      1, 2, 0.5, 2.0, 0.0, 3.0
+    ),
+    nrow = 2,
+    byrow = TRUE,
+    dimnames = list(NULL, c("z[1]", "z[2]", "eta[1]", "B[1,1]", "beta_mean[1,1]", "beta_mean[2,1]"))
+  ))
+  fit <- structure(
+    list(
+      spec = list(
+        meta = list(kernel = "normal", GPD = FALSE, P = 1L, components = 2L),
+        plan = list(
+          bulk = list(
+            mean = list(mode = "link", link = "identity"),
+            sd = list(mode = "fixed", value = 1)
+          ),
+          gpd = list()
+        ),
+        signatures = list(bulk = list(args = c("mean", "sd"))),
+        cluster = list(type = "weights", formula_meta = formula_meta)
+      ),
+      samples = coda::mcmc.list(samp),
+      cache_env = new.env(parent = emptyenv())
+    ),
+    class = c("dpmixgpd_cluster_fit", "list")
+  )
+
+  pred <- predict_labels_newdata(fit, newdata = data.frame(y = c(0.1, 2.9), x1 = c(0, 2)))
+  expect_equal(length(pred$labels), 2)
+  expect_true(is.matrix(pred$scores))
+  expect_equal(rowSums(pred$scores), rep(1, 2), tolerance = 1e-8)
+
+  z_draws <- extract_z_draws(fit$samples)
+  expect_equal(dim(z_draws), c(2, 2))
+})
+
+test_that("causal wrapper functions cover marginal branches with mocked outcome fits", {
+  testthat::local_mocked_bindings(
+    predict = function(object, ...) {
+      if (inherits(object, "fake_mixfit")) {
+        return(predict.fake_mixfit(object, ...))
+      }
+      stats::predict(object, ...)
+    },
+    .package = "CausalMixGPD"
+  )
+
+  fit_cond <- .make_fake_causal_fit(has_X = TRUE, ps_enabled = TRUE, ps_fit = TRUE)
+  fit_uncond <- .make_fake_causal_fit(has_X = FALSE, ps_enabled = FALSE)
+
+  qte_out <- NULL
+  expect_warning(
+    qte_out <- qte(fit_cond, probs = c(0.25, 0.75), newdata = matrix(1, ncol = 1), y = 1, show_progress = FALSE),
+    "are ignored"
+  )
+  expect_s3_class(qte_out, "causalmixgpd_qte")
+
+  qtt_out <- qtt(fit_cond, probs = c(0.25, 0.75), interval = "hpd", show_progress = FALSE)
+  expect_s3_class(qtt_out, "causalmixgpd_qte")
+  expect_equal(qtt_out$type, "qtt")
+
+  ate_out <- ate(fit_cond, type = "mean", nsim_mean = 10L, show_progress = FALSE)
+  att_out <- att(fit_cond, type = "rmean", cutoff = 3, nsim_mean = 10L, show_progress = FALSE)
+  expect_s3_class(ate_out, "causalmixgpd_ate")
+  expect_s3_class(att_out, "causalmixgpd_ate")
+  expect_equal(att_out$type, "att")
+
+  rm_cond <- ate_rmean(fit_cond, cutoff = 2, nsim_mean = 10L, show_progress = FALSE)
+  rm_uncond <- ate_rmean(fit_uncond, cutoff = 2, nsim_mean = 10L, show_progress = FALSE)
+  expect_s3_class(rm_cond, "causalmixgpd_ate")
+  expect_s3_class(rm_uncond, "causalmixgpd_ate")
+})
+
+test_that("conditional causal wrappers cover cate and cqte branches with mocked fits", {
+  testthat::local_mocked_bindings(
+    predict = function(object, ...) {
+      if (inherits(object, "fake_mixfit")) {
+        return(predict.fake_mixfit(object, ...))
+      }
+      stats::predict(object, ...)
+    },
+    .package = "CausalMixGPD"
+  )
+
+  fit_cond <- .make_fake_causal_fit(has_X = TRUE, ps_enabled = TRUE, ps_fit = TRUE)
+  fit_no_ps <- .make_fake_causal_fit(has_X = TRUE, ps_enabled = TRUE, ps_fit = FALSE)
+  fit_uncond <- .make_fake_causal_fit(has_X = FALSE, ps_enabled = FALSE)
+
+  cate_out <- cate(fit_cond, type = "mean", nsim_mean = 10L, show_progress = FALSE)
+  cate_rm <- cate(fit_cond, type = "rmean", cutoff = 2, interval = "hpd", nsim_mean = 10L, show_progress = FALSE)
+  cqte_out <- cqte(fit_cond, probs = c(0.25, 0.75), show_progress = FALSE)
+  expect_s3_class(cate_out, "causalmixgpd_ate")
+  expect_s3_class(cate_rm, "causalmixgpd_ate")
+  expect_s3_class(cqte_out, "causalmixgpd_qte")
+  expect_equal(length(cate_out$fit), 3)
+  expect_equal(dim(cqte_out$fit), c(3, 2))
+
+  expect_warning(
+    cate(fit_no_ps, type = "mean", nsim_mean = 10L, show_progress = FALSE),
+    "missing PS model"
+  )
+  expect_warning(
+    cqte(fit_no_ps, probs = c(0.25, 0.75), show_progress = FALSE),
+    "missing PS model"
+  )
+  expect_error(cate(fit_uncond, show_progress = FALSE), "available only for conditional causal models")
+  expect_error(cqte(fit_uncond, show_progress = FALSE), "available only for conditional causal models")
+})
+
+test_that("run_mcmc_causal orchestration covers PS, fallback, and validation branches", {
+  x <- cbind(x1 = c(-1, 0, 1, 2), x2 = c(0.5, 1.5, -0.5, 2.5))
+  y <- abs(c(1.2, 0.8, 1.5, 2.2))
+  A <- c(0L, 1L, 0L, 1L)
+
+  bundle_ps <- build_causal_bundle(
+    y = y,
+    X = x,
+    A = A,
+    backend = "sb",
+    kernel = "normal",
+    components = 3,
+    PS = "logit",
+    mcmc_outcome = mcmc_fast(seed = 12L),
+    mcmc_ps = mcmc_fast(seed = 13L)
+  )
+  bundle_no_ps <- build_causal_bundle(
+    y = y,
+    X = x,
+    A = A,
+    backend = "sb",
+    kernel = "normal",
+    components = 3,
+    PS = FALSE,
+    mcmc_outcome = mcmc_fast(seed = 14L)
+  )
+
+  testthat::local_mocked_bindings(
+    .run_ps_mcmc_bundle = function(bundle, ...) {
+      list(mcmc = list(samples = matrix(c(0.1, 0.2, -0.1), nrow = 1, dimnames = list(NULL, c("beta[1]", "beta[2]", "beta[3]")))), timing = list(total = 0.1), bundle = bundle)
+    },
+    .compute_ps_from_fit = function(ps_fit, ps_bundle, X_new, ...) rep(0.4, nrow(as.matrix(X_new))),
+    .apply_ps_scale = function(ps_prob, scale = c("prob", "logit"), clamp = 1e-6) as.numeric(ps_prob),
+    build_code_from_spec = function(spec) list(code = "fake"),
+    build_constants_from_spec = function(spec) list(N = 1L),
+    build_monitors_from_spec = function(spec, ...) c("alpha"),
+    run_mcmc_bundle_manual = function(bundle, ...) {
+      list(samples = NULL, mcmc = list(samples = NULL), timing = list(mcmc = 0.2), bundle = bundle)
+    },
+    .package = "CausalMixGPD"
+  )
+
+  fit_ps <- run_mcmc_causal(bundle_ps, show_progress = FALSE, quiet = TRUE, timing = TRUE)
+  fit_no_ps <- NULL
+  expect_warning(
+    fit_no_ps <- run_mcmc_causal(bundle_no_ps, show_progress = FALSE, quiet = TRUE, parallel_arms = TRUE, timing = TRUE),
+    "falls back to sequential execution"
+  )
+  expect_s3_class(fit_ps, "causalmixgpd_causal_fit")
+  expect_s3_class(fit_no_ps, "causalmixgpd_causal_fit")
+  expect_equal(fit_ps$ps_hat, rep(0.4, 4))
+  expect_equal(fit_ps$bundle$outcome$con$data$ps, c(0.4, 0.4))
+  expect_null(fit_no_ps$ps_fit)
+  expect_error(run_mcmc_causal(bundle_ps, z_update_every = 0L, show_progress = FALSE, quiet = TRUE), ">= 1")
+})
+
+test_that("cluster wrapper functions cover bundle-fit orchestration with mocked MCMC", {
+  fake_cluster_fit <- structure(
+    list(samples = NULL, mcmc = list(samples = NULL), timing = list(mcmc = 0.1)),
+    class = "fake_cluster_fit"
+  )
+
+  testthat::local_mocked_bindings(
+    run_cluster_mcmc = function(bundle, ...) {
+      structure(
+        list(bundle = bundle, spec = bundle$spec, samples = NULL, mcmc = list(samples = NULL), cache_env = new.env(parent = emptyenv())),
+        class = c("dpmixgpd_cluster_fit", "list")
+      )
+    },
+    run_mcmc_bundle_manual = function(bundle, ...) fake_cluster_fit,
+    .package = "CausalMixGPD"
+  )
+
+  dat <- data.frame(y = abs(stats::rnorm(8)) + 0.1, x1 = stats::rnorm(8))
+  b_mix <- build_cluster_bundle(y ~ x1, data = dat, kernel = "normal", GPD = FALSE, type = "weights", components = 3, mcmc = mcmc_fast(seed = 15L))
+  b_gpd <- build_cluster_bundle(y ~ x1, data = dat, kernel = "normal", GPD = TRUE, type = "weights", components = 3, mcmc = mcmc_fast(seed = 16L))
+  expect_s3_class(b_mix, "dpmixgpd_cluster_bundle")
+  expect_s3_class(b_gpd, "dpmixgpd_cluster_bundle")
+
+  fit1 <- dpmix.cluster(y ~ x1, data = dat, kernel = "normal", type = "weights", components = 3, mcmc = mcmc_fast(seed = 17L))
+  fit2 <- dpmgpd.cluster(y ~ x1, data = dat, kernel = "normal", type = "weights", components = 3, mcmc = mcmc_fast(seed = 18L))
+  expect_s3_class(fit1, "dpmixgpd_cluster_fit")
+  expect_s3_class(fit2, "dpmixgpd_cluster_fit")
+})
+
+test_that("cluster bundle and fit S3 methods cover print summary and plot branches", {
+  bundle <- structure(
+    list(
+      spec = list(
+        meta = list(kernel = "normal", GPD = FALSE, N = 4L, P = 2L, components = 3L),
+        cluster = list(type = "weights", param_link = TRUE)
+      ),
+      monitors = c("z[1]", "z[2]")
+    ),
+    class = c("dpmixgpd_cluster_bundle", "list")
+  )
+
+  expect_output(print(bundle), "Cluster bundle")
+  sm_bundle <- summary(bundle)
+  expect_s3_class(sm_bundle, "summary.dpmixgpd_cluster_bundle")
+  expect_equal(sm_bundle$type, "weights")
+  expect_silent(plot(bundle))
+
+  fit <- structure(
+    list(
+      spec = bundle$spec,
+      samples = matrix(0, nrow = 3, ncol = 3),
+      cache_env = new.env(parent = emptyenv())
+    ),
+    class = c("dpmixgpd_cluster_fit", "list")
+  )
+
+  testthat::local_mocked_bindings(
+    predict = function(object, type = c("label", "psm"), ...) {
+      type <- match.arg(type)
+      if (identical(type, "psm")) {
+        return(structure(
+          list(
+            psm = matrix(c(1, 0.2, 0.2, 1), nrow = 2),
+            labels = c(1L, 2L),
+            components = 2L,
+            draw_index = 1L,
+            burnin = 0L,
+            thin = 1L,
+            psm_max_n = 2000L
+          ),
+          class = c("dpmixgpd_cluster_psm", "list")
+        ))
+      }
+      structure(
+        list(
+          labels = c(1L, 1L, 2L),
+          components = 2L,
+          source = "train",
+          burnin = 0L,
+          thin = 1L
+        ),
+        class = c("dpmixgpd_cluster_labels", "list")
+      )
+    },
+    extract_z_draws = function(samples, burnin = NULL, thin = NULL) {
+      matrix(c(1L, 1L, 2L, 1L, 2L, 2L, 2L, 2L, 1L), nrow = 3, byrow = TRUE)
+    },
+    .package = "CausalMixGPD"
+  )
+
+  expect_output(print(fit), "Cluster fit")
+  sm_fit <- summary(fit)
+  expect_s3_class(sm_fit, "summary.dpmixgpd_cluster_fit")
+  expect_equal(sm_fit$K_star, 2L)
+  psm_out <- plot(fit, which = "psm", psm_max_n = 50L)
+  k_out <- plot(fit, which = "k")
+  lbl_out <- plot(fit, which = "sizes")
+  expect_s3_class(psm_out, "dpmixgpd_cluster_psm")
+  expect_equal(length(k_out), 3L)
+  expect_s3_class(lbl_out, "dpmixgpd_cluster_labels")
+})
+
+test_that("predict.dpmixgpd_cluster_fit covers label psm newdata and validation", {
+  fit <- structure(
+    list(
+      spec = list(meta = list()),
+      samples = "fake_samples",
+      cache_env = new.env(parent = emptyenv())
+    ),
+    class = c("dpmixgpd_cluster_fit", "list")
+  )
+
+  testthat::local_mocked_bindings(
+    .cluster_samples_to_matrix = function(samples) {
+      matrix(
+        c(1, 1, 2, 1, 2, 2),
+        nrow = 2,
+        byrow = TRUE,
+        dimnames = list(NULL, c("z[1]", "z[2]", "z[3]"))
+      )
+    },
+    .cluster_draw_indices = function(n_draws, burnin = NULL, thin = NULL) seq_len(n_draws),
+    .cluster_extract_z_from_matrix = function(draw_sub) {
+      matrix(c(1L, 1L, 2L, 1L, 2L, 2L), nrow = 2, byrow = TRUE)
+    },
+    compute_psm = function(z_draws) {
+      matrix(
+        c(1, 0.2, 0.1, 0.2, 1, 0.3, 0.1, 0.3, 1),
+        nrow = 3,
+        byrow = TRUE
+      )
+    },
+    dahl_labels = function(z_draws, psm) list(labels = c(1L, 2L, 2L), K = 2L, draw_index = 1L),
+    .cluster_compute_scores = function(z_draws, labels, psm) {
+      matrix(c(0.9, 0.1, 0.2, 0.8, 0.1, 0.9), nrow = 3, byrow = TRUE)
+    },
+    predict_labels_newdata = function(fit, newdata, burnin = NULL, thin = NULL) {
+      list(
+        labels = c(1L, 2L),
+        scores = matrix(c(0.7, 0.3, 0.4, 0.6), nrow = 2, byrow = TRUE),
+        K = 2L
+      )
+    },
+    .package = "CausalMixGPD"
+  )
+
+  train_lbl <- predict(fit, type = "label", return_scores = TRUE)
+  train_lbl_cached <- predict(fit, type = "label", return_scores = FALSE)
+  psm <- predict(fit, type = "psm", psm_max_n = 10L)
+  nd_lbl <- predict(fit, newdata = data.frame(y = c(0.1, 0.2)), type = "label", return_scores = TRUE)
+
+  expect_s3_class(train_lbl, "dpmixgpd_cluster_labels")
+  expect_s3_class(train_lbl_cached, "dpmixgpd_cluster_labels")
+  expect_true(is.matrix(train_lbl$scores))
+  expect_s3_class(psm, "dpmixgpd_cluster_psm")
+  expect_s3_class(nd_lbl, "dpmixgpd_cluster_labels")
+  expect_equal(nd_lbl$source, "newdata")
+
+  expect_error(predict(fit, type = "label", psm_max_n = 0L), "integer >= 1")
+  expect_error(
+    predict(fit, newdata = data.frame(y = 1), type = "psm"),
+    "only available for training data"
+  )
+  expect_error(
+    predict(fit, type = "psm", psm_max_n = 2L),
+    "PSM is O\\(n\\^2\\)"
+  )
+})
+
+test_that("causal prediction wrapper covers quantile, density, survival, prob, and validation branches", {
+  testthat::local_mocked_bindings(
+    predict = function(object, ...) {
+      if (inherits(object, "fake_mixfit")) {
+        return(predict.fake_mixfit(object, ...))
+      }
+      stats::predict(object, ...)
+    },
+    .package = "CausalMixGPD"
+  )
+
+  fit_ps <- .make_fake_causal_fit(has_X = TRUE, ps_enabled = TRUE, ps_fit = TRUE)
+  fit_no_ps_model <- .make_fake_causal_fit(has_X = TRUE, ps_enabled = TRUE, ps_fit = FALSE)
+  fit_nodraw <- .make_fake_causal_fit(has_X = TRUE, ps_enabled = FALSE, no_quantile_draws = TRUE)
+
+  x_new <- cbind(x1 = c(0, 1), x2 = c(1, 2))
+  dens <- predict(fit_ps, x = x_new, y = c(0.1, 0.2), type = "density", interval = "credible", show_progress = FALSE)
+  surv <- predict(fit_ps, x = x_new, y = c(0.1, 0.2), type = "survival", interval = NULL, show_progress = FALSE)
+  prob <- predict(fit_ps, x = x_new, y = c(0.1, 0.2), type = "prob", interval = NULL, show_progress = FALSE)
+  expect_s3_class(dens, "causalmixgpd_causal_predict")
+  expect_s3_class(surv, "causalmixgpd_causal_predict")
+  expect_s3_class(prob, "causalmixgpd_causal_predict")
+  expect_true(all(c("trt_estimate", "con_estimate") %in% names(dens)))
+
+  qdraw <- predict(fit_ps, x = x_new, type = "quantile", p = c(0.25, 0.75), show_progress = FALSE)
+  qnodraw <- predict(fit_nodraw, x = x_new, type = "quantile", p = c(0.25, 0.75), show_progress = FALSE)
+  qsingle <- predict(fit_ps, x = x_new, type = "quantile", p = 0.5, interval = "none", show_progress = FALSE)
+  mean_out <- predict(fit_ps, x = x_new, type = "mean", ps = c(0.2, 0.8), show_progress = FALSE)
+  expect_s3_class(qdraw, "causalmixgpd_causal_predict")
+  expect_s3_class(qnodraw, "causalmixgpd_causal_predict")
+  expect_s3_class(qsingle, "causalmixgpd_causal_predict")
+  expect_s3_class(mean_out, "causalmixgpd_causal_predict")
+  expect_true(all(c("index", "estimate") %in% names(qdraw)))
+
+  expect_error(predict(fit_ps, x = x_new, newdata = x_new, type = "mean", show_progress = FALSE), "Provide only one of 'x' or 'newdata'")
+  expect_error(predict(fit_ps, x = x_new, type = "quantile", p = c(0, 0.5), show_progress = FALSE), "must be in \\(0, 1\\)")
+  expect_error(predict(fit_ps, x = x_new, type = "density", show_progress = FALSE), "requires 'y'")
+  expect_error(predict(fit_ps, x = x_new, y = 1, type = "density", show_progress = FALSE), "Length of 'y' must match")
+  expect_error(predict(fit_ps, x = x_new, ps = 0.5, type = "mean", show_progress = FALSE), "Length of 'ps' must equal")
+  expect_error(
+    predict(fit_no_ps_model, x = x_new, type = "mean", show_progress = FALSE),
+    "missing PS model"
+  )
+})
+
+# ===== END unit/test-causal-and-cluster-helper-coverage.R =====
+
 

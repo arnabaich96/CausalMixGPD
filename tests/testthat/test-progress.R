@@ -12,8 +12,8 @@ test_that("progress helpers emit step messages when enabled", {
     type = "message"
   )
   msgs <- strip_ansi(msgs)
-  expect_true(any(grepl("^step one$", msgs)))
-  expect_true(any(grepl("^step two$", msgs)))
+  expect_true(any(grepl("^\\[unit\\] step one$", msgs)))
+  expect_true(any(grepl("^\\[unit\\] step two$", msgs)))
   expect_silent(.cmgpd_progress_done(ctx))
 })
 
@@ -55,7 +55,7 @@ test_that("run_mcmc_bundle_manual and predict honor progress toggles", {
 
   expect_message(
     fit <- run_mcmc_bundle_manual(bundle, show_progress = TRUE, quiet = FALSE),
-    "Validating configuration"
+    "\\[mixgpd\\] Validating configuration"
   )
   active_msg <- utils::capture.output(
     active_out <- utils::capture.output(
@@ -66,7 +66,7 @@ test_that("run_mcmc_bundle_manual and predict honor progress toggles", {
   )
   active_msg <- strip_ansi(active_msg)
   active_lines <- c(active_out, active_msg)
-  expect_true(any(grepl("Validating configuration", active_lines, fixed = TRUE)))
+  expect_true(any(grepl("[mixgpd] Validating configuration", active_lines, fixed = TRUE)))
   expect_false(any(grepl("\\[[0-9]+/[0-9]+\\].*\\[[=-]+\\]\\s+[0-9]+%", active_lines)))
   expect_false(any(grepl("===== Monitors =====|running chain|Defining model", active_lines)))
 
@@ -79,11 +79,56 @@ test_that("run_mcmc_bundle_manual and predict honor progress toggles", {
 
   expect_message(
     predict(fit, type = "quantile", index = 0.5, show_progress = TRUE),
-    "Validating prediction inputs"
+    "\\[predict_mixgpd\\] Validating prediction inputs"
   )
   pred_quiet <- utils::capture.output(
     predict(fit, type = "quantile", index = 0.5, show_progress = FALSE),
     type = "message"
   )
   expect_false(any(grepl("Validating prediction inputs", pred_quiet, fixed = TRUE)))
+})
+
+test_that("causal and cluster runners emit family-labeled progress", {
+  skip_if_not_test_level("ci")
+  skip_if_not_installed("nimble")
+
+  set.seed(223)
+  n <- 24
+  X <- cbind(x1 = stats::rnorm(n), x2 = stats::runif(n))
+  A <- stats::rbinom(n, 1, 0.5)
+  y <- abs(0.3 * X[, 1] + A + stats::rnorm(n)) + 0.1
+  cb <- build_causal_bundle(
+    y = y, X = X, A = A,
+    backend = "sb", kernel = "normal", GPD = FALSE, components = 4,
+    mcmc_outcome = mcmc_fast(seed = 223L),
+    mcmc_ps = mcmc_fast(seed = 224L),
+    PS = "logit"
+  )
+  causal_msgs <- strip_ansi(utils::capture.output(
+    run_mcmc_causal(cb, show_progress = TRUE, quiet = FALSE),
+    type = "message"
+  ))
+  expect_true(any(grepl("[causal] Validating causal MCMC configuration", causal_msgs, fixed = TRUE)))
+  expect_true(any(grepl("[ps] Validating PS MCMC inputs", causal_msgs, fixed = TRUE)))
+  expect_true(any(grepl("[mixgpd] Validating configuration", causal_msgs, fixed = TRUE)))
+
+  dat <- data.frame(
+    y = abs(stats::rnorm(18)) + 0.2,
+    x1 = stats::rnorm(18),
+    x2 = stats::runif(18)
+  )
+  cluster_bundle <- build_cluster_bundle(
+    y ~ x1 + x2,
+    data = dat,
+    kernel = "normal",
+    components = 4,
+    type = "both",
+    GPD = FALSE,
+    mcmc = mcmc_fast(seed = 225L)
+  )
+  cluster_msgs <- strip_ansi(utils::capture.output(
+    run_cluster_mcmc(cluster_bundle, show_progress = TRUE, quiet = FALSE),
+    type = "message"
+  ))
+  expect_true(any(grepl("[cluster] Validating configuration", cluster_msgs, fixed = TRUE)))
 })

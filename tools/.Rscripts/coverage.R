@@ -53,6 +53,41 @@ setwd(here::here())
   invisible(TRUE)
 }
 
+.coverage_excluded_files <- function() {
+  c("1-registry.R", "01-registry.R", "zzz.R")
+}
+
+.coverage_current_r_files <- function(path = ".") {
+  files <- list.files(file.path(path, "R"), pattern = "\\.[Rr]$", full.names = FALSE)
+  unique(c(files, .coverage_excluded_files()))
+}
+
+.coverage_clean_dir <- function(path) {
+  if (dir.exists(path)) unlink(path, recursive = TRUE, force = TRUE)
+  dir.create(path, recursive = TRUE, showWarnings = FALSE)
+  invisible(path)
+}
+
+.coverage_refresh_metadata <- function(path = ".") {
+  if (!file.exists(file.path(path, "DESCRIPTION"))) return(invisible(FALSE))
+  tryCatch({
+    pkgload::load_all(path = path, export_all = FALSE, helpers = FALSE, quiet = TRUE)
+    if (isNamespaceLoaded("CausalMixGPD")) unloadNamespace("CausalMixGPD")
+    TRUE
+  }, error = function(e) FALSE)
+}
+
+.filter_coverage_object <- function(cov, path = ".") {
+  if (is.null(cov) || !inherits(cov, "coverage")) return(cov)
+
+  nm <- names(cov)
+  if (is.null(nm) || !length(nm)) return(cov)
+
+  keep_files <- .coverage_current_r_files(path = path)
+  keep <- sub(":.*$", "", nm) %in% keep_files
+  cov[keep]
+}
+
 .coverage_test_files <- function() {
   env_files <- Sys.getenv("DPMIXGPD_COVERAGE_TEST_FILES", "")
   if (nzchar(env_files)) {
@@ -64,6 +99,7 @@ setwd(here::here())
   c(
     "test-progress.R",
     "test-unit.R",
+    "test-coverage-heavy.R",
     "test-integration.R",
     "test-ci.R",
     "test_cluster_methods.R",
@@ -99,6 +135,7 @@ setwd(here::here())
     'if (length(missing_targets) > 0L) stop("Coverage test file(s) not found: ", paste(missing_targets, collapse = ", "))',
     'Sys.setenv(COVERAGE = "1", DPMIXGPD_CI_COVERAGE_ONLY = "1")',
     'if (!nzchar(Sys.getenv("DPMIXGPD_SKIP_COVR_METHODS_BLOCK"))) Sys.setenv(DPMIXGPD_SKIP_COVR_METHODS_BLOCK = "1")',
+    'if (!nzchar(Sys.getenv("DPMIXGPD_SKIP_COVR_CLUSTER_HELPERS"))) Sys.setenv(DPMIXGPD_SKIP_COVR_CLUSTER_HELPERS = "1")',
     'helper_files <- list.files(pkg_tests, pattern = "^helper.*\\\\.R$", full.names = TRUE)',
     'for (helper in helper_files) try(source(helper, local = .GlobalEnv), silent = TRUE)',
     'setup_file <- file.path(pkg_tests, "setup.R")',
@@ -198,12 +235,7 @@ setwd(here::here())
 
 # Files to exclude entirely from coverage
 .coverage_line_exclusions <- function(path = ".") {
-  files <- c(
-    "R/01-formatting.R",
-    "R/Utility.R",
-    "R/00-kernel-registry.R",
-    "R/globals.R"
-  )
+  files <- file.path("R", .coverage_excluded_files())
   full_paths <- normalizePath(file.path(path, files), winslash = "/", mustWork = FALSE)
   all_paths <- unique(c(files, full_paths))
   stats::setNames(as.list(rep(Inf, length(all_paths))), all_paths)
@@ -298,6 +330,8 @@ calculate_coverage <- function(
     }
     NULL
   })
+
+  cov <- .filter_coverage_object(cov)
 
   if (!quiet && !is.null(cov)) {
     cat("\nCoverage calculation complete.\n")
@@ -399,8 +433,8 @@ coverage_progress <- function(test_level = "ci", quiet = FALSE) {
 coverage_report <- function(
     sources = "tests",
     test_level = "ci",
-    output_dir = "docs/coverage",
-    browse = FALSE
+  output_dir = "docs/coverage",
+  browse = FALSE
 ) {
   .check_coverage_deps()
   resolved <- .resolve_coverage_inputs(sources, test_level)
@@ -409,6 +443,10 @@ coverage_report <- function(
 
   assets_dir <- "covr/assets/"
 
+  .coverage_clean_dir(output_dir)
+  .coverage_clean_dir(assets_dir)
+  .coverage_refresh_metadata()
+
   cat("============================================================\n")
   cat("Building Coverage Report\n")
   cat("============================================================\n")
@@ -416,15 +454,7 @@ coverage_report <- function(
   cat("Test level:", test_level, "\n")
   cat("Output directory:", output_dir, "\n\n")
 
-  # Create output directories
-  if (!dir.exists(output_dir)) {
-    dir.create(output_dir, recursive = TRUE, showWarnings = FALSE)
-    cat("Created directory:", output_dir, "\n")
-  }
-  if (!dir.exists(assets_dir)) {
-    dir.create(assets_dir, recursive = TRUE, showWarnings = FALSE)
-    cat("Created directory:", assets_dir, "\n")
-  }
+  cat("Prepared clean output directories.\n")
 
   # Step 1: Calculate coverage
   cat("\nStep 1/5: Calculating package coverage...\n")
@@ -743,6 +773,7 @@ coverage_upload <- function(
   percent <- stats$percent
   file_stats <- stats$file_stats
   timestamp <- stats$timestamp
+  use_docs_assets <- grepl("(^|[/\\\\])docs([/\\\\]|$)", normalizePath(dirname(html_file), winslash = "/", mustWork = FALSE))
 
   # Badge color
   badge_color <- if (percent >= 80) {
@@ -788,6 +819,71 @@ coverage_upload <- function(
 
   # Sources display
   sources_display <- paste(sources, collapse = ", ")
+
+  if (!use_docs_assets) {
+    html_content <- sprintf('<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coverage - CausalMixGPD</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 2rem; color: #111827; background: #f8fafc; }
+    main { max-width: 1100px; margin: 0 auto; background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(15,23,42,0.08); }
+    table { border-collapse: collapse; width: 100%%; }
+    th, td { padding: 0.6rem 0.75rem; border-bottom: 1px solid #e5e7eb; text-align: left; }
+    th.num, td.num { text-align: right; }
+    code { background: #f3f4f6; padding: 0.1rem 0.35rem; border-radius: 4px; }
+    .good { color: #166534; }
+    .mid { color: #92400e; }
+    .bad { color: #b91c1c; }
+    .actions a { margin-right: 1rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Coverage Report</h1>
+    <p><strong>Generated:</strong> %s</p>
+    <p><strong>Sources:</strong> %s</p>
+    <p><strong>Overall coverage:</strong> %.1f%%</p>
+    <p class="actions">
+      <a href="report.html">Interactive report</a>
+      <a href="coverage_status.json"><code>coverage_status.json</code></a>
+      <a href="unused_functions.md"><code>unused_functions.md</code></a>
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>File</th>
+          <th class="num">Lines</th>
+          <th class="num">Covered</th>
+          <th class="num">Coverage</th>
+        </tr>
+      </thead>
+      <tbody>
+%s
+      </tbody>
+    </table>
+  </main>
+</body>
+</html>',
+      display_time, sources_display, percent,
+      paste(vapply(seq_len(nrow(file_stats)), function(i) {
+        pct <- file_stats$Percent[i]
+        cls <- if (pct >= 80) "good" else if (pct >= 60) "mid" else "bad"
+        sprintf(
+          '        <tr><td><code>%s</code></td><td class="num">%d</td><td class="num">%d</td><td class="num %s"><strong>%.1f%%</strong></td></tr>',
+          gsub("^R/", "", file_stats$File[i]),
+          file_stats$Lines[i],
+          file_stats$Covered[i],
+          cls,
+          pct
+        )
+      }, character(1)), collapse = "\n")
+    )
+    writeLines(html_content, html_file)
+    return(invisible(html_file))
+  }
 
   html_content <- sprintf('<!DOCTYPE html>
 <html lang="en">
@@ -927,7 +1023,8 @@ cat("  coverage_upload(require_token = TRUE)    # Upload (fail if no token)\n")
 # If executed via Rscript (for example through tools/coverage.bat), run the
 # default CI-level tests coverage pipeline automatically.
 args <- commandArgs(trailingOnly = FALSE)
-is_rscript <- any(grepl("--file=", args, fixed = TRUE))
+file_args <- grep("^--file=", args, value = TRUE)
+is_rscript <- any(grepl("coverage\\.R$", sub("^--file=", "", file_args), ignore.case = TRUE))
 if (is_rscript) {
   cat("\nRunning default coverage pipeline (sources='tests', test_level='ci').\n")
   coverage_report(

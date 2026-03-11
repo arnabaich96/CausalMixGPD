@@ -19,6 +19,8 @@ test_that("cluster wrappers fit and predict across type modes", {
       mcmc = mcmc_fast(seed = 10L)
     )
     expect_s3_class(fit, "dpmixgpd_cluster_fit")
+    expect_true(is.list(fit$timing))
+    expect_true(all(c("build", "compile", "mcmc", "cache_hit", "total") %in% names(fit$timing)))
 
     psm <- predict(fit, type = "psm")
     expect_s3_class(psm, "dpmixgpd_cluster_psm")

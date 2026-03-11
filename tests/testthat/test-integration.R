@@ -887,4 +887,221 @@ test_that("sim_survival_tail() different seeds produce different results", {
 
 # ===== END integration/test-simulated-data.R =====
 
+# ===== BEGIN integration/test-cluster-and-causal-coverage.R =====
+test_that("cluster workflows cover fit, predict, and S3 methods from cluster.R", {
+  skip_if_not_test_level("ci")
+  skip_if_not_installed("nimble")
+  skip_if(
+    identical(Sys.getenv("COVERAGE"), "1") &&
+      identical(Sys.getenv("DPMIXGPD_SKIP_COVR_CLUSTER_WORKFLOWS"), "1"),
+    "Skipping cluster workflow coverage block under covr"
+  )
+
+  set.seed(123)
+  dat <- data.frame(
+    y = abs(stats::rnorm(24)) + 0.25,
+    x1 = stats::rnorm(24),
+    x2 = stats::runif(24)
+  )
+
+  for (tp in c("weights", "param", "both")) {
+    fit <- dpmix.cluster(
+      y ~ x1 + x2,
+      data = dat,
+      kernel = "normal",
+      components = 4,
+      type = tp,
+      mcmc = mcmc_fast(seed = 10L)
+    )
+    expect_s3_class(fit, "dpmixgpd_cluster_fit")
+
+    psm <- predict(fit, type = "psm")
+    expect_s3_class(psm, "dpmixgpd_cluster_psm")
+    expect_true(is.matrix(psm$psm))
+    expect_equal(nrow(psm$psm), ncol(psm$psm))
+    expect_equal(unname(diag(psm$psm)), rep(1, nrow(psm$psm)), tolerance = 1e-8)
+
+    lbl_train <- predict(fit, type = "label")
+    expect_s3_class(lbl_train, "dpmixgpd_cluster_labels")
+    expect_equal(length(lbl_train$labels), nrow(dat))
+
+    lbl_scores <- predict(fit, type = "label", return_scores = TRUE)
+    expect_true(is.matrix(lbl_scores$scores))
+    expect_equal(rowSums(lbl_scores$scores), rep(1, nrow(dat)), tolerance = 1e-8)
+
+    nd <- dat[1:6, c("y", "x1", "x2")]
+    lbl_new <- predict(fit, newdata = nd, type = "label", return_scores = TRUE)
+    expect_equal(length(lbl_new$labels), nrow(nd))
+    expect_equal(rowSums(lbl_new$scores), rep(1, nrow(nd)), tolerance = 1e-8)
+
+    expect_output(print(fit), "Cluster fit")
+    expect_silent(summary(fit))
+    expect_silent(plot(fit, which = "psm"))
+    expect_silent(plot(fit, which = "k"))
+    expect_silent(plot(fit, which = "sizes"))
+    expect_output(print(lbl_scores), "Cluster labels")
+    expect_silent(summary(lbl_scores))
+    expect_silent(plot(lbl_scores, type = "sizes"))
+    expect_silent(plot(lbl_scores, type = "certainty"))
+    expect_output(print(psm), "Cluster PSM")
+    expect_silent(summary(psm))
+    expect_silent(plot(psm, psm_max_n = nrow(psm$psm)))
+  }
+})
+
+test_that("cluster helpers cover design parsing and override branches", {
+  skip_if_not_test_level("ci")
+  skip_if(
+    identical(Sys.getenv("COVERAGE"), "1") &&
+      identical(Sys.getenv("DPMIXGPD_SKIP_COVR_CLUSTER_HELPERS"), "1"),
+    "Skipping cluster helper coverage block under covr"
+  )
+
+  set.seed(111)
+  dat <- data.frame(
+    y = abs(stats::rnorm(20)) + 0.2,
+    x1 = stats::rnorm(20),
+    x2 = stats::runif(20)
+  )
+
+  expect_error(
+    dpmix.cluster(y ~ 1, data = dat, kernel = "normal", type = "weights", components = 4, mcmc = mcmc_fast(seed = 1L)),
+    "requires covariates"
+  )
+  expect_error(
+    dpmix.cluster(y ~ x1 + x2, data = dat, kernel = "normal", type = "weights", mcmc = mcmc_fast(seed = 1L)),
+    "explicit 'components'"
+  )
+
+  expect_warning(
+    fit_param <- dpmix.cluster(y ~ 1, data = dat, kernel = "normal", type = "param", mcmc = mcmc_fast(seed = 2L)),
+    "using default components"
+  )
+  expect_error(
+    predict(fit_param, type = "psm", psm_max_n = 10L),
+    "PSM is O\\(n\\^2\\)"
+  )
+
+  b <- build_cluster_bundle(
+    y ~ x1 + x2,
+    data = dat,
+    kernel = "normal",
+    GPD = TRUE,
+    type = "both",
+    components = 4,
+    link = list(
+      bulk = list(mean = "identity"),
+      gpd = list(tail_scale = list(link = "exp"))
+    ),
+    priors = list(
+      bulk = list(sd = list(dist = "gamma", args = list(shape = 2, rate = 1))),
+      gpd = list(
+        tail_shape = list(dist = "normal", args = list(mean = 0, sd = 0.25)),
+        tail_scale = list(dist = "normal", args = list(mean = 0, sd = 0.7))
+      ),
+      concentration = list(dist = "gamma", args = list(shape = 3, rate = 2))
+    ),
+    mcmc = mcmc_fast(seed = 7L)
+  )
+  expect_equal(b$spec$plan$bulk$mean$link, "identity")
+  expect_equal(b$spec$plan$gpd$tail_scale$link, "exp")
+  expect_equal(b$spec$plan$concentration$dist, "gamma")
+
+  fn_beta <- getFromNamespace(".cluster_extract_beta_auto", "CausalMixGPD")
+  draw_row <- c(
+    "beta_tail_scale[1,1]" = 2.0,
+    "beta_tail_scale[1,2]" = -1.0,
+    "beta_tail_scale[2,1]" = 0.5,
+    "beta_tail_scale[2,2]" = 0.25,
+    "beta_tail_scale[1]" = 99.0,
+    "beta_tail_scale[2]" = 98.0
+  )
+  expect_equal(as.numeric(fn_beta(draw_row = draw_row, base = "beta_tail_scale", comp = 1L, P = 2L)), c(2.0, -1.0))
+
+  fn_design <- getFromNamespace(".cluster_build_design", "CausalMixGPD")
+  train <- data.frame(y = c(1, 2, 3), g = factor(c("a", "b", "a")))
+  trm <- stats::terms(y ~ g, data = train)
+  mf <- stats::model.frame(trm, data = train)
+  mm <- stats::model.matrix(stats::delete.response(trm), data = mf)
+  meta <- list(
+    terms = trm,
+    xlevels = stats::.getXlevels(trm, mf),
+    contrasts = attr(mm, "contrasts"),
+    X_cols = setdiff(colnames(mm), "(Intercept)"),
+    response = "y"
+  )
+  nd <- data.frame(y = 1, g = factor("c", levels = c("a", "b", "c")))
+  expect_error(fn_design(meta = meta, newdata = nd), "unseen factor levels")
+})
+
+test_that("causal bundle and fit workflows cover PS and arm-specific branches", {
+  skip_if_not_test_level("ci")
+  skip_if_not_installed("nimble")
+  skip_if(
+    identical(Sys.getenv("COVERAGE"), "1") &&
+      identical(Sys.getenv("DPMIXGPD_SKIP_COVR_CAUSAL_BRANCHES"), "1"),
+    "Skipping causal coverage block under covr"
+  )
+
+  sim <- sim_causal_qte(n = 30, seed = 29)
+  sim$y <- abs(sim$y) + 0.2
+
+  bundle_ps <- build_causal_bundle(
+    y = sim$y,
+    X = as.matrix(sim$X),
+    A = sim$t,
+    backend = c("sb", "crp"),
+    kernel = c("normal", "gamma"),
+    GPD = c(FALSE, TRUE),
+    components = c(3, 4),
+    PS = "logit",
+    mcmc_outcome = mcmc_fast(seed = 29L),
+    mcmc_ps = mcmc_fast(seed = 31L)
+  )
+  expect_s3_class(bundle_ps, "causalmixgpd_causal_bundle")
+  expect_equal(bundle_ps$meta$backend$trt, "sb")
+  expect_equal(bundle_ps$meta$backend$con, "crp")
+
+  bundle_no_ps <- build_causal_bundle(
+    y = sim$y,
+    X = as.matrix(sim$X),
+    A = sim$t,
+    backend = c("sb", "sb"),
+    kernel = c("normal", "normal"),
+    GPD = FALSE,
+    components = c(3, 3),
+    PS = FALSE,
+    mcmc_outcome = mcmc_fast(seed = 33L)
+  )
+  expect_s3_class(bundle_no_ps, "causalmixgpd_causal_bundle")
+
+  fit <- dpmix.causal(
+    x = sim$y,
+    X = as.matrix(sim$X),
+    treat = sim$t,
+    backend = c("sb", "crp"),
+    kernel = c("normal", "gamma"),
+    components = c(3, 3),
+    PS = "logit",
+    mcmc = c(mcmc_fast(seed = 35L), list(show_progress = FALSE))
+  )
+  expect_s3_class(fit, "causalmixgpd_causal_fit")
+  expect_output(print(fit), "CausalMixGPD causal fit")
+  expect_output(summary(fit), "Outcome fits")
+  expect_s3_class(params(fit), "mixgpd_params_pair")
+
+  Xnew <- as.matrix(sim$X[1:4, , drop = FALSE])
+  pred_mean <- predict(fit, x = Xnew, type = "mean", nsim_mean = 20L)
+  pred_quant <- predict(fit, x = Xnew, type = "quantile", p = c(0.25, 0.75))
+  expect_s3_class(pred_mean, "causalmixgpd_causal_predict")
+  expect_s3_class(pred_quant, "causalmixgpd_causal_predict")
+
+  expect_s3_class(cate(fit, newdata = Xnew, nsim_mean = 20L, interval = "credible"), "causalmixgpd_ate")
+  expect_s3_class(cqte(fit, probs = c(0.25, 0.75), newdata = Xnew, interval = "credible"), "causalmixgpd_qte")
+  expect_s3_class(ate(fit, nsim_mean = 20L, interval = "credible"), "causalmixgpd_ate")
+  expect_s3_class(qte(fit, probs = c(0.25, 0.75), interval = "credible"), "causalmixgpd_qte")
+})
+
+# ===== END integration/test-cluster-and-causal-coverage.R =====
+
 

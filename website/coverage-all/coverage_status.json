@@ -1,0 +1,130 @@
+{
+  "percent": 74.55,
+  "timestamp": "2026-03-11T08:50:08Z",
+  "sources": "all",
+  "total_lines": 10279,
+  "covered_lines": 7663,
+  "files": 20,
+  "file_coverage": [
+    {
+      "file": "R/data-datasets.R",
+      "lines": 31,
+      "covered": 31,
+      "percent": 100
+    },
+    {
+      "file": "R/summary.R",
+      "lines": 178,
+      "covered": 165,
+      "percent": 92.7
+    },
+    {
+      "file": "R/helpers.R",
+      "lines": 254,
+      "covered": 233,
+      "percent": 91.7
+    },
+    {
+      "file": "R/causal.R",
+      "lines": 1829,
+      "covered": 1570,
+      "percent": 85.8
+    },
+    {
+      "file": "R/laplace.R",
+      "lines": 133,
+      "covered": 114,
+      "percent": 85.7
+    },
+    {
+      "file": "R/gamma.R",
+      "lines": 122,
+      "covered": 104,
+      "percent": 85.2
+    },
+    {
+      "file": "R/cauchy.R",
+      "lines": 60,
+      "covered": 51,
+      "percent": 85
+    },
+    {
+      "file": "R/lognormal.R",
+      "lines": 125,
+      "covered": 106,
+      "percent": 84.8
+    },
+    {
+      "file": "R/formatting.R",
+      "lines": 117,
+      "covered": 96,
+      "percent": 82.1
+    },
+    {
+      "file": "R/invgauss.R",
+      "lines": 135,
+      "covered": 110,
+      "percent": 81.5
+    },
+    {
+      "file": "R/wrappers.R",
+      "lines": 265,
+      "covered": 216,
+      "percent": 81.5
+    },
+    {
+      "file": "R/compile-spec.R",
+      "lines": 233,
+      "covered": 188,
+      "percent": 80.7
+    },
+    {
+      "file": "R/normal.R",
+      "lines": 133,
+      "covered": 105,
+      "percent": 78.9
+    },
+    {
+      "file": "R/amoroso.R",
+      "lines": 186,
+      "covered": 141,
+      "percent": 75.8
+    },
+    {
+      "file": "R/0-base-distributions.R",
+      "lines": 140,
+      "covered": 106,
+      "percent": 75.7
+    },
+    {
+      "file": "R/cluster.R",
+      "lines": 858,
+      "covered": 648,
+      "percent": 75.5
+    },
+    {
+      "file": "R/internal.R",
+      "lines": 1747,
+      "covered": 1248,
+      "percent": 71.4
+    },
+    {
+      "file": "R/methods.R",
+      "lines": 2581,
+      "covered": 1766,
+      "percent": 68.4
+    },
+    {
+      "file": "R/build-run.R",
+      "lines": 975,
+      "covered": 665,
+      "percent": 68.2
+    },
+    {
+      "file": "R/glue.R",
+      "lines": 177,
+      "covered": 0,
+      "percent": 0
+    }
+  ]
+}
