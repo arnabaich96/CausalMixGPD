@@ -317,18 +317,13 @@ coverage_upload(sources = "all")
 coverage_push()
 ```
 
-### Local pre-push upload
+### Manual upload workflow
 
-Enable the tracked Git hook path once per clone:
+Coverage generation and Codecov upload are manual only. This repository does
+not install a Git hook and does not rely on GitHub Actions to publish coverage.
 
-```bash
-git config core.hooksPath .githooks
-```
-
-After that, each `git push` runs `.githooks/pre-push`, which invokes
-`tools/coverage_push.bat` on Windows (or `Rscript tools/.Rscripts/coverage.R --upload`
-elsewhere). This keeps coverage generation and Codecov upload local and avoids
-GitHub Actions coverage runs entirely.
+When you want to publish a coverage run, call `coverage_upload()` or
+`coverage_push()` explicitly after generating the desired report.
 
 ### Calculate Coverage Only
 

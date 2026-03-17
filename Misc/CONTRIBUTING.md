@@ -41,16 +41,11 @@ Thanks for your interest in contributing! This project is an experimental R pack
 - Prefer explicit, vectorized code over side effects; avoid premature optimization.
 - Keep changes minimal and focused; avoid unrelated refactors.
 
-### Optional pre-commit formatting
+### Optional local formatting
 
-This repo includes a pre-commit hook that runs `styler` on staged `.R` and `.Rmd` files.
-To enable it locally:
-
-```bash
-git config core.hooksPath .githooks
-```
-
-To skip formatting for a commit, set `DPMIXGPD_SKIP_STYLER=1` in your environment.
+If you want automatic formatting before a commit, run `styler` manually on the
+files you changed. This repository does not install or rely on Git hooks for
+formatting.
 
 ## Testing
 
@@ -112,18 +107,10 @@ Coverage reports are generated canonically in `covr/assets/` and mirrored to
 `docs/coverage/` for the published site. The interactive `report.html` also
 includes a generated `lib/` dependency directory in both retained locations.
 
-Coverage is no longer uploaded from GitHub Actions. The expected workflow is
-local:
-
-```bash
-git config core.hooksPath .githooks
-```
-
-With that enabled, each `git push` runs the tracked `.githooks/pre-push` hook,
-which calls `tools/coverage_push.bat` (Windows) to regenerate local coverage
-artifacts and upload the same run to Codecov. Set `CODECOV_TOKEN` locally
-before pushing. To bypass the hook for one push, set
-`DPMIXGPD_SKIP_COVERAGE_PUSH=1`.
+Coverage is a manual workflow only. Git hooks and GitHub Actions do not
+generate or upload coverage automatically. When you want to publish a coverage
+run, set `CODECOV_TOKEN` locally and call `coverage_upload()` or
+`coverage_push()` yourself.
 
 ## Reporting Issues
 

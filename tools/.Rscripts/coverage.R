@@ -685,8 +685,8 @@ coverage_upload <- function(
 #' Generate coverage locally and upload to Codecov
 #'
 #' Runs `coverage_report()` and then uploads the same coverage object with
-#' `coverage_upload()`. This is intended for local developer workflows such as
-#' a Git pre-push hook.
+#' `coverage_upload()`. This is intended for explicit manual developer
+#' workflows when a local report and upload should happen in one step.
 #'
 #' @param sources Character vector specifying coverage sources.
 #'   Default: "tests"
