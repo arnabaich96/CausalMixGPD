@@ -30,5 +30,5 @@ print(fit)
 }
 \seealso{
 \code{\link{summary.mixgpd_fit}}, \code{\link{params}},
-\code{\link{predict.mixgpd_fit}}, \code{\link{allocation}}.
+\code{\link{predict.mixgpd_fit}}.
 }

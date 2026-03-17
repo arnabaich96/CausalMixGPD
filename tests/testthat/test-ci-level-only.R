@@ -687,7 +687,7 @@ test_that("coverage-only suite exercises registries, simulations, and distributi
   expect_true(all(c("time", "status", "x1", "x2") %in% names(sim_surv)))
 })
 
-test_that("coverage-only suite exercises non-causal build, fit, predict, glue, and allocation paths", {
+test_that("coverage-only suite exercises non-causal build, fit, predict, and glue paths", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("nimble")
 
@@ -728,11 +728,6 @@ test_that("coverage-only suite exercises non-causal build, fit, predict, glue, a
   expect_s3_class(pred_c_s, "mixgpd_predict")
   expect_true(is.numeric(residuals(fit_c)))
   expect_true(is.data.frame(fitted(fit_c)))
-
-  alloc <- allocation(fit_c, show_progress = FALSE)
-  expect_s3_class(alloc, "mixgpd_allocation")
-  expect_s3_class(summary(alloc), "summary.mixgpd_allocation")
-  expect_type(plot(alloc, overlay = FALSE), "list")
 
   glue_check <- check_glue_validity(
     fit_c,

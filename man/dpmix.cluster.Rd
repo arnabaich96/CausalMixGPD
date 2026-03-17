@@ -44,7 +44,7 @@ parameters. Depending on \code{type}, predictors can enter through the gating pr
 \Pr(z_i = k \mid x_i) = \pi_k(x_i)
 }
 or through linked kernel parameters for each component. The returned fit stores posterior draws
-of the latent allocations and associated parameters; the representative clustering is extracted
+of the latent cluster labels and associated parameters; the representative clustering is extracted
 later by \code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}} using Dahl's least-squares rule.
 
 Use \code{type = "weights"} or \code{type = "both"} only when the formula includes predictors and when an

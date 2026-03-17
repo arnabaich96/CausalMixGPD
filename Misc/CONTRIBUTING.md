@@ -103,11 +103,27 @@ coverage_report(sources = "all")
 
 # Upload to Codecov (requires CODECOV_TOKEN)
 coverage_upload()
+
+# Generate locally and upload in one step
+coverage_push()
 ```
 
 Coverage reports are generated canonically in `covr/assets/` and mirrored to
 `docs/coverage/` for the published site. The interactive `report.html` also
 includes a generated `lib/` dependency directory in both retained locations.
+
+Coverage is no longer uploaded from GitHub Actions. The expected workflow is
+local:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+With that enabled, each `git push` runs the tracked `.githooks/pre-push` hook,
+which calls `tools/coverage_push.bat` (Windows) to regenerate local coverage
+artifacts and upload the same run to Codecov. Set `CODECOV_TOKEN` locally
+before pushing. To bypass the hook for one push, set
+`DPMIXGPD_SKIP_COVERAGE_PUSH=1`.
 
 ## Reporting Issues
 

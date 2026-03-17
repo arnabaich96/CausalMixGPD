@@ -260,7 +260,7 @@ pred_amoroso <- predict(fit_amoroso, type = "mean", level = 0.9, interval = "cre
 
 ## Key Takeaways
 
-- **CRP Backend**: Flexible component allocation, ideal for unknown mixture complexity
+- **CRP Backend**: Flexible cluster assignment, ideal for unknown mixture complexity
 - **components Parameter**: Higher components allows more components but increases computation
 - **Kernel Choice**: Gamma suitable for positive, skewed data
 - **Diagnostics**: Check convergence (Rhat, ESS) and posterior predictive fit

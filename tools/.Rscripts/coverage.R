@@ -682,6 +682,57 @@ coverage_upload <- function(
 }
 
 # ============================================================================
+# coverage_push: Generate local report and upload in one step
+# ============================================================================
+
+#' Generate coverage locally and upload to Codecov
+#'
+#' Runs `coverage_report()` and then uploads the same coverage object with
+#' `coverage_upload()`. This is intended for local developer workflows such as
+#' a Git pre-push hook.
+#'
+#' @param sources Character vector specifying coverage sources.
+#'   Default: "tests"
+#' @param test_level Test tier: "cran", "ci", or "full". Default: "ci"
+#' @param output_dir Published mirror directory. Default: "docs/coverage"
+#' @param require_token Logical; if TRUE, fail when `CODECOV_TOKEN` is missing.
+#'   Default: TRUE
+#' @param browse Logical; open report in browser? Default: FALSE
+#' @param quiet Logical; suppress upload output? Default: FALSE
+#' @return Invisibly returns TRUE on successful upload, otherwise FALSE
+#'
+#' @examples
+#' \dontrun{
+#' coverage_push()
+#' coverage_push(sources = "all")
+#' }
+coverage_push <- function(
+    sources = "tests",
+    test_level = "ci",
+    output_dir = "docs/coverage",
+    require_token = TRUE,
+    browse = FALSE,
+    quiet = FALSE
+) {
+  cov <- coverage_report(
+    sources = sources,
+    test_level = test_level,
+    output_dir = output_dir,
+    browse = browse
+  )
+
+  ok <- coverage_upload(
+    sources = sources,
+    test_level = test_level,
+    coverage = cov,
+    require_token = require_token,
+    quiet = quiet
+  )
+
+  invisible(ok)
+}
+
+# ============================================================================
 # Internal helper functions
 # ============================================================================
 
@@ -1064,6 +1115,7 @@ cat("  calculate_coverage(sources, test_level)  - Calculate coverage\n")
 cat("  coverage_progress(test_level)            - Test coverage with progress\n")
 cat("  coverage_report(sources, output_dir)     - Build covr/assets and mirror to output_dir\n")
 cat("  coverage_upload(sources, token)          - Upload to Codecov\n")
+cat("  coverage_push(sources, output_dir)       - Build locally and upload to Codecov\n")
 cat("\nDefault sources: tests (CI-level)\n")
 cat("Valid sources: 'tests', 'examples', 'vignettes', 'all'\n\n")
 cat("Examples:\n")
@@ -1073,20 +1125,37 @@ cat("  coverage_report(sources = 'tests')       # Tests only (fastest)\n")
 cat("  coverage_report(sources = 'all')         # All sources\n")
 cat("  coverage_upload()                        # Upload CI-level tests coverage to Codecov\n")
 cat("  coverage_upload(require_token = TRUE)    # Upload (fail if no token)\n")
+cat("  coverage_push()                          # Build locally and upload in one step\n")
 
 # If executed via Rscript (for example through tools/coverage.bat), run the
 # default CI-level tests coverage pipeline automatically.
 args <- commandArgs(trailingOnly = FALSE)
+trailing_args <- commandArgs(trailingOnly = TRUE)
 file_args <- grep("^--file=", args, value = TRUE)
 is_rscript <- any(grepl("coverage\\.R$", sub("^--file=", "", file_args), ignore.case = TRUE))
 if (is_rscript) {
-  cat("\nRunning default coverage pipeline (sources='tests', test_level='ci').\n")
-  coverage_report(
-    sources = "tests",
-    test_level = "ci",
-    output_dir = "docs/coverage",
-    browse = FALSE
-  )
-  cat("\nCoverage report generation finished (local artifacts only).\n")
-  cat("Use coverage_upload() explicitly if you want to push to Codecov.\n")
+  run_upload <- "--upload" %in% trailing_args
+  if (run_upload) {
+    cat("\nRunning local coverage pipeline with Codecov upload (sources='tests', test_level='ci').\n")
+    ok <- coverage_push(
+      sources = "tests",
+      test_level = "ci",
+      output_dir = "docs/coverage",
+      require_token = TRUE,
+      browse = FALSE,
+      quiet = FALSE
+    )
+    if (!isTRUE(ok)) quit(status = 1)
+    cat("\nCoverage report generation and upload finished successfully.\n")
+  } else {
+    cat("\nRunning default coverage pipeline (sources='tests', test_level='ci').\n")
+    coverage_report(
+      sources = "tests",
+      test_level = "ci",
+      output_dir = "docs/coverage",
+      browse = FALSE
+    )
+    cat("\nCoverage report generation finished (local artifacts only).\n")
+    cat("Use coverage_upload() or coverage_push() explicitly if you want to push to Codecov.\n")
+  }
 }

@@ -83,7 +83,7 @@ and summaries, enabling seamless integration of future PS estimation methods.}
 
 \item{monitor}{Character monitor profile: \code{"core"} (default) or \code{"full"}.}
 
-\item{monitor_latent}{Logical; whether to monitor latent allocations (\code{z}) in outcome arms.}
+\item{monitor_latent}{Logical; whether to monitor latent cluster labels (\code{z}) in outcome arms.}
 
 \item{monitor_v}{Logical; whether to monitor stick-breaking \code{v} terms for SB outcomes.}
 }

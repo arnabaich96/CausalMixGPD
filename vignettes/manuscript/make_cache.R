@@ -349,12 +349,12 @@ test_idx <- setdiff(seq_len(n_all), train_idx)
 train_dat <- dat[train_idx, , drop = FALSE]
 test_dat <- dat[test_idx, , drop = FALSE]
 
-fit_clust <- dpmix(
+fit_clust <- dpmix.cluster(
   formula = crim ~ lstat + rm + nox,
   data = train_dat,
-  backend = "crp",
-  kernel = "normal",
-  components = 5,
+  kernel = "lognormal",
+  type = "weight",
+  components = 15,
   mcmc = mcmc_fixed
 )
 track_artifact(save_cache_rds(
@@ -369,22 +369,18 @@ track_artifact(save_cache_rds(
   file.path("fits", "app_cluster_fit.rds")
 ))
 
-cluster_alloc <- allocation(fit_clust)
-train_dat$cluster <- factor(cluster_alloc$labels_train)
+PSM_train <- predict(fit_clust, type = "psm")
+z_train <- predict(fit_clust, type = "label", return_scores = TRUE)
+train_dat$cluster <- factor(z_train$labels)
 track_artifact(save_cache_rds(
-  list(cluster_alloc = cluster_alloc, train_dat = train_dat),
+  list(PSM_train = PSM_train, z_train = z_train, train_dat = train_dat),
   file.path("tables", "app_cluster_psm.rds")
 ))
 
-newdata_cluster <- data.frame(
-  y = test_dat$crim,
-  lstat = test_dat$lstat,
-  rm = test_dat$rm,
-  nox = test_dat$nox
-)
-cluster_alloc_new <- allocation(fit_clust, newdata = newdata_cluster)
-train_cluster_counts <- as.data.frame(table(cluster_alloc_new$labels_train))
-new_cluster_counts <- as.data.frame(table(cluster_alloc_new$labels_new))
+newdata_cluster <- test_dat[, c("crim", "lstat", "rm", "nox"), drop = FALSE]
+z_test <- predict(fit_clust, newdata = newdata_cluster, type = "label", return_scores = TRUE)
+train_cluster_counts <- as.data.frame(table(z_train$labels))
+new_cluster_counts <- as.data.frame(table(z_test$labels))
 names(train_cluster_counts) <- c("cluster", "n_train")
 names(new_cluster_counts) <- c("cluster", "n_new")
 train_cluster_counts$cluster <- as.character(train_cluster_counts$cluster)
@@ -398,15 +394,15 @@ cluster_old_new_counts <- merge(
 )
 cluster_old_new_counts[is.na(cluster_old_new_counts)] <- 0L
 cluster_old_new_counts <- rbind(
-  data.frame(sample = "old", cluster = cluster_old_new_counts$cluster, n = cluster_old_new_counts$n_train),
-  data.frame(sample = "new", cluster = cluster_old_new_counts$cluster, n = cluster_old_new_counts$n_new)
+  data.frame(sample = "train", cluster = cluster_old_new_counts$cluster, n = cluster_old_new_counts$n_train),
+  data.frame(sample = "test", cluster = cluster_old_new_counts$cluster, n = cluster_old_new_counts$n_new)
 )
 cluster_old_new_counts$cluster <- factor(cluster_old_new_counts$cluster, levels = unique(cluster_old_new_counts$cluster))
 
-train_cert <- apply(cluster_alloc_new$probs_train, 1, max)
-new_cert <- apply(cluster_alloc_new$probs_new, 1, max)
+train_cert <- apply(z_train$scores, 1, max)
+new_cert <- apply(z_test$scores, 1, max)
 cluster_certainty <- data.frame(
-  sample = c("old", "new"),
+  sample = c("train", "test"),
   min = c(min(train_cert), min(new_cert)),
   q25 = c(as.numeric(quantile(train_cert, 0.25)), as.numeric(quantile(new_cert, 0.25))),
   median = c(median(train_cert), median(new_cert)),
@@ -416,20 +412,20 @@ cluster_certainty <- data.frame(
 track_artifact(save_cache_rds(
   list(
     newdata_cluster = newdata_cluster,
-    cluster_alloc_new = cluster_alloc_new,
+    z_test = z_test,
     train_cluster_counts = train_cluster_counts,
     new_cluster_counts = new_cluster_counts,
     cluster_old_new_counts = cluster_old_new_counts,
     cluster_certainty = cluster_certainty
   ),
-  file.path("tables", "app_cluster_newdata_allocation.rds")
+  file.path("tables", "app_cluster_newdata_labels.rds")
 ))
 
 track_artifact(write_png(cache_path("figs", "app_cluster_old_new_barplot.png"), {
   p <- ggplot(cluster_old_new_counts, aes(x = cluster, y = n, fill = sample)) +
     geom_col(position = "dodge") +
     labs(
-      title = "Cluster frequencies: old vs new",
+      title = "Cluster frequencies: training vs test",
       x = "Cluster",
       y = "Count",
       fill = "Sample"
@@ -538,11 +534,13 @@ con_tail <- summary(fit$outcome_fit$con, parameter = "tail_shape")$table
 xi_table <- rbind(
   data.frame(
     arm = "treated",
-    trt_tail[trt_tail$parameter == "tail_shape", c("mean", "sd", "q0.025", "q0.500", "q0.975"), drop = FALSE]
+    trt_tail[trt_tail$parameter == "tail_shape", c("mean", "sd", "q0.025", "q0.500", "q0.975"), drop = FALSE],
+    row.names = NULL
   ),
   data.frame(
     arm = "control",
-    con_tail[con_tail$parameter == "tail_shape", c("mean", "sd", "q0.025", "q0.500", "q0.975"), drop = FALSE]
+    con_tail[con_tail$parameter == "tail_shape", c("mean", "sd", "q0.025", "q0.500", "q0.975"), drop = FALSE],
+    row.names = NULL
   )
 )
 track_artifact(save_cache_rds(

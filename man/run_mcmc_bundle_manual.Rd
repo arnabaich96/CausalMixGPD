@@ -29,7 +29,7 @@ Set to FALSE to see progress messages during MCMC setup and execution.}
 \item{timing}{Logical; if TRUE, include stage timings (\code{build}, \code{compile}, \code{mcmc})
 in \code{fit$timing}.}
 
-\item{z_update_every}{Integer >= 1 controlling latent allocation update cadence.}
+\item{z_update_every}{Integer >= 1 controlling latent cluster-label update cadence.}
 }
 \value{
 A fitted object of class \code{"mixgpd_fit"} containing posterior
@@ -48,7 +48,7 @@ well as posterior predictive functionals such as
 
 If \code{parallel_chains = TRUE}, chains are run concurrently when the stored
 MCMC configuration uses more than one chain. If the bundle was built with
-latent allocations monitored, the \code{z_update_every} argument controls how
+latent cluster labels monitored, the \code{z_update_every} argument controls how
 frequently those latent indicators are refreshed during sampling.
 }
 \examples{
@@ -69,6 +69,5 @@ fit
 }
 \seealso{
 \code{\link{build_nimble_bundle}}, \code{\link{mcmc}},
-\code{\link{summary.mixgpd_fit}}, \code{\link{predict.mixgpd_fit}},
-\code{\link{allocation}}.
+\code{\link{summary.mixgpd_fit}}, \code{\link{predict.mixgpd_fit}}.
 }

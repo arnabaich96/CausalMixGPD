@@ -13,6 +13,7 @@ page-layout: full
 - [read_coverage_status() docs](pkgdown/reference/read_coverage_status.html)
 
 The tracked coverage artifacts live in `covr/assets/` and are mirrored to `docs/coverage/` for the published site.
+Codecov uploads are expected to run locally before `git push`; the repository no longer relies on GitHub Actions for coverage uploads.
 
 ## Related developer pages
 

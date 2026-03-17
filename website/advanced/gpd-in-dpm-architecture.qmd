@@ -27,7 +27,7 @@ The goal here is to show how to write that model directly in `nimbleCode{}` for 
 
 Let \(y_1,\dots,y_N\) be observations. Under a CRP DPM:
 
-- Cluster allocations follow a Chinese restaurant process:
+- Latent cluster labels follow a Chinese restaurant process:
   \[
     z[1{:}N] \sim \mathrm{CRP}(\alpha),
   \]
@@ -35,13 +35,13 @@ Let \(y_1,\dots,y_N\) be observations. Under a CRP DPM:
 
 - Each cluster \(k\) has a *scalar* atom \(\theta_k\). The atom is the only cluster-specific kernel parameter; all other kernel parameters are fixed or global.
 
-- Conditional on allocation, the observation likelihood uses a **GPD-spliced kernel distribution** exported by the package. For a positive-support outcome, a convenient choice is Gamma+GPD:
+- Conditional on the latent cluster label, the observation likelihood uses a **GPD-spliced kernel distribution** exported by the package. For a positive-support outcome, a convenient choice is Gamma+GPD:
   \[
     y_i \mid z_i=k \sim \mathrm{GammaGpd}(\text{shape}=a,\ \text{scale}=\theta_k,\ u,\ \sigma_{\text{tail}},\ \xi),
   \]
   where the Gamma is used below the threshold \(u\), and exceedances use the GPD tail via `dGpd` inside `dGammaGpd`.
 
-This construction is "GPD-in-DPM" in the sense that the **tail is part of the per-observation distribution** (not a separate post-processing step), while the mixture is induced by the CRP allocations.
+This construction is "GPD-in-DPM" in the sense that the **tail is part of the per-observation distribution** (not a separate post-processing step), while the mixture is induced by the CRP cluster labels.
 
 # A concrete working template (Gamma bulk, scalar scale atom)
 

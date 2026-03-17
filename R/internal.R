@@ -2824,7 +2824,7 @@ stop(sprintf("Unsupported prediction type '%s'.", type), call. = FALSE)
 
 
 # ==============================================================================
-# Internal helpers for cluster allocation (PSM, Dahl's method)
+# Internal helpers for cluster-label summaries (PSM, Dahl's method)
 # ==============================================================================
 
 #' Extract cluster assignment matrix from MCMC samples

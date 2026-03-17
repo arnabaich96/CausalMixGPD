@@ -1,0 +1,29 @@
+#!/usr/bin/env sh
+set -eu
+
+if [ "${DPMIXGPD_SKIP_COVERAGE_PUSH:-0}" = "1" ]; then
+  echo "Skipping local coverage upload because DPMIXGPD_SKIP_COVERAGE_PUSH=1."
+  exit 0
+fi
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
+
+tracked_root_manuscript_artifacts="$(git ls-files -- 'CausalMixGPD_JSS_article*' 'figure/*')"
+if [ -n "$tracked_root_manuscript_artifacts" ]; then
+  echo "Refusing push: root-level manuscript artifacts are tracked."
+  echo "$tracked_root_manuscript_artifacts"
+  echo "Use vignettes/manuscript/ for manuscript outputs instead."
+  exit 2
+fi
+
+echo "Running local coverage generation and Codecov upload before push..."
+
+if command -v cmd.exe >/dev/null 2>&1; then
+  cmd.exe //c "tools\\coverage_push.bat"
+elif command -v Rscript >/dev/null 2>&1; then
+  Rscript "tools/.Rscripts/coverage.R" --upload
+else
+  echo "Could not find cmd.exe or Rscript in PATH."
+  exit 3
+fi

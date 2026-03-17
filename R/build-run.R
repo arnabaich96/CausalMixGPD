@@ -53,7 +53,7 @@
 #'   weights >= epsilon, then renormalize.
 #' @param alpha_random Logical; whether the DP concentration parameter \eqn{\kappa} is stochastic.
 #' @param monitor Character monitor profile: \code{"core"} (default) or \code{"full"}.
-#' @param monitor_latent Logical; if TRUE, include latent allocations (\code{z}) in monitors.
+#' @param monitor_latent Logical; if TRUE, include latent cluster labels (\code{z}) in monitors.
 #' @param monitor_v Logical; if TRUE and backend is SB, include stick breaks (\code{v}) in monitors.
 #' @return A named list of class \code{"causalmixgpd_bundle"}. Its primary
 #'   components are \code{spec}, \code{code}, \code{constants},
@@ -296,7 +296,7 @@ build_data_from_inputs <- function(y, X = NULL, ps = NULL) {
 #'
 #' @param spec A compiled model specification produced by \code{compile_model_spec()}.
 #' @param monitor_v Logical; for SB, whether to also monitor stick breaks \code{v}.
-#' @param monitor_latent Logical; whether to monitor latent allocations \code{z}.
+#' @param monitor_latent Logical; whether to monitor latent cluster labels \code{z}.
 #' @return Character vector of node names to monitor.
 #' @keywords internal
 #' @noRd
@@ -2312,7 +2312,7 @@ build_prior_table_from_spec <- function(spec) {
 #'
 #' If \code{parallel_chains = TRUE}, chains are run concurrently when the stored
 #' MCMC configuration uses more than one chain. If the bundle was built with
-#' latent allocations monitored, the \code{z_update_every} argument controls how
+#' latent cluster labels monitored, the \code{z_update_every} argument controls how
 #' frequently those latent indicators are refreshed during sampling.
 #'
 #' @param bundle A \code{causalmixgpd_bundle} from \code{build_nimble_bundle()}.
@@ -2323,12 +2323,11 @@ build_prior_table_from_spec <- function(spec) {
 #' @param workers Optional integer number of workers for parallel execution.
 #' @param timing Logical; if TRUE, include stage timings (\code{build}, \code{compile}, \code{mcmc})
 #'   in \code{fit$timing}.
-#' @param z_update_every Integer >= 1 controlling latent allocation update cadence.
+#' @param z_update_every Integer >= 1 controlling latent cluster-label update cadence.
 #' @return A fitted object of class \code{"mixgpd_fit"} containing posterior
 #'   draws, model metadata, and cached objects used by downstream S3 methods.
 #' @seealso \code{\link{build_nimble_bundle}}, \code{\link{mcmc}},
-#'   \code{\link{summary.mixgpd_fit}}, \code{\link{predict.mixgpd_fit}},
-#'   \code{\link{allocation}}.
+#'   \code{\link{summary.mixgpd_fit}}, \code{\link{predict.mixgpd_fit}}.
 #' @examples
 #' \dontrun{
 #' library(nimble)

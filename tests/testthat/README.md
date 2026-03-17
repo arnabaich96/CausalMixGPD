@@ -300,7 +300,7 @@ This creates:
 - `lib/` support directories in both retained locations so `report.html` stays functional
 - When run via `Rscript tools/.Rscripts/coverage.R` (or `tools/coverage.bat`), it
   generates local coverage artifacts only (no automatic Codecov upload).
-- To upload to Codecov manually, call `coverage_upload()`.
+- To upload to Codecov manually, call `coverage_upload()` or `coverage_push()`.
 
 ### Upload to Codecov
 
@@ -312,7 +312,23 @@ coverage_upload()
 
 # Upload with specific sources
 coverage_upload(sources = "all")
+
+# Generate local artifacts and upload the same run
+coverage_push()
 ```
+
+### Local pre-push upload
+
+Enable the tracked Git hook path once per clone:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+After that, each `git push` runs `.githooks/pre-push`, which invokes
+`tools/coverage_push.bat` on Windows (or `Rscript tools/.Rscripts/coverage.R --upload`
+elsewhere). This keeps coverage generation and Codecov upload local and avoids
+GitHub Actions coverage runs entirely.
 
 ### Calculate Coverage Only
 

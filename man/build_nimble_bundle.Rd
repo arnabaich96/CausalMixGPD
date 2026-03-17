@@ -53,7 +53,7 @@ weights >= epsilon, then renormalize.}
 
 \item{monitor}{Character monitor profile: \code{"core"} (default) or \code{"full"}.}
 
-\item{monitor_latent}{Logical; if TRUE, include latent allocations (\code{z}) in monitors.}
+\item{monitor_latent}{Logical; if TRUE, include latent cluster labels (\code{z}) in monitors.}
 
 \item{monitor_v}{Logical; if TRUE and backend is SB, include stick breaks (\code{v}) in monitors.}
 }

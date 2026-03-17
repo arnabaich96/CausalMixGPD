@@ -148,7 +148,7 @@ on DP ideas. For example,
 \href{https://cran.r-project.org/package=dirichletprocess}{\textsf{dirichletprocess}}
 provides a flexible interface for specifying DPMs and
 fitting them by posterior simulation, yielding posterior inference for
-mixture weights, component allocations, and predictive densities under
+mixture weights, component labels, and predictive densities under
 user-chosen kernels \citep{dirichletprocess_pkg}. The package
 \href{https://cran.r-project.org/package=DPpackage}{\textsf{DPpackage}}
 offers a broad suite of Bayesian semi- and nonparametric models in
@@ -286,7 +286,7 @@ predictive scheme (often described via the Chinese restaurant process)
 \frac{1}{\kappa+n}\sum_{m=1}^{n}\delta_{\theta_m}(\cdot).
 \label{eq:crp}
 \end{equation} Both stick-breaking (blocked/truncated) and
-allocation-based representations are widely used for posterior
+latent-cluster-label representations are widely used for posterior
 simulation in DPM models \citep{EscobarWest1995,Neal2000}.  DPM modeling is flexible, it works without specifying
 the number of mixture components, and can capture complex distributional features such as
 multimodality, skewness, and heteroscedasticity by choosing an appropriate kernel family.
@@ -505,7 +505,7 @@ f(y\mid x) \;=\; \int k\!\left(y\mid x,\theta\right)\, dG_x(\theta),
 \end{equation}
 where $k(\cdot\mid x,\theta)$ is a kernel and $G_x$ is a predictor-indexed mixing measure.
 When $G_x$ is discrete (as under stick-breaking constructions), latent parameters exhibit ties,
-inducing a random partition of observations. Introduce allocation variables $z_i$ and component
+inducing a random partition of observations. Introduce latent cluster-label variables $z_i$ and component
 parameters $\{\theta_j\}_{j\ge1}$ such that
 \begin{equation}
 y_i \mid z_i,\{\theta_j\},x_i \sim k\!\left(\,\cdot \mid x_i,\theta_{z_i}\right).
@@ -810,7 +810,7 @@ truncation-level weights are generated through Beta stick breaks
 (Section~\ref{sec:prelim}, \eqref{eq:sb}), which are represented in
 \pkg{nimble} using the Beta distribution in model code (see
 \code{dbeta}). Under the CRP backend, the
-allocation-based representation is implemented using the CRP
+latent-cluster-label representation is implemented using the CRP
 distribution in \pkg{nimble} (see \code{dCRP}), matching the predictive
 representation in \eqref{eq:crp}. Kernel parameters and tail parameters
 are assigned weakly informative priors, with regression coefficients
@@ -830,7 +830,7 @@ implied by the SB or CRP representation (Section~\ref{sec:prelim},
 \pkg{CausalMixGPD} runs MCMC through \pkg{nimble}
 \citep{devalpine2017nimble,nimble_pkg} under the chosen backend; SB uses
 Beta stick breaks in model code (see \code{dbeta}) and CRP uses the CRP
-distribution for allocations (see \code{dCRP}). Users control the number
+distribution for latent cluster labels (see \code{dCRP}). Users control the number
 of iterations, burn-in, thinning, and number of chains through the
 \code{mcmc} argument in the wrappers.
 
@@ -955,13 +955,13 @@ user-controlled $M$ through \code{nsim\_mean}.
 \label{subsec:cluster_extension}
 
 The mixture modeling framework introduced earlier induces a latent partition
-of the observations through the allocation variables $z_i$. While the primary
+of the observations through the latent cluster labels $z_i$. While the primary
 modeling workflow of the package focuses on estimating conditional densities
 and causal functionals, the clustering extension instead treats this latent
 partition as the main object of interest. The package therefore provides a
 dedicated clustering interface that fits the same mixture models but returns
-clustering summaries derived from the posterior distribution of the allocation
-variables.
+clustering summaries derived from the posterior distribution of the latent
+cluster labels.
 
 The clustering workflow mirrors the design used throughout the package.
 Users specify the response variable, optional covariates, the mixture kernel,
@@ -993,9 +993,9 @@ distributional behavior.
 
 Posterior inference for clustering models uses the same sampling procedure as
 the main mixture models, jointly updating the component parameters and the
-allocation variables. Let
+latent cluster labels. Let
 $z^{(s)}=\bigl(z_1^{(s)},\ldots,z_n^{(s)}\bigr)$, $s=1,\ldots,S$, denote the
-retained MCMC draws of the latent allocation vector after burn-in and thinning.
+retained MCMC draws of the latent cluster-label vector after burn-in and thinning.
 Because mixture components are only identified up to label permutation,
 \texttt{CausalMixGPD} reports label-invariant clustering summaries based on
 pairwise co-clustering probabilities and a representative partition
@@ -1046,7 +1046,7 @@ and the normalized training score is
   \frac{q_{ik}}{\sum_{h=1}^K q_{ih}}.
 \]
 The hard representative label is $\arg\max_{1 \le k \le K} p_{ik}$, while a
-simple allocation-certainty summary is $\max_{1 \le k \le K} p_{ik}$.
+simple cluster-certainty summary is $\max_{1 \le k \le K} p_{ik}$.
 
 For a new observation $(y_i^{\mathrm{new}}, x_i^{\mathrm{new}})$, the package
 first forms within-draw component scores
@@ -1088,9 +1088,6 @@ sets included with the package.
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{library}\hldef{(CausalMixGPD)}
-
-\hlkwd{data}\hldef{(}\hlsng{"nc_real200_k2"}\hldef{,} \hlkwc{package} \hldef{=} \hlsng{"CausalMixGPD"}\hldef{)}
 \hlkwd{data}\hldef{(}\hlsng{"nc_realX100_p3_k2"}\hldef{,} \hlkwc{package} \hldef{=} \hlsng{"CausalMixGPD"}\hldef{)}
 
 \hldef{dat_cl} \hlkwb{<-} \hlkwd{data.frame}\hldef{(}\hlkwc{y} \hldef{= nc_realX100_p3_k2}\hlopt{$}\hldef{y, nc_realX100_p3_k2}\hlopt{$}\hldef{X)}
@@ -1244,7 +1241,7 @@ $$ with defaults controlled by \texttt{ps\_prior}.
 
 For each arm's outcome model, priors follow the same structure as the
 one-arm case: a DPM prior (with either truncated stick-breaking
-or CRP allocation, implemented in \texttt{nimble}
+or a CRP latent-cluster-label representation, implemented in \texttt{nimble}
 \citep{devalpine2017nimble,nimble_pkg}) and kernel-/tail-specific priors
 on the bulk and GPD parameters. Since the causal fit is simply a pair of
 one-arm fits (treated and control), all customization options for
@@ -1392,17 +1389,7 @@ wrapper, fitting the augmented spliced model by default.
 
 
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-CausalMixGPD causal fit
-PS model: Bayesian logit (A | X) 
-Outcome (treated): backend = sb | kernel = lognormal 
-Outcome (control): backend = sb | kernel = lognormal 
-GPD tail (treated/control): TRUE / TRUE 
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
+
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -1412,14 +1399,7 @@ GPD tail (treated/control): TRUE / TRUE
 \end{kframe}
 \end{knitrout}
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-  id estimate     lower    upper
-1  1 133.6313 0.5208869 789.4111
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
+
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -1429,16 +1409,7 @@ GPD tail (treated/control): TRUE / TRUE
 \end{kframe}
 \end{knitrout}
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-  id index  estimate       lower     upper
-1  1  0.50 -0.230319 -0.72616380 0.2434466
-2  1  0.90  1.581025  0.04824207 2.8446616
-3  1  0.95  3.424051 -1.11525657 7.0265043
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
+
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -1456,17 +1427,7 @@ GPD tail (treated/control): TRUE / TRUE
 \end{kframe}
 \end{knitrout}
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-  id    estimate      lower    upper
-1  1  0.15628140 -0.8192142 1.208809
-2  2 -0.01701753 -1.8635060 2.979435
-3  3  0.80363038 -0.2959428 2.721403
-4  4 -0.19121860 -1.7339494 2.143942
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
+
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -1476,17 +1437,7 @@ GPD tail (treated/control): TRUE / TRUE
 \end{kframe}
 \end{knitrout}
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-  id index    estimate      lower     upper
-1  1   0.5  0.09848583 -0.3263803 0.5465127
-2  1   0.9  0.14929438 -0.9261457 1.4969607
-3  2   0.5 -0.03731305 -0.4291908 0.3870325
-4  2   0.9 -0.14538125 -1.8493190 2.0484655
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
+
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -1505,13 +1456,7 @@ GPD tail (treated/control): TRUE / TRUE
 \end{kframe}
 \end{knitrout}
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-data frame with 0 columns and 0 rows
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
+
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -1521,13 +1466,7 @@ data frame with 0 columns and 0 rows
 \end{kframe}
 \end{knitrout}
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-data frame with 0 columns and 0 rows
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
+
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -1538,22 +1477,7 @@ data frame with 0 columns and 0 rows
 \end{kframe}
 \end{knitrout}
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-  id index  estimate     lower     upper
-1  1   0.5 1.0871813 0.5465243 2.3651155
-2  1   0.9 3.1515644 1.7912098 4.8641579
-3  2   0.5 0.4514065 0.2045529 0.8192195
-4  2   0.9 1.6172941 0.9007377 2.9213755
-  id index  estimate     lower     upper
-1  1   0.5 1.5998935 0.9799795 2.0270002
-2  1   0.9 3.5348458 2.9220149 4.3121050
-3  2   0.5 0.4242338 0.2666140 0.7774886
-4  2   0.9 1.4014587 0.9884698 2.2199421
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
+
 
 \subsubsection{Bulk-only causal mixtures (no GPD tail)}
 
@@ -1563,7 +1487,7 @@ construction). All causal estimand and prediction functions
 (\texttt{ate}, \texttt{qte}, \texttt{cate}, \texttt{cqte}, and
 \texttt{predict}) operate the same way, now interpreting
 $F_a(\cdot\mid\boldsymbol{x})$ as the bulk mixture distribution.
-\section{Data analysis I: clustering under a bulk-only conditional mixture}
+\section{Data analysis I: Clustering}
 \label{sec:app-clustering}
 
 This application demonstrates the clustering wing for a conditional mixture
@@ -1596,7 +1520,6 @@ using training-set moments to avoid leakage.
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{library}\hldef{(CausalMixGPD)}
 \hlkwd{library}\hldef{(MASS)}
 
 \hlkwd{set.seed}\hldef{(}\hlnum{123}\hldef{)}
@@ -1651,7 +1574,7 @@ probabilities (PSM) and a representative partition.
   \hlkwc{data}       \hldef{= train_dat,}
   \hlkwc{kernel}     \hldef{=} \hlsng{"lognormal"}\hldef{,}
   \hlkwc{type}       \hldef{=} \hlsng{"weight"}\hldef{,}
-  \hlkwc{components} \hldef{=} \hlnum{20}\hldef{,}
+  \hlkwc{components} \hldef{=} \hlnum{15}\hldef{,}
   \hlkwc{mcmc}       \hldef{= mcmc_fixed}
 \hldef{)}
 \end{alltt}
@@ -1690,13 +1613,13 @@ representative partition (Table~\ref{tab:cluster-train-alloc}).
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{table}
 
-\caption{\label{tab:app_cluster_train_sizes-results}Training cluster allocation (counts) \label{tab:cluster-train-alloc}}
+\caption{\label{tab:app_cluster_train_sizes-results}Training cluster sizes (counts) \label{tab:cluster-train-alloc}}
 \centering
-\begin{tabular}[t]{l|r|r|r|r|r|r|r|r|r|r|r|r|r}
+\begin{tabular}[t]{l|r|r|r|r|r|r|r|r|r|r|r}
 \hline
-sample & C1 & C2 & C3 & C4 & C5 & C6 & C7 & C8 & C9 & C10 & C11 & C12 & C13\\
+sample & C1 & C2 & C3 & C4 & C5 & C6 & C7 & C8 & C9 & C10 & C11\\
 \hline
-train & 46 & 156 & 122 & 23 & 11 & 4 & 2 & 1 & 2 & 5 & 4 & 2 & 1\\
+train & 28 & 56 & 163 & 4 & 113 & 3 & 2 & 1 & 6 & 1 & 2\\
 \hline
 \end{tabular}
 \end{table}
@@ -1724,13 +1647,6 @@ together across posterior draws, as shown in Figure~\ref{fig:cluster-psm-train},
 
 \end{knitrout}
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-PSM dimension: 379 x 379
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
 
 \subsection{Cluster labels for new observations}
 
@@ -1758,32 +1674,17 @@ and \ref{tab:app_cluster_old_new_test-results}).
 
 
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{table}
-
-\caption{\label{tab:app_cluster_old_new_train-results}Train allocation (horizontal)}
-\centering
-\begin{tabular}[t]{l|r|r|r|r|r|r|r|r|r|r|r|r|r}
-\hline
-sample & C1 & C2 & C3 & C4 & C5 & C6 & C7 & C8 & C9 & C10 & C11 & C12 & C13\\
-\hline
-train & 46 & 156 & 122 & 23 & 11 & 4 & 2 & 1 & 2 & 5 & 4 & 2 & 1\\
-\hline
-\end{tabular}
-\end{table}
-
-\end{knitrout}
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{table}
 
-\caption{\label{tab:app_cluster_old_new_test-results}Test allocation (horizontal)}
+\caption{\label{tab:app_cluster_old_new_test-results}Test cluster sizes}
 \centering
-\begin{tabular}[t]{l|r|r|r|r|r}
+\begin{tabular}[t]{l|r|r|r|r}
 \hline
-sample & C1 & C2 & C3 & C4 & C5\\
+sample & C1 & C2 & C3 & C5\\
 \hline
-test & 18 & 61 & 36 & 10 & 2\\
+test & 13 & 23 & 61 & 30\\
 \hline
 \end{tabular}
 \end{table}
@@ -1818,13 +1719,6 @@ Figure~\ref{fig:cluster-old-new-barplot}, captioned ``Cluster frequencies in tra
 
 \end{knitrout}
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-Bar plot rendered above.
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
 
 This analysis illustrates the intended clustering workflow: inference is
 summarized through co-clustering probabilities and a representative training
@@ -1835,7 +1729,7 @@ latent partitions.
 
 
 
-\section{Data analysis II: Spliced causal mixture regression with ATE, QTE, CATE and CQTE}
+I\section{Data analysis II: Causal Inference}
 \label{sec:app-causal}
 
 This application demonstrates causal estimands from a two-arm spliced
@@ -1914,17 +1808,7 @@ substantive analysis we recommend longer runs and sensitivity checks
 \end{kframe}
 \end{knitrout}
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-     metric value
-1         n   500
-2         p     3
-3 n_treated   309
-4 n_control   191
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
+
 
 \subsection{Standardized estimands: ATE and QTE}
 
@@ -1981,15 +1865,6 @@ including upper-tail levels.
 \end{kframe}
 \end{knitrout}
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{qte_effect_plot} \hlkwb{<-} \hlkwd{plot}\hldef{(qte_fit,} \hlkwc{type} \hldef{=} \hlsng{"effect"}\hldef{)}
-\hldef{qte_effect_plot}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-
 \begin{figure}[H]\centering
 
 
@@ -2001,6 +1876,15 @@ including upper-tail levels.
 \caption{Posterior ATE effect summary for the spliced causal model.\label{fig:app2-ate-effect}}
 \end{figure}
 
+
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{qte_effect_plot} \hlkwb{<-} \hlkwd{plot}\hldef{(qte_fit,} \hlkwc{type} \hldef{=} \hlsng{"effect"}\hldef{)}
+\hldef{qte_effect_plot}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
 
 \begin{figure}[H]\centering
 
@@ -2089,6 +1973,8 @@ high_prev_earn 0.79678466 -0.09628321 0.01209002
 2  1  0.50 -0.2653653 -0.4044642 -0.07230213
 3  1  0.75 -0.2282270 -0.4720426  0.05270702
 4  1  0.90 -0.1783537 -0.8925062  0.33589134
+5  1  0.95 -0.1166213 -1.2130864  0.59538829
+6  1  0.99 -0.6052849 -3.2226522  0.81979673
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -2106,12 +1992,9 @@ tail and greater propensity for extreme earnings.
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{verbatim}
-        arm      mean         sd    q0.025    q0.500
-23  treated 0.5830602 0.04488664 0.4780895 0.5805598
-231 control 0.3667860 0.11154470 0.1951404 0.4457394
-       q0.975
-23  0.6883067
-231 0.4635703
+     arm      mean         sd    q0.025    q0.500    q0.975
+ treated 0.5830602 0.04488664 0.4780895 0.5805598 0.6883067
+ control 0.3667860 0.11154470 0.1951404 0.4457394 0.4635703
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -2130,8 +2013,140 @@ behavior beyond what is captured by bulk-only regression.
 \section{Discussion}
 \label{sec:discussion}
 
+\pkg{CausalMixGPD} was designed to connect three tasks that are often
+handled with separate tools: flexible modeling of the central part of a
+response distribution, principled extrapolation of upper-tail behavior,
+and causal comparison of complete outcome distributions. The package
+does this by keeping the bulk model nonparametric, introducing
+generalized Pareto structure only where tail extrapolation is needed,
+and exposing posterior summaries through a common workflow. In
+particular, the same fitted object can support unconditional or
+conditional density estimation, tail-aware prediction, clustering
+summaries, and causal effect estimation based on treatment-specific
+predictive distributions.
+
+A practical advantage of this strategy is that inference is organized
+around the posterior predictive distribution rather than around a single
+summary such as the mean. Once a model is fitted, densities, survival
+curves, quantiles, means, restricted means, and tail summaries are all
+derived from the same posterior object. In the causal setting, this is
+especially useful because it allows average effects, quantile treatment
+effects, and tail contrasts to be reported within a single coherent
+model rather than through disconnected estimators. Modeling the full
+distribution also helps avoid internally inconsistent summaries,
+including quantile-crossing issues that can arise when separate
+quantiles are estimated independently across probability levels.
+
+The article emphasized the main semiparametric construction, but the
+software contribution is intentionally broader. The package supports
+both stick-breaking and Chinese restaurant process representations,
+multiple kernel families for real-line and positive-support outcomes,
+optional GPD splicing, arm-specific modeling choices in causal analyses,
+and a clustering workflow based on posterior co-clustering
+probabilities. This breadth is useful in applications where the same
+dataset motivates more than one inferential target: exploratory density
+estimation, subgroup discovery, prediction at extreme quantiles, and
+distributional treatment-effect reporting can all be pursued without
+switching to unrelated software.
+
+These strengths should be weighed against several limitations. First,
+the methodology is computationally intensive. Posterior simulation
+through \pkg{nimble} is flexible and transparent, but MCMC for mixture
+models with covariate-dependent parameters and optional tail components
+can be expensive, especially when multiple chains are used or when the
+causal extension fits separate arm-specific outcome models in addition
+to a propensity score stage. As sample size, covariate dimension, or
+the truncation level increases, routine sensitivity analysis and model
+comparison become more costly.
+
+Second, the spliced model inherits the main tuning decisions of both
+Dirichlet process mixtures and peaks-over-threshold modeling. Results
+may depend on the kernel family, truncation level, prior specification,
+and the threshold/tail parameterization. EVT provides asymptotic support
+for GPD modeling above high thresholds, but finite-sample tail
+estimation still depends on having enough exceedances to identify tail
+parameters well. For this reason, tail summaries should be interpreted
+alongside posterior predictive checks, sensitivity analyses, and
+substantive knowledge about the outcome scale rather than as automatic
+black-box outputs.
+
+Third, the current causal implementation is deliberately focused. It is
+built for binary treatments and continuous outcomes under standard
+identification assumptions such as consistency, ignorability, and
+overlap. Propensity score augmentation can improve adjustment in
+observational studies, but it does not replace careful design,
+diagnostics for limited overlap, or sensitivity analysis to unmeasured
+confounding. Likewise, the present implementation is not yet a
+dedicated framework for censored survival outcomes, multivariate
+responses, longitudinal treatment regimes, or interference between
+units.
+
+These limitations point to several concrete directions for future work.
+Methodologically, more data-adaptive threshold selection, richer tail
+regression structures, and faster approximate posterior computation
+could improve robustness and scalability. On the causal side, extensions
+to multivalued or continuous treatments, stronger overlap diagnostics,
+and doubly robust distributional estimands would broaden the range of
+applications. From a software perspective, the registry-based package
+architecture makes it natural to add new kernels, tail components, and
+developer-facing extensions. We therefore view \pkg{CausalMixGPD} not
+only as an applied package for tail-aware density estimation and causal
+inference, but also as a foundation for further work on Bayesian
+distributional modeling in \textsf{R}.
+
+
+
 \section{Supplementary Materials}
 \label{sec:supplementary}
+
+The package distribution includes supplementary software resources that
+extend the material presented in the main article.
+
+\begin{itemize}
+\item \textbf{Extended workflow documentation:} In addition to the
+  manuscript vignette, the project documentation provides guided pages
+  for first-time setup, model compilation, backend selection,
+  troubleshooting, and task-oriented examples covering unconditional,
+  conditional, clustering, and causal analyses.
+\item \textbf{Broader user-facing API:} The exported interface includes
+  high-level wrappers such as \code{bundle()}, \code{dpmix()},
+  \code{dpmgpd()}, \code{dpmix.causal()}, \code{dpmgpd.causal()}, and
+  their clustering counterparts, along with S3 methods for
+  \code{summary()}, \code{plot()}, \code{predict()},
+  \code{fitted()}, \code{residuals()}, \code{params()}, and
+  \code{ess\_summary()}, plus cluster-label and PSM summaries through
+  the dedicated clustering workflow.
+\item \textbf{Kernel and backend coverage:} Beyond the examples shown in
+  the article, the package currently supports normal, lognormal, gamma,
+  inverse Gaussian, Laplace, Cauchy, and Amoroso kernel families. Most
+  of these can also be paired with the optional GPD tail, and the
+  available combinations are summarized by helper functions such as
+  \code{kernel\_support\_table()}, \code{get\_kernel\_registry()}, and
+  \code{get\_tail\_registry()}. Both CRP and SB representations are
+  available, and causal models may use different backends or kernels
+  across treatment arms.
+\item \textbf{Low-level distribution utilities:} For validation,
+  teaching, and custom experimentation, the package exports
+  \code{d/p/q/r} functions for the implemented base kernels, their bulk
+  mixtures, the generalized Pareto tail, and the corresponding spliced
+  mixture--tail distributions.
+\item \textbf{Additional causal and clustering summaries:} Beyond the
+  estimands highlighted in the article, the software includes helpers
+  for ATE, ATT, restricted-mean contrasts, CATE, QTE, QTT, and CQTE, as
+  well as posterior similarity matrices, representative partitions, and
+  label prediction for new observations in the clustering workflow.
+\item \textbf{Data and simulation resources:} The package ships with
+  multiple synthetic datasets spanning real-line and positive-support
+  settings, with and without covariates, together with simulation
+  helpers such as \code{sim\_bulk\_tail()},
+  \code{sim\_causal\_qte()}, and \code{sim\_survival\_tail()} for
+  reproducible examples and testing.
+\item \textbf{Developer and reproducibility materials:} The repository
+  also includes developer-oriented documentation on architecture,
+  registry-based kernel extension, testing, site generation, and code
+  coverage, together with manuscript rendering scripts and cached
+  artifacts used to reproduce the article and website examples.
+\end{itemize}
 
 \bibliography{CausalMixGPD_JSS_refs}
 

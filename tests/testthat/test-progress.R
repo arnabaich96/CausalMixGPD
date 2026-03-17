@@ -33,7 +33,6 @@ test_that("long-running APIs expose progress controls in formals", {
   expect_true("show_progress" %in% names(formals(ate)))
   expect_true("show_progress" %in% names(formals(att)))
   expect_true("show_progress" %in% names(formals(ate_rmean)))
-  expect_true("show_progress" %in% names(formals(allocation.mixgpd_fit)))
   expect_true("quiet" %in% names(formals(run_mcmc_causal)))
   expect_identical(formals(run_mcmc_bundle_manual)$quiet, FALSE)
 })

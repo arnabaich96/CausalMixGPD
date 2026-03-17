@@ -105,6 +105,26 @@ build_prior_table_from_spec <- get("build_prior_table_from_spec", mode = "functi
   })
 }
 
+.coverage_heavy_cluster_fit <- function() {
+  .coverage_heavy_cached("coverage-heavy-fit-cluster", {
+    set.seed(903)
+    dat <- data.frame(
+      y = abs(stats::rnorm(18L)) + 0.2,
+      x1 = stats::rnorm(18L),
+      x2 = stats::runif(18L)
+    )
+    fit <- dpmix.cluster(
+      y ~ x1 + x2,
+      data = dat,
+      kernel = "normal",
+      components = 4L,
+      type = "weights",
+      mcmc = list(niter = 50L, nburnin = 15L, thin = 1L, nchains = 1L, seed = 903L, waic = FALSE)
+    )
+    list(fit = fit, data = dat)
+  })
+}
+
 .coverage_heavy_fit_2chain <- function() {
   .coverage_heavy_cached("coverage-heavy-fit-2chain", {
     set.seed(906)
@@ -431,21 +451,17 @@ test_that("coverage-heavy runner and predictive methods cover build-run methods 
   pars <- params(fit)
   fit_sum <- summary(fit)
   ess <- ess_summary(fit, per_chain = TRUE)
-  alloc <- allocation(.coverage_heavy_uncond_fit(), show_progress = FALSE)
   expect_s3_class(pars, "mixgpd_params")
   expect_s3_class(fit_sum, "mixgpd_summary")
   expect_s3_class(ess, "mixgpd_ess_summary")
-  expect_s3_class(alloc, "mixgpd_allocation")
   expect_output(print(pars))
   expect_output(print(fit_sum))
   expect_output(print(ess))
   expect_true(is.data.frame(summary(ess)))
-  expect_output(print(alloc))
 
   expect_s3_class(plot(fit, family = c("traceplot", "density"), params = "alpha"), "mixgpd_fit_plots")
   expect_s3_class(plot(pred_mean), "mixgpd_predict_plots")
   expect_s3_class(plot(fit_loc), "mixgpd_fitted_plots")
-  expect_s3_class(plot(alloc, overlay = FALSE), "mixgpd_allocation_plots")
 })
 
 test_that("coverage-heavy causal methods and summaries cover methods branches", {
@@ -802,8 +818,9 @@ test_that("coverage-heavy build-run helpers cover data constants priors and erro
   expect_error(build_inits_from_spec(bad_inits, y = y), "Invalid gpd\\$tail_scale mode")
 })
 
-test_that("coverage-heavy methods cover bundle ps summary and allocation printers", {
+test_that("coverage-heavy methods cover bundle ps summary and cluster printers", {
   skip_if_not_installed("ggplot2")
+  skip_if_not_installed("nimble")
 
   set.seed(907)
   y <- abs(stats::rnorm(10L)) + 0.1
@@ -850,6 +867,10 @@ test_that("coverage-heavy methods cover bundle ps summary and allocation printer
     ),
     class = "mixgpd_summary"
   )
+  cluster_obj <- .coverage_heavy_cluster_fit()
+  cluster_fit <- cluster_obj$fit
+  cluster_lbl <- predict(cluster_fit, type = "label", return_scores = TRUE)
+  cluster_psm <- predict(cluster_fit, type = "psm")
 
   expect_output(print(bundle_obj, code = TRUE, max_code_lines = 3L), "CausalMixGPD bundle")
   expect_output(summary(bundle_obj), "Parameter specification")
@@ -862,9 +883,12 @@ test_that("coverage-heavy methods cover bundle ps summary and allocation printer
   expect_output(print(summary_obj, max_rows = 2L), "Showing first 2")
   expect_output(print(structure(list(table = data.frame(), overall = data.frame(), meta = list()), class = "mixgpd_ess_summary")), "No matched parameters")
   expect_output(print(.coverage_heavy_fit()), "MixGPD fit")
+  expect_output(print(cluster_fit), "Cluster fit")
+  expect_output(print(cluster_lbl), "Cluster labels")
+  expect_output(print(cluster_psm), "Cluster PSM")
 })
 
-test_that("coverage-heavy methods cover plotting families causal prediction and allocation branches", {
+test_that("coverage-heavy methods cover plotting families causal prediction and cluster branches", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("nimble")
   skip_if_not_installed("ggplot2")
@@ -894,7 +918,10 @@ test_that("coverage-heavy methods cover plotting families causal prediction and 
   )
   fit_summary <- summary(fit, pars = "alpha")
   fit_params <- params(.coverage_heavy_uncond_fit())
-  alloc_new <- allocation(.coverage_heavy_uncond_fit(), newdata = data.frame(y = c(0.3, 0.6, 1.1)), show_progress = FALSE)
+  cluster_obj <- .coverage_heavy_cluster_fit()
+  cluster_fit <- cluster_obj$fit
+  cluster_lbl <- predict(cluster_fit, type = "label", return_scores = TRUE)
+  cluster_psm <- predict(cluster_fit, type = "psm")
 
   expect_s3_class(
     suppressWarnings(plot(fit2, family = c("histogram", "running", "compare_partial", "autocorrelation", "geweke", "caterpillar"), params = "alpha")),
@@ -914,11 +941,15 @@ test_that("coverage-heavy methods cover plotting families causal prediction and 
   expect_s3_class(plot(pred_sample), "mixgpd_predict_plots")
   expect_s3_class(plot(pred_survival), "mixgpd_predict_plots")
 
-  expect_output(print(alloc_new, return = "prob"), "certainty")
-  expect_output(print(summary(alloc_new)), "Cluster Allocation Summary")
-  expect_s3_class(plot(alloc_new, overlay = TRUE), "mixgpd_allocation_plots")
-  expect_s3_class(plot(alloc_new, overlay = FALSE), "mixgpd_allocation_plots")
-  expect_output(print(plot(alloc_new, overlay = FALSE)))
+  expect_silent(summary(cluster_fit))
+  expect_s3_class(plot(cluster_fit, which = "psm"), "dpmixgpd_cluster_psm")
+  expect_true(is.numeric(plot(cluster_fit, which = "k")))
+  expect_s3_class(plot(cluster_fit, which = "sizes"), "dpmixgpd_cluster_labels")
+  expect_silent(summary(cluster_lbl))
+  expect_silent(plot(cluster_lbl, type = "sizes"))
+  expect_silent(plot(cluster_lbl, type = "certainty"))
+  expect_silent(summary(cluster_psm))
+  expect_silent(plot(cluster_psm, psm_max_n = nrow(cluster_psm$psm)))
 
   cp_mean <- structure(
     data.frame(ps = c(0.2, 0.8), estimate = c(1, 2), lower = c(0.8, 1.8), upper = c(1.2, 2.2)),

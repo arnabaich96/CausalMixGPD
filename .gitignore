@@ -77,6 +77,10 @@ tmp-*.R
 vignettes/legacy/legacy-cache/
 inst/extdata/legacy-precomputed/
 
+# Prevent manuscript render leakage into the repo root
+/CausalMixGPD_JSS_article*
+/figure/
+
 # Manuscript cache artifacts (keep source + outputs)
 vignettes/manuscript/CausalMixGPD_*
 !vignettes/manuscript/CausalMixGPD_*.Rmd

@@ -60,7 +60,7 @@
 #' @param ps_summary Posterior summary for PS: \code{"mean"} or \code{"median"}.
 #' @param ps_clamp Numeric epsilon for clamping PS values to \eqn{(\epsilon, 1-\epsilon)}.
 #' @param monitor Character monitor profile: \code{"core"} (default) or \code{"full"}.
-#' @param monitor_latent Logical; whether to monitor latent allocations (\code{z}) in outcome arms.
+#' @param monitor_latent Logical; whether to monitor latent cluster labels (\code{z}) in outcome arms.
 #' @param monitor_v Logical; whether to monitor stick-breaking \code{v} terms for SB outcomes.
 #' @return A list of class \code{"causalmixgpd_causal_bundle"} containing the
 #'   design bundle, two outcome bundles, training data, arm indices, and

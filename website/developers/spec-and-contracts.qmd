@@ -11,7 +11,7 @@ This page explains what the package guarantees once a spec is compiled.
 ## What the spec should guarantee
 
 - Kernel/tail selection is legal under the chosen backend.
-- Dimensions are internally consistent (data/model/latent allocations).
+- Dimensions are internally consistent (data/model/latent cluster labels).
 - All required pieces (functions, parameters) exist for downstream codegen.
 
 ## Where contracts live
