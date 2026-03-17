@@ -289,10 +289,15 @@ coverage_report(output_dir = "my_coverage")
 ```
 
 This creates:
+- `covr/assets/index.html` - Canonical tracked summary page
+- `covr/assets/report.html` - Canonical tracked interactive covr report
+- `covr/assets/coverage_status.json` - Canonical tracked JSON summary
+- `covr/assets/unused_functions.md` - Canonical tracked unused-function report
 - `docs/coverage/index.html` - Summary page with badge and file table
 - `docs/coverage/report.html` - Full interactive covr report
 - `docs/coverage/coverage_status.json` - JSON data for CI
-- Copies in `pkgdown/assets/coverage/` for site integration
+- `docs/coverage/unused_functions.md` - Published unused-function report
+- `lib/` support directories in both retained locations so `report.html` stays functional
 - When run via `Rscript tools/.Rscripts/coverage.R` (or `tools/coverage.bat`), it
   generates local coverage artifacts only (no automatic Codecov upload).
 - To upload to Codecov manually, call `coverage_upload()`.

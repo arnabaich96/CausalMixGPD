@@ -2,9 +2,8 @@ name: coverage
 
 on:
   push:
-    branches:
-      - main
-      - master
+    paths:
+      - "covr/assets/**"
   pull_request:
   workflow_dispatch:
 

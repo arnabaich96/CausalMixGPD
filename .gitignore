@@ -42,6 +42,7 @@ vignettes/**/cache/**
 *.html
 test_*.html
 !docs/**/*.html
+!covr/assets/*.html
 !website/_footer.html
 !inst/doc/
 !inst/doc/*.html

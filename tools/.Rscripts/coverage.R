@@ -8,7 +8,7 @@
 # Usage:
 #   source("tools/.Rscripts/coverage.R")
 #
-#   # Generate local HTML report (default: CI-level tests)
+#   # Generate local HTML report (canonical in covr/assets, mirrored to docs/coverage)
 #   coverage_report()
 #
 #   # Upload to Codecov
@@ -66,6 +66,52 @@ setwd(here::here())
   if (dir.exists(path)) unlink(path, recursive = TRUE, force = TRUE)
   dir.create(path, recursive = TRUE, showWarnings = FALSE)
   invisible(path)
+}
+
+.coverage_primary_dir <- function() {
+  "covr/assets"
+}
+
+.coverage_artifact_files <- function() {
+  c("index.html", "report.html", "coverage_status.json", "unused_functions.md")
+}
+
+.coverage_same_path <- function(path_a, path_b) {
+  identical(
+    normalizePath(path_a, winslash = "/", mustWork = FALSE),
+    normalizePath(path_b, winslash = "/", mustWork = FALSE)
+  )
+}
+
+.coverage_sync_dir <- function(source_dir, target_dir) {
+  if (.coverage_same_path(source_dir, target_dir)) {
+    return(invisible(target_dir))
+  }
+
+  .coverage_clean_dir(target_dir)
+
+  artifact_files <- .coverage_artifact_files()
+  artifact_sources <- file.path(source_dir, artifact_files)
+  copied <- file.copy(artifact_sources, target_dir, overwrite = TRUE)
+
+  if (!all(copied)) {
+    failed <- artifact_files[!copied]
+    stop(
+      "Failed to sync coverage artifacts to ", target_dir, ": ",
+      paste(failed, collapse = ", "),
+      call. = FALSE
+    )
+  }
+
+  source_lib <- file.path(source_dir, "lib")
+  if (dir.exists(source_lib)) {
+    copied_lib <- file.copy(source_lib, target_dir, recursive = TRUE, overwrite = TRUE)
+    if (!isTRUE(copied_lib)) {
+      stop("Failed to sync coverage dependency directory to ", target_dir, call. = FALSE)
+    }
+  }
+
+  invisible(target_dir)
 }
 
 .coverage_refresh_metadata <- function(path = ".") {
@@ -412,7 +458,9 @@ coverage_progress <- function(test_level = "ci", quiet = FALSE) {
 #' @param sources Character vector specifying coverage sources.
 #'   Default: "tests"
 #' @param test_level Test tier: "cran", "ci", or "full". Default: "ci"
-#' @param output_dir Output directory. Default: "docs/coverage"
+#' @param output_dir Published mirror directory. Canonical coverage artifacts are
+#'   always written to `covr/assets`, then mirrored to `output_dir`.
+#'   Default: "docs/coverage"
 #' @param browse Logical; open report in browser? Default: FALSE
 #' @return Invisibly returns the coverage object
 #'
@@ -441,23 +489,32 @@ coverage_report <- function(
   sources <- resolved$sources
   test_level <- resolved$test_level
 
-  assets_dir <- "covr/assets/"
+  assets_dir <- .coverage_primary_dir()
+  mirror_dir <- output_dir
 
-  .coverage_clean_dir(output_dir)
   .coverage_clean_dir(assets_dir)
+  if (!.coverage_same_path(mirror_dir, assets_dir)) {
+    .coverage_clean_dir(mirror_dir)
+  }
   .coverage_refresh_metadata()
+
+  total_steps <- if (.coverage_same_path(mirror_dir, assets_dir)) 5 else 6
 
   cat("============================================================\n")
   cat("Building Coverage Report\n")
   cat("============================================================\n")
   cat("Sources:", paste(sources, collapse = ", "), "\n")
   cat("Test level:", test_level, "\n")
-  cat("Output directory:", output_dir, "\n\n")
+  cat("Canonical output directory:", assets_dir, "\n")
+  if (!.coverage_same_path(mirror_dir, assets_dir)) {
+    cat("Published mirror directory:", mirror_dir, "\n")
+  }
+  cat("\n")
 
   cat("Prepared clean output directories.\n")
 
   # Step 1: Calculate coverage
-  cat("\nStep 1/5: Calculating package coverage...\n")
+  cat("\nStep 1/", total_steps, ": Calculating package coverage...\n", sep = "")
   cov <- calculate_coverage(sources = sources, test_level = test_level, quiet = FALSE)
 
   if (is.null(cov)) {
@@ -465,46 +522,40 @@ coverage_report <- function(
   }
 
   # Step 2: Generate interactive HTML report
-  cat("Step 2/5: Generating interactive HTML report...\n")
-  report_file <- file.path(output_dir, "report.html")
+  cat("Step 2/", total_steps, ": Generating interactive HTML report...\n", sep = "")
+  report_file <- file.path(assets_dir, "report.html")
   covr::report(cov, file = report_file, browse = FALSE)
   cat("Saved:", report_file, "\n")
-
-  assets_report <- file.path(assets_dir, "report.html")
-  file.copy(report_file, assets_report, overwrite = TRUE)
-  cat("Copied to:", assets_report, "\n\n")
+  cat("\n")
 
   # Step 3: Extract and save statistics
-  cat("Step 3/5: Extracting coverage statistics...\n")
+  cat("Step 3/", total_steps, ": Extracting coverage statistics...\n", sep = "")
   stats <- .extract_coverage_stats(cov, sources)
-  json_file <- file.path(output_dir, "coverage_status.json")
+  json_file <- file.path(assets_dir, "coverage_status.json")
   jsonlite::write_json(stats$summary, json_file, auto_unbox = TRUE, pretty = TRUE)
   cat("Saved:", json_file, "\n")
-
-  assets_json <- file.path(assets_dir, "coverage_status.json")
-  file.copy(json_file, assets_json, overwrite = TRUE)
-  cat("Copied to:", assets_json, "\n\n")
+  cat("\n")
 
   # Step 4: Write unused function report
-  cat("Step 4/5: Writing unused function report...\n")
-  unused_file <- file.path(output_dir, "unused_functions.md")
+  cat("Step 4/", total_steps, ": Writing unused function report...\n", sep = "")
+  unused_file <- file.path(assets_dir, "unused_functions.md")
   unused_by_file <- .extract_unused_functions(cov)
   .write_unused_functions_report(unused_by_file, unused_file, sources, test_level)
   cat("Saved:", unused_file, "\n")
-
-  assets_unused <- file.path(assets_dir, "unused_functions.md")
-  file.copy(unused_file, assets_unused, overwrite = TRUE)
-  cat("Copied to:", assets_unused, "\n\n")
+  cat("\n")
 
   # Step 5: Generate summary HTML page
-  cat("Step 5/5: Generating HTML summary page...\n")
-  html_file <- file.path(output_dir, "index.html")
+  cat("Step 5/", total_steps, ": Generating HTML summary page...\n", sep = "")
+  html_file <- file.path(assets_dir, "index.html")
   .generate_summary_html(stats, html_file, sources)
   cat("Saved:", html_file, "\n")
+  cat("\n")
 
-  assets_html <- file.path(assets_dir, "index.html")
-  file.copy(html_file, assets_html, overwrite = TRUE)
-  cat("Copied to:", assets_html, "\n\n")
+  if (!.coverage_same_path(mirror_dir, assets_dir)) {
+    cat("Step 6/", total_steps, ": Syncing published mirror directory...\n", sep = "")
+    .coverage_sync_dir(assets_dir, mirror_dir)
+    cat("Synced:", mirror_dir, "\n\n")
+  }
 
   # Done
   cat("============================================================\n")
@@ -515,10 +566,13 @@ coverage_report <- function(
   cat("  - ", report_file, " (interactive report)\n", sep = "")
   cat("  - ", json_file, " (JSON data)\n", sep = "")
   cat("  - ", unused_file, " (unused functions)\n", sep = "")
+  if (!.coverage_same_path(mirror_dir, assets_dir)) {
+    cat("  - ", mirror_dir, " (published mirror, including report dependencies)\n", sep = "")
+  }
   cat("\nOverall coverage: ", round(stats$percent, 1), "%\n", sep = "")
 
   if (browse) {
-    utils::browseURL(html_file)
+    utils::browseURL(if (.coverage_same_path(mirror_dir, assets_dir)) html_file else file.path(mirror_dir, "index.html"))
   }
 
   invisible(cov)
@@ -1008,12 +1062,12 @@ cat("CausalMixGPD Coverage Tools loaded.\n\n")
 cat("Available functions:\n")
 cat("  calculate_coverage(sources, test_level)  - Calculate coverage\n")
 cat("  coverage_progress(test_level)            - Test coverage with progress\n")
-cat("  coverage_report(sources, output_dir)     - Generate local HTML report\n")
+cat("  coverage_report(sources, output_dir)     - Build covr/assets and mirror to output_dir\n")
 cat("  coverage_upload(sources, token)          - Upload to Codecov\n")
 cat("\nDefault sources: tests (CI-level)\n")
 cat("Valid sources: 'tests', 'examples', 'vignettes', 'all'\n\n")
 cat("Examples:\n")
-cat("  coverage_report()                        # CI-level tests report to docs/coverage\n")
+cat("  coverage_report()                        # Build covr/assets and mirror to docs/coverage\n")
 cat("  coverage_progress()                      # Progress reporter run\n")
 cat("  coverage_report(sources = 'tests')       # Tests only (fastest)\n")
 cat("  coverage_report(sources = 'all')         # All sources\n")

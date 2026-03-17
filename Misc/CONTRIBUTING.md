@@ -92,7 +92,7 @@ devtools::test()
 ```r
 source("tools/.Rscripts/coverage.R")
 
-# Generate local coverage report (default: tests + examples)
+# Generate local coverage report
 coverage_report()
 
 # Tests only (fastest)
@@ -105,7 +105,9 @@ coverage_report(sources = "all")
 coverage_upload()
 ```
 
-Coverage reports are generated at `docs/coverage/`.
+Coverage reports are generated canonically in `covr/assets/` and mirrored to
+`docs/coverage/` for the published site. The interactive `report.html` also
+includes a generated `lib/` dependency directory in both retained locations.
 
 ## Reporting Issues
 

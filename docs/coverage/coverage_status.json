@@ -1,9 +1,9 @@
 {
-  "percent": 67.76,
-  "timestamp": "2026-03-11T07:16:38Z",
+  "percent": 74.63,
+  "timestamp": "2026-03-17T05:24:16Z",
   "sources": "tests",
   "total_lines": 10279,
-  "covered_lines": 6965,
+  "covered_lines": 7671,
   "files": 20,
   "file_coverage": [
     {
@@ -13,16 +13,16 @@
       "percent": 100
     },
     {
+      "file": "R/summary.R",
+      "lines": 178,
+      "covered": 165,
+      "percent": 92.7
+    },
+    {
       "file": "R/helpers.R",
       "lines": 254,
       "covered": 233,
       "percent": 91.7
-    },
-    {
-      "file": "R/summary.R",
-      "lines": 178,
-      "covered": 161,
-      "percent": 90.4
     },
     {
       "file": "R/causal.R",
@@ -55,10 +55,28 @@
       "percent": 84.8
     },
     {
+      "file": "R/formatting.R",
+      "lines": 117,
+      "covered": 96,
+      "percent": 82.1
+    },
+    {
       "file": "R/invgauss.R",
       "lines": 135,
       "covered": 110,
       "percent": 81.5
+    },
+    {
+      "file": "R/wrappers.R",
+      "lines": 265,
+      "covered": 216,
+      "percent": 81.5
+    },
+    {
+      "file": "R/compile-spec.R",
+      "lines": 233,
+      "covered": 188,
+      "percent": 80.7
     },
     {
       "file": "R/normal.R",
@@ -85,40 +103,22 @@
       "percent": 75.5
     },
     {
-      "file": "R/compile-spec.R",
-      "lines": 233,
-      "covered": 172,
-      "percent": 73.8
-    },
-    {
       "file": "R/internal.R",
       "lines": 1747,
-      "covered": 1149,
-      "percent": 65.8
-    },
-    {
-      "file": "R/wrappers.R",
-      "lines": 265,
-      "covered": 170,
-      "percent": 64.2
+      "covered": 1248,
+      "percent": 71.4
     },
     {
       "file": "R/methods.R",
       "lines": 2581,
-      "covered": 1464,
-      "percent": 56.7
+      "covered": 1774,
+      "percent": 68.7
     },
     {
       "file": "R/build-run.R",
       "lines": 975,
-      "covered": 488,
-      "percent": 50.1
-    },
-    {
-      "file": "R/formatting.R",
-      "lines": 117,
-      "covered": 42,
-      "percent": 35.9
+      "covered": 665,
+      "percent": 68.2
     },
     {
       "file": "R/glue.R",
