@@ -519,22 +519,40 @@ test_that("coverage-only suite exercises internal summary and visualization help
   expect_true(inherits(plot_location_pred(pred_location), "gg"))
 })
 
-test_that("coverage-only suite exercises S3 method implementations directly", {
+test_that("coverage-only suite exercises causal bundle and parameter methods directly", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("ggplot2")
-  if (identical(Sys.getenv("DPMIXGPD_SKIP_COVR_METHODS_BLOCK"), "1")) {
-    skip("Methods coverage block disabled for isolation.")
-  }
+  skip_if_not_installed("nimble")
 
-  print_bundle <- .coverage_ns_fun("print.causalmixgpd_bundle")
-  summary_bundle <- .coverage_ns_fun("summary.causalmixgpd_bundle")
   print_causal_bundle <- .coverage_ns_fun("print.causalmixgpd_causal_bundle")
   summary_causal_bundle <- .coverage_ns_fun("summary.causalmixgpd_causal_bundle")
-  print_mix_fit <- .coverage_ns_fun("print.mixgpd_fit")
-  summary_mix_fit <- .coverage_ns_fun("summary.mixgpd_fit")
-  print_mix_summary <- .coverage_ns_fun("print.mixgpd_summary")
   print_params <- .coverage_ns_fun("print.mixgpd_params")
   print_params_pair <- .coverage_ns_fun("print.mixgpd_params_pair")
+
+  causal <- .coverage_causal_fit()
+  causal_bundle <- build_causal_bundle(
+    y = causal$sim$y,
+    X = as.matrix(causal$sim$X),
+    A = causal$sim$t,
+    backend = c("sb", "sb"),
+    kernel = c("normal", "gamma"),
+    GPD = FALSE,
+    components = c(3, 3),
+    PS = FALSE,
+    mcmc_outcome = .coverage_mcmc(seed = 111L)
+  )
+
+  expect_output(print_causal_bundle(causal_bundle), "CausalMixGPD causal bundle")
+  expect_output(summary_causal_bundle(causal_bundle), "CausalMixGPD causal bundle summary")
+  expect_output(print_params(.coverage_mock_mixgpd_params()), "Posterior mean parameters")
+  expect_output(print_params_pair(params(causal$fit)), "Posterior mean parameters")
+  expect_output(print_params(.coverage_mock_mixgpd_params(empty = TRUE)), "empty")
+})
+
+test_that("coverage-only suite exercises mocked effect and plot methods directly", {
+  skip_if_not_test_level("ci")
+  skip_if_not_installed("ggplot2")
+
   print_qte <- .coverage_ns_fun("print.causalmixgpd_qte")
   print_ate <- .coverage_ns_fun("print.causalmixgpd_ate")
   summary_qte <- .coverage_ns_fun("summary.causalmixgpd_qte")
@@ -550,6 +568,38 @@ test_that("coverage-only suite exercises S3 method implementations directly", {
   print_fitted_plots <- .coverage_ns_fun("print.mixgpd_fitted_plots")
   plot_qte <- .coverage_ns_fun("plot.causalmixgpd_qte")
   plot_ate <- .coverage_ns_fun("plot.causalmixgpd_ate")
+
+  qte_obj <- .coverage_mock_qte()
+  ate_obj <- .coverage_mock_ate()
+  expect_output(print_qte(qte_obj), "QTE")
+  expect_output(print_ate(ate_obj), "ATE")
+  expect_s3_class(summary_qte(qte_obj), "summary.causalmixgpd_qte")
+  expect_s3_class(summary_ate(ate_obj), "summary.causalmixgpd_ate")
+  expect_output(print_summary_qte(summary_qte(qte_obj)), "QTE Summary")
+  expect_output(print_summary_ate(summary_ate(ate_obj)), "ATE Summary")
+
+  expect_true(inherits(plot_predict(.coverage_mock_mixgpd_predict("quantile")), "gg"))
+  expect_true(inherits(plot_predict(.coverage_mock_mixgpd_predict("sample")), "gg"))
+  expect_true(inherits(plot_predict(.coverage_mock_mixgpd_predict("mean")), "gg"))
+  expect_true(inherits(plot_predict(.coverage_mock_mixgpd_predict("density")), "gg"))
+  expect_true(inherits(plot_predict(.coverage_mock_mixgpd_predict("survival")), "gg"))
+  expect_true(inherits(plot_predict(.coverage_mock_mixgpd_predict("location")), "gg") || is.list(plot_predict(.coverage_mock_mixgpd_predict("location"))))
+  expect_silent(invisible(utils::capture.output(print_predict_plots(.coverage_mock_mixgpd_predict_plots()))))
+  expect_output(print_causal_predict_plots(.coverage_mock_causal_predict_plots()), ".")
+  expect_output(print_fit_plots(.coverage_mock_mixgpd_fit_plots()), "traceplot")
+  expect_output(print_causal_fit_plots(.coverage_mock_causal_fit_plots()), "treated")
+  expect_s3_class(plot_fitted(.coverage_mock_mixgpd_fitted()), "mixgpd_fitted_plots")
+  expect_silent(invisible(utils::capture.output(print_fitted_plots(plot_fitted(.coverage_mock_mixgpd_fitted())))))
+
+  expect_true(inherits(plot_qte(qte_obj, type = "effect"), "gg"))
+  expect_true(inherits(plot_ate(ate_obj, type = "effect"), "gg"))
+})
+
+test_that("coverage-only suite exercises cluster S3 methods directly", {
+  skip_if_not_test_level("ci")
+  skip_if_not_installed("ggplot2")
+  skip_if_not_installed("nimble")
+
   print_cluster_bundle <- .coverage_ns_fun("print.dpmixgpd_cluster_bundle")
   summary_cluster_bundle <- .coverage_ns_fun("summary.dpmixgpd_cluster_bundle")
   plot_cluster_bundle <- .coverage_ns_fun("plot.dpmixgpd_cluster_bundle")
@@ -563,81 +613,22 @@ test_that("coverage-only suite exercises S3 method implementations directly", {
   summary_cluster_psm <- .coverage_ns_fun("summary.dpmixgpd_cluster_psm")
   plot_cluster_psm <- .coverage_ns_fun("plot.dpmixgpd_cluster_psm")
 
-  cond <- .coverage_conditional_fit()
-  causal <- .coverage_causal_fit()
   cluster <- .coverage_cluster_fit()
-  simple_bundle <- bundle(x = cond$y, X = cond$X, backend = "sb", kernel = "normal", components = 3, GPD = FALSE)
-  causal_bundle <- build_causal_bundle(
-    y = causal$sim$y,
-    X = as.matrix(causal$sim$X),
-    A = causal$sim$t,
-    backend = c("sb", "sb"),
-    kernel = c("normal", "gamma"),
-    GPD = FALSE,
-    components = c(3, 3),
-    PS = FALSE,
-    mcmc_outcome = .coverage_mcmc(seed = 111L)
-  )
+  lbl <- predict(cluster$fit, type = "label", return_scores = TRUE)
+  psm <- predict(cluster$fit, type = "psm")
 
-  if (!identical(Sys.getenv("DPMIXGPD_SKIP_COVR_METHODS_REAL"), "1")) {
-    expect_output(print_bundle(simple_bundle), "CausalMixGPD bundle")
-    expect_output(summary_bundle(simple_bundle), "CausalMixGPD bundle summary")
-    expect_output(print_causal_bundle(causal_bundle), "CausalMixGPD causal bundle")
-    expect_output(summary_causal_bundle(causal_bundle), "CausalMixGPD causal bundle summary")
-
-    mix_summary <- summary_mix_fit(cond$fit)
-    expect_output(print_mix_fit(cond$fit), "MixGPD fit")
-    expect_s3_class(mix_summary, "mixgpd_summary")
-    expect_output(print_mix_summary(mix_summary), "MixGPD summary")
-
-    expect_output(print_params(params(cond$fit)), "Posterior mean parameters")
-    expect_output(print_params_pair(params(causal$fit)), "Posterior mean parameters")
-    expect_output(print_params(.coverage_mock_mixgpd_params(empty = TRUE)), "empty")
-  }
-
-  if (!identical(Sys.getenv("DPMIXGPD_SKIP_COVR_METHODS_MOCK"), "1")) {
-    qte_obj <- .coverage_mock_qte()
-    ate_obj <- .coverage_mock_ate()
-    expect_output(print_qte(qte_obj), "QTE")
-    expect_output(print_ate(ate_obj), "ATE")
-    expect_s3_class(summary_qte(qte_obj), "summary.causalmixgpd_qte")
-    expect_s3_class(summary_ate(ate_obj), "summary.causalmixgpd_ate")
-    expect_output(print_summary_qte(summary_qte(qte_obj)), "QTE Summary")
-    expect_output(print_summary_ate(summary_ate(ate_obj)), "ATE Summary")
-
-    expect_true(inherits(plot_predict(.coverage_mock_mixgpd_predict("quantile")), "gg"))
-    expect_true(inherits(plot_predict(.coverage_mock_mixgpd_predict("sample")), "gg"))
-    expect_true(inherits(plot_predict(.coverage_mock_mixgpd_predict("mean")), "gg"))
-    expect_true(inherits(plot_predict(.coverage_mock_mixgpd_predict("density")), "gg"))
-    expect_true(inherits(plot_predict(.coverage_mock_mixgpd_predict("survival")), "gg"))
-    expect_true(inherits(plot_predict(.coverage_mock_mixgpd_predict("location")), "gg") || is.list(plot_predict(.coverage_mock_mixgpd_predict("location"))))
-    expect_silent(invisible(utils::capture.output(print_predict_plots(.coverage_mock_mixgpd_predict_plots()))))
-    expect_output(print_causal_predict_plots(.coverage_mock_causal_predict_plots()), ".")
-    expect_output(print_fit_plots(.coverage_mock_mixgpd_fit_plots()), "traceplot")
-    expect_output(print_causal_fit_plots(.coverage_mock_causal_fit_plots()), "treated")
-    expect_s3_class(plot_fitted(.coverage_mock_mixgpd_fitted()), "mixgpd_fitted_plots")
-    expect_silent(invisible(utils::capture.output(print_fitted_plots(plot_fitted(.coverage_mock_mixgpd_fitted())))))
-
-    expect_true(inherits(plot_qte(qte_obj, type = "effect"), "gg"))
-    expect_true(inherits(plot_ate(ate_obj, type = "effect"), "gg"))
-  }
-
-  if (!identical(Sys.getenv("DPMIXGPD_SKIP_COVR_METHODS_CLUSTER"), "1")) {
-    lbl <- predict(cluster$fit, type = "label", return_scores = TRUE)
-    psm <- predict(cluster$fit, type = "psm")
-    expect_output(print_cluster_bundle(cluster$fit$bundle), "Cluster bundle")
-    expect_s3_class(summary_cluster_bundle(cluster$fit$bundle), "summary.dpmixgpd_cluster_bundle")
-    expect_silent(plot_cluster_bundle(cluster$fit$bundle))
-    expect_output(print_cluster_fit(cluster$fit), "Cluster fit")
-    expect_s3_class(summary_cluster_fit(cluster$fit), "summary.dpmixgpd_cluster_fit")
-    expect_silent(plot_cluster_fit(cluster$fit, which = "sizes"))
-    expect_output(print_cluster_labels(lbl), "Cluster labels")
-    expect_s3_class(summary_cluster_labels(lbl), "summary.dpmixgpd_cluster_labels")
-    expect_silent(plot_cluster_labels(lbl, type = "certainty"))
-    expect_output(print_cluster_psm(psm), "Cluster PSM")
-    expect_s3_class(summary_cluster_psm(psm), "summary.dpmixgpd_cluster_psm")
-    expect_silent(plot_cluster_psm(psm, psm_max_n = nrow(psm$psm)))
-  }
+  expect_output(print_cluster_bundle(cluster$fit$bundle), "Cluster bundle")
+  expect_s3_class(summary_cluster_bundle(cluster$fit$bundle), "summary.dpmixgpd_cluster_bundle")
+  expect_silent(plot_cluster_bundle(cluster$fit$bundle))
+  expect_output(print_cluster_fit(cluster$fit), "Cluster fit")
+  expect_s3_class(summary_cluster_fit(cluster$fit), "summary.dpmixgpd_cluster_fit")
+  expect_silent(plot_cluster_fit(cluster$fit, which = "sizes"))
+  expect_output(print_cluster_labels(lbl), "Cluster labels")
+  expect_s3_class(summary_cluster_labels(lbl), "summary.dpmixgpd_cluster_labels")
+  expect_silent(plot_cluster_labels(lbl, type = "certainty"))
+  expect_output(print_cluster_psm(psm), "Cluster PSM")
+  expect_s3_class(summary_cluster_psm(psm), "summary.dpmixgpd_cluster_psm")
+  expect_silent(plot_cluster_psm(psm, psm_max_n = nrow(psm$psm)))
 })
 
 test_that("coverage-only suite exercises registries, simulations, and distribution wrappers", {

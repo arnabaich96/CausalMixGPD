@@ -1,0 +1,135 @@
+CausalMixGPD Coverage Tools loaded.
+
+Available functions:
+  calculate_coverage(sources, test_level)  - Calculate coverage
+  coverage_progress(test_level)            - Test coverage with progress
+  coverage_report(sources, output_dir)     - Build covr/assets and mirror to output_dir
+  coverage_upload(sources, token)          - Upload to Codecov
+  coverage_push(sources, output_dir)       - Build locally and upload to Codecov
+
+Default sources: tests (CI-level)
+Valid sources: 'tests', 'examples', 'vignettes', 'all'
+
+Examples:
+  coverage_report()                        # Build covr/assets and mirror to docs/coverage
+  coverage_progress()                      # Progress reporter run
+  coverage_report(sources = 'tests')       # Tests only (fastest)
+  coverage_report(sources = 'all')         # All sources
+  coverage_upload()                        # Upload CI-level tests coverage to Codecov
+  coverage_upload(require_token = TRUE)    # Upload (fail if no token)
+  coverage_push()                          # Build locally and upload in one step
+
+Running default coverage pipeline (sources='tests', test_level='ci').
+============================================================
+Building Coverage Report
+============================================================
+Sources: tests 
+Test level: ci 
+Canonical output directory: covr/assets 
+Published mirror directory: docs/coverage 
+
+Prepared clean output directories.
+
+Step 1/6: Calculating package coverage...
+Calculating coverage...
+  Sources: tests 
+  Test level: ci 
+
+* installing *source* package 'CausalMixGPD' ...
+** this is package 'CausalMixGPD' version '0.2.5'
+** using non-staged installation
+** R
+** data
+*** moving datasets to lazyload DB
+** inst
+** tests
+** byte-compile and prepare package for lazy loading
+** help
+*** installing help indices
+  converting help for package 'CausalMixGPD'
+    InvGauss                                example
+    InvGauss_gpd                            example
+    InvGauss_mix                            example
+    InvGauss_mixgpd                         example
+    amoroso                                 example
+    amoroso_gpd                             example
+    amoroso_lowercase                       example
+    amoroso_mix                             example
+    amoroso_mixgpd                          example
+    ate                                     example
+    ate_rmean                               example
+    att                                     example
+    base_lowercase                          example
+    build_causal_bundle                     example
+    build_nimble_bundle                     example
+    cate                                    example
+    cauchy                                  example
+    cauchy_mix                              example
+    cauchy_mix_lowercase                    example
+    causal_alt_pos500_p3_k3                 example
+    causal_alt_pos500_p5_k4_tail            example
+    causal_alt_real500_p4_k2                example
+    causal_pos500_p3_k2                     example
+    cqte                                    example
+    fitted.mixgpd_fit                       example
+    gamma_gpd                               example
+    gamma_lowercase                         example
+    gamma_mix                               example
+    gamma_mixgpd                            example
+    get_kernel_registry                     example
+    get_tail_registry                       example
+    gpd                                     example
+    init_kernel_registry                    example
+    invgauss_lowercase                      example
+    laplace_MixGpd                          example
+    laplace_gpd                             example
+    laplace_lowercase                       example
+    laplace_mix                             example
+    lognormal_gpd                           example
+    lognormal_lowercase                     example
+    lognormal_mix                           example
+    lognormal_mixgpd                        example
+    nc_pos200_k3                            example
+    nc_posX100_p3_k2                        example
+    nc_posX100_p4_k3                        example
+    nc_posX100_p5_k4                        example
+    nc_pos_tail200_k4                       example
+    nc_real200_k2                           example
+    nc_realX100_p3_k2                       example
+    nc_realX100_p5_k3                       example
+    normal_gpd                              example
+    normal_lowercase                        example
+    normal_mix                              example
+    normal_mixgpd                           example
+    params                                  example
+    plot.causalmixgpd_ate                   example
+    plot.causalmixgpd_qte                   example
+    plot.mixgpd_fit                         example
+    plot.mixgpd_predict                     example
+    predict.causalmixgpd_causal_fit         example
+    predict.mixgpd_fit                      example
+    print.causalmixgpd_ate                  example
+    print.causalmixgpd_bundle               example
+    print.causalmixgpd_causal_bundle        example
+    print.causalmixgpd_qte                  example
+    print.mixgpd_fit                        example
+    print.mixgpd_summary                    example
+    qte                                     example
+    qtt                                     example
+    residuals.mixgpd_fit                    example
+    run_mcmc_bundle_manual                  example
+    run_mcmc_causal                         example
+    summary.causalmixgpd_ate                example
+    summary.causalmixgpd_bundle             example
+    summary.causalmixgpd_causal_bundle      example
+    summary.causalmixgpd_qte                example
+    summary.mixgpd_fit                      example
+** building package indices
+** installing vignettes
+** testing if installed package can be loaded
+* DONE (CausalMixGPD)
+
+Warning: Primary coverage method encountered an error.
+Error: error reading from connection 
+Error: Coverage calculation failed; report generation aborted.
+Execution halted

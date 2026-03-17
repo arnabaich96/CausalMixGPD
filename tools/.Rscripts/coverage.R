@@ -180,8 +180,6 @@ setwd(here::here())
     'missing_targets <- targets[!file.exists(targets)]',
     'if (length(missing_targets) > 0L) stop("Coverage test file(s) not found: ", paste(missing_targets, collapse = ", "))',
     'Sys.setenv(COVERAGE = "1", DPMIXGPD_CI_COVERAGE_ONLY = "1")',
-    'if (!nzchar(Sys.getenv("DPMIXGPD_SKIP_COVR_METHODS_BLOCK"))) Sys.setenv(DPMIXGPD_SKIP_COVR_METHODS_BLOCK = "1")',
-    'if (!nzchar(Sys.getenv("DPMIXGPD_SKIP_COVR_CLUSTER_HELPERS"))) Sys.setenv(DPMIXGPD_SKIP_COVR_CLUSTER_HELPERS = "1")',
     'helper_files <- list.files(pkg_tests, pattern = "^helper.*\\\\.R$", full.names = TRUE)',
     'for (helper in helper_files) try(source(helper, local = .GlobalEnv), silent = TRUE)',
     'setup_file <- file.path(pkg_tests, "setup.R")',
@@ -431,7 +429,6 @@ coverage_progress <- function(test_level = "ci", quiet = FALSE) {
   Sys.setenv(DPMIXGPD_TEST_LEVEL = tolower(test_level))
   Sys.setenv(COVERAGE = "1")
   Sys.setenv(DPMIXGPD_CI_COVERAGE_ONLY = "1")
-  Sys.setenv(DPMIXGPD_SKIP_COVR_METHODS_BLOCK = "1")
 
   cov <- covr::package_coverage(
     type = "none",

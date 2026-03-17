@@ -952,7 +952,7 @@ test_that("cluster workflows cover fit, predict, and S3 methods from cluster.R",
 test_that("cluster helpers cover design parsing and override branches", {
   skip_if_not_test_level("ci")
   skip_if(
-    identical(Sys.getenv("COVERAGE"), "1") &&
+    identical(Sys.getenv("COVERAGE"), "1") ||
       identical(Sys.getenv("DPMIXGPD_SKIP_COVR_CLUSTER_HELPERS"), "1"),
     "Skipping cluster helper coverage block under covr"
   )
