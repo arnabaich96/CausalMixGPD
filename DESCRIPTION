@@ -42,4 +42,3 @@ Roxygen: list(markdown = TRUE, roclets = c("rd", "namespace"))
 Config/testthat/edition: 3
 URL: https://arnabaich96.github.io/CausalMixGPD/, https://arnabaich96.github.io/CausalMixGPD/pkgdown/
 BugReports: https://arnabaich96.github.io/CausalMixGPD/
-VignetteBuilder: knitr

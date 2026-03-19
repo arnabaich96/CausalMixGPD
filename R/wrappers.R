@@ -35,6 +35,50 @@
   as.integer(treat)
 }
 
+.formula_design_matrix <- function(trm,
+                                   mf,
+                                   drop_intercept = TRUE,
+                                   drop_terms = character(0),
+                                   coerce_double = FALSE) {
+  term_labels <- attr(trm, "term.labels") %||% character(0)
+  if (!length(term_labels)) {
+    return(list(X = NULL, contrasts = NULL, X_cols = character(0)))
+  }
+
+  mm <- stats::model.matrix(trm, data = mf)
+  keep <- rep(TRUE, ncol(mm))
+
+  if (isTRUE(drop_intercept) && ncol(mm)) {
+    keep <- keep & ((colnames(mm) %||% rep("", ncol(mm))) != "(Intercept)")
+  }
+
+  drop_terms <- tolower(as.character(drop_terms %||% character(0)))
+  if (length(drop_terms) && ncol(mm)) {
+    assign_idx <- attr(mm, "assign") %||% integer(0)
+    drop_idx <- which(tolower(term_labels) %in% drop_terms)
+    if (length(drop_idx) && length(assign_idx) == ncol(mm)) {
+      keep <- keep & !(assign_idx %in% drop_idx)
+    }
+  }
+
+  if (!any(keep)) {
+    return(list(
+      X = NULL,
+      contrasts = attr(mm, "contrasts"),
+      X_cols = character(0)
+    ))
+  }
+
+  X <- mm[, keep, drop = FALSE]
+  if (isTRUE(coerce_double)) storage.mode(X) <- "double"
+
+  list(
+    X = X,
+    contrasts = attr(mm, "contrasts"),
+    X_cols = colnames(X) %||% character(0)
+  )
+}
+
 .parse_formula_yX <- function(formula, data, na.action = stats::na.omit, drop_intercept = TRUE) {
   if (is.null(data)) stop("'data' is required when 'formula' is provided.", call. = FALSE)
 
@@ -51,27 +95,19 @@
   X_cols <- character(0)
   ctr <- NULL
   if (!is_unconditional) {
-    X <- stats::model.matrix(trm, data = mf)
-    if (isTRUE(drop_intercept) && "(Intercept)" %in% colnames(X)) {
-      X <- X[, colnames(X) != "(Intercept)", drop = FALSE]
-    }
-    if (ncol(X)) {
-      term_labels <- attr(trm, "term.labels") %||% character(0)
-      if (length(term_labels)) {
-        id_idx <- which(tolower(term_labels) == "id")
-        assign_idx <- attr(X, "assign") %||% integer(0)
-        if (length(id_idx) && length(assign_idx)) {
-          keep <- !(assign_idx %in% id_idx)
-          X <- X[, keep, drop = FALSE]
-        }
-      }
-    }
-    if (!ncol(X)) {
+    design <- .formula_design_matrix(
+      trm = trm,
+      mf = mf,
+      drop_intercept = drop_intercept,
+      drop_terms = "id"
+    )
+    X <- design$X
+    if (is.null(X)) {
       X <- NULL
       is_unconditional <- TRUE
     } else {
-      X_cols <- colnames(X) %||% character(0)
-      ctr <- attr(X, "contrasts")
+      X_cols <- design$X_cols
+      ctr <- design$contrasts
     }
   }
 

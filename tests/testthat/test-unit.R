@@ -4564,7 +4564,8 @@ test_that("build-run helpers validate inputs and expose structural metadata", {
   dims <- build_dimensions_from_spec(spec)
   mons <- build_monitors_from_spec(spec, monitor_v = TRUE, monitor_latent = TRUE)
   expect_true(is.list(dims))
-  expect_true("X" %in% names(dims))
+  expect_true(all(c("v", "w", "z") %in% names(dims)))
+  expect_true(any(startsWith(names(dims), "beta_")))
   expect_true(any(grepl("^w\\[", mons)))
   expect_true(any(grepl("^v\\[", mons)))
 })
@@ -4811,6 +4812,18 @@ test_that("cluster formula parsing and override helpers cover validation branche
   expect_equal(parsed_overrides$bulk$mean, "identity")
   expect_equal(parsed_overrides$gpd$tail_scale, "exp")
   expect_equal(parsed_overrides$concentration, 2)
+  parsed_overrides_mixed <- .cluster_split_overrides(
+    list(
+      bulk = list(mean = "identity"),
+      tail_scale = "exp",
+      alpha = 3
+    ),
+    bulk_names = c("mean", "sd"),
+    gpd_names = c("threshold", "tail_scale", "tail_shape")
+  )
+  expect_equal(parsed_overrides_mixed$bulk$mean, "identity")
+  expect_equal(parsed_overrides_mixed$gpd$tail_scale, "exp")
+  expect_equal(parsed_overrides_mixed$concentration, 3)
   expect_error(
     .cluster_split_overrides(list(bad = 1), bulk_names = "mean", gpd_names = "tail_scale"),
     "Unknown override names"
@@ -4855,7 +4868,9 @@ test_that("cluster formula parsing and override helpers cover validation branche
     )
   )
   expect_equal(spec3$plan$bulk$mean$value, 1.5)
-  expect_equal(spec3$plan$gpd$tail_scale$mode, "dist")
+  expect_equal(spec3$plan$gpd$tail_scale$mode, "link")
+  expect_equal(spec3$plan$gpd$tail_scale$beta_prior$dist, "normal")
+  expect_equal(spec3$plan$gpd$tail_scale$beta_prior$args$sd, 0.5)
   expect_equal(spec3$plan$concentration$value, 3)
 })
 
@@ -5445,9 +5460,9 @@ test_that("cluster bundle and fit S3 methods cover print summary and plot branch
   psm_out <- plot(fit, which = "psm", psm_max_n = 50L)
   k_out <- plot(fit, which = "k")
   lbl_out <- plot(fit, which = "sizes")
-  expect_s3_class(psm_out, "dpmixgpd_cluster_psm")
-  expect_equal(length(k_out), 3L)
-  expect_s3_class(lbl_out, "dpmixgpd_cluster_labels")
+  expect_s3_class(psm_out, "ggplot")
+  expect_s3_class(k_out, "ggplot")
+  expect_s3_class(lbl_out, "ggplot")
 })
 
 test_that("predict.dpmixgpd_cluster_fit covers label psm newdata and validation", {

@@ -73,6 +73,7 @@ docs/.quarto/
 
 # Ignore R history and legacy vignette cache/logs
 .Rhistory
+covr_run*.log
 tmp-*.R
 vignettes/legacy/legacy-cache/
 inst/extdata/legacy-precomputed/

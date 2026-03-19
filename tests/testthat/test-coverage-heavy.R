@@ -551,7 +551,7 @@ test_that("coverage-heavy wrappers cover parsing treatment normalization and mcm
 
   parsed <- .parse_formula_yX(y ~ x1 + id, data = dat)
   parsed_uncond <- .parse_formula_yX(y ~ 1, data = dat)
-  expect_equal(colnames(parsed$X), c("x1", "id"))
+  expect_equal(colnames(parsed$X), "x1")
   expect_true(parsed_uncond$is_unconditional)
 
   expect_equal(.coerce_treat(factor(c("control", "treated", "control"))), c(0L, 1L, 0L))

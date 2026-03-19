@@ -1,9 +1,9 @@
 {
-  "percent": 84.64,
-  "timestamp": "2026-03-17T23:41:43Z",
+  "percent": 83.39,
+  "timestamp": "2026-03-19T07:31:32Z",
   "sources": "tests",
-  "total_lines": 9964,
-  "covered_lines": 8434,
+  "total_lines": 10495,
+  "covered_lines": 8752,
   "files": 20,
   "file_coverage": [
     {
@@ -38,9 +38,9 @@
     },
     {
       "file": "R/methods.R",
-      "lines": 2266,
-      "covered": 1981,
-      "percent": 87.4
+      "lines": 2430,
+      "covered": 2129,
+      "percent": 87.6
     },
     {
       "file": "R/causal.R",
@@ -79,12 +79,6 @@
       "percent": 84.8
     },
     {
-      "file": "R/cluster.R",
-      "lines": 858,
-      "covered": 722,
-      "percent": 84.1
-    },
-    {
       "file": "R/formatting.R",
       "lines": 117,
       "covered": 98,
@@ -104,8 +98,8 @@
     },
     {
       "file": "R/wrappers.R",
-      "lines": 265,
-      "covered": 216,
+      "lines": 287,
+      "covered": 234,
       "percent": 81.5
     },
     {
@@ -125,6 +119,12 @@
       "lines": 1747,
       "covered": 1407,
       "percent": 80.5
+    },
+    {
+      "file": "R/cluster.R",
+      "lines": 1203,
+      "covered": 874,
+      "percent": 72.7
     }
   ]
 }

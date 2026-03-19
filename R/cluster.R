@@ -19,26 +19,20 @@
   X_cols <- character(0)
 
   if (length(term_labels) > 0L) {
-    X <- stats::model.matrix(trm, data = mf)
-    if ("(Intercept)" %in% colnames(X)) {
-      X <- X[, colnames(X) != "(Intercept)", drop = FALSE]
-    }
+    design <- .formula_design_matrix(
+      trm = trm,
+      mf = mf,
+      drop_intercept = TRUE,
+      drop_terms = "id",
+      coerce_double = TRUE
+    )
+    X <- design$X
 
-    if (ncol(X)) {
-      id_idx <- which(tolower(term_labels) == "id")
-      assign_idx <- attr(X, "assign") %||% integer(0)
-      if (length(id_idx) && length(assign_idx)) {
-        keep <- !(assign_idx %in% id_idx)
-        X <- X[, keep, drop = FALSE]
-      }
-    }
-
-    if (!ncol(X)) {
+    if (is.null(X)) {
       X <- NULL
     } else {
-      storage.mode(X) <- "double"
-      X_cols <- colnames(X) %||% character(0)
-      ctr <- attr(X, "contrasts")
+      X_cols <- design$X_cols
+      ctr <- design$contrasts
     }
   }
 
@@ -111,12 +105,6 @@
   if (!is.list(x)) stop("Overrides must be supplied as a list.", call. = FALSE)
 
   out <- list(bulk = list(), gpd = list(), concentration = NULL)
-  if (!is.null(x$bulk) || !is.null(x$gpd) || !is.null(x$concentration) || !is.null(x$alpha)) {
-    out$bulk <- x$bulk %||% list()
-    out$gpd <- x$gpd %||% list()
-    out$concentration <- x$concentration %||% x$alpha %||% NULL
-    return(out)
-  }
 
   nms <- names(x) %||% character(0)
   if (!length(nms) && length(x)) {
@@ -124,14 +112,25 @@
   }
   if (!length(nms)) return(out)
 
-  bad <- setdiff(nms, c(bulk_names, gpd_names, "concentration", "alpha"))
+  bad <- setdiff(nms, c("bulk", "gpd", "concentration", "alpha", bulk_names, gpd_names))
   if (length(bad)) {
     stop(sprintf("Unknown override names: %s", paste(bad, collapse = ", ")), call. = FALSE)
   }
-  for (nm in nms) {
-    if (nm %in% bulk_names) out$bulk[[nm]] <- x[[nm]]
-    if (nm %in% gpd_names) out$gpd[[nm]] <- x[[nm]]
+
+  if ("bulk" %in% nms) {
+    out$bulk <- x$bulk %||% list()
   }
+  if ("gpd" %in% nms) {
+    out$gpd <- x$gpd %||% list()
+  }
+
+  for (nm in intersect(nms, bulk_names)) {
+    out$bulk[[nm]] <- x[[nm]]
+  }
+  for (nm in intersect(nms, gpd_names)) {
+    out$gpd[[nm]] <- x[[nm]]
+  }
+
   out$concentration <- x$concentration %||% x$alpha %||% NULL
   out
 }

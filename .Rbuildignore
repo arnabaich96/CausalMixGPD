@@ -104,6 +104,7 @@
 ^\.\.?Rcheck$
 ^\.\.?Rcheck/
 ^CausalMixGPD_.*\.tar\.gz$
+^covr_run.*\.log$
 ^_tar_list\.txt$
 ^test_extraction\.R$
 ^tests/testthat/_cache$
