@@ -19,24 +19,43 @@ test_that("cluster S3 methods run without error", {
   )
   b <- fit$bundle
   lbl <- predict(fit, type = "label", return_scores = TRUE)
+  lbl_new <- predict(fit, newdata = dat[1:6, , drop = FALSE], type = "label", return_scores = TRUE)
   psm <- predict(fit, type = "psm")
 
   expect_output(print(b), "Cluster bundle")
   expect_silent(summary(b))
-  expect_silent(plot(b))
+  expect_s3_class(plot(b, plotly = FALSE), "ggplot")
 
   expect_output(print(fit), "Cluster fit")
-  expect_silent(summary(fit))
-  expect_silent(plot(fit, which = "psm"))
-  expect_silent(plot(fit, which = "k"))
-  expect_silent(plot(fit, which = "sizes"))
+  fit_sum <- summary(fit)
+  expect_s3_class(fit_sum, "summary.dpmixgpd_cluster_fit")
+  expect_true(is.data.frame(fit_sum$cluster_profiles))
+  expect_true(all(c("cluster", "n", "y_mean", "y_sd", "x1_mean", "x1_sd", "x2_mean", "x2_sd", "certainty_mean", "certainty_sd") %in% names(fit_sum$cluster_profiles)))
+  expect_true(all(diff(as.integer(fit_sum$cluster_sizes)) <= 0))
+  expect_s3_class(plot(fit, which = "psm", plotly = FALSE), "ggplot")
+  expect_s3_class(plot(fit, which = "k", plotly = FALSE), "ggplot")
+  expect_s3_class(plot(fit, which = "sizes", plotly = FALSE), "ggplot")
+  expect_s3_class(plot(fit, which = "summary", plotly = FALSE), "ggplot")
 
   expect_output(print(lbl), "Cluster labels")
-  expect_silent(summary(lbl))
-  expect_silent(plot(lbl, type = "sizes"))
-  expect_silent(plot(lbl, type = "certainty"))
+  lbl_sum <- summary(lbl, top_n = 2L)
+  expect_s3_class(lbl_sum, "summary.dpmixgpd_cluster_labels")
+  expect_true(is.data.frame(lbl_sum$cluster_profiles))
+  expect_lte(nrow(lbl_sum$cluster_profiles), 2L)
+  expect_true(all(diff(as.integer(lbl_sum$cluster_sizes)) <= 0))
+  expect_s3_class(plot(lbl, type = "sizes", plotly = FALSE), "ggplot")
+  expect_s3_class(plot(lbl, type = "certainty", plotly = FALSE), "ggplot")
+  expect_s3_class(plot(lbl, type = "summary", plotly = FALSE), "ggplot")
+
+  expect_s3_class(lbl_new, "dpmixgpd_cluster_labels")
+  expect_true(is.list(lbl_new$train_reference))
+  expect_s3_class(plot(lbl_new, type = "summary", plotly = FALSE), "ggplot")
 
   expect_output(print(psm), "Cluster PSM")
   expect_silent(summary(psm))
-  expect_silent(plot(psm, psm_max_n = nrow(psm$psm)))
+  expect_s3_class(plot(psm, psm_max_n = nrow(psm$psm), plotly = FALSE), "ggplot")
+
+  if (requireNamespace("plotly", quietly = TRUE)) {
+    expect_true(inherits(plot(lbl, type = "sizes", plotly = TRUE), "plotly"))
+  }
 })

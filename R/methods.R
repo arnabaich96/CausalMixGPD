@@ -2340,13 +2340,25 @@ plot.causalmixgpd_causal_predict <- function(x, y = NULL, ...) {
   list(short = "QTE", long = "Quantile Treatment Effect")
 }
 
-.effect_label_ate <- function(type) {
+.effect_label_ate <- function(type, metric = NULL) {
   type_chr <- if (is.null(type) || !length(type)) "ate" else tolower(as.character(type[[1]]))
+  metric_chr <- if (is.null(metric) || !length(metric)) "mean" else tolower(as.character(metric[[1]]))
+  is_rmean <- identical(metric_chr, "rmean")
+
   if (type_chr == "cate") {
+    if (is_rmean) {
+      return(list(short = "RMCATE", long = "Conditional Restricted Mean Treatment Effect"))
+    }
     return(list(short = "CATE", long = "Conditional Average Treatment Effect"))
   }
   if (type_chr == "att") {
+    if (is_rmean) {
+      return(list(short = "RMATT", long = "Restricted Mean Treatment Effect on the Treated"))
+    }
     return(list(short = "ATT", long = "Average Treatment Effect on the Treated"))
+  }
+  if (is_rmean) {
+    return(list(short = "RMATE", long = "Restricted Mean Treatment Effect"))
   }
   list(short = "ATE", long = "Average Treatment Effect")
 }
@@ -2495,7 +2507,7 @@ print.causalmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
 print.causalmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
   stopifnot(inherits(x, "causalmixgpd_ate"))
 
-  lbl <- .effect_label_ate(x$type %||% "ate")
+  lbl <- .effect_label_ate(x$type %||% "ate", metric = x$trt$type %||% x$con$type %||% NULL)
   n_pred <- x$n_pred %||% length(x$fit)
   level <- x$level %||% 0.95
   interval <- x$interval %||% "none"
@@ -2968,7 +2980,8 @@ summary.causalmixgpd_ate <- function(object, ...) {
 print.summary.causalmixgpd_ate <- function(x, digits = 3, ...) {
   stopifnot(inherits(x, "summary.causalmixgpd_ate"))
 
-  lbl <- .effect_label_ate(((x$object %||% list())$type %||% "ate"))
+  obj <- x$object %||% list()
+  lbl <- .effect_label_ate(obj$type %||% "ate", metric = (obj$trt %||% list())$type %||% (obj$con %||% list())$type %||% NULL)
   ov <- x$overall
   meta <- x$meta %||% list()
   knitr_kable <- .is_knitr_output() && isTRUE(getOption("causalmixgpd.knitr.kable", FALSE))
@@ -3103,7 +3116,11 @@ print.summary.causalmixgpd_ate <- function(x, digits = 3, ...) {
 #'
 #' \code{plot.causalmixgpd_qte()} visualizes objects returned by
 #' \code{\link{qte}}, \code{\link{qtt}}, and \code{\link{cqte}}. The
-#' \code{type} parameter controls the plot style:
+#' \code{type} parameter controls the plot style. When \code{type} is omitted,
+#' \code{cqte()} objects default to \code{"effect"} and, when multiple
+#' quantile levels are present, \code{facet_by = "id"}. Whenever quantile index
+#' appears on the x-axis, it is shown as an ordered categorical axis with
+#' equidistant spacing:
 #' \itemize{
 #'   \item \code{"both"} (default): Returns a list with both \code{trt_control} (treated vs
 #'     control quantile curves) and \code{treatment_effect} (QTE curve) plots
@@ -3128,7 +3145,7 @@ print.summary.causalmixgpd_ate <- function(x, digits = 3, ...) {
 #' @examples
 #' \dontrun{
 #' qte_result <- cqte(fit, probs = c(0.1, 0.5, 0.9), newdata = X_new)
-#' plot(qte_result)  # default: returns list with both plots
+#' plot(qte_result)  # CQTE default: effect plot (faceted by id when needed)
 #' plot(qte_result, type = "effect")  # single QTE plot
 #' plot(qte_result, type = "arms")    # single arms plot
 #' }
@@ -3141,8 +3158,6 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
   }
 
   use_plotly <- isTRUE(plotly)
-  type <- match.arg(type)
-  facet_by <- match.arg(facet_by)
   lbl <- .effect_label_qte(x$type %||% "qte")
 
   if (!is.list(x) || is.null(x$trt) || is.null(x$con)) {
@@ -3169,11 +3184,70 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
     n_pred <- length(fit_trt)
   }
 
+  is_cqte <- identical(tolower(x$type %||% "qte"), "cqte")
+  if (missing(type) && is_cqte) {
+    type <- "effect"
+  }
+  if (missing(facet_by) && is_cqte && n_pred > 1L && length(probs) > 1L) {
+    facet_by <- "id"
+  }
+  type <- match.arg(type)
+  facet_by <- match.arg(facet_by)
+
   ps_vec <- x$ps %||% rep(NA_real_, n_pred)
   if (!length(ps_vec)) ps_vec <- rep(NA_real_, n_pred)
   ax <- if (any(is.finite(ps_vec))) list(x = ps_vec, label = "Estimated PS") else
     list(x = seq_len(n_pred), label = "Index")
   single_profile_curve <- (n_pred == 1L && length(probs) > 1L)
+  .x_axis_spec <- function() {
+    if (single_profile_curve || (facet_by == "id" && n_pred > 1L && length(probs) > 1L)) {
+      return(list(var = "index", label = "Quantile level (\u03C4)", discrete = TRUE))
+    }
+    if (length(probs) == 1L) {
+      return(list(var = "ps", label = paste0(ax$label, " at \u03C4 = ", .fmt_num(probs)), discrete = FALSE))
+    }
+    list(var = "ps", label = ax$label, discrete = FALSE)
+  }
+  .fmt_num <- function(z) {
+    out <- rep("NA", length(z))
+    ok <- is.finite(z)
+    out[ok] <- trimws(formatC(z[ok], digits = 4, format = "fg"))
+    out
+  }
+  point_size_large <- 4.0
+  point_size_regular <- 2.6
+  .hover_interval <- function(lower, upper, label = "CI") {
+    ifelse(
+      is.finite(lower) & is.finite(upper),
+      paste0("<br>", label, ": [", .fmt_num(lower), ", ", .fmt_num(upper), "]"),
+      ""
+    )
+  }
+  .hover_qte <- function(df, axis_spec, value_label, group_col = NULL) {
+    axis_value <- if (identical(axis_spec$var, "index")) {
+      paste0("Tau: ", .fmt_num(df$index))
+    } else {
+      paste0(axis_spec$label, ": ", .fmt_num(df$ps))
+    }
+    tau_text <- if (!identical(axis_spec$var, "index") && length(probs) == 1L) {
+      paste0("<br>Tau: ", .fmt_num(df$index))
+    } else {
+      ""
+    }
+    group_text <- if (!is.null(group_col)) {
+      paste0("<br>Arm: ", df[[group_col]])
+    } else {
+      ""
+    }
+    paste0(
+      "ID: ", df$id,
+      group_text,
+      "<br>", axis_value,
+      tau_text,
+      "<br>", value_label, ": ", .fmt_num(df$estimate),
+      .hover_interval(df$lower, df$upper)
+    )
+  }
 
   # Helper to coerce prediction fit to data.frame
   .as_df <- function(pr, n_pred, probs) {
@@ -3216,24 +3290,36 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
     df_tc <- rbind(df_trt, df_con)
     df_tc$ps <- ax$x[df_tc$id]
     df_tc$tau <- factor(paste0("\u03C4 = ", df_tc$index), levels = paste0("\u03C4 = ", probs))
+    axis_spec <- .x_axis_spec()
+    df_tc$x_plot <- if (isTRUE(axis_spec$discrete)) {
+      factor(paste0("\u03C4 = ", .fmt_num(df_tc$index)),
+             levels = paste0("\u03C4 = ", .fmt_num(probs)))
+    } else {
+      df_tc[[axis_spec$var]]
+    }
+    df_tc$hover <- .hover_qte(df_tc, axis_spec = axis_spec, value_label = "Quantile", group_col = "group")
+    if (nrow(df_tc)) {
+      panel_key <- if (facet_by == "tau" && length(probs) > 1L) as.integer(df_tc$tau) else df_tc$id
+      x_order <- if (isTRUE(axis_spec$discrete)) match(df_tc$index, probs) else as.numeric(df_tc$x_plot)
+      df_tc <- df_tc[order(df_tc$group, panel_key, x_order), , drop = FALSE]
+    }
 
     if (single_profile_curve) {
-      df_tc <- df_tc[order(df_tc$index), , drop = FALSE]
-      p <- ggplot2::ggplot(df_tc, ggplot2::aes(x = index, y = estimate, color = group, fill = group)) +
+      p <- ggplot2::ggplot(df_tc, ggplot2::aes(x = x_plot, y = estimate, color = group, fill = group, text = hover)) +
         ggplot2::geom_line(linewidth = 0.8) +
-        ggplot2::geom_point(size = 3.2) +
+        ggplot2::geom_point(size = point_size_large) +
         ggplot2::scale_color_manual(values = pal[1:2]) +
         ggplot2::scale_fill_manual(values = pal[1:2]) +
         .plot_theme() +
         ggplot2::labs(
-          x = "Quantile level (\u03C4)",
+          x = axis_spec$label,
           y = "Quantile",
           title = "Treated vs Control Quantiles",
           color = "Arm",
           fill = "Arm"
         )
       if (any(is.finite(df_tc$lower)) && any(is.finite(df_tc$upper))) {
-        err_width <- .errorbar_width(df_tc$index)
+        err_width <- .errorbar_width(df_tc$x_plot)
         p <- p + ggplot2::geom_errorbar(
           ggplot2::aes(ymin = lower, ymax = upper),
           width = err_width,
@@ -3254,13 +3340,13 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
       NULL
     }
 
-    p <- ggplot2::ggplot(df_tc, ggplot2::aes(x = ps, y = estimate, color = group, fill = group)) +
+    p <- ggplot2::ggplot(df_tc, ggplot2::aes(x = x_plot, y = estimate, color = group, fill = group, text = hover)) +
       ggplot2::geom_line(linewidth = 0.8) +
-      ggplot2::geom_point(size = 2) +
+      ggplot2::geom_point(size = point_size_regular) +
       ggplot2::scale_color_manual(values = pal[1:2]) +
       ggplot2::scale_fill_manual(values = pal[1:2]) +
       .plot_theme() +
-      ggplot2::labs(x = ax$label, y = "Quantile", title = "Treated vs Control Quantiles",
+      ggplot2::labs(x = axis_spec$label, y = "Quantile", title = "Treated vs Control Quantiles",
                     color = "Arm", fill = "Arm")
 
     if (!is.null(facet_formula)) {
@@ -3268,7 +3354,7 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
     }
 
     if (any(is.finite(df_tc$lower)) && any(is.finite(df_tc$upper))) {
-      err_width <- .errorbar_width(df_tc$ps)
+      err_width <- .errorbar_width(df_tc$x_plot)
       p <- p + ggplot2::geom_errorbar(
         ggplot2::aes(ymin = lower, ymax = upper),
         width = err_width,
@@ -3283,54 +3369,79 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
     te_mat <- x$fit
     te_lower <- x$lower
     te_upper <- x$upper
-
-    df_te <- .coerce_fit_df(te_mat, n_pred = n_pred, probs = probs)
-    if (!("id" %in% names(df_te))) df_te$id <- rep(seq_len(n_pred), each = length(probs))
-    if (!("index" %in% names(df_te))) df_te$index <- rep(probs, times = n_pred)
-    if (!("estimate" %in% names(df_te))) df_te$estimate <- NA_real_
-    if (!("lower" %in% names(df_te))) df_te$lower <- NA_real_
-    if (!("upper" %in% names(df_te))) df_te$upper <- NA_real_
-
-    expected_n <- n_pred * length(probs)
-    if (expected_n > 0L && nrow(df_te) != expected_n) {
-      te_est <- rep_len(as.numeric(df_te$estimate), expected_n)
-      lo_src <- if (!is.null(te_lower)) as.numeric(te_lower) else as.numeric(df_te$lower)
-      up_src <- if (!is.null(te_upper)) as.numeric(te_upper) else as.numeric(df_te$upper)
-      lo <- rep_len(if (length(lo_src)) lo_src else NA_real_, expected_n)
-      up <- rep_len(if (length(up_src)) up_src else NA_real_, expected_n)
-      df_te <- data.frame(
-        id = rep(seq_len(n_pred), each = length(probs)),
-        index = rep(probs, times = n_pred),
-        estimate = te_est,
-        lower = lo,
-        upper = up
-      )
+    df_te_src <- x$qte$fit %||% NULL
+    if (is.data.frame(df_te_src)) {
+      df_te <- df_te_src
+      if (!("estimate" %in% names(df_te))) df_te$estimate <- NA_real_
+      if (!("lower" %in% names(df_te))) df_te$lower <- NA_real_
+      if (!("upper" %in% names(df_te))) df_te$upper <- NA_real_
+      if (!("id" %in% names(df_te))) {
+        df_te$id <- if (n_pred == 1L) rep(1L, nrow(df_te)) else rep(seq_len(n_pred), each = length(probs))
+      }
+      if (!("index" %in% names(df_te))) {
+        df_te$index <- rep(probs, times = max(1L, n_pred))
+      }
     } else {
-      if (!is.null(te_lower) && all(!is.finite(df_te$lower))) {
-        df_te$lower <- rep_len(as.numeric(te_lower), nrow(df_te))
-      }
-      if (!is.null(te_upper) && all(!is.finite(df_te$upper))) {
-        df_te$upper <- rep_len(as.numeric(te_upper), nrow(df_te))
-      }
-      if (n_pred == 1L) {
-        df_te$id <- 1L
+      df_te <- .coerce_fit_df(te_mat, n_pred = n_pred, probs = probs)
+      if (!("id" %in% names(df_te))) df_te$id <- rep(seq_len(n_pred), each = length(probs))
+      if (!("index" %in% names(df_te))) df_te$index <- rep(probs, times = n_pred)
+      if (!("estimate" %in% names(df_te))) df_te$estimate <- NA_real_
+      if (!("lower" %in% names(df_te))) df_te$lower <- NA_real_
+      if (!("upper" %in% names(df_te))) df_te$upper <- NA_real_
+
+      expected_n <- n_pred * length(probs)
+      if (expected_n > 0L && nrow(df_te) != expected_n) {
+        te_est <- rep_len(as.numeric(df_te$estimate), expected_n)
+        lo_src <- if (!is.null(te_lower)) as.vector(t(te_lower)) else as.numeric(df_te$lower)
+        up_src <- if (!is.null(te_upper)) as.vector(t(te_upper)) else as.numeric(df_te$upper)
+        lo <- rep_len(if (length(lo_src)) lo_src else NA_real_, expected_n)
+        up <- rep_len(if (length(up_src)) up_src else NA_real_, expected_n)
+        df_te <- data.frame(
+          id = rep(seq_len(n_pred), each = length(probs)),
+          index = rep(probs, times = n_pred),
+          estimate = te_est,
+          lower = lo,
+          upper = up
+        )
+      } else {
+        if (!is.null(te_lower) && all(!is.finite(df_te$lower))) {
+          df_te$lower <- rep_len(as.vector(t(te_lower)), nrow(df_te))
+        }
+        if (!is.null(te_upper) && all(!is.finite(df_te$upper))) {
+          df_te$upper <- rep_len(as.vector(t(te_upper)), nrow(df_te))
+        }
+        if (n_pred == 1L) {
+          df_te$id <- 1L
+        }
       }
     }
 
     df_te$id <- pmax(1L, pmin(as.integer(df_te$id), length(ax$x)))
     df_te$ps <- ax$x[df_te$id]
     df_te$tau <- factor(paste0("\u03C4 = ", df_te$index), levels = paste0("\u03C4 = ", probs))
+    axis_spec <- .x_axis_spec()
+    df_te$x_plot <- if (isTRUE(axis_spec$discrete)) {
+      factor(paste0("\u03C4 = ", .fmt_num(df_te$index)),
+             levels = paste0("\u03C4 = ", .fmt_num(probs)))
+    } else {
+      df_te[[axis_spec$var]]
+    }
+    df_te$hover <- .hover_qte(df_te, axis_spec = axis_spec, value_label = lbl$short)
+    if (nrow(df_te)) {
+      panel_key <- if (facet_by == "tau" && length(probs) > 1L) as.integer(df_te$tau) else df_te$id
+      x_order <- if (isTRUE(axis_spec$discrete)) match(df_te$index, probs) else as.numeric(df_te$x_plot)
+      df_te <- df_te[order(panel_key, x_order), , drop = FALSE]
+    }
 
     if (single_profile_curve) {
-      df_te <- df_te[order(df_te$index), , drop = FALSE]
-      p <- ggplot2::ggplot(df_te, ggplot2::aes(x = index, y = estimate)) +
+      p <- ggplot2::ggplot(df_te, ggplot2::aes(x = x_plot, y = estimate, text = hover)) +
         ggplot2::geom_line(color = pal[7], linewidth = 0.8) +
-        ggplot2::geom_point(color = pal[7], size = 3.2) +
+        ggplot2::geom_point(color = pal[7], size = point_size_large) +
         ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray50", linewidth = 0.5) +
         .plot_theme() +
-        ggplot2::labs(x = "Quantile level (\u03C4)", y = lbl$long, title = lbl$short)
+        ggplot2::labs(x = axis_spec$label, y = lbl$long, title = lbl$short)
       if (any(is.finite(df_te$lower)) && any(is.finite(df_te$upper))) {
-        err_width <- .errorbar_width(df_te$index)
+        err_width <- .errorbar_width(df_te$x_plot)
         p <- p + ggplot2::geom_errorbar(
           ggplot2::aes(ymin = lower, ymax = upper),
           width = err_width,
@@ -3352,19 +3463,19 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
       NULL
     }
 
-    p <- ggplot2::ggplot(df_te, ggplot2::aes(x = ps, y = estimate)) +
+    p <- ggplot2::ggplot(df_te, ggplot2::aes(x = x_plot, y = estimate, text = hover)) +
       ggplot2::geom_line(color = pal[7], linewidth = 0.8) +
-      ggplot2::geom_point(color = pal[7], size = 2) +
+      ggplot2::geom_point(color = pal[7], size = point_size_regular) +
       ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray50", linewidth = 0.5) +
       .plot_theme() +
-      ggplot2::labs(x = ax$label, y = lbl$long, title = lbl$short)
+      ggplot2::labs(x = axis_spec$label, y = lbl$long, title = lbl$short)
 
     if (!is.null(facet_formula)) {
       p <- p + ggplot2::facet_wrap(facet_formula, scales = "free_y")
     }
 
     if (any(is.finite(df_te$lower)) && any(is.finite(df_te$upper))) {
-      err_width <- .errorbar_width(df_te$ps)
+      err_width <- .errorbar_width(df_te$x_plot)
       p <- p + ggplot2::geom_errorbar(
         ggplot2::aes(ymin = lower, ymax = upper),
         width = err_width,
@@ -3406,12 +3517,14 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
 #'
 #' \code{plot.causalmixgpd_ate()} visualizes objects returned by
 #' \code{\link{ate}}, \code{\link{att}}, \code{\link{cate}}, and
-#' \code{\link{ate_rmean}}. The \code{type} parameter controls the plot style:
+#' \code{\link{ate_rmean}}. The \code{type} parameter controls the plot style.
+#' When \code{type} is omitted, \code{cate()} objects default to
+#' \code{"effect"}:
 #' \itemize{
 #'   \item \code{"both"} (default): Returns a list with both \code{trt_control} (treated vs
 #'     control means) and \code{treatment_effect} (ATE curve) plots
-#'   \item \code{"effect"}: ATE curve/points vs index/PS with CI ribbon/bars
-#'   \item \code{"arms"}: Treated mean vs control mean, with CI ribbons
+#'   \item \code{"effect"}: ATE curve/points vs index/PS with pointwise CI error bars
+#'   \item \code{"arms"}: Treated mean vs control mean, with pointwise CI error bars
 #' }
 #'
 #' @param x Object of class \code{causalmixgpd_ate}.
@@ -3429,7 +3542,7 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
 #' @examples
 #' \dontrun{
 #' ate_result <- cate(fit, newdata = X_new, interval = "credible")
-#' plot(ate_result)  # default: returns list with both plots
+#' plot(ate_result)  # CATE default: effect plot
 #' plot(ate_result, type = "effect")  # single ATE plot
 #' plot(ate_result, type = "arms")    # single arms plot
 #' }
@@ -3441,8 +3554,7 @@ plot.causalmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"
   }
 
   use_plotly <- isTRUE(plotly)
-  type <- match.arg(type)
-  lbl <- .effect_label_ate(x$type %||% "ate")
+  lbl <- .effect_label_ate(x$type %||% "ate", metric = x$trt$type %||% x$con$type %||% NULL)
 
   if (!is.list(x) || is.null(x$trt) || is.null(x$con)) {
     stop("Invalid ATE object for plotting.", call. = FALSE)
@@ -3456,6 +3568,53 @@ plot.causalmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"
   ax <- if (any(is.finite(ps_vec))) list(x = ps_vec, label = "Estimated PS") else
     list(x = seq_len(n_pred), label = "Index")
   single_profile <- (n_pred == 1L)
+  if (missing(type) && identical(tolower(x$type %||% "ate"), "cate")) {
+    type <- "effect"
+  }
+  type <- match.arg(type)
+  .fmt_num <- function(z) {
+    out <- rep("NA", length(z))
+    ok <- is.finite(z)
+    out[ok] <- trimws(formatC(z[ok], digits = 4, format = "fg"))
+    out
+  }
+  point_size_large <- 4.0
+  point_size_regular <- 2.6
+  point_size_single_effect <- 4.4
+  .hover_interval <- function(lower, upper, label = "CI") {
+    ifelse(
+      is.finite(lower) & is.finite(upper),
+      paste0("<br>", label, ": [", .fmt_num(lower), ", ", .fmt_num(upper), "]"),
+      ""
+    )
+  }
+  .hover_ate <- function(df, value_label, group_col = NULL) {
+    axis_value <- paste0(ax$label, ": ", .fmt_num(df$x_plot))
+    group_text <- if (!is.null(group_col)) {
+      paste0("<br>Arm: ", df[[group_col]])
+    } else {
+      ""
+    }
+    paste0(
+      "ID: ", df$id,
+      group_text,
+      "<br>", axis_value,
+      "<br>", value_label, ": ", .fmt_num(df$estimate),
+      .hover_interval(df$lower, df$upper)
+    )
+  }
+  .errorbar_width <- function(x_vals) {
+    x_vals <- sort(unique(as.numeric(x_vals[is.finite(x_vals)])))
+    if (length(x_vals) <= 1L) {
+      return(0.02)
+    }
+    gaps <- diff(x_vals)
+    gaps <- gaps[is.finite(gaps) & gaps > 0]
+    if (!length(gaps)) {
+      return(0.02)
+    }
+    min(gaps) * 0.2
+  }
 
   # Helper to extract statistics from prediction objects
   .extract_stats <- function(pr, n_pred) {
@@ -3495,15 +3654,19 @@ plot.causalmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"
     con_stats <- .extract_stats(pr_con, n_pred)
 
     df_tc <- rbind(
-      data.frame(x = ax$x, group = "Treated", estimate = trt_stats$estimate,
+      data.frame(id = seq_len(n_pred), x_plot = ax$x, group = "Treated", estimate = trt_stats$estimate,
                  lower = trt_stats$lower, upper = trt_stats$upper),
-      data.frame(x = ax$x, group = "Control", estimate = con_stats$estimate,
+      data.frame(id = seq_len(n_pred), x_plot = ax$x, group = "Control", estimate = con_stats$estimate,
                  lower = con_stats$lower, upper = con_stats$upper)
     )
+    df_tc$hover <- .hover_ate(df_tc, value_label = "Mean Outcome", group_col = "group")
+    if (nrow(df_tc)) {
+      df_tc <- df_tc[order(df_tc$group, df_tc$x_plot), , drop = FALSE]
+    }
 
     if (single_profile) {
-      p <- ggplot2::ggplot(df_tc, ggplot2::aes(x = group, y = estimate, color = group, fill = group)) +
-        ggplot2::geom_point(size = 3.2) +
+      p <- ggplot2::ggplot(df_tc, ggplot2::aes(x = group, y = estimate, color = group, fill = group, text = hover)) +
+        ggplot2::geom_point(size = point_size_large) +
         ggplot2::scale_color_manual(values = pal[1:2]) +
         ggplot2::scale_fill_manual(values = pal[1:2]) +
         .plot_theme() +
@@ -3517,9 +3680,9 @@ plot.causalmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"
       return(p)
     }
 
-    p <- ggplot2::ggplot(df_tc, ggplot2::aes(x = x, y = estimate, color = group, fill = group)) +
+    p <- ggplot2::ggplot(df_tc, ggplot2::aes(x = x_plot, y = estimate, color = group, fill = group, text = hover)) +
       ggplot2::geom_line(linewidth = 0.8) +
-      ggplot2::geom_point(size = 2) +
+      ggplot2::geom_point(size = point_size_regular) +
       ggplot2::scale_color_manual(values = pal[1:2]) +
       ggplot2::scale_fill_manual(values = pal[1:2]) +
       .plot_theme() +
@@ -3527,8 +3690,12 @@ plot.causalmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"
                     color = "Arm", fill = "Arm")
 
     if (any(is.finite(df_tc$lower)) && any(is.finite(df_tc$upper))) {
-      p <- p + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
-                                    alpha = 0.2, color = NA)
+      err_width <- .errorbar_width(df_tc$x_plot)
+      p <- p + ggplot2::geom_errorbar(
+        ggplot2::aes(ymin = lower, ymax = upper),
+        width = err_width,
+        alpha = 0.8
+      )
     }
     p
   }
@@ -3536,15 +3703,20 @@ plot.causalmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"
   # Build effect plot (ATE = treated - control)
   .build_effect_plot <- function() {
     df_te <- data.frame(
-      x = ax$x,
+      id = seq_len(n_pred),
+      x_plot = ax$x,
       estimate = as.numeric(x$fit),
       lower = if (!is.null(x$lower)) as.numeric(x$lower) else NA_real_,
       upper = if (!is.null(x$upper)) as.numeric(x$upper) else NA_real_
     )
+    df_te$hover <- .hover_ate(df_te, value_label = lbl$short)
+    if (nrow(df_te)) {
+      df_te <- df_te[order(df_te$x_plot), , drop = FALSE]
+    }
 
     if (single_profile) {
-      p <- ggplot2::ggplot(df_te, ggplot2::aes(x = "ATE", y = estimate)) +
-        ggplot2::geom_point(color = pal[7], size = 3.6) +
+      p <- ggplot2::ggplot(df_te, ggplot2::aes(x = "ATE", y = estimate, text = hover)) +
+        ggplot2::geom_point(color = pal[7], size = point_size_single_effect) +
         ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray50", linewidth = 0.5) +
         .plot_theme() +
         ggplot2::labs(x = NULL, y = lbl$long, title = lbl$short)
@@ -3555,16 +3727,21 @@ plot.causalmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"
       return(p)
     }
 
-    p <- ggplot2::ggplot(df_te, ggplot2::aes(x = x, y = estimate)) +
+    p <- ggplot2::ggplot(df_te, ggplot2::aes(x = x_plot, y = estimate, text = hover)) +
       ggplot2::geom_line(color = pal[7], linewidth = 0.8) +
-      ggplot2::geom_point(color = pal[7], size = 2) +
+      ggplot2::geom_point(color = pal[7], size = point_size_regular) +
       ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray50", linewidth = 0.5) +
       .plot_theme() +
       ggplot2::labs(x = ax$label, y = lbl$long, title = lbl$short)
 
     if (any(is.finite(df_te$lower)) && any(is.finite(df_te$upper))) {
-      p <- p + ggplot2::geom_ribbon(ggplot2::aes(ymin = lower, ymax = upper),
-                                    alpha = 0.2, fill = pal[5], color = NA)
+      err_width <- .errorbar_width(df_te$x_plot)
+      p <- p + ggplot2::geom_errorbar(
+        ggplot2::aes(ymin = lower, ymax = upper),
+        width = err_width,
+        color = pal[7],
+        alpha = 0.8
+      )
     }
     p
   }

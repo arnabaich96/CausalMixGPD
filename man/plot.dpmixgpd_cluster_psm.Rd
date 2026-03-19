@@ -4,17 +4,26 @@
 \alias{plot.dpmixgpd_cluster_psm}
 \title{Plot a cluster posterior similarity matrix}
 \usage{
-\method{plot}{dpmixgpd_cluster_psm}(x, psm_max_n = x$psm_max_n \%||\% 2000L, ...)
+\method{plot}{dpmixgpd_cluster_psm}(
+  x,
+  psm_max_n = x$psm_max_n \%||\% 2000L,
+  plotly = getOption("CausalMixGPD.plotly", FALSE),
+  ...
+)
 }
 \arguments{
 \item{x}{Cluster PSM object.}
 
 \item{psm_max_n}{Maximum allowed matrix size for plotting.}
 
+\item{plotly}{Logical; if \code{TRUE}, convert the \code{ggplot2} output to a \code{plotly} /
+\code{htmlwidget} representation via \code{.wrap_plotly()}. Defaults to
+\code{getOption("CausalMixGPD.plotly", FALSE)}.}
+
 \item{...}{Unused.}
 }
 \value{
-\code{x}, invisibly.
+A \code{ggplot2} object or a \code{plotly}/\code{htmlwidget} object when \code{plotly = TRUE}.
 }
 \description{
 Heatmap of pairwise posterior co-clustering probabilities.

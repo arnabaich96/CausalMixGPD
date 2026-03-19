@@ -4,15 +4,23 @@
 \alias{summary.dpmixgpd_cluster_labels}
 \title{Summarize cluster labels}
 \usage{
-\method{summary}{dpmixgpd_cluster_labels}(object, ...)
+\method{summary}{dpmixgpd_cluster_labels}(object, top_n = 5L, order_by = c("size", "label"), vars = NULL, ...)
 }
 \arguments{
 \item{object}{Cluster labels object.}
 
+\item{top_n}{Number of populated clusters to profile when attached data are available.}
+
+\item{order_by}{Ordering rule for descriptive cluster profiles: by decreasing cluster size or by
+label.}
+
+\item{vars}{Optional character vector of numeric columns to summarize within each cluster.}
+
 \item{...}{Unused.}
 }
 \value{
-Summary list containing cluster sizes and, when available, assignment-certainty summaries.
+Summary list containing cluster sizes, optional cluster-level descriptive summaries, and,
+when available, assignment-certainty summaries.
 }
 \description{
 Summarize a representative clustering for training data or new observations.
@@ -20,7 +28,8 @@ Summarize a representative clustering for training data or new observations.
 \details{
 If score or probability matrices are attached, certainty is summarized by the rowwise maxima
 \eqn{\max_k p_{ik}}, which quantify how strongly each observation is assigned to its selected
-cluster.
+cluster. When the labels object also carries attached training or prediction data, the summary
+includes descriptive mean/sd profiles for the first populated clusters.
 }
 \seealso{
 \code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}}, \code{\link[=plot.dpmixgpd_cluster_labels]{plot.dpmixgpd_cluster_labels()}},

@@ -123,11 +123,10 @@ temp/
 
 # Codecov token (secret - do not commit)
 tools/.codecov_token
-# Codecov config and artifacts (contain sensitive tokens)
-codecov.yml
+# Codecov config and artifacts
 _codecov.yml
 codecov.*
-!_codecov.yml
+!codecov.yml
 # renv
 renv/
 renv

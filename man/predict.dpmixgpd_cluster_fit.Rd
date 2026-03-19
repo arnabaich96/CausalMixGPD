@@ -54,8 +54,10 @@ The returned label solution is the Dahl representative partition, obtained by ch
 whose adjacency matrix is closest to the PSM in squared error.
 
 For \code{newdata}, the function combines draw-specific component weights and component densities to
-produce posterior assignment scores relative to the representative training clusters. A PSM is
-not defined for \code{newdata}, so \code{type = "psm"} is restricted to the training sample.
+produce posterior assignment scores relative to the representative training clusters. Returned
+\code{newdata} label objects also carry the training labels and response data needed for comparative
+\code{plot(..., type = "summary")} displays. A PSM is not defined for \code{newdata}, so \code{type = "psm"}
+is restricted to the training sample.
 
 Computing the PSM is \eqn{O(n^2)} in the training sample size, so \code{psm_max_n} guards against
 accidental large matrix allocations.

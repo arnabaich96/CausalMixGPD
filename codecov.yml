@@ -1,3 +1,6 @@
+codecov:
+  max_report_age: off
+
 comment: false
 
 coverage:

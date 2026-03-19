@@ -6,10 +6,11 @@
 \usage{
 \method{plot}{dpmixgpd_cluster_fit}(
   x,
-  which = c("psm", "k", "sizes"),
+  which = c("psm", "k", "sizes", "summary"),
   burnin = NULL,
   thin = NULL,
   psm_max_n = 2000L,
+  plotly = getOption("CausalMixGPD.plotly", FALSE),
   ...
 )
 }
@@ -24,14 +25,18 @@
 
 \item{psm_max_n}{Maximum training sample size allowed for PSM plotting.}
 
+\item{plotly}{Logical; if \code{TRUE}, convert the \code{ggplot2} output to a \code{plotly} /
+\code{htmlwidget} representation via \code{.wrap_plotly()}. Defaults to
+\code{getOption("CausalMixGPD.plotly", FALSE)}.}
+
 \item{...}{Unused.}
 }
 \value{
-Plot output, invisibly.
+A \code{ggplot2} object or a \code{plotly}/\code{htmlwidget} object when \code{plotly = TRUE}.
 }
 \description{
-Visualize either the posterior similarity matrix, the posterior number of occupied clusters, or
-the size distribution of the representative clusters.
+Visualize either the posterior similarity matrix, the posterior number of occupied clusters, the
+size distribution of the representative clusters, or cluster-specific response summaries.
 }
 \seealso{
 \code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}}, \code{\link[=summary.dpmixgpd_cluster_fit]{summary.dpmixgpd_cluster_fit()}},

@@ -4,7 +4,15 @@
 \alias{summary.dpmixgpd_cluster_fit}
 \title{Summarize a cluster fit}
 \usage{
-\method{summary}{dpmixgpd_cluster_fit}(object, burnin = NULL, thin = NULL, ...)
+\method{summary}{dpmixgpd_cluster_fit}(
+  object,
+  burnin = NULL,
+  thin = NULL,
+  top_n = 5L,
+  order_by = c("size", "label"),
+  vars = NULL,
+  ...
+)
 }
 \arguments{
 \item{object}{A cluster fit.}
@@ -13,11 +21,19 @@
 
 \item{thin}{Keep every \code{thin}-th posterior draw.}
 
+\item{top_n}{Number of populated clusters to profile when descriptive summaries are available.}
+
+\item{order_by}{Ordering rule for descriptive cluster profiles: by decreasing cluster size or by
+label.}
+
+\item{vars}{Optional character vector of numeric columns to summarize within each cluster.}
+
 \item{...}{Unused.}
 }
 \value{
-Summary list with the number of retained clusters, cluster sizes, and the burn-in/thinning
-settings used to construct the summary.
+Summary list with the number of retained clusters, cluster sizes, optional
+cluster-level descriptive summaries, and the burn-in/thinning settings used to construct the
+summary.
 }
 \description{
 Summarize the posterior clustering induced by the Dahl representative partition.

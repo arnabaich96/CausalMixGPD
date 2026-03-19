@@ -4,20 +4,33 @@
 \alias{plot.dpmixgpd_cluster_labels}
 \title{Plot cluster labels}
 \usage{
-\method{plot}{dpmixgpd_cluster_labels}(x, type = c("sizes", "certainty"), ...)
+\method{plot}{dpmixgpd_cluster_labels}(
+  x,
+  type = c("sizes", "certainty", "summary"),
+  plotly = getOption("CausalMixGPD.plotly", FALSE),
+  ...
+)
 }
 \arguments{
 \item{x}{Cluster labels object.}
 
 \item{type}{Plot type.}
 
+\item{plotly}{Logical; if \code{TRUE}, convert the \code{ggplot2} output to a \code{plotly} /
+\code{htmlwidget} representation via \code{.wrap_plotly()}. Defaults to
+\code{getOption("CausalMixGPD.plotly", FALSE)}.}
+
 \item{...}{Unused.}
 }
 \value{
-\code{x}, invisibly.
+A \code{ggplot2} object or a \code{plotly}/\code{htmlwidget} object when \code{plotly = TRUE}.
 }
 \description{
-Visualize representative cluster sizes or assignment certainty.
+Visualize representative cluster sizes, assignment certainty, or cluster-specific response
+summaries. For \code{type = "summary"}, the response view is shown as cluster-faceted histograms with
+matching cluster-colored boxplots. When \code{x} comes from \code{predict(..., newdata = ...)}, the
+training histograms are used as the reference background and the new-sample boxplots are
+overlaid.
 }
 \seealso{
 \code{\link[=summary.dpmixgpd_cluster_labels]{summary.dpmixgpd_cluster_labels()}}, \code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}}.

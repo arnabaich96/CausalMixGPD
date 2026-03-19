@@ -77,10 +77,10 @@
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
 \def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
 \makeatother
-\graphicspath{{./}{vignettes/manuscript/}{assets/}}
+\graphicspath{{./}{vignettes/manuscript/}{assets/}{figure/}}
 \DeclareRobustCommand{\pkg}[1]{\textsf{#1}}
 \DeclareRobustCommand{\code}[1]{\nolinkurl{#1}}
-\setlength{\emergencystretch}{2em}
+\setlength{\emergencystretch}{4em}
 \setkeys{Gin}{width=\linewidth,height=0.82\textheight,keepaspectratio}
 
 %% ---- JSS metadata ----
@@ -102,8 +102,6 @@ Heavy-tailed outcomes arise in many scientific domains where rare events dominat
 \begin{document}
 \maketitle
 \sloppy
-
-
 
 \section{Introduction}
 \label{sec:intro}
@@ -360,19 +358,60 @@ u(x)+\dfrac{\sigma(x)}{\xi}\Bigl((1-\tau)^{-\xi}-1\Bigr), & \xi\neq 0,
 \label{eq:gpd_quantile}
 \end{equation}
 
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{u} \hlkwb{<-} \hlnum{2.0}
+\hldef{y} \hlkwb{<-} \hlkwd{seq}\hldef{(u, u} \hlopt{+} \hlnum{8}\hldef{,} \hlkwc{length.out} \hldef{=} \hlnum{500}\hldef{)}
+\hldef{sigma} \hlkwb{<-} \hlnum{1.2}
+\hldef{xi_vals} \hlkwb{<-} \hlkwd{c}\hldef{(}\hlopt{-}\hlnum{0.25}\hldef{,} \hlnum{0.0}\hldef{,} \hlnum{0.25}\hldef{)}
 
+\hldef{gpd_df} \hlkwb{<-} \hlkwd{do.call}\hldef{(}
+  \hldef{rbind,}
+  \hlkwd{lapply}\hldef{(xi_vals,} \hlkwa{function}\hldef{(}\hlkwc{xi}\hldef{) \{}
+    \hlkwd{data.frame}\hldef{(}
+      \hlkwc{y} \hldef{= y,}
+      \hlkwc{density} \hldef{=} \hlkwd{dgpd}\hldef{(y,} \hlkwc{threshold} \hldef{= u,} \hlkwc{scale} \hldef{= sigma,} \hlkwc{shape} \hldef{= xi),}
+      \hlkwc{xi} \hldef{=} \hlkwd{factor}\hldef{(}\hlkwd{sprintf}\hldef{(}\hlsng{"xi = %.2f"}\hldef{, xi),} \hlkwc{levels} \hldef{=} \hlkwd{sprintf}\hldef{(}\hlsng{"xi = %.2f"}\hldef{, xi_vals))}
+    \hldef{)}
+  \hldef{\})}
+\hldef{)}
+\hldef{gpd_df} \hlkwb{<-} \hldef{gpd_df[}\hlkwd{is.finite}\hldef{(gpd_df}\hlopt{$}\hldef{density), ,} \hlkwc{drop} \hldef{=} \hlnum{FALSE}\hldef{]}
 
-\begin{figure}[H]\centering
+\hlkwd{ggplot}\hldef{(gpd_df,} \hlkwd{aes}\hldef{(}\hlkwc{x} \hldef{= y,} \hlkwc{y} \hldef{= density,} \hlkwc{color} \hldef{= xi))} \hlopt{+}
+  \hlkwd{geom_line}\hldef{(}\hlkwc{linewidth} \hldef{=} \hlnum{0.9}\hldef{)} \hlopt{+}
+  \hlkwd{geom_vline}\hldef{(}
+    \hlkwc{xintercept} \hldef{= u,}
+    \hlkwc{linetype} \hldef{=} \hlsng{"dashed"}\hldef{,}
+    \hlkwc{linewidth} \hldef{=} \hlnum{0.7}\hldef{,}
+    \hlkwc{color} \hldef{=} \hlsng{"gray35"}
+  \hldef{)} \hlopt{+}
+  \hlkwd{annotate}\hldef{(}
+    \hlsng{"text"}\hldef{,}
+    \hlkwc{x} \hldef{= u} \hlopt{+} \hlnum{0.05}\hldef{,}
+    \hlkwc{y} \hldef{=} \hlkwd{max}\hldef{(gpd_df}\hlopt{$}\hldef{density)} \hlopt{*} \hlnum{0.95}\hldef{,}
+    \hlkwc{label} \hldef{=} \hlsng{"threshold u"}\hldef{,}
+    \hlkwc{hjust} \hldef{=} \hlnum{0}
+  \hldef{)} \hlopt{+}
+  \hlkwd{scale_color_manual}\hldef{(}\hlkwc{values} \hldef{=} \hlkwd{c}\hldef{(}\hlsng{"#1b9e77"}\hldef{,} \hlsng{"#d95f02"}\hldef{,} \hlsng{"#7570b3"}\hldef{))} \hlopt{+}
+  \hlkwd{labs}\hldef{(}
+    \hlkwc{title} \hldef{=} \hlsng{"GPD Tail Density Above Threshold"}\hldef{,}
+    \hlkwc{x} \hldef{=} \hlsng{"Outcome y"}\hldef{,}
+    \hlkwc{y} \hldef{=} \hlsng{"Density"}\hldef{,}
+    \hlkwc{color} \hldef{=} \hlkwa{NULL}
+  \hldef{)} \hlopt{+}
+  \hlkwd{theme_minimal}\hldef{(}\hlkwc{base_size} \hldef{=} \hlnum{10}\hldef{)} \hlopt{+}
+  \hlkwd{theme}\hldef{(}\hlkwc{legend.position} \hldef{=} \hlsng{"top"}\hldef{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
 
-
-{\centering \includegraphics[width=0.82\linewidth]{cache/figs/gpdDensityFigure} 
-
-}
-
-
-\caption{GPD tail density above threshold for multiple shape parameters.\label{fig:gpd-density}}
+\begin{figure}[H]
+\centering
+\includegraphics{figure/gpdDensityFigure-1}
+\caption{GPD tail density above threshold for multiple shape parameters.}
+\label{fig:gpd-density}
 \end{figure}
-
 
 Figure~\ref{fig:gpd-density}, captioned ``GPD tail density above threshold for multiple shape parameters,''
 illustrates the GPD density for different shape parameters $\xi$ with a fixed
@@ -450,17 +489,12 @@ exceedance distribution governed by $\Phi$. The following figure illustrates the
 
 
 
-\begin{figure}[H]\centering
-
-
-{\centering \includegraphics[width=0.82\linewidth]{cache/figs/splicedDensityFigure} 
-
-}
-
-
-\caption{Illustration of the spliced bulk--tail density construction.\label{fig:spliced-density}}
+\begin{figure}[H]
+\centering
+\includegraphics{figure/splicedDensityFigure-1}
+\caption{Illustration of the spliced bulk--tail density construction.}
+\label{fig:spliced-density}
 \end{figure}
-
 
 Figure~\ref{fig:spliced-density}, captioned ``Illustration of the spliced bulk--tail density construction,''
 visualizes the spliced bulk--tail density construction.
@@ -770,7 +804,14 @@ Let the observed data be $$
   \mathcal{D}=\{(y_i,x_i)\}_{i=1}^n,
 $$
 
-
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{data}\hldef{(}\hlsng{"nc_posX100_p3_k2"}\hldef{,} \hlkwc{package} \hldef{=} \hlsng{"CausalMixGPD"}\hldef{)}
+\hldef{dat} \hlkwb{<-} \hlkwd{data.frame}\hldef{(}\hlkwc{y} \hldef{= nc_posX100_p3_k2}\hlopt{$}\hldef{y, nc_posX100_p3_k2}\hlopt{$}\hldef{X)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
 
 with $x_i\in\mathbb{R}^p$ denoting the covariate vector (including an
 intercept if desired). The target conditional distribution
@@ -790,9 +831,28 @@ covariate-dependent through link specifications of the form
 \end{equation} where $g(\cdot)$ enforces parameter support (e.g.,
 positive scale parameters).
 
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{mcmc_fixed}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
 
-
-
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{fit} \hlkwb{<-} \hlkwd{dpmgpd}\hldef{(}
+  \hlkwc{formula} \hldef{= y} \hlopt{~} \hldef{x1} \hlopt{+} \hldef{x2} \hlopt{+} \hldef{x3,}
+  \hlkwc{data} \hldef{= dat,}
+  \hlkwc{backend} \hldef{=} \hlsng{"sb"}\hldef{,}
+  \hlkwc{kernel} \hldef{=} \hlsng{"lognormal"}\hldef{,}
+  \hlkwc{components} \hldef{=} \hlnum{5}\hldef{,}
+  \hlkwc{mcmc} \hldef{= mcmc_fixed}
+\hldef{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
 
 
 
@@ -866,7 +926,15 @@ intervals as described in Section~\ref{subsec:overview-estimation}
 \citep{Gelman2013BDA,coda_pkg}. Diagnostic plotting relies on
 established MCMC diagnostic tooling \citep{ggmcmc_pkg}.
 
-
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hlkwd{print}\hldef{(fit)}
+\hldef{p_hat} \hlkwb{<-} \hlkwd{params}\hldef{(fit)}
+\hldef{p_hat}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
 
 
 
@@ -930,7 +998,17 @@ Section~\ref{subsec:overview-model}, we now compute posterior summaries
 on the original training covariates (default behavior of
 \code{predict()} when \code{newdata} is not supplied).
 
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{q_grid} \hlkwb{<-} \hlkwd{c}\hldef{(}\hlnum{0.50}\hldef{,} \hlnum{0.90}\hldef{,} \hlnum{0.95}\hldef{,} \hlnum{0.99}\hldef{)}
+\hldef{x_eval} \hlkwb{<-} \hldef{dat[}\hlnum{1}\hlopt{:}\hlnum{20}\hldef{,} \hlkwd{c}\hldef{(}\hlsng{"x1"}\hldef{,} \hlsng{"x2"}\hldef{,} \hlsng{"x3"}\hldef{)]}
 
+\hldef{est_quant} \hlkwb{<-} \hlkwd{predict}\hldef{(fit,} \hlkwc{newdata} \hldef{= x_eval,} \hlkwc{type} \hldef{=} \hlsng{"quantile"}\hldef{,} \hlkwc{index} \hldef{= q_grid,}
+                     \hlkwc{interval} \hldef{=} \hlsng{"hpd"}\hldef{,} \hlkwc{level} \hldef{=} \hlnum{0.95}\hldef{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
 
 
 
@@ -953,13 +1031,49 @@ using the spliced quantile representation in
 as described above, with $x$ replaced by $x^\star$ and with
 user-controlled $M$ through \code{nsim\_mean}.
 
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{q_levels} \hlkwb{<-} \hlkwd{c}\hldef{(}\hlnum{0.25}\hldef{,} \hlnum{0.50}\hldef{,} \hlnum{0.75}\hldef{)}
+\hldef{x_new} \hlkwb{<-} \hlkwd{as.data.frame}\hldef{(}\hlkwd{lapply}\hldef{(}
+  \hldef{dat[,} \hlkwd{c}\hldef{(}\hlsng{"x1"}\hldef{,} \hlsng{"x2"}\hldef{,} \hlsng{"x3"}\hldef{)],}
+  \hldef{quantile,}
+  \hlkwc{probs} \hldef{= q_levels,}
+  \hlkwc{na.rm} \hldef{=} \hlnum{TRUE}
+\hldef{))}
+\hlkwd{rownames}\hldef{(x_new)} \hlkwb{<-} \hlkwd{c}\hldef{(}\hlsng{"q25"}\hldef{,} \hlsng{"q50"}\hldef{,} \hlsng{"q75"}\hldef{)}
+\hldef{y_grid} \hlkwb{<-} \hlkwd{seq}\hldef{(}\hlnum{0}\hldef{,} \hlnum{10}\hldef{,} \hlkwc{length.out} \hldef{=} \hlnum{200}\hldef{)}
+\hldef{p_grid} \hlkwb{<-} \hlkwd{c}\hldef{(}\hlnum{0.50}\hldef{,} \hlnum{0.90}\hldef{,} \hlnum{0.95}\hldef{,} \hlnum{0.99}\hldef{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
 
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{pdens} \hlkwb{<-} \hlkwd{predict}\hldef{(fit,} \hlkwc{newdata} \hldef{= x_new,} \hlkwc{y} \hldef{= y_grid,} \hlkwc{type} \hldef{=} \hlsng{"density"}\hldef{,}
+                 \hlkwc{interval} \hldef{=} \hlsng{"credible"}\hldef{,} \hlkwc{level} \hldef{=} \hlnum{0.95}\hldef{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
 
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{psurv} \hlkwb{<-} \hlkwd{predict}\hldef{(fit,} \hlkwc{newdata} \hldef{= x_new,} \hlkwc{y} \hldef{= y_grid,} \hlkwc{type} \hldef{=} \hlsng{"survival"}\hldef{,}
+                 \hlkwc{interval} \hldef{=} \hlsng{"credible"}\hldef{,} \hlkwc{level} \hldef{=} \hlnum{0.95}\hldef{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
 
-
-
-
-
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{pquant} \hlkwb{<-} \hlkwd{predict}\hldef{(fit,} \hlkwc{newdata} \hldef{= x_new,} \hlkwc{type} \hldef{=} \hlsng{"quantile"}\hldef{,} \hlkwc{index} \hldef{= p_grid,}
+                  \hlkwc{interval} \hldef{=} \hlsng{"hpd"}\hldef{,} \hlkwc{level} \hldef{=} \hlnum{0.95}\hldef{)}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
 
 
 
@@ -1116,7 +1230,7 @@ sets included with the package.
   \hldef{y} \hlopt{~} \hldef{x1} \hlopt{+} \hldef{x2} \hlopt{+} \hldef{x3,}
   \hlkwc{data}       \hldef{= dat_cl,}
   \hlkwc{kernel}     \hldef{=} \hlsng{"normal"}\hldef{,}
-  \hlkwc{type}       \hldef{=} \hlsng{"weights"}\hldef{,}
+  \hlkwc{type}       \hldef{=} \hlsng{"param"}\hldef{,}
   \hlkwc{components} \hldef{=} \hlnum{8}\hldef{,}
   \hlkwc{mcmc} \hldef{= mcmc_fixed}
 \hldef{)}
@@ -1134,7 +1248,10 @@ partition, the training cluster sizes, and the associated certainty scores.
 \hldef{cluster_psm}   \hlkwb{<-} \hlkwd{predict}\hldef{(fit_cluster,} \hlkwc{type} \hldef{=} \hlsng{"psm"}\hldef{)}
 \hldef{cluster_train} \hlkwb{<-} \hlkwd{predict}\hldef{(fit_cluster,} \hlkwc{type} \hldef{=} \hlsng{"label"}\hldef{,} \hlkwc{return_scores} \hldef{=} \hlnum{TRUE}\hldef{)}
 
-\hldef{cluster_sizes}     \hlkwb{<-} \hlkwd{as.data.frame}\hldef{(}\hlkwd{table}\hldef{(}\hlkwc{cluster} \hldef{= cluster_train}\hlopt{$}\hldef{labels))}
+\hldef{cluster_sizes} \hlkwb{<-} \hlkwd{data.frame}\hldef{(}
+  \hlkwc{cluster} \hldef{=} \hlkwd{names}\hldef{(}\hlkwd{summary}\hldef{(cluster_train)}\hlopt{$}\hldef{cluster_sizes),}
+  \hlkwc{n} \hldef{=} \hlkwd{as.integer}\hldef{(}\hlkwd{summary}\hldef{(cluster_train)}\hlopt{$}\hldef{cluster_sizes)}
+\hldef{)}
 \hldef{cluster_certainty} \hlkwb{<-} \hlkwd{apply}\hldef{(cluster_train}\hlopt{$}\hldef{scores,} \hlnum{1}\hldef{, max)}
 \end{alltt}
 \end{kframe}
@@ -1238,7 +1355,8 @@ $\boldsymbol{\Theta}_a$ collect the arm-specific mixture and tail
 parameters. The arm-wise likelihood contributions are $$
   L_a(\boldsymbol{\Theta}_a;\mathcal{D})
   =
-  \prod_{i:\,a_i=a} f_a\!\left(y_i \mid \boldsymbol{r}(\boldsymbol{x}_i); \boldsymbol{\Theta}_a\right),
+  \prod_{i:\,a_i=a} f_a\!\left(y_i \mid \boldsymbol{r}(\boldsymbol{x}_i);
+  \boldsymbol{\Theta}_a\right),
   \qquad a\in\{0,1\},
 $$ with $f_a(\cdot\mid\cdot)$ given by the spliced construction already
 defined (bulk mixture below threshold and GPD exceedances above
@@ -1407,57 +1525,25 @@ wrapper, fitting the augmented spliced model by default.
 \end{kframe}
 \end{knitrout}
 
+The fitted model object \code{cfit} contains the MCMC samples for both the PS and
+the arm-specific outcome models, and can be used to compute causal estimands and
+predictive summaries.
 
-
-
+To estimate the ATE and QTE at the empirical covariate distribution, use the
+\texttt{ate()} and \texttt{qte()} functions, which compute the
+standardized contrasts in \eqref{eq:overview_ate_standardized} and
+\eqref{eq:overview_qte_standardized}.
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{ate_hat} \hlkwb{<-} \hlkwd{ate}\hldef{(cfit,} \hlkwc{level} \hldef{=} \hlnum{0.90}\hldef{,} \hlkwc{interval} \hldef{=} \hlsng{"credible"}\hldef{)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-
-
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
 \hldef{qte_hat} \hlkwb{<-} \hlkwd{qte}\hldef{(cfit,} \hlkwc{probs} \hldef{=} \hlkwd{c}\hldef{(}\hlnum{0.50}\hldef{,} \hlnum{0.90}\hldef{,} \hlnum{0.95}\hldef{),} \hlkwc{level} \hldef{=} \hlnum{0.90}\hldef{,} \hlkwc{interval} \hldef{=} \hlsng{"hpd"}\hldef{)}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
 
-
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{Xnew} \hlkwb{<-} \hldef{df[}\hlnum{1}\hlopt{:}\hlnum{5}\hldef{,} \hlkwd{c}\hldef{(}\hlsng{"x1"}\hldef{,}\hlsng{"x2"}\hldef{,}\hlsng{"x3"}\hldef{)]}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{cate_hat} \hlkwb{<-} \hlkwd{cate}\hldef{(cfit,} \hlkwc{newdata} \hldef{= Xnew,} \hlkwc{type} \hldef{=} \hlsng{"mean"}\hldef{,} \hlkwc{level} \hldef{=} \hlnum{0.90}\hldef{)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-
-
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{cqte_hat} \hlkwb{<-} \hlkwd{cqte}\hldef{(cfit,} \hlkwc{newdata} \hldef{= Xnew,} \hlkwc{probs} \hldef{=} \hlkwd{c}\hldef{(}\hlnum{0.50}\hldef{,} \hlnum{0.90}\hldef{),} \hlkwc{level} \hldef{=} \hlnum{0.90}\hldef{)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-
-
+For subpopulation effects, the \texttt{cate()} and \texttt{cqte()} functions compute conditional contrasts at user-specified covariate rows.
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -1468,35 +1554,16 @@ wrapper, fitting the augmented spliced model by default.
 \end{kframe}
 \end{knitrout}
 
+The following code then produces conditional quantile and survival predictions at the grid points, returning treated-minus-control contrasts for quantiles and arm-specific summaries for survival.
+
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{pred_q} \hlkwb{<-} \hlkwd{predict}\hldef{(cfit,} \hlkwc{newdata} \hldef{= Xgrid,} \hlkwc{type} \hldef{=} \hlsng{"quantile"}\hldef{,} \hlkwc{p} \hldef{=} \hlkwd{c}\hldef{(}\hlnum{0.50}\hldef{,} \hlnum{0.90}\hldef{))}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-
-
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
 \hldef{pred_s} \hlkwb{<-} \hlkwd{predict}\hldef{(cfit,} \hlkwc{newdata} \hldef{= Xgrid,} \hlkwc{type} \hldef{=} \hlsng{"survival"}\hldef{,} \hlkwc{y} \hldef{=} \hlkwd{rep}\hldef{(}\hlnum{4}\hldef{,} \hlkwd{nrow}\hldef{(Xgrid)))}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
-
-
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{pred_q_trt} \hlkwb{<-} \hlkwd{attr}\hldef{(pred_q,} \hlsng{"trt"}\hldef{)}
-\hldef{pred_q_con} \hlkwb{<-} \hlkwd{attr}\hldef{(pred_q,} \hlsng{"con"}\hldef{)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-
 
 
 \subsubsection{Bulk-only causal mixtures (no GPD tail)}
@@ -1507,8 +1574,14 @@ construction). All causal estimand and prediction functions
 (\texttt{ate}, \texttt{qte}, \texttt{cate}, \texttt{cqte}, and
 \texttt{predict}) operate the same way, now interpreting
 $F_a(\cdot\mid\boldsymbol{x})$ as the bulk mixture distribution.
+
+
+
+
 \section{Data analysis I: Clustering}
 \label{sec:app-clustering}
+
+
 
 This application demonstrates the clustering wing for a conditional mixture
 model under a bulk-only likelihood (no GPD tail). The objective is to infer
@@ -1583,8 +1656,8 @@ mixture weights are global. This configuration clusters observations by
 their regression behavior and distributional differences while keeping
 cluster prevalence interpretable as a global mixing proportion.
 
-The fitted object is subsequently summarized through posterior co-clustering
-probabilities (PSM) and a representative partition.
+The fitted object is subsequently summarized through a representative
+partition together with cluster-specific response summaries.
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -1593,7 +1666,7 @@ probabilities (PSM) and a representative partition.
   \hlkwc{formula}    \hldef{= crim} \hlopt{~} \hldef{lstat} \hlopt{+} \hldef{rm} \hlopt{+} \hldef{nox,}
   \hlkwc{data}       \hldef{= train_dat,}
   \hlkwc{kernel}     \hldef{=} \hlsng{"lognormal"}\hldef{,}
-  \hlkwc{type}       \hldef{=} \hlsng{"weight"}\hldef{,}
+  \hlkwc{type}       \hldef{=} \hlsng{"weights"}\hldef{,}
   \hlkwc{components} \hldef{=} \hlnum{15}\hldef{,}
   \hlkwc{mcmc}       \hldef{= mcmc_fixed}
 \hldef{)}
@@ -1601,26 +1674,21 @@ probabilities (PSM) and a representative partition.
 \end{kframe}
 \end{knitrout}
 
-\subsection{Posterior similarity matrix and representative partition}
+\subsection{Representative partition and cluster-specific response summaries}
 
-Because mixture components are not identifiable up to permutation, clustering
-summaries are reported using label-invariant quantities. The PSM is defined by
-\[
-  S_{i\ell}=\Pr(z_i=z_\ell\mid \text{data}), \qquad i,\ell=1,\ldots,n,
-\]
-and is estimated by averaging co-clustering indicators across posterior draws.
-A single representative partition is then extracted from the posterior draws
-by selecting a sampled partition whose induced adjacency structure is closest
-to the PSM under squared loss, yielding stable cluster labels for the training
-data.
+Because mixture components are not identifiable up to permutation, the
+training labels are still extracted from the posterior through the PSM and
+Dahl's least-squares representative partition. For presentation, however, we
+focus on the resulting partition and the response distributions within its
+representative clusters rather than on the full PSM heatmap.
 
-The following commands extract the training PSM and the representative labels.
+The following command extracts the representative labels for the training
+sample.
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hldef{PSM_train} \hlkwb{<-} \hlkwd{predict}\hldef{(fit_clust,} \hlkwc{type} \hldef{=} \hlsng{"psm"}\hldef{)}
-\hldef{z_train}   \hlkwb{<-} \hlkwd{predict}\hldef{(fit_clust,} \hlkwc{type} \hldef{=} \hlsng{"label"}\hldef{)}
+\hldef{z_train} \hlkwb{<-} \hlkwd{predict}\hldef{(fit_clust,} \hlkwc{type} \hldef{=} \hlsng{"label"}\hldef{)}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
@@ -1637,32 +1705,32 @@ representative partition (Table~\ref{tab:cluster-train-alloc}).
 \centering
 \begin{tabular}[t]{l|r|r|r|r|r|r|r|r|r|r|r}
 \hline
-sample & C1 & C2 & C3 & C4 & C5 & C6 & C7 & C8 & C9 & C10 & C11\\
+sample & C3 & C5 & C2 & C1 & C9 & C4 & C6 & C7 & C11 & C8 & C10\\
 \hline
-train & 28 & 56 & 163 & 4 & 113 & 3 & 2 & 1 & 6 & 1 & 2\\
+train & 163 & 113 & 56 & 28 & 6 & 4 & 3 & 2 & 2 & 1 & 1\\
 \hline
 \end{tabular}
 \end{table}
 
 \end{knitrout}
 
-A visualization of the PSM provides a global view of co-clustering uncertainty.
-Block structure indicates groups of tracts that are consistently assigned
-together across posterior draws, as shown in Figure~\ref{fig:cluster-psm-train},
-``Posterior similarity matrix for the training sample.''
+A response-summary view of the representative partition is shown in
+Figure~\ref{fig:cluster-summary-train}, captioned ``Response distributions
+across representative training clusters.'' The clusters are ordered by
+decreasing allocation size from left to right.
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{image}\hldef{(PSM_train}\hlopt{$}\hldef{psm,} \hlkwc{main} \hldef{=} \hlsng{"Posterior similarity matrix (training)"}\hldef{)}
+\hlkwd{plot}\hldef{(fit_clust,} \hlkwc{which} \hldef{=} \hlsng{"summary"}\hldef{)}
 \end{alltt}
-\end{kframe}\begin{figure}[H]
+\end{kframe}\begin{figure}[!htbp]
 
-{\centering \includegraphics[width=0.82\linewidth]{figure/app_cluster_psm_plot-code-1} 
+{\centering \includegraphics[width=0.78\linewidth]{figure/app_cluster_summary_plot-code-1} 
 
 }
 
-\caption{Posterior similarity matrix for the training sample. \label{fig:cluster-psm-train}}\label{fig:app_cluster_psm_plot-code}
+\caption{Response distributions across representative training clusters. \label{fig:cluster-summary-train}}\label{fig:app_cluster_summary_plot-code}
 \end{figure}
 
 \end{knitrout}
@@ -1694,68 +1762,105 @@ and \ref{tab:app_cluster_old_new_test-results}).
 
 
 
-
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{table}
 
-\caption{\label{tab:app_cluster_old_new_test-results}Test cluster sizes}
+\caption{\label{tab:app_cluster_old_new_train-results}Training cluster sizes (comparison view)}
 \centering
-\begin{tabular}[t]{l|r|r|r|r}
+\begin{tabular}[t]{l|r|r|r|r|r|r|r|r|r|r|r}
 \hline
-sample & C1 & C2 & C3 & C5\\
+sample & C3 & C5 & C2 & C1 & C9 & C4 & C6 & C7 & C11 & C8 & C10\\
 \hline
-test & 13 & 23 & 61 & 30\\
+train & 163 & 113 & 56 & 28 & 6 & 4 & 3 & 2 & 2 & 1 & 1\\
 \hline
 \end{tabular}
 \end{table}
 
 \end{knitrout}
 
-We also visualize the shift in cluster frequencies from training to test to
-assess whether the inferred grouping structure generalizes; see
-Figure~\ref{fig:cluster-old-new-barplot}, captioned ``Cluster frequencies in training and test samples under representative labels.''
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{table}
+
+\caption{\label{tab:app_cluster_old_new_test-results}Test cluster sizes}
+\centering
+\begin{tabular}[t]{l|r|r|r|r|r|r|r|r|r|r|r}
+\hline
+sample & C3 & C5 & C2 & C1 & C9 & C4 & C6 & C7 & C11 & C8 & C10\\
+\hline
+test & 61 & 30 & 23 & 13 & 0 & 0 & 0 & 0 & 0 & 0 & 0\\
+\hline
+\end{tabular}
+\end{table}
+
+\end{knitrout}
+
+To summarize the dominant representative clusters, Table~\ref{tab:cluster-top5-populated}
+reports descriptive statistics for up to the five most populated training clusters.
+For each cluster we show the cluster size together with within-cluster means
+and standard deviations for the response and standardized covariates.
+
+
+
+\begin{table}
+\centering
+\caption{\label{tab:app_cluster_top5_populated-results}Descriptive summaries for up to the five most populated representative clusters \label{tab:cluster-top5-populated}}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\fontsize{7}{9}\selectfont
+\begin{tabular}[t]{lrrrrrrrrrrr}
+\toprule
+cluster & n & crim\_mean & crim\_sd & lstat\_mean & lstat\_sd & rm\_mean & rm\_sd & nox\_mean & nox\_sd & certainty\_mean & certainty\_sd\\
+\midrule
+C3 & 163 & 0.190 & 0.328 & -0.761 & 0.410 & 0.539 & 0.866 & -0.809 & 0.428 & 0.304 & 0.081\\
+C5 & 113 & 4.662 & 13.928 & 0.410 & 0.699 & -0.433 & 0.524 & 0.045 & 0.494 & 0.146 & 0.023\\
+C2 & 56 & 8.722 & 7.219 & 0.636 & 0.839 & 0.217 & 0.836 & 1.277 & 0.462 & 0.324 & 0.116\\
+C1 & 28 & 10.514 & 9.900 & 1.602 & 1.229 & -1.623 & 1.062 & 1.795 & 0.801 & 0.490 & 0.189\\
+C9 & 6 & 3.104 & 5.024 & -0.187 & 0.539 & 0.173 & 0.455 & 0.093 & 0.354 & 0.157 & 0.027\\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+
+
+We also compare the training and test allocations graphically in
+Figure~\ref{fig:cluster-old-new-summary}, captioned ``Response distributions
+for training and test samples under representative labels.'' The test-sample
+boxplots are overlaid on the training distributions so that the same
+representative clusters can be compared directly.
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{ggplot}\hldef{(cluster_old_new_counts,} \hlkwd{aes}\hldef{(}\hlkwc{x} \hldef{= cluster,} \hlkwc{y} \hldef{= n,} \hlkwc{fill} \hldef{= sample))} \hlopt{+}
-  \hlkwd{geom_col}\hldef{(}\hlkwc{position} \hldef{=} \hlsng{"dodge"}\hldef{)} \hlopt{+}
-  \hlkwd{labs}\hldef{(}
-    \hlkwc{title} \hldef{=} \hlsng{"Cluster frequencies: training vs test"}\hldef{,}
-    \hlkwc{x} \hldef{=} \hlsng{"Cluster (representative partition)"}\hldef{,}
-    \hlkwc{y} \hldef{=} \hlsng{"Count"}\hldef{,}
-    \hlkwc{fill} \hldef{=} \hlsng{"Sample"}
-  \hldef{)} \hlopt{+}
-  \hlkwd{theme_minimal}\hldef{(}\hlkwc{base_size} \hldef{=} \hlnum{10}\hldef{)}
+\hlkwd{plot}\hldef{(z_test,} \hlkwc{type} \hldef{=} \hlsng{"summary"}\hldef{)}
 \end{alltt}
-\end{kframe}\begin{figure}[H]
+\end{kframe}\begin{figure}[!htbp]
 
-{\centering \includegraphics[width=0.82\linewidth]{figure/app_cluster_old_new_barplot-code-1} 
+{\centering \includegraphics[width=0.78\linewidth]{figure/app_cluster_old_new_summary-code-1} 
 
 }
 
-\caption{Cluster frequencies in training and test samples under representative labels. \label{fig:cluster-old-new-barplot}}\label{fig:app_cluster_old_new_barplot-code}
+\caption{Response distributions for training and test samples under representative labels. \label{fig:cluster-old-new-summary}}\label{fig:app_cluster_old_new_summary-code}
 \end{figure}
 
 \end{knitrout}
 
 
 This analysis illustrates the intended clustering workflow: inference is
-summarized through co-clustering probabilities and a representative training
-partition, and new observations are assigned to those clusters using posterior
-predictive co-clustering evidence. In Section~\ref{sec:app-causal}, we next
-turn to the causal workflow, which targets treatment contrasts rather than
-latent partitions.
+summarized through a representative training partition, ordered cluster-size
+tables, and cluster-specific response summaries, and new observations are
+assigned to those clusters using posterior predictive co-clustering evidence.
+In Section~\ref{sec:app-causal}, we next turn to the causal workflow, which
+targets treatment contrasts rather than latent partitions.
 
 
 
-I\section{Data analysis II: Causal Inference}
+\section{Data analysis II: Causal Inference}
 \label{sec:app-causal}
 
 This application demonstrates causal estimands from a two-arm spliced
 DPM regression with a GPD tail. In contrast to Section~\ref{sec:app-clustering}, where the
 focus is model-based clustering under a CRP bulk-only regression, here
-the focus is inference on mean and quantile treatment contrasts,
+the focus is inference on restricted-mean and quantile treatment contrasts,
 including conditional (covariate-specific) effects and extreme
 upper-tail behavior.
 
@@ -1769,19 +1874,33 @@ heavy-tailed earnings-style application.
 Let $Y$ denote post-program earnings (USD), $A\in\{0,1\}$ denote
 randomized assignment to training, and $\boldsymbol{x}$ denote baseline
 covariates including previous earnings and demographics. The scientific
-goal is to quantify how training changes (i) average earnings and (ii)
+goal is to quantify how training changes (i) upper-tail-truncated average
+earnings and (ii)
 distributional features of earnings, with special attention to the upper
 tail.
 
-Throughout, we report four causal estimands: \begin{align*}
-  \mathrm{ATE} &= \mathbb{E}\{Y(1)\}-\mathbb{E}\{Y(0)\},\\
+For this heavy-tailed benchmark, unrestricted mean effects are sensitive
+to a small number of extreme posterior draws. I therefore use
+restricted-mean versions of the mean-based causal estimands with cutoff
+$c$ equal to the empirical 95th percentile of observed earnings.
+Throughout, we report four causal estimands:
+\begin{align*}
+  \mathrm{RMATE}(c)
+    &= \mathbb{E}\bigl[\min\{Y(1),c\}\bigr]
+      - \mathbb{E}\bigl[\min\{Y(0),c\}\bigr],\\
   \mathrm{QTE}(\tau) &= Q_{Y(1)}(\tau)-Q_{Y(0)}(\tau),\\
-  \mathrm{CATE}(\boldsymbol{x}) &= \mathbb{E}\{Y(1)\mid \boldsymbol{X}=\boldsymbol{x}\}-\mathbb{E}\{Y(0)\mid \boldsymbol{X}=\boldsymbol{x}\},\\
-  \mathrm{CQTE}(\tau,\boldsymbol{x}) &= Q_{Y(1)\mid \boldsymbol{X}=\boldsymbol{x}}(\tau)-Q_{Y(0)\mid \boldsymbol{X}=\boldsymbol{x}}(\tau),
-\end{align*} where $Q(\tau)$ denotes the $\tau$-quantile. The
-standardized estimands (ATE, QTE) integrate over the empirical
+  \mathrm{RMCATE}(c,\boldsymbol{x})
+    &= \mathbb{E}\bigl[\min\{Y(1),c\}\mid \boldsymbol{x}\bigr] \\
+    &\quad - \mathbb{E}\bigl[\min\{Y(0),c\}\mid \boldsymbol{x}\bigr],\\
+  \mathrm{CQTE}(\tau\mid \boldsymbol{x})
+    &= Q_1(\tau\mid \boldsymbol{x}) - Q_0(\tau\mid \boldsymbol{x}).
+\end{align*}
+Here $Q_a(\tau\mid \boldsymbol{x})$ denotes the arm-specific
+$\tau$-quantile. The standardized estimands (RMATE, QTE) integrate over
+the empirical
 distribution of $\{\boldsymbol{x}_i\}_{i=1}^n$; the conditional
-estimands (CATE, CQTE) are evaluated at user-chosen covariate profiles.
+estimands (RMCATE, CQTE) are evaluated at user-chosen covariate
+profiles.
 
 
 
@@ -1819,10 +1938,9 @@ substantive analysis we recommend longer runs and sensitivity checks
   \hlkwc{X} \hldef{= X,}
   \hlkwc{treat} \hldef{= A,}
   \hlkwc{backend} \hldef{=} \hlsng{"sb"}\hldef{,}
-  \hlkwc{kernel} \hldef{=} \hlsng{"normal"}\hldef{,}
+  \hlkwc{kernel} \hldef{=} \hlsng{"lognormal"}\hldef{,}
   \hlkwc{components} \hldef{=} \hlnum{4}\hldef{,}
-  \hlkwc{mcmc} \hldef{= mcmc_fixed,}
-  \hlkwc{show_progress} \hldef{=} \hlnum{FALSE}
+  \hlkwc{mcmc} \hldef{=} \hlkwd{c}\hldef{(mcmc_fixed,} \hlkwd{list}\hldef{(}\hlkwc{show_progress} \hldef{=} \hlnum{FALSE}\hldef{))}
 \hldef{)}
 \end{alltt}
 \end{kframe}
@@ -1830,31 +1948,45 @@ substantive analysis we recommend longer runs and sensitivity checks
 
 
 
-\subsection{Standardized estimands: ATE and QTE}
+\subsection{Standardized estimands: restricted mean and QTE}
 
-I first summarize the overall average effect using \texttt{ate()},
-which aggregates draw-wise conditional mean contrasts over the empirical
-covariate distribution. I then compute quantile effects at a grid
-including upper-tail levels.
+I first summarize the overall effect using a restricted-mean ATE,
+implemented by \texttt{ate(type = "rmean", cutoff = c)} with
+$c = `r round(rm_cutoff, 3)`$. This keeps the mean-based contrast finite
+and interpretable on a common earnings scale. I then compute QTE on a
+quantile grid that extends into the upper tail but stops short of the
+most unstable 0.99 level in the main text.
 
 
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hldef{ate_fit} \hlkwb{<-} \hlkwd{ate}\hldef{(fit,} \hlkwc{show_progress} \hldef{=} \hlnum{FALSE}\hldef{)}
+\hldef{ate_fit} \hlkwb{<-} \hlkwd{ate}\hldef{(}
+  \hldef{fit,}
+  \hlkwc{type} \hldef{=} \hlsng{"rmean"}\hldef{,}
+  \hlkwc{cutoff} \hldef{= rm_cutoff,}
+  \hlkwc{show_progress} \hldef{=} \hlnum{FALSE}
+\hldef{)}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-  id   estimate      lower      upper
-1  1 -0.4121421 -0.7170418 0.09078951
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
+\begin{table}
+\centering
+\caption{\label{tab:app2-ate-results}Restricted-mean ATE with cutoff c = 8.036}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{rrrr}
+\toprule
+id & estimate & lower & upper\\
+\midrule
+1 & 0.816 & 0.417 & 1.199\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -1864,17 +1996,25 @@ including upper-tail levels.
 \end{kframe}
 \end{knitrout}
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-  id index   estimate       lower      upper
-1  1  0.25 -0.8197706 -1.48164947 -0.2415758
-2  1  0.50 -0.6946461 -1.51414175 -0.1011650
-3  1  0.75  0.7299151 -0.25027110  1.2937407
-4  1  0.90  0.7794739 -0.08451773  1.6423832
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
+\begin{table}
+\centering
+\caption{\label{tab:app2-qte-results}Marginal QTE estimates across the main-text quantile grid}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{rrrrr}
+\toprule
+id & index & estimate & lower & upper\\
+\midrule
+1 & 0.25 & -0.161 & -0.320 & -0.001\\
+1 & 0.50 & 0.674 & -0.135 & 1.659\\
+1 & 0.75 & 1.561 & 0.683 & 2.564\\
+1 & 0.90 & 4.702 & 1.951 & 9.707\\
+1 & 0.95 & 11.531 & 4.315 & 29.668\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -1885,15 +2025,9 @@ including upper-tail levels.
 \end{kframe}
 \end{knitrout}
 
-\begin{figure}[H]\centering
-
-
-{\centering \includegraphics[width=0.82\linewidth]{cache/figs/app2_ate_effect} 
-
-}
-
-
-\caption{Posterior ATE effect summary for the spliced causal model.\label{fig:app2-ate-effect}}
+\begin{figure}[!htbp]\centering
+\includegraphics[width=0.78\linewidth]{D:/Git-Repos/CausalMixGPD-Package/CausalMixGPD/vignettes/manuscript/cache/figs/app2_ate_effect.png}
+\caption{Posterior restricted-mean ATE summary for the spliced causal model with cutoff $c=8.036$.\label{fig:app2-ate-effect}}
 \end{figure}
 
 
@@ -1906,27 +2040,24 @@ including upper-tail levels.
 \end{kframe}
 \end{knitrout}
 
-\begin{figure}[H]\centering
-
-
-{\centering \includegraphics[width=0.82\linewidth]{cache/figs/app2_qte_effect} 
-
-}
-
-
-\caption{Posterior QTE effect summary across quantile levels.\label{fig:app2-qte-effect}}
+\begin{figure}[!htbp]\centering
+\includegraphics[width=0.78\linewidth]{D:/Git-Repos/CausalMixGPD-Package/CausalMixGPD/vignettes/manuscript/cache/figs/app2_qte_effect.png}
+\caption{Posterior QTE summary across the main-text quantile grid.\label{fig:app2-qte-effect}}
 \end{figure}
 
 
 The marginal treatment-effect visual summaries are shown in
-Figure~\ref{fig:app2-ate-effect}, captioned ``Posterior ATE effect summary for the spliced causal model,'' for the
-ATE, and Figure~\ref{fig:app2-qte-effect}, captioned ``Posterior QTE effect summary across quantile levels.'' for the QTE.
+Figure~\ref{fig:app2-ate-effect}, captioned ``Posterior restricted-mean
+ATE summary for the spliced causal model with cutoff
+$c=`r round(rm_cutoff, 3)`$,'' for the restricted-mean ATE, and
+Figure~\ref{fig:app2-qte-effect}, captioned ``Posterior QTE summary
+across the main-text quantile grid.'' for the QTE.
 
-\subsection{Conditional estimands: CATE and CQTE at representative profiles}
+\subsection{Conditional estimands: restricted mean CATE and CQTE at representative profiles}
 
 To illustrate heterogeneity, we evaluate conditional effects at two
 covariate profiles: (i) a
-`typical'' profile at sample medians and (ii) a`high previous earnings''
+``typical'' profile at sample medians and (ii) a ``high previous earnings''
 profile at the 80th percentile of previous earnings, holding other
 covariates at medians.
 
@@ -1945,37 +2076,55 @@ covariates at medians.
 \end{kframe}
 \end{knitrout}
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-  profile_var
-1          x1
-                       x1          x2         x3
-typical        0.07649836 -0.09628321 0.01209002
-high_prev_earn 0.79678466 -0.09628321 0.01209002
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
+\begin{table}
+\centering
+\caption{\label{tab:app2-xnew-results}Representative profiles used for conditional causal contrasts; the high-profile shift is applied to x1.}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lrrr}
+\toprule
+  & x1 & x2 & x3\\
+\midrule
+typical & 0.076 & -0.096 & 0.012\\
+high\_prev\_earn & 0.797 & -0.096 & 0.012\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
 
 
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hldef{cate_fit} \hlkwb{<-} \hlkwd{cate}\hldef{(fit,} \hlkwc{newdata} \hldef{= xnew,} \hlkwc{show_progress} \hldef{=} \hlnum{FALSE}\hldef{)}
+\hldef{cate_fit} \hlkwb{<-} \hlkwd{cate}\hldef{(}
+  \hldef{fit,}
+  \hlkwc{newdata} \hldef{= xnew,}
+  \hlkwc{type} \hldef{=} \hlsng{"rmean"}\hldef{,}
+  \hlkwc{cutoff} \hldef{= rm_cutoff,}
+  \hlkwc{show_progress} \hldef{=} \hlnum{FALSE}
+\hldef{)}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-  id   estimate      lower      upper
-1  1 -0.3645759 -0.6971991  0.1087821
-2  2 -1.4191524 -2.2463081 -0.6754342
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
+\begin{table}
+\centering
+\caption{\label{tab:app2-cate-results}Restricted-mean CATE estimates with cutoff c = 8.036}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{rrrr}
+\toprule
+id & estimate & lower & upper\\
+\midrule
+1 & 0.825 & 0.239 & 1.348\\
+2 & 0.950 & 0.332 & 1.499\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
 
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
@@ -1985,21 +2134,66 @@ high_prev_earn 0.79678466 -0.09628321 0.01209002
 \end{kframe}
 \end{knitrout}
 
+\begin{table}
+\centering
+\caption{\label{tab:app2-cqte-results}Conditional QTE estimates at the representative profiles}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{rrrrr}
+\toprule
+id & index & estimate & lower & upper\\
+\midrule
+1 & 0.25 & -0.202 & -0.317 & -0.089\\
+1 & 0.50 & 0.000 & 0.000 & 0.000\\
+1 & 0.75 & 1.059 & 0.535 & 1.612\\
+1 & 0.90 & 1.299 & 0.758 & 1.786\\
+1 & 0.95 & 1.664 & 1.109 & 2.268\\
+\addlinespace
+2 & 0.25 & -0.202 & -0.317 & -0.089\\
+2 & 0.50 & 0.000 & 0.000 & 0.000\\
+2 & 0.75 & 1.074 & 0.568 & 1.637\\
+2 & 0.90 & 1.684 & 1.071 & 2.227\\
+2 & 0.95 & 2.481 & 1.535 & 3.350\\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+
+
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-  id index   estimate      lower       upper
-1  1  0.25 -0.2157592 -0.5805429  0.08519506
-2  1  0.50 -0.2653653 -0.4044642 -0.07230213
-3  1  0.75 -0.2282270 -0.4720426  0.05270702
-4  1  0.90 -0.1783537 -0.8925062  0.33589134
-5  1  0.95 -0.1166213 -1.2130864  0.59538829
-6  1  0.99 -0.6052849 -3.2226522  0.81979673
-\end{verbatim}
+\begin{alltt}
+\hldef{cate_effect_plot} \hlkwb{<-} \hlkwd{plot}\hldef{(cate_fit,} \hlkwc{type} \hldef{=} \hlsng{"effect"}\hldef{)}
+\hldef{cate_effect_plot}
+\end{alltt}
 \end{kframe}
 \end{knitrout}
 
-CATE/CQTE effect plots are omitted in this PDF.
+\begin{figure}[!htbp]\centering
+\includegraphics[width=0.78\linewidth]{D:/Git-Repos/CausalMixGPD-Package/CausalMixGPD/vignettes/manuscript/cache/figs/app2_cate_effect.png}
+\caption{Posterior restricted-mean CATE summary at the representative profiles, with cutoff $c=8.036$.\label{fig:app2-cate-effect}}
+\end{figure}
+
+
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
+\begin{alltt}
+\hldef{cqte_effect_plot} \hlkwb{<-} \hlkwd{plot}\hldef{(cqte_fit,} \hlkwc{type} \hldef{=} \hlsng{"effect"}\hldef{,} \hlkwc{facet_by} \hldef{=} \hlsng{"id"}\hldef{)}
+\hldef{cqte_effect_plot}
+\end{alltt}
+\end{kframe}
+\end{knitrout}
+
+\begin{figure}[!htbp]\centering
+\includegraphics[width=0.78\linewidth]{D:/Git-Repos/CausalMixGPD-Package/CausalMixGPD/vignettes/manuscript/cache/figs/app2_cqte_effect.png}
+\caption{Posterior CQTE summaries at the representative profiles.\label{fig:app2-cqte-effect}}
+\end{figure}
+
+
+The conditional effect plots are shown in Figure~\ref{fig:app2-cate-effect}
+for the restricted-mean CATE and Figure~\ref{fig:app2-cqte-effect} for
+the CQTE profiles.
 
 \subsection{Tail behavior}
 
@@ -2009,25 +2203,34 @@ tail and greater propensity for extreme earnings.
 
 
 
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{verbatim}
-     arm      mean         sd    q0.025    q0.500    q0.975
- treated 0.5830602 0.04488664 0.4780895 0.5805598 0.6883067
- control 0.3667860 0.11154470 0.1951404 0.4457394 0.4635703
-\end{verbatim}
-\end{kframe}
-\end{knitrout}
+\begin{table}
+\centering
+\caption{\label{tab:app2-tail-results}Posterior summaries of the arm-specific GPD tail-shape parameters}
+\centering
+\fontsize{8}{10}\selectfont
+\begin{tabular}[t]{lrrrrr}
+\toprule
+arm & mean & sd & q0.025 & q0.500 & q0.975\\
+\midrule
+treated & 0.557 & 0.053 & 0.464 & 0.556 & 0.646\\
+control & 0.414 & 0.079 & 0.319 & 0.407 & 0.563\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
 
 \subsection{Interpretation}
 
-The ATE summarizes the average shift in earnings under training, while
-QTE describes how the effect varies across the marginal outcome
-distribution. CATE and CQTE extend these contrasts to covariate-specific
-comparisons, illustrating treatment effect heterogeneity in both central
-and extreme quantiles. Finally, arm-specific tail indices $\xi_a$
-provide a parsimonious summary of whether training changes extreme
-behavior beyond what is captured by bulk-only regression.
+The restricted-mean ATE indicates a positive average earnings gain below
+the empirical cutoff, and the QTE profile shows that the treatment
+effect strengthens markedly in the upper part of the outcome
+distribution. The restricted-mean CATE estimates are positive at both
+representative profiles, while the CQTE curves show stronger upper-tail
+gains for the higher previous-earnings profile. Finally, the treated arm
+has the larger posterior tail index $\xi_a$, indicating a heavier upper
+tail under training and explaining why unrestricted mean contrasts are
+much less stable in this application.
 
 
 \section{Discussion}

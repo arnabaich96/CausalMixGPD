@@ -16,6 +16,7 @@ article_rnw <- file.path(manuscript_dir, "CausalMixGPD_JSS_article.Rnw")
 article_tex <- file.path(manuscript_dir, "CausalMixGPD_JSS_article.tex")
 article_synctex <- file.path(manuscript_dir, "CausalMixGPD_JSS_article.synctex.gz")
 article_concord <- file.path(manuscript_dir, "CausalMixGPD_JSS_article-concordance.tex")
+assets_dir <- file.path(manuscript_dir, "assets")
 
 with_working_dir <- function(dir, expr) {
   old_wd <- getwd()
@@ -61,6 +62,12 @@ cleanup_root_artifacts <- function(root_dir) {
   }
 }
 
+prepend_path <- function(var, value) {
+  path_sep <- if (.Platform$OS.type == "windows") ";" else ":"
+  cur <- Sys.getenv(var, unset = "")
+  if (nzchar(cur)) paste0(value, path_sep, cur) else value
+}
+
 if (file.exists(file.path(manuscript_dir, "assets", "jss.bst")) &&
     !file.exists(file.path(manuscript_dir, "jss.bst"))) {
   message("Copying jss.bst from assets/ to manuscript directory...")
@@ -80,6 +87,35 @@ message("Knitting CausalMixGPD_JSS_article.Rnw with concordance support...")
 old_concordance <- knitr::opts_knit$get("concordance")
 on.exit(knitr::opts_knit$set(concordance = old_concordance), add = TRUE)
 knitr::opts_knit$set(concordance = TRUE)
+old_chunk_opts <- knitr::opts_chunk$get()
+on.exit(knitr::opts_chunk$set(old_chunk_opts), add = TRUE)
+knitr::opts_chunk$set(
+  fig.width = 5,
+  fig.height = 2.5,
+  out.width = "0.82\\linewidth",
+  fig.align = "center",
+  fig.pos = "H",
+  size = "footnotesize",
+  tidy = FALSE,
+  echo = TRUE,
+  eval = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  error = FALSE,
+  tidy.opts = list(width.cutoff = 60),
+  autodep = TRUE,
+  comment = NA
+)
+old_width <- getOption("width")
+old_rel_path <- getOption("knitr.graphics.rel_path")
+on.exit(options(width = old_width, knitr.graphics.rel_path = old_rel_path), add = TRUE)
+options(width = 60, knitr.graphics.rel_path = FALSE)
+if (dir.exists(assets_dir)) {
+  Sys.setenv(
+    TEXINPUTS = prepend_path("TEXINPUTS", paste0(normalizePath(assets_dir, winslash = "/", mustWork = TRUE), "//")),
+    BSTINPUTS = prepend_path("BSTINPUTS", normalizePath(assets_dir, winslash = "/", mustWork = TRUE))
+  )
+}
 cleanup_root_artifacts(project_root)
 with_working_dir(manuscript_dir, {
   knitr::knit(

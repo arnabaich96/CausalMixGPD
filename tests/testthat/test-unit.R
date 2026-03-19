@@ -2411,6 +2411,36 @@ test_that("plot.causalmixgpd_qte returns both plots by default", {
   expect_true("treatment_effect" %in% names(result))
 })
 
+test_that("plot.causalmixgpd_qte defaults CQTE to effect plot faceted by id", {
+  skip_if_not_installed("ggplot2")
+  probs <- c(0.25, 0.5, 0.75)
+  qte <- make_mock_qte()
+  qte$type <- "cqte"
+  qte$n_pred <- 3L
+  qte$ps <- c(0.2, 0.5, 0.8)
+  qte$probs <- probs
+  qte$grid <- probs
+  qte$fit <- matrix(c(
+    0.1, 0.2, 0.3,
+    0.2, 0.3, 0.4,
+    0.3, 0.4, 0.5
+  ), nrow = 3L, byrow = TRUE)
+  qte$lower <- qte$fit - 0.1
+  qte$upper <- qte$fit + 0.1
+
+  result <- plot_causalmixgpd_qte(qte)
+  expect_true(inherits(result, "gg") || inherits(result, "ggplot"))
+  expect_true(is.factor(result$data$x_plot))
+  expect_equal(levels(result$data$x_plot), paste0("\u03C4 = ", probs))
+
+  build <- ggplot2::ggplot_build(result)
+  line_data <- build$data[[1]]
+  panel_unique_x <- vapply(split(line_data$x, line_data$PANEL), function(z) length(unique(z)), integer(1))
+
+  expect_true(all(panel_unique_x == length(probs)))
+  expect_equal(sort(unique(as.numeric(line_data$x))), seq_along(probs), tolerance = 1e-12)
+})
+
 test_that("plot.causalmixgpd_qte effect type works", {
   skip_if_not_installed("ggplot2")
   qte <- make_mock_qte()
@@ -2440,10 +2470,12 @@ test_that("plot.causalmixgpd_qte marginal effect uses quantile levels on x-axis"
   qte$con$fit <- data.frame(id = 1L, index = probs, estimate = c(0.9, 1.1, 1.3))
 
   result <- plot_causalmixgpd_qte(qte, type = "effect")
+  expect_true(is.factor(result$data$x_plot))
+  expect_equal(levels(result$data$x_plot), paste0("\u03C4 = ", probs))
   build <- ggplot2::ggplot_build(result)
   line_data <- build$data[[1]]
 
-  expect_equal(as.numeric(line_data$x), probs, tolerance = 1e-12)
+  expect_equal(as.numeric(line_data$x), seq_along(probs), tolerance = 1e-12)
   expect_equal(length(unique(line_data$PANEL)), 1L)
 })
 
@@ -2466,6 +2498,33 @@ test_that("plot.causalmixgpd_qte effect uses pointwise error bars instead of rib
 
   expect_true("GeomErrorbar" %in% geom_classes)
   expect_false("GeomRibbon" %in% geom_classes)
+})
+
+test_that("plot.causalmixgpd_qte effect facets by id using quantile levels on x-axis", {
+  skip_if_not_installed("ggplot2")
+  probs <- c(0.25, 0.5, 0.75)
+  qte <- make_mock_qte()
+  qte$n_pred <- 3L
+  qte$ps <- c(0.2, 0.5, 0.8)
+  qte$probs <- probs
+  qte$grid <- probs
+  qte$fit <- matrix(c(
+    0.1, 0.2, 0.3,
+    0.2, 0.3, 0.4,
+    0.3, 0.4, 0.5
+  ), nrow = 3L, byrow = TRUE)
+  qte$lower <- qte$fit - 0.1
+  qte$upper <- qte$fit + 0.1
+
+  result <- plot_causalmixgpd_qte(qte, type = "effect", facet_by = "id")
+  expect_true(is.factor(result$data$x_plot))
+  expect_equal(levels(result$data$x_plot), paste0("\u03C4 = ", probs))
+  build <- ggplot2::ggplot_build(result)
+  line_data <- build$data[[1]]
+  panel_unique_x <- vapply(split(line_data$x, line_data$PANEL), function(z) length(unique(z)), integer(1))
+
+  expect_true(all(panel_unique_x == length(probs)))
+  expect_equal(sort(unique(as.numeric(line_data$x))), seq_along(probs), tolerance = 1e-12)
 })
 
 test_that("plot.causalmixgpd_qte arms type works", {
@@ -2508,6 +2567,116 @@ test_that("plot.causalmixgpd_qte arms use pointwise error bars instead of ribbon
   expect_false("GeomRibbon" %in% geom_classes)
 })
 
+test_that("plot.causalmixgpd_qte arms facets by id using quantile levels on x-axis", {
+  skip_if_not_installed("ggplot2")
+  probs <- c(0.25, 0.5, 0.75)
+  qte <- make_mock_qte()
+  qte$n_pred <- 3L
+  qte$ps <- c(0.2, 0.5, 0.8)
+  qte$probs <- probs
+  qte$grid <- probs
+  qte$trt$fit <- data.frame(
+    id = rep(1:3, each = 3),
+    index = rep(probs, times = 3),
+    estimate = c(1.0, 1.2, 1.4, 1.1, 1.3, 1.5, 1.2, 1.4, 1.6),
+    lower = c(0.9, 1.1, 1.3, 1.0, 1.2, 1.4, 1.1, 1.3, 1.5),
+    upper = c(1.1, 1.3, 1.5, 1.2, 1.4, 1.6, 1.3, 1.5, 1.7)
+  )
+  qte$con$fit <- data.frame(
+    id = rep(1:3, each = 3),
+    index = rep(probs, times = 3),
+    estimate = c(0.8, 1.0, 1.2, 0.9, 1.1, 1.3, 1.0, 1.2, 1.4),
+    lower = c(0.7, 0.9, 1.1, 0.8, 1.0, 1.2, 0.9, 1.1, 1.3),
+    upper = c(0.9, 1.1, 1.3, 1.0, 1.2, 1.4, 1.1, 1.3, 1.5)
+  )
+
+  result <- plot_causalmixgpd_qte(qte, type = "arms", facet_by = "id")
+  expect_true(is.factor(result$data$x_plot))
+  expect_equal(levels(result$data$x_plot), paste0("\u03C4 = ", probs))
+  build <- ggplot2::ggplot_build(result)
+  line_data <- build$data[[1]]
+  panel_unique_x <- vapply(split(line_data$x, line_data$PANEL), function(z) length(unique(z)), integer(1))
+
+  expect_true(all(panel_unique_x == length(probs)))
+  expect_equal(sort(unique(as.numeric(line_data$x))), seq_along(probs), tolerance = 1e-12)
+})
+
+test_that("plot.causalmixgpd_qte single quantile mentions tau in x-axis label", {
+  skip_if_not_installed("ggplot2")
+  qte <- make_mock_qte()
+  qte$type <- "cqte"
+  qte$probs <- 0.5
+  qte$grid <- 0.5
+  qte$n_pred <- 3L
+  qte$ps <- c(0.2, 0.5, 0.8)
+  qte$fit <- matrix(c(0.1, 0.2, 0.3), nrow = 3L, ncol = 1L)
+  qte$lower <- qte$fit - 0.1
+  qte$upper <- qte$fit + 0.1
+  qte$trt$fit <- data.frame(id = 1:3, index = 0.5, estimate = c(1.0, 1.2, 1.4))
+  qte$con$fit <- data.frame(id = 1:3, index = 0.5, estimate = c(0.9, 1.0, 1.1))
+
+  result <- plot_causalmixgpd_qte(qte)
+  expect_match(result$labels$x, "\u03C4 = 0.5", fixed = TRUE)
+})
+
+test_that("plot.causalmixgpd_qte applies categorical quantile axis and error bars to QTT", {
+  skip_if_not_installed("ggplot2")
+  probs <- c(0.25, 0.5, 0.75)
+  qte <- make_mock_qte()
+  qte$type <- "qtt"
+  qte$n_pred <- 2L
+  qte$ps <- c(0.3, 0.7)
+  qte$probs <- probs
+  qte$grid <- probs
+  qte$fit <- matrix(c(0.1, 0.15, 0.2, 0.12, 0.18, 0.24), nrow = 2L, byrow = TRUE)
+  qte$lower <- qte$fit - 0.05
+  qte$upper <- qte$fit + 0.05
+  qte$qte$fit <- data.frame(
+    id = rep(1:2, each = 3),
+    index = rep(probs, times = 2),
+    estimate = c(0.1, 0.15, 0.2, 0.12, 0.18, 0.24),
+    lower = c(0.05, 0.10, 0.15, 0.07, 0.13, 0.19),
+    upper = c(0.15, 0.20, 0.25, 0.17, 0.23, 0.29)
+  )
+
+  result <- plot_causalmixgpd_qte(qte, type = "effect", facet_by = "id")
+  geom_classes <- vapply(result$layers, function(layer) class(layer$geom)[1], character(1))
+
+  expect_true(is.factor(result$data$x_plot))
+  expect_equal(levels(result$data$x_plot), paste0("\u03C4 = ", probs))
+  expect_equal(result$labels$title, "QTT")
+  expect_equal(result$labels$y, "Quantile Treatment Effect on the Treated")
+  expect_true("GeomErrorbar" %in% geom_classes)
+  expect_false("GeomRibbon" %in% geom_classes)
+})
+
+test_that("plot.causalmixgpd_qte keeps effect intervals aligned with estimates", {
+  skip_if_not_installed("ggplot2")
+  probs <- c(0.25, 0.5, 0.75)
+  qte <- make_mock_qte()
+  qte$type <- "cqte"
+  qte$n_pred <- 2L
+  qte$ps <- c(0.2, 0.8)
+  qte$probs <- probs
+  qte$grid <- probs
+  qte$fit <- matrix(c(11, 12, 13, 21, 22, 23), nrow = 2L, byrow = TRUE)
+  qte$lower <- matrix(c(101, 102, 103, 201, 202, 203), nrow = 2L, byrow = TRUE)
+  qte$upper <- qte$lower + 0.5
+  qte$qte$fit <- data.frame(
+    id = rep(1:2, each = 3),
+    index = rep(probs, times = 2),
+    estimate = c(11, 12, 13, 21, 22, 23),
+    lower = c(101, 102, 103, 201, 202, 203),
+    upper = c(101.5, 102.5, 103.5, 201.5, 202.5, 203.5)
+  )
+
+  result <- plot_causalmixgpd_qte(qte, type = "effect", facet_by = "id")
+  plotted <- result$data[order(result$data$id, result$data$index), c("id", "index", "estimate", "lower", "upper")]
+  expected <- qte$qte$fit[order(qte$qte$fit$id, qte$qte$fit$index), c("id", "index", "estimate", "lower", "upper")]
+
+  expect_equal(unname(as.matrix(plotted)), unname(as.matrix(expected)))
+})
+
 # ======================================================================
 # plot.causalmixgpd_ate tests
 # ======================================================================
@@ -2519,6 +2688,19 @@ test_that("plot.causalmixgpd_ate returns both plots by default", {
   expect_s3_class(result, "causalmixgpd_causal_predict_plots")
   expect_true("trt_control" %in% names(result))
   expect_true("treatment_effect" %in% names(result))
+})
+
+test_that("plot.causalmixgpd_ate defaults CATE to effect plot", {
+  skip_if_not_installed("ggplot2")
+  ate <- make_mock_ate()
+  ate$type <- "cate"
+  ate$ps <- c(0.2, 0.4, 0.6, 0.8, 0.9)
+  ate$fit <- c(0.1, 0.15, 0.2, 0.25, 0.3)
+  ate$lower <- ate$fit - 0.05
+  ate$upper <- ate$fit + 0.05
+
+  result <- plot_causalmixgpd_ate(ate)
+  expect_true(inherits(result, "gg") || inherits(result, "ggplot"))
 })
 
 test_that("plot.causalmixgpd_ate effect type works", {
@@ -2545,6 +2727,56 @@ test_that("plot.causalmixgpd_ate marginal effect returns a single point", {
 
   expect_equal(nrow(build$data[[1]]), 1L)
   expect_equal(as.numeric(build$data[[1]]$y), 0.25, tolerance = 1e-12)
+})
+
+test_that("plot.causalmixgpd_ate uses pointwise error bars instead of ribbons", {
+  skip_if_not_installed("ggplot2")
+  ate <- make_mock_ate()
+  ate$type <- "cate"
+  ate$ps <- c(0.2, 0.4, 0.6, 0.8, 0.9)
+  ate$fit <- c(0.1, 0.15, 0.2, 0.25, 0.3)
+  ate$lower <- ate$fit - 0.05
+  ate$upper <- ate$fit + 0.05
+  ate$trt$fit <- data.frame(
+    id = 1:5,
+    estimate = c(1.0, 1.1, 1.2, 1.3, 1.4),
+    lower = c(0.9, 1.0, 1.1, 1.2, 1.3),
+    upper = c(1.1, 1.2, 1.3, 1.4, 1.5)
+  )
+  ate$con$fit <- data.frame(
+    id = 1:5,
+    estimate = c(0.9, 0.95, 1.0, 1.05, 1.1),
+    lower = c(0.8, 0.85, 0.9, 0.95, 1.0),
+    upper = c(1.0, 1.05, 1.1, 1.15, 1.2)
+  )
+
+  effect_plot <- plot_causalmixgpd_ate(ate, type = "effect")
+  effect_geoms <- vapply(effect_plot[["layers"]], function(layer) class(layer[["geom"]])[1], character(1))
+  expect_true("GeomErrorbar" %in% effect_geoms)
+  expect_false("GeomRibbon" %in% effect_geoms)
+
+  arms_plot <- plot_causalmixgpd_ate(ate, type = "arms")
+  arms_geoms <- vapply(arms_plot[["layers"]], function(layer) class(layer[["geom"]])[1], character(1))
+  expect_true("GeomErrorbar" %in% arms_geoms)
+  expect_false("GeomRibbon" %in% arms_geoms)
+})
+
+test_that("plot.causalmixgpd_ate applies shared effect styling to ATT", {
+  skip_if_not_installed("ggplot2")
+  ate <- make_mock_ate()
+  ate$type <- "att"
+  ate$ps <- c(0.25, 0.5, 0.75)
+  ate$fit <- c(0.1, 0.18, 0.26)
+  ate$lower <- ate$fit - 0.04
+  ate$upper <- ate$fit + 0.04
+
+  result <- plot_causalmixgpd_ate(ate, type = "effect")
+  geom_classes <- vapply(result$layers, function(layer) class(layer$geom)[1], character(1))
+
+  expect_equal(result$labels$title, "ATT")
+  expect_equal(result$labels$y, "Average Treatment Effect on the Treated")
+  expect_true("GeomErrorbar" %in% geom_classes)
+  expect_false("GeomRibbon" %in% geom_classes)
 })
 
 test_that("plot.causalmixgpd_ate arms type works", {

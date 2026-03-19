@@ -340,20 +340,27 @@ track_artifact(save_cache_rds(
 message("[4/6] Building data analysis I cache artifacts")
 data("Boston", package = "MASS")
 dat <- Boston
-stopifnot(all(dat$crim > 0))
-set.seed(2026)
+dat <- subset(dat, select = c(crim, lstat, rm, nox))
+
+set.seed(123)
 n_all <- nrow(dat)
-n_train <- floor(0.8 * n_all)
-train_idx <- sort(sample.int(n_all, size = n_train, replace = FALSE))
+train_idx <- sample(seq_len(n_all), size = floor(0.75 * n_all), replace = FALSE)
 test_idx <- setdiff(seq_len(n_all), train_idx)
 train_dat <- dat[train_idx, , drop = FALSE]
 test_dat <- dat[test_idx, , drop = FALSE]
+
+xvars <- c("lstat", "rm", "nox")
+mu_x <- vapply(train_dat[, xvars], mean, numeric(1))
+sd_x <- vapply(train_dat[, xvars], sd, numeric(1))
+
+train_dat[, xvars] <- sweep(sweep(train_dat[, xvars], 2, mu_x, "-"), 2, sd_x, "/")
+test_dat[, xvars] <- sweep(sweep(test_dat[, xvars], 2, mu_x, "-"), 2, sd_x, "/")
 
 fit_clust <- dpmix.cluster(
   formula = crim ~ lstat + rm + nox,
   data = train_dat,
   kernel = "lognormal",
-  type = "weight",
+  type = "param",
   components = 15,
   mcmc = mcmc_fixed
 )
@@ -362,6 +369,8 @@ track_artifact(save_cache_rds(
     dat = dat,
     train_idx = train_idx,
     test_idx = test_idx,
+    mu_x = mu_x,
+    sd_x = sd_x,
     train_dat = train_dat,
     test_dat = test_dat,
     fit_clust = fit_clust
@@ -401,6 +410,17 @@ cluster_old_new_counts$cluster <- factor(cluster_old_new_counts$cluster, levels 
 
 train_cert <- apply(z_train$scores, 1, max)
 new_cert <- apply(z_test$scores, 1, max)
+cluster_top5_populated <- summary(
+  fit_clust,
+  top_n = 5,
+  vars = c("crim", "lstat", "rm", "nox")
+)$cluster_profiles
+numeric_cols <- setdiff(names(cluster_top5_populated), c("cluster", "n"))
+cluster_top5_populated[, numeric_cols] <- lapply(
+  cluster_top5_populated[, numeric_cols, drop = FALSE],
+  round,
+  digits = 3
+)
 cluster_certainty <- data.frame(
   sample = c("train", "test"),
   min = c(min(train_cert), min(new_cert)),
@@ -416,6 +436,7 @@ track_artifact(save_cache_rds(
     train_cluster_counts = train_cluster_counts,
     new_cluster_counts = new_cluster_counts,
     cluster_old_new_counts = cluster_old_new_counts,
+    cluster_top5_populated = cluster_top5_populated,
     cluster_certainty = cluster_certainty
   ),
   file.path("tables", "app_cluster_newdata_labels.rds")
@@ -441,9 +462,10 @@ y <- dat_app2$y
 A <- dat_app2$A
 X <- dat_app2$X
 covars <- colnames(X)
+rm_cutoff <- as.numeric(stats::quantile(y, 0.95, na.rm = TRUE))
 stopifnot(length(y) == nrow(X), length(A) == nrow(X))
 track_artifact(save_cache_rds(
-  list(y = y, A = A, X = X, covars = covars, dat_app2 = dat_app2),
+  list(y = y, A = A, X = X, covars = covars, rm_cutoff = rm_cutoff, dat_app2 = dat_app2),
   file.path("tables", "app2_setup.rds")
 ))
 
@@ -452,29 +474,29 @@ fit <- dpmgpd.causal(
   X = X,
   treat = A,
   backend = "sb",
-  kernel = "normal",
+  kernel = "lognormal",
   components = 4,
-  mcmc = mcmc_fixed,
-  show_progress = FALSE
+  mcmc = c(mcmc_fixed, list(show_progress = FALSE))
 )
 track_artifact(save_cache_rds(
-  list(cache_version = 3L, fit = fit),
+  list(cache_version = 5L, fit = fit),
   file.path("fits", "app2_fit.rds")
 ))
 
-ate_fit <- ate(fit)
-taus <- c(0.25, 0.50, 0.75, 0.90, 0.95, 0.99)
+ate_fit <- ate(fit, type = "rmean", cutoff = rm_cutoff)
+taus <- c(0.25, 0.50, 0.75, 0.90, 0.95)
 qte_fit <- qte(fit, probs = taus)
 ate_sum <- summary(ate_fit)
 qte_sum <- summary(qte_fit)
 track_artifact(save_cache_rds(
   list(
-    cache_version = 3L,
+    cache_version = 5L,
     ate_fit = ate_fit,
     qte_fit = qte_fit,
     ate_sum = ate_sum,
     qte_sum = qte_sum,
-    taus = taus
+    taus = taus,
+    rm_cutoff = rm_cutoff
   ),
   file.path("tables", "app2_ate_qte.rds")
 ))
@@ -505,17 +527,18 @@ track_artifact(save_cache_rds(
   file.path("tables", "app2_xnew.rds")
 ))
 
-cate_fit <- cate(fit, newdata = xnew)
+cate_fit <- cate(fit, newdata = xnew, type = "rmean", cutoff = rm_cutoff)
 cqte_fit <- cqte(fit, probs = taus, newdata = xnew)
 cate_sum <- summary(cate_fit)
 cqte_sum <- summary(cqte_fit)
 track_artifact(save_cache_rds(
   list(
-    cache_version = 4L,
+    cache_version = 5L,
     cate_fit = cate_fit,
     cqte_fit = cqte_fit,
     cate_sum = cate_sum,
-    cqte_sum = cqte_sum
+    cqte_sum = cqte_sum,
+    rm_cutoff = rm_cutoff
   ),
   file.path("tables", "app2_cate_cqte.rds")
 ))

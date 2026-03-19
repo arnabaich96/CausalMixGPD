@@ -33,18 +33,20 @@ A list of ggplot objects with elements \code{trt_control} and \code{treatment_ef
 \description{
 \code{plot.causalmixgpd_ate()} visualizes objects returned by
 \code{\link{ate}}, \code{\link{att}}, \code{\link{cate}}, and
-\code{\link{ate_rmean}}. The \code{type} parameter controls the plot style:
+\code{\link{ate_rmean}}. The \code{type} parameter controls the plot style.
+When \code{type} is omitted, \code{cate()} objects default to
+\code{"effect"}:
 \itemize{
 \item \code{"both"} (default): Returns a list with both \code{trt_control} (treated vs
 control means) and \code{treatment_effect} (ATE curve) plots
-\item \code{"effect"}: ATE curve/points vs index/PS with CI ribbon/bars
-\item \code{"arms"}: Treated mean vs control mean, with CI ribbons
+\item \code{"effect"}: ATE curve/points vs index/PS with pointwise CI error bars
+\item \code{"arms"}: Treated mean vs control mean, with pointwise CI error bars
 }
 }
 \examples{
 \dontrun{
 ate_result <- cate(fit, newdata = X_new, interval = "credible")
-plot(ate_result)  # default: returns list with both plots
+plot(ate_result)  # CATE default: effect plot
 plot(ate_result, type = "effect")  # single ATE plot
 plot(ate_result, type = "arms")    # single arms plot
 }

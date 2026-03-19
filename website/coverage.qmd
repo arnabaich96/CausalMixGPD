@@ -13,7 +13,7 @@ page-layout: full
 - [read_coverage_status() docs](pkgdown/reference/read_coverage_status.html)
 
 The tracked coverage artifacts live in `covr/assets/` and are mirrored to `docs/coverage/` for the published site.
-Coverage generation and Codecov uploads are manual only; the repository does not use Git hooks or GitHub Actions to publish coverage automatically.
+Coverage is generated locally and checked in. GitHub Actions uploads the committed `covr/assets/cobertura.xml` report to Codecov on each push and exits successfully when no valid report is present.
 
 ## Related developer pages
 

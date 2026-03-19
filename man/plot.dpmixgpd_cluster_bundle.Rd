@@ -4,15 +4,19 @@
 \alias{plot.dpmixgpd_cluster_bundle}
 \title{Plot a cluster bundle}
 \usage{
-\method{plot}{dpmixgpd_cluster_bundle}(x, ...)
+\method{plot}{dpmixgpd_cluster_bundle}(x, plotly = getOption("CausalMixGPD.plotly", FALSE), ...)
 }
 \arguments{
 \item{x}{A cluster bundle.}
 
+\item{plotly}{Logical; if \code{TRUE}, convert the \code{ggplot2} output to a \code{plotly} /
+\code{htmlwidget} representation via \code{.wrap_plotly()}. Defaults to
+\code{getOption("CausalMixGPD.plotly", FALSE)}.}
+
 \item{...}{Unused.}
 }
 \value{
-\code{x}, invisibly.
+A \code{ggplot2} object or a \code{plotly}/\code{htmlwidget} object when \code{plotly = TRUE}.
 }
 \description{
 Produce a compact graphical summary of the cluster bundle metadata.

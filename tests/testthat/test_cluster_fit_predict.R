@@ -47,6 +47,8 @@ test_that("cluster wrappers fit and predict across type modes", {
     lbl_new_scores <- predict(fit, newdata = nd, type = "label", return_scores = TRUE)
     expect_true(is.matrix(lbl_new_scores$scores))
     expect_equal(rowSums(lbl_new_scores$scores), rep(1, nrow(nd)), tolerance = 1e-8)
+    expect_true(is.list(lbl_new_scores$train_reference))
+    expect_equal(lbl_new_scores$train_reference$labels, predict(fit, type = "label")$labels)
   }
 })
 

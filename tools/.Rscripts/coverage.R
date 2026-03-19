@@ -73,7 +73,7 @@ setwd(here::here())
 }
 
 .coverage_artifact_files <- function() {
-  c("index.html", "report.html", "coverage_status.json", "unused_functions.md")
+  c("index.html", "report.html", "coverage_status.json", "unused_functions.md", "cobertura.xml")
 }
 
 .coverage_same_path <- function(path_a, path_b) {
@@ -121,6 +121,11 @@ setwd(here::here())
     if (isNamespaceLoaded("CausalMixGPD")) unloadNamespace("CausalMixGPD")
     TRUE
   }, error = function(e) FALSE)
+}
+
+.coverage_write_cobertura <- function(cov, filename) {
+  covr::to_cobertura(cov, filename = filename)
+  invisible(filename)
 }
 
 .filter_coverage_object <- function(cov, path = ".") {
@@ -495,7 +500,7 @@ coverage_report <- function(
   }
   .coverage_refresh_metadata()
 
-  total_steps <- if (.coverage_same_path(mirror_dir, assets_dir)) 5 else 6
+  total_steps <- if (.coverage_same_path(mirror_dir, assets_dir)) 6 else 7
 
   cat("============================================================\n")
   cat("Building Coverage Report\n")
@@ -525,31 +530,38 @@ coverage_report <- function(
   cat("Saved:", report_file, "\n")
   cat("\n")
 
-  # Step 3: Extract and save statistics
-  cat("Step 3/", total_steps, ": Extracting coverage statistics...\n", sep = "")
+  # Step 3: Generate Cobertura XML for Codecov uploads
+  cat("Step 3/", total_steps, ": Writing Cobertura XML...\n", sep = "")
+  cobertura_file <- file.path(assets_dir, "cobertura.xml")
+  .coverage_write_cobertura(cov, cobertura_file)
+  cat("Saved:", cobertura_file, "\n")
+  cat("\n")
+
+  # Step 4: Extract and save statistics
+  cat("Step 4/", total_steps, ": Extracting coverage statistics...\n", sep = "")
   stats <- .extract_coverage_stats(cov, sources)
   json_file <- file.path(assets_dir, "coverage_status.json")
   jsonlite::write_json(stats$summary, json_file, auto_unbox = TRUE, pretty = TRUE)
   cat("Saved:", json_file, "\n")
   cat("\n")
 
-  # Step 4: Write unused function report
-  cat("Step 4/", total_steps, ": Writing unused function report...\n", sep = "")
+  # Step 5: Write unused function report
+  cat("Step 5/", total_steps, ": Writing unused function report...\n", sep = "")
   unused_file <- file.path(assets_dir, "unused_functions.md")
   unused_by_file <- .extract_unused_functions(cov)
   .write_unused_functions_report(unused_by_file, unused_file, sources, test_level)
   cat("Saved:", unused_file, "\n")
   cat("\n")
 
-  # Step 5: Generate summary HTML page
-  cat("Step 5/", total_steps, ": Generating HTML summary page...\n", sep = "")
+  # Step 6: Generate summary HTML page
+  cat("Step 6/", total_steps, ": Generating HTML summary page...\n", sep = "")
   html_file <- file.path(assets_dir, "index.html")
   .generate_summary_html(stats, html_file, sources)
   cat("Saved:", html_file, "\n")
   cat("\n")
 
   if (!.coverage_same_path(mirror_dir, assets_dir)) {
-    cat("Step 6/", total_steps, ": Syncing published mirror directory...\n", sep = "")
+    cat("Step 7/", total_steps, ": Syncing published mirror directory...\n", sep = "")
     .coverage_sync_dir(assets_dir, mirror_dir)
     cat("Synced:", mirror_dir, "\n\n")
   }
@@ -561,6 +573,7 @@ coverage_report <- function(
   cat("Output files:\n")
   cat("  - ", html_file, " (summary page)\n", sep = "")
   cat("  - ", report_file, " (interactive report)\n", sep = "")
+  cat("  - ", cobertura_file, " (Cobertura XML for Codecov)\n", sep = "")
   cat("  - ", json_file, " (JSON data)\n", sep = "")
   cat("  - ", unused_file, " (unused functions)\n", sep = "")
   if (!.coverage_same_path(mirror_dir, assets_dir)) {

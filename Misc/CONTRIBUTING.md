@@ -107,10 +107,12 @@ Coverage reports are generated canonically in `covr/assets/` and mirrored to
 `docs/coverage/` for the published site. The interactive `report.html` also
 includes a generated `lib/` dependency directory in both retained locations.
 
-Coverage is a manual workflow only. Git hooks and GitHub Actions do not
-generate or upload coverage automatically. When you want to publish a coverage
-run, set `CODECOV_TOKEN` locally and call `coverage_upload()` or
-`coverage_push()` yourself.
+Coverage generation remains local. Running `coverage_report()` or
+`coverage_push()` now also writes `covr/assets/cobertura.xml`, which is the
+committed report consumed by the GitHub Actions Codecov upload workflow on each
+push. The workflow does not generate coverage remotely; it uploads the checked-in
+local Cobertura XML when present and exits successfully if no valid report is
+available.
 
 ## Reporting Issues
 

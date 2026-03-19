@@ -291,10 +291,12 @@ coverage_report(output_dir = "my_coverage")
 This creates:
 - `covr/assets/index.html` - Canonical tracked summary page
 - `covr/assets/report.html` - Canonical tracked interactive covr report
+- `covr/assets/cobertura.xml` - Canonical tracked Cobertura XML for Codecov uploads
 - `covr/assets/coverage_status.json` - Canonical tracked JSON summary
 - `covr/assets/unused_functions.md` - Canonical tracked unused-function report
 - `docs/coverage/index.html` - Summary page with badge and file table
 - `docs/coverage/report.html` - Full interactive covr report
+- `docs/coverage/cobertura.xml` - Mirrored Cobertura XML
 - `docs/coverage/coverage_status.json` - JSON data for CI
 - `docs/coverage/unused_functions.md` - Published unused-function report
 - `lib/` support directories in both retained locations so `report.html` stays functional
@@ -317,13 +319,14 @@ coverage_upload(sources = "all")
 coverage_push()
 ```
 
-### Manual upload workflow
+### GitHub Actions upload-only workflow
 
-Coverage generation and Codecov upload are manual only. This repository does
-not install a Git hook and does not rely on GitHub Actions to publish coverage.
+Coverage is still generated locally, not in GitHub Actions. On each push, the
+workflow at `.github/workflows/codecov-upload.yml` uploads the committed
+`covr/assets/cobertura.xml` report to Codecov.
 
-When you want to publish a coverage run, call `coverage_upload()` or
-`coverage_push()` explicitly after generating the desired report.
+If the Cobertura XML file is missing, empty, invalid, or the `CODECOV_TOKEN`
+secret is not configured, the workflow exits successfully without uploading.
 
 ### Calculate Coverage Only
 

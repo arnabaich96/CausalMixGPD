@@ -1,0 +1,61 @@
+name: Upload Local Codecov Report
+
+on:
+  push:
+
+permissions:
+  contents: read
+
+jobs:
+  upload-local-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Check for committed local coverage report
+        id: report
+        shell: bash
+        run: |
+          report="covr/assets/cobertura.xml"
+
+          if [ ! -s "$report" ]; then
+            echo "should_upload=false" >> "$GITHUB_OUTPUT"
+            echo "No committed coverage report found at $report. Exiting successfully."
+            exit 0
+          fi
+
+          if ! grep -q "<coverage" "$report"; then
+            echo "should_upload=false" >> "$GITHUB_OUTPUT"
+            echo "Committed report at $report is not valid Cobertura XML. Exiting successfully."
+            exit 0
+          fi
+
+          echo "should_upload=true" >> "$GITHUB_OUTPUT"
+          echo "Using committed coverage report: $report"
+
+      - name: Check Codecov token
+        id: token
+        if: steps.report.outputs.should_upload == 'true'
+        shell: bash
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+        run: |
+          if [ -z "$CODECOV_TOKEN" ]; then
+            echo "has_token=false" >> "$GITHUB_OUTPUT"
+            echo "CODECOV_TOKEN is not configured. Exiting successfully."
+            exit 0
+          fi
+
+          echo "has_token=true" >> "$GITHUB_OUTPUT"
+
+      - name: Upload committed local coverage report to Codecov
+        if: steps.report.outputs.should_upload == 'true' && steps.token.outputs.has_token == 'true'
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: covr/assets/cobertura.xml
+          disable_search: true
+          fail_ci_if_error: true
+          verbose: true

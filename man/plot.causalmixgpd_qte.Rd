@@ -37,7 +37,11 @@ A list of ggplot objects with elements \code{trt_control} and \code{treatment_ef
 \description{
 \code{plot.causalmixgpd_qte()} visualizes objects returned by
 \code{\link{qte}}, \code{\link{qtt}}, and \code{\link{cqte}}. The
-\code{type} parameter controls the plot style:
+\code{type} parameter controls the plot style. When \code{type} is omitted,
+\code{cqte()} objects default to \code{"effect"} and, when multiple
+quantile levels are present, \code{facet_by = "id"}. Whenever quantile index
+appears on the x-axis, it is shown as an ordered categorical axis with
+equidistant spacing:
 \itemize{
 \item \code{"both"} (default): Returns a list with both \code{trt_control} (treated vs
 control quantile curves) and \code{treatment_effect} (QTE curve) plots
@@ -48,7 +52,7 @@ control quantile curves) and \code{treatment_effect} (QTE curve) plots
 \examples{
 \dontrun{
 qte_result <- cqte(fit, probs = c(0.1, 0.5, 0.9), newdata = X_new)
-plot(qte_result)  # default: returns list with both plots
+plot(qte_result)  # CQTE default: effect plot (faceted by id when needed)
 plot(qte_result, type = "effect")  # single QTE plot
 plot(qte_result, type = "arms")    # single arms plot
 }
