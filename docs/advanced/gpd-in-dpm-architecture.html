@@ -204,10 +204,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="../pkgdown/reference/index.html"> 
 <span class="menu-text">API Reference</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../pkgdown/articles/index.html"> 
-<span class="menu-text">Articles</span></a>
-  </li>  
   <li class="nav-item compact">
     <a class="nav-link" href="https://github.com/arnabaich96/CausalMixGPD"> <i class="bi bi-github" role="img">
 </i> 
@@ -299,11 +295,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h1 data-number="2"><span class="header-section-number">2</span> Model specification</h1>
 <p>Let (y_1,,y_N) be observations. Under a CRP DPM:</p>
 <ul>
-<li><p>Cluster allocations follow a Chinese restaurant process: [ z[1{:}N] (), ] implemented in NIMBLE as <code>z[1:N] ~ dCRP(conc = alpha, size = N)</code>.</p></li>
+<li><p>Latent cluster labels follow a Chinese restaurant process: [ z[1{:}N] (), ] implemented in NIMBLE as <code>z[1:N] ~ dCRP(conc = alpha, size = N)</code>.</p></li>
 <li><p>Each cluster (k) has a <em>scalar</em> atom (_k). The atom is the only cluster-specific kernel parameter; all other kernel parameters are fixed or global.</p></li>
-<li><p>Conditional on allocation, the observation likelihood uses a <strong>GPD-spliced kernel distribution</strong> exported by the package. For a positive-support outcome, a convenient choice is Gamma+GPD: [ y_i z_i=k (=a,&nbsp;=<em>k,&nbsp;u,&nbsp;</em>{},&nbsp;), ] where the Gamma is used below the threshold (u), and exceedances use the GPD tail via <code>dGpd</code> inside <code>dGammaGpd</code>.</p></li>
+<li><p>Conditional on the latent cluster label, the observation likelihood uses a <strong>GPD-spliced kernel distribution</strong> exported by the package. For a positive-support outcome, a convenient choice is Gamma+GPD: [ y_i z_i=k (=a,&nbsp;=<em>k,&nbsp;u,&nbsp;</em>{},&nbsp;), ] where the Gamma is used below the threshold (u), and exceedances use the GPD tail via <code>dGpd</code> inside <code>dGammaGpd</code>.</p></li>
 </ul>
-<p>This construction is “GPD-in-DPM” in the sense that the <strong>tail is part of the per-observation distribution</strong> (not a separate post-processing step), while the mixture is induced by the CRP allocations.</p>
+<p>This construction is “GPD-in-DPM” in the sense that the <strong>tail is part of the per-observation distribution</strong> (not a separate post-processing step), while the mixture is induced by the CRP cluster labels.</p>
 </section>
 <section id="a-concrete-working-template-gamma-bulk-scalar-scale-atom" class="level1" data-number="3">
 <h1 data-number="3"><span class="header-section-number">3</span> A concrete working template (Gamma bulk, scalar scale atom)</h1>
@@ -317,136 +313,87 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(CausalMixGPD)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Registered S3 methods overwritten by 'CausalMixGPD':
-  method                     from    
-  fitted.mixgpd_fit          DPmixGPD
-  plot.mixgpd_fit            DPmixGPD
-  plot.mixgpd_fitted         DPmixGPD
-  plot.mixgpd_predict        DPmixGPD
-  predict.mixgpd_fit         DPmixGPD
-  print.mixgpd_fit           DPmixGPD
-  print.mixgpd_fit_plots     DPmixGPD
-  print.mixgpd_fitted_plots  DPmixGPD
-  print.mixgpd_params        DPmixGPD
-  print.mixgpd_params_pair   DPmixGPD
-  print.mixgpd_predict_plots DPmixGPD
-  print.mixgpd_summary       DPmixGPD
-  residuals.mixgpd_fit       DPmixGPD
-  summary.mixgpd_fit         DPmixGPD</code></pre>
+<pre><code>Loading required package: nimble</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>nimble version 1.4.1 is loaded.
+For more information on NIMBLE and a User Manual,
+please visit https://R-nimble.org.</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>
-Attaching package: 'CausalMixGPD'</code></pre>
+Attaching package: 'nimble'</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>The following objects are masked from 'package:DPmixGPD':
+<pre><code>The following object is masked from 'package:stats':
 
-    ate, ate_rmean, build_causal_bundle, build_nimble_bundle,
-    causal_alt_pos500_p3_k3, causal_alt_pos500_p5_k4_tail,
-    causal_alt_real500_p4_k2, causal_pos500_p3_k2, check_glue_validity,
-    damoroso, dAmoroso, damorosogpd, dAmorosoGpd, damorosomix,
-    dAmorosoMix, damorosomixgpd, dAmorosoMixGpd, dCauchy, dcauchy_vec,
-    dcauchymix, dCauchyMix, dgammagpd, dGammaGpd, dgammamix, dGammaMix,
-    dgammamixgpd, dGammaMixGpd, dgpd, dGpd, dinvgauss, dInvGauss,
-    dinvgaussgpd, dInvGaussGpd, dinvgaussmix, dInvGaussMix,
-    dinvgaussmixgpd, dInvGaussMixGpd, dlaplacegpd, dLaplaceGpd,
-    dlaplacemix, dLaplaceMix, dlaplacemixgpd, dLaplaceMixGpd,
-    dlognormalgpd, dLognormalGpd, dlognormalmix, dLognormalMix,
-    dlognormalmixgpd, dLognormalMixGpd, dnormgpd, dNormGpd, dnormmix,
-    dNormMix, dnormmixgpd, dNormMixGpd, get_kernel_registry,
-    get_tail_registry, init_kernel_registry, kernel_support_table,
-    pamoroso, pAmoroso, pamorosogpd, pAmorosoGpd, pamorosomix,
-    pAmorosoMix, pamorosomixgpd, pAmorosoMixGpd, params, pCauchy,
-    pcauchy_vec, pcauchymix, pCauchyMix, pgammagpd, pGammaGpd,
-    pgammamix, pGammaMix, pgammamixgpd, pGammaMixGpd, pgpd, pGpd,
-    pinvgauss, pInvGauss, pinvgaussgpd, pInvGaussGpd, pinvgaussmix,
-    pInvGaussMix, pinvgaussmixgpd, pInvGaussMixGpd, plaplacegpd,
-    pLaplaceGpd, plaplacemix, pLaplaceMix, plaplacemixgpd,
-    pLaplaceMixGpd, plognormalgpd, pLognormalGpd, plognormalmix,
-    pLognormalMix, plognormalmixgpd, pLognormalMixGpd, pnormgpd,
-    pNormGpd, pnormmix, pNormMix, pnormmixgpd, pNormMixGpd, qamoroso,
-    qAmoroso, qamorosogpd, qAmorosoGpd, qamorosomix, qAmorosoMix,
-    qamorosomixgpd, qAmorosoMixGpd, qCauchy, qcauchy_vec, qcauchymix,
-    qCauchyMix, qgammagpd, qGammaGpd, qgammamix, qGammaMix,
-    qgammamixgpd, qGammaMixGpd, qgpd, qGpd, qinvgauss, qInvGauss,
-    qinvgaussgpd, qInvGaussGpd, qinvgaussmix, qInvGaussMix,
-    qinvgaussmixgpd, qInvGaussMixGpd, qlaplacegpd, qLaplaceGpd,
-    qlaplacemix, qLaplaceMix, qlaplacemixgpd, qLaplaceMixGpd,
-    qlognormalgpd, qLognormalGpd, qlognormalmix, qLognormalMix,
-    qlognormalmixgpd, qLognormalMixGpd, qnormgpd, qNormGpd, qnormmix,
-    qNormMix, qnormmixgpd, qNormMixGpd, qte, ramoroso, rAmoroso,
-    ramorosogpd, rAmorosoGpd, ramorosomix, rAmorosoMix, ramorosomixgpd,
-    rAmorosoMixGpd, rCauchy, rcauchy_vec, rcauchymix, rCauchyMix,
-    rgammagpd, rGammaGpd, rgammamix, rGammaMix, rgammamixgpd,
-    rGammaMixGpd, rgpd, rGpd, rinvgauss, rInvGauss, rinvgaussgpd,
-    rInvGaussGpd, rinvgaussmix, rInvGaussMix, rinvgaussmixgpd,
-    rInvGaussMixGpd, rlaplacegpd, rLaplaceGpd, rlaplacemix,
-    rLaplaceMix, rlaplacemixgpd, rLaplaceMixGpd, rlognormalgpd,
-    rLognormalGpd, rlognormalmix, rLognormalMix, rlognormalmixgpd,
-    rLognormalMixGpd, rnormgpd, rNormGpd, rnormmix, rNormMix,
-    rnormmixgpd, rNormMixGpd, run_mcmc_bundle_manual, run_mcmc_causal,
-    sim_bulk_tail, sim_causal_qte, sim_survival_tail</code></pre>
+    simulate</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(nimble)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Data shipped with the package (positive-support, tail-designed)</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"nc_pos_tail200_k4"</span>)</span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> nc_pos_tail200_k4<span class="sc">$</span>y</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="fu">length</span>(y)</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Use the dataset's generating tail settings (keeps the example coherent)</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>threshold  <span class="ot">&lt;-</span> nc_pos_tail200_k4<span class="sc">$</span>truth<span class="sc">$</span>threshold</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>tail_scale <span class="ot">&lt;-</span> nc_pos_tail200_k4<span class="sc">$</span>truth<span class="sc">$</span>tail_params<span class="sc">$</span>scale</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>tail_shape <span class="ot">&lt;-</span> nc_pos_tail200_k4<span class="sc">$</span>truth<span class="sc">$</span>tail_params<span class="sc">$</span>shape</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Choose a truncation level for the finite representation of clusters</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>components <span class="ot">&lt;-</span> <span class="dv">25</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Fixed bulk shape (example)</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>shape0 <span class="ot">&lt;-</span> <span class="fl">2.0</span></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>code <span class="ot">&lt;-</span> <span class="fu">nimbleCode</span>({</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Concentration</span></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  alpha <span class="sc">~</span> <span class="fu">dgamma</span>(<span class="dv">1</span>, <span class="dv">1</span>)</span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Scalar atoms (cluster-specific). Here: positive scale parameters.</span></span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>components) {</span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>    theta[k] <span class="sc">~</span> <span class="fu">dgamma</span>(a0, b0)</span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>  <span class="co"># CRP memberships (native NIMBLE BNP distribution)</span></span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>  z[<span class="dv">1</span><span class="sc">:</span>N] <span class="sc">~</span> <span class="fu">dCRP</span>(<span class="at">conc =</span> alpha, <span class="at">size =</span> N)</span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Likelihood: exported spliced kernel distribution</span></span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>N) {</span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>    y[i] <span class="sc">~</span> <span class="fu">dGammaGpd</span>(<span class="at">shape =</span> shape0,</span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>                     <span class="at">scale =</span> theta[z[i]],</span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>                     <span class="at">threshold =</span> threshold,</span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>                     <span class="at">tail_scale =</span> tail_scale,</span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>                     <span class="at">tail_shape =</span> tail_shape)</span>
-<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a>})</span>
-<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a>constants <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">N =</span> N, <span class="at">components =</span> components,</span>
-<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>  <span class="at">a0 =</span> <span class="dv">2</span>, <span class="at">b0 =</span> <span class="dv">2</span>,</span>
-<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>  <span class="at">shape0 =</span> shape0,</span>
-<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a>  <span class="at">threshold =</span> threshold,</span>
-<span id="cb5-48"><a href="#cb5-48" aria-hidden="true" tabindex="-1"></a>  <span class="at">tail_scale =</span> tail_scale,</span>
-<span id="cb5-49"><a href="#cb5-49" aria-hidden="true" tabindex="-1"></a>  <span class="at">tail_shape =</span> tail_shape</span>
-<span id="cb5-50"><a href="#cb5-50" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb5-51"><a href="#cb5-51" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-52"><a href="#cb5-52" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">y =</span> y)</span>
-<span id="cb5-53"><a href="#cb5-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-54"><a href="#cb5-54" aria-hidden="true" tabindex="-1"></a>inits <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb5-55"><a href="#cb5-55" aria-hidden="true" tabindex="-1"></a>  <span class="at">alpha =</span> <span class="dv">1</span>,</span>
-<span id="cb5-56"><a href="#cb5-56" aria-hidden="true" tabindex="-1"></a>  <span class="at">theta =</span> <span class="fu">rgamma</span>(components, <span class="dv">2</span>, <span class="dv">2</span>),</span>
-<span id="cb5-57"><a href="#cb5-57" aria-hidden="true" tabindex="-1"></a>  <span class="at">z =</span> <span class="fu">sample.int</span>(<span class="dv">5</span>, N, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb5-58"><a href="#cb5-58" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb5-59"><a href="#cb5-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-60"><a href="#cb5-60" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">nimbleModel</span>(code, <span class="at">constants =</span> constants, <span class="at">data =</span> data, <span class="at">inits =</span> inits, <span class="at">check =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following object is masked from 'package:base':
+
+    declare</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(nimble)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Data shipped with the package (positive-support, tail-designed)</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"nc_pos_tail200_k4"</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> nc_pos_tail200_k4<span class="sc">$</span>y</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>N <span class="ot">&lt;-</span> <span class="fu">length</span>(y)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Use the dataset's generating tail settings (keeps the example coherent)</span></span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>threshold  <span class="ot">&lt;-</span> nc_pos_tail200_k4<span class="sc">$</span>truth<span class="sc">$</span>threshold</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>tail_scale <span class="ot">&lt;-</span> nc_pos_tail200_k4<span class="sc">$</span>truth<span class="sc">$</span>tail_params<span class="sc">$</span>scale</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>tail_shape <span class="ot">&lt;-</span> nc_pos_tail200_k4<span class="sc">$</span>truth<span class="sc">$</span>tail_params<span class="sc">$</span>shape</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Choose a truncation level for the finite representation of clusters</span></span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>components <span class="ot">&lt;-</span> <span class="dv">25</span></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Fixed bulk shape (example)</span></span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>shape0 <span class="ot">&lt;-</span> <span class="fl">2.0</span></span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>code <span class="ot">&lt;-</span> <span class="fu">nimbleCode</span>({</span>
+<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Concentration</span></span>
+<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>  alpha <span class="sc">~</span> <span class="fu">dgamma</span>(<span class="dv">1</span>, <span class="dv">1</span>)</span>
+<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Scalar atoms (cluster-specific). Here: positive scale parameters.</span></span>
+<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (k <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>components) {</span>
+<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    theta[k] <span class="sc">~</span> <span class="fu">dgamma</span>(a0, b0)</span>
+<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>  <span class="co"># CRP memberships (native NIMBLE BNP distribution)</span></span>
+<span id="cb7-31"><a href="#cb7-31" aria-hidden="true" tabindex="-1"></a>  z[<span class="dv">1</span><span class="sc">:</span>N] <span class="sc">~</span> <span class="fu">dCRP</span>(<span class="at">conc =</span> alpha, <span class="at">size =</span> N)</span>
+<span id="cb7-32"><a href="#cb7-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-33"><a href="#cb7-33" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Likelihood: exported spliced kernel distribution</span></span>
+<span id="cb7-34"><a href="#cb7-34" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>N) {</span>
+<span id="cb7-35"><a href="#cb7-35" aria-hidden="true" tabindex="-1"></a>    y[i] <span class="sc">~</span> <span class="fu">dGammaGpd</span>(<span class="at">shape =</span> shape0,</span>
+<span id="cb7-36"><a href="#cb7-36" aria-hidden="true" tabindex="-1"></a>                     <span class="at">scale =</span> theta[z[i]],</span>
+<span id="cb7-37"><a href="#cb7-37" aria-hidden="true" tabindex="-1"></a>                     <span class="at">threshold =</span> threshold,</span>
+<span id="cb7-38"><a href="#cb7-38" aria-hidden="true" tabindex="-1"></a>                     <span class="at">tail_scale =</span> tail_scale,</span>
+<span id="cb7-39"><a href="#cb7-39" aria-hidden="true" tabindex="-1"></a>                     <span class="at">tail_shape =</span> tail_shape)</span>
+<span id="cb7-40"><a href="#cb7-40" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb7-41"><a href="#cb7-41" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb7-42"><a href="#cb7-42" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-43"><a href="#cb7-43" aria-hidden="true" tabindex="-1"></a>constants <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb7-44"><a href="#cb7-44" aria-hidden="true" tabindex="-1"></a>  <span class="at">N =</span> N, <span class="at">components =</span> components,</span>
+<span id="cb7-45"><a href="#cb7-45" aria-hidden="true" tabindex="-1"></a>  <span class="at">a0 =</span> <span class="dv">2</span>, <span class="at">b0 =</span> <span class="dv">2</span>,</span>
+<span id="cb7-46"><a href="#cb7-46" aria-hidden="true" tabindex="-1"></a>  <span class="at">shape0 =</span> shape0,</span>
+<span id="cb7-47"><a href="#cb7-47" aria-hidden="true" tabindex="-1"></a>  <span class="at">threshold =</span> threshold,</span>
+<span id="cb7-48"><a href="#cb7-48" aria-hidden="true" tabindex="-1"></a>  <span class="at">tail_scale =</span> tail_scale,</span>
+<span id="cb7-49"><a href="#cb7-49" aria-hidden="true" tabindex="-1"></a>  <span class="at">tail_shape =</span> tail_shape</span>
+<span id="cb7-50"><a href="#cb7-50" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-51"><a href="#cb7-51" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-52"><a href="#cb7-52" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">y =</span> y)</span>
+<span id="cb7-53"><a href="#cb7-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-54"><a href="#cb7-54" aria-hidden="true" tabindex="-1"></a>inits <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb7-55"><a href="#cb7-55" aria-hidden="true" tabindex="-1"></a>  <span class="at">alpha =</span> <span class="dv">1</span>,</span>
+<span id="cb7-56"><a href="#cb7-56" aria-hidden="true" tabindex="-1"></a>  <span class="at">theta =</span> <span class="fu">rgamma</span>(components, <span class="dv">2</span>, <span class="dv">2</span>),</span>
+<span id="cb7-57"><a href="#cb7-57" aria-hidden="true" tabindex="-1"></a>  <span class="at">z =</span> <span class="fu">sample.int</span>(<span class="dv">5</span>, N, <span class="at">replace =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb7-58"><a href="#cb7-58" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb7-59"><a href="#cb7-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-60"><a href="#cb7-60" aria-hidden="true" tabindex="-1"></a>m <span class="ot">&lt;-</span> <span class="fu">nimbleModel</span>(code, <span class="at">constants =</span> constants, <span class="at">data =</span> data, <span class="at">inits =</span> inits, <span class="at">check =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Defining model</code></pre>
 </div>
@@ -469,13 +416,13 @@ Attaching package: 'CausalMixGPD'</code></pre>
 <div class="cell-output cell-output-stderr">
 <pre><code>Checking model calculations</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>cm <span class="ot">&lt;-</span> <span class="fu">compileNimble</span>(m)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>cm <span class="ot">&lt;-</span> <span class="fu">compileNimble</span>(m)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Compiling
   [Note] This may take a minute.
   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>conf <span class="ot">&lt;-</span> <span class="fu">configureMCMC</span>(m, <span class="at">monitors =</span> <span class="fu">c</span>(<span class="st">"alpha"</span>, <span class="st">"theta"</span>, <span class="st">"z"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>conf <span class="ot">&lt;-</span> <span class="fu">configureMCMC</span>(m, <span class="at">monitors =</span> <span class="fu">c</span>(<span class="st">"alpha"</span>, <span class="st">"theta"</span>, <span class="st">"z"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>===== Monitors =====
 thin = 1: alpha, theta, z
@@ -487,20 +434,20 @@ CRP_cluster_wrapper sampler (25)
 CRP sampler (1)
   - z[1:200] </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>mcmc <span class="ot">&lt;-</span> <span class="fu">buildMCMC</span>(conf)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>mcmc <span class="ot">&lt;-</span> <span class="fu">buildMCMC</span>(conf)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>  [Warning] sampler_CRP: The number of clusters based on the cluster parameters
             is less than the number of potential clusters. The MCMC is not
             strictly valid if it ever proposes more components than cluster
             parameters exist; NIMBLE will warn you if this occurs.</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>cmcmc <span class="ot">&lt;-</span> <span class="fu">compileNimble</span>(mcmc, <span class="at">project =</span> m)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>cmcmc <span class="ot">&lt;-</span> <span class="fu">compileNimble</span>(mcmc, <span class="at">project =</span> m)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Compiling
   [Note] This may take a minute.
   [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>samps <span class="ot">&lt;-</span> <span class="fu">runMCMC</span>(cmcmc, <span class="at">niter =</span> <span class="dv">600</span>, <span class="at">nburnin =</span> <span class="dv">300</span>, <span class="at">thin =</span> <span class="dv">2</span>, <span class="at">setSeed =</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>samps <span class="ot">&lt;-</span> <span class="fu">runMCMC</span>(cmcmc, <span class="at">niter =</span> <span class="dv">600</span>, <span class="at">nburnin =</span> <span class="dv">300</span>, <span class="at">thin =</span> <span class="dv">2</span>, <span class="at">setSeed =</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>running chain 1...</code></pre>
 </div>
@@ -516,26 +463,26 @@ CRP sampler (1)
 <section id="basic-parameter-summaries" class="level2" data-number="4.1">
 <h2 data-number="4.1" class="anchored" data-anchor-id="basic-parameter-summaries"><span class="header-section-number">4.1</span> Basic parameter summaries</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Posterior summary for alpha</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>alpha_draws <span class="ot">&lt;-</span> samps[, <span class="st">"alpha"</span>]</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(alpha_draws)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Posterior summary for alpha</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>alpha_draws <span class="ot">&lt;-</span> samps[, <span class="st">"alpha"</span>]</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(alpha_draws)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-0.01619 0.53013 0.86315 1.13366 1.36927 5.52937 </code></pre>
+0.04076 0.43685 0.87184 0.94990 1.27747 3.44613 </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Posterior summaries for the scalar atoms theta[k]</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>theta_cols  <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"^theta</span><span class="sc">\\</span><span class="st">["</span>, <span class="fu">colnames</span>(samps), <span class="at">value =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>theta_draws <span class="ot">&lt;-</span> samps[, theta_cols, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>theta_summary <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">apply</span>(theta_draws, <span class="dv">2</span>, <span class="cf">function</span>(x) {</span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">mean =</span> <span class="fu">mean</span>(x), <span class="at">sd =</span> <span class="fu">sd</span>(x),</span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">q025 =</span> <span class="fu">unname</span>(<span class="fu">quantile</span>(x, <span class="fl">0.025</span>)),</span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">q50  =</span> <span class="fu">unname</span>(<span class="fu">quantile</span>(x, <span class="fl">0.50</span>)),</span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">q975 =</span> <span class="fu">unname</span>(<span class="fu">quantile</span>(x, <span class="fl">0.975</span>)))</span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>}))</span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>kableExtra<span class="sc">::</span><span class="fu">kbl</span>(theta_summary, <span class="at">digits =</span> <span class="dv">3</span>, <span class="at">caption =</span> <span class="st">"Posterior summaries of scalar atoms (theta[k])"</span>) <span class="sc">|&gt;</span></span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>  kableExtra<span class="sc">::</span><span class="fu">kable_styling</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Posterior summaries for the scalar atoms theta[k]</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>theta_cols  <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"^theta</span><span class="sc">\\</span><span class="st">["</span>, <span class="fu">colnames</span>(samps), <span class="at">value =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>theta_draws <span class="ot">&lt;-</span> samps[, theta_cols, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>theta_summary <span class="ot">&lt;-</span> <span class="fu">t</span>(<span class="fu">apply</span>(theta_draws, <span class="dv">2</span>, <span class="cf">function</span>(x) {</span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">c</span>(<span class="at">mean =</span> <span class="fu">mean</span>(x), <span class="at">sd =</span> <span class="fu">sd</span>(x),</span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">q025 =</span> <span class="fu">unname</span>(<span class="fu">quantile</span>(x, <span class="fl">0.025</span>)),</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">q50  =</span> <span class="fu">unname</span>(<span class="fu">quantile</span>(x, <span class="fl">0.50</span>)),</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">q975 =</span> <span class="fu">unname</span>(<span class="fu">quantile</span>(x, <span class="fl">0.975</span>)))</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>}))</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a>kableExtra<span class="sc">::</span><span class="fu">kbl</span>(theta_summary, <span class="at">digits =</span> <span class="dv">3</span>, <span class="at">caption =</span> <span class="st">"Posterior summaries of scalar atoms (theta[k])"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a>  kableExtra<span class="sc">::</span><span class="fu">kable_styling</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <table class="table caption-top table-sm table-striped small">
 <caption>Posterior summaries of scalar atoms (theta[k])</caption>
@@ -552,203 +499,203 @@ CRP sampler (1)
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">theta[1]</td>
-<td style="text-align: right;">1.182</td>
-<td style="text-align: right;">0.692</td>
-<td style="text-align: right;">0.317</td>
-<td style="text-align: right;">1.034</td>
-<td style="text-align: right;">2.948</td>
+<td style="text-align: right;">1.132</td>
+<td style="text-align: right;">0.496</td>
+<td style="text-align: right;">0.306</td>
+<td style="text-align: right;">1.090</td>
+<td style="text-align: right;">2.145</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">theta[2]</td>
-<td style="text-align: right;">1.109</td>
-<td style="text-align: right;">0.676</td>
-<td style="text-align: right;">0.293</td>
-<td style="text-align: right;">0.895</td>
-<td style="text-align: right;">2.937</td>
+<td style="text-align: right;">1.017</td>
+<td style="text-align: right;">0.377</td>
+<td style="text-align: right;">0.484</td>
+<td style="text-align: right;">0.902</td>
+<td style="text-align: right;">1.960</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">theta[3]</td>
-<td style="text-align: right;">1.435</td>
-<td style="text-align: right;">0.733</td>
-<td style="text-align: right;">0.257</td>
-<td style="text-align: right;">1.373</td>
-<td style="text-align: right;">2.839</td>
+<td style="text-align: right;">1.133</td>
+<td style="text-align: right;">0.858</td>
+<td style="text-align: right;">0.358</td>
+<td style="text-align: right;">0.797</td>
+<td style="text-align: right;">3.239</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">theta[4]</td>
-<td style="text-align: right;">0.992</td>
-<td style="text-align: right;">0.479</td>
-<td style="text-align: right;">0.320</td>
-<td style="text-align: right;">0.875</td>
-<td style="text-align: right;">2.889</td>
+<td style="text-align: right;">1.082</td>
+<td style="text-align: right;">0.473</td>
+<td style="text-align: right;">0.287</td>
+<td style="text-align: right;">0.991</td>
+<td style="text-align: right;">2.118</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">theta[5]</td>
-<td style="text-align: right;">0.826</td>
-<td style="text-align: right;">0.513</td>
-<td style="text-align: right;">0.357</td>
-<td style="text-align: right;">0.593</td>
-<td style="text-align: right;">2.282</td>
+<td style="text-align: right;">1.163</td>
+<td style="text-align: right;">0.610</td>
+<td style="text-align: right;">0.476</td>
+<td style="text-align: right;">1.055</td>
+<td style="text-align: right;">2.569</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">theta[6]</td>
-<td style="text-align: right;">1.391</td>
-<td style="text-align: right;">0.635</td>
-<td style="text-align: right;">0.398</td>
-<td style="text-align: right;">1.286</td>
-<td style="text-align: right;">2.953</td>
+<td style="text-align: right;">1.027</td>
+<td style="text-align: right;">0.760</td>
+<td style="text-align: right;">0.291</td>
+<td style="text-align: right;">0.828</td>
+<td style="text-align: right;">2.859</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">theta[7]</td>
-<td style="text-align: right;">0.976</td>
-<td style="text-align: right;">0.293</td>
-<td style="text-align: right;">0.705</td>
-<td style="text-align: right;">0.862</td>
-<td style="text-align: right;">1.724</td>
+<td style="text-align: right;">1.344</td>
+<td style="text-align: right;">0.584</td>
+<td style="text-align: right;">0.457</td>
+<td style="text-align: right;">1.022</td>
+<td style="text-align: right;">2.580</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">theta[8]</td>
-<td style="text-align: right;">0.982</td>
-<td style="text-align: right;">0.604</td>
-<td style="text-align: right;">0.434</td>
-<td style="text-align: right;">0.768</td>
-<td style="text-align: right;">2.273</td>
+<td style="text-align: right;">0.926</td>
+<td style="text-align: right;">0.453</td>
+<td style="text-align: right;">0.306</td>
+<td style="text-align: right;">0.870</td>
+<td style="text-align: right;">1.693</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">theta[9]</td>
-<td style="text-align: right;">1.533</td>
-<td style="text-align: right;">0.933</td>
-<td style="text-align: right;">0.587</td>
-<td style="text-align: right;">1.073</td>
-<td style="text-align: right;">2.763</td>
+<td style="text-align: right;">1.092</td>
+<td style="text-align: right;">0.748</td>
+<td style="text-align: right;">0.234</td>
+<td style="text-align: right;">1.112</td>
+<td style="text-align: right;">2.582</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">theta[10]</td>
-<td style="text-align: right;">1.218</td>
-<td style="text-align: right;">0.507</td>
-<td style="text-align: right;">0.524</td>
-<td style="text-align: right;">1.020</td>
-<td style="text-align: right;">2.341</td>
+<td style="text-align: right;">0.933</td>
+<td style="text-align: right;">0.633</td>
+<td style="text-align: right;">0.485</td>
+<td style="text-align: right;">0.563</td>
+<td style="text-align: right;">2.139</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">theta[11]</td>
-<td style="text-align: right;">0.936</td>
-<td style="text-align: right;">0.497</td>
-<td style="text-align: right;">0.230</td>
-<td style="text-align: right;">0.925</td>
-<td style="text-align: right;">2.146</td>
+<td style="text-align: right;">0.684</td>
+<td style="text-align: right;">0.463</td>
+<td style="text-align: right;">0.251</td>
+<td style="text-align: right;">0.541</td>
+<td style="text-align: right;">1.350</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">theta[12]</td>
-<td style="text-align: right;">1.108</td>
-<td style="text-align: right;">0.317</td>
-<td style="text-align: right;">0.402</td>
-<td style="text-align: right;">0.983</td>
-<td style="text-align: right;">1.425</td>
+<td style="text-align: right;">0.563</td>
+<td style="text-align: right;">0.115</td>
+<td style="text-align: right;">0.482</td>
+<td style="text-align: right;">0.482</td>
+<td style="text-align: right;">0.927</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">theta[13]</td>
-<td style="text-align: right;">0.934</td>
-<td style="text-align: right;">0.458</td>
-<td style="text-align: right;">0.516</td>
-<td style="text-align: right;">0.763</td>
-<td style="text-align: right;">2.012</td>
+<td style="text-align: right;">1.192</td>
+<td style="text-align: right;">0.168</td>
+<td style="text-align: right;">1.177</td>
+<td style="text-align: right;">1.177</td>
+<td style="text-align: right;">1.309</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">theta[14]</td>
-<td style="text-align: right;">0.859</td>
-<td style="text-align: right;">0.348</td>
-<td style="text-align: right;">0.349</td>
-<td style="text-align: right;">0.726</td>
-<td style="text-align: right;">1.287</td>
+<td style="text-align: right;">0.577</td>
+<td style="text-align: right;">0.207</td>
+<td style="text-align: right;">0.522</td>
+<td style="text-align: right;">0.522</td>
+<td style="text-align: right;">1.391</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">theta[15]</td>
-<td style="text-align: right;">1.443</td>
-<td style="text-align: right;">0.343</td>
-<td style="text-align: right;">0.462</td>
-<td style="text-align: right;">1.374</td>
-<td style="text-align: right;">1.719</td>
+<td style="text-align: right;">0.828</td>
+<td style="text-align: right;">0.142</td>
+<td style="text-align: right;">0.795</td>
+<td style="text-align: right;">0.795</td>
+<td style="text-align: right;">1.378</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">theta[16]</td>
-<td style="text-align: right;">0.625</td>
-<td style="text-align: right;">0.558</td>
-<td style="text-align: right;">0.077</td>
-<td style="text-align: right;">0.526</td>
-<td style="text-align: right;">1.133</td>
+<td style="text-align: right;">0.796</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.796</td>
+<td style="text-align: right;">0.796</td>
+<td style="text-align: right;">0.796</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">theta[17]</td>
-<td style="text-align: right;">0.483</td>
-<td style="text-align: right;">0.086</td>
-<td style="text-align: right;">0.458</td>
-<td style="text-align: right;">0.472</td>
-<td style="text-align: right;">0.901</td>
+<td style="text-align: right;">1.003</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">1.003</td>
+<td style="text-align: right;">1.003</td>
+<td style="text-align: right;">1.003</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">theta[18]</td>
-<td style="text-align: right;">1.079</td>
-<td style="text-align: right;">0.179</td>
-<td style="text-align: right;">0.908</td>
-<td style="text-align: right;">1.249</td>
-<td style="text-align: right;">1.249</td>
+<td style="text-align: right;">0.733</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.733</td>
+<td style="text-align: right;">0.733</td>
+<td style="text-align: right;">0.733</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">theta[19]</td>
-<td style="text-align: right;">1.697</td>
-<td style="text-align: right;">0.509</td>
-<td style="text-align: right;">1.163</td>
-<td style="text-align: right;">2.182</td>
-<td style="text-align: right;">2.182</td>
+<td style="text-align: right;">0.559</td>
+<td style="text-align: right;">0.000</td>
+<td style="text-align: right;">0.559</td>
+<td style="text-align: right;">0.559</td>
+<td style="text-align: right;">0.559</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">theta[20]</td>
-<td style="text-align: right;">0.594</td>
+<td style="text-align: right;">1.147</td>
 <td style="text-align: right;">0.000</td>
-<td style="text-align: right;">0.594</td>
-<td style="text-align: right;">0.594</td>
-<td style="text-align: right;">0.594</td>
+<td style="text-align: right;">1.147</td>
+<td style="text-align: right;">1.147</td>
+<td style="text-align: right;">1.147</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">theta[21]</td>
-<td style="text-align: right;">1.175</td>
+<td style="text-align: right;">1.014</td>
 <td style="text-align: right;">0.000</td>
-<td style="text-align: right;">1.175</td>
-<td style="text-align: right;">1.175</td>
-<td style="text-align: right;">1.175</td>
+<td style="text-align: right;">1.014</td>
+<td style="text-align: right;">1.014</td>
+<td style="text-align: right;">1.014</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">theta[22]</td>
-<td style="text-align: right;">1.014</td>
+<td style="text-align: right;">1.360</td>
 <td style="text-align: right;">0.000</td>
-<td style="text-align: right;">1.014</td>
-<td style="text-align: right;">1.014</td>
-<td style="text-align: right;">1.014</td>
+<td style="text-align: right;">1.360</td>
+<td style="text-align: right;">1.360</td>
+<td style="text-align: right;">1.360</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">theta[23]</td>
-<td style="text-align: right;">0.164</td>
+<td style="text-align: right;">1.271</td>
 <td style="text-align: right;">0.000</td>
-<td style="text-align: right;">0.164</td>
-<td style="text-align: right;">0.164</td>
-<td style="text-align: right;">0.164</td>
+<td style="text-align: right;">1.271</td>
+<td style="text-align: right;">1.271</td>
+<td style="text-align: right;">1.271</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">theta[24]</td>
-<td style="text-align: right;">0.981</td>
+<td style="text-align: right;">0.996</td>
 <td style="text-align: right;">0.000</td>
-<td style="text-align: right;">0.981</td>
-<td style="text-align: right;">0.981</td>
-<td style="text-align: right;">0.981</td>
+<td style="text-align: right;">0.996</td>
+<td style="text-align: right;">0.996</td>
+<td style="text-align: right;">0.996</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">theta[25]</td>
-<td style="text-align: right;">0.657</td>
+<td style="text-align: right;">0.675</td>
 <td style="text-align: right;">0.000</td>
-<td style="text-align: right;">0.657</td>
-<td style="text-align: right;">0.657</td>
-<td style="text-align: right;">0.657</td>
+<td style="text-align: right;">0.675</td>
+<td style="text-align: right;">0.675</td>
+<td style="text-align: right;">0.675</td>
 </tr>
 </tbody>
 </table>
@@ -759,20 +706,20 @@ CRP sampler (1)
 <h2 data-number="4.2" class="anchored" data-anchor-id="posterior-clustering-diagnostics"><span class="header-section-number">4.2</span> Posterior clustering diagnostics</h2>
 <p>A practical summary of the induced partition is the posterior distribution of the number of occupied clusters, [ K^{(m)} = |{ z^{(m)}_1,,z^{(m)}_N }|, ] computed for each retained iteration (m).</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>z_cols  <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"^z</span><span class="sc">\\</span><span class="st">["</span>, <span class="fu">colnames</span>(samps), <span class="at">value =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>z_draws <span class="ot">&lt;-</span> samps[, z_cols, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>K_occ <span class="ot">&lt;-</span> <span class="fu">apply</span>(z_draws, <span class="dv">1</span>, <span class="cf">function</span>(zrow) <span class="fu">length</span>(<span class="fu">unique</span>(<span class="fu">as.integer</span>(zrow))))</span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(K_occ)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>z_cols  <span class="ot">&lt;-</span> <span class="fu">grep</span>(<span class="st">"^z</span><span class="sc">\\</span><span class="st">["</span>, <span class="fu">colnames</span>(samps), <span class="at">value =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>z_draws <span class="ot">&lt;-</span> samps[, z_cols, drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>K_occ <span class="ot">&lt;-</span> <span class="fu">apply</span>(z_draws, <span class="dv">1</span>, <span class="cf">function</span>(zrow) <span class="fu">length</span>(<span class="fu">unique</span>(<span class="fu">as.integer</span>(zrow))))</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(K_occ)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-   2.00    4.00    5.00    6.08    7.00   19.00 </code></pre>
+   2.00    4.00    5.00    5.46    7.00   13.00 </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>dfK <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">K =</span> K_occ)</span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>ggplot2<span class="sc">::</span><span class="fu">ggplot</span>(dfK, ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> K)) <span class="sc">+</span></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">30</span>) <span class="sc">+</span></span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Number of occupied clusters"</span>, <span class="at">y =</span> <span class="st">"Frequency"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>dfK <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">K =</span> K_occ)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>ggplot2<span class="sc">::</span><span class="fu">ggplot</span>(dfK, ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> K)) <span class="sc">+</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">30</span>) <span class="sc">+</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Number of occupied clusters"</span>, <span class="at">y =</span> <span class="st">"Frequency"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -788,51 +735,51 @@ CRP sampler (1)
 <p>A simple posterior predictive check is to generate replicated outcomes (y^{rep}) from the fitted model and compare distributional features.</p>
 <p>For the CRP mixture, one convenient approximation is to sample a cluster label for a new observation using empirical cluster frequencies from the current iteration (ignoring the “new cluster” probability). This yields a practical in-sample predictive check and is typically sufficient for early debugging.</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract theta and z at each iteration</span></span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>theta_mat <span class="ot">&lt;-</span> theta_draws</span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>z_mat     <span class="ot">&lt;-</span> z_draws</span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="co"># One posterior predictive draw per iteration (increase B if needed)</span></span>
-<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>M <span class="ot">&lt;-</span> <span class="fu">nrow</span>(samps)</span>
-<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>y_rep <span class="ot">&lt;-</span> <span class="fu">numeric</span>(M)</span>
-<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (m <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>M) {</span>
-<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>  z_m <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(z_mat[m, ])</span>
-<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># empirical cluster weights</span></span>
-<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a>  tab <span class="ot">&lt;-</span> <span class="fu">table</span>(z_m)</span>
-<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a>  labs <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">names</span>(tab))</span>
-<span id="cb30-14"><a href="#cb30-14" aria-hidden="true" tabindex="-1"></a>  w <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(tab) <span class="sc">/</span> <span class="fu">sum</span>(tab)</span>
-<span id="cb30-15"><a href="#cb30-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-16"><a href="#cb30-16" aria-hidden="true" tabindex="-1"></a>  k_new <span class="ot">&lt;-</span> <span class="fu">sample</span>(labs, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> w)</span>
-<span id="cb30-17"><a href="#cb30-17" aria-hidden="true" tabindex="-1"></a>  scale_new <span class="ot">&lt;-</span> theta_mat[m, <span class="fu">sprintf</span>(<span class="st">"theta[%d]"</span>, k_new)]</span>
-<span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>  y_rep[m] <span class="ot">&lt;-</span> <span class="fu">rGammaGpd</span>(</span>
-<span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>    <span class="dv">1</span>,</span>
-<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">shape =</span> shape0,</span>
-<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">scale =</span> scale_new,</span>
-<span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">threshold =</span> threshold,</span>
-<span id="cb30-24"><a href="#cb30-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">tail_scale =</span> tail_scale,</span>
-<span id="cb30-25"><a href="#cb30-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">tail_shape =</span> tail_shape</span>
-<span id="cb30-26"><a href="#cb30-26" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb30-27"><a href="#cb30-27" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb30-28"><a href="#cb30-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb30-29"><a href="#cb30-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare observed vs replicated summaries</span></span>
-<span id="cb30-30"><a href="#cb30-30" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(y, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.9</span>, <span class="fl">0.95</span>, <span class="fl">0.99</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract theta and z at each iteration</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>theta_mat <span class="ot">&lt;-</span> theta_draws</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>z_mat     <span class="ot">&lt;-</span> z_draws</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="co"># One posterior predictive draw per iteration (increase B if needed)</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>M <span class="ot">&lt;-</span> <span class="fu">nrow</span>(samps)</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>y_rep <span class="ot">&lt;-</span> <span class="fu">numeric</span>(M)</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> (m <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>M) {</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>  z_m <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(z_mat[m, ])</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>  <span class="co"># empirical cluster weights</span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>  tab <span class="ot">&lt;-</span> <span class="fu">table</span>(z_m)</span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>  labs <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">names</span>(tab))</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>  w <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(tab) <span class="sc">/</span> <span class="fu">sum</span>(tab)</span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>  k_new <span class="ot">&lt;-</span> <span class="fu">sample</span>(labs, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">prob =</span> w)</span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>  scale_new <span class="ot">&lt;-</span> theta_mat[m, <span class="fu">sprintf</span>(<span class="st">"theta[%d]"</span>, k_new)]</span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>  y_rep[m] <span class="ot">&lt;-</span> <span class="fu">rGammaGpd</span>(</span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>    <span class="dv">1</span>,</span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">shape =</span> shape0,</span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">scale =</span> scale_new,</span>
+<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">threshold =</span> threshold,</span>
+<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">tail_scale =</span> tail_scale,</span>
+<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">tail_shape =</span> tail_shape</span>
+<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-29"><a href="#cb32-29" aria-hidden="true" tabindex="-1"></a><span class="co"># Compare observed vs replicated summaries</span></span>
+<span id="cb32-30"><a href="#cb32-30" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(y, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.9</span>, <span class="fl">0.95</span>, <span class="fl">0.99</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>      50%       90%       95%       99% 
  1.522206  4.596914  5.318649 10.261557 </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(y_rep, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.9</span>, <span class="fl">0.95</span>, <span class="fl">0.99</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(y_rep, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.5</span>, <span class="fl">0.9</span>, <span class="fl">0.95</span>, <span class="fl">0.99</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>      50%       90%       95%       99% 
- 2.079223  5.548767  7.279167 10.491116 </code></pre>
+ 2.567186  6.602645  8.193651 18.770961 </code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>dfppc <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">value =</span> <span class="fu">c</span>(y, y_rep),</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">which =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"observed"</span>, <span class="st">"replicated"</span>), <span class="fu">c</span>(<span class="fu">length</span>(y), <span class="fu">length</span>(y_rep))))</span>
-<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>ggplot2<span class="sc">::</span><span class="fu">ggplot</span>(dfppc, ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> value, <span class="at">colour =</span> which)) <span class="sc">+</span></span>
-<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">geom_density</span>() <span class="sc">+</span></span>
-<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"y"</span>, <span class="at">y =</span> <span class="st">"Density"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>dfppc <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">value =</span> <span class="fu">c</span>(y, y_rep),</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>                    <span class="at">which =</span> <span class="fu">rep</span>(<span class="fu">c</span>(<span class="st">"observed"</span>, <span class="st">"replicated"</span>), <span class="fu">c</span>(<span class="fu">length</span>(y), <span class="fu">length</span>(y_rep))))</span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>ggplot2<span class="sc">::</span><span class="fu">ggplot</span>(dfppc, ggplot2<span class="sc">::</span><span class="fu">aes</span>(<span class="at">x =</span> value, <span class="at">colour =</span> which)) <span class="sc">+</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">geom_density</span>() <span class="sc">+</span></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>  ggplot2<span class="sc">::</span><span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"y"</span>, <span class="at">y =</span> <span class="st">"Density"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -851,14 +798,14 @@ CRP sampler (1)
 </ul>
 <p>With posterior predictive draws <code>y_rep</code>, you can estimate both directly:</p>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(y_rep <span class="sc">&gt;</span> threshold)                      <span class="co"># posterior predictive exceedance rate</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(y_rep <span class="sc">&gt;</span> threshold)                      <span class="co"># posterior predictive exceedance rate</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.36</code></pre>
+<pre><code>[1] 0.42</code></pre>
 </div>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(y_rep, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.95</span>, <span class="fl">0.99</span>, <span class="fl">0.995</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(y_rep, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.95</span>, <span class="fl">0.99</span>, <span class="fl">0.995</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>      95%       99%     99.5% 
- 7.279167 10.491116 12.046157 </code></pre>
+ 8.193651 18.770961 20.963139 </code></pre>
 </div>
 </div>
 <p>For more precise quantiles (and to reduce Monte Carlo error), increase the number of predictive draws per iteration or compute the predictive CDF as a mixture of <code>p*Gpd</code> terms and solve for the quantile (more expensive; recommended only after the baseline model is stable).</p>

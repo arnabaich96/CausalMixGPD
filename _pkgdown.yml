@@ -5,14 +5,6 @@ destination: docs/pkgdown
 build:
   lazy: false
 
-articles:
-  - title: "Articles"
-    contents:
-      - starts_with("01-introduction")
-      - starts_with("02-one-arm")
-      - starts_with("03-causal")
-      - manuscript/CausalMixGPD_JSS_article
-
 template:
   bootstrap: 5
   includes:
@@ -22,20 +14,10 @@ template:
 
 navbar:
   structure:
-    left: [home, articles, reference]
+    left: [home, reference]
     right: [github]
 
   components:
-    articles:
-      text: "Articles"
-      menu:
-        - text: "Introduction"
-          href: articles/01-introduction.html
-        - text: "One-Arm"
-          href: articles/02-one-arm.html
-        - text: "Causal"
-          href: articles/03-causal.html
-
     github:
       text: "GitHub"
       href: https://github.com/arnabaich96/CausalMixGPD

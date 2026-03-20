@@ -92,10 +92,10 @@ Work from architecture, tools, and contracts.
 ## Docs live in two places
 
 - Quarto (`docs/`): curated navigation, workflows, kernel catalog, and architecture pages.
-- pkgdown (`docs/pkgdown/`): authoritative function reference and vignette articles.
+- pkgdown (`docs/pkgdown/`): authoritative function reference and package reference pages.
 
 [Quarto reference hub](reference.qmd){.btn .btn-outline-primary}
-[pkgdown articles](pkgdown/articles/index.html){.btn .btn-outline-primary}
+[pkgdown reference](pkgdown/reference/index.html){.btn .btn-outline-primary}
 
 :::
 :::

@@ -10,7 +10,6 @@ page-layout: full
 Use this page to route into workflows and concepts. Function-level details remain in pkgdown.
 
 [API reference](pkgdown/reference/index.html){.btn .btn-primary}
-[Articles index](pkgdown/articles/index.html){.btn .btn-outline-light}
 :::
 :::
 
@@ -35,15 +34,6 @@ Use this page to route into workflows and concepts. Function-level details remai
 ## pkgdown authoritative docs
 
 - [Function reference](pkgdown/reference/index.html)
-- [Articles index](pkgdown/articles/index.html)
-
-### Core vignette articles (authoritative in pkgdown)
-
-- [basic-01](pkgdown/articles/basic-01.html)
-- [model-spec-02](pkgdown/articles/model-spec-02.html)
-- [unconditional-03](pkgdown/articles/unconditional-03.html)
-- [conditional-04](pkgdown/articles/conditional-04.html)
-- [causal-05](pkgdown/articles/causal-05.html)
 
 :::
 :::

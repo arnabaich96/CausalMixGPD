@@ -9,8 +9,6 @@ page-layout: full
 - [Interactive line-by-line report](coverage/report.html)
 - [Codecov project](https://codecov.io/gh/arnabaich96/CausalMixGPD)
 - [Coverage map](https://github.com/arnabaich96/CausalMixGPD/blob/master/tests/testthat/COVERAGE_MAP.md)
-- [coverage_status() docs](pkgdown/reference/coverage_status.html)
-- [read_coverage_status() docs](pkgdown/reference/read_coverage_status.html)
 
 The tracked coverage artifacts live in `covr/assets/` and are mirrored to `docs/coverage/` for the published site.
 Coverage is generated locally and checked in. GitHub Actions uploads the committed `covr/assets/cobertura.xml` report to Codecov on each push and exits successfully when no valid report is present.

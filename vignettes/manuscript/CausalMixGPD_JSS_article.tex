@@ -91,7 +91,7 @@
 \Shorttitle{CausalMixGPD}
 
 \Abstract{
-Heavy-tailed outcomes are commonly encountered in various scientific settings where rare extreme events dominate risk, cost, and policy recommendations. Although parametric models tend to adequately capture the distributional center, they often fail to characterize extreme outcomes, and non-parametric models lack principled extrapolation in tail regions. We develop \texttt{CausalMixGPD}, an \textsf{R} package for Bayesian modeling of heavy-tailed outcomes by integrating Dirichlet process mixtures for the center and generalized Pareto distributions for the tails in a unified framework.\texttt{CausalMixGPD} allows for both unconditional and covariate-dependent models, enabling flexible models of mixture weights and components as a function of predictors. The framework is extended by allowing for separate modeling of outcome distributions for treatment groups. Posterior computations were carried out using Markov chain Monte Carlo algorithms using the Nimble package in \textsf{R}. \texttt{CausalMixGPD} is designed for estimating and predicting causal quantities, such as average and quantile treatment effects, especially extreme quantile treatment effects. Moreover, CausalMixGPD provides a clustering framework for different kernel specifications.Using real data analysis, CausalMixGPD has been shown to yield commendable performance in estimating extreme causal effects and clustering. Overall, the package offers a practical and extensible framework for heavy-tailed outcome modeling in modern statistical applications.
+Heavy-tailed outcomes are commonly encountered in various scientific settings where rare extreme events dominate risk, cost, and policy recommendations. Although parametric models tend to adequately capture the center of a distribution, they often fail to characterize extreme outcomes, and non-parametric models lack principled extrapolation in tail regions. We develop \texttt{CausalMixGPD}, an \textsf{R} package for Bayesian modeling of heavy-tailed outcomes by integrating Dirichlet process mixtures for the center and generalized Pareto distributions for the tails in a unified framework. \texttt{CausalMixGPD} allows for both unconditional and covariate-dependent models, enabling flexible models of mixture weights and components as a function of predictors. Posterior computations were carried out using Markov chain Monte Carlo algorithms using the Nimble package in \textsf{R}. The framework is extended by allowing for separate modeling of outcome distributions for treatment groups. \texttt{CausalMixGPD} is designed for estimating and predicting causal quantities, such as average and quantile treatment effects, especially when quantiles are extreme. Moreover, this package provides a clustering framework for different kernel specifications. In \textsf{R} data analysis, it has demonstrated commendable performance in estimating extreme causal effects and clustering observations, thus providing a practical and extensible software framework for heavy-tailed outcome modeling.
 }
 
 \Keywords{Bayesian nonparametrics; Dirichlet Process Mixture; Generalized Pareto Distribution; Extreme Value Theory; Cluster Analysis; Causal Inference; \textsf{R}; \texttt{nimble}}
@@ -138,7 +138,7 @@ estimated separately. To avoid this, \pkg{CausalMixGPD} directly models
 outcome densities and derives quantiles and other functionals from the
 posterior predictive distributions.
 
-In the context of density estimation and conditional density estimation, DPMs provide a
+In the context of density estimation and conditional density estimation, Dirichlet Process Mixtures(DPM) provide a
 versatile nonparametric solution because they can capture multimodality and latent heterogeneity
 without fixing the number of mixing components in advance. In the experimental \textsf{R}
 ecosystem, Bayesian nonparametric mixture modeling is
@@ -174,11 +174,17 @@ and predictor-dependent stick-breaking schemes provide a practical route
 for covariate-modulated cluster prevalence \citep{Ren2011}. Existing
 software supports parts of this workflow, but it typically focuses on
 bulk density estimation and clustering under a single kernel family
-without an explicit peaks-over-threshold tail component. As a result,
-applications that require both latent subgroup discovery and principled
+without an explicit adjustment for heavy tailed data. As a result,
+applications that require both latent subgroup discovery and
 tail extrapolation still need additional modeling outside the standard
 Bayesian nonparametric mixture workflow.
 
+However, it is important to note that estimating values far in the tail requires special care when data becomes scarce.
+Additionally, using a single model in the presence of heavy tail data can distort the fit in the central region.
+In such cases extreme value theory (EVT) provides a principled framework for
+modeling and extrapolation of tail behavior~\citep{de2007extreme}. EVT characterizes the
+asymptotic distribution of threshold exceedances, which can be used to
+estimate tail probabilities and quantiles beyond the range of observed data~\citep{balkema1974residual}.
 Bayesian implementations of EVT are available in
 \textsf{R} when posterior uncertainty quantification for tail
 quantities are required. For example,

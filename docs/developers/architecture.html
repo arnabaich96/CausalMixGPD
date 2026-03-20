@@ -163,10 +163,6 @@ ul.task-list li input[type="checkbox"] {
     <a class="nav-link" href="../pkgdown/reference/index.html"> 
 <span class="menu-text">API Reference</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../pkgdown/articles/index.html"> 
-<span class="menu-text">Articles</span></a>
-  </li>  
   <li class="nav-item compact">
     <a class="nav-link" href="https://github.com/arnabaich96/CausalMixGPD"> <i class="bi bi-github" role="img">
 </i> 
@@ -217,7 +213,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 <p>This page is the contributor mental model: what depends on what, and where to make changes safely.</p>
-<p>For user-facing examples and guides, prefer wrapper entry points (<code>dpmix()</code> / <code>dpmgpd()</code>). This page focuses on the internal execution path (<code>bundle()</code> -&gt; <code>mcmc()</code>) used by contributors.</p>
+<p>For user-facing examples and guides, prefer wrapper entry points (<code>dpmix()</code> / <code>dpmgpd()</code> for one-arm and <code>dpmix.causal()</code> / <code>dpmgpd.causal()</code> for causal). This page focuses on the internal execution path (<code>bundle()</code> -&gt; <code>mcmc()</code>) used by contributors.</p>
 <section id="layers" class="level2">
 <h2 class="anchored" data-anchor-id="layers">Layers</h2>
 <ol type="1">
@@ -248,7 +244,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 <section id="call-flow-causal" class="level2">
 <h2 class="anchored" data-anchor-id="call-flow-causal">Call flow (causal)</h2>
-<p>Default user path: <code>dpmix(..., treat=...)</code> / <code>dpmgpd(..., treat=...)</code>. Internal path shown below: <code>bundle()</code> then <code>mcmc()</code>.</p>
+<p>Default user path: <code>dpmix.causal(..., treat=...)</code> / <code>dpmgpd.causal(..., treat=...)</code>. Internal path shown below: <code>bundle()</code> then <code>mcmc()</code>.</p>
 <pre class="mermaid"><code>sequenceDiagram
   participant U as User
   participant C as bundle()

@@ -35,15 +35,9 @@ Map from setup to model specification, execution, diagnostics, and extraction/pr
 ## Quarto vs pkgdown split
 
 - Quarto: curated routes and workflow context.
-- pkgdown: exact function interfaces and vignette articles.
+- pkgdown: exact function interfaces and package reference.
 
 - [pkgdown reference](../pkgdown/reference/index.html)
-- [pkgdown articles](../pkgdown/articles/index.html)
-- [basic-01](../pkgdown/articles/basic-01.html)
-- [model-spec-02](../pkgdown/articles/model-spec-02.html)
-- [unconditional-03](../pkgdown/articles/unconditional-03.html)
-- [conditional-04](../pkgdown/articles/conditional-04.html)
-- [causal-05](../pkgdown/articles/causal-05.html)
 
 
 

@@ -51,7 +51,6 @@ If you are new, start with the Start hub and then return here. The full API docu
 - Advanced hub: [Advanced](../advanced/index.html)
 - Kernels hub: [Kernels](../kernels/kernels-index.html)
 - API reference (pkgdown): [Reference](../pkgdown/reference/index.html)
-- Articles (pkgdown): [Articles](../pkgdown/articles/index.html)
 
 
 

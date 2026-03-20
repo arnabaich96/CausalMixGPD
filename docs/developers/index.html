@@ -163,10 +163,6 @@ ul.task-list li input[type="checkbox"] {
     <a class="nav-link" href="../pkgdown/reference/index.html"> 
 <span class="menu-text">API Reference</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../pkgdown/articles/index.html"> 
-<span class="menu-text">Articles</span></a>
-  </li>  
   <li class="nav-item compact">
     <a class="nav-link" href="https://github.com/arnabaich96/CausalMixGPD"> <i class="bi bi-github" role="img">
 </i> 
@@ -216,7 +212,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 <p>Developer hub for architecture, tooling, tests, contracts, and release process.</p>
-<p>Wrapper-first note: user-facing documentation should default to <code>dpmix()</code> / <code>dpmgpd()</code>. Internal pages in this section can describe <code>bundle()</code> + <code>mcmc()</code> when implementation detail matters.</p>
+<p>Wrapper-first note: user-facing documentation should default to <code>dpmix()</code> / <code>dpmgpd()</code> for one-arm models and <code>dpmix.causal()</code> / <code>dpmgpd.causal()</code> for causal models. Internal pages in this section can describe <code>bundle()</code> + <code>mcmc()</code> when implementation detail matters.</p>
 <div class="callout callout-style-default callout-important callout-titled" title="Golden rules (do not break)">
 <div class="callout-header d-flex align-content-center">
 <div class="callout-icon-container">

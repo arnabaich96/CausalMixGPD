@@ -87,7 +87,7 @@ estimated separately. To avoid this, \pkg{CausalMixGPD} directly models
 outcome densities and derives quantiles and other functionals from the
 posterior predictive distributions.
 
-In the context of density estimation and conditional density estimation, DPMs provide a
+In the context of density estimation and conditional density estimation, Dirichlet Process Mixtures(DPM) provide a
 versatile nonparametric solution because they can capture multimodality and latent heterogeneity
 without fixing the number of mixing components in advance. In the experimental \textsf{R}
 ecosystem, Bayesian nonparametric mixture modeling is
@@ -123,11 +123,17 @@ and predictor-dependent stick-breaking schemes provide a practical route
 for covariate-modulated cluster prevalence \citep{Ren2011}. Existing
 software supports parts of this workflow, but it typically focuses on
 bulk density estimation and clustering under a single kernel family
-without an explicit peaks-over-threshold tail component. As a result,
-applications that require both latent subgroup discovery and principled
+without an explicit adjustment for heavy tailed data. As a result,
+applications that require both latent subgroup discovery and
 tail extrapolation still need additional modeling outside the standard
 Bayesian nonparametric mixture workflow.
 
+However, it is important to note that estimating values far in the tail requires special care when data becomes scarce.
+Additionally, using a single model in the presence of heavy tail data can distort the fit in the central region.
+In such cases extreme value theory (EVT) provides a principled framework for
+modeling and extrapolation of tail behavior~\citep{de2007extreme}. EVT characterizes the
+asymptotic distribution of threshold exceedances, which can be used to
+estimate tail probabilities and quantiles beyond the range of observed data~\citep{balkema1974residual}.
 Bayesian implementations of EVT are available in
 \textsf{R} when posterior uncertainty quantification for tail
 quantities are required. For example,
@@ -145,37 +151,34 @@ provides a published software implementation targeted specifically at
 extreme-quantile estimation \citep{durrieu2018extremefit}.
 
 This article introduces an \textsf{R} package (\pkg{CausalMixGPD}) that
-connects Bayesian nonparametric bulk modeling with extreme-value tail
-modeling, model-based clustering, and robust causal analyses in the
-presence of covariates (confounders).
+connects Bayesian nonparametric modeling with EVT, clustering,
+and robust causal analyses in the presence of covariates (confounders).
 The package provides three simultaneous capabilities:
 
 \begin{itemize}
-   \item \textbf{Bayesian Non-Parametric density modeling and prediction with optional GPD tail:}
+   \item \textbf{BNP density modeling and prediction with optional GPD tail:}
    \pkg{CausalMixGPD} fits DPMs using a user-chosen kernel below a certain threshold (bulk part),
    and can optionally splice a generalized Pareto tail above the threshold (tail part) to enable the estimation of tail quantities
    and posterior predictive inference for rare-event summaries.
-   \item \textbf{Model-based clustering under predictor-dependent mixtures:}
-   a dedicated clustering interface for both bulk-only and spliced models,
-   supporting weight dependence, atom dependence, or both, and returning
+   \item \textbf{Clustering under predictor dependent mixtures:}
+   A dedicated clustering interface for both bulk-only and spliced models,
+   supporting weight dependence, parameter dependence, or both, and returning
    label-invariant clustering summaries through posterior similarity matrices
    and Dahl representative partitions \citep{Binder1978,Dahl2006}.
    \item \textbf{Causal estimation and prediction for RCTs and observational studies:}
-   This package also supports causal analyses by modeling treatment-specific potential outcome
-   densities and reporting contrasts as functionals of the posterior over densities.
+   The final goal of this package is to provide causal estimands by modeling treatment-specific potential outcome
+   densities and reporting contrasts as functionals of the posterior over densities. Framework supports both randomized and observational settings, with the latter     using a flexible Bayesian propensity score model to adjust for confounding.
 
  \end{itemize}
 
-Taken together, \pkg{CausalMixGPD} offers a coherent workflow for
-density estimation, prediction, and distributional causal reporting when
-tail behavior is scientifically central. The package is implemented in \textsf{R} with computationally intensive components
-coded in \textsf{C++} and integrated via the \texttt{nimble} framework for flexible model specification and
-efficient posterior simulation \citep{nimble_pkg}.
+Overall, \pkg{CausalMixGPD} offers a unified workflow for
+density estimation, prediction, and causal reporting when
+tail behavior is of significance. The package is implemented in \textsf{R} with computationally intensive components
+coded in \textsf{C++} and integrated via the \texttt{nimble} framework for model specification and posterior simulation \citep{nimble_pkg}.
 The remainder of this article is organized as follows: Section~\ref{sec:prelim} provides background on the key
-modeling components, including DPMs, GPDs,
-and the spliced bulk-tail construction.
+modeling components, including DPMs, GPDs,and the spliced bulk-tail construction.
 Section~\ref{sec:overview} gives an overview of the package's main functions and user interface.
-Section~\ref{sec:app-causal} and Section~\ref{sec:app-clustering} illustrates the package's capabilities through applications to causal inference and clustering, respectively.
+Section~\ref{sec:app-clustering} and Section~\ref{sec:app-causal} illustrates the package's capabilities through applications to causal inference and clustering, respectively.
  Finally, Section~\ref{sec:discussion} concludes with a discussion of limitations and future directions.
 
 \section{Background and Preliminaries}

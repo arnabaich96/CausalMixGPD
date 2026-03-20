@@ -28,7 +28,6 @@ Follow this order for your first successful workflow.
 - [Examples hub](../examples/index.qmd)
 - [Reference hub](../reference.qmd)
 - [API reference](../pkgdown/reference/index.html)
-- [Articles index](../pkgdown/articles/index.html)
 
 
 
