@@ -34,8 +34,8 @@ test_that("cluster S3 methods run without error", {
   expect_true(all(diff(as.integer(fit_sum$cluster_sizes)) <= 0))
   expect_s3_class(plot(fit, which = "psm", plotly = FALSE), "ggplot")
   expect_s3_class(plot(fit, which = "k", plotly = FALSE), "ggplot")
-  expect_s3_class(plot(fit, which = "sizes", plotly = FALSE), "ggplot")
-  expect_s3_class(plot(fit, which = "summary", plotly = FALSE), "ggplot")
+  expect_s3_class(plot(fit, which = "sizes", top_n = 2L, order_by = "label", plotly = FALSE), "ggplot")
+  expect_s3_class(plot(fit, which = "summary", top_n = 2L, order_by = "label", plotly = FALSE), "ggplot")
 
   expect_output(print(lbl), "Cluster labels")
   lbl_sum <- summary(lbl, top_n = 2L)
@@ -43,13 +43,13 @@ test_that("cluster S3 methods run without error", {
   expect_true(is.data.frame(lbl_sum$cluster_profiles))
   expect_lte(nrow(lbl_sum$cluster_profiles), 2L)
   expect_true(all(diff(as.integer(lbl_sum$cluster_sizes)) <= 0))
-  expect_s3_class(plot(lbl, type = "sizes", plotly = FALSE), "ggplot")
+  expect_s3_class(plot(lbl, type = "sizes", top_n = 2L, order_by = "label", plotly = FALSE), "ggplot")
   expect_s3_class(plot(lbl, type = "certainty", plotly = FALSE), "ggplot")
-  expect_s3_class(plot(lbl, type = "summary", plotly = FALSE), "ggplot")
+  expect_s3_class(plot(lbl, type = "summary", top_n = 2L, order_by = "label", plotly = FALSE), "ggplot")
 
   expect_s3_class(lbl_new, "dpmixgpd_cluster_labels")
   expect_true(is.list(lbl_new$train_reference))
-  expect_s3_class(plot(lbl_new, type = "summary", plotly = FALSE), "ggplot")
+  expect_s3_class(plot(lbl_new, type = "summary", top_n = 2L, order_by = "label", plotly = FALSE), "ggplot")
 
   expect_output(print(psm), "Cluster PSM")
   expect_silent(summary(psm))

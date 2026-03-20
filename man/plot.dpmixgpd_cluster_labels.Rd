@@ -7,6 +7,8 @@
 \method{plot}{dpmixgpd_cluster_labels}(
   x,
   type = c("sizes", "certainty", "summary"),
+  top_n = 5L,
+  order_by = c("size", "label"),
   plotly = getOption("CausalMixGPD.plotly", FALSE),
   ...
 )
@@ -15,6 +17,11 @@
 \item{x}{Cluster labels object.}
 
 \item{type}{Plot type.}
+
+\item{top_n}{Number of populated representative clusters to display for \code{type = "sizes"} or
+\code{type = "summary"}. Use \code{NULL} to display all populated clusters.}
+
+\item{order_by}{Ordering rule for cluster displays: decreasing cluster size or label.}
 
 \item{plotly}{Logical; if \code{TRUE}, convert the \code{ggplot2} output to a \code{plotly} /
 \code{htmlwidget} representation via \code{.wrap_plotly()}. Defaults to
@@ -27,10 +34,9 @@ A \code{ggplot2} object or a \code{plotly}/\code{htmlwidget} object when \code{p
 }
 \description{
 Visualize representative cluster sizes, assignment certainty, or cluster-specific response
-summaries. For \code{type = "summary"}, the response view is shown as cluster-faceted histograms with
-matching cluster-colored boxplots. When \code{x} comes from \code{predict(..., newdata = ...)}, the
-training histograms are used as the reference background and the new-sample boxplots are
-overlaid.
+summaries. For \code{type = "summary"}, the response view is shown as boxplots ordered by
+cluster size or label. When \code{x} comes from \code{predict(..., newdata = ...)}, only clusters
+represented in the new sample are displayed.
 }
 \seealso{
 \code{\link[=summary.dpmixgpd_cluster_labels]{summary.dpmixgpd_cluster_labels()}}, \code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}}.

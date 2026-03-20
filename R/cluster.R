@@ -703,6 +703,9 @@ summary.dpmixgpd_cluster_fit <- function(object,
 #' @param burnin Number of initial posterior draws to discard.
 #' @param thin Keep every `thin`-th posterior draw.
 #' @param psm_max_n Maximum training sample size allowed for PSM plotting.
+#' @param top_n Number of populated representative clusters to display for `which = "sizes"` or
+#'   `which = "summary"`. Use `NULL` to display all populated clusters.
+#' @param order_by Ordering rule for cluster displays: decreasing cluster size or label.
 #' @param plotly Logical; if `TRUE`, convert the `ggplot2` output to a `plotly` /
 #'   `htmlwidget` representation via `.wrap_plotly()`. Defaults to
 #'   `getOption("CausalMixGPD.plotly", FALSE)`.
@@ -719,6 +722,8 @@ plot.dpmixgpd_cluster_fit <- function(x,
                                       burnin = NULL,
                                       thin = NULL,
                                       psm_max_n = 2000L,
+                                      top_n = 5L,
+                                      order_by = c("size", "label"),
                                       plotly = getOption("CausalMixGPD.plotly", FALSE),
                                       ...) {
   stopifnot(inherits(x, "dpmixgpd_cluster_fit"))
@@ -745,10 +750,25 @@ plot.dpmixgpd_cluster_fit <- function(x,
 
   lbl <- predict(x, type = "label", burnin = burnin, thin = thin)
   if (identical(which, "summary")) {
-    return(plot(lbl, type = "summary", plotly = plotly, ...))
+    return(plot(
+      lbl,
+      type = "summary",
+      top_n = top_n,
+      order_by = order_by,
+      plotly = plotly,
+      ...
+    ))
   }
 
-  plot(lbl, type = "sizes", plotly = plotly, title = "Dahl cluster sizes", ...)
+  plot(
+    lbl,
+    type = "sizes",
+    top_n = top_n,
+    order_by = order_by,
+    plotly = plotly,
+    title = "Dahl cluster sizes",
+    ...
+  )
 }
 
 #' Print cluster labels
@@ -829,13 +849,15 @@ summary.dpmixgpd_cluster_labels <- function(object,
 #' Plot cluster labels
 #'
 #' Visualize representative cluster sizes, assignment certainty, or cluster-specific response
-#' summaries. For `type = "summary"`, the response view is shown as cluster-faceted histograms with
-#' matching cluster-colored boxplots. When `x` comes from `predict(..., newdata = ...)`, the
-#' training histograms are used as the reference background and the new-sample boxplots are
-#' overlaid.
+#' summaries. For `type = "summary"`, the response view is shown as boxplots ordered by
+#' cluster size or label. When `x` comes from `predict(..., newdata = ...)`, only clusters
+#' represented in the new sample are displayed.
 #'
 #' @param x Cluster labels object.
 #' @param type Plot type.
+#' @param top_n Number of populated representative clusters to display for `type = "sizes"` or
+#'   `type = "summary"`. Use `NULL` to display all populated clusters.
+#' @param order_by Ordering rule for cluster displays: decreasing cluster size or label.
 #' @param plotly Logical; if `TRUE`, convert the `ggplot2` output to a `plotly` /
 #'   `htmlwidget` representation via `.wrap_plotly()`. Defaults to
 #'   `getOption("CausalMixGPD.plotly", FALSE)`.
@@ -848,6 +870,8 @@ summary.dpmixgpd_cluster_labels <- function(object,
 #' @export
 plot.dpmixgpd_cluster_labels <- function(x,
                                          type = c("sizes", "certainty", "summary"),
+                                         top_n = 5L,
+                                         order_by = c("size", "label"),
                                          plotly = getOption("CausalMixGPD.plotly", FALSE),
                                          ...) {
   stopifnot(inherits(x, "dpmixgpd_cluster_labels"))
@@ -855,10 +879,21 @@ plot.dpmixgpd_cluster_labels <- function(x,
   .cluster_require_ggplot()
   if (identical(type, "sizes")) {
     title <- list(...)$title %||% "Cluster sizes"
-    return(.cluster_plot_sizes(x$labels, title = title, plotly = plotly))
+    return(.cluster_plot_sizes(
+      x$labels,
+      title = title,
+      top_n = top_n,
+      order_by = order_by,
+      plotly = plotly
+    ))
   }
   if (identical(type, "summary")) {
-    return(.cluster_plot_summary_labels(x, plotly = plotly))
+    return(.cluster_plot_summary_labels(
+      x,
+      top_n = top_n,
+      order_by = order_by,
+      plotly = plotly
+    ))
   }
   score_mat <- x$scores %||% x$probs
   if (!is.matrix(score_mat)) {
@@ -1064,6 +1099,24 @@ dahl_labels <- function(z_draws, psm) {
   lev[ord]
 }
 
+.cluster_validate_top_n <- function(top_n) {
+  if (is.null(top_n)) return(NULL)
+  top_n <- as.integer(top_n)[1]
+  if (!is.finite(top_n) || top_n < 1L) {
+    stop("'top_n' must be an integer >= 1.", call. = FALSE)
+  }
+  top_n
+}
+
+.cluster_select_levels <- function(labels,
+                                   top_n = 5L,
+                                   order_by = c("size", "label")) {
+  keep <- .cluster_order_levels(labels, order_by = order_by)
+  top_n <- .cluster_validate_top_n(top_n)
+  if (!is.null(top_n)) keep <- head(keep, top_n)
+  keep
+}
+
 .cluster_size_table <- function(labels, order_by = c("size", "label"), levels = NULL) {
   labels_chr <- as.character(labels)
   if (is.null(levels)) {
@@ -1205,9 +1258,12 @@ dahl_labels <- function(z_draws, psm) {
 
 .cluster_plot_sizes <- function(labels,
                                 title = "Cluster sizes",
+                                top_n = 5L,
+                                order_by = c("size", "label"),
                                 plotly = getOption("CausalMixGPD.plotly", FALSE)) {
   .cluster_require_ggplot()
-  tab <- .cluster_size_table(labels, order_by = "size")
+  keep <- .cluster_select_levels(labels, top_n = top_n, order_by = order_by)
+  tab <- .cluster_size_table(labels, levels = keep)
   df <- data.frame(
     cluster = factor(names(tab), levels = names(tab)),
     size = as.integer(tab),
@@ -1271,7 +1327,9 @@ dahl_labels <- function(z_draws, psm) {
   .cluster_maybe_wrap_plotly(p, plotly = plotly)
 }
 
-.cluster_summary_plot_data <- function(object) {
+.cluster_summary_plot_data <- function(object,
+                                      top_n = 5L,
+                                      order_by = c("size", "label")) {
   stopifnot(inherits(object, "dpmixgpd_cluster_labels"))
   data <- object$data %||% NULL
   if (is.null(data) || !nrow(as.data.frame(data))) {
@@ -1286,27 +1344,7 @@ dahl_labels <- function(z_draws, psm) {
   }
 
   response_name <- .cluster_response_name(data)
-  ref <- object$train_reference %||% NULL
-  ref_data <- NULL
-  ref_labels <- NULL
-  levels <- NULL
-
-  if (identical(object$source %||% "", "newdata") && is.list(ref)) {
-    ref_data <- ref$data %||% NULL
-    ref_labels <- ref$labels %||% NULL
-    if (!is.null(ref_data) && !is.null(ref_labels) && nrow(as.data.frame(ref_data)) == length(ref_labels)) {
-      levels <- .cluster_order_levels(ref_labels, order_by = "size")
-    } else {
-      ref_data <- NULL
-      ref_labels <- NULL
-    }
-  }
-  main_levels <- .cluster_order_levels(object$labels, order_by = "size")
-  if (is.null(levels)) {
-    levels <- main_levels
-  } else {
-    levels <- unique(c(levels, setdiff(main_levels, levels)))
-  }
+  levels <- .cluster_select_levels(object$labels, top_n = top_n, order_by = order_by)
 
   main_df <- data.frame(
     cluster = factor(as.character(object$labels), levels = levels),
@@ -1316,20 +1354,6 @@ dahl_labels <- function(z_draws, psm) {
   )
   main_df <- main_df[is.finite(main_df$response) & !is.na(main_df$cluster), , drop = FALSE]
 
-  has_reference <- !is.null(ref_data) && !is.null(ref_labels)
-  ref_df <- NULL
-  if (has_reference) {
-    ref_df <- data.frame(
-      cluster = factor(as.character(ref_labels), levels = levels),
-      response = .cluster_response_values(ref_data, response_name = response_name),
-      sample = "train",
-      stringsAsFactors = FALSE
-    )
-    ref_df <- ref_df[is.finite(ref_df$response) & !is.na(ref_df$cluster), , drop = FALSE]
-    has_reference <- nrow(ref_df) > 0L
-    if (!has_reference) ref_df <- NULL
-  }
-
   if (!nrow(main_df)) {
     warning("No finite response values available for summary plot.", call. = FALSE)
     return(NULL)
@@ -1337,89 +1361,52 @@ dahl_labels <- function(z_draws, psm) {
 
   list(
     response_name = response_name,
-    has_reference = has_reference,
+    has_reference = FALSE,
     levels = levels,
     main_df = main_df,
-    ref_df = ref_df,
-    ylim = .cluster_plot_ylim(c(
-      if (has_reference) ref_df$response else numeric(0),
-      main_df$response
-    )),
-    title = if (has_reference) "Cluster response summary: training vs newdata" else "Cluster response summary"
+    ref_df = NULL,
+    ylim = .cluster_plot_ylim(main_df$response),
+    title = if (identical(object$source %||% "", "newdata")) {
+      "Cluster response summary: newdata"
+    } else {
+      "Cluster response summary"
+    }
   )
 }
 
 .cluster_plot_summary_labels <- function(object,
+                                         top_n = 5L,
+                                         order_by = c("size", "label"),
                                          plotly = getOption("CausalMixGPD.plotly", FALSE)) {
   .cluster_require_ggplot()
-  dat <- .cluster_summary_plot_data(object)
+  dat <- .cluster_summary_plot_data(object, top_n = top_n, order_by = order_by)
   if (is.null(dat)) return(invisible(object))
-
-  hist_df <- if (isTRUE(dat$has_reference)) dat$ref_df else dat$main_df
-  box_df <- dat$main_df
   cluster_values <- .cluster_scale_values(dat$levels)
-  breaks <- .cluster_hist_breaks(c(hist_df$response, box_df$response))
-
-  hist_max <- .cluster_hist_max_counts(hist_df, levels = dat$levels, breaks = breaks)
-  hist_max <- pmax(
-    hist_max,
-    .cluster_hist_max_counts(box_df, levels = dat$levels, breaks = breaks)
-  )
-  hist_max[!is.finite(hist_max)] <- 0
-  hist_max <- pmax(hist_max, 1)
-
-  box_width <- max(0.35, max(hist_max) * 0.12)
-  box_df$box_y <- unname(
-    hist_max[as.character(box_df$cluster)] +
-      box_width * if (isTRUE(dat$has_reference)) 0.9 else 0.6
-  )
-
-  p <- ggplot2::ggplot() +
-    ggplot2::geom_histogram(
-      data = hist_df,
-      ggplot2::aes(x = response, fill = cluster, color = cluster),
-      breaks = breaks,
-      alpha = if (isTRUE(dat$has_reference)) 0.38 else 0.55,
-      linewidth = 0.35,
-      show.legend = FALSE
-    ) +
+  p <- ggplot2::ggplot(
+    dat$main_df,
+    ggplot2::aes(x = cluster, y = response, fill = cluster, color = cluster)
+  ) +
     ggplot2::geom_boxplot(
-      data = box_df,
-      ggplot2::aes(
-        x = response,
-        y = box_y,
-        fill = cluster,
-        color = cluster,
-        group = cluster
-      ),
-      orientation = "x",
-      width = box_width,
-      alpha = 0.85,
+      width = 0.72,
+      alpha = 0.82,
       outlier.alpha = 0.45,
       linewidth = 0.45,
       show.legend = FALSE
     ) +
     ggplot2::scale_fill_manual(values = cluster_values, drop = FALSE) +
     ggplot2::scale_color_manual(values = cluster_values, drop = FALSE) +
-    ggplot2::facet_wrap(
-      ~ cluster,
-      nrow = 1,
-      scales = "free_y",
+    ggplot2::scale_x_discrete(
       drop = FALSE,
-      labeller = ggplot2::as_labeller(function(v) paste0("C", v))
+      labels = function(v) paste0("C", v)
     ) +
-    ggplot2::scale_y_continuous(expand = ggplot2::expansion(mult = c(0, 0.12))) +
+    ggplot2::coord_cartesian(ylim = dat$ylim) +
     .plot_theme() +
     ggplot2::labs(
-      x = dat$response_name,
-      y = "Count",
-      title = dat$title,
-      subtitle = if (isTRUE(dat$has_reference)) "Histograms: train; boxplots: newdata" else NULL
+      x = "Cluster",
+      y = dat$response_name,
+      title = dat$title
     ) +
-    ggplot2::theme(
-      legend.position = "none",
-      strip.text = ggplot2::element_text(face = "bold")
-    )
+    ggplot2::theme(legend.position = "none")
 
   .cluster_maybe_wrap_plotly(p, plotly = plotly)
 }
@@ -1450,15 +1437,7 @@ dahl_labels <- function(z_draws, psm) {
     vars <- vars[vapply(data[vars], is.numeric, logical(1))]
   }
 
-  keep <- .cluster_order_levels(labels, order_by = order_by)
-
-  if (!is.null(top_n)) {
-    top_n <- as.integer(top_n)[1]
-    if (!is.finite(top_n) || top_n < 1L) {
-      stop("'top_n' must be an integer >= 1.", call. = FALSE)
-    }
-    keep <- head(keep, top_n)
-  }
+  keep <- .cluster_select_levels(labels, top_n = top_n, order_by = order_by)
 
   max_prob <- if (is.matrix(score_mat)) apply(score_mat, 1, max) else NULL
   rows <- lapply(keep, function(cl) {

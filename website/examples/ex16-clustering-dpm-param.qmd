@@ -1,0 +1,194 @@
+---
+title: "ex16. Clustering with Regular Kernel (Parameter Links + Covariates)"
+---
+
+```{r setup, include=FALSE, cache=FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = NA,
+  fig.width = 8,
+  fig.height = 5,
+  message = FALSE,
+  warning = FALSE,
+  cache = FALSE,
+  cache.path = 'legacy-cache-v2/'
+)
+
+set.seed(1)
+
+FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, workers = 2)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_chains = TRUE, workers = 2, z_update_every = 2)
+
+mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
+
+library(CausalMixGPD)
+source("_legacy-setup.R")
+```
+
+> **Website workflow note.**
+> This page reflects the current exported clustering API built around `dpmix.cluster()`, `predict()`, `summary()`, and `plot()`.
+> Last updated: **2026-03-19**.
+>
+> For the package-level theory and longer narrative, see the manuscript and the clustering discussion in the main package articles.
+
+# Clustering with a Regular Kernel and Covariate-Dependent Parameter Links
+
+**Purpose**: Fit a bulk-only clustering model in which covariates affect **component-specific kernel parameters** (`type = "param"`), while mixture weights remain global.
+
+---
+
+## Data Setup
+
+```{r data-setup}
+data("nc_posX100_p3_k2")
+dat <- data.frame(y = nc_posX100_p3_k2$y, nc_posX100_p3_k2$X)
+
+train_id <- seq_len(70)
+train_dat <- dat[train_id, , drop = FALSE]
+test_dat <- dat[-train_id, , drop = FALSE]
+
+summary_tbl <- tibble(
+  split = c("train", "test"),
+  n = c(nrow(train_dat), nrow(test_dat)),
+  y_mean = c(mean(train_dat$y), mean(test_dat$y)),
+  y_sd = c(stats::sd(train_dat$y), stats::sd(test_dat$y)),
+  x1_mean = c(mean(train_dat$x1), mean(test_dat$x1))
+)
+
+summary_tbl %>%
+  mutate(across(c(y_mean, y_sd, x1_mean), ~ signif(.x, 4))) %>%
+  kable(caption = "Train/test split for the bulk-only clustering workflow", align = "c") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
+```
+
+```{r data-scatter}
+ggplot(train_dat, aes(x = x1, y = y, color = x2)) +
+  geom_point(alpha = 0.65) +
+  labs(
+    title = "Training sample for bulk-only clustering",
+    subtitle = "Covariates drive kernel parameters via type = 'param'",
+    x = "x1",
+    y = "y",
+    color = "x2"
+  ) +
+  theme_minimal()
+```
+
+---
+
+## Fit a Bulk-Only Clustering Model
+
+```{r fit-cluster, cache=FALSE}
+fit_cluster_param <- load_or_fit(
+  "ex16-clustering-dpm-param-fit_cluster_param",
+  dpmix.cluster(
+    y ~ x1 + x2 + x3,
+    data = train_dat,
+    kernel = "normal",
+    type = "param",
+    components = 8,
+    mcmc = mcmc
+  )
+)
+
+summary(fit_cluster_param, vars = c("y", "x1", "x2"))
+```
+
+Here the formula still defines the full covariate structure, but `type = "param"` means the model uses those predictors to shift component-specific kernel parameters rather than the cluster weights. This matches the parameter-link clustering formulation described in the manuscript.
+
+---
+
+## Training Labels and Cluster Summaries
+
+```{r predict-train}
+cluster_psm_param <- predict(fit_cluster_param, type = "psm")
+cluster_train_param <- predict(fit_cluster_param, type = "label", return_scores = TRUE)
+
+fit_summary_param <- summary(
+  fit_cluster_param,
+  vars = c("y", "x1", "x2"),
+  top_n = 5
+)
+
+train_sizes_tbl <- tibble(
+  cluster = paste0("C", names(fit_summary_param$cluster_sizes)),
+  n = as.integer(fit_summary_param$cluster_sizes)
+)
+
+train_sizes_tbl %>%
+  kable(caption = "Representative training cluster sizes", align = "c") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
+```
+
+```{r fit-summary-plot}
+plot(fit_cluster_param, which = "summary", top_n = 5)
+```
+
+```{r train-size-plot}
+plot(cluster_train_param, type = "sizes", top_n = 5)
+```
+
+```{r psm-plot}
+plot(cluster_psm_param)
+```
+
+The fit-level and label-level plotting methods expose the same representative partition from different angles: size summaries, response summaries, and the full posterior similarity matrix.
+
+---
+
+## Predict Labels for Held-Out Data
+
+```{r predict-newdata}
+cluster_new_param <- predict(
+  fit_cluster_param,
+  newdata = test_dat,
+  type = "label",
+  return_scores = TRUE
+)
+
+new_summary_param <- summary(
+  cluster_new_param,
+  vars = c("y", "x1", "x2"),
+  top_n = 5
+)
+
+new_sizes_tbl <- tibble(
+  cluster = paste0("C", names(new_summary_param$cluster_sizes)),
+  n = as.integer(new_summary_param$cluster_sizes)
+)
+
+new_sizes_tbl %>%
+  kable(caption = "Predicted cluster sizes for the held-out sample", align = "c") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
+```
+
+```{r new-summary-plot}
+plot(cluster_new_param, type = "summary", top_n = 5)
+```
+
+```{r new-certainty-plot}
+plot(cluster_new_param, type = "certainty")
+```
+
+For newdata, the labels are returned in the space of the representative training clusters, which makes train/test comparison straightforward without exposing component-label switching from the sampler.
+
+---
+
+## Takeaways
+
+- `dpmix.cluster()` is the current wrapper for **bulk-only** clustering.
+- `type = "param"` is appropriate when covariates should alter **within-cluster regression/parameter structure** while keeping global mixture weights.
+- The same three-step workflow applies as in the spliced example: fit, `predict(..., type = "psm" | "label")`, then `summary()` and `plot()`.
+- This closes the examples sequence with the two main clustering modes now exposed by the package website.
+
+---
+
+<!-- workflow-nav:start -->
+## Workflow Navigation
+
+- Previous: [ex15-clustering-dpmgpd-weights](ex15-clustering-dpmgpd-weights.html)
+- Next: [troubleshooting](../start/troubleshooting.html)
+- Workflow index: [Roadmap](../start/roadmap.html)
+- Practical entry: [Examples](../examples/index.html)
+<!-- workflow-nav:end -->

@@ -10,6 +10,8 @@
   burnin = NULL,
   thin = NULL,
   psm_max_n = 2000L,
+  top_n = 5L,
+  order_by = c("size", "label"),
   plotly = getOption("CausalMixGPD.plotly", FALSE),
   ...
 )
@@ -24,6 +26,11 @@
 \item{thin}{Keep every \code{thin}-th posterior draw.}
 
 \item{psm_max_n}{Maximum training sample size allowed for PSM plotting.}
+
+\item{top_n}{Number of populated representative clusters to display for \code{which = "sizes"} or
+\code{which = "summary"}. Use \code{NULL} to display all populated clusters.}
+
+\item{order_by}{Ordering rule for cluster displays: decreasing cluster size or label.}
 
 \item{plotly}{Logical; if \code{TRUE}, convert the \code{ggplot2} output to a \code{plotly} /
 \code{htmlwidget} representation via \code{.wrap_plotly()}. Defaults to

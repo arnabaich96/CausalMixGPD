@@ -1,5 +1,7 @@
 # Coverage expansion tests targeting low-coverage helper and S3 files.
 
+skip_if_not_test_level("ci")
+
 fmt3 <- get("fmt3", mode = "function")
 fmt3_sci <- get("fmt3_sci", mode = "function")
 fmt3_vec <- get("fmt3_vec", mode = "function")
@@ -942,11 +944,11 @@ test_that("coverage-heavy methods cover plotting families causal prediction and 
   expect_s3_class(plot(pred_survival), "mixgpd_predict_plots")
 
   expect_silent(summary(cluster_fit))
-  expect_s3_class(plot(cluster_fit, which = "psm"), "dpmixgpd_cluster_psm")
-  expect_true(is.numeric(plot(cluster_fit, which = "k")))
-  expect_s3_class(plot(cluster_fit, which = "sizes"), "dpmixgpd_cluster_labels")
+  expect_s3_class(plot(cluster_fit, which = "psm", plotly = FALSE), "ggplot")
+  expect_s3_class(plot(cluster_fit, which = "k", plotly = FALSE), "ggplot")
+  expect_s3_class(plot(cluster_fit, which = "sizes", top_n = 2L, order_by = "label", plotly = FALSE), "ggplot")
   expect_silent(summary(cluster_lbl))
-  expect_silent(plot(cluster_lbl, type = "sizes"))
+  expect_s3_class(plot(cluster_lbl, type = "sizes", top_n = 2L, order_by = "label", plotly = FALSE), "ggplot")
   expect_silent(plot(cluster_lbl, type = "certainty"))
   expect_silent(summary(cluster_psm))
   expect_silent(plot(cluster_psm, psm_max_n = nrow(cluster_psm$psm)))

@@ -15,7 +15,7 @@ test_that("cluster summaries and print output use decreasing allocation order", 
   expect_match(paste(capture.output(print(lbl)), collapse = "\n"), "sizes     : 2:2, 3:2, x:2, 10:1", fixed = TRUE)
 })
 
-test_that("predicted cluster labels carry training reference for summary overlays", {
+test_that("predicted cluster labels carry training reference for downstream methods", {
   fit <- structure(
     list(
       spec = list(meta = list()),
@@ -64,7 +64,7 @@ test_that("predicted cluster labels carry training reference for summary overlay
   expect_s3_class(plot(fit, which = "summary", plotly = FALSE), "ggplot")
 })
 
-test_that("cluster summary plots use cluster-colored histograms and boxplots", {
+test_that("cluster summary plots use boxplots ordered by selected clusters", {
   skip_if_not_installed("ggplot2")
 
   lbl <- structure(
@@ -77,19 +77,19 @@ test_that("cluster summary plots use cluster-colored histograms and boxplots", {
     class = c("dpmixgpd_cluster_labels", "list")
   )
 
-  p <- plot(lbl, type = "summary", plotly = FALSE)
-  geom_classes <- vapply(p$layers, function(layer) class(layer$geom)[1], character(1))
+  p <- plot(lbl, type = "summary", top_n = 2L, order_by = "size", plotly = FALSE)
+  geom_classes <- unique(vapply(p$layers, function(layer) class(layer$geom)[1], character(1)))
   built <- ggplot2::ggplot_build(p)
   fill_scale <- built$plot$scales$get_scales("fill")
   color_scale <- built$plot$scales$get_scales("colour")
 
-  expect_true("GeomBar" %in% geom_classes)
-  expect_true("GeomBoxplot" %in% geom_classes)
-  expect_setequal(fill_scale$range$range, c("2", "3", "10"))
-  expect_setequal(color_scale$range$range, c("2", "3", "10"))
+  expect_equal(geom_classes, "GeomBoxplot")
+  expect_equal(levels(p$data$cluster), c("3", "2"))
+  expect_setequal(fill_scale$range$range, c("3", "2"))
+  expect_setequal(color_scale$range$range, c("3", "2"))
 })
 
-test_that("newdata summary plots overlay boxplots on training histograms by cluster", {
+test_that("newdata summary plots use newdata-only boxplots for populated clusters", {
   skip_if_not_installed("ggplot2")
 
   lbl <- structure(
@@ -106,10 +106,14 @@ test_that("newdata summary plots overlay boxplots on training histograms by clus
     class = c("dpmixgpd_cluster_labels", "list")
   )
 
-  p <- plot(lbl, type = "summary", plotly = FALSE)
+  p <- plot(lbl, type = "summary", top_n = 2L, order_by = "size", plotly = FALSE)
+  geom_classes <- unique(vapply(p$layers, function(layer) class(layer$geom)[1], character(1)))
   built <- ggplot2::ggplot_build(p)
   fill_scale <- built$plot$scales$get_scales("fill")
+  color_scale <- built$plot$scales$get_scales("colour")
 
-  expect_match(p$labels$subtitle, "Histograms: train; boxplots: newdata", fixed = TRUE)
-  expect_true(all(c("2", "3", "10") %in% fill_scale$range$range))
+  expect_equal(geom_classes, "GeomBoxplot")
+  expect_equal(levels(p$data$cluster), c("3", "2"))
+  expect_setequal(fill_scale$range$range, c("3", "2"))
+  expect_setequal(color_scale$range$range, c("3", "2"))
 })

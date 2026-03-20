@@ -13,32 +13,37 @@ If you are new, start with the Start hub and then return here. The full API docu
 
 ## Unconditional (bulk-only)
 
-- [ex01 — Unconditional DPM (CRP)](ex01-unconditional-dpm-crp.html)
-- [ex02 — Unconditional DPM (SB)](ex02-unconditional-dpm-sb.html)
+- [ex01 â€” Unconditional DPM (CRP)](ex01-unconditional-dpm-crp.html)
+- [ex02 â€” Unconditional DPM (SB)](ex02-unconditional-dpm-sb.html)
 
 ## Unconditional (bulk + GPD tail)
 
-- [ex03 — Unconditional DPM+GPD (CRP)](ex03-unconditional-dpmgpd-crp.html)
-- [ex04 — Unconditional DPM+GPD (SB)](ex04-unconditional-dpmgpd-sb.html)
+- [ex03 â€” Unconditional DPM+GPD (CRP)](ex03-unconditional-dpmgpd-crp.html)
+- [ex04 â€” Unconditional DPM+GPD (SB)](ex04-unconditional-dpmgpd-sb.html)
 
 ## Conditional (bulk-only)
 
-- [ex05 — Conditional DPM (CRP)](ex05-conditional-dpm-crp.html)
-- [ex06 — Conditional DPM (SB)](ex06-conditional-dpm-sb.html)
+- [ex05 â€” Conditional DPM (CRP)](ex05-conditional-dpm-crp.html)
+- [ex06 â€” Conditional DPM (SB)](ex06-conditional-dpm-sb.html)
 
 ## Conditional (bulk + GPD tail)
 
-- [ex07 — Conditional DPM+GPD (CRP)](ex07-conditional-dpmgpd-crp.html)
-- [ex08 — Conditional DPM+GPD (SB)](ex08-conditional-dpmgpd-sb.html)
+- [ex07 â€” Conditional DPM+GPD (CRP)](ex07-conditional-dpmgpd-crp.html)
+- [ex08 â€” Conditional DPM+GPD (SB)](ex08-conditional-dpmgpd-sb.html)
 
 ## Causal
 
-- [ex09 — Causal, no X (CRP)](ex09-causal-no-x-crp.html)
-- [ex10 — Causal, X no PS (SB)](ex10-causal-x-no-ps-sb.html)
-- [ex11 — Causal, same backend (CRP)](ex11-causal-same-backend-crp.html)
-- [ex12 — Causal, same backend (SB)](ex12-causal-same-backend-sb.html)
-- [ex13 — Causal, different backends (CRP)](ex13-causal-different-backends-crp.html)
-- [ex14 — Causal, different backends (SB)](ex14-causal-different-backends-sb.html)
+- [ex09 â€” Causal, no X (CRP)](ex09-causal-no-x-crp.html)
+- [ex10 â€” Causal, X no PS (SB)](ex10-causal-x-no-ps-sb.html)
+- [ex11 â€” Causal, same backend (CRP)](ex11-causal-same-backend-crp.html)
+- [ex12 â€” Causal, same backend (SB)](ex12-causal-same-backend-sb.html)
+- [ex13 â€” Causal, different backends (CRP)](ex13-causal-different-backends-crp.html)
+- [ex14 â€” Causal, different backends (SB)](ex14-causal-different-backends-sb.html)
+
+## Clustering
+
+- [ex15 â€” Clustering with GPD tail, weights + covariates](ex15-clustering-dpmgpd-weights.html)
+- [ex16 â€” Clustering with regular kernel, parameter links + covariates](ex16-clustering-dpm-param.html)
 
 ## Other resources
 

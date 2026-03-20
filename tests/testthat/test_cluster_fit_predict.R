@@ -1,3 +1,5 @@
+skip_if_not_test_level("ci")
+
 test_that("cluster wrappers fit and predict across type modes", {
   skip_if_not_test_level("ci")
   skip_if_not(exists("dpmix.cluster", mode = "function"))

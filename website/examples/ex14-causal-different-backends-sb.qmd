@@ -245,7 +245,7 @@ plot(cqte_crp_sb)
 ## Workflow Navigation
 
 - Previous: [ex13-causal-different-backends-crp](ex13-causal-different-backends-crp.html)
-- Next: [troubleshooting](../start/troubleshooting.html)
+- Next: [ex15-clustering-dpmgpd-weights](ex15-clustering-dpmgpd-weights.html)
 - Workflow index: [Roadmap](../start/roadmap.html)
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->

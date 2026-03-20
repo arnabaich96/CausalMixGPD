@@ -1,9 +1,9 @@
 {
-  "percent": 83.39,
-  "timestamp": "2026-03-19T07:31:32Z",
+  "percent": 85.62,
+  "timestamp": "2026-03-19T23:50:20Z",
   "sources": "tests",
-  "total_lines": 10495,
-  "covered_lines": 8752,
+  "total_lines": 10465,
+  "covered_lines": 8960,
   "files": 20,
   "file_coverage": [
     {
@@ -23,6 +23,12 @@
       "lines": 177,
       "covered": 163,
       "percent": 92.1
+    },
+    {
+      "file": "R/cluster.R",
+      "lines": 1173,
+      "covered": 1077,
+      "percent": 91.8
     },
     {
       "file": "R/helpers.R",
@@ -85,6 +91,12 @@
       "percent": 83.8
     },
     {
+      "file": "R/wrappers.R",
+      "lines": 287,
+      "covered": 239,
+      "percent": 83.3
+    },
+    {
       "file": "R/compile-spec.R",
       "lines": 233,
       "covered": 190,
@@ -94,12 +106,6 @@
       "file": "R/invgauss.R",
       "lines": 135,
       "covered": 110,
-      "percent": 81.5
-    },
-    {
-      "file": "R/wrappers.R",
-      "lines": 287,
-      "covered": 234,
       "percent": 81.5
     },
     {
@@ -119,12 +125,6 @@
       "lines": 1747,
       "covered": 1407,
       "percent": 80.5
-    },
-    {
-      "file": "R/cluster.R",
-      "lines": 1203,
-      "covered": 874,
-      "percent": 72.7
     }
   ]
 }

@@ -154,6 +154,7 @@ setwd(here::here())
     "test-integration.R",
     "test-ci.R",
     "test_cluster_methods.R",
+    "test_cluster_coverage_edges.R",
     "test-performance-acceptance.R",
     "test-performance-phase2-ess.R",
     "test-performance-phase2-predict.R",

@@ -22,15 +22,11 @@ FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAS
 mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, workers = 2)
 mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_chains = TRUE, workers = 2, z_update_every = 2)
 
-# Required for %>% and kable_styling
-library(magrittr)
-library(kableExtra)
-library(patchwork)
-mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_chains = TRUE, workers = 2, z_update_every = 2)
-
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
-# Load package`nlibrary(CausalMixGPD)
+
+# Load package (with all_quiet to suppress startup messages)
+library(CausalMixGPD)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
@@ -81,28 +77,11 @@ print(p_raw)
 
 ## Model Specification & Bundle
 
-We'll use the `bundle` function directly which handles both specification and bundle creation.
-
-```{r bundle-mcmc-crp, cache = FALSE}
-bundle_crp <- bundle(
-  y = y_mixed,
-  kernel = "laplace",         # Use laplace kernel
-  backend = "crp",            # CRP backend
-  GPD = FALSE,                # No tail augmentation
-  components = 3,             # Minimal for testing
-  alpha_random = TRUE,        # Random DP concentration
-  mcmc = mcmc
-)
-
-```
-
----
-
-### Building MCMC bundle
+This page keeps the direct `bundle()` workflow because it is still useful for showing how the unconditional CRP specification is assembled before fitting.
 
 ```{r mcmc-crp, cache = FALSE}
 bundle_crp <- bundle(
-  y_mixed,
+  y = y_mixed,
   kernel = "laplace",
   backend = "crp",
   GPD = FALSE,
@@ -261,8 +240,8 @@ pred_amoroso <- predict(fit_amoroso, type = "mean", level = 0.9, interval = "cre
 ## Key Takeaways
 
 - **CRP Backend**: Flexible cluster assignment, ideal for unknown mixture complexity
-- **components Parameter**: Higher components allows more components but increases computation
-- **Kernel Choice**: Gamma suitable for positive, skewed data
+- **components Parameter**: A higher `components` cap allows more represented mixture components but increases computation
+- **Kernel Choice**: Laplace and Amoroso illustrate two different bulk-kernel choices for the same unconditional CRP workflow
 - **Diagnostics**: Check convergence (Rhat, ESS) and posterior predictive fit
 - **Next**: Compare with **Stick-Breaking (SB)** backend in ex02
 

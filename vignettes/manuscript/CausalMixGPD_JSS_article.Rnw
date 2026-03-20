@@ -41,11 +41,11 @@
 \Shorttitle{CausalMixGPD}
 
 \Abstract{
-Heavy-tailed outcomes arise in many scientific domains where rare events dominate risk, cost, or policy decisions. Classical parametric models often fit the center of the distribution at the expense of tail misspecification, while purely nonparametric methods typically lack principled extrapolation in regions with sparse data. Extreme value theory (EVT) provides asymptotic justification for generalized Pareto distributions (GPDs) for threshold exceedances, whereas Bayesian nonparametric Dirichlet process mixtures (DPMs) provide flexible modeling for heterogeneous bulk behavior and latent subgroup structure. This article introduces \texttt{CausalMixGPD}, an \textsf{R} package implementing a Bayesian semiparametric framework that combines conditional DPMs for the bulk distribution with covariate-dependent GPD tails for exceedances, with posterior predictive inference for densities, distribution functions, quantiles, survival probabilities, and tail risks. The framework is conditional by construction; unconditional models arise as a special case when covariates are omitted. The package supports both Chinese restaurant process (CRP) and stick-breaking (SB) representations of the Dirichlet process, multiple kernel families for bulk modeling, and an extension to causal inference via treatment-specific conditional distributions that enable inference on distributional and tail-sensitive causal estimands. It also provides a model-based clustering workflow for both bulk-only and spliced mixtures, allowing predictor dependence through mixture weights, component parameters, or both, and summarizing posterior partition uncertainty through posterior similarity matrices and Dahl representative partitions.
+Heavy-tailed outcomes are commonly encountered in various scientific settings where rare extreme events dominate risk, cost, and policy recommendations. Although parametric models tend to adequately capture the center of a distribution, they often fail to characterize extreme outcomes, and non-parametric models lack principled extrapolation in tail regions. We develop \texttt{CausalMixGPD}, an \textsf{R} package for Bayesian modeling of heavy-tailed outcomes by integrating Dirichlet process mixtures for the center and generalized Pareto distributions for the tails in a unified framework. \texttt{CausalMixGPD} allows for both unconditional and covariate-dependent models, enabling flexible models of mixture weights and components as a function of predictors. Posterior computations were carried out using Markov chain Monte Carlo algorithms using the Nimble package in \textsf{R}. The framework is extended by allowing for separate modeling of outcome distributions for treatment groups. \texttt{CausalMixGPD} is designed for estimating and predicting causal quantities, such as average and quantile treatment effects, especially when quantiles are extreme. Moreover, this package provides a clustering framework for different kernel specifications. In \textsf{R} data analysis, it has demonstrated commendable performance in estimating extreme causal effects and clustering observations, thus providing a practical and extensible software framework for heavy-tailed outcome modeling.
 }
 
-\Keywords{Bayesian nonparametrics; Dirichlet Process Mixture; Generalized Pareto Distribution; Extreme Value Theory; Model-based clustering; Causal Inference; \textsf{R}; \texttt{nimble}}
-\Plainkeywords{Bayesian nonparametrics, Dirichlet process mixture, generalized Pareto distribution, extreme value theory, posterior prediction, model-based clustering, causal inference, quantile treatment effects, R, nimble}
+\Keywords{Bayesian nonparametrics; Dirichlet Process Mixture; Generalized Pareto Distribution; Extreme Value Theory; Cluster Analysis; Causal Inference; \textsf{R}; \texttt{nimble}}
+\Plainkeywords{Bayesian nonparametrics, Dirichlet process mixture, generalized Pareto distribution, extreme value theory, posterior prediction, Clustering, causal inference, quantile treatment effects, R, nimble}
 
 %% ---- Begin document ----
 \begin{document}
@@ -307,7 +307,7 @@ u(x)+\dfrac{\sigma(x)}{\xi}\Bigl((1-\tau)^{-\xi}-1\Bigr), & \xi\neq 0,
 \label{eq:gpd_quantile}
 \end{equation}
 
-<<gpdDensityFigure-code, echo=TRUE, eval=FALSE, fig.height=4>>=
+<<gpdDensityFigure-code, echo=FALSE, eval=FALSE, fig.height=4>>=
 u <- 2.0
 y <- seq(u, u + 8, length.out = 500)
 sigma <- 1.2
@@ -1697,7 +1697,7 @@ The fitted object is subsequently summarized through a representative
 partition together with cluster-specific response summaries.
 
 <<app_cluster_fit-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
-fit_clust <- dpmix.cluster(
+fit_clust <- dpmgpd.cluster(
   formula    = crim ~ lstat + rm + nox,
   data       = train_dat,
   kernel     = "lognormal",
@@ -1722,8 +1722,9 @@ sample.
 z_train <- predict(fit_clust, type = "label")
 @
 
-For presentation we report the number of clusters and cluster sizes under the
-representative partition (Table~\ref{tab:cluster-train-alloc}).
+For presentation we summarize the first five most populated clusters from
+\code{summary(fit_clust, top_n = 5)} and report the associated descriptive
+statistics in Table~\ref{tab:cluster-top5-populated}.
 
 <<app_cluster_train_sizes-code, echo=FALSE, message=FALSE, warning=FALSE, results='hide', eval=TRUE, include=FALSE>>=
 cluster_fit_summary <- summary(
@@ -1731,37 +1732,6 @@ cluster_fit_summary <- summary(
   top_n = 5,
   vars = c("crim", "lstat", "rm", "nox")
 )
-train_cluster_counts <- data.frame(
-  cluster = names(cluster_fit_summary$cluster_sizes),
-  n = as.integer(cluster_fit_summary$cluster_sizes),
-  row.names = NULL,
-  check.names = FALSE
-)
-train_cluster_order <- as.character(train_cluster_counts$cluster)
-
-as_horizontal_counts <- function(tbl, sample_name = NULL) {
-  out <- as.list(as.integer(tbl$n))
-  names(out) <- paste0("C", as.character(tbl$cluster))
-  out <- as.data.frame(out, check.names = FALSE)
-  if (!is.null(sample_name)) out <- data.frame(sample = sample_name, out, check.names = FALSE)
-  out
-}
-@
-
-<<app_cluster_train_sizes-results, echo=FALSE, eval=TRUE>>=
-knitr::kable(
-  as_horizontal_counts(train_cluster_counts, "train"),
-  caption = "Training cluster sizes (counts) \\label{tab:cluster-train-alloc}"
-)
-@
-
-A response-summary view of the representative partition is shown in
-Figure~\ref{fig:cluster-summary-train}, captioned ``Response distributions
-across representative training clusters.'' The clusters are ordered by
-decreasing allocation size from left to right.
-
-<<app_cluster_summary_plot-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=7, fig.height=5.5, out.width='0.78\\linewidth', fig.pos='!htbp', fig.cap='Response distributions across representative training clusters. \\label{fig:cluster-summary-train}'>>=
-plot(fit_clust, which = "summary")
 @
 
 
@@ -1780,35 +1750,30 @@ z_test <- predict(
 )
 @
 
-To compare training and new-sample clustering structure, we tabulate the
-representative cluster sizes in the training sample and the predicted cluster
-sizes in the test sample (Tables~\ref{tab:app_cluster_old_new_train-results}
-and \ref{tab:app_cluster_old_new_test-results}).
+For the test sample we tabulate only the predicted cluster sizes that are
+actually represented in the new observations (Table~\ref{tab:app_cluster_old_new_test-results}).
 
 <<app_cluster_old_new_tables-cache, echo=FALSE, message=FALSE, warning=FALSE, results='hide', eval=TRUE, include=FALSE>>=
+test_cluster_summary <- summary(z_test)
 test_cluster_counts <- data.frame(
-  cluster = train_cluster_order,
-  n = as.integer(table(factor(z_test$labels, levels = train_cluster_order))),
+  cluster = paste0("C", names(test_cluster_summary$cluster_sizes)),
+  n = as.integer(test_cluster_summary$cluster_sizes),
   row.names = NULL,
   check.names = FALSE
 )
-
-old_new_train_counts <- as_horizontal_counts(train_cluster_counts, "train")
-old_new_test_counts  <- as_horizontal_counts(test_cluster_counts, "test")
 @
 
-<<app_cluster_old_new_train-results, echo=FALSE, eval=TRUE>>=
-knitr::kable(
-  old_new_train_counts,
-  caption = "Training cluster sizes (comparison view)"
-)
-@
-
-<<app_cluster_old_new_test-results, echo=FALSE, eval=TRUE>>=
-knitr::kable(
-  old_new_test_counts,
+<<app_cluster_old_new_test-results, echo=FALSE, eval=TRUE, results='asis'>>=
+kableExtra::kbl(
+  test_cluster_counts,
+  format = "latex",
+  booktabs = TRUE,
   caption = "Test cluster sizes"
-)
+) |>
+  kableExtra::kable_styling(
+    latex_options = "hold_position",
+    font_size = 8
+  )
 @
 
 To summarize the dominant representative clusters, Table~\ref{tab:cluster-top5-populated}
@@ -1834,26 +1799,24 @@ kableExtra::kbl(
   caption = "Descriptive summaries for up to the five most populated representative clusters \\label{tab:cluster-top5-populated}"
 ) |>
   kableExtra::kable_styling(
-    latex_options = "scale_down",
+    latex_options = c("hold_position", "scale_down"),
     font_size = 7
   )
 @
 
-We also compare the training and test allocations graphically in
-Figure~\ref{fig:cluster-old-new-summary}, captioned ``Response distributions
-for training and test samples under representative labels.'' The test-sample
-boxplots are overlaid on the training distributions so that the same
-representative clusters can be compared directly.
+Figure~\ref{fig:cluster-old-new-summary} shows response boxplots for the test
+sample only, restricted to the five most populated predicted clusters. Clusters
+with no test observations are omitted automatically.
 
-<<app_cluster_old_new_summary-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=7, fig.height=5.5, out.width='0.78\\linewidth', fig.pos='!htbp', fig.cap='Response distributions for training and test samples under representative labels. \\label{fig:cluster-old-new-summary}'>>=
-plot(z_test, type = "summary")
+<<app_cluster_old_new_summary-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=7, fig.height=5.5, out.width='0.78\\linewidth', fig.pos='H', fig.cap='Response boxplots for the five most populated predicted test clusters. \\label{fig:cluster-old-new-summary}'>>=
+plot(z_test, type = "summary", top_n = 5, order_by = "size")
 @
 
 
 This analysis illustrates the intended clustering workflow: inference is
-summarized through a representative training partition, ordered cluster-size
-tables, and cluster-specific response summaries, and new observations are
-assigned to those clusters using posterior predictive co-clustering evidence.
+summarized through a representative training partition and its cluster-level
+descriptive summaries, and new observations are assigned to those clusters
+using posterior predictive co-clustering evidence.
 In Section~\ref{sec:app-causal}, we next turn to the causal workflow, which
 targets treatment contrasts rather than latent partitions.
 
@@ -1991,7 +1954,10 @@ kableExtra::kbl(
     rm_cutoff
   )
 ) |>
-  kableExtra::kable_styling(font_size = 8)
+  kableExtra::kable_styling(
+    latex_options = "hold_position",
+    font_size = 8
+  )
 @
 
 <<app2-qte-call, echo=TRUE, message=FALSE, warning=FALSE, results='hide', eval=FALSE>>=
@@ -2005,7 +1971,10 @@ kableExtra::kbl(
   booktabs = TRUE,
   caption = "Marginal QTE estimates across the main-text quantile grid"
 ) |>
-  kableExtra::kable_styling(font_size = 8)
+  kableExtra::kable_styling(
+    latex_options = "hold_position",
+    font_size = 8
+  )
 @
 
 <<app2-ate-plot, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE, fig.width=7, fig.height=5>>=
@@ -2080,7 +2049,10 @@ kableExtra::kbl(
     profile_var
   )
 ) |>
-  kableExtra::kable_styling(font_size = 8)
+  kableExtra::kable_styling(
+    latex_options = "hold_position",
+    font_size = 8
+  )
 @
 
 <<app2-cate-cache, echo=FALSE, message=FALSE, warning=FALSE, results='hide', eval=TRUE, include=FALSE>>=
@@ -2110,7 +2082,10 @@ kableExtra::kbl(
     rm_cutoff
   )
 ) |>
-  kableExtra::kable_styling(font_size = 8)
+  kableExtra::kable_styling(
+    latex_options = "hold_position",
+    font_size = 8
+  )
 @
 
 <<app2-cqte-call, echo=TRUE, message=FALSE, warning=FALSE, results='hide', eval=FALSE>>=
@@ -2125,7 +2100,7 @@ kableExtra::kbl(
   caption = "Conditional QTE estimates at the representative profiles"
 ) |>
   kableExtra::kable_styling(
-    latex_options = "scale_down",
+    latex_options = c("hold_position", "scale_down"),
     font_size = 8
   )
 @
@@ -2192,7 +2167,10 @@ kableExtra::kbl(
   booktabs = TRUE,
   caption = "Posterior summaries of the arm-specific GPD tail-shape parameters"
 ) |>
-  kableExtra::kable_styling(font_size = 8)
+  kableExtra::kable_styling(
+    latex_options = "hold_position",
+    font_size = 8
+  )
 @
 
 \subsection{Interpretation}

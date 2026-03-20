@@ -22,10 +22,9 @@ if (!requireNamespace("dplyr", quietly = TRUE)) {
 }
 library(dplyr)
 
-if (!requireNamespace("gridExtra", quietly = TRUE)) {
-  stop("Please install 'gridExtra' using install.packages('gridExtra') so the legacy workflows can render.")
+if (requireNamespace("gridExtra", quietly = TRUE)) {
+  library(gridExtra)
 }
-library(gridExtra)
 
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 

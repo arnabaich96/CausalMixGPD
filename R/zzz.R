@@ -37,6 +37,7 @@ utils::globalVariables(c(
   "S_lower",
   "S_upper",
   "arm",
+  "box_y",
   "cluster",
   "count",
   "dataset",

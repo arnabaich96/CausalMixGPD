@@ -1,0 +1,190 @@
+---
+title: "ex15. Clustering with GPD Tail (Weights + Covariates)"
+---
+
+```{r setup, include=FALSE, cache=FALSE}
+knitr::opts_chunk$set(
+  collapse = FALSE,
+  comment = NA,
+  fig.width = 8,
+  fig.height = 5,
+  message = FALSE,
+  warning = FALSE,
+  cache = FALSE,
+  cache.path = 'legacy-cache-v2/'
+)
+
+set.seed(1)
+
+FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
+mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, workers = 2)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_chains = TRUE, workers = 2, z_update_every = 2)
+
+mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
+
+library(CausalMixGPD)
+source("_legacy-setup.R")
+```
+
+> **Website workflow note.**
+> This page reflects the current exported clustering API built around `dpmgpd.cluster()`, `predict()`, `summary()`, and `plot()`.
+> Last updated: **2026-03-19**.
+>
+> For the package-level theory and longer narrative, see the manuscript and the clustering discussion in the main package articles.
+
+# Clustering with a Spliced GPD Tail and Covariate-Dependent Weights
+
+**Purpose**: Fit a tail-aware clustering model in which covariates affect **cluster prevalence** through mixture weights (`type = "weights"`), while the component likelihood is a **spliced bulk + GPD tail** model.
+
+---
+
+## Data Setup
+
+```{r data-setup}
+data("nc_posX100_p5_k4")
+dat <- data.frame(y = nc_posX100_p5_k4$y, nc_posX100_p5_k4$X)
+
+train_id <- seq_len(70)
+train_dat <- dat[train_id, , drop = FALSE]
+test_dat <- dat[-train_id, , drop = FALSE]
+
+summary_tbl <- tibble(
+  split = c("train", "test"),
+  n = c(nrow(train_dat), nrow(test_dat)),
+  y_mean = c(mean(train_dat$y), mean(test_dat$y)),
+  y_sd = c(stats::sd(train_dat$y), stats::sd(test_dat$y)),
+  y_max = c(max(train_dat$y), max(test_dat$y))
+)
+
+summary_tbl %>%
+  mutate(across(c(y_mean, y_sd, y_max), ~ signif(.x, 4))) %>%
+  kable(caption = "Train/test split for the spliced clustering workflow", align = "c") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
+```
+
+```{r data-scatter}
+ggplot(train_dat, aes(x = x1, y = y, color = x2)) +
+  geom_point(alpha = 0.65) +
+  labs(
+    title = "Training sample for spliced clustering",
+    subtitle = "Covariates drive mixture weights via type = 'weights'",
+    x = "x1",
+    y = "y",
+    color = "x2"
+  ) +
+  theme_minimal()
+```
+
+---
+
+## Fit a Spliced Clustering Model
+
+```{r fit-cluster, cache=FALSE}
+fit_cluster_gpd <- load_or_fit(
+  "ex15-clustering-dpmgpd-weights-fit_cluster_gpd",
+  dpmgpd.cluster(
+    y ~ x1 + x2 + x3 + x4 + x5,
+    data = train_dat,
+    kernel = "lognormal",
+    type = "weights",
+    components = 10,
+    mcmc = mcmc
+  )
+)
+
+summary(fit_cluster_gpd, vars = c("y", "x1", "x2", "x3"))
+```
+
+This clustering configuration uses the formula/data-frame interface directly. Because `type = "weights"`, covariates enter the **gating model** for cluster membership, while the spliced bulk-tail likelihood captures upper-tail differences inside each component.
+
+---
+
+## Training Labels and Posterior Similarity Matrix
+
+```{r predict-train}
+cluster_psm_gpd <- predict(fit_cluster_gpd, type = "psm")
+cluster_train_gpd <- predict(fit_cluster_gpd, type = "label", return_scores = TRUE)
+
+train_summary_gpd <- summary(
+  cluster_train_gpd,
+  vars = c("y", "x1", "x2", "x3"),
+  top_n = 5
+)
+
+train_sizes_tbl <- tibble(
+  cluster = paste0("C", names(train_summary_gpd$cluster_sizes)),
+  n = as.integer(train_summary_gpd$cluster_sizes)
+)
+
+train_sizes_tbl %>%
+  kable(caption = "Representative training cluster sizes", align = "c") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
+```
+
+```{r psm-plot}
+plot(cluster_psm_gpd)
+```
+
+```{r train-summary-plot}
+plot(cluster_train_gpd, type = "summary", top_n = 5)
+```
+
+The PSM summarizes posterior co-clustering probabilities on the training sample, while the training label object gives the Dahl representative partition together with assignment scores and cluster-level summaries.
+
+---
+
+## Predict Labels for New Observations
+
+```{r predict-newdata}
+cluster_new_gpd <- predict(
+  fit_cluster_gpd,
+  newdata = test_dat,
+  type = "label",
+  return_scores = TRUE
+)
+
+new_summary_gpd <- summary(
+  cluster_new_gpd,
+  vars = c("y", "x1", "x2", "x3"),
+  top_n = 5
+)
+
+new_sizes_tbl <- tibble(
+  cluster = paste0("C", names(new_summary_gpd$cluster_sizes)),
+  n = as.integer(new_summary_gpd$cluster_sizes)
+)
+
+new_sizes_tbl %>%
+  kable(caption = "Predicted cluster sizes for the held-out sample", align = "c") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE, position = "center")
+```
+
+```{r new-certainty-plot}
+plot(cluster_new_gpd, type = "certainty")
+```
+
+```{r fit-size-plot}
+plot(fit_cluster_gpd, which = "sizes", top_n = 5)
+```
+
+`predict(..., newdata = ..., type = "label")` maps held-out observations into the space of the representative training clusters. The returned score matrix can be summarized either numerically or with the built-in certainty plot above.
+
+---
+
+## Takeaways
+
+- `dpmgpd.cluster()` is the current wrapper for **tail-aware** clustering.
+- `type = "weights"` is appropriate when covariates should change **cluster prevalence** rather than cluster-specific kernel parameters.
+- The standard post-fit workflow is `predict(..., type = "psm")`, `predict(..., type = "label")`, then `summary()`/`plot()` on the returned cluster objects.
+- The next page contrasts this with a **bulk-only** clustering model where covariates enter through **parameter links** instead of weights.
+
+---
+
+<!-- workflow-nav:start -->
+## Workflow Navigation
+
+- Previous: [ex14-causal-different-backends-sb](ex14-causal-different-backends-sb.html)
+- Next: [ex16-clustering-dpm-param](ex16-clustering-dpm-param.html)
+- Workflow index: [Roadmap](../start/roadmap.html)
+- Practical entry: [Examples](../examples/index.html)
+<!-- workflow-nav:end -->
