@@ -97,7 +97,7 @@ ggplot(data.frame(y = y), aes(x = y)) +
 
 ```{r bundle, cache = FALSE}
 bundle_sb_cond_gpd_gamma <- bundle(
-  y = y,
+  x = y,
   X = X,
   kernel = "gamma",
   backend = "sb",
@@ -112,7 +112,7 @@ bundle_sb_cond_gpd_gamma <- bundle(
 )
 
 bundle_sb_cond_gpd_laplace <- bundle(
-  y = y,
+  x = y,
   X = X,
   kernel = "laplace",
   backend = "sb",

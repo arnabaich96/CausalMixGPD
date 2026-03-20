@@ -97,7 +97,7 @@ param_specs_gpd <- list(
 )
 
 bundle_crp_gpd <- bundle(
-  y = y,
+  x = y,
   treat = A,
   X = X,
   kernel = "invgauss",
@@ -159,7 +159,7 @@ plot(qtt_gpd)
 
 ```{r bundle-sb-bulk, cache = FALSE}
 bundle_sb_bulk <- bundle(
-  y = y,
+  x = y,
   treat = A,
   X = X,
   kernel = "amoroso",

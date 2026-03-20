@@ -111,7 +111,7 @@ This mirrors the direct `bundle()` workflow in `start/backends-and-workflow`, bu
 
 ```{r bundle-mcmc-crp-gpd, cache = FALSE}
 bundle_gpd <- bundle(
-  y = y_tail,
+  x = y_tail,
   kernel = "invgauss",
   backend = "crp",
   GPD = TRUE,
@@ -186,7 +186,7 @@ To demonstrate the value of tail augmentation, we fit a bulk-only lognormal DP m
 
 ```{r bulk-only-fit, cache = FALSE}
 bundle_bulk_only <- bundle(
-  y = y_tail,
+  x = y_tail,
   kernel = "lognormal",
   backend = "crp",
   GPD = FALSE,
@@ -240,7 +240,7 @@ For unconditional models, use `predict()` only; `fitted()` and `residuals()` are
 ```{r threshold-sensitivity, cache = FALSE}
 sensitivity_fits <- lapply(thresholds, function(u) {
   bundle <- bundle(
-    y = y_tail,
+    x = y_tail,
     kernel = "invgauss",
     backend = "crp",
     GPD = TRUE,

@@ -90,7 +90,7 @@ p_scatter
 
 ```{r bundle-sb-crp, cache = FALSE}
 bundle_sb_crp <- bundle(
-  y = y,
+  x = y,
   treat = A,
   X = X,
   kernel = c("cauchy", "cauchy"),
@@ -156,7 +156,7 @@ plot(qtt_sb_crp)
 
 ```{r bundle-crp-sb, cache = FALSE}
 bundle_crp_sb <- bundle(
-  y = y,
+  x = y,
   treat = A,
   X = X,
   kernel = c("cauchy", "cauchy"),

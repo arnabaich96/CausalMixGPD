@@ -93,7 +93,7 @@ p_scatter
 
 ```{r bundle-crp-bulk, cache = FALSE}
 bundle_crp_bulk <- bundle(
-  y = y,
+  x = y,
   treat = A,
   X = X,
   kernel = "cauchy",
@@ -175,7 +175,7 @@ param_specs_gpd <- list(
 )
 
 bundle_sb_gpd <- bundle(
-  y = y,
+  x = y,
   treat = A,
   X = X,
   kernel = "laplace",

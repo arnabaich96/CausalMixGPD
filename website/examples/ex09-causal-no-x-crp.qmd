@@ -78,7 +78,7 @@ y_eval <- y[1:40]
 
 ```{r bundle-crp-bulk, cache = FALSE}
 bundle_crp_bulk <- bundle(
-  y = y,
+  x = y,
   treat = A,
   X = NULL,
   kernel = "gamma",
@@ -149,7 +149,7 @@ param_specs_gpd <- list(
 )
 
 bundle_crp_gpd <- bundle(
-  y = y,
+  x = y,
   treat = A,
   X = NULL,
   kernel = "gamma",

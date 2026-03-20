@@ -97,7 +97,7 @@ ggplot(data.frame(y = y), aes(x = y)) +
 
 ```{r bundle, cache = FALSE}
 bundle_cond_gpd_lognormal <- bundle(
-  y = y,
+  x = y,
   X = X,
   kernel = "lognormal",
   backend = "crp",
@@ -112,7 +112,7 @@ bundle_cond_gpd_lognormal <- bundle(
 )
 
 bundle_cond_gpd_normal <- bundle(
-  y = y,
+  x = y,
   X = X,
   kernel = "normal",
   backend = "crp",

@@ -71,7 +71,7 @@ p_cov <- ggplot(df_cov, aes(x = x1, y = y)) +
   labs(title = "y vs X1 (loess smoother)", x = "X1", y = "y") +
   theme_minimal()
 
-gridExtra::grid.arrange(p_cov, ncol = 1)
+print(p_cov)
 ```
 
 ```{r data-table, echo=FALSE}
@@ -87,7 +87,7 @@ summary_tbl %>%
 
 ```{r spec-bundle, cache = FALSE}
 bundle_cond_normal <- bundle(
-  y = y,
+  x = y,
   X = X,
   kernel = "normal",
   backend = "crp",
@@ -97,7 +97,7 @@ bundle_cond_normal <- bundle(
 )
 
 bundle_cond_amoroso <- bundle(
-  y = y,
+  x = y,
   X = X,
   kernel = "amoroso",
   backend = "crp",

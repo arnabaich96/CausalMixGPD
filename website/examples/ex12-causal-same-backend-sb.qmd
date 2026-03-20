@@ -91,7 +91,7 @@ p_scatter
 
 ```{r bundle-sb-bulk, cache = FALSE}
 bundle_sb_bulk <- bundle(
-  y = y,
+  x = y,
   treat = A,
   X = X,
   kernel = "laplace",
@@ -171,7 +171,7 @@ param_specs_gpd <- list(
 )
 
 bundle_sb_gpd <- bundle(
-  y = y,
+  x = y,
   treat = A,
   X = X,
   kernel = "laplace",

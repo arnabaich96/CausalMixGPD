@@ -107,7 +107,7 @@ param_specs_gpd <- list(
 )
 
 bundle_sb_crp <- bundle(
-  y = y,
+  x = y,
   treat = A,
   X = X,
   kernel = c("amoroso", "amoroso"),
@@ -174,7 +174,7 @@ plot(qte_sb_crp)
 
 ```{r bundle-crp-sb, cache = FALSE}
 bundle_crp_sb <- bundle(
-  y = y,
+  x = y,
   treat = A,
   X = X,
   kernel = c("amoroso", "amoroso"),

@@ -20,17 +20,13 @@ set.seed(1)
 # Fast-by-default rendering. Flip to FALSE for a fuller run.
 FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
 mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, workers = 2)
-library(tibble)
-library(gridExtra)
-library(dplyr)
-library(magrittr)
-library(ggplot2)
 mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_chains = TRUE, workers = 2, z_update_every = 2)
 
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
 
-# Ensure package is fully loaded for data access
+# Load package (with all_quiet to suppress startup messages)
+library(CausalMixGPD)
 
 # Precomputed results for fast website builds
 source("_legacy-setup.R")
@@ -84,7 +80,7 @@ p_raw <- ggplot(df_data, aes(x = y)) +
   labs(title = "Raw Data: Mixed Gamma Distribution", x = "y", y = "Density") +
   theme_minimal()
 
-gridExtra::grid.arrange(p_raw, ncol = 1)
+print(p_raw)
 ```
 
 ```{r data-table, echo=FALSE}
@@ -103,7 +99,7 @@ We build the stick-breaking mixture explicitly with `components = 5` so that the
 ```{r bundle-mcmc-sb, cache = FALSE}
 # --- Gamma kernel ---
 bundle_sb_gamma <- bundle(
-  y = y_mixed,
+  x = y_mixed,
   kernel = "gamma",
   backend = "sb",
   components = 5,            # fixed truncation level for SB
@@ -113,7 +109,7 @@ bundle_sb_gamma <- bundle(
 
 # --- Cauchy kernel ---
 bundle_sb_cauchy <- bundle(
-  y = y_mixed,
+  x = y_mixed,
   kernel = "cauchy",
   backend = "sb",
   components = 5,
@@ -197,7 +193,7 @@ plot(pred_mean_cauchy)
 
 ```{r compare-backend, cache = FALSE}
 bundle_crp_small <- bundle(
-  y = y_mixed,
+  x = y_mixed,
   kernel = "gamma",
   backend = "crp",
   components = 5,

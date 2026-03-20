@@ -68,7 +68,7 @@ p_raw <- ggplot(df_data, aes(x = y)) +
   labs(title = "Tail-Designed Data", x = "y", y = "Density") +
   theme_minimal()
 
-gridExtra::grid.arrange(p_raw, ncol = 1)
+print(p_raw)
 ```
 
 ```{r data-table, echo=FALSE}
@@ -101,7 +101,7 @@ This follows the same structure as the SB bulk-only vignette (`ex02`): build a b
 
 ```{r spec-bundle, cache = FALSE}
 bundle_sb_gpd <- bundle(
-  y = y_tail,
+  x = y_tail,
   kernel = "gamma",
   backend = "sb",
   GPD = TRUE,
@@ -161,7 +161,7 @@ plot(pred_quant)
 
 ```{r bulk-comparison, cache = FALSE}
 bundle_sb_bulk <- bundle(
-  y = y_tail,
+  x = y_tail,
   kernel = "laplace",
   backend = "sb",
   GPD = FALSE,

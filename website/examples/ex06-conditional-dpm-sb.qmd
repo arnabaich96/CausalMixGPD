@@ -83,7 +83,7 @@ summary_tbl %>%
 
 ```{r spec, cache = FALSE}
 bundle_sb_normal <- bundle(
-  y = y,
+  x = y,
   X = X,
   kernel = "normal",
   backend = "sb",
@@ -93,7 +93,7 @@ bundle_sb_normal <- bundle(
 )
 
 bundle_sb_cauchy <- bundle(
-  y = y,
+  x = y,
   X = X,
   kernel = "cauchy",
   backend = "sb",
