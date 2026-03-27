@@ -1,0 +1,258 @@
+---
+title: "Usage Diagrams"
+page-layout: full
+---
+
+:::: {.hero}
+:::: {.container}
+# Full Package Usage
+Two-layer diagram set for what to call, which parameters matter, and what each choice implies.
+:::: 
+::::
+
+## Basic usage diagrams
+
+### Diagram A: Choose the right wrapper (one-arm)
+
+```{mermaid}
+flowchart TD
+  U[User has data y and/or X] --> Q1{Need causal estimands\n(ATE/QTE/CATE/CQTE)?}
+  Q1 -->|No| O1[Use one-arm wrappers]
+  Q1 -->|Yes| A1[Go to Advanced usage diagrams]
+
+  O1 --> Q2{Do you need upper-tail\nexceedance modeling? (GPD)}
+  Q2 -->|No| W1[dpmix(...)]
+  Q2 -->|Yes| W2[dpmgpd(...)]
+
+  W1 --> P1[Provide y (vector)]
+  W1 --> OX1{Have covariates X?}
+  OX1 -->|Yes| P2[Provide X (matrix/data.frame)]
+  OX1 -->|No| P3[Leave X = NULL]
+
+  W2 --> P4[Provide y (vector)]
+  W2 --> OX2{Have covariates X?}
+  OX2 -->|Yes| P5[Provide X (matrix/data.frame)]
+  OX2 -->|No| P6[Leave X = NULL]
+
+  P2 --> P7[Set kernel + backend + components via ...]
+  P5 --> P7
+```
+
+### Diagram B: Bundle build choices (one-arm)
+
+```{mermaid}
+flowchart TD
+  B0[Build a one-arm workflow bundle] --> N0[Call bundle(y, X?, kernel, backend, GPD, components, mcmc, ...)]
+
+  N0 --> B1{Choose backend}
+  B1 -->|sb| Bsb[backend = "sb"\nSB truncation]
+  B1 -->|crp| Bcrp[backend = "crp"\nCRP finite clusters]
+  B1 -->|spliced (internal)| Bsp[spliced used internally when GPD=TRUE]
+
+  N0 --> B2{Choose kernel family}
+  B2 --> KREG[Pick kernel from registry\n(get_kernel_registry/kernel catalog)]
+  KREG --> KERNEL[Pass kernel = "<name>"]
+
+  N0 --> B3{Enable spliced tail?}
+  B3 -->|GPD = FALSE| GPD0[No GPD tail]
+  B3 -->|GPD = TRUE| GPD1[GPD tail enabled\nspliced bulk-tail]
+
+  N0 --> B4[Set components (>= 2)]
+  B4 --> C1{Interpret components by backend}
+  C1 -->|SB| Csb[SB: number of mixture components]
+  C1 -->|CRP| Ccrp[CRP: maximum represented clusters]
+
+  N0 --> B5[Select MCMC list]
+  B5 --> MCMC[Run settings stored in bundle:\n(niter, nburnin, thin, nchains, seed)]
+
+  N0 --> B6{Conditional model?}
+  B6 -->|Yes (X supplied)| COND[Provide X design\n(built into model spec)]
+  B6 -->|No| UNCOND[Unconditional bulk-only/mixture]
+
+  N0 --> B7{Extra build overrides?}
+  B7 --> PSX[Optional param_specs (bulk/tail defaults override)]
+```
+
+### Diagram C: Posterior prediction dispatch (one-arm)
+
+```{mermaid}
+flowchart TD
+  X0[predict(fit, type=...)] --> T{type choice}
+
+  T -->|density| NeedY[y required\n(evaluation grid)]
+  T -->|survival| NeedY
+  T -->|prob| NeedY
+
+  T -->|quantile| NeedP[p required (or index)]
+  T -->|sample| Samp[nsim / store_draws control output]
+  T -->|fit| FitOut[per-observation predictive draws]
+
+  T -->|mean| MeanInt[interval controls bands\n(level, probs, hpd/credible)]
+  T -->|location| MeanInt
+  T -->|median| MedInt[median = quantile at p=0.5\ninterval]
+  T -->|rmean| RMean[requires cutoff\ninterval]
+
+  NeedY --> Para[Optional: x/newdata + id + parallel controls]
+  NeedP --> Para
+  Samp --> Para
+  MeanInt --> Para
+  RMean --> Para
+```
+
+### Diagram D: Plot dispatch (one-arm)
+
+```{mermaid}
+flowchart TD
+  P0[plot(fit, family=..., params=...)] --> F{family}
+  F -->|auto| Fall[family="auto" (all supported plots)]
+  F -->|single/multiple| Fsub[family subset:\nhistogram, density, traceplot, running,\ncompare_partial, autocorrelation, crosscorrelation,\nRhat, grb, effective, geweke, caterpillar, pairs]
+
+  P0 --> PS{params selector}
+  PS -->|NULL| AllPars["params = NULL\n(plot all monitored parameters)"]
+  PS -->|vector|stringRegex[params can be:\n- character vector of exact/partial names\n- regex string (e.g. "alpha|threshold|tail_")]
+```
+
+## Advanced usage diagrams
+
+### Diagram E: Choose the right workflow (causal vs clustering)
+
+```{mermaid}
+flowchart TD
+  U2[User wants outcomes from y/X and/or A] --> Q3{Want causal estimands?}
+  Q3 -->|Yes| C0[Causal workflow]
+  Q3 -->|No| Q4{Want clustering only?}
+  Q4 -->|Yes| Cl0[Clustering workflow]
+  Q4 -->|No| OneArm[One-arm workflow (basic)]
+
+  C0 --> Q5{Need spliced tail (GPD)?}
+  Q5 -->|No| Ca0[dpmix.causal(...)]
+  Q5 -->|Yes| Ca1[dpmgpd.causal(...)]
+
+  Cl0 --> Q6{Need GPD tail?}
+  Q6 -->|No| Cl1[dpmix.cluster(...)]
+  Q6 -->|Yes| Cl2[dpmgpd.cluster(...)]
+```
+
+### Diagram F: build_causal_bundle choices
+
+```{mermaid}
+flowchart TD
+  CB0[Build causal workflow bundle] --> CB1[Call build_causal_bundle(y, X, A, backend, kernel, GPD, components, PS, ...)]
+
+  CB1 --> Bdb{backend choice}
+  Bdb -->|sb| Bdbsb["backend = sb"]
+  Bdb -->|crp| Bdbcrp["backend = crp"]
+  Bdb -->|spliced| Bdbsp["backend = spliced (compat)"]
+
+  CB1 --> Bk{kernel choice}
+  Bk --> K1["kernel can be one value\nor length-2 (A=1 vs A=0)"]
+  CB1 --> Bgpd{GPD tail enabled?}
+  Bgpd -->|FALSE| G0["GPD = FALSE\nfor both arms"]
+  Bgpd -->|TRUE| G1["GPD = TRUE\nfor both arms"]
+  Bgpd -->|length-2| G12["GPD length-2\n(trt arm vs control arm)"]
+
+  CB1 --> Bcomp[components (>=2)]
+  Bcomp --> Comp2{components length}
+  Comp2 -->|single| CompSingle["shared truncation cap"]
+  Comp2 -->|length-2| CompArms["trt arm vs control arm caps"]
+
+  CB1 --> PSblock{Propensity score augmentation}
+  PSblock -->|PS=logit| PSlogit["PS model: logit"]
+  PSblock -->|PS=probit| PSprobit["PS model: probit"]
+  PSblock -->|PS=naive| PSnaive["PS model: naive Bayes"]
+  PSblock -->|PS=FALSE| PSnone["No PS block"]
+
+  PSblock --> PSscale[ps_scale: logit or prob]
+  PSblock --> PSsum[ps_summary: mean or median]
+  PSblock --> PSclamp[ps_clamp (PS clamping epsilon)]
+  PSblock --> PSint[include_intercept (prepend intercept to X)]
+
+  CB1 --> MCMC1["mcmc_outcome and mcmc_ps:\n(niter, nburnin, thin, nchains, seed)"]
+```
+
+### Diagram G: predict.causalmixgpd_causal_fit dispatch
+
+```{mermaid}
+flowchart TD
+  Pca0[predict(fit, type=...)] --> Type{type}
+
+  Type -->|density| NeedY[y required]
+  Type -->|survival| NeedY
+  Type -->|prob| NeedY
+
+  Type -->|quantile| NeedP[p required (or index)]
+  NeedP --> Int[interval/level control quantile bands\n(credible/hpd/NULL)]
+
+  Type -->|mean| Mean[interval/level/probs\ncontrol bands]
+  Type -->|location| Mean
+
+  Pca0 --> PSopt{Override PS?}
+  PSopt -->|ps provided| PSuse[Use provided ps in both arms]
+  PSopt -->|ps NULL| PSstored[Use stored PS estimate]
+```
+
+### Diagram H: Causal estimand entry points
+
+```{mermaid}
+flowchart TD
+  Est[Choose estimand helper] --> Which{Which effect?}
+
+  Which -->|ATE| ATE[ate(fit, type, cutoff, interval, level, nsim_mean)]
+  ATE -->|type mean| ATEmean["type=mean: ordinary mean ATE"]
+  ATE -->|type rmean| ATErmean["type=rmean: requires cutoff"]
+
+  Which -->|QTE| QTE[qte(fit, probs, interval, level)]
+  QTE --> QTEmean["probs sets quantile levels"]
+
+  Which -->|CATE| CATE[cate(fit, newdata, type, cutoff, interval, level, nsim_mean)]
+  CATE -->|type mean| Cmean["conditional mean contrast"]
+  CATE -->|type rmean| Crmean["conditional restricted-mean contrast\n(requires cutoff)"]
+
+  Which -->|CQTE| CQTE[cqte(fit, probs, newdata, interval, level)]
+```
+
+### Diagram I: Clustering-only workflow (includes optional GPD tail)
+
+```{mermaid}
+flowchart TD
+  ClU[Clustering-only goal] --> ClPick{Need GPD tail?}
+  ClPick -->|No| ClFit[dpmix.cluster(formula, data, ..., type, default, mcmc)]
+  ClPick -->|Yes| ClFitG[dpmgpd.cluster(formula, data, ..., type, default, mcmc)]
+
+  ClFit --> Mode{type}
+  Mode -->|weights| Mweights["type=weights"]
+  Mode -->|param| Mparam["type=param"]
+  Mode -->|both| Mboth["type=both"]
+
+  ClFitG --> Mode2
+  Mode2 -->|weights| Mweights2["type=weights"]
+  Mode2 -->|param| Mparam2["type=param"]
+  Mode2 -->|both| Mboth2["type=both"]
+
+  ClFit --> Post[predict(cluster_fit, type=..., burnin, thin, return_scores, psm_max_n)]
+  ClFitG --> Post
+
+  Post --> Ptype{predict type}
+  Ptype -->|label| Plabel["type=label (representative labels)\nSupports newdata for label scoring"]
+  Ptype -->|psm| Ppsm["type=psm (posterior similarity matrix)\nRestricted to training sample\n(guards with psm_max_n)"]
+```
+
+<!-- cmgpd-footer:start -->
+## Prereqs
+- Required packages and data for this page are listed in the setup chunks above.
+
+## Outputs
+- This page renders model fits, diagnostics, and summary artifacts generated by package APIs.
+
+## Interpretation
+- Canonical concept page: [Start Here](start-here.qmd)
+- Treat this page as an application/example view and use the canonical page for core definitions.
+
+## Next
+- Continue to the linked canonical concept page, then return for implementation-specific details.
+<!-- cmgpd-footer:end -->
+
+
+
+
+

@@ -43,13 +43,16 @@ is excluded from analysis.}
 \item{newdata}{Optional new data. If \code{NULL}, uses training design (if stored).}
 
 \item{type}{Prediction type. Supported: \code{"mean"}, \code{"quantile"},
-\code{"density"}, \code{"survival"}, \code{"prob"}.}
+\code{"density"}, \code{"survival"}, \code{"prob"}, \code{"location"}.}
 
 \item{p}{Numeric vector of probabilities for quantiles (required for \code{type="quantile"}).}
 
 \item{index}{Alias for \code{p}; numeric vector of quantile levels.}
 
-\item{nsim}{Number of posterior predictive samples (for \code{type="sample"}).}
+\item{nsim}{Number of posterior predictive samples. For
+\code{predict.causalmixgpd_causal_fit()}, posterior sampling output is not
+available because \code{type="sample"} is not supported by this causal
+method; this argument is effectively unused.}
 
 \item{interval}{Character or NULL; type of credible interval: \code{NULL} for no interval,
 \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
@@ -57,7 +60,10 @@ highest posterior density intervals.}
 
 \item{probs}{Quantiles for credible interval bands.}
 
-\item{store_draws}{Logical; whether to store all posterior draws (for \code{type="sample"}).}
+\item{store_draws}{Logical; whether to store posterior draws. For
+\code{predict.causalmixgpd_causal_fit()}, stored draws are not available
+because \code{type="sample"} is not supported by this causal method; this
+argument is effectively unused.}
 
 \item{nsim_mean}{Number of posterior predictive samples to use for posterior mean estimation (for \code{type="mean"}).}
 
@@ -65,7 +71,8 @@ highest posterior density intervals.}
 
 \item{show_progress}{Logical; if TRUE, print step messages and render progress where supported.}
 
-\item{...}{Unused.}
+\item{...}{Additional arguments forwarded to per-arm
+\code{\link{predict.mixgpd_fit}} calls.}
 }
 \value{
 For \code{"mean"} and \code{"quantile"}, a causal prediction object

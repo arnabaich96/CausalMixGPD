@@ -1,8 +1,12 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/404.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/AGENTS.html</loc></url>
+<url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/articles/CausalMixGPD_JSS_article.html</loc></url>
+<url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/articles/index.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/authors.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/index.html</loc></url>
+<url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/allocation.html</loc></url>
+<url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/allocation.mixgpd_fit.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/amoroso.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/amoroso_gpd.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/amoroso_lowercase.html</loc></url>
@@ -105,6 +109,7 @@
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.dpmixgpd_cluster_fit.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.dpmixgpd_cluster_labels.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.dpmixgpd_cluster_psm.html</loc></url>
+<url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.mixgpd_allocation.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.mixgpd_fit.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.mixgpd_fitted.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/plot.mixgpd_predict.html</loc></url>
@@ -123,6 +128,7 @@
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.dpmixgpd_cluster_fit.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.dpmixgpd_cluster_labels.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.dpmixgpd_cluster_psm.html</loc></url>
+<url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.mixgpd_allocation.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.mixgpd_fit.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.mixgpd_fitted_plots.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.mixgpd_fit_plots.html</loc></url>
@@ -130,6 +136,7 @@
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.mixgpd_summary.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.summary.causalmixgpd_ate.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.summary.causalmixgpd_qte.html</loc></url>
+<url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/print.summary.mixgpd_allocation.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/qte.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/qtt.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/residuals.mixgpd_fit.html</loc></url>
@@ -147,6 +154,7 @@
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.dpmixgpd_cluster_fit.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.dpmixgpd_cluster_labels.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.dpmixgpd_cluster_psm.html</loc></url>
+<url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.mixgpd_allocation.html</loc></url>
 <url><loc>https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.mixgpd_fit.html</loc></url>
 </urlset>
 

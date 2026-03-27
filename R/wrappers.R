@@ -293,6 +293,7 @@
 #' and the spliced bulk-tail construction used throughout the package.
 #'
 #' @param x Either a response vector or an existing bundle.
+#' @param y Optional alias for \code{x} (response vector).
 #' @param data Optional data.frame used with \code{formula}.
 #' @param X Optional design matrix/data.frame.
 #' @param treat Optional binary treatment indicator.
@@ -307,21 +308,21 @@
 #' @seealso \code{\link{build_nimble_bundle}}, \code{\link{build_causal_bundle}},
 #'   \code{\link{mcmc}}, \code{\link{dpmix}}, \code{\link{dpmgpd}}.
 #' @export
-bundle <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL, ..., GPD = FALSE) {
+bundle <- function(x = NULL, y = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL, ..., GPD = FALSE) {
   if (.is_bundle(x)) return(x)
 
   treat_expr <- substitute(treat)
   call_args <- as.list(match.call(expand.dots = FALSE))
   treat_supplied <- ("treat" %in% names(call_args)) && !is.null(treat)
 
-  y <- NULL
+  y_vec <- NULL
   x_mat <- X
   t_vec <- NULL
   formula_meta <- NULL
 
   if (!is.null(formula)) {
     parsed <- .parse_formula_yX(formula = formula, data = data)
-    y <- parsed$y
+    y_vec <- parsed$y
     x_mat <- parsed$X
     if (treat_supplied) {
       if (is.symbol(treat_expr) && as.character(treat_expr) %in% names(parsed$mf)) {
@@ -340,8 +341,9 @@ bundle <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL
       treat = if (is.symbol(treat_expr)) as.character(treat_expr) else NULL
     )
   } else {
+    if (is.null(x) && !is.null(y)) x <- y
     if (is.null(x)) stop("Provide either 'x' (response vector), 'formula', or a bundle.", call. = FALSE)
-    y <- as.numeric(x)
+    y_vec <- as.numeric(x)
     if (treat_supplied) t_vec <- .coerce_treat(treat)
   }
 
@@ -351,14 +353,14 @@ bundle <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL
   }
 
   if (!is.null(x_mat) && !is.matrix(x_mat)) x_mat <- as.matrix(x_mat)
-  if (length(y) < 1L) stop("'y' must be a non-empty numeric vector.", call. = FALSE)
-  if (!is.null(x_mat) && nrow(x_mat) != length(y)) stop("nrow(X) must match length(y).", call. = FALSE)
-  if (!is.null(t_vec) && length(t_vec) != length(y)) stop("length(treat) must match length(y).", call. = FALSE)
+  if (length(y_vec) < 1L) stop("'y' must be a non-empty numeric vector.", call. = FALSE)
+  if (!is.null(x_mat) && nrow(x_mat) != length(y_vec)) stop("nrow(X) must match length(y).", call. = FALSE)
+  if (!is.null(t_vec) && length(t_vec) != length(y_vec)) stop("length(treat) must match length(y).", call. = FALSE)
 
   if (is.null(t_vec)) {
-    b <- build_nimble_bundle(y = y, X = x_mat, GPD = GPD, ...)
+    b <- build_nimble_bundle(y = y_vec, X = x_mat, GPD = GPD, ...)
   } else {
-    b <- build_causal_bundle(y = y, X = x_mat, A = t_vec, GPD = GPD, ...)
+    b <- build_causal_bundle(y = y_vec, X = x_mat, A = t_vec, GPD = GPD, ...)
   }
 
   if (!is.null(formula_meta)) {

@@ -59,6 +59,8 @@ The lower-level bundle route (`bundle()` then `mcmc()`) remains available for ad
 
 **Purpose**: Generate NIMBLE model code, compile sampler, prepare for MCMC execution.
 
+> For the underlying model math (GPD threshold exceedances, DPM bulk regression, and the spliced quantile construction), see [Theory: GPD tails + DPM bulk + splicing](../advanced/theory/01-gpd-dp-setup.qmd).
+
 ### Building Directly
 
 ```{r bundle-direct, cache = FALSE}
@@ -68,28 +70,26 @@ y <- nc_pos200_k3$y
 
 # Direct call
 bundle_direct <- bundle(
-  y = y,
+  x = y,
   kernel = "gamma",
   backend = "crp",
   GPD = FALSE,
   components = 5,
   mcmc = mcmc
 )
-
-print("Direct bundle creation successful.\n")
 ```
 
 ### Inspecting Bundle Contents
 
 ```{r bundle-inspect}
 # Bundle is an S3 object with structure
-cat("Bundle class:", class(bundle_direct), "\n")
-cat("Bundle contains:\n")
-print(names(bundle_direct))
+bundle_class <- class(bundle_direct)
+bundle_names <- names(bundle_direct)
+bundle_mcmc <- bundle_direct$mcmc_settings
 
-# Access key components
-cat("\nMCMC settings:\n")
-print(bundle_direct$mcmc_settings)
+bundle_class
+bundle_names
+bundle_mcmc
 ```
 
 ---
@@ -103,16 +103,12 @@ print(bundle_direct$mcmc_settings)
 ```{r mcmc-basic, cache = FALSE}
 # Run MCMC
 fit <- load_or_fit("quickstart-basic-model-compile-run-fit", dpmix(bundle_direct, mcmc = list(show_progress = FALSE)))
-
-cat("Fit object class:", class(fit), "\n")
-cat("MCMC execution complete. Posterior samples collected.\n")
+invisible(fit)
 ```
 
 ### Accessing Posterior Samples
 
 ```{r mcmc-posterior}
-# Posterior summary
-print("\n--- POSTERIOR SUMMARY ---\n")
 summary(fit)
 
 # Posterior mean parameters in original form
@@ -138,7 +134,7 @@ y_data <- nc_pos200_k3$y
 
 # PHASE 1: Bundle
 bundle_final <- bundle(
-  y = y_data,
+  x = y_data,
   kernel = "gamma",
   backend = "crp",
   GPD = FALSE,
@@ -148,8 +144,6 @@ bundle_final <- bundle(
 
 # PHASE 2: MCMC
 fit_final <- load_or_fit("quickstart-basic-model-compile-run-fit_final", dpmix(bundle_final, mcmc = list(show_progress = FALSE)))
-
-print("\n=== THREE-PHASE WORKFLOW COMPLETE ===\n")
 summary(fit_final)
 ```
 
@@ -162,7 +156,7 @@ summary(fit_final)
 ```{r backend-crp, cache = FALSE}
 # Chinese Restaurant Process
 bundle_crp <- bundle(
-  y = y_data,
+  x = y_data,
   kernel = "gamma",
   backend = "crp",
   components = 5,
@@ -170,7 +164,7 @@ bundle_crp <- bundle(
 )
 
 fit_crp <- load_or_fit("quickstart-basic-model-compile-run-fit_crp", dpmix(bundle_crp, mcmc = list(show_progress = FALSE)))
-print("CRP execution complete.\n")
+invisible(fit_crp)
 ```
 
 ### Stick-Breaking Backend
@@ -178,7 +172,7 @@ print("CRP execution complete.\n")
 ```{r backend-sb, cache = FALSE}
 # Stick-Breaking Process
 bundle_sb <- bundle(
-  y = y_data,
+  x = y_data,
   kernel = "gamma",
   backend = "sb",
   components = 5,
@@ -186,7 +180,7 @@ bundle_sb <- bundle(
 )
 
 fit_sb <- load_or_fit("quickstart-basic-model-compile-run-fit_sb", dpmix(bundle_sb, mcmc = list(show_progress = FALSE)))
-print("SB execution complete.\n")
+invisible(fit_sb)
 ```
 
 ---
@@ -196,19 +190,7 @@ print("SB execution complete.\n")
 ```{r kernel-guide}
 kernels_available <- c("gamma", "lognormal", "normal", "laplace", "invgauss", "amoroso", "cauchy")
 
-cat("Available kernels:\n")
-for (k in kernels_available) {
-  cat("  -", k, "\n")
-}
-
-print("\nChoose kernel based on:\n")
-print("  gamma:     Right-skewed, positive support\n")
-print("  lognormal: Log-transformed normality\n")
-print("  normal:    Symmetric, unbounded\n")
-print("  laplace:   Sharp peak, exponential tails\n")
-print("  invgauss:  Positive, near-normal shape\n")
-print("  amoroso:   Generalized, maximum flexibility\n")
-print("  cauchy:    Heavy-tailed, rare cases\n")
+kernels_available
 ```
 
 ---
@@ -224,7 +206,7 @@ y_tail <- nc_pos_tail200_k4$y
 
 # Build with GPD
 bundle_gpd <- bundle(
-  y = y_tail,
+  x = y_tail,
   kernel = "gamma",
   backend = "sb",
   GPD = TRUE,
@@ -233,7 +215,6 @@ bundle_gpd <- bundle(
 )
 
 fit_gpd <- load_or_fit("quickstart-basic-model-compile-run-fit_gpd", dpmgpd(bundle_gpd, mcmc = list(show_progress = FALSE)))
-print("\nGPD augmentation applied to tail region.\n")
 summary(fit_gpd)
 ```
 
@@ -251,17 +232,14 @@ summary(fit_gpd)
 ## Common Parameter Settings
 
 ```{r param-reference}
-print("=== Recommended MCMC Parameters ===\n")
-print("Quick test:     niter=500,  nburnin=100, nchains=1\n")
-print("Standard:       niter=1000, nburnin=250, nchains=2\n")
-print("Production:     niter=1000, nburnin=250, nchains=3\n")
-print("\n=== Backend Parameters ===\n")
-print("Use components=3-5 for both backends in this implementation.\n")
-print("\n=== Kernel Selection ===\n")
-print("Positive data:     gamma, lognormal, invgauss\n")
-print("Any real data:     normal\n")
-print("Symmetric tails:   laplace\n")
-print("Extreme outliers:  cauchy\n")
+recommended_mcmc <- data.frame(
+  profile = c("Quick test", "Standard", "Production"),
+  niter = c(500, 1000, 1000),
+  nburnin = c(100, 250, 250),
+  nchains = c(1, 2, 3)
+)
+
+recommended_mcmc
 ```
 
 ---
@@ -284,34 +262,20 @@ print("Extreme outliers:  cauchy\n")
 - Practical entry: [Examples](../examples/index.html)
 <!-- workflow-nav:end -->
 
+<!-- cmgpd-footer:start -->
+## Prereqs
+- Required packages and data for this page are listed in the setup chunks above.
 
+## Outputs
+- This page renders model fits, diagnostics, and summary artifacts generated by package APIs.
 
+## Interpretation
+- Canonical concept page: [Start Here](start-here.qmd)
+- Treat this page as an application/example view and use the canonical page for core definitions.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+## Next
+- Continue to the linked canonical concept page, then return for implementation-specific details.
+<!-- cmgpd-footer:end -->
 
 
 

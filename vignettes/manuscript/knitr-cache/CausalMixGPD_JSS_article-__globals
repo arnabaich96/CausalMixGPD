@@ -37,7 +37,7 @@ app_cluster_data-results	test_dat	train_dat
 app_cluster_fit-code	mcmc_fixed	train_dat
 app_cluster_label-code	fit_clust
 app_cluster_train_sizes-code	fit_clust
-app_cluster_fit-cache	read_cache_rds
+app_cluster_fit-cache	mcmc_fixed	read_cache_rds	train_dat
 app_cluster_train_sizes-cache	read_cache_rds
 app_cluster_predict_new-cache	read_cache_rds
 app_cluster_predict_new-code	fit_clust	test_dat
@@ -55,20 +55,20 @@ app2-ate-results	ate_fit	rm_cutoff
 app2-qte-call	fit	taus
 app2-qte-results	qte_fit
 app2-ate-plot	ate_fit
-app2-ate-plot-results	cache_file	rm_cutoff
+app2-ate-plot-results	
 app2-qte-plot	qte_fit
-app2-qte-plot-results	cache_file
-app2-xnew-cache	read_cache_rds
+app2-qte-plot-results	
+app2-xnew-cache	
 app2-xnew-code	X
 app2-xnew-results	profile_var	xnew
-app2-cate-cache	read_cache_rds
+app2-cate-cache	
 app2-cate-call	fit	rm_cutoff	xnew
 app2-cate-results	cate_fit	rm_cutoff
 app2-cqte-call	fit	taus	xnew
 app2-cqte-results	cqte_fit
 app2-cate-plot	cate_fit
-app2-cate-plot-results	cache_file	rm_cutoff
+app2-cate-plot-results	
 app2-cqte-plot	cqte_fit
-app2-cqte-plot-results	cache_file
+app2-cqte-plot-results	
 app2-tail-cache	read_cache_rds
 app2-tail-results	xi_table

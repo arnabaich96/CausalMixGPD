@@ -1,6 +1,6 @@
 project:
   type: website
-  output-dir: ../docs
+  output-dir: ../quarto
   render:
     - "**/*.qmd"
     - "!**/*.knit.md"
@@ -10,15 +10,24 @@ website:
   title: "CausalMixGPD"
   search: true
   navbar:
+    background: "#0b1220"
     left:
       - text: Home
         href: index.qmd
+      - text: Roadmaps
+        menu:
+          - text: Website roadmap
+            href: roadmap.qmd
+          - text: Package roadmap
+            href: package-roadmap.qmd
       - text: Start
         menu:
           - text: Start Hub
             href: start/index.qmd
           - text: Roadmap
             href: start/roadmap.qmd
+          - text: Usage Diagrams
+            href: start/usage-diagrams.qmd
           - text: Start Here
             href: start/start-here.qmd
           - text: Basic Compile and Run
@@ -27,6 +36,20 @@ website:
             href: start/backends-and-workflow.qmd
           - text: Troubleshooting
             href: start/troubleshooting.qmd
+      - text: Tracks
+        menu:
+          - text: Quickstart
+            href: tracks/quickstart.qmd
+          - text: Modeling (1-arm)
+            href: tracks/modeling.qmd
+          - text: Causal
+            href: tracks/causal.qmd
+          - text: Clustering
+            href: tracks/clustering.qmd
+          - text: Kernels & tails
+            href: tracks/kernels.qmd
+          - text: Customization
+            href: tracks/customization.qmd
       - text: Examples
         href: examples/index.qmd
       - text: Kernels
@@ -56,8 +79,14 @@ format:
     smooth-scroll: true
     link-external-newwindow: true
     include-after-body: _footer.html
+    code-fold: true
+    code-summary: "Code"
+    mermaid:
+      theme: dark
 
 execute:
-  enabled: false
+  enabled: true
   cache: true
   freeze: auto
+  message: false
+  warning: false

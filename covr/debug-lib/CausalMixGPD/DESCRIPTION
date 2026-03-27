@@ -1,0 +1,31 @@
+Package: CausalMixGPD
+Type: Package
+Title: Dirichlet Process Mixtures with Generalized Pareto Tail
+Version: 0.3.0
+Author: Arnab Aich [aut, cre]
+Maintainer: Arnab Aich <aaich@fsu.edu>
+Authors@R: person("Arnab", "Aich", role = c("aut", "cre"), email = "aaich@fsu.edu")
+Description: Experimental framework for Dirichlet process mixture regression and unconditional models
+    with flexible kernels (gamma, lognormal, normal, Laplace, inverse Gaussian, Amoroso)
+    and optional generalized Pareto (GPD) tail extension. Implements Dirichlet process
+    mixture models with optional GPD tail splicing for unconditional, conditional, and
+    causal analyses. Inference uses stick-breaking/CRP representations and NIMBLE-backed
+    MCMC. Methodological foundations include Ferguson (1973) ,
+    Ishwaran and James (2001), and peaks-over-threshold
+    tail theory from Balkema and de Haan (1974) and
+    Pickands (1975).
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Depends: R (>= 4.0.0), nimble
+Imports: stats, utils, ggplot2, progress
+Suggests: testthat (>= 3.0.0), knitr, rmarkdown, here, cli, coda,
+        ggmcmc, future, future.apply, crayon, DT, kableExtra, plotly
+VignetteBuilder: knitr
+RoxygenNote: 7.3.3
+Roxygen: list(markdown = TRUE, roclets = c("rd", "namespace"))
+Config/testthat/edition: 3
+URL: https://arnabaich96.github.io/CausalMixGPD/,
+        https://arnabaich96.github.io/CausalMixGPD/pkgdown/
+BugReports: https://arnabaich96.github.io/CausalMixGPD/
+Built: R 4.5.2; ; 2026-03-27 06:13:03 UTC; windows

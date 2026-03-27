@@ -37,10 +37,10 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-f1653256e423999a524a7a13b92bed94.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-651f353d3ac7f31341efcd7ab9d56878.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-030588b9e91de76263dd26ff4e3f3501.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -73,7 +73,7 @@ ul.task-list li input[type="checkbox"] {
 
 </head>
 
-<body class="nav-fixed fullcontent quarto-light">
+<body class="nav-fixed home quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -95,6 +95,21 @@ ul.task-list li input[type="checkbox"] {
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-roadmaps" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Roadmaps</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-roadmaps">    
+        <li>
+    <a class="dropdown-item" href="./roadmap.html">
+ <span class="dropdown-text">Website roadmap</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./package-roadmap.html">
+ <span class="dropdown-text">Package roadmap</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-start" role="link" data-bs-toggle="dropdown" aria-expanded="false">
  <span class="menu-text">Start</span>
     </a>
@@ -106,6 +121,10 @@ ul.task-list li input[type="checkbox"] {
         <li>
     <a class="dropdown-item" href="./start/roadmap.html">
  <span class="dropdown-text">Roadmap</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./start/usage-diagrams.html">
+ <span class="dropdown-text">Usage Diagrams</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="./start/start-here.html">
@@ -122,6 +141,37 @@ ul.task-list li input[type="checkbox"] {
         <li>
     <a class="dropdown-item" href="./start/troubleshooting.html">
  <span class="dropdown-text">Troubleshooting</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tracks" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tracks</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tracks">    
+        <li>
+    <a class="dropdown-item" href="./tracks/quickstart.html">
+ <span class="dropdown-text">Quickstart</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./tracks/modeling.html">
+ <span class="dropdown-text">Modeling (1-arm)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./tracks/causal.html">
+ <span class="dropdown-text">Causal</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./tracks/clustering.html">
+ <span class="dropdown-text">Clustering</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./tracks/kernels.html">
+ <span class="dropdown-text">Kernels &amp; tails</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./tracks/customization.html">
+ <span class="dropdown-text">Customization</span></a>
   </li>  
     </ul>
   </li>
@@ -176,12 +226,12 @@ ul.task-list li input[type="checkbox"] {
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content column-page" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -190,7 +240,7 @@ ul.task-list li input[type="checkbox"] {
 
 
 
-<div class="quarto-title-meta">
+<div class="quarto-title-meta column-page">
 
     
   
@@ -206,11 +256,50 @@ ul.task-list li input[type="checkbox"] {
 <section id="causalmixgpd-documentation" class="level1 container">
 <h1>CausalMixGPD Documentation</h1>
 <p>Bayesian semiparametric modeling for heavy-tailed outcomes with Dirichlet-process mixtures and optional GPD tails.</p>
-<p><a href="./start/index.html" class="btn btn-primary">Start</a> <a href="./examples/index.html" class="btn btn-outline-primary">Examples</a> <a href="./kernels.html" class="btn btn-outline-primary">Kernels</a> <a href="pkgdown/reference/index.html" class="btn btn-outline-primary">API Reference</a></p>
+<p><a href="./start/index.html" class="btn btn-primary">Start</a> <a href="./examples/index.html" class="btn btn-outline-light">Examples</a> <a href="./kernels.html" class="btn btn-outline-light">Kernels</a> <a href="pkgdown/reference/index.html" class="btn btn-outline-light">API Reference</a></p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Use the <strong>Website roadmap</strong> for learning and the <strong>pkgdown reference</strong> for exact function interfaces.</p>
+</div>
+</div>
+<p><a href="./roadmap.html" class="btn btn-outline-primary">Website roadmap</a> <a href="./package-roadmap.html" class="btn btn-outline-primary">Package roadmap</a> <a href="./tracks/quickstart.html" class="btn btn-outline-primary">Tracks</a></p>
 </section>
 </section>
 <section>
-<section id="model-workflows-implementation" class="level2 container">
+<div class="container">
+<section id="what-this-package-is-for" class="level2">
+<h2 class="anchored" data-anchor-id="what-this-package-is-for">What this package is for</h2>
+<p>CausalMixGPD is a Bayesian semiparametric toolkit for outcome modeling when <strong>simple parametric families are not enough</strong>. It is designed for:</p>
+<ul>
+<li><strong>Flexible bulk density</strong> via Dirichlet-process mixtures (multi-modality, skew, heavy shoulders)</li>
+<li><strong>Extreme-tail behavior</strong> via an optional spliced Generalized Pareto tail</li>
+<li><strong>Causal inference</strong> by fitting treated/control outcome models and reporting mean/quantile/conditional effects</li>
+<li><strong>Clustering</strong> through label-invariant posterior summaries (labels + PSM diagnostics)</li>
+</ul>
+<p>This site is workflow-first: it focuses on <em>what to do next</em> and <em>how to interpret outputs</em>, while pkgdown remains the source of truth for interfaces.</p>
+<div class="devnote callout callout-style-default callout-important callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+<span class="screen-reader-only">Important</span>Developer notes
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>If you are extending the package, start from the <a href="./developers/index.html">Developers hub</a> and the <a href="./developers/registry.html">Registry</a> pages; they describe the extension points and contracts that keep the rest of the site and S3 methods consistent.</p>
+</div>
+</div>
+</section>
+<section id="model-workflows-implementation" class="level2">
 <h2 class="anchored" data-anchor-id="model-workflows-implementation">Model / Workflows / Implementation</h2>
 <div class="grid-3">
 <section id="model" class="level3 cardx">
@@ -230,6 +319,7 @@ ul.task-list li input[type="checkbox"] {
 </section>
 </div>
 </section>
+</div>
 </section>
 <section>
 <section id="choose-your-path" class="level2 container">
@@ -268,33 +358,37 @@ ul.task-list li input[type="checkbox"] {
 <p>Small links: <a href="./cite.html">Cite</a> | <a href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a></p>
 </div>
 </section>
+<!-- cmgpd-footer:start -->
+<section id="prereqs" class="level2">
+<h2 class="anchored" data-anchor-id="prereqs">Prereqs</h2>
+<ul>
+<li>Required packages and data for this page are listed in the setup chunks above.</li>
+</ul>
+</section>
+<section id="outputs" class="level2">
+<h2 class="anchored" data-anchor-id="outputs">Outputs</h2>
+<ul>
+<li>This page renders model fits, diagnostics, and summary artifacts generated by package APIs.</li>
+</ul>
+</section>
+<section id="interpretation" class="level2">
+<h2 class="anchored" data-anchor-id="interpretation">Interpretation</h2>
+<ul>
+<li>Canonical concept page: <a href="./roadmap.html">Roadmap</a></li>
+<li>Treat this page as an application/example view and use the canonical page for core definitions.</li>
+</ul>
+</section>
+<section id="next" class="level2">
+<h2 class="anchored" data-anchor-id="next">Next</h2>
+<ul>
+<li>Continue to the linked canonical concept page, then return for implementation-specific details. <!-- cmgpd-footer:end --></li>
+</ul>
 
 
+</section>
 
 </main> <!-- /main -->
-<div style="
-
-  display:flex;
-
-  flex-wrap:wrap;
-
-  gap:1rem;
-
-  justify-content:space-between;
-
-  align-items:center;
-
-  font-size:0.9rem;
-
-  color:rgba(0,0,0,.65);
-
-  margin-top:2.5rem;
-
-  padding-top:1.2rem;
-
-  border-top:1px solid rgba(0,0,0,.1);
-
-">
+<div class="site-footer">
 
 
 

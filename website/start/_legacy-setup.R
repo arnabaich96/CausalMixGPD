@@ -27,8 +27,19 @@ if (!requireNamespace("gridExtra", quietly = TRUE)) {
 }
 library(gridExtra)
 
-# Force static plotting for website renders (no htmlwidget conversion).
-options(CausalMixGPD.plotly = FALSE)
+# Prefer interactive Plotly output in website HTML when available and renderable.
+# Some environments can have plotly/htmlwidgets installed but broken for knitting.
+.cmgpd_can_use_plotly <- function() {
+  if (!requireNamespace("plotly", quietly = TRUE)) return(FALSE)
+  if (!requireNamespace("htmlwidgets", quietly = TRUE)) return(FALSE)
+  ok <- tryCatch({
+    w <- plotly::plot_ly(x = 1, y = 1)
+    htmlwidgets::toHTML(w, standalone = FALSE)
+    TRUE
+  }, error = function(e) FALSE)
+  isTRUE(ok)
+}
+options(CausalMixGPD.plotly = isTRUE(.cmgpd_can_use_plotly()))
 
 # Disable knitr chunk caching for legacy website examples.
 # NIMBLE fit objects may contain external pointers that cannot be serialized
@@ -41,15 +52,6 @@ if (requireNamespace("knitr", quietly = TRUE)) {
   knitr::opts_chunk$set(cache = FALSE, autodep = FALSE)
 }
 
-# Defensive override: some knit/devtools sessions can still resolve an older
-# plot wrapper path that returns htmlwidgets. Force static passthrough.
-dp_ns <- asNamespace("CausalMixGPD")
-if (exists(".wrap_plotly", envir = dp_ns, inherits = FALSE)) {
-  unlockBinding(".wrap_plotly", dp_ns)
-  assign(".wrap_plotly", function(p) p, envir = dp_ns)
-  lockBinding(".wrap_plotly", dp_ns)
-}
-
 # Use a per-vignette figure directory so pkgdown can find images (must be under vignettes/).
 # Shared legacy-cache/figure-html is gitignored, so pkgdown on CI would miss images.
 CACHE_DIR <- file.path("vignettes", "Examples", "legacy-cache")
@@ -58,7 +60,8 @@ CACHE_DIR_ABS <- normalizePath(CACHE_DIR, winslash = "/", mustWork = FALSE)
 input_name <- tryCatch(knitr::current_input(), error = function(e) NULL)
 input_file <- tryCatch(knitr::current_input(dir = TRUE), error = function(e) NULL)
 if (!is.null(input_file) && nzchar(input_file)) {
-  knitr::opts_knit$set(root.dir = dirname(input_file))
+  # Use absolute root.dir to avoid relative-path drift during long Quarto renders.
+  knitr::opts_knit$set(root.dir = normalizePath(dirname(input_file), winslash = "/", mustWork = FALSE))
 }
 if (!is.null(input_name) && nzchar(input_name)) {
   base_name <- tools::file_path_sans_ext(basename(input_name))
@@ -92,6 +95,8 @@ if (!is.null(input_name) && nzchar(input_name)) {
   # 1. Relative to vignette directory (most reliable in knitr context)
   if (!is.null(vignette_dir)) {
     candidates[[length(candidates) + 1]] <- file.path(vignette_dir, "articles", "legacy-precomputed")
+    # Legacy cache used by website/start pages.
+    candidates[[length(candidates) + 1]] <- file.path(vignette_dir, "vignettes", "Examples", "legacy-cache")
   }
   
   # 2. Known standard location (most common)

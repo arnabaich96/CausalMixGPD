@@ -1,0 +1,1807 @@
+
+R version 4.5.2 (2025-10-31 ucrt) -- "[Not] Part in a Rumble"
+Copyright (C) 2025 The R Foundation for Statistical Computing
+Platform: x86_64-w64-mingw32/x64
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> library('CausalMixGPD')
+Loading required package: nimble
+nimble version 1.4.1 is loaded.
+For more information on NIMBLE and a User Manual,
+please visit https://R-nimble.org.
+
+Attaching package: 'nimble'
+
+The following object is masked from 'package:stats':
+
+    simulate
+
+The following object is masked from 'package:base':
+
+    declare
+
+> library(CausalMixGPD)
+> pkg_tests <- system.file('tests', 'testthat', package = 'CausalMixGPD')
+> if (!nzchar(pkg_tests) || !dir.exists(pkg_tests)) pkg_tests <- normalizePath('tests/testthat', winslash = '/', mustWork = FALSE)
+> targets <- file.path(pkg_tests, c('test-ci-level-only.R', 'test-coverage-heavy.R'))
+> reporter <- testthat::ProgressReporter$new(show_praise = FALSE, update_interval = Inf)
+> for (target in targets) { cat('== coverage: running ', basename(target), '
++ ', sep=''); flush.console(); testthat::test_file(target, reporter = reporter, package = 'CausalMixGPD') }
+== coverage: running test-ci-level-only.R
+✔ | F W  S  OK | Context
+Defining model
+[cluster] Validating configuration
+[cluster] Checking build/compile cache
+[cluster] Building model and MCMC configuration
+  [Note] Assigning an RW_block sampler to nodes with very different scales can result in low MCMC efficiency.  If all nodes assigned to RW_block are not on a similar scale, we recommend providing an informed value for the "propCov" control list argument, or using the "barker" sampler instead.
+[cluster] Compiling NIMBLE model
+[cluster] Initializing chains
+[cluster] Running MCMC
+[cluster] Finalizing WAIC and diagnostics
+[cluster] Assembling fit object
+  [Note] Assigning an RW_block sampler to nodes with very different scales can result in low MCMC efficiency.  If all nodes assigned to RW_block are not on a similar scale, we recommend providing an informed value for the "propCov" control list argument, or using the "barker" sampler instead.
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+Defining model
+Building model
+Setting data and initial values
+Checking model sizes and dimensions
+  [Note] This model is not fully initialized. This is not an error.
+         To see which variables are not initialized, use model$initializeInfo().
+         For more information on model initialization, see help(modelInitialization).
+Checking model calculations
+  [Note] Assigning an RW_block sampler to nodes with very different scales can result in low MCMC efficiency.  If all nodes assigned to RW_block are not on a similar scale, we recommend providing an informed value for the "propCov" control list argument, or using the "barker" sampler instead.
+Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+  [Warning] To calculate WAIC, set 'WAIC = TRUE', in addition to having enabled WAIC in building the MCMC.
+running chain 1...
+Defining model
+Defining model
+Building model
+Setting data and initial values
+Checking model sizes and dimensions
+  [Note] This model is not fully initialized. This is not an error.
+         To see which variables are not initialized, use model$initializeInfo().
+         For more information on model initialization, see help(modelInitialization).
+Checking model calculations
+===== Monitors =====
+thin = 1: alpha, beta_scale, beta_tail_scale, beta_threshold, sdlog_u, shape, tail_shape, threshold, w
+===== Samplers =====
+conjugate sampler (2)
+  - beta_threshold[]  (2 elements)
+categorical sampler (9)
+  - z[]  (9 elements)
+RW sampler (25)
+  - alpha
+  - shape[]  (3 elements)
+  - beta_scale[]  (6 elements)
+  - sdlog_u
+  - beta_tail_scale[]  (2 elements)
+  - tail_shape
+  - v[]  (2 elements)
+  - threshold[]  (9 elements)
+  [Note] Assigning an RW_block sampler to nodes with very different scales can result in low MCMC efficiency.  If all nodes assigned to RW_block are not on a similar scale, we recommend providing an informed value for the "propCov" control list argument, or using the "barker" sampler instead.
+  [Warning] No samplers assigned for 2 nodes, use conf$getUnsampledNodes() for node names.
+Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+  [Warning] To calculate WAIC, set 'WAIC = TRUE', in addition to having enabled WAIC in building the MCMC.
+running chain 1...
+Defining model
+Building model
+Setting data and initial values
+Checking model sizes and dimensions
+  [Note] This model is not fully initialized. This is not an error.
+         To see which variables are not initialized, use model$initializeInfo().
+         For more information on model initialization, see help(modelInitialization).
+Checking model calculations
+===== Monitors =====
+thin = 1: alpha, beta_scale, beta_tail_scale, beta_threshold, sdlog_u, shape, tail_shape, threshold, w
+===== Samplers =====
+conjugate sampler (2)
+  - beta_threshold[]  (2 elements)
+categorical sampler (11)
+  - z[]  (11 elements)
+RW sampler (27)
+  - alpha
+  - shape[]  (3 elements)
+  - beta_scale[]  (6 elements)
+  - sdlog_u
+  - beta_tail_scale[]  (2 elements)
+  - tail_shape
+  - v[]  (2 elements)
+  - threshold[]  (11 elements)
+  [Note] Assigning an RW_block sampler to nodes with very different scales can result in low MCMC efficiency.  If all nodes assigned to RW_block are not on a similar scale, we recommend providing an informed value for the "propCov" control list argument, or using the "barker" sampler instead.
+  [Warning] No samplers assigned for 2 nodes, use conf$getUnsampledNodes() for node names.
+Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+Compiling
+  [Note] This may take a minute.
+  [Note] Use 'showCompilerOutput = TRUE' to see C++ compilation details.
+  [Warning] To calculate WAIC, set 'WAIC = TRUE', in addition to having enabled WAIC in building the MCMC.
+running chain 1...
+
+✖ | 2      379 | ci-level-only [188.0s]
+────────────────────────────────────────────────────────────────────────────────
+Error ('test-ci-level-only.R:532:3'): coverage-only suite exercises causal bundle and parameter methods directly
+Error in `checkReservedVarNames(code)`: Found variable name that conflicts with C++ keywords: if, if. Please use a different name.
+Backtrace:
+     ▆
+  1. └─CausalMixGPD (local) .coverage_causal_fit() at test-ci-level-only.R:532:3
+  2.   ├─CausalMixGPD (local) .coverage_cached(...) at test-ci-level-only.R:188:3
+  3.   │ └─base::force(expr) at test-ci-level-only.R:19:3
+  4.   └─CausalMixGPD::dpmix.causal(...) at test-ci-level-only.R:192:5
+  5.     └─CausalMixGPD:::.run_bundle_mcmc(b, mcmc_args = mcmc)
+  6.       ├─base::do.call(mcmc, c(list(b = b), mcmc_args))
+  7.       └─CausalMixGPD (local) `<fn>`(...)
+  8.         ├─base::do.call(run_mcmc_causal, c(list(bundle = b), parsed$runner))
+  9.         └─CausalMixGPD (local) `<fn>`(bundle = `<cslmxg__>`, show_progress = FALSE)
+ 10.           └─CausalMixGPD:::.run_ps_mcmc_bundle(...)
+ 11.             ├─CausalMixGPD:::.cmgpd_capture_nimble(...)
+ 12.             │ └─base::eval.parent(substitute(expr))
+ 13.             │   └─base::eval(expr, p)
+ 14.             │     └─base::eval(expr, p)
+ 15.             └─nimble::nimbleModel(...)
+ 16.               └─md$setupModel(...)
+ 17.                 └─nimble:::checkReservedVarNames(code)
+
+Error ('test-ci-level-only.R:784:3'): coverage-only suite exercises causal workflows and treatment-effect methods
+Error in `checkReservedVarNames(code)`: Found variable name that conflicts with C++ keywords: if, if. Please use a different name.
+Backtrace:
+     ▆
+  1. └─CausalMixGPD (local) .coverage_causal_fit() at test-ci-level-only.R:784:3
+  2.   ├─CausalMixGPD (local) .coverage_cached(...) at test-ci-level-only.R:188:3
+  3.   │ └─base::force(expr) at test-ci-level-only.R:19:3
+  4.   └─CausalMixGPD::dpmix.causal(...) at test-ci-level-only.R:192:5
+  5.     └─CausalMixGPD:::.run_bundle_mcmc(b, mcmc_args = mcmc)
+  6.       ├─base::do.call(mcmc, c(list(b = b), mcmc_args))
+  7.       └─CausalMixGPD (local) `<fn>`(...)
+  8.         ├─base::do.call(run_mcmc_causal, c(list(bundle = b), parsed$runner))
+  9.         └─CausalMixGPD (local) `<fn>`(bundle = `<cslmxg__>`, show_progress = FALSE)
+ 10.           └─CausalMixGPD:::.run_ps_mcmc_bundle(...)
+ 11.             ├─CausalMixGPD:::.cmgpd_capture_nimble(...)
+ 12.             │ └─base::eval.parent(substitute(expr))
+ 13.             │   └─base::eval(expr, p)
+ 14.             │     └─base::eval(expr, p)
+ 15.             └─nimble::nimbleModel(...)
+ 16.               └─md$setupModel(...)
+ 17.                 └─nimble:::checkReservedVarNames(code)
+────────────────────────────────────────────────────────────────────────────────
+
+══ Results ═════════════════════════════════════════════════════════════════════
+Duration: 188.0 s
+
+── Failed tests ────────────────────────────────────────────────────────────────
+Error ('test-ci-level-only.R:532:3'): coverage-only suite exercises causal bundle and parameter methods directly
+Error in `checkReservedVarNames(code)`: Found variable name that conflicts with C++ keywords: if, if. Please use a different name.
+Backtrace:
+     ▆
+  1. └─CausalMixGPD (local) .coverage_causal_fit() at test-ci-level-only.R:532:3
+  2.   ├─CausalMixGPD (local) .coverage_cached(...) at test-ci-level-only.R:188:3
+  3.   │ └─base::force(expr) at test-ci-level-only.R:19:3
+  4.   └─CausalMixGPD::dpmix.causal(...) at test-ci-level-only.R:192:5
+  5.     └─CausalMixGPD:::.run_bundle_mcmc(b, mcmc_args = mcmc)
+  6.       ├─base::do.call(mcmc, c(list(b = b), mcmc_args))
+  7.       └─CausalMixGPD (local) `<fn>`(...)
+  8.         ├─base::do.call(run_mcmc_causal, c(list(bundle = b), parsed$runner))
+  9.         └─CausalMixGPD (local) `<fn>`(bundle = `<cslmxg__>`, show_progress = FALSE)
+ 10.           └─CausalMixGPD:::.run_ps_mcmc_bundle(...)
+ 11.             ├─CausalMixGPD:::.cmgpd_capture_nimble(...)
+ 12.             │ └─base::eval.parent(substitute(expr))
+ 13.             │   └─base::eval(expr, p)
+ 14.             │     └─base::eval(expr, p)
+ 15.             └─nimble::nimbleModel(...)
+ 16.               └─md$setupModel(...)
+ 17.                 └─nimble:::checkReservedVarNames(code)
+
+Error ('test-ci-level-only.R:784:3'): coverage-only suite exercises causal workflows and treatment-effect methods
+Error in `checkReservedVarNames(code)`: Found variable name that conflicts with C++ keywords: if, if. Please use a different name.
+Backtrace:
+     ▆
+  1. └─CausalMixGPD (local) .coverage_causal_fit() at test-ci-level-only.R:784:3
+  2.   ├─CausalMixGPD (local) .coverage_cached(...) at test-ci-level-only.R:188:3
+  3.   │ └─base::force(expr) at test-ci-level-only.R:19:3
+  4.   └─CausalMixGPD::dpmix.causal(...) at test-ci-level-only.R:192:5
+  5.     └─CausalMixGPD:::.run_bundle_mcmc(b, mcmc_args = mcmc)
+  6.       ├─base::do.call(mcmc, c(list(b = b), mcmc_args))
+  7.       └─CausalMixGPD (local) `<fn>`(...)
+  8.         ├─base::do.call(run_mcmc_causal, c(list(bundle = b), parsed$runner))
+  9.         └─CausalMixGPD (local) `<fn>`(bundle = `<cslmxg__>`, show_progress = FALSE)
+ 10.           └─CausalMixGPD:::.run_ps_mcmc_bundle(...)
+ 11.             ├─CausalMixGPD:::.cmgpd_capture_nimble(...)
+ 12.             │ └─base::eval.parent(substitute(expr))
+ 13.             │   └─base::eval(expr, p)
+ 14.             │     └─base::eval(expr, p)
+ 15.             └─nimble::nimbleModel(...)
+ 16.               └─md$setupModel(...)
+ 17.                 └─nimble:::checkReservedVarNames(code)
+
+[ FAIL 2 | WARN 0 | SKIP 0 | PASS 379 ]
+== coverage: running test-coverage-heavy.R
+✔ | F W  S  OK | Context
+  [Note] Assigning an RW_block sampler to nodes with very different scales can result in low MCMC efficiency.  If all nodes assigned to RW_block are not on a similar scale, we recommend providing an informed value for the "propCov" control list argument, or using the "barker" sampler instead.
+  [Note] Assigning an RW_block sampler to nodes with very different scales can result in low MCMC efficiency.  If all nodes assigned to RW_block are not on a similar scale, we recommend providing an informed value for the "propCov" control list argument, or using the "barker" sampler instead.
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for fill is already present.
+Adding another scale for fill, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for fill is already present.
+Adding another scale for fill, which will replace the existing scale.
+PS model: Bayesian logit (A | X) 
+PS model: Bayesian logit (A | X) 
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for fill is already present.
+Adding another scale for fill, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for fill is already present.
+Adding another scale for fill, which will replace the existing scale.
+Scale for fill is already present.
+Adding another scale for fill, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for fill is already present.
+Adding another scale for fill, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for fill is already present.
+Adding another scale for fill, which will replace the existing scale.
+
+✔ |   77  1 536 | coverage-heavy [358.0s]
+────────────────────────────────────────────────────────────────────────────────
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+Arguments in `...` must be used.
+x Problematic argument:
+* group = Chain
+i Did you misspell an argument name?
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  4. │   └─ggmcmc::ggs_compare_partial(D, family = NA, ...)
+  5. │     ├─ggplot2::ggplot(...)
+  6. │     └─ggplot2:::ggplot.default(...)
+  7. │       └─ggplot2::fortify(data, ...)
+  8. │         └─rlang (local) `<fn>`()
+  9. │           └─rlang:::check_dots(env, error, action, call)
+ 10. │             └─rlang:::action_dots(...)
+ 11. │               ├─rlang (local) try_dots(...)
+ 12. │               │ └─rlang::try_fetch(expr, error = error)
+ 13. │               │   ├─base::tryCatch(...)
+ 14. │               │   │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 15. │               │   │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 16. │               │   │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 17. │               │   └─base::withCallingHandlers(...)
+ 18. │               └─rlang (local) action(...)
+ 19. │                 └─rlang:::signal_abort(cnd, .file)
+ 20. │                   └─base::signalCondition(cnd)
+ 21. └─rlang (local) `<fn>`(`<rlb_rr__>`)
+ 22.   └─handlers[[1L]](cnd)
+ 23.     └─cli::cli_warn(msg, call = call)
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+nLags=50 is larger than number of iterations, computing until max possible lag 35
+Backtrace:
+    ▆
+ 1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+ 2. └─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+ 3.   └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+ 4.     └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+i Please use `linewidth` instead.
+i The deprecated feature was likely used in the ggmcmc package.
+  Please report the issue at <https://github.com/xfim/ggmcmc/issues/>.
+Backtrace:
+    ▆
+ 1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+ 2. └─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+ 3.   └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+ 4.     └─ggmcmc::ggs_caterpillar(D, family = NA, ...)
+ 5.       └─ggplot2::geom_segment(aes(x = Low, xend = High), size = 1.5)
+ 6.         └─ggplot2::layer(...)
+ 7.           └─ggplot2:::deprecate_warn0(...)
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+Arguments in `...` must be used.
+x Problematic argument:
+* group = Chain
+i Did you misspell an argument name?
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  4. │   └─ggmcmc::ggs_compare_partial(D, family = NA, ...)
+  5. │     ├─ggplot2::ggplot(...)
+  6. │     └─ggplot2:::ggplot.default(...)
+  7. │       └─ggplot2::fortify(data, ...)
+  8. │         └─rlang (local) `<fn>`()
+  9. │           └─rlang:::check_dots(env, error, action, call)
+ 10. │             └─rlang:::action_dots(...)
+ 11. │               ├─rlang (local) try_dots(...)
+ 12. │               │ └─rlang::try_fetch(expr, error = error)
+ 13. │               │   ├─base::tryCatch(...)
+ 14. │               │   │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 15. │               │   │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 16. │               │   │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 17. │               │   └─base::withCallingHandlers(...)
+ 18. │               └─rlang (local) action(...)
+ 19. │                 └─rlang:::signal_abort(cnd, .file)
+ 20. │                   └─base::signalCondition(cnd)
+ 21. └─rlang (local) `<fn>`(`<rlb_rr__>`)
+ 22.   └─handlers[[1L]](cnd)
+ 23.     └─cli::cli_warn(msg, call = call)
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+nLags=50 is larger than number of iterations, computing until max possible lag 35
+Backtrace:
+    ▆
+ 1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+ 2. └─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+ 3.   └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+ 4.     └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:503:3'): coverage-heavy causal methods and summaries cover methods branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─base::plot(fit, arm = "both") at test-coverage-heavy.R:503:3
+  2. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(fit, arm = "both")
+  3. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  4. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  5. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  6. ├─dplyr::do(., ac(.$value, nLags))
+  7. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+  8. │ └─rlang::eval_tidy(args[[j]], mask)
+  9. └─ggmcmc::ac(.$value, nLags)
+ 10.   ├─base::data.frame(...)
+ 11.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:980:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+Arguments in `...` must be used.
+x Problematic argument:
+* group = Chain
+i Did you misspell an argument name?
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:980:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 1L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  7. │   └─ggmcmc::ggs_compare_partial(D, family = NA, ...)
+  8. │     ├─ggplot2::ggplot(...)
+  9. │     └─ggplot2:::ggplot.default(...)
+ 10. │       └─ggplot2::fortify(data, ...)
+ 11. │         └─rlang (local) `<fn>`()
+ 12. │           └─rlang:::check_dots(env, error, action, call)
+ 13. │             └─rlang:::action_dots(...)
+ 14. │               ├─rlang (local) try_dots(...)
+ 15. │               │ └─rlang::try_fetch(expr, error = error)
+ 16. │               │   ├─base::tryCatch(...)
+ 17. │               │   │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 18. │               │   │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 19. │               │   │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 20. │               │   └─base::withCallingHandlers(...)
+ 21. │               └─rlang (local) action(...)
+ 22. │                 └─rlang:::signal_abort(cnd, .file)
+ 23. │                   └─base::signalCondition(cnd)
+ 24. └─rlang (local) `<fn>`(`<rlb_rr__>`)
+ 25.   └─handlers[[1L]](cnd)
+ 26.     └─cli::cli_warn(msg, call = call)
+
+Warning ('test-coverage-heavy.R:980:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+nLags=50 is larger than number of iterations, computing until max possible lag 35
+Backtrace:
+    ▆
+ 1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:980:3
+ 2. │ └─testthat::quasi_label(enquo(object))
+ 3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+ 4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 1L)
+ 5. └─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+ 6.   └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+ 7.     └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+
+Warning ('test-coverage-heavy.R:980:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:980:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 1L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:980:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:980:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 1L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:980:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:980:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 1L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:980:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:980:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 1L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:980:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:980:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 1L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:980:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:980:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 1L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:980:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:980:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 1L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:980:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:980:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 1L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:980:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:980:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 1L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:980:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:980:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 1L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:980:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:980:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 1L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:980:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:980:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 1L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:980:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:980:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 1L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:980:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:980:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 1L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:980:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:980:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 1L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:980:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:980:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 1L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:980:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:980:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 1L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$trt, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:981:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+Arguments in `...` must be used.
+x Problematic argument:
+* group = Chain
+i Did you misspell an argument name?
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:981:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 0L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  7. │   └─ggmcmc::ggs_compare_partial(D, family = NA, ...)
+  8. │     ├─ggplot2::ggplot(...)
+  9. │     └─ggplot2:::ggplot.default(...)
+ 10. │       └─ggplot2::fortify(data, ...)
+ 11. │         └─rlang (local) `<fn>`()
+ 12. │           └─rlang:::check_dots(env, error, action, call)
+ 13. │             └─rlang:::action_dots(...)
+ 14. │               ├─rlang (local) try_dots(...)
+ 15. │               │ └─rlang::try_fetch(expr, error = error)
+ 16. │               │   ├─base::tryCatch(...)
+ 17. │               │   │ └─base (local) tryCatchList(expr, classes, parentenv, handlers)
+ 18. │               │   │   └─base (local) tryCatchOne(expr, names, parentenv, handlers[[1L]])
+ 19. │               │   │     └─base (local) doTryCatch(return(expr), name, parentenv, handler)
+ 20. │               │   └─base::withCallingHandlers(...)
+ 21. │               └─rlang (local) action(...)
+ 22. │                 └─rlang:::signal_abort(cnd, .file)
+ 23. │                   └─base::signalCondition(cnd)
+ 24. └─rlang (local) `<fn>`(`<rlb_rr__>`)
+ 25.   └─handlers[[1L]](cnd)
+ 26.     └─cli::cli_warn(msg, call = call)
+
+Warning ('test-coverage-heavy.R:981:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+nLags=50 is larger than number of iterations, computing until max possible lag 35
+Backtrace:
+    ▆
+ 1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:981:3
+ 2. │ └─testthat::quasi_label(enquo(object))
+ 3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+ 4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 0L)
+ 5. └─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+ 6.   └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+ 7.     └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+
+Warning ('test-coverage-heavy.R:981:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:981:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 0L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:981:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:981:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 0L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:981:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:981:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 0L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:981:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:981:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 0L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:981:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:981:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 0L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:981:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:981:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 0L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:981:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:981:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 0L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:981:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:981:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 0L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:981:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:981:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 0L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:981:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:981:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 0L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:981:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:981:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 0L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:981:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:981:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 0L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:981:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:981:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 0L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:981:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:981:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 0L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:981:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:981:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 0L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:981:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:981:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 0L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+
+Warning ('test-coverage-heavy.R:981:3'): coverage-heavy methods cover plotting families causal prediction and cluster branches
+the standard deviation is zero
+Backtrace:
+     ▆
+  1. ├─testthat::expect_s3_class(...) at test-coverage-heavy.R:981:3
+  2. │ └─testthat::quasi_label(enquo(object))
+  3. │   └─rlang::eval_bare(expr, quo_get_env(quo))
+  4. ├─base::plot(.coverage_heavy_causal_fit(), arm = 0L)
+  5. ├─CausalMixGPD:::plot.causalmixgpd_causal_fit(...)
+  6. │ └─CausalMixGPD:::plot.mixgpd_fit(x$outcome_fit$con, ...)
+  7. │   └─ggmcmc::ggs_autocorrelation(D, family = NA, nLags = nLags, ...)
+  8. │     └─D %>% dplyr::group_by(Parameter, Chain) %>% ...
+  9. ├─dplyr::do(., ac(.$value, nLags))
+ 10. ├─dplyr:::do.grouped_df(., ac(.$value, nLags))
+ 11. │ └─rlang::eval_tidy(args[[j]], mask)
+ 12. └─ggmcmc::ac(.$value, nLags)
+ 13.   ├─base::data.frame(...)
+ 14.   └─stats::cor(X, use = "pairwise.complete.obs")
+────────────────────────────────────────────────────────────────────────────────
+
+══ Results ═════════════════════════════════════════════════════════════════════
+Duration: 360.6 s
+
+── Skipped tests (1) ───────────────────────────────────────────────────────────
+• Runner mock coverage block is unstable under covr instrumentation (1):
+  'test-coverage-heavy.R:1081:3'
+
+── Failed tests ────────────────────────────────────────────────────────────────
+Error ('test-ci-level-only.R:532:3'): coverage-only suite exercises causal bundle and parameter methods directly
+Error in `checkReservedVarNames(code)`: Found variable name that conflicts with C++ keywords: if, if. Please use a different name.
+Backtrace:
+     ▆
+  1. └─CausalMixGPD (local) .coverage_causal_fit() at test-ci-level-only.R:532:3
+  2.   ├─CausalMixGPD (local) .coverage_cached(...) at test-ci-level-only.R:188:3
+  3.   │ └─base::force(expr) at test-ci-level-only.R:19:3
+  4.   └─CausalMixGPD::dpmix.causal(...) at test-ci-level-only.R:192:5
+  5.     └─CausalMixGPD:::.run_bundle_mcmc(b, mcmc_args = mcmc)
+  6.       ├─base::do.call(mcmc, c(list(b = b), mcmc_args))
+  7.       └─CausalMixGPD (local) `<fn>`(...)
+  8.         ├─base::do.call(run_mcmc_causal, c(list(bundle = b), parsed$runner))
+  9.         └─CausalMixGPD (local) `<fn>`(bundle = `<cslmxg__>`, show_progress = FALSE)
+ 10.           └─CausalMixGPD:::.run_ps_mcmc_bundle(...)
+ 11.             ├─CausalMixGPD:::.cmgpd_capture_nimble(...)
+ 12.             │ └─base::eval.parent(substitute(expr))
+ 13.             │   └─base::eval(expr, p)
+ 14.             │     └─base::eval(expr, p)
+ 15.             └─nimble::nimbleModel(...)
+ 16.               └─md$setupModel(...)
+ 17.                 └─nimble:::checkReservedVarNames(code)
+
+Error ('test-ci-level-only.R:784:3'): coverage-only suite exercises causal workflows and treatment-effect methods
+Error in `checkReservedVarNames(code)`: Found variable name that conflicts with C++ keywords: if, if. Please use a different name.
+Backtrace:
+     ▆
+  1. └─CausalMixGPD (local) .coverage_causal_fit() at test-ci-level-only.R:784:3
+  2.   ├─CausalMixGPD (local) .coverage_cached(...) at test-ci-level-only.R:188:3
+  3.   │ └─base::force(expr) at test-ci-level-only.R:19:3
+  4.   └─CausalMixGPD::dpmix.causal(...) at test-ci-level-only.R:192:5
+  5.     └─CausalMixGPD:::.run_bundle_mcmc(b, mcmc_args = mcmc)
+  6.       ├─base::do.call(mcmc, c(list(b = b), mcmc_args))
+  7.       └─CausalMixGPD (local) `<fn>`(...)
+  8.         ├─base::do.call(run_mcmc_causal, c(list(bundle = b), parsed$runner))
+  9.         └─CausalMixGPD (local) `<fn>`(bundle = `<cslmxg__>`, show_progress = FALSE)
+ 10.           └─CausalMixGPD:::.run_ps_mcmc_bundle(...)
+ 11.             ├─CausalMixGPD:::.cmgpd_capture_nimble(...)
+ 12.             │ └─base::eval.parent(substitute(expr))
+ 13.             │   └─base::eval(expr, p)
+ 14.             │     └─base::eval(expr, p)
+ 15.             └─nimble::nimbleModel(...)
+ 16.               └─md$setupModel(...)
+ 17.                 └─nimble:::checkReservedVarNames(code)
+
+[ FAIL 2 | WARN 77 | SKIP 1 | PASS 915 ]
+> 
+Error in saveRDS(.counters, file = tmp_file) : 
+  At vendor/cigraph/src/core/vector.pmt:516 : Assertion failed: v->stor_begin != NULL. This is an unexpected igraph error; please report this as a bug, along with the steps to reproduce it.
+Please restart your R session to avoid crashes or other surprising behavior.
+Calls: <Anonymous> -> <Anonymous> -> saveRDS

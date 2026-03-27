@@ -1,56 +1,103 @@
 # ============================================================================
-# Unified Coverage Calculation and Reporting for CausalMixGPD
+# Minimal full-test coverage pipeline for CausalMixGPD
 # ============================================================================
 #
-# This script provides functions for calculating package coverage and generating
-# reports. It supports multiple coverage sources: tests, examples, and vignettes.
+# Canonical output:
+#   covr/assets/
+#
+# Published mirror:
+#   docs/coverage/
 #
 # Usage:
 #   source("tools/.Rscripts/coverage.R")
-#
-#   # Generate local HTML report (canonical in covr/assets, mirrored to docs/coverage)
 #   coverage_report()
-#
-#   # Upload to Codecov
-#   coverage_upload()
-#
-#   # Custom sources
-#   coverage_report(sources = "all")
-#   coverage_report(sources = "tests")
-#   coverage_report(sources = c("tests", "examples", "vignettes"))
-#
 # ============================================================================
+
 setwd(here::here())
 
-# Check required packages
-.check_coverage_deps <- function() {
+.coverage_primary_dir <- function() {
+  "covr/assets"
+}
 
+.coverage_default_output_dir <- function() {
+  "docs/coverage"
+}
+
+.coverage_test_level <- function() {
+  "full"
+}
+
+.check_coverage_deps <- function() {
   if (!requireNamespace("covr", quietly = TRUE)) {
-    stop("Package 'covr' is required. Install with: install.packages('covr')")
+    stop("Package 'covr' is required. Install with install.packages('covr').", call. = FALSE)
   }
   if (!requireNamespace("jsonlite", quietly = TRUE)) {
-    stop("Package 'jsonlite' is required. Install with: install.packages('jsonlite')")
+    stop("Package 'jsonlite' is required. Install with install.packages('jsonlite').", call. = FALSE)
   }
   invisible(TRUE)
 }
 
-# Resolve coverage settings from environment overrides
-.resolve_coverage_inputs <- function(sources, test_level) {
-  env_sources <- Sys.getenv("DPMIXGPD_COVERAGE_SOURCES", "")
-  if (nzchar(env_sources)) {
-    sources <- strsplit(env_sources, "\\s*,\\s*")[[1]]
-  }
-  env_level <- Sys.getenv("DPMIXGPD_TEST_LEVEL", "")
-  if (nzchar(env_level)) {
-    test_level <- tolower(env_level)
-  }
-  list(sources = sources, test_level = test_level)
-}
-
-# Avoid slow vignette/manual builds during coverage installs
 .set_covr_install_opts <- function() {
   options(covr.install = c("--no-build-vignettes", "--no-manual"))
   invisible(TRUE)
+}
+
+.coverage_clean_dir <- function(path) {
+  if (dir.exists(path)) {
+    unlink(path, recursive = TRUE, force = TRUE)
+  }
+  dir.create(path, recursive = TRUE, showWarnings = FALSE)
+  invisible(path)
+}
+
+.coverage_same_path <- function(path_a, path_b) {
+  identical(
+    normalizePath(path_a, winslash = "/", mustWork = FALSE),
+    normalizePath(path_b, winslash = "/", mustWork = FALSE)
+  )
+}
+
+.coverage_artifact_files <- function() {
+  c("index.html", "report.html", "coverage_status.json", "unused_functions.md", "cobertura.xml")
+}
+
+.coverage_sync_dir <- function(source_dir, target_dir) {
+  if (.coverage_same_path(source_dir, target_dir)) {
+    return(invisible(target_dir))
+  }
+
+  .coverage_clean_dir(target_dir)
+
+  artifact_files <- .coverage_artifact_files()
+  copied <- file.copy(file.path(source_dir, artifact_files), target_dir, overwrite = TRUE)
+  if (!all(copied)) {
+    stop("Failed to mirror one or more coverage artifacts to ", target_dir, call. = FALSE)
+  }
+
+  source_lib <- file.path(source_dir, "lib")
+  if (dir.exists(source_lib)) {
+    copied_lib <- file.copy(source_lib, target_dir, recursive = TRUE, overwrite = TRUE)
+    if (!isTRUE(copied_lib)) {
+      stop("Failed to mirror covr HTML dependency directory to ", target_dir, call. = FALSE)
+    }
+  }
+
+  invisible(target_dir)
+}
+
+.coverage_refresh_metadata <- function(path = ".") {
+  if (!file.exists(file.path(path, "DESCRIPTION"))) {
+    return(invisible(FALSE))
+  }
+  tryCatch({
+    if (requireNamespace("pkgload", quietly = TRUE)) {
+      pkgload::load_all(path = path, export_all = FALSE, helpers = FALSE, quiet = TRUE)
+      if (isNamespaceLoaded("CausalMixGPD")) {
+        unloadNamespace("CausalMixGPD")
+      }
+    }
+    TRUE
+  }, error = function(e) FALSE)
 }
 
 .coverage_excluded_files <- function() {
@@ -62,228 +109,6 @@ setwd(here::here())
   unique(c(files, .coverage_excluded_files()))
 }
 
-.coverage_clean_dir <- function(path) {
-  if (dir.exists(path)) unlink(path, recursive = TRUE, force = TRUE)
-  dir.create(path, recursive = TRUE, showWarnings = FALSE)
-  invisible(path)
-}
-
-.coverage_primary_dir <- function() {
-  "covr/assets"
-}
-
-.coverage_artifact_files <- function() {
-  c("index.html", "report.html", "coverage_status.json", "unused_functions.md", "cobertura.xml")
-}
-
-.coverage_same_path <- function(path_a, path_b) {
-  identical(
-    normalizePath(path_a, winslash = "/", mustWork = FALSE),
-    normalizePath(path_b, winslash = "/", mustWork = FALSE)
-  )
-}
-
-.coverage_sync_dir <- function(source_dir, target_dir) {
-  if (.coverage_same_path(source_dir, target_dir)) {
-    return(invisible(target_dir))
-  }
-
-  .coverage_clean_dir(target_dir)
-
-  artifact_files <- .coverage_artifact_files()
-  artifact_sources <- file.path(source_dir, artifact_files)
-  copied <- file.copy(artifact_sources, target_dir, overwrite = TRUE)
-
-  if (!all(copied)) {
-    failed <- artifact_files[!copied]
-    stop(
-      "Failed to sync coverage artifacts to ", target_dir, ": ",
-      paste(failed, collapse = ", "),
-      call. = FALSE
-    )
-  }
-
-  source_lib <- file.path(source_dir, "lib")
-  if (dir.exists(source_lib)) {
-    copied_lib <- file.copy(source_lib, target_dir, recursive = TRUE, overwrite = TRUE)
-    if (!isTRUE(copied_lib)) {
-      stop("Failed to sync coverage dependency directory to ", target_dir, call. = FALSE)
-    }
-  }
-
-  invisible(target_dir)
-}
-
-.coverage_refresh_metadata <- function(path = ".") {
-  if (!file.exists(file.path(path, "DESCRIPTION"))) return(invisible(FALSE))
-  tryCatch({
-    pkgload::load_all(path = path, export_all = FALSE, helpers = FALSE, quiet = TRUE)
-    if (isNamespaceLoaded("CausalMixGPD")) unloadNamespace("CausalMixGPD")
-    TRUE
-  }, error = function(e) FALSE)
-}
-
-.coverage_write_cobertura <- function(cov, filename) {
-  covr::to_cobertura(cov, filename = filename)
-  invisible(filename)
-}
-
-.filter_coverage_object <- function(cov, path = ".") {
-  if (is.null(cov) || !inherits(cov, "coverage")) return(cov)
-
-  nm <- names(cov)
-  if (is.null(nm) || !length(nm)) return(cov)
-
-  keep_files <- .coverage_current_r_files(path = path)
-  keep <- sub(":.*$", "", nm) %in% keep_files
-  cov[keep]
-}
-
-.coverage_test_files <- function() {
-  env_files <- Sys.getenv("DPMIXGPD_COVERAGE_TEST_FILES", "")
-  if (nzchar(env_files)) {
-    return(trimws(strsplit(env_files, "\\s*,\\s*")[[1]]))
-  }
-
-  # Exclude test_cluster_fit_predict.R by default: it passes in testthat but
-  # currently corrupts covr trace merging ("error reading from connection").
-  c(
-    "test-progress.R",
-    "test-unit.R",
-    "test-coverage-heavy.R",
-    "test-integration.R",
-    "test-ci.R",
-    "test_cluster_methods.R",
-    "test_cluster_coverage_edges.R",
-    "test-performance-acceptance.R",
-    "test-performance-phase2-ess.R",
-    "test-performance-phase2-predict.R",
-    "test-performance-phase2-samplers.R",
-    "test-performance-phase2-zupdate.R",
-    "test-ci-level-only.R"
-  )
-}
-
-.coverage_test_code_selected_files <- function(test_files = .coverage_test_files(), progress = FALSE) {
-  reporter_expr <- if (isTRUE(progress)) {
-    "testthat::ProgressReporter$new(show_praise = FALSE)"
-  } else {
-    "testthat::ProgressReporter$new(show_praise = FALSE, update_interval = Inf)"
-  }
-  test_files_expr <- paste(sprintf('"%s"', test_files), collapse = ", ")
-
-  paste(
-    "library(CausalMixGPD)",
-    'pkg_tests <- system.file("tests", "testthat", package = "CausalMixGPD")',
-    'if (!nzchar(pkg_tests) || !dir.exists(pkg_tests)) {',
-    '  local_candidates <- c("tests/testthat", "./tests/testthat")',
-    '  local_hit <- local_candidates[file.exists(local_candidates)]',
-    '  if (length(local_hit) > 0L) pkg_tests <- normalizePath(local_hit[1], winslash = "/", mustWork = FALSE)',
-    '}',
-    'if (!nzchar(pkg_tests) || !dir.exists(pkg_tests)) stop("Coverage could not find test directory: tests/testthat")',
-    sprintf("test_files <- c(%s)", test_files_expr),
-    'targets <- file.path(pkg_tests, test_files)',
-    'missing_targets <- targets[!file.exists(targets)]',
-    'if (length(missing_targets) > 0L) stop("Coverage test file(s) not found: ", paste(missing_targets, collapse = ", "))',
-    'Sys.setenv(COVERAGE = "1", DPMIXGPD_CI_COVERAGE_ONLY = "1")',
-    'helper_files <- list.files(pkg_tests, pattern = "^helper.*\\\\.R$", full.names = TRUE)',
-    'for (helper in helper_files) try(source(helper, local = .GlobalEnv), silent = TRUE)',
-    'setup_file <- file.path(pkg_tests, "setup.R")',
-    'if (file.exists(setup_file)) try(source(setup_file, local = .GlobalEnv), silent = TRUE)',
-    sprintf('reporter <- %s', reporter_expr),
-    'for (target in targets) testthat::test_file(target, reporter = reporter, package = "CausalMixGPD")',
-    sep = "\n"
-  )
-}
-
-# Test snippets for covr::package_coverage(type = "none").
-# Attach package explicitly so batch runs (e.g., via .bat) execute tests with
-# the same symbol resolution as interactive sessions.
-# Updated to support recursive test discovery in subdirectories.
-.coverage_test_code_minimal <- function() {
-  paste(
-    "library(CausalMixGPD)",
-    'ns <- asNamespace("CausalMixGPD")',
-    'for (nm in ls(ns, all.names = TRUE)) {',
-    '  if (!exists(nm, envir = .GlobalEnv, inherits = FALSE)) {',
-    '    tryCatch(assign(nm, get(nm, envir = ns, inherits = FALSE), envir = .GlobalEnv), error = function(e) NULL)',
-    '  }',
-    '}',
-    'pkg_tests <- system.file("tests", "testthat", package = "CausalMixGPD")',
-    'if (!nzchar(pkg_tests) || !dir.exists(pkg_tests)) {',
-    '  local_candidates <- c("tests/testthat", "./tests/testthat")',
-    '  local_hit <- local_candidates[file.exists(local_candidates)]',
-    '  if (length(local_hit) > 0L) pkg_tests <- normalizePath(local_hit[1], winslash = "/", mustWork = FALSE)',
-    '}',
-    'if (!nzchar(pkg_tests) || !dir.exists(pkg_tests)) stop("Coverage could not find test directory: tests/testthat")',
-    'if (nzchar(pkg_tests)) {',
-    '  test_files <- list.files(pkg_tests, pattern = "^test.*\\\\.R$", recursive = TRUE, full.names = TRUE)',
-    '  if (length(test_files) == 0L) stop("Coverage found no test files under: ", pkg_tests)',
-    '  reporter <- testthat::ProgressReporter$new(show_praise = FALSE, update_interval = Inf)',
-    '  testthat::test_dir(pkg_tests, reporter = reporter, package = "CausalMixGPD")',
-    '}',
-    sep = "\n"
-  )
-}
-
-.coverage_test_code_progress <- function() {
-  paste(
-    "library(CausalMixGPD)",
-    'ns <- asNamespace("CausalMixGPD")',
-    'for (nm in ls(ns, all.names = TRUE)) {',
-    '  if (!exists(nm, envir = .GlobalEnv, inherits = FALSE)) {',
-    '    tryCatch(assign(nm, get(nm, envir = ns, inherits = FALSE), envir = .GlobalEnv), error = function(e) NULL)',
-    '  }',
-    '}',
-    'pkg_tests <- system.file("tests", "testthat", package = "CausalMixGPD")',
-    'if (!nzchar(pkg_tests) || !dir.exists(pkg_tests)) {',
-    '  local_candidates <- c("tests/testthat", "./tests/testthat")',
-    '  local_hit <- local_candidates[file.exists(local_candidates)]',
-    '  if (length(local_hit) > 0L) pkg_tests <- normalizePath(local_hit[1], winslash = "/", mustWork = FALSE)',
-    '}',
-    'if (!nzchar(pkg_tests) || !dir.exists(pkg_tests)) stop("Coverage could not find test directory: tests/testthat")',
-    'if (nzchar(pkg_tests)) {',
-    '  test_files <- list.files(pkg_tests, pattern = "^test.*\\\\.R$", recursive = TRUE, full.names = TRUE)',
-    '  if (length(test_files) == 0L) stop("Coverage found no test files under: ", pkg_tests)',
-    '  reporter <- testthat::ProgressReporter$new()',
-    '  testthat::test_dir(pkg_tests, reporter = reporter, package = "CausalMixGPD")',
-    '}',
-    sep = "\n"
-  )
-}
-
-.coverage_test_code_fallback <- function() {
-  paste(
-    "library(CausalMixGPD)",
-    'ns <- asNamespace("CausalMixGPD")',
-    'for (nm in ls(ns, all.names = TRUE)) {',
-    '  if (!exists(nm, envir = .GlobalEnv, inherits = FALSE)) {',
-    '    tryCatch(assign(nm, get(nm, envir = ns, inherits = FALSE), envir = .GlobalEnv), error = function(e) NULL)',
-    '  }',
-    '}',
-    'pkg_tests <- system.file("tests", "testthat", package = "CausalMixGPD")',
-    'if (!nzchar(pkg_tests) || !dir.exists(pkg_tests)) {',
-    '  local_candidates <- c("tests/testthat", "./tests/testthat")',
-    '  local_hit <- local_candidates[file.exists(local_candidates)]',
-    '  if (length(local_hit) > 0L) pkg_tests <- normalizePath(local_hit[1], winslash = "/", mustWork = FALSE)',
-    '}',
-    'if (!nzchar(pkg_tests) || !dir.exists(pkg_tests)) stop("Coverage could not find test directory: tests/testthat")',
-    'if (nzchar(pkg_tests)) {',
-    '  # Load helpers first',
-    '  helper_files <- list.files(pkg_tests, pattern = "^helper.*\\\\.R$", full.names = TRUE)',
-    '  for (helper in helper_files) try(source(helper, local = .GlobalEnv), silent = TRUE)',
-    '  setup_file <- file.path(pkg_tests, "setup.R")',
-    '  if (file.exists(setup_file)) try(source(setup_file, local = .GlobalEnv), silent = TRUE)',
-    '  # Run tests',
-    '  test_files <- list.files(pkg_tests, pattern = "^test.*\\\\.R$", recursive = TRUE, full.names = TRUE)',
-    '  if (length(test_files) == 0L) stop("Coverage found no test files under: ", pkg_tests)',
-    '  for (f in test_files) try(source(f), silent = TRUE)',
-    '}',
-    sep = "\n"
-  )
-}
-
-# Files to exclude entirely from coverage
 .coverage_line_exclusions <- function(path = ".") {
   files <- file.path("R", .coverage_excluded_files())
   full_paths <- normalizePath(file.path(path, files), winslash = "/", mustWork = FALSE)
@@ -291,99 +116,115 @@ setwd(here::here())
   stats::setNames(as.list(rep(Inf, length(all_paths))), all_paths)
 }
 
-# Get Codecov token from environment.
-.get_codecov_token <- function() {
-  env_token <- Sys.getenv("CODECOV_TOKEN", "")
-  if (nzchar(env_token)) return(env_token)
+.filter_coverage_object <- function(cov, path = ".") {
+  if (is.null(cov) || !inherits(cov, "coverage")) {
+    return(cov)
+  }
 
-  return("")
+  nm <- names(cov)
+  if (is.null(nm) || !length(nm)) {
+    return(cov)
+  }
+
+  keep_files <- .coverage_current_r_files(path = path)
+  keep <- sub(":.*$", "", nm) %in% keep_files
+  cov[keep]
 }
 
-# ============================================================================
-# calculate_coverage: Core function to calculate package coverage
-# ============================================================================
+.coverage_test_code <- function(progress = FALSE) {
+  reporter_expr <- if (isTRUE(progress)) {
+    "testthat::ProgressReporter$new(show_praise = FALSE)"
+  } else {
+    "testthat::ProgressReporter$new(show_praise = FALSE, update_interval = Inf)"
+  }
 
-#' Calculate package coverage
+  paste(
+    "library(CausalMixGPD)",
+    'pkg_tests <- system.file("tests", "testthat", package = "CausalMixGPD")',
+    'if (!nzchar(pkg_tests) || !dir.exists(pkg_tests)) {',
+    '  local_candidates <- c("tests/testthat", "./tests/testthat")',
+    '  local_hit <- local_candidates[file.exists(local_candidates)]',
+    '  if (length(local_hit) > 0L) pkg_tests <- normalizePath(local_hit[1], winslash = "/", mustWork = FALSE)',
+    '}',
+    'if (!nzchar(pkg_tests) || !dir.exists(pkg_tests)) stop("Coverage could not find tests/testthat")',
+    sprintf('Sys.setenv(COVERAGE = "1", DPMIXGPD_TEST_LEVEL = "%s", DPMIXGPD_CI_COVERAGE_ONLY = "1")', .coverage_test_level()),
+    'test_files <- list.files(pkg_tests, pattern = "^test.*\\\\.R$", recursive = TRUE, full.names = TRUE)',
+    'if (length(test_files) == 0L) stop("Coverage found no test files under: ", pkg_tests)',
+    sprintf('reporter <- %s', reporter_expr),
+    'for (target in test_files) {',
+    '  cat("== coverage: running ", basename(target), "\\n", sep = "")',
+    '  flush.console()',
+    '  testthat::test_file(target, reporter = reporter, package = "CausalMixGPD")',
+    '}',
+    sep = "\n"
+  )
+}
+
+.copy_rout_fail <- function(msg) {
+  rx <- regexec("`([^`]*testthat\\.Rout\\.fail)`", msg)
+  m <- regmatches(msg, rx)
+  rout_fail <- if (length(m) && length(m[[1]]) >= 2) m[[1]][[2]] else ""
+  if (nzchar(rout_fail) && file.exists(rout_fail)) {
+    dir.create(.coverage_primary_dir(), recursive = TRUE, showWarnings = FALSE)
+    try(
+      file.copy(rout_fail, file.path(.coverage_primary_dir(), "testthat.Rout.fail"), overwrite = TRUE),
+      silent = TRUE
+    )
+  }
+  invisible(rout_fail)
+}
+
+#' Calculate coverage using the full test suite only
 #'
-#' @param sources Character vector specifying coverage sources.
-#'   Options: "tests", "examples", "vignettes", or "all".
-#'   Default: "tests"
-#' @param test_level Test tier for testthat: "cran", "ci", or "full".
-#'   Default: "ci"
-#' @param quiet Logical; suppress covr output? Default: FALSE
-#' @return A covr coverage object, or NULL if coverage calculation failed
-#'
-#' @examples
-#' \dontrun{
-#' cov <- calculate_coverage()
-#' cov <- calculate_coverage(sources = "tests")
-#' cov <- calculate_coverage(sources = "all", test_level = "full")
-#' }
-calculate_coverage <- function(
-    sources = "tests",
-    test_level = "ci",
-    quiet = FALSE
-) {
+#' @param quiet Logical; suppress covr output. Default: FALSE.
+#' @return A covr coverage object.
+calculate_coverage <- function(quiet = FALSE) {
   .check_coverage_deps()
   .set_covr_install_opts()
 
-  # Validate inputs
-  valid_sources <- c("tests", "examples", "vignettes", "all")
-  if (!all(sources %in% valid_sources)) {
-    stop("Invalid sources. Must be one or more of: ", paste(valid_sources, collapse = ", "))
-  }
-
-  # Expand "all" to individual sources
-
-  if ("all" %in% sources) {
-    sources <- c("tests", "examples", "vignettes")
-  }
-
-  # Set environment variables
-  Sys.setenv(DPMIXGPD_TEST_LEVEL = test_level)
-  Sys.setenv(COVERAGE = "1")
-
-  # Unload package if loaded to avoid instrumentation conflicts
+  Sys.setenv(
+    DPMIXGPD_TEST_LEVEL = .coverage_test_level(),
+    COVERAGE = "1",
+    DPMIXGPD_CI_COVERAGE_ONLY = "1"
+  )
 
   if (isNamespaceLoaded("CausalMixGPD")) {
-    if (!quiet) cat("Unloading CausalMixGPD namespace for clean coverage calculation...\n")
+    if (!quiet) {
+      cat("Unloading CausalMixGPD namespace for clean coverage calculation...\n")
+    }
     try(unloadNamespace("CausalMixGPD"), silent = TRUE)
   }
 
   if (!quiet) {
-    cat("Calculating coverage...\n")
-    cat("  Sources:", paste(sources, collapse = ", "), "\n")
-    cat("  Test level:", test_level, "\n\n")
+    cat("Calculating coverage from tests only.\n")
+    cat("Test level:", .coverage_test_level(), "\n\n")
   }
 
-  # Build coverage based on sources
-  cov <- tryCatch({
-    if (identical(sources, "tests") || (length(sources) == 1 && sources == "tests")) {
-      # Tests only - use robust custom execution
-      .calculate_tests_coverage(quiet = quiet)
-    } else if ("tests" %in% sources && length(sources) > 1) {
-      # Tests + other sources - try combined approach
-      .calculate_combined_coverage(sources, quiet = quiet)
-    } else {
-      # Non-test sources only (examples, vignettes)
-      covr::package_coverage(
-        type = setdiff(sources, "tests"),
-        quiet = quiet,
-        pre_clean = TRUE,
-        line_exclusions = .coverage_line_exclusions()
-      )
+  cov <- tryCatch(
+    covr::package_coverage(
+      type = "none",
+      code = .coverage_test_code(progress = !quiet),
+      quiet = quiet,
+      pre_clean = TRUE,
+      line_exclusions = .coverage_line_exclusions()
+    ),
+    error = function(e) {
+      if (!quiet) {
+        cat("\nCoverage calculation failed.\n")
+        cat("Error:", conditionMessage(e), "\n")
+      }
+      .copy_rout_fail(conditionMessage(e))
+      NULL
     }
-  }, error = function(e) {
-    if (!quiet) {
-      cat("\nWarning: Primary coverage method encountered an error.\n")
-      cat("Error:", conditionMessage(e), "\n")
-    }
-    NULL
-  })
+  )
 
   cov <- .filter_coverage_object(cov)
 
-  if (!quiet && !is.null(cov)) {
+  if (is.null(cov)) {
+    stop("Coverage calculation failed.", call. = FALSE)
+  }
+
+  if (!quiet) {
     cat("\nCoverage calculation complete.\n")
     cat("Overall coverage:", round(covr::percent_coverage(cov), 1), "%\n\n")
   }
@@ -391,367 +232,8 @@ calculate_coverage <- function(
   cov
 }
 
-# Internal: Calculate coverage from tests with robust error handling
-.calculate_tests_coverage <- function(quiet = FALSE) {
-  covr::package_coverage(
-    type = "none",
-    code = .coverage_test_code_selected_files(progress = !quiet),
-    quiet = quiet,
-    pre_clean = TRUE,
-    line_exclusions = .coverage_line_exclusions()
-  )
-}
-
-# Internal: Calculate combined coverage from multiple sources
-.calculate_combined_coverage <- function(sources, quiet = FALSE) {
-  non_test_sources <- setdiff(sources, "tests")
-
-  if (length(non_test_sources) > 0 && "tests" %in% sources) {
-    cov_tests <- .calculate_tests_coverage(quiet = quiet)
-    cov_other <- covr::package_coverage(
-      type = non_test_sources,
-      quiet = quiet,
-      pre_clean = TRUE,
-      line_exclusions = .coverage_line_exclusions()
-    )
-    getFromNamespace("merge_coverage.list", "covr")(list(cov_tests, cov_other))
-  } else if (length(non_test_sources) > 0) {
-    covr::package_coverage(
-      type = non_test_sources,
-      quiet = quiet,
-      pre_clean = TRUE,
-      line_exclusions = .coverage_line_exclusions()
-    )
-  } else {
-    .calculate_tests_coverage(quiet = quiet)
-  }
-}
-
-# Run test coverage with progress reporter (replacement for tools/run_covr_progress.R).
-coverage_progress <- function(test_level = "ci", quiet = FALSE) {
-  .check_coverage_deps()
-  .set_covr_install_opts()
-
-  Sys.setenv(DPMIXGPD_TEST_LEVEL = tolower(test_level))
-  Sys.setenv(COVERAGE = "1")
-  Sys.setenv(DPMIXGPD_CI_COVERAGE_ONLY = "1")
-
-  cov <- covr::package_coverage(
-    type = "none",
-    code = .coverage_test_code_selected_files(progress = !quiet),
-    quiet = quiet,
-    pre_clean = TRUE,
-    line_exclusions = .coverage_line_exclusions()
-  )
-
-  pct <- covr::percent_coverage(cov)
-  cat("PERCENT=", pct, "\n")
-  invisible(cov)
-}
-
-# ============================================================================
-# coverage_report: Generate local HTML coverage report
-# ============================================================================
-
-#' Generate local HTML coverage report
-#'
-#' Calculates coverage and generates an interactive HTML report for the
-#' pkgdown website.
-#'
-#' @param sources Character vector specifying coverage sources.
-#'   Default: "tests"
-#' @param test_level Test tier: "cran", "ci", or "full". Default: "ci"
-#' @param output_dir Published mirror directory. Canonical coverage artifacts are
-#'   always written to `covr/assets`, then mirrored to `output_dir`.
-#'   Default: "docs/coverage"
-#' @param browse Logical; open report in browser? Default: FALSE
-#' @return Invisibly returns the coverage object
-#'
-#' @examples
-#' \dontrun{
-#' # Default: CI-level tests
-#' coverage_report()
-#'
-#' # Tests only (fastest)
-#' coverage_report(sources = "tests")
-#'
-#' # All sources
-#' coverage_report(sources = "all")
-#'
-#' # Custom output directory
-#' coverage_report(output_dir = "my_coverage")
-#' }
-coverage_report <- function(
-    sources = "tests",
-    test_level = "ci",
-  output_dir = "docs/coverage",
-  browse = FALSE
-) {
-  .check_coverage_deps()
-  resolved <- .resolve_coverage_inputs(sources, test_level)
-  sources <- resolved$sources
-  test_level <- resolved$test_level
-
-  assets_dir <- .coverage_primary_dir()
-  mirror_dir <- output_dir
-
-  .coverage_clean_dir(assets_dir)
-  if (!.coverage_same_path(mirror_dir, assets_dir)) {
-    .coverage_clean_dir(mirror_dir)
-  }
-  .coverage_refresh_metadata()
-
-  total_steps <- if (.coverage_same_path(mirror_dir, assets_dir)) 6 else 7
-
-  cat("============================================================\n")
-  cat("Building Coverage Report\n")
-  cat("============================================================\n")
-  cat("Sources:", paste(sources, collapse = ", "), "\n")
-  cat("Test level:", test_level, "\n")
-  cat("Canonical output directory:", assets_dir, "\n")
-  if (!.coverage_same_path(mirror_dir, assets_dir)) {
-    cat("Published mirror directory:", mirror_dir, "\n")
-  }
-  cat("\n")
-
-  cat("Prepared clean output directories.\n")
-
-  # Step 1: Calculate coverage
-  cat("\nStep 1/", total_steps, ": Calculating package coverage...\n", sep = "")
-  cov <- calculate_coverage(sources = sources, test_level = test_level, quiet = FALSE)
-
-  if (is.null(cov)) {
-    stop("Coverage calculation failed; report generation aborted.", call. = FALSE)
-  }
-
-  # Step 2: Generate interactive HTML report
-  cat("Step 2/", total_steps, ": Generating interactive HTML report...\n", sep = "")
-  report_file <- file.path(assets_dir, "report.html")
-  covr::report(cov, file = report_file, browse = FALSE)
-  cat("Saved:", report_file, "\n")
-  cat("\n")
-
-  # Step 3: Generate Cobertura XML for Codecov uploads
-  cat("Step 3/", total_steps, ": Writing Cobertura XML...\n", sep = "")
-  cobertura_file <- file.path(assets_dir, "cobertura.xml")
-  .coverage_write_cobertura(cov, cobertura_file)
-  cat("Saved:", cobertura_file, "\n")
-  cat("\n")
-
-  # Step 4: Extract and save statistics
-  cat("Step 4/", total_steps, ": Extracting coverage statistics...\n", sep = "")
-  stats <- .extract_coverage_stats(cov, sources)
-  json_file <- file.path(assets_dir, "coverage_status.json")
-  jsonlite::write_json(stats$summary, json_file, auto_unbox = TRUE, pretty = TRUE)
-  cat("Saved:", json_file, "\n")
-  cat("\n")
-
-  # Step 5: Write unused function report
-  cat("Step 5/", total_steps, ": Writing unused function report...\n", sep = "")
-  unused_file <- file.path(assets_dir, "unused_functions.md")
-  unused_by_file <- .extract_unused_functions(cov)
-  .write_unused_functions_report(unused_by_file, unused_file, sources, test_level)
-  cat("Saved:", unused_file, "\n")
-  cat("\n")
-
-  # Step 6: Generate summary HTML page
-  cat("Step 6/", total_steps, ": Generating HTML summary page...\n", sep = "")
-  html_file <- file.path(assets_dir, "index.html")
-  .generate_summary_html(stats, html_file, sources)
-  cat("Saved:", html_file, "\n")
-  cat("\n")
-
-  if (!.coverage_same_path(mirror_dir, assets_dir)) {
-    cat("Step 7/", total_steps, ": Syncing published mirror directory...\n", sep = "")
-    .coverage_sync_dir(assets_dir, mirror_dir)
-    cat("Synced:", mirror_dir, "\n\n")
-  }
-
-  # Done
-  cat("============================================================\n")
-  cat("Coverage report generated successfully!\n")
-  cat("============================================================\n\n")
-  cat("Output files:\n")
-  cat("  - ", html_file, " (summary page)\n", sep = "")
-  cat("  - ", report_file, " (interactive report)\n", sep = "")
-  cat("  - ", cobertura_file, " (Cobertura XML for Codecov)\n", sep = "")
-  cat("  - ", json_file, " (JSON data)\n", sep = "")
-  cat("  - ", unused_file, " (unused functions)\n", sep = "")
-  if (!.coverage_same_path(mirror_dir, assets_dir)) {
-    cat("  - ", mirror_dir, " (published mirror, including report dependencies)\n", sep = "")
-  }
-  cat("\nOverall coverage: ", round(stats$percent, 1), "%\n", sep = "")
-
-  if (browse) {
-    utils::browseURL(if (.coverage_same_path(mirror_dir, assets_dir)) html_file else file.path(mirror_dir, "index.html"))
-  }
-
-  invisible(cov)
-}
-
-# ============================================================================
-# coverage_upload: Upload coverage to Codecov
-# ============================================================================
-
-#' Upload coverage to Codecov
-#'
-#' Calculates coverage and uploads to Codecov. If no token is available,
-#' the upload is skipped gracefully with a message (unless `require_token = TRUE`).
-#'
-#' The token is loaded from (in order of priority):
-#' 1. The `token` argument if provided
-#' 2. The `CODECOV_TOKEN` environment variable
-#'
-#' @param sources Character vector specifying coverage sources.
-#'   Default: "tests"
-#' @param test_level Test tier: "cran", "ci", or "full". Default: "ci"
-#' @param token Codecov token. Default: auto-detected from env var or token file
-#' @param require_token Logical; if TRUE, throw an error when token is missing.
-#'   If FALSE, skip upload gracefully. Default: FALSE
-#' @param coverage Optional precomputed coverage object from `calculate_coverage()`.
-#'   If provided, upload uses this object and skips recalculation.
-#' @param quiet Logical; suppress output? Default: FALSE
-#' @return TRUE on success, FALSE if upload was skipped or failed
-#'
-#' @examples
-#' \dontrun{
-#' # Upload with default sources (skips gracefully if no token)
-#' coverage_upload()
-#'
-#' # Upload with all sources
-#' coverage_upload(sources = "all")
-#'
-#' # Require token (fail if not set)
-#' coverage_upload(require_token = TRUE)
-#' }
-coverage_upload <- function(
-    sources = "tests",
-    test_level = "ci",
-    token = .get_codecov_token(),
-    require_token = FALSE,
-    coverage = NULL,
-    quiet = FALSE
-) {
-  .check_coverage_deps()
-  resolved <- .resolve_coverage_inputs(sources, test_level)
-  sources <- resolved$sources
-  test_level <- resolved$test_level
-
-  # Check if token is available
-  token_available <- nzchar(token)
-
-  if (!token_available) {
-    if (require_token) {
-      stop("CODECOV_TOKEN is not set. Set it via Sys.setenv() or environment variable.")
-    }
-    if (!quiet) {
-      cat("============================================================\n")
-      cat("Codecov Upload Skipped\n")
-      cat("============================================================\n")
-      cat("CODECOV_TOKEN environment variable is not set.\n")
-      cat("To upload coverage, set CODECOV_TOKEN and re-run.\n")
-      cat("============================================================\n")
-    }
-    return(invisible(FALSE))
-  }
-
-  if (!quiet) {
-    cat("============================================================\n")
-    cat("Uploading Coverage to Codecov\n")
-    cat("============================================================\n")
-    cat("Sources:", paste(sources, collapse = ", "), "\n")
-    cat("Test level:", test_level, "\n\n")
-  }
-
-  result <- tryCatch({
-    if (is.null(coverage)) {
-      if (!quiet) cat("Step 1: Calculating package coverage...\n")
-      cov <- calculate_coverage(sources = sources, test_level = test_level, quiet = quiet)
-    } else {
-      if (!quiet) cat("Step 1: Using precomputed coverage object...\n")
-      cov <- coverage
-    }
-
-    if (is.null(cov)) {
-      if (!quiet) cat("Coverage calculation failed.\n")
-      return(FALSE)
-    }
-
-    if (!quiet) cat("Step 2: Uploading to Codecov...\n")
-    covr::codecov(coverage = cov, token = token, quiet = quiet)
-
-    if (!quiet) cat("\nCoverage upload completed successfully!\n")
-    TRUE
-  }, error = function(e) {
-    if (!quiet) {
-      cat("Error uploading coverage:", conditionMessage(e), "\n")
-    }
-    FALSE
-  })
-
-  invisible(result)
-}
-
-# ============================================================================
-# coverage_push: Generate local report and upload in one step
-# ============================================================================
-
-#' Generate coverage locally and upload to Codecov
-#'
-#' Runs `coverage_report()` and then uploads the same coverage object with
-#' `coverage_upload()`. This is intended for explicit manual developer
-#' workflows when a local report and upload should happen in one step.
-#'
-#' @param sources Character vector specifying coverage sources.
-#'   Default: "tests"
-#' @param test_level Test tier: "cran", "ci", or "full". Default: "ci"
-#' @param output_dir Published mirror directory. Default: "docs/coverage"
-#' @param require_token Logical; if TRUE, fail when `CODECOV_TOKEN` is missing.
-#'   Default: TRUE
-#' @param browse Logical; open report in browser? Default: FALSE
-#' @param quiet Logical; suppress upload output? Default: FALSE
-#' @return Invisibly returns TRUE on successful upload, otherwise FALSE
-#'
-#' @examples
-#' \dontrun{
-#' coverage_push()
-#' coverage_push(sources = "all")
-#' }
-coverage_push <- function(
-    sources = "tests",
-    test_level = "ci",
-    output_dir = "docs/coverage",
-    require_token = TRUE,
-    browse = FALSE,
-    quiet = FALSE
-) {
-  cov <- coverage_report(
-    sources = sources,
-    test_level = test_level,
-    output_dir = output_dir,
-    browse = browse
-  )
-
-  ok <- coverage_upload(
-    sources = sources,
-    test_level = test_level,
-    coverage = cov,
-    require_token = require_token,
-    quiet = quiet
-  )
-
-  invisible(ok)
-}
-
-# ============================================================================
-# Internal helper functions
-# ============================================================================
-
-# Extract coverage statistics
-.extract_coverage_stats <- function(cov, sources) {
+.extract_coverage_stats <- function(cov) {
   percent <- covr::percent_coverage(cov)
-
-  # Per-file coverage
   file_cov <- covr::tally_coverage(cov, by = "line")
 
   file_stats <- aggregate(
@@ -764,11 +246,10 @@ coverage_push <- function(
   names(file_stats) <- c("File", "Lines", "Covered", "Percent")
 
   timestamp <- format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ", tz = "UTC")
-
   summary_data <- list(
     percent = round(percent, 2),
     timestamp = timestamp,
-    sources = sources,
+    pipeline = "tests/full",
     total_lines = sum(file_stats$Lines),
     covered_lines = sum(file_stats$Covered),
     files = nrow(file_stats),
@@ -790,16 +271,19 @@ coverage_push <- function(
   )
 }
 
-# Extract functions with 0% coverage grouped by file
 .extract_unused_functions <- function(cov) {
   line_cov <- covr::tally_coverage(cov, by = "line")
-  if (!is.data.frame(line_cov) || nrow(line_cov) == 0L) return(list())
+  if (!is.data.frame(line_cov) || nrow(line_cov) == 0L) {
+    return(list())
+  }
 
   file_col <- if ("filename" %in% names(line_cov)) "filename" else if ("file" %in% names(line_cov)) "file" else NULL
   fun_col <- intersect(names(line_cov), c("function", "fun", "func"))
   value_col <- if ("value" %in% names(line_cov)) "value" else if ("covered" %in% names(line_cov)) "covered" else NULL
 
-  if (is.null(file_col) || length(fun_col) == 0L || is.null(value_col)) return(list())
+  if (is.null(file_col) || length(fun_col) == 0L || is.null(value_col)) {
+    return(list())
+  }
 
   fun_col <- fun_col[1]
   df <- data.frame(
@@ -809,7 +293,9 @@ coverage_push <- function(
     stringsAsFactors = FALSE
   )
   df <- df[!is.na(df$func) & nzchar(df$func), , drop = FALSE]
-  if (nrow(df) == 0L) return(list())
+  if (nrow(df) == 0L) {
+    return(list())
+  }
 
   df$total_line <- !is.na(df$value)
   df$covered_line <- df$value > 0
@@ -821,21 +307,21 @@ coverage_push <- function(
     na.rm = TRUE
   )
   unused <- agg[agg$covered_line == 0 & agg$total_line > 0, , drop = FALSE]
-  if (nrow(unused) == 0L) return(list())
+  if (nrow(unused) == 0L) {
+    return(list())
+  }
 
   unused <- unused[order(unused$file, unused$func), , drop = FALSE]
   split(unused$func, unused$file)
 }
 
-# Write unused function report
-.write_unused_functions_report <- function(unused_by_file, output_file, sources, test_level) {
+.write_unused_functions_report <- function(unused_by_file, output_file) {
   timestamp <- format(Sys.time(), "%B %d, %Y at %H:%M UTC", tz = "UTC")
   lines <- c(
     "# Unused Functions (0% covered)",
     "",
     paste("**Generated:**", timestamp),
-    paste("**Sources:**", paste(sources, collapse = ", ")),
-    paste("**Test level:**", test_level),
+    paste("**Pipeline:** tests /", .coverage_test_level()),
     ""
   )
 
@@ -844,54 +330,21 @@ coverage_push <- function(
   } else {
     for (file in names(unused_by_file)) {
       lines <- c(lines, paste0("## `", file, "`"), "")
-      funcs <- unused_by_file[[file]]
-      lines <- c(lines, paste0("- `", funcs, "`"), "")
+      lines <- c(lines, paste0("- `", unused_by_file[[file]], "`"), "")
     }
   }
 
   writeLines(lines, output_file)
 }
 
-# Create placeholder report when coverage fails
-.create_placeholder_report <- function(output_dir, sources) {
-  cat("Coverage calculation failed. Creating placeholder report.\n")
-
-  placeholder_md <- c(
-    "# Test Coverage Report",
-    "",
-    "**Status:** Coverage calculation failed",
-    "",
-    paste("**Sources attempted:**", paste(sources, collapse = ", ")),
-    "",
-    "Please run the coverage script locally to generate the full report.",
-    "",
-    "```r",
-    "source('tools/.Rscripts/coverage.R')",
-    "coverage_report()",
-    "```"
-  )
-  writeLines(placeholder_md, file.path(output_dir, "index.md"))
-
-  placeholder_json <- list(
-    percent = NA,
-    timestamp = format(Sys.time(), "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"),
-    sources = sources,
-    status = "failed"
-  )
-  jsonlite::write_json(placeholder_json, file.path(output_dir, "coverage_status.json"),
-                       auto_unbox = TRUE, pretty = TRUE)
-
-  cat("Placeholder files created. Please resolve issues and re-run.\n")
-}
-
-# Generate summary HTML page
-.generate_summary_html <- function(stats, html_file, sources) {
+.generate_summary_html <- function(stats, html_file) {
   percent <- stats$percent
   file_stats <- stats$file_stats
-  timestamp <- stats$timestamp
-  use_docs_assets <- grepl("(^|[/\\\\])docs([/\\\\]|$)", normalizePath(dirname(html_file), winslash = "/", mustWork = FALSE))
+  display_time <- format(
+    as.POSIXct(stats$timestamp, format = "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"),
+    "%B %d, %Y at %H:%M UTC"
+  )
 
-  # Badge color
   badge_color <- if (percent >= 80) {
     "green"
   } else if (percent >= 60) {
@@ -902,182 +355,55 @@ coverage_push <- function(
     "red"
   }
 
-  # Format timestamp
-  display_time <- format(
-    as.POSIXct(timestamp, format = "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"),
-    "%B %d, %Y at %H:%M UTC"
-  )
-
-  # Build file table rows
   file_rows <- vapply(seq_len(nrow(file_stats)), function(i) {
-    display_file <- gsub("^R/", "", file_stats$File[i])
     pct <- file_stats$Percent[i]
-
-    color_class <- if (pct >= 80) {
+    cls <- if (pct >= 80) {
       "text-success"
     } else if (pct >= 60) {
-      "text-warning"
-    } else if (pct >= 40) {
       "text-warning"
     } else {
       "text-danger"
     }
-
-    sprintf('      <tr>
-        <td><code>%s</code></td>
-        <td class="text-end">%d</td>
-        <td class="text-end">%d</td>
-        <td class="text-end %s"><strong>%.1f%%</strong></td>
-      </tr>',
-            display_file, file_stats$Lines[i], file_stats$Covered[i], color_class, pct
+    sprintf(
+      '<tr><td><code>%s</code></td><td class="text-end">%d</td><td class="text-end">%d</td><td class="text-end %s"><strong>%.1f%%</strong></td></tr>',
+      gsub("^R/", "", file_stats$File[i]),
+      file_stats$Lines[i],
+      file_stats$Covered[i],
+      cls,
+      pct
     )
   }, character(1))
 
-  # Sources display
-  sources_display <- paste(sources, collapse = ", ")
-
-  if (!use_docs_assets) {
-    html_content <- sprintf('<!DOCTYPE html>
+  html <- sprintf(
+'<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Coverage - CausalMixGPD</title>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 2rem; color: #111827; background: #f8fafc; }
-    main { max-width: 1100px; margin: 0 auto; background: white; padding: 2rem; border-radius: 16px; box-shadow: 0 10px 25px rgba(15,23,42,0.08); }
-    table { border-collapse: collapse; width: 100%%; }
-    th, td { padding: 0.6rem 0.75rem; border-bottom: 1px solid #e5e7eb; text-align: left; }
-    th.num, td.num { text-align: right; }
-    code { background: #f3f4f6; padding: 0.1rem 0.35rem; border-radius: 4px; }
-    .good { color: #166534; }
-    .mid { color: #92400e; }
-    .bad { color: #b91c1c; }
-    .actions a { margin-right: 1rem; }
-  </style>
-</head>
-<body>
-  <main>
-    <h1>Coverage Report</h1>
-    <p><strong>Generated:</strong> %s</p>
-    <p><strong>Sources:</strong> %s</p>
-    <p><strong>Overall coverage:</strong> %.1f%%</p>
-    <p class="actions">
-      <a href="report.html">Interactive report</a>
-      <a href="coverage_status.json"><code>coverage_status.json</code></a>
-      <a href="unused_functions.md"><code>unused_functions.md</code></a>
-    </p>
-    <table>
-      <thead>
-        <tr>
-          <th>File</th>
-          <th class="num">Lines</th>
-          <th class="num">Covered</th>
-          <th class="num">Coverage</th>
-        </tr>
-      </thead>
-      <tbody>
-%s
-      </tbody>
-    </table>
-  </main>
-</body>
-</html>',
-      display_time, sources_display, percent,
-      paste(vapply(seq_len(nrow(file_stats)), function(i) {
-        pct <- file_stats$Percent[i]
-        cls <- if (pct >= 80) "good" else if (pct >= 60) "mid" else "bad"
-        sprintf(
-          '        <tr><td><code>%s</code></td><td class="num">%d</td><td class="num">%d</td><td class="num %s"><strong>%.1f%%</strong></td></tr>',
-          gsub("^R/", "", file_stats$File[i]),
-          file_stats$Lines[i],
-          file_stats$Covered[i],
-          cls,
-          pct
-        )
-      }, character(1)), collapse = "\n")
-    )
-    writeLines(html_content, html_file)
-    return(invisible(html_file))
-  }
-
-  html_content <- sprintf('<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Test Coverage - CausalMixGPD</title>
   <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-  <link href="../extra.css" rel="stylesheet">
   <style>
-    body { padding-top: 70px; }
-    .coverage-badge { font-size: 1.2em; }
-    .summary-table { max-width: 400px; }
-    .file-table { font-size: 0.9em; }
-    .btn-report { margin: 1em 0; }
+    body { padding-top: 3rem; }
+    .coverage-badge { font-size: 1.1rem; }
   </style>
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg fixed-top">
-    <div class="container">
-      <a class="navbar-brand" href="../index.html">CausalMixGPD</a>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav">
-          <li class="nav-item"><a class="nav-link" href="../index.html">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="../articles/manual-index.html">Manual</a></li>
-          <li class="nav-item"><a class="nav-link" href="../articles/kernels-index.html">Kernels</a></li>
-          <li class="nav-item"><a class="nav-link" href="../articles/examples-index.html">Examples</a></li>
-          <li class="nav-item"><a class="nav-link active" href="index.html">Coverage</a></li>
-          <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-        </ul>
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link" href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-
   <main class="container py-4">
-    <h1>Test Coverage Report</h1>
-
+    <h1>Coverage Report</h1>
     <p class="coverage-badge">
-      <img src="https://img.shields.io/badge/coverage-%%.1f%%%%25-%s" alt="Coverage: %%.1f%%%%">
+      <img src="https://img.shields.io/badge/coverage-%.1f%%25-%s" alt="Coverage %.1f%%">
     </p>
-
     <p><strong>Generated:</strong> %s</p>
-    <p><strong>Sources:</strong> %s</p>
-
-    <hr>
-
-    <h2>Summary</h2>
-    <table class="table table-striped summary-table">
-      <tbody>
-        <tr><td>Overall Coverage</td><td class="text-end"><strong>%%.1f%%%%</strong></td></tr>
-        <tr><td>Total Lines</td><td class="text-end">%%d</td></tr>
-        <tr><td>Covered Lines</td><td class="text-end">%%d</td></tr>
-        <tr><td>Files Analyzed</td><td class="text-end">%%d</td></tr>
-      </tbody>
-    </table>
-
-    <hr>
-
-    <h2>Coverage Artifacts</h2>
+    <p><strong>Pipeline:</strong> tests / %s</p>
     <p>
-      <a href="report.html" class="btn btn-primary btn-report">View Full Interactive Report</a>
+      <a href="report.html" class="btn btn-primary">Open full interactive report</a>
     </p>
-    <p>The interactive report provides line-by-line coverage details for each file.</p>
     <ul>
-      <li><a href="coverage_status.json"><code>coverage_status.json</code></a> - machine-readable summary</li>
-      <li><a href="unused_functions.md"><code>unused_functions.md</code></a> - functions with 0%%%% coverage</li>
+      <li><a href="coverage_status.json"><code>coverage_status.json</code></a></li>
+      <li><a href="unused_functions.md"><code>unused_functions.md</code></a></li>
+      <li><a href="cobertura.xml"><code>cobertura.xml</code></a></li>
     </ul>
-
-    <hr>
-
-    <h2>File-by-File Coverage</h2>
-    <table class="table table-striped table-hover file-table">
+    <table class="table table-striped table-hover">
       <thead>
         <tr>
           <th>File</th>
@@ -1087,86 +413,102 @@ coverage_push <- function(
         </tr>
       </thead>
       <tbody>
-%%s
+%s
       </tbody>
     </table>
-
-    <hr>
-
-    <p class="text-muted">
-      <em>Coverage is calculated using <a href="https://covr.r-lib.org/">covr</a>.</em>
-    </p>
   </main>
-
-  <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script>
-  <script src="../extra.js"></script>
 </body>
 </html>',
-                          badge_color,
-                          display_time, sources_display
+    percent,
+    badge_color,
+    percent,
+    display_time,
+    .coverage_test_level(),
+    paste(file_rows, collapse = "\n")
   )
 
-  # Now do the numeric substitutions
-  html_content <- sprintf(html_content,
-                          percent, percent,
-                          percent, sum(file_stats$Lines), sum(file_stats$Covered), nrow(file_stats),
-                          paste(file_rows, collapse = "\n")
-  )
-
-  writeLines(html_content, html_file)
+  writeLines(html, html_file)
+  invisible(html_file)
 }
 
-# ============================================================================
-# Print usage when sourced
-# ============================================================================
+#' Build the full local coverage report
+#'
+#' Runs the full test suite under covr, writes canonical artifacts to
+#' `covr/assets`, and mirrors them to `docs/coverage`.
+#'
+#' @param output_dir Mirror directory for the published site.
+#' @param browse Logical; open the mirrored summary page in a browser.
+#' @return Invisibly returns the coverage object.
+coverage_report <- function(output_dir = .coverage_default_output_dir(), browse = FALSE) {
+  .check_coverage_deps()
+  .set_covr_install_opts()
 
-cat("CausalMixGPD Coverage Tools loaded.\n\n")
-cat("Available functions:\n")
-cat("  calculate_coverage(sources, test_level)  - Calculate coverage\n")
-cat("  coverage_progress(test_level)            - Test coverage with progress\n")
-cat("  coverage_report(sources, output_dir)     - Build covr/assets and mirror to output_dir\n")
-cat("  coverage_upload(sources, token)          - Upload to Codecov\n")
-cat("  coverage_push(sources, output_dir)       - Build locally and upload to Codecov\n")
-cat("\nDefault sources: tests (CI-level)\n")
-cat("Valid sources: 'tests', 'examples', 'vignettes', 'all'\n\n")
-cat("Examples:\n")
-cat("  coverage_report()                        # Build covr/assets and mirror to docs/coverage\n")
-cat("  coverage_progress()                      # Progress reporter run\n")
-cat("  coverage_report(sources = 'tests')       # Tests only (fastest)\n")
-cat("  coverage_report(sources = 'all')         # All sources\n")
-cat("  coverage_upload()                        # Upload CI-level tests coverage to Codecov\n")
-cat("  coverage_upload(require_token = TRUE)    # Upload (fail if no token)\n")
-cat("  coverage_push()                          # Build locally and upload in one step\n")
+  assets_dir <- .coverage_primary_dir()
+  mirror_dir <- output_dir
 
-# If executed via Rscript (for example through tools/coverage.bat), run the
-# default CI-level tests coverage pipeline automatically.
+  .coverage_clean_dir(assets_dir)
+  if (!.coverage_same_path(mirror_dir, assets_dir)) {
+    .coverage_clean_dir(mirror_dir)
+  }
+  .coverage_refresh_metadata()
+
+  cat("============================================================\n")
+  cat("Building Coverage Report\n")
+  cat("============================================================\n")
+  cat("Pipeline: tests / ", .coverage_test_level(), "\n", sep = "")
+  cat("Canonical output directory: ", assets_dir, "\n", sep = "")
+  if (!.coverage_same_path(mirror_dir, assets_dir)) {
+    cat("Published mirror directory: ", mirror_dir, "\n", sep = "")
+  }
+  cat("\n")
+
+  cat("Step 1/6: Calculating coverage...\n")
+  cov <- calculate_coverage(quiet = FALSE)
+
+  cat("Step 2/6: Writing interactive HTML report...\n")
+  report_file <- file.path(assets_dir, "report.html")
+  covr::report(cov, file = report_file, browse = FALSE)
+
+  cat("Step 3/6: Writing Cobertura XML...\n")
+  cobertura_file <- file.path(assets_dir, "cobertura.xml")
+  covr::to_cobertura(cov, filename = cobertura_file)
+
+  cat("Step 4/6: Writing JSON summary...\n")
+  stats <- .extract_coverage_stats(cov)
+  json_file <- file.path(assets_dir, "coverage_status.json")
+  jsonlite::write_json(stats$summary, json_file, auto_unbox = TRUE, pretty = TRUE)
+
+  cat("Step 5/6: Writing unused-function report and summary page...\n")
+  unused_file <- file.path(assets_dir, "unused_functions.md")
+  .write_unused_functions_report(.extract_unused_functions(cov), unused_file)
+  index_file <- file.path(assets_dir, "index.html")
+  .generate_summary_html(stats, index_file)
+
+  cat("Step 6/6: Mirroring artifacts to docs...\n")
+  .coverage_sync_dir(assets_dir, mirror_dir)
+
+  cat("\nCoverage report generated successfully.\n")
+  cat("Canonical artifacts: ", assets_dir, "\n", sep = "")
+  if (!.coverage_same_path(mirror_dir, assets_dir)) {
+    cat("Published mirror: ", mirror_dir, "\n", sep = "")
+  }
+  cat("Overall coverage: ", round(stats$percent, 1), "%\n", sep = "")
+
+  if (browse) {
+    utils::browseURL(file.path(mirror_dir, "index.html"))
+  }
+
+  invisible(cov)
+}
+
+cat("CausalMixGPD coverage helper loaded.\n")
+cat("Run `coverage_report()` to build the full local test coverage report.\n")
+
 args <- commandArgs(trailingOnly = FALSE)
-trailing_args <- commandArgs(trailingOnly = TRUE)
 file_args <- grep("^--file=", args, value = TRUE)
 is_rscript <- any(grepl("coverage\\.R$", sub("^--file=", "", file_args), ignore.case = TRUE))
 if (is_rscript) {
-  run_upload <- "--upload" %in% trailing_args
-  if (run_upload) {
-    cat("\nRunning local coverage pipeline with Codecov upload (sources='tests', test_level='ci').\n")
-    ok <- coverage_push(
-      sources = "tests",
-      test_level = "ci",
-      output_dir = "docs/coverage",
-      require_token = TRUE,
-      browse = FALSE,
-      quiet = FALSE
-    )
-    if (!isTRUE(ok)) quit(status = 1)
-    cat("\nCoverage report generation and upload finished successfully.\n")
-  } else {
-    cat("\nRunning default coverage pipeline (sources='tests', test_level='ci').\n")
-    coverage_report(
-      sources = "tests",
-      test_level = "ci",
-      output_dir = "docs/coverage",
-      browse = FALSE
-    )
-    cat("\nCoverage report generation finished (local artifacts only).\n")
-    cat("Use coverage_upload() or coverage_push() explicitly if you want to push to Codecov.\n")
-  }
+  cat("\nRunning full local coverage pipeline.\n")
+  coverage_report()
+  cat("\nCoverage report generation finished successfully.\n")
 }

@@ -53,6 +53,8 @@ The examples emphasize transparency. Each model is specified in `nimbleCode{}`; 
 
 The vignette covers:
 
+> For the underlying “where each option lives” map (core customization surface + extension points), see [Theory: Customization maps + extension points](theory/06-customization-and-extensions.qmd).
+
 1) A manual stick-breaking (SB) Normal mixture using `dNormMix` as the likelihood.
 
 2) A spliced bulk-tail model (SB + Amoroso + GPD) in which CausalMixGPD generates the model code, while the compilation and sampling steps are carried out explicitly to facilitate inspection.
@@ -134,30 +136,35 @@ code_sb <- nimble::nimbleCode({
 ## Compile and run (manual)
 
 ```{r, cache = FALSE, results='hide'}
-Rmodel_sb <- nimble::nimbleModel(
-  code = code_sb,
-  constants = constants_sb,
-  data = data_sb,
-  inits = inits_sb()
-)
+. <- utils::capture.output({
+  Rmodel_sb <- nimble::nimbleModel(
+    code = code_sb,
+    constants = constants_sb,
+    data = data_sb,
+    inits = inits_sb()
+  )
 
-conf_sb <- nimble::configureMCMC(
-  Rmodel_sb,
-  monitors = c("alpha", "v", "w", "mu", "sigma")
-)
+  conf_sb <- nimble::configureMCMC(
+    Rmodel_sb,
+    monitors = c("alpha", "v", "w", "mu", "sigma")
+  )
 
-Rmcmc_sb <- nimble::buildMCMC(conf_sb)
-Cmodel_sb <- nimble::compileNimble(Rmodel_sb, showCompilerOutput = FALSE)
-Cmcmc_sb <- nimble::compileNimble(Rmcmc_sb, project = Rmodel_sb, showCompilerOutput = FALSE)
+  Rmcmc_sb <- nimble::buildMCMC(conf_sb)
+  Cmodel_sb <- nimble::compileNimble(Rmodel_sb, showCompilerOutput = FALSE)
+  Cmcmc_sb <- nimble::compileNimble(Rmcmc_sb, project = Rmodel_sb, showCompilerOutput = FALSE)
 
-samples_sb <- nimble::runMCMC(
-  Cmcmc_sb,
-  niter = mcmc$niter,
-  nburnin = mcmc$nburnin,
-  thin = mcmc$thin,
-  nchains = mcmc$nchains,
-  setSeed = mcmc$seed
-)
+  samples_sb <- nimble::runMCMC(
+    Cmcmc_sb,
+    niter = mcmc$niter,
+    nburnin = mcmc$nburnin,
+    thin = mcmc$thin,
+    nchains = mcmc$nchains,
+    setSeed = mcmc$seed
+  )
+})
+. <- utils::capture.output({
+  NULL
+}, type = "message")
 ```
 
 ## Sample extraction
@@ -174,7 +181,7 @@ CausalMixGPD's S3 methods for posterior inference.
 
 ```{r, cache = FALSE, results='hide'}
 bundle_sb <- bundle(
-  y = y,
+  x = y,
   X = NULL,
   backend = "sb",
   kernel = "normal",
@@ -251,7 +258,7 @@ param_specs_crp <- list(
 ```{r}
 X_crp <- NULL
 bundle_crp <- bundle(
-  y = y,
+  x = y,
   X = X_crp,
   backend = "sb",
   kernel = "amoroso",
@@ -270,39 +277,44 @@ inits_crp <- if (is.function(bundle_crp$inits_fun)) bundle_crp$inits_fun else bu
 ## Compile and run (manual)
 
 ```{r, cache = FALSE, results='hide'}
-Rmodel_crp <- nimble::nimbleModel(
-  code = code_crp,
-  constants = constants_crp,
-  data = data_crp,
-  inits = if (is.function(inits_crp)) inits_crp() else inits_crp
-)
+. <- utils::capture.output({
+  Rmodel_crp <- nimble::nimbleModel(
+    code = code_crp,
+    constants = constants_crp,
+    data = data_crp,
+    inits = if (is.function(inits_crp)) inits_crp() else inits_crp
+  )
 
-conf_crp <- nimble::configureMCMC(
-  Rmodel_crp,
-  monitors = bundle_crp$monitors
-)
+  conf_crp <- nimble::configureMCMC(
+    Rmodel_crp,
+    monitors = bundle_crp$monitors
+  )
 
-if (!is.null(conf_crp$samplerConfs) && length(conf_crp$samplerConfs) > 0) {
-  for (i in seq_along(conf_crp$samplerConfs)) {
-    ctl <- conf_crp$samplerConfs[[i]]$control
-    if (is.null(ctl)) ctl <- list()
-    if (is.null(ctl$checkConjugacy)) ctl$checkConjugacy <- FALSE
-    conf_crp$samplerConfs[[i]]$control <- ctl
+  if (!is.null(conf_crp$samplerConfs) && length(conf_crp$samplerConfs) > 0) {
+    for (i in seq_along(conf_crp$samplerConfs)) {
+      ctl <- conf_crp$samplerConfs[[i]]$control
+      if (is.null(ctl)) ctl <- list()
+      if (is.null(ctl$checkConjugacy)) ctl$checkConjugacy <- FALSE
+      conf_crp$samplerConfs[[i]]$control <- ctl
+    }
   }
-}
 
-Rmcmc_crp <- nimble::buildMCMC(conf_crp)
-Cmodel_crp <- nimble::compileNimble(Rmodel_crp, showCompilerOutput = FALSE)
-Cmcmc_crp <- nimble::compileNimble(Rmcmc_crp, project = Rmodel_crp, showCompilerOutput = FALSE)
+  Rmcmc_crp <- nimble::buildMCMC(conf_crp)
+  Cmodel_crp <- nimble::compileNimble(Rmodel_crp, showCompilerOutput = FALSE)
+  Cmcmc_crp <- nimble::compileNimble(Rmcmc_crp, project = Rmodel_crp, showCompilerOutput = FALSE)
 
-samples_crp <- nimble::runMCMC(
-  Cmcmc_crp,
-  niter = mcmc$niter,
-  nburnin = mcmc$nburnin,
-  thin = mcmc$thin,
-  nchains = mcmc$nchains,
-  setSeed = mcmc$seed
-)
+  samples_crp <- nimble::runMCMC(
+    Cmcmc_crp,
+    niter = mcmc$niter,
+    nburnin = mcmc$nburnin,
+    thin = mcmc$thin,
+    nchains = mcmc$nchains,
+    setSeed = mcmc$seed
+  )
+})
+. <- utils::capture.output({
+  NULL
+}, type = "message")
 ```
 
 ## Sample extraction
@@ -386,7 +398,7 @@ param_specs_causal <- list(
 ```
 
 ```{r, cache = FALSE, results='hide'}
-causal_bundle <- bundle(
+causal_bundle <- build_causal_bundle(
   y = y,
   X = X_causal,
   A = T_ind,
@@ -441,11 +453,11 @@ ate_result <- ate(causal_fit, interval = "credible", nsim_mean = 50)
 qte_result <- qte(causal_fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
 att_result <- att(causal_fit, interval = "credible", nsim_mean = 50)
 qtt_result <- qtt(causal_fit, probs = c(0.25, 0.5, 0.75), interval = "credible")
-ate_rmean_result <- ate_rmean(causal_fit, interval = "credible", nsim_mean = 50)
+ate_rmean_result <- ate_rmean(causal_fit, cutoff = 10, interval = "credible", nsim_mean = 50)
 cate_result <- cate(causal_fit, newdata = X_causal[1:5, ], interval = "credible", nsim_mean = 50)
 cqte_result <- cqte(causal_fit, probs = c(0.25, 0.5, 0.75), newdata = X_causal[1:5, ], interval = "credible")
-att_rmean_result <- att(causal_fit, type = "rmean", interval = "credible", nsim_mean = 50)
-cate_rmean_result <- cate(causal_fit, type = "rmean", newdata = X_causal[1:5, ], interval = "credible", nsim_mean = 50)
+att_rmean_result <- att(causal_fit, type = "rmean", cutoff = 10, interval = "credible", nsim_mean = 50)
+cate_rmean_result <- cate(causal_fit, type = "rmean", cutoff = 10, newdata = X_causal[1:5, ], interval = "credible", nsim_mean = 50)
 
 print(ate_result)
 summary(ate_result)
@@ -462,8 +474,20 @@ plot(qte_result, type = "effect")
 sessionInfo()
 ```
 
+<!-- cmgpd-footer:start -->
+## Prereqs
+- Required packages and data for this page are listed in the setup chunks above.
 
+## Outputs
+- This page renders model fits, diagnostics, and summary artifacts generated by package APIs.
 
+## Interpretation
+- Canonical concept page: [Customization And Tuning](customization-and-tuning.qmd)
+- Treat this page as an application/example view and use the canonical page for core definitions.
+
+## Next
+- Continue to the linked canonical concept page, then return for implementation-specific details.
+<!-- cmgpd-footer:end -->
 
 
 

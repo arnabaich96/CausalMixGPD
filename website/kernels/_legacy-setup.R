@@ -12,6 +12,20 @@ if (!requireNamespace("ggplot2", quietly = TRUE)) {
 }
 library(ggplot2)
 
+# Prefer interactive Plotly output in website HTML when available and renderable.
+# Some environments can have plotly/htmlwidgets installed but broken for knitting.
+.cmgpd_can_use_plotly <- function() {
+  if (!requireNamespace("plotly", quietly = TRUE)) return(FALSE)
+  if (!requireNamespace("htmlwidgets", quietly = TRUE)) return(FALSE)
+  ok <- tryCatch({
+    w <- plotly::plot_ly(x = 1, y = 1)
+    htmlwidgets::toHTML(w, standalone = FALSE)
+    TRUE
+  }, error = function(e) FALSE)
+  isTRUE(ok)
+}
+options(CausalMixGPD.plotly = isTRUE(.cmgpd_can_use_plotly()))
+
 # Disable knitr chunk caching for legacy website examples.
 if (requireNamespace("knitr", quietly = TRUE)) {
   knitr::opts_hooks$set(cache = function(options) {

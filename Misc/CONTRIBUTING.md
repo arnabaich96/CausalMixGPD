@@ -87,32 +87,18 @@ devtools::test()
 ```r
 source("tools/.Rscripts/coverage.R")
 
-# Generate local coverage report
+# Generate the full local coverage report
 coverage_report()
-
-# Tests only (fastest)
-coverage_report(sources = "tests")
-
-# All sources (tests + examples + vignettes)
-coverage_report(sources = "all")
-
-# Upload to Codecov (requires CODECOV_TOKEN)
-coverage_upload()
-
-# Generate locally and upload in one step
-coverage_push()
 ```
 
-Coverage reports are generated canonically in `covr/assets/` and mirrored to
-`docs/coverage/` for the published site. The interactive `report.html` also
-includes a generated `lib/` dependency directory in both retained locations.
+Coverage runs the full test suite only, writes canonical artifacts to
+`covr/assets/`, and mirrors the same report to `docs/coverage/` for the
+published site. The generated `report.html` keeps its `lib/` dependency
+directory in both locations so the interactive report stays functional.
 
-Coverage generation remains local. Running `coverage_report()` or
-`coverage_push()` now also writes `covr/assets/cobertura.xml`, which is the
-committed report consumed by the GitHub Actions Codecov upload workflow on each
-push. The workflow does not generate coverage remotely; it uploads the checked-in
-local Cobertura XML when present and exits successfully if no valid report is
-available.
+Coverage generation remains local. Running `coverage_report()` writes
+`covr/assets/cobertura.xml`, which is the committed report consumed by the
+GitHub Actions Codecov upload workflow on each push.
 
 ## Reporting Issues
 

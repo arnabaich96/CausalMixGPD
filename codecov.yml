@@ -19,9 +19,11 @@ coverage:
     - "R/00-kernel-registry.R"
     - "R/globals.R"
     - "R/Utility.R"
+    - "R/glue.R"
     - "**/R/00-kernel-registry.R"
     - "**/R/globals.R"
     - "**/R/Utility.R"
+    - "**R/glue.R"
 
 flags:
   ubuntu-latest-Rrelease:

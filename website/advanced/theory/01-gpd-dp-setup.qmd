@@ -1,0 +1,185 @@
+---
+title: "Theory: GPD tails + DPM bulk + splicing"
+page-layout: full
+---
+
+This page summarizes the two ingredients that the package “splices” together:
+
+1. an **extreme value theory (EVT)** tail model based on the **Generalized Pareto Distribution (GPD)** for threshold exceedances;
+2. a **Dirichlet Process Mixture (DPM)** regression model for the **bulk** (where data are more abundant).
+
+## Threshold exceedances and the GPD
+
+Let $Y$ be a continuous outcome and $X$ a (possibly vector-valued) covariate. For a high threshold $u(x)$, define the exceedance variable
+
+$$
+Z = Y - u(x),
+$$
+
+and consider the **conditional excess distribution** (given that $Y>u(x)$):
+
+$$
+F_u(z\mid x)
+=
+\Pr\bigl(Y-u(x)\le z \mid Y>u(x), X=x\bigr),
+\qquad z\ge 0.
+$$
+
+Under EVT regularity conditions, when $u(x)$ is large, the exceedances are well-approximated by a GPD. Write the upper-tail CDF (for $y>u(x)$) as
+
+$$
+F_{\mathrm{GPD}}\bigl(y\mid u(x),\sigma(x),\xi\bigr)
+=
+\begin{cases}
+1-\left(1+\xi\dfrac{y-u(x)}{\sigma(x)}\right)^{-1/\xi},
+& \xi\neq 0,\\[6pt]
+1-\exp\!\left(-\dfrac{y-u(x)}{\sigma(x)}\right),
+& \xi=0.
+\end{cases}
+$$
+
+The corresponding density is
+
+$$
+f_{\mathrm{GPD}}(y\mid u(x),\sigma(x),\xi)
+=
+\begin{cases}
+\dfrac{1}{\sigma(x)}\left(1+\xi\dfrac{y-u(x)}{\sigma(x)}\right)^{-1/\xi-1},
+& \xi\neq 0,\\[8pt]
+\dfrac{1}{\sigma(x)}\exp\!\left(-\dfrac{y-u(x)}{\sigma(x)}\right),
+& \xi=0.
+\end{cases}
+$$
+
+and the (upper-tail) quantile for $0<\tau<1$ can be written as
+
+$$
+Q_{\mathrm{GPD}}(\tau\mid u(x),\sigma(x),\xi)
+=
+\begin{cases}
+u(x)-\sigma(x)\log(1-\tau), & \xi=0,\\[6pt]
+u(x)+\dfrac{\sigma(x)}{\xi}\Bigl((1-\tau)^{-\xi}-1\Bigr), & \xi\neq 0.
+\end{cases}
+$$
+
+Interpretation:
+
+- $\xi>0$ corresponds to heavier-than-exponential tails (infinite support);
+- $\xi=0$ corresponds to the exponential limit;
+- $\xi<0$ corresponds to a lighter tail with finite upper endpoint.
+
+## DPM regression model for conditional densities (bulk)
+
+For the bulk region (below $u(x)$), the package uses a DPM regression model. Let $k(\cdot\mid x;\theta)$ denote a user-chosen kernel family. The DPM hierarchical structure can be summarized as
+
+$$
+Y\mid X=x,\theta \sim k(\cdot\mid x;\theta),
+\quad
+\theta \mid H \sim H,
+\quad
+H \mid \kappa, H_0 \sim \mathrm{DP}(\kappa, H_0),
+$$
+
+which marginalizes to an infinite mixture representation
+
+$$
+f_{\mathrm{DP}}(y\mid x)
+=\int k(y\mid x;\theta)\,dH(\theta)
+=\sum_{j=1}^{\infty} w_j\,k(y\mid x;\theta_j),
+\quad
+w_j\ge 0,\ \sum_{j=1}^{\infty} w_j=1.
+$$
+
+A common way to represent the weights is **stick-breaking**:
+
+$$
+w_1 = V_1,\qquad
+w_j = V_j\prod_{\ell<j}(1-V_\ell),
+\qquad
+V_j \stackrel{iid}{\sim} \mathrm{Beta}(1,\kappa),
+\qquad
+\theta_j \stackrel{iid}{\sim} H_0.
+$$
+
+An equivalent clustering representation is the **P\'olya urn / CRP** view, which induces a random partition of observations through latent component ties.
+
+## Spliced DPM--GPD conditional distribution (bulk + tail)
+
+The core package construction is a **spliced (two-part) conditional distribution**: below a threshold, use the DPM fit; above the threshold, replace the tail with a GPD component.
+
+Let $p_u(x)=F_{\mathrm{DP}}(u(x)\mid x)$ be the bulk probability mass below the threshold under the DPM model. The spliced conditional CDF is
+
+$$
+F(y\mid x;\Theta,\Phi)=
+\begin{cases}
+F_{\mathrm{DP}}(y\mid x;\Theta),
+& y\le u(x),\\[6pt]
+p_u(x;\Theta) + \{1-p_u(x;\Theta)\}\,F_{\mathrm{GPD}}(y\mid x;\Phi),
+& y>u(x),
+\end{cases}
+$$
+
+which is continuous at $u(x)$. Differentiating yields the spliced density:
+
+$$
+f(y\mid x;\Theta,\Phi)=
+\begin{cases}
+f_{\mathrm{DP}}(y\mid x;\Theta),
+& y\le u(x),\\[8pt]
+\{1-p_u(x;\Theta)\}\,f_{\mathrm{GPD}}(y\mid x;\Phi),
+& y>u(x).
+\end{cases}
+$$
+
+For quantiles, the index must be rescaled on the tail part. Define the tail-exceedance quantile index
+
+$$
+\tilde{\tau}(x;\Theta)=\dfrac{\tau-p_u(x;\Theta)}{1-p_u(x;\Theta)}\in(0,1).
+$$
+
+Then the spliced quantile is
+
+$$
+Q(\tau\mid x;\Theta,\Phi)=
+\begin{cases}
+Q_{\mathrm{DP}}(\tau\mid x;\Theta), & \tau \le p_u(x;\Theta),\\[8pt]
+Q_{\mathrm{GPD}}\!\bigl(\tilde{\tau}(x;\Theta)\mid x;\Phi\bigr), & \tau>p_u(x;\Theta).
+ \end{cases}
+$$
+
+In the package’s notation, the bulk parameters (DPM regression coefficients and related truncation quantities) are collected into $\Theta$, and the tail parameters governing $u(x)$, $\sigma(x)$, and $\xi$ are collected into $\Phi$.
+
+## What this means for the package
+
+- `dpmix()` corresponds to the bulk-only DPM (GPD splicing disabled).
+- `dpmgpd()` corresponds to the spliced DPM--GPD model (bulk DPM + GPD tail beyond the threshold).
+- Posterior prediction and quantile estimation use the spliced formulas above, not separate post-processing.
+
+## References (key)
+
+- Antoniak (1974), *Mixtures of Dirichlet Processes...* — [doi:10.1214/aos/1176342871](https://doi.org/10.1214/aos/1176342871)
+- Ishwaran & James (2001), *Gibbs Sampling Methods for Stick-Breaking Priors* — [doi:10.1198/016214501750332758](https://doi.org/10.1198/016214501750332758)
+- Neal (2000), *Markov Chain Sampling Methods for Dirichlet Process Mixture Models* — [doi:10.1080/10618600.2000.10474879](https://doi.org/10.1080/10618600.2000.10474879)
+- Balkema & de Haan (1974), *Residual Life Time at Great Age* — [doi:10.1214/aop/1176996548](https://doi.org/10.1214/aop/1176996548)
+- Pickands (1975), *Statistical Inference Using Extreme Order Statistics* — [doi:10.1214/aos/1176343003](https://doi.org/10.1214/aos/1176343003)
+- Davison & Smith (1990), *Models for Exceedances over High Thresholds* — [doi:10.1111/j.2517-6161.1990.tb01796.x](https://doi.org/10.1111/j.2517-6161.1990.tb01796.x)
+
+<!-- cmgpd-footer:start -->
+## Prereqs
+- Required packages and data for this page are listed in the setup chunks above.
+
+## Outputs
+- This page renders model fits, diagnostics, and summary artifacts generated by package APIs.
+
+## Interpretation
+- Canonical concept page: [Index](index.qmd)
+- Treat this page as an application/example view and use the canonical page for core definitions.
+
+## Next
+- Continue to the linked canonical concept page, then return for implementation-specific details.
+<!-- cmgpd-footer:end -->
+
+
+
+
+

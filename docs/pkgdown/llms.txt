@@ -8,6 +8,9 @@ consistent prediction API.
 
 ``` r
 
+
+
+
 # install.packages("remotes")
 remotes::install_github(
   "arnabaich96/CausalMixGPD",
@@ -435,3 +438,10 @@ Use `DPMIXGPD_TEST_LEVEL=ci` for CI-level acceptance checks and
 - [`summary(`*`<mixgpd_fit>`*`)`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/summary.mixgpd_fit.md)
   : Summarize posterior draws from a one-arm fitted model
 
+# Articles
+
+### All vignettes
+
+- [CausalMixGPD: Bayesian Nonparametric Models with Optional Heavy-Tail
+  Augmentation and Causal
+  Extensions](https://arnabaich96.github.io/CausalMixGPD/pkgdown/articles/CausalMixGPD_JSS_article.md):

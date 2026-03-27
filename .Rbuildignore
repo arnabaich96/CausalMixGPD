@@ -111,3 +111,5 @@
 ^tests/testthat/_cache/
 ^covr$
 ^covr/
+^quarto_abs_test$
+^quarto_abs_test/

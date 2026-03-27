@@ -340,10 +340,10 @@ build_causal_bundle <- function(
 
   .cmgpd_progress_step(progress_ctx, "Compiling PS model")
   t0_compile <- tic()
-  Cmodel <- .cmgpd_capture_nimble(
+  invisible(.cmgpd_capture_nimble(
     nimble::compileNimble(Rmodel, showCompilerOutput = FALSE),
     suppress = nimble_quiet
-  )
+  ))
   Cmcmc  <- .cmgpd_capture_nimble(
     nimble::compileNimble(Rmcmc, project = Rmodel, showCompilerOutput = FALSE),
     suppress = nimble_quiet
@@ -1998,7 +1998,17 @@ ate_rmean <- function(fit,
 #'   in \code{x}/\code{newdata} or a vector of length \code{nrow(x)}. The id column
 #'   is excluded from analysis.
 #' @param type Prediction type. Supported: \code{"mean"}, \code{"quantile"},
-#'   \code{"density"}, \code{"survival"}, \code{"prob"}.
+#'   \code{"density"}, \code{"survival"}, \code{"prob"}, \code{"location"}.
+#' @param nsim Number of posterior predictive samples. For
+#'   \code{predict.causalmixgpd_causal_fit()}, posterior sampling output is not
+#'   available because \code{type="sample"} is not supported by this causal
+#'   method; this argument is effectively unused.
+#' @param store_draws Logical; whether to store posterior draws. For
+#'   \code{predict.causalmixgpd_causal_fit()}, stored draws are not available
+#'   because \code{type="sample"} is not supported by this causal method; this
+#'   argument is effectively unused.
+#' @param ... Additional arguments forwarded to per-arm
+#'   \code{\link{predict.mixgpd_fit}} calls.
 #' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
 #'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
 #'   highest posterior density intervals.

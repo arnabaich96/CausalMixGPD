@@ -72,10 +72,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-f1653256e423999a524a7a13b92bed94.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap-651f353d3ac7f31341efcd7ab9d56878.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-030588b9e91de76263dd26ff4e3f3501.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -130,6 +130,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span class="menu-text">Home</span></a>
   </li>  
   <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-roadmaps" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Roadmaps</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-roadmaps">    
+        <li>
+    <a class="dropdown-item" href="../roadmap.html">
+ <span class="dropdown-text">Website roadmap</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../package-roadmap.html">
+ <span class="dropdown-text">Package roadmap</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-start" role="link" data-bs-toggle="dropdown" aria-expanded="false">
  <span class="menu-text">Start</span>
     </a>
@@ -141,6 +156,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li>
     <a class="dropdown-item" href="../start/roadmap.html">
  <span class="dropdown-text">Roadmap</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../start/usage-diagrams.html">
+ <span class="dropdown-text">Usage Diagrams</span></a>
   </li>  
         <li>
     <a class="dropdown-item" href="../start/start-here.html">
@@ -157,6 +176,37 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li>
     <a class="dropdown-item" href="../start/troubleshooting.html">
  <span class="dropdown-text">Troubleshooting</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tracks" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tracks</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tracks">    
+        <li>
+    <a class="dropdown-item" href="../tracks/quickstart.html">
+ <span class="dropdown-text">Quickstart</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../tracks/modeling.html">
+ <span class="dropdown-text">Modeling (1-arm)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../tracks/causal.html">
+ <span class="dropdown-text">Causal</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../tracks/clustering.html">
+ <span class="dropdown-text">Clustering</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../tracks/kernels.html">
+ <span class="dropdown-text">Kernels &amp; tails</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="../tracks/customization.html">
+ <span class="dropdown-text">Customization</span></a>
   </li>  
     </ul>
   </li>
@@ -243,15 +293,36 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </blockquote>
 <section id="causal-inference-x-without-ps-crpsb" class="level1">
 <h1>Causal Inference: X Without PS (CRP+SB)</h1>
+<section id="what-youll-learn" class="level2">
+<h2 class="anchored" data-anchor-id="what-youll-learn">What you’ll learn</h2>
+<ul>
+<li>How to run the causal workflow with <strong>outcome models conditional on X</strong> while <strong>disabling propensity-score estimation</strong>.- How to compare causal fits that differ in backend/tail specification while keeping the same evaluation pattern.- How tail augmentation can change effect behavior in extremes even when mean effects are similar.</li>
+</ul>
+</section>
+<section id="when-to-use-this-template" class="level2">
+<h2 class="anchored" data-anchor-id="when-to-use-this-template">When to use this template</h2>
+<ul>
+<li>Treatment assignment is plausibly ignorable given (X), but you want to <strong>avoid PS modeling</strong> (or you already handled PS externally).- You want causal summaries beyond the mean (quantile/conditional effects) and need flexible outcome distributions.</li>
+</ul>
+</section>
+<section id="key-limitation-important" class="level2">
+<h2 class="anchored" data-anchor-id="key-limitation-important">Key limitation (important)</h2>
+<p>With PS disabled, you rely entirely on the outcome models for adjustment. If overlap/positivity is weak, effects can be unstable; use diagnostic plots and sensitivity checks.</p>
+</section>
+<section id="what-this-page-does" class="level2">
+<h2 class="anchored" data-anchor-id="what-this-page-does">What this page does</h2>
 <p>This vignette uses <strong>covariates X</strong> but disables PS estimation. Outcome models are conditional on X only.</p>
 <ul>
 <li>Model A: CRP with GPD tail (InvGauss)</li>
 <li>Model B: SB bulk-only (Amoroso)</li>
 </ul>
 <hr>
+</section>
 <section id="data-setup" class="level2">
 <h2 class="anchored" data-anchor-id="data-setup">Data Setup</h2>
 <div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"causal_alt_real500_p4_k2"</span>)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> <span class="fu">abs</span>(causal_alt_real500_p4_k2<span class="sc">$</span>y) <span class="sc">+</span> <span class="fl">0.01</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>A <span class="ot">&lt;-</span> causal_alt_real500_p4_k2<span class="sc">$</span>A</span>
@@ -264,128 +335,1723 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>summary_tbl <span class="sc">%&gt;%</span></span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">value =</span> <span class="fu">signif</span>(value, <span class="dv">4</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>()</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>x_eval <span class="ot">&lt;-</span> X[<span class="dv">1</span><span class="sc">:</span><span class="dv">40</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>y_eval <span class="ot">&lt;-</span> y[<span class="dv">1</span><span class="sc">:</span><span class="dv">40</span>]</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>u_threshold <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(stats<span class="sc">::</span><span class="fu">quantile</span>(y, <span class="fl">0.8</span>, <span class="at">names =</span> <span class="cn">FALSE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 2
+  statistic    value
+  &lt;chr&gt;        &lt;dbl&gt;
+1 N         500     
+2 Mean        1.43  
+3 SD          1.08  
+4 Min         0.0126
+5 Max         8.10  </code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>x_eval <span class="ot">&lt;-</span> X[<span class="dv">1</span><span class="sc">:</span><span class="dv">40</span>, , drop <span class="ot">=</span> <span class="cn">FALSE</span>]</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>y_eval <span class="ot">&lt;-</span> y[<span class="dv">1</span><span class="sc">:</span><span class="dv">40</span>]</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>u_threshold <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(stats<span class="sc">::</span><span class="fu">quantile</span>(y, <span class="fl">0.8</span>, <span class="at">names =</span> <span class="cn">FALSE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
 </div>
 <hr>
 </section>
 <section id="model-a-crp-with-gpd-tail-invgauss" class="level2">
 <h2 class="anchored" data-anchor-id="model-a-crp-with-gpd-tail-invgauss">Model A: CRP with GPD Tail (InvGauss)</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>param_specs_gpd <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">gpd =</span> <span class="fu">list</span>(</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">threshold =</span> <span class="fu">list</span>(</span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">mode =</span> <span class="st">"dist"</span>,</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">dist =</span> <span class="st">"lognormal"</span>,</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">args =</span> <span class="fu">list</span>(<span class="at">meanlog =</span> <span class="fu">log</span>(<span class="fu">max</span>(u_threshold, .Machine<span class="sc">$</span>double.eps)), <span class="at">sdlog =</span> <span class="fl">0.25</span>)</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>bundle_crp_gpd <span class="ot">&lt;-</span> <span class="fu">bundle</span>(</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> y,</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> A,</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> X,</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"invgauss"</span>,</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">PS =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">6</span>,</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">param_specs =</span> param_specs_gpd,</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_outcome =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">300</span>, <span class="at">nburnin =</span> <span class="dv">80</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">thin =</span> <span class="dv">1</span>, <span class="at">seed =</span> <span class="dv">3</span>)</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>bundle_crp_gpd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>param_specs_gpd <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">gpd =</span> <span class="fu">list</span>(</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">threshold =</span> <span class="fu">list</span>(</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>      <span class="at">mode =</span> <span class="st">"dist"</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>      <span class="at">dist =</span> <span class="st">"lognormal"</span>,</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>      <span class="at">args =</span> <span class="fu">list</span>(<span class="at">meanlog =</span> <span class="fu">log</span>(<span class="fu">max</span>(u_threshold, .Machine<span class="sc">$</span>double.eps)), <span class="at">sdlog =</span> <span class="fl">0.25</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>bundle_crp_gpd <span class="ot">&lt;-</span> <span class="fu">bundle</span>(</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> y,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> A,</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> X,</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"invgauss"</span>,</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"crp"</span>,</span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">PS =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">6</span>,</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">param_specs =</span> param_specs_gpd,</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_outcome =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">300</span>, <span class="at">nburnin =</span> <span class="dv">80</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">thin =</span> <span class="dv">1</span>, <span class="at">seed =</span> <span class="dv">3</span>)</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>bundle_crp_gpd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>CausalMixGPD causal bundle
+PS model: disabled 
+      Field                    Treated                    Control
+    Backend Chinese Restaurant Process Chinese Restaurant Process
+     Kernel                   invgauss                   invgauss
+ Components                          6                          6
+   GPD tail                       TRUE                       TRUE
+    Epsilon                      0.025                      0.025
+
+Outcome PS included: FALSE 
+n (control) = 232 | n (treated) = 268 </code></pre>
+</div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>fit_crp_gpd <span class="ot">&lt;-</span> <span class="fu">quiet_mcmc</span>(<span class="fu">dpmgpd.causal</span>(bundle_crp_gpd))</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_crp_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>fit_crp_gpd <span class="ot">&lt;-</span> <span class="fu">quiet_mcmc</span>(<span class="fu">dpmgpd.causal</span>(bundle_crp_gpd))</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_crp_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+-- Outcome fits --
+[control]
+MixGPD fit | backend: Chinese Restaurant Process | kernel: Inverse Gaussian Distribution | GPD tail: TRUE
+n = 232 | components = 6 | epsilon = 0.025
+MCMC: niter=300, nburnin=80, thin=1, nchains=1 
+Fit
+Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
+
+[treated]
+MixGPD fit | backend: Chinese Restaurant Process | kernel: Inverse Gaussian Distribution | GPD tail: TRUE
+n = 268 | components = 6 | epsilon = 0.025
+MCMC: niter=300, nburnin=80, thin=1, nchains=1 
+Fit
+Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</code></pre>
+</div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>pred_mean_gpd <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_crp_gpd, <span class="at">x =</span> x_eval, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> <span class="dv">150</span>)</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_mean_gpd)</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_mean_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>pred_mean_gpd <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_crp_gpd, <span class="at">x =</span> x_eval, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> <span class="dv">150</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_mean_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  id    estimate        lower      upper ps
+1  1 -0.07639299  0.017586223 -0.6665044 NA
+2  2 -0.03696389 -0.044772777 -0.5911776 NA
+3  3 -0.15771371 -0.038024872 -1.5852229 NA
+4  4 -0.08543089 -0.033009185 -0.7204908 NA
+5  5 -0.05216076  0.027562015 -0.7756449 NA
+6  6 -0.04063718  0.001375115 -0.4282698 NA</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_mean_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ex10-causal-x-no-ps-sb_files/figure-html/predict-mean-crp-gpd-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ex10-causal-x-no-ps-sb_files/figure-html/predict-mean-crp-gpd-2.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>pred_q_gpd <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_crp_gpd, <span class="at">x =</span> x_eval, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">p =</span> <span class="fl">0.5</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_q_gpd)</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_q_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>pred_q_gpd <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_crp_gpd, <span class="at">x =</span> x_eval, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">p =</span> <span class="fl">0.5</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_q_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  id index  estimate      lower     upper ps
+1  1   0.5 0.1118762 -0.1212930 0.2845402 NA
+2  2   0.5 0.1149681 -0.1313326 0.3186802 NA
+3  3   0.5 0.1108223 -0.1204657 0.2930985 NA
+4  4   0.5 0.1163526 -0.1173893 0.3179941 NA
+5  5   0.5 0.1217482 -0.1079677 0.4081211 NA
+6  6   0.5 0.1085464 -0.1178059 0.2857504 NA</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_q_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ex10-causal-x-no-ps-sb_files/figure-html/predict-quantile-crp-gpd-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ex10-causal-x-no-ps-sb_files/figure-html/predict-quantile-crp-gpd-2.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>pred_d_gpd <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_crp_gpd, <span class="at">x =</span> x_eval, <span class="at">y =</span> y_eval, <span class="at">type =</span> <span class="st">"density"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_d_gpd)</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_d_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>pred_d_gpd <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_crp_gpd, <span class="at">x =</span> x_eval, <span class="at">y =</span> y_eval, <span class="at">type =</span> <span class="st">"density"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_d_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  id         y ps trt_estimate  trt_lower  trt_upper con_estimate  con_lower
+1  1 0.9001906 NA            1 0.42030552 0.57715508            1 0.36361256
+2  2 1.3517565 NA            2 0.29850594 0.55483542            2 0.28292338
+3  3 1.1475287 NA            3 0.35168764 0.67470167            3 0.31205392
+4  4 1.9323578 NA            4 0.21024335 0.32194340            4 0.18216727
+5  5 3.3439817 NA            5 0.03714713 0.09599312            5 0.01341044
+6  6 0.9493979 NA            6 0.41153144 0.56731353            6 0.35239327
+  con_upper
+1 0.5413887
+2 0.4881511
+3 0.5358377
+4 0.3270959
+5 0.0951366
+6 0.5400380</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_d_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ex10-causal-x-no-ps-sb_files/figure-html/predict-density-crp-gpd-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>pred_surv_gpd <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_crp_gpd, <span class="at">x =</span> x_eval, <span class="at">y =</span> y_eval, <span class="at">type =</span> <span class="st">"survival"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_surv_gpd)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_surv_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>pred_surv_gpd <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_crp_gpd, <span class="at">x =</span> x_eval, <span class="at">y =</span> y_eval, <span class="at">type =</span> <span class="st">"survival"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_surv_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  id         y ps trt_estimate  trt_lower trt_upper con_estimate   con_lower
+1  1 0.9001906 NA            1 0.61762156 0.7753665            1 0.540119571
+2  2 1.3517565 NA            2 0.41738974 0.5617026            2 0.379662588
+3  3 1.1475287 NA            3 0.50081042 0.6572798            3 0.445991161
+4  4 1.9323578 NA            4 0.22783809 0.3538417            4 0.210155212
+5  5 3.3439817 NA            5 0.03163719 0.1811628            5 0.001458124
+6  6 0.9493979 NA            6 0.59301681 0.7514624            6 0.518876811
+  con_upper
+1 0.7166897
+2 0.5316143
+3 0.6088165
+4 0.3204525
+5 0.1253399
+6 0.6919391</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_surv_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ex10-causal-x-no-ps-sb_files/figure-html/predict-survival-crp-gpd-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>att_gpd <span class="ot">&lt;-</span> <span class="fu">att</span>(fit_crp_gpd, <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> <span class="dv">150</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(att_gpd)</span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(att_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>att_gpd <span class="ot">&lt;-</span> <span class="fu">att</span>(fit_crp_gpd, <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> <span class="dv">150</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(att_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>$fit
+[1] -0.07671231
+
+$lower
+[1] -0.7023715
+
+$upper
+[1] 0.4345992
+
+$ate
+$ate$fit
+  id    estimate      lower     upper
+1  1 -0.07671231 -0.7023715 0.4345992
+
+$ate$draws
+                [,1]
+  [1,]  0.3834179829
+  [2,]  0.4198072266
+  [3,]  0.0644123820
+  [4,]  0.1167777338
+  [5,] -0.1958546371
+  [6,] -0.1160666051
+  [7,] -0.1891614076
+  [8,] -0.1461912839
+  [9,] -0.2808836759
+ [10,] -0.0929374650
+ [11,] -0.4593164250
+ [12,] -0.5412257550
+ [13,] -0.1299953662
+ [14,] -0.1095712185
+ [15,] -0.3429483404
+ [16,] -0.2694958156
+ [17,] -0.3773807385
+ [18,] -0.5343167939
+ [19,] -0.2104349664
+ [20,] -0.7949692736
+ [21,] -0.4665551585
+ [22,] -0.2307036956
+ [23,] -0.2855889185
+ [24,] -0.2408200173
+ [25,] -0.4811744797
+ [26,] -0.1990022293
+ [27,] -0.2032969531
+ [28,] -0.1068017450
+ [29,] -0.1026571051
+ [30,] -0.3709187640
+ [31,] -0.5822376433
+ [32,] -0.6416049333
+ [33,] -0.3758331700
+ [34,] -0.5010281497
+ [35,] -0.6068559330
+ [36,] -0.3514363650
+ [37,] -0.2733128299
+ [38,] -0.2296695156
+ [39,] -0.2652611634
+ [40,] -0.2759805667
+ [41,] -0.3332178556
+ [42,] -0.2683201832
+ [43,] -0.3036579913
+ [44,] -0.4777985793
+ [45,] -0.1728157038
+ [46,] -0.4068209770
+ [47,] -0.4952169089
+ [48,] -0.3469435010
+ [49,] -0.3914550512
+ [50,] -0.4314637086
+ [51,] -0.5405581488
+ [52,] -0.5700289698
+ [53,] -0.6113326132
+ [54,] -0.0783692771
+ [55,] -0.0524402649
+ [56,] -0.1853260903
+ [57,] -0.2150212290
+ [58,] -0.2278258542
+ [59,] -0.3502045109
+ [60,] -0.3231211693
+ [61,] -0.3981782877
+ [62,] -0.6811177208
+ [63,] -0.6580212801
+ [64,] -0.7474891630
+ [65,] -0.5611382111
+ [66,] -0.5254501057
+ [67,] -0.6520150997
+ [68,] -0.3033123679
+ [69,] -0.4083639928
+ [70,] -0.3285276976
+ [71,] -0.5948981306
+ [72,] -0.5774628452
+ [73,] -0.6547852188
+ [74,] -0.7216010649
+ [75,] -0.5874359988
+ [76,] -0.3476953870
+ [77,] -0.2728846387
+ [78,] -0.4620682614
+ [79,] -0.3438228062
+ [80,] -0.1236141548
+ [81,]  0.0002427284
+ [82,]  0.1277240134
+ [83,]  0.0448324204
+ [84,]  0.0447469364
+ [85,] -0.3084399893
+ [86,] -0.0510992421
+ [87,] -0.2041314996
+ [88,]  0.0726676938
+ [89,]  0.2210362354
+ [90,]  0.1863922659
+ [91,]  0.2694088455
+ [92,]  0.1753339141
+ [93,]  0.1668946595
+ [94,]  0.1265809856
+ [95,]  0.1116603069
+ [96,]  0.3193233474
+ [97,]  0.3066440023
+ [98,]  0.3101735694
+ [99,]  0.3813267565
+[100,]  0.4050446956
+[101,]  0.5051848082
+[102,]  0.3351324748
+[103,]  0.2202072451
+[104,]  0.1462009475
+[105,]  0.1427935157
+[106,]  0.0453596998
+[107,]  0.2650305974
+[108,] -0.0615337573
+[109,]  0.1537151071
+[110,]  0.3806614224
+[111,]  0.1002244472
+[112,]  0.1105408250
+[113,]  0.2459173042
+[114,] -0.0581583062
+[115,] -0.1108579695
+[116,] -0.1547370782
+[117,] -0.3342573465
+[118,] -0.3186884291
+[119,] -0.2947474815
+[120,] -0.1224917816
+[121,]  0.0196260487
+[122,]  0.1433983025
+[123,]  0.3580850842
+[124,]  0.4147973256
+[125,]  0.2990807704
+[126,]  0.2244077482
+[127,]  0.1056248066
+[128,]  0.1668416219
+[129,]  0.2083728660
+[130,]  0.0634987585
+[131,] -0.8623962087
+[132,] -0.9785388078
+[133,] -0.7223236247
+[134,]  0.1524202939
+[135,]  0.0899769295
+[136,]  0.0386035853
+[137,]  0.4393685262
+[138,]  0.0627567109
+[139,] -0.2566873370
+[140,]  0.2649432436
+[141,]  0.3583277733
+[142,]  0.1714284643
+[143,]  0.0578155039
+[144,]  0.1159230330
+[145,]  0.1459135138
+[146,]  0.2299891799
+[147,]  0.1143820734
+[148,]  0.1146344024
+[149,]  0.2184054225
+[150,]  0.1718772694
+[151,]  0.2110576280
+[152,] -0.0338916948
+[153,]  0.0424510132
+[154,] -0.1014808473
+[155,]  0.1541755662
+[156,]  0.0865226816
+[157,] -0.1662308766
+[158,] -0.2837793728
+[159,]  0.2591058872
+[160,]  0.0348762914
+[161,] -0.0284091268
+[162,]  0.0276537723
+[163,]  0.0724229171
+[164,]  0.3372537256
+[165,]  0.3248058610
+[166,]  0.3998193325
+[167,]  0.4660808902
+[168,]  0.1599830080
+[169,]  0.0016974769
+[170,]  0.0658680543
+[171,] -0.2982398176
+[172,]  0.1146053107
+[173,]  0.0347744118
+[174,] -0.0558515669
+[175,] -0.1593968656
+[176,] -0.1911119961
+[177,] -0.1588967179
+[178,] -0.4327754569
+[179,]  0.0105263580
+[180,] -0.6082121242
+[181,] -0.5150401728
+[182,] -0.3294526634
+[183,] -0.3168531334
+[184,] -0.4770615858
+[185,] -0.0324069950
+[186,]  0.2800165137
+[187,]  0.2355923470
+[188,]  0.2368035856
+[189,]  0.3051428776
+[190,]  0.4293278926
+[191,]  0.0203042349
+[192,] -0.0688551772
+[193,]  0.1160704566
+[194,]  0.2597060498
+[195,]  0.2049614002
+[196,]  0.2966718600
+[197,]  0.4066076459
+[198,]  0.2932048339
+[199,]  0.0695723934
+[200,] -0.0015197800
+[201,]  0.1076736039
+[202,] -0.1654217373
+[203,] -0.0861670574
+[204,]  0.1005706015
+[205,]  0.0499001583
+[206,] -0.0448035627
+[207,] -0.1766180923
+[208,]  0.0565585116
+[209,]  0.3811524072
+[210,]  0.3070649544
+[211,]  0.4983652842
+[212,]  0.6281769729
+[213,]  0.5206329315
+[214,]  0.2932202376
+[215,]  0.2820622884
+[216,]  0.3713833066
+[217,]  0.3006109519
+[218,]  0.0037724527
+[219,] -0.0909164913
+[220,] -0.4156391406
+
+
+$grid
+NULL
+
+$trt
+$fit
+  id estimate    lower    upper
+1  1 2.087869 1.713925 2.548174
+
+$type
+[1] "mean"
+
+$grid
+NULL
+
+$draws
+           [,1]
+  [1,] 2.300690
+  [2,] 2.284325
+  [3,] 2.003329
+  [4,] 2.029076
+  [5,] 1.819316
+  [6,] 2.160832
+  [7,] 2.155389
+  [8,] 2.133742
+  [9,] 1.885838
+ [10,] 1.921357
+ [11,] 1.933266
+ [12,] 1.899007
+ [13,] 1.861626
+ [14,] 1.803024
+ [15,] 1.780390
+ [16,] 1.808252
+ [17,] 1.710543
+ [18,] 1.784328
+ [19,] 1.806023
+ [20,] 1.771066
+ [21,] 1.719046
+ [22,] 1.717664
+ [23,] 1.735998
+ [24,] 1.864220
+ [25,] 1.946149
+ [26,] 2.037959
+ [27,] 1.960705
+ [28,] 1.960991
+ [29,] 1.828251
+ [30,] 1.827064
+ [31,] 1.812267
+ [32,] 1.862990
+ [33,] 1.947265
+ [34,] 1.835981
+ [35,] 1.840461
+ [36,] 1.862692
+ [37,] 1.882641
+ [38,] 2.013749
+ [39,] 2.002073
+ [40,] 1.876444
+ [41,] 2.014967
+ [42,] 1.988995
+ [43,] 2.017225
+ [44,] 1.888950
+ [45,] 1.896750
+ [46,] 1.620863
+ [47,] 1.628230
+ [48,] 1.686072
+ [49,] 1.891516
+ [50,] 1.881862
+ [51,] 1.847055
+ [52,] 1.691167
+ [53,] 1.749562
+ [54,] 2.032446
+ [55,] 2.101950
+ [56,] 2.116233
+ [57,] 2.102725
+ [58,] 2.327707
+ [59,] 2.257810
+ [60,] 2.168330
+ [61,] 2.079300
+ [62,] 1.878844
+ [63,] 1.840812
+ [64,] 1.820336
+ [65,] 1.807472
+ [66,] 1.904080
+ [67,] 1.825705
+ [68,] 1.899528
+ [69,] 1.905190
+ [70,] 2.043637
+ [71,] 1.997548
+ [72,] 2.046984
+ [73,] 1.945469
+ [74,] 1.911647
+ [75,] 1.812907
+ [76,] 1.922296
+ [77,] 1.996961
+ [78,] 2.009271
+ [79,] 2.064036
+ [80,] 1.989187
+ [81,] 1.982641
+ [82,] 1.973491
+ [83,] 1.976822
+ [84,] 1.964895
+ [85,] 1.828679
+ [86,] 1.878468
+ [87,] 1.860736
+ [88,] 1.887717
+ [89,] 2.025828
+ [90,] 2.028371
+ [91,] 2.079523
+ [92,] 2.012251
+ [93,] 2.011920
+ [94,] 1.997296
+ [95,] 2.013384
+ [96,] 2.123421
+ [97,] 2.098935
+ [98,] 2.053997
+ [99,] 2.108228
+[100,] 2.182599
+[101,] 2.244989
+[102,] 2.077431
+[103,] 1.983267
+[104,] 1.935817
+[105,] 1.920249
+[106,] 1.893992
+[107,] 2.094792
+[108,] 1.955461
+[109,] 2.159202
+[110,] 2.133994
+[111,] 2.119380
+[112,] 2.140488
+[113,] 2.118020
+[114,] 2.168549
+[115,] 2.128339
+[116,] 2.091031
+[117,] 2.018134
+[118,] 1.970141
+[119,] 2.048979
+[120,] 1.989622
+[121,] 2.011950
+[122,] 2.095428
+[123,] 2.204501
+[124,] 2.181465
+[125,] 2.050902
+[126,] 2.351112
+[127,] 2.172337
+[128,] 2.208185
+[129,] 2.289485
+[130,] 2.209346
+[131,] 2.028710
+[132,] 2.038087
+[133,] 2.374440
+[134,] 2.229061
+[135,] 2.156725
+[136,] 2.351758
+[137,] 2.759127
+[138,] 2.470937
+[139,] 2.693100
+[140,] 2.572388
+[141,] 2.581172
+[142,] 2.341674
+[143,] 2.268291
+[144,] 2.194052
+[145,] 2.232195
+[146,] 2.277894
+[147,] 2.247357
+[148,] 2.490486
+[149,] 2.371408
+[150,] 2.339453
+[151,] 2.289402
+[152,] 2.020210
+[153,] 2.163555
+[154,] 2.077530
+[155,] 2.309096
+[156,] 2.295045
+[157,] 2.213622
+[158,] 1.705630
+[159,] 2.235118
+[160,] 2.072730
+[161,] 2.006548
+[162,] 2.055709
+[163,] 2.015447
+[164,] 2.245272
+[165,] 2.181378
+[166,] 2.286185
+[167,] 2.348841
+[168,] 2.150575
+[169,] 2.098747
+[170,] 2.156997
+[171,] 1.882712
+[172,] 2.207502
+[173,] 2.230323
+[174,] 2.132335
+[175,] 2.116853
+[176,] 2.222659
+[177,] 2.393321
+[178,] 2.123659
+[179,] 2.090652
+[180,] 2.216616
+[181,] 2.335533
+[182,] 2.508438
+[183,] 2.410918
+[184,] 2.531323
+[185,] 2.563420
+[186,] 2.617582
+[187,] 2.466237
+[188,] 2.354647
+[189,] 2.269975
+[190,] 2.408532
+[191,] 2.321288
+[192,] 2.108939
+[193,] 2.310804
+[194,] 2.310903
+[195,] 2.232334
+[196,] 2.108610
+[197,] 2.270024
+[198,] 2.247999
+[199,] 2.007007
+[200,] 2.154731
+[201,] 2.233012
+[202,] 2.020950
+[203,] 2.048028
+[204,] 2.030467
+[205,] 2.004570
+[206,] 2.245591
+[207,] 2.258187
+[208,] 2.327461
+[209,] 2.177184
+[210,] 2.322187
+[211,] 2.374359
+[212,] 2.445345
+[213,] 2.379271
+[214,] 2.151366
+[215,] 2.232814
+[216,] 2.211323
+[217,] 2.136215
+[218,] 2.231180
+[219,] 2.255058
+[220,] 2.091374
+
+$diagnostics
+$diagnostics$n_draws_total
+[1] 220
+
+$diagnostics$n_draws_valid
+[1] 220
+
+$diagnostics$n_draws_dropped
+[1] 0
+
+$diagnostics$nsim_mean
+[1] 150
+
+
+attr(,"class")
+[1] "mixgpd_predict"</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(att_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ex10-causal-x-no-ps-sb_files/figure-html/ate-crp-gpd-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ex10-causal-x-no-ps-sb_files/figure-html/ate-crp-gpd-2.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>qtt_gpd <span class="ot">&lt;-</span> <span class="fu">qtt</span>(fit_crp_gpd, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>), <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(qtt_gpd)</span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(qtt_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>qtt_gpd <span class="ot">&lt;-</span> <span class="fu">qtt</span>(fit_crp_gpd, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>), <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(qtt_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>$fit
+  index    estimate      lower     upper
+1  0.25  0.18672584 -0.2478130 0.7013828
+2  0.50  0.08272859 -0.5197072 0.5387426
+3  0.75 -0.06784345 -0.8036772 0.5016936
+
+$lower
+[1] -0.2478130 -0.5197072 -0.8036772
+
+$upper
+[1] 0.7013828 0.5387426 0.5016936
+
+$qte
+$qte$fit
+  id index    estimate      lower     upper
+1  1  0.25  0.18672584 -0.2478130 0.7013828
+2  1  0.50  0.08272859 -0.5197072 0.5387426
+3  1  0.75 -0.06784345 -0.8036772 0.5016936
+
+$qte$draws
+, , 1
+
+                [,1]
+  [1,]  1.064818e-01
+  [2,]  2.939150e-01
+  [3,]  8.105145e-02
+  [4,]  1.146577e-01
+  [5,]  2.291877e-02
+  [6,]  1.809512e-01
+  [7,]  1.463915e-01
+  [8,]  1.149049e-01
+  [9,]  1.078196e-01
+ [10,]  1.842854e-01
+ [11,]  1.448787e-01
+ [12,]  1.509843e-01
+ [13,]  1.556659e-01
+ [14,]  1.963209e-01
+ [15,]  1.309933e-01
+ [16,]  3.260333e-02
+ [17,] -7.408402e-02
+ [18,]  7.052515e-02
+ [19,] -1.531106e-03
+ [20,] -5.620329e-02
+ [21,] -5.215106e-02
+ [22,]  1.236033e-01
+ [23,]  8.057320e-02
+ [24,]  1.952615e-01
+ [25,]  3.336925e-01
+ [26,]  4.247321e-01
+ [27,]  1.078170e-01
+ [28,]  1.105407e-01
+ [29,]  8.929601e-02
+ [30,]  1.177150e-01
+ [31,]  1.848485e-01
+ [32,] -3.582433e-02
+ [33,]  1.655753e-01
+ [34,]  1.206097e-01
+ [35,]  1.627324e-01
+ [36,] -2.181034e-03
+ [37,]  2.533252e-05
+ [38,]  1.879138e-01
+ [39,]  1.589617e-01
+ [40,] -1.385096e-02
+ [41,]  1.090269e-01
+ [42,]  2.045787e-01
+ [43,]  5.723304e-02
+ [44,] -5.910940e-03
+ [45,] -3.560216e-02
+ [46,]  1.779847e-02
+ [47,] -9.884894e-02
+ [48,]  5.944023e-04
+ [49,] -9.633318e-02
+ [50,] -1.515553e-01
+ [51,]  5.750067e-02
+ [52,] -2.395908e-01
+ [53,] -8.314620e-02
+ [54,]  1.625615e-01
+ [55,]  1.104261e-01
+ [56,]  3.956243e-02
+ [57,] -4.772162e-02
+ [58,]  9.878643e-02
+ [59,]  6.164435e-02
+ [60,]  8.605276e-02
+ [61,]  1.635837e-01
+ [62,]  2.185248e-01
+ [63,] -2.752492e-02
+ [64,] -7.043740e-02
+ [65,]  4.725228e-02
+ [66,] -2.552522e-01
+ [67,]  8.144750e-02
+ [68,]  3.056580e-01
+ [69,]  2.030844e-01
+ [70,]  3.642997e-01
+ [71,]  6.896465e-03
+ [72,]  7.547984e-02
+ [73,]  1.625100e-01
+ [74,]  2.205875e-01
+ [75,]  1.000185e-01
+ [76,]  6.832572e-02
+ [77,]  1.807802e-01
+ [78,]  2.106040e-01
+ [79,]  5.692093e-02
+ [80,]  3.579621e-02
+ [81,]  1.941024e-01
+ [82,]  1.437258e-01
+ [83,]  2.766779e-01
+ [84,]  1.841147e-01
+ [85,]  1.063023e-01
+ [86,] -9.921992e-02
+ [87,]  4.079217e-01
+ [88,]  5.593588e-01
+ [89,]  6.309946e-01
+ [90,]  6.215170e-01
+ [91,]  5.121750e-01
+ [92,]  3.736052e-01
+ [93,]  5.540791e-01
+ [94,]  6.163814e-01
+ [95,]  6.158080e-01
+ [96,]  5.390409e-01
+ [97,]  6.775405e-01
+ [98,]  6.083939e-01
+ [99,]  5.509175e-01
+[100,]  6.771895e-01
+[101,]  6.706609e-01
+[102,]  6.059143e-01
+[103,]  4.699964e-01
+[104,]  6.859608e-01
+[105,]  6.908412e-01
+[106,]  4.362053e-01
+[107,]  4.917594e-01
+[108,]  5.285773e-01
+[109,]  3.105697e-01
+[110,]  2.042580e-01
+[111,]  4.478042e-01
+[112,]  3.124708e-01
+[113,]  4.488458e-01
+[114,]  7.253763e-01
+[115,]  5.470327e-01
+[116,]  4.395567e-01
+[117,]  3.429935e-01
+[118,]  3.354171e-01
+[119,]  9.962653e-02
+[120,]  5.124946e-01
+[121,]  5.024117e-01
+[122,]  6.111888e-01
+[123,]  6.462504e-01
+[124,]  5.458872e-01
+[125,]  5.241922e-01
+[126,]  6.511136e-01
+[127,]  6.044709e-01
+[128,]  7.109204e-01
+[129,]  6.252544e-01
+[130,]  6.811054e-01
+[131,]  4.288179e-01
+[132,]  7.111368e-01
+[133,]  5.764526e-01
+[134,]  2.561782e-01
+[135,]  2.889762e-01
+[136,]  3.556708e-01
+[137,]  1.944903e-01
+[138,]  2.411271e-01
+[139,]  7.722058e-01
+[140,]  7.640723e-01
+[141,] -8.918607e-03
+[142,]  1.262766e-01
+[143,]  4.687536e-03
+[144,]  5.835892e-02
+[145,]  2.944411e-01
+[146,]  1.759669e-01
+[147,]  2.334781e-01
+[148,]  4.394110e-01
+[149,]  2.244837e-01
+[150,]  3.277078e-01
+[151,]  4.653890e-01
+[152,]  3.004085e-01
+[153,]  2.476224e-01
+[154,] -1.324995e-01
+[155,]  2.772007e-01
+[156,]  5.419691e-02
+[157,] -3.357969e-02
+[158,] -1.653184e-01
+[159,]  8.822839e-02
+[160,]  7.988418e-02
+[161,]  7.172698e-02
+[162,]  1.418022e-01
+[163,]  3.001985e-01
+[164,]  1.180671e-01
+[165,]  3.931783e-01
+[166,]  2.629066e-01
+[167,]  4.888352e-01
+[168,]  6.656441e-02
+[169,]  1.193277e-01
+[170,]  1.292815e-01
+[171,] -1.025635e-01
+[172,] -6.679704e-03
+[173,] -8.168974e-02
+[174,]  1.210885e-01
+[175,] -4.236954e-02
+[176,] -8.077782e-02
+[177,] -1.796899e-01
+[178,] -4.678365e-01
+[179,] -2.768594e-02
+[180,] -3.378899e-01
+[181,] -1.656944e-01
+[182,] -1.480851e-01
+[183,] -4.478018e-01
+[184,] -1.633880e-02
+[185,] -3.190800e-01
+[186,] -1.617555e-01
+[187,] -1.518038e-01
+[188,]  6.360495e-02
+[189,] -1.944364e-01
+[190,] -1.087465e-01
+[191,]  2.001949e-01
+[192,] -1.876454e-01
+[193,] -1.410830e-01
+[194,]  7.401626e-02
+[195,]  3.590898e-02
+[196,] -1.361239e-01
+[197,]  2.010564e-01
+[198,] -8.189986e-02
+[199,] -1.623342e-01
+[200,]  4.530136e-01
+[201,]  2.638224e-01
+[202,]  6.973432e-02
+[203,]  7.345375e-03
+[204,]  1.857174e-01
+[205,]  1.707965e-01
+[206,]  8.920920e-01
+[207,]  2.203804e-01
+[208,]  5.190886e-01
+[209,]  1.395290e-02
+[210,]  4.162142e-02
+[211,]  2.393156e-01
+[212,]  6.976851e-02
+[213,]  2.782827e-01
+[214,] -5.475320e-02
+[215,]  5.408880e-02
+[216,]  1.324726e-01
+[217,]  8.628902e-02
+[218,]  1.533576e-01
+[219,] -3.346318e-01
+[220,] -1.851861e-01
+
+, , 2
+
+              [,1]
+  [1,]  0.46642669
+  [2,]  0.51611804
+  [3,]  0.09762481
+  [4,]  0.17039074
+  [5,] -0.02239740
+  [6,]  0.22168383
+  [7,]  0.38364415
+  [8,]  0.20832546
+  [9,]  0.22484413
+ [10,]  0.62319747
+ [11,]  0.15477148
+ [12,] -0.20538274
+ [13,]  0.12240006
+ [14,]  0.16656689
+ [15,] -0.02010893
+ [16,] -0.16116478
+ [17,] -0.09169420
+ [18,] -0.16478823
+ [19,] -0.24651189
+ [20,] -0.51844643
+ [21,] -0.15614778
+ [22,]  0.31022204
+ [23,] -0.22012679
+ [24,]  0.10449890
+ [25,]  0.26226934
+ [26,]  0.33746447
+ [27,]  0.33434161
+ [28,]  0.23072229
+ [29,]  0.18760168
+ [30,] -0.04993156
+ [31,]  0.10072900
+ [32,] -0.11799995
+ [33,]  0.11220983
+ [34,]  0.17674406
+ [35,]  0.32958559
+ [36,] -0.18184120
+ [37,]  0.05905369
+ [38,]  0.14636023
+ [39,]  0.19246872
+ [40,] -0.04296030
+ [41,] -0.18227100
+ [42,]  0.04156712
+ [43,]  0.09641724
+ [44,] -0.31402960
+ [45,] -0.30784100
+ [46,] -0.20424945
+ [47,] -0.23956687
+ [48,] -0.24046593
+ [49,] -0.61401400
+ [50,] -0.52084797
+ [51,] -0.03360951
+ [52,] -1.03909975
+ [53,] -0.78963575
+ [54,]  0.07887386
+ [55,] -0.26985113
+ [56,] -0.34535850
+ [57,] -0.46487181
+ [58,] -0.42670341
+ [59,] -0.33955988
+ [60,] -0.24595683
+ [61,] -0.28613761
+ [62,] -0.22009293
+ [63,] -0.60263660
+ [64,] -0.15670931
+ [65,] -0.25044552
+ [66,] -0.84248239
+ [67,] -0.30804997
+ [68,]  0.14746918
+ [69,]  0.04001920
+ [70,]  0.55136169
+ [71,] -0.04060090
+ [72,] -0.02061420
+ [73,]  0.18019633
+ [74,]  0.20066404
+ [75,]  0.23478172
+ [76,]  0.04629818
+ [77,]  0.40908108
+ [78,]  0.03872168
+ [79,]  0.21122337
+ [80,] -0.05989433
+ [81,]  0.59797962
+ [82,]  0.22371479
+ [83,]  0.10075286
+ [84,]  0.18237849
+ [85,]  0.01889736
+ [86,]  0.01878542
+ [87,]  0.23658544
+ [88,]  0.41028847
+ [89,]  0.37564147
+ [90,]  0.30412997
+ [91,]  0.29369564
+ [92,]  0.23595542
+ [93,]  0.32391457
+ [94,]  0.25602088
+ [95,]  0.37322322
+ [96,]  0.29338577
+ [97,]  0.50465255
+ [98,]  0.30567397
+ [99,]  0.40699022
+[100,]  0.58053931
+[101,]  0.30950154
+[102,]  0.32380859
+[103,]  0.25341306
+[104,]  0.40285463
+[105,]  0.24618343
+[106,]  0.06367552
+[107,]  0.27844298
+[108,]  0.16794494
+[109,]  0.40388052
+[110,]  0.06490940
+[111,]  0.41168795
+[112,]  0.35637805
+[113,]  0.65620031
+[114,]  0.50701336
+[115,]  0.27171122
+[116,]  0.18713290
+[117,]  0.25532365
+[118,] -0.29416347
+[119,]  0.20806552
+[120,]  0.13039123
+[121,]  0.37994343
+[122,]  0.55188884
+[123,]  0.37721222
+[124,]  0.51414268
+[125,]  0.46549673
+[126,]  0.52479509
+[127,]  0.32029786
+[128,]  0.51693459
+[129,]  0.19284679
+[130,]  0.19085878
+[131,]  0.25614511
+[132,]  0.29673324
+[133,]  0.47922942
+[134,] -0.07726140
+[135,]  0.24296728
+[136,]  0.19479416
+[137,] -0.28919903
+[138,] -0.21892637
+[139,] -0.03755250
+[140,]  0.24103411
+[141,] -0.11265548
+[142,]  0.07341889
+[143,] -0.10864242
+[144,] -0.24705211
+[145,] -0.01772588
+[146,] -0.08297912
+[147,] -0.04323360
+[148,] -0.09294539
+[149,] -0.01987953
+[150,] -0.05600808
+[151,]  0.08250530
+[152,] -0.08148070
+[153,] -0.01505521
+[154,] -0.16050653
+[155,]  0.07482764
+[156,] -0.05306930
+[157,] -0.03587602
+[158,] -0.38296121
+[159,]  0.11315187
+[160,]  0.02012046
+[161,]  0.05605193
+[162,]  0.06121728
+[163,]  0.21175365
+[164,]  0.25924238
+[165,]  0.26800743
+[166,]  0.05959718
+[167,]  0.08716057
+[168,] -0.07943419
+[169,] -0.16935180
+[170,] -0.02187711
+[171,] -0.25503484
+[172,]  0.20584681
+[173,]  0.12833667
+[174,]  0.22313384
+[175,]  0.02056000
+[176,]  0.20962390
+[177,]  0.11393140
+[178,] -0.09539960
+[179,] -0.01262628
+[180,] -0.06623509
+[181,]  0.13688229
+[182,] -0.07629589
+[183,] -0.18908931
+[184,] -0.17623643
+[185,]  0.34259920
+[186,]  0.33623470
+[187,]  0.25480954
+[188,]  0.37929777
+[189,]  0.22081247
+[190,]  0.35500078
+[191,]  0.18803392
+[192,]  0.03049378
+[193,]  0.11061466
+[194,]  0.32542615
+[195,]  0.18754846
+[196,]  0.03704701
+[197,]  0.27660711
+[198,]  0.19069583
+[199,]  0.01408803
+[200,]  0.19780462
+[201,]  0.03621203
+[202,] -0.16182651
+[203,] -0.23420227
+[204,] -0.00184900
+[205,]  0.03935694
+[206,]  0.42243570
+[207,] -0.06891464
+[208,]  0.35456525
+[209,]  0.14641880
+[210,]  0.05968074
+[211,]  0.25550634
+[212,]  0.47680280
+[213,]  0.43885447
+[214,] -0.05808287
+[215,]  0.10556485
+[216,]  0.06197737
+[217,]  0.03247779
+[218,] -0.11750797
+[219,] -0.03555622
+[220,] -0.07424025
+
+, , 3
+
+               [,1]
+  [1,] -0.168380232
+  [2,]  0.286191588
+  [3,] -0.406447792
+  [4,] -0.201630780
+  [5,] -0.088662841
+  [6,]  0.009127031
+  [7,]  0.060690428
+  [8,]  0.046615144
+  [9,] -0.618343915
+ [10,]  0.051549348
+ [11,] -0.484257419
+ [12,] -0.888589542
+ [13,] -0.102985807
+ [14,] -0.127343079
+ [15,] -0.274777317
+ [16,] -0.278567298
+ [17,] -0.237975878
+ [18,] -0.383701577
+ [19,] -0.573685547
+ [20,] -0.314574185
+ [21,] -0.318830896
+ [22,] -0.212082932
+ [23,] -0.440776137
+ [24,] -0.395079160
+ [25,] -0.430920561
+ [26,] -0.048360826
+ [27,]  0.010500111
+ [28,] -0.037198251
+ [29,] -0.105882915
+ [30,]  0.098558778
+ [31,] -0.031328421
+ [32,] -0.085444831
+ [33,] -0.536182181
+ [34,] -0.225224284
+ [35,] -0.215290360
+ [36,] -0.234414195
+ [37,] -0.310791428
+ [38,] -0.262771614
+ [39,] -0.193659057
+ [40,] -0.147430509
+ [41,] -0.441574815
+ [42,] -0.144156663
+ [43,] -0.241622946
+ [44,] -0.797751917
+ [45,] -0.793824161
+ [46,] -0.809038187
+ [47,] -0.786274815
+ [48,] -1.008019490
+ [49,] -0.615372143
+ [50,] -0.448488759
+ [51,] -0.152705649
+ [52,] -0.946717396
+ [53,] -0.674023906
+ [54,] -0.338047953
+ [55,] -0.102293650
+ [56,] -0.361215592
+ [57,] -0.872072471
+ [58,] -0.535447216
+ [59,] -0.456601831
+ [60,] -0.324155177
+ [61,] -0.316228455
+ [62,] -0.162601120
+ [63,] -0.757183326
+ [64,] -0.421548698
+ [65,] -0.220302315
+ [66,] -1.016215479
+ [67,] -0.668256137
+ [68,] -0.408684489
+ [69,]  0.003216255
+ [70,]  0.277488375
+ [71,]  0.289441638
+ [72,]  0.172774904
+ [73,] -0.033394658
+ [74,]  0.256509395
+ [75,]  0.225885378
+ [76,] -0.107545962
+ [77,]  0.307955816
+ [78,]  0.022607141
+ [79,]  0.251550617
+ [80,] -0.184681510
+ [81,]  0.496906899
+ [82,] -0.176953442
+ [83,] -0.225715689
+ [84,] -0.089533404
+ [85,] -0.112679880
+ [86,] -0.241756114
+ [87,] -0.098366363
+ [88,] -0.115251602
+ [89,] -0.167180273
+ [90,] -0.031166897
+ [91,] -0.117867452
+ [92,] -0.275398643
+ [93,] -0.313346291
+ [94,] -0.129683256
+ [95,] -0.106306444
+ [96,] -0.147094044
+ [97,]  0.142758576
+ [98,] -0.090505898
+ [99,] -0.109901659
+[100,]  0.048918062
+[101,] -0.047142834
+[102,]  0.050129008
+[103,] -0.154964381
+[104,] -0.073988176
+[105,] -0.207285892
+[106,] -0.266971141
+[107,]  0.097011994
+[108,] -0.219918474
+[109,] -0.038693760
+[110,] -0.427895926
+[111,] -0.169283790
+[112,]  0.164158057
+[113,]  0.084718381
+[114,]  0.174368231
+[115,] -0.326687240
+[116,] -0.122595915
+[117,] -0.248884640
+[118,] -0.368233133
+[119,]  0.146945896
+[120,] -0.147983111
+[121,] -0.107623635
+[122,]  0.080291644
+[123,]  0.238412029
+[124,]  0.302067936
+[125,]  0.177991173
+[126,]  0.492089215
+[127,]  0.061883310
+[128,]  0.238714127
+[129,]  0.254252599
+[130,] -0.049484538
+[131,] -0.153262590
+[132,]  0.150472342
+[133,]  0.190401093
+[134,] -0.201622067
+[135,]  0.033654451
+[136,] -0.185917669
+[137,] -0.410493057
+[138,] -0.337825647
+[139,]  0.020056623
+[140,]  0.105707052
+[141,] -0.204187506
+[142,]  0.179685420
+[143,] -0.059437307
+[144,] -0.271364615
+[145,]  0.157644977
+[146,] -0.204818386
+[147,]  0.197128547
+[148,] -0.133107452
+[149,]  0.050112137
+[150,] -0.096654909
+[151,] -0.050513873
+[152,]  0.114085410
+[153,]  0.319042124
+[154,] -0.076775569
+[155,]  0.158340175
+[156,]  0.026535373
+[157,]  0.077973203
+[158,] -0.246655676
+[159,]  0.401098837
+[160,]  0.214150404
+[161,] -0.052137712
+[162,]  0.017236695
+[163,]  0.333694765
+[164,]  0.463849069
+[165,]  0.519383770
+[166,]  0.174431913
+[167,]  0.155792616
+[168,]  0.037971874
+[169,] -0.136824747
+[170,]  0.131937961
+[171,] -0.494880646
+[172,]  0.185366945
+[173,] -0.004829600
+[174,]  0.087862143
+[175,] -0.118785592
+[176,] -0.001033179
+[177,]  0.048674710
+[178,] -0.212177136
+[179,] -0.205054639
+[180,] -0.208985266
+[181,]  0.240903361
+[182,] -0.097368500
+[183,] -0.130242300
+[184,]  0.040845929
+[185,]  0.317218757
+[186,]  0.866042934
+[187,]  0.295075996
+[188,]  0.697514088
+[189,]  0.210346698
+[190,]  0.774633050
+[191,]  0.169480428
+[192,]  0.157134371
+[193,]  0.443477287
+[194,]  0.468342716
+[195,]  0.316335941
+[196,]  0.291830346
+[197,]  0.458273325
+[198,]  0.428149041
+[199,]  0.012664801
+[200,]  0.379827709
+[201,]  0.094181882
+[202,] -0.313595120
+[203,] -0.155538391
+[204,]  0.037502271
+[205,]  0.227911336
+[206,]  0.506024480
+[207,]  0.004375363
+[208,]  0.299081021
+[209,]  0.040716268
+[210,]  0.094208993
+[211,]  0.403944691
+[212,]  0.946415989
+[213,]  0.415277651
+[214,]  0.059897065
+[215,]  0.015225069
+[216,]  0.285992229
+[217,] -0.122352795
+[218,]  0.054153870
+[219,] -0.159452190
+[220,] -0.053256728
+
+
+
+$probs
+[1] 0.25 0.50 0.75
+
+$grid
+[1] 0.25 0.50 0.75</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(qtt_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ex10-causal-x-no-ps-sb_files/figure-html/qte-crp-gpd-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ex10-causal-x-no-ps-sb_files/figure-html/qte-crp-gpd-2.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
 </div>
 <hr>
 </section>
 <section id="model-b-sb-bulk-only-amoroso" class="level2">
 <h2 class="anchored" data-anchor-id="model-b-sb-bulk-only-amoroso">Model B: SB Bulk-only (Amoroso)</h2>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>bundle_sb_bulk <span class="ot">&lt;-</span> <span class="fu">bundle</span>(</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> y,</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> A,</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> X,</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"amoroso"</span>,</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">PS =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">6</span>,</span>
-<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_outcome =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">300</span>, <span class="at">nburnin =</span> <span class="dv">80</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">thin =</span> <span class="dv">1</span>, <span class="at">seed =</span> <span class="dv">4</span>)</span>
-<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>bundle_sb_bulk</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>bundle_sb_bulk <span class="ot">&lt;-</span> <span class="fu">bundle</span>(</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="at">x =</span> y,</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">treat =</span> A,</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">X =</span> X,</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="st">"amoroso"</span>,</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">backend =</span> <span class="st">"sb"</span>,</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">PS =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">6</span>,</span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_outcome =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">300</span>, <span class="at">nburnin =</span> <span class="dv">80</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">thin =</span> <span class="dv">1</span>, <span class="at">seed =</span> <span class="dv">4</span>)</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>bundle_sb_bulk</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>CausalMixGPD causal bundle
+PS model: disabled 
+      Field                Treated                Control
+    Backend Stick-Breaking Process Stick-Breaking Process
+     Kernel                amoroso                amoroso
+ Components                      6                      6
+   GPD tail                  FALSE                  FALSE
+    Epsilon                  0.025                  0.025
+
+Outcome PS included: FALSE 
+n (control) = 232 | n (treated) = 268 </code></pre>
+</div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>fit_sb_bulk <span class="ot">&lt;-</span> <span class="fu">quiet_mcmc</span>(<span class="fu">dpmix.causal</span>(bundle_sb_bulk))</span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_sb_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>fit_sb_bulk <span class="ot">&lt;-</span> <span class="fu">quiet_mcmc</span>(<span class="fu">dpmix.causal</span>(bundle_sb_bulk))</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_sb_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+-- Outcome fits --
+[control]
+MixGPD fit | backend: Stick-Breaking Process | kernel: Amoroso Distribution | GPD tail: FALSE
+n = 232 | components = 6 | epsilon = 0.025
+MCMC: niter=300, nburnin=80, thin=1, nchains=1 
+Fit
+Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
+
+[treated]
+MixGPD fit | backend: Stick-Breaking Process | kernel: Amoroso Distribution | GPD tail: FALSE
+n = 268 | components = 6 | epsilon = 0.025
+MCMC: niter=300, nburnin=80, thin=1, nchains=1 
+Fit
+Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</code></pre>
+</div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>pred_mean_bulk <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_bulk, <span class="at">x =</span> x_eval, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> <span class="dv">150</span>)</span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_mean_bulk)</span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_mean_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>pred_mean_bulk <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_bulk, <span class="at">x =</span> x_eval, <span class="at">type =</span> <span class="st">"mean"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> <span class="dv">150</span>)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_mean_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  id    estimate     lower      upper ps
+1  1 23.16832666 0.7031016   9.183195 NA
+2  2  3.53218933 0.8367846   1.187504 NA
+3  3 -0.08630895 0.5969962  -2.255838 NA
+4  4 -0.61567447 0.5652148  -6.648651 NA
+5  5 -5.11201305 0.5384309 -13.148733 NA
+6  6  3.25110670 0.5799566  11.009501 NA</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_mean_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ex10-causal-x-no-ps-sb_files/figure-html/predict-mean-sb-bulk-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ex10-causal-x-no-ps-sb_files/figure-html/predict-mean-sb-bulk-2.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>pred_q_bulk <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_bulk, <span class="at">x =</span> x_eval, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">p =</span> <span class="fl">0.5</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_q_bulk)</span>
-<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_q_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>pred_q_bulk <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_bulk, <span class="at">x =</span> x_eval, <span class="at">type =</span> <span class="st">"quantile"</span>, <span class="at">p =</span> <span class="fl">0.5</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_q_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  id index    estimate      lower    upper ps
+1  1   0.5   0.2424947  -3.701047 1.645206 NA
+2  2   0.5   0.3004401  -3.581150 1.589837 NA
+3  3   0.5  -0.3463646  -3.451886 1.116737 NA
+4  4   0.5  -0.9512494  -8.495398 1.046031 NA
+5  5   0.5 -10.3795024 -87.999989 1.329753 NA
+6  6   0.5  -0.2774799  -3.851546 1.081826 NA</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_q_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ex10-causal-x-no-ps-sb_files/figure-html/predict-quantile-sb-bulk-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ex10-causal-x-no-ps-sb_files/figure-html/predict-quantile-sb-bulk-2.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>pred_d_bulk <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_bulk, <span class="at">x =</span> x_eval, <span class="at">y =</span> y_eval, <span class="at">type =</span> <span class="st">"density"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_d_bulk)</span>
-<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_d_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>pred_d_bulk <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_bulk, <span class="at">x =</span> x_eval, <span class="at">y =</span> y_eval, <span class="at">type =</span> <span class="st">"density"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_d_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  id         y ps trt_estimate  trt_lower trt_upper con_estimate    con_lower
+1  1 0.9001906 NA            1 0.26220461 0.6705167            1 1.120173e-01
+2  2 1.3517565 NA            2 0.23016023 0.4465660            2 5.614464e-02
+3  3 1.1475287 NA            3 0.26248227 0.5716789            3 9.583922e-02
+4  4 1.9323578 NA            4 0.15529152 0.3148720            4 1.095608e-02
+5  5 3.3439817 NA            5 0.01712269 0.1580308            5 5.638656e-08
+6  6 0.9493979 NA            6 0.29256624 0.7135797            6 1.242680e-01
+  con_upper
+1 0.7503154
+2 0.5040897
+3 0.5797883
+4 0.3165277
+5 0.1682665
+6 0.7156517</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_d_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ex10-causal-x-no-ps-sb_files/figure-html/predict-density-sb-bulk-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>pred_surv_bulk <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_bulk, <span class="at">x =</span> x_eval, <span class="at">y =</span> y_eval, <span class="at">type =</span> <span class="st">"survival"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_surv_bulk)</span>
-<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_surv_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>pred_surv_bulk <span class="ot">&lt;-</span> <span class="fu">predict</span>(fit_sb_bulk, <span class="at">x =</span> x_eval, <span class="at">y =</span> y_eval, <span class="at">type =</span> <span class="st">"survival"</span>, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(pred_surv_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  id         y ps trt_estimate  trt_lower trt_upper con_estimate    con_lower
+1  1 0.9001906 NA            1 0.44481639 0.7925119            1 8.404000e-02
+2  2 1.3517565 NA            2 0.32574289 0.6390652            2 5.096864e-02
+3  3 1.1475287 NA            3 0.37195260 0.6669116            3 4.719227e-02
+4  4 1.9323578 NA            4 0.15537959 0.4653199            4 2.501884e-03
+5  5 3.3439817 NA            5 0.01199515 0.3018551            5 4.357968e-09
+6  6 0.9493979 NA            6 0.43846785 0.7383177            6 9.548462e-02
+  con_upper
+1 0.7744388
+2 0.7227567
+3 0.7529624
+4 0.7414005
+5 0.7298163
+6 0.7921838</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(pred_surv_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ex10-causal-x-no-ps-sb_files/figure-html/predict-survival-sb-bulk-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>cate_bulk <span class="ot">&lt;-</span> <span class="fu">cate</span>(fit_sb_bulk, <span class="at">newdata =</span> x_eval, <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> <span class="dv">150</span>)</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">format_cate_table</span>(cate_bulk))</span>
-<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cate_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>cate_bulk <span class="ot">&lt;-</span> <span class="fu">cate</span>(fit_sb_bulk, <span class="at">newdata =</span> x_eval, <span class="at">interval =</span> <span class="st">"credible"</span>, <span class="at">nsim_mean =</span> <span class="dv">150</span>)</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">format_cate_table</span>(cate_bulk))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  id index   estimate      lower     upper
+1  1     1 24.2142622  -4.193107 16.715629
+2  2     1  2.6505105  -3.161421  6.191321
+3  3     1 -0.0679850  -3.185583  2.467379
+4  4     1 -0.5475248  -9.257756  2.865210
+5  5     1 -4.9506316 -96.017966 66.512719
+6  6     1  3.6063412  -3.789847 12.720590</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cate_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ex10-causal-x-no-ps-sb_files/figure-html/cate-sb-bulk-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
 </div>
 <div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>cqte_bulk <span class="ot">&lt;-</span> <span class="fu">cqte</span>(fit_sb_bulk, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>), <span class="at">newdata =</span> x_eval, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">format_cqte_table</span>(cqte_bulk))</span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cqte_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>cqte_bulk <span class="ot">&lt;-</span> <span class="fu">cqte</span>(fit_sb_bulk, <span class="at">probs =</span> <span class="fu">c</span>(<span class="fl">0.25</span>, <span class="fl">0.5</span>, <span class="fl">0.75</span>), <span class="at">newdata =</span> x_eval, <span class="at">interval =</span> <span class="st">"credible"</span>)</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">format_cqte_table</span>(cqte_bulk))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>  id index   estimate      lower     upper
+1  1     1 0.12681809 -0.5420289 0.7603199
+2  1     2 0.24249470 -3.7010472 1.6452061
+3  1     3 0.87520734 -7.1811741 4.6361118
+4  2     1 0.09924509 -0.7738531 0.7791823
+5  2     2 0.30044010 -3.5811499 1.5898368
+6  2     3 0.91063658 -5.3729483 3.8024034</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code</summary>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cqte_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="ex10-causal-x-no-ps-sb_files/figure-html/cqte-sb-bulk-1.png" class="img-fluid figure-img" width="768"></p>
+</figure>
+</div>
+</div>
 </div>
 <hr>
 <!-- workflow-nav:start -->
@@ -398,35 +2064,39 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Workflow index: <a href="../start/roadmap.html">Roadmap</a></li>
 <li>Practical entry: <a href="../examples/index.html">Examples</a> <!-- workflow-nav:end --></li>
 </ul>
+<!-- cmgpd-footer:start -->
+</section>
+<section id="prereqs" class="level2">
+<h2 class="anchored" data-anchor-id="prereqs">Prereqs</h2>
+<ul>
+<li>Required packages and data for this page are listed in the setup chunks above.</li>
+</ul>
+</section>
+<section id="outputs" class="level2">
+<h2 class="anchored" data-anchor-id="outputs">Outputs</h2>
+<ul>
+<li>This page renders model fits, diagnostics, and summary artifacts generated by package APIs.</li>
+</ul>
+</section>
+<section id="interpretation" class="level2">
+<h2 class="anchored" data-anchor-id="interpretation">Interpretation</h2>
+<ul>
+<li>Canonical concept page: <a href="../advanced/theory/03-causal-inference-objects.html">03 Causal Inference Objects</a></li>
+<li>Treat this page as an application/example view and use the canonical page for core definitions.</li>
+</ul>
+</section>
+<section id="next" class="level2">
+<h2 class="anchored" data-anchor-id="next">Next</h2>
+<ul>
+<li>Continue to the linked canonical concept page, then return for implementation-specific details. <!-- cmgpd-footer:end --></li>
+</ul>
 
 
 </section>
 </section>
 
 </main> <!-- /main -->
-<div style="
-
-  display:flex;
-
-  flex-wrap:wrap;
-
-  gap:1rem;
-
-  justify-content:space-between;
-
-  align-items:center;
-
-  font-size:0.9rem;
-
-  color:rgba(0,0,0,.65);
-
-  margin-top:2.5rem;
-
-  padding-top:1.2rem;
-
-  border-top:1px solid rgba(0,0,0,.1);
-
-">
+<div class="site-footer">
 
 
 

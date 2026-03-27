@@ -66,7 +66,7 @@ predict(
 - type:
 
   Prediction type. Supported: `"mean"`, `"quantile"`, `"density"`,
-  `"survival"`, `"prob"`.
+  `"survival"`, `"prob"`, `"location"`.
 
 - p:
 
@@ -79,7 +79,10 @@ predict(
 
 - nsim:
 
-  Number of posterior predictive samples (for `type="sample"`).
+  Number of posterior predictive samples. For
+  `predict.causalmixgpd_causal_fit()`, posterior sampling output is not
+  available because `type="sample"` is not supported by this causal
+  method; this argument is effectively unused.
 
 - interval:
 
@@ -93,7 +96,10 @@ predict(
 
 - store_draws:
 
-  Logical; whether to store all posterior draws (for `type="sample"`).
+  Logical; whether to store posterior draws. For
+  `predict.causalmixgpd_causal_fit()`, stored draws are not available
+  because `type="sample"` is not supported by this causal method; this
+  argument is effectively unused.
 
 - nsim_mean:
 
@@ -111,7 +117,9 @@ predict(
 
 - ...:
 
-  Unused.
+  Additional arguments forwarded to per-arm
+  [`predict.mixgpd_fit`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/predict.mixgpd_fit.md)
+  calls.
 
 ## Value
 

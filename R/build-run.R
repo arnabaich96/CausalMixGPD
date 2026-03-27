@@ -1140,6 +1140,16 @@ build_code_from_spec <- function(spec) {
 #' @keywords internal
 #' @noRd
 # nocov start
+.strip_covr_counts <- function(txt) {
+  lines <- strsplit(txt, "\n", fixed = TRUE)[[1]]
+  keep <- !grepl("^\\s*covr:::count\\([^)]*\\)\\s*;?\\s*$", lines)
+  paste(lines[keep], collapse = "\n")
+}
+
+.deparse_without_covr <- function(expr) {
+  .strip_covr_counts(paste(deparse(expr), collapse = "\n"))
+}
+
 build_code_sb_from_spec <- function(spec) {
   stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
 
@@ -1227,7 +1237,8 @@ build_code_sb_from_spec <- function(spec) {
 
   # ---- Now patch the code body programmatically (no placeholders left) ----
   # Convert nimbleCode to text, inject lines, then re-parse into nimbleCode.
-  txt <- paste(deparse(code), collapse = "\n")
+  txt <- .deparse_without_covr(code)
+  txt <- .strip_covr_counts(txt)
 
   inject <- function(pattern, replacement) {
     txt <<- sub(pattern, replacement, txt)
@@ -2194,7 +2205,7 @@ build_prior_table_from_spec <- function(spec) {
 
 .mcmc_cache_key <- function(code, constants, data, dims, monitors, waic_enabled) {
   parts <- list(
-    code = paste(deparse(code), collapse = "\n"),
+    code = .deparse_without_covr(code),
     constants = constants,
     data = data,
     dims = dims,

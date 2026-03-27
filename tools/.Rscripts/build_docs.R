@@ -13,6 +13,8 @@ build_docs <- function(
     pkgdown_lazy = TRUE,
     quarto_targets = NULL,
     quarto_incremental = TRUE,
+    fast = TRUE,
+    quarto_cache_refresh = FALSE,
     docs_dir = "docs",
     pkgdown_dir = "pkgdown",
     quarto_dir = "quarto",
@@ -143,14 +145,42 @@ build_docs <- function(
     invisible(TRUE)
   }
 
-  run_cmd <- function(bin, args) {
+  run_cmd <- function(bin, args, env = NULL) {
+    env_names <- character(0)
+    if (!is.null(env) && length(env)) {
+      env_names <- vapply(strsplit(env, "=", fixed = TRUE), `[[`, character(1), 1L)
+      env_names <- env_names[nzchar(env_names)]
+    }
+    old_env <- if (length(env_names)) Sys.getenv(env_names, unset = NA_character_) else character(0)
+    on.exit({
+      if (!is.null(env) && length(env)) {
+        for (nm in names(old_env)) {
+          if (is.na(old_env[[nm]])) {
+            Sys.unsetenv(nm)
+          } else {
+            do.call(Sys.setenv, setNames(list(old_env[[nm]]), nm))
+          }
+        }
+      }
+    }, add = TRUE)
+
+    if (!is.null(env) && length(env)) {
+      kv <- strsplit(env, "=", fixed = TRUE)
+      for (pair in kv) {
+        if (length(pair) == 2L) {
+          do.call(Sys.setenv, setNames(list(pair[[2]]), pair[[1]]))
+        }
+      }
+    }
+
+    cmd <- paste(shQuote(bin), paste(shQuote(args), collapse = " "))
     if (isTRUE(verbose)) {
-      status <- system2(bin, args)
+      status <- system(cmd)
       if (!identical(as.integer(status), 0L)) {
-        stop("Command failed: ", bin, " ", paste(args, collapse = " "))
+        stop("Command failed: ", cmd)
       }
     } else {
-      out <- system2(bin, args, stdout = TRUE, stderr = TRUE)
+      out <- tryCatch(system(cmd, intern = TRUE), error = function(e) e)
       status <- attr(out, "status")
       if (is.null(status)) status <- 0L
       if (!identical(as.integer(status), 0L)) {
@@ -217,14 +247,18 @@ build_docs <- function(
   }
 
   ensure_clean_dir(quarto_abs)
-  run_cmd(quarto_exe, c(
+  quarto_args <- c(
     "render",
     quarto_project,
-    "--cache-refresh",
-    "--output-dir", quarto_abs,
+    "--no-clean",
     "--metadata", paste0("version:", pkg_version),
     "--metadata", paste0("updated:", build_date)
-  ))
+  )
+  if (isTRUE(quarto_cache_refresh)) {
+    quarto_args <- append(quarto_args, "--cache-refresh", after = 2L)
+  }
+  quarto_env <- if (isTRUE(fast)) c("FAST=TRUE") else NULL
+  run_cmd(quarto_exe, quarto_args, env = quarto_env)
 
   msg("Quarto render complete.")
 
@@ -241,7 +275,8 @@ build_docs <- function(
 
   # Sync Quarto -> docs (excluding pkgdown)
   msg("[2/3] Sync: Quarto output (quarto/) -> docs/ (excluding pkgdown/)")
-  clean_docs_root(docs_abs, preserve_top = "pkgdown")
+  # Preserve coverage artifacts produced by tools/.Rscripts/coverage.R.
+  clean_docs_root(docs_abs, preserve_top = c("pkgdown", "coverage"))
   sync_tree(quarto_abs, docs_abs, exclude_prefix = "pkgdown")
 
   # ---------------------------------------------------------------------------

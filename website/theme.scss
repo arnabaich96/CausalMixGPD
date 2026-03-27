@@ -3,11 +3,24 @@
 /* Bootstrap / theme variables must go in the defaults layer */
 $primary: #1b3a57;
 $success: #18a999;
-$font-family-sans-serif: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+$font-family-sans-serif: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+$font-family-monospace: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 
 /* Slightly “tighter” typography site-wide */
 $headings-font-weight: 800;
 $border-radius: 1rem;
+$body-color: #0b1220;
+$body-bg: #f6f8fb;
+$link-decoration: none;
+$link-hover-decoration: underline;
+$link-hover-color: darken($primary, 8%);
+$code-color: #0b1220;
+$code-bg: #eef2f7;
+
+/* Code blocks */
+$pre-color: $body-color;
+$pre-bg: #0b1220;
+$pre-border-radius: 0.9rem;
 
 
 /*-- scss:rules --*/
@@ -16,7 +29,29 @@ $border-radius: 1rem;
 
 /* Layout polish */
 body { letter-spacing: -0.01em; }
-.navbar { box-shadow: 0 6px 24px rgba(0,0,0,.08); }
+.content {
+  padding-top: 1.2rem;
+  padding-bottom: 2rem;
+}
+.content a {
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: .08em;
+}
+.content a:hover { text-decoration-line: underline; }
+.content h2, .content h3 { letter-spacing: -0.02em; }
+.content h2 { margin-top: 2.2rem; }
+.content h3 { margin-top: 1.4rem; }
+
+.navbar {
+  box-shadow: 0 6px 24px rgba(0,0,0,.10);
+  backdrop-filter: saturate(140%) blur(10px);
+}
+.navbar .nav-link { font-weight: 800; }
+.navbar .dropdown-menu {
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,.10);
+  box-shadow: 0 16px 46px rgba(0,0,0,.18);
+}
 .navbar-brand { font-weight: 800; }
 
 /* Hero section */
@@ -31,6 +66,33 @@ body { letter-spacing: -0.01em; }
 }
 .hero h1 { font-weight: 900; letter-spacing: -0.03em; }
 .hero p  { color: rgba(255,255,255,.78); max-width: 74ch; font-size: 1.05rem; }
+.hero .btn { margin-right: .35rem; margin-top: .35rem; }
+.hero a { text-decoration: none !important; }
+.hero a:hover { text-decoration: none !important; }
+
+/* Home page: treat first section like a hero */
+body.home main.content > div.section:first-of-type {
+  padding: 3.2rem 0 2.4rem 0;
+  background: radial-gradient(1100px 500px at 15% 10%,
+    rgba(27,58,87,.22),
+    rgba(8,15,25,1)
+  );
+  color: #fff;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  margin-top: -1.2rem; /* counteract global .content padding */
+}
+body.home main.content > div.section:first-of-type h1 {
+  font-weight: 900;
+  letter-spacing: -0.03em;
+}
+body.home main.content > div.section:first-of-type p {
+  color: rgba(255,255,255,.78);
+  max-width: 74ch;
+  font-size: 1.05rem;
+}
+body.home main.content > div.section:first-of-type a.btn { margin-right: .35rem; margin-top: .35rem; }
+body.home main.content > div.section:first-of-type a { color: rgba(255,255,255,.92); text-decoration: none; }
+body.home main.content > div.section:first-of-type a:hover { color: #fff; text-decoration: none; }
 
 /* Pills */
 .pill {
@@ -83,6 +145,55 @@ body { letter-spacing: -0.01em; }
   overflow-x: auto;
 }
 
+/* Quarto code blocks */
+pre {
+  border-radius: 16px;
+  padding: 1rem 1.05rem;
+  box-shadow: 0 12px 30px rgba(0,0,0,.10);
+}
+pre code { font-size: .92rem; }
+code:not(pre code) {
+  border-radius: 10px;
+  padding: .15em .45em;
+  border: 1px solid rgba(27,58,87,.14);
+}
+
+/* Tables (Quarto + kable) */
+table {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,.08);
+  border-radius: 16px;
+  overflow: hidden;
+}
+table th {
+  background: rgba(27,58,87,.06);
+  font-weight: 800;
+}
+table th, table td { padding: .65rem .75rem; }
+table tr:nth-child(even) td { background: rgba(0,0,0,.02); }
+
+/* Callouts */
+.callout {
+  border-radius: 16px;
+  box-shadow: 0 10px 28px rgba(0,0,0,.06);
+  border: 1px solid rgba(0,0,0,.08);
+}
+.callout.callout-important { border-left: 6px solid $primary; }
+.callout.callout-warning { border-left: 6px solid #d18400; }
+.callout.callout-tip { border-left: 6px solid $success; }
+
+/* Developer notes (distinct visual language) */
+.callout.devnote {
+  border-left: 6px solid #6f42c1; /* distinct from primary/success */
+  background: linear-gradient(0deg, rgba(111,66,193,.06), rgba(111,66,193,.06));
+}
+.callout.devnote .callout-title-container {
+  letter-spacing: -0.01em;
+}
+.callout.devnote code:not(pre code) {
+  border-color: rgba(111,66,193,.25);
+}
+
 /* Buttons */
 .btn-primary,
 .btn-outline-light,
@@ -90,3 +201,19 @@ body { letter-spacing: -0.01em; }
   border-radius: 14px;
   font-weight: 800;
 }
+
+/* Footer */
+.site-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.92rem;
+  color: rgba(0,0,0,.62);
+  margin-top: 2.8rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(0,0,0,.12);
+}
+.site-footer a { color: rgba(0,0,0,.72); }
+.site-footer a:hover { color: $primary; }

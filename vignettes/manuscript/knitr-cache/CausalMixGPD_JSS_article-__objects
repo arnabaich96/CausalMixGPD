@@ -58,10 +58,10 @@ app2-ate-plot
 app2-ate-plot-results	
 app2-qte-plot	
 app2-qte-plot-results	
-app2-xnew-cache	obj	col_med	profile_var	x_highprev	x_typical	xnew
+app2-xnew-cache	
 app2-xnew-code	
 app2-xnew-results	
-app2-cate-cache	cate_fit	cqte_fit	obj	rm_cutoff
+app2-cate-cache	
 app2-cate-call	
 app2-cate-results	
 app2-cqte-call	

@@ -28,8 +28,19 @@ if (requireNamespace("gridExtra", quietly = TRUE)) {
 
 `%||%` <- function(a, b) if (!is.null(a)) a else b
 
-# Force static plotting for website renders (no htmlwidget conversion).
-options(CausalMixGPD.plotly = FALSE)
+# Prefer interactive Plotly output in website HTML when available and renderable.
+# Some environments can have plotly/htmlwidgets installed but broken for knitting.
+.cmgpd_can_use_plotly <- function() {
+  if (!requireNamespace("plotly", quietly = TRUE)) return(FALSE)
+  if (!requireNamespace("htmlwidgets", quietly = TRUE)) return(FALSE)
+  ok <- tryCatch({
+    w <- plotly::plot_ly(x = 1, y = 1)
+    htmlwidgets::toHTML(w, standalone = FALSE)
+    TRUE
+  }, error = function(e) FALSE)
+  isTRUE(ok)
+}
+options(CausalMixGPD.plotly = isTRUE(.cmgpd_can_use_plotly()))
 
 # Disable knitr chunk caching for legacy website examples.
 # NIMBLE fit objects may contain external pointers that cannot be serialized
@@ -40,15 +51,6 @@ if (requireNamespace("knitr", quietly = TRUE)) {
     options
   })
   knitr::opts_chunk$set(cache = FALSE, autodep = FALSE)
-}
-
-# Defensive override: some knit/devtools sessions can still resolve an older
-# plot wrapper path that returns htmlwidgets. Force static passthrough.
-dp_ns <- asNamespace("CausalMixGPD")
-if (exists(".wrap_plotly", envir = dp_ns, inherits = FALSE)) {
-  unlockBinding(".wrap_plotly", dp_ns)
-  assign(".wrap_plotly", function(p) p, envir = dp_ns)
-  lockBinding(".wrap_plotly", dp_ns)
 }
 
 # Use a per-vignette figure directory so pkgdown can find images (must be under vignettes/).

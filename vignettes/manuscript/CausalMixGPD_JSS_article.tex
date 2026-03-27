@@ -310,7 +310,7 @@ u(x)+\dfrac{\sigma(x)}{\xi}\Bigl((1-\tau)^{-\xi}-1\Bigr), & \xi\neq 0,
 
 
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
 
 {\centering \includegraphics[width=0.78\linewidth]{figure/gpdDensityFigure-plot-1} 
@@ -439,7 +439,7 @@ scaling ensuring normalization of $f(\cdot\mid x;\Theta,\Phi)$. The following fi
 
 
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
 
 {\centering \includegraphics[width=0.78\linewidth]{figure/splicedDensityFigure-plot-1} 
@@ -774,7 +774,7 @@ Let the observed data be $$
   \mathcal{D}=\{(y_i,x_i)\}_{i=1}^n,
 $$
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{data}\hldef{(}\hlsng{"nc_posX100_p3_k2"}\hldef{,} \hlkwc{package} \hldef{=} \hlsng{"CausalMixGPD"}\hldef{)}
@@ -801,7 +801,7 @@ covariate-dependent through link specifications of the form
 \end{equation} where $g(\cdot)$ enforces parameter support (e.g.,
 positive scale parameters).
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{mcmc_fixed}
@@ -809,7 +809,7 @@ positive scale parameters).
 \end{kframe}
 \end{knitrout}
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{fit} \hlkwb{<-} \hlkwd{dpmgpd}\hldef{(}
@@ -896,7 +896,7 @@ intervals as described in Section~\ref{subsec:overview-estimation}
 \citep{Gelman2013BDA,coda_pkg}. Diagnostic plotting relies on
 established MCMC diagnostic tooling \citep{ggmcmc_pkg}.
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{print}\hldef{(fit)}
@@ -968,7 +968,7 @@ Section~\ref{subsec:overview-model}, we now compute posterior summaries
 on the original training covariates (default behavior of
 \code{predict()} when \code{newdata} is not supplied).
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{q_grid} \hlkwb{<-} \hlkwd{c}\hldef{(}\hlnum{0.50}\hldef{,} \hlnum{0.90}\hldef{,} \hlnum{0.95}\hldef{,} \hlnum{0.99}\hldef{)}
@@ -1001,7 +1001,7 @@ using the spliced quantile representation in
 as described above, with $x$ replaced by $x^\star$ and with
 user-controlled $M$ through \code{nsim\_mean}.
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{q_levels} \hlkwb{<-} \hlkwd{c}\hldef{(}\hlnum{0.25}\hldef{,} \hlnum{0.50}\hldef{,} \hlnum{0.75}\hldef{)}
@@ -1018,7 +1018,7 @@ user-controlled $M$ through \code{nsim\_mean}.
 \end{kframe}
 \end{knitrout}
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{pdens} \hlkwb{<-} \hlkwd{predict}\hldef{(fit,} \hlkwc{newdata} \hldef{= x_new,} \hlkwc{y} \hldef{= y_grid,} \hlkwc{type} \hldef{=} \hlsng{"density"}\hldef{,}
@@ -1027,7 +1027,7 @@ user-controlled $M$ through \code{nsim\_mean}.
 \end{kframe}
 \end{knitrout}
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{psurv} \hlkwb{<-} \hlkwd{predict}\hldef{(fit,} \hlkwc{newdata} \hldef{= x_new,} \hlkwc{y} \hldef{= y_grid,} \hlkwc{type} \hldef{=} \hlsng{"survival"}\hldef{,}
@@ -1036,7 +1036,7 @@ user-controlled $M$ through \code{nsim\_mean}.
 \end{kframe}
 \end{knitrout}
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{pquant} \hlkwb{<-} \hlkwd{predict}\hldef{(fit,} \hlkwc{newdata} \hldef{= x_new,} \hlkwc{type} \hldef{=} \hlsng{"quantile"}\hldef{,} \hlkwc{index} \hldef{= p_grid,}
@@ -1189,7 +1189,7 @@ $\arg\max_{1 \le c \le K} p_{ic}^{\mathrm{new}}$.
 The clustering workflow is illustrated below using one of the example data
 sets included with the package.
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{data}\hldef{(}\hlsng{"nc_realX100_p3_k2"}\hldef{,} \hlkwc{package} \hldef{=} \hlsng{"CausalMixGPD"}\hldef{)}
@@ -1212,7 +1212,7 @@ Posterior clustering summaries can be obtained directly from the fitted
 object. The following code returns the PSM, the representative training
 partition, the training cluster sizes, and the associated certainty scores.
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{cluster_psm}   \hlkwb{<-} \hlkwd{predict}\hldef{(fit_cluster,} \hlkwc{type} \hldef{=} \hlsng{"psm"}\hldef{)}
@@ -1230,7 +1230,7 @@ partition, the training cluster sizes, and the associated certainty scores.
 Cluster assignments for new observations are obtained from the posterior
 predictive score matrix in the same interface.
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{cluster_new} \hlkwb{<-} \hlkwd{predict}\hldef{(}
@@ -1249,7 +1249,7 @@ The same workflow applies to the spliced mixture model, which incorporates
 the generalized Pareto tail component when clustering data with heavy-tailed
 behavior.
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{fit_cluster_spliced} \hlkwb{<-} \hlkwd{dpmgpd.cluster}\hldef{(}
@@ -1469,7 +1469,7 @@ predictive contrasts can be reported.
 The following example uses the formula interface and the high-level
 wrapper, fitting the augmented spliced model by default.
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{data}\hldef{(}\hlsng{"causal_pos500_p3_k2"}\hldef{,} \hlkwc{package} \hldef{=} \hlsng{"CausalMixGPD"}\hldef{)}
@@ -1479,7 +1479,7 @@ wrapper, fitting the augmented spliced model by default.
 \end{kframe}
 \end{knitrout}
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{cfit} \hlkwb{<-} \hlkwd{dpmgpd.causal}\hldef{(}
@@ -1508,7 +1508,7 @@ To estimate the ATE and QTE at the empirical covariate distribution, use the
 standardized contrasts in \eqref{eq:overview_ate_standardized} and
 \eqref{eq:overview_qte_standardized}.
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{ate_hat} \hlkwb{<-} \hlkwd{ate}\hldef{(cfit,} \hlkwc{level} \hldef{=} \hlnum{0.90}\hldef{,} \hlkwc{interval} \hldef{=} \hlsng{"credible"}\hldef{)}
@@ -1519,7 +1519,7 @@ standardized contrasts in \eqref{eq:overview_ate_standardized} and
 
 For subpopulation effects, the \texttt{cate()} and \texttt{cqte()} functions compute conditional contrasts at user-specified covariate rows.
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{qs}    \hlkwb{<-} \hlkwd{c}\hldef{(}\hlnum{0.25}\hldef{,} \hlnum{0.50}\hldef{,} \hlnum{0.75}\hldef{)}
@@ -1530,7 +1530,7 @@ For subpopulation effects, the \texttt{cate()} and \texttt{cqte()} functions com
 
 The following code then produces conditional quantile and survival predictions at the grid points, returning treated-minus-control contrasts for quantiles and arm-specific summaries for survival.
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{pred_q} \hlkwb{<-} \hlkwd{predict}\hldef{(cfit,} \hlkwc{newdata} \hldef{= Xgrid,} \hlkwc{type} \hldef{=} \hlsng{"quantile"}\hldef{,} \hlkwc{p} \hldef{=} \hlkwd{c}\hldef{(}\hlnum{0.50}\hldef{,} \hlnum{0.90}\hldef{))}
@@ -1584,7 +1584,7 @@ We split the data into a training set used to fit the clustering model and a
 test set used only for cluster-label prediction. Covariates are standardized
 using training-set moments to avoid leakage.
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hlkwd{library}\hldef{(MASS)}
@@ -1611,12 +1611,12 @@ using training-set moments to avoid leakage.
 \end{kframe}
 \end{knitrout}
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{verbatim}
-##   sample   n
-## 1  train 379
-## 2   test 127
+  sample   n
+1  train 379
+2   test 127
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -1635,7 +1635,7 @@ partition together with cluster-specific response summaries.
 
 
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{fit_clust} \hlkwb{<-} \hlkwd{dpmgpd.cluster}\hldef{(}
@@ -1661,7 +1661,7 @@ representative clusters rather than on the full PSM heatmap.
 The following command extracts the representative labels for the training
 sample.
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{z_train} \hlkwb{<-} \hlkwd{predict}\hldef{(fit_clust,} \hlkwc{type} \hldef{=} \hlsng{"label"}\hldef{)}
@@ -1676,8 +1676,6 @@ statistics in Table~\ref{tab:cluster-top5-populated}.
 
 
 
-
-
 \subsection{Cluster labels for new observations}
 
 Cluster assignment for new observations is performed through the same prediction
@@ -1685,9 +1683,7 @@ interface. The output is a label in the space of the representative training
 clusters, obtained by aggregating posterior predictive co-clustering evidence
 at the cluster level.
 
-
-
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{z_test} \hlkwb{<-} \hlkwd{predict}\hldef{(}
@@ -1713,7 +1709,14 @@ actually represented in the new observations (Table~\ref{tab:app_cluster_old_new
 \toprule
 cluster & n\\
 \midrule
-C1 & 127\\
+C3 & 46\\
+C2 & 45\\
+C4 & 23\\
+C7 & 8\\
+C1 & 2\\
+\addlinespace
+C8 & 2\\
+C5 & 1\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1737,8 +1740,11 @@ and standard deviations for the response and standardized covariates.
 \toprule
 cluster & n & crim\_mean & crim\_sd & lstat\_mean & lstat\_sd & rm\_mean & rm\_sd & nox\_mean & nox\_sd & certainty\_mean & certainty\_sd\\
 \midrule
-C1 & 327 & 3.86 & 8.772 & -0.064 & 0.991 & 0.064 & 1.027 & -0.107 & 0.905 & 0.601 & 0.020\\
-C2 & 52 & 3.45 & 12.453 & 0.403 & 0.973 & -0.403 & 0.692 & 0.673 & 1.280 & 0.594 & 0.074\\
+C3 & 75 & 0.338 & 1.066 & -0.873 & 0.373 & 0.846 & 0.831 & -0.763 & 0.463 & 0.169 & 0.030\\
+C4 & 68 & 0.530 & 3.464 & -0.398 & 0.525 & -0.159 & 0.564 & -0.815 & 0.431 & 0.144 & 0.028\\
+C8 & 47 & 3.843 & 7.858 & -0.136 & 0.654 & -0.276 & 0.545 & 0.364 & 0.914 & 0.128 & 0.028\\
+C2 & 45 & 9.732 & 16.201 & 0.770 & 0.823 & -0.346 & 0.510 & 0.795 & 0.802 & 0.131 & 0.028\\
+C7 & 35 & 7.642 & 15.235 & 0.303 & 0.852 & 0.388 & 0.864 & 0.563 & 0.874 & 0.147 & 0.045\\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -1749,7 +1755,7 @@ Figure~\ref{fig:cluster-old-new-summary} shows response boxplots for the test
 sample only, restricted to the five most populated predicted clusters. Clusters
 with no test observations are omitted automatically.
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{cluster_counts} \hlkwb{<-} \hlkwd{sort}\hldef{(}\hlkwd{table}\hldef{(z_test}\hlopt{$}\hldef{labels),} \hlkwc{decreasing} \hldef{=} \hlnum{TRUE}\hldef{)}
@@ -1872,7 +1878,7 @@ substantive analysis we recommend longer runs and sensitivity checks
 
 
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{fit} \hlkwb{<-} \hlkwd{dpmgpd.causal}\hldef{(}
@@ -1880,8 +1886,8 @@ substantive analysis we recommend longer runs and sensitivity checks
   \hlkwc{X} \hldef{= X,}
   \hlkwc{treat} \hldef{= A,}
   \hlkwc{backend} \hldef{=} \hlsng{"sb"}\hldef{,}
-  \hlkwc{kernel} \hldef{=} \hlsng{"lognormal"}\hldef{,}
-  \hlkwc{components} \hldef{=} \hlnum{4}\hldef{,}
+  \hlkwc{kernel} \hldef{=} \hlsng{"gamma"}\hldef{,}
+  \hlkwc{components} \hldef{=} \hlnum{5}\hldef{,}
   \hlkwc{mcmc} \hldef{=} \hlkwd{c}\hldef{(mcmc_fixed,} \hlkwd{list}\hldef{(}\hlkwc{show_progress} \hldef{=} \hlnum{FALSE}\hldef{))}
 \hldef{)}
 \end{alltt}
@@ -1894,14 +1900,14 @@ substantive analysis we recommend longer runs and sensitivity checks
 
 I first summarize the overall effect using a restricted-mean ATE,
 implemented by \texttt{ate(type = "rmean", cutoff = c)} with
-$c = `r round(rm_cutoff, 3)`$. This keeps the mean-based contrast finite
+$c = 8.036$. This keeps the mean-based contrast finite
 and interpretable on a common earnings scale. I then compute QTE on a
 quantile grid that extends into the upper tail but stops short of the
 most unstable 0.99 level in the main text.
 
 
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{ate_fit} \hlkwb{<-} \hlkwd{ate}\hldef{(}
@@ -1923,14 +1929,14 @@ most unstable 0.99 level in the main text.
 \toprule
 id & estimate & lower & upper\\
 \midrule
-1 & 0.816 & 0.417 & 1.199\\
+1 & 0.706 & 0.385 & 1.001\\
 \bottomrule
 \end{tabular}
 \end{table}
 
 
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{qte_fit} \hlkwb{<-} \hlkwd{qte}\hldef{(fit,} \hlkwc{probs} \hldef{= taus,} \hlkwc{show_progress} \hldef{=} \hlnum{FALSE}\hldef{)}
@@ -1947,51 +1953,45 @@ id & estimate & lower & upper\\
 \toprule
 id & index & estimate & lower & upper\\
 \midrule
-1 & 0.25 & -0.161 & -0.320 & -0.001\\
-1 & 0.50 & 0.674 & -0.135 & 1.659\\
-1 & 0.75 & 1.561 & 0.683 & 2.564\\
-1 & 0.90 & 4.702 & 1.951 & 9.707\\
-1 & 0.95 & 11.531 & 4.315 & 29.668\\
+1 & 0.25 & -0.126 & -0.287 & 0.039\\
+1 & 0.50 & 0.647 & -0.140 & 1.510\\
+1 & 0.75 & 1.401 & 0.684 & 2.175\\
+1 & 0.90 & 4.662 & 1.057 & 9.954\\
+1 & 0.95 & 12.601 & 2.553 & 34.262\\
 \bottomrule
 \end{tabular}
 \end{table}
 
 
 
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{ate_effect_plot} \hlkwb{<-} \hlkwd{plot}\hldef{(ate_fit,} \hlkwc{type} \hldef{=} \hlsng{"effect"}\hldef{)}
-\hldef{ate_effect_plot}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[!htbp]
 
-\begin{figure}[!htbp]\centering
-\includegraphics[width=0.78\linewidth]{D:/Git-Repos/CausalMixGPD-Package/CausalMixGPD/vignettes/manuscript/cache/figs/app2_ate_effect.png}
-\caption{Posterior restricted-mean ATE summary for the spliced causal model with cutoff $c=8.036$.\label{fig:app2-ate-effect}}
+{\centering \includegraphics[width=0.78\linewidth]{figure/app2-ate-plot-1} 
+
+}
+
+\caption{Posterior restricted-mean ATE summary for the spliced causal model with cutoff $c=8.036$. \\label{fig:app2-ate-effect}}\label{fig:app2-ate-plot}
 \end{figure}
 
-
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{qte_effect_plot} \hlkwb{<-} \hlkwd{plot}\hldef{(qte_fit,} \hlkwc{type} \hldef{=} \hlsng{"effect"}\hldef{)}
-\hldef{qte_effect_plot}
-\end{alltt}
-\end{kframe}
 \end{knitrout}
 
-\begin{figure}[!htbp]\centering
-\includegraphics[width=0.78\linewidth]{D:/Git-Repos/CausalMixGPD-Package/CausalMixGPD/vignettes/manuscript/cache/figs/app2_qte_effect.png}
-\caption{Posterior QTE summary across the main-text quantile grid.\label{fig:app2-qte-effect}}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[!htbp]
+
+{\centering \includegraphics[width=0.78\linewidth]{figure/app2-qte-plot-1} 
+
+}
+
+\caption{Posterior QTE summary across the main-text quantile grid. \label{fig:app2-qte-effect}}\label{fig:app2-qte-plot}
 \end{figure}
 
+\end{knitrout}
 
 The marginal treatment-effect visual summaries are shown in
 Figure~\ref{fig:app2-ate-effect}, captioned ``Posterior restricted-mean
 ATE summary for the spliced causal model with cutoff
-$c=`r round(rm_cutoff, 3)`$,'' for the restricted-mean ATE, and
+$c=8.036$,'' for the restricted-mean ATE, and
 Figure~\ref{fig:app2-qte-effect}, captioned ``Posterior QTE summary
 across the main-text quantile grid.'' for the QTE.
 
@@ -2003,16 +2003,21 @@ covariate profiles: (i) a
 profile at the 80th percentile of previous earnings, holding other
 covariates at medians.
 
-
-
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hldef{col_med} \hlkwb{<-} \hlkwd{apply}\hldef{(X,} \hlnum{2}\hldef{, median,} \hlkwc{na.rm} \hldef{=} \hlnum{TRUE}\hldef{)}
+\hldef{X_profiles} \hlkwb{<-} \hlkwa{if} \hldef{(}\hlkwd{app2_cache_matches_data}\hldef{(fit, X)) \{}
+  \hldef{X}
+\hldef{\}} \hlkwa{else} \hldef{\{}
+  \hldef{fit_ps_x} \hlkwb{<-} \hldef{fit}\hlopt{$}\hldef{bundle}\hlopt{$}\hldef{design}\hlopt{$}\hldef{data}\hlopt{$}\hldef{X}
+  \hldef{fit_ps_x[,} \hlkwd{setdiff}\hldef{(}\hlkwd{colnames}\hldef{(fit_ps_x),} \hlsng{"(Intercept)"}\hldef{),} \hlkwc{drop} \hldef{=} \hlnum{FALSE}\hldef{]}
+\hldef{\}}
+
+\hldef{col_med} \hlkwb{<-} \hlkwd{apply}\hldef{(X_profiles,} \hlnum{2}\hldef{, median,} \hlkwc{na.rm} \hldef{=} \hlnum{TRUE}\hldef{)}
 \hldef{x_typical} \hlkwb{<-} \hldef{col_med}
 \hldef{x_highprev} \hlkwb{<-} \hldef{col_med}
-\hldef{profile_var} \hlkwb{<-} \hlkwa{if} \hldef{(}\hlsng{"prevearn"} \hlopt{%in%} \hlkwd{colnames}\hldef{(X))} \hlsng{"prevearn"} \hlkwa{else} \hlkwd{colnames}\hldef{(X)[}\hlnum{1}\hldef{]}
-\hldef{x_highprev[profile_var]} \hlkwb{<-} \hlkwd{as.numeric}\hldef{(}\hlkwd{quantile}\hldef{(X[, profile_var],} \hlnum{0.80}\hldef{,} \hlkwc{na.rm} \hldef{=} \hlnum{TRUE}\hldef{))}
+\hldef{profile_var} \hlkwb{<-} \hlkwa{if} \hldef{(}\hlsng{"prevearn"} \hlopt{%in%} \hlkwd{colnames}\hldef{(X_profiles))} \hlsng{"prevearn"} \hlkwa{else} \hlkwd{colnames}\hldef{(X_profiles)[}\hlnum{1}\hldef{]}
+\hldef{x_highprev[profile_var]} \hlkwb{<-} \hlkwd{as.numeric}\hldef{(}\hlkwd{quantile}\hldef{(X_profiles[, profile_var],} \hlnum{0.80}\hldef{,} \hlkwc{na.rm} \hldef{=} \hlnum{TRUE}\hldef{))}
 \hldef{xnew} \hlkwb{<-} \hlkwd{rbind}\hldef{(}\hlkwc{typical} \hldef{= x_typical,} \hlkwc{high_prev_earn} \hldef{= x_highprev)}
 \end{alltt}
 \end{kframe}
@@ -2035,9 +2040,7 @@ high\_prev\_earn & 0.797 & -0.096 & 0.012\\
 
 
 
-
-
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{cate_fit} \hlkwb{<-} \hlkwd{cate}\hldef{(}
@@ -2060,15 +2063,15 @@ high\_prev\_earn & 0.797 & -0.096 & 0.012\\
 \toprule
 id & estimate & lower & upper\\
 \midrule
-1 & 0.825 & 0.239 & 1.348\\
-2 & 0.950 & 0.332 & 1.499\\
+1 & 0.703 & 0.092 & 1.170\\
+2 & 0.768 & 0.302 & 1.382\\
 \bottomrule
 \end{tabular}
 \end{table}
 
 
 
-\begin{knitrout}
+\begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
 \hldef{cqte_fit} \hlkwb{<-} \hlkwd{cqte}\hldef{(fit,} \hlkwc{probs} \hldef{= taus,} \hlkwc{newdata} \hldef{= xnew,} \hlkwc{show_progress} \hldef{=} \hlnum{FALSE}\hldef{)}
@@ -2086,52 +2089,46 @@ id & estimate & lower & upper\\
 \toprule
 id & index & estimate & lower & upper\\
 \midrule
-1 & 0.25 & -0.202 & -0.317 & -0.089\\
+1 & 0.25 & -0.182 & -0.267 & -0.084\\
 1 & 0.50 & 0.000 & 0.000 & 0.000\\
-1 & 0.75 & 1.059 & 0.535 & 1.612\\
-1 & 0.90 & 1.299 & 0.758 & 1.786\\
-1 & 0.95 & 1.664 & 1.109 & 2.268\\
+1 & 0.75 & 0.892 & 0.551 & 1.272\\
+1 & 0.90 & 1.101 & 0.692 & 1.447\\
+1 & 0.95 & 1.490 & 0.796 & 2.253\\
 \addlinespace
-2 & 0.25 & -0.202 & -0.317 & -0.089\\
+2 & 0.25 & -0.182 & -0.267 & -0.084\\
 2 & 0.50 & 0.000 & 0.000 & 0.000\\
-2 & 0.75 & 1.074 & 0.568 & 1.637\\
-2 & 0.90 & 1.684 & 1.071 & 2.227\\
-2 & 0.95 & 2.481 & 1.535 & 3.350\\
+2 & 0.75 & 0.906 & 0.561 & 1.277\\
+2 & 0.90 & 1.380 & 0.806 & 1.769\\
+2 & 0.95 & 2.079 & 1.071 & 3.094\\
 \bottomrule
 \end{tabular}}
 \end{table}
 
 
 
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{cate_effect_plot} \hlkwb{<-} \hlkwd{plot}\hldef{(cate_fit,} \hlkwc{type} \hldef{=} \hlsng{"effect"}\hldef{)}
-\hldef{cate_effect_plot}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[!htbp]
 
-\begin{figure}[!htbp]\centering
-\includegraphics[width=0.78\linewidth]{D:/Git-Repos/CausalMixGPD-Package/CausalMixGPD/vignettes/manuscript/cache/figs/app2_cate_effect.png}
-\caption{Posterior restricted-mean CATE summary at the representative profiles, with cutoff $c=8.036$.\label{fig:app2-cate-effect}}
+{\centering \includegraphics[width=0.78\linewidth]{figure/app2-cate-plot-1} 
+
+}
+
+\caption{Posterior restricted-mean CATE summary at the representative profiles, with cutoff $c=8.036$. \\label{fig:app2-cate-effect}}\label{fig:app2-cate-plot}
 \end{figure}
 
-
-\begin{knitrout}
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{cqte_effect_plot} \hlkwb{<-} \hlkwd{plot}\hldef{(cqte_fit,} \hlkwc{type} \hldef{=} \hlsng{"effect"}\hldef{,} \hlkwc{facet_by} \hldef{=} \hlsng{"id"}\hldef{)}
-\hldef{cqte_effect_plot}
-\end{alltt}
-\end{kframe}
 \end{knitrout}
 
-\begin{figure}[!htbp]\centering
-\includegraphics[width=0.78\linewidth]{D:/Git-Repos/CausalMixGPD-Package/CausalMixGPD/vignettes/manuscript/cache/figs/app2_cqte_effect.png}
-\caption{Posterior CQTE summaries at the representative profiles.\label{fig:app2-cqte-effect}}
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[!htbp]
+
+{\centering \includegraphics[width=0.78\linewidth]{figure/app2-cqte-plot-1} 
+
+}
+
+\caption{Posterior CQTE summaries at the representative profiles. \label{fig:app2-cqte-effect}}\label{fig:app2-cqte-plot}
 \end{figure}
 
+\end{knitrout}
 
 The conditional effect plots are shown in Figure~\ref{fig:app2-cate-effect}
 for the restricted-mean CATE and Figure~\ref{fig:app2-cqte-effect} for
@@ -2154,8 +2151,8 @@ tail and greater propensity for extreme earnings.
 \toprule
 arm & mean & sd & q0.025 & q0.500 & q0.975\\
 \midrule
-treated & 0.557 & 0.053 & 0.464 & 0.556 & 0.646\\
-control & 0.414 & 0.079 & 0.319 & 0.407 & 0.563\\
+treated & 0.568 & 0.078 & 0.483 & 0.541 & 0.667\\
+control & 0.417 & 0.139 & 0.242 & 0.347 & 0.667\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -2289,444 +2286,10 @@ foundation for further work on Bayesian distributional modeling in
 
 \bibliography{CausalMixGPD_JSS_refs}
 
-\clearpage
-\section{Supplementary Materials}
-\label{sec:supplementary}
 
-This supplement replaces the earlier narrative list with a compact
-reference for the package's customization surface. The emphasis is on
-available modeling switches, arm- and task-specific overrides, and the
-advanced extension points most relevant for extending
-\pkg{CausalMixGPD}.
-
-\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
-\setlength{\floatsep}{6pt plus 2pt minus 2pt}
-\setlength{\intextsep}{6pt plus 2pt minus 2pt}
-
-\begin{figure}[H]
-\centering
-\small
-\setlength{\tabcolsep}{5pt}
-\renewcommand{\arraystretch}{1.18}
-\begin{tabular}{@{}p{0.90\linewidth}@{}}
-\toprule
-	\textbf{User-facing workflow map} \\
-\midrule
-	\textbf{Build layer}: \code{bundle()} or task-specific wrappers choose
-\code{kernel}, \code{backend}, \code{GPD}, and \code{components}. \\
-$\Downarrow$ \\
-	\textbf{Specification layer}: optional overrides through
-\code{param\_specs}, propensity-score augmentation, and clustering
-dependence settings. \\
-$\Downarrow$ \\
-	\textbf{Run layer}: \code{mcmc()}, \code{run\_mcmc\_bundle\_manual()},
-or \code{run\_mcmc\_causal()} compile and sample the selected model. \\
-$\Downarrow$ \\
-	\textbf{Output layer}: a common fit object feeds posterior summaries,
-prediction, causal effects, tails, and clustering diagnostics. \\
-\bottomrule
-\end{tabular}
-\caption{Detailed user-facing workflow for model build, optional override, run, and summary extraction. The stages correspond to the package entry points listed in Table~\ref{tab:supp-entrypoints} and are written to match exported function names.}
-\label{fig:supp-workflow-map}
-\end{figure}
-
-\subsection{Core customization map}
-
-\begin{table}[H]
-\centering
-\small
-\begin{tabular}{@{}p{0.18\linewidth}p{0.17\linewidth}p{0.25\linewidth}p{0.32\linewidth}@{}}
-\toprule
-Interface & Scope & Main choices & Notes \\
-\midrule
-\code{bundle()} &
-Build only &
-raw vector versus formula input; optional \code{treat}; \code{GPD} &
-Chooses between one-arm and causal bundles without running MCMC, which
-makes it the natural entry point for inspect-then-run workflows. \\
-\code{dpmix()} and \code{dpmgpd()} &
-One-arm fit &
-\code{kernel}; \code{backend}; \code{components}; \code{param\_specs};
-\code{mcmc} &
-Convenience wrappers for bulk-only and spliced fits. They share the same
-bundle architecture and differ mainly in whether the GPD tail is active. \\
-\code{dpmix.causal()} and \code{dpmgpd.causal()} &
-Two-arm causal fit &
-arm-specific \code{kernel}, \code{backend}, \code{GPD},
-\code{components}; propensity-score controls &
-Wrap paired outcome models and an optional PS stage, then expose causal
-effect summaries from the resulting arm-specific predictive
-distributions. \\
-\code{dpmix.cluster()} and \code{dpmgpd.cluster()} &
-Clustering fit &
-\code{type}; \code{link}; \code{priors}; \code{components};
-\code{mcmc} &
-Formula-driven clustering interface with label-invariant summaries,
-posterior similarity matrices, and representative partitions. \\
-\code{mcmc()} &
-Run only &
-stored bundle plus MCMC overrides &
-Keeps the build/run split explicit by dispatching to the correct
-runner after the bundle has been inspected or programmatically edited. \\
-\bottomrule
-\end{tabular}
-\caption{Main user-facing entry points and where customization occurs in the workflow. Rows map directly to exported wrappers, builders, and runners in the package application programming interface (API) and separate build-time versus run-time controls.}
-\label{tab:supp-entrypoints}
-\end{table}
-
-\begin{table}[H]
-\centering
-\small
-\begin{tabular}{@{}p{0.24\linewidth}p{0.20\linewidth}p{0.20\linewidth}p{0.26\linewidth}@{}}
-	oprule
-Workflow/interface & Default choice & Where set & How to customize \\
-\midrule
-\code{dpmix()} and \code{dpmix.causal()} &
-\code{GPD = FALSE} &
-wrapper contract &
-Switch to \code{dpmgpd()} or \code{dpmgpd.causal()}, or build a bundle with \code{GPD = TRUE}. \\
-\code{dpmgpd()} and \code{dpmgpd.causal()} &
-\code{GPD = TRUE} &
-wrapper contract &
-Use the corresponding \code{dpmix*} wrapper, or pass a bundle with tail disabled. \\
-One-arm and causal builders &
-\code{backend = "sb"}; \code{components = n}; \code{monitor = "core"}; \code{epsilon = 0.025}; \code{alpha\_random = TRUE} &
-\code{build\_nimble\_bundle()} and \code{build\_causal\_bundle()} defaults &
-Override directly in \code{bundle(...)} or in the explicit builder calls. \\
-Causal-only options &
-\code{PS = "logit"}; \code{ps\_scale = "logit"}; \code{ps\_summary = "mean"} &
-\code{build\_causal\_bundle()} defaults &
-Set \code{PS}, \code{ps\_scale}, \code{ps\_summary}, and related \code{ps\_*} controls. \\
-Clustering wrappers &
-\code{type = "weights"}; \code{default = "weights"}; \code{GPD} selected by wrapper family &
-\code{dpmix.cluster()} and \code{dpmgpd.cluster()} defaults &
-Choose \code{type = "param"} or \code{"both"}, and use the GPD or non-GPD wrapper accordingly. \\
-\bottomrule
-\end{tabular}
-\caption{Default choices across the main customization interfaces, with where those defaults are defined and the primary override path. This table is intended as a quick start map before using the detailed controls in Tables~\ref{tab:supp-core-controls}--\ref{tab:supp-cluster-controls}.}
-\label{tab:supp-default-choices}
-\end{table}
-
-\begin{table}[H]
-\centering
-\small
-\begin{tabular}{@{}p{0.16\linewidth}p{0.23\linewidth}p{0.17\linewidth}p{0.34\linewidth}@{}}
-\toprule
-Option & Accepted values & Applies to & Interpretation \\
-\midrule
-\code{backend} &
-\code{"sb"}, \code{"crp"}, \code{"spliced"} &
-one-arm and causal bundles &
-\code{"sb"} uses finite stick-breaking truncation; \code{"crp"} uses
-latent cluster labels; \code{"spliced"} requests explicit bulk-tail
-dispatch and reverts to CRP behavior when \code{GPD = FALSE}. \\
-\code{kernel} &
-\code{normal}, \code{lognormal}, \code{invgauss}, \code{gamma},
-\code{laplace}, \code{amoroso}, \code{cauchy} &
-all workflows &
-Selects the bulk distribution family. Causal fits may use different
-kernels across treatment arms. Cluster fits draw from the same kernel
-registry as density and causal fits. \\
-\code{GPD} &
-\code{TRUE} or \code{FALSE} &
-all workflows &
-Activates threshold and tail parameters when supported by the chosen
-kernel. The Cauchy kernel is intentionally bulk-only. \\
-\code{components} &
-integer $\ge 2$ &
-all workflows &
-Single truncation control: SB interprets it as mixture truncation,
-whereas CRP treats it as the maximum represented number of clusters.
-Causal fits may use different values by arm. \\
-\code{alpha\_random} &
-\code{TRUE} or \code{FALSE} &
-bundle and cluster builders &
-Controls whether the DP concentration parameter is stochastic under its
-default prior or fixed through a user-supplied specification. \\
-\code{monitor} &
-\code{"core"} or \code{"full"} &
-all builders &
-\code{"full"} automatically activates broader monitoring, including
-latent allocations and stick-breaking terms when applicable. \\
-\code{monitor\_latent}, \code{monitor\_v} &
-\code{TRUE} or \code{FALSE} &
-all builders and runners &
-Allow fine control over whether latent cluster labels and SB stick
-weights are stored in the retained posterior output. \\
-\code{epsilon} &
-numeric in $[0,1)$ &
-all builders &
-Used in downstream truncation summaries, plots, and renormalized
-component filtering. Smaller values retain a larger fraction of the
-mixture support in posterior summaries. \\
-\code{mcmc}, \code{mcmc\_outcome}, \code{mcmc\_ps} &
-\code{niter}, \code{nburnin}, \code{thin}, \code{nchains}, \code{seed} &
-all workflows &
-The core iteration controls. Causal fits separate outcome-stage and
-propensity-score-stage settings so that the two stages can be tuned
-independently. \\
-\bottomrule
-\end{tabular}
-\caption{Core modeling controls reused across one-arm, causal, and clustering workflows. Accepted values are aligned with registry constants and argument validation in the build/run and causal interfaces.}
-\label{tab:supp-core-controls}
-\end{table}
-
-\begin{table}[H]
-\centering
-\small
-\begin{tabular}{@{}p{0.13\linewidth}p{0.12\linewidth}p{0.28\linewidth}p{0.31\linewidth}p{0.07\linewidth}@{}}
-\toprule
-Kernel & Support & Bulk parameters & Default covariate-linked bulk parameters & GPD \\
-\midrule
-\code{normal} &
-$\mathbb{R}$ &
-\code{mean}, \code{sd} &
-\code{mean} with identity link &
-Yes \\
-\code{lognormal} &
-$\mathbb{R}_{+}$ &
-\code{meanlog}, \code{sdlog} &
-\code{meanlog} with identity link &
-Yes \\
-\code{invgauss} &
-$\mathbb{R}_{+}$ &
-\code{mean}, \code{shape} &
-\code{mean} with exponential link &
-Yes \\
-\code{gamma} &
-$\mathbb{R}_{+}$ &
-\code{shape}, \code{scale} &
-\code{scale} with exponential link &
-Yes \\
-\code{laplace} &
-$\mathbb{R}$ &
-\code{location}, \code{scale} &
-\code{location} with identity link &
-Yes \\
-\code{amoroso} &
-$\mathbb{R}_{+}$ &
-\code{loc}, \code{scale}, \code{shape1}, \code{shape2} &
-\code{loc} with identity link; \code{scale} with exponential link;
-\code{shape1} fixed at 1 by default &
-Yes \\
-\code{cauchy} &
-$\mathbb{R}$ &
-\code{location}, \code{scale} &
-\code{location} with identity link &
-No \\
-\bottomrule
-\end{tabular}
-\caption{Kernel families currently available through the shared registry, including support, parameterization, default covariate-linked bulk parameters, and GPD-tail compatibility. Entries correspond to kernel metadata defined in \code{get\_kernel\_registry()}.}
-\label{tab:supp-kernel-matrix}
-\end{table}
-
-\begin{table}[H]
-\centering
-\small
-\begin{tabular}{@{}p{0.20\linewidth}p{0.28\linewidth}p{0.42\linewidth}@{}}
-\toprule
-Option & Values & Effect on causal workflow \\
-\midrule
-\code{backend}, \code{kernel}, \code{GPD}, \code{components},
-\code{epsilon} &
-length 1 or length 2 values &
-A single value is shared across treated and control arms; length-2 input
-lets the treated and control outcome models use different backends,
-kernels, tail usage, truncation levels, and posterior truncation
-thresholds. \\
-\code{param\_specs} &
-single list or \code{list(con = ..., trt = ...)} &
-Supports arm-specific bulk and tail priors, fixed values, and link
-structures while preserving the same high-level causal summary API. \\
-\code{PS} &
-\code{"logit"} (default), \code{"probit"}, \code{"naive"}, \code{FALSE} &
-Turns the propensity-score stage on or off and chooses the PS model
-family used before arm-specific outcome fitting. \\
-\code{ps\_scale} &
-\code{"logit"} or \code{"prob"} &
-Controls whether the PS summary enters the outcome model on the
-probability scale or the logit scale. \\
-\code{ps\_summary} &
-\code{"mean"} or \code{"median"} &
-Determines which posterior summary of the PS is appended to the outcome
-covariate vector. \\
-\code{ps\_prior}, \code{include\_intercept}, \code{ps\_clamp} &
-prior list; logical; positive numeric &
-Tune prior strength in the PS model, whether an intercept is prepended,
-and how aggressively extreme fitted PS values are clamped away from 0
-and 1. \\
-\code{mcmc\_outcome}, \code{mcmc\_ps} &
-stage-specific MCMC lists &
-Allow the PS stage and the two outcome stages to use different iteration
-budgets and chain settings. \\
-\code{parallel\_arms}, \code{workers}, \code{z\_update\_every} &
-runner controls &
-\code{run\_mcmc\_causal()} exposes arm-level execution controls and can
-thin latent-label updates when cluster-allocation moves dominate cost;
-parallel requests may fall back to sequential execution depending on
-runtime availability. \\
-\bottomrule
-\end{tabular}
-\caption{Causal-model customization options beyond the one-arm baseline, including arm-specific overrides and propensity-score augmentation controls. Values and semantics follow the causal builder and runner argument contracts.}
-\label{tab:supp-causal-controls}
-\end{table}
-
-\begin{table}[H]
-\centering
-\small
-\begin{tabular}{@{}p{0.17\linewidth}p{0.24\linewidth}p{0.49\linewidth}@{}}
-\toprule
-Option & Values & Effect on clustering workflow \\
-\midrule
-\code{type} &
-\code{"weights"}, \code{"param"}, \code{"both"} &
-Determines whether predictors influence mixture weights, kernel
-parameters, or both. This is the main modeling choice for
-predictor-dependent clustering. \\
-Implicit backend choice &
-\code{"param"} $\rightarrow$ CRP; \code{"weights"} or \code{"both"} $\rightarrow$ SB &
-The clustering interface chooses the backend automatically to match the
-requested dependence structure, so the user typically reasons in terms
-of clustering mode rather than backend internals. \\
-\code{link} &
-named overrides for bulk and GPD parameters &
-Refines which parameters are regressed on covariates and which inverse
-links are used, without having to rewrite the kernel registry defaults. \\
-\code{priors} &
-named prior overrides &
-Adjusts cluster-gating or parameter priors for the clustering fit while
-reusing the same code-generation pipeline as the density models. \\
-\code{components} &
-integer $\ge 2$ &
-If omitted, the builder defaults to
-$\max(20, \min(50, n))$, which is deliberately more conservative than
-the one-arm wrappers because clustering performance is sensitive to
-under-truncation. \\
-\code{monitor}, \code{monitor\_latent}, \code{monitor\_v} &
-monitor profile and logical flags &
-Latent labels are always tracked for clustering summaries, and SB stick
-weights can be monitored explicitly when the chosen dependence mode uses
-an SB representation. \\
-\bottomrule
-\end{tabular}
-\caption{Customization options specific to the clustering interface, including dependence mode, backend implication, and monitoring behavior. Defaults and constraints reflect clustering builders and internal backend dispatch rules.}
-\label{tab:supp-cluster-controls}
-\end{table}
-
-\subsection{Advanced customization}
-
-The most important low-level knob for power users is
-\code{param\_specs}, which lets individual parameters move between fixed,
-prior-driven, and covariate-linked representations. In current code
-generation, the supported inverse-link names include \code{identity},
-\code{exp}, \code{softplus}, \code{log}, and \code{power}; the package
-defaults shown in Table~\ref{tab:supp-kernel-matrix} are simply the
-starting point.
-
-\begin{table}[H]
-\centering
-\small
-\begin{tabular}{@{}p{0.14\linewidth}p{0.27\linewidth}p{0.22\linewidth}p{0.27\linewidth}@{}}
-\toprule
-Mode & Representative structure & Interpretation & Typical use \\
-\midrule
-\code{fixed} &
-\code{list(mode = "fixed", value = ...)} &
-Locks the parameter to a constant rather than sampling it from a prior
-or regressing it on covariates. &
-Holding a shape parameter fixed, enforcing a known threshold, or
-reproducing a simpler submodel. \\
-\code{dist} &
-\code{list(mode = "dist", dist = ..., args = list(...))} &
-Treats the parameter as random under a prior but without regression on
-covariates. &
-Default component-specific bulk parameters and scalar tail-shape
-parameters. \\
-\code{link} &
-\code{list(mode = "link", link = ..., beta\_prior = ...)} &
-Builds a regression layer for the parameter and applies the specified
-inverse link to the linear predictor. &
-Covariate-dependent bulk location/scale parameters, PS-adjusted outcome
-regression, or linked tail-scale models. \\
-\code{link+dist} &
-\code{threshold = list(mode = "link", link = ..., link\_dist = list(dist = "lognormal"))} &
-Combines a regression mean structure with additional stochastic
-dispersion around the linked value. &
-Observation-specific thresholds with extra uncertainty, which is the
-default spliced threshold pattern in several covariate-dependent fits. \\
-\bottomrule
-\end{tabular}
-\caption{Parameter-plan modes available through \code{param\_specs}, showing how fixed constants, prior-only parameters, and covariate-linked parameters are encoded in compiled model plans.}
-\label{tab:supp-param-modes}
-\end{table}
-
-\subsection{Advanced core extension points}
-
-The package architecture is registry based: kernels and the GPD tail are
-declared once, then reused across bundle builders, code generation,
-MCMC, and S3 methods. For advanced extensions, the practical rule is to
-stabilize the registry metadata first, then rely on the shared bundle
-and runner layers rather than writing workflow-specific code.
-
-\begin{figure}[H]
-\centering
-\small
-\setlength{\tabcolsep}{5pt}
-\renewcommand{\arraystretch}{1.18}
-\begin{tabular}{@{}p{0.90\linewidth}@{}}
-\toprule
-	\textbf{Advanced extension path} \\
-\midrule
-	\textbf{Registry stage}: \code{get\_kernel\_registry()} and
-\code{get\_tail\_registry()} define signatures, support, defaults, and
-GPD compatibility. \\
-$\Downarrow$ \\
-	\textbf{Bundle stage}: builders normalize \code{fixed}/\code{dist}/\code{link}
-plans into a compiled specification. \\
-$\Downarrow$ \\
-	\textbf{Runner stage}: manual runners compile NIMBLE code, run MCMC,
-and attach shared fit metadata. \\
-$\Downarrow$ \\
-	\textbf{Consumer stage}: \code{summary()}, \code{params()},
-\code{predict()}, and \code{plot()} automatically consume the same fit
-structure. \\
-\bottomrule
-\end{tabular}
-\caption{Detailed advanced extension path showing how registry metadata propagates through bundle compilation, MCMC execution, and S3 fit consumers. This map is intended for advanced customization without workflow-specific forks.}
-\label{fig:supp-advanced-map}
-\end{figure}
-
-\begin{table}[H]
-\centering
-\small
-\begin{tabular}{@{}p{0.24\linewidth}p{0.25\linewidth}p{0.41\linewidth}@{}}
-\toprule
-Layer & Main functions & What advanced users can customize \\
-\midrule
-Registry layer &
-\code{get\_kernel\_registry()}, \code{get\_tail\_registry()} &
-Available kernels, support declarations, bulk parameter names, default
-covariate-link behavior, GPD compatibility, and backend signatures. \\
-Bundle layer &
-\code{build\_nimble\_bundle()}, \code{build\_causal\_bundle()} &
-Parameter plans, monitoring rules, MCMC defaults, arm-specific causal
-overrides, and the exact compiled specification passed into NIMBLE code
-generation. \\
-Runner layer &
-\code{run\_mcmc\_bundle\_manual()}, \code{run\_mcmc\_causal()} &
-Parallel execution strategy, worker counts, timing collection, and
-latent-label update cadence. \\
-Fit-consumer layer &
-\code{summary()}, \code{params()}, \code{predict()}, \code{plot()} &
-Shared summaries that automatically expose new kernels or tail
-components once the lower layers remain structurally consistent. \\
-\bottomrule
-\end{tabular}
-\caption{Advanced extension points across registry, bundle, runner, and fit-consumer layers. The table lists where to modify behavior while preserving compatibility with shared compilation and post-processing infrastructure.}
-\label{tab:supp-advanced-controls}
-\end{table}
 
 \end{document}
+
 
 
 

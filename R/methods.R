@@ -66,7 +66,7 @@ print.causalmixgpd_bundle <- function(x, code = FALSE, max_code_lines = 200L, ..
       if (is.null(code_obj)) {
         code_lines <- "  <no code available>"
       } else {
-        out <- paste(deparse(code_obj), collapse = "\n")
+        out <- .deparse_without_covr(code_obj)
         out <- strsplit(out, "\n", fixed = TRUE)[[1]]
         if (!is.finite(max_code_lines) || max_code_lines <= 0L) {
           code_lines <- out
@@ -94,7 +94,7 @@ print.causalmixgpd_bundle <- function(x, code = FALSE, max_code_lines = 200L, ..
     if (is.null(code_obj)) {
       cat("  <no code available>\n")
     } else {
-      out <- paste(deparse(code_obj), collapse = "\n")
+      out <- .deparse_without_covr(code_obj)
       out <- strsplit(out, "\n", fixed = TRUE)[[1]]
       if (!is.finite(max_code_lines) || max_code_lines <= 0L) {
         cat(paste(out, collapse = "\n"), "\n")
@@ -286,7 +286,7 @@ print.causalmixgpd_ps_bundle <- function(x, code = FALSE, max_code_lines = 200L,
   cat("include_intercept:", isTRUE(meta$include_intercept), "\n")
   if (isTRUE(code)) {
     cat("code:\n")
-    txt <- paste(deparse(x$code), collapse = "\n")
+    txt <- .deparse_without_covr(x$code)
     lines <- strsplit(txt, "\n", fixed = TRUE)[[1]]
     nshow <- min(length(lines), as.integer(max_code_lines))
     if (nshow > 0) {

@@ -1,0 +1,1032 @@
+# CausalMixGPD: Bayesian Nonparametric Models with Optional Heavy-Tail Augmentation and Causal Extensions
+
+## Introduction
+
+Causal inference is often summarized through average effects, but many
+applications require distributional comparisons between treatment
+regimes. In clinical trials, investigators may want to understand how a
+treatment changes outcomes across the outcome scale, including effects
+among individuals in the upper tail where events are rare but
+consequences can be substantial. This shift from mean-based to
+distribution-based causal questions makes causal analysis tightly linked
+to how well we can estimate (and predict) outcome distributions under
+competing treatment assignments.
+
+A growing R ecosystem supports Bayesian causal inference through
+flexible outcome modeling and posterior uncertainty quantification. For
+example, [bcf](https://cran.r-project.org/package=bcf) implements
+Bayesian Causal Forests for binary treatments and continuous outcomes,
+providing posterior inference for both average and heterogeneous
+treatment effects ([*bcf* 2024](#ref-bcf_pkg)). The package
+[bartCause](https://cran.r-project.org/package=bartCause) builds causal
+estimators around Bayesian additive regression trees, using BART as a
+regression engine for treatment-response modeling and causal effect
+estimation ([*bartCause* 2025](#ref-bartCause_pkg); [Hill
+2011](#ref-hill2011bart)). Complementing tree-based approaches,
+[BCEE](https://cran.r-project.org/package=BCEE) implements a Bayesian
+model-averaging strategy for causal effect estimation with support for
+binary or continuous exposures and outcomes ([*BCEE*
+2023](#ref-BCEE_pkg); [Talbot et al. 2015](#ref-talbot2015bcee)). A
+recurring practical difficulty in quantile-based causal reporting is the
+quantile crossing issue, where quantile curves at different probability
+levels can cross when they are estimated separately. To avoid this,
+`CausalMixGPD` directly models outcome densities and derives quantiles
+and other functionals from the posterior predictive distributions.
+
+In the context of density estimation and conditional density estimation,
+Dirichlet Process Mixtures (DPM) provide a versatile nonparametric
+solution because they can capture multimodality and latent heterogeneity
+without fixing the number of mixing components in advance. In the
+experimental R ecosystem, Bayesian nonparametric mixture modeling is
+well supported by software based on Dirichlet process (DP) ideas. For
+example,
+[dirichletprocess](https://cran.r-project.org/package=dirichletprocess)
+provides a flexible interface for specifying DPMs and fitting them by
+posterior simulation, yielding posterior inference for mixture weights,
+component labels, and predictive densities under user-chosen kernels
+([*dirichletprocess* 2023](#ref-dirichletprocess_pkg)). The package
+[DPpackage](https://cran.r-project.org/package=DPpackage) offers a broad
+suite of Bayesian semi- and nonparametric models in R, including
+DP-based formulations for marginal and conditional densities, regression
+functions, and model-based predictive distributions ([Jara et al.
+2011](#ref-jara2011DPpackage)). More recently,
+[BNPmix](https://cran.r-project.org/package=BNPmix) emphasizes practical
+Bayesian nonparametric mixture approaches, providing posterior inference
+for clustering structure and density/regression estimation under DP and
+Pitman–Yor-type mixture specifications ([Corradin et al.
+2021](#ref-canale2021BNPmix)).
+
+That clustering perspective is also important for the present package.
+Because DP mixtures induce random partitions through latent allocation
+variables, they naturally support model-based subgroup discovery in
+addition to density estimation. Bayesian cluster analysis is typically
+reported through label-invariant summaries such as pairwise
+co-clustering probabilities ([Binder 1978](#ref-Binder1978)) and
+representative partitions selected by Dahl’s least-squares criterion
+([Dahl 2006](#ref-Dahl2006)). In regression settings, clustering itself
+can depend on predictors: dependent Dirichlet process constructions
+allow covariates to affect mixture weights, component-specific
+parameters, or both ([MacEachern 1999,
+MacEachern2000](#ref-MacEachern1999); [De Iorio et al.
+2004](#ref-DeIorio2004); [Quintana et al. 2022](#ref-Quintana2022)), and
+predictor-dependent stick-breaking schemes provide a practical route for
+covariate-modulated cluster prevalence ([Ren et al.
+2011](#ref-Ren2011)). Existing software supports parts of this workflow,
+but it typically focuses on bulk density estimation and clustering under
+a single kernel family without an explicit adjustment for heavy tailed
+data. As a result, applications that require both latent subgroup
+discovery and tail extrapolation still need additional modeling outside
+the standard Bayesian nonparametric mixture workflow.
+
+However, it is important to note that estimating values far in the tail
+requires special care when data becomes scarce. Additionally, using a
+single model in the presence of heavy tail data can distort the fit in
+the central region. In such cases extreme value theory (EVT) provides a
+principled framework for modeling and extrapolation of tail
+behavior~([Haan and Ferreira 2007](#ref-de2007extreme)). EVT
+characterizes the asymptotic distribution of threshold exceedances,
+which can be used to estimate tail probabilities and quantiles beyond
+the range of observed data~([Balkema and Haan
+1974](#ref-balkema1974residual)). Bayesian implementations of EVT are
+available in R when posterior uncertainty quantification for tail
+quantities are required. For example,
+[evdbayes](https://cran.r-project.org/package=evdbayes) provides
+Bayesian inference for standard extreme-value models via posterior
+simulation, enabling posterior and posterior-predictive summaries for
+extreme-event quantities ([*evdbayes* 2025](#ref-evdbayes_pkg)). For
+peaks-over-threshold (POT) approaches, the package
+[POT](https://cran.r-project.org/package=POT) implements a focused
+collection of tools for GPD modeling and threshold-based tail analysis
+([*POT* 2024](#ref-POT_pkg)). Finally, for extreme quantile estimation
+and rare-event tail summaries,
+[extremefit](https://cran.r-project.org/package=extremefit) provides a
+published software implementation targeted specifically at
+extreme-quantile estimation ([Durrieu et al.
+2018](#ref-durrieu2018extremefit)).
+
+This article introduces an R package (`CausalMixGPD`) that connects
+Bayesian nonparametric modeling with EVT, clustering, and robust causal
+analyses in the presence of covariates (confounders). The package
+provides three simultaneous capabilities:
+
+- **Bayesian nonparametric (BNP) density modeling and prediction with
+  optional GPD tail:** `CausalMixGPD` fits DPMs using a user-chosen
+  kernel below a certain threshold (bulk part), and can optionally
+  splice a generalized Pareto tail above the threshold (tail part) to
+  enable the estimation of tail quantities and posterior predictive
+  inference for rare-event summaries.
+- **Clustering under predictor dependent mixtures:** A dedicated
+  clustering interface for both bulk-only and spliced models, supporting
+  weight dependence, parameter dependence, or both, and returning
+  label-invariant clustering summaries through posterior similarity
+  matrices and Dahl representative partitions ([Binder
+  1978](#ref-Binder1978); [Dahl 2006](#ref-Dahl2006)).
+- **Causal estimation and prediction for randomized controlled trials
+  (RCTs) and observational studies:** The final goal of this package is
+  to provide causal estimands by modeling treatment-specific potential
+  outcome densities and reporting contrasts as functionals of the
+  posterior over densities. Framework supports both randomized and
+  observational settings, with the latter using a flexible Bayesian
+  propensity score model to adjust for confounding.
+
+Overall, `CausalMixGPD` offers a unified workflow for density
+estimation, prediction, and causal reporting when tail behavior is of
+significance. The package is implemented in R with computationally
+intensive components coded in C++ and integrated via the `nimble`
+framework for model specification and posterior simulation ([*nimble*
+2025](#ref-nimble_pkg)). The remainder of this article is organized as
+follows. The Background and Preliminaries section introduces the key
+modeling components, including DPMs, GPDs, and the spliced bulk-tail
+construction. The Package Overview section describes the package’s main
+functions and user interface. The two Data analysis sections illustrate
+clustering and causal inference workflows on R datasets. Finally, the
+Discussion section concludes with limitations and future directions.
+
+## Package Overview: Workflow, Model, and Inference
+
+This section describes the main workflow provided by `CausalMixGPD` for
+one-arm conditional modeling and prediction when a generalized Pareto
+tail is spliced above a covariate-dependent threshold. The causal
+extension reuses the same modeling, estimation, and prediction machinery
+after introducing treatment-specific outcome models and a propensity
+score component; we defer those additions to the causal section.
+
+### Augmented DPM–GPD model, likelihood, and priors
+
+Let the observed data be
+``` math
+  \mathcal{D}=\{(y_i,x_i)\}_{i=1}^n,
+```
+
+``` r
+
+data("nc_posX100_p3_k2", package = "CausalMixGPD")
+dat <- data.frame(y = nc_posX100_p3_k2$y, nc_posX100_p3_k2$X)
+```
+
+with $`x_i\in\mathbb{R}^p`$ denoting the covariate vector (including an
+intercept if desired). The target conditional distribution
+$`F(\cdot\mid x)`$ and its spliced DPM–GPD construction are defined in
+the Background and Preliminaries section, with the spliced CDF and
+density given in the Background and Preliminaries section. Posterior
+computation in `CausalMixGPD` approximates the bulk DPM by a finite
+truncation with $`J`$ mixture components,
+``` math
+  f_{\mathrm{DP}}(y\mid x;\Theta)\;\approx\;\sum_{j=1}^{J} w_j\,k(y\mid x;\theta_j),
+  \qquad j=1,\ldots,J,
+```
+where $`j`$ indexes mixture components, $`w_j\ge 0`$, and
+$`\sum_{j=1}^J w_j=1`$. Kernel parameters can be constant or
+covariate-dependent through link specifications of the form
+
+``` math
+  g\!\left(\psi_j(x)\right)=x^\top \beta_{j,\psi},
+```
+
+where $`g(\cdot)`$ enforces parameter support (e.g., positive scale
+parameters).
+
+``` r
+
+mcmc_fixed
+```
+
+``` r
+
+fit <- dpmgpd(
+  formula = y ~ x1 + x2 + x3,
+  data = dat,
+  backend = "sb",
+  kernel = "lognormal",
+  components = 5,
+  mcmc = mcmc_fixed
+)
+```
+
+For the spliced model, let $`u(x)`$ be the threshold, $`\sigma(x)>0`$
+the tail scale, and $`\xi\in\mathbb{R}`$ the tail shape (as in the
+spliced-model subsection). Define $`\delta_i=\mathbf{1}\{y_i>u(x_i)\}`$.
+Using the spliced density with the truncated bulk mixture, the
+likelihood is
+``` math
+  L(\Theta,\Phi;\mathcal{D})
+  =\prod_{i=1}^n f(y_i\mid x_i;\Theta,\Phi),
+```
+where $`\Theta`$ collects the truncation-level bulk parameters
+$`\{w_j,\theta_j\}_{j=1}^J`$, and $`\Phi`$ collects the tail parameters
+governing $`u(x)`$, $`\sigma(x)`$, and $`\xi`$. Equivalently, the
+log-likelihood can be written as \$\$ \log L(\Theta,\Phi;\mathcal{D})
+\\=&\\\sum\_{i=1}^n (1-\delta_i)\\\log f\_{\mathrm{DP}}(y_i\mid
+x_i;\Theta) \nonumber\\ &\\+\\\sum\_{i=1}^n \delta_i \Bigl\[
+\log\\\bigl\\1-F\_{\mathrm{DP}}(u(x_i)\mid x_i;\Theta)\bigr\\ +\log
+f\_{\mathrm{GPD}}\\\bigl(y_i\mid x_i;\Phi\bigr) \Bigr\], \$\$ where
+$`f_{\mathrm{GPD}}`$ is the GPD density and
+$`F_{\mathrm{DP}}(\cdot\mid x)`$ is the bulk mixture CDF induced by the
+truncated mixture.
+
+Priors follow the decomposition implied by the bulk-tail factorization.
+Under the SB backend, the truncation-level weights are generated through
+Beta stick breaks from the stick-breaking construction, which are
+represented in `nimble` using the Beta distribution in model code (see
+`dbeta`). Under the CRP backend, the latent-cluster-label representation
+is implemented using the CRP distribution in `nimble` (see `dCRP`),
+matching the predictive representation of the CRP. Kernel parameters and
+tail parameters are assigned weakly informative priors, with regression
+coefficients $`\beta_{j,\psi}`$ arising through the link representation
+described above. The same link construction is used for
+covariate-dependent $`u(x)`$ and $`\sigma(x)`$ when those are modeled as
+functions of $`x`$.
+
+### MCMC algorithm, convergence diagnostics, and parameter extraction
+
+Posterior simulation targets
+$`p(\Theta,\Phi\mid \mathcal{D}) \propto L(\Theta,\Phi;\mathcal{D})\,p(\Theta,\Phi)`$
+using the likelihood above and the prior structure implied by the SB or
+CRP representation. Given a model specification, `CausalMixGPD` runs
+MCMC through `nimble` ([Valpine et al. 2017](#ref-devalpine2017nimble);
+[*nimble* 2025](#ref-nimble_pkg)) under the chosen backend; SB uses Beta
+stick breaks in model code (see `dbeta`) and CRP uses the CRP
+distribution for latent cluster labels (see `dCRP`). Users control the
+number of iterations, burn-in, thinning, and number of chains through
+the `mcmc` argument in the wrappers.
+
+Convergence checking is supported through standard multi-chain
+diagnostics and trace-based visualizations. The model object supports
+[`summary()`](https://rdrr.io/r/base/summary.html) for posterior
+summaries, [`plot()`](https://rdrr.io/r/graphics/plot.default.html) for
+diagnostic plots (trace, running mean, autocorrelation, and multi-chain
+diagnostics such as $`\widehat{R}`$ when multiple chains are used), and
+[`params()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/params.md)
+as a lightweight extractor returning posterior mean parameters reshaped
+to natural dimensions. Interval summaries used by
+[`predict()`](https://rdrr.io/r/stats/predict.html) can be chosen as
+equal-tailed credible intervals or HPD intervals as described in the
+Posterior functionals subsection ([Gelman et al.
+2013](#ref-Gelman2013BDA); [Plummer et al. 2024](#ref-coda_pkg)).
+Diagnostic plotting relies on established MCMC diagnostic tooling
+([*ggmcmc* 2025](#ref-ggmcmc_pkg)).
+
+``` r
+
+print(fit)
+p_hat <- params(fit)
+p_hat
+```
+
+#### Bulk-only special case (no GPD tail)
+
+Setting `GPD = FALSE` removes the splicing step so that
+$`f(y\mid x;\Theta)\equiv f_{\mathrm{DP}}(y\mid x;\Theta)`$, and
+$`L(\Theta,\Phi;\mathcal{D})`$ reduces to the bulk-mixture likelihood in
+$`\Theta`$. All estimation and prediction targets described below remain
+available, with tail-specific terms omitted. The wrapper
+[`dpmix()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/dpmix.md)
+fits this bulk-only model, while
+[`dpmgpd()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/dpmgpd.md)
+fits the augmented (spliced) model.
+
+### Posterior functionals, interval summaries and prediction
+
+The estimands reported by `CausalMixGPD` are functionals of the
+estimated conditional distribution $`F(\cdot\mid x)`$ from the
+Background and Preliminaries section. In this article we focus on four
+conditional functionals: density $`f(y\mid x)`$, survival
+$`S(y\mid x)=1-F(y\mid x)`$, quantiles $`Q(\tau\mid x)`$, and mean-type
+summaries.
+
+Let $`(\Theta^{(s)},\Phi^{(s)})_{s=1}^S`$ denote post-burn-in draws from
+the posterior. For density, survival, and quantiles, `CausalMixGPD`
+evaluates the corresponding draw-wise functional using the spliced
+formulas for the spliced CDF, density, and quantile mapping (with the
+truncated bulk mixture), and then summarizes across draws. Specifically,
+for a generic scalar functional $`T(\Theta,\Phi;x)`$ (e.g.,
+$`f(y_0\mid x)`$ or $`Q(\tau\mid x)`$),
+``` math
+  \widehat{T}(x)=\frac{1}{S}\sum_{s=1}^S T(\Theta^{(s)},\Phi^{(s)};x),
+```
+and uncertainty is summarized either by equal-tailed credible intervals
+(posterior quantiles) or by highest posterior density (HPD) intervals
+(shortest intervals covering the target posterior mass). Equal-tailed
+intervals and general Bayesian posterior summaries follow standard
+practice ([Gelman et al. 2013](#ref-Gelman2013BDA)); HPD intervals are
+computed from the MCMC draws using established implementations ([Plummer
+et al. 2024](#ref-coda_pkg)).
+
+Mean-type summaries are handled differently in the package. For
+`type = "mean"` and `type = "rmean"`, `CausalMixGPD` uses posterior
+predictive Monte Carlo within each posterior draw rather than direct
+plug-in evaluation. For a fixed covariate value $`x`$, within draw $`s`$
+the package generates
+``` math
+  y_{1}^{(s)},\ldots,y_{M}^{(s)} \;\sim\; f(\cdot\mid x;\Theta^{(s)},\Phi^{(s)}),
+```
+and computes
+``` math
+  \mu^{(s)}(x)=\frac{1}{M}\sum_{m=1}^M y_{m}^{(s)},
+  \qquad
+  \mu_{c}^{(s)}(x)=\frac{1}{M}\sum_{m=1}^M \min\{y_{m}^{(s)},c\},
+```
+corresponding to the conditional mean and the restricted mean at cutoff
+$`c`$, respectively. Posterior summaries and intervals are then formed
+from $`\{\mu^{(s)}(x)\}_{s=1}^S`$ or $`\{\mu_c^{(s)}(x)\}_{s=1}^S`$.
+Under the spliced model, the conditional mean is infinite when
+$`\xi\ge 1`$; accordingly, `CausalMixGPD` flags `type = "mean"` as
+infinite when there is posterior mass with $`\xi\ge 1`$, while
+`type = "rmean"` remains finite by construction.
+
+Using the same fitted model `fit` from the Augmented DPM–GPD model
+subsection, we now compute posterior summaries on the original training
+covariates (default behavior of
+[`predict()`](https://rdrr.io/r/stats/predict.html) when `newdata` is
+not supplied).
+
+``` r
+
+q_grid <- c(0.50, 0.90, 0.95, 0.99)
+x_eval <- dat[1:20, c("x1", "x2", "x3")]
+
+est_quant <- predict(fit, newdata = x_eval, type = "quantile", index = q_grid,
+                     interval = "hpd", level = 0.95)
+```
+
+For a new covariate value $`x^\star`$, prediction is based on the
+posterior predictive distribution
+``` math
+  p(y^\star\mid x^\star,\mathcal{D})
+  =\int f(y^\star\mid x^\star;\Theta,\Phi)\,p(\Theta,\Phi\mid \mathcal{D})\,d\Theta\,d\Phi.
+```
+The [`predict()`](https://rdrr.io/r/stats/predict.html) method returns
+posterior summaries for the same functional targets as in the current
+posterior-functionals subsection. For `type = "density"` and
+`type = "survival"`, the user supplies a grid of $`y`$ values and the
+method returns pointwise posterior means with interval bounds computed
+draw-by-draw. For `type = "quantile"`, the user supplies quantile
+indices $`\tau`$ and the method returns posterior summaries of
+$`Q(\tau\mid x^\star)`$ computed using the spliced quantile
+representation in . For `type = "mean"` and `type = "rmean"`, prediction
+uses posterior predictive Monte Carlo as described above, with $`x`$
+replaced by $`x^\star`$ and with user-controlled $`M`$ through
+`nsim_mean`.
+
+``` r
+
+q_levels <- c(0.25, 0.50, 0.75)
+x_new <- as.data.frame(lapply(
+  dat[, c("x1", "x2", "x3")],
+  quantile,
+  probs = q_levels,
+  na.rm = TRUE
+))
+rownames(x_new) <- c("q25", "q50", "q75")
+y_grid <- seq(0, 10, length.out = 200)
+p_grid <- c(0.50, 0.90, 0.95, 0.99)
+```
+
+``` r
+
+pdens <- predict(fit, newdata = x_new, y = y_grid, type = "density",
+                 interval = "credible", level = 0.95)
+```
+
+``` r
+
+psurv <- predict(fit, newdata = x_new, y = y_grid, type = "survival",
+                 interval = "credible", level = 0.95)
+```
+
+``` r
+
+pquant <- predict(fit, newdata = x_new, type = "quantile", index = p_grid,
+                  interval = "hpd", level = 0.95)
+```
+
+### Clustering extension
+
+The mixture modeling framework introduced earlier induces a latent
+partition of the observations through the latent cluster labels $`z_i`$.
+While the primary modeling workflow of the package focuses on estimating
+conditional densities and causal functionals, the clustering extension
+instead treats this latent partition as the main object of interest. The
+package therefore provides a dedicated clustering interface that fits
+the same mixture models but returns clustering summaries derived from
+the posterior distribution of the latent cluster labels.
+
+The clustering workflow mirrors the design used throughout the package.
+Users specify the response variable, optional covariates, the mixture
+kernel, and whether the model should use the bulk-only or the spliced
+likelihood. The resulting model is then fitted using the same MCMC
+framework used for the conditional and causal models. Consequently,
+clustering models share the same prior specification, kernel choices,
+and computational infrastructure as the rest of the package.
+
+Two clustering wrappers are provided. The first constructs mixture
+models using only the bulk kernel distribution. The second uses the
+spliced bulk–tail likelihood introduced earlier, allowing the clustering
+structure to account for extreme observations through the generalized
+Pareto tail. Both interfaces accept the same model specification
+arguments as the main modeling functions, ensuring that clustering
+models can be constructed using the same syntax and options.
+
+Three forms of covariate dependence are supported in clustering models.
+First, covariates may influence the mixture weights while the component
+distributions remain invariant across observations. In this
+configuration, clusters represent subpopulations whose prevalence varies
+with predictors. Second, the mixture weights may remain global while the
+component parameters depend on covariates through the same link
+structures used in the conditional density models. In this case clusters
+represent groups with distinct covariate-response relationships. Third,
+both the mixture weights and the component parameters may depend on
+covariates simultaneously, allowing clusters to capture both changing
+prevalence and covariate-dependent distributional behavior.
+
+Posterior inference for clustering models uses the same sampling
+procedure as the main mixture models, jointly updating the component
+parameters and the latent cluster labels. Let
+$`z^{(s)}=\bigl(z_1^{(s)},\ldots,z_n^{(s)}\bigr)`$, $`s=1,\ldots,S`$,
+denote the retained MCMC draws of the latent cluster-label vector after
+burn-in and thinning. Because mixture components are only identified up
+to label permutation, `CausalMixGPD` reports label-invariant clustering
+summaries based on pairwise co-clustering probabilities and a
+representative partition ([Binder 1978](#ref-Binder1978); [Dahl
+2006](#ref-Dahl2006)).
+
+The primary uncertainty summary is the posterior similarity matrix
+(PSM), computed entrywise as
+``` math
+  \widehat S_{i\ell}
+  =
+  \frac{1}{S}\sum_{s=1}^S \mathbf{1}\!\left\{z_i^{(s)} = z_\ell^{(s)}\right\},
+  \qquad i,\ell=1,\ldots,n.
+```
+Thus, $`\widehat S_{i\ell}`$ is the posterior probability that
+observations $`i`$ and $`\ell`$ belong to the same cluster.
+
+A single representative partition is then extracted by selecting the
+sampled partition whose adjacency matrix is closest to the PSM under
+squared loss ([Dahl 2006](#ref-Dahl2006)):
+``` math
+  s^\star
+  =
+  \arg\min_{1 \le s \le S}
+  \sum_{i=1}^n \sum_{\ell=1}^n
+  \left(
+    \mathbf{1}\!\left\{z_i^{(s)} = z_\ell^{(s)}\right\}
+    - \widehat S_{i\ell}
+  \right)^2.
+```
+The representative labels are $`\hat z_i = z_i^{(s^\star)}`$, relabeled
+to consecutive integers $`1,\ldots,K`$, and the reported cluster sizes
+are $`n_k = \sum_{i=1}^n \mathbf{1}\!\left\{\hat z_i = k\right\}`$.
+
+When `return_scores = TRUE`, the package also returns a training
+membership score matrix. If $`C_k=\{\ell:\hat z_\ell = k\}`$ denotes
+cluster $`k`$ in the representative partition, the unnormalized score
+for observation $`i`$ and cluster $`k`$ is
+``` math
+  q_{ik}
+  =
+  \frac{1}{|C_k|}
+  \sum_{\ell \in C_k} \widehat S_{i\ell},
+```
+and the normalized training score is
+``` math
+  p_{ik}
+  =
+  \frac{q_{ik}}{\sum_{h=1}^K q_{ih}}.
+```
+The hard representative label is $`\arg\max_{1 \le k \le K} p_{ik}`$,
+while a simple cluster-certainty summary is
+$`\max_{1 \le k \le K} p_{ik}`$.
+
+For a new observation $`(y_i^{\mathrm{new}}, x_i^{\mathrm{new}})`$, the
+package first forms within-draw component scores
+``` math
+  r_{ij}^{(s)}
+  \propto
+  \omega_j^{(s)}\!\left(x_i^{\mathrm{new}}\right)
+  f_j^{(s)}\!\left(y_i^{\mathrm{new}} \mid x_i^{\mathrm{new}}\right),
+  \qquad j=1,\ldots,J,
+```
+where $`\omega_j^{(s)}(x)`$ is the draw-specific gating weight when that
+quantity is available; otherwise the implementation falls back to
+sampled global weights, when present, or to the empirical component
+frequencies in draw $`s`$. For occupied components, these scores are
+mapped to representative clusters through
+``` math
+  m_{jc}^{(s)}
+  =
+  \frac{1}{n_j^{(s)}}
+  \sum_{\ell:\,z_\ell^{(s)}=j}
+  \mathbf{1}\!\left\{\hat z_\ell = c\right\},
+  \qquad c=1,\ldots,K,
+```
+and then averaged over posterior draws:
+``` math
+  p_{ic}^{\mathrm{new}}
+  =
+  \frac{1}{S}
+  \sum_{s=1}^S \sum_{j=1}^J r_{ij}^{(s)} m_{jc}^{(s)}.
+```
+Empty sampled components are assigned a uniform map over the $`K`$
+representative clusters. These are the quantities returned internally by
+[`predict.dpmixgpd_cluster_fit()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/predict.dpmixgpd_cluster_fit.md).
+After row normalization, the predicted cluster label is
+$`\arg\max_{1 \le c \le K} p_{ic}^{\mathrm{new}}`$.
+
+The clustering workflow is illustrated below using one of the example
+data sets included with the package.
+
+``` r
+
+data("nc_realX100_p3_k2", package = "CausalMixGPD")
+
+dat_cl <- data.frame(y = nc_realX100_p3_k2$y, nc_realX100_p3_k2$X)
+
+fit_cluster <- dpmix.cluster(
+  y ~ x1 + x2 + x3,
+  data       = dat_cl,
+  kernel     = "normal",
+  type       = "param",
+  components = 8,
+  mcmc = mcmc_fixed
+)
+```
+
+Posterior clustering summaries can be obtained directly from the fitted
+object. The following code returns the PSM, the representative training
+partition, the training cluster sizes, and the associated certainty
+scores.
+
+``` r
+
+cluster_psm   <- predict(fit_cluster, type = "psm")
+cluster_train <- predict(fit_cluster, type = "label", return_scores = TRUE)
+
+cluster_sizes <- data.frame(
+  cluster = names(summary(cluster_train)$cluster_sizes),
+  n = as.integer(summary(cluster_train)$cluster_sizes)
+)
+cluster_certainty <- apply(cluster_train$scores, 1, max)
+```
+
+Cluster assignments for new observations are obtained from the posterior
+predictive score matrix in the same interface.
+
+``` r
+
+cluster_new <- predict(
+  fit_cluster,
+  newdata = dat_cl,
+  type    = "label",
+  return_scores = TRUE
+)
+
+cluster_new_certainty <- apply(cluster_new$scores, 1, max)
+```
+
+The same workflow applies to the spliced mixture model, which
+incorporates the generalized Pareto tail component when clustering data
+with heavy-tailed behavior.
+
+``` r
+
+fit_cluster_spliced <- dpmgpd.cluster(
+  y ~ x1 + x2 + x3,
+  data       = dat_cl,
+  kernel     = "normal",
+  type       = "both",
+  components = 8,
+  mcmc = mcmc_fixed
+)
+```
+
+### Causal extension and propensity score augmentation
+
+This package extends the one-arm conditional mixture regression
+framework to two-arm causal studies by fitting an outcome model under
+treatment and under control, optionally augmenting the outcome
+covariates with a PS summary. Throughout this section we write the model
+in its default *augmented spliced* form (bulk mixture + GPD tail), using
+the same conditional distributional building blocks introduced earlier
+(so we do not restate the spliced density; see and the corresponding
+conditional functionals defined in the previous sections).
+
+#### Data, model components, and likelihood factorization
+
+Let
+``` math
+  \mathcal{D}=\{(y_i,a_i,\boldsymbol{x}_i)\}_{i=1}^n,
+  \qquad a_i\in\{0,1\},
+```
+where $`a_i=1`$ denotes treatment and $`a_i=0`$ denotes control. The
+causal interface consists of two pieces.
+
+First, when PS augmentation is enabled, a binary regression model is
+used for the treatment mechanism \$ a_i *i, &(e*{}(*i)), h!(e*{}(\_i))
+&= \_0 + \_i^, h{,}, \$ which is consistent with the definition and
+balancing property in –. The package also supports a `"naive"` option,
+in which $`e(\boldsymbol{x})`$ is taken to be constant (no covariate
+dependence).
+
+Second, the outcome model is fit separately within each arm. Denote by
+$`F_a(\,\cdot\mid\boldsymbol{r})`$ the fitted conditional outcome
+distribution under arm $`a\in\{0,1\}`$, where $`\boldsymbol{r}`$ is the
+covariate vector used by the outcome model. With PS augmentation, the
+package constructs an *augmented* covariate vector \$ () =
+(1, ^, (e()))^, \$ where $`\widehat e(\boldsymbol{x})`$ is a posterior
+summary of the PS (posterior mean or median, controlled by
+`ps_summary`), and $`\psi(\cdot)`$ is either $`\psi(p)=\text{logit}(p)`$
+or $`\psi(p)=p`$ (controlled by `ps_scale`). When PS augmentation is
+disabled,
+$`\boldsymbol{r}(\boldsymbol{x})=(1,\boldsymbol{x}^\top)^\top`$.
+
+Within each arm, the conditional density $`f_a(y\mid \boldsymbol{r})`$
+follows the same mixture regression + optional GPD tail specification
+described in the one-arm section (kernel choice, link structure
+$`g(\cdot)`$ for covariate-dependent parameters, and either `"sb"` or
+`"crp"` backend for the DPM). Let $`\boldsymbol{\Theta}_a`$ collect the
+arm-specific mixture and tail parameters. The arm-wise likelihood
+contributions are
+``` math
+  L_a(\boldsymbol{\Theta}_a;\mathcal{D})
+  =
+  \prod_{i:\,a_i=a} f_a\!\left(y_i \mid \boldsymbol{r}(\boldsymbol{x}_i);
+  \boldsymbol{\Theta}_a\right),
+  \qquad a\in\{0,1\},
+```
+with $`f_a(\cdot\mid\cdot)`$ given by the spliced construction already
+defined (bulk mixture below threshold and GPD exceedances above
+threshold). Practically, the implementation uses a two-stage workflow:
+(i) fit the PS model using –, then (ii) compute
+$`\widehat e(\boldsymbol{x}_i)`$ and build
+$`\boldsymbol{r}(\boldsymbol{x}_i)`$ in before fitting the two
+arm-specific outcome models.
+
+#### Prior specification (PS then outcome)
+
+For the PS regression coefficients, the default prior is independent
+Normal,
+``` math
+  \gamma_0 \sim \mathcal{N}(m_0,s_0^2),
+  \qquad
+  \gamma_k \sim \mathcal{N}(m_0,s_0^2),
+```
+with defaults controlled by `ps_prior`.
+
+For each arm’s outcome model, priors follow the same structure as the
+one-arm case: a DPM prior (with either truncated stick-breaking or a CRP
+latent-cluster-label representation, implemented in `nimble` ([Valpine
+et al. 2017](#ref-devalpine2017nimble); [*nimble*
+2025](#ref-nimble_pkg))) and kernel-/tail-specific priors on the bulk
+and GPD parameters. Since the causal fit is simply a pair of one-arm
+fits (treated and control), all customization options for kernels,
+links, and tail inclusion apply arm-wise. For quick lookup of these
+controls and their code-level defaults, see the supplementary workflow
+maps (Figures~fig:supp-workflow-map and~fig:supp-advanced-map) and
+option matrices in
+Tables~tab:supp-core-controls–tab:supp-advanced-controls.
+
+#### MCMC algorithm, diagnostics, and parameter extraction
+
+The causal fit runs MCMC in two stages, each with its own iteration
+controls.
+
+1.  PS stage: posterior simulation for $`\boldsymbol{\gamma}`$ in the
+    propensity-score model using `mcmc_ps` settings. The PS posterior
+    draws are summarized to obtain $`\widehat e(\boldsymbol{x}_i)`$,
+    which is optionally transformed via `ps_scale` and appended to the
+    outcome covariates.
+
+2.  Outcome stage: arm-specific posterior simulation for
+    $`\boldsymbol{\Theta}_0`$ and $`\boldsymbol{\Theta}_1`$ using
+    `mcmc_outcome` settings, with either `"sb"` or `"crp"` backend.
+
+For routine convergence checks, users can inspect trace plots and
+autocorrelation for monitored parameters and (when running multiple
+chains) compare between-chain and within-chain mixing. The package
+stores MCMC samples in the fitted object, and standard diagnostics can
+be applied after converting samples to `coda` objects (e.g., effective
+sample size, Geweke diagnostics, and HPD intervals via
+[`coda::HPDinterval`](https://rdrr.io/pkg/coda/man/HPDinterval.html);
+see the `coda` reference at the end of this message). Posterior
+parameter summaries can be extracted via the exported
+[`params()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/params.md)
+method, which returns arm-specific parameter tables for causal fits.
+
+#### Estimation and interval summaries for causal contrasts
+
+All reported causal quantities are computed as functionals of the fitted
+arm-specific conditional distributions. Let $`T_a(\boldsymbol{x})`$
+denote any conditional functional under arm $`a`$ (density, survival,
+quantile, or mean/restricted mean), computed from
+$`F_a(\cdot\mid\boldsymbol{r}(\boldsymbol{x}))`$ using the same
+definitions as in the one-arm case. The corresponding conditional causal
+contrast is
+``` math
+  \Delta_T(\boldsymbol{x}) = T_1(\boldsymbol{x}) - T_0(\boldsymbol{x}).
+```
+The package computes $`\Delta_T(\boldsymbol{x})`$*draw-by-draw* from
+posterior samples, then summarizes $`\Delta_T(\boldsymbol{x})`$ by a
+posterior mean/median and uncertainty intervals. Equal-tailed credible
+intervals are formed by posterior quantiles, while HPD intervals are
+computed using
+[`coda::HPDinterval`](https://rdrr.io/pkg/coda/man/HPDinterval.html).
+
+The main causal estimators provided by the package are:
+
+1.  Conditional effects at covariate profiles. For a user-supplied set
+    of covariate rows $`\{\boldsymbol{x}^\star_m\}_{m=1}^M`$,
+    ``` math
+      \mathrm{CATE}(\boldsymbol{x}^\star_m)=\mu_1(\boldsymbol{x}^\star_m)-\mu_0(\boldsymbol{x}^\star_m),
+      \qquad
+      \mathrm{CQTE}(\tau\mid \boldsymbol{x}^\star_m)
+      =
+      Q_1(\tau\mid \boldsymbol{x}^\star_m)-Q_0(\tau\mid \boldsymbol{x}^\star_m),
+    ```
+    where
+    $`\mu_a(\boldsymbol{x})=\mathbb{E}(Y\mid A=a,\boldsymbol{X}=\boldsymbol{x})`$
+    and $`Q_a(\tau\mid\boldsymbol{x})`$ is the conditional quantile
+    function. In heavy-tailed settings, $`\mu_a(\boldsymbol{x})`$ can be
+    unstable when the implied tail shape yields infinite mean; the
+    package therefore supports both `type="mean"` and `type="rmean"` for
+    (restricted) mean-based effects, with restricted means computed as
+    $`\mathbb{E}[\min\{Y,c\}\mid A=a,\boldsymbol{X}=\boldsymbol{x}]`$ at
+    user-specified cutoff $`c`$.
+
+2.  Marginal (standardized) summaries. The package reports marginal ATE
+    and marginal QTE-style summaries by empirical standardization over
+    covariate profiles: \$\$ \mathrm{ATE} &= \frac{1}{n}\sum\_{i=1}^n
+    \Big\\\mu_1(\boldsymbol{x}\_i)-\mu_0(\boldsymbol{x}\_i)\Big\\,
+    \mathrm{QTE}(\tau) &=
+    Q_1^{\mathrm{m}}(\tau)-Q_0^{\mathrm{m}}(\tau),\qquad
+    Q_a^{\mathrm{m}}(\tau)=\inf\\y:\\F_a^{\mathrm{m}}(y)\ge \tau\\,\quad
+    F_a^{\mathrm{m}}(y)=\frac{1}{n}\sum\_{i=1}^n F_a(y\mid
+    \boldsymbol{x}\_i). \$\$ Treated-standardized analogues (ATT, QTT)
+    are obtained by replacing the full-sample covariate empirical
+    distribution with the treated-subsample empirical distribution
+    $`\{i:a_i=1\}`$. In the current implementation,
+    [`ate()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/ate.md)
+    and
+    [`att()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/att.md)
+    aggregate draw-wise conditional mean contrasts across rows, while
+    [`qte()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/qte.md)
+    and
+    [`qtt()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/qtt.md)
+    compute draw-wise arm-specific marginal quantiles and then contrast
+    them.
+
+#### Posterior prediction at new covariate profiles
+
+Prediction in the causal setup proceeds by producing arm-specific
+predictive summaries at new covariates and then differencing when
+required. For new covariates $`\boldsymbol{x}^\star`$, the package first
+predicts the PS (if enabled), forms
+$`\boldsymbol{r}(\boldsymbol{x}^\star)`$ via the chosen PS augmentation,
+and then evaluates the desired distributional functional under both
+arms. For `type = "mean"` and `type = "quantile"`,
+[`predict()`](https://rdrr.io/r/stats/predict.html) returns
+treated-minus-control summaries and stores arm-specific predictions as
+attributes; for `type = "density"`, `"survival"`, and `"prob"`, it
+returns arm-specific summaries directly.
+
+A recommended way to build an interpretable prediction grid is to use
+coordinate-wise empirical quartiles. Let $`q_{k,p}`$ be the $`p`$th
+sample quantile of covariate $`x_k`$ for $`p\in\{0.25,0.5,0.75\}`$. The
+grid
+``` math
+  \mathcal{X}_\star = \prod_{k=1}^p \{q_{k,0.25},q_{k,0.5},q_{k,0.75}\}
+```
+yields $`3^p`$ representative covariate profiles at which
+$`\mathrm{CATE}`$, $`\mathrm{CQTE}`$, survival contrasts, and other
+predictive contrasts can be reported.
+
+#### User-facing workflow (code)
+
+The following example uses the formula interface and the high-level
+wrapper, fitting the augmented spliced model by default.
+
+``` r
+
+data("causal_pos500_p3_k2", package = "CausalMixGPD")
+dat <- causal_pos500_p3_k2
+df  <- data.frame(y = dat$y, A = dat$A, dat$X)
+```
+
+``` r
+
+cfit <- dpmgpd.causal(
+  formula = y ~ x1 + x2 + x3,
+  data = df,
+  treat = "A",
+  backend = "sb",
+  kernel = "lognormal",
+  components = 5,
+  PS = "logit",
+  ps_scale = "logit",
+  ps_summary = "mean",
+  mcmc_outcome = mcmc_fixed,
+  mcmc_ps = mcmc_fixed
+)
+```
+
+The fitted model object `cfit` contains the MCMC samples for both the PS
+and the arm-specific outcome models, and can be used to compute causal
+estimands and predictive summaries.
+
+To estimate the ATE and QTE at the empirical covariate distribution, use
+the
+[`ate()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/ate.md)
+and
+[`qte()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/qte.md)
+functions, which compute the standardized mean and quantile contrasts.
+
+``` r
+
+ate_hat <- ate(cfit, level = 0.90, interval = "credible")
+qte_hat <- qte(cfit, probs = c(0.50, 0.90, 0.95), level = 0.90, interval = "hpd")
+```
+
+For subpopulation effects, the
+[`cate()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/cate.md)
+and
+[`cqte()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/cqte.md)
+functions compute conditional contrasts at user-specified covariate
+rows.
+
+``` r
+
+qs    <- c(0.25, 0.50, 0.75)
+Xgrid <- expand.grid(lapply(df[c("x1","x2","x3")], quantile, probs = qs))
+```
+
+The following code then produces conditional quantile and survival
+predictions at the grid points, returning treated-minus-control
+contrasts for quantiles and arm-specific summaries for survival.
+
+``` r
+
+pred_q <- predict(cfit, newdata = Xgrid, type = "quantile", p = c(0.50, 0.90))
+pred_s <- predict(cfit, newdata = Xgrid, type = "survival", y = rep(4, nrow(Xgrid)))
+```
+
+#### Bulk-only causal mixtures (no GPD tail)
+
+To run the same two-arm regression without a GPD tail, use the bulk-only
+wrapper
+[`dpmix.causal()`](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/dpmix.causal.md)
+(or set `GPD=FALSE` at bundle construction). All causal estimand and
+prediction functions (`ate`, `qte`, `cate`, `cqte`, and `predict`)
+operate the same way, now interpreting $`F_a(\cdot\mid\boldsymbol{x})`$
+as the bulk mixture distribution.
+
+## Discussion
+
+CausalMixGPD combines the flexibility of central distribution modeling,
+the rigor of upper-tail extrapolation, and the ability to compare the
+full outcome distributions for causal inference in a unified framework.
+It allows the full flexibility of the non-parametric bulk, the addition
+of GPD structure in the tails, and the ability to perform a unified
+inference for the posterior summaries.
+
+The article focuses on the semiparametric aspect of the model, but the
+software has a wider scope that allows the user to perform a variety of
+tasks beyond the GPD splicing. It allows the user to perform
+stick-breaking and Chinese restaurant processes, different kernel
+families for real-line and positive outcomes, arm-specific causal
+inference, GPD splicing, and a clustering framework that uses the same
+machinery as the mixture fitting.
+
+The clustering framework allows the dependence to be modeled through the
+weights, the atoms, or a combination of both, which is consistent with
+the dependent DP regression clustering framework. The posterior
+uncertainty in the clustering partitions is also performed by displaying
+the similarity matrices and the representative partitions, making the
+clustering task interpretable even in the presence of label switching in
+the MCMC samples.
+
+The clustering, bulk tail, and posterior predictive analyses are all
+connected in a single workflow. This allows for a smooth transition from
+exploratory subgroup analyses to tail risk assessment and causal
+inference.
+
+Some Limitations. One limitation of this method is that it is
+computationally expensive. MCMC for mixture models with
+covariate-dependent parameters and tail components is computationally
+expensive, especially when fitting separate chains for each arm,
+including separate models for each outcome, and including a series of PS
+estimation models. Larger sample sizes and more dimensions will be even
+more expensive, especially for sensitivity analyses and model
+comparison.
+
+Another limitation of this method is that it is a spliced model, and
+this has all of the tuning parameters of a Dirichlet process mixture and
+a PoT model. There is a degree of uncertainty in the results, depending
+on the choice of kernel, truncation, and tail parameters. GPD is
+available for EVT for high thresholds, but for finite sample tail
+estimation, there must be sufficient exceedances. Similarly, clustering
+in a spliced model has similar behavior: strong overlap, weak predictor
+effects, and/or insufficient exceedances all contribute to a high degree
+of uncertainty in clustering, where the posterior similarity matrix is
+more informative than a clustering output.
+
+The causal implementation is currently limited to binary treatments and
+continuous outcomes, assuming standard identification conditions of
+consistency, ignorability, and overlap. Propensity score augmentation is
+helpful for adjustments in observational studies, but it is no
+replacement for good study design, overlap, and sensitivity analyses for
+unmeasured confounding. It is not a framework for censored survival,
+multivariate outcomes, longitudinal treatments, or interference.
+
+## References
+
+Balkema, A. A., and Laurens de Haan. 1974. “Residual Life Time at Great
+Age.” *Annals of Probability* 2 (5): 792–804.
+<https://doi.org/10.1214/aop/1176996548>.
+
+*bartCause: Causal Inference Using Bayesian Additive Regression Trees*.
+2025. <https://doi.org/10.32614/CRAN.package.bartCause>.
+
+*BCEE: The Bayesian Causal Effect Estimation Algorithm*. 2023.
+<https://doi.org/10.32614/CRAN.package.BCEE>.
+
+*bcf: Causal Inference Using Bayesian Causal Forests*. 2024.
+<https://doi.org/10.32614/CRAN.package.bcf>.
+
+Binder, David A. 1978. “Bayesian Cluster Analysis.” *Biometrika* 65 (1):
+31–38. <https://doi.org/10.1093/biomet/65.1.31>.
+
+Corradin, Riccardo, Antonio Canale, and Bernardo Nipoti. 2021. “BNPmix:
+An R Package for Bayesian Nonparametric Modeling via Pitman–Yor
+Mixtures.” *Journal of Statistical Software* 100 (15): 1–47.
+<https://doi.org/10.18637/jss.v100.i15>.
+
+Dahl, David B. 2006. *Model-Based Clustering for Expression Data via a
+Dirichlet Process Mixture Model*. Cambridge University Press.
+
+De Iorio, Maria, Peter Müller, Gary L. Rosner, and Steven N. MacEachern.
+2004. “An ANOVA Model for Dependent Random Measures.” *Journal of the
+American Statistical Association* 99 (465): 205–15.
+<https://doi.org/10.1198/016214504000000205>.
+
+*dirichletprocess: Build Dirichlet Process Objects for Bayesian
+Modelling*. 2023.
+<https://doi.org/10.32614/CRAN.package.dirichletprocess>.
+
+Durrieu, Gilles, Ion Grama, Kevin Jaunatre, Quang-Khoai Pham, and
+Jean-Marie Tricot. 2018. “Extremefit: A Package for Extreme Quantiles.”
+*Journal of Statistical Software* 87 (12): 1–20.
+<https://doi.org/10.18637/jss.v087.i12>.
+
+*evdbayes: Bayesian Analysis in Extreme Value Theory*. 2025.
+<https://doi.org/10.32614/CRAN.package.evdbayes>.
+
+Gelman, Andrew, John B. Carlin, Hal S. Stern, David B. Dunson, Aki
+Vehtari, and Donald B. Rubin. 2013. *Bayesian Data Analysis*. 3rd ed.
+Chapman; Hall/CRC. <https://doi.org/10.1201/b16018>.
+
+*ggmcmc: Analysis of MCMC Samples and Bayesian Inference*. 2025.
+<https://doi.org/10.32614/CRAN.package.ggmcmc>.
+
+Haan, Laurens de, and Ana Ferreira. 2007. *Extreme Value Theory: An
+Introduction*. Springer Science & Business Media.
+
+Hill, Jennifer L. 2011. “Bayesian Nonparametric Modeling for Causal
+Inference.” *Journal of Computational and Graphical Statistics* 20 (1):
+217–40. <https://doi.org/10.1198/jcgs.2010.08162>.
+
+Jara, Alejandro, Timothy Hanson, Fernando Quintana, Peter Müller, and
+Gary Rosner. 2011. “DPpackage: Bayesian Semi- and Nonparametric Modeling
+in R.” *Journal of Statistical Software* 40 (5): 1–30.
+<https://doi.org/10.18637/jss.v040.i05>.
+
+MacEachern, Steven N. 1999. *Dependent Nonparametric Processes*.
+<https://u.osu.edu/maceachern.1/files/2025/05/1999-MacEachern-JSM-Proceedings.pdf>.
+
+*nimble: MCMC, Particle Filtering, and Programmable Hierarchical
+Modeling*. 2025. <https://doi.org/10.32614/CRAN.package.nimble>.
+
+Plummer, Martyn, Nicky Best, Kate Cowles, and Karen Vines. 2024. *coda:
+Output Analysis and Diagnostics for MCMC*.
+<https://cran.r-project.org/package=coda>.
+
+*POT: Generalized Pareto Distribution and Peaks over Threshold*. 2024.
+<https://doi.org/10.32614/CRAN.package.POT>.
+
+Quintana, Fernando A., Peter Müller, Alejandro Jara, and Steven N.
+MacEachern. 2022. “The Dependent Dirichlet Process and Related Models.”
+*Statistical Science* 37 (1): 24–49.
+<https://doi.org/10.1214/20-STS819>.
+
+Ren, Lu, Lan Du, Lawrence Carin, and David B. Dunson. 2011. “The
+Logistic Stick-Breaking Process.” *Journal of Machine Learning Research*
+12 (7): 203–39. <https://www.jmlr.org/papers/v12/ren11a.html>.
+
+Talbot, Denis, Geneviève Lefebvre, Juli Atherton, and Yohann Chiu. 2015.
+“The Bayesian Causal Effect Estimation Algorithm.” *Journal of Causal
+Inference* 3 (2): 207–36. <https://doi.org/10.1515/jci-2014-0035>.
+
+Valpine, Perry de, Daniel Turek, Christopher J. Paciorek, Carsten
+Anderson-Bergman, Duncan Temple Lang, and Rastislav Bodik. 2017.
+“Programming with Models: Writing Statistical Algorithms for General
+Model Structures with NIMBLE.” *Journal of Statistical Software* 76
+(10): 1–27. <https://doi.org/10.18637/jss.v076.i10>.
