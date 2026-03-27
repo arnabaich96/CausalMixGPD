@@ -1142,8 +1142,33 @@ build_code_from_spec <- function(spec) {
 # nocov start
 .strip_covr_counts <- function(txt) {
   lines <- strsplit(txt, "\n", fixed = TRUE)[[1]]
-  keep <- !grepl("^\\s*covr:::count\\([^)]*\\)\\s*;?\\s*$", lines)
-  paste(lines[keep], collapse = "\n")
+  if (!length(lines)) return("")
+
+  # Remove standalone and inline covr counter calls inserted by instrumentation.
+  lines <- gsub("\\bcovr:::count\\([^)]*\\)\\s*;?", "", lines, perl = TRUE)
+
+  # Drop covr-only conditional wrappers that can leave bare `if` tokens in parsed code.
+  covr_if <- grepl("^\\s*if\\s*\\([^)]*covr:::[^)]*\\)\\s*\\{?\\s*$", lines)
+  lines[covr_if] <- ""
+
+  # Remove braces that only closed an instrumentation-only `if` block.
+  orphan_closing <- logical(length(lines))
+  for (i in seq_along(lines)) {
+    if (grepl("^\\s*}\\s*$", lines[i])) {
+      prev_nonempty <- i - 1L
+      while (prev_nonempty >= 1L && !nzchar(trimws(lines[prev_nonempty]))) {
+        prev_nonempty <- prev_nonempty - 1L
+      }
+      if (prev_nonempty >= 1L && grepl("^\\s*if\\s*\\([^)]*covr:::[^)]*\\)\\s*\\{?\\s*$", lines[prev_nonempty])) {
+        orphan_closing[i] <- TRUE
+      }
+    }
+  }
+  lines[orphan_closing] <- ""
+
+  lines <- trimws(lines, which = "right")
+  lines <- lines[nzchar(trimws(lines))]
+  paste(lines, collapse = "\n")
 }
 
 .deparse_without_covr <- function(expr) {

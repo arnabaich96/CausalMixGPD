@@ -1,9 +1,9 @@
 %\VignetteEncoding{UTF-8}
 %\SweaveOpts{concordance=TRUE}
 \makeatletter
-\def\input@path{{./}{vignettes/manuscript/}}
+\def\input@path{{./}{assets/}{vignettes/manuscript/}{vignettes/manuscript/assets/}}
 \makeatother
-\documentclass[article]{assets/jss}\usepackage[]{graphicx}\usepackage[]{xcolor}
+\documentclass[article]{jss}\usepackage[]{graphicx}\usepackage[]{xcolor}
 % maxwidth is the original width if it is less than linewidth
 % otherwise use linewidth (to make sure the graphics do not exceed the margin)
 \makeatletter
@@ -59,9 +59,12 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb}
+\usepackage{array}
 \usepackage{booktabs}
 \usepackage{float}
 \usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{pdflscape}
 \usepackage{natbib}
 \usepackage{xurl}
 \makeatletter
@@ -81,6 +84,10 @@
 \DeclareRobustCommand{\pkg}[1]{\textsf{#1}}
 \DeclareRobustCommand{\code}[1]{\nolinkurl{#1}}
 \setlength{\emergencystretch}{4em}
+\hfuzz=11pt
+\vfuzz=2pt
+\hbadness=10000
+\vbadness=2000
 \setkeys{Gin}{width=\linewidth,height=0.82\textheight,keepaspectratio}
 
 %% ---- JSS metadata ----
@@ -118,90 +125,26 @@ distribution-based causal questions makes causal analysis tightly linked
 to how well we can estimate (and predict) outcome distributions under
 competing treatment assignments.
 
-A growing \textsf{R} ecosystem supports Bayesian causal inference
-through flexible outcome modeling and posterior uncertainty
-quantification. For example,
-\href{https://cran.r-project.org/package=bcf}{\textsf{bcf}} implements
-Bayesian Causal Forests for binary treatments and continuous outcomes,
-providing posterior inference for both average and heterogeneous
-treatment effects \citep{bcf_pkg}. The package
-\href{https://cran.r-project.org/package=bartCause}{\textsf{bartCause}}
-builds causal estimators around Bayesian additive regression trees,
-using BART as a regression engine for treatment-response modeling and
-causal effect estimation \citep{bartCause_pkg,hill2011bart}.
-Complementing tree-based approaches,
-\href{https://cran.r-project.org/package=BCEE}{\textsf{BCEE}} implements
-a Bayesian model-averaging strategy for causal effect estimation with
-support for binary or continuous exposures and outcomes
-\citep{BCEE_pkg,talbot2015bcee}. A recurring practical difficulty in
-quantile-based causal reporting is the quantile crossing issue, where
-quantile curves at different probability levels can cross when they are
-estimated separately. To avoid this, \pkg{CausalMixGPD} directly models
-outcome densities and derives quantiles and other functionals from the
-posterior predictive distributions.
-
-In the context of density estimation and conditional density estimation, Dirichlet Process Mixtures (DPM) provide a
-versatile nonparametric solution because they can capture multimodality and latent heterogeneity
-without fixing the number of mixing components in advance. In the experimental \textsf{R}
-ecosystem, Bayesian nonparametric mixture modeling is
-well supported by software based on Dirichlet process (DP) ideas. For example,
-\href{https://cran.r-project.org/package=dirichletprocess}{\textsf{dirichletprocess}}
-provides a flexible interface for specifying DPMs and
-fitting them by posterior simulation, yielding posterior inference for
-mixture weights, component labels, and predictive densities under
-user-chosen kernels \citep{dirichletprocess_pkg}. The package
-\href{https://cran.r-project.org/package=DPpackage}{\textsf{DPpackage}}
-offers a broad suite of Bayesian semi- and nonparametric models in
-\textsf{R}, including DP-based formulations for marginal and conditional
-densities, regression functions, and model-based predictive
-distributions \citep{jara2011DPpackage}. More recently,
-\href{https://cran.r-project.org/package=BNPmix}{\textsf{BNPmix}}
-emphasizes practical Bayesian nonparametric mixture approaches,
-providing posterior inference for clustering structure and
-density/regression estimation under DP and Pitman--Yor-type mixture
-specifications \citep{canale2021BNPmix}.
-
-That clustering perspective is also important for the present package.
-Because DP mixtures induce random partitions through latent allocation
-variables, they naturally support model-based subgroup discovery in
-addition to density estimation. Bayesian cluster analysis is typically
-reported through label-invariant summaries such as pairwise
-co-clustering probabilities \citep{Binder1978} and representative
-partitions selected by Dahl's least-squares criterion
-\citep{Dahl2006}. In regression settings, clustering itself can depend
-on predictors: dependent Dirichlet process constructions allow
-covariates to affect mixture weights, component-specific parameters, or
-both \citep{MacEachern1999,MacEachern2000,DeIorio2004,Quintana2022},
+Dirichlet Process Mixtures (DPMs) provide a flexible way to model those
+outcome distributions because they accommodate multimodality and latent
+heterogeneity without fixing the number of mixture components in
+advance. They also induce random partitions through latent allocation
+variables, so density estimation and clustering are naturally linked.
+Bayesian cluster analysis is therefore typically summarized through
+label-invariant quantities such as pairwise co-clustering probabilities
+and representative partitions \citep{Binder1978,Dahl2006}. In
+regression settings, dependent Dirichlet process constructions allow
+mixture weights, component-specific parameters, or both to vary with
+predictors \citep{MacEachern1999,MacEachern2000,DeIorio2004,Quintana2022},
 and predictor-dependent stick-breaking schemes provide a practical route
-for covariate-modulated cluster prevalence \citep{Ren2011}. Existing
-software supports parts of this workflow, but it typically focuses on
-bulk density estimation and clustering under a single kernel family
-without an explicit adjustment for heavy tailed data. As a result,
-applications that require both latent subgroup discovery and
-tail extrapolation still need additional modeling outside the standard
-Bayesian nonparametric mixture workflow.
+to covariate-modulated cluster prevalence \citep{Ren2011}.
 
-However, it is important to note that estimating values far in the tail requires special care when data becomes scarce.
-Additionally, using a single model in the presence of heavy tail data can distort the fit in the central region.
-In such cases extreme value theory (EVT) provides a principled framework for
-modeling and extrapolation of tail behavior~\citep{de2007extreme}. EVT characterizes the
-asymptotic distribution of threshold exceedances, which can be used to
-estimate tail probabilities and quantiles beyond the range of observed data~\citep{balkema1974residual}.
-Bayesian implementations of EVT are available in
-\textsf{R} when posterior uncertainty quantification for tail
-quantities are required. For example,
-\href{https://cran.r-project.org/package=evdbayes}{\textsf{evdbayes}}
-provides Bayesian inference for standard extreme-value models via
-posterior simulation, enabling posterior and posterior-predictive
-summaries for extreme-event quantities \citep{evdbayes_pkg}. For
-peaks-over-threshold (POT) approaches, the package
-\href{https://cran.r-project.org/package=POT}{\textsf{POT}} implements a
-focused collection of tools for GPD modeling and threshold-based tail
-analysis \citep{POT_pkg}. Finally, for extreme quantile estimation and
-rare-event tail summaries,
-\href{https://cran.r-project.org/package=extremefit}{\textsf{extremefit}}
-provides a published software implementation targeted specifically at
-extreme-quantile estimation \citep{durrieu2018extremefit}.
+Heavy-tailed outcomes add a second challenge. The model must fit the
+center of the distribution well while still supporting principled upper
+tail extrapolation when data become sparse. \pkg{CausalMixGPD} addresses
+that combination by joining Bayesian nonparametric mixtures, optional
+generalized Pareto tails, clustering, and causal contrasts in a single
+workflow.
 
 This article introduces an \textsf{R} package (\pkg{CausalMixGPD}) that
 connects Bayesian nonparametric modeling with EVT, clustering,
@@ -317,12 +260,12 @@ u(x)+\dfrac{\sigma(x)}{\xi}\Bigl((1-\tau)^{-\xi}-1\Bigr), & \xi\neq 0,
 
 }
 
-\caption{GPD tail density above threshold for multiple shape parameters. \label{fig:gpd-density}}\label{fig:gpdDensityFigure-plot}
+\caption[GPD tail density above threshold for multiple shape parameters]{GPD tail density above threshold for multiple shape parameters.}\label{fig:gpdDensityFigure-plot}
 \end{figure}
 
 \end{knitrout}
 
-Figure~\ref{fig:gpd-density},
+Figure~\ref{fig:gpdDensityFigure-plot},
 illustrates the GPD density for different shape parameters $\xi$ with a fixed
 scale parameter $\sigma$ and threshold $u$. The shape parameter $\xi$ controls the tail heaviness: $\xi < 0$
 corresponds to a light tail with a finite upper bound, $\xi = 0$ corresponds to an exponential tail, and $\xi > 0$
@@ -393,8 +336,8 @@ DPM works without specifying
 the number of mixture components, and can capture complex distributional features such as
 multimodality, skewness, and heteroscedasticity by choosing an appropriate kernel family.
 This makes DPMs a natural choice for modeling the bulk of the conditional distribution, where data are abundant
-and complex features may be present. This package supports multiple kernel family,
-which is discussed in supplementary materials \eqref{tab:supp-kernel-matrix}.
+and complex features may be present. This package supports multiple kernel
+families spanning both positive-support and real-line outcomes.
 
 
 
@@ -446,7 +389,7 @@ scaling ensuring normalization of $f(\cdot\mid x;\Theta,\Phi)$. The following fi
 
 }
 
-\caption{Illustration of the spliced bulk--tail density construction. \label{fig:spliced-density}}\label{fig:splicedDensityFigure-plot}
+\caption[Illustration of the spliced bulk--tail density construction]{Illustration of the spliced bulk--tail density construction.}\label{fig:splicedDensityFigure-plot}
 \end{figure}
 
 \end{knitrout}
@@ -1354,10 +1297,8 @@ or a CRP latent-cluster-label representation, implemented in \texttt{nimble}
 on the bulk and GPD parameters. Since the causal fit is simply a pair of
 one-arm fits (treated and control), all customization options for
 kernels, links, and tail inclusion apply arm-wise.
-For quick lookup of these controls and their code-level defaults, see
-the supplementary workflow maps (Figures~\ref{fig:supp-workflow-map}
-and~\ref{fig:supp-advanced-map}) and option matrices in
-Tables~\ref{tab:supp-core-controls}--\ref{tab:supp-advanced-controls}.
+The corresponding function arguments and printed summaries provide the
+quickest lookup for these controls and their code-level defaults.
 
 \subsubsection{MCMC algorithm, diagnostics, and parameter extraction}
 
@@ -1671,7 +1612,7 @@ sample.
 
 For presentation we summarize the first five most populated clusters from
 \code{summary(fit_clust, top_n = 5)} and report the associated descriptive
-statistics in Table~\ref{tab:cluster-top5-populated}.
+statistics in Table~\ref{tab:app_cluster_top5_populated-results}.
 
 
 
@@ -1700,7 +1641,7 @@ actually represented in the new observations (Table~\ref{tab:app_cluster_old_new
 
 
 
-\begin{table}[!h]
+\begin{table}[H]
 \centering
 \caption{\label{tab:app_cluster_old_new_test-results}Test cluster sizes}
 \centering
@@ -1723,80 +1664,84 @@ C5 & 1\\
 
 
 
-To summarize the dominant representative clusters, Table~\ref{tab:cluster-top5-populated}
+To summarize the dominant representative clusters, Table~\ref{tab:app_cluster_top5_populated-results}
 reports descriptive statistics for up to the five most populated training clusters.
-For each cluster we show the cluster size together with within-cluster means
-and standard deviations for the response and standardized covariates.
+For each cluster we show one row per summarized variable together with
+the cluster size, within-cluster mean, and within-cluster standard deviation.
 
 
 
-\begin{table}[!h]
+\begin{table}[H]
 \centering
-\caption{\label{tab:app_cluster_top5_populated-results}Descriptive summaries for up to the five most populated representative clusters \label{tab:cluster-top5-populated}}
+\caption{\label{tab:app_cluster_top5_populated-results}Descriptive summaries for up to the five most populated representative clusters}
 \centering
-\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
 \fontsize{7}{9}\selectfont
-\begin{tabular}[t]{lrrrrrrrrrrr}
+\begin{tabular}[t]{llrrr}
 \toprule
-cluster & n & crim\_mean & crim\_sd & lstat\_mean & lstat\_sd & rm\_mean & rm\_sd & nox\_mean & nox\_sd & certainty\_mean & certainty\_sd\\
+Cluster & Variable & n & Mean & SD\\
 \midrule
-C3 & 75 & 0.338 & 1.066 & -0.873 & 0.373 & 0.846 & 0.831 & -0.763 & 0.463 & 0.169 & 0.030\\
-C4 & 68 & 0.530 & 3.464 & -0.398 & 0.525 & -0.159 & 0.564 & -0.815 & 0.431 & 0.144 & 0.028\\
-C8 & 47 & 3.843 & 7.858 & -0.136 & 0.654 & -0.276 & 0.545 & 0.364 & 0.914 & 0.128 & 0.028\\
-C2 & 45 & 9.732 & 16.201 & 0.770 & 0.823 & -0.346 & 0.510 & 0.795 & 0.802 & 0.131 & 0.028\\
-C7 & 35 & 7.642 & 15.235 & 0.303 & 0.852 & 0.388 & 0.864 & 0.563 & 0.874 & 0.147 & 0.045\\
+ & crim &  & 0.338 & 1.066\\
+
+ & lstat &  & -0.873 & 0.373\\
+
+ & rm &  & 0.846 & 0.831\\
+
+ & nox &  & -0.763 & 0.463\\
+
+\multirow[t]{-5}{*}{\raggedright\arraybackslash C3} & certainty & \multirow[t]{-5}{*}{\raggedleft\arraybackslash 75} & 0.169 & 0.030\\
+\cmidrule{1-5}
+ & crim &  & 0.530 & 3.464\\
+
+ & lstat &  & -0.398 & 0.525\\
+
+ & rm &  & -0.159 & 0.564\\
+
+ & nox &  & -0.815 & 0.431\\
+
+\multirow[t]{-5}{*}{\raggedright\arraybackslash C4} & certainty & \multirow[t]{-5}{*}{\raggedleft\arraybackslash 68} & 0.144 & 0.028\\
+\cmidrule{1-5}
+ & crim &  & 3.843 & 7.858\\
+
+ & lstat &  & -0.136 & 0.654\\
+
+ & rm &  & -0.276 & 0.545\\
+
+ & nox &  & 0.364 & 0.914\\
+
+\multirow[t]{-5}{*}{\raggedright\arraybackslash C8} & certainty & \multirow[t]{-5}{*}{\raggedleft\arraybackslash 47} & 0.128 & 0.028\\
+\cmidrule{1-5}
+ & crim &  & 9.732 & 16.201\\
+
+ & lstat &  & 0.770 & 0.823\\
+
+ & rm &  & -0.346 & 0.510\\
+
+ & nox &  & 0.795 & 0.802\\
+
+\multirow[t]{-5}{*}{\raggedright\arraybackslash C2} & certainty & \multirow[t]{-5}{*}{\raggedleft\arraybackslash 45} & 0.131 & 0.028\\
+\cmidrule{1-5}
+ & crim &  & 7.642 & 15.235\\
+
+ & lstat &  & 0.303 & 0.852\\
+
+ & rm &  & 0.388 & 0.864\\
+
+ & nox &  & 0.563 & 0.874\\
+
+\multirow[t]{-5}{*}{\raggedright\arraybackslash C7} & certainty & \multirow[t]{-5}{*}{\raggedleft\arraybackslash 35} & 0.147 & 0.045\\
 \bottomrule
-\end{tabular}}
+\end{tabular}
 \end{table}
 
-
-
-Figure~\ref{fig:cluster-old-new-summary} shows response boxplots for the test
-sample only, restricted to the five most populated predicted clusters. Clusters
-with no test observations are omitted automatically.
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{cluster_counts} \hlkwb{<-} \hlkwd{sort}\hldef{(}\hlkwd{table}\hldef{(z_test}\hlopt{$}\hldef{labels),} \hlkwc{decreasing} \hldef{=} \hlnum{TRUE}\hldef{)}
-\hldef{top_clusters} \hlkwb{<-} \hlkwd{as.integer}\hldef{(}\hlkwd{names}\hldef{(cluster_counts)[}\hlkwd{seq_len}\hldef{(}\hlkwd{min}\hldef{(}\hlnum{5L}\hldef{,} \hlkwd{length}\hldef{(cluster_counts)))])}
-
-\hldef{plot_df} \hlkwb{<-} \hlkwd{data.frame}\hldef{(}
-  \hlkwc{cluster} \hldef{= z_test}\hlopt{$}\hldef{labels,}
-  \hlkwc{response} \hldef{= z_test}\hlopt{$}\hldef{data}\hlopt{$}\hldef{crim}
-\hldef{)}
-\hldef{plot_df} \hlkwb{<-} \hlkwd{subset}\hldef{(plot_df, cluster} \hlopt{%in%} \hldef{top_clusters)}
-
-\hldef{cluster_levels} \hlkwb{<-} \hlkwd{names}\hldef{(cluster_counts)[}\hlkwd{names}\hldef{(cluster_counts)} \hlopt{%in%} \hlkwd{as.character}\hldef{(top_clusters)]}
-\hldef{plot_df}\hlopt{$}\hldef{cluster} \hlkwb{<-} \hlkwd{factor}\hldef{(}\hlkwd{paste0}\hldef{(}\hlsng{"C"}\hldef{, plot_df}\hlopt{$}\hldef{cluster),} \hlkwc{levels} \hldef{=} \hlkwd{paste0}\hldef{(}\hlsng{"C"}\hldef{, cluster_levels))}
-
-\hlkwd{ggplot}\hldef{(plot_df,} \hlkwd{aes}\hldef{(}\hlkwc{x} \hldef{= cluster,} \hlkwc{y} \hldef{= response))} \hlopt{+}
-  \hlkwd{geom_boxplot}\hldef{(}
-    \hlkwc{width} \hldef{=} \hlnum{0.65}\hldef{,}
-    \hlkwc{staplewidth} \hldef{=} \hlnum{0.45}\hldef{,}
-    \hlkwc{outlier.alpha} \hldef{=} \hlnum{0.55}\hldef{,}
-    \hlkwc{fill} \hldef{=} \hlsng{"#b3d7ff"}\hldef{,}
-    \hlkwc{color} \hldef{=} \hlsng{"#1f3b6d"}
-  \hldef{)} \hlopt{+}
-  \hlkwd{labs}\hldef{(}\hlkwc{x} \hldef{=} \hlsng{"Predicted cluster"}\hldef{,} \hlkwc{y} \hldef{=} \hlsng{"Response (crim)"}\hldef{)} \hlopt{+}
-  \hlkwd{theme_minimal}\hldef{(}\hlkwc{base_size} \hldef{=} \hlnum{11}\hldef{)}
-\end{alltt}
-\end{kframe}\begin{figure}[H]
-
-{\centering \includegraphics[width=0.78\linewidth]{figure/app_cluster_old_new_summary-code-1} 
-
-}
-
-\caption{Response boxplots for the five most populated predicted test clusters. \label{fig:cluster-old-new-summary}}\label{fig:app_cluster_old_new_summary-code}
-\end{figure}
-
-\end{knitrout}
 
 
 This analysis illustrates the intended clustering workflow: inference is
 summarized through a representative training partition and its cluster-level
 descriptive summaries, and new observations are assigned to those clusters
-using posterior predictive co-clustering evidence.
+using posterior predictive co-clustering evidence. Tables~\ref{tab:app_cluster_old_new_test-results}
+and~\ref{tab:app_cluster_top5_populated-results} summarize the predicted test-cluster
+allocation and the dominant representative training clusters without
+additional data-analysis plots.
 In Section~\ref{sec:app-causal}, we next turn to the causal workflow, which
 targets treatment contrasts rather than latent partitions.
 
@@ -1831,24 +1776,32 @@ For this heavy-tailed benchmark, unrestricted mean effects are sensitive
 to a small number of extreme posterior draws. I therefore use
 restricted-mean versions of the mean-based causal estimands with cutoff
 $c$ equal to the empirical 95th percentile of observed earnings.
-Throughout, we report four causal estimands: restricted mean average treatment effect (RMATE), quantile treatment effect (QTE), restricted mean conditional average treatment effect (RMCATE), and conditional quantile treatment effect (CQTE).
-\begin{align*}
-  \mathrm{RMATE}(c)
-    &= \mathbb{E}\bigl[\min\{Y(1),c\}\bigr]
-      - \mathbb{E}\bigl[\min\{Y(0),c\}\bigr],\\
-  \mathrm{QTE}(\tau) &= Q_{Y(1)}(\tau)-Q_{Y(0)}(\tau),\\
-  \mathrm{RMCATE}(c,\boldsymbol{x})
-    &= \mathbb{E}\bigl[\min\{Y(1),c\}\mid \boldsymbol{x}\bigr] \\
-    &\quad - \mathbb{E}\bigl[\min\{Y(0),c\}\mid \boldsymbol{x}\bigr],\\
-  \mathrm{CQTE}(\tau\mid \boldsymbol{x})
-    &= Q_1(\tau\mid \boldsymbol{x}) - Q_0(\tau\mid \boldsymbol{x}).
-\end{align*}
-Here $Q_a(\tau\mid \boldsymbol{x})$ denotes the arm-specific
-$\tau$-quantile. The standardized estimands (RMATE, QTE) integrate over
-the empirical
-distribution of $\{\boldsymbol{x}_i\}_{i=1}^n$; the conditional
-estimands (RMCATE, CQTE) are evaluated at user-chosen covariate
-profiles.
+Throughout, we report the four causal estimands in
+Table~\ref{tab:app2-estimands-results}. Here $Q_a(\tau\mid \boldsymbol{x})$
+denotes the arm-specific $\tau$-quantile. The standardized estimands
+(RMATE, QTE) integrate over the empirical distribution of
+$\{\boldsymbol{x}_i\}_{i=1}^n$, while the conditional estimands
+(RMCATE, CQTE) are evaluated at user-chosen covariate profiles.
+
+\begin{table}[H]
+\centering
+\caption{\label{tab:app2-estimands-results}Causal estimands reported in the earnings application}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
+\fontsize{7}{9}\selectfont
+\begin{tabular}[t]{lll}
+\toprule
+Estimand & Definition & Evaluation\\
+\midrule
+RMATE & $\mathbb{E}[\min\{Y(1),c\}] - \mathbb{E}[\min\{Y(0),c\}]$ & Standardized over the empirical covariate distribution\\
+QTE & $Q_{Y(1)}(\tau)-Q_{Y(0)}(\tau)$ & Standardized over the empirical covariate distribution\\
+RMCATE & $\mathbb{E}[\min\{Y(1),c\}\mid \boldsymbol{x}] - \mathbb{E}[\min\{Y(0),c\}\mid \boldsymbol{x}]$ & Evaluated at representative covariate profiles\\
+CQTE & $Q_1(\tau\mid \boldsymbol{x}) - Q_0(\tau\mid \boldsymbol{x})$ & Evaluated at representative covariate profiles\\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+
 
 
 
@@ -1896,43 +1849,11 @@ substantive analysis we recommend longer runs and sensitivity checks
 
 
 
-\subsection{Standardized estimands: restricted mean and QTE}
+\subsection{Standardized estimands: QTE}
 
-I first summarize the overall effect using a restricted-mean ATE,
-implemented by \texttt{ate(type = "rmean", cutoff = c)} with
-$c = 8.036$. This keeps the mean-based contrast finite
-and interpretable on a common earnings scale. I then compute QTE on a
+I summarize the overall effect using QTE on a
 quantile grid that extends into the upper tail but stops short of the
 most unstable 0.99 level in the main text.
-
-
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hldef{ate_fit} \hlkwb{<-} \hlkwd{ate}\hldef{(}
-  \hldef{fit,}
-  \hlkwc{type} \hldef{=} \hlsng{"rmean"}\hldef{,}
-  \hlkwc{cutoff} \hldef{= rm_cutoff,}
-  \hlkwc{show_progress} \hldef{=} \hlnum{FALSE}
-\hldef{)}
-\end{alltt}
-\end{kframe}
-\end{knitrout}
-
-\begin{table}[!h]
-\centering
-\caption{\label{tab:app2-ate-results}Restricted-mean ATE with cutoff c = 8.036}
-\centering
-\fontsize{8}{10}\selectfont
-\begin{tabular}[t]{rrrr}
-\toprule
-id & estimate & lower & upper\\
-\midrule
-1 & 0.706 & 0.385 & 1.001\\
-\bottomrule
-\end{tabular}
-\end{table}
 
 
 
@@ -1944,56 +1865,28 @@ id & estimate & lower & upper\\
 \end{kframe}
 \end{knitrout}
 
-\begin{table}[!h]
+\begin{table}[H]
 \centering
 \caption{\label{tab:app2-qte-results}Marginal QTE estimates across the main-text quantile grid}
 \centering
 \fontsize{8}{10}\selectfont
-\begin{tabular}[t]{rrrrr}
+\begin{tabular}[t]{rrrr}
 \toprule
-id & index & estimate & lower & upper\\
+index & estimate & lower & upper\\
 \midrule
-1 & 0.25 & -0.126 & -0.287 & 0.039\\
-1 & 0.50 & 0.647 & -0.140 & 1.510\\
-1 & 0.75 & 1.401 & 0.684 & 2.175\\
-1 & 0.90 & 4.662 & 1.057 & 9.954\\
-1 & 0.95 & 12.601 & 2.553 & 34.262\\
+0.25 & -0.132 & -0.293 & 0.011\\
+0.50 & 0.639 & -0.400 & 1.465\\
+0.75 & 1.319 & 0.713 & 2.159\\
+0.90 & 4.129 & 1.679 & 7.803\\
+0.95 & 10.621 & -0.851 & 25.262\\
 \bottomrule
 \end{tabular}
 \end{table}
 
 
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[!htbp]
-
-{\centering \includegraphics[width=0.78\linewidth]{figure/app2-ate-plot-1} 
-
-}
-
-\caption{Posterior restricted-mean ATE summary for the spliced causal model with cutoff $c=8.036$. \\label{fig:app2-ate-effect}}\label{fig:app2-ate-plot}
-\end{figure}
-
-\end{knitrout}
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[!htbp]
-
-{\centering \includegraphics[width=0.78\linewidth]{figure/app2-qte-plot-1} 
-
-}
-
-\caption{Posterior QTE summary across the main-text quantile grid. \label{fig:app2-qte-effect}}\label{fig:app2-qte-plot}
-\end{figure}
-
-\end{knitrout}
-
-The marginal treatment-effect visual summaries are shown in
-Figure~\ref{fig:app2-ate-effect}, captioned ``Posterior restricted-mean
-ATE summary for the spliced causal model with cutoff
-$c=8.036$,'' for the restricted-mean ATE, and
-Figure~\ref{fig:app2-qte-effect}, captioned ``Posterior QTE summary
-across the main-text quantile grid.'' for the QTE.
+Table~\ref{tab:app2-qte-results} reports the marginal quantile treatment-effect
+summaries for the spliced causal model. This table replaces the earlier effect plots in the
+data-analysis presentation.
 
 \subsection{Conditional estimands: restricted mean CATE and CQTE at representative profiles}
 
@@ -2016,14 +1909,23 @@ covariates at medians.
 \hldef{col_med} \hlkwb{<-} \hlkwd{apply}\hldef{(X_profiles,} \hlnum{2}\hldef{, median,} \hlkwc{na.rm} \hldef{=} \hlnum{TRUE}\hldef{)}
 \hldef{x_typical} \hlkwb{<-} \hldef{col_med}
 \hldef{x_highprev} \hlkwb{<-} \hldef{col_med}
-\hldef{profile_var} \hlkwb{<-} \hlkwa{if} \hldef{(}\hlsng{"prevearn"} \hlopt{%in%} \hlkwd{colnames}\hldef{(X_profiles))} \hlsng{"prevearn"} \hlkwa{else} \hlkwd{colnames}\hldef{(X_profiles)[}\hlnum{1}\hldef{]}
-\hldef{x_highprev[profile_var]} \hlkwb{<-} \hlkwd{as.numeric}\hldef{(}\hlkwd{quantile}\hldef{(X_profiles[, profile_var],} \hlnum{0.80}\hldef{,} \hlkwc{na.rm} \hldef{=} \hlnum{TRUE}\hldef{))}
+\hldef{profile_var} \hlkwb{<-} \hlkwa{if} \hldef{(}\hlsng{"prevearn"} \hlopt{%in%} \hlkwd{colnames}\hldef{(X_profiles)) \{}
+  \hlsng{"prevearn"}
+\hldef{\}} \hlkwa{else} \hldef{\{}
+  \hlkwd{colnames}\hldef{(X_profiles)[}\hlnum{1}\hldef{]}
+\hldef{\}}
+\hldef{x_highprev[profile_var]} \hlkwb{<-} \hlkwd{as.numeric}\hldef{(}
+  \hlkwd{quantile}\hldef{(X_profiles[, profile_var],} \hlnum{0.80}\hldef{,} \hlkwc{na.rm} \hldef{=} \hlnum{TRUE}\hldef{)}
+\hldef{)}
 \hldef{xnew} \hlkwb{<-} \hlkwd{rbind}\hldef{(}\hlkwc{typical} \hldef{= x_typical,} \hlkwc{high_prev_earn} \hldef{= x_highprev)}
+\hldef{profile_names} \hlkwb{<-} \hlkwd{rownames}\hldef{(xnew)}
+\hldef{profile_names} \hlkwb{<-} \hlkwd{gsub}\hldef{(}\hlsng{"_"}\hldef{,} \hlsng{" "}\hldef{, profile_names,} \hlkwc{fixed} \hldef{=} \hlnum{TRUE}\hldef{)}
+\hldef{profile_labels} \hlkwb{<-} \hlkwd{sprintf}\hldef{(}\hlsng{"id = %d (%s)"}\hldef{,} \hlkwd{seq_len}\hldef{(}\hlkwd{nrow}\hldef{(xnew)), profile_names)}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
 
-\begin{table}[!h]
+\begin{table}[H]
 \centering
 \caption{\label{tab:app2-xnew-results}Representative profiles used for conditional causal contrasts; the high-profile shift is applied to x1.}
 \centering
@@ -2054,7 +1956,7 @@ high\_prev\_earn & 0.797 & -0.096 & 0.012\\
 \end{kframe}
 \end{knitrout}
 
-\begin{table}[!h]
+\begin{table}[H]
 \centering
 \caption{\label{tab:app2-cate-results}Restricted-mean CATE estimates with cutoff c = 8.036}
 \centering
@@ -2063,8 +1965,8 @@ high\_prev\_earn & 0.797 & -0.096 & 0.012\\
 \toprule
 id & estimate & lower & upper\\
 \midrule
-1 & 0.703 & 0.092 & 1.170\\
-2 & 0.768 & 0.302 & 1.382\\
+1 & 0.734 & 0.213 & 1.386\\
+2 & 0.758 & 0.202 & 1.323\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -2079,60 +1981,31 @@ id & estimate & lower & upper\\
 \end{kframe}
 \end{knitrout}
 
-\begin{table}[!h]
+\begin{table}[H]
 \centering
 \caption{\label{tab:app2-cqte-results}Conditional QTE estimates at the representative profiles}
 \centering
 \resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
 \fontsize{8}{10}\selectfont
-\begin{tabular}[t]{rrrrr}
+\begin{tabular}[t]{rrrrrrr}
 \toprule
-id & index & estimate & lower & upper\\
+\multicolumn{1}{c}{ } & \multicolumn{3}{c}{id = 1 (typical)} & \multicolumn{3}{c}{id = 2 (high prev earn)} \\
+\cmidrule(l{3pt}r{3pt}){2-4} \cmidrule(l{3pt}r{3pt}){5-7}
+$\tau$ & Estimate & Lower & Upper & Estimate & Lower & Upper\\
 \midrule
-1 & 0.25 & -0.182 & -0.267 & -0.084\\
-1 & 0.50 & 0.000 & 0.000 & 0.000\\
-1 & 0.75 & 0.892 & 0.551 & 1.272\\
-1 & 0.90 & 1.101 & 0.692 & 1.447\\
-1 & 0.95 & 1.490 & 0.796 & 2.253\\
-\addlinespace
-2 & 0.25 & -0.182 & -0.267 & -0.084\\
-2 & 0.50 & 0.000 & 0.000 & 0.000\\
-2 & 0.75 & 0.906 & 0.561 & 1.277\\
-2 & 0.90 & 1.380 & 0.806 & 1.769\\
-2 & 0.95 & 2.079 & 1.071 & 3.094\\
+0.25 & -0.182 & -0.267 & -0.084 & -0.182 & -0.267 & -0.084\\
+0.50 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000 & 0.000\\
+0.75 & 0.892 & 0.551 & 1.272 & 0.906 & 0.561 & 1.277\\
+0.90 & 1.101 & 0.692 & 1.447 & 1.380 & 0.806 & 1.769\\
+0.95 & 1.490 & 0.796 & 2.253 & 2.079 & 1.071 & 3.094\\
 \bottomrule
 \end{tabular}}
 \end{table}
 
 
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[!htbp]
-
-{\centering \includegraphics[width=0.78\linewidth]{figure/app2-cate-plot-1} 
-
-}
-
-\caption{Posterior restricted-mean CATE summary at the representative profiles, with cutoff $c=8.036$. \\label{fig:app2-cate-effect}}\label{fig:app2-cate-plot}
-\end{figure}
-
-\end{knitrout}
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[!htbp]
-
-{\centering \includegraphics[width=0.78\linewidth]{figure/app2-cqte-plot-1} 
-
-}
-
-\caption{Posterior CQTE summaries at the representative profiles. \label{fig:app2-cqte-effect}}\label{fig:app2-cqte-plot}
-\end{figure}
-
-\end{knitrout}
-
-The conditional effect plots are shown in Figure~\ref{fig:app2-cate-effect}
-for the restricted-mean CATE and Figure~\ref{fig:app2-cqte-effect} for
-the CQTE profiles.
+Tables~\ref{tab:app2-cate-results} and~\ref{tab:app2-cqte-results} summarize the
+conditional restricted-mean and quantile treatment effects at the
+representative covariate profiles.
 
 \subsection{Tail behavior}
 
@@ -2142,7 +2015,7 @@ tail and greater propensity for extreme earnings.
 
 
 
-\begin{table}[!h]
+\begin{table}[H]
 \centering
 \caption{\label{tab:app2-tail-results}Posterior summaries of the arm-specific GPD tail-shape parameters}
 \centering
@@ -2161,126 +2034,31 @@ control & 0.417 & 0.139 & 0.242 & 0.347 & 0.667\\
 
 \subsection{Interpretation}
 
-The restricted-mean ATE indicates a positive average earnings gain below
-the empirical cutoff, and the QTE profile shows that the treatment
-effect strengthens markedly in the upper part of the outcome
+The QTE profile shows that the treatment effect strengthens markedly in the upper part of the outcome
 distribution. The restricted-mean CATE estimates are positive at both
 representative profiles, while the CQTE curves show stronger upper-tail
 gains for the higher previous-earnings profile. Finally, the treated arm
 has the larger posterior tail index $\xi_a$, indicating a heavier upper
-tail under training and explaining why unrestricted mean contrasts are
-much less stable in this application.
+tail under training, which is consistent with stronger upper-tail treatment gains in this application.
 
 
 \section{Discussion}
 \label{sec:discussion}
 
-\pkg{CausalMixGPD} was designed to connect three tasks that are often
-handled with separate tools: flexible modeling of the central part of a
-response distribution, principled extrapolation of upper-tail behavior,
-and causal comparison of complete outcome distributions. The package
-does this by keeping the bulk model nonparametric, introducing
-generalized Pareto structure only where tail extrapolation is needed,
-and exposing posterior summaries through a common workflow. In
-particular, the same fitted object can support unconditional or
-conditional density estimation, tail-aware prediction, clustering
-summaries, and causal effect estimation based on treatment-specific
-predictive distributions.
+CausalMixGPD combines the flexibility of central distribution modeling, the rigor of upper-tail extrapolation, and the ability to compare the full outcome distributions for causal inference in a unified framework. It allows the full flexibility of the non-parametric bulk, the addition of GPD structure in the tails, and the ability to perform a unified inference for the posterior summaries.
 
-A practical advantage of this strategy is that inference is organized
-around the posterior predictive distribution rather than around a single
-summary such as the mean. Once a model is fitted, densities, survival
-curves, quantiles, means, restricted means, and tail summaries are all
-derived from the same posterior object. In the causal setting, this is
-especially useful because it allows average effects, quantile treatment
-effects, and tail contrasts to be reported within a single coherent
-model rather than through disconnected estimators. Modeling the full
-distribution also helps avoid internally inconsistent summaries,
-including quantile-crossing issues that can arise when separate
-quantiles are estimated independently across probability levels.
+The article focuses on the semiparametric aspect of the model, but the software has a wider scope that allows the user to perform a variety of tasks beyond the GPD splicing. It allows the user to perform stick-breaking and Chinese restaurant processes, different kernel families for real-line and positive outcomes, arm-specific causal inference, GPD splicing, and a clustering framework that uses the same machinery as the mixture fitting.
 
-The article emphasized the main semiparametric construction, but the
-software contribution is intentionally broader. The package supports
-both stick-breaking and Chinese restaurant process representations,
-multiple kernel families for real-line and positive-support outcomes,
-optional GPD splicing, arm-specific modeling choices in causal analyses,
-and a clustering workflow built from the same fitted-mixture machinery
-rather than from a separate ad hoc module. In the clustering setting,
-predictor dependence can enter through weights, atoms, or both, matching
-common dependent-DP formulations for regression clustering
-\citep{MacEachern1999,MacEachern2000,DeIorio2004,Quintana2022}.
-Posterior partition uncertainty is reported through posterior similarity
-matrices and Dahl representative partitions
-\citep{Binder1978,Dahl2006}, which makes the clustering output
-interpretable even when component labels switch across MCMC draws. This
-breadth is useful in applications where the same dataset motivates more
-than one inferential target: exploratory density estimation, subgroup
-discovery, prediction at extreme quantiles, and distributional
-treatment-effect reporting can all be pursued without switching to
-unrelated software.
+The clustering framework allows the dependence to be modeled through the weights, the atoms, or a combination of both, which is consistent with the dependent DP regression clustering framework. The posterior uncertainty in the clustering partitions is also performed by displaying the similarity matrices and the representative partitions, making the clustering task interpretable even in the presence of label switching in the MCMC samples.
 
-This clustering contribution matters substantively, not just
-computationally. In many applications the goal is not only to estimate
-an overall density, but also to identify subpopulations with distinct
-regression surfaces, different bulk shapes, or differing exposure to
-extreme outcomes. By keeping clustering, bulk-tail modeling, and
-posterior prediction inside one workflow, \pkg{CausalMixGPD} allows
-users to move from exploratory subgroup discovery to tail-risk
-assessment and, when relevant, causal reporting without changing the
-underlying model class.
+The clustering, bulk tail, and posterior predictive analyses are all connected in a single workflow. This allows for a smooth transition from exploratory subgroup analyses to tail risk assessment and causal inference.
 
-These strengths should be weighed against several limitations. First,
-the methodology is computationally intensive. Posterior simulation
-through \pkg{nimble} is flexible and transparent, but MCMC for mixture
-models with covariate-dependent parameters and optional tail components
-can be expensive, especially when multiple chains are used or when the
-causal extension fits separate arm-specific outcome models in addition
-to a propensity score stage. As sample size, covariate dimension, or
-the truncation level increases, routine sensitivity analysis and model
-comparison become more costly.
+Some Limitations. One limitation of this method is that it is computationally expensive. MCMC for mixture models with covariate-dependent parameters and tail components is computationally expensive, especially when fitting separate chains for each arm, including separate models for each outcome, and including a series of PS estimation models. Larger sample sizes and more dimensions will be even more expensive, especially for sensitivity analyses and model comparison.
 
-Second, the spliced model inherits the main tuning decisions of both
-Dirichlet process mixtures and peaks-over-threshold modeling. Results
-may depend on the kernel family, truncation level, prior specification,
-and the threshold/tail parameterization. EVT provides asymptotic support
-for GPD modeling above high thresholds, but finite-sample tail
-estimation still depends on having enough exceedances to identify tail
-parameters well. For this reason, tail summaries should be interpreted
-alongside posterior predictive checks, sensitivity analyses, and
-substantive knowledge about the outcome scale rather than as automatic
-black-box outputs. The same caution applies to clustering in spliced
-models: when groups overlap strongly, predictor effects are weak, or the
-number of exceedances is small, the posterior similarity matrix may
-reveal substantial partition uncertainty and should often be treated as
-more informative than any single hard clustering.
+Another limitation of this method is that it is a spliced model, and this has all of the tuning parameters of a Dirichlet process mixture and a PoT model. There is a degree of uncertainty in the results, depending on the choice of kernel, truncation, and tail parameters. GPD is available for EVT for high thresholds, but for finite sample tail estimation, there must be sufficient exceedances. Similarly, clustering in a spliced model has similar behavior: strong overlap, weak predictor effects, and/or insufficient exceedances all contribute to a high degree of uncertainty in clustering, where the posterior similarity matrix is more informative than a clustering output.
 
-Third, the current causal implementation is deliberately focused. It is
-built for binary treatments and continuous outcomes under standard
-identification assumptions such as consistency, ignorability, and
-overlap. Propensity score augmentation can improve adjustment in
-observational studies, but it does not replace careful design,
-diagnostics for limited overlap, or sensitivity analysis to unmeasured
-confounding. Likewise, the present implementation is not yet a
-dedicated framework for censored survival outcomes, multivariate
-responses, longitudinal treatment regimes, or interference between
-units.
+The causal implementation is currently limited to binary treatments and continuous outcomes, assuming standard identification conditions of consistency, ignorability, and overlap. Propensity score augmentation is helpful for adjustments in observational studies, but it is no replacement for good study design, overlap, and sensitivity analyses for unmeasured confounding. It is not a framework for censored survival, multivariate outcomes, longitudinal treatments, or interference.
 
-These limitations point to several concrete directions for future work.
-Methodologically, more data-adaptive threshold selection, richer tail
-regression structures, and faster approximate posterior computation
-could improve robustness and scalability. On the causal side, extensions
-to multivalued or continuous treatments, stronger overlap diagnostics,
-and doubly robust distributional estimands would broaden the range of
-applications. On the clustering side, scalable posterior similarity
-matrix approximations, alternative partition-loss summaries, and
-cluster-specific tail diagnostics would broaden applicability in larger
-or more weakly separated datasets. From a software perspective, the
-registry-based package architecture makes it natural to add new
-kernels, tail components, and advanced extensions. We therefore
-view \pkg{CausalMixGPD} not only as an applied package for tail-aware
-density estimation, clustering, and causal inference, but also as a
-foundation for further work on Bayesian distributional modeling in
-\textsf{R}.
 
 
 

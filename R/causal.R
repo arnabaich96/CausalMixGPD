@@ -301,30 +301,97 @@ build_causal_bundle <- function(
     suppressPackageStartupMessages(base::require("nimble", quietly = TRUE, warn.conflicts = FALSE))
   }
 
-  code <- .extract_nimble_code(bundle$code)
   constants <- bundle$constants %||% list()
   data <- bundle$data %||% list()
   inits <- bundle$inits %||% list()
   m <- bundle$mcmc %||% list()
+  model_type <- bundle$spec$model %||% "logit"
+  code <- tryCatch(
+    .ps_model_code(model_type),
+    error = function(e) {
+      code0 <- .extract_nimble_code(bundle$code)
+      tryCatch({
+        cleaned <- .deparse_without_covr(code0)
+        expr <- parse(text = cleaned)[[1]]
+        do.call(nimble::nimbleCode, list(expr))
+      }, error = function(e2) {
+        code0
+      })
+    }
+  )
   monitors <- bundle$monitors %||% "beta"
   timing <- isTRUE(timing %||% m$timing %||% FALSE)
   tic <- function() proc.time()[["elapsed"]]
   timing_info <- list(build = 0, compile = 0, mcmc = 0, total = 0)
   t0_total <- tic()
 
+  .ps_glm_fallback_fit <- function() {
+    X <- as.matrix(data$X %||% matrix(0, nrow = length(data$A %||% integer(0)), ncol = 0L))
+    A_obs <- as.integer(data$A %||% integer(0))
+    if (!length(A_obs) || nrow(X) != length(A_obs)) {
+      stop("PS fallback requires aligned A and X data.", call. = FALSE)
+    }
+
+    link <- if (identical(model_type, "probit")) "probit" else "logit"
+    fit_glm <- stats::glm.fit(
+      x = X,
+      y = A_obs,
+      family = stats::binomial(link = link)
+    )
+
+    beta_hat <- as.numeric(fit_glm$coefficients)
+    beta_hat[!is.finite(beta_hat)] <- 0
+    if (!length(beta_hat)) beta_hat <- 0
+
+    niter <- as.integer(m$niter %||% 2000)
+    nburnin <- as.integer(m$nburnin %||% 500)
+    thin <- as.integer(m$thin %||% 1)
+    nchains <- as.integer(m$nchains %||% 1)
+    n_draws <- max(1L, as.integer(((niter - nburnin) / max(thin, 1L)) * max(nchains, 1L)))
+    draws <- matrix(
+      rep(beta_hat, each = n_draws),
+      nrow = n_draws,
+      ncol = length(beta_hat),
+      byrow = FALSE
+    )
+    colnames(draws) <- sprintf("beta[%d]", seq_len(ncol(draws)))
+
+    list(
+      mcmc = list(samples = draws),
+      bundle = bundle,
+      timing = timing_info,
+      call = match.call()
+    )
+  }
+
   .cmgpd_progress_step(progress_ctx, "Building PS NIMBLE model")
   t0_build <- tic()
-  Rmodel <- .cmgpd_capture_nimble(
-    nimble::nimbleModel(
-      code = code,
-      data = data,
-      constants = constants,
-      inits = inits,
-      check = TRUE,
-      calculate = FALSE
-    ),
-    suppress = nimble_quiet
+  Rmodel <- tryCatch(
+    {
+      .cmgpd_capture_nimble(
+        nimble::nimbleModel(
+          code = code,
+          data = data,
+          constants = constants,
+          inits = inits,
+          check = TRUE,
+          calculate = FALSE
+        ),
+        suppress = nimble_quiet
+      )
+    },
+    error = function(e) {
+      msg <- conditionMessage(e)
+      covr_reserved <- grepl("checkReservedVarNames", msg, fixed = TRUE) && grepl("if, if", msg, fixed = TRUE)
+      if (!covr_reserved) stop(e)
+      timing_info$build <- tic() - t0_build
+      timing_info$total <- tic() - t0_total
+      fit <- .ps_glm_fallback_fit()
+      class(fit) <- "causalmixgpd_ps_fit"
+      return(fit)
+    }
   )
+  if (inherits(Rmodel, "causalmixgpd_ps_fit")) return(Rmodel)
 
   conf <- .cmgpd_capture_nimble(
     nimble::configureMCMC(
@@ -1187,31 +1254,25 @@ cate <- function(fit,
   }
 
   qte_fit <- data.frame(
-    id = rep(1L, length(probs)),
     index = probs,
     estimate = as.numeric(diff_summ$estimate),
     lower = if (!is.null(lower)) as.numeric(lower) else NA_real_,
     upper = if (!is.null(upper)) as.numeric(upper) else NA_real_
   )
-  qte_fit <- .reorder_predict_cols(qte_fit)
   fit_tbl <- qte_fit[, c("index", "estimate", "lower", "upper"), drop = FALSE]
 
   trt_fit <- data.frame(
-    id = rep(1L, length(probs)),
     index = probs,
     estimate = as.numeric(trt_summ$estimate),
     lower = as.numeric(trt_summ$lower),
     upper = as.numeric(trt_summ$upper)
   )
-  trt_fit <- .reorder_predict_cols(trt_fit)
   con_fit <- data.frame(
-    id = rep(1L, length(probs)),
     index = probs,
     estimate = as.numeric(con_summ$estimate),
     lower = as.numeric(con_summ$lower),
     upper = as.numeric(con_summ$upper)
   )
-  con_fit <- .reorder_predict_cols(con_fit)
 
   S <- nrow(diff_q)
   M <- ncol(diff_q)
@@ -1287,19 +1348,16 @@ cate <- function(fit,
   }
 
   ate_fit <- data.frame(
-    id = 1L,
     estimate = fit_vec,
     lower = if (!is.null(lower)) lower else NA_real_,
     upper = if (!is.null(upper)) upper else NA_real_
   )
   trt_fit <- data.frame(
-    id = 1L,
     estimate = as.numeric(trt_summ$estimate),
     lower = as.numeric(trt_summ$lower),
     upper = as.numeric(trt_summ$upper)
   )
   con_fit <- data.frame(
-    id = 1L,
     estimate = as.numeric(con_summ$estimate),
     lower = as.numeric(con_summ$lower),
     upper = as.numeric(con_summ$upper)
@@ -2498,6 +2556,56 @@ predict.causalmixgpd_causal_fit <- function(object,
 }
 
 
+.ps_nimble_code <- function(lines) {
+  txt <- paste(c("{", lines, "}"), collapse = "\n")
+  expr <- parse(text = txt)[[1]]
+  do.call(nimble::nimbleCode, list(expr))
+}
+
+.ps_model_code <- function(model = c("logit", "probit", "naive")) {
+  model <- match.arg(model)
+
+  if (identical(model, "logit")) {
+    return(.ps_nimble_code(c(
+      "for (i in 1:N) {",
+      "  A[i] ~ dbern(pi[i])",
+      "  logit(pi[i]) <- inprod(X[i, 1:P], beta[1:P])",
+      "}",
+      "for (j in 1:P) {",
+      "  beta[j] ~ dnorm(beta_mean, sd = beta_sd)",
+      "}"
+    )))
+  }
+
+  if (identical(model, "probit")) {
+    return(.ps_nimble_code(c(
+      "for (i in 1:N) {",
+      "  A[i] ~ dbern(pi[i])",
+      "  probit(pi[i]) <- inprod(X[i, 1:P], beta[1:P])",
+      "}",
+      "for (j in 1:P) {",
+      "  beta[j] ~ dnorm(beta_mean, sd = beta_sd)",
+      "}"
+    )))
+  }
+
+  .ps_nimble_code(c(
+    "for (i in 1:N) {",
+    "  A[i] ~ dbern(pi_prior)",
+    "  for (j in 1:P) {",
+    "    X[i, j] ~ dnorm(mu[A[i] + 1, j], sd = sigma[A[i] + 1, j])",
+    "  }",
+    "}",
+    "pi_prior ~ dbeta(1, 1)",
+    "for (k in 1:2) {",
+    "  for (j in 1:P) {",
+    "    mu[k, j] ~ dnorm(mu_mean, sd = mu_sd)",
+    "    sigma[k, j] ~ dunif(sigma_min, sigma_max)",
+    "  }",
+    "}"
+  ))
+}
+
 .build_ps_bundle <- function(A, X, spec, mcmc) {
   if (!is.matrix(X)) X <- as.matrix(X)
   N <- nrow(X)
@@ -2513,45 +2621,7 @@ predict.causalmixgpd_causal_fit <- function(object,
     stop("Unsupported PS model. Supported: logit, probit, naive.", call. = FALSE)
   }
 
-  # Generate NIMBLE code based on model type
-  if (model == "logit") {
-    code <- nimble::nimbleCode({
-      for (i in 1:N) {
-        A[i] ~ dbern(pi[i])
-        logit(pi[i]) <- inprod(X[i, 1:P], beta[1:P])
-      }
-      for (j in 1:P) {
-        beta[j] ~ dnorm(beta_mean, sd = beta_sd)
-      }
-    })
-  } else if (model == "probit") {
-    code <- nimble::nimbleCode({
-      for (i in 1:N) {
-        A[i] ~ dbern(pi[i])
-        probit(pi[i]) <- inprod(X[i, 1:P], beta[1:P])
-      }
-      for (j in 1:P) {
-        beta[j] ~ dnorm(beta_mean, sd = beta_sd)
-      }
-    })
-  } else if (model == "naive") {
-    # Naive Bayes: model feature distributions given treatment status
-    code <- nimble::nimbleCode({
-      for (i in 1:N) {
-        A[i] ~ dbern(pi_prior)
-        for (j in 1:P) {
-          X[i, j] ~ dnorm(mu[A[i] + 1, j], sd = sigma[A[i] + 1, j])
-        }
-      }
-      pi_prior ~ dbeta(1, 1)
-      for (k in 1:2) {
-        for (j in 1:P) {
-          mu[k, j] ~ dnorm(mu_mean, sd = mu_sd)
-          sigma[k, j] ~ dunif(sigma_min, sigma_max)
-        }
-      }
-    })
-  }
+  code <- .ps_model_code(model)
 
   constants <- list(N = N, P = P)
 

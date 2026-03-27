@@ -3,34 +3,34 @@
 This file maps merge-gate checklist items to concrete automated checks.
 
 1. Functional equivalence:
-- `tests/testthat/test-performance-acceptance.R`:
+- `tests/testthat/test-integration.R`:
   `functional equivalence and contracts on seeded runs` (full level),
   plus contract checks in CI-level tests.
 
 2. Compile cache:
-- `tests/testthat/test-performance-acceptance.R`:
+- `tests/testthat/test-integration.R`:
   `compile cache exposes timing and reuses build/compile`.
 
 3. Parallel chains:
-- `tests/testthat/test-performance-acceptance.R`:
+- `tests/testthat/test-integration.R`:
   `parallel chains path preserves output contract`.
 
 4. Causal arm parallelism:
-- `tests/testthat/test-performance-acceptance.R`:
+- `tests/testthat/test-integration.R`:
   `causal arms can run in parallel and preserve contract`.
 
 5. Prediction scaling:
-- `tests/testthat/test-performance-acceptance.R`:
+- `tests/testthat/test-integration.R`:
   `predict supports ndraws_pred/chunk_size/parallel aliases`.
 - `tests/perf/benchmark_acceptance.R`:
   `Prediction (large)` benchmark row.
 
 6. Monitoring policy:
-- `tests/testthat/test-performance-acceptance.R`:
+- `tests/testthat/test-integration.R`:
   `monitoring policy defaults exclude latent z and opt-in works`.
 
 7. No global side effects:
-- `tests/testthat/test-performance-acceptance.R`:
+- `tests/testthat/test-integration.R`:
   `parallel runtime does not leave global future plan modified`.
 
 8. CRAN safety:

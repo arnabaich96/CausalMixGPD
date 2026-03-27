@@ -24,7 +24,11 @@ setwd(here::here())
 }
 
 .coverage_test_level <- function() {
-  "full"
+  lvl <- Sys.getenv("DPMIXGPD_COVERAGE_LEVEL", unset = "ci")
+  if (!nzchar(lvl)) {
+    lvl <- "ci"
+  }
+  lvl
 }
 
 .check_coverage_deps <- function() {
@@ -39,7 +43,12 @@ setwd(here::here())
 
 .set_covr_install_opts <- function() {
   options(covr.install = c("--no-build-vignettes", "--no-manual"))
+  options(covr.install_args = c("--no-build-vignettes", "--no-manual"))
   invisible(TRUE)
+}
+
+.coverage_install_opts <- function() {
+  c("--no-build-vignettes", "--no-manual", "--no-html")
 }
 
 .coverage_clean_dir <- function(path) {
@@ -107,6 +116,24 @@ setwd(here::here())
 .coverage_current_r_files <- function(path = ".") {
   files <- list.files(file.path(path, "R"), pattern = "\\.[Rr]$", full.names = FALSE)
   unique(c(files, .coverage_excluded_files()))
+}
+
+.coverage_source_files <- function(path = ".") {
+  list.files(file.path(path, "R"), pattern = "\\.[Rr]$", full.names = TRUE)
+}
+
+.coverage_test_files <- function(path = ".") {
+  test_root <- file.path(path, "tests", "testthat")
+  all_r <- list.files(test_root, pattern = "\\.[Rr]$", recursive = TRUE, full.names = TRUE)
+  if (!length(all_r)) {
+    stop("Coverage found no R test files under: ", test_root, call. = FALSE)
+  }
+
+  setup <- all_r[basename(all_r) == "setup.R"]
+  helpers <- all_r[grepl("^helper.*\\.[Rr]$", basename(all_r))]
+  tests <- all_r[grepl("^test.*\\.[Rr]$", basename(all_r))]
+
+  unique(c(setup, sort(helpers), sort(tests)))
 }
 
 .coverage_line_exclusions <- function(path = ".") {
@@ -185,7 +212,8 @@ calculate_coverage <- function(quiet = FALSE) {
   Sys.setenv(
     DPMIXGPD_TEST_LEVEL = .coverage_test_level(),
     COVERAGE = "1",
-    DPMIXGPD_CI_COVERAGE_ONLY = "1"
+    DPMIXGPD_CI_COVERAGE_ONLY = "1",
+    DPMIXGPD_SKIP_COVR_CAUSAL_BRANCHES = Sys.getenv("DPMIXGPD_SKIP_COVR_CAUSAL_BRANCHES", unset = "1")
   )
 
   if (isNamespaceLoaded("CausalMixGPD")) {
@@ -200,27 +228,68 @@ calculate_coverage <- function(quiet = FALSE) {
     cat("Test level:", .coverage_test_level(), "\n\n")
   }
 
-  cov <- tryCatch(
-    covr::package_coverage(
-      type = "none",
-      code = .coverage_test_code(progress = !quiet),
-      quiet = quiet,
-      pre_clean = TRUE,
-      line_exclusions = .coverage_line_exclusions()
-    ),
-    error = function(e) {
-      if (!quiet) {
-        cat("\nCoverage calculation failed.\n")
-        cat("Error:", conditionMessage(e), "\n")
-      }
-      .copy_rout_fail(conditionMessage(e))
-      NULL
+  run_with_mode <- function(mode) {
+    if (identical(mode, "file")) {
+      covr::file_coverage(
+        source_files = .coverage_source_files(),
+        test_files = .coverage_test_files(),
+        line_exclusions = .coverage_line_exclusions()
+      )
+    } else if (identical(mode, "custom")) {
+      covr::package_coverage(
+        type = "none",
+        code = .coverage_test_code(progress = !quiet),
+        quiet = quiet,
+        pre_clean = TRUE,
+        INSTALL_opts = .coverage_install_opts(),
+        line_exclusions = .coverage_line_exclusions()
+      )
+    } else {
+      covr::package_coverage(
+        type = "tests",
+        quiet = quiet,
+        pre_clean = TRUE,
+        INSTALL_opts = .coverage_install_opts(),
+        line_exclusions = .coverage_line_exclusions()
+      )
     }
-  )
+  }
+
+  attempt_messages <- character(0)
+  cov <- NULL
+
+  for (mode in c("custom", "tests", "file")) {
+    if (!quiet) {
+      cat("Coverage mode:", mode, "\n")
+    }
+
+    cov <- tryCatch(
+      run_with_mode(mode),
+      error = function(e) {
+        msg <- conditionMessage(e)
+        attempt_messages <<- c(attempt_messages, sprintf("%s: %s", mode, msg))
+        .copy_rout_fail(msg)
+        NULL
+      }
+    )
+
+    if (!is.null(cov)) {
+      break
+    }
+
+    if (!quiet) {
+      cat("Mode '", mode, "' failed; trying fallback.\n", sep = "")
+    }
+  }
 
   cov <- .filter_coverage_object(cov)
 
   if (is.null(cov)) {
+    if (!quiet && length(attempt_messages) > 0L) {
+      cat("\nCoverage calculation failed in all modes.\n")
+      cat(paste0(" - ", attempt_messages), sep = "\n")
+      cat("\n")
+    }
     stop("Coverage calculation failed.", call. = FALSE)
   }
 

@@ -2363,6 +2363,19 @@ plot.causalmixgpd_causal_predict <- function(x, y = NULL, ...) {
   list(short = "ATE", long = "Average Treatment Effect")
 }
 
+.causal_effect_is_conditional <- function(type) {
+  type_chr <- if (is.null(type) || !length(type)) "" else tolower(as.character(type[[1]]))
+  type_chr %in% c("cate", "cqte")
+}
+
+.causal_effect_table_for_display <- function(df, type = NULL) {
+  if (!is.data.frame(df)) return(df)
+  if (!.causal_effect_is_conditional(type) && "id" %in% names(df)) {
+    df <- df[, setdiff(names(df), "id"), drop = FALSE]
+  }
+  df
+}
+
 #' Print a QTE-style effect object
 #'
 #' \code{print.causalmixgpd_qte()} prints a compact summary for objects produced
@@ -2419,7 +2432,7 @@ print.causalmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
 
     qte_fit <- x$qte$fit %||% NULL
     if (!is.null(qte_fit) && is.data.frame(qte_fit)) {
-      show_df <- qte_fit
+      show_df <- .causal_effect_table_for_display(qte_fit, type = x$type %||% "qte")
       if ("estimate" %in% names(show_df)) names(show_df)[names(show_df) == "estimate"] <- "mean"
       if (nrow(show_df) > max_rows) {
         pieces <- c(pieces, list(.kable_table(format_df3_sci(utils::head(show_df, max_rows), digits = digits), row.names = FALSE)))
@@ -2460,7 +2473,7 @@ print.causalmixgpd_qte <- function(x, digits = 3, max_rows = 6, ...) {
   cat(sprintf("\n%s estimates (treated - control):\n", lbl$short))
   qte_fit <- x$qte$fit %||% NULL
   if (!is.null(qte_fit) && is.data.frame(qte_fit)) {
-    show_df <- qte_fit
+    show_df <- .causal_effect_table_for_display(qte_fit, type = x$type %||% "qte")
     if ("estimate" %in% names(show_df)) names(show_df)[names(show_df) == "estimate"] <- "mean"
     if (nrow(show_df) > max_rows) {
       print_fmt3_sci(utils::head(show_df, max_rows), row.names = FALSE, digits = digits)
@@ -2541,7 +2554,7 @@ print.causalmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
 
     ate_fit <- x$ate$fit %||% NULL
     if (!is.null(ate_fit) && is.data.frame(ate_fit)) {
-      show_df <- ate_fit
+      show_df <- .causal_effect_table_for_display(ate_fit, type = x$type %||% "ate")
       if ("estimate" %in% names(show_df)) names(show_df)[names(show_df) == "estimate"] <- "mean"
       if (nrow(show_df) > max_rows) {
         pieces <- c(pieces, list(.kable_table(format_df3_sci(utils::head(show_df, max_rows), digits = digits), row.names = FALSE)))
@@ -2584,7 +2597,7 @@ print.causalmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
   cat(sprintf("\n%s estimates (treated - control):\n", lbl$short))
   ate_fit <- x$ate$fit %||% NULL
   if (!is.null(ate_fit) && is.data.frame(ate_fit)) {
-    show_df <- ate_fit
+    show_df <- .causal_effect_table_for_display(ate_fit, type = x$type %||% "ate")
     if ("estimate" %in% names(show_df)) names(show_df)[names(show_df) == "estimate"] <- "mean"
     if (nrow(show_df) > max_rows) {
       print_fmt3_sci(utils::head(show_df, max_rows), row.names = FALSE, digits = digits)

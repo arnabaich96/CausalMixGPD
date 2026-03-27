@@ -47,90 +47,26 @@ distribution-based causal questions makes causal analysis tightly linked
 to how well we can estimate (and predict) outcome distributions under
 competing treatment assignments.
 
-A growing R ecosystem supports Bayesian causal inference
-through flexible outcome modeling and posterior uncertainty
-quantification. For example,
-[bcf](https://cran.r-project.org/package=bcf) implements
-Bayesian Causal Forests for binary treatments and continuous outcomes,
-providing posterior inference for both average and heterogeneous
-treatment effects [@bcf_pkg]. The package
-[bartCause](https://cran.r-project.org/package=bartCause)
-builds causal estimators around Bayesian additive regression trees,
-using BART as a regression engine for treatment-response modeling and
-causal effect estimation [@bartCause_pkg; @hill2011bart].
-Complementing tree-based approaches,
-[BCEE](https://cran.r-project.org/package=BCEE) implements
-a Bayesian model-averaging strategy for causal effect estimation with
-support for binary or continuous exposures and outcomes
-[@BCEE_pkg; @talbot2015bcee]. A recurring practical difficulty in
-quantile-based causal reporting is the quantile crossing issue, where
-quantile curves at different probability levels can cross when they are
-estimated separately. To avoid this, `CausalMixGPD` directly models
-outcome densities and derives quantiles and other functionals from the
-posterior predictive distributions.
+Dirichlet Process Mixtures (DPMs) provide a flexible way to model those
+outcome distributions because they accommodate multimodality and latent
+heterogeneity without fixing the number of mixture components in
+advance. They also induce random partitions through latent allocation
+variables, so density estimation and clustering are naturally linked.
+Bayesian cluster analysis is therefore typically summarized through
+label-invariant quantities such as pairwise co-clustering probabilities
+and representative partitions [@Binder1978; @Dahl2006]. In regression
+settings, dependent Dirichlet process constructions allow mixture
+weights, component-specific parameters, or both to vary with predictors
+[@MacEachern1999,MacEachern2000; @DeIorio2004; @Quintana2022], and
+predictor-dependent stick-breaking schemes provide a practical route to
+covariate-modulated cluster prevalence [@Ren2011].
 
-In the context of density estimation and conditional density estimation, Dirichlet Process Mixtures (DPM) provide a
-versatile nonparametric solution because they can capture multimodality and latent heterogeneity
-without fixing the number of mixing components in advance. In the experimental R
-ecosystem, Bayesian nonparametric mixture modeling is
-well supported by software based on Dirichlet process (DP) ideas. For example,
-[dirichletprocess](https://cran.r-project.org/package=dirichletprocess)
-provides a flexible interface for specifying DPMs and
-fitting them by posterior simulation, yielding posterior inference for
-mixture weights, component labels, and predictive densities under
-user-chosen kernels [@dirichletprocess_pkg]. The package
-[DPpackage](https://cran.r-project.org/package=DPpackage)
-offers a broad suite of Bayesian semi- and nonparametric models in
-R, including DP-based formulations for marginal and conditional
-densities, regression functions, and model-based predictive
-distributions [@jara2011DPpackage]. More recently,
-[BNPmix](https://cran.r-project.org/package=BNPmix)
-emphasizes practical Bayesian nonparametric mixture approaches,
-providing posterior inference for clustering structure and
-density/regression estimation under DP and Pitman--Yor-type mixture
-specifications [@canale2021BNPmix].
-
-That clustering perspective is also important for the present package.
-Because DP mixtures induce random partitions through latent allocation
-variables, they naturally support model-based subgroup discovery in
-addition to density estimation. Bayesian cluster analysis is typically
-reported through label-invariant summaries such as pairwise
-co-clustering probabilities [@Binder1978] and representative
-partitions selected by Dahl's least-squares criterion
-[@Dahl2006]. In regression settings, clustering itself can depend
-on predictors: dependent Dirichlet process constructions allow
-covariates to affect mixture weights, component-specific parameters, or
-both [@MacEachern1999,MacEachern2000; @DeIorio2004; @Quintana2022],
-and predictor-dependent stick-breaking schemes provide a practical route
-for covariate-modulated cluster prevalence [@Ren2011]. Existing
-software supports parts of this workflow, but it typically focuses on
-bulk density estimation and clustering under a single kernel family
-without an explicit adjustment for heavy tailed data. As a result,
-applications that require both latent subgroup discovery and
-tail extrapolation still need additional modeling outside the standard
-Bayesian nonparametric mixture workflow.
-
-However, it is important to note that estimating values far in the tail requires special care when data becomes scarce.
-Additionally, using a single model in the presence of heavy tail data can distort the fit in the central region.
-In such cases extreme value theory (EVT) provides a principled framework for
-modeling and extrapolation of tail behavior~[@de2007extreme]. EVT characterizes the
-asymptotic distribution of threshold exceedances, which can be used to
-estimate tail probabilities and quantiles beyond the range of observed data~[@balkema1974residual].
-Bayesian implementations of EVT are available in
-R when posterior uncertainty quantification for tail
-quantities are required. For example,
-[evdbayes](https://cran.r-project.org/package=evdbayes)
-provides Bayesian inference for standard extreme-value models via
-posterior simulation, enabling posterior and posterior-predictive
-summaries for extreme-event quantities [@evdbayes_pkg]. For
-peaks-over-threshold (POT) approaches, the package
-[POT](https://cran.r-project.org/package=POT) implements a
-focused collection of tools for GPD modeling and threshold-based tail
-analysis [@POT_pkg]. Finally, for extreme quantile estimation and
-rare-event tail summaries,
-[extremefit](https://cran.r-project.org/package=extremefit)
-provides a published software implementation targeted specifically at
-extreme-quantile estimation [@durrieu2018extremefit].
+Heavy-tailed outcomes add a second challenge. The model must fit the
+center of the distribution well while still supporting principled upper
+tail extrapolation when data become sparse. `CausalMixGPD` addresses
+that combination by joining Bayesian nonparametric mixtures, optional
+generalized Pareto tails, clustering, and causal contrasts in a single
+workflow.
 
 This article introduces an R package (`CausalMixGPD`) that
 connects Bayesian nonparametric modeling with EVT, clustering,
@@ -799,7 +735,10 @@ Treated-standardized analogues (ATT, QTT) are obtained
     current implementation, `ate()` and `att()` aggregate
     draw-wise conditional mean contrasts across rows, while
     `qte()` and `qtt()` compute draw-wise arm-specific
-    marginal quantiles and then contrast them.
+    marginal quantiles and then contrast them. Because these summaries
+    are standardized over covariate profiles, their printed tables do
+    not carry an `id` column; `id` is reserved for conditional outputs
+    such as `cate()` and `cqte()`.
 
 ### Posterior prediction at new covariate profiles
 

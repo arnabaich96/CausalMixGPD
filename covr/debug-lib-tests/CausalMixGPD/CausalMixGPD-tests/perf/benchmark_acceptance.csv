@@ -1,5 +1,0 @@
-"Task","Before","After","Speedup"
-"Unconditional (N small)",NA,93.94,NA
-"Conditional",NA,182.57,NA
-"Causal",NA,172.66,NA
-"Prediction (large)",NA,1448.7,NA
