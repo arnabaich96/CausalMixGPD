@@ -471,7 +471,7 @@ dpmix <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL,
     list(GPD = FALSE)
   )
 
-  b <- do.call(bundle, bundle_args)
+  b <- do.call(get("bundle", mode = "function"), bundle_args)
   .run_bundle_mcmc(b, mcmc_args = mcmc)
 }
 
@@ -531,7 +531,7 @@ dpmgpd <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL
     list(GPD = TRUE)
   )
 
-  b <- do.call(bundle, bundle_args)
+  b <- do.call(get("bundle", mode = "function"), bundle_args)
   .run_bundle_mcmc(b, mcmc_args = mcmc)
 }
 
@@ -583,7 +583,7 @@ dpmix.causal <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula 
     list(GPD = FALSE)
   )
 
-  b <- do.call(bundle, bundle_args)
+  b <- do.call(get("bundle", mode = "function"), bundle_args)
   .run_bundle_mcmc(b, mcmc_args = mcmc)
 }
 
@@ -641,6 +641,6 @@ dpmgpd.causal <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula
     list(GPD = TRUE)
   )
 
-  b <- do.call(bundle, bundle_args)
+  b <- do.call(get("bundle", mode = "function"), bundle_args)
   .run_bundle_mcmc(b, mcmc_args = mcmc)
 }

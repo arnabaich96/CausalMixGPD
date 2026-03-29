@@ -38,6 +38,41 @@ build_prior_table_from_spec <- get("build_prior_table_from_spec", mode = "functi
 .validate_nimble_reserved_names <- get(".validate_nimble_reserved_names", mode = "function")
 .extract_nimble_code <- get(".extract_nimble_code", mode = "function")
 .wrap_nimble_code <- get(".wrap_nimble_code", mode = "function")
+.coverage_heavy_pkg_env <- function() environment(.strip_gpd_single_bundle)
+.coverage_heavy_mock_bindings <- function(..., .env = .coverage_heavy_pkg_env()) {
+  if (isNamespace(.env)) {
+    testthat::local_mocked_bindings(..., .package = getNamespaceName(.env))
+    return(invisible())
+  }
+
+  bindings <- rlang::list2(...)
+  binding_names <- names(bindings)
+  original_exists <- stats::setNames(
+    vapply(binding_names, exists, logical(1), envir = .env, inherits = FALSE),
+    binding_names
+  )
+  original_values <- if (any(original_exists)) {
+    mget(binding_names[original_exists], envir = .env, inherits = FALSE)
+  } else {
+    list()
+  }
+
+  withr::defer(
+    {
+      for (nm in binding_names) {
+        if (isTRUE(original_exists[[nm]])) {
+          assign(nm, original_values[[nm]], envir = .env)
+        } else if (exists(nm, envir = .env, inherits = FALSE)) {
+          rm(list = nm, envir = .env)
+        }
+      }
+    },
+    envir = parent.frame()
+  )
+
+  list2env(bindings, envir = .env)
+  invisible()
+}
 .plot_palette <- get(".plot_palette", mode = "function")
 .strip_fill_scales <- get(".strip_fill_scales", mode = "function")
 .wrap_plotly <- get(".wrap_plotly", mode = "function")
@@ -266,13 +301,13 @@ test_that("coverage-heavy wrapper helpers cover GPD stripping and wrapper dispat
     class = "causalmixgpd_causal_bundle"
   )
 
-  testthat::local_mocked_bindings(
+  .coverage_heavy_mock_bindings(
     build_code_from_spec = function(spec) list(code = "fake"),
     build_constants_from_spec = function(spec) list(N = 3L),
     build_dimensions_from_spec = function(spec) list(z = 3L),
     build_inits_from_spec = function(spec, y = NULL) list(z = c(1L, 1L, 1L)),
     build_monitors_from_spec = function(spec, ...) c("alpha", "z[1:3]"),
-    .package = "CausalMixGPD"
+    .env = .coverage_heavy_pkg_env()
   )
 
   stripped <- .strip_gpd_single_bundle(bundle_one)
@@ -286,10 +321,10 @@ test_that("coverage-heavy wrapper helpers cover GPD stripping and wrapper dispat
   expect_false(isTRUE(stripped_causal$meta$GPD$trt))
   expect_false(isTRUE(stripped_causal$meta$GPD$con))
 
-  testthat::local_mocked_bindings(
+  .coverage_heavy_mock_bindings(
     bundle = function(...) structure(list(tag = "built", spec = list(meta = list(GPD = TRUE))), class = "causalmixgpd_bundle"),
     .run_bundle_mcmc = function(b, mcmc_args = list()) structure(list(bundle = b, args = mcmc_args), class = "wrapped_fit"),
-    .package = "CausalMixGPD"
+    .env = .coverage_heavy_pkg_env()
   )
   expect_s3_class(dpmix(x = c(1, 2, 3), kernel = "normal", components = 3L, mcmc = list(seed = 1L)), "wrapped_fit")
   expect_s3_class(dpmgpd(x = c(1, 2, 3), kernel = "normal", components = 3L, mcmc = list(seed = 1L)), "wrapped_fit")
@@ -590,7 +625,7 @@ test_that("coverage-heavy wrappers cover parsing treatment normalization and mcm
   expect_equal(cb_over$outcome$con$mcmc$seed, 9L)
   expect_equal(cb_over$design$mcmc$seed, 9L)
 
-  testthat::local_mocked_bindings(
+  .coverage_heavy_mock_bindings(
     build_nimble_bundle = function(y, X = NULL, GPD = FALSE, ...) {
       structure(list(kind = "one-arm", y = y, X = X, GPD = GPD), class = "causalmixgpd_bundle")
     },
@@ -599,7 +634,7 @@ test_that("coverage-heavy wrappers cover parsing treatment normalization and mcm
     },
     run_mcmc_bundle_manual = function(bundle, ...) structure(list(bundle = bundle), class = "mixgpd_fit"),
     run_mcmc_causal = function(bundle, ...) structure(list(bundle = bundle), class = "causalmixgpd_causal_fit"),
-    .package = "CausalMixGPD"
+    .env = .coverage_heavy_pkg_env()
   )
 
   built_one <- bundle(formula = y ~ x1 + id, data = dat, backend = "sb", kernel = "normal", components = 3L)
@@ -1029,7 +1064,7 @@ test_that("coverage-heavy glue diagnostics cover link-mode, unconditional, and v
     class = "mixgpd_fit"
   )
 
-  testthat::local_mocked_bindings(
+  .coverage_heavy_mock_bindings(
     .get_dispatch = function(...) dispatch_stub,
     .extract_draws_matrix = function(fit) {
       if (isTRUE(fit$spec$meta$GPD)) {
@@ -1056,7 +1091,7 @@ test_that("coverage-heavy glue diagnostics cover link-mode, unconditional, and v
       }
       stop("unexpected indexed block request")
     },
-    .package = "CausalMixGPD"
+    .env = .coverage_heavy_pkg_env()
   )
 
   set.seed(11)
@@ -1083,7 +1118,7 @@ test_that("coverage-heavy runner mocks cover cache, compile fallback, and valida
   cache_store <- new.env(parent = emptyenv())
   run_mode <- "fallback"
 
-  testthat::local_mocked_bindings(
+  .coverage_heavy_mock_bindings(
     .cmgpd_progress_start = function(...) list(),
     .cmgpd_progress_step = function(...) invisible(NULL),
     .cmgpd_progress_done = function(...) invisible(NULL),
@@ -1106,9 +1141,9 @@ test_that("coverage-heavy runner mocks cover cache, compile fallback, and valida
       conf$configured <- TRUE
       conf
     },
-    .package = "CausalMixGPD"
+    .env = .coverage_heavy_pkg_env()
   )
-  testthat::local_mocked_bindings(
+  .coverage_heavy_mock_bindings(
     nimbleModel = function(...) structure(list(kind = "Rmodel"), class = "fake_nimble_model"),
     configureMCMC = function(...) list(kind = "conf"),
     buildMCMC = function(conf) list(kind = "Rmcmc", conf = conf),
@@ -1277,7 +1312,7 @@ test_that("coverage-heavy prediction internals cover chunking unconditional summ
     class = "mixgpd_fit"
   )
 
-  testthat::local_mocked_bindings(
+  .coverage_heavy_mock_bindings(
     .validate_fit = function(object) TRUE,
     .cmgpd_progress_start = function(...) list(),
     .cmgpd_progress_step = function(...) invisible(NULL),
@@ -1309,7 +1344,7 @@ test_that("coverage-heavy prediction internals cover chunking unconditional summ
     get_kernel_registry = function() list(normal = list(bulk_support = list(mean = "", sd = "positive_sd"))),
     .posterior_summarize = posterior_summary_mock,
     .compute_interval = function(x, level, type) c(lower = min(x, na.rm = TRUE), upper = max(x, na.rm = TRUE)),
-    .package = "CausalMixGPD"
+    .env = .coverage_heavy_pkg_env()
   )
 
   pred_density <- predict_impl(
@@ -1376,7 +1411,7 @@ test_that("coverage-heavy predict and residual methods cover wrapper branches wi
     class = "mixgpd_fit"
   )
 
-  testthat::local_mocked_bindings(
+  .coverage_heavy_mock_bindings(
     .validate_fit = function(object) TRUE,
     .predict_mixgpd = function(object, x = NULL, y = NULL, ps = NULL, id = NULL, type = "mean", ...) {
       if (identical(type, "mean")) {
@@ -1387,7 +1422,7 @@ test_that("coverage-heavy predict and residual methods cover wrapper branches wi
       }
       list(fit = data.frame(id = 1:2, estimate = c(1.0, 2.0), lower = c(0.8, 1.8), upper = c(1.2, 2.2)), type = type)
     },
-    .package = "CausalMixGPD"
+    .env = .coverage_heavy_pkg_env()
   )
 
   loc <- predict_method(
@@ -1406,7 +1441,7 @@ test_that("coverage-heavy predict and residual methods cover wrapper branches wi
   expect_error(predict_method(fake_fit, type = "mean", level = 1.5), "between 0 and 1")
   expect_error(predict_method(fake_fit, type = "mean", ncores = 0L), ">= 1")
 
-  testthat::local_mocked_bindings(
+  .coverage_heavy_mock_bindings(
     fitted.mixgpd_fit = function(object, type = "mean", ...) {
       structure(data.frame(residuals = c(0.1, -0.2)), class = c("mixgpd_fitted", "data.frame"))
     },
@@ -1428,7 +1463,7 @@ test_that("coverage-heavy predict and residual methods cover wrapper branches wi
       )
     },
     get_kernel_registry = function() list(normal = list(bulk_support = list(mean = "", sd = "positive_sd"))),
-    .package = "CausalMixGPD"
+    .env = .coverage_heavy_pkg_env()
   )
 
   expect_equal(residuals_method(fake_fit, type = "raw", fitted_type = "median"), c(0.1, -0.2))
@@ -1682,9 +1717,9 @@ test_that("coverage-heavy methods cover params and ESS summary branches with moc
     class = "mixgpd_fit"
   )
 
-  testthat::local_mocked_bindings(
+  .coverage_heavy_mock_bindings(
     .extract_draws_matrix = function(...) draw_mat_params,
-    .package = "CausalMixGPD"
+    .env = .coverage_heavy_pkg_env()
   )
 
   param_obj <- params(fit_params)
@@ -1750,7 +1785,7 @@ test_that("coverage-heavy methods cover predict wrappers fitted and residual PIT
   x_new <- matrix(c(1, 2, 3, 4), ncol = 2L)
   predict_calls <- character(0)
 
-  testthat::local_mocked_bindings(
+  .coverage_heavy_mock_bindings(
     .validate_fit = function(...) invisible(TRUE),
     .predict_mixgpd = function(object, x = NULL, type = c("mean", "median", "quantile"), ...) {
       type <- match.arg(type)
@@ -1763,7 +1798,7 @@ test_that("coverage-heavy methods cover predict wrappers fitted and residual PIT
       }
       list(fit = data.frame(id = c(2L, 1L), estimate = c(1.5, 0.5), lower = c(1.0, 0.1), upper = c(2.0, 0.9)))
     },
-    .package = "CausalMixGPD"
+    .env = .coverage_heavy_pkg_env()
   )
 
   loc_obj <- predict(fit_stub, newdata = x_new, type = "location", workers = 2L, parallel = TRUE)
@@ -1812,7 +1847,7 @@ test_that("coverage-heavy methods cover predict wrappers fitted and residual PIT
     dimnames = list(NULL, c("w[1]", "w[2]", "mean[1]", "mean[2]", "sd[1]", "sd[2]", "tail_shape", "threshold", "tail_scale"))
   )
 
-  testthat::local_mocked_bindings(
+  .coverage_heavy_mock_bindings(
     predict.mixgpd_fit = function(object, x = NULL, y = NULL, type = c("mean", "median", "quantile", "survival"), ...) {
       type <- match.arg(type)
       if (type == "mean") {
@@ -1848,7 +1883,7 @@ test_that("coverage-heavy methods cover predict wrappers fitted and residual PIT
       )
     },
     get_kernel_registry = function() list(normal = list(bulk_support = list(mean = "", sd = "positive_sd"))),
-    .package = "CausalMixGPD"
+    .env = .coverage_heavy_pkg_env()
   )
 
   fitted_loc <- fitted(fit_cond, type = "location", interval = "credible", seed = 1L)
@@ -2024,7 +2059,7 @@ test_that("coverage-heavy glue diagnostics cover missing-data and gpd failure br
     class = "mixgpd_fit"
   )
 
-  testthat::local_mocked_bindings(
+  .coverage_heavy_mock_bindings(
     .get_dispatch = function(...) list(
       d = function(x, ...) rep(0.1, length(x)),
       p = function(q, ...) rep(0.5, length(q)),
@@ -2036,7 +2071,7 @@ test_that("coverage-heavy glue diagnostics cover missing-data and gpd failure br
     },
     .extract_weights = function(...) matrix(1, nrow = 1L, ncol = 1L),
     .extract_bulk_params = function(...) list(mean = matrix(1, nrow = 1L, ncol = 1L)),
-    .package = "CausalMixGPD"
+    .env = .coverage_heavy_pkg_env()
   )
 
   expect_error(check_glue_validity(bad_fit, grid = c(0.1, 0.5)), "Training X not found")
@@ -2059,9 +2094,9 @@ test_that("coverage-heavy glue diagnostics cover missing-data and gpd failure br
   bad_fit$spec$dispatch$gpd$threshold <- list(mode = "constant")
   expect_error(check_glue_validity(bad_fit, grid = c(0.1, 0.5)), "threshold not found")
 
-  testthat::local_mocked_bindings(
+  .coverage_heavy_mock_bindings(
     .extract_draws_matrix = function(...) matrix(c(1, 0.5, 1, 1, 0.6, 1.1), nrow = 2L, byrow = TRUE, dimnames = list(NULL, c("w[1]", "tail_shape", "threshold"))),
-    .package = "CausalMixGPD"
+    .env = .coverage_heavy_pkg_env()
   )
   expect_error(check_glue_validity(bad_fit, grid = c(0.1, 0.5)), "tail_scale not found")
 })
@@ -2078,7 +2113,7 @@ test_that("coverage-heavy internal progress helpers cover colorized cli step and
   progress_updates <- list()
   progress_messages <- character(0)
 
-  testthat::local_mocked_bindings(
+  .coverage_heavy_mock_bindings(
     col_blue = function(x) paste0("<", x, ">"),
     num_ansi_colors = function() 8L,
     cli_progress_update = function(id, inc) {
@@ -2091,12 +2126,12 @@ test_that("coverage-heavy internal progress helpers cover colorized cli step and
     },
     .package = "cli"
   )
-  testthat::local_mocked_bindings(
+  .coverage_heavy_mock_bindings(
     .cmgpd_message = function(...) {
       progress_messages <<- c(progress_messages, paste0(..., collapse = ""))
       invisible(NULL)
     },
-    .package = "CausalMixGPD"
+    .env = .coverage_heavy_pkg_env()
   )
 
   expect_equal(progress_colorize("", step_index = 1L, enabled = TRUE), "")
@@ -2125,7 +2160,7 @@ test_that("coverage-heavy causal summary printers cover knitr fallback and raw s
   options(causalmixgpd.knitr.kable = TRUE)
   on.exit(options(causalmixgpd.knitr.kable = old_kable_opt), add = TRUE)
 
-  testthat::local_mocked_bindings(
+  .coverage_heavy_mock_bindings(
     .is_knitr_output = function() knitr_mode,
     .kable_table = function(x, ...) {
       if (is.data.frame(x)) {
@@ -2135,7 +2170,7 @@ test_that("coverage-heavy causal summary printers cover knitr fallback and raw s
       }
     },
     .knitr_asis = function(...) paste(unlist(list(...)), collapse = "\n"),
-    .package = "CausalMixGPD"
+    .env = .coverage_heavy_pkg_env()
   )
 
   effect_meta <- list(
@@ -2320,7 +2355,7 @@ test_that("coverage-heavy glue diagnostics cover grid defaults violation summari
     class = "mixgpd_fit"
   )
 
-  testthat::local_mocked_bindings(
+  .coverage_heavy_mock_bindings(
     .get_dispatch = function(...) {
       list(
         bulk_params = c("mean"),
@@ -2353,7 +2388,7 @@ test_that("coverage-heavy glue diagnostics cover grid defaults violation summari
     },
     .extract_weights = function(...) matrix(c(0.7, 0.3, Inf, 0, 0.6, 0.4), nrow = 3L, byrow = TRUE),
     .extract_bulk_params = function(...) list(mean = matrix(c(0.1, 0.2, 0.3), nrow = 3L)),
-    .package = "CausalMixGPD"
+    .env = .coverage_heavy_pkg_env()
   )
 
   res <- check_glue_validity(crp_fit, x = matrix(c(1, 0, 0, 1), nrow = 2L), grid = NULL, n_draws = 5L, check_continuity = TRUE)
@@ -2367,9 +2402,9 @@ test_that("coverage-heavy glue diagnostics cover grid defaults violation summari
   expect_true(length(res$details$examples) >= 1L)
   expect_false(all(unlist(res$pass), na.rm = TRUE))
 
-  testthat::local_mocked_bindings(
+  .coverage_heavy_mock_bindings(
     .extract_draws_matrix = function(...) matrix(1, nrow = 1L, ncol = 1L),
-    .package = "CausalMixGPD"
+    .env = .coverage_heavy_pkg_env()
   )
   expect_error(check_glue_validity(crp_fit, x = matrix(c(1, 0, 0, 1), nrow = 2L), grid = c(0, 1)), "Posterior draws not found or malformed")
 })

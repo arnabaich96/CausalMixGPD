@@ -133,6 +133,13 @@ setwd(here::here())
   helpers <- all_r[grepl("^helper.*\\.[Rr]$", basename(all_r))]
   tests <- all_r[grepl("^test.*\\.[Rr]$", basename(all_r))]
 
+  if (identical(Sys.getenv("DPMIXGPD_CI_COVERAGE_ONLY"), "1")) {
+    coverage_only <- tests[basename(tests) == "test-ci-level-only.R"]
+    if (length(coverage_only) > 0L) {
+      tests <- coverage_only
+    }
+  }
+
   unique(c(setup, sort(helpers), sort(tests)))
 }
 
@@ -177,6 +184,10 @@ setwd(here::here())
     sprintf('Sys.setenv(COVERAGE = "1", DPMIXGPD_TEST_LEVEL = "%s", DPMIXGPD_CI_COVERAGE_ONLY = "1")', .coverage_test_level()),
     'test_files <- list.files(pkg_tests, pattern = "^test.*\\\\.R$", recursive = TRUE, full.names = TRUE)',
     'if (length(test_files) == 0L) stop("Coverage found no test files under: ", pkg_tests)',
+    'if (identical(Sys.getenv("DPMIXGPD_CI_COVERAGE_ONLY"), "1")) {',
+    '  coverage_only <- test_files[basename(test_files) == "test-ci-level-only.R"]',
+    '  if (length(coverage_only) > 0L) test_files <- coverage_only',
+    '}',
     sprintf('reporter <- %s', reporter_expr),
     'for (target in test_files) {',
     '  cat("== coverage: running ", basename(target), "\\n", sep = "")',
@@ -258,7 +269,7 @@ calculate_coverage <- function(quiet = FALSE) {
   attempt_messages <- character(0)
   cov <- NULL
 
-  for (mode in c("custom", "tests", "file")) {
+  for (mode in c("file", "custom", "tests")) {
     if (!quiet) {
       cat("Coverage mode:", mode, "\n")
     }

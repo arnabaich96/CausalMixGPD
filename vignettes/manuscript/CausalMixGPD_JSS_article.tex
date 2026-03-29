@@ -206,139 +206,6 @@ densities, or samples.
 
 The following subsections provide background on these two components and their integration into a spliced model.
 
-\subsection{Generalized Pareto Distribution for Threshold Exceedances}
-\label{subsec:gpd}
-
-In modeling terms, the tail region is defined by values that exceed a high threshold. Extreme value theory (EVT) gives a standard approximation for exceedances over such a threshold. Let $u(x)$ be a high threshold, which may depend on $x$, and define the exceedance
-\begin{equation}
-Z = Y - u(x),
-\end{equation}
-considered conditionally on $Y > u(x)$. The conditional excess distribution is given by
-\begin{equation}
-F_u(z\mid x) = \Pr\!\bigl(Y-u(x) \le z \mid Y>u(x), X=x\bigr),
-\qquad z \ge 0.
-\label{eq:cedf}
-\end{equation}
-Under broad regularity conditions, $F_u(\cdot\mid x)$ is well-approximated by a generalized Pareto distribution (GPD) when $u(x)$ is large \citep{BalkemaDeHaan1974,Pickands1975,Coles2001}.
-
-For $y>u(x)$, the corresponding GPD cumulative distribution function is given as
-\begin{equation}
-F_{\mathrm{GPD}}\bigl(y\mid u(x),\sigma(x),\xi\bigr)=
-\begin{cases}
-1-\left(1+\xi\dfrac{y-u(x)}{\sigma(x)}\right)^{-1/\xi}, & \xi\neq 0,\\[8pt]
-1-\exp\!\left(-\dfrac{y-u(x)}{\sigma(x)}\right), & \xi=0,
-\end{cases}
-\label{eq:gpd_cdf}
-\end{equation}
-with support $y\ge u(x)$ when $\xi\ge 0$, and $u(x)\le y\le u(x)-\sigma(x)/\xi$ when $\xi<0$. The corresponding
-density function is given by
-\begin{equation}
-f_{\mathrm{GPD}}(y\mid u(x),\sigma(x),\xi)=
-\begin{cases}
-\dfrac{1}{\sigma(x)}\left(1+\xi\dfrac{y-u(x)}{\sigma(x)}\right)^{-1/\xi-1}, & \xi\neq 0,\\[10pt]
-\dfrac{1}{\sigma(x)}\exp\!\left(-\dfrac{y-u(x)}{\sigma(x)}\right), & \xi=0.
-\end{cases}
-\label{eq:gpd_pdf}
-\end{equation}
-The associated quantile function is given by
- \begin{equation}
-Q_{\mathrm{GPD}}(\tau\mid u(x),\sigma(x),\xi)=
-\begin{cases}
-u(x)-\sigma(x)\log(1-\tau), & \xi=0,\\[6pt]
-u(x)+\dfrac{\sigma(x)}{\xi}\Bigl((1-\tau)^{-\xi}-1\Bigr), & \xi\neq 0,
-\end{cases}
-\qquad 0<\tau<1.
-\label{eq:gpd_quantile}
-\end{equation}
-
-
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
-
-{\centering \includegraphics[width=0.78\linewidth]{figure/gpdDensityFigure-plot-1} 
-
-}
-
-\caption[GPD tail density above threshold for multiple shape parameters]{GPD tail density above threshold for multiple shape parameters.}\label{fig:gpdDensityFigure-plot}
-\end{figure}
-
-\end{knitrout}
-
-Figure~\ref{fig:gpdDensityFigure-plot},
-illustrates the GPD density for different shape parameters $\xi$ with a fixed
-scale parameter $\sigma$ and threshold $u$. The shape parameter $\xi$ controls the tail heaviness: $\xi < 0$
-corresponds to a light tail with a finite upper bound, $\xi = 0$ corresponds to an exponential tail, and $\xi > 0$
-corresponds to a heavy tail with infinite support. The GPD provides a flexible family for modeling exceedances
-above a high threshold, making it a natural choice for tail modeling in the two part spliced model construction.
-
-Next, we will discuss the modelling of the bulk of the distribution using DPM regression models.
-
-\subsection{Dirichlet Process Mixture Model for Conditional Densities}
-\label{subsec:dpm}
-
-In this package, conditional density of $Y$ given $X$ below a specific threshold
-($u(x)$) is modeled using a DPM regression model. Let $k(\cdot\mid x;\theta)$
-be a user-chosen kernel family indexed by parameter $\theta$. The
-hierarchical specification is \begin{equation}
-Y \mid X=x,\theta \sim k(\cdot\mid x;\theta),
-\qquad
-\theta \mid H \sim H,
-\qquad
-H \mid \kappa,H_0 \sim \mathrm{DP}(\kappa,H_0),
-\label{eq:dpm_hier}
-\end{equation} where $H$ is an unknown mixing distribution on the
-kernel-parameter space, $H_0$ is a base measure, and $\kappa>0$ is a
-concentration parameter \citep{Ferguson1973,Lo1984}. Marginalizing $H$ yields
-an (almost surely) discrete mixing distribution
-and an infinite mixture representation: \begin{equation}
-f_{\mathrm{DP}}(y\mid x)
-=
-\int k(y\mid x;\theta)\,dH(\theta)
-=
-\sum_{j=1}^{\infty} w_j\,k(y\mid x;\theta_j),
-\qquad
-w_j\ge 0,
-\qquad
-\sum_{j=1}^{\infty} w_j=1.
-\label{eq:dpm_mixture}
-\end{equation}
-One representation for the weights is given by Sethuraman's
-stick-breaking construction \citep{Sethuraman1994}: \begin{equation}
-w_1=V_1,
-\qquad
-w_j=V_j\prod_{\ell<j}(1-V_\ell),
-\qquad
-V_j \stackrel{\mathrm{iid}}{\sim}\mathrm{Beta}(1,\kappa),
-\qquad
-\theta_j \stackrel{\mathrm{iid}}{\sim} H_0.
-\label{eq:sb}
-\end{equation}
-An equivalent characterization is obtained by marginalizing over \(H\),
-yielding the Blackwell--MacQueen P\'olya urn representation. In
-particular, the conditional distribution of a parameter value given the
-others can be written as
-\begin{equation}
-\theta_i \mid \{\theta_j\}_{j \neq i}
-\sim
-\frac{\kappa}{\kappa+n} H_0(\cdot)
-+
-\frac{1}{\kappa+n}\sum_{j=1}^{n}\delta_{\theta_j}(\cdot),
-\label{eq:crp}
-\end{equation}
-where $\delta_{\theta_j}(\cdot)$ is a point mass assigned to $\theta_j$ .
-This induces a clustering structure often described via the Chinese
-restaurant process (CRP) \citep{BlackwellMacQueen1973,Neal2000}. Both
-stick-breaking and CRP representations are widely used for posterior simulation in
-DPM models \citep{EscobarWest1995,Neal2000}.
-
-DPM works without specifying
-the number of mixture components, and can capture complex distributional features such as
-multimodality, skewness, and heteroscedasticity by choosing an appropriate kernel family.
-This makes DPMs a natural choice for modeling the bulk of the conditional distribution, where data are abundant
-and complex features may be present. This package supports multiple kernel
-families spanning both positive-support and real-line outcomes.
-
 
 
 
@@ -1646,18 +1513,12 @@ actually represented in the new observations (Table~\ref{tab:app_cluster_old_new
 \caption{\label{tab:app_cluster_old_new_test-results}Test cluster sizes}
 \centering
 \fontsize{8}{10}\selectfont
-\begin{tabular}[t]{lr}
+\begin{tabular}[t]{lrrrrrrr}
 \toprule
-cluster & n\\
+ &  &  &  &  &  &  & \\
 \midrule
-C3 & 46\\
-C2 & 45\\
-C4 & 23\\
-C7 & 8\\
-C1 & 2\\
-\addlinespace
-C8 & 2\\
-C5 & 1\\
+Cluster & C3 & C2 & C4 & C7 & C1 & C8 & C5\\
+n & 46 & 45 & 23 & 8 & 2 & 2 & 1\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1666,8 +1527,9 @@ C5 & 1\\
 
 To summarize the dominant representative clusters, Table~\ref{tab:app_cluster_top5_populated-results}
 reports descriptive statistics for up to the five most populated training clusters.
-For each cluster we show one row per summarized variable together with
-the cluster size, within-cluster mean, and within-cluster standard deviation.
+The table is displayed with summary metrics in rows and retained clusters in columns,
+so the cluster sizes, within-cluster means, and within-cluster standard deviations can
+be compared across clusters directly.
 
 
 
@@ -1676,59 +1538,28 @@ the cluster size, within-cluster mean, and within-cluster standard deviation.
 \caption{\label{tab:app_cluster_top5_populated-results}Descriptive summaries for up to the five most populated representative clusters}
 \centering
 \fontsize{7}{9}\selectfont
-\begin{tabular}[t]{llrrr}
+\begin{tabular}[t]{lrrrrr}
 \toprule
-Cluster & Variable & n & Mean & SD\\
+Metric & C3 & C4 & C8 & C2 & C7\\
 \midrule
- & crim &  & 0.338 & 1.066\\
-
- & lstat &  & -0.873 & 0.373\\
-
- & rm &  & 0.846 & 0.831\\
-
- & nox &  & -0.763 & 0.463\\
-
-\multirow[t]{-5}{*}{\raggedright\arraybackslash C3} & certainty & \multirow[t]{-5}{*}{\raggedleft\arraybackslash 75} & 0.169 & 0.030\\
-\cmidrule{1-5}
- & crim &  & 0.530 & 3.464\\
-
- & lstat &  & -0.398 & 0.525\\
-
- & rm &  & -0.159 & 0.564\\
-
- & nox &  & -0.815 & 0.431\\
-
-\multirow[t]{-5}{*}{\raggedright\arraybackslash C4} & certainty & \multirow[t]{-5}{*}{\raggedleft\arraybackslash 68} & 0.144 & 0.028\\
-\cmidrule{1-5}
- & crim &  & 3.843 & 7.858\\
-
- & lstat &  & -0.136 & 0.654\\
-
- & rm &  & -0.276 & 0.545\\
-
- & nox &  & 0.364 & 0.914\\
-
-\multirow[t]{-5}{*}{\raggedright\arraybackslash C8} & certainty & \multirow[t]{-5}{*}{\raggedleft\arraybackslash 47} & 0.128 & 0.028\\
-\cmidrule{1-5}
- & crim &  & 9.732 & 16.201\\
-
- & lstat &  & 0.770 & 0.823\\
-
- & rm &  & -0.346 & 0.510\\
-
- & nox &  & 0.795 & 0.802\\
-
-\multirow[t]{-5}{*}{\raggedright\arraybackslash C2} & certainty & \multirow[t]{-5}{*}{\raggedleft\arraybackslash 45} & 0.131 & 0.028\\
-\cmidrule{1-5}
- & crim &  & 7.642 & 15.235\\
-
- & lstat &  & 0.303 & 0.852\\
-
- & rm &  & 0.388 & 0.864\\
-
- & nox &  & 0.563 & 0.874\\
-
-\multirow[t]{-5}{*}{\raggedright\arraybackslash C7} & certainty & \multirow[t]{-5}{*}{\raggedleft\arraybackslash 35} & 0.147 & 0.045\\
+n & 75.000 & 68.000 & 47.000 & 45.000 & 35.000\\
+\addlinespace\\
+crim mean & 0.338 & 0.530 & 3.843 & 9.732 & 7.642\\
+crim sd & 1.066 & 3.464 & 7.858 & 16.201 & 15.235\\
+\addlinespace\\
+lstat mean & -0.873 & -0.398 & -0.136 & 0.770 & 0.303\\
+lstat sd & 0.373 & 0.525 & 0.654 & 0.823 & 0.852\\
+\addlinespace\\
+\addlinespace
+rm mean & 0.846 & -0.159 & -0.276 & -0.346 & 0.388\\
+rm sd & 0.831 & 0.564 & 0.545 & 0.510 & 0.864\\
+\addlinespace\\
+nox mean & -0.763 & -0.815 & 0.364 & 0.795 & 0.563\\
+nox sd & 0.463 & 0.431 & 0.914 & 0.802 & 0.874\\
+\addlinespace\\
+certainty mean & 0.169 & 0.144 & 0.128 & 0.131 & 0.147\\
+\addlinespace
+certainty sd & 0.030 & 0.028 & 0.028 & 0.028 & 0.045\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -2063,6 +1894,142 @@ The causal implementation is currently limited to binary treatments and continuo
 
 
 \bibliography{CausalMixGPD_JSS_refs}
+
+
+
+\section{Appendix: Additional Theoretical Background}
+\subsection{Generalized Pareto Distribution for Threshold Exceedances}
+\label{subsec:gpd}
+
+In modeling terms, the tail region is defined by values that exceed a high threshold. Extreme value theory (EVT) gives a standard approximation for exceedances over such a threshold. Let $u(x)$ be a high threshold, which may depend on $x$, and define the exceedance
+\begin{equation}
+Z = Y - u(x),
+\end{equation}
+considered conditionally on $Y > u(x)$. The conditional excess distribution is given by
+\begin{equation}
+F_u(z\mid x) = \Pr\!\bigl(Y-u(x) \le z \mid Y>u(x), X=x\bigr),
+\qquad z \ge 0.
+\label{eq:cedf}
+\end{equation}
+Under broad regularity conditions, $F_u(\cdot\mid x)$ is well-approximated by a generalized Pareto distribution (GPD) when $u(x)$ is large \citep{BalkemaDeHaan1974,Pickands1975,Coles2001}.
+
+For $y>u(x)$, the corresponding GPD cumulative distribution function is given as
+\begin{equation}
+F_{\mathrm{GPD}}\bigl(y\mid u(x),\sigma(x),\xi\bigr)=
+\begin{cases}
+1-\left(1+\xi\dfrac{y-u(x)}{\sigma(x)}\right)^{-1/\xi}, & \xi\neq 0,\\[8pt]
+1-\exp\!\left(-\dfrac{y-u(x)}{\sigma(x)}\right), & \xi=0,
+\end{cases}
+\label{eq:gpd_cdf}
+\end{equation}
+with support $y\ge u(x)$ when $\xi\ge 0$, and $u(x)\le y\le u(x)-\sigma(x)/\xi$ when $\xi<0$. The corresponding
+density function is given by
+\begin{equation}
+f_{\mathrm{GPD}}(y\mid u(x),\sigma(x),\xi)=
+\begin{cases}
+\dfrac{1}{\sigma(x)}\left(1+\xi\dfrac{y-u(x)}{\sigma(x)}\right)^{-1/\xi-1}, & \xi\neq 0,\\[10pt]
+\dfrac{1}{\sigma(x)}\exp\!\left(-\dfrac{y-u(x)}{\sigma(x)}\right), & \xi=0.
+\end{cases}
+\label{eq:gpd_pdf}
+\end{equation}
+The associated quantile function is given by
+ \begin{equation}
+Q_{\mathrm{GPD}}(\tau\mid u(x),\sigma(x),\xi)=
+\begin{cases}
+u(x)-\sigma(x)\log(1-\tau), & \xi=0,\\[6pt]
+u(x)+\dfrac{\sigma(x)}{\xi}\Bigl((1-\tau)^{-\xi}-1\Bigr), & \xi\neq 0,
+\end{cases}
+\qquad 0<\tau<1.
+\label{eq:gpd_quantile}
+\end{equation}
+
+
+
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+{\centering \includegraphics[width=0.78\linewidth]{figure/gpdDensityFigure-plot-1} 
+
+}
+
+\caption[GPD tail density above threshold for multiple shape parameters]{GPD tail density above threshold for multiple shape parameters.}\label{fig:gpdDensityFigure-plot}
+\end{figure}
+
+\end{knitrout}
+
+Figure~\ref{fig:gpdDensityFigure-plot},
+illustrates the GPD density for different shape parameters $\xi$ with a fixed
+scale parameter $\sigma$ and threshold $u$. The shape parameter $\xi$ controls the tail heaviness: $\xi < 0$
+corresponds to a light tail with a finite upper bound, $\xi = 0$ corresponds to an exponential tail, and $\xi > 0$
+corresponds to a heavy tail with infinite support. The GPD provides a flexible family for modeling exceedances
+above a high threshold, making it a natural choice for tail modeling in the two part spliced model construction.
+
+Next, we will discuss the modelling of the bulk of the distribution using DPM regression models.
+
+\subsection{Dirichlet Process Mixture Model for Conditional Densities}
+\label{subsec:dpm}
+
+In this package, conditional density of $Y$ given $X$ below a specific threshold
+($u(x)$) is modeled using a DPM regression model. Let $k(\cdot\mid x;\theta)$
+be a user-chosen kernel family indexed by parameter $\theta$. The
+hierarchical specification is \begin{equation}
+Y \mid X=x,\theta \sim k(\cdot\mid x;\theta),
+\qquad
+\theta \mid H \sim H,
+\qquad
+H \mid \kappa,H_0 \sim \mathrm{DP}(\kappa,H_0),
+\label{eq:dpm_hier}
+\end{equation} where $H$ is an unknown mixing distribution on the
+kernel-parameter space, $H_0$ is a base measure, and $\kappa>0$ is a
+concentration parameter \citep{Ferguson1973,Lo1984}. Marginalizing $H$ yields
+an (almost surely) discrete mixing distribution
+and an infinite mixture representation: \begin{equation}
+f_{\mathrm{DP}}(y\mid x)
+=
+\int k(y\mid x;\theta)\,dH(\theta)
+=
+\sum_{j=1}^{\infty} w_j\,k(y\mid x;\theta_j),
+\qquad
+w_j\ge 0,
+\qquad
+\sum_{j=1}^{\infty} w_j=1.
+\label{eq:dpm_mixture}
+\end{equation}
+One representation for the weights is given by Sethuraman's
+stick-breaking construction \citep{Sethuraman1994}: \begin{equation}
+w_1=V_1,
+\qquad
+w_j=V_j\prod_{\ell<j}(1-V_\ell),
+\qquad
+V_j \stackrel{\mathrm{iid}}{\sim}\mathrm{Beta}(1,\kappa),
+\qquad
+\theta_j \stackrel{\mathrm{iid}}{\sim} H_0.
+\label{eq:sb}
+\end{equation}
+An equivalent characterization is obtained by marginalizing over \(H\),
+yielding the Blackwell--MacQueen P\'olya urn representation. In
+particular, the conditional distribution of a parameter value given the
+others can be written as
+\begin{equation}
+\theta_i \mid \{\theta_j\}_{j \neq i}
+\sim
+\frac{\kappa}{\kappa+n} H_0(\cdot)
++
+\frac{1}{\kappa+n}\sum_{j=1}^{n}\delta_{\theta_j}(\cdot),
+\label{eq:crp}
+\end{equation}
+where $\delta_{\theta_j}(\cdot)$ is a point mass assigned to $\theta_j$ .
+This induces a clustering structure often described via the Chinese
+restaurant process (CRP) \citep{BlackwellMacQueen1973,Neal2000}. Both
+stick-breaking and CRP representations are widely used for posterior simulation in
+DPM models \citep{EscobarWest1995,Neal2000}.
+
+DPM works without specifying
+the number of mixture components, and can capture complex distributional features such as
+multimodality, skewness, and heteroscedasticity by choosing an appropriate kernel family.
+This makes DPMs a natural choice for modeling the bulk of the conditional distribution, where data are abundant
+and complex features may be present. This package supports multiple kernel
+families spanning both positive-support and real-line outcomes.
 
 
 

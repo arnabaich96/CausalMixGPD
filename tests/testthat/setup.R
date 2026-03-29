@@ -1,4 +1,5 @@
-set_max_fails(Inf)
+testthat::set_max_fails(Inf)
+library(testthat)
 options(testthat.reporter = "summary")
 Sys.setenv(DPMIXGPD_USE_CACHE = Sys.getenv("DPMIXGPD_USE_CACHE", "1"))
 
@@ -20,10 +21,15 @@ if (!is_pkg_check && is_covr_run &&
   Sys.setenv(DPMIXGPD_TEST_LEVEL = "ci")
 }
 
-if (!is_covr_run) {
-  pkg_root <- normalizePath(file.path("..", ".."), winslash = "/", mustWork = TRUE)
-  r_dir <- file.path(pkg_root, "R")
-  r_files <- list.files(r_dir, pattern = "\\.[Rr]$", recursive = TRUE, full.names = TRUE)
+pkg_root <- normalizePath(file.path("..", ".."), winslash = "/", mustWork = TRUE)
+r_dir <- file.path(pkg_root, "R")
+r_files <- if (dir.exists(r_dir)) {
+  list.files(r_dir, pattern = "\\.[Rr]$", recursive = TRUE, full.names = TRUE)
+} else {
+  character(0)
+}
+
+if (!is_covr_run || (identical(Sys.getenv("R_COVR"), "true") && length(r_files) > 0L)) {
   for (f in sort(r_files)) {
     tryCatch(
       {

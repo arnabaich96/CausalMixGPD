@@ -313,185 +313,6 @@ densities, or samples.
 
 The following subsections provide background on these two components and their integration into a spliced model.
 
-\subsection{Generalized Pareto Distribution for Threshold Exceedances}
-\label{subsec:gpd}
-
-In modeling terms, the tail region is defined by values that exceed a high threshold. Extreme value theory (EVT) gives a standard approximation for exceedances over such a threshold. Let $u(x)$ be a high threshold, which may depend on $x$, and define the exceedance
-\begin{equation}
-Z = Y - u(x),
-\end{equation}
-considered conditionally on $Y > u(x)$. The conditional excess distribution is given by
-\begin{equation}
-F_u(z\mid x) = \Pr\!\bigl(Y-u(x) \le z \mid Y>u(x), X=x\bigr),
-\qquad z \ge 0.
-\label{eq:cedf}
-\end{equation}
-Under broad regularity conditions, $F_u(\cdot\mid x)$ is well-approximated by a generalized Pareto distribution (GPD) when $u(x)$ is large \citep{BalkemaDeHaan1974,Pickands1975,Coles2001}.
-
-For $y>u(x)$, the corresponding GPD cumulative distribution function is given as
-\begin{equation}
-F_{\mathrm{GPD}}\bigl(y\mid u(x),\sigma(x),\xi\bigr)=
-\begin{cases}
-1-\left(1+\xi\dfrac{y-u(x)}{\sigma(x)}\right)^{-1/\xi}, & \xi\neq 0,\\[8pt]
-1-\exp\!\left(-\dfrac{y-u(x)}{\sigma(x)}\right), & \xi=0,
-\end{cases}
-\label{eq:gpd_cdf}
-\end{equation}
-with support $y\ge u(x)$ when $\xi\ge 0$, and $u(x)\le y\le u(x)-\sigma(x)/\xi$ when $\xi<0$. The corresponding
-density function is given by
-\begin{equation}
-f_{\mathrm{GPD}}(y\mid u(x),\sigma(x),\xi)=
-\begin{cases}
-\dfrac{1}{\sigma(x)}\left(1+\xi\dfrac{y-u(x)}{\sigma(x)}\right)^{-1/\xi-1}, & \xi\neq 0,\\[10pt]
-\dfrac{1}{\sigma(x)}\exp\!\left(-\dfrac{y-u(x)}{\sigma(x)}\right), & \xi=0.
-\end{cases}
-\label{eq:gpd_pdf}
-\end{equation}
-The associated quantile function is given by
- \begin{equation}
-Q_{\mathrm{GPD}}(\tau\mid u(x),\sigma(x),\xi)=
-\begin{cases}
-u(x)-\sigma(x)\log(1-\tau), & \xi=0,\\[6pt]
-u(x)+\dfrac{\sigma(x)}{\xi}\Bigl((1-\tau)^{-\xi}-1\Bigr), & \xi\neq 0,
-\end{cases}
-\qquad 0<\tau<1.
-\label{eq:gpd_quantile}
-\end{equation}
-
-<<gpdDensityFigure-build, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, include=FALSE>>=
-
-u <- 2.0
-y <- seq(u, u + 8, length.out = 500)
-sigma <- 1.2
-xi_vals <- c(-0.25, 0.0, 0.25)
-xi_legend_levels <- sprintf("xi==%.2f", xi_vals)
-
-gpd_df <- do.call(
-  rbind,
-  lapply(xi_vals, function(xi) {
-    data.frame(
-      y = y,
-      density = dgpd(y, threshold = u, scale = sigma, shape = xi),
-      xi = factor(sprintf("xi==%.2f", xi), levels = xi_legend_levels)
-    )
-  })
-)
-gpd_df <- gpd_df[is.finite(gpd_df$density), , drop = FALSE]
-
-gpd_density_plot <- ggplot(gpd_df, aes(x = y, y = density, color = xi)) +
-  geom_line(linewidth = 0.9) +
-  geom_vline(
-    xintercept = u,
-    linetype = "dashed",
-    linewidth = 0.7,
-    color = "gray35"
-  ) +
-  annotate(
-    "text",
-    x = u + 0.05,
-    y = 0.2,
-    label = "threshold",
-    hjust = 0,
-    vjust = 1.5,
-    size = 5,
-    color = "gray35"
-  ) +
-  scale_color_manual(
-    values = c("#1b9e77", "#d95f02", "#7570b3"),
-    labels = scales::label_parse()
-  ) +
-  labs(
-    x = "Outcome y",
-    y = "Density",
-    color = NULL
-  ) +
-  theme_minimal(base_size = 10) +
-  theme(
-    legend.position = "top",
-    legend.text = element_text(size = 12),
-    legend.key.width = grid::unit(1.1, "cm"),
-    legend.key.height = grid::unit(0.6, "cm")
-  )
-@
-
-<<gpdDensityFigure-plot, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, fig.height=4, out.width='0.78\\linewidth', fig.pos='H', fig.cap='GPD tail density above threshold for multiple shape parameters.'>>=
-gpd_density_plot
-@
-
-Figure~\ref{fig:gpdDensityFigure-plot},
-illustrates the GPD density for different shape parameters $\xi$ with a fixed
-scale parameter $\sigma$ and threshold $u$. The shape parameter $\xi$ controls the tail heaviness: $\xi < 0$
-corresponds to a light tail with a finite upper bound, $\xi = 0$ corresponds to an exponential tail, and $\xi > 0$
-corresponds to a heavy tail with infinite support. The GPD provides a flexible family for modeling exceedances
-above a high threshold, making it a natural choice for tail modeling in the two part spliced model construction.
-
-Next, we will discuss the modelling of the bulk of the distribution using DPM regression models.
-
-\subsection{Dirichlet Process Mixture Model for Conditional Densities}
-\label{subsec:dpm}
-
-In this package, conditional density of $Y$ given $X$ below a specific threshold
-($u(x)$) is modeled using a DPM regression model. Let $k(\cdot\mid x;\theta)$
-be a user-chosen kernel family indexed by parameter $\theta$. The
-hierarchical specification is \begin{equation}
-Y \mid X=x,\theta \sim k(\cdot\mid x;\theta),
-\qquad
-\theta \mid H \sim H,
-\qquad
-H \mid \kappa,H_0 \sim \mathrm{DP}(\kappa,H_0),
-\label{eq:dpm_hier}
-\end{equation} where $H$ is an unknown mixing distribution on the
-kernel-parameter space, $H_0$ is a base measure, and $\kappa>0$ is a
-concentration parameter \citep{Ferguson1973,Lo1984}. Marginalizing $H$ yields
-an (almost surely) discrete mixing distribution
-and an infinite mixture representation: \begin{equation}
-f_{\mathrm{DP}}(y\mid x)
-=
-\int k(y\mid x;\theta)\,dH(\theta)
-=
-\sum_{j=1}^{\infty} w_j\,k(y\mid x;\theta_j),
-\qquad
-w_j\ge 0,
-\qquad
-\sum_{j=1}^{\infty} w_j=1.
-\label{eq:dpm_mixture}
-\end{equation}
-One representation for the weights is given by Sethuraman's
-stick-breaking construction \citep{Sethuraman1994}: \begin{equation}
-w_1=V_1,
-\qquad
-w_j=V_j\prod_{\ell<j}(1-V_\ell),
-\qquad
-V_j \stackrel{\mathrm{iid}}{\sim}\mathrm{Beta}(1,\kappa),
-\qquad
-\theta_j \stackrel{\mathrm{iid}}{\sim} H_0.
-\label{eq:sb}
-\end{equation}
-An equivalent characterization is obtained by marginalizing over \(H\),
-yielding the Blackwell--MacQueen P\'olya urn representation. In
-particular, the conditional distribution of a parameter value given the
-others can be written as
-\begin{equation}
-\theta_i \mid \{\theta_j\}_{j \neq i}
-\sim
-\frac{\kappa}{\kappa+n} H_0(\cdot)
-+
-\frac{1}{\kappa+n}\sum_{j=1}^{n}\delta_{\theta_j}(\cdot),
-\label{eq:crp}
-\end{equation}
-where $\delta_{\theta_j}(\cdot)$ is a point mass assigned to $\theta_j$ .
-This induces a clustering structure often described via the Chinese
-restaurant process (CRP) \citep{BlackwellMacQueen1973,Neal2000}. Both
-stick-breaking and CRP representations are widely used for posterior simulation in
-DPM models \citep{EscobarWest1995,Neal2000}.
-
-DPM works without specifying
-the number of mixture components, and can capture complex distributional features such as
-multimodality, skewness, and heteroscedasticity by choosing an appropriate kernel family.
-This makes DPMs a natural choice for modeling the bulk of the conditional distribution, where data are abundant
-and complex features may be present. This package supports multiple kernel
-families spanning both positive-support and real-line outcomes.
-
 
 
 
@@ -1937,14 +1758,24 @@ test_cluster_counts <- data.frame(
   row.names = NULL,
   check.names = FALSE
 )
+test_cluster_horizontal <- as.data.frame(
+  rbind(
+    c("Cluster", test_cluster_counts$cluster),
+    c("n", as.character(test_cluster_counts$n))
+  ),
+  check.names = FALSE,
+  stringsAsFactors = FALSE
+)
+names(test_cluster_horizontal) <- rep("", ncol(test_cluster_horizontal))
 @
 
 <<app_cluster_old_new_test-results, echo=FALSE, eval=TRUE, results='asis'>>=
 kableExtra::kbl(
-  test_cluster_counts,
+  test_cluster_horizontal,
   format = "latex",
   booktabs = TRUE,
-  caption = "Test cluster sizes"
+  caption = "Test cluster sizes",
+  align = c("l", rep("r", ncol(test_cluster_horizontal) - 1L))
 ) |>
   kableExtra::kable_styling(
     latex_options = "HOLD_position",
@@ -1954,63 +1785,53 @@ kableExtra::kbl(
 
 To summarize the dominant representative clusters, Table~\ref{tab:app_cluster_top5_populated-results}
 reports descriptive statistics for up to the five most populated training clusters.
-For each cluster we show one row per summarized variable together with
-the cluster size, within-cluster mean, and within-cluster standard deviation.
+The table is displayed with summary metrics in rows and retained clusters in columns,
+so the cluster sizes, within-cluster means, and within-cluster standard deviations can
+be compared across clusters directly.
 
 <<app_cluster_top5_populated-cache, echo=FALSE, message=FALSE, warning=FALSE, results='hide', eval=TRUE, include=FALSE>>=
 if (!exists("cluster_top5_populated", inherits = FALSE)) {
   cluster_top5_populated <- cluster_fit_summary$cluster_profiles
 }
-cluster_metric_vars <- unique(sub(
-  "_(mean|sd)$",
-  "",
-  names(cluster_top5_populated)[grepl("_(mean|sd)$", names(cluster_top5_populated))]
-))
-cluster_top5_horizontal <- do.call(
-  rbind,
-  lapply(seq_len(nrow(cluster_top5_populated)), function(i) {
-    row_i <- cluster_top5_populated[i, , drop = FALSE]
-    do.call(
-      rbind,
-      lapply(cluster_metric_vars, function(var_name) {
-        data.frame(
-          cluster = row_i$cluster,
-          variable = var_name,
-          n = row_i$n,
-          mean = row_i[[paste0(var_name, "_mean")]],
-          sd = row_i[[paste0(var_name, "_sd")]],
-          row.names = NULL,
-          check.names = FALSE
-        )
-      })
-    )
-  })
+cluster_top5_transposed <- as.data.frame(
+  t(as.matrix(cluster_top5_populated[, setdiff(names(cluster_top5_populated), "cluster"), drop = FALSE])),
+  check.names = FALSE,
+  stringsAsFactors = FALSE
 )
-numeric_cols <- c("mean", "sd")
-cluster_top5_horizontal[, numeric_cols] <- lapply(
-  cluster_top5_horizontal[, numeric_cols, drop = FALSE],
-  round,
-  digits = 3
+names(cluster_top5_transposed) <- as.character(cluster_top5_populated$cluster)
+cluster_top5_transposed <- data.frame(
+  metric = row.names(cluster_top5_transposed),
+  cluster_top5_transposed,
+  row.names = NULL,
+  check.names = FALSE,
+  stringsAsFactors = FALSE
 )
+numeric_cols <- setdiff(names(cluster_top5_transposed), "metric")
+cluster_top5_transposed[, numeric_cols] <- lapply(
+  cluster_top5_transposed[, numeric_cols, drop = FALSE],
+  function(x) round(as.numeric(x), digits = 3)
+)
+cluster_top5_transposed$metric <- gsub("_", " ", cluster_top5_transposed$metric, fixed = TRUE)
 @
 
 <<app_cluster_top5_populated-results, echo=FALSE, eval=TRUE, results='asis'>>=
 kableExtra::kbl(
-  cluster_top5_horizontal,
+  cluster_top5_transposed,
   format = "latex",
   booktabs = TRUE,
-  col.names = c("Cluster", "Variable", "n", "Mean", "SD"),
+  col.names = c("Metric", as.character(cluster_top5_populated$cluster)),
   caption = "Descriptive summaries for up to the five most populated representative clusters"
 ) |>
   kableExtra::kable_styling(
     latex_options = "HOLD_position",
     font_size = 7
-) |>
-  kableExtra::collapse_rows(
-    columns = c(1, 3),
-    latex_hline = "major",
-    valign = "top"
-  )
+ ) |>
+  kableExtra::row_spec(1, extra_latex_after = "\\addlinespace") |>
+  kableExtra::row_spec(3, extra_latex_after = "\\addlinespace") |>
+  kableExtra::row_spec(5, extra_latex_after = "\\addlinespace") |>
+  kableExtra::row_spec(7, extra_latex_after = "\\addlinespace") |>
+  kableExtra::row_spec(9, extra_latex_after = "\\addlinespace")
+
 @
 
 This analysis illustrates the intended clustering workflow: inference is
@@ -2411,6 +2232,188 @@ The causal implementation is currently limited to binary treatments and continuo
 
 
 \bibliography{CausalMixGPD_JSS_refs}
+
+
+
+\section{Appendix: Additional Theoretical Background}
+\subsection{Generalized Pareto Distribution for Threshold Exceedances}
+\label{subsec:gpd}
+
+In modeling terms, the tail region is defined by values that exceed a high threshold. Extreme value theory (EVT) gives a standard approximation for exceedances over such a threshold. Let $u(x)$ be a high threshold, which may depend on $x$, and define the exceedance
+\begin{equation}
+Z = Y - u(x),
+\end{equation}
+considered conditionally on $Y > u(x)$. The conditional excess distribution is given by
+\begin{equation}
+F_u(z\mid x) = \Pr\!\bigl(Y-u(x) \le z \mid Y>u(x), X=x\bigr),
+\qquad z \ge 0.
+\label{eq:cedf}
+\end{equation}
+Under broad regularity conditions, $F_u(\cdot\mid x)$ is well-approximated by a generalized Pareto distribution (GPD) when $u(x)$ is large \citep{BalkemaDeHaan1974,Pickands1975,Coles2001}.
+
+For $y>u(x)$, the corresponding GPD cumulative distribution function is given as
+\begin{equation}
+F_{\mathrm{GPD}}\bigl(y\mid u(x),\sigma(x),\xi\bigr)=
+\begin{cases}
+1-\left(1+\xi\dfrac{y-u(x)}{\sigma(x)}\right)^{-1/\xi}, & \xi\neq 0,\\[8pt]
+1-\exp\!\left(-\dfrac{y-u(x)}{\sigma(x)}\right), & \xi=0,
+\end{cases}
+\label{eq:gpd_cdf}
+\end{equation}
+with support $y\ge u(x)$ when $\xi\ge 0$, and $u(x)\le y\le u(x)-\sigma(x)/\xi$ when $\xi<0$. The corresponding
+density function is given by
+\begin{equation}
+f_{\mathrm{GPD}}(y\mid u(x),\sigma(x),\xi)=
+\begin{cases}
+\dfrac{1}{\sigma(x)}\left(1+\xi\dfrac{y-u(x)}{\sigma(x)}\right)^{-1/\xi-1}, & \xi\neq 0,\\[10pt]
+\dfrac{1}{\sigma(x)}\exp\!\left(-\dfrac{y-u(x)}{\sigma(x)}\right), & \xi=0.
+\end{cases}
+\label{eq:gpd_pdf}
+\end{equation}
+The associated quantile function is given by
+ \begin{equation}
+Q_{\mathrm{GPD}}(\tau\mid u(x),\sigma(x),\xi)=
+\begin{cases}
+u(x)-\sigma(x)\log(1-\tau), & \xi=0,\\[6pt]
+u(x)+\dfrac{\sigma(x)}{\xi}\Bigl((1-\tau)^{-\xi}-1\Bigr), & \xi\neq 0,
+\end{cases}
+\qquad 0<\tau<1.
+\label{eq:gpd_quantile}
+\end{equation}
+
+<<gpdDensityFigure-build, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, include=FALSE>>=
+
+u <- 2.0
+y <- seq(u, u + 8, length.out = 500)
+sigma <- 1.2
+xi_vals <- c(-0.25, 0.0, 0.25)
+xi_legend_levels <- sprintf("xi==%.2f", xi_vals)
+
+gpd_df <- do.call(
+  rbind,
+  lapply(xi_vals, function(xi) {
+    data.frame(
+      y = y,
+      density = dgpd(y, threshold = u, scale = sigma, shape = xi),
+      xi = factor(sprintf("xi==%.2f", xi), levels = xi_legend_levels)
+    )
+  })
+)
+gpd_df <- gpd_df[is.finite(gpd_df$density), , drop = FALSE]
+
+gpd_density_plot <- ggplot(gpd_df, aes(x = y, y = density, color = xi)) +
+  geom_line(linewidth = 0.9) +
+  geom_vline(
+    xintercept = u,
+    linetype = "dashed",
+    linewidth = 0.7,
+    color = "gray35"
+  ) +
+  annotate(
+    "text",
+    x = u + 0.05,
+    y = 0.2,
+    label = "threshold",
+    hjust = 0,
+    vjust = 1.5,
+    size = 5,
+    color = "gray35"
+  ) +
+  scale_color_manual(
+    values = c("#1b9e77", "#d95f02", "#7570b3"),
+    labels = scales::label_parse()
+  ) +
+  labs(
+    x = "Outcome y",
+    y = "Density",
+    color = NULL
+  ) +
+  theme_minimal(base_size = 10) +
+  theme(
+    legend.position = "top",
+    legend.text = element_text(size = 12),
+    legend.key.width = grid::unit(1.1, "cm"),
+    legend.key.height = grid::unit(0.6, "cm")
+  )
+@
+
+<<gpdDensityFigure-plot, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, fig.height=4, out.width='0.78\\linewidth', fig.pos='H', fig.cap='GPD tail density above threshold for multiple shape parameters.'>>=
+gpd_density_plot
+@
+
+Figure~\ref{fig:gpdDensityFigure-plot},
+illustrates the GPD density for different shape parameters $\xi$ with a fixed
+scale parameter $\sigma$ and threshold $u$. The shape parameter $\xi$ controls the tail heaviness: $\xi < 0$
+corresponds to a light tail with a finite upper bound, $\xi = 0$ corresponds to an exponential tail, and $\xi > 0$
+corresponds to a heavy tail with infinite support. The GPD provides a flexible family for modeling exceedances
+above a high threshold, making it a natural choice for tail modeling in the two part spliced model construction.
+
+Next, we will discuss the modelling of the bulk of the distribution using DPM regression models.
+
+\subsection{Dirichlet Process Mixture Model for Conditional Densities}
+\label{subsec:dpm}
+
+In this package, conditional density of $Y$ given $X$ below a specific threshold
+($u(x)$) is modeled using a DPM regression model. Let $k(\cdot\mid x;\theta)$
+be a user-chosen kernel family indexed by parameter $\theta$. The
+hierarchical specification is \begin{equation}
+Y \mid X=x,\theta \sim k(\cdot\mid x;\theta),
+\qquad
+\theta \mid H \sim H,
+\qquad
+H \mid \kappa,H_0 \sim \mathrm{DP}(\kappa,H_0),
+\label{eq:dpm_hier}
+\end{equation} where $H$ is an unknown mixing distribution on the
+kernel-parameter space, $H_0$ is a base measure, and $\kappa>0$ is a
+concentration parameter \citep{Ferguson1973,Lo1984}. Marginalizing $H$ yields
+an (almost surely) discrete mixing distribution
+and an infinite mixture representation: \begin{equation}
+f_{\mathrm{DP}}(y\mid x)
+=
+\int k(y\mid x;\theta)\,dH(\theta)
+=
+\sum_{j=1}^{\infty} w_j\,k(y\mid x;\theta_j),
+\qquad
+w_j\ge 0,
+\qquad
+\sum_{j=1}^{\infty} w_j=1.
+\label{eq:dpm_mixture}
+\end{equation}
+One representation for the weights is given by Sethuraman's
+stick-breaking construction \citep{Sethuraman1994}: \begin{equation}
+w_1=V_1,
+\qquad
+w_j=V_j\prod_{\ell<j}(1-V_\ell),
+\qquad
+V_j \stackrel{\mathrm{iid}}{\sim}\mathrm{Beta}(1,\kappa),
+\qquad
+\theta_j \stackrel{\mathrm{iid}}{\sim} H_0.
+\label{eq:sb}
+\end{equation}
+An equivalent characterization is obtained by marginalizing over \(H\),
+yielding the Blackwell--MacQueen P\'olya urn representation. In
+particular, the conditional distribution of a parameter value given the
+others can be written as
+\begin{equation}
+\theta_i \mid \{\theta_j\}_{j \neq i}
+\sim
+\frac{\kappa}{\kappa+n} H_0(\cdot)
++
+\frac{1}{\kappa+n}\sum_{j=1}^{n}\delta_{\theta_j}(\cdot),
+\label{eq:crp}
+\end{equation}
+where $\delta_{\theta_j}(\cdot)$ is a point mass assigned to $\theta_j$ .
+This induces a clustering structure often described via the Chinese
+restaurant process (CRP) \citep{BlackwellMacQueen1973,Neal2000}. Both
+stick-breaking and CRP representations are widely used for posterior simulation in
+DPM models \citep{EscobarWest1995,Neal2000}.
+
+DPM works without specifying
+the number of mixture components, and can capture complex distributional features such as
+multimodality, skewness, and heteroscedasticity by choosing an appropriate kernel family.
+This makes DPMs a natural choice for modeling the bulk of the conditional distribution, where data are abundant
+and complex features may be present. This package supports multiple kernel
+families spanning both positive-support and real-line outcomes.
 
 
 
