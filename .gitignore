@@ -74,6 +74,10 @@ docs/.quarto/
 # Ignore R history and legacy vignette cache/logs
 .Rhistory
 covr_run*.log
+covr_*_run.log
+covr_*_only.log
+Rplots.pdf
+.codex_tmp_*.R
 tmp-*.R
 vignettes/legacy/legacy-cache/
 inst/extdata/legacy-precomputed/
