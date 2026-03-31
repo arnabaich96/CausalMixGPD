@@ -594,12 +594,6 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE, quiet = FALSE,
   parallel_arms <- isTRUE(parallel_arms)
   workers <- as.integer(workers %||% 2L)
   if (!is.finite(workers) || workers < 1L) workers <- 1L
-  if (parallel_arms) {
-    warning("parallel_arms currently falls back to sequential execution in this environment.",
-            call. = FALSE)
-    parallel_arms <- FALSE
-  }
-
   if (parallel_arms &&
       requireNamespace("future", quietly = TRUE) &&
       requireNamespace("future.apply", quietly = TRUE)) {
@@ -2056,15 +2050,10 @@ ate_rmean <- function(fit,
 #'   in \code{x}/\code{newdata} or a vector of length \code{nrow(x)}. The id column
 #'   is excluded from analysis.
 #' @param type Prediction type. Supported: \code{"mean"}, \code{"quantile"},
-#'   \code{"density"}, \code{"survival"}, \code{"prob"}, \code{"location"}.
-#' @param nsim Number of posterior predictive samples. For
-#'   \code{predict.causalmixgpd_causal_fit()}, posterior sampling output is not
-#'   available because \code{type="sample"} is not supported by this causal
-#'   method; this argument is effectively unused.
-#' @param store_draws Logical; whether to store posterior draws. For
-#'   \code{predict.causalmixgpd_causal_fit()}, stored draws are not available
-#'   because \code{type="sample"} is not supported by this causal method; this
-#'   argument is effectively unused.
+#'   \code{"density"}, \code{"survival"}, \code{"prob"}, or \code{"sample"}.
+#' @param nsim Number of posterior predictive samples when \code{type = "sample"}.
+#' @param store_draws Logical; whether to store treatment-effect sample draws in
+#'   the returned object when \code{type = "sample"}.
 #' @param ... Additional arguments forwarded to per-arm
 #'   \code{\link{predict.mixgpd_fit}} calls.
 #' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
@@ -2074,7 +2063,9 @@ ate_rmean <- function(fit,
 #'   whose \code{$fit} component reports treated-minus-control posterior
 #'   summaries. For \code{"density"}, \code{"survival"}, and \code{"prob"},
 #'   the \code{$fit} component contains side-by-side treated and control
-#'   summaries evaluated on the supplied \code{y} grid.
+#'   summaries evaluated on the supplied \code{y} grid. For \code{"sample"},
+#'   the returned object contains paired treated, control, and treatment-effect
+#'   posterior predictive samples.
 #' @seealso \code{\link{predict.mixgpd_fit}}, \code{\link{ate}},
 #'   \code{\link{qte}}, \code{\link{cate}}, \code{\link{cqte}}.
 #' @examples
@@ -2092,7 +2083,7 @@ predict.causalmixgpd_causal_fit <- function(object,
                                         ps = NULL,
                                         id = NULL,
                                         newdata = NULL,
-                                        type = c("mean", "quantile", "density", "survival", "prob", "location"),
+                                        type = c("mean", "quantile", "density", "survival", "prob", "sample"),
                                         p = NULL,
                                         index = NULL,
                                         nsim = NULL,
@@ -2104,6 +2095,7 @@ predict.causalmixgpd_causal_fit <- function(object,
                                         show_progress = TRUE,
                                         ...) {
   stopifnot(inherits(object, "causalmixgpd_causal_fit"))
+  dots <- list(...)
   progress_ctx <- .cmgpd_progress_start(
     total_steps = 5L,
     enabled = isTRUE(show_progress),
@@ -2135,6 +2127,18 @@ predict.causalmixgpd_causal_fit <- function(object,
   } else {
     interval <- match.arg(interval, choices = c("credible", "hpd"))
   }
+
+  ncores_pred <- as.integer(ncores)
+  if (!is.null(dots$workers)) {
+    ncores_pred <- as.integer(dots$workers)
+  } else if (isTRUE(dots$parallel)) {
+    ncores_pred <- max(2L, ncores_pred)
+  }
+  if (is.na(ncores_pred) || ncores_pred < 1L) {
+    stop("'ncores' must be an integer >= 1.", call. = FALSE)
+  }
+  ndraws_pred <- dots$ndraws_pred %||% NULL
+  chunk_size <- dots$chunk_size %||% NULL
 
   bundle <- object$bundle %||% list()
 
@@ -2327,44 +2331,150 @@ predict.causalmixgpd_causal_fit <- function(object,
   }
 
   id_arg <- if (!is.null(x)) id_vals else NULL
+  sample_draw_idx <- NULL
+  if (type == "sample") {
+    nsim_use <- as.integer(nsim)
+    if (is.na(nsim_use) || nsim_use < 1L) {
+      nsim_use <- if (has_X) n_pred else length(bundle$data$y %||% object$outcome_fit$trt$data$y %||% 1L)
+    }
+    draw_trt <- .extract_draws_matrix(object$outcome_fit$trt)
+    draw_con <- .extract_draws_matrix(object$outcome_fit$con)
+    n_draws_common <- min(nrow(draw_trt), nrow(draw_con))
+    if (!is.finite(n_draws_common) || n_draws_common < 1L) {
+      stop("Posterior draws are unavailable for causal sample prediction.", call. = FALSE)
+    }
+    sample_draw_idx <- sample.int(n_draws_common, size = nsim_use, replace = TRUE)
+    nsim <- nsim_use
+  }
 
   .cmgpd_progress_step(progress_ctx, "Predicting treated arm")
-  pr_trt <- predict(
-    object$outcome_fit$trt,
-    x = x,
-    y = y,
-    ps = ps_trt,
-    id = id_arg,
-    type = type,
-    index = if (type == "quantile") p else NULL,
-    nsim = nsim,
-    interval = if (compute_interval) interval else NULL,
-    probs = probs,
-    store_draws = store_draws,
-    nsim_mean = nsim_mean,
-    show_progress = FALSE,
-    ncores = ncores,
-    ...
-  )
+  if (type == "sample") {
+    pr_trt <- .predict_mixgpd(
+      object$outcome_fit$trt,
+      x = x,
+      y = y,
+      ps = ps_trt,
+      id = id_arg,
+      type = type,
+      index = NULL,
+      nsim = nsim,
+      interval = if (compute_interval) interval else NULL,
+      probs = probs,
+      store_draws = store_draws,
+      nsim_mean = nsim_mean,
+      show_progress = FALSE,
+      ncores = ncores_pred,
+      ndraws_pred = ndraws_pred,
+      chunk_size = chunk_size,
+      sample_draw_idx = sample_draw_idx
+    )
+  } else {
+    pr_trt <- predict(
+      object$outcome_fit$trt,
+      x = x,
+      y = y,
+      ps = ps_trt,
+      id = id_arg,
+      type = type,
+      index = if (type == "quantile") p else NULL,
+      nsim = nsim,
+      interval = if (compute_interval) interval else NULL,
+      probs = probs,
+      store_draws = store_draws,
+      nsim_mean = nsim_mean,
+      show_progress = FALSE,
+      ncores = ncores,
+      ...
+    )
+  }
 
   .cmgpd_progress_step(progress_ctx, "Predicting control arm")
-  pr_con <- predict(
-    object$outcome_fit$con,
-    x = x,
-    y = y,
-    ps = ps_con,
-    id = id_arg,
-    type = type,
-    index = if (type == "quantile") p else NULL,
-    nsim = nsim,
-    interval = if (compute_interval) interval else NULL,
-    probs = probs,
-    store_draws = store_draws,
-    nsim_mean = nsim_mean,
-    show_progress = FALSE,
-    ncores = ncores,
-    ...
-  )
+  if (type == "sample") {
+    pr_con <- .predict_mixgpd(
+      object$outcome_fit$con,
+      x = x,
+      y = y,
+      ps = ps_con,
+      id = id_arg,
+      type = type,
+      index = NULL,
+      nsim = nsim,
+      interval = if (compute_interval) interval else NULL,
+      probs = probs,
+      store_draws = store_draws,
+      nsim_mean = nsim_mean,
+      show_progress = FALSE,
+      ncores = ncores_pred,
+      ndraws_pred = ndraws_pred,
+      chunk_size = chunk_size,
+      sample_draw_idx = sample_draw_idx
+    )
+  } else {
+    pr_con <- predict(
+      object$outcome_fit$con,
+      x = x,
+      y = y,
+      ps = ps_con,
+      id = id_arg,
+      type = type,
+      index = if (type == "quantile") p else NULL,
+      nsim = nsim,
+      interval = if (compute_interval) interval else NULL,
+      probs = probs,
+      store_draws = store_draws,
+      nsim_mean = nsim_mean,
+      show_progress = FALSE,
+      ncores = ncores,
+      ...
+    )
+  }
+
+  if (type == "sample") {
+    .extract_sample_fit <- function(pr, n_pred) {
+      fit <- pr$fit
+      mat <- if (is.null(dim(fit))) matrix(as.numeric(fit), nrow = 1L) else as.matrix(fit)
+      if (nrow(mat) != n_pred) {
+        if (n_pred == 1L && ncol(mat) == 1L) {
+          mat <- matrix(as.numeric(mat), nrow = 1L)
+        } else {
+          stop("Unexpected sample dimensions in causal predict.", call. = FALSE)
+        }
+      }
+      mat
+    }
+
+    trt_fit <- .extract_sample_fit(pr_trt, n_pred)
+    con_fit <- .extract_sample_fit(pr_con, n_pred)
+    if (!identical(dim(trt_fit), dim(con_fit))) {
+      stop("Treated and control posterior predictive samples must have matching dimensions.", call. = FALSE)
+    }
+
+    eff_fit <- trt_fit - con_fit
+    if (n_pred == 1L) {
+      eff_fit_out <- as.numeric(eff_fit[1, ])
+    } else {
+      eff_fit_out <- eff_fit
+    }
+
+    ps_col <- if (!is.null(ps_full)) ps_full else rep(NA_real_, n_pred)
+    out <- list(
+      fit = eff_fit_out,
+      draws = if (isTRUE(store_draws)) eff_fit_out else NULL,
+      id = id_vals,
+      ps = ps_col,
+      nsim = ncol(trt_fit),
+      trt = pr_trt,
+      con = pr_con,
+      grid = NULL
+    )
+    attr(out, "type") <- type
+    attr(out, "trt") <- pr_trt
+    attr(out, "con") <- pr_con
+    attr(out, "id") <- id_vals
+    attr(out, "ps") <- ps_col
+    class(out) <- "causalmixgpd_causal_predict"
+    return(.return_out(out))
+  }
   # If quantile draws are available, compute intervals on the treatment effect directly.
   if (type == "quantile" && !is.null(pr_trt$draws) && !is.null(pr_con$draws)) {
     normalize_draws <- function(draws) {

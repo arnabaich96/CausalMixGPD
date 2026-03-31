@@ -20,7 +20,7 @@ set.seed(1)
 # Fast-by-default rendering. Flip to FALSE for a fuller run.
 FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
 mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, workers = 2)
-mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_chains = TRUE, workers = 2, z_update_every = 2)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_arms = TRUE, workers = 2, z_update_every = 2)
 
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
@@ -51,11 +51,14 @@ This vignette fits two SB-based causal models using the same kernel (Laplace):
 
 ## What you’ll learn
 
-- How to hold backend + kernel fixed and isolate the impact of **tail augmentation** (`GPD = FALSE` vs `TRUE`).\n- How tail augmentation can change conclusions about upper-quantile behavior even when mean effects look similar.\n- How to run the standard causal post-fit workflow for multiple estimands (mean, quantiles, conditional effects when \(X\) is present).
+- How to hold backend + kernel fixed and isolate the impact of **tail augmentation** (`GPD = FALSE` vs `TRUE`).
+- How tail augmentation can change conclusions about upper-quantile behavior even when mean effects look similar.
+- How to run the standard causal post-fit workflow for multiple estimands (mean, quantiles, conditional effects when \(X\) is present).
 
 ## When to use this template
 
-- You want a clean sensitivity check focused on tail modeling rather than backend/kernel changes.\n- You want predictable runtime and an explicit complexity knob (`components`) inside a causal workflow.
+- You want a clean sensitivity check focused on tail modeling rather than backend/kernel changes.
+- You want predictable runtime and an explicit complexity knob (`components`) inside a causal workflow.
 
 ---
 
@@ -104,8 +107,8 @@ bundle_sb_bulk <- bundle(
   PS = "logit",
   GPD = FALSE,
   components = 5,
-  mcmc_outcome = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 1),
-  mcmc_ps = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 1)
+  mcmc_outcome = list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 1),
+  mcmc_ps = list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 1)
 )
 
 bundle_sb_bulk
@@ -113,7 +116,10 @@ summary(bundle_sb_bulk)
 ```
 
 ```{r fit-sb-bulk, cache = FALSE}
-fit_sb_bulk <- dpmix.causal(bundle_sb_bulk)
+fit_sb_bulk <- load_or_fit(
+  "ex12-causal-same-backend-sb-fit_sb_bulk",
+  quiet_mcmc(dpmix.causal(bundle_sb_bulk))
+)
 summary(fit_sb_bulk)
 params(fit_sb_bulk)
 ```
@@ -185,8 +191,8 @@ bundle_sb_gpd <- bundle(
   GPD = TRUE,
   components = 5,
   param_specs = param_specs_gpd,
-  mcmc_outcome = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 2),
-  mcmc_ps = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 2)
+  mcmc_outcome = list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 2),
+  mcmc_ps = list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 2)
 )
 
 bundle_sb_gpd
@@ -194,7 +200,10 @@ summary(bundle_sb_gpd)
 ```
 
 ```{r fit-sb-gpd, cache = FALSE}
-fit_sb_gpd <- dpmgpd.causal(bundle_sb_gpd)
+fit_sb_gpd <- load_or_fit(
+  "ex12-causal-same-backend-sb-fit_sb_gpd",
+  quiet_mcmc(dpmgpd.causal(bundle_sb_gpd))
+)
 summary(fit_sb_gpd)
 params(fit_sb_gpd)
 ```
@@ -262,8 +271,5 @@ plot(qte_gpd)
 ## Next
 - Continue to the linked canonical concept page, then return for implementation-specific details.
 <!-- cmgpd-footer:end -->
-
-
-
 
 

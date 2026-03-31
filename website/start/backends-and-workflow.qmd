@@ -121,7 +121,7 @@ Most users should stick to `dpmix()` / `dpmgpd()` (and their causal / clustering
 # Where to go next
 
 - **Available distributions**: see the [Kernels hub](../kernels.html) and kernel catalog pages.
-- **Basic build/compile/run**: see **Start basic-model-compile-run**.
+- **Basic build/compile/run**: see [Start: basic-model-compile-run](basic-model-compile-run.html).
 - **Unconditional / Conditional / Causal**: continue through ex01+.
 
 ---

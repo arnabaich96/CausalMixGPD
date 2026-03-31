@@ -23,7 +23,8 @@
   ndraws_pred = NULL,
   chunk_size = NULL,
   show_progress = TRUE,
-  ncores = 1L
+  ncores = 1L,
+  sample_draw_idx = NULL
 )
 }
 \description{

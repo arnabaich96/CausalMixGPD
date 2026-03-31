@@ -81,14 +81,12 @@ flowchart TD
 
   T -->|density| NeedY[y required\n(evaluation grid)]
   T -->|survival| NeedY
-  T -->|prob| NeedY
 
   T -->|quantile| NeedP[p required (or index)]
   T -->|sample| Samp[nsim / store_draws control output]
   T -->|fit| FitOut[per-observation predictive draws]
 
   T -->|mean| MeanInt[interval controls bands\n(level, probs, hpd/credible)]
-  T -->|location| MeanInt
   T -->|median| MedInt[median = quantile at p=0.5\ninterval]
   T -->|rmean| RMean[requires cutoff\ninterval]
 
@@ -184,7 +182,7 @@ flowchart TD
   NeedP --> Int[interval/level control quantile bands\n(credible/hpd/NULL)]
 
   Type -->|mean| Mean[interval/level/probs\ncontrol bands]
-  Type -->|location| Mean
+  Type -->|sample| Samp[paired treated/control/effect samples\nnsim / store_draws]
 
   Pca0 --> PSopt{Override PS?}
   PSopt -->|ps provided| PSuse[Use provided ps in both arms]
@@ -251,7 +249,6 @@ flowchart TD
 ## Next
 - Continue to the linked canonical concept page, then return for implementation-specific details.
 <!-- cmgpd-footer:end -->
-
 
 
 

@@ -604,8 +604,9 @@ print.mixgpd_fit <- function(x, ...) {
 #' vectors, and linked regression blocks are returned as matrices.
 #'
 #' For a spliced model, the extractor returns posterior means of the bulk
-#' mixture parameters together with any threshold, tail-scale, and tail-shape
-#' terms needed to reconstruct the predictive distribution.
+#' mixture parameters together with component-level threshold, tail-scale, and
+#' tail-shape terms. When tail terms are link-mode, the corresponding
+#' component-by-covariate beta blocks are returned.
 #'
 #' @param object A fitted object of class \code{"mixgpd_fit"}.
 #' @param ... Unused.
@@ -642,6 +643,7 @@ params.mixgpd_fit <- function(object, ...) {
   meta <- spec$meta %||% list()
   bulk <- plan$bulk %||% list()
   gpd <- plan$gpd %||% list()
+  is_spliced <- identical(meta$backend %||% spec$dispatch$backend %||% "", "spliced")
 
   X <- object$data$X %||% object$X %||% NULL
   xnames <- if (!is.null(X) && !is.null(colnames(X))) colnames(X) else NULL
@@ -654,6 +656,11 @@ params.mixgpd_fit <- function(object, ...) {
     vec <- as.numeric(unname(means[cols][ord]))
     storage.mode(vec) <- "double"
     vec
+  }
+
+  .get_scalar <- function(name) {
+    if (!(name %in% cn)) return(NULL)
+    as.numeric(unname(means[name]))
   }
 
   .get_matrix <- function(prefix) {
@@ -707,10 +714,17 @@ params.mixgpd_fit <- function(object, ...) {
   if (!is.null(gpd$threshold)) {
     thr_mode <- gpd$threshold$mode %||% NA_character_
     if (thr_mode %in% c("fixed", "dist")) {
-      thr <- .get_vector("threshold")
-      if (!is.null(thr)) out$threshold <- as.numeric(mean(thr, na.rm = TRUE))
+      if (is_spliced) {
+        thr <- .get_vector("threshold")
+        if (!is.null(thr)) out$threshold <- thr
+      } else {
+        thr <- .get_scalar("threshold")
+        if (is.null(thr)) thr <- .get_vector("threshold")
+        if (!is.null(thr)) out$threshold <- if (length(thr) == 1L) thr else as.numeric(mean(thr, na.rm = TRUE))
+      }
     } else if (identical(thr_mode, "link")) {
-      beta_thr <- .get_vector("beta_threshold")
+      beta_thr <- .get_matrix("beta_threshold")
+      if (is.null(beta_thr)) beta_thr <- .get_vector("beta_threshold")
       if (!is.null(beta_thr)) out$beta_threshold <- beta_thr
       if (!is.null(gpd$threshold$link_dist) &&
           identical(gpd$threshold$link_dist$dist, "lognormal") &&
@@ -723,15 +737,33 @@ params.mixgpd_fit <- function(object, ...) {
   if (!is.null(gpd$tail_scale)) {
     ts_mode <- gpd$tail_scale$mode %||% NA_character_
     if (identical(ts_mode, "link")) {
-      beta_ts <- .get_vector("beta_tail_scale")
+      beta_ts <- .get_matrix("beta_tail_scale")
+      if (is.null(beta_ts)) beta_ts <- .get_vector("beta_tail_scale")
       if (!is.null(beta_ts)) out$beta_tail_scale <- beta_ts
     } else if (ts_mode %in% c("fixed", "dist")) {
-      if ("tail_scale" %in% cn) out$tail_scale <- as.numeric(unname(means["tail_scale"]))
+      if (is_spliced) {
+        tail_scale <- .get_vector("tail_scale")
+        if (!is.null(tail_scale)) out$tail_scale <- tail_scale
+      } else {
+        tail_scale <- .get_scalar("tail_scale")
+        if (!is.null(tail_scale)) out$tail_scale <- tail_scale
+      }
     }
   }
 
-  if (!is.null(gpd$tail_shape) && "tail_shape" %in% cn) {
-    out$tail_shape <- as.numeric(unname(means["tail_shape"]))
+  if (!is.null(gpd$tail_shape)) {
+    tsh_mode <- gpd$tail_shape$mode %||% NA_character_
+    if (identical(tsh_mode, "link")) {
+      beta_tsh <- .get_matrix("beta_tail_shape")
+      if (is.null(beta_tsh)) beta_tsh <- .get_vector("beta_tail_shape")
+      if (!is.null(beta_tsh)) out$beta_tail_shape <- beta_tsh
+    } else if (is_spliced) {
+      tail_shape <- .get_vector("tail_shape")
+      if (!is.null(tail_shape)) out$tail_shape <- tail_shape
+    } else {
+      tail_shape <- .get_scalar("tail_shape")
+      if (!is.null(tail_shape)) out$tail_shape <- tail_shape
+    }
   }
 
   .coerce_numeric_like <- function(v) {
@@ -1056,14 +1088,18 @@ ess_summary <- function(fit, params = NULL, per_chain = TRUE, wall_time = NULL, 
     out <- character(0)
     p1 <- pick_first(c("^alpha$", "^kappa$", "^dp_alpha$"), cn)
     if (!is.null(p1)) out <- c(out, p1)
-    p2 <- pick_first(c("^tail_shape$", "^tail_shape\\[1\\]$"), cn)
+    p2 <- pick_first(c("^threshold$", "^threshold\\[1\\]$"), cn)
     if (!is.null(p2)) out <- c(out, p2)
-    p3 <- pick_first(c("^mu\\[1\\]$", "^meanlog\\[1\\]$", "^location\\[1\\]$", "^mu$"), cn)
+    p3 <- pick_first(c("^tail_scale$", "^tail_scale\\[1\\]$"), cn)
     if (!is.null(p3)) out <- c(out, p3)
-    p4 <- pick_first(c("^sigma\\[1\\]$", "^sdlog\\[1\\]$", "^scale\\[1\\]$", "^shape\\[1\\]$", "^sigma$"), cn)
+    p4 <- pick_first(c("^tail_shape$", "^tail_shape\\[1\\]$"), cn)
     if (!is.null(p4)) out <- c(out, p4)
-    p5 <- pick_first(c("^beta\\[1\\]$", "^beta_.*\\[1\\]$"), cn)
+    p5 <- pick_first(c("^mu\\[1\\]$", "^meanlog\\[1\\]$", "^location\\[1\\]$", "^mu$"), cn)
     if (!is.null(p5)) out <- c(out, p5)
+    p6 <- pick_first(c("^sigma\\[1\\]$", "^sdlog\\[1\\]$", "^scale\\[1\\]$", "^shape\\[1\\]$", "^sigma$"), cn)
+    if (!is.null(p6)) out <- c(out, p6)
+    p7 <- pick_first(c("^beta\\[1\\]$", "^beta_.*\\[1\\]$"), cn)
+    if (!is.null(p7)) out <- c(out, p7)
     unique(out)
   }
 
@@ -1408,8 +1444,10 @@ plot.mixgpd_fit <- function(x,
 #' }
 #'
 #' For spliced models these predictions integrate over both the DPM bulk and
-#' the GPD tail. When \code{type = "mean"}, the function averages conditional
-#' means over posterior draws, so the result is a Bayesian predictive mean.
+#' the GPD tail using component-specific tail parameters, including link-mode
+#' tail coefficients when present. When \code{type = "mean"}, the function
+#' averages conditional means over posterior draws, so the result is a Bayesian
+#' predictive mean.
 #'
 #' @details
 #' The \code{type="mean"} option computes the posterior predictive mean by:
@@ -1438,7 +1476,6 @@ plot.mixgpd_fit <- function(x,
 #'     \item \code{"mean"}: Posterior predictive mean E(Y | x, data) (averaged over posterior parameter uncertainty)
 #'     \item \code{"rmean"}: Posterior predictive restricted mean \eqn{E[\min(Y, cutoff) \mid x, data]}
 #'     \item \code{"median"}: Posterior predictive median (quantile at p=0.5)
-#'     \item \code{"location"}: Alias for "mean"
 #'     \item \code{"fit"}: Per-observation posterior predictive draws
 #'   }
 #'   Note: \code{type="mean"} returns the posterior predictive mean, which integrates over
@@ -1466,8 +1503,9 @@ plot.mixgpd_fit <- function(x,
 #' @param ... Unused.
 #' @return A list with elements:
 #'   \itemize{
-#'     \item \code{fit}: data frame with \code{estimate}/\code{lower}/\code{upper} columns (posterior means
-#'       over draws) plus any index columns (e.g. \code{id}, \code{y}, \code{index}).
+#'     \item \code{fit}: numeric vector/matrix for \code{type = "sample"}, otherwise a data frame with
+#'       \code{estimate}/\code{lower}/\code{upper} columns (posterior means over draws) plus any index
+#'       columns (e.g. \code{id}, \code{y}, \code{index}).
 #'     \item \code{lower}, \code{upper}: reserved for backward compatibility (typically \code{NULL}).
 #'     \item \code{type}, \code{grid}: metadata.
 #'   }
@@ -1498,7 +1536,7 @@ predict.mixgpd_fit <- function(object,
                                id = NULL,
                                newdata = NULL,
                                type = c("density", "survival",
-                                        "quantile", "sample", "mean", "rmean", "median", "location", "fit"),
+                                        "quantile", "sample", "mean", "rmean", "median", "fit"),
                                p = NULL,
                                index = NULL,
                                nsim = NULL,
@@ -1574,65 +1612,6 @@ predict.mixgpd_fit <- function(object,
   ncores <- as.integer(ncores)
   if (is.na(ncores) || ncores < 1L) stop("'ncores' must be an integer >= 1.", call. = FALSE)
 
-  if (type == "location") {
-    mean_pred <- .predict_mixgpd(object,
-                  x = x,
-                  y = y,
-                  ps = ps,
-                  id = id,
-                  type = "mean",
-                  p = p,
-                  index = index,
-                  nsim = nsim,
-                  level = level,
-                  interval = interval,
-                  probs = probs,
-                  store_draws = store_draws,
-                  nsim_mean = nsim_mean,
-                  show_progress = show_progress,
-                  ndraws_pred = ndraws_pred,
-                  chunk_size = chunk_size,
-                  ncores = ncores)
-
-    median_pred <- .predict_mixgpd(object,
-                    x = x,
-                    y = y,
-                    ps = ps,
-                    id = id,
-                    type = "median",
-                    p = p,
-                    index = index,
-                    nsim = nsim,
-                    level = level,
-                    interval = interval,
-                    probs = probs,
-                    store_draws = store_draws,
-                    nsim_mean = nsim_mean,
-                    show_progress = show_progress,
-                    ndraws_pred = ndraws_pred,
-                    chunk_size = chunk_size,
-                    ncores = ncores)
-
-    fit_mean <- mean_pred$fit
-    fit_median <- median_pred$fit
-    extras <- setdiff(names(fit_mean), c("estimate", "lower", "upper"))
-    if (length(extras)) {
-      out_df <- fit_mean[, extras, drop = FALSE]
-    } else {
-      out_df <- data.frame(row.names = seq_len(nrow(fit_mean)))
-    }
-    out_df$mean <- fit_mean$estimate
-    out_df$mean_lower <- fit_mean$lower
-    out_df$mean_upper <- fit_mean$upper
-    out_df$median <- fit_median$estimate
-    out_df$median_lower <- fit_median$lower
-    out_df$median_upper <- fit_median$upper
-
-    out <- list(fit = out_df, lower = NULL, upper = NULL, type = "location", grid = mean_pred$grid)
-    class(out) <- "mixgpd_predict"
-    return(out)
-  }
-
   .predict_mixgpd(object,
                   x = x,
                   y = y,
@@ -1664,12 +1643,8 @@ predict.mixgpd_fit <- function(object,
 #' The method returns posterior predictive fitted values on the observed design
 #' matrix. It is available only when the fitted model stored covariates.
 #'
-#' Use \code{type = "location"} to retrieve both posterior predictive means and
-#' medians side by side. For unconditional models, use
-#' \code{\link{predict.mixgpd_fit}} directly.
-#'
 #' @param object A fitted object of class \code{"mixgpd_fit"} (must have covariates).
-#' @param type Which fitted location to return: mean, median, quantile, or both (\code{"location"}).
+#' @param type Which fitted functional to return: mean, median, or quantile.
 #' @param p Quantile level used when \code{type = "quantile"}.
 #' @param level Credible level for confidence intervals (default 0.95 for 95 percent credible intervals).
 #' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
@@ -1696,7 +1671,7 @@ predict.mixgpd_fit <- function(object,
 #' fitted(fit, interval = NULL)   # No intervals
 #' }
 #' @export
-fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median", "quantile"),
+fitted.mixgpd_fit <- function(object, type = c("mean", "median", "quantile"),
                               p = 0.5, level = 0.95,
                               interval = "credible",
                               seed = 1, ...) {
@@ -1720,23 +1695,7 @@ fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median", "qu
   if (is.null(y)) stop("Could not extract y from fitted object.", call. = FALSE)
   if (is.null(X)) stop("fitted() is not supported for unconditional models (no covariates). Use predict() for predictions.", call. = FALSE)
 
-  if (type == "location") {
-    pred_mean <- predict(object, x = X, type = "mean",
-                        level = level, interval = interval)
-    pred_median <- predict(object, x = X, type = "median",
-                          level = level, interval = interval)
-    fit_df <- pred_mean$fit
-    if ("id" %in% names(fit_df)) fit_df <- fit_df[order(fit_df$id), , drop = FALSE]
-    fit_vals <- fit_df$estimate
-    lower_vals <- fit_df$lower
-    upper_vals <- fit_df$upper
-
-    med_df <- pred_median$fit
-    if ("id" %in% names(med_df)) med_df <- med_df[order(med_df$id), , drop = FALSE]
-    med_vals <- med_df$estimate
-    med_lower <- med_df$lower
-    med_upper <- med_df$upper
-  } else if (type == "quantile") {
+  if (type == "quantile") {
     pred <- predict(object, x = X, type = "quantile",
                     index = p, level = level, interval = interval)
     fit_df <- pred$fit
@@ -1773,19 +1732,6 @@ fitted.mixgpd_fit <- function(object, type = c("location", "mean", "median", "qu
                        lower = lower_vals,
                        upper = upper_vals,
                        residuals = y - fit_vals)
-  if (type == "location") {
-    if (is.null(X)) {
-      med_vals <- rep(med_vals[1], length(y))
-      med_lower <- rep(med_lower[1], length(y))
-      med_upper <- rep(med_upper[1], length(y))
-    }
-    result$mean <- fit_vals
-    result$mean_lower <- lower_vals
-    result$mean_upper <- upper_vals
-    result$median <- med_vals
-    result$median_lower <- med_lower
-    result$median_upper <- med_upper
-  }
   class(result) <- c("mixgpd_fitted", "data.frame")
   attr(result, "object") <- object
   attr(result, "level") <- level
@@ -1909,6 +1855,7 @@ residuals.mixgpd_fit <- function(object,
   backend <- meta$backend %||% spec$dispatch$backend %||% "<unknown>"
   kernel  <- meta$kernel  %||% spec$kernel$key %||% "<unknown>"
   GPD     <- isTRUE(meta$GPD %||% spec$dispatch$GPD)
+  is_spliced <- identical(backend, "spliced")
 
   pred_backend <- if (backend %in% c("crp", "spliced")) "sb" else backend
 
@@ -1930,12 +1877,29 @@ residuals.mixgpd_fit <- function(object,
   W_draws <- .extract_weights(draw_mat, backend = pred_backend)
   bulk_draws <- .extract_bulk_params(draw_mat, bulk_params = bulk_params)
   base_params <- names(bulk_draws)
+  link_plan <- spec$dispatch$link_params %||% meta$link_params %||% list()
+  if (!length(link_plan)) {
+    bulk_plan <- spec$plan$bulk %||% list()
+    for (nm in names(bulk_plan)) {
+      ent <- bulk_plan[[nm]] %||% list()
+      if (identical(ent$mode %||% "constant", "link")) {
+        link_plan[[nm]] <- list(
+          mode = "link",
+          link = ent$link %||% "identity",
+          link_power = ent$link_power %||% NULL
+        )
+      }
+    }
+  }
+  link_params <- names(link_plan)
 
   # gpd pieces
   tail_shape <- NULL
   threshold_mat <- NULL
   threshold_scalar <- NULL
   tail_scale <- NULL
+  spliced_gpd_draws <- list()
+  spliced_gpd_link <- list()
 
   P <- ncol(X)
 
@@ -1955,48 +1919,143 @@ residuals.mixgpd_fit <- function(object,
     stop(sprintf("Unsupported link '%s'.", link), call. = FALSE)
   }
 
-  if (GPD) {
-    if (!("tail_shape" %in% colnames(draw_mat))) stop("tail_shape not found in posterior draws.", call. = FALSE)
-    tail_shape <- as.numeric(draw_mat[, "tail_shape"])
+  .compute_link_eta <- function(s) {
+    if (!length(link_params)) return(list())
+    out <- list()
+    for (nm in link_params) {
+      plan <- link_plan[[nm]] %||% list()
+      mode <- plan$mode %||% "constant"
+      if (identical(mode, "link")) {
+        link <- plan$link %||% "identity"
+        pw   <- plan$link_power %||% NULL
 
+        beta_cols <- grep(paste0("^beta_", nm, "\\[[0-9]+,\\s*[0-9]+\\]$"), colnames(draw_mat), value = TRUE)
+        if (length(beta_cols)) {
+          idx1 <- as.integer(sub(paste0("^beta_", nm, "\\[([0-9]+),\\s*([0-9]+)\\]$"), "\\1", beta_cols))
+          idx2 <- as.integer(sub(paste0("^beta_", nm, "\\[([0-9]+),\\s*([0-9]+)\\]$"), "\\2", beta_cols))
+          Kb <- max(idx1, na.rm = TRUE)
+          Pb <- max(idx2, na.rm = TRUE)
+          beta_mat <- matrix(NA_real_, nrow = Kb, ncol = Pb)
+          for (j in seq_along(beta_cols)) {
+            beta_mat[idx1[j], idx2[j]] <- draw_mat[s, beta_cols[j]]
+          }
+          eta_mat <- X %*% t(beta_mat)
+          out[[nm]] <- .apply_link(eta_mat, link, pw)
+        } else {
+          beta_cols_1d <- grep(paste0("^beta_", nm, "\\[[0-9]+\\]$"), colnames(draw_mat), value = TRUE)
+          if (length(beta_cols_1d)) {
+            idx <- as.integer(sub(paste0("^beta_", nm, "\\[([0-9]+)\\]$"), "\\1", beta_cols_1d))
+            ord <- order(idx)
+            beta_cols_1d <- beta_cols_1d[ord]
+            Kb <- ncol(W_draws)
+            Pb <- P
+            if (length(beta_cols_1d) == Kb * Pb) {
+              beta_vec <- as.numeric(draw_mat[s, beta_cols_1d])
+              beta_mat <- matrix(beta_vec, nrow = Kb, ncol = Pb)
+              eta_mat <- X %*% t(beta_mat)
+              out[[nm]] <- .apply_link(eta_mat, link, pw)
+            } else {
+              beta_nm <- .indexed_block(draw_mat, paste0("beta_", nm), K = P)
+              eta <- as.numeric(X %*% beta_nm[s, ])
+              out[[nm]] <- matrix(as.numeric(.apply_link(eta, link, pw)), nrow = n)
+            }
+          } else {
+            beta_nm <- .indexed_block(draw_mat, paste0("beta_", nm), K = P)
+            eta <- as.numeric(X %*% beta_nm[s, ])
+            out[[nm]] <- matrix(as.numeric(.apply_link(eta, link, pw)), nrow = n)
+          }
+        }
+      } else {
+        if (!(nm %in% colnames(draw_mat))) stop(sprintf("'%s' not found in posterior draws.", nm), call. = FALSE)
+        out[[nm]] <- matrix(rep(as.numeric(draw_mat[s, nm]), n), nrow = n)
+      }
+    }
+    out
+  }
+
+  if (GPD) {
     gpd_plan <- spec$dispatch$gpd %||% meta$gpd %||% list()
 
-    thr_mode <- gpd_plan$threshold$mode %||% "constant"
-    if (identical(thr_mode, "link")) {
-      beta_thr <- .indexed_block(draw_mat, "beta_threshold", K = P)
-      threshold_mat <- matrix(NA_real_, nrow = S, ncol = n)
-      thr_link <- gpd_plan$threshold$link %||% "exp"
-      thr_power <- gpd_plan$threshold$link_power %||% NULL
-      for (s in seq_len(S)) {
-        eta <- as.numeric(X %*% beta_thr[s, ])
-        threshold_mat[s, ] <- as.numeric(.apply_link(eta, thr_link, thr_power))
+    if (is_spliced) {
+      K_sp <- ncol(W_draws)
+      for (nm in c("threshold", "tail_scale", "tail_shape")) {
+        ent <- gpd_plan[[nm]] %||% list(mode = "dist")
+        mode <- ent$mode %||% "dist"
+        if (identical(mode, "link")) {
+          beta_arr <- .indexed_block_matrix(draw_mat, paste0("beta_", nm), K = K_sp, P = P, allow_missing = TRUE)
+          if (is.null(beta_arr)) stop(sprintf("beta_%s not found in posterior draws.", nm), call. = FALSE)
+          spliced_gpd_link[[nm]] <- list(
+            beta = beta_arr,
+            link = ent$link %||% if (identical(nm, "tail_shape")) "identity" else "exp",
+            link_power = ent$link_power %||% NULL
+          )
+        } else {
+          vals <- .indexed_block(draw_mat, nm, K = K_sp, allow_missing = TRUE)
+          if (is.null(vals) && identical(mode, "fixed") && !is.null(ent$value)) {
+            vals <- matrix(rep(as.numeric(ent$value), S * K_sp), nrow = S, ncol = K_sp)
+          }
+          if (is.null(vals)) stop(sprintf("%s not found in posterior draws.", nm), call. = FALSE)
+          spliced_gpd_draws[[nm]] <- vals
+        }
       }
     } else {
-      thr_cols <- grep("^threshold(\\b|_)", colnames(draw_mat), value = TRUE)
-      if (length(thr_cols) == 0L && "threshold" %in% colnames(draw_mat)) thr_cols <- "threshold"
-      if (length(thr_cols) == 0L) stop("threshold not found in posterior draws.", call. = FALSE)
-      if (length(thr_cols) == 1L) threshold_scalar <- as.numeric(draw_mat[, thr_cols])
-      else threshold_scalar <- rowMeans(draw_mat[, thr_cols, drop = FALSE], na.rm = TRUE)
-    }
+      thr_mode <- gpd_plan$threshold$mode %||% "constant"
+      if (identical(thr_mode, "link")) {
+        beta_thr <- .indexed_block(draw_mat, "beta_threshold", K = P)
+        threshold_mat <- matrix(NA_real_, nrow = S, ncol = n)
+        thr_link <- gpd_plan$threshold$link %||% "exp"
+        thr_power <- gpd_plan$threshold$link_power %||% NULL
+        for (s in seq_len(S)) {
+          eta <- as.numeric(X %*% beta_thr[s, ])
+          threshold_mat[s, ] <- as.numeric(.apply_link(eta, thr_link, thr_power))
+        }
+      } else {
+        thr_cols <- grep("^threshold(\\b|_)", colnames(draw_mat), value = TRUE)
+        if (length(thr_cols) == 0L && "threshold" %in% colnames(draw_mat)) thr_cols <- "threshold"
+        if (length(thr_cols) == 0L) stop("threshold not found in posterior draws.", call. = FALSE)
+        if (length(thr_cols) == 1L) {
+          threshold_scalar <- as.numeric(draw_mat[, thr_cols])
+        } else {
+          threshold_scalar <- rowMeans(draw_mat[, thr_cols, drop = FALSE], na.rm = TRUE)
+        }
+      }
 
-    has_beta_ts <- any(grepl("^beta_tail_scale\\[", colnames(draw_mat)))
-    ts_mode <- gpd_plan$tail_scale$mode %||% if (has_beta_ts) "link" else "constant"
-    if (identical(ts_mode, "link")) {
-      beta_ts <- .indexed_block(draw_mat, "beta_tail_scale", K = P)
-      tail_scale <- matrix(NA_real_, nrow = S, ncol = n)
-      ts_link <- gpd_plan$tail_scale$link %||% "exp"
-      ts_power <- gpd_plan$tail_scale$link_power %||% NULL
-      for (s in seq_len(S)) {
-        eta <- as.numeric(X %*% beta_ts[s, ])
-        tail_scale[s, ] <- as.numeric(.apply_link(eta, ts_link, ts_power))
-      }
-    } else {
-      if ("tail_scale" %in% colnames(draw_mat)) {
+      has_beta_ts <- any(grepl("^beta_tail_scale\\[", colnames(draw_mat)))
+      ts_mode <- gpd_plan$tail_scale$mode %||% if (has_beta_ts) "link" else "constant"
+      if (identical(ts_mode, "link")) {
+        beta_ts <- .indexed_block(draw_mat, "beta_tail_scale", K = P)
+        tail_scale <- matrix(NA_real_, nrow = S, ncol = n)
+        ts_link <- gpd_plan$tail_scale$link %||% "exp"
+        ts_power <- gpd_plan$tail_scale$link_power %||% NULL
+        for (s in seq_len(S)) {
+          eta <- as.numeric(X %*% beta_ts[s, ])
+          tail_scale[s, ] <- as.numeric(.apply_link(eta, ts_link, ts_power))
+        }
+      } else if ("tail_scale" %in% colnames(draw_mat)) {
         tail_scale <- as.numeric(draw_mat[, "tail_scale"])
       } else if (!is.null(gpd_plan$tail_scale$value)) {
         tail_scale <- rep(as.numeric(gpd_plan$tail_scale$value), S)
       } else {
         stop("tail_scale not found in posterior draws.", call. = FALSE)
+      }
+
+      has_beta_tsh <- any(grepl("^beta_tail_shape\\[", colnames(draw_mat)))
+      tsh_mode <- gpd_plan$tail_shape$mode %||% if (has_beta_tsh) "link" else "constant"
+      if (identical(tsh_mode, "link")) {
+        beta_tsh <- .indexed_block(draw_mat, "beta_tail_shape", K = P)
+        tail_shape <- matrix(NA_real_, nrow = S, ncol = n)
+        tsh_link <- gpd_plan$tail_shape$link %||% "identity"
+        tsh_power <- gpd_plan$tail_shape$link_power %||% NULL
+        for (s in seq_len(S)) {
+          eta <- as.numeric(X %*% beta_tsh[s, ])
+          tail_shape[s, ] <- as.numeric(.apply_link(eta, tsh_link, tsh_power))
+        }
+      } else if ("tail_shape" %in% colnames(draw_mat)) {
+        tail_shape <- as.numeric(draw_mat[, "tail_shape"])
+      } else if (!is.null(gpd_plan$tail_shape$value)) {
+        tail_shape <- rep(as.numeric(gpd_plan$tail_shape$value), S)
+      } else {
+        stop("tail_shape not found in posterior draws.", call. = FALSE)
       }
     }
   }
@@ -2009,6 +2068,11 @@ residuals.mixgpd_fit <- function(object,
   .tail_scale_at <- function(s, i) {
     if (is.matrix(tail_scale)) return(tail_scale[s, i])
     tail_scale[s]
+  }
+
+  .tail_shape_at <- function(s, i) {
+    if (is.matrix(tail_shape)) return(tail_shape[s, i])
+    tail_shape[s]
   }
 
   .support_ok <- function(nm, v) {
@@ -2031,7 +2095,7 @@ residuals.mixgpd_fit <- function(object,
       args0[[nm]] <- v
     }
 
-    if (GPD) {
+    if (GPD && !is_spliced && !is.matrix(tail_shape)) {
       xi <- as.numeric(tail_shape[s])
       if (!is.finite(xi)) return(NULL)
       args0$tail_shape <- xi
@@ -2043,20 +2107,124 @@ residuals.mixgpd_fit <- function(object,
   for (s in seq_len(S)) {
     ok <- !is.null(.build_args0_or_null(s))
     if (ok && GPD) {
-      if (!is.null(threshold_mat)) {
-        if (!all(is.finite(threshold_mat[s, ]))) ok <- FALSE
+      if (is_spliced) {
+        for (nm in names(spliced_gpd_draws)) {
+          vals <- as.numeric(spliced_gpd_draws[[nm]][s, ])
+          if (identical(nm, "tail_scale")) {
+            ok <- all(is.finite(vals) & (vals > 0))
+          } else {
+            ok <- all(is.finite(vals))
+          }
+          if (!ok) break
+        }
       } else {
-        if (!is.finite(threshold_scalar[s])) ok <- FALSE
-      }
-      if (ok) {
-        if (is.matrix(tail_scale)) {
-          ok <- all(is.finite(tail_scale[s, ]) & (tail_scale[s, ] > 0))
+        if (!is.null(threshold_mat)) {
+          if (!all(is.finite(threshold_mat[s, ]))) ok <- FALSE
         } else {
-          ok <- is.finite(tail_scale[s]) && (tail_scale[s] > 0)
+          if (!is.finite(threshold_scalar[s])) ok <- FALSE
+        }
+        if (ok) {
+          if (is.matrix(tail_scale)) {
+            ok <- all(is.finite(tail_scale[s, ]) & (tail_scale[s, ] > 0))
+          } else {
+            ok <- is.finite(tail_scale[s]) && (tail_scale[s] > 0)
+          }
+        }
+        if (ok) {
+          if (is.matrix(tail_shape)) {
+            ok <- all(is.finite(tail_shape[s, ]))
+          } else {
+            ok <- is.finite(tail_shape[s])
+          }
         }
       }
     }
     .draw_valid[s] <- ok
+  }
+
+  spliced_scalar <- if (is_spliced && GPD) .get_dispatch_scalar(object, backend_override = "crp") else NULL
+
+  .row_component_value <- function(obj, i, k) {
+    if (is.null(obj)) return(NA_real_)
+    if (is.null(dim(obj))) return(as.numeric(obj[1L]))
+    if (length(dim(obj)) != 2L) stop("Expected a scalar or matrix component block.", call. = FALSE)
+    j <- if (ncol(obj) >= k && ncol(obj) > 1L) k else 1L
+    as.numeric(obj[i, j])
+  }
+
+  .compute_spliced_gpd_eta <- function(s) {
+    if (!length(spliced_gpd_link)) return(list())
+    out <- list()
+    for (nm in names(spliced_gpd_link)) {
+      ent <- spliced_gpd_link[[nm]]
+      beta_mat <- ent$beta[s, , , drop = TRUE]
+      if (is.null(dim(beta_mat))) beta_mat <- matrix(beta_mat, nrow = ncol(W_draws), ncol = P)
+      eta_mat <- X %*% t(beta_mat)
+      out[[nm]] <- .apply_link(eta_mat, ent$link, ent$link_power)
+    }
+    out
+  }
+
+  .spliced_gpd_value_at <- function(nm, s, i, k, eta_cache) {
+    if (!is.null(eta_cache[[nm]])) return(.row_component_value(eta_cache[[nm]], i, k))
+    vals <- spliced_gpd_draws[[nm]]
+    if (is.null(vals)) return(NA_real_)
+    as.numeric(vals[s, k])
+  }
+
+  .spliced_component_args_or_null <- function(s, i, k, link_eta, gpd_eta) {
+    args <- list()
+    for (nm in bulk_params) {
+      if (nm %in% link_params) {
+        vv <- .row_component_value(link_eta[[nm]], i, k)
+      } else if (nm %in% base_params) {
+        vv <- as.numeric(bulk_draws[[nm]][s, k])
+      } else {
+        next
+      }
+      if (!.support_ok(nm, vv)) return(NULL)
+      args[[nm]] <- as.numeric(vv)
+    }
+
+    args$threshold <- .spliced_gpd_value_at("threshold", s, i, k, gpd_eta)
+    args$tail_scale <- .spliced_gpd_value_at("tail_scale", s, i, k, gpd_eta)
+    args$tail_shape <- .spliced_gpd_value_at("tail_shape", s, i, k, gpd_eta)
+    if (!is.finite(args$threshold) || !is.finite(args$tail_scale) || args$tail_scale <= 0 || !is.finite(args$tail_shape)) {
+      return(NULL)
+    }
+    args
+  }
+
+  .spliced_component_args_list_or_null <- function(s, i, link_eta, gpd_eta) {
+    K <- ncol(W_draws)
+    out <- vector("list", K)
+    for (k in seq_len(K)) {
+      out[[k]] <- .spliced_component_args_or_null(s, i, k, link_eta = link_eta, gpd_eta = gpd_eta)
+      if (is.null(out[[k]])) return(NULL)
+    }
+    out
+  }
+
+  .normalize_weights_or_null <- function(w) {
+    w <- as.numeric(w)
+    if (!all(is.finite(w))) return(NULL)
+    w[w < 0] <- 0
+    sw <- sum(w)
+    if (!is.finite(sw) || sw <= 0) return(NULL)
+    w / sw
+  }
+
+  .spliced_cdf_one <- function(s, i, yval, link_eta, gpd_eta) {
+    w_s <- .normalize_weights_or_null(W_draws[s, ])
+    if (is.null(w_s)) return(NA_real_)
+    comp_args <- .spliced_component_args_list_or_null(s, i, link_eta = link_eta, gpd_eta = gpd_eta)
+    if (is.null(comp_args)) return(NA_real_)
+
+    vals <- vapply(seq_along(comp_args), function(k) {
+      cdfv <- as.numeric(do.call(spliced_scalar$p, c(list(q = yval, lower.tail = 1L, log.p = 0L), comp_args[[k]])))[1]
+      pmin(pmax(cdfv, 0), 1)
+    }, numeric(1))
+    sum(w_s * vals)
   }
 
   # compute draw-wise CDF matrix: S x n
@@ -2066,16 +2234,36 @@ residuals.mixgpd_fit <- function(object,
     if (!.draw_valid[s]) next
     args0 <- .build_args0_or_null(s)
     if (is.null(args0)) next
+    link_eta <- .compute_link_eta(s)
+    gpd_eta <- if (is_spliced && GPD) .compute_spliced_gpd_eta(s) else list()
 
     for (i in seq_len(n)) {
+      if (is_spliced && GPD) {
+        cdf_draws[s, i] <- .spliced_cdf_one(s, i, y[i], link_eta = link_eta, gpd_eta = gpd_eta)
+        next
+      }
+
       args <- args0
       if (GPD) {
         args$threshold <- .threshold_at(s, i)
         args$tail_scale <- .tail_scale_at(s, i)
-        if (!is.finite(args$threshold) || !is.finite(args$tail_scale) || args$tail_scale <= 0) next
+        args$tail_shape <- .tail_shape_at(s, i)
+        if (!is.finite(args$threshold) || !is.finite(args$tail_scale) || args$tail_scale <= 0 || !is.finite(args$tail_shape)) next
+      }
+      if (length(link_params)) {
+        bad <- FALSE
+        for (nm in link_params) {
+          vv <- as.numeric(link_eta[[nm]][i, ])
+          if (!all(is.finite(vv))) {
+            bad <- TRUE
+            break
+          }
+          args[[nm]] <- vv
+        }
+        if (bad) next
       }
       cdfv <- as.numeric(do.call(p_fun, c(list(q = y[i], lower.tail = 1L, log.p = 0L), args)))
-      cdf_draws[s, i] <- cdfv
+      cdf_draws[s, i] <- cdfv[1]
     }
   }
 
@@ -2176,7 +2364,6 @@ plot.mixgpd_predict <- function(x, y = NULL, ...) {
          sample = .plot_sample_pred(x, ...),
          fit = .plot_fit_pred(x, ...),
          mean = .plot_mean_pred(x, ...),
-         location = .plot_location_pred(x, ...),
          density = .plot_density_pred(x, ...),
          survival = .plot_survival_pred(x, ...),
          {warning("Unknown prediction type: ", pred_type); NULL})
@@ -2191,7 +2378,8 @@ plot.mixgpd_predict <- function(x, y = NULL, ...) {
 #'
 #' S3 method for visualizing causal predictions from \code{predict.causalmixgpd_causal_fit()}.
 #' For mean/quantile, plots treated/control and treatment effect versus PS (or index).
-#' For density/prob, plots treated/control values versus y.
+#' For \code{type = "sample"}, plots arm-level posterior predictive samples alongside
+#' treatment-effect samples. For density/prob, plots treated/control values versus y.
 #'
 #' @param x Object of class \code{causalmixgpd_causal_predict}.
 #' @param y Ignored.
@@ -2240,6 +2428,77 @@ plot.causalmixgpd_causal_predict <- function(x, y = NULL, ...) {
     } else {
       list(x = ps_vec, label = "Estimated PS")
     }
+  }
+
+  if (pred_type == "sample") {
+    trt <- x$trt %||% attr(x, "trt")
+    con <- x$con %||% attr(x, "con")
+    if (is.null(trt) || is.null(con)) {
+      stop("Causal sample prediction missing treated/control sample objects.", call. = FALSE)
+    }
+
+    .sample_matrix <- function(obj) {
+      fit <- obj$fit
+      if (is.null(dim(fit))) {
+        return(matrix(as.numeric(fit), nrow = 1L))
+      }
+      as.matrix(fit)
+    }
+
+    trt_mat <- .sample_matrix(trt)
+    con_mat <- .sample_matrix(con)
+    eff_mat <- if (is.null(dim(x$fit))) matrix(as.numeric(x$fit), nrow = 1L) else as.matrix(x$fit)
+
+    if (!identical(dim(trt_mat), dim(con_mat)) || !identical(dim(trt_mat), dim(eff_mat))) {
+      stop("Causal sample prediction contains incompatible sample dimensions.", call. = FALSE)
+    }
+
+    id_vals <- x$id %||% attr(x, "id") %||% seq_len(nrow(eff_mat))
+    if (length(id_vals) != nrow(eff_mat)) id_vals <- seq_len(nrow(eff_mat))
+    pal <- .plot_palette(8L)
+
+    if (nrow(eff_mat) == 1L) {
+      df_tc <- rbind(
+        data.frame(value = as.numeric(trt_mat[1, ]), arm = "Treated"),
+        data.frame(value = as.numeric(con_mat[1, ]), arm = "Control")
+      )
+      p_tc <- ggplot2::ggplot(df_tc, ggplot2::aes(x = value, fill = arm, color = arm)) +
+        ggplot2::geom_histogram(ggplot2::aes(y = ggplot2::after_stat(density)),
+                                bins = 30, alpha = 0.35, position = "identity") +
+        ggplot2::geom_density(linewidth = 0.9) +
+        ggplot2::scale_fill_manual(values = pal[1:2]) +
+        ggplot2::scale_color_manual(values = pal[1:2]) +
+        .plot_theme() +
+        ggplot2::labs(x = "Value", y = "Density", title = "Treated vs Control Samples")
+
+      df_te <- data.frame(value = as.numeric(eff_mat[1, ]))
+      p_te <- ggplot2::ggplot(df_te, ggplot2::aes(x = value)) +
+        ggplot2::geom_histogram(ggplot2::aes(y = ggplot2::after_stat(density)),
+                                bins = 30, alpha = 0.7, fill = pal[5], color = pal[7]) +
+        ggplot2::geom_density(color = pal[7], linewidth = 0.9) +
+        .plot_theme() +
+        ggplot2::labs(x = "Treatment effect", y = "Density", title = "Treatment-Effect Samples")
+    } else {
+      df_tc <- rbind(
+        data.frame(id = rep(id_vals, each = ncol(trt_mat)), arm = "Treated", value = as.vector(t(trt_mat))),
+        data.frame(id = rep(id_vals, each = ncol(con_mat)), arm = "Control", value = as.vector(t(con_mat)))
+      )
+      p_tc <- ggplot2::ggplot(df_tc, ggplot2::aes(x = factor(id), y = value, fill = arm)) +
+        ggplot2::geom_boxplot(position = ggplot2::position_dodge(width = 0.75), outlier.alpha = 0.2) +
+        ggplot2::scale_fill_manual(values = pal[1:2]) +
+        .plot_theme() +
+        ggplot2::labs(x = "Prediction row", y = "Value", title = "Treated vs Control Samples")
+
+      df_te <- data.frame(id = rep(id_vals, each = ncol(eff_mat)), value = as.vector(t(eff_mat)))
+      p_te <- ggplot2::ggplot(df_te, ggplot2::aes(x = factor(id), y = value)) +
+        ggplot2::geom_boxplot(fill = pal[5], color = pal[7], outlier.alpha = 0.2) +
+        .plot_theme() +
+        ggplot2::labs(x = "Prediction row", y = "Treatment effect", title = "Treatment-Effect Samples")
+    }
+
+    result <- list(trt_control = p_tc, treatment_effect = p_te)
+    class(result) <- c("causalmixgpd_causal_predict_plots", "list")
+    return(.wrap_plotly(result))
   }
 
   if (pred_type %in% c("mean", "quantile")) {
@@ -2619,6 +2878,44 @@ print.causalmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
   invisible(x)
 }
 
+.summary_effect_table_qte <- function(object) {
+  qte_fit <- object$qte$fit %||% NULL
+
+  if (is.data.frame(qte_fit)) {
+    keep <- intersect(c("id", "index", "estimate", "lower", "upper"), names(qte_fit))
+    out <- qte_fit[, keep, drop = FALSE]
+    if ("index" %in% names(out)) {
+      names(out)[names(out) == "index"] <- "tau"
+    }
+    sort_cols <- intersect(c("id", "tau"), names(out))
+    if (length(sort_cols)) {
+      out <- out[do.call(order, out[sort_cols]), , drop = FALSE]
+    }
+    rownames(out) <- NULL
+    return(out)
+  }
+
+  fit_mat <- object$fit %||% NULL
+  probs <- object$probs %||% object$grid %||% numeric(0)
+  if (is.matrix(fit_mat) && ncol(fit_mat) > 0L && length(probs) == ncol(fit_mat)) {
+    out <- data.frame(
+      id = rep(seq_len(nrow(fit_mat)), each = ncol(fit_mat)),
+      tau = rep(probs, times = nrow(fit_mat)),
+      estimate = as.vector(t(fit_mat))
+    )
+    if (is.matrix(object$lower) && all(dim(object$lower) == dim(fit_mat))) {
+      out$lower <- as.vector(t(object$lower))
+    }
+    if (is.matrix(object$upper) && all(dim(object$upper) == dim(fit_mat))) {
+      out$upper <- as.vector(t(object$upper))
+    }
+    rownames(out) <- NULL
+    return(out)
+  }
+
+  NULL
+}
+
 #' Summarize a QTE-style effect object
 #'
 #' \code{summary.causalmixgpd_qte()} converts QTE, QTT, or CQTE output into a
@@ -2626,7 +2923,9 @@ print.causalmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
 #'
 #' @param object A \code{"causalmixgpd_qte"} object from \code{qte()}.
 #' @param ... Unused.
-#' @return An object of class \code{"summary.causalmixgpd_qte"} containing summary statistics.
+#' @return An object of class \code{"summary.causalmixgpd_qte"} with
+#'   \code{overall}, \code{quantile_summary}, \code{effect_table},
+#'   \code{ci_summary}, \code{meta}, and the original \code{object}.
 #' @seealso \code{\link{print.causalmixgpd_qte}},
 #'   \code{\link{plot.causalmixgpd_qte}}, \code{\link{qte}},
 #'   \code{\link{cqte}}.
@@ -2769,10 +3068,12 @@ summary.causalmixgpd_qte <- function(object, ...) {
   }
 
   ci_summary <- NULL
+  effect_table <- .summary_effect_table_qte(object)
 
   out <- list(
     overall = overall,
     quantile_summary = quantile_summary,
+    effect_table = effect_table,
     ci_summary = ci_summary,
     meta = meta,
     object = object
@@ -2805,6 +3106,10 @@ print.summary.causalmixgpd_qte <- function(x, digits = 3, ...) {
     nms <- sub("^ci_", "", nms)
     nms <- sub("_qte$", "", nms)
     names(df) <- nms
+    df
+  }
+  .clean_effect_colnames <- function(df) {
+    if (is.null(df) || !is.data.frame(df)) return(df)
     df
   }
 
@@ -2840,6 +3145,14 @@ print.summary.causalmixgpd_qte <- function(x, digits = 3, ...) {
                                          if (isTRUE(meta$GPD$trt)) "YES" else "NO",
                                          if (isTRUE(meta$GPD$con)) "YES" else "NO")))
       }
+      pieces <- c(pieces, list(""))
+    }
+
+    effect_table <- x$effect_table
+    if (!is.null(effect_table) && nrow(effect_table) > 0) {
+      effect_table <- .clean_effect_colnames(effect_table)
+      pieces <- c(pieces, list(sprintf("%s estimates:", lbl$short)))
+      pieces <- c(pieces, list(.kable_table(format_df3_sci(effect_table, digits = digits), row.names = FALSE)))
       pieces <- c(pieces, list(""))
     }
 
@@ -2887,6 +3200,14 @@ print.summary.causalmixgpd_qte <- function(x, digits = 3, ...) {
   }
 
   # Quantile summary table
+  effect_table <- x$effect_table
+  if (!is.null(effect_table) && nrow(effect_table) > 0) {
+    effect_table <- .clean_effect_colnames(effect_table)
+    cat(sprintf("%s estimates:\n", lbl$short))
+    print_fmt3_sci(effect_table, row.names = FALSE, digits = digits)
+    cat("\n")
+  }
+
   qs <- x$quantile_summary
   if (!is.null(qs) && nrow(qs) > 0) {
     qs <- .clean_qte_colnames(qs)
@@ -2899,6 +3220,38 @@ print.summary.causalmixgpd_qte <- function(x, digits = 3, ...) {
   invisible(x)
 }
 
+.summary_effect_table_ate <- function(object) {
+  ate_fit <- object$ate$fit %||% NULL
+
+  if (is.data.frame(ate_fit)) {
+    keep <- intersect(c("id", "estimate", "lower", "upper"), names(ate_fit))
+    out <- ate_fit[, keep, drop = FALSE]
+    if ("id" %in% names(out)) {
+      out <- out[order(out$id), , drop = FALSE]
+    }
+    rownames(out) <- NULL
+    return(out)
+  }
+
+  fit_vec <- object$fit %||% NULL
+  if (is.numeric(fit_vec) && length(fit_vec) > 0L) {
+    out <- data.frame(
+      id = seq_along(fit_vec),
+      estimate = as.numeric(fit_vec)
+    )
+    if (is.numeric(object$lower) && length(object$lower) == length(fit_vec)) {
+      out$lower <- as.numeric(object$lower)
+    }
+    if (is.numeric(object$upper) && length(object$upper) == length(fit_vec)) {
+      out$upper <- as.numeric(object$upper)
+    }
+    rownames(out) <- NULL
+    return(out)
+  }
+
+  NULL
+}
+
 #' Summarize an ATE-style effect object
 #'
 #' \code{summary.causalmixgpd_ate()} converts ATE, ATT, CATE, or restricted-mean
@@ -2906,7 +3259,9 @@ print.summary.causalmixgpd_qte <- function(x, digits = 3, ...) {
 #'
 #' @param object A \code{"causalmixgpd_ate"} object from \code{ate()}.
 #' @param ... Unused.
-#' @return An object of class \code{"summary.causalmixgpd_ate"} containing summary statistics.
+#' @return An object of class \code{"summary.causalmixgpd_ate"} with
+#'   \code{overall}, \code{ate_stats}, \code{effect_table},
+#'   \code{ci_summary}, \code{meta}, and the original \code{object}.
 #' @seealso \code{\link{print.causalmixgpd_ate}},
 #'   \code{\link{plot.causalmixgpd_ate}}, \code{\link{ate}},
 #'   \code{\link{cate}}.
@@ -2972,9 +3327,12 @@ summary.causalmixgpd_ate <- function(object, ...) {
     )
   }
 
+  effect_table <- .summary_effect_table_ate(object)
+
   out <- list(
     overall = overall,
     ate_stats = ate_stats,
+    effect_table = effect_table,
     ci_summary = ci_summary,
     meta = meta,
     object = object
@@ -3033,6 +3391,13 @@ print.summary.causalmixgpd_ate <- function(x, digits = 3, ...) {
                                          if (isTRUE(meta$GPD$trt)) "YES" else "NO",
                                          if (isTRUE(meta$GPD$con)) "YES" else "NO")))
       }
+      pieces <- c(pieces, list(""))
+    }
+
+    effect_table <- x$effect_table
+    if (!is.null(effect_table) && nrow(effect_table) > 0) {
+      pieces <- c(pieces, list(sprintf("%s estimates:", lbl$short)))
+      pieces <- c(pieces, list(.kable_table(format_df3_sci(effect_table, digits = digits), row.names = FALSE)))
       pieces <- c(pieces, list(""))
     }
 
@@ -3099,6 +3464,13 @@ print.summary.causalmixgpd_ate <- function(x, digits = 3, ...) {
   }
 
   # ATE statistics
+  effect_table <- x$effect_table
+  if (!is.null(effect_table) && nrow(effect_table) > 0) {
+    cat(sprintf("%s estimates:\n", lbl$short))
+    print_fmt3_sci(effect_table, row.names = FALSE, digits = digits)
+    cat("\n")
+  }
+
   as <- x$ate_stats
   if (!is.null(as)) {
     cat(sprintf("%s statistics:\n", lbl$short))

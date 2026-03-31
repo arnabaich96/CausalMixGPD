@@ -47,8 +47,7 @@ for fitted one-arm models.</p>
 <span>  ps <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  newdata <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"density"</span>, <span class="st">"survival"</span>, <span class="st">"quantile"</span>, <span class="st">"sample"</span>, <span class="st">"mean"</span>, <span class="st">"rmean"</span>, <span class="st">"median"</span>,</span>
-<span>    <span class="st">"location"</span>, <span class="st">"fit"</span><span class="op">)</span>,</span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"density"</span>, <span class="st">"survival"</span>, <span class="st">"quantile"</span>, <span class="st">"sample"</span>, <span class="st">"mean"</span>, <span class="st">"rmean"</span>, <span class="st">"median"</span>, <span class="st">"fit"</span><span class="op">)</span>,</span>
 <span>  p <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  index <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  nsim <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -107,7 +106,6 @@ is excluded from analysis.</p></dd>
 <li><p><code>"mean"</code>: Posterior predictive mean E(Y | x, data) (averaged over posterior parameter uncertainty)</p></li>
 <li><p><code>"rmean"</code>: Posterior predictive restricted mean \(E[\min(Y, cutoff) \mid x, data]\)</p></li>
 <li><p><code>"median"</code>: Posterior predictive median (quantile at p=0.5)</p></li>
-<li><p><code>"location"</code>: Alias for "mean"</p></li>
 <li><p><code>"fit"</code>: Per-observation posterior predictive draws</p></li>
 </ul><p>Note: <code>type="mean"</code> returns the posterior predictive mean, which integrates over
 parameter uncertainty. This differs from the mean of a single model distribution.</p></dd>
@@ -183,8 +181,9 @@ If NULL and <code>nrow(newdata) &gt; 20000</code>, defaults to 10000.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A list with elements:</p><ul><li><p><code>fit</code>: data frame with <code>estimate</code>/<code>lower</code>/<code>upper</code> columns (posterior means
-over draws) plus any index columns (e.g. <code>id</code>, <code>y</code>, <code>index</code>).</p></li>
+    <p>A list with elements:</p><ul><li><p><code>fit</code>: numeric vector/matrix for <code>type = "sample"</code>, otherwise a data frame with
+<code>estimate</code>/<code>lower</code>/<code>upper</code> columns (posterior means over draws) plus any index
+columns (e.g. <code>id</code>, <code>y</code>, <code>index</code>).</p></li>
 <li><p><code>lower</code>, <code>upper</code>: reserved for backward compatibility (typically <code>NULL</code>).</p></li>
 <li><p><code>type</code>, <code>grid</code>: metadata.</p></li>
 </ul></div>
@@ -198,8 +197,10 @@ parameters. Supported output types include:</p><ul><li><p><code>"density"</code>
 <li><p><code>"rmean"</code> for \(E\{\min(Y, c) \mid x, \mathcal{D}\}\),</p></li>
 <li><p><code>"sample"</code> and <code>"fit"</code> for draw-level predictive output.</p></li>
 </ul><p>For spliced models these predictions integrate over both the DPM bulk and
-the GPD tail. When <code>type = "mean"</code>, the function averages conditional
-means over posterior draws, so the result is a Bayesian predictive mean.</p>
+the GPD tail using component-specific tail parameters, including link-mode
+tail coefficients when present. When <code>type = "mean"</code>, the function
+averages conditional means over posterior draws, so the result is a Bayesian
+predictive mean.</p>
 <p>The <code>type="mean"</code> option computes the posterior predictive mean by:</p><ol><li><p>For each posterior draw s, computing E(Y | x, theta_s) via Monte Carlo simulation</p></li>
 <li><p>Averaging these conditional means over the posterior: E(Y | x, data) = mean_s(E(Y | x, theta_s))</p></li>
 </ol><p>This accounts for parameter uncertainty and is the Bayesian predictive mean. When the tail

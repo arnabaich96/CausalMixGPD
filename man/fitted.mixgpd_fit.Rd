@@ -6,7 +6,7 @@
 \usage{
 \method{fitted}{mixgpd_fit}(
   object,
-  type = c("location", "mean", "median", "quantile"),
+  type = c("mean", "median", "quantile"),
   p = 0.5,
   level = 0.95,
   interval = "credible",
@@ -17,7 +17,7 @@
 \arguments{
 \item{object}{A fitted object of class \code{"mixgpd_fit"} (must have covariates).}
 
-\item{type}{Which fitted location to return: mean, median, quantile, or both (\code{"location"}).}
+\item{type}{Which fitted functional to return: mean, median, or quantile.}
 
 \item{p}{Quantile level used when \code{type = "quantile"}.}
 
@@ -42,10 +42,6 @@ residuals computed on the training sample.
 \details{
 The method returns posterior predictive fitted values on the observed design
 matrix. It is available only when the fitted model stored covariates.
-
-Use \code{type = "location"} to retrieve both posterior predictive means and
-medians side by side. For unconditional models, use
-\code{\link{predict.mixgpd_fit}} directly.
 }
 \examples{
 \dontrun{

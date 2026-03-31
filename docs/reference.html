@@ -191,10 +191,21 @@ ul.task-list li input[type="checkbox"] {
     <a class="nav-link" href="./developers/index.html"> 
 <span class="menu-text">Developers</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link active" href="./reference.html" aria-current="page"> 
-<span class="menu-text">Reference</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-reference" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Reference</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-reference">    
+        <li>
+    <a class="dropdown-item" href="./reference.html">
+ <span class="dropdown-text">Reference hub</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="./reference-by-action.html">
+ <span class="dropdown-text">Function reference by job</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="./news.html"> 
 <span class="menu-text">News</span></a>
@@ -256,7 +267,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="curated-documentation-hub" class="level1 container">
 <h1>Curated Documentation Hub</h1>
 <p>Use this page to route into workflows and concepts. Function-level details remain in pkgdown.</p>
-<p><a href="pkgdown/reference/index.html" class="btn btn-primary">API reference</a></p>
+<p><a href="./reference-by-action.html" class="btn btn-primary">Function reference by job</a> <a href="pkgdown/reference/index.html" class="btn btn-outline-light">Function reference</a></p>
 </section>
 </div>
 <section>
@@ -283,6 +294,7 @@ ul.task-list li input[type="checkbox"] {
 <section id="pkgdown-authoritative-docs" class="level2">
 <h2 class="anchored" data-anchor-id="pkgdown-authoritative-docs">pkgdown authoritative docs</h2>
 <ul>
+<li><a href="./reference-by-action.html">Function reference by job</a></li>
 <li><a href="pkgdown/reference/index.html">Function reference</a></li>
 </ul>
 </section>

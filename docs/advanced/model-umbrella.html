@@ -230,10 +230,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="../developers/index.html"> 
 <span class="menu-text">Developers</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../reference.html"> 
-<span class="menu-text">Reference</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-reference" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Reference</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-reference">    
+        <li>
+    <a class="dropdown-item" href="../reference.html">
+ <span class="dropdown-text">Reference hub</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../reference-by-action.html">
+ <span class="dropdown-text">Function reference by job</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../news.html"> 
 <span class="menu-text">News</span></a>
@@ -308,7 +319,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="how-to-read-this-page">How to read this page</h2>
 <p>This page is the “umbrella” for advanced use:</p>
 <ul>
-<li>It shows <strong>where you customize</strong> (mostly via <code>param_specs</code> and the wrapper/bundle interface).- It shows <strong>what you get back</strong> (fit objects + S3 methods).- It is intentionally end-to-end so other pages can link here rather than repeating the full picture.</li>
+<li>It shows <strong>where you customize</strong> (mostly via <code>param_specs</code> and the wrapper/bundle interface).</li>
+<li>It shows <strong>what you get back</strong> (fit objects + S3 methods).</li>
+<li>It is intentionally end-to-end so other pages can link here rather than repeating the full picture.</li>
 </ul>
 </section>
 <section id="model-decomposition-canonical-map" class="level2">
@@ -598,12 +611,12 @@ notes</p>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(ess_amoroso)</span>
 <span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="do">## ESS summary (ESS/sec)</span></span>
 <span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a><span class="do">##     arm              param  chain     ess seconds ess_per_sec</span></span>
-<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="do">##  single              alpha chain1  10.513    0.42      25.031</span></span>
-<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="do">##  single         tail_shape chain1 157.664    0.42     375.391</span></span>
-<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="do">##  single beta_tail_scale[1] chain1  42.741    0.42     101.764</span></span>
-<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="do">##  single              alpha pooled  10.513    0.42      25.031</span></span>
-<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="do">##  single         tail_shape pooled 157.664    0.42     375.391</span></span>
-<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="do">##  single beta_tail_scale[1] pooled  42.741    0.42     101.764</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a><span class="do">##  single              alpha chain1  10.513    0.84      12.515</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="do">##  single         tail_shape chain1 157.664    0.84     187.695</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a><span class="do">##  single beta_tail_scale[1] chain1  42.741    0.84      50.882</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a><span class="do">##  single              alpha pooled  10.513    0.84      12.515</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a><span class="do">##  single         tail_shape pooled 157.664    0.84     187.695</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a><span class="do">##  single beta_tail_scale[1] pooled  42.741    0.84      50.882</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <div class="cell" data-layout-align="center">
@@ -819,10 +832,10 @@ notes</p>
 <span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="do">##  control               alpha pooled 23.939    0.03     797.972</span></span>
 <span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="do">##  control            scale[1] pooled 57.736    0.03    1924.529</span></span>
 <span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="do">##  control beta_ps_location[1] pooled  1.512    0.03      50.406</span></span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="do">##  treated               alpha chain1  45.78    0.03    1525.993</span></span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a><span class="do">##  treated     beta_ps_mean[1] chain1  2.606    0.03      86.878</span></span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a><span class="do">##  treated               alpha pooled  45.78    0.03    1525.993</span></span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a><span class="do">##  treated     beta_ps_mean[1] pooled  2.606    0.03      86.878</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="do">##  treated               alpha chain1  45.78    0.05     915.596</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a><span class="do">##  treated     beta_ps_mean[1] chain1  2.606    0.05      52.127</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a><span class="do">##  treated               alpha pooled  45.78    0.05     915.596</span></span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a><span class="do">##  treated     beta_ps_mean[1] pooled  2.606    0.05      52.127</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 </div>
 <div class="cell" data-layout-align="center">

@@ -195,10 +195,21 @@ ul.task-list li input[type="checkbox"] {
     <a class="nav-link" href="../developers/index.html"> 
 <span class="menu-text">Developers</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../reference.html"> 
-<span class="menu-text">Reference</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-reference" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Reference</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-reference">    
+        <li>
+    <a class="dropdown-item" href="../reference.html">
+ <span class="dropdown-text">Reference hub</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../reference-by-action.html">
+ <span class="dropdown-text">Function reference by job</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../news.html"> 
 <span class="menu-text">News</span></a>
@@ -355,14 +366,12 @@ ul.task-list li input[type="checkbox"] {
 
   T --&gt;|density| NeedY[y required\n(evaluation grid)]
   T --&gt;|survival| NeedY
-  T --&gt;|prob| NeedY
 
   T --&gt;|quantile| NeedP[p required (or index)]
   T --&gt;|sample| Samp[nsim / store_draws control output]
   T --&gt;|fit| FitOut[per-observation predictive draws]
 
   T --&gt;|mean| MeanInt[interval controls bands\n(level, probs, hpd/credible)]
-  T --&gt;|location| MeanInt
   T --&gt;|median| MedInt[median = quantile at p=0.5\ninterval]
   T --&gt;|rmean| RMean[requires cutoff\ninterval]
 
@@ -495,7 +504,7 @@ ul.task-list li input[type="checkbox"] {
   NeedP --&gt; Int[interval/level control quantile bands\n(credible/hpd/NULL)]
 
   Type --&gt;|mean| Mean[interval/level/probs\ncontrol bands]
-  Type --&gt;|location| Mean
+  Type --&gt;|sample| Samp[paired treated/control/effect samples\nnsim / store_draws]
 
   Pca0 --&gt; PSopt{Override PS?}
   PSopt --&gt;|ps provided| PSuse[Use provided ps in both arms]

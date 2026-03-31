@@ -1,0 +1,253 @@
+---
+title: "Function Reference by Job"
+subtitle: "Explicit, job-based routing into pkgdown function topics"
+page-layout: full
+toc: true
+toc-depth: 2
+---
+
+::: {.hero}
+::: {.container}
+# Function Reference by Job
+
+Use this page when you want function-level docs grouped by what each function is used for.
+
+[Full alphabetical reference](pkgdown/reference/index.html){.btn .btn-primary}
+[Reference hub](reference.qmd){.btn .btn-outline-light}
+[Examples hub](examples/index.qmd){.btn .btn-outline-light}
+:::
+:::
+
+::: {.section}
+::: {.container}
+
+::: {.callout-note}
+The links below point to pkgdown topic pages generated from Rd files. If API topics are added or renamed, update this page and rebuild docs.
+:::
+
+## Build models and run MCMC
+
+Use these when preparing bundles and running one-arm, causal, or clustering model fits.
+
+- [bundle() workflow bundle](pkgdown/reference/bundle.html)
+- [build_nimble_bundle() explicit one-arm bundle](pkgdown/reference/build_nimble_bundle.html)
+- [build_causal_bundle() two-arm causal bundle](pkgdown/reference/build_causal_bundle.html)
+- [dpmix() one-arm bulk fit](pkgdown/reference/dpmix.html)
+- [dpmgpd() one-arm bulk plus tail fit](pkgdown/reference/dpmgpd.html)
+- [dpmix.causal() causal bulk fit](pkgdown/reference/dpmix.causal.html)
+- [dpmgpd.causal() causal bulk plus tail fit](pkgdown/reference/dpmgpd.causal.html)
+- [dpmix.cluster() clustering bulk fit](pkgdown/reference/dpmix.cluster.html)
+- [dpmgpd.cluster() clustering bulk plus tail fit](pkgdown/reference/dpmgpd.cluster.html)
+- [mcmc() run posterior sampling](pkgdown/reference/mcmc.html)
+- [params() extract posterior mean parameters](pkgdown/reference/params.html)
+- [run_mcmc_bundle_manual() low-level one-arm runner](pkgdown/reference/run_mcmc_bundle_manual.html)
+- [run_mcmc_causal() low-level causal runner](pkgdown/reference/run_mcmc_causal.html)
+
+Related workflow pages: [Start hub](start/index.qmd), [Examples](examples/index.qmd), [Backends and workflow](start/backends-and-workflow.qmd)
+
+## Predict, summarize, print, and plot fitted objects
+
+Use these after fitting to generate predictions, diagnostics, fitted values, and plots.
+
+- [predict(<mixgpd_fit>)](pkgdown/reference/predict.mixgpd_fit.html)
+- [summary(<mixgpd_fit>)](pkgdown/reference/summary.mixgpd_fit.html)
+- [fitted(<mixgpd_fit>)](pkgdown/reference/fitted.mixgpd_fit.html)
+- [residuals(<mixgpd_fit>)](pkgdown/reference/residuals.mixgpd_fit.html)
+- [ess_summary() effective sample size summary](pkgdown/reference/ess_summary.html)
+- [plot(<mixgpd_fit>)](pkgdown/reference/plot.mixgpd_fit.html)
+- [plot(<mixgpd_predict>)](pkgdown/reference/plot.mixgpd_predict.html)
+- [plot(<mixgpd_fitted>)](pkgdown/reference/plot.mixgpd_fitted.html)
+- [print(<mixgpd_summary>)](pkgdown/reference/print.mixgpd_summary.html)
+- [print(<mixgpd_fit>)](pkgdown/reference/print.mixgpd_fit.html)
+- [print(<mixgpd_fit_plots>)](pkgdown/reference/print.mixgpd_fit_plots.html)
+- [print(<mixgpd_fitted_plots>)](pkgdown/reference/print.mixgpd_fitted_plots.html)
+- [print(<mixgpd_predict_plots>)](pkgdown/reference/print.mixgpd_predict_plots.html)
+
+Related workflow pages: [Start here](start/start-here.qmd), [Basic compile and run](start/basic-model-compile-run.qmd)
+
+## Estimate causal effects and inspect causal outputs
+
+Use these when extracting treatment effects from fitted causal models.
+
+- [predict(<causalmixgpd_causal_fit>)](pkgdown/reference/predict.causalmixgpd_causal_fit.html)
+- [ate() average treatment effect](pkgdown/reference/ate.html)
+- [att() treated-standardized average treatment effect](pkgdown/reference/att.html)
+- [cate() conditional average treatment effects](pkgdown/reference/cate.html)
+- [qte() quantile treatment effects](pkgdown/reference/qte.html)
+- [cqte() conditional quantile treatment effects](pkgdown/reference/cqte.html)
+- [qtt() quantile treatment effects standardized to treated covariates](pkgdown/reference/qtt.html)
+- [ate_rmean() restricted-mean ATE helper](pkgdown/reference/ate_rmean.html)
+- [summary(<causalmixgpd_causal_fit>)](pkgdown/reference/summary.causalmixgpd_causal_fit.html)
+- [summary(<causalmixgpd_bundle>)](pkgdown/reference/summary.causalmixgpd_bundle.html)
+- [summary(<causalmixgpd_causal_bundle>)](pkgdown/reference/summary.causalmixgpd_causal_bundle.html)
+- [summary(<causalmixgpd_ate>)](pkgdown/reference/summary.causalmixgpd_ate.html)
+- [summary(<causalmixgpd_qte>)](pkgdown/reference/summary.causalmixgpd_qte.html)
+- [plot(<causalmixgpd_ate>)](pkgdown/reference/plot.causalmixgpd_ate.html)
+- [plot(<causalmixgpd_qte>)](pkgdown/reference/plot.causalmixgpd_qte.html)
+- [plot(<causalmixgpd_causal_fit>)](pkgdown/reference/plot.causalmixgpd_causal_fit.html)
+- [plot(<causalmixgpd_causal_predict>)](pkgdown/reference/plot.causalmixgpd_causal_predict.html)
+- [print(<causalmixgpd_bundle>)](pkgdown/reference/print.causalmixgpd_bundle.html)
+- [print(<causalmixgpd_causal_bundle>)](pkgdown/reference/print.causalmixgpd_causal_bundle.html)
+- [print(<causalmixgpd_causal_fit>)](pkgdown/reference/print.causalmixgpd_causal_fit.html)
+- [print(<causalmixgpd_causal_predict_plots>)](pkgdown/reference/print.causalmixgpd_causal_predict_plots.html)
+- [print(<causalmixgpd_ate>)](pkgdown/reference/print.causalmixgpd_ate.html)
+- [print(<causalmixgpd_qte>)](pkgdown/reference/print.causalmixgpd_qte.html)
+- [print(summary(<causalmixgpd_ate>))](pkgdown/reference/print.summary.causalmixgpd_ate.html)
+- [print(summary(<causalmixgpd_qte>))](pkgdown/reference/print.summary.causalmixgpd_qte.html)
+- [print(<causalmixgpd_ps_bundle>)](pkgdown/reference/print.causalmixgpd_ps_bundle.html)
+- [print(<causalmixgpd_ps_fit>)](pkgdown/reference/print.causalmixgpd_ps_fit.html)
+
+Related workflow pages: [Causal track](tracks/causal.qmd), [Causal examples](examples/index.qmd)
+
+## Run clustering workflows and diagnostics
+
+Use these when assigning clusters, inspecting posterior cluster summaries, and plotting clustering diagnostics.
+
+- [allocation() cluster label and PSM outputs](pkgdown/reference/allocation.html)
+- [allocation(<mixgpd_fit>)](pkgdown/reference/allocation.mixgpd_fit.html)
+- [predict(<dpmixgpd_cluster_fit>)](pkgdown/reference/predict.dpmixgpd_cluster_fit.html)
+- [summary(<dpmixgpd_cluster_bundle>)](pkgdown/reference/summary.dpmixgpd_cluster_bundle.html)
+- [summary(<dpmixgpd_cluster_fit>)](pkgdown/reference/summary.dpmixgpd_cluster_fit.html)
+- [summary(<dpmixgpd_cluster_labels>)](pkgdown/reference/summary.dpmixgpd_cluster_labels.html)
+- [summary(<dpmixgpd_cluster_psm>)](pkgdown/reference/summary.dpmixgpd_cluster_psm.html)
+- [summary(<mixgpd_allocation>)](pkgdown/reference/summary.mixgpd_allocation.html)
+- [print(<dpmixgpd_cluster_bundle>)](pkgdown/reference/print.dpmixgpd_cluster_bundle.html)
+- [print(<dpmixgpd_cluster_fit>)](pkgdown/reference/print.dpmixgpd_cluster_fit.html)
+- [print(<dpmixgpd_cluster_labels>)](pkgdown/reference/print.dpmixgpd_cluster_labels.html)
+- [print(<dpmixgpd_cluster_psm>)](pkgdown/reference/print.dpmixgpd_cluster_psm.html)
+- [print(<mixgpd_allocation>)](pkgdown/reference/print.mixgpd_allocation.html)
+- [plot(<dpmixgpd_cluster_fit>)](pkgdown/reference/plot.dpmixgpd_cluster_fit.html)
+- [plot(<dpmixgpd_cluster_bundle>)](pkgdown/reference/plot.dpmixgpd_cluster_bundle.html)
+- [plot(<dpmixgpd_cluster_labels>)](pkgdown/reference/plot.dpmixgpd_cluster_labels.html)
+- [plot(<dpmixgpd_cluster_psm>)](pkgdown/reference/plot.dpmixgpd_cluster_psm.html)
+- [plot(<mixgpd_allocation>)](pkgdown/reference/plot.mixgpd_allocation.html)
+
+Related workflow pages: [Clustering track](tracks/clustering.qmd), [Clustering examples](examples/index.qmd)
+
+## Choose kernels, tails, registries, and diagnostics
+
+Use these when selecting kernel families, tail behavior, and glue diagnostics.
+
+- [kernel_support_table() available kernel support and domains](pkgdown/reference/kernel_support_table.html)
+- [get_kernel_registry()](pkgdown/reference/get_kernel_registry.html)
+- [init_kernel_registry()](pkgdown/reference/init_kernel_registry.html)
+- [get_tail_registry()](pkgdown/reference/get_tail_registry.html)
+- [check_glue_validity() bulk-tail glue checks](pkgdown/reference/check_glue_validity.html)
+- [gpd distribution helpers](pkgdown/reference/gpd.html)
+- [normal kernels and mixtures](pkgdown/reference/normal_mix.html)
+- [normal with GPD](pkgdown/reference/normal_gpd.html)
+- [normal mixture with GPD](pkgdown/reference/normal_mixgpd.html)
+- [normal lowercase vectorized wrappers](pkgdown/reference/normal_lowercase.html)
+- [lognormal kernels and mixtures](pkgdown/reference/lognormal_mix.html)
+- [lognormal with GPD](pkgdown/reference/lognormal_gpd.html)
+- [lognormal mixture with GPD](pkgdown/reference/lognormal_mixgpd.html)
+- [lognormal lowercase vectorized wrappers](pkgdown/reference/lognormal_lowercase.html)
+- [gamma kernels and mixtures](pkgdown/reference/gamma_mix.html)
+- [gamma with GPD](pkgdown/reference/gamma_gpd.html)
+- [gamma mixture with GPD](pkgdown/reference/gamma_mixgpd.html)
+- [gamma lowercase vectorized wrappers](pkgdown/reference/gamma_lowercase.html)
+- [inverse Gaussian base](pkgdown/reference/InvGauss.html)
+- [inverse Gaussian with GPD](pkgdown/reference/InvGauss_gpd.html)
+- [inverse Gaussian mixture](pkgdown/reference/InvGauss_mix.html)
+- [inverse Gaussian mixture with GPD](pkgdown/reference/InvGauss_mixgpd.html)
+- [inverse Gaussian lowercase vectorized wrappers](pkgdown/reference/invgauss_lowercase.html)
+- [laplace kernels and mixtures](pkgdown/reference/laplace_mix.html)
+- [laplace with GPD](pkgdown/reference/laplace_gpd.html)
+- [laplace mixture with GPD](pkgdown/reference/laplace_MixGpd.html)
+- [laplace lowercase vectorized wrappers](pkgdown/reference/laplace_lowercase.html)
+- [cauchy base](pkgdown/reference/cauchy.html)
+- [cauchy mixture](pkgdown/reference/cauchy_mix.html)
+- [cauchy lowercase vectorized wrappers](pkgdown/reference/cauchy_mix_lowercase.html)
+- [amoroso base](pkgdown/reference/amoroso.html)
+- [amoroso with GPD](pkgdown/reference/amoroso_gpd.html)
+- [amoroso mixture](pkgdown/reference/amoroso_mix.html)
+- [amoroso mixture with GPD](pkgdown/reference/amoroso_mixgpd.html)
+- [amoroso lowercase vectorized wrappers](pkgdown/reference/amoroso_lowercase.html)
+- [base lowercase vectorized wrappers](pkgdown/reference/base_lowercase.html)
+
+## Scalar d/p/q/r aliases by family
+
+Use these when you want direct scalar/vector-style d(), p(), q(), r() naming for a specific family implementation.
+
+- [Amoroso aliases](pkgdown/reference/damoroso.html), [Amoroso GPD aliases](pkgdown/reference/damorosogpd.html), [Amoroso mixture aliases](pkgdown/reference/damorosomix.html), [Amoroso mixture+GPD aliases](pkgdown/reference/damorosomixgpd.html)
+- [Cauchy scalar aliases](pkgdown/reference/dCauchy.html), [Cauchy vector aliases](pkgdown/reference/dcauchy_vec.html), [Cauchy mixture aliases](pkgdown/reference/dcauchymix.html)
+- [Gamma GPD aliases](pkgdown/reference/dgammagpd.html), [Gamma mixture aliases](pkgdown/reference/dgammamix.html), [Gamma mixture+GPD aliases](pkgdown/reference/dgammamixgpd.html)
+- [GPD aliases](pkgdown/reference/dgpd.html)
+- [Inverse Gaussian aliases](pkgdown/reference/dinvgauss.html), [Inverse Gaussian GPD aliases](pkgdown/reference/dinvgaussgpd.html), [Inverse Gaussian mixture aliases](pkgdown/reference/dinvgaussmix.html), [Inverse Gaussian mixture+GPD aliases](pkgdown/reference/dinvgaussmixgpd.html)
+- [Laplace GPD aliases](pkgdown/reference/dlaplacegpd.html), [Laplace mixture aliases](pkgdown/reference/dlaplacemix.html), [Laplace mixture+GPD aliases](pkgdown/reference/dlaplacemixgpd.html)
+- [Lognormal GPD aliases](pkgdown/reference/dlognormalgpd.html), [Lognormal mixture aliases](pkgdown/reference/dlognormalmix.html), [Lognormal mixture+GPD aliases](pkgdown/reference/dlognormalmixgpd.html)
+- [Normal GPD aliases](pkgdown/reference/dnormgpd.html), [Normal mixture aliases](pkgdown/reference/dnormmix.html), [Normal mixture+GPD aliases](pkgdown/reference/dnormmixgpd.html)
+
+Related workflow pages: [Kernels hub](kernels.qmd), [Kernels and tails track](tracks/kernels.qmd), [Advanced hub](advanced/index.qmd)
+
+## Use packaged datasets and simulation helpers
+
+Use these to bootstrap examples, reproduce docs, and test workflows.
+
+- [causal_pos500_p3_k2](pkgdown/reference/causal_pos500_p3_k2.html)
+- [causal_alt_pos500_p3_k3](pkgdown/reference/causal_alt_pos500_p3_k3.html)
+- [causal_alt_pos500_p5_k4_tail](pkgdown/reference/causal_alt_pos500_p5_k4_tail.html)
+- [causal_alt_real500_p4_k2](pkgdown/reference/causal_alt_real500_p4_k2.html)
+- [nc_pos200_k3](pkgdown/reference/nc_pos200_k3.html)
+- [nc_pos_tail200_k4](pkgdown/reference/nc_pos_tail200_k4.html)
+- [nc_posX100_p3_k2](pkgdown/reference/nc_posX100_p3_k2.html)
+- [nc_posX100_p4_k3](pkgdown/reference/nc_posX100_p4_k3.html)
+- [nc_posX100_p5_k4](pkgdown/reference/nc_posX100_p5_k4.html)
+- [nc_real200_k2](pkgdown/reference/nc_real200_k2.html)
+- [nc_realX100_p3_k2](pkgdown/reference/nc_realX100_p3_k2.html)
+- [nc_realX100_p5_k3](pkgdown/reference/nc_realX100_p5_k3.html)
+- [sim_bulk_tail() simulation utility](pkgdown/reference/sim_bulk_tail.html)
+- [sim_survival_tail() simulation utility](pkgdown/reference/sim_survival_tail.html)
+- [sim_causal_qte() simulation utility](pkgdown/reference/sim_causal_qte.html)
+
+Related workflow pages: [Examples hub](examples/index.qmd), [Start hub](start/index.qmd)
+
+## Developer and internal APIs
+
+Use these only when extending internals or debugging package internals and dispatch behavior.
+
+::: {.callout-warning}
+Internal APIs (dot-prefixed topics) may change without the same stability guarantees as user-facing wrappers.
+:::
+
+- [dot-get_dispatch()](pkgdown/reference/dot-get_dispatch.html)
+- [dot-get_dispatch_scalar()](pkgdown/reference/dot-get_dispatch_scalar.html)
+- [dot-compute_cluster_probs()](pkgdown/reference/dot-compute_cluster_probs.html)
+- [dot-compute_psm()](pkgdown/reference/dot-compute_psm.html)
+- [dot-dahl_representative()](pkgdown/reference/dot-dahl_representative.html)
+- [dot-detect_first_present()](pkgdown/reference/dot-detect_first_present.html)
+- [dot-extract_draws()](pkgdown/reference/dot-extract_draws.html)
+- [dot-extract_draws_matrix()](pkgdown/reference/dot-extract_draws_matrix.html)
+- [dot-extract_nimble_code()](pkgdown/reference/dot-extract_nimble_code.html)
+- [dot-extract_z_matrix()](pkgdown/reference/dot-extract_z_matrix.html)
+- [dot-format_fit_header()](pkgdown/reference/dot-format_fit_header.html)
+- [dot-get_epsilon()](pkgdown/reference/dot-get_epsilon.html)
+- [dot-get_nobs()](pkgdown/reference/dot-get_nobs.html)
+- [dot-get_samples_mcmclist()](pkgdown/reference/dot-get_samples_mcmclist.html)
+- [dot-onLoad()](pkgdown/reference/dot-onLoad.html)
+- [dot-posterior_summarize()](pkgdown/reference/dot-posterior_summarize.html)
+- [dot-predict_mixgpd()](pkgdown/reference/dot-predict_mixgpd.html)
+- [dot-summarize_posterior()](pkgdown/reference/dot-summarize_posterior.html)
+- [dot-truncate_components_one_draw()](pkgdown/reference/dot-truncate_components_one_draw.html)
+- [dot-truncate_draws_matrix_components()](pkgdown/reference/dot-truncate_draws_matrix_components.html)
+- [dot-truncation_info()](pkgdown/reference/dot-truncation_info.html)
+- [dot-wrap_nimble_code()](pkgdown/reference/dot-wrap_nimble_code.html)
+- [dot-wrap_scalar_first_arg()](pkgdown/reference/dot-wrap_scalar_first_arg.html)
+- [dot-wrap_scalar_p()](pkgdown/reference/dot-wrap_scalar_p.html)
+- [dot-wrap_scalar_r()](pkgdown/reference/dot-wrap_scalar_r.html)
+- [dot-validate_fit()](pkgdown/reference/dot-validate_fit.html)
+
+## Package globals and options
+
+- [globals](pkgdown/reference/globals.html)
+
+Related workflow pages: [Developers hub](developers/index.qmd), [Spec and contracts](developers/spec-and-contracts.qmd), [Registry docs](developers/registry.qmd)
+
+## Prefer a full scan?
+
+Use the complete index when you want all topics in one place.
+
+[Open full pkgdown reference index](pkgdown/reference/index.html){.btn .btn-outline-primary}
+
+:::
+:::

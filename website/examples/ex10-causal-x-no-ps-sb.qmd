@@ -26,7 +26,7 @@ set.seed(1)
 # Fast-by-default rendering. Flip to FALSE for a fuller run.
 FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
 mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, workers = 2)
-mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_chains = TRUE, workers = 2, z_update_every = 2)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_arms = TRUE, workers = 2, z_update_every = 2)
 
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
@@ -38,7 +38,6 @@ library(dplyr)
 # Ensure package is fully loaded for data access
 
 # Precomputed results for fast website builds
-source("_legacy-setup.R")
 source("_legacy-setup.R")
 ```
 
@@ -54,11 +53,14 @@ source("_legacy-setup.R")
 
 ## What you’ll learn
 
-- How to run the causal workflow with **outcome models conditional on X** while **disabling propensity-score estimation**.\n- How to compare causal fits that differ in backend/tail specification while keeping the same evaluation pattern.\n- How tail augmentation can change effect behavior in extremes even when mean effects are similar.
+- How to run the causal workflow with **outcome models conditional on X** while **disabling propensity-score estimation**.
+- How to compare causal fits that differ in backend/tail specification while keeping the same evaluation pattern.
+- How tail augmentation can change effect behavior in extremes even when mean effects are similar.
 
 ## When to use this template
 
-- Treatment assignment is plausibly ignorable given \(X\), but you want to **avoid PS modeling** (or you already handled PS externally).\n- You want causal summaries beyond the mean (quantile/conditional effects) and need flexible outcome distributions.
+- Treatment assignment is plausibly ignorable given \(X\), but you want to **avoid PS modeling** (or you already handled PS externally).
+- You want causal summaries beyond the mean (quantile/conditional effects) and need flexible outcome distributions.
 
 ## Key limitation (important)
 
@@ -253,7 +255,6 @@ plot(cqte_bulk)
 ## Next
 - Continue to the linked canonical concept page, then return for implementation-specific details.
 <!-- cmgpd-footer:end -->
-
 
 
 

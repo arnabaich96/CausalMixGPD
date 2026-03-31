@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find d:/Git-Repos/CausalMixGPD-Package/CausalMixGPD -name *.Rmd -not -path */renv/*)"
+    ]
+  }
+}

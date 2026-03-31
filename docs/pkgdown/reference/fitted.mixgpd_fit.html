@@ -42,7 +42,7 @@ predict.mixgpd_fit for conditional models."></head><body>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'mixgpd_fit'</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/fitted.values.html" class="external-link">fitted</a></span><span class="op">(</span></span>
 <span>  <span class="va">object</span>,</span>
-<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"location"</span>, <span class="st">"mean"</span>, <span class="st">"median"</span>, <span class="st">"quantile"</span><span class="op">)</span>,</span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"median"</span>, <span class="st">"quantile"</span><span class="op">)</span>,</span>
 <span>  p <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  level <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  interval <span class="op">=</span> <span class="st">"credible"</span>,</span>
@@ -60,7 +60,7 @@ predict.mixgpd_fit for conditional models."></head><body>
 
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
-<dd><p>Which fitted location to return: mean, median, quantile, or both (<code>"location"</code>).</p></dd>
+<dd><p>Which fitted functional to return: mean, median, or quantile.</p></dd>
 
 
 <dt id="arg-p">p<a class="anchor" aria-label="anchor" href="#arg-p"></a></dt>
@@ -94,9 +94,6 @@ residuals computed on the training sample.</p>
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The method returns posterior predictive fitted values on the observed design
 matrix. It is available only when the fitted model stored covariates.</p>
-<p>Use <code>type = "location"</code> to retrieve both posterior predictive means and
-medians side by side. For unconditional models, use
-<code><a href="predict.mixgpd_fit.html">predict.mixgpd_fit</a></code> directly.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

@@ -20,7 +20,7 @@ set.seed(1)
 # Fast-by-default rendering. Flip to FALSE for a fuller run.
 FAST <- if (nzchar(Sys.getenv("LEGACY_FAST"))) as.logical(Sys.getenv("LEGACY_FAST")) else TRUE
 mcmc_fast  <- list(niter = 400, nburnin = 100, thin = 2, nchains = 1, seed = 1, timing = TRUE, workers = 2)
-mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_chains = TRUE, workers = 2, z_update_every = 2)
+mcmc_heavy <- list(niter = 4000, nburnin = 1000, thin = 5, nchains = 2, seed = c(1, 2), timing = TRUE, parallel_arms = TRUE, workers = 2, z_update_every = 2)
 
 # Use `mcmc = mcmc` in bundle builders unless a vignette overrides it.
 mcmc <- if (isTRUE(FAST)) mcmc_fast else mcmc_heavy
@@ -128,8 +128,8 @@ bundle_sb_crp <- bundle(
   GPD = c(TRUE, TRUE),
   components = c(5, 5),
   param_specs = param_specs_gpd,
-  mcmc_outcome = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 1),
-  mcmc_ps = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 1)
+  mcmc_outcome = list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 1),
+  mcmc_ps = list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 1)
 )
 
 bundle_sb_crp
@@ -137,7 +137,10 @@ summary(bundle_sb_crp)
 ```
 
 ```{r fit-sb-crp, cache = FALSE}
-fit_sb_crp <- dpmix.causal(bundle_sb_crp)
+fit_sb_crp <- load_or_fit(
+  "ex14-causal-different-backends-sb-fit_sb_crp",
+  quiet_mcmc(dpmgpd.causal(bundle_sb_crp))
+)
 summary(fit_sb_crp)
 params(fit_sb_crp)
 ```
@@ -195,8 +198,8 @@ bundle_crp_sb <- bundle(
   GPD = c(TRUE, TRUE),
   components = c(5, 5),
   param_specs = param_specs_gpd,
-  mcmc_outcome = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 2),
-  mcmc_ps = list(niter = 2500, nburnin = 500, nchains = 1, thin = 1, seed = 2)
+  mcmc_outcome = list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 2),
+  mcmc_ps = list(niter = 400, nburnin = 100, nchains = 1, thin = 2, seed = 2)
 )
 
 bundle_crp_sb
@@ -204,7 +207,10 @@ summary(bundle_crp_sb)
 ```
 
 ```{r fit-crp-sb, cache = FALSE}
-fit_crp_sb <- dpmix.causal(bundle_crp_sb)
+fit_crp_sb <- load_or_fit(
+  "ex14-causal-different-backends-sb-fit_crp_sb",
+  quiet_mcmc(dpmgpd.causal(bundle_crp_sb))
+)
 summary(fit_crp_sb)
 params(fit_crp_sb)
 ```
@@ -276,8 +282,4 @@ plot(cqte_crp_sb)
 ## Next
 - Continue to the linked canonical concept page, then return for implementation-specific details.
 <!-- cmgpd-footer:end -->
-
-
-
-
 

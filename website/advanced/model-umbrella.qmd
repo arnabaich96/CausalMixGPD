@@ -51,7 +51,9 @@ For causal estimands: `cate()` / `cqte()` are conditional and require `X`; they 
 
 This page is the “umbrella” for advanced use:
 
-- It shows **where you customize** (mostly via `param_specs` and the wrapper/bundle interface).\n- It shows **what you get back** (fit objects + S3 methods).\n- It is intentionally end-to-end so other pages can link here rather than repeating the full picture.
+- It shows **where you customize** (mostly via `param_specs` and the wrapper/bundle interface).
+- It shows **what you get back** (fit objects + S3 methods).
+- It is intentionally end-to-end so other pages can link here rather than repeating the full picture.
 
 ## Model decomposition (canonical map)
 

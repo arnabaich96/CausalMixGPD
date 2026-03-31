@@ -1829,6 +1829,7 @@ plot_mixgpd_fitted <- get("plot.mixgpd_fitted", mode = "function")
 print_mixgpd_fitted_plots <- get("print.mixgpd_fitted_plots", mode = "function")
 plot_causalmixgpd_qte <- get("plot.causalmixgpd_qte", mode = "function")
 plot_causalmixgpd_ate <- get("plot.causalmixgpd_ate", mode = "function")
+plot_causalmixgpd_causal_predict <- get("plot.causalmixgpd_causal_predict", mode = "function")
 
 # ======================================================================
 # Mock object constructors
@@ -1970,15 +1971,6 @@ make_mock_mixgpd_predict <- function(type = "quantile") {
       type = "survival",
       grid = y_grid
     )
-  } else if (type == "location") {
-    out <- list(
-      fit = data.frame(
-        mean = 5.0, mean_lower = 4.5, mean_upper = 5.5,
-        median = 4.9, median_lower = 4.4, median_upper = 5.4
-      ),
-      type = "location",
-      grid = NULL
-    )
   } else {
     stop("Unknown mock predict type")
   }
@@ -2072,6 +2064,13 @@ make_mock_summary_qte <- function() {
       max_qte = c(0.3, 0.4, 0.5),
       sd_qte = c(0.1, 0.1, 0.1)
     ),
+    effect_table = data.frame(
+      id = rep(1:2, each = 3),
+      tau = rep(c(0.25, 0.5, 0.75), times = 2),
+      estimate = c(0.1, 0.2, 0.3, 0.15, 0.25, 0.35),
+      lower = c(-0.1, 0, 0.1, -0.05, 0.05, 0.15),
+      upper = c(0.3, 0.4, 0.5, 0.35, 0.45, 0.55)
+    ),
     ci_summary = list(
       mean_width = 0.5,
       median_width = 0.5,
@@ -2106,6 +2105,12 @@ make_mock_summary_ate <- function() {
       min_ate = 0.1,
       max_ate = 0.9,
       sd_ate = 0.2
+    ),
+    effect_table = data.frame(
+      id = 1:5,
+      estimate = c(0.2, 0.4, 0.5, 0.6, 0.8),
+      lower = c(0.0, 0.2, 0.3, 0.4, 0.6),
+      upper = c(0.4, 0.6, 0.7, 0.8, 1.0)
     ),
     ci_summary = list(
       mean_width = 0.5,
@@ -2257,6 +2262,8 @@ test_that("summary.causalmixgpd_qte returns proper structure", {
   expect_s3_class(summ, "summary.causalmixgpd_qte")
   expect_true("overall" %in% names(summ))
   expect_true("quantile_summary" %in% names(summ))
+  expect_true("effect_table" %in% names(summ))
+  expect_named(summ$effect_table, c("id", "tau", "estimate", "lower", "upper"))
 })
 
 # ======================================================================
@@ -2269,6 +2276,8 @@ test_that("summary.causalmixgpd_ate returns proper structure", {
   expect_s3_class(summ, "summary.causalmixgpd_ate")
   expect_true("overall" %in% names(summ))
   expect_true("ate_stats" %in% names(summ))
+  expect_true("effect_table" %in% names(summ))
+  expect_named(summ$effect_table, c("id", "estimate", "lower", "upper"))
 })
 
 # ======================================================================
@@ -2281,6 +2290,7 @@ test_that("print.summary.causalmixgpd_qte works", {
   expect_output(print_summary_causalmixgpd_qte(summ), "Prediction points")
   expect_output(print_summary_causalmixgpd_qte(summ), "Quantile grid")
   expect_output(print_summary_causalmixgpd_qte(summ), "Model specification")
+  expect_output(print_summary_causalmixgpd_qte(summ), "QTE estimates")
 })
 
 test_that("print.summary.causalmixgpd_qte respects digits", {
@@ -2294,6 +2304,13 @@ test_that("print.summary.causalmixgpd_qte uses estimand-specific labels", {
   expect_output(print_summary_causalmixgpd_qte(summ), "CQTE Summary")
 })
 
+test_that("print.summary.causalmixgpd_qte prints QTT effect-table labels", {
+  summ <- make_mock_summary_qte()
+  summ$object$type <- "qtt"
+  expect_output(print_summary_causalmixgpd_qte(summ), "QTT Summary")
+  expect_output(print_summary_causalmixgpd_qte(summ), "QTT estimates")
+})
+
 # ======================================================================
 # print.summary.causalmixgpd_ate tests
 # ======================================================================
@@ -2303,6 +2320,7 @@ test_that("print.summary.causalmixgpd_ate works", {
   expect_output(print_summary_causalmixgpd_ate(summ), "ATE Summary")
   expect_output(print_summary_causalmixgpd_ate(summ), "Prediction points")
   expect_output(print_summary_causalmixgpd_ate(summ), "Model specification")
+  expect_output(print_summary_causalmixgpd_ate(summ), "ATE estimates")
 })
 
 test_that("print.summary.causalmixgpd_ate respects digits", {
@@ -2314,6 +2332,13 @@ test_that("print.summary.causalmixgpd_ate uses estimand-specific labels", {
   summ <- make_mock_summary_ate()
   summ$object$type <- "att"
   expect_output(print_summary_causalmixgpd_ate(summ), "ATT Summary")
+})
+
+test_that("print.summary.causalmixgpd_ate prints CATE effect-table labels", {
+  summ <- make_mock_summary_ate()
+  summ$object$type <- "cate"
+  expect_output(print_summary_causalmixgpd_ate(summ), "CATE Summary")
+  expect_output(print_summary_causalmixgpd_ate(summ), "CATE estimates")
 })
 
 # ======================================================================
@@ -2353,13 +2378,6 @@ test_that("plot.mixgpd_predict works for survival", {
   pred <- make_mock_mixgpd_predict("survival")
   p <- plot_mixgpd_predict(pred)
   expect_true(inherits(p, "gg") || inherits(p, "ggplot"))
-})
-
-test_that("plot.mixgpd_predict works for location", {
-  skip_if_not_installed("ggplot2")
-  pred <- make_mock_mixgpd_predict("location")
-  p <- plot_mixgpd_predict(pred)
-  expect_true(inherits(p, "gg") || inherits(p, "ggplot") || is.list(p))
 })
 
 test_that("plot.mixgpd_predict errors on non-list input", {
@@ -4241,7 +4259,6 @@ test_that("lowercase r* supports n = 0", {
 .plot_mean_pred <- get(".plot_mean_pred", mode = "function")
 .plot_density_pred <- get(".plot_density_pred", mode = "function")
 .plot_survival_pred <- get(".plot_survival_pred", mode = "function")
-.plot_location_pred <- get(".plot_location_pred", mode = "function")
 .plot_palette <- get(".plot_palette", mode = "function")
 .plot_theme <- get(".plot_theme", mode = "function")
 
@@ -4477,44 +4494,6 @@ test_that(".plot_survival_pred works with numeric vector fit", {
   expect_s3_class(p, "gg")
 })
 
-# ======================================================================
-# .plot_location_pred tests
-# ======================================================================
-
-test_that(".plot_location_pred works with single row (no id)", {
-  skip_if_not_installed("ggplot2")
-  pred <- list(
-    fit = data.frame(
-      mean = 5.0, mean_lower = 4.5, mean_upper = 5.5,
-      median = 4.9, median_lower = 4.4, median_upper = 5.4
-    )
-  )
-  p <- .plot_location_pred(pred)
-  expect_s3_class(p, "gg")
-})
-
-test_that(".plot_location_pred works with id column", {
-  skip_if_not_installed("ggplot2")
-  pred <- list(
-    fit = data.frame(
-      id = 1:3,
-      mean = c(5.0, 5.5, 6.0),
-      mean_lower = c(4.5, 5.0, 5.5),
-      mean_upper = c(5.5, 6.0, 6.5),
-      median = c(4.9, 5.4, 5.9),
-      median_lower = c(4.4, 4.9, 5.4),
-      median_upper = c(5.4, 5.9, 6.4)
-    )
-  )
-  p <- .plot_location_pred(pred)
-  expect_s3_class(p, "gg")
-})
-
-test_that(".plot_location_pred errors on non-data.frame fit", {
-  pred <- list(fit = c(1, 2, 3))
-  expect_error(.plot_location_pred(pred), "data frame")
-})
-
 # ===== END unit/test-visualization-helpers.R =====
 
 # ===== BEGIN unit/test-formatting-and-wrapper-coverage.R =====
@@ -4700,11 +4679,12 @@ predict.fake_mixfit <- function(object,
                                 y = NULL,
                                 ps = NULL,
                                 id = NULL,
-                                type = c("mean", "quantile", "density", "survival", "prob", "fit", "rmean", "location"),
+                                type = c("mean", "quantile", "density", "survival", "prob", "fit", "rmean", "sample"),
                                 index = NULL,
                                 interval = NULL,
                                 probs = c(0.025, 0.5, 0.975),
                                 store_draws = FALSE,
+                                nsim = NULL,
                                 nsim_mean = 200L,
                                 ...) {
   type <- match.arg(type)
@@ -4751,6 +4731,18 @@ predict.fake_mixfit <- function(object,
       fit = data.frame(id = id_vals, estimate = colMeans(vals)),
       draws = vals
     ))
+  }
+
+  if (type == "sample") {
+    nsim <- as.integer(nsim %||% 4L)
+    fit <- matrix(
+      rep(arm_shift + seq_len(n_pred), each = nsim) + rep(seq_len(nsim) / 10, times = n_pred),
+      nrow = n_pred,
+      byrow = TRUE
+    )
+    out <- list(fit = fit)
+    if (isTRUE(store_draws)) out$draws <- fit
+    return(out)
   }
 
   if (type == "quantile") {
@@ -5424,6 +5416,11 @@ test_that("run_mcmc_causal orchestration covers PS, fallback, and validation bra
   )
 
   testthat::local_mocked_bindings(
+    requireNamespace = function(package, quietly = FALSE) FALSE,
+    .package = "base"
+  )
+
+  testthat::local_mocked_bindings(
     .run_ps_mcmc_bundle = function(bundle, ...) {
       list(mcmc = list(samples = matrix(c(0.1, 0.2, -0.1), nrow = 1, dimnames = list(NULL, c("beta[1]", "beta[2]", "beta[3]")))), timing = list(total = 0.1), bundle = bundle)
     },
@@ -5442,7 +5439,7 @@ test_that("run_mcmc_causal orchestration covers PS, fallback, and validation bra
   fit_no_ps <- NULL
   expect_warning(
     fit_no_ps <- run_mcmc_causal(bundle_no_ps, show_progress = FALSE, quiet = TRUE, parallel_arms = TRUE, timing = TRUE),
-    "falls back to sequential execution"
+    "parallel_arms=TRUE requested"
   )
   expect_s3_class(fit_ps, "causalmixgpd_causal_fit")
   expect_s3_class(fit_no_ps, "causalmixgpd_causal_fit")
@@ -5655,6 +5652,7 @@ test_that("causal prediction wrapper covers quantile, density, survival, prob, a
   expect_s3_class(mean_out, "causalmixgpd_causal_predict")
   expect_true(all(c("index", "estimate") %in% names(qdraw)))
 
+  expect_error(predict(fit_ps, x = x_new, type = "location", show_progress = FALSE), "one of")
   expect_error(predict(fit_ps, x = x_new, newdata = x_new, type = "mean", show_progress = FALSE), "Provide only one of 'x' or 'newdata'")
   expect_error(predict(fit_ps, x = x_new, type = "quantile", p = c(0, 0.5), show_progress = FALSE), "must be in \\(0, 1\\)")
   expect_error(predict(fit_ps, x = x_new, type = "density", show_progress = FALSE), "requires 'y'")
@@ -5666,10 +5664,70 @@ test_that("causal prediction wrapper covers quantile, density, survival, prob, a
   )
 })
 
+test_that("causal prediction wrapper returns aligned posterior predictive samples", {
+  fit <- .make_fake_causal_fit(has_X = TRUE, ps_enabled = FALSE)
+  x_new <- cbind(x1 = c(0, 1), x2 = c(1, 2))
+
+  testthat::local_mocked_bindings(
+    .extract_draws_matrix = function(object) {
+      matrix(seq_len(12), nrow = 4L)
+    },
+    .predict_mixgpd = function(object, x = NULL, y = NULL, ps = NULL, id = NULL, type = "sample",
+                               nsim = NULL, sample_draw_idx = NULL, store_draws = TRUE, ...) {
+      stopifnot(identical(type, "sample"))
+      n_pred <- if (!is.null(x)) nrow(as.matrix(x)) else 1L
+      fit <- matrix(rep(as.numeric(sample_draw_idx) / 10, each = n_pred), nrow = n_pred)
+      if (identical(object$arm, "trt")) fit <- fit + 1
+      out <- list(fit = fit, type = "sample", grid = NULL)
+      if (isTRUE(store_draws)) out$draws <- fit
+      out
+    },
+    .package = "CausalMixGPD"
+  )
+
+  pred_sample <- predict(fit, x = x_new, type = "sample", nsim = 4L, store_draws = TRUE, show_progress = FALSE)
+  expect_s3_class(pred_sample, "causalmixgpd_causal_predict")
+  expect_equal(dim(pred_sample$fit), c(2L, 4L))
+  expect_equal(dim(pred_sample$draws), c(2L, 4L))
+  expect_equal(pred_sample$nsim, 4L)
+  expect_equal(unname(pred_sample$fit), unname(pred_sample$trt$fit - pred_sample$con$fit))
+})
+
+test_that("plot.causalmixgpd_causal_predict supports sample outputs", {
+  skip_if_not_installed("ggplot2")
+
+  pred <- list(
+    fit = matrix(c(1.0, 1.1, 0.9, 1.2), nrow = 2L, byrow = TRUE),
+    trt = list(fit = matrix(c(2.0, 2.1, 1.9, 2.2), nrow = 2L, byrow = TRUE)),
+    con = list(fit = matrix(c(1.0, 1.0, 1.0, 1.0), nrow = 2L, byrow = TRUE)),
+    id = c("a", "b"),
+    ps = c(0.2, 0.8)
+  )
+  attr(pred, "type") <- "sample"
+  class(pred) <- "causalmixgpd_causal_predict"
+
+  result <- plot_causalmixgpd_causal_predict(pred)
+  expect_s3_class(result, "causalmixgpd_causal_predict_plots")
+  expect_true(all(c("trt_control", "treatment_effect") %in% names(result)))
+})
+
 # ===== END unit/test-causal-and-cluster-helper-coverage.R =====
 
-source(testthat::test_path("fragments", "unit", "build_run_covr_strip.R"), local = TRUE, encoding = "UTF-8")
-source(testthat::test_path("fragments", "unit", "cluster_coverage_edges.R"), local = TRUE, encoding = "UTF-8")
-source(testthat::test_path("fragments", "unit", "cluster_ordering_summary.R"), local = TRUE, encoding = "UTF-8")
-source(testthat::test_path("fragments", "unit", "progress.R"), local = TRUE, encoding = "UTF-8")
+.unit_fragment_path <- function(...) {
+  parts <- c(...)
+  candidates <- unique(c(
+    tryCatch(do.call(testthat::test_path, as.list(parts)), error = function(e) character(0)),
+    do.call(file.path, as.list(parts)),
+    do.call(file.path, as.list(c("tests", "testthat", parts)))
+  ))
+  for (path in candidates) {
+    if (file.exists(path)) return(path)
+  }
+  candidates[[length(candidates)]]
+}
+
+source(.unit_fragment_path("fragments", "unit", "build_run_covr_strip.R"), local = TRUE, encoding = "UTF-8")
+source(.unit_fragment_path("fragments", "unit", "cluster_coverage_edges.R"), local = TRUE, encoding = "UTF-8")
+source(.unit_fragment_path("fragments", "unit", "cluster_ordering_summary.R"), local = TRUE, encoding = "UTF-8")
+source(.unit_fragment_path("fragments", "unit", "progress.R"), local = TRUE, encoding = "UTF-8")
 

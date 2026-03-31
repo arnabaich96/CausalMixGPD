@@ -115,7 +115,7 @@ $$
 
 ```{r overview-data-reload, echo=TRUE, eval=FALSE}
 data("nc_posX100_p3_k2", package = "CausalMixGPD")
-dat <- data.frame(y = nc_posX100_p3_k2$y, nc_posX100_p3_k2$X)
+overview_dat <- data.frame(y = nc_posX100_p3_k2$y, nc_posX100_p3_k2$X)
 ```
 with $x_i\in\mathbb{R}^p$ denoting the covariate vector (including an
 intercept if desired). The target conditional distribution
@@ -141,9 +141,9 @@ positive scale parameters).
 mcmc_fixed
 ```
 ```{r overview-fit-model, echo=TRUE, eval=FALSE}
-fit <- dpmgpd(
+overview_fit <- dpmgpd(
   formula = y ~ x1 + x2 + x3,
-  data = dat,
+  data = overview_dat,
   backend = "sb",
   kernel = "lognormal",
   components = 5,
@@ -155,17 +155,17 @@ fit <- dpmgpd(
 # no-op: cached artifact loading removed
 ```
 ```{r overview-fit-model-results, echo=FALSE, eval=FALSE, include=FALSE}
-if (!exists("fit", inherits = FALSE)) {
-  fit <- dpmgpd(
+if (!exists("overview_fit", inherits = FALSE)) {
+  overview_fit <- dpmgpd(
     formula = y ~ x1 + x2 + x3,
-    data = dat,
+    data = overview_dat,
     backend = "sb",
     kernel = "lognormal",
     components = 5,
     mcmc = mcmc_fixed
   )
 }
-print(fit)
+print(overview_fit)
 ```
 For the spliced model, let $u(x)$ be the threshold, $\sigma(x)>0$ the
 tail scale, and $\xi\in\mathbb{R}$ the tail shape (as in
@@ -235,19 +235,19 @@ intervals as described in the Posterior functionals subsection
 established MCMC diagnostic tooling [@ggmcmc_pkg].
 
 ```{r overview-mcmc-diagnostics, echo=TRUE, eval=FALSE}
-print(fit)
-p_hat <- params(fit)
-p_hat
+summary(overview_fit)
+overview_param_hat <- params(overview_fit)
+plot(overview_fit, family = c("traceplot", "density"), params = "alpha")
+overview_param_hat
 ```
 ```{r overview-mcmc-diagnostics-cache, echo=FALSE, eval=FALSE, include=FALSE}
 # no-op: cached artifact loading removed
 ```
 ```{r overview-mcmc-diagnostics-results, echo=FALSE, eval=FALSE, include=FALSE}
-if (!exists("p_hat", inherits = FALSE)) {
-  p_hat <- params(fit)
+if (!exists("overview_param_hat", inherits = FALSE)) {
+  overview_param_hat <- params(overview_fit)
 }
-print(fit)
-p_hat
+overview_param_hat[c("alpha", "threshold", "tail_shape")]
 ```
 ### Bulk-only special case (no GPD tail)
 
@@ -300,23 +300,29 @@ $\xi\ge 1$; accordingly, `CausalMixGPD` flags `type = "mean"`
 as infinite when there is posterior mass with $\xi\ge 1$, while
 `type = "rmean"` remains finite by construction.
 
-Using the same fitted model `fit` from
+Using the same fitted model `overview_fit` from
 the Augmented DPM--GPD model subsection, we now compute posterior summaries
 on the original training covariates (default behavior of
 `predict()` when `newdata` is not supplied).
 
 ```{r overview-estimation-same-fit, echo=TRUE, eval=FALSE}
-q_grid <- c(0.50, 0.90, 0.95, 0.99)
-x_eval <- dat[1:20, c("x1", "x2", "x3")]
+overview_q_grid <- c(0.50, 0.90, 0.95, 0.99)
+overview_x_eval <- overview_dat[1:20, c("x1", "x2", "x3")]
 
-est_quant <- predict(fit, newdata = x_eval, type = "quantile", index = q_grid,
-                     interval = "hpd", level = 0.95)
+overview_est_quant <- predict(
+  overview_fit,
+  newdata = overview_x_eval,
+  type = "quantile",
+  index = overview_q_grid,
+  interval = "hpd",
+  level = 0.95
+)
 ```
 ```{r overview-estimation-same-fit-cache, echo=FALSE, eval=FALSE, include=FALSE}
 # no-op: cached artifact loading removed
 ```
 ```{r overview-estimation-same-fit-results, echo=FALSE, eval=FALSE, include=FALSE}
-head(as.data.frame(est_quant$fit), 4)
+head(as.data.frame(overview_est_quant$fit), 4)
 ```
 For a new covariate value $x^\star$, prediction is based on the
 posterior predictive distribution $$
@@ -336,45 +342,63 @@ as described above, with $x$ replaced by $x^\star$ and with
 user-controlled $M$ through `nsim_mean`.
 
 ```{r overview-predict-grid, echo=TRUE, eval=FALSE}
-q_levels <- c(0.25, 0.50, 0.75)
-x_new <- as.data.frame(lapply(
-  dat[, c("x1", "x2", "x3")],
+overview_q_levels <- c(0.25, 0.50, 0.75)
+overview_x_new <- as.data.frame(lapply(
+  overview_dat[, c("x1", "x2", "x3")],
   quantile,
-  probs = q_levels,
+  probs = overview_q_levels,
   na.rm = TRUE
 ))
-rownames(x_new) <- c("q25", "q50", "q75")
-y_grid <- seq(0, 10, length.out = 200)
-p_grid <- c(0.50, 0.90, 0.95, 0.99)
+rownames(overview_x_new) <- c("q25", "q50", "q75")
+overview_y_grid <- seq(0, 10, length.out = 200)
+overview_p_grid <- c(0.50, 0.90, 0.95, 0.99)
 ```
 ```{r overview-predict-density, echo=TRUE, eval=FALSE}
-pdens <- predict(fit, newdata = x_new, y = y_grid, type = "density",
-                 interval = "credible", level = 0.95)
+overview_pdens <- predict(
+  overview_fit,
+  newdata = overview_x_new,
+  y = overview_y_grid,
+  type = "density",
+  interval = "credible",
+  level = 0.95
+)
 ```
 ```{r overview-predict-survival, echo=TRUE, eval=FALSE}
-psurv <- predict(fit, newdata = x_new, y = y_grid, type = "survival",
-                 interval = "credible", level = 0.95)
+overview_psurv <- predict(
+  overview_fit,
+  newdata = overview_x_new,
+  y = overview_y_grid,
+  type = "survival",
+  interval = "credible",
+  level = 0.95
+)
 ```
 ```{r overview-predict-quantile, echo=TRUE, eval=FALSE}
-pquant <- predict(fit, newdata = x_new, type = "quantile", index = p_grid,
-                  interval = "hpd", level = 0.95)
+overview_pquant <- predict(
+  overview_fit,
+  newdata = overview_x_new,
+  type = "quantile",
+  index = overview_p_grid,
+  interval = "hpd",
+  level = 0.95
+)
 ```
 ```{r overview-predict-cache, echo=FALSE, eval=FALSE, include=FALSE}
 # no-op: cached artifact loading removed
 ```
 ```{r overview-predict-grid-results, echo=FALSE, eval=FALSE, include=FALSE}
-x_new
-head(y_grid, 4)
-p_grid
+overview_x_new
+head(overview_y_grid, 4)
+overview_p_grid
 ```
 ```{r overview-predict-density-results, echo=FALSE, eval=FALSE, include=FALSE}
-head(as.data.frame(pdens$fit), 4)
+head(as.data.frame(overview_pdens$fit), 4)
 ```
 ```{r overview-predict-survival-results, echo=FALSE, eval=FALSE, include=FALSE}
-head(as.data.frame(psurv$fit), 4)
+head(as.data.frame(overview_psurv$fit), 4)
 ```
 ```{r overview-predict-quantile-results, echo=FALSE, eval=FALSE, include=FALSE}
-head(as.data.frame(pquant$fit), 4)
+head(as.data.frame(overview_pquant$fit), 4)
 ```
 ## Clustering extension
 
@@ -767,15 +791,19 @@ predictive contrasts can be reported.
 The following example uses the formula interface and the high-level
 wrapper, fitting the augmented spliced model by default.
 
-```{r causal-data, echo=TRUE, eval=FALSE}
+```{r overview-causal-data, echo=TRUE, eval=FALSE}
 data("causal_pos500_p3_k2", package = "CausalMixGPD")
-dat <- causal_pos500_p3_k2
-df  <- data.frame(y = dat$y, A = dat$A, dat$X)
+overview_causal_dat <- causal_pos500_p3_k2
+overview_causal_df  <- data.frame(
+  y = overview_causal_dat$y,
+  A = overview_causal_dat$A,
+  overview_causal_dat$X
+)
 ```
-```{r causal-fit-model, echo=TRUE, eval=FALSE}
-cfit <- dpmgpd.causal(
+```{r overview-causal-fit-model, echo=TRUE, eval=FALSE}
+overview_causal_fit <- dpmgpd.causal(
   formula = y ~ x1 + x2 + x3,
-  data = df,
+  data = overview_causal_df,
   treat = "A",
   backend = "sb",
   kernel = "lognormal",
@@ -787,29 +815,51 @@ cfit <- dpmgpd.causal(
   mcmc_ps = mcmc_fixed
 )
 ```
-The fitted model object `cfit` contains the MCMC samples for both the PS and
+The fitted model object `overview_causal_fit` contains the MCMC samples for both the PS and
 the arm-specific outcome models, and can be used to compute causal estimands and
 predictive summaries.
 
-To estimate the ATE and QTE at the empirical covariate distribution, use the
-`ate()` and `qte()` functions, which compute the
-standardized mean and quantile contrasts.
+To estimate treated-standardized mean and quantile contrasts, use the
+`att()` and `qtt()` functions together with `summary()` and `plot()`.
 
-```{r causal-te-code, echo=TRUE, eval=FALSE}
-ate_hat <- ate(cfit, level = 0.90, interval = "credible")
-qte_hat <- qte(cfit, probs = c(0.50, 0.90, 0.95), level = 0.90, interval = "hpd")
+```{r overview-causal-effects, echo=TRUE, eval=FALSE}
+overview_att <- att(overview_causal_fit, level = 0.90, interval = "credible")
+overview_qtt <- qtt(
+  overview_causal_fit,
+  probs = c(0.50, 0.90, 0.95),
+  level = 0.90,
+  interval = "hpd"
+)
+summary(overview_att)
+summary(overview_qtt)
+plot(overview_att, type = "effect")
+plot(overview_qtt, type = "effect")
 ```
 For subpopulation effects, the `cate()` and `cqte()` functions compute conditional contrasts at user-specified covariate rows.
 
-```{r causal-predict-grid, echo=TRUE, eval=FALSE}
+```{r overview-causal-predict-grid, echo=TRUE, eval=FALSE}
 qs    <- c(0.25, 0.50, 0.75)
-Xgrid <- expand.grid(lapply(df[c("x1","x2","x3")], quantile, probs = qs))
+overview_causal_xgrid <- expand.grid(lapply(
+  overview_causal_df[c("x1", "x2", "x3")],
+  quantile,
+  probs = qs
+))
 ```
 The following code then produces conditional quantile and survival predictions at the grid points, returning treated-minus-control contrasts for quantiles and arm-specific summaries for survival.
 
-```{r causal-predict-quantile-survival-code, echo=TRUE, eval=FALSE}
-pred_q <- predict(cfit, newdata = Xgrid, type = "quantile", p = c(0.50, 0.90))
-pred_s <- predict(cfit, newdata = Xgrid, type = "survival", y = rep(4, nrow(Xgrid)))
+```{r overview-causal-predict-contrast, echo=TRUE, eval=FALSE}
+overview_pred_q <- predict(
+  overview_causal_fit,
+  newdata = overview_causal_xgrid,
+  type = "quantile",
+  p = c(0.50, 0.90)
+)
+overview_pred_s <- predict(
+  overview_causal_fit,
+  newdata = overview_causal_xgrid,
+  type = "survival",
+  y = rep(4, nrow(overview_causal_xgrid))
+)
 ```
 ### Bulk-only causal mixtures (no GPD tail)
 

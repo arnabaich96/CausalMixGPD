@@ -1,0 +1,143 @@
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+[cluster] Validating configuration
+[cluster] Checking build/compile cache
+[cluster] Building model and MCMC configuration
+  [Note] Assigning an RW_block sampler to nodes with very different scales can result in low MCMC efficiency.  If all nodes assigned to RW_block are not on a similar scale, we recommend providing an informed value for the "propCov" control list argument, or using the "barker" sampler instead.
+[cluster] Compiling NIMBLE model
+[cluster] Initializing chains
+[cluster] Running MCMC
+[cluster] Finalizing WAIC and diagnostics
+[cluster] Assembling fit object
+[cluster] Validating configuration
+[cluster] Checking build/compile cache
+[cluster] Building model and MCMC configuration
+  [Note] Assigning an RW_block sampler to nodes with very different scales can result in low MCMC efficiency.  If all nodes assigned to RW_block are not on a similar scale, we recommend providing an informed value for the "propCov" control list argument, or using the "barker" sampler instead.
+[cluster] Compiling NIMBLE model
+[cluster] Initializing chains
+[cluster] Running MCMC
+[cluster] Finalizing WAIC and diagnostics
+[cluster] Assembling fit object
+[cluster] Validating configuration
+[cluster] Checking build/compile cache
+[MCMC] Reusing cached build/compile.
+[cluster] Building model and MCMC configuration (cached)
+[cluster] Compiling NIMBLE model (cached)
+[cluster] Initializing chains
+[cluster] Running MCMC
+[cluster] Finalizing WAIC and diagnostics
+[cluster] Assembling fit object
+  [Note] Assigning an RW_block sampler to nodes with very different scales can result in low MCMC efficiency.  If all nodes assigned to RW_block are not on a similar scale, we recommend providing an informed value for the "propCov" control list argument, or using the "barker" sampler instead.
+  [Note] Assigning an RW_block sampler to nodes with very different scales can result in low MCMC efficiency.  If all nodes assigned to RW_block are not on a similar scale, we recommend providing an informed value for the "propCov" control list argument, or using the "barker" sampler instead.
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+  [Note] Assigning an RW_block sampler to nodes with very different scales can result in low MCMC efficiency.  If all nodes assigned to RW_block are not on a similar scale, we recommend providing an informed value for the "propCov" control list argument, or using the "barker" sampler instead.
+  [Note] Assigning an RW_block sampler to nodes with very different scales can result in low MCMC efficiency.  If all nodes assigned to RW_block are not on a similar scale, we recommend providing an informed value for the "propCov" control list argument, or using the "barker" sampler instead.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for fill is already present.
+Adding another scale for fill, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+Scale for fill is already present.
+Adding another scale for fill, which will replace the existing scale.
+[cluster] Validating configuration
+[cluster] Checking build/compile cache
+[cluster] Building model and MCMC configuration
+  [Note] Assigning an RW_block sampler to nodes with very different scales can result in low MCMC efficiency.  If all nodes assigned to RW_block are not on a similar scale, we recommend providing an informed value for the "propCov" control list argument, or using the "barker" sampler instead.
+[cluster] Compiling NIMBLE model
+[cluster] Initializing chains
+[cluster] Running MCMC
+[cluster] Finalizing WAIC and diagnostics
+[cluster] Assembling fit object
+  [Note] Assigning an RW_block sampler to nodes with very different scales can result in low MCMC efficiency.  If all nodes assigned to RW_block are not on a similar scale, we recommend providing an informed value for the "propCov" control list argument, or using the "barker" sampler instead.
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+[predict_mixgpd] Validating prediction inputs
+[predict_mixgpd] Extracting posterior draws
+[predict_mixgpd] Computing posterior summaries
+[predict_mixgpd] Assembling prediction output
+[cluster] Validating configuration
+[cluster] Checking build/compile cache
+[MCMC] Reusing cached build/compile.
+[cluster] Building model and MCMC configuration (cached)
+[cluster] Compiling NIMBLE model (cached)
+[cluster] Initializing chains
+[cluster] Running MCMC
+[cluster] Finalizing WAIC and diagnostics
+[cluster] Assembling fit object
+Scale for colour is already present.
+Adding another scale for colour, which will replace the existing scale.
+[cluster] Validating configuration
+[cluster] Checking build/compile cache
+[MCMC] Reusing cached build/compile.
+[cluster] Building model and MCMC configuration (cached)
+[cluster] Compiling NIMBLE model (cached)
+[cluster] Initializing chains
+[cluster] Running MCMC
+[cluster] Finalizing WAIC and diagnostics
+[cluster] Assembling fit object
+[cluster] Validating configuration
+[cluster] Checking build/compile cache
+[MCMC] Reusing cached build/compile.
+[cluster] Building model and MCMC configuration (cached)
+[cluster] Compiling NIMBLE model (cached)
+[cluster] Initializing chains
+[cluster] Running MCMC
+[cluster] Finalizing WAIC and diagnostics
+[cluster] Assembling fit object
+[cluster] Validating configuration
+[cluster] Checking build/compile cache
+[MCMC] Reusing cached build/compile.
+[cluster] Building model and MCMC configuration (cached)
+[cluster] Compiling NIMBLE model (cached)
+[cluster] Initializing chains
+[cluster] Running MCMC
+[cluster] Finalizing WAIC and diagnostics
+[cluster] Assembling fit object
+[cluster] Validating configuration
+[cluster] Checking build/compile cache
+[cluster] Building model and MCMC configuration
+[cluster] Compiling NIMBLE model

@@ -12,7 +12,9 @@
 \item{...}{Unused.}
 }
 \value{
-An object of class \code{"summary.causalmixgpd_ate"} containing summary statistics.
+An object of class \code{"summary.causalmixgpd_ate"} with
+\code{overall}, \code{ate_stats}, \code{effect_table},
+\code{ci_summary}, \code{meta}, and the original \code{object}.
 }
 \description{
 \code{summary.causalmixgpd_ate()} converts ATE, ATT, CATE, or restricted-mean

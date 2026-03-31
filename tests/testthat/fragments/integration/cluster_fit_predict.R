@@ -225,6 +225,10 @@ test_that("component-level beta extraction is preferred when present", {
 test_that("dpmgpd.cluster supports label and psm prediction", {
   skip_if_not_test_level("ci")
   skip_if_not(exists("dpmgpd.cluster", mode = "function"))
+  skip_if(
+    nzchar(Sys.getenv("COVERAGE")),
+    "Skipping under covr instrumentation due to Nimble custom GPD distribution lookup instability"
+  )
 
   set.seed(404)
   dat <- data.frame(

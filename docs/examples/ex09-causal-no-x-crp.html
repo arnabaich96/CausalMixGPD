@@ -226,10 +226,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="../developers/index.html"> 
 <span class="menu-text">Developers</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../reference.html"> 
-<span class="menu-text">Reference</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-reference" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Reference</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-reference">    
+        <li>
+    <a class="dropdown-item" href="../reference.html">
+ <span class="dropdown-text">Reference hub</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../reference-by-action.html">
+ <span class="dropdown-text">Function reference by job</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../news.html"> 
 <span class="menu-text">News</span></a>
@@ -551,8 +562,8 @@ $upper
 
 $ate
 $ate$fit
-  id  estimate     lower      upper
-1  1 -2.827059 -5.356995 -0.4981293
+   estimate     lower      upper
+1 -2.827059 -5.356995 -0.4981293
 
 $ate$draws
              [,1]
@@ -783,8 +794,8 @@ NULL
 
 $trt
 $fit
-  id estimate    lower    upper
-1  1 2.505554 1.538146 4.574267
+  estimate    lower    upper
+1 2.505554 1.538146 4.574267
 
 $type
 [1] "mean"
@@ -1072,10 +1083,10 @@ $upper
 
 $qte
 $qte$fit
-  id index  estimate     lower      upper
-1  1  0.25 -1.361644 -3.116764  0.1553734
-2  1  0.50 -2.514995 -4.767622 -0.4183066
-3  1  0.75 -3.835164 -6.787437 -0.6890334
+  index  estimate     lower      upper
+1  0.25 -1.361644 -3.116764  0.1553734
+2  0.50 -2.514995 -4.767622 -0.4183066
+3  0.75 -3.835164 -6.787437 -0.6890334
 
 $qte$draws
 , , 1
@@ -1991,8 +2002,8 @@ $upper
 
 $ate
 $ate$fit
-  id    estimate      lower    upper
-1  1 -0.02414256 -0.6167282 0.514372
+     estimate      lower    upper
+1 -0.02414256 -0.6167282 0.514372
 
 $ate$draws
                 [,1]
@@ -2223,8 +2234,8 @@ NULL
 
 $trt
 $fit
-  id estimate   lower    upper
-1  1 1.843673 1.46314 2.302541
+  estimate   lower    upper
+1 1.843673 1.46314 2.302541
 
 $type
 [1] "mean"
@@ -2512,10 +2523,10 @@ $upper
 
 $qte
 $qte$fit
-  id index    estimate      lower     upper
-1  1  0.25 -0.01226402 -0.6752145 0.4802807
-2  1  0.50 -0.10982474 -0.7157659 0.5895710
-3  1  0.75 -0.05735218 -0.6592382 0.7017072
+  index    estimate      lower     upper
+1  0.25 -0.01226402 -0.6752145 0.4802807
+2  0.50 -0.10982474 -0.7157659 0.5895710
+3  0.75 -0.05735218 -0.6592382 0.7017072
 
 $qte$draws
 , , 1

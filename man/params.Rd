@@ -25,8 +25,9 @@ Scalar quantities remain scalar, component-specific parameters are returned as
 vectors, and linked regression blocks are returned as matrices.
 
 For a spliced model, the extractor returns posterior means of the bulk
-mixture parameters together with any threshold, tail-scale, and tail-shape
-terms needed to reconstruct the predictive distribution.
+mixture parameters together with component-level threshold, tail-scale, and
+tail-shape terms. When tail terms are link-mode, the corresponding
+component-by-covariate beta blocks are returned.
 }
 \examples{
 \dontrun{

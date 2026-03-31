@@ -19,5 +19,6 @@ A ggplot object or a list of ggplot objects.
 \description{
 S3 method for visualizing causal predictions from \code{predict.causalmixgpd_causal_fit()}.
 For mean/quantile, plots treated/control and treatment effect versus PS (or index).
-For density/prob, plots treated/control values versus y.
+For \code{type = "sample"}, plots arm-level posterior predictive samples alongside
+treatment-effect samples. For density/prob, plots treated/control values versus y.
 }

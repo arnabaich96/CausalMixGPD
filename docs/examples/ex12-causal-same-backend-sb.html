@@ -226,10 +226,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="../developers/index.html"> 
 <span class="menu-text">Developers</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../reference.html"> 
-<span class="menu-text">Reference</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-reference" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Reference</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-reference">    
+        <li>
+    <a class="dropdown-item" href="../reference.html">
+ <span class="dropdown-text">Reference hub</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../reference-by-action.html">
+ <span class="dropdown-text">Function reference by job</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../news.html"> 
 <span class="menu-text">News</span></a>
@@ -301,13 +312,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="what-youll-learn" class="level2">
 <h2 class="anchored" data-anchor-id="what-youll-learn">What you’ll learn</h2>
 <ul>
-<li>How to hold backend + kernel fixed and isolate the impact of <strong>tail augmentation</strong> (<code>GPD = FALSE</code> vs <code>TRUE</code>).- How tail augmentation can change conclusions about upper-quantile behavior even when mean effects look similar.- How to run the standard causal post-fit workflow for multiple estimands (mean, quantiles, conditional effects when (X) is present).</li>
+<li>How to hold backend + kernel fixed and isolate the impact of <strong>tail augmentation</strong> (<code>GPD = FALSE</code> vs <code>TRUE</code>).</li>
+<li>How tail augmentation can change conclusions about upper-quantile behavior even when mean effects look similar.</li>
+<li>How to run the standard causal post-fit workflow for multiple estimands (mean, quantiles, conditional effects when (X) is present).</li>
 </ul>
 </section>
 <section id="when-to-use-this-template" class="level2">
 <h2 class="anchored" data-anchor-id="when-to-use-this-template">When to use this template</h2>
 <ul>
-<li>You want a clean sensitivity check focused on tail modeling rather than backend/kernel changes.- You want predictable runtime and an explicit complexity knob (<code>components</code>) inside a causal workflow.</li>
+<li>You want a clean sensitivity check focused on tail modeling rather than backend/kernel changes.</li>
+<li>You want predictable runtime and an explicit complexity knob (<code>components</code>) inside a causal workflow.</li>
 </ul>
 <hr>
 </section>
@@ -381,8 +395,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">PS =</span> <span class="st">"logit"</span>,</span>
 <span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">FALSE</span>,</span>
 <span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">5</span>,</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_outcome =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">2500</span>, <span class="at">nburnin =</span> <span class="dv">500</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">thin =</span> <span class="dv">1</span>, <span class="at">seed =</span> <span class="dv">1</span>),</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_ps =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">2500</span>, <span class="at">nburnin =</span> <span class="dv">500</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">thin =</span> <span class="dv">1</span>, <span class="at">seed =</span> <span class="dv">1</span>)</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_outcome =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">400</span>, <span class="at">nburnin =</span> <span class="dv">100</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">thin =</span> <span class="dv">2</span>, <span class="at">seed =</span> <span class="dv">1</span>),</span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_ps =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">400</span>, <span class="at">nburnin =</span> <span class="dv">100</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">thin =</span> <span class="dv">2</span>, <span class="at">seed =</span> <span class="dv">1</span>)</span>
 <span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>bundle_sb_bulk</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -422,8 +436,11 @@ n (control) = 232 | n (treated) = 268 </code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fit_sb_bulk <span class="ot">&lt;-</span> <span class="fu">dpmix.causal</span>(bundle_sb_bulk)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_sb_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fit_sb_bulk <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ex12-causal-same-backend-sb-fit_sb_bulk"</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">quiet_mcmc</span>(<span class="fu">dpmix.causal</span>(bundle_sb_bulk))</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_sb_bulk)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>-- PS fit --
@@ -434,14 +451,14 @@ model: logit
 [control]
 MixGPD fit | backend: Stick-Breaking Process | kernel: Laplace Distribution | GPD tail: FALSE
 n = 232 | components = 5 | epsilon = 0.025
-MCMC: niter=2500, nburnin=500, thin=1, nchains=1 
+MCMC: niter=400, nburnin=100, thin=2, nchains=1 
 Fit
 Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 
 [treated]
 MixGPD fit | backend: Stick-Breaking Process | kernel: Laplace Distribution | GPD tail: FALSE
 n = 268 | components = 5 | epsilon = 0.025
-MCMC: niter=2500, nburnin=500, thin=1, nchains=1 
+MCMC: niter=400, nburnin=100, thin=2, nchains=1 
 Fit
 Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</code></pre>
 </div>
@@ -456,47 +473,47 @@ Use summary() for posterior summaries; plot() for diagnostics; predict() for pre
 Posterior mean parameters
 
 $alpha
-[1] 1.333
+[1] 1.144
 
 $w
-[1] 0.5204 0.2683
+[1] 0.68310 0.19320 0.08311
 
 $beta_location
-           x1      x2       x3       x4
-comp1  0.4442 -0.5277  0.42610  0.13410
-comp2  0.4961  1.1040  0.07403 -0.23370
-comp3  0.1033  0.5812  0.30820  1.06300
-comp4  1.2350  0.2281 -1.70300  0.62800
-comp5 -0.1258 -1.4830 -0.62590 -0.02789
+            x1       x2       x3       x4
+comp1 -0.12350 -0.40310  0.33820  0.60130
+comp2 -0.08678 -0.08826 -0.07812 -0.11450
+comp3  0.26420 -0.11220  0.40580  0.21780
+comp4  0.45720  0.25840 -0.21750 -0.09178
+comp5 -0.16490 -0.25120 -0.11670 -0.82810
 
 $beta_ps_location
-[1]  0.09502 -1.37900  0.37580  0.37050  0.46610
+[1]  0.63510 -0.63370 -0.46560 -0.06594 -0.17260
 
 $scale
-[1] 0.7908 1.2610
+[1] 0.6871 0.8550 0.9257
 
 [control]
 Posterior mean parameters
 
 $alpha
-[1] 0.7425
+[1] 0.7957
 
 $w
-[1] 0.5208 0.3553
+[1] 0.5226 0.3367
 
 $beta_location
-           x1       x2       x3       x4
-comp1 -0.7405  0.03606 -0.14660  1.56900
-comp2 -0.3990 -0.79240 -0.04234 -1.38400
-comp3  0.2245  1.21800  0.23070 -0.24700
-comp4  0.4267 -1.50000  0.41000  0.09936
-comp5  1.1790  1.50500  1.04400 -1.66600
+             x1      x2       x3      x4
+comp1 -0.089930 0.12610  0.18330 -0.3270
+comp2 -0.236900 0.59730 -0.32870  0.7577
+comp3  0.231100 0.01530 -0.08302  0.1036
+comp4 -0.125300 0.16870  0.14260 -0.2728
+comp5  0.009335 0.05929 -0.06651  0.3740
 
 $beta_ps_location
-[1]  0.8074  1.0440 -0.8394 -0.1327 -0.5671
+[1]  0.12290  0.17100  0.37940  0.23970 -0.02697
 
 $scale
-[1] 0.9199 1.1820</code></pre>
+[1] 0.8021 0.8941</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -657,13 +674,13 @@ $scale
 <span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">format_cate_table</span>(cate_bulk))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>  id index   estimate      lower      upper
-1  1     1 -1.6625465 -3.0870762 0.04763637
-2  2     1  1.0026047  0.2792435 1.68994109
-3  3     1  0.7398245 -0.0677356 1.48896509
-4  4     1  1.0368959  0.1282984 1.87660196
-5  5     1  0.9928885 -0.2666579 2.50233839
-6  6     1 -1.0029902 -2.1756176 0.29105111</code></pre>
+<pre><code>  id index    estimate      lower     upper
+1  1     1  0.13578509 -0.2587258 0.5602435
+2  2     1  0.69103079 -0.2085511 1.5188383
+3  3     1 -0.34768781 -0.9466499 0.2203002
+4  4     1  0.06808218 -0.3028939 0.5511950
+5  5     1  0.10743302 -0.3773745 1.0114349
+6  6     1 -0.17183162 -0.6687555 0.2731705</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
@@ -686,12 +703,12 @@ $scale
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>  id index   estimate       lower     upper
-1  1     1 -1.7111302 -3.15050462 0.2153487
-2  1     2 -1.5898561 -3.19108945 0.5245912
-3  1     3 -1.5580340 -3.00496319 0.6425611
-4  2     1  1.2997943  0.49108619 2.1585131
-5  2     2  0.8723177  0.03009611 1.5518295
-6  2     3  0.7039243 -0.17491111 1.5429424</code></pre>
+1  1     1  0.3286929 -0.01912106 0.7037141
+2  1     2  0.3467194  0.09763347 0.5553279
+3  1     3 -0.0464908 -0.24771668 0.1174706
+4  2     1  0.6793469 -0.01912106 1.4247009
+5  2     2  1.2000193  0.49071259 1.5729679
+6  2     3  0.7036268 -0.13301241 1.4915324</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
@@ -732,8 +749,8 @@ $scale
 <span id="cb30-18"><a href="#cb30-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="cn">TRUE</span>,</span>
 <span id="cb30-19"><a href="#cb30-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="dv">5</span>,</span>
 <span id="cb30-20"><a href="#cb30-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">param_specs =</span> param_specs_gpd,</span>
-<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_outcome =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">2500</span>, <span class="at">nburnin =</span> <span class="dv">500</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">thin =</span> <span class="dv">1</span>, <span class="at">seed =</span> <span class="dv">2</span>),</span>
-<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_ps =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">2500</span>, <span class="at">nburnin =</span> <span class="dv">500</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">thin =</span> <span class="dv">1</span>, <span class="at">seed =</span> <span class="dv">2</span>)</span>
+<span id="cb30-21"><a href="#cb30-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_outcome =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">400</span>, <span class="at">nburnin =</span> <span class="dv">100</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">thin =</span> <span class="dv">2</span>, <span class="at">seed =</span> <span class="dv">2</span>),</span>
+<span id="cb30-22"><a href="#cb30-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_ps =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">400</span>, <span class="at">nburnin =</span> <span class="dv">100</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">thin =</span> <span class="dv">2</span>, <span class="at">seed =</span> <span class="dv">2</span>)</span>
 <span id="cb30-23"><a href="#cb30-23" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb30-24"><a href="#cb30-24" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb30-25"><a href="#cb30-25" aria-hidden="true" tabindex="-1"></a>bundle_sb_gpd</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -773,8 +790,11 @@ n (control) = 232 | n (treated) = 268 </code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>fit_sb_gpd <span class="ot">&lt;-</span> <span class="fu">dpmgpd.causal</span>(bundle_sb_gpd)</span>
-<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_sb_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>fit_sb_gpd <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ex12-causal-same-backend-sb-fit_sb_gpd"</span>,</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">quiet_mcmc</span>(<span class="fu">dpmgpd.causal</span>(bundle_sb_gpd))</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_sb_gpd)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>-- PS fit --
@@ -785,14 +805,14 @@ model: logit
 [control]
 MixGPD fit | backend: Stick-Breaking Process | kernel: Laplace Distribution | GPD tail: TRUE
 n = 232 | components = 5 | epsilon = 0.025
-MCMC: niter=2500, nburnin=500, thin=1, nchains=1 
+MCMC: niter=400, nburnin=100, thin=2, nchains=1 
 Fit
 Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 
 [treated]
 MixGPD fit | backend: Stick-Breaking Process | kernel: Laplace Distribution | GPD tail: TRUE
 n = 268 | components = 5 | epsilon = 0.025
-MCMC: niter=2500, nburnin=500, thin=1, nchains=1 
+MCMC: niter=400, nburnin=100, thin=2, nchains=1 
 Fit
 Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</code></pre>
 </div>
@@ -807,10 +827,10 @@ Use summary() for posterior summaries; plot() for diagnostics; predict() for pre
 Posterior mean parameters
 
 $alpha
-[1] 0.6213
+[1] 1.395
 
 $w
-[1] 0.8008
+[1] 0.6937 0.1478 0.0822
 
 $beta_location
       x1 x2 x3 x4
@@ -824,22 +844,22 @@ $beta_ps_location
 [1] 0 0 0 0 0
 
 $scale
-[1] 1.678
+[1] 1.704 1.817 1.859
 
 $beta_tail_scale
-[1]  0.12150 -0.19960  0.07745 -0.15730
+[1]  0.1057 -0.1531  0.1099 -0.1129
 
 $tail_shape
-[1] 0.018
+[1] -0.001169
 
 [control]
 Posterior mean parameters
 
 $alpha
-[1] 1.639
+[1] 1.603
 
 $w
-[1] 0.5240 0.2672
+[1] 0.3831 0.2881 0.1827 0.1100
 
 $beta_location
       x1 x2 x3 x4
@@ -853,13 +873,13 @@ $beta_ps_location
 [1] 0 0 0 0 0
 
 $scale
-[1] 1.457 1.502
+[1] 1.455 1.514 1.541 1.601
 
 $beta_tail_scale
-[1]  0.38980  0.19460  0.04284 -0.22580
+[1]  0.36520  0.21310  0.06244 -0.14320
 
 $tail_shape
-[1] 0.00642</code></pre>
+[1] -0.03103</code></pre>
 </div>
 </div>
 <div class="cell">

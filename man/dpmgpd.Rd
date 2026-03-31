@@ -30,8 +30,7 @@ errors; use \code{dpmgpd.causal()} for causal models.}
 
 \item{mcmc}{Named list of run arguments passed to \code{mcmc()} (including
 optional performance controls such as \code{parallel_chains},
-\code{parallel_arms}, \code{workers}, \code{timing}, and
-\code{z_update_every}).}
+\code{workers}, \code{timing}, and \code{z_update_every}).}
 }
 \value{
 A fitted object of class \code{"mixgpd_fit"}.

@@ -72,7 +72,19 @@ build_docs <- function(
   }
 
   clean_forbidden_website_outputs <- function(project_dir) {
-    forbidden <- c("docs", "_site", "quarto")
+    is_tracked_path <- function(path) {
+      rel <- gsub("\\\\", "/", sub(paste0("^", normalizePath(root, winslash = "/", mustWork = TRUE), "/?"), "", normalizePath(path, winslash = "/", mustWork = TRUE)))
+      status <- suppressWarnings(
+        tryCatch(
+          system2("git", c("-C", root, "ls-files", "--error-unmatch", "--", rel),
+                  stdout = FALSE, stderr = FALSE),
+          error = function(e) 1L
+        )
+      )
+      identical(as.integer(status), 0L)
+    }
+
+    forbidden <- c("docs", "_site", "quarto", "site_libs")
     for (name in forbidden) {
       candidate <- file.path(project_dir, name)
       if (dir.exists(candidate)) {
@@ -83,6 +95,49 @@ build_docs <- function(
         stop("Forbidden in-source output still exists: ", candidate)
       }
     }
+
+    files <- list.files(project_dir, recursive = TRUE, all.files = TRUE,
+                        full.names = TRUE, no.. = TRUE)
+    if (!length(files)) {
+      return(invisible(TRUE))
+    }
+
+    files_norm <- normalizePath(files, winslash = "/", mustWork = FALSE)
+    rel <- sub(paste0("^", normalizePath(project_dir, winslash = "/", mustWork = TRUE), "/?"), "", files_norm)
+    rel <- gsub("\\\\", "/", rel)
+
+    keep_dirs <- c("_freeze", ".quarto")
+    keep_html <- c("_footer.html")
+
+    candidate_dirs <- files[dir.exists(files) &
+                              grepl("(^|/)[^/]+_files$", rel) &
+                              !vapply(files, is_tracked_path, logical(1))]
+    if (length(candidate_dirs)) {
+      for (dir_path in candidate_dirs) {
+        msg("Removing untracked in-source render directory: ", dir_path)
+        unlink(dir_path, recursive = TRUE, force = TRUE)
+      }
+    }
+
+    candidate_files <- files[file.info(files)$isdir %in% FALSE]
+    rel_files <- sub(paste0("^", normalizePath(project_dir, winslash = "/", mustWork = TRUE), "/?"),
+                     "", normalizePath(candidate_files, winslash = "/", mustWork = FALSE))
+    rel_files <- gsub("\\\\", "/", rel_files)
+    under_keep_dir <- Reduce(`|`, lapply(keep_dirs, function(dir_name) {
+      rel_files == dir_name | startsWith(rel_files, paste0(dir_name, "/"))
+    }), init = FALSE)
+    generated_ext <- grepl("\\.(html|rmarkdown|knit\\.md)$", rel_files, ignore.case = TRUE)
+    candidate_files <- candidate_files[generated_ext &
+                                         !under_keep_dir &
+                                         basename(candidate_files) != keep_html &
+                                         !vapply(candidate_files, is_tracked_path, logical(1))]
+    if (length(candidate_files)) {
+      for (file_path in candidate_files) {
+        msg("Removing untracked in-source render file: ", file_path)
+        unlink(file_path, force = TRUE)
+      }
+    }
+
     invisible(TRUE)
   }
 
@@ -332,7 +387,10 @@ build_docs <- function(
   invisible(TRUE)
 }
 
-if (identical(environment(), globalenv())) {
+cmd_file <- grep("^--file=", commandArgs(trailingOnly = FALSE), value = TRUE)
+if (identical(environment(), globalenv()) &&
+    length(cmd_file) == 1L &&
+    identical(basename(sub("^--file=", "", cmd_file)), "build_docs.R")) {
   targets_env <- Sys.getenv("QUARTO_TARGETS", unset = "")
   targets <- if (nzchar(targets_env)) {
     trimws(strsplit(targets_env, ",", fixed = TRUE)[[1]])

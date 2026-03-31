@@ -17,6 +17,7 @@ Choose this path if you want treatment effects from a two-arm outcome model (tre
 6. [ex12 — Causal, same backend (SB)](../examples/ex12-causal-same-backend-sb.html)
 7. [ex13 — Causal, different backends (CRP)](../examples/ex13-causal-different-backends-crp.html)
 8. [ex14 — Causal, different backends (SB)](../examples/ex14-causal-different-backends-sb.html)
+
 ## What to watch for (interpretation)
 
 - Causal estimands are **functions of the fitted outcome models**; always validate fit quality before interpreting effects.

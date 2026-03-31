@@ -65,8 +65,9 @@ causal fits, <code>params()</code> returns a treated/control pair.</p>
 Scalar quantities remain scalar, component-specific parameters are returned as
 vectors, and linked regression blocks are returned as matrices.</p>
 <p>For a spliced model, the extractor returns posterior means of the bulk
-mixture parameters together with any threshold, tail-scale, and tail-shape
-terms needed to reconstruct the predictive distribution.</p>
+mixture parameters together with component-level threshold, tail-scale, and
+tail-shape terms. When tail terms are link-mode, the corresponding
+component-by-covariate beta blocks are returned.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

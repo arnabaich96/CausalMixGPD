@@ -53,7 +53,7 @@ adjustment.</p>
 <span>  ps <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  id <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  newdata <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"quantile"</span>, <span class="st">"density"</span>, <span class="st">"survival"</span>, <span class="st">"prob"</span>, <span class="st">"location"</span><span class="op">)</span>,</span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"mean"</span>, <span class="st">"quantile"</span>, <span class="st">"density"</span>, <span class="st">"survival"</span>, <span class="st">"prob"</span>, <span class="st">"sample"</span><span class="op">)</span>,</span>
 <span>  p <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  index <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  nsim <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -102,7 +102,7 @@ is excluded from analysis.</p></dd>
 
 <dt id="arg-type">type<a class="anchor" aria-label="anchor" href="#arg-type"></a></dt>
 <dd><p>Prediction type. Supported: <code>"mean"</code>, <code>"quantile"</code>,
-<code>"density"</code>, <code>"survival"</code>, <code>"prob"</code>, <code>"location"</code>.</p></dd>
+<code>"density"</code>, <code>"survival"</code>, <code>"prob"</code>, or <code>"sample"</code>.</p></dd>
 
 
 <dt id="arg-p">p<a class="anchor" aria-label="anchor" href="#arg-p"></a></dt>
@@ -114,10 +114,7 @@ is excluded from analysis.</p></dd>
 
 
 <dt id="arg-nsim">nsim<a class="anchor" aria-label="anchor" href="#arg-nsim"></a></dt>
-<dd><p>Number of posterior predictive samples. For
-<code>predict.causalmixgpd_causal_fit()</code>, posterior sampling output is not
-available because <code>type="sample"</code> is not supported by this causal
-method; this argument is effectively unused.</p></dd>
+<dd><p>Number of posterior predictive samples when <code>type = "sample"</code>.</p></dd>
 
 
 <dt id="arg-interval">interval<a class="anchor" aria-label="anchor" href="#arg-interval"></a></dt>
@@ -131,10 +128,8 @@ highest posterior density intervals.</p></dd>
 
 
 <dt id="arg-store-draws">store_draws<a class="anchor" aria-label="anchor" href="#arg-store-draws"></a></dt>
-<dd><p>Logical; whether to store posterior draws. For
-<code>predict.causalmixgpd_causal_fit()</code>, stored draws are not available
-because <code>type="sample"</code> is not supported by this causal method; this
-argument is effectively unused.</p></dd>
+<dd><p>Logical; whether to store treatment-effect sample draws in
+the returned object when <code>type = "sample"</code>.</p></dd>
 
 
 <dt id="arg-nsim-mean">nsim_mean<a class="anchor" aria-label="anchor" href="#arg-nsim-mean"></a></dt>
@@ -160,7 +155,9 @@ argument is effectively unused.</p></dd>
 whose <code>$fit</code> component reports treated-minus-control posterior
 summaries. For <code>"density"</code>, <code>"survival"</code>, and <code>"prob"</code>,
 the <code>$fit</code> component contains side-by-side treated and control
-summaries evaluated on the supplied <code>y</code> grid.</p>
+summaries evaluated on the supplied <code>y</code> grid. For <code>"sample"</code>,
+the returned object contains paired treated, control, and treatment-effect
+posterior predictive samples.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>

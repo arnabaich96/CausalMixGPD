@@ -12,7 +12,9 @@
 \item{...}{Unused.}
 }
 \value{
-An object of class \code{"summary.causalmixgpd_qte"} containing summary statistics.
+An object of class \code{"summary.causalmixgpd_qte"} with
+\code{overall}, \code{quantile_summary}, \code{effect_table},
+\code{ci_summary}, \code{meta}, and the original \code{object}.
 }
 \description{
 \code{summary.causalmixgpd_qte()} converts QTE, QTT, or CQTE output into a

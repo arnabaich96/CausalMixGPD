@@ -36,7 +36,9 @@ source("_legacy-setup.R")
 
 ## What you’ll learn
 
-- How to fit **tail-aware** clustering with `dpmgpd.cluster()`.\n- How the `type = "weights"` dependence mode uses covariates to change **cluster prevalence** (mixture weights), while keeping component likelihood structure shared.\n- How to use `predict()` to obtain **labels** and a **posterior similarity matrix (PSM)**, and how to interpret the label/PSM plots.
+- How to fit **tail-aware** clustering with `dpmgpd.cluster()`.
+- How the `type = "weights"` dependence mode uses covariates to change **cluster prevalence** (mixture weights), while keeping component likelihood structure shared.
+- How to use `predict()` to obtain **labels** and a **posterior similarity matrix (PSM)**, and how to interpret the label/PSM plots.
 
 ## Purpose (in one sentence)
 

@@ -9,7 +9,8 @@ page-layout: full
 
 Use this page to route into workflows and concepts. Function-level details remain in pkgdown.
 
-[API reference](pkgdown/reference/index.html){.btn .btn-primary}
+[Function reference by job](reference-by-action.qmd){.btn .btn-primary}
+[Function reference](pkgdown/reference/index.html){.btn .btn-outline-light}
 :::
 :::
 
@@ -33,6 +34,7 @@ Use this page to route into workflows and concepts. Function-level details remai
 
 ## pkgdown authoritative docs
 
+- [Function reference by job](reference-by-action.qmd)
 - [Function reference](pkgdown/reference/index.html)
 
 :::

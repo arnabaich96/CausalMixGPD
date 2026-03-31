@@ -12,6 +12,7 @@ Choose this path if your primary goal is **partition structure** (clusters / co-
 1. [Theory: clustering extension](../advanced/theory/02-clustering-extension.qmd)
 2. [ex15 — Tail-aware clustering (weights + covariates)](../examples/ex15-clustering-dpmgpd-weights.html)
 3. [ex16 — Bulk-only clustering (parameter links + covariates)](../examples/ex16-clustering-dpm-param.html)
+
 ## Outputs to understand
 
 - **Labels**: representative partition (Dahl-style) plus assignment scores.

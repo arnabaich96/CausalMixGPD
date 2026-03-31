@@ -67,89 +67,25 @@ consequences can be substantial. This shift from mean-based to
 distribution-based causal questions makes causal analysis tightly linked
 to how well we can estimate (and predict) outcome distributions under
 competing treatment assignments.</p>
-<p>A growing R ecosystem supports Bayesian causal inference through
-flexible outcome modeling and posterior uncertainty quantification. For
-example, <a href="https://cran.r-project.org/package=bcf" class="external-link">bcf</a>
-implements Bayesian Causal Forests for binary treatments and continuous
-outcomes, providing posterior inference for both average and
-heterogeneous treatment effects <span class="citation">(<a href="#ref-bcf_pkg"><em><span class="nocase">bcf</span></em>
-2024</a>)</span>. The package <a href="https://cran.r-project.org/package=bartCause" class="external-link">bartCause</a> builds
-causal estimators around Bayesian additive regression trees, using BART
-as a regression engine for treatment-response modeling and causal effect
-estimation <span class="citation">(<a href="#ref-bartCause_pkg"><em><span class="nocase">bartCause</span></em>
-2025</a>; <a href="#ref-hill2011bart">Hill 2011</a>)</span>.
-Complementing tree-based approaches, <a href="https://cran.r-project.org/package=BCEE" class="external-link">BCEE</a> implements a
-Bayesian model-averaging strategy for causal effect estimation with
-support for binary or continuous exposures and outcomes <span class="citation">(<a href="#ref-BCEE_pkg"><em><span>BCEE</span></em>
-2023</a>; <a href="#ref-talbot2015bcee">Talbot et al. 2015</a>)</span>.
-A recurring practical difficulty in quantile-based causal reporting is
-the quantile crossing issue, where quantile curves at different
-probability levels can cross when they are estimated separately. To
-avoid this, <code>CausalMixGPD</code> directly models outcome densities
-and derives quantiles and other functionals from the posterior
-predictive distributions.</p>
-<p>In the context of density estimation and conditional density
-estimation, Dirichlet Process Mixtures (DPM) provide a versatile
-nonparametric solution because they can capture multimodality and latent
-heterogeneity without fixing the number of mixing components in advance.
-In the experimental R ecosystem, Bayesian nonparametric mixture modeling
-is well supported by software based on Dirichlet process (DP) ideas. For
-example, <a href="https://cran.r-project.org/package=dirichletprocess" class="external-link">dirichletprocess</a>
-provides a flexible interface for specifying DPMs and fitting them by
-posterior simulation, yielding posterior inference for mixture weights,
-component labels, and predictive densities under user-chosen kernels
-<span class="citation">(<a href="#ref-dirichletprocess_pkg"><em><span class="nocase">dirichletprocess</span></em> 2023</a>)</span>. The
-package <a href="https://cran.r-project.org/package=DPpackage" class="external-link">DPpackage</a> offers
-a broad suite of Bayesian semi- and nonparametric models in R, including
-DP-based formulations for marginal and conditional densities, regression
-functions, and model-based predictive distributions <span class="citation">(<a href="#ref-jara2011DPpackage">Jara et al.
-2011</a>)</span>. More recently, <a href="https://cran.r-project.org/package=BNPmix" class="external-link">BNPmix</a> emphasizes
-practical Bayesian nonparametric mixture approaches, providing posterior
-inference for clustering structure and density/regression estimation
-under DP and Pitman–Yor-type mixture specifications <span class="citation">(<a href="#ref-canale2021BNPmix">Corradin et al.
-2021</a>)</span>.</p>
-<p>That clustering perspective is also important for the present
-package. Because DP mixtures induce random partitions through latent
-allocation variables, they naturally support model-based subgroup
-discovery in addition to density estimation. Bayesian cluster analysis
-is typically reported through label-invariant summaries such as pairwise
-co-clustering probabilities <span class="citation">(<a href="#ref-Binder1978">Binder 1978</a>)</span> and representative
-partitions selected by Dahl’s least-squares criterion <span class="citation">(<a href="#ref-Dahl2006">Dahl 2006</a>)</span>. In
-regression settings, clustering itself can depend on predictors:
-dependent Dirichlet process constructions allow covariates to affect
-mixture weights, component-specific parameters, or both <span class="citation">(<a href="#ref-MacEachern1999">MacEachern 1999,
-MacEachern2000</a>; <a href="#ref-DeIorio2004">De Iorio et al. 2004</a>;
-<a href="#ref-Quintana2022">Quintana et al. 2022</a>)</span>, and
-predictor-dependent stick-breaking schemes provide a practical route for
-covariate-modulated cluster prevalence <span class="citation">(<a href="#ref-Ren2011">Ren et al. 2011</a>)</span>. Existing software
-supports parts of this workflow, but it typically focuses on bulk
-density estimation and clustering under a single kernel family without
-an explicit adjustment for heavy tailed data. As a result, applications
-that require both latent subgroup discovery and tail extrapolation still
-need additional modeling outside the standard Bayesian nonparametric
-mixture workflow.</p>
-<p>However, it is important to note that estimating values far in the
-tail requires special care when data becomes scarce. Additionally, using
-a single model in the presence of heavy tail data can distort the fit in
-the central region. In such cases extreme value theory (EVT) provides a
-principled framework for modeling and extrapolation of tail
-behavior~<span class="citation">(<a href="#ref-de2007extreme">Haan and
-Ferreira 2007</a>)</span>. EVT characterizes the asymptotic distribution
-of threshold exceedances, which can be used to estimate tail
-probabilities and quantiles beyond the range of observed data~<span class="citation">(<a href="#ref-balkema1974residual">Balkema and Haan
-1974</a>)</span>. Bayesian implementations of EVT are available in R
-when posterior uncertainty quantification for tail quantities are
-required. For example, <a href="https://cran.r-project.org/package=evdbayes" class="external-link">evdbayes</a> provides
-Bayesian inference for standard extreme-value models via posterior
-simulation, enabling posterior and posterior-predictive summaries for
-extreme-event quantities <span class="citation">(<a href="#ref-evdbayes_pkg"><em><span class="nocase">evdbayes</span></em>
-2025</a>)</span>. For peaks-over-threshold (POT) approaches, the package
-<a href="https://cran.r-project.org/package=POT" class="external-link">POT</a> implements a
-focused collection of tools for GPD modeling and threshold-based tail
-analysis <span class="citation">(<a href="#ref-POT_pkg"><em><span>POT</span></em> 2024</a>)</span>. Finally,
-for extreme quantile estimation and rare-event tail summaries, <a href="https://cran.r-project.org/package=extremefit" class="external-link">extremefit</a>
-provides a published software implementation targeted specifically at
-extreme-quantile estimation <span class="citation">(<a href="#ref-durrieu2018extremefit">Durrieu et al. 2018</a>)</span>.</p>
+<p>Dirichlet Process Mixtures (DPMs) provide a flexible way to model
+those outcome distributions because they accommodate multimodality and
+latent heterogeneity without fixing the number of mixture components in
+advance. They also induce random partitions through latent allocation
+variables, so density estimation and clustering are naturally linked.
+Bayesian cluster analysis is therefore typically summarized through
+label-invariant quantities such as pairwise co-clustering probabilities
+and representative partitions <span class="citation">(<a href="#ref-Binder1978">Binder 1978</a>; <a href="#ref-Dahl2006">Dahl
+2006</a>)</span>. In regression settings, dependent Dirichlet process
+constructions allow mixture weights, component-specific parameters, or
+both to vary with predictors <span class="citation">(<a href="#ref-MacEachern1999">MacEachern 1999, MacEachern2000</a>; <a href="#ref-DeIorio2004">De Iorio et al. 2004</a>; <a href="#ref-Quintana2022">Quintana et al. 2022</a>)</span>, and
+predictor-dependent stick-breaking schemes provide a practical route to
+covariate-modulated cluster prevalence <span class="citation">(<a href="#ref-Ren2011">Ren et al. 2011</a>)</span>.</p>
+<p>Heavy-tailed outcomes add a second challenge. The model must fit the
+center of the distribution well while still supporting principled upper
+tail extrapolation when data become sparse. <code>CausalMixGPD</code>
+addresses that combination by joining Bayesian nonparametric mixtures,
+optional generalized Pareto tails, clustering, and causal contrasts in a
+single workflow.</p>
 <p>This article introduces an R package (<code>CausalMixGPD</code>) that
 connects Bayesian nonparametric modeling with EVT, clustering, and
 robust causal analyses in the presence of covariates (confounders). The
@@ -210,7 +146,7 @@ defer those additions to the causal section.</p>
 </annotation></semantics></math></p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"nc_posX100_p3_k2"</span>, package <span class="op">=</span> <span class="st">"CausalMixGPD"</span><span class="op">)</span></span>
-<span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">nc_posX100_p3_k2</span><span class="op">$</span><span class="va">y</span>, <span class="va">nc_posX100_p3_k2</span><span class="op">$</span><span class="va">X</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">overview_dat</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">nc_posX100_p3_k2</span><span class="op">$</span><span class="va">y</span>, <span class="va">nc_posX100_p3_k2</span><span class="op">$</span><span class="va">X</span><span class="op">)</span></span></code></pre></div>
 <p>with
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mi>i</mi></msub><mo>∈</mo><msup><mi>ℝ</mi><mi>p</mi></msup></mrow><annotation encoding="application/x-tex">x_i\in\mathbb{R}^p</annotation></semantics></math>
 denoting the covariate vector (including an intercept if desired). The
@@ -243,9 +179,9 @@ enforces parameter support (e.g., positive scale parameters).</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mcmc_fixed</span></span></code></pre></div>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dpmgpd.html">dpmgpd</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">overview_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dpmgpd.html">dpmgpd</a></span><span class="op">(</span></span>
 <span>  formula <span class="op">=</span> <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">+</span> <span class="va">x3</span>,</span>
-<span>  data <span class="op">=</span> <span class="va">dat</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">overview_dat</span>,</span>
 <span>  backend <span class="op">=</span> <span class="st">"sb"</span>,</span>
 <span>  kernel <span class="op">=</span> <span class="st">"lognormal"</span>,</span>
 <span>  components <span class="op">=</span> <span class="fl">5</span>,</span>
@@ -338,9 +274,10 @@ described in the Posterior functionals subsection <span class="citation">(<a hre
 <a href="#ref-coda_pkg">Plummer et al. 2024</a>)</span>. Diagnostic
 plotting relies on established MCMC diagnostic tooling <span class="citation">(<a href="#ref-ggmcmc_pkg"><em><span class="nocase">ggmcmc</span></em> 2025</a>)</span>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="va">p_hat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/params.html">params</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span>
-<span><span class="va">p_hat</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">overview_fit</span><span class="op">)</span></span>
+<span><span class="va">overview_param_hat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/params.html">params</a></span><span class="op">(</span><span class="va">overview_fit</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">overview_fit</span>, family <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"traceplot"</span>, <span class="st">"density"</span><span class="op">)</span>, params <span class="op">=</span> <span class="st">"alpha"</span><span class="op">)</span></span>
+<span><span class="va">overview_param_hat</span></span></code></pre></div>
 <div class="section level4">
 <h4 id="bulk-only-special-case-no-gpd-tail">Bulk-only special case (no GPD tail)<a class="anchor" aria-label="anchor" href="#bulk-only-special-case-no-gpd-tail"></a>
 </h4>
@@ -421,16 +358,22 @@ accordingly, <code>CausalMixGPD</code> flags <code>type = "mean"</code>
 as infinite when there is posterior mass with
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>ξ</mi><mo>≥</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">\xi\ge 1</annotation></semantics></math>,
 while <code>type = "rmean"</code> remains finite by construction.</p>
-<p>Using the same fitted model <code>fit</code> from the Augmented
-DPM–GPD model subsection, we now compute posterior summaries on the
-original training covariates (default behavior of <code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code>
-when <code>newdata</code> is not supplied).</p>
+<p>Using the same fitted model <code>overview_fit</code> from the
+Augmented DPM–GPD model subsection, we now compute posterior summaries
+on the original training covariates (default behavior of
+<code><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict()</a></code> when <code>newdata</code> is not supplied).</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">q_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.50</span>, <span class="fl">0.90</span>, <span class="fl">0.95</span>, <span class="fl">0.99</span><span class="op">)</span></span>
-<span><span class="va">x_eval</span> <span class="op">&lt;-</span> <span class="va">dat</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">20</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x1"</span>, <span class="st">"x2"</span>, <span class="st">"x3"</span><span class="op">)</span><span class="op">]</span></span>
+<code class="sourceCode R"><span><span class="va">overview_q_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.50</span>, <span class="fl">0.90</span>, <span class="fl">0.95</span>, <span class="fl">0.99</span><span class="op">)</span></span>
+<span><span class="va">overview_x_eval</span> <span class="op">&lt;-</span> <span class="va">overview_dat</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">20</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x1"</span>, <span class="st">"x2"</span>, <span class="st">"x3"</span><span class="op">)</span><span class="op">]</span></span>
 <span></span>
-<span><span class="va">est_quant</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, newdata <span class="op">=</span> <span class="va">x_eval</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, index <span class="op">=</span> <span class="va">q_grid</span>,</span>
-<span>                     interval <span class="op">=</span> <span class="st">"hpd"</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">overview_est_quant</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span></span>
+<span>  <span class="va">overview_fit</span>,</span>
+<span>  newdata <span class="op">=</span> <span class="va">overview_x_eval</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"quantile"</span>,</span>
+<span>  index <span class="op">=</span> <span class="va">overview_q_grid</span>,</span>
+<span>  interval <span class="op">=</span> <span class="st">"hpd"</span>,</span>
+<span>  level <span class="op">=</span> <span class="fl">0.95</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <p>For a new covariate value
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>x</mi><mo>⋆</mo></msup><annotation encoding="application/x-tex">x^\star</annotation></semantics></math>,
 prediction is based on the posterior predictive distribution
@@ -459,25 +402,43 @@ and with user-controlled
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>M</mi><annotation encoding="application/x-tex">M</annotation></semantics></math>
 through <code>nsim_mean</code>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">q_levels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.50</span>, <span class="fl">0.75</span><span class="op">)</span></span>
-<span><span class="va">x_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span></span>
-<span>  <span class="va">dat</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x1"</span>, <span class="st">"x2"</span>, <span class="st">"x3"</span><span class="op">)</span><span class="op">]</span>,</span>
+<code class="sourceCode R"><span><span class="va">overview_q_levels</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.50</span>, <span class="fl">0.75</span><span class="op">)</span></span>
+<span><span class="va">overview_x_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span></span>
+<span>  <span class="va">overview_dat</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x1"</span>, <span class="st">"x2"</span>, <span class="st">"x3"</span><span class="op">)</span><span class="op">]</span>,</span>
 <span>  <span class="va">quantile</span>,</span>
-<span>  probs <span class="op">=</span> <span class="va">q_levels</span>,</span>
+<span>  probs <span class="op">=</span> <span class="va">overview_q_levels</span>,</span>
 <span>  na.rm <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">x_new</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"q25"</span>, <span class="st">"q50"</span>, <span class="st">"q75"</span><span class="op">)</span></span>
-<span><span class="va">y_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10</span>, length.out <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
-<span><span class="va">p_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.50</span>, <span class="fl">0.90</span>, <span class="fl">0.95</span>, <span class="fl">0.99</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">overview_x_new</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"q25"</span>, <span class="st">"q50"</span>, <span class="st">"q75"</span><span class="op">)</span></span>
+<span><span class="va">overview_y_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">10</span>, length.out <span class="op">=</span> <span class="fl">200</span><span class="op">)</span></span>
+<span><span class="va">overview_p_grid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.50</span>, <span class="fl">0.90</span>, <span class="fl">0.95</span>, <span class="fl">0.99</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pdens</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, newdata <span class="op">=</span> <span class="va">x_new</span>, y <span class="op">=</span> <span class="va">y_grid</span>, type <span class="op">=</span> <span class="st">"density"</span>,</span>
-<span>                 interval <span class="op">=</span> <span class="st">"credible"</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">overview_pdens</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span></span>
+<span>  <span class="va">overview_fit</span>,</span>
+<span>  newdata <span class="op">=</span> <span class="va">overview_x_new</span>,</span>
+<span>  y <span class="op">=</span> <span class="va">overview_y_grid</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"density"</span>,</span>
+<span>  interval <span class="op">=</span> <span class="st">"credible"</span>,</span>
+<span>  level <span class="op">=</span> <span class="fl">0.95</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">psurv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, newdata <span class="op">=</span> <span class="va">x_new</span>, y <span class="op">=</span> <span class="va">y_grid</span>, type <span class="op">=</span> <span class="st">"survival"</span>,</span>
-<span>                 interval <span class="op">=</span> <span class="st">"credible"</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">overview_psurv</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span></span>
+<span>  <span class="va">overview_fit</span>,</span>
+<span>  newdata <span class="op">=</span> <span class="va">overview_x_new</span>,</span>
+<span>  y <span class="op">=</span> <span class="va">overview_y_grid</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"survival"</span>,</span>
+<span>  interval <span class="op">=</span> <span class="st">"credible"</span>,</span>
+<span>  level <span class="op">=</span> <span class="fl">0.95</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pquant</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">fit</span>, newdata <span class="op">=</span> <span class="va">x_new</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, index <span class="op">=</span> <span class="va">p_grid</span>,</span>
-<span>                  interval <span class="op">=</span> <span class="st">"hpd"</span>, level <span class="op">=</span> <span class="fl">0.95</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">overview_pquant</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span></span>
+<span>  <span class="va">overview_fit</span>,</span>
+<span>  newdata <span class="op">=</span> <span class="va">overview_x_new</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"quantile"</span>,</span>
+<span>  index <span class="op">=</span> <span class="va">overview_p_grid</span>,</span>
+<span>  interval <span class="op">=</span> <span class="st">"hpd"</span>,</span>
+<span>  level <span class="op">=</span> <span class="fl">0.95</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="clustering-extension">Clustering extension<a class="anchor" aria-label="anchor" href="#clustering-extension"></a>
@@ -869,7 +830,10 @@ treated-subsample empirical distribution
 In the current implementation, <code><a href="../reference/ate.html">ate()</a></code> and <code><a href="../reference/att.html">att()</a></code>
 aggregate draw-wise conditional mean contrasts across rows, while
 <code><a href="../reference/qte.html">qte()</a></code> and <code><a href="../reference/qtt.html">qtt()</a></code> compute draw-wise arm-specific
-marginal quantiles and then contrast them.</p></li>
+marginal quantiles and then contrast them. Because these summaries are
+standardized over covariate profiles, their printed tables do not carry
+an <code>id</code> column; <code>id</code> is reserved for conditional
+outputs such as <code><a href="../reference/cate.html">cate()</a></code> and <code><a href="../reference/cqte.html">cqte()</a></code>.</p></li>
 </ol>
 </div>
 <div class="section level4">
@@ -914,12 +878,16 @@ survival contrasts, and other predictive contrasts can be reported.</p>
 wrapper, fitting the augmented spliced model by default.</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"causal_pos500_p3_k2"</span>, package <span class="op">=</span> <span class="st">"CausalMixGPD"</span><span class="op">)</span></span>
-<span><span class="va">dat</span> <span class="op">&lt;-</span> <span class="va">causal_pos500_p3_k2</span></span>
-<span><span class="va">df</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">y</span>, A <span class="op">=</span> <span class="va">dat</span><span class="op">$</span><span class="va">A</span>, <span class="va">dat</span><span class="op">$</span><span class="va">X</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">overview_causal_dat</span> <span class="op">&lt;-</span> <span class="va">causal_pos500_p3_k2</span></span>
+<span><span class="va">overview_causal_df</span>  <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  y <span class="op">=</span> <span class="va">overview_causal_dat</span><span class="op">$</span><span class="va">y</span>,</span>
+<span>  A <span class="op">=</span> <span class="va">overview_causal_dat</span><span class="op">$</span><span class="va">A</span>,</span>
+<span>  <span class="va">overview_causal_dat</span><span class="op">$</span><span class="va">X</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cfit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dpmgpd.causal.html">dpmgpd.causal</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">overview_causal_fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/dpmgpd.causal.html">dpmgpd.causal</a></span><span class="op">(</span></span>
 <span>  formula <span class="op">=</span> <span class="va">y</span> <span class="op">~</span> <span class="va">x1</span> <span class="op">+</span> <span class="va">x2</span> <span class="op">+</span> <span class="va">x3</span>,</span>
-<span>  data <span class="op">=</span> <span class="va">df</span>,</span>
+<span>  data <span class="op">=</span> <span class="va">overview_causal_df</span>,</span>
 <span>  treat <span class="op">=</span> <span class="st">"A"</span>,</span>
 <span>  backend <span class="op">=</span> <span class="st">"sb"</span>,</span>
 <span>  kernel <span class="op">=</span> <span class="st">"lognormal"</span>,</span>
@@ -930,27 +898,50 @@ wrapper, fitting the augmented spliced model by default.</p>
 <span>  mcmc_outcome <span class="op">=</span> <span class="va">mcmc_fixed</span>,</span>
 <span>  mcmc_ps <span class="op">=</span> <span class="va">mcmc_fixed</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>The fitted model object <code>cfit</code> contains the MCMC samples
-for both the PS and the arm-specific outcome models, and can be used to
-compute causal estimands and predictive summaries.</p>
-<p>To estimate the ATE and QTE at the empirical covariate distribution,
-use the <code><a href="../reference/ate.html">ate()</a></code> and <code><a href="../reference/qte.html">qte()</a></code> functions, which
-compute the standardized mean and quantile contrasts.</p>
+<p>The fitted model object <code>overview_causal_fit</code> contains the
+MCMC samples for both the PS and the arm-specific outcome models, and
+can be used to compute causal estimands and predictive summaries.</p>
+<p>To estimate treated-standardized mean and quantile contrasts, use the
+<code><a href="../reference/att.html">att()</a></code> and <code><a href="../reference/qtt.html">qtt()</a></code> functions together with
+<code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>.</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">ate_hat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/ate.html">ate</a></span><span class="op">(</span><span class="va">cfit</span>, level <span class="op">=</span> <span class="fl">0.90</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
-<span><span class="va">qte_hat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/qte.html">qte</a></span><span class="op">(</span><span class="va">cfit</span>, probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.50</span>, <span class="fl">0.90</span>, <span class="fl">0.95</span><span class="op">)</span>, level <span class="op">=</span> <span class="fl">0.90</span>, interval <span class="op">=</span> <span class="st">"hpd"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">overview_att</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/att.html">att</a></span><span class="op">(</span><span class="va">overview_causal_fit</span>, level <span class="op">=</span> <span class="fl">0.90</span>, interval <span class="op">=</span> <span class="st">"credible"</span><span class="op">)</span></span>
+<span><span class="va">overview_qtt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/qtt.html">qtt</a></span><span class="op">(</span></span>
+<span>  <span class="va">overview_causal_fit</span>,</span>
+<span>  probs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.50</span>, <span class="fl">0.90</span>, <span class="fl">0.95</span><span class="op">)</span>,</span>
+<span>  level <span class="op">=</span> <span class="fl">0.90</span>,</span>
+<span>  interval <span class="op">=</span> <span class="st">"hpd"</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">overview_att</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">overview_qtt</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">overview_att</span>, type <span class="op">=</span> <span class="st">"effect"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">overview_qtt</span>, type <span class="op">=</span> <span class="st">"effect"</span><span class="op">)</span></span></code></pre></div>
 <p>For subpopulation effects, the <code><a href="../reference/cate.html">cate()</a></code> and
 <code><a href="../reference/cqte.html">cqte()</a></code> functions compute conditional contrasts at
 user-specified covariate rows.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">qs</span>    <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.25</span>, <span class="fl">0.50</span>, <span class="fl">0.75</span><span class="op">)</span></span>
-<span><span class="va">Xgrid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">df</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x1"</span>,<span class="st">"x2"</span>,<span class="st">"x3"</span><span class="op">)</span><span class="op">]</span>, <span class="va">quantile</span>, probs <span class="op">=</span> <span class="va">qs</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">overview_causal_xgrid</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/expand.grid.html" class="external-link">expand.grid</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span></span>
+<span>  <span class="va">overview_causal_df</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"x1"</span>, <span class="st">"x2"</span>, <span class="st">"x3"</span><span class="op">)</span><span class="op">]</span>,</span>
+<span>  <span class="va">quantile</span>,</span>
+<span>  probs <span class="op">=</span> <span class="va">qs</span></span>
+<span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>The following code then produces conditional quantile and survival
 predictions at the grid points, returning treated-minus-control
 contrasts for quantiles and arm-specific summaries for survival.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">pred_q</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">cfit</span>, newdata <span class="op">=</span> <span class="va">Xgrid</span>, type <span class="op">=</span> <span class="st">"quantile"</span>, p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.50</span>, <span class="fl">0.90</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">pred_s</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span><span class="va">cfit</span>, newdata <span class="op">=</span> <span class="va">Xgrid</span>, type <span class="op">=</span> <span class="st">"survival"</span>, y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">Xgrid</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">overview_pred_q</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span></span>
+<span>  <span class="va">overview_causal_fit</span>,</span>
+<span>  newdata <span class="op">=</span> <span class="va">overview_causal_xgrid</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"quantile"</span>,</span>
+<span>  p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.50</span>, <span class="fl">0.90</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">overview_pred_s</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/stats/predict.html" class="external-link">predict</a></span><span class="op">(</span></span>
+<span>  <span class="va">overview_causal_fit</span>,</span>
+<span>  newdata <span class="op">=</span> <span class="va">overview_causal_xgrid</span>,</span>
+<span>  type <span class="op">=</span> <span class="st">"survival"</span>,</span>
+<span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">overview_causal_xgrid</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level4">
 <h4 id="bulk-only-causal-mixtures-no-gpd-tail">Bulk-only causal mixtures (no GPD tail)<a class="anchor" aria-label="anchor" href="#bulk-only-causal-mixtures-no-gpd-tail"></a>
@@ -1023,31 +1014,9 @@ multivariate outcomes, longitudinal treatments, or interference.</p>
 <h2 class="unnumbered" id="refs">References<a class="anchor" aria-label="anchor" href="#refs"></a>
 </h2>
 <div id="refs" class="references csl-bib-body hanging-indent">
-<div id="ref-balkema1974residual" class="csl-entry">
-Balkema, A. A., and Laurens de Haan. 1974. <span>“<span class="nocase">Residual Life Time at Great Age</span>.”</span>
-<em>Annals of Probability</em> 2 (5): 792–804. <a href="https://doi.org/10.1214/aop/1176996548" class="external-link">https://doi.org/10.1214/aop/1176996548</a>.
-</div>
-<div id="ref-bartCause_pkg" class="csl-entry">
-<em><span class="nocase">bartCause</span>: Causal Inference Using
-Bayesian Additive Regression Trees</em>. 2025. <a href="https://doi.org/10.32614/CRAN.package.bartCause" class="external-link">https://doi.org/10.32614/CRAN.package.bartCause</a>.
-</div>
-<div id="ref-BCEE_pkg" class="csl-entry">
-<em><span>BCEE</span>: The Bayesian Causal Effect Estimation
-Algorithm</em>. 2023. <a href="https://doi.org/10.32614/CRAN.package.BCEE" class="external-link">https://doi.org/10.32614/CRAN.package.BCEE</a>.
-</div>
-<div id="ref-bcf_pkg" class="csl-entry">
-<em><span class="nocase">bcf</span>: Causal Inference Using Bayesian
-Causal Forests</em>. 2024. <a href="https://doi.org/10.32614/CRAN.package.bcf" class="external-link">https://doi.org/10.32614/CRAN.package.bcf</a>.
-</div>
 <div id="ref-Binder1978" class="csl-entry">
 Binder, David A. 1978. <span>“<span>B</span>ayesian Cluster
 Analysis.”</span> <em>Biometrika</em> 65 (1): 31–38. <a href="https://doi.org/10.1093/biomet/65.1.31" class="external-link">https://doi.org/10.1093/biomet/65.1.31</a>.
-</div>
-<div id="ref-canale2021BNPmix" class="csl-entry">
-Corradin, Riccardo, Antonio Canale, and Bernardo Nipoti. 2021.
-<span>“<span>BNPmix</span>: An <span>R</span> Package for Bayesian
-Nonparametric Modeling via Pitman–Yor Mixtures.”</span> <em>Journal of
-Statistical Software</em> 100 (15): 1–47. <a href="https://doi.org/10.18637/jss.v100.i15" class="external-link">https://doi.org/10.18637/jss.v100.i15</a>.
 </div>
 <div id="ref-Dahl2006" class="csl-entry">
 Dahl, David B. 2006. <em>Model-Based Clustering for Expression Data via
@@ -1060,20 +1029,6 @@ De Iorio, Maria, Peter Müller, Gary L. Rosner, and Steven N. MacEachern.
 Measures.”</span> <em>Journal of the American Statistical
 Association</em> 99 (465): 205–15. <a href="https://doi.org/10.1198/016214504000000205" class="external-link">https://doi.org/10.1198/016214504000000205</a>.
 </div>
-<div id="ref-dirichletprocess_pkg" class="csl-entry">
-<em><span class="nocase">dirichletprocess</span>: Build Dirichlet
-Process Objects for Bayesian Modelling</em>. 2023. <a href="https://doi.org/10.32614/CRAN.package.dirichletprocess" class="external-link">https://doi.org/10.32614/CRAN.package.dirichletprocess</a>.
-</div>
-<div id="ref-durrieu2018extremefit" class="csl-entry">
-Durrieu, Gilles, Ion Grama, Kevin Jaunatre, Quang-Khoai Pham, and
-Jean-Marie Tricot. 2018. <span>“Extremefit: A Package for Extreme
-Quantiles.”</span> <em>Journal of Statistical Software</em> 87 (12):
-1–20. <a href="https://doi.org/10.18637/jss.v087.i12" class="external-link">https://doi.org/10.18637/jss.v087.i12</a>.
-</div>
-<div id="ref-evdbayes_pkg" class="csl-entry">
-<em><span class="nocase">evdbayes</span>: Bayesian Analysis in Extreme
-Value Theory</em>. 2025. <a href="https://doi.org/10.32614/CRAN.package.evdbayes" class="external-link">https://doi.org/10.32614/CRAN.package.evdbayes</a>.
-</div>
 <div id="ref-Gelman2013BDA" class="csl-entry">
 Gelman, Andrew, John B. Carlin, Hal S. Stern, David B. Dunson, Aki
 Vehtari, and Donald B. Rubin. 2013. <em>Bayesian Data Analysis</em>. 3rd
@@ -1082,21 +1037,6 @@ ed. Chapman; Hall/CRC. <a href="https://doi.org/10.1201/b16018" class="external-
 <div id="ref-ggmcmc_pkg" class="csl-entry">
 <em><span class="nocase">ggmcmc</span>: Analysis of MCMC Samples and
 Bayesian Inference</em>. 2025. <a href="https://doi.org/10.32614/CRAN.package.ggmcmc" class="external-link">https://doi.org/10.32614/CRAN.package.ggmcmc</a>.
-</div>
-<div id="ref-de2007extreme" class="csl-entry">
-Haan, Laurens de, and Ana Ferreira. 2007. <em>Extreme Value Theory: An
-Introduction</em>. Springer Science &amp; Business Media.
-</div>
-<div id="ref-hill2011bart" class="csl-entry">
-Hill, Jennifer L. 2011. <span>“Bayesian Nonparametric Modeling for
-Causal Inference.”</span> <em>Journal of Computational and Graphical
-Statistics</em> 20 (1): 217–40. <a href="https://doi.org/10.1198/jcgs.2010.08162" class="external-link">https://doi.org/10.1198/jcgs.2010.08162</a>.
-</div>
-<div id="ref-jara2011DPpackage" class="csl-entry">
-Jara, Alejandro, Timothy Hanson, Fernando Quintana, Peter Müller, and
-Gary Rosner. 2011. <span>“DPpackage: Bayesian Semi- and Nonparametric
-Modeling in <span>R</span>.”</span> <em>Journal of Statistical
-Software</em> 40 (5): 1–30. <a href="https://doi.org/10.18637/jss.v040.i05" class="external-link">https://doi.org/10.18637/jss.v040.i05</a>.
 </div>
 <div id="ref-MacEachern1999" class="csl-entry">
 MacEachern, Steven N. 1999. <em>Dependent Nonparametric Processes</em>.
@@ -1111,10 +1051,6 @@ Plummer, Martyn, Nicky Best, Kate Cowles, and Karen Vines. 2024.
 <em><span class="nocase">coda</span>: Output Analysis and Diagnostics
 for MCMC</em>. <a href="https://cran.r-project.org/package=coda" class="external-link">https://cran.r-project.org/package=coda</a>.
 </div>
-<div id="ref-POT_pkg" class="csl-entry">
-<em><span>POT</span>: Generalized Pareto Distribution and Peaks over
-Threshold</em>. 2024. <a href="https://doi.org/10.32614/CRAN.package.POT" class="external-link">https://doi.org/10.32614/CRAN.package.POT</a>.
-</div>
 <div id="ref-Quintana2022" class="csl-entry">
 Quintana, Fernando A., Peter Müller, Alejandro Jara, and Steven N.
 MacEachern. 2022. <span>“The Dependent <span>D</span>irichlet Process
@@ -1125,11 +1061,6 @@ and Related Models.”</span> <em>Statistical Science</em> 37 (1): 24–49.
 Ren, Lu, Lan Du, Lawrence Carin, and David B. Dunson. 2011. <span>“The
 Logistic Stick-Breaking Process.”</span> <em>Journal of Machine Learning
 Research</em> 12 (7): 203–39. <a href="https://www.jmlr.org/papers/v12/ren11a.html" class="external-link">https://www.jmlr.org/papers/v12/ren11a.html</a>.
-</div>
-<div id="ref-talbot2015bcee" class="csl-entry">
-Talbot, Denis, Geneviève Lefebvre, Juli Atherton, and Yohann Chiu. 2015.
-<span>“The Bayesian Causal Effect Estimation Algorithm.”</span>
-<em>Journal of Causal Inference</em> 3 (2): 207–36. <a href="https://doi.org/10.1515/jci-2014-0035" class="external-link">https://doi.org/10.1515/jci-2014-0035</a>.
 </div>
 <div id="ref-devalpine2017nimble" class="csl-entry">
 Valpine, Perry de, Daniel Turek, Christopher J. Paciorek, Carsten
@@ -1151,7 +1082,7 @@ of Statistical Software</em> 76 (10): 1–27. <a href="https://doi.org/10.18637/
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
 </div>
 
     </footer>

@@ -191,10 +191,21 @@ ul.task-list li input[type="checkbox"] {
     <a class="nav-link" href="../developers/index.html"> 
 <span class="menu-text">Developers</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../reference.html"> 
-<span class="menu-text">Reference</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-reference" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Reference</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-reference">    
+        <li>
+    <a class="dropdown-item" href="../reference.html">
+ <span class="dropdown-text">Reference hub</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../reference-by-action.html">
+ <span class="dropdown-text">Function reference by job</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../news.html"> 
 <span class="menu-text">News</span></a>
@@ -266,8 +277,11 @@ ul.task-list li input[type="checkbox"] {
 <li><a href="../examples/ex11-causal-same-backend-crp.html">ex11 — Causal, same backend (CRP)</a></li>
 <li><a href="../examples/ex12-causal-same-backend-sb.html">ex12 — Causal, same backend (SB)</a></li>
 <li><a href="../examples/ex13-causal-different-backends-crp.html">ex13 — Causal, different backends (CRP)</a></li>
-<li><a href="../examples/ex14-causal-different-backends-sb.html">ex14 — Causal, different backends (SB)</a> ## What to watch for (interpretation)</li>
+<li><a href="../examples/ex14-causal-different-backends-sb.html">ex14 — Causal, different backends (SB)</a></li>
 </ol>
+</section>
+<section id="what-to-watch-for-interpretation" class="level2">
+<h2 class="anchored" data-anchor-id="what-to-watch-for-interpretation">What to watch for (interpretation)</h2>
 <ul>
 <li>Causal estimands are <strong>functions of the fitted outcome models</strong>; always validate fit quality before interpreting effects.</li>
 <li>Conditional estimands (<code>cate()</code>, <code>cqte()</code>) depend on covariate support; avoid extrapolation.</li>

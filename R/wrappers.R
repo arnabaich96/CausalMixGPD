@@ -444,8 +444,7 @@ mcmc <- function(b, ...) {
 #' @param ... Additional build arguments in build mode.
 #' @param mcmc Named list of run arguments passed to \code{mcmc()} (including
 #'   optional performance controls such as \code{parallel_chains},
-#'   \code{parallel_arms}, \code{workers}, \code{timing}, and
-#'   \code{z_update_every}).
+#'   \code{workers}, \code{timing}, and \code{z_update_every}).
 #' @return A fitted object of class \code{"mixgpd_fit"}.
 #' @seealso \code{\link{bundle}}, \code{\link{dpmgpd}},
 #'   \code{\link{predict.mixgpd_fit}}, \code{\link{summary.mixgpd_fit}}.
@@ -501,8 +500,7 @@ dpmix <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL,
 #' @param ... Additional build arguments in build mode.
 #' @param mcmc Named list of run arguments passed to \code{mcmc()} (including
 #'   optional performance controls such as \code{parallel_chains},
-#'   \code{parallel_arms}, \code{workers}, \code{timing}, and
-#'   \code{z_update_every}).
+#'   \code{workers}, \code{timing}, and \code{z_update_every}).
 #' @return A fitted object of class \code{"mixgpd_fit"}.
 #' @seealso \code{\link{bundle}}, \code{\link{dpmix}},
 #'   \code{\link{predict.mixgpd_fit}}, \code{\link{summary.mixgpd_fit}}.
@@ -554,9 +552,8 @@ dpmgpd <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL
 #' @param formula Optional formula.
 #' @param ... Additional build arguments in build mode.
 #' @param mcmc Named list of run arguments passed to \code{mcmc()} (including
-#'   optional performance controls such as \code{parallel_chains},
-#'   \code{parallel_arms}, \code{workers}, \code{timing}, and
-#'   \code{z_update_every}).
+#'   optional performance controls such as \code{parallel_arms},
+#'   \code{workers}, \code{timing}, and \code{z_update_every}).
 #' @return A fitted object of class \code{"causalmixgpd_causal_fit"}.
 #' @seealso \code{\link{bundle}}, \code{\link{dpmgpd.causal}},
 #'   \code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
@@ -609,9 +606,8 @@ dpmix.causal <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula 
 #' @param formula Optional formula.
 #' @param ... Additional build arguments in build mode.
 #' @param mcmc Named list of run arguments passed to \code{mcmc()} (including
-#'   optional performance controls such as \code{parallel_chains},
-#'   \code{parallel_arms}, \code{workers}, \code{timing}, and
-#'   \code{z_update_every}).
+#'   optional performance controls such as \code{parallel_arms},
+#'   \code{workers}, \code{timing}, and \code{z_update_every}).
 #' @return A fitted object of class \code{"causalmixgpd_causal_fit"}.
 #' @seealso \code{\link{bundle}}, \code{\link{dpmix.causal}},
 #'   \code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},

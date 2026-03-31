@@ -230,7 +230,7 @@ plot(fit_cond_amoroso, family = c("density", "running", "caterpillar"))
 ## Takeaways
 
 - Covariate-informed DP mixtures predict outcome distributions that shift with `x1` (and other covariates).
-- Use `predict(..., type = "density")` to visualize conditional densities and `type = "quantile"` for posterior-mean location shifts.
+- Use `predict(..., type = "density")` to visualize conditional densities and `type = "quantile"` to compare conditional distribution shifts.
 - Diagnostics (`plot(fit_cond_normal)`, `fitted(fit_cond_normal)`) ensure the chains mix before relying on predictions.
 - Next vignette extends the same idea to the SB backend before adding tails.
 
@@ -259,7 +259,6 @@ plot(fit_cond_amoroso, family = c("density", "running", "caterpillar"))
 ## Next
 - Continue to the linked canonical concept page, then return for implementation-specific details.
 <!-- cmgpd-footer:end -->
-
 
 
 

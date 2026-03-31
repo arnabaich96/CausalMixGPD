@@ -1,0 +1,21 @@
+
+NOTE: Dependency discovery took 12 seconds during snapshot.
+Consider using .renvignore to ignore files, or switching to explicit snapshots.
+See `?renv::dependencies` for more information.
+
+CausalMixGPD coverage helper loaded.
+Run `coverage_report()` to build the full local test coverage report.
+
+Running full local coverage pipeline.
+============================================================
+Building Coverage Report
+============================================================
+Pipeline: tests / cran
+Canonical output directory: covr/assets
+Published mirror directory: docs/coverage
+
+Step 1/6: Calculating coverage...
+Calculating coverage from tests only.
+Test level: cran 
+
+Coverage mode: file 

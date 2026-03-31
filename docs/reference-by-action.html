@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Function Reference by Job – CausalMixGPD</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-f1653256e423999a524a7a13b92bed94.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-030588b9e91de76263dd26ff4e3f3501.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<style>html{ scroll-behavior: smooth; }</style>
+
+
+</head>
+
+<body class="nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">CausalMixGPD</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll me-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./index.html"> 
+<span class="menu-text">Home</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-roadmaps" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Roadmaps</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-roadmaps">    
+        <li>
+    <a class="dropdown-item" href="./roadmap.html">
+ <span class="dropdown-text">Website roadmap</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./package-roadmap.html">
+ <span class="dropdown-text">Package roadmap</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-start" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Start</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-start">    
+        <li>
+    <a class="dropdown-item" href="./start/index.html">
+ <span class="dropdown-text">Start Hub</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./start/roadmap.html">
+ <span class="dropdown-text">Roadmap</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./start/usage-diagrams.html">
+ <span class="dropdown-text">Usage Diagrams</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./start/start-here.html">
+ <span class="dropdown-text">Start Here</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./start/basic-model-compile-run.html">
+ <span class="dropdown-text">Basic Compile and Run</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./start/backends-and-workflow.html">
+ <span class="dropdown-text">Backends and Workflow</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./start/troubleshooting.html">
+ <span class="dropdown-text">Troubleshooting</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-tracks" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Tracks</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-tracks">    
+        <li>
+    <a class="dropdown-item" href="./tracks/quickstart.html">
+ <span class="dropdown-text">Quickstart</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./tracks/modeling.html">
+ <span class="dropdown-text">Modeling (1-arm)</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./tracks/causal.html">
+ <span class="dropdown-text">Causal</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./tracks/clustering.html">
+ <span class="dropdown-text">Clustering</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./tracks/kernels.html">
+ <span class="dropdown-text">Kernels &amp; tails</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./tracks/customization.html">
+ <span class="dropdown-text">Customization</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="./examples/index.html"> 
+<span class="menu-text">Examples</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./kernels.html"> 
+<span class="menu-text">Kernels</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./advanced/index.html"> 
+<span class="menu-text">Advanced</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./developers/index.html"> 
+<span class="menu-text">Developers</span></a>
+  </li>  
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-reference" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Reference</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-reference">    
+        <li>
+    <a class="dropdown-item" href="./reference.html">
+ <span class="dropdown-text">Reference hub</span></a>
+  </li>  
+        <li>
+    <a class="dropdown-item" href="./reference-by-action.html">
+ <span class="dropdown-text">Function reference by job</span></a>
+  </li>  
+    </ul>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link" href="./news.html"> 
+<span class="menu-text">News</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./cite.html"> 
+<span class="menu-text">Cite</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./coverage.html"> 
+<span class="menu-text">Coverage</span></a>
+  </li>  
+</ul>
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="./pkgdown/reference/index.html"> 
+<span class="menu-text">API Reference</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/arnabaich96/CausalMixGPD"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul class="collapse">
+  <li><a href="#function-reference-by-job" id="toc-function-reference-by-job" class="nav-link active" data-scroll-target="#function-reference-by-job">Function Reference by Job</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content column-page-left" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Function Reference by Job</h1>
+<p class="subtitle lead">Explicit, job-based routing into pkgdown function topics</p>
+</div>
+
+
+
+<div class="quarto-title-meta column-page-left">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<div class="hero">
+<section id="function-reference-by-job" class="level1 container">
+<h1>Function Reference by Job</h1>
+<p>Use this page when you want function-level docs grouped by what each function is used for.</p>
+<p><a href="pkgdown/reference/index.html" class="btn btn-primary">Full alphabetical reference</a> <a href="./reference.html" class="btn btn-outline-light">Reference hub</a> <a href="./examples/index.html" class="btn btn-outline-light">Examples hub</a></p>
+</section>
+</div>
+<section>
+<div class="container">
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>The links below point to pkgdown topic pages generated from Rd files. If API topics are added or renamed, update this page and rebuild docs.</p>
+</div>
+</div>
+<section id="build-models-and-run-mcmc" class="level2">
+<h2 class="anchored" data-anchor-id="build-models-and-run-mcmc">Build models and run MCMC</h2>
+<p>Use these when preparing bundles and running one-arm, causal, or clustering model fits.</p>
+<ul>
+<li><a href="pkgdown/reference/bundle.html">bundle() workflow bundle</a></li>
+<li><a href="pkgdown/reference/build_nimble_bundle.html">build_nimble_bundle() explicit one-arm bundle</a></li>
+<li><a href="pkgdown/reference/build_causal_bundle.html">build_causal_bundle() two-arm causal bundle</a></li>
+<li><a href="pkgdown/reference/dpmix.html">dpmix() one-arm bulk fit</a></li>
+<li><a href="pkgdown/reference/dpmgpd.html">dpmgpd() one-arm bulk plus tail fit</a></li>
+<li><a href="pkgdown/reference/dpmix.causal.html">dpmix.causal() causal bulk fit</a></li>
+<li><a href="pkgdown/reference/dpmgpd.causal.html">dpmgpd.causal() causal bulk plus tail fit</a></li>
+<li><a href="pkgdown/reference/dpmix.cluster.html">dpmix.cluster() clustering bulk fit</a></li>
+<li><a href="pkgdown/reference/dpmgpd.cluster.html">dpmgpd.cluster() clustering bulk plus tail fit</a></li>
+<li><a href="pkgdown/reference/mcmc.html">mcmc() run posterior sampling</a></li>
+<li><a href="pkgdown/reference/params.html">params() extract posterior mean parameters</a></li>
+<li><a href="pkgdown/reference/run_mcmc_bundle_manual.html">run_mcmc_bundle_manual() low-level one-arm runner</a></li>
+<li><a href="pkgdown/reference/run_mcmc_causal.html">run_mcmc_causal() low-level causal runner</a></li>
+</ul>
+<p>Related workflow pages: <a href="./start/index.html">Start hub</a>, <a href="./examples/index.html">Examples</a>, <a href="./start/backends-and-workflow.html">Backends and workflow</a></p>
+</section>
+<section id="predict-summarize-print-and-plot-fitted-objects" class="level2">
+<h2 class="anchored" data-anchor-id="predict-summarize-print-and-plot-fitted-objects">Predict, summarize, print, and plot fitted objects</h2>
+<p>Use these after fitting to generate predictions, diagnostics, fitted values, and plots.</p>
+<ul>
+<li><a href="pkgdown/reference/predict.mixgpd_fit.html">predict(<mixgpd_fit>)</mixgpd_fit></a></li>
+<li><a href="pkgdown/reference/summary.mixgpd_fit.html">summary(<mixgpd_fit>)</mixgpd_fit></a></li>
+<li><a href="pkgdown/reference/fitted.mixgpd_fit.html">fitted(<mixgpd_fit>)</mixgpd_fit></a></li>
+<li><a href="pkgdown/reference/residuals.mixgpd_fit.html">residuals(<mixgpd_fit>)</mixgpd_fit></a></li>
+<li><a href="pkgdown/reference/ess_summary.html">ess_summary() effective sample size summary</a></li>
+<li><a href="pkgdown/reference/plot.mixgpd_fit.html">plot(<mixgpd_fit>)</mixgpd_fit></a></li>
+<li><a href="pkgdown/reference/plot.mixgpd_predict.html">plot(<mixgpd_predict>)</mixgpd_predict></a></li>
+<li><a href="pkgdown/reference/plot.mixgpd_fitted.html">plot(<mixgpd_fitted>)</mixgpd_fitted></a></li>
+<li><a href="pkgdown/reference/print.mixgpd_summary.html">print(<mixgpd_summary>)</mixgpd_summary></a></li>
+<li><a href="pkgdown/reference/print.mixgpd_fit.html">print(<mixgpd_fit>)</mixgpd_fit></a></li>
+<li><a href="pkgdown/reference/print.mixgpd_fit_plots.html">print(<mixgpd_fit_plots>)</mixgpd_fit_plots></a></li>
+<li><a href="pkgdown/reference/print.mixgpd_fitted_plots.html">print(<mixgpd_fitted_plots>)</mixgpd_fitted_plots></a></li>
+<li><a href="pkgdown/reference/print.mixgpd_predict_plots.html">print(<mixgpd_predict_plots>)</mixgpd_predict_plots></a></li>
+</ul>
+<p>Related workflow pages: <a href="./start/start-here.html">Start here</a>, <a href="./start/basic-model-compile-run.html">Basic compile and run</a></p>
+</section>
+<section id="estimate-causal-effects-and-inspect-causal-outputs" class="level2">
+<h2 class="anchored" data-anchor-id="estimate-causal-effects-and-inspect-causal-outputs">Estimate causal effects and inspect causal outputs</h2>
+<p>Use these when extracting treatment effects from fitted causal models.</p>
+<ul>
+<li><a href="pkgdown/reference/predict.causalmixgpd_causal_fit.html">predict(<causalmixgpd_causal_fit>)</causalmixgpd_causal_fit></a></li>
+<li><a href="pkgdown/reference/ate.html">ate() average treatment effect</a></li>
+<li><a href="pkgdown/reference/att.html">att() treated-standardized average treatment effect</a></li>
+<li><a href="pkgdown/reference/cate.html">cate() conditional average treatment effects</a></li>
+<li><a href="pkgdown/reference/qte.html">qte() quantile treatment effects</a></li>
+<li><a href="pkgdown/reference/cqte.html">cqte() conditional quantile treatment effects</a></li>
+<li><a href="pkgdown/reference/qtt.html">qtt() quantile treatment effects standardized to treated covariates</a></li>
+<li><a href="pkgdown/reference/ate_rmean.html">ate_rmean() restricted-mean ATE helper</a></li>
+<li><a href="pkgdown/reference/summary.causalmixgpd_causal_fit.html">summary(<causalmixgpd_causal_fit>)</causalmixgpd_causal_fit></a></li>
+<li><a href="pkgdown/reference/summary.causalmixgpd_bundle.html">summary(<causalmixgpd_bundle>)</causalmixgpd_bundle></a></li>
+<li><a href="pkgdown/reference/summary.causalmixgpd_causal_bundle.html">summary(<causalmixgpd_causal_bundle>)</causalmixgpd_causal_bundle></a></li>
+<li><a href="pkgdown/reference/summary.causalmixgpd_ate.html">summary(<causalmixgpd_ate>)</causalmixgpd_ate></a></li>
+<li><a href="pkgdown/reference/summary.causalmixgpd_qte.html">summary(<causalmixgpd_qte>)</causalmixgpd_qte></a></li>
+<li><a href="pkgdown/reference/plot.causalmixgpd_ate.html">plot(<causalmixgpd_ate>)</causalmixgpd_ate></a></li>
+<li><a href="pkgdown/reference/plot.causalmixgpd_qte.html">plot(<causalmixgpd_qte>)</causalmixgpd_qte></a></li>
+<li><a href="pkgdown/reference/plot.causalmixgpd_causal_fit.html">plot(<causalmixgpd_causal_fit>)</causalmixgpd_causal_fit></a></li>
+<li><a href="pkgdown/reference/plot.causalmixgpd_causal_predict.html">plot(<causalmixgpd_causal_predict>)</causalmixgpd_causal_predict></a></li>
+<li><a href="pkgdown/reference/print.causalmixgpd_bundle.html">print(<causalmixgpd_bundle>)</causalmixgpd_bundle></a></li>
+<li><a href="pkgdown/reference/print.causalmixgpd_causal_bundle.html">print(<causalmixgpd_causal_bundle>)</causalmixgpd_causal_bundle></a></li>
+<li><a href="pkgdown/reference/print.causalmixgpd_causal_fit.html">print(<causalmixgpd_causal_fit>)</causalmixgpd_causal_fit></a></li>
+<li><a href="pkgdown/reference/print.causalmixgpd_causal_predict_plots.html">print(<causalmixgpd_causal_predict_plots>)</causalmixgpd_causal_predict_plots></a></li>
+<li><a href="pkgdown/reference/print.causalmixgpd_ate.html">print(<causalmixgpd_ate>)</causalmixgpd_ate></a></li>
+<li><a href="pkgdown/reference/print.causalmixgpd_qte.html">print(<causalmixgpd_qte>)</causalmixgpd_qte></a></li>
+<li><a href="pkgdown/reference/print.summary.causalmixgpd_ate.html">print(summary(<causalmixgpd_ate>))</causalmixgpd_ate></a></li>
+<li><a href="pkgdown/reference/print.summary.causalmixgpd_qte.html">print(summary(<causalmixgpd_qte>))</causalmixgpd_qte></a></li>
+<li><a href="pkgdown/reference/print.causalmixgpd_ps_bundle.html">print(<causalmixgpd_ps_bundle>)</causalmixgpd_ps_bundle></a></li>
+<li><a href="pkgdown/reference/print.causalmixgpd_ps_fit.html">print(<causalmixgpd_ps_fit>)</causalmixgpd_ps_fit></a></li>
+</ul>
+<p>Related workflow pages: <a href="./tracks/causal.html">Causal track</a>, <a href="./examples/index.html">Causal examples</a></p>
+</section>
+<section id="run-clustering-workflows-and-diagnostics" class="level2">
+<h2 class="anchored" data-anchor-id="run-clustering-workflows-and-diagnostics">Run clustering workflows and diagnostics</h2>
+<p>Use these when assigning clusters, inspecting posterior cluster summaries, and plotting clustering diagnostics.</p>
+<ul>
+<li><a href="pkgdown/reference/allocation.html">allocation() cluster label and PSM outputs</a></li>
+<li><a href="pkgdown/reference/allocation.mixgpd_fit.html">allocation(<mixgpd_fit>)</mixgpd_fit></a></li>
+<li><a href="pkgdown/reference/predict.dpmixgpd_cluster_fit.html">predict(<dpmixgpd_cluster_fit>)</dpmixgpd_cluster_fit></a></li>
+<li><a href="pkgdown/reference/summary.dpmixgpd_cluster_bundle.html">summary(<dpmixgpd_cluster_bundle>)</dpmixgpd_cluster_bundle></a></li>
+<li><a href="pkgdown/reference/summary.dpmixgpd_cluster_fit.html">summary(<dpmixgpd_cluster_fit>)</dpmixgpd_cluster_fit></a></li>
+<li><a href="pkgdown/reference/summary.dpmixgpd_cluster_labels.html">summary(<dpmixgpd_cluster_labels>)</dpmixgpd_cluster_labels></a></li>
+<li><a href="pkgdown/reference/summary.dpmixgpd_cluster_psm.html">summary(<dpmixgpd_cluster_psm>)</dpmixgpd_cluster_psm></a></li>
+<li><a href="pkgdown/reference/summary.mixgpd_allocation.html">summary(<mixgpd_allocation>)</mixgpd_allocation></a></li>
+<li><a href="pkgdown/reference/print.dpmixgpd_cluster_bundle.html">print(<dpmixgpd_cluster_bundle>)</dpmixgpd_cluster_bundle></a></li>
+<li><a href="pkgdown/reference/print.dpmixgpd_cluster_fit.html">print(<dpmixgpd_cluster_fit>)</dpmixgpd_cluster_fit></a></li>
+<li><a href="pkgdown/reference/print.dpmixgpd_cluster_labels.html">print(<dpmixgpd_cluster_labels>)</dpmixgpd_cluster_labels></a></li>
+<li><a href="pkgdown/reference/print.dpmixgpd_cluster_psm.html">print(<dpmixgpd_cluster_psm>)</dpmixgpd_cluster_psm></a></li>
+<li><a href="pkgdown/reference/print.mixgpd_allocation.html">print(<mixgpd_allocation>)</mixgpd_allocation></a></li>
+<li><a href="pkgdown/reference/plot.dpmixgpd_cluster_fit.html">plot(<dpmixgpd_cluster_fit>)</dpmixgpd_cluster_fit></a></li>
+<li><a href="pkgdown/reference/plot.dpmixgpd_cluster_bundle.html">plot(<dpmixgpd_cluster_bundle>)</dpmixgpd_cluster_bundle></a></li>
+<li><a href="pkgdown/reference/plot.dpmixgpd_cluster_labels.html">plot(<dpmixgpd_cluster_labels>)</dpmixgpd_cluster_labels></a></li>
+<li><a href="pkgdown/reference/plot.dpmixgpd_cluster_psm.html">plot(<dpmixgpd_cluster_psm>)</dpmixgpd_cluster_psm></a></li>
+<li><a href="pkgdown/reference/plot.mixgpd_allocation.html">plot(<mixgpd_allocation>)</mixgpd_allocation></a></li>
+</ul>
+<p>Related workflow pages: <a href="./tracks/clustering.html">Clustering track</a>, <a href="./examples/index.html">Clustering examples</a></p>
+</section>
+<section id="choose-kernels-tails-registries-and-diagnostics" class="level2">
+<h2 class="anchored" data-anchor-id="choose-kernels-tails-registries-and-diagnostics">Choose kernels, tails, registries, and diagnostics</h2>
+<p>Use these when selecting kernel families, tail behavior, and glue diagnostics.</p>
+<ul>
+<li><a href="pkgdown/reference/kernel_support_table.html">kernel_support_table() available kernel support and domains</a></li>
+<li><a href="pkgdown/reference/get_kernel_registry.html">get_kernel_registry()</a></li>
+<li><a href="pkgdown/reference/init_kernel_registry.html">init_kernel_registry()</a></li>
+<li><a href="pkgdown/reference/get_tail_registry.html">get_tail_registry()</a></li>
+<li><a href="pkgdown/reference/check_glue_validity.html">check_glue_validity() bulk-tail glue checks</a></li>
+<li><a href="pkgdown/reference/gpd.html">gpd distribution helpers</a></li>
+<li><a href="pkgdown/reference/normal_mix.html">normal kernels and mixtures</a></li>
+<li><a href="pkgdown/reference/normal_gpd.html">normal with GPD</a></li>
+<li><a href="pkgdown/reference/normal_mixgpd.html">normal mixture with GPD</a></li>
+<li><a href="pkgdown/reference/normal_lowercase.html">normal lowercase vectorized wrappers</a></li>
+<li><a href="pkgdown/reference/lognormal_mix.html">lognormal kernels and mixtures</a></li>
+<li><a href="pkgdown/reference/lognormal_gpd.html">lognormal with GPD</a></li>
+<li><a href="pkgdown/reference/lognormal_mixgpd.html">lognormal mixture with GPD</a></li>
+<li><a href="pkgdown/reference/lognormal_lowercase.html">lognormal lowercase vectorized wrappers</a></li>
+<li><a href="pkgdown/reference/gamma_mix.html">gamma kernels and mixtures</a></li>
+<li><a href="pkgdown/reference/gamma_gpd.html">gamma with GPD</a></li>
+<li><a href="pkgdown/reference/gamma_mixgpd.html">gamma mixture with GPD</a></li>
+<li><a href="pkgdown/reference/gamma_lowercase.html">gamma lowercase vectorized wrappers</a></li>
+<li><a href="pkgdown/reference/InvGauss.html">inverse Gaussian base</a></li>
+<li><a href="pkgdown/reference/InvGauss_gpd.html">inverse Gaussian with GPD</a></li>
+<li><a href="pkgdown/reference/InvGauss_mix.html">inverse Gaussian mixture</a></li>
+<li><a href="pkgdown/reference/InvGauss_mixgpd.html">inverse Gaussian mixture with GPD</a></li>
+<li><a href="pkgdown/reference/invgauss_lowercase.html">inverse Gaussian lowercase vectorized wrappers</a></li>
+<li><a href="pkgdown/reference/laplace_mix.html">laplace kernels and mixtures</a></li>
+<li><a href="pkgdown/reference/laplace_gpd.html">laplace with GPD</a></li>
+<li><a href="pkgdown/reference/laplace_MixGpd.html">laplace mixture with GPD</a></li>
+<li><a href="pkgdown/reference/laplace_lowercase.html">laplace lowercase vectorized wrappers</a></li>
+<li><a href="pkgdown/reference/cauchy.html">cauchy base</a></li>
+<li><a href="pkgdown/reference/cauchy_mix.html">cauchy mixture</a></li>
+<li><a href="pkgdown/reference/cauchy_mix_lowercase.html">cauchy lowercase vectorized wrappers</a></li>
+<li><a href="pkgdown/reference/amoroso.html">amoroso base</a></li>
+<li><a href="pkgdown/reference/amoroso_gpd.html">amoroso with GPD</a></li>
+<li><a href="pkgdown/reference/amoroso_mix.html">amoroso mixture</a></li>
+<li><a href="pkgdown/reference/amoroso_mixgpd.html">amoroso mixture with GPD</a></li>
+<li><a href="pkgdown/reference/amoroso_lowercase.html">amoroso lowercase vectorized wrappers</a></li>
+<li><a href="pkgdown/reference/base_lowercase.html">base lowercase vectorized wrappers</a></li>
+</ul>
+</section>
+<section id="scalar-dpqr-aliases-by-family" class="level2">
+<h2 class="anchored" data-anchor-id="scalar-dpqr-aliases-by-family">Scalar d/p/q/r aliases by family</h2>
+<p>Use these when you want direct scalar/vector-style d(), p(), q(), r() naming for a specific family implementation.</p>
+<ul>
+<li><a href="pkgdown/reference/damoroso.html">Amoroso aliases</a>, <a href="pkgdown/reference/damorosogpd.html">Amoroso GPD aliases</a>, <a href="pkgdown/reference/damorosomix.html">Amoroso mixture aliases</a>, <a href="pkgdown/reference/damorosomixgpd.html">Amoroso mixture+GPD aliases</a></li>
+<li><a href="pkgdown/reference/dCauchy.html">Cauchy scalar aliases</a>, <a href="pkgdown/reference/dcauchy_vec.html">Cauchy vector aliases</a>, <a href="pkgdown/reference/dcauchymix.html">Cauchy mixture aliases</a></li>
+<li><a href="pkgdown/reference/dgammagpd.html">Gamma GPD aliases</a>, <a href="pkgdown/reference/dgammamix.html">Gamma mixture aliases</a>, <a href="pkgdown/reference/dgammamixgpd.html">Gamma mixture+GPD aliases</a></li>
+<li><a href="pkgdown/reference/dgpd.html">GPD aliases</a></li>
+<li><a href="pkgdown/reference/dinvgauss.html">Inverse Gaussian aliases</a>, <a href="pkgdown/reference/dinvgaussgpd.html">Inverse Gaussian GPD aliases</a>, <a href="pkgdown/reference/dinvgaussmix.html">Inverse Gaussian mixture aliases</a>, <a href="pkgdown/reference/dinvgaussmixgpd.html">Inverse Gaussian mixture+GPD aliases</a></li>
+<li><a href="pkgdown/reference/dlaplacegpd.html">Laplace GPD aliases</a>, <a href="pkgdown/reference/dlaplacemix.html">Laplace mixture aliases</a>, <a href="pkgdown/reference/dlaplacemixgpd.html">Laplace mixture+GPD aliases</a></li>
+<li><a href="pkgdown/reference/dlognormalgpd.html">Lognormal GPD aliases</a>, <a href="pkgdown/reference/dlognormalmix.html">Lognormal mixture aliases</a>, <a href="pkgdown/reference/dlognormalmixgpd.html">Lognormal mixture+GPD aliases</a></li>
+<li><a href="pkgdown/reference/dnormgpd.html">Normal GPD aliases</a>, <a href="pkgdown/reference/dnormmix.html">Normal mixture aliases</a>, <a href="pkgdown/reference/dnormmixgpd.html">Normal mixture+GPD aliases</a></li>
+</ul>
+<p>Related workflow pages: <a href="./kernels.html">Kernels hub</a>, <a href="./tracks/kernels.html">Kernels and tails track</a>, <a href="./advanced/index.html">Advanced hub</a></p>
+</section>
+<section id="use-packaged-datasets-and-simulation-helpers" class="level2">
+<h2 class="anchored" data-anchor-id="use-packaged-datasets-and-simulation-helpers">Use packaged datasets and simulation helpers</h2>
+<p>Use these to bootstrap examples, reproduce docs, and test workflows.</p>
+<ul>
+<li><a href="pkgdown/reference/causal_pos500_p3_k2.html">causal_pos500_p3_k2</a></li>
+<li><a href="pkgdown/reference/causal_alt_pos500_p3_k3.html">causal_alt_pos500_p3_k3</a></li>
+<li><a href="pkgdown/reference/causal_alt_pos500_p5_k4_tail.html">causal_alt_pos500_p5_k4_tail</a></li>
+<li><a href="pkgdown/reference/causal_alt_real500_p4_k2.html">causal_alt_real500_p4_k2</a></li>
+<li><a href="pkgdown/reference/nc_pos200_k3.html">nc_pos200_k3</a></li>
+<li><a href="pkgdown/reference/nc_pos_tail200_k4.html">nc_pos_tail200_k4</a></li>
+<li><a href="pkgdown/reference/nc_posX100_p3_k2.html">nc_posX100_p3_k2</a></li>
+<li><a href="pkgdown/reference/nc_posX100_p4_k3.html">nc_posX100_p4_k3</a></li>
+<li><a href="pkgdown/reference/nc_posX100_p5_k4.html">nc_posX100_p5_k4</a></li>
+<li><a href="pkgdown/reference/nc_real200_k2.html">nc_real200_k2</a></li>
+<li><a href="pkgdown/reference/nc_realX100_p3_k2.html">nc_realX100_p3_k2</a></li>
+<li><a href="pkgdown/reference/nc_realX100_p5_k3.html">nc_realX100_p5_k3</a></li>
+<li><a href="pkgdown/reference/sim_bulk_tail.html">sim_bulk_tail() simulation utility</a></li>
+<li><a href="pkgdown/reference/sim_survival_tail.html">sim_survival_tail() simulation utility</a></li>
+<li><a href="pkgdown/reference/sim_causal_qte.html">sim_causal_qte() simulation utility</a></li>
+</ul>
+<p>Related workflow pages: <a href="./examples/index.html">Examples hub</a>, <a href="./start/index.html">Start hub</a></p>
+</section>
+<section id="developer-and-internal-apis" class="level2">
+<h2 class="anchored" data-anchor-id="developer-and-internal-apis">Developer and internal APIs</h2>
+<p>Use these only when extending internals or debugging package internals and dispatch behavior.</p>
+<div class="callout callout-style-default callout-warning callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Warning
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Internal APIs (dot-prefixed topics) may change without the same stability guarantees as user-facing wrappers.</p>
+</div>
+</div>
+<ul>
+<li><a href="pkgdown/reference/dot-get_dispatch.html">dot-get_dispatch()</a></li>
+<li><a href="pkgdown/reference/dot-get_dispatch_scalar.html">dot-get_dispatch_scalar()</a></li>
+<li><a href="pkgdown/reference/dot-compute_cluster_probs.html">dot-compute_cluster_probs()</a></li>
+<li><a href="pkgdown/reference/dot-compute_psm.html">dot-compute_psm()</a></li>
+<li><a href="pkgdown/reference/dot-dahl_representative.html">dot-dahl_representative()</a></li>
+<li><a href="pkgdown/reference/dot-detect_first_present.html">dot-detect_first_present()</a></li>
+<li><a href="pkgdown/reference/dot-extract_draws.html">dot-extract_draws()</a></li>
+<li><a href="pkgdown/reference/dot-extract_draws_matrix.html">dot-extract_draws_matrix()</a></li>
+<li><a href="pkgdown/reference/dot-extract_nimble_code.html">dot-extract_nimble_code()</a></li>
+<li><a href="pkgdown/reference/dot-extract_z_matrix.html">dot-extract_z_matrix()</a></li>
+<li><a href="pkgdown/reference/dot-format_fit_header.html">dot-format_fit_header()</a></li>
+<li><a href="pkgdown/reference/dot-get_epsilon.html">dot-get_epsilon()</a></li>
+<li><a href="pkgdown/reference/dot-get_nobs.html">dot-get_nobs()</a></li>
+<li><a href="pkgdown/reference/dot-get_samples_mcmclist.html">dot-get_samples_mcmclist()</a></li>
+<li><a href="pkgdown/reference/dot-onLoad.html">dot-onLoad()</a></li>
+<li><a href="pkgdown/reference/dot-posterior_summarize.html">dot-posterior_summarize()</a></li>
+<li><a href="pkgdown/reference/dot-predict_mixgpd.html">dot-predict_mixgpd()</a></li>
+<li><a href="pkgdown/reference/dot-summarize_posterior.html">dot-summarize_posterior()</a></li>
+<li><a href="pkgdown/reference/dot-truncate_components_one_draw.html">dot-truncate_components_one_draw()</a></li>
+<li><a href="pkgdown/reference/dot-truncate_draws_matrix_components.html">dot-truncate_draws_matrix_components()</a></li>
+<li><a href="pkgdown/reference/dot-truncation_info.html">dot-truncation_info()</a></li>
+<li><a href="pkgdown/reference/dot-wrap_nimble_code.html">dot-wrap_nimble_code()</a></li>
+<li><a href="pkgdown/reference/dot-wrap_scalar_first_arg.html">dot-wrap_scalar_first_arg()</a></li>
+<li><a href="pkgdown/reference/dot-wrap_scalar_p.html">dot-wrap_scalar_p()</a></li>
+<li><a href="pkgdown/reference/dot-wrap_scalar_r.html">dot-wrap_scalar_r()</a></li>
+<li><a href="pkgdown/reference/dot-validate_fit.html">dot-validate_fit()</a></li>
+</ul>
+</section>
+<section id="package-globals-and-options" class="level2">
+<h2 class="anchored" data-anchor-id="package-globals-and-options">Package globals and options</h2>
+<ul>
+<li><a href="pkgdown/reference/globals.html">globals</a></li>
+</ul>
+<p>Related workflow pages: <a href="./developers/index.html">Developers hub</a>, <a href="./developers/spec-and-contracts.html">Spec and contracts</a>, <a href="./developers/registry.html">Registry docs</a></p>
+</section>
+<section id="prefer-a-full-scan" class="level2">
+<h2 class="anchored" data-anchor-id="prefer-a-full-scan">Prefer a full scan?</h2>
+<p>Use the complete index when you want all topics in one place.</p>
+<p><a href="pkgdown/reference/index.html" class="btn btn-outline-primary">Open full pkgdown reference index</a></p>
+</section>
+</div>
+</section>
+
+
+
+</main> <!-- /main -->
+<div class="site-footer">
+
+
+
+  <div>
+
+    (c) CausalMixGPD - Bayesian semiparametric modeling for heavy-tailed data
+
+  </div>
+
+
+
+  <div>
+
+    <span id="site-version"></span> -
+
+    <span id="site-updated"></span> -
+
+    <a href="./cite.html">Cite</a> -
+
+    <a href="./pkgdown/index.html">API</a> -
+
+    <a href="https://github.com/arnabaich96/CausalMixGPD">GitHub</a>
+
+  </div>
+
+
+
+</div>
+
+
+
+<script>
+
+  // These values are replaced at build time if present
+
+  const version = document.documentElement.getAttribute("data-version");
+
+  const updated = document.documentElement.getAttribute("data-updated");
+
+
+
+  if (version) {
+
+    document.getElementById("site-version").textContent = "Version " + version;
+
+  }
+
+  if (updated) {
+
+    document.getElementById("site-updated").textContent = "Updated " + updated;
+
+  }
+
+</script>
+
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+            // target, if specified
+            link.setAttribute("target", "_blank");
+            if (link.getAttribute("rel") === null) {
+              link.setAttribute("rel", "noopener");
+            }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+
+
+
+
+<script src="site_libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

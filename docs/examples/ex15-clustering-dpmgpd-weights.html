@@ -226,10 +226,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="../developers/index.html"> 
 <span class="menu-text">Developers</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../reference.html"> 
-<span class="menu-text">Reference</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-reference" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Reference</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-reference">    
+        <li>
+    <a class="dropdown-item" href="../reference.html">
+ <span class="dropdown-text">Reference hub</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../reference-by-action.html">
+ <span class="dropdown-text">Function reference by job</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../news.html"> 
 <span class="menu-text">News</span></a>
@@ -296,7 +307,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="what-youll-learn" class="level2">
 <h2 class="anchored" data-anchor-id="what-youll-learn">What you’ll learn</h2>
 <ul>
-<li>How to fit <strong>tail-aware</strong> clustering with <code>dpmgpd.cluster()</code>.- How the <code>type = "weights"</code> dependence mode uses covariates to change <strong>cluster prevalence</strong> (mixture weights), while keeping component likelihood structure shared.- How to use <code>predict()</code> to obtain <strong>labels</strong> and a <strong>posterior similarity matrix (PSM)</strong>, and how to interpret the label/PSM plots.</li>
+<li>How to fit <strong>tail-aware</strong> clustering with <code>dpmgpd.cluster()</code>.</li>
+<li>How the <code>type = "weights"</code> dependence mode uses covariates to change <strong>cluster prevalence</strong> (mixture weights), while keeping component likelihood structure shared.</li>
+<li>How to use <code>predict()</code> to obtain <strong>labels</strong> and a <strong>posterior similarity matrix (PSM)</strong>, and how to interpret the label/PSM plots.</li>
 </ul>
 </section>
 <section id="purpose-in-one-sentence" class="level2">

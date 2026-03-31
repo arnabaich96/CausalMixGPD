@@ -38,15 +38,18 @@ source("_legacy-setup.R")
 
 ## What you’ll learn
 
-- How `dpmix.cluster()` differs from outcome modeling: the goal is **partitioning / labeling**, not density prediction alone.\n- What `type = \"param\"` means: covariates shift **within-cluster kernel parameters** while mixture weights remain global.\n- How to use `predict(..., type = \"label\" | \"psm\")` plus `summary()`/`plot()` for cluster interpretation and stability.
+- How `dpmix.cluster()` differs from outcome modeling: the goal is **partitioning / labeling**, not density prediction alone.
+- What `type = "param"` means: covariates shift **within-cluster kernel parameters** while mixture weights remain global.
+- How to use `predict(..., type = "label" | "psm")` plus `summary()`/`plot()` for cluster interpretation and stability.
 
 ## When to use this template
 
-- You want covariates to explain **how clusters behave internally** (component parameters), not just reweight cluster membership.\n- You need train/test labeling where new points map back to a representative training partition.
+- You want covariates to explain **how clusters behave internally** (component parameters), not just reweight cluster membership.
+- You need train/test labeling where new points map back to a representative training partition.
 
 ## Next steps
 
-- Compare against the `type = \"weights\"` clustering mode (`ex15`) when covariates should drive **cluster membership** rather than component parameters.
+- Compare against the `type = "weights"` clustering mode (`ex15`) when covariates should drive **cluster membership** rather than component parameters.
 
 ---
 

@@ -31,6 +31,27 @@ setwd(here::here())
   lvl
 }
 
+.coverage_modes <- function() {
+  valid <- c("custom", "tests", "file")
+  # Prefer file mode first because it avoids the opaque package-install phase
+  # that can make local coverage runs look stalled on this repository.
+  raw <- Sys.getenv("DPMIXGPD_COVERAGE_MODES", unset = "file,custom,tests")
+  parts <- trimws(strsplit(raw, ",", fixed = TRUE)[[1]])
+  modes <- unique(parts[nzchar(parts) & parts %in% valid])
+  if (!length(modes)) {
+    modes <- c("file", "custom", "tests")
+  }
+  modes
+}
+
+.coverage_ci_coverage_only <- function() {
+  Sys.getenv("DPMIXGPD_CI_COVERAGE_ONLY", unset = "1")
+}
+
+.coverage_include_coverage_only_file <- function() {
+  identical(.coverage_ci_coverage_only(), "1")
+}
+
 .check_coverage_deps <- function() {
   if (!requireNamespace("covr", quietly = TRUE)) {
     stop("Package 'covr' is required. Install with install.packages('covr').", call. = FALSE)
@@ -132,12 +153,8 @@ setwd(here::here())
   setup <- all_r[basename(all_r) == "setup.R"]
   helpers <- all_r[grepl("^helper.*\\.[Rr]$", basename(all_r))]
   tests <- all_r[grepl("^test.*\\.[Rr]$", basename(all_r))]
-
-  if (identical(Sys.getenv("DPMIXGPD_CI_COVERAGE_ONLY"), "1")) {
-    coverage_only <- tests[basename(tests) == "test-ci-level-only.R"]
-    if (length(coverage_only) > 0L) {
-      tests <- coverage_only
-    }
+  if (!.coverage_include_coverage_only_file()) {
+    tests <- tests[basename(tests) != "test-ci-level-only.R"]
   }
 
   unique(c(setup, sort(helpers), sort(tests)))
@@ -181,13 +198,17 @@ setwd(here::here())
     '  if (length(local_hit) > 0L) pkg_tests <- normalizePath(local_hit[1], winslash = "/", mustWork = FALSE)',
     '}',
     'if (!nzchar(pkg_tests) || !dir.exists(pkg_tests)) stop("Coverage could not find tests/testthat")',
-    sprintf('Sys.setenv(COVERAGE = "1", DPMIXGPD_TEST_LEVEL = "%s", DPMIXGPD_CI_COVERAGE_ONLY = "1")', .coverage_test_level()),
+    sprintf(
+      'Sys.setenv(COVERAGE = "1", DPMIXGPD_TEST_LEVEL = "%s", DPMIXGPD_CI_COVERAGE_ONLY = "%s")',
+      .coverage_test_level(),
+      .coverage_ci_coverage_only()
+    ),
     'test_files <- list.files(pkg_tests, pattern = "^test.*\\\\.R$", recursive = TRUE, full.names = TRUE)',
+    sprintf(
+      'if (!identical("%s", "1")) test_files <- test_files[basename(test_files) != "test-ci-level-only.R"]',
+      .coverage_ci_coverage_only()
+    ),
     'if (length(test_files) == 0L) stop("Coverage found no test files under: ", pkg_tests)',
-    'if (identical(Sys.getenv("DPMIXGPD_CI_COVERAGE_ONLY"), "1")) {',
-    '  coverage_only <- test_files[basename(test_files) == "test-ci-level-only.R"]',
-    '  if (length(coverage_only) > 0L) test_files <- coverage_only',
-    '}',
     sprintf('reporter <- %s', reporter_expr),
     'for (target in test_files) {',
     '  cat("== coverage: running ", basename(target), "\\n", sep = "")',
@@ -223,7 +244,7 @@ calculate_coverage <- function(quiet = FALSE) {
   Sys.setenv(
     DPMIXGPD_TEST_LEVEL = .coverage_test_level(),
     COVERAGE = "1",
-    DPMIXGPD_CI_COVERAGE_ONLY = "1",
+    DPMIXGPD_CI_COVERAGE_ONLY = .coverage_ci_coverage_only(),
     DPMIXGPD_SKIP_COVR_CAUSAL_BRANCHES = Sys.getenv("DPMIXGPD_SKIP_COVR_CAUSAL_BRANCHES", unset = "1")
   )
 
@@ -269,7 +290,7 @@ calculate_coverage <- function(quiet = FALSE) {
   attempt_messages <- character(0)
   cov <- NULL
 
-  for (mode in c("file", "custom", "tests")) {
+  for (mode in .coverage_modes()) {
     if (!quiet) {
       cat("Coverage mode:", mode, "\n")
     }
@@ -329,7 +350,7 @@ calculate_coverage <- function(quiet = FALSE) {
   summary_data <- list(
     percent = round(percent, 2),
     timestamp = timestamp,
-    pipeline = "tests/full",
+    pipeline = paste0("tests/", .coverage_test_level()),
     total_lines = sum(file_stats$Lines),
     covered_lines = sum(file_stats$Covered),
     files = nrow(file_stats),

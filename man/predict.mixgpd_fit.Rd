@@ -11,8 +11,7 @@
   ps = NULL,
   id = NULL,
   newdata = NULL,
-  type = c("density", "survival", "quantile", "sample", "mean", "rmean", "median",
-    "location", "fit"),
+  type = c("density", "survival", "quantile", "sample", "mean", "rmean", "median", "fit"),
   p = NULL,
   index = NULL,
   nsim = NULL,
@@ -56,7 +55,6 @@ is excluded from analysis.}
 \item \code{"mean"}: Posterior predictive mean E(Y | x, data) (averaged over posterior parameter uncertainty)
 \item \code{"rmean"}: Posterior predictive restricted mean \eqn{E[\min(Y, cutoff) \mid x, data]}
 \item \code{"median"}: Posterior predictive median (quantile at p=0.5)
-\item \code{"location"}: Alias for "mean"
 \item \code{"fit"}: Per-observation posterior predictive draws
 }
 Note: \code{type="mean"} returns the posterior predictive mean, which integrates over
@@ -101,8 +99,9 @@ If NULL and \code{nrow(newdata) > 20000}, defaults to 10000.}
 \value{
 A list with elements:
 \itemize{
-\item \code{fit}: data frame with \code{estimate}/\code{lower}/\code{upper} columns (posterior means
-over draws) plus any index columns (e.g. \code{id}, \code{y}, \code{index}).
+\item \code{fit}: numeric vector/matrix for \code{type = "sample"}, otherwise a data frame with
+\code{estimate}/\code{lower}/\code{upper} columns (posterior means over draws) plus any index
+columns (e.g. \code{id}, \code{y}, \code{index}).
 \item \code{lower}, \code{upper}: reserved for backward compatibility (typically \code{NULL}).
 \item \code{type}, \code{grid}: metadata.
 }
@@ -124,8 +123,10 @@ parameters. Supported output types include:
 }
 
 For spliced models these predictions integrate over both the DPM bulk and
-the GPD tail. When \code{type = "mean"}, the function averages conditional
-means over posterior draws, so the result is a Bayesian predictive mean.
+the GPD tail using component-specific tail parameters, including link-mode
+tail coefficients when present. When \code{type = "mean"}, the function
+averages conditional means over posterior draws, so the result is a Bayesian
+predictive mean.
 
 The \code{type="mean"} option computes the posterior predictive mean by:
 \enumerate{

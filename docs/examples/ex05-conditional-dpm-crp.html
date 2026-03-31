@@ -255,10 +255,21 @@ window.Quarto = {
     <a class="nav-link" href="../developers/index.html"> 
 <span class="menu-text">Developers</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../reference.html"> 
-<span class="menu-text">Reference</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-reference" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Reference</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-reference">    
+        <li>
+    <a class="dropdown-item" href="../reference.html">
+ <span class="dropdown-text">Reference hub</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../reference-by-action.html">
+ <span class="dropdown-text">Function reference by job</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../news.html"> 
 <span class="menu-text">News</span></a>
@@ -700,7 +711,7 @@ $sd
 <h2 class="anchored" data-anchor-id="takeaways">Takeaways</h2>
 <ul>
 <li>Covariate-informed DP mixtures predict outcome distributions that shift with <code>x1</code> (and other covariates).</li>
-<li>Use <code>predict(..., type = "density")</code> to visualize conditional densities and <code>type = "quantile"</code> for posterior-mean location shifts.</li>
+<li>Use <code>predict(..., type = "density")</code> to visualize conditional densities and <code>type = "quantile"</code> to compare conditional distribution shifts.</li>
 <li>Diagnostics (<code>plot(fit_cond_normal)</code>, <code>fitted(fit_cond_normal)</code>) ensure the chains mix before relying on predictions.</li>
 <li>Next vignette extends the same idea to the SB backend before adding tails.</li>
 </ul>

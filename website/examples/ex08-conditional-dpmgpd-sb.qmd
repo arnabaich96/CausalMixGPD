@@ -48,11 +48,14 @@ source("_legacy-setup.R")
 
 ## What you’ll learn
 
-- How to combine **conditional modeling** \(y \\mid X\) with **SB truncation** and **GPD tail augmentation**.\n- How to keep the workflow wrapper-first: `bundle()` → `dpmgpd()` → `predict()`/`plot()`.\n- How to compare bulk kernels under the same SB+GPD structure to diagnose bulk vs tail sensitivity.
+- How to combine **conditional modeling** \(y \mid X\) with **SB truncation** and **GPD tail augmentation**.
+- How to keep the workflow wrapper-first: `bundle()` → `dpmgpd()` → `predict()`/`plot()`.
+- How to compare bulk kernels under the same SB+GPD structure to diagnose bulk vs tail sensitivity.
 
 ## When to use this template
 
-- You need tail-aware conditional predictions but want **fixed-complexity** mixtures for iteration and tuning.\n- You prefer choosing an explicit upper bound (`components`) over CRP-style partition flexibility.
+- You need tail-aware conditional predictions but want **fixed-complexity** mixtures for iteration and tuning.
+- You prefer choosing an explicit upper bound (`components`) over CRP-style partition flexibility.
 
 ## Next steps
 

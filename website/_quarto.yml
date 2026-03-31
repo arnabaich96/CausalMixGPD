@@ -59,7 +59,11 @@ website:
       - text: Developers
         href: developers/index.qmd
       - text: Reference
-        href: reference.qmd
+        menu:
+          - text: Reference hub
+            href: reference.qmd
+          - text: Function reference by job
+            href: reference-by-action.qmd
       - text: News
         href: news.qmd
       - text: Cite

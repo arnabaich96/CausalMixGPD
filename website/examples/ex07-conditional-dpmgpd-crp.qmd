@@ -48,11 +48,14 @@ source("_legacy-setup.R")
 
 ## What you’ll learn
 
-- How to model \(y \\mid X\) when both the **bulk shape** and the **extreme tail** matter.\n- How conditional tail modeling changes what you can query from `predict()` (survival/high quantiles per covariate slice).\n- How to encode threshold behavior via `param_specs` in a conditional setting.
+- How to model \(y \mid X\) when both the **bulk shape** and the **extreme tail** matter.
+- How conditional tail modeling changes what you can query from `predict()` (survival/high quantiles per covariate slice).
+- How to encode threshold behavior via `param_specs` in a conditional setting.
 
 ## When to use this template
 
-- Extremes matter and may depend on \(X\) (risk modeling, rare-event probability statements).\n- You want a flexible bulk model but do not want tail behavior to be implicitly driven by the bulk kernel alone.
+- Extremes matter and may depend on \(X\) (risk modeling, rare-event probability statements).
+- You want a flexible bulk model but do not want tail behavior to be implicitly driven by the bulk kernel alone.
 
 ## Next steps
 

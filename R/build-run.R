@@ -2435,13 +2435,9 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = FALSE,
   tic <- function() proc.time()[["elapsed"]]
   timing_info <- list(build = 0, compile = 0, mcmc = 0, cache_hit = FALSE)
 
-  if (parallel_chains && nchains > 1L) {
-    warning("parallel_chains currently falls back to sequential execution in this environment.",
-            call. = FALSE)
-    parallel_chains <- FALSE
-  }
-
-  if (parallel_chains && nchains > 1L) {
+  if (parallel_chains && nchains > 1L &&
+      requireNamespace("future", quietly = TRUE) &&
+      requireNamespace("future.apply", quietly = TRUE)) {
     old_plan <- future::plan()
     on.exit(future::plan(old_plan), add = TRUE)
     future::plan(future::multisession, workers = min(workers, nchains))
@@ -2479,6 +2475,11 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = FALSE,
     fit$timing <- timing_info
     class(fit) <- unique(c("mixgpd_fit", "list"))
     return(fit)
+  }
+
+  if (parallel_chains && nchains > 1L) {
+    warning("parallel_chains=TRUE requested but 'future'/'future.apply' are unavailable; running sequentially.",
+            call. = FALSE)
   }
 
   .cmgpd_progress_step(progress_ctx, "Checking build/compile cache")

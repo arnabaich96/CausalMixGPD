@@ -226,10 +226,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="../developers/index.html"> 
 <span class="menu-text">Developers</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../reference.html"> 
-<span class="menu-text">Reference</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-reference" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Reference</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-reference">    
+        <li>
+    <a class="dropdown-item" href="../reference.html">
+ <span class="dropdown-text">Reference hub</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../reference-by-action.html">
+ <span class="dropdown-text">Function reference by job</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../news.html"> 
 <span class="menu-text">News</span></a>
@@ -297,13 +308,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="what-youll-learn" class="level2">
 <h2 class="anchored" data-anchor-id="what-youll-learn">What you’ll learn</h2>
 <ul>
-<li>How to combine <strong>conditional modeling</strong> (y \mid X) with <strong>SB truncation</strong> and <strong>GPD tail augmentation</strong>.- How to keep the workflow wrapper-first: <code>bundle()</code> → <code>dpmgpd()</code> → <code>predict()</code>/<code>plot()</code>.- How to compare bulk kernels under the same SB+GPD structure to diagnose bulk vs tail sensitivity.</li>
+<li>How to combine <strong>conditional modeling</strong> (y X) with <strong>SB truncation</strong> and <strong>GPD tail augmentation</strong>.</li>
+<li>How to keep the workflow wrapper-first: <code>bundle()</code> → <code>dpmgpd()</code> → <code>predict()</code>/<code>plot()</code>.</li>
+<li>How to compare bulk kernels under the same SB+GPD structure to diagnose bulk vs tail sensitivity.</li>
 </ul>
 </section>
 <section id="when-to-use-this-template" class="level2">
 <h2 class="anchored" data-anchor-id="when-to-use-this-template">When to use this template</h2>
 <ul>
-<li>You need tail-aware conditional predictions but want <strong>fixed-complexity</strong> mixtures for iteration and tuning.- You prefer choosing an explicit upper bound (<code>components</code>) over CRP-style partition flexibility.</li>
+<li>You need tail-aware conditional predictions but want <strong>fixed-complexity</strong> mixtures for iteration and tuning.</li>
+<li>You prefer choosing an explicit upper bound (<code>components</code>) over CRP-style partition flexibility.</li>
 </ul>
 </section>
 <section id="next-steps" class="level2">

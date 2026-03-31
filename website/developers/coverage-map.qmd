@@ -59,7 +59,6 @@ This page is a **feature-area map** of the test suite (not the line-by-line HTML
 | `type="sample"` | `helper-predict-distribution.R` | ✅ |
 | `type="density"` | `helper-predict-distribution.R` | ✅ |
 | `type="survival"` | `helper-predict-distribution.R` | ✅ |
-| `type="location"` | `predict.mixgpd_fit` (predict only) | ✅ |
 | Conditional x/newdata contracts | `test-predict-contracts.R` | ✅ |
 | Parallel ncores determinism | `test-predict-contracts.R` | ✅ |
 | Credible intervals | `test-predict-contracts.R` | ✅ |
@@ -111,7 +110,6 @@ When adding or moving tests, update `tests/testthat/COVERAGE_MAP.md` and (option
 ## Next
 - Continue to the linked canonical concept page, then return for implementation-specific details.
 <!-- cmgpd-footer:end -->
-
 
 
 

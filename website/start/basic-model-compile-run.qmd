@@ -94,7 +94,7 @@ bundle_mcmc
 
 ---
 
-## Phase 3: MCMC Execution
+## Phase 2: MCMC Execution
 
 **Purpose**: Run posterior sampling from the compiled bundle.
 

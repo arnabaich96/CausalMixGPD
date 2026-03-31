@@ -5,7 +5,16 @@
 
 .cache_dir <- function() {
   d <- Sys.getenv("DPMIXGPD_CACHE_DIR", "")
-  if (!nzchar(d)) d <- file.path("tests", "testthat", "_cache")
+  if (!nzchar(d)) {
+    candidates <- unique(c(
+      tryCatch(testthat::test_path("_cache"), error = function(e) character(0)),
+      file.path("tests", "testthat", "_cache"),
+      file.path("..", "_cache"),
+      file.path("..", "..", "_cache")
+    ))
+    existing <- candidates[dir.exists(dirname(candidates))]
+    d <- if (length(existing)) existing[[1L]] else candidates[[1L]]
+  }
   dir.create(d, recursive = TRUE, showWarnings = FALSE)
   d
 }

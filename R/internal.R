@@ -242,6 +242,38 @@
   out
 }
 
+#' Extract indexed component-by-column parameter blocks from a draws matrix
+#' @keywords internal
+#' @noRd
+.indexed_block_matrix <- function(mat0, base, K = NULL, P = NULL, allow_missing = FALSE) {
+  cn0 <- colnames(mat0)
+  pat <- paste0("^", base, "\\[([0-9]+),\\s*([0-9]+)\\]$")
+  hit <- grepl(pat, cn0)
+  if (!any(hit)) {
+    if (isTRUE(allow_missing)) return(NULL)
+    stop(sprintf("No indexed columns found for '%s[i,j]'.", base), call. = FALSE)
+  }
+
+  idx1 <- as.integer(sub(pat, "\\1", cn0[hit]))
+  idx2 <- as.integer(sub(pat, "\\2", cn0[hit]))
+  cols <- cn0[hit]
+
+  if (is.null(K)) K <- max(idx1, na.rm = TRUE)
+  if (is.null(P)) P <- max(idx2, na.rm = TRUE)
+  K <- as.integer(K)
+  P <- as.integer(P)
+
+  out <- array(0.0, dim = c(nrow(mat0), K, P))
+  for (j in seq_along(cols)) {
+    k <- idx1[j]
+    p <- idx2[j]
+    if (!is.na(k) && !is.na(p) && k >= 1L && k <= K && p >= 1L && p <= P) {
+      out[, k, p] <- mat0[, cols[j]]
+    }
+  }
+  out
+}
+
 #' Extract mixture weights from draws matrix
 #' @keywords internal
 #' @noRd
@@ -688,8 +720,12 @@ stick_breaking <- nimble::nimbleFunction(
 
   spec <- object$spec %||% list()
   meta <- spec$meta %||% list()
-  backend <- meta$backend %||% spec$dispatch$backend %||% "<unknown>"
-  if (identical(backend, "spliced")) backend <- "crp"
+  plan <- spec$plan %||% list()
+  bulk_plan <- plan$bulk %||% list()
+  gpd_plan <- plan$gpd %||% list()
+  backend_raw <- meta$backend %||% spec$dispatch$backend %||% "<unknown>"
+  is_spliced <- identical(backend_raw, "spliced")
+  backend <- if (is_spliced) "crp" else backend_raw
   kernel  <- meta$kernel  %||% spec$kernel$key %||% "<unknown>"
 
   kdef <- get_kernel_registry()[[kernel]]
@@ -701,30 +737,20 @@ stick_breaking <- nimble::nimbleFunction(
   has_w <- any(grepl("^w\\[[0-9]+\\]$", cn))
   has_weights <- any(grepl("^weights\\[[0-9]+\\]$", cn))
 
-  .indexed_block <- function(mat0, base, K = NULL, allow_missing = FALSE) {
-    cn0 <- colnames(mat0)
-    pat <- paste0("^", base, "\\[([0-9]+)\\]$")
-    hit <- grepl(pat, cn0)
-    if (!any(hit)) {
-      if (isTRUE(allow_missing)) return(NULL)
-      stop(sprintf("No indexed columns found for '%s[i]'.", base), call. = FALSE)
+  component_matrix_bases <- unique(c(
+    unlist(lapply(names(bulk_plan), function(nm) {
+      ent <- bulk_plan[[nm]] %||% list()
+      if (identical(ent$mode %||% "", "link")) paste0("beta_", nm) else character(0)
+    }), use.names = FALSE),
+    if (is_spliced) {
+      unlist(lapply(c("threshold", "tail_scale", "tail_shape"), function(nm) {
+        ent <- gpd_plan[[nm]] %||% list()
+        if (identical(ent$mode %||% "", "link")) paste0("beta_", nm) else character(0)
+      }), use.names = FALSE)
+    } else {
+      character(0)
     }
-
-    idx <- as.integer(sub(pat, "\\1", cn0[hit]))
-    ord <- order(idx)
-    idx <- idx[ord]
-    cols <- cn0[hit][ord]
-
-    if (is.null(K)) K <- max(idx, na.rm = TRUE)
-    K <- as.integer(K)
-
-    out <- matrix(0.0, nrow = nrow(mat0), ncol = K)
-    for (j in seq_along(cols)) {
-      k <- idx[j]
-      if (!is.na(k) && k >= 1 && k <= K) out[, k] <- mat0[, cols[j]]
-    }
-    out
-  }
+  ))
 
   infer_K_from_bulk <- function() {
     if (length(bulk_params) < 1) return(NA_integer_)
@@ -743,12 +769,51 @@ stick_breaking <- nimble::nimbleFunction(
     NA_integer_
   }
 
+  infer_K_from_z <- function() {
+    if (!has_z) return(NA_integer_)
+    Z <- .indexed_block(mat, "z")
+    zmax <- suppressWarnings(max(Z, na.rm = TRUE))
+    if (!is.finite(zmax) || zmax < 1L) return(NA_integer_)
+    as.integer(zmax)
+  }
+
+  infer_K_from_component_vectors <- function() {
+    bases <- unique(c(
+      bulk_params,
+      if (is_spliced) c("threshold", "tail_scale", "tail_shape") else character(0)
+    ))
+    idx_all <- integer(0)
+    for (nm in bases) {
+      idx <- as.integer(sub(paste0("^", nm, "\\[([0-9]+)\\]$"), "\\1",
+                            cn[grepl(paste0("^", nm, "\\[[0-9]+\\]$"), cn)]))
+      if (length(idx)) idx_all <- c(idx_all, idx)
+    }
+    if (!length(idx_all)) return(NA_integer_)
+    as.integer(max(idx_all, na.rm = TRUE))
+  }
+
+  infer_K_from_component_matrices <- function() {
+    if (!length(component_matrix_bases)) return(NA_integer_)
+    idx_all <- integer(0)
+    for (nm in component_matrix_bases) {
+      idx <- as.integer(sub(paste0("^", nm, "\\[([0-9]+),\\s*[0-9]+\\]$"), "\\1",
+                            cn[grepl(paste0("^", nm, "\\[[0-9]+,\\s*[0-9]+\\]$"), cn)]))
+      if (length(idx)) idx_all <- c(idx_all, idx)
+    }
+    if (!length(idx_all)) return(NA_integer_)
+    as.integer(max(idx_all, na.rm = TRUE))
+  }
+
   if (identical(backend, "sb")) {
     K <- infer_K_from_w()
     if (!is.finite(K) || K < 1L) K <- infer_K_from_bulk()
     if (!is.finite(K) || K < 1L) stop("Could not infer K for SB weights.", call. = FALSE)
   } else if (identical(backend, "crp")) {
     K <- infer_K_from_bulk()
+    if (!is.finite(K) || K < 1L) K <- infer_K_from_component_vectors()
+    if (!is.finite(K) || K < 1L) K <- infer_K_from_component_matrices()
+    if (!is.finite(K) || K < 1L) K <- infer_K_from_z()
+    if (!is.finite(K) || K < 1L) K <- infer_K_from_w()
     if (!is.finite(K) || K < 1L) stop("Could not infer Kmax from component parameter draws.", call. = FALSE)
   } else {
     stop("Unknown backend: ", backend, call. = FALSE)
@@ -793,12 +858,23 @@ stick_breaking <- nimble::nimbleFunction(
     }
   }
 
-  bulk_draws <- list()
+  component_vector_draws <- list()
   for (nm in bulk_params) {
     blk <- .indexed_block(mat, nm, K = K, allow_missing = TRUE)
-    if (!is.null(blk)) bulk_draws[[nm]] <- blk
+    if (!is.null(blk)) component_vector_draws[[nm]] <- blk
   }
-  bulk_params_present <- names(bulk_draws)
+  if (is_spliced) {
+    for (nm in c("threshold", "tail_scale", "tail_shape")) {
+      blk <- .indexed_block(mat, nm, K = K, allow_missing = TRUE)
+      if (!is.null(blk)) component_vector_draws[[nm]] <- blk
+    }
+  }
+  component_matrix_draws <- list()
+  for (base in component_matrix_bases) {
+    blk <- .indexed_block_matrix(mat, base, K = K, allow_missing = TRUE)
+    if (!is.null(blk)) component_matrix_draws[[base]] <- blk
+  }
+  component_vector_bases <- names(component_vector_draws)
 
   # ----- per-draw truncation (sorted by weight; keep params aligned) -----
   S <- nrow(mat)
@@ -810,8 +886,8 @@ stick_breaking <- nimble::nimbleFunction(
   p_list <- vector("list", S)
 
   for (s in 1:S) {
-    params_s <- lapply(bulk_params_present, function(nm) as.numeric(bulk_draws[[nm]][s, ]))
-    names(params_s) <- bulk_params_present
+    params_s <- lapply(component_vector_bases, function(nm) as.numeric(component_vector_draws[[nm]][s, ]))
+    names(params_s) <- component_vector_bases
     tr <- .truncate_components_one_draw(w = as.numeric(W[s, ]), params = params_s, epsilon = epsilon)
 
     ks[s] <- tr$k
@@ -830,7 +906,8 @@ stick_breaking <- nimble::nimbleFunction(
   drop_pat <- c(
     "^weights\\[[0-9]+\\]$",
     "^w\\[[0-9]+\\]$",
-    paste0("^", bulk_params, "\\[[0-9]+\\]$")
+    paste0("^", unique(component_vector_bases), "\\[[0-9]+\\]$"),
+    paste0("^", unique(names(component_matrix_draws)), "\\[[0-9]+,\\s*[0-9]+\\]$")
   )
   drop_hit <- rep(FALSE, length(cn))
   for (pp in drop_pat) drop_hit <- drop_hit | grepl(pp, cn)
@@ -843,10 +920,19 @@ stick_breaking <- nimble::nimbleFunction(
   colnames(w_out) <- paste0("w[", seq_len(Kt), "]")
 
   out_params <- list()
-  for (nm in bulk_params_present) {
+  for (nm in component_vector_bases) {
     tmp <- matrix(NA_real_, nrow = S, ncol = Kt)
     colnames(tmp) <- paste0(nm, "[", seq_len(Kt), "]")
     out_params[[nm]] <- tmp
+  }
+  out_mats <- list()
+  for (base in names(component_matrix_draws)) {
+    Pj <- dim(component_matrix_draws[[base]])[3L]
+    tmp <- matrix(NA_real_, nrow = S, ncol = Kt * Pj)
+    colnames(tmp) <- unlist(lapply(seq_len(Kt), function(k) {
+      paste0(base, "[", k, ",", seq_len(Pj), "]")
+    }), use.names = FALSE)
+    out_mats[[base]] <- tmp
   }
 
   for (s in 1:S) {
@@ -854,13 +940,26 @@ stick_breaking <- nimble::nimbleFunction(
     k_s <- min(length(w_s), Kt)
     if (k_s < 1L) next
     w_out[s, seq_len(k_s)] <- w_s[seq_len(k_s)]
-    for (nm in bulk_params_present) {
+    for (nm in component_vector_bases) {
       out_params[[nm]][s, seq_len(k_s)] <- p_list[[s]][[nm]][seq_len(k_s)]
+    }
+    if (length(out_mats)) {
+      ord_s <- ords[[s]]
+      for (base in names(out_mats)) {
+        mat_s <- component_matrix_draws[[base]][s, , , drop = TRUE]
+        if (is.null(dim(mat_s))) {
+          mat_s <- matrix(mat_s, nrow = K, ncol = 1L)
+        }
+        mat_ord <- mat_s[ord_s, , drop = FALSE]
+        Pj <- ncol(mat_ord)
+        out_mats[[base]][s, seq_len(k_s * Pj)] <- as.vector(t(mat_ord[seq_len(k_s), , drop = FALSE]))
+      }
     }
   }
 
   out <- cbind(out, w_out)
-  for (nm in bulk_params_present) out <- cbind(out, out_params[[nm]])
+  for (nm in component_vector_bases) out <- cbind(out, out_params[[nm]])
+  for (base in names(out_mats)) out <- cbind(out, out_mats[[base]])
 
   attr(out, "truncation") <- list(
     k = ks,
@@ -1081,6 +1180,8 @@ stick_breaking <- nimble::nimbleFunction(
 
     spec <- object$spec %||% list()
     plan <- spec$plan %||% list()
+    meta <- spec$meta %||% list()
+    is_spliced <- identical(meta$backend %||% spec$dispatch$backend %||% "", "spliced")
     bulk <- plan$bulk %||% list()
     gpd <- plan$gpd %||% list()
 
@@ -1116,12 +1217,23 @@ stick_breaking <- nimble::nimbleFunction(
       if (identical(ts_mode, "link")) {
         keep <- keep | grepl("^beta_tail_scale\\[", cn)
       } else if (ts_mode %in% c("dist", "fixed")) {
-        keep <- keep | cn == "tail_scale"
+        if (is_spliced) {
+          keep <- keep | grepl("^tail_scale\\[[0-9]+\\]$", cn)
+        } else {
+          keep <- keep | cn == "tail_scale"
+        }
       }
     }
 
     if (!is.null(gpd$tail_shape)) {
-      keep <- keep | cn == "tail_shape"
+      tsh_mode <- gpd$tail_shape$mode %||% NA_character_
+      if (identical(tsh_mode, "link")) {
+        keep <- keep | grepl("^beta_tail_shape\\[", cn)
+      } else if (is_spliced) {
+        keep <- keep | grepl("^tail_shape\\[[0-9]+\\]$", cn)
+      } else {
+        keep <- keep | cn == "tail_shape"
+      }
     }
 
     pars <- cn[keep]
@@ -1152,8 +1264,9 @@ stick_breaking <- nimble::nimbleFunction(
     }
   }
 
+  backend <- object$spec$meta$backend %||% object$spec$dispatch$backend %||% ""
   thr_cols <- grep("^threshold\\[[0-9]+\\]$", colnames(mat), value = TRUE)
-  if (length(thr_cols) >= 1) {
+  if (!identical(backend, "spliced") && length(thr_cols) >= 1) {
     thr_vec <- if (length(thr_cols) == 1) {
       as.numeric(mat[, thr_cols[1]])
     } else {
@@ -1608,7 +1721,8 @@ stick_breaking <- nimble::nimbleFunction(
                             ndraws_pred = NULL,
                             chunk_size = NULL,
                             show_progress = TRUE,
-                            ncores = 1L) {
+                            ncores = 1L,
+                            sample_draw_idx = NULL) {
 
   .validate_fit(object)
   type <- match.arg(type)
@@ -1858,7 +1972,8 @@ stick_breaking <- nimble::nimbleFunction(
         ndraws_pred = ndraws_pred,
         chunk_size = NULL,
         show_progress = FALSE,
-        ncores = ncores
+        ncores = ncores,
+        sample_draw_idx = sample_draw_idx
       )
     }
     out <- parts[[1L]]
@@ -1967,73 +2082,99 @@ stick_breaking <- nimble::nimbleFunction(
   threshold_mat <- NULL
   threshold_scalar <- NULL
   tail_scale <- NULL
+  spliced_gpd_draws <- list()
+  spliced_gpd_link <- list()
 
   if (GPD) {
     gpd_plan <- spec$dispatch$gpd %||% meta$gpd %||% list()
-    
-    # Check for unsupported spliced + GPD + link mode combination
+
     if (is_spliced) {
-      thr_mode <- gpd_plan$threshold$mode %||% "dist"
-      ts_mode <- gpd_plan$tail_scale$mode %||% "dist"
-      tsh_mode <- gpd_plan$tail_shape$mode %||% "dist"
-      
-      if (any(c(thr_mode, ts_mode, tsh_mode) == "link")) {
-        stop(
-          "Spliced backend with link-mode GPD parameters is not yet fully implemented in prediction.\n",
-          "For now, use fixed or dist modes for GPD parameters with spliced backend.\n",
-          "Full link-mode support for component-specific tail covariate effects is planned.",
-          call. = FALSE
-        )
-      }
-    }
-    
-    if (!("tail_shape" %in% colnames(draw_mat))) stop("tail_shape not found in posterior draws.", call. = FALSE)
-    tail_shape <- as.numeric(draw_mat[, "tail_shape"])
-
-    # threshold
-    thr_mode <- gpd_plan$threshold$mode %||% "constant"
-    if (identical(thr_mode, "link")) {
-      if (!has_X) stop("threshold link-mode requires X.", call. = FALSE)
-      beta_thr <- .indexed_block(draw_mat, "beta_threshold", K = P)  # S x P
-      threshold_mat <- matrix(NA_real_, nrow = S, ncol = n_pred)
-      thr_link <- gpd_plan$threshold$link %||% "exp"
-      thr_power <- gpd_plan$threshold$link_power %||% NULL
-      for (s in 1:S) {
-        eta <- as.numeric(Xpred %*% beta_thr[s, ])
-        threshold_mat[s, ] <- as.numeric(.apply_link(eta, thr_link, thr_power))
+      K_sp <- ncol(W_draws)
+      for (nm in c("threshold", "tail_scale", "tail_shape")) {
+        ent <- gpd_plan[[nm]] %||% list(mode = "dist")
+        mode <- ent$mode %||% "dist"
+        if (identical(mode, "link")) {
+          if (!has_X) stop(sprintf("%s link-mode requires X.", nm), call. = FALSE)
+          beta_arr <- .indexed_block_matrix(draw_mat, paste0("beta_", nm), K = K_sp, P = P, allow_missing = TRUE)
+          if (is.null(beta_arr)) stop(sprintf("beta_%s not found in posterior draws.", nm), call. = FALSE)
+          spliced_gpd_link[[nm]] <- list(
+            beta = beta_arr,
+            link = ent$link %||% if (identical(nm, "tail_shape")) "identity" else "exp",
+            link_power = ent$link_power %||% NULL
+          )
+        } else {
+          vals <- .indexed_block(draw_mat, nm, K = K_sp, allow_missing = TRUE)
+          if (is.null(vals) && identical(mode, "fixed") && !is.null(ent$value)) {
+            vals <- matrix(rep(as.numeric(ent$value), S * K_sp), nrow = S, ncol = K_sp)
+          }
+          if (is.null(vals)) stop(sprintf("%s not found in posterior draws.", nm), call. = FALSE)
+          spliced_gpd_draws[[nm]] <- vals
+        }
       }
     } else {
-      # constant threshold
-      thr_cols <- grep("^threshold(\\b|_)", colnames(draw_mat), value = TRUE)
-      if (length(thr_cols) == 0L && "threshold" %in% colnames(draw_mat)) thr_cols <- "threshold"
-      if (length(thr_cols) == 0L) stop("threshold not found in posterior draws.", call. = FALSE)
-      if (length(thr_cols) == 1L) {
-        threshold_scalar <- as.numeric(draw_mat[, thr_cols])
+      # threshold
+      thr_mode <- gpd_plan$threshold$mode %||% "constant"
+      if (identical(thr_mode, "link")) {
+        if (!has_X) stop("threshold link-mode requires X.", call. = FALSE)
+        beta_thr <- .indexed_block(draw_mat, "beta_threshold", K = P)
+        threshold_mat <- matrix(NA_real_, nrow = S, ncol = n_pred)
+        thr_link <- gpd_plan$threshold$link %||% "exp"
+        thr_power <- gpd_plan$threshold$link_power %||% NULL
+        for (s in seq_len(S)) {
+          eta <- as.numeric(Xpred %*% beta_thr[s, ])
+          threshold_mat[s, ] <- as.numeric(.apply_link(eta, thr_link, thr_power))
+        }
       } else {
-        threshold_scalar <- rowMeans(draw_mat[, thr_cols, drop = FALSE], na.rm = TRUE)
+        thr_cols <- grep("^threshold(\\b|_)", colnames(draw_mat), value = TRUE)
+        if (length(thr_cols) == 0L && "threshold" %in% colnames(draw_mat)) thr_cols <- "threshold"
+        if (length(thr_cols) == 0L) stop("threshold not found in posterior draws.", call. = FALSE)
+        if (length(thr_cols) == 1L) {
+          threshold_scalar <- as.numeric(draw_mat[, thr_cols])
+        } else {
+          threshold_scalar <- rowMeans(draw_mat[, thr_cols, drop = FALSE], na.rm = TRUE)
+        }
       }
-    }
 
-    # tail scale
-    has_beta_ts <- any(grepl("^beta_tail_scale\\[", colnames(draw_mat)))
-    ts_mode <- gpd_plan$tail_scale$mode %||% if (has_beta_ts) "link" else "constant"
-    if (identical(ts_mode, "link")) {
-      if (!has_X) stop("tail_scale link-mode requires X.", call. = FALSE)
-      beta_ts <- .indexed_block(draw_mat, "beta_tail_scale", K = P)  # S x P
-      tail_scale <- matrix(NA_real_, nrow = S, ncol = n_pred)
-      ts_link <- gpd_plan$tail_scale$link %||% "exp"
-      ts_power <- gpd_plan$tail_scale$link_power %||% NULL
-      for (s in 1:S) {
-        eta <- as.numeric(Xpred %*% beta_ts[s, ])
-        tail_scale[s, ] <- as.numeric(.apply_link(eta, ts_link, ts_power))
-      }
-    } else {
-      if ("tail_scale" %in% colnames(draw_mat)) {
-        tail_scale <- as.numeric(draw_mat[, "tail_scale"])
-      } else if (!is.null(gpd_plan$tail_scale$value)) {
-        tail_scale <- rep(as.numeric(gpd_plan$tail_scale$value), S)
+      has_beta_ts <- any(grepl("^beta_tail_scale\\[", colnames(draw_mat)))
+      ts_mode <- gpd_plan$tail_scale$mode %||% if (has_beta_ts) "link" else "constant"
+      if (identical(ts_mode, "link")) {
+        if (!has_X) stop("tail_scale link-mode requires X.", call. = FALSE)
+        beta_ts <- .indexed_block(draw_mat, "beta_tail_scale", K = P)
+        tail_scale <- matrix(NA_real_, nrow = S, ncol = n_pred)
+        ts_link <- gpd_plan$tail_scale$link %||% "exp"
+        ts_power <- gpd_plan$tail_scale$link_power %||% NULL
+        for (s in seq_len(S)) {
+          eta <- as.numeric(Xpred %*% beta_ts[s, ])
+          tail_scale[s, ] <- as.numeric(.apply_link(eta, ts_link, ts_power))
+        }
       } else {
-        stop("tail_scale not found in posterior draws.", call. = FALSE)
+        if ("tail_scale" %in% colnames(draw_mat)) {
+          tail_scale <- as.numeric(draw_mat[, "tail_scale"])
+        } else if (!is.null(gpd_plan$tail_scale$value)) {
+          tail_scale <- rep(as.numeric(gpd_plan$tail_scale$value), S)
+        } else {
+          stop("tail_scale not found in posterior draws.", call. = FALSE)
+        }
+      }
+
+      has_beta_tsh <- any(grepl("^beta_tail_shape\\[", colnames(draw_mat)))
+      tsh_mode <- gpd_plan$tail_shape$mode %||% if (has_beta_tsh) "link" else "constant"
+      if (identical(tsh_mode, "link")) {
+        if (!has_X) stop("tail_shape link-mode requires X.", call. = FALSE)
+        beta_tsh <- .indexed_block(draw_mat, "beta_tail_shape", K = P)
+        tail_shape <- matrix(NA_real_, nrow = S, ncol = n_pred)
+        tsh_link <- gpd_plan$tail_shape$link %||% "identity"
+        tsh_power <- gpd_plan$tail_shape$link_power %||% NULL
+        for (s in seq_len(S)) {
+          eta <- as.numeric(Xpred %*% beta_tsh[s, ])
+          tail_shape[s, ] <- as.numeric(.apply_link(eta, tsh_link, tsh_power))
+        }
+      } else if ("tail_shape" %in% colnames(draw_mat)) {
+        tail_shape <- as.numeric(draw_mat[, "tail_shape"])
+      } else if (!is.null(gpd_plan$tail_shape$value)) {
+        tail_shape <- rep(as.numeric(gpd_plan$tail_shape$value), S)
+      } else {
+        stop("tail_shape not found in posterior draws.", call. = FALSE)
       }
     }
   }
@@ -2046,6 +2187,11 @@ stick_breaking <- nimble::nimbleFunction(
   .tail_scale_at <- function(s, i) {
     if (is.matrix(tail_scale)) return(tail_scale[s, i])
     tail_scale[s]
+  }
+
+  .tail_shape_at <- function(s, i) {
+    if (is.matrix(tail_shape)) return(tail_shape[s, i])
+    tail_shape[s]
   }
 
   # -----------------------------
@@ -2071,7 +2217,7 @@ stick_breaking <- nimble::nimbleFunction(
       args0[[nm]] <- v
     }
 
-    if (GPD) {
+    if (GPD && !is_spliced && !is.matrix(tail_shape)) {
       xi <- as.numeric(tail_shape[s])
       if (!is.finite(xi)) return(NULL)
       args0$tail_shape <- xi
@@ -2084,17 +2230,35 @@ stick_breaking <- nimble::nimbleFunction(
   for (s in seq_len(S)) {
     ok <- !is.null(.build_args0_or_null(s))
     if (ok && GPD) {
-      # validate threshold + scale (support)
-      if (!is.null(threshold_mat)) {
-        if (!all(is.finite(threshold_mat[s, ]))) ok <- FALSE
+      if (is_spliced) {
+        for (nm in names(spliced_gpd_draws)) {
+          vals <- as.numeric(spliced_gpd_draws[[nm]][s, ])
+          if (identical(nm, "tail_scale")) {
+            ok <- all(is.finite(vals) & (vals > 0))
+          } else {
+            ok <- all(is.finite(vals))
+          }
+          if (!ok) break
+        }
       } else {
-        if (!is.finite(threshold_scalar[s])) ok <- FALSE
-      }
-      if (ok) {
-        if (is.matrix(tail_scale)) {
-          ok <- all(is.finite(tail_scale[s, ]) & (tail_scale[s, ] > 0))
+        if (!is.null(threshold_mat)) {
+          if (!all(is.finite(threshold_mat[s, ]))) ok <- FALSE
         } else {
-          ok <- is.finite(tail_scale[s]) && (tail_scale[s] > 0)
+          if (!is.finite(threshold_scalar[s])) ok <- FALSE
+        }
+        if (ok) {
+          if (is.matrix(tail_scale)) {
+            ok <- all(is.finite(tail_scale[s, ]) & (tail_scale[s, ] > 0))
+          } else {
+            ok <- is.finite(tail_scale[s]) && (tail_scale[s] > 0)
+          }
+        }
+        if (ok) {
+          if (is.matrix(tail_shape)) {
+            ok <- all(is.finite(tail_shape[s, ]))
+          } else {
+            ok <- is.finite(tail_shape[s])
+          }
         }
       }
     }
@@ -2127,6 +2291,187 @@ stick_breaking <- nimble::nimbleFunction(
     future.apply::future_lapply(idx, FUN)
   }
 
+  spliced_scalar <- if (is_spliced && GPD) .get_dispatch_scalar(object, backend_override = "crp") else NULL
+
+  .row_component_value <- function(obj, i, k) {
+    if (is.null(obj)) return(NA_real_)
+    if (is.null(dim(obj))) return(as.numeric(obj[1L]))
+    if (length(dim(obj)) != 2L) stop("Expected a scalar or matrix component block.", call. = FALSE)
+    j <- if (ncol(obj) >= k && ncol(obj) > 1L) k else 1L
+    as.numeric(obj[i, j])
+  }
+
+  .compute_spliced_gpd_eta <- function(s) {
+    if (!length(spliced_gpd_link)) return(list())
+    out <- list()
+    for (nm in names(spliced_gpd_link)) {
+      ent <- spliced_gpd_link[[nm]]
+      beta_mat <- ent$beta[s, , , drop = TRUE]
+      if (is.null(dim(beta_mat))) beta_mat <- matrix(beta_mat, nrow = ncol(W_draws), ncol = P)
+      eta_mat <- Xpred %*% t(beta_mat)
+      out[[nm]] <- .apply_link(eta_mat, ent$link, ent$link_power)
+    }
+    out
+  }
+
+  .spliced_gpd_value_at <- function(nm, s, i, k, eta_cache) {
+    if (!is.null(eta_cache[[nm]])) return(.row_component_value(eta_cache[[nm]], i, k))
+    vals <- spliced_gpd_draws[[nm]]
+    if (is.null(vals)) return(NA_real_)
+    as.numeric(vals[s, k])
+  }
+
+  .spliced_component_args_or_null <- function(s, i, k, link_eta, gpd_eta) {
+    args <- list()
+    for (nm in bulk_params) {
+      if (nm %in% link_params) {
+        vv <- .row_component_value(link_eta[[nm]], i, k)
+      } else if (nm %in% base_params) {
+        vv <- as.numeric(bulk_draws[[nm]][s, k])
+      } else {
+        next
+      }
+      if (!.support_ok(nm, vv)) return(NULL)
+      args[[nm]] <- as.numeric(vv)
+    }
+
+    args$threshold <- .spliced_gpd_value_at("threshold", s, i, k, gpd_eta)
+    args$tail_scale <- .spliced_gpd_value_at("tail_scale", s, i, k, gpd_eta)
+    args$tail_shape <- .spliced_gpd_value_at("tail_shape", s, i, k, gpd_eta)
+    if (!is.finite(args$threshold) || !is.finite(args$tail_scale) || args$tail_scale <= 0 || !is.finite(args$tail_shape)) {
+      return(NULL)
+    }
+    args
+  }
+
+  .spliced_component_args_list_or_null <- function(s, i, link_eta, gpd_eta) {
+    K <- ncol(W_draws)
+    out <- vector("list", K)
+    for (k in seq_len(K)) {
+      out[[k]] <- .spliced_component_args_or_null(s, i, k, link_eta = link_eta, gpd_eta = gpd_eta)
+      if (is.null(out[[k]])) return(NULL)
+    }
+    out
+  }
+
+  .normalize_weights_or_null <- function(w) {
+    w <- as.numeric(w)
+    if (!all(is.finite(w))) return(NULL)
+    w[w < 0] <- 0
+    sw <- sum(w)
+    if (!is.finite(sw) || sw <= 0) return(NULL)
+    w / sw
+  }
+
+  .spliced_density_survival_row <- function(s, i, yvals, type, link_eta, gpd_eta) {
+    w_s <- .normalize_weights_or_null(W_draws[s, ])
+    if (is.null(w_s)) return(rep(NA_real_, length(yvals)))
+    comp_args <- .spliced_component_args_list_or_null(s, i, link_eta = link_eta, gpd_eta = gpd_eta)
+    if (is.null(comp_args)) return(rep(NA_real_, length(yvals)))
+
+    out <- numeric(length(yvals))
+    for (j in seq_along(yvals)) {
+      yj <- yvals[j]
+      vals <- vapply(seq_along(comp_args), function(k) {
+        fun_args <- comp_args[[k]]
+        if (type == "density") {
+          as.numeric(do.call(spliced_scalar$d, c(list(x = yj, log = 0L), fun_args)))[1]
+        } else {
+          cdfv <- as.numeric(do.call(spliced_scalar$p, c(list(q = yj, lower.tail = 1L, log.p = 0L), fun_args)))[1]
+          cdfv <- pmin(pmax(cdfv, 0), 1)
+          1 - cdfv
+        }
+      }, numeric(1))
+      out[j] <- sum(w_s * vals)
+    }
+    out
+  }
+
+  .spliced_quantile_one <- function(s, i, p0, link_eta, gpd_eta) {
+    w_s <- .normalize_weights_or_null(W_draws[s, ])
+    if (is.null(w_s)) return(NA_real_)
+    comp_args <- .spliced_component_args_list_or_null(s, i, link_eta = link_eta, gpd_eta = gpd_eta)
+    if (is.null(comp_args)) return(NA_real_)
+
+    q_lo <- vapply(comp_args, function(args) {
+      suppressWarnings(tryCatch(as.numeric(do.call(spliced_scalar$q, c(list(p = 1e-8), args)))[1], error = function(e) NA_real_))
+    }, numeric(1))
+    q_hi <- vapply(comp_args, function(args) {
+      suppressWarnings(tryCatch(as.numeric(do.call(spliced_scalar$q, c(list(p = 1 - 1e-8), args)))[1], error = function(e) NA_real_))
+    }, numeric(1))
+    q_mid <- vapply(comp_args, function(args) {
+      suppressWarnings(tryCatch(as.numeric(do.call(spliced_scalar$q, c(list(p = p0), args)))[1], error = function(e) NA_real_))
+    }, numeric(1))
+
+    finite_seed <- c(q_lo[is.finite(q_lo)], q_hi[is.finite(q_hi)], q_mid[is.finite(q_mid)])
+    if (!length(finite_seed)) return(NA_real_)
+
+    cdf_mix <- function(y) {
+      vals <- vapply(comp_args, function(args) {
+        as.numeric(do.call(spliced_scalar$p, c(list(q = y, lower.tail = 1L, log.p = 0L), args)))[1]
+      }, numeric(1))
+      sum(w_s * pmin(pmax(vals, 0), 1))
+    }
+
+    lower <- min(finite_seed, na.rm = TRUE)
+    upper <- max(finite_seed, na.rm = TRUE)
+    step0 <- max(1, diff(range(finite_seed)), abs(lower), abs(upper), na.rm = TRUE)
+    if (!is.finite(step0) || step0 <= 0) step0 <- 1
+
+    f_lower <- cdf_mix(lower) - p0
+    f_upper <- cdf_mix(upper) - p0
+
+    step <- step0
+    iter <- 0L
+    while (is.finite(f_lower) && f_lower > 0 && iter < 60L) {
+      lower <- lower - step
+      f_lower <- cdf_mix(lower) - p0
+      step <- step * 2
+      iter <- iter + 1L
+    }
+
+    step <- step0
+    iter <- 0L
+    while (is.finite(f_upper) && f_upper < 0 && iter < 60L) {
+      upper <- upper + step
+      f_upper <- cdf_mix(upper) - p0
+      step <- step * 2
+      iter <- iter + 1L
+    }
+
+    if (!is.finite(f_lower) || !is.finite(f_upper) || f_lower > 0 || f_upper < 0) {
+      return(NA_real_)
+    }
+
+    suppressWarnings(tryCatch(
+      stats::uniroot(function(y) cdf_mix(y) - p0, interval = c(lower, upper), tol = .Machine$double.eps^0.5)$root,
+      error = function(e) NA_real_
+    ))
+  }
+
+  .spliced_sample_values <- function(s, i, n, link_eta, gpd_eta) {
+    w_s <- .normalize_weights_or_null(W_draws[s, ])
+    if (is.null(w_s)) return(rep(NA_real_, n))
+    comp_args <- .spliced_component_args_list_or_null(s, i, link_eta = link_eta, gpd_eta = gpd_eta)
+    if (is.null(comp_args)) return(rep(NA_real_, n))
+
+    kk <- sample.int(length(w_s), size = n, replace = TRUE, prob = w_s)
+    out <- rep(NA_real_, n)
+    for (ii in seq_len(n)) {
+      out[ii] <- as.numeric(do.call(spliced_scalar$r, c(list(n = 1L), comp_args[[kk[ii]]])))[1]
+    }
+    out
+  }
+
+  .spliced_mean_infinite <- function(s, i, gpd_eta) {
+    w_s <- as.numeric(W_draws[s, ])
+    if (!all(is.finite(w_s))) return(FALSE)
+    xi <- vapply(seq_len(ncol(W_draws)), function(k) {
+      .spliced_gpd_value_at("tail_shape", s, i, k, gpd_eta)
+    }, numeric(1))
+    any((w_s > 0) & is.finite(xi) & (xi >= 1))
+  }
+
   # -----------------------------
   # density / survival
   # -----------------------------
@@ -2141,23 +2486,38 @@ stick_breaking <- nimble::nimbleFunction(
       if (is.null(args0)) return(list(valid = FALSE, out = matrix(NA_real_, nrow = n_pred, ncol = G)))
 
       link_eta <- .compute_link_eta(s)
+      gpd_eta <- if (is_spliced && GPD) .compute_spliced_gpd_eta(s) else list()
 
       out <- matrix(NA_real_, nrow = n_pred, ncol = G)
       for (i in seq_len(n_pred)) {
+        if (is_spliced && GPD) {
+          out[i, ] <- .spliced_density_survival_row(s, i, ygrid_num, type = type, link_eta = link_eta, gpd_eta = gpd_eta)
+          next
+        }
+
         args <- args0
         if (GPD) {
           args$threshold <- .threshold_at(s, i)
           args$tail_scale <- .tail_scale_at(s, i)
-          if (!is.finite(args$threshold) || !is.finite(args$tail_scale) || args$tail_scale <= 0) {
+          args$tail_shape <- .tail_shape_at(s, i)
+          if (!is.finite(args$threshold) || !is.finite(args$tail_scale) || args$tail_scale <= 0 || !is.finite(args$tail_shape)) {
             out[i, ] <- NA_real_
             next
           }
         }
         if (length(link_params)) {
+          bad <- FALSE
           for (nm in link_params) {
             vv <- as.numeric(link_eta[[nm]][i, ])
-            if (!all(is.finite(vv))) { out[i, ] <- NA_real_; next }
+            if (!all(is.finite(vv))) {
+              bad <- TRUE
+              break
+            }
             args[[nm]] <- vv
+          }
+          if (bad) {
+            out[i, ] <- NA_real_
+            next
           }
         }
 
@@ -2240,10 +2600,18 @@ stick_breaking <- nimble::nimbleFunction(
         args0 <- .build_args0_or_null(s)
         if (is.null(args0)) next
 
+        if (is_spliced && GPD) {
+          draws_mat[, s] <- vapply(pgrid, function(pp) {
+            .spliced_quantile_one(s, 1L, pp, link_eta = list(), gpd_eta = list())
+          }, numeric(1))
+          next
+        }
+
         if (GPD) {
           args0$threshold <- threshold_scalar[s]
           args0$tail_scale <- tail_scale[s]
-          if (!is.finite(args0$threshold) || !is.finite(args0$tail_scale) || args0$tail_scale <= 0) next
+          args0$tail_shape <- .tail_shape_at(s, 1L)
+          if (!is.finite(args0$threshold) || !is.finite(args0$tail_scale) || args0$tail_scale <= 0 || !is.finite(args0$tail_shape)) next
         }
 
         draws_mat[, s] <- as.numeric(do.call(q_fun, c(list(p = pgrid), args0)))
@@ -2285,22 +2653,39 @@ stick_breaking <- nimble::nimbleFunction(
       if (is.null(args0)) next
 
       link_eta <- .compute_link_eta(s)
+      gpd_eta <- if (is_spliced && GPD) .compute_spliced_gpd_eta(s) else list()
 
       for (i in seq_len(n_pred)) {
+        if (is_spliced && GPD) {
+          draws_arr[i, , s] <- vapply(pgrid, function(pp) {
+            .spliced_quantile_one(s, i, pp, link_eta = link_eta, gpd_eta = gpd_eta)
+          }, numeric(1))
+          next
+        }
+
         args <- args0
         if (GPD) {
           args$threshold <- .threshold_at(s, i)
           args$tail_scale <- .tail_scale_at(s, i)
-          if (!is.finite(args$threshold) || !is.finite(args$tail_scale) || args$tail_scale <= 0) {
+          args$tail_shape <- .tail_shape_at(s, i)
+          if (!is.finite(args$threshold) || !is.finite(args$tail_scale) || args$tail_scale <= 0 || !is.finite(args$tail_shape)) {
             draws_arr[i, , s] <- NA_real_
             next
           }
         }
         if (length(link_params)) {
+          bad <- FALSE
           for (nm in link_params) {
             vv <- as.numeric(link_eta[[nm]][i, ])
-            if (!all(is.finite(vv))) { draws_arr[i, , s] <- NA_real_; next }
+            if (!all(is.finite(vv))) {
+              bad <- TRUE
+              break
+            }
             args[[nm]] <- vv
+          }
+          if (bad) {
+            draws_arr[i, , s] <- NA_real_
+            next
           }
         }
         draws_arr[i, , s] <- as.numeric(do.call(q_fun, c(list(p = pgrid), args)))
@@ -2341,10 +2726,17 @@ stick_breaking <- nimble::nimbleFunction(
   # sample (posterior predictive)
   # -----------------------------
   if (type == "sample") {
+    if (!is.null(sample_draw_idx)) {
+      idx <- as.integer(sample_draw_idx)
+      if (!length(idx) || any(!is.finite(idx)) || any(idx < 1L) || any(idx > S)) {
+        stop("'sample_draw_idx' must be a non-empty integer vector indexing posterior draws.", call. = FALSE)
+      }
+      nsim <- length(idx)
+    }
+
     if (!has_X) {
       if (is.na(nsim) || nsim < 1L) nsim <- length(ytrain)
-      idx <- sample.int(S, size = nsim, replace = TRUE)
-      u_samples <- runif(nsim)
+      if (is.null(sample_draw_idx)) idx <- sample.int(S, size = nsim, replace = TRUE)
       outv <- numeric(nsim)
 
       for (t in seq_len(nsim)) {
@@ -2353,15 +2745,21 @@ stick_breaking <- nimble::nimbleFunction(
         args0 <- .build_args0_or_null(s)
         if (is.null(args0)) { outv[t] <- NA_real_; next }
 
+        if (is_spliced && GPD) {
+          outv[t] <- .spliced_sample_values(s, 1L, n = 1L, link_eta = list(), gpd_eta = list())[1]
+          next
+        }
+
         if (GPD) {
           args0$threshold <- threshold_scalar[s]
           args0$tail_scale <- tail_scale[s]
-          if (!is.finite(args0$threshold) || !is.finite(args0$tail_scale) || args0$tail_scale <= 0) {
+          args0$tail_shape <- .tail_shape_at(s, 1L)
+          if (!is.finite(args0$threshold) || !is.finite(args0$tail_scale) || args0$tail_scale <= 0 || !is.finite(args0$tail_shape)) {
             outv[t] <- NA_real_
             next
           }
         }
-        outv[t] <- as.numeric(do.call(q_fun, c(list(p = u_samples[t]), args0)))
+        outv[t] <- as.numeric(do.call(r_fun, c(list(n = 1L), args0)))[1]
       }
 
       res <- list(
@@ -2379,8 +2777,7 @@ stick_breaking <- nimble::nimbleFunction(
     }
 
     if (is.na(nsim) || nsim < 1L) nsim <- n_pred
-    idx <- sample.int(S, size = nsim, replace = TRUE)
-    u_samples <- runif(nsim)
+    if (is.null(sample_draw_idx)) idx <- sample.int(S, size = nsim, replace = TRUE)
     outm <- matrix(NA_real_, nrow = n_pred, ncol = nsim)
 
     for (t in seq_len(nsim)) {
@@ -2390,25 +2787,40 @@ stick_breaking <- nimble::nimbleFunction(
       if (is.null(args0)) next
 
       link_eta <- .compute_link_eta(s)
+      gpd_eta <- if (is_spliced && GPD) .compute_spliced_gpd_eta(s) else list()
 
       for (i in seq_len(n_pred)) {
+        if (is_spliced && GPD) {
+          outm[i, t] <- .spliced_sample_values(s, i, n = 1L, link_eta = link_eta, gpd_eta = gpd_eta)[1]
+          next
+        }
+
         args <- args0
         if (GPD) {
           args$threshold <- .threshold_at(s, i)
           args$tail_scale <- .tail_scale_at(s, i)
-          if (!is.finite(args$threshold) || !is.finite(args$tail_scale) || args$tail_scale <= 0) {
+          args$tail_shape <- .tail_shape_at(s, i)
+          if (!is.finite(args$threshold) || !is.finite(args$tail_scale) || args$tail_scale <= 0 || !is.finite(args$tail_shape)) {
             outm[i, t] <- NA_real_
             next
           }
         }
         if (length(link_params)) {
+          bad <- FALSE
           for (nm in link_params) {
             vv <- as.numeric(link_eta[[nm]][i, ])
-            if (!all(is.finite(vv))) { outm[i, t] <- NA_real_; next }
+            if (!all(is.finite(vv))) {
+              bad <- TRUE
+              break
+            }
             args[[nm]] <- vv
           }
+          if (bad) {
+            outm[i, t] <- NA_real_
+            next
+          }
         }
-        outm[i, t] <- as.numeric(do.call(q_fun, c(list(p = u_samples[t]), args)))
+        outm[i, t] <- as.numeric(do.call(r_fun, c(list(n = 1L), args)))[1]
       }
     }
 
@@ -2443,31 +2855,52 @@ stick_breaking <- nimble::nimbleFunction(
       # Conditional: one sample per observation
       if (has_X) {
         link_eta <- .compute_link_eta(s)
+        gpd_eta <- if (is_spliced && GPD) .compute_spliced_gpd_eta(s) else list()
         for (i in seq_len(n_obs)) {
+          if (is_spliced && GPD) {
+            samples_mat[s, i] <- .spliced_sample_values(s, i, n = 1L, link_eta = link_eta, gpd_eta = gpd_eta)[1]
+            next
+          }
+
           args <- args0
           if (GPD) {
             args$threshold <- .threshold_at(s, i)
             args$tail_scale <- .tail_scale_at(s, i)
-            if (!is.finite(args$threshold) || !is.finite(args$tail_scale) || args$tail_scale <= 0) {
+            args$tail_shape <- .tail_shape_at(s, i)
+            if (!is.finite(args$threshold) || !is.finite(args$tail_scale) || args$tail_scale <= 0 || !is.finite(args$tail_shape)) {
               samples_mat[s, i] <- NA_real_
               next
             }
           }
           if (length(link_params)) {
+            bad <- FALSE
             for (nm in link_params) {
               vv <- as.numeric(link_eta[[nm]][i, ])
-              if (!all(is.finite(vv))) { samples_mat[s, i] <- NA_real_; next }
+              if (!all(is.finite(vv))) {
+                bad <- TRUE
+                break
+              }
               args[[nm]] <- vv
+            }
+            if (bad) {
+              samples_mat[s, i] <- NA_real_
+              next
             }
           }
           samples_mat[s, i] <- as.numeric(do.call(r_fun, c(list(n = 1L), args)))[1]
         }
       } else {
         # Unconditional: draw n_obs from marginal predictive for draw s
+        if (is_spliced && GPD) {
+          samples_mat[s, ] <- .spliced_sample_values(s, 1L, n = n_obs, link_eta = list(), gpd_eta = list())
+          next
+        }
+
         if (GPD) {
           args0$threshold <- threshold_scalar[s]
           args0$tail_scale <- tail_scale[s]
-          if (!is.finite(args0$threshold) || !is.finite(args0$tail_scale) || args0$tail_scale <= 0) next
+          args0$tail_shape <- .tail_shape_at(s, 1L)
+          if (!is.finite(args0$threshold) || !is.finite(args0$tail_scale) || args0$tail_scale <= 0 || !is.finite(args0$tail_shape)) next
         }
         samples_mat[s, ] <- as.numeric(do.call(r_fun, c(list(n = n_obs), args0)))
       }
@@ -2516,31 +2949,62 @@ stick_breaking <- nimble::nimbleFunction(
 
     # If GPD and any valid draw has xi >= 1, posterior mean is infinite
     if (GPD) {
-      xi_valid <- tail_shape[.draw_valid]
-      if (any(is.finite(xi_valid) & xi_valid >= 1)) {
-        warning("Posterior mean is infinite because there is posterior mass with tail_shape (xi) >= 1. Use type='median'/'quantile' or a restricted-mean target.", call. = FALSE)
-        inf_df <- data.frame(
-          id = if (has_X) id_vals else 1L,
-          estimate = Inf,
-          lower = if (compute_interval) Inf else NA_real_,
-          upper = if (compute_interval) Inf else NA_real_,
-          row.names = NULL
-        )
-        inf_df <- .reorder_predict_cols(inf_df)
-        out <- list(
-          fit = inf_df,
-          type = type,
-          grid = NULL,
-          draws = if (isTRUE(store_draws)) rep(Inf, sum(.draw_valid)) else NULL,
-          diagnostics = list(
-            n_draws_total = S,
-            n_draws_valid = sum(.draw_valid),
-            n_draws_dropped = S - sum(.draw_valid),
-            mean_infinite = TRUE
+      if (!is_spliced) {
+        xi_valid <- tail_shape[.draw_valid]
+        if (any(is.finite(xi_valid) & xi_valid >= 1)) {
+          warning("Posterior mean is infinite because there is posterior mass with tail_shape (xi) >= 1. Use type='median'/'quantile' or a restricted-mean target.", call. = FALSE)
+          inf_df <- data.frame(
+            id = if (has_X) id_vals else 1L,
+            estimate = Inf,
+            lower = if (compute_interval) Inf else NA_real_,
+            upper = if (compute_interval) Inf else NA_real_,
+            row.names = NULL
           )
-        )
-        class(out) <- "mixgpd_predict"
-        return(.return_out(out))
+          inf_df <- .reorder_predict_cols(inf_df)
+          out <- list(
+            fit = inf_df,
+            type = type,
+            grid = NULL,
+            draws = if (isTRUE(store_draws)) rep(Inf, sum(.draw_valid)) else NULL,
+            diagnostics = list(
+              n_draws_total = S,
+              n_draws_valid = sum(.draw_valid),
+              n_draws_dropped = S - sum(.draw_valid),
+              mean_infinite = TRUE
+            )
+          )
+          class(out) <- "mixgpd_predict"
+          return(.return_out(out))
+        }
+      } else if (!has_X) {
+        inf_draw <- vapply(seq_len(S), function(s) {
+          isTRUE(.draw_valid[s]) && .spliced_mean_infinite(s, 1L, gpd_eta = list())
+        }, logical(1))
+        if (any(inf_draw)) {
+          warning("Posterior mean is infinite because there is posterior mass with tail_shape (xi) >= 1. Use type='median'/'quantile' or a restricted-mean target.", call. = FALSE)
+          inf_df <- data.frame(
+            id = if (length(id_vals) >= 1L) id_vals[1] else 1L,
+            estimate = Inf,
+            lower = if (compute_interval) Inf else NA_real_,
+            upper = if (compute_interval) Inf else NA_real_,
+            row.names = NULL
+          )
+          inf_df <- .reorder_predict_cols(inf_df)
+          out <- list(
+            fit = inf_df,
+            type = type,
+            grid = NULL,
+            draws = if (isTRUE(store_draws)) rep(Inf, S) else NULL,
+            diagnostics = list(
+              n_draws_total = S,
+              n_draws_valid = sum(.draw_valid),
+              n_draws_dropped = S - sum(.draw_valid),
+              mean_infinite = TRUE
+            )
+          )
+          class(out) <- "mixgpd_predict"
+          return(.return_out(out))
+        }
       }
     }
 
@@ -2551,10 +3015,16 @@ stick_breaking <- nimble::nimbleFunction(
         if (!.draw_valid[s]) next
         args0 <- .build_args0_or_null(s)
         if (is.null(args0)) next
+        if (is_spliced && GPD) {
+          yy <- .spliced_sample_values(s, 1L, n = nsim_inner, link_eta = list(), gpd_eta = list())
+          draw_means[s] <- mean(yy, na.rm = TRUE)
+          next
+        }
         if (GPD) {
           args0$threshold <- threshold_scalar[s]
           args0$tail_scale <- tail_scale[s]
-          if (!is.finite(args0$threshold) || !is.finite(args0$tail_scale) || args0$tail_scale <= 0) next
+          args0$tail_shape <- .tail_shape_at(s, 1L)
+          if (!is.finite(args0$threshold) || !is.finite(args0$tail_scale) || args0$tail_scale <= 0 || !is.finite(args0$tail_shape)) next
         }
         yy <- as.numeric(do.call(r_fun, c(list(n = nsim_inner), args0)))
         draw_means[s] <- mean(yy, na.rm = TRUE)
@@ -2596,22 +3066,42 @@ stick_breaking <- nimble::nimbleFunction(
       if (is.null(args0)) next
 
       link_eta <- .compute_link_eta(s)
+      gpd_eta <- if (is_spliced && GPD) .compute_spliced_gpd_eta(s) else list()
 
       for (i in seq_len(n_pred)) {
+        if (is_spliced && GPD) {
+          if (.spliced_mean_infinite(s, i, gpd_eta = gpd_eta)) {
+            draw_means_mat[s, i] <- Inf
+            next
+          }
+          yy <- .spliced_sample_values(s, i, n = nsim_inner, link_eta = link_eta, gpd_eta = gpd_eta)
+          draw_means_mat[s, i] <- mean(yy, na.rm = TRUE)
+          next
+        }
+
         args <- args0
         if (GPD) {
           args$threshold <- .threshold_at(s, i)
           args$tail_scale <- .tail_scale_at(s, i)
-          if (!is.finite(args$threshold) || !is.finite(args$tail_scale) || args$tail_scale <= 0) {
+          args$tail_shape <- .tail_shape_at(s, i)
+          if (!is.finite(args$threshold) || !is.finite(args$tail_scale) || args$tail_scale <= 0 || !is.finite(args$tail_shape)) {
             draw_means_mat[s, i] <- NA_real_
             next
           }
         }
         if (length(link_params)) {
+          bad <- FALSE
           for (nm in link_params) {
             vv <- as.numeric(link_eta[[nm]][i, ])
-            if (!all(is.finite(vv))) { draw_means_mat[s, i] <- NA_real_; next }
+            if (!all(is.finite(vv))) {
+              bad <- TRUE
+              break
+            }
             args[[nm]] <- vv
+          }
+          if (bad) {
+            draw_means_mat[s, i] <- NA_real_
+            next
           }
         }
 
@@ -2621,15 +3111,26 @@ stick_breaking <- nimble::nimbleFunction(
     }
 
     # Summarize across draws for each i
-    estimate <- apply(draw_means_mat, 2, mean, na.rm = TRUE)
+    infinite_rows <- apply(draw_means_mat, 2, function(v) any(is.infinite(v)))
+    if (any(infinite_rows)) {
+      warning("Posterior mean is infinite because there is posterior mass with tail_shape (xi) >= 1. Use type='median'/'quantile' or a restricted-mean target.", call. = FALSE)
+    }
+    estimate <- vapply(seq_len(n_pred), function(i) {
+      if (isTRUE(infinite_rows[i])) Inf else mean(draw_means_mat[, i], na.rm = TRUE)
+    }, numeric(1))
 
     lower <- upper <- NULL
     if (compute_interval) {
       lower <- upper <- rep(NA_real_, n_pred)
       for (i in seq_len(n_pred)) {
-        iv <- .compute_interval(draw_means_mat[, i], level = level, type = interval)
-        lower[i] <- iv["lower"]
-        upper[i] <- iv["upper"]
+        if (isTRUE(infinite_rows[i])) {
+          lower[i] <- Inf
+          upper[i] <- Inf
+        } else {
+          iv <- .compute_interval(draw_means_mat[, i], level = level, type = interval)
+          lower[i] <- iv["lower"]
+          upper[i] <- iv["upper"]
+        }
       }
     }
 
@@ -2677,10 +3178,16 @@ stick_breaking <- nimble::nimbleFunction(
         if (!.draw_valid[s]) next
         args0 <- .build_args0_or_null(s)
         if (is.null(args0)) next
+        if (is_spliced && GPD) {
+          yy <- .spliced_sample_values(s, 1L, n = nsim_inner, link_eta = list(), gpd_eta = list())
+          draw_rmeans[s] <- mean(pmin(yy, cutoff), na.rm = TRUE)
+          next
+        }
         if (GPD) {
           args0$threshold <- threshold_scalar[s]
           args0$tail_scale <- tail_scale[s]
-          if (!is.finite(args0$threshold) || !is.finite(args0$tail_scale) || args0$tail_scale <= 0) next
+          args0$tail_shape <- .tail_shape_at(s, 1L)
+          if (!is.finite(args0$threshold) || !is.finite(args0$tail_scale) || args0$tail_scale <= 0 || !is.finite(args0$tail_shape)) next
         }
         yy <- as.numeric(do.call(r_fun, c(list(n = nsim_inner), args0)))
         draw_rmeans[s] <- mean(pmin(yy, cutoff), na.rm = TRUE)
@@ -2707,7 +3214,8 @@ stick_breaking <- nimble::nimbleFunction(
           n_draws_total = S,
           n_draws_valid = sum(.draw_valid),
           n_draws_dropped = S - sum(.draw_valid),
-          nsim_mean = nsim_inner
+          nsim_mean = nsim_inner,
+          mean_infinite = any(infinite_rows)
         )
       )
       class(out) <- "mixgpd_predict"
@@ -2722,22 +3230,38 @@ stick_breaking <- nimble::nimbleFunction(
       if (is.null(args0)) next
 
       link_eta <- .compute_link_eta(s)
+      gpd_eta <- if (is_spliced && GPD) .compute_spliced_gpd_eta(s) else list()
 
       for (i in seq_len(n_pred)) {
+        if (is_spliced && GPD) {
+          yy <- .spliced_sample_values(s, i, n = nsim_inner, link_eta = link_eta, gpd_eta = gpd_eta)
+          draw_rmeans_mat[s, i] <- mean(pmin(yy, cutoff), na.rm = TRUE)
+          next
+        }
+
         args <- args0
         if (GPD) {
           args$threshold <- .threshold_at(s, i)
           args$tail_scale <- .tail_scale_at(s, i)
-          if (!is.finite(args$threshold) || !is.finite(args$tail_scale) || args$tail_scale <= 0) {
+          args$tail_shape <- .tail_shape_at(s, i)
+          if (!is.finite(args$threshold) || !is.finite(args$tail_scale) || args$tail_scale <= 0 || !is.finite(args$tail_shape)) {
             draw_rmeans_mat[s, i] <- NA_real_
             next
           }
         }
         if (length(link_params)) {
+          bad <- FALSE
           for (nm in link_params) {
             vv <- as.numeric(link_eta[[nm]][i, ])
-            if (!all(is.finite(vv))) { draw_rmeans_mat[s, i] <- NA_real_; next }
+            if (!all(is.finite(vv))) {
+              bad <- TRUE
+              break
+            }
             args[[nm]] <- vv
+          }
+          if (bad) {
+            draw_rmeans_mat[s, i] <- NA_real_
+            next
           }
         }
 

@@ -226,10 +226,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="../developers/index.html"> 
 <span class="menu-text">Developers</span></a>
   </li>  
-  <li class="nav-item">
-    <a class="nav-link" href="../reference.html"> 
-<span class="menu-text">Reference</span></a>
+  <li class="nav-item dropdown ">
+    <a class="nav-link dropdown-toggle" href="#" id="nav-menu-reference" role="link" data-bs-toggle="dropdown" aria-expanded="false">
+ <span class="menu-text">Reference</span>
+    </a>
+    <ul class="dropdown-menu" aria-labelledby="nav-menu-reference">    
+        <li>
+    <a class="dropdown-item" href="../reference.html">
+ <span class="dropdown-text">Reference hub</span></a>
   </li>  
+        <li>
+    <a class="dropdown-item" href="../reference-by-action.html">
+ <span class="dropdown-text">Function reference by job</span></a>
+  </li>  
+    </ul>
+  </li>
   <li class="nav-item">
     <a class="nav-link" href="../news.html"> 
 <span class="menu-text">News</span></a>
@@ -398,8 +409,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">TRUE</span>),</span>
 <span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">5</span>),</span>
 <span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>  <span class="at">param_specs =</span> param_specs_gpd,</span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_outcome =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">2500</span>, <span class="at">nburnin =</span> <span class="dv">500</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">thin =</span> <span class="dv">1</span>, <span class="at">seed =</span> <span class="dv">1</span>),</span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_ps =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">2500</span>, <span class="at">nburnin =</span> <span class="dv">500</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">thin =</span> <span class="dv">1</span>, <span class="at">seed =</span> <span class="dv">1</span>)</span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_outcome =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">400</span>, <span class="at">nburnin =</span> <span class="dv">100</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">thin =</span> <span class="dv">2</span>, <span class="at">seed =</span> <span class="dv">1</span>),</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_ps =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">400</span>, <span class="at">nburnin =</span> <span class="dv">100</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">thin =</span> <span class="dv">2</span>, <span class="at">seed =</span> <span class="dv">1</span>)</span>
 <span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>bundle_sb_crp</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -439,8 +450,11 @@ n (control) = 232 | n (treated) = 268 </code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fit_sb_crp <span class="ot">&lt;-</span> <span class="fu">dpmix.causal</span>(bundle_sb_crp)</span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_sb_crp)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>fit_sb_crp <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ex14-causal-different-backends-sb-fit_sb_crp"</span>,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">quiet_mcmc</span>(<span class="fu">dpmgpd.causal</span>(bundle_sb_crp))</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_sb_crp)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>-- PS fit --
@@ -449,16 +463,16 @@ model: logit
 
 -- Outcome fits --
 [control]
-MixGPD fit | backend: Chinese Restaurant Process | kernel: Amoroso Distribution | GPD tail: FALSE
+MixGPD fit | backend: Chinese Restaurant Process | kernel: Amoroso Distribution | GPD tail: TRUE
 n = 232 | components = 5 | epsilon = 0.025
-MCMC: niter=2500, nburnin=500, thin=1, nchains=1 
+MCMC: niter=400, nburnin=100, thin=2, nchains=1 
 Fit
 Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 
 [treated]
-MixGPD fit | backend: Stick-Breaking Process | kernel: Amoroso Distribution | GPD tail: FALSE
+MixGPD fit | backend: Stick-Breaking Process | kernel: Amoroso Distribution | GPD tail: TRUE
 n = 268 | components = 5 | epsilon = 0.025
-MCMC: niter=2500, nburnin=500, thin=1, nchains=1 
+MCMC: niter=400, nburnin=100, thin=2, nchains=1 
 Fit
 Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</code></pre>
 </div>
@@ -473,59 +487,71 @@ Use summary() for posterior summaries; plot() for diagnostics; predict() for pre
 Posterior mean parameters
 
 $alpha
-[1] 0.2568
+[1] 0.5733
 
 $w
-[1] 0.9954
+[1] 0.6840 0.3103
 
 $beta_loc
       x1 x2 x3 x4
 comp1  0  0  0  0
 comp2  0  0  0  0
-comp3  0  0  0  0
-comp4  0  0  0  0
-comp5  0  0  0  0
 
 $beta_ps_loc
 [1] 0 0 0 0 0
 
 $beta_scale
-             x1       x2         x3       x4
-comp1  0.443600  0.29760 -0.1631000  0.29150
-comp2 -0.864700  1.51500 -0.6372000  0.13340
-comp3  0.049650 -0.01419 -0.0384800  0.02709
-comp4  0.004764 -0.03954 -0.0258100 -0.03436
-comp5 -0.015770  0.09018 -0.0001414  0.05799
+          x1     x2      x3    x4
+comp1 0.6115 0.3550 -0.2458 0.145
+comp2 0.3931 0.1397 -0.6643 1.108
 
 $beta_ps_scale
-[1] -0.961200  0.642300 -0.035360 -0.007100  0.008546
+[1] -1.22400  0.38380  0.24490 -0.06381  0.07836
 
 $shape1
-[1] 14.81
+[1] 7.843 5.617
 
 $shape2
-[1] 1.243
+[1] 0.8185 0.1965
+
+$threshold
+[1] 6.906
+
+$beta_tail_scale
+[1] 0.03642 0.02683 0.06262 1.11000
+
+$tail_shape
+[1] 0.0285
 
 [control]
 Posterior mean parameters
 
 $alpha
-[1] 0.1788
+[1] 0.1593
 
 $w
-[1] 0.9886
+[1] 0.9982
 
 $loc
-[1] 3.655
+[1] 4.444
 
 $scale
-[1] 2.339
+[1] 3.308
 
 $shape1
-[1] 3.998
+[1] 1.692
 
 $shape2
-[1] 1.647</code></pre>
+[1] 1.919
+
+$threshold
+[1] 11.25
+
+$beta_tail_scale
+[1]  0.11840  0.11680  0.02478 -0.11680
+
+$tail_shape
+[1] 0.01144</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -737,8 +763,8 @@ $shape2
 <span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">GPD =</span> <span class="fu">c</span>(<span class="cn">TRUE</span>, <span class="cn">TRUE</span>),</span>
 <span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">components =</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">5</span>),</span>
 <span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">param_specs =</span> param_specs_gpd,</span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_outcome =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">2500</span>, <span class="at">nburnin =</span> <span class="dv">500</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">thin =</span> <span class="dv">1</span>, <span class="at">seed =</span> <span class="dv">2</span>),</span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_ps =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">2500</span>, <span class="at">nburnin =</span> <span class="dv">500</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">thin =</span> <span class="dv">1</span>, <span class="at">seed =</span> <span class="dv">2</span>)</span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_outcome =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">400</span>, <span class="at">nburnin =</span> <span class="dv">100</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">thin =</span> <span class="dv">2</span>, <span class="at">seed =</span> <span class="dv">2</span>),</span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">mcmc_ps =</span> <span class="fu">list</span>(<span class="at">niter =</span> <span class="dv">400</span>, <span class="at">nburnin =</span> <span class="dv">100</span>, <span class="at">nchains =</span> <span class="dv">1</span>, <span class="at">thin =</span> <span class="dv">2</span>, <span class="at">seed =</span> <span class="dv">2</span>)</span>
 <span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>bundle_crp_sb</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
@@ -778,8 +804,11 @@ n (control) = 232 | n (treated) = 268 </code></pre>
 <div class="cell">
 <details class="code-fold">
 <summary>Code</summary>
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>fit_crp_sb <span class="ot">&lt;-</span> <span class="fu">dpmix.causal</span>(bundle_crp_sb)</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_crp_sb)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>fit_crp_sb <span class="ot">&lt;-</span> <span class="fu">load_or_fit</span>(</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"ex14-causal-different-backends-sb-fit_crp_sb"</span>,</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">quiet_mcmc</span>(<span class="fu">dpmgpd.causal</span>(bundle_crp_sb))</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit_crp_sb)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>-- PS fit --
@@ -788,16 +817,16 @@ model: logit
 
 -- Outcome fits --
 [control]
-MixGPD fit | backend: Stick-Breaking Process | kernel: Amoroso Distribution | GPD tail: FALSE
+MixGPD fit | backend: Stick-Breaking Process | kernel: Amoroso Distribution | GPD tail: TRUE
 n = 232 | components = 5 | epsilon = 0.025
-MCMC: niter=2500, nburnin=500, thin=1, nchains=1 
+MCMC: niter=400, nburnin=100, thin=2, nchains=1 
 Fit
 Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.
 
 [treated]
-MixGPD fit | backend: Chinese Restaurant Process | kernel: Amoroso Distribution | GPD tail: FALSE
+MixGPD fit | backend: Chinese Restaurant Process | kernel: Amoroso Distribution | GPD tail: TRUE
 n = 268 | components = 5 | epsilon = 0.025
-MCMC: niter=2500, nburnin=500, thin=1, nchains=1 
+MCMC: niter=400, nburnin=100, thin=2, nchains=1 
 Fit
 Use summary() for posterior summaries; plot() for diagnostics; predict() for predictions.</code></pre>
 </div>
@@ -812,59 +841,71 @@ Use summary() for posterior summaries; plot() for diagnostics; predict() for pre
 Posterior mean parameters
 
 $alpha
-[1] 0.4848
+[1] 0.446
 
 $w
-[1] 0.9112
+[1] 0.7031 0.2852
 
 $loc
-[1] 1.828
+[1] -1.065  2.220
 
 $scale
-[1] 4.325
+[1] 3.393 3.569
 
 $shape1
-[1] 3.246
+[1] 4.480 3.359
 
 $shape2
-[1] 2.334
+[1] 1.00 3.79
+
+$threshold
+[1] 7.118
+
+$beta_tail_scale
+[1] 0.06014 0.04015 0.07957 1.02300
+
+$tail_shape
+[1] 0.02108
 
 [control]
 Posterior mean parameters
 
 $alpha
-[1] 0.3078
+[1] 0.6215
 
 $w
-[1] 1
+[1] 0.6797 0.3112
 
 $beta_loc
       x1 x2 x3 x4
 comp1  0  0  0  0
 comp2  0  0  0  0
-comp3  0  0  0  0
-comp4  0  0  0  0
-comp5  0  0  0  0
 
 $beta_ps_loc
 [1] 0 0 0 0 0
 
 $beta_scale
-             x1       x2       x3        x4
-comp1  0.085640  0.07100 -0.06832  0.140500
-comp2 -0.052440 -0.08840  0.06877 -0.022080
-comp3  0.013970  0.03886  0.07034  0.004866
-comp4  0.002546 -0.01462  0.05611  0.084000
-comp5 -0.054780  0.03135 -0.06770  0.046140
+           x1       x2       x3      x4
+comp1 -0.6765 -0.61800 0.079780 -0.2787
+comp2 -0.1208 -0.03002 0.008226  1.1390
 
 $beta_ps_scale
-[1] -0.225500  0.011220 -0.032040  0.030000 -0.005484
+[1] -0.101000  1.382000  0.003014  0.039420  0.061490
 
 $shape1
-[1] 15.49
+[1] 6.346 6.570
 
 $shape2
-[1] 1.3</code></pre>
+[1] 0.5878 0.4679
+
+$threshold
+[1] 6.598
+
+$beta_tail_scale
+[1] -0.09957 -0.02609 -0.03404  1.15300
+
+$tail_shape
+[1] 0.008785</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -1025,13 +1066,13 @@ $shape2
 <span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">format_cate_table</span>(cate_crp_sb))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>  id index    estimate       lower     upper
-1  1     1  0.13691664 -1.06673634 1.4002290
-2  2     1 -1.06876667 -5.11786426 1.3055336
-3  3     1 -0.91667237 -5.70288070 1.5846775
-4  4     1  0.03032087 -2.13707823 1.4604456
-5  5     1  0.89622872 -0.06422058 1.7682548
-6  6     1 -0.88983478 -2.90577740 0.4682613</code></pre>
+<pre><code>  id index      estimate         lower     upper
+1  1     1 -2.104018e+37 -5.131824e+21 13.906087
+2  2     1 -2.316014e+40 -4.962121e+37  6.992559
+3  3     1 -3.196295e+40 -5.561048e+30  8.373957
+4  4     1 -3.530500e+46 -6.297569e+37  5.006716
+5  5     1 -6.720725e+45 -1.150080e+38  4.911789
+6  6     1 -3.728363e+37 -6.980623e+29 13.090825</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
@@ -1053,13 +1094,13 @@ $shape2
 <span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">format_cqte_table</span>(cqte_crp_sb))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>  id index   estimate      lower     upper
-1  1     1  0.1014028 -0.8649977 1.1789566
-2  1     2  0.1686592 -0.9548125 1.3066888
-3  1     3  0.2056218 -0.9927840 1.4676499
-4  2     1 -0.9326145 -4.2981398 0.9842824
-5  2     2 -1.0186824 -4.8962428 1.2003672
-6  2     3 -1.1473285 -5.6463860 1.4552061</code></pre>
+<pre><code>  id index    estimate       lower     upper
+1  1     1  0.15348590 -0.06490168 0.3780495
+2  1     2 -0.08475918 -0.48582680 0.2996453
+3  1     3 -0.49097684 -1.34003682 0.3129637
+4  2     1  2.11747631 -0.04887598 6.4971124
+5  2     2  1.85218812 -0.22574138 6.8809019
+6  2     3  1.86042453 -0.52582811 6.9996190</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code</summary>
