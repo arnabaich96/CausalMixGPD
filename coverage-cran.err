@@ -1,2 +1,0 @@
-Error: Reason: Test level 'ci' required (current: 'cran'). Set DPMIXGPD_TEST_LEVEL='ci' to run.
-Execution halted

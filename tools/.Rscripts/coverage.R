@@ -1,5 +1,5 @@
 # ============================================================================
-# Minimal full-test coverage pipeline for CausalMixGPD
+# Minimal canonical coverage pipeline for CausalMixGPD
 # ============================================================================
 #
 # Canonical output:
@@ -143,6 +143,15 @@ setwd(here::here())
   list.files(file.path(path, "R"), pattern = "\\.[Rr]$", full.names = TRUE)
 }
 
+.coverage_selected_test_basenames <- function() {
+  # Single canonical maximum-coverage profile using the reduced
+  # coverage-only entrypoints and covr-aware small-data fixtures.
+  c(
+    "test-ci-level-only.R",
+    "test-coverage-max.R"
+  )
+}
+
 .coverage_test_files <- function(path = ".") {
   test_root <- file.path(path, "tests", "testthat")
   all_r <- list.files(test_root, pattern = "\\.[Rr]$", recursive = TRUE, full.names = TRUE)
@@ -154,7 +163,11 @@ setwd(here::here())
   helpers <- all_r[grepl("^helper.*\\.[Rr]$", basename(all_r))]
   tests <- all_r[grepl("^test.*\\.[Rr]$", basename(all_r))]
   if (!.coverage_include_coverage_only_file()) {
-    tests <- tests[basename(tests) != "test-ci-level-only.R"]
+    tests <- tests[!basename(tests) %in% c("test-ci-level-only.R", "test-coverage-max.R")]
+  }
+  tests <- tests[basename(tests) %in% .coverage_selected_test_basenames()]
+  if (!length(tests)) {
+    stop("Coverage found no matching canonical coverage test entrypoints.", call. = FALSE)
   }
 
   unique(c(setup, sort(helpers), sort(tests)))
@@ -188,6 +201,9 @@ setwd(here::here())
   } else {
     "testthat::ProgressReporter$new(show_praise = FALSE, update_interval = Inf)"
   }
+  test_basenames <- basename(.coverage_test_files())
+  test_basenames <- test_basenames[grepl("^test.*\\.[Rr]$", test_basenames)]
+  test_expr <- paste(sprintf('"%s"', unique(test_basenames)), collapse = ", ")
 
   paste(
     "library(CausalMixGPD)",
@@ -203,11 +219,8 @@ setwd(here::here())
       .coverage_test_level(),
       .coverage_ci_coverage_only()
     ),
-    'test_files <- list.files(pkg_tests, pattern = "^test.*\\\\.R$", recursive = TRUE, full.names = TRUE)',
-    sprintf(
-      'if (!identical("%s", "1")) test_files <- test_files[basename(test_files) != "test-ci-level-only.R"]',
-      .coverage_ci_coverage_only()
-    ),
+    sprintf('test_files <- file.path(pkg_tests, c(%s))', test_expr),
+    'test_files <- test_files[file.exists(test_files)]',
     'if (length(test_files) == 0L) stop("Coverage found no test files under: ", pkg_tests)',
     sprintf('reporter <- %s', reporter_expr),
     'for (target in test_files) {',
@@ -233,7 +246,7 @@ setwd(here::here())
   invisible(rout_fail)
 }
 
-#' Calculate coverage using the full test suite only
+#' Calculate coverage using the canonical coverage entrypoints only
 #'
 #' @param quiet Logical; suppress covr output. Default: FALSE.
 #' @return A covr coverage object.
@@ -532,9 +545,9 @@ calculate_coverage <- function(quiet = FALSE) {
   invisible(html_file)
 }
 
-#' Build the full local coverage report
+#' Build the canonical local coverage report
 #'
-#' Runs the full test suite under covr, writes canonical artifacts to
+#' Runs the canonical coverage entrypoints under covr, writes canonical artifacts to
 #' `covr/assets`, and mirrors them to `docs/coverage`.
 #'
 #' @param output_dir Mirror directory for the published site.
@@ -603,13 +616,13 @@ coverage_report <- function(output_dir = .coverage_default_output_dir(), browse 
 }
 
 cat("CausalMixGPD coverage helper loaded.\n")
-cat("Run `coverage_report()` to build the full local test coverage report.\n")
+cat("Run `coverage_report()` to build the canonical local coverage report.\n")
 
 args <- commandArgs(trailingOnly = FALSE)
 file_args <- grep("^--file=", args, value = TRUE)
 is_rscript <- any(grepl("coverage\\.R$", sub("^--file=", "", file_args), ignore.case = TRUE))
 if (is_rscript) {
-  cat("\nRunning full local coverage pipeline.\n")
+  cat("\nRunning canonical local coverage pipeline.\n")
   coverage_report()
   cat("\nCoverage report generation finished successfully.\n")
 }

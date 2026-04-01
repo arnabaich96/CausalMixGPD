@@ -13,19 +13,12 @@
 \usepackage{booktabs}
 \usepackage{float}
 \usepackage{graphicx}
+\usepackage{alltt}
+\usepackage{framed}
 \usepackage{multirow}
 \usepackage{pdflscape}
 \usepackage{natbib}
 \usepackage{xurl}
-\makeatletter
-\@ifundefined{knitrout}{\newenvironment{knitrout}{}{}}{}
-\makeatother
-\providecolor{fgcolor}{rgb}{0,0,0}
-\providecolor{bgcolor}{rgb}{1,1,1}
-\providecolor{shadecolor}{rgb}{0.97,0.97,0.97}
-\providecolor{messagecolor}{rgb}{0,0,0}
-\providecolor{warningcolor}{rgb}{1,0,1}
-\providecolor{errorcolor}{rgb}{1,0,0}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
 \def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
@@ -52,23 +45,23 @@ Heavy-tailed outcomes arise in settings where rare extreme events drive
 risk, cost, or policy decisions. Parametric models often describe the
 center of the distribution adequately but can miss extreme behavior,
 whereas fully nonparametric models lack principled tail extrapolation.
-We develop \texttt{CausalMixGPD}, an \textsf{R} package for Bayesian
+We develop \pkg{CausalMixGPD}, an \textsf{R} package for Bayesian
 modeling of heavy-tailed outcomes that combines Dirichlet process
 mixtures for the bulk with optional generalized Pareto tails in a
 unified framework. The package supports unconditional and
 covariate-dependent mixture models, posterior computation through
-Markov chain Monte Carlo in \texttt{nimble}, and arm-specific outcome
+Markov chain Monte Carlo in \pkg{nimble}, and arm-specific outcome
 models for causal inference. The package reports posterior predictive
 summaries for densities, quantiles, means, survival curves, and causal
 contrasts, with particular emphasis on extreme quantiles and other
 tail-sensitive functionals. The same framework also supports
 predictor-dependent clustering under multiple kernel specifications.
-In practice, \texttt{CausalMixGPD} provides a practical and extensible
+In practice, \pkg{CausalMixGPD} provides a practical and extensible
 workflow for heavy-tailed density estimation, clustering, and causal
 reporting.
 }
 
-\Keywords{Bayesian nonparametrics; Dirichlet Process Mixture; Generalized Pareto Distribution; Extreme Value Theory; Cluster Analysis; Causal Inference; \textsf{R}; \texttt{nimble}}
+\Keywords{Bayesian nonparametrics; Dirichlet Process Mixture; Generalized Pareto Distribution; Extreme Value Theory; Cluster Analysis; Causal Inference; \textsf{R}; \pkg{nimble}}
 \Plainkeywords{Bayesian nonparametrics, Dirichlet process mixture, generalized Pareto distribution, extreme value theory, posterior prediction, Clustering, causal inference, quantile treatment effects, R, nimble}
 
 %% ---- Begin document ----
@@ -116,9 +109,11 @@ knitr::opts_knit$set(
   concordance = TRUE,
   root.dir = manuscript_dir
 )
+cmgpd_fig_width <- 7
+cmgpd_fig_height <- 4
 knitr::opts_chunk$set(
-  fig.width = 5,
-  fig.height = 3,
+  fig.width = cmgpd_fig_width,
+  fig.height = cmgpd_fig_height,
   out.width = "0.9\\linewidth",
   fig.align = "center",
   fig.pos = "H",
@@ -133,6 +128,18 @@ knitr::opts_chunk$set(
   autodep = TRUE,
   comment = NA
 )
+knitr::opts_hooks$set(
+  fig.width = function(options) {
+    options$fig.width <- cmgpd_fig_width
+    options$fig.height <- cmgpd_fig_height
+    options
+  },
+  fig.height = function(options) {
+    options$fig.width <- cmgpd_fig_width
+    options$fig.height <- cmgpd_fig_height
+    options
+  }
+)
 options(width = 60, knitr.graphics.rel_path = FALSE)
 
 cmgpd_pal <- c(
@@ -146,7 +153,7 @@ cmgpd_pal <- c(
   mist = "#D7E3ED"
 )
 
-cmgpd_theme <- function(base_size = 11) {
+cmgpd_theme <- function(base_size = 14) {
   ggplot2::theme_minimal(base_size = base_size, base_family = "serif") +
     ggplot2::theme(
       plot.title = ggplot2::element_text(
@@ -269,10 +276,10 @@ write_manuscript_cache <- function(x, ...) {
 }
 
 mcmc_fixed <- list(
-  niter = 200,
-  nburnin = 50,
+  niter = 2500,
+  nburnin = 500,
   thin = 3,
-  nchains = 1,
+  nchains = 2,
   seed = 2026
 )
 @
@@ -400,7 +407,7 @@ Overall, \pkg{CausalMixGPD} offers a unified workflow for
 density estimation, prediction, clustering, and causal reporting when
 tail behavior matters. The package is implemented in \textsf{R}, with
 computationally intensive components integrated through
-\texttt{nimble} \citep{nimble_pkg}. Section~\ref{sec:prelim} introduces
+\pkg{nimble} \citep{nimble_pkg}. Section~\ref{sec:prelim} introduces
 the spliced model and the reported causal estimands.
 Section~\ref{sec:overview} summarizes the package workflow and user
 interface. Sections~\ref{sec:app-clustering} and~\ref{sec:app-causal}
@@ -494,7 +501,7 @@ u(x)+\dfrac{\sigma(x)}{\xi}\Bigl((1-\tau)^{-\xi}-1\Bigr), & \xi\neq 0,
 u <- 2.0
 y <- seq(u, u + 8, length.out = 500)
 sigma <- 1.2
-xi_vals <- c(-0.25, 0.0, 0.25)
+xi_vals <- c(-0.5, 0.0, 0.5)
 xi_legend_levels <- sprintf("xi==%.2f", xi_vals)
 
 gpd_df <- do.call(
@@ -533,14 +540,13 @@ gpd_density_plot <- ggplot(gpd_df, aes(x = y, y = density, color = xi)) +
   ) +
   labs(
     title = "Generalized Pareto tail density by shape parameter",
-    subtitle = "Threshold and scale are fixed; the shape controls tail behavior",
     x = "Outcome y",
     y = "Density",
     color = NULL
   ) +
-  cmgpd_theme(base_size = 10) +
+  cmgpd_theme(base_size = 14) +
   theme(
-    legend.text = element_text(size = 12),
+    legend.text = element_text(size = 13),
     legend.key.width = grid::unit(1.1, "cm"),
     legend.key.height = grid::unit(0.6, "cm")
   )
@@ -747,11 +753,12 @@ spliced_density_plot <- ggplot(spliced_df, aes(x = y, y = density, color = compo
   ) +
   annotate(
     "text",
-    x = u80 + 0.12,
+    x = u80 + 0.13,
     y = ylab,
-    label = "80% splice",
+    label = "Threshold",
     hjust = 0,
-    size = 4.1,
+    size = 5,
+    type = "bold",
     color = cmgpd_pal[["slate"]]
   ) +
   scale_color_manual(values = c(
@@ -760,19 +767,18 @@ spliced_density_plot <- ggplot(spliced_df, aes(x = y, y = density, color = compo
     "Gamma mix + GPD (2 components, splice = 80%)" = cmgpd_pal[["gold"]]
   )) +
   scale_linetype_manual(values = c(
-    "Gamma (1 component)" = "solid",
-    "Gamma mix (2 components)" = "longdash",
-    "Gamma mix + GPD (2 components, splice = 80%)" = "dotdash"
+    "Gamma" = "solid",
+    "Gamma Mixture" = "longdash",
+    "Gamma mix + GPD" = "dotdash"
   )) +
   labs(
-    title = "Spliced density comparison (3 curves)",
-    subtitle = "Gamma (1 component), gamma mix (2 components), and gamma mix + GPD spliced at 80%",
+    title = "Density comparison",
     x = "Outcome y",
     y = "Density",
     color = NULL,
     linetype = NULL
   ) +
-  cmgpd_theme(base_size = 11) +
+  cmgpd_theme(base_size = 14) +
   theme(
     legend.box = "vertical",
     legend.spacing.y = grid::unit(0.05, "cm")
@@ -917,9 +923,8 @@ details on the package's implementation of these summaries.
 \subsection{Causal Inference: Notation, Identification, and Reported Estimands}
 \label{subsec:causal}
 
-We use the potential outcomes framework introduced by
-\citep{Neyman1923,Rubin1974,ImbensRubin2015} for causal inference.
-Let $A\in\{0,1\}$ denote a
+We use the potential outcomes framework
+\citep{Neyman1923,Rubin1974,ImbensRubin2015}. Let $A\in\{0,1\}$ denote a
 binary treatment indicator ($A=1$ treated, $A=0$ control), let $X$ denote
 pre-treatment covariates, and let $Y(a)$ denote the potential outcome under arm
 $a\in\{0,1\}$. The observed outcome satisfies
@@ -956,7 +961,7 @@ defined by
 \begin{equation}
 F_a^{\mathrm{m}}(y)=\mathrm{E}\bigl\{F_a(y\mid X)\bigr\},
 \qquad
-F_a^{\mathrm{t}}(y)=\mathrm{E}\bigl\{F_a(y\mid X\mid A=1)\bigr\}.
+F_a^{\mathrm{t}}(y)=\mathrm{E}\bigl\{F_a(y\mid X)\bigm\vert A=1\bigr\}.
 \label{eq:marginal_cdf_defs}
 \end{equation}
 The associated marginal quantile functions are obtained by inverting
@@ -1022,8 +1027,6 @@ strategy, the package first estimates $\rho(x)$ using only $(A,X)$ and
 then augments the outcome model covariates with the estimated score, so
 that the augmented predictor vector is
 \begin{equation}
-\widehat{\rho}(x)\approx \rho(x),
-\qquad
 r(x)=\bigl(x^{\mathsf{T}},\widehat{\rho}(x)\bigr)^{\mathsf{T}}.
 \label{eq:augmented_covariate}
 \end{equation}
@@ -1031,6 +1034,87 @@ The conditional outcome distributions are then modeled separately within
 each treatment arm as functions of the augmented predictor $r(x)$, and
 causal contrasts are computed as functionals of the estimated
 treatment-specific distributions.
+Figure~\ref{fig:causalEstimandFigure-plot} illustrates two
+treatment-specific conditional densities at a representative covariate
+profile. The dotted verticals mark the 90th conditional quantile for
+each arm, and the double-headed arrow gives the conditional quantile
+treatment effect (CQTE) at that level.
+
+<<causalEstimandFigure-build, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, include=FALSE>>=
+y_seq <- seq(0, 40, length.out = 1000)
+
+# Control arm: moderate mean, lighter tail
+w0 <- c(0.55, 0.45); shape0 <- c(9, 16); scale0 <- c(0.42, 0.52)
+thr0 <- qgammamix(0.85, w = w0, shape = shape0, scale = scale0)
+f0_vals <- dgammamixgpd(
+  y_seq, w = w0, shape = shape0, scale = scale0,
+  threshold = thr0, tail_scale = 1.4, tail_shape = 0.18
+)
+
+# Treated arm: higher mean, heavier tail
+w1 <- c(0.45, 0.55); shape1 <- c(11, 20); scale1 <- c(0.52, 0.72)
+thr1 <- qgammamix(0.85, w = w1, shape = shape1, scale = scale1)
+f1_vals <- dgammamixgpd(
+  y_seq, w = w1, shape = shape1, scale = scale1,
+  threshold = thr1, tail_scale = 2.0, tail_shape = 0.28
+)
+
+# Numerically compute CDFs and 90th quantiles
+dy <- diff(y_seq[1:2])
+F0 <- pmin(cumsum(f0_vals) * dy, 1)
+F1 <- pmin(cumsum(f1_vals) * dy, 1)
+tau_q <- 0.90
+q0_90 <- y_seq[which.min(abs(F0 - tau_q))]
+q1_90 <- y_seq[which.min(abs(F1 - tau_q))]
+
+arm_df <- rbind(
+  data.frame(y = y_seq, density = f0_vals, arm = "Control (a = 0)"),
+  data.frame(y = y_seq, density = f1_vals, arm = "Treated (a = 1)")
+)
+arm_df$arm <- factor(arm_df$arm, levels = c("Control (a = 0)", "Treated (a = 1)"))
+
+ymax_annot <- 0.88 * max(arm_df$density, na.rm = TRUE)
+
+causal_estimand_plot <- ggplot(arm_df, aes(x = y, y = density, color = arm, linetype = arm)) +
+  geom_line(linewidth = 0.95) +
+  geom_vline(
+    xintercept = q0_90, linetype = "dotted", linewidth = 0.7,
+    color = cmgpd_pal[["teal"]]
+  ) +
+  geom_vline(
+    xintercept = q1_90, linetype = "dotted", linewidth = 0.7,
+    color = cmgpd_pal[["copper"]]
+  ) +
+  annotate(
+    "segment",
+    x = q0_90, xend = q1_90,
+    y = ymax_annot, yend = ymax_annot,
+    arrow = grid::arrow(ends = "both", length = grid::unit(0.18, "cm"), type = "closed"),
+    color = cmgpd_pal[["slate"]], linewidth = 0.7
+  ) +
+  annotate(
+    "text",
+    x = (q0_90 + q1_90) / 2, y = ymax_annot,
+    label = sprintf("CQTE(0.9~'|'~x) == %.1f", q1_90 - q0_90),
+    parse = TRUE, vjust = -0.5, size = 3.8, color = cmgpd_pal[["slate"]]
+  ) +
+  scale_color_manual(
+    values = c(cmgpd_pal[["teal"]], cmgpd_pal[["copper"]])
+  ) +
+  scale_linetype_manual(values = c("solid", "longdash")) +
+  labs(
+    title = "Treatment-specific conditional densities and QTE",
+    x = "Outcome y",
+    y = "Density",
+    color = NULL,
+    linetype = NULL
+  ) +
+  cmgpd_theme(base_size = 14)
+@
+
+<<causalEstimandFigure-plot, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=7.0, fig.height=4.0, out.width='0.78\\linewidth', fig.pos='H', fig.cap='Treatment-specific conditional densities at a representative covariate profile. Dotted verticals mark the 90th quantile for each arm; the double-headed arrow gives the conditional quantile treatment effect (CQTE) at that level.'>>=
+causal_estimand_plot
+@
 
 The package reports the causal estimands in
 Table~\ref{tab:causal-estimands-main}. Here superscripts
@@ -1055,7 +1139,7 @@ Estimand & Formula & Target population \\
 ATE & $\mu_1^{\mathrm{m}}-\mu_0^{\mathrm{m}}$ & Entire population \\
 ATT & $\mu_1^{\mathrm{t}}-\mu_0^{\mathrm{t}}$ & Treated sub-population \\
 QTE$(\tau)$ & $Q_1^{\mathrm{m}}(\tau)-Q_0^{\mathrm{m}}(\tau)$ & Entire population at index $\tau$\\
-QTT$(\tau)$ & $Q_1^{\mathrm{t}}(\tau)-Q_0^{\mathrm{t}}(\tau)$ & Treated sub-population \\
+QTT$(\tau)$ & $Q_1^{\mathrm{t}}(\tau)-Q_0^{\mathrm{t}}(\tau)$ & Treated sub-population at index $\tau$\\
 CATE$(x)$ & $\mu_1(x)-\mu_0(x)$ & Individual with covariate profile $x$ \\
 CQTE$(\tau\mid x)$ & $Q_1(\tau\mid x)-Q_0(\tau\mid x)$ & Individual with $x$ at index $\tau$\\
 \bottomrule
@@ -1063,8 +1147,9 @@ CQTE$(\tau\mid x)$ & $Q_1(\tau\mid x)-Q_0(\tau\mid x)$ & Individual with $x$ at 
 }
 \end{table}
 
-In the next section, we will describe how the package models the treatment-specific
-conditional distributions and how the causal estimands in  Table~\ref{tab:causal-estimands-main} are computed from the fitted models.
+The next section describes how the package fits the treatment-specific
+conditional distributions and computes these estimands from the
+posterior predictive output.
 
 
 \section{Package Overview: Workflow, Model, and Inference}
@@ -1112,7 +1197,7 @@ multiple chains are recommended for substantive analyses.
 <<overview-mcmc-settings, echo=TRUE, eval=TRUE>>=
 data.frame(mcmc_fixed)
 @
-The one-arm spliced model can be fit by inputting the formula, data, and control arguments to \code{dpmgpd()}. The \code{formula} argument follows standard \textsf{R} syntax and dictates which covariates to include in both the bulk and tail components. The  \code{backend}  argument specifies which representation of the DPM weights to use in the model. The option "sb" follows the stick breaking representation in equation (eq:sb), while the option "crp" follows the Chinese restaurant process representation. The \code{kernel} argument dictates the family of kernels used in the bulk, \code{components} dictates the truncation, and \code{mcmc} dictates the tuning.
+The one-arm spliced model can be fit by inputting the formula, data, and control arguments to \code{dpmgpd()}. The \code{formula} argument follows standard \textsf{R} syntax and dictates which covariates to include in both the bulk and tail components. The  \code{backend}  argument specifies which representation of the DPM weights to use in the model. The option \code{"sb"} follows the stick breaking representation in equation (eq:sb), while the option \code{"crp"} follows the Chinese restaurant process representation. The \code{kernel} argument dictates the family of kernels used in the bulk, \code{components} dictates the truncation, and \code{mcmc} dictates the tuning.
 
 <<overview-fit-model1, echo=TRUE, eval=FALSE>>=
 overview_fit <- dpmgpd(formula = y ~ x1 + x2 + x3, data = overview_dat,
@@ -1177,9 +1262,12 @@ plot(overview_fit, family = c("traceplot"),
 The package provides posterior summary of various functionals of the fitted conditional distribution in Section~\ref{sec:prelim}, as the estimation framework. Here in this manuscript, we focus on density $f(y\mid x)$, survival $S(y\mid x) = 1 - F(y\mid x)$, quantiles $Q(\tau\mid x)$, and mean $E(y\mid x)$. For types \code{density}, \code{survival}, and \code{quantiles}, the package evaluates each functional draw by draw from \eqref{eq:splice_cdf}--\eqref{eq:splice_quantile_case} and then summarizes the retained draws. For \code{type = "mean"} and \code{type = "rmean"}, posterior predictive Monte Carlo is employed in each draw; \code{type = "rmean"} which calculates a restricted mean for a given cutoff is computationally stable even when the ordinary mean is unstable due to posterior mass near $\xi \ge 1$. The following code snippet is an example of how one can compute posterior density, quantiles and means at observed covariate values, along with credible intervals for quantiles and HPD intervals for means.
 
 <<overview-estimation, echo=TRUE, eval=FALSE>>=
-predict(overview_fit, type = "density", interval = "credible", level = 0.95)
-predict(overview_fit, type = "quantile", index = c(0.25,0.5,0.75))
-predict(overview_fit, type = "mean", interval = "hpd", level = 0.9)
+predict(overview_fit, type = "density",
+  interval = "credible", level = 0.95)
+predict(overview_fit, type = "quantile",
+  index = c(0.25, 0.5, 0.75))
+predict(overview_fit, type = "mean",
+  interval = "hpd", level = 0.9)
 @
 
 Predictions at observed covariate values can be obtained by calling \code{predict()}
@@ -1214,9 +1302,9 @@ of the training predictors.
 
 <<overview-predict-quantile, echo=TRUE, eval=FALSE>>=
 predict(overview_fit, newdata = overview_x_new,
-                           y = overview_y_grid, type = "survival", level = 0.95)
+  y = overview_y_grid, type = "survival", level = 0.95)
 predict(overview_fit, newdata = overview_x_new, type = "quantile",
-                           index = c(0.5,0.99),interval = "credible")
+  index = c(0.5, 0.99), interval = "credible")
 @
 
 \subsection{Clustering extension}
@@ -1225,19 +1313,19 @@ predict(overview_fit, newdata = overview_x_new, type = "quantile",
 
 <<cluster_example_data, echo=TRUE, eval=FALSE>>=
 data("nc_realX100_p3_k2", package = "CausalMixGPD")
-
-dat_cl <- data.frame(y = nc_realX100_p3_k2$y[1:100], nc_realX100_p3_k2$X[1:100,])
+dat_cl <- data.frame(y = nc_realX100_p3_k2$y[1:100],
+  nc_realX100_p3_k2$X[1:100,])
 @
 
 The clustering framework reinterpret the fitted mixture as a latent partition
 and return cluster summaries rather than only density functionals. THe function
-\texttt{dpmix.cluster()} fits the bulk-only model and
-\texttt{dpmgpd.cluster()} adds the optional GPD tail for each mixture component, with predictor
+\code{dpmix.cluster()} fits the bulk-only model and
+\code{dpmgpd.cluster()} adds the optional GPD tail for each mixture component, with predictor
 dependence entering through the weights, component parameters, or both.
 Since mixture labels are permutation-invariant, the main outputs are
 label-invariant summaries: the posterior similarity matrix (PSM), a
 representative partition, cluster sizes, and assignment scores
-\citep{Binder1978,Dahl2006}. The same \texttt{predict()} interface
+\citep{Binder1978,Dahl2006}. The same \code{predict()} interface
 handles both training labels and new-observation assignment.
 
 A bulk-only clustering model with covariate dependent parameters is fitted
@@ -1255,7 +1343,7 @@ fit_cluster <- dpmix.cluster(
 )
 @
 
-The same \texttt{predict()} interface returns either the posterior
+The same \code{predict()} interface returns either the posterior
 similarity matrix (PSM) or cluster labels depending on the \code{type}
 argument.
 <<cluster_psm, eval=FALSE>>=
@@ -1278,10 +1366,10 @@ PSM-based summaries and representative partitions.
 \subsection{Causal extension and propensity score augmentation}
 \label{subsec:overview-causal}
 
-The causal wrappers fit separate outcome models for each treatment arm
+The causal framework fit separate outcome models for each treatment arm
 and can optionally augment the outcome covariates with a
 propensity-score summary. When propensity-score augmentation is
-requested, treatment assignment is modeled as
+requiredd (Observational study), treatment assignment is modeled as
 \begin{equation*}
 A_i \mid \boldsymbol{x}_i \sim
 \mathrm{Bernoulli}\big(e_{\boldsymbol{\gamma}}(\boldsymbol{x}_i)\big),
@@ -1295,18 +1383,11 @@ to form the augmented predictor
 \end{equation*}
 where the PS link (logit or probit) is specified through the \code{PS}
 argument and the transformation $\psi(\cdot)$ applied to the estimated
-score is controlled by \texttt{ps\_scale}. The outcome model for each
-arm is then a spliced DPM--GPD regression in the augmented covariates,
-reusing exactly the same mixture-regression and GPD-tail machinery as
-the one-arm workflow described in
-Section~\ref{subsec:overview-model}.
-
-Posterior contrasts are summarized through \texttt{ate()},
-\texttt{att()}, \texttt{qte()}, \texttt{qtt()}, \texttt{cate()}, and
-\texttt{cqte()}, with restricted-mean variants available when heavy
-tails make ordinary means unstable. For \texttt{predict()}, mean and
-quantile requests return treated-minus-control summaries, while density,
-survival, and tail probabilities are returned by arm.
+score is controlled by \code{ps\_scale} with default being identity.
+The outcome model for each arm is then a spliced DPM--GPD regression on the augmented covariates,
+reusing exactly the same mixture-regression and GPD-tail machinery as the one-arm workflow described in
+Section~\ref{subsec:overview-model}. For
+randomized experiments, the PS component is not needed and the same modeling workflow is applied to each arm without PS augmentation.
 
 The code below loads a simulated benchmark dataset and assembles the
 data frame expected by the causal wrappers, with columns for the
@@ -1323,7 +1404,7 @@ overview_causal_df  <- data.frame(
 @
 
 The call to \code{dpmgpd.causal()} fits arm-specific spliced mixture
-models using the same bulk-tail structure as \code{dpmgpd()}, with
+models using the same structure as \code{dpmgpd()}, with
 additional arguments controlling the propensity-score model (\code{PS},
 \code{ps\_scale}, \code{ps\_summary}) and separate MCMC settings for
 the outcome and PS stages (\code{mcmc\_outcome}, \code{mcmc\_ps}).
@@ -1333,8 +1414,8 @@ overview_causal_fit <- dpmgpd.causal(
   formula = y ~ x1 + x2 + x3,
   data = overview_causal_df,
   treat = "A",
-  backend = "sb",
-  kernel = "lognormal",
+  backend = "crp",
+  kernel = "laplace",
   components = 5,
   PS = "logit",
   ps_scale = "logit",
@@ -1344,32 +1425,20 @@ overview_causal_fit <- dpmgpd.causal(
 )
 @
 
-Population-standardized summaries are available through
-\texttt{ate()} and \texttt{qte()}, while treated-standardized analogues
-are available through \texttt{att()} and \texttt{qtt()}. The overview
-below emphasizes the treated-standardized summaries because they now
-print stable row-level tables via \code{summary()} and have matching
-\code{plot()} methods.
+Population-standardized estimates can be obtained using the functions \code{ate()} and \code{qte()}, while treated standardized versions are available via the functions \code{att()} and \code{qtt()}. Uncertainty quantification is available through intervals, and can be visualized by plotting the returned objects with \code{type = "effect"} to show the estimated treatment effect curve across quantiles, along with uncertainty intervals. The following code chunk displays the calculation of treated standardized versions.
 
 <<overview-causal-effects, echo=TRUE, eval=FALSE>>=
-overview_att <- att(
-  overview_causal_fit,
-  interval = "credible",
-  show_progress = FALSE
-)
 overview_qtt <- qtt(
   overview_causal_fit,
   probs = c(0.50, 0.90, 0.95),
   interval = "credible",
   show_progress = FALSE
 )
-summary(overview_att)
 summary(overview_qtt)
-plot(overview_att, type = "effect")
 plot(overview_qtt, type = "effect")
 @
 
-Conditional causal contrasts at user-specified covariate profiles are
+Conditional causal effets at user-specified covariate profiles are
 available through the same \code{predict()} interface, where the
 \code{type} argument determines whether quantile, survival, or other
 summaries are returned. The example below illustrates quantile and
@@ -1385,24 +1454,12 @@ overview_causal_xgrid <- expand.grid(lapply(
 @
 
 <<overview-causal-predict-contrast, echo=TRUE, eval=FALSE>>=
-overview_pred_q <- predict(
-  overview_causal_fit,
-  newdata = overview_causal_xgrid,
-  type = "quantile",
-  index = c(0.50, 0.90)
-)
-overview_pred_s <- predict(
-  overview_causal_fit,
-  newdata = overview_causal_xgrid,
-  type = "survival",
-  y = rep(4, nrow(overview_causal_xgrid))
-)
+predict(overview_causal_fit,newdata = overview_causal_xgrid,type = "survival",
+        y = rep(4, nrow(overview_causal_xgrid)))
 @
 
-The bulk-only analogue is \texttt{dpmix.causal()}, which keeps the same causal
-estimand and prediction interface without the GPD tail.
-
-
+The bulk-only analogue is \code{dpmix.causal()}, which keeps the same causal
+estimand and prediction interface without the GPD tail. For randomized experiments, the same modeling workflow applies without PS augmentation, and the \code{PS} argument can be set to \code{NULL}.
 
 
 \section{Data analysis I: Clustering}
@@ -1427,27 +1484,14 @@ mcmc_fixed <- list(
 )
 @
 
-This application demonstrates the clustering workflow for a spliced
-conditional mixture model. The objective is to infer latent groups of
-observational units implied by the fitted mixture and to summarize
-posterior clustering uncertainty in a label-invariant way. Throughout,
-clustering is reported via (i) the posterior similarity matrix (PSM) and
-(ii) a representative partition derived from the posterior draws,
-together with out-of-sample cluster label prediction for new units.
+This Section~\eqref{sec:app-clustering} outlines the clustering process that applies to a spliced conditional mixture model. The goal is to identify latent groups among observational units, as indicated by the mixture model, and summarize clustering uncertainty in a manner that is invariant to labeling. The results will be communicated through (i) the posterior similarity matrix (PSM) and (ii) a representative partition, along with out-of-sample predictions for cluster labels.
+
 
 \subsection{Data and preprocessing}
 
-We use the \code{Boston} housing data (\pkg{MASS}), treating each census tract
-as an observational unit. The response is median house value
-(\code{medv}), and the covariates are \code{lstat}, \code{rm}, and
-\code{nox}. The goal is to recover representative latent groups and then
-assign new tracts to those groups using posterior predictive
-co-clustering evidence. We split the data into training and test sets
-and standardize covariates using training-set moments to avoid leakage.
-Those housekeeping steps are omitted from the visible code because they
-are generic preprocessing rather than package usage.
+This analysis uses the \code{Boston}housing data (\pkg{MASS}) package, where each census tract is considered an observational unit. The target variable is median house value (\code{medv}), and the predictor variables are \code{lstat}, \code{rm}, and \code{nox}. The goal is to identify representative latent groups and then predict which group a new tract belongs to, using out-of-sample predictions from posterior predictive co-clustering evidence. The data is split into a training set and a test set, and the predictor variables are standardized using moments estimated from the training data. These preprocessing tasks are omitted from the code for brevity.
 
-<<app_cluster_data-cache, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE>>=
+<<app_cluster_data-cache, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, echo=TRUE>>=
 library(MASS)
 
 set.seed(123)
@@ -1468,9 +1512,7 @@ sd_x  <- vapply(train_dat[, xvars], sd,   numeric(1))
 
 train_dat[, xvars] <- sweep(sweep(train_dat[, xvars], 2, mu_x, "-"), 2, sd_x, "/")
 test_dat[, xvars]  <- sweep(sweep(test_dat[, xvars],  2, mu_x, "-"), 2, sd_x, "/")
-@
-
-<<app_cluster_data-results, echo=FALSE, eval=TRUE>>=
+# report sample sizes
 data.frame(
   sample = c("train", "test"),
   n = c(nrow(train_dat), nrow(test_dat))
@@ -1478,67 +1520,67 @@ data.frame(
 @
 
 Figure~\ref{fig:app_cluster_response_panels} provides full-sample
-descriptive views of Boston house prices (\code{medv}): a boxplot and a
-histogram shown side by side.
+descriptive views of Boston house prices (\code{medv}).
 
 <<app_cluster_response_panels, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=10, fig.height=4.8, out.width='0.95\\linewidth', fig.pos='H', fig.cap='Full-sample distribution of Boston house prices (\\code{medv}): boxplot (left) and histogram (right).'>>=
-house_price_df <- data.frame(
-  house_price = as.numeric(Boston$medv)
+app_cluster_plot_df <- data.frame(
+  medv = Boston$medv,
+  sample = "All tracts"
 )
 
-p_box <- ggplot(house_price_df, aes(x = "All observations", y = house_price)) +
+app_cluster_box_plot <- ggplot(
+  app_cluster_plot_df,
+  aes(x = sample, y = medv)
+) +
   geom_boxplot(
-    width = 0.35,
-    outlier.alpha = 0.55,
-    outlier.color = cmgpd_pal[["copper"]],
+    width = 0.45,
     fill = cmgpd_pal[["mist"]],
-    color = cmgpd_pal[["navy"]]
+    colour = cmgpd_pal[["navy"]],
+    outlier.colour = cmgpd_pal[["rose"]],
+    outlier.alpha = 0.85
   ) +
   labs(
-    title = "Response variable: house prices (medv)",
-    subtitle = "Boxplot view",
+    title = "Boxplot of house prices",
     x = NULL,
     y = "medv"
   ) +
-  cmgpd_theme(base_size = 11) +
-  theme(
-    axis.text.x = element_blank(),
-    axis.ticks.x = element_blank()
-  )
+  cmgpd_theme(base_size = 12) +
+  theme(legend.position = "none")
 
-p_hist <- ggplot(house_price_df, aes(x = house_price)) +
+app_cluster_hist_plot <- ggplot(
+  app_cluster_plot_df,
+  aes(x = medv, y = after_stat(density))
+) +
   geom_histogram(
     bins = 30,
-    fill = cmgpd_pal[["teal"]],
-    color = "white",
-    alpha = 0.92
+    fill = cmgpd_pal[["mist"]],
+    colour = "white",
+    linewidth = 0.25
   ) +
   labs(
-    title = "Response variable: house prices (medv)",
-    subtitle = "Histogram view",
+    title = "Histogram of house prices",
     x = "medv",
-    y = "Count"
+    y = "Density"
   ) +
-  cmgpd_theme(base_size = 11)
+  cmgpd_theme(base_size = 12)
 
 grid::grid.newpage()
-grid::pushViewport(grid::viewport(layout = grid::grid.layout(nrow = 1, ncol = 2)))
-print(p_box, vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 1))
-print(p_hist, vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 2))
+app_cluster_layout <- grid::grid.layout(nrow = 1, ncol = 2)
+grid::pushViewport(grid::viewport(layout = app_cluster_layout))
+print(
+  app_cluster_box_plot,
+  vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 1)
+)
+print(
+  app_cluster_hist_plot,
+  vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 2)
+)
+grid::upViewport()
 @
 
-\subsection{Clustering model specification and fit}
+\subsection{Model estimation and training cluster summaries}
 
-We fit a spliced conditional mixture model for \code{medv} with three
-covariates. In this illustration, we select \texttt{type="weights"},
-meaning covariates enter through the mixture weights while component
-parameters remain shared across observations. This choice emphasizes how
-cluster prevalence varies across covariate profiles while retaining a
-single clustering workflow for both the bulk of the response and its
-upper tail.
-
-The fitted object is subsequently summarized through a representative
-partition together with cluster-specific response summaries.
+We use a spliced conditional mixture model for the \code{medv} data with three covariates. Here, we use the option \code{type="weights"}, where the covariates are used to influence the mixture weights, and the component parameters are shared. This is to demonstrate how the proportion of each cluster changes with the covariates, without changing the clustering framework for the bulk of the response along with the upper tail.
 
 <<app_cluster_fit-run, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, include=FALSE>>=
 app_cluster_cache_spec <- list(
@@ -1592,98 +1634,24 @@ fit_clust <- dpmgpd.cluster(
 )
 @
 
-To summarize the dominant representative clusters, Table~\ref{tab:app_cluster_top5_populated-results}
-reports descriptive statistics for up to the five most populated training clusters.
-The table is displayed with one row per variable, placing the outcome first and
-pairing the within-cluster mean and standard deviation for each retained cluster.
-
-<<app_cluster_top5_populated-cache, echo=FALSE, message=FALSE, warning=FALSE, results='hide', eval=TRUE, include=FALSE>>=
-if (!exists("cluster_fit_summary", inherits = FALSE)) {
-  cluster_fit_summary <- summary(
-    fit_clust,
-    top_n = 5,
-    vars = c("medv", "lstat", "rm", "nox")
-  )
-}
-if (!exists("cluster_top5_populated", inherits = FALSE)) {
-  cluster_top5_populated <- cluster_fit_summary$cluster_profiles
-}
-cluster_profile_vars <- c("medv", "lstat", "rm", "nox")
-cluster_top5_by_variable <- data.frame(
-  variable = c("medv (outcome)", "lstat", "rm", "nox"),
-  check.names = FALSE,
-  stringsAsFactors = FALSE
-)
-cluster_top5_headers <- c(" " = 1)
-
-for (i in seq_len(nrow(cluster_top5_populated))) {
-  cluster_i <- as.character(cluster_top5_populated$cluster[i])
-  cluster_n <- as.integer(cluster_top5_populated$n[i])
-  cluster_label <- sprintf("%s (n = %d)", cluster_i, cluster_n)
-  cluster_top5_headers[cluster_label] <- 2
-  cluster_top5_by_variable[[paste0(cluster_label, "_mean")]] <- vapply(
-    cluster_profile_vars,
-    function(v) as.numeric(cluster_top5_populated[[paste0(v, "_mean")]][i]),
-    numeric(1)
-  )
-  cluster_top5_by_variable[[paste0(cluster_label, "_sd")]] <- vapply(
-    cluster_profile_vars,
-    function(v) as.numeric(cluster_top5_populated[[paste0(v, "_sd")]][i]),
-    numeric(1)
-  )
-}
-
-numeric_cols <- setdiff(names(cluster_top5_by_variable), "variable")
-cluster_top5_by_variable[, numeric_cols] <- lapply(
-  cluster_top5_by_variable[, numeric_cols, drop = FALSE],
-  round,
-  digits = 3
-)
-@
-
-<<app_cluster_top5_populated-results, echo=FALSE, eval=TRUE, results='asis'>>=
-kableExtra::kbl(
-  cluster_top5_by_variable,
-  format = "latex",
-  booktabs = TRUE,
-  escape = FALSE,
-  col.names = c("Variable", rep(c("Mean", "SD"), nrow(cluster_top5_populated))),
-  caption = "Descriptive summaries for up to the five most populated representative clusters"
-) |>
-  kableExtra::add_header_above(cluster_top5_headers, escape = FALSE) |>
-  kableExtra::kable_styling(
-    latex_options = c("HOLD_position", "scale_down"),
-    font_size = 7
- )
-
-@
-
-\subsection{Results and new-observation labeling}
-
 Because mixture components are not identifiable up to permutation, the
-training labels are still extracted from the posterior through the PSM and
-Dahl's least-squares representative partition. For presentation, however, we
-focus on the resulting partition and the response distributions within its
-representative clusters rather than on the full PSM heatmap.
-
-The following command extracts the representative labels for the training
-sample.
+training labels are extracted from the posterior through the PSM and
+Dahl's least-squares representative partition.
 
 <<app_cluster_label-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
 z_train <- predict(fit_clust, type = "label")
 @
 
-For presentation we summarize the first five most populated clusters from
-\code{summary(fit_clust, top_n = 5)} and report the associated descriptive
-statistics in Table~\ref{tab:app_cluster_top5_populated-results}.
+Figure~\ref{fig:app_cluster_overlay} shows the cluster-level response
+overlay for the five most populated representative clusters, produced
+directly by the package \code{plot()} method applied to the training
+labels object.
 
-<<app_cluster_train_sizes-code, echo=FALSE, message=FALSE, warning=FALSE, results='hide', eval=TRUE, include=FALSE>>=
-cluster_fit_summary <- summary(
-  fit_clust,
-  top_n = 5,
-  vars = c("medv", "lstat", "rm", "nox")
-)
+<<app_cluster_overlay, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=8, fig.height=5.5, out.width='0.85\\linewidth', fig.pos='H', fig.cap='Cluster-level response overlay for the five most populated representative training clusters (\\code{medv} data). Each panel shows within-cluster response summaries produced by the package \\code{plot()} method.'>>=
+plot(z_train, type = "summary", top_n = 5)
 @
+
+\subsection{Prediction for new observations}
 
 Cluster assignment for new observations is performed through the same prediction
 interface. The output is a label in the space of the representative training
@@ -1698,43 +1666,13 @@ z_test <- predict(
 )
 @
 
-For the test sample we tabulate only the predicted cluster sizes that are
-actually represented in the new observations (Table~\ref{tab:app_cluster_old_new_test-results}).
+Figure~\ref{fig:app_cluster_test_sizes} shows the distribution of
+predicted cluster assignments across the test sample, produced by the
+package \code{plot()} method applied to the test labels object.
 
-<<app_cluster_old_new_tables-cache, echo=FALSE, message=FALSE, warning=FALSE, results='hide', eval=TRUE, include=FALSE>>=
-test_cluster_summary <- summary(z_test)
-test_cluster_counts <- data.frame(
-  cluster = paste0("C", names(test_cluster_summary$cluster_sizes)),
-  n = as.integer(test_cluster_summary$cluster_sizes),
-  row.names = NULL,
-  check.names = FALSE
-)
-test_cluster_horizontal <- as.data.frame(
-  rbind(
-    c("Cluster", test_cluster_counts$cluster),
-    c("n", as.character(test_cluster_counts$n))
-  ),
-  check.names = FALSE,
-  stringsAsFactors = FALSE
-)
-names(test_cluster_horizontal) <- rep("", ncol(test_cluster_horizontal))
+<<app_cluster_test_sizes, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=7, fig.height=4, out.width='0.8\\linewidth', fig.pos='H', fig.cap='Predicted cluster assignment distribution for the test sample (\\code{medv} data). Each bar corresponds to one representative training cluster; bar heights show the number of test observations assigned to that cluster.'>>=
+plot(z_test, type = "sizes")
 @
-
-<<app_cluster_old_new_test-results, echo=FALSE, eval=TRUE, results='asis'>>=
-kableExtra::kbl(
-  test_cluster_horizontal,
-  format = "latex",
-  booktabs = TRUE,
-  caption = "Test cluster sizes",
-  align = c("l", rep("r", ncol(test_cluster_horizontal) - 1L))
-) |>
-  kableExtra::kable_styling(
-    latex_options = c("HOLD_position", "scale_down"),
-    font_size = 8
-  )
-@
-
-
 
 This analysis illustrates the intended clustering workflow: inference is
 summarized through a representative training partition and its
@@ -1754,7 +1692,7 @@ contrasts.
 This application demonstrates causal estimands from a two-arm spliced
 DPM regression with a GPD tail. In contrast to
 Section~\ref{sec:app-clustering}, which targets latent partitions, the
-focus here is on restricted-mean and quantile treatment contrasts,
+focus here is on mean and quantile treatment contrasts,
 including covariate-specific effects and upper-tail behavior.
 
 \subsection{Data and estimands}
@@ -1766,15 +1704,12 @@ indicator is randomized program assignment \code{treat}, and the
 adjustment set includes age, education, race, marital status, degree
 status, and lagged earnings \code{re74} and \code{re75}.
 
-To keep the mean-based contrast aligned with the tail-robust workflow of
-the package, we report restricted-mean conditional effects with cutoff
-$c$ equal to the empirical 95th percentile of observed earnings.
 Throughout, we report the four causal estimands in
 Table~\ref{tab:causal-estimands-main}, using the notation
 introduced in Section~\ref{subsec:causal}. The standardized estimands
-(RMATE, QTE) integrate over the empirical distribution of
+(ATE, QTE) integrate over the empirical distribution of
 $\{\boldsymbol{x}_i\}_{i=1}^n$, while the conditional estimands
-(RMCATE, CQTE) are evaluated at representative Lalonde participant
+(CATE, CQTE) are evaluated at representative Lalonde participant
 profiles.
 
 The following chunk loads the data and constructs the design matrix used
@@ -1823,38 +1758,76 @@ app_lalonde_rm_cutoff <- as.numeric(
 )
 @
 
-Figure~\ref{fig:app_lalonde_response_hist_by_treat} overlays histograms
-of observed 1978 earnings for treated and control participants.
+Figure~\ref{fig:app_lalonde_response_panels} provides full-sample
+descriptive views of observed 1978 earnings (\code{re78}) by treatment
+assignment.
 
-<<app_lalonde_response_hist_by_treat, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=7.5, fig.height=4.8, out.width='0.8\\linewidth', fig.pos='H', fig.cap='Observed 1978 earnings (USD) by Lalonde treatment assignment (overlaid histograms).'>>=
-app_lalonde_hist_df <- data.frame(
-  response = app_lalonde_covars$re78,
-  treatment = ifelse(app_lalonde_A == 1L, "Treated (A=1)", "Control (A=0)")
-)
-app_lalonde_hist_df$treatment <- factor(
-  app_lalonde_hist_df$treatment,
-  levels = c("Control (A=0)", "Treated (A=1)")
+<<app_lalonde_response_panels, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=10, fig.height=4.8, out.width='0.95\\linewidth', fig.pos='H', fig.cap='Full-sample distribution of Lalonde 1978 earnings (\\code{re78}): boxplot by treatment arm (left) and overlaid histograms by treatment arm (right).'>>=
+app_lalonde_plot_df <- data.frame(
+  re78 = app_lalonde_covars$re78,
+  treat_label = factor(
+    app_lalonde_covars$treat,
+    levels = c(0, 1),
+    labels = c("Control (A=0)", "Treated (A=1)")
+  )
 )
 
-ggplot(app_lalonde_hist_df, aes(x = response, fill = treatment)) +
+app_lalonde_box_plot <- ggplot(
+  app_lalonde_plot_df,
+  aes(x = treat_label, y = re78, fill = treat_label)
+) +
+  geom_boxplot(
+    width = 0.55,
+    colour = cmgpd_pal[["navy"]],
+    outlier.colour = cmgpd_pal[["rose"]],
+    outlier.alpha = 0.85
+  ) +
+  scale_fill_manual(values = c(cmgpd_pal[["mist"]], cmgpd_pal[["copper"]])) +
+  labs(
+    title = "Boxplot of 1978 earnings",
+    x = NULL,
+    y = "re78 (USD)",
+    fill = "Treatment arm"
+  ) +
+  cmgpd_theme(base_size = 12)
+
+app_lalonde_hist_plot <- ggplot(
+  app_lalonde_plot_df,
+  aes(
+    x = re78,
+    y = after_stat(density),
+    fill = treat_label,
+    colour = treat_label
+  )
+) +
   geom_histogram(
     bins = 35,
     position = "identity",
-    alpha = 0.58,
-    color = "white"
+    linewidth = 0.2,
+    alpha = 0.45
   ) +
-  scale_fill_manual(values = c(
-    "Control (A=0)" = cmgpd_pal[["navy"]],
-    "Treated (A=1)" = cmgpd_pal[["copper"]]
-  )) +
+  scale_colour_manual(values = c(cmgpd_pal[["teal"]], cmgpd_pal[["rose"]])) +
+  scale_fill_manual(values = c(cmgpd_pal[["mist"]], cmgpd_pal[["copper"]])) +
   labs(
-    title = "1978 earnings by Lalonde treatment assignment",
-    subtitle = "Observed distributions before fitting the spliced model",
-    x = "1978 earnings (USD)",
-    y = "Count",
-    fill = "Treatment"
+    title = "Overlaid histograms of 1978 earnings by treatment",
+    x = "re78 (USD)",
+    y = "Density",
+    fill = "Treatment arm"
   ) +
-  cmgpd_theme(base_size = 11)
+  cmgpd_theme(base_size = 12)
+
+grid::grid.newpage()
+app_lalonde_layout <- grid::grid.layout(nrow = 1, ncol = 2)
+grid::pushViewport(grid::viewport(layout = app_lalonde_layout))
+print(
+  app_lalonde_box_plot,
+  vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 1)
+)
+print(
+  app_lalonde_hist_plot,
+  vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 2)
+)
+grid::upViewport()
 @
 
 \subsection{Model and fit}
@@ -1942,14 +1915,184 @@ app_lalonde_fit <- dpmgpd.causal(
 
 
 
-\subsection{Standardized estimands: QTE}
+\subsection{Posterior summaries}
 
-We summarize the overall training effect with QTE on a main-text quantile
-grid that reaches into the upper earnings tail without relying on the
-most unstable extreme quantiles.
+Before reporting treatment contrasts, we summarize posterior arm-specific
+tail parameters. These tables provide the parameter-level posterior
+context used in the interpretation of mean-based and quantile-based
+estimands.
+
+<<app_lalonde_posterior-cache, echo=FALSE, message=FALSE, warning=FALSE, results='hide', eval=TRUE, include=FALSE>>=
+app_lalonde_extract_tail_params <- function(arm_fit, arm_label) {
+  params <- c("tail_scale", "tail_shape")
+  rows <- lapply(params, function(param_name) {
+    tab <- tryCatch(
+      summary(arm_fit, parameter = param_name)$table,
+      error = function(e) NULL
+    )
+    if (is.null(tab) || !("parameter" %in% names(tab))) {
+      return(NULL)
+    }
+    keep <- tab[
+      tab$parameter == param_name,
+      c("mean", "sd", "q0.025", "q0.500", "q0.975"),
+      drop = FALSE
+    ]
+    if (!nrow(keep)) {
+      return(NULL)
+    }
+    data.frame(
+      arm = arm_label,
+      parameter = param_name,
+      keep,
+      row.names = NULL,
+      check.names = FALSE
+    )
+  })
+
+  out <- do.call(rbind, rows)
+  if (is.null(out) || !nrow(out)) {
+    out <- data.frame(
+      arm = arm_label,
+      parameter = NA_character_,
+      mean = NA_real_,
+      sd = NA_real_,
+      q0.025 = NA_real_,
+      q0.500 = NA_real_,
+      q0.975 = NA_real_,
+      check.names = FALSE
+    )
+  }
+  out
+}
+
+app_lalonde_tail_param_table <- rbind(
+  app_lalonde_extract_tail_params(app_lalonde_fit$outcome_fit$trt, "treated (A=1)"),
+  app_lalonde_extract_tail_params(app_lalonde_fit$outcome_fit$con, "control (A=0)")
+)
+
+app_lalonde_tail_param_table$parameter <- factor(
+  app_lalonde_tail_param_table$parameter,
+  levels = c("tail_scale", "tail_shape"),
+  labels = c("tail scale", "tail shape")
+)
+
+app_lalonde_xi_table <- app_lalonde_tail_param_table[
+  app_lalonde_tail_param_table$parameter == "tail shape",
+  c("arm", "mean", "sd", "q0.025", "q0.500", "q0.975"),
+  drop = FALSE
+]
+
+app_lalonde_xi_lt_one <- isTRUE(
+  nrow(app_lalonde_xi_table) > 0 &&
+    all(is.finite(app_lalonde_xi_table$mean)) &&
+    all(app_lalonde_xi_table$mean < 1)
+)
+@
+
+<<app_lalonde_posterior-results, echo=FALSE, eval=TRUE, results='asis'>>=
+app_lalonde_tail_param_display <- as.data.frame(app_lalonde_tail_param_table)
+app_lalonde_tail_num_cols <- setdiff(names(app_lalonde_tail_param_display), c("arm", "parameter"))
+app_lalonde_tail_param_display[, app_lalonde_tail_num_cols] <- lapply(
+  app_lalonde_tail_param_display[, app_lalonde_tail_num_cols, drop = FALSE],
+  round,
+  digits = 3
+)
+
+kableExtra::kbl(
+  app_lalonde_tail_param_display,
+  format = "latex",
+  booktabs = TRUE,
+  caption = "Posterior summaries of arm-specific GPD tail parameters for treated and control earnings models.\\label{tab:app_lalonde_tail_params}"
+) |>
+  kableExtra::kable_styling(
+    latex_options = c("HOLD_position", "scale_down"),
+    font_size = 8
+  )
+
+app_lalonde_xi_display <- as.data.frame(app_lalonde_xi_table)
+app_lalonde_xi_num_cols <- setdiff(names(app_lalonde_xi_display), "arm")
+app_lalonde_xi_display[, app_lalonde_xi_num_cols] <- lapply(
+  app_lalonde_xi_display[, app_lalonde_xi_num_cols, drop = FALSE],
+  round,
+  digits = 3
+)
+
+kableExtra::kbl(
+  app_lalonde_xi_display,
+  format = "latex",
+  booktabs = TRUE,
+  caption = "Posterior summaries for the arm-specific GPD tail-shape parameter $\\xi_a$.\\label{tab:app_lalonde_tail_shape}"
+) |>
+  kableExtra::kable_styling(
+    latex_options = c("HOLD_position", "scale_down"),
+    font_size = 8
+  )
+@
+
+\subsection{Standardized estimands: ATE and QTE}
+
+We summarize the overall training effect with ATE and QTE on a
+main-text quantile grid that reaches into the upper earnings tail
+without relying on the most unstable extreme quantiles.
 
 <<app_lalonde_taus-cache, echo=FALSE, message=FALSE, warning=FALSE, results='hide', eval=TRUE, include=FALSE>>=
 app_lalonde_taus <- c(0.25, 0.50, 0.75, 0.90, 0.95)
+@
+
+<<app_lalonde_ate-call, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, include=FALSE>>=
+app_lalonde_ate_cache_spec <- list(
+  estimand = "ate",
+  interval = "credible"
+)
+app_lalonde_ate_cache <- read_manuscript_cache(
+  "fits", "app_lalonde_ate_fit.rds",
+  validate = function(x) {
+    is.list(x) &&
+      isTRUE(x$cache_version >= 1L) &&
+      identical(x$cache_spec, app_lalonde_ate_cache_spec) &&
+      !is.null(x$fit)
+  }
+)
+
+if (is.list(app_lalonde_ate_cache) && !is.null(app_lalonde_ate_cache$fit)) {
+  app_lalonde_ate_fit <- app_lalonde_ate_cache$fit
+} else {
+  app_lalonde_ate_fit <- ate(
+    app_lalonde_fit,
+    interval = "credible",
+    show_progress = FALSE
+  )
+  write_manuscript_cache(
+    list(
+      cache_version = 1L,
+      cache_spec = app_lalonde_ate_cache_spec,
+      fit = app_lalonde_ate_fit
+    ),
+    "fits", "app_lalonde_ate_fit.rds"
+  )
+}
+@
+
+<<app_lalonde_ate-code, echo=TRUE, message=FALSE, warning=FALSE, eval=FALSE>>=
+app_lalonde_ate_fit <- ate(
+  app_lalonde_fit,
+  interval = "credible",
+  show_progress = FALSE
+)
+@
+
+<<app_lalonde_ate-results, echo=FALSE, eval=TRUE, results='asis'>>=
+kableExtra::kbl(
+  round(as.data.frame(app_lalonde_ate_fit$ate$fit), 3),
+  format = "latex",
+  booktabs = TRUE,
+  caption = "Posterior ATE summary for Lalonde 1978 earnings"
+) |>
+  kableExtra::kable_styling(
+    latex_options = "hold_position",
+    font_size = 8
+  )
 @
 
 <<app_lalonde_qte-call, echo=TRUE, message=FALSE, warning=FALSE, results='hide', eval=TRUE>>=
@@ -1961,79 +2104,85 @@ app_lalonde_qte_fit <- qte(
 )
 @
 
-<<app_lalonde_qte-results, echo=FALSE, eval=TRUE, results='asis'>>=
-app_lalonde_qte_summary <- summary(app_lalonde_qte_fit)
-app_lalonde_qte_table <- app_lalonde_qte_summary$effect_table[
-  ,
-  intersect(c("tau", "estimate", "lower", "upper"), names(app_lalonde_qte_summary$effect_table)),
-  drop = FALSE
-]
-app_lalonde_qte_table[] <- lapply(app_lalonde_qte_table, round, digits = 3)
-kableExtra::kbl(
-  app_lalonde_qte_table,
-  format = "latex",
-  booktabs = TRUE,
-  escape = FALSE,
-  col.names = c("$\\tau$", "Estimate", "Lower", "Upper"),
-  caption = "Marginal QTE estimates for Lalonde 1978 earnings across the main-text quantile grid"
-) |>
-  kableExtra::kable_styling(
-    latex_options = "HOLD_position",
-    font_size = 8
-  )
+Figure~\ref{fig:app_lalonde_qte_plot} displays two standardized QTE
+views side by side from the spliced causal model: the effect curve and
+the treated-versus-control quantile curves with uncertainty intervals.
+
+<<app_lalonde_qte_plot, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, out.width='0.95\\linewidth', fig.pos='H', fig.cap='Standardized QTE visual summaries for Lalonde 1978 earnings: effect curve (left) and treated-versus-control quantiles (right), each with pointwise credible intervals.'>>=
+app_lalonde_qte_effect_plot <- plot(app_lalonde_qte_fit, type = "effect")
+app_lalonde_qte_arms_plot <- plot(app_lalonde_qte_fit, type = "arms")
+
+grid::grid.newpage()
+app_lalonde_qte_layout <- grid::grid.layout(nrow = 1, ncol = 2)
+grid::pushViewport(grid::viewport(layout = app_lalonde_qte_layout))
+print(
+  app_lalonde_qte_effect_plot,
+  vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 1)
+)
+print(
+  app_lalonde_qte_arms_plot,
+  vp = grid::viewport(layout.pos.row = 1, layout.pos.col = 2)
+)
+grid::upViewport()
 @
-Table~\ref{tab:app_lalonde_qte-results} reports the standardized
-earnings QTE summaries from the spliced causal model using the stable
-\code{summary()} table rather than the raw fit slot.
 
 \subsection{Conditional estimands at representative profiles}
 
-To illustrate heterogeneity, we evaluate conditional effects at two
-covariate profiles on the original data scale: (i) a typical profile at
-sample medians and modal factor levels and (ii) a high previous
-earnings profile that raises \code{re74} and \code{re75} to their
-empirical 0.80 quantiles. The raw profiles are then standardized using
-the training-sample centering and scaling constants and mapped through
-the same \code{model.matrix()} encoding used in the fit so that factor
+To illustrate heterogeneity, we evaluate conditional effects at four
+covariate profiles that differ across all variables. Each profile is
+constructed on the original data scale using sample quantiles for
+continuous covariates and observed factor levels for categorical ones.
+The raw profiles are then standardized using the training-sample
+centering and scaling constants and mapped through the same
+\code{model.matrix()} encoding used in the fit so that factor
 combinations remain valid. The profile table is shown below; the
 intermediate design-matrix construction is hidden because it is not part
 of the package-facing workflow.
 
 <<app_lalonde_xnew-code, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE>>=
-app_lalonde_factor_mode <- function(x) {
-  lev <- levels(x)
-  factor(lev[which.max(tabulate(match(x, lev)))], levels = lev)
-}
-
-app_lalonde_numeric_quantile <- function(x, prob = 0.80) {
+app_lalonde_numeric_quantile <- function(x, prob = 0.50) {
   as.numeric(stats::quantile(x, probs = prob, na.rm = TRUE, names = FALSE))
 }
 
 app_lalonde_profile_raw <- data.frame(
-  profile = c("Profile 1: typical", "Profile 2: high previous earnings"),
-  age = rep(stats::median(app_lalonde_covars$age, na.rm = TRUE), 2),
-  educ = rep(stats::median(app_lalonde_covars$educ, na.rm = TRUE), 2),
+  profile = c("Profile 1", "Profile 2", "Profile 3", "Profile 4"),
+  age = c(
+    app_lalonde_numeric_quantile(app_lalonde_covars$age, 0.25),
+    app_lalonde_numeric_quantile(app_lalonde_covars$age, 0.50),
+    app_lalonde_numeric_quantile(app_lalonde_covars$age, 0.75),
+    app_lalonde_numeric_quantile(app_lalonde_covars$age, 0.90)
+  ),
+  educ = c(
+    app_lalonde_numeric_quantile(app_lalonde_covars$educ, 0.25),
+    app_lalonde_numeric_quantile(app_lalonde_covars$educ, 0.50),
+    app_lalonde_numeric_quantile(app_lalonde_covars$educ, 0.75),
+    app_lalonde_numeric_quantile(app_lalonde_covars$educ, 0.90)
+  ),
   race = factor(
-    rep(as.character(app_lalonde_factor_mode(app_lalonde_covars$race)), 2),
+    c("black", "hispan", "white", "black"),
     levels = levels(app_lalonde_covars$race)
   ),
   married = factor(
-    rep(as.character(app_lalonde_factor_mode(app_lalonde_covars$married)), 2),
+    c("no", "no", "yes", "yes"),
     levels = levels(app_lalonde_covars$married)
   ),
   nodegree = factor(
-    rep(as.character(app_lalonde_factor_mode(app_lalonde_covars$nodegree)), 2),
+    c("yes", "no", "no", "yes"),
     levels = levels(app_lalonde_covars$nodegree)
   ),
   re74 = c(
-    stats::median(app_lalonde_covars$re74, na.rm = TRUE),
-    app_lalonde_numeric_quantile(app_lalonde_covars$re74)
+    app_lalonde_numeric_quantile(app_lalonde_covars$re74, 0.20),
+    app_lalonde_numeric_quantile(app_lalonde_covars$re74, 0.40),
+    app_lalonde_numeric_quantile(app_lalonde_covars$re74, 0.60),
+    app_lalonde_numeric_quantile(app_lalonde_covars$re74, 0.80)
   ),
   re75 = c(
-    stats::median(app_lalonde_covars$re75, na.rm = TRUE),
-    app_lalonde_numeric_quantile(app_lalonde_covars$re75)
+    app_lalonde_numeric_quantile(app_lalonde_covars$re75, 0.20),
+    app_lalonde_numeric_quantile(app_lalonde_covars$re75, 0.40),
+    app_lalonde_numeric_quantile(app_lalonde_covars$re75, 0.60),
+    app_lalonde_numeric_quantile(app_lalonde_covars$re75, 0.80)
   ),
-  row.names = c("typical", "high_prev_earn"),
+  row.names = c("p1", "p2", "p3", "p4"),
   check.names = FALSE
 )
 
@@ -2053,11 +2202,6 @@ app_lalonde_xnew <- stats::model.matrix(
   data = app_lalonde_profile_model
 )[, -1, drop = FALSE]
 app_lalonde_xnew <- app_lalonde_xnew[, colnames(app_lalonde_X), drop = FALSE]
-app_lalonde_profile_labels <- sprintf(
-  "id = %d (%s)",
-  seq_len(nrow(app_lalonde_profile_raw)),
-  app_lalonde_profile_raw$profile
-)
 @
 
 <<app_lalonde_xnew-results, echo=FALSE, eval=TRUE, results='asis'>>=
@@ -2067,10 +2211,6 @@ app_lalonde_profile_display <- app_lalonde_profile_raw[
   drop = FALSE
 ]
 rownames(app_lalonde_profile_display) <- NULL
-app_lalonde_profile_display$profile <- c(
-  "Typical",
-  "High previous earnings"
-)
 kableExtra::kbl(
   app_lalonde_profile_display,
   format = "latex",
@@ -2088,40 +2228,18 @@ kableExtra::kbl(
 app_lalonde_cate_fit <- cate(
   app_lalonde_fit,
   newdata = app_lalonde_xnew,
-  type = "rmean",
-  cutoff = app_lalonde_rm_cutoff,
+  type = "mean",
   interval = "credible",
   show_progress = FALSE
 )
 @
 
-<<app_lalonde_cate-results, echo=FALSE, eval=TRUE, results='asis'>>=
-app_lalonde_cate_summary <- summary(app_lalonde_cate_fit)
-app_lalonde_cate_table <- app_lalonde_cate_summary$effect_table[
-  ,
-  intersect(c("id", "estimate", "lower", "upper"), names(app_lalonde_cate_summary$effect_table)),
-  drop = FALSE
-]
-app_lalonde_cate_table$profile <- app_lalonde_profile_raw$profile[app_lalonde_cate_table$id]
-app_lalonde_cate_table <- app_lalonde_cate_table[, c("profile", "estimate", "lower", "upper"), drop = FALSE]
-app_lalonde_cate_table[, c("estimate", "lower", "upper")] <- lapply(
-  app_lalonde_cate_table[, c("estimate", "lower", "upper"), drop = FALSE],
-  round,
-  digits = 3
-)
-kableExtra::kbl(
-  app_lalonde_cate_table,
-  format = "latex",
-  booktabs = TRUE,
-  caption = sprintf(
-    "Restricted-mean CATE estimates for Lalonde earnings with cutoff c = %.1f USD",
-    app_lalonde_rm_cutoff
-  )
-) |>
-  kableExtra::kable_styling(
-    latex_options = "HOLD_position",
-    font_size = 8
-  )
+Figure~\ref{fig:app_lalonde_cate_plot} displays the mean-based CATE
+estimates across the four representative profiles, produced by the
+package \code{plot()} method.
+
+<<app_lalonde_cate_plot, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, out.width='0.85\\linewidth', fig.pos='H', fig.cap='Mean-based CATE estimates for Lalonde earnings at the four representative profiles with pointwise credible intervals.'>>=
+plot(app_lalonde_cate_fit)
 @
 
 <<app_lalonde_cqte-call, echo=TRUE, message=FALSE, warning=FALSE, results='hide', eval=TRUE>>=
@@ -2134,116 +2252,51 @@ app_lalonde_cqte_fit <- cqte(
 )
 @
 
+Table~\ref{tab:app_lalonde_cqte_table} reports CQTE summaries at the
+four representative profiles on the same quantile grid used in the
+standardized QTE analysis.
+
 <<app_lalonde_cqte-results, echo=FALSE, eval=TRUE, results='asis'>>=
-app_lalonde_cqte_summary <- summary(app_lalonde_cqte_fit)
-app_lalonde_cqte_table <- app_lalonde_cqte_summary$effect_table[
+app_lalonde_cqte_table <- as.data.frame(app_lalonde_cqte_fit$qte$fit)
+if ("id" %in% names(app_lalonde_cqte_table)) {
+  app_lalonde_cqte_table$profile <- paste0("Profile ", app_lalonde_cqte_table$id)
+}
+
+app_lalonde_cqte_show <- app_lalonde_cqte_table[
   ,
-  intersect(c("id", "tau", "estimate", "lower", "upper"), names(app_lalonde_cqte_summary$effect_table)),
+  intersect(c("profile", "id", "index", "estimate", "lower", "upper"), names(app_lalonde_cqte_table)),
   drop = FALSE
 ]
-app_lalonde_cqte_digits <- 3
-if (nrow(app_lalonde_xnew) > 1L && nrow(app_lalonde_cqte_table) > 0L) {
-  app_lalonde_cqte_gap <- max(vapply(unique(app_lalonde_cqte_table$tau), function(tt) {
-    vals <- app_lalonde_cqte_table$estimate[app_lalonde_cqte_table$tau == tt]
-    vals <- vals[is.finite(vals)]
-    if (length(vals) < 2L) return(0)
-    max(vals) - min(vals)
-  }, numeric(1)), na.rm = TRUE)
-  if (is.finite(app_lalonde_cqte_gap) && app_lalonde_cqte_gap > 0 && app_lalonde_cqte_gap < 1e-3) {
-    app_lalonde_cqte_digits <- 6
-  }
-}
-app_lalonde_cqte_table[, c("tau", "estimate", "lower", "upper")] <- lapply(
-  app_lalonde_cqte_table[, c("tau", "estimate", "lower", "upper"), drop = FALSE],
+
+app_lalonde_cqte_num_cols <- intersect(c("index", "estimate", "lower", "upper"), names(app_lalonde_cqte_show))
+app_lalonde_cqte_show[, app_lalonde_cqte_num_cols] <- lapply(
+  app_lalonde_cqte_show[, app_lalonde_cqte_num_cols, drop = FALSE],
   round,
-  digits = app_lalonde_cqte_digits
+  digits = 3
 )
-app_lalonde_cqte_wide <- Reduce(
-  function(x, y) merge(x, y, by = "tau", all = TRUE, sort = FALSE),
-  lapply(seq_len(nrow(app_lalonde_xnew)), function(i) {
-    out <- app_lalonde_cqte_table[
-      app_lalonde_cqte_table$id == i,
-      c("tau", "estimate", "lower", "upper"),
-      drop = FALSE
-    ]
-    names(out) <- c("tau", paste0(c("estimate", "lower", "upper"), "_", i))
-    out
-  })
-)
-app_lalonde_cqte_header <- c(
-  " " = 1,
-  stats::setNames(rep(3, length(app_lalonde_profile_labels)), app_lalonde_profile_labels)
-)
+
 kableExtra::kbl(
-  app_lalonde_cqte_wide,
+  app_lalonde_cqte_show,
   format = "latex",
   booktabs = TRUE,
-  escape = FALSE,
-  col.names = c("$\\tau$", rep(c("Estimate", "Lower", "Upper"), length(app_lalonde_profile_labels))),
-  caption = "Conditional QTE estimates at the representative Lalonde participant profiles"
+  caption = "Conditional QTE estimates at representative Lalonde participant profiles.\\label{tab:app_lalonde_cqte_table}"
 ) |>
-  kableExtra::add_header_above(app_lalonde_cqte_header, escape = FALSE) |>
   kableExtra::kable_styling(
-    latex_options = c("HOLD_position", "scale_down"),
+    latex_options = c("hold_position", "scale_down"),
     font_size = 8
   )
 @
-Tables~\ref{tab:app_lalonde_cate-results} and~\ref{tab:app_lalonde_cqte-results}
-summarize the conditional restricted-mean and quantile training effects
-at the representative Lalonde participant profiles using
-\code{summary()}-derived effect tables.
 
 \subsection{Results and interpretation}
 
 A key advantage of the spliced model is direct posterior inference on
 the tail index $\xi_a$ by arm. Larger $\xi_a$ indicates a heavier upper
 tail and greater propensity for extreme earnings realizations in the
-corresponding arm.
+corresponding arm. Table~\ref{tab:app_lalonde_tail_params} and
+Table~\ref{tab:app_lalonde_tail_shape} summarize these posterior
+parameter estimates.
 
-<<app_lalonde_tail-cache, echo=FALSE, message=FALSE, warning=FALSE, results='hide', eval=TRUE, include=FALSE>>=
-app_lalonde_trt_tail <- summary(app_lalonde_fit$outcome_fit$trt, parameter = "tail_shape")$table
-app_lalonde_con_tail <- summary(app_lalonde_fit$outcome_fit$con, parameter = "tail_shape")$table
-app_lalonde_xi_table <- rbind(
-  data.frame(
-    arm = "treated (A=1)",
-    app_lalonde_trt_tail[
-      app_lalonde_trt_tail$parameter == "tail_shape",
-      c("mean", "sd", "q0.025", "q0.500", "q0.975"),
-      drop = FALSE
-    ],
-    row.names = NULL
-  ),
-  data.frame(
-    arm = "control (A=0)",
-    app_lalonde_con_tail[
-      app_lalonde_con_tail$parameter == "tail_shape",
-      c("mean", "sd", "q0.025", "q0.500", "q0.975"),
-      drop = FALSE
-    ],
-    row.names = NULL
-  )
-)
-@
-
-<<app_lalonde_tail-results, echo=FALSE, eval=TRUE, results='asis'>>=
-app_lalonde_xi_table_disp <- as.data.frame(app_lalonde_xi_table)
-app_lalonde_num_cols <- setdiff(names(app_lalonde_xi_table_disp), "arm")
-app_lalonde_xi_table_disp[, app_lalonde_num_cols] <- lapply(
-  app_lalonde_xi_table_disp[, app_lalonde_num_cols, drop = FALSE],
-  round,
-  digits = 3
-)
-kableExtra::kbl(
-  app_lalonde_xi_table_disp,
-  format = "latex",
-  booktabs = TRUE,
-  caption = "Posterior summaries of the arm-specific GPD tail-shape parameters for treated and control Lalonde earnings models"
-) |>
-  kableExtra::kable_styling(
-    latex_options = "HOLD_position",
-    font_size = 8
-  )
-@
+\Sexpr{if (isTRUE(app_lalonde_xi_lt_one)) "Because both posterior arm-specific tail-shape means satisfy $\\\\hat\\\\xi_a < 1$, the corresponding arm-specific means exist; therefore the reported ATE and CATE summaries are well-defined in this analysis." else "At least one posterior arm-specific tail-shape mean is not below one, so mean-based summaries should be interpreted with additional caution."}
 
 Taken together, the standardized and profile-specific summaries separate
 two distinct questions: how the program shifts the overall earnings
@@ -2257,7 +2310,7 @@ upper-tail behavior.
 \section{Discussion}
 \label{sec:discussion}
 
-CausalMixGPD combines flexible bulk density estimation, optional
+\pkg{CausalMixGPD} combines flexible bulk density estimation, optional
 EVT-based tail extrapolation, predictor-dependent clustering, and
 distributional causal inference in one workflow. The same fitted model
 supports posterior summaries for densities, survival curves, means,

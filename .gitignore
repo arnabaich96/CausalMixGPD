@@ -74,8 +74,14 @@ docs/.quarto/
 # Ignore R history and legacy vignette cache/logs
 .Rhistory
 covr_run*.log
+covr_run*.exit
 covr_*_run.log
 covr_*_only.log
+coverage-*.log
+coverage-*.err
+coverage-*.pid
+test_*.log
+test_*.exit
 Rplots.pdf
 .codex_tmp_*.R
 tmp-*.R
@@ -93,6 +99,10 @@ vignettes/manuscript/CausalMixGPD_*
 !vignettes/manuscript/CausalMixGPD_*.tex
 !vignettes/manuscript/CausalMixGPD_*.pdf
 !vignettes/manuscript/CausalMixGPD_*.bib
+vignettes/manuscript/*_build.*
+vignettes/manuscript/*-concordance.tex
+vignettes/manuscript/*.log
+vignettes/manuscript/knit_update.log
 
 
 # Exclude cache files larger than 10MB (prevent GitHub large file errors)
