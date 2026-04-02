@@ -846,7 +846,7 @@ multiple chains are recommended for substantive analyses.
 \end{alltt}
 \begin{verbatim}
   niter nburnin thin nchains seed
-1  2500     500    3       2 2026
+1   250      50    1       1 2026
 \end{verbatim}
 \end{kframe}
 \end{knitrout}
@@ -1017,7 +1017,7 @@ argument.
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{predict}\hldef{(fit_cluster,} \hlkwc{type} \hldef{=} \hlsng{"PSM"}\hldef{)}
+\hlkwd{predict}\hldef{(fit_cluster,} \hlkwc{type} \hldef{=} \hlsng{"psm"}\hldef{)}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
@@ -1141,7 +1141,7 @@ estimand and prediction interface without the GPD tail. For randomized experimen
 
 
 
-This Section~\eqref{sec:app-clustering} outlines the clustering process that applies to a spliced conditional mixture model. The goal is to identify latent groups among observational units, as indicated by the mixture model, and summarize clustering uncertainty in a manner that is invariant to labeling. The results will be communicated through (i) the posterior similarity matrix (PSM) and (ii) a representative partition, along with out-of-sample predictions for cluster labels.
+This Section~\ref{sec:app-clustering} outlines the clustering process that applies to a spliced conditional mixture model. The goal is to identify latent groups among observational units, as indicated by the mixture model, and summarize clustering uncertainty in a manner that is invariant to labeling. The results will be communicated through (i) the posterior similarity matrix (PSM) and (ii) a representative partition, along with out-of-sample predictions for cluster labels.
 
 
 \subsection{Data and preprocessing}
@@ -1376,8 +1376,8 @@ tails). This model stabilizes inference for extreme quantiles by
 coupling nonparametric bulk flexibility with EVT-consistent tail
 extrapolation.
 
-We fit a two-arm spliced mixture using the Normal bulk kernel and the
-same low-iteration MCMC settings used throughout the manuscript. This is
+We fit a two-arm spliced mixture using the Gamma bulk kernel and the
+same MCMC settings used throughout the manuscript. This is
 not a definitive substantive analysis; the goal is to show how the
 package reports standardized and profile-specific Lalonde earnings
 contrasts under the spliced DPM--GPD workflow.
@@ -1391,9 +1391,9 @@ contrasts under the spliced DPM--GPD workflow.
   \hlkwc{x} \hldef{= app_lalonde_y,}
   \hlkwc{X} \hldef{= app_lalonde_X,}
   \hlkwc{treat} \hldef{= app_lalonde_A,}
-  \hlkwc{backend} \hldef{=} \hlsng{"sb"}\hldef{,}
-  \hlkwc{kernel} \hldef{=} \hlsng{"normal"}\hldef{,}
-  \hlkwc{components} \hldef{=} \hlnum{4}\hldef{,}
+  \hlkwc{backend} \hldef{=} \hlsng{"crp"}\hldef{,}
+  \hlkwc{kernel} \hldef{=} \hlsng{"gamma"}\hldef{,}
+  \hlkwc{components} \hldef{=} \hlnum{10}\hldef{,}
   \hlkwc{mcmc} \hldef{=} \hlkwd{c}\hldef{(mcmc_fixed,} \hlkwd{list}\hldef{(}\hlkwc{show_progress} \hldef{=} \hlnum{FALSE}\hldef{))}
 \hldef{)}
 \end{alltt}
@@ -1421,8 +1421,8 @@ estimands.
 \toprule
 arm & parameter & mean & sd & q0.025 & q0.500 & q0.975\\
 \midrule
-treated (A=1) & tail shape & 0.095 & 0.217 & -0.256 & 0.107 & 0.361\\
-control (A=0) & tail shape & 0.053 & 0.160 & -0.253 & 0.077 & 0.344\\
+treated (A=1) & tail shape & 0.248 & 0.142 & -0.118 & 0.314 & 0.433\\
+control (A=0) & tail shape & 0.069 & 0.066 & -0.024 & 0.093 & 0.161\\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -1437,8 +1437,8 @@ control (A=0) & tail shape & 0.053 & 0.160 & -0.253 & 0.077 & 0.344\\
 \toprule
 arm & mean & sd & q0.025 & q0.500 & q0.975\\
 \midrule
-treated (A=1) & 0.095 & 0.217 & -0.256 & 0.107 & 0.361\\
-control (A=0) & 0.053 & 0.160 & -0.253 & 0.077 & 0.344\\
+treated (A=1) & 0.248 & 0.142 & -0.118 & 0.314 & 0.433\\
+control (A=0) & 0.069 & 0.066 & -0.024 & 0.093 & 0.161\\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -1627,29 +1627,29 @@ standardized QTE analysis.
 \toprule
 profile & id & index & estimate & lower & upper\\
 \midrule
-Profile 1 & 1 & 0.25 & 0.206 & -0.501 & 1.306\\
-Profile 1 & 1 & 0.50 & 0.000 & 0.000 & 0.000\\
-Profile 1 & 1 & 0.75 & -0.206 & -1.306 & 0.501\\
-Profile 1 & 1 & 0.90 & -19.603 & -69.049 & 3.380\\
-Profile 1 & 1 & 0.95 & -46.859 & -104.152 & -11.473\\
+Profile 1 & 1 & 0.25 & -0.902 & -5.825 & 1.032\\
+Profile 1 & 1 & 0.50 & -3.048 & -6.498 & -1.121\\
+Profile 1 & 1 & 0.75 & -0.881 & -4.581 & 1.996\\
+Profile 1 & 1 & 0.90 & 3.084 & -2.410 & 9.621\\
+Profile 1 & 1 & 0.95 & 6.952 & 0.104 & 16.955\\
 \addlinespace
-Profile 2 & 2 & 0.25 & 0.206 & -0.501 & 1.306\\
-Profile 2 & 2 & 0.50 & 0.000 & 0.000 & 0.000\\
-Profile 2 & 2 & 0.75 & -0.206 & -1.306 & 0.501\\
-Profile 2 & 2 & 0.90 & -19.603 & -69.049 & 3.380\\
-Profile 2 & 2 & 0.95 & -46.859 & -104.152 & -11.473\\
+Profile 2 & 2 & 0.25 & -0.903 & -5.825 & 0.891\\
+Profile 2 & 2 & 0.50 & -3.057 & -6.405 & -1.252\\
+Profile 2 & 2 & 0.75 & -1.982 & -4.181 & -0.013\\
+Profile 2 & 2 & 0.90 & -1.051 & -3.696 & 3.032\\
+Profile 2 & 2 & 0.95 & -0.031 & -3.751 & 6.596\\
 \addlinespace
-Profile 3 & 3 & 0.25 & 0.206 & -0.501 & 1.306\\
-Profile 3 & 3 & 0.50 & 0.000 & 0.000 & 0.000\\
-Profile 3 & 3 & 0.75 & -0.206 & -1.306 & 0.501\\
-Profile 3 & 3 & 0.90 & -19.603 & -69.049 & 3.380\\
-Profile 3 & 3 & 0.95 & -46.859 & -104.152 & -11.473\\
+Profile 3 & 3 & 0.25 & -0.905 & -5.825 & 0.819\\
+Profile 3 & 3 & 0.50 & -3.360 & -6.718 & -1.443\\
+Profile 3 & 3 & 0.75 & -3.581 & -5.435 & -1.725\\
+Profile 3 & 3 & 0.90 & -4.592 & -7.754 & 0.223\\
+Profile 3 & 3 & 0.95 & -5.092 & -10.215 & 2.652\\
 \addlinespace
-Profile 4 & 4 & 0.25 & 0.206 & -0.501 & 1.306\\
-Profile 4 & 4 & 0.50 & 0.000 & 0.000 & 0.000\\
-Profile 4 & 4 & 0.75 & -0.206 & -1.306 & 0.501\\
-Profile 4 & 4 & 0.90 & -19.603 & -69.049 & 3.380\\
-Profile 4 & 4 & 0.95 & -46.859 & -104.152 & -11.473\\
+Profile 4 & 4 & 0.25 & -0.873 & -5.825 & 2.806\\
+Profile 4 & 4 & 0.50 & -5.677 & -11.538 & -0.580\\
+Profile 4 & 4 & 0.75 & -10.452 & -27.958 & 11.166\\
+Profile 4 & 4 & 0.90 & -12.909 & -51.629 & 37.293\\
+Profile 4 & 4 & 0.95 & -12.062 & -67.945 & 67.616\\
 \bottomrule
 \end{tabular}}
 \end{table}

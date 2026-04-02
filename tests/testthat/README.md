@@ -50,10 +50,9 @@ Sys.setenv(DPMIXGPD_TEST_LEVEL = "cran")
 ### Running Specific Tests
 
 ```r
-# Run the dedicated coverage-only entrypoints
+# Run the dedicated coverage-only test file
 Sys.setenv(DPMIXGPD_CI_COVERAGE_ONLY = "1")
 testthat::test_file("tests/testthat/test-ci-level-only.R")
-testthat::test_file("tests/testthat/test-coverage-max.R")
 
 # Run the merged suite entrypoints
 testthat::test_file("tests/testthat/test-unit.R")
@@ -104,7 +103,6 @@ tests/testthat/
 - test-unit.R                     # Fast, deterministic tests (cran level)
 - test-integration.R              # CI/full integration and performance suites
 - test-ci-level-only.R            # Dedicated coverage-only CI suite
-- test-coverage-max.R             # Coverage-only bridge to targeted heavy fragments
 - fragments/unit/                 # Non-runnable unit fragments sourced by test-unit.R
 - fragments/integration/          # Non-runnable integration fragments sourced by test-integration.R
 ```
@@ -138,15 +136,6 @@ skipped in ordinary `testthat` runs unless `DPMIXGPD_CI_COVERAGE_ONLY=1`.
 
 - `test-ci-level-only.R`: Distribution wrappers, representative workflows,
   wrapper entrypoints, and direct helper/S3 smoke coverage.
-
-#### `test-coverage-max.R` - Coverage-Only Targeted Fragment Bridge
-
-Coverage runs also execute this coverage-only bridge file. It sources the
-targeted `fragments/integration/coverage_heavy.R` suite, whose fixtures shrink
-datasets and MCMC settings automatically when `COVERAGE=1`.
-
-- `test-coverage-max.R`: Targeted helper, method, glue, and build-run branch
-  coverage for the files that otherwise require broad integration sweeps.
 
 #### `test-integration.R` - Integration Tests (Tier B / ci level)
 
@@ -274,8 +263,8 @@ test_that("all kernel combinations work", {
 ## Coverage Reports
 
 Coverage is managed through a single local script at `tools/.Rscripts/coverage.R`.
-It runs the canonical maximum-coverage entrypoints only, writes canonical
-artifacts to `covr/assets/`, and mirrors the same report to `docs/coverage/`.
+It runs the restored high-coverage test entrypoints, writes canonical artifacts
+to `covr/assets/`, and mirrors the same report to `docs/coverage/`.
 
 ### Generate Local HTML Coverage Report
 
@@ -328,7 +317,7 @@ During coverage calculation:
 
 - `COVERAGE=1` environment variable is set
 - `DPMIXGPD_TEST_LEVEL` is set from `DPMIXGPD_COVERAGE_LEVEL` (default: `"ci"`)
-- `DPMIXGPD_CI_COVERAGE_ONLY=1` enables the dedicated coverage-only entrypoints
+- `DPMIXGPD_CI_COVERAGE_ONLY=1` enables the dedicated coverage-only test file
   selected by the coverage runner
 
 ## Environment Variables Reference
@@ -340,7 +329,7 @@ During coverage calculation:
 | `DPMIXGPD_CACHE_DIR`        | path           | _cache/   | Cache directory location           |
 | `DPMIXGPD_TEST_VERBOSE`     | 0, 1           | 0         | Verbose test output                |
 | `COVERAGE`                  | any non-empty  | empty     | Set during coverage runs           |
-| `DPMIXGPD_CI_COVERAGE_ONLY` | 0, 1           | 0         | Enables the dedicated coverage-only test entrypoints |
+| `DPMIXGPD_CI_COVERAGE_ONLY` | 0, 1           | 0         | Enables the dedicated coverage-only test file |
 
 ## Troubleshooting
 

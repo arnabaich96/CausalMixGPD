@@ -144,11 +144,23 @@ setwd(here::here())
 }
 
 .coverage_selected_test_basenames <- function() {
-  # Single canonical maximum-coverage profile using the reduced
-  # coverage-only entrypoints and covr-aware small-data fixtures.
+  # Historical high-coverage test set restored from commit 5f60fe6.
   c(
     "test-ci-level-only.R",
-    "test-coverage-max.R"
+    "test-ci.R",
+    "test-coverage-heavy.R",
+    "test-integration.R",
+    "test-performance-acceptance.R",
+    "test-performance-phase2-ess.R",
+    "test-performance-phase2-predict.R",
+    "test-performance-phase2-samplers.R",
+    "test-performance-phase2-zupdate.R",
+    "test-progress.R",
+    "test-unit.R",
+    "test_cluster_coverage_edges.R",
+    "test_cluster_fit_predict.R",
+    "test_cluster_methods.R",
+    "test_cluster_ordering_summary.R"
   )
 }
 
@@ -163,7 +175,7 @@ setwd(here::here())
   helpers <- all_r[grepl("^helper.*\\.[Rr]$", basename(all_r))]
   tests <- all_r[grepl("^test.*\\.[Rr]$", basename(all_r))]
   if (!.coverage_include_coverage_only_file()) {
-    tests <- tests[!basename(tests) %in% c("test-ci-level-only.R", "test-coverage-max.R")]
+    tests <- tests[basename(tests) != "test-ci-level-only.R"]
   }
   tests <- tests[basename(tests) %in% .coverage_selected_test_basenames()]
   if (!length(tests)) {

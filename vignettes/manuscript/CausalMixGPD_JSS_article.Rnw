@@ -276,10 +276,10 @@ write_manuscript_cache <- function(x, ...) {
 }
 
 mcmc_fixed <- list(
-  niter = 2500,
-  nburnin = 500,
-  thin = 3,
-  nchains = 2,
+  niter = 250,
+  nburnin = 50,
+  thin = 1,
+  nchains = 1,
   seed = 2026
 )
 @
@@ -1347,7 +1347,7 @@ The same \code{predict()} interface returns either the posterior
 similarity matrix (PSM) or cluster labels depending on the \code{type}
 argument.
 <<cluster_psm, eval=FALSE>>=
-predict(fit_cluster, type = "PSM")
+predict(fit_cluster, type = "psm")
 @
 
 New-observation cluster labels, together with per-cluster
@@ -1474,24 +1474,16 @@ if (!"package:CausalMixGPD" %in% search()) {
 if (!"package:ggplot2" %in% search()) {
   library(ggplot2)
 }
-
-mcmc_fixed <- list(
-  niter = 200,
-  nburnin = 50,
-  thin = 3,
-  nchains = 1,
-  seed = 1
-)
 @
 
-This Section~\eqref{sec:app-clustering} outlines the clustering process that applies to a spliced conditional mixture model. The goal is to identify latent groups among observational units, as indicated by the mixture model, and summarize clustering uncertainty in a manner that is invariant to labeling. The results will be communicated through (i) the posterior similarity matrix (PSM) and (ii) a representative partition, along with out-of-sample predictions for cluster labels.
+This Section~\ref{sec:app-clustering} outlines the clustering process that applies to a spliced conditional mixture model. The goal is to identify latent groups among observational units, as indicated by the mixture model, and summarize clustering uncertainty in a manner that is invariant to labeling. The results will be communicated through (i) the posterior similarity matrix (PSM) and (ii) a representative partition, along with out-of-sample predictions for cluster labels.
 
 
 \subsection{Data and preprocessing}
 
 This analysis uses the \code{Boston}housing data (\pkg{MASS}) package, where each census tract is considered an observational unit. The target variable is median house value (\code{medv}), and the predictor variables are \code{lstat}, \code{rm}, and \code{nox}. The goal is to identify representative latent groups and then predict which group a new tract belongs to, using out-of-sample predictions from posterior predictive co-clustering evidence. The data is split into a training set and a test set, and the predictor variables are standardized using moments estimated from the training data. These preprocessing tasks are omitted from the code for brevity.
 
-<<app_cluster_data-cache, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, echo=TRUE>>=
+<<app_cluster_data-cache, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
 library(MASS)
 
 set.seed(123)
@@ -1746,16 +1738,13 @@ for (v in app_lalonde_scale_vars) {
 }
 
 app_lalonde_x_formula <- ~ age_z + educ_z + race + married + nodegree + re74_z + re75_z
-app_lalonde_y <- app_lalonde_covars$re78
+app_lalonde_y <- (app_lalonde_covars$re78 + 0.5) / 1000
 app_lalonde_A <- as.integer(app_lalonde_covars$treat)
 app_lalonde_X <- stats::model.matrix(
   app_lalonde_x_formula,
   data = app_lalonde_covars
 )[, -1, drop = FALSE]
 app_lalonde_covars_used <- colnames(app_lalonde_X)
-app_lalonde_rm_cutoff <- as.numeric(
-  stats::quantile(app_lalonde_y, 0.95, na.rm = TRUE)
-)
 @
 
 Figure~\ref{fig:app_lalonde_response_panels} provides full-sample
@@ -1768,7 +1757,7 @@ app_lalonde_plot_df <- data.frame(
   treat_label = factor(
     app_lalonde_covars$treat,
     levels = c(0, 1),
-    labels = c("Control (A=0)", "Treated (A=1)")
+    labels = c("Control", "Treated")
   )
 )
 
@@ -1780,16 +1769,17 @@ app_lalonde_box_plot <- ggplot(
     width = 0.55,
     colour = cmgpd_pal[["navy"]],
     outlier.colour = cmgpd_pal[["rose"]],
-    outlier.alpha = 0.85
+    outlier.alpha = 0.85,
+    show.legend = FALSE
   ) +
   scale_fill_manual(values = c(cmgpd_pal[["mist"]], cmgpd_pal[["copper"]])) +
   labs(
     title = "Boxplot of 1978 earnings",
     x = NULL,
-    y = "re78 (USD)",
-    fill = "Treatment arm"
+    y = "re78 (USD)"
   ) +
-  cmgpd_theme(base_size = 12)
+  cmgpd_theme(base_size = 12) +
+  theme(legend.position = "none")
 
 app_lalonde_hist_plot <- ggplot(
   app_lalonde_plot_df,
@@ -1806,10 +1796,11 @@ app_lalonde_hist_plot <- ggplot(
     linewidth = 0.2,
     alpha = 0.45
   ) +
-  scale_colour_manual(values = c(cmgpd_pal[["teal"]], cmgpd_pal[["rose"]])) +
+
+  scale_colour_manual(values = c(cmgpd_pal[["teal"]], cmgpd_pal[["rose"]]), guide = "none") +
   scale_fill_manual(values = c(cmgpd_pal[["mist"]], cmgpd_pal[["copper"]])) +
   labs(
-    title = "Overlaid histograms of 1978 earnings by treatment",
+    title = "Histograms of 1978 earnings",
     x = "re78 (USD)",
     y = "Density",
     fill = "Treatment arm"
@@ -1850,8 +1841,8 @@ tails). This model stabilizes inference for extreme quantiles by
 coupling nonparametric bulk flexibility with EVT-consistent tail
 extrapolation.
 
-We fit a two-arm spliced mixture using the Normal bulk kernel and the
-same low-iteration MCMC settings used throughout the manuscript. This is
+We fit a two-arm spliced mixture using the Gamma bulk kernel and the
+same MCMC settings used throughout the manuscript. This is
 not a definitive substantive analysis; the goal is to show how the
 package reports standardized and profile-specific Lalonde earnings
 contrasts under the spliced DPM--GPD workflow.
@@ -1863,16 +1854,16 @@ app_lalonde_cache_spec <- list(
   treat = "treat",
   covars = app_lalonde_covars_used,
   model = "dpmgpd.causal",
-  backend = "sb",
-  kernel = "normal",
-  components = 4L,
+  backend = "crp",
+  kernel = "gamma",
+  components = 10L,
   mcmc = c(mcmc_fixed, list(show_progress = FALSE))
 )
 app_lalonde_fit_cache <- read_manuscript_cache(
   "fits", "app_lalonde_fit.rds",
   validate = function(x) {
     is.list(x) &&
-      isTRUE(x$cache_version >= 3L) &&
+      isTRUE(x$cache_version >= 4L) &&
       identical(x$cache_spec, app_lalonde_cache_spec) &&
       inherits(x$fit, "causalmixgpd_causal_fit")
   }
@@ -1885,14 +1876,14 @@ if (is.list(app_lalonde_fit_cache) && inherits(app_lalonde_fit_cache$fit, "causa
     x = app_lalonde_y,
     X = app_lalonde_X,
     treat = app_lalonde_A,
-    backend = "sb",
-    kernel = "normal",
-    components = 4,
+    backend = "crp",
+    kernel = "gamma",
+    components = 10,
     mcmc = c(mcmc_fixed, list(show_progress = FALSE))
   )
   write_manuscript_cache(
     list(
-      cache_version = 3L,
+      cache_version = 4L,
       cache_spec = app_lalonde_cache_spec,
       fit = app_lalonde_fit
     ),
@@ -1906,9 +1897,9 @@ app_lalonde_fit <- dpmgpd.causal(
   x = app_lalonde_y,
   X = app_lalonde_X,
   treat = app_lalonde_A,
-  backend = "sb",
-  kernel = "normal",
-  components = 4,
+  backend = "crp",
+  kernel = "gamma",
+  components = 10,
   mcmc = c(mcmc_fixed, list(show_progress = FALSE))
 )
 @

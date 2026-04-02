@@ -1,7 +1,24 @@
 {
   "permissions": {
     "allow": [
-      "Bash(find d:/Git-Repos/CausalMixGPD-Package/CausalMixGPD -name *.Rmd -not -path */renv/*)"
+      "Bash(find d:/Git-Repos/CausalMixGPD-Package/CausalMixGPD -name *.Rmd -not -path */renv/*)",
+      "Bash(grep -n \"\\\\.predict_mixgpd\\\\s*<-\" /d/Git-Repos/CausalMixGPD-Package/CausalMixGPD/R/*.R)",
+      "Bash(grep -n \"\\\\.causal_aggregate_ate\" /d/Git-Repos/CausalMixGPD-Package/CausalMixGPD/R/*.R)",
+      "Bash(grep -n \"range\\\\\\(y\\\\|max\\(y\\\\|min\\(y\\\\|sd\\(y\\\\|mean\\(y\" /d/Git-Repos/CausalMixGPD-Package/CausalMixGPD/R/*.R)",
+      "Bash(grep -n \"run_mcmc_causal\\\\|run_mcmc_bundle_manual\" /d/Git-Repos/CausalMixGPD-Package/CausalMixGPD/R/*.R)",
+      "Bash(grep -n \"^run_mcmc\" /d/Git-Repos/CausalMixGPD-Package/CausalMixGPD/R/*.R)",
+      "Bash(grep -n \"build_code_from_spec\" /d/Git-Repos/CausalMixGPD-Package/CausalMixGPD/R/*.R)",
+      "Bash(grep -n 'pr_trt\\\\|pr_con\\\\|pr_trt$draws\\\\|pr_con$draws' /d/Git-Repos/CausalMixGPD-Package/CausalMixGPD/R/causal.R)",
+      "Bash(grep -n \"ent\\\\$\\\\|bulk_mean\\\\|bulk_sd\\\\|mu\\\\|sigma\" \"/d/Git-Repos/CausalMixGPD-Package/CausalMixGPD/R/build-run.R\")",
+      "Bash(grep -n \"\\\\\\\\\\\\\\\\label{sec:app-clustering}\\\\|\\\\\\\\\\\\\\\\label{sec:app-causal}\" /d/Git-Repos/CausalMixGPD-Package/CausalMixGPD/vignettes/manuscript/CausalMixGPD_JSS_article.Rnw)",
+      "Bash(grep -n \"predict.causalmixgpd_causal_fit\\\\|predict\\\\.causalmixgpd_causal_fit\" /d/Git-Repos/CausalMixGPD-Package/CausalMixGPD/R/*.R)",
+      "Bash(grep -n \"predict.causalmixgpd_cluster_fit\\\\|predict\\\\.causalmixgpd_cluster_fit\" /d/Git-Repos/CausalMixGPD-Package/CausalMixGPD/R/*.R)",
+      "Bash(grep -n \"\\\\\\\\\\\\\\\\eqref{sec:\" /d/Git-Repos/CausalMixGPD-Package/CausalMixGPD/vignettes/manuscript/CausalMixGPD_JSS_article.Rnw)",
+      "Bash(Rscript -e \"knitr::knit\\('vignettes/manuscript/CausalMixGPD_JSS_article.Rnw', output='vignettes/manuscript/CausalMixGPD_JSS_article.tex'\\)\")",
+      "Bash(ls \"/c/Program Files/R\"/*/bin/Rscript.exe)",
+      "Bash(ls \"/c/Program Files/R\"/*/bin/x64/Rscript.exe)",
+      "Bash(\"/c/Program Files/R/R-4.5.2/bin/Rscript.exe\" -e \"knitr::knit\\('vignettes/manuscript/CausalMixGPD_JSS_article.Rnw', output='vignettes/manuscript/CausalMixGPD_JSS_article.tex'\\)\")",
+      "Bash('/c/Program Files/R/R-4.5.2/bin/Rscript.exe' -e 'data\\('\\\\''lalonde'\\\\'', package='\\\\''MatchIt'\\\\''\\); cat\\('\\\\''zeros:'\\\\'', sum\\(lalonde$re78 == 0\\), '\\\\''/'\\\\'', nrow\\(lalonde\\), '\\\\''\\\\n'\\\\''\\); cat\\('\\\\''min:'\\\\'', min\\(lalonde$re78\\), '\\\\''\\\\n'\\\\''\\)')"
     ]
   }
 }

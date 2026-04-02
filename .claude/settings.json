@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -n \"build_nimble_bundle\" /d/Git-Repos/CausalMixGPD-Package/CausalMixGPD/R/*.R)",
+      "Bash(grep -n \"^build_nimble_bundle\" /d/Git-Repos/CausalMixGPD-Package/CausalMixGPD/R/*.R)"
+    ]
+  }
+}
