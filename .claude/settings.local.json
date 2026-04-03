@@ -18,7 +18,10 @@
       "Bash(ls \"/c/Program Files/R\"/*/bin/Rscript.exe)",
       "Bash(ls \"/c/Program Files/R\"/*/bin/x64/Rscript.exe)",
       "Bash(\"/c/Program Files/R/R-4.5.2/bin/Rscript.exe\" -e \"knitr::knit\\('vignettes/manuscript/CausalMixGPD_JSS_article.Rnw', output='vignettes/manuscript/CausalMixGPD_JSS_article.tex'\\)\")",
-      "Bash('/c/Program Files/R/R-4.5.2/bin/Rscript.exe' -e 'data\\('\\\\''lalonde'\\\\'', package='\\\\''MatchIt'\\\\''\\); cat\\('\\\\''zeros:'\\\\'', sum\\(lalonde$re78 == 0\\), '\\\\''/'\\\\'', nrow\\(lalonde\\), '\\\\''\\\\n'\\\\''\\); cat\\('\\\\''min:'\\\\'', min\\(lalonde$re78\\), '\\\\''\\\\n'\\\\''\\)')"
+      "Bash('/c/Program Files/R/R-4.5.2/bin/Rscript.exe' -e 'data\\('\\\\''lalonde'\\\\'', package='\\\\''MatchIt'\\\\''\\); cat\\('\\\\''zeros:'\\\\'', sum\\(lalonde$re78 == 0\\), '\\\\''/'\\\\'', nrow\\(lalonde\\), '\\\\''\\\\n'\\\\''\\); cat\\('\\\\''min:'\\\\'', min\\(lalonde$re78\\), '\\\\''\\\\n'\\\\''\\)')",
+      "Bash(grep -n \"^[a-zA-Z_][a-zA-Z0-9._]*\\\\s*<-\\\\s*function\\\\s*\\(\" /d/Git-Repos/CausalMixGPD-Package/CausalMixGPD/R/*.R)",
+      "Bash(grep -rn \"x = \" /d/Git-Repos/CausalMixGPD-Package/CausalMixGPD/tests/testthat/*.R)",
+      "Bash(grep -rn \"dpmix\\\\|dpmgpd\\\\|bundle\" /d/Git-Repos/CausalMixGPD-Package/CausalMixGPD/tests/testthat/*.R)"
     ]
   }
 }

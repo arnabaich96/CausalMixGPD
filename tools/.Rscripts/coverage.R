@@ -144,17 +144,14 @@ setwd(here::here())
 }
 
 .coverage_selected_test_basenames <- function() {
-  # Historical high-coverage test set restored from commit 5f60fe6.
+  # Historical high-coverage filenames, trimmed to the smallest practical
+  # coverage-oriented subset. Performance-only files add hours of runtime
+  # under covr with little incremental line coverage.
   c(
     "test-ci-level-only.R",
     "test-ci.R",
     "test-coverage-heavy.R",
     "test-integration.R",
-    "test-performance-acceptance.R",
-    "test-performance-phase2-ess.R",
-    "test-performance-phase2-predict.R",
-    "test-performance-phase2-samplers.R",
-    "test-performance-phase2-zupdate.R",
     "test-progress.R",
     "test-unit.R",
     "test_cluster_coverage_edges.R",

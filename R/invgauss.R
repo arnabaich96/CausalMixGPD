@@ -108,6 +108,7 @@ pInvGaussMix <- nimble::nimbleFunction(
     }
 
     # clamp to [0,1]
+    if (is.nan(cdf)) cdf <- 0.0
     if (cdf < 0.0) cdf <- 0.0
     if (cdf > 1.0) cdf <- 1.0
 
@@ -209,6 +210,33 @@ qInvGaussMix <- function(p, w, mean, shape,
     }
   }
   out
+}
+
+meanInvGaussMix <- function(w, mean, shape) {
+  ww <- .mean_norm_mix_weights(w)
+  if (is.null(ww)) return(NA_real_)
+  mu <- as.numeric(mean)
+  lam <- as.numeric(shape)
+  if (length(mu) != length(ww) || length(lam) != length(ww)) return(NA_real_)
+  if (any(!is.finite(mu)) || any(!is.finite(lam)) || any(mu <= 0) || any(lam <= 0)) return(NA_real_)
+  sum(ww * mu)
+}
+
+meanInvGaussMixTrunc <- function(w, mean, shape, threshold) {
+  ww <- .mean_norm_mix_weights(w)
+  if (is.null(ww)) return(NA_real_)
+  mu <- as.numeric(mean)
+  lam <- as.numeric(shape)
+  u <- as.numeric(threshold)[1]
+  if (length(mu) != length(ww) || length(lam) != length(ww)) return(NA_real_)
+  if (any(!is.finite(mu)) || any(!is.finite(lam)) || any(mu <= 0) || any(lam <= 0) || is.na(u)) return(NA_real_)
+  if (is.infinite(u) && u > 0) return(meanInvGaussMix(w = ww, mean = mu, shape = lam))
+  if (u <= 0) return(0)
+  sqrt_term <- sqrt(lam / u)
+  a <- sqrt_term * (u / mu - 1)
+  b <- -sqrt_term * (u / mu + 1)
+  comp <- mu * (stats::pnorm(a) - exp(2 * lam / mu) * stats::pnorm(b))
+  sum(ww * comp)
 }
 
 
@@ -722,3 +750,4 @@ rinvgaussgpd <- function(n, mean, shape, threshold, tail_scale, tail_shape) {
                                                           tail_shape = tail_shape)),
          numeric(1L))
 }
+

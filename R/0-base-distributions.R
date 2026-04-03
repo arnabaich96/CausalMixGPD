@@ -2,6 +2,14 @@
 # 1) Generalized Pareto distribution (GPD)
 # ==========================================================
 
+.mean_norm_mix_weights <- function(w) {
+  w <- as.numeric(w)
+  if (!length(w) || any(!is.finite(w))) return(NULL)
+  wsum <- sum(w)
+  if (!is.finite(wsum) || wsum <= 0) return(NULL)
+  w / wsum
+}
+
 #' Generalized Pareto distribution
 #'
 #' Scalar generalized Pareto distribution (GPD) utilities for threshold exceedances above
@@ -135,6 +143,7 @@ pGpd <- nimble::nimbleFunction(
           cdf <- 1.0 - (t^(-1.0 / shape))
         }
       }
+      if (is.nan(cdf)) cdf <- 0.0
       if (cdf < 0.0) cdf <- 0.0
       if (cdf > 1.0) cdf <- 1.0
     }
@@ -637,6 +646,7 @@ pCauchy <- nimble::nimbleFunction(
     }
     z <- (q - location) / scale
     cdf <- 0.5 + atan(z) / pi
+    if (is.nan(cdf)) cdf <- 0.0
     if (cdf < 0.0) cdf <- 0.0
     if (cdf > 1.0) cdf <- 1.0
     if (lower.tail == 0) cdf <- 1.0 - cdf
@@ -886,3 +896,4 @@ rcauchy_vec <- function(n, location, scale) {
   vapply(seq_len(n), function(i) as.numeric(rCauchy(1L, location, scale)),
          numeric(1L))
 }
+

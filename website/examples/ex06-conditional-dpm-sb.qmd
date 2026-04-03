@@ -81,7 +81,7 @@ summary_tbl <- tibble(
 ggplot(data.frame(y = y, x1 = X[, 1]), aes(x = x1, y = y)) +
   geom_point(alpha = 0.6, color = "darkorange") +
   geom_smooth(method = "loess", color = "navy", fill = NA) +
-  labs(title = "y vs X1 (SB)", x = "X1", y = "y") +
+  labs(title = "y vs X1 (SB)", newdata ="X1", y = "y") +
   theme_minimal()
 ```
 
@@ -142,7 +142,7 @@ y_min <- max(min(y), .Machine$double.eps)
 y_grid <- seq(y_min, max(y) * 1.1, length.out = 200)
 
 densities_normal <- lapply(seq_len(nrow(X_new)), function(i) {
-  pred <- predict(fit_sb_normal, x = as.matrix(X_new[i, , drop = FALSE]), y = y_grid, type = "density")
+  pred <- predict(fit_sb_normal, newdata =as.matrix(X_new[i, , drop = FALSE]), y = y_grid, type = "density")
   data.frame(
     y = pred$fit$y,
     density = pred$fit$density,
@@ -152,7 +152,7 @@ densities_normal <- lapply(seq_len(nrow(X_new)), function(i) {
 })
 
 densities_cauchy <- lapply(seq_len(nrow(X_new)), function(i) {
-  pred <- predict(fit_sb_cauchy, x = as.matrix(X_new[i, , drop = FALSE]), y = y_grid, type = "density")
+  pred <- predict(fit_sb_cauchy, newdata =as.matrix(X_new[i, , drop = FALSE]), y = y_grid, type = "density")
   data.frame(
     y = pred$fit$y,
     density = pred$fit$density,
@@ -166,7 +166,7 @@ df_cond <- bind_rows(densities_normal, densities_cauchy)
 ggplot(df_cond, aes(x = y, y = density, color = label)) +
   geom_line(linewidth = 1) +
   facet_wrap(~ model) +
-  labs(title = "SB Conditional Predictive Densities", x = "y", y = "Density") +
+  labs(title = "SB Conditional Predictive Densities", newdata ="y", y = "Density") +
   theme_minimal() +
   theme(legend.position = "bottom")
 ```
@@ -180,8 +180,8 @@ X_eval <- cbind(x1 = seq(-2, 2, length.out = 5), x2 = 0, x3 = 0)
 colnames(X_eval) <- colnames(X)
 quant_probs <- c(0.25, 0.5, 0.75)
 
-pred_q_normal <- predict(fit_sb_normal, x = as.matrix(X_eval), type = "quantile", p = quant_probs)
-pred_q_cauchy <- predict(fit_sb_cauchy, x = as.matrix(X_eval), type = "quantile", p = quant_probs)
+pred_q_normal <- predict(fit_sb_normal, newdata =as.matrix(X_eval), type = "quantile", p = quant_probs)
+pred_q_cauchy <- predict(fit_sb_cauchy, newdata =as.matrix(X_eval), type = "quantile", p = quant_probs)
 
 quant_df_normal <- pred_q_normal$fit
 quant_df_normal$x1 <- X_eval[quant_df_normal$id, "x1"]
@@ -196,7 +196,7 @@ bind_rows(quant_df_normal, quant_df_cauchy) %>%
   geom_line(linewidth = 1) +
   geom_point(size = 2) +
   facet_wrap(~ model) +
-  labs(title = "SB Conditional Quantiles vs x1", x = "x1", y = "y", color = "Quantile") +
+  labs(title = "SB Conditional Quantiles vs x1", newdata ="x1", y = "y", color = "Quantile") +
   theme_minimal()
 ```
 

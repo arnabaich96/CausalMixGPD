@@ -41,8 +41,8 @@ then returns a single \code{"causalmixgpd_causal_fit"} object.
 }
 \details{
 The fitted object contains the posterior draws needed to evaluate arm-level
-predictive distributions \eqn{F_1(y \mid x, \mathcal{D})} and
-\eqn{F_0(y \mid x, \mathcal{D})}, followed by marginal or conditional causal
+predictive distributions \eqn{F_1(y \mid x)} and
+\eqn{F_0(y \mid x)}, followed by marginal or conditional causal
 contrasts. When \code{PS = FALSE} in the bundle, the PS block is skipped and
 outcome prediction uses only the original covariates.
 }

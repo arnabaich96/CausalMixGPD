@@ -35,6 +35,10 @@
   as.integer(treat)
 }
 
+.treat_arg_supplied <- function(call_args, treat_expr) {
+  ("treat" %in% names(call_args)) && !identical(treat_expr, quote(NULL))
+}
+
 .formula_design_matrix <- function(trm,
                                    mf,
                                    drop_intercept = TRUE,
@@ -259,6 +263,38 @@
   do.call(mcmc, c(list(b = b), mcmc_args))
 }
 
+.wrapper_mcmc_arg_names <- function() {
+  c(
+    "niter", "nburn", "nburnin", "thin", "nchains", "seed", "waic",
+    "parallel_chains", "parallel_arms", "workers", "timing", "z_update_every",
+    "show_progress", "quiet"
+  )
+}
+
+.collect_inline_mcmc_from_dots <- function(dots_expr, mcmc, eval_env) {
+  if (is.null(dots_expr) || !length(dots_expr)) {
+    return(list(mcmc = mcmc, names = character(0)))
+  }
+
+  dots_list <- as.list(dots_expr)
+  dot_names <- names(dots_list)
+  if (is.null(dot_names)) dot_names <- rep("", length(dots_list))
+
+  inline_idx <- nzchar(dot_names) & (dot_names %in% .wrapper_mcmc_arg_names())
+  if (!any(inline_idx)) {
+    return(list(mcmc = mcmc, names = character(0)))
+  }
+
+  inline_vals <- lapply(dots_list[inline_idx], eval, envir = eval_env)
+  parsed <- .normalize_mcmc_inputs(inline_vals)
+  merged <- utils::modifyList(
+    mcmc %||% list(),
+    c(parsed$overrides, parsed$runner)
+  )
+
+  list(mcmc = merged, names = dot_names[inline_idx])
+}
+
 #' Build the workflow bundle used by the package fitters
 #'
 #' \code{bundle()} is the main workflow constructor. It converts raw inputs,
@@ -292,11 +328,10 @@
 #' See the manuscript vignette for the DPM hierarchy, SB/CRP representations,
 #' and the spliced bulk-tail construction used throughout the package.
 #'
-#' @param x Either a response vector or an existing bundle.
-#' @param y Optional alias for \code{x} (response vector).
-#' @param data Optional data.frame used with \code{formula}.
+#' @param y Either a response vector or an existing bundle.
 #' @param X Optional design matrix/data.frame.
 #' @param treat Optional binary treatment indicator.
+#' @param data Optional data.frame used with \code{formula}.
 #' @param formula Optional formula.
 #' @param ... Additional arguments passed to \code{build_nimble_bundle()} or
 #'   \code{build_causal_bundle()}.
@@ -308,12 +343,12 @@
 #' @seealso \code{\link{build_nimble_bundle}}, \code{\link{build_causal_bundle}},
 #'   \code{\link{mcmc}}, \code{\link{dpmix}}, \code{\link{dpmgpd}}.
 #' @export
-bundle <- function(x = NULL, y = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL, ..., GPD = FALSE) {
-  if (.is_bundle(x)) return(x)
+bundle <- function(y = NULL, X = NULL, treat = NULL, data = NULL, formula = NULL, ..., GPD = FALSE) {
+  if (.is_bundle(y)) return(y)
 
   treat_expr <- substitute(treat)
   call_args <- as.list(match.call(expand.dots = FALSE))
-  treat_supplied <- ("treat" %in% names(call_args)) && !is.null(treat)
+  treat_supplied <- .treat_arg_supplied(call_args, treat_expr)
 
   y_vec <- NULL
   x_mat <- X
@@ -325,8 +360,11 @@ bundle <- function(x = NULL, y = NULL, data = NULL, X = NULL, treat = NULL, form
     y_vec <- parsed$y
     x_mat <- parsed$X
     if (treat_supplied) {
-      if (is.symbol(treat_expr) && as.character(treat_expr) %in% names(parsed$mf)) {
-        treat_in <- as.character(treat_expr)
+      treat_name <- if (is.symbol(treat_expr)) as.character(treat_expr) else NULL
+      if (!is.null(treat_name) &&
+          treat_name != "NULL" &&
+          (treat_name %in% names(parsed$mf) || (!is.null(data) && treat_name %in% names(data)))) {
+        treat_in <- treat_name
       } else {
         treat_in <- treat
       }
@@ -341,9 +379,8 @@ bundle <- function(x = NULL, y = NULL, data = NULL, X = NULL, treat = NULL, form
       treat = if (is.symbol(treat_expr)) as.character(treat_expr) else NULL
     )
   } else {
-    if (is.null(x) && !is.null(y)) x <- y
-    if (is.null(x)) stop("Provide either 'x' (response vector), 'formula', or a bundle.", call. = FALSE)
-    y_vec <- as.numeric(x)
+    if (is.null(y)) stop("Provide either 'y' (response vector), 'formula', or a bundle.", call. = FALSE)
+    y_vec <- as.numeric(y)
     if (treat_supplied) t_vec <- .coerce_treat(treat)
   }
 
@@ -384,8 +421,8 @@ bundle <- function(x = NULL, y = NULL, data = NULL, X = NULL, treat = NULL, form
 #'
 #' The returned fit represents posterior draws from the finite SB/CRP
 #' approximation encoded in the bundle. Downstream summaries therefore target
-#' posterior predictive quantities such as \eqn{f(y \mid x, \mathcal{D})},
-#' \eqn{F(y \mid x, \mathcal{D})}, and derived treatment-effect functionals.
+#' posterior predictive quantities such as \eqn{f(y \mid x)},
+#' \eqn{F(y \mid x)}, and derived treatment-effect functionals.
 #'
 #' @param b A non-causal or causal bundle.
 #' @param ... Optional MCMC overrides (\code{niter}, \code{nburnin}, \code{thin},
@@ -428,49 +465,59 @@ mcmc <- function(b, ...) {
 #'
 #' @details
 #' The fitted model targets the posterior predictive bulk distribution
-#' \deqn{f(y \mid x, \mathcal{D}) = \int f(y \mid x, \theta)\,d\Pi(\theta \mid \mathcal{D}),}
+#' \deqn{f(y \mid x) = \int f(y \mid x, \theta)\,d\Pi(\theta),}
 #' without the spliced tail augmentation used by \code{\link{dpmgpd}}.
 #'
 #' Use this wrapper when the outcome support is adequately modeled by the bulk
 #' kernel alone. If you need threshold exceedance modeling or extreme-quantile
 #' extrapolation, use \code{\link{dpmgpd}} instead.
 #'
-#' @param x Either a response vector or a bundle object.
-#' @param data Optional data.frame used with \code{formula}.
+#' @param y Either a response vector or a bundle object.
 #' @param X Optional design matrix/data.frame.
 #' @param treat Optional binary treatment indicator. If supplied, this wrapper
 #'   errors; use \code{dpmix.causal()} for causal models.
-#' @param formula Optional formula.
-#' @param ... Additional build arguments in build mode.
+#' @param data Optional data.frame used with \code{formula}.
 #' @param mcmc Named list of run arguments passed to \code{mcmc()} (including
 #'   optional performance controls such as \code{parallel_chains},
 #'   \code{workers}, \code{timing}, and \code{z_update_every}).
+#' @param formula Optional formula.
+#' @param ... Additional build arguments passed to \code{\link{build_nimble_bundle}}.
 #' @return A fitted object of class \code{"mixgpd_fit"}.
-#' @seealso \code{\link{bundle}}, \code{\link{dpmgpd}},
+#' @seealso \code{\link{build_nimble_bundle}},
+#'   \code{\link{bundle}}, \code{\link{dpmgpd}},
 #'   \code{\link{predict.mixgpd_fit}}, \code{\link{summary.mixgpd_fit}}.
 #' @export
-dpmix <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL, ..., mcmc = list()) {
-  if (.is_causal_bundle(x) || !is.null(treat)) {
+dpmix <- function(y = NULL, X = NULL, treat = NULL, data = NULL, mcmc = list(), formula = NULL, ...) {
+  treat_expr <- substitute(treat)
+  call_match <- match.call(expand.dots = FALSE)
+  call_args <- as.list(call_match)
+
+  if (.is_causal_bundle(y) || .treat_arg_supplied(call_args, treat_expr)) {
     stop(
       "dpmix() is for one-arm models. Use dpmix.causal() for causal models.",
       call. = FALSE
     )
   }
 
+  inline <- .collect_inline_mcmc_from_dots(call_args$..., mcmc = mcmc, eval_env = parent.frame())
+  mcmc <- inline$mcmc
+
   b <- NULL
 
-  if (.is_bundle(x)) {
-    b <- if (.bundle_has_any_gpd(x)) .bundle_strip_gpd(x) else x
+  if (.is_bundle(y)) {
+    b <- if (.bundle_has_any_gpd(y)) .bundle_strip_gpd(y) else y
     return(.run_bundle_mcmc(b, mcmc_args = mcmc))
   }
 
-  bundle_args <- c(
-    list(x = x, data = data, X = X, formula = formula),
-    list(...),
-    list(GPD = FALSE)
-  )
+  bundle_call <- match.call(expand.dots = TRUE)
+  bundle_call[[1L]] <- quote(bundle)
+  bundle_call$mcmc <- NULL
+  bundle_call$GPD <- FALSE
+  if (length(inline$names)) {
+    for (nm in unique(inline$names)) bundle_call[[nm]] <- NULL
+  }
 
-  b <- do.call(get("bundle", mode = "function"), bundle_args)
+  b <- eval.parent(bundle_call)
   .run_bundle_mcmc(b, mcmc_args = mcmc)
 }
 
@@ -491,45 +538,55 @@ dpmix <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL,
 #' Use this wrapper when upper-tail behavior matters for inference, prediction,
 #' or extrapolation of extreme quantiles and survival probabilities.
 #'
-#' @param x Either a response vector or a bundle object.
-#' @param data Optional data.frame used with \code{formula}.
+#' @param y Either a response vector or a bundle object.
 #' @param X Optional design matrix/data.frame.
 #' @param treat Optional binary treatment indicator. If supplied, this wrapper
 #'   errors; use \code{dpmgpd.causal()} for causal models.
-#' @param formula Optional formula.
-#' @param ... Additional build arguments in build mode.
+#' @param data Optional data.frame used with \code{formula}.
 #' @param mcmc Named list of run arguments passed to \code{mcmc()} (including
 #'   optional performance controls such as \code{parallel_chains},
 #'   \code{workers}, \code{timing}, and \code{z_update_every}).
+#' @param formula Optional formula.
+#' @param ... Additional build arguments passed to \code{\link{build_nimble_bundle}}.
 #' @return A fitted object of class \code{"mixgpd_fit"}.
-#' @seealso \code{\link{bundle}}, \code{\link{dpmix}},
+#' @seealso \code{\link{build_nimble_bundle}},
+#'   \code{\link{bundle}}, \code{\link{dpmix}},
 #'   \code{\link{predict.mixgpd_fit}}, \code{\link{summary.mixgpd_fit}}.
 #' @export
-dpmgpd <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL, ..., mcmc = list()) {
-  if (.is_causal_bundle(x) || !is.null(treat)) {
+dpmgpd <- function(y = NULL, X = NULL, treat = NULL, data = NULL, mcmc = list(), formula = NULL, ...) {
+  treat_expr <- substitute(treat)
+  call_match <- match.call(expand.dots = FALSE)
+  call_args <- as.list(call_match)
+
+  if (.is_causal_bundle(y) || .treat_arg_supplied(call_args, treat_expr)) {
     stop(
       "dpmgpd() is for one-arm models. Use dpmgpd.causal() for causal models.",
       call. = FALSE
     )
   }
 
-  if (.is_bundle(x)) {
-    if (!.bundle_all_gpd(x)) {
+  inline <- .collect_inline_mcmc_from_dots(call_args$..., mcmc = mcmc, eval_env = parent.frame())
+  mcmc <- inline$mcmc
+
+  if (.is_bundle(y)) {
+    if (!.bundle_all_gpd(y)) {
       stop(
         "dpmgpd() requires a bundle with GPD enabled for all modeled arms; use dpmix(bundle) for non-GPD runs.",
         call. = FALSE
       )
     }
-    return(.run_bundle_mcmc(x, mcmc_args = mcmc))
+    return(.run_bundle_mcmc(y, mcmc_args = mcmc))
   }
 
-  bundle_args <- c(
-    list(x = x, data = data, X = X, formula = formula),
-    list(...),
-    list(GPD = TRUE)
-  )
+  bundle_call <- match.call(expand.dots = TRUE)
+  bundle_call[[1L]] <- quote(bundle)
+  bundle_call$mcmc <- NULL
+  bundle_call$GPD <- TRUE
+  if (length(inline$names)) {
+    for (nm in unique(inline$names)) bundle_call[[nm]] <- NULL
+  }
 
-  b <- do.call(get("bundle", mode = "function"), bundle_args)
+  b <- eval.parent(bundle_call)
   .run_bundle_mcmc(b, mcmc_args = mcmc)
 }
 
@@ -541,46 +598,56 @@ dpmgpd <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL
 #'
 #' @details
 #' The resulting fit supports conditional outcome prediction
-#' \eqn{F_a(y \mid x, \mathcal{D})} for \eqn{a \in \{0,1\}}, followed by causal
+#' \eqn{F_a(y \mid x)} for \eqn{a \in \{0,1\}}, followed by causal
 #' functionals such as \code{\link{ate}}, \code{\link{qte}},
 #' \code{\link{cate}}, and \code{\link{cqte}}.
 #'
-#' @param x Either a response vector or a causal bundle object.
-#' @param data Optional data.frame used with \code{formula}.
+#' @param y Either a response vector or a causal bundle object.
 #' @param X Optional design matrix/data.frame.
 #' @param treat Binary treatment indicator.
-#' @param formula Optional formula.
-#' @param ... Additional build arguments in build mode.
+#' @param data Optional data.frame used with \code{formula}.
 #' @param mcmc Named list of run arguments passed to \code{mcmc()} (including
 #'   optional performance controls such as \code{parallel_arms},
 #'   \code{workers}, \code{timing}, and \code{z_update_every}).
+#' @param formula Optional formula.
+#' @param ... Additional build arguments passed to \code{\link{build_causal_bundle}}.
 #' @return A fitted object of class \code{"causalmixgpd_causal_fit"}.
-#' @seealso \code{\link{bundle}}, \code{\link{dpmgpd.causal}},
+#' @seealso \code{\link{build_causal_bundle}},
+#'   \code{\link{bundle}}, \code{\link{dpmgpd.causal}},
 #'   \code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
 #'   \code{\link{qte}}.
 #' @export
-dpmix.causal <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL, ..., mcmc = list()) {
+dpmix.causal <- function(y = NULL, X = NULL, treat = NULL, data = NULL, mcmc = list(), formula = NULL, ...) {
+  treat_expr <- substitute(treat)
+  call_match <- match.call(expand.dots = FALSE)
+  call_args <- as.list(call_match)
+
+  inline <- .collect_inline_mcmc_from_dots(call_args$..., mcmc = mcmc, eval_env = parent.frame())
+  mcmc <- inline$mcmc
+
   b <- NULL
 
-  if (.is_bundle(x)) {
-    if (!.is_causal_bundle(x)) {
+  if (.is_bundle(y)) {
+    if (!.is_causal_bundle(y)) {
       stop("dpmix.causal() requires a causal bundle; use dpmix() for one-arm models.", call. = FALSE)
     }
-    b <- if (.bundle_has_any_gpd(x)) .bundle_strip_gpd(x) else x
+    b <- if (.bundle_has_any_gpd(y)) .bundle_strip_gpd(y) else y
     return(.run_bundle_mcmc(b, mcmc_args = mcmc))
   }
 
-  if (is.null(treat)) {
+  if (!.treat_arg_supplied(call_args, treat_expr)) {
     stop("dpmix.causal() requires 'treat' when building from raw inputs.", call. = FALSE)
   }
 
-  bundle_args <- c(
-    list(x = x, data = data, X = X, formula = formula, treat = treat),
-    list(...),
-    list(GPD = FALSE)
-  )
+  bundle_call <- match.call(expand.dots = TRUE)
+  bundle_call[[1L]] <- quote(bundle)
+  bundle_call$mcmc <- NULL
+  bundle_call$GPD <- FALSE
+  if (length(inline$names)) {
+    for (nm in unique(inline$names)) bundle_call[[nm]] <- NULL
+  }
 
-  b <- do.call(get("bundle", mode = "function"), bundle_args)
+  b <- eval.parent(bundle_call)
   .run_bundle_mcmc(b, mcmc_args = mcmc)
 }
 
@@ -593,50 +660,60 @@ dpmix.causal <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula 
 #'
 #' @details
 #' The arm-specific predictive distributions
-#' \eqn{F_1(y \mid x, \mathcal{D})} and \eqn{F_0(y \mid x, \mathcal{D})} inherit
+#' \eqn{F_1(y \mid x)} and \eqn{F_0(y \mid x)} inherit
 #' the spliced bulk-tail structure. Downstream causal estimands are computed as
 #' functionals of these two predictive laws, for example
 #' \deqn{\mathrm{QTE}(\tau) = Q_1(\tau) - Q_0(\tau), \qquad
 #' \mathrm{ATE} = E(Y_1) - E(Y_0).}
 #'
-#' @param x Either a response vector or a causal bundle object.
-#' @param data Optional data.frame used with \code{formula}.
+#' @param y Either a response vector or a causal bundle object.
 #' @param X Optional design matrix/data.frame.
 #' @param treat Binary treatment indicator.
-#' @param formula Optional formula.
-#' @param ... Additional build arguments in build mode.
+#' @param data Optional data.frame used with \code{formula}.
 #' @param mcmc Named list of run arguments passed to \code{mcmc()} (including
 #'   optional performance controls such as \code{parallel_arms},
 #'   \code{workers}, \code{timing}, and \code{z_update_every}).
+#' @param formula Optional formula.
+#' @param ... Additional build arguments passed to \code{\link{build_causal_bundle}}.
 #' @return A fitted object of class \code{"causalmixgpd_causal_fit"}.
-#' @seealso \code{\link{bundle}}, \code{\link{dpmix.causal}},
+#' @seealso \code{\link{build_causal_bundle}},
+#'   \code{\link{bundle}}, \code{\link{dpmix.causal}},
 #'   \code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
 #'   \code{\link{qte}}, \code{\link{cate}}, \code{\link{cqte}}.
 #' @export
-dpmgpd.causal <- function(x = NULL, data = NULL, X = NULL, treat = NULL, formula = NULL, ..., mcmc = list()) {
-  if (.is_bundle(x)) {
-    if (!.is_causal_bundle(x)) {
+dpmgpd.causal <- function(y = NULL, X = NULL, treat = NULL, data = NULL, mcmc = list(), formula = NULL, ...) {
+  treat_expr <- substitute(treat)
+  call_match <- match.call(expand.dots = FALSE)
+  call_args <- as.list(call_match)
+
+  inline <- .collect_inline_mcmc_from_dots(call_args$..., mcmc = mcmc, eval_env = parent.frame())
+  mcmc <- inline$mcmc
+
+  if (.is_bundle(y)) {
+    if (!.is_causal_bundle(y)) {
       stop("dpmgpd.causal() requires a causal bundle; use dpmgpd() for one-arm models.", call. = FALSE)
     }
-    if (!.bundle_all_gpd(x)) {
+    if (!.bundle_all_gpd(y)) {
       stop(
         "dpmgpd.causal() requires a causal bundle with GPD enabled for all modeled arms; use dpmix.causal(bundle) for non-GPD runs.",
         call. = FALSE
       )
     }
-    return(.run_bundle_mcmc(x, mcmc_args = mcmc))
+    return(.run_bundle_mcmc(y, mcmc_args = mcmc))
   }
 
-  if (is.null(treat)) {
+  if (!.treat_arg_supplied(call_args, treat_expr)) {
     stop("dpmgpd.causal() requires 'treat' when building from raw inputs.", call. = FALSE)
   }
 
-  bundle_args <- c(
-    list(x = x, data = data, X = X, formula = formula, treat = treat),
-    list(...),
-    list(GPD = TRUE)
-  )
+  bundle_call <- match.call(expand.dots = TRUE)
+  bundle_call[[1L]] <- quote(bundle)
+  bundle_call$mcmc <- NULL
+  bundle_call$GPD <- TRUE
+  if (length(inline$names)) {
+    for (nm in unique(inline$names)) bundle_call[[nm]] <- NULL
+  }
 
-  b <- do.call(get("bundle", mode = "function"), bundle_args)
+  b <- eval.parent(bundle_call)
   .run_bundle_mcmc(b, mcmc_args = mcmc)
 }

@@ -21,8 +21,12 @@ dpmgpd.cluster(
 \item{...}{Additional arguments passed to \code{build_cluster_bundle()}, including kernel settings,
 prior overrides, component counts, and monitoring controls.}
 
-\item{type}{Clustering mode. \code{"weights"} links mixture weights to predictors, \code{"param"} links
-kernel parameters to predictors, and \code{"both"} does both.}
+\item{type}{Clustering mode:
+\itemize{
+\item \code{"weights"}: links mixture weights to predictors
+\item \code{"param"}: links kernel parameters to predictors
+\item \code{"both"}: links both weights and kernel parameters to predictors
+}}
 
 \item{default}{Default mode used when \code{type} is omitted.}
 
@@ -46,8 +50,8 @@ This interface is preferable when cluster separation is driven by upper-tail dif
 than bulk-only shape or location differences.
 }
 \seealso{
-\code{\link[=dpmix.cluster]{dpmix.cluster()}}, \code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}}, \code{\link[=dpmgpd]{dpmgpd()}},
-\code{\link[=sim_bulk_tail]{sim_bulk_tail()}}.
+\code{\link[=dpmix.cluster]{dpmix.cluster()}}, \code{\link[=predict.dpmixgpd_cluster_fit]{predict.dpmixgpd_cluster_fit()}},
+\code{\link[=dpmgpd]{dpmgpd()}}, \code{\link[=sim_bulk_tail]{sim_bulk_tail()}}.
 
 Other cluster workflow: 
 \code{\link{dpmix.cluster}()},

@@ -87,7 +87,7 @@ df_causal <- data.frame(y = y, A = as.factor(A), x1 = X[, 1], x2 = X[, 2])
 
 p_scatter <- ggplot(df_causal, aes(x = x1, y = y, color = A)) +
   geom_point(alpha = 0.5) +
-  labs(title = "Outcome vs X1 by Treatment", x = "X1", y = "y", color = "Treatment") +
+  labs(title = "Outcome vs X1 by Treatment", newdata ="X1", y = "y", color = "Treatment") +
   theme_minimal()
 
 p_scatter
@@ -129,25 +129,25 @@ plot(fit_sb_bulk, family = c("traceplot", "autocorrelation", "running"))
 ```
 
 ```{r predict-mean-sb-bulk}
-pred_mean_bulk <- predict(fit_sb_bulk, x = x_eval, type = "mean",
+pred_mean_bulk <- predict(fit_sb_bulk, newdata =x_eval, type = "mean",
                           interval = "credible", nsim_mean = 100)
 plot(pred_mean_bulk)
 ```
 
 ```{r predict-quantile-sb-bulk}
-pred_q_bulk <- predict(fit_sb_bulk, x = x_eval, type = "quantile",
+pred_q_bulk <- predict(fit_sb_bulk, newdata =x_eval, type = "quantile",
                        p = 0.5, interval = "credible")
 plot(pred_q_bulk)
 ```
 
 ```{r predict-density-sb-bulk}
-pred_d_bulk <- predict(fit_sb_bulk, x = x_eval, y = y_eval,
+pred_d_bulk <- predict(fit_sb_bulk, newdata =x_eval, y = y_eval,
                        type = "density", interval = "credible")
 plot(pred_d_bulk)
 ```
 
 ```{r predict-survival-sb-bulk}
-pred_surv_bulk <- predict(fit_sb_bulk, x = x_eval, y = y_eval,
+pred_surv_bulk <- predict(fit_sb_bulk, newdata =x_eval, y = y_eval,
                           type = "survival", interval = "credible")
 plot(pred_surv_bulk)
 ```
@@ -213,25 +213,25 @@ plot(fit_sb_gpd, family = c("density", "geweke", "caterpillar"))
 ```
 
 ```{r predict-mean-sb-gpd}
-pred_mean_gpd <- predict(fit_sb_gpd, x = x_eval, type = "mean",
+pred_mean_gpd <- predict(fit_sb_gpd, newdata =x_eval, type = "mean",
                          interval = "credible", nsim_mean = 100)
 plot(pred_mean_gpd)
 ```
 
 ```{r predict-quantile-sb-gpd}
-pred_q_gpd <- predict(fit_sb_gpd, x = x_eval, type = "quantile",
+pred_q_gpd <- predict(fit_sb_gpd, newdata =x_eval, type = "quantile",
                       p = 0.5, interval = "credible")
 plot(pred_q_gpd)
 ```
 
 ```{r predict-density-sb-gpd}
-pred_d_gpd <- predict(fit_sb_gpd, x = x_eval, y = y_eval,
+pred_d_gpd <- predict(fit_sb_gpd, newdata =x_eval, y = y_eval,
                       type = "density", interval = "credible")
 plot(pred_d_gpd)
 ```
 
 ```{r predict-survival-sb-gpd}
-pred_surv_gpd <- predict(fit_sb_gpd, x = x_eval, y = y_eval,
+pred_surv_gpd <- predict(fit_sb_gpd, newdata =x_eval, y = y_eval,
                          type = "survival", interval = "credible")
 plot(pred_surv_gpd)
 ```

@@ -17,15 +17,25 @@
 \arguments{
 \item{object}{A fitted object of class \code{"mixgpd_fit"} (must have covariates).}
 
-\item{type}{Which fitted functional to return: mean, median, or quantile.}
+\item{type}{Which fitted functional to return:
+\itemize{
+\item \code{"mean"}: posterior predictive mean
+\item \code{"median"}: posterior predictive median
+\item \code{"quantile"}: posterior predictive quantile
+at level \code{p}
+}}
 
 \item{p}{Quantile level used when \code{type = "quantile"}.}
 
 \item{level}{Credible level for confidence intervals (default 0.95 for 95 percent credible intervals).}
 
-\item{interval}{Character or NULL; type of credible interval: \code{NULL} for no interval,
-\code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
-highest posterior density intervals.}
+\item{interval}{Character or NULL; type of credible interval:
+\itemize{
+\item \code{NULL}: no interval
+\item \code{"credible"} (default): equal-tailed quantile
+intervals
+\item \code{"hpd"}: highest posterior density intervals
+}}
 
 \item{seed}{Random seed used for deterministic fitted values.}
 

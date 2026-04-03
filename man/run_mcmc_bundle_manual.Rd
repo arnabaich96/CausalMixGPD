@@ -43,8 +43,8 @@ executes MCMC, and returns a \code{"mixgpd_fit"} object.
 \details{
 The resulting fit supports posterior summaries of the model parameters as
 well as posterior predictive functionals such as
-\eqn{f(y \mid x, \mathcal{D})}, \eqn{S(y \mid x, \mathcal{D})},
-\eqn{Q(\tau \mid x, \mathcal{D})}, and restricted means.
+\eqn{f(y \mid x)}, \eqn{S(y \mid x)},
+\eqn{Q(\tau \mid x)}, and restricted means.
 
 If \code{parallel_chains = TRUE}, chains are run concurrently when the stored
 MCMC configuration uses more than one chain. If the bundle was built with

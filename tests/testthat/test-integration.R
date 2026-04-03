@@ -1093,8 +1093,8 @@ test_that("causal bundle and fit workflows cover PS and arm-specific branches", 
   expect_s3_class(params(fit), "mixgpd_params_pair")
 
   Xnew <- as.matrix(sim$X[1:4, , drop = FALSE])
-  pred_mean <- predict(fit, x = Xnew, type = "mean", nsim_mean = 20L)
-  pred_quant <- predict(fit, x = Xnew, type = "quantile", p = c(0.25, 0.75))
+  pred_mean <- predict(fit, newdata =Xnew, type = "mean", nsim_mean = 20L)
+  pred_quant <- predict(fit, newdata =Xnew, type = "quantile", p = c(0.25, 0.75))
   expect_s3_class(pred_mean, "causalmixgpd_causal_predict")
   expect_s3_class(pred_quant, "causalmixgpd_causal_predict")
 
@@ -1106,12 +1106,4 @@ test_that("causal bundle and fit workflows cover PS and arm-specific branches", 
 
 # ===== END integration/test-cluster-and-causal-coverage.R =====
 
-source(testthat::test_path("fragments", "integration", "coverage_heavy.R"), local = TRUE, encoding = "UTF-8")
-source(testthat::test_path("fragments", "integration", "cluster_fit_predict.R"), local = TRUE, encoding = "UTF-8")
-source(testthat::test_path("fragments", "integration", "cluster_methods.R"), local = TRUE, encoding = "UTF-8")
-source(testthat::test_path("fragments", "integration", "performance_acceptance.R"), local = TRUE, encoding = "UTF-8")
-source(testthat::test_path("fragments", "integration", "performance_phase2_ess.R"), local = TRUE, encoding = "UTF-8")
-source(testthat::test_path("fragments", "integration", "performance_phase2_predict.R"), local = TRUE, encoding = "UTF-8")
-source(testthat::test_path("fragments", "integration", "performance_phase2_samplers.R"), local = TRUE, encoding = "UTF-8")
-source(testthat::test_path("fragments", "integration", "performance_phase2_zupdate.R"), local = TRUE, encoding = "UTF-8")
 

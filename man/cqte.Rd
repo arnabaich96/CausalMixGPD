@@ -22,9 +22,12 @@ of the outcome distribution to estimate treatment effects at.}
 \item{newdata}{Optional data.frame or matrix of covariates for prediction.
 If \code{NULL}, uses the training covariates stored in \code{fit}.}
 
-\item{interval}{Character or NULL; type of credible interval: \code{NULL} for no interval,
-\code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
-highest posterior density intervals.}
+\item{interval}{Character or NULL; type of credible interval:
+\itemize{
+\item \code{NULL}: no interval
+\item \code{"credible"} (default): equal-tailed quantile intervals
+\item \code{"hpd"}: highest posterior density intervals
+}}
 
 \item{level}{Numeric credible level for intervals (default 0.95 for 95 percent CI).}
 
@@ -33,7 +36,8 @@ highest posterior density intervals.}
 \value{
 An object of class \code{"causalmixgpd_qte"} containing the CQTE
 summary, the probability grid, and the treated/control prediction objects
-used to construct the effect.
+used to construct the effect. The returned object includes a top-level
+\code{$fit_df} data frame for direct extraction.
 }
 \description{
 \code{cqte()} evaluates treated-minus-control predictive quantiles at
@@ -41,8 +45,8 @@ user-supplied covariate rows.
 }
 \details{
 For each prediction row \eqn{x}, the conditional quantile treatment effect is
-\deqn{\mathrm{CQTE}(\tau, x) = Q_1(\tau \mid x, \mathcal{D}) -
-Q_0(\tau \mid x, \mathcal{D}).}
+\deqn{\mathrm{CQTE}(\tau, x) = Q_1(\tau \mid x) -
+Q_0(\tau \mid x).}
 
 This estimand is available only for conditional causal models with
 covariates. For marginal quantile contrasts over the empirical covariate

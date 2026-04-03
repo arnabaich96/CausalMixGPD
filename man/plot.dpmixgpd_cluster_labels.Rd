@@ -16,12 +16,22 @@
 \arguments{
 \item{x}{Cluster labels object.}
 
-\item{type}{Plot type.}
+\item{type}{Plot type:
+\itemize{
+\item \code{"sizes"}: bar chart of representative cluster sizes
+\item \code{"certainty"}: assignment certainty distribution
+\item \code{"summary"}: cluster-specific response boxplots
+}}
 
-\item{top_n}{Number of populated representative clusters to display for \code{type = "sizes"} or
-\code{type = "summary"}. Use \code{NULL} to display all populated clusters.}
+\item{top_n}{Number of populated representative clusters to display for
+\code{type = "sizes"} or \code{type = "summary"}. Use \code{NULL} to
+display all populated clusters.}
 
-\item{order_by}{Ordering rule for cluster displays: decreasing cluster size or label.}
+\item{order_by}{Ordering rule for cluster displays:
+\itemize{
+\item \code{"size"}: decreasing cluster size
+\item \code{"label"}: ascending cluster label
+}}
 
 \item{plotly}{Logical; if \code{TRUE}, convert the \code{ggplot2} output to a \code{plotly} /
 \code{htmlwidget} representation via \code{.wrap_plotly()}. Defaults to

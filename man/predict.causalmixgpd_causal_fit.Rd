@@ -6,11 +6,10 @@
 \usage{
 \method{predict}{causalmixgpd_causal_fit}(
   object,
-  x = NULL,
+  newdata = NULL,
   y = NULL,
   ps = NULL,
   id = NULL,
-  newdata = NULL,
   type = c("mean", "quantile", "density", "survival", "prob", "sample"),
   p = NULL,
   index = NULL,
@@ -28,22 +27,27 @@
 \item{object}{A \code{"causalmixgpd_causal_fit"} object returned by
 \code{run_mcmc_causal()}.}
 
-\item{x}{Optional new data. Alias for \code{newdata}.}
+\item{newdata}{Optional new data. If \code{NULL}, uses training design (if stored).}
 
 \item{y}{Numeric vector of evaluation points (required for \code{type="density"} or \code{"survival"}).}
 
-\item{ps}{Optional numeric vector of propensity scores aligned with \code{x}
-/ \code{newdata}. When provided, the supplied scores are used instead of
+\item{ps}{Optional numeric vector of propensity scores aligned with
+\code{newdata}. When provided, the supplied scores are used instead of
 recomputing them from the stored PS model (needed only for custom inputs).}
 
 \item{id}{Optional identifier for prediction rows. Provide either a column name
-in \code{x}/\code{newdata} or a vector of length \code{nrow(x)}. The id column
+in \code{newdata} or a vector of length \code{nrow(newdata)}. The id column
 is excluded from analysis.}
 
-\item{newdata}{Optional new data. If \code{NULL}, uses training design (if stored).}
-
-\item{type}{Prediction type. Supported: \code{"mean"}, \code{"quantile"},
-\code{"density"}, \code{"survival"}, \code{"prob"}, or \code{"sample"}.}
+\item{type}{Prediction type:
+\itemize{
+\item \code{"mean"}: posterior predictive mean treatment effect
+\item \code{"quantile"}: posterior predictive quantile treatment effect
+\item \code{"density"}: arm-specific posterior predictive densities
+\item \code{"survival"}: arm-specific posterior predictive survival functions
+\item \code{"prob"}: arm-specific posterior predictive probabilities
+\item \code{"sample"}: paired posterior predictive samples
+}}
 
 \item{p}{Numeric vector of probabilities for quantiles (required for \code{type="quantile"}).}
 
@@ -51,16 +55,21 @@ is excluded from analysis.}
 
 \item{nsim}{Number of posterior predictive samples when \code{type = "sample"}.}
 
-\item{interval}{Character or NULL; type of credible interval: \code{NULL} for no interval,
-\code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
-highest posterior density intervals.}
+\item{interval}{Character or NULL; type of credible interval:
+\itemize{
+\item \code{NULL}: no interval
+\item \code{"credible"} (default): equal-tailed quantile intervals
+\item \code{"hpd"}: highest posterior density intervals
+}}
 
 \item{probs}{Quantiles for credible interval bands.}
 
 \item{store_draws}{Logical; whether to store treatment-effect sample draws in
 the returned object when \code{type = "sample"}.}
 
-\item{nsim_mean}{Number of posterior predictive samples to use for posterior mean estimation (for \code{type="mean"}).}
+\item{nsim_mean}{Number of posterior predictive samples used by
+simulation-based mean targets. Ignored for analytical
+\code{type = "mean"}; still used for \code{type = "rmean"}.}
 
 \item{ncores}{Number of CPU cores to use for parallel prediction (if supported).}
 
@@ -76,7 +85,9 @@ summaries. For \code{"density"}, \code{"survival"}, and \code{"prob"},
 the \code{$fit} component contains side-by-side treated and control
 summaries evaluated on the supplied \code{y} grid. For \code{"sample"},
 the returned object contains paired treated, control, and treatment-effect
-posterior predictive samples.
+posterior predictive samples. Sample outputs also include long-form data
+frames \code{$fit_df}, \code{$trt_fit_df}, and \code{$con_fit_df} for
+direct extraction.
 }
 \description{
 \code{predict.causalmixgpd_causal_fit()} is the causal counterpart to
@@ -87,9 +98,11 @@ adjustment.
 \details{
 For each prediction row \eqn{x}, the function evaluates arm-specific
 posterior predictive quantities based on
-\eqn{F_1(y \mid x, \mathcal{D})} and \eqn{F_0(y \mid x, \mathcal{D})}. Mean
+\eqn{F_1(y \mid x)} and \eqn{F_0(y \mid x)}. Mean
 and quantile outputs are returned on the treatment-effect scale, while
 density, survival, and probability outputs retain both arm-specific curves.
+For outcome kernels with a finite analytical mean, the mean path uses
+analytical per-draw means; restricted means remain simulation-based.
 
 If a PS model is stored in the fit, the same estimated score is supplied to
 both arms unless the user overrides it with \code{ps}. This is the main
@@ -100,9 +113,9 @@ prediction entry point used internally by \code{\link{ate}}, \code{\link{qte}},
 \dontrun{
 cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
 fit <- run_mcmc_causal(cb)
-predict(fit, x = X[1:10, ], type = "quantile", index = c(0.25, 0.5, 0.75))
-predict(fit, x = X[1:10, ], type = "mean", interval = "hpd")  # HPD intervals
-predict(fit, x = X[1:10, ], type = "mean", interval = NULL)   # No intervals
+predict(fit, newdata = X[1:10, ], type = "quantile", index = c(0.25, 0.5, 0.75))
+predict(fit, newdata = X[1:10, ], type = "mean", interval = "hpd")  # HPD intervals
+predict(fit, newdata = X[1:10, ], type = "mean", interval = NULL)   # No intervals
 }
 }
 \seealso{

@@ -21,26 +21,34 @@ cate(
 \item{newdata}{Optional data.frame or matrix of covariates for prediction.
 If \code{NULL}, uses the training covariates stored in \code{fit}.}
 
-\item{type}{Character; \code{"mean"} (default) for ordinary mean CATE or
-\code{"rmean"} for restricted-mean CATE.}
+\item{type}{Character; type of mean treatment effect:
+\itemize{
+\item \code{"mean"} (default): ordinary mean CATE
+\item \code{"rmean"}: restricted-mean CATE (requires \code{cutoff})
+}}
 
 \item{cutoff}{Finite numeric cutoff for restricted mean; required for
 \code{type = "rmean"}, ignored otherwise.}
 
-\item{interval}{Character or NULL; type of credible interval: \code{NULL} for no interval,
-\code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
-highest posterior density intervals.}
+\item{interval}{Character or NULL; type of credible interval:
+\itemize{
+\item \code{NULL}: no interval
+\item \code{"credible"} (default): equal-tailed quantile intervals
+\item \code{"hpd"}: highest posterior density intervals
+}}
 
 \item{level}{Numeric credible level for intervals (default 0.95 for 95 percent CI).}
 
-\item{nsim_mean}{Number of posterior predictive draws to approximate the mean.}
+\item{nsim_mean}{Number of posterior predictive draws used by simulation-based
+mean targets. Ignored for analytical ordinary means.}
 
 \item{show_progress}{Logical; if TRUE, print step messages and render progress where supported.}
 }
 \value{
 An object of class \code{"causalmixgpd_ate"} containing the CATE
 summary, optional intervals, and the treated/control prediction objects used
-to construct the effect.
+to construct the effect. The returned object includes a top-level
+\code{$fit_df} data frame for direct extraction.
 }
 \description{
 \code{cate()} evaluates treated-minus-control predictive means, or restricted
@@ -48,15 +56,18 @@ means, at user-supplied covariate rows.
 }
 \details{
 For each prediction row \eqn{x}, the conditional average treatment effect is
-\deqn{\mathrm{CATE}(x) = E\{Y(1) \mid x, \mathcal{D}\} -
-E\{Y(0) \mid x, \mathcal{D}\}.}
+\deqn{\mathrm{CATE}(x) = E\{Y(1) \mid x\} -
+E\{Y(0) \mid x\}.}
 
 With \code{type = "rmean"}, the estimand becomes the conditional restricted
 mean contrast
-\deqn{E\{\min(Y(1), c) \mid x, \mathcal{D}\} -
-E\{\min(Y(0), c) \mid x, \mathcal{D}\},}
+\deqn{E\{\min(Y(1), c) \mid x\} -
+E\{\min(Y(0), c) \mid x\},}
 which remains finite even when the ordinary mean is unstable under a heavy
 GPD tail.
+For outcome kernels with a finite analytical mean, the ordinary mean path is
+analytical within each posterior draw; \code{rmean} remains a separate
+simulation-based estimand.
 
 This estimand is available only for conditional causal models with
 covariates. For marginal mean contrasts, use \code{\link{ate}} or

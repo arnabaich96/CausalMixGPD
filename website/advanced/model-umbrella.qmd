@@ -235,7 +235,7 @@ pred_mean <- predict(
   ndraws_pred = 200,
   chunk_size = 10000
 )
-pred_q90 <- predict(fit_amoroso, x = X, type = "quantile", p = 0.90, level = 0.90, interval = "credible")
+pred_q90 <- predict(fit_amoroso, newdata =X, type = "quantile", p = 0.90, level = 0.90, interval = "credible")
 head(pred_mean$fit)
 head(pred_q90$fit)
 ```
@@ -354,7 +354,7 @@ plot(causal_fit, family = "traceplot")
 ```
 
 ```{r}
-pred_causal_mean <- predict(causal_fit, x = X_causal, type = "mean", interval = "credible")
+pred_causal_mean <- predict(causal_fit, newdata =X_causal, type = "mean", interval = "credible")
 head(pred_causal_mean)
 ```
 

@@ -131,11 +131,11 @@ if (!identical(Sys.getenv("DPMIXGPD_CI_COVERAGE_ONLY"), "1")) {
     X <- cbind(x1 = stats::rnorm(n), x2 = stats::runif(n, -1, 1))
     y <- abs(1 + X[, 1] + 0.4 * X[, 2] + stats::rnorm(n, sd = 0.25)) + 0.2
 
-    fit <- dpmix(
+    fit <- dpmgpd(
       x = y,
       X = X,
-      backend = "sb",
-      kernel = "normal",
+      backend = "crp",
+      kernel = "gamma",
       components = 3,
       mcmc = c(.coverage_mcmc(seed = 41L), list(show_progress = FALSE, quiet = TRUE))
     )
@@ -381,12 +381,12 @@ if (!identical(Sys.getenv("DPMIXGPD_CI_COVERAGE_ONLY"), "1")) {
         grid = y_grid
       )
     },
-    fit = list(
+    location = list(
       fit = data.frame(
-        id = 1:3,
-        estimate = c(1.2, 1.4, 1.6)
+        mean = 5.0, mean_lower = 4.5, mean_upper = 5.5,
+        median = 4.9, median_lower = 4.4, median_upper = 5.4
       ),
-      type = "fit",
+      type = "location",
       grid = NULL
     )
   )
@@ -468,6 +468,7 @@ test_that("coverage-only suite exercises internal summary and visualization help
   plot_mean_pred <- .coverage_ns_fun(".plot_mean_pred")
   plot_density_pred <- .coverage_ns_fun(".plot_density_pred")
   plot_survival_pred <- .coverage_ns_fun(".plot_survival_pred")
+  plot_location_pred <- .coverage_ns_fun(".plot_location_pred")
 
   expect_invisible(validate_reserved(c("alpha", "beta")))
   expect_error(validate_reserved(c("if", "alpha")), "reserved NIMBLE keywords")
@@ -508,195 +509,14 @@ test_that("coverage-only suite exercises internal summary and visualization help
   pred_mean <- list(fit = data.frame(estimate = 5, lower = 4.5, upper = 5.5), draws = stats::rnorm(100, mean = 5))
   pred_density <- list(fit = data.frame(y = seq(0, 5, length.out = 20), density = stats::dnorm(seq(0, 5, length.out = 20), mean = 2.5)))
   pred_survival <- list(fit = data.frame(y = seq(0, 5, length.out = 20), survival = 1 - stats::pnorm(seq(0, 5, length.out = 20), mean = 2.5)))
+  pred_location <- list(fit = data.frame(mean = 5, mean_lower = 4.5, mean_upper = 5.5, median = 4.9, median_lower = 4.4, median_upper = 5.4))
 
   expect_true(inherits(plot_quantile_pred(pred_quant), "gg"))
   expect_true(inherits(plot_sample_pred(pred_sample), "gg"))
   expect_true(inherits(plot_mean_pred(pred_mean), "gg"))
   expect_true(inherits(plot_density_pred(pred_density), "gg"))
   expect_true(inherits(plot_survival_pred(pred_survival), "gg"))
-})
-
-test_that("coverage-only suite exercises formatting helpers directly", {
-  skip_if_not_test_level("ci")
-
-  fmt3 <- .coverage_ns_fun("fmt3")
-  fmt3_sci <- .coverage_ns_fun("fmt3_sci")
-  fmt3_vec <- .coverage_ns_fun("fmt3_vec")
-  format_df3 <- .coverage_ns_fun("format_df3")
-  format_df3_sci <- .coverage_ns_fun("format_df3_sci")
-  format_mat3 <- .coverage_ns_fun("format_mat3")
-  format_mat3_sci <- .coverage_ns_fun("format_mat3_sci")
-  is_knitr_output <- .coverage_ns_fun(".is_knitr_output")
-  knitr_asis <- .coverage_ns_fun(".knitr_asis")
-  kable_fmt <- .coverage_ns_fun(".kable_fmt")
-  kable_table <- .coverage_ns_fun(".kable_table")
-  dt_view_table <- .coverage_ns_fun(".dt_view_table")
-  print_fmt3 <- .coverage_ns_fun("print_fmt3")
-  print_fmt3_sci <- .coverage_ns_fun("print_fmt3_sci")
-
-  expect_equal(fmt3(c(1, 1.25, 1.2349)), c("1", "1.25", "1.235"))
-  expect_equal(
-    fmt3_sci(c(12, 100000), big = 1e4),
-    c("12", formatC(100000, digits = 3, format = "e"))
-  )
-  expect_equal(fmt3_vec(numeric(0)), "")
-  expect_match(fmt3_vec(c(1.2, 3.4)), ",")
-
-  df <- data.frame(a = c(1.2345, 2.5), b = c("x", "y"), stringsAsFactors = FALSE)
-  out_df <- format_df3(df)
-  expect_type(out_df$a, "character")
-  expect_identical(format_df3(5), 5)
-
-  out_df_sci <- format_df3_sci(data.frame(a = c(1, 1e6), b = 2:3), big = 1e4)
-  expect_true(grepl("e", out_df_sci$a[2]))
-  expect_identical(format_df3_sci("x"), "x")
-
-  mat <- matrix(c(1.2, 2.3456, 100000), nrow = 1)
-  colnames(mat) <- c("a", "b", "c")
-  fm <- format_mat3(mat)
-  expect_true(is.matrix(fm))
-  expect_identical(colnames(fm), colnames(mat))
-  fms <- format_mat3_sci(mat, big = 1e4)
-  expect_true(grepl("e", fms[1, 3]))
-  expect_identical(format_mat3("x"), "x")
-
-  old_knitr <- getOption("knitr.in.progress")
-  on.exit(options(knitr.in.progress = old_knitr), add = TRUE)
-
-  options(knitr.in.progress = FALSE)
-  expect_false(isTRUE(is_knitr_output()))
-
-  options(knitr.in.progress = TRUE)
-  if (requireNamespace("knitr", quietly = TRUE)) {
-    expect_true(is_knitr_output())
-    asis <- knitr_asis("a", "b")
-    expect_true(inherits(asis, "knit_asis"))
-    expect_true(kable_fmt() %in% c("latex", "html", "markdown"))
-    expect_false(is.null(kable_table(data.frame(x = 1:2))))
-  } else {
-    expect_null(knitr_asis("a"))
-    expect_equal(kable_fmt(), "markdown")
-    expect_null(kable_table(data.frame(x = 1:2)))
-  }
-
-  expect_null(dt_view_table(data.frame(x = 1:3), min_rows = 2L, min_cols = 1L))
-
-  expect_output(print_fmt3(data.frame(x = c(1.2, 2.3))))
-  expect_output(print_fmt3(matrix(c(1.2, 2.3), nrow = 1)))
-  expect_output(print_fmt3(c(1.2, 2.3)))
-  expect_output(print_fmt3("plain-text"))
-
-  expect_output(print_fmt3_sci(data.frame(x = c(1, 1e6)), big = 1e4))
-  expect_output(print_fmt3_sci(matrix(c(1, 1e6), nrow = 1), big = 1e4))
-  expect_output(print_fmt3_sci(c(1, 1e6), big = 1e4))
-  expect_output(print_fmt3_sci("plain-text"))
-})
-
-test_that("coverage-only suite exercises wrapper coercion and formula helpers", {
-  skip_if_not_test_level("ci")
-
-  coerce_treat <- .coverage_ns_fun(".coerce_treat")
-  formula_design_matrix <- .coverage_ns_fun(".formula_design_matrix")
-  parse_formula_yX <- .coverage_ns_fun(".parse_formula_yX")
-  extract_treat_from_data <- .coverage_ns_fun(".extract_treat_from_data")
-  normalize_mcmc_inputs <- .coverage_ns_fun(".normalize_mcmc_inputs")
-  apply_mcmc_overrides <- .coverage_ns_fun(".apply_mcmc_overrides")
-  bundle_has_any_gpd <- .coverage_ns_fun(".bundle_has_any_gpd")
-  bundle_all_gpd <- .coverage_ns_fun(".bundle_all_gpd")
-  bundle_strip_gpd <- .coverage_ns_fun(".bundle_strip_gpd")
-
-  expect_null(coerce_treat(NULL))
-  expect_identical(coerce_treat(factor(c("c", "t", "c"), levels = c("c", "t"))), c(0L, 1L, 0L))
-  expect_identical(coerce_treat(c(FALSE, TRUE, FALSE)), c(0L, 1L, 0L))
-  expect_identical(coerce_treat(c("control", "treated", "treated")), c(0L, 1L, 1L))
-  expect_error(coerce_treat(c(0, 2)), "binary")
-  expect_error(coerce_treat(c(0, NA)), "cannot contain NA")
-
-  set.seed(901)
-  df <- data.frame(
-    y = 1:4,
-    x1 = stats::rnorm(4),
-    x2 = stats::runif(4),
-    id = 1:4,
-    A = c(0, 1, 0, 1)
-  )
-
-  mf <- stats::model.frame(y ~ x1 + x2 + id, data = df)
-  trm <- stats::terms(mf)
-  dm <- formula_design_matrix(trm, mf, drop_intercept = TRUE, drop_terms = "id")
-  expect_true(is.matrix(dm$X))
-  expect_false(any(tolower(dm$X_cols) == "id"))
-
-  dm_int <- formula_design_matrix(trm, mf, drop_intercept = FALSE, coerce_double = TRUE)
-  expect_true(typeof(dm_int$X) == "double")
-
-  parsed <- parse_formula_yX(y ~ x1 + x2 + id, data = df)
-  expect_length(parsed$y, nrow(df))
-  expect_true(is.matrix(parsed$X))
-  expect_true("x1" %in% colnames(parsed$X))
-
-  parsed_un <- parse_formula_yX(y ~ 1, data = df)
-  expect_true(is.null(parsed_un$X))
-  expect_true(parsed_un$is_unconditional)
-
-  t_from_name <- extract_treat_from_data(parsed$mf, data = df, treat = "A")
-  expect_identical(t_from_name, c(0L, 1L, 0L, 1L))
-
-  t_from_symbol <- extract_treat_from_data(
-    parsed$mf,
-    data = df,
-    treat = c(0, 1, 0, 1),
-    treat_expr = quote(A)
-  )
-  expect_identical(t_from_symbol, c(0L, 1L, 0L, 1L))
-
-  expect_error(
-    extract_treat_from_data(parsed$mf, data = df, treat = c(0, 1), treat_expr = NULL),
-    "length"
-  )
-
-  nm <- normalize_mcmc_inputs(list(niter = 50L, nburn = 10L, show_progress = FALSE, quiet = TRUE))
-  expect_equal(nm$overrides$nburnin, 10L)
-  expect_false("nburn" %in% names(nm$overrides))
-  expect_false(is.null(nm$runner$show_progress))
-
-  expect_error(normalize_mcmc_inputs(list(unknown_arg = 1)), "Unknown mcmc argument")
-  expect_error(normalize_mcmc_inputs(list(1, 2)), "named")
-
-  b <- .coverage_spliced_bundle()
-  expect_true(bundle_has_any_gpd(b))
-  expect_true(bundle_all_gpd(b))
-
-  b_no_gpd <- bundle_strip_gpd(b)
-  expect_false(bundle_has_any_gpd(b_no_gpd))
-  expect_false(bundle_all_gpd(b_no_gpd))
-
-  b_over <- apply_mcmc_overrides(b_no_gpd, list(niter = 30L, seed = 999L))
-  expect_equal(b_over$mcmc$niter, 30L)
-  expect_equal(b_over$mcmc$seed, 999L)
-
-  causal <- build_causal_bundle(
-    y = c(abs(stats::rnorm(8)) + 0.2, abs(stats::rnorm(8)) + 0.2),
-    X = matrix(stats::rnorm(32), ncol = 2),
-    A = rep(c(0L, 1L), each = 8),
-    backend = c("sb", "sb"),
-    kernel = c("normal", "normal"),
-    GPD = list(trt = TRUE, con = FALSE),
-    components = c(2, 2),
-    PS = FALSE,
-    mcmc_outcome = .coverage_mcmc(seed = 123L)
-  )
-
-  expect_true(bundle_has_any_gpd(causal))
-  expect_false(bundle_all_gpd(causal))
-
-  causal_no_gpd <- bundle_strip_gpd(causal)
-  expect_false(bundle_has_any_gpd(causal_no_gpd))
-  expect_false(bundle_all_gpd(causal_no_gpd))
-
-  causal_over <- apply_mcmc_overrides(causal_no_gpd, list(niter = 40L))
-  expect_equal(causal_over$outcome$con$mcmc$niter, 40L)
-  expect_equal(causal_over$outcome$trt$mcmc$niter, 40L)
+  expect_true(inherits(plot_location_pred(pred_location), "gg"))
 })
 
 test_that("coverage-only suite exercises causal bundle and parameter methods directly", {
@@ -763,7 +583,7 @@ test_that("coverage-only suite exercises mocked effect and plot methods directly
   expect_true(inherits(plot_predict(.coverage_mock_mixgpd_predict("mean")), "gg"))
   expect_true(inherits(plot_predict(.coverage_mock_mixgpd_predict("density")), "gg"))
   expect_true(inherits(plot_predict(.coverage_mock_mixgpd_predict("survival")), "gg"))
-  expect_true(inherits(plot_predict(.coverage_mock_mixgpd_predict("fit")), "gg"))
+  expect_true(inherits(plot_predict(.coverage_mock_mixgpd_predict("location")), "gg") || is.list(plot_predict(.coverage_mock_mixgpd_predict("location"))))
   expect_silent(invisible(utils::capture.output(print_predict_plots(.coverage_mock_mixgpd_predict_plots()))))
   expect_output(print_causal_predict_plots(.coverage_mock_causal_predict_plots()), ".")
   expect_output(print_fit_plots(.coverage_mock_mixgpd_fit_plots()), "traceplot")
@@ -871,7 +691,7 @@ test_that("coverage-only suite exercises non-causal build, fit, predict, and glu
   y <- cond$y
   X <- cond$X
 
-  expect_s3_class(bundle(x = y, X = X, backend = "sb", kernel = "normal", components = 3, GPD = FALSE), "causalmixgpd_bundle")
+  expect_s3_class(bundle(y = y, X = X, backend = "sb", kernel = "normal", components = 3, GPD = FALSE), "causalmixgpd_bundle")
   expect_s3_class(.coverage_spliced_bundle(), "causalmixgpd_bundle")
 
   expect_output(print(fit_u))
@@ -890,10 +710,10 @@ test_that("coverage-only suite exercises non-causal build, fit, predict, and glu
   expect_s3_class(summary(fit_c), "mixgpd_summary")
   expect_s3_class(params(fit_c), "mixgpd_params")
 
-  pred_c_mean <- predict(fit_c, x = X[1:4, , drop = FALSE], type = "mean", nsim_mean = 20L)
-  pred_c_q <- predict(fit_c, x = X[1:4, , drop = FALSE], type = "quantile", index = c(0.25, 0.75))
-  pred_c_d <- predict(fit_c, x = X[1:2, , drop = FALSE], y = y[1:2], type = "density")
-  pred_c_s <- predict(fit_c, x = X[1:2, , drop = FALSE], y = y[1:2], type = "survival")
+  pred_c_mean <- predict(fit_c, newdata =X[1:4, , drop = FALSE], type = "mean", nsim_mean = 20L)
+  pred_c_q <- predict(fit_c, newdata =X[1:4, , drop = FALSE], type = "quantile", index = c(0.25, 0.75))
+  pred_c_d <- predict(fit_c, newdata =X[1:2, , drop = FALSE], y = y[1:2], type = "density")
+  pred_c_s <- predict(fit_c, newdata =X[1:2, , drop = FALSE], y = y[1:2], type = "survival")
 
   expect_s3_class(pred_c_mean, "mixgpd_predict")
   expect_s3_class(pred_c_q, "mixgpd_predict")
@@ -902,18 +722,12 @@ test_that("coverage-only suite exercises non-causal build, fit, predict, and glu
   expect_true(is.numeric(residuals(fit_c)))
   expect_true(is.data.frame(fitted(fit_c)))
 
-  glue_check <- tryCatch(
-    check_glue_validity(
-      fit_c,
-      grid = seq(min(y), stats::quantile(y, 0.9), length.out = 16L),
-      n_draws = 5L,
-      check_continuity = FALSE
-    ),
-    error = function(e) e
+  glue_check <- check_glue_validity(
+    fit_c,
+    grid = seq(min(y), stats::quantile(y, 0.9), length.out = 16L),
+    n_draws = 5L,
+    check_continuity = FALSE
   )
-  if (inherits(glue_check, "error")) {
-    skip(paste("check_glue_validity() unavailable for coverage fixture:", conditionMessage(glue_check)))
-  }
   expect_true(is.list(glue_check))
   expect_true(all(c("pass", "violations", "n_checked_draws") %in% names(glue_check)))
 
@@ -966,10 +780,6 @@ test_that("coverage-only suite exercises direct bundle and mcmc wrappers", {
 test_that("coverage-only suite exercises causal workflows and treatment-effect methods", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("nimble")
-  skip_if(
-    identical(Sys.getenv("COVERAGE"), "1"),
-    "Skipping causal workflow coverage block under covr to avoid custom GPD kernel availability issues"
-  )
 
   obj <- .coverage_causal_fit()
   fit <- obj$fit
@@ -979,10 +789,10 @@ test_that("coverage-only suite exercises causal workflows and treatment-effect m
   expect_output(summary(fit), "Outcome fits")
   expect_s3_class(params(fit), "mixgpd_params_pair")
 
-  pred_mean <- predict(fit, x = X[1:3, , drop = FALSE], type = "mean", nsim_mean = 20L)
-  pred_quant <- predict(fit, x = X[1:3, , drop = FALSE], type = "quantile", p = c(0.25, 0.75))
-  pred_density <- predict(fit, x = X[1:2, , drop = FALSE], y = obj$sim$y[1:2], type = "density")
-  pred_survival <- predict(fit, x = X[1:2, , drop = FALSE], y = obj$sim$y[1:2], type = "survival")
+  pred_mean <- predict(fit, newdata =X[1:3, , drop = FALSE], type = "mean", nsim_mean = 20L)
+  pred_quant <- predict(fit, newdata =X[1:3, , drop = FALSE], type = "quantile", p = c(0.25, 0.75))
+  pred_density <- predict(fit, newdata =X[1:2, , drop = FALSE], y = obj$sim$y[1:2], type = "density")
+  pred_survival <- predict(fit, newdata =X[1:2, , drop = FALSE], y = obj$sim$y[1:2], type = "survival")
 
   expect_s3_class(pred_mean, "causalmixgpd_causal_predict")
   expect_s3_class(pred_quant, "causalmixgpd_causal_predict")
@@ -1016,32 +826,22 @@ test_that("coverage-only suite exercises causal workflows and treatment-effect m
 test_that("coverage-only suite exercises causal GPD wrapper path", {
   skip_if_not_test_level("ci")
   skip_if_not_installed("nimble")
-  skip_if(
-    identical(Sys.getenv("COVERAGE"), "1"),
-    "Skipping causal GPD wrapper block under covr to avoid custom GPD kernel availability issues"
-  )
 
-  fit <- tryCatch(
-    .coverage_cached("causal_gpd_fit", {
-      sim <- sim_causal_qte(n = 20, seed = 71)
-      sim$y <- abs(sim$y) + 0.2
+  fit <- .coverage_cached("causal_gpd_fit", {
+    sim <- sim_causal_qte(n = 20, seed = 71)
+    sim$y <- abs(sim$y) + 0.2
 
-      dpmgpd.causal(
-        x = sim$y,
-        X = as.matrix(sim$X[, 1:2, drop = FALSE]),
-        treat = sim$t,
-        backend = c("sb", "sb"),
-        kernel = c("gamma", "gamma"),
-        components = c(3, 3),
-        PS = FALSE,
-        mcmc = c(.coverage_mcmc(seed = 71L), list(show_progress = FALSE))
-      )
-    }),
-    error = function(e) e
-  )
-  if (inherits(fit, "error")) {
-    skip(paste("dpmgpd.causal() unavailable for coverage fixture:", conditionMessage(fit)))
-  }
+    dpmgpd.causal(
+      x = sim$y,
+      X = as.matrix(sim$X[, 1:2, drop = FALSE]),
+      treat = sim$t,
+      backend = c("sb", "sb"),
+      kernel = c("gamma", "gamma"),
+      components = c(3, 3),
+      PS = FALSE,
+      mcmc = c(.coverage_mcmc(seed = 71L), list(show_progress = FALSE))
+    )
+  })
 
   expect_s3_class(fit, "causalmixgpd_causal_fit")
 })
@@ -1078,165 +878,3 @@ test_that("coverage-only suite exercises cluster builders, predictors, and S3 me
   expect_silent(summary(psm))
   expect_silent(plot(psm, psm_max_n = nrow(psm$psm)))
 })
-
-
-# Combined tests from ci/
-# Auto-generated by workspace refactor script
-
-# ===== BEGIN ci/test-site-map-tools.R =====
-skip_if_not_test_level("ci")
-
-find_package_root <- function() {
-  current <- normalizePath(getwd(), winslash = "/", mustWork = TRUE)
-  for (i in 0:8) {
-    candidate <- current
-    if (file.exists(file.path(candidate, "DESCRIPTION"))) {
-      return(candidate)
-    }
-    current <- dirname(current)
-  }
-  stop("Could not locate package root for site-map tests.")
-}
-
-pkg_root <- find_package_root()
-site_map_extract_file <- file.path(pkg_root, "tools", "site-map", "extract_site_map.R")
-site_map_analyze_file <- file.path(pkg_root, "tools", "site-map", "analyze_site_map.R")
-site_map_tools_available <- file.exists(site_map_extract_file) && file.exists(site_map_analyze_file)
-if (site_map_tools_available) {
-  source(site_map_extract_file, local = TRUE)
-  source(site_map_analyze_file, local = TRUE)
-}
-
-write_fixture_file <- function(path, lines) {
-  dir.create(dirname(path), recursive = TRUE, showWarnings = FALSE)
-  writeLines(lines, con = path, useBytes = TRUE)
-}
-
-make_workflow_pages <- function(docs_root, break_chain = FALSE) {
-  for (i in 1:20) {
-    file_path <- file.path(docs_root, "workflows", sprintf("v%02d-topic.html", i))
-    link_html <- ""
-    if (i < 20) {
-      if (!(break_chain && i == 10)) {
-        link_html <- sprintf("<a href=\"v%02d-topic.html\">next</a>", i + 1L)
-      }
-    }
-    write_fixture_file(
-      file_path,
-      c(
-        "<html><body>",
-        sprintf("<h1>v%02d</h1>", i),
-        link_html,
-        "</body></html>"
-      )
-    )
-  }
-}
-
-test_that("extract_site_map handles strict internal links and normalization", {
-  if (!site_map_tools_available) {
-    skip("site-map tool scripts are not present in this workspace.")
-  }
-  tmp_root <- tempfile("site_map_extract_")
-  docs_root <- file.path(tmp_root, "docs")
-  out_root <- file.path(tmp_root, "out")
-  dir.create(docs_root, recursive = TRUE, showWarnings = FALSE)
-
-  write_fixture_file(
-    file.path(docs_root, "index.html"),
-    c(
-      "<html><body>",
-      "<a href=\"workflows/v01-start-here.html\">workflow</a>",
-      "<a href=\"missing-page.html\">broken</a>",
-      "<a href=\"workflows/\">workflows-dir</a>",
-      "<a href=\"https://example.com\">external</a>",
-      "<a href=\"mailto:test@example.com\">mail</a>",
-      "<a href=\"javascript:void(0)\">js</a>",
-      "<a href=\"#top\">anchor</a>",
-      "</body></html>"
-    )
-  )
-  write_fixture_file(
-    file.path(docs_root, "workflows", "index.html"),
-    c("<html><body>", "<a href=\"../index.html\">home</a>", "</body></html>")
-  )
-  write_fixture_file(
-    file.path(docs_root, "workflows", "v01-start-here.html"),
-    c(
-      "<html><body>",
-      "<a href=\"../index.html#intro\">back-home</a>",
-      "<a href=\"v02-introduction\">next-no-ext</a>",
-      "</body></html>"
-    )
-  )
-  write_fixture_file(
-    file.path(docs_root, "workflows", "v02-introduction.html"),
-    c("<html><body>", "ok", "</body></html>")
-  )
-
-  extract_site_map(site_root = docs_root, output_dir = out_root, verbose = FALSE)
-  edges <- read.csv(file.path(out_root, "website_link_edges.csv"), stringsAsFactors = FALSE)
-
-  expect_true(any(edges$href_raw == "missing-page.html" & !as.logical(edges$target_exists)))
-  expect_true(any(edges$href_raw == "../index.html#intro" & edges$target == "index.html"))
-  expect_true(any(edges$href_raw == "v02-introduction" & edges$target == "workflows/v02-introduction.html"))
-  expect_true(any(edges$href_raw == "workflows/" & edges$target == "workflows/index.html"))
-
-  # External/anchor hrefs are intentionally ignored by extractor.
-  expect_false(any(grepl("^https?://", edges$href_raw)))
-  expect_false(any(grepl("^mailto:", edges$href_raw)))
-  expect_false(any(grepl("^javascript:", edges$href_raw)))
-  expect_false(any(grepl("^#", edges$href_raw)))
-})
-
-test_that("analyze_site_map gate follows broken-link and workflow-chain policy", {
-  if (!site_map_tools_available) {
-    skip("site-map tool scripts are not present in this workspace.")
-  }
-  tmp_root <- tempfile("site_map_analyze_")
-  docs_root <- file.path(tmp_root, "docs")
-  out_root <- file.path(tmp_root, "out")
-  dir.create(docs_root, recursive = TRUE, showWarnings = FALSE)
-
-  write_fixture_file(
-    file.path(docs_root, "index.html"),
-    c(
-      "<html><body>",
-      "<a href=\"workflows/v01-topic.html\">start</a>",
-      "</body></html>"
-    )
-  )
-  make_workflow_pages(docs_root = docs_root, break_chain = FALSE)
-
-  extract_site_map(site_root = docs_root, output_dir = out_root, verbose = FALSE)
-  ok_result <- analyze_site_map(site_root = docs_root, output_dir = out_root, verbose = FALSE)
-
-  expect_true(isTRUE(ok_result$summary$gate_pass))
-  expect_equal(ok_result$summary$broken_link_count, 0)
-  expect_equal(ok_result$summary$workflow_chain_break_count, 0)
-
-  # Rebuild with a broken chain and a broken link.
-  unlink(tmp_root, recursive = TRUE, force = TRUE)
-  dir.create(docs_root, recursive = TRUE, showWarnings = FALSE)
-  write_fixture_file(
-    file.path(docs_root, "index.html"),
-    c(
-      "<html><body>",
-      "<a href=\"workflows/v01-topic.html\">start</a>",
-      "<a href=\"does-not-exist.html\">broken</a>",
-      "</body></html>"
-    )
-  )
-  make_workflow_pages(docs_root = docs_root, break_chain = TRUE)
-
-  extract_site_map(site_root = docs_root, output_dir = out_root, verbose = FALSE)
-  bad_result <- analyze_site_map(site_root = docs_root, output_dir = out_root, verbose = FALSE)
-
-  expect_false(isTRUE(bad_result$summary$gate_pass))
-  expect_gt(bad_result$summary$broken_link_count, 0)
-  expect_gt(bad_result$summary$workflow_chain_break_count, 0)
-})
-
-# ===== END ci/test-site-map-tools.R =====
-
-

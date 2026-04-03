@@ -89,7 +89,7 @@ df_causal <- data.frame(y = y, A = as.factor(A), x1 = X[, 1])
 
 p_scatter <- ggplot(df_causal, aes(x = x1, y = y, color = A)) +
   geom_point(alpha = 0.5) +
-  labs(title = "Outcome vs X1", x = "X1", y = "y", color = "Treatment") +
+  labs(title = "Outcome vs X1", newdata ="X1", y = "y", color = "Treatment") +
   theme_minimal()
 
 p_scatter
@@ -131,25 +131,25 @@ plot(fit_sb_crp, family = c("traceplot", "autocorrelation", "running"))
 ```
 
 ```{r predict-mean-sb-crp}
-pred_mean_sb_crp <- predict(fit_sb_crp, x = x_eval, type = "mean",
+pred_mean_sb_crp <- predict(fit_sb_crp, newdata =x_eval, type = "mean",
                             interval = "credible", nsim_mean = 100)
 plot(pred_mean_sb_crp)
 ```
 
 ```{r predict-quantile-sb-crp}
-pred_q_sb_crp <- predict(fit_sb_crp, x = x_eval, type = "quantile",
+pred_q_sb_crp <- predict(fit_sb_crp, newdata =x_eval, type = "quantile",
                          p = 0.5, interval = "credible")
 plot(pred_q_sb_crp)
 ```
 
 ```{r predict-density-sb-crp}
-pred_d_sb_crp <- predict(fit_sb_crp, x = x_eval, y = y_eval,
+pred_d_sb_crp <- predict(fit_sb_crp, newdata =x_eval, y = y_eval,
                          type = "density", interval = "credible")
 plot(pred_d_sb_crp)
 ```
 
 ```{r predict-survival-sb-crp}
-pred_surv_sb_crp <- predict(fit_sb_crp, x = x_eval, y = y_eval,
+pred_surv_sb_crp <- predict(fit_sb_crp, newdata =x_eval, y = y_eval,
                             type = "survival", interval = "credible")
 plot(pred_surv_sb_crp)
 ```
@@ -200,25 +200,25 @@ plot(fit_crp_sb, family = c("density", "geweke", "caterpillar"))
 ```
 
 ```{r predict-mean-crp-sb}
-pred_mean_crp_sb <- predict(fit_crp_sb, x = x_eval, type = "mean",
+pred_mean_crp_sb <- predict(fit_crp_sb, newdata =x_eval, type = "mean",
                             interval = "credible", nsim_mean = 100)
 plot(pred_mean_crp_sb)
 ```
 
 ```{r predict-quantile-crp-sb}
-pred_q_crp_sb <- predict(fit_crp_sb, x = x_eval, type = "quantile",
+pred_q_crp_sb <- predict(fit_crp_sb, newdata =x_eval, type = "quantile",
                          p = 0.5, interval = "credible")
 plot(pred_q_crp_sb)
 ```
 
 ```{r predict-density-crp-sb}
-pred_d_crp_sb <- predict(fit_crp_sb, x = x_eval, y = y_eval,
+pred_d_crp_sb <- predict(fit_crp_sb, newdata =x_eval, y = y_eval,
                          type = "density", interval = "credible")
 plot(pred_d_crp_sb)
 ```
 
 ```{r predict-survival-crp-sb}
-pred_surv_crp_sb <- predict(fit_crp_sb, x = x_eval, y = y_eval,
+pred_surv_crp_sb <- predict(fit_crp_sb, newdata =x_eval, y = y_eval,
                             type = "survival", interval = "credible")
 plot(pred_surv_crp_sb)
 ```

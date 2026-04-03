@@ -16,7 +16,12 @@
 \arguments{
 \item{object}{A fitted object of class \code{"mixgpd_fit"} (must have covariates).}
 
-\item{type}{Residual type: \code{"raw"} or \code{"pit"}.}
+\item{type}{Residual type:
+\itemize{
+\item \code{"raw"}: observed minus fitted values
+\item \code{"pit"}: probability integral transform
+residuals (see \code{pit} argument)
+}}
 
 \item{fitted_type}{For \code{type = "raw"}, use fitted means or medians.}
 

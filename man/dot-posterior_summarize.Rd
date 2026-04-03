@@ -15,9 +15,13 @@
 
 \item{probs}{Numeric quantile probs.}
 
-\item{interval}{Character or NULL; \code{NULL} for no interval,
-\code{"credible"} for equal-tailed quantile intervals (default),
-\code{"hpd"} for highest posterior density intervals.}
+\item{interval}{Character or NULL; interval type:
+\itemize{
+\item \code{NULL}: no interval
+\item \code{"credible"} (default): equal-tailed quantile
+intervals
+\item \code{"hpd"}: highest posterior density intervals
+}}
 }
 \value{
 List with estimate, lower, upper, and q.

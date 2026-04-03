@@ -5,26 +5,23 @@
 \title{Build the workflow bundle used by the package fitters}
 \usage{
 bundle(
-  x = NULL,
   y = NULL,
-  data = NULL,
   X = NULL,
   treat = NULL,
+  data = NULL,
   formula = NULL,
   ...,
   GPD = FALSE
 )
 }
 \arguments{
-\item{x}{Either a response vector or an existing bundle.}
-
-\item{y}{Optional alias for \code{x} (response vector).}
-
-\item{data}{Optional data.frame used with \code{formula}.}
+\item{y}{Either a response vector or an existing bundle.}
 
 \item{X}{Optional design matrix/data.frame.}
 
 \item{treat}{Optional binary treatment indicator.}
+
+\item{data}{Optional data.frame used with \code{formula}.}
 
 \item{formula}{Optional formula.}
 

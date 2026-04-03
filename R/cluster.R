@@ -407,12 +407,16 @@ build_cluster_bundle <- function(formula,
 #'
 #' @param formula Model formula. The response must be present in `data`.
 #' @param data Data frame containing the response and optional predictors.
-#' @param ... Additional arguments passed to `build_cluster_bundle()`, including kernel settings,
-#'   prior overrides, component counts, and monitoring controls.
-#' @param type Clustering mode. `"weights"` links mixture weights to predictors, `"param"` links
-#'   kernel parameters to predictors, and `"both"` does both.
+#' @param type Clustering mode:
+#'   \itemize{
+#'     \item \code{"weights"}: links mixture weights to predictors
+#'     \item \code{"param"}: links kernel parameters to predictors
+#'     \item \code{"both"}: links both weights and kernel parameters to predictors
+#'   }
 #' @param default Default mode used when `type` is omitted.
 #' @param mcmc MCMC control list passed into the cluster bundle.
+#' @param ... Additional arguments passed to `build_cluster_bundle()`, including kernel settings,
+#'   prior overrides, component counts, and monitoring controls.
 #'
 #' @return Object of class `dpmixgpd_cluster_fit`.
 #'
@@ -479,8 +483,8 @@ dpmix.cluster <- function(formula,
 #' This interface is preferable when cluster separation is driven by upper-tail differences rather
 #' than bulk-only shape or location differences.
 #'
-#' @seealso [dpmix.cluster()], [predict.dpmixgpd_cluster_fit()], [dpmgpd()],
-#'   [sim_bulk_tail()].
+#' @seealso [dpmix.cluster()], [predict.dpmixgpd_cluster_fit()],
+#'   [dpmgpd()], [sim_bulk_tail()].
 #' @family cluster workflow
 #' @export
 dpmgpd.cluster <- function(formula,
@@ -651,8 +655,11 @@ print.dpmixgpd_cluster_fit <- function(x, ...) {
 #' @param burnin Number of initial posterior draws to discard.
 #' @param thin Keep every `thin`-th posterior draw.
 #' @param top_n Number of populated clusters to profile when descriptive summaries are available.
-#' @param order_by Ordering rule for descriptive cluster profiles: by decreasing cluster size or by
-#'   label.
+#' @param order_by Ordering rule for descriptive cluster profiles:
+#'   \itemize{
+#'     \item \code{"size"}: decreasing cluster size
+#'     \item \code{"label"}: ascending cluster label
+#'   }
 #' @param vars Optional character vector of numeric columns to summarize within each cluster.
 #' @param ... Unused.
 #'
@@ -680,10 +687,15 @@ summary.dpmixgpd_cluster_fit <- function(object,
   lbl <- predict(object, type = "label", burnin = burnin, thin = thin, return_scores = TRUE)
   tab <- .cluster_size_table(lbl$labels, order_by = "size")
   lbl_sum <- summary(lbl, top_n = top_n, order_by = order_by, vars = vars)
+  cluster_profiles <- lbl_sum$cluster_profiles
+  if (is.data.frame(cluster_profiles) && nrow(cluster_profiles)) {
+    num_cols <- vapply(cluster_profiles, is.numeric, logical(1))
+    cluster_profiles[num_cols] <- lapply(cluster_profiles[num_cols], round, digits = 3L)
+  }
   out <- list(
     K_star = length(tab),
     cluster_sizes = tab,
-    cluster_profiles = lbl_sum$cluster_profiles,
+    cluster_profiles = cluster_profiles,
     certainty = lbl_sum$certainty,
     source = lbl$source,
     burnin = lbl$burnin,
@@ -699,13 +711,24 @@ summary.dpmixgpd_cluster_fit <- function(object,
 #' size distribution of the representative clusters, or cluster-specific response summaries.
 #'
 #' @param x A cluster fit.
-#' @param which Plot type.
+#' @param which Plot type:
+#'   \itemize{
+#'     \item \code{"psm"}: posterior similarity matrix heatmap
+#'     \item \code{"k"}: posterior number of occupied clusters
+#'     \item \code{"sizes"}: bar chart of representative cluster sizes
+#'     \item \code{"summary"}: cluster-specific response summaries
+#'   }
 #' @param burnin Number of initial posterior draws to discard.
 #' @param thin Keep every `thin`-th posterior draw.
 #' @param psm_max_n Maximum training sample size allowed for PSM plotting.
-#' @param top_n Number of populated representative clusters to display for `which = "sizes"` or
-#'   `which = "summary"`. Use `NULL` to display all populated clusters.
-#' @param order_by Ordering rule for cluster displays: decreasing cluster size or label.
+#' @param top_n Number of populated representative clusters to display for
+#'   \code{which = "sizes"} or \code{which = "summary"}. Use \code{NULL} to
+#'   display all populated clusters.
+#' @param order_by Ordering rule for cluster displays:
+#'   \itemize{
+#'     \item \code{"size"}: decreasing cluster size
+#'     \item \code{"label"}: ascending cluster label
+#'   }
 #' @param plotly Logical; if `TRUE`, convert the `ggplot2` output to a `plotly` /
 #'   `htmlwidget` representation via `.wrap_plotly()`. Defaults to
 #'   `getOption("CausalMixGPD.plotly", FALSE)`.
@@ -800,8 +823,11 @@ print.dpmixgpd_cluster_labels <- function(x, ...) {
 #'
 #' @param object Cluster labels object.
 #' @param top_n Number of populated clusters to profile when attached data are available.
-#' @param order_by Ordering rule for descriptive cluster profiles: by decreasing cluster size or by
-#'   label.
+#' @param order_by Ordering rule for descriptive cluster profiles:
+#'   \itemize{
+#'     \item \code{"size"}: decreasing cluster size
+#'     \item \code{"label"}: ascending cluster label
+#'   }
 #' @param vars Optional character vector of numeric columns to summarize within each cluster.
 #' @param ... Unused.
 #'
@@ -854,10 +880,20 @@ summary.dpmixgpd_cluster_labels <- function(object,
 #' represented in the new sample are displayed.
 #'
 #' @param x Cluster labels object.
-#' @param type Plot type.
-#' @param top_n Number of populated representative clusters to display for `type = "sizes"` or
-#'   `type = "summary"`. Use `NULL` to display all populated clusters.
-#' @param order_by Ordering rule for cluster displays: decreasing cluster size or label.
+#' @param type Plot type:
+#'   \itemize{
+#'     \item \code{"sizes"}: bar chart of representative cluster sizes
+#'     \item \code{"certainty"}: assignment certainty distribution
+#'     \item \code{"summary"}: cluster-specific response boxplots
+#'   }
+#' @param top_n Number of populated representative clusters to display for
+#'   \code{type = "sizes"} or \code{type = "summary"}. Use \code{NULL} to
+#'   display all populated clusters.
+#' @param order_by Ordering rule for cluster displays:
+#'   \itemize{
+#'     \item \code{"size"}: decreasing cluster size
+#'     \item \code{"label"}: ascending cluster label
+#'   }
 #' @param plotly Logical; if `TRUE`, convert the `ggplot2` output to a `plotly` /
 #'   `htmlwidget` representation via `.wrap_plotly()`. Defaults to
 #'   `getOption("CausalMixGPD.plotly", FALSE)`.
@@ -879,11 +915,13 @@ plot.dpmixgpd_cluster_labels <- function(x,
   .cluster_require_ggplot()
   if (identical(type, "sizes")) {
     title <- list(...)$title %||% "Cluster sizes"
+    ref_labels <- x$train_reference$labels %||% x$labels
     return(.cluster_plot_sizes(
       x$labels,
       title = title,
       top_n = top_n,
       order_by = order_by,
+      reference_levels = .cluster_order_levels(ref_labels, order_by = order_by),
       plotly = plotly
     ))
   }
@@ -1192,10 +1230,15 @@ dahl_labels <- function(z_draws, psm) {
   c(rng[1] - pad, rng[2] + pad)
 }
 
-.cluster_scale_values <- function(levels) {
+.cluster_scale_values <- function(levels, reference_levels = NULL) {
   lev <- as.character(levels %||% character(0))
   if (!length(lev)) return(stats::setNames(character(0), character(0)))
-  stats::setNames(.plot_palette(length(lev)), lev)
+
+  ref <- as.character(reference_levels %||% lev)
+  ref <- unique(ref)
+  if (!length(ref)) ref <- lev
+
+  stats::setNames(.plot_palette(length(ref)), ref)[lev]
 }
 
 .cluster_hist_breaks <- function(values, bins = 18L) {
@@ -1260,6 +1303,7 @@ dahl_labels <- function(z_draws, psm) {
                                 title = "Cluster sizes",
                                 top_n = 5L,
                                 order_by = c("size", "label"),
+                                reference_levels = NULL,
                                 plotly = getOption("CausalMixGPD.plotly", FALSE)) {
   .cluster_require_ggplot()
   keep <- .cluster_select_levels(labels, top_n = top_n, order_by = order_by)
@@ -1269,12 +1313,21 @@ dahl_labels <- function(z_draws, psm) {
     size = as.integer(tab),
     stringsAsFactors = FALSE
   )
-  pal <- .plot_palette(2L)
-  p <- ggplot2::ggplot(df, ggplot2::aes(x = cluster, y = size)) +
-    ggplot2::geom_col(fill = pal[1], color = pal[2], linewidth = 0.4) +
+  cluster_values <- .cluster_scale_values(
+    names(tab),
+    reference_levels = reference_levels %||% keep
+  )
+  p <- ggplot2::ggplot(
+    df,
+    ggplot2::aes(x = cluster, y = size, fill = cluster, color = cluster)
+  ) +
+    ggplot2::geom_col(linewidth = 0.4, show.legend = FALSE) +
     .plot_theme() +
+    ggplot2::scale_fill_manual(values = cluster_values, drop = FALSE) +
+    ggplot2::scale_color_manual(values = cluster_values, drop = FALSE) +
     ggplot2::scale_x_discrete(labels = function(v) paste0("C", v)) +
-    ggplot2::labs(x = "Cluster", y = "Size", title = title)
+    ggplot2::labs(x = "Cluster", y = "Size", title = title) +
+    ggplot2::theme(legend.position = "none")
   .cluster_maybe_wrap_plotly(p, plotly = plotly)
 }
 
@@ -1381,7 +1434,15 @@ dahl_labels <- function(z_draws, psm) {
   .cluster_require_ggplot()
   dat <- .cluster_summary_plot_data(object, top_n = top_n, order_by = order_by)
   if (is.null(dat)) return(invisible(object))
-  cluster_values <- .cluster_scale_values(dat$levels)
+  ref_labels <- if (identical(object$source %||% "", "newdata")) {
+    (object$train_reference %||% list())$labels %||% object$labels
+  } else {
+    object$labels
+  }
+  cluster_values <- .cluster_scale_values(
+    dat$levels,
+    reference_levels = .cluster_order_levels(ref_labels, order_by = order_by)
+  )
   p <- ggplot2::ggplot(
     dat$main_df,
     ggplot2::aes(x = cluster, y = response, fill = cluster, color = cluster)
@@ -1856,8 +1917,13 @@ run_cluster_mcmc <- function(bundle, ...) {
 #' @param object A fitted cluster object.
 #' @param newdata Optional new data containing the response and predictors required by the original
 #'   formula. New-data prediction is available only for `type = "label"`.
-#' @param type Prediction target: `"label"` for a representative partition or `"psm"` for the
-#'   posterior similarity matrix on the training sample.
+#' @param type Prediction target:
+#'   \itemize{
+#'     \item \code{"label"}: representative partition via
+#'       Dahl's least-squares rule
+#'     \item \code{"psm"}: posterior similarity matrix on the
+#'       training sample
+#'   }
 #' @param burnin Number of initial posterior draws to discard.
 #' @param thin Keep every `thin`-th posterior draw.
 #' @param return_scores Logical; if `TRUE` and `type = "label"`, include the matrix of Dahl-cluster

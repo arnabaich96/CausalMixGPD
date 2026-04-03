@@ -5,31 +5,31 @@
 \title{Fit a causal two-arm Dirichlet process mixture without a GPD tail}
 \usage{
 dpmix.causal(
-  x = NULL,
-  data = NULL,
+  y = NULL,
   X = NULL,
   treat = NULL,
+  data = NULL,
+  mcmc = list(),
   formula = NULL,
-  ...,
-  mcmc = list()
+  ...
 )
 }
 \arguments{
-\item{x}{Either a response vector or a causal bundle object.}
-
-\item{data}{Optional data.frame used with \code{formula}.}
+\item{y}{Either a response vector or a causal bundle object.}
 
 \item{X}{Optional design matrix/data.frame.}
 
 \item{treat}{Binary treatment indicator.}
 
-\item{formula}{Optional formula.}
-
-\item{...}{Additional build arguments in build mode.}
+\item{data}{Optional data.frame used with \code{formula}.}
 
 \item{mcmc}{Named list of run arguments passed to \code{mcmc()} (including
 optional performance controls such as \code{parallel_arms},
 \code{workers}, \code{timing}, and \code{z_update_every}).}
+
+\item{formula}{Optional formula.}
+
+\item{...}{Additional build arguments passed to \code{\link{build_causal_bundle}}.}
 }
 \value{
 A fitted object of class \code{"causalmixgpd_causal_fit"}.
@@ -41,11 +41,12 @@ bulk-only companion to \code{\link{dpmgpd.causal}}.
 }
 \details{
 The resulting fit supports conditional outcome prediction
-\eqn{F_a(y \mid x, \mathcal{D})} for \eqn{a \in \{0,1\}}, followed by causal
+\eqn{F_a(y \mid x)} for \eqn{a \in \{0,1\}}, followed by causal
 functionals such as \code{\link{ate}}, \code{\link{qte}},
 \code{\link{cate}}, and \code{\link{cqte}}.
 }
 \seealso{
+\code{\link{build_causal_bundle}},
 \code{\link{bundle}}, \code{\link{dpmgpd.causal}},
 \code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
 \code{\link{qte}}.

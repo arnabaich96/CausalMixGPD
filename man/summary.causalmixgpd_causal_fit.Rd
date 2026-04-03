@@ -4,19 +4,28 @@
 \alias{summary.causalmixgpd_causal_fit}
 \title{Summarize a fitted causal model}
 \usage{
-\method{summary}{causalmixgpd_causal_fit}(object, ...)
+\method{summary}{causalmixgpd_causal_fit}(object, pars = NULL, ps_pars = NULL, probs = c(0.025, 0.5, 0.975), ...)
 }
 \arguments{
 \item{object}{A \code{"causalmixgpd_causal_fit"} object.}
 
+\item{pars}{Optional character vector of outcome-model parameters to
+summarize in both treatment arms. Passed to \code{\link{summary.mixgpd_fit}}.}
+
+\item{ps_pars}{Optional character vector of PS-model parameters to summarize.
+If \code{NULL}, all monitored PS parameters are summarized.}
+
+\item{probs}{Numeric vector of posterior quantiles to report.}
+
 \item{...}{Unused.}
 }
 \value{
-The input object (invisibly).
+An object of class \code{"summary.causalmixgpd_causal_fit"} with
+elements \code{ps}, \code{outcome}, and \code{probs}.
 }
 \description{
-\code{summary.causalmixgpd_causal_fit()} routes the user to the fitted PS
-block, treated/control fits, and downstream prediction/effect methods.
+\code{summary.causalmixgpd_causal_fit()} returns posterior summaries for the
+fitted PS block (when present) and both arm-specific outcome models.
 }
 \seealso{
 \code{\link{print.causalmixgpd_causal_fit}},

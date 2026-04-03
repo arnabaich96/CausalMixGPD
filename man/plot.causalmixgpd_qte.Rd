@@ -18,10 +18,22 @@
 
 \item{y}{Ignored.}
 
-\item{type}{Character; plot type: \code{"both"} (default), \code{"effect"}, or \code{"arms"}.}
+\item{type}{Character; plot type:
+\itemize{
+\item \code{"both"} (default): returns a list with both
+arm curves and treatment-effect plots
+\item \code{"effect"}: QTE curve with pointwise CI
+error bars
+\item \code{"arms"}: treated and control quantile curves
+with pointwise CI error bars
+}}
 
-\item{facet_by}{Character; faceting strategy when multiple prediction points exist.
-\code{"tau"} (default) facets by quantile level, \code{"id"} facets by prediction point.}
+\item{facet_by}{Character; faceting strategy when multiple
+prediction points exist:
+\itemize{
+\item \code{"tau"} (default): facets by quantile level
+\item \code{"id"}: facets by prediction point
+}}
 
 \item{plotly}{Logical; if \code{TRUE}, convert the \code{ggplot2} output to a
 \code{plotly} / \code{htmlwidget} representation via \code{.wrap_plotly()}. Defaults

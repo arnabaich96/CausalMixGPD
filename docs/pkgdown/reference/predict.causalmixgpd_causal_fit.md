@@ -160,8 +160,8 @@ and
 if (FALSE) { # \dontrun{
 cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
 fit <- run_mcmc_causal(cb)
-predict(fit, x = X[1:10, ], type = "quantile", index = c(0.25, 0.5, 0.75))
-predict(fit, x = X[1:10, ], type = "mean", interval = "hpd")  # HPD intervals
-predict(fit, x = X[1:10, ], type = "mean", interval = NULL)   # No intervals
+predict(fit, newdata = X[1:10, ], type = "quantile", index = c(0.25, 0.5, 0.75))
+predict(fit, newdata = X[1:10, ], type = "mean", interval = "hpd")  # HPD intervals
+predict(fit, newdata = X[1:10, ], type = "mean", interval = NULL)   # No intervals
 } # }
 ```

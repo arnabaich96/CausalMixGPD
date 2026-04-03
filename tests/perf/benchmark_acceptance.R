@@ -45,7 +45,7 @@ mk_unconditional <- function() {
   y <- abs(stats::rnorm(220)) + 0.1
   m <- list(niter = 220, nburnin = 60, thin = 2, nchains = 1, seed = 101, timing = TRUE)
   run_timer({
-    dpmgpd(x = y, backend = "sb", kernel = "normal", components = 8, mcmc = m)
+    dpmgpd(y = y, backend = "sb", kernel = "normal", components = 8, mcmc = m)
   })
 }
 
@@ -56,7 +56,7 @@ mk_conditional <- function() {
   y <- abs(0.5 * X[, 1] + stats::rnorm(n)) + 0.1
   m <- list(niter = 220, nburnin = 60, thin = 2, nchains = 1, seed = 102, timing = TRUE)
   run_timer({
-    dpmgpd(x = y, X = X, backend = "sb", kernel = "normal", components = 8, mcmc = m)
+    dpmgpd(y = y, X = X, backend = "sb", kernel = "normal", components = 8, mcmc = m)
   })
 }
 

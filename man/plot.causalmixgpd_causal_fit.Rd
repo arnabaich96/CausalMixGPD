@@ -22,6 +22,7 @@ The result of the underlying plot call (invisibly).
 underlying one-arm diagnostic plots for the treated and control fits.
 }
 \seealso{
+\code{\link{plot.mixgpd_fit}},
 \code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
-\code{\link{qte}}, \code{\link{plot.mixgpd_fit}}.
+\code{\link{qte}}.
 }

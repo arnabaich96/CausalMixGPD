@@ -6,11 +6,10 @@
 \usage{
 \method{predict}{mixgpd_fit}(
   object,
-  x = NULL,
+  newdata = NULL,
   y = NULL,
   ps = NULL,
   id = NULL,
-  newdata = NULL,
   type = c("density", "survival", "quantile", "sample", "mean", "rmean", "median", "fit"),
   p = NULL,
   index = NULL,
@@ -33,7 +32,7 @@
 \arguments{
 \item{object}{A fitted object of class \code{"mixgpd_fit"}.}
 
-\item{x}{Optional new data. Alias for \code{newdata}.}
+\item{newdata}{Optional new data. If \code{NULL}, uses training design (if stored).}
 
 \item{y}{Numeric vector of evaluation points (required for \code{type="density"} or \code{"survival"}).}
 
@@ -41,10 +40,8 @@
 Used when the model was fit with propensity score augmentation.}
 
 \item{id}{Optional identifier for prediction rows. Provide either a column name
-in \code{x}/\code{newdata} or a vector of length \code{nrow(x)}. The id column
+in \code{newdata} or a vector of length \code{nrow(newdata)}. The id column
 is excluded from analysis.}
-
-\item{newdata}{Optional new data. If \code{NULL}, uses training design (if stored).}
 
 \item{type}{Prediction type:
 \itemize{
@@ -68,15 +65,21 @@ parameter uncertainty. This differs from the mean of a single model distribution
 
 \item{level}{Credible level for credible intervals (default 0.95 for 95 percent intervals).}
 
-\item{interval}{Character or NULL; type of credible interval: \code{NULL} for no interval,
-\code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
-highest posterior density intervals.}
+\item{interval}{Character or NULL; type of credible interval:
+\itemize{
+\item \code{NULL}: no interval
+\item \code{"credible"} (default): equal-tailed quantile
+intervals
+\item \code{"hpd"}: highest posterior density intervals
+}}
 
 \item{probs}{Quantiles for credible interval bands.}
 
 \item{store_draws}{Logical; whether to store all posterior draws (for \code{type="sample"}).}
 
-\item{nsim_mean}{Number of posterior predictive samples to use for posterior mean estimation (for \code{type="mean"}).}
+\item{nsim_mean}{Number of posterior predictive samples used by
+simulation-based mean targets. Ignored for analytical
+\code{type = "mean"}; still used for \code{type = "rmean"}.}
 
 \item{cutoff}{Finite numeric cutoff for \code{type="rmean"} (restricted mean).}
 
@@ -102,6 +105,9 @@ A list with elements:
 \item \code{fit}: numeric vector/matrix for \code{type = "sample"}, otherwise a data frame with
 \code{estimate}/\code{lower}/\code{upper} columns (posterior means over draws) plus any index
 columns (e.g. \code{id}, \code{y}, \code{index}).
+\item \code{fit_df}: a machine-readable data frame view of the prediction output. For
+non-sample types this aliases \code{fit}; for \code{type = "sample"} it is a long-form
+data frame with draw indices and sampled values.
 \item \code{lower}, \code{upper}: reserved for backward compatibility (typically \code{NULL}).
 \item \code{type}, \code{grid}: metadata.
 }
@@ -114,28 +120,29 @@ for fitted one-arm models.
 The method works with posterior predictive functionals rather than raw model
 parameters. Supported output types include:
 \itemize{
-\item \code{"density"} for \eqn{f(y \mid x, \mathcal{D})},
-\item \code{"survival"} for \eqn{S(y \mid x, \mathcal{D}) = 1 - F(y \mid x, \mathcal{D})},
-\item \code{"quantile"} for \eqn{Q(\tau \mid x, \mathcal{D})},
-\item \code{"mean"} for \eqn{E(Y \mid x, \mathcal{D})},
-\item \code{"rmean"} for \eqn{E\{\min(Y, c) \mid x, \mathcal{D}\}},
+\item \code{"density"} for \eqn{f(y \mid x)},
+\item \code{"survival"} for \eqn{S(y \mid x) = 1 - F(y \mid x)},
+\item \code{"quantile"} for \eqn{Q(\tau \mid x)},
+\item \code{"mean"} for \eqn{E(Y \mid x)},
+\item \code{"rmean"} for \eqn{E\{\min(Y, c) \mid x\}},
 \item \code{"sample"} and \code{"fit"} for draw-level predictive output.
 }
 
 For spliced models these predictions integrate over both the DPM bulk and
 the GPD tail using component-specific tail parameters, including link-mode
-tail coefficients when present. When \code{type = "mean"}, the function
-averages conditional means over posterior draws, so the result is a Bayesian
-predictive mean.
+tail coefficients when present. For kernels with a finite analytical mean,
+\code{type = "mean"} computes the posterior-draw mean analytically and then
+summarizes those draw-level means across the posterior. The
+\code{type = "rmean"} path remains a separate posterior predictive
+simulation pipeline.
 
-The \code{type="mean"} option computes the posterior predictive mean by:
-\enumerate{
-\item For each posterior draw s, computing E(Y | x, theta_s) via Monte Carlo simulation
-\item Averaging these conditional means over the posterior: E(Y | x, data) = mean_s(E(Y | x, theta_s))
-}
-This accounts for parameter uncertainty and is the Bayesian predictive mean. When the tail
-shape parameter xi >= 1 (heavy tail), the mean is undefined and the function returns Inf
-with a warning suggesting alternatives like median or restricted mean.
+For kernels with an analytical mean, \code{type = "mean"} is computed
+analytically within each posterior draw and then summarized over draws. For
+GPD-tail fits this analytical path is used when the tail shape parameter
+satisfies \eqn{\xi < 1}. If the mean does not exist analytically for the
+chosen kernel or if any required GPD tail has \eqn{\xi \ge 1}, the ordinary
+mean is undefined and the function errors with a message directing you to
+\code{type = "rmean"} or other tail-robust summaries.
 }
 \examples{
 \dontrun{

@@ -38,7 +38,11 @@
 #' @param X Optional design matrix/data.frame (N x p) for conditional variants.
 #' @param ps Optional numeric vector (length N) of propensity scores. When provided,
 #'   augments the design matrix for PS-adjusted outcome modeling.
-#' @param backend Character; \code{"sb"} (stick-breaking) or \code{"crp"} (Chinese Restaurant Process).
+#' @param backend Character; the Dirichlet process representation:
+#'   \itemize{
+#'     \item \code{"sb"}: stick-breaking truncation
+#'     \item \code{"crp"}: Chinese Restaurant Process
+#'   }
 #' @param kernel Character kernel name (must exist in \code{get_kernel_registry()}).
 #' @param GPD Logical; whether a GPD tail is requested.
 #' @param components Integer >= 2. Single user-facing truncation parameter:
@@ -52,7 +56,11 @@
 #'   smaller k defined by either (i) cumulative mass >= 1 - epsilon or (ii) per-component
 #'   weights >= epsilon, then renormalize.
 #' @param alpha_random Logical; whether the DP concentration parameter \eqn{\kappa} is stochastic.
-#' @param monitor Character monitor profile: \code{"core"} (default) or \code{"full"}.
+#' @param monitor Character monitor profile:
+#'   \itemize{
+#'     \item \code{"core"} (default): monitors only the essential model parameters
+#'     \item \code{"full"}: monitors all model nodes
+#'   }
 #' @param monitor_latent Logical; if TRUE, include latent cluster labels (\code{z}) in monitors.
 #' @param monitor_v Logical; if TRUE and backend is SB, include stick breaks (\code{v}) in monitors.
 #' @return A named list of class \code{"causalmixgpd_bundle"}. Its primary
@@ -2264,7 +2272,6 @@ build_prior_table_from_spec <- function(spec) {
   }
   stoch_nodes <- tryCatch(model$getNodeNames(stochOnly = TRUE, includeData = FALSE), error = function(e) character(0))
   z_nodes <- stoch_nodes[grepl("^z\\[", stoch_nodes)]
-  beta_nodes <- stoch_nodes[grepl("^beta", stoch_nodes)]
 
   # Normalize existing sampler controls.
   for (i in seq_along(conf$samplerConfs)) {
@@ -2296,16 +2303,40 @@ build_prior_table_from_spec <- function(spec) {
     conf$samplerConfs[[i]]$control <- ctl
   }
 
-  # Block beta vectors when available.
-  if (length(beta_nodes) >= 2L) {
-    if (all(vapply(beta_nodes, function(nn) {
+  # Only re-block beta nodes that already use RW-family samplers.
+  # Leave conjugate and CRP-cluster wrapper samplers intact; removing them can
+  # strand nodes like beta_threshold without any sampler at all.
+  beta_block_nodes <- unique(unlist(lapply(conf$samplerConfs, function(sc) {
+    nm <- sc$name %||% ""
+    tgt <- sc$target %||% character(0)
+    if (!nm %in% c("RW", "RW_block") || !length(tgt) || !all(grepl("^beta", tgt))) {
+      return(character(0))
+    }
+    tgt
+  }), use.names = FALSE))
+  if (length(beta_block_nodes) >= 2L) {
+    if (all(vapply(beta_block_nodes, function(nn) {
       any(vapply(conf$getSamplers(), function(ss) nn %in% ss$target, logical(1)))
     }, logical(1)))) {
-      suppressWarnings(try(conf$removeSamplers(beta_nodes), silent = TRUE))
+      suppressWarnings(try(conf$removeSamplers(beta_block_nodes), silent = TRUE))
+      add_beta_block <- try(
+        conf$addSampler(
+          target = beta_block_nodes,
+          type = "RW_block",
+          control = list(adaptInterval = 200L, adaptive = TRUE)
+        ),
+        silent = TRUE
+      )
+      if (inherits(add_beta_block, "try-error")) {
+        for (nn in beta_block_nodes) {
+          suppressWarnings(try(conf$addSampler(
+            target = nn,
+            type = "RW",
+            control = list(adaptInterval = 200L, adaptive = TRUE)
+          ), silent = TRUE))
+        }
+      }
     }
-    suppressWarnings(try(conf$addSampler(target = beta_nodes, type = "RW_block",
-                                         control = list(adaptInterval = 200L, adaptive = TRUE)),
-                         silent = TRUE))
   }
 
   # Prefer slice for strictly positive scale/rate style parameters.
@@ -2343,8 +2374,8 @@ build_prior_table_from_spec <- function(spec) {
 #' @details
 #' The resulting fit supports posterior summaries of the model parameters as
 #' well as posterior predictive functionals such as
-#' \eqn{f(y \mid x, \mathcal{D})}, \eqn{S(y \mid x, \mathcal{D})},
-#' \eqn{Q(\tau \mid x, \mathcal{D})}, and restricted means.
+#' \eqn{f(y \mid x)}, \eqn{S(y \mid x)},
+#' \eqn{Q(\tau \mid x)}, and restricted means.
 #'
 #' If \code{parallel_chains = TRUE}, chains are run concurrently when the stored
 #' MCMC configuration uses more than one chain. If the bundle was built with
@@ -2420,7 +2451,7 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = FALSE,
   if (!is.finite(z_update_every) || z_update_every < 1L) {
     stop("'z_update_every' must be an integer >= 1.", call. = FALSE)
   }
-  if (z_update_every > 1L && !isTRUE(quiet)) {
+  if (z_update_every > 1L && !isTRUE(quiet) && !isTRUE(show_progress)) {
     .cmgpd_message(sprintf("Using z_update_every = %d; this may reduce compute but can slow mixing.", z_update_every))
   }
   workers <- as.integer(workers %||% m$workers %||% max(1L, min(nchains, parallel::detectCores(logical = FALSE))))
@@ -2477,7 +2508,7 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = FALSE,
     return(fit)
   }
 
-  if (parallel_chains && nchains > 1L) {
+  if (parallel_chains && nchains > 1L && !isTRUE(quiet) && !isTRUE(show_progress)) {
     warning("parallel_chains=TRUE requested but 'future'/'future.apply' are unavailable; running sequentially.",
             call. = FALSE)
   }
@@ -2487,17 +2518,19 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = FALSE,
   cache_entry <- .mcmc_cache_get(cache_key)
   if (!is.null(cache_entry)) {
     timing_info$cache_hit <- TRUE
-    if (!isTRUE(quiet)) .cmgpd_message("[MCMC] Reusing cached build/compile.")
+    if (!isTRUE(quiet) && !isTRUE(show_progress)) .cmgpd_message("[MCMC] Reusing cached build/compile.")
   }
 
   if (is.null(cache_entry)) {
     .cmgpd_progress_step(progress_ctx, "Building model and MCMC configuration")
     t0_build <- tic()
+    # Generated models are validated upstream; NIMBLE's full check path can be
+    # disproportionately expensive for manuscript-scale fits.
     Rmodel <- tryCatch(
       .cmgpd_capture_nimble(
         nimble::nimbleModel(
           code = code, data = data, constants = constants,
-          inits = inits_fun(), dimensions = dims, check = TRUE, calculate = FALSE
+          inits = inits_fun(), dimensions = dims, check = FALSE, calculate = FALSE
         ),
         suppress = nimble_quiet
       ),
@@ -2522,11 +2555,14 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = FALSE,
       nimble::configureMCMC(Rmodel, monitors = monitors, enableWAIC = waic_enabled),
       suppress = nimble_quiet
     )
-    conf <- .configure_samplers(
-      conf,
-      spec = spec,
-      data_info = list(constants = constants, dimensions = dims),
-      z_update_every = z_update_every
+    conf <- .cmgpd_capture_nimble(
+      .configure_samplers(
+        conf,
+        spec = spec,
+        data_info = list(constants = constants, dimensions = dims),
+        z_update_every = z_update_every
+      ),
+      suppress = nimble_quiet
     )
 
     Rmcmc <- .cmgpd_capture_nimble(nimble::buildMCMC(conf), suppress = nimble_quiet)
@@ -2551,7 +2587,9 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = FALSE,
     timing_info$compile <- tic() - t0_compile
     if (inherits(compile_err, "error")) {
       compiled <- FALSE
-      warning(paste0("nimble model compilation failed; running uncompiled MCMC for portability: ", conditionMessage(compile_err)), call. = FALSE)
+      if (!isTRUE(quiet) && !isTRUE(show_progress)) {
+        warning(paste0("nimble model compilation failed; running uncompiled MCMC for portability: ", conditionMessage(compile_err)), call. = FALSE)
+      }
     }
 
     cache_entry <- list(

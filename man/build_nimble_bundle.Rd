@@ -29,7 +29,11 @@ build_nimble_bundle(
 \item{ps}{Optional numeric vector (length N) of propensity scores. When provided,
 augments the design matrix for PS-adjusted outcome modeling.}
 
-\item{backend}{Character; \code{"sb"} (stick-breaking) or \code{"crp"} (Chinese Restaurant Process).}
+\item{backend}{Character; the Dirichlet process representation:
+\itemize{
+\item \code{"sb"}: stick-breaking truncation
+\item \code{"crp"}: Chinese Restaurant Process
+}}
 
 \item{kernel}{Character kernel name (must exist in \code{get_kernel_registry()}).}
 
@@ -51,7 +55,11 @@ weights >= epsilon, then renormalize.}
 
 \item{alpha_random}{Logical; whether the DP concentration parameter \eqn{\kappa} is stochastic.}
 
-\item{monitor}{Character monitor profile: \code{"core"} (default) or \code{"full"}.}
+\item{monitor}{Character monitor profile:
+\itemize{
+\item \code{"core"} (default): monitors only the essential model parameters
+\item \code{"full"}: monitors all model nodes
+}}
 
 \item{monitor_latent}{Logical; if TRUE, include latent cluster labels (\code{z}) in monitors.}
 

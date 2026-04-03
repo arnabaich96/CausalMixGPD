@@ -12,8 +12,11 @@ NULL
 #'
 #' @param draws Numeric vector of posterior draws.
 #' @param level Numeric in (0, 1); credible level (default 0.95).
-#' @param type Character; \code{"credible"} for equal-tailed quantile intervals,
-#'   \code{"hpd"} for highest posterior density intervals.
+#' @param type Character; interval type:
+#'   \itemize{
+#'     \item \code{"credible"}: equal-tailed quantile intervals
+#'     \item \code{"hpd"}: highest posterior density intervals
+#'   }
 #' @return Named numeric vector with \code{lower} and \code{upper}.
 #' @keywords internal
 #' @noRd
@@ -42,9 +45,13 @@ NULL
 #'
 #' @param draws Numeric vector, matrix, or array with draws in last dimension.
 #' @param probs Numeric quantile probs.
-#' @param interval Character or NULL; \code{NULL} for no interval,
-#'   \code{"credible"} for equal-tailed quantile intervals (default),
-#'   \code{"hpd"} for highest posterior density intervals.
+#' @param interval Character or NULL; interval type:
+#'   \itemize{
+#'     \item \code{NULL}: no interval
+#'     \item \code{"credible"} (default): equal-tailed quantile
+#'       intervals
+#'     \item \code{"hpd"}: highest posterior density intervals
+#'   }
 #' @return List with estimate, lower, upper, and q.
 #' @keywords internal
 #' @noRd
@@ -226,8 +233,26 @@ NULL
     mat <- mat[, pars, drop = FALSE]
   } else {
     pars <- gsub("^weight\\[", "w[", pars)
-    miss <- setdiff(pars, colnames(mat))
-    if (length(miss)) stop("Unknown params: ", paste(miss, collapse = ", "), call. = FALSE)
+    .match_summary_pars <- function(tokens, all_params) {
+      hits <- character(0)
+      for (tok in tokens) {
+        if (tok %in% all_params) {
+          hits <- c(hits, tok)
+          next
+        }
+        tok_esc <- gsub("([][{}()+*^$|\\\\?.])", "\\\\\\1", tok)
+        pref <- grep(paste0("^", tok_esc, "(\\[|$)"), all_params, value = TRUE)
+        if (!length(pref) && identical(tok, "weights")) {
+          pref <- grep("^w\\[", all_params, value = TRUE)
+        }
+        if (!length(pref)) {
+          stop("Unknown params: ", tok, call. = FALSE)
+        }
+        hits <- c(hits, pref)
+      }
+      unique(hits)
+    }
+    pars <- .match_summary_pars(pars, colnames(mat))
     mat <- mat[, pars, drop = FALSE]
   }
   wpars <- pars[grepl("^w\\[[0-9]+\\]$", pars)]

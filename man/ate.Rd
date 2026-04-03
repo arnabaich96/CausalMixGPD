@@ -25,26 +25,34 @@ and training data are used.}
 \item{y}{Ignored for marginal estimands. If supplied, a warning is issued
 and training data are used.}
 
-\item{type}{Character; \code{"mean"} (default) for ordinary mean ATE or
-\code{"rmean"} for restricted-mean ATE.}
+\item{type}{Character; type of mean treatment effect:
+\itemize{
+\item \code{"mean"} (default): ordinary mean ATE
+\item \code{"rmean"}: restricted-mean ATE (requires \code{cutoff})
+}}
 
 \item{cutoff}{Finite numeric cutoff for restricted mean; required for
 \code{type = "rmean"}, ignored otherwise.}
 
-\item{interval}{Character or NULL; type of credible interval: \code{NULL} for no interval,
-\code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
-highest posterior density intervals.}
+\item{interval}{Character or NULL; type of credible interval:
+\itemize{
+\item \code{NULL}: no interval
+\item \code{"credible"} (default): equal-tailed quantile intervals
+\item \code{"hpd"}: highest posterior density intervals
+}}
 
 \item{level}{Numeric credible level for intervals (default 0.95 for 95 percent CI).}
 
-\item{nsim_mean}{Number of posterior predictive draws to approximate the mean.}
+\item{nsim_mean}{Number of posterior predictive draws used by simulation-based
+mean targets. Ignored for analytical ordinary means.}
 
 \item{show_progress}{Logical; if TRUE, print step messages and render progress where supported.}
 }
 \value{
 An object of class \code{"causalmixgpd_ate"} containing the
 marginal ATE summary, optional intervals, and the arm-specific predictive
-objects used in the aggregation.
+objects used in the aggregation. The returned object includes a top-level
+\code{$fit_df} data frame for direct extraction.
 }
 \description{
 \code{ate()} computes the posterior predictive average treatment effect.
@@ -57,6 +65,8 @@ covariate distribution for conditional models.
 
 When \code{type = "rmean"}, the function instead computes a restricted-mean
 ATE using \eqn{E\{\min(Y(a), c)\}} for each arm.
+For outcome kernels with a finite analytical mean, the ordinary mean path is
+analytical within each posterior draw; \code{rmean} remains simulation-based.
 
 For unconditional causal models (\code{X = NULL}), the computation reduces to
 a direct contrast of the unconditional treated and control predictive laws.

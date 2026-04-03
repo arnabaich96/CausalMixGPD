@@ -5,32 +5,32 @@
 \title{Fit a one-arm Dirichlet process mixture without a GPD tail}
 \usage{
 dpmix(
-  x = NULL,
-  data = NULL,
+  y = NULL,
   X = NULL,
   treat = NULL,
+  data = NULL,
+  mcmc = list(),
   formula = NULL,
-  ...,
-  mcmc = list()
+  ...
 )
 }
 \arguments{
-\item{x}{Either a response vector or a bundle object.}
-
-\item{data}{Optional data.frame used with \code{formula}.}
+\item{y}{Either a response vector or a bundle object.}
 
 \item{X}{Optional design matrix/data.frame.}
 
 \item{treat}{Optional binary treatment indicator. If supplied, this wrapper
 errors; use \code{dpmix.causal()} for causal models.}
 
-\item{formula}{Optional formula.}
-
-\item{...}{Additional build arguments in build mode.}
+\item{data}{Optional data.frame used with \code{formula}.}
 
 \item{mcmc}{Named list of run arguments passed to \code{mcmc()} (including
 optional performance controls such as \code{parallel_chains},
 \code{workers}, \code{timing}, and \code{z_update_every}).}
+
+\item{formula}{Optional formula.}
+
+\item{...}{Additional build arguments passed to \code{\link{build_nimble_bundle}}.}
 }
 \value{
 A fitted object of class \code{"mixgpd_fit"}.
@@ -41,7 +41,7 @@ It combines \code{\link{bundle}} and \code{\link{mcmc}} for one-arm data.
 }
 \details{
 The fitted model targets the posterior predictive bulk distribution
-\deqn{f(y \mid x, \mathcal{D}) = \int f(y \mid x, \theta)\,d\Pi(\theta \mid \mathcal{D}),}
+\deqn{f(y \mid x) = \int f(y \mid x, \theta)\,d\Pi(\theta),}
 without the spliced tail augmentation used by \code{\link{dpmgpd}}.
 
 Use this wrapper when the outcome support is adequately modeled by the bulk
@@ -49,6 +49,7 @@ kernel alone. If you need threshold exceedance modeling or extreme-quantile
 extrapolation, use \code{\link{dpmgpd}} instead.
 }
 \seealso{
+\code{\link{build_nimble_bundle}},
 \code{\link{bundle}}, \code{\link{dpmgpd}},
 \code{\link{predict.mixgpd_fit}}, \code{\link{summary.mixgpd_fit}}.
 }

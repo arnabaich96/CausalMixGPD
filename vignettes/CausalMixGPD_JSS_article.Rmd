@@ -609,14 +609,17 @@ $$ where $a_i=1$ denotes treatment and $a_i=0$ denotes control. The
 causal interface consists of two pieces.
 
 First, when PS augmentation is enabled, a binary regression model is
-used for the treatment mechanism $
+used for the treatment mechanism
+$$
+\begin{aligned}
   a_i \mid \boldsymbol{x}_i, \boldsymbol{\gamma}
-  &\sim \mathrm{Bernoulli}\big(e_{\boldsymbol{\gamma}}(\boldsymbol{x}_i)\big),
+  &\sim \mathrm{Bernoulli}\big(e_{\boldsymbol{\gamma}}(\boldsymbol{x}_i)\big), \\
   h\!\left(e_{\boldsymbol{\gamma}}(\boldsymbol{x}_i)\right)
   &= \gamma_0 + \boldsymbol{x}_i^\top\boldsymbol{\gamma},
   \qquad h\in\{\text{logit},\text{probit}\},
-$ which is consistent with the definition and balancing
-property in --. The package also
+\end{aligned}
+$$
+which is consistent with standard propensity-score balancing arguments. The package also
 supports a `"naive"` option, in which $e(\boldsymbol{x})$ is
 taken to be constant (no covariate dependence).
 
@@ -624,11 +627,13 @@ Second, the outcome model is fit separately within each arm. Denote by
 $F_a(\,\cdot\mid\boldsymbol{r})$ the fitted conditional outcome
 distribution under arm $a\in\{0,1\}$, where $\boldsymbol{r}$ is the
 covariate vector used by the outcome model. With PS augmentation, the
-package constructs an *augmented* covariate vector $
+package constructs an *augmented* covariate vector
+$$
   \boldsymbol{r}(\boldsymbol{x})
   =
   \Big(1,\ \boldsymbol{x}^\top,\ \psi\big(\widehat e(\boldsymbol{x})\big)\Big)^\top,
-$ where $\widehat e(\boldsymbol{x})$ is a posterior summary
+$$
+where $\widehat e(\boldsymbol{x})$ is a posterior summary
 of the PS (posterior mean or median, controlled by
 `ps_summary`), and $\psi(\cdot)$ is either
 $\psi(p)=\text{logit}(p)$ or $\psi(p)=p$ (controlled by
@@ -650,12 +655,10 @@ parameters. The arm-wise likelihood contributions are $$
 $$ with $f_a(\cdot\mid\cdot)$ given by the spliced construction already
 defined (bulk mixture below threshold and GPD exceedances above
 threshold). Practically, the implementation uses a two-stage workflow:
-(i) fit the PS model using
---, then (ii)
-compute $\widehat e(\boldsymbol{x}_i)$ and build
-$\boldsymbol{r}(\boldsymbol{x}_i)$ in
- before fitting the two
-arm-specific outcome models.
+first fit the PS model and summarize it to obtain $\widehat e(\boldsymbol{x}_i)$,
+then append the transformed score inside
+$\boldsymbol{r}(\boldsymbol{x}_i)$ before fitting the two arm-specific
+outcome models.
 
 ### Prior specification (PS then outcome)
 

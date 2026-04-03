@@ -107,6 +107,7 @@ pAmorosoMix <- nimble::nimbleFunction(
       cdf <- cdf + ww[j] * pAmoroso(q, loc[j], scale[j], shape1[j], shape2[j], 1, 0)
     }
 
+    if (is.nan(cdf)) cdf <- 0.0
     if (cdf < 0.0) cdf <- 0.0
     if (cdf > 1.0) cdf <- 1.0
 
@@ -208,6 +209,39 @@ qAmorosoMix <- function(p, w, loc, scale, shape1, shape2,
     }
   }
   out
+}
+
+meanAmorosoMix <- function(w, loc, scale, shape1, shape2) {
+  ww <- .mean_norm_mix_weights(w)
+  if (is.null(ww)) return(NA_real_)
+  loc <- as.numeric(loc)
+  scale <- as.numeric(scale)
+  shape1 <- as.numeric(shape1)
+  shape2 <- as.numeric(shape2)
+  if (!all(lengths(list(loc, scale, shape1, shape2)) == length(ww))) return(NA_real_)
+  if (any(!is.finite(loc)) || any(!is.finite(scale)) || any(!is.finite(shape1)) || any(!is.finite(shape2))) return(NA_real_)
+  if (any(scale <= 0) || any(shape1 <= 0) || any(shape2 <= 0)) return(NA_real_)
+  comp_mean <- loc + scale * exp(lgamma(shape1 + 1 / shape2) - lgamma(shape1))
+  sum(ww * comp_mean)
+}
+
+meanAmorosoMixTrunc <- function(w, loc, scale, shape1, shape2, threshold) {
+  ww <- .mean_norm_mix_weights(w)
+  if (is.null(ww)) return(NA_real_)
+  loc <- as.numeric(loc)
+  scale <- as.numeric(scale)
+  shape1 <- as.numeric(shape1)
+  shape2 <- as.numeric(shape2)
+  u <- as.numeric(threshold)[1]
+  if (!all(lengths(list(loc, scale, shape1, shape2)) == length(ww))) return(NA_real_)
+  if (any(!is.finite(loc)) || any(!is.finite(scale)) || any(!is.finite(shape1)) || any(!is.finite(shape2)) || is.na(u)) return(NA_real_)
+  if (any(scale <= 0) || any(shape1 <= 0) || any(shape2 <= 0)) return(NA_real_)
+  if (is.infinite(u) && u > 0) return(meanAmorosoMix(w = ww, loc = loc, scale = scale, shape1 = shape1, shape2 = shape2))
+  z <- pmax((u - loc) / scale, 0)^shape2
+  cdf_u <- stats::pgamma(z, shape = shape1, scale = 1)
+  moment_u <- exp(lgamma(shape1 + 1 / shape2) - lgamma(shape1)) *
+    stats::pgamma(z, shape = shape1 + 1 / shape2, scale = 1)
+  sum(ww * (loc * cdf_u + scale * moment_u))
 }
 
 
@@ -331,6 +365,7 @@ pAmorosoMixGpd <- nimble::nimbleFunction(
     G <- pGpd(q, threshold, tail_scale, tail_shape, 1, 0)
     cdf <- Fu + (1.0 - Fu) * G
 
+    if (is.nan(cdf)) cdf <- 0.0
     if (cdf < 0.0) cdf <- 0.0
     if (cdf > 1.0) cdf <- 1.0
 
@@ -499,6 +534,7 @@ pAmorosoGpd <- nimble::nimbleFunction(
     G <- pGpd(q, threshold, tail_scale, tail_shape, 1, 0)
     cdf <- Fu + (1.0 - Fu) * G
 
+    if (is.nan(cdf)) cdf <- 0.0
     if (cdf < 0.0) cdf <- 0.0
     if (cdf > 1.0) cdf <- 1.0
 
@@ -793,3 +829,4 @@ ramorosogpd <- function(n, loc, scale, shape1, shape2, threshold, tail_scale, ta
                                                          tail_shape = tail_shape)),
          numeric(1L))
 }
+

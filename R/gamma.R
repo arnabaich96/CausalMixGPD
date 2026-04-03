@@ -101,6 +101,7 @@ pGammaMix <- nimble::nimbleFunction(
                                   lower.tail = 1, log.p = 0)
     }
 
+    if (is.nan(cdf)) cdf <- 0.0
     if (cdf < 0.0) cdf <- 0.0
     if (cdf > 1.0) cdf <- 1.0
 
@@ -186,6 +187,29 @@ qGammaMix <- function(p, w, shape, scale,
     }
   }
   out
+}
+
+meanGammaMix <- function(w, shape, scale) {
+  ww <- .mean_norm_mix_weights(w)
+  if (is.null(ww)) return(NA_real_)
+  alpha <- as.numeric(shape)
+  theta <- as.numeric(scale)
+  if (length(alpha) != length(ww) || length(theta) != length(ww)) return(NA_real_)
+  if (any(!is.finite(alpha)) || any(!is.finite(theta)) || any(alpha <= 0) || any(theta <= 0)) return(NA_real_)
+  sum(ww * alpha * theta)
+}
+
+meanGammaMixTrunc <- function(w, shape, scale, threshold) {
+  ww <- .mean_norm_mix_weights(w)
+  if (is.null(ww)) return(NA_real_)
+  alpha <- as.numeric(shape)
+  theta <- as.numeric(scale)
+  u <- as.numeric(threshold)[1]
+  if (length(alpha) != length(ww) || length(theta) != length(ww)) return(NA_real_)
+  if (any(!is.finite(alpha)) || any(!is.finite(theta)) || any(alpha <= 0) || any(theta <= 0) || is.na(u)) return(NA_real_)
+  if (is.infinite(u) && u > 0) return(meanGammaMix(w = ww, shape = alpha, scale = theta))
+  if (u <= 0) return(0)
+  sum(ww * alpha * theta * stats::pgamma(u, shape = alpha + 1, scale = theta))
 }
 
 #' Gamma mixture with a GPD tail
@@ -286,6 +310,7 @@ pGammaMixGpd <- nimble::nimbleFunction(
 
     cdf <- Fu + (1.0 - Fu) * G
 
+    if (is.nan(cdf)) cdf <- 0.0
     if (cdf < 0.0) cdf <- 0.0
     if (cdf > 1.0) cdf <- 1.0
 
@@ -440,6 +465,7 @@ pGammaGpd <- nimble::nimbleFunction(
 
     cdf <- Fu + (1.0 - Fu) * G
 
+    if (is.nan(cdf)) cdf <- 0.0
     if (cdf < 0.0) cdf <- 0.0
     if (cdf > 1.0) cdf <- 1.0
 
@@ -683,3 +709,4 @@ rgammagpd <- function(n, shape, scale, threshold, tail_scale, tail_shape) {
                                                        tail_shape = tail_shape)),
          numeric(1L))
 }
+

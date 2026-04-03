@@ -21,8 +21,13 @@
 \item{newdata}{Optional new data containing the response and predictors required by the original
 formula. New-data prediction is available only for \code{type = "label"}.}
 
-\item{type}{Prediction target: \code{"label"} for a representative partition or \code{"psm"} for the
-posterior similarity matrix on the training sample.}
+\item{type}{Prediction target:
+\itemize{
+\item \code{"label"}: representative partition via
+Dahl's least-squares rule
+\item \code{"psm"}: posterior similarity matrix on the
+training sample
+}}
 
 \item{burnin}{Number of initial posterior draws to discard.}
 

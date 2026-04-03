@@ -4,7 +4,7 @@
 \alias{print.mixgpd_summary}
 \title{Print a MixGPD summary object}
 \usage{
-\method{print}{mixgpd_summary}(x, digits = 3, max_rows = 60, ...)
+\method{print}{mixgpd_summary}(x, digits = 3, max_rows = 60, show_ess = FALSE, ...)
 }
 \arguments{
 \item{x}{A \code{"mixgpd_summary"} object.}
@@ -12,6 +12,8 @@
 \item{digits}{Number of digits to print.}
 
 \item{max_rows}{Maximum rows to print.}
+
+\item{show_ess}{Logical; if \code{TRUE}, include the \code{ess} column when present.}
 
 \item{...}{Unused.}
 }

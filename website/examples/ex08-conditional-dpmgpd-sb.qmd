@@ -81,7 +81,7 @@ summary_tbl <- tibble(
 ggplot(data.frame(y = y, x1 = X[, 1]), aes(x = x1, y = y)) +
   geom_point(alpha = 0.6, color = "purple") +
   geom_smooth(method = "loess", color = "orange", fill = NA) +
-  labs(title = "Tail Outcome vs x1 (SB)", x = "x1", y = "y") +
+  labs(title = "Tail Outcome vs x1 (SB)", newdata ="x1", y = "y") +
   theme_minimal()
 ```
 
@@ -99,7 +99,7 @@ u_threshold <- quantile(y, 0.85)
 ggplot(data.frame(y = y), aes(x = y)) +
   geom_histogram(aes(y = after_stat(density)), bins = 40, fill = "lightgreen", alpha = 0.6, color = "black") +
   geom_vline(xintercept = u_threshold, linetype = "dashed", color = "black") +
-  labs(title = "Threshold for SB tail (85%)", x = "y", y = "Density") +
+  labs(title = "Threshold for SB tail (85%)", newdata ="y", y = "Density") +
   theme_minimal()
 ```
 
@@ -169,7 +169,7 @@ colnames(X_new) <- colnames(X)
 y_grid <- seq(0, max(y) * 1.2, length.out = 200)
 
 df_pred_gamma <- lapply(seq_len(nrow(X_new)), function(i) {
-  pred <- predict(fit_sb_cond_gpd_gamma, x = as.matrix(X_new[i, , drop = FALSE]), y = y_grid, type = "density")
+  pred <- predict(fit_sb_cond_gpd_gamma, newdata =as.matrix(X_new[i, , drop = FALSE]), y = y_grid, type = "density")
   data.frame(
     y = pred$fit$y,
     density = pred$fit$density,
@@ -179,7 +179,7 @@ df_pred_gamma <- lapply(seq_len(nrow(X_new)), function(i) {
 })
 
 df_pred_laplace <- lapply(seq_len(nrow(X_new)), function(i) {
-  pred <- predict(fit_sb_cond_gpd_laplace, x = as.matrix(X_new[i, , drop = FALSE]), y = y_grid, type = "density")
+  pred <- predict(fit_sb_cond_gpd_laplace, newdata =as.matrix(X_new[i, , drop = FALSE]), y = y_grid, type = "density")
   data.frame(
     y = pred$fit$y,
     density = pred$fit$density,
@@ -192,7 +192,7 @@ bind_rows(df_pred_gamma, df_pred_laplace) %>%
   ggplot(aes(x = y, y = density, color = label)) +
   geom_line(linewidth = 1) +
   facet_wrap(~ model) +
-  labs(title = "Conditional Density (SB + GPD)", x = "y", y = "Density") +
+  labs(title = "Conditional Density (SB + GPD)", newdata ="y", y = "Density") +
   theme_minimal() +
   theme(legend.position = "bottom")
 ```
@@ -206,8 +206,8 @@ X_grid <- cbind(x1 = seq(-1, 1, length.out = 5), x2 = 0, x3 = 0, x4 = 0, x5 = 0)
 colnames(X_grid) <- colnames(X)
 quant_probs <- c(0.90, 0.95)
 
-pred_q_gamma <- predict(fit_sb_cond_gpd_gamma, x = as.matrix(X_grid), type = "quantile", p = quant_probs)
-pred_q_laplace <- predict(fit_sb_cond_gpd_laplace, x = as.matrix(X_grid), type = "quantile", p = quant_probs)
+pred_q_gamma <- predict(fit_sb_cond_gpd_gamma, newdata =as.matrix(X_grid), type = "quantile", p = quant_probs)
+pred_q_laplace <- predict(fit_sb_cond_gpd_laplace, newdata =as.matrix(X_grid), type = "quantile", p = quant_probs)
 
 quant_df_gamma <- pred_q_gamma$fit
 quant_df_gamma$x1 <- X_grid[quant_df_gamma$id, "x1"]
@@ -222,7 +222,7 @@ bind_rows(quant_df_gamma, quant_df_laplace) %>%
   geom_line(linewidth = 1) +
   geom_point(size = 2) +
   facet_wrap(~ model) +
-  labs(title = "Tail Quantiles vs x1 (SB)", x = "x1", y = "Quantile", color = "Probability") +
+  labs(title = "Tail Quantiles vs x1 (SB)", newdata ="x1", y = "Quantile", color = "Probability") +
   theme_minimal()
 ```
 

@@ -11,7 +11,11 @@
 #'
 #' @param y Numeric outcome vector.
 #' @param X Optional design matrix (N x P). Can be matrix or data.frame.
-#' @param backend Either \code{"sb"} or \code{"crp"}.
+#' @param backend Dirichlet process representation:
+#'   \itemize{
+#'     \item \code{"sb"}: stick-breaking truncation
+#'     \item \code{"crp"}: Chinese Restaurant Process
+#'   }
 #' @param kernel Kernel name; must exist in \code{get_kernel_registry()}.
 #' @param GPD Logical; include GPD tail if TRUE.
 #' @param components Integer >= 2; single truncation parameter used for both backends.
@@ -149,6 +153,100 @@ compile_model_spec <- function(
     }
   }
 
+  validate_link_spec <- function(param_name,
+                                 link,
+                                 link_power = NULL,
+                                 support = NULL,
+                                 beta_prior = NULL,
+                                 link_dist = NULL) {
+    link <- as.character(link %||% "identity")
+    support <- as.character(support %||% "")
+
+    if (!link %in% c("identity", "exp", "log", "softplus", "power")) {
+      stop(sprintf("Unsupported link '%s' for '%s'.", link, param_name), call. = FALSE)
+    }
+
+    bp <- beta_prior %||% list(dist = "normal", args = list(mean = 0, sd = 1))
+    bp_dist <- as.character(bp$dist %||% "normal")
+    if (!identical(bp_dist, "normal")) {
+      stop(
+        sprintf(
+          "link-mode coefficient prior for '%s' must use dist = 'normal'; got '%s'.",
+          param_name,
+          bp_dist
+        ),
+        call. = FALSE
+      )
+    }
+
+    bp_mean <- bp$args$mean %||% 0
+    bp_sd <- bp$args$sd %||% NA_real_
+    if (!is.numeric(bp_mean) || length(bp_mean) != 1L || !is.finite(bp_mean)) {
+      stop(sprintf("link-mode coefficient prior mean for '%s' must be a finite scalar.", param_name), call. = FALSE)
+    }
+    if (!is.numeric(bp_sd) || length(bp_sd) != 1L || !is.finite(bp_sd) || bp_sd <= 0) {
+      stop(sprintf("link-mode coefficient prior sd for '%s' must be a positive finite scalar.", param_name), call. = FALSE)
+    }
+
+    if (identical(link, "log")) {
+      stop(
+        sprintf(
+          "link '%s' is not supported for '%s' with unrestricted normal coefficient priors; use identity, exp, softplus, or a supported power link instead.",
+          link,
+          param_name
+        ),
+        call. = FALSE
+      )
+    }
+
+    if (identical(link, "power")) {
+      pw <- suppressWarnings(as.numeric(link_power))
+      if (length(pw) != 1L || !is.finite(pw)) {
+        stop(sprintf("power link for '%s' requires a finite numeric link_power.", param_name), call. = FALSE)
+      }
+      if (abs(pw - round(pw)) > sqrt(.Machine$double.eps) || pw <= 0) {
+        stop(
+          sprintf(
+            "power link for '%s' requires a positive integer link_power when coefficient priors are normal.",
+            param_name
+          ),
+          call. = FALSE
+        )
+      }
+      if (support %in% c("positive_location", "positive_scale", "positive_shape", "positive_sd") &&
+          as.integer(round(pw)) %% 2L != 0L) {
+        stop(
+          sprintf(
+            "positive-support parameter '%s' requires an even integer power link, or use exp/softplus.",
+            param_name
+          ),
+          call. = FALSE
+        )
+      }
+    }
+
+    if (support %in% c("positive_location", "positive_scale", "positive_shape", "positive_sd") &&
+        !link %in% c("exp", "softplus", "power")) {
+      stop(
+        sprintf(
+          "link '%s' is not appropriate for positive-support parameter '%s'; use exp, softplus, or an even-integer power link.",
+          link,
+          param_name
+        ),
+        call. = FALSE
+      )
+    }
+
+    if (!is.null(link_dist)) {
+      ld_dist <- as.character(link_dist$dist %||% "")
+      if (!nzchar(ld_dist) || !identical(ld_dist, "lognormal")) {
+        stop(sprintf("Only lognormal link_dist is supported for '%s'.", param_name), call. = FALSE)
+      }
+    }
+
+    invisible(TRUE)
+  }
+
   # ---- normalize/merge user param specs ----
   param_specs <- param_specs %||% list()
   user_bulk <- param_specs$bulk %||% list()
@@ -220,6 +318,13 @@ compile_model_spec <- function(
         link <- u$link %||% "identity"
         link_power <- u$link_power %||% NULL
         beta_prior <- u$beta_prior %||% default_beta_prior("bulk")
+        validate_link_spec(
+          param_name = nm,
+          link = link,
+          link_power = link_power,
+          support = kinfo$bulk_support[[nm]],
+          beta_prior = beta_prior
+        )
         bulk_plan[[nm]] <- list(mode = "link", link = link, link_power = link_power, beta_prior = beta_prior)
       }
       next
@@ -230,6 +335,13 @@ compile_model_spec <- function(
       # if defaults_X provides link behavior for this param, use it; otherwise fall back to dist
       dx <- defaults_X[[nm]]
       if (!is.null(dx) && is.list(dx) && identical(dx$mode, "link")) {
+        validate_link_spec(
+          param_name = nm,
+          link = dx$link %||% "identity",
+          link_power = dx$link_power %||% NULL,
+          support = kinfo$bulk_support[[nm]],
+          beta_prior = dx$beta_prior %||% default_beta_prior("bulk")
+        )
         bulk_plan[[nm]] <- list(
           mode = "link",
           link = dx$link %||% "identity",
@@ -243,18 +355,6 @@ compile_model_spec <- function(
     } else {
       pr <- default_prior_by_type(kinfo$param_types[[nm]], kinfo$bulk_support[[nm]])
       bulk_plan[[nm]] <- list(mode = "dist", dist = pr$dist, args = pr$args)
-    }
-  }
-
-  # CRP/spliced + X: default link-mode bulk parameters can create deterministic
-  # nodes indexed by z, which breaks NIMBLE's CRP sampler. Downgrade default
-  # link modes to dist unless user overrides explicitly.
-  if (backend %in% c("crp", "spliced") && has_X) {
-    for (nm in bulk_params) {
-      if (is.null(user_bulk[[nm]]) && identical(bulk_plan[[nm]]$mode, "link")) {
-        pr <- default_prior_by_type(kinfo$param_types[[nm]], kinfo$bulk_support[[nm]])
-        bulk_plan[[nm]] <- list(mode = "dist", dist = pr$dist, args = pr$args)
-      }
     }
   }
 
@@ -274,6 +374,17 @@ compile_model_spec <- function(
         gpd_plan$threshold <- list(mode = "dist", dist = thr_u$dist, args = thr_u$args)
       } else {
         if (!has_X) stop("gpd$threshold link mode requires X.", call. = FALSE)
+        if (identical(backend, "spliced") && !is.null(thr_u$link_dist)) {
+          stop("gpd$threshold link_dist is not supported for backend = 'spliced'.", call. = FALSE)
+        }
+        validate_link_spec(
+          param_name = "threshold",
+          link = thr_u$link %||% "identity",
+          link_power = thr_u$link_power %||% NULL,
+          support = "real",
+          beta_prior = thr_u$beta_prior %||% default_beta_prior("threshold"),
+          link_dist = thr_u$link_dist %||% NULL
+        )
         # if user supplies link_dist, keep it; otherwise allow default below
         gpd_plan$threshold <- list(
           mode = "link",
@@ -285,18 +396,20 @@ compile_model_spec <- function(
       }
     } else {
       # default: threshold[i] ~ Lognormal(meanlog=Xβ, sdlog_u) when X present; else dist
-      if (has_X && backend != "spliced") {
+      if (has_X) {
         gpd_plan$threshold <- list(
           mode = "link",
           link = "identity",
-          beta_prior = default_beta_prior("threshold"),
-          link_dist = list(
+          beta_prior = default_beta_prior("threshold")
+        )
+        if (!identical(backend, "spliced")) {
+          gpd_plan$threshold$link_dist <- list(
             dist = "lognormal",
             mean_arg = "meanlog",
             sd_name = "sdlog_u"
           )
-        )
-        gpd_plan$sdlog_u <- list(mode = "dist", dist = "invgamma", args = list(shape = 2, scale = 1))
+          gpd_plan$sdlog_u <- list(mode = "dist", dist = "invgamma", args = list(shape = 2, scale = 1))
+        }
       } else {
         gpd_plan$threshold <- list(mode = "dist", dist = "gamma", args = list(shape = 2, rate = 1))
       }
@@ -309,6 +422,13 @@ compile_model_spec <- function(
       if (!mode %in% c("fixed", "dist", "link")) stop("gpd$tail_scale mode must be fixed/dist/link.", call. = FALSE)
       if (mode == "link" && !has_X) stop("gpd$tail_scale link mode requires X.", call. = FALSE)
       if (mode == "link") {
+        validate_link_spec(
+          param_name = "tail_scale",
+          link = ts_u$link %||% "exp",
+          link_power = ts_u$link_power %||% NULL,
+          support = "positive_scale",
+          beta_prior = ts_u$beta_prior %||% default_beta_prior("tail_scale")
+        )
         gpd_plan$tail_scale <- list(
           mode = "link",
           link = ts_u$link %||% "exp",
@@ -321,7 +441,7 @@ compile_model_spec <- function(
         gpd_plan$tail_scale <- list(mode = "fixed", value = ts_u$value)
       }
     } else {
-      if (has_X && backend != "spliced") {
+      if (has_X) {
         gpd_plan$tail_scale <- list(mode = "link", link = "exp", beta_prior = default_beta_prior("tail_scale"))
       } else {
         gpd_plan$tail_scale <- list(mode = "dist", dist = "gamma", args = list(shape = 2, rate = 1))
@@ -335,6 +455,13 @@ compile_model_spec <- function(
       if (!mode %in% c("fixed", "dist", "link")) stop("gpd$tail_shape mode must be fixed/dist/link.", call. = FALSE)
       if (mode == "link" && !has_X) stop("gpd$tail_shape link mode requires X.", call. = FALSE)
       if (mode == "link") {
+        validate_link_spec(
+          param_name = "tail_shape",
+          link = tsh_u$link %||% "identity",
+          link_power = tsh_u$link_power %||% NULL,
+          support = "real",
+          beta_prior = tsh_u$beta_prior %||% default_beta_prior("tail_shape")
+        )
         gpd_plan$tail_shape <- list(
           mode = "link",
           link = tsh_u$link %||% "identity",

@@ -295,7 +295,7 @@ test_that("conditional SB bulk model works (v11 coverage)", {
 
   # Test conditional predict
   x_new <- X[1:5, , drop = FALSE]
-  pred_mean <- predict(fit, x = x_new, type = "mean", nsim_mean = 20)
+  pred_mean <- predict(fit, newdata =x_new, type = "mean", nsim_mean = 20)
   expect_s3_class(pred_mean, "mixgpd_predict")
 })
 
@@ -413,10 +413,10 @@ test_that("causal X no-PS SB model works (v15 coverage)", {
   pred_q <- predict(fit, type = "quantile", p = c(0.25, 0.75))
   expect_s3_class(pred_q, "causalmixgpd_causal_predict")
 
-  pred_d <- predict(fit, x = X[1:5, , drop = FALSE], y = y[1:5], type = "density")
+  pred_d <- predict(fit, newdata =X[1:5, , drop = FALSE], y = y[1:5], type = "density")
   expect_s3_class(pred_d, "causalmixgpd_causal_predict")
 
-  pred_s <- predict(fit, x = X[1:5, , drop = FALSE], y = y[1:5], type = "survival")
+  pred_s <- predict(fit, newdata =X[1:5, , drop = FALSE], y = y[1:5], type = "survival")
   expect_s3_class(pred_s, "causalmixgpd_causal_predict")
 })
 

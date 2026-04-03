@@ -26,9 +26,12 @@ and training data are used.}
 \item{y}{Ignored for marginal estimands. If supplied, a warning is issued
 and training data are used.}
 
-\item{interval}{Character or NULL; type of credible interval: \code{NULL} for no interval,
-\code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
-highest posterior density intervals.}
+\item{interval}{Character or NULL; type of credible interval:
+\itemize{
+\item \code{NULL}: no interval
+\item \code{"credible"} (default): equal-tailed quantile intervals
+\item \code{"hpd"}: highest posterior density intervals
+}}
 
 \item{level}{Numeric credible level for intervals (default 0.95 for 95 percent CI).}
 
@@ -37,7 +40,8 @@ highest posterior density intervals.}
 \value{
 An object of class \code{"causalmixgpd_qte"} containing the QTT
 summary, the probability grid, and the arm-specific predictive objects used
-in the aggregation.
+in the aggregation. The returned object includes a top-level
+\code{$fit_df} data frame for direct extraction.
 }
 \description{
 \code{qtt()} computes the quantile treatment effect on the treated.

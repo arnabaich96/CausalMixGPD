@@ -96,6 +96,7 @@ pLaplaceMix <- nimble::nimbleFunction(
       cdf <- cdf + ww[j] * pdexp(q, location[j], scale[j], lower.tail = 1, log.p = 0)
     }
 
+    if (is.nan(cdf)) cdf <- 0.0
     if (cdf < 0.0) cdf <- 0.0
     if (cdf > 1.0) cdf <- 1.0
 
@@ -190,6 +191,33 @@ qLaplaceMix <- function(p, w, location, scale,
     }
   }
   out
+}
+
+meanLaplaceMix <- function(w, location, scale) {
+  ww <- .mean_norm_mix_weights(w)
+  if (is.null(ww)) return(NA_real_)
+  loc <- as.numeric(location)
+  scl <- as.numeric(scale)
+  if (length(loc) != length(ww) || length(scl) != length(ww)) return(NA_real_)
+  if (any(!is.finite(loc)) || any(!is.finite(scl)) || any(scl <= 0)) return(NA_real_)
+  sum(ww * loc)
+}
+
+meanLaplaceMixTrunc <- function(w, location, scale, threshold) {
+  ww <- .mean_norm_mix_weights(w)
+  if (is.null(ww)) return(NA_real_)
+  loc <- as.numeric(location)
+  scl <- as.numeric(scale)
+  u <- as.numeric(threshold)[1]
+  if (length(loc) != length(ww) || length(scl) != length(ww)) return(NA_real_)
+  if (any(!is.finite(loc)) || any(!is.finite(scl)) || any(scl <= 0) || is.na(u)) return(NA_real_)
+  if (is.infinite(u) && u > 0) return(meanLaplaceMix(w = ww, location = loc, scale = scl))
+  comp <- ifelse(
+    u < loc,
+    0.5 * (u - scl) * exp((u - loc) / scl),
+    loc - 0.5 * (u + scl) * exp(-(u - loc) / scl)
+  )
+  sum(ww * comp)
 }
 
 
@@ -292,6 +320,7 @@ pLaplaceMixGpd <- nimble::nimbleFunction(
 
     cdf <- Fu + (1.0 - Fu) * G
 
+    if (is.nan(cdf)) cdf <- 0.0
     if (cdf < 0.0) cdf <- 0.0
     if (cdf > 1.0) cdf <- 1.0
 
@@ -437,6 +466,7 @@ pLaplaceGpd <- nimble::nimbleFunction(
 
     cdf <- Fu + (1.0 - Fu) * G
 
+    if (is.nan(cdf)) cdf <- 0.0
     if (cdf < 0.0) cdf <- 0.0
     if (cdf > 1.0) cdf <- 1.0
 
@@ -672,4 +702,5 @@ rlaplacegpd <- function(n, location, scale, threshold, tail_scale, tail_shape) {
                                                          tail_shape = tail_shape)),
          numeric(1L))
 }
+
 

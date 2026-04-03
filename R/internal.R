@@ -23,9 +23,34 @@
 .cmgpd_progress_colorize <- function(text, step_index, enabled = TRUE) {
   if (!isTRUE(enabled) || !nzchar(text)) return(text)
   if (!requireNamespace("cli", quietly = TRUE)) return(text)
-  palette <- c("col_blue", "col_cyan", "col_green", "col_yellow", "col_magenta", "col_red")
-  idx <- ((max(1L, as.integer(step_index)[1L]) - 1L) %% length(palette)) + 1L
-  fn <- get0(palette[[idx]], envir = asNamespace("cli"), mode = "function", inherits = FALSE)
+  ncols <- get0("num_ansi_colors", envir = asNamespace("cli"), mode = "function", inherits = FALSE)
+  ncols <- if (is.function(ncols)) {
+    tryCatch(as.integer(ncols()), error = function(...) 0L)
+  } else {
+    0L
+  }
+  idx <- max(1L, as.integer(step_index)[1L])
+
+  if (isTRUE(ncols >= 256L)) {
+    # Broad hue spread in 256-color ANSI to keep adjacent steps visually distinct.
+    palette_256 <- c(39L, 45L, 51L, 50L, 49L, 48L, 47L, 46L, 82L, 118L,
+                     154L, 190L, 226L, 220L, 214L, 208L, 202L, 196L,
+                     197L, 198L, 199L, 165L, 129L, 93L, 57L, 63L, 69L, 75L)
+    code <- palette_256[((idx - 1L) %% length(palette_256)) + 1L]
+    return(paste0("\033[38;5;", code, "m", text, "\033[39m"))
+  }
+
+  palette_named <- c(
+    "col_blue", "col_cyan", "col_green", "col_yellow", "col_magenta", "col_red",
+    "col_br_blue", "col_br_cyan", "col_br_green", "col_br_yellow", "col_br_magenta", "col_br_red",
+    "col_silver"
+  )
+  fn <- get0(
+    palette_named[((idx - 1L) %% length(palette_named)) + 1L],
+    envir = asNamespace("cli"),
+    mode = "function",
+    inherits = FALSE
+  )
   if (is.null(fn)) return(text)
   tryCatch(fn(text), error = function(...) text)
 }
@@ -42,6 +67,59 @@
   .cmgpd_progress_colorize(msg, step_index = current, enabled = color)
 }
 
+.cmgpd_progress_live_format <- function(current, total, step_label, label = NULL, color = FALSE) {
+  .cmgpd_progress_format(
+    current = current,
+    total = total,
+    step_label = step_label,
+    label = label,
+    color = color
+  )
+}
+
+.cmgpd_progress_bar_line <- function(current, total, width = 28L) {
+  current <- max(0L, as.integer(current)[1L])
+  total <- max(1L, as.integer(total)[1L])
+  width <- max(10L, as.integer(width)[1L])
+  current <- min(current, total)
+  pct <- as.integer(round(100 * current / total))
+  filled <- if (current >= total) width else as.integer(floor(width * current / total))
+  empty <- max(0L, width - filled)
+  paste0("  [", strrep("=", filled), strrep("-", empty), "] ", sprintf("%3d%%", pct))
+}
+
+.cmgpd_progress_write <- function(text) {
+  cat(text)
+  flush.console()
+  invisible(text)
+}
+
+.cmgpd_progress_visible_nchar <- function(text) {
+  text <- gsub("\033\\[[0-9;]*[A-Za-z]", "", as.character(text), perl = TRUE)
+  nchar(text, type = "width")
+}
+
+.cmgpd_progress_pad_line <- function(text, width) {
+  width <- max(0L, as.integer(width)[1L])
+  pad <- max(0L, width - .cmgpd_progress_visible_nchar(text))
+  paste0(text, strrep(" ", pad))
+}
+
+.cmgpd_progress_render <- function(ctx, status = ctx$status, final = FALSE) {
+  if (!is.environment(ctx) || !identical(ctx$live_backend, "inline")) return(invisible(ctx))
+  bar <- .cmgpd_progress_bar_line(ctx$current, ctx$total, width = ctx$bar_width)
+  ctx$last_status_width <- max(ctx$last_status_width %||% 0L, .cmgpd_progress_visible_nchar(status))
+  ctx$last_bar_width <- max(ctx$last_bar_width %||% 0L, .cmgpd_progress_visible_nchar(bar))
+  status_out <- .cmgpd_progress_pad_line(status, ctx$last_status_width)
+  bar_out <- .cmgpd_progress_pad_line(bar, ctx$last_bar_width)
+  prefix <- if (isTRUE(ctx$rendered)) "\r\033[F" else ""
+  line2_prefix <- "\n"
+  suffix <- if (isTRUE(final)) "\n" else ""
+  .cmgpd_progress_write(paste0(prefix, status_out, line2_prefix, bar_out, suffix))
+  ctx$rendered <- TRUE
+  invisible(ctx)
+}
+
 .cmgpd_progress_start <- function(total_steps, enabled = TRUE, quiet = FALSE, label = NULL) {
   total_steps <- as.integer(total_steps)[1L]
   if (!is.finite(total_steps) || total_steps < 1L) total_steps <- 1L
@@ -53,9 +131,19 @@
   ctx$current <- 0L
   ctx$label <- as.character(label %||% "")
   ctx$inline_width <- 12L
+  ctx$bar_width <- 28L
   ctx$live_backend <- "none"
-  ctx$live_id <- NULL
-  ctx$bar <- NULL
+  ctx$rendered <- FALSE
+  ctx$last_status_width <- 0L
+  ctx$last_bar_width <- 0L
+  ctx$step_label <- "Starting..."
+  ctx$status <- .cmgpd_progress_live_format(
+    current = 0L,
+    total = total_steps,
+    step_label = ctx$step_label,
+    label = ctx$label,
+    color = FALSE
+  )
 
   has_cli <- requireNamespace("cli", quietly = TRUE)
   ctx$has_cli <- has_cli
@@ -68,32 +156,11 @@
     }
   }
 
-  # Live bar only in interactive terminals; step messages still emitted elsewhere.
+  # Live 2-line renderer only in interactive terminals; step messages still emitted elsewhere.
   can_bar <- enabled && interactive() && !isTRUE(getOption("knitr.in.progress"))
   if (can_bar) {
-    if (has_cli) {
-      ctx$live_id <- tryCatch(
-        cli::cli_progress_bar(
-          format = "  Progress {bar} {percent} eta: {eta}",
-          total = total_steps,
-          clear = FALSE,
-          show_after = 0
-        ),
-        error = function(...) NULL
-      )
-      if (!is.null(ctx$live_id)) {
-        ctx$live_backend <- "cli"
-      }
-    }
-    if (!identical(ctx$live_backend, "cli")) {
-      ctx$bar <- progress::progress_bar$new(
-        format = "  Progress [:bar] :percent eta: :eta",
-        total = total_steps,
-        clear = FALSE,
-        show_after = 0
-      )
-      ctx$live_backend <- "progress"
-    }
+    ctx$live_backend <- "inline"
+    .cmgpd_progress_render(ctx, status = ctx$status, final = FALSE)
   }
   ctx
 }
@@ -104,21 +171,32 @@
   ctx$current <- min(prev + 1L, ctx$total)
   inc <- ctx$current - prev
 
-  .cmgpd_message(
+  ctx$step_label <- trimws(as.character(step_label %||% ""))
+  if (!nzchar(ctx$step_label)) ctx$step_label <- "Working..."
+  status <- if (identical(ctx$live_backend, "none")) {
     .cmgpd_progress_format(
       current = ctx$current,
       total = ctx$total,
-      step_label = step_label,
+      step_label = ctx$step_label,
       label = ctx$label,
       width = ctx$inline_width,
       color = ctx$color_enabled
     )
-  )
+  } else {
+    .cmgpd_progress_live_format(
+      current = ctx$current,
+      total = ctx$total,
+      step_label = ctx$step_label,
+      label = ctx$label,
+      color = ctx$color_enabled
+    )
+  }
+  ctx$status <- status
 
-  if (inc > 0L && identical(ctx$live_backend, "cli") && !is.null(ctx$live_id)) {
-    try(cli::cli_progress_update(id = ctx$live_id, inc = inc), silent = TRUE)
-  } else if (inc > 0L && identical(ctx$live_backend, "progress") && !is.null(ctx$bar)) {
-    ctx$bar$tick(inc)
+  if (identical(ctx$live_backend, "inline")) {
+    .cmgpd_progress_render(ctx, status = status, final = FALSE)
+  } else {
+    .cmgpd_message(status)
   }
   invisible(ctx)
 }
@@ -126,30 +204,54 @@
 .cmgpd_progress_done <- function(ctx, final_label = NULL) {
   if (!is.environment(ctx) || !isTRUE(ctx$enabled)) return(invisible(ctx))
   remain <- max(0L, as.integer(ctx$total) - as.integer(ctx$current))
-  if (remain > 0L && identical(ctx$live_backend, "cli") && !is.null(ctx$live_id)) {
-    try(cli::cli_progress_update(id = ctx$live_id, inc = remain), silent = TRUE)
-  } else if (remain > 0L && identical(ctx$live_backend, "progress") && !is.null(ctx$bar)) {
-    ctx$bar$tick(remain)
-  }
-
-  if (identical(ctx$live_backend, "cli") && !is.null(ctx$live_id)) {
-    try(cli::cli_progress_done(id = ctx$live_id), silent = TRUE)
-  } else if (identical(ctx$live_backend, "progress") && !is.null(ctx$bar)) {
-    ctx$bar$terminate()
-  }
-
-  ctx$current <- as.integer(ctx$total)
-  if (!is.null(final_label)) {
-    .cmgpd_message(
+  if (remain > 0L) ctx$current <- as.integer(ctx$total)
+  final_status <- if (is.null(final_label)) {
+    if (identical(ctx$live_backend, "none")) {
       .cmgpd_progress_format(
         current = ctx$total,
         total = ctx$total,
-        step_label = as.character(final_label),
+        step_label = ctx$step_label,
         label = ctx$label,
         width = ctx$inline_width,
         color = ctx$color_enabled
       )
+    } else {
+      .cmgpd_progress_live_format(
+        current = ctx$total,
+        total = ctx$total,
+        step_label = ctx$step_label,
+        label = ctx$label,
+        color = ctx$color_enabled
+      )
+    }
+  } else if (identical(ctx$live_backend, "none")) {
+    .cmgpd_progress_format(
+      current = ctx$total,
+      total = ctx$total,
+      step_label = as.character(final_label),
+      label = ctx$label,
+      width = ctx$inline_width,
+      color = ctx$color_enabled
     )
+  } else {
+    .cmgpd_progress_live_format(
+      current = ctx$total,
+      total = ctx$total,
+      step_label = as.character(final_label),
+      label = ctx$label,
+      color = ctx$color_enabled
+    )
+  }
+
+  ctx$current <- as.integer(ctx$total)
+  ctx$status <- final_status
+  if (!is.null(final_label)) {
+    ctx$step_label <- as.character(final_label)
+  }
+  if (identical(ctx$live_backend, "inline")) {
+    .cmgpd_progress_render(ctx, status = final_status, final = TRUE)
+  } else if (!is.null(final_label)) {
+    .cmgpd_message(final_status)
   }
   invisible(ctx)
 }
@@ -158,16 +260,16 @@
   if (!isTRUE(suppress)) {
     return(eval.parent(substitute(expr)))
   }
-  withCallingHandlers(
-    {
-      utils::capture.output(
-        value <- eval.parent(substitute(expr)),
-        type = "output"
-      )
-      value
-    },
-    message = function(m) invokeRestart("muffleMessage")
+  result <- NULL
+  utils::capture.output(
+    withCallingHandlers(
+      result <- eval.parent(substitute(expr)),
+      warning = function(w) invokeRestart("muffleWarning"),
+      message = function(m) invokeRestart("muffleMessage")
+    ),
+    file = if (.Platform$OS.type == "windows") "NUL" else "/dev/null"
   )
+  result
 }
 
 
@@ -522,6 +624,7 @@
 .reorder_predict_cols <- function(df) {
   if (!is.data.frame(df)) return(df)
   cols <- names(df)
+  profile_col <- if ("profile" %in% cols) "profile" else NULL
   id_col <- if ("id" %in% cols) "id" else NULL
   idx_col <- if ("index" %in% cols) "index" else if ("y" %in% cols) "y" else NULL
   est_col <- if ("estimate" %in% cols) {
@@ -533,10 +636,38 @@
   } else {
     NULL
   }
-  base <- c(id_col, idx_col, est_col, intersect(c("lower", "upper"), cols))
+  base <- c(profile_col, id_col, idx_col, est_col, intersect(c("lower", "upper"), cols))
   base <- base[!is.na(base) & nzchar(base)]
   rest <- setdiff(cols, base)
   df[, c(base, rest), drop = FALSE]
+}
+
+.values_to_long_df <- function(x, id = NULL, value_name = "value") {
+  if (is.data.frame(x)) {
+    return(.reorder_predict_cols(x))
+  }
+
+  if (is.null(dim(x))) {
+    out <- data.frame(
+      draw = seq_along(x),
+      row.names = NULL
+    )
+    out[[value_name]] <- as.numeric(x)
+    return(out)
+  }
+
+  mat <- as.matrix(x)
+  n_row <- nrow(mat)
+  n_col <- ncol(mat)
+  id_use <- if (!is.null(id) && length(id) == n_row) id else seq_len(n_row)
+
+  out <- data.frame(
+    id = rep(id_use, each = n_col),
+    draw = rep(seq_len(n_col), times = n_row),
+    row.names = NULL
+  )
+  out[[value_name]] <- as.vector(t(mat))
+  .reorder_predict_cols(out)
 }
 
 #' Coerce fit object to standardized data frame
@@ -723,6 +854,7 @@ stick_breaking <- nimble::nimbleFunction(
   plan <- spec$plan %||% list()
   bulk_plan <- plan$bulk %||% list()
   gpd_plan <- plan$gpd %||% list()
+  has_ps <- !is.null(plan$ps)
   backend_raw <- meta$backend %||% spec$dispatch$backend %||% "<unknown>"
   is_spliced <- identical(backend_raw, "spliced")
   backend <- if (is_spliced) "crp" else backend_raw
@@ -746,6 +878,16 @@ stick_breaking <- nimble::nimbleFunction(
       unlist(lapply(c("threshold", "tail_scale", "tail_shape"), function(nm) {
         ent <- gpd_plan[[nm]] %||% list()
         if (identical(ent$mode %||% "", "link")) paste0("beta_", nm) else character(0)
+      }), use.names = FALSE)
+    } else {
+      character(0)
+    }
+  ))
+  component_aux_vector_bases <- unique(c(
+    if (isTRUE(has_ps)) {
+      unlist(lapply(names(bulk_plan), function(nm) {
+        ent <- bulk_plan[[nm]] %||% list()
+        if (identical(ent$mode %||% "", "link")) paste0("beta_ps_", nm) else character(0)
       }), use.names = FALSE)
     } else {
       character(0)
@@ -868,6 +1010,10 @@ stick_breaking <- nimble::nimbleFunction(
       blk <- .indexed_block(mat, nm, K = K, allow_missing = TRUE)
       if (!is.null(blk)) component_vector_draws[[nm]] <- blk
     }
+  }
+  for (nm in component_aux_vector_bases) {
+    blk <- .indexed_block(mat, nm, K = K, allow_missing = TRUE)
+    if (!is.null(blk)) component_vector_draws[[nm]] <- blk
   }
   component_matrix_draws <- list()
   for (base in component_matrix_bases) {
@@ -1310,9 +1456,9 @@ stick_breaking <- nimble::nimbleFunction(
 #' Resolve kernel dispatch functions (scalar)
 #' Dispatch returns raw scalar nimbleFunctions for codegen; do not wrap.
 #' @param spec_or_fit mixgpd_fit or spec list
-#' @return List with d/p/q/r functions and bulk_params.
+#' @return List with d/p/q/r/mean/mean_trunc functions and bulk_params.
 #' @keywords internal
-.get_dispatch_scalar <- function(spec_or_fit, backend_override = NULL) {
+.get_dispatch_scalar <- function(spec_or_fit, backend_override = NULL, gpd_override = NULL) {
   spec <- spec_or_fit
   if (inherits(spec_or_fit, "mixgpd_fit")) {
     spec <- spec_or_fit$spec %||% list()
@@ -1323,6 +1469,7 @@ stick_breaking <- nimble::nimbleFunction(
   if (!is.null(backend_override)) backend <- backend_override
   kernel <- meta$kernel %||% spec$kernel$key %||% "<unknown>"
   GPD <- isTRUE(meta$GPD %||% spec$dispatch$GPD)
+  if (!is.null(gpd_override)) GPD <- isTRUE(gpd_override)
 
   kdef <- get_kernel_registry()[[kernel]]
   if (is.null(kdef)) stop(sprintf("Kernel '%s' not found in registry.", kernel), call. = FALSE)
@@ -1346,6 +1493,8 @@ stick_breaking <- nimble::nimbleFunction(
   p_name <- sub("^d", "p", d_name)
   q_name <- sub("^d", "q", d_name)
   r_name <- sub("^d", "r", d_name)
+  mean_name <- if (!isTRUE(GPD)) dispatch$mean %||% dispatch$mean_base %||% NULL else NULL
+  mean_trunc_name <- if (!isTRUE(GPD)) dispatch$mean_trunc %||% dispatch$mean_trunc_base %||% NULL else NULL
 
   ns_pkg <- getNamespace("CausalMixGPD")
   ns_stats <- getNamespace("stats")
@@ -1376,6 +1525,8 @@ stick_breaking <- nimble::nimbleFunction(
   p_fun <- .wrap_cdf_fun(.resolve_fun(p_name, kernel))
   q_fun <- .wrap_quantile_fun(.resolve_fun(q_name, kernel))
   r_fun <- .wrap_rng_fun(.resolve_fun(r_name, kernel))
+  mean_fun <- if (!is.null(mean_name) && nzchar(mean_name)) .resolve_fun(mean_name, kernel) else NULL
+  mean_trunc_fun <- if (!is.null(mean_trunc_name) && nzchar(mean_trunc_name)) .resolve_fun(mean_trunc_name, kernel) else NULL
 
   if (isTRUE(attr(d_fun, "vectorized_wrapper")) ||
       isTRUE(attr(p_fun, "vectorized_wrapper")) ||
@@ -1384,21 +1535,23 @@ stick_breaking <- nimble::nimbleFunction(
     stop("Scalar dispatch unexpectedly received vectorized wrappers.", call. = FALSE)
   }
 
-  list(d = d_fun, p = p_fun, q = q_fun, r = r_fun, bulk_params = kdef$bulk_params)
+  list(d = d_fun, p = p_fun, q = q_fun, r = r_fun, mean = mean_fun, mean_trunc = mean_trunc_fun, bulk_params = kdef$bulk_params)
 }
 
 #' Resolve kernel dispatch functions
 #' Dispatch returns vector-aware d/p/q and n-aware r via wrappers; do not mutate namespace.
 #' @param spec_or_fit mixgpd_fit or spec list
-#' @return List with d/p/q/r functions and bulk_params.
+#' @return List with d/p/q/r/mean/mean_trunc functions and bulk_params.
 #' @keywords internal
-.get_dispatch <- function(spec_or_fit, backend_override = NULL) {
-  scalar <- .get_dispatch_scalar(spec_or_fit, backend_override = backend_override)
+.get_dispatch <- function(spec_or_fit, backend_override = NULL, gpd_override = NULL) {
+  scalar <- .get_dispatch_scalar(spec_or_fit, backend_override = backend_override, gpd_override = gpd_override)
   list(
     d = .wrap_scalar_first_arg(scalar$d, "x"),
     p = .wrap_scalar_p(scalar$p),
     q = .wrap_scalar_first_arg(scalar$q, "p"),
     r = .wrap_scalar_r(scalar$r),
+    mean = scalar$mean,
+    mean_trunc = scalar$mean_trunc,
     bulk_params = scalar$bulk_params
   )
 }
@@ -1410,8 +1563,11 @@ stick_breaking <- nimble::nimbleFunction(
 #'
 #' @param draws Numeric vector of posterior draws.
 #' @param level Numeric; credible level (e.g., 0.95 for 95 percent interval).
-#' @param type Character; \code{"credible"} for equal-tailed quantile intervals,
-#'   \code{"hpd"} for highest posterior density intervals.
+#' @param type Character; interval type:
+#'   \itemize{
+#'     \item \code{"credible"}: equal-tailed quantile intervals
+#'     \item \code{"hpd"}: highest posterior density intervals
+#'   }
 #' @return Named numeric vector with \code{lower} and \code{upper}.
 #' @keywords internal
 #' @noRd
@@ -1439,9 +1595,13 @@ stick_breaking <- nimble::nimbleFunction(
 #' Summarize posterior draws (mean + quantiles)
 #' @param draws Numeric vector, matrix, or array with draws in last dimension.
 #' @param probs Numeric quantile probs.
-#' @param interval Character or NULL; \code{NULL} for no interval,
-#'   \code{"credible"} for equal-tailed quantile intervals (default),
-#'   \code{"hpd"} for highest posterior density intervals.
+#' @param interval Character or NULL; interval type:
+#'   \itemize{
+#'     \item \code{NULL}: no interval
+#'     \item \code{"credible"} (default): equal-tailed quantile
+#'       intervals
+#'     \item \code{"hpd"}: highest posterior density intervals
+#'   }
 #' @return List with estimate, lower, upper, and q.
 #' @keywords internal
 .posterior_summarize <- function(draws, probs = c(0.025, 0.5, 0.975),
@@ -1806,6 +1966,11 @@ stick_breaking <- nimble::nimbleFunction(
   p_fun <- fns$p
   q_fun <- fns$q
   r_fun <- fns$r
+  mean_fun <- fns$mean %||% NULL
+  bulk_scalar <- .get_dispatch_scalar(object, backend_override = pred_backend, gpd_override = FALSE)
+  bulk_p_fun <- bulk_scalar$p
+  bulk_mean_fun <- bulk_scalar$mean %||% NULL
+  bulk_mean_trunc_fun <- bulk_scalar$mean_trunc %||% NULL
 
   kdef <- get_kernel_registry()[[kernel]] %||% list()
   bulk_support <- kdef$bulk_support %||% list()
@@ -2472,6 +2637,44 @@ stick_breaking <- nimble::nimbleFunction(
     any((w_s > 0) & is.finite(xi) & (xi >= 1))
   }
 
+  .clamp_prob <- function(x) {
+    pmin(pmax(as.numeric(x), 0), 1)
+  }
+
+  .gpd_tail_mean_or_error <- function(threshold, tail_scale, tail_shape) {
+    xi <- as.numeric(tail_shape)[1]
+    u <- as.numeric(threshold)[1]
+    sigma_u <- as.numeric(tail_scale)[1]
+    if (!is.finite(u) || !is.finite(sigma_u) || sigma_u <= 0 || !is.finite(xi)) return(NA_real_)
+    if (xi >= 1) {
+      stop("Mean is not supported when the GPD tail has tail_shape (xi) >= 1; use type='rmean'.", call. = FALSE)
+    }
+    u + sigma_u / (1 - xi)
+  }
+
+  .analytic_spliced_mean_row <- function(s, i, link_eta, gpd_eta) {
+    w_s <- .normalize_weights_or_null(W_draws[s, ])
+    if (is.null(w_s)) return(NA_real_)
+    comp_args <- .spliced_component_args_list_or_null(s, i, link_eta = link_eta, gpd_eta = gpd_eta)
+    if (is.null(comp_args) || is.null(bulk_mean_trunc_fun) || !is.function(bulk_mean_trunc_fun)) {
+      return(NA_real_)
+    }
+
+    comp_mean <- vapply(seq_along(comp_args), function(k) {
+      if (!is.finite(w_s[k]) || w_s[k] <= 0) return(0)
+      args_k <- comp_args[[k]]
+      threshold_k <- as.numeric(args_k$threshold)[1]
+      tail_scale_k <- as.numeric(args_k$tail_scale)[1]
+      tail_shape_k <- as.numeric(args_k$tail_shape)[1]
+      bulk_args_k <- c(list(w = 1), args_k[bulk_params])
+      bulk_trunc_k <- as.numeric(do.call(bulk_mean_trunc_fun, c(bulk_args_k, list(threshold = threshold_k))))[1]
+      Fu_k <- as.numeric(do.call(bulk_p_fun, c(list(q = threshold_k, lower.tail = 1L, log.p = 0L), bulk_args_k)))[1]
+      bulk_trunc_k + (1 - .clamp_prob(Fu_k)) * .gpd_tail_mean_or_error(threshold_k, tail_scale_k, tail_shape_k)
+    }, numeric(1))
+
+    sum(w_s * comp_mean)
+  }
+
   # -----------------------------
   # density / survival
   # -----------------------------
@@ -2574,6 +2777,7 @@ stick_breaking <- nimble::nimbleFunction(
 
     out <- list(
       fit = fit_df,
+      fit_df = fit_df,
       type = type,
       grid = ygrid_num,
       diagnostics = list(
@@ -2631,6 +2835,7 @@ stick_breaking <- nimble::nimbleFunction(
 
       out <- list(
         fit = fit_df,
+        fit_df = fit_df,
         type = type,
         grid = pgrid,
         draws = if (isTRUE(store_draws)) draws_mat else NULL,
@@ -2709,6 +2914,7 @@ stick_breaking <- nimble::nimbleFunction(
 
     out <- list(
       fit = fit_df,
+      fit_df = fit_df,
       type = type,
       grid = pgrid,
       draws = if (isTRUE(store_draws)) aperm(draws_arr, c(3, 1, 2)) else NULL, # S x n_pred x M
@@ -2764,6 +2970,7 @@ stick_breaking <- nimble::nimbleFunction(
 
       res <- list(
         fit = outv,
+        fit_df = .values_to_long_df(outv, value_name = "sample"),
         type = type,
         grid = NULL,
         diagnostics = list(
@@ -2826,6 +3033,7 @@ stick_breaking <- nimble::nimbleFunction(
 
     res <- list(
       fit = outm,
+      fit_df = .values_to_long_df(outm, id = id_vals, value_name = "sample"),
       type = type,
       grid = NULL,
       diagnostics = list(
@@ -2928,6 +3136,7 @@ stick_breaking <- nimble::nimbleFunction(
 
     out <- list(
       fit = fit_df,
+      fit_df = fit_df,
       type = type,
       draws = if (isTRUE(store_draws)) samples_mat else NULL,
       diagnostics = list(
@@ -2944,90 +3153,39 @@ stick_breaking <- nimble::nimbleFunction(
   # mean (posterior mean of predictive distribution)
   # -----------------------------
   if (type == "mean") {
-    nsim_inner <- as.integer(nsim_mean)
-    if (is.na(nsim_inner) || nsim_inner < 10L) nsim_inner <- 200L
-
-    # If GPD and any valid draw has xi >= 1, posterior mean is infinite
-    if (GPD) {
-      if (!is_spliced) {
-        xi_valid <- tail_shape[.draw_valid]
-        if (any(is.finite(xi_valid) & xi_valid >= 1)) {
-          warning("Posterior mean is infinite because there is posterior mass with tail_shape (xi) >= 1. Use type='median'/'quantile' or a restricted-mean target.", call. = FALSE)
-          inf_df <- data.frame(
-            id = if (has_X) id_vals else 1L,
-            estimate = Inf,
-            lower = if (compute_interval) Inf else NA_real_,
-            upper = if (compute_interval) Inf else NA_real_,
-            row.names = NULL
-          )
-          inf_df <- .reorder_predict_cols(inf_df)
-          out <- list(
-            fit = inf_df,
-            type = type,
-            grid = NULL,
-            draws = if (isTRUE(store_draws)) rep(Inf, sum(.draw_valid)) else NULL,
-            diagnostics = list(
-              n_draws_total = S,
-              n_draws_valid = sum(.draw_valid),
-              n_draws_dropped = S - sum(.draw_valid),
-              mean_infinite = TRUE
-            )
-          )
-          class(out) <- "mixgpd_predict"
-          return(.return_out(out))
-        }
-      } else if (!has_X) {
-        inf_draw <- vapply(seq_len(S), function(s) {
-          isTRUE(.draw_valid[s]) && .spliced_mean_infinite(s, 1L, gpd_eta = list())
-        }, logical(1))
-        if (any(inf_draw)) {
-          warning("Posterior mean is infinite because there is posterior mass with tail_shape (xi) >= 1. Use type='median'/'quantile' or a restricted-mean target.", call. = FALSE)
-          inf_df <- data.frame(
-            id = if (length(id_vals) >= 1L) id_vals[1] else 1L,
-            estimate = Inf,
-            lower = if (compute_interval) Inf else NA_real_,
-            upper = if (compute_interval) Inf else NA_real_,
-            row.names = NULL
-          )
-          inf_df <- .reorder_predict_cols(inf_df)
-          out <- list(
-            fit = inf_df,
-            type = type,
-            grid = NULL,
-            draws = if (isTRUE(store_draws)) rep(Inf, S) else NULL,
-            diagnostics = list(
-              n_draws_total = S,
-              n_draws_valid = sum(.draw_valid),
-              n_draws_dropped = S - sum(.draw_valid),
-              mean_infinite = TRUE
-            )
-          )
-          class(out) <- "mixgpd_predict"
-          return(.return_out(out))
-        }
-      }
+    if (is.null(bulk_mean_fun) || !is.function(bulk_mean_fun)) {
+      stop(sprintf("Analytical mean is not implemented for kernel '%s'.", kernel), call. = FALSE)
+    }
+    if (GPD && (is.null(bulk_mean_trunc_fun) || !is.function(bulk_mean_trunc_fun))) {
+      stop(sprintf("Analytical GPD mean is not implemented for kernel '%s'.", kernel), call. = FALSE)
     }
 
-    # Monte Carlo approximation to E[Y | params] per draw, then summarize over posterior draws
     if (!has_X) {
       draw_means <- rep(NA_real_, S)
       for (s in seq_len(S)) {
         if (!.draw_valid[s]) next
         args0 <- .build_args0_or_null(s)
         if (is.null(args0)) next
-        if (is_spliced && GPD) {
-          yy <- .spliced_sample_values(s, 1L, n = nsim_inner, link_eta = list(), gpd_eta = list())
-          draw_means[s] <- mean(yy, na.rm = TRUE)
+
+        if (!GPD) {
+          draw_means[s] <- as.numeric(do.call(bulk_mean_fun, args0))[1]
           next
         }
-        if (GPD) {
-          args0$threshold <- threshold_scalar[s]
-          args0$tail_scale <- tail_scale[s]
-          args0$tail_shape <- .tail_shape_at(s, 1L)
-          if (!is.finite(args0$threshold) || !is.finite(args0$tail_scale) || args0$tail_scale <= 0 || !is.finite(args0$tail_shape)) next
+
+        if (is_spliced) {
+          draw_means[s] <- .analytic_spliced_mean_row(s, 1L, link_eta = list(), gpd_eta = list())
+          next
         }
-        yy <- as.numeric(do.call(r_fun, c(list(n = nsim_inner), args0)))
-        draw_means[s] <- mean(yy, na.rm = TRUE)
+
+        threshold_s <- .threshold_at(s, 1L)
+        tail_scale_s <- .tail_scale_at(s, 1L)
+        tail_shape_s <- .tail_shape_at(s, 1L)
+        if (!is.finite(threshold_s) || !is.finite(tail_scale_s) || tail_scale_s <= 0 || !is.finite(tail_shape_s)) next
+        bulk_args_s <- c(if ("w" %in% names(args0)) list(w = args0$w) else list(), args0[bulk_params])
+        bulk_trunc_s <- as.numeric(do.call(bulk_mean_trunc_fun, c(bulk_args_s, list(threshold = threshold_s))))[1]
+        Fu_s <- as.numeric(do.call(bulk_p_fun, c(list(q = threshold_s, lower.tail = 1L, log.p = 0L), bulk_args_s)))[1]
+        draw_means[s] <- bulk_trunc_s + (1 - .clamp_prob(Fu_s)) *
+          .gpd_tail_mean_or_error(threshold_s, tail_scale_s, tail_shape_s)
       }
 
       summ <- .posterior_summarize(draw_means, probs = probs, interval = if (compute_interval) interval else NULL)
@@ -3043,6 +3201,7 @@ stick_breaking <- nimble::nimbleFunction(
 
       out <- list(
         fit = fit_df,
+        fit_df = fit_df,
         type = type,
         grid = NULL,
         draws = if (isTRUE(store_draws)) draw_means else NULL,
@@ -3050,16 +3209,14 @@ stick_breaking <- nimble::nimbleFunction(
           n_draws_total = S,
           n_draws_valid = sum(.draw_valid),
           n_draws_dropped = S - sum(.draw_valid),
-          nsim_mean = nsim_inner
+          mean_method = "analytic"
         )
       )
       class(out) <- "mixgpd_predict"
       return(.return_out(out))
     }
 
-    # Conditional mean: compute mean per x-row per posterior draw by simulation
     draw_means_mat <- matrix(NA_real_, nrow = S, ncol = n_pred)
-
     for (s in seq_len(S)) {
       if (!.draw_valid[s]) next
       args0 <- .build_args0_or_null(s)
@@ -3070,30 +3227,16 @@ stick_breaking <- nimble::nimbleFunction(
 
       for (i in seq_len(n_pred)) {
         if (is_spliced && GPD) {
-          if (.spliced_mean_infinite(s, i, gpd_eta = gpd_eta)) {
-            draw_means_mat[s, i] <- Inf
-            next
-          }
-          yy <- .spliced_sample_values(s, i, n = nsim_inner, link_eta = link_eta, gpd_eta = gpd_eta)
-          draw_means_mat[s, i] <- mean(yy, na.rm = TRUE)
+          draw_means_mat[s, i] <- .analytic_spliced_mean_row(s, i, link_eta = link_eta, gpd_eta = gpd_eta)
           next
         }
 
         args <- args0
-        if (GPD) {
-          args$threshold <- .threshold_at(s, i)
-          args$tail_scale <- .tail_scale_at(s, i)
-          args$tail_shape <- .tail_shape_at(s, i)
-          if (!is.finite(args$threshold) || !is.finite(args$tail_scale) || args$tail_scale <= 0 || !is.finite(args$tail_shape)) {
-            draw_means_mat[s, i] <- NA_real_
-            next
-          }
-        }
         if (length(link_params)) {
           bad <- FALSE
           for (nm in link_params) {
             vv <- as.numeric(link_eta[[nm]][i, ])
-            if (!all(is.finite(vv))) {
+            if (!.support_ok(nm, vv)) {
               bad <- TRUE
               break
             }
@@ -3105,46 +3248,39 @@ stick_breaking <- nimble::nimbleFunction(
           }
         }
 
-        yy <- as.numeric(do.call(r_fun, c(list(n = nsim_inner), args)))
-        draw_means_mat[s, i] <- mean(yy, na.rm = TRUE)
-      }
-    }
-
-    # Summarize across draws for each i
-    infinite_rows <- apply(draw_means_mat, 2, function(v) any(is.infinite(v)))
-    if (any(infinite_rows)) {
-      warning("Posterior mean is infinite because there is posterior mass with tail_shape (xi) >= 1. Use type='median'/'quantile' or a restricted-mean target.", call. = FALSE)
-    }
-    estimate <- vapply(seq_len(n_pred), function(i) {
-      if (isTRUE(infinite_rows[i])) Inf else mean(draw_means_mat[, i], na.rm = TRUE)
-    }, numeric(1))
-
-    lower <- upper <- NULL
-    if (compute_interval) {
-      lower <- upper <- rep(NA_real_, n_pred)
-      for (i in seq_len(n_pred)) {
-        if (isTRUE(infinite_rows[i])) {
-          lower[i] <- Inf
-          upper[i] <- Inf
-        } else {
-          iv <- .compute_interval(draw_means_mat[, i], level = level, type = interval)
-          lower[i] <- iv["lower"]
-          upper[i] <- iv["upper"]
+        if (!GPD) {
+          draw_means_mat[s, i] <- as.numeric(do.call(bulk_mean_fun, args))[1]
+          next
         }
+
+        threshold_i <- .threshold_at(s, i)
+        tail_scale_i <- .tail_scale_at(s, i)
+        tail_shape_i <- .tail_shape_at(s, i)
+        if (!is.finite(threshold_i) || !is.finite(tail_scale_i) || tail_scale_i <= 0 || !is.finite(tail_shape_i)) {
+          draw_means_mat[s, i] <- NA_real_
+          next
+        }
+        bulk_args_i <- c(if ("w" %in% names(args)) list(w = args$w) else list(), args[bulk_params])
+        bulk_trunc_i <- as.numeric(do.call(bulk_mean_trunc_fun, c(bulk_args_i, list(threshold = threshold_i))))[1]
+        Fu_i <- as.numeric(do.call(bulk_p_fun, c(list(q = threshold_i, lower.tail = 1L, log.p = 0L), bulk_args_i)))[1]
+        draw_means_mat[s, i] <- bulk_trunc_i + (1 - .clamp_prob(Fu_i)) *
+          .gpd_tail_mean_or_error(threshold_i, tail_scale_i, tail_shape_i)
       }
     }
 
+    summ <- .posterior_summarize(t(draw_means_mat), probs = probs, interval = if (compute_interval) interval else NULL)
     fit_df <- data.frame(
       id = id_vals,
-      estimate = as.numeric(estimate),
-      lower = if (compute_interval) as.numeric(lower) else NA_real_,
-      upper = if (compute_interval) as.numeric(upper) else NA_real_,
+      estimate = as.numeric(summ$estimate),
+      lower = if (compute_interval) as.numeric(summ$lower) else NA_real_,
+      upper = if (compute_interval) as.numeric(summ$upper) else NA_real_,
       row.names = NULL
     )
     fit_df <- .reorder_predict_cols(fit_df)
 
     out <- list(
       fit = fit_df,
+      fit_df = fit_df,
       type = type,
       grid = NULL,
       draws = if (isTRUE(store_draws)) draw_means_mat else NULL,
@@ -3152,7 +3288,7 @@ stick_breaking <- nimble::nimbleFunction(
         n_draws_total = S,
         n_draws_valid = sum(.draw_valid),
         n_draws_dropped = S - sum(.draw_valid),
-        nsim_mean = nsim_inner
+        mean_method = "analytic"
       )
     )
     class(out) <- "mixgpd_predict"
@@ -3206,6 +3342,7 @@ stick_breaking <- nimble::nimbleFunction(
 
       out <- list(
         fit = fit_df,
+        fit_df = fit_df,
         type = type,
         grid = NULL,
         cutoff = cutoff,
@@ -3293,6 +3430,7 @@ stick_breaking <- nimble::nimbleFunction(
 
     out <- list(
       fit = fit_df,
+      fit_df = fit_df,
       type = type,
       grid = NULL,
       cutoff = cutoff,

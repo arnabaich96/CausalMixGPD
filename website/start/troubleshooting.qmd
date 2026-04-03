@@ -61,7 +61,7 @@ X_train <- fit$data$X
 X_new <- X_train[1:5, , drop = FALSE]
 X_new <- X_new[, colnames(X_train), drop = FALSE]
 
-predict(fit, x = X_new, type = "mean")
+predict(fit, newdata =X_new, type = "mean")
 ```
 
 ---
@@ -111,7 +111,7 @@ bundle <- bundle(
 ```r
 options(future.globals.maxSize = 4 * 1024^3)
 
-pred <- predict(fit, x = X_new, y = y_grid, type = "density", ncores = 2)
+pred <- predict(fit, newdata =X_new, y = y_grid, type = "density", ncores = 2)
 ```
 
 ---

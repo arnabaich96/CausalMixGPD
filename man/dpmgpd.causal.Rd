@@ -5,31 +5,31 @@
 \title{Fit a causal two-arm Dirichlet process mixture with a spliced GPD tail}
 \usage{
 dpmgpd.causal(
-  x = NULL,
-  data = NULL,
+  y = NULL,
   X = NULL,
   treat = NULL,
+  data = NULL,
+  mcmc = list(),
   formula = NULL,
-  ...,
-  mcmc = list()
+  ...
 )
 }
 \arguments{
-\item{x}{Either a response vector or a causal bundle object.}
-
-\item{data}{Optional data.frame used with \code{formula}.}
+\item{y}{Either a response vector or a causal bundle object.}
 
 \item{X}{Optional design matrix/data.frame.}
 
 \item{treat}{Binary treatment indicator.}
 
-\item{formula}{Optional formula.}
-
-\item{...}{Additional build arguments in build mode.}
+\item{data}{Optional data.frame used with \code{formula}.}
 
 \item{mcmc}{Named list of run arguments passed to \code{mcmc()} (including
 optional performance controls such as \code{parallel_arms},
 \code{workers}, \code{timing}, and \code{z_update_every}).}
+
+\item{formula}{Optional formula.}
+
+\item{...}{Additional build arguments passed to \code{\link{build_causal_bundle}}.}
 }
 \value{
 A fitted object of class \code{"causalmixgpd_causal_fit"}.
@@ -42,13 +42,14 @@ estimation.
 }
 \details{
 The arm-specific predictive distributions
-\eqn{F_1(y \mid x, \mathcal{D})} and \eqn{F_0(y \mid x, \mathcal{D})} inherit
+\eqn{F_1(y \mid x)} and \eqn{F_0(y \mid x)} inherit
 the spliced bulk-tail structure. Downstream causal estimands are computed as
 functionals of these two predictive laws, for example
 \deqn{\mathrm{QTE}(\tau) = Q_1(\tau) - Q_0(\tau), \qquad
 \mathrm{ATE} = E(Y_1) - E(Y_0).}
 }
 \seealso{
+\code{\link{build_causal_bundle}},
 \code{\link{bundle}}, \code{\link{dpmix.causal}},
 \code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
 \code{\link{qte}}, \code{\link{cate}}, \code{\link{cqte}}.

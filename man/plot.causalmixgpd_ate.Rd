@@ -17,7 +17,15 @@
 
 \item{y}{Ignored.}
 
-\item{type}{Character; plot type: \code{"both"} (default), \code{"effect"}, or \code{"arms"}.}
+\item{type}{Character; plot type:
+\itemize{
+\item \code{"both"} (default): returns a list with both
+arm means and treatment-effect plots
+\item \code{"effect"}: ATE curve/points with pointwise CI
+error bars
+\item \code{"arms"}: treated vs control mean with
+pointwise CI error bars
+}}
 
 \item{plotly}{Logical; if \code{TRUE}, convert the \code{ggplot2} output to a
 \code{plotly} / \code{htmlwidget} representation via \code{.wrap_plotly()}. Defaults

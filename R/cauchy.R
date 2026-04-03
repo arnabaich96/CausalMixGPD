@@ -109,6 +109,7 @@ pCauchyMix <- nimble::nimbleFunction(
       }
     }
 
+    if (is.nan(cdf)) cdf <- 0.0
     if (cdf < 0.0) cdf <- 0.0
     if (cdf > 1.0) cdf <- 1.0
 
@@ -211,6 +212,10 @@ qCauchyMix <- function(p, w, location, scale,
   out
 }
 
+meanCauchyMix <- function(w, location, scale) {
+  stop("Mean is not supported for the Cauchy kernel; use type='rmean'.", call. = FALSE)
+}
+
 
 # ==========================================================
 # Lowercase vectorized R wrappers for Cauchy mixture
@@ -287,3 +292,4 @@ rcauchymix <- function(n, w, location, scale) {
   vapply(seq_len(n), function(i) as.numeric(rCauchyMix(1L, w = w, location = location, scale = scale)),
          numeric(1L))
 }
+

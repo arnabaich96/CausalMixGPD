@@ -345,31 +345,154 @@ print.causalmixgpd_causal_fit <- function(x, ...) {
 
 #' Summarize a fitted causal model
 #'
-#' \code{summary.causalmixgpd_causal_fit()} routes the user to the fitted PS
-#' block, treated/control fits, and downstream prediction/effect methods.
+#' \code{summary.causalmixgpd_causal_fit()} returns posterior summaries for the
+#' fitted PS block (when present) and both arm-specific outcome models.
 #'
 #' @param object A \code{"causalmixgpd_causal_fit"} object.
+#' @param pars Optional character vector of outcome-model parameters to
+#'   summarize in both treatment arms. Passed to \code{\link{summary.mixgpd_fit}}.
+#' @param ps_pars Optional character vector of PS-model parameters to summarize.
+#'   If \code{NULL}, all monitored PS parameters are summarized.
+#' @param probs Numeric vector of posterior quantiles to report.
 #' @param ... Unused.
-#' @return The input object (invisibly).
+#' @return An object of class \code{"summary.causalmixgpd_causal_fit"} with
+#'   elements \code{ps}, \code{outcome}, and \code{probs}.
 #' @seealso \code{\link{print.causalmixgpd_causal_fit}},
 #'   \code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
 #'   \code{\link{qte}}, \code{\link{cate}}, \code{\link{cqte}}.
 #' @export
-summary.causalmixgpd_causal_fit <- function(object, ...) {
+summary.causalmixgpd_causal_fit <- function(object, pars = NULL, ps_pars = NULL,
+                                            probs = c(0.025, 0.5, 0.975), ...) {
   stopifnot(inherits(object, "causalmixgpd_causal_fit"))
   bundle <- object$bundle %||% list()
   has_X <- !is.null(bundle$data$X %||% NULL)
   ps_enabled <- isTRUE(bundle$meta$ps$enabled) && has_X
-  if (ps_enabled) {
+  out <- list(
+    ps = if (ps_enabled && inherits(object$ps_fit, "causalmixgpd_ps_fit")) {
+      summary(object$ps_fit, pars = ps_pars, probs = probs)
+    } else {
+      NULL
+    },
+    outcome = list(
+      control = summary(object$outcome_fit$con, pars = pars, probs = probs),
+      treated = summary(object$outcome_fit$trt, pars = pars, probs = probs)
+    ),
+    probs = probs
+  )
+  class(out) <- "summary.causalmixgpd_causal_fit"
+  out
+}
+
+.coerce_draws_matrix <- function(samples) {
+  if (is.null(samples)) return(NULL)
+  if (inherits(samples, "mcmc.list")) {
+    mats <- lapply(samples, function(ch) as.matrix(ch))
+    return(do.call(rbind, mats))
+  }
+  if (inherits(samples, "mcmc")) {
+    return(as.matrix(samples))
+  }
+  if (is.matrix(samples)) {
+    return(samples)
+  }
+  if (is.data.frame(samples)) {
+    return(as.matrix(samples))
+  }
+  mat <- tryCatch(as.matrix(samples), error = function(e) NULL)
+  if (is.null(mat) || !is.matrix(mat)) {
+    stop("Expected posterior samples as a matrix, mcmc, or mcmc.list.", call. = FALSE)
+  }
+  mat
+}
+
+.summarize_draws_matrix <- function(mat, pars = NULL, probs = c(0.025, 0.5, 0.975)) {
+  if (!requireNamespace("coda", quietly = TRUE)) {
+    stop("Package 'coda' is required for summary().", call. = FALSE)
+  }
+  if (is.null(mat) || !nrow(mat) || !ncol(mat)) {
+    return(data.frame(
+      parameter = character(0),
+      mean = numeric(0),
+      sd = numeric(0),
+      ess = numeric(0),
+      stringsAsFactors = FALSE
+    ))
+  }
+  if (is.null(colnames(mat))) {
+    colnames(mat) <- paste0("V", seq_len(ncol(mat)))
+  }
+
+  all_pars <- colnames(mat)
+  if (is.null(pars)) {
+    pars <- all_pars
+  } else {
+    .match_summary_pars <- function(tokens, all_params) {
+      hits <- character(0)
+      for (tok in tokens) {
+        if (tok %in% all_params) {
+          hits <- c(hits, tok)
+          next
+        }
+        tok_esc <- gsub("([][{}()+*^$|\\\\?.])", "\\\\\\1", tok)
+        pref <- grep(paste0("^", tok_esc, "(\\[|$)"), all_params, value = TRUE)
+        if (!length(pref)) {
+          stop("Unknown params: ", tok, call. = FALSE)
+        }
+        hits <- c(hits, pref)
+      }
+      unique(hits)
+    }
+    pars <- .match_summary_pars(pars, all_pars)
+    mat <- mat[, pars, drop = FALSE]
+  }
+
+  meanv <- colMeans(mat, na.rm = TRUE)
+  sdv <- apply(mat, 2, stats::sd, na.rm = TRUE)
+  qmat <- t(apply(mat, 2, stats::quantile, probs = probs, na.rm = TRUE, names = FALSE))
+  colnames(qmat) <- paste0("q", formatC(probs, format = "f", digits = 3))
+
+  ess_vec <- rep(NA_real_, ncol(mat))
+  for (j in seq_len(ncol(mat))) {
+    v <- mat[, j]
+    v <- v[is.finite(v)]
+    if (length(v) >= 3L) {
+      ess_vec[j] <- as.numeric(coda::effectiveSize(coda::mcmc(v)))
+    }
+  }
+  names(ess_vec) <- colnames(mat)
+
+  out <- data.frame(
+    parameter = pars,
+    mean = as.numeric(meanv[pars]),
+    sd = as.numeric(sdv[pars]),
+    qmat[pars, , drop = FALSE],
+    ess = as.numeric(ess_vec[pars]),
+    stringsAsFactors = FALSE
+  )
+  rownames(out) <- NULL
+  out
+}
+
+#' Print a causal-model summary object
+#'
+#' @param x A \code{"summary.causalmixgpd_causal_fit"} object.
+#' @param digits Number of digits to print in summary tables.
+#' @param max_rows Maximum rows to print from each summary table.
+#' @param ... Unused.
+#' @return \code{x} invisibly.
+#' @export
+print.summary.causalmixgpd_causal_fit <- function(x, digits = 3, max_rows = 60, ...) {
+  stopifnot(inherits(x, "summary.causalmixgpd_causal_fit"))
+  if (!is.null(x$ps)) {
     cat("-- PS fit --\n")
-    print(object$ps_fit)
+    print(x$ps, digits = digits, max_rows = max_rows)
   }
   cat("\n-- Outcome fits --\n")
   cat("[control]\n")
-  print(object$outcome_fit$con)
+  print(x$outcome$control, digits = digits, max_rows = max_rows)
   cat("\n[treated]\n")
-  print(object$outcome_fit$trt)
-  invisible(object)
+  print(x$outcome$treated, digits = digits, max_rows = max_rows)
+  invisible(x)
 }
 
 #' Print a propensity score fit
@@ -391,10 +514,90 @@ print.causalmixgpd_ps_fit <- function(x, ...) {
   invisible(x)
 }
 
+#' Summarize a propensity score fit
+#'
+#' \code{summary.causalmixgpd_ps_fit()} returns posterior summaries for the
+#' monitored PS-model parameters.
+#'
+#' @param object A \code{"causalmixgpd_ps_fit"} object.
+#' @param pars Optional character vector of PS parameters to summarize. If
+#'   \code{NULL}, summarize all monitored parameters.
+#' @param probs Numeric vector of posterior quantiles to report.
+#' @param ... Unused.
+#' @return An object of class \code{"summary.causalmixgpd_ps_fit"} with
+#'   elements \code{model} and \code{table}.
 #' @export
-summary.causalmixgpd_ps_fit <- function(object, ...) {
-  print.causalmixgpd_ps_fit(object)
-  invisible(object)
+summary.causalmixgpd_ps_fit <- function(object, pars = NULL,
+                                        probs = c(0.025, 0.5, 0.975), ...) {
+  stopifnot(inherits(object, "causalmixgpd_ps_fit"))
+  samples <- object$mcmc$samples %||% object$samples %||% NULL
+  mat <- .coerce_draws_matrix(samples)
+  tab <- .summarize_draws_matrix(mat, pars = pars, probs = probs)
+
+  bundle <- object$bundle %||% list()
+  model_type <- bundle$spec$meta$type %||% "ps_logit"
+  model_label <- switch(model_type,
+                        ps_logit = "logit",
+                        ps_probit = "probit",
+                        ps_naive = "naive",
+                        model_type)
+
+  data_x <- bundle$data$X %||% NULL
+  out <- list(
+    model = list(
+      type = model_type,
+      label = model_label,
+      n = if (is.null(data_x)) NA_integer_ else nrow(as.matrix(data_x)),
+      p = if (is.null(data_x)) NA_integer_ else ncol(as.matrix(data_x)),
+      monitors = bundle$monitors %||% character(0)
+    ),
+    table = tab
+  )
+  class(out) <- "summary.causalmixgpd_ps_fit"
+  out
+}
+
+#' Print a propensity-score summary object
+#'
+#' @param x A \code{"summary.causalmixgpd_ps_fit"} object.
+#' @param digits Number of digits to print in summary tables.
+#' @param max_rows Maximum rows to print from the summary table.
+#' @param show_ess Logical; if \code{TRUE}, include the \code{ess} column when present.
+#' @param ... Unused.
+#' @return \code{x} invisibly.
+#' @export
+print.summary.causalmixgpd_ps_fit <- function(x, digits = 3, max_rows = 60, show_ess = FALSE, ...) {
+  stopifnot(inherits(x, "summary.causalmixgpd_ps_fit"))
+  model <- x$model %||% list()
+  cat("CausalMixGPD PS fit summary\n")
+  cat("model:", model$label %||% model$type %||% "<unknown>", "\n")
+  if (is.finite(model$n %||% NA_integer_) || is.finite(model$p %||% NA_integer_)) {
+    cat(sprintf("n = %s | predictors = %s\n",
+                ifelse(is.finite(model$n %||% NA_integer_), model$n, "<unknown>"),
+                ifelse(is.finite(model$p %||% NA_integer_), model$p, "<unknown>")))
+  }
+  if (length(model$monitors %||% character(0))) {
+    cat("Monitors:", paste(model$monitors, collapse = ", "), "\n")
+  }
+
+  tab_print <- x$table %||% data.frame()
+  if (!nrow(tab_print)) {
+    cat("\nNo posterior samples available for PS summary.\n")
+    return(invisible(x))
+  }
+
+  cat("\nSummary table\n")
+  num_cols <- vapply(tab_print, is.numeric, logical(1))
+  tab_print[num_cols] <- lapply(tab_print[num_cols], function(v) round(v, digits))
+  if (!isTRUE(show_ess) && "ess" %in% names(tab_print)) {
+    tab_print$ess <- NULL
+  }
+  if (nrow(tab_print) > max_rows) {
+    cat(sprintf("Showing first %d of %d parameters.\n\n", max_rows, nrow(tab_print)))
+    tab_print <- tab_print[seq_len(max_rows), , drop = FALSE]
+  }
+  print_fmt3(tab_print, row.names = FALSE)
+  invisible(x)
 }
 
 #' Plot the treated and control outcome fits from a causal model
@@ -407,8 +610,9 @@ summary.causalmixgpd_ps_fit <- function(object, ...) {
 #'   \code{0} or \code{"control"} for control.
 #' @param ... Additional arguments forwarded to the underlying outcome plot method.
 #' @return The result of the underlying plot call (invisibly).
-#' @seealso \code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
-#'   \code{\link{qte}}, \code{\link{plot.mixgpd_fit}}.
+#' @seealso \code{\link{plot.mixgpd_fit}},
+#'   \code{\link{predict.causalmixgpd_causal_fit}}, \code{\link{ate}},
+#'   \code{\link{qte}}.
 #' @export
 plot.causalmixgpd_causal_fit <- function(x, arm = "both", ...) {
   stopifnot(inherits(x, "causalmixgpd_causal_fit"))
@@ -601,7 +805,10 @@ print.mixgpd_fit <- function(x, ...) {
 #' @details
 #' This extractor is intended for structural inspection of the fitted model.
 #' Scalar quantities remain scalar, component-specific parameters are returned as
-#' vectors, and linked regression blocks are returned as matrices.
+#' vectors, and linked regression blocks are returned as matrices with covariate
+#' names as columns when available. If propensity-score adjustment is active for
+#' a linked bulk parameter, its coefficient is folded into the returned beta
+#' matrix as a leading \code{"PropScore"} column.
 #'
 #' For a spliced model, the extractor returns posterior means of the bulk
 #' mixture parameters together with component-level threshold, tail-scale, and
@@ -611,7 +818,8 @@ print.mixgpd_fit <- function(x, ...) {
 #' @param object A fitted object of class \code{"mixgpd_fit"}.
 #' @param ... Unused.
 #' @return An object of class \code{"mixgpd_params"} (a named list). For
-#'   causal fits, \code{params()} returns a treated/control pair.
+#'   causal fits, \code{params()} returns a treated/control pair and includes
+#'   a \code{ps} block when a propensity-score model was fitted.
 #' @seealso \code{\link{summary.mixgpd_fit}}, \code{\link{predict.mixgpd_fit}},
 #'   \code{\link{ess_summary}}.
 #' @examples
@@ -680,6 +888,36 @@ params.mixgpd_fit <- function(object, ...) {
     out
   }
 
+  .named_beta_row <- function(vec, rowname = "overall") {
+    if (is.null(vec)) return(NULL)
+    vec <- as.numeric(vec)
+    out <- matrix(vec, nrow = 1L)
+    storage.mode(out) <- "double"
+    rownames(out) <- rowname
+    if (!is.null(xnames) && length(xnames) == ncol(out)) {
+      colnames(out) <- xnames
+    }
+    out
+  }
+
+  .prepend_ps_column <- function(beta, beta_ps) {
+    if (is.null(beta_ps)) return(beta)
+    beta_ps <- as.numeric(beta_ps)
+    if (is.null(beta)) {
+      out <- matrix(beta_ps, ncol = 1L)
+      storage.mode(out) <- "double"
+      rownames(out) <- paste0("comp", seq_len(nrow(out)))
+      colnames(out) <- "PropScore"
+      return(out)
+    }
+    if (!is.matrix(beta)) return(beta)
+    if (length(beta_ps) != nrow(beta)) return(beta)
+    out <- cbind(PropScore = beta_ps, beta, deparse.level = 0L)
+    storage.mode(out) <- "double"
+    rownames(out) <- rownames(beta)
+    out
+  }
+
   out <- list()
 
   if ("alpha" %in% cn) out$alpha <- as.numeric(unname(means["alpha"]))
@@ -705,9 +943,9 @@ params.mixgpd_fit <- function(object, ...) {
           if (!is.null(xnames) && length(xnames) == 1L) colnames(beta) <- xnames
         }
       }
-      if (!is.null(beta)) out[[paste0("beta_", nm)]] <- beta
       beta_ps <- .get_vector(paste0("beta_ps_", nm))
-      if (!is.null(beta_ps)) out[[paste0("beta_ps_", nm)]] <- beta_ps
+      beta <- .prepend_ps_column(beta, beta_ps)
+      if (!is.null(beta)) out[[paste0("beta_", nm)]] <- beta
     }
   }
 
@@ -724,7 +962,7 @@ params.mixgpd_fit <- function(object, ...) {
       }
     } else if (identical(thr_mode, "link")) {
       beta_thr <- .get_matrix("beta_threshold")
-      if (is.null(beta_thr)) beta_thr <- .get_vector("beta_threshold")
+      if (is.null(beta_thr)) beta_thr <- .named_beta_row(.get_vector("beta_threshold"))
       if (!is.null(beta_thr)) out$beta_threshold <- beta_thr
       if (!is.null(gpd$threshold$link_dist) &&
           identical(gpd$threshold$link_dist$dist, "lognormal") &&
@@ -738,7 +976,7 @@ params.mixgpd_fit <- function(object, ...) {
     ts_mode <- gpd$tail_scale$mode %||% NA_character_
     if (identical(ts_mode, "link")) {
       beta_ts <- .get_matrix("beta_tail_scale")
-      if (is.null(beta_ts)) beta_ts <- .get_vector("beta_tail_scale")
+      if (is.null(beta_ts)) beta_ts <- .named_beta_row(.get_vector("beta_tail_scale"))
       if (!is.null(beta_ts)) out$beta_tail_scale <- beta_ts
     } else if (ts_mode %in% c("fixed", "dist")) {
       if (is_spliced) {
@@ -755,7 +993,7 @@ params.mixgpd_fit <- function(object, ...) {
     tsh_mode <- gpd$tail_shape$mode %||% NA_character_
     if (identical(tsh_mode, "link")) {
       beta_tsh <- .get_matrix("beta_tail_shape")
-      if (is.null(beta_tsh)) beta_tsh <- .get_vector("beta_tail_shape")
+      if (is.null(beta_tsh)) beta_tsh <- .named_beta_row(.get_vector("beta_tail_shape"))
       if (!is.null(beta_tsh)) out$beta_tail_shape <- beta_tsh
     } else if (is_spliced) {
       tail_shape <- .get_vector("tail_shape")
@@ -808,12 +1046,85 @@ params.mixgpd_fit <- function(object, ...) {
 }
 
 #' @export
+params.causalmixgpd_ps_fit <- function(object, ...) {
+  stopifnot(inherits(object, "causalmixgpd_ps_fit"))
+
+  samples <- object$mcmc$samples %||% object$samples %||% NULL
+  mat <- .coerce_draws_matrix(samples)
+  means <- colMeans(mat, na.rm = TRUE)
+  means[!is.finite(means)] <- NA_real_
+  cn <- names(means)
+
+  ps_bundle <- object$bundle %||% list()
+  ps_model <- ps_bundle$spec$model %||% "logit"
+  X <- ps_bundle$data$X %||% NULL
+  xnames <- if (!is.null(X) && !is.null(colnames(X))) colnames(X) else NULL
+
+  .get_vector <- function(prefix, row_pattern = "[0-9]+") {
+    cols <- grep(paste0("^", prefix, "\\[", row_pattern, "\\]$"), cn, value = TRUE)
+    if (!length(cols)) return(NULL)
+    idx <- as.integer(sub(paste0("^", prefix, "\\[(", row_pattern, ")\\]$"), "\\1", cols))
+    ord <- order(idx, na.last = NA)
+    vec <- as.numeric(unname(means[cols][ord]))
+    storage.mode(vec) <- "double"
+    vec
+  }
+
+  .get_matrix <- function(prefix) {
+    cols <- grep(paste0("^", prefix, "\\[[0-9]+,\\s*[0-9]+\\]$"), cn, value = TRUE)
+    if (!length(cols)) return(NULL)
+    idx1 <- as.integer(sub(paste0("^", prefix, "\\[([0-9]+),\\s*([0-9]+)\\]$"), "\\1", cols))
+    idx2 <- as.integer(sub(paste0("^", prefix, "\\[([0-9]+),\\s*([0-9]+)\\]$"), "\\2", cols))
+    n1 <- max(idx1)
+    n2 <- max(idx2)
+    out <- matrix(NA_real_, nrow = n1, ncol = n2)
+    for (i in seq_along(cols)) {
+      out[idx1[i], idx2[i]] <- as.numeric(unname(means[cols[i]]))
+    }
+    storage.mode(out) <- "double"
+    if (!is.null(xnames) && length(xnames) == n2) colnames(out) <- xnames
+    out
+  }
+
+  out <- list()
+
+  if (ps_model %in% c("logit", "probit")) {
+    beta <- .get_vector("beta")
+    if (!is.null(beta)) {
+      if (!is.null(xnames) && length(xnames) == length(beta)) {
+        names(beta) <- xnames
+      }
+      out$beta <- beta
+    }
+  } else if (identical(ps_model, "naive")) {
+    if ("pi_prior" %in% cn) {
+      out$pi_prior <- as.numeric(unname(means["pi_prior"]))
+    }
+    mu <- .get_matrix("mu")
+    if (!is.null(mu)) {
+      rownames(mu) <- c("control", "treated")[seq_len(nrow(mu))]
+      out$mu <- mu
+    }
+    sigma <- .get_matrix("sigma")
+    if (!is.null(sigma)) {
+      rownames(sigma) <- c("control", "treated")[seq_len(nrow(sigma))]
+      out$sigma <- sigma
+    }
+  }
+
+  class(out) <- "mixgpd_params"
+  out
+}
+
+#' @export
 params.causalmixgpd_causal_fit <- function(object, ...) {
   stopifnot(inherits(object, "causalmixgpd_causal_fit"))
-  out <- list(
-    treated = params(object$outcome_fit$trt, ...),
-    control = params(object$outcome_fit$con, ...)
-  )
+  out <- list()
+  if (inherits(object$ps_fit, "causalmixgpd_ps_fit")) {
+    out$ps <- params(object$ps_fit, ...)
+  }
+  out$treated <- params(object$outcome_fit$trt, ...)
+  out$control <- params(object$outcome_fit$con, ...)
   class(out) <- "mixgpd_params_pair"
   out
 }
@@ -869,6 +1180,10 @@ print.mixgpd_params <- function(x, digits = 4, ...) {
 #' @export
 print.mixgpd_params_pair <- function(x, digits = 4, ...) {
   cat("Posterior mean parameters (causal)\n")
+  if (!is.null(x$ps)) {
+    cat("\n[ps]\n")
+    print(x$ps, digits = digits, ...)
+  }
   cat("\n[treated]\n")
   print(x$treated, digits = digits, ...)
   cat("\n[control]\n")
@@ -942,6 +1257,7 @@ summary.mixgpd_fit <- function(object, pars = NULL, probs = c(0.025, 0.5, 0.975)
 #' @param x A \code{"mixgpd_summary"} object.
 #' @param digits Number of digits to print.
 #' @param max_rows Maximum rows to print.
+#' @param show_ess Logical; if \code{TRUE}, include the \code{ess} column when present.
 #' @param ... Unused.
 #' @return \code{x} invisibly.
 #' @examples
@@ -954,7 +1270,7 @@ summary.mixgpd_fit <- function(object, pars = NULL, probs = c(0.025, 0.5, 0.975)
 #' summary(fit)
 #' }
 #' @export
-print.mixgpd_summary <- function(x, digits = 3, max_rows = 60, ...) {
+print.mixgpd_summary <- function(x, digits = 3, max_rows = 60, show_ess = FALSE, ...) {
   stopifnot(inherits(x, "mixgpd_summary"))
   model <- x$model %||% list()
   waic <- x$waic
@@ -997,6 +1313,9 @@ print.mixgpd_summary <- function(x, digits = 3, max_rows = 60, ...) {
     tab_print <- x$table
     num_cols <- vapply(tab_print, is.numeric, logical(1))
     tab_print[num_cols] <- lapply(tab_print[num_cols], function(v) round(v, digits))
+    if (!isTRUE(show_ess) && "ess" %in% names(tab_print)) {
+      tab_print$ess <- NULL
+    }
     if (nrow(tab_print) > max_rows) {
       pieces <- c(pieces, list(sprintf("Showing first %d of %d parameters.", max_rows, nrow(tab_print)), ""))
       tab_print <- tab_print[seq_len(max_rows), , drop = FALSE]
@@ -1037,6 +1356,9 @@ print.mixgpd_summary <- function(x, digits = 3, max_rows = 60, ...) {
   tab_print <- x$table
   num_cols <- vapply(tab_print, is.numeric, logical(1))
   tab_print[num_cols] <- lapply(tab_print[num_cols], function(v) round(v, digits))
+  if (!isTRUE(show_ess) && "ess" %in% names(tab_print)) {
+    tab_print$ess <- NULL
+  }
 
   if (nrow(tab_print) > max_rows) {
     cat(sprintf("Showing first %d of %d parameters.\n\n", max_rows, nrow(tab_print)))
@@ -1231,15 +1553,33 @@ summary.mixgpd_ess_summary <- function(object, ...) {
 #' Uses ggmcmc to produce standard MCMC diagnostic plots. Works with 1+ chains.
 #'
 #' @param x A fitted object of class \code{"mixgpd_fit"}.
-#' @param family Character vector of plot names (ggmcmc plot types) or a single one.
-#'   Use \code{"auto"} (or \code{"all"}) to include all plots supported for the
-#'   available number of chains/parameters. Supported: \code{histogram, density,
-#'   traceplot, running, compare_partial, autocorrelation, crosscorrelation, Rhat,
-#'   grb, effective, geweke, caterpillar, pairs}.
-#' @param params Optional parameter selector. Either:
-#'   (i) character vector of parameter patterns (exact names or partial matches),
-#'   or (ii) a single regex string (e.g. \code{"alpha|threshold|tail_"}).
-#'   If \code{NULL}, plots all parameters in the samples.
+#' @param family Character vector of plot names (ggmcmc plot types)
+#'   or a single one. Use \code{"auto"} (or \code{"all"}) to include
+#'   all plots supported for the available number of
+#'   chains/parameters. Supported types:
+#'   \itemize{
+#'     \item \code{"histogram"}: posterior histograms
+#'     \item \code{"density"}: posterior density curves
+#'     \item \code{"traceplot"}: MCMC trace plots
+#'     \item \code{"running"}: running mean plots
+#'     \item \code{"compare_partial"}: partial chain comparisons
+#'     \item \code{"autocorrelation"}: autocorrelation plots
+#'     \item \code{"crosscorrelation"}: cross-correlation matrix
+#'     \item \code{"Rhat"}: Gelman--Rubin R-hat (2+ chains)
+#'     \item \code{"grb"}: Gelman--Rubin--Brooks (2+ chains)
+#'     \item \code{"effective"}: effective sample size
+#'     \item \code{"geweke"}: Geweke diagnostic
+#'     \item \code{"caterpillar"}: caterpillar/forest plots
+#'     \item \code{"pairs"}: pairwise scatter plots (2+ params)
+#'   }
+#' @param params Optional parameter selector:
+#'   \itemize{
+#'     \item character vector of parameter patterns (exact names
+#'       or partial matches)
+#'     \item a single regex string
+#'       (e.g. \code{"alpha|threshold|tail_"})
+#'     \item \code{NULL} (default): plots all monitored parameters
+#'   }
 #' @param nLags Number of lags for autocorrelation (ggmcmc).
 #' @param ... Passed through to the underlying ggmcmc plotting functions when applicable.
 #' @return Invisibly returns a named list of ggplot objects.
@@ -1435,38 +1775,39 @@ plot.mixgpd_fit <- function(x,
 #' The method works with posterior predictive functionals rather than raw model
 #' parameters. Supported output types include:
 #' \itemize{
-#'   \item \code{"density"} for \eqn{f(y \mid x, \mathcal{D})},
-#'   \item \code{"survival"} for \eqn{S(y \mid x, \mathcal{D}) = 1 - F(y \mid x, \mathcal{D})},
-#'   \item \code{"quantile"} for \eqn{Q(\tau \mid x, \mathcal{D})},
-#'   \item \code{"mean"} for \eqn{E(Y \mid x, \mathcal{D})},
-#'   \item \code{"rmean"} for \eqn{E\{\min(Y, c) \mid x, \mathcal{D}\}},
+#'   \item \code{"density"} for \eqn{f(y \mid x)},
+#'   \item \code{"survival"} for \eqn{S(y \mid x) = 1 - F(y \mid x)},
+#'   \item \code{"quantile"} for \eqn{Q(\tau \mid x)},
+#'   \item \code{"mean"} for \eqn{E(Y \mid x)},
+#'   \item \code{"rmean"} for \eqn{E\{\min(Y, c) \mid x\}},
 #'   \item \code{"sample"} and \code{"fit"} for draw-level predictive output.
 #' }
 #'
 #' For spliced models these predictions integrate over both the DPM bulk and
 #' the GPD tail using component-specific tail parameters, including link-mode
-#' tail coefficients when present. When \code{type = "mean"}, the function
-#' averages conditional means over posterior draws, so the result is a Bayesian
-#' predictive mean.
+#' tail coefficients when present. For kernels with a finite analytical mean,
+#' \code{type = "mean"} computes the posterior-draw mean analytically and then
+#' summarizes those draw-level means across the posterior. The
+#' \code{type = "rmean"} path remains a separate posterior predictive
+#' simulation pipeline.
 #'
 #' @details
-#' The \code{type="mean"} option computes the posterior predictive mean by:
-#' \enumerate{
-#'   \item For each posterior draw s, computing E(Y | x, theta_s) via Monte Carlo simulation
-#'   \item Averaging these conditional means over the posterior: E(Y | x, data) = mean_s(E(Y | x, theta_s))
-#' }
-#' This accounts for parameter uncertainty and is the Bayesian predictive mean. When the tail
-#' shape parameter xi >= 1 (heavy tail), the mean is undefined and the function returns Inf
-#' with a warning suggesting alternatives like median or restricted mean.
+#' For kernels with an analytical mean, \code{type = "mean"} is computed
+#' analytically within each posterior draw and then summarized over draws. For
+#' GPD-tail fits this analytical path is used when the tail shape parameter
+#' satisfies \eqn{\xi < 1}. If the mean does not exist analytically for the
+#' chosen kernel or if any required GPD tail has \eqn{\xi \ge 1}, the ordinary
+#' mean is undefined and the function errors with a message directing you to
+#' \code{type = "rmean"} or other tail-robust summaries.
 #'
 #' @param object A fitted object of class \code{"mixgpd_fit"}.
-#' @param x Optional new data. Alias for \code{newdata}.
 #' @param newdata Optional new data. If \code{NULL}, uses training design (if stored).
-#' @param id Optional identifier for prediction rows. Provide either a column name
-#'   in \code{x}/\code{newdata} or a vector of length \code{nrow(x)}. The id column
-#'   is excluded from analysis.
+#' @param y Numeric vector of evaluation points (required for \code{type="density"} or \code{"survival"}).
 #' @param ps Optional numeric vector of propensity scores for conditional prediction.
 #'   Used when the model was fit with propensity score augmentation.
+#' @param id Optional identifier for prediction rows. Provide either a column name
+#'   in \code{newdata} or a vector of length \code{nrow(newdata)}. The id column
+#'   is excluded from analysis.
 #' @param type Prediction type:
 #'   \itemize{
 #'     \item \code{"density"}: Posterior predictive density f(y | x, data)
@@ -1482,15 +1823,20 @@ plot.mixgpd_fit <- function(x,
 #'   parameter uncertainty. This differs from the mean of a single model distribution.
 #' @param p Numeric vector of probabilities for quantiles (required for \code{type="quantile"}).
 #' @param index Alias for \code{p}; numeric vector of quantile levels.
-#' @param y Numeric vector of evaluation points (required for \code{type="density"} or \code{"survival"}).
-#' @param level Credible level for credible intervals (default 0.95 for 95 percent intervals).
-#' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
-#'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
-#'   highest posterior density intervals.
-#' @param probs Quantiles for credible interval bands.
 #' @param nsim Number of posterior predictive samples (for \code{type="sample"}).
+#' @param level Credible level for credible intervals (default 0.95 for 95 percent intervals).
+#' @param interval Character or NULL; type of credible interval:
+#'   \itemize{
+#'     \item \code{NULL}: no interval
+#'     \item \code{"credible"} (default): equal-tailed quantile
+#'       intervals
+#'     \item \code{"hpd"}: highest posterior density intervals
+#'   }
+#' @param probs Quantiles for credible interval bands.
 #' @param store_draws Logical; whether to store all posterior draws (for \code{type="sample"}).
-#' @param nsim_mean Number of posterior predictive samples to use for posterior mean estimation (for \code{type="mean"}).
+#' @param nsim_mean Number of posterior predictive samples used by
+#'   simulation-based mean targets. Ignored for analytical
+#'   \code{type = "mean"}; still used for \code{type = "rmean"}.
 #' @param cutoff Finite numeric cutoff for \code{type="rmean"} (restricted mean).
 #' @param ncores Number of CPU cores to use for parallel prediction (if supported).
 #' @param show_progress Logical; if TRUE, print step messages and render progress where supported.
@@ -1506,6 +1852,9 @@ plot.mixgpd_fit <- function(x,
 #'     \item \code{fit}: numeric vector/matrix for \code{type = "sample"}, otherwise a data frame with
 #'       \code{estimate}/\code{lower}/\code{upper} columns (posterior means over draws) plus any index
 #'       columns (e.g. \code{id}, \code{y}, \code{index}).
+#'     \item \code{fit_df}: a machine-readable data frame view of the prediction output. For
+#'       non-sample types this aliases \code{fit}; for \code{type = "sample"} it is a long-form
+#'       data frame with draw indices and sampled values.
 #'     \item \code{lower}, \code{upper}: reserved for backward compatibility (typically \code{NULL}).
 #'     \item \code{type}, \code{grid}: metadata.
 #'   }
@@ -1530,11 +1879,10 @@ plot.mixgpd_fit <- function(x,
 #' }
 #' @export
 predict.mixgpd_fit <- function(object,
-                               x = NULL,
+                               newdata = NULL,
                                y = NULL,
                                ps = NULL,
                                id = NULL,
-                               newdata = NULL,
                                type = c("density", "survival",
                                         "quantile", "sample", "mean", "rmean", "median", "fit"),
                                p = NULL,
@@ -1565,12 +1913,6 @@ predict.mixgpd_fit <- function(object,
   if (!is.null(interval)) {
     interval <- match.arg(interval, choices = c("credible", "hpd"))
   }
-
-  # Backwards-compat: allow newdata alias for x
-  if (!is.null(newdata) && !is.null(x)) {
-    stop("Provide only one of 'x' or 'newdata' (they are aliases).", call. = FALSE)
-  }
-  if (!is.null(newdata) && is.null(x)) x <- newdata
 
   # Alias p -> index for quantile, with conflict check
   if (type == "quantile") {
@@ -1613,7 +1955,7 @@ predict.mixgpd_fit <- function(object,
   if (is.na(ncores) || ncores < 1L) stop("'ncores' must be an integer >= 1.", call. = FALSE)
 
   .predict_mixgpd(object,
-                  x = x,
+                  x = newdata,
                   y = y,
                   ps = ps,
                   id = id,
@@ -1644,12 +1986,22 @@ predict.mixgpd_fit <- function(object,
 #' matrix. It is available only when the fitted model stored covariates.
 #'
 #' @param object A fitted object of class \code{"mixgpd_fit"} (must have covariates).
-#' @param type Which fitted functional to return: mean, median, or quantile.
+#' @param type Which fitted functional to return:
+#'   \itemize{
+#'     \item \code{"mean"}: posterior predictive mean
+#'     \item \code{"median"}: posterior predictive median
+#'     \item \code{"quantile"}: posterior predictive quantile
+#'       at level \code{p}
+#'   }
 #' @param p Quantile level used when \code{type = "quantile"}.
 #' @param level Credible level for confidence intervals (default 0.95 for 95 percent credible intervals).
-#' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
-#'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
-#'   highest posterior density intervals.
+#' @param interval Character or NULL; type of credible interval:
+#'   \itemize{
+#'     \item \code{NULL}: no interval
+#'     \item \code{"credible"} (default): equal-tailed quantile
+#'       intervals
+#'     \item \code{"hpd"}: highest posterior density intervals
+#'   }
 #' @param seed Random seed used for deterministic fitted values.
 #' @param ... Unused.
 #' @return A data frame with columns for fitted values, optional intervals, and
@@ -1696,7 +2048,7 @@ fitted.mixgpd_fit <- function(object, type = c("mean", "median", "quantile"),
   if (is.null(X)) stop("fitted() is not supported for unconditional models (no covariates). Use predict() for predictions.", call. = FALSE)
 
   if (type == "quantile") {
-    pred <- predict(object, x = X, type = "quantile",
+    pred <- predict(object, newdata = X, type = "quantile",
                     index = p, level = level, interval = interval)
     fit_df <- pred$fit
     if ("id" %in% names(fit_df)) fit_df <- fit_df[order(fit_df$id), , drop = FALSE]
@@ -1712,7 +2064,7 @@ fitted.mixgpd_fit <- function(object, type = c("mean", "median", "quantile"),
       }
     }
   } else if (!is.null(X)) {
-    pred <- predict(object, x = X, type = type,
+    pred <- predict(object, newdata = X, type = type,
                     level = level, interval = interval)
     fit_df <- pred$fit
     if ("id" %in% names(fit_df)) fit_df <- fit_df[order(fit_df$id), , drop = FALSE]
@@ -1754,7 +2106,12 @@ fitted.mixgpd_fit <- function(object, type = c("mean", "median", "quantile"),
 #' design matrix is stored for observation-specific fitted values.
 #'
 #' @param object A fitted object of class \code{"mixgpd_fit"} (must have covariates).
-#' @param type Residual type: \code{"raw"} or \code{"pit"}.
+#' @param type Residual type:
+#'   \itemize{
+#'     \item \code{"raw"}: observed minus fitted values
+#'     \item \code{"pit"}: probability integral transform
+#'       residuals (see \code{pit} argument)
+#'   }
 #' @param fitted_type For \code{type = "raw"}, use fitted means or medians.
 #' @param pit PIT mode for \code{type = "pit"}:
 #'   \itemize{
@@ -2629,6 +2986,9 @@ plot.causalmixgpd_causal_predict <- function(x, y = NULL, ...) {
 
 .causal_effect_table_for_display <- function(df, type = NULL) {
   if (!is.data.frame(df)) return(df)
+  if (.causal_effect_is_conditional(type) && "profile" %in% names(df)) {
+    df <- df[, c("profile", setdiff(names(df), c("profile", "id"))), drop = FALSE]
+  }
   if (!.causal_effect_is_conditional(type) && "id" %in% names(df)) {
     df <- df[, setdiff(names(df), "id"), drop = FALSE]
   }
@@ -2882,14 +3242,23 @@ print.causalmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
   qte_fit <- object$qte$fit %||% NULL
 
   if (is.data.frame(qte_fit)) {
-    keep <- intersect(c("id", "index", "estimate", "lower", "upper"), names(qte_fit))
+    keep <- intersect(c("profile", "id", "index", "estimate", "lower", "upper"), names(qte_fit))
     out <- qte_fit[, keep, drop = FALSE]
     if ("index" %in% names(out)) {
       names(out)[names(out) == "index"] <- "tau"
     }
-    sort_cols <- intersect(c("id", "tau"), names(out))
-    if (length(sort_cols)) {
-      out <- out[do.call(order, out[sort_cols]), , drop = FALSE]
+    if ("profile" %in% names(out)) {
+      out <- out[
+        order(factor(out$profile, levels = unique(out$profile)), out$tau),
+        ,
+        drop = FALSE
+      ]
+      out <- out[, c("profile", setdiff(names(out), c("profile", "id"))), drop = FALSE]
+    } else {
+      sort_cols <- intersect(c("id", "tau"), names(out))
+      if (length(sort_cols)) {
+        out <- out[do.call(order, out[sort_cols]), , drop = FALSE]
+      }
     }
     rownames(out) <- NULL
     return(out)
@@ -2903,11 +3272,18 @@ print.causalmixgpd_ate <- function(x, digits = 3, max_rows = 6, ...) {
       tau = rep(probs, times = nrow(fit_mat)),
       estimate = as.vector(t(fit_mat))
     )
+    profile <- object$profile %||% NULL
+    if (!is.null(profile) && length(profile) == nrow(fit_mat)) {
+      out$profile <- rep(as.character(profile), each = ncol(fit_mat))
+    }
     if (is.matrix(object$lower) && all(dim(object$lower) == dim(fit_mat))) {
       out$lower <- as.vector(t(object$lower))
     }
     if (is.matrix(object$upper) && all(dim(object$upper) == dim(fit_mat))) {
       out$upper <- as.vector(t(object$upper))
+    }
+    if ("profile" %in% names(out)) {
+      out <- out[, c("profile", setdiff(names(out), c("profile", "id"))), drop = FALSE]
     }
     rownames(out) <- NULL
     return(out)
@@ -3224,9 +3600,16 @@ print.summary.causalmixgpd_qte <- function(x, digits = 3, ...) {
   ate_fit <- object$ate$fit %||% NULL
 
   if (is.data.frame(ate_fit)) {
-    keep <- intersect(c("id", "estimate", "lower", "upper"), names(ate_fit))
+    keep <- intersect(c("profile", "id", "estimate", "lower", "upper"), names(ate_fit))
     out <- ate_fit[, keep, drop = FALSE]
-    if ("id" %in% names(out)) {
+    if ("profile" %in% names(out)) {
+      out <- out[
+        order(factor(out$profile, levels = unique(out$profile))),
+        ,
+        drop = FALSE
+      ]
+      out <- out[, c("profile", setdiff(names(out), c("profile", "id"))), drop = FALSE]
+    } else if ("id" %in% names(out)) {
       out <- out[order(out$id), , drop = FALSE]
     }
     rownames(out) <- NULL
@@ -3239,11 +3622,18 @@ print.summary.causalmixgpd_qte <- function(x, digits = 3, ...) {
       id = seq_along(fit_vec),
       estimate = as.numeric(fit_vec)
     )
+    profile <- object$profile %||% NULL
+    if (!is.null(profile) && length(profile) == length(fit_vec)) {
+      out$profile <- as.character(profile)
+    }
     if (is.numeric(object$lower) && length(object$lower) == length(fit_vec)) {
       out$lower <- as.numeric(object$lower)
     }
     if (is.numeric(object$upper) && length(object$upper) == length(fit_vec)) {
       out$upper <- as.numeric(object$upper)
+    }
+    if ("profile" %in% names(out)) {
+      out <- out[, c("profile", setdiff(names(out), c("profile", "id"))), drop = FALSE]
     }
     rownames(out) <- NULL
     return(out)
@@ -3401,31 +3791,6 @@ print.summary.causalmixgpd_ate <- function(x, digits = 3, ...) {
       pieces <- c(pieces, list(""))
     }
 
-    as <- x$ate_stats
-    if (!is.null(as)) {
-      pieces <- c(pieces, list(
-        sprintf("%s statistics:", lbl$short),
-        sprintf("  Mean: %s | Median: %s",
-                fmt3_sci(as$mean_ate, digits = digits), fmt3_sci(as$median_ate, digits = digits)),
-        sprintf("  Range: [%s, %s]",
-                fmt3_sci(as$min_ate, digits = digits), fmt3_sci(as$max_ate, digits = digits))
-      ))
-      if (!is.na(as$sd_ate)) {
-        pieces <- c(pieces, list(sprintf("  SD: %s", fmt3_sci(as$sd_ate, digits = digits))))
-      }
-      pieces <- c(pieces, list(""))
-    }
-
-    ci <- x$ci_summary
-    if (!is.null(ci)) {
-      pieces <- c(pieces, list(
-        "Credible interval width:",
-        sprintf("  Mean: %s | Median: %s",
-                fmt3_sci(ci$mean_width, digits = digits), fmt3_sci(ci$median_width, digits = digits)),
-        sprintf("  Range: [%s, %s]",
-                fmt3_sci(ci$min_width, digits = digits), fmt3_sci(ci$max_width, digits = digits))
-      ))
-    }
     return(do.call(.knitr_asis, pieces))
   }
 
@@ -3471,29 +3836,6 @@ print.summary.causalmixgpd_ate <- function(x, digits = 3, ...) {
     cat("\n")
   }
 
-  as <- x$ate_stats
-  if (!is.null(as)) {
-    cat(sprintf("%s statistics:\n", lbl$short))
-    cat(sprintf("  Mean: %s | Median: %s\n",
-                fmt3_sci(as$mean_ate, digits = digits), fmt3_sci(as$median_ate, digits = digits)))
-    cat(sprintf("  Range: [%s, %s]\n",
-                fmt3_sci(as$min_ate, digits = digits), fmt3_sci(as$max_ate, digits = digits)))
-    if (!is.na(as$sd_ate)) {
-      cat(sprintf("  SD: %s\n", fmt3_sci(as$sd_ate, digits = digits)))
-    }
-    cat("\n")
-  }
-
-  # CI summary
-  ci <- x$ci_summary
-  if (!is.null(ci)) {
-    cat("Credible interval width:\n")
-    cat(sprintf("  Mean: %s | Median: %s\n",
-                fmt3_sci(ci$mean_width, digits = digits), fmt3_sci(ci$median_width, digits = digits)))
-    cat(sprintf("  Range: [%s, %s]\n",
-                fmt3_sci(ci$min_width, digits = digits), fmt3_sci(ci$max_width, digits = digits)))
-  }
-
   invisible(x)
 }
 
@@ -3515,9 +3857,21 @@ print.summary.causalmixgpd_ate <- function(x, digits = 3, ...) {
 #'
 #' @param x Object of class \code{causalmixgpd_qte}.
 #' @param y Ignored.
-#' @param type Character; plot type: \code{"both"} (default), \code{"effect"}, or \code{"arms"}.
-#' @param facet_by Character; faceting strategy when multiple prediction points exist.
-#'   \code{"tau"} (default) facets by quantile level, \code{"id"} facets by prediction point.
+#' @param type Character; plot type:
+#'   \itemize{
+#'     \item \code{"both"} (default): returns a list with both
+#'       arm curves and treatment-effect plots
+#'     \item \code{"effect"}: QTE curve with pointwise CI
+#'       error bars
+#'     \item \code{"arms"}: treated and control quantile curves
+#'       with pointwise CI error bars
+#'   }
+#' @param facet_by Character; faceting strategy when multiple
+#'   prediction points exist:
+#'   \itemize{
+#'     \item \code{"tau"} (default): facets by quantile level
+#'     \item \code{"id"}: facets by prediction point
+#'   }
 #' @param plotly Logical; if \code{TRUE}, convert the \code{ggplot2} output to a
 #'   \code{plotly} / \code{htmlwidget} representation via \code{.wrap_plotly()}. Defaults
 #'   to \code{getOption("CausalMixGPD.plotly", FALSE)}.
@@ -3581,6 +3935,7 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
 
   ps_vec <- x$ps %||% rep(NA_real_, n_pred)
   if (!length(ps_vec)) ps_vec <- rep(NA_real_, n_pred)
+  profile_vec <- x$profile %||% NULL
   ax <- if (any(is.finite(ps_vec))) list(x = ps_vec, label = "Estimated PS") else
     list(x = seq_len(n_pred), label = "Index")
   single_profile_curve <- (n_pred == 1L && length(probs) > 1L)
@@ -3610,14 +3965,19 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
   }
   .hover_qte <- function(df, axis_spec, value_label, group_col = NULL) {
     axis_value <- if (identical(axis_spec$var, "index")) {
-      paste0("Tau: ", .fmt_num(df$index))
+      paste0("\u03C4: ", .fmt_num(df$index))
     } else {
       paste0(axis_spec$label, ": ", .fmt_num(df$ps))
     }
     tau_text <- if (!identical(axis_spec$var, "index") && length(probs) == 1L) {
-      paste0("<br>Tau: ", .fmt_num(df$index))
+      paste0("<br>\u03C4: ", .fmt_num(df$index))
     } else {
       ""
+    }
+    id_label <- if ("profile" %in% names(df)) {
+      paste0("Profile: ", df$profile)
+    } else {
+      paste0("ID: ", df$id)
     }
     group_text <- if (!is.null(group_col)) {
       paste0("<br>Arm: ", df[[group_col]])
@@ -3625,7 +3985,7 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
       ""
     }
     paste0(
-      "ID: ", df$id,
+      id_label,
       group_text,
       "<br>", axis_value,
       tau_text,
@@ -3647,7 +4007,11 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
     if (!("estimate" %in% names(df))) df$estimate <- NA_real_
     if (!("lower" %in% names(df))) df$lower <- NA_real_
     if (!("upper" %in% names(df))) df$upper <- NA_real_
-    df <- df[, c("id", "index", "estimate", "lower", "upper"), drop = FALSE]
+    if (!("profile" %in% names(df)) && !is.null(profile_vec) && length(profile_vec) == n_pred) {
+      df$profile <- rep(as.character(profile_vec), each = length(probs))
+    }
+    keep <- intersect(c("profile", "id", "index", "estimate", "lower", "upper"), names(df))
+    df <- df[, keep, drop = FALSE]
     df
   }
 
@@ -3674,11 +4038,10 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
 
     df_tc <- rbind(df_trt, df_con)
     df_tc$ps <- ax$x[df_tc$id]
-    df_tc$tau <- factor(paste0("\u03C4 = ", df_tc$index), levels = paste0("\u03C4 = ", probs))
+    df_tc$tau <- factor(.fmt_num(df_tc$index), levels = .fmt_num(probs))
     axis_spec <- .x_axis_spec()
     df_tc$x_plot <- if (isTRUE(axis_spec$discrete)) {
-      factor(paste0("\u03C4 = ", .fmt_num(df_tc$index)),
-             levels = paste0("\u03C4 = ", .fmt_num(probs)))
+      factor(.fmt_num(df_tc$index), levels = .fmt_num(probs))
     } else {
       df_tc[[axis_spec$var]]
     }
@@ -3803,11 +4166,13 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
 
     df_te$id <- pmax(1L, pmin(as.integer(df_te$id), length(ax$x)))
     df_te$ps <- ax$x[df_te$id]
-    df_te$tau <- factor(paste0("\u03C4 = ", df_te$index), levels = paste0("\u03C4 = ", probs))
+    if (!("profile" %in% names(df_te)) && !is.null(profile_vec) && length(profile_vec) == n_pred) {
+      df_te$profile <- rep(as.character(profile_vec), each = length(probs))
+    }
+    df_te$tau <- factor(.fmt_num(df_te$index), levels = .fmt_num(probs))
     axis_spec <- .x_axis_spec()
     df_te$x_plot <- if (isTRUE(axis_spec$discrete)) {
-      factor(paste0("\u03C4 = ", .fmt_num(df_te$index)),
-             levels = paste0("\u03C4 = ", .fmt_num(probs)))
+      factor(.fmt_num(df_te$index), levels = .fmt_num(probs))
     } else {
       df_te[[axis_spec$var]]
     }
@@ -3914,7 +4279,15 @@ plot.causalmixgpd_qte <- function(x, y = NULL, type = c("both", "effect", "arms"
 #'
 #' @param x Object of class \code{causalmixgpd_ate}.
 #' @param y Ignored.
-#' @param type Character; plot type: \code{"both"} (default), \code{"effect"}, or \code{"arms"}.
+#' @param type Character; plot type:
+#'   \itemize{
+#'     \item \code{"both"} (default): returns a list with both
+#'       arm means and treatment-effect plots
+#'     \item \code{"effect"}: ATE curve/points with pointwise CI
+#'       error bars
+#'     \item \code{"arms"}: treated vs control mean with
+#'       pointwise CI error bars
+#'   }
 #' @param plotly Logical; if \code{TRUE}, convert the \code{ggplot2} output to a
 #'   \code{plotly} / \code{htmlwidget} representation via \code{.wrap_plotly()}. Defaults
 #'   to \code{getOption("CausalMixGPD.plotly", FALSE)}.
@@ -3948,10 +4321,34 @@ plot.causalmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"
   pr_trt <- x$trt
   pr_con <- x$con
   n_pred <- length(x$fit)
+  is_cate <- identical(tolower(x$type %||% "ate"), "cate")
+  profile_vec <- x$profile %||% NULL
+  if (is.null(profile_vec)) {
+    ate_fit <- x$ate$fit %||% NULL
+    if (is.data.frame(ate_fit) && "profile" %in% names(ate_fit)) {
+      profile_vec <- ate_fit$profile
+    }
+  }
   ps_vec <- x$ps %||% rep(NA_real_, n_pred)
   if (!length(ps_vec)) ps_vec <- rep(NA_real_, n_pred)
-  ax <- if (any(is.finite(ps_vec))) list(x = ps_vec, label = "Estimated PS") else
-    list(x = seq_len(n_pred), label = "Index")
+  if (is_cate) {
+    x_vals <- if (!is.null(profile_vec) && length(profile_vec) == n_pred) {
+      factor(as.character(profile_vec), levels = as.character(profile_vec))
+    } else {
+      factor(as.character(seq_len(n_pred)), levels = as.character(seq_len(n_pred)))
+    }
+    ax <- list(
+      x = x_vals,
+      label = if (!is.null(profile_vec) && length(profile_vec) == n_pred) "Profile" else "Index",
+      discrete = TRUE
+    )
+  } else {
+    ax <- if (any(is.finite(ps_vec))) {
+      list(x = ps_vec, label = "Estimated PS", discrete = FALSE)
+    } else {
+      list(x = seq_len(n_pred), label = "Index", discrete = FALSE)
+    }
+  }
   single_profile <- (n_pred == 1L)
   if (missing(type) && identical(tolower(x$type %||% "ate"), "cate")) {
     type <- "effect"
@@ -3974,14 +4371,23 @@ plot.causalmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"
     )
   }
   .hover_ate <- function(df, value_label, group_col = NULL) {
-    axis_value <- paste0(ax$label, ": ", .fmt_num(df$x_plot))
+    axis_value <- if (isTRUE(ax$discrete)) {
+      paste0(ax$label, ": ", as.character(df$x_plot))
+    } else {
+      paste0(ax$label, ": ", .fmt_num(df$x_plot))
+    }
+    id_label <- if ("profile" %in% names(df)) {
+      paste0("Profile: ", df$profile)
+    } else {
+      paste0("ID: ", df$id)
+    }
     group_text <- if (!is.null(group_col)) {
       paste0("<br>Arm: ", df[[group_col]])
     } else {
       ""
     }
     paste0(
-      "ID: ", df$id,
+      id_label,
       group_text,
       "<br>", axis_value,
       "<br>", value_label, ": ", .fmt_num(df$estimate),
@@ -4044,6 +4450,9 @@ plot.causalmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"
       data.frame(id = seq_len(n_pred), x_plot = ax$x, group = "Control", estimate = con_stats$estimate,
                  lower = con_stats$lower, upper = con_stats$upper)
     )
+    if (!is.null(profile_vec) && length(profile_vec) == n_pred) {
+      df_tc$profile <- rep(as.character(profile_vec), times = 2L)
+    }
     df_tc$hover <- .hover_ate(df_tc, value_label = "Mean Outcome", group_col = "group")
     if (nrow(df_tc)) {
       df_tc <- df_tc[order(df_tc$group, df_tc$x_plot), , drop = FALSE]
@@ -4094,13 +4503,17 @@ plot.causalmixgpd_ate <- function(x, y = NULL, type = c("both", "effect", "arms"
       lower = if (!is.null(x$lower)) as.numeric(x$lower) else NA_real_,
       upper = if (!is.null(x$upper)) as.numeric(x$upper) else NA_real_
     )
+    if (!is.null(profile_vec) && length(profile_vec) == n_pred) {
+      df_te$profile <- as.character(profile_vec)
+    }
     df_te$hover <- .hover_ate(df_te, value_label = lbl$short)
     if (nrow(df_te)) {
       df_te <- df_te[order(df_te$x_plot), , drop = FALSE]
     }
 
     if (single_profile) {
-      p <- ggplot2::ggplot(df_te, ggplot2::aes(x = "ATE", y = estimate, text = hover)) +
+      x_single <- if (is_cate) as.character(df_te$x_plot) else "ATE"
+      p <- ggplot2::ggplot(df_te, ggplot2::aes(x = x_single, y = estimate, text = hover)) +
         ggplot2::geom_point(color = pal[7], size = point_size_single_effect) +
         ggplot2::geom_hline(yintercept = 0, linetype = "dashed", color = "gray50", linewidth = 0.5) +
         .plot_theme() +

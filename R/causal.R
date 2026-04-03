@@ -28,21 +28,44 @@
 #' @param y Numeric outcome vector.
 #' @param X Design matrix or data.frame of covariates (N x P).
 #' @param A Binary treatment indicator (length N, values 0/1).
-#' @param backend Character; \code{"sb"}, \code{"crp"}, or \code{"spliced"} for
-#'   outcome models. If length 2,
-#'   the first entry is used for treated (\code{A=1}) and the second for control (\code{A=0}).
-#' @param kernel Character kernel name for outcome models. If length 2,
-#'   the first entry is used for treated (\code{A=1}) and the second for control (\code{A=0}).
-#' @param GPD Logical; include GPD tail for outcomes if TRUE. If length 2,
-#'   the first entry is used for treated (\code{A=1}) and the second for control (\code{A=0}).
-#' @param components Integer >= 2; truncation parameter for outcome mixtures. If length 2,
-#'   the first entry is used for treated (\code{A=1}) and the second for control (\code{A=0}).
-#' @param param_specs Outcome parameter overrides (same structure as \code{build_nimble_bundle()}).
-#'   You can pass a single list used for both arms or a list with \code{con} and \code{trt} entries.
+#' @param backend Character; the Dirichlet process representation for outcome models:
+#'   \itemize{
+#'     \item \code{"sb"}: stick-breaking truncation
+#'     \item \code{"crp"}: Chinese Restaurant Process
+#'     \item \code{"spliced"}: CRP with GPD tail splicing
+#'   }
+#'   If length 2, the first entry is used for treated (\code{A=1}) and the
+#'   second for control (\code{A=0}).
+#' @param kernel Character kernel name for outcome models (must exist in
+#'   \code{get_kernel_registry()}). If length 2:
+#'   \itemize{
+#'     \item first entry: used for treated (\code{A=1})
+#'     \item second entry: used for control (\code{A=0})
+#'   }
+#' @param GPD Logical; include GPD tail for outcomes if TRUE. If length 2:
+#'   \itemize{
+#'     \item first entry: used for treated (\code{A=1})
+#'     \item second entry: used for control (\code{A=0})
+#'   }
+#' @param components Integer >= 2; truncation parameter for outcome mixtures. If length 2:
+#'   \itemize{
+#'     \item first entry: used for treated (\code{A=1})
+#'     \item second entry: used for control (\code{A=0})
+#'   }
+#' @param param_specs Outcome parameter overrides (same structure as
+#'   \code{build_nimble_bundle()}):
+#'   \itemize{
+#'     \item a single list: used for both arms
+#'     \item a list with \code{con} and \code{trt} entries: arm-specific overrides
+#'   }
 #' @param mcmc_outcome MCMC settings list for the outcome bundles.
 #' @param mcmc_ps MCMC settings list for the PS model.
-#' @param epsilon Numeric in [0,1) used by outcome bundles for posterior truncation summaries.
-#'   If length 2, the first entry is used for treated (\code{A=1}) and the second for control (\code{A=0}).
+#' @param epsilon Numeric in [0,1) used by outcome bundles for posterior truncation
+#'   summaries. If length 2:
+#'   \itemize{
+#'     \item first entry: used for treated (\code{A=1})
+#'     \item second entry: used for control (\code{A=0})
+#'   }
 #' @param alpha_random Logical; whether the outcome-model DP concentration parameter \eqn{\kappa} is stochastic.
 #' @param ps_prior Normal prior for PS coefficients. List with \code{mean} and \code{sd}.
 #' @param include_intercept Logical; if TRUE, an intercept column is prepended to \code{X}
@@ -56,10 +79,22 @@
 #'   }
 #'   The PS model choice is stored in bundle metadata for downstream use in prediction
 #'   and summaries, enabling seamless integration of future PS estimation methods.
-#' @param ps_scale Scale used when augmenting outcomes with PS: \code{"logit"} or \code{"prob"}.
-#' @param ps_summary Posterior summary for PS: \code{"mean"} or \code{"median"}.
+#' @param ps_scale Scale used when augmenting outcomes with PS:
+#'   \itemize{
+#'     \item \code{"logit"}: augment on the logit (log-odds) scale
+#'     \item \code{"prob"}: augment on the probability scale
+#'   }
+#' @param ps_summary Posterior summary for PS:
+#'   \itemize{
+#'     \item \code{"mean"}: posterior mean of propensity scores
+#'     \item \code{"median"}: posterior median of propensity scores
+#'   }
 #' @param ps_clamp Numeric epsilon for clamping PS values to \eqn{(\epsilon, 1-\epsilon)}.
-#' @param monitor Character monitor profile: \code{"core"} (default) or \code{"full"}.
+#' @param monitor Character monitor profile:
+#'   \itemize{
+#'     \item \code{"core"} (default): monitors only the essential model parameters
+#'     \item \code{"full"}: monitors all model nodes
+#'   }
 #' @param monitor_latent Logical; whether to monitor latent cluster labels (\code{z}) in outcome arms.
 #' @param monitor_v Logical; whether to monitor stick-breaking \code{v} terms for SB outcomes.
 #' @return A list of class \code{"causalmixgpd_causal_bundle"} containing the
@@ -368,13 +403,15 @@ build_causal_bundle <- function(
   t0_build <- tic()
   Rmodel <- tryCatch(
     {
+      # Generated PS models are validated before this stage; disabling NIMBLE's
+      # full check avoids a large startup penalty in manuscript workflows.
       .cmgpd_capture_nimble(
         nimble::nimbleModel(
           code = code,
           data = data,
           constants = constants,
           inits = inits,
-          check = TRUE,
+          check = FALSE,
           calculate = FALSE
         ),
         suppress = nimble_quiet
@@ -478,8 +515,8 @@ build_causal_bundle <- function(
 #'
 #' @details
 #' The fitted object contains the posterior draws needed to evaluate arm-level
-#' predictive distributions \eqn{F_1(y \mid x, \mathcal{D})} and
-#' \eqn{F_0(y \mid x, \mathcal{D})}, followed by marginal or conditional causal
+#' predictive distributions \eqn{F_1(y \mid x)} and
+#' \eqn{F_0(y \mid x)}, followed by marginal or conditional causal
 #' contrasts. When \code{PS = FALSE} in the bundle, the PS block is skipped and
 #' outcome prediction uses only the original covariates.
 #'
@@ -615,7 +652,7 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE, quiet = FALSE,
     con_fit <- fit_list[[1]]
     trt_fit <- fit_list[[2]]
   } else {
-    if (parallel_arms) {
+    if (parallel_arms && !isTRUE(quiet) && !isTRUE(show_progress)) {
       warning("parallel_arms=TRUE requested but 'future'/'future.apply' are unavailable; running sequentially.",
               call. = FALSE)
     }
@@ -735,8 +772,8 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE, quiet = FALSE,
 #'
 #' @details
 #' For each prediction row \eqn{x}, the conditional quantile treatment effect is
-#' \deqn{\mathrm{CQTE}(\tau, x) = Q_1(\tau \mid x, \mathcal{D}) -
-#' Q_0(\tau \mid x, \mathcal{D}).}
+#' \deqn{\mathrm{CQTE}(\tau, x) = Q_1(\tau \mid x) -
+#' Q_0(\tau \mid x).}
 #'
 #' This estimand is available only for conditional causal models with
 #' covariates. For marginal quantile contrasts over the empirical covariate
@@ -750,14 +787,18 @@ run_mcmc_causal <- function(bundle, show_progress = TRUE, quiet = FALSE,
 #'   of the outcome distribution to estimate treatment effects at.
 #' @param newdata Optional data.frame or matrix of covariates for prediction.
 #'   If \code{NULL}, uses the training covariates stored in \code{fit}.
-#' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
-#'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
-#'   highest posterior density intervals.
+#' @param interval Character or NULL; type of credible interval:
+#'   \itemize{
+#'     \item \code{NULL}: no interval
+#'     \item \code{"credible"} (default): equal-tailed quantile intervals
+#'     \item \code{"hpd"}: highest posterior density intervals
+#'   }
 #' @param level Numeric credible level for intervals (default 0.95 for 95 percent CI).
 #' @param show_progress Logical; if TRUE, print step messages and render progress where supported.
 #' @return An object of class \code{"causalmixgpd_qte"} containing the CQTE
 #'   summary, the probability grid, and the treated/control prediction objects
-#'   used to construct the effect.
+#'   used to construct the effect. The returned object includes a top-level
+#'   \code{$fit_df} data frame for direct extraction.
 #' @seealso \code{\link{qte}}, \code{\link{qtt}}, \code{\link{cate}},
 #'   \code{\link{predict.causalmixgpd_causal_fit}}.
 #' @examples
@@ -834,13 +875,13 @@ cqte <- function(fit,
   }
 
   .cmgpd_progress_step(progress_ctx, "Predicting treated-arm quantiles")
-  pr_trt <- predict(fit$outcome_fit$trt, x = x_pred, type = "quantile", index = probs,
+  pr_trt <- predict(fit$outcome_fit$trt, newdata = x_pred, type = "quantile", index = probs,
                     ps = ps_cov,
                     interval = if (compute_interval) interval else NULL,
                     store_draws = TRUE,
                     show_progress = FALSE)
   .cmgpd_progress_step(progress_ctx, "Predicting control-arm quantiles")
-  pr_con <- predict(fit$outcome_fit$con, x = x_pred, type = "quantile", index = probs,
+  pr_con <- predict(fit$outcome_fit$con, newdata = x_pred, type = "quantile", index = probs,
                     ps = ps_cov,
                     interval = if (compute_interval) interval else NULL,
                     store_draws = TRUE,
@@ -893,6 +934,7 @@ cqte <- function(fit,
   n_pred <- if (!is.null(dim(pr_trt$draws))) dim(pr_trt$draws)[2] else length(pr_trt$fit)
   n_prob <- length(probs)
   fit_mat <- matrix(fit_mat, nrow = n_pred, ncol = n_prob)
+  profile_labels <- .causal_profile_labels(x_pred = x_pred, newdata = newdata)
   lower <- upper <- NULL
   if (compute_interval) {
     # Compute intervals for each (prediction, quantile) combination
@@ -915,6 +957,9 @@ cqte <- function(fit,
     lower = if (!is.null(lower)) as.vector(t(lower)) else NA_real_,
     upper = if (!is.null(upper)) as.vector(t(upper)) else NA_real_
   )
+  if (!is.null(profile_labels)) {
+    qte_fit$profile <- rep(profile_labels, each = n_prob)
+  }
   qte_fit <- .reorder_predict_cols(qte_fit)
 
   # Extract meta from causal fit
@@ -922,6 +967,7 @@ cqte <- function(fit,
 
   out <- list(
     fit = fit_mat,
+    fit_df = qte_fit,
     lower = lower,
     upper = upper,
     qte = list(fit = qte_fit, draws = diff_draws),
@@ -929,7 +975,10 @@ cqte <- function(fit,
     grid = probs,
     trt = pr_trt,
     con = pr_con,
+    trt_fit_df = pr_trt$fit_df %||% pr_trt$fit %||% NULL,
+    con_fit_df = pr_con$fit_df %||% pr_con$fit %||% NULL,
     x = x_pred,
+    profile = profile_labels,
     ps = ps_prob,
     n_pred = n_pred,
     level = level,
@@ -956,15 +1005,18 @@ cqte <- function(fit,
 #'
 #' @details
 #' For each prediction row \eqn{x}, the conditional average treatment effect is
-#' \deqn{\mathrm{CATE}(x) = E\{Y(1) \mid x, \mathcal{D}\} -
-#' E\{Y(0) \mid x, \mathcal{D}\}.}
+#' \deqn{\mathrm{CATE}(x) = E\{Y(1) \mid x\} -
+#' E\{Y(0) \mid x\}.}
 #'
 #' With \code{type = "rmean"}, the estimand becomes the conditional restricted
 #' mean contrast
-#' \deqn{E\{\min(Y(1), c) \mid x, \mathcal{D}\} -
-#' E\{\min(Y(0), c) \mid x, \mathcal{D}\},}
+#' \deqn{E\{\min(Y(1), c) \mid x\} -
+#' E\{\min(Y(0), c) \mid x\},}
 #' which remains finite even when the ordinary mean is unstable under a heavy
 #' GPD tail.
+#' For outcome kernels with a finite analytical mean, the ordinary mean path is
+#' analytical within each posterior draw; \code{rmean} remains a separate
+#' simulation-based estimand.
 #'
 #' This estimand is available only for conditional causal models with
 #' covariates. For marginal mean contrasts, use \code{\link{ate}} or
@@ -973,19 +1025,27 @@ cqte <- function(fit,
 #' @param fit A \code{"causalmixgpd_causal_fit"} object from \code{run_mcmc_causal()}.
 #' @param newdata Optional data.frame or matrix of covariates for prediction.
 #'   If \code{NULL}, uses the training covariates stored in \code{fit}.
-#' @param type Character; \code{"mean"} (default) for ordinary mean CATE or
-#'   \code{"rmean"} for restricted-mean CATE.
+#' @param type Character; type of mean treatment effect:
+#'   \itemize{
+#'     \item \code{"mean"} (default): ordinary mean CATE
+#'     \item \code{"rmean"}: restricted-mean CATE (requires \code{cutoff})
+#'   }
 #' @param cutoff Finite numeric cutoff for restricted mean; required for
 #'   \code{type = "rmean"}, ignored otherwise.
-#' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
-#'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
-#'   highest posterior density intervals.
+#' @param interval Character or NULL; type of credible interval:
+#'   \itemize{
+#'     \item \code{NULL}: no interval
+#'     \item \code{"credible"} (default): equal-tailed quantile intervals
+#'     \item \code{"hpd"}: highest posterior density intervals
+#'   }
 #' @param level Numeric credible level for intervals (default 0.95 for 95 percent CI).
-#' @param nsim_mean Number of posterior predictive draws to approximate the mean.
+#' @param nsim_mean Number of posterior predictive draws used by simulation-based
+#'   mean targets. Ignored for analytical ordinary means.
 #' @param show_progress Logical; if TRUE, print step messages and render progress where supported.
 #' @return An object of class \code{"causalmixgpd_ate"} containing the CATE
 #'   summary, optional intervals, and the treated/control prediction objects used
-#'   to construct the effect.
+#'   to construct the effect. The returned object includes a top-level
+#'   \code{$fit_df} data frame for direct extraction.
 #' @seealso \code{\link{ate}}, \code{\link{att}}, \code{\link{cqte}},
 #'   \code{\link{ate_rmean}}, \code{\link{predict.causalmixgpd_causal_fit}}.
 #' @examples
@@ -1066,13 +1126,13 @@ cate <- function(fit,
   }
 
   .cmgpd_progress_step(progress_ctx, "Predicting treated-arm effects")
-  pr_trt <- predict(fit$outcome_fit$trt, x = x_pred, type = type,
+  pr_trt <- predict(fit$outcome_fit$trt, newdata = x_pred, type = type,
                     cutoff = cutoff,
                     ps = ps_cov, interval = if (compute_interval) interval else NULL,
                     level = level, nsim_mean = nsim_mean, store_draws = TRUE,
                     show_progress = FALSE)
   .cmgpd_progress_step(progress_ctx, "Predicting control-arm effects")
-  pr_con <- predict(fit$outcome_fit$con, x = x_pred, type = type,
+  pr_con <- predict(fit$outcome_fit$con, newdata = x_pred, type = type,
                     cutoff = cutoff,
                     ps = ps_cov, interval = if (compute_interval) interval else NULL,
                     level = level, nsim_mean = nsim_mean, store_draws = TRUE,
@@ -1102,6 +1162,7 @@ cate <- function(fit,
   .cmgpd_progress_step(progress_ctx, "Aggregating CATE estimates")
   fit_vec <- colMeans(diff_draws, na.rm = TRUE)
   n_pred <- length(fit_vec)
+  profile_labels <- .causal_profile_labels(x_pred = x_pred, newdata = newdata)
   lower <- upper <- NULL
   if (compute_interval) {
     # Compute intervals for each prediction point
@@ -1121,6 +1182,10 @@ cate <- function(fit,
     lower = if (!is.null(lower)) lower else NA_real_,
     upper = if (!is.null(upper)) upper else NA_real_
   )
+  if (!is.null(profile_labels)) {
+    ate_fit$profile <- profile_labels
+  }
+  ate_fit <- .reorder_predict_cols(ate_fit)
 
   # Extract meta from causal fit
   meta <- fit$bundle$meta %||% list()
@@ -1128,16 +1193,20 @@ cate <- function(fit,
 
   out <- list(
     fit = fit_vec,
+    fit_df = ate_fit,
     lower = lower,
     upper = upper,
     ate = list(fit = ate_fit, draws = diff_draws),
     grid = NULL,
     trt = pr_trt,
     con = pr_con,
+    trt_fit_df = pr_trt$fit_df %||% pr_trt$fit %||% NULL,
+    con_fit_df = pr_con$fit_df %||% pr_con$fit %||% NULL,
     x = x_pred,
+    profile = profile_labels,
     ps = ps_prob,
     n_pred = n_pred,
-    nsim_mean = nsim_mean,
+    nsim_mean = .causal_mean_nsim(nsim_mean, pr_trt, pr_con),
     level = level,
     interval = if (compute_interval) interval else "none",
     type = "cate",
@@ -1161,6 +1230,18 @@ cate <- function(fit,
   stop("Unexpected mean draw dimensions in causal treatment effects.", call. = FALSE)
 }
 
+.causal_mean_nsim <- function(default = NA_integer_, ...) {
+  preds <- list(...)
+  if (!length(preds)) return(default)
+  methods <- vapply(preds, function(pr) {
+    as.character((pr$diagnostics %||% list())$mean_method %||% NA_character_)
+  }, character(1))
+  if (all(!is.na(methods)) && all(methods == "analytic")) {
+    return(NA_integer_)
+  }
+  as.integer(default)[1L]
+}
+
 .causal_effect_subset_index <- function(fit, n_pred, subset = c("all", "treated")) {
   subset <- match.arg(subset)
   if (n_pred <= 1L) return(1L)
@@ -1172,6 +1253,20 @@ cate <- function(fit,
     stop("No treated rows available for treated-only treatment effect aggregation.", call. = FALSE)
   }
   idx
+}
+
+.causal_profile_labels <- function(x_pred, newdata = NULL) {
+  if (is.null(newdata) || is.null(x_pred)) return(NULL)
+  n_pred <- nrow(as.matrix(x_pred))
+  rn <- rownames(x_pred)
+  has_custom_names <- !is.null(rn) &&
+    length(rn) == n_pred &&
+    any(nzchar(rn)) &&
+    !identical(rn, as.character(seq_len(n_pred)))
+  if (has_custom_names) {
+    return(as.character(rn))
+  }
+  paste("Profile", seq_len(n_pred))
 }
 
 .causal_summarize_draw_cols <- function(draw_mat, compute_interval, interval, level) {
@@ -1288,6 +1383,7 @@ cate <- function(fit,
 
   out <- list(
     fit = fit_tbl,
+    fit_df = fit_tbl,
     lower = lower,
     upper = upper,
     qte = list(fit = qte_fit, draws = diff_draws_out),
@@ -1295,6 +1391,8 @@ cate <- function(fit,
     grid = probs,
     trt = pr_trt,
     con = pr_con,
+    trt_fit_df = pr_trt$fit_df %||% pr_trt$fit %||% NULL,
+    con_fit_df = pr_con$fit_df %||% pr_con$fit %||% NULL,
     x = NULL,
     ps = NULL,
     n_pred = 1L,
@@ -1366,12 +1464,15 @@ cate <- function(fit,
 
   out <- list(
     fit = fit_vec,
+    fit_df = ate_fit,
     lower = lower,
     upper = upper,
     ate = list(fit = ate_fit, draws = matrix(diff_avg, ncol = 1L)),
     grid = NULL,
     trt = pr_trt,
     con = pr_con,
+    trt_fit_df = pr_trt$fit_df %||% pr_trt$fit %||% NULL,
+    con_fit_df = pr_con$fit_df %||% pr_con$fit %||% NULL,
     x = NULL,
     ps = NULL,
     n_pred = 1L,
@@ -1407,14 +1508,18 @@ cate <- function(fit,
 #'   and training data are used.
 #' @param y Ignored for marginal estimands. If supplied, a warning is issued
 #'   and training data are used.
-#' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
-#'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
-#'   highest posterior density intervals.
+#' @param interval Character or NULL; type of credible interval:
+#'   \itemize{
+#'     \item \code{NULL}: no interval
+#'     \item \code{"credible"} (default): equal-tailed quantile intervals
+#'     \item \code{"hpd"}: highest posterior density intervals
+#'   }
 #' @param level Numeric credible level for intervals (default 0.95 for 95 percent CI).
 #' @param show_progress Logical; if TRUE, print step messages and render progress where supported.
 #' @return An object of class \code{"causalmixgpd_qte"} containing the
 #'   marginal QTE summary, the probability grid, and the arm-specific predictive
-#'   objects used in the aggregation.
+#'   objects used in the aggregation. The returned object includes a top-level
+#'   \code{$fit_df} data frame for direct extraction.
 #' @seealso \code{\link{qtt}}, \code{\link{cqte}}, \code{\link{ate}},
 #'   \code{\link{predict.causalmixgpd_causal_fit}}.
 #' @examples
@@ -1493,7 +1598,7 @@ qte <- function(fit,
   .cmgpd_progress_step(progress_ctx, "Predicting treated-arm draws")
   pr_trt <- predict(
     fit$outcome_fit$trt,
-    x = x_pred,
+    newdata = x_pred,
     type = "fit",
     ps = ps_cov,
     interval = NULL,
@@ -1503,7 +1608,7 @@ qte <- function(fit,
   .cmgpd_progress_step(progress_ctx, "Predicting control-arm draws")
   pr_con <- predict(
     fit$outcome_fit$con,
-    x = x_pred,
+    newdata = x_pred,
     type = "fit",
     ps = ps_cov,
     interval = NULL,
@@ -1549,7 +1654,8 @@ qte <- function(fit,
 #' @inheritParams qte
 #' @return An object of class \code{"causalmixgpd_qte"} containing the QTT
 #'   summary, the probability grid, and the arm-specific predictive objects used
-#'   in the aggregation.
+#'   in the aggregation. The returned object includes a top-level
+#'   \code{$fit_df} data frame for direct extraction.
 #' @seealso \code{\link{qte}}, \code{\link{cqte}}, \code{\link{att}}.
 #' @examples
 #' \dontrun{
@@ -1627,7 +1733,7 @@ qtt <- function(fit,
   .cmgpd_progress_step(progress_ctx, "Predicting treated-arm draws")
   pr_trt <- predict(
     fit$outcome_fit$trt,
-    x = x_pred,
+    newdata = x_pred,
     type = "fit",
     ps = ps_cov,
     interval = NULL,
@@ -1637,7 +1743,7 @@ qtt <- function(fit,
   .cmgpd_progress_step(progress_ctx, "Predicting control-arm draws")
   pr_con <- predict(
     fit$outcome_fit$con,
-    x = x_pred,
+    newdata = x_pred,
     type = "fit",
     ps = ps_cov,
     interval = NULL,
@@ -1682,6 +1788,8 @@ qtt <- function(fit,
 #'
 #' When \code{type = "rmean"}, the function instead computes a restricted-mean
 #' ATE using \eqn{E\{\min(Y(a), c)\}} for each arm.
+#' For outcome kernels with a finite analytical mean, the ordinary mean path is
+#' analytical within each posterior draw; \code{rmean} remains simulation-based.
 #'
 #' For unconditional causal models (\code{X = NULL}), the computation reduces to
 #' a direct contrast of the unconditional treated and control predictive laws.
@@ -1691,19 +1799,27 @@ qtt <- function(fit,
 #'   and training data are used.
 #' @param y Ignored for marginal estimands. If supplied, a warning is issued
 #'   and training data are used.
-#' @param type Character; \code{"mean"} (default) for ordinary mean ATE or
-#'   \code{"rmean"} for restricted-mean ATE.
+#' @param type Character; type of mean treatment effect:
+#'   \itemize{
+#'     \item \code{"mean"} (default): ordinary mean ATE
+#'     \item \code{"rmean"}: restricted-mean ATE (requires \code{cutoff})
+#'   }
 #' @param cutoff Finite numeric cutoff for restricted mean; required for
 #'   \code{type = "rmean"}, ignored otherwise.
-#' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
-#'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
-#'   highest posterior density intervals.
+#' @param interval Character or NULL; type of credible interval:
+#'   \itemize{
+#'     \item \code{NULL}: no interval
+#'     \item \code{"credible"} (default): equal-tailed quantile intervals
+#'     \item \code{"hpd"}: highest posterior density intervals
+#'   }
 #' @param level Numeric credible level for intervals (default 0.95 for 95 percent CI).
-#' @param nsim_mean Number of posterior predictive draws to approximate the mean.
+#' @param nsim_mean Number of posterior predictive draws used by simulation-based
+#'   mean targets. Ignored for analytical ordinary means.
 #' @param show_progress Logical; if TRUE, print step messages and render progress where supported.
 #' @return An object of class \code{"causalmixgpd_ate"} containing the
 #'   marginal ATE summary, optional intervals, and the arm-specific predictive
-#'   objects used in the aggregation.
+#'   objects used in the aggregation. The returned object includes a top-level
+#'   \code{$fit_df} data frame for direct extraction.
 #' @seealso \code{\link{att}}, \code{\link{cate}}, \code{\link{qte}},
 #'   \code{\link{ate_rmean}}, \code{\link{predict.causalmixgpd_causal_fit}}.
 #' @examples
@@ -1781,7 +1897,7 @@ ate <- function(fit,
   .cmgpd_progress_step(progress_ctx, "Predicting treated-arm effects")
   pr_trt <- predict(
     fit$outcome_fit$trt,
-    x = x_pred,
+    newdata = x_pred,
     type = type,
     cutoff = cutoff,
     ps = ps_cov,
@@ -1794,7 +1910,7 @@ ate <- function(fit,
   .cmgpd_progress_step(progress_ctx, "Predicting control-arm effects")
   pr_con <- predict(
     fit$outcome_fit$con,
-    x = x_pred,
+    newdata = x_pred,
     type = type,
     cutoff = cutoff,
     ps = ps_cov,
@@ -1812,7 +1928,7 @@ ate <- function(fit,
     level = level,
     interval = if (compute_interval) interval else "none",
     n_pred = n_pred,
-    nsim_mean = nsim_mean,
+    nsim_mean = .causal_mean_nsim(nsim_mean, pr_trt, pr_con),
     x = NULL,
     ps = NULL,
     meta = list(
@@ -1842,7 +1958,8 @@ ate <- function(fit,
 #' @inheritParams ate
 #' @return An object of class \code{"causalmixgpd_ate"} containing the ATT
 #'   summary, optional intervals, and the arm-specific predictive objects used
-#'   in the aggregation.
+#'   in the aggregation. The returned object includes a top-level
+#'   \code{$fit_df} data frame for direct extraction.
 #' @seealso \code{\link{ate}}, \code{\link{qtt}}, \code{\link{cate}}.
 #' @examples
 #' \dontrun{
@@ -1919,7 +2036,7 @@ att <- function(fit,
   .cmgpd_progress_step(progress_ctx, "Predicting treated-arm effects")
   pr_trt <- predict(
     fit$outcome_fit$trt,
-    x = x_pred,
+    newdata = x_pred,
     type = type,
     cutoff = cutoff,
     ps = ps_cov,
@@ -1932,7 +2049,7 @@ att <- function(fit,
   .cmgpd_progress_step(progress_ctx, "Predicting control-arm effects")
   pr_con <- predict(
     fit$outcome_fit$con,
-    x = x_pred,
+    newdata = x_pred,
     type = type,
     cutoff = cutoff,
     ps = ps_cov,
@@ -1950,7 +2067,7 @@ att <- function(fit,
     level = level,
     interval = if (compute_interval) interval else "none",
     n_pred = n_pred,
-    nsim_mean = nsim_mean,
+    nsim_mean = .causal_mean_nsim(nsim_mean, pr_trt, pr_con),
     x = NULL,
     ps = NULL,
     meta = list(
@@ -1981,7 +2098,9 @@ att <- function(fit,
 #' @inheritParams cate
 #' @param cutoff Finite numeric cutoff for the restricted mean.
 #' @return A \code{"causalmixgpd_ate"} object computed via \code{\link{ate}}
-#'   for unconditional fits or \code{\link{cate}} for conditional fits.
+#'   for unconditional fits or \code{\link{cate}} for conditional fits. The
+#'   returned object includes a top-level \code{$fit_df} data frame for direct
+#'   extraction.
 #' @seealso \code{\link{ate}}, \code{\link{cate}}, \code{\link{predict.mixgpd_fit}}.
 #' @examples
 #' \dontrun{
@@ -2031,9 +2150,11 @@ ate_rmean <- function(fit,
 #' @details
 #' For each prediction row \eqn{x}, the function evaluates arm-specific
 #' posterior predictive quantities based on
-#' \eqn{F_1(y \mid x, \mathcal{D})} and \eqn{F_0(y \mid x, \mathcal{D})}. Mean
+#' \eqn{F_1(y \mid x)} and \eqn{F_0(y \mid x)}. Mean
 #' and quantile outputs are returned on the treatment-effect scale, while
 #' density, survival, and probability outputs retain both arm-specific curves.
+#' For outcome kernels with a finite analytical mean, the mean path uses
+#' analytical per-draw means; restricted means remain simulation-based.
 #'
 #' If a PS model is stored in the fit, the same estimated score is supplied to
 #' both arms unless the user overrides it with \code{ps}. This is the main
@@ -2043,46 +2164,57 @@ ate_rmean <- function(fit,
 #' @inheritParams predict.mixgpd_fit
 #' @param object A \code{"causalmixgpd_causal_fit"} object returned by
 #'   \code{run_mcmc_causal()}.
-#' @param ps Optional numeric vector of propensity scores aligned with \code{x}
-#'   / \code{newdata}. When provided, the supplied scores are used instead of
+#' @param ps Optional numeric vector of propensity scores aligned with
+#'   \code{newdata}. When provided, the supplied scores are used instead of
 #'   recomputing them from the stored PS model (needed only for custom inputs).
 #' @param id Optional identifier for prediction rows. Provide either a column name
-#'   in \code{x}/\code{newdata} or a vector of length \code{nrow(x)}. The id column
+#'   in \code{newdata} or a vector of length \code{nrow(newdata)}. The id column
 #'   is excluded from analysis.
-#' @param type Prediction type. Supported: \code{"mean"}, \code{"quantile"},
-#'   \code{"density"}, \code{"survival"}, \code{"prob"}, or \code{"sample"}.
+#' @param type Prediction type:
+#'   \itemize{
+#'     \item \code{"mean"}: posterior predictive mean treatment effect
+#'     \item \code{"quantile"}: posterior predictive quantile treatment effect
+#'     \item \code{"density"}: arm-specific posterior predictive densities
+#'     \item \code{"survival"}: arm-specific posterior predictive survival functions
+#'     \item \code{"prob"}: arm-specific posterior predictive probabilities
+#'     \item \code{"sample"}: paired posterior predictive samples
+#'   }
 #' @param nsim Number of posterior predictive samples when \code{type = "sample"}.
+#' @param interval Character or NULL; type of credible interval:
+#'   \itemize{
+#'     \item \code{NULL}: no interval
+#'     \item \code{"credible"} (default): equal-tailed quantile intervals
+#'     \item \code{"hpd"}: highest posterior density intervals
+#'   }
 #' @param store_draws Logical; whether to store treatment-effect sample draws in
 #'   the returned object when \code{type = "sample"}.
 #' @param ... Additional arguments forwarded to per-arm
 #'   \code{\link{predict.mixgpd_fit}} calls.
-#' @param interval Character or NULL; type of credible interval: \code{NULL} for no interval,
-#'   \code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
-#'   highest posterior density intervals.
 #' @return For \code{"mean"} and \code{"quantile"}, a causal prediction object
 #'   whose \code{$fit} component reports treated-minus-control posterior
 #'   summaries. For \code{"density"}, \code{"survival"}, and \code{"prob"},
 #'   the \code{$fit} component contains side-by-side treated and control
 #'   summaries evaluated on the supplied \code{y} grid. For \code{"sample"},
 #'   the returned object contains paired treated, control, and treatment-effect
-#'   posterior predictive samples.
+#'   posterior predictive samples. Sample outputs also include long-form data
+#'   frames \code{$fit_df}, \code{$trt_fit_df}, and \code{$con_fit_df} for
+#'   direct extraction.
 #' @seealso \code{\link{predict.mixgpd_fit}}, \code{\link{ate}},
 #'   \code{\link{qte}}, \code{\link{cate}}, \code{\link{cqte}}.
 #' @examples
 #' \dontrun{
 #' cb <- build_causal_bundle(y = y, X = X, A = A, backend = "sb", kernel = "normal")
 #' fit <- run_mcmc_causal(cb)
-#' predict(fit, x = X[1:10, ], type = "quantile", index = c(0.25, 0.5, 0.75))
-#' predict(fit, x = X[1:10, ], type = "mean", interval = "hpd")  # HPD intervals
-#' predict(fit, x = X[1:10, ], type = "mean", interval = NULL)   # No intervals
+#' predict(fit, newdata = X[1:10, ], type = "quantile", index = c(0.25, 0.5, 0.75))
+#' predict(fit, newdata = X[1:10, ], type = "mean", interval = "hpd")  # HPD intervals
+#' predict(fit, newdata = X[1:10, ], type = "mean", interval = NULL)   # No intervals
 #' }
 #' @export
 predict.causalmixgpd_causal_fit <- function(object,
-                                        x = NULL,
+                                        newdata = NULL,
                                         y = NULL,
                                         ps = NULL,
                                         id = NULL,
-                                        newdata = NULL,
                                         type = c("mean", "quantile", "density", "survival", "prob", "sample"),
                                         p = NULL,
                                         index = NULL,
@@ -2105,11 +2237,7 @@ predict.causalmixgpd_causal_fit <- function(object,
   on.exit(.cmgpd_progress_done(progress_ctx, final_label = NULL), add = TRUE)
   .cmgpd_progress_step(progress_ctx, "Resolving causal prediction inputs")
 
-  if (!is.null(newdata) && !is.null(x)) {
-    stop("Provide only one of 'x' or 'newdata' (they are aliases).", call. = FALSE)
-  }
-  if (!is.null(newdata)) x <- newdata
-
+  x <- newdata
   id_info <- .resolve_predict_id(x, id = id)
   x <- id_info$x
   id_vec <- id_info$id
@@ -2276,7 +2404,7 @@ predict.causalmixgpd_causal_fit <- function(object,
         psi <- if (!is.null(ps_vec)) ps_vec[i] else NULL
         pr <- predict(
           fit,
-          x = xi,
+          newdata = xi,
           y = y_vec[i],
           ps = psi,
           id = if (!is.null(xi)) id_vals[i] else NULL,
@@ -2371,7 +2499,7 @@ predict.causalmixgpd_causal_fit <- function(object,
   } else {
     pr_trt <- predict(
       object$outcome_fit$trt,
-      x = x,
+      newdata = x,
       y = y,
       ps = ps_trt,
       id = id_arg,
@@ -2412,7 +2540,7 @@ predict.causalmixgpd_causal_fit <- function(object,
   } else {
     pr_con <- predict(
       object$outcome_fit$con,
-      x = x,
+      newdata = x,
       y = y,
       ps = ps_con,
       id = id_arg,
@@ -2459,12 +2587,15 @@ predict.causalmixgpd_causal_fit <- function(object,
     ps_col <- if (!is.null(ps_full)) ps_full else rep(NA_real_, n_pred)
     out <- list(
       fit = eff_fit_out,
+      fit_df = .values_to_long_df(eff_fit_out, id = id_vals, value_name = "sample"),
       draws = if (isTRUE(store_draws)) eff_fit_out else NULL,
       id = id_vals,
       ps = ps_col,
       nsim = ncol(trt_fit),
       trt = pr_trt,
       con = pr_con,
+      trt_fit_df = pr_trt$fit_df %||% .values_to_long_df(trt_fit, id = id_vals, value_name = "sample"),
+      con_fit_df = pr_con$fit_df %||% .values_to_long_df(con_fit, id = id_vals, value_name = "sample"),
       grid = NULL
     )
     attr(out, "type") <- type

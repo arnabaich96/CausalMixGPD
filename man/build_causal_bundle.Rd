@@ -35,28 +35,51 @@ build_causal_bundle(
 
 \item{A}{Binary treatment indicator (length N, values 0/1).}
 
-\item{backend}{Character; \code{"sb"}, \code{"crp"}, or \code{"spliced"} for
-outcome models. If length 2,
-the first entry is used for treated (\code{A=1}) and the second for control (\code{A=0}).}
+\item{backend}{Character; the Dirichlet process representation for outcome models:
+\itemize{
+\item \code{"sb"}: stick-breaking truncation
+\item \code{"crp"}: Chinese Restaurant Process
+\item \code{"spliced"}: CRP with GPD tail splicing
+}
+If length 2, the first entry is used for treated (\code{A=1}) and the
+second for control (\code{A=0}).}
 
-\item{kernel}{Character kernel name for outcome models. If length 2,
-the first entry is used for treated (\code{A=1}) and the second for control (\code{A=0}).}
+\item{kernel}{Character kernel name for outcome models (must exist in
+\code{get_kernel_registry()}). If length 2:
+\itemize{
+\item first entry: used for treated (\code{A=1})
+\item second entry: used for control (\code{A=0})
+}}
 
-\item{GPD}{Logical; include GPD tail for outcomes if TRUE. If length 2,
-the first entry is used for treated (\code{A=1}) and the second for control (\code{A=0}).}
+\item{GPD}{Logical; include GPD tail for outcomes if TRUE. If length 2:
+\itemize{
+\item first entry: used for treated (\code{A=1})
+\item second entry: used for control (\code{A=0})
+}}
 
-\item{components}{Integer >= 2; truncation parameter for outcome mixtures. If length 2,
-the first entry is used for treated (\code{A=1}) and the second for control (\code{A=0}).}
+\item{components}{Integer >= 2; truncation parameter for outcome mixtures. If length 2:
+\itemize{
+\item first entry: used for treated (\code{A=1})
+\item second entry: used for control (\code{A=0})
+}}
 
-\item{param_specs}{Outcome parameter overrides (same structure as \code{build_nimble_bundle()}).
-You can pass a single list used for both arms or a list with \code{con} and \code{trt} entries.}
+\item{param_specs}{Outcome parameter overrides (same structure as
+\code{build_nimble_bundle()}):
+\itemize{
+\item a single list: used for both arms
+\item a list with \code{con} and \code{trt} entries: arm-specific overrides
+}}
 
 \item{mcmc_outcome}{MCMC settings list for the outcome bundles.}
 
 \item{mcmc_ps}{MCMC settings list for the PS model.}
 
-\item{epsilon}{Numeric in [0,1) used by outcome bundles for posterior truncation summaries.
-If length 2, the first entry is used for treated (\code{A=1}) and the second for control (\code{A=0}).}
+\item{epsilon}{Numeric in [0,1) used by outcome bundles for posterior truncation
+summaries. If length 2:
+\itemize{
+\item first entry: used for treated (\code{A=1})
+\item second entry: used for control (\code{A=0})
+}}
 
 \item{alpha_random}{Logical; whether the outcome-model DP concentration parameter \eqn{\kappa} is stochastic.}
 
@@ -75,13 +98,25 @@ in the PS model.}
 The PS model choice is stored in bundle metadata for downstream use in prediction
 and summaries, enabling seamless integration of future PS estimation methods.}
 
-\item{ps_scale}{Scale used when augmenting outcomes with PS: \code{"logit"} or \code{"prob"}.}
+\item{ps_scale}{Scale used when augmenting outcomes with PS:
+\itemize{
+\item \code{"logit"}: augment on the logit (log-odds) scale
+\item \code{"prob"}: augment on the probability scale
+}}
 
-\item{ps_summary}{Posterior summary for PS: \code{"mean"} or \code{"median"}.}
+\item{ps_summary}{Posterior summary for PS:
+\itemize{
+\item \code{"mean"}: posterior mean of propensity scores
+\item \code{"median"}: posterior median of propensity scores
+}}
 
 \item{ps_clamp}{Numeric epsilon for clamping PS values to \eqn{(\epsilon, 1-\epsilon)}.}
 
-\item{monitor}{Character monitor profile: \code{"core"} (default) or \code{"full"}.}
+\item{monitor}{Character monitor profile:
+\itemize{
+\item \code{"core"} (default): monitors only the essential model parameters
+\item \code{"full"}: monitors all model nodes
+}}
 
 \item{monitor_latent}{Logical; whether to monitor latent cluster labels (\code{z}) in outcome arms.}
 

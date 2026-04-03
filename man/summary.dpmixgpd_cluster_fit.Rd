@@ -23,8 +23,11 @@
 
 \item{top_n}{Number of populated clusters to profile when descriptive summaries are available.}
 
-\item{order_by}{Ordering rule for descriptive cluster profiles: by decreasing cluster size or by
-label.}
+\item{order_by}{Ordering rule for descriptive cluster profiles:
+\itemize{
+\item \code{"size"}: decreasing cluster size
+\item \code{"label"}: ascending cluster label
+}}
 
 \item{vars}{Optional character vector of numeric columns to summarize within each cluster.}
 

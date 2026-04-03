@@ -112,7 +112,7 @@ one_prediction <- function() {
   )
   X_new <- X[rep(seq_len(nrow(X)), length.out = 50000), , drop = FALSE]
   out <- run_timer(suppressMessages(
-    predict(fit, x = X_new, type = "quantile", index = c(0.5, 0.9), parallel = TRUE, workers = 2)
+    predict(fit, newdata = X_new, type = "quantile", index = c(0.5, 0.9), parallel = TRUE, workers = 2)
   ))
   list(sec = out$seconds, ess = NA_real_, eps = NA_real_, params = "n/a")
 }

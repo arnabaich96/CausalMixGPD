@@ -5,13 +5,13 @@
 \title{Resolve kernel dispatch functions
 Dispatch returns vector-aware d/p/q and n-aware r via wrappers; do not mutate namespace.}
 \usage{
-.get_dispatch(spec_or_fit, backend_override = NULL)
+.get_dispatch(spec_or_fit, backend_override = NULL, gpd_override = NULL)
 }
 \arguments{
 \item{spec_or_fit}{mixgpd_fit or spec list}
 }
 \value{
-List with d/p/q/r functions and bulk_params.
+List with d/p/q/r/mean/mean_trunc functions and bulk_params.
 }
 \description{
 Resolve kernel dispatch functions

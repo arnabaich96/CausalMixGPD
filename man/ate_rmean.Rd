@@ -22,19 +22,25 @@ If \code{NULL}, uses the training covariates stored in \code{fit}.}
 
 \item{cutoff}{Finite numeric cutoff for the restricted mean.}
 
-\item{interval}{Character or NULL; type of credible interval: \code{NULL} for no interval,
-\code{"credible"} for equal-tailed quantile intervals (default), or \code{"hpd"} for
-highest posterior density intervals.}
+\item{interval}{Character or NULL; type of credible interval:
+\itemize{
+\item \code{NULL}: no interval
+\item \code{"credible"} (default): equal-tailed quantile intervals
+\item \code{"hpd"}: highest posterior density intervals
+}}
 
 \item{level}{Numeric credible level for intervals (default 0.95 for 95 percent CI).}
 
-\item{nsim_mean}{Number of posterior predictive draws to approximate the mean.}
+\item{nsim_mean}{Number of posterior predictive draws used by simulation-based
+mean targets. Ignored for analytical ordinary means.}
 
 \item{show_progress}{Logical; if TRUE, print step messages and render progress where supported.}
 }
 \value{
 A \code{"causalmixgpd_ate"} object computed via \code{\link{ate}}
-for unconditional fits or \code{\link{cate}} for conditional fits.
+for unconditional fits or \code{\link{cate}} for conditional fits. The
+returned object includes a top-level \code{$fit_df} data frame for direct
+extraction.
 }
 \description{
 \code{ate_rmean()} is a convenience wrapper for restricted-mean treatment

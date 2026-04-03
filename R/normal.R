@@ -105,6 +105,7 @@ pNormMix <- nimble::nimbleFunction(
       cdf <- cdf + (w[j] / wsum) * pnorm(q, mean[j], sd[j], 1, 0)
     }
 
+    if (is.nan(cdf)) cdf <- 0.0
     if (cdf < 0.0) cdf <- 0.0
     if (cdf > 1.0) cdf <- 1.0
     if (lower.tail == 0) cdf <- 1.0 - cdf
@@ -195,6 +196,28 @@ qNormMix <- function(p, w, mean, sd,
     }
   }
   out
+}
+
+meanNormMix <- function(w, mean, sd) {
+  ww <- .mean_norm_mix_weights(w)
+  if (is.null(ww)) return(NA_real_)
+  mu <- as.numeric(mean)
+  sig <- as.numeric(sd)
+  if (length(mu) != length(ww) || length(sig) != length(ww)) return(NA_real_)
+  if (any(!is.finite(mu)) || any(!is.finite(sig)) || any(sig <= 0)) return(NA_real_)
+  sum(ww * mu)
+}
+
+meanNormMixTrunc <- function(w, mean, sd, threshold) {
+  ww <- .mean_norm_mix_weights(w)
+  if (is.null(ww)) return(NA_real_)
+  mu <- as.numeric(mean)
+  sig <- as.numeric(sd)
+  u <- as.numeric(threshold)[1]
+  if (length(mu) != length(ww) || length(sig) != length(ww)) return(NA_real_)
+  if (is.na(u) || any(!is.finite(mu)) || any(!is.finite(sig)) || any(sig <= 0)) return(NA_real_)
+  a <- (u - mu) / sig
+  sum(ww * (mu * stats::pnorm(a) - sig * stats::dnorm(a)))
 }
 
 # -------------------------------
@@ -308,6 +331,7 @@ pNormMixGpd <- nimble::nimbleFunction(
     G <- pGpd(q, threshold, tail_scale, tail_shape, 1, 0)
     cdf <- Fu + (1.0 - Fu) * G
 
+    if (is.nan(cdf)) cdf <- 0.0
     if (cdf < 0.0) cdf <- 0.0
     if (cdf > 1.0) cdf <- 1.0
     if (lower.tail == 0) cdf <- 1.0 - cdf
@@ -464,6 +488,7 @@ pNormGpd <- nimble::nimbleFunction(
     G <- pGpd(q, threshold, tail_scale, tail_shape, 1, 0)
     cdf <- Fu + (1.0 - Fu) * G
 
+    if (is.nan(cdf)) cdf <- 0.0
     if (cdf < 0.0) cdf <- 0.0
     if (cdf > 1.0) cdf <- 1.0
     if (lower.tail == 0) cdf <- 1.0 - cdf
@@ -707,4 +732,5 @@ rnormgpd <- function(n, mean, sd, threshold, tail_scale, tail_shape) {
                                                       tail_shape = tail_shape)),
          numeric(1L))
 }
+
 

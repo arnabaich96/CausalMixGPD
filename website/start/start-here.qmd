@@ -108,7 +108,7 @@ summary(fit_cond)
 
 ```{r start-cond-predict, cache = FALSE}
 x_new <- X[1:20, , drop = FALSE]
-pred_mean <- predict(fit_cond, x = x_new, type = "mean", interval = "credible", nsim_mean = 200)
+pred_mean <- predict(fit_cond, newdata =x_new, type = "mean", interval = "credible", nsim_mean = 200)
 head(pred_mean$fit)
 plot(pred_mean)
 ```

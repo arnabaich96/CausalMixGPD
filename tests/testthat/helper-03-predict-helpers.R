@@ -82,11 +82,11 @@ if (!exists(".cache_enabled")) {
 
     if (has_X) {
       X_new <- X[1:3, , drop = FALSE]
-      pr_den <- predict(fit, x = X_new, y = y_grid, type = "density", ncores = 1)
-      pr_surv <- predict(fit, x = X_new, y = y_grid, type = "survival", ncores = 1)
-      pr_q <- predict(fit, x = X_new, type = "quantile", index = p_grid, ncores = 1)
-      pr_samp <- predict(fit, x = X_new, type = "sample", nsim = nsim)
-      pr_mean <- predict(fit, x = X_new, type = "mean", nsim_mean = 50)
+      pr_den <- predict(fit, newdata = X_new, y = y_grid, type = "density", ncores = 1)
+      pr_surv <- predict(fit, newdata = X_new, y = y_grid, type = "survival", ncores = 1)
+      pr_q <- predict(fit, newdata = X_new, type = "quantile", index = p_grid, ncores = 1)
+      pr_samp <- predict(fit, newdata = X_new, type = "sample", nsim = nsim)
+      pr_mean <- predict(fit, newdata = X_new, type = "mean", nsim_mean = 50)
       n_pred <- nrow(X_new)
     } else {
       pr_den <- predict(fit, y = y_grid, type = "density", ncores = 1)

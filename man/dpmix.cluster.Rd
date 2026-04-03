@@ -21,8 +21,12 @@ dpmix.cluster(
 \item{...}{Additional arguments passed to \code{build_cluster_bundle()}, including kernel settings,
 prior overrides, component counts, and monitoring controls.}
 
-\item{type}{Clustering mode. \code{"weights"} links mixture weights to predictors, \code{"param"} links
-kernel parameters to predictors, and \code{"both"} does both.}
+\item{type}{Clustering mode:
+\itemize{
+\item \code{"weights"}: links mixture weights to predictors
+\item \code{"param"}: links kernel parameters to predictors
+\item \code{"both"}: links both weights and kernel parameters to predictors
+}}
 
 \item{default}{Default mode used when \code{type} is omitted.}
 

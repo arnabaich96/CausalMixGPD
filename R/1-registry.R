@@ -72,10 +72,14 @@ init_kernel_registry <- function() {
         d = "dNormMix",
         d_gpd = "dNormMixGpd",
         args = c("w", "mean", "sd"),
+        mean = "meanNormMix",
+        mean_trunc = "meanNormMixTrunc",
         args_gpd = c("w", "mean", "sd", "threshold", "tail_scale", "tail_shape")
       ),
       crp = list(
         d_base = "dnorm",
+        mean_base = "meanNormMix",
+        mean_trunc_base = "meanNormMixTrunc",
         d_gpd = "dNormGpd",
         args_gpd = c("mean", "sd", "threshold", "tail_scale", "tail_shape")
       )
@@ -93,10 +97,14 @@ init_kernel_registry <- function() {
         d = "dLognormalMix",
         d_gpd = "dLognormalMixGpd",
         args = c("w", "meanlog", "sdlog"),
+        mean = "meanLognormalMix",
+        mean_trunc = "meanLognormalMixTrunc",
         args_gpd = c("w", "meanlog", "sdlog", "threshold", "tail_scale", "tail_shape")
       ),
       crp = list(
         d_base = "dlnorm",
+        mean_base = "meanLognormalMix",
+        mean_trunc_base = "meanLognormalMixTrunc",
         d_gpd = "dLognormalGpd",
         args_gpd = c("meanlog", "sdlog", "threshold", "tail_scale", "tail_shape")
       )
@@ -114,10 +122,14 @@ init_kernel_registry <- function() {
         d = "dInvGaussMix",
         d_gpd = "dInvGaussMixGpd",
         args = c("w", "mean", "shape"),
+        mean = "meanInvGaussMix",
+        mean_trunc = "meanInvGaussMixTrunc",
         args_gpd = c("w", "mean", "shape", "threshold", "tail_scale", "tail_shape")
       ),
       crp = list(
         d_base = "dInvGauss",
+        mean_base = "meanInvGaussMix",
+        mean_trunc_base = "meanInvGaussMixTrunc",
         d_gpd = "dInvGaussGpd",
         args_gpd = c("mean", "shape", "threshold", "tail_scale", "tail_shape")
       )
@@ -135,10 +147,14 @@ init_kernel_registry <- function() {
         d = "dGammaMix",
         d_gpd = "dGammaMixGpd",
         args = c("w", "shape", "scale"),
+        mean = "meanGammaMix",
+        mean_trunc = "meanGammaMixTrunc",
         args_gpd = c("w", "shape", "scale", "threshold", "tail_scale", "tail_shape")
       ),
       crp = list(
         d_base = "dgamma",
+        mean_base = "meanGammaMix",
+        mean_trunc_base = "meanGammaMixTrunc",
         d_gpd = "dGammaGpd",
         args_gpd = c("shape", "scale", "threshold", "tail_scale", "tail_shape")
       )
@@ -156,10 +172,14 @@ init_kernel_registry <- function() {
         d = "dLaplaceMix",
         d_gpd = "dLaplaceMixGpd",
         args = c("w", "location", "scale"),
+        mean = "meanLaplaceMix",
+        mean_trunc = "meanLaplaceMixTrunc",
         args_gpd = c("w", "location", "scale", "threshold", "tail_scale", "tail_shape")
       ),
       crp = list(
         d_base = "ddexp",
+        mean_base = "meanLaplaceMix",
+        mean_trunc_base = "meanLaplaceMixTrunc",
         d_gpd = "dLaplaceGpd",
         args_gpd = c("location", "scale", "threshold", "tail_scale", "tail_shape")
       )
@@ -183,11 +203,15 @@ init_kernel_registry <- function() {
         d = "dAmorosoMix",
         d_gpd = "dAmorosoMixGpd",
         args = c("w", "loc", "scale", "shape1", "shape2"),
+        mean = "meanAmorosoMix",
+        mean_trunc = "meanAmorosoMixTrunc",
         args_gpd = c("w", "loc", "scale", "shape1", "shape2",
                      "threshold", "tail_scale", "tail_shape")
       ),
       crp = list(
         d_base = "dAmoroso",
+        mean_base = "meanAmorosoMix",
+        mean_trunc_base = "meanAmorosoMixTrunc",
         d_gpd = "dAmorosoGpd",
         args_gpd = c("loc", "scale", "shape1", "shape2",
                      "threshold", "tail_scale", "tail_shape")
@@ -206,10 +230,12 @@ init_kernel_registry <- function() {
         d = "dCauchyMix",
         d_gpd = NA_character_,
         args = c("w", "location", "scale"),
+        mean = "meanCauchyMix",
         args_gpd = NA_character_
       ),
       crp = list(
         d_base = "dCauchy",
+        mean_base = "meanCauchyMix",
         d_gpd = NA_character_,
         args_gpd = NA_character_
       )

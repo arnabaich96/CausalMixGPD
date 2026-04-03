@@ -9,16 +9,34 @@
 \arguments{
 \item{x}{A fitted object of class \code{"mixgpd_fit"}.}
 
-\item{family}{Character vector of plot names (ggmcmc plot types) or a single one.
-Use \code{"auto"} (or \code{"all"}) to include all plots supported for the
-available number of chains/parameters. Supported: \code{histogram, density,
-  traceplot, running, compare_partial, autocorrelation, crosscorrelation, Rhat,
-  grb, effective, geweke, caterpillar, pairs}.}
+\item{family}{Character vector of plot names (ggmcmc plot types)
+or a single one. Use \code{"auto"} (or \code{"all"}) to include
+all plots supported for the available number of
+chains/parameters. Supported types:
+\itemize{
+\item \code{"histogram"}: posterior histograms
+\item \code{"density"}: posterior density curves
+\item \code{"traceplot"}: MCMC trace plots
+\item \code{"running"}: running mean plots
+\item \code{"compare_partial"}: partial chain comparisons
+\item \code{"autocorrelation"}: autocorrelation plots
+\item \code{"crosscorrelation"}: cross-correlation matrix
+\item \code{"Rhat"}: Gelman--Rubin R-hat (2+ chains)
+\item \code{"grb"}: Gelman--Rubin--Brooks (2+ chains)
+\item \code{"effective"}: effective sample size
+\item \code{"geweke"}: Geweke diagnostic
+\item \code{"caterpillar"}: caterpillar/forest plots
+\item \code{"pairs"}: pairwise scatter plots (2+ params)
+}}
 
-\item{params}{Optional parameter selector. Either:
-(i) character vector of parameter patterns (exact names or partial matches),
-or (ii) a single regex string (e.g. \code{"alpha|threshold|tail_"}).
-If \code{NULL}, plots all parameters in the samples.}
+\item{params}{Optional parameter selector:
+\itemize{
+\item character vector of parameter patterns (exact names
+or partial matches)
+\item a single regex string
+(e.g. \code{"alpha|threshold|tail_"})
+\item \code{NULL} (default): plots all monitored parameters
+}}
 
 \item{nLags}{Number of lags for autocorrelation (ggmcmc).}
 

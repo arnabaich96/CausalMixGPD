@@ -5,32 +5,32 @@
 \title{Fit a one-arm Dirichlet process mixture with a spliced GPD tail}
 \usage{
 dpmgpd(
-  x = NULL,
-  data = NULL,
+  y = NULL,
   X = NULL,
   treat = NULL,
+  data = NULL,
+  mcmc = list(),
   formula = NULL,
-  ...,
-  mcmc = list()
+  ...
 )
 }
 \arguments{
-\item{x}{Either a response vector or a bundle object.}
-
-\item{data}{Optional data.frame used with \code{formula}.}
+\item{y}{Either a response vector or a bundle object.}
 
 \item{X}{Optional design matrix/data.frame.}
 
 \item{treat}{Optional binary treatment indicator. If supplied, this wrapper
 errors; use \code{dpmgpd.causal()} for causal models.}
 
-\item{formula}{Optional formula.}
-
-\item{...}{Additional build arguments in build mode.}
+\item{data}{Optional data.frame used with \code{formula}.}
 
 \item{mcmc}{Named list of run arguments passed to \code{mcmc()} (including
 optional performance controls such as \code{parallel_chains},
 \code{workers}, \code{timing}, and \code{z_update_every}).}
+
+\item{formula}{Optional formula.}
+
+\item{...}{Additional build arguments passed to \code{\link{build_nimble_bundle}}.}
 }
 \value{
 A fitted object of class \code{"mixgpd_fit"}.
@@ -52,6 +52,7 @@ Use this wrapper when upper-tail behavior matters for inference, prediction,
 or extrapolation of extreme quantiles and survival probabilities.
 }
 \seealso{
+\code{\link{build_nimble_bundle}},
 \code{\link{bundle}}, \code{\link{dpmix}},
 \code{\link{predict.mixgpd_fit}}, \code{\link{summary.mixgpd_fit}}.
 }

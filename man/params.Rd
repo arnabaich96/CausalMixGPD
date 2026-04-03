@@ -13,7 +13,8 @@ params(object, ...)
 }
 \value{
 An object of class \code{"mixgpd_params"} (a named list). For
-causal fits, \code{params()} returns a treated/control pair.
+causal fits, \code{params()} returns a treated/control pair and includes
+a \code{ps} block when a propensity-score model was fitted.
 }
 \description{
 \code{params()} reshapes posterior mean summaries back into the parameter
@@ -22,7 +23,10 @@ layout implied by the fitted model specification.
 \details{
 This extractor is intended for structural inspection of the fitted model.
 Scalar quantities remain scalar, component-specific parameters are returned as
-vectors, and linked regression blocks are returned as matrices.
+vectors, and linked regression blocks are returned as matrices with covariate
+names as columns when available. If propensity-score adjustment is active for
+a linked bulk parameter, its coefficient is folded into the returned beta
+matrix as a leading \code{"PropScore"} column.
 
 For a spliced model, the extractor returns posterior means of the bulk
 mixture parameters together with component-level threshold, tail-scale, and

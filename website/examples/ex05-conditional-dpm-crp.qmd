@@ -49,7 +49,7 @@ source("_legacy-setup.R")
 ## What you’ll learn
 
 - How to fit a **conditional DP mixture** \(y \\mid X\) with the CRP backend.
-- How to form **covariate-slice predictions** with `predict(fit, x = X_new, ...)` and interpret them.
+- How to form **covariate-slice predictions** with `predict(fit, newdata = X_new, ...)` and interpret them.
 - How kernel choice affects conditional fit even when `GPD = FALSE`.
 
 ## When to use this template
@@ -83,7 +83,7 @@ df_cov <- data.frame(y = y, x1 = X[, 1], x2 = X[, 2])
 p_cov <- ggplot(df_cov, aes(x = x1, y = y)) +
   geom_point(alpha = 0.6, color = "steelblue") +
   geom_smooth(method = "loess", color = "firebrick", fill = NA) +
-  labs(title = "y vs X1 (loess smoother)", x = "X1", y = "y") +
+  labs(title = "y vs X1 (loess smoother)", newdata ="X1", y = "y") +
   theme_minimal()
 
 print(p_cov)
@@ -149,7 +149,7 @@ colnames(X_new) <- colnames(X)
 
 y_grid <- seq(-1, 10, length.out = 200)
 densities_normal <- lapply(seq_len(nrow(X_new)), function(i) {
-  pred <- predict(fit_cond_normal, x = as.matrix(X_new[i, , drop = FALSE]), y = y_grid, type = "density")
+  pred <- predict(fit_cond_normal, newdata =as.matrix(X_new[i, , drop = FALSE]), y = y_grid, type = "density")
   data.frame(
     y = pred$fit$y,
     density = pred$fit$density,
@@ -159,7 +159,7 @@ densities_normal <- lapply(seq_len(nrow(X_new)), function(i) {
 })
 
 densities_amoroso <- lapply(seq_len(nrow(X_new)), function(i) {
-  pred <- predict(fit_cond_amoroso, x = as.matrix(X_new[i, , drop = FALSE]), y = y_grid, type = "density")
+  pred <- predict(fit_cond_amoroso, newdata =as.matrix(X_new[i, , drop = FALSE]), y = y_grid, type = "density")
   data.frame(
     y = pred$fit$y,
     density = pred$fit$density,
@@ -173,7 +173,7 @@ df_dens <- bind_rows(densities_normal, densities_amoroso)
 ggplot(df_dens, aes(x = y, y = density, color = group)) +
   geom_line(linewidth = 1) +
   facet_wrap(~ model) +
-  labs(title = "Conditional Predictive Densities", x = "y", y = "Density") +
+  labs(title = "Conditional Predictive Densities", newdata ="y", y = "Density") +
   theme_minimal() +
   theme(legend.position = "bottom")
 ```
@@ -191,8 +191,8 @@ X_grid <- cbind(
 colnames(X_grid) <- colnames(X)
 
 quant_probs <- c(0.25, 0.5, 0.75)
-pred_q_normal <- predict(fit_cond_normal, x = as.matrix(X_grid), type = "quantile", p = quant_probs)
-pred_q_amoroso <- predict(fit_cond_amoroso, x = as.matrix(X_grid), type = "quantile", p = quant_probs)
+pred_q_normal <- predict(fit_cond_normal, newdata =as.matrix(X_grid), type = "quantile", p = quant_probs)
+pred_q_amoroso <- predict(fit_cond_amoroso, newdata =as.matrix(X_grid), type = "quantile", p = quant_probs)
 
 quant_df_normal <- pred_q_normal$fit
 quant_df_normal$x1 <- X_grid[quant_df_normal$id, "x1"]
@@ -207,7 +207,7 @@ bind_rows(quant_df_normal, quant_df_amoroso) %>%
   geom_line(linewidth = 1) +
   geom_point(size = 2) +
   facet_wrap(~ model) +
-  labs(title = "Conditional Quantiles vs x1 (x2=0)", x = "x1", y = "y", color = "Quantile") +
+  labs(title = "Conditional Quantiles vs x1 (x2=0)", newdata ="x1", y = "y", color = "Quantile") +
   theme_minimal()
 ```
 

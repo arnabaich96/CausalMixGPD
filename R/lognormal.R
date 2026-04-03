@@ -171,6 +171,29 @@ qLognormalMix <- function(p, w, meanlog, sdlog,
   out
 }
 
+meanLognormalMix <- function(w, meanlog, sdlog) {
+  ww <- .mean_norm_mix_weights(w)
+  if (is.null(ww)) return(NA_real_)
+  mu <- as.numeric(meanlog)
+  sig <- as.numeric(sdlog)
+  if (length(mu) != length(ww) || length(sig) != length(ww)) return(NA_real_)
+  if (any(!is.finite(mu)) || any(!is.finite(sig)) || any(sig <= 0)) return(NA_real_)
+  sum(ww * exp(mu + 0.5 * sig^2))
+}
+
+meanLognormalMixTrunc <- function(w, meanlog, sdlog, threshold) {
+  ww <- .mean_norm_mix_weights(w)
+  if (is.null(ww)) return(NA_real_)
+  mu <- as.numeric(meanlog)
+  sig <- as.numeric(sdlog)
+  u <- as.numeric(threshold)[1]
+  if (length(mu) != length(ww) || length(sig) != length(ww)) return(NA_real_)
+  if (any(!is.finite(mu)) || any(!is.finite(sig)) || any(sig <= 0) || is.na(u)) return(NA_real_)
+  if (u <= 0) return(0)
+  z <- (log(u) - mu - sig^2) / sig
+  sum(ww * exp(mu + 0.5 * sig^2) * stats::pnorm(z))
+}
+
 #' Lognormal mixture with a GPD tail
 #'
 #' Spliced bulk-tail family formed by attaching a generalized Pareto tail to a lognormal mixture
