@@ -22,10 +22,10 @@ if (!requireNamespace("dplyr", quietly = TRUE)) {
 }
 library(dplyr)
 
-if (!requireNamespace("gridExtra", quietly = TRUE)) {
-  stop("Please install 'gridExtra' using install.packages('gridExtra') so the legacy workflows can render.")
+if (!requireNamespace("patchwork", quietly = TRUE)) {
+  stop("Please install 'patchwork' using install.packages('patchwork') so the legacy workflows can render.")
 }
-library(gridExtra)
+library(patchwork)
 
 # Prefer interactive Plotly output in website HTML when available and renderable.
 # Some environments can have plotly/htmlwidgets installed but broken for knitting.

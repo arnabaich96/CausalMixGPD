@@ -1253,6 +1253,23 @@ and the clustering model is fitted on the observed covariate scale.
 \end{kframe}
 \end{knitrout}
 
+Figure~\ref{fig:app_cluster_response_panels} provides full-sample
+descriptive views of Boston house prices (\code{medv}). The pronounced
+right tail and broad spread motivate a flexible mixture representation
+before clustering-specific summaries are considered.
+
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+{\centering \includegraphics[width=0.95\linewidth]{figure/app_cluster_response_panels-1} 
+
+}
+
+\caption[Full-sample distribution of Boston house prices (\code{medv})]{Full-sample distribution of Boston house prices (\code{medv}): boxplot (left) and histogram (right).}\label{fig:app_cluster_response_panels}
+\end{figure}
+
+\end{knitrout}
+
 \subsection{Model estimation and training cluster summaries}
 
 A bulk-only conditional mixture model is fitted to the \code{medv}
@@ -1461,6 +1478,24 @@ outcome on their observed scales.
 \end{kframe}
 \end{knitrout}
 
+Figure~\ref{fig:app_lalonde_response_panels} provides full-sample
+descriptive views of observed 1978 earnings (\code{re78}) by treatment
+assignment. The mass near zero and visible between-arm differences make
+this data set a natural candidate for distributional causal summaries
+rather than mean-only reporting.
+
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
+
+{\centering \includegraphics[width=0.95\linewidth]{figure/app_lalonde_response_panels-1} 
+
+}
+
+\caption[Full-sample distribution of Lalonde 1978 earnings (\code{re78})]{Full-sample distribution of Lalonde 1978 earnings (\code{re78}): boxplot by treatment arm (left) and overlaid histograms by treatment arm (right).}\label{fig:app_lalonde_response_panels}
+\end{figure}
+
+\end{knitrout}
+
 \subsection{Model and fit}
 
 Arm-specific conditional outcome distributions
@@ -1615,26 +1650,6 @@ re75 & 0.0000 & 16.4710 & 1389.6486 & 4201.8870\\
 \end{kframe}
 \end{knitrout}
 
-Figure~\ref{fig:cate_plot} displays the mean-based CATE estimates
-across the four representative profiles, produced by the package
-\code{plot()} method.
-
-\begin{knitrout}\footnotesize
-\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
-\begin{alltt}
-\hlkwd{plot}\hldef{(cate_fit)}
-\end{alltt}
-\end{kframe}\begin{figure}[H]
-
-{\centering \includegraphics[width=0.85\linewidth]{figure/cate_plot-1} 
-
-}
-
-\caption[Mean-based CATE estimates for Lalonde earnings at the four representative profiles with pointwise credible intervals]{Mean-based CATE estimates for Lalonde earnings at the four representative profiles with pointwise credible intervals.}\label{fig:cate_plot}
-\end{figure}
-
-\end{knitrout}
-
 \begin{knitrout}\footnotesize
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
@@ -1644,53 +1659,22 @@ across the four representative profiles, produced by the package
 \end{kframe}
 \end{knitrout}
 
-Table~\ref{tab:cqte_table} reports CQTE summaries at the four
-representative profiles on the same quantile grid used in the
-standardized QTE analysis.
+Figure~\ref{fig:cate_plot} places the mean-based CATE plot beside a
+compact CQTE table so the profile-specific mean and quantile contrasts
+can be read together. The table entries report posterior estimates with
+95\% credible intervals in brackets.
 
-\begin{table}[H]
-\centering
-\caption{\label{tab:cqte-results}Conditional QTE estimates at representative Lalonde participant profiles.\label{tab:cqte_table}}
-\centering
-\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{
-\fontsize{8}{10}\selectfont
-\begin{tabular}[t]{llllll}
-\toprule
-index & summary & Profile 1 & Profile 2 & Profile 3 & Profile 4\\
-\midrule
- & estimate & 2.0731 & 0.2579 & 0.0770 & 2.1513\\
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{figure}[H]
 
- & lower & -0.0008 & -4.3402 & -4.6040 & -0.0006\\
+{\centering \includegraphics[width=\linewidth]{figure/cate_plot-1} 
 
-\multirow[t]{-3}{*}{\raggedright\arraybackslash 0.25} & upper & 3.5543 & 3.3899 & 3.4151 & 3.6570\\
-\cmidrule{1-6}
- & estimate & 1.6655 & -2.0213 & -1.6055 & 3.0475\\
+}
 
- & lower & -2.2342 & -5.5218 & -5.3775 & -4.1961\\
+\caption[Mean-based CATE estimates (left) and compact CQTE summaries (right) for Lalonde earnings at the four representative profiles]{Mean-based CATE estimates (left) and compact CQTE summaries (right) for Lalonde earnings at the four representative profiles. CQTE entries report posterior estimates with 95\% credible intervals.}\label{fig:cate_plot}
+\end{figure}
 
-\multirow[t]{-3}{*}{\raggedright\arraybackslash 0.50} & upper & 4.1198 & 2.2152 & 1.2352 & 13.2836\\
-\cmidrule{1-6}
- & estimate & 0.4371 & -2.0675 & -1.0300 & 4.8234\\
-
- & lower & -3.8693 & -6.0100 & -5.9444 & -14.9841\\
-
-\multirow[t]{-3}{*}{\raggedright\arraybackslash 0.75} & upper & 5.3785 & 2.0468 & 3.1513 & 32.8792\\
-\cmidrule{1-6}
- & estimate & 0.2093 & -1.2405 & 0.5019 & 8.7087\\
-
- & lower & -6.2329 & -6.9259 & -5.6734 & -30.3922\\
-
-\multirow[t]{-3}{*}{\raggedright\arraybackslash 0.90} & upper & 7.1804 & 5.9720 & 7.9583 & 65.4533\\
-\cmidrule{1-6}
- & estimate & 0.7915 & -0.3071 & 2.3103 & 14.8198\\
-
- & lower & -8.4556 & -8.2264 & -6.6253 & -41.4471\\
-
-\multirow[t]{-3}{*}{\raggedright\arraybackslash 0.95} & upper & 10.8830 & 11.0139 & 14.0258 & 104.8085\\
-\bottomrule
-\end{tabular}}
-\end{table}
-
+\end{knitrout}
 
 \subsection{Results and interpretation}
 
@@ -1760,7 +1744,7 @@ This appendix details the customizable features of the package which are not men
 \subsection{Model fitting options and prior specifications}
 \label{subsec:app-modeling}
 
-Besides the customizable features illustrated in Sections \ref{subsec:gpd}, \ref{subsec:mixture}, \ref{subsec:causal}, and \ref{subsec:overview-model}, this section provides a brief introduction to arguments that allow kernel choice, latent structure, and prior customization.
+Besides the customizable features illustrated in Sections \ref{subsec:gpd}, \ref{subsec:dpm}, \ref{subsec:causal}, and \ref{subsec:overview-model}, this section provides a brief introduction to arguments that allow kernel choice, latent structure, and prior customization.
 
 \subsubsection*{Kernel families and support}
 \label{subsec:app-kernels}
@@ -1988,7 +1972,7 @@ Confidence and credible interval estimation is available for all prediction and 
 \subsection{Workflow-specific extensions}
 \label{subsec:app-workflows}
 
-This section records controls specific to the clustering and causal workflows in Sections~\ref{subsec:cluster_extension}, \ref{subsec:overview-causal}, \ref{sec:app-clustering}, and \ref{sec:app-causal}. Representative outputs appear in Figures~\ref{fig:app_cluster_overlay}, \ref{fig:app_cluster_test_sizes}, \ref{fig:qte_plot}, and \ref{fig:cate_plot}, and in Table~\ref{tab:cqte_table}.
+This section records controls specific to the clustering and causal workflows in Sections~\ref{subsec:cluster_extension}, \ref{subsec:overview-causal}, \ref{sec:app-clustering}, and \ref{sec:app-causal}. Representative outputs appear in Figures~\ref{fig:app_cluster_overlay}, \ref{fig:app_cluster_test_sizes}, \ref{fig:qte_plot}, and \ref{fig:cate_plot}, with the latter combining the CATE plot and CQTE table.
 
 \paragraph{Causal estimands.}
 \label{subsec:app-causal-estimands}
@@ -2107,7 +2091,7 @@ In the case of cluster models, there are several custom plotting techniques. The
 
 All plotting functions return ggplot2-based objects for subsequent manipulation with ggplot2 code. Setting global option options(CausalMixGPD.plotly = TRUE) or passing plotly=TRUE to the function turns these plots into interactive plotly objects.
 
-The concrete illustrations shown in Figures \ref{fig:app_cluster_overlay}, \ref{fig:app_cluster_test_sizes}, \ref{fig:qte_plot}, and \ref{fig:cate_plot} showcase exemplary plotting output of the described visualization interface for clusters summary plots, predicted label sizes, QTE/CATE summaries, and covariate-specific CATE contrasts, respectively.
+The concrete illustrations shown in Figures \ref{fig:app_cluster_overlay}, \ref{fig:app_cluster_test_sizes}, \ref{fig:qte_plot}, and \ref{fig:cate_plot} showcase exemplary plotting output of the described visualization interface for clusters summary plots, predicted label sizes, QTE summaries, and profile-specific CATE/CQTE contrasts, respectively.
 
 \subsubsection{Model inspection and diagnostics}
 \label{subsec:app-summaries}

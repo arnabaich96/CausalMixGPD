@@ -1461,6 +1461,56 @@ train_dat <- dat[idx_train, ]
 test_dat  <- dat[-idx_train, ]
 @
 
+Figure~\ref{fig:app_cluster_response_panels} provides full-sample
+descriptive views of Boston house prices (\code{medv}). The pronounced
+right tail and broad spread motivate a flexible mixture representation
+before clustering-specific summaries are considered.
+
+<<app_cluster_response_panels, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=10, fig.height=4.8, out.width='0.95\\linewidth', fig.pos='H', fig.cap='Full-sample distribution of Boston house prices (\\code{medv}): boxplot (left) and histogram (right).'>>=
+app_cluster_plot_df <- data.frame(
+  medv = dat$medv,
+  sample = "All tracts"
+)
+
+app_cluster_box_plot <- ggplot(
+  app_cluster_plot_df,
+  aes(x = sample, y = medv)
+) +
+  geom_boxplot(
+    width = 0.45,
+    fill = cmgpd_pal[["mist"]],
+    colour = cmgpd_pal[["navy"]],
+    outlier.colour = cmgpd_pal[["rose"]],
+    outlier.alpha = 0.85
+  ) +
+  labs(
+    title = "House prices: boxplot",
+    x = NULL,
+    y = "medv"
+  ) +
+  cmgpd_theme(base_size = 12) +
+  theme(legend.position = "none")
+
+app_cluster_hist_plot <- ggplot(
+  app_cluster_plot_df,
+  aes(x = medv, y = after_stat(density))
+) +
+  geom_histogram(
+    bins = 30,
+    fill = cmgpd_pal[["mist"]],
+    colour = "white",
+    linewidth = 0.25
+  ) +
+  labs(
+    title = "House prices: histogram",
+    x = "medv",
+    y = "Density"
+  ) +
+  cmgpd_theme(base_size = 12)
+
+app_cluster_box_plot + app_cluster_hist_plot + plot_layout(ncol = 2)
+@
+
 \subsection{Model estimation and training cluster summaries}
 
 A bulk-only conditional mixture model is fitted to the \code{medv}
@@ -1597,6 +1647,70 @@ app_lalonde_A <- as.integer(app_lalonde_covars$treat)
 app_lalonde_taus <- c(0.25, 0.50, 0.75, 0.90, 0.95)
 app_lalonde_X <- stats::model.matrix(app_lalonde_x_formula, data = app_lalonde_covars
                                                   )[, -1, drop = FALSE]
+@
+
+Figure~\ref{fig:app_lalonde_response_panels} provides full-sample
+descriptive views of observed 1978 earnings (\code{re78}) by treatment
+assignment. The mass near zero and visible between-arm differences make
+this data set a natural candidate for distributional causal summaries
+rather than mean-only reporting.
+
+<<app_lalonde_response_panels, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=10, fig.height=4.8, out.width='0.95\\linewidth', fig.pos='H', fig.cap='Full-sample distribution of Lalonde 1978 earnings (\\code{re78}): boxplot by treatment arm (left) and overlaid histograms by treatment arm (right).'>>=
+app_lalonde_plot_df <- data.frame(
+  re78 = app_lalonde_covars$re78,
+  treat_label = factor(
+    app_lalonde_covars$treat,
+    levels = c(0, 1),
+    labels = c("Control (A=0)", "Treated (A=1)")
+  )
+)
+
+app_lalonde_box_plot <- ggplot(
+  app_lalonde_plot_df,
+  aes(x = treat_label, y = re78, fill = treat_label)
+) +
+  geom_boxplot(
+    width = 0.55,
+    colour = cmgpd_pal[["navy"]],
+    outlier.colour = cmgpd_pal[["rose"]],
+    outlier.alpha = 0.85
+  ) +
+  scale_fill_manual(values = c(cmgpd_pal[["mist"]], cmgpd_pal[["copper"]])) +
+  labs(
+    title = "1978 earnings: boxplot",
+    x = NULL,
+    y = "re78 (USD)"
+  ) +
+  cmgpd_theme(base_size = 12) +
+  theme(legend.position = "none")
+
+app_lalonde_hist_plot <- ggplot(
+  app_lalonde_plot_df,
+  aes(
+    x = re78,
+    y = after_stat(density),
+    fill = treat_label,
+    colour = treat_label
+  )
+) +
+  geom_histogram(
+    bins = 35,
+    position = "identity",
+    linewidth = 0.2,
+    alpha = 0.45
+  ) +
+  scale_colour_manual(values = c(cmgpd_pal[["teal"]], cmgpd_pal[["rose"]])) +
+  scale_fill_manual(values = c(cmgpd_pal[["mist"]], cmgpd_pal[["copper"]])) +
+  labs(
+    title = "1978 earnings: histograms by arm",
+    x = "re78 (USD)",
+    y = "Density",
+    fill = "Treatment arm"
+  ) +
+  cmgpd_theme(base_size = 12) +
+  theme(legend.position = "bottom")
+
+app_lalonde_box_plot + app_lalonde_hist_plot + plot_layout(ncol = 2)
 @
 
 \subsection{Model and fit}
@@ -1782,81 +1896,86 @@ cate_fit <- cate(fit, newdata = xnew, type = "mean",
 summary(cate_fit)
 @
 
-Figure~\ref{fig:cate_plot} displays the mean-based CATE estimates
-across the four representative profiles, produced by the package
-\code{plot()} method.
-
-<<cate_plot, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE, out.width='0.85\\linewidth', fig.pos='H', fig.cap='Mean-based CATE estimates for Lalonde earnings at the four representative profiles with pointwise credible intervals.'>>=
-plot(cate_fit)
-@
-
 <<cqte-call, echo=TRUE, message=FALSE, warning=FALSE, results='hide', eval=TRUE>>=
 cqte_fit <- cqte(fit, probs = c(0.25, 0.50, 0.75, 0.90, 0.95),
   newdata = xnew, interval = "credible", show_progress = FALSE)
 @
 
-Table~\ref{tab:cqte_table} reports CQTE summaries at the four
-representative profiles on the same quantile grid used in the
-standardized QTE analysis.
+Figure~\ref{fig:cate_plot} places the mean-based CATE plot beside a
+compact CQTE table so the profile-specific mean and quantile contrasts
+can be read together. The table entries report posterior estimates with
+95\% credible intervals in brackets.
 
-<<cqte-results, echo=FALSE, eval=TRUE, results='asis'>>=
+<<cate_plot, echo=FALSE, message=FALSE, warning=FALSE, eval=TRUE, fig.width=10.4, fig.height=4.1, out.width='\\linewidth', fig.pos='H', fig.cap='Mean-based CATE estimates (left) and compact CQTE summaries (right) for Lalonde earnings at the four representative profiles. CQTE entries report posterior estimates with 95\\% credible intervals.'>>=
+cate_plot_obj <- plot(cate_fit) +
+  ggplot2::labs(title = "CATE by profile", x = NULL) +
+  ggplot2::theme(
+    plot.title = ggplot2::element_text(size = 10.5, face = "bold"),
+    axis.title.y = ggplot2::element_text(size = 9.5),
+    axis.text = ggplot2::element_text(size = 8.5),
+    plot.margin = ggplot2::margin(5.5, 6, 5.5, 5.5)
+  )
+
 cqte_tab <- as.data.frame(cqte_fit$fit_df)[, c("id", "index", "estimate", "lower", "upper")]
-cqte_long <- do.call(
-  rbind,
-  lapply(c("estimate", "lower", "upper"), function(stat_name) {
-    out <- cqte_tab[, c("id", "index", stat_name)]
-    names(out)[3] <- "value"
-    out$stat <- stat_name
-    out
-  })
-)
-cqte_long$index_label <- formatC(cqte_long$index, format = "f", digits = 2)
-cqte_long$summary <- factor(
-  cqte_long$stat,
-  levels = c("estimate", "lower", "upper")
-)
-cqte_wide <- reshape(
-  cqte_long[, c("index_label", "summary", "id", "value")],
-  idvar = c("index_label", "summary"),
-  timevar = "id",
-  direction = "wide"
-)
-cqte_wide <- cqte_wide[
-  order(
-    as.numeric(cqte_wide$index_label),
-    match(as.character(cqte_wide$summary), c("estimate", "lower", "upper"))
-  ),
-  ,
-  drop = FALSE
-]
-names(cqte_wide) <- c(
-  "index",
-  "summary",
-  paste("Profile", sort(unique(cqte_tab$id)))
-)
-cqte_wide$summary <- as.character(cqte_wide$summary)
-cqte_wide[-c(1, 2)] <- lapply(
-  cqte_wide[-c(1, 2)],
-  function(x) formatC(x, format = "f", digits = 4)
+profile_ids <- sort(unique(cqte_tab$id))
+prob_grid <- sort(unique(cqte_tab$index))
+
+cqte_display <- data.frame(
+  tau = formatC(prob_grid, format = "f", digits = 2),
+  check.names = FALSE
 )
 
-kableExtra::kbl(
-  cqte_wide,
-  format = "latex",
-  booktabs = TRUE,
-  caption = "Conditional QTE estimates at representative Lalonde participant profiles.\\label{tab:cqte_table}",
-  row.names = FALSE
-) |>
-  kableExtra::kable_styling(
-    latex_options = c("HOLD_position", "scale_down"),
-    font_size = 8
-  ) |>
-  kableExtra::collapse_rows(
-    columns = 1,
-    latex_hline = "major",
-    valign = "top"
-  ) |>
-  print()
+cqte_rows <- vector("list", length(profile_ids))
+
+for (pid in profile_ids) {
+  profile_slice <- cqte_tab[cqte_tab$id == pid, ]
+  profile_slice <- profile_slice[match(prob_grid, profile_slice$index), ]
+  cell_label <- sprintf(
+    "%.2f\n[%.2f, %.2f]",
+    profile_slice$estimate,
+    profile_slice$lower,
+    profile_slice$upper
+  )
+  cqte_display[[paste0("P", pid)]] <- cell_label
+  cqte_rows[[which(profile_ids == pid)]] <- data.frame(
+    profile = factor(
+      paste0("P", pid),
+      levels = paste0("P", profile_ids)
+    ),
+    tau = factor(
+      formatC(prob_grid, format = "f", digits = 2),
+      levels = rev(formatC(prob_grid, format = "f", digits = 2))
+    ),
+    label = cell_label
+  )
+}
+
+cqte_plot_df <- do.call(rbind, cqte_rows)
+
+cqte_plot_obj <- ggplot2::ggplot(
+  cqte_plot_df,
+  ggplot2::aes(x = profile, y = tau)
+) +
+  ggplot2::geom_tile(fill = "white", color = "grey80", linewidth = 0.35) +
+  ggplot2::geom_text(
+    ggplot2::aes(label = label),
+    size = 2.45,
+    lineheight = 0.9,
+    fontface = "bold"
+  ) +
+  ggplot2::scale_x_discrete(position = "top") +
+  ggplot2::labs(title = "CQTE with 95% credible intervals", x = NULL, y = NULL) +
+  ggplot2::theme_minimal(base_size = 9) +
+  ggplot2::theme(
+    panel.grid = ggplot2::element_blank(),
+    axis.text.x = ggplot2::element_text(size = 8.5, face = "bold", margin = ggplot2::margin(b = 4)),
+    axis.text.y = ggplot2::element_text(size = 8),
+    plot.title = ggplot2::element_text(size = 10, face = "bold"),
+    plot.margin = ggplot2::margin(5.5, 5.5, 5.5, 0)
+  )
+
+cate_plot_obj + cqte_plot_obj +
+  patchwork::plot_layout(widths = c(1, 1.45))
 @
 
 \subsection{Results and interpretation}
@@ -1927,7 +2046,7 @@ This appendix details the customizable features of the package which are not men
 \subsection{Model fitting options and prior specifications}
 \label{subsec:app-modeling}
 
-Besides the customizable features illustrated in Sections \ref{subsec:gpd}, \ref{subsec:mixture}, \ref{subsec:causal}, and \ref{subsec:overview-model}, this section provides a brief introduction to arguments that allow kernel choice, latent structure, and prior customization.
+Besides the customizable features illustrated in Sections \ref{subsec:gpd}, \ref{subsec:dpm}, \ref{subsec:causal}, and \ref{subsec:overview-model}, this section provides a brief introduction to arguments that allow kernel choice, latent structure, and prior customization.
 
 \subsubsection*{Kernel families and support}
 \label{subsec:app-kernels}
@@ -2155,7 +2274,7 @@ Confidence and credible interval estimation is available for all prediction and 
 \subsection{Workflow-specific extensions}
 \label{subsec:app-workflows}
 
-This section records controls specific to the clustering and causal workflows in Sections~\ref{subsec:cluster_extension}, \ref{subsec:overview-causal}, \ref{sec:app-clustering}, and \ref{sec:app-causal}. Representative outputs appear in Figures~\ref{fig:app_cluster_overlay}, \ref{fig:app_cluster_test_sizes}, \ref{fig:qte_plot}, and \ref{fig:cate_plot}, and in Table~\ref{tab:cqte_table}.
+This section records controls specific to the clustering and causal workflows in Sections~\ref{subsec:cluster_extension}, \ref{subsec:overview-causal}, \ref{sec:app-clustering}, and \ref{sec:app-causal}. Representative outputs appear in Figures~\ref{fig:app_cluster_overlay}, \ref{fig:app_cluster_test_sizes}, \ref{fig:qte_plot}, and \ref{fig:cate_plot}, with the latter combining the CATE plot and CQTE table.
 
 \paragraph{Causal estimands.}
 \label{subsec:app-causal-estimands}
@@ -2274,7 +2393,7 @@ In the case of cluster models, there are several custom plotting techniques. The
 
 All plotting functions return ggplot2-based objects for subsequent manipulation with ggplot2 code. Setting global option options(CausalMixGPD.plotly = TRUE) or passing plotly=TRUE to the function turns these plots into interactive plotly objects.
 
-The concrete illustrations shown in Figures \ref{fig:app_cluster_overlay}, \ref{fig:app_cluster_test_sizes}, \ref{fig:qte_plot}, and \ref{fig:cate_plot} showcase exemplary plotting output of the described visualization interface for clusters summary plots, predicted label sizes, QTE/CATE summaries, and covariate-specific CATE contrasts, respectively.
+The concrete illustrations shown in Figures \ref{fig:app_cluster_overlay}, \ref{fig:app_cluster_test_sizes}, \ref{fig:qte_plot}, and \ref{fig:cate_plot} showcase exemplary plotting output of the described visualization interface for clusters summary plots, predicted label sizes, QTE summaries, and profile-specific CATE/CQTE contrasts, respectively.
 
 \subsubsection{Model inspection and diagnostics}
 \label{subsec:app-summaries}

@@ -7,6 +7,5 @@ testthat
 CausalMixGPD
 tibble
 dplyr
-gridExtra
 magrittr
 patchwork

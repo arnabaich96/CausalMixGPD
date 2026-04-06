@@ -22,8 +22,8 @@ if (!requireNamespace("dplyr", quietly = TRUE)) {
 }
 library(dplyr)
 
-if (requireNamespace("gridExtra", quietly = TRUE)) {
-  library(gridExtra)
+if (requireNamespace("patchwork", quietly = TRUE)) {
+  library(patchwork)
 }
 
 `%||%` <- function(a, b) if (!is.null(a)) a else b
