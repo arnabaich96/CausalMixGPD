@@ -162,7 +162,7 @@ build_nimble_bundle <- function(
     constants  = build_constants_from_spec(spec),
     dimensions = build_dimensions_from_spec(spec),
     data       = build_data_from_inputs(y = y, X = X, ps = ps),
-    inits      = build_inits_from_spec(spec, y = y),
+    inits      = build_inits_from_spec(spec, y = y, X = X),
     monitors   = build_monitors_from_spec(spec, monitor_v = monitor_v, monitor_latent = monitor_latent),
     monitor_policy = list(
       monitor = monitor,
@@ -381,7 +381,12 @@ build_monitors_from_spec <- function(spec, monitor_v = FALSE, monitor_latent = F
         if (identical(thr_mode, "link")) {
           if (P < 1L) stop("GPD threshold is link-mode but P=0.", call. = FALSE)
           mons <- c(mons, sprintf("beta_threshold[1:%d,1:%d]", K, P))
-          # Do NOT monitor threshold_i[i] (deterministic, reconstructed in prediction)
+          if (!is.null(gpd$threshold$link_dist) &&
+              identical(gpd$threshold$link_dist$dist, "lognormal")) {
+            mons <- c(mons, sprintf("threshold_i[1:%d,1:%d]", N, K))
+            mons <- c(mons, "sdlog_u")
+          }
+          # Do NOT monitor deterministic threshold_i[i] by default.
         } else if (thr_mode %in% c("fixed", "dist")) {
           mons <- c(mons, sprintf("threshold[1:%d]", K))
         } else {
@@ -491,7 +496,7 @@ build_monitors_from_spec <- function(spec, monitor_v = FALSE, monitor_latent = F
 #' @return Named list of initial values.
 #' @keywords internal
 #' @noRd
-build_inits_from_spec <- function(spec, seed = NULL, y = NULL) {
+build_inits_from_spec <- function(spec, seed = NULL, y = NULL, X = NULL) {
   stopifnot(is.list(spec), !is.null(spec$meta), !is.null(spec$plan))
 
 
@@ -511,9 +516,58 @@ build_inits_from_spec <- function(spec, seed = NULL, y = NULL) {
   has_ps <- !is.null(plan$ps)
   K <- as.integer(meta$components)
   y_obs <- if (!is.null(y)) as.numeric(y) else numeric()
+  X_obs <- if (!is.null(X)) {
+    if (!is.matrix(X)) X <- as.matrix(X)
+    storage.mode(X) <- "double"
+    X
+  } else {
+    NULL
+  }
   cluster_gating <- isTRUE((spec$cluster %||% list())$gating)
 
   inits <- list()
+
+  threshold_seed_value <- function() {
+    q <- if (length(y_obs)) {
+      suppressWarnings(stats::quantile(y_obs, probs = 0.8, na.rm = TRUE, names = FALSE))
+    } else {
+      NA_real_
+    }
+    if (!is.finite(q) || length(q) != 1L) q <- 1
+    max(as.numeric(q), .Machine$double.eps)
+  }
+
+  threshold_link_seed <- function() {
+    q <- threshold_seed_value()
+    if (P < 1L) {
+      return(numeric())
+    }
+    target <- rep(log(q), N)
+    beta <- tryCatch(
+      as.numeric(stats::coef(stats::lm.fit(x = X_obs, y = target))),
+      error = function(e) rep(NA_real_, P)
+    )
+    if (length(beta) != P || anyNA(beta) || any(!is.finite(beta))) {
+      beta <- rep(0, P)
+      if (!is.null(X_obs) && is.matrix(X_obs) && ncol(X_obs) >= 1L &&
+          all(is.finite(X_obs[, 1L])) && stats::var(X_obs[, 1L]) < .Machine$double.eps) {
+        beta[1L] <- log(q)
+      }
+    }
+    beta
+  }
+
+  latent_label_seed <- function(K_init) {
+    if (length(y_obs) == N && N >= 1L && sum(is.finite(y_obs)) == N) {
+      ord <- order(y_obs)
+      z_init <- integer(N)
+      grp <- floor(((seq_len(N) - 1L) * K_init) / N) + 1L
+      grp_labels <- sample.int(K_init, K_init)
+      z_init[ord] <- grp_labels[pmin.int(K_init, grp)]
+      return(z_init)
+    }
+    sample.int(K_init, size = N, replace = TRUE)
+  }
 
   # ---- concentration alpha ----
   conc <- plan$concentration %||% list()
@@ -547,11 +601,11 @@ build_inits_from_spec <- function(spec, seed = NULL, y = NULL) {
     }
     # w/w_x are deterministic from latent gating/stick blocks; do not init
     K_init <- max(2L, min(K, 5L))
-    inits$z <- sample.int(K_init, size = N, replace = TRUE)
+    inits$z <- latent_label_seed(K_init)
   } else if (backend %in% c("crp", "spliced")) {
     # z[1:N] ~ dCRP(...); init in 1:K, avoid all unique labels for stability
     K_init <- max(2L, min(K, 5L))
-    inits$z <- sample.int(K_init, size = N, replace = TRUE)
+    inits$z <- latent_label_seed(K_init)
   } else {
     stop("Unknown backend in spec$meta$backend.", call. = FALSE)
   }
@@ -625,7 +679,11 @@ build_inits_from_spec <- function(spec, seed = NULL, y = NULL) {
           # Component-specific beta coefficients
           if (P < 1L) stop("GPD threshold is link-mode but P=0.", call. = FALSE)
           inits$beta_threshold <- matrix(0, nrow = K, ncol = P)
-          # threshold_i[i] is deterministic; do not init
+          if (!is.null(gpd$threshold$link_dist) &&
+              identical(gpd$threshold$link_dist$dist, "lognormal")) {
+            inits$threshold_i <- matrix(threshold_seed_value(), nrow = N, ncol = K)
+            inits$sdlog_u <- 0.2
+          }
         } else if (identical(thr_mode, "fixed")) {
           # Deterministic; no init
         } else {
@@ -689,22 +747,16 @@ build_inits_from_spec <- function(spec, seed = NULL, y = NULL) {
         thr_mode <- gpd$threshold$mode %||% NA_character_
 
         if (thr_mode %in% c("fixed", "dist")) {
-          inits$threshold <- 1
+          inits$threshold <- threshold_seed_value()
         } else if (identical(thr_mode, "link")) {
           if (P < 1L) stop("GPD threshold is link-mode but P=0.", call. = FALSE)
-          inits$beta_threshold <- rep(0, P)
+          inits$beta_threshold <- threshold_link_seed()
 
           # if LN around-link: threshold[i] is stochastic lognormal and sdlog_u exists
           if (!is.null(gpd$threshold$link_dist) &&
               identical(gpd$threshold$link_dist$dist, "lognormal")) {
             # positive threshold init; 0.8-quantile is usually safe and data-informed
-            q <- if (length(y_obs)) {
-              suppressWarnings(stats::quantile(y_obs, probs = 0.8, na.rm = TRUE, names = FALSE))
-            } else {
-              NA_real_
-            }
-            if (!is.finite(q) || length(q) != 1L) q <- 1
-            q <- max(as.numeric(q), .Machine$double.eps)
+            q <- threshold_seed_value()
             inits$threshold <- rep(q, N)
             inits$sdlog_u <- 0.2
           } else {
@@ -998,8 +1050,13 @@ build_dimensions_from_spec <- function(spec) {
         } else if (identical(thr_mode, "link")) {
           if (P < 1L) stop("GPD threshold is link-mode but P=0.", call. = FALSE)
           dims$beta_threshold <- c(K, P)      # component-specific coefficients
-          dims$eta_threshold <- c(N)          # linear predictor (optional, but harmless)
-          dims$threshold_i <- c(N)            # transformed parameter
+          if (!is.null(thr$link_dist) && identical(thr$link_dist$dist, "lognormal")) {
+            dims$eta_threshold <- c(N, K)
+            dims$threshold_i <- c(N, K)
+          } else {
+            dims$eta_threshold <- c(N)        # linear predictor (optional, but harmless)
+            dims$threshold_i <- c(N)          # transformed parameter
+          }
         } else {
           stop("Invalid gpd$threshold mode in plan.", call. = FALSE)
         }
@@ -1759,14 +1816,31 @@ build_code_crp_from_spec <- function(spec) {
           add("  for (k in 1:components) {")
           add(sprintf("    for (p in 1:P) beta_threshold[k, p] ~ dnorm(%s, sd = %s)", deparse1(m), deparse1(s)))
           add("  }")
-          add("  for (i in 1:N) {")
-          if (P == 1L) {
-            add("    eta_threshold[i] <- X[i, 1] * beta_threshold[z[i], 1]")
+          if (!is.null(thr$link_dist) && identical(thr$link_dist$dist, "lognormal")) {
+            sdlog_u <- gpd$sdlog_u %||% list(mode = "dist", dist = "invgamma", args = list(shape = 2, scale = 1))
+            if (!identical(sdlog_u$mode, "dist")) stop("sdlog_u must be dist-mode under lognormal threshold.", call. = FALSE)
+            add(sprintf("  sdlog_u ~ %s",
+                        .codegen_prior_call(sdlog_u$dist, sdlog_u$args, backend = "CRP")))
+            add("  for (i in 1:N) {")
+            add("    for (k in 1:components) {")
+            if (P == 1L) {
+              add("      eta_threshold[i, k] <- X[i, 1] * beta_threshold[k, 1]")
+            } else {
+              add("      eta_threshold[i, k] <- inprod(X[i, 1:P], beta_threshold[k, 1:P])")
+            }
+            add("      threshold_i[i, k] ~ dlnorm(meanlog = eta_threshold[i, k], sdlog = sdlog_u)")
+            add("    }")
+            add("  }")
           } else {
-            add("    eta_threshold[i] <- inprod(X[i, 1:P], beta_threshold[z[i], 1:P])")
+            add("  for (i in 1:N) {")
+            if (P == 1L) {
+              add("    eta_threshold[i] <- X[i, 1] * beta_threshold[z[i], 1]")
+            } else {
+              add("    eta_threshold[i] <- inprod(X[i, 1:P], beta_threshold[z[i], 1:P])")
+            }
+            add(sprintf("    threshold_i[i] <- %s", .codegen_link_expr("eta_threshold[i]", thr$link, thr$link_power)))
+            add("  }")
           }
-          add(sprintf("    threshold_i[i] <- %s", .codegen_link_expr("eta_threshold[i]", thr$link, thr$link_power)))
-          add("  }")
         } else {
           stop("Invalid gpd threshold mode.", call. = FALSE)
         }
@@ -1991,7 +2065,12 @@ build_code_crp_from_spec <- function(spec) {
       if (is_spliced) {
         # Spliced backend: link mode uses threshold_i[i], others use threshold[z[i]]
         if (!is.null(thr_for_args) && identical(thr_for_args$mode, "link")) {
-          args_expr <- c(args_expr, "threshold_i[i]")
+          if (!is.null(thr_for_args$link_dist) &&
+              identical(thr_for_args$link_dist$dist, "lognormal")) {
+            args_expr <- c(args_expr, "threshold_i[i, z[i]]")
+          } else {
+            args_expr <- c(args_expr, "threshold_i[i]")
+          }
         } else {
           args_expr <- c(args_expr, "threshold[z[i]]")
         }
@@ -2629,39 +2708,65 @@ run_mcmc_bundle_manual <- function(bundle, show_progress = TRUE, quiet = FALSE,
 
   .cmgpd_progress_step(progress_ctx, "Running MCMC")
   t0_mcmc <- tic()
-  res <- tryCatch(
-    .cmgpd_capture_nimble(
-      nimble::runMCMC(
-        engine_mcmc,
-        niter = niter,
-        nburnin = nburnin,
-        thin = thin,
-        nchains = nchains,
-        inits = inits_list,
-        progressBar = FALSE,
-        samplesAsCodaMCMC = TRUE
+  run_mcmc_once <- function(current_inits) {
+    tryCatch(
+      .cmgpd_capture_nimble(
+        nimble::runMCMC(
+          engine_mcmc,
+          niter = niter,
+          nburnin = nburnin,
+          thin = thin,
+          nchains = nchains,
+          inits = current_inits,
+          progressBar = FALSE,
+          samplesAsCodaMCMC = TRUE
+        ),
+        suppress = nimble_quiet
       ),
-      suppress = nimble_quiet
-    ),
-    error = function(e) e
-  )
+      error = function(e) e
+    )
+  }
+  res <- run_mcmc_once(inits_list)
+  is_crp_init_error <- inherits(res, "error") &&
+    grepl(
+      "CRP_sampler: sampler encountered case where the log probability density values corresponding to all potential cluster memberships are negative infinity",
+      conditionMessage(res),
+      fixed = TRUE
+    )
+  if (is_crp_init_error && identical(spec$meta$backend, "crp")) {
+    max_crp_retries <- 5L
+    for (attempt in seq_len(max_crp_retries)) {
+      retry_seed <- seed + attempt
+      retry_inits <- if (nchains > 1L) {
+        out <- vector("list", nchains)
+        for (ch in seq_len(nchains)) {
+          out[[ch]] <- build_inits_from_spec(
+            spec,
+            seed = retry_seed[ch],
+            y = data$y,
+            X = data$X %||% NULL
+          )
+        }
+        out
+      } else {
+        build_inits_from_spec(
+          spec,
+          seed = retry_seed[1L],
+          y = data$y,
+          X = data$X %||% NULL
+        )
+      }
+      res <- run_mcmc_once(retry_inits)
+      if (!inherits(res, "error")) {
+        inits_list <- retry_inits
+        break
+      }
+    }
+  }
   timing_info$mcmc <- tic() - t0_mcmc
 
   if (inherits(res, "error")) {
-    samples <- .cmgpd_capture_nimble(
-      nimble::runMCMC(
-        engine_mcmc,
-        niter = niter,
-        nburnin = nburnin,
-        thin = thin,
-        nchains = nchains,
-        inits = inits_list,
-        progressBar = FALSE,
-        samplesAsCodaMCMC = TRUE
-      ),
-      suppress = nimble_quiet
-    )
-    waic_obj <- NULL
+    stop(res)
   } else if (is.list(res) && !is.null(res$WAIC)) {
     waic_obj <- res$WAIC
     samples <- res$samples

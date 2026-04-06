@@ -72,7 +72,7 @@ model-based clustering, and distributional causal reporting.
 \sloppy
 \raggedbottom
 
-<<manuscript-setup, include=FALSE, eval=TRUE>>=
+<<setup, include=FALSE, eval=TRUE>>=
 
 manuscript_dir <- local({
   input_dir <- tryCatch(
@@ -187,10 +187,10 @@ cmgpd_theme <- function(base_size = 14) {
 }
 
 mcmc_fixed <- list(
-  niter = 2500,
+  niter = 2000,
   nburnin = 500,
   thin = 1,
-  nchains = 3,
+  nchains = 1,
   seed = 2026
 )
 @
@@ -1437,17 +1437,7 @@ and the clustering model is fitted on the observed covariate scale.
 <<app_cluster_data, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
 library(CausalMixGPD)
 library(MASS)
-mcmc_fixed <- list(
-  niter = 1000,
-  nburnin = 200,
-  thin = 1,
-  nchains = 1,
-  seed = 2026,
-  show_progress = TRUE,
-  quiet = FALSE,
-  waic = FALSE,
-  timing = TRUE
-)
+
 set.seed(123)
 data("Boston", package = "MASS")
 
@@ -1528,15 +1518,6 @@ summary(z_test)
 plot(z_test, type = "size")
 @
 
-<<app_cluster_restore_mcmc, echo=FALSE, eval=TRUE, include=FALSE>>=
-mcmc_fixed <- list(
-  niter = 2500,
-  nburnin = 500,
-  thin = 1,
-  nchains = 3,
-  seed = 2026
-)
-@
 
 This analysis illustrates the intended clustering workflow: inference
 is summarized through a representative training partition and its
@@ -1577,24 +1558,38 @@ $\{\boldsymbol{x}_i\}_{i=1}^n$, while the conditional estimands
 profiles.
 
 The following code loads the data and constructs the design matrix used
-in the causal fit.  To stabilize the GPD-linked regression, the
-continuous covariates are centered and scaled, and the outcome is
-rescaled to thousands.
+in the causal fit.  The analysis keeps both the covariates and the
+outcome on their observed scales.
 
-<<setup, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
+<<causal-data-setup, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
 data("lalonde", package = "MatchIt")
-covars <- within(lalonde, {
+app_lalonde_covars <- within(lalonde, {
   race <- factor(race, levels = c("white", "black", "hispan"))
   married <- factor(married, levels = c(0, 1), labels = c("no", "yes"))
   nodegree <- factor(nodegree, levels = c(0, 1), labels = c("no", "yes"))
 })
-x_formula <- ~ age + educ + race + married +
-  nodegree + re74 + re75
-y <- (covars$re78 + 0.5) / 1000
-A <- as.integer(covars$treat)
-taus <- c(0.25, 0.50, 0.75, 0.90, 0.95)
-X <- stats::model.matrix(x_formula, data = covars)[,
-  -1, drop = FALSE]
+app_lalonde_scale_vars <- c("age", "educ", "re74", "re75")
+app_lalonde_scale_center <- vapply(
+  app_lalonde_scale_vars,
+  function(v) mean(app_lalonde_covars[[v]], na.rm = TRUE),
+  numeric(1)
+)
+app_lalonde_scale_scale <- vapply(
+  app_lalonde_scale_vars,
+  function(v) stats::sd(app_lalonde_covars[[v]], na.rm = TRUE),
+  numeric(1)
+)
+for (v in app_lalonde_scale_vars) {
+  app_lalonde_covars[[paste0(v, "_z")]] <-
+    (app_lalonde_covars[[v]] - app_lalonde_scale_center[[v]]) /
+    app_lalonde_scale_scale[[v]]
+}
+app_lalonde_x_formula <- ~ age_z + educ_z + race + married + nodegree + re74_z + re75_z
+app_lalonde_y <- (app_lalonde_covars$re78 + 0.5) / 1000
+app_lalonde_A <- as.integer(app_lalonde_covars$treat)
+app_lalonde_taus <- c(0.25, 0.50, 0.75, 0.90, 0.95)
+app_lalonde_X <- stats::model.matrix(app_lalonde_x_formula, data = app_lalonde_covars
+                                                  )[, -1, drop = FALSE]
 @
 
 \subsection{Model and fit}
@@ -1609,8 +1604,8 @@ f_a(y\mid \boldsymbol{x})
 +
 \{1-F_a(u\mid \boldsymbol{x})\}\, g(y\mid u,\sigma_a,\xi_a)\,\mathbf{1}(y>u).
 \end{equation*}
-The bulk kernel $k(\cdot)$ is a DPM regression (stick-breaking
-backend) and the tail density $g(\cdot)$ is GPD with scale
+The bulk kernel $k(\cdot)$ is a DPM regression with a CRP
+backend, and the tail density $g(\cdot)$ is GPD with scale
 $\sigma_a>0$ and shape~$\xi_a$.  The GPD tail index $\xi_a$ controls
 extremal heaviness (e.g., $\xi_a>0$ corresponds to heavy tails).  This
 model stabilizes inference for extreme quantiles by coupling
@@ -1624,8 +1619,9 @@ standardized and profile-specific Lalonde earnings contrasts under the
 spliced DPM--GPD workflow.
 
 <<fit-code, echo=TRUE, message=FALSE, warning=FALSE, eval=TRUE>>=
-fit <- dpmgpd.causal(y = y, X = X, treat = A, backend = "sb",
-  kernel = "gamma", components = 10, mcmc = mcmc_fixed)
+fit <- dpmgpd.causal(y = app_lalonde_y, X = app_lalonde_X, treat = app_lalonde_A,
+                      backend = "crp", kernel = "gamma", components = 10, mcmc = mcmc_fixed)
+
 @
 
 
@@ -1685,50 +1681,61 @@ numeric_quantile <- function(x, prob = 0.50) {
 profile_raw <- data.frame(
   profile = c("Profile 1", "Profile 2", "Profile 3", "Profile 4"),
   age = c(
-    numeric_quantile(covars$age, 0.25),
-    numeric_quantile(covars$age, 0.50),
-    numeric_quantile(covars$age, 0.75),
-    numeric_quantile(covars$age, 0.90)
+    numeric_quantile(app_lalonde_covars$age, 0.25),
+    numeric_quantile(app_lalonde_covars$age, 0.50),
+    numeric_quantile(app_lalonde_covars$age, 0.75),
+    numeric_quantile(app_lalonde_covars$age, 0.90)
   ),
   educ = c(
-    numeric_quantile(covars$educ, 0.25),
-    numeric_quantile(covars$educ, 0.50),
-    numeric_quantile(covars$educ, 0.75),
-    numeric_quantile(covars$educ, 0.90)
+    numeric_quantile(app_lalonde_covars$educ, 0.25),
+    numeric_quantile(app_lalonde_covars$educ, 0.50),
+    numeric_quantile(app_lalonde_covars$educ, 0.75),
+    numeric_quantile(app_lalonde_covars$educ, 0.90)
   ),
   race = factor(
     c("black", "hispan", "white", "black"),
-    levels = levels(covars$race)
+    levels = levels(app_lalonde_covars$race)
   ),
   married = factor(
     c("no", "no", "yes", "yes"),
-    levels = levels(covars$married)
+    levels = levels(app_lalonde_covars$married)
   ),
   nodegree = factor(
     c("yes", "no", "no", "yes"),
-    levels = levels(covars$nodegree)
+    levels = levels(app_lalonde_covars$nodegree)
   ),
   re74 = c(
-    numeric_quantile(covars$re74, 0.20),
-    numeric_quantile(covars$re74, 0.40),
-    numeric_quantile(covars$re74, 0.60),
-    numeric_quantile(covars$re74, 0.80)
+    numeric_quantile(app_lalonde_covars$re74, 0.20),
+    numeric_quantile(app_lalonde_covars$re74, 0.40),
+    numeric_quantile(app_lalonde_covars$re74, 0.60),
+    numeric_quantile(app_lalonde_covars$re74, 0.80)
   ),
   re75 = c(
-    numeric_quantile(covars$re75, 0.20),
-    numeric_quantile(covars$re75, 0.40),
-    numeric_quantile(covars$re75, 0.60),
-    numeric_quantile(covars$re75, 0.80)
+    numeric_quantile(app_lalonde_covars$re75, 0.20),
+    numeric_quantile(app_lalonde_covars$re75, 0.40),
+    numeric_quantile(app_lalonde_covars$re75, 0.60),
+    numeric_quantile(app_lalonde_covars$re75, 0.80)
   ),
   row.names = c("p1", "p2", "p3", "p4"),
   check.names = FALSE
 )
 
+profile_model <- within(profile_raw, {
+  age_z <- (age - app_lalonde_scale_center[["age"]]) /
+    app_lalonde_scale_scale[["age"]]
+  educ_z <- (educ - app_lalonde_scale_center[["educ"]]) /
+    app_lalonde_scale_scale[["educ"]]
+  re74_z <- (re74 - app_lalonde_scale_center[["re74"]]) /
+    app_lalonde_scale_scale[["re74"]]
+  re75_z <- (re75 - app_lalonde_scale_center[["re75"]]) /
+    app_lalonde_scale_scale[["re75"]]
+})
+
 xnew <- stats::model.matrix(
-  x_formula,
-  data = profile_raw
+  app_lalonde_x_formula,
+  data = profile_model
 )[, -1, drop = FALSE]
-xnew <- xnew[, colnames(X), drop = FALSE]
+xnew <- xnew[, colnames(app_lalonde_X), drop = FALSE]
 rownames(xnew) <- profile_raw$profile
 
 

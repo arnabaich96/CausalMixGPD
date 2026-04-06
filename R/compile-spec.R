@@ -374,44 +374,64 @@ compile_model_spec <- function(
         gpd_plan$threshold <- list(mode = "dist", dist = thr_u$dist, args = thr_u$args)
       } else {
         if (!has_X) stop("gpd$threshold link mode requires X.", call. = FALSE)
-        if (identical(backend, "spliced") && !is.null(thr_u$link_dist)) {
-          stop("gpd$threshold link_dist is not supported for backend = 'spliced'.", call. = FALSE)
-        }
+        thr_link <- thr_u[["link", exact = TRUE]] %||% "identity"
+        thr_link_power <- thr_u[["link_power", exact = TRUE]] %||% NULL
+        thr_beta_prior <- thr_u[["beta_prior", exact = TRUE]] %||% default_beta_prior("threshold")
+        thr_link_dist <- thr_u[["link_dist", exact = TRUE]] %||% NULL
         validate_link_spec(
           param_name = "threshold",
-          link = thr_u$link %||% "identity",
-          link_power = thr_u$link_power %||% NULL,
+          link = thr_link,
+          link_power = thr_link_power,
           support = "real",
-          beta_prior = thr_u$beta_prior %||% default_beta_prior("threshold"),
-          link_dist = thr_u$link_dist %||% NULL
+          beta_prior = thr_beta_prior,
+          link_dist = thr_link_dist
         )
         # if user supplies link_dist, keep it; otherwise allow default below
         gpd_plan$threshold <- list(
           mode = "link",
-          link = thr_u$link %||% "identity",
-          link_power = thr_u$link_power %||% NULL,
-          beta_prior = thr_u$beta_prior %||% default_beta_prior("threshold"),
-          link_dist = thr_u$link_dist %||% NULL
+          link = thr_link,
+          link_power = thr_link_power,
+          beta_prior = thr_beta_prior,
+          link_dist = thr_link_dist
         )
       }
     } else {
-      # default: threshold[i] ~ Lognormal(meanlog=Xβ, sdlog_u) when X present; else dist
+      # default threshold behavior:
+      # * all backends with X: threshold follows a link model
+      # * when link_dist is present, threshold is lognormal around the link mean
+      # * no X: scalar dist-mode threshold
       if (has_X) {
         gpd_plan$threshold <- list(
           mode = "link",
           link = "identity",
           beta_prior = default_beta_prior("threshold")
         )
-        if (!identical(backend, "spliced")) {
-          gpd_plan$threshold$link_dist <- list(
-            dist = "lognormal",
-            mean_arg = "meanlog",
-            sd_name = "sdlog_u"
-          )
-          gpd_plan$sdlog_u <- list(mode = "dist", dist = "invgamma", args = list(shape = 2, scale = 1))
-        }
+        gpd_plan$threshold$link_dist <- list(
+          dist = "lognormal",
+          mean_arg = "meanlog",
+          sd_name = "sdlog_u"
+        )
+        gpd_plan$sdlog_u <- list(mode = "dist", dist = "invgamma", args = list(shape = 2, scale = 1))
       } else {
         gpd_plan$threshold <- list(mode = "dist", dist = "gamma", args = list(shape = 2, rate = 1))
+      }
+    }
+    if (!is.null(gpd_plan$threshold$link_dist) &&
+        identical(gpd_plan$threshold$link_dist$dist, "lognormal")) {
+      sdlog_u_u <- user_gpd[["sdlog_u", exact = TRUE]] %||% NULL
+      if (is.null(sdlog_u_u)) {
+        gpd_plan$sdlog_u <- gpd_plan$sdlog_u %||%
+          list(mode = "dist", dist = "invgamma", args = list(shape = 2, scale = 1))
+      } else {
+        sdlog_mode <- sdlog_u_u$mode %||% "dist"
+        if (!identical(sdlog_mode, "dist")) {
+          stop("gpd$sdlog_u must be dist-mode when using threshold link_dist.", call. = FALSE)
+        }
+        gpd_plan$sdlog_u <- list(
+          mode = "dist",
+          dist = sdlog_u_u$dist %||% "invgamma",
+          args = sdlog_u_u$args %||% list(shape = 2, scale = 1)
+        )
       }
     }
 

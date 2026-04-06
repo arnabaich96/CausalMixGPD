@@ -5165,7 +5165,7 @@ test_that("compile_model_spec aligns backend default links and validates link-mo
   expect_true(all(vapply(specs, function(sp) identical(sp$plan$gpd$tail_scale$beta_prior$dist, "normal"), logical(1))))
   expect_equal(specs$sb$plan$gpd$threshold$link_dist$dist, "lognormal")
   expect_equal(specs$crp$plan$gpd$threshold$link_dist$dist, "lognormal")
-  expect_null(specs$spliced$plan$gpd$threshold$link_dist)
+  expect_equal(specs$spliced$plan$gpd$threshold$link_dist$dist, "lognormal")
 
   expect_error(
     compile_model_spec(
@@ -5221,22 +5221,49 @@ test_that("compile_model_spec aligns backend default links and validates link-mo
     "must use dist = 'normal'"
   )
 
-  expect_error(
-    compile_model_spec(
-      y = y,
-      X = X,
-      backend = "spliced",
-      kernel = "normal",
-      GPD = TRUE,
-      components = 3L,
-      param_specs = list(
-        gpd = list(
-          threshold = list(mode = "link", link_dist = list(dist = "lognormal"))
-        )
+  spliced_link_dist <- compile_model_spec(
+    y = y,
+    X = X,
+    backend = "spliced",
+    kernel = "normal",
+    GPD = TRUE,
+    components = 3L,
+    param_specs = list(
+      gpd = list(
+        threshold = list(mode = "link", link_dist = list(dist = "lognormal"))
       )
-    ),
-    "link_dist is not supported"
+    )
   )
+  expect_equal(spliced_link_dist$plan$gpd$threshold$link_dist$dist, "lognormal")
+  expect_equal(spliced_link_dist$plan$gpd$sdlog_u$dist, "invgamma")
+
+  spliced_link_dims <- build_dimensions_from_spec(spliced_link_dist)
+  spliced_link_mons <- build_monitors_from_spec(spliced_link_dist)
+  spliced_link_inits <- build_inits_from_spec(spliced_link_dist, y = y)
+
+  expect_true(all(c("beta_threshold", "threshold_i") %in% names(spliced_link_dims)))
+  expect_true(any(grepl("^beta_threshold\\[", spliced_link_mons)))
+  expect_true(any(grepl("^threshold_i\\[", spliced_link_mons)))
+  expect_true("sdlog_u" %in% spliced_link_mons)
+  expect_true(all(c("beta_threshold", "threshold_i", "sdlog_u") %in% names(spliced_link_inits)))
+
+  bundle_spliced <- build_nimble_bundle(
+    y = y,
+    X = X,
+    backend = "spliced",
+    kernel = "normal",
+    GPD = TRUE,
+    components = 3L,
+    param_specs = list(
+      gpd = list(
+        threshold = list(mode = "link", link_dist = list(dist = "lognormal"))
+      )
+    )
+  )
+  code_spliced <- paste(deparse(.extract_nimble_code(bundle_spliced$code)), collapse = "\n")
+  expect_true(any(grepl("^threshold_i\\[", bundle_spliced$monitors)))
+  expect_match(code_spliced, "threshold_i\\[i, k\\] ~ dlnorm")
+  expect_match(code_spliced, "threshold_i\\[i, z\\[i\\]\\]")
 })
 
 test_that(".configure_samplers preserves conjugate beta_threshold updates", {

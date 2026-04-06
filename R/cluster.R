@@ -369,7 +369,7 @@ build_cluster_bundle <- function(formula,
   constants <- build_constants_from_spec(spec)
   dimensions <- build_dimensions_from_spec(spec)
   data_list <- build_data_from_inputs(y = parsed$y, X = parsed$X)
-  inits <- build_inits_from_spec(spec, y = parsed$y)
+  inits <- build_inits_from_spec(spec, y = parsed$y, X = parsed$X)
   monitors <- build_monitors_from_spec(
     spec,
     monitor_v = isTRUE(monitor_v),

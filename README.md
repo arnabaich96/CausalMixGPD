@@ -1,6 +1,6 @@
 # CausalMixGPD
 
-**CausalMixGPD** implements Dirichlet process mixture models (CRP or stick-breaking) with an optional generalized Pareto tail and a consistent prediction API.
+**CausalMixGPD** provides Dirichlet process mixture modeling (CRP, stick-breaking, and spliced variants) with optional generalized Pareto tails and a unified prediction/causal inference API.
 
 ## Installation
 
@@ -13,24 +13,29 @@ remotes::install_github(
 )
 ```
 
-## Reference
+## Recent Changes (2026-04)
+
+- Added support for lognormal `threshold` link-distributions in GPD workflows, including spliced backend behavior.
+- Improved initialization for stability with covariate-aware threshold/link seeding and stronger latent label starts.
+- Added CRP retry logic for rare all-`-Inf` initialization failures during MCMC startup.
+- Updated wrappers/tests/manuscript examples to align with the new threshold-link and initialization behavior.
+
+## Documentation
 
 - [**Function reference**](https://arnabaich96.github.io/CausalMixGPD/pkgdown/reference/index.html)
+- [**Coverage report**](https://arnabaich96.github.io/CausalMixGPD/coverage/)
 
-## Additional docs
+## Additional Docs
 
 - [**Package roadmap**](https://arnabaich96.github.io/CausalMixGPD/start/roadmap.html)
 
-## Performance Acceptance Workflow
+## Validation Notes
 
-- Acceptance gate tests: `tests/testthat/test-performance-acceptance.R`
-- Checklist-to-test mapping: `tests/perf/acceptance_checklist_map.md`
-- Benchmark script: `tests/perf/benchmark_acceptance.R`
-- Required benchmark artifact: `tests/perf/benchmark_acceptance_report.md`
-- Phase 2 benchmark script: `tests/perf/benchmark_phase2.R`
-- Phase 2 benchmark artifact: `tests/perf/benchmark_phase2_report.md`
+- Performance acceptance tests and benchmark scripts are under `tests/perf/`.
+- Main acceptance test entrypoint: `tests/testthat/test-performance-acceptance.R`.
 
 Use `DPMIXGPD_TEST_LEVEL=ci` for CI-level acceptance checks and
 `DPMIXGPD_TEST_LEVEL=full` for full seeded-equivalence runs.
+
 
 

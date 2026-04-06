@@ -2408,6 +2408,7 @@ residuals.mixgpd_fit <- function(object,
   tail_scale <- NULL
   spliced_gpd_draws <- list()
   spliced_gpd_link <- list()
+  spliced_gpd_obs <- list()
 
   P <- ncol(X)
 
@@ -2492,6 +2493,16 @@ residuals.mixgpd_fit <- function(object,
         if (identical(mode, "link")) {
           beta_arr <- .indexed_block_matrix(draw_mat, paste0("beta_", nm), K = K_sp, P = P, allow_missing = TRUE)
           if (is.null(beta_arr)) stop(sprintf("beta_%s not found in posterior draws.", nm), call. = FALSE)
+          if (identical(nm, "threshold") &&
+              !is.null(ent$link_dist) &&
+              identical(ent$link_dist$dist, "lognormal")) {
+            obs_arr <- .indexed_block_matrix(draw_mat, "threshold_i", allow_missing = TRUE)
+            if (!is.null(obs_arr) &&
+                identical(dim(obs_arr)[2L], n) &&
+                identical(dim(obs_arr)[3L], K_sp)) {
+              spliced_gpd_obs[[nm]] <- obs_arr
+            }
+          }
           spliced_gpd_link[[nm]] <- list(
             beta = beta_arr,
             link = ent$link %||% if (identical(nm, "tail_shape")) "identity" else "exp",
@@ -2616,6 +2627,22 @@ residuals.mixgpd_fit <- function(object,
     ok <- !is.null(.build_args0_or_null(s))
     if (ok && GPD) {
       if (is_spliced) {
+        if (length(spliced_gpd_link)) {
+          gpd_eta <- .compute_spliced_gpd_eta(s)
+          for (nm in names(gpd_eta)) {
+            vals <- as.numeric(gpd_eta[[nm]])
+            if (identical(nm, "tail_scale")) {
+              ok <- all(is.finite(vals) & (vals > 0))
+            } else {
+              ok <- all(is.finite(vals))
+            }
+            if (!ok) break
+          }
+        }
+        if (!ok) {
+          .draw_valid[s] <- FALSE
+          next
+        }
         for (nm in names(spliced_gpd_draws)) {
           vals <- as.numeric(spliced_gpd_draws[[nm]][s, ])
           if (identical(nm, "tail_scale")) {
@@ -2664,6 +2691,10 @@ residuals.mixgpd_fit <- function(object,
     if (!length(spliced_gpd_link)) return(list())
     out <- list()
     for (nm in names(spliced_gpd_link)) {
+      if (!is.null(spliced_gpd_obs[[nm]])) {
+        out[[nm]] <- spliced_gpd_obs[[nm]][s, , , drop = TRUE]
+        next
+      }
       ent <- spliced_gpd_link[[nm]]
       beta_mat <- ent$beta[s, , , drop = TRUE]
       if (is.null(dim(beta_mat))) beta_mat <- matrix(beta_mat, nrow = ncol(W_draws), ncol = P)

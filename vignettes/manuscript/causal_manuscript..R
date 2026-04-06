@@ -49,8 +49,7 @@ app_lalonde_fit <- dpmgpd.causal(
   backend = "crp",
   kernel = "gamma",
   components = 10,
-  mcmc = mcmc_fixed,
-  parallel_arms =TRUE
+  mcmc = mcmc_fixed
 )
 
 data.frame(app_lalonde_fit$timing, row.names = NULL)

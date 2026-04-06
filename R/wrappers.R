@@ -187,7 +187,7 @@
   b$code <- .wrap_nimble_code(build_code_from_spec(b$spec))
   b$constants <- build_constants_from_spec(b$spec)
   b$dimensions <- build_dimensions_from_spec(b$spec)
-  b$inits <- build_inits_from_spec(b$spec, y = b$data$y)
+  b$inits <- build_inits_from_spec(b$spec, y = b$data$y, X = b$data$X %||% NULL)
   pol <- b$monitor_policy %||% list()
   b$monitors <- build_monitors_from_spec(
     b$spec,
